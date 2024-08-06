@@ -3432,7 +3432,70 @@ void res_tracer_proc(const clipper::Xmap<float> &xmap, float xmap_rmsd, const co
                                                             }
                                                          };
 
-   auto insert_residues_from_other_chains = [add_or_insert_residue] (mmdb::Manager *mol, const std::vector<std::string> &chain_ids) {
+   auto move_atoms = [] (mmdb::Residue *res_from, mmdb::Residue *res_to) {
+
+      mmdb::Atom **residue_atoms = 0;
+      int n_residue_atoms = 0;
+      res_from->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (int iat=0; iat<n_residue_atoms; iat++) {
+         mmdb::Atom *at = residue_atoms[iat];
+         if (! at->isTer()) {
+
+            std::string atom_name_from(at->GetAtomName());
+
+            mmdb::Atom **to_residue_atoms = 0;
+            int n_to_residue_atoms = 0;
+            res_to->GetAtomTable(to_residue_atoms, n_to_residue_atoms);
+            for (int jat=0; jat<n_to_residue_atoms; jat++) {
+               mmdb::Atom *at_to = to_residue_atoms[jat];
+               if (! at_to->isTer()) {
+                  std::string atom_name_to(at_to->GetAtomName());
+                  if (atom_name_to == atom_name_from) {
+                     std::cout << "moving atom " << coot::atom_spec_t(at_to) << std::endl;
+                     at_to->x = at->x;
+                     at_to->y = at->y;
+                     at_to->z = at->z;
+                     break;
+                  }
+               }
+            }
+         }
+      }
+   };
+
+   auto master_chain_residue_is_closer_to_an_end = [] (mmdb::Chain *master_chain_p, mmdb::Chain *other_chain_p, int res_no) {
+
+      bool status = false;
+      if (master_chain_p->GetNumberOfResidues() > 2) {
+         if (other_chain_p->GetNumberOfResidues() > 2) {
+            int idx_1 = master_chain_p->GetNumberOfResidues() - 1;
+            int idx_2 =  other_chain_p->GetNumberOfResidues() - 1;
+            mmdb::Residue *first_residue_master_chain_p = master_chain_p->GetResidue(0);
+            mmdb::Residue *first_residue_other_chain_p  =  other_chain_p->GetResidue(0);
+            mmdb::Residue *last_residue_master_chain_p  = master_chain_p->GetResidue(idx_1);
+            mmdb::Residue *last_residue_other_chain_p   =  other_chain_p->GetResidue(idx_2);
+            int resno_master_start = first_residue_master_chain_p->GetSeqNum();
+            int resno_master_end   =  last_residue_master_chain_p->GetSeqNum();
+            int resno_other_start  =  first_residue_other_chain_p->GetSeqNum();
+            int resno_other_end    =   last_residue_other_chain_p->GetSeqNum();
+            if (res_no >= resno_master_start) {
+               if (res_no >= resno_other_start) {
+                  if (res_no <= resno_master_end) {
+                     if (res_no <= resno_other_end) {
+                        if ((res_no - resno_master_start) < (res_no - resno_other_start)) status = true;
+                        if ((resno_master_end - res_no) < (resno_other_end - res_no)) status = true;
+                        return status;
+                     }
+                  }
+               }
+            }
+         }
+      }
+      return false;
+   };
+
+   auto insert_residues_from_other_chains = [add_or_insert_residue, move_atoms, master_chain_residue_is_closer_to_an_end]
+      (mmdb::Manager *mol, const std::vector<std::string> &chain_ids) {
 
                                                int imol = 1;
                                                mmdb::Model *model_p = mol->GetModel(imol);
@@ -3443,31 +3506,56 @@ void res_tracer_proc(const clipper::Xmap<float> &xmap, float xmap_rmsd, const co
                                                int min_res_no =  99999;
                                                int max_res_no = -99999;
                                                std::vector<mmdb::Chain *> remaining_chains;
+
+                                               // set max_res_no and min_res_no and fill remaining_chains
                                                for (int ichain=0; ichain<n_chains; ichain++) {
                                                   mmdb::Chain *chain_p = model_p->GetChain(ichain);
                                                   std::string chain_id(chain_p->GetChainID()); // do I need to check that this is in chain_ids?
-                                                  if (chain_p) {
-                                                     if (std::find(chain_ids.begin(), chain_ids.end(), chain_id) != chain_ids.end()) {
-                                                        remaining_chains.push_back(chain_p);
-                                                        std::cout << "Remaining chain (for this sequence) " << chain_id << std::endl;
-                                                        int n_res = chain_p->GetNumberOfResidues();
-                                                        for (int ires=0; ires<n_res; ires++) {
-                                                           mmdb::Residue *residue_p = chain_p->GetResidue(ires);
-                                                           if (residue_p) {
-                                                              int res_no = residue_p->GetSeqNum();
-                                                              if (res_no > max_res_no) max_res_no = res_no;
-                                                              if (res_no < min_res_no) min_res_no = res_no;
-                                                           }
+                                                  if (std::find(chain_ids.begin(), chain_ids.end(), chain_id) != chain_ids.end()) {
+                                                     remaining_chains.push_back(chain_p);
+                                                     std::cout << "Remaining chain (for this sequence) " << chain_id << std::endl;
+                                                     int n_res = chain_p->GetNumberOfResidues();
+                                                     for (int ires=0; ires<n_res; ires++) {
+                                                        mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                                                        if (residue_p) {
+                                                           int res_no = residue_p->GetSeqNum();
+                                                           if (res_no > max_res_no) max_res_no = res_no;
+                                                           if (res_no < min_res_no) min_res_no = res_no;
                                                         }
                                                      }
                                                   }
                                                }
+
                                                if (remaining_chains.size() > 1) {
                                                   int n_remaining_chains = remaining_chains.size();
-                                                  mmdb::Chain *master_chain = remaining_chains[0];
+                                                  mmdb::Chain *master_chain_p = remaining_chains[0];
+                                                  std::cout << "making " << master_chain_p->GetChainID() << " as Master chain" << std::endl;
                                                   for (int res_no = min_res_no; res_no <= max_res_no; res_no++) {
-                                                     mmdb::Residue *residue_p = master_chain->GetResidue(res_no, "");
-                                                     if (! residue_p) {
+                                                     mmdb::Residue *residue_p = master_chain_p->GetResidue(res_no, "");
+                                                     if (residue_p) {
+                                                        // are there other versions of this residue that are better than this version?
+
+                                                        for (int ich=1; ich<n_remaining_chains; ich++) {
+                                                           mmdb::Chain *rem_chain_p = remaining_chains[ich];
+                                                           if (rem_chain_p) {
+                                                              mmdb::Residue *rem_residue_p = rem_chain_p->GetResidue(res_no, "");
+                                                              if (rem_residue_p) {
+
+                                                                 if (true) {
+                                                                    bool near_status = master_chain_residue_is_closer_to_an_end(master_chain_p, rem_chain_p, res_no);
+                                                                    std::cout << "   " << master_chain_p->GetChainID() << " vs " << rem_chain_p->GetChainID()
+                                                                              << " for residue " << res_no << " gives " << near_status << std::endl;
+                                                                 }
+
+                                                                 if (master_chain_residue_is_closer_to_an_end(master_chain_p, rem_chain_p, res_no)) {
+                                                                    // so the other residue is more robust, we presume
+                                                                    move_atoms(rem_residue_p, residue_p);
+                                                                 }
+                                                              }
+                                                           }
+                                                        }
+
+                                                     } else {
                                                         // OK can we find this residue in another chain?
                                                         for (int ich=1; ich<n_remaining_chains; ich++) {
                                                            mmdb::Chain *rem_chain_p = remaining_chains[ich];
@@ -3475,7 +3563,10 @@ void res_tracer_proc(const clipper::Xmap<float> &xmap, float xmap_rmsd, const co
                                                               mmdb::Residue *rem_residue_p = rem_chain_p->GetResidue(res_no, "");
                                                               if (rem_residue_p) {
                                                                  mmdb::Residue *residue_copy_p = coot::util::deep_copy_this_residue(rem_residue_p);
-                                                                 add_or_insert_residue(residue_copy_p, master_chain);
+                                                                 std::cout << "   calling add_or_insert_residue() " << coot::residue_spec_t(residue_copy_p)
+                                                                           << " from chain " << rem_chain_p->GetChainID()
+                                                                           << " into (master) chain " << master_chain_p->GetChainID() << std::endl;
+                                                                 add_or_insert_residue(residue_copy_p, master_chain_p);
                                                                  mol->FinishStructEdit();
                                                                  break;
                                                               }
@@ -3534,7 +3625,7 @@ void res_tracer_proc(const clipper::Xmap<float> &xmap, float xmap_rmsd, const co
                                                                    if (chain_pair.first && chain_pair.second) {
                                                                       std::cout << "    testing chains " << chain_id_1 << " " << chain_id_2 << std::endl;
                                                                       if (is_simply_insertable_fragment(chain_pair.first, chain_pair.second)) {
-                                                                         std::cout << "     insert chain " << chain_id_2 << " into " << chain_id_1 << std::endl;
+                                                                         std::cout << "       insert chain " << chain_id_2 << " into " << chain_id_1 << std::endl;
                                                                          simply_insert_chain(chain_pair.first, chain_pair.second, mol);
                                                                          model_p->DeleteChain(chain_id_2.c_str());
                                                                          mol->FinishStructEdit();
@@ -3546,6 +3637,8 @@ void res_tracer_proc(const clipper::Xmap<float> &xmap, float xmap_rmsd, const co
                                                           }
                                                        }
                                                     }
+
+                                                    mol->WritePDBASCII("merge-and-delete-sequenced-fragments-into-single-chain-part-way.pdb");
 
                                                     insert_residues_from_other_chains(mol, chain_ids);
                                                  }

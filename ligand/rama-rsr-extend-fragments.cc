@@ -859,7 +859,8 @@ rama_rsr_extend_fragments(mmdb::Manager *mol, const clipper::Xmap<float> &xmap, 
                                      coot::minimol::molecule m(frag); // because I don't want to rewrite add_CB_to_residue_maybe() and add_residues_to_chain()
 
                                      if (true) { // debugging
-                                        std::cout << "DEBUG:: in build_3_keep_1():         for chain-id " << chain_id << " terminus type " << terminus_type
+                                        std::cout << "DEBUG::                   in build_3_keep_1(): with chain-id " << chain_id
+                                                  << " terminus type " << terminus_type
                                                   << " residue_p with index : " << residue_index << " " << coot::residue_spec_t(residue_p)
                                                   << " densities " << average_density_per_atom_for_molecule
                                                   << " AA-crit: " << crit_sf * average_density_per_atom_for_molecule << " this_residue_av: " << av << " ";
