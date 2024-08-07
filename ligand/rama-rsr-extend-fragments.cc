@@ -108,7 +108,7 @@ rama_rsr_extend_fragments(mmdb::Manager *mol, const clipper::Xmap<float> &xmap, 
                                               return std::make_pair(sum, n_atoms);
                                            };
 
-   
+
    // return the sum and the count - this is the the 3 residue case - with occupancy weighting
    auto get_density_score_for_new_residues_frag = [&xmap] (const coot::minimol::fragment &frag) { // capture xmap by reference
 
@@ -140,13 +140,19 @@ rama_rsr_extend_fragments(mmdb::Manager *mol, const clipper::Xmap<float> &xmap, 
       if (terminus_type == "N")
          ires = res_no_base - 1;
       // std::cout << "debug:: get_density_score_for_new_residue_in_frag() selected residue " << ires << std::endl;
-      for (unsigned int iat=0; iat<frag[ires].atoms.size(); iat++) {
-         const clipper::Coord_orth atom_pos(frag[ires][iat].pos);
-         float f = coot::util::density_at_point(xmap, atom_pos);
-         const float &w = frag[ires][iat].occupancy;
-         sum += f * w;
-         sum_w += w;
-         n_atoms++;
+      try {
+         for (unsigned int iat=0; iat<frag[ires].atoms.size(); iat++) {
+            const clipper::Coord_orth atom_pos(frag[ires][iat].pos);
+            float f = coot::util::density_at_point(xmap, atom_pos);
+            const float &w = frag[ires][iat].occupancy;
+            sum += f * w;
+            sum_w += w;
+            n_atoms++;
+         }
+      }
+      catch (const std::runtime_error &rte) {
+         std::cout << "ERROR:: in get_density_score_for_new_residue_in_frag() with res_no_base " << res_no_base
+                   << " terminus_type: " << terminus_type << " " << rte.what() << std::endl;
       }
       return std::make_pair(sum/sum_w, n_atoms);
    };
@@ -695,7 +701,7 @@ rama_rsr_extend_fragments(mmdb::Manager *mol, const clipper::Xmap<float> &xmap, 
                                         float av = density_sum_for_new_residues.first/static_cast<float>(density_sum_for_new_residues.second);
                                         std::cout << "debug:: in extend_this_chain " << chain_id << " terminus type " << terminus_type
                                                   << " residue_p with index : " << residue_index << " " << coot::residue_spec_t(residue_p)
-                                                  << " densities " << average_density_per_atom_for_molecule
+                                                  << " av-densities " << average_density_per_atom_for_molecule
                                                   << " BB-crit: " << 0.6 * average_density_per_atom_for_molecule << " this_residue_av: " << av << std::endl;
                                         if (av > 0.6 * average_density_per_atom_for_molecule) {
                                            add_CB_to_residue_maybe(&m, xmap, average_density_per_atom_for_molecule);
@@ -795,7 +801,7 @@ rama_rsr_extend_fragments(mmdb::Manager *mol, const clipper::Xmap<float> &xmap, 
                                                            const coot::protein_geometry &geom) {
 
                             // make this a user-setable param?
-                            float crit_sf = 0.345; // the critcal ratio between the density for the new fragment and the average density for the model so far
+                            float crit_sf = 0.2345; // the critcal ratio between the density for the new fragment and the average density for the model so far
 
                             // I want to see the residues that failed the density cut-off. is crit_sf too strict for loops, say?
 
@@ -862,7 +868,7 @@ rama_rsr_extend_fragments(mmdb::Manager *mol, const clipper::Xmap<float> &xmap, 
                                         std::cout << "DEBUG::                   in build_3_keep_1(): with chain-id " << chain_id
                                                   << " terminus type " << terminus_type
                                                   << " residue_p with index : " << residue_index << " " << coot::residue_spec_t(residue_p)
-                                                  << " densities " << average_density_per_atom_for_molecule
+                                                  << " av-densities " << average_density_per_atom_for_molecule
                                                   << " AA-crit: " << crit_sf * average_density_per_atom_for_molecule << " this_residue_av: " << av << " ";
                                         if (av < crit_sf * average_density_per_atom_for_molecule)
                                            std::cout << "Low density" << std::endl;
@@ -966,7 +972,7 @@ rama_rsr_extend_fragments(mmdb::Manager *mol, const clipper::Xmap<float> &xmap, 
             status = build_3_keep_1(chain_mol_pair.first, chain_mol_pair.second, terminus_type,
                                     average_density_per_atom, weight, n_phi_psi_trials, geom);
             if (status) (*update_count)++;
-            std::cout << "&&&&&&& extend_chain_func() build_3_keep_1() with chain-id " << chain_mol_pair.first->GetChainID()
+            std::cout << "&&&&&&& extend_chain_func(): build_3_keep_1(): with chain-id " << chain_mol_pair.first->GetChainID()
                       << " terminus_type " << terminus_type
                       << " returns with status " << status << std::endl;
          } while (status);
