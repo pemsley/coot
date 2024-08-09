@@ -149,6 +149,7 @@ GtkApplicationWindow* coot::layla::setup_main_window(GtkApplication* app, GtkBui
     GtkGrid* smiles_display_grid = (GtkGrid*) gtk_builder_get_object(builder, "layla_smiles_display_grid");
     g_signal_connect(canvas, "smiles-changed", G_CALLBACK(+[](CootLigandEditorCanvas* self, gpointer user_data){
         GtkGrid* display_grid = GTK_GRID(user_data);
+        // Don't clear the widget all the time. It will create horrible mess
         // for(auto* i = gtk_widget_get_first_child(GTK_WIDGET(display_grid)); i != nullptr; gtk_widget_get_next_sibling(GTK_WIDGET(display_grid))) {
         //     gtk_grid_remove(display_grid, i);
         // }
@@ -158,6 +159,11 @@ GtkApplicationWindow* coot::layla::setup_main_window(GtkApplication* app, GtkBui
             
             // todo
         }
+    }), smiles_display_grid);
+
+    g_signal_connect(canvas, "molecule-deleted", G_CALLBACK(+[](CootLigandEditorCanvas* self, unsigned int deleted_mol_idx, gpointer user_data){
+        GtkGrid* display_grid = GTK_GRID(user_data);
+        // todo: delete row with the deleted molecule
     }), smiles_display_grid);
 
     GtkNotebook* qed_notebook = (GtkNotebook*) gtk_builder_get_object(builder, "layla_qed_notebook");
