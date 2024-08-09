@@ -153,17 +153,52 @@ GtkApplicationWindow* coot::layla::setup_main_window(GtkApplication* app, GtkBui
         // for(auto* i = gtk_widget_get_first_child(GTK_WIDGET(display_grid)); i != nullptr; gtk_widget_get_next_sibling(GTK_WIDGET(display_grid))) {
         //     gtk_grid_remove(display_grid, i);
         // }
+        auto get_widget_for_mol_id = [display_grid](unsigned int id) -> GtkWidget* {
+            for(auto* i = gtk_widget_get_first_child(GTK_WIDGET(display_grid)); i != nullptr; gtk_widget_get_next_sibling(GTK_WIDGET(display_grid))) {
+                if(g_object_get_data(G_OBJECT(i),"is_id_label")) {
+                    continue;
+                }
+                gpointer mol_id_gptr = g_object_get_data(G_OBJECT(i),"mol_id");
+                if(mol_id_gptr) {
+                    if(GPOINTER_TO_UINT(mol_id_gptr) == id) {
+                        return i;
+                    }
+                }
+            }
+            return nullptr;
+        };
 
         auto smiles_map = coot_ligand_editor_canvas_get_smiles(self);
         for(const auto& [mol_idx, smiles_code] : smiles_map) {
-            
-            // todo
+            auto* widget_ptr = get_widget_for_mol_id(mol_idx);
+            if(widget_ptr) {
+                // Non-label widget means that we're currently editing
+                // the smiles of this molecule (and thus, we ignore it here)
+                if(GTK_IS_LABEL(widget_ptr)) {
+                    gtk_label_set_text(GTK_LABEL(widget_ptr), smiles_code.c_str());
+                }
+            } else {
+                // Create widgets
+                auto l_str = std::to_string(mol_idx) + ":";
+                GtkLabel* label = (GtkLabel*) gtk_label_new(l_str.c_str());
+                g_object_set_data(G_OBJECT(label), "is_id_label", TRUE);
+            }
         }
     }), smiles_display_grid);
 
     g_signal_connect(canvas, "molecule-deleted", G_CALLBACK(+[](CootLigandEditorCanvas* self, unsigned int deleted_mol_idx, gpointer user_data){
         GtkGrid* display_grid = GTK_GRID(user_data);
-        // todo: delete row with the deleted molecule
+        for(auto* i = gtk_widget_get_first_child(GTK_WIDGET(display_grid)); i != nullptr; gtk_widget_get_next_sibling(GTK_WIDGET(display_grid))) {
+            // if(g_object_get_data(G_OBJECT(i),"is_id_label")) {
+            //     continue;
+            // }
+            gpointer mol_id_gptr = g_object_get_data(G_OBJECT(i),"mol_id");
+            if(mol_id_gptr) {
+                if(GPOINTER_TO_UINT(mol_id_gptr) == deleted_mol_idx) {
+                    gtk_grid_remove(display_grid, i);
+                }
+            }
+        }
     }), smiles_display_grid);
 
     GtkNotebook* qed_notebook = (GtkNotebook*) gtk_builder_get_object(builder, "layla_qed_notebook");
