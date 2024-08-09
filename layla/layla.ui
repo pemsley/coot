@@ -1407,10 +1407,17 @@ Add a new atom or replace an existent atom with the chosen element.
             <child>
               <object class="GtkScrolledWindow" id="layla_smiles_textview_sw">
                 <property name="child">
-                  <object class="GtkTextView" id="layla_smiles_textview">
-                    <property name="editable">False</property>
-                    <property name="hexpand">True</property>
-                    <property name="monospace">True</property>
+                  <object class="GtkBox" id="layla_smiles_display_box">
+                    <property name="orientation">horizontal</property>
+                    <property name="child">
+                      <!-- This will have to be removed -->
+                      <object class="GtkTextView" id="layla_smiles_textview">
+                        <property name="editable">False</property>
+                        <property name="hexpand">True</property>
+                        <property name="monospace">True</property>
+                      </object>
+                    </property>
+
                   </object>
                 </property>
               </object>

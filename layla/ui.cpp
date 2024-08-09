@@ -146,6 +146,14 @@ GtkApplicationWindow* coot::layla::setup_main_window(GtkApplication* app, GtkBui
     }), scale_spinbutton);
 
 
+    GtkBox* smiles_display_box = (GtkBox*) gtk_builder_get_object(builder, "layla_smiles_display_box");
+    g_signal_connect(canvas, "smiles-changed", G_CALLBACK(+[](CootLigandEditorCanvas* self, gpointer user_data){
+        GtkBox* display_box = GTK_BOX(user_data);
+        auto smiles_map = coot_ligand_editor_canvas_get_smiles(self);
+        // todo
+    }), smiles_display_box);
+
+    // The text view code will be removed soon
     GtkTextView* smiles_display = (GtkTextView*) gtk_builder_get_object(builder, "layla_smiles_textview");
     g_signal_connect(canvas, "smiles-changed", G_CALLBACK(+[](CootLigandEditorCanvas* self, gpointer user_data){
         GtkTextView* view = GTK_TEXT_VIEW(user_data);
