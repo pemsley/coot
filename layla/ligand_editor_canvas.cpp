@@ -614,7 +614,9 @@ void coot_ligand_editor_canvas_update_molecule_from_smiles(CootLigandEditorCanva
         if(mol_ptr) {
             self->begin_edition();
             *target_mol_opt->get() = std::move(*mol_ptr);
-            (*self->molecules)[molecule_idx]->lower_from_rdkit(!self->allow_invalid_molecules);
+            auto& widget_mol = (*self->molecules)[molecule_idx];
+            widget_mol->clear_cached_atom_coordinate_map();
+            widget_mol->lower_from_rdkit(!self->allow_invalid_molecules);
             self->finalize_edition();
             self->update_status("Molecule updated from SMILES.");
             delete mol_ptr;
