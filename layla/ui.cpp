@@ -150,19 +150,24 @@ GtkApplicationWindow* coot::layla::setup_main_window(GtkApplication* app, GtkBui
     g_signal_connect(canvas, "smiles-changed", G_CALLBACK(+[](CootLigandEditorCanvas* self, gpointer user_data){
         GtkGrid* display_grid = GTK_GRID(user_data);
         // Don't clear the widget all the time. It will create horrible mess
-        // for(auto* i = gtk_widget_get_first_child(GTK_WIDGET(display_grid)); i != nullptr; gtk_widget_get_next_sibling(GTK_WIDGET(display_grid))) {
+        // for(auto* i = gtk_widget_get_first_child(GTK_WIDGET(display_grid)); i != nullptr; i = gtk_widget_get_next_sibling(GTK_WIDGET(i))) {
         //     gtk_grid_remove(display_grid, i);
         // }
         auto get_widget_for_mol_id = [display_grid](unsigned int id) -> GtkWidget* {
-            for(auto* i = gtk_widget_get_first_child(GTK_WIDGET(display_grid)); i != nullptr; i = gtk_widget_get_next_sibling(GTK_WIDGET(display_grid))) {
-                if(g_object_get_data(G_OBJECT(i),"is_id_label")) {
+            for(auto* i = gtk_widget_get_first_child(GTK_WIDGET(display_grid)); i != nullptr; i = gtk_widget_get_next_sibling(GTK_WIDGET(i))) {
+                if(! GTK_IS_EDITABLE_LABEL(i)) {
+                    // g_info("Skipping widget of type %s", G_OBJECT_TYPE_NAME(i));
                     continue;
                 }
+                // g_info("Inspecting a widget for \"mol_id\"");
                 gpointer mol_id_gptr = g_object_get_data(G_OBJECT(i),"mol_id");
                 if(mol_id_gptr) {
-                    if(GPOINTER_TO_UINT(mol_id_gptr) == id) {
+                    // Differeniate between nullptr and zero
+                    if(GPOINTER_TO_UINT(mol_id_gptr) - 1 == id) {
                         return i;
                     }
+                } else {
+                    // g_info("Skipping null gpointer");
                 }
             }
             return nullptr;
@@ -173,19 +178,23 @@ GtkApplicationWindow* coot::layla::setup_main_window(GtkApplication* app, GtkBui
             auto* widget_ptr = get_widget_for_mol_id(mol_idx);
             if(widget_ptr) {
                 if(! gtk_editable_label_get_editing(GTK_EDITABLE_LABEL(widget_ptr))) {
-                // if(GTK_IS_LABEL(widget_ptr)) {
+                    g_info("Updating SMILES text for mol %u", mol_idx);
                     gtk_editable_set_text(GTK_EDITABLE(widget_ptr), smiles_code.c_str());
+                } else {
+                    g_info("Not updating SMILES for mol %u, with SMILES text currently being edited.", mol_idx);
                 }
             } else {
+                g_info("Creating SMILES row for mol %u ", mol_idx);
                 // Create widgets
                 auto l_str = std::to_string(mol_idx) + ":";
                 GtkLabel* label = (GtkLabel*) gtk_label_new(l_str.c_str());
-                g_object_set_data(G_OBJECT(label), "is_id_label", (gpointer) TRUE);
-                // todo: attach
+                // Differeniate between nullptr and zero
+                g_object_set_data(G_OBJECT(label), "mol_id", GUINT_TO_POINTER(mol_idx + 1));
                 gtk_grid_attach(display_grid, GTK_WIDGET(label), 0, mol_idx, 1, 1);
+
                 GtkEditableLabel* smiles_label =  (GtkEditableLabel*) gtk_editable_label_new(smiles_code.c_str());
-                g_object_set_data(G_OBJECT(smiles_label), "is_id_label", (gpointer) FALSE);
-                // todo: attach
+                // Differeniate between nullptr and zero
+                g_object_set_data(G_OBJECT(smiles_label), "mol_id", GUINT_TO_POINTER(mol_idx + 1));
                 gtk_grid_attach(display_grid, GTK_WIDGET(smiles_label), 1, mol_idx, 1, 1);
             }
         }
@@ -193,16 +202,22 @@ GtkApplicationWindow* coot::layla::setup_main_window(GtkApplication* app, GtkBui
 
     g_signal_connect(canvas, "molecule-deleted", G_CALLBACK(+[](CootLigandEditorCanvas* self, unsigned int deleted_mol_idx, gpointer user_data){
         GtkGrid* display_grid = GTK_GRID(user_data);
-        for(auto* i = gtk_widget_get_first_child(GTK_WIDGET(display_grid)); i != nullptr; i = gtk_widget_get_next_sibling(GTK_WIDGET(display_grid))) {
+        // Prevents iterator invalidation
+        std::vector<GtkWidget*> to_be_removed(2);
+        for(auto* i = gtk_widget_get_first_child(GTK_WIDGET(display_grid)); i != nullptr; i = gtk_widget_get_next_sibling(GTK_WIDGET(i))) {
             // if(g_object_get_data(G_OBJECT(i),"is_id_label")) {
             //     continue;
             // }
             gpointer mol_id_gptr = g_object_get_data(G_OBJECT(i), "mol_id");
             if(mol_id_gptr) {
-                if(GPOINTER_TO_UINT(mol_id_gptr) == deleted_mol_idx) {
-                    gtk_grid_remove(display_grid, i);
+                // Differeniate between nullptr and zero
+                if(GPOINTER_TO_UINT(mol_id_gptr) - 1 == deleted_mol_idx) {
+                    to_be_removed.push_back(i);
                 }
             }
+        }
+        for(const auto& i: to_be_removed) {
+            gtk_grid_remove(display_grid, i);
         }
     }), smiles_display_grid);
 
