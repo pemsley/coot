@@ -36,6 +36,7 @@
 
 #include <clipper/core/xmap.h>
 #include "utils/ctpl.h"
+#include "utils/coot-fasta.hh"
 #include "coot-utils/atom-selection-container.hh"
 #include "coot-utils/coot-rama.hh"
 #include "coot-utils/sfcalc-genmap.hh"
@@ -432,6 +433,9 @@ namespace coot {
 
          indexed_user_defined_colour_selection_cids_apply_to_non_carbon_atoms_also = true;
       }
+
+      // chain-id (maybe) and plain sequence.
+      coot::fasta_multi multi_fasta_seq;
 
       static std::string file_to_string(const std::string &fn);
 
@@ -856,6 +860,10 @@ namespace coot {
                            const std::string &alt_conf,
                            const clipper::Xmap<float> &xmap, const coot::protein_geometry &pg);
 
+      std::pair<bool,float> backrub_rotamer(mmdb::Residue *residue_p,
+                                            const clipper::Xmap<float> &xmap,
+                                            const coot::protein_geometry &pg);
+
       std::pair<bool,float> backrub_rotamer(const std::string &chain_id, int res_no,
                                             const std::string &ins_code, const std::string &alt_conf,
                                             const clipper::Xmap<float> &xmap,
@@ -1047,6 +1055,11 @@ namespace coot {
       rotamer_change_info_t change_rotamer_number(const coot::residue_spec_t &res_spec, const std::string &alt_conf,
                                            int rotamer_change_direction,
                                            const coot::protein_geometry &pg);
+
+      void associate_sequence_with_molecule(const std::string &chain_id, const std::string &sequence);
+
+      //! try to fit all of the sequences to all of the chains
+      void assign_sequence(const clipper::Xmap<float> &xmap, const coot::protein_geometry &geom);
 
       // ----------------------- merge molecules
 

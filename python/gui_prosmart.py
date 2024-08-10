@@ -78,7 +78,7 @@ def add_module_restraints():
 
     def generate_all_molecule_self_restraints(val):
         with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code, aa_atom_name, aa_alt_conf]:
-            generate_self_restraints(aa_imol, val)
+            coot.generate_self_restraints(aa_imol, val)
 
     def generate_self_restraint_func(sig):
         with coot_utils.UsingActiveAtom() as [aa_imol, aa_chain_id, aa_res_no, aa_ins_code, aa_atom_name, aa_alt_conf]:

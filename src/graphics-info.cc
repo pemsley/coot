@@ -817,73 +817,9 @@ graphics_info_t::update_ramachandran_plot_point_maybe(int imol, mmdb::Atom *atom
 void
 graphics_info_t::update_ramachandran_plot_point_maybe(int imol, const coot::residue_spec_t &res_spec) {
 
-#ifdef HAVE_GOOCANVAS
-   GtkWidget *w = coot::get_validation_graph(imol, coot::RAMACHANDRAN_PLOT);
-   if (w) {
-      coot::rama_plot *plot = static_cast<coot::rama_plot *> (g_object_get_data(G_OBJECT(w), "rama_plot"));
-
-      plot->big_square(res_spec.chain_id, res_spec.res_no, res_spec.ins_code);
-      // need to put show appropriate background here. Make a function to show
-      // background by passing residue spec.
-      update_ramachandran_plot_background_from_res_spec(plot, imol, res_spec);
-   }
-#endif
-
 }
 #endif // DO_RAMA_PLOT
 
-#ifdef HAVE_GOOCANVAS
-void
-graphics_info_t::update_ramachandran_plot_background_from_res_spec(coot::rama_plot *plot, int imol,
-                                                                   const coot::residue_spec_t &res_spec) {
-
-   std::string res_name = residue_name(imol, res_spec.chain_id, res_spec.res_no,
-                                       res_spec.ins_code);
-
-#ifdef CLIPPER_HAS_TOP8000
-   bool is_pre_pro = 0;
-   coot::residue_spec_t next_res_spec = res_spec.next();
-   if (next_res_spec.res_no != res_spec.res_no) {
-      // we have next res
-      std::string next_res_name = residue_name(imol, next_res_spec.chain_id,
-                                               next_res_spec.res_no,
-                                               next_res_spec.ins_code);
-      if (next_res_name == "PRO")
-         is_pre_pro = 1;
-   }
-
-   if (res_name == "GLY") {
-      plot->show_background(plot->bg_gly);
-   } else {
-      if (res_name == "PRO") {
-         plot->show_background(plot->bg_pro);
-      } else {
-         if (is_pre_pro) {
-         // pre-pro
-            plot->show_background(plot->bg_pre_pro);
-         } else {
-            if ((res_name == "ILE") || (res_name == "VAL")) {
-               plot->show_background(plot->bg_ileval);
-            } else {
-               plot->show_background(plot->bg_non_gly_pro_pre_pro_ileval);
-            }
-         }
-      }
-   }
-#else
-   if (res_name == "GLY") {
-      plot->show_background(plot->bg_gly);
-   } else {
-      if (res_name == "PRO") {
-         plot->show_background(plot->bg_pro);
-      } else {
-         plot->show_background(plot->bg_non_gly_pro);
-      }
-   }
-#endif // CLIPPER_HAS_TOP8000
-
-}
-#endif // HAVE_GOOCANVAS
 
 #ifdef DO_RAMA_PLOT
 // called from accept_moving_atoms()

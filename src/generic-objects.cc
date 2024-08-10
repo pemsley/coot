@@ -525,7 +525,7 @@ void set_display_all_generic_objects(int state) {
    graphics_info_t g;
    GtkWidget *grid = widget_from_builder("generic_objects_dialog_grid");
    if (g.generic_objects_dialog) {
-      unsigned int n_rows = 104;
+      unsigned int n_rows = 10004;
       for (unsigned int i_row=0; i_row<n_rows; i_row++) {
          GtkWidget *checkbutton = gtk_grid_get_child_at(GTK_GRID(grid), 1, i_row);
          if (! checkbutton) break;

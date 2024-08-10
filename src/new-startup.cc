@@ -998,6 +998,8 @@ int new_startup(int argc, char **argv) {
    curl_global_init(CURL_GLOBAL_NOTHING); // nothing extra (e.g. ssl or WIN32)
 #endif
 
+   coot::set_realpath_for_coot_executable(argv[0]);
+
    mmdb::InitMatType();
 
    // setup_symm_lib();

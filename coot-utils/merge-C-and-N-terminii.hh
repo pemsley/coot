@@ -41,7 +41,8 @@ namespace coot {
                                const clipper::Xmap<float> &xmap,
                                bool use_symmetry=true, bool using_missing_loop_fit=true);
 
-   void merge_C_and_N_terminii_0_gap(mmdb::Manager *mol);
+   void merge_C_and_N_terminii_0_gap(mmdb::Manager *mol); // don't use a map
+   void merge_C_and_N_terminii_0_gap(mmdb::Manager *mol, const clipper::Xmap<float> &xmap);
 
 }
 

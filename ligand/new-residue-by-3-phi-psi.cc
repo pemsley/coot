@@ -24,6 +24,8 @@
  *
  */
 
+#include <filesystem>
+
 #include "compat/coot-sysdep.h"
 #include "coot-utils/coot-coord-utils.hh"
 #include "coot-utils/coot-map-utils.hh"
@@ -348,15 +350,22 @@ float
 coot::new_residue_by_3_phi_psi::score_fragment_using_peptide_fingerprint(const minimol::fragment &frag,
                                                                          const connecting_atoms_t &current_res_pos,
                                                                          const clipper::Xmap<float> &xmap,
-                                                                         int res_no_base, int i_trial) {
+                                                                         float map_rmsd,
+                                                                         int res_no_base,
+                                                                         const std::string &term_type, int i_trial) {
 
    bool add_Os = true;
    float score = 0.0;
    float w_sum = 0.0;
 
-   auto roll_off = [] (float f) {
-                      return f;
-                   };
+   float inv_rmsd = 1.0f/map_rmsd;
+
+   auto roll_off = [inv_rmsd] (float f) {
+      float n_rmsd = f * inv_rmsd;
+      const float &x = n_rmsd; // alias
+      float score = x - 0.25 * x*x;
+      return score;
+   };
 
 
    // same again for the "dont_add" protection
@@ -374,10 +383,10 @@ coot::new_residue_by_3_phi_psi::score_fragment_using_peptide_fingerprint(const m
                                 print_lock = false;
                              };
    
-   auto fingerprint_score = [&xmap, roll_off, i_trial, res_no_base] (const clipper::Coord_orth &ca_pos_1,
-                                               const clipper::Coord_orth &ca_pos_2,
-                                               const clipper::Coord_orth &o_pos_1,
-                                               int ires) { // pass ires for debugging (writing out positions)
+   auto fingerprint_score = [&xmap, roll_off, i_trial, res_no_base, &frag] (const clipper::Coord_orth &ca_pos_1,
+                                                                     const clipper::Coord_orth &ca_pos_2,
+                                                                     const clipper::Coord_orth &o_pos_1,
+                                                                     int ires) { // pass ires for debugging (writing out positions)
 
                                // these need to be optimized somehow - sounds fun
                                float scale_CO       =  0.2; // we are already counting the O position in the normal scoring
@@ -424,10 +433,10 @@ coot::new_residue_by_3_phi_psi::score_fragment_using_peptide_fingerprint(const m
                                // (at the O). 
                                // there is little density 3.2A away from the mid-line in the direction of the CO
                                clipper::Coord_orth rel_line_pt_O(      diff_p_unit * f_ca_ca_o + perp_unit * 1.89);
-                               clipper::Coord_orth rel_line_pt_O_low(  diff_p_unit * f_ca_ca_o + perp_unit * 3.2); // was 3.7
-                               clipper::Coord_orth rel_line_pt_CO_anti(diff_p_unit * f_ca_ca_o * 0.9 - perp_unit * 0.6);
+                               clipper::Coord_orth rel_line_pt_O_low(  diff_p_unit * f_ca_ca_o + perp_unit * 3.1); // was 3.7
+                               clipper::Coord_orth rel_line_pt_CO_anti(diff_p_unit * f_ca_ca_o * 0.8 - perp_unit * 0.7);
                                clipper::Coord_orth rel_line_pt_N(      diff_p_unit * f_ca_ca_n - perp_unit * 0.3);
-                               clipper::Coord_orth rel_line_pt_N_low(  diff_p_unit * f_ca_ca_n - perp_unit * 1.45);
+                               clipper::Coord_orth rel_line_pt_N_low(  diff_p_unit * f_ca_ca_n - perp_unit * 1.5);
                                clipper::Coord_orth rel_line_pt_perp1(diff_p_unit * f_ca_ca_pt_for_perp  + double_perp_unit * 1.85);
                                clipper::Coord_orth rel_line_pt_perp2(diff_p_unit * f_ca_ca_pt_for_perp  - double_perp_unit * 1.72);
 
@@ -452,28 +461,44 @@ coot::new_residue_by_3_phi_psi::score_fragment_using_peptide_fingerprint(const m
                                float rho_perp_1  = coot::util::density_at_point(xmap, p_2);
                                float rho_perp_2  = coot::util::density_at_point(xmap, p_3);
                                float this_score =
-                                  scale_CO      * roll_off(rho_CO)      +
-                                  scale_CO_low  * roll_off(rho_CO_low)  + 
-                                  scale_CO_anti * roll_off(rho_CO_anti) +
-                                  scale_N       * roll_off(rho_N)       +
-                                  scale_N_low   * roll_off(rho_N_low)   +
-                                  scale_perp    * roll_off(rho_perp_1)  +
-                                  scale_perp    * roll_off(rho_perp_2);
+                                  scale_CO      * rho_CO      +
+                                  scale_CO_low  * rho_CO_low  +
+                                  scale_CO_anti * rho_CO_anti +
+                                  scale_N       * rho_N       +
+                                  scale_N_low   * rho_N_low   +
+                                  scale_perp    * rho_perp_1  +
+                                  scale_perp    * rho_perp_2;
                                s = this_score;
 
-                               if (false) {
-                                  std::string fn = "fp/peptide-fingerprint-" + std::to_string(res_no_base) + "/fp-" + std::to_string(ires) + "-" + std::to_string(i_trial) + ".points";
-                                  std::ofstream f(fn.c_str());
-                                  if (f) {
-                                     f << " CO      " << p_CO.x()      << " " << p_CO.y()      << " " << p_CO.z()      << "\n";
-                                     f << " CO_low  " << p_CO_low.x()  << " " << p_CO_low.y()  << " " << p_CO_low.z()  << "\n";
-                                     f << " CO_anti " << p_CO_anti.x() << " " << p_CO_anti.y() << " " << p_CO_anti.z() << "\n";
-                                     f << " N       " << p_N.x()       << " " << p_N.y()       << " " <<       p_N.z() << "\n";
-                                     f << " N_low   " << p_N_low.x()   << " " << p_N_low.y()   << " " <<   p_N_low.z() << "\n";
-                                     f << " p_2     " << p_2.x()       << " " << p_2.y()       << " " <<       p_2.z() << "\n";
-                                     f << " p_3     " << p_3.x()       << " " << p_3.y()       << " " <<       p_3.z() << "\n";
-                                     f << " score " << this_score << "\n";
-                                     f.close();
+                               if (true) {
+
+                                  if (frag.fragment_id == "H") {
+                                     if (i_trial < 1000) {
+
+                                        std::string file_name = "fp-seqnum:" + frag.fragment_id + std::to_string(ires) + ":_trial:" + std::to_string(i_trial) + ".points";
+                                        std::filesystem::path dir_1("fp");
+                                        std::filesystem::path dir_2("peptide-fingerprint-base:" + frag.fragment_id + std::to_string(res_no_base) + ":");
+                                        if (! std::filesystem::exists(dir_1))         std::filesystem::create_directory(dir_1);
+                                        if (! std::filesystem::exists(dir_1 / dir_2)) std::filesystem::create_directory(dir_1 / dir_2);
+                                        std::filesystem::path fn = dir_1 / dir_2 / file_name;
+
+                                        // std::cout << "fn: " << fn.string() << std::endl;
+                                        std::ofstream f(fn.c_str());
+                                        if (f) {
+                                           f << " CA-pos-1 " << ca_pos_1.x()  << " " << ca_pos_1.y()  << " " << ca_pos_1.z()  << "\n";
+                                           f << " CA-pos-2 " << ca_pos_2.x()  << " " << ca_pos_2.y()  << " " << ca_pos_2.z()  << "\n";
+                                           f << " O-pos "    << o_pos_1.x()   << " " << o_pos_1.y()   << " " << o_pos_1.z()   << "\n";
+                                           f << " CO       " << p_CO.x()      << " " << p_CO.y()      << " " << p_CO.z()      << "\n";
+                                           f << " CO_low   " << p_CO_low.x()  << " " << p_CO_low.y()  << " " << p_CO_low.z()  << "\n";
+                                           f << " CO_anti  " << p_CO_anti.x() << " " << p_CO_anti.y() << " " << p_CO_anti.z() << "\n";
+                                           f << " N        " << p_N.x()       << " " << p_N.y()       << " " <<       p_N.z() << "\n";
+                                           f << " N_low    " << p_N_low.x()   << " " << p_N_low.y()   << " " <<   p_N_low.z() << "\n";
+                                           f << " p_2      " << p_2.x()       << " " << p_2.y()       << " " <<       p_2.z() << "\n";
+                                           f << " p_3      " << p_3.x()       << " " << p_3.y()       << " " <<       p_3.z() << "\n";
+                                           f << " score " << this_score << "\n";
+                                           f.close();
+                                        }
+                                     }
                                   }
                                }
                                return s;
@@ -483,7 +508,7 @@ coot::new_residue_by_3_phi_psi::score_fragment_using_peptide_fingerprint(const m
       for (unsigned int iat=0; iat<frag[ires].atoms.size(); iat++) {
          const clipper::Coord_orth atom_pos(frag[ires][iat].pos);
          float w = frag[ires][iat].occupancy;
-         float f = util::density_at_point(xmap, atom_pos) * w;
+         float f = roll_off(util::density_at_point(xmap, atom_pos)) * w;
          score += f; // or f * f * f  so that fragments that have atoms in low or negative density score hideously
                      // but we also need a roll-off - a f^5 say that stops fitting into sulphurs (for x-ray fitting)
          w_sum += w;
@@ -491,30 +516,70 @@ coot::new_residue_by_3_phi_psi::score_fragment_using_peptide_fingerprint(const m
    }
 
    if (add_Os) {
-      for(int ires=frag.min_res_no(); ires<frag.max_residue_number(); ires++) {
-         const coot::minimol::residue &res_1 = frag[ires  ];
-         const coot::minimol::residue &res_2 = frag[ires+1];
-         if (! res_1.is_empty() && ! res_2.is_empty()) {
+      int i_resno_min = res_no_base + 1;
+      int i_resno_max = res_no_base + 3;
+      if (term_type == "N") {
+         i_resno_min = res_no_base - 3;
+         i_resno_max = res_no_base - 1;
+      }
+      for (int ires=i_resno_min; ires<=i_resno_max; ires++) {
+         // std::cout << "------------- fingerprint_score(): in this frag, min_res_no " << i_resno_min
+         // << " max-res-no: " << i_resno_max << std::endl;
+         const coot::minimol::residue &res_1 = frag[ires];
+         if (! res_1.is_empty()) {
             auto at_1 = res_1.get_atom(" CA ");
             auto at_2 = res_1.get_atom(" O  ");
-            auto at_3 = res_2.get_atom(" CA ");
-            if (at_1.first && at_2.first && at_3.first) {
-               // std::cout << "debug:: fingerprint_score(): atom at_1 " << at_1.second << std::endl;
-               // std::cout << "debug:: type name(args) const;ingerprint_score(): atom at_2 " << at_2.second << std::endl;
-               // std::cout << "debug:: fingerprint_score(): atom at_3 " << at_3.second << std::endl;
-               const clipper::Coord_orth &pt_1 = at_1.second.pos;
-               const clipper::Coord_orth &pt_2 = at_2.second.pos;
-               const clipper::Coord_orth &pt_3 = at_3.second.pos;
-               float fps = fingerprint_score(pt_1, pt_3, pt_2, ires); // CA, CA, O
-               // std::cout << "fingerprint_score " << fps << " cf score " << score << "\n";
-               score += fps;
-               w_sum += at_1.second.occupancy * 1.0; // or so - because multiple fingerprint positions
+            // auto at_3 = res_2.get_atom(" CA ");
+            if (at_1.first && at_2.first) {
+
+               if (term_type == "N") {
+                  // std::cout << "debug:: fingerprint_score(): atom at_1 " << at_1.second << std::endl;
+                  // std::cout << "debug:: type name(args) const;ingerprint_score(): atom at_2 " << at_2.second << std::endl;
+                  // std::cout << "debug:: fingerprint_score(): atom at_3 " << at_3.second << std::endl;
+                  const clipper::Coord_orth &pt_1 = at_1.second.pos;
+                  const clipper::Coord_orth &pt_2 = at_2.second.pos;
+                  clipper::Coord_orth pt_3;
+                  if (ires < i_resno_max) {
+                     // std::cout << "getting pt_3 from neighb ires: " << ires+1 << std::endl;
+                     pt_3 = frag[ires+1].get_atom(" CA ").second.pos;
+                  } else {
+                     // std::cout << "getting pt_3 from current_res_pos " << current_res_pos.CA_pos.format() << std::endl;
+                     pt_3 = current_res_pos.CA_pos;
+                  }
+
+                  float score_fp = fingerprint_score(pt_1, pt_3, pt_2, ires); // CA, CA, O
+                  // std::cout << "fingerprint_score ires " << ires << " score_fp " << score_fp << " cf score " << score << "\n";
+
+                  score += score_fp;
+                  w_sum += at_1.second.occupancy * 1.0; // or so - because multiple fingerprint positions
+               }
+
+               if (term_type == "C") {
+                  if (ires == i_resno_min) {
+                     const clipper::Coord_orth &ca_pos_1 = current_res_pos.CA_pos;
+                     const clipper::Coord_orth &ca_pos_2 = frag[i_resno_min].get_atom(" CA ").second.pos;
+                     const clipper::Coord_orth &o_pos    = frag[i_resno_min].get_atom(" O  ").second.pos;
+                     float score_fp = fingerprint_score(ca_pos_1, ca_pos_2, o_pos, ires);
+                     score += score_fp;
+                  } else {
+                     const clipper::Coord_orth &ca_pos_1 = frag[ires-1].get_atom(" CA ").second.pos;
+                     const clipper::Coord_orth &ca_pos_2 = frag[ires  ].get_atom(" CA ").second.pos;
+                     const clipper::Coord_orth &o_pos    = frag[ires-1].get_atom(" O  ").second.pos;
+                     float score_fp = fingerprint_score(ca_pos_1, ca_pos_2, o_pos, ires);
+                     score += score_fp;
+                  }
+               }
+
             } else {
                get_print_lock();
                std::cout << "Failed to extract CA or O atom from residue - heyho " << ires << std::endl;
                release_print_lock();
             }
+         } else {
+            std::cout << "oops? res_1 is empty with ires " << ires << std::endl;
          }
+
+         //std::cout << "ires " << ires << " score " << score << std::endl;
       }
    }
 
@@ -533,7 +598,7 @@ coot::new_residue_by_3_phi_psi::construct_next_res_from_rama_angles(float phi_th
    bool add_CBs = false;
    bool add_Os = true;
 
-   double jitter_scale = 10.0;
+   double jitter_scale = 0.1; // 20240804-PE was 10.0 Jitter-scale             
 
    const clipper::Coord_orth &previous_n  = current_res_pos.N_pos;
    const clipper::Coord_orth &previous_ca = current_res_pos.CA_pos;
@@ -541,7 +606,7 @@ coot::new_residue_by_3_phi_psi::construct_next_res_from_rama_angles(float phi_th
 
    // +/- 10 degrees (but in radians)
    double omega_jitter =  20.0 * (M_PI/180.0) * 0.5 * get_random_float_mt(dsfmt) * jitter_scale;
-   double O_torsion    = 720.0 * (M_PI/180.0) * 0.5 * get_random_float_mt(dsfmt);
+   double O_torsion    =   2.0 * M_PI * get_random_float_mt(dsfmt); // see below
 
    double r1 = get_random_float_mt(dsfmt) * 2.0 - 1.0;
    double r2 = get_random_float_mt(dsfmt) * 2.0 - 1.0;
@@ -603,7 +668,7 @@ coot::new_residue_by_3_phi_psi::construct_prev_res_from_rama_angles(float phi, f
 
    bool add_Os = true;
 
-   double jitter_scale = 10.0;
+   double jitter_scale = 10.0; // 20240804-PE - needs optimizing
 
    coot::minimol::residue mres(seqno);
    mres.name = "ALA";
@@ -656,7 +721,35 @@ coot::new_residue_by_3_phi_psi::construct_prev_res_from_rama_angles(float phi, f
    return mres;
 }
 
-
+// put this in minimol, perhaps?
+std::pair<bool, clipper::Coord_orth>
+make_CB_ideal_pos(coot::minimol::residue &res) {
+   std::pair<bool, coot::minimol::atom> CB = res.get_atom(" CB ");
+   bool generated = false;
+   clipper::Coord_orth pos;
+   if (! CB.first) {
+      auto CA = res.get_atom(" CA ");
+      auto C  = res.get_atom(" C  ");
+      auto N  = res.get_atom(" N  ");
+      if (CA.first) {
+         if (C.first) {
+            if (N.first) {
+               clipper::Coord_orth C_to_N = N.second.pos - C.second.pos;
+               clipper::Coord_orth C_to_N_mid_point(0.5 * (N.second.pos + C.second.pos));
+               clipper::Coord_orth CA_to_CN_mid_point = C_to_N_mid_point - CA.second.pos;
+               clipper::Coord_orth CA_to_CN_mid_point_uv(CA_to_CN_mid_point.unit());
+               clipper::Coord_orth perp(clipper::Coord_orth::cross(C_to_N, CA_to_CN_mid_point));
+               clipper::Coord_orth perp_uv(perp.unit());
+               // guess and fiddle these - good enough (function copied from res-trace.cc)
+               clipper::Coord_orth CB_pos(CA.second.pos + 1.21 * perp_uv - 0.95 * CA_to_CN_mid_point_uv);
+               pos = CB_pos;
+               generated = true;
+            }
+         }
+      }
+   }
+   return std::make_pair(generated, pos);
+}
 
 coot::minimol::fragment
 coot::new_residue_by_3_phi_psi::make_3_res_joining_frag_forward(const std::string &chain_id,
@@ -668,41 +761,14 @@ coot::new_residue_by_3_phi_psi::make_3_res_joining_frag_forward(const std::strin
                                                                 int seq_num,
                                                                 dsfmt_t *dsfmt) {
 
-   auto make_CB_ideal_pos = [] (minimol::residue &res) {
-                               std::pair<bool, coot::minimol::atom> CB = res.get_atom(" CB ");
-                               bool generated = false;
-                               clipper::Coord_orth pos;
-                               if (! CB.first) {
-                                  auto CA = res.get_atom(" CA ");
-                                  auto C  = res.get_atom(" C  ");
-                                  auto N  = res.get_atom(" N  ");
-                                  if (CA.first) {
-                                     if (C.first) {
-                                        if (N.first) {
-                                           clipper::Coord_orth C_to_N = N.second.pos - C.second.pos;
-                                           clipper::Coord_orth C_to_N_mid_point(0.5 * (N.second.pos + C.second.pos));
-                                           clipper::Coord_orth CA_to_CN_mid_point = C_to_N_mid_point - CA.second.pos;
-                                           clipper::Coord_orth CA_to_CN_mid_point_uv(CA_to_CN_mid_point.unit());
-                                           clipper::Coord_orth perp(clipper::Coord_orth::cross(C_to_N, CA_to_CN_mid_point));
-                                           clipper::Coord_orth perp_uv(perp.unit());
-                                           // guess and fiddle these - good enough (function copied from res-trace.cc)
-                                           clipper::Coord_orth CB_pos(CA.second.pos + 1.21 * perp_uv - 0.95 * CA_to_CN_mid_point_uv);
-                                           pos = CB_pos;
-                                           generated = true;
-                                        }
-                                     }
-                                  }
-                               }
-                               return std::make_pair(generated, pos);
-                            };
 
-   bool add_CBs = false;
+   bool add_CBs = true; // 20240804-PE this was false. Why was that?
    bool add_Os  = true;
 
    coot::minimol::fragment frag(chain_id);
    // we need edit the postions of the reference atoms to add a bit of (useful) jitter
    connecting_atoms_t current_res_pos(current_res_pos_in);
-   double rand_lim = 0.1;
+   double rand_lim = 0.0001;     // 20240804-PE wass 0.1 FIXME?             
    clipper::Coord_orth &current_n  = current_res_pos.N_pos;
    clipper::Coord_orth &current_ca = current_res_pos.CA_pos;
 
@@ -784,13 +850,14 @@ coot::new_residue_by_3_phi_psi::make_3_res_joining_frag_backward(const std::stri
 
    clipper::Coord_orth current_n  = current_res_pos.N_pos;
    clipper::Coord_orth current_ca = current_res_pos.CA_pos;
+   bool add_CBs = true;
 
    if (true) {
 
       // add a bit of jitter
-      double rand_lim = 0.1;
+      double rand_lim = 0.02; // 20240801-PE was 0.1
 
-   // Am I double jittering here!?
+      // Am I double jittering here!?
 
       double r1 = get_random_float_mt(dsfmt) * 2.0 - 1.0;
       double r2 = get_random_float_mt(dsfmt) * 2.0 - 1.0;
@@ -814,6 +881,14 @@ coot::new_residue_by_3_phi_psi::make_3_res_joining_frag_backward(const std::stri
       // res2.atoms[iat].occupancy = 0.5;
 
       try {
+         if (add_CBs) {
+            const std::pair<bool, clipper::Coord_orth> &CB_res_1 = make_CB_ideal_pos(res1);
+            const std::pair<bool, clipper::Coord_orth> &CB_res_2 = make_CB_ideal_pos(res2);
+            const std::pair<bool, clipper::Coord_orth> &CB_res_3 = make_CB_ideal_pos(res3);
+            if (CB_res_1.first) res1.addatom(minimol::atom(" CB ", " C", CB_res_1.second, "", 0.5f, 20.0f));
+            if (CB_res_2.first) res2.addatom(minimol::atom(" CB ", " C", CB_res_2.second, "", 0.4f, 20.0f));
+            if (CB_res_3.first) res3.addatom(minimol::atom(" CB ", " C", CB_res_3.second, "", 0.3f, 20.0f));
+         }
          frag.addresidue(res3, 0);
          frag.addresidue(res2, 0);
          frag.addresidue(res1, 0);
@@ -829,7 +904,7 @@ coot::new_residue_by_3_phi_psi::make_3_res_joining_frag_backward(const std::stri
 
 coot::minimol::fragment
 coot::new_residue_by_3_phi_psi::best_fit_phi_psi(unsigned int n_trials, const clipper::Xmap<float> &xmap,
-                                                 float min_density_level_for_connecting_atom) const {
+                                                 float xmap_rmsd, float min_density_level_for_connecting_atom) const {
 
    auto crashing_into_existing_chain_score = [] (const minimol::fragment &frag, mmdb::Chain *chain_p) {
                                                 float s = 0.0f;
@@ -867,102 +942,117 @@ coot::new_residue_by_3_phi_psi::best_fit_phi_psi(unsigned int n_trials, const cl
       (int thread_id, std::pair<unsigned int, unsigned int> trial_start_stop,
        double phi_current, const clipper::Ramachandran &rama, float rama_max,
        mmdb::Chain *chain_p, const std::string &chain_id, const connecting_atoms_t &current_res_pos, int seq_num,
-       const clipper::Xmap<float> *xmap, float min_density_level_for_connecting_atom,
+       const clipper::Xmap<float> *xmap, float xmap_rmsd, float min_density_level_for_connecting_atom,
        std::pair<minimol::fragment, float> &best_frag_result,
        std::atomic<unsigned int> &count) {
 
-                                float best_score = -9999.9;
-                                dsfmt_t dsfmt;
-                                uint32_t seed = 1;
-                                dsfmt_gv_init_gen_rand(seed);
-                                dsfmt_init_gen_rand(&dsfmt, seed);
+      float best_score = -9999.9;
+      dsfmt_t dsfmt;
+      uint32_t seed = 1;
+      dsfmt_gv_init_gen_rand(seed);
+      dsfmt_init_gen_rand(&dsfmt, seed);
+      std::string term_type = "C";
 
-                                for (unsigned int i_trial=trial_start_stop.first; i_trial<trial_start_stop.second; i_trial++) {
+      for (unsigned int i_trial=trial_start_stop.first; i_trial<trial_start_stop.second; i_trial++) {
 
-                                   // std::cout << "debug:: in run_forward_trials() chain " << chain_id << " seq_num " << seq_num << " i_trial " << i_trial << std::endl;
+         // std::cout << "debug:: in run_forward_trials() chain " << chain_id << " seq_num " << seq_num << " i_trial " << i_trial << std::endl;
 
-                                   double psi_conditional = get_psi_by_random_given_phi(phi_current, rama, &dsfmt); // in radians
+         double psi_conditional = get_psi_by_random_given_phi(phi_current, rama, &dsfmt); // in radians
 
-                                   phi_psi_t pp_1 = get_phi_psi_by_random(rama, rama_max, false, &dsfmt);
-                                   phi_psi_t pp_2 = get_phi_psi_by_random(rama, rama_max, false, &dsfmt);
-                                   phi_psi_t pp_3 = get_phi_psi_by_random(rama, rama_max, false, &dsfmt);
+         phi_psi_t pp_1 = get_phi_psi_by_random(rama, rama_max, false, &dsfmt);
+         phi_psi_t pp_2 = get_phi_psi_by_random(rama, rama_max, false, &dsfmt);
+         phi_psi_t pp_3 = get_phi_psi_by_random(rama, rama_max, false, &dsfmt);
 
-                                   minimol::fragment frag = make_3_res_joining_frag_forward(chain_id, current_res_pos, clipper::Util::rad2d(psi_conditional),
-                                                                                            pp_1, pp_2, pp_3, seq_num, &dsfmt);
-                                   float score = score_fragment_using_peptide_fingerprint(frag, current_res_pos, *xmap, seq_num, i_trial); // pass i_trial for debugging
-                                   // float score_basic = score_fragment_basic(frag, current_res_pos, *xmap);
-                                   score += crashing_into_existing_chain_score(frag, chain_p);
+         minimol::fragment frag = make_3_res_joining_frag_forward(chain_id, current_res_pos, clipper::Util::rad2d(psi_conditional),
+                                                                  pp_1, pp_2, pp_3, seq_num, &dsfmt);
+         float score_fp = score_fragment_using_peptide_fingerprint(frag, current_res_pos, *xmap, xmap_rmsd, seq_num, term_type, i_trial); // pass i_trial for debugging
+         float score_basic = score_fragment_basic(frag, current_res_pos, *xmap);
+         float score = score_basic + score_fp;
+         score += crashing_into_existing_chain_score(frag, chain_p);
 
-                                   if (score > best_score) {
+         if (score > best_score) {
 
-                                      // std::cout << "residue " << seq_num << " i_trial " << i_trial << " score_basic " << score_basic
-                                      // << " score-with-fp " << score << std::endl;
-                                      best_score = score;
-                                      best_frag_result.first = frag;
-                                      best_frag_result.second = score;
-                                      if (false) {
-                                         std::string fn = "run_forward_trials_" + std::to_string(seq_num) + "_" + std::to_string(i_trial) + ".pdb";
-                                         frag.write_file(fn);
-                                      }
-                                   }
-                                }
-                                count++;
-                             };
+            // std::cout << "residue " << seq_num << " i_trial " << i_trial << " score_basic " << score_basic
+            // << " score-with-fp " << score << std::endl;
+            best_score = score;
+            best_frag_result.first = frag;
+            best_frag_result.second = score;
+            if (false) {
+               std::string fn = "run_forward_trials_" + chain_id + std::to_string(seq_num) + "_" + std::to_string(i_trial) + ".pdb";
+               frag.write_file(fn);
+            }
+         }
+      }
+      count++;
+   };
 
+   // fill best_frag_result
    auto run_backward_trials = [crashing_into_existing_chain_score] (int thread_id, std::pair<unsigned int, unsigned int> trial_start_stop, 
                                   double psi_current, const clipper::Ramachandran &rama, float rama_max,
                                   mmdb::Chain *chain_p, const std::string &chain_id, const connecting_atoms_t &current_res_pos, int seq_num,
-                                  const clipper::Xmap<float> *xmap, float min_density_level_for_connecting_atom,
+                                  const clipper::Xmap<float> *xmap, float xmap_rmsd, float min_density_level_for_connecting_atom,
                                   std::pair<minimol::fragment, float> &best_frag_result,
                                   std::atomic<unsigned int> &count) {
 
-                                 dsfmt_t dsfmt;
-                                 uint32_t seed = 1;
-                                 dsfmt_gv_init_gen_rand(seed);
-                                 dsfmt_init_gen_rand(&dsfmt, seed);
-                                 float best_score = -9999.9;
-                                 for (unsigned int i_trial=trial_start_stop.first; i_trial<trial_start_stop.second; i_trial++) {
+      dsfmt_t dsfmt;
+      uint32_t seed = 1;
+      dsfmt_gv_init_gen_rand(seed);
+      dsfmt_init_gen_rand(&dsfmt, seed);
+      float best_score = -9999.9;
 
-                                    double phi_conditional = get_phi_by_random_given_psi(psi_current, rama, &dsfmt); // in radians
+      for (unsigned int i_trial=trial_start_stop.first; i_trial<trial_start_stop.second; i_trial++) {
 
-                                    phi_psi_t pp_1 = get_phi_psi_by_random(rama, rama_max, false, &dsfmt);
-                                    phi_psi_t pp_2 = get_phi_psi_by_random(rama, rama_max, false, &dsfmt);
-                                    phi_psi_t pp_3 = get_phi_psi_by_random(rama, rama_max, false, &dsfmt);
+         // std::cout << "run_backward_trials() " << i_trial << std::endl;
 
-                                    minimol::fragment frag = make_3_res_joining_frag_backward(chain_id, current_res_pos,
-                                                                                              clipper::Util::rad2d(phi_conditional),
-                                                                                              pp_1, pp_2, pp_3, seq_num, &dsfmt);
-                                    // inital previous-residue C density test:
-                                    // don't bother with scoring the triple peptide if this is not at least 1 rmsd (min density level for connecting atom)
-                                    // We can do this *after* make_3_res_joining_frag_backward if make_3_res_joining_frag_backward() is fast
-                                    // otherwise we put this test *inside* make_3_res_joining_frag_backward()
-                                    //
-                                    // Put this in the forward build too
-                                    //
-                                    std::pair<bool, coot::minimol::atom> pos_pair = frag[seq_num-1].get_atom(" C  ");
-                                    if (pos_pair.first) {
-                                       float f = coot::util::density_at_point(*xmap, pos_pair.second.pos);
-                                       if (f < min_density_level_for_connecting_atom)
-                                          continue;
-                                    } else {
-                                       std::cout << "Hideous failure in run_backward_trials() " << std::endl;
-                                    }
+         double phi_conditional = get_phi_by_random_given_psi(psi_current, rama, &dsfmt); // in radians
 
-                                    float score = score_fragment_using_peptide_fingerprint(frag, current_res_pos, *xmap, seq_num, i_trial); // pass i_trial for debugging
-                                    score += crashing_into_existing_chain_score(frag, chain_p);
-                                    if (score > best_score) {
-                                       best_score = score;
-                                       best_frag_result.first = frag;
-                                       best_frag_result.second = score;
-                                       if (false) {
-                                          std::string fn = "run_backward_trials_" + chain_id + "-" + std::to_string(seq_num) + "_" +
-                                             std::to_string(i_trial) + ".pdb";
-                                          frag.write_file(fn);
-                                      }
-                                    }
-                                 }
-                                 count++;
-                              };
+         phi_psi_t pp_1 = get_phi_psi_by_random(rama, rama_max, false, &dsfmt);
+         phi_psi_t pp_2 = get_phi_psi_by_random(rama, rama_max, false, &dsfmt);
+         phi_psi_t pp_3 = get_phi_psi_by_random(rama, rama_max, false, &dsfmt);
+
+         minimol::fragment frag = make_3_res_joining_frag_backward(chain_id, current_res_pos,
+                                                                   clipper::Util::rad2d(phi_conditional),
+                                                                   pp_1, pp_2, pp_3, seq_num, &dsfmt);
+         // inital previous-residue C density test:
+         // don't bother with scoring the triple peptide if this is not at least 1 rmsd (min density level for connecting atom)
+         // We can do this *after* make_3_res_joining_frag_backward if make_3_res_joining_frag_backward() is fast
+         // otherwise we put this test *inside* make_3_res_joining_frag_backward()
+         //
+         // Put this in the forward build too
+         //
+         std::pair<bool, coot::minimol::atom> pos_pair = frag[seq_num-1].get_atom(" C  ");
+         if (pos_pair.first) {
+            float f = coot::util::density_at_point(*xmap, pos_pair.second.pos);
+            if (f < min_density_level_for_connecting_atom)
+               continue;
+         } else {
+            std::cout << "Hideous failure in run_backward_trials() " << std::endl;
+         }
+
+         float peptide_fingerprint_score_scale = 2.0;
+         float score_basic = score_fragment_basic(frag, current_res_pos, *xmap);
+         float score_fp = score_fragment_using_peptide_fingerprint(frag, current_res_pos, *xmap, xmap_rmsd, seq_num, "N", i_trial); // pass i_trial for debugging
+
+         float score = score_basic + peptide_fingerprint_score_scale * score_fp;
+         score += 0.1 * crashing_into_existing_chain_score(frag, chain_p); // This scaling needs fixing
+
+         if (score > best_score) {
+            if (false)
+               std::cout << "   adding to residue " << seq_num << " improved score: i_trial " << std::setw(5) << i_trial
+                         << " score " << std::setw(8) << score << " beats " << best_score << std::endl;
+            best_score = score;
+            best_frag_result.first = frag;
+            best_frag_result.second = score;
+
+            if (seq_num == -1 && false) { // debugging
+               std::string fn = "run_backward_trials_" + chain_id + "-seqnum:" + std::to_string(seq_num) + "_itrial:" + std::to_string(i_trial) + ".pdb";
+               std::cout << "      debug pdb file " << fn << std::endl;
+               frag.write_file(fn);
+            }
+         }
+      }
+      count++;
+   };
 
    coot::minimol::fragment best_frag;
 
@@ -975,7 +1065,8 @@ coot::new_residue_by_3_phi_psi::best_fit_phi_psi(unsigned int n_trials, const cl
       // forwards,  we have a phi and need to generate a psi to place the N
 
       if (false)
-         std::cout << "debug:: best_fit_phi_psi(): C extension current_phi: " << coot::residue_spec_t(residue_p) << " phi: "
+         std::cout << "debug:: coot::new_residue_by_3_phi_psi::best_fit_phi_psi(): C extension current_phi: "
+                   << coot::residue_spec_t(residue_p) << " phi: "
                    << phi_current.first << " " << phi_current.second << std::endl;
 
       std::atomic<unsigned int> count(0);
@@ -991,7 +1082,7 @@ coot::new_residue_by_3_phi_psi::best_fit_phi_psi(unsigned int n_trials, const cl
       std::vector<std::pair<minimol::fragment, float> > best_frag_vec(ranges.size()); // best frag for that thread/trial-range
       for (unsigned int ir=0; ir<ranges.size(); ir++) {
          thread_pool_p->push(run_forward_trials, ranges[ir], phi_current.second, std::cref(rama), rama_max, chain_p, std::cref(chain_id),
-                             std::cref(current_res_pos), seq_num, &xmap, min_density_level_for_connecting_atom,
+                             std::cref(current_res_pos), seq_num, &xmap, xmap_rmsd, min_density_level_for_connecting_atom,
                              std::ref(best_frag_vec[ir]), std::ref(count));
       }
       while (count != ranges.size()) {
@@ -1026,7 +1117,7 @@ coot::new_residue_by_3_phi_psi::best_fit_phi_psi(unsigned int n_trials, const cl
       std::vector<std::pair<minimol::fragment, float> > best_frag_vec(ranges.size()); // best frag for that thread/trial-range
       for (unsigned int ir=0; ir<ranges.size(); ir++) {
          thread_pool_p->push(run_backward_trials, ranges[ir], psi_current.second, std::cref(rama), rama_max, chain_p, std::cref(chain_id),
-                             std::cref(current_res_pos), seq_num, &xmap,
+                             std::cref(current_res_pos), seq_num, &xmap, xmap_rmsd,
                              min_density_level_for_connecting_atom,
                              std::ref(best_frag_vec[ir]), std::ref(count));
       }

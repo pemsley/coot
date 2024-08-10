@@ -544,6 +544,10 @@
               <attribute name="action">app.background_black_action</attribute>
             </item>
             <item>
+              <attribute name="label">Nearly Black</attribute>
+              <attribute name="action">app.background_nearly_black_action</attribute>
+            </item>
+            <item>
               <attribute name="label">Dark Grey</attribute>
               <attribute name="action">app.background_dark_grey_action</attribute>
             </item>
@@ -1082,6 +1086,11 @@
         <attribute name="target">residue</attribute>
       </item>
       <item>
+        <attribute name="label" translatable="yes">Residue Atoms with Alt-conf</attribute>
+        <attribute name="action">app.delete_item</attribute>
+        <attribute name="target">residue-atoms-with-alt-conf</attribute>
+      </item>
+      <item>
         <attribute name="label" translatable="yes">Residue Range</attribute>
         <attribute name="action">app.delete_item</attribute>
         <attribute name="target">residue-range</attribute>
@@ -1284,7 +1293,7 @@ Copyright 2023 Global Phasing Ltd.</property>
     <property name="license-type">lgpl-3-0</property>
     <property name="logo-icon-name">coot</property>
     <property name="program-name">Coot</property>
-    <property name="version">1.1.08</property>
+    <property name="version">1.1.x-pre</property>
     <property name="website">https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot</property>
     <property name="website-label">The Coot Website</property>
   </object>
@@ -2425,7 +2434,7 @@ Calculate a skeleton now?
                 </child>
                 <child type="label">
                   <object class="GtkLabel" id="label308">
-                    <property name="label" translatable="yes">Draw Hydrogens?</property>
+                    <property name="label" translatable="yes">Draw Hydrogen Atoms?</property>
                   </object>
                 </child>
               </object>

@@ -44,7 +44,7 @@ pkginclude_HEADERS = peak-search.hh coot-trim.hh \
         atom-tree.hh jed-flip.hh atom-vertex.hh merge-C-and-N-terminii.hh simple-mesh.hh vertex.hh g_triangle.hh \
 	cylinder.hh cylinder-with-rotation-translation.hh oct.hh prideout-octasphere.hh cmtz-interface.hh mtz-column-auto-read.hh \
 	pugixml.hpp pugiconfig.hpp find-water-baddies.hh voidp-buffer.hh parse-pisa.hh diff-diff-map-peaks.hh tiny_gltf.h json.hpp \
-	stb_image.h stb_image_write.h glyco-tree.hh positron.hh mini-texture.hh texture-as-floats.hh pae.hh
+	stb_image.h stb_image_write.h glyco-tree.hh positron.hh mini-texture.hh texture-as-floats.hh pae.hh q-score.hh
 
 
 pkgincludedir = $(includedir)/coot/coot-utils
@@ -170,7 +170,7 @@ check_PROGRAMS = test-h-bonds testshelxreader test-hole test-elastic \
 		 test-cod-atom-types dictionary-atom-types cod-db-access \
 		 test-5-residue-fragments test-diff-diff-map-peaks \
 		 make-cablam-like-stats test-cod-atom-types-from-sm-cif test-parse-pisa \
-		 test-coot-utils test-pae test-q-score servalcat-tracker
+		 test-coot-utils test-pae test-q-score servalcat-tracker test-zd
 
 # wrong build order - delete from make check for now.
 # test-emma test-convolute test-coot-utils test-segmap
@@ -306,6 +306,10 @@ test_chem_feat_LDADD = \
 	$(top_builddir)/geometry/libcoot-geometry.la \
 	$(top_builddir)/lidia-core/libcoot-lidia-core.la \
 	$(MMDB_LIBS) $(RDKIT_LIBS)
+
+test_zd_SOURCES = test-zd.cc
+
+test_zd_LDADD = libcoot-map-utils.la $(CLIPPER_LIBS)
 
 test_cod_atom_types_SOURCES = test-cod-atom-types.cc
 

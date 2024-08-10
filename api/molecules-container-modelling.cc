@@ -623,3 +623,24 @@ molecules_container_t::match_ligand_torsions_and_position(int imol_ligand, int i
    }
    return status;
 }
+
+void 
+molecules_container_t::associate_sequence(int imol, const std::string &chain_id, const std::string &sequence) {
+
+   if (is_valid_model_molecule(imol)) { // but also maps?
+      molecules[imol].associate_sequence_with_molecule(chain_id, sequence);
+   }
+
+}
+
+void
+molecules_container_t::assign_sequence(int imol_model, int imol_map) {
+
+   if (is_valid_model_molecule(imol_model)) {
+       if (is_valid_map_molecule(imol_map)) {
+           const clipper::Xmap<float> &xmap = molecules[imol_map].xmap;
+           molecules[imol_model].assign_sequence(xmap, geom);
+       }
+   }
+}
+

@@ -1215,6 +1215,7 @@ molecule_class_info_t::delete_residue_with_full_spec(int imodel,
    for (int imod=1; imod<=n_models; imod++) {
 
       if ((imod == imodel) || (imodel == mmdb::MinInt4)) {
+
          int nchains = atom_sel.mol->GetNumberOfChains(imod);
          for (int ichain=0; ichain<nchains; ichain++) {
 
@@ -1282,6 +1283,7 @@ molecule_class_info_t::delete_residue_with_full_spec(int imodel,
       if (was_deleted && (imodel != mmdb::MinInt4))
          break;
    }
+
    // potentially (usually, I imagine)
    if (was_deleted) {
       atom_sel.atom_selection = NULL;
@@ -3093,29 +3095,33 @@ molecule_class_info_t::apply_atom_edit(const coot::select_atom_info &sai) {
 void
 molecule_class_info_t::apply_atom_edits(const std::vector<coot::select_atom_info> &saiv) {
 
-   std::cout << "in mci::apply_atom_edits() " << saiv.size() << std::endl;
+   std::cout << "DEBUG:: in mci::apply_atom_edits() " << saiv.size() << std::endl;
 
    bool made_edit = false;
    make_backup();
 
    for (unsigned int i=0; i<saiv.size(); i++) {
-      std::cout << "mci::apply_atom_edits() " << i << std::endl;
+      // std::cout << "mci::apply_atom_edits() " << i << std::endl;
       mmdb::Atom *at = saiv[i].get_atom(atom_sel.mol);
       if (at) {
-         std::cout << "mci::apply_atom_edits() B " << i << std::endl;
+         // std::cout << "mci::apply_atom_edits() B " << i << std::endl;
          if (saiv[i].has_b_factor_edit()) {
-            std::cout << "mci::apply_atom_edits() c " << i << std::endl;
+            // std::cout << "mci::apply_atom_edits() c " << i << std::endl;
             at->tempFactor = saiv[i].b_factor;
             made_edit = 1;
          }
          if (saiv[i].has_occ_edit()) {
-            std::cout << "mci::apply_atom_edits() d " << i << std::endl;
+            // std::cout << "mci::apply_atom_edits() d " << i << std::endl;
             at->occupancy = saiv[i].occ;
             made_edit = 1;
          }
          if (saiv[i].has_altloc_edit()) {
-            std::cout << "mci::apply_atom_edits() e " << i << std::endl;
-            strncpy(at->altLoc, saiv[i].altloc_new.c_str(), 2);
+            // std::cout << "mci::apply_atom_edits() e " << i << std::endl;
+            // mmmdb limit is char altloc[20];
+            // strncpy(at->altLoc, saiv[i].altloc_new.c_str(), 2);
+            // strncpy() writes n bytes no matter what - that is not what I want.
+            if (saiv[i].altloc_new.length() < 20)
+               strcpy(at->altLoc, saiv[i].altloc_new.c_str());
             made_edit = 1;
          }
       }

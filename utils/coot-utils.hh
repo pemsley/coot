@@ -30,6 +30,9 @@
 
 namespace coot {
 
+   //! do this on startup
+   void set_realpath_for_coot_executable(const std::string &argv0);
+
    std::string get_home_dir();
 
    // The user can set COOT_DATA_DIR (in fact this is the usual case

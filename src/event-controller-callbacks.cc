@@ -356,6 +356,11 @@ graphics_info_t::on_glarea_click(GtkGestureClick *controller,
 
    // std::cout << "status for HUD bar clicked: " << clicked << " x " << x << " y " << y << std::endl;
 
+   if (! clicked)
+      clicked = check_if_hud_rama_plot_clicked(x,y);
+
+   // std::cout << "status for HUD Rama clicked: " << clicked << std::endl;
+
    if (clicked) {
       // the action has occured in above function
    } else {

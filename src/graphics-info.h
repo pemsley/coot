@@ -2799,6 +2799,7 @@ public:
 			       const coot::residue_spec_t &res_1,
 			       const coot::residue_spec_t &res_2);
    void delete_active_residue();
+   void delete_active_residue_alt_conf_atoms();
    // c-info functions really, but we cant have mmdb_manager there, so the are moved here.
 
    static void output_residue_info_as_text(int atom_index, int imol);
@@ -3146,6 +3147,7 @@ public:
    bool check_if_hud_button_moused_over(double x, double y, bool button_1_is_down);
    bool check_if_hud_button_moused_over_or_act_on_hit(double x, double y, bool act_on_hit, bool button_1_is_down);
 
+   bool check_if_hud_rama_plot_clicked(double mouse_x, double mouse_y);
 
    void unset_moving_atoms_currently_dragged_atom_index() {
      moving_atoms_currently_dragged_atom_index = -1;

@@ -1,7 +1,64 @@
 
 ----
 
-When I use Shift-W to change the conouring map, then the Scroll button should change in the Display Manager also.
+SVG for pli
+
+make an figure, for moorhen intro with blobs that have volume proportional
+   to the number of lines of code: rdkit, mmdb, ccp4libs, gemmi, M2T,
+   libcootapi - M2T, coot - libcootapi - M2T, moorhen and moorhen-npm-dependencies
+
+Chapi torsion angle restraints for servalcat
+
+delete seq-view-interface.c/h
+* Done.
+
+get rid of trackball.c - there is a compilation warning - use glm instead.
+   Actually, I am not sure that I even use it now.
+
+Fix state file quick save as.
+* I couldn't reproduce the problem
+
+Add Place Helix here to moorhen api
+
+Rangana made findwaters crash by using a sigma of 4 in flood mode in cryo-EM map.
+  Can you reproduce that?
+
+Expanding ligand thumbnail on window width increase
+
+Carbohydrate builder in moorhen & coot
+
+Randy & Team's MR placement tool interface
+
+Fix output of coot-ligand-validation with no comand line args
+
+PDBe tools
+
+Tomo Particle picker
+
+Add sequence assigment (e.g. the helix hormone 7vvl).
+* Done.
+
+SYMINFO problems in CCP4 build of coot? (No symmetry shown)
+* Done.
+
+Fix stretched ligand on resizing window width
+* Had a bash - the lines no longer expand, but the letters don't match.
+  The whole thing needs a rewrite.
+
+Fix on-screen button placement on resizing window width
+
+"View Grid Mode" - give each molecule a possible screen offset (given the center of the screen is at 0,0)
+   say (-0.5, 0.5), (0.5, 0.5), (-0.5, -0.5), (0.5, -0.5) - for ligand diagrams or overlapped structure or
+   cryo-EM maps set_view_grid_mode(2,2) and some sort of assignment of molecules to grid.
+   Allow the user to change the grid of a molecule: set_view_grid_mode_grid_for_molecule(imol, irow, icol)
+   set_view_grid_mode_auto (and it will work out the grid (say for 15 molecules/map)).
+
+How do I make vertex-gradients work for maps? Have I done this already? How do I turn it on? I'd like a function
+and a key-binding if nothing else.
+
+Fun project: mrcfile importer.
+
+When I use Shift-W to change the contouring map, then the Scroll button should change in the Display Manager also.
 * Done.
 
 Get ligand PDBe needs to be depythonized
@@ -13,10 +70,13 @@ Colour-by-molecule shows big balls
 Add read_coordinates() to the read-molecule.hh api.
 * Done.
 
+Make torsion restraints for Rama and rota refinement for servalcat.
+
 Test that the bonds and atoms are being added just once for the bond generations - when trying to fix the
 colour-by-molecule bonds, it seemed that there were multiple adds. Hmm.
 
 Draw Hydrogen Atoms checkbutton in Bond Parameters widget is broken - try running run-servalcat-32143.py
+* Done.
 
 check that ccp4 coot can load the metal distances table.
 
@@ -29,6 +89,8 @@ Add "Rotate View is on Left/Right mouse" mode in Preferences
 
 Add coot-ligand-validation to chapi.
 
+Coot: Residue Info dialog needs a cleanup. graphics_info_t::output_residue_info_dialog()
+
 From watching https://www.youtube.com/watch?v=mDwMUH181-s
   o Find a molecule with a chunk of RNA
      build hunks, refine and merge fragments
@@ -39,6 +101,9 @@ Use 2DT dictionary for link and refinement - George.
 Talking to Martin Maly: OEX CA1 is in the wrong column when reading external distance restraints: 4ub6.
 
 How do I read in external distance restraints in new coot?
+
+Line 6952 in do_colour_by_dictionary_and_by_chain_bonds_carbons_only() add_atom_centres() - comment this
+   out and look at the model. See that many (not all) of the bonds have end-caps. e.g. in TYR ring.
 
 Add lsqkab superposition to the api
 
@@ -54,9 +119,9 @@ Look at 8tv1: 39E and Refine it across the break. Looks at 8TV1 in cif in colour
 Look at this: 7h6j group for CFC
 https://www.rcsb.org/search?request=%7B%22query%22%3A%7B%22type%22%3A%22group%22%2C%22nodes%22%3A%5B%7B%22type%22%3A%22group%22%2C%22nodes%22%3A%5B%7B%22type%22%3A%22group%22%2C%22nodes%22%3A%5B%7B%22type%22%3A%22terminal%22%2C%22service%22%3A%22text%22%2C%22parameters%22%3A%7B%22attribute%22%3A%22rcsb_entry_group_membership.group_id%22%2C%22negation%22%3Afalse%2C%22operator%22%3A%22exact_match%22%2C%22value%22%3A%22G_1002294%22%7D%7D%5D%2C%22logical_operator%22%3A%22and%22%7D%5D%2C%22logical_operator%22%3A%22and%22%2C%22label%22%3A%22text%22%7D%5D%2C%22logical_operator%22%3A%22and%22%7D%2C%22return_type%22%3A%22entry%22%2C%22request_options%22%3A%7B%22scoring_strategy%22%3A%22combined%22%2C%22sort%22%3A%5B%7B%22sort_by%22%3A%22score%22%2C%22direction%22%3A%22desc%22%7D%5D%2C%22results_content_type%22%3A%5B%22computational%22%2C%22experimental%22%5D%2C%22paginate%22%3A%7B%22start%22%3A0%2C%22rows%22%3A25%7D%7D%2C%22request_info%22%3A%7B%22query_id%22%3A%22013bcc94f855676ceb39950f4002bdf1%22%7D%7D
 
-Jakub: Sharpen-blur "Computing..." dialog should be an overlay
+Jakub: Sharpen-blur "Computing..." dialog should be an overlay. It's Python though - so... urgh.
 
-Jakub: Downloading map (from EMDB) dialog should be an overlay
+Jakub: Downloading map (from EMDB) dialog should be an overlay... Likewise, probably.
 
 UI for turning off dark mode.
 * Tried. Doesn't work. Function only works on startup? Maybe I am missing something.

@@ -60,7 +60,8 @@ gtkgl_rama_realize(GtkWidget *gtk_gl_area) {
          int imol = g.rama_plot_boxes[i].imol;
          const std::string residue_selection = rama_box.residue_selection;
          auto &m = graphics_info_t::molecules[imol];
-         g.rama_plot_boxes[i].rama.setup_from(imol, m.atom_sel.mol, residue_selection);
+         gl_rama_plot_t::draw_mode_t draw_mode = gl_rama_plot_t::draw_mode_t::DRAW_MODE;
+         g.rama_plot_boxes[i].rama.setup_from(imol, m.atom_sel.mol, residue_selection, draw_mode);
          done = true;
       }
    }
@@ -289,7 +290,8 @@ graphics_info_t::rama_plot_boxes_handle_molecule_update(int imol) {
       auto &rama_plot_box = *it;
       if (rama_plot_box.imol == imol) {
          auto &m = graphics_info_t::molecules[imol];
-         rama_plot_box.rama.setup_from(imol, m.atom_sel.mol, rama_plot_box.residue_selection);
+         gl_rama_plot_t::draw_mode_t draw_mode = gl_rama_plot_t::draw_mode_t::DRAW_MODE;
+         rama_plot_box.rama.setup_from(imol, m.atom_sel.mol, rama_plot_box.residue_selection, draw_mode);
       }
    }
 }
@@ -309,7 +311,8 @@ graphics_info_t::rama_plot_boxes_handle_molecule_update(GtkWidget *rama_box, con
          std::cout << "in rama_plot_boxes_handle_molecule_update() beta-1 calling setu_from() "
                    << rama_plot_box.imol << " " << rama_plot_box.residue_selection << std::endl;
          auto &m = graphics_info_t::molecules[rama_plot_box.imol];
-         rama_plot_box.rama.setup_from(rama_plot_box.imol, m.atom_sel.mol, rama_plot_box.residue_selection);
+         gl_rama_plot_t::draw_mode_t draw_mode = gl_rama_plot_t::draw_mode_t::DRAW_MODE;
+         rama_plot_box.rama.setup_from(rama_plot_box.imol, m.atom_sel.mol, rama_plot_box.residue_selection, draw_mode);
       }
    }
 }
@@ -328,7 +331,8 @@ graphics_info_t::rama_plot_boxes_handle_molecule_update(GtkWidget *rama_box) {
          std::cout << "in rama_plot_boxes_handle_molecule_update() beta-2 " << rama_plot_box.imol << " " << rama_plot_box.residue_selection
                    << std::endl;
          auto &m = graphics_info_t::molecules[rama_plot_box.imol];
-         rama_plot_box.rama.setup_from(rama_plot_box.imol, m.atom_sel.mol, rama_plot_box.residue_selection);
+         gl_rama_plot_t::draw_mode_t draw_mode = gl_rama_plot_t::draw_mode_t::DRAW_MODE;
+         rama_plot_box.rama.setup_from(rama_plot_box.imol, m.atom_sel.mol, rama_plot_box.residue_selection, draw_mode);
       }
    }
 }

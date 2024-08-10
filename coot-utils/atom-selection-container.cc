@@ -413,6 +413,27 @@ get_atom_selection(std::string pdb_name,
     return asc;
 }
 
+void
+atom_selection_container_t::regen_atom_selection() {
+
+   SelectionHandle = mol->NewSelection();
+   mol->SelectAtoms (SelectionHandle, 0, "*",
+                     mmdb::ANY_RES, // starting resno, an int
+                     "*", // any insertion code
+                     mmdb::ANY_RES, // ending resno
+                     "*", // ending insertion code
+                     "*", // any residue name
+                     "*", // atom name
+                     "*", // elements
+                     "*"  // alt loc.
+                     );
+   mol->GetSelIndex(SelectionHandle, atom_selection, n_selected_atoms);
+   UDDAtomIndexHandle = mol->GetUDDHandle(mmdb::UDR_ATOM, "atom index");
+   for (int i=0; i<n_selected_atoms; i++)
+      atom_selection[i]->PutUDData(UDDAtomIndexHandle, i);
+   UDDOldAtomIndexHandle = -1;
+}
+
 atom_selection_container_t
 coot::mdl_mol_to_asc(const lig_build::molfile_molecule_t &m) {
 

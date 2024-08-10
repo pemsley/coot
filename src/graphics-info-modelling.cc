@@ -5558,6 +5558,22 @@ graphics_info_t::delete_active_residue() {
    graphics_draw();
 }
 
+void
+graphics_info_t::delete_active_residue_alt_conf_atoms() {
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > aa = active_atom_spec();
+   if (aa.first) {
+      int imol = aa.second.first;
+      const coot::atom_spec_t &atom_spec = aa.second.second;
+      coot::residue_spec_t res_spec(aa.second.second);
+      molecules[imol].delete_residue_with_full_spec(atom_spec.model_number, atom_spec.chain_id, atom_spec.res_no,
+                                                    atom_spec.ins_code, atom_spec.alt_conf);
+      if (atom_spec.alt_conf.empty())
+         delete_residue_from_geometry_graphs(imol, res_spec);
+   }
+   graphics_draw();
+}
+
 
 
 

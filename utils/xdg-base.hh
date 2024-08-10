@@ -1,3 +1,24 @@
+/* utils/xdg-base.hh
+ *
+ * Copyright 2024 by Paul Emsley
+ * Author: Paul Emsley
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU Lesser General Public License as published
+ * by the Free Software Foundation; either version 3 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA
+ */
+
 
 #ifndef UTILS_XDG_BASE_HH
 #define UTILS_XDG_BASE_HH
@@ -21,7 +42,9 @@ class xdg_t {
    std::filesystem::path  cache_home;
    std::filesystem::path config_home;
    std::filesystem::path runtime_dir;
-   std::string package_name; //  Coot
+   std::string data_dirs;
+   std::string config_dirs;
+   std::string package_name; // Coot
 
    std::filesystem::path get_home_dir() {
       std::string home;
@@ -49,7 +72,7 @@ public:
    xdg_t() : package_name("Coot") {
       init();
    }
-   xdg_t(const std::string &pn) : package_name(pn) {
+   explicit xdg_t(const std::string &pn) : package_name(pn) {
       init();
    }
 
@@ -67,6 +90,8 @@ public:
       e = std::getenv("XDG_CACHE_HOME");  if (e)  cache_home = e;
       e = std::getenv("XDG_CONFIG_HOME"); if (e) config_home = e;
       e = std::getenv("XDG_RUNTIME_DIR"); if (e) runtime_dir = e;
+      e = std::getenv("XDG_DATA_DIRS");   if (e)   data_dirs = e;
+      e = std::getenv("XDG_CONFIG_DIRS"); if (e) config_dirs = e;
       if (data_home.empty()) {
          std::filesystem::path d = get_home_dir();
          d.append(".local");
@@ -93,6 +118,12 @@ public:
          d.append(package_name);
          cache_home = d;
       }
+      if (data_dirs.empty()) {
+         data_dirs = "/usr/local/share:/usr/share";
+      }
+      if (config_dirs.empty()) {
+         config_dirs = "/etc/xdg";
+      }
    }
    std::filesystem::path get_state_home() const {
       if (!std::filesystem::is_directory(state_home))
@@ -114,6 +145,8 @@ public:
          std::filesystem::create_directories(cache_home);
       return cache_home;
    }
+   std::string get_data_dirs() const { return data_dirs; }
+   std::string get_config_dirs() const { return config_dirs; }
    std::vector<std::filesystem::path> get_python_config_scripts() const {
       return get_scripts_internal(get_config_home(), ".py"); }
    std::vector<std::filesystem::path> get_scheme_config_scripts() const{
