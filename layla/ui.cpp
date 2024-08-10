@@ -154,7 +154,7 @@ GtkApplicationWindow* coot::layla::setup_main_window(GtkApplication* app, GtkBui
         //     gtk_grid_remove(display_grid, i);
         // }
         auto get_widget_for_mol_id = [display_grid](unsigned int id) -> GtkWidget* {
-            for(auto* i = gtk_widget_get_first_child(GTK_WIDGET(display_grid)); i != nullptr; gtk_widget_get_next_sibling(GTK_WIDGET(display_grid))) {
+            for(auto* i = gtk_widget_get_first_child(GTK_WIDGET(display_grid)); i != nullptr; i = gtk_widget_get_next_sibling(GTK_WIDGET(display_grid))) {
                 if(g_object_get_data(G_OBJECT(i),"is_id_label")) {
                     continue;
                 }
@@ -182,22 +182,22 @@ GtkApplicationWindow* coot::layla::setup_main_window(GtkApplication* app, GtkBui
                 GtkLabel* label = (GtkLabel*) gtk_label_new(l_str.c_str());
                 g_object_set_data(G_OBJECT(label), "is_id_label", (gpointer) TRUE);
                 // todo: attach
-                gtk_grid_attach(display_grid, GTK_WIDGET(label), 0, -1, 1, 1);
+                gtk_grid_attach(display_grid, GTK_WIDGET(label), 0, mol_idx, 1, 1);
                 GtkEditableLabel* smiles_label =  (GtkEditableLabel*) gtk_editable_label_new(smiles_code.c_str());
                 g_object_set_data(G_OBJECT(smiles_label), "is_id_label", (gpointer) FALSE);
                 // todo: attach
-                gtk_grid_attach(display_grid, GTK_WIDGET(smiles_label), 1, -1, 1, 1);
+                gtk_grid_attach(display_grid, GTK_WIDGET(smiles_label), 1, mol_idx, 1, 1);
             }
         }
     }), smiles_display_grid);
 
     g_signal_connect(canvas, "molecule-deleted", G_CALLBACK(+[](CootLigandEditorCanvas* self, unsigned int deleted_mol_idx, gpointer user_data){
         GtkGrid* display_grid = GTK_GRID(user_data);
-        for(auto* i = gtk_widget_get_first_child(GTK_WIDGET(display_grid)); i != nullptr; gtk_widget_get_next_sibling(GTK_WIDGET(display_grid))) {
+        for(auto* i = gtk_widget_get_first_child(GTK_WIDGET(display_grid)); i != nullptr; i = gtk_widget_get_next_sibling(GTK_WIDGET(display_grid))) {
             // if(g_object_get_data(G_OBJECT(i),"is_id_label")) {
             //     continue;
             // }
-            gpointer mol_id_gptr = g_object_get_data(G_OBJECT(i),"mol_id");
+            gpointer mol_id_gptr = g_object_get_data(G_OBJECT(i), "mol_id");
             if(mol_id_gptr) {
                 if(GPOINTER_TO_UINT(mol_id_gptr) == deleted_mol_idx) {
                     gtk_grid_remove(display_grid, i);
