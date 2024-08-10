@@ -195,6 +195,17 @@ GtkApplicationWindow* coot::layla::setup_main_window(GtkApplication* app, GtkBui
                 GtkEditableLabel* smiles_label =  (GtkEditableLabel*) gtk_editable_label_new(smiles_code.c_str());
                 // Differeniate between nullptr and zero
                 g_object_set_data(G_OBJECT(smiles_label), "mol_id", GUINT_TO_POINTER(mol_idx + 1));
+                g_signal_connect(smiles_label, "changed", G_CALLBACK(+[](GtkEditable* smiles_label, gpointer user_data){
+                    if(! gtk_editable_label_get_editing(GTK_EDITABLE_LABEL(smiles_label))) {
+                        // We don't want to update the mol from smiles if the text changed
+                        // as a result of the molecule being modified on screen by the user
+                        return;
+                    }
+                    CootLigandEditorCanvas* self = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
+                    std::string smiles_text = gtk_editable_get_text(smiles_label);
+                    unsigned int mol_id = GPOINTER_TO_UINT(g_object_get_data(G_OBJECT(smiles_label),"mol_id")) - 1;
+                    coot_ligand_editor_canvas_update_molecule_from_smiles(self, mol_id, smiles_text.c_str());
+                }), self);
                 gtk_grid_attach(display_grid, GTK_WIDGET(smiles_label), 1, mol_idx, 1, 1);
             }
         }
