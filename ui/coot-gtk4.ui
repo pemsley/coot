@@ -5688,7 +5688,8 @@ Do you want to continue?
                 <child>
                   <object class="GtkToggleButton" id="generic_objects_display_all_togglebutton">
                     <property name="label" translatable="yes">Display/Undisplay All</property>
-                    <property name="can-focus">1</property>
+                    <property name="active">1</property>
+                    <property name="can-focus">0</property>
                     <property name="receives-default">1</property>
                     <property name="margin-start">8</property>
                     <property name="margin-end">4</property>
