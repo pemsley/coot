@@ -1,6 +1,12 @@
 
 ----
 
+read in many pdb file (ligand res-tracer results)
+   Now click on "Last Only" - it doesn't unclick the checkbuttons.
+   (Note that the "All" button does)
+
+symm-shift-reference-chain-here doesn't work for tutorial modern
+
 SVG for pli
 
 make an figure, for moorhen intro with blobs that have volume proportional
