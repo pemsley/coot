@@ -1409,6 +1409,7 @@ Add a new atom or replace an existent atom with the chosen element.
                 <property name="child">
                   <object class="GtkGrid" id="layla_smiles_display_grid">
                     <property name="hexpand">True</property>
+                    <property name="column-spacing">5</property>
                     <!-- <property name="orientation">horizontal</property> -->
                   </object>
                 </property>

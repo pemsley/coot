@@ -206,6 +206,13 @@ GtkApplicationWindow* coot::layla::setup_main_window(GtkApplication* app, GtkBui
                     unsigned int mol_id = GPOINTER_TO_UINT(g_object_get_data(G_OBJECT(smiles_label),"mol_id")) - 1;
                     coot_ligand_editor_canvas_update_molecule_from_smiles(self, mol_id, smiles_text.c_str());
                 }), self);
+
+                GtkCssProvider *provider = gtk_css_provider_new();
+                gtk_css_provider_load_from_string(provider, ".smiles_label { font-family: monospace; }");
+                GtkStyleContext *context = gtk_widget_get_style_context(GTK_WIDGET(smiles_label));
+                gtk_style_context_add_provider (context, GTK_STYLE_PROVIDER (provider), GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+                gtk_style_context_add_class (context, "smiles_label");
+
                 gtk_grid_attach(display_grid, GTK_WIDGET(smiles_label), 1, mol_idx, 1, 1);
             }
         }
