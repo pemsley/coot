@@ -172,16 +172,21 @@ GtkApplicationWindow* coot::layla::setup_main_window(GtkApplication* app, GtkBui
         for(const auto& [mol_idx, smiles_code] : smiles_map) {
             auto* widget_ptr = get_widget_for_mol_id(mol_idx);
             if(widget_ptr) {
-                // Non-label widget means that we're currently editing
-                // the smiles of this molecule (and thus, we ignore it here)
-                if(GTK_IS_LABEL(widget_ptr)) {
-                    gtk_label_set_text(GTK_LABEL(widget_ptr), smiles_code.c_str());
+                if(! gtk_editable_label_get_editing(GTK_EDITABLE_LABEL(widget_ptr))) {
+                // if(GTK_IS_LABEL(widget_ptr)) {
+                    gtk_editable_set_text(GTK_EDITABLE(widget_ptr), smiles_code.c_str());
                 }
             } else {
                 // Create widgets
                 auto l_str = std::to_string(mol_idx) + ":";
                 GtkLabel* label = (GtkLabel*) gtk_label_new(l_str.c_str());
-                g_object_set_data(G_OBJECT(label), "is_id_label", TRUE);
+                g_object_set_data(G_OBJECT(label), "is_id_label", (gpointer) TRUE);
+                // todo: attach
+                gtk_grid_attach(display_grid, GTK_WIDGET(label), 0, -1, 1, 1);
+                GtkEditableLabel* smiles_label =  (GtkEditableLabel*) gtk_editable_label_new(smiles_code.c_str());
+                g_object_set_data(G_OBJECT(smiles_label), "is_id_label", (gpointer) FALSE);
+                // todo: attach
+                gtk_grid_attach(display_grid, GTK_WIDGET(smiles_label), 1, -1, 1, 1);
             }
         }
     }), smiles_display_grid);
