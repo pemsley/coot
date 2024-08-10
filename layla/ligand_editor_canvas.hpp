@@ -42,6 +42,8 @@ CootLigandEditorCanvas *coot_ligand_editor_canvas_new();
 void coot_ligand_editor_canvas_set_active_tool(CootLigandEditorCanvas* self, std::unique_ptr<coot::ligand_editor_canvas::ActiveTool>&& active_tool);
 /// Returns the ID of new molecule or '-1' on error
 int coot_ligand_editor_canvas_append_molecule(CootLigandEditorCanvas* self, std::shared_ptr<RDKit::RWMol> rdkit_mol) noexcept;
+void coot_ligand_editor_canvas_update_molecule_from_smiles(CootLigandEditorCanvas* self, unsigned int molecule_idx, const char* smiles);
+
 void coot_ligand_editor_canvas_set_scale(CootLigandEditorCanvas* self, float scale) noexcept;
 float coot_ligand_editor_canvas_get_scale(CootLigandEditorCanvas* self) noexcept;
 

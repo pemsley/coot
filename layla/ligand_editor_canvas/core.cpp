@@ -329,6 +329,10 @@ int CootLigandEditorCanvas::append_molecule(std::shared_ptr<RDKit::RWMol> rdkit_
     return coot_ligand_editor_canvas_append_molecule(this, std::move(rdkit_mol));
 }
 
+ void CootLigandEditorCanvas::update_molecule_from_smiles(unsigned int molecule_idx, const std::string& smiles) {
+    coot_ligand_editor_canvas_update_molecule_from_smiles(this, molecule_idx, smiles.c_str());
+ }
+
 void CootLigandEditorCanvas::set_scale(float scale) noexcept {
     coot_ligand_editor_canvas_set_scale(this, scale);
 }
