@@ -20,7 +20,13 @@
  * Fifth Floor, Boston, MA, 02110-1301, USA.
  */
 
+#ifdef USE_PYTHON
+#include <Python.h>
+#endif // USE_PYTHON
+
+#include <clipper/core/coords.h>
 #include <string>
+#include "utils/colour-holder.hh"
 #include "generic-display-objects-c.h"
 
 
