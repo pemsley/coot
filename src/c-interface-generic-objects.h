@@ -64,6 +64,13 @@ void to_generic_object_add_line(int object_number,
                                 float to_y2,
                                 float to_z2);
 
+#ifdef USE_PYTHON
+/*! \brief add multiple lines to generic object object_number
+
+c.f. to_generic_object_add_points() */
+void to_generic_object_add_lines(int object_number, PyObject *line_info_list_py);
+#endif
+
 void to_generic_object_add_cylinder(int object_number,
                                     const char *colour,
                                     float line_radius,
