@@ -34,7 +34,7 @@
 #include "ideal/simple-restraint.hh"
 #include "new-residue-by-3-phi-psi.hh"
 
-std::pair<int, float> get_sum_of_density_for_residue(mmdb::Residue *residue_p, const clipper::Xmap<float> &xmap) {
+std::pair<float, int> get_sum_of_density_for_residue(mmdb::Residue *residue_p, const clipper::Xmap<float> &xmap) {
 
    mmdb::Atom **residue_atoms = 0;
    int n_residue_atoms = 0;
@@ -46,10 +46,12 @@ std::pair<int, float> get_sum_of_density_for_residue(mmdb::Residue *residue_p, c
       if (! at->isTer()) {
          clipper::Coord_orth co(coot::co(at));
          float d = coot::util::density_at_point(xmap, co);
+         // std::cout << "debug:: get_sum_of_density_for_residue() " << coot::atom_spec_t(at) << " " << co.format() << " " << d << std::endl;
          n_atoms++;
          density_sum += d;
       }
    }
+   // std::cout << "debug:: get_sum_of_density_for_residue() returning " << density_sum << " " << n_atoms << std::endl;
    return std::make_pair(density_sum, n_atoms);
 }
 
@@ -68,17 +70,19 @@ float get_average_density_per_atom(mmdb::Manager *mol, const clipper::Xmap<float
             mmdb::Residue *residue_p = chain_p->GetResidue(ires);
             if (residue_p) {
                auto dp = get_sum_of_density_for_residue(residue_p, xmap);
+               std::cout << "    " << coot::residue_spec_t(residue_p) << " returned " << dp.first << " " << dp.second << std::endl;
                sum     += dp.first;
                n_atoms += dp.second;
             }
          }
       }
+
+      // std::cout << "::get_average_density_per_atom() n_atoms " << n_atoms << std::endl;
       if (n_atoms > 0) {
          float av = sum/static_cast<float>(n_atoms);
          return av;
       }
    }
-   std::cout << "ERROR:: no atoms in get_average_density_per_atom() " << std::endl;
    return 0.0f;
    
 }
@@ -139,10 +143,12 @@ rama_rsr_extend_fragments(mmdb::Manager *mol, const clipper::Xmap<float> &xmap, 
          ires = res_no_base + 1;
       if (terminus_type == "N")
          ires = res_no_base - 1;
-      // std::cout << "debug:: get_density_score_for_new_residue_in_frag() selected residue " << ires << std::endl;
+      std::cout << "debug:: get_density_score_for_new_residue_in_frag() selected residue, ires: " << ires << std::endl;
       try {
-         for (unsigned int iat=0; iat<frag[ires].atoms.size(); iat++) {
-            const clipper::Coord_orth atom_pos(frag[ires][iat].pos);
+         const coot::minimol::residue &residue = frag[ires];
+         std::cout << "residue has " << residue.atoms.size() << " atoms" << std::endl;
+         for (unsigned int iat=0; iat<residue.atoms.size(); iat++) {
+            const clipper::Coord_orth atom_pos(residue[iat].pos);
             float f = coot::util::density_at_point(xmap, atom_pos);
             const float &w = frag[ires][iat].occupancy;
             sum += f * w;
@@ -870,10 +876,23 @@ rama_rsr_extend_fragments(mmdb::Manager *mol, const clipper::Xmap<float> &xmap, 
                                                   << " residue_p with index : " << residue_index << " " << coot::residue_spec_t(residue_p)
                                                   << " av-densities " << average_density_per_atom_for_molecule
                                                   << " AA-crit: " << crit_sf * average_density_per_atom_for_molecule << " this_residue_av: " << av << " ";
-                                        if (av < crit_sf * average_density_per_atom_for_molecule)
+                                        if (av < crit_sf * average_density_per_atom_for_molecule) {
                                            std::cout << "Low density" << std::endl;
-                                        else
+                                           std::string fn = "low-density-reject-" + terminus_type + "-chain-id-" +
+                                              frag.fragment_id  + "-resno-" + std::to_string(residue_p->GetSeqNum()) + ".pdb";
+                                           frag.write_file(fn);
+                                           // here also write out chain_p - so I can see what the new fragment was trying to be joined to.
+                                           std::pair<mmdb::Chain *, mmdb::Manager *> cc = coot::util::copy_chain(chain_p);
+                                           if (cc.second) {
+                                              std::string fn_base = "low-density-reject-base-fragment-terminus-type:" + terminus_type
+                                                 + ":-chain-id-" + frag.fragment_id  + "-resno-" +
+                                                 std::to_string(residue_p->GetSeqNum()) + ".pdb";
+                                              cc.second->WritePDBASCII(fn_base.c_str());
+                                           }
+
+                                        } else {
                                            std::cout << std::endl;
+                                        }
                                      }
 
                                      bool density_is_good_enough_to_continue = true;
@@ -972,7 +991,7 @@ rama_rsr_extend_fragments(mmdb::Manager *mol, const clipper::Xmap<float> &xmap, 
             status = build_3_keep_1(chain_mol_pair.first, chain_mol_pair.second, terminus_type,
                                     average_density_per_atom, weight, n_phi_psi_trials, geom);
             if (status) (*update_count)++;
-            std::cout << "&&&&&&& extend_chain_func(): build_3_keep_1(): with chain-id " << chain_mol_pair.first->GetChainID()
+            std::cout << "DEBUG:: extend_chain_func(): build_3_keep_1(): with chain-id " << chain_mol_pair.first->GetChainID()
                       << " terminus_type " << terminus_type
                       << " returns with status " << status << std::endl;
          } while (status);
@@ -999,6 +1018,7 @@ rama_rsr_extend_fragments(mmdb::Manager *mol, const clipper::Xmap<float> &xmap, 
 
       float average_density_per_atom_for_molecule = get_average_density_per_atom(mol, xmap);
       int n_chains = model_p->GetNumberOfChains();
+      std::cout << "average_density_per_atom_for_molecule() " << average_density_per_atom_for_molecule << std::endl;
 
 #if 0 // threaded.
       unsigned int n_rounds = 50;

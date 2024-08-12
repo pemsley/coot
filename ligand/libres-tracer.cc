@@ -518,16 +518,21 @@ make_spin_scored_pairs(const std::vector<std::pair<unsigned int, unsigned int> >
                                     }
                                  };
 
-#if 1
+#if 0
    for (unsigned int i=0; i<n_atom_pairs; i++) {
       const unsigned &at_idx_1 = atom_pairs_within_distance[i].first;
       const unsigned &at_idx_2 = atom_pairs_within_distance[i].second;
-      scores[2*i ]  = spin_score(at_idx_1, at_idx_2, atom_selection, xmap, map_rmsd);
-      scores[2*i+1] = spin_score(at_idx_2, at_idx_1, atom_selection, xmap, map_rmsd);
+      auto spin_score_1 = spin_score(at_idx_1, at_idx_2, atom_selection, xmap, map_rmsd);
+      auto spin_score_2 = spin_score(at_idx_2, at_idx_1, atom_selection, xmap, map_rmsd);
+      scores[2*i  ] = spin_score_1;
+      scores[2*i+1] = spin_score_2;
+      scores[2*i  ].second.reverse_spin_score = std::make_pair(true, scores[2*i+1].second.spin_score);
+      scores[2*i+1].second.reverse_spin_score = std::make_pair(true, scores[2*i  ].second.spin_score);
+      if (i%10000 == 0) std::cout << "   spin-score i: " << i << std::endl;
    }
 #endif
 
-#if 0
+#if 1
    std::cout << "debug:: n_atom_pairs: " << n_atom_pairs << std::endl;
    std::vector<std::thread> threads;
    for (unsigned int i=0; i<air.size(); i++) {
@@ -536,8 +541,10 @@ make_spin_scored_pairs(const std::vector<std::pair<unsigned int, unsigned int> >
       threads.push_back(std::thread(spin_score_workpackage, range, std::cref(atom_pairs_within_distance), atom_selection,
                                     std::cref(xmap), map_rmsd, std::ref(scores)));
    }
-   for (unsigned int i=0; i<air.size(); i++)
+   for (unsigned int i=0; i<air.size(); i++) {
       threads[i].join();
+      std::cout << "i " << i << std::endl;
+   }
 #endif
 
    std::sort(scores.begin(), scores.end(), coot::scored_node_t::sort_pair_scores);
@@ -1212,8 +1219,8 @@ make_fragments(std::vector<std::pair<unsigned int, coot::scored_node_t> > &score
    //
    auto trace_length_histogram = [] (const std::vector<scored_tree_t> &sorted_traces) {
 
-                                    auto stars = [] (unsigned int n) {
-                                                    unsigned int n_stars = static_cast<int>(static_cast<float>(n)/30.0);
+                                    auto stars = [] (unsigned int n, unsigned int counts_per_star) {
+                                                    unsigned int n_stars = static_cast<int>(static_cast<float>(n)/static_cast<float>(counts_per_star));
                                                     for (unsigned int i=0; i<n_stars; i++)
                                                        std::cout << "*";
                                                     };
@@ -1225,14 +1232,26 @@ make_fragments(std::vector<std::pair<unsigned int, coot::scored_node_t> > &score
                                        }
                                     }
                                     // so now we have set trace_length_max
-                                    const unsigned int n_bins = 20;
+                                    unsigned int n_bins = 20;
+                                    unsigned int counts_per_star = 10;
+                                    if (sorted_traces.size() > 1000) counts_per_star = 30;
+
+                                    // find the maximum trace length and adjust n_bins
+                                    // if it is less than current n_bins
+                                    unsigned int l_max = 0;
+                                    for (const auto &trace : sorted_traces) {
+                                       unsigned int l = trace.tree.size();
+                                       if (l > l_max) l_max = l;
+                                    }
+                                    if (l_max < n_bins) n_bins = l_max + 1;
+
                                     std::vector<unsigned int> length_bins(n_bins, 0);
                                     for (const auto &trace : sorted_traces) {
                                        unsigned int l = trace.tree.size();
                                        float f  = static_cast<float>(l)/static_cast<float>(trace_length_max);
                                        float fb = static_cast<unsigned int>(f * static_cast<float>(n_bins));
                                        unsigned int bin_index = static_cast<unsigned int>(fb);
-                                       if (bin_index == 20) bin_index = 19;
+                                       if (bin_index == n_bins) bin_index = n_bins - 1;
                                        length_bins[bin_index]++;
                                     }
                                     std::cout << ":::: Trace Length Histogram:\n";
@@ -1240,7 +1259,7 @@ make_fragments(std::vector<std::pair<unsigned int, coot::scored_node_t> > &score
                                        float abl = (static_cast<float>(i) + 0.5) * static_cast<float>(trace_length_max) / static_cast<float>(n_bins);
                                        int abl_i = static_cast<int>(abl);
                                        std::cout << std::setw(2) << abl_i << " : " << std::setw(5) << length_bins[i] << " ";
-                                       stars(length_bins[i]);
+                                       stars(length_bins[i], counts_per_star);
                                        std::cout << "\n";
                                     }
                                  };
@@ -1418,7 +1437,7 @@ make_fragments(std::vector<std::pair<unsigned int, coot::scored_node_t> > &score
                                                                     return status;
                                                                  };
 
-                           unsigned int max_number_of_trees = 14000; // so that we don't keep going for millions of trees
+                           unsigned int max_number_of_trees = 32000; // so that we don't keep going for millions of trees
 
                            std::cout << "grow_trees_v4" << std::endl;
 
@@ -1444,76 +1463,92 @@ make_fragments(std::vector<std::pair<unsigned int, coot::scored_node_t> > &score
                            unsigned int n_threads = 16;
 
                            do {
-                              loop_begin_tree_size = trees.size();
 
-                              std::vector<std::vector<addition_t> > additions_vec;
+                              try {
+                                 loop_begin_tree_size = trees.size();
 
-                              auto tp_0 = std::chrono::high_resolution_clock::now();
+                                 std::vector<std::vector<addition_t> > additions_vec;
 
-                              // make a non-thread version of this for testing/timing
-                              //
-                              std::vector<std::pair<unsigned int, unsigned int> > ranges = coot::atom_index_ranges(loop_begin_tree_size, n_threads);
-                              additions_vec.resize(ranges.size());
-                              std::vector<std::thread> threads;
-                              for (unsigned int ir=0; ir<ranges.size(); ir++)
-                                 threads.push_back(std::thread(get_additions_for_this_range_of_trees, std::cref(trees), ranges[ir], std::cref(scored_pairs),
-                                                               std::ref(dont_adds), std::ref(additions_vec[ir])));
-                              for (unsigned int ir=0; ir<ranges.size(); ir++)
-                                 threads[ir].join();
+                                 auto tp_0 = std::chrono::high_resolution_clock::now();
 
-#if 1
-                              auto tp_1 = std::chrono::high_resolution_clock::now();
-                              auto d10 = std::chrono::duration_cast<std::chrono::microseconds>(tp_1 - tp_0).count();
-                              // std::cout << "Timings: for these " << trees.size() << " trees: " << d10 << " microseconds" << std::endl;
-#endif
-                              if (there_are_additions_to_be_made(additions_vec)) {
+                                 // make a non-thread version of this for testing/timing
+                                 //
+                                 std::vector<std::pair<unsigned int, unsigned int> > ranges = coot::atom_index_ranges(loop_begin_tree_size, n_threads);
+                                 additions_vec.resize(ranges.size());
+                                 std::vector<std::thread> threads;
+                                 for (unsigned int ir=0; ir<ranges.size(); ir++)
+                                    threads.push_back(std::thread(get_additions_for_this_range_of_trees, std::cref(trees), ranges[ir], std::cref(scored_pairs),
+                                                                  std::ref(dont_adds), std::ref(additions_vec[ir])));
+                                 for (unsigned int ir=0; ir<ranges.size(); ir++)
+                                    threads[ir].join();
 
-                                 for (auto it = additions_vec.begin(); it != additions_vec.end(); ++it) {
-                                    auto &additions(*it);
-                                    for (const auto &addition : additions) {
-                                       scored_tree_t new_tree = trees[addition.tree_index];
-                                       const auto &scored_pair = scored_pairs[addition.scored_pair_index];
-                                       if (addition.end == addition_t::FRONT)
-                                          new_tree.tree.push_front(scored_pair);
-                                       else
-                                          new_tree.tree.push_back(scored_pair);
-                                       unsigned int new_index = trees.size();
-                                       std::set<unsigned int> &progenitor_list = trees[addition.tree_index].live_progenitor_index_set; // and then we add to it.
-                                       progenitor_list.insert(addition.tree_index);
-                                       new_tree.index = new_index;
-                                       trees.push_back(new_tree);
-                                       tree_copies[addition.tree_index].insert(new_index);
+                                 auto tp_1 = std::chrono::high_resolution_clock::now();
+                                 auto d10 = std::chrono::duration_cast<std::chrono::microseconds>(tp_1 - tp_0).count();
+                                 // std::cout << "Timings: for these " << trees.size() << " trees: " << d10 << " microseconds" << std::endl;
+
+                                 if (there_are_additions_to_be_made(additions_vec)) {
+
+                                    for (auto it = additions_vec.begin(); it != additions_vec.end(); ++it) {
+                                       auto &additions(*it);
+                                       for (const auto &addition : additions) {
+                                          try {
+                                             scored_tree_t new_tree = trees[addition.tree_index];
+                                             const auto &scored_pair = scored_pairs[addition.scored_pair_index];
+                                             if (addition.end == addition_t::FRONT)
+                                                new_tree.tree.push_front(scored_pair);
+                                             else
+                                                new_tree.tree.push_back(scored_pair);
+                                             unsigned int new_index = trees.size();
+                                             std::set<unsigned int> &progenitor_list = trees[addition.tree_index].live_progenitor_index_set; // and then we add to it.
+                                             progenitor_list.insert(addition.tree_index);
+                                             new_tree.index = new_index;
+                                             std::cout << "pushing back a new tree when trees.size() is " << trees.size() << std::endl;
+                                             trees.push_back(new_tree);
+                                             tree_copies[addition.tree_index].insert(new_index);
+                                          }
+                                          catch (const std::runtime_error &e) {
+                                             std::cout << "WARNING:: grow_trees_v4() " << e.what() << std::endl;
+                                          }
+                                       }
+                                    }
+
+                                    // I need to add here - I think - something to purge the early trees if later trees are n (4?) or more
+                                    // scored pairs longer - because to be 4 or more pairs longer means that we clearly went the right path
+                                    // and we don't need to keep the stubby root tree.
+
+                                    filter_out_old_traces_from_progenitors(trees); // edit trees
+
+                                 } else {
+
+                                    if (! scored_pairs.empty()) {
+                                       // make a new tree with this peptide.
+                                       if (scored_pairs_front_offset < scored_pairs.size()) {
+                                          std::vector<std::pair<unsigned int, coot::scored_node_t> >::iterator it = scored_pairs.begin() + scored_pairs_front_offset;
+                                          // scored_pairs.erase(scored_pairs.begin());
+                                          scored_tree_t new_tree;
+                                          unsigned int new_index = trees.size();
+                                          new_tree.index = new_index;
+                                          new_tree.tree.push_back(*it);
+                                          scored_pairs_front_offset++;
+                                          trees.push_back(new_tree);
+                                       }
                                     }
                                  }
 
-                                 // I need to add here - I think - something to purge the early trees if later trees are n (4?) or more
-                                 // scored pairs longer - beacuse to be 4 or more pairs longer means that we clearly went the right path
-                                 // and we don't need to keep the stubby root tree.
-
-                                 filter_out_old_traces_from_progenitors(trees); // edit trees
-
-                              } else {
-
-                                 if (! scored_pairs.empty()) {
-                                    // make a new tree with this peptide.
-                                    if (scored_pairs_front_offset < scored_pairs.size()) {
-                                       std::vector<std::pair<unsigned int, coot::scored_node_t> >::iterator it = scored_pairs.begin() + scored_pairs_front_offset;
-                                       // scored_pairs.erase(scored_pairs.begin());
-                                       scored_tree_t new_tree;
-                                       unsigned int new_index = trees.size();
-                                       new_tree.index = new_index;
-                                       new_tree.tree.push_back(*it);
-                                       scored_pairs_front_offset++;
-                                       trees.push_back(new_tree);
+                                 if (true) {
+                                    unsigned int n_th = 1;
+                                    if ((trees.size() %n_th) == 0) {
+                                       std::cout << "grow_trees_v4(): Trees size " << trees.size() << std::endl;
+                                       tree_report(trees);
                                     }
                                  }
                               }
-
-                              if (true)
-                                 if ((trees.size() %100) == 0) {
-                                    std::cout << "Trees size " << trees.size() << std::endl;
-                                    tree_report(trees);
-                                 }
+                              catch (const std::exception &e) {
+                                 std::cout << "ERROR:: grow_trees_v4() caught exception " << e.what() << std::endl;
+                              }
+                              catch (...) {
+                                 std::cout << "ERROR:: grow_trees_v4() caught something else " << std::endl;
+                              }
 
                            } while ((trees.size() > loop_begin_tree_size) && (trees.size() < max_number_of_trees) );
 
@@ -1926,8 +1961,12 @@ make_fragments(std::vector<std::pair<unsigned int, coot::scored_node_t> > &score
                              for (unsigned int i=0; i<tree.tree.size(); i++) {
                                 const auto &pep = tree.tree[i];
                                 sum_forward += pep.second.spin_score;
-                                if (pep.second.reverse_spin_score.first)
+                                if (pep.second.reverse_spin_score.first) {
                                    sum_backward += pep.second.reverse_spin_score.second;
+                                } else {
+                                   if (true)
+                                      std::cout << "invalid reverse spin score " << tree.chain_id << " " << i << std::endl;
+                                }
                              }
                              return std::make_pair(sum_forward, sum_backward);
                           };
@@ -2106,6 +2145,54 @@ make_fragments(std::vector<std::pair<unsigned int, coot::scored_node_t> > &score
                                 }
                              };
 
+   auto output_scored_traces = [] (const std::vector<scored_tree_t> scored_traces) {
+
+      // output the traces in a form suitable to be read in as a generic object.
+
+      // from earlier in the run, we pick up the mapping between atom index and atom/peak position:
+      std::string fn = "flood-mol-atom-index-to-position.table";
+      std::ifstream f(fn);
+      std::map<int, clipper::Coord_orth> index_map;
+      if (f) {
+         std::vector<std::string> lines;
+         std::string line;
+         while (std::getline(f, line)) {
+            std::vector<std::string> words = coot::util::split_string_no_blanks(line);
+            if (words.size() == 4) {
+               int idx = coot::util::string_to_int(words[0]);
+               float x = coot::util::string_to_int(words[1]);
+               float y = coot::util::string_to_int(words[2]);
+               float z = coot::util::string_to_int(words[3]);
+               index_map[idx] = clipper::Coord_orth(x,y,z);
+            }
+         }
+      }
+      std::ofstream of("debug-traces.table");
+      if (of) {
+         for (const auto &trace : scored_traces) {
+            const std::deque<std::pair<unsigned int, coot::scored_node_t> > &trace_tree = trace.tree;
+            std::deque<std::pair<unsigned int, coot::scored_node_t> >::const_iterator it;
+
+            if (true) {
+               std::cout << "scored tree index; " << trace.index << std::endl;
+               std::cout << "scored tree index tree size(): " << trace_tree.size() << std::endl;
+               for (it=trace_tree.begin(); it!=trace_tree.end(); ++it) {
+                  int node_atom_index = it->second.atom_idx;
+                  std::cout << "   " << node_atom_index << " " << it->second.spin_score << " " << it->second.name << std::endl;
+               }
+            }
+
+            of << "Trace " << trace.index << "\n";
+            for (it=trace_tree.begin(); it!=trace_tree.end(); ++it) {
+               int node_atom_index = it->second.atom_idx;
+               clipper::Coord_orth pos = index_map[node_atom_index];
+               of << "   " << node_atom_index << " " << pos.x() << " " << pos.y() << " " << pos.z() << " " << it->second.spin_score << "\n";
+            }
+         }
+         of.close();
+      }
+   };
+
    // -------------------------------------------------------------
    // -------------------------------------------------------------
    //  main line of make_fragments()
@@ -2167,11 +2254,16 @@ make_fragments(std::vector<std::pair<unsigned int, coot::scored_node_t> > &score
             }
          }
 
+         output_scored_traces(scored_traces);
+
          auto tp_2 = std::chrono::high_resolution_clock::now();
          coot::minimol::molecule m = scored_trees_to_multi_fragment(scored_traces, top_n_fragments, xmap);
          auto tp_3 = std::chrono::high_resolution_clock::now();
-         std::string fn = "stage-1-post-make_fragments-all-fragments.pdb";
-         m.write_file(fn, 30.0);
+         std::cout << "INFO:: stage-1 molecule has " << m.fragments.size() << " fragments." << std::endl;
+         std::string fn_pdb = "stage-1-post-make_fragments-all-fragments.pdb";
+         std::string fn_cif = "stage-1-post-make_fragments-all-fragments.cif";
+         m.write_file(fn_pdb, 30.0);
+         m.write_cif_file(fn_cif);
 
          float big_overlap_fraction_limit = 0.89;
          mmdb::Manager *mol = m.pcmmdbmanager();
@@ -2590,6 +2682,7 @@ find_connected_fragments(const coot::minimol::molecule &flood_mol,
 
                                      double max_score = 26.0; // for 1gwd
                                      // xmax_score = 250.0; // for emd-22898
+                                     max_score = 2.6; // 7vvl 32143
 
                                      auto score_to_colour = [max_score] (double score) {
                                                                float f = score/max_score;
@@ -2610,7 +2703,7 @@ find_connected_fragments(const coot::minimol::molecule &flood_mol,
                                         clipper::Coord_orth pt_2 = coot::co(atom_selection[scored_pair.second.atom_idx]);
                                         double score = scored_pair.second.spin_score;
                                         coot::colour_holder ch = score_to_colour(score);
-                                        if (score > 2.0) {
+                                        if (score > 1.0) {
                                            f << "scored-peptide idx_1 " << scored_pair.first << " idx_2 " << scored_pair.second.atom_idx << " "
                                              << std::setw(9) << pt_1.x() << " " << std::setw(9) << pt_1.y() << " " << std::setw(9) << pt_1.z() << " "
                                              << std::setw(9) << pt_2.x() << " " << std::setw(9) << pt_2.y() << " " << std::setw(9) << pt_2.z()
@@ -2620,11 +2713,27 @@ find_connected_fragments(const coot::minimol::molecule &flood_mol,
                                      }
                                   };
 
+   auto make_flood_mol_atom_index_to_postion_table = [] (mmdb::Atom **atom_selection, int n_selected_atoms) {
+
+      std::ofstream f("flood-mol-atom-index-to-position.table");
+      for (int i=0; i<n_selected_atoms; i++) {
+         mmdb::Atom *at = atom_selection[i];
+         if (! at->isTer()) {
+            f << i << " " << at->x << " " << at->y << " " << at->z << "\n";
+         }
+      }
+      f.close();
+   };
+
    // somewhere here - not sure before or after action_mol is created, I want to globularize the molecule
    mmdb::Manager *action_mol = flood_mol.pcmmdbmanager();
 
-   globularize(action_mol, xmap, hack_centre.second, hack_centre.first); // move around the atoms so they they are arranged in space in a sphere rather
-                                                                // than in a strip of the map (the asymmetric unit).
+   bool is_em_map = coot::util::is_EM_map(xmap);
+
+   // we don't want to globularize if this is em cell (90,90,90)
+   if (! is_em_map)
+      globularize(action_mol, xmap, hack_centre.second, hack_centre.first); // move around the atoms so they they are arranged in space in a sphere rather
+                                                                            // than in a strip of the map (the asymmetric unit).
 
    action_mol->WritePDBASCII("flood-mol-globularized.pdb");
 
@@ -2644,6 +2753,10 @@ find_connected_fragments(const coot::minimol::molecule &flood_mol,
    std::cout << "INFO:: selected " << n_selected_atoms << " for distance pair check" << std::endl;
    std::vector<std::pair<unsigned int, unsigned int> > apwd =
       atom_pairs_within_distance(action_mol, atom_selection, n_selected_atoms, 3.81, variation);
+
+   // 20240811-PE debugging - I want to see the traces - they work by atom indices - and in this function is the mapping
+   // between atom index and position.
+   make_flood_mol_atom_index_to_postion_table(atom_selection, n_selected_atoms);
 
    std::cout << "PROGRESS:: calling make_spin_scored_pairs() using " << apwd.size() << " atom pairs within distance" << std::endl;
    // the first of the scores is the index of the first atom
@@ -3589,11 +3702,6 @@ void res_tracer_proc(const clipper::Xmap<float> &xmap, float xmap_rmsd, const co
                                                                                 const std::map<std::string, unsigned int> &chain_id_to_fam_index) {
                                                  // non-trivial function
 
-      std::cout << "========================================== merge_and_delete_sequenced_fragments_into_single_chain()" << std::endl;
-      std::cout << "========================================== merge_and_delete_sequenced_fragments_into_single_chain()" << std::endl;
-      std::cout << "========================================== merge_and_delete_sequenced_fragments_into_single_chain()" << std::endl;
-      std::cout << "========================================== merge_and_delete_sequenced_fragments_into_single_chain()" << std::endl;
-
                                                  mmdb::Model *model_p = mol->GetModel(1);
                                                  if (! model_p) return;
 
@@ -4163,7 +4271,7 @@ void res_tracer_proc(const clipper::Xmap<float> &xmap, float xmap_rmsd, const co
 
             mol->WritePDBASCII("stage-8-post-twisted-peptide-chain-filter.pdb");
 
-            if (false) {
+            if (true) {
                int n_chains = model_p->GetNumberOfChains();
                for (int ichain=0; ichain<n_chains; ichain++) {
                   mmdb::Chain *chain_p = model_p->GetChain(ichain);
@@ -4174,137 +4282,155 @@ void res_tracer_proc(const clipper::Xmap<float> &xmap, float xmap_rmsd, const co
                }
             }
 
-            auto tp_3 = std::chrono::high_resolution_clock::now();
-            std::cout << "rama_rsr_extend_fragments() " << std::endl;
-            rama_rsr_extend_fragments(mol, xmap, xmap_rmsd, &thread_pool, n_threads, weight, n_phi_psi_trials, geom, &update_count);
-            auto tp_4 = std::chrono::high_resolution_clock::now();
-
-            update_working_mol(watch_res_tracer_data_p, mol, "update-7");
-
-            // this is the right thing to do generally of course, but not when I am trying to debug tracing.
-            if (false)
-               coot::renumber_chains_start_at_least_at_1(mol); // make this verbose, so I can track the residue numbers?
-
-            auto tp_5 = std::chrono::high_resolution_clock::now();
-            mol->WritePDBASCII("stage-9-post-extensions.pdb");
-
-            coot::merge_C_and_N_terminii_0_gap(mol, xmap);
-
-            mol->WritePDBASCII("stage-10-post-merge-C_and_N_terminii.pdb");
-
-            auto d43 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_4 - tp_3).count();
-            std::cout << "Timings: proc(): Rama-RSR chain extensions: " << d43 << " milliseconds" << std::endl;
-
-            // now I want to merge fragments (non-trivial)
-            //
-            // first I want a sorted list of mergeable chains (sort by distance of terminii)
-
-            std::map<std::string, unsigned int> chain_id_to_fam_index_map = apply_sequence_to_fragments(mol, xmap, xmap_rmsd, fam, geom);
-
-            update_working_mol(watch_res_tracer_data_p, mol, "update-8");
-
-            mol->WritePDBASCII("stage-11-post-sequence-fragments.pdb");
-            mol->WriteCIFASCII("stage-11-post-sequence-fragments.cif");
-
-            if (true) {
-               int n_chains = model_p->GetNumberOfChains();
-               for (int ichain=0; ichain<n_chains; ichain++) {
-                  mmdb::Chain *chain_p = model_p->GetChain(ichain);
-                  std::string chain_id(chain_p->GetChainID());
-                  std::cout << "Write post-sequence-fragment chain " << chain_id << std::endl;
-                  std::string file_name = "post-sequence-fragment-chain-" + chain_id + ".cif";
-                  write_chain(chain_p, mol, file_name, true);
-               }
+            // give me an analysis of the structure here - how many chains and how many residues per-chain?
+            int n_chains = model_p->GetNumberOfChains();
+            int n_residues = 0;
+            for (int ichain=0; ichain<n_chains; ichain++) {
+               mmdb::Chain *chain_p = model_p->GetChain(ichain);
+               std::string chain_id(chain_p->GetChainID());
+               int n_residues_in_chain = chain_p->GetNumberOfResidues();
+               n_residues += n_residues_in_chain;
+               std::cout << "INFO:: chain-id " << chain_id << " has " << n_residues_in_chain << " residues" << std::endl;
             }
 
-            float big_overlap_fraction_limit_for_poly_ala = 0.2;
-            delete_poly_ala_chains_that_overlap_on_sequenced_chains(mol, big_overlap_fraction_limit_for_poly_ala);
+            if (n_residues == 0) {
 
-            update_working_mol(watch_res_tracer_data_p, mol, "update-9");
+               std::cout << "Nothing left after clean-up " << std::endl;
 
-            mol->WritePDBASCII("stage-12-post-delete-overlapping-fragments.pdb");
-            mol->WriteCIFASCII("stage-12-post-delete-overlapping-fragments.cif");
+            } else {
 
-            if (true) {
-               int n_chains = model_p->GetNumberOfChains();
-               for (int ichain=0; ichain<n_chains; ichain++) {
-                  mmdb::Chain *chain_p = model_p->GetChain(ichain);
-                  std::string chain_id(chain_p->GetChainID());
-                  std::cout << "Write post-delete-overlapping-poly-ala " << chain_id << std::endl;
-                  std::string file_name = "post-delete-overlapping-poly-ala-" + chain_id + ".cif";
-                  write_chain(chain_p, mol, file_name, true);
+               auto tp_3 = std::chrono::high_resolution_clock::now();
+               std::cout << "rama_rsr_extend_fragments() " << std::endl;
+               rama_rsr_extend_fragments(mol, xmap, xmap_rmsd, &thread_pool, n_threads, weight, n_phi_psi_trials, geom, &update_count);
+               auto tp_4 = std::chrono::high_resolution_clock::now();
+
+               update_working_mol(watch_res_tracer_data_p, mol, "update-7");
+
+               // this is the right thing to do generally of course, but not when I am trying to debug tracing.
+               if (false)
+                  coot::renumber_chains_start_at_least_at_1(mol); // make this verbose, so I can track the residue numbers?
+
+               auto tp_5 = std::chrono::high_resolution_clock::now();
+               mol->WritePDBASCII("stage-9-post-extensions.pdb");
+
+               coot::merge_C_and_N_terminii_0_gap(mol, xmap);
+
+               mol->WritePDBASCII("stage-10-post-merge-C_and_N_terminii.pdb");
+
+               auto d43 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_4 - tp_3).count();
+               std::cout << "Timings: proc(): Rama-RSR chain extensions: " << d43 << " milliseconds" << std::endl;
+
+               // now I want to merge fragments (non-trivial)
+               //
+               // first I want a sorted list of mergeable chains (sort by distance of terminii)
+
+               std::map<std::string, unsigned int> chain_id_to_fam_index_map = apply_sequence_to_fragments(mol, xmap, xmap_rmsd, fam, geom);
+
+               update_working_mol(watch_res_tracer_data_p, mol, "update-8");
+
+               mol->WritePDBASCII("stage-11-post-sequence-fragments.pdb");
+               mol->WriteCIFASCII("stage-11-post-sequence-fragments.cif");
+
+               if (true) {
+                  int n_chains = model_p->GetNumberOfChains();
+                  for (int ichain=0; ichain<n_chains; ichain++) {
+                     mmdb::Chain *chain_p = model_p->GetChain(ichain);
+                     std::string chain_id(chain_p->GetChainID());
+                     std::cout << "Write post-sequence-fragment chain " << chain_id << std::endl;
+                     std::string file_name = "post-sequence-fragment-chain-" + chain_id + ".cif";
+                     write_chain(chain_p, mol, file_name, true);
+                  }
                }
-            }
 
-            std::cout << "::::::::::::::::: merge and delete sequenced fragments into single chain " << std::endl;
-            if (! with_ncs)
-               merge_and_delete_sequenced_fragments_into_single_chain(mol, chain_id_to_fam_index_map);
-            else
-               merge_and_delete_sequenced_fragments(mol, chain_id_to_fam_index_map);
+               float big_overlap_fraction_limit_for_poly_ala = 0.2;
+               delete_poly_ala_chains_that_overlap_on_sequenced_chains(mol, big_overlap_fraction_limit_for_poly_ala);
 
-            update_working_mol(watch_res_tracer_data_p, mol, "update-10");
+               update_working_mol(watch_res_tracer_data_p, mol, "update-9");
 
-            mol->WritePDBASCII("stage-13-post-merge-sequence-fragments.pdb");
+               mol->WritePDBASCII("stage-12-post-delete-overlapping-fragments.pdb");
+               mol->WriteCIFASCII("stage-12-post-delete-overlapping-fragments.cif");
 
-            if (false) {
-               // print out the residue numbers so that I can see that they are sane
-               // (they are)
-               std::cout << "Sanity check" << std::endl;
-               int n_chains = model_p->GetNumberOfChains();
-               for (int ichain=0; ichain<n_chains; ichain++) {
-                  mmdb::Chain *chain_p = model_p->GetChain(ichain);
-                  int n_res = chain_p->GetNumberOfResidues();
-                  for (int ires=0; ires<n_res; ires++) {
-                     mmdb::Residue *residue_p = chain_p->GetResidue(ires);
-                     if (residue_p) {
-                        std::cout << "   " << coot::residue_spec_t(residue_p) << std::endl;
+               if (true) {
+                  int n_chains = model_p->GetNumberOfChains();
+                  for (int ichain=0; ichain<n_chains; ichain++) {
+                     mmdb::Chain *chain_p = model_p->GetChain(ichain);
+                     std::string chain_id(chain_p->GetChainID());
+                     std::cout << "Write post-delete-overlapping-poly-ala " << chain_id << std::endl;
+                     std::string file_name = "post-delete-overlapping-poly-ala-" + chain_id + ".cif";
+                     write_chain(chain_p, mol, file_name, true);
+                  }
+               }
+
+               std::cout << "::::::::::::::::: merge and delete sequenced fragments into single chain " << std::endl;
+               if (! with_ncs)
+                  merge_and_delete_sequenced_fragments_into_single_chain(mol, chain_id_to_fam_index_map);
+               else
+                  merge_and_delete_sequenced_fragments(mol, chain_id_to_fam_index_map);
+
+               update_working_mol(watch_res_tracer_data_p, mol, "update-10");
+
+               mol->WritePDBASCII("stage-13-post-merge-sequence-fragments.pdb");
+
+               if (false) {
+                  // print out the residue numbers so that I can see that they are sane
+                  // (they are)
+                  std::cout << "Sanity check" << std::endl;
+                  int n_chains = model_p->GetNumberOfChains();
+                  for (int ichain=0; ichain<n_chains; ichain++) {
+                     mmdb::Chain *chain_p = model_p->GetChain(ichain);
+                     int n_res = chain_p->GetNumberOfResidues();
+                     for (int ires=0; ires<n_res; ires++) {
+                        mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                        if (residue_p) {
+                           std::cout << "   " << coot::residue_spec_t(residue_p) << std::endl;
+                        }
                      }
                   }
                }
+
+               // Look for big gaps between N and C of consecutive residues - in those cases there is a fragment
+               // drawn in a different asymmetric unit.
+
+               bring_together_consecutive_C_and_N_by_symmetry_transformation(mol, xmap);
+
+               update_working_mol(watch_res_tracer_data_p, mol, "update-11");
+
+               mol->WritePDBASCII("stage-14-post-sequencing-bring-together-consecutive-Cs-and-Ns.pdb");
+
+               // delete_poly_ala_chains_that_overlap_on_sequenced_chains(mol);
+
+               // mol->WritePDBASCII("stage-14-post-delete-overlapping-poly-als.pdb");
+
+               std::cout << "backrub-1" << std::endl;
+               coot::backrub_molecule(mol, &xmap, geom);
+               std::cout << "backrub-2" << std::endl;
+               coot::backrub_molecule(mol, &xmap, geom);
+               //
+               mol->WritePDBASCII("stage-15-post-backrub-chain.pdb");
+
+               update_working_mol(watch_res_tracer_data_p, mol, "update-12");
+
+               // resolve clashing side-chains by deletion?
+
+               // add calculation of difference map and pepflips here. - maybe a difference map is not needed
+               // Just a fingerprinted flip search - which should be fast.
+
+               std::cout << "pepflips" << std::endl;
+               apply_pepflips(mol, xmap);
+
+               update_working_mol(watch_res_tracer_data_p, mol, "update-13");
+
+               mol->WritePDBASCII("stage-16-post-pepflips.pdb");
+
+               std::cout << "RSR" << std::endl;
+               coot::util::pdbcleanup_serial_residue_numbers(mol);
+               rsr_molecule(mol, xmap, geom, &thread_pool, n_threads, weight); // chain by chain actually
+
+               std::cout << "debug:: in res_tracer_proc() update_working_mol post-rsr" << std::endl;
+               update_working_mol(watch_res_tracer_data_p, mol, "update-14");
+
+               mol->WritePDBASCII("stage-17-post-rsr.pdb");
             }
-
-            // Look for big gaps between N and C of consecutive residues - in those cases there is a fragment
-            // drawn in a different asymmetric unit.
-
-            bring_together_consecutive_C_and_N_by_symmetry_transformation(mol, xmap);
-
-            update_working_mol(watch_res_tracer_data_p, mol, "update-11");
-
-            mol->WritePDBASCII("stage-14-post-sequencing-bring-together-consecutive-Cs-and-Ns.pdb");
-
-            // delete_poly_ala_chains_that_overlap_on_sequenced_chains(mol);
-
-            // mol->WritePDBASCII("stage-14-post-delete-overlapping-poly-als.pdb");
-
-            std::cout << "backrub-1" << std::endl;
-            coot::backrub_molecule(mol, &xmap, geom);
-            std::cout << "backrub-2" << std::endl;
-            coot::backrub_molecule(mol, &xmap, geom);
-            //
-            mol->WritePDBASCII("stage-15-post-backrub-chain.pdb");
-
-            update_working_mol(watch_res_tracer_data_p, mol, "update-12");
-
-            // resolve clashing side-chains by deletion?
-
-            // add calculation of difference map and pepflips here. - maybe a difference map is not needed
-            // Just a fingerprinted flip search - which should be fast.
-
-            std::cout << "pepflips" << std::endl;
-            apply_pepflips(mol, xmap);
-
-            update_working_mol(watch_res_tracer_data_p, mol, "update-13");
-
-            mol->WritePDBASCII("stage-16-post-pepflips.pdb");
-
-            std::cout << "RSR" << std::endl;
-            coot::util::pdbcleanup_serial_residue_numbers(mol);
-            rsr_molecule(mol, xmap, geom, &thread_pool, n_threads, weight); // chain by chain actually
-
-            std::cout << "debug:: in res_tracer_proc() update_working_mol post-rsr" << std::endl;
-            update_working_mol(watch_res_tracer_data_p, mol, "update-14");
-
-            mol->WritePDBASCII("stage-17-post-rsr.pdb");
          }
       }
 
