@@ -4970,6 +4970,8 @@ molecules_container_t::refine(int imol, int n_cycles) {
    coot::instanced_mesh_t im;
    int status = 0;
    if (is_valid_model_molecule(imol)) {
+
+      std::cout << "debug:: in mc::refine() calling refine_using_last_restraints() using imol " << imol << std::endl;
       status = molecules[imol].refine_using_last_restraints(n_cycles);
       std::string mode = "COLOUR-BY-CHAIN-AND-DICTIONARY";
       bool draw_hydrogen_atoms_flag = true; // use data member as we do for draw_missing_residue_loops_flag?
@@ -5669,7 +5671,15 @@ molecules_container_t::print_secondary_structure_info(int imol) const {
 bool
 molecules_container_t::copy_dictionary(const std::string &monomer_name, int imol_current, int imol_new) {
 
+   std::cout << "--------------------------   debug:: calling copy_monomer_restraints() "
+             << monomer_name << " " << imol_current << " " << imol_new << std::endl;
    bool status = geom.copy_monomer_restraints(monomer_name, imol_current, imol_new);
+
+   std::pair<bool, coot::dictionary_residue_restraints_t> r =
+      geom.get_monomer_restraints(monomer_name, imol_new);
+
+   std::cout << "-------------- r " << r.first << std::endl;
+   
    return status;
 
 }
