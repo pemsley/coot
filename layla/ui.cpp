@@ -208,7 +208,12 @@ GtkApplicationWindow* coot::layla::setup_main_window(GtkApplication* app, GtkBui
                 }), self);
 
                 GtkCssProvider *provider = gtk_css_provider_new();
-                gtk_css_provider_load_from_string(provider, ".smiles_label { font-family: monospace; }");
+                std::string smiles_label_font_string = ".smiles_label { font-family: monospace; }";
+#if (GTK_MAJOR_VERSION == 4) && (GTK_MINOR_VERSION > 11) // available since 4.12
+                gtk_css_provider_load_from_string(provider, smiles_label_font_string.c_str());
+#else
+                gtk_css_provider_load_from_data(provider, smiles_label_font_string.c_str(), smiles_label_font_string.size());
+#endif
                 GtkStyleContext *context = gtk_widget_get_style_context(GTK_WIDGET(smiles_label));
                 gtk_style_context_add_provider (context, GTK_STYLE_PROVIDER (provider), GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
                 gtk_style_context_add_class (context, "smiles_label");      

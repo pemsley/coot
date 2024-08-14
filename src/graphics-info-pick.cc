@@ -137,7 +137,7 @@ graphics_info_t::symmetry_atom_pick(const coot::Cartesian &front, const coot::Ca
 #ifdef DEBUG_SYMM_PICK			   
 			std::cout << "symm_atom_pick: there are " << boxes.size() << " boxes" << std::endl;
 			std::cout << "Here are the boxes: " << std::endl;
-			for (int ii=0; ii< boxes.size(); ii++) {
+			for (unsigned int ii=0; ii< boxes.size(); ii++) {
 			   std::cout << ii << " " << boxes[ii].first << " " << boxes[ii].second  << std::endl;
 			} 
 #endif // DEBUG_SYMM_PICK			   
@@ -150,6 +150,9 @@ graphics_info_t::symmetry_atom_pick(const coot::Cartesian &front, const coot::Ca
 			   // vector here and modifying it via a pointer - this is
 			   // for speed.
 			   // 
+#ifdef DEBUG_SYMM_PICK
+                           std::cout << "debug:: front " << front << " back " << back << std::endl;
+#endif
 			   fill_hybrid_atoms(&hybrid_atom, atom_sel, spg, cell, boxes[ii]);
 			   int n = hybrid_atom.size();
 			   // std::cout << "DEBUG:: n hybrid_atoms" << n << std::endl;
