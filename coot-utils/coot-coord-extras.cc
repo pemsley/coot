@@ -25,6 +25,7 @@
 #include <iomanip>
 #include <algorithm> // for std::find
 #include <queue>
+#include <string>
 
 #include "string.h"
 
@@ -1461,3 +1462,207 @@ coot::cis_peptide_quads_from_coords(mmdb::Manager *mol,
    return v;
 }
 
+
+#include "atom-tree.hh"
+
+std::vector<mmdb::Residue *>
+coot::util::get_dictionary_conformers(const dictionary_residue_restraints_t &restraints,
+                                      bool remove_internal_clash_conformers) {
+
+   std::vector<mmdb::Residue *> rv;
+   std::string comp_id = restraints.residue_info.comp_id;
+   bool include_hydrogen_torsions_flag = false;
+   std::vector <coot::dict_torsion_restraint_t> torsion_restraints =
+      restraints.get_non_const_torsions(include_hydrogen_torsions_flag);
+
+   std::vector<unsigned int> conformers_per_torsion;
+   unsigned int n_conformers = 1; // this gets multipled, not added to
+   std::vector <coot::dict_torsion_restraint_t> rotatable_torsions; // fill this
+   for (const auto &torsion : torsion_restraints) {
+      if (torsion.is_pyranose_ring_torsion(comp_id)) {
+         // pass
+      } else {
+         std::vector<std::vector<std::string> > ring_atoms_sets;
+         if (false) { // test is_ring_torsion here
+         } else {
+            if (torsion.periodicity() > 1) {
+               rotatable_torsions.push_back(torsion);
+               conformers_per_torsion.push_back(torsion.periodicity());
+               n_conformers *= torsion.periodicity();
+            }
+         }
+      }
+   }
+
+   std::cout << "here with rotatable_torsions size " << rotatable_torsions.size() << std::endl;
+   for (unsigned int i_tor=0; i_tor<rotatable_torsions.size(); i_tor++) {
+      std::cout << "   i_tor " << i_tor << " " << rotatable_torsions[i_tor] << std::endl;
+   }
+
+   auto debug_torsion_angles = [] (const std::vector<std::vector<double> > &torsion_angles) {
+      for (unsigned int i_conf=0; i_conf<torsion_angles.size(); i_conf++) {
+         const auto &conformer_set = torsion_angles[i_conf];
+         std::cout << " " << std::setw(2) << i_conf << " [" << conformer_set.size() << "] : ";
+         for (unsigned int i_tor=0; i_tor<conformer_set.size(); i_tor++)
+            std::cout << std::setw(3) << conformer_set[i_tor] << "  ";
+         std::cout << std::endl;
+      }
+   };
+
+   auto periods_to_torsions = [] (const std::vector<int> &torsions_periods,
+                                  const std::vector <coot::dict_torsion_restraint_t> &rotatable_torsions) {
+
+      std::vector<double> angles(torsions_periods.size());
+      for (unsigned int i=0; i<torsions_periods.size(); i++) {
+         const auto &torsion_restraint = rotatable_torsions[i];
+         double variant = torsion_restraint.angle() + torsions_periods[i] * 360.0 / static_cast<double>(torsion_restraint.periodicity());
+         angles[i] = variant;
+      }
+      return angles;
+   };
+
+   // count *down*, not up.
+   auto get_previous_period_set = [&conformers_per_torsion] (std::vector<int> period_set) {
+      int period_set_size = period_set.size();
+      bool done = false;
+      for (int i=period_set.size()-1; i >= 0; i--) {
+         if (period_set[i] > 0) {
+            period_set[i] -= 1;
+            done = true;
+         } else {
+            // the heart - let's find a previous period that isn't zero.
+            int i_prev = i - 1;
+            for (int j=i_prev; j >= 0; j--) {
+               if (period_set[j] > 0) {
+                  period_set[j] -= 1;
+                  // and put the next torsions back to max index
+                  for (int jj=0; jj<period_set_size; jj++) {
+                     if (jj > j)
+                        period_set[jj] = conformers_per_torsion[jj] -1;
+                  }
+                  done = true;
+               }
+               if (done) break;
+            }
+         }
+         if (done) break;
+      }
+      return period_set;
+   };
+
+   std::function<std::vector<std::vector<int> >(std::vector<int>)> func = [&func, get_previous_period_set] (const std::vector<int> &period_set) {
+      bool all_zeros = true;
+      for (unsigned int i=0; i<period_set.size(); i++) {
+         if (period_set[i] != 0) {
+            all_zeros = false;
+            break;
+         }
+      }
+      if (all_zeros) {
+         // end case
+         return std::vector<std::vector<int> > {period_set};
+      } else {
+         std::vector<int> next_period = get_previous_period_set(period_set);
+         std::vector<std::vector<int> > r = func(next_period);
+         r.push_back(period_set);
+         return r;
+      }
+   };
+
+   auto get_set_clash = [] (mmdb::Residue *residue_p) {
+
+      // check non-bonded contacts are not too close. I guess I setup a refinement for this
+      // and look through the non-bonded contacts. So the restraints should be passed to this function.
+
+      // 20240817-PE ah, but if I am going to set up a restraints_container_t or a reduced_angle_info_container_t
+      // then I will need to move this functionality into the ideal directory.
+
+      mmdb::Atom **residue_atoms = 0;
+      int n_residue_atoms = 0;
+      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (int iat=0; iat<n_residue_atoms; iat++) {
+         mmdb::Atom *at = residue_atoms[iat];
+         if (! at->isTer()) {
+         }
+      }
+      return false;
+   };
+
+   // rotate_residue_about_torsions(r, rotatable_torsions, t);
+
+   auto rotate_residue_about_torsions = [] (mmdb::Residue *residue_p,
+                                            const coot::dictionary_residue_restraints_t &rest,
+                                            const std::vector <coot::dict_torsion_restraint_t> &rotatable_torsions,
+                                            const std::vector<double> &torsion_angles) {
+
+      // I could use multi-torsion here. Not sure that it's worth it.
+      if (rotatable_torsions.size() == torsion_angles.size()) {
+         for (unsigned int i=0; i<rotatable_torsions.size(); i++) {
+            double torsion_angle = torsion_angles[i];
+            const auto &torsion_restraint = rotatable_torsions[i];
+            std::string atom_name_1 = torsion_restraint.atom_id_1_4c();
+            std::string atom_name_2 = torsion_restraint.atom_id_2_4c();
+            std::string atom_name_3 = torsion_restraint.atom_id_3_4c();
+            std::string atom_name_4 = torsion_restraint.atom_id_4_4c();
+            mmdb::Atom *at_1 = nullptr;
+            mmdb::Atom *at_2 = nullptr;
+            mmdb::Atom *at_3 = nullptr;
+            mmdb::Atom *at_4 = nullptr;
+            mmdb::Atom **residue_atoms = 0;
+            int n_residue_atoms = 0;
+            residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+            for (int iat=0; iat<n_residue_atoms; iat++) {
+               mmdb::Atom *at = residue_atoms[iat];
+               if (! at->isTer()) {
+                  std::string atom_name(at->GetAtomName());
+                  if (atom_name == atom_name_1) at_1 = at;
+                  if (atom_name == atom_name_2) at_2 = at;
+                  if (atom_name == atom_name_3) at_3 = at;
+                  if (atom_name == atom_name_4) at_4 = at;
+               }
+            }
+            if (at_1 && at_2 && at_3 && at_4) {
+               try {
+                  coot::atom_quad quad(at_1, at_2, at_3, at_4);
+                  coot::atom_tree_t tree(rest, residue_p, "");
+                  tree.set_dihedral(quad, torsion_angle, false);
+               }
+               catch (const std::runtime_error &e) {
+                  std::cout << "WARNING::" << e.what() << std::endl;
+               }
+            }
+         }
+      }
+   };
+
+
+   // here find which atom index pairs are related by bond or angles.
+
+   std::vector<int> period_set(conformers_per_torsion.size());
+   for (unsigned int i=0; i<conformers_per_torsion.size(); i++)
+      period_set[i] = conformers_per_torsion[i] - 1;
+   
+   std::vector<std::vector<int> > torsions_periods = func(period_set);
+   std::vector<std::vector<double> > torsion_angles; // outer index is conformer index
+                                                     // inner index is i_tor
+   for (unsigned int i=0; i<torsions_periods.size(); i++) {
+      const auto &torsion_periods = torsions_periods[i];
+      std::vector<double> angles = periods_to_torsions(torsion_periods, rotatable_torsions);
+      torsion_angles.push_back(angles);
+   }
+
+   debug_torsion_angles(torsion_angles);
+
+   mmdb::Residue *residue_p = restraints.GetResidue(false, 10.0f);
+
+   for (unsigned int i=0; i<torsion_angles.size(); i++) {
+      const std::vector<double> &t = torsion_angles[i];
+      mmdb::Residue *r = deep_copy_this_residue(residue_p);
+      rotate_residue_about_torsions(r, restraints, rotatable_torsions, t);
+      bool is_clashing = get_set_clash(r);
+      if (! is_clashing)
+         rv.push_back(r);
+   }
+   delete residue_p;
+   return rv;
+}

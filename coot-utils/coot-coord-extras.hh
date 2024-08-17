@@ -71,6 +71,10 @@ namespace coot {
 					  int nResidueAtoms, 
 					  protein_geometry *geom_p);
 
+      std::vector<mmdb::Residue *>
+      get_dictionary_conformers(const dictionary_residue_restraints_t &restraints,
+                                bool remove_internal_clash_conformers);
+
       // class definition is here but functionality is in molecule-class-info-other
       class missing_atom_info {
       public:
