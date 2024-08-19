@@ -136,7 +136,7 @@ namespace coot {
       int from_matcher_end_resno; // is this used? // for validation?
       std::string reference_chain_id;
       std::string matcher_chain_id;
-      int match_type_flag; // CA/Main/All
+      int match_type_flag; // CA/Main/All/{N,CA,C}
       bool is_single_atom_match;
       std::string reference_atom_name;
       std::string reference_alt_conf;

@@ -424,6 +424,12 @@ public:
    //! @return an object with header info. Sparce at the moment.
    moorhen::header_info_t get_header_info(int imol) const;
 
+   //! get imol_enc_any
+   //!
+   //! @return the value of imol_enc_any (meaning "the molecule number for dictionary that
+   // can be used with any molecule")
+   int get_imol_enc_any() const;
+
    // -------------------------------- generic utils -----------------------------------
    //! \name Generic Utils
 
@@ -902,7 +908,7 @@ public:
                                      int imol_mov, const std::string &chain_id_mov);
 
    //! superpose using LSQ - setup the matches
-   //! @params `match_type` 0: all, 1: main, 2: CAs
+   //! @params `match_type` 0: all, 1: main, 2: CAs, 3: N, CA, C
    void add_lsq_superpose_match(const std::string &chain_id_ref, int res_no_ref_start, int res_no_ref_end,
                                 const std::string &chain_id_mov, int res_no_mov_start, int res_no_mov_end,
                                 int match_type);
@@ -1321,6 +1327,17 @@ public:
    //! Convert a cis peptide to a trans or vice versa.
    //! @return 1 on a successful conversion.
    int cis_trans_convert(int imol, const std::string &atom_cid);
+
+   //! Replace a residue.
+   //!
+   //! This has a different meaning of "replace" to `replace_fragment`. In this function
+   //! the atoms are not note merely moved/"slotted in to place", but the residue type is
+   //! changed - new atoms are introduce and others are deleted (typically).
+   //!
+   //! Change the type of a residue (for example, "TYR" to "PTY")
+   //! The algorithm will superpose the mainchain CA, C and N and try to set matching torsion
+   //! to the angle that they were in the reference structure.
+   void replace_residue(int imol, const std::string &residue_cid, const std::string &new_residue_type, int imol_enc);
 
    //! replace a fragment
    //!

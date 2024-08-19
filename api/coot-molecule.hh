@@ -1018,6 +1018,13 @@ namespace coot {
 
       int cis_trans_conversion(const std::string &atom_cid, mmdb::Manager *standard_residues_mol);
 
+      int replace_residue(const std::string &residue_cid, const std::string &new_residue_type, int imol_enc,
+                          const protein_geometry &geom);
+
+      // the above is a wrapper for this:
+      // (which was a scripting function and now has been moved into coot utils)
+      int mutate_by_overlap(mmdb::Residue *residue_p, const dictionary_residue_restraints_t &restraints);
+
       //! @return the success status
       int replace_fragment(atom_selection_container_t asc);
 

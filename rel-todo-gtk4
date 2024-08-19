@@ -7,6 +7,8 @@ read in many pdb file (ligand res-tracer results)
 
 symm-shift-reference-chain-here doesn't work for tutorial modern
 
+does --code work? - is it a XDG Protocol problem?
+
 SVG for pli
 
 make an figure, for moorhen intro with blobs that have volume proportional
@@ -14,6 +16,9 @@ make an figure, for moorhen intro with blobs that have volume proportional
    libcootapi - M2T, coot - libcootapi - M2T, moorhen and moorhen-npm-dependencies
 
 Chapi torsion angle restraints for servalcat
+
+Look at 4yjr - beautiful map 452-626 interaction - it should not have a clash face
+   (distance to hydrogen atom).
 
 delete seq-view-interface.c/h
 * Done.
@@ -40,6 +45,8 @@ Fix output of coot-ligand-validation with no comand line args
 PDBe tools
 
 Tomo Particle picker
+
+rename coot-lsq-types.h
 
 Add sequence assigment (e.g. the helix hormone 7vvl).
 * Done.

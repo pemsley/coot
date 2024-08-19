@@ -54,6 +54,17 @@ molecules_container_t::~molecules_container_t() {
    standard_residues_asc.clear_up();
 }
 
+//! get imol_enc_any
+//!
+//! @return the value of imol_enc_any (meaning "the molecule number for dictionary that
+// can be used with any molecule")
+int
+molecules_container_t::get_imol_enc_any() const {
+
+   return coot::protein_geometry::IMOL_ENC_ANY;
+}
+
+
 bool
 molecules_container_t::is_valid_model_molecule(int imol) const {
    bool status = false;

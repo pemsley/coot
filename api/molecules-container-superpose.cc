@@ -810,10 +810,9 @@ molecules_container_t::add_lsq_superpose_match(const std::string &chain_id_ref, 
                                                const std::string &chain_id_mov, int res_no_mov_start, int res_no_mov_end,
                                                int match_type) {
 
-   coot::lsq_range_match_info_t m(res_no_ref_start, res_no_ref_end,
-                                  chain_id_ref,
-                                  res_no_mov_start, res_no_mov_end,
-                                  chain_id_mov, match_type);
+   coot::lsq_range_match_info_t m(res_no_ref_start, res_no_ref_end, chain_id_ref,
+                                  res_no_mov_start, res_no_mov_end, chain_id_mov,
+                                  match_type);
 
    lsq_matchers.push_back(m);
 }

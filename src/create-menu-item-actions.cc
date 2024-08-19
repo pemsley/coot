@@ -835,7 +835,7 @@ void
 edit_replace_fragment_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                              G_GNUC_UNUSED GVariant *parameter,
                              G_GNUC_UNUSED gpointer user_data) {
-     do_edit_replace_fragment();
+   do_edit_replace_fragment();
 }
 
 void
@@ -1974,6 +1974,10 @@ void rebuild_fragment_using_dbloop_action(G_GNUC_UNUSED GSimpleAction *simple_ac
 void replace_residue_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                             G_GNUC_UNUSED GVariant *parameter,
                             G_GNUC_UNUSED gpointer user_data) {
+
+   // 20240817-PE note to self - this is the callback from the Modelling menu - there is
+   // also edit_replace_residue_action()!
+   // That needs to be sorted out.
 
    std::cout << "replace_residue_action() fill me! " << std::endl;
 

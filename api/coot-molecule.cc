@@ -4453,8 +4453,8 @@ coot::molecule_t::multiply_residue_temperature_factors(const std::string &cid, f
 //
 int
 coot::molecule_t::match_torsions(mmdb::Residue *res_reference,
-                              const std::vector <coot::dict_torsion_restraint_t> &tr_ref_res,
-                              const coot::protein_geometry &geom) {
+                                 const std::vector <coot::dict_torsion_restraint_t> &tr_ref_res,
+                                 const coot::protein_geometry &geom) {
 
    int n_torsions_moved = 0;
    make_backup("match_torsions");

@@ -75,6 +75,11 @@ namespace coot {
       get_dictionary_conformers(const dictionary_residue_restraints_t &restraints,
                                 bool remove_internal_clash_conformers);
 
+      // 20240817-PE old scripting function is moved into libcootapi core
+      int mutate_by_overlap(mmdb::Residue *residue_p, mmdb::Manager *mol,
+                            const dictionary_residue_restraints_t &restraints_current_type,
+                            const dictionary_residue_restraints_t &restraints_new_type);
+
       // class definition is here but functionality is in molecule-class-info-other
       class missing_atom_info {
       public:
