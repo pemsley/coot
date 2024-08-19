@@ -2625,8 +2625,10 @@ Mesh::update_instancing_buffer_data(const std::vector<glm::mat4> &mats,
       std::cout << "You forgot to setup this Mesh " << name << std::endl;
    glBindVertexArray(vao);
 
-   std::cout << "-------- update_instancing_buffer_data() mats " << mats.size() << std::endl;
-   std::cout << "-------- update_instancing_buffer_data() cols " << colours.size() << std::endl;
+   if (false) {
+      std::cout << "-------- update_instancing_buffer_data() mats " << mats.size() << std::endl;
+      std::cout << "-------- update_instancing_buffer_data() cols " << colours.size() << std::endl;
+   }
 
    if (n_mats > 0) {
       glBindBuffer(GL_ARRAY_BUFFER, inst_rts_buffer_id);

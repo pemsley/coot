@@ -152,6 +152,11 @@ namespace coot {
 	       s += util::int_to_string(residues_offset);
 	       throw std::runtime_error(s);
 	    }
+            if ((i-residues_offset) < 0) {
+               std::string s = "Bad index " + std::to_string(i) + " because residues_offset is " +
+                  std::to_string(residues_offset);
+	       throw std::runtime_error(s);
+            }
 	    return residues[i-residues_offset];
 	 }
 	 residue&       operator[](int i);

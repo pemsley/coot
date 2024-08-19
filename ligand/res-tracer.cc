@@ -68,7 +68,9 @@ test_best_fit_phi_psi_func() {
             coot::protein_geometry geom;
             geom.init_standard();
             unsigned int update_count = 0;
-            rama_rsr_extend_fragments(mol_for_residue.second, xmap, &thread_pool, n_threads, weight, n_phi_psi_trials, geom, &update_count);
+            std::pair<float, float> mv = coot::util::mean_and_variance(xmap);
+            float xmap_rmsd = std::sqrt(mv.second);
+            rama_rsr_extend_fragments(mol_for_residue.second, xmap, xmap_rmsd, &thread_pool, n_threads, weight, n_phi_psi_trials, geom, &update_count);
             mol_for_residue.second->WritePDBASCII("test_best_fit_phi_psi_result.pdb");
          } else {
             std::cout << "No mol_for_residue" << std::endl;
@@ -113,9 +115,9 @@ int main(int argc, char **argv) {
       pir_file_name = "1gwd.pir";
    }
 
-   if (false) {
-      map_file_name = "../src/emd_11210.map";
-      pir_file_name = "../src/6zgl.fasta";
+   if (false) { // DPS map
+      map_file_name = "emd_11210.map";
+      pir_file_name = "6zgl.fasta";
    }
 
    if (argc > 1)
@@ -134,23 +136,35 @@ int main(int argc, char **argv) {
       bool test_from_crystallography = true;
       bool test_from_map = false;
 
+      // ===================================================================
+      //                user input map and fam file
+      // ===================================================================
+      if (argc == 3) {
+         map_file_name = argv[1];
+         pir_file_name = argv[2];
+         test_from_crystallography = false;
+         test_from_map = true;
+      }
+
       double variation = 0.8; // how much is a CA-CA distance allowed to vary from 3.81
       // before it is too long or short to be considered a potential
       // peptide?
       // make bigger at lower resolutions (maybe up to 1.0?)
       variation = 0.4; // speed
+      variation = 0.8; // 20240811-PE 1.4 crashes at the close of grow_trees_v4() atm, 1.0 is OK, 1.2 crashes, 1.1 crashes
 
       unsigned int n_top_spin_pairs = 500; // Use for tracing at most this many spin score pairs (which have been sorted).
       // This and variation affect the run-time (and results?)
-      // n_top_spin_pairs = 1000; // was 1000
+      n_top_spin_pairs = 200000; // was 1000
 
       unsigned int n_top_fragments = 1000; // was 4000 // The top 1000 fragments at least are all the same trace for no-side-chain lyso test
+      n_top_fragments = 10000;
 
       // pass the atom radius from here too
 
       float flood_atom_mask_radius = 1.0; // was 0.6 for emdb
 
-      unsigned int n_phi_psi_trials = 40000; // was 5000
+      unsigned int n_phi_psi_trials = 40000; // was 5000 // was 40000 // 40000 seems good for production
 
       float weight = 8.0f; // calculate this (using rmsd)
 
@@ -217,26 +231,21 @@ int main(int argc, char **argv) {
             unsigned int update_count = 0;
 
             float rmsd_cuffoff = 2.3;
+            std::pair<float, float> mv = coot::util::mean_and_variance(xmap);
+            float xmap_rmsd = std::sqrt(mv.second);
 
             int imol = 0;
             watch_res_tracer_data_t tracer_data(working_mol, imol);
-            std::thread t(res_tracer_proc, xmap, fam, variation, n_top_spin_pairs, n_top_fragments, rmsd_cuffoff, flood_atom_mask_radius,
-                          weight, n_phi_psi_trials, with_ncs, &tracer_data);
-            while (true) {
-               unsigned int count_start = update_count;
-               std::this_thread::sleep_for(std::chrono::milliseconds(200));
-               if (update_count > count_start) {
-                  std::cout << "update_count was updated " << update_count << std::endl;
-                  break;
-               }
-            }
-            t.join();
+            res_tracer_proc(xmap, xmap_rmsd, fam, variation, n_top_spin_pairs, n_top_fragments, rmsd_cuffoff, flood_atom_mask_radius,
+                            weight, n_phi_psi_trials, with_ncs, &tracer_data);
 
          } else {
             if (test_from_map)
                std::cout << "Map from " << map_file_name << " is null" << std::endl;
          }
-      } else {
+
+      } else {  // not crystallography
+
          try {
 
             if (coot::file_exists(map_file_name)) {
@@ -245,15 +254,27 @@ int main(int argc, char **argv) {
                clipper::CCP4MAPfile file;
                file.open_read(map_file_name);
                clipper::Xmap<float> xmap;
-               std::string pir_file_name = "7kjr.seq";
-               coot::fasta_multi fam;
                fam.read(pir_file_name);
                file.import_xmap(xmap);
                mmdb::Manager *working_mol = new mmdb::Manager;
-               unsigned int update_count = 0;
                int imol = 0;
+               flood_atom_mask_radius = 0.6;
                watch_res_tracer_data_t tracer_data(working_mol, imol);
-               res_tracer_proc(xmap, fam, variation, n_top_spin_pairs, n_top_fragments, 4.5, flood_atom_mask_radius, weight, n_phi_psi_trials,
+               std::pair<float, float> mv = coot::util::mean_and_variance(xmap);
+               float xmap_rmsd = std::sqrt(mv.second);
+
+               bool do_reinterp = true;
+               float reinterp_factor = 2.0; // was 3.0;
+
+               if (do_reinterp) {
+                  // 1gwd has ~0.3A/grid - is that a factor?
+                  // 20240809-PE doesn't seem to make a difference.
+                  std::cout << "reinterpreting map " << reinterp_factor << std::endl;
+                  clipper::Xmap<float> xmap_fine = coot::util::reinterp_map(xmap, reinterp_factor);
+                  xmap = xmap_fine; // replace it
+               }
+
+               res_tracer_proc(xmap, xmap_rmsd, fam, variation, n_top_spin_pairs, n_top_fragments, 4.5, flood_atom_mask_radius, weight, n_phi_psi_trials,
                                with_ncs, &tracer_data); // working_mol, &update_count
             } else {
                std::cout << "No such file " << map_file_name << std::endl;

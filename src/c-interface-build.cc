@@ -6068,8 +6068,9 @@ void res_tracer(int imol_map, const std::string &pir_file_name) {
                                                    shelx_flag, false, false);
    update_go_to_atom_window_on_new_mol();
 
-   const clipper::Xmap<float> xmap = g.molecules[imol_map].xmap;
+   const clipper::Xmap<float> &xmap = g.molecules[imol_map].xmap;
    // coot::util::map_fill_from_mtz(&xmap, hklin_file_name, f_col_label, phi_col_label, "", use_weights, is_diff_map);
+   float xmap_rmsd = g.molecules[imol_map].map_sigma();
 
    if (true) { // 20221216-PE what's going wrong with xmap?
       clipper::Cell c = xmap.cell();
@@ -6086,7 +6087,7 @@ void res_tracer(int imol_map, const std::string &pir_file_name) {
    std::cout << "post-constructor with mol_edit_lock: " << watch_data_p->mol_edit_lock << std::endl;
 
    // pass geom to this too.
-   std::thread t(res_tracer_proc, xmap, fam, variation, n_top_spin_pairs, n_top_fragments, rmsd_cuffoff, flood_atom_mask_radius,
+   std::thread t(res_tracer_proc, xmap, xmap_rmsd, fam, variation, n_top_spin_pairs, n_top_fragments, rmsd_cuffoff, flood_atom_mask_radius,
                  weight, n_phi_psi_trials, with_ncs, watch_data_p);
 
    auto watching_timeout_func = [] (gpointer data) {

@@ -88,6 +88,7 @@ void on_coords_filechooser_dialog_response_gtk4(GtkDialog *dialog,
       }
    }
    gtk_window_close(GTK_WINDOW(dialog));
+   graphics_info_t::graphics_grab_focus();
 }
 
 void on_dataset_filechooser_dialog_response_gtk4(GtkDialog *dialog,
@@ -117,6 +118,7 @@ void on_dataset_filechooser_dialog_response_gtk4(GtkDialog *dialog,
 
    }
    gtk_window_close(GTK_WINDOW(dialog));
+   graphics_info_t::graphics_grab_focus();
 }
 
 
@@ -134,6 +136,7 @@ void on_map_filechooser_dialog_response_gtk4(GtkDialog *dialog,
       handle_read_ccp4_map(file_name, is_diff_map_flag);
    }
    gtk_window_close(GTK_WINDOW(dialog));
+   graphics_info_t::graphics_grab_focus();
 }
 
 void open_coordinates_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -295,7 +298,7 @@ void open_map_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 void load_tutorial_model_and_data_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                          G_GNUC_UNUSED GVariant *parameter,
                                          G_GNUC_UNUSED gpointer user_data) {
-   load_tutorial_model_and_data();
+   load_tutorial_model_and_data(); // does a graphics_grab_focus()
 }
 
 void exit_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -338,6 +341,7 @@ void get_monomer_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    GtkWidget *entry = widget_from_builder("get_monomer_entry");
    gtk_widget_grab_focus(entry);
    gtk_widget_set_visible(frame, TRUE);
+   graphics_info_t::graphics_grab_focus();
 }
 
 
@@ -364,6 +368,7 @@ void on_cif_dictionary_filechooser_dialog_response_gtk4(GtkDialog *dialog,
       int monomer_index = handle_cif_dictionary_for_molecule(file_name, imol_enc, create_ligand);
    }
    gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
+   graphics_info_t::graphics_grab_focus();
 }
 
 void import_cif_dictionary_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -1691,6 +1696,15 @@ background_black_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 }
 
 void
+background_nearly_black_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                               G_GNUC_UNUSED GVariant *parameter,
+                               G_GNUC_UNUSED gpointer user_data) {
+
+   graphics_info_t::background_colour = glm::vec3(0.035f,0.035f,0.035f);
+   graphics_info_t::graphics_draw();
+}
+
+void
 background_dark_grey_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                             G_GNUC_UNUSED GVariant *parameter,
                             G_GNUC_UNUSED gpointer user_data) {
@@ -1908,8 +1922,8 @@ void backrub_rotamers_for_chain_action(G_GNUC_UNUSED GSimpleAction *simple_actio
       std::string chain_id = pp.second.second.chain_id;
       short int lang = coot::STATE_PYTHON;
       std::vector<coot::command_arg_t> args = { coot::command_arg_t(imol), coot::command_arg_t(chain_id) };
-      std::string sc = g.state_command("fitting", "backrub_rotamers_for_chain", args, lang);
-      safe_python_command("import fitting");
+      std::string sc = g.state_command("coot_fitting", "backrub_rotamers_for_chain", args, lang);
+      safe_python_command("import coot_fitting");
       safe_python_command(sc);
    }
 }
@@ -3653,6 +3667,7 @@ create_actions(GtkApplication *application) {
    // Draw
 
    add_action(          "background_black_action",          background_black_action);
+   add_action(   "background_nearly_black_action",   background_nearly_black_action);
    add_action(     "background_light_grey_action",     background_light_grey_action);
    add_action(      "background_dark_grey_action",      background_dark_grey_action);
    add_action("background_semi_dark_grey_action",  background_semi_dark_grey_action);

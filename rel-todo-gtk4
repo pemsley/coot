@@ -1,6 +1,12 @@
 
 ----
 
+read in many pdb file (ligand res-tracer results)
+   Now click on "Last Only" - it doesn't unclick the checkbuttons.
+   (Note that the "All" button does)
+
+symm-shift-reference-chain-here doesn't work for tutorial modern
+
 SVG for pli
 
 make an figure, for moorhen intro with blobs that have volume proportional
@@ -29,6 +35,9 @@ Fix state file quick save as.
 * I couldn't reproduce the problem
 
 Add Place Helix here to moorhen api
+
+Rangana made findwaters crash by using a sigma of 4 in flood mode in cryo-EM map.
+  Can you reproduce that?
 
 Expanding ligand thumbnail on window width increase
 

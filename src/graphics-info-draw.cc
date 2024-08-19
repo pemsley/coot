@@ -521,20 +521,28 @@ graphics_info_t::get_projection_matrix(bool do_orthographic_projection,
    float h = static_cast<float>(graphics_y_size);
    float screen_ratio = static_cast<float>(w)/static_cast<float>(h);
    if (do_orthographic_projection) {
+
+      // 20240814-PE if clipping front and back are somehow zero (I don't know
+      // how that happened, but those were the values in the state script)
+      // the we get nan and infs in matrices
+      //
+      if (clipping_front < 0.00001) clipping_front = 0.00001;
+      if (clipping_back  < 0.00001) clipping_back  = 0.00001;
+
       float sr = screen_ratio;
       GLfloat near =  -0.1 * zoom * clipping_front + eye_position.z;
       GLfloat far  =   0.3 * zoom * clipping_back  + eye_position.z;
 
-      if (false)
+      glm::mat4 projection_matrix = glm::ortho(-0.3f*zoom*sr, 0.3f*zoom*sr,
+                                               -0.3f*zoom,    0.3f*zoom,
+                                               near, far);
+      if (false) {
          std::cout << "debug:: get_projection_matrix() near " << near << " far " << far
                    << " clipping-front: " << clipping_front << " clipping_back: " << clipping_back << " "
                    << "eye_position " << glm::to_string(eye_position)
                    << " zoom " << zoom << std::endl;
-
-      glm::mat4 projection_matrix = glm::ortho(-0.3f*zoom*sr, 0.3f*zoom*sr,
-                                               -0.3f*zoom,    0.3f*zoom,
-                                               near, far);
-      // std::cout << "projection matrix ortho " << glm::to_string(projection_matrix) << std::endl;
+         std::cout << "projection matrix ortho " << glm::to_string(projection_matrix) << std::endl;
+      }
       return projection_matrix;
    } else {
       // perspective_fov is in degrees

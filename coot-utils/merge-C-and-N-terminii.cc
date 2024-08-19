@@ -31,6 +31,7 @@
 
 #include "utils/coot-utils.hh"
 #include "coot-utils/coot-coord-utils.hh"
+#include "coot-utils/coot-map-utils.hh"
 #include "merge-C-and-N-terminii.hh"
 #include "protein_db/protein_db_utils.h"
 
@@ -43,6 +44,13 @@ coot::merge_C_and_N_terminii_0_gap(mmdb::Manager *mol) {
 
 }
 
+void
+coot::merge_C_and_N_terminii_0_gap(mmdb::Manager *mol, const clipper::Xmap<float> &xmap) {
+
+   // ideally, use_symmetry would be true
+   merge_C_and_N_terminii(mol, xmap, false, false);
+
+}
 
 // use_symmetry default true - but what does it do?
 // using_missing_loop_fit optional argument default true
@@ -53,6 +61,49 @@ coot::merge_C_and_N_terminii(mmdb::Manager *mol,
                              bool using_missing_loop_fit) {
 
    enum close_type { NONE, C_AND_N, N_AND_C };
+
+   // we don't want to build across a disulphide.
+   // If we try to do so, we will get a get a CA-CA pseudo bond that doesn't go through the density, and off to the side
+   // there will be a big blog of density (say 1.2 away from the CA-CA line).
+   
+   auto CA_CA_goes_through_sane_density = [] (clipper::Coord_orth &CA_1, clipper::Coord_orth CA_2, const clipper::Xmap<float> &xmap) {
+
+      clipper::Coord_orth arb(0.1, 0.2, 0.3);
+      clipper::Coord_orth diff = CA_2 - CA_1;
+      std::cout << "CA_1 " << CA_1.format() << std::endl;
+      std::cout << "CA_2 " << CA_2.format() << std::endl;
+      std::cout << "diff " << diff.format() << std::endl;
+      clipper::Coord_orth cv  = clipper::Coord_orth(clipper::Coord_orth::cross(arb, diff));
+      clipper::Coord_orth cvu = clipper::Coord_orth(cv.unit());
+      double sum = 0.0;
+      double max_outer = -222.2;
+      unsigned int n = 0;
+      for (double f : {0.2, 0.4, 0.6, 0.8}) {
+         clipper::Coord_orth ring_centre = CA_1 + f * diff;
+         clipper::Coord_orth tp_1 = ring_centre + 0.1 * cvu;
+         clipper::Coord_orth tp_2 = ring_centre + 1.2 * cvu;
+         for (double f_angle : { 0.0, 0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9}) {
+            double r_angle = 2.0 * M_PI * f_angle;
+            clipper::Coord_orth p1 = coot::util::rotate_around_vector(diff, tp_1, CA_1, r_angle);
+            clipper::Coord_orth p2 = coot::util::rotate_around_vector(diff, tp_2, CA_1, r_angle);
+            float rho_1 = coot::util::density_at_point(xmap, p1);
+            float rho_2 = coot::util::density_at_point(xmap, p2);
+            sum += rho_1;
+            n++;
+            if (rho_2 > max_outer)
+               max_outer = rho_2;
+         }
+      }
+      float rho_mean = sum/static_cast<float>(n);
+      std::cout << "stats: " << rho_mean << " max_outer: " << max_outer << std::endl;
+      bool is_sane = true;
+      if (rho_mean < 0.0)
+         is_sane = false;
+      if (max_outer > 1.0 * rho_mean)  // cutoff needs optimizing
+         is_sane = false;
+      return is_sane;
+   };
+      
 
    auto residues_are_close = [] (close_type check_this_close_type, mmdb::Residue *r_1, mmdb::Residue *r_2, double dist_crit_for_close_atoms=5.0) {
 
@@ -471,13 +522,50 @@ coot::merge_C_and_N_terminii(mmdb::Manager *mol,
                                      << " have_close_terminii: " << ct.first << " " << ct.second << std::endl;
                         if (ct.first) {
                            // should I also check that the density between the C and the N is sensible?
-                           bool status = mergeable_with_0_residues_insertion(i_chain_p, j_chain_p, ct.second);
-                           if (status)
+                           bool mergeable_status = mergeable_with_0_residues_insertion(i_chain_p, j_chain_p, ct.second);
+
+                           bool status = false;
+
+                           if (true)
                               std::cout << "DEBUG:: merge_C_and_N_terminii(): chain " << i_chain_p->GetChainID() << " "
                                         << j_chain_p->GetChainID() << " merge status for 0 residue insertion "
-                                        << status << std::endl;
-                           if (status) {
-                              merge_chains(i_chain_p, j_chain_p, mol, ct.second, 0);
+                                        << mergeable_status << std::endl;
+
+                           if (mergeable_status) {
+                              if (ct.second == C_AND_N) {
+                                 int r_idx = i_chain_p->GetNumberOfResidues() - 1;
+                                 mmdb::Residue *C_terminus_residue = i_chain_p->GetResidue(r_idx);
+                                 mmdb::Residue *N_terminus_residue = j_chain_p->GetResidue(0);
+                                 mmdb::Atom *at_CA_1 = C_terminus_residue->GetAtom(" CA ");
+                                 mmdb::Atom *at_CA_2 = N_terminus_residue->GetAtom(" CA ");
+                                 if (at_CA_1 && at_CA_2) {
+                                    clipper::Coord_orth CA_1 = co(at_CA_1);
+                                    clipper::Coord_orth CA_2 = co(at_CA_2);
+                                    std::cout << "CA_1 " << CA_1.format() << std::endl;
+                                    std::cout << "CA_2 " << CA_2.format() << std::endl;
+                                    bool sane_density = CA_CA_goes_through_sane_density(CA_1, CA_2, xmap);
+                                    if (sane_density) {
+                                       merge_chains(i_chain_p, j_chain_p, mol, ct.second, 0);
+                                       status = true; // something changed
+                                    }
+                                 }
+                              }
+                              if (ct.second == N_AND_C) {
+                                 int r_idx = j_chain_p->GetNumberOfResidues() - 1;
+                                 mmdb::Residue *C_terminus_residue = j_chain_p->GetResidue(r_idx);
+                                 mmdb::Residue *N_terminus_residue = i_chain_p->GetResidue(0);
+                                 mmdb::Atom *at_CA_1 = C_terminus_residue->GetAtom(" CA ");
+                                 mmdb::Atom *at_CA_2 = N_terminus_residue->GetAtom(" CA ");
+                                 if (at_CA_1 && at_CA_2) {
+                                    clipper::Coord_orth CA_1 = co(at_CA_1);
+                                    clipper::Coord_orth CA_2 = co(at_CA_2);
+                                    bool sane_density = CA_CA_goes_through_sane_density(CA_1, CA_2, xmap);
+                                    if (sane_density) {
+                                       merge_chains(i_chain_p, j_chain_p, mol, ct.second, 0);
+                                       status = true; // something changed
+                                    }
+                                 }
+                              }
                            } else {
                               if (using_missing_loop_fit) {
                                  status = mergeable_with_1_residue_insertion(i_chain_p, j_chain_p, ct.second);

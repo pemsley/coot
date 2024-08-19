@@ -230,6 +230,7 @@ EMSCRIPTEN_BINDINGS(lhasa) {
     .function("set_active_tool", &CootLigandEditorCanvas::set_active_tool)
     // TODO: RDKit typedefinitions
     // .function("append_molecule", &CootLigandEditorCanvas::append_molecule)
+    .function("update_molecule_from_smiles", &CootLigandEditorCanvas::update_molecule_from_smiles)
     .function("set_scale", &CootLigandEditorCanvas::set_scale)
     .function("get_scale", &CootLigandEditorCanvas::get_scale)
     .function("undo_edition", &CootLigandEditorCanvas::undo)

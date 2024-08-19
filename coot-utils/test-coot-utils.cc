@@ -1533,14 +1533,42 @@ test_ncs_chain_match(int argc, char **argv) {
       }
       std::cout << "Found " << n_chains << " total chains" << std::endl;
    }
-
 }
+
+void
+test_dictionary_conformers(int argc, char **argv) {
+
+   std::string monomer_type = "TYR";
+   int imol = 0;
+   coot::protein_geometry geom;
+   geom.init_standard();
+   geom.set_verbose(false);
+   std::pair<bool, coot::dictionary_residue_restraints_t> r = geom.get_monomer_restraints(monomer_type, imol);
+   if (r.first) {
+      bool delete_clash_confs = true;
+      std::cout << "------------------- calling get_dictionary_conformers() " << std::endl;
+      std::vector<mmdb::Residue *> confs = coot::util::get_dictionary_conformers(r.second, delete_clash_confs);
+      for (unsigned int i=0; i<confs.size(); i++) {
+         mmdb::Residue *res = confs[i];
+         mmdb::Manager *mol = coot::util::create_mmdbmanager_from_residue(res);
+         std::string fn = "conf-" + std::to_string(i) + ".pdb";
+         mol->WritePDBASCII(fn.c_str());
+         delete mol;
+      }
+      for (unsigned int i=0; i<confs.size(); i++)
+         delete confs[i];
+   }
+}
+
 
 int main(int argc, char **argv) {
 
    mmdb::InitMatType();
 
    if (true)
+      test_dictionary_conformers(argc, argv);
+
+   if (false)
       test_ncs_chain_match(argc, argv);
 
    if (false)

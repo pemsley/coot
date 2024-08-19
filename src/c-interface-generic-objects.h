@@ -20,7 +20,13 @@
  * Fifth Floor, Boston, MA, 02110-1301, USA.
  */
 
+#ifdef USE_PYTHON
+#include <Python.h>
+#endif // USE_PYTHON
+
+#include <clipper/core/coords.h>
 #include <string>
+#include "utils/colour-holder.hh"
 #include "generic-display-objects-c.h"
 
 
@@ -57,6 +63,13 @@ void to_generic_object_add_line(int object_number,
                                 float to_x2,
                                 float to_y2,
                                 float to_z2);
+
+#ifdef USE_PYTHON
+/*! \brief add multiple lines to generic object object_number
+
+c.f. to_generic_object_add_points() */
+void to_generic_object_add_lines(int object_number, PyObject *line_info_list_py);
+#endif
 
 void to_generic_object_add_cylinder(int object_number,
                                     const char *colour,
