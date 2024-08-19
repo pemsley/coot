@@ -51,6 +51,7 @@ coot::util::map_fill_from_mtz(clipper::Xmap<float> *xmap,
                               short int use_weights,
                               float sampling_rate) {
 
+   // sampling_rate is optional arg with default value 1.5
    return coot::util::map_fill_from_mtz(xmap, mtz_file_name, f_col, phi_col, weight_col,
                                         use_weights, 0, 0, sampling_rate);
 }
@@ -66,6 +67,7 @@ coot::util::map_fill_from_mtz(clipper::Xmap<float> *xmap,
                               short int use_reso_limit_high,
                               float sampling_rate) {
 
+   // sampling_rate is optional arg with default value 1.5
 
    auto make_import_datanames = [] (const std::string &f_col_in,
                                                       const std::string &phi_col_in,
@@ -140,7 +142,7 @@ coot::util::map_fill_from_mtz(clipper::Xmap<float> *xmap,
    };
 
    if (!file_exists(mtz_file_name))
-      return 0;
+      return false;
 
    clipper::HKL_info myhkl;
    clipper::MTZdataset myset;
@@ -199,11 +201,14 @@ coot::util::map_fill_from_mtz(clipper::Xmap<float> *xmap,
    std::cout << "Grid..." << gs.format() << "\n";
    std::cout << "Cell..." << myhkl.cell().format() << "\n";
    std::cout << "Spacegroup..." << myhkl.spacegroup().symbol_hm() << "\n";
+   if (gs.nu() == 0) { std::cout << "Bad Grid\n"; return false; }
+   if (gs.nv() == 0) { std::cout << "Bad Grid\n"; return false; }
+   if (gs.nw() == 0) { std::cout << "Bad Grid\n"; return false; }
    xmap->init( myhkl.spacegroup(), myhkl.cell(), gs);
    // std::cout << "doing fft..." << std::endl;
    xmap->fft_from( fphidata );                  // generate map
    // std::cout << "done fft..." << std::endl;
-   return 1;
+   return true;
 }
 
 // Return a map that is a copy of the given map with interpolation,

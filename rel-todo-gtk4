@@ -15,13 +15,24 @@ make an figure, for moorhen intro with blobs that have volume proportional
    to the number of lines of code: rdkit, mmdb, ccp4libs, gemmi, M2T,
    libcootapi - M2T, coot - libcootapi - M2T, moorhen and moorhen-npm-dependencies
 
+configure should not use --with-enhanced-ligand-tools
+
 Chapi torsion angle restraints for servalcat
+
 
 Look at 4yjr - beautiful map 452-626 interaction - it should not have a clash face
    (distance to hydrogen atom).
 
+Get rid of #ifdef WINDOWS_MINGW in map_fill_from_mtz() in coot-utils
+   use std::filesystem?
+
+Normal waters are no longer fat. Maybe was this fix:
+   66a3d04dad117b3dab37a6a4996267294d65b504
+
 delete seq-view-interface.c/h
 * Done.
+
+B416 in 8c0p is drawn wrongly in Colour-by-chain mode
 
 get rid of trackball.c - there is a compilation warning - use glm instead.
    Actually, I am not sure that I even use it now.

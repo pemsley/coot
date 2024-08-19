@@ -26,6 +26,7 @@
 #include <algorithm> // for std::find
 #include <queue>
 #include <string>
+#include <functional>
 
 #include "string.h"
 
