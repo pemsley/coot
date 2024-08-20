@@ -94,6 +94,14 @@ class CanvasMolecule {
         // are there more colors?
     };
 
+    enum class HighlightType: unsigned char {
+        Hover,
+        Edition,
+        Error,
+        // A concept for the future
+        Selection
+    };
+
    struct Atom {
         std::string symbol;
         std::optional<std::string> name;
@@ -122,7 +130,7 @@ class CanvasMolecule {
         float y;
         /// Corresponds to RDKit atom index
         unsigned int idx;
-        bool highlighted;
+        std::optional<HighlightType> highlight;
     };
     enum class BondType: unsigned char {
         Single,
@@ -166,7 +174,7 @@ class CanvasMolecule {
         float second_atom_x;
         float second_atom_y;
         unsigned int second_atom_idx;
-        bool highlighted;
+        std::optional<HighlightType> highlight;
 
         /// Returns an [x,y] pair of numbers
         std::pair<float,float> get_perpendicular_versor() const noexcept;
@@ -210,6 +218,7 @@ class CanvasMolecule {
     static BondType bond_type_from_rdkit(RDKit::Bond::BondType);
     static AtomColor atom_color_from_rdkit(const RDKit::Atom *) noexcept;
     static std::tuple<float,float,float> atom_color_to_rgb(AtomColor) noexcept;
+    static std::tuple<float,float,float> hightlight_to_rgb(HighlightType) noexcept;
     static std::string atom_color_to_html(AtomColor) noexcept;
 
     std::shared_ptr<RDKit::RWMol> rdkit_molecule;
@@ -322,8 +331,8 @@ class CanvasMolecule {
     /// Returns the thing that was clicked on (or nullopt if there's no match).
     MaybeAtomOrBond resolve_click(int x, int y) const noexcept;
 
-    void highlight_atom(int atom_idx);
-    void highlight_bond(unsigned int atom_a, unsigned int atom_b);
+    void highlight_atom(int atom_idx, HighlightType htype);
+    void highlight_bond(unsigned int atom_a, unsigned int atom_b, HighlightType htype);
     void clear_highlights();
 
     static RDKit::Bond::BondType bond_type_to_rdkit(BondType) noexcept;

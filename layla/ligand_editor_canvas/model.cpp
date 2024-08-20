@@ -190,6 +190,24 @@ void CanvasMolecule::rotate_by_angle(double radians) {
     }
 }
 
+std::tuple<float,float,float> CanvasMolecule::hightlight_to_rgb(CanvasMolecule::HighlightType htype) noexcept {
+    switch (htype) {
+        case CanvasMolecule::HighlightType::Edition: {
+            return std::make_tuple(1.0, 0.5, 1.0);
+        }
+        case CanvasMolecule::HighlightType::Error: {
+            return std::make_tuple(1.0, 0.0, 0.0);
+        }
+        case CanvasMolecule::HighlightType::Selection: {
+            return std::make_tuple(0.0, 0.75, 1.0);
+        }
+        default:
+        case CanvasMolecule::HighlightType::Hover: {
+            return std::make_tuple(0.0, 1.0, 0.5);
+        }
+    }
+}
+
 std::tuple<float,float,float> CanvasMolecule::atom_color_to_rgb(CanvasMolecule::AtomColor color) noexcept {
     switch (color) {
         case AtomColor::Green:{
@@ -746,7 +764,7 @@ void CanvasMolecule::build_internal_molecule_representation(const RDGeom::INT_PO
             rdkit_atom->getProp("name", atom_name);
             canvas_atom.name = atom_name;
         }
-        canvas_atom.highlighted = false;
+        canvas_atom.highlight = std::nullopt;
         canvas_atom.idx = atom_idx;
         canvas_atom.symbol = rdkit_atom->getSymbol();
         canvas_atom.x = plane_point.x;
@@ -813,7 +831,7 @@ void CanvasMolecule::build_internal_molecule_representation(const RDGeom::INT_PO
             canvas_bond.second_atom_x = coordinate_map.at(second_atom_idx).x;
             canvas_bond.second_atom_y = coordinate_map.at(second_atom_idx).y;
 
-            canvas_bond.highlighted = false;
+            canvas_bond.highlight = std::nullopt;
             canvas_bond.type = bond_type_from_rdkit(bond_ptr->getBondType());
             canvas_bond.geometry = bond_geometry_from_rdkit(bond_ptr->getBondDir());
 
@@ -964,12 +982,12 @@ void CanvasMolecule::update_qed_info() {
     this->qed_info = new_info;
 }
 
-void CanvasMolecule::highlight_atom(int atom_idx) {
+void CanvasMolecule::highlight_atom(int atom_idx, HighlightType htype) {
     //g_debug("Highlighted atom with idx=%i",atom_idx);
-    this->atoms.at(atom_idx).highlighted = true;
+    this->atoms.at(atom_idx).highlight = htype;
 }
 
-void CanvasMolecule::highlight_bond(unsigned int atom_a, unsigned int atom_b) {
+void CanvasMolecule::highlight_bond(unsigned int atom_a, unsigned int atom_b, HighlightType htype) {
 
     //g_debug("Highlighted bond between atoms with indices %i and %i",atom_a,atom_b);
     auto bonds_for_atom_a = this->bond_map.find(atom_a);
@@ -982,15 +1000,15 @@ void CanvasMolecule::highlight_bond(unsigned int atom_a, unsigned int atom_b) {
     if (target == this->bonds.end()) {
         throw std::runtime_error("Bond doesn't exist");
     }
-    (*target)->highlighted = true;
+    (*target)->highlight = htype;
 }
 
 void CanvasMolecule::clear_highlights() {
     for(auto& bond: this->bonds) {
-        bond->highlighted = false;
+        bond->highlight = std::nullopt;
     }
     for(auto& atom: this->atoms) {
-        atom.highlighted = false;
+        atom.highlight = std::nullopt;
     }
 }
 
