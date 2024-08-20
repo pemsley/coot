@@ -631,14 +631,33 @@
           </item>
 
           <submenu>
+            <attribute name="label">Bond Smoothness</attribute>
+            <item>
+              <attribute name="label">Default</attribute>
+              <attribute name="action">app.bond_smoothness_action</attribute>
+              <attribute name="target">1</attribute>
+            </item>
+            <item>
+              <attribute name="label">Smooth</attribute>
+              <attribute name="action">app.bond_smoothness_action</attribute>
+              <attribute name="target">2</attribute>
+            </item>
+            <item>
+              <attribute name="label">Fine</attribute>
+              <attribute name="action">app.bond_smoothness_action</attribute>
+              <attribute name="target">3</attribute>
+            </item>
+          </submenu>
+
+          <submenu>
             <attribute name="label">Carbon Colours</attribute>
             <item>
               <attribute name="label">Grey Carbon Colours</attribute>
-              <attribute name="action">app.grey_carbon_colours</attribute>
+              <attribute name="action">app.grey_carbon_colours_action</attribute>
             </item>
             <item>
               <attribute name="label">Coloured Carbon Colours</attribute>
-              <attribute name="action">app.coloured_carbon_colours</attribute>
+              <attribute name="action">app.coloured_carbon_colours_action</attribute>
             </item>
           </submenu>
 
