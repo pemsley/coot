@@ -34,8 +34,6 @@
 #include "interface.h" // for create_multi_residue_torsion_dialog()
 #include "ideal/torsion-bonds.hh"
 
-#include "trackball.h"
-
 void
 graphics_info_t::multi_torsion_residues(int imol, const std::vector<coot::residue_spec_t> &v) {
 

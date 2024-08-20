@@ -76,7 +76,6 @@
 #include "skeleton/BuildCas.h"
 
 #include "gl-matrix.h" // for baton rotation
-#include "trackball.h" // for baton rotation
 
 #include "analysis/bfkurt.hh"
 

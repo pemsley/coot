@@ -748,7 +748,6 @@ libcootsumo_la_SOURCES = \
 	Texture.cc Texture.hh    \
 	TextureMesh.cc TextureMesh.hh \
 	tomo-tools.cc \
-	trackball.c trackball.h  \
 	triangle-extras.h        \
 	user-mods.hh user-mods.cc\
 	xmap-utils.cc 		 \
