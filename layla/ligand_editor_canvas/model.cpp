@@ -1003,12 +1003,20 @@ void CanvasMolecule::highlight_bond(unsigned int atom_a, unsigned int atom_b, Hi
     (*target)->highlight = htype;
 }
 
-void CanvasMolecule::clear_highlights() {
+void CanvasMolecule::clear_highlights(HighlightType htype) {
     for(auto& bond: this->bonds) {
-        bond->highlight = std::nullopt;
+        if(bond->highlight.has_value()) {
+            if(*bond->highlight == htype) {
+                bond->highlight = std::nullopt;
+            }
+        }
     }
     for(auto& atom: this->atoms) {
-        atom.highlight = std::nullopt;
+        if(atom.highlight.has_value()) {
+            if(*atom.highlight == htype) {
+                atom.highlight = std::nullopt;
+            }
+        }
     }
 }
 

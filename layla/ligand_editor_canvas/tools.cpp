@@ -136,10 +136,10 @@ void ActiveTool::on_click(bool ctrl_pressed, int x, int y, bool right_click) {
     }
     auto click_result = this->widget_data->resolve_click(x, y);
     if(click_result.has_value()) {
+        auto [bond_or_atom,molecule_idx] = *click_result;
+        auto& rdkit_mol = *this->widget_data->rdkit_molecules->at(molecule_idx);
+        auto& canvas_mol = *this->widget_data->molecules->at(molecule_idx);
         try{
-            auto [bond_or_atom,molecule_idx] = *click_result;
-            auto& rdkit_mol = *this->widget_data->rdkit_molecules->at(molecule_idx);
-            auto& canvas_mol = *this->widget_data->molecules->at(molecule_idx);
             Tool::MoleculeClickContext mctx(ctx, molecule_idx, rdkit_mol, canvas_mol);
             if(!right_click) {
                 if(!this->tool->on_molecule_click(mctx)) {
@@ -170,6 +170,13 @@ void ActiveTool::on_click(bool ctrl_pressed, int x, int y, bool right_click) {
             } else {
                 this->tool->after_molecule_right_click(mctx);
             }
+        // } catch(RDKit::AtomSanitizeException& e) {
+        //     g_warning("Invalid change: %s",e.what());
+        //     std::string msg = "Invalid change: "; msg += e.what();
+        //     this->widget_data->update_status(msg.c_str());
+        //     this->widget_data->rollback_current_edition();
+        //     canvas_mol.highlight_atom(e.getAtomIdx(), CanvasMolecule::HighlightType::Error);
+            
         } catch(std::exception& e) {
             g_warning("An error occured: %s",e.what());
             std::string msg = this->tool->get_exception_message_prefix() + e.what();

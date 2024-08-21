@@ -333,7 +333,7 @@ class CanvasMolecule {
 
     void highlight_atom(int atom_idx, HighlightType htype);
     void highlight_bond(unsigned int atom_a, unsigned int atom_b, HighlightType htype);
-    void clear_highlights();
+    void clear_highlights(HighlightType htype = HighlightType::Hover);
 
     static RDKit::Bond::BondType bond_type_to_rdkit(BondType) noexcept;
     static BondGeometry bond_geometry_from_rdkit(RDKit::Bond::BondDir) noexcept;
