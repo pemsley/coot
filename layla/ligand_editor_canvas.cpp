@@ -610,7 +610,7 @@ void coot_ligand_editor_canvas_update_molecule_from_smiles(CootLigandEditorCanva
         return;
     }
     try{
-        const auto* mol_ptr = RDKit::SmilesToMol(smiles);
+        const auto* mol_ptr = RDKit::SmilesToMol(smiles, 0, !self->allow_invalid_molecules);
         if(mol_ptr) {
             self->begin_edition();
             *target_mol_opt->get() = std::move(*mol_ptr);
@@ -624,7 +624,7 @@ void coot_ligand_editor_canvas_update_molecule_from_smiles(CootLigandEditorCanva
     }catch(const std::exception& e) {
         std::string msg = "2D representation could not be created: ";
         msg += e.what();
-        msg += ". New molecule could not be added.";
+        msg += ". Molecule could not be updated.";
         g_warning("coot_ligand_editor_canvas_update_molecule_from_smiles: %s",msg.c_str());
         self->update_status(msg.c_str());
         self->rollback_current_edition();
