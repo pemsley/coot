@@ -571,7 +571,7 @@ int coot_ligand_editor_canvas_append_molecule(CootLigandEditorCanvas* self, std:
         g_debug("Appending new molecule to the widget...");
         // Might throw if the constructor fails.
         self->begin_edition();
-        self->molecules->push_back(CanvasMolecule(rdkit_mol));
+        self->molecules->push_back(CanvasMolecule(rdkit_mol, self->allow_invalid_molecules));
         self->molecules->back()->set_canvas_scale(self->scale);
         #ifndef __EMSCRIPTEN__
         self->molecules->back()->apply_canvas_translation(

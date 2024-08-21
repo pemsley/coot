@@ -290,7 +290,7 @@ class CanvasMolecule {
 
     public:
 
-    CanvasMolecule(std::shared_ptr<RDKit::RWMol> rdkit_mol);
+    CanvasMolecule(std::shared_ptr<RDKit::RWMol> rdkit_mol, bool allow_invalid_mol);
 
     /// Replaces the inner shared_ptr to the molecule
     /// from which the CanvasMolecule is lowered.

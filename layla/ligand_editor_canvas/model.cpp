@@ -347,11 +347,11 @@ void CanvasMolecule::draw(impl::Renderer& ren, DisplayMode display_mode) const n
     renctx.draw_bonds();
 }
 
-CanvasMolecule::CanvasMolecule(std::shared_ptr<RDKit::RWMol> rdkit_mol) {
+CanvasMolecule::CanvasMolecule(std::shared_ptr<RDKit::RWMol> rdkit_mol, bool allow_invalid_mol) {
     this->rdkit_molecule = std::move(rdkit_mol);
     this->cached_atom_coordinate_map = std::nullopt;
     this->bounding_atom_coords = std::make_pair(RDGeom::Point2D(0,0),RDGeom::Point2D(0,0));
-    this->lower_from_rdkit(true);
+    this->lower_from_rdkit(!allow_invalid_mol);
     this->x_canvas_translation = 0;
     this->y_canvas_translation = 0;
 }
@@ -945,7 +945,16 @@ void CanvasMolecule::lower_from_rdkit(bool sanitize_after, bool with_qed) {
 
     // QED update
     if (with_qed) {
-        this->update_qed_info();
+        if (sanitize_after) {
+            this->update_qed_info();
+        } else {
+            try {
+                this->update_qed_info();
+            } catch(std::exception& e) {
+                g_warning("Could not update QED info: %s", e.what());
+            }
+        }
+        
     }
 
     // Process problematic areas
