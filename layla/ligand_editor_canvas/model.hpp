@@ -95,11 +95,11 @@ class CanvasMolecule {
     };
 
     enum class HighlightType: unsigned char {
-        Hover,
-        Edition,
-        Error,
+        Hover = 1,
+        Edition = 2,
+        Error = 4,
         // A concept for the future
-        Selection
+        Selection = 8
     };
 
    struct Atom {

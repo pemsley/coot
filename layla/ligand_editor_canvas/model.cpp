@@ -1018,6 +1018,9 @@ void CanvasMolecule::update_qed_info() {
 }
 
 void CanvasMolecule::highlight_atom(int atom_idx, HighlightType htype) {
+    // if(htype == HighlightType::Hover) {
+
+    // }
     //g_debug("Highlighted atom with idx=%i",atom_idx);
     this->atoms.at(atom_idx).highlight = htype;
 }
