@@ -667,6 +667,7 @@ unsigned int coot_ligand_editor_canvas_get_max_molecule_idx(CootLigandEditorCanv
 }
 
 void coot_ligand_editor_canvas_set_allow_invalid_molecules(CootLigandEditorCanvas* self, bool value) noexcept {
+    g_debug("Invalid molecules allowed set to %s", value ? "true" : "false");
     self->allow_invalid_molecules = value;
 }
 

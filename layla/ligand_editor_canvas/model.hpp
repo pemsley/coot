@@ -283,6 +283,10 @@ class CanvasMolecule {
     void shorten_double_bonds();
 
     void update_qed_info();
+    
+    /// Manages error highlights
+    /// Part of the lowering process.
+    void process_problematic_areas(bool allow_invalid_molecules);
 
     public:
 

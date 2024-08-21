@@ -947,6 +947,24 @@ void CanvasMolecule::lower_from_rdkit(bool sanitize_after, bool with_qed) {
     if (with_qed) {
         this->update_qed_info();
     }
+
+    // Process problematic areas
+    this->process_problematic_areas(sanitize_after);
+}
+
+void CanvasMolecule::process_problematic_areas(bool allow_invalid_molecules) {
+    this->clear_highlights(HighlightType::Error);
+    if(allow_invalid_molecules) {
+        auto problems = RDKit::MolOps::detectChemistryProblems(*this->rdkit_molecule);
+        for(const auto& eptr: problems) {
+            auto* raw_eptr = eptr.get();
+            auto* atom_sanitize_exception = dynamic_cast<RDKit::AtomSanitizeException*>(raw_eptr);
+            if(atom_sanitize_exception) {
+                
+                this->highlight_atom(atom_sanitize_exception->getAtomIdx(), HighlightType::Error);
+            }
+        }
+    }
 }
 
 void CanvasMolecule::update_qed_info() {
