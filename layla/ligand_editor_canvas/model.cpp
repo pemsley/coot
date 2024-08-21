@@ -921,7 +921,15 @@ void CanvasMolecule::lower_from_rdkit(bool sanitize_after, bool with_qed) {
     // 2. Do the lowering
 
     // 2.0 Kekulize
-    RDKit::MolOps::Kekulize(*this->rdkit_molecule);
+    if(sanitize_after) {
+        RDKit::MolOps::Kekulize(*this->rdkit_molecule);
+    } else {
+        try {
+            RDKit::MolOps::Kekulize(*this->rdkit_molecule);
+        } catch(std::exception& e) {
+            g_warning("Could not kekulize molecule: %s", e.what());
+        }
+    }
 
     /// 2.1 Compute geometry
     auto geometry = this->compute_molecule_geometry();
