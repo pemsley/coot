@@ -958,7 +958,7 @@ void CanvasMolecule::lower_from_rdkit(bool sanitize_after, bool with_qed) {
     }
 
     // Process problematic areas
-    this->process_problematic_areas(sanitize_after);
+    this->process_problematic_areas(!sanitize_after);
 }
 
 void CanvasMolecule::process_problematic_areas(bool allow_invalid_molecules) {
