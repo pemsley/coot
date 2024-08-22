@@ -132,7 +132,8 @@ void LaylaState::update_status(const char* new_status) noexcept {
 }
 
 int LaylaState::append_molecule(RDKit::RWMol* molecule_ptr) {
-    RDKit::MolOps::sanitizeMol(*molecule_ptr);
+    //Breaks invalid molecules
+    //RDKit::MolOps::sanitizeMol(*molecule_ptr);
     return coot_ligand_editor_canvas_append_molecule(this->canvas, std::shared_ptr<RDKit::RWMol>(molecule_ptr));
 }
 
@@ -178,8 +179,7 @@ void LaylaState::load_from_smiles() {
         g_info("Importing SMILES...");
         auto* text_buf = GTK_ENTRY_BUFFER(user_data);
         try {
-
-            RDKit::RWMol* molecule = RDKit::SmilesToMol(gtk_entry_buffer_get_text(text_buf));
+            RDKit::RWMol* molecule = RDKit::SmilesToMol(gtk_entry_buffer_get_text(text_buf), 0, false);
             if(!molecule) {
                 throw std::runtime_error("RDKit::RWMol* is a nullptr. The SMILES code is probably invalid.");
             }

@@ -594,7 +594,10 @@ int coot_ligand_editor_canvas_append_molecule(CootLigandEditorCanvas* self, std:
         std::string msg = "2D representation could not be created: ";
         msg += e.what();
         msg += ". New molecule could not be added.";
-        g_warning("coot_ligand_editor_canvas_append_molecule: %s",msg.c_str());
+        g_warning("coot_ligand_editor_canvas_append_molecule: %s\n%s",
+            msg.c_str(), 
+            self->allow_invalid_molecules ? "Invalid molecules are allowed." : "Invalid molecules are not allowed."
+        );
         self->update_status(msg.c_str());
         self->rollback_current_edition();
         return -1;
@@ -625,7 +628,10 @@ void coot_ligand_editor_canvas_update_molecule_from_smiles(CootLigandEditorCanva
         std::string msg = "2D representation could not be created: ";
         msg += e.what();
         msg += ". Molecule could not be updated.";
-        g_warning("coot_ligand_editor_canvas_update_molecule_from_smiles: %s",msg.c_str());
+        g_warning(
+            "coot_ligand_editor_canvas_update_molecule_from_smiles: %s\n%s",msg.c_str(),
+            self->allow_invalid_molecules ? "Invalid molecules are allowed." : "Invalid molecules are not allowed."
+        );
         self->update_status(msg.c_str());
         self->rollback_current_edition();
     }
