@@ -308,12 +308,14 @@ AC_SUBST(L_BOOST_PYTHON)
 
 dnl =========================== RDKit =========================
 
+# this does nothing now - keep it for backwards compatibility
 AC_ARG_WITH(enhanced-ligand-tools, [  --with-enhanced-ligand-tools with optional ligand-related dependencies ],
  coot_enhanced_ligand_additions="true",
  coot_enhanced_ligand_additions="false")
 
 # but we can't use enhanced-ligand-tools without python:
 if $coot_enhanced_ligand_additions = true ; then
+   echo no longer need to specify --with-enhanced-ligand-tools
    if test -n "$COOT_USE_PYTHON_TRUE" ; then
       echo Configuration error: cant use enhanced-ligand-tools without python
       exit 1
@@ -354,13 +356,10 @@ else
    RDKIT_LIBS="-L$rdkit_install_dir/lib -lRDKitMolDraw2D -lRDKitForceFieldHelpers -lRDKitDescriptors -lRDKitForceField -lRDKitSubstructMatch -lRDKitOptimizer -lRDKitDistGeomHelpers -lRDKitDistGeometry -lRDKitChemReactions -lRDKitAlignment -lRDKitEigenSolvers -lRDKitDepictor -lRDKitcoordgen -lRDKitMolChemicalFeatures -lRDKitPartialCharges -lRDKitFileParsers -lRDKitRDGeometryLib -lRDKitGraphMol -lRDKitShapeHelpers -lRDKitFingerprints -lRDKitMolAlign -lRDKitMolTransforms -lRDKitChemTransforms -lRDKitSmilesParse -lRDKitGenericGroups -lRDKitRingDecomposerLib -lRDKitFilterCatalog -lRDKitCatalogs -lRDKitSubgraphs -lRDKitPartialCharges -lRDKitRDGeneral -lRDKitDataStructs -lboost_serialization -lboost_iostreams"
 fi
 
-if test x$coot_enhanced_ligand_additions = xtrue ; then
-   ENHANCED_LIGAND_TOOLS_CPPFLAGS="-DMAKE_ENHANCED_LIGAND_TOOLS"
-else
-   ENHANCED_LIGAND_TOOLS_CPPFLAGS=""
-fi
+# this must always be true now
+ENHANCED_LIGAND_TOOLS_CPPFLAGS="-DMAKE_ENHANCED_LIGAND_TOOLS"
 
-echo ENHANCED_LIGAND_TOOLS_CPPFLAGS $ENHANCED_LIGAND_TOOLS_CPPFLAGS
+# echo ENHANCED_LIGAND_TOOLS_CPPFLAGS $ENHANCED_LIGAND_TOOLS_CPPFLAGS
 
 AC_ARG_ENABLE(layla-only, [  --enable-layla-only build layla only (not coot) ],
  layla_only="yes",
