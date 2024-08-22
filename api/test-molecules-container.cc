@@ -6148,6 +6148,7 @@ int main(int argc, char **argv) {
          // status += run_test(test_assign_sequence, "Assign Sequence", mc);
          // status += run_test(test_undo_and_redo_2, "Undo and redo 2", mc);
          // status += run_test(test_gltf_export_via_api,   "glTF via api", mc);
+         // status += run_test(test_import_ligands_with_same_name_and_animated_refinement, "Test import ligands with same name and animated refinement", mc);
          status += run_test(test_dictionary_conformers,   "Dictionary Conformers", mc);
 
          if (status == n_tests) all_tests_status = 0;

@@ -55,7 +55,7 @@ int test_multiligands_lig_bonding(molecules_container_t &mc) {
    int imol_lucr_prot = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-2.pdb"));
    mc.import_cif_dictionary(reference_data("00Z_for_prot1.cif"), imol_paul_prot);
    mc.import_cif_dictionary(reference_data("00Z_for_prot2.cif"), imol_lucr_prot);
-   coot::protein_geometry &geom= mc.get_geometry();
+   coot::protein_geometry &geom = mc.get_geometry();
 
    std::pair<bool, coot::dictionary_residue_restraints_t> lig1_pair = geom.get_monomer_restraints("00Z", imol_paul_prot);
    std::pair<bool, coot::dictionary_residue_restraints_t> lig2_pair = geom.get_monomer_restraints("00Z", imol_lucr_prot);
@@ -72,9 +72,6 @@ int test_multiligands_lig_bonding(molecules_container_t &mc) {
          mc.merge_molecules(imol_lucr_prot, std::to_string(imol_lig2));
          mc.write_coordinates(imol_paul_prot, "p_test.pdb");
          mc.write_coordinates(imol_lucr_prot, "l_test.pdb");
-         bool check_hydrogens_too_flag = false;
-         bool apply_bond_distance_check = false;
-         coot::protein_geometry & geom = mc.get_geom();
          std::pair<bool, coot::dictionary_residue_restraints_t> pair = geom.get_monomer_restraints("00Z", imol_lucr_prot);
          if (pair.first) {
             coot::dictionary_residue_restraints_t restraints = pair.second; 
@@ -89,6 +86,8 @@ int test_multiligands_lig_bonding(molecules_container_t &mc) {
                     mmdb::Atom *at = atoms[iat];
                     // std::cout << "  " << iat << "  " << at->GetAtomName() << std::endl;
                 } 
+                bool check_hydrogens_too_flag = false;
+                bool apply_bond_distance_check = false;
                 std::pair<bool, std::vector<std::string> >
                 matchers = geom.atoms_match_dictionary(res, check_hydrogens_too_flag, apply_bond_distance_check, restraints); 
                 if (matchers.first) {
