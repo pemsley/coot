@@ -94,7 +94,8 @@ class CanvasMolecule {
         // are there more colors?
     };
 
-    enum class HighlightType: unsigned char {
+    typedef unsigned char highlight_t;
+    enum class HighlightType: highlight_t {
         Hover = 1,
         Edition = 2,
         Error = 4,
@@ -130,7 +131,8 @@ class CanvasMolecule {
         float y;
         /// Corresponds to RDKit atom index
         unsigned int idx;
-        std::optional<HighlightType> highlight;
+        /// Highlight bitmask
+        highlight_t highlight;
     };
     enum class BondType: unsigned char {
         Single,
@@ -174,7 +176,8 @@ class CanvasMolecule {
         float second_atom_x;
         float second_atom_y;
         unsigned int second_atom_idx;
-        std::optional<HighlightType> highlight;
+        /// Highlight bitmask
+        highlight_t highlight;
 
         /// Returns an [x,y] pair of numbers
         std::pair<float,float> get_perpendicular_versor() const noexcept;
@@ -220,6 +223,7 @@ class CanvasMolecule {
     static std::tuple<float,float,float> atom_color_to_rgb(AtomColor) noexcept;
     static std::tuple<float,float,float> hightlight_to_rgb(HighlightType) noexcept;
     static std::string atom_color_to_html(AtomColor) noexcept;
+    static std::optional<HighlightType> determine_dominant_highlight(highlight_t) noexcept;
 
     std::shared_ptr<RDKit::RWMol> rdkit_molecule;
     std::vector<Atom> atoms;
@@ -335,8 +339,9 @@ class CanvasMolecule {
     /// Returns the thing that was clicked on (or nullopt if there's no match).
     MaybeAtomOrBond resolve_click(int x, int y) const noexcept;
 
-    void highlight_atom(int atom_idx, HighlightType htype);
-    void highlight_bond(unsigned int atom_a, unsigned int atom_b, HighlightType htype);
+    void add_atom_highlight(int atom_idx, HighlightType htype);
+    void add_bond_highlight(unsigned int atom_a, unsigned int atom_b, HighlightType htype);
+    /// Clears the highlight flag of the given type (for both atoms and bonds)
     void clear_highlights(HighlightType htype = HighlightType::Hover);
 
     static RDKit::Bond::BondType bond_type_to_rdkit(BondType) noexcept;

@@ -208,6 +208,26 @@ std::tuple<float,float,float> CanvasMolecule::hightlight_to_rgb(CanvasMolecule::
     }
 }
 
+std::optional<CanvasMolecule::HighlightType> CanvasMolecule::determine_dominant_highlight(CanvasMolecule::highlight_t hcode) noexcept {
+    if (hcode == 0) {
+        return std::nullopt;
+    }
+    auto has_highlight = [hcode](HighlightType h){
+        return hcode & static_cast<highlight_t>(h);
+    };
+
+    if(has_highlight(HighlightType::Hover)) {
+        return HighlightType::Hover;
+    } else if(has_highlight(HighlightType::Edition)) {
+        return HighlightType::Edition;
+    } else if(has_highlight(HighlightType::Selection)) {
+        return HighlightType::Selection;
+    } else if(has_highlight(HighlightType::Error)) {
+        return HighlightType::Error;
+    }
+    return std::nullopt;
+}
+
 std::tuple<float,float,float> CanvasMolecule::atom_color_to_rgb(CanvasMolecule::AtomColor color) noexcept {
     switch (color) {
         case AtomColor::Green:{
@@ -764,7 +784,7 @@ void CanvasMolecule::build_internal_molecule_representation(const RDGeom::INT_PO
             rdkit_atom->getProp("name", atom_name);
             canvas_atom.name = atom_name;
         }
-        canvas_atom.highlight = std::nullopt;
+        canvas_atom.highlight = 0;
         canvas_atom.idx = atom_idx;
         canvas_atom.symbol = rdkit_atom->getSymbol();
         canvas_atom.x = plane_point.x;
@@ -831,7 +851,7 @@ void CanvasMolecule::build_internal_molecule_representation(const RDGeom::INT_PO
             canvas_bond.second_atom_x = coordinate_map.at(second_atom_idx).x;
             canvas_bond.second_atom_y = coordinate_map.at(second_atom_idx).y;
 
-            canvas_bond.highlight = std::nullopt;
+            canvas_bond.highlight = 0;
             canvas_bond.type = bond_type_from_rdkit(bond_ptr->getBondType());
             canvas_bond.geometry = bond_geometry_from_rdkit(bond_ptr->getBondDir());
 
@@ -970,7 +990,7 @@ void CanvasMolecule::process_problematic_areas(bool allow_invalid_molecules) {
             auto* atom_sanitize_exception = dynamic_cast<RDKit::AtomSanitizeException*>(raw_eptr);
             if(atom_sanitize_exception) {
                 
-                this->highlight_atom(atom_sanitize_exception->getAtomIdx(), HighlightType::Error);
+                this->add_atom_highlight(atom_sanitize_exception->getAtomIdx(), HighlightType::Error);
             }
         }
     }
@@ -1017,15 +1037,12 @@ void CanvasMolecule::update_qed_info() {
     this->qed_info = new_info;
 }
 
-void CanvasMolecule::highlight_atom(int atom_idx, HighlightType htype) {
-    // if(htype == HighlightType::Hover) {
-
-    // }
+void CanvasMolecule::add_atom_highlight(int atom_idx, HighlightType htype) {
     //g_debug("Highlighted atom with idx=%i",atom_idx);
-    this->atoms.at(atom_idx).highlight = htype;
+    this->atoms.at(atom_idx).highlight |= static_cast<highlight_t>(htype);
 }
 
-void CanvasMolecule::highlight_bond(unsigned int atom_a, unsigned int atom_b, HighlightType htype) {
+void CanvasMolecule::add_bond_highlight(unsigned int atom_a, unsigned int atom_b, HighlightType htype) {
 
     //g_debug("Highlighted bond between atoms with indices %i and %i",atom_a,atom_b);
     auto bonds_for_atom_a = this->bond_map.find(atom_a);
@@ -1038,23 +1055,17 @@ void CanvasMolecule::highlight_bond(unsigned int atom_a, unsigned int atom_b, Hi
     if (target == this->bonds.end()) {
         throw std::runtime_error("Bond doesn't exist");
     }
-    (*target)->highlight = htype;
+    (*target)->highlight |= static_cast<highlight_t>(htype);
 }
 
 void CanvasMolecule::clear_highlights(HighlightType htype) {
     for(auto& bond: this->bonds) {
-        if(bond->highlight.has_value()) {
-            if(*bond->highlight == htype) {
-                bond->highlight = std::nullopt;
-            }
-        }
+        auto& highlight = bond->highlight;
+        highlight &= ~static_cast<highlight_t>(htype);
     }
     for(auto& atom: this->atoms) {
-        if(atom.highlight.has_value()) {
-            if(*atom.highlight == htype) {
-                atom.highlight = std::nullopt;
-            }
-        }
+        auto& highlight = atom.highlight;
+        highlight &= ~static_cast<highlight_t>(htype);
     }
 }
 

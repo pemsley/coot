@@ -240,7 +240,7 @@ void CootLigandEditorCanvas::on_hover(double x, double y, bool alt_pressed) {
     if(self->active_tool->is_creating_bond()) {
         auto [molecule_idx, atom_idx] = *self->active_tool->get_molecule_idx_and_first_atom_of_new_bond();
         auto& target = *(*self->molecules)[molecule_idx];
-        target.highlight_atom(atom_idx, CanvasMolecule::HighlightType::Edition);
+        target.add_atom_highlight(atom_idx, CanvasMolecule::HighlightType::Edition);
     }
 
     // Highlights and snapping
@@ -251,7 +251,7 @@ void CootLigandEditorCanvas::on_hover(double x, double y, bool alt_pressed) {
         if(std::holds_alternative<CanvasMolecule::Atom>(bond_or_atom)) {
             auto atom = std::get<CanvasMolecule::Atom>(std::move(bond_or_atom));
             g_debug("Hovering on atom %u (%s)", atom.idx,atom.symbol.c_str());
-            target.highlight_atom(atom.idx, CanvasMolecule::HighlightType::Hover);
+            target.add_atom_highlight(atom.idx, CanvasMolecule::HighlightType::Hover);
 
             // Snapping to the target atom
             // when creating a bond
@@ -264,7 +264,7 @@ void CootLigandEditorCanvas::on_hover(double x, double y, bool alt_pressed) {
         } else { // a bond
             auto bond = std::get<CanvasMolecule::Bond>(std::move(bond_or_atom));
             g_debug("Hovering on bond between atoms %u and %u", bond.first_atom_idx, bond.second_atom_idx);
-            target.highlight_bond(bond.first_atom_idx, bond.second_atom_idx, CanvasMolecule::HighlightType::Hover);
+            target.add_bond_highlight(bond.first_atom_idx, bond.second_atom_idx, CanvasMolecule::HighlightType::Hover);
         }
     }
     self->queue_redraw();
