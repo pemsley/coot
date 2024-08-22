@@ -1643,10 +1643,10 @@ coot::protein_geometry::get_monomer_restraints_index(const std::string &monomer_
    unsigned int nrest = dict_res_restraints.size();
    for (unsigned int i=0; i<nrest; i++) {
       if (debug)
-	 std::cout << "in get_monomer_restraints_index() comparing \""
-		   << dict_res_restraints[i].second.residue_info.comp_id << "\" vs \"" << monomer_type
-		   << "\" and " << dict_res_restraints[i].first << " " <<  imol_enc
-		   << " with allow_minimal_flag " << allow_minimal_flag << std::endl;
+	 std::cout << "in get_monomer_restraints_index() comparing dict: \""
+		   << dict_res_restraints[i].second.residue_info.comp_id << "\" vs mine: \"" << monomer_type
+		   << "\" and dict: " << dict_res_restraints[i].first << " vs mine: " <<  imol_enc
+		   << "     with allow_minimal_flag " << allow_minimal_flag << std::endl;
       if (dict_res_restraints[i].second.residue_info.comp_id == monomer_type) {
 	 if (matches_imol(dict_res_restraints[i].first, imol_enc)) {
 	    // if (dict_res_restraints[i].first == imol_enc) {

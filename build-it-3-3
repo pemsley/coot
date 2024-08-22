@@ -1246,7 +1246,7 @@ case $dist_name in
 
     debian)
       # python is needed to configure ninja. Sigh. flex and bison are needed for gobject-introspection
-      dep_list='libncurses5-dev libssl-dev g++ git libxext-dev libglu1-mesa-dev mesa-common-dev python flex bison m4 cmake'
+      dep_list='wget pkg-config libgtk-4-dev build-essential libdw-dev libvorbis-dev libncurses5-dev libssl-dev g++ git libxext-dev libglu1-mesa-dev mesa-common-dev flex bison m4 cmake autoconf gfortran'
       # converted from dep_list='libncurses5-dev g++ libxext-dev libglu1-mesa-dev mesa-common-dev libgtk2.0-dev'
       # not tested
 
@@ -3556,7 +3556,7 @@ if [ true = true ] ; then
 fi
 
 # this is a hack for charybdis   - we need cmake version 3.1 or later
-export PATH=$HOME/cmake/bin:$PATH
+# export PATH=$HOME/cmake/bin:$PATH
 
 ############################### eigen ##########################################
 
@@ -3588,22 +3588,25 @@ if [ -e $install_top_dir/include/catch2/catch_config.hpp ] ; then
     echo Catch2 is installed >&2
 else
    catch2_version=3.5.2
-   echo BUILDING catch2 catch2_version
+   echo BUILDING catch2 $catch2_version
    ${WGET} https://github.com/catchorg/Catch2/archive/refs/tags/v$catch2_version.tar.gz
    (
-   tar xf $AUTOBUILD_SOURCES/v$catch2_version.tar.gz
-   cd Catch2-$catch2_version
-   # meson setup -Dcpp_std=c++17 -Dprefix=$install_top_dir build
-   # cd build
-   # ninja
-   # ninja install
-   # cd ..
-   mkdir build
-   cd build
-   cmake -DCMAKE_INSTALL_PREFIX=$install_top_dir ..
-   $MAKE && make install
-   cd ..
-   cd ..
+       unset LD_LIBRARY_PATH
+       tar xf $AUTOBUILD_SOURCES/v$catch2_version.tar.gz
+       echo cd Catch2-$catch2_version
+       cd Catch2-$catch2_version
+       # meson setup -Dcpp_std=c++17 -Dprefix=$install_top_dir build
+       # cd build
+       # ninja
+       # ninja install
+       # cd ..
+       mkdir build
+       cd build
+       cmake -DCMAKE_INSTALL_PREFIX=$install_top_dir ..
+       echo $MAKE && make install
+       $MAKE && make install
+       cd ..
+       cd ..
    ) > $HOSTLOGDIR/25-catch2.txt 2>&1
 fi
 
@@ -3821,7 +3824,11 @@ if [ "$build_rdkit" = true ] ; then
          python_arch=darwin
       fi
 
-      export LDFLAGS="-L$install_top_dir/lib -lintl"
+      if test "$dist_name" = debian ; then
+	  echo don.t mess with LDFLAGS here on debian
+      else
+	  export LDFLAGS="-L$install_top_dir/lib -lintl"
+      fi
 
       # echo will configure with cmake like this:
       # DBoost_PYTHON39_LIBRARY_RELEASE needs to be extracted?
@@ -3897,14 +3904,6 @@ if [ "$build_rdkit" = true ] ; then
    fi
 fi
 
-
-if [ -e $install_top_dir/lib/$python_version/site-packages/requests ] ; then
-    echo python requests is installed
-    echo python requests is installed >&2
-else
-    echo installing python requests >&2
-    python3 -m pip install requests
-fi
 
 ###############################################################################
 # exit here for the chapi-dependencies build
