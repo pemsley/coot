@@ -132,8 +132,9 @@ void LaylaState::update_status(const char* new_status) noexcept {
 }
 
 int LaylaState::append_molecule(RDKit::RWMol* molecule_ptr) {
-    //Breaks invalid molecules
-    //RDKit::MolOps::sanitizeMol(*molecule_ptr);
+    if(!coot_ligand_editor_canvas_get_allow_invalid_molecules(this->canvas)) {
+        RDKit::MolOps::sanitizeMol(*molecule_ptr);
+    }
     return coot_ligand_editor_canvas_append_molecule(this->canvas, std::shared_ptr<RDKit::RWMol>(molecule_ptr));
 }
 
