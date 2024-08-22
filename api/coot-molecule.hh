@@ -1123,7 +1123,7 @@ namespace coot {
       void fix_atom_selection_during_refinement(const std::string &atom_selection_cid);
 
       // refine all of this molecule - the links and non-bonded contacts will be determined from mol_ref;
-      void init_all_molecule_refinement(mmdb::Manager *mol_ref, coot::protein_geometry &geom,
+      void init_all_molecule_refinement(int imol_ref_mol, coot::protein_geometry &geom,
                                         const clipper::Xmap<float> &xmap, float map_weight,
                                         ctpl::thread_pool *thread_pool);
 

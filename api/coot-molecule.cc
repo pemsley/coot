@@ -4172,7 +4172,7 @@ coot::molecule_t::fix_atom_selection_during_refinement(const std::string &atom_s
 
 // refine all of this molecule - the links and non-bonded contacts will be determined from mol_ref;
 void
-coot::molecule_t::init_all_molecule_refinement(mmdb::Manager *mol_ref, coot::protein_geometry &geom,
+coot::molecule_t::init_all_molecule_refinement(int imol_ref_mol, coot::protein_geometry &geom,
                                                const clipper::Xmap<float> &xmap_in, float map_weight,
                                                ctpl::thread_pool *thread_pool) {
 
@@ -4230,7 +4230,9 @@ coot::molecule_t::init_all_molecule_refinement(mmdb::Manager *mol_ref, coot::pro
    unsigned int n_threads = 8;
    last_restraints->thread_pool(thread_pool, n_threads);
 
-   last_restraints->make_restraints(imol_no, geom, flags, 1, make_trans_peptide_restraints,
+   // user-defined LIG diction ahve been assigned to imol_ref_mol, not this one (this one
+   // is a temporary molecule used only for refinement).
+   last_restraints->make_restraints(imol_ref_mol, geom, flags, 1, make_trans_peptide_restraints,
                                     1.0, do_rama_plot_restraints, true, true, false, pseudos);
 
    if (last_restraints->size() == 0) {

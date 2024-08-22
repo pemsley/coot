@@ -1638,7 +1638,7 @@ coot::protein_geometry::get_monomer_restraints_index(const std::string &monomer_
 						     bool allow_minimal_flag) const {
 
    int r = -1;
-   bool debug = true;
+   bool debug = false;
 
    unsigned int nrest = dict_res_restraints.size();
    for (unsigned int i=0; i<nrest; i++) {

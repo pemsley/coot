@@ -1142,7 +1142,7 @@ coot::restraints_container_t::add_bonds(int idr, mmdb::PPAtom res_selection,
 
    int n_bond_restr = 0;
    int index1, index2;
-   bool debug = true;
+   bool debug = false;
 
    if (debug)
       std::cout << "in add_bonds() for " << residue_spec_t(SelRes) << std::endl;

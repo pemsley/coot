@@ -4873,7 +4873,7 @@ molecules_container_t::init_refinement_of_molecule_as_fragment_based_on_referenc
             const clipper::Xmap<float> &xmap = molecules[imol_map].xmap;
             std::cout << "debug:: in init_refinement_of_molecule_as_fragment_based_on_reference() "
                       << " cell " << xmap.cell().descr().format() << std::endl;
-            molecules[imol_frag].init_all_molecule_refinement(mol_ref, geom, xmap, map_weight, &static_thread_pool);
+            molecules[imol_frag].init_all_molecule_refinement(imol_ref, geom, xmap, map_weight, &static_thread_pool);
          } else {
             std::cout << "WARNING:: in init_refinement_of_molecule_as_fragment_based_on_reference()"
                       << " not a valid map" << std::endl;
