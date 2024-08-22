@@ -1,0 +1,93 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://creativecommons.org/ns#"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   width="210mm"
+   height="297mm"
+   viewBox="0 0 210 297"
+   version="1.1"
+   id="svg8"
+   inkscape:version="1.0.2 (e86c870879, 2021-01-15)"
+   sodipodi:docname="formal-charge-minus.svg"
+   inkscape:export-filename="/home/paule/Desktop/angy-diego.png"
+   inkscape:export-xdpi="5.1399999"
+   inkscape:export-ydpi="5.1399999">
+  <defs
+     id="defs2" />
+  <sodipodi:namedview
+     id="base"
+     pagecolor="#ffffff"
+     bordercolor="#666666"
+     borderopacity="1.0"
+     inkscape:pageopacity="0.0"
+     inkscape:pageshadow="2"
+     inkscape:zoom="0.5"
+     inkscape:cx="-136.367"
+     inkscape:cy="560.61408"
+     inkscape:document-units="mm"
+     inkscape:current-layer="layer1"
+     showgrid="false"
+     inkscape:window-width="1792"
+     inkscape:window-height="1118"
+     inkscape:window-x="54"
+     inkscape:window-y="6"
+     inkscape:window-maximized="0"
+     inkscape:snap-global="false"
+     inkscape:document-rotation="0" />
+  <metadata
+     id="metadata5">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+        <dc:title></dc:title>
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <g
+     inkscape:label="Layer 1"
+     inkscape:groupmode="layer"
+     id="layer1">
+    <rect
+       style="opacity:0.98000004;fill:#dedeff;fill-opacity:0.00495049;stroke:none;stroke-width:0.13229166;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="rect1742"
+       width="300"
+       height="300.03751"
+       x="-47.095825"
+       y="-0.39166439" />
+    <path
+       style="opacity:0.98000004;fill:#f2f2f2;fill-opacity:0.50196081;stroke:none;stroke-width:0.10983698;stroke-linecap:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       d="M 105.06193,1.4951924 C 50.49205,1.4951957 6.2544137,45.732824 6.2544137,100.30271 c 0.013365,19.20547 5.6238343,37.9907 16.1447713,54.05807 l 38.855996,69.54725 42.478569,73.01358 42.40357,-72.58221 38.37539,-64.70676 c 11.62159,-18.82056 19.31291,-37.95812 19.35674,-59.32993 0,-54.569886 -44.23764,-98.8075143 -98.80752,-98.8075176 z"
+       id="path815"
+       inkscape:connector-curvature="0"
+       sodipodi:nodetypes="scccccccs"
+       inkscape:export-filename="/lmb/home/pemsley/Desktop/formal-charge-plus.png"
+       inkscape:export-xdpi="12.036839"
+       inkscape:export-ydpi="12.036839" />
+    <circle
+       style="fill:#f2f2f2;fill-opacity:0.58286959;stroke:#c03d39;stroke-width:8;stroke-dasharray:none;stroke-miterlimit:4;stroke-dashoffset:0;stroke-opacity:1"
+       id="path14917"
+       cx="104.1151"
+       cy="100.93207"
+       r="82.442886" />
+    <text
+       xml:space="preserve"
+       style="font-style:normal;font-weight:normal;font-size:223.163px;font-family:'Bitstream Vera Sans';fill:#c03d39;fill-opacity:1;stroke:none;stroke-width:1.16242;stroke-linecap:butt;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;"
+       x="49.742496"
+       y="177.43091"
+       id="text14921"
+       transform="scale(1.1706159,0.85425117)"><tspan
+         sodipodi:role="line"
+         id="tspan14919"
+         x="49.742496"
+         y="177.43091"
+         style="font-size:223.163px;fill:#c03d39;fill-opacity:1;stroke:none;stroke-width:1.16242;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1;">-</tspan></text>
+  </g>
+</svg>
