@@ -213,7 +213,7 @@ static void on_hover (
 
     CootLigandEditorCanvas* self = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
 #else
-void CootLigandEditorCanvas::on_hover(double x, double y, bool alt_pressed) {
+void CootLigandEditorCanvas::on_hover(double x, double y, bool alt_pressed, bool control_pressed) {
     auto* self = this;
 #endif
 
@@ -235,12 +235,14 @@ void CootLigandEditorCanvas::on_hover(double x, double y, bool alt_pressed) {
         auto& new_bond = *self->currently_created_bond;
         new_bond.second_atom_x = x;
         new_bond.second_atom_y = y;
-    }
-    // and set highlight for the first atom, if we're creating a new bond
-    if(self->active_tool->is_creating_bond()) {
-        auto [molecule_idx, atom_idx] = *self->active_tool->get_molecule_idx_and_first_atom_of_new_bond();
-        auto& target = *(*self->molecules)[molecule_idx];
-        target.add_atom_highlight(atom_idx, CanvasMolecule::HighlightType::Edition);
+        // and set highlight for the first atom
+        if(self->active_tool->is_creating_bond()) {
+            auto [molecule_idx, atom_idx] = *self->active_tool->get_molecule_idx_and_first_atom_of_new_bond();
+            auto& target = *(*self->molecules)[molecule_idx];
+            target.add_atom_highlight(atom_idx, CanvasMolecule::HighlightType::Edition);
+        }
+    } else {
+        self->active_tool->on_hover(control_pressed, x, y);
     }
 
     // Highlights and snapping

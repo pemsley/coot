@@ -98,6 +98,32 @@ void Tool::after_molecule_right_click(MoleculeClickContext& ctx) {
     // nothing by default
 }
 
+bool Tool::on_hover(ClickContext& ctx, int x, int y) {
+    // not processing hover events by default
+    return false;
+}
+
+void Tool::on_blank_space_hover(ClickContext& ctx, int x, int y) {
+    // nothing by default
+}
+
+bool Tool::on_molecule_hover(MoleculeClickContext& ctx) {
+    // nothing by default
+    return true;
+}
+
+void Tool::on_bond_hover(MoleculeClickContext& ctx, CanvasMolecule::Bond&) {
+    // nothing by default
+}
+
+void Tool::on_atom_hover(MoleculeClickContext& ctx, CanvasMolecule::Atom&) {
+    // nothing by default
+}
+
+void Tool::after_molecule_hover(MoleculeClickContext& ctx) {
+    // nothing by default
+}
+
 std::string Tool::get_exception_message_prefix() const noexcept {
     return "An error occured: ";
 }
@@ -206,6 +232,46 @@ void ActiveTool::on_release(bool ctrl_pressed, int x, int y, bool right_click) {
 
     this->tool->on_release(ctx, x, y);
 }
+
+void ActiveTool::on_hover(bool ctrl_pressed, int x, int y) {
+    if(!this->tool) {
+        return;
+    }
+    Tool::ClickContext ctx(*this->widget_data);
+    ctx.control_pressed = ctrl_pressed;
+
+    if(!this->tool->on_hover(ctx, x, y)) {
+        return;
+    }
+    auto hover_result = this->widget_data->resolve_click(x, y);
+    if(hover_result.has_value()) {
+        auto [bond_or_atom,molecule_idx] = *hover_result;
+        auto& rdkit_mol = *this->widget_data->rdkit_molecules->at(molecule_idx);
+        auto& canvas_mol = *this->widget_data->molecules->at(molecule_idx);
+        try{
+            Tool::MoleculeClickContext mctx(ctx, molecule_idx, rdkit_mol, canvas_mol);
+            if(!this->tool->on_molecule_hover(mctx)) {
+                return;
+            }
+            if(std::holds_alternative<CanvasMolecule::Atom>(bond_or_atom)) {
+                auto atom = std::get<CanvasMolecule::Atom>(std::move(bond_or_atom));
+                this->tool->on_atom_hover(mctx, atom);
+            } else { // a bond
+                auto bond = std::get<CanvasMolecule::Bond>(std::move(bond_or_atom));
+                this->tool->on_bond_hover(mctx, bond);
+            }
+            this->tool->after_molecule_hover(mctx);     
+        } catch(std::exception& e) {
+            g_warning("An error occured: %s",e.what());
+            std::string msg = this->tool->get_exception_message_prefix() + e.what();
+            this->widget_data->update_status(msg.c_str());
+            this->widget_data->rollback_current_edition();
+        }
+    } else {
+        this->tool->on_blank_space_hover(ctx, x, y);
+    }
+}
+
 
 void TransformTool::on_click(ClickContext& ctx, int x, int y) {
     auto mol_opt = ctx.widget_data.resolve_click(x, y);
