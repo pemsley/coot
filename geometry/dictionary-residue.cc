@@ -938,7 +938,31 @@ coot::dictionary_residue_restraints_t::is_ring_torsion(const coot::atom_name_qua
    }
 
    return match;
-} 
+}
+
+bool
+coot::dict_torsion_restraint_t::is_peptide_torsion() const {
+
+  if (atom_id_1_4c() == " O  ") {
+    if (atom_id_2_4c() == " C  ") {
+      if (atom_id_3_4c() == " CA ") {
+	if (atom_id_3_4c() == " N  ") {
+	  return true;
+	}
+      }
+    }
+  }
+  if (atom_id_1_4c() == " N  ") {
+    if (atom_id_2_4c() == " CA ") {
+      if (atom_id_3_4c() == " C  ") {
+	if (atom_id_3_4c() == " O  ") {
+	  return true;
+	}
+      }
+    }
+  }
+  return false;
+}
 
 bool
 coot::dictionary_residue_restraints_t::has_unassigned_chiral_volumes() const {

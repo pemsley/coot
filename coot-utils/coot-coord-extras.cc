@@ -1487,10 +1487,12 @@ coot::util::get_dictionary_conformers(const dictionary_residue_restraints_t &res
          if (false) { // test is_ring_torsion here
          } else {
             if (torsion.periodicity() > 1) {
-               rotatable_torsions.push_back(torsion);
-               conformers_per_torsion.push_back(torsion.periodicity());
-               n_conformers *= torsion.periodicity();
-            }
+	       if (! torsion.is_peptide_torsion()) {
+		  rotatable_torsions.push_back(torsion);
+		  conformers_per_torsion.push_back(torsion.periodicity());
+		  n_conformers *= torsion.periodicity();
+	       }
+	    }
          }
       }
    }
@@ -1775,14 +1777,13 @@ coot::util::get_dictionary_conformers(const dictionary_residue_restraints_t &res
             }
             if (at_1 && at_2 && at_3 && at_4) {
                try {
-#if 1 // 20240819-PE atom_tree_t is constructed from a restraints that has a tree.
-      // that seems not to be the case for restraints these days
+
+		 // 20240819-PE atom_tree_t is constructed from a restraints that has a tree.
+		 // that seems not to be the case for restraints these days
                   coot::atom_quad quad(at_1, at_2, at_3, at_4);
-                  std::cout << "constructing tree" << std::endl;
                   coot::atom_tree_t tree(rest, residue_p, "");
-                  std::cout << "set_dihedral" << std::endl;
                   tree.set_dihedral(quad, torsion_angle, false);
-#endif
+
                }
                catch (const std::runtime_error &e) {
                   std::cout << "WARNING::" << e.what() << std::endl;
