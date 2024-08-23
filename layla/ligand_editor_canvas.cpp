@@ -350,11 +350,11 @@ void CootLigandEditorCanvas::on_left_click(double x, double y, bool alt_pressed,
     auto* self = this;
 #endif
 
-    if(alt_pressed) {
-        self->active_tool->begin_transform(x, y, TransformManager::Mode::Translation);
-        return;
-    } else if(shift_pressed) {
+    if(shift_pressed) {
         self->active_tool->begin_transform(x, y, TransformManager::Mode::Rotation);
+        return;
+    } else if(alt_pressed) {
+        self->active_tool->begin_transform(x, y, TransformManager::Mode::Translation);
         return;
     }
 
