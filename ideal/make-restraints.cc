@@ -1043,7 +1043,7 @@ coot::restraints_container_t::make_monomer_restraints_by_residue(int imol, mmdb:
    std::string pdb_resname(residue_p->name);
    if (pdb_resname == "UNK") pdb_resname = "ALA";
 
-   if (true)
+   if (false)
       std::cout << "--------------- make_monomer_restraints_by_residue() called "
                 << residue_spec_t(residue_p) << " with " << residue_p->GetNumberOfAtoms() << " atoms"
                 <<  " and using type :" << pdb_resname << ": and imol "
@@ -1052,14 +1052,12 @@ coot::restraints_container_t::make_monomer_restraints_by_residue(int imol, mmdb:
 
    // idr: index dictionary residue
    int idr = geom.get_monomer_restraints_index(pdb_resname, imol, false);
-   std::cout << "--------------- make_monomer_restraints_by_residue() A with idr " << idr << std::endl;
    if (idr == -1) {
 
       std::cout << "ERROR:: failed to get restraints index for monomer " << pdb_resname << std::endl;
 
    } else {
 
-      std::cout << "--------------- make_monomer_restraints_by_residue() B " << std::endl;
       // if (geom[idr].comp_id == pdb_resname) {
       // old style comp_id usage
       // if (dictionary_name_matches_coords_resname(geom[idr].comp_id,pdb_resname)) {
@@ -1081,8 +1079,6 @@ coot::restraints_container_t::make_monomer_restraints_by_residue(int imol, mmdb:
       residue_p->GetAtomTable(res_selection, i_no_res_atoms);
 
       if (i_no_res_atoms > 0) {
-
-         std::cout << "--------------- make_monomer_restraints_by_residue() C " << std::endl;
 
 	 if (util::is_standard_amino_acid_name(pdb_resname))
 	    local += add_N_terminal_residue_bonds_and_angles_to_hydrogens(residue_p);
