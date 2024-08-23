@@ -759,29 +759,48 @@ void DeleteTool::on_atom_hover(MoleculeClickContext& ctx, CanvasMolecule::Atom& 
 
 bool DeleteTool::on_molecule_click(MoleculeClickContext& ctx) {
     if(ctx.control_pressed) {
+        // Single-atom deletion mode
+        if(ctx.alt_pressed) {
+            // Cannot do it here
+            // widget_data.begin_edition();
+            RDKit::MolOps::Kekulize(*ctx.rdkit_mol.get());
+            return true;
+        }
+        // Whole molecule deletion mode
         ctx.widget_data.delete_molecule_with_idx(ctx.mol_idx);
         return false;
     } else {
-        // Cannot do it here
-        // widget_data.begin_edition();
-        RDKit::MolOps::Kekulize(*ctx.rdkit_mol.get());
-        return true;
+        // Regular R-chain deletion mode
+        g_warning("TODO: Finish R-chain deletion for DeleteTool");
+        return false;
     }
 }
 
 void DeleteTool::on_bond_click(MoleculeClickContext& ctx, CanvasMolecule::Bond& bond) {
     ctx.widget_data.begin_edition();
-    ctx.rdkit_mol->removeBond(bond.first_atom_idx, bond.second_atom_idx);
-    ctx.widget_data.update_status("Bond has been deleted.");
+    if(ctx.control_pressed && ctx.alt_pressed) { // Single-atom mode
+        ctx.rdkit_mol->removeBond(bond.first_atom_idx, bond.second_atom_idx);
+        ctx.widget_data.update_status("Bond has been deleted.");
+    } else { // R-chain mode
+        g_warning("TODO: Finish R-chain deletion for DeleteToo (bonds)");
+    }
 }
 
 void DeleteTool::on_atom_click(MoleculeClickContext& ctx, CanvasMolecule::Atom& atom) {
-    if(ctx.rdkit_mol->getNumAtoms() > 1) {
-        ctx.widget_data.begin_edition();
+    if(ctx.rdkit_mol->getNumAtoms() <= 1) {
+        // For 1-atom molecules, we switch to the whole-moleculue deletion mode.
+        // This is triggered by not beginning edition
+        // Look at after_molecule_click for reference
+        return;
     }
-    ctx.rdkit_mol->removeAtom(atom.idx);
-    ctx.canvas_mol.update_cached_atom_coordinate_map_after_atom_removal(atom.idx);
-    ctx.widget_data.update_status("Atom has been deleted.");
+    ctx.widget_data.begin_edition();
+    if(ctx.control_pressed && ctx.alt_pressed) { // Single-atom mode
+        ctx.rdkit_mol->removeAtom(atom.idx);
+        ctx.canvas_mol.update_cached_atom_coordinate_map_after_atom_removal(atom.idx);
+        ctx.widget_data.update_status("Atom has been deleted.");
+    } else { // R-chain mode
+        g_warning("TODO: Finish R-chain deletion for DeleteTool (atoms)");
+    }
 }
 
 void DeleteTool::after_molecule_click(MoleculeClickContext& ctx) {
