@@ -745,15 +745,34 @@ bool DeleteTool::on_hover(ClickContext& ctx, int x, int y) {
 }
 
 bool DeleteTool::on_molecule_hover(MoleculeClickContext& ctx) {
-    g_warning("TODO: Finish on_molecule_hover for DeleteTool");
+    if(ctx.control_pressed && !ctx.alt_pressed) {
+        // Highlight whole molecule for deletion
+        g_warning("TODO: Finish on_molecule_hover for DeleteTool (fix bugs)");
+        for(auto i = 0; i < ctx.rdkit_mol->getNumAtoms(); i++) {
+            ctx.canvas_mol.add_atom_highlight(i, CanvasMolecule::HighlightType::Hover);
+            for(auto j = i+1; j < ctx.rdkit_mol->getNumAtoms(); j++) {
+                // What is happening here!!!??
+                ctx.canvas_mol.add_bond_highlight(i, j, CanvasMolecule::HighlightType::Hover);
+            }
+        }
+        return false;
+    }
     return true;
 }
 
 void DeleteTool::on_bond_hover(MoleculeClickContext& ctx, CanvasMolecule::Bond& bond) {
+    if(ctx.control_pressed && ctx.alt_pressed) {
+        // No need to do anything for single-atom mode
+        return;
+    }
     g_warning("TODO: Finish on_bond_hover for DeleteTool");
 }
 
 void DeleteTool::on_atom_hover(MoleculeClickContext& ctx, CanvasMolecule::Atom& atom) {
+    if(ctx.control_pressed && ctx.alt_pressed) {
+        // No need to do anything for single-atom mode
+        return;
+    }
     g_warning("TODO: Finish on_atom_hover for DeleteTool");
 }
 
