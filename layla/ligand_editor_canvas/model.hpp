@@ -341,6 +341,7 @@ class CanvasMolecule {
 
     void add_atom_highlight(int atom_idx, HighlightType htype);
     void add_bond_highlight(unsigned int atom_a, unsigned int atom_b, HighlightType htype);
+    void add_highlight_to_all_bonds(HighlightType htype);
     /// Clears the highlight flag of the given type (for both atoms and bonds)
     void clear_highlights(HighlightType htype = HighlightType::Hover);
 

@@ -1073,6 +1073,13 @@ void CanvasMolecule::clear_highlights(HighlightType htype) {
     }
 }
 
+void CanvasMolecule::add_highlight_to_all_bonds(HighlightType htype) {
+    for(auto& bond: this->bonds) {
+        auto& highlight = bond->highlight;
+        highlight |= static_cast<highlight_t>(htype);
+    }
+}
+
 void CanvasMolecule::clear_cached_atom_coordinate_map() {
     this->cached_atom_coordinate_map = std::nullopt;
 }
