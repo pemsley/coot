@@ -280,6 +280,12 @@ class DeleteTool : public Tool {
     virtual void on_bond_click(MoleculeClickContext& ctx, CanvasMolecule::Bond& bond) override;
     virtual void on_atom_click(MoleculeClickContext& ctx, CanvasMolecule::Atom& atom) override;
     virtual void after_molecule_click(MoleculeClickContext& ctx) override;
+
+    virtual bool on_hover(ClickContext& ctx, int x, int y) override;
+    virtual bool on_molecule_hover(MoleculeClickContext& ctx) override;
+    virtual void on_bond_hover(MoleculeClickContext& ctx, CanvasMolecule::Bond& bond) override;
+    virtual void on_atom_hover(MoleculeClickContext& ctx, CanvasMolecule::Atom& atom) override;
+
     virtual std::string get_exception_message_prefix() const noexcept override;
 };
 

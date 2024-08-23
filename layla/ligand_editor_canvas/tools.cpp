@@ -740,6 +740,23 @@ std::string ChargeModifier::get_exception_message_prefix() const noexcept {
     return "Could not alter charge: ";
 }
 
+bool DeleteTool::on_hover(ClickContext& ctx, int x, int y) {
+    return true;
+}
+
+bool DeleteTool::on_molecule_hover(MoleculeClickContext& ctx) {
+    g_warning("TODO: Finish on_molecule_hover for DeleteTool");
+    return true;
+}
+
+void DeleteTool::on_bond_hover(MoleculeClickContext& ctx, CanvasMolecule::Bond& bond) {
+    g_warning("TODO: Finish on_bond_hover for DeleteTool");
+}
+
+void DeleteTool::on_atom_hover(MoleculeClickContext& ctx, CanvasMolecule::Atom& atom) {
+    g_warning("TODO: Finish on_atom_hover for DeleteTool");
+}
+
 bool DeleteTool::on_molecule_click(MoleculeClickContext& ctx) {
     if(ctx.control_pressed) {
         ctx.widget_data.delete_molecule_with_idx(ctx.mol_idx);
