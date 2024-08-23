@@ -242,7 +242,7 @@ void CootLigandEditorCanvas::on_hover(double x, double y, bool alt_pressed, bool
             target.add_atom_highlight(atom_idx, CanvasMolecule::HighlightType::Edition);
         }
     } else {
-        self->active_tool->on_hover(control_pressed, x, y);
+        self->active_tool->on_hover(alt_pressed, control_pressed, x, y);
     }
 
     // Highlights and snapping
@@ -328,7 +328,7 @@ void CootLigandEditorCanvas::on_left_click_released(double x, double y, bool alt
     }
 
     // `currently_created_bond` gets cleared here when appropriate
-    self->active_tool->on_release(control_pressed, x, y, false);
+    self->active_tool->on_release(alt_pressed, control_pressed, x, y, false);
 }
 
 #ifndef __EMSCRIPTEN__
@@ -350,15 +350,17 @@ void CootLigandEditorCanvas::on_left_click(double x, double y, bool alt_pressed,
     auto* self = this;
 #endif
 
-    if(shift_pressed) {
-        self->active_tool->begin_transform(x, y, TransformManager::Mode::Rotation);
-        return;
-    } else if(alt_pressed) {
-        self->active_tool->begin_transform(x, y, TransformManager::Mode::Translation);
-        return;
+    if(!control_pressed) {
+        if(shift_pressed) {
+            self->active_tool->begin_transform(x, y, TransformManager::Mode::Rotation);
+            return;
+        } else if(alt_pressed) {
+            self->active_tool->begin_transform(x, y, TransformManager::Mode::Translation);
+            return;
+        }
     }
 
-    self->active_tool->on_click(control_pressed, x, y, false);
+    self->active_tool->on_click(alt_pressed, control_pressed, x, y, false);
 
     if(self->active_tool->is_creating_bond()) {
         CurrentlyCreatedBond new_bond;
@@ -393,7 +395,7 @@ void CootLigandEditorCanvas::on_right_click_released(double x, double y, bool al
     auto* self = this;
 #endif
 
-    self->active_tool->on_release(control_pressed, x, y, true);
+    self->active_tool->on_release(alt_pressed, control_pressed, x, y, true);
 }
 
 #ifndef __EMSCRIPTEN__
@@ -415,7 +417,7 @@ void CootLigandEditorCanvas::on_right_click(double x, double y, bool alt_pressed
     auto* self = this;
 #endif
 
-    self->active_tool->on_click(control_pressed, x, y, true);
+    self->active_tool->on_click(alt_pressed, control_pressed, x, y, true);
 }
 
 

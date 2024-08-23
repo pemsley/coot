@@ -87,6 +87,7 @@ class Tool {
     struct ClickContext {
         impl::WidgetCoreData& widget_data;
         bool control_pressed;
+        bool alt_pressed;
 
         ClickContext(impl::WidgetCoreData& widget_data);
     };
@@ -352,11 +353,11 @@ class ActiveTool {
     void on_load();
 
     /// Handles mouse click event for the currently chosen tool
-    void on_click(bool ctrl_pressed, int x, int y, bool right_click);
+    void on_click(bool alt_pressed, bool ctrl_pressed, int x, int y, bool right_click);
     /// Handles mouse-release event for the currently chosen tool
-    void on_release(bool ctrl_pressed, int x, int y, bool right_click);
+    void on_release(bool alt_pressed, bool ctrl_pressed, int x, int y, bool right_click);
     /// Handles mouse hover event for the currently chosen tool
-    void on_hover(bool ctrl_pressed, int x, int y);
+    void on_hover(bool alt_pressed, bool ctrl_pressed, int x, int y);
 
     /// Returns true if a new bond is currently being create via click'n'drag
     bool is_creating_bond() const noexcept;

@@ -147,12 +147,13 @@ void ActiveTool::on_load() {
     }
 }
 
-void ActiveTool::on_click(bool ctrl_pressed, int x, int y, bool right_click) {
+void ActiveTool::on_click(bool alt_pressed, bool ctrl_pressed, int x, int y, bool right_click) {
     if(!this->tool) {
         return;
     }
     Tool::ClickContext ctx(*this->widget_data);
     ctx.control_pressed = ctrl_pressed;
+    ctx.alt_pressed = alt_pressed;
 
 
     if(!right_click) {
@@ -218,12 +219,13 @@ void ActiveTool::on_click(bool ctrl_pressed, int x, int y, bool right_click) {
     }
 }
 
-void ActiveTool::on_release(bool ctrl_pressed, int x, int y, bool right_click) {
+void ActiveTool::on_release(bool alt_pressed, bool ctrl_pressed, int x, int y, bool right_click) {
     if(!this->tool) {
         return;
     }
     Tool::ClickContext ctx(*this->widget_data);
     ctx.control_pressed = ctrl_pressed;
+    ctx.alt_pressed = alt_pressed;
 
     if(right_click) {
         g_warning("todo: Add support for releasing right-clicks in the tools API (when needed).");
@@ -233,12 +235,13 @@ void ActiveTool::on_release(bool ctrl_pressed, int x, int y, bool right_click) {
     this->tool->on_release(ctx, x, y);
 }
 
-void ActiveTool::on_hover(bool ctrl_pressed, int x, int y) {
+void ActiveTool::on_hover(bool alt_pressed, bool ctrl_pressed, int x, int y) {
     if(!this->tool) {
         return;
     }
     Tool::ClickContext ctx(*this->widget_data);
     ctx.control_pressed = ctrl_pressed;
+    ctx.alt_pressed = alt_pressed;
 
     if(!this->tool->on_hover(ctx, x, y)) {
         return;
