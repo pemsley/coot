@@ -348,6 +348,7 @@ NB_MODULE(chapi, m) {
     .def("redo",&molecules_container_t::redo)
     .def("refine",&molecules_container_t::refine)
     .def("refine_residue_range",&molecules_container_t::refine_residue_range)
+    .def("refine_residues",&molecules_container_t::refine_residues)
     .def("refine_residues_using_atom_cid",&molecules_container_t::refine_residues_using_atom_cid)
     .def("regen_map",&molecules_container_t::regen_map)
     .def("replace_fragment",&molecules_container_t::replace_fragment)
