@@ -1246,7 +1246,8 @@ case $dist_name in
 
     debian)
       # python is needed to configure ninja. Sigh. flex and bison are needed for gobject-introspection
-      dep_list='wget pkg-config libgtk-4-dev build-essential libdw-dev libvorbis-dev libncurses5-dev libssl-dev g++ git libxext-dev libglu1-mesa-dev mesa-common-dev flex bison m4 cmake autoconf gfortran'
+      # libbz2-dev is for building python so that torchvision can be installed.
+      dep_list='wget pkg-config libgtk-4-dev build-essential libdw-dev libvorbis-dev libncurses5-dev libssl-dev g++ git libxext-dev libglu1-mesa-dev mesa-common-dev flex bison m4 cmake autoconf gfortran rsync libbz2-dev'
       # converted from dep_list='libncurses5-dev g++ libxext-dev libglu1-mesa-dev mesa-common-dev libgtk2.0-dev'
       # not tested
 
@@ -4345,32 +4346,32 @@ if [ "$build_gc" = true ] ; then
       gc_version_dir=7.6.12 # I guess not.
       gc_version=8.2.4
       gc_version_dir=8.2.4
-      echo BUILDING: gc
+      echo BUILDING: gc $gc_version
       echo BUILDING: gc $gc_version >&2
       (
       echo ========================= build gc =================================
       unset LD_LIBRARY_PATH
       echo PKG_CONFIG_PATH is $PKG_CONFIG_PATH
       if [ -e $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz ] ; then
-         echo Here A
+         echo Here build-gc A
          echo found gc source file $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz
-         echo Here B
+         echo Here build-gc B
          tar xf $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz
-         echo tar xf $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz
       else
          echo no file $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz
          echo ${WGET} http://www.hboehm.info/gc/gc_source/gc-$gc_version.tar.gz
          ${WGET} http://www.hboehm.info/gc/gc_source/gc-$gc_version.tar.gz
          # this file is double-gzipped!
-         mv $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz.gz
-         gunzip $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz.gz
+         # 2024-08-23 no more. It's been fixed
+         # mv $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz.gz
+         # gunzip $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz.gz
          if [ -e $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz ] ; then
             tar xf $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz
          else
             echo download failed for http://www.hboehm.info/gc/gc_source/gc-$gc_version.tar.gz
          fi
       fi
-      echo Here C
+      echo Here build-gc C
       cd gc-$gc_version_dir
       pwd
       echo ./configure --prefix=$install_top_dir
