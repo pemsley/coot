@@ -4139,7 +4139,7 @@ public:
       // std::cout << "generic_objects_dialog_grid_add_object_internal() --- start --- " << std::endl;
 
       if (! gdo.mesh.is_closed()) {
-         std::cout << "generic_objects_dialog_grid_add_object_internal() no-closed " << io << std::endl;
+         // std::cout << "generic_objects_dialog_grid_add_object_internal() no-closed " << io << std::endl;
          GtkWidget *checkbutton = gtk_check_button_new_with_mnemonic (("Display"));
          std::string label_str = gdo.mesh.name;
          GtkWidget *label = gtk_label_new(label_str.c_str());

@@ -611,7 +611,7 @@ int generic_object_is_displayed_p(int object_number) {
 
 int new_generic_object_number(const std::string &name_string) {
 
-   std::cout << "--------------- new_generic_object_number() " << name_string << std::endl;
+   // std::cout << "--------------- new_generic_object_number() " << name_string << std::endl;
 
    graphics_info_t g;
    int n_new = g.new_generic_object_number(name_string);

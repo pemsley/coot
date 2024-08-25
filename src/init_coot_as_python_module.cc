@@ -75,9 +75,6 @@ void check_reference_structures_dir() {
 void
 init_coot_as_python_module() {
 
-
-   std::cout << "###################################################### init_coot_as_python_module() " << std::endl;
-
    // 20230526-PE this is called by coot_wrap_python() SWIG_init().
 
    // graphics_info_t::coot_is_a_python_module is set true initially,

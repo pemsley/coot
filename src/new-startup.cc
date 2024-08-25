@@ -230,7 +230,9 @@ new_startup_on_glarea_resize(GtkGLArea *glarea, gint width, gint height) {
 
 GtkWidget *new_startup_create_glarea_widget() {
 
+   std::cout << "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX -------- gtk_gl_area_new()" << std::endl;
    GtkWidget *gl_area = gtk_gl_area_new();
+   std::cout << "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX -------- gtk_gl_area_new() done" << std::endl;
 
 #if GTK_MINOR_VERSION >= 12
    // Disable OpenGL ES
@@ -267,6 +269,7 @@ void on_glarea_drag_begin_primary(GtkGestureDrag *gesture,
                                   double          x,
                                   double          y,
                                   GtkWidget      *area) {
+
    graphics_info_t g;
 
    if (g.using_trackpad)
@@ -312,7 +315,6 @@ void on_glarea_drag_update_secondary(GtkGestureDrag *gesture,
                                      double          delta_y,
                                      GtkWidget      *area) {
 
-   // std::cout << "update secondary" << std::endl;
    graphics_info_t g;
    g.on_glarea_drag_update_secondary(gesture, delta_x, delta_y, area);
 }
@@ -321,7 +323,6 @@ void on_glarea_drag_end_secondary(GtkGestureDrag *gesture,
                                   double          x,
                                   double          y,
                                   GtkWidget      *area) {
-   // std::cout << "end secondary" << std::endl;
    graphics_info_t g;
    g.on_glarea_drag_end_secondary(gesture, x, y, area);
 }
@@ -773,7 +774,10 @@ new_startup_application_activate(GtkApplication *application,
       // graphics_info.init();
 
       // but let's do it once at least!
-      graphics_info.init();
+
+      // this is done in the python startup now.
+      // std::cout << "#################### new_startup_application_activate()  calling graphics_info.init() " << std::endl;
+      // graphics_info.init();
 
       GtkBuilder *builder = gtk_builder_new();
       if (GTK_IS_BUILDER(builder)) {
