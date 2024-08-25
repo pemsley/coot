@@ -67,7 +67,7 @@ python_major_minor=$(python3 -c 'import sys ; parts = sys.version.split(".") ; m
 # this may need some tweaking
 #
 if [ "$systype" = "MINGW32_NT" ] ; then
-   coot_bin=$COOT_PREFIX/libexec/Coot
+   coot_bin=$COOT_PREFIX/libexec/coot-1
    PYTHONHOME=$COOT_PREFIX
    PATH=$PATH:$PYTHONHOME
 else
