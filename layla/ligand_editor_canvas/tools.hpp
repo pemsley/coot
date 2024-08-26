@@ -22,6 +22,7 @@
 #ifndef COOT_LIGAND_EDITOR_CANVAS_TOOLS_HPP
 #define COOT_LIGAND_EDITOR_CANVAS_TOOLS_HPP
 #include "model.hpp"
+#include <set>
 
 namespace coot::ligand_editor_canvas {
 
@@ -274,6 +275,14 @@ class ChargeModifier : public Tool {
 };
 
 class DeleteTool : public Tool {
+
+    static std::vector<unsigned int> trace_chain_impl(const RDKit::ROMol* mol, std::set<unsigned int>& processed_atoms, RDKit::Atom const* rdatom);
+
+    /// Returns a vector of atoms IDs to be removed (if relevant)
+    static std::optional<std::vector<unsigned int>> trace_rchain(const MoleculeClickContext& ctx, const CanvasMolecule::Bond& bond);
+
+    /// Returns a vector of atoms IDs to be removed (if relevant)
+    static std::optional<std::vector<unsigned int>> trace_rchain(const MoleculeClickContext& ctx, const CanvasMolecule::Atom& atom);
     public:
 
     virtual bool on_molecule_click(MoleculeClickContext& ctx) override;

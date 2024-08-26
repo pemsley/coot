@@ -23,14 +23,17 @@
 #include "core.hpp"
 #include "model.hpp"
 #include <exception>
+#include <algorithm>
 #include <memory>
 #include <optional>
 #include <stdexcept>
 #include <string>
 #include <utility>
 #include <variant>
+#include <boost/range/iterator_range.hpp>
 #include <rdkit/GraphMol/MolOps.h>
 #include <rdkit/GraphMol/PeriodicTable.h>
+#include <rdkit/GraphMol/QueryOps.h>
 #include "../ligand_editor_canvas.hpp"
 #include "../utils.hpp"
 
@@ -740,6 +743,46 @@ std::string ChargeModifier::get_exception_message_prefix() const noexcept {
     return "Could not alter charge: ";
 }
 
+std::vector<unsigned int> DeleteTool::trace_chain_impl(const RDKit::ROMol* mol, std::set<unsigned int>& processed_atoms, RDKit::Atom const* rdatom) {
+    std::vector<unsigned int> ret;
+    ret.push_back(rdatom->getIdx());
+    processed_atoms.emplace(rdatom->getIdx());
+    std::vector<std::vector<unsigned int>> branches;
+    for(const auto& i: boost::make_iterator_range(mol->getAtomNeighbors(rdatom))) {
+        if(processed_atoms.find(i) != processed_atoms.end()) {
+            continue;
+        }
+        // This copy probably makes it horribly slow
+        std::set<unsigned int> processed_atoms_branch(processed_atoms);
+        branches.push_back(trace_chain_impl(mol, processed_atoms_branch, mol->getAtomWithIdx(i)));
+        processed_atoms.emplace(i);
+    }
+    // Iterator to the shortest branch
+    auto it = std::min_element(branches.begin(), branches.end(), [](const std::vector<unsigned int>& a, const std::vector<unsigned int>& b){
+        return a.size() < b.size();
+    });
+    if(it != branches.end()) {
+        // Append the smallest branch to our result
+        ret.insert(ret.end(), it->begin(), it->end());
+    }
+    return ret;
+}
+
+std::optional<std::vector<unsigned int>> DeleteTool::trace_rchain(const MoleculeClickContext& ctx, const CanvasMolecule::Atom& atom) {
+    RDKit::Atom const* rdatom = ctx.rdkit_mol->getAtomWithIdx(atom.idx);
+    if(RDKit::queryIsAtomInRing(rdatom)) {
+        // Skip in-ring atoms
+        return std::nullopt;
+    }
+    std::set<unsigned int> processed_atoms;
+    return trace_chain_impl(ctx.rdkit_mol.get(), processed_atoms, rdatom);
+}
+
+std::optional<std::vector<unsigned int>> DeleteTool::trace_rchain(const MoleculeClickContext& ctx, const CanvasMolecule::Bond& bond) {
+    // todo
+    return std::nullopt;
+}
+
 bool DeleteTool::on_hover(ClickContext& ctx, int x, int y) {
     return true;
 }
@@ -761,6 +804,12 @@ void DeleteTool::on_bond_hover(MoleculeClickContext& ctx, CanvasMolecule::Bond& 
         // No need to do anything for single-atom mode
         return;
     }
+    auto rchain_opt = trace_rchain(ctx, bond);
+    if(rchain_opt) {
+        for(const auto& i: *rchain_opt) {
+            ctx.canvas_mol.add_atom_highlight(i, CanvasMolecule::HighlightType::Hover);
+        }
+    }
     g_warning("TODO: Finish on_bond_hover for DeleteTool");
 }
 
@@ -768,6 +817,12 @@ void DeleteTool::on_atom_hover(MoleculeClickContext& ctx, CanvasMolecule::Atom& 
     if(ctx.control_pressed && ctx.alt_pressed) {
         // No need to do anything for single-atom mode
         return;
+    }
+    auto rchain_opt = trace_rchain(ctx, atom);
+    if(rchain_opt) {
+        for(const auto& i: *rchain_opt) {
+            ctx.canvas_mol.add_atom_highlight(i, CanvasMolecule::HighlightType::Hover);
+        }
     }
     g_warning("TODO: Finish on_atom_hover for DeleteTool");
 }
