@@ -1247,6 +1247,7 @@ case $dist_name in
     debian)
       # python is needed to configure ninja. Sigh. flex and bison are needed for gobject-introspection
       # libbz2-dev is for building python so that torchvision can be installed.
+      # libsqlite3-dev is needed for ipython (so that Python is compiled "correctly")
       dep_list='wget pkg-config libgtk-4-dev build-essential libdw-dev libvorbis-dev libncurses5-dev libssl-dev g++ git libxext-dev libglu1-mesa-dev mesa-common-dev flex bison m4 cmake autoconf gfortran rsync libbz2-dev'
       # converted from dep_list='libncurses5-dev g++ libxext-dev libglu1-mesa-dev mesa-common-dev libgtk2.0-dev'
       # not tested
