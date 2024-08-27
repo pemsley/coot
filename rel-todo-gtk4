@@ -1,9 +1,12 @@
 
 ----
 
+rainbow ribbons are wrong - even for tutorial modern.
+
 read in many pdb file (ligand res-tracer results)
    Now click on "Last Only" - it doesn't unclick the checkbuttons.
    (Note that the "All" button does)
+* Done.
 
 symm-shift-reference-chain-here doesn't work for tutorial modern
 
@@ -13,7 +16,7 @@ SVG for pli
 
 make an figure, for moorhen intro with blobs that have volume proportional
    to the number of lines of code: rdkit, mmdb, ccp4libs, gemmi, M2T,
-   libcootapi - M2T, coot - libcootapi - M2T, moorhen and moorhen-npm-dependencies
+   libcootapi - M2T, coot - libcootapi - M2T, moorhen JS and TypeScript code
 
 configure should not use --with-enhanced-ligand-tools
 
