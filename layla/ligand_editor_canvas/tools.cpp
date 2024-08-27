@@ -747,6 +747,14 @@ std::vector<unsigned int> DeleteTool::trace_chain_impl(const RDKit::ROMol* mol, 
     std::vector<unsigned int> ret;
     ret.push_back(rdatom->getIdx());
     processed_atoms.emplace(rdatom->getIdx());
+    unsigned int neighbors_count = 0;
+    // Is there no better idea?
+    for(const auto& i: boost::make_iterator_range(mol->getAtomNeighbors(rdatom))) {
+        neighbors_count += 1;
+    }
+    if(neighbors_count <= 1) {
+        return ret;
+    }
     std::vector<std::vector<unsigned int>> branches;
     for(const auto& i: boost::make_iterator_range(mol->getAtomNeighbors(rdatom))) {
         if(processed_atoms.find(i) != processed_atoms.end()) {
@@ -804,13 +812,13 @@ void DeleteTool::on_bond_hover(MoleculeClickContext& ctx, CanvasMolecule::Bond& 
         // No need to do anything for single-atom mode
         return;
     }
+    g_warning("TODO: Finish on_bond_hover for DeleteTool");
     auto rchain_opt = trace_rchain(ctx, bond);
     if(rchain_opt) {
         for(const auto& i: *rchain_opt) {
             ctx.canvas_mol.add_atom_highlight(i, CanvasMolecule::HighlightType::Hover);
         }
     }
-    g_warning("TODO: Finish on_bond_hover for DeleteTool");
 }
 
 void DeleteTool::on_atom_hover(MoleculeClickContext& ctx, CanvasMolecule::Atom& atom) {
@@ -818,13 +826,13 @@ void DeleteTool::on_atom_hover(MoleculeClickContext& ctx, CanvasMolecule::Atom& 
         // No need to do anything for single-atom mode
         return;
     }
+    g_warning("TODO: Finish on_atom_hover for DeleteTool");
     auto rchain_opt = trace_rchain(ctx, atom);
     if(rchain_opt) {
         for(const auto& i: *rchain_opt) {
             ctx.canvas_mol.add_atom_highlight(i, CanvasMolecule::HighlightType::Hover);
         }
     }
-    g_warning("TODO: Finish on_atom_hover for DeleteTool");
 }
 
 bool DeleteTool::on_molecule_click(MoleculeClickContext& ctx) {
@@ -841,8 +849,7 @@ bool DeleteTool::on_molecule_click(MoleculeClickContext& ctx) {
         return false;
     } else {
         // Regular R-chain deletion mode
-        g_warning("TODO: Finish R-chain deletion for DeleteTool");
-        return false;
+        return true;
     }
 }
 
@@ -853,6 +860,14 @@ void DeleteTool::on_bond_click(MoleculeClickContext& ctx, CanvasMolecule::Bond& 
         ctx.widget_data.update_status("Bond has been deleted.");
     } else { // R-chain mode
         g_warning("TODO: Finish R-chain deletion for DeleteToo (bonds)");
+        auto rchain_opt = trace_rchain(ctx, bond);
+        if(rchain_opt) {
+            for(const auto& i: *rchain_opt) {
+                ctx.rdkit_mol->removeAtom(i);
+                ctx.canvas_mol.update_cached_atom_coordinate_map_after_atom_removal(i);
+            }
+            ctx.widget_data.update_status("Atom(s) have been deleted.");
+        }
     }
 }
 
@@ -870,6 +885,14 @@ void DeleteTool::on_atom_click(MoleculeClickContext& ctx, CanvasMolecule::Atom& 
         ctx.widget_data.update_status("Atom has been deleted.");
     } else { // R-chain mode
         g_warning("TODO: Finish R-chain deletion for DeleteTool (atoms)");
+        auto rchain_opt = trace_rchain(ctx, atom);
+        if(rchain_opt) {
+            for(const auto& i: *rchain_opt) {
+                ctx.rdkit_mol->removeAtom(i);
+                ctx.canvas_mol.update_cached_atom_coordinate_map_after_atom_removal(i);
+            }
+            ctx.widget_data.update_status("Atom(s) have been deleted.");
+        }
     }
 }
 
