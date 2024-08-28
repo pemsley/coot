@@ -25,6 +25,7 @@
 #include <fstream>
 #include <thread>
 #include <iomanip>
+#include <filesystem>
 
 #include <gsl/gsl_sf_bessel.h>
 
@@ -69,77 +70,38 @@ coot::util::map_fill_from_mtz(clipper::Xmap<float> *xmap,
 
    // sampling_rate is optional arg with default value 1.5
 
-   auto make_import_datanames = [] (const std::string &f_col_in,
-                                                      const std::string &phi_col_in,
-                                                      const std::string &weight_col_in,
-                                                      int use_weights) {
+   auto path_to_file = [] (const std::string &p_col_in) {
 
-      // Return a pair.
-      //
-      // If first string of length 0 on error to construct dataname(s).
-      //
-      //       std::pair<std::string, std::string>
-      //
-      // If use_weights return 2 strings, else set something useful only for pair.first
+			 std::filesystem::path p(p_col_in);
+			 std::filesystem::path p_col_path = p.filename();
+			 std::string p_col = p_col_path.string();
+			 return p_col;
+		       };
 
-      std::string f_col = f_col_in;
-      std::string phi_col = phi_col_in;
-      std::string weight_col = weight_col_in;
 
-#ifdef WINDOWS_MINGW
-      std::string::size_type islash_f   = coot::util::intelligent_debackslash(  f_col).find_last_of("/");
-      std::string::size_type islash_phi = coot::util::intelligent_debackslash(phi_col).find_last_of("/");
-#else
-      std::string::size_type islash_f   =      f_col.find_last_of("/");
-      std::string::size_type islash_phi =    phi_col.find_last_of("/");
-#endif // MINGW
+   // I am not sure that stripping the dataset info is a good thing.
+   //
+   auto make_import_datanames = [path_to_file] (const std::string &f_col_in,
+						const std::string &phi_col_in,
+						const std::string &weight_col_in,
+						bool use_weights) {
 
-      short int label_error = 0;
+				  std::pair<std::string, std::string> p("", ""); // return this
 
-      if (islash_f != std::string::npos) {
-         // f_col is of form e.g. xxx/yyy/FWT
-         if (f_col.length() > islash_f)
-            f_col = f_col.substr(islash_f+1);
-         else
-            label_error = 1;
-      }
+				  std::string      f_col = path_to_file(f_col_in);
+				  std::string    phi_col = path_to_file(phi_col_in);
+				  std::string weight_col = path_to_file(weight_col_in);
 
-      if (islash_phi != std::string::npos) {
-         // phi_col is of form e.g. xxx/yyy/PHWT
-         if (phi_col.length() > islash_phi)
-            phi_col = phi_col.substr(islash_phi+1);
-         else
-            label_error = 1;
-      }
-
-      if (use_weights) {
-#ifdef WINDOWS_MINGW
-         std::string::size_type islash_fom = coot::util::intelligent_debackslash(weight_col).find_last_of("/");
-#else
-         std::string::size_type islash_fom = weight_col.find_last_of("/");
-#endif
-         if (islash_fom != std::string::npos) {
-            // weight_col is of form e.g. xxx/yyy/WT
-            if (weight_col.length() > islash_fom)
-               weight_col = weight_col.substr(islash_fom+1);
-            else
-               label_error = 1;
-         }
-      }
-
-      std::pair<std::string, std::string> p("", "");
-
-      if (!label_error) {
-         std::string no_xtal_dataset_prefix= "/*/*/";
-         if (use_weights) {
-            p.first  = no_xtal_dataset_prefix + "[" +   f_col + " " +      f_col + "]";
-            p.second = no_xtal_dataset_prefix + "[" + phi_col + " " + weight_col + "]";
-         } else {
-            p.first  = no_xtal_dataset_prefix + "[" +   f_col + " " + phi_col + "]";
-         }
-      }
-      return p;
-   };
+				  std::string no_xtal_dataset_prefix= "/*/*/";
+				  if (use_weights) {
+				    p.first  = no_xtal_dataset_prefix + "[" +   f_col + " " +      f_col + "]";
+				    p.second = no_xtal_dataset_prefix + "[" + phi_col + " " + weight_col + "]";
+				  } else {
+				    p.first  = no_xtal_dataset_prefix + "[" +   f_col + " " + phi_col + "]";
+				  }
+				  return p;
+				};
+   
 
    if (!file_exists(mtz_file_name))
       return false;
@@ -171,7 +133,7 @@ coot::util::map_fill_from_mtz(clipper::Xmap<float> *xmap,
       dataname = datanames.second;
       mtzin.import_hkl_data( phi_fom_data, myset, myxtl, dataname );
       mtzin.close_read();
-      // std::cout << "We should use the weights: " << weight_col << std::endl;
+      std::cout << "in map_fill_from_mtz(): We should use the weights: " << weight_col << std::endl;
 
       fphidata.compute(f_sigf_data, phi_fom_data,
                        clipper::datatypes::Compute_fphi_from_fsigf_phifom<float>());
