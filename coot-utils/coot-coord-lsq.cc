@@ -259,7 +259,7 @@ coot::util::get_matching_indices(mmdb::Manager *mol1,
 
          // ---------------- CA ----------------------------
 
-         if (match.match_type_flag == COOT_LSQ_CA) {
+         if (match.match_type_flag == lsq_t::CA) {
 
             // CA/P names
             std::string ca_name;
@@ -297,15 +297,15 @@ coot::util::get_matching_indices(mmdb::Manager *mol1,
 
          // ----------------- Mainchain ---------------------
          //
-         if ((match.match_type_flag == COOT_LSQ_MAIN) ||
-             (match.match_type_flag == COOT_LSQ_NCAC) ||
-             (match.match_type_flag == COOT_LSQ_ALL && res_type_1 != res_type_2)) {
+         if ((match.match_type_flag == lsq_t::MAIN) ||
+             (match.match_type_flag == lsq_t::NCAC) ||
+             (match.match_type_flag == lsq_t::ALL && res_type_1 != res_type_2)) {
 
             if (SelResidue_1[0]->isNucleotide()) {
                mc_at_names = nmc_at_names;
             } else {
                mc_at_names = amc_at_names;
-               if (match.match_type_flag == COOT_LSQ_NCAC)
+               if (match.match_type_flag == lsq_t::NCAC)
                   mc_at_names = aa_core_mc_at_names;
             }
             for (unsigned int iat=0; iat<mc_at_names.size(); iat++) {
@@ -331,7 +331,7 @@ coot::util::get_matching_indices(mmdb::Manager *mol1,
 
          // ----------------- All Atom ---------------------
          //
-         if (match.match_type_flag == COOT_LSQ_ALL) {
+         if (match.match_type_flag == lsq_t::ALL) {
 
             if (! match.is_single_atom_match) {
                mmdb::PAtom *residue_atoms1 = NULL;
