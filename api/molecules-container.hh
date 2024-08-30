@@ -1667,6 +1667,11 @@ public:
    //!  An empty list is returned on failure
    std::vector<std::pair<double, double> > fourier_shell_correlation(int imol_map_1, int imol_map_2) const;
 
+   //! Make a FSC-scaled map
+   //!
+   //! @return the molecule index of the new map
+   int make_power_scaled_map(int imol_ref, int imol_map_for_scaling);
+
    //! Get the Pintile et al. Q Score
    //!
    //! @return a coot::validation_information_t object

@@ -74,6 +74,10 @@ molecules_container_t::average_map(const std::string &imol_maps_string, std::vec
                std::pair<clipper::Xmap<float>, float> p(molecules[idx].xmap, weights_and_maps[i].second);
                maps_and_weights[i] = p;
             }
+            for (unsigned int i=0; i<weights_and_maps.size(); i++) {
+	      std::cout << "debug map and weight " << weights_and_maps[i].first << " "
+			<< weights_and_maps[i].second << "\n";
+	    }
             clipper::Xmap<float> xmap_new = coot::util::average_map(maps_and_weights);
             molecules.push_back(coot::molecule_t(name, imol_new, xmap_new, is_em_map));
          }
@@ -232,4 +236,26 @@ molecules_container_t::get_q_score(int imol_model, int imol_map) const {
       }
    }
    return vi;
+}
+
+//! Make a FSC-scaled map
+//!
+//! @return the molecule index of the new map
+int
+molecules_container_t::make_power_scaled_map(int imol_ref, int imol_map_for_scaling) {
+
+  int idx = -1;
+  if (is_valid_map_molecule(imol_ref)) {
+    if (is_valid_map_molecule(imol_map_for_scaling)) {
+      clipper::Xmap<float> &xmap_ref   = molecules[imol_ref].xmap;
+      clipper::Xmap<float> &xmap_other = molecules[imol_map_for_scaling].xmap;
+      clipper::Xmap<float> scaled = coot::util::power_scale(xmap_ref, xmap_other);
+      bool is_em_map = molecules[idx].is_EM_map();
+      int imol_new = molecules.size();
+      std::string name = std::string("Copy of map ") + std::to_string(imol_map_for_scaling) + " scaled to " + std::to_string(imol_ref);
+      molecules.push_back(coot::molecule_t(name, imol_new, scaled, is_em_map));
+      idx = imol_new;
+    }
+  }
+  return idx;
 }

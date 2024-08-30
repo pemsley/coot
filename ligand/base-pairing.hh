@@ -22,7 +22,6 @@
 
 #include <mmdb2/mmdb_manager.h>
 #include "clipper/core/coords.h"
-#include "coot-utils/coot-lsq-types.h"
 
 namespace coot {
    // we need standard residues to make the ideal RNA
