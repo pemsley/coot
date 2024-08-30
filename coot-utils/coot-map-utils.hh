@@ -570,6 +570,10 @@ namespace coot {
       std::vector<std::pair<clipper::Resolution, double> >
       fsc(const clipper::Xmap<float> &xmap_1, const clipper::Xmap<float> &xmap_2);
 
+     // scale map_for_scaling using relion-like resolution binning
+     clipper::Xmap<float>
+     power_scale(const clipper::Xmap<float> &xmap_ref, const clipper::Xmap<float> &xmap_for_scaling);
+
       void
       compare_structure_factors(const clipper::Xmap<float> &xmap_1, const clipper::Xmap<float> &xmap_2);
 

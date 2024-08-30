@@ -4175,6 +4175,65 @@ coot::util::map_molecule_recentre_from_position(const clipper::Xmap<float> &xmap
    return mmci;
 }
 
+clipper::Xmap<float>
+coot::util::power_scale(const clipper::Xmap<float> &xmap_1, const clipper::Xmap<float> &xmap_2) {
+
+   float mg = coot::util::max_gridding(xmap_1); // A/grid
+   clipper::Resolution reso(2.0 * mg); // Angstroms
+   std::cout << "# making data info 1" << std::endl;
+   clipper::HKL_info hkl_info_1(xmap_1.spacegroup(), xmap_1.cell(), reso, true);
+   std::cout << "# making data info 2" << std::endl;
+   clipper::HKL_info hkl_info_2(xmap_2.spacegroup(), xmap_2.cell(), reso, true);
+   clipper::HKL_data< clipper::datatypes::F_phi<float> > fphis_1(hkl_info_1);
+   clipper::HKL_data< clipper::datatypes::F_phi<float> > fphis_2(hkl_info_2);
+   std::cout << "# starting Fouriers" << std::endl;
+   xmap_1.fft_to(fphis_1);
+   std::cout << "# done map-1" << std::endl;
+   xmap_2.fft_to(fphis_2);
+   std::cout << "# done map-2" << std::endl;
+   std::map<unsigned int, double> fref2_sums;
+   std::map<unsigned int, double> fother2_sums;
+   std::map<unsigned int, unsigned int> f2_counts;
+   clipper::HKL_info::HKL_reference_index hri;
+   for (hri = fphis_1.first(); !hri.last(); hri.next()) {
+      float fr = fphis_1[hri].f();
+      float fo = fphis_2[hri].f();
+      if (! clipper::Util::is_nan(fr) && ! clipper::Util::is_nan(fo)) {
+	 int h = hri.hkl().h();
+	 int k = hri.hkl().k();
+	 int l = hri.hkl().l();
+	 double rr = std::sqrt(h * h + k * k + l * l);
+	 unsigned int bin_index = static_cast<int>(rr);
+	 std::map<unsigned int, double>::const_iterator it = fref2_sums.find(bin_index);
+	 if (it != fref2_sums.end()) {
+            fref2_sums[bin_index]   = fr * fr;
+            fother2_sums[bin_index] = fo * fo;
+            f2_counts[bin_index] = 1;
+	 } else {
+            fref2_sums[bin_index]   += fr * fr;
+            fother2_sums[bin_index] += fo * fo;
+            f2_counts[bin_index] += 1;
+         }
+      }
+   }
+   for (hri = fphis_2.first(); !hri.last(); hri.next()) {
+      float fo = fphis_2[hri].f();
+      if (! clipper::Util::is_nan(fo)) {
+	 int h = hri.hkl().h();
+	 int k = hri.hkl().k();
+	 int l = hri.hkl().l();
+	 double rr = std::sqrt(h * h + k * k + l * l);
+	 unsigned int bin_index = static_cast<int>(rr);
+	 double sf = fref2_sums[bin_index] / fother2_sums[bin_index];
+	 fphis_2[hri].f() *= sf;
+      }
+   }
+   std::cout << "Making scaled map" << std::endl;
+   clipper::Xmap<float> xmap_scaled = xmap_2;
+   xmap_scaled.fft_from(fphis_2);
+   return xmap_scaled;
+}
+ 
 
 
 std::vector<std::pair<clipper::Resolution, double> >
