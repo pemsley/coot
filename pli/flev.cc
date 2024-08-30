@@ -64,8 +64,7 @@ pli::get_flev_residue_centres(mmdb::Residue *residue_ligand_3d,
       std::string chain_id = residue_ligand_3d->GetChainID();
       int every_nth = 1;
       std::vector<coot::lsq_range_match_info_t> matches;
-      coot::lsq_range_match_info_t match(1, 1, "", res_no, res_no, chain_id,
-                                          COOT_LSQ_ALL);
+      coot::lsq_range_match_info_t match(1, 1, "", res_no, res_no, chain_id, coot::lsq_t::ALL);
        matches.push_back(match);
        std::pair<short int, clipper::RTop_orth> lsq_mat =
           coot::util::get_lsq_matrix(flat_mol, mol_containing_residue_ligand, matches, every_nth, false);
