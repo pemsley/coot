@@ -1193,7 +1193,8 @@ molecules_container_t::read_ccp4_map(const std::string &file_name, bool is_a_dif
 
    if (coot::util::is_basic_em_map_file(file_name)) {
 
-      std::cout << ":::::: read_ccp4_map() returns true for is_basic_em_map_file() " << std::endl;
+      std::cout << "DEBUG:: mc::read_ccp4_map() returns true for is_basic_em_map_file() "
+                << file_name << std::endl;
 
       // fill xmap
       bool check_only = false;
