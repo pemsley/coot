@@ -2056,7 +2056,8 @@ void superpose_ligands_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 void symm_shift_reference_chain_here_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                             G_GNUC_UNUSED GVariant *parameter,
                                             G_GNUC_UNUSED gpointer user_data) {
-   move_reference_chain_to_symm_chain_position();
+   graphics_info_t g;
+   g.move_reference_chain_to_symm_chain_position();
 }
 
 

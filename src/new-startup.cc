@@ -230,9 +230,7 @@ new_startup_on_glarea_resize(GtkGLArea *glarea, gint width, gint height) {
 
 GtkWidget *new_startup_create_glarea_widget() {
 
-   std::cout << "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX -------- gtk_gl_area_new()" << std::endl;
    GtkWidget *gl_area = gtk_gl_area_new();
-   std::cout << "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX -------- gtk_gl_area_new() done" << std::endl;
 
 #if GTK_MINOR_VERSION >= 12
    // Disable OpenGL ES

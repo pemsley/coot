@@ -1945,6 +1945,7 @@ public:
 
    coot::Symm_Atom_Pick_Info_t symmetry_atom_pick() const;
    coot::Symm_Atom_Pick_Info_t symmetry_atom_pick(const coot::Cartesian &front, const coot::Cartesian &back) const;
+   coot::Symm_Atom_Pick_Info_t symmetry_atom_close_to_screen_centre() const;
 
    bool tomo_pick(double x, double y, gint n_press, bool shift_is_pressed);
 
