@@ -4197,20 +4197,33 @@ coot::util::power_scale(const clipper::Xmap<float> &xmap_1, const clipper::Xmap<
    clipper::HKL_info::HKL_reference_index hri;
    for (hri = fphis_1.first(); !hri.last(); hri.next()) {
       float fr = fphis_1[hri].f();
-      float fo = fphis_2[hri].f();
-      if (! clipper::Util::is_nan(fr) && ! clipper::Util::is_nan(fo)) {
-	 int h = hri.hkl().h();
-	 int k = hri.hkl().k();
-	 int l = hri.hkl().l();
-	 double rr = std::sqrt(h * h + k * k + l * l);
-	 unsigned int bin_index = static_cast<int>(rr);
-	 std::map<unsigned int, double>::const_iterator it = fref2_sums.find(bin_index);
-	 if (it != fref2_sums.end()) {
+      if (! clipper::Util::is_nan(fr)) {
+         int h = hri.hkl().h();
+         int k = hri.hkl().k();
+         int l = hri.hkl().l();
+         double rr = std::sqrt(h * h + k * k + l * l);
+         unsigned int bin_index = static_cast<int>(rr);
+         std::map<unsigned int, double>::const_iterator it = fref2_sums.find(bin_index);
+         if (it == fref2_sums.end()) {
             fref2_sums[bin_index]   = fr * fr;
+         } else {
+            fref2_sums[bin_index]   += fr * fr;
+         }
+      }
+   }
+   for (hri = fphis_2.first(); !hri.last(); hri.next()) {
+      float fo = fphis_2[hri].f();
+      if (! clipper::Util::is_nan(fo)) {
+         int h = hri.hkl().h();
+         int k = hri.hkl().k();
+         int l = hri.hkl().l();
+         double rr = std::sqrt(h * h + k * k + l * l);
+         unsigned int bin_index = static_cast<int>(rr);
+         std::map<unsigned int, double>::const_iterator it = fother2_sums.find(bin_index);
+         if (it == fother2_sums.end()) {
             fother2_sums[bin_index] = fo * fo;
             f2_counts[bin_index] = 1;
-	 } else {
-            fref2_sums[bin_index]   += fr * fr;
+         } else {
             fother2_sums[bin_index] += fo * fo;
             f2_counts[bin_index] += 1;
          }
@@ -4219,21 +4232,30 @@ coot::util::power_scale(const clipper::Xmap<float> &xmap_1, const clipper::Xmap<
    for (hri = fphis_2.first(); !hri.last(); hri.next()) {
       float fo = fphis_2[hri].f();
       if (! clipper::Util::is_nan(fo)) {
-	 int h = hri.hkl().h();
-	 int k = hri.hkl().k();
-	 int l = hri.hkl().l();
-	 double rr = std::sqrt(h * h + k * k + l * l);
-	 unsigned int bin_index = static_cast<int>(rr);
-	 double sf = fref2_sums[bin_index] / fother2_sums[bin_index];
-	 fphis_2[hri].f() *= sf;
+         int h = hri.hkl().h();
+         int k = hri.hkl().k();
+         int l = hri.hkl().l();
+         double rr = std::sqrt(h * h + k * k + l * l);
+         unsigned int bin_index = static_cast<int>(rr);
+         double sf = fref2_sums[bin_index] / fother2_sums[bin_index];
+         fphis_2[hri].f() *= sf;
       }
    }
-   std::cout << "Making scaled map" << std::endl;
+
+   std::map<unsigned int, double>::const_iterator it;
+   for (it=fref2_sums.begin(); it!=fref2_sums.end(); ++it) {
+      const auto &key(it->first);
+      const auto &fref2_sum = it->second;
+      const auto &fother = fother2_sums[key];
+      float scale = fref2_sum / fother;
+      std::cout << "compare-sums: " << key << "  " << fref2_sum << " " << fother << " scale " << scale << std::endl;
+   }
+
    clipper::Xmap<float> xmap_scaled = xmap_2;
    xmap_scaled.fft_from(fphis_2);
    return xmap_scaled;
 }
- 
+
 
 
 std::vector<std::pair<clipper::Resolution, double> >
