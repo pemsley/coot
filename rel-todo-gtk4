@@ -1,12 +1,17 @@
 
 ----
 
-difference map peaks panel is a bit too thin when it first appears.
+Key-binding to hide/show right-hand panel.
+      GtkWidget *status_bar = widget_from_builder("main_window_statusbar");
+      GtkWidget *tool_bar   = widget_from_builder("main_window_toolbar_hbox_outer");
+      GtkWidget *sidebar    = widget_from_builder("main_window_vbox_inner");
+
+Add "Rotate View is on Left/Right mouse" mode in Preferences
+
+Add coot-ligand-validation to chapi.
 
 rainbow ribbons are wrong - even for tutorial modern.
  * related to NRStuff change. Take a look at the code and patch.
-
-symm-shift-reference-chain-here doesn't work for tutorial modern
 
 does --code work? - is it a XDG Protocol problem?
 
@@ -21,36 +26,10 @@ make an figure, for moorhen intro with blobs that have volume proportional
 Chapi torsion angle restraints for servalcat
 Make torsion restraints for Rama and rota refinement for servalcat.
 
-Look at 4yjr - beautiful map 452-626 interaction - it should not have a clash face
-   (distance to hydrogen atom).
-* Checked - it does not if both residues are refined. That will do.
-
 Normal waters are no longer fat. Maybe was this fix:
    66a3d04dad117b3dab37a6a4996267294d65b504
 
 B416 in 8c0p is drawn wrongly in Colour-by-chain mode
-
-read in many pdb file (ligand res-tracer results)
-   Now click on "Last Only" - it doesn't unclick the checkbuttons.
-   (Note that the "All" button does)
-* Done.
-
-configure should not use --with-enhanced-ligand-tools
-* Done.
-
-Get rid of #ifdef WINDOWS_MINGW in map_fill_from_mtz() in coot-utils
-   use std::filesystem?
-* Done.
-
-delete seq-view-interface.c/h
-* Done.
-
-get rid of trackball.c - there is a compilation warning - use glm instead.
-   Actually, I am not sure that I even use it now.
-* Done.
-
-Fix state file quick save as.
-* I couldn't reproduce the problem
 
 Rangana made findwaters crash by using a sigma of 4 in flood mode in cryo-EM map.
   Can you reproduce that?
@@ -86,6 +65,38 @@ and a key-binding if nothing else.
 
 Fun project: mrcfile importer.
 
+Look at 4yjr - beautiful map 452-626 interaction - it should not have a clash face
+   (distance to hydrogen atom).
+* Checked - it does not if both residues are refined. That will do.
+
+difference map peaks panel is a bit too thin when it first appears.
+* Done.
+
+symm-shift-reference-chain-here doesn't work for tutorial modern
+* Done. Rewrote the symmetry atom search.
+
+read in many pdb file (ligand res-tracer results)
+   Now click on "Last Only" - it doesn't unclick the checkbuttons.
+   (Note that the "All" button does)
+* Done.
+
+configure should not use --with-enhanced-ligand-tools
+* Done.
+
+Get rid of #ifdef WINDOWS_MINGW in map_fill_from_mtz() in coot-utils
+   use std::filesystem?
+* Done.
+
+delete seq-view-interface.c/h
+* Done.
+
+get rid of trackball.c - there is a compilation warning - use glm instead.
+   Actually, I am not sure that I even use it now.
+* Done.
+
+Fix state file quick save as.
+* I couldn't reproduce the problem
+
 rename coot-lsq-types.h
 * Done.
 
@@ -107,24 +118,15 @@ Colour-by-molecule shows big balls
 Add read_coordinates() to the read-molecule.hh api.
 * Done.
 
-Make torsion restraints for Rama and rota refinement for servalcat.
-
 Draw Hydrogen Atoms checkbutton in Bond Parameters widget is broken - try running run-servalcat-32143.py
 * Done.
+
+Make torsion restraints for Rama and rota refinement for servalcat.
 
 Test that the bonds and atoms are being added just once for the bond generations - when trying to fix the
 colour-by-molecule bonds, it seemed that there were multiple adds. Hmm.
 
 check that ccp4 coot can load the metal distances table.
-
-Key-binding to hide/show right-hand panel.
-      GtkWidget *status_bar = widget_from_builder("main_window_statusbar");
-      GtkWidget *tool_bar   = widget_from_builder("main_window_toolbar_hbox_outer");
-      GtkWidget *sidebar    = widget_from_builder("main_window_vbox_inner");
-
-Add "Rotate View is on Left/Right mouse" mode in Preferences
-
-Add coot-ligand-validation to chapi.
 
 Coot: Residue Info dialog needs a cleanup. graphics_info_t::output_residue_info_dialog()
 
