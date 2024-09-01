@@ -50,6 +50,9 @@ void update_dynamic_validation_for_molecule(int imol) {
 
    // only update if dynamic validation was being displayed already.
 
+   // does main_window_ramchandran_and_validation_pane exist today? I can't find it.
+   // If not, what does this function do?
+   //
    GtkWidget* pane_1 = widget_from_builder("main_window_ramchandran_and_validation_pane");
    GtkWidget* vbox_2 = widget_from_builder("validation_boxes_vbox");
    GtkWidget *vbox_1  = widget_from_builder("dynamic_validation_outliers_vbox");
@@ -57,6 +60,8 @@ void update_dynamic_validation_for_molecule(int imol) {
       if (gtk_widget_get_visible(vbox_2)) {
          if (gtk_widget_get_visible(pane_1)) {
             overlaps_peptides_cbeta_ramas_and_rotas_internal(imol);
+         } else {
+            std::cout << "ERROR:: pane main_window_ramchandran_and_validation_pane not found " << std::endl;
          }
       }
    }
@@ -557,8 +562,8 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
 
    int pos = gtk_paned_get_position(GTK_PANED(pane));
    // // std::cout << "here in overlaps_peptides_cbeta_ramas_and_rotas_internal(): with pos " << pos << std::endl;
-   if (pos < 300)
-      gtk_paned_set_position(GTK_PANED(pane), 300);
+   if (pos < 320)
+      gtk_paned_set_position(GTK_PANED(pane), 320);
 
    graphics_info_t::clear_out_container(vbox);
 
