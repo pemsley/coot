@@ -116,7 +116,7 @@ public:
          if (ele == " H") return 0.5f;
          std::string res_name = r->GetResName();
          if (res_name == "HOH")
-            return 2.6f;
+            return 2.0f;
          if (res_name == "CA")
             return 4.0f;
          if (res_name == "MG")
