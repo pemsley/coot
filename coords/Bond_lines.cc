@@ -8539,6 +8539,8 @@ Bond_lines_container::add_atom_centres(int imol,
                   if (atom_colour_type != coot::COLOUR_BY_ATOM_TYPE)
                      gbai.set_radius_scale_for_atom_with_no_dictionary(at);
 
+            gbai.set_radius_scale_for_atom(at, make_fat_atom);
+
             // this is a bit hacky
             if (atom_colour_type == coot::COLOUR_BY_USER_DEFINED_COLOURS)
                if (is_H_flag)
