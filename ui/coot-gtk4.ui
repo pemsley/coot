@@ -7988,6 +7988,15 @@ Do you want to continue?
             </child>
 
             <child type="overlay">
+              <object class="GtkLabel" id="session_saved_label">
+                <property name="visible">False</property>
+                <property name="halign">center</property>
+                <property name="valign">start</property>
+                <property name="label" translatable="yes"> Session Saved </property>
+              </object>
+            </child>
+
+            <child type="overlay">
               <object class="GtkFrame" id="export_map_frame">
                 <property name="visible">False</property>
                 <property name="halign">center</property>
@@ -8060,6 +8069,7 @@ Do you want to continue?
             </child>
           </object>
         </child>
+
         <child>
           <object class="GtkBox" id="main_window_vbox_inner">
             <property name="orientation">vertical</property>
