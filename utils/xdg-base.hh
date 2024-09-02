@@ -23,9 +23,14 @@
 #ifndef UTILS_XDG_BASE_HH
 #define UTILS_XDG_BASE_HH
 
-#include <pwd.h>
+// 20240902-PE Tweak from Charles
+#ifdef _MSC_VER
+#define WINDOWS
+#endif
+
 #ifdef WINDOWS
 #else
+#include <pwd.h>
 #include <unistd.h>
 #include <sys/types.h>
 #endif
