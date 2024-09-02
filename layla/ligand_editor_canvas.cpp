@@ -213,7 +213,7 @@ static void on_hover (
 
     CootLigandEditorCanvas* self = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
 #else
-void CootLigandEditorCanvas::on_hover(double x, double y, bool alt_pressed) {
+void CootLigandEditorCanvas::on_hover(double x, double y, bool alt_pressed, bool control_pressed) {
     auto* self = this;
 #endif
 
@@ -235,12 +235,14 @@ void CootLigandEditorCanvas::on_hover(double x, double y, bool alt_pressed) {
         auto& new_bond = *self->currently_created_bond;
         new_bond.second_atom_x = x;
         new_bond.second_atom_y = y;
-    }
-    // and set highlight for the first atom, if we're creating a new bond
-    if(self->active_tool->is_creating_bond()) {
-        auto [molecule_idx, atom_idx] = *self->active_tool->get_molecule_idx_and_first_atom_of_new_bond();
-        auto& target = *(*self->molecules)[molecule_idx];
-        target.highlight_atom(atom_idx);
+        // and set highlight for the first atom
+        if(self->active_tool->is_creating_bond()) {
+            auto [molecule_idx, atom_idx] = *self->active_tool->get_molecule_idx_and_first_atom_of_new_bond();
+            auto& target = *(*self->molecules)[molecule_idx];
+            target.add_atom_highlight(atom_idx, CanvasMolecule::HighlightType::Edition);
+        }
+    } else {
+        self->active_tool->on_hover(alt_pressed, control_pressed, x, y);
     }
 
     // Highlights and snapping
@@ -251,7 +253,7 @@ void CootLigandEditorCanvas::on_hover(double x, double y, bool alt_pressed) {
         if(std::holds_alternative<CanvasMolecule::Atom>(bond_or_atom)) {
             auto atom = std::get<CanvasMolecule::Atom>(std::move(bond_or_atom));
             g_debug("Hovering on atom %u (%s)", atom.idx,atom.symbol.c_str());
-            target.highlight_atom(atom.idx);
+            target.add_atom_highlight(atom.idx, CanvasMolecule::HighlightType::Hover);
 
             // Snapping to the target atom
             // when creating a bond
@@ -264,7 +266,7 @@ void CootLigandEditorCanvas::on_hover(double x, double y, bool alt_pressed) {
         } else { // a bond
             auto bond = std::get<CanvasMolecule::Bond>(std::move(bond_or_atom));
             g_debug("Hovering on bond between atoms %u and %u", bond.first_atom_idx, bond.second_atom_idx);
-            target.highlight_bond(bond.first_atom_idx, bond.second_atom_idx);
+            target.add_bond_highlight(bond.first_atom_idx, bond.second_atom_idx, CanvasMolecule::HighlightType::Hover);
         }
     }
     self->queue_redraw();
@@ -326,7 +328,7 @@ void CootLigandEditorCanvas::on_left_click_released(double x, double y, bool alt
     }
 
     // `currently_created_bond` gets cleared here when appropriate
-    self->active_tool->on_release(control_pressed, x, y, false);
+    self->active_tool->on_release(alt_pressed, control_pressed, x, y, false);
 }
 
 #ifndef __EMSCRIPTEN__
@@ -348,15 +350,17 @@ void CootLigandEditorCanvas::on_left_click(double x, double y, bool alt_pressed,
     auto* self = this;
 #endif
 
-    if(alt_pressed) {
-        self->active_tool->begin_transform(x, y, TransformManager::Mode::Translation);
-        return;
-    } else if(shift_pressed) {
-        self->active_tool->begin_transform(x, y, TransformManager::Mode::Rotation);
-        return;
+    if(!control_pressed) {
+        if(shift_pressed) {
+            self->active_tool->begin_transform(x, y, TransformManager::Mode::Rotation);
+            return;
+        } else if(alt_pressed) {
+            self->active_tool->begin_transform(x, y, TransformManager::Mode::Translation);
+            return;
+        }
     }
 
-    self->active_tool->on_click(control_pressed, x, y, false);
+    self->active_tool->on_click(alt_pressed, control_pressed, x, y, false);
 
     if(self->active_tool->is_creating_bond()) {
         CurrentlyCreatedBond new_bond;
@@ -391,7 +395,7 @@ void CootLigandEditorCanvas::on_right_click_released(double x, double y, bool al
     auto* self = this;
 #endif
 
-    self->active_tool->on_release(control_pressed, x, y, true);
+    self->active_tool->on_release(alt_pressed, control_pressed, x, y, true);
 }
 
 #ifndef __EMSCRIPTEN__
@@ -413,7 +417,7 @@ void CootLigandEditorCanvas::on_right_click(double x, double y, bool alt_pressed
     auto* self = this;
 #endif
 
-    self->active_tool->on_click(control_pressed, x, y, true);
+    self->active_tool->on_click(alt_pressed, control_pressed, x, y, true);
 }
 
 
@@ -571,7 +575,7 @@ int coot_ligand_editor_canvas_append_molecule(CootLigandEditorCanvas* self, std:
         g_debug("Appending new molecule to the widget...");
         // Might throw if the constructor fails.
         self->begin_edition();
-        self->molecules->push_back(CanvasMolecule(rdkit_mol));
+        self->molecules->push_back(CanvasMolecule(rdkit_mol, self->allow_invalid_molecules));
         self->molecules->back()->set_canvas_scale(self->scale);
         #ifndef __EMSCRIPTEN__
         self->molecules->back()->apply_canvas_translation(
@@ -594,7 +598,10 @@ int coot_ligand_editor_canvas_append_molecule(CootLigandEditorCanvas* self, std:
         std::string msg = "2D representation could not be created: ";
         msg += e.what();
         msg += ". New molecule could not be added.";
-        g_warning("coot_ligand_editor_canvas_append_molecule: %s",msg.c_str());
+        g_warning("coot_ligand_editor_canvas_append_molecule: %s\n%s",
+            msg.c_str(), 
+            self->allow_invalid_molecules ? "Invalid molecules are allowed." : "Invalid molecules are not allowed."
+        );
         self->update_status(msg.c_str());
         self->rollback_current_edition();
         return -1;
@@ -610,7 +617,7 @@ void coot_ligand_editor_canvas_update_molecule_from_smiles(CootLigandEditorCanva
         return;
     }
     try{
-        const auto* mol_ptr = RDKit::SmilesToMol(smiles);
+        const auto* mol_ptr = RDKit::SmilesToMol(smiles, 0, !self->allow_invalid_molecules);
         if(mol_ptr) {
             self->begin_edition();
             *target_mol_opt->get() = std::move(*mol_ptr);
@@ -624,8 +631,11 @@ void coot_ligand_editor_canvas_update_molecule_from_smiles(CootLigandEditorCanva
     }catch(const std::exception& e) {
         std::string msg = "2D representation could not be created: ";
         msg += e.what();
-        msg += ". New molecule could not be added.";
-        g_warning("coot_ligand_editor_canvas_update_molecule_from_smiles: %s",msg.c_str());
+        msg += ". Molecule could not be updated.";
+        g_warning(
+            "coot_ligand_editor_canvas_update_molecule_from_smiles: %s\n%s",msg.c_str(),
+            self->allow_invalid_molecules ? "Invalid molecules are allowed." : "Invalid molecules are not allowed."
+        );
         self->update_status(msg.c_str());
         self->rollback_current_edition();
     }
@@ -667,6 +677,7 @@ unsigned int coot_ligand_editor_canvas_get_max_molecule_idx(CootLigandEditorCanv
 }
 
 void coot_ligand_editor_canvas_set_allow_invalid_molecules(CootLigandEditorCanvas* self, bool value) noexcept {
+    g_debug("Invalid molecules allowed set to %s", value ? "true" : "false");
     self->allow_invalid_molecules = value;
 }
 

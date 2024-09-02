@@ -665,7 +665,7 @@ std::pair<unsigned int,graphene_rect_t> MoleculeRenderContext::render_atom(const
     #else
     atom_span.style.size = render_mode != DisplayMode::AtomIndices ? "medium" : "small";
     #endif
-    atom_span.style.weight = atom.highlighted ? "bold" : "normal";
+    atom_span.style.weight = atom.highlight != 0 ? "bold" : "normal";
 
     // Span for the atom symbol - solely.
     // This allows us to measure the size of the atom's symbol 
@@ -784,14 +784,16 @@ void MoleculeRenderContext::draw_atoms() {
 }
 
 void MoleculeRenderContext::process_atom_highlight(const Atom& atom) {
-    if(atom.highlighted) {
+    auto highlight = CanvasMolecule::determine_dominant_highlight(atom.highlight);
+    if(highlight) {
+        auto [r, g, b] = CanvasMolecule::hightlight_to_rgb(*highlight);
         ren.new_sub_path();
         // Go to the center of the atom
         //ren.move_to(atom.x * scale_factor + x_offset + CanvasMolecule::ATOM_HITBOX_RADIUS, atom.y * scale_factor + y_offset);
-        ren.set_source_rgb(0.0, 1.0, 0.5);
+        ren.set_source_rgb(r, g, b);
         ren.arc(atom.x * scale_factor + x_offset, atom.y * scale_factor + y_offset, CanvasMolecule::ATOM_HITBOX_RADIUS, 0, M_PI * 2.0);
         ren.stroke_preserve();
-        ren.set_source_rgba(0.0, 1.0, 0.5, 0.5);
+        ren.set_source_rgba(r, g, b, 0.5);
         ren.fill();
     }
 }
@@ -1239,9 +1241,11 @@ void MoleculeRenderContext::draw_centered_double_bond(const CanvasMolecule::Bond
 
 void MoleculeRenderContext::draw_bonds() {
     for(const auto& bond: canvas_molecule.bonds) {
-        if(bond->highlighted) {
+        auto highlight = CanvasMolecule::determine_dominant_highlight(bond->highlight);
+        if(highlight) {
             ren.set_line_width(4.0);
-            ren.set_source_rgb(0.0, 1.0, 0.5);
+            auto [r, g, b] = CanvasMolecule::hightlight_to_rgb(*highlight);
+            ren.set_source_rgb(r, g, b);
         } else {
             ren.set_line_width(2.0);
             ren.set_source_rgb(0.0, 0.0, 0.0);
