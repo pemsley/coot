@@ -7036,12 +7036,26 @@ graphics_info_t::setup_key_bindings() {
                     return gboolean(TRUE);
                  };
 
+   auto lc_toggle_validation_side_panel = [] () {
+      graphics_info_t g;
+      GtkWidget* pane = widget_from_builder("main_window_ramchandran_and_validation_pane");
+      if (pane) {
+         if (gtk_widget_get_visible(pane) == TRUE) {
+            gtk_widget_set_visible(pane, FALSE);
+         } else {
+            gtk_widget_set_visible(pane, TRUE);
+         }
+      }
+      return gboolean(TRUE);
+   };
+
    key_bindings_t ctrl_arrow_left_key_binding(lc4, "R/T Left");
    key_bindings_t ctrl_arrow_right_key_binding(lc5, "R/T Right");
    key_bindings_t ctrl_arrow_up_key_binding(lc6, "R/T Up");
    key_bindings_t ctrl_arrow_down_key_binding(lc7, "R/T Down");
    key_bindings_t ctrl_eigen_flip(l20, "Eigen-Flip");
    key_bindings_t ctrl_quick_save(lc_qsa, "Quick Save");
+   key_bindings_t ctrl_toggle_panel(lc_toggle_validation_side_panel, "Toggle Validation Panel");
 
    std::pair<keyboard_key_t, key_bindings_t> p4(keyboard_key_t(GDK_KEY_Left,  true), ctrl_arrow_left_key_binding);
    std::pair<keyboard_key_t, key_bindings_t> p5(keyboard_key_t(GDK_KEY_Right, true), ctrl_arrow_right_key_binding);
@@ -7049,6 +7063,7 @@ graphics_info_t::setup_key_bindings() {
    std::pair<keyboard_key_t, key_bindings_t> p7(keyboard_key_t(GDK_KEY_Down,  true), ctrl_arrow_down_key_binding);
    std::pair<keyboard_key_t, key_bindings_t> p8(keyboard_key_t(GDK_KEY_e,     true), ctrl_eigen_flip);
    std::pair<keyboard_key_t, key_bindings_t> p9(keyboard_key_t(GDK_KEY_s,     true), ctrl_quick_save);
+   std::pair<keyboard_key_t, key_bindings_t> p10(keyboard_key_t(GDK_KEY_b,     true), ctrl_toggle_panel);
 
    kb_vec.push_back(p4);
    kb_vec.push_back(p5);
@@ -7056,6 +7071,7 @@ graphics_info_t::setup_key_bindings() {
    kb_vec.push_back(p7);
    kb_vec.push_back(p8);
    kb_vec.push_back(p9);
+   kb_vec.push_back(p10);
 
    std::vector<std::pair<keyboard_key_t, key_bindings_t> >::const_iterator it;
    for (it=kb_vec.begin(); it!=kb_vec.end(); ++it)

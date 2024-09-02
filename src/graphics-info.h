@@ -1945,6 +1945,7 @@ public:
 
    coot::Symm_Atom_Pick_Info_t symmetry_atom_pick() const;
    coot::Symm_Atom_Pick_Info_t symmetry_atom_pick(const coot::Cartesian &front, const coot::Cartesian &back) const;
+   coot::Symm_Atom_Pick_Info_t symmetry_atom_close_to_screen_centre() const;
 
    bool tomo_pick(double x, double y, gint n_press, bool shift_is_pressed);
 
@@ -4139,7 +4140,7 @@ public:
       // std::cout << "generic_objects_dialog_grid_add_object_internal() --- start --- " << std::endl;
 
       if (! gdo.mesh.is_closed()) {
-         std::cout << "generic_objects_dialog_grid_add_object_internal() no-closed " << io << std::endl;
+         // std::cout << "generic_objects_dialog_grid_add_object_internal() no-closed " << io << std::endl;
          GtkWidget *checkbutton = gtk_check_button_new_with_mnemonic (("Display"));
          std::string label_str = gdo.mesh.name;
          GtkWidget *label = gtk_label_new(label_str.c_str());

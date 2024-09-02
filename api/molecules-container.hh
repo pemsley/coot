@@ -424,6 +424,12 @@ public:
    //! @return an object with header info. Sparce at the moment.
    moorhen::header_info_t get_header_info(int imol) const;
 
+   //! get imol_enc_any
+   //!
+   //! @return the value of imol_enc_any (meaning "the molecule number for dictionary that
+   // can be used with any molecule")
+   int get_imol_enc_any() const;
+
    // -------------------------------- generic utils -----------------------------------
    //! \name Generic Utils
 
@@ -902,7 +908,7 @@ public:
                                      int imol_mov, const std::string &chain_id_mov);
 
    //! superpose using LSQ - setup the matches
-   //! @params `match_type` 0: all, 1: main, 2: CAs
+   //! @params `match_type` 0: all, 1: main, 2: CAs, 3: N, CA, C
    void add_lsq_superpose_match(const std::string &chain_id_ref, int res_no_ref_start, int res_no_ref_end,
                                 const std::string &chain_id_mov, int res_no_mov_start, int res_no_mov_end,
                                 int match_type);
@@ -1322,6 +1328,17 @@ public:
    //! @return 1 on a successful conversion.
    int cis_trans_convert(int imol, const std::string &atom_cid);
 
+   //! Replace a residue.
+   //!
+   //! This has a different meaning of "replace" to `replace_fragment`. In this function
+   //! the atoms are not note merely moved/"slotted in to place", but the residue type is
+   //! changed - new atoms are introduce and others are deleted (typically).
+   //!
+   //! Change the type of a residue (for example, "TYR" to "PTY")
+   //! The algorithm will superpose the mainchain CA, C and N and try to set matching torsion
+   //! to the angle that they were in the reference structure.
+   void replace_residue(int imol, const std::string &residue_cid, const std::string &new_residue_type, int imol_enc);
+
    //! replace a fragment
    //!
    //! _i.e._ replace the atoms of ``imol_base`` by those of the atom selection ``atom_selection`` in ``imol_reference``
@@ -1530,6 +1547,12 @@ public:
    // Function is not const because it might change the protein_geometry geom.
    coot::simple_mesh_t get_mesh_for_ligand_validation_vs_dictionary(int imol, const std::string &ligand_cid);
 
+   //! ligand validation
+   //!
+   //! @return a vector of interesting geometry
+   void
+   get_ligand_validation_vs_dictionary(int imol, const std::string &ligand_cid, bool include_non_bonded_contacts);
+
    //! match ligand torsions - return the success status
    bool match_ligand_torsions(int imol_ligand, int imol_ref, const std::string &chain_id_ref, int resno_ref);
 
@@ -1649,6 +1672,11 @@ public:
    //! @return a vector or pairs of graph points (resolution, correlation). The resolution is in inverse Angstroms squared.
    //!  An empty list is returned on failure
    std::vector<std::pair<double, double> > fourier_shell_correlation(int imol_map_1, int imol_map_2) const;
+
+   //! Make a FSC-scaled map
+   //!
+   //! @return the molecule index of the new map
+   int make_power_scaled_map(int imol_ref, int imol_map_for_scaling);
 
    //! Get the Pintile et al. Q Score
    //!

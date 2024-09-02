@@ -31,7 +31,6 @@
 #include <epoxy/gl.h>
 
 #include "globjects.h"
-#include "trackball.h"
 #include "graphics-info.h"
 
 #include "draw.hh"

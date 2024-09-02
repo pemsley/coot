@@ -374,7 +374,6 @@ namespace coot {
                                      coot::protein_geometry &geom,
                                      ctpl::thread_pool &static_thread_pool);
 
-
       // ====================== dragged refinement ======================================
 
       coot::restraints_container_t *last_restraints;
@@ -825,6 +824,12 @@ namespace coot {
                                                                        coot::protein_geometry &geom,
                                                                        ctpl::thread_pool &static_thread_pool);
 
+      // this function is another version of the above function, but returns distortion values
+      void
+      geometric_distortions_from_mol(const std::string &ligand_cid, bool with_nbcs,
+                                     coot::protein_geometry &geom,
+                                     ctpl::thread_pool &static_thread_pool);
+
       coot::instanced_mesh_t get_extra_restraints_mesh(int mode) const;
 
       //! @return a list of residues specs that have atoms within dist of the atoms of the specified residue
@@ -1018,6 +1023,13 @@ namespace coot {
 
       int cis_trans_conversion(const std::string &atom_cid, mmdb::Manager *standard_residues_mol);
 
+      int replace_residue(const std::string &residue_cid, const std::string &new_residue_type, int imol_enc,
+                          const protein_geometry &geom);
+
+      // the above is a wrapper for this:
+      // (which was a scripting function and now has been moved into coot utils)
+      int mutate_by_overlap(mmdb::Residue *residue_p, const dictionary_residue_restraints_t &restraints);
+
       //! @return the success status
       int replace_fragment(atom_selection_container_t asc);
 
@@ -1123,7 +1135,7 @@ namespace coot {
       void fix_atom_selection_during_refinement(const std::string &atom_selection_cid);
 
       // refine all of this molecule - the links and non-bonded contacts will be determined from mol_ref;
-      void init_all_molecule_refinement(mmdb::Manager *mol_ref, coot::protein_geometry &geom,
+      void init_all_molecule_refinement(int imol_ref_mol, coot::protein_geometry &geom,
                                         const clipper::Xmap<float> &xmap, float map_weight,
                                         ctpl::thread_pool *thread_pool);
 

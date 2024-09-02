@@ -644,7 +644,7 @@ molecule_class_info_t::find_ncs_matrix(int SelHandle1, int SelHandle2) const {
 	 int n_sel_atoms_2; 
 	 atom_sel.mol->GetSelIndex(SelHandle2, selatoms_2, n_sel_atoms_2);
 	 // debugging the atom selection
-	 if (1) { 
+	 if (false) {
 	    std::cout << "First atom of " << n_sel_atoms_1 << " in first  selection "
 		      << selatoms_1[0] << std::endl;
 	    std::cout << "First atom of " << n_sel_atoms_2 << " in second selection "
@@ -668,7 +668,7 @@ molecule_class_info_t::find_ncs_matrix(int SelHandle1, int SelHandle2) const {
 	    residue_matches.push_back(SSMAlign->Ca1[iat]);
 	 }
 
-	 if (0) {
+	 if (false) {
 	    // Too much noise.
 	    std::cout << "  Residue Matches" << std::endl;
 	    for (unsigned int imatch=0; imatch<residue_matches.size(); imatch++) {

@@ -75,7 +75,6 @@
 #include "skeleton/BuildCas.h"
 
 #include "gl-matrix.h" // for baton rotation
-#include "trackball.h" // for baton rotation
 
 #include "analysis/bfkurt.hh"
 
@@ -4258,7 +4257,7 @@ graphics_info_t::fill_difference_map_peaks_button_box() {
    GtkWidget *pane = widget_from_builder("main_window_graphics_rama_vs_graphics_pane");
    int pos = gtk_paned_get_position(GTK_PANED(pane));
    if (pos < 300)
-      gtk_paned_set_position(GTK_PANED(pane), 300);
+      gtk_paned_set_position(GTK_PANED(pane), 380);
 
    GtkWidget *outer_vbox = widget_from_builder("dialog-vbox78");
    gtk_widget_set_visible(outer_vbox,   TRUE);
@@ -4287,6 +4286,13 @@ graphics_info_t::show_diff_map_peaks_vbox(int imol_map, int imol_coords,
 
    // GtkWidget *w = create_diff_map_peaks_dialog();
    GtkWidget *peaks_vbox = widget_from_builder("diff_map_peaks_vbox");
+
+   if (false) {
+      GtkAllocation allocation;
+      gtk_widget_get_allocation(peaks_vbox, &allocation);
+      std::cout << "DEBUG:: peaks vbox allocation "
+                << allocation.width << " " << allocation.height << std::endl;
+   }
 
    char *n_sigma_cs = new char[20];
    std::string ns = std::to_string(n_sigma);

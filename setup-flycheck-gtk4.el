@@ -26,6 +26,7 @@
    "/home/paule/autobuild/Linux-penelope-gtk4-jul-2023-gtk4/include/boost"
    "/home/paule/autobuild/Linux-penelope-gtk4-jul-2023-gtk4/include/python3.11"
    "/home/paule/autobuild/Linux-penelope-gtk4-jul-2023-gtk4/include/MoleculesToTriangles"
+   "/home/paule/autobuild/Linux-penelope-debian-gtk4/include/gsl"
    "/home/paule/python3/include/python3.8"
    "/home/paule/glm/include"
    "/home/paule/ogg-vorbis/include"

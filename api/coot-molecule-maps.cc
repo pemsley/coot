@@ -1300,7 +1300,7 @@ coot::molecule_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
                                                         mmr.second, chain_id,
                                                         mmr.first,
                                                         mmr.second, chain_id,
-                                                        COOT_LSQ_MAIN);
+                                                        lsq_t::MAIN);
                      matches.push_back(match);
                      mmdb::Manager *mol_1 = mol;
                      mmdb::Manager *mol_2 = atom_sel.mol;

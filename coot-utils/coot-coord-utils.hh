@@ -43,7 +43,7 @@
 #include <clipper/core/coords.h>
 
 #include "mini-mol/atom-quads.hh"
-#include "coot-lsq-types.h"
+#include "coot-lsq-types.hh"
 
 // How should I do this better?
 #define CXX_UNSET_CHARGE -99.8
@@ -136,7 +136,7 @@ namespace coot {
       int from_matcher_end_resno; // is this used? // for validation?
       std::string reference_chain_id;
       std::string matcher_chain_id;
-      int match_type_flag; // CA/Main/All
+      int match_type_flag; // CA/Main/All/{N,CA,C}
       bool is_single_atom_match;
       std::string reference_atom_name;
       std::string reference_alt_conf;
@@ -188,7 +188,7 @@ namespace coot {
          matcher_alt_conf(matcher_alt_conf_in)
       {
 	 is_single_atom_match = 1;
-	 match_type_flag = COOT_LSQ_ALL;
+	 match_type_flag = lsq_t::ALL; // COOT_LSQ_ALL;
 	 to_reference_start_resno = reference_resno_in;
 	 to_reference_end_resno   = reference_resno_in;
 	 from_matcher_start_resno = matcher_resno_in;

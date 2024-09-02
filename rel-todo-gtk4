@@ -1,45 +1,42 @@
 
 ----
 
-read in many pdb file (ligand res-tracer results)
-   Now click on "Last Only" - it doesn't unclick the checkbuttons.
-   (Note that the "All" button does)
+Key-binding to hide/show right-hand panel.
+      GtkWidget *status_bar = widget_from_builder("main_window_statusbar");
+      GtkWidget *tool_bar   = widget_from_builder("main_window_toolbar_hbox_outer");
+      GtkWidget *sidebar    = widget_from_builder("main_window_vbox_inner");
 
-symm-shift-reference-chain-here doesn't work for tutorial modern
+Add "Rotate View is on Left/Right mouse" mode in Preferences
+
+Add coot-ligand-validation to chapi.
+
+rainbow ribbons are wrong - even for tutorial modern.
+ * related to NRStuff change. Take a look at the code and patch.
+
+does --code work? - is it a XDG Protocol problem?
+
+quick-save needs some visual feedback. Make an overlay that is displayed for a few seconds.
 
 SVG for pli
 
 make an figure, for moorhen intro with blobs that have volume proportional
    to the number of lines of code: rdkit, mmdb, ccp4libs, gemmi, M2T,
-   libcootapi - M2T, coot - libcootapi - M2T, moorhen and moorhen-npm-dependencies
-
-configure should not use --with-enhanced-ligand-tools
+   libcootapi - M2T, coot - libcootapi - M2T, moorhen JS and TypeScript code
 
 Chapi torsion angle restraints for servalcat
-
-Get rid of #ifdef WINDOWS_MINGW in map_fill_from_mtz() in coot-utils
-   use std::filesystem?
+Make torsion restraints for Rama and rota refinement for servalcat.
 
 Normal waters are no longer fat. Maybe was this fix:
    66a3d04dad117b3dab37a6a4996267294d65b504
 
-delete seq-view-interface.c/h
-* Done.
-
 B416 in 8c0p is drawn wrongly in Colour-by-chain mode
-
-get rid of trackball.c - there is a compilation warning - use glm instead.
-   Actually, I am not sure that I even use it now.
-
-Fix state file quick save as.
-* I couldn't reproduce the problem
-
-Add Place Helix here to moorhen api
 
 Rangana made findwaters crash by using a sigma of 4 in flood mode in cryo-EM map.
   Can you reproduce that?
 
 Expanding ligand thumbnail on window width increase
+
+Add Place Helix here to moorhen api
 
 Carbohydrate builder in moorhen & coot
 
@@ -47,15 +44,9 @@ Randy & Team's MR placement tool interface
 
 Fix output of coot-ligand-validation with no comand line args
 
-PDBe tools
+PDBe tools - Lucrezia
 
 Tomo Particle picker
-
-Add sequence assigment (e.g. the helix hormone 7vvl).
-* Done.
-
-SYMINFO problems in CCP4 build of coot? (No symmetry shown)
-* Done.
 
 Fix stretched ligand on resizing window width
 * Had a bash - the lines no longer expand, but the letters don't match.
@@ -74,6 +65,47 @@ and a key-binding if nothing else.
 
 Fun project: mrcfile importer.
 
+Look at 4yjr - beautiful map 452-626 interaction - it should not have a clash face
+   (distance to hydrogen atom).
+* Checked - it does not if both residues are refined. That will do.
+
+difference map peaks panel is a bit too thin when it first appears.
+* Done.
+
+symm-shift-reference-chain-here doesn't work for tutorial modern
+* Done. Rewrote the symmetry atom search.
+
+read in many pdb file (ligand res-tracer results)
+   Now click on "Last Only" - it doesn't unclick the checkbuttons.
+   (Note that the "All" button does)
+* Done.
+
+configure should not use --with-enhanced-ligand-tools
+* Done.
+
+Get rid of #ifdef WINDOWS_MINGW in map_fill_from_mtz() in coot-utils
+   use std::filesystem?
+* Done.
+
+delete seq-view-interface.c/h
+* Done.
+
+get rid of trackball.c - there is a compilation warning - use glm instead.
+   Actually, I am not sure that I even use it now.
+* Done.
+
+Fix state file quick save as.
+* I couldn't reproduce the problem
+
+rename coot-lsq-types.h
+* Done.
+
+Add sequence assigment (e.g. the helix hormone 7vvl).
+* Done.
+
+SYMINFO problems in CCP4 build of coot? (No symmetry shown)
+* Done.
+
 When I use Shift-W to change the contouring map, then the Scroll button should change in the Display Manager also.
 * Done.
 
@@ -86,24 +118,15 @@ Colour-by-molecule shows big balls
 Add read_coordinates() to the read-molecule.hh api.
 * Done.
 
+Draw Hydrogen Atoms checkbutton in Bond Parameters widget is broken - try running run-servalcat-32143.py
+* Done.
+
 Make torsion restraints for Rama and rota refinement for servalcat.
 
 Test that the bonds and atoms are being added just once for the bond generations - when trying to fix the
 colour-by-molecule bonds, it seemed that there were multiple adds. Hmm.
 
-Draw Hydrogen Atoms checkbutton in Bond Parameters widget is broken - try running run-servalcat-32143.py
-* Done.
-
 check that ccp4 coot can load the metal distances table.
-
-Key-binding to hide/show right-hand panel.
-      GtkWidget *status_bar = widget_from_builder("main_window_statusbar");
-      GtkWidget *tool_bar   = widget_from_builder("main_window_toolbar_hbox_outer");
-      GtkWidget *sidebar    = widget_from_builder("main_window_vbox_inner");
-
-Add "Rotate View is on Left/Right mouse" mode in Preferences
-
-Add coot-ligand-validation to chapi.
 
 Coot: Residue Info dialog needs a cleanup. graphics_info_t::output_residue_info_dialog()
 

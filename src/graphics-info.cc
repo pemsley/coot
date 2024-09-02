@@ -76,7 +76,6 @@
 #include "skeleton/BuildCas.h"
 
 #include "gl-matrix.h" // for baton rotation
-#include "trackball.h" // for baton rotation
 
 #include "analysis/bfkurt.hh"
 
@@ -6659,6 +6658,7 @@ graphics_info_t::quick_save() {
 
    xdg_t xdg;
    std::filesystem::path path;
+
 #ifdef USE_GUILE
    il = coot::SCHEME_SCRIPT;
    path = xdg.get_state_home().append(save_state_file_name);
@@ -6673,6 +6673,17 @@ graphics_info_t::quick_save() {
 
    add_status_bar_text("Quick Saved");
 
+   GtkWidget *w = widget_from_builder("session_saved_label");
+
+   if (w) {
+      gtk_widget_set_visible(w, TRUE);
+
+      auto label_callback = +[] (gpointer user_data) {
+         GtkWidget *w = GTK_WIDGET(user_data);
+         gtk_widget_set_visible(w, FALSE);
+      };
+      g_timeout_add(2000, G_SOURCE_FUNC(label_callback), w);
+   }
 }
 
 

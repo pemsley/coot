@@ -135,7 +135,7 @@ main(int argc, char **argv) {
 		<< "           frac is the minimum fraction of atoms in density allowed after fit [default 0.75]\n"
 		<< "           script-file-name is a file name of helper script suitable for use in Coot\n"
 		<< "               (default: coot-ligands.scm)."
-                << "           just-conformers means just generate and write out the conforms - no density search\n"
+                << "           just-conformers means just generate and write out the conformers - no density search\n"
 		<< std::endl;
 
    } else { 

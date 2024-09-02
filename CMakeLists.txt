@@ -166,6 +166,7 @@ add_library(cootapi SHARED
             ${coot_src}/api/coot-colour.cc
             ${coot_src}/api/coot-molecule.cc
             ${coot_src}/api/coot-molecule-backup.cc
+            ${coot_src}/api/coot-molecule-blender.cc
             ${coot_src}/api/coot-molecule-bonds.cc
             ${coot_src}/api/coot-molecule-bonds-instanced.cc
             ${coot_src}/api/coot-molecule-maps.cc
@@ -173,9 +174,9 @@ add_library(cootapi SHARED
             ${coot_src}/api/coot-molecule-moltris.cc
             ${coot_src}/api/coot-molecule-validation.cc
             ${coot_src}/api/coot-molecule-merge-molecules.cc
+            ${coot_src}/api/coot-molecule-modelling.cc
             ${coot_src}/api/coot-molecule-refine.cc
             ${coot_src}/api/coot-molecule-replace-fragment.cc
-            ${coot_src}/api/coot-molecule-blender.cc
             ${coot_src}/api/molecules-container-blender.cc
             ${coot_src}/api/molecules-container.cc
             ${coot_src}/api/molecules-container-gltf.cc

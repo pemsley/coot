@@ -158,7 +158,7 @@ graphics_info_t::on_glarea_drag_update_secondary(GtkGestureDrag *gesture,
                                                  GtkWidget *gl_area) {
 
    if (false)
-      std::cout << "on_glarea_drag_update_secondary() " << std::endl;
+      std::cout << "graphics_info_t::on_glarea_drag_update_secondary() " << std::endl;
 
    auto do_view_zoom = [] (double drag_delta_x, double drag_delta_y) {
       mouse_zoom(drag_delta_x, drag_delta_y);
@@ -281,8 +281,9 @@ graphics_info_t::on_glarea_drag_begin_middle(GtkGestureDrag *gesture, double x, 
    // note to self middle mouse pick happens on button press, but the
    // recentre happens on button release
 
-   std::cout << "in on_glarea_drag_begin_middle() set previous position and drag_begin to "
-             << x << " " << y << std::endl;
+   if (false)
+      std::cout << "in on_glarea_drag_begin_middle() set previous position and drag_begin to "
+                << x << " " << y << std::endl;
 
 }
 
@@ -312,6 +313,7 @@ graphics_info_t::on_glarea_drag_end_middle(GtkGestureDrag *gesture, double drag_
             add_picked_atom_info_to_status_bar(nearest_atom_index_info.imol,
                                                nearest_atom_index_info.atom_index);
          } else {
+            // std::cout << "debug:: on_glarea_drag_end_middle() calling symmetry_atom_pick()" << std::endl;
             coot::Symm_Atom_Pick_Info_t sap = symmetry_atom_pick();
             if (sap.success == GL_TRUE) {
                if (is_valid_model_molecule(sap.imol)) {
@@ -471,14 +473,15 @@ graphics_info_t::on_glarea_click(GtkGestureClick *controller,
                if (naii.success) {
                   mmdb::Atom *at = moving_atoms_asc->atom_selection[naii.atom_index];
                   moving_atoms_currently_dragged_atom_index = naii.atom_index;
-                  std::cout << "debug:: in on_glarea_click() picked an intermediate atom " << coot::atom_spec_t(at) << std::endl;
+                  // std::cout << "debug:: in on_glarea_click() picked an intermediate atom " << coot::atom_spec_t(at) << std::endl;
                }
             }
 
             if (! handled) {
 
                // does this ever run?
-               // std::cout << "Symmetry atom pick here B - does this run? When? " << std::endl;
+
+               std::cout << "debug:: click handler: Symmetry atom pick here B - does this run? When? " << std::endl;
                coot::Symm_Atom_Pick_Info_t sap = symmetry_atom_pick();
             }
          }

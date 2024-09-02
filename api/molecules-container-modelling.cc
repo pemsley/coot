@@ -671,3 +671,21 @@ molecules_container_t::get_dictionary_conformers(const std::string &comp_id, int
    }
    return mol_indices;
 }
+
+//! replace a residue
+//!
+//! Change the type of a residue (for example, "TYR" to "PTY").
+//! The algorithm will superpose the mainchain CA, C and N and try to set matching torsion
+//! to the angle that they were in the reference structure.
+void
+molecules_container_t::replace_residue(int imol, const std::string &residue_cid,
+                                       const std::string &new_residue_type, int imol_enc) {
+
+   int status = 0;
+   if (is_valid_model_molecule(imol)) {
+      status = molecules[imol].replace_residue(residue_cid, new_residue_type, imol_enc, geom);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   // return status
+}

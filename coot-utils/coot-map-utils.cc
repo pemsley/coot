@@ -25,6 +25,7 @@
 #include <fstream>
 #include <thread>
 #include <iomanip>
+#include <filesystem>
 
 #include <gsl/gsl_sf_bessel.h>
 
@@ -69,77 +70,38 @@ coot::util::map_fill_from_mtz(clipper::Xmap<float> *xmap,
 
    // sampling_rate is optional arg with default value 1.5
 
-   auto make_import_datanames = [] (const std::string &f_col_in,
-                                                      const std::string &phi_col_in,
-                                                      const std::string &weight_col_in,
-                                                      int use_weights) {
+   auto path_to_file = [] (const std::string &p_col_in) {
 
-      // Return a pair.
-      //
-      // If first string of length 0 on error to construct dataname(s).
-      //
-      //       std::pair<std::string, std::string>
-      //
-      // If use_weights return 2 strings, else set something useful only for pair.first
+			 std::filesystem::path p(p_col_in);
+			 std::filesystem::path p_col_path = p.filename();
+			 std::string p_col = p_col_path.string();
+			 return p_col;
+		       };
 
-      std::string f_col = f_col_in;
-      std::string phi_col = phi_col_in;
-      std::string weight_col = weight_col_in;
 
-#ifdef WINDOWS_MINGW
-      std::string::size_type islash_f   = coot::util::intelligent_debackslash(  f_col).find_last_of("/");
-      std::string::size_type islash_phi = coot::util::intelligent_debackslash(phi_col).find_last_of("/");
-#else
-      std::string::size_type islash_f   =      f_col.find_last_of("/");
-      std::string::size_type islash_phi =    phi_col.find_last_of("/");
-#endif // MINGW
+   // I am not sure that stripping the dataset info is a good thing.
+   //
+   auto make_import_datanames = [path_to_file] (const std::string &f_col_in,
+						const std::string &phi_col_in,
+						const std::string &weight_col_in,
+						bool use_weights) {
 
-      short int label_error = 0;
+				  std::pair<std::string, std::string> p("", ""); // return this
 
-      if (islash_f != std::string::npos) {
-         // f_col is of form e.g. xxx/yyy/FWT
-         if (f_col.length() > islash_f)
-            f_col = f_col.substr(islash_f+1);
-         else
-            label_error = 1;
-      }
+				  std::string      f_col = path_to_file(f_col_in);
+				  std::string    phi_col = path_to_file(phi_col_in);
+				  std::string weight_col = path_to_file(weight_col_in);
 
-      if (islash_phi != std::string::npos) {
-         // phi_col is of form e.g. xxx/yyy/PHWT
-         if (phi_col.length() > islash_phi)
-            phi_col = phi_col.substr(islash_phi+1);
-         else
-            label_error = 1;
-      }
-
-      if (use_weights) {
-#ifdef WINDOWS_MINGW
-         std::string::size_type islash_fom = coot::util::intelligent_debackslash(weight_col).find_last_of("/");
-#else
-         std::string::size_type islash_fom = weight_col.find_last_of("/");
-#endif
-         if (islash_fom != std::string::npos) {
-            // weight_col is of form e.g. xxx/yyy/WT
-            if (weight_col.length() > islash_fom)
-               weight_col = weight_col.substr(islash_fom+1);
-            else
-               label_error = 1;
-         }
-      }
-
-      std::pair<std::string, std::string> p("", "");
-
-      if (!label_error) {
-         std::string no_xtal_dataset_prefix= "/*/*/";
-         if (use_weights) {
-            p.first  = no_xtal_dataset_prefix + "[" +   f_col + " " +      f_col + "]";
-            p.second = no_xtal_dataset_prefix + "[" + phi_col + " " + weight_col + "]";
-         } else {
-            p.first  = no_xtal_dataset_prefix + "[" +   f_col + " " + phi_col + "]";
-         }
-      }
-      return p;
-   };
+				  std::string no_xtal_dataset_prefix= "/*/*/";
+				  if (use_weights) {
+				    p.first  = no_xtal_dataset_prefix + "[" +   f_col + " " +      f_col + "]";
+				    p.second = no_xtal_dataset_prefix + "[" + phi_col + " " + weight_col + "]";
+				  } else {
+				    p.first  = no_xtal_dataset_prefix + "[" +   f_col + " " + phi_col + "]";
+				  }
+				  return p;
+				};
+   
 
    if (!file_exists(mtz_file_name))
       return false;
@@ -171,7 +133,7 @@ coot::util::map_fill_from_mtz(clipper::Xmap<float> *xmap,
       dataname = datanames.second;
       mtzin.import_hkl_data( phi_fom_data, myset, myxtl, dataname );
       mtzin.close_read();
-      // std::cout << "We should use the weights: " << weight_col << std::endl;
+      std::cout << "in map_fill_from_mtz(): We should use the weights: " << weight_col << std::endl;
 
       fphidata.compute(f_sigf_data, phi_fom_data,
                        clipper::datatypes::Compute_fphi_from_fsigf_phifom<float>());
@@ -4211,6 +4173,87 @@ coot::util::map_molecule_recentre_from_position(const clipper::Xmap<float> &xmap
    }
 
    return mmci;
+}
+
+clipper::Xmap<float>
+coot::util::power_scale(const clipper::Xmap<float> &xmap_1, const clipper::Xmap<float> &xmap_2) {
+
+   float mg = coot::util::max_gridding(xmap_1); // A/grid
+   clipper::Resolution reso(2.0 * mg); // Angstroms
+   std::cout << "# making data info 1" << std::endl;
+   clipper::HKL_info hkl_info_1(xmap_1.spacegroup(), xmap_1.cell(), reso, true);
+   std::cout << "# making data info 2" << std::endl;
+   clipper::HKL_info hkl_info_2(xmap_2.spacegroup(), xmap_2.cell(), reso, true);
+   clipper::HKL_data< clipper::datatypes::F_phi<float> > fphis_1(hkl_info_1);
+   clipper::HKL_data< clipper::datatypes::F_phi<float> > fphis_2(hkl_info_2);
+   std::cout << "# starting Fouriers" << std::endl;
+   xmap_1.fft_to(fphis_1);
+   std::cout << "# done map-1" << std::endl;
+   xmap_2.fft_to(fphis_2);
+   std::cout << "# done map-2" << std::endl;
+   std::map<unsigned int, double> fref2_sums;
+   std::map<unsigned int, double> fother2_sums;
+   std::map<unsigned int, unsigned int> f2_counts;
+   clipper::HKL_info::HKL_reference_index hri;
+   for (hri = fphis_1.first(); !hri.last(); hri.next()) {
+      float fr = fphis_1[hri].f();
+      if (! clipper::Util::is_nan(fr)) {
+         int h = hri.hkl().h();
+         int k = hri.hkl().k();
+         int l = hri.hkl().l();
+         double rr = std::sqrt(h * h + k * k + l * l);
+         unsigned int bin_index = static_cast<int>(rr);
+         std::map<unsigned int, double>::const_iterator it = fref2_sums.find(bin_index);
+         if (it == fref2_sums.end()) {
+            fref2_sums[bin_index]   = fr * fr;
+         } else {
+            fref2_sums[bin_index]   += fr * fr;
+         }
+      }
+   }
+   for (hri = fphis_2.first(); !hri.last(); hri.next()) {
+      float fo = fphis_2[hri].f();
+      if (! clipper::Util::is_nan(fo)) {
+         int h = hri.hkl().h();
+         int k = hri.hkl().k();
+         int l = hri.hkl().l();
+         double rr = std::sqrt(h * h + k * k + l * l);
+         unsigned int bin_index = static_cast<int>(rr);
+         std::map<unsigned int, double>::const_iterator it = fother2_sums.find(bin_index);
+         if (it == fother2_sums.end()) {
+            fother2_sums[bin_index] = fo * fo;
+            f2_counts[bin_index] = 1;
+         } else {
+            fother2_sums[bin_index] += fo * fo;
+            f2_counts[bin_index] += 1;
+         }
+      }
+   }
+   for (hri = fphis_2.first(); !hri.last(); hri.next()) {
+      float fo = fphis_2[hri].f();
+      if (! clipper::Util::is_nan(fo)) {
+         int h = hri.hkl().h();
+         int k = hri.hkl().k();
+         int l = hri.hkl().l();
+         double rr = std::sqrt(h * h + k * k + l * l);
+         unsigned int bin_index = static_cast<int>(rr);
+         double sf = fref2_sums[bin_index] / fother2_sums[bin_index];
+         fphis_2[hri].f() *= sf;
+      }
+   }
+
+   std::map<unsigned int, double>::const_iterator it;
+   for (it=fref2_sums.begin(); it!=fref2_sums.end(); ++it) {
+      const auto &key(it->first);
+      const auto &fref2_sum = it->second;
+      const auto &fother = fother2_sums[key];
+      float scale = fref2_sum / fother;
+      std::cout << "compare-sums: " << key << "  " << fref2_sum << " " << fother << " scale " << scale << std::endl;
+   }
+
+   clipper::Xmap<float> xmap_scaled = xmap_2;
+   xmap_scaled.fft_from(fphis_2);
+   return xmap_scaled;
 }
 
 

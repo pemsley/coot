@@ -5842,6 +5842,19 @@ int test_dictionary_conformers(molecules_container_t &mc) {
    return status;
 }
 
+int test_ligand_distortion(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+   int imol = mc.get_monomer("ATP");
+
+   mc.get_ligand_validation_vs_dictionary(imol, "//A/1", true);
+
+   // needs more work
+
+   return status;
+}
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -6148,7 +6161,9 @@ int main(int argc, char **argv) {
          // status += run_test(test_assign_sequence, "Assign Sequence", mc);
          // status += run_test(test_undo_and_redo_2, "Undo and redo 2", mc);
          // status += run_test(test_gltf_export_via_api,   "glTF via api", mc);
+         // status += run_test(test_import_ligands_with_same_name_and_animated_refinement, "Test import ligands with same name and animated refinement", mc);
          status += run_test(test_dictionary_conformers,   "Dictionary Conformers", mc);
+         // status += run_test(test_ligand_distortion,   "Ligand Distortion", mc);
 
          if (status == n_tests) all_tests_status = 0;
 

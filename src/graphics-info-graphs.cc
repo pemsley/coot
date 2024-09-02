@@ -66,10 +66,6 @@
 
 
 #include "gl-matrix.h" // for baton rotation
-#include "trackball.h" // for baton rotation
-
-// #include "rottrans-buttons.hh"  old and deletable.
-
 #include "analysis/bfkurt.hh"
 
 #include "globjects.h"

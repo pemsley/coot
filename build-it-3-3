@@ -1246,7 +1246,9 @@ case $dist_name in
 
     debian)
       # python is needed to configure ninja. Sigh. flex and bison are needed for gobject-introspection
-      dep_list='libncurses5-dev libssl-dev g++ git libxext-dev libglu1-mesa-dev mesa-common-dev python flex bison m4 cmake'
+      # libbz2-dev is for building python so that torchvision can be installed.
+      # libsqlite3-dev is needed for ipython (so that Python is compiled "correctly")
+      dep_list='wget pkg-config libgtk-4-dev build-essential libdw-dev libvorbis-dev libncurses5-dev libssl-dev g++ git libxext-dev libglu1-mesa-dev mesa-common-dev flex bison m4 cmake autoconf gfortran rsync libbz2-dev'
       # converted from dep_list='libncurses5-dev g++ libxext-dev libglu1-mesa-dev mesa-common-dev libgtk2.0-dev'
       # not tested
 
@@ -3556,7 +3558,7 @@ if [ true = true ] ; then
 fi
 
 # this is a hack for charybdis   - we need cmake version 3.1 or later
-export PATH=$HOME/cmake/bin:$PATH
+# export PATH=$HOME/cmake/bin:$PATH
 
 ############################### eigen ##########################################
 
@@ -3588,22 +3590,25 @@ if [ -e $install_top_dir/include/catch2/catch_config.hpp ] ; then
     echo Catch2 is installed >&2
 else
    catch2_version=3.5.2
-   echo BUILDING catch2 catch2_version
+   echo BUILDING catch2 $catch2_version
    ${WGET} https://github.com/catchorg/Catch2/archive/refs/tags/v$catch2_version.tar.gz
    (
-   tar xf $AUTOBUILD_SOURCES/v$catch2_version.tar.gz
-   cd Catch2-$catch2_version
-   # meson setup -Dcpp_std=c++17 -Dprefix=$install_top_dir build
-   # cd build
-   # ninja
-   # ninja install
-   # cd ..
-   mkdir build
-   cd build
-   cmake -DCMAKE_INSTALL_PREFIX=$install_top_dir ..
-   $MAKE && make install
-   cd ..
-   cd ..
+       unset LD_LIBRARY_PATH
+       tar xf $AUTOBUILD_SOURCES/v$catch2_version.tar.gz
+       echo cd Catch2-$catch2_version
+       cd Catch2-$catch2_version
+       # meson setup -Dcpp_std=c++17 -Dprefix=$install_top_dir build
+       # cd build
+       # ninja
+       # ninja install
+       # cd ..
+       mkdir build
+       cd build
+       cmake -DCMAKE_INSTALL_PREFIX=$install_top_dir ..
+       echo $MAKE && make install
+       $MAKE && make install
+       cd ..
+       cd ..
    ) > $HOSTLOGDIR/25-catch2.txt 2>&1
 fi
 
@@ -3821,7 +3826,11 @@ if [ "$build_rdkit" = true ] ; then
          python_arch=darwin
       fi
 
-      export LDFLAGS="-L$install_top_dir/lib -lintl"
+      if test "$dist_name" = debian ; then
+	  echo don.t mess with LDFLAGS here on debian
+      else
+	  export LDFLAGS="-L$install_top_dir/lib -lintl"
+      fi
 
       # echo will configure with cmake like this:
       # DBoost_PYTHON39_LIBRARY_RELEASE needs to be extracted?
@@ -3897,14 +3906,6 @@ if [ "$build_rdkit" = true ] ; then
    fi
 fi
 
-
-if [ -e $install_top_dir/lib/$python_version/site-packages/requests ] ; then
-    echo python requests is installed
-    echo python requests is installed >&2
-else
-    echo installing python requests >&2
-    python3 -m pip install requests
-fi
 
 ###############################################################################
 # exit here for the chapi-dependencies build
@@ -4346,32 +4347,32 @@ if [ "$build_gc" = true ] ; then
       gc_version_dir=7.6.12 # I guess not.
       gc_version=8.2.4
       gc_version_dir=8.2.4
-      echo BUILDING: gc
+      echo BUILDING: gc $gc_version
       echo BUILDING: gc $gc_version >&2
       (
       echo ========================= build gc =================================
       unset LD_LIBRARY_PATH
       echo PKG_CONFIG_PATH is $PKG_CONFIG_PATH
       if [ -e $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz ] ; then
-         echo Here A
+         echo Here build-gc A
          echo found gc source file $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz
-         echo Here B
+         echo Here build-gc B
          tar xf $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz
-         echo tar xf $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz
       else
          echo no file $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz
          echo ${WGET} http://www.hboehm.info/gc/gc_source/gc-$gc_version.tar.gz
          ${WGET} http://www.hboehm.info/gc/gc_source/gc-$gc_version.tar.gz
          # this file is double-gzipped!
-         mv $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz.gz
-         gunzip $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz.gz
+         # 2024-08-23 no more. It's been fixed
+         # mv $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz.gz
+         # gunzip $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz.gz
          if [ -e $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz ] ; then
             tar xf $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz
          else
             echo download failed for http://www.hboehm.info/gc/gc_source/gc-$gc_version.tar.gz
          fi
       fi
-      echo Here C
+      echo Here build-gc C
       cd gc-$gc_version_dir
       pwd
       echo ./configure --prefix=$install_top_dir

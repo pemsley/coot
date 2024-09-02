@@ -1045,14 +1045,18 @@ coot::restraints_container_t::make_monomer_restraints_by_residue(int imol, mmdb:
 
    if (false)
       std::cout << "--------------- make_monomer_restraints_by_residue() called "
-                << residue_spec_t(residue_p) << " with " << residue_p->GetNumberOfAtoms() << " atoms "
+                << residue_spec_t(residue_p) << " with " << residue_p->GetNumberOfAtoms() << " atoms"
                 <<  " and using type :" << pdb_resname << ": and imol "
                 << imol << " do_residue_internal_torsions: "
                 << do_residue_internal_torsions << std::endl;
 
    // idr: index dictionary residue
    int idr = geom.get_monomer_restraints_index(pdb_resname, imol, false);
-   if (idr >= 0) {
+   if (idr == -1) {
+
+      std::cout << "ERROR:: failed to get restraints index for monomer " << pdb_resname << std::endl;
+
+   } else {
 
       // if (geom[idr].comp_id == pdb_resname) {
       // old style comp_id usage

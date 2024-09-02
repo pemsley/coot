@@ -54,6 +54,17 @@ molecules_container_t::~molecules_container_t() {
    standard_residues_asc.clear_up();
 }
 
+//! get imol_enc_any
+//!
+//! @return the value of imol_enc_any (meaning "the molecule number for dictionary that
+// can be used with any molecule")
+int
+molecules_container_t::get_imol_enc_any() const {
+
+   return coot::protein_geometry::IMOL_ENC_ANY;
+}
+
+
 bool
 molecules_container_t::is_valid_model_molecule(int imol) const {
    bool status = false;
@@ -1182,7 +1193,8 @@ molecules_container_t::read_ccp4_map(const std::string &file_name, bool is_a_dif
 
    if (coot::util::is_basic_em_map_file(file_name)) {
 
-      std::cout << ":::::: read_ccp4_map() returns true for is_basic_em_map_file() " << std::endl;
+      std::cout << "DEBUG:: mc::read_ccp4_map() returns true for is_basic_em_map_file() "
+                << file_name << std::endl;
 
       // fill xmap
       bool check_only = false;
@@ -4873,7 +4885,7 @@ molecules_container_t::init_refinement_of_molecule_as_fragment_based_on_referenc
             const clipper::Xmap<float> &xmap = molecules[imol_map].xmap;
             std::cout << "debug:: in init_refinement_of_molecule_as_fragment_based_on_reference() "
                       << " cell " << xmap.cell().descr().format() << std::endl;
-            molecules[imol_frag].init_all_molecule_refinement(mol_ref, geom, xmap, map_weight, &static_thread_pool);
+            molecules[imol_frag].init_all_molecule_refinement(imol_ref, geom, xmap, map_weight, &static_thread_pool);
          } else {
             std::cout << "WARNING:: in init_refinement_of_molecule_as_fragment_based_on_reference()"
                       << " not a valid map" << std::endl;
@@ -4970,6 +4982,8 @@ molecules_container_t::refine(int imol, int n_cycles) {
    coot::instanced_mesh_t im;
    int status = 0;
    if (is_valid_model_molecule(imol)) {
+
+      std::cout << "debug:: in mc::refine() calling refine_using_last_restraints() using imol " << imol << std::endl;
       status = molecules[imol].refine_using_last_restraints(n_cycles);
       std::string mode = "COLOUR-BY-CHAIN-AND-DICTIONARY";
       bool draw_hydrogen_atoms_flag = true; // use data member as we do for draw_missing_residue_loops_flag?
@@ -5040,6 +5054,21 @@ molecules_container_t::get_mesh_for_ligand_validation_vs_dictionary(int imol, co
    }
    return m;
 
+}
+
+//! ligand validation - basically we do the same as the above function, but the
+//! return type is validation data, not a mesh
+//!
+//! @return a vector of `geometry_distortion_info_container_t`
+void
+molecules_container_t::get_ligand_validation_vs_dictionary(int imol, const std::string &ligand_cid,
+                                                           bool with_nbcs) {
+
+   if (is_valid_model_molecule(imol)) {
+      molecules[imol].geometric_distortions_from_mol(ligand_cid, with_nbcs, geom, static_thread_pool);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
 }
 
 
@@ -5669,7 +5698,15 @@ molecules_container_t::print_secondary_structure_info(int imol) const {
 bool
 molecules_container_t::copy_dictionary(const std::string &monomer_name, int imol_current, int imol_new) {
 
+   std::cout << "--------------------------   debug:: calling copy_monomer_restraints() "
+             << monomer_name << " " << imol_current << " " << imol_new << std::endl;
    bool status = geom.copy_monomer_restraints(monomer_name, imol_current, imol_new);
+
+   std::pair<bool, coot::dictionary_residue_restraints_t> r =
+      geom.get_monomer_restraints(monomer_name, imol_new);
+
+   std::cout << "-------------- r " << r.first << std::endl;
+   
    return status;
 
 }

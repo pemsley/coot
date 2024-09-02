@@ -188,7 +188,7 @@ graphics_info_t::tomo_pick(double x, double y, gint n_press, bool shift_is_press
 
    bool state = true; // unless we miss the box (currently not tested)
 
-   if (shift_is_pressed) {
+   if (shift_is_pressed) { // remove the previous pick
 
       std::string object_name =  "TomoPick " + std::to_string(tomo_view_info.section_index);
       int object_number = generic_object_index(object_name);

@@ -29,6 +29,7 @@
 #include <string>
 #include <deque>
 #include <thread>
+#include <filesystem>
 
 #include "compat/coot-sysdep.h"
 #include "utils/split-indices.hh"
@@ -537,13 +538,13 @@ make_spin_scored_pairs(const std::vector<std::pair<unsigned int, unsigned int> >
    std::vector<std::thread> threads;
    for (unsigned int i=0; i<air.size(); i++) {
       const auto &range = air[i];
-      std::cout << "thread " << i << " has range " << range.first << " " << range.second << std::endl;
+      // std::cout << "thread " << i << " has range " << range.first << " " << range.second << std::endl;
       threads.push_back(std::thread(spin_score_workpackage, range, std::cref(atom_pairs_within_distance), atom_selection,
                                     std::cref(xmap), map_rmsd, std::ref(scores)));
    }
    for (unsigned int i=0; i<air.size(); i++) {
       threads[i].join();
-      std::cout << "i " << i << std::endl;
+      // std::cout << "spin score thread join i " << i << std::endl;
    }
 #endif
 
@@ -4437,5 +4438,262 @@ void res_tracer_proc(const clipper::Xmap<float> &xmap, float xmap_rmsd, const co
       std::cout << "--- done proc() ---" << std::endl;
    }
    watch_res_tracer_data_p->finished = true;
+
+}
+
+#include "coot-utils/coot-map-utils.hh"
+
+void res_tracer_learn(const clipper::Xmap<float> &xmap, float weight, float xmap_rmsd, float rmsd_cut_off_for_flood,
+                      const coot::fasta_multi &fam, double variation,
+                      unsigned int n_top_spin_pairs, float flood_atom_mask_radius,
+                      mmdb::Manager *reference_mol) {
+
+   auto is_close_to_protein_CA_atom = [] (mmdb::Atom *at, mmdb::Atom **reference_mol_atoms, int reference_mol_n_atoms) {
+
+      bool status = false;
+      int atom_index = -1;
+      float dist_crit = 0.4; // crucial number, perhaps?
+      for (int i=0; i<reference_mol_n_atoms; i++) {
+         mmdb::Atom *ref_mol_at = reference_mol_atoms[i];
+         if (! ref_mol_at->isTer()) {
+            float dx = ref_mol_at->x - at->x;
+            if (fabsf(dx) < dist_crit) {
+               float dy = ref_mol_at->y - at->y;
+               if (fabsf(dy) < dist_crit) {
+                  float dz = ref_mol_at->z - at->z;
+                  if (fabsf(dz) < dist_crit) {
+                     float dd = dx * dx + dy * dy + dz * dz;
+                     float d = sqrtf(dd);
+                     if (d < dist_crit) {
+                        std::string atom_name(ref_mol_at->GetAtomName());
+                        if (atom_name == " CA ") {  // PDBv3 FIXME
+                           status = true;
+                           atom_index = i;
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      }
+      return std::make_pair(status, atom_index);
+   };
+
+   auto mark_close_reference_atoms = [is_close_to_protein_CA_atom] (mmdb::Manager *flood_mol, int uddHnd,
+                                                                    mmdb::Atom **reference_mol_atoms, int reference_mol_n_atoms) {
+
+      for(int imod = 1; imod<=flood_mol->GetNumberOfModels(); imod++) {
+         mmdb::Model *model_p = flood_mol->GetModel(imod);
+         if (model_p) {
+            int n_chains = model_p->GetNumberOfChains();
+            for (int ichain=0; ichain<n_chains; ichain++) {
+               mmdb::Chain *chain_p = model_p->GetChain(ichain);
+               int n_res = chain_p->GetNumberOfResidues();
+               for (int ires=0; ires<n_res; ires++) {
+                  mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                  if (residue_p) {
+                     int n_atoms = residue_p->GetNumberOfAtoms();
+                     for (int iat=0; iat<n_atoms; iat++) {
+                        mmdb::Atom *at = residue_p->GetAtom(iat);
+                        if (! at->isTer()) {
+
+                           auto close_results = is_close_to_protein_CA_atom(at, reference_mol_atoms, reference_mol_n_atoms);
+                           if (close_results.first) {
+                              int ref_atom_index = close_results.second;
+                              at->PutUDData(uddHnd, ref_atom_index);
+                              if (true) { // debugging
+                                 mmdb::Atom *ref_atom = reference_mol_atoms[ref_atom_index];
+                                 std::cout << "debug:: " << coot::atom_spec_t(at) << " is close to " << coot::atom_spec_t(ref_atom)
+                                           << " putting ref-atom-index " << ref_atom_index << std::endl;
+                              }
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      }
+   };
+
+   auto get_is_true_CA_CA = [] (const std::pair<unsigned int, unsigned int> &atom_pair,
+                                mmdb::Atom **flood_mol_atoms,
+                                mmdb::Atom **ref_mol_atoms,
+                                int uddHnd) {
+
+      bool is_true_CA_CA = false;
+
+      const int &idx_1 = atom_pair.first;
+      const int &idx_2 = atom_pair.second;
+      mmdb::Atom *at_1 = flood_mol_atoms[idx_1];
+      mmdb::Atom *at_2 = flood_mol_atoms[idx_2];
+      int iii = -1;
+      if (false) {
+         std::cout << "at_1: " << at_1 << std::endl;
+         std::cout << "at_1: " << coot::atom_spec_t(at_1) << std::endl;
+         std::cout << "at_2: " << at_2 << std::endl;
+         std::cout << "at_2: " << coot::atom_spec_t(at_2) << std::endl;
+      }
+      if (at_1->GetUDData(uddHnd, iii) == mmdb::UDDATA_Ok) {
+         // std::cout << "udd-1 atom with index " << idx_1 << " finds ref-atom index " << iii << std::endl;
+         int jjj = -1;
+         if (at_2->GetUDData(uddHnd, jjj) == mmdb::UDDATA_Ok) {
+            mmdb::Atom *ref_atom_1 = ref_mol_atoms[iii];
+            mmdb::Atom *ref_atom_2 = ref_mol_atoms[jjj];
+            int res_no_delta = ref_atom_2->GetSeqNum() - ref_atom_1->GetSeqNum();
+            if (abs(res_no_delta) == 1)
+               is_true_CA_CA = true;
+            if (false)
+               std::cout << "   udd-2 atom with index " << idx_2 << " finds ref-atom index " << jjj << " "
+                         << coot::atom_spec_t(ref_atom_1) << " " << coot::atom_spec_t(ref_atom_2) << " "
+                         << res_no_delta << " is_true_CA_CA: " << is_true_CA_CA << std::endl;
+
+         } else {
+            // std::cout << "   not OK 2 " << std::endl;
+         }
+      } else {
+         // std::cout << "not OK 1 " << std::endl;
+      }
+      return is_true_CA_CA;
+   };
+
+   auto mat_mult = [] (double s, const clipper::Mat33<double> &m) {
+      clipper::Mat33<double> mo(s * m(0,0), s * m(0,1), s * m(0,2),
+                                s * m(1,0), s * m(1,1), s * m(1,2),
+                                s * m(2,0), s * m(2,1), s * m(2,2));
+      return mo;
+   };
+
+   // this assumes that the target_direction is a unit vector
+   //
+   auto get_rotation_matrix = [mat_mult] (const clipper::Coord_orth &target_direction) {
+
+      clipper::Coord_orth reference_vector(0,0,1);
+      clipper::Coord_orth axis(clipper::Coord_orth::cross(reference_vector, target_direction));
+      clipper::Coord_orth axis_uv = clipper::Coord_orth(axis.unit());
+      double dp = clipper::Coord_orth::dot(reference_vector, target_direction);
+      clipper::Mat33<double> I(1,0,0,  0,1,0,  0,0,1);
+      if (dp >= 1.0) return I;
+      double theta = acos(dp);
+      double sin_theta = sin(theta);
+      double one_minus_cos_theta = 1.0 - dp;
+
+      // Rodrigues rotation formula
+      clipper::Mat33<double> K(         0.0, -axis_uv.z(),  axis_uv.y(),
+                               -axis_uv.z(),          0.0, -axis_uv.x(),
+                               -axis_uv.y(),  axis_uv.x(),        0.0);
+      clipper::Mat33<double> KK = K * K;
+      clipper::Mat33<double> R = I + mat_mult(sin_theta, K) + mat_mult(one_minus_cos_theta, KK);
+      return R;
+   };
+
+   auto tubify = [get_is_true_CA_CA, get_rotation_matrix]
+      (unsigned int pair_index, const std::pair<unsigned int, unsigned int> &atom_pair, const clipper::Xmap<float> &xmap,
+       mmdb::Atom **flood_mol_atoms, int flood_mol_n_atoms,
+       int uddHnd,
+       mmdb::Atom **ref_mol_atoms, int ref_mol_n_atoms,
+       float rad_max) { // crucial param
+
+      // rad_max = 1.1; // testing
+
+      bool is_true_CA_CA = get_is_true_CA_CA(atom_pair, flood_mol_atoms, ref_mol_atoms, uddHnd);
+      std::string fn = "tube-" + std::to_string(pair_index) + ".data";
+      std::filesystem::path data_dir("data");
+      std::ofstream f(data_dir / fn);
+      if (f) {
+         const int &idx_1 = atom_pair.first;
+         const int &idx_2 = atom_pair.second;
+         mmdb::Atom *at_1 = flood_mol_atoms[idx_1];
+         mmdb::Atom *at_2 = flood_mol_atoms[idx_2];
+         clipper::Coord_orth pt_1 = coot::co(at_1);
+         clipper::Coord_orth pt_2 = coot::co(at_2);
+         clipper::Coord_orth delta = pt_2 - pt_1;
+         clipper::Coord_orth u_dir = clipper::Coord_orth(delta.unit());
+         double height = std::sqrt(delta.lengthsq());
+         clipper::Coord_orth origin(0,0,0);
+         // more sampling along the middle of the tube
+         unsigned int n_height_samples =  7; // plus 1 for the end
+         unsigned int n_ring_samples   = 12;
+         unsigned int n_radius_samples =  5;
+
+         for (unsigned int i_height=0; i_height<=n_height_samples; i_height++) {
+            for (unsigned int i_ring=0; i_ring<n_ring_samples; i_ring++) {
+               for (unsigned int i_rad=0; i_rad<n_radius_samples; i_rad++) {
+                  if (i_rad == 0) continue; // maybe
+
+                  double rad_frac    = static_cast<double>(i_rad)    / static_cast<double>(n_radius_samples);
+                  double ring_frac   = static_cast<double>(i_ring)   / static_cast<double>(n_ring_samples);
+                  double height_frac = static_cast<double>(i_height) / static_cast<double>(n_height_samples);
+
+                  double theta = 2.0 * M_PI * ring_frac;
+                  double cos_theta = cos(theta);
+                  double sin_theta = sin(theta);
+                  double x = rad_frac * rad_max * cos_theta;
+                  double y = rad_frac * rad_max * sin_theta;
+                  double z = height_frac * height;
+                  clipper::Coord_orth pc(x,y,z);
+                  clipper::Mat33<double> rm = get_rotation_matrix(u_dir);
+                  clipper::Coord_orth rp(rm * pc);
+                  clipper::Coord_orth p = rp + pt_1;
+                  if (true) {
+                     if (is_true_CA_CA)
+                        std::cout << "tube " << i_height << " " << i_ring << " " << i_rad << " " << p.x() << " " << p.y() << " " << p.z()
+                                  << std::endl;
+                  }
+                  float rho = coot::util::density_at_point(xmap, p);
+                  f << rp.x() << " " << rp.y() << " " << rp.z() << " " << rho << "\n";
+               }
+            }
+         }
+         f.close();
+
+         // now results
+         std::string fn = "tube-" + std::to_string(pair_index) + ".txt";
+         std::filesystem::path results_dir("results");
+         std::ofstream f_results(results_dir / fn);
+         if (f_results) {
+            f_results << is_true_CA_CA << "\n";
+         } else {
+            std::cout << "Failed to open output file " << results_dir/fn << std::endl;
+         }
+         f_results.close();
+      } else {
+         std::cout << "Failed to open output file " << data_dir/fn << std::endl;
+      }
+   };
+
+   // not globularized
+   coot::minimol::molecule flood_mm = get_flood_molecule(xmap, rmsd_cut_off_for_flood, flood_atom_mask_radius);
+   mmdb::Manager *flood_mol = flood_mm.pcmmdbmanager();
+   bool is_em_map = coot::util::is_EM_map(xmap);
+
+   // we don't want to globularize if this is em cell (90,90,90)
+   if (! is_em_map) {
+      std::pair<bool, clipper::Coord_orth> hack_centre(true, clipper::Coord_orth(0, 20, 19));
+      globularize(flood_mol, xmap, hack_centre.second, hack_centre.first); // move around the atoms so they they are arranged in space in a sphere rather
+   }
+   flood_mol->WritePDBASCII("flood-mol-globularized.pdb");
+
+   int uddHnd = flood_mol->RegisterUDInteger(mmdb::UDR_ATOM, "ref-atom-index");
+
+   mmdb::Atom **reference_mol_atoms = 0;
+   int reference_mol_n_atoms = 0;
+   reference_mol->GetAtomTable(reference_mol_atoms, reference_mol_n_atoms);
+
+   mark_close_reference_atoms(flood_mol, uddHnd, reference_mol_atoms, reference_mol_n_atoms);
+
+   mmdb::Atom **flood_mol_atoms = 0;
+   int flood_mol_n_atoms = 0;
+   flood_mol->GetAtomTable(flood_mol_atoms, flood_mol_n_atoms);
+   std::vector<std::pair<unsigned int, unsigned int> > apwd =
+      atom_pairs_within_distance(flood_mol, flood_mol_atoms, flood_mol_n_atoms, 3.81, variation);
+
+   std::cout << "atoms pairs within distance size: " << apwd.size() << std::endl;
+
+   float rad_max = 3.0; // important param
+   for (unsigned int i=0; i<apwd.size(); i++) {
+      const auto &pair = apwd[i];
+      tubify(i, pair, xmap, flood_mol_atoms, flood_mol_n_atoms, uddHnd, reference_mol_atoms, reference_mol_n_atoms, rad_max);
+   }
 
 }

@@ -2806,6 +2806,7 @@ graphics_info_t::refine_residue_range(int imol,
 	    if (!simple_water) {
 	       // flash_selection(imol, resno_1, ins_code_1, resno_2, ins_code_2, altconf, chain_id_1);
 	       long t0 = 0; // glutGet(GLUT_ELAPSED_TIME);
+               if (resno_2 < resno_1) std::swap(resno_1, resno_2);
 	       rr = copy_mol_and_refine(imol, imol_map, resno_1, ins_code_1, resno_2, ins_code_2,
 					altconf, chain_id_1);
 	       short int istat = rr.found_restraints_flag;

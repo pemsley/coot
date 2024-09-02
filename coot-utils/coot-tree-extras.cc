@@ -150,7 +150,7 @@ coot::atom_tree_t::construct_internal(const coot::dictionary_residue_restraints_
                   // we don't have to pass the mmdb::Residue * again.
 
    if (rest.tree.size() == 0) {
-      std::string mess = "No tree in restraint";
+      std::string mess = "atom_tree_t()::construct_internal(): No tree in restraints for " + rest.comp_id();
       throw std::runtime_error(mess);
    }
 
@@ -181,7 +181,7 @@ coot::atom_tree_t::construct_internal(const coot::dictionary_residue_restraints_
 
       if (has_deuterium_atoms) {
 
-         std::cout << "::::::::::::::::::::::::::::::: in construct_internal() has_deuterium_atoms" << std::endl;
+         std::cout << ":::::: in construct_internal() has_deuterium_atoms" << std::endl;
          // same again with dictionary atom name changes
          for (int iat=0; iat<n_residue_atoms; iat++) {
             std::string atom_name = residue_atoms[iat]->name;

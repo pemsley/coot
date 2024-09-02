@@ -23,6 +23,7 @@
 #include "coot-utils/coot-coord-utils.hh"
 #include "ideal-rna.hh"
 #include "base-pairing.hh"
+#include "coot-utils/coot-lsq-types.hh"
 
 mmdb::Residue *
 coot::watson_crick_partner(mmdb::Residue *res_ref, mmdb::Manager *standard_residues) {

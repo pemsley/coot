@@ -103,9 +103,6 @@
 
 #include "skeleton/BuildCas.h"
 
-#include "trackball.h" // adding exportable rotate interface
-
-
 #include "c-interface.h"
 #include "c-interface-generic-objects.h"
 #include "c-interface-gtk-widgets.h"

@@ -835,7 +835,7 @@ void
 edit_replace_fragment_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                              G_GNUC_UNUSED GVariant *parameter,
                              G_GNUC_UNUSED gpointer user_data) {
-     do_edit_replace_fragment();
+   do_edit_replace_fragment();
 }
 
 void
@@ -1750,7 +1750,47 @@ bond_colours_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    g.fill_bond_colours_dialog_internal(w);
    set_transient_for_main_window(w);
    gtk_widget_set_visible(w, TRUE);
+}
 
+void
+grey_carbon_colours_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                           G_GNUC_UNUSED GVariant *parameter,
+                           G_GNUC_UNUSED gpointer user_data) {
+
+
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      set_use_grey_carbons_for_molecule(imol, 1);
+   }
+}
+
+void
+coloured_carbon_colours_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                               G_GNUC_UNUSED GVariant *parameter,
+                               G_GNUC_UNUSED gpointer user_data) {
+
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      set_use_grey_carbons_for_molecule(imol, 0);
+   }
+}
+
+
+void
+bond_smoothness_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                       G_GNUC_UNUSED GVariant *parameter,
+                       G_GNUC_UNUSED gpointer user_data) {
+
+   gchar* mode_cstr;
+   g_variant_get(parameter, "s", &mode_cstr);
+   std::string mode(mode_cstr);
+   if (mode == "1") set_bond_smoothness_factor(1);
+   if (mode == "2") set_bond_smoothness_factor(2);
+   if (mode == "3") set_bond_smoothness_factor(3);
 }
 
 
@@ -1975,6 +2015,10 @@ void replace_residue_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                             G_GNUC_UNUSED GVariant *parameter,
                             G_GNUC_UNUSED gpointer user_data) {
 
+   // 20240817-PE note to self - this is the callback from the Modelling menu - there is
+   // also edit_replace_residue_action()!
+   // That needs to be sorted out.
+
    std::cout << "replace_residue_action() fill me! " << std::endl;
 
    // use an overlay.
@@ -2012,7 +2056,8 @@ void superpose_ligands_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 void symm_shift_reference_chain_here_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                             G_GNUC_UNUSED GVariant *parameter,
                                             G_GNUC_UNUSED gpointer user_data) {
-   move_reference_chain_to_symm_chain_position();
+   graphics_info_t g;
+   g.move_reference_chain_to_symm_chain_position();
 }
 
 
@@ -3666,12 +3711,17 @@ create_actions(GtkApplication *application) {
 
    // Draw
 
+   // these could be done with a parameter add_action_with_param()
    add_action(          "background_black_action",          background_black_action);
    add_action(   "background_nearly_black_action",   background_nearly_black_action);
    add_action(     "background_light_grey_action",     background_light_grey_action);
    add_action(      "background_dark_grey_action",      background_dark_grey_action);
-   add_action("background_semi_dark_grey_action",  background_semi_dark_grey_action);
+   add_action( "background_semi_dark_grey_action", background_semi_dark_grey_action);
    add_action(          "background_white_action",          background_white_action);
+
+   add_action(       "grey_carbon_colours_action",       grey_carbon_colours_action);
+   add_action(   "coloured_carbon_colours_action",   coloured_carbon_colours_action);
+
    add_action(    "display_only_active_action",     display_only_active_action);
    add_action(        "bond_parameters_action",         bond_parameters_action);
    add_action(           "bond_colours_action",            bond_colours_action);
@@ -3780,6 +3830,9 @@ create_actions(GtkApplication *application) {
    // Mutate menu
    add_action_with_param("mutate_to_type", mutate_to_type);
    add_action_with_param("mutate_base_to_type", mutate_base_to_type);
+
+   // Draw menu
+   add_action_with_param("bond_smoothness_action", bond_smoothness_action);
 
    // Delete menu
    add_action_with_param("delete_item", delete_item);

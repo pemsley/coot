@@ -631,14 +631,33 @@
           </item>
 
           <submenu>
+            <attribute name="label">Bond Smoothness</attribute>
+            <item>
+              <attribute name="label">Default</attribute>
+              <attribute name="action">app.bond_smoothness_action</attribute>
+              <attribute name="target">1</attribute>
+            </item>
+            <item>
+              <attribute name="label">Smooth</attribute>
+              <attribute name="action">app.bond_smoothness_action</attribute>
+              <attribute name="target">2</attribute>
+            </item>
+            <item>
+              <attribute name="label">Fine</attribute>
+              <attribute name="action">app.bond_smoothness_action</attribute>
+              <attribute name="target">3</attribute>
+            </item>
+          </submenu>
+
+          <submenu>
             <attribute name="label">Carbon Colours</attribute>
             <item>
               <attribute name="label">Grey Carbon Colours</attribute>
-              <attribute name="action">app.grey_carbon_colours</attribute>
+              <attribute name="action">app.grey_carbon_colours_action</attribute>
             </item>
             <item>
               <attribute name="label">Coloured Carbon Colours</attribute>
-              <attribute name="action">app.coloured_carbon_colours</attribute>
+              <attribute name="action">app.coloured_carbon_colours_action</attribute>
             </item>
           </submenu>
 
@@ -7969,6 +7988,15 @@ Do you want to continue?
             </child>
 
             <child type="overlay">
+              <object class="GtkLabel" id="session_saved_label">
+                <property name="visible">False</property>
+                <property name="halign">center</property>
+                <property name="valign">start</property>
+                <property name="label" translatable="yes"> Session Saved </property>
+              </object>
+            </child>
+
+            <child type="overlay">
               <object class="GtkFrame" id="export_map_frame">
                 <property name="visible">False</property>
                 <property name="halign">center</property>
@@ -8041,6 +8069,7 @@ Do you want to continue?
             </child>
           </object>
         </child>
+
         <child>
           <object class="GtkBox" id="main_window_vbox_inner">
             <property name="orientation">vertical</property>

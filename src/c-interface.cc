@@ -103,9 +103,6 @@
 
 #include "skeleton/BuildCas.h"
 
-#include "trackball.h" // adding exportable rotate interface
-
-
 #include "c-interface.h"
 #include "c-interface-gtk-widgets.h"
 #include "cc-interface.hh"
@@ -5895,7 +5892,7 @@ void display_maps_py(PyObject *pyo) {
 void
 set_display_control_button_state(int imol, const std::string &button_type, int state) {
 
-   //   button type is "Active" or "Displayed"
+   // button type is "Active" or "Displayed"
    if (false)
       std::cout << "start: set_display_control_button_state() imol " << imol << " type " << button_type
                 << " new_state: " << state << std::endl;
@@ -6124,14 +6121,12 @@ void set_only_last_model_molecule_displayed() {
          // set_mol_displayed(turn_these_off[j], 0);
          // set_mol_active(turn_these_off[j], 0);
 
-               std::cout << ".....  turning off " << turn_these_off[j] << std::endl;
+         // std::cout << ".....  turning off button for " << turn_these_off[j] << std::endl;
 
          g.molecules[turn_these_off[j]].set_mol_is_displayed(0);
          g.molecules[turn_these_off[j]].set_mol_is_active(0);
-         if (g.display_control_window())
-            set_display_control_button_state(turn_these_off[j], "Displayed", 0);
-         if (g.display_control_window())
-            set_display_control_button_state(turn_these_off[j], "Active", 0);
+         set_display_control_button_state(turn_these_off[j], "Displayed", 0);
+         set_display_control_button_state(turn_these_off[j], "Active", 0);
       }
    }
    if (is_valid_model_molecule(imol_last)) {
@@ -6142,8 +6137,7 @@ void set_only_last_model_molecule_displayed() {
 
 	 g.molecules[imol_last].set_mol_is_displayed(1);
 	 g.molecules[imol_last].set_mol_is_active(1);
-	 if (g.display_control_window())
-	    set_display_control_button_state(imol_last, "Displayed", 1);
+         set_display_control_button_state(imol_last, "Displayed", 1);
       }
    }
    g.mol_displayed_toggle_do_redraw = true; // back on again

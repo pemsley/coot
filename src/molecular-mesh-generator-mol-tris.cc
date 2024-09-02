@@ -153,7 +153,7 @@ molecular_mesh_generator_t::get_molecular_triangles_mesh(mmdb::Manager *mol,
                                                          const std::string &colour_scheme,
                                                          const std::string &style) {
 
-   if (false)
+   if (true)
       std::cout << "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ get_molecular_triangles_mesh() "
                 << " chain-id: " << chain_p->GetChainID() << " colour_sheme: "
                 << colour_scheme << " style " << style << std::endl;
@@ -165,32 +165,45 @@ molecular_mesh_generator_t::get_molecular_triangles_mesh(mmdb::Manager *mol,
       return vp;
    }
 
+   std::cout << "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ get_molecular_triangles_mesh() Here A " << std::endl;
    auto my_mol = std::make_shared<MyMolecule>(mol);
    auto ss_cs = ColorScheme::colorBySecondaryScheme();
    auto ribbon_ramp_cs = ColorScheme::colorRampChainsScheme();
+   std::cout << "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ get_molecular_triangles_mesh() Here B " << std::endl;
    auto chain_cs = ColorScheme::colorChainsScheme();
    auto this_cs = chain_cs;
 
+   std::cout << "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ get_molecular_triangles_mesh() Here C " << std::endl;
+
    if (colour_scheme == "colorRampChainsScheme" || colour_scheme == "Ramp") {
       this_cs = ribbon_ramp_cs;
-      std::cout << "here with colorRampChainsScheme" << std::endl;
+      std::cout << "mmgt::get_molecular_triangles_mesh(): with colorRampChainsScheme" << std::endl;
       int nres = chain_p->GetNumberOfResidues();
       if (nres > 0) {
          std::string atom_selection_str = "//" + std::string(chain_p->GetChainID());
          int min_resno = chain_p->GetResidue(0)->GetSeqNum();
          int max_resno = get_max_resno_for_polymer(chain_p);
+         std::cout << "mmgt::get_molecular_triangles_mesh(): with min_resno " << min_resno << std::endl;
+         std::cout << "mmgt::get_molecular_triangles_mesh(): with max_resno " << max_resno << std::endl;
          if (max_resno > 0) {
+            std::cout << "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ get_molecular_triangles_mesh() Here D " << std::endl;
             AtomPropertyRampColorRule apcrr;
             apcrr.setStartValue(min_resno);
             apcrr.setEndValue(max_resno);
             auto apcrr_p = std::make_shared<AtomPropertyRampColorRule> (apcrr);
             ribbon_ramp_cs->addRule(apcrr_p);
+            std::cout << "this_cs " << this_cs << std::endl;
             std::shared_ptr<MolecularRepresentationInstance> molrepinst =
                MolecularRepresentationInstance::create(my_mol, this_cs, atom_selection_str, style);
             vp = molecular_representation_instance_to_mesh(molrepinst);
+            std::cout << "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ get_molecular_triangles_mesh() Here E "
+                      << atom_selection_str << " " << style << std::endl;
          }
       }
    }
+   if (true)
+      std::cout << "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ get_molecular_triangles_mesh() --- done ---"
+                << std::endl;
    return vp;
 }
 

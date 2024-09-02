@@ -320,7 +320,7 @@ coot::lsq_improve::get_new_matches(const std::map<coot::residue_spec_t, std::vec
                                                      contiguous_frag_spec.begin()->second.res_no,
                                                      contiguous_frag_spec.back().second.res_no,
                                                      contiguous_frag_spec.begin()->second.chain_id,
-                                                     COOT_LSQ_CA);
+                                                     lsq_t::CA);
                   range.set_model_number_reference(1);
                   range.set_model_number_matcher(2);
                   r.push_back(range);

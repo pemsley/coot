@@ -365,6 +365,7 @@ namespace coot {
       bool is_pyranose_ring_torsion(const std::string &comp_id) const;
       bool is_ring_torsion(const std::vector<std::vector<std::string> > &ring_atoms_sets) const;
       // hack for mac, ostream problems
+      bool is_peptide_torsion() const;
       std::string format() const;
       void set_atom_1_atom_id(const std::string &id) { set_atom_id_1(id); }
       void set_atom_2_atom_id(const std::string &id) { set_atom_id_2(id); }

@@ -69,8 +69,6 @@
 #include "ligand/helix-placement.hh"
 #include "ligand/fast-ss-search.hh"
 
-#include "trackball.h" // adding exportable rotate interface
-
 #include "utils/coot-utils.hh"  // for is_member_p
 #include "coot-utils/coot-map-heavy.hh"  // for fffear
 

@@ -84,8 +84,10 @@ molecule_class_info_t::add_molecular_representation(const std::string &atom_sele
    material.shininess = 256.0;
    material.specular_strength = 0.56;
 
-   if (colour_scheme == "Rainbow") {
+   // if (colour_scheme == "Rainbow") {
+   if (colour_scheme == "colorRampChainsScheme") {
 
+      std::cout << "------------------------------------------------------------------  Rainbow -------------------------------------" << std::endl;
       int imod = 1;
       mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
       if (model_p) {
