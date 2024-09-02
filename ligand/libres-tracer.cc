@@ -4463,7 +4463,7 @@ void res_tracer_learn(const clipper::Xmap<float> &xmap, float weight, float xmap
                   float dz = ref_mol_at->z - at->z;
                   if (fabsf(dz) < dist_crit) {
                      float dd = dx * dx + dy * dy + dz * dz;
-                     float d = fsqrt(dd);
+                     float d = sqrtf(dd);
                      if (d < dist_crit) {
                         std::string atom_name(ref_mol_at->GetAtomName());
                         if (atom_name == " CA ") {  // PDBv3 FIXME
