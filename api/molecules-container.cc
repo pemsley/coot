@@ -5056,6 +5056,21 @@ molecules_container_t::get_mesh_for_ligand_validation_vs_dictionary(int imol, co
 
 }
 
+//! ligand validation - basically we do the same as the above function, but the
+//! return type is validation data, not a mesh
+//!
+//! @return a vector of `geometry_distortion_info_container_t`
+void
+molecules_container_t::get_ligand_validation_vs_dictionary(int imol, const std::string &ligand_cid,
+                                                           bool with_nbcs) {
+
+   if (is_valid_model_molecule(imol)) {
+      molecules[imol].geometric_distortions_from_mol(ligand_cid, with_nbcs, geom, static_thread_pool);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+}
+
 
 //! set the map saturation
 void

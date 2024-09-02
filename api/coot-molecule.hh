@@ -374,7 +374,6 @@ namespace coot {
                                      coot::protein_geometry &geom,
                                      ctpl::thread_pool &static_thread_pool);
 
-
       // ====================== dragged refinement ======================================
 
       coot::restraints_container_t *last_restraints;
@@ -824,6 +823,12 @@ namespace coot {
       coot::simple_mesh_t get_mesh_for_ligand_validation_vs_dictionary(const std::string &ligand_cid,
                                                                        coot::protein_geometry &geom,
                                                                        ctpl::thread_pool &static_thread_pool);
+
+      // this function is another version of the above function, but returns distortion values
+      void
+      geometric_distortions_from_mol(const std::string &ligand_cid, bool with_nbcs,
+                                     coot::protein_geometry &geom,
+                                     ctpl::thread_pool &static_thread_pool);
 
       coot::instanced_mesh_t get_extra_restraints_mesh(int mode) const;
 

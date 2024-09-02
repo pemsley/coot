@@ -426,6 +426,15 @@ NB_MODULE(chapi, m) {
     .def_ro("cviv", &coot::validation_information_t::cviv)
     .def("get_index_for_chain",&coot::validation_information_t::get_index_for_chain)
     ;
+    nb::class_<coot::simple_restraint>(m, "simple_restraint")
+       .def_ro("restraint_type", &coot::simple_restraint::restraint_type)
+       .def_ro("target_value",   &coot::simple_restraint::target_value)
+    ;
+    nb::class_<coot::geometry_distortion_info_container_t>(m, "geometry_distortion_info_container_t")
+       .def("distortion",             &coot::geometry_distortion_info_container_t::distortion)
+       .def("size",                   &coot::geometry_distortion_info_container_t::size)
+       .def_ro("geometry_distortion", &coot::geometry_distortion_info_container_t::geometry_distortion)
+    ;
     nb::class_<molecules_container_t::fit_ligand_info_t>(m, "fit_ligand_info_t")
     .def_ro("imol", &molecules_container_t::fit_ligand_info_t::imol)
     .def_ro("cluster_idx", &molecules_container_t::fit_ligand_info_t::cluster_idx)
