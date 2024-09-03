@@ -747,22 +747,42 @@ DeleteTool::ListOfAtomsOrBonds DeleteTool::trace_chain_impl(const RDKit::ROMol* 
     DeleteTool::ListOfAtomsOrBonds ret;
     ret.push_back(rdatom->getIdx());
     processed_atoms.emplace(rdatom->getIdx());
+    for(const auto& i: boost::make_iterator_range(mol->getAtomNeighbors(rdatom))) {
+        if(processed_atoms.find(i) != processed_atoms.end()) {
+            continue;
+        }
+        processed_atoms.emplace(i);
+        ret.push_back(std::make_tuple(rdatom->getIdx(), (unsigned int) i));
+        auto list = trace_chain_impl(mol, processed_atoms, mol->getAtomWithIdx(i));
+        ret.insert(ret.end(), list.begin(), list.end());
+    }
+    return ret;
+}
+
+std::optional<DeleteTool::ListOfAtomsOrBonds> DeleteTool::trace_rchain(const MoleculeClickContext& ctx, const CanvasMolecule::Atom& atom) {
+    RDKit::Atom const* rdatom = ctx.rdkit_mol->getAtomWithIdx(atom.idx);
+    const RDKit::ROMol* mol = ctx.rdkit_mol.get();
+
+    std::set<unsigned int> processed_atoms;
+    DeleteTool::ListOfAtomsOrBonds ret;
+    ret.push_back(rdatom->getIdx());
+    processed_atoms.emplace(rdatom->getIdx());
     unsigned int neighbors_count = 0;
     // Is there no better idea?
-    for(const auto& i: boost::make_iterator_range(mol->getAtomNeighbors(rdatom))) {
+    for(const auto& _i: boost::make_iterator_range(mol->getAtomNeighbors(rdatom))) {
         neighbors_count += 1;
     }
-    if(neighbors_count <= 1) {
+    // Skip tracing in-ring atoms
+    if(neighbors_count <= 1 || (neighbors_count == 2 && RDKit::queryIsAtomInRing(rdatom))) {
         return ret;
     }
+
     std::vector<DeleteTool::ListOfAtomsOrBonds> branches;
     for(const auto& i: boost::make_iterator_range(mol->getAtomNeighbors(rdatom))) {
         if(processed_atoms.find(i) != processed_atoms.end()) {
             continue;
         }
-        // This copy probably makes it horribly slow
-        std::set<unsigned int> processed_atoms_branch(processed_atoms);
-        branches.push_back(trace_chain_impl(mol, processed_atoms_branch, mol->getAtomWithIdx(i)));
+        branches.push_back(trace_chain_impl(mol, processed_atoms, mol->getAtomWithIdx(i)));
         processed_atoms.emplace(i);
     }
     // Iterator to the shortest branch
@@ -774,16 +794,6 @@ DeleteTool::ListOfAtomsOrBonds DeleteTool::trace_chain_impl(const RDKit::ROMol* 
         ret.insert(ret.end(), it->begin(), it->end());
     }
     return ret;
-}
-
-std::optional<DeleteTool::ListOfAtomsOrBonds> DeleteTool::trace_rchain(const MoleculeClickContext& ctx, const CanvasMolecule::Atom& atom) {
-    RDKit::Atom const* rdatom = ctx.rdkit_mol->getAtomWithIdx(atom.idx);
-    // if(RDKit::queryIsAtomInRing(rdatom)) {
-    //     // Skip in-ring atoms
-    //     return std::nullopt;
-    // }
-    std::set<unsigned int> processed_atoms;
-    return trace_chain_impl(ctx.rdkit_mol.get(), processed_atoms, rdatom);
 }
 
 std::optional<DeleteTool::ListOfAtomsOrBonds> DeleteTool::trace_rchain(const MoleculeClickContext& ctx, const CanvasMolecule::Bond& bond) {
