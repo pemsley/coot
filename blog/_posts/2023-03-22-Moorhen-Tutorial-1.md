@@ -8,7 +8,7 @@ Welcome to Moorhen ("Coot on the Web").
 
 ## Getting Started
 
-![layout](https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/web/tutorial/images/moorhen-gui-items.png)
+[layout](https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/web/tutorial/images/moorhen-gui-items.png)
 
 
   - Open a web browser window and point it at [moorhen.org](https://moorhen.org).
@@ -283,7 +283,7 @@ OK, now it's time to fit the ligand!
 
 Several of the top 5 peaks should now correspond to the ligand.
 
-![ligand](https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/web/tutorial/images/LZA-coot-render-v2.png)
+[ligand](https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/web/tutorial/images/LZA-coot-render-v2.png)
 
   - **Ligand** &rarr; **Get Monomer** &rarr;
   - Add "LZA" in the "Monomer identifier" entry &rarr; **OK**
