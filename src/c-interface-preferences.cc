@@ -274,6 +274,15 @@ void update_preference_gui() {
       }
       break;
 
+    case PREFERENCES_VIEW_ROTATION_MOUSE_BUTTON:
+       w = widget_from_preferences_builder("preferences_view_rotation_left_mouse_checkbutton");
+       ivalue = g.preferences_internal[i].ivalue1;
+       if (ivalue == 1)
+          gtk_check_button_set_active(GTK_CHECK_BUTTON(w), TRUE);
+       else
+          gtk_check_button_set_active(GTK_CHECK_BUTTON(w), FALSE);
+       break;
+
     case PREFERENCES_RECENTRE_PDB:
        w = widget_from_preferences_builder("preferences_recentre_pdb_on_radiobutton");
        if (g.preferences_internal[i].ivalue1) {

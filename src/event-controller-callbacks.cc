@@ -479,10 +479,12 @@ graphics_info_t::on_glarea_click(GtkGestureClick *controller,
 
             if (! handled) {
 
-               // does this ever run?
+               // 20240902-PE maybe it should run (and act on the symmtry atom pick) if this is a middle-mouse click?
 
-               std::cout << "debug:: click handler: Symmetry atom pick here B - does this run? When? " << std::endl;
-               coot::Symm_Atom_Pick_Info_t sap = symmetry_atom_pick();
+               // does this ever run?
+               // 20240902-PE yes it does - maybe it shouldn't.
+               // std::cout << "debug:: click handler: Symmetry atom pick here B - does this run? When? " << std::endl;
+               // coot::Symm_Atom_Pick_Info_t sap = symmetry_atom_pick();
             }
          }
       }

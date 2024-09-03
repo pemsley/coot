@@ -1492,6 +1492,9 @@ void unfullscreen();
 //! set the flag for use of trackpad - this moves around the mouse bindings internally.
 void set_use_trackpad(short int state);
 
+//! this is an alias for the above (at the moment).
+void set_use_primary_mouse_button_for_rotation(short int state);
+
 /*  ----------------------------------------------------------------------- */
 /*                  Abstraction of New molecule by symmetry functions       */
 /*  ----------------------------------------------------------------------- */
