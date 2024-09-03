@@ -276,13 +276,19 @@ class ChargeModifier : public Tool {
 
 class DeleteTool : public Tool {
 
-    static std::vector<unsigned int> trace_chain_impl(const RDKit::ROMol* mol, std::set<unsigned int>& processed_atoms, RDKit::Atom const* rdatom);
+    public:
+    // Represents either atom idx or a pair of atom indices forming a bond
+    typedef std::variant<unsigned int, std::tuple<unsigned int, unsigned int>> AtomOrBond;
+    typedef std::vector<AtomOrBond> ListOfAtomsOrBonds;
+    private:
+
+    static ListOfAtomsOrBonds trace_chain_impl(const RDKit::ROMol* mol, std::set<unsigned int>& processed_atoms, RDKit::Atom const* rdatom);
 
     /// Returns a vector of atoms IDs to be removed (if relevant)
-    static std::optional<std::vector<unsigned int>> trace_rchain(const MoleculeClickContext& ctx, const CanvasMolecule::Bond& bond);
+    static std::optional<ListOfAtomsOrBonds> trace_rchain(const MoleculeClickContext& ctx, const CanvasMolecule::Bond& bond);
 
     /// Returns a vector of atoms IDs to be removed (if relevant)
-    static std::optional<std::vector<unsigned int>> trace_rchain(const MoleculeClickContext& ctx, const CanvasMolecule::Atom& atom);
+    static std::optional<ListOfAtomsOrBonds> trace_rchain(const MoleculeClickContext& ctx, const CanvasMolecule::Atom& atom);
     public:
 
     virtual bool on_molecule_click(MoleculeClickContext& ctx) override;
