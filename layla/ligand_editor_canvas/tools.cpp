@@ -748,12 +748,14 @@ DeleteTool::ListOfAtomsOrBonds DeleteTool::trace_chain_impl(const RDKit::ROMol* 
     ret.push_back(rdatom->getIdx());
     processed_atoms.emplace(rdatom->getIdx());
     for(const auto& i: boost::make_iterator_range(mol->getAtomNeighbors(rdatom))) {
+        ret.push_back(std::make_tuple(rdatom->getIdx(), (unsigned int) i));
         if(processed_atoms.find(i) != processed_atoms.end()) {
             continue;
         }
         processed_atoms.emplace(i);
-        ret.push_back(std::make_tuple(rdatom->getIdx(), (unsigned int) i));
+        // First, push the bond between this atom and the neighbor atom
         auto list = trace_chain_impl(mol, processed_atoms, mol->getAtomWithIdx(i));
+        // Append list to ret
         ret.insert(ret.end(), list.begin(), list.end());
     }
     return ret;
@@ -782,7 +784,13 @@ std::optional<DeleteTool::ListOfAtomsOrBonds> DeleteTool::trace_rchain(const Mol
         if(processed_atoms.find(i) != processed_atoms.end()) {
             continue;
         }
-        branches.push_back(trace_chain_impl(mol, processed_atoms, mol->getAtomWithIdx(i)));
+        DeleteTool::ListOfAtomsOrBonds list;
+        // First, push the bond between this atom and the branch atom
+        list.push_back(std::make_tuple(rdatom->getIdx(), (unsigned int) i));
+        auto list2 = trace_chain_impl(mol, processed_atoms, mol->getAtomWithIdx(i));
+        // Append list2 to list
+        list.insert(list.end(), list2.begin(), list2.end());
+        branches.push_back(list);
         processed_atoms.emplace(i);
     }
     // Iterator to the shortest branch
