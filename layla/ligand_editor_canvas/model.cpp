@@ -1054,9 +1054,10 @@ void CanvasMolecule::add_bond_highlight(unsigned int atom_a, unsigned int atom_b
         throw std::runtime_error("Bond doesn't exist");
     }
     auto target = std::find_if(bonds_for_atom_a->second.begin(), bonds_for_atom_a->second.end(), [=](const auto& bond) {
-          return (bond->second_atom_idx == atom_b) && (bond->first_atom_idx == atom_a);
+          return ((bond->second_atom_idx == atom_b) && (bond->first_atom_idx == atom_a))
+              || ((bond->second_atom_idx == atom_a) && (bond->first_atom_idx == atom_b));
     });
-    if (target == this->bonds.end()) {
+    if (target == bonds_for_atom_a->second.end()) {
         throw std::runtime_error("Bond doesn't exist");
     }
     (*target)->highlight |= static_cast<highlight_t>(htype);
