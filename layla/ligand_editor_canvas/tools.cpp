@@ -806,7 +806,32 @@ std::optional<DeleteTool::ListOfAtomsOrBonds> DeleteTool::trace_rchain(const Mol
 
 std::optional<DeleteTool::ListOfAtomsOrBonds> DeleteTool::trace_rchain(const MoleculeClickContext& ctx, const CanvasMolecule::Bond& bond) {
     // todo
-    return std::nullopt;
+    const RDKit::ROMol* mol = ctx.rdkit_mol.get();
+
+    DeleteTool::ListOfAtomsOrBonds ret;
+    ret.push_back(std::make_tuple(bond.first_atom_idx, bond.second_atom_idx));
+
+    if(RDKit::queryIsBondInRing(mol->getBondBetweenAtoms(bond.first_atom_idx, bond.second_atom_idx))) {
+        return ret;
+    }
+
+    std::set<unsigned int> processed_atoms1;
+    processed_atoms1.insert(bond.first_atom_idx);
+    processed_atoms1.insert(bond.second_atom_idx);
+    auto case1 = trace_chain_impl(mol, processed_atoms1, mol->getAtomWithIdx(bond.first_atom_idx));
+
+    std::set<unsigned int> processed_atoms2;
+    processed_atoms2.insert(bond.second_atom_idx);
+    processed_atoms2.insert(bond.first_atom_idx);
+    auto case2 = trace_chain_impl(mol, processed_atoms2, mol->getAtomWithIdx(bond.second_atom_idx));
+
+    if(case1.size() <= case2.size()) {
+        ret.insert(ret.end(), case1.begin(), case1.end());
+    } else {
+        ret.insert(ret.end(), case2.begin(), case2.end());
+    }
+
+    return ret;
 }
 
 bool DeleteTool::on_hover(ClickContext& ctx, int x, int y) {
