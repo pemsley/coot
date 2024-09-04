@@ -64,7 +64,12 @@ static std::string real_path_for_coot_executable;
 //! do this on startup
 void coot::set_realpath_for_coot_executable(const std::string &argv0) {
 
+   // 20240902-PE patch from Charles - compiling on Windows
+#ifdef _MSC_VER
+   char *exec_path = _fullpath(NULL, argv0.c_str(), MAX_PATH);
+#else
    char *exec_path = realpath(argv0.c_str(), NULL);
+#endif
    if (exec_path) {
       real_path_for_coot_executable = exec_path;
    }

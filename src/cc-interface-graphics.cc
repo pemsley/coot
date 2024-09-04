@@ -46,6 +46,13 @@ void set_use_trackpad(short int state) {
    graphics_info_t::using_trackpad = state;
 }
 
+
+//! this is an alias for the above (at the moment).
+void set_use_primary_mouse_button_for_rotation(short int state) {
+   set_use_trackpad(state);
+}
+
+
 // maybe this function should have its own file?
 //
 //! \brief display the SMILES entry. This is the simple version - no dictionary
