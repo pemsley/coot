@@ -501,11 +501,11 @@ pli::fle_view_with_rdkit_internal(mmdb::Manager *mol,
                   flev_t flev;
 
                   // should this be a flev function?
-                   std::vector<pli::fle_ligand_bond_t> bonds_to_ligand =
-                      pli::get_fle_ligand_bonds(res_ref, filtered_residues,
-                                                mol_for_res_ref, name_map, *geom_p,
-                                                flev.fle_water_dist_max,
-                                                flev.fle_h_bond_dist_max);
+                  std::vector<pli::fle_ligand_bond_t> bonds_to_ligand =
+                     pli::get_fle_ligand_bonds(res_ref, filtered_residues,
+                                               mol_for_res_ref, name_map, *geom_p,
+                                               flev.fle_water_dist_max,
+                                               flev.fle_h_bond_dist_max);
 
                   std::vector<fle_residues_helper_t> res_centres =
                      pli::get_flev_residue_centres(res_ref,
@@ -526,17 +526,17 @@ pli::fle_view_with_rdkit_internal(mmdb::Manager *mol,
                   // ----------- residue infos ----------
                   //
                   pli::pi_stacking_container_t pi_stack_info(p.second, filtered_residues, res_ref, rdkm);
-
+                  
                   // ----------- ligand atom infos ------
                   //
-                   flev_attached_hydrogens_t ah(p.second);
+                  flev_attached_hydrogens_t ah(p.second);
                   // ah.cannonballs(res_ref, mol_for_res_ref, p.second);
-                   ah.distances_to_protein_using_correct_Hs(res_ref, mol_for_res_ref, *geom_p);
-
+                  ah.distances_to_protein_using_correct_Hs(res_ref, mol_for_res_ref, *geom_p);
+                  
                   // ------------ show it -----------------
                   //
-                   flev.annotate(s_a_v, res_centres, add_reps_vec, bonds_to_ligand, sed, ah, pi_stack_info, p.second);
-
+                  flev.annotate(s_a_v, res_centres, add_reps_vec, bonds_to_ligand, sed, ah, pi_stack_info, p.second);
+                  
                   flev.draw_all_flev_annotations();
 
                   if (output_format == "png") flev.write_png(output_image_file_name);
