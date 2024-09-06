@@ -4803,3 +4803,193 @@ coot::util::reverse_map(clipper::Xmap<float> *xmap_p) {
       xmap[ix] = -f - base;
    }
 }
+
+
+// this function should be passed a mask too.
+// Otherwise we would spend a lot of time calculating
+// distances of pixel in the map that noone cares about.
+// This is currently prevented by testing for 0.0 in the input map
+// but using a mask would be better.
+
+std::vector<std::pair<std::string, clipper::Xmap<float> > >
+coot::util::partition_map_by_chain(const clipper::Xmap<float> &xmap, mmdb::Manager *mol) {
+
+   std::vector<std::pair<std::string, clipper::Xmap<float> > > v;
+
+   // this is only called for amino acids
+   auto make_side_chain_centre = [] (mmdb::Residue *residue_p) {
+      bool status = false;
+      clipper::Coord_orth centre;
+      int count = 0;
+      mmdb::Atom **residue_atoms = nullptr;
+      int n_residue_atoms = 0;
+      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      for(int iat=0; iat<n_residue_atoms; iat++) {
+         mmdb::Atom *at = residue_atoms[iat];
+         if (! at->isTer()) {
+            std::string atom_name(at->GetAtomName());
+            if (atom_name == " N  " || atom_name == " H  " || atom_name == " C  " ||
+               atom_name == " CA " || atom_name == " O  " || atom_name == " HA ")
+               continue;
+            centre += coot::co(at);
+            count += 1;
+         }
+      }
+      if (count > 0) {
+         double sf = 1.0/static_cast<double>(count);
+         centre = clipper::Coord_orth(centre.x() * sf, centre.y() * sf, centre.z() * sf);
+         status = true;
+      }
+      return std::make_pair(status, centre);
+   };
+
+   auto make_reference_points_for_chains = [make_side_chain_centre] (mmdb::Manager *mol,
+                                                const clipper::Cell &cell,
+                                                const clipper::Grid_sampling &gs) {
+      // chain-id and CA positions as grid points
+      std::map<std::string, std::vector<clipper::Coord_grid> > coordinates_grid_points_map;
+      for (int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+         mmdb::Model *model_p = mol->GetModel(imod);
+         if (model_p) {
+            int n_chains = model_p->GetNumberOfChains();
+            for (int ichain=0; ichain<n_chains; ichain++) {
+               mmdb::Chain *chain_p = model_p->GetChain(ichain);
+               std::string chain_id(chain_p->GetChainID());
+               int n_res = chain_p->GetNumberOfResidues();
+               for (int ires=0; ires<n_res; ires++) {
+                  mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                  if (residue_p) {
+                     int n_atoms = residue_p->GetNumberOfAtoms();
+                     for (int iat=0; iat<n_atoms; iat++) {
+                        mmdb::Atom *at = residue_p->GetAtom(iat);
+                        if (! at->isTer()) {
+                           std::string name(at->GetAtomName());
+                           if (name == " CA " || name == " P  " || name == " C4'" ||
+                               name == " N9 " || name == " N1 " || name == " C4 ") {
+                              clipper::Coord_orth co = coot::co(at);
+                              clipper::Coord_frac cf = co.coord_frac(cell);
+                              clipper::Coord_grid cg = cf.coord_grid(gs);
+                              coordinates_grid_points_map[chain_id].push_back(cg);
+                           }
+                        }
+                     }
+                     if (residue_p->isAminoacid()) {
+                        std::pair<bool, clipper::Coord_orth> side_chain_centre =
+                           make_side_chain_centre(residue_p);
+                        if (side_chain_centre.first) {
+                           clipper::Coord_frac cf = side_chain_centre.second.coord_frac(cell);
+                           clipper::Coord_grid cg = cf.coord_grid(gs);
+                           coordinates_grid_points_map[chain_id].push_back(cg);
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      }
+      return coordinates_grid_points_map;
+   };
+
+   std::cout << "Making reference points for chains" << std::endl;
+   clipper::Cell cell = xmap.cell();
+   clipper::Spacegroup sg = xmap.spacegroup();
+   clipper::Grid_sampling gs = xmap.grid_sampling();
+   std::map<std::string, std::vector<clipper::Coord_grid> > rp =
+      make_reference_points_for_chains(mol, cell, gs);
+
+   std::vector<std::string> chain_ids;
+   for(const auto &item : rp)
+      chain_ids.push_back(item.first);
+   clipper::Xmap<std::map<std::string, int> > distance_map;
+   distance_map.init(sg, cell, gs);
+
+   std::cout << "Filling distance map with initial values" << std::endl;
+
+   std::map<std::string, int> starting_distance_map;
+   for (const auto &item : chain_ids) {
+      starting_distance_map[item] = 999999;
+   }
+   clipper::Xmap_base::Map_reference_index ix;
+   for (ix = distance_map.first(); !ix.last(); ix.next())  {
+      clipper::Coord_grid cg = ix.coord();
+      float f = xmap.get_data(cg);
+      if (f != 0.0)
+         distance_map[ix] = starting_distance_map;
+   }
+
+   auto manhattan_check = +[] (const std::string &chain_id,
+                               const std::vector<clipper::Coord_grid> &reference_points,
+                               clipper::Xmap<std::map<std::string, int> > *distance_map_p) {
+
+      clipper::Xmap_base::Map_reference_index ix;
+      for (ix = distance_map_p->first(); !ix.last(); ix.next()) {
+         std::map<std::string, int>::const_iterator it;
+         if ((*distance_map_p)[ix].empty()) continue;
+         auto &current_dist = (*distance_map_p)[ix][chain_id];
+         clipper::Coord_grid cg = ix.coord();
+         for (unsigned int i=0; i<reference_points.size(); i++) {
+            const auto &ref_grid_pt = reference_points[i];
+            int d_u = ref_grid_pt.u() - cg.u();
+            int d_v = ref_grid_pt.v() - cg.v();
+            int d_w = ref_grid_pt.w() - cg.w();
+            int manhattan_dist = abs(d_u) + abs(d_v) + abs(d_w);
+            if (manhattan_dist < current_dist) {
+               current_dist = manhattan_dist;
+            }
+         }
+      }
+      std::cout << "manhattan check done " << chain_id << std::endl;
+   };
+
+   std::vector<std::thread> threads;
+   for (const auto &chain_id : chain_ids) {
+      // this block can be multi-threaded, I think
+      const std::vector<clipper::Coord_grid> &reference_points = rp[chain_id];
+      // modify distance map
+      // manhattan_check(chain_id, reference_points, &distance_map);
+      std::cout << "thread for " << chain_id << std::endl;
+      threads.push_back(std::thread(manhattan_check, chain_id, reference_points, &distance_map));
+   }
+
+   std::cout << "joining" << std::endl;
+   for (auto &thread : threads) thread.join();
+
+   // now extract each of the maps for each chain
+   std::cout << "now extract" << std::endl;
+
+   clipper::Xmap<std::string> chain_map;
+   chain_map.init(sg, cell, gs);
+   for (ix = distance_map.first(); !ix.last(); ix.next()) {
+      const auto &dist_map = distance_map[ix];
+      std::string best_chain_id;
+      int dist_best = 999999;
+      std::map<std::string, int>::const_iterator it;
+      for (it=dist_map.begin(); it!=dist_map.end(); ++it) {
+         if (it->second < dist_best) {
+            dist_best = it->second;
+            best_chain_id = it->first;
+            // std::cout << " best-chain " << ix.coord().format() << " " << best_chain_id << std::endl;
+         }
+      }
+      chain_map[ix] = best_chain_id;
+   }
+
+   for(const auto &chain_id : chain_ids) {
+      std::cout << "constructing map for chain " << chain_id << std::endl;
+      clipper::Xmap<float> map_for_chain;
+      map_for_chain.init(sg, cell, gs);
+      for (ix = chain_map.first(); !ix.last(); ix.next()) {
+         const auto &chain_for_this_grid_point = chain_map[ix];
+         clipper::Coord_grid cg = ix.coord();
+         if (chain_for_this_grid_point == chain_id) {
+            float f = xmap.get_data(cg);
+            map_for_chain.set_data(cg, f);
+         } else {
+            map_for_chain.set_data(cg, 0.0f);
+         }
+      }
+      v.push_back(std::make_pair(chain_id, map_for_chain));
+   }
+
+   return v;
+}

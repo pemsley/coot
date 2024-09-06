@@ -1561,11 +1561,53 @@ test_dictionary_conformers(int argc, char **argv) {
 }
 
 
+void test_partition_map_by_chain(int argc, char **argv) {
+
+   if (argc > 2) {
+      std::string map_file_name_1 = argv[1];
+      clipper::CCP4MAPfile file_1;
+      clipper::Xmap<float> xmap_1;
+      std::cout << "# reading map " << map_file_name_1 << std::endl;
+      file_1.open_read(map_file_name_1);
+      file_1.import_xmap(xmap_1);
+
+
+      clipper::Cell cell = xmap_1.cell();
+      clipper::Spacegroup sg = xmap_1.spacegroup();
+      clipper::Grid_sampling gs = xmap_1.grid_sampling();
+
+      std::cout << "Cell:" << cell.format() << std::endl;
+      std::cout << "Spacegroup:" << sg.symbol_hm() << std::endl;
+      std::cout << "Grid Sampling:" << gs.format() << std::endl;
+
+      std::string pdb_file_name = argv[2];
+      atom_selection_container_t asc = get_atom_selection(pdb_file_name, false, true, false);
+
+      if (asc.read_success) {
+         std::vector<std::pair<std::string, clipper::Xmap<float> > > maps =
+         coot::util::partition_map_by_chain(xmap_1, asc.mol);
+         for (size_t i=0; i < maps.size(); i++) {
+            std::string map_file_name = "partitioned-" + maps[i].first + ".map";
+            const auto &xmap = maps[i].second;
+            clipper::CCP4MAPfile outmapfile;
+            outmapfile.open_write(map_file_name);
+            outmapfile.export_xmap(xmap);
+            outmapfile.close_write();
+         }
+      }
+   }
+
+}
+
+
 int main(int argc, char **argv) {
 
    mmdb::InitMatType();
 
    if (true)
+      test_partition_map_by_chain(argc, argv);
+
+   if (false)
       test_dictionary_conformers(argc, argv);
 
    if (false)
