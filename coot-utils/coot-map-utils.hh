@@ -556,6 +556,10 @@ namespace coot {
 					 const std::pair<clipper::Xmap_base::Map_reference_index, float> &p2);
       };
 
+      // attach the chain-id to each returned map
+      std::vector<std::pair<std::string, clipper::Xmap<float> > >
+      partition_map_by_chain(const clipper::Xmap<float> &xmap, mmdb::Manager *mol);
+
       bool is_EM_map(const clipper::Xmap<float> &xmap);
 
 
