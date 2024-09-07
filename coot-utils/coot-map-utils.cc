@@ -4890,6 +4890,31 @@ coot::util::partition_map_by_chain(const clipper::Xmap<float> &xmap, mmdb::Manag
       return coordinates_grid_points_map;
    };
 
+   auto split_biggest_chain = [] (std::map<std::string, std::vector<clipper::Coord_grid> > *rp_p) {
+      std::map<std::string, std::vector<clipper::Coord_grid> >::const_iterator it;
+      unsigned int n_biggest = 0;
+      std::string biggest_chain;
+      for (it=rp_p->begin(); it!=rp_p->end(); ++it) {
+         unsigned int n = it->second.size();
+         if (n > n_biggest) {
+            const std::string chain_id = it->first;
+            n_biggest = n;
+            biggest_chain = chain_id;
+         }
+      }
+      if (n_biggest > 0) {
+         std::vector<clipper::Coord_grid> &v = (*rp_p)[biggest_chain];
+         size_t half_size = n_biggest / 2;
+         if (n_biggest % 2 != 0) half_size += 1;
+         std::vector<clipper::Coord_grid> new_v;
+         for (unsigned int i=half_size; i<v.size(); i++)
+            new_v.push_back(v[i]);
+         v.resize(half_size);
+         std::string new_chain_id = biggest_chain + "+";
+         (*rp_p)[new_chain_id] = new_v;
+      }
+   };
+
    std::cout << "Making reference points for chains" << std::endl;
    clipper::Cell cell = xmap.cell();
    clipper::Spacegroup sg = xmap.spacegroup();
@@ -4897,18 +4922,18 @@ coot::util::partition_map_by_chain(const clipper::Xmap<float> &xmap, mmdb::Manag
    std::map<std::string, std::vector<clipper::Coord_grid> > rp =
       make_reference_points_for_chains(mol, cell, gs);
 
+   split_biggest_chain(&rp);
+
    std::vector<std::string> chain_ids;
    for(const auto &item : rp)
       chain_ids.push_back(item.first);
    clipper::Xmap<std::map<std::string, int> > distance_map;
    distance_map.init(sg, cell, gs);
 
-   std::cout << "Filling distance map with initial values" << std::endl;
-
+   std::cout << "INFO:: Filling distance map with initial values" << std::endl;
    std::map<std::string, int> starting_distance_map;
-   for (const auto &item : chain_ids) {
+   for (const auto &item : chain_ids)
       starting_distance_map[item] = 999999;
-   }
    clipper::Xmap_base::Map_reference_index ix;
    for (ix = distance_map.first(); !ix.last(); ix.next())  {
       clipper::Coord_grid cg = ix.coord();
@@ -4938,7 +4963,7 @@ coot::util::partition_map_by_chain(const clipper::Xmap<float> &xmap, mmdb::Manag
             }
          }
       }
-      std::cout << "manhattan check done " << chain_id << std::endl;
+      std::cout << "INFO:: manhattan map check done " << chain_id << std::endl;
    };
 
    std::vector<std::thread> threads;
@@ -4947,15 +4972,14 @@ coot::util::partition_map_by_chain(const clipper::Xmap<float> &xmap, mmdb::Manag
       const std::vector<clipper::Coord_grid> &reference_points = rp[chain_id];
       // modify distance map
       // manhattan_check(chain_id, reference_points, &distance_map);
-      std::cout << "thread for " << chain_id << std::endl;
       threads.push_back(std::thread(manhattan_check, chain_id, reference_points, &distance_map));
    }
 
-   std::cout << "joining" << std::endl;
+   std::cout << "INFO:: joining threads" << std::endl;
    for (auto &thread : threads) thread.join();
 
    // now extract each of the maps for each chain
-   std::cout << "now extract" << std::endl;
+   std::cout << "INFO:: now constructin the map for each chain" << std::endl;
 
    clipper::Xmap<std::string> chain_map;
    chain_map.init(sg, cell, gs);
@@ -4971,11 +4995,19 @@ coot::util::partition_map_by_chain(const clipper::Xmap<float> &xmap, mmdb::Manag
             // std::cout << " best-chain " << ix.coord().format() << " " << best_chain_id << std::endl;
          }
       }
+      // chaid-ids ending in "+" really are part of another chain.
+      if (best_chain_id.size() == 2)
+         if (best_chain_id[1] == '+')
+            best_chain_id = best_chain_id[0];
       chain_map[ix] = best_chain_id;
    }
 
    for(const auto &chain_id : chain_ids) {
-      std::cout << "constructing map for chain " << chain_id << std::endl;
+      // chaid-ids ending in "+" really are part of another chain.
+      if (chain_id.size() == 2)
+         if (chain_id[1] == '+')
+            continue;
+      std::cout << "INFO:: constructing map for chain " << chain_id << std::endl;
       clipper::Xmap<float> map_for_chain;
       map_for_chain.init(sg, cell, gs);
       for (ix = chain_map.first(); !ix.last(); ix.next()) {
