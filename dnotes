@@ -11442,10 +11442,41 @@ Fri Aug 30 09:04:18 PM BST 2024
    https://www.ebi.ac.uk/pdbe/entry/pdb/7uaa
    There is a low resolution map EMD-26312
 
-
 ---
 Fri Aug 30 09:11:27 PM BST 2024
 
    DPS dataset is EMD-11210
    https://www.ebi.ac.uk/emdb/EMD-11210
    https://www.ebi.ac.uk/pdbe/entry/pdb/6zgl
+
+---
+Fri Sep  6 10:14:55 PM BST 2024
+
+   o Sketch out the widgets on paper
+   o Add a dialog to coot-gtk4.ui. Use the dialog snippet
+   o The button to invoke this is in a module?
+      - Look in python/coot_gui.py for neighboring menu item
+      - Add a add_action() line
+      - Add a wrapper and the function it wraps
+     else
+      - add your action to create-menu-item-actions.cc
+   o Add a coot api function that is called by the function
+     e.g. display the new dialog, which fills the entries
+          and comboboxes.
+
+     Use
+     g.new_fill_combobox_with_coordinates_options(combobox_2, callback, imol_active);
+     fill_combobox_with_map_options(combobox_1, callback);
+
+   o The response handler, on_new_function_dialog_response() is
+     added to glade-callback.cc, make it call an api cc-interface.hh
+     function
+
+   e.g. see commit 0aee836257053b5c9cdbceb6b3896b39cddfd797
+
+---
+Sat Sep  7 03:41:40 PM BST 2024
+
+   map_partition_by_chain_threaded() is a good example of non-blocking
+   map generation. It creates a detacted thread and a callback to look
+   for the results of the thread. The results are stored in graphics_info_t.

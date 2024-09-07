@@ -5667,7 +5667,7 @@ on_map_partition_by_chain_dialog_response(GtkDialog       *dialog,
       GtkWidget *combobox_2 = widget_from_builder("map_partition_by_chain_model_combobox");
       int imol_model = my_combobox_get_imol(GTK_COMBO_BOX(combobox_2));
       int imol_map   = my_combobox_get_imol(GTK_COMBO_BOX(combobox_1));
-      map_partition_by_chain(imol_map, imol_model);
+      map_partition_by_chain_threaded(imol_map, imol_model);
    }
 
    // if (response_id == GTK_RESPONSE_CANCEL)

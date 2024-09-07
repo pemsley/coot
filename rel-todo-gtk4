@@ -1,33 +1,26 @@
 
 ----
 
-Key-binding to hide/show right-hand panel.
-      GtkWidget *status_bar = widget_from_builder("main_window_statusbar");
-      GtkWidget *tool_bar   = widget_from_builder("main_window_toolbar_hbox_outer");
-      GtkWidget *sidebar    = widget_from_builder("main_window_vbox_inner");
+Martin request: libcootapi: coordinates -> mask with same coordinates
+   removing cavities, making map in X,Y,Z order - use floats
+   use smooth edge (user-controlled)
 
-Add "Rotate View is on Left/Right mouse" mode in Preferences
+Martin request: libcootapi: Step sample maps
+
+acedrg atom types in cif parse.
+
+SVG for pli
 
 Add coot-ligand-validation to chapi.
+* Difficult.
 
 rainbow ribbons are wrong - even for tutorial modern.
  * related to NRStuff change. Take a look at the code and patch.
 
 does --code work? - is it a XDG Protocol problem?
 
-quick-save needs some visual feedback. Make an overlay that is displayed for a few seconds.
-
-SVG for pli
-
-make an figure, for moorhen intro with blobs that have volume proportional
-   to the number of lines of code: rdkit, mmdb, ccp4libs, gemmi, M2T,
-   libcootapi - M2T, coot - libcootapi - M2T, moorhen JS and TypeScript code
-
 Chapi torsion angle restraints for servalcat
 Make torsion restraints for Rama and rota refinement for servalcat.
-
-Normal waters are no longer fat. Maybe was this fix:
-   66a3d04dad117b3dab37a6a4996267294d65b504
 
 B416 in 8c0p is drawn wrongly in Colour-by-chain mode
 
@@ -40,11 +33,11 @@ Add Place Helix here to moorhen api
 
 Carbohydrate builder in moorhen & coot
 
-Randy & Team's MR placement tool interface
-
-Fix output of coot-ligand-validation with no comand line args
+Randy & Team's MR placement tool interface - Lucrezia
 
 PDBe tools - Lucrezia
+
+Fix output of coot-ligand-validation with no comand line args
 
 Tomo Particle picker
 
@@ -65,9 +58,32 @@ and a key-binding if nothing else.
 
 Fun project: mrcfile importer.
 
+make an figure, for moorhen intro with blobs that have volume proportional
+   to the number of lines of code: rdkit, mmdb, ccp4libs, gemmi, M2T,
+   libcootapi - M2T, coot - libcootapi - M2T, moorhen JS and TypeScript code
+
 Look at 4yjr - beautiful map 452-626 interaction - it should not have a clash face
    (distance to hydrogen atom).
 * Checked - it does not if both residues are refined. That will do.
+
+Add "Rotate View is on Left/Right mouse" mode in Preferences
+* Done.
+
+Charles' recent patch.
+* Done.
+
+Normal waters are no longer fat. Maybe was this fix:
+   66a3d04dad117b3dab37a6a4996267294d65b504
+* Done.
+
+Key-binding to hide/show right-hand panel.
+      GtkWidget *status_bar = widget_from_builder("main_window_statusbar");
+      GtkWidget *tool_bar   = widget_from_builder("main_window_toolbar_hbox_outer");
+      GtkWidget *sidebar    = widget_from_builder("main_window_vbox_inner");
+* Done.
+
+quick-save needs some visual feedback. Make an overlay that is displayed for a few seconds.
+* Done.
 
 difference map peaks panel is a bit too thin when it first appears.
 * Done.

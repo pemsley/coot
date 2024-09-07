@@ -557,8 +557,11 @@ namespace coot {
       };
 
       // attach the chain-id to each returned map
+      //
+      // you can set an informative "state" message
       std::vector<std::pair<std::string, clipper::Xmap<float> > >
-      partition_map_by_chain(const clipper::Xmap<float> &xmap, mmdb::Manager *mol);
+      partition_map_by_chain(const clipper::Xmap<float> &xmap, mmdb::Manager *mol,
+                             std::string *state_string_p);
 
       bool is_EM_map(const clipper::Xmap<float> &xmap);
 

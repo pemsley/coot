@@ -5425,6 +5425,10 @@ string   static std::string sessionid;
    static bool curmudgeon_mode; // default false, particles and faces
    static bool use_sounds; // default true
 
+   static std::vector<std::pair<std::string, clipper::Xmap<float> > > map_partition_results;
+   static int map_partition_results_state;
+   static std::string map_partition_results_state_string; // "Done A Chain" etc.
+
    // add a pumpkin as a graphics object and draw it.
    void pumpkin();
 

@@ -90,6 +90,10 @@ ctpl::thread_pool graphics_info_t::static_thread_pool(coot::get_max_number_of_th
 #endif // HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 
 clipper::Xmap<float> *graphics_info_t::dummy_xmap = new clipper::Xmap<float>;
+std::vector<std::pair<std::string, clipper::Xmap<float> > > graphics_info_t::map_partition_results;
+int graphics_info_t::map_partition_results_state = 0; // inactive
+std::string graphics_info_t::map_partition_results_state_string; // "Done A Chain" etc.
+
 
 //WII
 #ifdef WII_INTERFACE_WIIUSE
@@ -899,7 +903,7 @@ float graphics_info_t::map_radius_slider_max = 50.0;
 short int graphics_info_t::rotate_colour_map_on_read_pdb_flag = 1; // do it.
 short int graphics_info_t::rotate_colour_map_on_read_pdb_c_only_flag = 1; // rotate Cs only by default
 float     graphics_info_t::rotate_colour_map_on_read_pdb = 21.0;  // degrees
-float     graphics_info_t::rotate_colour_map_for_map = 14.0;  // degrees
+float     graphics_info_t::rotate_colour_map_for_map = 31.0; // 20240907-PE 14.0;  // degrees
 
 float graphics_info_t::goodsell_chain_colour_wheel_rotation_step = 0.221;
 

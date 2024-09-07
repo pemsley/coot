@@ -4812,7 +4812,8 @@ coot::util::reverse_map(clipper::Xmap<float> *xmap_p) {
 // but using a mask would be better.
 
 std::vector<std::pair<std::string, clipper::Xmap<float> > >
-coot::util::partition_map_by_chain(const clipper::Xmap<float> &xmap, mmdb::Manager *mol) {
+coot::util::partition_map_by_chain(const clipper::Xmap<float> &xmap, mmdb::Manager *mol,
+                                   std::string *state_string_p) {
 
    std::vector<std::pair<std::string, clipper::Xmap<float> > > v;
 
@@ -4916,6 +4917,7 @@ coot::util::partition_map_by_chain(const clipper::Xmap<float> &xmap, mmdb::Manag
    };
 
    std::cout << "Making reference points for chains" << std::endl;
+   if (state_string_p) *state_string_p = "Making reference points for chains";
    clipper::Cell cell = xmap.cell();
    clipper::Spacegroup sg = xmap.spacegroup();
    clipper::Grid_sampling gs = xmap.grid_sampling();
@@ -4931,6 +4933,7 @@ coot::util::partition_map_by_chain(const clipper::Xmap<float> &xmap, mmdb::Manag
    distance_map.init(sg, cell, gs);
 
    std::cout << "INFO:: Filling distance map with initial values" << std::endl;
+   if (state_string_p) *state_string_p = "Filling distance map with initial values";
    std::map<std::string, int> starting_distance_map;
    for (const auto &item : chain_ids)
       starting_distance_map[item] = 999999;
@@ -4944,8 +4947,10 @@ coot::util::partition_map_by_chain(const clipper::Xmap<float> &xmap, mmdb::Manag
 
    auto manhattan_check = +[] (const std::string &chain_id,
                                const std::vector<clipper::Coord_grid> &reference_points,
-                               clipper::Xmap<std::map<std::string, int> > *distance_map_p) {
+                               clipper::Xmap<std::map<std::string, int> > *distance_map_p,
+                               std::string *info_string_p) {
 
+      if (info_string_p) *info_string_p = "Distance check for " + chain_id;
       clipper::Xmap_base::Map_reference_index ix;
       for (ix = distance_map_p->first(); !ix.last(); ix.next()) {
          std::map<std::string, int>::const_iterator it;
@@ -4972,14 +4977,17 @@ coot::util::partition_map_by_chain(const clipper::Xmap<float> &xmap, mmdb::Manag
       const std::vector<clipper::Coord_grid> &reference_points = rp[chain_id];
       // modify distance map
       // manhattan_check(chain_id, reference_points, &distance_map);
-      threads.push_back(std::thread(manhattan_check, chain_id, reference_points, &distance_map));
+      threads.push_back(std::thread(manhattan_check, chain_id, reference_points, &distance_map,
+                                    state_string_p));
    }
 
+   if (state_string_p) *state_string_p = "Joining threads...";
    std::cout << "INFO:: joining threads" << std::endl;
    for (auto &thread : threads) thread.join();
 
    // now extract each of the maps for each chain
-   std::cout << "INFO:: now constructin the map for each chain" << std::endl;
+   std::cout << "INFO:: now constructing the map for each chain" << std::endl;
+   if (state_string_p) *state_string_p = "Constructing the map for each chain";
 
    clipper::Xmap<std::string> chain_map;
    chain_map.init(sg, cell, gs);
@@ -5008,6 +5016,7 @@ coot::util::partition_map_by_chain(const clipper::Xmap<float> &xmap, mmdb::Manag
          if (chain_id[1] == '+')
             continue;
       std::cout << "INFO:: constructing map for chain " << chain_id << std::endl;
+      if (state_string_p) *state_string_p = "Constructing map for chain " + chain_id;
       clipper::Xmap<float> map_for_chain;
       map_for_chain.init(sg, cell, gs);
       for (ix = chain_map.first(); !ix.last(); ix.next()) {
