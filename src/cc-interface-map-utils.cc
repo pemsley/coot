@@ -389,3 +389,60 @@ void servalcat_refine(int imol_model,
    }
 
 }
+
+// in c-interface-gui.cc
+// fill_combobox_with_map_options(combobox_1, callback);
+// but not in a header
+int fill_combobox_with_map_options(GtkWidget *combobox, GCallback signalfunc);
+
+void show_map_partition_by_chain_dialog() {
+
+   GtkWidget *dialog = widget_from_builder("map_partition_by_chain_dialog");
+
+   // fill map partion dialog
+   GtkWidget *combobox_1 = widget_from_builder("map_partition_by_chain_map_combobox");
+   GtkWidget *combobox_2 = widget_from_builder("map_partition_by_chain_model_combobox");
+
+   int imol_active = 0;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom = graphics_info_t::active_atom_spec();
+   if (active_atom.first)
+      imol_active = active_atom.second.first;
+
+   GCallback callback = G_CALLBACK(nullptr);
+   graphics_info_t g;
+   g.new_fill_combobox_with_coordinates_options(combobox_2, callback, imol_active);
+
+   // in c-interface-gui.cc
+   fill_combobox_with_map_options(combobox_1, callback);
+
+   gtk_widget_set_visible(dialog, TRUE);
+
+}
+
+
+std::vector<int> map_partition_by_chain(int imol_map, int imol_model) {
+
+   std::vector<int> v;
+   graphics_info_t g;
+   if (g.is_valid_model_molecule(imol_model)) {
+      if (g.is_valid_map_molecule(imol_map)) {
+         const clipper::Xmap<float> &xmap = graphics_info_t::molecules[imol_map].xmap;
+         mmdb::Manager *mol = graphics_info_t::molecules[imol_model].atom_sel.mol;
+         std::vector<std::pair<std::string, clipper::Xmap<float> > > maps_info =
+            coot::util::partition_map_by_chain(xmap, mol);
+         if (! maps_info.empty()) {
+            for (const auto &mi : maps_info) {
+               std::string chain_id = mi.first;
+               int imol_for_map = g.create_molecule();
+               std::string label = "Partioned map Chain " + chain_id;
+               bool is_em_map = g.molecules[imol_map].is_EM_map();
+               g.molecules[imol_for_map].install_new_map(mi.second, label, is_em_map);
+               v.push_back(imol_for_map);
+            }
+            g.molecules[imol_map].set_map_is_displayed(false);
+         }
+      }
+   }
+   g.graphics_draw();
+   return v;
+}

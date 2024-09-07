@@ -358,6 +358,11 @@ int handle_read_ccp4_map(const std::string &filename, int is_diff_map_flag);
 
 /*! \brief this reads a EMDB bundle - I don't think they exist any more */
 int handle_read_emdb_data(const std::string &dir_name);
+
+void show_map_partition_by_chain_dialog();
+
+std::vector<int> map_partition_by_chain(int imol_map, int imol_model);
+
 //! \}
 
 #ifdef SWIG

@@ -5649,10 +5649,31 @@ on_map_sharpening_dialog_response() {
 
 extern "C" G_MODULE_EXPORT
 void
-on_map_sharpening_cancel_button_clicked
-                                        (GtkButton       *button,
-                                        gpointer         user_data)
-{
+on_map_sharpening_cancel_button_clicked(GtkButton       *button,
+                                        gpointer         user_data) {
+
+}
+
+
+extern "C" G_MODULE_EXPORT
+void
+on_map_partition_by_chain_dialog_response(GtkDialog       *dialog,
+                                          gint             response_id,
+                                          gpointer         user_data) {
+
+   if (response_id == GTK_RESPONSE_OK) {
+      std::cout << "read the dialog - do the partitioning" << std::endl;
+      GtkWidget *combobox_1 = widget_from_builder("map_partition_by_chain_map_combobox");
+      GtkWidget *combobox_2 = widget_from_builder("map_partition_by_chain_model_combobox");
+      int imol_model = my_combobox_get_imol(GTK_COMBO_BOX(combobox_2));
+      int imol_map   = my_combobox_get_imol(GTK_COMBO_BOX(combobox_1));
+      map_partition_by_chain(imol_map, imol_model);
+   }
+
+   // if (response_id == GTK_RESPONSE_CANCEL)
+   // std::cout << "just close" << std::endl;
+      
+   gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
 
 }
 
@@ -6803,4 +6824,14 @@ on_generic_validation_box_of_buttons_close_button_clicked(GtkButton       *butto
       g.clear_out_container(box);
    }
    gtk_widget_set_visible(dialog, FALSE);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_button_clicked(GtkButton       *button,
+                  gpointer         user_data) {
+
+   GtkWidget *dialog = widget_from_builder("ligand_check_dialog");
+   gtk_widget_set_visible(dialog, FALSE);
+
 }
