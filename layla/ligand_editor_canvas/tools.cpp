@@ -839,7 +839,7 @@ bool DeleteTool::on_hover(ClickContext& ctx, int x, int y) {
 bool DeleteTool::on_molecule_hover(MoleculeClickContext& ctx) {
     if(ctx.control_pressed && !ctx.alt_pressed) {
         // Highlight whole molecule for deletion
-        for(auto i = 0; i < ctx.rdkit_mol->getNumAtoms(); i++) {
+        for(unsigned int i = 0; i < ctx.rdkit_mol->getNumAtoms(); i++) {
             ctx.canvas_mol.add_atom_highlight(i, CanvasMolecule::HighlightType::Hover);
         }
         ctx.canvas_mol.add_highlight_to_all_bonds(CanvasMolecule::HighlightType::Hover);

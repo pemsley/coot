@@ -312,7 +312,7 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
                   if (cat_name == "_pdbx_chem_comp_model_bond")
                      rmit.n_atoms += comp_bond(mmCIFLoop, imol_enc, true);
 
-                  // PDBe depiction
+                  // PDBe depiction -  needs _pdbe_chem_comp_bond_depiction parser also
                   if (cat_name == "_pdbe_chem_comp_atom_depiction")
                      pdbe_chem_comp_atom_depiction(mmCIFLoop, imol_enc);
 
