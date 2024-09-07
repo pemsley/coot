@@ -259,3 +259,30 @@ molecules_container_t::make_power_scaled_map(int imol_ref, int imol_map_for_scal
   }
   return idx;
 }
+
+
+std::vector<int>
+molecules_container_t::partition_map_by_chain(int imol_map, int imol_model) {
+
+   std::vector<int> v;
+   if (is_valid_map_molecule(imol_map)) {
+      if (is_valid_model_molecule(imol_model)) {
+         const clipper::Xmap<float> &xmap = molecules[imol_map].xmap;
+         mmdb::Manager *mol = molecules[imol_model].atom_sel.mol;
+         std::vector<std::pair<std::string, clipper::Xmap<float> > > maps_info =
+            coot::util::partition_map_by_chain(xmap, mol);
+         if (! maps_info.empty()) {
+            bool is_em_map = molecules[imol_map].is_EM_map();
+            for (const auto &mi : maps_info) {
+               std::string chain_id = mi.first;
+               const clipper::Xmap<float> &xmap_new = mi.second;
+               int imol_for_map = molecules.size();
+               std::string label = "Partitioned map Chain " + chain_id;
+               molecules.push_back(coot::molecule_t(label, imol_for_map, xmap_new, is_em_map));
+               v.push_back(imol_for_map);
+            }
+         }
+      }
+   }
+   return v;
+}

@@ -1043,6 +1043,15 @@ public:
    //! @return the index of the new map - or -1 on failure
    int mask_map_by_atom_selection(int imol_coords, int imol_map, const std::string &cid, float atom_radius, bool invert_flag);
 
+   //! Partition the input map. Each voxel in the map is assigned to the chain
+   //! to which it is nearest. Unlike masking, the generated maps are not restricted to be
+   //! "close" to the atoms in the atom selection.
+   //!
+   //! c.f. maskChains for ChimeraX - JiangLab
+   //!
+   //! @return a vector/list of the molecules indices of the newly created maps
+   std::vector<int> partition_map_by_chain(int imol_map, int imol_model);
+
    //! generate a new map which is the hand-flipped version of the input map.
    //! @return the molecule index of the new map, or -1 on failure.
    int flip_hand(int imol_map);
