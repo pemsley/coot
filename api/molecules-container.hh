@@ -129,7 +129,7 @@ class molecules_container_t {
    bool use_torsion_restraints;
    float torsion_restraints_weight;
 
-   static ctpl::thread_pool static_thread_pool; // does this need to be static?
+   ctpl::thread_pool thread_pool;
    bool show_timings;
 
    coot::restraints_container_t *last_restraints;
@@ -306,6 +306,7 @@ class molecules_container_t {
       use_gemmi = true;
       imol_refinement_map = -1;
       imol_difference_map = -1;
+      thread_pool.resize(8);
       setup_syminfo();
       mmdb::InitMatType();
       geometry_init_standard(); // do this by default now
@@ -1957,7 +1958,7 @@ public:
    double test_launching_threads(unsigned int n_threads_per_batch, unsigned int n_batches) const;
 
    //! @return time in microsections
-   double test_thread_pool_threads(unsigned int n_threads) const;
+   double test_thread_pool_threads(unsigned int n_threads);
 
    // get acces to protein geometry
    coot::protein_geometry & get_geometry() {
