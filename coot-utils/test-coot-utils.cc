@@ -1584,8 +1584,9 @@ void test_partition_map_by_chain(int argc, char **argv) {
       atom_selection_container_t asc = get_atom_selection(pdb_file_name, false, true, false);
 
       if (asc.read_success) {
+         std::string status_string;
          std::vector<std::pair<std::string, clipper::Xmap<float> > > maps =
-         coot::util::partition_map_by_chain(xmap_1, asc.mol);
+            coot::util::partition_map_by_chain(xmap_1, asc.mol, &status_string);
          for (size_t i=0; i < maps.size(); i++) {
             std::string map_file_name = "partitioned-" + maps[i].first + ".map";
             const auto &xmap = maps[i].second;
@@ -1596,7 +1597,47 @@ void test_partition_map_by_chain(int argc, char **argv) {
          }
       }
    }
+}
 
+
+void test_make_mask_map(int argc, char **argv) {
+
+   if (argc > 2) {
+      std::string map_file_name_1 = argv[1];
+      clipper::CCP4MAPfile file_1;
+      clipper::Xmap<float> xmap;
+      std::cout << "# reading map " << map_file_name_1 << std::endl;
+      file_1.open_read(map_file_name_1);
+      file_1.import_xmap(xmap);
+
+      clipper::Cell cell = xmap.cell();
+      clipper::Spacegroup sg = xmap.spacegroup();
+      clipper::Grid_sampling gs = xmap.grid_sampling();
+
+      std::cout << "Cell:" << cell.format() << std::endl;
+      std::cout << "Spacegroup:" << sg.symbol_hm() << std::endl;
+      std::cout << "Grid Sampling:" << gs.format() << std::endl;
+
+      std::string pdb_file_name = argv[2];
+      atom_selection_container_t asc = get_atom_selection(pdb_file_name, false, true, false);
+
+      if (asc.read_success) {
+         mmdb::Manager *mol = asc.mol;
+         int selection_handle = mol->NewSelection();
+         std::string selection_string = "/";
+         asc.mol->Select(selection_handle, mmdb::STYPE_ATOM, selection_string.c_str(), mmdb::SKEY_NEW);
+         float radius = 6.0f;
+         float smooth = 1.0f;
+         clipper::Xmap<float> mask_xmap =
+            coot::util::make_map_mask(sg, cell, gs, asc.mol, selection_handle, radius, smooth);
+         clipper::CCP4MAPfile outmapfile;
+         std::string map_file_name = "A-chain-mask.map";
+         outmapfile.open_write(map_file_name);
+         outmapfile.export_xmap(mask_xmap);
+         outmapfile.close_write();
+         mol->DeleteSelection(selection_handle);
+      }
+   }
 }
 
 
@@ -1605,6 +1646,9 @@ int main(int argc, char **argv) {
    mmdb::InitMatType();
 
    if (true)
+      test_make_mask_map(argc, argv);
+
+   if (false)
       test_partition_map_by_chain(argc, argv);
 
    if (false)

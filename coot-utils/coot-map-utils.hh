@@ -208,6 +208,14 @@ namespace coot {
       clipper::Xmap<float> mask_map(const clipper::Xmap<float> &xmap_in,
 				    const std::vector<mmdb::Residue *> &neighbs);
 
+      clipper::Xmap<float> make_map_mask(const clipper::Spacegroup &space_group,
+                                         const clipper::Cell &cell,
+                                         const clipper::Grid_sampling &grid_sampling,
+                                         mmdb::Manager *mol,
+                                         int atom_selection_handle,
+                                         float radius,
+                                         float smooth);
+
       // return a number less than -1 on badness
       // (perhaps this should return the atom map and the mask map)
       //
