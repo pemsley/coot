@@ -434,14 +434,14 @@ void map_partition_by_chain_threaded(int imol_map, int imol_model) {
 
       bool keep_going = TRUE;
       int imol_map = GPOINTER_TO_INT(data);
-      std::cout << "checking...  " << graphics_info_t::map_partition_results_state << std::endl;
+      // std::cout << "checking...  " << graphics_info_t::map_partition_results_state << std::endl;
       GtkWidget *label = widget_from_builder("partition_map_by_chain_status_label");
       if (label) {
          gtk_widget_set_visible(label, TRUE);
          gtk_label_set_text(GTK_LABEL(label), graphics_info_t::map_partition_results_state_string.c_str());
       }
       if (graphics_info_t::map_partition_results_state == 1) {
-         std::cout << "still going..." << std::endl;
+         // keep going
       } else {
          if (! graphics_info_t::map_partition_results.empty()) {
             bool is_em_map = graphics_info_t::molecules[imol_map].is_EM_map();
