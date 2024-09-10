@@ -5057,6 +5057,13 @@ coot::util::make_map_mask(const clipper::Spacegroup &space_group,
    for (int iat=0; iat<n_atoms; iat++) {
       mmdb::Atom *at = selected_atoms[iat];
       if (! at->isTer()) {
+
+         if (false) { // debug atom selection
+            std::string chain_id = at->GetChainID();
+            if (chain_id == "R") {
+               std::cout << "masking " << coot::atom_spec_t(at) << std::endl;
+            }
+         }
    
          float atom_radius_sq = radius * radius;
          clipper::Coord_orth pt = co(at);

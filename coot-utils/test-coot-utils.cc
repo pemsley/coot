@@ -1614,9 +1614,9 @@ void test_make_mask_map(int argc, char **argv) {
       clipper::Spacegroup sg = xmap.spacegroup();
       clipper::Grid_sampling gs = xmap.grid_sampling();
 
-      std::cout << "Cell:" << cell.format() << std::endl;
-      std::cout << "Spacegroup:" << sg.symbol_hm() << std::endl;
-      std::cout << "Grid Sampling:" << gs.format() << std::endl;
+      std::cout << "Cell: " << cell.format() << std::endl;
+      std::cout << "Spacegroup: " << sg.symbol_hm() << std::endl;
+      std::cout << "Grid Sampling: " << gs.format() << std::endl;
 
       std::string pdb_file_name = argv[2];
       atom_selection_container_t asc = get_atom_selection(pdb_file_name, false, true, false);
