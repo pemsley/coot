@@ -5,6 +5,13 @@ Martin request: libcootapi: coordinates -> mask with same coordinates
    removing cavities, making map in X,Y,Z order - use floats
    use smooth edge (user-controlled)
 
+Add Noughties Physics into the Preferences
+
+Key-binding to hide/show right-hand panel.
+      GtkWidget *status_bar = widget_from_builder("main_window_statusbar");
+      GtkWidget *tool_bar   = widget_from_builder("main_window_toolbar_hbox_outer");
+      GtkWidget *sidebar    = widget_from_builder("main_window_vbox_inner");
+
 Martin request: libcootapi: Step sample maps
 
 Adaptive rotation for the mouse motion - make it more for a widescreen.

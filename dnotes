@@ -11428,7 +11428,6 @@ GTK4 pixel scaling
 https://www.reddit.com/r/GTK/comments/1c0xaar/gtk4_any_way_to_lock_the_size_of_a_logical_pixel/
 https://news.ycombinator.com/item?id=30796841
 
-
 -----
 Fri 26 Jul 2024 19:16:14 BST
 
@@ -11486,3 +11485,19 @@ Sat Sep  7 03:41:40 PM BST 2024
 
    see commit 0cf8c4679a84a6dd4f51011c49bbc489ad2cba83
               d18123bc1ef908a2a833e05a6a02a5ccaa5ea615
+
+---
+Thu 22 Aug 2024 03:57:42 BST
+
+   what is the Intel Open Image Denoise 2.2 benchmark?
+
+
+---
+Thu  5 Sep 2024 16:41:54 BST
+
+   Plant FASTA genome
+   https://ftp.ensemblgenomes.ebi.ac.uk/pub/plants/release-59/fasta/chlamydomonas_reinhardtii/pep
+   more in
+   https://ftp.ensemblgenomes.ebi.ac.uk/pub/
+   you want the peps
+
