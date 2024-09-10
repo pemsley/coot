@@ -11480,3 +11480,9 @@ Sat Sep  7 03:41:40 PM BST 2024
    map_partition_by_chain_threaded() is a good example of non-blocking
    map generation. It creates a detacted thread and a callback to look
    for the results of the thread. The results are stored in graphics_info_t.
+
+   In this case the selector is a dialog, it should be, for such a small
+   interface, a main-window overlay.
+
+   see commit 0cf8c4679a84a6dd4f51011c49bbc489ad2cba83
+              d18123bc1ef908a2a833e05a6a02a5ccaa5ea615

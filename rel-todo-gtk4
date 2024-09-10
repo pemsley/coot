@@ -7,6 +7,8 @@ Martin request: libcootapi: coordinates -> mask with same coordinates
 
 Martin request: libcootapi: Step sample maps
 
+Adaptive rotation for the mouse motion - make it more for a widescreen.
+
 acedrg atom types in cif parse.
 
 SVG for pli
