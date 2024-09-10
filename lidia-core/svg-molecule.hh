@@ -26,8 +26,6 @@
 #ifndef SVG_MOLECULE_HH
 #define SVG_MOLECULE_HH
 
-#ifdef MAKE_ENHANCED_LIGAND_TOOLS
-
 #include "lig-build.hh"
 #include "lbg-shared.hh"
 #include "use-rdkit.hh"
@@ -105,5 +103,4 @@ public:
 };
 
 
-#endif // MAKE_ENHANCED_LIGAND_TOOLS
 #endif // SVG_MOLECULE_HH
