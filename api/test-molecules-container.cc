@@ -5855,6 +5855,17 @@ int test_ligand_distortion(molecules_container_t &mc) {
    return status;
 }
 
+int test_import_LIG_dictionary(molecules_container_t &mc) {
+
+   int status = 0;
+   starting_test(__FUNCTION__);
+   mc.import_cif_dictionary("LIG.cif", coot::protein_geometry::IMOL_ENC_ANY);
+   int imol_pdb = mc.read_pdb("7vvl.pdb");
+   status = mc.import_cif_dictionary("LIG.cif", imol_pdb);
+   return status;
+}
+
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -6162,8 +6173,9 @@ int main(int argc, char **argv) {
          // status += run_test(test_undo_and_redo_2, "Undo and redo 2", mc);
          // status += run_test(test_gltf_export_via_api,   "glTF via api", mc);
          // status += run_test(test_import_ligands_with_same_name_and_animated_refinement, "Test import ligands with same name and animated refinement", mc);
-         status += run_test(test_dictionary_conformers,   "Dictionary Conformers", mc);
+         // status += run_test(test_dictionary_conformers,   "Dictionary Conformers", mc);
          // status += run_test(test_ligand_distortion,   "Ligand Distortion", mc);
+         status += run_test(test_import_LIG_dictionary,   "Import LIG.cif", mc);
 
          if (status == n_tests) all_tests_status = 0;
 
