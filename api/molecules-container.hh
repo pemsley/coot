@@ -1052,6 +1052,11 @@ public:
    //! @return a vector/list of the molecules indices of the newly created maps
    std::vector<int> partition_map_by_chain(int imol_map, int imol_model);
 
+   //! make a masked map
+   //!
+   //! @return the index of the newly created mask. Return -1 on failure.
+   int make_mask(int imol_map_ref, int imol_model, const std::string &atom_selection_cid, float radius);
+
    //! generate a new map which is the hand-flipped version of the input map.
    //! @return the molecule index of the new map, or -1 on failure.
    int flip_hand(int imol_map);

@@ -269,8 +269,9 @@ molecules_container_t::partition_map_by_chain(int imol_map, int imol_model) {
       if (is_valid_model_molecule(imol_model)) {
          const clipper::Xmap<float> &xmap = molecules[imol_map].xmap;
          mmdb::Manager *mol = molecules[imol_model].atom_sel.mol;
+         std::string state_string;
          std::vector<std::pair<std::string, clipper::Xmap<float> > > maps_info =
-            coot::util::partition_map_by_chain(xmap, mol);
+            coot::util::partition_map_by_chain(xmap, mol, &state_string);
          if (! maps_info.empty()) {
             bool is_em_map = molecules[imol_map].is_EM_map();
             for (const auto &mi : maps_info) {
@@ -285,4 +286,35 @@ molecules_container_t::partition_map_by_chain(int imol_map, int imol_model) {
       }
    }
    return v;
+}
+
+
+//! make a masked map
+//!
+//! @return the index of the newly created mask. Return -1 on failure.
+int
+molecules_container_t::make_mask(int imol_map_ref, int imol_model, const std::string &atom_selection_cid, float radius) {
+
+   int imol_map_new = -1;
+   if (is_valid_map_molecule(imol_map_ref)) {
+      if (is_valid_model_molecule(imol_model)) {
+         const clipper::Xmap<float> &xmap = molecules[imol_map_ref].xmap;
+         mmdb::Manager *mol = molecules[imol_model].atom_sel.mol;
+         clipper::Cell cell = xmap.cell();
+         clipper::Spacegroup spacegroup = xmap.spacegroup();
+         clipper::Grid_sampling gs = xmap.grid_sampling();
+
+         int selhandle = mol->NewSelection(); // d
+         mol->Select(selhandle, mmdb::STYPE_ATOM, atom_selection_cid.c_str(), mmdb::SKEY_NEW);
+         clipper::Xmap<float> xmap_new = coot::util::make_map_mask(spacegroup, cell, gs, mol, selhandle, radius, 1.0f);
+         mol->DeleteSelection(selhandle);
+
+         imol_map_new = molecules.size();
+         std::string label = "Mask created by selection " + atom_selection_cid;
+         bool is_em_map = molecules[imol_map_ref].is_EM_map();
+         molecules.push_back(coot::molecule_t(label, imol_map_new, xmap_new, is_em_map));
+      }
+   }
+   return imol_map_new;
+
 }

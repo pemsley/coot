@@ -69,12 +69,11 @@ coot::molecule_t::is_EM_map() const {
 
    bool ret_is_em = false;
 
-   std::cout << "in coot::molecule::is_EM_map() A " << std::endl;
+   if (false)
+      std::cout << "in coot::molecule::is_EM_map() A " << std::endl;
 
    if (has_xmap()) {
-      std::cout << "in coot::molecule_t::is_EM_map() B " << is_em_map_cached_flag << std::endl;
       if (is_em_map_cached_flag == 1) { // -1 means unset
-         std::cout << "in coot::molecule_t::is_EM_map() C " << std::endl;
          ret_is_em = true;
       }
    }

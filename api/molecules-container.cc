@@ -738,9 +738,10 @@ molecules_container_t::import_cif_dictionary(const std::string &cif_file_name, i
                                                                  cif_dictionary_read_number, imol_enc);
    cif_dictionary_read_number++;
 
-   std::cout << "debug:: import_cif_dictionary() cif_file_name(): " << cif_file_name
-             << " success " << r.success << " with " << r.n_atoms << " atoms " << r.n_bonds
-             << " bonds " << r.n_links << " links and momoner index " << r.monomer_idx << std::endl;
+   std::cout << "debug:: import_cif_dictionary() cif_file_name: " << cif_file_name
+             << " for imol_enc " << imol_enc << " success " << r.success << " with "
+             << r.n_atoms << " atoms " << r.n_bonds << " bonds " << r.n_links << " links "
+             << " and monomer_idx " << r.monomer_idx << std::endl;
 
    return r.success;
 
@@ -1210,7 +1211,7 @@ molecules_container_t::read_ccp4_map(const std::string &file_name, bool is_a_dif
       }
    }
 
-   if (true) {
+   if (false) {
       if (is_valid_map_molecule(imol)) {
          short int em_status = molecules[imol].is_EM_map();
          std::cout << "here with imol " << imol << " molecules size " << molecules.size() << std::endl;
