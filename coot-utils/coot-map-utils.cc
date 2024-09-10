@@ -5058,13 +5058,6 @@ coot::util::make_map_mask(const clipper::Spacegroup &space_group,
       mmdb::Atom *at = selected_atoms[iat];
       if (! at->isTer()) {
 
-         if (false) { // debug atom selection
-            std::string chain_id = at->GetChainID();
-            if (chain_id == "R") {
-               std::cout << "masking " << coot::atom_spec_t(at) << std::endl;
-            }
-         }
-   
          float atom_radius_sq = radius * radius;
          clipper::Coord_orth pt = co(at);
          clipper::Coord_frac cf = pt.coord_frac(cell);
@@ -5084,8 +5077,9 @@ coot::util::make_map_mask(const clipper::Spacegroup &space_group,
             for (iu = ix; iu.coord().u() <= grid.max().u(); iu.next_u() ) {
                for ( iv = iu; iv.coord().v() <= grid.max().v(); iv.next_v() ) {
                   for ( iw = iv; iw.coord().w() <= grid.max().w(); iw.next_w() ) {
-                     float dd = (iw.coord().coord_frac(grid_sampling).coord_orth(cell) - pt).lengthsq();
-                     const float &current_v = xmap[ix];
+                     clipper::Coord_orth gp_orth = iw.coord().coord_frac(grid_sampling).coord_orth(cell);
+                     float dd = (gp_orth - pt).lengthsq();
+                     const float &current_v = xmap[iw];
                      if (current_v < 1.0) {
                         if (dd < atom_radius_sq) {
                            float d = sqrtf(dd);

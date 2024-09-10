@@ -1626,7 +1626,7 @@ void test_make_mask_map(int argc, char **argv) {
          int selection_handle = mol->NewSelection();
          std::string selection_string = "/";
          asc.mol->Select(selection_handle, mmdb::STYPE_ATOM, selection_string.c_str(), mmdb::SKEY_NEW);
-         float radius = 6.0f;
+         float radius = 4.5f;
          float smooth = 1.0f;
          clipper::Xmap<float> mask_xmap =
             coot::util::make_map_mask(sg, cell, gs, asc.mol, selection_handle, radius, smooth);
