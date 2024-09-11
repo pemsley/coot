@@ -96,6 +96,14 @@ molecule_class_info_t::gtk3_draw() {
 }
 
 void
+molecule_class_info_t::set_use_vertex_gradients_for_map_normals(bool state) {
+
+   use_vertex_gradients_for_map_normals_flag = state;
+   update_map_internal();
+}
+
+
+void
 molecule_class_info_t::draw_map_molecule( bool draw_transparent_maps,
                                           Shader &shader, // unusual reference.. .change to pointer for consistency?
                                           const glm::mat4 &mvp,
@@ -752,6 +760,7 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
          threads.push_back(std::thread(gensurf_and_add_vecs_threaded_workpackage,
                                        &xmap, contour_level, dy_radius, centre,
                                        isample_step, ii, n_reams, is_em_map,
+                                       use_vertex_gradients_for_map_normals_flag,
                                        &draw_vector_sets));
       }
       for (int ii=0; ii<n_reams; ii++)
@@ -764,6 +773,7 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
             threads.push_back(std::thread(gensurf_and_add_vecs_threaded_workpackage,
                                           &xmap, -contour_level, dy_radius, centre,
                                           isample_step, ii, n_reams, is_em_map,
+                                          use_vertex_gradients_for_map_normals_flag,
                                           &draw_diff_map_vector_sets));
          }
          for (int ii=0; ii<n_reams; ii++)
@@ -861,6 +871,7 @@ void gensurf_and_add_vecs_threaded_workpackage(const clipper::Xmap<float> *xmap_
 					       int isample_step,
 					       int iream_start, int n_reams,
 					       bool is_em_map,
+                                               bool use_vertex_gradients_for_map_normals_flag,
 					       std::vector<coot::density_contour_triangles_container_t> *draw_vector_sets_p) {
 
    try {
@@ -869,7 +880,8 @@ void gensurf_and_add_vecs_threaded_workpackage(const clipper::Xmap<float> *xmap_
       coot::density_contour_triangles_container_t tri_con =
         my_isosurface.GenerateTriangles_from_Xmap(std::cref(*xmap_p),
                                                   contour_level, dy_radius, centre, isample_step,
-                                                  iream_start, n_reams, is_em_map);
+                                                  iream_start, n_reams, is_em_map,
+                                                  use_vertex_gradients_for_map_normals_flag);
 
       // we are about to put the triangles into draw_vectors, so get the lock to
       // do that, so that the threads don't try to change draw_vectors at the same time.

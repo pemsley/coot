@@ -198,6 +198,8 @@ molecule_class_info_t::setup_internal() { // init
    pending_contour_level_change_count = 0;
    data_resolution_ = -1; // unset
 
+   use_vertex_gradients_for_map_normals_flag = false;
+
    // fourier (for phase recombination (potentially) in refmac:
    fourier_weight_label = ""; // unset initially.
 

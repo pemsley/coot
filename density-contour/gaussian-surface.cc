@@ -238,11 +238,13 @@ coot::gaussian_surface_t::using_an_xmap(mmdb::Manager *mol, const std::string &c
    double diag_distance = clipper::Coord_orth::length(e.first, e.second);
    float dy_radius = diag_distance / 2.0;
 
+   bool use_vertex_gradients_for_map_normals_flag = true;
    CIsoSurface<float> my_isosurface;
    coot::density_contour_triangles_container_t tri_con =
         my_isosurface.GenerateTriangles_from_Xmap(std::cref(xmap),
                                                   contour_level, dy_radius, centre, isample_step,
-                                                  iream_start, n_reams, is_em_map);
+                                                  iream_start, n_reams, is_em_map,
+                                                  use_vertex_gradients_for_map_normals_flag);
 
    if (false)
       std::cout << "tri_con points: " << tri_con.points.size()
@@ -268,8 +270,10 @@ coot::gaussian_surface_t::using_an_xmap(mmdb::Manager *mol, const std::string &c
       mesh.triangles.push_back(tri);
    }
 
-   normals_from_function_gradient(xmap, coords_base_glm); // changes the normal in the verties of the mesh
 
+   // 20240911-PE do I need this now?
+   // I think not.
+   // normals_from_function_gradient(xmap, coords_base_glm); // changes the normal in the verties of the mesh
 }
 
 void
@@ -314,7 +318,8 @@ coot::gaussian_surface_t::normals_from_function_gradient(const clipper::Xmap<flo
    auto tp_1 = std::chrono::high_resolution_clock::now();
    auto d10  = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
 
-   // std::cout << "normals_from_function_gradient(): time " << d10 << " ms " << std::endl;
+   if (false)
+      std::cout << "normals_from_function_gradient(): time " << d10 << " ms " << std::endl;
 }
 
 void
@@ -362,11 +367,13 @@ coot::gaussian_surface_t::using_calc_density(mmdb::Manager *mol) {
    bool is_em_map = true;
    float dy_radius = 50.0;
 
+   bool use_vertex_gradients_for_map_normals_flag = true;
    CIsoSurface<float> my_isosurface;
    coot::density_contour_triangles_container_t tri_con =
         my_isosurface.GenerateTriangles_from_Xmap(std::cref(xmap),
                                                   contour_level, dy_radius, centre, isample_step,
-                                                  iream_start, n_reams, is_em_map);
+                                                  iream_start, n_reams, is_em_map,
+                                                  use_vertex_gradients_for_map_normals_flag);
 
    std::cout << "tri_con points: " << tri_con.points.size() << " vertices " << tri_con.point_indices.size() << " triangles"
              << std::endl;

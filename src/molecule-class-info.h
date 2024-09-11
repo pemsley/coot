@@ -1200,6 +1200,9 @@ public:        //                      public
    // int n_diff_map_draw_vectors;
    std::vector<coot::density_contour_triangles_container_t> draw_diff_map_vector_sets;
 
+   void set_use_vertex_gradients_for_map_normals(bool state);
+   bool use_vertex_gradients_for_map_normals_flag;
+
    coot::Cartesian  centre_of_molecule() const;
    float size_of_molecule() const; // return the standard deviation of
 				   // the length of the atoms from the

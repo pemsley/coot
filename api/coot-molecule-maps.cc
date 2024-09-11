@@ -314,10 +314,12 @@ void gensurf_and_add_vecs_threaded_workpackage(const clipper::Xmap<float> *xmap_
    try {
       CIsoSurface<float> my_isosurface;
 
+      bool use_vertex_gradients_for_map_normals_flag = false; // give user control
       coot::density_contour_triangles_container_t tri_con =
         my_isosurface.GenerateTriangles_from_Xmap(std::cref(*xmap_p),
                                                   contour_level, dy_radius, centre, isample_step,
-                                                  iream_start, n_reams, is_em_map);
+                                                  iream_start, n_reams, is_em_map,
+                                                  use_vertex_gradients_for_map_normals_flag);
 
       // we are about to put the triangles into draw_vectors, so get the lock to
       // do that, so that the threads don't try to change draw_vectors at the same time.

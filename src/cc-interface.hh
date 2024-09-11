@@ -367,6 +367,10 @@ std::vector<int> map_partition_by_chain(int imol_map, int imol_model);
 //! Use the function for use in the GUI (non-blocking, no results returned)
 void map_partition_by_chain_threaded(int imol_map, int imol_model);
 
+//! the map should be displayed and not a difference map
+void use_vertex_gradients_for_map_normals_for_latest_map();
+
+
 //! \}
 
 #ifdef SWIG

@@ -194,5 +194,6 @@ coot::density_contour_triangles_container_t::calculate_normals_for_vertices(cons
    auto tp_1 = std::chrono::high_resolution_clock::now();
    auto d10  = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
 
-   std::cout << "normals_from_function_gradient(): time " << d10 << " ms " << std::endl;
+   if (false)
+      std::cout << "normals_from_function_gradient(): time " << d10 << " ms " << std::endl;
 }
