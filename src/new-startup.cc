@@ -226,6 +226,12 @@ new_startup_on_glarea_resize(GtkGLArea *glarea, gint width, gint height) {
 
 }
 
+void
+new_startup_on_glarea_enter(GtkGLArea *glarea) {
+
+  std::cout << "enter!" << std::endl;
+}
+
 // void on_glarea_realize(GtkWidget *widget); // using this give linking problems.
 
 GtkWidget *new_startup_create_glarea_widget() {
@@ -241,6 +247,7 @@ GtkWidget *new_startup_create_glarea_widget() {
    g_signal_connect(gl_area, "unrealize", G_CALLBACK(new_startup_unrealize), NULL);
    g_signal_connect(gl_area, "render",    G_CALLBACK(new_startup_on_glarea_render),  NULL);
    g_signal_connect(gl_area, "resize",    G_CALLBACK(new_startup_on_glarea_resize),  NULL);
+   g_signal_connect(gl_area, "enter",     G_CALLBACK(new_startup_on_glarea_enter),  NULL);
 
    gtk_widget_set_can_focus(gl_area, TRUE);
    gtk_widget_set_focusable(gl_area, TRUE);

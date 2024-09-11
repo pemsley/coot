@@ -42,6 +42,25 @@ molecule_class_info_t::make_molecularrepresentationinstance(const std::string &a
 
 }
 
+//   std::vector<std::pair<std::string, float> > M2T_float_params;
+//   std::vector<std::pair<std::string, float> > M2T_int_params;
+
+//! Update float parameter for MoleculesToTriangles molecular mesh
+void
+molecule_class_info_t::M2T_updateFloatParameter(const std::string &param_name, float value) {
+
+   M2T_float_params.push_back(std::make_pair(param_name, value));
+}
+
+//! Update int parameter for MoleculesToTriangles molecular mesh
+void
+molecule_class_info_t::M2T_updateIntParameter(const std::string &param_name, int value) {
+
+   M2T_int_params.push_back(std::make_pair(param_name, value));
+}
+
+
+
 void
 molecule_class_info_t::set_mol_triangles_is_displayed(int state) {
 
@@ -66,7 +85,6 @@ molecule_class_info_t::add_molecular_representation(const std::string &atom_sele
                                                     const std::string &style) {
    int status = 0;
 
-#ifdef USE_MOLECULES_TO_TRIANGLES
 
    std::cout << "DEBUG:: in mcit::add_molecular_representation() atom_selection: \"" << atom_selection << "\""
              << " colour_scheme: \"" << colour_scheme << "\" style: \"" << style << "\"" << std::endl;
@@ -98,7 +116,8 @@ molecule_class_info_t::add_molecular_representation(const std::string &atom_sele
             int n_res = chain_p->GetNumberOfResidues();
             if (n_res > 1) {
                std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > verts_and_tris =
-                  mmg.get_molecular_triangles_mesh(atom_sel.mol, chain_p, colour_scheme, style);
+                  mmg.get_molecular_triangles_mesh(atom_sel.mol, chain_p, colour_scheme, style,
+                  M2T_float_params, M2T_int_params);
                Mesh mesh(verts_and_tris);
                mesh.set_name(atom_selection + " " + colour_scheme + " Rainbow Ribbons");
                meshes.push_back(mesh);
@@ -110,7 +129,7 @@ molecule_class_info_t::add_molecular_representation(const std::string &atom_sele
    } else {
 
       std::vector<molecular_triangles_mesh_t> mtm =
-         mmg.get_molecular_triangles_mesh(atom_sel.mol, atom_selection, colour_scheme, style);
+         mmg.get_molecular_triangles_mesh(atom_sel.mol, atom_selection, colour_scheme, style, M2T_float_params, M2T_int_params);
 
       // Mesh mesh(mtm);
       // meshes.push_back(mesh);
@@ -137,7 +156,6 @@ molecule_class_info_t::add_molecular_representation(const std::string &atom_sele
    std::cout << "DEBUG:: mcit::add_molecular_representation() ... for molecule " << imol_no << " we have "
              << meshes.size() << " meshes " << std::endl;
 
-#endif // USE_MOLECULES_TO_TRIANGLES
    return status;
 }
 
@@ -146,7 +164,6 @@ molecule_class_info_t::add_molecular_representation(const std::string &atom_sele
 void
 molecule_class_info_t::remove_molecular_representation(int idx) {
 
-#ifdef USE_MOLECULES_TO_TRIANGLES
    if (idx >= 0) {
 
       // this will shuffle the indices of the other molecule representations, hmm...
@@ -159,5 +176,4 @@ molecule_class_info_t::remove_molecular_representation(int idx) {
       }
    }
 
-#endif // USE_MOLECULES_TO_TRIANGLES
 }

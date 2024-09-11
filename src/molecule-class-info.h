@@ -3566,6 +3566,14 @@ void draw_map_molecule(bool draw_transparent_maps,
    std::vector<std::shared_ptr<MolecularRepresentationInstance> > molrepinsts;
 #endif // USE_MOLECULES_TO_TRIANGLES
 
+   std::vector<std::pair<std::string, float> > M2T_float_params;
+   std::vector<std::pair<std::string, int> >   M2T_int_params;
+   //! Update float parameter for MoleculesToTriangles molecular mesh
+   void M2T_updateFloatParameter(const std::string &param_name, float value);
+
+   //! Update int parameter for MoleculesToTriangles molecular mesh
+   void M2T_updateIntParameter(const std::string &param_name, int value);
+
    // return the index in the molrepinsts vector (can be negative for failure)
    int make_molecularrepresentationinstance(const std::string &atom_selection,
 					    const std::string &colour_scheme,

@@ -10932,7 +10932,8 @@ molecule_class_info_t::add_ribbon_representation_with_user_defined_residue_colou
          if (n_res > 1) {
             // the indexing into the user_defined_colours vector is in the UDD data of the residue
             std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > verts_and_tris =
-               mmg.get_molecular_triangles_mesh_for_ribbon_with_user_defined_residue_colours(atom_sel.mol, chain_p, user_defined_colours);
+               mmg.get_molecular_triangles_mesh_for_ribbon_with_user_defined_residue_colours(atom_sel.mol, chain_p,
+                                                                                             user_defined_colours, M2T_float_params, M2T_int_params);
             Mesh mesh(verts_and_tris);
             mesh.set_name(mesh_name);
             meshes.push_back(mesh);

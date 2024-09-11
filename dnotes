@@ -11501,3 +11501,18 @@ Thu  5 Sep 2024 16:41:54 BST
    https://ftp.ensemblgenomes.ebi.ac.uk/pub/
    you want the peps
 
+----
+
+        updateFloatParameter("ribbonStyleCoilThickness",0.3);
+        updateFloatParameter("ribbonStyleHelixWidth",1.2);
+        updateFloatParameter("ribbonStyleStrandWidth",1.2);
+        updateFloatParameter("ribbonStyleArrowWidth",1.5);
+        updateFloatParameter("ribbonStyleDNARNAWidth",1.5);
+        updateFloatParameter("cylindersStyleCylinderRadius",0.2);
+        updateFloatParameter("cylindersStyleBallRadius",0.2);
+        updateFloatParameter("surfaceStyleProbeRadius",1.4);
+        updateFloatParameter("ballsStyleRadiusMultiplier",1.);
+        updateIntParameter  ("ribbonStyleAxialSampling",6);
+        updateIntParameter  ("cylindersStyleAngularSampling",6);
+        updateIntParameter  ("dishStyleAngularSampling",32);
+

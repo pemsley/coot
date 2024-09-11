@@ -26,8 +26,6 @@
 
 // Mesh generation code for MolecularTriangles
 
-#ifdef USE_MOLECULES_TO_TRIANGLES
-
 #include <memory>
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/string_cast.hpp>  // to_string()
@@ -47,11 +45,21 @@
 #include "coot-utils/oct.hh"
 
 std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> >
-molecular_mesh_generator_t::molecular_representation_instance_to_mesh(std::shared_ptr<MolecularRepresentationInstance> molrepinst_1) {
+molecular_mesh_generator_t::molecular_representation_instance_to_mesh(std::shared_ptr<MolecularRepresentationInstance> molrepinst_1,
+                                                         const std::vector<std::pair<std::string, float> > &M2T_float_params,
+                                                         const std::vector<std::pair<std::string, int> >   &M2T_int_params) {
 
    std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > vp;
 
    std::shared_ptr<Representation> r = molrepinst_1->getRepresentation();
+
+   if (! M2T_float_params.empty())
+      for (const auto &par : M2T_float_params)
+         r->updateFloatParameter(par.first, par.second);
+   if (! M2T_int_params.empty())
+      for (const auto &par : M2T_int_params)
+         r->updateIntParameter(par.first, par.second);
+
    r->redraw();
    std::vector<std::shared_ptr<DisplayPrimitive> > vdp = r->getDisplayPrimitives();
    auto displayPrimitiveIter = vdp.begin();
@@ -151,11 +159,13 @@ std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> >
 molecular_mesh_generator_t::get_molecular_triangles_mesh(mmdb::Manager *mol,
                                                          mmdb::Chain *chain_p,
                                                          const std::string &colour_scheme,
-                                                         const std::string &style) {
+                                                         const std::string &style,
+                                                         const std::vector<std::pair<std::string, float> > &M2T_float_params,
+                                                         const std::vector<std::pair<std::string, int> >   &M2T_int_params) {
 
    if (true)
       std::cout << "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ get_molecular_triangles_mesh() "
-                << " chain-id: " << chain_p->GetChainID() << " colour_sheme: "
+                << " chain-id: " << chain_p->GetChainID() << " colour_scheme: "
                 << colour_scheme << " style " << style << std::endl;
 
    std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > vp;
@@ -195,7 +205,7 @@ molecular_mesh_generator_t::get_molecular_triangles_mesh(mmdb::Manager *mol,
             std::cout << "this_cs " << this_cs << std::endl;
             std::shared_ptr<MolecularRepresentationInstance> molrepinst =
                MolecularRepresentationInstance::create(my_mol, this_cs, atom_selection_str, style);
-            vp = molecular_representation_instance_to_mesh(molrepinst);
+            vp = molecular_representation_instance_to_mesh(molrepinst, M2T_float_params, M2T_int_params);
             std::cout << "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ get_molecular_triangles_mesh() Here E "
                       << atom_selection_str << " " << style << std::endl;
          }
@@ -212,7 +222,10 @@ std::vector<molecular_triangles_mesh_t>
 molecular_mesh_generator_t::get_molecular_triangles_mesh(mmdb::Manager *mol,
                                                          const std::string &selection_string, // mmdb-format
                                                          const std::string &colour_scheme,
-                                                         const std::string &style) {
+                                                         const std::string &style,
+                                                         const std::vector<std::pair<std::string, float> > &M2T_float_params,
+                                                         const std::vector<std::pair<std::string, int> > &M2T_int_params
+                                                         ) {
 
    std::vector<molecular_triangles_mesh_t> mtm;
 
@@ -396,10 +409,12 @@ molecular_mesh_generator_t::get_molecular_triangles_mesh(mmdb::Manager *mol,
 
 std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> >
 molecular_mesh_generator_t::get_molecular_triangles_mesh_for_ribbon_with_user_defined_residue_colours(mmdb::Manager *mol, mmdb::Chain *chain_p,
-                                                                                                      const std::vector<coot::colour_holder> &user_defined_colours) {
+                                                                                                      const std::vector<coot::colour_holder> &user_defined_colours,
+                                                                                                      const std::vector<std::pair<std::string, float> > &M2T_float_params,
+                                                                                                      const std::vector<std::pair<std::string, int> >   &M2T_int_params) {
 
    auto debug_the_colours = [] (mmdb::Manager *mol, ud_colour_rule &cr) {
-      
+
       int imod = 1;
       mmdb::Model *model_p = mol->GetModel(imod);
       if (model_p) {
@@ -448,11 +463,9 @@ molecular_mesh_generator_t::get_molecular_triangles_mesh_for_ribbon_with_user_de
       std::string style = "Ribbon";
       std::shared_ptr<MolecularRepresentationInstance> molrepinst =
          MolecularRepresentationInstance::create(my_mol, this_cs, atom_selection_str, style);
-      vp = molecular_representation_instance_to_mesh(molrepinst);
+      vp = molecular_representation_instance_to_mesh(molrepinst, M2T_float_params, M2T_int_params);
    }
 
    return vp;
 }
 
-
-#endif // use moleculestotriangles
