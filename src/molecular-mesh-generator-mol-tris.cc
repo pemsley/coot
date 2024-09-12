@@ -46,12 +46,21 @@
 
 std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> >
 molecular_mesh_generator_t::molecular_representation_instance_to_mesh(std::shared_ptr<MolecularRepresentationInstance> molrepinst_1,
-                                                         const std::vector<std::pair<std::string, float> > &M2T_float_params,
-                                                         const std::vector<std::pair<std::string, int> >   &M2T_int_params) {
+                                                                      const std::vector<std::pair<std::string, float> > &M2T_float_params,
+                                                                      const std::vector<std::pair<std::string, int> >   &M2T_int_params) {
 
    std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > vp;
 
    std::shared_ptr<Representation> r = molrepinst_1->getRepresentation();
+
+   if (true) {
+      if (! M2T_float_params.empty())
+         for (const auto &par : M2T_float_params)
+            std::cout << "            sending MT2 float " << par.first << " " << par.second << std::endl;
+      if (! M2T_int_params.empty())
+         for (const auto &par : M2T_int_params)
+            std::cout << "            sending MT2 int " << par.first << " " << par.second << std::endl;
+   }
 
    if (! M2T_float_params.empty())
       for (const auto &par : M2T_float_params)
@@ -296,6 +305,10 @@ molecular_mesh_generator_t::get_molecular_triangles_mesh(mmdb::Manager *mol,
       // use fcxxcoord_to_glm() if needed.
 
       std::shared_ptr<Representation> r = molrepinst_1->getRepresentation();
+      for (const auto &par : M2T_float_params)
+         r->updateFloatParameter(par.first, par.second);
+      for (const auto &par : M2T_int_params)
+         r->updateIntParameter(par.first, par.second);
       r->redraw();
       std::vector<std::shared_ptr<DisplayPrimitive> > vdp = r->getDisplayPrimitives();
       auto displayPrimitiveIter = vdp.begin();
