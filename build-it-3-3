@@ -3829,7 +3829,11 @@ if [ "$build_rdkit" = true ] ; then
       if test "$dist_name" = debian ; then
 	  echo don.t mess with LDFLAGS here on debian
       else
-	  export LDFLAGS="-L$install_top_dir/lib -lintl"
+          if test "$dist_name" = ubuntu ; then
+	      echo don.t mess with LDFLAGS here on ubuntu
+          else
+	      export LDFLAGS="-L$install_top_dir/lib -lintl"
+          fi
       fi
 
       # echo will configure with cmake like this:
