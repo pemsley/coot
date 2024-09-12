@@ -58,15 +58,11 @@ add_definitions(-DANALYSE_REFINEMENT_TIMING -DPACKAGE_VERSION="1"
   -DHAVE_CXX_THREAD -DHAVE_SSMLIB -DHAVE_BOOST -DUSE_LIBPNG=1 -DCLIPPER_HAS_TOP8000 -DUSE_GEMMI -DHAVE_BOOST_THREAD -DHAVE_GSL
   -DPKGDATADIR="${CMAKE_INSTALL_PREFIX}/share/coot" -DXDATADIR="${CMAKE_INSTALL_PREFIX}/share")
 
-if (ENHANCED_LIGAND_TOOLS)
-   add_definitions(-DMAKE_ENHANCED_LIGAND_TOOLS)
-   message("-- Found ENHANCED_LIGAND_TOOLS setting - now requiring the RDKit")
-   find_package(Cairo REQUIRED)
-   find_package(RDKit CONFIG COMPONENTS RDGeneral REQUIRED)
-   set(RDKit_libs_for_libcootapi RDKit::rdkit_base RDKit::Descriptors RDKit::ForceFieldHelpers RDKit::ForceField RDKit::Optimizer RDKit::MolDraw2D  RDKit::MolChemicalFeatures)
-else()
-    message("-- Note: MAKE_ENHANCED_LIGAND_TOOLS was not enabled")
-endif()
+add_definitions(-DMAKE_ENHANCED_LIGAND_TOOLS)
+message("-- Found ENHANCED_LIGAND_TOOLS setting - now requiring the RDKit")
+find_package(Cairo REQUIRED)
+find_package(RDKit CONFIG COMPONENTS RDGeneral REQUIRED)
+set(RDKit_libs_for_libcootapi RDKit::rdkit_base RDKit::Descriptors RDKit::ForceFieldHelpers RDKit::ForceField RDKit::Optimizer RDKit::MolDraw2D  RDKit::MolChemicalFeatures)
 
 # we can be on Apple, and also have access to homebrew dwarf and elf - but this typically not the case
 # should this actually be ENABLE_BACKWARD? (util/backward.cpp is not conditionally compiled)

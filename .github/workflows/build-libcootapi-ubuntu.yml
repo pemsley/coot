@@ -63,6 +63,13 @@ jobs:
           CHAPI_ONLY: true
         run:  bash build-it-3-3 || echo done
 
+      - name: Upload build-logs
+        uses: actions/upload-artifact@v4
+        with:
+          name: ubuntu-libcootapi-chapi-dependency-logs
+          path: /home/runner/public_html/build-logs
+          retention-days: 3
+
       - name: create-build-directory-for-libcootapi
         run:  mkdir build-libcootapi
 

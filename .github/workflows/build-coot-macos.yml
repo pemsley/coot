@@ -54,8 +54,9 @@ jobs:
     - name: ls the executable
       run: ls -lt /opt/homebrew/bin
 
-    - name: ls the install bin
-      run: ls -lt /opt/homebrew/Cellar/coot/HEAD*/bin
+    # 20240911 this has stopped working.
+    # - name: ls the install bin
+    #   run: ls -lt /opt/homebrew/Cellar/coot/HEAD*/bin
 
     # the homebrew build is still broken
     # - name: Does it run?
