@@ -1,6 +1,10 @@
 
 ----
 
+The "Solid Surface" mode for a map is not saved in the state file.
+
+Identify the acedrg atom types - or use the dictionary to look them up.
+
 Martin request: libcootapi: coordinates -> mask with same coordinates
    removing cavities, making map in X,Y,Z order - use floats
    use smooth edge (user-controlled)
