@@ -2245,6 +2245,7 @@ rock_view_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    toggle_idle_rock_function();
 }
 
+#include "MoleculesToTriangles/CXXClasses/MyMolecule.h"
 
 void
 ribbons_colour_by_chain_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -2257,8 +2258,10 @@ ribbons_colour_by_chain_action(G_GNUC_UNUSED GSimpleAction *simple_action,
       std::string colour_scheme = "Chain";
       std::string atom_selection = "//";
       std::string style = "Ribbon";
+      int secondary_structure_usage_flag = CALC_SECONDARY_STRUCTURE;
       graphics_info_t g;
-      int status = g.add_molecular_representation(imol, atom_selection, colour_scheme, style);
+      int status = g.add_molecular_representation(imol, atom_selection, colour_scheme, style,
+                                                  secondary_structure_usage_flag);
    }
 }
 
@@ -2274,8 +2277,10 @@ ribbons_colour_rainbow_action(G_GNUC_UNUSED GSimpleAction *simple_action,
       std::string colour_scheme = "colorRampChainsScheme";
       std::string atom_selection = "//";
       std::string style = "Ribbon";
+      int secondary_structure_usage_flag = CALC_SECONDARY_STRUCTURE;
       graphics_info_t g;
-      int status = g.add_molecular_representation(imol, atom_selection, colour_scheme, style);
+      int status = g.add_molecular_representation(imol, atom_selection, colour_scheme, style,
+                                                  secondary_structure_usage_flag);
    }
 }
 
@@ -2291,7 +2296,9 @@ ribbons_colour_by_secondary_structure_action(G_GNUC_UNUSED GSimpleAction *simple
       std::string atom_selection = "//";
       std::string style = "Ribbon";
       graphics_info_t g;
-      int status = g.add_molecular_representation(imol, atom_selection, colour_scheme, style);
+      int secondary_structure_usage_flag = CALC_SECONDARY_STRUCTURE;
+      int status = g.add_molecular_representation(imol, atom_selection, colour_scheme, style,
+                                                  secondary_structure_usage_flag);
    }
 }
 

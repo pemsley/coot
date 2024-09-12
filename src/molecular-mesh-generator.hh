@@ -122,13 +122,14 @@ public:
 #endif
    std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > get_test_twisted_trans_peptides();
    std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > make_twisted_trans_peptide_geom(const std::vector<glm::vec3> &cis_pep_quad);
-   std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > get_test_molecular_triangles_mesh(mmdb::Manager *mol);
+   std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > get_test_molecular_triangles_mesh(mmdb::Manager *mol, int secondary_structure_usage_flag);
 
    std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> >
    get_molecular_triangles_mesh(mmdb::Manager *mol,
                                 mmdb::Chain *chain_p,
                                 const std::string &colour_scheme,
                                 const std::string &style,
+                                int secondary_structure_usage_flag,
                                 const std::vector<std::pair<std::string, float> > &M2T_float_params,
                                 const std::vector<std::pair<std::string, int> > &M2T_int_params);
    void add_selection_and_colour(const std::string &sel, const std::string &col);
@@ -138,6 +139,7 @@ public:
                                 const std::string &selection_string, // mmdb-format
                                 const std::string &colour_scheme,
                                 const std::string &style,
+                                int secondary_structure_usage_flag,
                                 const std::vector<std::pair<std::string, float> > &M2T_float_params,
                                 const std::vector<std::pair<std::string, int> > &M2T_int_params);
 
@@ -153,6 +155,7 @@ public:
    std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> >
    get_molecular_triangles_mesh_for_ribbon_with_user_defined_residue_colours(mmdb::Manager *mol, mmdb::Chain *chain_p,
                                                                              const std::vector<coot::colour_holder> &user_defined_colours,
+                                                                             int secondary_structure_usage_flag,
                                                                              const std::vector<std::pair<std::string, float> > &M2T_float_params,
                                                                              const std::vector<std::pair<std::string, int> > &M2T_int_params);
 

@@ -45,7 +45,7 @@ void oglPolyhedron::renderWithRenderer(std::shared_ptr<Renderer> renderer)
 void oglPolyhedron::generateArrays()
 {	
 	vertexNormalArray = new VertexNormal[vertices.size()];
-	for (int i=0; i<vertices.size(); i++){
+	for (std::size_t i=0; i<vertices.size(); i++){
 		for (int j=0; j<3; j++){
             vertexNormalArray[i].vertex[j] = vertices[i][j];
             vertexNormalArray[i].normal[j] = vertices[i][j];
@@ -54,16 +54,16 @@ void oglPolyhedron::generateArrays()
     _nVertices = vertices.size();
 	int nIndices = 0;
 	_nTriangles = 0;
-	for (int i=0; i<faces.size(); i++){
+	for (std::size_t i=0; i<faces.size(); i++){
 		nIndices += face(i).nIndices();
 		_nTriangles++;
 	}
 	indexArray = new GLIndexType[nIndices];	
 	nIndices = 0;
-	for (int i=0; i<faces.size(); i++){
-		for (int j=0; j<face(i).nIndices(); j++){
-			indexArray[nIndices++] = face(i)[j];
-		}
+	for (std::size_t i=0; i<faces.size(); i++){
+              for (std::size_t j=0; j<face(i).nIndices(); j++){
+                    indexArray[nIndices++] = face(i)[j];
+              }
 	}
 	return;
 }

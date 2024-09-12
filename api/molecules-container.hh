@@ -765,6 +765,7 @@ public:
 
    void export_molecular_represenation_as_gltf(int imol, const std::string &atom_selection_cid,
                                                const std::string &colour_scheme, const std::string &style,
+                                               int secondary_structure_usage_flag,
                                                const std::string &file_name);
 
    //! return the colur table (for testing)
@@ -822,8 +823,13 @@ public:
    void M2T_updateIntParameter(int imol, const std::string &param_name, int value);
 
    //! get ribbon and surface representation
+   //!
+   //! The `secondary_structure_usage_flag` should  be one of 0 (USE_HEADER), 1 (DONT_USE) or 2 (CALC_SECONDARY_STRUCTURE).
+   //! 20240912: Mode 2 was the (implicit) usage mode until now.
+   //!
+   //! @return a `coot::simple_mesh_t`
    coot::simple_mesh_t get_molecular_representation_mesh(int imol, const std::string &cid, const std::string &colour_scheme,
-                                                         const std::string &style);
+                                                         const std::string &style, int secondary_structure_usage_flag);
 
    //! get a Gaussian surface representation
    //!
@@ -1991,7 +1997,8 @@ public:
    void make_mesh_for_molecular_representation_for_blender(int imol,
                                                            const std::string &cid,
                                                            const std::string &colour_scheme,
-                                                           const std::string &style);
+                                                           const std::string &style,
+                                                           int secondary_structure_usage_flag);
    void make_mesh_for_gaussian_surface_for_blender(int imol, float sigma, float contour_level, float box_radius, float grid_scale, float b_factor);
 
    void make_mesh_for_goodsell_style_for_blender(int imol, float colour_wheel_rotation_step,
@@ -2021,7 +2028,8 @@ public:
    //! old function: do not use with nanobind
    PyObject *get_pythonic_molecular_representation_mesh(int imol, const std::string &atom_selection,
                                                         const std::string &colour_sheme,
-                                                        const std::string &style);
+                                                        const std::string &style,
+                                                        int secondary_structure_usage_flag);
    //! old function: do not use with nanobind get Gaussion surface mesh
    PyObject *get_pythonic_gaussian_surface_mesh(int imol, float sigma, float contour_level,
                                                 float box_radius, float grid_scale, float fft_b_factor);

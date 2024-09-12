@@ -4415,9 +4415,10 @@ coot::molecule_t::export_model_molecule_as_gltf(const std::string &mode,
 void
 coot::molecule_t::export_molecular_represenation_as_gltf(const std::string &atom_selection_cid,
                                                          const std::string &colour_scheme, const std::string &style,
+                                                         int secondary_structure_usage_flag,
                                                          const std::string &file_name) {
 
-   coot::simple_mesh_t sm = get_molecular_representation_mesh(atom_selection_cid, colour_scheme, style);
+   coot::simple_mesh_t sm = get_molecular_representation_mesh(atom_selection_cid, colour_scheme, style, secondary_structure_usage_flag);
    bool as_binary = true; // test the extension of file_name
    sm.export_to_gltf(file_name, as_binary);
 }

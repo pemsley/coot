@@ -45,7 +45,7 @@ MyMolecule::~MyMolecule(){
     if (ownsMMDB) delete mmdb;
 };
 
-int MyMolecule::loadCoords( char *data, int length)
+int MyMolecule::loadCoords( char *data, int length, int secondaryStructureUsageFlag)
 {
     Delimiters delimiters("\n\r");
     TokenIterator<char*, Delimiters> charIter(data, data + length, delimiters), end2;
@@ -109,23 +109,29 @@ int MyMolecule::loadCoords( char *data, int length)
             int RC = mmdb->PutPDBString ( formattedCard );
         }
     }
-    return processCoords();
+    return processCoords(secondaryStructureUsageFlag);
 }
 
-int MyMolecule::processCoords(){
-    //mmdb->Cryst.CalcCoordTransforms();
-    identifyBonds();
-    CXXUtils::assignUnitedAtomRadius(mmdb);
-    int nModels = mmdb->GetNumberOfModels();
-    for (int iModel = 1; iModel <= nModels; iModel++){
-        mmdb::Model *model = mmdb->GetModel(iModel);
+int MyMolecule::processCoords(int secondaryStructureUsageFlag){
+
+   bool calc_secondary_structure = false;
+
+   //mmdb->Cryst.CalcCoordTransforms();
+   identifyBonds();
+   CXXUtils::assignUnitedAtomRadius(mmdb);
+
+   if (calc_secondary_structure) {
+      int nModels = mmdb->GetNumberOfModels();
+      for (int iModel = 1; iModel <= nModels; iModel++){
+         mmdb::Model *model = mmdb->GetModel(iModel);
         model->CalcSecStructure(true);
-    }
+      }
+   }
     
-    return 0;
+   return 0;
 }
 
-int MyMolecule::loadFromPDB(const char *filePath){
+int MyMolecule::loadFromPDB(const char *filePath, int secondaryStructureUsageFlag){
     int RC;
     mmdb::InitMatType();
     mmdb = new mmdb::Manager();
@@ -139,19 +145,19 @@ int MyMolecule::loadFromPDB(const char *filePath){
         filePath << endl;
     }
     else {
-        std::cout << processCoords();
+        std::cout << processCoords(secondaryStructureUsageFlag);
     }
     return RC;
 }
 
-MyMolecule::MyMolecule(const char *filePath) : MyMolecule()
+MyMolecule::MyMolecule(const char *filePath, int secondaryStructureUsageFlag) : MyMolecule()
 {
-    int RC = loadFromPDB(filePath);
+    int RC = loadFromPDB(filePath, secondaryStructureUsageFlag);
 }
 
-MyMolecule::MyMolecule(std::string filePathString) : MyMolecule()
+MyMolecule::MyMolecule(std::string filePathString, int secondaryStructureUsageFlag) : MyMolecule()
 {
-    int RC = loadFromPDB(filePathString.c_str());
+    int RC = loadFromPDB(filePathString.c_str(), secondaryStructureUsageFlag);
 }
 
 int MyMolecule::FormatPDBCard (AtomCard theAtom, char *card,int count){

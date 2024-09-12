@@ -53,9 +53,10 @@ int add_molecular_representation_py(int imol, PyObject *atom_selection_py, PyObj
       std::string atom_selection = PyBytes_AS_STRING(PyUnicode_AsUTF8String(atom_selection_py));
       std::string ColorScheme    = PyBytes_AS_STRING(PyUnicode_AsUTF8String(ColorScheme_py));
       std::string style          = PyBytes_AS_STRING(PyUnicode_AsUTF8String(style_py));
+      int secondary_structure_usage_flag = CALC_SECONDARY_STRUCTURE;
       // status = graphics_info_t::molecules[imol].add_molecular_representation(atom_selection, ColorScheme, style);
       graphics_info_t g;
-      status = g.add_molecular_representation(imol, atom_selection, ColorScheme, style);
+      status = g.add_molecular_representation(imol, atom_selection, ColorScheme, style, secondary_structure_usage_flag);
       graphics_draw();
 #endif
    }
@@ -118,9 +119,10 @@ extern "C" void add_molecular_representation_test() {
          std::string atom_selection = "//A";
          std::string ColorScheme = "colorRampChainsScheme";
          std::string style = "Ribbon";
+         int secondary_structure_usage_flag = CALC_SECONDARY_STRUCTURE;
          // status = graphics_info_t::molecules[imol].add_molecular_representation(atom_selection, ColorScheme, style);
          graphics_info_t g;
-         g.add_molecular_representation(imol, atom_selection, ColorScheme, style);
+         g.add_molecular_representation(imol, atom_selection, ColorScheme, style, secondary_structure_usage_flag);
          graphics_info_t::graphics_draw();
       }
    }

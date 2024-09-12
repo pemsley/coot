@@ -734,7 +734,8 @@ namespace coot {
 
       simple_mesh_t get_molecular_representation_mesh(const std::string &cid,
                                                       const std::string &colour_scheme,
-                                                      const std::string &style) const;
+                                                      const std::string &style,
+                                                      int secondaryStructureUsageFlag) const;
 
       simple_mesh_t get_gaussian_surface(float sigma, float contour_level,
                                          float box_radius, float grid_scale, float fft_b_factor) const;
@@ -769,6 +770,7 @@ namespace coot {
       void export_molecular_represenation_as_gltf(const std::string &atom_selection_cid,
                                                   const std::string &colour_scheme,
                                                   const std::string &style,
+                                                  int secondary_structure_usage_flag,
                                                   const std::string &file_name);
 
       void set_show_symmetry(bool f) { show_symmetry = f;}
@@ -1335,7 +1337,8 @@ namespace coot {
 
       void make_mesh_for_molecular_representation_for_blender(const std::string &cid,
                                                               const std::string &colour_scheme,
-                                                              const std::string &style);
+                                                              const std::string &style,
+                                                              int secondary_structure_usage_flag);
 
       void make_mesh_for_goodsell_style_for_blender(protein_geometry *geom_p,
                                                     float colour_wheel_rotation_step,

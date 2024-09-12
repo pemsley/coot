@@ -4082,7 +4082,8 @@ public:
    int add_molecular_representation(int imol,
                                     const std::string &atom_selection,
 				    const std::string &colour_scheme,
-				    const std::string &style);
+				    const std::string &style,
+                                    int secondary_structure_usage_flag);
    int add_ribbon_representation_with_user_defined_colours(int imol, const std::string &name);
    void remove_molecular_representation(int imol, int idx);
 

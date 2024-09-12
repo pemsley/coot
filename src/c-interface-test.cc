@@ -1677,7 +1677,8 @@ PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
             std::string ass = "//A";
             std::string cs = "colorRampChainsScheme";
             std::string style = "Ribbon";
-            graphics_info_t::molecules[imol].add_molecular_representation(ass, cs, style);
+            int secondary_structure_usage_flag = CALC_SECONDARY_STRUCTURE;
+            graphics_info_t::molecules[imol].add_molecular_representation(ass, cs, style, secondary_structure_usage_flag);
             std::cout << "debug:: meshes size " << graphics_info_t::molecules[imol].meshes.size() << std::endl;
             auto &mesh = graphics_info_t::molecules[imol].meshes[0];
             bool is_binary_format = true; // no need for this here. binary type is tested internally now.

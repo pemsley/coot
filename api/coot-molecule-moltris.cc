@@ -198,7 +198,8 @@ coot::molecule_t::print_M2T_IntParameters() const {
 coot::simple_mesh_t
 coot::molecule_t::get_molecular_representation_mesh(const std::string &atom_selection_str,
                                                     const std::string &colour_scheme,
-                                                    const std::string &style) const {
+                                                    const std::string &style,
+                                                    int secondaryStructureUsageFlag) const {
 
    bool debug = true;
 
@@ -384,7 +385,7 @@ coot::molecule_t::get_molecular_representation_mesh(const std::string &atom_sele
 
    try {
 
-      auto my_mol = std::make_shared<MyMolecule>(atom_sel.mol);
+      auto my_mol = std::make_shared<MyMolecule>(atom_sel.mol, secondaryStructureUsageFlag);
       // auto chain_cs = ColorScheme::colorChainsScheme();
       auto chain_cs = ColorScheme::colorChainsSchemeWithColourRules(colour_rules);
       if (! colour_rules.empty())

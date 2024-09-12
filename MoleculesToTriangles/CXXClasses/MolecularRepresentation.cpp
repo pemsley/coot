@@ -539,7 +539,7 @@ int MolecularRepresentation::drawRibbon()
     std::vector<DiscreteSegment *> segments;
     myMolecule->identifySegments(segments, selHnd);
 
-    for (int iSegment = 0; iSegment < segments.size(); iSegment++){
+    for (std::size_t iSegment = 0; iSegment < segments.size(); iSegment++){
         DiscreteSegment &segment = *(segments[iSegment]);
         segment.evaluateNormals();
         if (boolParameters["smoothBetas"]) segment.smoothBetas();
@@ -737,7 +737,7 @@ int MolecularRepresentation::drawCalphas()
     bonds->setColorScheme(colorScheme);
     displayPrimitives.push_back(bonds);
 
-    for (int iSegment = 0; iSegment < segments.size(); iSegment++){
+    for (std::size_t iSegment = 0; iSegment < segments.size(); iSegment++){
         DiscreteSegment &segment = *(segments[iSegment]);
 
         for (int i=0; i<(segment.nCalphas()-1); i++){

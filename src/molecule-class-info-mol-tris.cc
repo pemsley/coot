@@ -82,7 +82,8 @@ molecule_class_info_t::set_mol_triangles_is_displayed(int state) {
 int
 molecule_class_info_t::add_molecular_representation(const std::string &atom_selection,
                                                     const std::string &colour_scheme,
-                                                    const std::string &style) {
+                                                    const std::string &style,
+                                                    int secondary_structure_usage_flag) {
    int status = 0;
 
 
@@ -117,7 +118,8 @@ molecule_class_info_t::add_molecular_representation(const std::string &atom_sele
             if (n_res > 1) {
                std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > verts_and_tris =
                   mmg.get_molecular_triangles_mesh(atom_sel.mol, chain_p, colour_scheme, style,
-                  M2T_float_params, M2T_int_params);
+                                                   secondary_structure_usage_flag,
+                                                   M2T_float_params, M2T_int_params);
                Mesh mesh(verts_and_tris);
                mesh.set_name(atom_selection + " " + colour_scheme + " Rainbow Ribbons");
                meshes.push_back(mesh);
@@ -129,7 +131,8 @@ molecule_class_info_t::add_molecular_representation(const std::string &atom_sele
    } else {
 
       std::vector<molecular_triangles_mesh_t> mtm =
-         mmg.get_molecular_triangles_mesh(atom_sel.mol, atom_selection, colour_scheme, style, M2T_float_params, M2T_int_params);
+         mmg.get_molecular_triangles_mesh(atom_sel.mol, atom_selection, colour_scheme, style, secondary_structure_usage_flag,
+                                          M2T_float_params, M2T_int_params);
 
       // Mesh mesh(mtm);
       // meshes.push_back(mesh);

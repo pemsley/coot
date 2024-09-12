@@ -4226,7 +4226,7 @@ molecules_container_t::get_non_standard_residues_in_molecule(int imol) const {
 
 coot::simple_mesh_t
 molecules_container_t::get_molecular_representation_mesh(int imol, const std::string &cid, const std::string &colour_scheme,
-                                                         const std::string &style) {
+                                                         const std::string &style, int secondary_structure_usage_flag) {
 
    coot::simple_mesh_t mesh;
    if (is_valid_model_molecule(imol)) {
@@ -4245,7 +4245,7 @@ molecules_container_t::get_molecular_representation_mesh(int imol, const std::st
       add_colour_rule(imol, "//A/276-283", "green");
 #endif
 
-      mesh = molecules[imol].get_molecular_representation_mesh(cid, colour_scheme, style);
+      mesh = molecules[imol].get_molecular_representation_mesh(cid, colour_scheme, style, secondary_structure_usage_flag);
    } else {
       std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
@@ -5414,10 +5414,12 @@ molecules_container_t::export_model_molecule_as_gltf(int imol,
 void
 molecules_container_t::export_molecular_represenation_as_gltf(int imol, const std::string &atom_selection_cid,
                                                               const std::string &colour_scheme, const std::string &style,
+                                                              int secondary_structure_usage_flag,
                                                               const std::string &file_name) {
 
    if (is_valid_model_molecule(imol)) {
-      molecules[imol].export_molecular_represenation_as_gltf(atom_selection_cid, colour_scheme, style, file_name);
+      molecules[imol].export_molecular_represenation_as_gltf(atom_selection_cid, colour_scheme, style,
+                                                             secondary_structure_usage_flag, file_name);
    } else {
       std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
