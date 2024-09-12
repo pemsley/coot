@@ -824,7 +824,10 @@ public:
 
    //! get ribbon and surface representation
    //!
-   //! The `secondary_structure_usage_flag` should  be one of 0 (USE_HEADER), 1 (DONT_USE) or 2 (CALC_SECONDARY_STRUCTURE).
+   //! The `secondary_structure_usage_flag` should  be one of
+   //!   - 0 (USE_HEADER),
+   //!   - 1 (DONT_USE) or
+   //!   - 2 (CALC_SECONDARY_STRUCTURE).
    //! 20240912: Mode 2 was the (implicit) usage mode until now.
    //!
    //! @return a `coot::simple_mesh_t`
@@ -834,18 +837,13 @@ public:
    //! get a Gaussian surface representation
    //!
    //! These values seem to give a reasonable quite smooth surface:
+   //!   - `sigma` = 4.4
+   //!   - `contour_level` = 4.0
+   //!   - `box_radius` = 5.0
+   //!   - `grid_scale` = 0.7
+   //!   - `b_factor` = 100.0 (use 0.0 for no FFT-B-factor smoothing)
    //!
-   //! sigma = 4.4
-   //!
-   //! contour_level = 4.0
-   //!
-   //! box_radius = 5.0
-   //!
-   //! grid_scale = 0.7
-   //!
-   //! b_factor = 100.0 (use 0.0 for no FFT-B-factor smoothing)
-   //!
-   //! @return a simple mesh composed of a number of Gaussian surfaces (one for each chain)
+   //! @return a `coot::simple_mesh_t` composed of a number of Gaussian surfaces (one for each chain)
    coot::simple_mesh_t get_gaussian_surface(int imol, float sigma, float contour_level,
                                             float box_radius, float grid_scale, float b_factor) const;
 
