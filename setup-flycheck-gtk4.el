@@ -18,7 +18,7 @@
 (setq build-path-list
   (list
 
-   "." ".."
+   "." ".." "../.."
    "/usr/lib/x86_64-linux-gnu/glib-2.0/include"
    "/home/paule/autobuild/Linux-penelope-gtk4-jul-2023-gtk4/include"
    "/home/paule/autobuild/Linux-penelope-gtk4-jul-2023-gtk4/include/coot"
