@@ -4679,6 +4679,7 @@ string   static std::string sessionid;
    static double mouse_y;
    static double drag_begin_x; // gtk pixels
    static double drag_begin_y;
+   static double mouse_speed; // default 1.0, but adjusted to be bigger for wide display
    static std::pair<double, double> mouse_previous_position;
    static void set_mouse_previous_position(double x, double y) { mouse_previous_position.first = x; mouse_previous_position.second = y; }
    static double get_mouse_previous_position_x() { return mouse_previous_position.first; }

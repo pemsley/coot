@@ -211,6 +211,7 @@ new_startup_on_glarea_resize(GtkGLArea *glarea, gint width, gint height) {
    g.reset_frame_buffers(width, height); // currently makes the widget blank (not drawn)
    g.resize_framebuffers_textures_renderbuffers(width, height); // 20220131-PE added from crows merge
    g.reset_hud_buttons_size_and_position();
+   g.mouse_speed = static_cast<double>(width) / 900.0;
 
    if (false) {
 

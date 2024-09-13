@@ -294,6 +294,7 @@ double graphics_info_t::drag_begin_x = 0.0;
 double graphics_info_t::drag_begin_y = 0.0;
 double graphics_info_t::mouse_x = 0.0;
 double graphics_info_t::mouse_y = 0.0;
+double graphics_info_t::mouse_speed = 2.0;
 std::pair<double, double> graphics_info_t::mouse_previous_position = std::make_pair(0.0, 0.0);
 
 // residue reorientation on "space"
