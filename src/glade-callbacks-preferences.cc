@@ -1314,10 +1314,8 @@ on_preferences_main_toolbar_style_both_radiobutton_toggled
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_main_toolbar_style_text_radiobutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
+on_preferences_main_toolbar_style_text_radiobutton_toggled(GtkToggleButton *togglebutton,
+                                                           gpointer         user_data) {
   if (gtk_toggle_button_get_active(togglebutton)) {
     preferences_internal_change_value_int(PREFERENCES_MAIN_TOOLBAR_STYLE, 3);
     set_main_toolbar_style(3);
@@ -1325,3 +1323,25 @@ on_preferences_main_toolbar_style_text_radiobutton_toggled
 
 }
 
+extern "C" G_MODULE_EXPORT
+void
+noughties_physics_switch_state_set(GtkSwitch *switch_widget,
+                                   gboolean   state,
+                                   gpointer   user_data) {
+
+   if (state)
+      set_show_unit_cells_all(1);
+  else
+     set_show_unit_cells_all(0);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_noughties_physics_checkbutton_toggled(GtkCheckButton *toggletoolbutton,
+                                         gpointer         user_data) {
+
+   if (gtk_check_button_get_active(toggletoolbutton))
+      set_refine_use_noughties_physics(1);
+   else
+      set_refine_use_noughties_physics(0);
+}

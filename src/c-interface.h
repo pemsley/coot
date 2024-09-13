@@ -3361,6 +3361,8 @@ int  refinement_immediate_replacement_state();
 
 void set_refine_use_noughties_physics(short int state);
 
+int get_refine_use_noughties_physics_state();
+
 /*! \brief set the number of frames for which the selected residue
   range flashes
 

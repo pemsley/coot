@@ -6004,6 +6004,11 @@ void set_refine_use_noughties_physics(short int state) {
    graphics_info_t::noughties_physics = state;
 }
 
+int get_refine_use_noughties_physics_state() {
+   return graphics_info_t::noughties_physics;
+}
+
+
 
 
 void get_mol_edit_lock(std::atomic<bool> &mol_edit_lock) {

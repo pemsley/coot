@@ -79,7 +79,7 @@ graphics_info_t::save_preference_file(const std::string &filename, short int il)
 
       int preference_type = g.preferences_internal[i].preference_type;
 
-      std::cout << "preference_type: " << preference_type << std::endl;
+      // std::cout << "preference_type: " << preference_type << std::endl;
 
       switch (preference_type) {
 

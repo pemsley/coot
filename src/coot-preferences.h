@@ -78,6 +78,7 @@
                                                      //         0: no
                                                      //         1: yes
 #define PREFERENCES_VIEW_ROTATION_MOUSE_BUTTON    44
+#define PREFERENCES_PHYSICS                       45
 
 #define MODEL_TOOLBAR                              0
 #define MAIN_TOOLBAR                               1
