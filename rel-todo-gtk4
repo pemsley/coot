@@ -11,16 +11,9 @@ Martin request: libcootapi: coordinates -> mask with same coordinates
 
 Add Noughties Physics into the Preferences
 
-Key-binding to hide/show right-hand panel.
-      GtkWidget *status_bar = widget_from_builder("main_window_statusbar");
-      GtkWidget *tool_bar   = widget_from_builder("main_window_toolbar_hbox_outer");
-      GtkWidget *sidebar    = widget_from_builder("main_window_vbox_inner");
-
 Martin request: libcootapi: Step sample maps
 
 Adaptive rotation for the mouse motion - make it more for a widescreen.
-
-acedrg atom types in cif parse.
 
 SVG for pli
 
@@ -78,6 +71,15 @@ make an figure, for moorhen intro with blobs that have volume proportional
 Look at 4yjr - beautiful map 452-626 interaction - it should not have a clash face
    (distance to hydrogen atom).
 * Checked - it does not if both residues are refined. That will do.
+
+acedrg atom types in cif parse.
+* Already Done.
+
+Key-binding to hide/show right-hand panel.
+      GtkWidget *status_bar = widget_from_builder("main_window_statusbar");
+      GtkWidget *tool_bar   = widget_from_builder("main_window_toolbar_hbox_outer");
+      GtkWidget *sidebar    = widget_from_builder("main_window_vbox_inner");
+* Done.
 
 Add "Rotate View is on Left/Right mouse" mode in Preferences
 * Done.

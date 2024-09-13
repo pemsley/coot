@@ -11516,3 +11516,12 @@ Thu  5 Sep 2024 16:41:54 BST
         updateIntParameter  ("cylindersStyleAngularSampling",6);
         updateIntParameter  ("dishStyleAngularSampling",32);
 
+
+---
+Fri Sep 13 04:03:17 AM BST 2024
+
+   To move the Preferences Close button to the right-hand side, I added
+               <property name="halign">end</property>
+   to the GtkBox which contained the button
+
+
