@@ -824,11 +824,25 @@ public:
 
    //! get ribbon and surface representation
    //!
+   //! `imol` is the model molecule index
+   //!
+   //! ecid` is the atom selection CID
+   //!
+   //! `colour_scheme` should be one of
+   //!    - "colorRampChainsScheme"
+   //!    - "colorBySecondaryScheme"
+   //!    - "Chain"
+   //!
+   //! `style` should be one of
+   //!    - "Ribbon"
+   //!    - "MolecularSurface"
+   //!
    //! The `secondary_structure_usage_flag` should  be one of
    //!   - 0 (USE_HEADER),
    //!   - 1 (DONT_USE) or
    //!   - 2 (CALC_SECONDARY_STRUCTURE).
-   //! 20240912: Mode 2 was the (implicit) usage mode until now.
+   //!
+   //! Mode 2 was the (implicit) usage mode until now (20240912).
    //!
    //! @return a `coot::simple_mesh_t`
    coot::simple_mesh_t get_molecular_representation_mesh(int imol, const std::string &cid, const std::string &colour_scheme,
@@ -848,6 +862,8 @@ public:
                                             float box_radius, float grid_scale, float b_factor) const;
 
    //! get chemical feaatures for the specified residue
+   //!
+   //! @return a `coot::simple_mesh_t`
    coot::simple_mesh_t get_chemical_features_mesh(int imol, const std::string &cid) const;
 
 #ifdef DOXYGEN_SHOULD_PARSE_THIS
@@ -1149,11 +1165,13 @@ public:
    coot::molecule_t::rotamer_change_info_t change_to_previous_rotamer(int imol, const std::string &residue_cid, const std::string &alt_conf);
 
    //! change to the first (0th) rotamer
+   //!
+   //! @returns a `coot::molecule_t::rotamer_change_info_t`
    coot::molecule_t::rotamer_change_info_t change_to_first_rotamer(int imol, const std::string &residue_cid, const std::string &alt_conf);
 
    //! delete item
    //!
-   //! where scope is one of the strings: ["ATOM","WATER","RESIDUE","CHAIN","MOLECULE", "LITERAL"]
+   //! where `scope` is one of the strings: ["ATOM","WATER","RESIDUE","CHAIN","MOLECULE", "LITERAL"]
    //! @return 1 on successful modification, return 0 on failure
    std::pair<int, unsigned int> delete_using_cid(int imol, const std::string &cid, const std::string &scope);
 
