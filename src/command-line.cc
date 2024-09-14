@@ -258,7 +258,7 @@ parse_command_line(int argc, char ** argv ) {
 			       << "            [--no-graphics]\n"
 			       << "            [--no-guano]\n"
 			       << std::endl;
-		     exit(0);
+		     coot_no_state_real_exit(0);
 		  } else {
 		     
 			if (arg_str == "version") {
