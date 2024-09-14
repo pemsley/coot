@@ -101,12 +101,16 @@ void
 new_startup_realize(GtkWidget *gl_area) {
 
    // std::cout << "new_startup_realize() ------------------- start ------------------"
-   //              << std::endl;
+   // << std::endl;
 
    gtk_gl_area_make_current(GTK_GL_AREA (gl_area));
 
-   if (gtk_gl_area_get_error(GTK_GL_AREA (gl_area)) != NULL)
+   GError* error = gtk_gl_area_get_error(GTK_GL_AREA (gl_area));
+   if (error != NULL) {
+      std::cout << "WARNING:: new_startup_realize() gtk_gl_area_get_error() returned an error: " << std::endl;
+      std::cout << error->message << std::endl;
       return;
+   }
 
    GdkGLContext *context = gtk_gl_area_get_context(GTK_GL_AREA(gl_area));
 
@@ -248,7 +252,7 @@ GtkWidget *new_startup_create_glarea_widget() {
    g_signal_connect(gl_area, "unrealize", G_CALLBACK(new_startup_unrealize), NULL);
    g_signal_connect(gl_area, "render",    G_CALLBACK(new_startup_on_glarea_render),  NULL);
    g_signal_connect(gl_area, "resize",    G_CALLBACK(new_startup_on_glarea_resize),  NULL);
-   g_signal_connect(gl_area, "enter",     G_CALLBACK(new_startup_on_glarea_enter),  NULL);
+   // g_signal_connect(gl_area, "enter",     G_CALLBACK(new_startup_on_glarea_enter),  NULL);
 
    gtk_widget_set_can_focus(gl_area, TRUE);
    gtk_widget_set_focusable(gl_area, TRUE);
@@ -790,7 +794,7 @@ new_startup_application_activate(GtkApplication *application,
       } else {
          std::cout << "ERROR:: in new_startup_application_activate() builder was NOT a builder"
                   << std::endl;
-         exit(0);
+         coot_no_state_real_exit(0);
       }
 
       install_icons_into_theme(GTK_WIDGET(app_window));
@@ -812,7 +816,7 @@ new_startup_application_activate(GtkApplication *application,
       if (status == FALSE) {
          std::cout << "ERROR:: Failure to read or parse " << ui_file_full << std::endl;
          std::cout << error->message << std::endl;
-         exit(0);
+         coot_no_state_real_exit(0);
       }
 
       // the preferences builder:
@@ -827,7 +831,7 @@ new_startup_application_activate(GtkApplication *application,
       if (status == FALSE) {
          std::cout << "ERROR:: Failure to read or parse " << preferences_ui_file_name_full << std::endl;
          std::cout << error->message << std::endl;
-         exit(0);
+         coot_no_state_real_exit(0);
       }
       graphics_info_t::set_preferences_gtkbuilder(preferences_builder);
 
