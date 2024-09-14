@@ -208,6 +208,7 @@ molecular_mesh_generator_t::get_molecular_triangles_mesh(mmdb::Manager *mol,
          if (max_resno > 0) {
             std::cout << "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ get_molecular_triangles_mesh() Here D " << std::endl;
             AtomPropertyRampColorRule apcrr;
+            apcrr.setNumberOfRampPoints(max_resno-min_resno);
             apcrr.setStartValue(min_resno);
             apcrr.setEndValue(max_resno);
             auto apcrr_p = std::make_shared<AtomPropertyRampColorRule> (apcrr);
