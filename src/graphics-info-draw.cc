@@ -2898,6 +2898,8 @@ on_glarea_scrolled(GtkEventControllerScroll *controller,
 
 void print_opengl_info() {
 
+   std::cout << "----------------------- print_opengl_info() ----------" << std::endl;
+
    const char *s1 = reinterpret_cast<const char *>(glGetString(GL_VERSION));
    const char *s2 = reinterpret_cast<const char *>(glGetString(GL_SHADING_LANGUAGE_VERSION));
    const char *s3 = reinterpret_cast<const char *>(glGetString(GL_RENDERER));

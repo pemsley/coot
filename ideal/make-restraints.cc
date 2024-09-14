@@ -1033,6 +1033,12 @@ coot::restraints_container_t::make_monomer_restraints_by_residue(int imol, mmdb:
 								 const protein_geometry &geom,
 								 bool do_residue_internal_torsions) {
 
+   if (false)
+      std::cout << "----------- make_monomer_restraints_by_residue() "
+                << residue_p->GetChain() << " "
+                << residue_p->GetSeqNum()<< " : "
+                << residue_p->GetResName() << std::endl;
+
    restraint_counts_t local;
 
    if (! residue_p) {
@@ -1052,6 +1058,11 @@ coot::restraints_container_t::make_monomer_restraints_by_residue(int imol, mmdb:
 
    // idr: index dictionary residue
    int idr = geom.get_monomer_restraints_index(pdb_resname, imol, false);
+
+   if (false) {
+      std::cout << "debug:: in make_monomer_restraints_by_residue() here with idr " << idr << std::endl;
+   }
+
    if (idr == -1) {
 
       std::cout << "ERROR:: failed to get restraints index for monomer " << pdb_resname << std::endl;

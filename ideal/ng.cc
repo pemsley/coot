@@ -329,7 +329,7 @@ coot::restraints_container_t::make_base_pairing_and_stacking_restraints_ng(int i
    // base pairs:
    bool all_atoms_are_moving_flag = false; // can be true in the future.
    std::vector<stack_and_pair::paired_residues_info_t> pr =
-      sp.paired_residues(mol, residues_vec, all_atoms_are_moving_flag, geom);
+      sp.paired_residues(mol, residues_vec, all_atoms_are_moving_flag, geom, imol);
 
    auto tp_8 = std::chrono::high_resolution_clock::now();
 
