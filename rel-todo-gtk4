@@ -1,7 +1,19 @@
 
 ----
 
+chapi: a function to return a list of tuples atom types for ligand:
+get_acedrg_atom_types(comp_id, imol_enc);
+
+chapi: a function to return a list of tuples atom types for ligand:
+(name_1, name_2, type_1, type_2, bond_length)
+get_acedrg_atom_types_for_ligand(imol, comp_id, residue_cid);
+
 The "Solid Surface" mode for a map is not saved in the state file.
+
+Ribbon diagram is not used for shadows. It would be nice to have.
+
+Refinement buttons are a mess on resizing - replace them with gtk buttons
+Use an overlay box of buttons.
 
 Identify the acedrg atom types - or use the dictionary to look them up.
 
