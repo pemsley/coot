@@ -100,8 +100,34 @@ void init_framebuffers(GtkWidget *glarea) {
 void
 new_startup_realize(GtkWidget *gl_area) {
 
-   // std::cout << "new_startup_realize() ------------------- start ------------------"
-   // << std::endl;
+   GdkDisplay *display = gdk_display_get_default();
+   GListModel* lm = gdk_display_get_monitors(display);
+
+   guint n_items = g_list_model_get_n_items(lm);
+   std::cout << "n_items " << n_items << std::endl;
+   if (n_items > 0) {
+      for (unsigned int i=0; i<n_items; i++) {
+         gpointer item = g_list_model_get_item(lm, i);
+         int imon = i + 1;
+         GdkMonitor *monitor = GDK_MONITOR(item);
+         const char *monitor_description = gdk_monitor_get_description(monitor);
+         const char *monitor_connection  = gdk_monitor_get_connector(monitor);
+         if (monitor_description)
+            std::cout << "INFO:: monitor " << imon << " description " << monitor_description << std::endl;
+         else
+            std::cout << "INFO:: monitor " << imon << " no description " << std::endl;
+         if (monitor_connection)
+            std::cout << "INFO:: monitor " << imon << " connection "  << monitor_connection  << std::endl;
+         int monitor_refresh_rate = gdk_monitor_get_refresh_rate(monitor);
+         std::cout << "INFO:: monitor " << imon << " refresh rate " << monitor_refresh_rate << " mHz"  << std::endl;
+         int monitor_scale_factor = gdk_monitor_get_scale_factor(monitor);
+         std::cout << "INFO:: monitor " << imon << " scale_factor " << monitor_scale_factor << std::endl;
+#if GTK_MINOR_VERSION >= 14
+         double monitor_scale = gdk_monitor_get_scale(monitor);
+         std::cout << "INFO:: monitor " << imon << " scale " << monitor_scale << std::endl;
+#endif
+      }
+   }
 
    gtk_gl_area_make_current(GTK_GL_AREA (gl_area));
 
@@ -117,6 +143,7 @@ new_startup_realize(GtkWidget *gl_area) {
    gtk_gl_area_set_has_depth_buffer(GTK_GL_AREA(gl_area), TRUE);
 
    print_opengl_info();
+
 
    int w = 500;
    int h = 500;
