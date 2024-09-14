@@ -174,7 +174,8 @@ coot::stack_and_pair::calculate_residue_normals(mmdb::Atom **SelAtom, int n_sel_
 
 int
 coot::stack_and_pair::mark_donors_and_acceptors(mmdb::Manager *mol, int selection_handle,
-                                                const protein_geometry &geom) {
+                                                const protein_geometry &geom,
+                                                int imol_enc) {
 
    mmdb::PAtom *sel_atoms = 0;
    int n_sel_atoms;
@@ -194,7 +195,7 @@ coot::stack_and_pair::mark_donors_and_acceptors(mmdb::Manager *mol, int selectio
       if (it != atom_to_h_bond_type_map.end()) {
          at->PutUDData(udd_h_bond_type_handle, it->second);
       } else {
-         int h_bond_type = geom.get_h_bond_type(name, res_name, protein_geometry::IMOL_ENC_ANY);
+         int h_bond_type = geom.get_h_bond_type(name, res_name, imol_enc);
          at->PutUDData(udd_h_bond_type_handle, h_bond_type);
       }
    }
@@ -235,7 +236,8 @@ std::vector<coot::stack_and_pair::paired_residues_info_t>
 coot::stack_and_pair::paired_residues(mmdb::Manager *mol,
                                       const std::vector<std::pair<bool, mmdb::Residue *> > &residues_vec,
                                       bool residues_are_all_moving_flag,
-                                      const coot::protein_geometry &geom) {
+                                      const coot::protein_geometry &geom,
+                                      int imol_enc) {
 
    bool console_output_for_restraints_generation_timings = false; // pass this?
    auto tp_0 = std::chrono::high_resolution_clock::now();
@@ -331,7 +333,7 @@ coot::stack_and_pair::paired_residues(mmdb::Manager *mol,
                excluded_oxygens.insert(" OP1"); excluded_oxygens.insert(" OP2"); excluded_oxygens.insert(" O2'");
                excluded_oxygens.insert(" O3'"); excluded_oxygens.insert(" O5'");
 
-               int hb_type_udd_handle = mark_donors_and_acceptors(mol, selection_handle_all, geom); // using UDD data
+               int hb_type_udd_handle = mark_donors_and_acceptors(mol, selection_handle_all, geom, imol_enc); // using UDD data
 
                for (int i_contact=0; i_contact<n_contacts; i_contact++) {
                   mmdb::Atom *at_1 = selected_atoms_moving[pscontact[i_contact].id1];

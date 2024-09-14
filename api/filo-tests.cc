@@ -318,12 +318,12 @@ int test_change_rotamer(molecules_container_t &molecules_container) {
 int test_import_ligands_with_same_name_and_animated_refinement(molecules_container_t &molecules_container) {
 
    int status = 0;
-   int coordMolNo_1 = molecules_container.read_pdb("./5a3h.pdb");
-   int coordMolNo_2 = molecules_container.read_pdb("./5fjj.pdb");
-   int mapMolNo = molecules_container.read_mtz("./5a3h_sigmaa.mtz", "FWT", "PHWT", "", false, false);
+   int coordMolNo_1 = molecules_container.read_pdb(reference_data("./5a3h.pdb"));
+   int coordMolNo_2 = molecules_container.read_pdb(reference_data("./5fjj.pdb"));
+   int mapMolNo = molecules_container.read_mtz(reference_data("./5a3h_sigmaa.mtz"), "FWT", "PHWT", "", false, false);
 
-   molecules_container.import_cif_dictionary(     "./benzene.cif", coordMolNo_1);
-   molecules_container.import_cif_dictionary("./nitrobenzene.cif", coordMolNo_2);
+   molecules_container.import_cif_dictionary(     reference_data("./benzene.cif"), coordMolNo_1);
+   molecules_container.import_cif_dictionary(reference_data("./nitrobenzene.cif"), coordMolNo_2);
 
    const std::string tlc = "LIG";
 

@@ -739,8 +739,10 @@ molecules_container_t::import_cif_dictionary(const std::string &cif_file_name, i
 
    std::cout << "debug:: import_cif_dictionary() cif_file_name: " << cif_file_name
              << " for imol_enc " << imol_enc << " success " << r.success << " with "
-             << r.n_atoms << " atoms " << r.n_bonds << " bonds " << r.n_links << " links "
+             << r.n_atoms << " atoms " << r.n_bonds << " bonds " << r.n_links << " links"
              << " and monomer_idx " << r.monomer_idx << std::endl;
+
+   geom.print_dictionary_store();
 
    return r.success;
 

@@ -1540,6 +1540,10 @@ coot::protein_geometry::get_monomer_restraints_internal(const std::string &monom
 							int imol_enc,
 							bool allow_minimal_flag) const {
 
+   if (false)
+      std::cout << "debug:: get_monomer_restraints_internal() called with "
+                << monomer_type << " imol_enc: " << imol_enc << " allow-minimal: " << allow_minimal_flag << std::endl;
+
    // 20161028
    // Compiling with SRS causes a crash when we access dict_res_restraints.
    // Needs more testing.
@@ -2748,3 +2752,15 @@ void coot::protein_geometry::delete_plane_restraints() {
 
 }
 
+
+
+void
+coot::protein_geometry::print_dictionary_store() const {
+
+   for (unsigned int i=0; i<dict_res_restraints.size(); i++) {
+      int imol_enc = dict_res_restraints[i].first;
+      const auto &rest = dict_res_restraints[i].second;
+      std::cout << i << " " << rest.residue_info << " for imol-enc: " << imol_enc << std::endl;
+   }
+
+}

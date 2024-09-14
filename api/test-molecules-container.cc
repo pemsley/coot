@@ -4,6 +4,7 @@
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/string_cast.hpp>
+#include "MoleculesToTriangles/CXXClasses/MyMolecule.h"
 #include "molecules-container.hh"
 #include "filo-tests.hh"
 #include "lucrezia-tests.hh"
@@ -2609,13 +2610,13 @@ int test_molecular_representation(molecules_container_t &mc) {
       colour = "RampChains";
       // style  = "MolecularSurface";
 
-      coot::simple_mesh_t mesh = mc.get_molecular_representation_mesh(imol, selection, colour, style);
+      coot::simple_mesh_t mesh = mc.get_molecular_representation_mesh(imol, selection, colour, style, CALC_SECONDARY_STRUCTURE);
       if (mesh.vertices.size() > 10) {
 
          std::cout << "test_molecular_representation() Ribbons OK" << std::endl;
 
          style = "MolecularSurface";
-         coot::simple_mesh_t surface_mesh = mc.get_molecular_representation_mesh(imol, selection, colour, style);
+         coot::simple_mesh_t surface_mesh = mc.get_molecular_representation_mesh(imol, selection, colour, style, CALC_SECONDARY_STRUCTURE);
 
          status = true;
       }
@@ -2636,7 +2637,7 @@ int test_electro_molecular_representation(molecules_container_t &mc) {
       std::string colour = "ByOwnPotential";
       std::string style = "MolecularSurface";
 
-      coot::simple_mesh_t mesh = mc.get_molecular_representation_mesh(imol, selection, colour, style);
+      coot::simple_mesh_t mesh = mc.get_molecular_representation_mesh(imol, selection, colour, style, CALC_SECONDARY_STRUCTURE);
       if (mesh.vertices.size() > 10) {
          status = true;
       }
@@ -5855,6 +5856,32 @@ int test_ligand_distortion(molecules_container_t &mc) {
    return status;
 }
 
+int test_for_long_bonds(molecules_container_t &mc, int imol) {
+
+   int state = -1; // unset
+   if (mc.is_valid_model_molecule(imol)) {
+      auto instanced_mesh = mc.get_bonds_mesh_instanced(imol, "COLOUR-BY-CHAIN-AND-DICTIONARY", false, 0.1f, 1.0f, 1);
+      const auto &geom_vec = instanced_mesh.geom;
+      unsigned int geom_vec_size = geom_vec.size();
+      for (unsigned int i = 0; i < geom_vec_size; i++) {
+         const auto &geom = geom_vec.at(i);
+         const auto &inst_data_B_vec = geom.instancing_data_B;
+         unsigned inst_data_B_vec_size = inst_data_B_vec.size();
+         unsigned int n_long = 0;
+         for (unsigned int j = 0; j < inst_data_B_vec_size; j++) {
+            float z = inst_data_B_vec[j].size.z;
+            if (z > 1.8f) {
+               std::cout << j << " " << z << std::endl;
+               n_long++;
+            }
+         }
+         if (n_long == 0) state = 0;
+         if (n_long > 0)  state = 1;
+      }
+   }
+   return state;
+}
+
 int test_import_LIG_dictionary(molecules_container_t &mc) {
 
    int status = 0;
@@ -5862,6 +5889,26 @@ int test_import_LIG_dictionary(molecules_container_t &mc) {
    mc.import_cif_dictionary("LIG.cif", coot::protein_geometry::IMOL_ENC_ANY);
    int imol_pdb = mc.read_pdb("7vvl.pdb");
    status = mc.import_cif_dictionary("LIG.cif", imol_pdb);
+   return status;
+}
+
+int test_tricky_ligand_problem(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol     = mc.read_pdb(reference_data("tutorial-1-with-nitrobenzene.pdb"));
+   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
+
+   mc.set_imol_refinement_map(imol_map);
+   mc.import_cif_dictionary(reference_data("./nitrobenzene.cif"), imol);
+   std::cout << "------------- nitrobenzene.cif had been read --------------" << std::endl;
+   mc.refine_residues_using_atom_cid(imol, "//A/301", "SPHERE", 1000);
+   mc.write_coordinates(imol, "nitrobenzene-refined.pdb");
+
+   int state = test_for_long_bonds(mc, imol);
+   if (state == 0) status = 1;
+
    return status;
 }
 
@@ -6175,7 +6222,8 @@ int main(int argc, char **argv) {
          // status += run_test(test_import_ligands_with_same_name_and_animated_refinement, "Test import ligands with same name and animated refinement", mc);
          // status += run_test(test_dictionary_conformers,   "Dictionary Conformers", mc);
          // status += run_test(test_ligand_distortion,   "Ligand Distortion", mc);
-         status += run_test(test_import_LIG_dictionary,   "Import LIG.cif", mc);
+         // status += run_test(test_import_LIG_dictionary,   "Import LIG.cif", mc);
+         status += run_test(test_tricky_ligand_problem,   "Tricky Ligand import/refine", mc);
 
          if (status == n_tests) all_tests_status = 0;
 

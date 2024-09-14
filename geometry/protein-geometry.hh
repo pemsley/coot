@@ -1771,6 +1771,8 @@ namespace coot {
                                                                      // 20161004 we also need to match
                                                                      // imols before deletion occurs
 
+      void print_dictionary_store() const;
+
       // return a pair, the first is status (1 if the name was found, 0 if not)
       // 
       std::pair<bool, std::string> get_monomer_name(const std::string &comp_id, int imol_enc) const;
