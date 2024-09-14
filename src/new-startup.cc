@@ -104,7 +104,6 @@ new_startup_realize(GtkWidget *gl_area) {
    GListModel* lm = gdk_display_get_monitors(display);
 
    guint n_items = g_list_model_get_n_items(lm);
-   std::cout << "n_items " << n_items << std::endl;
    if (n_items > 0) {
       for (unsigned int i=0; i<n_items; i++) {
          gpointer item = g_list_model_get_item(lm, i);
