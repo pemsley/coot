@@ -36,21 +36,24 @@ private:
         float startValue, endValue;
         int rampType;
 //For internal use
-        CoordSpline spline;	
+        CoordSpline spline;
+        int ramp_points_size;
 public:	
-	enum RampType {
-		BFactor, ResidueNumber
-	};
-	AtomPropertyRampColorRule() : startValue(1.), endValue(1000.0) {
-        rank = 1.0;
-        type = AtomPropertyRamp;
-        rampType = ResidueNumber;
-        compoundSelection = std::shared_ptr<CompoundSelection>(new CompoundSelection("/*/*/*.*/*"));
-		startHSV  = FCXXCoord (240., 1., 1., 1.);
-		middleHSV = FCXXCoord (120., 1., 1., 1.);
-		endHSV    = FCXXCoord (0.,   1., 1., 1.);
-		updateSpline();
-	};
+   enum RampType {
+      BFactor, ResidueNumber
+   };
+
+   AtomPropertyRampColorRule() : startValue(1.), endValue(1000.0) {
+      rank = 1.0;
+      ramp_points_size = 6;
+      type = AtomPropertyRamp;
+      rampType = ResidueNumber;
+      compoundSelection = std::shared_ptr<CompoundSelection>(new CompoundSelection("/*/*/*.*/*"));
+      startHSV  = FCXXCoord (240., 0.4, 1.0, 1.);
+      middleHSV = FCXXCoord (120., 0.4, 1.0, 1.);
+      endHSV    = FCXXCoord (0.,   0.4, 1.0, 1.);
+      updateSpline();
+   };
         float getStartValue() const {
            return startValue;
         };
@@ -101,17 +104,29 @@ public:
 	};
         //virtual void prepareForSelectionInMMDB(int handle, mmdb::Manager *mmdb);
  
-	void updateSpline(){
+        void setNumberOfRampPoints(int _accu){
+            ramp_points_size = _accu;
+        }
+
+        void updateSpline(){
 		spline.clearSpline();
-		spline.addPair(startValue,  startHSV);
-		spline.addPair((startValue+endValue)/2.f, middleHSV);
-		spline.addPair(endValue,    endHSV);
+                for(int i=0;i<ramp_points_size;i++){
+                    float f1 = (1.0-float(i)/ramp_points_size);
+                    float f2 = (float(i)/ramp_points_size);
+                    FCXXCoord hsv = middleHSV;
+                    if(float(i)/ramp_points_size<0.5){
+                        hsv[0] = f1*startHSV[0] + f2*middleHSV[0];
+                    } else {
+                        hsv[0] = f1*middleHSV[0] + f2*endHSV[0];
+                    }
+                    spline.addPair(f1*startValue+f2*endValue, hsv);
+                }
 		spline.calculateYDoublePrimes(1e30, 1e30);
 	};
 
 	FCXXCoord hsvToRGB(FCXXCoord hsv){
 		FCXXCoord rgb;
-        rgb[3] = hsv[3];
+                rgb[3] = hsv[3];
 		int i;
 		float f, p, q, t;
 		if( hsv[1] == 0. ) {
@@ -120,7 +135,7 @@ public:
 			return rgb;
 		}
 		hsv[0] /= 60.f;			// sector 0 to 5
-        //int floorhsv=floor(hsv[0]);
+                //int floorhsv=floor(hsv[0]);
 		i = fmod(floor( hsv[0] ), 6.f);
 		f = hsv[0] - i;			// factorial part of h
 		p = hsv[2] * ( 1 - hsv[1] );

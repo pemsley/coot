@@ -97,7 +97,7 @@ void SurfacePrimitive::generateArrays()
          surfIter != containerSurface.getChildSurfaces().end();
          ++surfIter){
         CXXSurface &childSurface = *surfIter;
-        for (int i=0; i< childSurface.numberOfTriangles(); i++){
+        for (std::size_t i=0; i< childSurface.numberOfTriangles(); i++){
             for (int j=0; j<3; j++){
                 indexArray[idx++] = GLIndexType(childSurface.vertex(i,j) + iOffset);
             }
@@ -142,7 +142,7 @@ SurfacePrimitive::SurfacePrimitive(mmdb::Manager *mmdb, int chunkHndl, int selHn
              surfIter != mySurfaceMaker.getChildSurfaces().end();
              ++surfIter){
             CXXSurface &mySurface = *surfIter;
-            for (int iVertex = 0; iVertex<mySurface.numberOfVertices(); iVertex++){
+            for (std::size_t iVertex = 0; iVertex<mySurface.numberOfVertices(); iVertex++){
                 mmdb::Atom* theAtom;
                 int result = mySurface.getPointer("atom", iVertex, (void **) &theAtom);
                 if (result == 0){
@@ -158,7 +158,7 @@ SurfacePrimitive::SurfacePrimitive(mmdb::Manager *mmdb, int chunkHndl, int selHn
              surfIter != mySurfaceMaker.getChildSurfaces().end();
              ++surfIter){
             CXXSurface &mySurface = *surfIter;
-            for (int iVertex = 0; iVertex<mySurface.numberOfVertices(); iVertex++){
+            for (std::size_t iVertex = 0; iVertex<mySurface.numberOfVertices(); iVertex++){
                 mmdb::Atom* theAtom;
                 int result = mySurface.getPointer("atom", iVertex, (void **) &theAtom);
                 if (result == 0){
