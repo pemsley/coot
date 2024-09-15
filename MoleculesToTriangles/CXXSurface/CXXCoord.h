@@ -36,20 +36,20 @@ public:
     static T CXX_RADTODEG;
     
     T xyzr[4];
-    CXXCoord<T>() {
+    CXXCoord() {
 #pragma omp simd
         for (int i=0; i<4; i++){xyzr[i] = 0.;}
     };
-    CXXCoord<T>(const T *x){
+    CXXCoord(const T *x){
 #pragma omp simd
         for (int i=0; i<4; i++){
             xyzr[i] = x[i];
         }
     };
-    CXXCoord<T>(const T x,const T y, const T z) {
+    CXXCoord(const T x,const T y, const T z) {
         xyzr[0]=x; xyzr[1]=y; xyzr[2]=z; xyzr[3]=0.;
     };
-    CXXCoord<T>(const T x, const T y, const T z, const T r) {
+    CXXCoord(const T x, const T y, const T z, const T r) {
         xyzr[0]=x; xyzr[1]=y; xyzr[2]=z; xyzr[3]=r;
     };
     CXXCoord<T>operator + (const CXXCoord<T>&param) const{
