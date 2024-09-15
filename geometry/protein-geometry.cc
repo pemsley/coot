@@ -2764,3 +2764,26 @@ coot::protein_geometry::print_dictionary_store() const {
    }
 
 }
+
+
+std::vector<std::pair<std::string, std::string> >
+coot::protein_geometry::get_acedrg_atom_types(const std::string &comp_id,
+                                              int imol_enc) const {
+
+   std::vector<std::pair<std::string, std::string> > v;
+
+   std::pair<bool, dictionary_residue_restraints_t> r =
+      get_monomer_restraints_internal(comp_id, imol_enc, false);
+   if (r.first) {
+      const auto &restraints = r.second;
+      std::vector<dict_atom>::const_iterator it;
+      for (it=restraints.atom_info.begin(); it!=restraints.atom_info.end(); ++it) {
+         if (! it->acedrg_atom_type.empty()) {
+            auto pair = std::make_pair(it->atom_id, it->acedrg_atom_type);
+            v.push_back(pair);
+         }
+      }
+   }
+   return v;
+
+}

@@ -223,6 +223,33 @@ coot::protein_geometry::mon_lib_add_atom(const std::string &comp_id,
    }
 }
 
+void
+coot::protein_geometry::mon_lib_add_acedrg_atom_type(const std::string &comp_id, int imol_enc,
+                                                     const std::string &atom_id,
+                                                     const std::string &acedrg_atom_type) {
+
+   bool found = false;
+   for (unsigned int i=0; i<dict_res_restraints.size(); i++) {
+      if (dict_res_restraints[i].first == imol_enc) {
+         auto &restraints = dict_res_restraints[i].second;
+         if (restraints.read_number == read_number) {
+            found = true;
+            for (unsigned int iat=0; iat<restraints.atom_info.size(); iat++) {
+               auto &atom = restraints.atom_info[iat];
+               if (atom.atom_id == atom_id) {
+                  atom.acedrg_atom_type = acedrg_atom_type;
+               }
+            }
+         }
+      }
+   }
+   // this should never happen
+   if (! found) {
+      dictionary_residue_restraints_t rest(comp_id, read_number);
+      std::pair<int, dictionary_residue_restraints_t> p(imol_enc, rest);
+      dict_res_restraints.push_back(p);
+   }
+}
 
 void
 coot::protein_geometry::mon_lib_add_tree(std::string comp_id,

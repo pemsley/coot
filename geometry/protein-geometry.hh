@@ -583,6 +583,7 @@ namespace coot {
       std::string atom_id_4c;
       std::string type_symbol;
       std::string type_energy;
+      std::string acedrg_atom_type;
       aromaticity_t aromaticity;
       bool is_hydrogen_flag;
       std::pair<bool, float> partial_charge;
@@ -1374,6 +1375,8 @@ namespace coot {
                                                  // chirals added (almost certainly just
                                                  // one of them, of course).
 
+      void chem_comp_acedrg(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc);
+
       void add_chem_links (mmdb::mmcif::PLoop mmCIFLoop); // references to the modifications
                                                 // to the link groups (the modifications
                                                 // themselves are in data_mod_list)
@@ -1425,6 +1428,10 @@ namespace coot {
       void mon_lib_add_atom(const std::string &comp_id,
                             int imol_enc,
                             const dict_atom &atom_info);
+
+      void mon_lib_add_acedrg_atom_type(const std::string &comp_id, int imol_enc,
+                                        const std::string &atom_id,
+                                        const std::string &atom_type);
 
       // called because they were all at origin, for example.
       void delete_atom_positions(const std::string &comp_id, int imol_enc, int pos_type);
@@ -2247,6 +2254,8 @@ namespace coot {
       void all_plane_restraints_to_improper_dihedrals();
       void delete_plane_restraints();
 
+      std::vector<std::pair<std::string, std::string> > get_acedrg_atom_types(const std::string &comp_id,
+                                                                              int imol_enc) const;
 
 #ifdef HAVE_CCP4SRS
       match_results_t residue_from_best_match(mmdb::math::Graph &graph1, mmdb::math::Graph &graph2,

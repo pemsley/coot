@@ -256,6 +256,7 @@ NB_MODULE(chapi, m) {
     .def("generate_self_restraints",&molecules_container_t::generate_self_restraints)
     .def("geometry_init_standard",&molecules_container_t::geometry_init_standard)
     .def("get_active_atom",&molecules_container_t::get_active_atom)
+    .def("get_acedrg_atom_types",&molecules_container_t::get_acedrg_atom_types)
     .def("get_atom",&molecules_container_t::get_atom, nb::rv_policy::reference)
     .def("get_atom_using_cid",&molecules_container_t::get_atom_using_cid, nb::rv_policy::reference)
     .def("get_bonds_mesh",&molecules_container_t::get_bonds_mesh)

@@ -663,6 +663,12 @@ public:
    //!  return an empty vector on failure to find any such info.
    std::vector<std::pair<std::string, std::string> > get_gphl_chem_comp_info(const std::string &compound_id, int imol_enc);
 
+   //! get a list of atom names and their associated atedrg atom types
+   //!
+   //! @return a list of atom names and their associated atedrg atom types, return an empty list
+   //! on failure (atoms types are not in the dictionary or atom failure to look up the compound id)l
+   std::vector<std::pair<std::string, std::string> > get_acedrg_atom_types(const std::string &compound_id, int imol_enc) const;
+
    //! write a PNG for the given compound_id. imol can be IMOL_ENC_ANY
    //!
    //! Currently this function does nothing (drawing is done with the not-allowed cairo)

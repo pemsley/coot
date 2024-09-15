@@ -5378,6 +5378,34 @@ molecules_container_t::get_gphl_chem_comp_info(const std::string &compound_id, i
    return v;
 }
 
+//! get a list of atom names and their associated atedrg atom types
+//!
+//! @return a list of atom names and their associated atedrg atom types, return an empty list
+//! on failure (atoms types are not in the dictionary or atom failure to look up the compound id)l
+std::vector<std::pair<std::string, std::string> >
+molecules_container_t::get_acedrg_atom_types(const std::string &compound_id, int imol_enc) const {
+
+   std::vector<std::pair<std::string, std::string> > v;
+   std::pair<bool, coot::dictionary_residue_restraints_t> r_p =
+      geom.get_monomer_restraints(compound_id, imol_enc);
+   if (r_p.first) {
+      const auto &restraints = r_p.second;
+      const auto &atom_info = restraints.atom_info;
+      for (unsigned int iat=0; iat<atom_info.size(); iat++) {
+         const auto &atom = atom_info[iat];
+         const auto &atom_id = atom.atom_id;
+         const auto &acedrg_atom_type = atom.acedrg_atom_type;
+         if (! acedrg_atom_type.empty()) {
+            auto pair = std::make_pair(atom_id, acedrg_atom_type);
+            v.push_back(pair);
+         }
+      }
+   }
+   return v;
+
+}
+
+
 
 //! export map molecule as glTF
 void

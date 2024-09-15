@@ -319,6 +319,8 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
                   if (cat_name == "_pdbx_chem_comp_description_generator")
                      pdbx_chem_comp_description_generator(mmCIFLoop, imol_enc);
 
+                  if (cat_name == "_chem_comp_acedrg")
+                     chem_comp_acedrg(mmCIFLoop, imol_enc);
                }
             }
             if (n_chiral) {
@@ -1894,7 +1896,41 @@ coot::protein_geometry::comp_plane(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc) {
 	 std::cout << "problem reading comp plane" << std::endl;
       } 
    }
-} 
+}
+
+void
+coot::protein_geometry::chem_comp_acedrg(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc) {
+
+   std::string comp_id;
+   for (int j=0; j<mmCIFLoop->GetLoopLength(); j++) {
+      int ierr = 0;
+      int ierr_tot = 0;
+      std::string atom_id;
+      std::string atom_type;
+      char *s = mmCIFLoop->GetString("comp_id", j, ierr);
+      if (! ierr)
+         if (s)
+            comp_id = s;
+      ierr_tot += ierr;
+      s = mmCIFLoop->GetString("atom_id", j, ierr);
+      if (! ierr) {
+         atom_id = s;
+      }
+      ierr_tot += ierr;
+      s = mmCIFLoop->GetString("atom_type", j, ierr);
+      if (! ierr) {
+         atom_type = s;
+      }
+      ierr_tot += ierr;
+
+      if (ierr_tot == 0) {
+         mon_lib_add_acedrg_atom_type(comp_id, imol_enc, atom_id, atom_type);
+      }
+   }
+
+}
+
+
 // 
 int
 coot::protein_geometry::add_chem_mods(mmdb::mmcif::PData data) {

@@ -5901,7 +5901,8 @@ int test_tricky_ligand_problem(molecules_container_t &mc) {
    int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
 
    mc.set_imol_refinement_map(imol_map);
-   mc.import_cif_dictionary(reference_data("./nitrobenzene.cif"), imol);
+   mc.import_cif_dictionary(reference_data("YXG-as-LIG.cif"), imol);
+   mc.import_cif_dictionary(reference_data("nitrobenzene.cif"), imol);
    std::cout << "------------- nitrobenzene.cif had been read --------------" << std::endl;
    mc.refine_residues_using_atom_cid(imol, "//A/301", "SPHERE", 1000);
    mc.write_coordinates(imol, "nitrobenzene-refined.pdb");
@@ -5911,6 +5912,27 @@ int test_tricky_ligand_problem(molecules_container_t &mc) {
 
    return status;
 }
+
+int test_dictionary_acedrg_atom_types(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   mc.import_cif_dictionary("YXG-as-LIG.cif", coot::protein_geometry::IMOL_ENC_ANY);
+   std::vector<std::pair<std::string, std::string> > v = mc.get_acedrg_atom_types("LIG", coot::protein_geometry::IMOL_ENC_ANY);
+
+   if (v.size() > 10) {
+      std::cout << "types vector size: " << v.size() << std::endl;
+      for (unsigned int i=0; i<v.size(); i++) {
+         if (v[i].first == "C21")
+            if (v[i].second == "C[6a](C[6a]C[6a]N[5a])(C[6a]C[6a]N[6a])(C[6a]C[6a]H){1|Cl<1>,1|N<2>,2|H<1>,4|C<3>}")
+               status = 1;
+         // std::cout << v[i].first << " " << v[i].second << std::endl;
+      }
+   }
+   return status;
+}
+
 
 
 int test_template(molecules_container_t &mc) {
@@ -6223,7 +6245,8 @@ int main(int argc, char **argv) {
          // status += run_test(test_dictionary_conformers,   "Dictionary Conformers", mc);
          // status += run_test(test_ligand_distortion,   "Ligand Distortion", mc);
          // status += run_test(test_import_LIG_dictionary,   "Import LIG.cif", mc);
-         status += run_test(test_tricky_ligand_problem,   "Tricky Ligand import/refine", mc);
+         // status += run_test(test_tricky_ligand_problem,   "Tricky Ligand import/refine", mc);
+         status += run_test(test_dictionary_acedrg_atom_types, "Acedrg atom types", mc);
 
          if (status == n_tests) all_tests_status = 0;
 
