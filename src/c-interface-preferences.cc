@@ -92,34 +92,9 @@ void show_preferences() {
    GtkWidget *scrolled_win_main_toolbar = widget_from_preferences_builder("preferences_main_toolbar_icons_scrolledwindow");
    fill_preferences_main_toolbar_icons(w, scrolled_win_main_toolbar);
 
-   // 20230627-PE put this in setup-gui-components - it should only happen once.
-   {
-      // fill the bond combobox
-      GtkComboBoxText *combobox = GTK_COMBO_BOX_TEXT(widget_from_preferences_builder("preferences_bond_width_combobox"));
-      if (combobox) {
-         for (int j = 1; j < 21; j++) {
-            std::string s = graphics_info_t::int_to_string(j);
-            gtk_combo_box_text_append_text(combobox, s.c_str());
-         }
-      } else {
-         std::cout << "ERROR:: failed to find preferences_bond_width_combobox " << std::endl;
-      }
-      // fill the font combobox
-      combobox = GTK_COMBO_BOX_TEXT(widget_from_preferences_builder("preferences_font_size_combobox"));
-      // 20230926-PE there was a crash here - maybe combobox was not looked up correctly.
-      // Needs investigation, but add protection for now
-      if (combobox) {
-         std::vector<std::string> fonts;
-         // fonts.push_back("Times Roman 10");
-         // fonts.push_back("Times Roman 24");
-         fonts.push_back("Fixed 8/13");
-         fonts.push_back("Fixed 9/15");
-         for (unsigned int j = 0; j < fonts.size(); j++)
-            gtk_combo_box_text_append_text(combobox, fonts[j].c_str());
-      } else {
-         std::cout << "ERROR:: failed to find preferences_font_size_combobox" << std::endl;
-      }
-   }
+   // we don't want to see the non-General tabs when we first start
+   GtkWidget *togglebutton = widget_from_preferences_builder("preferences_general_radiotoolbutton");
+   show_hide_preferences_tabs(GTK_TOGGLE_BUTTON(togglebutton), COOT_GENERAL_PREFERENCES);
 
    set_transient_for_main_window(w);
    gtk_widget_set_visible(w, TRUE);
@@ -145,7 +120,7 @@ int show_mark_cis_peptides_as_bad_state() {
 void show_hide_preferences_tabs(GtkToggleButton *toggletoolbutton, int preference_type) {
 
    std::vector<std::string> preferences_tabs;
-  
+
    if (preference_type == COOT_GENERAL_PREFERENCES) {
       preferences_tabs = graphics_info_t::preferences_general_tabs;
    }
@@ -297,12 +272,13 @@ void update_preference_gui() {
         }
         break;
 
-     case PREFERENCES_BONDS_THICKNESS:
-        w = widget_from_preferences_builder("preferences_bond_width_combobox");
-        ivalue = g.preferences_internal[i].ivalue1;
-        ivalue -= 1;      // offset
-        gtk_combo_box_set_active(GTK_COMBO_BOX(w), ivalue);
-        break;
+     // 20240916-PE this has gone
+     // case PREFERENCES_BONDS_THICKNESS:
+     //    w = widget_from_preferences_builder("preferences_bond_width_combobox");
+     //    ivalue = g.preferences_internal[i].ivalue1;
+     //    ivalue -= 1;      // offset
+     //    gtk_combo_box_set_active(GTK_COMBO_BOX(w), ivalue);
+     //    break;
 
      case PREFERENCES_BOND_COLOURS_MAP_ROTATION:
         w = widget_from_preferences_builder("preferences_bond_colours_hscale");

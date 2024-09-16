@@ -882,7 +882,6 @@ new_startup_application_activate(GtkApplication *application,
       GMenu *menubar = G_MENU(graphics_info_t::get_gobject_from_builder("menubar"));
       gtk_application_set_menubar(application, G_MENU_MODEL(menubar));
       gtk_application_window_set_show_menubar(GTK_APPLICATION_WINDOW(app_window), TRUE);
-      gtk_widget_set_can_focus(GTK_WIDGET(menubar), FALSE);
 
       // GtkWidget *graphics_hbox = widget_from_builder("crows_graphics_hbox", builder);
       // GtkWidget *main_window   = widget_from_builder("crows_main_window",   builder);
