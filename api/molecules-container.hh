@@ -670,7 +670,7 @@ public:
    std::vector<std::pair<std::string, std::string> > get_acedrg_atom_types(const std::string &compound_id, int imol_enc) const;
 
    //! get acedrg types for ligand bonds
-   //! @return a vector of `acedrg_types_for_residue_t`
+   //! @return a `coot::acedrg_types_for_residue_t` - which contains a vector of bond descriptions.
    coot::acedrg_types_for_residue_t get_acedrg_atom_types_for_ligand(int imol, const std::string &residue_cid) const;
 
    //! write a PNG for the given compound_id. imol can be IMOL_ENC_ANY
