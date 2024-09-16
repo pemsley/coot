@@ -1,28 +1,19 @@
 
 ----
 
-chapi: a function to return a list of tuples atom types for ligand:
-get_acedrg_atom_types(comp_id, imol_enc);
-* Done.
-
-chapi: a function to return a list of tuples atom types for ligand:
-(name_1, name_2, type_1, type_2, bond_length)
-get_acedrg_atom_types_for_ligand(imol, comp_id, residue_cid);
-
 The "Solid Surface" mode for a map is not saved in the state file.
 
 Ribbon diagram is not used for shadows. It would be nice to have.
 
-Refinement buttons are a mess on resizing - replace them with gtk buttons
+HUD Refinement buttons are a mess on resizing - replace them with gtk buttons
 Use an overlay box of buttons.
-
-Identify the acedrg atom types - or use the dictionary to look them up.
 
 Martin request: libcootapi: coordinates -> mask with same coordinates
    removing cavities, making map in X,Y,Z order - use floats
    use smooth edge (user-controlled)
 
 Add Noughties Physics into the Preferences
+* Done.
 
 Martin request: libcootapi: Step sample maps
 
@@ -84,6 +75,18 @@ make an figure, for moorhen intro with blobs that have volume proportional
 Look at 4yjr - beautiful map 452-626 interaction - it should not have a clash face
    (distance to hydrogen atom).
 * Checked - it does not if both residues are refined. That will do.
+
+chapi: a function to return a list of tuples atom types for ligand:
+get_acedrg_atom_types(comp_id, imol_enc);
+* Done.
+
+chapi: a function to return a list of tuples atom types for ligand:
+(name_1, name_2, type_1, type_2, bond_length)
+get_acedrg_atom_types_for_ligand(imol, comp_id, residue_cid);
+* Done.
+
+Identify the acedrg atom types - or use the dictionary to look them up.
+* Done (the second (easier) option)
 
 acedrg atom types in cif parse.
 * Already Done.
