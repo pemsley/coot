@@ -163,30 +163,6 @@ on_preferences_view_rotation_left_mouse_checkbutton_toggled(GtkCheckButton *chec
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_geometry_cis_peptide_bad_yes_radiobutton_toggled
-                                        (GtkCheckButton *checkbutton,
-                                         gpointer         user_data) {
-
-   if (gtk_check_button_get_active(checkbutton)) {
-      preferences_internal_change_value_int(PREFERENCES_MARK_CIS_BAD, 1);
-      set_mark_cis_peptides_as_bad(1);
-   }
-}
-
-extern "C" G_MODULE_EXPORT
-void
-on_preferences_geometry_cis_peptide_bad_no_radiobutton_toggled
-                                        (GtkCheckButton *checkbutton,
-                                        gpointer         user_data) {
-
-   if (gtk_check_button_get_active(checkbutton)) {
-      preferences_internal_change_value_int(PREFERENCES_MARK_CIS_BAD, 0);
-      set_mark_cis_peptides_as_bad(0);
-   }
-}
-
-extern "C" G_MODULE_EXPORT
-void
 on_preferences_default_b_factor_entry_activate(GtkEntry        *entry,
                                                gpointer         user_data) {
 

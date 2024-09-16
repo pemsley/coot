@@ -411,15 +411,15 @@ void update_preference_gui() {
         }
         break;
 
-     case PREFERENCES_MARK_CIS_BAD:
-        w = widget_from_preferences_builder("preferences_geometry_cis_peptide_bad_yes_radiobutton");
-        if (g.preferences_internal[i].ivalue1) {
-           gtk_check_button_set_active(GTK_CHECK_BUTTON(w), TRUE);
-        } else {
-           w = widget_from_preferences_builder("preferences_geometry_cis_peptide_bad_no_radiobutton");
-           gtk_check_button_set_active(GTK_CHECK_BUTTON(w), TRUE);
-        }
-        break;
+     // case PREFERENCES_MARK_CIS_BAD:
+     //    w = widget_from_preferences_builder("preferences_geometry_cis_peptide_bad_yes_radiobutton");
+     //    if (g.preferences_internal[i].ivalue1) {
+     //       gtk_check_button_set_active(GTK_CHECK_BUTTON(w), TRUE);
+     //    } else {
+     //       w = widget_from_preferences_builder("preferences_geometry_cis_peptide_bad_no_radiobutton");
+     //       gtk_check_button_set_active(GTK_CHECK_BUTTON(w), TRUE);
+     //    }
+     //    break;
 
      case PREFERENCES_DEFAULT_B_FACTOR:
         w = widget_from_preferences_builder("preferences_default_b_factor_entry");

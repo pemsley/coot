@@ -637,31 +637,19 @@ void
 on_display_control_ok_button_clicked   (GtkButton       *button,
                                                             gpointer         user_data) {
 
-   // GtkWidget *w = widget_from_builder("display_control_window_glade");
-   GtkWidget *w = widget_from_builder("display_control_window_glade");
-   GtkWidget *maps_vbox = 0;
-   GtkWidget *molecules_vbox = 0;
-   GtkWidget *pane = 0;
-
    reset_graphics_display_control_window(); /* Needed! (also resets the scroll group) */
-   if (w) {
-      maps_vbox      = widget_from_builder("display_map_vbox");
-      molecules_vbox = widget_from_builder("display_molecule_vbox");
-      pane           = widget_from_builder("display_control_vpaned");
-
-      // gtk_widget_destroy(w); // 20220309-PE not these days, buddy-boy
+   GtkWidget *w = widget_from_builder("display_control_window_glade");
+   if (w)
       gtk_widget_set_visible(w, FALSE);
-   } else {
-      printf("Error:: in on_display_control_ok_button_clicked() failed to lookup display_control_window_glade\n");
-   }
+   graphics_info_t::graphics_grab_focus();
 }
 
 extern "C" G_MODULE_EXPORT
 void
 on_rotation_centre_size_ok_button_clicked(GtkButton       *button,
-                                                              gpointer         user_data) {
+                                          gpointer         user_data) {
 
-				/* pass back the value from the entry */
+   /* pass back the value from the entry */
   GtkEntry *entry = GTK_ENTRY(widget_from_builder("rotation_centre_cube_size_entry"));
   const char *text = gtk_editable_get_text(GTK_EDITABLE(entry));
   set_rotation_centre_size_from_widget(text);
