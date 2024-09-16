@@ -3,6 +3,7 @@
 
 chapi: a function to return a list of tuples atom types for ligand:
 get_acedrg_atom_types(comp_id, imol_enc);
+* Done.
 
 chapi: a function to return a list of tuples atom types for ligand:
 (name_1, name_2, type_1, type_2, bond_length)

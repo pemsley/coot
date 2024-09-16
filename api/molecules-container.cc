@@ -5405,6 +5405,24 @@ molecules_container_t::get_acedrg_atom_types(const std::string &compound_id, int
 
 }
 
+//! get acedrg types for ligand bonds
+//! @return a vector of `acedrg_types_for_residue_t`
+coot::acedrg_types_for_residue_t
+molecules_container_t::get_acedrg_atom_types_for_ligand(int imol, const std::string &residue_cid) const {
+
+   coot::acedrg_types_for_residue_t types;
+
+   if (is_valid_model_molecule(imol)) {
+      mmdb::Residue *residue_p = molecules[imol].get_residue(residue_cid);
+      if (residue_p) {
+         int imol_enc = imol;
+         types = coot::get_acedrg_types_for_residue(residue_p, imol_enc, geom);
+      }
+   }
+   return types;
+}
+
+
 
 
 //! export map molecule as glTF

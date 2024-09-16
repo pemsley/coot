@@ -6,14 +6,15 @@
 #include <nanobind/ndarray.h>
 #include <nanobind/operators.h>
 
-#include "molecules-container.hh"
-#include "mini-mol/mini-mol-utils.hh"
-
 #include "clipper/core/ramachandran.h"
 #include "clipper/clipper-ccp4.h"
 
-#include "coot-utils/g_triangle.hh"
 #include "coords/mmdb-crystal.h"
+#include "coot-utils/acedrg-types-for-residue.hh"
+#include "coot-utils/g_triangle.hh"
+#include "mini-mol/mini-mol-utils.hh"
+#include "molecules-container.hh"
+
 
 namespace nb = nanobind;
 
@@ -257,6 +258,7 @@ NB_MODULE(chapi, m) {
     .def("geometry_init_standard",&molecules_container_t::geometry_init_standard)
     .def("get_active_atom",&molecules_container_t::get_active_atom)
     .def("get_acedrg_atom_types",&molecules_container_t::get_acedrg_atom_types)
+    .def("get_acedrg_atom_types_for_ligand",&molecules_container_t::get_acedrg_atom_types_for_ligand)
     .def("get_atom",&molecules_container_t::get_atom, nb::rv_policy::reference)
     .def("get_atom_using_cid",&molecules_container_t::get_atom_using_cid, nb::rv_policy::reference)
     .def("get_bonds_mesh",&molecules_container_t::get_bonds_mesh)
@@ -555,6 +557,16 @@ NB_MODULE(chapi, m) {
     nb::class_<coot::instanced_mesh_t>(m,"instanced_mesh_t")
     .def_ro("geom",   &coot::instanced_mesh_t::geom)
     .def_ro("markup", &coot::instanced_mesh_t::markup)
+    ;
+    nb::class_<coot::acedrg_types_for_bond_t>(m,"acedrg_types_for_bond_t")
+       .def_ro("atom_id_1",   &coot::acedrg_types_for_bond_t::atom_id_1)
+       .def_ro("atom_id_2",   &coot::acedrg_types_for_bond_t::atom_id_2)
+       .def_ro("atom_type_1", &coot::acedrg_types_for_bond_t::atom_type_1)
+       .def_ro("atom_type_2", &coot::acedrg_types_for_bond_t::atom_type_2)
+       .def_ro("bond_length", &coot::acedrg_types_for_bond_t::bond_length)
+    ;
+    nb::class_<coot::acedrg_types_for_residue_t>(m,"acedrg_types_for_residue_t")
+        .def_ro("bond_types", &coot::acedrg_types_for_residue_t::bond_types)
     ;
     nb::class_<coot::util::phi_psi_t>(m,"phi_psi_t")
     .def("phi",               &coot::util::phi_psi_t::phi)

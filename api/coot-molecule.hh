@@ -597,6 +597,9 @@ namespace coot {
       // returns either the specified residue or null if not found
       mmdb::Residue *get_residue(const residue_spec_t &residue_spec) const;
 
+      // can return null
+      mmdb::Residue *get_residue(const std::string &residue_cid) const;
+
       std::string get_residue_name(const residue_spec_t &residue_spec) const;
 
       bool have_unsaved_changes() const { return modification_info.have_unsaved_changes(); }

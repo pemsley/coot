@@ -196,6 +196,15 @@ coot::molecule_t::cid_to_residues(const std::string &atom_selection_cids) const 
    return v;
 }
 
+// can return null
+mmdb::Residue *
+coot::molecule_t::get_residue(const std::string &residue_cid) const {
+
+   mmdb::Residue *residue_p = cid_to_residue(residue_cid);
+   return residue_p;
+}
+
+
 
 
 // restore from (previous) backup

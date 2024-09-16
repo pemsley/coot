@@ -669,6 +669,10 @@ public:
    //! on failure (atoms types are not in the dictionary or atom failure to look up the compound id)l
    std::vector<std::pair<std::string, std::string> > get_acedrg_atom_types(const std::string &compound_id, int imol_enc) const;
 
+   //! get acedrg types for ligand bonds
+   //! @return a vector of `acedrg_types_for_residue_t`
+   coot::acedrg_types_for_residue_t get_acedrg_atom_types_for_ligand(int imol, const std::string &residue_cid) const;
+
    //! write a PNG for the given compound_id. imol can be IMOL_ENC_ANY
    //!
    //! Currently this function does nothing (drawing is done with the not-allowed cairo)

@@ -2,16 +2,17 @@
 #include <iostream>
 #include <iomanip>
 
+#include <sys/types.h>
+#include <sys/stat.h>
+#include <unistd.h>
+
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/string_cast.hpp>
 #include "MoleculesToTriangles/CXXClasses/MyMolecule.h"
 #include "molecules-container.hh"
+#include "coot-utils/acedrg-types-for-residue.hh"
 #include "filo-tests.hh"
 #include "lucrezia-tests.hh"
-
-#include <sys/types.h>
-#include <sys/stat.h>
-#include <unistd.h>
 
 void starting_test(const char *func) {
    std::cout << "\nStarting " << func << "()" << std::endl;
@@ -5933,6 +5934,26 @@ int test_dictionary_acedrg_atom_types(molecules_container_t &mc) {
    return status;
 }
 
+int test_dictionary_acedrg_atom_types_for_ligand(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   mc.import_cif_dictionary("YXG-as-LIG.cif", coot::protein_geometry::IMOL_ENC_ANY);
+   int imol = mc.get_monomer_from_dictionary("LIG", coot::protein_geometry::IMOL_ENC_ANY, false);
+   coot::acedrg_types_for_residue_t types = mc.get_acedrg_atom_types_for_ligand(imol, "//A/1");
+
+   std::cout << "------------- types (bond) ----------- " << std::endl;
+   for (unsigned int i=0; i<types.bond_types.size(); i++) {
+      const auto &bond_types = types.bond_types[i];
+      std::cout << "bond_type "
+                << bond_types.atom_id_1 << " " << bond_types.atom_type_1 << " "
+                << bond_types.atom_id_2 << " " << bond_types.atom_type_2
+                << " bond-length: " << bond_types.bond_length << std::endl;
+   }
+   if (types.bond_types.size() > 10) status = 1;
+   return status;
+}
 
 
 int test_template(molecules_container_t &mc) {
@@ -6247,6 +6268,7 @@ int main(int argc, char **argv) {
          // status += run_test(test_import_LIG_dictionary,   "Import LIG.cif", mc);
          // status += run_test(test_tricky_ligand_problem,   "Tricky Ligand import/refine", mc);
          status += run_test(test_dictionary_acedrg_atom_types, "Acedrg atom types", mc);
+         status += run_test(test_dictionary_acedrg_atom_types_for_ligand, "Acedrg atom types for ligand", mc);
 
          if (status == n_tests) all_tests_status = 0;
 

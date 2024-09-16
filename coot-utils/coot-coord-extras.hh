@@ -32,6 +32,7 @@
 #include "mini-mol/atom-quads.hh"
 #include "mini-mol/mini-mol.hh"
 #include "bonded-pairs.hh"
+#include "acedrg-types-for-residue.hh"
 
 // functions and classes here (in extras) can use protein_geometry.
 
@@ -371,6 +372,10 @@ namespace coot {
                                  int model_number,
                                  const protein_geometry *geom_p,
                                  bool strictly_cis_flag = false);
+
+
+   acedrg_types_for_residue_t get_acedrg_types_for_residue(mmdb::Residue *residue_p, int imol_enc,
+                                                           const protein_geometry &geom);
 
 }
 
