@@ -755,6 +755,26 @@ struct application_activate_data {
    }
 };
 
+gboolean
+on_app_window_key_controller_key_pressed(GtkEventControllerKey *controller,
+                                     guint                  keyval,
+                                     guint                  keycode,
+                                     guint                  modifiers,
+                                     GtkButton             *button) {
+
+   std::cout << "app window keypressed! " << keyval << " " << keycode << std::endl;
+   gboolean handled = FALSE;
+   return handled;
+}
+
+void
+add_key_bindings_for_application_window(GtkWidget *app_window) {
+
+   GtkEventController *key_controller = gtk_event_controller_key_new();
+   g_signal_connect(key_controller, "key-pressed",  G_CALLBACK(on_app_window_key_controller_key_pressed), app_window);
+   gtk_widget_add_controller(app_window, key_controller);
+}
+
 
 void
 new_startup_application_activate(GtkApplication *application,
@@ -772,6 +792,8 @@ new_startup_application_activate(GtkApplication *application,
    GtkWidget *app_window = gtk_application_window_new(application);
    gtk_window_set_application(GTK_WINDOW(app_window), application);
    gtk_window_set_title(GTK_WINDOW(app_window), window_name.c_str());
+
+   add_key_bindings_for_application_window(app_window);
 
    graphics_info_t::set_main_window(app_window);
 

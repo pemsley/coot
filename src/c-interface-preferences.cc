@@ -200,7 +200,7 @@ void reset_preferences() {
 void update_preference_gui() {
 
   GtkWidget *w;
-  GtkWidget *colour_button;
+  GtkWidget *colour_button = nullptr;
   GtkAdjustment *adjustment;
   GtkWidget *entry;
   std::string text;
