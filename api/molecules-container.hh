@@ -383,8 +383,12 @@ public:
    //!
    //! @param state is `true` to mean that it is enabled. The default is `true`.
    void set_make_backups(bool state) { make_backups_flag = state; }
+
+   //! get the state of the backups
+   //!
    //! @return the backup-enabled state
    bool get_make_backups() const { return make_backups_flag; }
+
    //! the backup-enable state (raw public if needed/prefered)
    bool make_backups_flag;
 
@@ -1577,7 +1581,7 @@ public:
    coot::instanced_mesh_t all_molecule_contact_dots(int imol, unsigned int smoothness_factor) const;
 
    //! @return a `simple::molecule_t` for the specified residue.
-   //! this function is not const because we pass a pointer to the protein_geometry geom.
+   //! @note this function is not const because we pass a pointer to the protein_geometry geom.
    coot::simple::molecule_t get_simple_molecule(int imol, const std::string &residue_cid, bool draw_hydrogen_atoms_flag);
 
    //! @return a vector of lines for non-bonded contacts and hydrogen bonds
@@ -1930,7 +1934,10 @@ public:
    // -------------------------------- Others -------------------------------------
    //! \name Other Features
 
-   //! @return a `simple_mesh_t` from the give file.
+   //! Make a m `coot::simple_mesh_t` from a file
+   //!
+   //! @params `file_name` the gltf file
+   //! @return a `simple_mesh_t` from the given file.
    coot::simple_mesh_t make_mesh_from_gltf_file(const std::string &file_name);
 
    //! @params `n_divisions` is a number divisble by 2, at least 4 (typically 16)
@@ -2040,8 +2047,11 @@ public:
 #if NB_VERSION_MAJOR
    // skip this (old) block for nanobinds
 #else
+#ifdef DOXYGEN_SHOULD_PARSE_THIS
+#else
    //! \name Old Python functions
 
+   //! old mesh mode: do not use with nanobind
    enum mesh_mode_t { UNKNOWN, SINGLE_COLOUR, MULTI_COLOUR };
    //! old function: do not use with nanobind
    PyObject *simple_mesh_to_pythonic_mesh(const coot::simple_mesh_t &mesh, int mesh_mode);
@@ -2059,7 +2069,6 @@ public:
    //! old function: do not use with nanobind get Gaussion surface mesh
    PyObject *get_pythonic_gaussian_surface_mesh(int imol, float sigma, float contour_level,
                                                 float box_radius, float grid_scale, float fft_b_factor);
-
    //! old function: do not use with nanobind: get a pythonic mesh of the molecule (bonds)
    //!
    //! @return a pair - the first of which (index 0) is the list of atoms, the second (index 1) is the list of bonds.
@@ -2078,6 +2087,7 @@ public:
    //! make a "proper" simple  molecule python class one day.
    PyObject *get_pythonic_simple_molecule(int imol, const std::string &cid, bool include_hydrogen_atoms_flag);
 
+#endif
 #endif
 #endif
 
