@@ -1650,16 +1650,37 @@ coot::restraints_container_t::find_link_type_2022(mmdb::Residue *first_residue,
                   }
                }
             } else {
-               // It cannont be a peptide bond of any kind then.
-               //
-               // It might be a "SS" then, choose it if it is in the list.
-               // The options at this stage are SS, TRANS, or CIS.
+
+               // It cannot be a peptide bond of any kind then.
+               // (20240923-PE unless it is a peptide macrocycle...)
+
+               if (debug_links)
+                  std::cout << "   .... find_link_type_2022() here 000 with chem_links size() " << chem_links.size()
+                            << " and current link-type :" << link_type << ":" << std::endl;
+
+               // let's try to find a link where the comp_id1 and comp_id2 are not "any"
                for (unsigned int ilink=0; ilink<chem_links.size(); ilink++) {
                   const coot::chem_link &link = chem_links[ilink].first;
                   bool order_switch_is_needed = chem_links[ilink].second;
-                  if (link.Id() == "SS") {
-                     link_type = "SS";
-                     order_switch_was_needed = order_switch_is_needed;
+                  if (! link.chem_link_comp_id_1.empty()) {
+                     if (! link.chem_link_comp_id_2.empty()) {
+                        // this is our boy (typically an bespoke acedrg link)
+                        link_type = link.Id();
+                        order_switch_was_needed = order_switch_is_needed;
+                     }
+                  }
+               }
+
+               if (link_type.empty()) {
+                  // It might be a "SS" then, choose it if it is in the list.
+                  // The options at this stage are SS, TRANS, or CIS.
+                  for (unsigned int ilink=0; ilink<chem_links.size(); ilink++) {
+                     const coot::chem_link &link = chem_links[ilink].first;
+                     bool order_switch_is_needed = chem_links[ilink].second;
+                     if (link.Id() == "SS") {
+                        link_type = "SS";
+                        order_switch_was_needed = order_switch_is_needed;
+                     }
                   }
                }
             }
