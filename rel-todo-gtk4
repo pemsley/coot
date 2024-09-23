@@ -1,19 +1,33 @@
 
 ----
 
-The "Solid Surface" mode for a map is not saved in the state file.
+Add Place Helix here to moorhen api
 
-Ribbon diagram is not used for shadows. It would be nice to have.
+Add merge fragments to api.
+
+python chapi usage:
+Failed to open /home/paule/autobuild/build-for-chapi-debian-gtk4/share/coot/data/metal/metal-O-distance.table
+There is no $prfx/share/coot directory
+
+On a button click, how do I get the GdkDevice? (If I have the device, I hope I
+can then know if the device is a trackpad).
+  gdk_event_get_event_type(GdkEvent *event) https://docs.gtk.org/gdk4/enum.EventType.html
+  gdk_event_get_display(GdkEvent *event) and then
+  gdk_display_get_default_seat(GdkDisplay *display) and then
+  gdk_seat_get_devices(GdkSeat *seat)
+
+If you're going to write about it, get pyrogen working in libcootapi (pythonless pyrogen)
 
 HUD Refinement buttons are a mess on resizing - replace them with gtk buttons
 Use an overlay box of buttons.
 
+The "Solid Surface" mode for a map is not saved in the state file.
+
+Ribbon diagram is not used for shadows. It would be nice to have.
+
 Martin request: libcootapi: coordinates -> mask with same coordinates
    removing cavities, making map in X,Y,Z order - use floats
    use smooth edge (user-controlled)
-
-Add Noughties Physics into the Preferences
-* Done.
 
 Martin request: libcootapi: Step sample maps
 
@@ -38,8 +52,6 @@ Rangana made findwaters crash by using a sigma of 4 in flood mode in cryo-EM map
   Can you reproduce that?
 
 Expanding ligand thumbnail on window width increase
-
-Add Place Helix here to moorhen api
 
 Carbohydrate builder in moorhen & coot
 
@@ -72,9 +84,13 @@ make an figure, for moorhen intro with blobs that have volume proportional
    to the number of lines of code: rdkit, mmdb, ccp4libs, gemmi, M2T,
    libcootapi - M2T, coot - libcootapi - M2T, moorhen JS and TypeScript code
 
+
 Look at 4yjr - beautiful map 452-626 interaction - it should not have a clash face
    (distance to hydrogen atom).
 * Checked - it does not if both residues are refined. That will do.
+
+Add Noughties Physics into the Preferences
+* Done.
 
 chapi: a function to return a list of tuples atom types for ligand:
 get_acedrg_atom_types(comp_id, imol_enc);
@@ -221,6 +237,12 @@ Check email for build-script updates/fixes
 
 Add Q-score to api
 * Done.
+
+Non-trivial C++ Mini-Projects
+ o Splines for Worms view
+ o Add SSBond to struct con info in mmdb
+ o Parallel FFT
+ o Faster/better/modern contouring
 
 Is 0-coot.state.py a good file-name now that it's in ~/.local/state/Coot ?
 
