@@ -1428,10 +1428,12 @@ public:
    //! ``mode`` is one of {SINGLE, TRIPLE, QUINTUPLE, HEPTUPLE, SPHERE, BIG_SPHERE, CHAIN, ALL};
    //! @returns a value of 1 if the refinement was performed and 0 if it was not.
    int refine_residues_using_atom_cid(int imol, const std::string &cid, const std::string &mode, int n_cycles);
+
    //! refine the residues
    //! @returns a value of 1 if the refinement was performed and 0 if it was not.
    int refine_residues(int imol, const std::string &chain_id, int res_no, const std::string &ins_code,
                        const std::string &alt_conf, const std::string &mode, int n_cycles);
+
    //! refine residue range
    //! @returns a value of 1 if the refinement was performed and 0 if it was not.
    int refine_residue_range(int imol, const std::string &chain_id, int res_no_start, int res_no_end, int n_cycles);
