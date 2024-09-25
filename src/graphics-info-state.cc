@@ -237,6 +237,11 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
    if (rotamer_search_mode == ROTAMERSEARCHLOWRES)
       commands.push_back(state_command("coot", "set-rotamer-search-mode", ROTAMERSEARCHLOWRES, il));
 
+   // Lighting
+   if (displayed_image_type == graphics_info_t::SHOW_AO_SCENE) // else SHOW_BASIC_SCENE
+      commands.push_back(state_command("coot", "set-use-fancy-lighting", 1, il));
+
+
    std::vector <std::string> command_strings;
 
    // because the goto_atom_molecule could be 11 with 8 closed
