@@ -2793,9 +2793,10 @@ int test_mcd_and_thornton_h_bonds() {
       asc.mol->SelectAtoms(SelHnd_all, 0, "*", mmdb::ANY_RES, "*", mmdb::ANY_RES, "*", "*", "*", "*", "*");
       asc.mol->SelectAtoms(SelHnd_lig, 0, "A", 97, "", 97, "", "*", "*", "*", "*");
 
+      int imol = 55;
       coot::h_bonds hb;
       std::vector<coot::h_bond> hbonds =
-	 hb.get_mcdonald_and_thornton(SelHnd_lig, SelHnd_all, asc.mol, t.geom);
+	 hb.get_mcdonald_and_thornton(SelHnd_lig, SelHnd_all, asc.mol, t.geom, imol);
 
       std::cout << "Returned H-bonds:" << std::endl;
       for (unsigned int i=0; i<hbonds.size(); i++) {
