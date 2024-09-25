@@ -3,6 +3,8 @@
 
 Add Place Helix here to moorhen api
 
+Is there non-map minimization (say, for conformers)?
+
 Add merge fragments to api.
 
 python chapi usage:
@@ -28,6 +30,10 @@ Ribbon diagram is not used for shadows. It would be nice to have.
 Martin request: libcootapi: coordinates -> mask with same coordinates
    removing cavities, making map in X,Y,Z order - use floats
    use smooth edge (user-controlled)
+
+Make mask by position (a sphere around a point)
+
+Add Noughties Physics into the Preferences
 
 Martin request: libcootapi: Step sample maps
 

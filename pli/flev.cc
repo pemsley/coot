@@ -503,7 +503,7 @@ pli::fle_view_with_rdkit_internal(mmdb::Manager *mol,
                   // should this be a flev function?
                   std::vector<pli::fle_ligand_bond_t> bonds_to_ligand =
                      pli::get_fle_ligand_bonds(res_ref, filtered_residues,
-                                               mol_for_res_ref, name_map, *geom_p,
+                                               mol_for_res_ref, name_map, *geom_p, imol,
                                                flev.fle_water_dist_max,
                                                flev.fle_h_bond_dist_max);
 

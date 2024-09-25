@@ -183,7 +183,7 @@ coot::restraints_container_t::make_restraints_ng(int imol,
 
          if (residues_vec.size() > 1)
             if (do_auto_h_bond_restraints)
-               make_h_bond_restraints_from_res_vec_auto(geom);
+               make_h_bond_restraints_from_res_vec_auto(geom, imol);
 
          if (residues_vec.size() > 1)
             make_base_pairing_and_stacking_restraints_ng(imol, geom);
