@@ -1603,16 +1603,22 @@ public:
    //! ligand validation
    //!
    //! @return a vector of interesting geometry
-   void
+   std::vector<coot::geometry_distortion_info_container_t>
    get_ligand_validation_vs_dictionary(int imol, const std::string &ligand_cid, bool include_non_bonded_contacts);
 
    //! match ligand torsions - return the success status
    bool match_ligand_torsions(int imol_ligand, int imol_ref, const std::string &chain_id_ref, int resno_ref);
 
-   //! match ligand positions - return the success status
+   //! match ligand positions
+   //!
+   //! i.e. do a least-squares superposition of the atoms that match in the graphs of the
+   //! two specified ligands - typically one would use this function after matching ligand torsions.
+   //!
+   //! @return the success status
    bool match_ligand_position(int imol_ligand, int imol_ref, const std::string &chain_id_ref, int resno_ref);
 
    //! match ligand torsions and positions
+   //!
    //! @return the success status.
    bool match_ligand_torsions_and_position(int imol_ligand, int imol_ref, const std::string &chain_id_ref, int resno_ref);
 
