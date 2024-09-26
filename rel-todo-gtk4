@@ -1,6 +1,17 @@
 
 ----
 
+Martin: How do I load external (refmac) restraints into Coot 1 and Moorhen?
+
+Associate sequence and assign sequence functions, brighten_maps_action() and many other
+  are missing bodies in create-menu-item-actions.cc
+
+How to get map gradient vertex normals in moorhen?
+
+PAE view (dialog) in Coot
+
+Try harder to get NCS jumping working
+
 License of Jakub code - check contract
 
 License of Vercel
@@ -255,11 +266,14 @@ Add Q-score to api
 * Done.
 
 Non-trivial C++ Mini-Projects
- o Splines for Worms view
+ o Splines for Worms view (B-factor or sequence conservation mode)
  o Add SSBond to struct con info in mmdb
  o Parallel FFT
  o Faster/better/modern contouring
  o Improved side-chain typing
+ o Add gesamt to moorhen and coot
+ o parser for PISA output (maybe Python will do)
+ o Filled bases for DNA/RNA
 
 Non-trivial C++ Projects
  o Improved ligand fitting with machine learning
