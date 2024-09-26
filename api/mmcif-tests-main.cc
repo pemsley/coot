@@ -7,8 +7,14 @@ namespace mmcif_tests {
 
 int main(int argc, char **argv) {
 
-   std::cout << "------------- main() --- start ---" << std::endl;
    int status = 0;
-   std::cout << "------------- main() --- end ---" << std::endl;
+   bool last_test_only = false;
+   if (argc > 1) {
+      std::string arg(argv[1]);
+      if (arg == "last-test-only")
+         last_test_only = true;
+   }
+   int test_status =  mmcif_tests::run_tests(last_test_only);
+   if (test_status == 0) status = 0; // convert to shell-type status
    return status;
 }

@@ -76,7 +76,6 @@ int mmcif_tests::read_pdb() {
 int
 mmcif_tests::run_tests(bool last_test_only) {
 
-   std::cout << "--------------- run_tests() --- start --- " << std::endl;
    if (! last_test_only) {
       run_test(read_pdb, "read_pdb");
    }
@@ -85,7 +84,6 @@ mmcif_tests::run_tests(bool last_test_only) {
       if (t.second != 1)
          status = 0;
    }
-   std::cout << "--------------- run_tests() --- end --- " << std::endl;
    return status;
 }
 
