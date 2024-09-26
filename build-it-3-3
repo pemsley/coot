@@ -567,7 +567,6 @@ NIGHTLY_DEST_DIR=${NIGHTLY_DEST_DIR:=${HOME}/public_html/software/binaries/night
 #
 STABLE_DEST_DIR=${STABLE_DEST_DIR:=${HOME}/public_html/software/binaries/stable}
 # this is given args: arg1(dir) arg2(file-name)
-BINARY_INSTALL_CMD=www-placement
 
 
 # how do we transfer the file on the build host to the web server?
@@ -581,7 +580,7 @@ publish_logs=${publish_logs:=:}
 if [ -z "$umask" ] ; then
    umask 0022
 else
-   umask $umask
+   umask "$umask"
 fi
 
 
@@ -609,7 +608,7 @@ function mkdir_maybe {
 
   dir=$1
   if [ ! -e "$dir" ] ; then
-     mkdir $dir
+     mkdir "$dir"
   fi
 
 }
@@ -619,21 +618,21 @@ function mkdir_maybe {
 #
 function post_install_slim {
 
-    echo we are slimming directory $1
+    echo we are slimming directory "$1"
     fat_dir="$1"
     cleaned_dir="$2"
     clear_type="$3"
-    echo fat_dir is $fat_dir
-    echo clear_type is $clear_type
-    echo cleaned_dir is $cleaned_dir
+    echo fat_dir is "$fat_dir"
+    echo clear_type is "$clear_type"
+    echo cleaned_dir is "$cleaned_dir"
 
-    mkdir_maybe $cleaned_dir
-    mkdir_maybe $cleaned_dir/bin
-    mkdir_maybe $cleaned_dir/lib
+    mkdir_maybe "$cleaned_dir"
+    mkdir_maybe "$cleaned_dir"/bin
+    mkdir_maybe "$cleaned_dir"/lib
     # and this for pyconfig.h
     if [ "$ENABLE_PYTHON_COOT" = yes ] ; then
-       mkdir_maybe $cleaned_dir/include
-       mkdir_maybe $cleaned_dir/include/$python_version
+       mkdir_maybe "$cleaned_dir"/include
+       mkdir_maybe "$cleaned_dir"/include/$python_version
     fi
 
     lib_sos=`cd $fat_dir && ls -1 lib/lib*.so*`
@@ -712,55 +711,6 @@ function make_tar {
        fi
     else
        echo ERROR:: tar target directory $tar_dir does not exist.
-    fi
-}
-
-function ssh_copy {
-
-#     bin_tar_file=$1
-#     if [ "$domainname" = "biop" ] ; then
-#        do_ssh_copy=true
-#     fi
-
-    if [ "$do_ssh_copy" = true ] ; then
-       dir=public_html/software/binaries/nightlies/pre-release/
-       echo ssh_copy copying over files using $HOME/bin/sput-with-dir $bin_tar_file $dir
-       $HOME/bin/sput-with-dir $bin_tar_file $dir
-       if [ -e $bin_tar_file.md5sum ] ; then
-          $HOME/bin/sput-with-dir $bin_tar_file.md5sum dir
-       fi
-    else
-       echo Not ssh copying file to York, $domainname
-    fi
-}
-
-function ssh_copy_to_biop {
-
-    bin_tar_file=$1
-
-    if [ "$do_ssh_biop_copy" = true ] ; then
-       target_dir=public_html/coot/software/binaries/pre-releases/
-       echo copying over files to Biop: $HOME/bin/sput-with-dir $bin_tar_file $target_dir
-       $HOME/bin/sput-with-dir $bin_tar_file $target_dir
-       if [ -e $bin_tar_file.md5sum ] ; then
-          echo and also: $HOME/bin/sput-with-dir $bin_tar_file.md5sum $target_dir
-          $HOME/bin/sput-with-dir $bin_tar_file.md5sum $target_dir
-       fi
-    else
-       echo Not ssh copying file to biop
-    fi
-}
-
-function ssh_copy_logs_to_biop {
-
-    local_log_dir=$1
-    target_dir=$2
-    if [ "$do_ssh_biop_copy" = true ] ; then
-       echo copying over log files to Biop...
-       target_dir=$2
-       $HOME/bin/sput-with-dir $local_log_dir $target_dir
-    else
-       echo Not ssh copying log files to biop
     fi
 }
 
