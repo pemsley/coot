@@ -2021,6 +2021,15 @@ public:
    //! @return time in microsections
    double test_thread_pool_threads(unsigned int n_threads);
 
+   //! a test for mmdb/gemmi/mmcif functionality
+   //
+   //! @param last_test_only is `true` to mean that only that last test should be run.
+   //! The default is `false`.
+   //! This is useful to set to `true` while a test is being developed.
+   //!
+   //! @return the success status: 1 means that all the tests passed.
+   int mmcif_tests(bool last_test_only);
+
    // get acces to protein geometry
    coot::protein_geometry & get_geometry() {
       return geom;

@@ -5367,6 +5367,20 @@ molecules_container_t::test_thread_pool_threads(unsigned int n_threads) {
 
 }
 
+namespace mmcif_tests {
+   int run_tests(bool last_test_only);
+}
+
+//! a test for mmdb/gemmi/mmcif functionality
+int
+molecules_container_t::mmcif_tests(bool last_test_only) {
+
+   int status = mmcif_tests::run_tests(last_test_only);
+   return status;
+
+}
+
+
 
 //! @return a vector of string pairs that were part of a gphl_chem_comp_info.
 //!  return an empty vector on failure to find any such info.
