@@ -79,16 +79,15 @@ class QED {
     static const QEDproperties WEIGHT_NONE;
 
     static const std::unique_ptr<const ::RDKit::ROMol> AliphaticRings;
-
     static const std::vector<std::unique_ptr<const ::RDKit::ROMol>> Acceptors;
     static const std::vector<std::unique_ptr<const ::RDKit::ROMol>> StructuralAlerts;
+    
     /// Indexed via QEDPropName enum
     static const std::vector<ADSparameter> adsParameters;
 
     public:
 
-   class QED_and_ads_t {
-   public:
+   struct QED_and_ads_t {
       double qed_score;
       double ads_mw;
       double ads_alogp;
@@ -104,7 +103,7 @@ class QED {
     /// Calculates the properties that are required to calculate the QED descriptor.
     static QEDproperties properties(const ::RDKit::ROMol& mol);
 
-   /// Calculate the weighted sum of ADS mapped properties
+    /// Calculate the weighted sum of ADS mapped properties
     // @setDescriptorVersion(version='1.1.0')
     static QED_and_ads_t qed(const ::RDKit::ROMol& mol,
                              std::optional<QEDproperties> qedProperties = std::nullopt,
