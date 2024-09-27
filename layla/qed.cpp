@@ -249,14 +249,14 @@ QED::QEDproperties QED::properties(const ::RDKit::ROMol& mol_raw) {
     typedef std::underlying_type<QEDPropName>::type utype;
     QEDproperties qedProperties = qedPropertiesOpt.has_value() ? qedPropertiesOpt.value() : properties(mol);
 
-    std::cout << "qedProperties MW     " << qedProperties.MW   << std::endl;
-    std::cout << "qedProperties ALOGP  " << qedProperties.ALOGP << std::endl;
-    std::cout << "qedProperties HBA    " << qedProperties.HBA  << std::endl;
-    std::cout << "qedProperties HBD    " << qedProperties.HBD  << std::endl;
-    std::cout << "qedProperties PSA    " << qedProperties.PSA  << std::endl;
-    std::cout << "qedProperties ROTB   " << qedProperties.ROTB << std::endl;
-    std::cout << "qedProperties AROM   " << qedProperties.AROM << std::endl;
-    std::cout << "qedProperties ALERTS " << qedProperties.ALERTS << std::endl;
+    // std::cout << "qedProperties MW     " << qedProperties.MW   << std::endl;
+    // std::cout << "qedProperties ALOGP  " << qedProperties.ALOGP << std::endl;
+    // std::cout << "qedProperties HBA    " << qedProperties.HBA  << std::endl;
+    // std::cout << "qedProperties HBD    " << qedProperties.HBD  << std::endl;
+    // std::cout << "qedProperties PSA    " << qedProperties.PSA  << std::endl;
+    // std::cout << "qedProperties ROTB   " << qedProperties.ROTB << std::endl;
+    // std::cout << "qedProperties AROM   " << qedProperties.AROM << std::endl;
+    // std::cout << "qedProperties ALERTS " << qedProperties.ALERTS << std::endl;
 
     auto ads_params_mw    = adsParameters[static_cast<utype>(QEDPropName::MW)];
     auto ads_params_alogp = adsParameters[static_cast<utype>(QEDPropName::ALOGP)];
@@ -267,18 +267,18 @@ QED::QEDproperties QED::properties(const ::RDKit::ROMol& mol_raw) {
     auto ads_params_arom  = adsParameters[static_cast<utype>(QEDPropName::AROM)];
     auto ads_params_alert = adsParameters[static_cast<utype>(QEDPropName::ALERTS)];
 
-    std::cout << ads_params_mw.A << " " << ads_params_mw.B << " " << ads_params_mw.C << " "
-              << ads_params_mw.D << " " << ads_params_mw.E << " " << ads_params_mw.F << " "
-              << ads_params_mw.DMAX << std::endl;
-    std::cout << ads_params_alogp.A << " " << ads_params_alogp.B << " " << ads_params_alogp.C << " "
-              << ads_params_alogp.D << " " << ads_params_alogp.E << " " << ads_params_alogp.F << " "
-              << ads_params_alogp.DMAX << std::endl;
-    std::cout << ads_params_hba.A << " " << ads_params_hba.B << " " << ads_params_hba.C << " "
-              << ads_params_hba.D << " " << ads_params_hba.E << " " << ads_params_hba.F << " "
-              << ads_params_hba.DMAX << std::endl;
-    std::cout << ads_params_hbd.A << " " << ads_params_hbd.B << " " << ads_params_hbd.C << " "
-              << ads_params_hbd.D << " " << ads_params_hbd.E << " " << ads_params_hbd.F << " "
-              << ads_params_hbd.DMAX << std::endl;
+    // std::cout << ads_params_mw.A << " " << ads_params_mw.B << " " << ads_params_mw.C << " "
+    //           << ads_params_mw.D << " " << ads_params_mw.E << " " << ads_params_mw.F << " "
+    //           << ads_params_mw.DMAX << std::endl;
+    // std::cout << ads_params_alogp.A << " " << ads_params_alogp.B << " " << ads_params_alogp.C << " "
+    //           << ads_params_alogp.D << " " << ads_params_alogp.E << " " << ads_params_alogp.F << " "
+    //           << ads_params_alogp.DMAX << std::endl;
+    // std::cout << ads_params_hba.A << " " << ads_params_hba.B << " " << ads_params_hba.C << " "
+    //           << ads_params_hba.D << " " << ads_params_hba.E << " " << ads_params_hba.F << " "
+    //           << ads_params_hba.DMAX << std::endl;
+    // std::cout << ads_params_hbd.A << " " << ads_params_hbd.B << " " << ads_params_hbd.C << " "
+    //           << ads_params_hbd.D << " " << ads_params_hbd.E << " " << ads_params_hbd.F << " "
+    //           << ads_params_hbd.DMAX << std::endl;
 
     double a_mw     = ads(qedProperties.MW,     ads_params_mw);
     double a_alogp  = ads(qedProperties.ALOGP,  ads_params_alogp);
@@ -289,10 +289,10 @@ QED::QEDproperties QED::properties(const ::RDKit::ROMol& mol_raw) {
     double a_arom   = ads(qedProperties.AROM,   ads_params_arom);
     double a_alerts = ads(qedProperties.ALERTS, ads_params_alert);
 
-    std::cout << "a_mw "    << a_mw    << std::endl;
-    std::cout << "a_alogp " << a_alogp << std::endl;
-    std::cout << "a_hba "   << a_hba   << std::endl;
-    std::cout << "a_hbd "   << a_hbd   << std::endl;
+    // std::cout << "a_mw "    << a_mw    << std::endl;
+    // std::cout << "a_alogp " << a_alogp << std::endl;
+    // std::cout << "a_hba "   << a_hba   << std::endl;
+    // std::cout << "a_hbd "   << a_hbd   << std::endl;
 
     double sum_weight = WEIGHT_MEAN.MW + WEIGHT_MEAN.ALOGP + WEIGHT_MEAN.HBA + WEIGHT_MEAN.HBD +
        WEIGHT_MEAN.PSA + WEIGHT_MEAN.ROTB + WEIGHT_MEAN.AROM + WEIGHT_MEAN.ALERTS;
@@ -309,7 +309,7 @@ QED::QEDproperties QED::properties(const ::RDKit::ROMol& mol_raw) {
 
     double r = std::exp(t/sum_weight);
 
-    std::cout << "########## result: r " << r << " from t " << t << " sum_weight " << sum_weight << std::endl;
+    // std::cout << "########## result: r " << r << " from t " << t << " sum_weight " << sum_weight << std::endl;
     qed_plus_ads.qed_score = r;
     qed_plus_ads.ads_mw = a_mw;
     qed_plus_ads.ads_alogp = a_alogp;
