@@ -32,6 +32,7 @@
 #include <set>
 #include <rdkit/GraphMol/Depictor/RDDepictor.h>
 #include <rdkit/GraphMol/Substruct/SubstructMatch.h>
+#include <rdkit/GraphMol/FileParsers/MolFileStereochem.h>
 #include <rdkit/Geometry/point.h>
 #include <rdkit/GraphMol/MolOps.h>
 #include <cmath>
@@ -565,6 +566,8 @@ RDGeom::INT_POINT2D_MAP CanvasMolecule::compute_molecule_geometry() const {
     RDGeom::INT_POINT2D_MAP coordinate_map;
 
     RDKit::Conformer& conf = this->rdkit_molecule->getConformer();
+    RDKit::Chirality::wedgeMolBonds(*this->rdkit_molecule, &conf);
+
     for(auto mv: matchVect) {
         RDGeom::Point3D pt3 = conf.getAtomPos( mv.first );
         RDGeom::Point2D pt2( pt3.x , pt3.y );
