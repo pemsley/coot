@@ -449,6 +449,8 @@ echo this is script version $script_version
 # Set the host and the OS.
 # Fairly fundamental.
 #
+
+# arch needs inetutils for hostname
 OS=$(uname)
 HOST=$(hostname)
 
@@ -565,7 +567,6 @@ NIGHTLY_DEST_DIR=${NIGHTLY_DEST_DIR:=${HOME}/public_html/software/binaries/night
 #
 STABLE_DEST_DIR=${STABLE_DEST_DIR:=${HOME}/public_html/software/binaries/stable}
 # this is given args: arg1(dir) arg2(file-name)
-BINARY_INSTALL_CMD=www-placement
 
 
 # how do we transfer the file on the build host to the web server?
@@ -579,7 +580,7 @@ publish_logs=${publish_logs:=:}
 if [ -z "$umask" ] ; then
    umask 0022
 else
-   umask $umask
+   umask "$umask"
 fi
 
 
@@ -607,7 +608,7 @@ function mkdir_maybe {
 
   dir=$1
   if [ ! -e "$dir" ] ; then
-     mkdir $dir
+     mkdir "$dir"
   fi
 
 }
@@ -617,21 +618,21 @@ function mkdir_maybe {
 #
 function post_install_slim {
 
-    echo we are slimming directory $1
+    echo we are slimming directory "$1"
     fat_dir="$1"
     cleaned_dir="$2"
     clear_type="$3"
-    echo fat_dir is $fat_dir
-    echo clear_type is $clear_type
-    echo cleaned_dir is $cleaned_dir
+    echo fat_dir is "$fat_dir"
+    echo clear_type is "$clear_type"
+    echo cleaned_dir is "$cleaned_dir"
 
-    mkdir_maybe $cleaned_dir
-    mkdir_maybe $cleaned_dir/bin
-    mkdir_maybe $cleaned_dir/lib
+    mkdir_maybe "$cleaned_dir"
+    mkdir_maybe "$cleaned_dir"/bin
+    mkdir_maybe "$cleaned_dir"/lib
     # and this for pyconfig.h
     if [ "$ENABLE_PYTHON_COOT" = yes ] ; then
-       mkdir_maybe $cleaned_dir/include
-       mkdir_maybe $cleaned_dir/include/$python_version
+       mkdir_maybe "$cleaned_dir"/include
+       mkdir_maybe "$cleaned_dir"/include/$python_version
     fi
 
     lib_sos=`cd $fat_dir && ls -1 lib/lib*.so*`
@@ -710,55 +711,6 @@ function make_tar {
        fi
     else
        echo ERROR:: tar target directory $tar_dir does not exist.
-    fi
-}
-
-function ssh_copy {
-
-#     bin_tar_file=$1
-#     if [ "$domainname" = "biop" ] ; then
-#        do_ssh_copy=true
-#     fi
-
-    if [ "$do_ssh_copy" = true ] ; then
-       dir=public_html/software/binaries/nightlies/pre-release/
-       echo ssh_copy copying over files using $HOME/bin/sput-with-dir $bin_tar_file $dir
-       $HOME/bin/sput-with-dir $bin_tar_file $dir
-       if [ -e $bin_tar_file.md5sum ] ; then
-          $HOME/bin/sput-with-dir $bin_tar_file.md5sum dir
-       fi
-    else
-       echo Not ssh copying file to York, $domainname
-    fi
-}
-
-function ssh_copy_to_biop {
-
-    bin_tar_file=$1
-
-    if [ "$do_ssh_biop_copy" = true ] ; then
-       target_dir=public_html/coot/software/binaries/pre-releases/
-       echo copying over files to Biop: $HOME/bin/sput-with-dir $bin_tar_file $target_dir
-       $HOME/bin/sput-with-dir $bin_tar_file $target_dir
-       if [ -e $bin_tar_file.md5sum ] ; then
-          echo and also: $HOME/bin/sput-with-dir $bin_tar_file.md5sum $target_dir
-          $HOME/bin/sput-with-dir $bin_tar_file.md5sum $target_dir
-       fi
-    else
-       echo Not ssh copying file to biop
-    fi
-}
-
-function ssh_copy_logs_to_biop {
-
-    local_log_dir=$1
-    target_dir=$2
-    if [ "$do_ssh_biop_copy" = true ] ; then
-       echo copying over log files to Biop...
-       target_dir=$2
-       $HOME/bin/sput-with-dir $local_log_dir $target_dir
-    else
-       echo Not ssh copying log files to biop
     fi
 }
 
@@ -2172,6 +2124,11 @@ fi
 # the fink GSL if it is available.
 # 20240302-PE "fink"? Blimey.
 if test -e $install_top_dir/bin/gsl-config ; then
+    if test $dist_name = arch ; then
+        unset LD_LIBRARY_PATH
+    fi
+    echo $install_top_dir/bin/gsl-config --prefix
+    $install_top_dir/bin/gsl-config --prefix 2>&1
     $install_top_dir/bin/gsl-config --prefix
     if test $? != 0 ; then
        echo gsl should be built
@@ -2693,6 +2650,12 @@ if test "$build_readline" = true ; then
        sed  -i '125,135 s/SHOBJ_LDFLAGS=.*/&\n        SHLIB_LIBS='"'"'$(TERMCAP_LIB)'"'"'/' support/shobj-conf
        extra_args_for_debian="--with-curses --enable-shared"
     fi
+    if [ "$dist_name" = arch ] ; then
+       echo in arch block, applying debian sed patch for shared-lib libreadline
+       # thanks for the quoting help tony duan @ stackoverflow
+       sed  -i '125,135 s/SHOBJ_LDFLAGS=.*/&\n        SHLIB_LIBS='"'"'$(TERMCAP_LIB)'"'"'/' support/shobj-conf
+       extra_args_for_debian="--with-curses --enable-shared"
+    fi
     echo ./configure $generic_prefix $extra_args_for_debian
     ./configure $generic_prefix $extra_args_for_debian
     # single thread
@@ -3053,6 +3016,7 @@ if [ $build_ninja = true ] ; then
    echo BUILDING ninja
    (
    # see https://github.com/ninja-build/ninja/releases
+   unset LD_LIBRARY_PATH
    ninja_version=1.10.2
    ${WGET} https://github.com/ninja-build/ninja/archive/refs/tags/v$ninja_version.tar.gz
    tar xf ${AUTOBUILD_SOURCES}/v$ninja_version.tar.gz
@@ -3076,6 +3040,7 @@ fi
 if test -e $install_top_dir/include/pixman-1/pixman.h ; then
     echo installation has pixman
 else
+    unset LD_LIBRARY_PATH
     pixman_version=0.43.4
     echo BUILDING: pixman $pixman_version
     echo BUILDING: pixman $pixman_version >&2
@@ -3097,40 +3062,58 @@ else
     ) > $HOSTLOGDIR/16-a-pixman.txt
 fi
 
+
 #######################################################################
 # Cairo - needed for RKit molecule drawing - which can be used by chapi
 #######################################################################
 # 20240326-PE
-cairo_version=1.18.0
-cairo_version=1.16.0 # not meson/ninja
 if [ -e $install_top_dir/include/cairo/cairo.h ] ; then
     echo installation has cairo
 else
-    echo BUILDING: cairo $cairo_version
-    echo BUILDING: cairo $cairo_version >&2
-    (
-    unset LD_LIBRARY_PATH
-    ${WGET} https://www.cairographics.org/releases/cairo-$cairo_version.tar.xz
-    tar xf $AUTOBUILD_SOURCES/cairo-$cairo_version.tar.xz
-    cd cairo-$cairo_version
-    pwd
-    # meson/ninja
-       # mkdir build
-       # cd build
-       # meson -Dprefix=$install_top_dir ..
-       # ninja
-       # ninja install
-       # cd ..
-       # cd ..
-    # standard
-    ./configure --prefix=$install_top_dir
-    if $MAKE ; then
-        make install
+    # we need modern cairo - because that is what is used by GTK4.
+    # in fact, perhaps we should build cairo at all on arch...
+    if test $dist_name = arch ; then
+        (
+        cairo_version=1.18.2
+        echo BUILDING: cairo $cairo_version
+        echo BUILDING: cairo $cairo_version >&2
+        ${WGET} https://www.cairographics.org/releases/cairo-$cairo_version.tar.xz
+        tar xf $AUTOBUILD_SOURCES/cairo-$cairo_version.tar.xz
+        cd cairo-$cairo_version
+        meson setup -Dprefix=$install_top_dir build
+        cd build
+        ninja
+        # ninja install
+        echo no install of cairo in this path at the moment.
+        cd ..
+        cd ..
+        ) > $HOSTLOGDIR/16-b-cairo-by-ninja.txt 2>&1
+    else
+       cairo_version=1.16.0 # not meson/ninja
+        echo BUILDING: cairo $cairo_version
+        echo BUILDING: cairo $cairo_version >&2
+        (
+            unset LD_LIBRARY_PATH
+            ${WGET} https://www.cairographics.org/releases/cairo-$cairo_version.tar.xz
+            tar xf $AUTOBUILD_SOURCES/cairo-$cairo_version.tar.xz
+            cd cairo-$cairo_version
+            pwd
+            # meson/ninja
+            # mkdir build
+            # cd build
+            # meson -Dprefix=$install_top_dir ..
+            # ninja
+            # ninja install
+            # cd ..
+            # cd ..
+            # standard
+            ./configure --prefix=$install_top_dir
+            if $MAKE ; then
+                make install
+            fi
+        ) > $HOSTLOGDIR/16-b-cairo.txt 2>&1
     fi
-    ) > $HOSTLOGDIR/16-b-cairo.txt 2>&1
 fi
-
-
 
 
 ###############################################################################
@@ -3201,7 +3184,9 @@ fi
 
 if test -n "$build_curl" ; then
    libcurl_version=7.65.3
+   libcurl_version=8.10.1
    libcurl_version_directory=7_65_3
+   libcurl_version_directory=8_10_1
    echo BUILDING curl: $libcurl_version
    echo BUILDING curl: $libcurl_version >&2
    (
@@ -3236,8 +3221,8 @@ if test -n "$build_curl" ; then
    # on Ubuntu: install it like this:
    # apt-get install libssl-dev
    #
-   echo ./configure  $generic_prefix --enable-versioned-symbols --with-libidn2=$install_top_dir LDFLAGS=-L$install_top_dir/lib
-   ./configure  $generic_prefix --enable-versioned-symbols --with-libidn2=$install_top_dir LDFLAGS=-L$install_top_dir/lib
+   echo ./configure  $generic_prefix --enable-versioned-symbols --with-libidn2=$install_top_dir LDFLAGS=-L$install_top_dir/lib --with-openssl
+   ./configure  $generic_prefix --enable-versioned-symbols --with-libidn2=$install_top_dir LDFLAGS=-L$install_top_dir/lib --with-openssl
    if $MAKE ; then
       if [ -n $post_process_libcurl ] ; then
          fixup_libcurl
@@ -3337,7 +3322,9 @@ if [ "$build_boost" = true ] ; then
       boost_home_url=https://dl.bintray.com/boostorg/release/$boost_server_dir/source # old
       boost_home_url=https://boostorg.jfrog.io/artifactory/main/release/$boost_server_dir/source
       echo wgetting $boost_home_url/boost_$boost_version.tar.gz
+      echo ${WGET} $boost_home_url/boost_$boost_version.tar.gz 2>&1
       ${WGET} $boost_home_url/boost_$boost_version.tar.gz
+      echo done ${WGET} $boost_home_url/boost_$boost_version.tar.gz 2>&1
       echo fetch of $boost_home_url/boost_$boost_version.tar.gz complete.. compiling...
 
       (
@@ -3367,6 +3354,7 @@ if [ "$build_boost" = true ] ; then
       echo ./bootstrap.sh --prefix=$install_top_dir --with-python=$install_top_dir/bin/python3 --with-python-root=$install_top_dir --with-libraries=system,python,regex,thread,serialization,iostreams,program_options --without-icu
       echo ./bootstrap.sh --prefix=$install_top_dir --with-python=$install_top_dir/bin/python3 --with-python-root=$install_top_dir --with-libraries=system,python,regex,thread,serialization,iostreams,program_options --without-icu > bootstrap-command-save
       ./bootstrap.sh --prefix=$install_top_dir --with-python=$install_top_dir/bin/python3 --with-python-root=$install_top_dir --with-libraries=system,python,regex,thread,serialization,iostreams,program_options --without-icu
+      echo boostrap.sh done
 
       # now edit the project-config.jam file using python line
 
@@ -3827,12 +3815,16 @@ if [ "$build_rdkit" = true ] ; then
       fi
 
       if test "$dist_name" = debian ; then
-	  echo don.t mess with LDFLAGS here on debian
+          echo don.t mess with LDFLAGS here on debian
       else
           if test "$dist_name" = ubuntu ; then
-	      echo don.t mess with LDFLAGS here on ubuntu
+              echo don.t mess with LDFLAGS here on ubuntu
           else
-	      export LDFLAGS="-L$install_top_dir/lib -lintl"
+              if test "$dist_name" = arch ; then
+                  echo don.t mess with LDFLAGS here on arch
+              else
+                  export LDFLAGS="-L$install_top_dir/lib -lintl"
+              fi
           fi
       fi
 
@@ -4006,6 +3998,11 @@ if test "$build_gobject_introspection" = true ; then
    date
    echo BUILDING gobject-introspection:
 
+   # or else very annoying:
+   # symbol lookup error: /home/paule/autobuild/Linux-penelope-arch-gtk4/lib/libreadline.so.8: undefined symbol: UP
+   if test $dist_name = arch ; then
+       unset LD_LIBRARY_PATH
+   fi
    echo environment variables
    echo PATH @@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@@
    echo $PATH
@@ -4357,11 +4354,14 @@ if [ "$build_gc" = true ] ; then
       echo ========================= build gc =================================
       unset LD_LIBRARY_PATH
       echo PKG_CONFIG_PATH is $PKG_CONFIG_PATH
+      echo testing for presence of tar file $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz
       if [ -e $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz ] ; then
          echo Here build-gc A
          echo found gc source file $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz
          echo Here build-gc B
+         echo tar xf $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz
          tar xf $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz
+         echo Here build-gc B2
       else
          echo no file $AUTOBUILD_SOURCES/gc-$gc_version.tar.gz
          echo ${WGET} http://www.hboehm.info/gc/gc_source/gc-$gc_version.tar.gz
@@ -4812,7 +4812,11 @@ echo 33333
 if [ "$dist_name" = fedora ] ;  then
     :
 else
-    export LD_LIBRARY_PATH=$install_top_dir/lib
+    if [ "$dist_name" = arch ] ;  then
+        :
+    else
+        export LD_LIBRARY_PATH=$install_top_dir/lib
+    fi
 fi
 
 # add this when then are compiling and RDKIT is compiling

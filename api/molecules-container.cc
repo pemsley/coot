@@ -5064,15 +5064,17 @@ molecules_container_t::get_mesh_for_ligand_validation_vs_dictionary(int imol, co
 //! return type is validation data, not a mesh
 //!
 //! @return a vector of `geometry_distortion_info_container_t`
-void
+std::vector<coot::geometry_distortion_info_container_t>
 molecules_container_t::get_ligand_validation_vs_dictionary(int imol, const std::string &ligand_cid,
                                                            bool with_nbcs) {
 
+   std::vector<coot::geometry_distortion_info_container_t> v;
    if (is_valid_model_molecule(imol)) {
-      molecules[imol].geometric_distortions_from_mol(ligand_cid, with_nbcs, geom, thread_pool);
+      v = molecules[imol].geometric_distortions_from_mol(ligand_cid, with_nbcs, geom, thread_pool);
    } else {
       std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
+   return v;
 }
 
 
@@ -5364,6 +5366,20 @@ molecules_container_t::test_thread_pool_threads(unsigned int n_threads) {
    return t;
 
 }
+
+namespace mmcif_tests {
+   int run_tests(bool last_test_only);
+}
+
+//! a test for mmdb/gemmi/mmcif functionality
+int
+molecules_container_t::mmcif_tests(bool last_test_only) {
+
+   int status = mmcif_tests::run_tests(last_test_only);
+   return status;
+
+}
+
 
 
 //! @return a vector of string pairs that were part of a gphl_chem_comp_info.

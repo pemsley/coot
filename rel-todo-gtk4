@@ -1,6 +1,26 @@
 
 ----
 
+Martin: How do I load external (refmac) restraints into Coot 1 and Moorhen?
+
+Associate sequence and assign sequence functions, brighten_maps_action() and many other
+  are missing bodies in create-menu-item-actions.cc
+
+How to get map gradient vertex normals in moorhen?
+
+PAE view (dialog) in Coot
+
+Try harder to get NCS jumping working
+
+License of Jakub code - check contract
+
+License of Vercel
+https://vercel.com/docs/limits/fair-use-guidelines#commercial-usage
+
+Why does side-chain-densities like TRPs?
+
+Are shader settings (plain vs fancy) saved in the state file?
+
 Add Place Helix here to moorhen api
 
 Is there non-map minimization (say, for conformers)?
@@ -228,6 +248,7 @@ Look at this: 7h6j group for CFC
 https://www.rcsb.org/search?request=%7B%22query%22%3A%7B%22type%22%3A%22group%22%2C%22nodes%22%3A%5B%7B%22type%22%3A%22group%22%2C%22nodes%22%3A%5B%7B%22type%22%3A%22group%22%2C%22nodes%22%3A%5B%7B%22type%22%3A%22terminal%22%2C%22service%22%3A%22text%22%2C%22parameters%22%3A%7B%22attribute%22%3A%22rcsb_entry_group_membership.group_id%22%2C%22negation%22%3Afalse%2C%22operator%22%3A%22exact_match%22%2C%22value%22%3A%22G_1002294%22%7D%7D%5D%2C%22logical_operator%22%3A%22and%22%7D%5D%2C%22logical_operator%22%3A%22and%22%2C%22label%22%3A%22text%22%7D%5D%2C%22logical_operator%22%3A%22and%22%7D%2C%22return_type%22%3A%22entry%22%2C%22request_options%22%3A%7B%22scoring_strategy%22%3A%22combined%22%2C%22sort%22%3A%5B%7B%22sort_by%22%3A%22score%22%2C%22direction%22%3A%22desc%22%7D%5D%2C%22results_content_type%22%3A%5B%22computational%22%2C%22experimental%22%5D%2C%22paginate%22%3A%7B%22start%22%3A0%2C%22rows%22%3A25%7D%7D%2C%22request_info%22%3A%7B%22query_id%22%3A%22013bcc94f855676ceb39950f4002bdf1%22%7D%7D
 
 Jakub: Sharpen-blur "Computing..." dialog should be an overlay. It's Python though - so... urgh.
+  Move it all into C++.
 
 Jakub: Downloading map (from EMDB) dialog should be an overlay... Likewise, probably.
 
@@ -245,10 +266,17 @@ Add Q-score to api
 * Done.
 
 Non-trivial C++ Mini-Projects
- o Splines for Worms view
+ o Splines for Worms view (B-factor or sequence conservation mode)
  o Add SSBond to struct con info in mmdb
  o Parallel FFT
  o Faster/better/modern contouring
+ o Improved side-chain typing
+ o Add gesamt to moorhen and coot
+ o parser for PISA output (maybe Python will do)
+ o Filled bases for DNA/RNA
+
+Non-trivial C++ Projects
+ o Improved ligand fitting with machine learning
 
 Is 0-coot.state.py a good file-name now that it's in ~/.local/state/Coot ?
 
