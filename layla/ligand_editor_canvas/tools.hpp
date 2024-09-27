@@ -282,6 +282,7 @@ class DeleteTool : public Tool {
     typedef std::vector<AtomOrBond> ListOfAtomsOrBonds;
     private:
 
+    static bool chain_contains_majority_of_atoms(const  ListOfAtomsOrBonds& chain, const RDKit::ROMol* mol);
     static ListOfAtomsOrBonds trace_chain_impl(const RDKit::ROMol* mol, std::set<unsigned int>& processed_atoms, RDKit::Atom const* rdatom);
 
     /// Returns a vector of atoms IDs to be removed (if relevant)

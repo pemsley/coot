@@ -761,6 +761,13 @@ DeleteTool::ListOfAtomsOrBonds DeleteTool::trace_chain_impl(const RDKit::ROMol* 
     return ret;
 }
 
+bool DeleteTool::chain_contains_majority_of_atoms(const  ListOfAtomsOrBonds& chain, const RDKit::ROMol* mol) {
+    unsigned int no_atoms = std::count_if(chain.cbegin(), chain.cend(), [](const AtomOrBond& el){
+        return std::holds_alternative<unsigned int>(el);
+    });
+    return no_atoms >= mol->getNumAtoms() / 2;
+}
+
 DeleteTool::ListOfAtomsOrBonds DeleteTool::trace_rchain(const MoleculeClickContext& ctx, const CanvasMolecule::Atom& atom) {
     RDKit::Atom const* rdatom = ctx.rdkit_mol->getAtomWithIdx(atom.idx);
     const RDKit::ROMol* mol = ctx.rdkit_mol.get();
@@ -798,8 +805,10 @@ DeleteTool::ListOfAtomsOrBonds DeleteTool::trace_rchain(const MoleculeClickConte
         return a.size() < b.size();
     });
     if(it != branches.end()) {
-        // Append the smallest branch to our result
-        ret.insert(ret.end(), it->begin(), it->end());
+        if(!chain_contains_majority_of_atoms(*it, mol)) {
+            // Append the smallest branch to our result
+            ret.insert(ret.end(), it->begin(), it->end());
+        }
     }
     return ret;
 }
@@ -822,10 +831,10 @@ DeleteTool::ListOfAtomsOrBonds DeleteTool::trace_rchain(const MoleculeClickConte
 
     auto case1 = trace_chain_impl(mol, processed_atoms1, mol->getAtomWithIdx(bond.first_atom_idx));
     auto case2 = trace_chain_impl(mol, processed_atoms2, mol->getAtomWithIdx(bond.second_atom_idx));
-
-    if(case1.size() <= case2.size()) {
+    
+    if(case1.size() <= case2.size() && ! chain_contains_majority_of_atoms(case1, mol)) {
         ret.insert(ret.end(), case1.begin(), case1.end());
-    } else {
+    } else if(! chain_contains_majority_of_atoms(case2, mol)) {
         ret.insert(ret.end(), case2.begin(), case2.end());
     }
 
