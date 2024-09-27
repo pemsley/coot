@@ -165,7 +165,7 @@ double QED::ads(double x, const ADSparameter& p) noexcept {
 QED::QEDproperties QED::properties(const ::RDKit::ROMol& mol_raw) {
     #ifdef __MOORHEN__
     std::call_once(impl::static_runtime_init_flag, [](){
-        g_info("Moorhen QED static runtime initialization crash workaround: initializing static runtime via std::call_one and const_cast.");
+        g_info("Moorhen QED static runtime initialization crash workaround: initializing static runtime via std::call_once and const_cast.");
         auto& AliphaticRings = const_cast<std::unique_ptr<const ::RDKit::ROMol>&>(QED::AliphaticRings);
         auto& Acceptors = const_cast<std::vector<std::unique_ptr<const ::RDKit::ROMol>>&>(QED::Acceptors);
         auto& StructuralAlerts = const_cast<std::vector<std::unique_ptr<const ::RDKit::ROMol>>&>(QED::StructuralAlerts);
