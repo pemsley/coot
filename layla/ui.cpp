@@ -313,7 +313,7 @@ GtkApplicationWindow* coot::layla::setup_main_window(GtkApplication* app, GtkBui
             gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(progress_bar), progress_bar_value);
         };
 
-        std::cout << "debug molecular_weight " << qed_info->molecular_weight << " " << qed_info->ads_mw << std::endl;
+        // std::cout << "debug molecular_weight " << qed_info->molecular_weight << " " << qed_info->ads_mw << std::endl;
         // these are (carefully) accessed by grid location, not name:
         update_progressbar_info_box(gtk_grid_get_child_at(GTK_GRID(tab), 0, 0), qed_info->qed_score,                         qed_info->qed_score);
         update_progressbar_info_box(gtk_grid_get_child_at(GTK_GRID(tab), 0, 1), qed_info->molecular_weight,                  qed_info->ads_mw);
