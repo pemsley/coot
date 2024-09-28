@@ -483,7 +483,7 @@ add_executable(res-tracer-libcootapi ${coot_src}/ligand/res-tracer.cc)
 
 add_executable(test-molecules-container ${coot_src}/api/test-molecules-container.cc ${coot_src}/api/filo-tests.cc ${coot_src}/api/lucrezia-tests.cc)
 
-add_executable(mmcif-tests ${coot_src}/api/mmcif-tests-main.cc)
+add_executable(mmcif-tests ${coot_src}/api/mmcif-tests-main.cc ${coot_src}/api/mmcif-tests.cc)
 
 target_compile_features(coot-mini-rsr PRIVATE cxx_std_17)
 
@@ -513,7 +513,7 @@ target_link_libraries(test-molecules-container PUBLIC cootapi ${SSM_LIBRARY} ${C
 
 target_include_directories(mmcif-tests PRIVATE ${MMDB2_INCLUDE_DIR}/include)
 
-target_link_libraries(mmcif-tests PUBLIC cootapi ${MMDB2_LIBRARY})
+target_link_libraries(mmcif-tests PUBLIC ${MMDB2_LIBRARY})
 
 set_target_properties(cootapi PROPERTIES INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 
