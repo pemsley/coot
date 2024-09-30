@@ -19,14 +19,14 @@
  * 02110-1301, USA
  */
 
-#include "Python.h"
+// #include "Python.h"
 #include <gtk/gtk.h>
 #include <thread>
 #include "utils/coot-utils.hh"
 #include "state.hpp"
 #include "generators.hpp"
 #include "ui.hpp"
-#include "python_utils.hpp"
+// #include "python_utils.hpp"
 
 
 int main(int argc, char** argv) {
