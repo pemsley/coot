@@ -1,6 +1,9 @@
 
 ----
 
+Mini C++ Project
+https://github.com/CGAL/cgal/ Surface Mesh
+
 Martin: How do I load external (refmac) restraints into Coot 1 and Moorhen?
 
 Associate sequence and assign sequence functions, brighten_maps_action() and many other
