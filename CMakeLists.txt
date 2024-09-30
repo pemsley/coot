@@ -483,7 +483,7 @@ add_executable(res-tracer-libcootapi ${coot_src}/ligand/res-tracer.cc)
 
 add_executable(test-molecules-container ${coot_src}/api/test-molecules-container.cc ${coot_src}/api/filo-tests.cc ${coot_src}/api/lucrezia-tests.cc)
 
-add_executable(mmcif-tests ${coot_src}/api/mmcif-tests-main.cc)
+add_executable(mmcif-tests ${coot_src}/api/mmcif-tests-main.cc ${coot_src}/api/mmcif-tests.cc)
 
 target_compile_features(coot-mini-rsr PRIVATE cxx_std_17)
 
@@ -511,9 +511,9 @@ target_include_directories(test-molecules-container PRIVATE ${coot_src} ${coot_s
 
 target_link_libraries(test-molecules-container PUBLIC cootapi ${SSM_LIBRARY} ${CLIPPER-MINIMOL_LIBRARY} ${CLIPPER-MMDB_LIBRARY} ${CLIPPER-CIF_LIBRARY} ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${CLIPPER-CONTRIB_LIBRARY} ${FFTW2_LIBRARY} ${RFFTW2_LIBRARY} ${MMDB2_LIBRARY} ${CCP4C_LIBRARY} ${ZLIB_LIBRARIES} ${GSL_LIBRARIES} ${RDKit_libs_for_libcootapi} ${PNG_LIBRARY} gemmi::gemmi_cpp ${libdwarf} ${libelf} Threads::Threads)
 
-target_include_directories(mmcif-tests PRIVATE ${MMDB2_INCLUDE_DIR}/include)
+target_include_directories(mmcif-tests PRIVATE ${CLIPPER-MMDB_INCLUDE_DIR})
 
-target_link_libraries(mmcif-tests PUBLIC cootapi ${MMDB2_LIBRARY})
+target_link_libraries(mmcif-tests PUBLIC ${MMDB2_LIBRARY})
 
 set_target_properties(cootapi PROPERTIES INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 
