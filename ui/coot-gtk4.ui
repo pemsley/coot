@@ -497,7 +497,7 @@
           <attribute name="target">bigger</attribute>
         </item>
         <item>
-          <attribute name="label">Replace Residue</attribute>
+          <attribute name="label">Replace Residue...</attribute>
           <attribute name="action">app.replace_residue_action</attribute>
         </item>
         <item>

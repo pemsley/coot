@@ -697,7 +697,7 @@ extern "C" G_MODULE_EXPORT
 void on_replace_residue_cancel_button_clicked(GtkButton *button,
                                               gpointer user_data) {
 
-   GtkWidget *frame = widget_from_builder("replace_widget_frame");
+   GtkWidget *frame = widget_from_builder("replace_residue_frame");
    gtk_widget_set_visible(frame, FALSE);
 
 }
