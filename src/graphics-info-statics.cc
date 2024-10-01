@@ -68,6 +68,8 @@ bool graphics_info_t::prefer_python = 0; // no GUILE or PYTHON
 bool graphics_info_t::prefer_python = 1; // Default: yes in Windows
 #endif // windows test
 
+bool graphics_info_t::graphics_is_gl_es = false;
+
 bool graphics_info_t::using_trackpad = false;
 
 bool graphics_info_t::use_gemmi = false;
