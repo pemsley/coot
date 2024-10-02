@@ -1,6 +1,4 @@
 
-#include "mmdb2/mmdb_defs.h"
-#include "mmdb2/mmdb_model.h"
 #include <string>
 #include <iostream>
 #include <iomanip>
@@ -8,6 +6,8 @@
 #include <vector>
 
 #include <mmdb2/mmdb_manager.h>
+#include <mmdb2/mmdb_defs.h>
+#include <mmdb2/mmdb_model.h>
 
 int n_tests = 0;
 static std::vector<std::pair<std::string, int> > test_results;
@@ -54,7 +54,7 @@ int mmcif_tests::read_pdb() {
    mmdb::Manager *mol = new mmdb::Manager;
    // 6DGD for DNA bases
    // https://files.rcsb.org/download/6GDG.cif
-   mmdb::ERROR_CODE read_status = mol->ReadCoorFile("6gdg.cif");
+   mmdb::ERROR_CODE read_status = mol->ReadCoorFile("6dgd.cif");
    std::cout << "TEST read_pdb() with read_status " << read_status << std::endl;
    if (read_status == mmdb::Error_NoError) {
       for (int imod = 1; imod <= mol->GetNumberOfModels(); imod++) {
