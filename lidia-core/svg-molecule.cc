@@ -849,9 +849,10 @@ svg_atom_t::make_text_item(const lig_build::atom_id_info_t &atom_id_info,
 }
 
 std::string
-svg_molecule_t::render_to_svg_string(bool dark_background_flag) {
+svg_molecule_t::render_to_svg_string(double sf, bool dark_background_flag) {
 
-  svg_container_t s = make_svg(dark_background_flag);
+   // 20241002-PE note sf was 400.0;
+   svg_container_t s = make_svg(sf, dark_background_flag);
 
   return s.compose();
 
@@ -859,7 +860,7 @@ svg_molecule_t::render_to_svg_string(bool dark_background_flag) {
 
 
 svg_container_t
-svg_molecule_t::make_svg(bool dark_background_flag) {
+svg_molecule_t::make_svg(double sf, bool dark_background_flag) {
 
    auto make_bond_comment = [] (unsigned int bond_idx, const svg_bond_t &bond) {
       std::string s("<!-- ");
@@ -885,7 +886,6 @@ svg_molecule_t::make_svg(bool dark_background_flag) {
 
    svg_container_t svg;
 
-   double sf = 400.0; // scale factor
    std::string s; // this can be removed, I think, now
    s.reserve(2048);
    std::string svg_header_1 = "<svg xmlns=\"http://www.w3.org/2000/svg\"\n    xmlns:xlink=\"http://www.w3.org/1999/xlink\" ";

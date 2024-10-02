@@ -546,7 +546,8 @@ molecules_container_t::get_svg_for_residue_type(int imol, const std::string &com
                } else {
                   svg_molecule_t svg;
                   svg.import_rdkit_mol(&mol, iconf);
-                  s = svg.render_to_svg_string(dark_bg_flag);
+                  double sf = 400.0;
+                  s = svg.render_to_svg_string(sf, dark_bg_flag);
                   ligand_svg_store[key] = s;
                }
             } else {
@@ -577,7 +578,8 @@ molecules_container_t::get_svg_for_residue_type(int imol, const std::string &com
                   svg_molecule_t svg;
                   svg.import_rdkit_mol(&rdkit_mol, conformer_id);
                   dark_bg_flag = false;
-                  s = svg.render_to_svg_string(dark_bg_flag);
+                  double sf = 400.0;
+                  s = svg.render_to_svg_string(sf, dark_bg_flag);
                }
                ligand_svg_store[key] = s;
             }

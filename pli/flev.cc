@@ -372,6 +372,7 @@ pli::fle_view_with_rdkit_internal(mmdb::Manager *mol,
       f.close();
    };
 
+   double scale_factor = 400.0;
    bool dark_background_flag = false; // pass this
 
    double weight_for_3d_distances = 0.4; // for 3d distances
@@ -475,9 +476,9 @@ pli::fle_view_with_rdkit_internal(mmdb::Manager *mol,
                   flev_t flev;
 
                   flev.mol.import_rdkit_mol(&rdkm, mol_2d_depict_conformer);
-                  std::string svg_1 = flev.mol.render_to_svg_string(dark_background_flag);
+                  svg_container_t svgc = flev.mol.make_svg(scale_factor, dark_background_flag);
 
-                  write_string_to_file(svg_1, "flev-test-1.svg");
+                  write_string_to_file(svgc.compose(), "flev-test-1.svg");
 
                   mmdb::Residue *residue_flat = coot::make_residue(rdkm, mol_2d_depict_conformer, "XXX");
                   mmdb::Manager *mol_for_flat_residue = coot::util::create_mmdbmanager_from_residue(residue_flat); // d
@@ -549,9 +550,9 @@ pli::fle_view_with_rdkit_internal(mmdb::Manager *mol,
                   bool annotate_status = flev.annotate(s_a_v, res_centres, add_reps_vec, bonds_to_ligand,
                                                        sed, ah, pi_stack_info, p.second);
 
-                  std::string svg_2 = flev.draw_all_flev_annotations();
-                  std::string svg = svg_1 + svg_2;
-                  write_string_to_file(svg, "flev-test-all-parts.svg");
+                  svg_container_t svgc_2 = flev.draw_all_flev_annotations();
+                  svgc.add(svgc_2);
+                  write_string_to_file(svgc.compose(), "flev-test-all-parts.svg");
 
                   if (output_format == "png") flev.write_png(output_image_file_name);
                   if (output_format == "svg") flev.write_svg(output_image_file_name);
@@ -755,39 +756,42 @@ flev_t::flev_residues_extents() const {
    return p;
 }
 
-std::string
+svg_container_t
 flev_t::draw_all_flev_annotations() {
 
-   std::string ra = draw_all_flev_residue_attribs();
-   std::string li = draw_all_flev_ligand_annotations();
-   std::string all = ra + li;
-   return all;
+   svg_container_t svgc;
+   svg_container_t svgc_ra = draw_all_flev_residue_attribs();
+   svg_container_t svgc_li = draw_all_flev_ligand_annotations();
+   svgc.add(svgc_ra);
+   svgc.add(svgc_li);
+   return svgc;
 }
 
-std::string
+svg_container_t
 flev_t::draw_all_flev_residue_attribs() {
 
-   std::string rc = draw_residue_circles(residue_circles, additional_representation_handles);
+   svg_container_t svgc;
+   svg_container_t svgc_rc = draw_residue_circles(residue_circles, additional_representation_handles);
    std::string btl = draw_bonds_to_ligand();
-   std::string si = draw_stacking_interactions(residue_circles);
-
-   std::string all = rc + btl + si;
-   return all;
+   svg_container_t svgc_si = draw_stacking_interactions(residue_circles);
+   svgc.add(svgc_rc);
+   svgc.add(svgc_si);
+   return svgc;
 }
 
-std::string
+svg_container_t
 flev_t::draw_all_flev_ligand_annotations() {
 
-   std::string svg_string;
+   svg_container_t svgc;
    draw_substitution_contour();
    draw_solvent_accessibility_of_atoms();
-   return svg_string;
+   return svgc;
 }
 
-std::string
+svg_container_t
 flev_t::draw_stacking_interactions(const std::vector<residue_circle_t> &rc) {
 
-   std::string svg_string;
+   svg_container_t svgc;
 
    for (unsigned int ires=0; ires<rc.size(); ires++) {
       int st = rc[ires].get_stacking_type();
@@ -814,7 +818,7 @@ flev_t::draw_stacking_interactions(const std::vector<residue_circle_t> &rc) {
          draw_annotated_stacking_line(atom_pos, rc[ires].pos, st, click_pos);
       }
    }
-   return svg_string;
+   return svgc;
 }
 
 
@@ -1559,7 +1563,7 @@ flev_t::contour_fragment::contour_fragment(int ms_type,
 
    case ligand_grid::MS_UP_0_1:
    case ligand_grid::MS_UP_0_0_and_1_0_and_1_1:
-      
+
       // these look fine
       // std::cout << " ----- case MS_UP_0,1 " << std::endl;
       frac_y1 = (v00 - contour_level)/(v00-v01);
@@ -1847,11 +1851,11 @@ flev_t::get_residue_circle_colour(const std::string &residue_type) const {
 
 // if you don't have add_rep_handles, then pass a vector or size 0.
 // 
-std::string
+svg_container_t
 flev_t::draw_residue_circles(const std::vector<residue_circle_t> &l_residue_circles,
                              const std::vector<int> &add_rep_handles) {
 
-   std::string svg_string;
+   svg_container_t svgc;
 
    std::cout << "-------------------- here we are in draw_residue_circles "
              << l_residue_circles.size() << " " << add_rep_handles.size() << std::endl;
@@ -1883,27 +1887,28 @@ flev_t::draw_residue_circles(const std::vector<residue_circle_t> &l_residue_circ
 	       add_rep_handle = add_rep_handles[i];
 
             std::cout << "   calling draw_residue_circle_top_layer() " << i << std::endl;
-            std::string s = draw_residue_circle_top_layer(l_residue_circles[i], ligand_centre, add_rep_handle);
-            svg_string += s;
+            svg_container_t svgc_s = draw_residue_circle_top_layer(l_residue_circles[i],
+                                                                   ligand_centre, add_rep_handle);
+            svgc.add(svgc_s);
 	 }
       }
       catch (const std::runtime_error &rte) {
 	 std::cout << "WARNING:: draw_residue_circles: " << rte.what() << std::endl;
       }
    }
-   return svg_string;
+   return svgc;
 }
 
 #include "utils/coot-utils.hh"
 
 // if you don't have an add_rep_handle, then pass -1 (something negative)
 // 
-std::string
+svg_container_t
 flev_t::draw_residue_circle_top_layer(const residue_circle_t &residue_circle,
                                       const lig_build::pos_t &ligand_centre,
                                       int add_rep_handle) {
 
-   std::string svg_string;
+   svg_container_t svgc;
 
    if (true)
       std::cout << "   adding cirles " << residue_circle.residue_type
@@ -1922,7 +1927,7 @@ flev_t::draw_residue_circle_top_layer(const residue_circle_t &residue_circle,
    //
    if (residue_circle.residue_type == "HOH") {
       if (residue_circle.bonds_to_ligand.size() == 0) {
-	 return svg_string;
+	 return svgc;
       }
    }
 
@@ -1941,9 +1946,9 @@ flev_t::draw_residue_circle_top_layer(const residue_circle_t &residue_circle,
 
    // fill colour and stroke colour of the residue circle
    std::pair<std::string, std::string> col = get_residue_circle_colour(residue_circle.residue_type);
-   double line_width = 1.0;
+   double stroke_width = 2.0;
    if (col.second != "#111111") // needs checking, FIXME
-      line_width = 3.0;
+      stroke_width = 5.0;
 
    // GooCanvasItem *circle = NULL;
    // GooCanvasItem *text_1 = NULL;
@@ -1960,12 +1965,72 @@ flev_t::draw_residue_circle_top_layer(const residue_circle_t &residue_circle,
       //   			      "stroke-color", col.second.c_str(),
       //   			      NULL);
 
-      std::string circle_string = "   <circle cx=\"" +
-         std::to_string(circle_pos.x) + "\" cy=\"" +
-         std::to_string(circle_pos.y) + "\" r=\"" + std::to_string(line_width) + "\" />\n";
-      svg_string += circle_string;
+      lig_build::pos_t pos = circle_pos * 20.0;
+      pos.x += 200;
+      pos.y += 200;
+      std::string circle_string = std::string("   ") +
+         "<circle cx=\"" + std::to_string(pos.x) + std::string("\" cy=\"") +
+         std::to_string(pos.y) +
+         std::string("\" r=\"22.2\"") +
+         std::string(" fill=\"")   + col.first  + std::string("\"") +
+         std::string(" stroke=\"") + col.second + std::string("\"") +
+         std::string(" stroke-width=\"") + std::to_string(stroke_width) + std::string("\"") +
+         std::string("/>\n");
+      float delta = 50.0; // about this?
+      svgc.add(circle_string);
+      svgc.update_bounds(pos.x - delta, pos.y - delta,
+                         pos.x + delta, pos.y + delta);
+
+      // text_1 = goo_canvas_text_new(group, rt.c_str(),
+      //      			circle_pos.x, circle_pos.y-6, -1,
+      //      			GOO_CANVAS_ANCHOR_CENTER,
+      //      			"font", "Sans 9",
+      //      			"fill_color", "#111111",
+      //      			NULL);
+
+      // 20241002-PE note to self, "Phe" is too far to the right
+      //                           "Ile" is too tar to the left
+      //             I want to be able to specify the middle of the label, not
+      //             bottom left.
+      std::string text_1("   <text ");
+      text_1 += std::string("fill=\"#111111\"");
+      text_1 += std::string(" x=\"");
+      text_1 += std::to_string(pos.x);
+      text_1 += std::string("\"");
+      text_1 += std::string(" y=\"");
+      text_1 += std::to_string(pos.y-3.0);
+      text_1 += std::string("\"");
+      text_1 += std::string(" text-anchor=\"middle\"");
+      text_1 += std::string(" font-family=\"Helvetica, sans-serif\" font-size=\"1.3em\">");
+      text_1 += rt;
+      text_1 += std::string("</text>\n");
+      svgc.add(text_1);
+
+      // text_2 = goo_canvas_text_new(group,
+      // residue_circle.residue_label.c_str(),
+      //      			circle_pos.x, circle_pos.y+6.5, -1,
+      //      			GOO_CANVAS_ANCHOR_CENTER,
+      //      			"font", "Sans 7",
+      //      			"fill_color", "#111111",
+      //      			NULL);
+
+      std::string text_2("   <text ");
+      text_2 += std::string("fill=\"#111111\"");
+      text_2 += std::string(" x=\"");
+      text_2 += std::to_string(pos.x-9.0);
+      text_2 += std::string("\"");
+      text_2 += std::string(" y=\"");
+      text_2 += std::to_string(pos.y + 10.5);
+      text_2 += std::string("\"");
+      text_1 += std::string(" text-anchor=\"middle\"");
+      text_2 += std::string(" font-family=\"Helvetica, sans-serif\" font-size=\"0.8em\">");
+      text_2 += residue_circle.residue_label;
+      text_2 += std::string("</text>\n");
+      svgc.add(text_2);
 
    } else {
+      std::cout << "................ missing blank colour residue circle top" << std::endl;
+
       // circle = goo_canvas_ellipse_new(group,
       //   			      circle_pos.x, circle_pos.y,
       //   			      standard_residue_circle_radius,
@@ -1973,44 +2038,34 @@ flev_t::draw_residue_circle_top_layer(const residue_circle_t &residue_circle,
       //   			      "line_width", line_width,
       //   			      "stroke-color", col.second.c_str(),
       //   			      NULL);
+
    }
-   
-   // text_1 = goo_canvas_text_new(group, rt.c_str(),
-   //      			circle_pos.x, circle_pos.y-6, -1,
-   //      			GOO_CANVAS_ANCHOR_CENTER,
-   //      			"font", "Sans 9",
-   //      			"fill_color", "#111111",
-   //      			NULL);
 
-   // text_2 = goo_canvas_text_new(group, residue_circle.residue_label.c_str(),
-   //      			circle_pos.x, circle_pos.y+6.5, -1,
-   //      			GOO_CANVAS_ANCHOR_CENTER,
-   //      			"font", "Sans 7",
-   //      			"fill_color", "#111111",
-   //      			NULL);
+      // if (circle && text_1 && text_2) {
+      //    // so that if a residue is clicked on (or moused over or
+      //    // whatever, then the target_item has some interesting attached
+      //    // data for use in the callback)
+      //    coot::residue_spec_t *sp_p_1 = new
+      //    coot::residue_spec_t(residue_circle.spec); coot::residue_spec_t
+      //    *sp_p_2 = new coot::residue_spec_t(residue_circle.spec);
+      //    coot::residue_spec_t *sp_p_3 = new
+      //    coot::residue_spec_t(residue_circle.spec); sp_p_1->int_user_data =
+      //    imol; sp_p_2->int_user_data = imol; sp_p_3->int_user_data = imol;
+      //    g_object_set_data_full(G_OBJECT(circle), "spec", sp_p_1, g_free);
+      //    g_object_set_data_full(G_OBJECT(text_1), "spec", sp_p_2, g_free);
+      //    g_object_set_data_full(G_OBJECT(text_2), "spec", sp_p_3, g_free);
+      //    int *add_rep_handle_p_1 = new int(add_rep_handle);
+      //    int *add_rep_handle_p_2 = new int(add_rep_handle);
+      //    int *add_rep_handle_p_3 = new int(add_rep_handle);
+      //    g_object_set_data_full(G_OBJECT(circle), "add_rep_handle",
+      //    add_rep_handle_p_1, g_free);
+      //    g_object_set_data_full(G_OBJECT(text_1), "add_rep_handle",
+      //    add_rep_handle_p_2, g_free);
+      //    g_object_set_data_full(G_OBJECT(text_2), "add_rep_handle",
+      //    add_rep_handle_p_3, g_free);
+      // }
 
-   // if (circle && text_1 && text_2) {
-   //    // so that if a residue is clicked on (or moused over or
-   //    // whatever, then the target_item has some interesting attached
-   //    // data for use in the callback)
-   //    coot::residue_spec_t *sp_p_1 = new coot::residue_spec_t(residue_circle.spec);
-   //    coot::residue_spec_t *sp_p_2 = new coot::residue_spec_t(residue_circle.spec);
-   //    coot::residue_spec_t *sp_p_3 = new coot::residue_spec_t(residue_circle.spec);
-   //    sp_p_1->int_user_data = imol;
-   //    sp_p_2->int_user_data = imol;
-   //    sp_p_3->int_user_data = imol;
-   //    g_object_set_data_full(G_OBJECT(circle), "spec", sp_p_1, g_free);
-   //    g_object_set_data_full(G_OBJECT(text_1), "spec", sp_p_2, g_free);
-   //    g_object_set_data_full(G_OBJECT(text_2), "spec", sp_p_3, g_free);
-   //    int *add_rep_handle_p_1 = new int(add_rep_handle);
-   //    int *add_rep_handle_p_2 = new int(add_rep_handle);
-   //    int *add_rep_handle_p_3 = new int(add_rep_handle);
-   //    g_object_set_data_full(G_OBJECT(circle), "add_rep_handle", add_rep_handle_p_1, g_free);
-   //    g_object_set_data_full(G_OBJECT(text_1), "add_rep_handle", add_rep_handle_p_2, g_free);
-   //    g_object_set_data_full(G_OBJECT(text_2), "add_rep_handle", add_rep_handle_p_3, g_free);
-   // }
-
-   return svg_string;
+      return svgc;
 
 }
 

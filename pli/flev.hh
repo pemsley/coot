@@ -3,6 +3,7 @@
 #define COOT_FLEV_HH
 
 #include "geometry/protein-geometry.hh"
+#include "lidia-core/svg-container.hh"
 #include "lidia-core/lig-build.hh"
 #include "lidia-core/svg-molecule.hh"
 #include "residue-circle.hh"
@@ -21,7 +22,7 @@ class flev_t {
    // the residues in residue_circles.  If there are no additional
    // representations, then an empty vector is handled.
    std::vector<int> additional_representation_handles;
-   std::string draw_stacking_interactions(const std::vector<residue_circle_t> &v);
+   svg_container_t draw_stacking_interactions(const std::vector<residue_circle_t> &v);
    // click_pos is where we recentre in 3D graphics when the annotation
    // (line) is clicked.
    void
@@ -29,14 +30,14 @@ class flev_t {
                                 const lig_build::pos_t &residue_pos,
                                 int stacking_type,
                                 const clipper::Coord_orth &click_pos);
-   std::string draw_all_flev_residue_attribs();
-   std::string draw_all_flev_ligand_annotations();
-   std::string draw_residue_circles(const std::vector<residue_circle_t> &v,
-                                    const std::vector<int> &add_rep_handles);
+   svg_container_t draw_all_flev_residue_attribs();
+   svg_container_t draw_all_flev_ligand_annotations();
+   svg_container_t draw_residue_circles(const std::vector<residue_circle_t> &v,
+                                        const std::vector<int> &add_rep_handles);
 
-   std::string draw_residue_circle_top_layer(const residue_circle_t &residue_circle,
-                                             const lig_build::pos_t &ligand_centre,
-                                             int add_rep_handle);
+   svg_container_t draw_residue_circle_top_layer(const residue_circle_t &residue_circle,
+                                                 const lig_build::pos_t &ligand_centre,
+                                                 int add_rep_handle);
 
    void draw_solvent_accessibility_of_atom(const lig_build::pos_t &pos, double sa);
    void draw_solvent_accessibility_of_atoms();
@@ -66,12 +67,14 @@ class flev_t {
 public:
    flev_t() { init(); }
    svg_molecule_t mol; // does it help to make this private?
+   double scale_factor;
    float fle_water_dist_max;
    float fle_h_bond_dist_max;
    void init() {
       fle_water_dist_max = 3.25;
       fle_h_bond_dist_max = 3.9;
       standard_residue_circle_radius = 15.45;
+      scale_factor = 400.0;
    }
 
    class grid_index_t {
@@ -295,7 +298,7 @@ public:
 
    };
 
-   std::string draw_all_flev_annotations();
+   svg_container_t draw_all_flev_annotations();
    void write_png(const std::string &file_name) const;
    void write_svg(const std::string &file_name) const;
 

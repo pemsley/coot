@@ -1,3 +1,5 @@
+#ifndef COOT_LIDIA_CORE_SVG_CONTAINER_HH
+#define COOT_LIDIA_CORE_SVG_CONTAINER_HH
 
 #include <string>
 
@@ -5,7 +7,7 @@ class svg_container_t {
 
 public:
    svg_container_t() { init(); }
-   svg_container_t(const std::string &s) : svg(s) { init(); }
+   explicit svg_container_t(const std::string &s) : svg(s) { init(); }
    std::string svg;
    std::string svg_header_1;
    std::string svg_header_2;
@@ -36,8 +38,8 @@ public:
    void update_bounds(float min_xx, float min_yy, float max_xx, float max_yy) {
       if (min_xx < min_x) min_x = min_xx;
       if (min_yy < min_y) min_y = min_yy;
-      if (max_xx < max_x) max_x = max_xx;
-      if (max_yy < max_y) max_y = max_yy;
+      if (max_xx > max_x) max_x = max_xx;
+      if (max_yy > max_y) max_y = max_yy;
    }
 
    std::string make_viewbox_string() const {
@@ -54,6 +56,11 @@ public:
       svg += s;
    }
 
+   void add(const svg_container_t &svgc_in) {
+      svg += svgc_in.svg;
+      update_bounds(svgc_in.min_x, svgc_in.min_y, svgc_in.max_x, svgc_in.max_y);
+   }
+
    std::string compose() const {
 
       std::string s = svg_header_1;
@@ -66,3 +73,6 @@ public:
 
 };
 
+
+
+#endif // SVG_COOT_LIDIA_CORE_CONTAINER_HH
