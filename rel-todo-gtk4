@@ -240,6 +240,10 @@ Add lsqkab superposition to the api
 
 fix the double read of the monomers (there is only a single read in --no-graphics mode).
 
+Use 2DT dictionary for link and refinement - George.
+
+Fix the double read of the monomers (there is only a single read in --no-graphics mode).
+
 coot: setup updating maps then delete the maps and models - gracefully turn off updating
    maps - currently the timeout function writes a error message, but does not stop.
 
@@ -254,6 +258,8 @@ Jakub: Sharpen-blur "Computing..." dialog should be an overlay. It's Python thou
   Move it all into C++.
 
 Jakub: Downloading map (from EMDB) dialog should be an overlay... Likewise, probably.
+
+Need a graph infrastructure to display Q Score results.
 
 UI for turning off dark mode.
 * Tried. Doesn't work. Function only works on startup? Maybe I am missing something.
