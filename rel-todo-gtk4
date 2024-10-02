@@ -1,6 +1,9 @@
 
 ----
 
+"Replace Residue" using new dictionaries (with OXT)
+* Done.
+
 Martin: How do I load external (refmac) restraints into Coot 1 and Moorhen?
 
 Associate sequence and assign sequence functions, brighten_maps_action() and many other
@@ -274,6 +277,8 @@ Non-trivial C++ Mini-Projects
  o Add gesamt to moorhen and coot
  o parser for PISA output (maybe Python will do)
  o Filled bases for DNA/RNA
+ o Use VTE for a Python console
+ o Get CFC working again (needs C++ clustering)
 
 Non-trivial C++ Projects
  o Improved ligand fitting with machine learning
