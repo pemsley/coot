@@ -6,6 +6,7 @@
 #include "dots-representation-info.hh"
 #include "protein-ligand-interactions.hh"
 #include "atom-ring-centre-info.hh"
+#include <string>
 
 
 std::map<std::string, std::string>
@@ -471,9 +472,10 @@ pli::fle_view_with_rdkit_internal(mmdb::Manager *mol,
                   lig_build::molfile_molecule_t m =
                      coot::make_molfile_molecule(rdkm, mol_2d_depict_conformer);
 
-                  svg_molecule_t svg_mol;
-                  svg_mol.import_rdkit_mol(&rdkm, mol_2d_depict_conformer);
-                  std::string svg_1 = svg_mol.render_to_svg_string(dark_background_flag);
+                  flev_t flev;
+
+                  flev.mol.import_rdkit_mol(&rdkm, mol_2d_depict_conformer);
+                  std::string svg_1 = flev.mol.render_to_svg_string(dark_background_flag);
 
                   write_string_to_file(svg_1, "flev-test-1.svg");
 
@@ -508,8 +510,6 @@ pli::fle_view_with_rdkit_internal(mmdb::Manager *mol,
                   //                               get_drug_mdl_via_wikipedia_and_drugbank);
 
                    std::map<std::string, std::string> name_map = pli::make_flat_ligand_name_map(res_ref);
-
-                  flev_t flev;
 
                   // should this be a flev function?
                   std::vector<pli::fle_ligand_bond_t> bonds_to_ligand =
@@ -546,9 +546,12 @@ pli::fle_view_with_rdkit_internal(mmdb::Manager *mol,
                   
                   // ------------ show it -----------------
                   //
-                  flev.annotate(s_a_v, res_centres, add_reps_vec, bonds_to_ligand, sed, ah, pi_stack_info, p.second);
-                  
-                  flev.draw_all_flev_annotations();
+                  bool annotate_status = flev.annotate(s_a_v, res_centres, add_reps_vec, bonds_to_ligand,
+                                                       sed, ah, pi_stack_info, p.second);
+
+                  std::string svg_2 = flev.draw_all_flev_annotations();
+                  std::string svg = svg_1 + svg_2;
+                  write_string_to_file(svg, "flev-test-all-parts.svg");
 
                   if (output_format == "png") flev.write_png(output_image_file_name);
                   if (output_format == "svg") flev.write_svg(output_image_file_name);
@@ -752,30 +755,39 @@ flev_t::flev_residues_extents() const {
    return p;
 }
 
-void
+std::string
 flev_t::draw_all_flev_annotations() {
 
-   draw_all_flev_residue_attribs();
-   draw_all_flev_ligand_annotations();
+   std::string ra = draw_all_flev_residue_attribs();
+   std::string li = draw_all_flev_ligand_annotations();
+   std::string all = ra + li;
+   return all;
 }
 
-void
+std::string
 flev_t::draw_all_flev_residue_attribs() {
 
-   draw_residue_circles(residue_circles, additional_representation_handles);
-   draw_bonds_to_ligand();
-   draw_stacking_interactions(residue_circles);
+   std::string rc = draw_residue_circles(residue_circles, additional_representation_handles);
+   std::string btl = draw_bonds_to_ligand();
+   std::string si = draw_stacking_interactions(residue_circles);
+
+   std::string all = rc + btl + si;
+   return all;
 }
 
-void
+std::string
 flev_t::draw_all_flev_ligand_annotations() {
 
+   std::string svg_string;
    draw_substitution_contour();
    draw_solvent_accessibility_of_atoms();
+   return svg_string;
 }
 
-void
+std::string
 flev_t::draw_stacking_interactions(const std::vector<residue_circle_t> &rc) {
+
+   std::string svg_string;
 
    for (unsigned int ires=0; ires<rc.size(); ires++) {
       int st = rc[ires].get_stacking_type();
@@ -802,6 +814,7 @@ flev_t::draw_stacking_interactions(const std::vector<residue_circle_t> &rc) {
          draw_annotated_stacking_line(atom_pos, rc[ires].pos, st, click_pos);
       }
    }
+   return svg_string;
 }
 
 
@@ -958,8 +971,10 @@ flev_t::draw_annotated_stacking_line(const lig_build::pos_t &ligand_ring_centre,
 
 }
 
-void
+std::string
 flev_t::draw_bonds_to_ligand() {
+
+   std::string svg_string;
 
    // GooCanvasItem *root = goo_canvas_get_root_item (GOO_CANVAS(canvas));
 
@@ -1055,6 +1070,7 @@ flev_t::draw_bonds_to_ligand() {
                       << residue_circles[ic].residue_type << std::endl;
       }
    }
+   return svg_string;
 }
 
 
@@ -1831,9 +1847,14 @@ flev_t::get_residue_circle_colour(const std::string &residue_type) const {
 
 // if you don't have add_rep_handles, then pass a vector or size 0.
 // 
-void
+std::string
 flev_t::draw_residue_circles(const std::vector<residue_circle_t> &l_residue_circles,
                              const std::vector<int> &add_rep_handles) {
+
+   std::string svg_string;
+
+   std::cout << "-------------------- here we are in draw_residue_circles "
+             << l_residue_circles.size() << " " << add_rep_handles.size() << std::endl;
 
    double max_dist_water_to_ligand_atom  = 3.3; // don't draw waters that are far from ligand
    double max_dist_water_to_protein_atom = 3.3; // don't draw waters that are not somehow 
@@ -1843,13 +1864,17 @@ flev_t::draw_residue_circles(const std::vector<residue_circle_t> &l_residue_circ
 
    if (draw_flev_annotations_flag) { 
       bool draw_solvent_exposures = 1;
-      try { 
+      try {
+         std::cout << "debug:: draw_residue_circles() AAA ---- " << std::endl;
 	 lig_build::pos_t ligand_centre = mol.get_ligand_centre();
 	 // GooCanvasItem *root = goo_canvas_get_root_item (GOO_CANVAS(canvas));
 
+         std::cout << "debug:: draw_residue_circles() BBB ---- " << std::endl;
 	 if (draw_solvent_exposures)
 	    for (unsigned int i=0; i<l_residue_circles.size(); i++)
 	       draw_solvent_exposure_circle(l_residue_circles[i], ligand_centre);
+
+         std::cout << "debug:: draw_residue_circles() CCC ---- " << std::endl;
 
 	 for (unsigned int i=0; i<l_residue_circles.size(); i++) {
 	    lig_build::pos_t pos = l_residue_circles[i].pos;
@@ -1857,26 +1882,30 @@ flev_t::draw_residue_circles(const std::vector<residue_circle_t> &l_residue_circ
 	    if (add_rep_handles.size() == l_residue_circles.size())
 	       add_rep_handle = add_rep_handles[i];
 
-	    draw_residue_circle_top_layer(l_residue_circles[i], ligand_centre, add_rep_handle);
+            std::cout << "   calling draw_residue_circle_top_layer() " << i << std::endl;
+            std::string s = draw_residue_circle_top_layer(l_residue_circles[i], ligand_centre, add_rep_handle);
+            svg_string += s;
 	 }
       }
       catch (const std::runtime_error &rte) {
 	 std::cout << "WARNING:: draw_residue_circles: " << rte.what() << std::endl;
       }
    }
+   return svg_string;
 }
 
 #include "utils/coot-utils.hh"
 
 // if you don't have an add_rep_handle, then pass -1 (something negative)
 // 
-void
+std::string
 flev_t::draw_residue_circle_top_layer(const residue_circle_t &residue_circle,
                                       const lig_build::pos_t &ligand_centre,
                                       int add_rep_handle) {
 
+   std::string svg_string;
 
-   if (0)
+   if (true)
       std::cout << "   adding cirles " << residue_circle.residue_type
 		<< " at init pos " << residue_circle.pos << " and canvas_drag_offset "
                 << std::endl;
@@ -1893,7 +1922,7 @@ flev_t::draw_residue_circle_top_layer(const residue_circle_t &residue_circle,
    //
    if (residue_circle.residue_type == "HOH") {
       if (residue_circle.bonds_to_ligand.size() == 0) {
-	 return;
+	 return svg_string;
       }
    }
 
@@ -1930,6 +1959,12 @@ flev_t::draw_residue_circle_top_layer(const residue_circle_t &residue_circle,
       //   			      "fill-color",   col.first.c_str(),
       //   			      "stroke-color", col.second.c_str(),
       //   			      NULL);
+
+      std::string circle_string = "   <circle cx=\"" +
+         std::to_string(circle_pos.x) + "\" cy=\"" +
+         std::to_string(circle_pos.y) + "\" r=\"" + std::to_string(line_width) + "\" />\n";
+      svg_string += circle_string;
+
    } else {
       // circle = goo_canvas_ellipse_new(group,
       //   			      circle_pos.x, circle_pos.y,
@@ -1974,6 +2009,8 @@ flev_t::draw_residue_circle_top_layer(const residue_circle_t &residue_circle,
    //    g_object_set_data_full(G_OBJECT(text_1), "add_rep_handle", add_rep_handle_p_2, g_free);
    //    g_object_set_data_full(G_OBJECT(text_2), "add_rep_handle", add_rep_handle_p_3, g_free);
    // }
+
+   return svg_string;
 
 }
 
