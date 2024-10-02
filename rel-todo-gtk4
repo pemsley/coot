@@ -273,12 +273,14 @@ Non-trivial C++ Mini-Projects
  o Add SSBond to struct con info in mmdb
  o Parallel FFT
  o Faster/better/modern contouring
+ o maybe https://github.com/CGAL/cgal/ Surface Mesh
  o Improved side-chain typing
  o Add gesamt to moorhen and coot
  o parser for PISA output (maybe Python will do)
  o Filled bases for DNA/RNA
  o Use VTE for a Python console
  o Get CFC working again (needs C++ clustering)
+
 
 Non-trivial C++ Projects
  o Improved ligand fitting with machine learning

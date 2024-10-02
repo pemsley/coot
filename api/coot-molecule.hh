@@ -30,6 +30,7 @@
 #include <utility>
 #include <atomic>
 #include <array>
+#include <set>
 
 
 #include "compat/coot-sysdep.h"

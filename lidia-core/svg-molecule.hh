@@ -29,6 +29,7 @@
 #include "lig-build.hh"
 #include "lbg-shared.hh"
 #include "use-rdkit.hh"
+#include "svg-container.hh"
 
 class svg_atom_t : public lig_build::atom_t {
    // use self element to set the colour
@@ -94,6 +95,7 @@ public:
    svg_molecule_t() { median_bond_length_ = 1.0; }
    void import_rdkit_mol(RDKit::ROMol *mol, int iconf);
    std::string render_to_svg_string(bool dark_background_flag);
+   svg_container_t make_svg(bool dark_background_flag);
    double median_bond_length_;
    double get_scale() const;
 

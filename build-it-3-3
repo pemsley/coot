@@ -3072,7 +3072,7 @@ if [ -e $install_top_dir/include/cairo/cairo.h ] ; then
 else
     # we need modern cairo - because that is what is used by GTK4.
     # in fact, perhaps we should build cairo at all on arch...
-    if test $dist_name = arch ; then
+    if test "$dist_name" = arch ; then
         (
         cairo_version=1.18.2
         echo BUILDING: cairo $cairo_version
