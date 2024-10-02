@@ -511,6 +511,9 @@ void LaylaState::run_file_save_dialog(unsigned int molecule_idx) noexcept {
             g_error_free(*e);
         }
     }, GUINT_TO_POINTER(molecule_idx));
+#else
+#warning "You're compiling Layla with an unsupported version of GTK. Some functionality will be broken.
+    g_warning("Layla has been compiled with an unsupported version of GTK. Some functionality is broken.");
 #endif
 }
 
@@ -625,6 +628,9 @@ void LaylaState::file_open() {
             g_error_free(*e);
         }
     }, this);
+#else
+#warning "You're compiling Layla with an unsupported version of GTK. Some functionality will be broken.
+    g_warning("Layla has been compiled with an unsupported version of GTK. Some functionality is broken.");
 #endif
 }
 
@@ -701,6 +707,9 @@ void LaylaState::file_export(ExportMode mode) {
         }
         delete mode_ptr;
     }, mode_ptr);
+#else
+#warning "You're compiling Layla with an unsupported version of GTK. Some functionality will be broken.
+    g_warning("Layla has been compiled with an unsupported version of GTK. Some functionality is broken.");
 #endif
 }
 
