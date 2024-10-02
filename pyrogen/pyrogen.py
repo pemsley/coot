@@ -711,7 +711,6 @@ def make_restraints(m, comp_id, mogul_dir, mogul_file_name_stub, pdb_out_file_na
                                                     quartet_planes, quartet_hydrogen_planes,
                                                     replace_with_mmff_b_a_restraints)
 
-
               if restraints == None:
                   print("No restraints")
                   return True # hacked in value

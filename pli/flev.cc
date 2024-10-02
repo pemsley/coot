@@ -362,11 +362,16 @@ pli::fle_view_with_rdkit_internal(mmdb::Manager *mol,
                                   float residues_near_radius,
                                   const std::string &file_format, const std::string &output_image_file_name) {
 
-#ifndef MAKE_ENHANCED_LIGAND_TOOLS
+   auto write_string_to_file = [] (const std::string &s, const std::string &fn) {
 
-   std::cout << "WARNING:: fle_view_with_rdkit_internal() not enhanced ligand " << std::endl;
+      std::cout << "write string to file! " << fn << std::endl;
+      std::ofstream f(fn);
+      f << s;
+      f << "\n";
+      f.close();
+   };
 
-# else
+   bool dark_background_flag = false; // pass this
 
    double weight_for_3d_distances = 0.4; // for 3d distances
    std::string output_format = file_format;
@@ -466,6 +471,12 @@ pli::fle_view_with_rdkit_internal(mmdb::Manager *mol,
                   lig_build::molfile_molecule_t m =
                      coot::make_molfile_molecule(rdkm, mol_2d_depict_conformer);
 
+                  svg_molecule_t svg_mol;
+                  svg_mol.import_rdkit_mol(&rdkm, mol_2d_depict_conformer);
+                  std::string svg_1 = svg_mol.render_to_svg_string(dark_background_flag);
+
+                  write_string_to_file(svg_1, "flev-test-1.svg");
+
                   mmdb::Residue *residue_flat = coot::make_residue(rdkm, mol_2d_depict_conformer, "XXX");
                   mmdb::Manager *mol_for_flat_residue = coot::util::create_mmdbmanager_from_residue(residue_flat); // d
 
@@ -555,7 +566,6 @@ pli::fle_view_with_rdkit_internal(mmdb::Manager *mol,
          }
       }
    }
-#endif // MAKE_ENHANCED_LIGAND_TOOLS
 }
 
 void

@@ -436,10 +436,12 @@ void set_vertical_toolbar_internal_alignment() {
          GtkWidget* parent_widget = gtk_widget_get_parent(target);
          if(!GTK_IS_BOX(parent_widget)) {
             if(GTK_IS_BOX(target)) {
+#if GTK_MINOR_VERSION < 14 // 20241001-PE so that I don't see this when using fatal warnings
                g_warning("set_vertical_toolbar_internal_alignment: Toolbar item %p of type %s: "
                "The parent widget that wraps %s::child is not a GtkBox but a %s. "
                "%s::child however is a GtkBox. Attempt will be made to align it. It might not work.",
                child,G_OBJECT_TYPE_NAME(child),G_OBJECT_TYPE_NAME(child),G_OBJECT_TYPE_NAME(parent_widget),G_OBJECT_TYPE_NAME(child));
+#endif
                parent_widget = target;
             } else {
                g_warning("set_vertical_toolbar_internal_alignment: Skippping toolbar item %p of type %s: "

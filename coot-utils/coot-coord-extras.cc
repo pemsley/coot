@@ -1925,8 +1925,13 @@ coot::util::mutate_by_overlap(mmdb::Residue *residue_p, mmdb::Manager *mol,
             std::string atom_name(at->GetAtomName());
             if (! is_in_residue(res_mutable, atom_name)) {
                mmdb::Atom *at_copy = new mmdb::Atom;
-               at_copy->Copy(at);
-               res_mutable->AddAtom(at_copy);
+               std::string at_name = at->GetAtomName();
+               if (atom_name != " OXT") { // extra atom in an amino acid
+                  if (atom_name != " OP3") {  // extra atom in a nucleic acid
+                     at_copy->Copy(at);
+                     res_mutable->AddAtom(at_copy);
+                  }
+               }
             }
          }
       }
@@ -1949,6 +1954,7 @@ coot::util::mutate_by_overlap(mmdb::Residue *residue_p, mmdb::Manager *mol,
       mmdb::Residue *rr = get_first_residue(mol_from_restraints_residue);
       if (rr) {
          if (is_aa) {
+
             std::vector<lsq_range_match_info_t> lsq_matchers;
             std::vector<std::string> atom_names = {" N  ", " CA ", " C  "};
             std::string ref_chain_id = residue_p->GetChainID();

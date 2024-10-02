@@ -20,7 +20,7 @@
 # 02110-1301, USA
 
 
-# we need files for make dist configuresd without MAKE_ENHANCED_LIGAND_TOOLS and USE_PYTHON
+# we need files for make dist configured without MAKE_ENHANCED_LIGAND_TOOLS and USE_PYTHON
 
 # pyexec_LTLIBRARIES allows us to make libtool libraries that get the
 # file names we like and installed where we like, not forced to be
@@ -70,8 +70,6 @@ pyrogen-swig.cc: $(top_srcdir)/pyrogen/pyrogen-swig.i $(top_srcdir)/pyrogen/rest
 #mmdb2.cc: mmdb2.i mmdb2-interface.cc
 #	swig $(AM_CPPFLAGS) -o $@ -python -shadow -c++ $<
 #	echo '#include "mmdb2-interface.cc"' >> $@
-
-if MAKE_ENHANCED_LIGAND_TOOLS
 
 pyexec_LTLIBRARIES += _pyrogen_swig.la pyrogen_boost.la
 # add these when it works geometry-store.cc geometry-store.hh geometry-store-private.hh
@@ -165,4 +163,3 @@ endif
 clean-local: 
 	rm -f _pyrogen_swig.so
 
-endif

@@ -121,10 +121,11 @@ parse_command_line(int argc, char ** argv ) {
       {"hostname",   1, 0, 0}, // alternate for host
       {"help",       0, 0, 0},
       {"python",     0, 0, 0},
-      {"run-state-script", 0, 0, 0},
-      {"splash-screen",    1, 0, 0}, // alternate splash screen
-      {"self-test",        0, 0, 0},
-      {"no-state-script",  0, 0, 0},
+      {"run-state-script",   0, 0, 0},
+      {"splash-screen",      1, 0, 0}, // alternate splash screen
+      {"self-test",          0, 0, 0},
+      {"opengl-es",          0, 0, 0},
+      {"no-state-script",    0, 0, 0},
       {"no-startup-scripts", 0, 0, 0},
       {"no-graphics",      0, 0, 0},
       {"no-splash-screen", 0, 0, 0},
@@ -342,13 +343,17 @@ parse_command_line(int argc, char ** argv ) {
                                                          if (arg_str == "self-test") {
                                                             cld.run_internal_tests_and_exit = 1;
                                                          } else {
-                                                            if (arg_str == "update-self") {
-                                                               cld.update_self = 1;
-                                                               cld.do_graphics = 0;
+                                                            if (arg_str == "opengl-es") {
+                                                               cld.use_opengl_es = true;
                                                             } else {
-                                                               std::cout << "WARNING! Malformed option - needs an argument: "
-                                                                         << long_options[option_index].name
-                                                                         << std::endl << std::endl;
+                                                               if (arg_str == "update-self") {
+                                                                  cld.update_self = 1;
+                                                                  cld.do_graphics = 0;
+                                                               } else {
+                                                                  std::cout << "WARNING! Malformed option - needs an argument: "
+                                                                            << long_options[option_index].name
+                                                                            << std::endl << std::endl;
+                                                               }
                                                             }
                                                          }
                                                       }
