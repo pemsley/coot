@@ -7,6 +7,7 @@ echo version configure $ver1
 echo version ui file   $ver2
 if [ $ver1 == $ver2 ] ; then
 	echo All good
+	echo $ver1 > coot-version
 else
 	echo damn, versions dont match
 fi
