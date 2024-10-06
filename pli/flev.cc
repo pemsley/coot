@@ -173,8 +173,9 @@ flev_t::annotate(const std::vector<std::pair<coot::atom_spec_t, float> > &s_a_v,
 
 
    if (true) {
+      std::cout << "debug::flev_t::annotate(): " << bonds_to_ligand.size() << " bonds to ligand" << std::endl;
       for (unsigned int ib=0; ib<bonds_to_ligand.size(); ib++) {
-         std::cout << "  =============== lbg::annotate() bond to ligand " << ib << " "
+         std::cout << "  =============== flev_t::annotate() bond to ligand " << ib << " "
                    << bonds_to_ligand[ib].ligand_atom_spec.atom_name
                    << " by residue " << bonds_to_ligand[ib].res_spec.chain_id << " "
                    << bonds_to_ligand[ib].res_spec.res_no << " type: "
@@ -185,7 +186,7 @@ flev_t::annotate(const std::vector<std::pair<coot::atom_spec_t, float> > &s_a_v,
 
    if (true) {
       std::cout << "--------------------------------------------------------------" << std::endl;
-      std::cout << "======== lbg_info_t::annotate() here are bash distances for atoms:" << std::endl;
+      std::cout << "======== flev_t::annotate() here are bash distances for atoms:" << std::endl;
       std::map<std::string, std::vector<coot::bash_distance_t> >::const_iterator it;
       for (it=ah.atom_bashes.begin(); it!=ah.atom_bashes.end(); it++) {
          std::cout << it->first << " " << it->second.size() << " bashes " << std::endl;
@@ -209,7 +210,7 @@ flev_t::annotate(const std::vector<std::pair<coot::atom_spec_t, float> > &s_a_v,
    for (unsigned int i=0; i<centres.size(); i++) {
 
       if (true)
-         std::cout << "debug:: in lbg_info_t::annotate() handling circle " << i << " of "
+         std::cout << "debug:: in flev_t::annotate() handling circle " << i << " of "
                    << centres.size() << std::endl;
 
       std::string label = centres[i].spec.chain_id;
@@ -337,6 +338,8 @@ flev_t::annotate(const std::vector<std::pair<coot::atom_spec_t, float> > &s_a_v,
    recentre_considering_residue_centres();
 
 #endif // COMPILE_THE_HEART
+
+   refine_residue_circle_positions();
 
    return r;
 }
@@ -546,7 +549,7 @@ pli::fle_view_with_rdkit_internal(mmdb::Manager *mol,
                   flev_attached_hydrogens_t ah(p.second);
                   // ah.cannonballs(res_ref, mol_for_res_ref, p.second);
                   ah.distances_to_protein_using_correct_Hs(res_ref, mol_for_res_ref, *geom_p);
-                  
+
                   // ------------ show it -----------------
                   //
                   bool annotate_status = flev.annotate(s_a_v, res_centres, add_reps_vec, bonds_to_ligand,
@@ -2003,7 +2006,7 @@ flev_t::draw_residue_circle_top_layer(const residue_circle_t &residue_circle,
                 << std::endl;
 
    lig_build::pos_t circle_pos(residue_circle.pos.x, -residue_circle.pos.y);
-   lig_build::pos_t pos = circle_pos * 20.0 + lig_build::pos_t(00, 00);
+   lig_build::pos_t pos = circle_pos;
 
    // GooCanvasItem *root = goo_canvas_get_root_item (GOO_CANVAS(canvas));
 
