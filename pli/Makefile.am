@@ -62,6 +62,7 @@ libcoot_pli_la_LDFLAGS = $(SHARED_LDFLAGS)
 pkginclude_HEADERS = flev-annotations.hh protein-ligand-interactions.hh pi-stacking.hh specs.hh \
 	sdf-interface.hh sdf-internal.hh sdf-interface-for-export.hh flev.hh \
 	dots-representation-info.hh residue-circle.hh bond-to-ligand.hh solvent-accessible-atom.hh \
-	solvent-exposure-difference.hh solvent-exposure-difference-helper.hh atom-ring-centre-info.hh
+	solvent-exposure-difference.hh solvent-exposure-difference-helper.hh atom-ring-centre-info.hh \
+        flev-scale-factor.hh optimise-residue-circles.cc
 
 pkgincludedir = $(includedir)/coot/pli
