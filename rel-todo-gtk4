@@ -1,10 +1,6 @@
-
 ----
 
-Write a blog post for z-methoxy
-
-"Replace Residue" using new dictionaries (with OXT)
-* Done.
+What's up with the cross-hairs? Allow user to set the colour.
 
 Martin Maly: How do I load external (refmac) restraints into Coot 1?
 
@@ -117,6 +113,9 @@ make an figure, for moorhen intro with blobs that have volume proportional
 Look at 4yjr - beautiful map 452-626 interaction - it should not have a clash face
    (distance to hydrogen atom).
 * Checked - it does not if both residues are refined. That will do.
+
+Smooth Recentering setting saved (now)?
+* Yes.
 
 Add Noughties Physics into the Preferences
 * Done.
@@ -284,9 +283,13 @@ Non-trivial C++ Mini-Projects
  o Add gesamt to moorhen and coot
  o parser for PISA output (maybe Python will do)
  o Filled bases for DNA/RNA
+<<<<<<< HEAD
+ o Is this useful? https://github.com/CGAL/cgal/ Surface Mesh
+=======
  o Use VTE for a Python console
  o Get CFC working again (needs C++ clustering)
 
+>>>>>>> refs/remotes/origin/main
 
 Non-trivial C++ Projects
  o Improved ligand fitting with machine learning

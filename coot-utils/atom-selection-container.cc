@@ -150,15 +150,60 @@ get_atom_selection(std::string pdb_name,
       }
    };
 
-   auto file_name_to_manager_via_gemmi = [] (const std::string &pdb_name) {
+   auto add_links_to_models = [] (mmdb::Manager *mol, const std::vector<mmdb::Link> &mmdb_links) {
+
+      for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+         mmdb::Model *model_p = mol->GetModel(imod);
+         if (model_p) {
+            for(const auto &ml : mmdb_links) {
+               mmdb::Link *l = new mmdb::Link(ml);
+               model_p->AddLink(l);
+            }
+         }
+      }
+      if (! mmdb_links.empty())
+         mol->FinishStructEdit();
+   };
+
+   auto file_name_to_manager_via_gemmi = [add_links_to_models] (const std::string &pdb_name) {
       mmdb::Manager *mol = nullptr;
 #ifdef USE_GEMMI
       try {
+         std::vector<mmdb::Link> mmdb_links;
          gemmi::Structure st = gemmi::read_structure_file(pdb_name);
          if (! st.models.empty()) {
+            for (const gemmi::Connection &con : st.connections) {
+               std::cout << con.name << " " << con.partner1.str() << " " << con.partner2.str() << std::endl;
+               mmdb::Link l;
+               strcpy(l.atName1, con.partner1.atom_name.c_str());
+               l.aloc1[0] = con.partner1.altloc;
+               l.aloc1[1] = 0;
+               strcpy(l.resName1, con.partner1.res_id.name.c_str());
+               strcpy(l.chainID1, con.partner1.chain_name.c_str());
+               l.insCode1[0] = con.partner1.res_id.seqid.icode;
+               l.insCode1[1] = 0;
+               strcpy(l.atName2, con.partner2.atom_name.c_str());
+               l.aloc2[0] = con.partner2.altloc;
+               l.aloc2[1] = 0;
+               strcpy(l.resName2, con.partner2.res_id.name.c_str());
+               strcpy(l.chainID2, con.partner2.chain_name.c_str());
+               l.insCode2[0] = con.partner2.res_id.seqid.icode;
+               l.insCode2[1] = 0;
+               if (con.partner1.res_id.seqid.num.has_value()) {
+                  if (con.partner2.res_id.seqid.num.has_value()) {
+                     l.seqNum1 = con.partner1.res_id.seqid.num.value;
+                     l.seqNum2 = con.partner2.res_id.seqid.num.value;
+                     mmdb_links.push_back(l);
+                  }
+               }
+            }
             mol = new mmdb::Manager;
             gemmi::copy_to_mmdb(st, mol);
 
+            add_links_to_models(mol, mmdb_links);
+
+            // now fix (cootify) the atom names
+            //
             for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
                mmdb::Model *model_p = mol->GetModel(imod);
                if (model_p) {

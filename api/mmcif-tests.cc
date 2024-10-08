@@ -17,7 +17,7 @@ namespace mmcif_tests {
    void write_test_name(const std::string &test_name);
    int run_test(int (*test_func) (), const std::string &test_name);
    int run_tests(bool last_test_only);
-   int read_pdb();
+   int read_mmcif_links_from_struct_conn();
    enum status_t { BAD, GOOD };
 }
 
@@ -48,7 +48,7 @@ mmcif_tests::run_test(int (*test_func) (), const std::string &test_name) {
    return status;
 }
 
-int mmcif_tests::read_pdb() {
+int mmcif_tests::read_mmcif_links_from_struct_conn() {
 
    int status = 0;
    mmdb::Manager *mol = new mmdb::Manager;
@@ -61,11 +61,12 @@ int mmcif_tests::read_pdb() {
         mmdb::Model *model_p = mol->GetModel(imod);
         if (model_p) {
           int n_links = model_p->GetNumberOfLinks();
-          std::cout << "n_links: " << n_links << std::endl;
+          std::cout << "Found n_links: " << n_links << std::endl;
           for (int i_link = 0; i_link < n_links; i_link++) {
             mmdb::Link *link_p = model_p->GetLink(i_link);
             std::cout << "Link " << i_link << " " << link_p << std::endl;
           }
+          if (n_links > 4) status = 1;
         }
       }
    }
@@ -77,7 +78,7 @@ int
 mmcif_tests::run_tests(bool last_test_only) {
 
    if (! last_test_only) {
-      run_test(read_pdb, "read_pdb");
+      run_test(read_mmcif_links_from_struct_conn, "read_mmcif_links_from_struct_conn");
    }
    int status = 1;
    for (const auto &t : test_results) {

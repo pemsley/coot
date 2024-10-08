@@ -5956,6 +5956,32 @@ int test_dictionary_acedrg_atom_types_for_ligand(molecules_container_t &mc) {
 }
 
 
+int test_links_in_model_read_via_gemmi(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   mc.set_use_gemmi(true);
+   int imol = mc.read_pdb(reference_data("6dgd.cif"));
+   if (mc.is_valid_model_molecule(imol)) {
+      mmdb::Manager *mol = mc.get_mol(imol);
+      for (int imod = 1; imod <= mol->GetNumberOfModels(); imod++) {
+         mmdb::Model *model_p = mol->GetModel(imod);
+         if (model_p) {
+            int n_links = model_p->GetNumberOfLinks();
+            std::cout << "Found n_links: " << n_links << std::endl;
+            for (int i_link = 0; i_link < n_links; i_link++) {
+               mmdb::Link *link_p = model_p->GetLink(i_link);
+               // std::cout << "Link " << i_link << " " << link_p << std::endl;
+            }
+            if (n_links > 4) status = 1;
+         }
+      }
+   }
+
+   return status;
+}
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -6085,7 +6111,7 @@ int main(int argc, char **argv) {
       // now check that the monomer library was read OK
       int imol = mc.get_monomer("ATP");
       if (! mc.is_valid_model_molecule(imol)) {
-         std::cout << "Failed to read the monomer library" << std::endl;
+         std::cout << "Failed to read the monomer library - exit now" << std::endl;
          exit(1);
       } else {
          mc.close_molecule(imol);
@@ -6267,8 +6293,9 @@ int main(int argc, char **argv) {
          // status += run_test(test_ligand_distortion,   "Ligand Distortion", mc);
          // status += run_test(test_import_LIG_dictionary,   "Import LIG.cif", mc);
          // status += run_test(test_tricky_ligand_problem,   "Tricky Ligand import/refine", mc);
-         status += run_test(test_dictionary_acedrg_atom_types, "Acedrg atom types", mc);
-         status += run_test(test_dictionary_acedrg_atom_types_for_ligand, "Acedrg atom types for ligand", mc);
+         // status += run_test(test_dictionary_acedrg_atom_types, "Acedrg atom types", mc);
+         // status += run_test(test_dictionary_acedrg_atom_types_for_ligand, "Acedrg atom types for ligand", mc);
+         status += run_test(test_links_in_model_read_via_gemmi, "Acedrg atom types for ligand", mc);
 
          if (status == n_tests) all_tests_status = 0;
 
