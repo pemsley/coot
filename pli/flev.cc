@@ -231,6 +231,8 @@ flev_t::annotate(const std::vector<std::pair<coot::atom_spec_t, float> > &s_a_v,
       // lig_build::pos_t pos = mol.input_coords_to_canvas_coords(cp); // 20240601-PE
       lig_build::pos_t pos = input_coords_to_canvas_coords(cp);
       circle.set_canvas_pos(pos);
+      std::cout << "debug:: in flev_t::annotate() residue-circle "
+                << cp.x() << " " << cp.y() << " " << cp.z() << " canvas coord " << pos.x << " " << pos.y << std::endl;
       if (centres[i].residue_name == "HOH") {
          for (unsigned int ib=0; ib<bonds_to_ligand.size(); ib++) {
             if (bonds_to_ligand[ib].res_spec == centres[i].spec) {
@@ -307,6 +309,16 @@ flev_t::annotate(const std::vector<std::pair<coot::atom_spec_t, float> > &s_a_v,
          std::cout << ring_atoms_list[i][j] << "  ";
          }
          std::cout << std::endl;
+      }
+   }
+
+   if (true) {
+      std::cout << "------------------- residue circles ------------" << std::endl;
+      for (unsigned int i=0; i<residue_circles.size(); i++) {
+         const auto &rc = residue_circles[i];
+         std::cout << "   " << std::setw(2) << i << " : "
+                 << std::setw(10) << std::setprecision(5) << std::right << std::fixed << rc.pos.x << " "
+                 << std::setw(10) << std::setprecision(5) << std::right << std::fixed << rc.pos.y << std::endl;
       }
    }
 
@@ -1972,14 +1984,20 @@ flev_t::draw_residue_circles(const std::vector<residue_circle_t> &l_residue_circ
             }
 
 	 for (unsigned int i=0; i<l_residue_circles.size(); i++) {
-	    lig_build::pos_t pos = l_residue_circles[i].pos;
+            const auto &residue_circle = l_residue_circles[i];
+            std::cout << "handling residue circle " << i << " " << residue_circle.residue_label
+                      << std::endl;
+	    lig_build::pos_t pos = residue_circle.pos;
+            // get rid of add_rep_handles in the following function call
 	    int add_rep_handle = -1; // default, no handle
 	    if (add_rep_handles.size() == l_residue_circles.size())
 	       add_rep_handle = add_rep_handles[i];
 
             svg_container_t svgc_s = draw_residue_circle_top_layer(l_residue_circles[i],
                                                                    ligand_centre, add_rep_handle);
+            std::cout << "--- calling svgc.add() " << std::endl;
             svgc.add(svgc_s);
+            std::cout << "--- done calling svgc.add() " << std::endl;
 	 }
       }
       catch (const std::runtime_error &rte) {
@@ -2043,6 +2061,7 @@ flev_t::draw_residue_circle_top_layer(const residue_circle_t &residue_circle,
 
    if (col.first != "") {
 
+      // where do these values come from?
       pos.x += 200;
       pos.y += 200;
       std::string circle_string = std::string("   ") +
@@ -2056,8 +2075,8 @@ flev_t::draw_residue_circle_top_layer(const residue_circle_t &residue_circle,
       float delta = 50.0; // about this?
       svgc.add("<!-- Residue Circle " + residue_circle.residue_label + std::string(" -->\n"));
       svgc.add(circle_string);
-      svgc.update_bounds(pos.x - delta, pos.y - delta,
-                         pos.x + delta, pos.y + delta);
+      svgc.set_bounds(pos.x - delta, pos.y - delta,
+                      pos.x + delta, pos.y + delta);
 
       // 20241002-PE note to self, "Phe" is too far to the right
       //                           "Ile" is too tar to the left
@@ -2199,8 +2218,10 @@ flev_t::position_non_primaries(const ligand_grid &grid,
          std::pair<grid_index_t, lig_build::pos_t> pos =
             grid.find_nearest_zero(residue_circles[irc].pos, already_positioned);
          residue_circles[irc].pos = pos.second;
-         if (pos.first.is_valid_p())
+         if (pos.first.is_valid_p()) {
+            std::cout << "position_non_primaries() " << irc << " " << pos.first.i() << " " << pos.first.j() << std::endl;
             already_positioned.push_back(pos.first);
+         }
       }
    }
 }

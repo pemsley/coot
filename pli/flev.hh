@@ -11,7 +11,7 @@
 #include "solvent-accessible-atom.hh"
 #include "solvent-exposure-difference-helper.hh"
 #include "pi-stacking.hh"
-#include "optimize-residue-circles.hh"
+#include "optimise-residue-circles.hh"
 
 // Draw all the things in SVG so that it can be used by Moorhen
 //

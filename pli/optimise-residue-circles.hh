@@ -49,6 +49,13 @@ namespace pli {
       static bool score_vs_original_positions;
       static bool score_vs_ligand_atom_bond_length;
 
+      double score_vs_ligand_atoms_rk;
+      double score_vs_ligand_atoms_exp_scale;
+      double score_vs_other_residues_kk;
+      double score_vs_other_residues_exp_scale;
+      double score_vs_original_positions_kk;
+      double score_vs_ligand_atom_bond_length_kk;
+
    public:
       // we pass two vectors here because (for trajectory-view) we
       // don't want to restart the minimisation with the current
