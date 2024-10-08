@@ -33,7 +33,7 @@ namespace pli {
    std::vector<fle_ligand_bond_t>
    protein_ligand_interactions(mmdb::Residue *residue_p,
 			       mmdb::Manager *mol,
-			       coot::protein_geometry *geom_p,
+			       coot::protein_geometry *geom_p, int imol,
 			       float h_bond_dist_max);
 
 
@@ -61,7 +61,7 @@ namespace pli {
 						       const std::vector<mmdb::Residue *> &residues,
 						       mmdb::Manager *mol,
 						       const std::map<std::string, std::string> &name_map,
-						       const coot::protein_geometry &geom,
+						       const coot::protein_geometry &geom, int imol,
 						       float water_dist_max,
 						       float h_bond_dist_max);
 

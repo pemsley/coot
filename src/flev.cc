@@ -300,7 +300,7 @@ void fle_view_internal_to_png(int imol, const char *chain_id, int res_no,
 	       //
 	       std::vector<pli::fle_ligand_bond_t> bonds_to_ligand =
 		  pli::get_fle_ligand_bonds(res_ref, filtered_residues, mol,
-					     name_map, *geom_p,
+					     name_map, *geom_p, imol,
 					     graphics_info_t::fle_water_dist_max,
 					     graphics_info_t::fle_h_bond_dist_max);
 

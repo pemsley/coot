@@ -30,6 +30,7 @@
 #include <utility>
 #include <atomic>
 #include <array>
+#include <set>
 
 
 #include "compat/coot-sysdep.h"
@@ -830,7 +831,7 @@ namespace coot {
                                                                        ctpl::thread_pool &static_thread_pool);
 
       // this function is another version of the above function, but returns distortion values
-      void
+      std::vector<coot::geometry_distortion_info_container_t>
       geometric_distortions_from_mol(const std::string &ligand_cid, bool with_nbcs,
                                      coot::protein_geometry &geom,
                                      ctpl::thread_pool &static_thread_pool);

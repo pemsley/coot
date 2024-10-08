@@ -383,8 +383,12 @@ public:
    //!
    //! @param state is `true` to mean that it is enabled. The default is `true`.
    void set_make_backups(bool state) { make_backups_flag = state; }
+
+   //! get the state of the backups
+   //!
    //! @return the backup-enabled state
    bool get_make_backups() const { return make_backups_flag; }
+
    //! the backup-enable state (raw public if needed/prefered)
    bool make_backups_flag;
 
@@ -670,7 +674,7 @@ public:
    std::vector<std::pair<std::string, std::string> > get_acedrg_atom_types(const std::string &compound_id, int imol_enc) const;
 
    //! get acedrg types for ligand bonds
-   //! @return a vector of `acedrg_types_for_residue_t`
+   //! @return a `coot::acedrg_types_for_residue_t` - which contains a vector of bond descriptions.
    coot::acedrg_types_for_residue_t get_acedrg_atom_types_for_ligand(int imol, const std::string &residue_cid) const;
 
    //! write a PNG for the given compound_id. imol can be IMOL_ENC_ANY
@@ -1424,10 +1428,12 @@ public:
    //! ``mode`` is one of {SINGLE, TRIPLE, QUINTUPLE, HEPTUPLE, SPHERE, BIG_SPHERE, CHAIN, ALL};
    //! @returns a value of 1 if the refinement was performed and 0 if it was not.
    int refine_residues_using_atom_cid(int imol, const std::string &cid, const std::string &mode, int n_cycles);
+
    //! refine the residues
    //! @returns a value of 1 if the refinement was performed and 0 if it was not.
    int refine_residues(int imol, const std::string &chain_id, int res_no, const std::string &ins_code,
                        const std::string &alt_conf, const std::string &mode, int n_cycles);
+
    //! refine residue range
    //! @returns a value of 1 if the refinement was performed and 0 if it was not.
    int refine_residue_range(int imol, const std::string &chain_id, int res_no_start, int res_no_end, int n_cycles);
@@ -1577,7 +1583,7 @@ public:
    coot::instanced_mesh_t all_molecule_contact_dots(int imol, unsigned int smoothness_factor) const;
 
    //! @return a `simple::molecule_t` for the specified residue.
-   //! this function is not const because we pass a pointer to the protein_geometry geom.
+   //! @note this function is not const because we pass a pointer to the protein_geometry geom.
    coot::simple::molecule_t get_simple_molecule(int imol, const std::string &residue_cid, bool draw_hydrogen_atoms_flag);
 
    //! @return a vector of lines for non-bonded contacts and hydrogen bonds
@@ -1597,16 +1603,22 @@ public:
    //! ligand validation
    //!
    //! @return a vector of interesting geometry
-   void
+   std::vector<coot::geometry_distortion_info_container_t>
    get_ligand_validation_vs_dictionary(int imol, const std::string &ligand_cid, bool include_non_bonded_contacts);
 
    //! match ligand torsions - return the success status
    bool match_ligand_torsions(int imol_ligand, int imol_ref, const std::string &chain_id_ref, int resno_ref);
 
-   //! match ligand positions - return the success status
+   //! match ligand positions
+   //!
+   //! i.e. do a least-squares superposition of the atoms that match in the graphs of the
+   //! two specified ligands - typically one would use this function after matching ligand torsions.
+   //!
+   //! @return the success status
    bool match_ligand_position(int imol_ligand, int imol_ref, const std::string &chain_id_ref, int resno_ref);
 
    //! match ligand torsions and positions
+   //!
    //! @return the success status.
    bool match_ligand_torsions_and_position(int imol_ligand, int imol_ref, const std::string &chain_id_ref, int resno_ref);
 
@@ -1930,7 +1942,10 @@ public:
    // -------------------------------- Others -------------------------------------
    //! \name Other Features
 
-   //! @return a `simple_mesh_t` from the give file.
+   //! Make a m `coot::simple_mesh_t` from a file
+   //!
+   //! @params `file_name` the gltf file
+   //! @return a `simple_mesh_t` from the given file.
    coot::simple_mesh_t make_mesh_from_gltf_file(const std::string &file_name);
 
    //! @params `n_divisions` is a number divisble by 2, at least 4 (typically 16)
@@ -2006,6 +2021,15 @@ public:
    //! @return time in microsections
    double test_thread_pool_threads(unsigned int n_threads);
 
+   //! a test for mmdb/gemmi/mmcif functionality
+   //
+   //! @param last_test_only is `true` to mean that only that last test should be run.
+   //! The default is `false`.
+   //! This is useful to set to `true` while a test is being developed.
+   //!
+   //! @return the success status: 1 means that all the tests passed.
+   int mmcif_tests(bool last_test_only);
+
    // get acces to protein geometry
    coot::protein_geometry & get_geometry() {
       return geom;
@@ -2040,8 +2064,11 @@ public:
 #if NB_VERSION_MAJOR
    // skip this (old) block for nanobinds
 #else
+#ifdef DOXYGEN_SHOULD_PARSE_THIS
+#else
    //! \name Old Python functions
 
+   //! old mesh mode: do not use with nanobind
    enum mesh_mode_t { UNKNOWN, SINGLE_COLOUR, MULTI_COLOUR };
    //! old function: do not use with nanobind
    PyObject *simple_mesh_to_pythonic_mesh(const coot::simple_mesh_t &mesh, int mesh_mode);
@@ -2059,7 +2086,6 @@ public:
    //! old function: do not use with nanobind get Gaussion surface mesh
    PyObject *get_pythonic_gaussian_surface_mesh(int imol, float sigma, float contour_level,
                                                 float box_radius, float grid_scale, float fft_b_factor);
-
    //! old function: do not use with nanobind: get a pythonic mesh of the molecule (bonds)
    //!
    //! @return a pair - the first of which (index 0) is the list of atoms, the second (index 1) is the list of bonds.
@@ -2078,6 +2104,7 @@ public:
    //! make a "proper" simple  molecule python class one day.
    PyObject *get_pythonic_simple_molecule(int imol, const std::string &cid, bool include_hydrogen_atoms_flag);
 
+#endif
 #endif
 #endif
 

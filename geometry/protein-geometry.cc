@@ -585,9 +585,16 @@ coot::protein_geometry::try_dynamic_add(const std::string &resname, int read_num
 
    if (!s) {
 
-      std::cout << "debug:: try_dynamic_add() bad news - null s" << std::endl;
+      std::string pref_dir = coot::prefix_dir();
+      std::string ss = pref_dir + "/share/coot/lib/data";
+      if (ss.length() < 2048)
+         strcpy(cmld, ss.c_str());
+   }
 
-   } else {
+   // 20241001-PE hostage to fortune...
+   // when will I be back here?
+
+   {
       std::string filename(s);
       std::string beta_anomer_name;
       std::string alpha_anomer_name;
@@ -602,6 +609,10 @@ coot::protein_geometry::try_dynamic_add(const std::string &resname, int read_num
       }
 
       filename = coot::util::intelligent_debackslash(filename);
+
+      if (false)
+         std::cout << "debug:: try_dynamic_add(): filename " << filename << std::endl;
+
       if (resname.length() > 0) {
 	 const char rs = resname[0];
 	 const char v = tolower(rs); // get the sub directory name
@@ -2318,8 +2329,6 @@ coot::protein_geometry::get_residue(const std::string &comp_id, int imol_enc,
       }
    };
 
-   // std::cout << "in get_residue() idealised_flag is " << idealised_flag << std::endl;
-
    // If the coordinates for the model are (0,0,0) then this function
    // returns a null.
 
@@ -2327,9 +2336,14 @@ coot::protein_geometry::get_residue(const std::string &comp_id, int imol_enc,
 
    // might use try_dynamic_add (if needed).
    bool r = have_dictionary_for_residue_type(comp_id, imol_enc, try_autoload_if_needed);
+   if (false)
+      std::cout << "------------------ in get_residue() have_dictionary_for_residue_type() returns  "
+                << r << std::endl;
    if (r) {
       for (unsigned int i=0; i<dict_res_restraints.size(); i++) {
          const dictionary_residue_restraints_t &rest = dict_res_restraints[i].second;
+         if (false)
+            std::cout << "   testing comp_id " << rest.residue_info.comp_id << std::endl;
          if (rest.residue_info.comp_id == comp_id) {
             int imol_for_dict = dict_res_restraints[i].first;
             if (imol_for_dict == imol_enc) {

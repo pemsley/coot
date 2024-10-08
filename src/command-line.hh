@@ -45,6 +45,7 @@ public:
    std::vector<std::string> emdb_codes;
    std::vector<std::string> comp_ids;
    short int hardware_stereo_flag;
+   bool use_opengl_es;
    bool script_is_python_flag;
    int port;
    std::string hostname;
@@ -74,6 +75,7 @@ public:
      run_internal_tests_and_exit = 0;
      em_mode = false;
      use_gtkbuilder = true;
+     use_opengl_es = false;
    }
    void handle_immediate_settings();
    void add(const std::string &file); // determine where it goes based on extension and contents

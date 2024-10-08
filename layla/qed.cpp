@@ -19,14 +19,22 @@
 #include <rdkit/GraphMol/Descriptors/MolSurf.h>
 #include <rdkit/GraphMol/Descriptors/Lipinski.h>
 
+#ifdef __MOORHEN__
+#include <mutex>
+#endif
+
 // don't do this
 namespace coot::layla::RDKit {
 
 // don't do this
 namespace impl {
 
+    #ifdef __MOORHEN__
+    std::once_flag static_runtime_init_flag;
+    #endif
+
     auto make_acceptors() -> std::vector<std::unique_ptr<const ::RDKit::ROMol>> {
-        try {
+        // try {
             const unsigned int smarts_array_len = 11;
             const char* smarts_array[smarts_array_len] = {
                 "[oH0;X2]", "[OH1;X2;v2]", "[OH0;X2;v2]",
@@ -38,14 +46,14 @@ namespace impl {
                 ret.push_back(std::unique_ptr<const ::RDKit::ROMol>(::RDKit::SmartsToMol(smarts_array[i])));
             }
             return ret;
-        }
-        catch(const std::exception& e) {
-            g_warning("QED make_acceptors(): failed to initialize static const: %s", e.what());
-            return std::vector<std::unique_ptr<const ::RDKit::ROMol>>();
-        }
+        // }
+        // catch(const std::exception& e) {
+        //     g_warning("QED make_acceptors(): failed to initialize static const: %s", e.what());
+        //     return std::vector<std::unique_ptr<const ::RDKit::ROMol>>();
+        // }
     }
     auto make_structural_alerts() -> std::vector<std::unique_ptr<const ::RDKit::ROMol>> {
-        try {
+        // try {
             const unsigned int smarts_array_len = 116;
             const char* smarts_array[] = {
                 "*1[O,S,N]*1", "[S,C](=[O,S])[F,Br,Cl,I]", "[CX4][Cl,Br,I]", "[#6]S(=O)(=O)O[#6]",
@@ -89,38 +97,45 @@ namespace impl {
                 ret.push_back(std::unique_ptr<const ::RDKit::ROMol>(::RDKit::SmartsToMol(smarts_array[i])));
             }
             return ret;
-        }
-        catch(const std::exception& e) {
-            g_warning("QED make_structural_alerts(): failed to initialize static const: %s", e.what());
-            return std::vector<std::unique_ptr<const ::RDKit::ROMol>>();
-        }
+        // }
+        // catch(const std::exception& e) {
+        //     g_warning("QED make_structural_alerts(): failed to initialize static const: %s", e.what());
+        //     return std::vector<std::unique_ptr<const ::RDKit::ROMol>>();
+        // }
     }
 
     inline double QEDproperties_sum(const QED::QEDproperties& props) noexcept {
         return props.MW + props.ALOGP + props.HBA + props.HBD + props.PSA + props.ROTB + props.AROM + props.ALERTS;
     }
 
-}
+    auto make_aliphatic_rings() ->  std::unique_ptr<const ::RDKit::ROMol> {
+        auto ret = std::unique_ptr<const ::RDKit::ROMol>(nullptr);
+        // try {
+            ret = std::unique_ptr<const ::RDKit::ROMol>(::RDKit::SmartsToMol("[$([A;R][!a])]"));
+        // }
+        // catch(const std::exception& e) {
+        //     g_warning("QED make_aliphatic_rings(): failed to initialize static const: %s", e.what());
+        // }
+        return ret;
+    }
+
+} // namespace impl
 
 const QED::QEDproperties QED::WEIGHT_MAX  = QEDproperties({0.50, 0.25, 0.00, 0.50, 0.00, 0.50, 0.25, 1.00});
 const QED::QEDproperties QED::WEIGHT_MEAN = QEDproperties({0.66, 0.46, 0.05, 0.61, 0.06, 0.65, 0.48, 0.95});
 const QED::QEDproperties QED::WEIGHT_NONE = QEDproperties({1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00, 1.00});
 
-auto make_aliphatic_rings() ->  std::unique_ptr<const ::RDKit::ROMol> {
-    auto ret = std::unique_ptr<const ::RDKit::ROMol>(nullptr);
-    try {
-        ret = std::unique_ptr<const ::RDKit::ROMol>(::RDKit::SmartsToMol("[$([A;R][!a])]"));
-    }
-    catch(const std::exception& e) {
-        g_warning("QED make_aliphatic_rings(): failed to initialize static const: %s", e.what());
-    }
-    return ret;
-}
 
-const std::unique_ptr<const ::RDKit::ROMol> QED::AliphaticRings = make_aliphatic_rings();
-
+#ifdef __MOORHEN__
+const std::unique_ptr<const ::RDKit::ROMol> QED::AliphaticRings = std::unique_ptr<const ::RDKit::ROMol>(nullptr);
+const std::vector<std::unique_ptr<const ::RDKit::ROMol>> QED::Acceptors = std::vector<std::unique_ptr<const ::RDKit::ROMol>>();
+const std::vector<std::unique_ptr<const ::RDKit::ROMol>> QED::StructuralAlerts = std::vector<std::unique_ptr<const ::RDKit::ROMol>>();
+#else
+const std::unique_ptr<const ::RDKit::ROMol> QED::AliphaticRings = impl::make_aliphatic_rings();
 const std::vector<std::unique_ptr<const ::RDKit::ROMol>> QED::Acceptors = impl::make_acceptors();
 const std::vector<std::unique_ptr<const ::RDKit::ROMol>> QED::StructuralAlerts = impl::make_structural_alerts();
+#endif
+
 const std::vector<QED::ADSparameter> QED::adsParameters = {
 // {"MW",
   ADSparameter({2.817065973, 392.5754953, 290.7489764, 2.419764353, 49.22325677, 65.37051707, 104.9805561}),
@@ -148,6 +163,17 @@ double QED::ads(double x, const ADSparameter& p) noexcept {
 }
 
 QED::QEDproperties QED::properties(const ::RDKit::ROMol& mol_raw) {
+    #ifdef __MOORHEN__
+    std::call_once(impl::static_runtime_init_flag, [](){
+        g_info("Moorhen QED static runtime initialization crash workaround: initializing static runtime via std::call_once and const_cast.");
+        auto& AliphaticRings = const_cast<std::unique_ptr<const ::RDKit::ROMol>&>(QED::AliphaticRings);
+        auto& Acceptors = const_cast<std::vector<std::unique_ptr<const ::RDKit::ROMol>>&>(QED::Acceptors);
+        auto& StructuralAlerts = const_cast<std::vector<std::unique_ptr<const ::RDKit::ROMol>>&>(QED::StructuralAlerts);
+        AliphaticRings = impl::make_aliphatic_rings();
+        Acceptors = impl::make_acceptors();
+        StructuralAlerts = impl::make_structural_alerts();
+    });
+    #endif
     auto mol = std::unique_ptr<const ::RDKit::ROMol>(::RDKit::MolOps::removeHs(mol_raw));
 
     auto has_substruct_match = [](const ::RDKit::ROMol& mol, const ::RDKit::ROMol& pattern){
@@ -157,9 +183,9 @@ QED::QEDproperties QED::properties(const ::RDKit::ROMol& mol_raw) {
 
     auto get_hba = [&mol, has_substruct_match](){
         unsigned int ret = 0;
-        if(Acceptors.empty()) {
-            g_warning("QED: Acceptors is empty. Number of hydrogen bonds acceptors will be incorrect.");
-        }
+        // if(Acceptors.empty()) {
+        //     g_warning("QED: Acceptors is empty. Number of hydrogen bonds acceptors will be incorrect.");
+        // }
         for(const auto& pattern: Acceptors) {
             if(has_substruct_match(*mol, *pattern)) {
                 std::vector<::RDKit::MatchVectType> _matches;
@@ -170,10 +196,10 @@ QED::QEDproperties QED::properties(const ::RDKit::ROMol& mol_raw) {
         return ret;
     };
     auto get_arom = [&mol]() -> unsigned int {
-        if(!AliphaticRings) {
-            g_warning("QED: AromaticRings is null. Number of aromatic rings will be incorrect.");
-            return 0;
-        }
+        // if(!AliphaticRings) {
+        //     g_warning("QED: AromaticRings is null. Number of aromatic rings will be incorrect.");
+        //     return 0;
+        // }
         auto rmol = std::unique_ptr<const ::RDKit::ROMol>(::RDKit::deleteSubstructs(*mol, *AliphaticRings));
         /// Replaces Chem.GetSSSR
         std::vector<std::vector<int>> rings;
@@ -182,9 +208,9 @@ QED::QEDproperties QED::properties(const ::RDKit::ROMol& mol_raw) {
     };
     auto get_alerts = [&mol, has_substruct_match](){
         unsigned int ret = 0;
-        if(StructuralAlerts.empty()) {
-            g_warning("QED: StructuralAlerts is empty. Number of alerts will be incorrect.");
-        }
+        // if(StructuralAlerts.empty()) {
+        //     g_warning("QED: StructuralAlerts is empty. Number of alerts will be incorrect.");
+        // }
         for(const auto& alert: StructuralAlerts) {
             if(has_substruct_match(*mol, *alert)) {
                 ret += 1;
@@ -223,14 +249,14 @@ QED::QEDproperties QED::properties(const ::RDKit::ROMol& mol_raw) {
     typedef std::underlying_type<QEDPropName>::type utype;
     QEDproperties qedProperties = qedPropertiesOpt.has_value() ? qedPropertiesOpt.value() : properties(mol);
 
-    std::cout << "qedProperties MW     " << qedProperties.MW   << std::endl;
-    std::cout << "qedProperties ALOGP  " << qedProperties.ALOGP << std::endl;
-    std::cout << "qedProperties HBA    " << qedProperties.HBA  << std::endl;
-    std::cout << "qedProperties HBD    " << qedProperties.HBD  << std::endl;
-    std::cout << "qedProperties PSA    " << qedProperties.PSA  << std::endl;
-    std::cout << "qedProperties ROTB   " << qedProperties.ROTB << std::endl;
-    std::cout << "qedProperties AROM   " << qedProperties.AROM << std::endl;
-    std::cout << "qedProperties ALERTS " << qedProperties.ALERTS << std::endl;
+    // std::cout << "qedProperties MW     " << qedProperties.MW   << std::endl;
+    // std::cout << "qedProperties ALOGP  " << qedProperties.ALOGP << std::endl;
+    // std::cout << "qedProperties HBA    " << qedProperties.HBA  << std::endl;
+    // std::cout << "qedProperties HBD    " << qedProperties.HBD  << std::endl;
+    // std::cout << "qedProperties PSA    " << qedProperties.PSA  << std::endl;
+    // std::cout << "qedProperties ROTB   " << qedProperties.ROTB << std::endl;
+    // std::cout << "qedProperties AROM   " << qedProperties.AROM << std::endl;
+    // std::cout << "qedProperties ALERTS " << qedProperties.ALERTS << std::endl;
 
     auto ads_params_mw    = adsParameters[static_cast<utype>(QEDPropName::MW)];
     auto ads_params_alogp = adsParameters[static_cast<utype>(QEDPropName::ALOGP)];
@@ -241,18 +267,18 @@ QED::QEDproperties QED::properties(const ::RDKit::ROMol& mol_raw) {
     auto ads_params_arom  = adsParameters[static_cast<utype>(QEDPropName::AROM)];
     auto ads_params_alert = adsParameters[static_cast<utype>(QEDPropName::ALERTS)];
 
-    std::cout << ads_params_mw.A << " " << ads_params_mw.B << " " << ads_params_mw.C << " "
-              << ads_params_mw.D << " " << ads_params_mw.E << " " << ads_params_mw.F << " "
-              << ads_params_mw.DMAX << std::endl;
-    std::cout << ads_params_alogp.A << " " << ads_params_alogp.B << " " << ads_params_alogp.C << " "
-              << ads_params_alogp.D << " " << ads_params_alogp.E << " " << ads_params_alogp.F << " "
-              << ads_params_alogp.DMAX << std::endl;
-    std::cout << ads_params_hba.A << " " << ads_params_hba.B << " " << ads_params_hba.C << " "
-              << ads_params_hba.D << " " << ads_params_hba.E << " " << ads_params_hba.F << " "
-              << ads_params_hba.DMAX << std::endl;
-    std::cout << ads_params_hbd.A << " " << ads_params_hbd.B << " " << ads_params_hbd.C << " "
-              << ads_params_hbd.D << " " << ads_params_hbd.E << " " << ads_params_hbd.F << " "
-              << ads_params_hbd.DMAX << std::endl;
+    // std::cout << ads_params_mw.A << " " << ads_params_mw.B << " " << ads_params_mw.C << " "
+    //           << ads_params_mw.D << " " << ads_params_mw.E << " " << ads_params_mw.F << " "
+    //           << ads_params_mw.DMAX << std::endl;
+    // std::cout << ads_params_alogp.A << " " << ads_params_alogp.B << " " << ads_params_alogp.C << " "
+    //           << ads_params_alogp.D << " " << ads_params_alogp.E << " " << ads_params_alogp.F << " "
+    //           << ads_params_alogp.DMAX << std::endl;
+    // std::cout << ads_params_hba.A << " " << ads_params_hba.B << " " << ads_params_hba.C << " "
+    //           << ads_params_hba.D << " " << ads_params_hba.E << " " << ads_params_hba.F << " "
+    //           << ads_params_hba.DMAX << std::endl;
+    // std::cout << ads_params_hbd.A << " " << ads_params_hbd.B << " " << ads_params_hbd.C << " "
+    //           << ads_params_hbd.D << " " << ads_params_hbd.E << " " << ads_params_hbd.F << " "
+    //           << ads_params_hbd.DMAX << std::endl;
 
     double a_mw     = ads(qedProperties.MW,     ads_params_mw);
     double a_alogp  = ads(qedProperties.ALOGP,  ads_params_alogp);
@@ -263,10 +289,10 @@ QED::QEDproperties QED::properties(const ::RDKit::ROMol& mol_raw) {
     double a_arom   = ads(qedProperties.AROM,   ads_params_arom);
     double a_alerts = ads(qedProperties.ALERTS, ads_params_alert);
 
-    std::cout << "a_mw "    << a_mw    << std::endl;
-    std::cout << "a_alogp " << a_alogp << std::endl;
-    std::cout << "a_hba "   << a_hba   << std::endl;
-    std::cout << "a_hbd "   << a_hbd   << std::endl;
+    // std::cout << "a_mw "    << a_mw    << std::endl;
+    // std::cout << "a_alogp " << a_alogp << std::endl;
+    // std::cout << "a_hba "   << a_hba   << std::endl;
+    // std::cout << "a_hbd "   << a_hbd   << std::endl;
 
     double sum_weight = WEIGHT_MEAN.MW + WEIGHT_MEAN.ALOGP + WEIGHT_MEAN.HBA + WEIGHT_MEAN.HBD +
        WEIGHT_MEAN.PSA + WEIGHT_MEAN.ROTB + WEIGHT_MEAN.AROM + WEIGHT_MEAN.ALERTS;
@@ -283,7 +309,7 @@ QED::QEDproperties QED::properties(const ::RDKit::ROMol& mol_raw) {
 
     double r = std::exp(t/sum_weight);
 
-    std::cout << "########## result: r " << r << " from t " << t << " sum_weight " << sum_weight << std::endl;
+    // std::cout << "########## result: r " << r << " from t " << t << " sum_weight " << sum_weight << std::endl;
     qed_plus_ads.qed_score = r;
     qed_plus_ads.ads_mw = a_mw;
     qed_plus_ads.ads_alogp = a_alogp;

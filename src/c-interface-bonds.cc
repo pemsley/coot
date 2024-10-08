@@ -213,7 +213,7 @@ void calculate_hydrogen_bonds(int imol) {
       int sel_1 = graphics_info_t::molecules[imol].atom_sel.SelectionHandle;
       int sel_2 = graphics_info_t::molecules[imol].atom_sel.SelectionHandle;
       const coot::protein_geometry &geom(*graphics_info_t::Geom_p());
-      std::vector<coot::h_bond> h_bonds = hbs.get(sel_1, sel_2, mol, geom);
+      std::vector<coot::h_bond> h_bonds = hbs.get(sel_1, sel_2, mol, geom, imol);
 
       std::cout << "INFO:: Found " << h_bonds.size() << " hydrogen bonds " << std::endl;
 

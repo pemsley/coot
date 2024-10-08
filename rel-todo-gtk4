@@ -1,26 +1,60 @@
 
 ----
 
-chapi: a function to return a list of tuples atom types for ligand:
-get_acedrg_atom_types(comp_id, imol_enc);
+"Replace Residue" using new dictionaries (with OXT)
 * Done.
 
-chapi: a function to return a list of tuples atom types for ligand:
-(name_1, name_2, type_1, type_2, bond_length)
-get_acedrg_atom_types_for_ligand(imol, comp_id, residue_cid);
+Martin: How do I load external (refmac) restraints into Coot 1 and Moorhen?
+
+Associate sequence and assign sequence functions, brighten_maps_action() and many other
+  are missing bodies in create-menu-item-actions.cc
+
+How to get map gradient vertex normals in moorhen?
+
+PAE view (dialog) in Coot
+
+Try harder to get NCS jumping working
+
+License of Jakub code - check contract
+
+License of Vercel
+https://vercel.com/docs/limits/fair-use-guidelines#commercial-usage
+
+Why does side-chain-densities like TRPs?
+
+Are shader settings (plain vs fancy) saved in the state file?
+
+Add Place Helix here to moorhen api
+
+Is there non-map minimization (say, for conformers)?
+
+Add merge fragments to api.
+
+python chapi usage:
+Failed to open /home/paule/autobuild/build-for-chapi-debian-gtk4/share/coot/data/metal/metal-O-distance.table
+There is no $prfx/share/coot directory
+
+On a button click, how do I get the GdkDevice? (If I have the device, I hope I
+can then know if the device is a trackpad).
+  gdk_event_get_event_type(GdkEvent *event) https://docs.gtk.org/gdk4/enum.EventType.html
+  gdk_event_get_display(GdkEvent *event) and then
+  gdk_display_get_default_seat(GdkDisplay *display) and then
+  gdk_seat_get_devices(GdkSeat *seat)
+
+If you're going to write about it, get pyrogen working in libcootapi (pythonless pyrogen)
+
+HUD Refinement buttons are a mess on resizing - replace them with gtk buttons
+Use an overlay box of buttons.
 
 The "Solid Surface" mode for a map is not saved in the state file.
 
 Ribbon diagram is not used for shadows. It would be nice to have.
 
-Refinement buttons are a mess on resizing - replace them with gtk buttons
-Use an overlay box of buttons.
-
-Identify the acedrg atom types - or use the dictionary to look them up.
-
 Martin request: libcootapi: coordinates -> mask with same coordinates
    removing cavities, making map in X,Y,Z order - use floats
    use smooth edge (user-controlled)
+
+Make mask by position (a sphere around a point)
 
 Add Noughties Physics into the Preferences
 
@@ -47,8 +81,6 @@ Rangana made findwaters crash by using a sigma of 4 in flood mode in cryo-EM map
   Can you reproduce that?
 
 Expanding ligand thumbnail on window width increase
-
-Add Place Helix here to moorhen api
 
 Carbohydrate builder in moorhen & coot
 
@@ -81,9 +113,25 @@ make an figure, for moorhen intro with blobs that have volume proportional
    to the number of lines of code: rdkit, mmdb, ccp4libs, gemmi, M2T,
    libcootapi - M2T, coot - libcootapi - M2T, moorhen JS and TypeScript code
 
+
 Look at 4yjr - beautiful map 452-626 interaction - it should not have a clash face
    (distance to hydrogen atom).
 * Checked - it does not if both residues are refined. That will do.
+
+Add Noughties Physics into the Preferences
+* Done.
+
+chapi: a function to return a list of tuples atom types for ligand:
+get_acedrg_atom_types(comp_id, imol_enc);
+* Done.
+
+chapi: a function to return a list of tuples atom types for ligand:
+(name_1, name_2, type_1, type_2, bond_length)
+get_acedrg_atom_types_for_ligand(imol, comp_id, residue_cid);
+* Done.
+
+Identify the acedrg atom types - or use the dictionary to look them up.
+* Done (the second (easier) option)
 
 acedrg atom types in cif parse.
 * Already Done.
@@ -192,6 +240,10 @@ Add lsqkab superposition to the api
 
 fix the double read of the monomers (there is only a single read in --no-graphics mode).
 
+Use 2DT dictionary for link and refinement - George.
+
+Fix the double read of the monomers (there is only a single read in --no-graphics mode).
+
 coot: setup updating maps then delete the maps and models - gracefully turn off updating
    maps - currently the timeout function writes a error message, but does not stop.
 
@@ -203,8 +255,11 @@ Look at this: 7h6j group for CFC
 https://www.rcsb.org/search?request=%7B%22query%22%3A%7B%22type%22%3A%22group%22%2C%22nodes%22%3A%5B%7B%22type%22%3A%22group%22%2C%22nodes%22%3A%5B%7B%22type%22%3A%22group%22%2C%22nodes%22%3A%5B%7B%22type%22%3A%22terminal%22%2C%22service%22%3A%22text%22%2C%22parameters%22%3A%7B%22attribute%22%3A%22rcsb_entry_group_membership.group_id%22%2C%22negation%22%3Afalse%2C%22operator%22%3A%22exact_match%22%2C%22value%22%3A%22G_1002294%22%7D%7D%5D%2C%22logical_operator%22%3A%22and%22%7D%5D%2C%22logical_operator%22%3A%22and%22%2C%22label%22%3A%22text%22%7D%5D%2C%22logical_operator%22%3A%22and%22%7D%2C%22return_type%22%3A%22entry%22%2C%22request_options%22%3A%7B%22scoring_strategy%22%3A%22combined%22%2C%22sort%22%3A%5B%7B%22sort_by%22%3A%22score%22%2C%22direction%22%3A%22desc%22%7D%5D%2C%22results_content_type%22%3A%5B%22computational%22%2C%22experimental%22%5D%2C%22paginate%22%3A%7B%22start%22%3A0%2C%22rows%22%3A25%7D%7D%2C%22request_info%22%3A%7B%22query_id%22%3A%22013bcc94f855676ceb39950f4002bdf1%22%7D%7D
 
 Jakub: Sharpen-blur "Computing..." dialog should be an overlay. It's Python though - so... urgh.
+  Move it all into C++.
 
 Jakub: Downloading map (from EMDB) dialog should be an overlay... Likewise, probably.
+
+Need a graph infrastructure to display Q Score results.
 
 UI for turning off dark mode.
 * Tried. Doesn't work. Function only works on startup? Maybe I am missing something.
@@ -218,6 +273,23 @@ Check email for build-script updates/fixes
 
 Add Q-score to api
 * Done.
+
+Non-trivial C++ Mini-Projects
+ o Splines for Worms view (B-factor or sequence conservation mode)
+ o Add SSBond to struct con info in mmdb
+ o Parallel FFT
+ o Faster/better/modern contouring
+ o maybe https://github.com/CGAL/cgal/ Surface Mesh
+ o Improved side-chain typing
+ o Add gesamt to moorhen and coot
+ o parser for PISA output (maybe Python will do)
+ o Filled bases for DNA/RNA
+ o Use VTE for a Python console
+ o Get CFC working again (needs C++ clustering)
+
+
+Non-trivial C++ Projects
+ o Improved ligand fitting with machine learning
 
 Is 0-coot.state.py a good file-name now that it's in ~/.local/state/Coot ?
 

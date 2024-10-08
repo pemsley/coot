@@ -737,12 +737,14 @@ molecules_container_t::import_cif_dictionary(const std::string &cif_file_name, i
                                                                  cif_dictionary_read_number, imol_enc);
    cif_dictionary_read_number++;
 
-   std::cout << "debug:: import_cif_dictionary() cif_file_name: " << cif_file_name
-             << " for imol_enc " << imol_enc << " success " << r.success << " with "
-             << r.n_atoms << " atoms " << r.n_bonds << " bonds " << r.n_links << " links"
-             << " and monomer_idx " << r.monomer_idx << std::endl;
+   if (true)
+      std::cout << "debug:: import_cif_dictionary() cif_file_name: " << cif_file_name
+                << " for imol_enc " << imol_enc << " success " << r.success << " with "
+                << r.n_atoms << " atoms " << r.n_bonds << " bonds " << r.n_links << " links"
+                << " and monomer_idx " << r.monomer_idx << std::endl;
 
-   geom.print_dictionary_store();
+   if (false)
+      geom.print_dictionary_store();
 
    return r.success;
 
@@ -2861,8 +2863,8 @@ int
 molecules_container_t::refine_residues_using_atom_cid(int imol, const std::string &cid, const std::string &mode, int n_cycles) {
 
    auto debug_selected_residues = [cid] (const std::vector<mmdb::Residue *> &rv) {
-      std::cout << "refine_residues_using_atom_cid(): selected these " << rv.size() << " residues "
-         " from cid: " << cid << std::endl;
+      std::cout << "refine_residues_using_atom_cid(): selected these " << rv.size() << " residues"
+         " from cid: \"" << cid << "\"" << std::endl;
       std::vector<mmdb::Residue *>::const_iterator it;
       for (it=rv.begin(); it!=rv.end(); ++it) {
          std::cout << "   " << coot::residue_spec_t(*it) << std::endl;
@@ -5062,15 +5064,17 @@ molecules_container_t::get_mesh_for_ligand_validation_vs_dictionary(int imol, co
 //! return type is validation data, not a mesh
 //!
 //! @return a vector of `geometry_distortion_info_container_t`
-void
+std::vector<coot::geometry_distortion_info_container_t>
 molecules_container_t::get_ligand_validation_vs_dictionary(int imol, const std::string &ligand_cid,
                                                            bool with_nbcs) {
 
+   std::vector<coot::geometry_distortion_info_container_t> v;
    if (is_valid_model_molecule(imol)) {
-      molecules[imol].geometric_distortions_from_mol(ligand_cid, with_nbcs, geom, thread_pool);
+      v = molecules[imol].geometric_distortions_from_mol(ligand_cid, with_nbcs, geom, thread_pool);
    } else {
       std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
+   return v;
 }
 
 
@@ -5362,6 +5366,20 @@ molecules_container_t::test_thread_pool_threads(unsigned int n_threads) {
    return t;
 
 }
+
+namespace mmcif_tests {
+   int run_tests(bool last_test_only);
+}
+
+//! a test for mmdb/gemmi/mmcif functionality
+int
+molecules_container_t::mmcif_tests(bool last_test_only) {
+
+   int status = mmcif_tests::run_tests(last_test_only);
+   return status;
+
+}
+
 
 
 //! @return a vector of string pairs that were part of a gphl_chem_comp_info.

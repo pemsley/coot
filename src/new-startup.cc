@@ -152,7 +152,9 @@ new_startup_realize(GtkWidget *gl_area) {
    g.init_buffers();
    g.init_shaders();
    g.setup_lights();
-   g.init_framebuffers(w, h);
+   // 20241001-PE glDrawBuffer() in init_framebuffers() barfs with GL ES.
+   if (!g.graphics_is_gl_es)
+      g.init_framebuffers(w, h);
    g.init_joey_ssao_stuff(w, h);
 
    float x_scale = 4.4;  // what are these numbers!?
@@ -269,16 +271,16 @@ GtkWidget *new_startup_create_glarea_widget() {
 
    GtkWidget *gl_area = gtk_gl_area_new();
 
-#if GTK_MINOR_VERSION >= 12
-   // Disable OpenGL ES
-   gtk_gl_area_set_allowed_apis(GTK_GL_AREA(gl_area), GDK_GL_API_GL);
+#if (GTK_MAJOR_VERSION > 4) || (GTK_MAJOR_VERSION == 4 && GTK_MINOR_VERSION >= 12)
+   // Disable OpenGL ES (if not OpenGL_ES set on the command line)
+   if (! graphics_info_t::graphics_is_gl_es)
+      gtk_gl_area_set_allowed_apis(GTK_GL_AREA(gl_area), GDK_GL_API_GL);
 #endif
 
    g_signal_connect(gl_area, "realize",   G_CALLBACK(new_startup_realize),   NULL);
    g_signal_connect(gl_area, "unrealize", G_CALLBACK(new_startup_unrealize), NULL);
    g_signal_connect(gl_area, "render",    G_CALLBACK(new_startup_on_glarea_render),  NULL);
    g_signal_connect(gl_area, "resize",    G_CALLBACK(new_startup_on_glarea_resize),  NULL);
-   // g_signal_connect(gl_area, "enter",     G_CALLBACK(new_startup_on_glarea_enter),  NULL);
 
    gtk_widget_set_can_focus(gl_area, TRUE);
    gtk_widget_set_focusable(gl_area, TRUE);
@@ -755,6 +757,26 @@ struct application_activate_data {
    }
 };
 
+gboolean
+on_app_window_key_controller_key_pressed(GtkEventControllerKey *controller,
+                                     guint                  keyval,
+                                     guint                  keycode,
+                                     guint                  modifiers,
+                                     GtkButton             *button) {
+
+   std::cout << "app window keypressed! " << keyval << " " << keycode << std::endl;
+   gboolean handled = FALSE;
+   return handled;
+}
+
+void
+add_key_bindings_for_application_window(GtkWidget *app_window) {
+
+   GtkEventController *key_controller = gtk_event_controller_key_new();
+   g_signal_connect(key_controller, "key-pressed",  G_CALLBACK(on_app_window_key_controller_key_pressed), app_window);
+   gtk_widget_add_controller(app_window, key_controller);
+}
+
 
 void
 new_startup_application_activate(GtkApplication *application,
@@ -772,6 +794,8 @@ new_startup_application_activate(GtkApplication *application,
    GtkWidget *app_window = gtk_application_window_new(application);
    gtk_window_set_application(GTK_WINDOW(app_window), application);
    gtk_window_set_title(GTK_WINDOW(app_window), window_name.c_str());
+
+   add_key_bindings_for_application_window(app_window);
 
    graphics_info_t::set_main_window(app_window);
 
@@ -1053,6 +1077,9 @@ int new_startup(int argc, char **argv) {
    if(!cld.do_graphics) {
       return do_no_graphics_mode(cld, argc, argv);
    }
+
+   if (cld.use_opengl_es)
+      graphics_info_t::graphics_is_gl_es = true;
 
    gtk_init();
 

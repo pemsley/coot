@@ -155,7 +155,7 @@ graphics_info_t::save_preference_file(const std::string &filename, short int il)
          commands.push_back(state_command("coot", "set-map-radius",
                                           g.preferences_internal[i].fvalue1, il));
          break;
-       
+
       case PREFERENCES_MAP_ISOLEVEL_INCREMENT:
          commands.push_back(state_command("coot", "set-iso-level-increment",
                                           g.preferences_internal[i].fvalue1, il, v));
@@ -178,7 +178,7 @@ graphics_info_t::save_preference_file(const std::string &filename, short int il)
             commands.push_back(state_command("coot", "set-dynamic-map-sampling-off", il));
          }
          break;
-      
+
       case PREFERENCES_DYNAMIC_MAP_SIZE_DISPLAY:
          if (g.preferences_internal[i].ivalue1 == 1) {
             commands.push_back(state_command("coot", "set-dynamic-map-size-display-on", il));
@@ -217,12 +217,12 @@ graphics_info_t::save_preference_file(const std::string &filename, short int il)
                                           g.preferences_internal[i].ivalue1, il));
          break;
 
-      case PREFERENCES_MARK_CIS_BAD:
-         commands.push_back(state_command("coot", "set-mark-cis-peptides-as-bad",
-                                          g.preferences_internal[i].ivalue1, il));     
-         break;
+      // case PREFERENCES_MARK_CIS_BAD:
+      //    commands.push_back(state_command("coot", "set-mark-cis-peptides-as-bad",
+      //                                     g.preferences_internal[i].ivalue1, il));
+      //    break;
 
-      case PREFERENCES_BG_COLOUR:      
+      case PREFERENCES_BG_COLOUR:
          fval1 = g.preferences_internal[i].fvalue1;  // red
          fval2 = g.preferences_internal[i].fvalue2;  // green
          fval3 = g.preferences_internal[i].fvalue3;  // blue
@@ -517,15 +517,15 @@ graphics_info_t::make_preferences_internal() {
 
   // Geometry preference settings
   // Cis peptides
-  on = show_mark_cis_peptides_as_bad_state();
-  p.preference_type = PREFERENCES_MARK_CIS_BAD;
-  p.ivalue1 = on;
-  ret.push_back(p);
+  // on = show_mark_cis_peptides_as_bad_state();
+  // p.preference_type = PREFERENCES_MARK_CIS_BAD;
+  // p.ivalue1 = on;
+  // ret.push_back(p);
 
   p.preference_type = PREFERENCES_DEFAULT_B_FACTOR;
   p.fvalue1 = default_new_atoms_b_factor;
   ret.push_back(p);
-  
+
   // Colour preference settings
   // Background colour
   p.preference_type = PREFERENCES_BG_COLOUR;

@@ -848,9 +848,19 @@ svg_atom_t::make_text_item(const lig_build::atom_id_info_t &atom_id_info,
    return s;
 }
 
-
 std::string
-svg_molecule_t::render_to_svg_string(bool dark_background_flag) {
+svg_molecule_t::render_to_svg_string(double sf, bool dark_background_flag) {
+
+   // 20241002-PE note sf was 400.0;
+   svg_container_t s = make_svg(sf, dark_background_flag);
+
+  return s.compose();
+
+}
+
+
+svg_container_t
+svg_molecule_t::make_svg(double sf, bool dark_background_flag) {
 
    auto make_bond_comment = [] (unsigned int bond_idx, const svg_bond_t &bond) {
       std::string s("<!-- ");
@@ -874,8 +884,10 @@ svg_molecule_t::render_to_svg_string(bool dark_background_flag) {
       return s;
    };
 
-   double sf = 400.0; // scale factor
-   std::string s;
+   svg_container_t svg;
+
+   std::string s; // this can be removed, I think, now
+   s.reserve(2048);
    std::string svg_header_1 = "<svg xmlns=\"http://www.w3.org/2000/svg\"\n    xmlns:xlink=\"http://www.w3.org/1999/xlink\" ";
    std::string svg_header_2 = ">\n";
    std::string svg_footer = "</svg>\n";
@@ -908,6 +920,8 @@ svg_molecule_t::render_to_svg_string(bool dark_background_flag) {
       min_y -= 20.0;
       max_x += 20.0;
       max_y += 20.0;
+
+      svg.set_bounds(min_x, min_y, max_x, max_y);
 
       float width  = max_x - min_x;
       float height = max_y - min_y;
@@ -962,8 +976,13 @@ svg_molecule_t::render_to_svg_string(bool dark_background_flag) {
                                                        other_connections_to_first_atom,
                                                        other_connections_to_second_atom,
                                                        centre, scale);
-         s += make_bond_comment(ib, bonds[ib]);
+	 std::string bc = make_bond_comment(ib, bonds[ib]);
+	 s += bc;
          s += bond_string;
+
+	 // I don't care about s now
+	 svg.add(bc);
+	 svg.add(bond_string);
       }
    }
 
@@ -986,7 +1005,9 @@ svg_molecule_t::render_to_svg_string(bool dark_background_flag) {
 		      << atoms[iat].charge << " made atom_id_info "
 		      << atom_id_info << std::endl;
          // std::cout << "atom block: passing scale " << scale << std::endl;
-	 s += atoms[iat].make_text_item(atom_id_info, centre, scale, median_bond_length_);
+	 std::string a = atoms[iat].make_text_item(atom_id_info, centre, scale, median_bond_length_);
+	 s += a;
+	 svg.add(a);
       } else {
 
 	 // a super-atom carbon
@@ -997,14 +1018,14 @@ svg_molecule_t::render_to_svg_string(bool dark_background_flag) {
 
             lig_build::atom_id_info_t atom_id_info = make_atom_id_by_using_bonds(iat, "C", local_bonds, gl_flag);
             atoms[iat].set_atom_id(atom_id_info.atom_id); // quick hack
-            s += atoms[iat].make_text_item(atom_id_info, centre, scale, median_bond_length_);
+	    std::string a = atoms[iat].make_text_item(atom_id_info, centre, scale, median_bond_length_);
+	    s += a;
+	    svg.add(a);
 	 }
       }
    }
 
-
-   s += svg_footer;
-   return s;
+   return svg;
 }
 
 

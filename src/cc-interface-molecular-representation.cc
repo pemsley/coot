@@ -76,7 +76,8 @@ int add_molecular_representation_scm(int imol, SCM atom_selection_scm, SCM Color
       std::string ColorScheme    = scm_to_locale_string(ColorScheme_scm);
       std::string style          = scm_to_locale_string(style_scm);
       graphics_info_t g;
-      status = g.add_molecular_representation(imol, atom_selection, ColorScheme, style);
+      int secondary_structure_usage_flag = CALC_SECONDARY_STRUCTURE;
+      status = g.add_molecular_representation(imol, atom_selection, ColorScheme, style, secondary_structure_usage_flag);
       graphics_draw();
 #endif
    }

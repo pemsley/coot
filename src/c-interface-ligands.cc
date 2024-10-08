@@ -3314,7 +3314,7 @@ void display_residue_hydrogen_bond_atom_status_using_dictionary(int imol, std::s
 			  res_no, ins_code.c_str(),
 			  "*", "*", "*", "*");
 
-	 std::pair<bool, int> status = hb.check_hb_status(SelHnd_lig, mol, *g.Geom_p());
+	 std::pair<bool, int> status = hb.check_hb_status(SelHnd_lig, mol, *g.Geom_p(), imol);
 	 if (! status.first) {
 	    std::cout << "WARNING:: ===================== no HB status on atoms of ligand! ======="
 		      << "=========" << std::endl;

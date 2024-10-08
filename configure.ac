@@ -264,7 +264,6 @@ AC_ARG_WITH([glm], AS_HELP_STRING([--with-glm location of the GLM package]), wit
 
 AC_MSG_CHECKING([for GLM])
 if test "x$with_glm" = xfalse ; then
-   :
    if test -x $prefix/include/glm ; then
       #echo OK, good we found glm in $prefix
       AC_MSG_RESULT(yes)

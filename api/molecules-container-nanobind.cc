@@ -334,6 +334,7 @@ NB_MODULE(chapi, m) {
     .def("make_power_scaled_map", &molecules_container_t::make_power_scaled_map)
     .def("merge_molecules", nb::overload_cast<int,const std::string &>(&molecules_container_t::merge_molecules))
     .def("minimize_energy",&molecules_container_t::minimize_energy)
+    .def("mmcif_tests",&molecules_container_t::mmcif_tests)
     .def("mmrrcc",&molecules_container_t::mmrrcc)
     .def("move_molecule_to_new_centre",&molecules_container_t::move_molecule_to_new_centre)
     .def("multiply_residue_temperature_factors",&molecules_container_t::multiply_residue_temperature_factors)

@@ -622,13 +622,17 @@ coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary
 							  const std::string &new_compound_name) const {
 
    bool use_hydrogens = false; // pass this? Turning this on makes this function catatonic.
-   
+
    dictionary_residue_restraints_t dict = *this;
    bool debug = false;
    typedef std::pair<std::string, std::string> SP;
    std::vector<SP> change_name;
    std::vector<std::string> same_names;
 
+   if (this->bond_restraint.empty()) {
+      std::cout << "ERROR:: in match_to_reference() no bond restraints for this residue" << std::endl;
+      return dictionary_match_info_t();
+   }
 
    std::string new_comp_id = new_comp_id_in;
    if (new_comp_id == "auto")
@@ -641,6 +645,12 @@ coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary
    mmdb::math::Graph *g_1 = make_graph(use_hydrogens);
    mmdb::math::Graph *g_2 = ref.make_graph(use_hydrogens);
 
+   g_1->SetName ("working-residue");
+   g_1->MakeVertexIDs();
+
+   g_2->SetName ("reference-residue");
+   g_2->MakeVertexIDs();
+
    if (debug) {
       std::cout << "this-name ::::::::::::::::::: " << residue_info.comp_id << std::endl;
       std::cout << " ref-name ::::::::::::::::::: " << ref.residue_info.comp_id << std::endl;
@@ -648,12 +658,6 @@ coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary
       g_2->Print();
    }
    
-   g_1->SetName ("working-residue");
-   g_1->MakeVertexIDs();
-   
-   g_2->SetName ("reference-residue");
-   g_2->MakeVertexIDs();
-
    bool use_bond_order = false;
    use_bond_order = true;
 
@@ -679,7 +683,7 @@ coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary
    if (!use_hydrogens)
       s = " non-hydrogen";
 
-   if (false)
+   if (debug)
       std::cout << "INFO:: Matching Graphs with minMatch " << minMatch << " with "
 		<< n_atoms << s << " atoms in this and " << ref.number_of_non_hydrogen_atoms()
 		<< " in ref" << std::endl;
@@ -701,7 +705,8 @@ coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary
 	 match.MatchGraphs(g_1, g_2, minMatch, vertext_type);
 	 int n_match = match.GetNofMatches();
 	 if (debug) 
-	    std::cout << "found " << n_match << " matches" << std::endl;
+	    std::cout << "debug:: match_to_reference() GetNofMatches() found "
+                      << n_match << " matches" << std::endl;
 	 if (n_match > 0) {
 
 	    // first find the best match:
@@ -762,7 +767,7 @@ coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary
 			 << " matches of atoms with the same name)"
 			 << " for " << n_atoms << " atoms"
 			 << " --------- " << std::endl;
-	       for (unsigned int i=0; i<change_name.size(); i++) { 
+	       for (unsigned int i=0; i<change_name.size(); i++) {
 		  std::cout << i << "  " << change_name[i].first << " -> "
 			    << change_name[i].second << std::endl;
 	       }
@@ -943,7 +948,13 @@ coot::dictionary_residue_restraints_t::invent_new_name(const std::string &ele,
 
 
 mmdb::math::Graph *
-coot::dictionary_residue_restraints_t::make_graph(bool use_hydrogens) const { 
+coot::dictionary_residue_restraints_t::make_graph(bool use_hydrogens) const {
+
+   if (false)
+      std::cout << "debug:: in make_graph() with use_hydrogens " << use_hydrogens
+                << " for " << this->comp_id()
+                << " which has " << this->bond_restraint.size() << " bond restraints"
+                << std::endl;
 
    std::map<std::string, unsigned int> name_map;
 
@@ -954,7 +965,7 @@ coot::dictionary_residue_restraints_t::make_graph(bool use_hydrogens) const {
    // This contains the atom indices of of atom_info (0-indexed).  An
    // mmdb graph is 1-indexed.
    // 
-   
+
    mmdb::math::Graph *graph = new mmdb::math::Graph;
    int i_atom = 0;
    for (unsigned int iat=0; iat<atom_info.size(); iat++) { 
@@ -971,7 +982,6 @@ coot::dictionary_residue_restraints_t::make_graph(bool use_hydrogens) const {
    for (unsigned int ib=0; ib<bond_restraint.size(); ib++) {
       const dict_bond_restraint_t &br = bond_restraint[ib];
       int mmdb_bond_type = br.mmdb_bond_type();
-      // std::cout << "br: " << br << " mmdb_bond_type: " << mmdb_bond_type << std::endl;
       if (mmdb_bond_type != -1) {
 	 std::map<std::string, unsigned int>::const_iterator it_1;
 	 std::map<std::string, unsigned int>::const_iterator it_2;
