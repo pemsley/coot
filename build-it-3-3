@@ -1092,7 +1092,8 @@ if test $OS = Linux ; then
    if [ -e /bin/rpm ] ; then
       if rpm -a ; then
          if test -e /etc/os-release ; then
-             dist_name=$(grep ^ID= /etc/os-release | sed -e 's/ID=//')
+             # 20240914 strip quote marks also now
+             dist_name=$(grep ^ID= /etc/os-release | sed -e 's/ID=//' -e 's/"//g')
              dist_ver=$(grep ^VERSION_ID /etc/os-release | sed -e 's/VERSION_ID=//')
          else
              for i in fedora-release redhat-release redhat-release-workstation centos-release sl-release openSUSE-release ; do
@@ -1138,7 +1139,7 @@ if test $OS = Linux ; then
     esac
     ;;
 
-    fedora | centos | openSUSE | rocky)
+    fedora | centos | openSUSE | rocky | almalinux)
       systype=${architecture}-${dist_name}-${dist_ver}
     ;;
 
@@ -1150,16 +1151,16 @@ if test $OS = Linux ; then
 
     * )
       if test -r /etc/issue; then
-        echo this fallback case............
-        dist_name=$(awk 'NR==1{print tolower($1)}' /etc/issue)
-        if [ "$dist_name" = "debian" ] ; then
-           dist_ver=$(awk  'NR==1{x=tolower($2); y=tolower($3); gsub("/","-",x); gsub("/","-",y); print x "-" y}' /etc/issue)
-        else
-           dist_ver=$(awk  'NR==1{x=tolower($2); gsub("/","-",x); print x}' /etc/issue)
-        fi
-        systype=${architecture}-${dist_name}-${dist_ver}
+          echo this fallback case............
+          dist_name=$(awk 'NR==1{print tolower($1)}' /etc/issue)
+          if [ "$dist_name" = "debian" ] ; then
+              dist_ver=$(awk  'NR==1{x=tolower($2); y=tolower($3); gsub("/","-",x); gsub("/","-",y); print x "-" y}' /etc/issue)
+          else
+              dist_ver=$(awk  'NR==1{x=tolower($2); gsub("/","-",x); print x}' /etc/issue)
+          fi
+          systype=${architecture}-${dist_name}-${dist_ver}
       else
-        systype=${architecture}-unknown-Linux
+          systype=${architecture}-unknown-Linux
       fi
     ;;
   esac
@@ -2725,6 +2726,8 @@ export PATH=$install_top_dir/bin:$PATH
 
 libffi_version=3.2.1
 # libffi_version=3.4.3 is available now 20231021-PE
+libffi_version=3.4.6
+
 skip_build=false
 if [ $test_for_already_installed_dependencies = true ] ; then
       if [ -e $install_top_dir/include/ffi.h ] ; then
@@ -2736,8 +2739,8 @@ if [ $test_for_already_installed_dependencies = true ] ; then
 fi
 
 if [ $skip_build = false ] ; then
-    echo BUILDING libffi $libffi_version:
-    echo BUILDING libffi $libffi_version: >&2
+    echo BUILDING libffi from libffi-master.zip
+    echo BUILDING libffi from libffi-master.zip >&2
     (
     unset LD_LIBRARY_PATH
 
@@ -2764,6 +2767,42 @@ fi
 echo post libffi with LD_LIBRARY_PATH $LD_LIBRARY_PATH
 echo post libffi with LD_LIBRARY_PATH $LD_LIBRARY_PATH >&2
 
+############## 09b-libffi #####################
+
+build_libffi=true
+echo ================= here with build_libffi $build_libffi
+#
+if [ "$build_libffi" = true ] ; then
+   skip_this=false
+   if [ "$test_for_already_installed_dependencies" = true ] ; then
+      if [ -e $install_top_dir/lib/pkgconfig/libffi.pc ] ; then
+         skip_this=true
+      fi
+   fi
+
+   if [ $skip_this = false ] ; then
+      echo ========================= build 09b-libffi =================================
+      (
+      unset LD_LIBRARY_PATH # or otherwise UP in libreadline problems
+      echo ========================= build 09b-libffi =================================
+      echo BUILDING libffi $libffi_version >&2
+      ${WGET} https://github.com/libffi/libffi/releases/download/v$libffi_version/libffi-$libffi_version.tar.gz
+      if [ -e ${AUTOBUILD_SOURCES}/libffi-$libffi_version.tar.gz ] ; then
+         tar xf ${AUTOBUILD_SOURCES}/libffi-$libffi_version.tar.gz
+      else
+         exit
+      fi
+      cd libffi-$libffi_version
+      # if ./configure --prefix=$install_top_dir --disable-multi-os-directory --enable-portable-binary --enable-shared --disable-static ; then
+      if ./configure --prefix=$install_top_dir --enable-portable-binary --enable-shared --disable-static ; then
+         if $MAKE ; then
+            make install
+         fi
+      fi
+      cd -
+      ) > $HOSTLOGDIR/09b-libffi.txt 2>&1
+   fi
+fi
 build_openssl=false
 if [ $OS = Darwin ] ; then
    if [ -e $install_top_dir/include/openssl ] ; then
@@ -3832,9 +3871,15 @@ if [ "$build_rdkit" = true ] ; then
           if test "$dist_name" = ubuntu ; then
 	      echo don.t mess with LDFLAGS here on ubuntu
           else
-	      export LDFLAGS="-L$install_top_dir/lib -lintl"
+              if test "$dist_name" = almalinux ; then
+                  echo don.t mess with LDFLAGS on almalinux
+              else
+	          export LDFLAGS="-L$install_top_dir/lib -lintl"
+              fi
           fi
       fi
+
+      echo AAAAAAAAAAAAAAAAAAAAAAAA LDFLAGS is $LDFLAGS
 
       # echo will configure with cmake like this:
       # DBoost_PYTHON39_LIBRARY_RELEASE needs to be extracted?
@@ -4235,7 +4280,6 @@ guile_cairo_version=1.9.91
 # wget http://mirrorservice.org/sites/ftp.gnu.org/gnu/readline/readline-6.3.tar.gz
 # wget http://download.savannah.gnu.org/releases/guile-cairo/guile-cairo-$guile_cairo_version.tar.gz
 
-build_libffi=true
 build_guile=true
 build_g_wrap=true
 build_gmp=true
@@ -4245,35 +4289,6 @@ build_guile_gnome_platform=true
 build_guile_cairo=true
 build_guile_lib=true
 
-
-if [ "$build_libffi" = true ] ; then
-   skip_this=false
-   if [ "$test_for_already_installed_dependencies" = true ] ; then
-      if [ -e $install_top_dir/lib/pkgconfig/libffi.pc ] ; then
-         skip_this=true
-      fi
-   fi
-
-   if [ $skip_this = false ] ; then
-      (
-      echo ========================= build libffi =================================
-      echo BUILDING libffi $libffi_version >&2
-      if [ -e ${AUTOBUILD_SOURCES}/libffi-$libffi_version.tar.gz ] ; then
-         tar xf ${AUTOBUILD_SOURCES}/libffi-$libffi_version.tar.gz
-      else
-         exit
-      fi
-      cd libffi-$libffi_version
-      # if ./configure --prefix=$install_top_dir --disable-multi-os-directory --enable-portable-binary --enable-shared --disable-static ; then
-      if ./configure --prefix=$install_top_dir --enable-portable-binary --enable-shared --disable-static ; then
-         if $MAKE ; then
-            make install
-         fi
-      fi
-      cd -
-      ) > $HOSTLOGDIR/35-ffi.txt 2>&1
-   fi
-fi
 
 if [ "$build_unistring" = true ] ; then
    skip_this=false
