@@ -1,8 +1,7 @@
 
 ----
 
-Mini C++ Project
-https://github.com/CGAL/cgal/ Surface Mesh
+What's up with the cross-hairs? Allow user to set the colour.
 
 Martin: How do I load external (refmac) restraints into Coot 1 and Moorhen?
 
@@ -117,6 +116,9 @@ make an figure, for moorhen intro with blobs that have volume proportional
 Look at 4yjr - beautiful map 452-626 interaction - it should not have a clash face
    (distance to hydrogen atom).
 * Checked - it does not if both residues are refined. That will do.
+
+Smooth Recentering setting saved (now)?
+* Yes.
 
 Add Noughties Physics into the Preferences
 * Done.
@@ -277,6 +279,7 @@ Non-trivial C++ Mini-Projects
  o Add gesamt to moorhen and coot
  o parser for PISA output (maybe Python will do)
  o Filled bases for DNA/RNA
+ o Is this useful? https://github.com/CGAL/cgal/ Surface Mesh
 
 Non-trivial C++ Projects
  o Improved ligand fitting with machine learning
