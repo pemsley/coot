@@ -830,8 +830,12 @@ int handle_read_draw_molecule_with_recentre(const std::string &filename,
 	 // algorithm.
 
 
-	 std::vector<std::string> types_with_no_dictionary =
+	 std::vector<std::string> types_with_no_dictionary;
+         const coot::protein_geometry *geom_p = g.Geom_p();
+         if (g.Geom_p())
 	    g.molecules[imol].no_dictionary_for_residue_type_as_yet(*g.Geom_p());
+         else
+            std::cout << "ERROR:: handle_read_draw_molecule_with_recentre() Geom_p() returns null" << std::endl;
 
 	 int first_n_types_with_no_dictionary = types_with_no_dictionary.size();
 
@@ -847,7 +851,8 @@ int handle_read_draw_molecule_with_recentre(const std::string &filename,
 	    g.cif_dictionary_read_number++;
 	 }
 
-	 types_with_no_dictionary = g.molecules[imol].no_dictionary_for_residue_type_as_yet(*g.Geom_p());
+         if (geom_p)
+	    types_with_no_dictionary = g.molecules[imol].no_dictionary_for_residue_type_as_yet(*geom_p);
 
 	 if (types_with_no_dictionary.size()) {
 	    if (g.Geom_p()->try_load_ccp4srs_description(types_with_no_dictionary))
@@ -863,8 +868,9 @@ int handle_read_draw_molecule_with_recentre(const std::string &filename,
 
 	 if (graphics_info_t::nomenclature_errors_mode == coot::PROMPT) {
 	    // Now, did that PDB file contain nomenclature errors?
-	    std::vector<std::pair<std::string,coot::residue_spec_t> > nomenclature_errors =
-	       g.molecules[imol].list_nomenclature_errors(g.Geom_p());
+	    std::vector<std::pair<std::string,coot::residue_spec_t> > nomenclature_errors;
+            if (geom_p)
+               nomenclature_errors = g.molecules[imol].list_nomenclature_errors(geom_p);
 	    // gui function checks use_graphics_interface_flag
 	    if (nomenclature_errors.size())
 	       show_fix_nomenclature_errors_gui(imol, nomenclature_errors);
