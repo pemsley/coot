@@ -1,5 +1,6 @@
 
 #include "coot-utils/atom-selection-container.hh"
+#include "coot-utils/reduce.hh"
 #include "flev.hh"
 
 int main(int argc, char **argv) {
@@ -20,6 +21,9 @@ int main(int argc, char **argv) {
       int res_no = 1299;
       std::string ins_code = "";
       int imol = coot::protein_geometry::IMOL_ENC_ANY;
+      coot::reduce r(atom_sel.mol, imol);
+      bool nuclear_flag = false;
+      r.add_hydrogen_atoms(nuclear_flag);
       mmdb::Manager *ligand_mol = geom.mol_from_dictionary("LZA", imol, false);
       if (ligand_mol)
          pli::fle_view_with_rdkit_internal(atom_sel.mol, imol, &geom,

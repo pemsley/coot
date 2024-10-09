@@ -242,6 +242,10 @@ Add lsqkab superposition to the api
 
 fix the double read of the monomers (there is only a single read in --no-graphics mode).
 
+Use 2DT dictionary for link and refinement - George.
+
+Fix the double read of the monomers (there is only a single read in --no-graphics mode).
+
 coot: setup updating maps then delete the maps and models - gracefully turn off updating
    maps - currently the timeout function writes a error message, but does not stop.
 
@@ -256,6 +260,8 @@ Jakub: Sharpen-blur "Computing..." dialog should be an overlay. It's Python thou
   Move it all into C++.
 
 Jakub: Downloading map (from EMDB) dialog should be an overlay... Likewise, probably.
+
+Need a graph infrastructure to display Q Score results.
 
 UI for turning off dark mode.
 * Tried. Doesn't work. Function only works on startup? Maybe I am missing something.
@@ -275,11 +281,18 @@ Non-trivial C++ Mini-Projects
  o Add SSBond to struct con info in mmdb
  o Parallel FFT
  o Faster/better/modern contouring
+ o maybe https://github.com/CGAL/cgal/ Surface Mesh
  o Improved side-chain typing
  o Add gesamt to moorhen and coot
  o parser for PISA output (maybe Python will do)
  o Filled bases for DNA/RNA
+<<<<<<< HEAD
  o Is this useful? https://github.com/CGAL/cgal/ Surface Mesh
+=======
+ o Use VTE for a Python console
+ o Get CFC working again (needs C++ clustering)
+
+>>>>>>> refs/remotes/origin/main
 
 Non-trivial C++ Projects
  o Improved ligand fitting with machine learning
