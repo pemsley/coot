@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Copyright 2014-2024 Paul Emsley <pemsley at mrc dash lmb dot cam dot ac dot uk> -->
+<!-- Copyright 2014-2024 Paul Emsley <pemsley@mrc-lmb.cam.ac.uk> -->
 <component type="desktop">
  <id>io.github.pemsley.coot</id>
+ <launchable type="desktop-id">io.github.pemsley.coot.desktop</launchable>
  <metadata_license>GFDL-1.3</metadata_license>
  <project_license>GPL-2.0+ and GPL-3.0+ and LGPL-3.0+</project_license>
  <name>Coot</name>
@@ -34,8 +35,11 @@
  <url type="homepage">https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/</url>
  <url type="help">https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/web/docs</url>
  <url type="bugtracker">https://github.com/pemsley/coot/issues</url>
- <developer_name>Paul Emsley</developer_name>
- <updatecontact>pemsley _at_ mrc dash lmb.cam.ac.uk</updatecontact>
+ <developer>
+  <developer-id>pemsley</developer-id>
+  <developer-name>Paul Emsley</developer-name>
+</developer>
+ <contact>pemsley@mrc-lmb.cam.ac.uk</contact>
  <content_rating type="oars-1.1" />
 <releases>
     <release version="1.1.10" date="2024-07-21"></release>
