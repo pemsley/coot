@@ -91,7 +91,6 @@ get_atom_selection(std::string pdb_name,
                    bool allow_duplseqnum,
                    bool verbose_mode) {
 
-
    auto atom_name_fix_ups = [] (mmdb::Manager *mol) {
 
       // c.f. fix_wrapped_names() - should these functions be combined?
@@ -125,7 +124,7 @@ get_atom_selection(std::string pdb_name,
    };
 
    auto debug_atom_names = [] (mmdb::Manager *mol) {
-      
+
       for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
          mmdb::Model *model_p = mol->GetModel(imod);
          if (model_p) {
@@ -165,42 +164,63 @@ get_atom_selection(std::string pdb_name,
          mol->FinishStructEdit();
    };
 
-   auto file_name_to_manager_via_gemmi = [add_links_to_models] (const std::string &pdb_name) {
+   auto transfer_links = [add_links_to_models] (const gemmi::Structure &st, mmdb::Manager *mol) {
+
+      std::vector<mmdb::Link> mmdb_links;
+      for (const gemmi::Connection &con : st.connections) {
+         if (true) // debugging
+            std::cout << con.name << " " << con.partner1.str() << " " << con.partner2.str() << std::endl;
+         mmdb::Link l;
+         std::string atom_name = con.partner1.atom_name;
+         int ll = atom_name.length();
+         std::string new_atom_name;
+         if (ll == 1) new_atom_name = std::string(" ") + atom_name + std::string("  ");
+         // if (ll == 2) new_atom_name = atom_name + std::string("  "); // form for metal
+         if (ll == 2) new_atom_name = std::string(" ") + atom_name + std::string(" ");
+         if (ll == 3) new_atom_name = atom_name + std::string(" ");
+         strcpy(l.atName1, new_atom_name.c_str());
+         l.aloc1[0] = con.partner1.altloc;
+         l.aloc1[1] = 0;
+         strcpy(l.resName1, con.partner1.res_id.name.c_str());
+         strcpy(l.chainID1, con.partner1.chain_name.c_str());
+         l.insCode1[0] = con.partner1.res_id.seqid.icode;
+         l.insCode1[1] = 0;
+         atom_name = con.partner2.atom_name;
+         ll = atom_name.length();
+         new_atom_name = atom_name;
+         if (ll == 1) new_atom_name = std::string(" ") + atom_name + std::string("  ");
+         // if (ll == 2) new_atom_name = atom_name + std::string("  "); // form for metal
+         if (ll == 2) new_atom_name = std::string(" ") + atom_name + std::string(" ");
+         if (ll == 3) new_atom_name = atom_name + std::string(" ");
+         strcpy(l.atName2, new_atom_name.c_str());
+         l.aloc2[0] = con.partner2.altloc;
+         l.aloc2[1] = 0;
+         strcpy(l.resName2, con.partner2.res_id.name.c_str());
+         strcpy(l.chainID2, con.partner2.chain_name.c_str());
+         l.insCode2[0] = con.partner2.res_id.seqid.icode;
+         l.insCode2[1] = 0;
+         if (con.partner1.res_id.seqid.num.has_value()) {
+            if (con.partner2.res_id.seqid.num.has_value()) {
+               // std::cout << "   debug:: on pushing back link: at-Name-1 :" << l.atName1 << ":" << std::endl;
+               // std::cout << "   debug:: on pushing back link: at-Name-2 :" << l.atName2 << ":" << std::endl;
+               l.seqNum1 = con.partner1.res_id.seqid.num.value;
+               l.seqNum2 = con.partner2.res_id.seqid.num.value;
+               mmdb_links.push_back(l);
+            }
+         }
+      }
+      add_links_to_models(mol, mmdb_links);
+   };
+
+   auto file_name_to_manager_via_gemmi = [transfer_links] (const std::string &pdb_name) {
       mmdb::Manager *mol = nullptr;
 #ifdef USE_GEMMI
       try {
-         std::vector<mmdb::Link> mmdb_links;
          gemmi::Structure st = gemmi::read_structure_file(pdb_name);
          if (! st.models.empty()) {
-            for (const gemmi::Connection &con : st.connections) {
-               std::cout << con.name << " " << con.partner1.str() << " " << con.partner2.str() << std::endl;
-               mmdb::Link l;
-               strcpy(l.atName1, con.partner1.atom_name.c_str());
-               l.aloc1[0] = con.partner1.altloc;
-               l.aloc1[1] = 0;
-               strcpy(l.resName1, con.partner1.res_id.name.c_str());
-               strcpy(l.chainID1, con.partner1.chain_name.c_str());
-               l.insCode1[0] = con.partner1.res_id.seqid.icode;
-               l.insCode1[1] = 0;
-               strcpy(l.atName2, con.partner2.atom_name.c_str());
-               l.aloc2[0] = con.partner2.altloc;
-               l.aloc2[1] = 0;
-               strcpy(l.resName2, con.partner2.res_id.name.c_str());
-               strcpy(l.chainID2, con.partner2.chain_name.c_str());
-               l.insCode2[0] = con.partner2.res_id.seqid.icode;
-               l.insCode2[1] = 0;
-               if (con.partner1.res_id.seqid.num.has_value()) {
-                  if (con.partner2.res_id.seqid.num.has_value()) {
-                     l.seqNum1 = con.partner1.res_id.seqid.num.value;
-                     l.seqNum2 = con.partner2.res_id.seqid.num.value;
-                     mmdb_links.push_back(l);
-                  }
-               }
-            }
             mol = new mmdb::Manager;
             gemmi::copy_to_mmdb(st, mol);
-
-            add_links_to_models(mol, mmdb_links);
+            transfer_links(st, mol);
 
             // now fix (cootify) the atom names
             //
@@ -241,8 +261,9 @@ get_atom_selection(std::string pdb_name,
       return mol;
    };
 
-   if (false) // too noisy
-      std::cout << "get_atom_selection() with file \"" << pdb_name << "\"" << std::endl;
+   if (true) // too noisy
+      std::cout << "debug():: ============ get_atom_selection() with file \"" << pdb_name << "\""
+                << " use_gemmi " << use_gemmi << std::endl;
 
    mmdb::ERROR_CODE err;
    mmdb::Manager* MMDBManager;

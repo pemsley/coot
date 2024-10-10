@@ -1,6 +1,6 @@
 
-#ifndef COOT_FLEV_HH
-#define COOT_FLEV_HH
+#ifndef COOT_PLI_FLEV_HH
+#define COOT_PLI_FLEV_HH
 
 #include "geometry/protein-geometry.hh"
 #include "lidia-core/svg-container.hh"
@@ -11,71 +11,13 @@
 #include "solvent-accessible-atom.hh"
 #include "solvent-exposure-difference-helper.hh"
 #include "pi-stacking.hh"
+#include "optimise-residue-circles.hh"
 
 // Draw all the things in SVG so that it can be used by Moorhen
 //
 class flev_t {
 
-   std::vector<residue_circle_t> residue_circles;
-   // a set of handles (returned from
-   // additional_representation_by_attributes()) that correspond to
-   // the residues in residue_circles.  If there are no additional
-   // representations, then an empty vector is handled.
-   std::vector<int> additional_representation_handles;
-   svg_container_t draw_stacking_interactions(const std::vector<residue_circle_t> &v);
-   // click_pos is where we recentre in 3D graphics when the annotation
-   // (line) is clicked.
-   void
-   draw_annotated_stacking_line(const lig_build::pos_t &ligand_ring_centre,
-                                const lig_build::pos_t &residue_pos,
-                                int stacking_type,
-                                const clipper::Coord_orth &click_pos);
-   svg_container_t draw_all_flev_residue_attribs();
-   svg_container_t draw_all_flev_ligand_annotations();
-   svg_container_t draw_residue_circles(const std::vector<residue_circle_t> &v,
-                                        const std::vector<int> &add_rep_handles);
-
-   svg_container_t draw_residue_circle_top_layer(const residue_circle_t &residue_circle,
-                                                 const lig_build::pos_t &ligand_centre,
-                                                 int add_rep_handle);
-
-   void draw_solvent_accessibility_of_atom(const lig_build::pos_t &pos, double sa);
-   void draw_solvent_accessibility_of_atoms();
-
-   void draw_substitution_contour();
-   std::string draw_bonds_to_ligand();
-   void draw_solvent_exposure_circle(const residue_circle_t &residue_circle,
-                                     const lig_build::pos_t &ligand_centre);
-   std::string get_residue_solvent_exposure_fill_colour(double radius_extra) const;
-   // top left and bottom right corners.
-   //
-   std::pair<lig_build::pos_t, lig_build::pos_t> flev_residues_extents() const;
-
-   std::vector<std::vector<std::string> > ring_atoms_list;
-
-   std::vector<pli::solvent_accessible_atom_t>
-   convert(const std::vector<std::pair<coot::atom_spec_t, float> > &s_a_v,
-           const pli::flev_attached_hydrogens_t &ah) const;
-
-   std::pair<std::string, std::string> get_residue_circle_colour(const std::string &residue_type) const;
-
-   std::string svg;
-   void render(); // add stuff to the svg
-   double standard_residue_circle_radius;
-
-
-public:
-   flev_t() { init(); }
-   svg_molecule_t mol; // does it help to make this private?
-   double scale_factor;
-   float fle_water_dist_max;
-   float fle_h_bond_dist_max;
-   void init() {
-      fle_water_dist_max = 3.25;
-      fle_h_bond_dist_max = 3.9;
-      standard_residue_circle_radius = 15.45;
-      scale_factor = 400.0;
-   }
+// public: ??
 
    class grid_index_t {
 
@@ -170,7 +112,7 @@ public:
       // arg is not const reference because get_ring_centres() caches
       // the return value inside mol.
       //
-      // void fill(widgeted_molecule_t mol);
+      void fill(svg_molecule_t mol);
 
       double get(int i, int j) const {
          return grid_[i][j];
@@ -298,6 +240,100 @@ public:
 
    };
 
+   std::vector<residue_circle_t> residue_circles;
+   std::string make_circle(const lig_build::pos_t &pos, double radius, double stroke_width,
+                           const std::string &fill_color, const std::string &stroke_color) const;
+   
+   // a set of handles (returned from
+   // additional_representation_by_attributes()) that correspond to
+   // the residues in residue_circles.  If there are no additional
+   // representations, then an empty vector is handled.
+   std::vector<int> additional_representation_handles;
+   svg_container_t draw_stacking_interactions(const std::vector<residue_circle_t> &v);
+   // click_pos is where we recentre in 3D graphics when the annotation
+   // (line) is clicked.
+   svg_container_t
+   draw_annotated_stacking_line(const lig_build::pos_t &ligand_ring_centre,
+                                const lig_build::pos_t &residue_pos,
+                                int stacking_type,
+                                const clipper::Coord_orth &click_pos);
+   svg_container_t draw_all_flev_residue_attribs();
+   svg_container_t draw_all_flev_ligand_annotations();
+   svg_container_t draw_residue_circles(const std::vector<residue_circle_t> &v,
+                                        const std::vector<int> &add_rep_handles);
+
+   svg_container_t draw_residue_circle_top_layer(const residue_circle_t &residue_circle,
+                                                 const lig_build::pos_t &ligand_centre,
+                                                 int add_rep_handle);
+
+   void draw_solvent_accessibility_of_atom(const lig_build::pos_t &pos, double sa);
+   void draw_solvent_accessibility_of_atoms();
+
+   void draw_substitution_contour();
+   std::string draw_bonds_to_ligand();
+   svg_container_t draw_solvent_exposure_circle(const residue_circle_t &residue_circle,
+                                                const lig_build::pos_t &ligand_centre);
+   std::string get_residue_solvent_exposure_fill_colour(double radius_extra) const;
+   // top left and bottom right corners.
+   //
+   std::pair<lig_build::pos_t, lig_build::pos_t> flev_residues_extents() const;
+
+   std::vector<std::vector<std::string> > ring_atoms_list;
+
+   std::vector<pli::solvent_accessible_atom_t>
+   convert(const std::vector<std::pair<coot::atom_spec_t, float> > &s_a_v,
+           const pli::flev_attached_hydrogens_t &ah) const;
+
+   std::pair<std::string, std::string> get_residue_circle_colour(const std::string &residue_type) const;
+
+   std::string svg;
+   void render(); // add stuff to the svg
+   double standard_residue_circle_radius;
+
+   void refine_residue_circle_positions(); // changes the positions of residue_circles
+   std::vector<int> get_primary_indices() const;
+   void initial_residues_circles_layout();
+  
+   // fiddle with the position of the residue_circles[primary_index].
+   //   
+   void initial_primary_residue_circles_layout(const ligand_grid &grid,
+                                               int primary_index,
+                                               const std::vector<std::pair<lig_build::pos_t, double> > &attachment_points);
+  
+   // untrap residues as needed.
+   void position_non_primaries(const ligand_grid &grid,
+                               const std::vector<int> &primary_indices);
+       
+   void numerical_gradients(gsl_vector *x, gsl_vector *df, void *params) const;
+
+   // return 1 on solution having problems, 0 for no problems, also
+   // return a list of the residue circles with problems.
+   //   
+   std::pair<bool, std::vector<int> > solution_has_problems_p() const;
+
+   // minimise layout energy
+   std::pair<int, std::vector<residue_circle_t> >
+   optimise_residue_circle_positions(const std::vector<residue_circle_t> &start,
+                                     const std::vector<residue_circle_t> &current,
+                                     const std::vector<int> &primary_indices) const;
+
+   std::pair<bool,lig_build::pos_t> get_residue_circles_top_left() const;
+   std::pair<int, std::vector<residue_circle_t> > solution() const;
+
+public:
+   flev_t() { init(); }
+   svg_molecule_t mol; // does it help to make this private?
+   double scale_factor;
+   float fle_water_dist_max;
+   float fle_h_bond_dist_max;
+   void init() {
+      fle_water_dist_max = 3.25;
+      fle_h_bond_dist_max = 3.9;
+      standard_residue_circle_radius = 15.45;
+      scale_factor = 400.0;
+   }
+
+
    svg_container_t draw_all_flev_annotations();
    void write_png(const std::string &file_name) const;
    void write_svg(const std::string &file_name) const;
@@ -337,4 +373,4 @@ namespace pli {
 }
 
 
-#endif // COOT_FLEV_HH
+#endif // COOT_PLI_FLEV_HH

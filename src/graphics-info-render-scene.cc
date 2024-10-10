@@ -360,7 +360,10 @@ graphics_info_t::render_scene_sans_depth_blur(Shader *shader_for_tmeshes_p, Shad
                shader_for_effects.set_int_for_uniform("screenTexture", 0);
                shader_for_effects.set_int_for_uniform("screenDepth",   1);
                shader_for_effects.set_int_for_uniform("ssao",          2); // sampler2D
-               shader_for_effects.set_int_for_uniform("effects_output_type", effects_shader_output_type);
+               if (graphics_info_t::graphics_is_gl_es)
+                  std::cout << "INFO:: no effects shader in OpenGL-ES mode" << std::endl;
+               else
+                  shader_for_effects.set_int_for_uniform("effects_output_type", effects_shader_output_type);
                shader_for_effects.set_bool_for_uniform("use_ssao", di.use_ssao);
                shader_for_effects.set_bool_for_uniform("show_ssao", di.show_just_ssao);
                shader_for_effects.set_float_for_uniform("ssao_strength", di.ssao_strength);

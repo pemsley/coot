@@ -1,9 +1,10 @@
-
 ----
 
 What's up with the cross-hairs? Allow user to set the colour.
 
-Martin: How do I load external (refmac) restraints into Coot 1 and Moorhen?
+Paul Bond bug.
+
+Martin Maly: How do I load external (refmac) restraints into Coot 1?
 
 Associate sequence and assign sequence functions, brighten_maps_action() and many other
   are missing bodies in create-menu-item-actions.cc
@@ -24,8 +25,6 @@ Why does side-chain-densities like TRPs?
 Are shader settings (plain vs fancy) saved in the state file?
 
 Add Place Helix here to moorhen api
-
-Is there non-map minimization (say, for conformers)?
 
 Add merge fragments to api.
 
@@ -296,6 +295,10 @@ Non-trivial C++ Mini-Projects
 
 Non-trivial C++ Projects
  o Improved ligand fitting with machine learning
+ o Show that crankshaft works - one part of the problem here is get get/make
+   many problematic models.  The other is making the algorithm more robust
+   (fix side-chain addition, for example). See the CaBLAM paper for some
+   problematic structures.
 
 Is 0-coot.state.py a good file-name now that it's in ~/.local/state/Coot ?
 

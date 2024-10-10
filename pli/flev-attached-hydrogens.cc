@@ -438,14 +438,14 @@ pli::flev_attached_hydrogens_t::find_bash_distance(const clipper::Coord_orth &li
 
    for (double slide=0; slide<=max_dist; slide+=0.04) {
       clipper::Coord_orth test_pt = ligand_atom_pos + slide * h_vector;
-      if (true)
+      if (false)
          std::cout << "   bash distance for ligand atom at " << ligand_atom_pos.format() << " "
                    << "determined from " << atom_positions.size() << " atom positions"
                    << std::endl;
       for (unsigned int iat=0; iat<atom_positions.size(); iat++) {
          double atom_radius_plus_cbr = radius[iat] + cannonball_radius;
          double d_squared = (test_pt - atom_positions[iat]).lengthsq();
-         if (true)
+         if (false)
             std::cout << "   atom " << iat << " "
                       << close_residue_atoms[iat]->GetChainID() << " "
                       << close_residue_atoms[iat]->GetSeqNum() << " "

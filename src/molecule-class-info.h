@@ -2695,7 +2695,7 @@ public:        //                      public
                             			      // the atom names to see if they get
 				                      // more likely rotamers
    // the residue type and the spec
-   std::vector<std::pair<std::string, coot::residue_spec_t> > list_nomenclature_errors(coot::protein_geometry *geom_p);
+   std::vector<std::pair<std::string, coot::residue_spec_t> > list_nomenclature_errors(const coot::protein_geometry *geom_p);
 
    // ---- cis <-> trans conversion
    int cis_trans_conversion(const std::string &chain_id, int resno, const std::string &inscode,
