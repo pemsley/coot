@@ -172,11 +172,22 @@ get_atom_selection(std::string pdb_name,
             std::cout << con.name << " " << con.partner1.str() << " " << con.partner2.str() << std::endl;
          mmdb::Link l;
          std::string atom_name = con.partner1.atom_name;
+         bool atom_1_is_metal = false;
+         if (atom_name == "ZN") atom_1_is_metal = true;
+         if (atom_name == "MG") atom_1_is_metal = true;
+         if (atom_name == "FE") atom_1_is_metal = true;
+         if (atom_name == "CO") atom_1_is_metal = true;
+         if (atom_name == "NI") atom_1_is_metal = true;
          int ll = atom_name.length();
          std::string new_atom_name;
          if (ll == 1) new_atom_name = std::string(" ") + atom_name + std::string("  ");
-         // if (ll == 2) new_atom_name = atom_name + std::string("  "); // form for metal
-         if (ll == 2) new_atom_name = std::string(" ") + atom_name + std::string(" ");
+         if (ll == 2) {
+            if (atom_1_is_metal) {
+               new_atom_name = atom_name + std::string("  "); // form for metal
+            } else {
+               new_atom_name = std::string(" ") + atom_name + std::string(" ");
+            }
+         }
          if (ll == 3) new_atom_name = atom_name + std::string(" ");
          strcpy(l.atName1, new_atom_name.c_str());
          l.aloc1[0] = con.partner1.altloc;
@@ -184,13 +195,25 @@ get_atom_selection(std::string pdb_name,
          strcpy(l.resName1, con.partner1.res_id.name.c_str());
          strcpy(l.chainID1, con.partner1.chain_name.c_str());
          l.insCode1[0] = con.partner1.res_id.seqid.icode;
+         if (con.partner1.res_id.seqid.icode == ' ') l.insCode1[0] = 0;
          l.insCode1[1] = 0;
          atom_name = con.partner2.atom_name;
+         bool atom_2_is_metal = false;
+         if (atom_name == "ZN") atom_2_is_metal = true;
+         if (atom_name == "MG") atom_2_is_metal = true;
+         if (atom_name == "FE") atom_2_is_metal = true;
+         if (atom_name == "CO") atom_2_is_metal = true;
+         if (atom_name == "NI") atom_2_is_metal = true;
          ll = atom_name.length();
          new_atom_name = atom_name;
          if (ll == 1) new_atom_name = std::string(" ") + atom_name + std::string("  ");
-         // if (ll == 2) new_atom_name = atom_name + std::string("  "); // form for metal
-         if (ll == 2) new_atom_name = std::string(" ") + atom_name + std::string(" ");
+         if (ll == 2) {
+            if (atom_2_is_metal) {
+               new_atom_name = atom_name + std::string("  "); // form for metal
+            } else {
+               new_atom_name = std::string(" ") + atom_name + std::string(" ");
+            }
+         }
          if (ll == 3) new_atom_name = atom_name + std::string(" ");
          strcpy(l.atName2, new_atom_name.c_str());
          l.aloc2[0] = con.partner2.altloc;
@@ -198,6 +221,7 @@ get_atom_selection(std::string pdb_name,
          strcpy(l.resName2, con.partner2.res_id.name.c_str());
          strcpy(l.chainID2, con.partner2.chain_name.c_str());
          l.insCode2[0] = con.partner2.res_id.seqid.icode;
+         if (con.partner2.res_id.seqid.icode == ' ') l.insCode2[0] = 0;
          l.insCode2[1] = 0;
          if (con.partner1.res_id.seqid.num.has_value()) {
             if (con.partner2.res_id.seqid.num.has_value()) {
@@ -205,6 +229,10 @@ get_atom_selection(std::string pdb_name,
                // std::cout << "   debug:: on pushing back link: at-Name-2 :" << l.atName2 << ":" << std::endl;
                l.seqNum1 = con.partner1.res_id.seqid.num.value;
                l.seqNum2 = con.partner2.res_id.seqid.num.value;
+               if (false)
+                  std::cout << "Here's the fresh link: "
+                            << l.chainID1 << " seqNum: " << l.seqNum1 << " ins-code: \"" << l.insCode1 << "\" \"" << l.atName1 << "\" to "
+                            << l.chainID2 << " seqNum: " << l.seqNum2 << " ins-code: \"" << l.insCode2 << "\" \"" << l.atName2 << "\"" << std::endl;
                mmdb_links.push_back(l);
             }
          }
