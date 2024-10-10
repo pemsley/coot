@@ -1,7 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<!-- Copyright 2014 Paul Emsley <pemsley at mrc dash lmb dot cam dot ac dot uk> -->
+<!-- Copyright 2014-2024 Paul Emsley <pemsley@mrc-lmb.cam.ac.uk> -->
 <component type="desktop">
- <id>org.emsley.coot</id>
+ <id>io.github.pemsley.coot</id>
+ <launchable type="desktop-id">io.github.pemsley.coot.desktop</launchable>
  <metadata_license>GFDL-1.3</metadata_license>
  <project_license>GPL-2.0+ and GPL-3.0+ and LGPL-3.0+</project_license>
  <name>Coot</name>
@@ -16,21 +17,33 @@
      refinement.
   </p>
   <p>
-     Coot is used by scientists using X-ray crystallography for
+     Coot is used by scientists using X-ray crystallography or cryo-EM for
      analysis of proteins, electron density maps, protein interactions
      and drug design.
   </p>
  </description>
  <screenshots>
   <screenshot type="default">
-    <image type="source">http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/web/screenshots/other/coot-viagra-1.png</image>
+    <image type="source">https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/web/screenshots/other/coot-viagra-1.png</image>
     <caption>Coot is typically used to view protein models and electron density</caption>
   </screenshot>
   <screenshot>
-    <image type="source">http://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/web/screenshots/other/coot-ligand-builder.png</image>
+    <image type="source">https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/web/screenshots/other/coot-ligand-builder.png</image>
     <caption>Coot can be used to convert from 2D ligands to 3D and from 3D to 2D</caption>
   </screenshot>
+  <screenshot>
+    <image type="source">https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/web/screenshots/apoferritin/sapphires-and-emeralds.png</image>
+  </screenshot>
  </screenshots>
- <url type="homepage">http://www2.mrc-lmb.cam.ac.uk/Personal/pemsley/coot/</url>
- <updatecontact>pemsley _at_ mrc dash lmb.cam.ac.uk</updatecontact>
+ <url type="homepage">https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/</url>
+ <url type="help">https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/web/docs</url>
+ <url type="bugtracker">https://github.com/pemsley/coot/issues</url>
+ <developer>
+  <developer-name>Paul Emsley</developer-name>
+  <url type="contact">mailto:pemsley@mrc-lmb.cam.ac.uk</url>
+</developer>
+ <content_rating type="oars-1.1" />
+<releases>
+    <release version="1.1.10" date="2024-07-21"></release>
+</releases>
 </component>
