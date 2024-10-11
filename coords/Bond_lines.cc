@@ -2016,7 +2016,6 @@ Bond_lines_container::add_link_bond(mmdb::Model *model_p,
       std::cout << "calling add_link_bond with LINK "
                 << "\"" << link->chainID1 << "\""
                 << " "  << link->seqNum1   << " "
-                << "\"" << link->seqNum1  << "\""
                 << "\"" << link->atName1  << "\""
                 << " to "
                 << "\"" << link->chainID2 << "\""
@@ -2191,9 +2190,11 @@ Bond_lines_container::add_link_bond_templ(mmdb::Model *model_p, int udd_atom_ind
       }
    } else {
       if (! atom_1)
-         std::cout << "debug:: in add_link_bond_templ() failed to find atom-1 \"" << link->atName1 << "\"" << std::endl;
+         std::cout << "debug:: in add_link_bond_templ() failed to find atom-1 "
+                   << "\"" << link->chainID1 << "\" " << link->seqNum1 << " \"" << link->atName1 << "\"" << std::endl;
       if (! atom_2)
-         std::cout << "debug:: in add_link_bond_templ() failed to find atom-2 \"" << link->atName2 << "\"" << std::endl;
+         std::cout << "debug:: in add_link_bond_templ() failed to find atom-2 "
+                   << "\"" << link->chainID2 << "\" " << link->seqNum2 << " \"" << link->atName2 << "\"" << std::endl;
    }
 }
 
