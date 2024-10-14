@@ -164,6 +164,7 @@ get_atom_selection(std::string pdb_name,
          mol->FinishStructEdit();
    };
 
+#ifdef USE_GEMMI
    auto transfer_links = [add_links_to_models] (const gemmi::Structure &st, mmdb::Manager *mol) {
 
       std::vector<mmdb::Link> mmdb_links;
@@ -239,10 +240,11 @@ get_atom_selection(std::string pdb_name,
       }
       add_links_to_models(mol, mmdb_links);
    };
+#endif // USE_GEMMI
 
+#ifdef USE_GEMMI
    auto file_name_to_manager_via_gemmi = [transfer_links] (const std::string &pdb_name) {
       mmdb::Manager *mol = nullptr;
-#ifdef USE_GEMMI
       try {
          gemmi::Structure st = gemmi::read_structure_file(pdb_name);
          if (! st.models.empty()) {
@@ -285,9 +287,9 @@ get_atom_selection(std::string pdb_name,
       catch (const std::runtime_error &e) {
          std::cout << "WARNING::" << e.what() << std::endl;
       }
-#endif // USE_GEMMI
       return mol;
    };
+#endif // USE_GEMMI
 
    if (true) // too noisy
       std::cout << "debug():: ============ get_atom_selection() with file \"" << pdb_name << "\""
