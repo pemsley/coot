@@ -1,3 +1,4 @@
+#!/bin/bash
 # 
 # -*-shell-script-*-
 # Local Variables:
@@ -3307,15 +3308,22 @@ if [ "$build_boost" = true ] ; then
    fi
 
    if [ $skip_this = false ] ;  then
+
+      # 20241002-PE
+      # try 1.86.0 becausee 1.83 doesn't compile - like this:
+      # https://github.com/bambulab/BambuStudio/issues/3957
+      # They fixed the problem by udating the boost - let's try that
       boost_version=1_71_0
       boost_version=1_72_0
       boost_version=1_74_0
       boost_version=1_83_0
+      boost_version=1_86_0
       boost_server_dir=1.72.0
       boost_server_dir=1.72.0
       boost_server_dir=1.74.0
       boost_server_dir=1.82.0
       boost_server_dir=1.83.0
+      boost_server_dir=1.86.0
       echo BUILDING boost $boost_version :
       echo BUILDING boost $boost_version >&2
 
