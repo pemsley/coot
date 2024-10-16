@@ -87,6 +87,9 @@ flev_t::initial_residues_circles_layout() {
    try {
       std::pair<lig_build::pos_t, lig_build::pos_t> l_e_pair =
          mol.ligand_extents();
+      std::cout << "initial_residues_circles_layout(): creating ligand grid with args "
+                << l_e_pair.first << " " << l_e_pair.second
+                << std::endl;
       ligand_grid grid(l_e_pair.first, l_e_pair.second);
       grid.fill(mol);
 
