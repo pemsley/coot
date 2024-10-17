@@ -294,6 +294,8 @@ NB_MODULE(chapi, m) {
     .def("get_monomer",&molecules_container_t::get_monomer)
     .def("get_monomer_and_position_at",&molecules_container_t::get_monomer_and_position_at)
     .def("get_monomer_from_dictionary",&molecules_container_t::get_monomer_from_dictionary)
+    .def("get_number_of_atoms",&molecules_container_t::get_number_of_atoms)
+    .def("get_number_of_hydrogen_atoms",&molecules_container_t::get_number_of_hydrogen_atoms)
     .def("get_number_of_molecules",&molecules_container_t::get_number_of_molecules)
     .def("get_number_of_map_sections",&molecules_container_t::get_number_of_map_sections)
     .def("get_octahemisphere",&molecules_container_t::get_octahemisphere)
