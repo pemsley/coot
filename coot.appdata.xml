@@ -41,6 +41,7 @@
 </branding>
  <url type="homepage">https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/</url>
  <url type="help">https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/web/docs</url>
+ <url type="vcs-browser">https://github.com/pemsley/coot</url>
  <url type="bugtracker">https://github.com/pemsley/coot/issues</url>
  <developer id="io.github.pemsley">
   <name>Paul Emsley</name>
