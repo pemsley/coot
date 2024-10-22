@@ -13,6 +13,36 @@ model-building.  *Coot* uses GTK widgets
 mmdb, clipper, and OpenGL to provide interactive tools for model-building,
 refinement and validation.
 
+Installation
+----
+
+## Installing using package managers
+
+The simplest way to install *Coot* is using package managers
+
+## Homebrew (for Mac) / Linuxbrew (for Linux)
+
+After [installing Homebrew or Linuxbrew](https://brew.sh/) run the commands below.
+
+```shell
+brew install brewsci/bio/coot
+coot
+```
+
+## Flatpak(for Linux)
+After [installing Flatpak and registering Flathub](https://flatpak.org/setup/) run the commands below.
+
+```shell
+flatpak install flathub io.github.pemsley.coot
+flatpak run flathub io.github.pemsley.coot  # or simply click Coot's icon in the menu
+```
+
+## Building from source
+
+See [this](https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/web/build-install-coot-from-scratch.html).
+
+##
+
 Blog
 ----
 
