@@ -13,7 +13,7 @@ refinement and validation.
 
 ## Installing using package managers
 
-The simplest way to install *Coot* is using package managers.
+The easiest way to install *Coot* is using package managers.
 
 ### Homebrew (for Mac) / Linuxbrew (for Linux)
 
