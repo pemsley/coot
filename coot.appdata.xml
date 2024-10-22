@@ -35,6 +35,10 @@
     <image type="source">https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/web/screenshots/apoferritin/sapphires-and-emeralds.png</image>
   </screenshot>
  </screenshots>
+ <branding>
+  <color type="primary" scheme_preference="light">#dcc9c7</color>
+  <color type="primary" scheme_preference="dark">#79170a</color>
+</branding>
  <url type="homepage">https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/</url>
  <url type="help">https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/web/docs</url>
  <url type="bugtracker">https://github.com/pemsley/coot/issues</url>
