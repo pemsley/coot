@@ -11,7 +11,7 @@ model-building.  *Coot* uses GTK widgets
 mmdb, clipper, and OpenGL to provide interactive tools for model-building,
 refinement and validation.
 
-## Installing using package managers
+## Installing by package managers
 
 The easiest way to install *Coot* is using package managers.
 
