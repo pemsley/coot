@@ -15,9 +15,9 @@ refinement and validation.
 
 The easiest way to install *Coot* is using package managers.
 
-### Homebrew (for Mac) / Linuxbrew (for Linux)
+### Homebrew (for Mac / Linux)
 
-After [installing Homebrew or Linuxbrew](https://brew.sh/) run the commands below.
+After [installing Homebrew](https://brew.sh/) run the commands below.
 
 ```shell
 brew install brewsci/bio/coot
