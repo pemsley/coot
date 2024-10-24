@@ -248,6 +248,7 @@ get_atom_selection(std::string pdb_name,
       try {
          gemmi::Structure st = gemmi::read_structure_file(pdb_name);
          if (! st.models.empty()) {
+            st.merge_chain_parts();
             mol = new mmdb::Manager;
             gemmi::copy_to_mmdb(st, mol);
             transfer_links(st, mol);
