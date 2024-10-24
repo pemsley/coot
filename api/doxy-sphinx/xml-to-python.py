@@ -1,6 +1,6 @@
 # This script is an attempt to use the XML output of doxygen to
 # create a python file that contains stubs of functions
-# which can then be used to generate python documenation
+# which can then be used to generate python documentation
 # with Sphinx.
 #
 # It does some of that work, but to get it working properly
@@ -17,6 +17,16 @@ myroot = mytree.getroot()
 
 def convert_type(tt: str) -> str:
     if tt == "const std::string &": tt = "str"
+    if tt == "std::string": tt = "str"
+    if tt == "unsigned int": tt = "int"
+    if tt == "double": tt = "float"
+    if tt == "const std::vector< std::string > &": tt = "list"
+    if tt == "const std::vector< std::string > &": tt = "list"
+    if tt == 'const std::map< unsigned int, std::array< float, 3 > > &': tt = "dict"
+    if tt == 'const std::vector< std::pair< std::string, unsigned int > > &': tt = "list"
+    if tt == 'const std::vector< std::pair< std::string, unsigned int > > &': tt = "list"
+    if tt == 'const std::vector< std::pair< bool, mmdb::Residue * > > &, links: const std::vector< mmdb::Link > &': tt = "list"
+    if tt == 'std::vector<': tt == list
     return tt
 
 def make_paren_string(function: dict) -> str:
@@ -37,47 +47,55 @@ def make_paren_string(function: dict) -> str:
     else:
         return ""
 
+def make_return_type(function: dict) -> str:
+    return_type = " -> float"
+    return_type = ""
+    return return_type
 
 def make_python_script(functions: list) -> None:
 
     f = open("chapi-functions.py", "w")
-    f.write("def molecules_container_t():\n\n")
+    f.write("class molecules_container_t:\n\n")
     for function in functions:
         print("Handling function: ", function, ":")
-        try:
-            d = function["briefdescription"]
-            print(f"debug:: briefdescription:{d}:")
-            f.write("    # ")
-            f.write(d)
-            f.write('\n')
-        except KeyError as e:
-            # print("No briefdescription")
-            pass
-        except TypeError as e:
-            pass
-        # maybe use a for loop for this and the above ["briefdescription", "detaileddescription"]
-        try:
-            d = function["detaileddescription"]
-            print(f"debug:: detaileddescription:{d}:")
-            f.write("    # ")
-            f.write(d)
-            f.write('\n')
-        except KeyError as e:
-            # print("No detaileddescription")
-            pass
-        except TypeError as e:
-            pass
 
         parens = ""
         def_ = ""
         if function['kind'] == "function":
             parens = make_paren_string(function)
+            return_type = make_return_type(function)
+            print("debug args: function ", function, "made args:", parens)
             def_ = "def "
+            s = f"    {def_}{function['name']}{parens}{return_type}:\n"
+            f.write(s)
 
-        s = f"    {def_}{function['name']}{parens}\n"
-        f.write(s)
-        if function['kind'] == "function":
+            try:
+                d = function["briefdescription"]
+                print(f"debug:: briefdescription:{d}:")
+                f.write('        """ ')
+                f.write(d)
+                f.write('"""')
+                f.write('\n')
+            except KeyError as e:
+                # print("No briefdescription")
+                pass
+            except TypeError as e:
+                pass
+            # maybe use a for loop for this and the above ["briefdescription", "detaileddescription"]
+            try:
+                d = function["detaileddescription"]
+                print(f"debug:: detaileddescription:{d}:")
+                f.write('        """ ')
+                f.write(d)
+                f.write('"""')
+                f.write('\n')
+            except KeyError as e:
+                # print("No detaileddescription")
+                pass
+            except TypeError as e:
+                pass
             f.write("        pass\n")
+
         f.write("\n")
     f.close()
 
