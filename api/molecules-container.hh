@@ -168,6 +168,7 @@ class molecules_container_t {
                                       int imol,
                                       mmdb::Manager *mol_in,
                                       std::string alt_conf);
+
    // simple mmdb::Residue * interface to refinement.  20081216
    coot::refinement_results_t
    generate_molecule_and_refine(int imol,  // needed for UDD Atom handle transfer
@@ -641,6 +642,10 @@ public:
    //! get monomer and place it at the given position for a particular molecule - use -999999 if no molecule-specific dictionary is needed
    //! @return the new molecule index on success and -1 on failure
    int get_monomer_and_position_at(const std::string &comp_id, int imol, float x, float y, float z);
+
+   // return the atom name match on superposing the atoms of the given dictionaries
+   std::map<std::string, std::string>
+   dictionary_atom_name_map(const std::string &comp_id_1, int imol_1, const std::string &comp_id_2, int imol_2);
 
    // 20221030-PE nice to have one day:
    // int get_monomer_molecule_by_network_and_dict_gen(const std::string &text);
@@ -1400,7 +1405,7 @@ public:
 
    //! Rigid-body fitting
    //!
-   //! `multi_cids" is a "||"-separated list of residues CIDs, e.g. "//A/12-52||//A/14-15||/B/56-66"
+   //! `multi_cids` is a "||"-separated list of residues CIDs, e.g. "//A/12-52||//A/14-15||/B/56-66"
    int rigid_body_fit(int imol, const std::string &multi_cid, int imol_map);
 
    //! change the chain id
@@ -1533,7 +1538,7 @@ public:
                                        const std::string &chain_id);
 
    //! generate GM self restraints for the given residues.
-   //! `residue_cids" is a "||"-separated list of residues, e.g. "//A/12||//A/14||/B/56"
+   //! `residue_cids` is a "||"-separated list of residues, e.g. "//A/12||//A/14||/B/56"
    void generate_local_self_restraints(int imol, float local_dist_max,
                                        const std::string &residue_cids);
 
@@ -1543,7 +1548,8 @@ public:
                                      const std::string &residue_cid_2);
 
    //! get the mesh for extra restraints
-   //! currently mode is unused.
+   //!
+   //! currently `mode` is unused.
    coot::instanced_mesh_t get_extra_restraints_mesh(int imol, int mode);
 
    //! read extra restraints (e.g. from ProSMART)
