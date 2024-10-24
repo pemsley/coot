@@ -137,6 +137,7 @@ class molecules_container_t {
    bool refinement_is_quiet;
    int cif_dictionary_read_number;
    // return the state of having found restraints.
+#ifndef NB_VERSION_MAJOR
    std::string adjust_refinement_residue_name(const std::string &resname) const;
    bool make_last_restraints(const std::vector<std::pair<bool,mmdb::Residue *> > &local_residues,
 			     const std::vector<mmdb::Link> &links,
@@ -154,13 +155,17 @@ class molecules_container_t {
    int find_serial_number_for_insert(int seqnum_new,
                                      const std::string &ins_code_for_new,
                                      mmdb::Chain *chain_p) const;
+
    atom_selection_container_t make_moving_atoms_asc(mmdb::Manager *residues_mol,
                                                     const std::vector<mmdb::Residue *> &residues) const;
+
    // return 0 if any of the residues in selection don't have (at least) bond
    // restraints.  Try to auto-load the dictionary cifs and try again.
    // The vector is a list of residues for which no restraints could be found.
+
    std::pair<int, std::vector<std::string> >
      check_dictionary_for_residue_restraints(int imol, mmdb::PResidue *SelResidues, int nSelResidues);
+
    std::pair<int, std::vector<std::string> >
      check_dictionary_for_residue_restraints(int imol, const std::vector<mmdb::Residue *> &residues);
    std::pair<mmdb::Manager *, std::vector<mmdb::Residue *> >
@@ -168,6 +173,7 @@ class molecules_container_t {
                                       int imol,
                                       mmdb::Manager *mol_in,
                                       std::string alt_conf);
+
    // simple mmdb::Residue * interface to refinement.  20081216
    coot::refinement_results_t
    generate_molecule_and_refine(int imol,  // needed for UDD Atom handle transfer
@@ -175,6 +181,8 @@ class molecules_container_t {
                                 const std::string &alt_conf,
                                 mmdb::Manager *mol,
                                 bool use_map_flag=true);
+#endif
+
    bool refinement_immediate_replacement_flag = true;
    int imol_moving_atoms;
    enum moving_atoms_asc_t {
@@ -199,6 +207,7 @@ class molecules_container_t {
    static void atom_pull_off(const coot::atom_spec_t &spec);
    static void atom_pulls_off(const std::vector<coot::atom_spec_t> &specs);
 
+#ifndef NB_VERSION_MAJOR
    std::vector<std::pair<mmdb::Residue *, std::vector<coot::dict_torsion_restraint_t> > > make_rotamer_torsions(const std::vector<std::pair<bool, mmdb::Residue *> > &local_residues) const;
 
    //! Real space refinement.
@@ -211,6 +220,7 @@ class molecules_container_t {
    //! @return success/progress status
 
    int refine_direct(int imol, std::vector<mmdb::Residue *> rv, const std::string &alt_loc, int n_cycles);
+#endif
 
    double phi_psi_probability(const coot::util::phi_psi_t &phi_psi, const ramachandrans_container_t &rc) const;
 
@@ -1372,8 +1382,10 @@ public:
    merge_molecules(int imol, const std::string &list_of_other_molecules);
 
    //! this is called by the above function and is useful for other non-api functions (such as add_compound()).
+#ifndef NB_VERSION_MAJOR
    std::pair<int, std::vector<merge_molecule_results_info_t> >
    merge_molecules(int imol, std::vector<mmdb::Manager *> mols);
+#endif
 
    //! Convert a cis peptide to a trans or vice versa.
    //! @return 1 on a successful conversion.
