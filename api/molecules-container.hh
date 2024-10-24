@@ -389,7 +389,7 @@ public:
    //! @return the backup-enabled state
    bool get_make_backups() const { return make_backups_flag; }
 
-   //! the backup-enable state (raw public if needed/prefered)
+   //! the backup-enable state (raw public if needed/preferred)
    bool make_backups_flag;
 
    //! @return the string of the contents of the given file-name.
