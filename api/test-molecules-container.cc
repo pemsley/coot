@@ -11,6 +11,9 @@
 #ifdef USE_GEMMI
 #include <gemmi/mmread.hpp>
 #include <gemmi/mmdb.hpp>
+#include <gemmi/enumstr.hpp>
+#include <gemmi/metadata.hpp>
+#include <gemmi/polyheur.hpp>
 #endif
 #include "MoleculesToTriangles/CXXClasses/MyMolecule.h"
 #include "molecules-container.hh"
@@ -4803,7 +4806,8 @@ int test_disappearing_ligand(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
    // int imol = mc.read_pdb(reference_data("6ttq.cif")); // needs gemmi
-   int imol = mc.read_pdb(reference_data("8a2q.cif"));
+   // mc.set_use_gemmi(true);
+   int imol = mc.read_coordinates(reference_data("8a2q.cif"));
    if (mc.is_valid_model_molecule(imol)) {
       mmdb::Manager *mol = mc.get_mol(imol);
       for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
@@ -5987,6 +5991,52 @@ int test_links_in_model_read_via_gemmi(molecules_container_t &mc) {
    return status;
 }
 
+int test_delete_two_add_one_using_gemmi(molecules_container_t &mc) {
+
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+   mc.set_use_gemmi(true);
+
+   int coordMolNo = mc.read_pdb(reference_data("./5a3h.pdb"));
+   int mapMolNo = mc.read_mtz(reference_data("./5a3h_sigmaa.mtz"), "FWT", "PHWT", "", false, false);
+   mc.set_imol_refinement_map(mapMolNo);
+
+   mc.delete_using_cid(coordMolNo, "A/100-101/*", "LITERAL");
+   mc.write_coordinates(coordMolNo, "add_terminal_test_tmp_1.pdb");
+
+   int result = mc.add_terminal_residue_directly_using_cid(coordMolNo, "A/99");
+
+   mc.write_coordinates(coordMolNo, "add_terminal_test_tmp_2.pdb");
+
+   std::vector<mmdb::Residue *> A100s;
+   mmdb::Manager *mol = mc.get_mol(coordMolNo);
+   for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+      mmdb::Model *model_p = mol->GetModel(imod);
+      if (model_p) {
+         int n_chains = model_p->GetNumberOfChains();
+         for (int ichain=0; ichain<n_chains; ichain++) {
+            mmdb::Chain *chain_p = model_p->GetChain(ichain);
+            int n_res = chain_p->GetNumberOfResidues();
+            std::cout << "    " << chain_p->GetChainID() << " " << n_res << " residues " << std::endl;
+            std::string chain_id = chain_p->GetChainID();
+            if (chain_id == "A") {
+               for (int ires=0; ires<n_res; ires++) {
+                  mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                  int seq_num = residue_p->GetSeqNum();
+                  if (seq_num == 100)
+                     A100s.push_back(residue_p);
+               }
+            }
+         }
+      }
+   }
+   std::cout << " here with " << A100s.size() << " residues A 100s" << std::endl;
+   if (A100s.size() == 1)
+      status = 1;
+   return status;
+}
+
 int test_merge_ligand_and_gemmi_parse_mmcif(molecules_container_t &mc) {
 
   auto read_structure_from_string = [] (const std::string &data, const std::string& path){
@@ -6016,12 +6066,15 @@ int test_merge_ligand_and_gemmi_parse_mmcif(molecules_container_t &mc) {
 
    mc.write_coordinates(coordMolNo_1, "my-mol-with-ligand.cif");
 
+   bool merge_chain_parts = true;
    gemmi::Structure st = gemmi::read_structure_file("my-mol-with-ligand.cif");
+   if (merge_chain_parts)
+      st.merge_chain_parts();
 
    // std::string mmcifString = mc.get_molecule_atoms(coordMolNo_1, "mmcif");
    // auto st = read_structure_from_string(mmcifString, "test-molecule");
-   // gemmi::setup_entities(st);  FIXME
-   // gemmi::add_entity_types(st, true); FIXME
+   gemmi::setup_entities(st);
+   gemmi::add_entity_types(st, true);
 
    auto model = st.first_model();
    auto chains = model.chains;
@@ -6038,10 +6091,25 @@ int test_merge_ligand_and_gemmi_parse_mmcif(molecules_container_t &mc) {
 	     << ligands.size() << std::endl;
 
    std::cout << "chain things " << chain.whole().size() << std::endl;
-   std::cout << "chain 0 things " << chains[0].whole().size() << std::endl;
-   std::cout << "chain 1 things " << chains[1].whole().size() << std::endl;
-   std::cout << "chain 2 things " << chains[2].whole().size() << std::endl;
-   std::cout << "chain 3 things " << chains[3].whole().size() << std::endl;
+   std::cout << "chain 0 things " << chains[0].name << " " << chains[0].whole().size() << std::endl;
+   std::cout << "chain 1 things " << chains[1].name << " " << chains[1].whole().size() << std::endl;
+   std::cout << "chain 2 things " << chains[2].name << " " << chains[2].whole().size() << std::endl;
+   // std::cout << "chain 3 things " << chains[3].name << " " << chains[3].whole().size() << std::endl;
+
+   std::cout << "get_ligands(): size    " << chains[2].get_ligands().size()   << std::endl;
+   std::cout << "get_ligands(): length  " << chains[2].get_ligands().length() << std::endl;
+   std::cout << "get polymer " << chains[2].get_polymer().length() << std::endl;
+   std::cout << "get waters  " << chains[2].get_waters().length()  << std::endl;
+
+   gemmi::EntityType et = chains[2].whole().at(0).entity_type;
+   std::cout << "get_ligands(): whole " << gemmi::entity_type_to_string(et) << std::endl;
+
+   gemmi::ResidueSpan whole = chains[2].whole();
+   std::cout << "whole span length: " << whole.length() << std::endl;
+
+   if (model.chains.size() == 3)
+      if (chains[2].get_ligands().size() == 1)
+         status = 1;
 
    return status;
 
@@ -6362,7 +6430,7 @@ int main(int argc, char **argv) {
          // status += run_test(test_dictionary_acedrg_atom_types_for_ligand, "Acedrg atom types for ligand", mc);
          // status += run_test(test_long_name_ligand_cif_merge, "test long name ligand cif merge", mc);
          status += run_test(test_merge_ligand_and_gemmi_parse_mmcif, "test_merge_ligand_and_gemmi_parse_mmcif", mc);
-
+         status += run_test(test_delete_two_add_one_using_gemmi, "test_delete_two_add_one_using_gemmi", mc);
          if (status == n_tests) all_tests_status = 0;
 
          print_results_summary();
