@@ -137,7 +137,6 @@ class molecules_container_t {
    bool refinement_is_quiet;
    int cif_dictionary_read_number;
    // return the state of having found restraints.
-#ifndef NB_VERSION_MAJOR
    std::string adjust_refinement_residue_name(const std::string &resname) const;
 #ifdef DOXYGEN_SHOULD_PARSE_THIS
 #else
@@ -228,11 +227,15 @@ class molecules_container_t {
    //!
    //! @return success/progress status
 
-#ifndef NB_VERSION_MAJOR
+#ifdef DOXYGEN_SHOULD_PARSE_THIS
+#else
+   //! Refine direct
    int refine_direct(int imol, std::vector<mmdb::Residue *> rv, const std::string &alt_loc, int n_cycles);
+
+   //! get phi,psi probability
+   double phi_psi_probability(const coot::util::phi_psi_t &phi_psi, const ramachandrans_container_t &rc) const;
 #endif
 
-   double phi_psi_probability(const coot::util::phi_psi_t &phi_psi, const ramachandrans_container_t &rc) const;
 
    //! read the standard protein, RNA, and DNA dictionaries.
    void read_standard_residues();
@@ -241,21 +244,25 @@ class molecules_container_t {
 
    atom_selection_container_t standard_residues_asc;
 
-   int install_model(const coot::molecule_t &m);
-
    coot::graph_match_info_t overlap_ligands_internal(int imol_ligand, int imol_ref, const std::string &chain_id_ref,
                                                      int resno_ref, bool apply_rtop_flag);
+
+
+#ifdef DOXYGEN_SHOULD_PARSE_THIS
+#else
+
+   int install_model(const coot::molecule_t &m);
 
    superpose_results_t
    superpose_with_atom_selection(atom_selection_container_t asc_ref,
                                  atom_selection_container_t asc_mov,
                                  int imol_mov,
                                  std::string moving_mol_name,
-                                 std::string referennce_mol_name,
+                                 std::string reference_mol_name,
                                  bool move_copy_of_imol2_flag);
+#endif
 
 #ifdef HAVE_SSMLIB
-#ifndef NB_VERSION_MAJOR
 
    void print_ssm_sequence_alignment(ssm::Align *SSMAlign,
 				     atom_selection_container_t asc_ref,
@@ -303,7 +310,6 @@ class molecules_container_t {
              mmdb::PAtom *atom_selection1, mmdb::PAtom *atom_selection2,
              int n_selected_atoms_1, int n_selected_atoms_2) const;
 
-#endif  // Nanobinds exclusion
 
    void print_horizontal_ssm_sequence_alignment(std::pair<std::string, std::string> aligned_sequences) const;
 

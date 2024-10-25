@@ -12,7 +12,7 @@
 # and modify it by tracking changes made to the nanobinds file.
 
 import xml.etree.ElementTree as ET
-mytree = ET.parse('xml/classmolecules__container__t.xml')
+mytree = ET.parse('doxygen_output/xml/classmolecules__container__t.xml')
 myroot = mytree.getroot()
 
 def convert_type(tt: str) -> str:
@@ -49,10 +49,12 @@ def make_paren_string(function: dict) -> str:
     else:
         return ""
 
+
 def make_return_type(function: dict) -> str:
     return_type = " -> float"
     return_type = ""
     return return_type
+
 
 def make_python_script(functions: list) -> None:
 
@@ -122,6 +124,7 @@ for x in myroot.iter('sectiondef'):
         print("####### header text: ", ht)
     for child in x:
         if child.tag == "memberdef":
+            keep_going = True
             try:
                 name = "--unset--"
                 a_function = {}
@@ -137,10 +140,12 @@ for x in myroot.iter('sectiondef'):
                     if ch.tag == "definition":
                         print('============ definition', ch.tag)
                         if ch.text == "molecules_container_t::~molecules_container_t":
+                            keep_going = False
                             print('breaking out')
                             break
                             # next memberdef
                         if ch.text == "molecules_container_t::molecules_container_t":
+                            keep_going = False
                             print('breaking out')
                             break
                     if ch.tag == "param":
@@ -177,7 +182,8 @@ for x in myroot.iter('sectiondef'):
                                   print("Here with descr", descr, " for name ", name)
                                   a_function["detaileddescription"] = descr
                 if a_function:
-                    functions.append(a_function)
+                    if keep_going:
+                        functions.append(a_function)
 
             except AttributeError as e:
                 print(e)
