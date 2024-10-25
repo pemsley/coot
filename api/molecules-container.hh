@@ -421,9 +421,11 @@ public:
    //! the backup-enable state (raw public if needed/preferred)
    bool make_backups_flag;
 
+   //! File name to string
    //! @return the string of the contents of the given file-name.
    std::string file_name_to_string(const std::string &file_name) const;
 
+   //! Get the number of molecules
    //! @return the number of molecules
    unsigned int get_number_of_molecules() const { return molecules.size(); }
 
@@ -436,6 +438,7 @@ public:
    void set_imol_refinement_map(int i) { imol_refinement_map = i; }
    //! set the map weight
    void set_map_weight(float w) { map_weight = w; }
+   //! Get map weight
    //! @return the map weight
    float get_map_weight() const { return map_weight; }
 
@@ -928,15 +931,19 @@ public:
    std::pair<bool, coot::Cartesian> get_atom_position(int imol, coot::atom_spec_t &atom_spec);
 #endif
 
+   //! Get number of atoms
    //! @return the number of atoms in the specified model, or 0 on error
    unsigned int get_number_of_atoms(int imol) const;
 
+   //! get molecule diameter
    //! @return an estimate of the diameter of the model molecule (-1 on failure)
    float get_molecule_diameter(int imol) const;
 
+   //! get number of hydrogen atoms
    //! @return the number of hydrogen atoms in the specified model, or -1 on error
    int get_number_of_hydrogen_atoms(int imol) const;
 
+   //! get the chain ids in the given molecule
    //! @return vector of chain-ids for the given molecule
    std::vector<std::string> get_chains_in_model(int imol) const;
 
@@ -944,9 +951,11 @@ public:
    //! @return a vector of vector of chain ids, e.g. [[A,C], [B,D]] (for hemoglobin).
    std::vector<std::vector<std::string> > get_ncs_related_chains(int imol) const;
 
+   //! get the single letter codes for the residues in the specified chain
    //! @return vector of single letter codes - in a pair with the given residue spec
    std::vector<std::pair<coot::residue_spec_t, std::string> > get_single_letter_codes_for_chain(int imol, const std::string &chain_id) const;
 
+   //! get a list of residues that  don't have a dictionary
    //! @return a list of residue that don't have a dictionary
    std::vector<std::string> get_residue_names_with_no_dictionary(int imol) const;
 
@@ -954,16 +963,20 @@ public:
    //! @return the residue name, return a blank string on residue not found.
    std::string get_residue_name(int imol, const std::string &chain_id, int res_no, const std::string &ins_code) const;
 
+   //! get residues with missing atoms
    //! @return an object that has information about residues without dictionaries and residues with missing atom
    //! in the the specified molecule
    std::vector<coot::residue_spec_t> residues_with_missing_atoms(int imol);
 
+#ifdef DOXYGEN_SHOULD_PARSE_THIS
+#else
    //! Ths function is not const because missing_atoms() takes a non-const pointer to the geometry
    // (20230117-PE I should fix that)
    //!
    //! @return an object that has information about residues without dictionaries and residues with missing atom
    //! in the the specified molecule
    coot::util::missing_atom_info missing_atoms_info_raw(int imol);
+#endif
 
    //! @return a list of residues specs that have atoms within dist of the atoms of the specified residue
    std::vector<coot::residue_spec_t> get_residues_near_residue(int imol, const std::string &residue_cid, float dist) const;
