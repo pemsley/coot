@@ -132,8 +132,17 @@ for x in myroot.iter('sectiondef'):
                     print("\n -----  Handling function")
                     # if function.name ==  "molecules_container_t": continue
                     # if function.name == "~molecules_container_t": continue
-                for ch in child:
-                    print("      ch.tag ", ch.tag, ch.text, ":")
+                for ii,ch in enumerate(child):
+                    print("      ch.tag ", ii, ch.tag, ch.text, ":")
+                    if ch.tag == "definition":
+                        print('============ definition', ch.tag)
+                        if ch.text == "molecules_container_t::~molecules_container_t":
+                            print('breaking out')
+                            break
+                            # next memberdef
+                        if ch.text == "molecules_container_t::molecules_container_t":
+                            print('breaking out')
+                            break
                     if ch.tag == "param":
                         print("   found a param!")
                         t = ch.find("type")
