@@ -6114,6 +6114,24 @@ int test_merge_ligand_and_gemmi_parse_mmcif(molecules_container_t &mc) {
    return status;
 
 }
+
+int test_dictionary_atom_name_match(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+
+   std::string comp_id_1 = "TYR";
+   std::string comp_id_2 = "PTY";
+   int imol_1 = coot::protein_geometry::IMOL_ENC_ANY;
+   int imol_2 = coot::protein_geometry::IMOL_ENC_ANY;
+
+   std::map<std::string, std::string> m =
+   mc.dictionary_atom_name_map(comp_id_1, imol_1, comp_id_2, imol_2);
+
+   int status = 0;
+   return status;
+}
+
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -6429,8 +6447,9 @@ int main(int argc, char **argv) {
          // status += run_test(test_dictionary_acedrg_atom_types, "Acedrg atom types", mc);
          // status += run_test(test_dictionary_acedrg_atom_types_for_ligand, "Acedrg atom types for ligand", mc);
          // status += run_test(test_long_name_ligand_cif_merge, "test long name ligand cif merge", mc);
-         status += run_test(test_merge_ligand_and_gemmi_parse_mmcif, "test_merge_ligand_and_gemmi_parse_mmcif", mc);
-         status += run_test(test_delete_two_add_one_using_gemmi, "test_delete_two_add_one_using_gemmi", mc);
+         // status += run_test(test_merge_ligand_and_gemmi_parse_mmcif, "test_merge_ligand_and_gemmi_parse_mmcif", mc);
+         // status += run_test(test_delete_two_add_one_using_gemmi, "test_delete_two_add_one_using_gemmi", mc);
+         status += run_test(test_dictionary_atom_name_match, "dictionary atom names match", mc);
          if (status == n_tests) all_tests_status = 0;
 
          print_results_summary();
