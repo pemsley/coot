@@ -137,6 +137,7 @@ class molecules_container_t {
    bool refinement_is_quiet;
    int cif_dictionary_read_number;
    // return the state of having found restraints.
+#ifndef NB_VERSION_MAJOR
    std::string adjust_refinement_residue_name(const std::string &resname) const;
 #ifdef DOXYGEN_SHOULD_PARSE_THIS
 #else
@@ -163,8 +164,10 @@ class molecules_container_t {
    // return 0 if any of the residues in selection don't have (at least) bond
    // restraints.  Try to auto-load the dictionary cifs and try again.
    // The vector is a list of residues for which no restraints could be found.
+
    std::pair<int, std::vector<std::string> >
      check_dictionary_for_residue_restraints(int imol, mmdb::PResidue *SelResidues, int nSelResidues);
+
    std::pair<int, std::vector<std::string> >
      check_dictionary_for_residue_restraints(int imol, const std::vector<mmdb::Residue *> &residues);
 
@@ -1406,8 +1409,10 @@ public:
    merge_molecules(int imol, const std::string &list_of_other_molecules);
 
    //! this is called by the above function and is useful for other non-api functions (such as add_compound()).
+#ifndef NB_VERSION_MAJOR
    std::pair<int, std::vector<merge_molecule_results_info_t> >
    merge_molecules(int imol, std::vector<mmdb::Manager *> mols);
+#endif
 
    //! Convert a cis peptide to a trans or vice versa.
    //! @return 1 on a successful conversion.

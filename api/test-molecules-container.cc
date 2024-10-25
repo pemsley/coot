@@ -4796,7 +4796,7 @@ int test_long_name_ligand_cif_merge(molecules_container_t &mc) {
    if (found_it) status = 1;
    return status;
 }
-
+#undef USE_GEMMI
 #ifdef USE_GEMMI
 #include "gemmi/mmread.hpp"
 #include "gemmi/mmdb.hpp"
