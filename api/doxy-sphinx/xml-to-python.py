@@ -20,6 +20,8 @@ def convert_type(tt: str) -> str:
     if tt == "std::string": tt = "str"
     if tt == "unsigned int": tt = "int"
     if tt == "double": tt = "float"
+    if tt == 'std::vector< ': tt = "list"
+    if tt == 'const std::vector< ': tt = "list"
     if tt == "const std::vector< std::string > &": tt = "list"
     if tt == "const std::vector< std::string > &": tt = "list"
     if tt == 'const std::map< unsigned int, std::array< float, 3 > > &': tt = "dict"
@@ -40,10 +42,10 @@ def make_paren_string(function: dict) -> str:
                 r += ": "
                 t = convert_type(param['type'])
                 r += t
-            r = "(" + r + ")"
+            r = "(self, " + r + ")"
             return r
         except KeyError as e:
-            return "()"
+            return "(self)"
     else:
         return ""
 
@@ -55,9 +57,9 @@ def make_return_type(function: dict) -> str:
 def make_python_script(functions: list) -> None:
 
     f = open("chapi-functions.py", "w")
-    f.write("class molecules_container_t:\n\n")
+    f.write("class molecules_container_t:\n")
     for function in functions:
-        print("Handling function: ", function, ":")
+        print("\n--- make_python_script(): Handling function: ", function, ":")
 
         parens = ""
         def_ = ""
@@ -69,6 +71,8 @@ def make_python_script(functions: list) -> None:
             s = f"    {def_}{function['name']}{parens}{return_type}:\n"
             f.write(s)
 
+            done_brief = False
+            done_detailed = False
             try:
                 d = function["briefdescription"]
                 print(f"debug:: briefdescription:{d}:")
@@ -76,6 +80,7 @@ def make_python_script(functions: list) -> None:
                 f.write(d)
                 f.write('"""')
                 f.write('\n')
+                done_brief = True
             except KeyError as e:
                 # print("No briefdescription")
                 pass
@@ -89,11 +94,16 @@ def make_python_script(functions: list) -> None:
                 f.write(d)
                 f.write('"""')
                 f.write('\n')
+                done_detailed = True
             except KeyError as e:
                 # print("No detaileddescription")
                 pass
             except TypeError as e:
                 pass
+            if not done_brief:
+                if not done_detailed:
+                    # we need some doc string for the sphinx to pick up the function
+                    f.write('        """Sphinx-Doc-Placeholder"""\n')
             f.write("        pass\n")
 
         f.write("\n")
@@ -119,7 +129,9 @@ for x in myroot.iter('sectiondef'):
                 print("   child kind:", kind)
                 a_function['kind'] = kind
                 if kind == "function":
-                    print("   Handling function")
+                    print("\n -----  Handling function")
+                    # if function.name ==  "molecules_container_t": continue
+                    # if function.name == "~molecules_container_t": continue
                 for ch in child:
                     print("      ch.tag ", ch.tag, ch.text, ":")
                     if ch.tag == "param":
@@ -127,7 +139,7 @@ for x in myroot.iter('sectiondef'):
                         t = ch.find("type")
                         print("   debug:: param type:", t)
                         tt = t.text
-                        print("    tt", tt)
+                        print("    tt: '" + tt + "'")
                         dn = ch.find("declname")
                         dn = dn.text
                         print("    dn", dn)
@@ -147,7 +159,8 @@ for x in myroot.iter('sectiondef'):
                               brief_descr = c.text
                               a_function["briefdescription"] = brief_descr
                     if ch.tag == "detaileddescription":
-                        for c in ch:
+                        for idx,c in enumerate(ch):
+                          print("   detaileddescription: item", idx, "is:", c)
                           if c.tag == "para":
                               # a para can have a parameter list and no text
                               descr = c.text
