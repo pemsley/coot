@@ -91,13 +91,15 @@ class molecules_container_t {
          imol_with_data_info_attached = -1;
       }
    };
+
+   //! set updating maps need an update (private)
    updating_maps_info_f updating_maps_info;
    void set_updating_maps_need_an_update(int imol); // if model imol was changed, let's update the map when
                                                     // the next contouring mesh is requested.
                                                     // Checks the above information before acting, of course.
                                                     // No action if imol is the the model for updating maps.
 
-   //! update the updating maps without generating a mesh
+   //! update the updating maps without generating a mesh (private)
    void update_updating_maps(int imol); // called from the get_map_contours_mesh() function
 
    coot::util::sfcalc_genmap_stats_t latest_sfcalc_stats;
@@ -136,7 +138,7 @@ class molecules_container_t {
    bool continue_threaded_refinement_loop;
    bool refinement_is_quiet;
    int cif_dictionary_read_number;
-   // return the state of having found restraints.
+   //! return the state of having found restraints.
    std::string adjust_refinement_residue_name(const std::string &resname) const;
 #ifdef DOXYGEN_SHOULD_PARSE_THIS
 #else
@@ -183,6 +185,16 @@ class molecules_container_t {
                                 const std::string &alt_conf,
                                 mmdb::Manager *mol,
                                 bool use_map_flag=true);
+
+   static void thread_for_refinement_loop_threaded();
+
+   static std::atomic<bool> restraints_lock;
+   static void get_restraints_lock(const std::string &calling_function_name);
+   static void release_restraints_lock(const std::string &calling_function_name);
+   static std::string restraints_locking_function_name; //  static because it is set by above
+
+   bool particles_have_been_shown_already_for_this_round_flag;
+
 #endif
 
    bool refinement_immediate_replacement_flag = true;
@@ -195,18 +207,10 @@ class molecules_container_t {
       NEW_COORDS_INSERT = 4,
       NEW_COORDS_INSERT_CHANGE_ALTCONF = 5};
    short int moving_atoms_asc_type;
-   static void thread_for_refinement_loop_threaded();
 
-   static std::atomic<bool> restraints_lock;
-   static void get_restraints_lock(const std::string &calling_function_name);
-   static void release_restraints_lock(const std::string &calling_function_name);
-   static std::string restraints_locking_function_name; //  static because it is set by above
-
-   bool particles_have_been_shown_already_for_this_round_flag;
-
-   static void all_atom_pulls_off();
 #ifdef DOXYGEN_SHOULD_PARSE_THIS
 #else
+   static void all_atom_pulls_off();
    static std::vector<atom_pull_info_t> atom_pulls;
    // nanobinds doesn't have a atom_spec_t, does it?
    static void atom_pull_off(const coot::atom_spec_t &spec);
@@ -237,19 +241,18 @@ class molecules_container_t {
 #endif
 
 
-   //! read the standard protein, RNA, and DNA dictionaries.
+   //! read the standard protein, RNA, and DNA dictionaries (private)
    void read_standard_residues();
 
    std::map<svg_store_key_t, std::string> ligand_svg_store;
 
    atom_selection_container_t standard_residues_asc;
 
-   coot::graph_match_info_t overlap_ligands_internal(int imol_ligand, int imol_ref, const std::string &chain_id_ref,
-                                                     int resno_ref, bool apply_rtop_flag);
-
-
 #ifdef DOXYGEN_SHOULD_PARSE_THIS
 #else
+
+   coot::graph_match_info_t overlap_ligands_internal(int imol_ligand, int imol_ref, const std::string &chain_id_ref,
+                                                     int resno_ref, bool apply_rtop_flag);
 
    int install_model(const coot::molecule_t &m);
 
@@ -271,7 +274,6 @@ class molecules_container_t {
 				     mmdb::PAtom *atom_selection2,
 				     int n_selected_atoms_1, int n_selected_atoms_2,
 				     bool move_copy_of_imol2_flag);
-
 
    coot::validation_information_t
    make_ssm_sequence_alignment_as_validation_information(ssm::Align *SSMAlign,
@@ -317,12 +319,11 @@ class molecules_container_t {
 
 #endif  // HAVE_SSMLIB
 
-
-   // for auto-read mtz
+   //! for auto-read mtz (private)
    int valid_labels(const std::string &mtz_file_name, const std::string &f_col, const std::string &phi_col,
                     const std::string &weight_col, int use_weights) const;
 
-   // water fitting
+   // water fitting settings
    float ligand_water_to_protein_distance_lim_max;
    float ligand_water_to_protein_distance_lim_min;
    float ligand_water_variance_limit;
@@ -330,6 +331,7 @@ class molecules_container_t {
 
    // --------------------- init --------------------------
 
+   //! init (private)
    void init() {
 
       use_gemmi = true;
@@ -372,6 +374,7 @@ class molecules_container_t {
       // debug();
    }
 
+   //! write some debugging info to standard out
    void debug() const;
 
    bool map_is_contoured_using_thread_pool_flag;
@@ -471,16 +474,20 @@ public:
    // -------------------------------- generic utils -----------------------------------
    //! \name Generic Utils
 
+   //! get the molecule name
    //! @return the name of the molecule
    std::string get_molecule_name(int imol) const;
    //! set the molecule name
    void set_molecule_name(int imol, const std::string &new_name);
    //! debugging function: display the table of molecule and names
    void display_molecule_names_table() const;
+   //! is this model molecule valid?
    //! @return is this a valid model?
    bool is_valid_model_molecule(int imol) const;
+   //! is this a valid map molecule?
    //! @return is this a valid map?
    bool is_valid_map_molecule(int imol_map) const;
+   //! is this a map and if so, is it a difference map?
    //! @return is this a difference map?
    bool is_a_difference_map(int imol_map) const;
 
@@ -492,8 +499,8 @@ public:
    //! @return 1 on successful closure and 0 on failure to close
    int close_molecule(int imol);
 
-   // delete the most recent/last closed molecule in the molecule vector, until the first
-   // non-closed molecule is found (working from the end)
+   //! delete the most recent/last closed molecule in the molecule vector, until the first
+   //! non-closed molecule is found (working from the end)
    void end_delete_closed_molecules();
 
    //! delete the most recent/last molecule in the molecule vector
@@ -502,9 +509,11 @@ public:
    //! delete all molecules
    void clear();
 
+   //! get the eigenvalues of the specified residue
    //! @return the eigenvalues of the atoms in the specified residue
    std::vector<double> get_eigenvalues(int imol, const std::string &chain_id, int res_no, const std::string &ins_code);
 
+   //! get a simple test mesh
    //! @return the mesh of a unit solid cube at the origin
    coot::simple_mesh_t test_origin_cube() const;
 
@@ -558,6 +567,8 @@ public:
    // -------------------------------- backup and saving -----------------------------------
    //! \name Backup and Saving
 
+   //! are there unsaved changes for this model?
+   //! i.e. as yet not written to disk.
    //! @return a flag of unsaved models state - i.e. if any of them are unsaved, then this returns true.
    bool contains_unsaved_models() const {
       for (const auto &m : molecules) {
@@ -581,6 +592,7 @@ public:
    //! read the standard list of residues
    void geometry_init_standard();
 
+   //! get a list of non-standard residues in the given molecule.
    //! @return a vector of non-standard residues (so that they can be used for auxiliary dictionary import)
    std::vector<std::string> non_standard_residue_types_in_model(int imol) const;
 
@@ -978,7 +990,9 @@ public:
    coot::util::missing_atom_info missing_atoms_info_raw(int imol);
 #endif
 
-   //! @return a list of residues specs that have atoms within dist of the atoms of the specified residue
+
+   //! get a list of residues specs that have atoms within dist of the atoms of the specified residue
+   //! @return a list of residue specs
    std::vector<coot::residue_spec_t> get_residues_near_residue(int imol, const std::string &residue_cid, float dist) const;
 
    //! superposition (using SSM)
@@ -1090,6 +1104,9 @@ public:
    //! Read the given mtz file.
    //! @return a vector of the maps created from reading the file
    std::vector<auto_read_mtz_info_t> auto_read_mtz(const std::string &file_name);
+   //! read a CCP4 (or MRC) map
+   //!
+   //! There is currently a size limit of 1000 pixels per edge.
    //! @return the new molecule number or -1 on failure
    int read_ccp4_map(const std::string &file_name, bool is_a_difference_map);
    //! write a map. This function was be renamed from ``writeMap``
@@ -2081,7 +2098,7 @@ public:
    double test_thread_pool_threads(unsigned int n_threads);
 
    //! a test for mmdb/gemmi/mmcif functionality
-   //
+   //!
    //! @param last_test_only is `true` to mean that only that last test should be run.
    //! The default is `false`.
    //! This is useful to set to `true` while a test is being developed.
