@@ -5334,16 +5334,16 @@ on_screendump_filechooser_dialog_response (GtkDialog * dialog,
                                            gint response_id,
                                            gpointer user_data) {
 
-   GtkWidget *file_chooser = widget_from_builder("screendump_filechooser_dialog");
+   //GtkWidget *file_chooser = widget_from_builder("screendump_filechooser_dialog");
    if (response_id == GTK_RESPONSE_OK) {
 
-      int image_type = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(file_chooser), "image_type"));
+      int image_type = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(dialog), "image_type"));
       // const char *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(file_chooser));
-      GFile *file = gtk_file_chooser_get_file(GTK_FILE_CHOOSER(file_chooser));
+      GFile *file = gtk_file_chooser_get_file(GTK_FILE_CHOOSER(dialog));
       GError *error = NULL;
-      GFileInfo *file_info = g_file_query_info(file, G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE,
-                                               G_FILE_QUERY_INFO_NONE, NULL, &error);
-      const char *file_name = g_file_info_get_name(file_info);
+//      GFileInfo *file_info = g_file_query_info(file, G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE,
+//                                               G_FILE_QUERY_INFO_NONE, NULL, &error);
+      const char *file_name = g_file_get_path(file);
 
       if (image_type == COOT_SCREENDUMP_SIMPLE) {
          screendump_tga(file_name);
@@ -5355,7 +5355,7 @@ on_screendump_filechooser_dialog_response (GtkDialog * dialog,
          make_image_raster3d(file_name);
       }
    }
-   gtk_widget_set_visible(file_chooser, FALSE);
+   gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
 }
 
 

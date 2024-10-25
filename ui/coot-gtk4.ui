@@ -13447,21 +13447,29 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
   </object>
   <object class="GtkFileChooserDialog" id="screendump_filechooser_dialog">
     <property name="use-header-bar">0</property>
+    <property name="title" translatable="yes">Coot: Select Filename for Screendump</property>
+    <property name="hide-on-close">true</property>
     <property name="action">save</property>
     <signal name="response" handler="on_screendump_filechooser_dialog_response" swapped="no"/>
-    <child>
-      <object class="GtkBox">
-        <property name="orientation">vertical</property>
-        <property name="spacing">2</property>
-         <child type="action">
-              <object class="GtkButton" id="button14">
-                <property name="label" translatable="yes">Cancel</property>
-                <property name="can-focus">1</property>
-                <property name="receives-default">1</property>
-              </object>
-        </child>
-      </object>
+    <child type="action">
+        <object class="GtkButton" id="save_screendump_file_chooser_dialog_button_cancel">
+            <property name="label" translatable="yes">Cancel</property>
+            <property name="can-focus">1</property>
+            <property name="receives-default">1</property>
+        </object>
     </child>
+    <child type="action">
+        <object class="GtkButton" id="save_screendump_file_chooser_dialog_button_ok">
+            <property name="label" translatable="yes"> OK</property>
+            <property name="can-focus">1</property>
+            <property name="receives-default">1</property>
+        </object>
+    </child>
+    <action-widgets>
+      <action-widget response="cancel">save_screendump_file_chooser_dialog_button_cancel</action-widget>
+      <action-widget response="ok" default="true">save_screendump_file_chooser_dialog_button_ok</action-widget>
+    </action-widgets>
+
   </object>
 
   <object class="GtkDialog" id="select_fitting_map_dialog">
