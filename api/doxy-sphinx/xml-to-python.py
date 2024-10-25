@@ -16,15 +16,19 @@ mytree = ET.parse('doxygen_output/xml/classmolecules__container__t.xml')
 myroot = mytree.getroot()
 
 def convert_type(tt: str) -> str:
+    if tt == "const ": tt = "str" # needed for a coot::colour_t
     if tt == "const std::string &": tt = "str"
     if tt == "std::string": tt = "str"
     if tt == "unsigned int": tt = "int"
     if tt == "double": tt = "float"
     if tt == 'std::vector< ': tt = "list"
     if tt == 'const std::vector< ': tt = "list"
+    if tt == 'const std::vector< float > &': tt = "list"
+    if tt == 'std::vector< float > &': tt = "list"
     if tt == "const std::vector< std::string > &": tt = "list"
     if tt == "const std::vector< std::string > &": tt = "list"
     if tt == 'const std::map< unsigned int, std::array< float, 3 > > &': tt = "dict"
+    if tt == 'const std::map< unsigned int, std::array< float, 4 > > &': tt = "dict"
     if tt == 'const std::vector< std::pair< std::string, unsigned int > > &': tt = "list"
     if tt == 'const std::vector< std::pair< std::string, unsigned int > > &': tt = "list"
     if tt == 'const std::vector< std::pair< bool, mmdb::Residue * > > &, links: const std::vector< mmdb::Link > &': tt = "list"
@@ -138,7 +142,6 @@ for x in myroot.iter('sectiondef'):
                 for ii,ch in enumerate(child):
                     print("      ch.tag ", ii, ch.tag, ch.text, ":")
                     if ch.tag == "definition":
-                        print('============ definition', ch.tag)
                         if ch.text == "molecules_container_t::~molecules_container_t":
                             keep_going = False
                             print('breaking out')
@@ -153,7 +156,7 @@ for x in myroot.iter('sectiondef'):
                         t = ch.find("type")
                         print("   debug:: param type:", t)
                         tt = t.text
-                        print("    tt: '" + tt + "'")
+                        print("    tt: '" + str(tt) + "'")
                         dn = ch.find("declname")
                         dn = dn.text
                         print("    dn", dn)
