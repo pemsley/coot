@@ -5813,4 +5813,22 @@ molecules_container_t::get_median_temperature_factor(int imol) const {
    return b_factor;
 }
 
+// return the atom name match on superposing the atoms of the given dictionaries
+std::map<std::string, std::string>
+molecules_container_t::dictionary_atom_name_map(const std::string &comp_id_1, int imol_1, const std::string &comp_id_2, int imol_2) {
+
+   std::map<std::string, std::string> m;
+
+   std::pair<bool, coot::dictionary_residue_restraints_t> r_p_1 = geom.get_monomer_restraints(comp_id_1, imol_1);
+   std::pair<bool, coot::dictionary_residue_restraints_t> r_p_2 = geom.get_monomer_restraints(comp_id_2, imol_2);
+   if (r_p_1.first) {
+      if (r_p_2.first) {
+         const coot::dictionary_residue_restraints_t &dict_1 = r_p_1.second;
+         const coot::dictionary_residue_restraints_t &dict_2 = r_p_2.second;
+         coot::dictionary_match_info_t dm = dict_1.match(dict_2, nullptr, comp_id_1, "dummy");
+      }
+   }
+
+   return m;
+}
 
