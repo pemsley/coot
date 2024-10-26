@@ -48,7 +48,7 @@ coot::dictionary_residue_restraints_t::compare(const dictionary_residue_restrain
       hydrogen_status[atom_info[iat].atom_id_4c] = h_status;
       hydrogen_status[atom_info[iat].atom_id   ] = h_status;
    }
-   
+
    // residue info
    bool residue_info_matches = true;
    if (r.residue_info.comp_id != residue_info.comp_id) {
@@ -61,7 +61,7 @@ coot::dictionary_residue_restraints_t::compare(const dictionary_residue_restrain
    std::string comp_id_s;
    if (output_energy_types)
       comp_id_s = std::string(" ") + residue_info.comp_id + std::string(" ");
-   
+
    if (r.residue_info.three_letter_code != residue_info.three_letter_code) {
       std::cout << "Residue-Info:: " << comp_id_s << " mismatch three_letter_code "
 		<< residue_info.three_letter_code << " vs "
@@ -133,7 +133,7 @@ coot::dictionary_residue_restraints_t::compare(const dictionary_residue_restrain
       std::cout << std::endl;
    }
    missing_atoms.clear();
-   
+
    for (unsigned int iat=0; iat<r.atom_info.size(); iat++) { 
       if (compare_hydrogens || ! r.is_hydrogen(r.atom_info[iat].atom_id_4c)) { 
 	 const std::string &atom_id_refr = r.atom_info[iat].atom_id;
@@ -157,7 +157,7 @@ coot::dictionary_residue_restraints_t::compare(const dictionary_residue_restrain
       std::cout << std::endl;
    }
 
-   
+
    for (unsigned int iat=0; iat<atom_info.size(); iat++) { 
       const std::string &atom_id_refr = atom_info[iat].atom_id;
       if (0) 
@@ -657,13 +657,13 @@ coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary
       g_1->Print();
       g_2->Print();
    }
-   
+
    bool use_bond_order = false;
    use_bond_order = true;
 
    g_1->MakeSymmetryRelief(false);
    g_2->MakeSymmetryRelief(false);
-   
+
    mmdb::math::GraphMatch match;
    int minMatch = ref.number_of_non_hydrogen_atoms() - 2;
    int n_top = int(0.75 * float(ref.number_of_non_hydrogen_atoms()));
@@ -687,7 +687,7 @@ coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary
       std::cout << "INFO:: Matching Graphs with minMatch " << minMatch << " with "
 		<< n_atoms << s << " atoms in this and " << ref.number_of_non_hydrogen_atoms()
 		<< " in ref" << std::endl;
-   
+
    int build_result_1 = g_1->Build(use_bond_order);
 
    if (build_result_1 != 0) {

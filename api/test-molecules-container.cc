@@ -8,6 +8,13 @@
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/string_cast.hpp>
+#ifdef USE_GEMMI
+#include <gemmi/mmread.hpp>
+#include <gemmi/mmdb.hpp>
+#include <gemmi/enumstr.hpp>
+#include <gemmi/metadata.hpp>
+#include <gemmi/polyheur.hpp>
+#endif
 #include "MoleculesToTriangles/CXXClasses/MyMolecule.h"
 #include "molecules-container.hh"
 #include "coot-utils/acedrg-types-for-residue.hh"
@@ -4764,6 +4771,7 @@ int test_long_name_ligand_cif_merge(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
    int status = 0;
+   mc.set_use_gemmi(true);
    int imol = mc.read_pdb(reference_data("8a2q.cif"));
    mc.import_cif_dictionary(reference_data("7ZTVU.cif"), coot::protein_geometry::IMOL_ENC_ANY);
    int imol_lig = mc.get_monomer("7ZTVU");
@@ -4788,7 +4796,7 @@ int test_long_name_ligand_cif_merge(molecules_container_t &mc) {
    if (found_it) status = 1;
    return status;
 }
-
+#undef USE_GEMMI
 #ifdef USE_GEMMI
 #include "gemmi/mmread.hpp"
 #include "gemmi/mmdb.hpp"
@@ -4798,7 +4806,8 @@ int test_disappearing_ligand(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
    // int imol = mc.read_pdb(reference_data("6ttq.cif")); // needs gemmi
-   int imol = mc.read_pdb(reference_data("8a2q.cif"));
+   // mc.set_use_gemmi(true);
+   int imol = mc.read_coordinates(reference_data("8a2q.cif"));
    if (mc.is_valid_model_molecule(imol)) {
       mmdb::Manager *mol = mc.get_mol(imol);
       for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
@@ -4988,7 +4997,7 @@ int test_gltf_export_via_api(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
 
-   mc.set_use_gemmi(false); // 20240727-PE there seems to be a memory problem when using gemmi atm
+   mc.set_use_gemmi(true); // 20240727-PE there seems to be a memory problem when using gemmi atm
                             // so for now, let's not use gemmi for the tests.
 
    int imol     = mc.read_pdb(reference_data("2vtq.cif"));
@@ -5338,7 +5347,7 @@ int test_shiftfield_b_factor_refinement(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
 
-   mc.set_use_gemmi(false); // 20240211-PE crash if set_use_gemmi(true) (the default).
+   mc.set_use_gemmi(true); // 20240211-PE crash if set_use_gemmi(true) (the default).
    int imol     = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
    int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
    int imol_diff_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "DELFWT", "PHDELWT", "W", false, true);
@@ -5410,7 +5419,7 @@ int test_copy_molecule_memory_leak(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
 
-   mc.set_use_gemmi(false);
+   mc.set_use_gemmi(true);
    int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
    const unsigned int n_new_mols = 200;
 
@@ -5774,7 +5783,7 @@ int test_assign_sequence(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
 
-   mc.set_use_gemmi(false);
+   mc.set_use_gemmi(true);
    int imol = mc.read_pdb(reference_data("pdb7vvl.ent"));
    if (mc.is_valid_model_molecule(imol)) {
       int imol_map = mc.read_ccp4_map(reference_data("emd_32143.map"), false);
@@ -5982,6 +5991,147 @@ int test_links_in_model_read_via_gemmi(molecules_container_t &mc) {
    return status;
 }
 
+int test_delete_two_add_one_using_gemmi(molecules_container_t &mc) {
+
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+   mc.set_use_gemmi(true);
+
+   int coordMolNo = mc.read_pdb(reference_data("./5a3h.pdb"));
+   int mapMolNo = mc.read_mtz(reference_data("./5a3h_sigmaa.mtz"), "FWT", "PHWT", "", false, false);
+   mc.set_imol_refinement_map(mapMolNo);
+
+   mc.delete_using_cid(coordMolNo, "A/100-101/*", "LITERAL");
+   mc.write_coordinates(coordMolNo, "add_terminal_test_tmp_1.pdb");
+
+   int result = mc.add_terminal_residue_directly_using_cid(coordMolNo, "A/99");
+
+   mc.write_coordinates(coordMolNo, "add_terminal_test_tmp_2.pdb");
+
+   std::vector<mmdb::Residue *> A100s;
+   mmdb::Manager *mol = mc.get_mol(coordMolNo);
+   for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+      mmdb::Model *model_p = mol->GetModel(imod);
+      if (model_p) {
+         int n_chains = model_p->GetNumberOfChains();
+         for (int ichain=0; ichain<n_chains; ichain++) {
+            mmdb::Chain *chain_p = model_p->GetChain(ichain);
+            int n_res = chain_p->GetNumberOfResidues();
+            std::cout << "    " << chain_p->GetChainID() << " " << n_res << " residues " << std::endl;
+            std::string chain_id = chain_p->GetChainID();
+            if (chain_id == "A") {
+               for (int ires=0; ires<n_res; ires++) {
+                  mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                  int seq_num = residue_p->GetSeqNum();
+                  if (seq_num == 100)
+                     A100s.push_back(residue_p);
+               }
+            }
+         }
+      }
+   }
+   std::cout << " here with " << A100s.size() << " residues A 100s" << std::endl;
+   if (A100s.size() == 1)
+      status = 1;
+   return status;
+}
+
+int test_merge_ligand_and_gemmi_parse_mmcif(molecules_container_t &mc) {
+
+  auto read_structure_from_string = [] (const std::string &data, const std::string& path){
+    char *c_data = (char *)data.c_str();
+    size_t size = data.length();
+    return gemmi::read_structure_from_char_array(c_data,size,path);
+  };
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   auto coordMolNo_1 = mc.read_pdb(reference_data("5a3h.mmcif"));
+   // expect(coordMolNo_1).toBe(0)
+   if (! mc.is_valid_model_molecule(coordMolNo_1))
+     return status;
+
+   int import_status = mc.import_cif_dictionary(reference_data("LZA.cif"), -999999);
+   // expect(result_import_dict).toBe(1)
+   if (import_status == 0)
+     return status;
+
+   auto ligandMolNo = mc.get_monomer_and_position_at("LZA", -999999, 0, 0, 0);
+   // expect(ligandMolNo).toBe(1);
+
+   auto merge_info = mc.merge_molecules(coordMolNo_1, std::to_string(ligandMolNo));
+   // expect(merge_info.second.size()).toBe(1)
+
+   mc.write_coordinates(coordMolNo_1, "my-mol-with-ligand.cif");
+
+   bool merge_chain_parts = true;
+   gemmi::Structure st = gemmi::read_structure_file("my-mol-with-ligand.cif");
+   if (merge_chain_parts)
+      st.merge_chain_parts();
+
+   // std::string mmcifString = mc.get_molecule_atoms(coordMolNo_1, "mmcif");
+   // auto st = read_structure_from_string(mmcifString, "test-molecule");
+   gemmi::setup_entities(st);
+   gemmi::add_entity_types(st, true);
+
+   auto model = st.first_model();
+   auto chains = model.chains;
+   auto chain = chains[2];
+   gemmi::ResidueSpan ligands = chain.get_ligands();
+   // expect(ligands.length()).toBe(1);
+
+   std::cout << "we found " << model.chains.size() << " model chains" << std::endl;
+
+   std::cout << "debug:: test_merge_ligand_and_gemmi_parse_mmcif() merge_info second length "
+	     << merge_info.second.size() << std::endl;
+
+   std::cout << "debug:: test_merge_ligand_and_gemmi_parse_mmcif() ligands length() "
+	     << ligands.size() << std::endl;
+
+   std::cout << "chain things " << chain.whole().size() << std::endl;
+   std::cout << "chain 0 things " << chains[0].name << " " << chains[0].whole().size() << std::endl;
+   std::cout << "chain 1 things " << chains[1].name << " " << chains[1].whole().size() << std::endl;
+   std::cout << "chain 2 things " << chains[2].name << " " << chains[2].whole().size() << std::endl;
+   // std::cout << "chain 3 things " << chains[3].name << " " << chains[3].whole().size() << std::endl;
+
+   std::cout << "get_ligands(): size    " << chains[2].get_ligands().size()   << std::endl;
+   std::cout << "get_ligands(): length  " << chains[2].get_ligands().length() << std::endl;
+   std::cout << "get polymer " << chains[2].get_polymer().length() << std::endl;
+   std::cout << "get waters  " << chains[2].get_waters().length()  << std::endl;
+
+   gemmi::EntityType et = chains[2].whole().at(0).entity_type;
+   std::cout << "get_ligands(): whole " << gemmi::entity_type_to_string(et) << std::endl;
+
+   gemmi::ResidueSpan whole = chains[2].whole();
+   std::cout << "whole span length: " << whole.length() << std::endl;
+
+   if (model.chains.size() == 3)
+      if (chains[2].get_ligands().size() == 1)
+         status = 1;
+
+   return status;
+
+}
+
+int test_dictionary_atom_name_match(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+
+   std::string comp_id_1 = "TYR";
+   std::string comp_id_2 = "PTY";
+   int imol_1 = coot::protein_geometry::IMOL_ENC_ANY;
+   int imol_2 = coot::protein_geometry::IMOL_ENC_ANY;
+
+   std::map<std::string, std::string> m =
+   mc.dictionary_atom_name_map(comp_id_1, imol_1, comp_id_2, imol_2);
+
+   int status = 0;
+   return status;
+}
+
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -6107,6 +6257,7 @@ int main(int argc, char **argv) {
       // access (memory allocated but not deleted - e.g. Atom Selections)
       //
       molecules_container_t mc(true); // quiet
+      mc.set_use_gemmi(true);
 
       // now check that the monomer library was read OK
       int imol = mc.get_monomer("ATP");
@@ -6295,8 +6446,10 @@ int main(int argc, char **argv) {
          // status += run_test(test_tricky_ligand_problem,   "Tricky Ligand import/refine", mc);
          // status += run_test(test_dictionary_acedrg_atom_types, "Acedrg atom types", mc);
          // status += run_test(test_dictionary_acedrg_atom_types_for_ligand, "Acedrg atom types for ligand", mc);
-         status += run_test(test_links_in_model_read_via_gemmi, "Acedrg atom types for ligand", mc);
-
+         // status += run_test(test_long_name_ligand_cif_merge, "test long name ligand cif merge", mc);
+         // status += run_test(test_merge_ligand_and_gemmi_parse_mmcif, "test_merge_ligand_and_gemmi_parse_mmcif", mc);
+         // status += run_test(test_delete_two_add_one_using_gemmi, "test_delete_two_add_one_using_gemmi", mc);
+         status += run_test(test_dictionary_atom_name_match, "dictionary atom names match", mc);
          if (status == n_tests) all_tests_status = 0;
 
          print_results_summary();

@@ -1,6 +1,6 @@
 # This script is an attempt to use the XML output of doxygen to
 # create a python file that contains stubs of functions
-# which can then be used to generate python documenation
+# which can then be used to generate python documentation
 # with Sphinx.
 #
 # It does some of that work, but to get it working properly
@@ -12,11 +12,28 @@
 # and modify it by tracking changes made to the nanobinds file.
 
 import xml.etree.ElementTree as ET
-mytree = ET.parse('xml/classmolecules__container__t.xml')
+mytree = ET.parse('doxygen_output/xml/classmolecules__container__t.xml')
 myroot = mytree.getroot()
 
 def convert_type(tt: str) -> str:
+    if tt == "const ": tt = "str" # needed for a coot::colour_t
     if tt == "const std::string &": tt = "str"
+    if tt == "std::string": tt = "str"
+    if tt == "unsigned int": tt = "int"
+    if tt == "double": tt = "float"
+    if tt == 'std::vector< ': tt = "list"
+    if tt == 'const std::vector< ': tt = "list"
+    # if tt == 'std::pair< int, unsigned int >': tt = "tuple"
+    if tt == 'const std::vector< float > &': tt = "list"
+    if tt == 'std::vector< float > &': tt = "list"
+    if tt == "const std::vector< std::string > &": tt = "list"
+    if tt == "const std::vector< std::string > &": tt = "list"
+    if tt == 'const std::map< unsigned int, std::array< float, 3 > > &': tt = "dict"
+    if tt == 'const std::map< unsigned int, std::array< float, 4 > > &': tt = "dict"
+    if tt == 'const std::vector< std::pair< std::string, unsigned int > > &': tt = "list"
+    if tt == 'const std::vector< std::pair< std::string, unsigned int > > &': tt = "list"
+    if tt == 'const std::vector< std::pair< bool, mmdb::Residue * > > &, links: const std::vector< mmdb::Link > &': tt = "list"
+    if tt == 'std::vector<': tt == list
     return tt
 
 def make_paren_string(function: dict) -> str:
@@ -30,54 +47,87 @@ def make_paren_string(function: dict) -> str:
                 r += ": "
                 t = convert_type(param['type'])
                 r += t
-            r = "(" + r + ")"
+            r = "(self, " + r + ")"
             return r
         except KeyError as e:
-            return "()"
+            return "(self)"
     else:
         return ""
+
+
+def make_return_type(function: dict) -> str:
+    print("--- make_return_type() dict is ", function)
+    return_type = ""
+    rt = ""
+    t = str(function['type'])
+    if t == 'int':   rt = "int"
+    if t == 'bool':  rt = "bool"
+    if t == 'void':  rt = "None"
+    if t == 'float': rt = "float"
+    if t == 'std::string':  rt = "str"
+    if t == 'unsigned int': rt = "int"
+    if t == 'std::pair< int, unsigned int >': rt = "tuple"
+    if rt:
+        return_type = " -> " + rt
+    return rt, return_type
 
 
 def make_python_script(functions: list) -> None:
 
     f = open("chapi-functions.py", "w")
-    f.write("def molecules_container_t():\n\n")
+    f.write("class molecules_container_t:\n")
     for function in functions:
-        print("Handling function: ", function, ":")
-        try:
-            d = function["briefdescription"]
-            print(f"debug:: briefdescription:{d}:")
-            f.write("    # ")
-            f.write(d)
-            f.write('\n')
-        except KeyError as e:
-            # print("No briefdescription")
-            pass
-        except TypeError as e:
-            pass
-        # maybe use a for loop for this and the above ["briefdescription", "detaileddescription"]
-        try:
-            d = function["detaileddescription"]
-            print(f"debug:: detaileddescription:{d}:")
-            f.write("    # ")
-            f.write(d)
-            f.write('\n')
-        except KeyError as e:
-            # print("No detaileddescription")
-            pass
-        except TypeError as e:
-            pass
+        print("\n--- make_python_script(): Handling function: ", function, ":")
 
         parens = ""
         def_ = ""
         if function['kind'] == "function":
             parens = make_paren_string(function)
+            return_type, return_type_with_arrow = make_return_type(function)
+            print("debug args: function ", function, "made args:", parens)
             def_ = "def "
+            s = f"    {def_}{function['name']}{parens}{return_type_with_arrow}:\n"
+            f.write(s)
 
-        s = f"    {def_}{function['name']}{parens}\n"
-        f.write(s)
-        if function['kind'] == "function":
-            f.write("        pass\n")
+            done_brief = False
+            done_detailed = False
+            try:
+                d = function["briefdescription"]
+                print(f"debug:: briefdescription:{d}:")
+                f.write('        """ ')
+                f.write(d)
+                f.write('"""')
+                f.write('\n')
+                done_brief = True
+            except KeyError as e:
+                # print("No briefdescription")
+                pass
+            except TypeError as e:
+                pass
+            # maybe use a for loop for this and the above ["briefdescription", "detaileddescription"]
+            try:
+                d = function["detaileddescription"]
+                print(f"debug:: detaileddescription:{d}:")
+                f.write('        """ ')
+                f.write(d)
+                f.write('"""')
+                f.write('\n')
+                done_detailed = True
+            except KeyError as e:
+                # print("No detaileddescription")
+                pass
+            except TypeError as e:
+                pass
+            if not done_brief:
+                if not done_detailed:
+                    # we need some doc string for the sphinx to pick up the function
+                    f.write('        """Sphinx-Doc-Placeholder"""\n')
+            if not return_type:               f.write("        pass\n")
+            if return_type == "int":          f.write("        return 0\n")
+            if return_type == "float":        f.write("        return 0.0\n")
+            if return_type == "str":          f.write("        return 'Cabbages-and-Kings'\n")
+            if return_type == "bool":         f.write("        return True\n")
+
         f.write("\n")
     f.close()
 
@@ -94,6 +144,7 @@ for x in myroot.iter('sectiondef'):
         print("####### header text: ", ht)
     for child in x:
         if child.tag == "memberdef":
+            keep_going = True
             try:
                 name = "--unset--"
                 a_function = {}
@@ -101,15 +152,26 @@ for x in myroot.iter('sectiondef'):
                 print("   child kind:", kind)
                 a_function['kind'] = kind
                 if kind == "function":
-                    print("   Handling function")
-                for ch in child:
-                    print("      ch.tag ", ch.tag, ch.text, ":")
+                    print("\n -----  Handling function")
+                    # if function.name ==  "molecules_container_t": continue
+                    # if function.name == "~molecules_container_t": continue
+                for ii,ch in enumerate(child):
+                    print("      ch.tag ", ii, ch.tag, ch.text, ":")
+                    if ch.tag == "definition":
+                        if ch.text == "molecules_container_t::~molecules_container_t":
+                            keep_going = False
+                            print('breaking out')
+                            break
+                            # next memberdef
+                        if ch.text == "molecules_container_t::molecules_container_t":
+                            keep_going = False
+                            print('breaking out')
+                            break
                     if ch.tag == "param":
-                        print("   found a param!")
                         t = ch.find("type")
-                        print("   debug:: param type:", t)
+                        print("   param type:", t)
                         tt = t.text
-                        print("    tt", tt)
+                        print("    tt: '" + str(tt) + "'")
                         dn = ch.find("declname")
                         dn = dn.text
                         print("    dn", dn)
@@ -129,15 +191,44 @@ for x in myroot.iter('sectiondef'):
                               brief_descr = c.text
                               a_function["briefdescription"] = brief_descr
                     if ch.tag == "detaileddescription":
-                        for c in ch:
-                          if c.tag == "para":
-                              # a para can have a parameter list and no text
-                              descr = c.text
-                              if descr:
-                                  print("Here with descr", descr, " for name ", name)
-                                  a_function["detaileddescription"] = descr
+                        parts = ''
+                        for idx,c in enumerate(ch):
+                            print("     detaileddescription: item", idx, "is:", c)
+                            if c.tag == "para":
+                                # a para can have a parameter list and no text
+                                #   descr = c.text
+                                #   if descr:
+                                #       print("      detailed descr", descr)
+                                #       a_function["detaileddescription"] = descr
+                                if c.text:
+                                    if parts:
+                                        parts += "\n        "
+                                        parts += c.text
+                                    else:
+                                        parts = c.text
+                                # print(dir(c))
+                                for jj, chunk in enumerate(c):
+                                    print('      chunk', jj, chunk)
+                                    if chunk.tag == "computeroutput":
+                                        print("computeroutput:", chunk.text)
+                                        if chunk.text:
+                                            parts += "---"
+                                            parts += chunk.text
+                                            parts += "---"
+                                    if chunk.tag == "simplesect":
+                                        print("simplesect!!!!!!!!!!!!", chunk.text)
+                                        print(dir(chunk))
+                                        print('len(chunk)', len(chunk))
+                                        for kk,kchunk in enumerate(chunk):
+                                            # print("kk:", kk, kchunk)
+                                            if kchunk.tag == "para":
+                                                print("kchunk", kk, "text:", kchunk.text)
+                                                parts += kchunk.text
+                        if parts:
+                            a_function["detaileddescription"] = parts
                 if a_function:
-                    functions.append(a_function)
+                    if keep_going:
+                        functions.append(a_function)
 
             except AttributeError as e:
                 print(e)

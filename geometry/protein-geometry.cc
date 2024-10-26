@@ -782,20 +782,24 @@ coot::protein_geometry::remove_non_auto_load_residue_name(const std::string &res
 
 void
 coot::protein_geometry::fill_default_non_auto_load_residue_names() { // build-it default
-   non_auto_load_residue_names.push_back("XXX");
    non_auto_load_residue_names.push_back("LIG");
    non_auto_load_residue_names.push_back("DRG");
    non_auto_load_residue_names.push_back("INH");
-   non_auto_load_residue_names.push_back("LG0");
-   non_auto_load_residue_names.push_back("LG1");
-   non_auto_load_residue_names.push_back("LG2");
-   non_auto_load_residue_names.push_back("LG3");
-   non_auto_load_residue_names.push_back("LG4");
-   non_auto_load_residue_names.push_back("LG5");
-   non_auto_load_residue_names.push_back("LG6");
-   non_auto_load_residue_names.push_back("LG7");
-   non_auto_load_residue_names.push_back("LG8");
-   non_auto_load_residue_names.push_back("LG9");
+   non_auto_load_residue_names.push_back("01");
+   non_auto_load_residue_names.push_back("02");
+   non_auto_load_residue_names.push_back("03");
+   non_auto_load_residue_names.push_back("04");
+   non_auto_load_residue_names.push_back("05");
+   non_auto_load_residue_names.push_back("06");
+   non_auto_load_residue_names.push_back("07");
+   non_auto_load_residue_names.push_back("08");
+   non_auto_load_residue_names.push_back("09");
+   for (unsigned int i=1; i<10; i++) {
+      for (unsigned int j=0; j<10; j++) {
+	 std::string ss = std::to_string(i) + std::to_string(j);
+         non_auto_load_residue_names.push_back(ss);
+      }
+   }
 }
 
 

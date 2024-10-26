@@ -5,6 +5,20 @@ and we need to conditionally compile the code that uses coordgen (in layla).
 
 What's up with the cross-hairs? Allow user to set the colour.
 
+Button no labels and labels no buttons for the vertical toolbar.
+
+Read in two dictionaries and return an atom name map.
+std::map<std::string, std::string>
+dictionary_atom_name_map(comp_id_1, imol_1, comp_id_2, imol_2)
+How do I handle the map in python?
+https://nanobind.readthedocs.io/en/latest/exchanging.html
+Seems that is could be "naturally."
+
+Validation: Tell me when I have links that are too long (based on
+simple rules (enerlib.cif) not on link dictionary values)
+
+Unmodelled blobs near sequons?
+
 Paul Bond bug.
 
 Martin Maly: How do I load external (refmac) restraints into Coot 1?
