@@ -1,5 +1,8 @@
 ----
 
+configure needs to know if RDKitcoordgen was used to make RDKit and change the Makefile libs
+and we need to conditionally compile the code that uses coordgen (in layla).
+
 What's up with the cross-hairs? Allow user to set the colour.
 
 Paul Bond bug.
