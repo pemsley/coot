@@ -4422,7 +4422,7 @@ coot::molecule_t::export_model_molecule_as_gltf(const std::string &mode,
 }
 
 void
-coot::molecule_t::export_molecular_represenation_as_gltf(const std::string &atom_selection_cid,
+coot::molecule_t::export_molecular_representation_as_gltf(const std::string &atom_selection_cid,
                                                          const std::string &colour_scheme, const std::string &style,
                                                          int secondary_structure_usage_flag,
                                                          const std::string &file_name) {

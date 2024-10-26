@@ -771,7 +771,7 @@ namespace coot {
                                          const std::string &file_name);
 
       // this is the ribbons and surfaces API
-      void export_molecular_represenation_as_gltf(const std::string &atom_selection_cid,
+      void export_molecular_representation_as_gltf(const std::string &atom_selection_cid,
                                                   const std::string &colour_scheme,
                                                   const std::string &style,
                                                   int secondary_structure_usage_flag,
