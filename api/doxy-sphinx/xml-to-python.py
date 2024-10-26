@@ -23,6 +23,7 @@ def convert_type(tt: str) -> str:
     if tt == "double": tt = "float"
     if tt == 'std::vector< ': tt = "list"
     if tt == 'const std::vector< ': tt = "list"
+    # if tt == 'std::pair< int, unsigned int >': tt = "tuple"
     if tt == 'const std::vector< float > &': tt = "list"
     if tt == 'std::vector< float > &': tt = "list"
     if tt == "const std::vector< std::string > &": tt = "list"
@@ -65,6 +66,7 @@ def make_return_type(function: dict) -> str:
     if t == 'float': rt = "float"
     if t == 'std::string':  rt = "str"
     if t == 'unsigned int': rt = "int"
+    if t == 'std::pair< int, unsigned int >': rt = "tuple"
     if rt:
         return_type = " -> " + rt
     return rt, return_type
@@ -189,6 +191,7 @@ for x in myroot.iter('sectiondef'):
                               brief_descr = c.text
                               a_function["briefdescription"] = brief_descr
                     if ch.tag == "detaileddescription":
+                        parts = ''
                         for idx,c in enumerate(ch):
                             print("     detaileddescription: item", idx, "is:", c)
                             if c.tag == "para":
@@ -197,14 +200,17 @@ for x in myroot.iter('sectiondef'):
                                 #   if descr:
                                 #       print("      detailed descr", descr)
                                 #       a_function["detaileddescription"] = descr
-                                parts = ''
                                 if c.text:
-                                    parts = c.text
+                                    if parts:
+                                        parts += "\n        "
+                                        parts += c.text
+                                    else:
+                                        parts = c.text
                                 # print(dir(c))
                                 for jj, chunk in enumerate(c):
                                     print('      chunk', jj, chunk)
                                     if chunk.tag == "computeroutput":
-                                        print("computeroutput!!!!!!!!!!!!", chunk.text)
+                                        print("computeroutput:", chunk.text)
                                         if chunk.text:
                                             parts += "---"
                                             parts += chunk.text
@@ -216,9 +222,10 @@ for x in myroot.iter('sectiondef'):
                                         for kk,kchunk in enumerate(chunk):
                                             # print("kk:", kk, kchunk)
                                             if kchunk.tag == "para":
+                                                print("kchunk", kk, "text:", kchunk.text)
                                                 parts += kchunk.text
-                                if parts:
-                                    a_function["detaileddescription"] = parts
+                        if parts:
+                            a_function["detaileddescription"] = parts
                 if a_function:
                     if keep_going:
                         functions.append(a_function)
