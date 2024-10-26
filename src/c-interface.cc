@@ -3274,7 +3274,7 @@ void set_default_bond_thickness(int t) {
 
 }
 
-/*! \brief set the default represenation type (default 1).*/
+/*! \brief set the default representation type (default 1).*/
 void set_default_representation_type(int type) {
    graphics_info_t g;
    g.default_bonds_box_type = type;
