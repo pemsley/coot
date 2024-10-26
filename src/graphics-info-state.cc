@@ -78,9 +78,13 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
       // python
       comment_str  = "# These commands are the saved state of coot.  You can evaluate them\n";
       comment_str += "# using \"Calculate->Run Script...\".\n\n";
-      comment_str += "import coot\n";           // these are not really comments, but we
-      comment_str += "import coot_gui\n";       // don't want to munge them.
-      comment_str += "import coot_utils\n"; // a better organization would be "import coot.utils"
+      // comment_str += "import coot\n";           // these are not really comments, but we
+      // comment_str += "import coot_gui\n";       // don't want to munge them.
+      // comment_str += "import coot_utils\n"; // a better organization would be "import coot.utils"
+
+      // 20241016-PE currently coot can't do coot_gui - so let's remove that import.
+      // There are no coot_gui functions in the state script AFAICS at the moment.
+      comment_str += "import coot\n";
    }
    commands.push_back(comment_str);
 
@@ -762,7 +766,7 @@ graphics_info_t::save_state_data_and_models(short int lang_flag) const {
    // add a hash at the start for python comments
    if (lang_flag == 2) {
       for (unsigned int i=0; i<v.size(); i++) {
-	      v[i] = "#" + v[i];
+         v[i] = "#" + v[i]; // this should be "# " to make a bone fide python comment
       }
    }
    return v;
