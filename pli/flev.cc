@@ -1,3 +1,22 @@
+/* pli/flev.cc
+ * 
+ * Copyright 2012 by The University of Oxford
+ * 
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or (at
+ * your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA
+ */
 
 #include <cstdint> // fix std::uint64_t problems
 #include "lidia-core/svg-container.hh"
@@ -302,7 +321,7 @@ flev_t::annotate(const std::vector<std::pair<coot::atom_spec_t, float> > &s_a_v,
    // just checking that it was passed correctly -
    //
    if (true) {
-      std::cout << "------------------- ring list ------------" << std::endl;
+      std::cout << "debug:: in flev_t::annotate() ------------------- ring list ------------" << std::endl;
       for (unsigned int i=0; i<ring_atoms_list.size(); i++) {
          std::cout << "ring list " << i << "   ";
          for (unsigned int j=0; j<ring_atoms_list[i].size(); j++) {
@@ -313,7 +332,7 @@ flev_t::annotate(const std::vector<std::pair<coot::atom_spec_t, float> > &s_a_v,
    }
 
    if (true) {
-      std::cout << "------------------- residue circles ------------" << std::endl;
+      std::cout << "debug:: in flev_t::annotate() ------------------- residue circles ------------" << std::endl;
       for (unsigned int i=0; i<residue_circles.size(); i++) {
          const auto &rc = residue_circles[i];
          std::cout << "   " << std::setw(2) << i << " : "
@@ -621,6 +640,9 @@ flev_t::draw_substitution_contour() {
                std::pair<lig_build::pos_t, lig_build::pos_t> l_e_pair =
                   mol.ligand_extents();
 
+               std::cout << "draw_substitution_contour(): creating ligand grid with args "
+                         << l_e_pair.first << " " << l_e_pair.second
+                         << std::endl;
                ligand_grid grid(l_e_pair.first, l_e_pair.second);
 
                if (true) { // debug
@@ -1205,24 +1227,24 @@ flev_t::ligand_grid::add_for_accessibility_no_bash_dist_atom(double scale,
 flev_t::ligand_grid::ligand_grid(const lig_build::pos_t &low_x_and_y,
                                  const lig_build::pos_t &high_x_and_y) {
 
-   double extra_extents = 100;
+   double extra_extents = 10;
    top_left     = low_x_and_y  - lig_build::pos_t(extra_extents, extra_extents);
    bottom_right = high_x_and_y + lig_build::pos_t(extra_extents, extra_extents);
    scale_fac = 5; // seems good
    double delta_x = bottom_right.x - top_left.x;
    double delta_y = bottom_right.y - top_left.y;
-   if (0)
-      std::cout << " in making grid, got delta_x and delta_y "
+   if (true)
+      std::cout << "debug:: ligand_grid constructor: in making grid, got delta_x and delta_y "
                 << delta_x << " " << delta_y << std::endl;
    x_size_ = int(delta_x/scale_fac+1);
    y_size_ = int(delta_y/scale_fac+1);
 
-   std::vector<double> tmp_y (y_size_, 0.0);
+   std::vector<double> tmp_y(y_size_, 0.0);
    grid_.resize(x_size_);
    for (int i=0; i<x_size_; i++)
       grid_[i] = tmp_y;
    if (true)
-      std::cout << "--- ligand_grid constructor, grid has extents "
+      std::cout << "debug:: in ligand_grid constructor: grid has extents "
                 << x_size_ << " " << y_size_ << " real " << grid_.size()
                 << " " << grid_[0].size()
                 << std::endl;
@@ -1241,9 +1263,17 @@ flev_t::ligand_grid::canvas_pos_to_grid_pos(const lig_build::pos_t &pos) const {
 lig_build::pos_t
 flev_t::ligand_grid::to_canvas_pos(const double &ii, const double &jj) const {
 
+#if 0
+   std::cout << "to_canvas_pos() using scale_fac " << scale_fac << " and top_left " << top_left << std::endl;
    lig_build::pos_t p(ii*scale_fac, jj*scale_fac);
    p += top_left;
    return p;
+#endif
+
+   double sf = 1.0;
+   lig_build::pos_t p(ii*sf, jj*sf);
+   return p;
+
 }
 
 void
@@ -1804,11 +1834,13 @@ flev_t::ligand_grid::fill(svg_molecule_t mol) {
    int grid_extent = 50 ; // untraps 2wot residues?
 
    for (unsigned int iat=0; iat<mol.atoms.size(); iat++) {
+      std::cout << "mol iat: " << iat << " at " << mol.atoms[iat].atom_position << std::endl;
       for (int ipos_x= -grid_extent; ipos_x<=grid_extent; ipos_x++) {
          for (int ipos_y= -grid_extent; ipos_y<=grid_extent; ipos_y++) {
             std::pair<int, int> p = canvas_pos_to_grid_pos(mol.atoms[iat].atom_position);
             int ix_grid = ipos_x + p.first;
             int iy_grid = ipos_y + p.second;
+            // std::cout << "    grid: ix " << ix_grid << " iy " << iy_grid << std::endl;
             if ((ix_grid >= 0) && (ix_grid < x_size())) {
                if ((iy_grid >= 0) && (iy_grid < y_size())) {
                   double d2 = (to_canvas_pos(ix_grid, iy_grid) - mol.atoms[iat].atom_position).lengthsq();
@@ -1822,6 +1854,17 @@ flev_t::ligand_grid::fill(svg_molecule_t mol) {
 //             std::cout << "ERROR:: out of range in x: " << ix_grid << "," << iy_grid << " "
 //                       << "and grid size: " << x_size() << "," << y_size() << std::endl;
             }
+         }
+      }
+   }
+
+   if (true) { // print grid
+      int grid_size = grid_.size(); 
+      for (int ipos_x = 0; ipos_x < grid_size; ipos_x++) {
+         int grid_x_size = grid_[ipos_x].size();
+         for (int ipos_y= 0; ipos_y<= grid_x_size; ipos_y++) {
+            double g = grid_[ipos_x][ipos_y];
+            std::cout << "ligand_grid: " << ipos_x << " " << ipos_y << " " << g << "\n";
          }
       }
    }
@@ -2280,12 +2323,16 @@ flev_t::ligand_grid::find_nearest_zero(const lig_build::pos_t &pos,
       grid_index_t gi=grid_pos_nearest(pos);
       if (grid_[gi.i()][gi.j()] < crit) {
          p = pos; // fine, no change
+         std::cout << "fine, no change " << p << std::endl;
       } else {
+         std::cout << "search for some place else, grid lims: " << x_size() << " " << y_size() << std::endl;
          // search for someplace else
          for (int ix=0; ix<x_size(); ix++) {
             for (int iy=0; iy<y_size(); iy++) {
+               std::cout << "grid_value " << ix << " " << iy << " is " << grid_[ix][iy] << std::endl;
                if (grid_[ix][iy] < crit) {
                   lig_build::pos_t gp = to_canvas_pos(ix, iy);
+                  std::cout << "   ix " << ix << " iy " << iy << " gp " << gp << " c.f. pos " << pos << std::endl;
                   double d = (gp - pos).lengthsq();
                   if (d < shortest_dist) {
                      grid_index_t candidate_grid_index(ix, iy);
@@ -2297,6 +2344,7 @@ flev_t::ligand_grid::find_nearest_zero(const lig_build::pos_t &pos,
                         shortest_dist = d;
                         p = gp;
                         rgi = candidate_grid_index;
+                        std::cout << "found some place else: " << p << std::endl;
                      }
                   }
                }

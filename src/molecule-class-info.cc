@@ -3239,7 +3239,7 @@ molecule_class_info_t::add_additional_representation(int representation_type,
 
 // representation_number should be an unsigned int.
 int
-molecule_class_info_t::adjust_additional_representation(int represenation_number,
+molecule_class_info_t::adjust_additional_representation(int representation_number,
                                                         const int &bonds_box_type_in,
                                                         float bonds_width,
                                                         bool draw_hydrogens_flag,

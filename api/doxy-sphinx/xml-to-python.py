@@ -23,6 +23,7 @@ def convert_type(tt: str) -> str:
     if tt == "double": tt = "float"
     if tt == 'std::vector< ': tt = "list"
     if tt == 'const std::vector< ': tt = "list"
+    # if tt == 'std::pair< int, unsigned int >': tt = "tuple"
     if tt == 'const std::vector< float > &': tt = "list"
     if tt == 'std::vector< float > &': tt = "list"
     if tt == "const std::vector< std::string > &": tt = "list"
@@ -55,9 +56,20 @@ def make_paren_string(function: dict) -> str:
 
 
 def make_return_type(function: dict) -> str:
-    return_type = " -> float"
+    print("--- make_return_type() dict is ", function)
     return_type = ""
-    return return_type
+    rt = ""
+    t = str(function['type'])
+    if t == 'int':   rt = "int"
+    if t == 'bool':  rt = "bool"
+    if t == 'void':  rt = "None"
+    if t == 'float': rt = "float"
+    if t == 'std::string':  rt = "str"
+    if t == 'unsigned int': rt = "int"
+    if t == 'std::pair< int, unsigned int >': rt = "tuple"
+    if rt:
+        return_type = " -> " + rt
+    return rt, return_type
 
 
 def make_python_script(functions: list) -> None:
@@ -71,21 +83,20 @@ def make_python_script(functions: list) -> None:
         def_ = ""
         if function['kind'] == "function":
             parens = make_paren_string(function)
-            return_type = make_return_type(function)
+            return_type, return_type_with_arrow = make_return_type(function)
             print("debug args: function ", function, "made args:", parens)
             def_ = "def "
-            s = f"    {def_}{function['name']}{parens}{return_type}:\n"
+            s = f"    {def_}{function['name']}{parens}{return_type_with_arrow}:\n"
             f.write(s)
 
             done_brief = False
             done_detailed = False
+            f.write('        """ ')
             try:
                 d = function["briefdescription"]
                 print(f"debug:: briefdescription:{d}:")
-                f.write('        """ ')
                 f.write(d)
-                f.write('"""')
-                f.write('\n')
+                # f.write('\n')
                 done_brief = True
             except KeyError as e:
                 # print("No briefdescription")
@@ -96,10 +107,9 @@ def make_python_script(functions: list) -> None:
             try:
                 d = function["detaileddescription"]
                 print(f"debug:: detaileddescription:{d}:")
-                f.write('        """ ')
+                # f.write('        """ ')
                 f.write(d)
-                f.write('"""')
-                f.write('\n')
+                # f.write('\n')
                 done_detailed = True
             except KeyError as e:
                 # print("No detaileddescription")
@@ -109,8 +119,14 @@ def make_python_script(functions: list) -> None:
             if not done_brief:
                 if not done_detailed:
                     # we need some doc string for the sphinx to pick up the function
-                    f.write('        """Sphinx-Doc-Placeholder"""\n')
-            f.write("        pass\n")
+                    f.write('        Sphinx-Doc-Placeholder')
+            f.write('"""')
+            f.write('\n')
+            if not return_type:               f.write("        pass\n")
+            if return_type == "int":          f.write("        return 0\n")
+            if return_type == "float":        f.write("        return 0.0\n")
+            if return_type == "str":          f.write("        return 'Cabbages-and-Kings'\n")
+            if return_type == "bool":         f.write("        return True\n")
 
         f.write("\n")
     f.close()
@@ -152,9 +168,8 @@ for x in myroot.iter('sectiondef'):
                             print('breaking out')
                             break
                     if ch.tag == "param":
-                        print("   found a param!")
                         t = ch.find("type")
-                        print("   debug:: param type:", t)
+                        print("   param type:", t)
                         tt = t.text
                         print("    tt: '" + str(tt) + "'")
                         dn = ch.find("declname")
@@ -175,15 +190,45 @@ for x in myroot.iter('sectiondef'):
                           if c.tag == "para":
                               brief_descr = c.text
                               a_function["briefdescription"] = brief_descr
+                    parts = ''
                     if ch.tag == "detaileddescription":
                         for idx,c in enumerate(ch):
-                          print("   detaileddescription: item", idx, "is:", c)
-                          if c.tag == "para":
-                              # a para can have a parameter list and no text
-                              descr = c.text
-                              if descr:
-                                  print("Here with descr", descr, " for name ", name)
-                                  a_function["detaileddescription"] = descr
+                            print("     detaileddescription: item", idx, "is:", c, c.text)
+                            if c.tag == "para":
+                                # a para can have a parameter list and no text
+                                #   descr = c.text
+                                #   if descr:
+                                #       print("      detailed descr", descr)
+                                #       a_function["detaileddescription"] = descr
+                                if c.text:
+                                    if parts:
+                                        parts += "\n\n        "
+                                        parts += c.text
+                                    else:
+                                        parts = c.text
+                                # print(dir(c))
+                                for jj, chunk in enumerate(c):
+                                    print('      chunk', jj, ":", chunk, "len:", len(chunk))
+                                    if chunk.tag == "parameterlist":
+                                        print("        handle parameterlist here")
+                                    if chunk.tag == "computeroutput":
+                                        print("        computeroutput:", chunk.text)
+                                        if chunk.text:
+                                            parts += "`"
+                                            parts += chunk.text
+                                            parts += "`"
+                                            parts += chunk.tail
+                                    if chunk.tag == "simplesect":
+                                        print("simplesect:", chunk.text)
+                                        print(dir(chunk))
+                                        print('len(chunk)', len(chunk))
+                                        for kk,kchunk in enumerate(chunk):
+                                            # print("kk:", kk, kchunk)
+                                            if kchunk.tag == "para":
+                                                print("kchunk", kk, "text:", kchunk.text)
+                                                parts += kchunk.text
+                    if parts:
+                        a_function["detaileddescription"] = parts
                 if a_function:
                     if keep_going:
                         functions.append(a_function)

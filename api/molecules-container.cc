@@ -5478,13 +5478,13 @@ molecules_container_t::export_model_molecule_as_gltf(int imol,
 }
 
 void
-molecules_container_t::export_molecular_represenation_as_gltf(int imol, const std::string &atom_selection_cid,
+molecules_container_t::export_molecular_representation_as_gltf(int imol, const std::string &atom_selection_cid,
                                                               const std::string &colour_scheme, const std::string &style,
                                                               int secondary_structure_usage_flag,
                                                               const std::string &file_name) {
 
    if (is_valid_model_molecule(imol)) {
-      molecules[imol].export_molecular_represenation_as_gltf(atom_selection_cid, colour_scheme, style,
+      molecules[imol].export_molecular_representation_as_gltf(atom_selection_cid, colour_scheme, style,
                                                              secondary_structure_usage_flag, file_name);
    } else {
       std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
@@ -5825,7 +5825,7 @@ molecules_container_t::dictionary_atom_name_map(const std::string &comp_id_1, in
       if (r_p_2.first) {
          const coot::dictionary_residue_restraints_t &dict_1 = r_p_1.second;
          const coot::dictionary_residue_restraints_t &dict_2 = r_p_2.second;
-         coot::dictionary_match_info_t dm = dict_1.match(dict_2, nullptr, comp_id_1, "dummy");
+         // coot::dictionary_match_info_t dm = dict_1.match(dict_2, nullptr, comp_id_1, "dummy");
       }
    }
 

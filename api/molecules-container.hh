@@ -405,7 +405,7 @@ public:
    bool get_use_gemmi() { return use_gemmi; }
 
    // -------------------------------- Basic Utilities -----------------------------------
-   //! backslash name Basic Utilities
+   //! \name Basic Utilities
 
    //! Allow the user to disable/enable backups
    //!
@@ -470,6 +470,7 @@ public:
    //! backslash name Generic Utils
 
    //! get the molecule name
+   //!
    //! @return the name of the molecule
    std::string get_molecule_name(int imol) const;
    //! set the molecule name
@@ -477,20 +478,25 @@ public:
    //! debugging function: display the table of molecule and names
    void display_molecule_names_table() const;
    //! is this model molecule valid?
+   //!
    //! @return is this a valid model?
    bool is_valid_model_molecule(int imol) const;
    //! is this a valid map molecule?
+   //!
    //! @return is this a valid map?
    bool is_valid_map_molecule(int imol_map) const;
    //! is this a map and if so, is it a difference map?
+   //!
    //! @return is this a difference map?
    bool is_a_difference_map(int imol_map) const;
 
    //! create an empty molecule
+   //!
    //! @return the index of the new molecule
    int new_molecule(const std::string &name);
 
    //! close the molecule (and delete dynamically allocated memory)
+   //!
    //! @return 1 on successful closure and 0 on failure to close
    int close_molecule(int imol);
 
@@ -505,6 +511,7 @@ public:
    void clear();
 
    //! get the eigenvalues of the specified residue
+   //!
    //! @return the eigenvalues of the atoms in the specified residue
    std::vector<double> get_eigenvalues(int imol, const std::string &chain_id, int res_no, const std::string &ins_code);
 
@@ -560,7 +567,7 @@ public:
    void accept_rotamer_probability_tables_compressed_data(const std::string &data_stream);
 
    // -------------------------------- backup and saving -----------------------------------
-   //! backslash nameBackup and Saving
+   //! backslash name Backup and Saving
 
    //! are there unsaved changes for this model?
    //! i.e. as yet not written to disk.
@@ -590,6 +597,7 @@ public:
    //! get a list of non-standard residues in the given molecule.
    //!
    //! (so that they can, for example, be used for auxiliary dictionary import).
+   //!
    //! @return a vector of non-standard residues
    std::vector<std::string> non_standard_residue_types_in_model(int imol) const;
 
@@ -608,7 +616,7 @@ public:
 #endif
 
    // -------------------------------- coordinates utils -----------------------------------
-   //! backslash nameCoordinates Utils
+   //!  \name Coordinates Utils
 
    //! read a coordinates file (mmcif or PDB)
    //! @return the new molecule index on success and -1 on failure
@@ -660,6 +668,7 @@ public:
    //! Use IMOL_ENC_ANY to mean "it applies to all molecules."
    //!
    //! IMOL_ENC_ANY = -999999
+   //!
    //! @return 1 on success and 0 on failure
    int import_cif_dictionary(const std::string &cif_file_name, int imol_enc);
 
@@ -675,13 +684,17 @@ public:
    //! copy the dictionary that is specific for imol_current so that it can be used with a new molecule
    bool copy_dictionary(const std::string &monomer_name, int imol_current, int imol_new);
    //! get a monomer
+   //!
    //! @param[in] monomer_name the name of the monomer
+   //!
    //! @return the new molecule index on success and -1 on failure
    int get_monomer(const std::string &monomer_name);
-   //! get a monomer for a particular molecule - use -999999 (IMOL_ENC_ANY) if no molecule-specific dictionary is needed.
+   //! get a monomer for a particular molecule - use -999999 (IMOL_ENC_ANY) if no molecule-specific dictionary is needed
+   //!
    //! @return the new molecule index on success and -1 on failure
    int get_monomer_from_dictionary(const std::string &comp_id, int imol, bool idealised_flag);
    //! get monomer and place it at the given position for a particular molecule - use -999999 if no molecule-specific dictionary is needed
+   //!
    //! @return the new molecule index on success and -1 on failure
    int get_monomer_and_position_at(const std::string &comp_id, int imol, float x, float y, float z);
 
@@ -717,6 +730,7 @@ public:
    std::vector<std::pair<std::string, std::string> > get_acedrg_atom_types(const std::string &compound_id, int imol_enc) const;
 
    //! get acedrg types for ligand bonds
+   //!
    //! @return a `coot::acedrg_types_for_residue_t` - which contains a vector of bond descriptions.
    coot::acedrg_types_for_residue_t get_acedrg_atom_types_for_ligand(int imol, const std::string &residue_cid) const;
 
@@ -1170,6 +1184,7 @@ public:
    std::vector<int> make_masked_maps_split_by_chain(int imol, int imol_map);
 
    //! set the map colour.
+   //!
    //! The next time a map mesh is requested, it will have this colour.
    //! This does not affect the colour of the difference maps.
    void set_map_colour(int imol, float r, float g, float b);
@@ -1231,7 +1246,7 @@ public:
    bool regen_map(int imol_map, const std::string &imol_maps, const std::vector<float> &scales);
 
    // -------------------------------- coordinates modelling -------------------------------
-   //! backslash name Coordinates Modelling
+   //! \name Coordinates Modelling
 
    //! auto-fit rotamer
    //!
@@ -1256,7 +1271,8 @@ public:
    //! delete item
    //!
    //! where `scope` is one of the strings: ["ATOM","WATER","RESIDUE","CHAIN","MOLECULE", "LITERAL"]
-   //! @return 1 on successful modification, return 0 on failure
+   //!
+   //! return 1 on successful modification, return 0 on failure
    std::pair<int, unsigned int> delete_using_cid(int imol, const std::string &cid, const std::string &scope);
 
    //! delete atom
@@ -1268,13 +1284,16 @@ public:
    std::pair<int, unsigned int> delete_atom_using_cid(int imol, const std::string &cid);
 
    //! delete residue
+   //!
    //! @return 1 on successful deletion, return 0 on failure to delete.
    std::pair<int, unsigned int> delete_residue(int imol, const std::string &chain_id, int res_no, const std::string &ins_code);
    //! delete residue using cid
+   //!
    //! @return 1 on successful deletion, return 0 on failure to delete.
    std::pair<int, unsigned int> delete_residue_using_cid(int imol, const std::string &cid);
 
    //! delete residue atoms using alt_conf
+   //!
    //! @return 1 on successful deletion, return 0 on failure to delete.
    std::pair<int, unsigned int> delete_residue_atoms_with_alt_conf(int imol, const std::string &chain_id, int res_no,
                                                                    const std::string &ins_code, const std::string &alt_conf);
@@ -1283,18 +1302,22 @@ public:
    std::pair<int, unsigned int> delete_residue_atoms_using_cid(int imol, const std::string &cid);
 
    //! delete side chain
+   //!
    //! @return 1 on successful deletion, return 0 on failure to delete.
    std::pair<int, unsigned int> delete_side_chain(int imol, const std::string &chain_id, int res_no, const std::string &ins_code);
 
    //! delete side chain
+   //!
    //! @return 1 on successful deletion, return 0 on failure to delete.
    std::pair<int, unsigned int> delete_side_chain_using_cid(int imol, const std::string &cid);
 
-   //! delete chain.
+   //! delete chain with the given chain cid
+   //!
    //! @return 1 on successful deletion, return 0 on failure to delete.
    std::pair<int, unsigned int> delete_chain_using_cid(int imol, const std::string &cid);
 
    //! delete the atoms specified in the CID selection
+   //!
    //! @return 1 on successful deletion, return 0 on failure to delete.
    std::pair<int, unsigned int> delete_literal_using_cid(int imol, const std::string &cid);
 
@@ -1306,6 +1329,7 @@ public:
    //
    //! the cid is for an atom.
    //! This used to return a pair, but I removed it so that I could compile the binding.
+   //!
    //! @return an status.
    int add_terminal_residue_directly_using_cid(int imol, const std::string &cid);
 
@@ -1316,80 +1340,93 @@ public:
    //! buccaneer building, called by the above
    int add_terminal_residue_directly_using_bucca_ml_growing(int imol, const coot::residue_spec_t &spec);
 
-   //! parameter for `add_waters()` default  2.4
+   //! parameter for add_waters() default  2.4
    void set_add_waters_water_to_protein_distance_lim_min(float d) {
       ligand_water_to_protein_distance_lim_min = d;
    }
 
-   //! parameter for `add_waters()` default 3.4
+   //! parameter for add_waters() default 3.4
    void set_add_waters_water_to_protein_distance_lim_max(float d) {
       ligand_water_to_protein_distance_lim_max = d;
    }
 
-   //! parameter for `add_waters()` - default 0.1
+   //! parameter for add_waters() - default 0.1
    void set_add_waters_variance_limit(float d) {
       ligand_water_variance_limit = d;
    }
 
-   //! parameter for `add_waters()` - default 1.75
+   //! parameter for add_waters() - default 1.75
    void set_add_waters_sigma_cutoff(float d) {
       ligand_water_sigma_cut_off = d;
    }
 
    //! add waters, updating imol_model (of course)
+   //!
    //! @return the number of waters added on a success, -1 on failure.
    int add_waters(int imol_model, int imol_map);
 
-   //! add hydrogen atoms, updating imol_model (of course)
+   //! add hydrogen atoms, updating `imol_model` (of course)
+   //!
    //! @return 1 on success, 0 on failure.
    int add_hydrogen_atoms(int imol_model);
 
    //! delete hydrogen atoms, updating imol_model (of course)
+   //!
    //! @return 1 on a successful deletion, 0 on failure.
    int delete_hydrogen_atoms(int imol_model);
 
    //! add an alternative conformation for the specified residue
+   //!
    //! @return 1 on a successful addition, 0 on failure.
    int add_alternative_conformation(int imol_model, const std::string &cid);
 
    //! fill the specified residue
+   //!
    //! @return 1 on a successful fill, 0 on failure.
    int fill_partial_residue(int imol, const std::string &chain_id, int res_no, const std::string &ins_code);
 
    //! fill the specified residue
+   //!
    //! @return 1 on a successful fill, 0 on failure.
    int fill_partial_residue_using_cid(int imol, const std::string &cid);
 
    //! fill all the the partially-filled residues in the molecule
+   //!
    //! @return 1 on a successful fill, 0 on failure.
    int fill_partial_residues(int imol);
 
    //! flip peptide
+   //!
    //! @return 1 on a successful flip
    int flip_peptide(int imol, const coot::atom_spec_t &atom_spec, const std::string &alt_conf);
    //! flip peptide using an atom CID
+   //!
    //! @return 1 on a successful flip
    int flip_peptide_using_cid(int imol, const std::string &atom_cid, const std::string &alt_conf);
 
-   //! eigen-flip ligand
+   //! eigen-flip the specified ligand
    void eigen_flip_ligand(int imol, const std::string &chain_id, int res_no, const std::string &ins_code);
 
    //! eigen-flip ligand using CID
    void eigen_flip_ligand_using_cid(int imol, const std::string &residue_cid);
 
    //! mutate residue
+   //!
    //! @return 1 on a successful move, 0 on failure.
    int mutate(int imol, const std::string &cid, const std::string &new_residue_type);
 
    //! rotate last chi angle of the side chain by 180 degrees
+   //!
    //! @return 1 on a successful move, 0 on failure.
    int side_chain_180(int imol, const std::string &atom_cid);
 
-   //! JED-Flip the ligand (or residue) at the specified atom.
+   //! JED-Flip the ligand (or residue) at the specified atom
+   //!
    //! @return a non-blank message if there is a problem
    std::string jed_flip(int imol, const std::string &atom_cid, bool invert_selection);
 
    //! move the molecule to the given centre
+   //!
    //! @return 1 on a successful move, 0 on failure.
    int move_molecule_to_new_centre(int imol, float x, float y, float z);
 
@@ -1398,10 +1435,12 @@ public:
    void multiply_residue_temperature_factors(int imol, const std::string &cid, float factor);
 
    //! get molecule centre
+   //!
    //! @return the molecule centre
    coot::Cartesian get_molecule_centre(int imol) const;
 
-   //! copy a fragment given the multi_cid selection string.
+   //! copy a fragment given the multi_cid selection string
+   //!
    //! @return the new molecule number (or -1 on no atoms selected)
    int copy_fragment_using_cid(int imol, const std::string &multi_cid);
 
@@ -1410,6 +1449,7 @@ public:
    //! That is because this version quietly also copies the residues near the residues of the selection.
    //! so that those residues can be used for links and non-bonded contact restraints.
    //! `multi_cids` is a "||"-separated list of residues CIDs, e.g. "//A/12-52||//A/14-15||/B/56-66"
+   //!
    //! @return the new molecule number (or -1 on no atoms selected)
    int copy_fragment_for_refinement_using_cid(int imol, const std::string &multi_cid);
 
@@ -1448,7 +1488,8 @@ public:
    merge_molecules(int imol, std::vector<mmdb::Manager *> mols);
 #endif
 
-   //! Convert a cis peptide to a trans or vice versa.
+   //! Convert a cis peptide to a trans or vice versa
+   //!
    //! @return 1 on a successful conversion.
    int cis_trans_convert(int imol, const std::string &atom_cid);
 
@@ -1477,6 +1518,7 @@ public:
    int rigid_body_fit(int imol, const std::string &multi_cid, int imol_map);
 
    //! change the chain id
+   //!
    //! @return -1 on a conflict
    //! 1 on good.
    //! 0 on did nothing
@@ -1499,15 +1541,18 @@ public:
    //! refine the residues
    //
    //! "mode" is one of {SINGLE, TRIPLE, QUINTUPLE, HEPTUPLE, SPHERE, BIG_SPHERE, CHAIN, ALL};
-   //! @returns a value of 1 if the refinement was performed and 0 if it was not.
+   //!
+   //! @return a value of 1 if the refinement was performed and 0 if it was not.
    int refine_residues_using_atom_cid(int imol, const std::string &cid, const std::string &mode, int n_cycles);
 
    //! refine the residues
-   //! @returns a value of 1 if the refinement was performed and 0 if it was not.
+   //!
+   //! @return a value of 1 if the refinement was performed and 0 if it was not.
    int refine_residues(int imol, const std::string &chain_id, int res_no, const std::string &ins_code,
                        const std::string &alt_conf, const std::string &mode, int n_cycles);
 
    //! refine residue range
+   //!
    //! @returns a value of 1 if the refinement was performed and 0 if it was not.
    int refine_residue_range(int imol, const std::string &chain_id, int res_no_start, int res_no_end, int n_cycles);
 
@@ -1566,6 +1611,7 @@ public:
 
    //! Run some cycles of refinement and return a mesh.
    //! That way we can see the molecule animate as it refines
+   //!
    //! @return a pair: the first of which is the status of the refinement: GSL_CONTINUE, GSL_SUCCESS, GSL_ENOPROG (no progress).
    //! i.e. don't call thus function again unless the status is GSL_CONTINUE (-2);
    //! The second is a `coot::instanced_mesh_t`
@@ -1576,6 +1622,7 @@ public:
    //! of an internally-stored mesh).
    //! `n_cycles` specifies the number of refinement cyles to run after the target position of the atom has been applied.
    //! If n_cycles is -1 then, no cycles are done and the mesh is bonds merely calculated.
+   //!
    //! @return a `coot::instanced_mesh_t`
    coot::instanced_mesh_t add_target_position_restraint_and_refine(int imol, const std::string &atom_cid,
                                                                    float pos_x, float pos_y, float pos_z,
@@ -1598,6 +1645,7 @@ public:
    float get_geman_mcclure_alpha() const { return geman_mcclure_alpha; }
 
    //! generate GM self restraints for the whole molecule
+   //!
    //! @return nothing useful.
    int generate_self_restraints(int imol, float local_dist_max);
 
@@ -1628,11 +1676,13 @@ public:
    // -------------------------------- Coordinates validation ------------------------------
    //! backslash name Coordinates Validation
 
-   //! get the rotamer dodecs for the model, not const because it regenerates the bonds.
+   //! get the rotamer dodecs for the model, not const because it regenerates the bonds
+   //!
    //! @return a `coot::simple_mesh_t`
    coot::simple_mesh_t get_rotamer_dodecs(int imol);
 
-   //! get the rotamer dodecs for the model, not const because it regenerates the bonds.
+   //! get the rotamer dodecs for the model, not const because it regenerates the bonds
+   //!
    //! @return an `instanced_mesh_t`
    coot::instanced_mesh_t get_rotamer_dodecs_instanced(int imol);
 
@@ -1711,7 +1761,7 @@ public:
    std::vector<coot::plain_atom_overlap_t> get_overlaps_for_ligand(int imol, const std::string &cid_ligand);
 
    // -------------------------------- Coordinates and map validation ----------------------
-   //! backslash name Coordinates and Map Validation
+   //! \name Coordinates and Map Validation
 
    //! density fit validation information
    //! @returns a `coot::validation_information_t`
@@ -1816,7 +1866,7 @@ public:
    coot::validation_information_t get_q_score(int imol_model, int imol_map) const;
 
    // -------------------------------- Rail Points ------------------------------------------
-   //! backslash name Rail Points!
+   //! \name Rail Points!
 
    //! calling this adds to the rail_points history. Make this pairs when we add model scoring.
    //! @returns the new rail points (since last modification)
@@ -1827,7 +1877,7 @@ public:
    int rail_points_total() const;
 
    // -------------------------------- Updating Maps ---------------------------------------
-   //! backslash name Updating Maps
+   //! \name Updating Maps
 
    //! associate a data mtz file with a molecule
    //!
@@ -1886,7 +1936,7 @@ public:
    std::string get_data_set_file_name(int imol) const;
 
    // -------------------------------- Go To Blob ---------------------------------------
-   //! backslash name Go to Blob
+   //! \name Go to Blob
 
    //! Given a point on the front clipping plane (x1, y1, z1) and a point on the back clipping plane (x2, y2, z2)
    //! this function searches imol_refinement_map (if set) to find a the centre of a blob above the contour level.
@@ -1902,7 +1952,7 @@ public:
 
 
    // -------------------------------- Ligand Functions ---------------------------------------
-   //! backslash name Ligand Functions
+   //! \name Ligand Functions
 
    //! Ligand Fitting
    //!
@@ -1940,7 +1990,7 @@ public:
                                              float n_rmsd, bool use_conformers, unsigned int n_conformers);
 
    //! Fit ligands (place-holder)
-   //! ``multi_ligand_molecule_number_list`` is a colon-separated list of molecules, *e.g.* "2:3:4"
+   //! `multi_ligand_molecule_number_list` is a colon-separated list of molecules, *e.g.* "2:3:4"
    //! @return an empty vector (at the moment)
    std::vector<fit_ligand_info_t> fit_ligand_multi_ligand(int imol_protein, int imol_map, const std::string &multi_ligand_molecule_number_list,
                                                           float n_rmsd, bool use_conformers, unsigned int n_conformers);
@@ -1969,9 +2019,9 @@ public:
    //! It won't work unless the dictionary for that ligand has been imported.
    //! The output renderings are not very good at the moment.
    //!
-   //! Except for unusual cases, ``imol`` will be IMOL_ENC_ANY (-666666)
+   //! Except for unusual cases, `imol` will be IMOL_ENC_ANY (-666666)
    //!
-   //! ``dark_background_flag`` returns a representation suitable for rendering on a dark background (funnily enough).
+   //! `dark_background_flag` returns a representation suitable for rendering on a dark background (funnily enough).
    //!
    //! This function is not const because it caches the svgs if it can.
    //!
@@ -1981,11 +2031,11 @@ public:
    //! This function is for adding compounds/molecules like buffer agents and precipitants or anions and cations.
    //! _i.e._ those ligands that can be positioned without need for internal torsion angle manipulation.
    //!
-   //! ``tlc`` is the three-letter-code/compound-id
+   //! `tlc` is the three-letter-code/compound-id
    //!
-   //! ``imol_dict`` is the molecule to which the ligand is attached (if any). Typically this will be IMOL_ENC_ANY (-666666).
+   //! `imol_dict`  is the molecule to which the ligand is attached (if any). Typically this will be IMOL_ENC_ANY (-666666).
    //!
-   //! ``imol_map`` is the molecule number of the map that will be used for fitting.
+   //! `imol_map` is the molecule number of the map that will be used for fitting.
    //!
    //! @return the success status, 1 or good, 0 for not good.
    int add_compound(int imol, const std::string &tlc, int imol_dict, int imol_map, float x, float y, float z);
@@ -2013,15 +2063,16 @@ public:
    int get_number_of_map_sections(int imol_map, int axis_id) const;
 
    // -------------------------------- Others -------------------------------------
-   //! backslash name Other Features
+   //! \name Other Features
 
-   //! Make a m `coot::simple_mesh_t` from a file
+   //! Make a `coot::simple_mesh_t` from a file
    //!
    //! @params `file_name` the gltf file
+   //!
    //! @return a `simple_mesh_t` from the given file.
    coot::simple_mesh_t make_mesh_from_gltf_file(const std::string &file_name);
 
-   //! @params `n_divisions` is a number divisble by 2, at least 4 (typically 16)
+   //! @params `n_divisions` is a number divisible by 2, at least 4 (typically 16)
    //! @return a unit-vector end-cap octohemisphere mesh
    coot::simple_mesh_t get_octahemisphere(unsigned int n_divisions) const;
 
@@ -2029,7 +2080,7 @@ public:
    std::string pae_png(const std::string &pae_file_name) const;
 
    // -------------------------------- Testing -------------------------------------
-   //! backslash name Testing functions
+   //! \name Testing functions
 
    class ltj_stats_t {
    public:
@@ -2076,7 +2127,7 @@ public:
    //! get the stats for the long-term job (testing function)
    ltj_stats_t testing_interrogate_long_term_job() { return long_term_job_stats; }
 
-   //! get the time for conntouring in milliseconds
+   //! get the time for contouring in milliseconds
    double get_contouring_time() const { return contouring_time; }
 
    //! set the maximum number of threads for both the thread pool and the vector of threads
@@ -2091,7 +2142,7 @@ public:
    //! @return the time per batch in microseconds
    double test_launching_threads(unsigned int n_threads_per_batch, unsigned int n_batches) const;
 
-   //! @return time in microsections
+   //! @return time in microseconds
    double test_thread_pool_threads(unsigned int n_threads);
 
    //! a test for mmdb/gemmi/mmcif functionality
@@ -2111,7 +2162,7 @@ public:
 
    // -------------------------------- Blender Interface ---------------------------------------
 
-   //! backslash name Functions for Blender Interface
+   //! \name Functions for Blender Interface
 
    void make_mesh_for_map_contours_for_blender(int imol, float x, float y, float z, float level, float radius);
    void make_mesh_for_bonds_for_blender(int imol, const std::string &mode, bool against_a_dark_background,

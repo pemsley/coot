@@ -33,6 +33,7 @@
 #include "lidia-core/lig-build.hh"
 #include "lidia-core/lbg-molfile.hh"
 #include "lidia-core-functions.hh"
+#include "analysis/stats.hh"
 
 #ifdef USE_GEMMI
 #include "gemmi/mmread.hpp"
@@ -998,7 +999,7 @@ atom_selection_container_t read_standard_residues() {
 
    std::string standard_env_dir = "COOT_STANDARD_RESIDUES";
    atom_selection_container_t standard_residues_asc;
-   
+
    const char *filename = getenv(standard_env_dir.c_str());
    if (! filename) {
 
@@ -1008,7 +1009,7 @@ atom_selection_container_t read_standard_residues() {
       standard_file_name += "standard-residues.pdb";
 
       struct stat buf;
-      int status = stat(standard_file_name.c_str(), &buf);  
+      int status = stat(standard_file_name.c_str(), &buf);
       if (status != 0) { // standard-residues file was not found in
 			 // default location either...
 	 std::cout << "WARNING: environment variable for standard residues ";
@@ -1019,18 +1020,17 @@ atom_selection_container_t read_standard_residues() {
 	 standard_residues_asc.read_success = 0;
 	 // std::cout << "DEBUG:: standard_residues_asc marked as
 	 // empty" << std::endl;
-      } else { 
+      } else {
 	 // stat success:
 	 standard_residues_asc = get_atom_selection(standard_file_name, false, true, false);
       }
-   } else { 
+   } else {
       standard_residues_asc = get_atom_selection(filename, false, true, false);
    }
 
    return standard_residues_asc;
 }
 
-#include "analysis/stats.hh"
 
 // return an estimate of the molecule diameter
 float
