@@ -1486,10 +1486,10 @@ public:
                                               float t0, float t1, float t2); // translation
 
    //! update the positions of the atoms in the residue
-   int new_positions_for_residue_atoms(int imol, const std::string &residue_cid, std::vector<coot::molecule_t::moved_atom_t> &moved_atoms);
+   int new_positions_for_residue_atoms(int imol, const std::string &residue_cid, std::vector<coot::api::moved_atom_t> &moved_atoms);
 
    //! update the positions of the atoms in the residues
-   int new_positions_for_atoms_in_residues(int imol, const std::vector<coot::molecule_t::moved_residue_t> &moved_residues);
+   int new_positions_for_atoms_in_residues(int imol, const std::vector<coot::api::moved_residue_t> &moved_residues);
 
    //! list_of_other_molecules is a colon-separated list of molecules, *e.g.* "2:3:4"
    //! @return the first is a flag set to 1 if a merge occurred (and 0 if it did not)

@@ -3008,7 +3008,7 @@ coot::molecule_t::apply_transformation_to_atom_selection(const std::string &atom
 
 
 int
-coot::molecule_t::new_positions_for_residue_atoms(const std::string &residue_cid, const std::vector<moved_atom_t> &moved_atoms) {
+coot::molecule_t::new_positions_for_residue_atoms(const std::string &residue_cid, const std::vector<coot::api::moved_atom_t> &moved_atoms) {
 
    mmdb::Residue *residue_p = cid_to_residue(residue_cid);
    if (residue_p) {
@@ -3020,7 +3020,7 @@ coot::molecule_t::new_positions_for_residue_atoms(const std::string &residue_cid
 }
 
 int
-coot::molecule_t::new_positions_for_residue_atoms(mmdb::Residue *residue_p, const std::vector<moved_atom_t> &moved_atoms,
+coot::molecule_t::new_positions_for_residue_atoms(mmdb::Residue *residue_p, const std::vector<coot::api::moved_atom_t> &moved_atoms,
                                                   bool do_backup) {
 
    // calling function does the make_backup() - otherwise this function could be called 100s of
@@ -3031,7 +3031,7 @@ coot::molecule_t::new_positions_for_residue_atoms(mmdb::Residue *residue_p, cons
       if (do_backup)
          make_backup("new_positions_for_residue_atoms");
       for (unsigned int i=0; i<moved_atoms.size(); i++) {
-         const moved_atom_t &mva = moved_atoms[i];
+         const api::moved_atom_t &mva = moved_atoms[i];
 
          mmdb::Atom **residue_atoms = 0;
          int n_residue_atoms = 0;
@@ -3059,13 +3059,13 @@ coot::molecule_t::new_positions_for_residue_atoms(mmdb::Residue *residue_p, cons
 }
 
 int
-coot::molecule_t::new_positions_for_atoms_in_residues(const std::vector<moved_residue_t> &moved_residues) {
+coot::molecule_t::new_positions_for_atoms_in_residues(const std::vector<coot::api::moved_residue_t> &moved_residues) {
 
    int status = 0;
    if (!moved_residues.empty()) {
       make_backup("new_positions_for_atoms_in_residues");
       for (unsigned int i=0; i<moved_residues.size(); i++) {
-         const moved_residue_t &mvr = moved_residues[i];
+         const api::moved_residue_t &mvr = moved_residues[i];
          coot::residue_spec_t res_spec(mvr.chain_id, mvr.res_no, mvr.ins_code);
          mmdb::Residue *residue_p = get_residue(res_spec);
          new_positions_for_residue_atoms(residue_p, mvr.moved_atoms, false); // we make_backup() above.
