@@ -472,7 +472,7 @@ public:
    int get_imol_enc_any() const;
 
    // -------------------------------- generic utils -----------------------------------
-   //! backslash name Generic Utils
+   //! \name Generic Utils
 
    //! get the molecule name
    //!
@@ -1413,10 +1413,13 @@ public:
    //! @return 1 on a successful fill, 0 on failure.
    int fill_partial_residues(int imol);
 
+#if SKIP_FOR_PYTHON_DOXYGEN
+#else
    //! flip peptide
    //!
    //! @return 1 on a successful flip
    int flip_peptide(int imol, const coot::atom_spec_t &atom_spec, const std::string &alt_conf);
+#endif
    //! flip peptide using an atom CID
    //!
    //! @return 1 on a successful flip
