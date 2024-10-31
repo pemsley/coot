@@ -619,10 +619,13 @@ coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary
 							  const std::string &new_comp_id_in,
 							  const std::string &new_compound_name) const {
 
+   bool debug = false;
+
    bool use_hydrogens = false; // pass this? Turning this on makes this function catatonic.
 
+   // make a copy
    dictionary_residue_restraints_t dict = *this;
-   bool debug = false;
+
    typedef std::pair<std::string, std::string> SP;
    std::vector<SP> change_name;
    std::vector<std::string> same_names;
@@ -663,8 +666,11 @@ coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary
    g_2->MakeSymmetryRelief(false);
 
    mmdb::math::GraphMatch match;
-   int minMatch = ref.number_of_non_hydrogen_atoms() - 2;
-   int n_top = int(0.75 * float(ref.number_of_non_hydrogen_atoms()));
+   int minMatch_1 = ref.number_of_non_hydrogen_atoms() - 2;
+   int minMatch_2 = number_of_non_hydrogen_atoms() - 2;
+   int minMatch = minMatch_1;
+      if (minMatch_2 < minMatch_1) minMatch = minMatch_2;
+   int n_top = int(0.75 * float(minMatch));
    if (minMatch <  3) minMatch =  3;
    if (minMatch > 14) minMatch = 14;
 
@@ -888,7 +894,7 @@ coot::dictionary_residue_restraints_t::extra_name_swaps_from_name_clash(const st
 
 	       std::string invented_name = invent_new_name(ele, invented_names);
 
-	       if (false)
+	       if (true)
 		  std::cout << "extra_name_swaps_from_name_clash() " << i << " " << j
 			    << " invented name: " << invented_name << std::endl;
 	       invented_names.push_back(invented_name);

@@ -1800,11 +1800,11 @@ int test_new_position_for_atoms(molecules_container_t &mc) {
    if (pos.first) {
       coot::Cartesian pos_pre = pos.second;
 
-      std::vector<coot::molecule_t::moved_atom_t> moved_atom_positions;
+      std::vector<coot::api::moved_atom_t> moved_atom_positions;
       std::vector<std::string> atom_names = {" N  ", " CA ", " C  ", " O  ", " CB ", " CG1", " CG2"};
       for (const auto &name : atom_names) {
          coot::atom_spec_t as("A", 20, "", name, "");
-         moved_atom_positions.push_back(coot::molecule_t::moved_atom_t(name, "", 2.1, 3.2, 4.3));
+         moved_atom_positions.push_back(coot::api::moved_atom_t(name, "", 2.1, 3.2, 4.3));
       }
 
       mc.new_positions_for_residue_atoms(imol, "//A/20", moved_atom_positions);
@@ -1836,11 +1836,11 @@ int test_new_position_for_atoms_in_residues(molecules_container_t &mc) {
       coot::Cartesian pos_pre = pos.second;
 
       std::vector<std::string> atom_names = {" N  ", " CA ", " C  ", " O  ", " CB ", " CG1", " CG2"};
-      std::vector<coot::molecule_t::moved_residue_t> moved_atoms_residue_vec;
-      coot::molecule_t::moved_residue_t mr("A", 20, "");
+      std::vector<coot::api::moved_residue_t> moved_atoms_residue_vec;
+      coot::api::moved_residue_t mr("A", 20, "");
       for (const auto &name : atom_names) {
          coot::atom_spec_t as("A", 20, "", name, "");
-         mr.add_atom(coot::molecule_t::moved_atom_t(name, "", 2.1, 3.2, 4.3));
+         mr.add_atom(coot::api::moved_atom_t(name, "", 2.1, 3.2, 4.3));
       }
       moved_atoms_residue_vec.push_back(mr);
 
@@ -6117,17 +6117,30 @@ int test_merge_ligand_and_gemmi_parse_mmcif(molecules_container_t &mc) {
 
 int test_dictionary_atom_name_match(molecules_container_t &mc) {
 
+   int status = 0;
    starting_test(__FUNCTION__);
 
    std::string comp_id_1 = "TYR";
-   std::string comp_id_2 = "PTY";
+   std::string comp_id_2 = "PTR";
    int imol_1 = coot::protein_geometry::IMOL_ENC_ANY;
    int imol_2 = coot::protein_geometry::IMOL_ENC_ANY;
 
-   std::map<std::string, std::string> m =
-   mc.dictionary_atom_name_map(comp_id_1, imol_1, comp_id_2, imol_2);
+   // 20241031-PE these are relatively modern dictionaries (from CCP4-9)
+   mc.import_cif_dictionary(reference_data("TYR.cif"), imol_1);
+   mc.import_cif_dictionary(reference_data("PTR.cif"), imol_2);
 
-   int status = 0;
+   int imol_pty = mc.get_monomer(comp_id_2);  // I want the dictionary, not the molecule
+
+   if (mc.is_valid_model_molecule(imol_pty)) {
+      std::map<std::string, std::string> m =
+         mc.dictionary_atom_name_map(comp_id_1, imol_1, comp_id_2, imol_2);
+
+      std::cout << "got a name map of size " << m.size() << std::endl;
+      for (const auto &name : m)
+         std::cout << "    " << name.first << " " << name.second << std::endl;
+      if (m.size() > 8) status = 1;
+   }
+
    return status;
 }
 
