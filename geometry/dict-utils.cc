@@ -391,20 +391,20 @@ coot::dictionary_residue_restraints_t::compare(const dictionary_residue_restrain
    // ------------------------- torsion restraints -------------------
 
    // ------------------------- chiral restraints -------------------
-   // 
+   //
    if (chiral_restraint.size() != r.chiral_restraint.size())
       std::cout << "Chiral-Restraint:: " << comp_id_s << " mismatch number of restraints "
 		<< chiral_restraint.size() << " " << r.chiral_restraint.size()
 		<< std::endl;
    bool chirals_match = true;
-   for (unsigned int i=0; i<chiral_restraint.size(); i++) { 
+   for (unsigned int i=0; i<chiral_restraint.size(); i++) {
       for (unsigned int j=0; j<r.chiral_restraint.size(); j++) {
 	 if (chiral_restraint[i].matches_names(r.chiral_restraint[j])) {
 	    if (chiral_restraint[i].is_a_both_restraint() !=
 		r.chiral_restraint[j].is_a_both_restraint()) {
 	       std::cout << "Chiral-Restraint:: " << comp_id_s << " id "
 			 << chiral_restraint[i].Chiral_Id()
-			 << " mismatch 'both' type " 
+			 << " mismatch 'both' type "
 			 << chiral_restraint[i].volume_sign << " vs "
 			 << r.chiral_restraint[j].volume_sign
 			 << std::endl;
@@ -414,7 +414,7 @@ coot::dictionary_residue_restraints_t::compare(const dictionary_residue_restrain
 		   r.chiral_restraint[j].volume_sign) {
 		  std::cout << "Chiral-Restraint:: " << comp_id_s << " id "
 			    << chiral_restraint[i].Chiral_Id()
-			    << " mismatch volume sign " 
+			    << " mismatch volume sign "
 			    << chiral_restraint[i].volume_sign << " vs "
 			    << r.chiral_restraint[j].volume_sign
 			    << std::endl;
@@ -428,7 +428,6 @@ coot::dictionary_residue_restraints_t::compare(const dictionary_residue_restrain
       if (! quiet)
 	 std::cout << "Chiral-Restraint:: " << comp_id_s << " all chiral restraints match"
 		   << std::endl;
-   
 
    // -------------------------  plane restraints -------------------
    if (plane_restraint.size() != r.plane_restraint.size())
@@ -447,7 +446,7 @@ coot::dictionary_residue_restraints_t::compare(const dictionary_residue_restrain
       }
       if (matched_this_plane) {
 	 n_planes_matched++;
-      } else { 
+      } else {
 	 std::cout << "Plane-Restraint:: " << comp_id_s << " no match for plane restraints "
 		   << plane_restraint[i].plane_id << std::endl;
       }
@@ -471,12 +470,12 @@ coot::dictionary_residue_restraints_t::compare(const dictionary_residue_restrain
    double max_pos_diff = 0;
    double max_neg_diff = 0;
    double sum_fabs = 0;
-   if (bond_length_mismatches.size() > 0) { 
-      for (unsigned int ib=0; ib<bond_length_mismatches.size(); ib++) { 
+   if (bond_length_mismatches.size() > 0) {
+      for (unsigned int ib=0; ib<bond_length_mismatches.size(); ib++) {
 	 sum      += bond_length_mismatches[ib].diff;
 	 sum_sqrd += bond_length_mismatches[ib].diff * bond_length_mismatches[ib].diff;
 	 sum_fabs += bond_length_mismatches[ib].abs_diff;
-	 if (bond_length_mismatches[ib].diff > 0) { 
+	 if (bond_length_mismatches[ib].diff > 0) {
 	    if (bond_length_mismatches[ib].diff > max_pos_diff)
 	       max_pos_diff = bond_length_mismatches[ib].diff;
 	 } else {
@@ -505,11 +504,11 @@ coot::dictionary_residue_restraints_t::compare(const dictionary_residue_restrain
    sum = 0;
    max_pos_diff = 0;
    max_neg_diff = 0;
-   if (bond_esd_mismatches.size() > 0) { 
-      for (unsigned int ib=0; ib<bond_esd_mismatches.size(); ib++) { 
+   if (bond_esd_mismatches.size() > 0) {
+      for (unsigned int ib=0; ib<bond_esd_mismatches.size(); ib++) {
 	 sum      += bond_esd_mismatches[ib].diff;
 	 sum_sqrd += bond_esd_mismatches[ib].diff * bond_esd_mismatches[ib].diff;
-	 if (bond_esd_mismatches[ib].diff > 0) { 
+	 if (bond_esd_mismatches[ib].diff > 0) {
 	    if (bond_esd_mismatches[ib].diff > max_pos_diff)
 	       max_pos_diff = bond_esd_mismatches[ib].diff;
 	 } else {
@@ -536,11 +535,11 @@ coot::dictionary_residue_restraints_t::compare(const dictionary_residue_restrain
    sum = 0;
    max_pos_diff = 0;
    max_neg_diff = 0;
-   if (angle_mismatches.size() > 0) { 
-      for (unsigned int ia=0; ia<angle_mismatches.size(); ia++) { 
+   if (angle_mismatches.size() > 0) {
+      for (unsigned int ia=0; ia<angle_mismatches.size(); ia++) {
 	 sum      += angle_mismatches[ia].diff;
 	 sum_sqrd += angle_mismatches[ia].diff * angle_mismatches[ia].diff;
-	 if (angle_mismatches[ia].diff > 0) { 
+	 if (angle_mismatches[ia].diff > 0) {
 	    if (angle_mismatches[ia].diff > max_pos_diff)
 	       max_pos_diff = angle_mismatches[ia].diff;
 	 } else {
@@ -567,11 +566,11 @@ coot::dictionary_residue_restraints_t::compare(const dictionary_residue_restrain
    sum = 0;
    max_pos_diff = 0;
    max_neg_diff = 0;
-   if (angle_esd_mismatches.size() > 0) { 
-      for (unsigned int ia=0; ia<angle_esd_mismatches.size(); ia++) { 
+   if (angle_esd_mismatches.size() > 0) {
+      for (unsigned int ia=0; ia<angle_esd_mismatches.size(); ia++) {
 	 sum      += angle_esd_mismatches[ia].diff;
 	 sum_sqrd += angle_esd_mismatches[ia].diff * angle_esd_mismatches[ia].diff;
-	 if (angle_esd_mismatches[ia].diff > 0) { 
+	 if (angle_esd_mismatches[ia].diff > 0) {
 	    if (angle_esd_mismatches[ia].diff > max_pos_diff)
 	       max_pos_diff = angle_esd_mismatches[ia].diff;
 	 } else {
@@ -594,7 +593,6 @@ coot::dictionary_residue_restraints_t::compare(const dictionary_residue_restrain
       std::cout.width(6);
       std::cout << max_neg_diff << " degrees\n";
    }
-   
 
    bool status = false;
    if (bonds_match == true)
@@ -602,17 +600,17 @@ coot::dictionary_residue_restraints_t::compare(const dictionary_residue_restrain
 	 if (planes_match == true)
 	    if (chirals_match == true)
 	       status = true;
-   
+
    return status;
 }
 
 // Return the number of matched atoms in first.
-// 
+//
 // return a dictionary that is a copy of this dictionary, but
 // trying to match the names of the atoms of ref.  Do graph
 // matching to find the set of atom names that match/need to be
 // changed.
-// 
+//
 // std::pair<unsigned int, coot::dictionary_residue_restraints_t>
 
 coot::dictionary_match_info_t
@@ -673,9 +671,9 @@ coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary
    // 20160908-PE I removed this line.  I am not sure why it is needed and for matching
    // 3GP onto (ref) GTP if this line is in place, GetNofMatches() returns 0.
    // The reverse logic seems more sensible to me now.
-   // 
+   //
    // if (minMatch < n_top) minMatch = n_top;
-   // 
+   //
    if (minMatch > n_top) minMatch = n_top;
 
    bool vertext_type = true;
@@ -704,7 +702,7 @@ coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary
 	 match.SetTimeLimit(2); // seconds
 	 match.MatchGraphs(g_1, g_2, minMatch, vertext_type);
 	 int n_match = match.GetNofMatches();
-	 if (debug) 
+	 if (debug)
 	    std::cout << "debug:: match_to_reference() GetNofMatches() found "
                       << n_match << " matches" << std::endl;
 	 if (n_match > 0) {
@@ -778,7 +776,7 @@ coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary
 	       std::cout << "DEBUG:: in total: " << change_name.size() + same_names.size()
 			 << " name matches" << std::endl;
 	    }
-	    
+
 	    // also header info.
 	    dict.residue_info.comp_id           = new_comp_id;
 	    dict.residue_info.three_letter_code = new_comp_id;
@@ -803,7 +801,7 @@ coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary
 		  if (m)
 		     m->FinishStructEdit();
 	       }
-	    } 
+	    }
 	 }
       }
    }
@@ -817,7 +815,7 @@ coot::dictionary_residue_restraints_t::match_to_reference(const coot::dictionary
    dmi.name_swaps = change_name;
    dmi.same_names = same_names;
    dmi.new_comp_id = new_comp_id;
-   
+
    return dmi;
 
 }
@@ -835,7 +833,7 @@ coot::dictionary_residue_restraints_t::change_names(mmdb::Residue *residue_p,
       for (int iat=0; iat<num_residue_atoms; iat++) {
 	 mmdb::Atom *at = res_selection[iat];
 	 std::string atom_name = at->name;
-	 for (unsigned int j=0; j<change_name.size(); j++) { 
+	 for (unsigned int j=0; j<change_name.size(); j++) {
 	    if (change_name[j].first == atom_name) {
 	       // 4 chars?
 	       at->SetAtomName(change_name[j].second.c_str());
@@ -847,7 +845,7 @@ coot::dictionary_residue_restraints_t::change_names(mmdb::Residue *residue_p,
    }
    if (changed_something) {
       residue_p->SetResName(new_comp_id.c_str());
-   } 
+   }
    return changed_something;
 }
 
@@ -855,7 +853,7 @@ coot::dictionary_residue_restraints_t::change_names(mmdb::Residue *residue_p,
 // do any of the target (to) names exist in dict already (and that to
 // name is not assigned to be replaced)?  If so, we will need to
 // invent a new name for those already-existing atoms.
-// 
+//
 std::vector<std::pair<std::string, std::string> >
 coot::dictionary_residue_restraints_t::extra_name_swaps_from_name_clash(const std::vector<std::pair<std::string, std::string> > &change_name) const {
 
@@ -868,7 +866,7 @@ coot::dictionary_residue_restraints_t::extra_name_swaps_from_name_clash(const st
 	 const std::string &to_name = change_name[i].second;
 	 // if it is an atom name that already exists in this residue...
 	 if (to_name == atom_info[j].atom_id) {
-	    // and if that atom name is not assigned to be changed... 
+	    // and if that atom name is not assigned to be changed...
 	    bool found = false;
 	    for (unsigned int k=0; k<change_name.size(); k++) {
 	       if (change_name[k].first == to_name) {
@@ -881,22 +879,22 @@ coot::dictionary_residue_restraints_t::extra_name_swaps_from_name_clash(const st
 	       //
 	       // so invent a new name.
 	       std::string ele = "C";
-	       for (unsigned int jj=0; jj<atom_info.size(); jj++) { 
+	       for (unsigned int jj=0; jj<atom_info.size(); jj++) {
 		  if (atom_info[jj].atom_id == to_name) {
 		     ele = atom_info[jj].type_symbol;
 		     break;
-		  } 
+		  }
 	       }
-	       
+
 	       std::string invented_name = invent_new_name(ele, invented_names);
 
-	       if (0) 
+	       if (false)
 		  std::cout << "extra_name_swaps_from_name_clash() " << i << " " << j
 			    << " invented name: " << invented_name << std::endl;
 	       invented_names.push_back(invented_name);
 	       SP p(to_name, invented_name);
 	       r.push_back(p);
-	    } 
+	    }
 	 }
       }
    }
