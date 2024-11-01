@@ -35,7 +35,7 @@ After [installing Flatpak and registering Flathub](https://flatpak.org/setup/) r
 flatpak install flathub io.github.pemsley.coot
 
 # Simply click Coot's icon in the menu or
-flatpak run io.github.pemsley.coot  
+flatpak run io.github.pemsley.coot
 ```
 
 ## Building from source
