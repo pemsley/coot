@@ -5,6 +5,8 @@ and we need to conditionally compile the code that uses coordgen (in layla).
 
 What's up with the cross-hairs? Allow user to set the colour.
 
+Install this on hal: https://github.com/chaidiscovery/chai-lab
+
 Button no labels and labels no buttons for the vertical toolbar.
 
 Read in two dictionaries and return an atom name map.
