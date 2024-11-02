@@ -8034,7 +8034,7 @@ molecule_class_info_t::fix_nomenclature_errors(coot::protein_geometry *geom_p) {
 // nomenclature errors
 // return a vector of the changed residues (used for updating the rotamer graph)
 std::vector<std::pair<std::string, coot::residue_spec_t> >
-molecule_class_info_t::list_nomenclature_errors(coot::protein_geometry *geom_p) {
+molecule_class_info_t::list_nomenclature_errors(const coot::protein_geometry *geom_p) {
                                                       // by looking for bad rotamers in
                                                       // some residue types and alter ing
                                                           // the atom names to see if they get

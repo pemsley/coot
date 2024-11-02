@@ -1,10 +1,27 @@
-
 ----
 
-"Replace Residue" using new dictionaries (with OXT)
-* Done.
+configure needs to know if RDKitcoordgen was used to make RDKit and change the Makefile libs
+and we need to conditionally compile the code that uses coordgen (in layla).
 
-Martin: How do I load external (refmac) restraints into Coot 1 and Moorhen?
+What's up with the cross-hairs? Allow user to set the colour.
+
+Button no labels and labels no buttons for the vertical toolbar.
+
+Read in two dictionaries and return an atom name map.
+std::map<std::string, std::string>
+dictionary_atom_name_map(comp_id_1, imol_1, comp_id_2, imol_2)
+How do I handle the map in python?
+https://nanobind.readthedocs.io/en/latest/exchanging.html
+Seems that is could be "naturally."
+
+Validation: Tell me when I have links that are too long (based on
+simple rules (enerlib.cif) not on link dictionary values)
+
+Unmodelled blobs near sequons?
+
+Paul Bond bug.
+
+Martin Maly: How do I load external (refmac) restraints into Coot 1?
 
 Associate sequence and assign sequence functions, brighten_maps_action() and many other
   are missing bodies in create-menu-item-actions.cc
@@ -25,8 +42,6 @@ Why does side-chain-densities like TRPs?
 Are shader settings (plain vs fancy) saved in the state file?
 
 Add Place Helix here to moorhen api
-
-Is there non-map minimization (say, for conformers)?
 
 Add merge fragments to api.
 
@@ -117,6 +132,9 @@ make an figure, for moorhen intro with blobs that have volume proportional
 Look at 4yjr - beautiful map 452-626 interaction - it should not have a clash face
    (distance to hydrogen atom).
 * Checked - it does not if both residues are refined. That will do.
+
+Smooth Recentering setting saved (now)?
+* Yes.
 
 Add Noughties Physics into the Preferences
 * Done.
@@ -284,12 +302,20 @@ Non-trivial C++ Mini-Projects
  o Add gesamt to moorhen and coot
  o parser for PISA output (maybe Python will do)
  o Filled bases for DNA/RNA
+<<<<<<< HEAD
+ o Is this useful? https://github.com/CGAL/cgal/ Surface Mesh
+=======
  o Use VTE for a Python console
  o Get CFC working again (needs C++ clustering)
 
+>>>>>>> refs/remotes/origin/main
 
 Non-trivial C++ Projects
  o Improved ligand fitting with machine learning
+ o Show that crankshaft works - one part of the problem here is get get/make
+   many problematic models.  The other is making the algorithm more robust
+   (fix side-chain addition, for example). See the CaBLAM paper for some
+   problematic structures.
 
 Is 0-coot.state.py a good file-name now that it's in ~/.local/state/Coot ?
 

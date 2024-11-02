@@ -451,8 +451,12 @@ molecule_class_info_t::handle_read_draw_molecule(int imol_no_in,
    if (atom_sel.read_success == 1) {
 
       // update the geometry as needed
-      geom_p->read_extra_dictionaries_for_molecule(atom_sel.mol, imol_no,
-                                                   &graphics_info_t::cif_dictionary_read_number);
+      if (geom_p) {
+         geom_p->read_extra_dictionaries_for_molecule(atom_sel.mol, imol_no,
+                                                      &graphics_info_t::cif_dictionary_read_number);
+      } else {
+         std::cout << "ERROR:: mci::handle_read_draw_molecule(): geom_p is null" << std::endl;
+      }
 
       // LINK info:
       int n_models = atom_sel.mol->GetNumberOfModels();
@@ -3235,7 +3239,7 @@ molecule_class_info_t::add_additional_representation(int representation_type,
 
 // representation_number should be an unsigned int.
 int
-molecule_class_info_t::adjust_additional_representation(int represenation_number,
+molecule_class_info_t::adjust_additional_representation(int representation_number,
                                                         const int &bonds_box_type_in,
                                                         float bonds_width,
                                                         bool draw_hydrogens_flag,

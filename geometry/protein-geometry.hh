@@ -914,6 +914,9 @@ namespace coot {
       // If new_comp_id is "auto", suggest_new_comp_id() is called to
       // generate a comp_id string.
       //
+      // If residue_p is not null, then change the atom names
+      // in the residue.
+      //
       dictionary_match_info_t
       match_to_reference(const dictionary_residue_restraints_t &ref,
                          mmdb::Residue *residue_p,

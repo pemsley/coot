@@ -91,13 +91,15 @@ class molecules_container_t {
          imol_with_data_info_attached = -1;
       }
    };
+
+   //! set updating maps need an update (private)
    updating_maps_info_f updating_maps_info;
    void set_updating_maps_need_an_update(int imol); // if model imol was changed, let's update the map when
                                                     // the next contouring mesh is requested.
                                                     // Checks the above information before acting, of course.
                                                     // No action if imol is the the model for updating maps.
 
-   //! update the updating maps without generating a mesh
+   //! update the updating maps without generating a mesh (private)
    void update_updating_maps(int imol); // called from the get_map_contours_mesh() function
 
    coot::util::sfcalc_genmap_stats_t latest_sfcalc_stats;
@@ -136,8 +138,10 @@ class molecules_container_t {
    bool continue_threaded_refinement_loop;
    bool refinement_is_quiet;
    int cif_dictionary_read_number;
-   // return the state of having found restraints.
+   //! return the state of having found restraints.
    std::string adjust_refinement_residue_name(const std::string &resname) const;
+#ifdef DOXYGEN_SHOULD_PARSE_THIS
+#else
    bool make_last_restraints(const std::vector<std::pair<bool,mmdb::Residue *> > &local_residues,
 			     const std::vector<mmdb::Link> &links,
 			     const coot::protein_geometry &geom,
@@ -151,23 +155,29 @@ class molecules_container_t {
                                                   const std::string &alt_conf,
                                                   mmdb::Manager *mol);
 
+   atom_selection_container_t make_moving_atoms_asc(mmdb::Manager *residues_mol,
+                                                    const std::vector<mmdb::Residue *> &residues) const;
+
    int find_serial_number_for_insert(int seqnum_new,
                                      const std::string &ins_code_for_new,
                                      mmdb::Chain *chain_p) const;
-   atom_selection_container_t make_moving_atoms_asc(mmdb::Manager *residues_mol,
-                                                    const std::vector<mmdb::Residue *> &residues) const;
+
    // return 0 if any of the residues in selection don't have (at least) bond
    // restraints.  Try to auto-load the dictionary cifs and try again.
    // The vector is a list of residues for which no restraints could be found.
+
    std::pair<int, std::vector<std::string> >
      check_dictionary_for_residue_restraints(int imol, mmdb::PResidue *SelResidues, int nSelResidues);
+
    std::pair<int, std::vector<std::string> >
      check_dictionary_for_residue_restraints(int imol, const std::vector<mmdb::Residue *> &residues);
+
    std::pair<mmdb::Manager *, std::vector<mmdb::Residue *> >
    create_mmdbmanager_from_res_vector(const std::vector<mmdb::Residue *> &residues,
                                       int imol,
                                       mmdb::Manager *mol_in,
                                       std::string alt_conf);
+
    // simple mmdb::Residue * interface to refinement.  20081216
    coot::refinement_results_t
    generate_molecule_and_refine(int imol,  // needed for UDD Atom handle transfer
@@ -175,6 +185,18 @@ class molecules_container_t {
                                 const std::string &alt_conf,
                                 mmdb::Manager *mol,
                                 bool use_map_flag=true);
+
+   static void thread_for_refinement_loop_threaded();
+
+   static std::atomic<bool> restraints_lock;
+   static void get_restraints_lock(const std::string &calling_function_name);
+   static void release_restraints_lock(const std::string &calling_function_name);
+   static std::string restraints_locking_function_name; //  static because it is set by above
+
+   bool particles_have_been_shown_already_for_this_round_flag;
+
+#endif
+
    bool refinement_immediate_replacement_flag = true;
    int imol_moving_atoms;
    enum moving_atoms_asc_t {
@@ -185,21 +207,20 @@ class molecules_container_t {
       NEW_COORDS_INSERT = 4,
       NEW_COORDS_INSERT_CHANGE_ALTCONF = 5};
    short int moving_atoms_asc_type;
-   static void thread_for_refinement_loop_threaded();
 
-   static std::atomic<bool> restraints_lock;
-   static void get_restraints_lock(const std::string &calling_function_name);
-   static void release_restraints_lock(const std::string &calling_function_name);
-   static std::string restraints_locking_function_name; //  static because it is set by above
-
-   bool particles_have_been_shown_already_for_this_round_flag;
-
-   static std::vector<atom_pull_info_t> atom_pulls;
+#ifdef DOXYGEN_SHOULD_PARSE_THIS
+#else
    static void all_atom_pulls_off();
+   static std::vector<atom_pull_info_t> atom_pulls;
+   // nanobinds doesn't have a atom_spec_t, does it?
    static void atom_pull_off(const coot::atom_spec_t &spec);
    static void atom_pulls_off(const std::vector<coot::atom_spec_t> &specs);
+#endif
 
+#ifdef DOXYGEN_SHOULD_PARSE_THIS
+#else
    std::vector<std::pair<mmdb::Residue *, std::vector<coot::dict_torsion_restraint_t> > > make_rotamer_torsions(const std::vector<std::pair<bool, mmdb::Residue *> > &local_residues) const;
+#endif
 
    //! Real space refinement.
    //!
@@ -210,29 +231,39 @@ class molecules_container_t {
    //!
    //! @return success/progress status
 
+#ifdef DOXYGEN_SHOULD_PARSE_THIS
+#else
+   //! Refine direct
    int refine_direct(int imol, std::vector<mmdb::Residue *> rv, const std::string &alt_loc, int n_cycles);
 
+   //! get phi,psi probability
    double phi_psi_probability(const coot::util::phi_psi_t &phi_psi, const ramachandrans_container_t &rc) const;
+#endif
 
-   //! read the standard protein, RNA, and DNA dictionaries.
+
+   //! read the standard protein, RNA, and DNA dictionaries (private)
    void read_standard_residues();
 
    std::map<svg_store_key_t, std::string> ligand_svg_store;
 
    atom_selection_container_t standard_residues_asc;
 
-   int install_model(const coot::molecule_t &m);
+#ifdef DOXYGEN_SHOULD_PARSE_THIS
+#else
 
    coot::graph_match_info_t overlap_ligands_internal(int imol_ligand, int imol_ref, const std::string &chain_id_ref,
                                                      int resno_ref, bool apply_rtop_flag);
+
+   int install_model(const coot::molecule_t &m);
 
    superpose_results_t
    superpose_with_atom_selection(atom_selection_container_t asc_ref,
                                  atom_selection_container_t asc_mov,
                                  int imol_mov,
                                  std::string moving_mol_name,
-                                 std::string referennce_mol_name,
+                                 std::string reference_mol_name,
                                  bool move_copy_of_imol2_flag);
+#endif
 
 #ifdef HAVE_SSMLIB
 
@@ -243,7 +274,6 @@ class molecules_container_t {
 				     mmdb::PAtom *atom_selection2,
 				     int n_selected_atoms_1, int n_selected_atoms_2,
 				     bool move_copy_of_imol2_flag);
-
 
    coot::validation_information_t
    make_ssm_sequence_alignment_as_validation_information(ssm::Align *SSMAlign,
@@ -266,10 +296,6 @@ class molecules_container_t {
 					mmdb::PAtom *atom_selection1,
 					mmdb::PAtom *atom_selection2,
 					int n_selected_atoms_1, int n_selected_atoms_2) const;
-   //
-   void print_horizontal_ssm_sequence_alignment(std::pair<std::string, std::string> aligned_sequences) const;
-
-   std::string generate_horizontal_ssm_sequence_alignment_string(const std::pair<std::string, std::string> &aligned_sequences) const;
 
    std::pair<std::string, std::string>
       get_horizontal_ssm_sequence_alignment(ssm::Align *SSMAlign,
@@ -286,14 +312,18 @@ class molecules_container_t {
              mmdb::PAtom *atom_selection1, mmdb::PAtom *atom_selection2,
              int n_selected_atoms_1, int n_selected_atoms_2) const;
 
+
+   void print_horizontal_ssm_sequence_alignment(std::pair<std::string, std::string> aligned_sequences) const;
+
+   std::string generate_horizontal_ssm_sequence_alignment_string(const std::pair<std::string, std::string> &aligned_sequences) const;
+
 #endif  // HAVE_SSMLIB
 
-
-   // for auto-read mtz
+   //! for auto-read mtz (private)
    int valid_labels(const std::string &mtz_file_name, const std::string &f_col, const std::string &phi_col,
                     const std::string &weight_col, int use_weights) const;
 
-   // water fitting
+   // water fitting settings
    float ligand_water_to_protein_distance_lim_max;
    float ligand_water_to_protein_distance_lim_min;
    float ligand_water_variance_limit;
@@ -301,6 +331,7 @@ class molecules_container_t {
 
    // --------------------- init --------------------------
 
+   //! init (private)
    void init() {
 
       use_gemmi = true;
@@ -343,6 +374,7 @@ class molecules_container_t {
       // debug();
    }
 
+   //! write some debugging info to standard out
    void debug() const;
 
    bool map_is_contoured_using_thread_pool_flag;
@@ -389,12 +421,14 @@ public:
    //! @return the backup-enabled state
    bool get_make_backups() const { return make_backups_flag; }
 
-   //! the backup-enable state (raw public if needed/prefered)
+   //! the backup-enable state (raw public if needed/preferred)
    bool make_backups_flag;
 
+   //! File name to string
    //! @return the string of the contents of the given file-name.
    std::string file_name_to_string(const std::string &file_name) const;
 
+   //! Get the number of molecules
    //! @return the number of molecules
    unsigned int get_number_of_molecules() const { return molecules.size(); }
 
@@ -407,6 +441,7 @@ public:
    void set_imol_refinement_map(int i) { imol_refinement_map = i; }
    //! set the map weight
    void set_map_weight(float w) { map_weight = w; }
+   //! Get map weight
    //! @return the map weight
    float get_map_weight() const { return map_weight; }
 
@@ -423,7 +458,8 @@ public:
    //! The default is `true`.
    void set_show_timings(bool s) { show_timings = s; }
 
-   coot::protein_geometry & get_geom() { return geom; }
+   // duplicate?
+   // coot::protein_geometry & get_geom() { return geom; }
 
    //! get header info.
    //! @return an object with header info. Sparce at the moment.
@@ -438,29 +474,39 @@ public:
    // -------------------------------- generic utils -----------------------------------
    //! \name Generic Utils
 
+   //! get the molecule name
+   //!
    //! @return the name of the molecule
    std::string get_molecule_name(int imol) const;
    //! set the molecule name
    void set_molecule_name(int imol, const std::string &new_name);
    //! debugging function: display the table of molecule and names
    void display_molecule_names_table() const;
+   //! is this model molecule valid?
+   //!
    //! @return is this a valid model?
    bool is_valid_model_molecule(int imol) const;
+   //! is this a valid map molecule?
+   //!
    //! @return is this a valid map?
    bool is_valid_map_molecule(int imol_map) const;
+   //! is this a map and if so, is it a difference map?
+   //!
    //! @return is this a difference map?
    bool is_a_difference_map(int imol_map) const;
 
    //! create an empty molecule
+   //!
    //! @return the index of the new molecule
    int new_molecule(const std::string &name);
 
    //! close the molecule (and delete dynamically allocated memory)
+   //!
    //! @return 1 on successful closure and 0 on failure to close
    int close_molecule(int imol);
 
-   // delete the most recent/last closed molecule in the molecule vector, until the first
-   // non-closed molecule is found (working from the end)
+   //! delete the most recent/last closed molecule in the molecule vector, until the first
+   //! non-closed molecule is found (working from the end)
    void end_delete_closed_molecules();
 
    //! delete the most recent/last molecule in the molecule vector
@@ -469,9 +515,12 @@ public:
    //! delete all molecules
    void clear();
 
+   //! get the eigenvalues of the specified residue
+   //!
    //! @return the eigenvalues of the atoms in the specified residue
    std::vector<double> get_eigenvalues(int imol, const std::string &chain_id, int res_no, const std::string &ins_code);
 
+   //! get a simple test mesh
    //! @return the mesh of a unit solid cube at the origin
    coot::simple_mesh_t test_origin_cube() const;
 
@@ -489,7 +538,7 @@ public:
 
 #ifdef DOXYGEN_SHOULD_PARSE_THIS
 #else
-   //! don't use this in emscript
+   //! don't use this in ecmascript
    mmdb::Manager *get_mol(unsigned int imol) const { // 20221018-PE function name change
       if (is_valid_model_molecule(imol)) {
          return molecules[imol].atom_sel.mol;
@@ -523,8 +572,10 @@ public:
    void accept_rotamer_probability_tables_compressed_data(const std::string &data_stream);
 
    // -------------------------------- backup and saving -----------------------------------
-   //! \name Backup and Saving
+   //! backslash name Backup and Saving
 
+   //! are there unsaved changes for this model?
+   //! i.e. as yet not written to disk.
    //! @return a flag of unsaved models state - i.e. if any of them are unsaved, then this returns true.
    bool contains_unsaved_models() const {
       for (const auto &m : molecules) {
@@ -543,12 +594,16 @@ public:
    }
 
    // -------------------------------- geometry/dictionaries --------------------------------
-   //! \name Geometry and Dictionaries
+   //! backslash nameGeometry and Dictionaries
 
-   //! read the stardard list of residues
+   //! read the standard list of residues
    void geometry_init_standard();
 
-   //! @return a vector of non-standard residues (so that they can be used for auxiliary dictionary import)
+   //! get a list of non-standard residues in the given molecule.
+   //!
+   //! (so that they can, for example, be used for auxiliary dictionary import).
+   //!
+   //! @return a vector of non-standard residues
    std::vector<std::string> non_standard_residue_types_in_model(int imol) const;
 
 #ifdef SWIG
@@ -566,7 +621,7 @@ public:
 #endif
 
    // -------------------------------- coordinates utils -----------------------------------
-   //! \name Coordinates Utils
+   //!  \name Coordinates Utils
 
    //! read a coordinates file (mmcif or PDB)
    //! @return the new molecule index on success and -1 on failure
@@ -591,10 +646,11 @@ public:
 
    //! make a multi-model molecule given the input molecules
    //!
-   //! @param ``model_molecules_list`` is a colon-separated list of molecules, *e.g.* `2:3:4`
+   //! @param model_molecules_list is a colon-separated list of molecules, *e.g.* "2:3:4"
    //!
-   //! @return the new molecule index - -1 if no models were found in the ``model_molecules_list``
-   int make_ensemble(const std::string &model_molecule_list);
+   //! @return the new molecule index: -1 if no models were found in the model molecules list string
+   //!
+   int make_ensemble(const std::string &model_molecules_list);
 
    //! get the molecule as a PDB string
    //!
@@ -608,7 +664,7 @@ public:
 
    //! get the active atom given the screen centre
    //!
-   //! ``displayed_model_molecules_list`` is a colon-separated list of molecules, *e.g.* "2:3:4"
+   //! @param displayed_model_molecules_list is a colon-separated list of molecules, *e.g.* "2:3:4"
    //! @return the molecule index and the atom cid. On failure (no molecules with atoms in them, say) then
    //! return -1 and a blank string.
    std::pair<int, std::string> get_active_atom(float x, float y, float z, const std::string &displayed_model_molecules_list) const;
@@ -617,6 +673,7 @@ public:
    //! Use IMOL_ENC_ANY to mean "it applies to all molecules."
    //!
    //! IMOL_ENC_ANY = -999999
+   //!
    //! @return 1 on success and 0 on failure
    int import_cif_dictionary(const std::string &cif_file_name, int imol_enc);
 
@@ -629,18 +686,26 @@ public:
    //!
    //! @return a string that is the contents of a dictionary cif file
    std::string get_cif_restraints_as_string(const std::string &comp_id, int imol_enc) const;
-   //! copy the dictionary that is specific for imol_current so that it can be used with imol_new
+   //! copy the dictionary that is specific for imol_current so that it can be used with a new molecule
    bool copy_dictionary(const std::string &monomer_name, int imol_current, int imol_new);
    //! get a monomer
+   //!
    //! @param[in] monomer_name the name of the monomer
+   //!
    //! @return the new molecule index on success and -1 on failure
    int get_monomer(const std::string &monomer_name);
-   //! get a monomer for a particular molecule - use -999999 (IMOL_ENC_ANY) if no molecule-specific dictionary is needed.
+   //! get a monomer for a particular molecule - use -999999 (IMOL_ENC_ANY) if no molecule-specific dictionary is needed
+   //!
    //! @return the new molecule index on success and -1 on failure
    int get_monomer_from_dictionary(const std::string &comp_id, int imol, bool idealised_flag);
    //! get monomer and place it at the given position for a particular molecule - use -999999 if no molecule-specific dictionary is needed
+   //!
    //! @return the new molecule index on success and -1 on failure
    int get_monomer_and_position_at(const std::string &comp_id, int imol, float x, float y, float z);
+
+   // return the atom name match on superposing the atoms of the given dictionaries
+   std::map<std::string, std::string>
+   dictionary_atom_name_map(const std::string &comp_id_1, int imol_1, const std::string &comp_id_2, int imol_2);
 
    // 20221030-PE nice to have one day:
    // int get_monomer_molecule_by_network_and_dict_gen(const std::string &text);
@@ -650,7 +715,7 @@ public:
    //! @return the group for the given list of residue names as a vector of strings
    std::vector<std::string> get_groups_for_monomers(const std::vector<std::string> &residue_names) const;
 
-   //! get the group for a particlar monomer
+   //! get the group for a particular monomer
    //!
    //! @return the group for the given residue name
    std::string get_group_for_monomer(const std::string &residue_name) const;
@@ -667,13 +732,14 @@ public:
    //!  return an empty vector on failure to find any such info.
    std::vector<std::pair<std::string, std::string> > get_gphl_chem_comp_info(const std::string &compound_id, int imol_enc);
 
-   //! get a list of atom names and their associated atedrg atom types
+   //! get a list of atom names and their associated acedrg atom types
    //!
-   //! @return a list of atom names and their associated atedrg atom types, return an empty list
+   //! @return a list of atom names and their associated acedrg atom types, return an empty list
    //! on failure (atoms types are not in the dictionary or atom failure to look up the compound id)l
    std::vector<std::pair<std::string, std::string> > get_acedrg_atom_types(const std::string &compound_id, int imol_enc) const;
 
    //! get acedrg types for ligand bonds
+   //!
    //! @return a `coot::acedrg_types_for_residue_t` - which contains a vector of bond descriptions.
    coot::acedrg_types_for_residue_t get_acedrg_atom_types_for_ligand(int imol, const std::string &residue_cid) const;
 
@@ -691,27 +757,27 @@ public:
    //!
    //! By default missing loops are drawn. This function allows missing loops to not be
    //! drawn. Sometimes that can clarify the representation. This is a lightweight function
-   //! that sets a flag that is used by subsequent calls to ``get_bonds_mesh()``.
+   //! that sets a flag that is used by subsequent calls to get_bonds_mesh()
    void set_draw_missing_residue_loops(bool state);
 
    //! get the bonds mesh
    //!
-   //! ``mode`` is "COLOUR-BY-CHAIN-AND-DICTIONARY", "CA+LIGANDS" or "VDW-BALLS"
+   //! mode is "COLOUR-BY-CHAIN-AND-DICTIONARY", "CA+LIGANDS" or "VDW-BALLS"
    //!
-   //! ``against_a_dark_background`` allows the bond colours to be relevant for the background.
+   //! against_a_dark_background allows the bond colours to be relevant for the background.
    //! When the background is dark, the colours should (as a rule) be bright and pastelly.
    //! When the background is light/white, the colour darker and more saturated.
    //!
-   //! ``smoothness_factor`` controls the number of triangles used to make the bond cylinders
-   //! and spheres for the atoms - it rises in powers of 4. 1 is the smallest ``smoothness_factor``,
+   //! smoothness_factor controls the number of triangles used to make the bond cylinders
+   //! and spheres for the atoms - it rises in powers of 4. 1 is the smallest smoothness_factor,
    //! 2 looks nice (but maybe is slower to transfer) and 3 is best.
    //!
-   //! ``bond_width`` is the bond width in Angstroms. 0.12 is a reasonable default value.
+   //! bond_width is the bond width in Angstroms. 0.12 is a reasonable default value.
    //!
-   //! ``atom_radius_to_bond_width_ratio`` allows the representation of "ball and stick". To do so use a value
+   //! atom_radius_to_bond_width_ratio allows the representation of "ball and stick". To do so use a value
    //! between (say) 1.5 and 3.0. The ratio for "liquorice" representation is 1.0 (of course).
    //!
-   //! @return a ``coot::simple_mesh_t``
+   //! @return a coot::simple_mesh_t
    coot::simple_mesh_t get_bonds_mesh(int imol, const std::string &mode,
                                       bool against_a_dark_background,
                                       float bond_width, float atom_radius_to_bond_width_ratio,
@@ -721,24 +787,24 @@ public:
    //!
    //! The arguments are as above:
    //!
-   //! ``mode`` is "COLOUR-BY-CHAIN-AND-DICTIONARY" - more modes to follow
+   //! `mode` is "COLOUR-BY-CHAIN-AND-DICTIONARY" - more modes to follow
    //!
-   //! ``against_a_dark_background`` allows the bond colours to be relevant for the background.
+   //! against_a_dark_background allows the bond colours to be relevant for the background.
    //! When the background is dark, the colours should (as a rule) be bright and pastelly.
    //! When the background is light/white, the colour darker and more saturated.
    //!
-   //! ``smoothness_factor`` controls the number of triangles used to make the bond cylinders
-   //! and spheres for the atoms - it rises in powers of 4. 1 is the smallest ``smoothness_factor``,
+   //! smoothness_factor controls the number of triangles used to make the bond cylinders
+   //! and spheres for the atoms - it rises in powers of 4. 1 is the smallest smoothness_factor,
    //! 2 looks nice and 3 is best. Instancing may mean that smoothness factor 3 should
    //! be used by default.
    //!
-   //! ``bond_width`` is the bond width in Angstroms. 0.12 is a reasonable default value.
+   //! bond_width is the bond width in Angstroms. 0.12 is a reasonable default value.
    //!
-   //! ``atom_radius_to_bond_width_ratio`` allows the representation of "ball and stick". To do so use a value
+   //! atom_radius_to_bond_width_ratio allows the representation of "ball and stick". To do so use a value
    //! between (say) 1.5 and 3.0. The ratio for "liquorice" representation is 1.0 (of course). 1.7 or 1.8
    //! looks nice.
    //!
-   //! @return a ``coot::instanced_mesh_t``
+   //! @return a coot::instanced_mesh_t
    coot::instanced_mesh_t get_bonds_mesh_instanced(int imol, const std::string &mode,
                                                    bool against_a_dark_background,
                                                    float bond_width, float atom_radius_to_bond_width_ratio,
@@ -747,7 +813,7 @@ public:
    //! As above, but only return the bonds for the atom selection.
    //! Typically one would call this with a wider bond_with than one would use for standards atoms (all molecule)
    //!
-   //! @return a ``coot::instanced_mesh_t``
+   //! @return a coot::instanced_mesh_t
    coot::instanced_mesh_t get_bonds_mesh_for_selection_instanced(int imol, const std::string &atom_selection_cid,
                                                                  const std::string &mode,
                                                                  bool against_a_dark_background,
@@ -756,13 +822,13 @@ public:
 
    //! get the Goodsell style mesh
    //!
-   //! @return a ``coot::instanced_mesh_t``
+   //! @return a coot::instanced_mesh_t
    coot::instanced_mesh_t get_goodsell_style_mesh_instanced(int imol, float colour_wheel_rotation_step,
                                                             float saturation, float goodselliness);
 
    //! export map molecule as glTF
    //!
-   //!  (not const because maps might update?)
+   //! (not const because maps might update?)
    void export_map_molecule_as_gltf(int imol, float pos_x, float pos_y, float pos_z, float radius, float contour_level,
                                     const std::string &file_name);
 
@@ -777,12 +843,12 @@ public:
                                       bool draw_hydrogen_atoms_flag, bool draw_missing_residue_loops,
                                       const std::string &file_name);
 
-   void export_molecular_represenation_as_gltf(int imol, const std::string &atom_selection_cid,
+   void export_molecular_representation_as_gltf(int imol, const std::string &atom_selection_cid,
                                                const std::string &colour_scheme, const std::string &style,
                                                int secondary_structure_usage_flag,
                                                const std::string &file_name);
 
-   //! return the colur table (for testing)
+   //! return the colour table (for testing)
    std::vector<glm::vec4> get_colour_table(int imol, bool against_a_dark_background) const;
 
    //! set the colour wheel rotation base for the specified molecule (in degrees)
@@ -840,7 +906,7 @@ public:
    //!
    //! `imol` is the model molecule index
    //!
-   //! ecid` is the atom selection CID
+   //! `ecid` is the atom selection CID
    //!
    //! `colour_scheme` should be one of
    //!    - "colorRampChainsScheme"
@@ -875,7 +941,7 @@ public:
    coot::simple_mesh_t get_gaussian_surface(int imol, float sigma, float contour_level,
                                             float box_radius, float grid_scale, float b_factor) const;
 
-   //! get chemical feaatures for the specified residue
+   //! get chemical features for the specified residue
    //!
    //! @return a `coot::simple_mesh_t`
    coot::simple_mesh_t get_chemical_features_mesh(int imol, const std::string &cid) const;
@@ -894,15 +960,19 @@ public:
    std::pair<bool, coot::Cartesian> get_atom_position(int imol, coot::atom_spec_t &atom_spec);
 #endif
 
+   //! Get number of atoms
    //! @return the number of atoms in the specified model, or 0 on error
    unsigned int get_number_of_atoms(int imol) const;
 
+   //! get molecule diameter
    //! @return an estimate of the diameter of the model molecule (-1 on failure)
    float get_molecule_diameter(int imol) const;
 
+   //! get number of hydrogen atoms
    //! @return the number of hydrogen atoms in the specified model, or -1 on error
    int get_number_of_hydrogen_atoms(int imol) const;
 
+   //! get the chain ids in the given molecule
    //! @return vector of chain-ids for the given molecule
    std::vector<std::string> get_chains_in_model(int imol) const;
 
@@ -910,9 +980,11 @@ public:
    //! @return a vector of vector of chain ids, e.g. [[A,C], [B,D]] (for hemoglobin).
    std::vector<std::vector<std::string> > get_ncs_related_chains(int imol) const;
 
+   //! get the single letter codes for the residues in the specified chain
    //! @return vector of single letter codes - in a pair with the given residue spec
    std::vector<std::pair<coot::residue_spec_t, std::string> > get_single_letter_codes_for_chain(int imol, const std::string &chain_id) const;
 
+   //! get a list of residues that  don't have a dictionary
    //! @return a list of residue that don't have a dictionary
    std::vector<std::string> get_residue_names_with_no_dictionary(int imol) const;
 
@@ -920,18 +992,24 @@ public:
    //! @return the residue name, return a blank string on residue not found.
    std::string get_residue_name(int imol, const std::string &chain_id, int res_no, const std::string &ins_code) const;
 
+   //! get residues with missing atoms
    //! @return an object that has information about residues without dictionaries and residues with missing atom
    //! in the the specified molecule
    std::vector<coot::residue_spec_t> residues_with_missing_atoms(int imol);
 
+#ifdef DOXYGEN_SHOULD_PARSE_THIS
+#else
    //! Ths function is not const because missing_atoms() takes a non-const pointer to the geometry
    // (20230117-PE I should fix that)
    //!
    //! @return an object that has information about residues without dictionaries and residues with missing atom
    //! in the the specified molecule
    coot::util::missing_atom_info missing_atoms_info_raw(int imol);
+#endif
 
-   //! @return a list of residues specs that have atoms within dist of the atoms of the specified residue
+
+   //! get a list of residues specs that have atoms within dist of the atoms of the specified residue
+   //! @return a list of residue specs
    std::vector<coot::residue_spec_t> get_residues_near_residue(int imol, const std::string &residue_cid, float dist) const;
 
    //! superposition (using SSM)
@@ -943,7 +1021,13 @@ public:
                                      int imol_mov, const std::string &chain_id_mov);
 
    //! superpose using LSQ - setup the matches
-   //! @params `match_type` 0: all, 1: main, 2: CAs, 3: N, CA, C
+   //! @param `chain_id_ref` the chain id for the reference chain
+   //! @param `res_no_ref_start` the starting residue in the reference chain
+   //! @param `res_no_ref_end` the ending residue in the reference chain
+   //! @param `chain_id_mov` the chain id for the moving chain
+   //! @param `res_no_mov_start` the starting residue in the moving chain
+   //! @param `res_no_mov_end` the ending residue in the moving chain
+   //! @param `match_type` 0: all, 1: main, 2: CAs, 3: N, CA, C
    void add_lsq_superpose_match(const std::string &chain_id_ref, int res_no_ref_start, int res_no_ref_end,
                                 const std::string &chain_id_mov, int res_no_mov_start, int res_no_mov_end,
                                 int match_type);
@@ -986,11 +1070,18 @@ public:
    int redo(int imol);
 
    // -------------------------------- map utils -------------------------------------------
-   //! \name Map Utils
+   //! backslash name Map Utils
 
+#ifdef DOXYGEN_SHOULD_PARSE_THIS
+#else
    //! @return the map sampling rate (default is 1.8)
    float map_sampling_rate;
+#endif
 
+   //! get map sampling rate
+   //!
+   //! the default is 1.8
+   float get_map_sampling_rate() { return map_sampling_rate; }
    //! set the map sampling rate (default is 1.8). Higher numbers mean smoother maps, but they take
    //! longer to generate, longer to transfer, longer to parse and longer to draw
    void set_map_sampling_rate(float msr) { map_sampling_rate = msr; }
@@ -1016,15 +1107,18 @@ public:
       std::string w;
       //! flag for weights usage
       bool weights_used;
-      //! F_obs column. There were not avaliable if the return value is empty
+      //! F_obs column. There were not available if the return value is empty
       std::string F_obs;
       //! sigF_obs column
       std::string sigF_obs;
-      //! R-Free column. There were not avaliable if the return value is empty
+      //! R-Free column. There were not available if the return value is empty
       std::string Rfree;
+      // constructor
       auto_read_mtz_info_t() {idx = -1; weights_used = false; }
+      // constructor
       auto_read_mtz_info_t(int index, const std::string &F_in, const std::string &phi_in) :
          idx(index), F(F_in), phi(phi_in), weights_used(false) {}
+      // set Fobs sigFobs column labels
       void set_fobs_sigfobs(const std::string &f, const std::string &s) {
          F_obs = f;
          sigF_obs = s;
@@ -1034,20 +1128,27 @@ public:
    //! Read the given mtz file.
    //! @return a vector of the maps created from reading the file
    std::vector<auto_read_mtz_info_t> auto_read_mtz(const std::string &file_name);
+   //! read a CCP4 (or MRC) map
+   //!
+   //! There is currently a size limit of 1000 pixels per edge.
    //! @return the new molecule number or -1 on failure
    int read_ccp4_map(const std::string &file_name, bool is_a_difference_map);
-   //! write a map. This function was be renamed from ``writeMap``
+   //! write a map
    //! @return 1 on a successful write, return 0 on failure.
    int write_map(int imol, const std::string &file_name) const;
-   //! @return the mean of the map or -1 is `imol_map` is not a map molecule index
+   //! get map mean
+   //! @return the mean of the map or -1 is imol_map is not a map molecule index
    float get_map_mean(int imol) const;
-   //! @return the map rmsd (epsilon testing is not used). -1 is returned if `imol_map` is not a map molecule index.
+   //! get map rmsd approx
+   //!
+   //! the function is approximate because the epsilon factor is not taken into account.
+   //! @return the map rmsd. -1 is returned if imol_map is not a valid map molecule index.
    float get_map_rmsd_approx(int imol_map) const;
 
-   //! @return the map histogram
    //! The caller should select the number of bins - 200 is a reasonable default.
    //! The caller should also set the zoom factor (which reduces the range by the given factor)
    //! centred around the median (typically 1.0 but usefully can vary until ~20.0).
+   //! @return the map histogram
    coot::molecule_t::histogram_info_t get_map_histogram(int imol, unsigned int n_bins, float zoom_factor) const;
 
    //! @return the suggested initial contour level. Return -1 on not-a-map
@@ -1069,10 +1170,10 @@ public:
 
    //! mask map by atom selection (note the argument order is reversed compared to the coot api).
    //!
-   //! ``atom_radius`` is the atom radius (funnily enough). Use a negative number to mean "default".
+   //! atom_radius is the atom radius (funnily enough). Use a negative number to mean "default".
    //!
-   //! the ``invert_flag`` changes the parts of the map that are masked, so to highlight the density
-   //! for a ligand one would pass the ``cid`` for the ligand and invert_flag as true, so that the
+   //! the invert_flag changes the parts of the map that are masked, so to highlight the density
+   //! for a ligand one would pass the cid for the ligand and invert_flag as true, so that the
    //! parts of the map that are not the ligand are suppressed.
    //!
    //! @return the index of the new map - or -1 on failure
@@ -1101,6 +1202,7 @@ public:
    std::vector<int> make_masked_maps_split_by_chain(int imol, int imol_map);
 
    //! set the map colour.
+   //!
    //! The next time a map mesh is requested, it will have this colour.
    //! This does not affect the colour of the difference maps.
    void set_map_colour(int imol, float r, float g, float b);
@@ -1150,7 +1252,7 @@ public:
    //! @return a string with the R-factor stats
    std::string r_factor_stats_as_string(const r_factor_stats &rfs) const;
 
-   // This function does no normalisztion of the scales,
+   // This function does no normalization of the scales,
    // presuming that they are pre-normalized.
    // @return the index of the new map, or -1 on failure.
    int average_map(const std::string &imol_maps, std::vector<float> &scales);
@@ -1165,6 +1267,7 @@ public:
    //! \name Coordinates Modelling
 
    //! auto-fit rotamer
+   //!
    //! @return 1 on successful modification, return 0 on failure
    int auto_fit_rotamer(int imol, const std::string &chain_id, int res_no, const std::string &ins_code, const std::string &alt_conf,
                         int imol_map);
@@ -1186,7 +1289,8 @@ public:
    //! delete item
    //!
    //! where `scope` is one of the strings: ["ATOM","WATER","RESIDUE","CHAIN","MOLECULE", "LITERAL"]
-   //! @return 1 on successful modification, return 0 on failure
+   //!
+   //! return 1 on successful modification, return 0 on failure
    std::pair<int, unsigned int> delete_using_cid(int imol, const std::string &cid, const std::string &scope);
 
    //! delete atom
@@ -1198,13 +1302,16 @@ public:
    std::pair<int, unsigned int> delete_atom_using_cid(int imol, const std::string &cid);
 
    //! delete residue
+   //!
    //! @return 1 on successful deletion, return 0 on failure to delete.
    std::pair<int, unsigned int> delete_residue(int imol, const std::string &chain_id, int res_no, const std::string &ins_code);
    //! delete residue using cid
+   //!
    //! @return 1 on successful deletion, return 0 on failure to delete.
    std::pair<int, unsigned int> delete_residue_using_cid(int imol, const std::string &cid);
 
    //! delete residue atoms using alt_conf
+   //!
    //! @return 1 on successful deletion, return 0 on failure to delete.
    std::pair<int, unsigned int> delete_residue_atoms_with_alt_conf(int imol, const std::string &chain_id, int res_no,
                                                                    const std::string &ins_code, const std::string &alt_conf);
@@ -1213,18 +1320,22 @@ public:
    std::pair<int, unsigned int> delete_residue_atoms_using_cid(int imol, const std::string &cid);
 
    //! delete side chain
+   //!
    //! @return 1 on successful deletion, return 0 on failure to delete.
    std::pair<int, unsigned int> delete_side_chain(int imol, const std::string &chain_id, int res_no, const std::string &ins_code);
 
    //! delete side chain
+   //!
    //! @return 1 on successful deletion, return 0 on failure to delete.
    std::pair<int, unsigned int> delete_side_chain_using_cid(int imol, const std::string &cid);
 
-   //! delete chain.
+   //! delete chain with the given chain cid
+   //!
    //! @return 1 on successful deletion, return 0 on failure to delete.
    std::pair<int, unsigned int> delete_chain_using_cid(int imol, const std::string &cid);
 
    //! delete the atoms specified in the CID selection
+   //!
    //! @return 1 on successful deletion, return 0 on failure to delete.
    std::pair<int, unsigned int> delete_literal_using_cid(int imol, const std::string &cid);
 
@@ -1236,6 +1347,7 @@ public:
    //
    //! the cid is for an atom.
    //! This used to return a pair, but I removed it so that I could compile the binding.
+   //!
    //! @return an status.
    int add_terminal_residue_directly_using_cid(int imol, const std::string &cid);
 
@@ -1246,80 +1358,96 @@ public:
    //! buccaneer building, called by the above
    int add_terminal_residue_directly_using_bucca_ml_growing(int imol, const coot::residue_spec_t &spec);
 
-   //! parameter for `add_waters()` default  2.4
+   //! parameter for add_waters() default  2.4
    void set_add_waters_water_to_protein_distance_lim_min(float d) {
       ligand_water_to_protein_distance_lim_min = d;
    }
 
-   //! parameter for `add_waters()` default 3.4
+   //! parameter for add_waters() default 3.4
    void set_add_waters_water_to_protein_distance_lim_max(float d) {
       ligand_water_to_protein_distance_lim_max = d;
    }
 
-   //! parameter for `add_waters()` - default 0.1
+   //! parameter for add_waters() - default 0.1
    void set_add_waters_variance_limit(float d) {
       ligand_water_variance_limit = d;
    }
 
-   //! parameter for `add_waters()` - default 1.75
+   //! parameter for add_waters() - default 1.75
    void set_add_waters_sigma_cutoff(float d) {
       ligand_water_sigma_cut_off = d;
    }
 
    //! add waters, updating imol_model (of course)
+   //!
    //! @return the number of waters added on a success, -1 on failure.
    int add_waters(int imol_model, int imol_map);
 
-   //! add hydrogen atoms, updating imol_model (of course)
+   //! add hydrogen atoms, updating `imol_model` (of course)
+   //!
    //! @return 1 on success, 0 on failure.
    int add_hydrogen_atoms(int imol_model);
 
    //! delete hydrogen atoms, updating imol_model (of course)
+   //!
    //! @return 1 on a successful deletion, 0 on failure.
    int delete_hydrogen_atoms(int imol_model);
 
    //! add an alternative conformation for the specified residue
+   //!
    //! @return 1 on a successful addition, 0 on failure.
    int add_alternative_conformation(int imol_model, const std::string &cid);
 
    //! fill the specified residue
+   //!
    //! @return 1 on a successful fill, 0 on failure.
    int fill_partial_residue(int imol, const std::string &chain_id, int res_no, const std::string &ins_code);
 
    //! fill the specified residue
+   //!
    //! @return 1 on a successful fill, 0 on failure.
    int fill_partial_residue_using_cid(int imol, const std::string &cid);
 
    //! fill all the the partially-filled residues in the molecule
+   //!
    //! @return 1 on a successful fill, 0 on failure.
    int fill_partial_residues(int imol);
 
+#if SKIP_FOR_PYTHON_DOXYGEN
+#else
    //! flip peptide
+   //!
    //! @return 1 on a successful flip
    int flip_peptide(int imol, const coot::atom_spec_t &atom_spec, const std::string &alt_conf);
+#endif
    //! flip peptide using an atom CID
+   //!
    //! @return 1 on a successful flip
    int flip_peptide_using_cid(int imol, const std::string &atom_cid, const std::string &alt_conf);
 
-   //! eigen-flip ligand
+   //! eigen-flip the specified ligand
    void eigen_flip_ligand(int imol, const std::string &chain_id, int res_no, const std::string &ins_code);
 
    //! eigen-flip ligand using CID
    void eigen_flip_ligand_using_cid(int imol, const std::string &residue_cid);
 
    //! mutate residue
+   //!
    //! @return 1 on a successful move, 0 on failure.
    int mutate(int imol, const std::string &cid, const std::string &new_residue_type);
 
    //! rotate last chi angle of the side chain by 180 degrees
+   //!
    //! @return 1 on a successful move, 0 on failure.
    int side_chain_180(int imol, const std::string &atom_cid);
 
-   //! JED-Flip the ligand (or residue) at the specified atom.
+   //! JED-Flip the ligand (or residue) at the specified atom
+   //!
    //! @return a non-blank message if there is a problem
    std::string jed_flip(int imol, const std::string &atom_cid, bool invert_selection);
 
    //! move the molecule to the given centre
+   //!
    //! @return 1 on a successful move, 0 on failure.
    int move_molecule_to_new_centre(int imol, float x, float y, float z);
 
@@ -1328,18 +1456,21 @@ public:
    void multiply_residue_temperature_factors(int imol, const std::string &cid, float factor);
 
    //! get molecule centre
+   //!
    //! @return the molecule centre
    coot::Cartesian get_molecule_centre(int imol) const;
 
-   //! copy a fragment given the multi_cid selection string.
+   //! copy a fragment given the multi_cid selection string
+   //!
    //! @return the new molecule number (or -1 on no atoms selected)
    int copy_fragment_using_cid(int imol, const std::string &multi_cid);
 
-   //! copy a fragment - use this in preference to `copy_fragment_using_cid()` when copying
+   //! copy a fragment - use this in preference to copy_fragment_using_cid() when copying
    //! a molecule fragment to make a molten zone for refinement.
    //! That is because this version quietly also copies the residues near the residues of the selection.
    //! so that those residues can be used for links and non-bonded contact restraints.
-   //! `multi_cids" is a "||"-separated list of residues CIDs, e.g. "//A/12-52||//A/14-15||/B/56-66"
+   //! `multi_cids` is a "||"-separated list of residues CIDs, e.g. "//A/12-52||//A/14-15||/B/56-66"
+   //!
    //! @return the new molecule number (or -1 on no atoms selected)
    int copy_fragment_for_refinement_using_cid(int imol, const std::string &multi_cid);
 
@@ -1358,12 +1489,12 @@ public:
                                               float t0, float t1, float t2); // translation
 
    //! update the positions of the atoms in the residue
-   int new_positions_for_residue_atoms(int imol, const std::string &residue_cid, std::vector<coot::molecule_t::moved_atom_t> &moved_atoms);
+   int new_positions_for_residue_atoms(int imol, const std::string &residue_cid, std::vector<coot::api::moved_atom_t> &moved_atoms);
 
    //! update the positions of the atoms in the residues
-   int new_positions_for_atoms_in_residues(int imol, const std::vector<coot::molecule_t::moved_residue_t> &moved_residues);
+   int new_positions_for_atoms_in_residues(int imol, const std::vector<coot::api::moved_residue_t> &moved_residues);
 
-   //! ``list_of_other_molecules`` is a colon-separated list of molecules, *e.g.* "2:3:4"
+   //! list_of_other_molecules is a colon-separated list of molecules, *e.g.* "2:3:4"
    //! @return the first is a flag set to 1 if a merge occurred (and 0 if it did not)
    //! the second is a vector of merge results, i.e. if you merged a ligand, what is the new
    //! residue spec of the ligand, and if you merged a (polymer) chain, what is the new chain-id of
@@ -1372,10 +1503,14 @@ public:
    merge_molecules(int imol, const std::string &list_of_other_molecules);
 
    //! this is called by the above function and is useful for other non-api functions (such as add_compound()).
+#ifdef DOXYGEN_SHOULD_PARSE_THIS
+#else
    std::pair<int, std::vector<merge_molecule_results_info_t> >
    merge_molecules(int imol, std::vector<mmdb::Manager *> mols);
+#endif
 
-   //! Convert a cis peptide to a trans or vice versa.
+   //! Convert a cis peptide to a trans or vice versa
+   //!
    //! @return 1 on a successful conversion.
    int cis_trans_convert(int imol, const std::string &atom_cid);
 
@@ -1392,18 +1527,19 @@ public:
 
    //! replace a fragment
    //!
-   //! _i.e._ replace the atoms of ``imol_base`` by those of the atom selection ``atom_selection`` in ``imol_reference``
-   //! (``imol_base`` is the molecule that is modified).
+   //! _i.e._ replace the atoms of imol_base by those of the atom selection atom_selection in imol_reference
+   //! (imol_base is the molecule that is modified).
    //!
    //! @return the success status
    int replace_fragment(int imol_base, int imol_reference, const std::string &atom_selection);
 
    //! Rigid-body fitting
    //!
-   //! `multi_cids" is a "||"-separated list of residues CIDs, e.g. "//A/12-52||//A/14-15||/B/56-66"
+   //! multi_cids is a "||"-separated list of residues CIDs, e.g. "//A/12-52||//A/14-15||/B/56-66"
    int rigid_body_fit(int imol, const std::string &multi_cid, int imol_map);
 
    //! change the chain id
+   //!
    //! @return -1 on a conflict
    //! 1 on good.
    //! 0 on did nothing
@@ -1421,20 +1557,23 @@ public:
    void assign_sequence(int imol_model, int imol_map);
 
    // -------------------------------- Coordinates Refinement ------------------------------
-   //! \name Coordinates Refinement
+   //! backslash name Coordinates Refinement
 
    //! refine the residues
    //
-   //! ``mode`` is one of {SINGLE, TRIPLE, QUINTUPLE, HEPTUPLE, SPHERE, BIG_SPHERE, CHAIN, ALL};
-   //! @returns a value of 1 if the refinement was performed and 0 if it was not.
+   //! "mode" is one of {SINGLE, TRIPLE, QUINTUPLE, HEPTUPLE, SPHERE, BIG_SPHERE, CHAIN, ALL};
+   //!
+   //! @return a value of 1 if the refinement was performed and 0 if it was not.
    int refine_residues_using_atom_cid(int imol, const std::string &cid, const std::string &mode, int n_cycles);
 
    //! refine the residues
-   //! @returns a value of 1 if the refinement was performed and 0 if it was not.
+   //!
+   //! @return a value of 1 if the refinement was performed and 0 if it was not.
    int refine_residues(int imol, const std::string &chain_id, int res_no, const std::string &ins_code,
                        const std::string &alt_conf, const std::string &mode, int n_cycles);
 
    //! refine residue range
+   //!
    //! @returns a value of 1 if the refinement was performed and 0 if it was not.
    int refine_residue_range(int imol, const std::string &chain_id, int res_no_start, int res_no_end, int n_cycles);
 
@@ -1493,6 +1632,7 @@ public:
 
    //! Run some cycles of refinement and return a mesh.
    //! That way we can see the molecule animate as it refines
+   //!
    //! @return a pair: the first of which is the status of the refinement: GSL_CONTINUE, GSL_SUCCESS, GSL_ENOPROG (no progress).
    //! i.e. don't call thus function again unless the status is GSL_CONTINUE (-2);
    //! The second is a `coot::instanced_mesh_t`
@@ -1503,6 +1643,7 @@ public:
    //! of an internally-stored mesh).
    //! `n_cycles` specifies the number of refinement cyles to run after the target position of the atom has been applied.
    //! If n_cycles is -1 then, no cycles are done and the mesh is bonds merely calculated.
+   //!
    //! @return a `coot::instanced_mesh_t`
    coot::instanced_mesh_t add_target_position_restraint_and_refine(int imol, const std::string &atom_cid,
                                                                    float pos_x, float pos_y, float pos_z,
@@ -1525,6 +1666,7 @@ public:
    float get_geman_mcclure_alpha() const { return geman_mcclure_alpha; }
 
    //! generate GM self restraints for the whole molecule
+   //!
    //! @return nothing useful.
    int generate_self_restraints(int imol, float local_dist_max);
 
@@ -1533,7 +1675,7 @@ public:
                                        const std::string &chain_id);
 
    //! generate GM self restraints for the given residues.
-   //! `residue_cids" is a "||"-separated list of residues, e.g. "//A/12||//A/14||/B/56"
+   //! `residue_cids` is a "||"-separated list of residues, e.g. "//A/12||//A/14||/B/56"
    void generate_local_self_restraints(int imol, float local_dist_max,
                                        const std::string &residue_cids);
 
@@ -1543,7 +1685,8 @@ public:
                                      const std::string &residue_cid_2);
 
    //! get the mesh for extra restraints
-   //! currently mode is unused.
+   //!
+   //! currently `mode` is unused.
    coot::instanced_mesh_t get_extra_restraints_mesh(int imol, int mode);
 
    //! read extra restraints (e.g. from ProSMART)
@@ -1553,36 +1696,38 @@ public:
    void clear_extra_restraints(int imol);
 
    // -------------------------------- Coordinates validation ------------------------------
-   //! \name Coordinates Validation
+   //! backslash name Coordinates Validation
 
-   //! get the rotamer dodecs for the model, not const because it regenerates the bonds.
+   //! get the rotamer dodecs for the model, not const because it regenerates the bonds
+   //!
    //! @return a `coot::simple_mesh_t`
    coot::simple_mesh_t get_rotamer_dodecs(int imol);
 
-   //! get the rotamer dodecs for the model, not const because it regenerates the bonds.
+   //! get the rotamer dodecs for the model, not const because it regenerates the bonds
+   //!
    //! @return an `instanced_mesh_t`
    coot::instanced_mesh_t get_rotamer_dodecs_instanced(int imol);
 
-   //! get the ramachandran validation markup mesh
+   //! get the Ramachandran validation markup mesh
    //!
-   //! 20221126-PE: the function was renamed from ``ramachandran_validation_markup_mesh()``.
-   //! @return a `coot::simple_mesh_t`
+   //! 20221126-PE: the function was renamed from ramachandran_validation_markup_mesh().
+   //! @return a coot::simple_mesh_t
    coot::simple_mesh_t get_ramachandran_validation_markup_mesh(int imol) const;
    //! get the data for Ramachandran validation, which importantly contains probability information
    //! @return a vector of `phi_psi_prob_t`
    std::vector<coot::phi_psi_prob_t> ramachandran_validation(int imol) const;
 
    //! Recently (20230202) the smoothness factor has been added as an extra argument
-   //! `smoothness_factor` is 1, 2 or 3 (3 is the most smooth).
+   //! @param smoothness_factor is 1, 2 or 3 (3 is the most smooth).
    //! @return the instanced mesh for the specified ligand
    coot::instanced_mesh_t contact_dots_for_ligand(int imol, const std::string &cid, unsigned int smoothness_factor) const;
 
    //! Recently (20230202) the smoothness factor has been added as an extra argument
-   //! `smoothness_factor` is 1, 2 or 3 (3 is the most smooth).
+   //! @param smoothness_factor is 1, 2 or 3 (3 is the most smooth).
    //! @return the instanced mesh for the specified molecule.
    coot::instanced_mesh_t all_molecule_contact_dots(int imol, unsigned int smoothness_factor) const;
 
-   //! @return a `simple::molecule_t` for the specified residue.
+   //! @return a simple::molecule_t for the specified residue.
    //! @note this function is not const because we pass a pointer to the protein_geometry geom.
    coot::simple::molecule_t get_simple_molecule(int imol, const std::string &residue_cid, bool draw_hydrogen_atoms_flag);
 
@@ -1590,7 +1735,7 @@ public:
    generic_3d_lines_bonds_box_t
    make_exportable_environment_bond_box(int imol, coot::residue_spec_t &spec);
 
-   //! `mcdonald_and_thornton_mode` turns on the McDonald & Thornton algorithm - using explicit hydrogen atoms
+   //! mcdonald_and_thornton_mode turns on the McDonald & Thornton algorithm - using explicit hydrogen atoms
    //! @return a vector of hydrogen bonds around the specified residue (typically a ligand)
    std::vector<moorhen::h_bond> get_h_bonds(int imol, const std::string &cid_str, bool mcdonald_and_thornton_mode) const;
 
@@ -1646,7 +1791,7 @@ public:
 
    //! Get the density correlation validation information
    //!
-   //! @returns a `coot::validation_information_t` object
+   //! @returns a coot::validation_information_t object
    coot::validation_information_t density_correlation_analysis(int imol_model, int imol_map) const;
 
    //! Get the rotamer validation information
@@ -1656,7 +1801,7 @@ public:
 
    //! Get the ramachandran validation information (formatted for a graph, not 3d)
    //!
-   //! @returns a `coot::validation_information_t` object
+   //! @returns a coot::validation_information_t object
    coot::validation_information_t ramachandran_analysis(int imol_model) const;
 
    //! ramachandran validation information (formatted for a graph, not 3d) for a given chain in a given molecule
@@ -1867,7 +2012,7 @@ public:
                                              float n_rmsd, bool use_conformers, unsigned int n_conformers);
 
    //! Fit ligands (place-holder)
-   //! ``multi_ligand_molecule_number_list`` is a colon-separated list of molecules, *e.g.* "2:3:4"
+   //! `multi_ligand_molecule_number_list` is a colon-separated list of molecules, *e.g.* "2:3:4"
    //! @return an empty vector (at the moment)
    std::vector<fit_ligand_info_t> fit_ligand_multi_ligand(int imol_protein, int imol_map, const std::string &multi_ligand_molecule_number_list,
                                                           float n_rmsd, bool use_conformers, unsigned int n_conformers);
@@ -1896,9 +2041,9 @@ public:
    //! It won't work unless the dictionary for that ligand has been imported.
    //! The output renderings are not very good at the moment.
    //!
-   //! Except for unusual cases, ``imol`` will be IMOL_ENC_ANY (-666666)
+   //! Except for unusual cases, `imol` will be IMOL_ENC_ANY (-666666)
    //!
-   //! ``dark_background_flag`` returns a representation suitable for rendering on a dark background (funnily enough).
+   //! `dark_background_flag` returns a representation suitable for rendering on a dark background (funnily enough).
    //!
    //! This function is not const because it caches the svgs if it can.
    //!
@@ -1908,11 +2053,11 @@ public:
    //! This function is for adding compounds/molecules like buffer agents and precipitants or anions and cations.
    //! _i.e._ those ligands that can be positioned without need for internal torsion angle manipulation.
    //!
-   //! ``tlc`` is the three-letter-code/compound-id
+   //! `tlc` is the three-letter-code/compound-id
    //!
-   //! ``imol_dict`` is the molecule to which the ligand is attached (if any). Typically this will be IMOL_ENC_ANY (-666666).
+   //! `imol_dict`  is the molecule to which the ligand is attached (if any). Typically this will be IMOL_ENC_ANY (-666666).
    //!
-   //! ``imol_map`` is the molecule number of the map that will be used for fitting.
+   //! `imol_map` is the molecule number of the map that will be used for fitting.
    //!
    //! @return the success status, 1 or good, 0 for not good.
    int add_compound(int imol, const std::string &tlc, int imol_dict, int imol_map, float x, float y, float z);
@@ -1942,13 +2087,14 @@ public:
    // -------------------------------- Others -------------------------------------
    //! \name Other Features
 
-   //! Make a m `coot::simple_mesh_t` from a file
+   //! Make a `coot::simple_mesh_t` from a file
    //!
    //! @params `file_name` the gltf file
+   //!
    //! @return a `simple_mesh_t` from the given file.
    coot::simple_mesh_t make_mesh_from_gltf_file(const std::string &file_name);
 
-   //! @params `n_divisions` is a number divisble by 2, at least 4 (typically 16)
+   //! @params `n_divisions` is a number divisible by 2, at least 4 (typically 16)
    //! @return a unit-vector end-cap octohemisphere mesh
    coot::simple_mesh_t get_octahemisphere(unsigned int n_divisions) const;
 
@@ -2003,7 +2149,7 @@ public:
    //! get the stats for the long-term job (testing function)
    ltj_stats_t testing_interrogate_long_term_job() { return long_term_job_stats; }
 
-   //! get the time for conntouring in milliseconds
+   //! get the time for contouring in milliseconds
    double get_contouring_time() const { return contouring_time; }
 
    //! set the maximum number of threads for both the thread pool and the vector of threads
@@ -2018,11 +2164,11 @@ public:
    //! @return the time per batch in microseconds
    double test_launching_threads(unsigned int n_threads_per_batch, unsigned int n_batches) const;
 
-   //! @return time in microsections
+   //! @return time in microseconds
    double test_thread_pool_threads(unsigned int n_threads);
 
    //! a test for mmdb/gemmi/mmcif functionality
-   //
+   //!
    //! @param last_test_only is `true` to mean that only that last test should be run.
    //! The default is `false`.
    //! This is useful to set to `true` while a test is being developed.
@@ -2030,32 +2176,45 @@ public:
    //! @return the success status: 1 means that all the tests passed.
    int mmcif_tests(bool last_test_only);
 
-   // get acces to protein geometry
+   // I want this function in the C++ documentation, but not the Python API documentation.
+   // Hmm.
+#ifdef DOXYGEN_SHOULD_PARSE_THIS
+#else
+   //! get access to protein geometry
    coot::protein_geometry & get_geometry() {
       return geom;
    }
-
+#endif
 
    // -------------------------------- Blender Interface ---------------------------------------
 
    //! \name Functions for Blender Interface
 
+   //! blender
    void make_mesh_for_map_contours_for_blender(int imol, float x, float y, float z, float level, float radius);
+   //! blender
    void make_mesh_for_bonds_for_blender(int imol, const std::string &mode, bool against_a_dark_background,
                                       float bond_width, float atom_radius_to_bond_width_ratio,
                                       int smoothness_factor);
+   //! blender
    void make_mesh_for_molecular_representation_for_blender(int imol,
                                                            const std::string &cid,
                                                            const std::string &colour_scheme,
                                                            const std::string &style,
                                                            int secondary_structure_usage_flag);
+   //! blender
    void make_mesh_for_gaussian_surface_for_blender(int imol, float sigma, float contour_level, float box_radius, float grid_scale, float b_factor);
+   //! blender
 
+   //! blender
    void make_mesh_for_goodsell_style_for_blender(int imol, float colour_wheel_rotation_step,
                                                  float saturation, float goodselliness);
 
+   //! blender
    std::vector<float> get_colour_table_for_blender(int imol);
+   //! blender
    std::vector<float> get_vertices_for_blender(int imol);
+   //! blender
    std::vector<int>   get_triangles_for_blender(int imol);
 
    // -------------------------------- Other ---------------------------------------
@@ -2066,7 +2225,7 @@ public:
 #else
 #ifdef DOXYGEN_SHOULD_PARSE_THIS
 #else
-   //! \name Old Python functions
+   //! backslash name Old Python functions
 
    //! old mesh mode: do not use with nanobind
    enum mesh_mode_t { UNKNOWN, SINGLE_COLOUR, MULTI_COLOUR };

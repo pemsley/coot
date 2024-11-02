@@ -980,7 +980,7 @@ coot::package_data_dir() {
          std::filesystem::path p(real_path_for_coot_executable);
          std::filesystem::path p_1 =   p.parent_path();
          std::filesystem::path p_2 = p_1.parent_path();
-         std::cout << "here with p_2 " << p_2.string() << std::endl;
+         // std::cout << "here with p_2 " << p_2.string() << std::endl;
          std::filesystem::path p_3 = p_2 / "share";
          std::filesystem::path p_4 = p_3 / "coot";
          pkgdatadir = p_4.string();

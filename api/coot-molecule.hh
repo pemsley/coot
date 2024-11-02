@@ -1,6 +1,6 @@
 /*
  * api/coot-molecule.hh
- * 
+ *
  * Copyright 2020 by Medical Research Council
  * Author: Paul Emsley
  *
@@ -77,6 +77,9 @@
 #include "coot-utils/coot-map-utils.hh" // for map_molecule_centre_info_t
 #include "api-cell.hh" // 20230702-PE not needed in this file - remove it from here
 
+#include "moved-atom.hh"
+#include "moved-residue.hh"
+
 #include "bond-colour.hh"
 #include "blender-mesh.hh"
 
@@ -108,7 +111,8 @@ namespace coot {
          void new_modification(const std::string &mod_string) {
             modification_index++;
             if (false) // debugging
-               std::cout << "new_modification: moved on to " << modification_index << " by " << mod_string << std::endl;
+               std::cout << "new_modification: moved on to " << modification_index
+                         << " by " << mod_string << std::endl;
             if (modification_index > max_modification_index)
                max_modification_index = modification_index;
          }
@@ -771,7 +775,7 @@ namespace coot {
                                          const std::string &file_name);
 
       // this is the ribbons and surfaces API
-      void export_molecular_represenation_as_gltf(const std::string &atom_selection_cid,
+      void export_molecular_representation_as_gltf(const std::string &atom_selection_cid,
                                                   const std::string &colour_scheme,
                                                   const std::string &style,
                                                   int secondary_structure_usage_flag,
@@ -975,40 +979,16 @@ namespace coot {
                                          int end_resno);
       void change_chain_id_with_residue_range_helper_insert_or_add(mmdb::Chain *to_chain_p, mmdb::Residue *new_residue);
 
-      //! a moved atom
-      class moved_atom_t {
-      public:
-         std::string atom_name;
-         std::string alt_conf;
-         float x, y, z;
-         int index; // for fast lookup. -1 is used for "unknown"
-         moved_atom_t(const std::string &a, const std::string &alt, float x_in, float y_in, float z_in) :
-            atom_name(a), alt_conf(alt), x(x_in), y(y_in), z(z_in), index(-1) {}
-         moved_atom_t(const std::string &a, const std::string &alt, float x_in, float y_in, float z_in, int idx) :
-            atom_name(a), alt_conf(alt), x(x_in), y(y_in), z(z_in), index(idx) {}
-      };
-
-      //! a moved residue - which contains a vector of atoms
-      class moved_residue_t {
-      public:
-         std::string chain_id;
-         int res_no;
-         std::string ins_code;
-         std::vector<moved_atom_t> moved_atoms;
-         moved_residue_t(const std::string &c, int rn, const std::string &i) : chain_id(c), res_no(rn), ins_code(i) {}
-         void add_atom(const moved_atom_t &mva) {moved_atoms.push_back(mva); }
-      };
-
       //! set new positions for the atoms in the specified residue
-      int new_positions_for_residue_atoms(const std::string &residue_cid, const std::vector<moved_atom_t> &moved_atoms);
+      int new_positions_for_residue_atoms(const std::string &residue_cid, const std::vector<api::moved_atom_t> &moved_atoms);
 
       //! set new positions for the atoms of the specified residues
-      int new_positions_for_atoms_in_residues(const std::vector<moved_residue_t> &moved_residues);
+      int new_positions_for_atoms_in_residues(const std::vector<api::moved_residue_t> &moved_residues);
 
       //! not for wrapping (should be private).
       //! We don't want this function to backup if the backup happens in the calling function (i.e.
       //! new_positions_for_atoms_in_residues).
-      int new_positions_for_residue_atoms(mmdb::Residue *residue_p, const std::vector<moved_atom_t> &moved_atoms,
+      int new_positions_for_residue_atoms(mmdb::Residue *residue_p, const std::vector<api::moved_atom_t> &moved_atoms,
                                           bool do_backup);
 
       //! merge molecules - copy the atom of mols into this molecule

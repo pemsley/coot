@@ -121,6 +121,7 @@ new_startup_realize(GtkWidget *gl_area) {
          std::cout << "INFO:: monitor " << imon << " refresh rate " << monitor_refresh_rate << " mHz"  << std::endl;
          int monitor_scale_factor = gdk_monitor_get_scale_factor(monitor);
          std::cout << "INFO:: monitor " << imon << " scale_factor " << monitor_scale_factor << std::endl;
+
 #if GTK_MINOR_VERSION >= 14
          double monitor_scale = gdk_monitor_get_scale(monitor);
          std::cout << "INFO:: monitor " << imon << " scale " << monitor_scale << std::endl;

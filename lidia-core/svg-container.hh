@@ -2,6 +2,7 @@
 #define COOT_LIDIA_CORE_SVG_CONTAINER_HH
 
 #include <string>
+#include <iostream> // for debugging - remove later.
 
 class svg_container_t {
 
@@ -35,11 +36,20 @@ public:
       max_y = max_yy;
    }
 
-   void update_bounds(float min_xx, float min_yy, float max_xx, float max_yy) {
-      if (min_xx < min_x) min_x = min_xx;
-      if (min_yy < min_y) min_y = min_yy;
-      if (max_xx > max_x) max_x = max_xx;
-      if (max_yy > max_y) max_y = max_yy;
+   bool update_bounds(float min_xx, float min_yy, float max_xx, float max_yy) {
+      bool bounding_box_updated = false;
+#if 1
+      if (min_xx < min_x) { std::cout << "debug:: min_x was " << min_x << " now " << min_xx << std::endl; }
+      if (min_yy < min_y) { std::cout << "debug:: min_y was " << min_y << " now " << min_yy << std::endl; }
+      if (max_xx > max_x) { std::cout << "debug:: max_x was " << max_x << " now " << max_xx << std::endl; }
+      if (max_yy > max_y) { std::cout << "debug:: max_y was " << max_y << " now " << max_yy << std::endl; }
+#endif
+
+      if (min_xx < min_x) { min_x = min_xx; bounding_box_updated = true; }
+      if (min_yy < min_y) { min_y = min_yy; bounding_box_updated = true; }
+      if (max_xx > max_x) { max_x = max_xx; bounding_box_updated = true; }
+      if (max_yy > max_y) { max_y = max_yy; bounding_box_updated = true; }
+      return bounding_box_updated;
    }
 
    std::string make_viewbox_string() const {
