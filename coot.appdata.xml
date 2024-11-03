@@ -56,8 +56,7 @@
     <release version="1.1.10" date="2024-07-21">
       <description>
         <ul>
-          <li>FEATURE: Noughties-physics - add a refinement/atom manipulation mode so that Coot behaves like it used to up to (and including) version 0.8.x: `coot.set_refine_use_noughties_physics()`.
-          </li>
+          <li>FEATURE: Noughties-physics - add a refinement/atom manipulation mode so that Coot behaves like it used to up to (and including) version 0.8.x: `coot.set_refine_use_noughties_physics()`.</li>
           <li>FEATURE: Layla now displays QED Scores for molecules.</li>
           <li>FEATURE: `read_coordinates()` added to the Coot.</li>
           <li>FEATURE: Cryo-EM servalcat use added to the Coot API.</li>
@@ -68,7 +67,7 @@
           <li>BUG-FIX: Scroll wheel indicator in the Display Manager now correctly updates on use of a key-binding to change the scrollable map.</li>
           <li>BUG-FIX: Ugly least-squares fit dialog has been modernized.</li>
           <li>BUG-FIX: Fix the callback actions for the "Display Hydrogen Atoms" in the Bonds control dialog.</li>
-          <li>BUG-FIX: Rework the calculation of `pkg_data_dir()` - particularly in the case of relocatable binaries</li>
+          <li>BUG-FIX: Rework the calculation of `pkg_data_dir()` - particularly in the case of relocatable binaries.</li>
         </ul>
       </description>
     </release>
