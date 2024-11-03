@@ -56,7 +56,7 @@
     <release version="1.1.10" date="2024-07-21">
       <description>
         <ul>
-          <li>Noughties-physics - add a refinement/atom manipulation mode so that Coot behaves like it used to up to (and including) version 0.8.x: `coot.set_refine_use_noughties_physics()`.
+          <li>FEATURE: Noughties-physics - add a refinement/atom manipulation mode so that Coot behaves like it used to up to (and including) version 0.8.x: `coot.set_refine_use_noughties_physics()`.
           </li>
           <li>FEATURE: Layla now displays QED Scores for molecules.</li>
           <li>FEATURE: `read_coordinates()` added to the Coot.</li>
