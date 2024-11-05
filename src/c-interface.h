@@ -2476,6 +2476,12 @@ gchar *get_text_for_rotation_centre_cube_size();
 /*! \brief set rotoation centre marker size */
 void set_rotation_centre_size(float f); /* and redraw (maybe) */
 
+/*! \brief set rotation centre colour
+
+This is the colour for a dark background - if the background colour is not dark,
+then the cross-hair colour becomes the inverse colour */
+void set_rotation_centre_cross_hairs_colour(float r, float g, float b, float alpha);
+
 /*! \brief return the recentre-on-pdb state */
 short int recentre_on_read_pdb();
 /*! \brief set the recentre-on-pdb state */

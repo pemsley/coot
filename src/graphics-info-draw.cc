@@ -2645,9 +2645,12 @@ graphics_info_t::draw_rotation_centre_crosshairs(GtkGLArea *glarea, unsigned int
    if (pass_type == PASS_TYPE_STANDARD) {
 
       bool is_bb = graphics_info_t::background_is_black_p();
-      glm::vec4 line_colour(0.8f, 0.8f, 0.8f, 1.0f);
+      glm::vec4 line_colour = rotation_centre_cross_hairs_colour;
       if (! is_bb)
-         line_colour = glm::vec4(0.2f, 0.2f, 0.2f, 1.0f);
+         line_colour = glm::vec4(1.0f - rotation_centre_cross_hairs_colour[0],
+                                 1.0f - rotation_centre_cross_hairs_colour[1],
+                                 1.0f - rotation_centre_cross_hairs_colour[0],
+                                 1.0f);
 
       GLuint line_colour_uniform_location = shader_for_central_cube.line_colour_uniform_location;
       glUniform4fv(line_colour_uniform_location, 1, glm::value_ptr(line_colour));
