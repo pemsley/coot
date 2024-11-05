@@ -8,5 +8,5 @@ class lsq_results_t {
    std::vector<double> rotation_matrix;
    //! the translation vector
    std::vector<double> translation;
-   bool empty() { return rotation_matrix.empty(); }
+   bool empty() const { return rotation_matrix.empty(); }
 };

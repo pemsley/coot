@@ -5694,7 +5694,8 @@ int test_lsq_superpose(molecules_container_t &mc) {
    int imol_2 = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
    mc.clear_lsq_matches();
    mc.add_lsq_superpose_match("A", 185, 195, "A", 105, 115, 1);
-   auto tm = mc.get_lsq_matrix(imol_1, imol_2);
+   bool summary_to_screen = false;
+   auto tm = mc.get_lsq_matrix(imol_1, imol_2, summary_to_screen);
    mc.lsq_superpose(imol_1, imol_2);
    for(unsigned int i=0; i<tm.rotation_matrix.size(); i++)
       std::cout << " " << tm.rotation_matrix[i];

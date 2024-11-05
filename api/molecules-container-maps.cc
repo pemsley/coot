@@ -24,6 +24,8 @@
  *
  */
 
+#include "clipper/core/clipper_types.h"
+#include "clipper/core/coords.h"
 #include "molecules-container.hh"
 
 // This function does no normalisztion of the scales,
@@ -317,4 +319,34 @@ molecules_container_t::make_mask(int imol_map_ref, int imol_model, const std::st
    }
    return imol_map_new;
 
+}
+
+//! transform a map and create a new map
+//! @return the molecule index of the new map, -1 for failure
+int
+molecules_container_t::transform_map_using_lsq_matrix(int imol_map, lsq_results_t lsq_matrix,
+                                                      float x, float y, float z, float radius) {
+
+   auto make_rtop_from_lsq_results = [] (const lsq_results_t &lsq_mat) {
+      clipper::Coord_orth t(lsq_mat.translation[0],lsq_mat.translation[1], lsq_mat.translation[2]);
+      const std::vector<double> &m = lsq_mat.rotation_matrix;
+      clipper::Mat33<double> rm(m[0], m[1], m[2], m[3], m[4], m[5], m[6], m[7], m[8]);
+      return clipper::RTop_orth(rm,t);
+   };
+
+   int imol_map_new = -1;
+   if (is_valid_map_molecule(imol_map)) {
+      if (! lsq_matrix.empty()) {
+         clipper::Coord_orth about_pt(x,y,z);
+         clipper::Xmap<float> &xmap = molecules[imol_map].xmap;
+         clipper::RTop_orth rtop = make_rtop_from_lsq_results(lsq_matrix);
+         clipper::Xmap<float> xmap_new = coot::util::transform_map(xmap, xmap.spacegroup(), xmap.cell(), rtop,
+                                                                   about_pt, radius);
+         imol_map_new = molecules.size();
+         std::string name = "Transformed map from " + molecules[imol_map].get_name();
+         bool is_em_map = molecules[imol_map].is_EM_map();
+         molecules.push_back(coot::molecule_t(name, imol_map_new, xmap_new, is_em_map));
+      }
+   }
+   return imol_map_new;
 }

@@ -813,9 +813,21 @@ molecules_container_t::add_lsq_superpose_match(const std::string &chain_id_ref, 
    coot::lsq_range_match_info_t m(res_no_ref_start, res_no_ref_end, chain_id_ref,
                                   res_no_mov_start, res_no_mov_end, chain_id_mov,
                                   match_type);
-
    lsq_matchers.push_back(m);
 }
+
+
+void
+molecules_container_t::add_lsq_superpose_atom_match(const std::string &chain_id_ref, int res_no_ref, const std::string &atom_name_ref,
+                                                    const std::string &chain_id_mov, int res_no_mov, const std::string &atom_name_mov) {
+
+   std::string ins_code = "";
+   std::string alt_conf = "";
+   coot::lsq_range_match_info_t m(chain_id_ref, res_no_ref, ins_code, atom_name_ref, alt_conf,
+                                  chain_id_mov, res_no_mov, ins_code, atom_name_mov, alt_conf);
+   lsq_matchers.push_back(m);
+}
+
 
 void molecules_container_t::clear_lsq_matches() {
    lsq_matchers.clear();
@@ -825,9 +837,10 @@ void molecules_container_t::clear_lsq_matches() {
 void
 molecules_container_t::lsq_superpose(int imol_ref, int imol_mov) {
 
+   bool summary_to_screen = false;
    if (is_valid_model_molecule(imol_ref)) {
       if (is_valid_model_molecule(imol_mov)) {
-         std::pair<short int, clipper::RTop_orth> rtop_info = get_lsq_matrix_internal(imol_ref, imol_mov);
+         std::pair<short int, clipper::RTop_orth> rtop_info = get_lsq_matrix_internal(imol_ref, imol_mov, summary_to_screen);
          if (rtop_info.first) {
             molecules[imol_mov].transform_by(rtop_info.second);
          }
@@ -839,7 +852,7 @@ molecules_container_t::lsq_superpose(int imol_ref, int imol_mov) {
 
 //! superpose using LSQ - generate the transformation matrix
 std::pair<short int, clipper::RTop_orth>
-molecules_container_t::get_lsq_matrix_internal(int imol_ref, int imol_mov) const {
+molecules_container_t::get_lsq_matrix_internal(int imol_ref, int imol_mov, bool summary_to_screen) const {
 
    std::pair<short int, clipper::RTop_orth> rtop_info;
    rtop_info.first = 0; // fail at start.
@@ -851,7 +864,7 @@ molecules_container_t::get_lsq_matrix_internal(int imol_ref, int imol_mov) const
       if (is_valid_model_molecule(imol_mov)) {
          mmdb::Manager *mol_ref = molecules[imol_ref].atom_sel.mol;
          mmdb::Manager *mol_mov = molecules[imol_mov].atom_sel.mol;
-         rtop_info = coot::util::get_lsq_matrix(mol_ref, mol_mov, lsq_matchers, 1, false);
+         rtop_info = coot::util::get_lsq_matrix(mol_ref, mol_mov, lsq_matchers, 1, summary_to_screen);
       }
    }
    return rtop_info;
@@ -859,10 +872,10 @@ molecules_container_t::get_lsq_matrix_internal(int imol_ref, int imol_mov) const
 
 //! superpose using LSQ - generate the transformation matrix
 lsq_results_t
-molecules_container_t::get_lsq_matrix(int imol_ref, int imol_mov) const {
+molecules_container_t::get_lsq_matrix(int imol_ref, int imol_mov, bool summary_to_screen) const {
 
    lsq_results_t results;
-   std::pair<short int, clipper::RTop_orth> rtop_info = get_lsq_matrix_internal(imol_ref, imol_mov);
+   std::pair<short int, clipper::RTop_orth> rtop_info = get_lsq_matrix_internal(imol_ref, imol_mov, summary_to_screen);
    if (rtop_info.first) {
       const auto &rtop = rtop_info.second;
       results.rotation_matrix.resize(9);
