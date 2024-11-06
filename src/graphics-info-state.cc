@@ -839,8 +839,8 @@ graphics_info_t::save_state() {
 std::string
 graphics_info_t::state_command(const std::string &name_space,
                                const std::string &str,
-			       int i1,
-			       short int state_lang) const {
+                               int i1,
+                               short int state_lang) const {
 
    std::vector<coot::command_arg_t> command_args;
    command_args.push_back(coot::command_arg_t(i1));
@@ -850,9 +850,9 @@ graphics_info_t::state_command(const std::string &name_space,
 std::string
 graphics_info_t::state_command(const std::string &name_space,
                                const std::string &str,
-			       int i1,
-			       int i2,
-			       short int state_lang) const {
+                               int i1,
+                               int i2,
+                               short int state_lang) const {
 
    std::vector<coot::command_arg_t> command_args;
    command_args.push_back(coot::command_arg_t(i1));
@@ -861,16 +861,17 @@ graphics_info_t::state_command(const std::string &name_space,
 }
 
 std::string
-graphics_info_t::state_command(const std::string &str,
-			       float f,
-			       short int state_lang) const {
+graphics_info_t::state_command(const std::string &name_space,
+                               const std::string &str,
+                               float f,
+                               short int state_lang) const {
 
-   std::string name_space = "coot"; // this is a guess/hack!
    std::vector<coot::command_arg_t> command_args;
    command_args.push_back(coot::command_arg_t(f));
    return state_command(name_space, str, command_args, state_lang);
 }
 
+// this needs to be cleaned up one day.
 std::string
 graphics_info_t::state_command(const std::string &str,
 			       float f,
@@ -1012,7 +1013,7 @@ graphics_info_t::state_command(const std::string &module, const std::string &fun
 //
 short int
 graphics_info_t::write_state(const std::vector<std::string> &commands,
-			                    const std::string &filename) const {
+                             const std::string &filename) const {
 
    bool do_c_mode = false; // it's 2020 - Mac problems have gone away?
 
@@ -1033,7 +1034,7 @@ graphics_info_t::write_state(const std::vector<std::string> &commands,
 //
 short int
 graphics_info_t::write_state_fstream_mode(const std::vector<std::string> &commands,
-					                           const std::string &filename) const {
+                                          const std::string &filename) const {
 
    short int istat = 1;
 
@@ -1042,7 +1043,7 @@ graphics_info_t::write_state_fstream_mode(const std::vector<std::string> &comman
 
    if (f) {
       for (unsigned int i=0; i<commands.size(); i++) {
-	      f << commands[i] << "\n";
+         f << commands[i] << "\n";
          // std::cout << "write_state_fstream_mode() " << commands[i] << std::endl;
       }
       f.flush();  // fixes valgrind problem?
@@ -1065,7 +1066,7 @@ graphics_info_t::write_state_fstream_mode(const std::vector<std::string> &comman
 
    } else {
       std::cout << "WARNING: couldn't write to state file " << filename
-		          << std::endl;
+                << std::endl;
       istat = 0;
    }
    return istat;

@@ -675,7 +675,7 @@ class graphics_info_t {
    std::string state_command(const std::string &name_space, const std::string &str,                 short int state_lang) const;
    std::string state_command(const std::string &name_space, const std::string &str, int i,          short int state_lang) const;
    std::string state_command(const std::string &name_space, const std::string &str, int i1, int i2, short int state_lang) const;
-   std::string state_command(const std::string &str, float f,        short int state_lang) const;
+   std::string state_command(const std::string &name_space, const std::string &str, float f,        short int state_lang) const;
    std::string state_command(const std::string &str, float f,        short int state_lang, short unsigned int v) const;
    std::string state_command(const std::string &name_space, const std::string &str, float f1, float f2, float f3, short int state_lang) const;
    std::string state_command(const std::string &name_space, const std::string &str, const std::string &str2, short int state_lang);
