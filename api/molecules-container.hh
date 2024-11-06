@@ -850,6 +850,11 @@ public:
                                                int secondary_structure_usage_flag,
                                                const std::string &file_name);
 
+   //! export chemical features for the specified residue
+   //!
+   void export_chemical_features_as_gltf(int imol, const std::string &cid,
+                                         const std::string &file_name) const;
+
    //! return the colour table (for testing)
    std::vector<glm::vec4> get_colour_table(int imol, bool against_a_dark_background) const;
 

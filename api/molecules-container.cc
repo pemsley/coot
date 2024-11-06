@@ -5491,6 +5491,19 @@ molecules_container_t::export_molecular_representation_as_gltf(int imol, const s
    }
 }
 
+//! export chemical features for the specified residue
+//!
+void molecules_container_t::export_chemical_features_as_gltf(int imol, const std::string &cid, const std::string &file_name) const {
+
+   int status = 0;
+   if (is_valid_model_molecule(imol)) {
+      molecules[imol].export_chemical_features_as_gltf(cid, geom, file_name);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+}
+
+
 
 
 //! get density at position

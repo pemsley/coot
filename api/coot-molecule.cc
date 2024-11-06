@@ -4432,6 +4432,18 @@ coot::molecule_t::export_molecular_representation_as_gltf(const std::string &ato
    sm.export_to_gltf(file_name, as_binary);
 }
 
+void
+coot::molecule_t::export_chemical_features_as_gltf(const std::string &cid,
+                                                   const coot::protein_geometry &geom,
+                                                   const std::string &file_name) const {
+
+   coot::simple_mesh_t sm = get_chemical_features_mesh(cid, geom);
+   bool as_binary = true; // test the extension of file_name
+   sm.export_to_gltf(file_name, as_binary);
+}
+
+
+
 
 //! Interactive B-factor refinement (fun).
 //! "factor" might typically be say 0.9 or 1.1
