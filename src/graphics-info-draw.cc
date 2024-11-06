@@ -635,7 +635,7 @@ graphics_info_t::get_molecule_mvp(bool debug_matrices) {
    int w = graphics_x_size;
    int h = graphics_y_size;
 
-   if (true) {  // debug problematic matrices - get rid of this, make sure that it doesn't do anything                    
+   if (false) {  // debug problematic matrices - get rid of this, make sure that it doesn't do anything
       GtkAllocation allocation;
       gtk_widget_get_allocation(graphics_info_t::glareas[0], &allocation);
       w = allocation.width;
@@ -2624,6 +2624,9 @@ graphics_info_t::draw_rotation_centre_crosshairs(GtkGLArea *glarea, unsigned int
 
    glm::vec3 rc = graphics_info_t::get_rotation_centre();
    mvp = glm::translate(mvp, rc);
+   // 20241105-PE is this a good idea?
+   if (rotation_centre_cube_size < 0.1)
+      rotation_centre_cube_size = 0.1;
    float s = 6.0f * rotation_centre_cube_size;
    glm::vec3 sc(s,s,s);
    mvp = glm::scale(mvp, sc);
@@ -2640,10 +2643,14 @@ graphics_info_t::draw_rotation_centre_crosshairs(GtkGLArea *glarea, unsigned int
                       << std::endl;
 
    if (pass_type == PASS_TYPE_STANDARD) {
+
       bool is_bb = graphics_info_t::background_is_black_p();
-      glm::vec4 line_colour(0.8f, 0.8f, 0.8f, 1.0f);
-      if (! is_bb) 
-         line_colour = glm::vec4(0.2f, 0.2f, 0.2f, 1.0f);
+      glm::vec4 line_colour = rotation_centre_cross_hairs_colour;
+      if (! is_bb)
+         line_colour = glm::vec4(1.0f - rotation_centre_cross_hairs_colour[0],
+                                 1.0f - rotation_centre_cross_hairs_colour[1],
+                                 1.0f - rotation_centre_cross_hairs_colour[0],
+                                 1.0f);
 
       GLuint line_colour_uniform_location = shader_for_central_cube.line_colour_uniform_location;
       glUniform4fv(line_colour_uniform_location, 1, glm::value_ptr(line_colour));
@@ -2681,218 +2688,6 @@ graphics_info_t::draw_rotation_centre_crosshairs(GtkGLArea *glarea, unsigned int
 
 }
 
-#if 0 // reproduced in new-startup.cc
-
-<<<<<<< HEAD
-void on_glarea_drag_begin_primary(GtkGestureDrag *gesture,
-                          double          x,
-                          double          y,
-                          GtkWidget      *area) {
-
-   // display_info_t di;
-   // di.mouse_x = x;
-   // di.mouse_y = y;
-   // di.drag_begin_x = x;
-   // di.drag_begin_y = y;
-=======
-// create and pack, but don't show it (in this function).
-//
-GtkWidget *create_and_pack_gtkglarea(GtkWidget *vbox, bool use_gtk_builder) {
->>>>>>> gtk3
-
-   graphics_info_t g;
-   g.on_glarea_drag_begin_primary(gesture, x, y, area);
-
-<<<<<<< HEAD
-=======
-   GtkWidget *w = gtk_gl_area_new();
-
-   auto get_gl_widget_dimension_scale_factor  = [] () {
-                                                   int sf = 1;
-                                                   char *e = getenv("COOT_OPENGL_WIDGET_SCALE_FACTOR");
-                                                   if (e) {
-                                                      std::string ee(e);
-                                                      sf = std::stoi(ee);
-                                                   }
-                                                   return sf;
-                                                };
-
-   // allow the user to set the major and minor version (for debugging)
-
-   int opengl_major_version = 3;
-   int opengl_minor_version = 3;
-   char *e1 = getenv("COOT_OPENGL_MAJOR_VERSION");
-   char *e2 = getenv("COOT_OPENGL_MINOR_VERSION");
-   if (e1) {
-      std::string e1s(e1);
-      opengl_major_version = std::stoi(e1s);
-   }
-   if (e2) {
-      std::string e2s(e2);
-      opengl_minor_version = std::stoi(e2s);
-   }
-
-   if (e1 || e2)
-      std::cout << "INFO:: setting OpenGL required version to "
-                << opengl_major_version << " " << opengl_minor_version << std::endl;
-
-   gtk_gl_area_set_required_version(GTK_GL_AREA(w), opengl_major_version, opengl_minor_version);
-
-   unsigned int dimensions = 900;
-   int gl_widget_dimension_scale_factor = get_gl_widget_dimension_scale_factor();
-   gtk_widget_set_size_request(w,
-                               gl_widget_dimension_scale_factor * dimensions,
-                               gl_widget_dimension_scale_factor * dimensions);
-   gtk_box_pack_start(GTK_BOX(vbox), w, TRUE, TRUE, 0);
-   return w;
->>>>>>> gtk3
-}
-
-void on_glarea_drag_update_primary(GtkGestureDrag *gesture,
-                           double          delta_x,
-                           double          delta_y,
-                           GtkWidget      *area) {
-
-   graphics_info_t g;
-   g.on_glarea_drag_update_primary(gesture, delta_x, delta_y, area);
-
-}
-
-void on_glarea_drag_end_primary(GtkGestureDrag *gesture,
-                                double          x,
-                                double          y,
-                                GtkWidget      *area) {
-
-   // std::cout << "drag end" << std::endl;
-   // do nothing at the moment.
-   graphics_info_t g;
-   g.on_glarea_drag_end_primary(gesture, x, y, area);
-}
-
-
-void on_glarea_drag_begin_secondary(GtkGestureDrag *gesture,
-                          double          x,
-                          double          y,
-                          GtkWidget      *area) {
-
-   graphics_info_t g;
-   g.on_glarea_drag_begin_secondary(gesture, x, y, area);
-
-}
-
-void on_glarea_drag_update_secondary(GtkGestureDrag *gesture,
-                                     double          delta_x,
-                                     double          delta_y,
-                                     GtkWidget      *area) {
-
-   graphics_info_t g;
-   g.on_glarea_drag_update_secondary(gesture, delta_x, delta_y, area);
-
-}
-
-void on_glarea_drag_end_secondary(GtkGestureDrag *gesture,
-                                  double          x,
-                                  double          y,
-                                  GtkWidget      *area) {
-
-   graphics_info_t g;
-   g.on_glarea_drag_end_secondary(gesture, x, y, area);
-}
-
-
-
-void on_glarea_drag_begin_middle(GtkGestureDrag *gesture,
-                          double          x,
-                          double          y,
-                          GtkWidget      *area) {
-
-   graphics_info_t g;
-   g.on_glarea_drag_begin_middle(gesture, x, y, area);
-
-}
-
-void on_glarea_drag_update_middle(GtkGestureDrag *gesture,
-                                  double          delta_x,
-                                  double          delta_y,
-                                  GtkWidget      *area) {
-
-   graphics_info_t g;
-   g.on_glarea_drag_update_middle(gesture, delta_x, delta_y, area);
-
-}
-
-void on_glarea_drag_end_middle(GtkGestureDrag *gesture,
-                               double          x,
-                               double          y,
-                               GtkWidget      *area) {
-
-
-   graphics_info_t g;
-   g.on_glarea_drag_end_middle(gesture, x, y, area);
-}
-
-#endif // reproduced in new-startup.cc
-
-
-
-
-#if 0 // old
-// ---------------------------------------------------------------------------------------------------
-// ---------------------------------------------------------------------------------------------------
-//                            key press
-// ---------------------------------------------------------------------------------------------------
-// ---------------------------------------------------------------------------------------------------
-
-
-gboolean
-on_glarea_key_controller_key_pressed(GtkEventControllerKey *controller,
-                                     guint                  keyval,
-                                     guint                  keycode,
-                                     guint                  modifiers,
-                                     GtkButton             *button) {
-
-   graphics_info_t g;
-   // allow other controllers to act (say TAB has been pressed)
-   gboolean handled = g.on_glarea_key_controller_key_pressed(controller, keyval, keycode, modifiers);
-   return gboolean(handled);
-}
-
-void
-on_glarea_key_controller_key_released(GtkEventControllerKey *controller,
-                                      guint                  keyval,
-                                      guint                  keycode,
-                                      guint                  modifiers,
-                                      GtkButton             *button) {
-
-   graphics_info_t g;
-   g.on_glarea_key_controller_key_released(controller, keyval, keycode, modifiers);
-
-}
-
-void
-on_glarea_click(GtkGestureClick* click_gesture,
-                gint n_press,
-                gdouble x,
-                gdouble y,
-                gpointer user_data) {
-
-   graphics_info_t g;
-   g.on_glarea_click(click_gesture, n_press, x, y, user_data);
-
-}
-
-void
-on_glarea_scrolled(GtkEventControllerScroll *controller,
-                   double                    dx,
-                   double                    dy,
-                   gpointer                  user_data) {
-
-   graphics_info_t g;
-   g.on_glarea_scrolled(controller, dx, dy, user_data);
-
-}
-
-#endif // event handlers
 
 // #include "event-controller-callbacks.hh"
 

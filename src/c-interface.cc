@@ -3835,12 +3835,12 @@ void set_rotation_centre_size_from_widget(const gchar *text) {
    float val;
    graphics_info_t g;
 
-   val = atof(text); 
-   if ((val > 1000) || (val < 0)) { 
+   val = atof(text);
+   if ((val > 1000) || (val < 0)) {
       std::cout << "Invalid cube size: " << text << ". Assuming 1.0A" << std::endl;
       val = 1.0;
-   } 
-   g.rotation_centre_cube_size = val; 
+   }
+   g.rotation_centre_cube_size = val;
    graphics_draw();
 }
 
@@ -3849,6 +3849,19 @@ void set_rotation_centre_size(float f) {
    g.rotation_centre_cube_size = f;
    graphics_draw();
 }
+
+/*! \brief set rotation centre colour
+
+This is the colour for a dark background - if the background colour is not dark,
+then the cross-hair colour becomes the inverse colour */
+void set_rotation_centre_cross_hairs_colour(float r, float g, float b, float alpha) {
+
+   glm::vec4 c(r,g,b,alpha);
+   graphics_info_t gg;
+   gg.set_rotation_centre_cross_hairs_colour(c);
+   graphics_draw();
+}
+
 
 gchar *get_text_for_rotation_centre_cube_size() {
 

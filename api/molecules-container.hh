@@ -195,6 +195,8 @@ class molecules_container_t {
 
    bool particles_have_been_shown_already_for_this_round_flag;
 
+   std::pair<short int, clipper::RTop_orth> get_lsq_matrix_internal(int imol_ref, int imol_mov, bool summary_to_screen) const;
+
 #endif
 
    bool refinement_immediate_replacement_flag = true;
@@ -1032,6 +1034,9 @@ public:
                                 const std::string &chain_id_mov, int res_no_mov_start, int res_no_mov_end,
                                 int match_type);
 
+   void add_lsq_superpose_atom_match(const std::string &chain_id_ref, int res_no_ref, const std::string &atom_name_ref,
+                                     const std::string &chain_id_mov, int res_no_mov, const std::string &atom_name_mov);
+
    //! clear any existing lsq matchers
    void clear_lsq_matches();
 
@@ -1041,10 +1046,11 @@ public:
    void lsq_superpose(int imol_ref, int imol_mov);
 
    //! return the transformation matrix in a simple class - dont apply it to the coordinates
-   lsq_results_t get_lsq_matrix(int imol_ref, int imol_mov) const;
+   lsq_results_t get_lsq_matrix(int imol_ref, int imol_mov, bool summary_to_screen) const;
 
-   //! make this private
-   std::pair<short int, clipper::RTop_orth> get_lsq_matrix_internal(int imol_ref, int imol_mov) const;
+   //! transform a map and create a new map
+   //! @return the molecule index of the new map, -1 for failure
+   int transform_map_using_lsq_matrix(int imol_map, lsq_results_t lsq_matrix, float x, float y, float z, float radius);
 
    //! symmetry
    //! now comes in a simple container that also includes the cell

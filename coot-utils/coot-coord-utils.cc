@@ -971,14 +971,14 @@ coot::util::get_reorientation_matrix(mmdb::Residue *residue_current,
 std::ostream&
 coot::operator<<(std::ostream&  s, const coot::lsq_range_match_info_t &m) {
 
-   s << "LSQ Match: (" << m.model_number_reference << ") " << m.reference_chain_id << " " 
+   s << "LSQ Match: (" << m.model_number_reference << ") " << m.reference_chain_id << " "
      << m.to_reference_start_resno << "-" << m.to_reference_end_resno
      << " to ("
      << m.model_number_matcher << ") " << m.matcher_chain_id << " "
      << m.from_matcher_start_resno << "-" << m.from_matcher_end_resno
      << " type: " << m.match_type_flag;
    return s;
-} 
+}
 
 //
 float
@@ -1004,11 +1004,11 @@ coot::util::stats_data::stats_data(const std::vector<float> &v) {
    iqr = 0;
    double sum = 0;
    double sum_sq = 0;
-   for (unsigned int i=0; i<v.size(); i++) { 
+   for (unsigned int i=0; i<v.size(); i++) {
       sum += v[i];
       sum_sq += v[i] * v[i];
    }
-   if (v.size() > 0) { 
+   if (v.size() > 0) {
       mean = sum/double(v.size());
       double var = sum_sq/double(v.size()) - mean * mean;
       if (var < 0) var = 0;

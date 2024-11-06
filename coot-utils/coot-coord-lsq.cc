@@ -35,8 +35,8 @@ coot::util::get_lsq_matrix(mmdb::Manager *mol1,
    short int istat = 0;
    clipper::RTop_orth rtop(clipper::Mat33<double>(0,0,0,0,0,0,0,0,0),
                            clipper::Coord_orth(0,0,0));
-   int SelHnd1 = mol1->NewSelection();
-   int SelHnd2 = mol2->NewSelection();
+   int SelHnd1 = mol1->NewSelection(); // d
+   int SelHnd2 = mol2->NewSelection(); // d
 
    std::vector<clipper::Coord_orth> co1v;
    std::vector<clipper::Coord_orth> co2v;
@@ -44,6 +44,10 @@ coot::util::get_lsq_matrix(mmdb::Manager *mol1,
       std::pair<std::vector<clipper::Coord_orth>, std::vector<clipper::Coord_orth> > p =
         get_matching_indices(mol1, mol2, matches[i], every_nth);
       if ((p.first.size() > 0) && (p.first.size() == p.second.size())) {
+         if (false) { // debugging
+            if (p.first.size() == 1)
+               std::cout << "    " << matches[i] << " " << p.first[0].format() << " " << p.second[0].format() << std::endl;
+         }
          for (unsigned int j=0; j<p.first.size(); j++) {
             co1v.push_back(p.first[j]);
             co2v.push_back(p.second[j]);
@@ -80,7 +84,7 @@ coot::util::get_lsq_matrix(mmdb::Manager *mol1,
             // not variance about mean, variance from 0.
             //double var  = sum_dist2/double(co2v.size()) - mean*mean;
             double v    = sum_dist2/double(co2v.size());
-            if (summary_to_screen) 
+            if (summary_to_screen)
                std::cout << "INFO:: " << co1v.size() << " matched atoms had: \n"
                          << "   mean devi: " << mean << "\n"
                          << "    rms devi: " << sqrt(v) << "\n"
@@ -91,7 +95,7 @@ coot::util::get_lsq_matrix(mmdb::Manager *mol1,
             std::cout << "WARNING:: not enough points to do matching (matching)"
                       << std::endl;
          }
-      } else { 
+      } else {
          std::cout << "WARNING:: not enough points to do matching (reference)"
                    << std::endl;
       }

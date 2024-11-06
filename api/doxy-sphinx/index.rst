@@ -36,12 +36,6 @@ may be *something* there that could usefully be declared as public.
 .. doxygenfile:: molecules-container.hh
    :project: libcootapi
 
-API Reference
-=============
-
-.. doxygenfile:: molecules-container-nanobind-augmented.cc
-   :project: libcootapi
-
 Mesh Objects
 ============
 
