@@ -1,12 +1,16 @@
 ----
 
-Is there a rotation-centre size widget in Preferences?
-
 Oliver Clarke issues.
 
 mmrrcc to Coot. side chain score show out of register error?
 
 Get the "shape" of RNA bases in cryo-EM maps - for validation of RNA sequence.
+
+bring chopping of residues in low density to the API
+
+bring water flood to the API
+
+servalcat refine using chapi molecules
 
 configure needs to know if RDKitcoordgen was used to make RDKit and change the Makefile libs
 and we need to conditionally compile the code that uses coordgen (in layla).
