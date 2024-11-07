@@ -774,6 +774,7 @@ NB_MODULE(chapi, m) {
     .def("is_allowed", &coot::phi_psi_prob_t::is_allowed)
     ;
     nb::class_<coot::api::moved_atom_t>(m,"moved_atom_t")
+    .def(nb::init<const std::string&, const std::string&, float, float, float>())
     .def(nb::init<const std::string&, const std::string&, float, float, float, int>())
     .def_ro("atom_name", &coot::api::moved_atom_t::atom_name)
     .def_ro("alt_conf", &coot::api::moved_atom_t::alt_conf)
