@@ -197,7 +197,11 @@ class molecules_container_t {
 
    std::pair<short int, clipper::RTop_orth> get_lsq_matrix_internal(int imol_ref, int imol_mov, bool summary_to_screen) const;
 
+   coot::validation_information_t
+   get_q_score_validation_information(mmdb::Manager *mol, int udd_q_score, bool do_per_atom) const;
+
 #endif
+
 
    bool refinement_immediate_replacement_flag = true;
    int imol_moving_atoms;
@@ -1897,6 +1901,15 @@ public:
    //!
    //! @return a coot::validation_information_t object
    coot::validation_information_t get_q_score(int imol_model, int imol_map) const;
+
+   //! Get the Pintile et al. Q Score for a particular residue (typically a ligand)
+   //!
+   //! @param cid If the `cid` matches more than one residue the score will be returned for all of the
+   //! residues covered in the `cid`. Typically, of course the `cid` will be something like
+   //! "//A/301".
+   //!
+   //! @return a coot::validation_information_t object
+   coot::validation_information_t get_q_score_for_cid(int imol_model, const std::string &cid, int imol_map) const;
 
    // -------------------------------- Rail Points ------------------------------------------
    //! \name Rail Points!

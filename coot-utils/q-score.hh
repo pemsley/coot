@@ -90,60 +90,6 @@ namespace coot {
          return atom_q_score_info_t(status, q_score, n_points);
       }
 
-   public:
-      explicit q_score_t(mmdb::Manager *mol) : mol(mol) {
-         if (mol) {
-            float max_dist = 4.0;
-
-            int imod = 1;
-            sel_hnd = mol->NewSelection(); // d
-            mol->SelectAtoms (sel_hnd, imod, "*",
-                              mmdb::ANY_RES, // starting resno, an int
-                              "*", // any insertion code
-                              mmdb::ANY_RES, // ending resno
-                              "*", // ending insertion code
-                              "*", // any residue name
-                              "*", // atom name
-                              "*", // elements
-                              "*"  // alt loc.
-                              );
-            mmdb::PPAtom atom_selection = 0;
-            int n_selected_atoms = 0;
-            mol->GetSelIndex(sel_hnd, atom_selection, n_selected_atoms);
-
-            mmdb::Contact *pscontact = NULL;
-            int n_contacts;
-            long i_contact_group = 1;
-            mmdb::mat44 my_matt;
-            mmdb::SymOps symm;
-            for (int i=0; i<4; i++)
-               for (int j=0; j<4; j++)
-                  my_matt[i][j] = 0.0;
-            for (int i=0; i<4; i++) my_matt[i][i] = 1.0;
-
-            mol->SeekContacts(atom_selection, n_selected_atoms,
-                              atom_selection, n_selected_atoms,
-                              0, max_dist,
-                              0, // in same residue
-                              pscontact, n_contacts,
-                              0, &my_matt, i_contact_group); // makes reverses also
-            if (n_contacts > 0) {
-               if (pscontact) {
-                  for (int i=0; i<n_contacts; i++) {
-                     mmdb::Atom *at        = atom_selection[pscontact[i].id1];
-                     mmdb::Atom *neighb_at = atom_selection[pscontact[i].id2];
-                     clipper::Coord_orth neighb_pos = coot::co(neighb_at);
-                     atom_neighbours[at].push_back(neighb_pos);
-                  }
-               }
-            }
-         }
-      }
-
-      void close() {
-         mol->DeleteSelection(sel_hnd);
-      }
-
       void score_atom_range(int atom_idx_begin, int atom_idx_end,
                             mmdb::Atom **atom_selection,
                             const clipper::Xmap<float> &xmap,
@@ -190,7 +136,8 @@ namespace coot {
                         // 100 ms for 7vvl
                         if (false)
                            std::cout << "at: "
-                                     << at->GetAtomName() << " " << at->GetResName() << " " << at->GetChainID() << " " << at->GetSeqNum()
+                                     << at->GetAtomName() << " " << at->GetResName() << " "
+                                     << at->GetChainID()  << " " << at->GetSeqNum()
                                      << " q-score " << q_score << " cc " << cc << std::endl;
 
                      }
@@ -200,11 +147,7 @@ namespace coot {
          }
       }
 
-      void calc(const clipper::Xmap<float> &xmap, float map_mean, float map_variance) {
-
-         int n_radius = 21;
-         double radius_max = 2.1;
-
+      std::vector<clipper::Coord_orth> make_directions() const {
          std::vector<clipper::Coord_orth> directions =
             { clipper::Coord_orth(-1, -1, -1), clipper::Coord_orth(-1, -1,  1),
               clipper::Coord_orth(-1,  1, -1), clipper::Coord_orth(-1,  1,  1),
@@ -212,6 +155,88 @@ namespace coot {
               clipper::Coord_orth( 1,  1, -1), clipper::Coord_orth( 1,  1,  1)};
          for (auto &dir : directions)
             dir = (1.0/sqrt(3.0)) * dir;
+         return directions;
+      }
+
+      void fill_atom_neighbbours(mmdb::PPAtom atom_selection, int n_selected_atoms, float max_dist) {
+
+         mmdb::Contact *pscontact = NULL;
+         int n_contacts;
+         long i_contact_group = 1;
+         mmdb::mat44 my_matt;
+         mmdb::SymOps symm;
+         for (int i=0; i<4; i++)
+            for (int j=0; j<4; j++)
+               my_matt[i][j] = 0.0;
+         for (int i=0; i<4; i++) my_matt[i][i] = 1.0;
+
+         mol->SeekContacts(atom_selection, n_selected_atoms,
+                           atom_selection, n_selected_atoms,
+                           0, max_dist,
+                           0, // in same residue
+                           pscontact, n_contacts,
+                           0, &my_matt, i_contact_group); // makes reverses also
+         if (n_contacts > 0) {
+            if (pscontact) {
+               for (int i=0; i<n_contacts; i++) {
+                  mmdb::Atom *at        = atom_selection[pscontact[i].id1];
+                  mmdb::Atom *neighb_at = atom_selection[pscontact[i].id2];
+                  clipper::Coord_orth neighb_pos = coot::co(neighb_at);
+                  atom_neighbours[at].push_back(neighb_pos);
+               }
+            }
+         }
+      }
+
+   public:
+
+      explicit q_score_t(mmdb::Manager *mol, const std::string &cid) : mol(mol) {
+
+         if (mol) {
+            float max_dist = 4.0;
+            sel_hnd = mol->NewSelection(); // d
+            mol->Select(sel_hnd, mmdb::STYPE_ATOM, cid.c_str(), mmdb::SKEY_NEW);
+            mmdb::PPAtom atom_selection = nullptr;
+            int n_selected_atoms = 0;
+            mol->GetSelIndex(sel_hnd, atom_selection, n_selected_atoms);
+            fill_atom_neighbbours(atom_selection, n_selected_atoms, max_dist);
+         }
+      }
+
+      explicit q_score_t(mmdb::Manager *mol) : mol(mol) {
+
+         if (mol) {
+            float max_dist = 4.0;
+            int imod = 1;
+            sel_hnd = mol->NewSelection(); // d
+            mol->SelectAtoms(sel_hnd, imod, "*",
+                             mmdb::ANY_RES, // starting resno, an int
+                             "*", // any insertion code
+                             mmdb::ANY_RES, // ending resno
+                             "*", // ending insertion code
+                             "*", // any residue name
+                             "*", // atom name
+                             "*", // elements
+                             "*"  // alt loc.
+                             );
+            mmdb::PPAtom atom_selection = 0;
+            int n_selected_atoms = 0;
+            mol->GetSelIndex(sel_hnd, atom_selection, n_selected_atoms);
+            fill_atom_neighbbours(atom_selection, n_selected_atoms, max_dist);
+         }
+      }
+
+      //! delete the selection
+      void close() {
+         mol->DeleteSelection(sel_hnd);
+      }
+
+      void calc(const clipper::Xmap<float> &xmap, float map_mean, float map_variance) {
+
+         int n_radius = 21;
+         double radius_max = 2.1;
+
+         std::vector<clipper::Coord_orth> directions = make_directions();
 
          float map_rmsd = std::sqrt(map_variance);
          mmdb::PPAtom atom_selection = 0;
@@ -244,8 +269,8 @@ namespace coot {
             float q_score = q_score_results[iat];
             at->PutUDData(udd_q_score, q_score);
             if (false)
-               std::cout << "results per atom " << atom_spec_t(at) << " " << q_score << " B-factor " << at->tempFactor
-                         << std::endl;
+               std::cout << "results per atom " << atom_spec_t(at) << " " << q_score
+                         << " B-factor " << at->tempFactor << std::endl;
             if (q_score > -1000.0)
                residue_q_scores[res_spec].add(q_score);
          }
@@ -261,7 +286,6 @@ namespace coot {
 
       }
    };
-
 }
 
 #endif // SIMPLE_ATOM_NEIGHBOURS_HH

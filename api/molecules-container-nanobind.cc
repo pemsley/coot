@@ -305,6 +305,8 @@ NB_MODULE(chapi, m) {
     .def("get_number_of_molecules",&molecules_container_t::get_number_of_molecules)
     .def("get_number_of_map_sections",&molecules_container_t::get_number_of_map_sections)
     .def("get_octahemisphere",&molecules_container_t::get_octahemisphere)
+    .def("get_q_score",&molecules_container_t::get_q_score)
+    .def("get_q_score_for_cid",&molecules_container_t::get_q_score_for_cid)
     .def("get_r_factor_stats",&molecules_container_t::get_r_factor_stats)
     .def("get_rama_plot_restraints_weight",&molecules_container_t::get_rama_plot_restraints_weight)
     .def("get_ramachandran_validation_markup_mesh",&molecules_container_t::get_ramachandran_validation_markup_mesh)
