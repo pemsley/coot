@@ -24,7 +24,7 @@ brew install brewsci/bio/coot
 coot
 ```
 
-### apt (for Debian)
+### APT (for Debian)
 
 Install to run using commands below. 
 
