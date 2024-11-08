@@ -15,7 +15,7 @@ refinement and validation.
 
 The easiest way to install *Coot* is using package managers.
 
-### Homebrew (for Mac / Linux)
+### Homebrew (Mac / Linux)
 
 After [installing Homebrew](https://brew.sh/), run the commands below.
 
@@ -24,7 +24,7 @@ brew install brewsci/bio/coot
 coot
 ```
 
-### APT (for Debian)
+### APT (Debian)
 
 Install to run using commands below. 
 
@@ -36,7 +36,7 @@ sudo apt install coot
 coot
 ```
 
-### Flatpak (for general Linux)
+### Flatpak (Linux in general)
 
 <a href="https://flathub.org/apps/io.github.pemsley.coot"><img width='240' alt='Download on Flathub' src='https://dl.flathub.org/assets/badges/flathub-badge-en.svg' align="right"/></a>
 
