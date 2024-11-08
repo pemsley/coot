@@ -578,7 +578,7 @@ public:
    void accept_rotamer_probability_tables_compressed_data(const std::string &data_stream);
 
    // -------------------------------- backup and saving -----------------------------------
-   //! backslash name Backup and Saving
+   //! \name Backup and Saving
 
    //! are there unsaved changes for this model?
    //! i.e. as yet not written to disk.
@@ -600,7 +600,7 @@ public:
    }
 
    // -------------------------------- geometry/dictionaries --------------------------------
-   //! backslash nameGeometry and Dictionaries
+   //! \name Geometry and Dictionaries
 
    //! read the standard list of residues
    void geometry_init_standard();
@@ -1085,7 +1085,7 @@ public:
    int redo(int imol);
 
    // -------------------------------- map utils -------------------------------------------
-   //! backslash name Map Utils
+   //! \name Map Utils
 
 #ifdef DOXYGEN_SHOULD_PARSE_THIS
 #else
@@ -1572,7 +1572,7 @@ public:
    void assign_sequence(int imol_model, int imol_map);
 
    // -------------------------------- Coordinates Refinement ------------------------------
-   //! backslash name Coordinates Refinement
+   //! \name Coordinates Refinement
 
    //! refine the residues
    //
@@ -1711,7 +1711,7 @@ public:
    void clear_extra_restraints(int imol);
 
    // -------------------------------- Coordinates validation ------------------------------
-   //! backslash name Coordinates Validation
+   //! \name Coordinates Validation
 
    //! get the rotamer dodecs for the model, not const because it regenerates the bonds
    //!
@@ -2249,7 +2249,7 @@ public:
 #else
 #ifdef DOXYGEN_SHOULD_PARSE_THIS
 #else
-   //! backslash name Old Python functions
+   //! \name Old Python functions
 
    //! old mesh mode: do not use with nanobind
    enum mesh_mode_t { UNKNOWN, SINGLE_COLOUR, MULTI_COLOUR };
