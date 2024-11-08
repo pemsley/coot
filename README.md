@@ -46,7 +46,7 @@ After [installing Flatpak and registering Flathub](https://flatpak.org/setup/), 
 ```shell
 flatpak install flathub io.github.pemsley.coot
 
-# Simply click Coot's icon in the menu or
+# Simply click Coot's icon in the menu, or
 flatpak run io.github.pemsley.coot  
 ```
 
