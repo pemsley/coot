@@ -46,7 +46,7 @@ coot::molecule_t::setup_cylinder_clashes(instanced_mesh_t &im, const atom_overla
    if (c.clashes.size() > 0) {
       std::string clashes_name = molecule_name_stub + std::string(" clashes");
 
-      instanced_geometry_t ig_empty;
+      instanced_geometry_t ig_empty(clashes_name);
       im.add(ig_empty);
       instanced_geometry_t &ig = im.geom.back();
 

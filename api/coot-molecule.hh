@@ -781,6 +781,10 @@ namespace coot {
                                                   int secondary_structure_usage_flag,
                                                   const std::string &file_name);
 
+      void export_chemical_features_as_gltf(const std::string &cid,
+                                            const protein_geometry &geom,
+                                            const std::string &file_name) const;
+
       void set_show_symmetry(bool f) { show_symmetry = f;}
       bool get_show_symmetry() { return show_symmetry;}
       void transform_by(mmdb::mat44 SSMAlign_TMatrix);
