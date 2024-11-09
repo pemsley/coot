@@ -2,9 +2,9 @@
 Type=Application
 Name=Coot
 GenericName=Crystallographic Object-Oriented Toolkit
-Comment=Crystallographic Object-Oriented Toolkit
+Comment=Macromolecular Model Builder
 Exec=coot %f
-Icon=io.github.pemsley.coot
+Icon=coot
 StartupWMClass=coot-1
 Terminal=false
 Categories=Science;Chemistry;Biology;GTK;
