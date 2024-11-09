@@ -27,7 +27,7 @@
 
 
 std::unique_ptr<RDKit::RWMol> lhasa::rdkit_mol_from_smiles(std::string smiles) {
-    std::unique_ptr<RDKit::RWMol> ret(RDKit::SmilesToMol(smiles));
+    std::unique_ptr<RDKit::RWMol> ret(RDKit::SmilesToMol(smiles, 0, false));
     return ret;
 }
 

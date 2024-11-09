@@ -1,31 +1,134 @@
-
 ----
 
-SVG for pli
+coot --dictionary should make a molecule instance from the dictionary
 
-Chapi torsion angle restraints for servalcat
+Oliver Clarke issues.
 
-delete seq-view-interface.c/h
-* Done.
+api make a version of density_correlation_analysis() that takes a cid (as q-score now does)
 
-get rid of trackball.c - there is a compilation warning - use glm instead.
+mmrrcc to Coot. side chain score show out of register error?
 
-Fix state file quick save as.
-* I couldn't reproduce the problem
+Get the "shape" of RNA bases in cryo-EM maps - for validation of RNA sequence.
+
+configure needs to know if RDKitcoordgen was used to make RDKit and change the Makefile libs
+and we need to conditionally compile the code that uses coordgen (in layla).
+
+Button no labels and labels no buttons for the vertical toolbar.
+
+Read in two dictionaries and return an atom name map.
+std::map<std::string, std::string>
+dictionary_atom_name_map(comp_id_1, imol_1, comp_id_2, imol_2)
+How do I handle the map in python?
+https://nanobind.readthedocs.io/en/latest/exchanging.html
+Seems that is could be "naturally."
+
+Validation: Tell me when I have links that are too long (based on
+simple rules (enerlib.cif) not on link dictionary values)
+
+Unmodelled blobs near sequons?
+
+Paul Bond bug.
+
+Martin Maly: How do I load external (refmac) restraints into Coot 1?
+
+Associate sequence and assign sequence functions, brighten_maps_action() and many other
+  are missing bodies in create-menu-item-actions.cc
+
+How to get map gradient vertex normals in moorhen?
+
+PAE view (dialog) in Coot
+
+Try harder to get NCS jumping working
+
+License of Jakub code - check contract
+
+License of Vercel
+https://vercel.com/docs/limits/fair-use-guidelines#commercial-usage
+
+Why does side-chain-densities like TRPs?
+
+Are shader settings (plain vs fancy) saved in the state file?
 
 Add Place Helix here to moorhen api
 
-Add sequence assigment (e.g. the helix hormone 7vvl).
+Add merge fragments to api.
+
+python chapi usage:
+Failed to open /home/paule/autobuild/build-for-chapi-debian-gtk4/share/coot/data/metal/metal-O-distance.table
+There is no $prfx/share/coot directory
+
+On a button click, how do I get the GdkDevice? (If I have the device, I hope I
+can then know if the device is a trackpad).
+  gdk_event_get_event_type(GdkEvent *event) https://docs.gtk.org/gdk4/enum.EventType.html
+  gdk_event_get_display(GdkEvent *event) and then
+  gdk_display_get_default_seat(GdkDisplay *display) and then
+  gdk_seat_get_devices(GdkSeat *seat)
+
+If you're going to write about it, get pyrogen working in libcootapi (pythonless pyrogen)
+
+HUD Refinement buttons are a mess on resizing - replace them with gtk buttons
+Use an overlay box of buttons.
+
+The "Solid Surface" mode for a map is not saved in the state file.
+
+Ribbon diagram is not used for shadows. It would be nice to have.
+
+Martin request: libcootapi: coordinates -> mask with same coordinates
+   removing cavities, making map in X,Y,Z order - use floats
+   use smooth edge (user-controlled)
+
+Make mask by position (a sphere around a point)
+
+Add Noughties Physics into the Preferences
+
+Martin request: libcootapi: Step sample maps
+
+Adaptive rotation for the mouse motion - make it more for a widescreen.
+
+SVG for pli
+
+What's up with the cross-hairs? Allow user to set the colour.
+* Done - well - the first part at least
+
+Add coot-ligand-validation to chapi.
+* Difficult.
+
+rainbow ribbons are wrong - even for tutorial modern.
+ * related to NRStuff change. Take a look at the code and patch.
+
+does --code work? - is it a XDG Protocol problem?
+
+Chapi torsion angle restraints for servalcat
+Make torsion restraints for Rama and rota refinement for servalcat.
+
+B416 in 8c0p is drawn wrongly in Colour-by-chain mode
+
+Rangana made findwaters crash by using a sigma of 4 in flood mode in cryo-EM map.
+  Can you reproduce that?
+
+Expanding ligand thumbnail on window width increase
+
+Carbohydrate builder in moorhen & coot
+
+Randy & Team's MR placement tool interface - Lucrezia
+
+PDBe tools - Lucrezia
+
+Fix output of coot-ligand-validation with no comand line args
+
+Tomo Particle picker
 
 SYMINFO problems in CCP4 build of coot? (No symmetry shown)
 
 Fix stretched ligand on resizing window width
+* Had a bash - the lines no longer expand, but the letters don't match.
+  The whole thing needs a rewrite.
 
 Fix on-screen button placement on resizing window width
 
 "View Grid Mode" - give each molecule a possible screen offset (given the center of the screen is at 0,0)
-   say (-0.5, 0.5), (0.5, 0.5), (-0.5, -0.5), (0.5, -0.5) - for ligand diagrams or overlaped structure or cryo-EM maps
-   set_view_grid_mode(2,2) and some sort of assignment of molecules to grid.
+   say (-0.5, 0.5), (0.5, 0.5), (-0.5, -0.5), (0.5, -0.5) - for ligand diagrams or overlapped structure or
+   cryo-EM maps set_view_grid_mode(2,2) and some sort of assignment of molecules to grid.
    Allow the user to change the grid of a molecule: set_view_grid_mode_grid_for_molecule(imol, irow, icol)
    set_view_grid_mode_auto (and it will work out the grid (say for 15 molecules/map)).
 
@@ -33,6 +136,105 @@ How do I make vertex-gradients work for maps? Have I done this already? How do I
 and a key-binding if nothing else.
 
 Fun project: mrcfile importer.
+
+make an figure, for moorhen intro with blobs that have volume proportional
+   to the number of lines of code: rdkit, mmdb, ccp4libs, gemmi, M2T,
+   libcootapi - M2T, coot - libcootapi - M2T, moorhen JS and TypeScript code
+
+
+Look at 4yjr - beautiful map 452-626 interaction - it should not have a clash face
+   (distance to hydrogen atom).
+* Checked - it does not if both residues are refined. That will do.
+
+superpose maps with using matrix from lsq fitting.
+c.f.:
+(define (transform-map-using-lsq-matrix imol-ref ref-chain ref-resno-start ref-resno-end imol-mov mov-chain mov-resno-start mov-resno-end imol-map about-pt radius)
+How about using a lsq_results_t?
+   int transform_map_using_lsq_matrix(int imol_map, lsq_results_t lsq_matrix, about_pt, radius);
+* Done. Nice. And quite easy to do.
+
+Smooth Recentering setting saved (now)?
+* Yes.
+
+Add Noughties Physics into the Preferences
+* Done.
+
+chapi: a function to return a list of tuples atom types for ligand:
+get_acedrg_atom_types(comp_id, imol_enc);
+* Done.
+
+chapi: a function to return a list of tuples atom types for ligand:
+(name_1, name_2, type_1, type_2, bond_length)
+get_acedrg_atom_types_for_ligand(imol, comp_id, residue_cid);
+* Done.
+
+Identify the acedrg atom types - or use the dictionary to look them up.
+* Done (the second (easier) option)
+
+acedrg atom types in cif parse.
+* Already Done.
+
+Key-binding to hide/show right-hand panel.
+      GtkWidget *status_bar = widget_from_builder("main_window_statusbar");
+      GtkWidget *tool_bar   = widget_from_builder("main_window_toolbar_hbox_outer");
+      GtkWidget *sidebar    = widget_from_builder("main_window_vbox_inner");
+* Done.
+
+Add "Rotate View is on Left/Right mouse" mode in Preferences
+* Done.
+
+Charles' recent patch.
+* Done.
+
+Normal waters are no longer fat. Maybe was this fix:
+   66a3d04dad117b3dab37a6a4996267294d65b504
+* Done.
+
+Key-binding to hide/show right-hand panel.
+      GtkWidget *status_bar = widget_from_builder("main_window_statusbar");
+      GtkWidget *tool_bar   = widget_from_builder("main_window_toolbar_hbox_outer");
+      GtkWidget *sidebar    = widget_from_builder("main_window_vbox_inner");
+* Done.
+
+quick-save needs some visual feedback. Make an overlay that is displayed for a few seconds.
+* Done.
+
+difference map peaks panel is a bit too thin when it first appears.
+* Done.
+
+symm-shift-reference-chain-here doesn't work for tutorial modern
+* Done. Rewrote the symmetry atom search.
+
+read in many pdb file (ligand res-tracer results)
+   Now click on "Last Only" - it doesn't unclick the checkbuttons.
+   (Note that the "All" button does)
+* Done.
+
+configure should not use --with-enhanced-ligand-tools
+* Done.
+
+Get rid of #ifdef WINDOWS_MINGW in map_fill_from_mtz() in coot-utils
+   use std::filesystem?
+* Done.
+
+delete seq-view-interface.c/h
+* Done.
+
+get rid of trackball.c - there is a compilation warning - use glm instead.
+   Actually, I am not sure that I even use it now.
+* Done.
+
+Fix state file quick save as.
+* I couldn't reproduce the problem
+
+rename coot-lsq-types.h
+* Done.
+
+Add sequence assigment (e.g. the helix hormone 7vvl).
+* Done.
+
+SYMINFO problems in CCP4 build of coot? (No symmetry shown)
+* Done.
 
 When I use Shift-W to change the contouring map, then the Scroll button should change in the Display Manager also.
 * Done.
@@ -46,24 +248,15 @@ Colour-by-molecule shows big balls
 Add read_coordinates() to the read-molecule.hh api.
 * Done.
 
+Draw Hydrogen Atoms checkbutton in Bond Parameters widget is broken - try running run-servalcat-32143.py
+* Done.
+
 Make torsion restraints for Rama and rota refinement for servalcat.
 
 Test that the bonds and atoms are being added just once for the bond generations - when trying to fix the
 colour-by-molecule bonds, it seemed that there were multiple adds. Hmm.
 
-Draw Hydrogen Atoms checkbutton in Bond Parameters widget is broken - try running run-servalcat-32143.py
-* Done.
-
 check that ccp4 coot can load the metal distances table.
-
-Key-binding to hide/show right-hand panel.
-      GtkWidget *status_bar = widget_from_builder("main_window_statusbar");
-      GtkWidget *tool_bar   = widget_from_builder("main_window_toolbar_hbox_outer");
-      GtkWidget *sidebar    = widget_from_builder("main_window_vbox_inner");
-
-Add "Rotate View is on Left/Right mouse" mode in Preferences
-
-Add coot-ligand-validation to chapi.
 
 Coot: Residue Info dialog needs a cleanup. graphics_info_t::output_residue_info_dialog()
 
@@ -85,6 +278,10 @@ Add lsqkab superposition to the api
 
 fix the double read of the monomers (there is only a single read in --no-graphics mode).
 
+Use 2DT dictionary for link and refinement - George.
+
+Fix the double read of the monomers (there is only a single read in --no-graphics mode).
+
 coot: setup updating maps then delete the maps and models - gracefully turn off updating
    maps - currently the timeout function writes a error message, but does not stop.
 
@@ -96,8 +293,11 @@ Look at this: 7h6j group for CFC
 https://www.rcsb.org/search?request=%7B%22query%22%3A%7B%22type%22%3A%22group%22%2C%22nodes%22%3A%5B%7B%22type%22%3A%22group%22%2C%22nodes%22%3A%5B%7B%22type%22%3A%22group%22%2C%22nodes%22%3A%5B%7B%22type%22%3A%22terminal%22%2C%22service%22%3A%22text%22%2C%22parameters%22%3A%7B%22attribute%22%3A%22rcsb_entry_group_membership.group_id%22%2C%22negation%22%3Afalse%2C%22operator%22%3A%22exact_match%22%2C%22value%22%3A%22G_1002294%22%7D%7D%5D%2C%22logical_operator%22%3A%22and%22%7D%5D%2C%22logical_operator%22%3A%22and%22%2C%22label%22%3A%22text%22%7D%5D%2C%22logical_operator%22%3A%22and%22%7D%2C%22return_type%22%3A%22entry%22%2C%22request_options%22%3A%7B%22scoring_strategy%22%3A%22combined%22%2C%22sort%22%3A%5B%7B%22sort_by%22%3A%22score%22%2C%22direction%22%3A%22desc%22%7D%5D%2C%22results_content_type%22%3A%5B%22computational%22%2C%22experimental%22%5D%2C%22paginate%22%3A%7B%22start%22%3A0%2C%22rows%22%3A25%7D%7D%2C%22request_info%22%3A%7B%22query_id%22%3A%22013bcc94f855676ceb39950f4002bdf1%22%7D%7D
 
 Jakub: Sharpen-blur "Computing..." dialog should be an overlay. It's Python though - so... urgh.
+  Move it all into C++.
 
 Jakub: Downloading map (from EMDB) dialog should be an overlay... Likewise, probably.
+
+Need a graph infrastructure to display Q Score results.
 
 UI for turning off dark mode.
 * Tried. Doesn't work. Function only works on startup? Maybe I am missing something.
@@ -111,6 +311,27 @@ Check email for build-script updates/fixes
 
 Add Q-score to api
 * Done.
+
+Non-trivial C++ Mini-Projects
+ o Splines for Worms view (B-factor or sequence conservation mode)
+ o Add SSBond to struct con info in mmdb
+ o Parallel FFT
+ o Faster/better/modern contouring
+ o maybe https://github.com/CGAL/cgal/ Surface Mesh
+ o Improved side-chain typing
+ o Add gesamt to moorhen and coot
+ o parser for PISA output (maybe Python will do)
+ o Filled bases for DNA/RNA
+ o Is this useful? https://github.com/CGAL/cgal/ Surface Mesh
+ o Use VTE for a Python console
+ o Get CFC working again (needs C++ clustering)
+
+Non-trivial C++ Projects
+ o Improved ligand fitting with machine learning
+ o Show that crankshaft works - one part of the problem here is get get/make
+   many problematic models.  The other is making the algorithm more robust
+   (fix side-chain addition, for example). See the CaBLAM paper for some
+   problematic structures.
 
 Is 0-coot.state.py a good file-name now that it's in ~/.local/state/Coot ?
 

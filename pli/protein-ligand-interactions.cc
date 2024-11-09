@@ -29,7 +29,7 @@ pli::get_fle_ligand_bonds(mmdb::Residue *ligand_res,
                           const std::vector<mmdb::Residue *> &residues,
                           mmdb::Manager *mol,
                           const std::map<std::string, std::string> &name_map,
-                          const coot::protein_geometry &geom,
+                          const coot::protein_geometry &geom, int imol,
                           float water_dist_max,
                           float h_bond_dist_max) {
 
@@ -74,7 +74,7 @@ pli::get_fle_ligand_bonds(mmdb::Residue *ligand_res,
 
       coot::h_bonds hb;
       // std::vector<coot::h_bond> hbonds = hb.get(SelHnd_lig, SelHnd_all, m.second, geom);
-      std::pair<bool, int> status = hb.check_hb_status(SelHnd_lig, m.second, geom);
+      std::pair<bool, int> status = hb.check_hb_status(SelHnd_lig, m.second, geom, imol);
       if (! status.first)
 	 std::cout << "WARNING:: ===================== no HB status on atoms of ligand! ======="
 		   << "=========" << std::endl;
@@ -529,7 +529,7 @@ pli::is_a_metal(mmdb::Residue *res) {
 // consider where a peptide is the ligand
 std::vector<pli::fle_ligand_bond_t>
 pli::protein_ligand_interactions(mmdb::Residue *ligand_residue_p, mmdb::Manager *mol,
-                                 coot::protein_geometry *geom_p,
+                                 coot::protein_geometry *geom_p, int imol,
                                  float h_bond_dist_max) {
 
    float water_dist_max = 3.6; // pass this
@@ -551,11 +551,11 @@ pli::protein_ligand_interactions(mmdb::Residue *ligand_residue_p, mmdb::Manager 
 
    std::map<std::string, std::string> dummy_name_map;
    std::vector<fle_ligand_bond_t> bonds = get_fle_ligand_bonds(ligand_residue_p, residues, mol,
-							       dummy_name_map, *geom_p,
+							       dummy_name_map, *geom_p, imol,
 							       water_dist_max, h_bond_dist_max);
 
    coot::h_bonds hb;
-   std::pair<bool, int> status = hb.check_hb_status(SelHnd_lig, mol, *geom_p);
+   std::pair<bool, int> status = hb.check_hb_status(SelHnd_lig, mol, *geom_p, imol);
    if (! status.first)
       std::cout << "WARNING:: no HB status on atoms of ligand\n";
    std::vector<coot::h_bond> hbonds = hb.get_mcdonald_and_thornton(SelHnd_lig,

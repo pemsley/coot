@@ -96,6 +96,58 @@ void to_generic_object_add_line(int object_number,
    }
 }
 
+/*! \brief add multiple lines to generic object object_number */
+void to_generic_object_add_lines(int object_number, PyObject *line_info_list_py) {
+
+   // c.f. to_generic_object_add_points()
+
+   graphics_info_t g;
+   if (object_number >=0 && object_number < int(g.generic_display_objects.size())) {
+      if (PyList_Check(line_info_list_py)) {
+         long ll = PyObject_Length(line_info_list_py);
+         g.attach_buffers();
+         std::vector<meshed_generic_display_object::line_info_t> liv;
+         for (long l=0; l<ll; l++) {
+            PyObject *item_py = PyList_GetItem(line_info_list_py, l);
+            if (PyList_Check(item_py)) {
+               long l_item = PyObject_Length(item_py);
+               if (l_item == 8) {
+                  PyObject *colour_py = PyList_GetItem(item_py, 0);
+                  PyObject *width_py  = PyList_GetItem(item_py, 1);
+                  PyObject *x_1_py      = PyList_GetItem(item_py, 2);
+                  PyObject *y_1_py      = PyList_GetItem(item_py, 3);
+                  PyObject *z_1_py      = PyList_GetItem(item_py, 4);
+                  PyObject *x_2_py      = PyList_GetItem(item_py, 5);
+                  PyObject *y_2_py      = PyList_GetItem(item_py, 6);
+                  PyObject *z_2_py      = PyList_GetItem(item_py, 7);
+                  std::string col = PyBytes_AS_STRING(PyUnicode_AsUTF8String(colour_py));
+                  double w = PyFloat_AsDouble(width_py);
+                  double x_1 = PyFloat_AsDouble(x_1_py);
+                  double y_1 = PyFloat_AsDouble(y_1_py);
+                  double z_1 = PyFloat_AsDouble(z_1_py);
+                  double x_2 = PyFloat_AsDouble(x_2_py);
+                  double y_2 = PyFloat_AsDouble(y_2_py);
+                  double z_2 = PyFloat_AsDouble(z_2_py);
+                  float wi = PyFloat_AsDouble(width_py);
+                  clipper::Coord_orth pt_1(x_1,y_1,z_1);
+                  clipper::Coord_orth pt_2(x_2,y_2,z_2);
+                  // use a constructor here
+                  coot::colour_holder ch = coot::colour_holder_from_colour_name(col);
+                  meshed_generic_display_object::line_info_t li(ch, pt_1, pt_2, wi);
+                  liv.push_back(li);
+               } else {
+                  std::cout << "wrong item length in to_generic_object_add_points() " << std::endl;
+               }
+            }
+         }
+         g.generic_display_objects[object_number].add_lines(liv);
+         g.generic_display_objects[object_number].mesh.setup_buffers(); // needed?
+      }
+   }
+   g.graphics_draw();
+}
+
+
 bool is_valid_generic_display_object_number(int obj) {
    if (obj < 0) return false;
    int s = graphics_info_t::generic_display_objects.size();
@@ -525,7 +577,7 @@ void set_display_all_generic_objects(int state) {
    graphics_info_t g;
    GtkWidget *grid = widget_from_builder("generic_objects_dialog_grid");
    if (g.generic_objects_dialog) {
-      unsigned int n_rows = 104;
+      unsigned int n_rows = 10004;
       for (unsigned int i_row=0; i_row<n_rows; i_row++) {
          GtkWidget *checkbutton = gtk_grid_get_child_at(GTK_GRID(grid), 1, i_row);
          if (! checkbutton) break;
@@ -559,7 +611,7 @@ int generic_object_is_displayed_p(int object_number) {
 
 int new_generic_object_number(const std::string &name_string) {
 
-   std::cout << "--------------- new_generic_object_number() " << name_string << std::endl;
+   // std::cout << "--------------- new_generic_object_number() " << name_string << std::endl;
 
    graphics_info_t g;
    int n_new = g.new_generic_object_number(name_string);

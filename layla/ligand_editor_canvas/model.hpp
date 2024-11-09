@@ -94,6 +94,15 @@ class CanvasMolecule {
         // are there more colors?
     };
 
+    typedef unsigned char highlight_t;
+    enum class HighlightType: highlight_t {
+        Hover = 1,
+        Edition = 2,
+        Error = 4,
+        // A concept for the future
+        Selection = 8
+    };
+
    struct Atom {
         std::string symbol;
         std::optional<std::string> name;
@@ -122,7 +131,8 @@ class CanvasMolecule {
         float y;
         /// Corresponds to RDKit atom index
         unsigned int idx;
-        bool highlighted;
+        /// Highlight bitmask
+        highlight_t highlight;
     };
     enum class BondType: unsigned char {
         Single,
@@ -166,7 +176,8 @@ class CanvasMolecule {
         float second_atom_x;
         float second_atom_y;
         unsigned int second_atom_idx;
-        bool highlighted;
+        /// Highlight bitmask
+        highlight_t highlight;
 
         /// Returns an [x,y] pair of numbers
         std::pair<float,float> get_perpendicular_versor() const noexcept;
@@ -210,7 +221,9 @@ class CanvasMolecule {
     static BondType bond_type_from_rdkit(RDKit::Bond::BondType);
     static AtomColor atom_color_from_rdkit(const RDKit::Atom *) noexcept;
     static std::tuple<float,float,float> atom_color_to_rgb(AtomColor) noexcept;
+    static std::tuple<float,float,float> hightlight_to_rgb(HighlightType) noexcept;
     static std::string atom_color_to_html(AtomColor) noexcept;
+    static std::optional<HighlightType> determine_dominant_highlight(highlight_t) noexcept;
 
     std::shared_ptr<RDKit::RWMol> rdkit_molecule;
     std::vector<Atom> atoms;
@@ -274,10 +287,14 @@ class CanvasMolecule {
     void shorten_double_bonds();
 
     void update_qed_info();
+    
+    /// Manages error highlights
+    /// Part of the lowering process.
+    void process_problematic_areas(bool allow_invalid_molecules);
 
     public:
 
-    CanvasMolecule(std::shared_ptr<RDKit::RWMol> rdkit_mol);
+    CanvasMolecule(std::shared_ptr<RDKit::RWMol> rdkit_mol, bool allow_invalid_mol);
 
     /// Replaces the inner shared_ptr to the molecule
     /// from which the CanvasMolecule is lowered.
@@ -322,9 +339,11 @@ class CanvasMolecule {
     /// Returns the thing that was clicked on (or nullopt if there's no match).
     MaybeAtomOrBond resolve_click(int x, int y) const noexcept;
 
-    void highlight_atom(int atom_idx);
-    void highlight_bond(unsigned int atom_a, unsigned int atom_b);
-    void clear_highlights();
+    void add_atom_highlight(int atom_idx, HighlightType htype);
+    void add_bond_highlight(unsigned int atom_a, unsigned int atom_b, HighlightType htype);
+    void add_highlight_to_all_bonds(HighlightType htype);
+    /// Clears the highlight flag of the given type (for both atoms and bonds)
+    void clear_highlights(HighlightType htype = HighlightType::Hover);
 
     static RDKit::Bond::BondType bond_type_to_rdkit(BondType) noexcept;
     static BondGeometry bond_geometry_from_rdkit(RDKit::Bond::BondDir) noexcept;

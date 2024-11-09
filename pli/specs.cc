@@ -24,6 +24,8 @@
  *
  */
 
+#ifdef USE_PYTHON
+
 #include<iostream>
 #include "specs.hh"
 
@@ -103,3 +105,4 @@ coot::py_residue_spec_t::pyobject() const {
    return r;
 }
 
+#endif // USE_PYTHON

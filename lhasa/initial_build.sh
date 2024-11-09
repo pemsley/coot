@@ -163,7 +163,7 @@ if [ $BUILD_RDKIT = true ]; then
                   -DBoost_USE_STATIC_LIBS=ON \
                   -DBoost_USE_STATIC_RUNTIME=ON \
                   -DBoost_DEBUG=TRUE \
-                  -DCMAKE_CXX_FLAGS="${LHASA_CMAKE_FLAGS} -Wno-enum-constexpr-conversion -D_HAS_AUTO_PTR_ETC=0" \
+                  -DCMAKE_CXX_FLAGS="${LHASA_CMAKE_FLAGS} -fwasm-exceptions -Wno-enum-constexpr-conversion -D_HAS_AUTO_PTR_ETC=0" \
                   -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} ${SOURCE_DIR}/checkout/rdkit \
                   -DRDK_OPTIMIZE_POPCNT=OFF \
                   -DRDK_INSTALL_COMIC_FONTS=OFF \

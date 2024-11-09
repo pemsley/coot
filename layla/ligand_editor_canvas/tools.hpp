@@ -22,6 +22,7 @@
 #ifndef COOT_LIGAND_EDITOR_CANVAS_TOOLS_HPP
 #define COOT_LIGAND_EDITOR_CANVAS_TOOLS_HPP
 #include "model.hpp"
+#include <set>
 
 namespace coot::ligand_editor_canvas {
 
@@ -87,6 +88,7 @@ class Tool {
     struct ClickContext {
         impl::WidgetCoreData& widget_data;
         bool control_pressed;
+        bool alt_pressed;
 
         ClickContext(impl::WidgetCoreData& widget_data);
     };
@@ -103,7 +105,7 @@ class Tool {
     virtual void on_load(impl::WidgetCoreData& widget_data);
 
     /// Called always, whenever there's been a click event.
-    /// Called before other other methods get called.
+    /// Called before other click methods get called.
     virtual void on_click(ClickContext& ctx, int x, int y);
 
     /// Called when the click coordinates do not correspond to anything on canvas
@@ -124,7 +126,7 @@ class Tool {
     virtual void after_molecule_click(MoleculeClickContext& ctx);
 
     /// Called always, whenever there's been a right-click event.
-    /// Called before other other methods get called.
+    /// Called before other click methods get called.
     virtual void on_right_click(ClickContext& ctx, int x, int y);
 
     /// Called when the right-click coordinates do not correspond to anything on canvas
@@ -139,6 +141,24 @@ class Tool {
     virtual void on_atom_right_click(MoleculeClickContext& ctx, CanvasMolecule::Atom&);
 
     virtual void after_molecule_right_click(MoleculeClickContext& ctx);
+
+    /// Called always, whenever there's been a hover event.
+    /// Called before other click methods get called.
+    /// Returns if the hover event should be processed at all
+    virtual bool on_hover(ClickContext& ctx, int x, int y);
+
+    /// Called when the click coordinates do not correspond to anything on canvas
+    virtual void on_blank_space_hover(ClickContext& ctx, int x, int y);
+
+    /// Called if the hover lands on a molecule.
+    /// Returns true if `on_bond_hover()` or `on_atom_hover()` (respectively to what's been hovered on) 
+    /// should be called next (and then lastly `after_molecule_hover()`)
+    virtual bool on_molecule_hover(MoleculeClickContext& ctx);
+
+    virtual void on_bond_hover(MoleculeClickContext& ctx, CanvasMolecule::Bond&);
+    virtual void on_atom_hover(MoleculeClickContext& ctx, CanvasMolecule::Atom&);
+
+    virtual void after_molecule_hover(MoleculeClickContext& ctx);
 
     /// Used to print tool-specific error messages should any handler throw an exception
     virtual std::string get_exception_message_prefix() const noexcept;
@@ -255,12 +275,37 @@ class ChargeModifier : public Tool {
 };
 
 class DeleteTool : public Tool {
+
+    public:
+    // Represents either atom idx or a pair of atom indices forming a bond
+    typedef std::variant<unsigned int, std::tuple<unsigned int, unsigned int>> AtomOrBond;
+    typedef std::vector<AtomOrBond> ListOfAtomsOrBonds;
+    private:
+
+    static bool chain_contains_majority_of_atoms(const  ListOfAtomsOrBonds& chain, const RDKit::ROMol* mol);
+    static ListOfAtomsOrBonds trace_chain_impl(const RDKit::ROMol* mol, std::set<unsigned int>& processed_atoms, RDKit::Atom const* rdatom);
+
+    /// Returns a vector of atoms IDs to be removed (if relevant)
+    static ListOfAtomsOrBonds trace_rchain(const MoleculeClickContext& ctx, const CanvasMolecule::Bond& bond);
+
+    /// Returns a vector of atoms IDs to be removed (if relevant)
+    static ListOfAtomsOrBonds trace_rchain(const MoleculeClickContext& ctx, const CanvasMolecule::Atom& atom);
+    
+    void remove_rchain(const MoleculeClickContext& ctx, const ListOfAtomsOrBonds& chain);
+    void highlight_rchain(const MoleculeClickContext& ctx, const ListOfAtomsOrBonds& chain);
+
     public:
 
     virtual bool on_molecule_click(MoleculeClickContext& ctx) override;
     virtual void on_bond_click(MoleculeClickContext& ctx, CanvasMolecule::Bond& bond) override;
     virtual void on_atom_click(MoleculeClickContext& ctx, CanvasMolecule::Atom& atom) override;
     virtual void after_molecule_click(MoleculeClickContext& ctx) override;
+
+    virtual bool on_hover(ClickContext& ctx, int x, int y) override;
+    virtual bool on_molecule_hover(MoleculeClickContext& ctx) override;
+    virtual void on_bond_hover(MoleculeClickContext& ctx, CanvasMolecule::Bond& bond) override;
+    virtual void on_atom_hover(MoleculeClickContext& ctx, CanvasMolecule::Atom& atom) override;
+
     virtual std::string get_exception_message_prefix() const noexcept override;
 };
 
@@ -334,9 +379,11 @@ class ActiveTool {
     void on_load();
 
     /// Handles mouse click event for the currently chosen tool
-    void on_click(bool ctrl_pressed, int x, int y, bool right_click);
+    void on_click(bool alt_pressed, bool ctrl_pressed, int x, int y, bool right_click);
     /// Handles mouse-release event for the currently chosen tool
-    void on_release(bool ctrl_pressed, int x, int y, bool right_click);
+    void on_release(bool alt_pressed, bool ctrl_pressed, int x, int y, bool right_click);
+    /// Handles mouse hover event for the currently chosen tool
+    void on_hover(bool alt_pressed, bool ctrl_pressed, int x, int y);
 
     /// Returns true if a new bond is currently being create via click'n'drag
     bool is_creating_bond() const noexcept;

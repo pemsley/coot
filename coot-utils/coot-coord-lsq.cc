@@ -35,10 +35,8 @@ coot::util::get_lsq_matrix(mmdb::Manager *mol1,
    short int istat = 0;
    clipper::RTop_orth rtop(clipper::Mat33<double>(0,0,0,0,0,0,0,0,0),
                            clipper::Coord_orth(0,0,0));
-   int SelHnd1 = mol1->NewSelection();
-   int SelHnd2 = mol2->NewSelection();
-   std::vector<int> v1;
-   std::vector<int> v2;
+   int SelHnd1 = mol1->NewSelection(); // d
+   int SelHnd2 = mol2->NewSelection(); // d
 
    std::vector<clipper::Coord_orth> co1v;
    std::vector<clipper::Coord_orth> co2v;
@@ -46,6 +44,10 @@ coot::util::get_lsq_matrix(mmdb::Manager *mol1,
       std::pair<std::vector<clipper::Coord_orth>, std::vector<clipper::Coord_orth> > p =
         get_matching_indices(mol1, mol2, matches[i], every_nth);
       if ((p.first.size() > 0) && (p.first.size() == p.second.size())) {
+         if (false) { // debugging
+            if (p.first.size() == 1)
+               std::cout << "    " << matches[i] << " " << p.first[0].format() << " " << p.second[0].format() << std::endl;
+         }
          for (unsigned int j=0; j<p.first.size(); j++) {
             co1v.push_back(p.first[j]);
             co2v.push_back(p.second[j]);
@@ -82,7 +84,7 @@ coot::util::get_lsq_matrix(mmdb::Manager *mol1,
             // not variance about mean, variance from 0.
             //double var  = sum_dist2/double(co2v.size()) - mean*mean;
             double v    = sum_dist2/double(co2v.size());
-            if (summary_to_screen) 
+            if (summary_to_screen)
                std::cout << "INFO:: " << co1v.size() << " matched atoms had: \n"
                          << "   mean devi: " << mean << "\n"
                          << "    rms devi: " << sqrt(v) << "\n"
@@ -93,7 +95,7 @@ coot::util::get_lsq_matrix(mmdb::Manager *mol1,
             std::cout << "WARNING:: not enough points to do matching (matching)"
                       << std::endl;
          }
-      } else { 
+      } else {
          std::cout << "WARNING:: not enough points to do matching (reference)"
                    << std::endl;
       }
@@ -125,6 +127,11 @@ coot::util::get_matching_indices(mmdb::Manager *mol1,
    amc_at_names.push_back(" O  ");
    amc_at_names.push_back(" C  ");
 
+   std::vector<std::string> aa_core_mc_at_names; // no O (for LSQ fitting of single residues),
+   aa_core_mc_at_names.push_back(" CA ");
+   aa_core_mc_at_names.push_back(" N  ");
+   aa_core_mc_at_names.push_back(" C  ");
+
    // Set up the nucleotide main chain atom names
    std::vector<std::string> nmc_at_names;
    nmc_at_names.push_back(" P  ");
@@ -149,6 +156,30 @@ coot::util::get_matching_indices(mmdb::Manager *mol1,
    nmc_at_names.push_back(" O3T");
 
    std::vector<std::string> warnings;
+
+   if (false) { //debugging atom selection
+      int imod = 1;
+      mmdb::Model *model_p = mol2->GetModel(imod);
+      if (model_p) {
+         int n_chains = model_p->GetNumberOfChains();
+         for (int ichain=0; ichain<n_chains; ichain++) {
+            mmdb::Chain *chain_p = model_p->GetChain(ichain);
+            int n_res = chain_p->GetNumberOfResidues();
+            for (int ires=0; ires<n_res; ires++) {
+               mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+               if (residue_p) {
+                  int n_atoms = residue_p->GetNumberOfAtoms();
+                  for (int iat=0; iat<n_atoms; iat++) {
+                     mmdb::Atom *at = residue_p->GetAtom(iat);
+                     if (! at->isTer()) {
+                        std::cout << "  mol1 " << coot::atom_spec_t(at) << std::endl;
+                     }
+                  }
+               }
+            }
+         }
+      }
+   }
 
 //   for (int ires=match.to_reference_start_resno; ires<=match.to_reference_end_resno; ires++) {
    if (every_nth < 1 || every_nth > 10) 
@@ -191,8 +222,18 @@ coot::util::get_matching_indices(mmdb::Manager *mol1,
                     mmdb::SKEY_NEW // selection key
                     );
 
+
       mol1->GetSelIndex(SelHnd_res1, SelResidue_1, nSelResidues_1);
       mol2->GetSelIndex(SelHnd_res2, SelResidue_2, nSelResidues_2);
+
+      if (false) {
+         std::cout << "in get_matching_indices() mol1 " << mol1 << std::endl;
+         std::cout << "in get_matching_indices() mol2 " << mol2 << std::endl;
+         std::cout << "mol1 uses " << ires << std::endl;
+         std::cout << "mol2 uses " << ires_matcher << std::endl;
+         std::cout << ":::::::::: nSelResidues_1 " << nSelResidues_1
+                   << " nSelResidues_2 " << nSelResidues_2 << std::endl;
+      }
 
       if (nSelResidues_1 == 0 || nSelResidues_2 == 0) {
 
@@ -206,7 +247,7 @@ coot::util::get_matching_indices(mmdb::Manager *mol1,
          }
          if (nSelResidues_2 == 0) { 
             std::string s = "WARNING:: - no residue for moving    molecule residue number ";
-            s += util::int_to_string(ires);
+            s += util::int_to_string(ires_matcher);
             s += " for reference chain-id: \"";
             s += match.reference_chain_id;
             s += "\"";
@@ -222,7 +263,7 @@ coot::util::get_matching_indices(mmdb::Manager *mol1,
 
          // ---------------- CA ----------------------------
 
-         if (match.match_type_flag == COOT_LSQ_CA) {
+         if (match.match_type_flag == lsq_t::CA) {
 
             // CA/P names
             std::string ca_name;
@@ -260,13 +301,16 @@ coot::util::get_matching_indices(mmdb::Manager *mol1,
 
          // ----------------- Mainchain ---------------------
          //
-         if ((match.match_type_flag == COOT_LSQ_MAIN) ||
-             (match.match_type_flag == COOT_LSQ_ALL && res_type_1 != res_type_2)) {
+         if ((match.match_type_flag == lsq_t::MAIN) ||
+             (match.match_type_flag == lsq_t::NCAC) ||
+             (match.match_type_flag == lsq_t::ALL && res_type_1 != res_type_2)) {
 
             if (SelResidue_1[0]->isNucleotide()) {
                mc_at_names = nmc_at_names;
             } else {
                mc_at_names = amc_at_names;
+               if (match.match_type_flag == lsq_t::NCAC)
+                  mc_at_names = aa_core_mc_at_names;
             }
             for (unsigned int iat=0; iat<mc_at_names.size(); iat++) {
                mmdb::Atom *at1 = SelResidue_1[0]->GetAtom(mc_at_names[iat].c_str());
@@ -291,7 +335,7 @@ coot::util::get_matching_indices(mmdb::Manager *mol1,
 
          // ----------------- All Atom ---------------------
          //
-         if (match.match_type_flag == COOT_LSQ_ALL) {
+         if (match.match_type_flag == lsq_t::ALL) {
 
             if (! match.is_single_atom_match) {
                mmdb::PAtom *residue_atoms1 = NULL;

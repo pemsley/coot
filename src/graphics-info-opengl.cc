@@ -29,6 +29,7 @@
 #endif
 
 #include <random>
+#include <iomanip>
 
 #define GLM_ENABLE_EXPERIMENTAL
 // #include <glm/ext.hpp>
@@ -647,29 +648,6 @@ graphics_info_t::set_view_quaternion(float i, float j, float k, float l) {
 }
 
 
-// //static
-// void
-// graphics_info_t::update_view_quaternion(int area_width, int area_height) {
-
-//    graphics_info_t g;
-//    float tbs = g.get_trackball_size();
-
-//    glm::quat tb_quat =
-//       g.trackball_to_quaternion((2.0*g.GetMouseBeginX() - area_width)/area_width,
-//                                 (area_height - 2.0*g.GetMouseBeginY())/area_height,
-//                                 (2.0*g.mouse_current_x - area_width)/area_width,
-//                                 (area_height - 2.0*g.mouse_current_y)/area_height,
-//                                 tbs);
-
-//    tb_quat = glm::conjugate(tb_quat); // hooray, no more "backwards" mouse motion
-//    glm::quat product = tb_quat * glm_quat;
-//    glm_quat = glm::normalize(product);
-
-// }
-
-
-#include <iomanip>
-
 void
 graphics_info_t::update_view_quaternion(int glarea_width, int glarea_height,
                                         double delta_x_drag, double delta_y_drag) {
@@ -697,7 +675,8 @@ graphics_info_t::update_view_quaternion(int glarea_width, int glarea_height,
 
    if (do_it) {
       glm::quat tb_quat = trackball_to_quaternion((2.0 * mouse_x - w)/w, (h - 2.0 * mouse_y)/h,
-                                                  (2.0 * current_mouse_x - w)/w, (h - 2.0 * current_mouse_y)/h, tbs);
+                                                  (2.0 * current_mouse_x - w)/w,
+                                                  (h - 2.0 * current_mouse_y)/h, tbs);
       tb_quat = glm::conjugate(tb_quat);
       auto prod = tb_quat * view_quaternion;
       view_quaternion = glm::normalize(prod);

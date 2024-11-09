@@ -1,5 +1,5 @@
 /*
- * coot-utils/coot-lsq-types.h
+ * coot-utils/coot-lsq-types.hh
  *
  * Copyright 2007 by University of York
  * Author: Paul Emsley
@@ -24,7 +24,11 @@
  *
  */
 
-#define COOT_LSQ_ALL  0 
-#define COOT_LSQ_MAIN 1 
-#define COOT_LSQ_CA   2
+#ifndef COOT_LSQ_TYPES_HH
+#define COOT_LSQ_TYPES_HH
 
+namespace coot {
+  enum lsq_t { ALL, MAIN, CA, NCAC };
+}
+
+#endif // COOT_LSQ_TYPES_HH

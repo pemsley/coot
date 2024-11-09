@@ -164,16 +164,17 @@ graphics_info_t::get_front_and_back_for_pick() const {
    GtkAllocation allocation = get_glarea_allocation();
    int w = allocation.width;
    int h = allocation.height;
-   float screen_ratio = static_cast<float>(w)/static_cast<float>(h);
    float mouseX = GetMouseBeginX() / (w * 0.5f) - 1.0f;
    float mouseY = GetMouseBeginY() / (h * 0.5f) - 1.0f;
    glm::mat4 mvp = get_molecule_mvp();
    glm::mat4 vp_inv = glm::inverse(mvp);
+   // std::cout << "get_front_and_back_for_pick() mvp " << glm::to_string(mvp) << " back " << glm::to_string(vp_inv) << std::endl;
    float real_y = - mouseY; // in range -1 -> 1
    glm::vec4 screenPos_f = glm::vec4(mouseX, real_y, -1.0f, 1.0f);
    glm::vec4 screenPos_b = glm::vec4(mouseX, real_y,  1.0f, 1.0f); // or other way round?
    glm::vec4 worldPos_f = vp_inv * screenPos_f;
    glm::vec4 worldPos_b = vp_inv * screenPos_b;
+   // std::cout << "get_front_and_back_for_pick() worldPos_f " << glm::to_string(worldPos_f) << " back " << glm::to_string(worldPos_b) << std::endl;
    float w_scale_f = 1.0/worldPos_f.w;
    float w_scale_b = 1.0/worldPos_b.w;
    coot::Cartesian front(worldPos_f.x * w_scale_f, worldPos_f.y * w_scale_f, worldPos_f.z * w_scale_f);
@@ -187,7 +188,7 @@ graphics_info_t::tomo_pick(double x, double y, gint n_press, bool shift_is_press
 
    bool state = true; // unless we miss the box (currently not tested)
 
-   if (shift_is_pressed) {
+   if (shift_is_pressed) { // remove the previous pick
 
       std::string object_name =  "TomoPick " + std::to_string(tomo_view_info.section_index);
       int object_number = generic_object_index(object_name);

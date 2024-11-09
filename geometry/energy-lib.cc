@@ -441,8 +441,15 @@ coot::protein_geometry::get_h_bond_type(const std::string &atom_name,
 					const std::string &monomer_name,
 					int imol_enc) const {
 
+   if (false)
+      std::cout << "debug:: get_h_bond_type() called with " << monomer_name << " " << imol_enc << " " << atom_name << std::endl;
+
    bool debug = false;  // before debugging this, is ener_lib.cif being
 		        // read correctly?
+
+   // make it crash - debugger is wretched.
+   // int *thing = nullptr;
+   // std::cout << thing << " " << *thing << std::endl;
 
    // this is heavy!
    // 
@@ -452,8 +459,10 @@ coot::protein_geometry::get_h_bond_type(const std::string &atom_name,
    hb_t hb_type = HB_UNASSIGNED;
 
    if (! r.first) {
-      std::string m = "No dictionary for monomer_type: ";
+      std::string m = "WARNING:: get_h_bond_type(): No dictionary for monomer_type: ";
       m += monomer_name;
+      m += " atom_name: ";
+      m += atom_name;
       std::cout << m << std::endl;
    } else {
       const dictionary_residue_restraints_t &dict = r.second;

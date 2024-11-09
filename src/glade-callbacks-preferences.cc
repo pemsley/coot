@@ -146,27 +146,18 @@ on_preferences_destroy                 (GtkWidget       *object,
   clear_preferences();
 }
 
-extern "C" G_MODULE_EXPORT
-void
-on_preferences_geometry_cis_peptide_bad_yes_radiobutton_toggled
-                                        (GtkCheckButton *checkbutton,
-                                         gpointer         user_data) {
-
-   if (gtk_check_button_get_active(checkbutton)) {
-      preferences_internal_change_value_int(PREFERENCES_MARK_CIS_BAD, 1);
-      set_mark_cis_peptides_as_bad(1);
-   }
-}
+void set_use_trackpad(short int state); // or #include cc-interface.hh
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_geometry_cis_peptide_bad_no_radiobutton_toggled
-                                        (GtkCheckButton *checkbutton,
-                                        gpointer         user_data) {
-
+on_preferences_view_rotation_left_mouse_checkbutton_toggled(GtkCheckButton *checkbutton,
+                                                            gpointer         user_data) {
    if (gtk_check_button_get_active(checkbutton)) {
-      preferences_internal_change_value_int(PREFERENCES_MARK_CIS_BAD, 0);
-      set_mark_cis_peptides_as_bad(0);
+      preferences_internal_change_value_int(PREFERENCES_VIEW_ROTATION_MOUSE_BUTTON, 1);
+      set_use_trackpad(1);
+   } else {
+      preferences_internal_change_value_int(PREFERENCES_VIEW_ROTATION_MOUSE_BUTTON, 0);
+      set_use_trackpad(0);
    }
 }
 
@@ -1299,10 +1290,8 @@ on_preferences_main_toolbar_style_both_radiobutton_toggled
 
 extern "C" G_MODULE_EXPORT
 void
-on_preferences_main_toolbar_style_text_radiobutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
+on_preferences_main_toolbar_style_text_radiobutton_toggled(GtkToggleButton *togglebutton,
+                                                           gpointer         user_data) {
   if (gtk_toggle_button_get_active(togglebutton)) {
     preferences_internal_change_value_int(PREFERENCES_MAIN_TOOLBAR_STYLE, 3);
     set_main_toolbar_style(3);
@@ -1310,3 +1299,25 @@ on_preferences_main_toolbar_style_text_radiobutton_toggled
 
 }
 
+extern "C" G_MODULE_EXPORT
+void
+noughties_physics_switch_state_set(GtkSwitch *switch_widget,
+                                   gboolean   state,
+                                   gpointer   user_data) {
+
+   if (state)
+      set_show_unit_cells_all(1);
+  else
+     set_show_unit_cells_all(0);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_noughties_physics_checkbutton_toggled(GtkCheckButton *toggletoolbutton,
+                                         gpointer         user_data) {
+
+   if (gtk_check_button_get_active(toggletoolbutton))
+      set_refine_use_noughties_physics(1);
+   else
+      set_refine_use_noughties_physics(0);
+}

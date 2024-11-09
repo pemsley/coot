@@ -190,6 +190,44 @@ void CanvasMolecule::rotate_by_angle(double radians) {
     }
 }
 
+std::tuple<float,float,float> CanvasMolecule::hightlight_to_rgb(CanvasMolecule::HighlightType htype) noexcept {
+    switch (htype) {
+        case CanvasMolecule::HighlightType::Edition: {
+            return std::make_tuple(1.0, 0.5, 1.0);
+        }
+        case CanvasMolecule::HighlightType::Error: {
+            return std::make_tuple(1.0, 0.0, 0.0);
+        }
+        case CanvasMolecule::HighlightType::Selection: {
+            return std::make_tuple(0.0, 0.75, 1.0);
+        }
+        default:
+        case CanvasMolecule::HighlightType::Hover: {
+            return std::make_tuple(0.0, 1.0, 0.5);
+        }
+    }
+}
+
+std::optional<CanvasMolecule::HighlightType> CanvasMolecule::determine_dominant_highlight(CanvasMolecule::highlight_t hcode) noexcept {
+    if (hcode == 0) {
+        return std::nullopt;
+    }
+    auto has_highlight = [hcode](HighlightType h){
+        return hcode & static_cast<highlight_t>(h);
+    };
+
+    if(has_highlight(HighlightType::Hover)) {
+        return HighlightType::Hover;
+    } else if(has_highlight(HighlightType::Edition)) {
+        return HighlightType::Edition;
+    } else if(has_highlight(HighlightType::Selection)) {
+        return HighlightType::Selection;
+    } else if(has_highlight(HighlightType::Error)) {
+        return HighlightType::Error;
+    }
+    return std::nullopt;
+}
+
 std::tuple<float,float,float> CanvasMolecule::atom_color_to_rgb(CanvasMolecule::AtomColor color) noexcept {
     switch (color) {
         case AtomColor::Green:{
@@ -329,11 +367,11 @@ void CanvasMolecule::draw(impl::Renderer& ren, DisplayMode display_mode) const n
     renctx.draw_bonds();
 }
 
-CanvasMolecule::CanvasMolecule(std::shared_ptr<RDKit::RWMol> rdkit_mol) {
+CanvasMolecule::CanvasMolecule(std::shared_ptr<RDKit::RWMol> rdkit_mol, bool allow_invalid_mol) {
     this->rdkit_molecule = std::move(rdkit_mol);
     this->cached_atom_coordinate_map = std::nullopt;
     this->bounding_atom_coords = std::make_pair(RDGeom::Point2D(0,0),RDGeom::Point2D(0,0));
-    this->lower_from_rdkit(true);
+    this->lower_from_rdkit(!allow_invalid_mol);
     this->x_canvas_translation = 0;
     this->y_canvas_translation = 0;
 }
@@ -746,7 +784,7 @@ void CanvasMolecule::build_internal_molecule_representation(const RDGeom::INT_PO
             rdkit_atom->getProp("name", atom_name);
             canvas_atom.name = atom_name;
         }
-        canvas_atom.highlighted = false;
+        canvas_atom.highlight = 0;
         canvas_atom.idx = atom_idx;
         canvas_atom.symbol = rdkit_atom->getSymbol();
         canvas_atom.x = plane_point.x;
@@ -813,7 +851,7 @@ void CanvasMolecule::build_internal_molecule_representation(const RDGeom::INT_PO
             canvas_bond.second_atom_x = coordinate_map.at(second_atom_idx).x;
             canvas_bond.second_atom_y = coordinate_map.at(second_atom_idx).y;
 
-            canvas_bond.highlighted = false;
+            canvas_bond.highlight = 0;
             canvas_bond.type = bond_type_from_rdkit(bond_ptr->getBondType());
             canvas_bond.geometry = bond_geometry_from_rdkit(bond_ptr->getBondDir());
 
@@ -903,7 +941,15 @@ void CanvasMolecule::lower_from_rdkit(bool sanitize_after, bool with_qed) {
     // 2. Do the lowering
 
     // 2.0 Kekulize
-    RDKit::MolOps::Kekulize(*this->rdkit_molecule);
+    if(sanitize_after) {
+        RDKit::MolOps::Kekulize(*this->rdkit_molecule);
+    } else {
+        try {
+            RDKit::MolOps::Kekulize(*this->rdkit_molecule);
+        } catch(std::exception& e) {
+            g_warning("Could not kekulize molecule: %s", e.what());
+        }
+    }
 
     /// 2.1 Compute geometry
     auto geometry = this->compute_molecule_geometry();
@@ -919,7 +965,38 @@ void CanvasMolecule::lower_from_rdkit(bool sanitize_after, bool with_qed) {
 
     // QED update
     if (with_qed) {
-        this->update_qed_info();
+        if (sanitize_after) {
+            this->update_qed_info();
+        } else {
+            try {
+                this->update_qed_info();
+            } catch(std::exception& e) {
+                g_warning("Could not update QED info: %s", e.what());
+            }
+        }
+        
+    }
+    // Process problematic areas
+    this->process_problematic_areas(!sanitize_after);
+}
+
+void CanvasMolecule::process_problematic_areas(bool allow_invalid_molecules) {
+    this->clear_highlights(HighlightType::Error);
+    if(!allow_invalid_molecules) {
+        return;
+    }
+    try {
+        auto problems = RDKit::MolOps::detectChemistryProblems(*this->rdkit_molecule);
+        for(const auto& eptr: problems) {
+            auto* raw_eptr = eptr.get();
+            auto* atom_sanitize_exception = dynamic_cast<RDKit::AtomSanitizeException*>(raw_eptr);
+            if(atom_sanitize_exception) {
+                
+                this->add_atom_highlight(atom_sanitize_exception->getAtomIdx(), HighlightType::Error);
+            }
+        }
+    } catch(std::exception& e) {
+        g_warning("Could not process problematic areas: %s", e.what());
     }
 }
 
@@ -964,12 +1041,12 @@ void CanvasMolecule::update_qed_info() {
     this->qed_info = new_info;
 }
 
-void CanvasMolecule::highlight_atom(int atom_idx) {
+void CanvasMolecule::add_atom_highlight(int atom_idx, HighlightType htype) {
     //g_debug("Highlighted atom with idx=%i",atom_idx);
-    this->atoms.at(atom_idx).highlighted = true;
+    this->atoms.at(atom_idx).highlight |= static_cast<highlight_t>(htype);
 }
 
-void CanvasMolecule::highlight_bond(unsigned int atom_a, unsigned int atom_b) {
+void CanvasMolecule::add_bond_highlight(unsigned int atom_a, unsigned int atom_b, HighlightType htype) {
 
     //g_debug("Highlighted bond between atoms with indices %i and %i",atom_a,atom_b);
     auto bonds_for_atom_a = this->bond_map.find(atom_a);
@@ -977,20 +1054,30 @@ void CanvasMolecule::highlight_bond(unsigned int atom_a, unsigned int atom_b) {
         throw std::runtime_error("Bond doesn't exist");
     }
     auto target = std::find_if(bonds_for_atom_a->second.begin(), bonds_for_atom_a->second.end(), [=](const auto& bond) {
-          return (bond->second_atom_idx == atom_b) && (bond->first_atom_idx == atom_a);
+          return ((bond->second_atom_idx == atom_b) && (bond->first_atom_idx == atom_a))
+              || ((bond->second_atom_idx == atom_a) && (bond->first_atom_idx == atom_b));
     });
-    if (target == this->bonds.end()) {
+    if (target == bonds_for_atom_a->second.end()) {
         throw std::runtime_error("Bond doesn't exist");
     }
-    (*target)->highlighted = true;
+    (*target)->highlight |= static_cast<highlight_t>(htype);
 }
 
-void CanvasMolecule::clear_highlights() {
+void CanvasMolecule::clear_highlights(HighlightType htype) {
     for(auto& bond: this->bonds) {
-        bond->highlighted = false;
+        auto& highlight = bond->highlight;
+        highlight &= ~static_cast<highlight_t>(htype);
     }
     for(auto& atom: this->atoms) {
-        atom.highlighted = false;
+        auto& highlight = atom.highlight;
+        highlight &= ~static_cast<highlight_t>(htype);
+    }
+}
+
+void CanvasMolecule::add_highlight_to_all_bonds(HighlightType htype) {
+    for(auto& bond: this->bonds) {
+        auto& highlight = bond->highlight;
+        highlight |= static_cast<highlight_t>(htype);
     }
 }
 

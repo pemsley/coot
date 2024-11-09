@@ -358,6 +358,19 @@ int handle_read_ccp4_map(const std::string &filename, int is_diff_map_flag);
 
 /*! \brief this reads a EMDB bundle - I don't think they exist any more */
 int handle_read_emdb_data(const std::string &dir_name);
+
+void show_map_partition_by_chain_dialog();
+
+//! Use the function for scriptng
+std::vector<int> map_partition_by_chain(int imol_map, int imol_model);
+
+//! Use the function for use in the GUI (non-blocking, no results returned)
+void map_partition_by_chain_threaded(int imol_map, int imol_model);
+
+//! the map should be displayed and not a difference map
+void use_vertex_gradients_for_map_normals_for_latest_map();
+
+
 //! \}
 
 #ifdef SWIG
@@ -594,10 +607,33 @@ std::pair<int, std::vector<merge_molecule_results_info_t> > merge_molecules_by_v
 /*  ----------------------------------------------------------------------- */
 //! \name Dictionary Functions
 //! \{
+
+/*                  cif (geometry) dictionary                            */
+/* \brief return the number of bonds read (> 0 can be treated as success) */
+int handle_cif_dictionary(const std::string &filename);
+/* \brief synonym for above.
+
+return the number of bonds read (> 0 can be treated as success) */
+int read_cif_dictionary(const std::string &filename);
+
+/* \brief return the number of bonds read (> 0 can be treated as success).
+ Apply to the given molecule.
+
+ imol_enc can be the model molecule number or
+ IMOL_ENC_ANY = -999999, IMOL_ENC_AUTO = -999998, IMOL_ENC_UNSET = -999997
+
+ */
+int handle_cif_dictionary_for_molecule(const std::string &filename, int imol_enc, short int new_molecule_from_dictionary_cif_checkbutton_state);
+
+//! dictionary entries
 std::vector<std::string> dictionary_entries();
+
+//! debug dictionary information
 void debug_dictionary();
-// this can throw an exception
+
+//! this can throw an exception
 std::string SMILES_for_comp_id(const std::string &comp_id);
+
 /*! \brief return a list of all the dictionaries read */
 #ifdef USE_GUILE
 SCM dictionaries_read();
@@ -1491,6 +1527,9 @@ void unfullscreen();
 
 //! set the flag for use of trackpad - this moves around the mouse bindings internally.
 void set_use_trackpad(short int state);
+
+//! this is an alias for the above (at the moment).
+void set_use_primary_mouse_button_for_rotation(short int state);
 
 /*  ----------------------------------------------------------------------- */
 /*                  Abstraction of New molecule by symmetry functions       */

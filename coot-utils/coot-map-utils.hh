@@ -208,6 +208,14 @@ namespace coot {
       clipper::Xmap<float> mask_map(const clipper::Xmap<float> &xmap_in,
 				    const std::vector<mmdb::Residue *> &neighbs);
 
+      clipper::Xmap<float> make_map_mask(const clipper::Spacegroup &space_group,
+                                         const clipper::Cell &cell,
+                                         const clipper::Grid_sampling &grid_sampling,
+                                         mmdb::Manager *mol,
+                                         int atom_selection_handle,
+                                         float radius,
+                                         float smooth);
+
       // return a number less than -1 on badness
       // (perhaps this should return the atom map and the mask map)
       //
@@ -556,6 +564,13 @@ namespace coot {
 					 const std::pair<clipper::Xmap_base::Map_reference_index, float> &p2);
       };
 
+      // attach the chain-id to each returned map
+      //
+      // you can set an informative "state" message
+      std::vector<std::pair<std::string, clipper::Xmap<float> > >
+      partition_map_by_chain(const clipper::Xmap<float> &xmap, mmdb::Manager *mol,
+                             std::string *state_string_p);
+
       bool is_EM_map(const clipper::Xmap<float> &xmap);
 
 
@@ -570,6 +585,10 @@ namespace coot {
       std::vector<std::pair<clipper::Resolution, double> >
       fsc(const clipper::Xmap<float> &xmap_1, const clipper::Xmap<float> &xmap_2);
 
+     // scale map_for_scaling using relion-like resolution binning
+     clipper::Xmap<float>
+     power_scale(const clipper::Xmap<float> &xmap_ref, const clipper::Xmap<float> &xmap_for_scaling);
+
       void
       compare_structure_factors(const clipper::Xmap<float> &xmap_1, const clipper::Xmap<float> &xmap_2);
 
@@ -581,6 +600,9 @@ namespace coot {
                                        const clipper::Xmap<float> &xmap_for_mask);
 
       clipper::Xmap<float> zero_dose_extrapolation(const std::vector<std::pair<clipper::Xmap<float> *, float> > &xmaps,
+                                                   const clipper::Xmap<float> &xmap_for_mask);
+
+      clipper::Xmap<float> real_space_zero_dose_extrapolation(const std::vector<clipper::Xmap<float> *> &xmaps,
                                                    const clipper::Xmap<float> &xmap_for_mask);
 
    }

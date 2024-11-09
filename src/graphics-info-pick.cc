@@ -25,6 +25,7 @@
 
 #include "compat/coot-sysdep.h"
 
+#include <ostream>
 #include <string>
 #include <vector> // for mmdb-crystal
 
@@ -57,17 +58,11 @@
 
 // #define DEBUG_SYMM_PICK 1
 
-#ifdef DEBUG_SYMM_PICK
-#include <ostream>
-void write_symm_search_point(std::ofstream&s , const coot::Cartesian &cart) {
-   s << "(" << cart.x() << " " << cart.y() << " " << cart.z() << ")\n";
-}
-#endif 
 
 
-// 
+//
 coot::Symm_Atom_Pick_Info_t
-graphics_info_t::symmetry_atom_pick() const { 
+graphics_info_t::symmetry_atom_pick() const {
 
    // glm::vec4 front = unproject(0.0);
    // glm::vec4 back  = unproject(1.0);
@@ -79,9 +74,88 @@ graphics_info_t::symmetry_atom_pick() const {
    return symmetry_atom_pick(front_and_back.first, front_and_back.second);
 }
 
-// 
+coot::Symm_Atom_Pick_Info_t
+graphics_info_t::symmetry_atom_close_to_screen_centre() const {
+
+   // it's not a pick - so maybe this fundtion should not live here.
+   coot::Symm_Atom_Pick_Info_t p_i;
+   p_i.success = GL_FALSE; // no atom found initially.
+   float min_dist = 0.4;
+
+   float best_min_dist_sqrd = 999999.9; // running best
+
+   coot::Cartesian screen_centre = RotationCentre();
+   for (int imol=0; imol<n_molecules(); imol++) {
+
+      if (graphics_info_t::molecules[imol].atom_selection_is_pickable()) {
+         if (graphics_info_t::molecules[imol].show_symmetry) {
+
+            if (graphics_info_t::molecules[imol].has_model()) {
+               const atom_selection_container_t &atom_sel = graphics_info_t::molecules[imol].atom_sel;
+               molecule_extents_t mol_extents(atom_sel, symmetry_search_radius);
+               std::vector<std::pair<symm_trans_t, Cell_Translation> > boxes =
+                  mol_extents.which_boxes(screen_centre, atom_sel);
+
+               if (boxes.size() > 0) { // used to be 1 (which was a bug, I'm pretty sure).
+
+                  char *spacegroup_str = atom_sel.mol->GetSpaceGroup();
+                  if (!spacegroup_str) {
+                     std::cout << "ERROR:: null spacegroup_str in symmetry pick\n";
+                  } else {
+                     clipper::Spacegroup spg;
+                     clipper::Cell cell;
+                     short int spacegroup_ok = 0;
+                     try {
+                        std::pair<clipper::Cell,clipper::Spacegroup> xtal = coot::util::get_cell_symm( atom_sel.mol );
+                        cell = xtal.first;
+                        spg  = xtal.second;
+                        spacegroup_ok = 1;
+                     } catch (const std::runtime_error &except) {
+                        std::cout << "ERROR:: get_cell_symm() fails in symmetry_atom_close_to_screen_centre()" << std::endl;
+                     }
+                     if (spacegroup_ok == 1) {
+                        std::vector<coot::clip_hybrid_atom> hybrid_atom(atom_sel.n_selected_atoms);
+                        for (unsigned int ii=0; ii< boxes.size(); ii++) {
+                           fill_hybrid_atoms(&hybrid_atom, atom_sel, spg, cell, boxes[ii]);
+                           int n = hybrid_atom.size();
+                           for(int i=0; i<n; i++) {
+                              const coot::Cartesian &p = hybrid_atom[i].pos;
+                              float dist_sqrd = (p - screen_centre).amplitude_squared();
+                              if (dist_sqrd < min_dist * min_dist) {
+                                 if (dist_sqrd < best_min_dist_sqrd) {
+                                    best_min_dist_sqrd = dist_sqrd;
+                                    p_i.success = GL_TRUE;
+                                    p_i.hybrid_atom = hybrid_atom[i];
+                                    // and these for labelling (not needed though, I think)
+                                    p_i.atom_index = i;
+                                    p_i.imol = imol;
+                                    p_i.symm_trans = boxes[ii].first;
+                                    p_i.pre_shift_to_origin = boxes[ii].second;
+                                 }
+                              }
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      }
+   }
+   return p_i;
+}
+
+// #define DEBUG_SYMM_PICK 1
+
+//
 coot::Symm_Atom_Pick_Info_t
 graphics_info_t::symmetry_atom_pick(const coot::Cartesian &front, const coot::Cartesian &back) const {
+
+#ifdef DEBUG_SYMM_PICK
+   auto write_symm_search_point = [] (std::ofstream&s , const coot::Cartesian &cart) {
+      s << "(" << cart.x() << " " << cart.y() << " " << cart.z() << ")\n";
+   };
+#endif
 
    coot::Cartesian screen_centre = RotationCentre();
 
@@ -90,8 +164,12 @@ graphics_info_t::symmetry_atom_pick(const coot::Cartesian &front, const coot::Ca
    float dist_front_to_back = (front - back).amplitude();
 
 #ifdef DEBUG_SYMM_PICK
+
+   std::cout << "symmetry_atom_pick(): at start dist_front_to_back " << dist_front_to_back
+             << " from " << front << " " << back << std::endl;
    std::ofstream sps("symm-points.txt");
-#endif 
+#endif
+
    coot::Symm_Atom_Pick_Info_t p_i;
    p_i.success = GL_FALSE; // no atom found initially.
    float dist, min_dist = 0.4;
@@ -99,268 +177,282 @@ graphics_info_t::symmetry_atom_pick(const coot::Cartesian &front, const coot::Ca
    for (int imol=0; imol<n_molecules(); imol++) {
 
       if (graphics_info_t::molecules[imol].atom_selection_is_pickable()) {
-	 if (graphics_info_t::molecules[imol].show_symmetry) { 
-      
-	    if (graphics_info_t::molecules[imol].has_model()) {
-	       atom_selection_container_t atom_sel = graphics_info_t::molecules[imol].atom_sel;
-	       molecule_extents_t mol_extents(atom_sel, symmetry_search_radius);
-	       std::vector<std::pair<symm_trans_t, Cell_Translation> > boxes =
-		  mol_extents.which_boxes(screen_centre, atom_sel);
+         if (graphics_info_t::molecules[imol].show_symmetry) {
 
-	       if (boxes.size() > 0) { // used to be 1 (which was a bug, I'm pretty sure).
+            if (graphics_info_t::molecules[imol].has_model()) {
+               atom_selection_container_t atom_sel = graphics_info_t::molecules[imol].atom_sel;
+               molecule_extents_t mol_extents(atom_sel, symmetry_search_radius);
+               std::vector<std::pair<symm_trans_t, Cell_Translation> > boxes =
+                  mol_extents.which_boxes(screen_centre, atom_sel);
 
-		  char *spacegroup_str = atom_sel.mol->GetSpaceGroup();
-		  if (!spacegroup_str) {
-		     std::cout << "ERROR:: null spacegroup_str in symmetry pick\n";
-		  } else {
-		     clipper::Spacegroup spg;
-		     clipper::Cell cell;
-		     short int spacegroup_ok = 0;
-		     try {
-			std::pair<clipper::Cell,clipper::Spacegroup> xtal =
-			   coot::util::get_cell_symm( atom_sel.mol );
-			cell = xtal.first;
-			spg  = xtal.second;
-			spacegroup_ok = 1;
-		     } catch (const std::runtime_error &except) {
+               if (boxes.size() > 0) { // used to be 1 (which was a bug, I'm pretty sure).
+
+                  char *spacegroup_str = atom_sel.mol->GetSpaceGroup();
+                  if (!spacegroup_str) {
+                     std::cout << "ERROR:: null spacegroup_str in symmetry pick\n";
+                  } else {
+                     clipper::Spacegroup spg;
+                     clipper::Cell cell;
+                     short int spacegroup_ok = 0;
+                     try {
+                        std::pair<clipper::Cell,clipper::Spacegroup> xtal =
+                           coot::util::get_cell_symm( atom_sel.mol );
+                        cell = xtal.first;
+                        spg  = xtal.second;
+                        spacegroup_ok = 1;
+                     } catch (const std::runtime_error &except) {
                         std::cout << "!! get_cell_symm() fails in symmetry_atom_pick" << std::endl;
-		     }
-		     if (spacegroup_ok == 1) { 
-			// 		     std::cout << "DEBUG:: Initing clipper::Spacegroup: "
-			// 			       << spg.symbol_hm() << std::endl;
+                     }
+                     if (spacegroup_ok == 1) {
 
-			// we want to generate all the symmetry atoms for each box
-			// and find the atom with the closest approach.
+                        // we want to generate all the symmetry atoms for each box
+                        // and find the atom with the closest approach.
 
-			std::vector<coot::clip_hybrid_atom> hybrid_atom(atom_sel.n_selected_atoms);
+                        std::vector<coot::clip_hybrid_atom> hybrid_atom(atom_sel.n_selected_atoms);
 
-#ifdef DEBUG_SYMM_PICK			   
-			std::cout << "symm_atom_pick: there are " << boxes.size() << " boxes" << std::endl;
-			std::cout << "Here are the boxes: " << std::endl;
-			for (int ii=0; ii< boxes.size(); ii++) {
-			   std::cout << ii << " " << boxes[ii].first << " " << boxes[ii].second  << std::endl;
-			} 
-#endif // DEBUG_SYMM_PICK			   
+#ifdef DEBUG_SYMM_PICK
+                        std::cout << "symm_atom_pick: there are " << boxes.size() << " boxes" << std::endl;
+                        std::cout << "Here are the boxes: " << std::endl;
+                        for (unsigned int ii=0; ii< boxes.size(); ii++) {
+                           std::cout << "   " << ii << " " << boxes[ii].first << " " << boxes[ii].second  << std::endl;
+                        }
+#endif // DEBUG_SYMM_PICK
 
-			for (unsigned int ii=0; ii< boxes.size(); ii++) {
+                        for (unsigned int ii=0; ii< boxes.size(); ii++) {
 
-			   // What are the symmetry atoms for this box?
+                           // What are the symmetry atoms for this box?
 
-			   // Notice that we do the unusual step of creating the
-			   // vector here and modifying it via a pointer - this is
-			   // for speed.
-			   // 
-			   fill_hybrid_atoms(&hybrid_atom, atom_sel, spg, cell, boxes[ii]);
-			   int n = hybrid_atom.size();
-			   // std::cout << "DEBUG:: n hybrid_atoms" << n << std::endl;
-			   for(int i=0; i<n; i++) { 
-			      dist = hybrid_atom[i].pos.distance_to_line(front, back);
+                           // Notice that we do the unusual step of creating the
+                           // vector here and modifying it via a pointer - this is
+                           // for speed.
+                           //
+#ifdef DEBUG_SYMM_PICK
+                           std::cout << "   box " << ii << " front " << front << " back " << back << std::endl;
+#endif
+                           fill_hybrid_atoms(&hybrid_atom, atom_sel, spg, cell, boxes[ii]);
+                           int n = hybrid_atom.size();
+                           // std::cout << "DEBUG:: n hybrid_atoms" << n << std::endl;
+                           for(int i=0; i<n; i++) {
+                              dist = hybrid_atom[i].pos.distance_to_line(front, back);
 
-			      // 		  if (boxes[ii].isym() == 3 && boxes[ii].x() == 0 && boxes[ii].y() == 0 && boxes[ii].z() == 0) {
-			      // 			std::cout << "selected box: " << hybrid_atom[i].atom << " "
-			      // 				  << hybrid_atom[i].pos << " "
-			      // 				  << "scrcent " << screen_centre << std::endl;
-			      // 		  }
+                              // if (boxes[ii].isym() == 3 && boxes[ii].x() == 0 && boxes[ii].y() == 0 && boxes[ii].z() == 0) {
+                              //    std::cout << "selected box: " << hybrid_atom[i].atom << " "
+                              //              << hybrid_atom[i].pos << " "
+                              //              << "scrcent " << screen_centre << std::endl;
+                              // }
 
-#ifdef DEBUG_SYMM_PICK			   
-			      write_symm_search_point(sps, hybrid_atom[i].pos);
-#endif			   
-		  
-			      if (dist < min_dist) {
+                              // if (dist < 1.2)
+                              // std::cout << "dist: " << dist << " " << hybrid_atom[i].atom << std::endl;
 
-				 float dist_to_rotation_centre = (hybrid_atom[i].pos - screen_centre).amplitude();
-				 // std::cout << "dist_to rotation_centre " << dist_to_rotation_centre << " " 
-				 //  			       << hybrid_atom[i].atom << " "
-				 // 			       << hybrid_atom[i].pos << " "
-				 // 			       << "scrcent " << screen_centre << " "
-				 //  			       << boxes[ii].isym() << " " 
-				 //  			       << boxes[ii].x() << " " << boxes[ii].y() << " " 
-				 //  			       << boxes[ii].z() << " "  << std::endl;
+#ifdef DEBUG_SYMM_PICK
+                              write_symm_search_point(sps, hybrid_atom[i].pos);
+#endif
 
-				 if (dist_to_rotation_centre < symmetry_search_radius ||
-				     molecules[imol].symmetry_whole_chain_flag || molecules[imol].symmetry_as_calphas) {
-				    // 			std::cout << "updating min_dist to " << dist << " " 
-				    // 				  << hybrid_atom[i].atom << " "
-				    // 				  << boxes[ii].isym() << " " 
-				    // 				  << boxes[ii].x() << " " << boxes[ii].y() << " " 
-				    // 				  << boxes[ii].z() << " "  << std::endl;
+                              if (dist < min_dist) {
 
-				    // how do we know we are not picking
-				    // something behind the back clipping
-				    // plane?  e.g. we are zoomed in or have
-				    // narrow clipping planes, we don't want to
-				    // pick symmetry atoms that we can't see.
+                                 float dist_to_rotation_centre = (hybrid_atom[i].pos - screen_centre).amplitude();
 
-				    float front_picked_atom_line_length = (front - hybrid_atom[i].pos).amplitude();
-				    float  back_picked_atom_line_length = (back  - hybrid_atom[i].pos).amplitude();
-			   
-				    // std::cout << "comparing " << front_picked_atom_line_length << " to "
-				    // << dist_front_to_back << " to " << back_picked_atom_line_length
-				    // << std::endl;
+#ifdef DEBUG_SYMM_PICK
+                                 std::cout << "dist_to rotation_centre: " << dist_to_rotation_centre << " for atom "
+                                                                 << hybrid_atom[i].atom << " "
+                                                               << hybrid_atom[i].pos << " "
+                                                               << "screen-centre " << screen_centre << " "
+                                                                 << boxes[ii].first.isym() << " "
+                                                                 << boxes[ii].first.x() << " " << boxes[ii].first.y() << " "
+                                                                 << boxes[ii].first.z() << " "  << std::endl;
+#endif
 
-				    // This test make things better, but still
-				    // not right, it seem, so lets artificially
-				    // slim down the limits - so that we don't
-				    // get so many false positives.
-			   
-				    if ( (front_picked_atom_line_length < dist_front_to_back) &&
-					 ( back_picked_atom_line_length < dist_front_to_back)
-					 ) { 
-				       min_dist = dist;
-				       p_i.success = GL_TRUE;
-				       p_i.hybrid_atom = hybrid_atom[i];
-				       // and these for labelling:
-				       p_i.atom_index = i;
-				       p_i.imol = imol; 
-				       p_i.symm_trans = boxes[ii].first;
-				       p_i.pre_shift_to_origin = boxes[ii].second;
-				    }
-				 }
-			      }
-			   }
-			}
-		     }
-		  }
-	       }
-	    }
-	 }
+                                 if (dist_to_rotation_centre < symmetry_search_radius ||
+                                     molecules[imol].symmetry_whole_chain_flag ||
+                                     molecules[imol].symmetry_as_calphas) {
+
+#ifdef DEBUG_SYMM_PICK
+                                    std::cout << "here A " << dist_to_rotation_centre << std::endl;
+                                    std::cout << "updating min_dist to " << dist << " "
+                                              << hybrid_atom[i].atom << " "
+                                              << boxes[ii].first.isym() << " "
+                                              << boxes[ii].first.x() << " " << boxes[ii].first.y() << " "
+                                              << boxes[ii].first.z() << " "  << std::endl;
+#endif
+
+                                    // how do we know we are not picking
+                                    // something behind the back clipping
+                                    // plane?  e.g. we are zoomed in or have
+                                    // narrow clipping planes, we don't want to
+                                    // pick symmetry atoms that we can't see.
+
+                                    float front_picked_atom_line_length = (front - hybrid_atom[i].pos).amplitude();
+                                    float  back_picked_atom_line_length = (back  - hybrid_atom[i].pos).amplitude();
+
+                                    // std::cout << "comparing " << front_picked_atom_line_length << " to "
+                                    // << dist_front_to_back << " to " << back_picked_atom_line_length
+                                    // << std::endl;
+
+                                    // This test make things better, but still
+                                    // not right, it seem, so lets artificially
+                                    // slim down the limits - so that we don't
+                                    // get so many false positives.
+
+                                    // std::cout << "   compare " << front_picked_atom_line_length << " " << dist_front_to_back << std::endl;
+                                    // std::cout << "   compare " <<  back_picked_atom_line_length << " " << dist_front_to_back << std::endl;
+
+                                    if ( (front_picked_atom_line_length < dist_front_to_back) &&
+                                         ( back_picked_atom_line_length < dist_front_to_back)
+                                         ) {
+
+                                       min_dist = dist;
+                                       p_i.success = GL_TRUE;
+                                       p_i.hybrid_atom = hybrid_atom[i];
+                                       // and these for labelling:
+                                       p_i.atom_index = i;
+                                       p_i.imol = imol;
+                                       p_i.symm_trans = boxes[ii].first;
+                                       p_i.pre_shift_to_origin = boxes[ii].second;
+                                    }
+                                 }
+                              }
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+         }
       }
    }
 
    if (p_i.success == GL_TRUE) {
-      
+
       // make sure that we are looking at the molecule that had
       // the nearest contact:
-      // 
-      atom_selection_container_t SelAtom = graphics_info_t::molecules[p_i.imol].atom_sel; 
-      
+      //
+      atom_selection_container_t SelAtom = graphics_info_t::molecules[p_i.imol].atom_sel;
+
       std::string alt_conf_bit("");
       mmdb::Atom *at = molecules[p_i.imol].atom_sel.atom_selection[p_i.atom_index];
       if (strncmp(at->altLoc, "", 1))
-	 alt_conf_bit=std::string(",") + std::string(at->altLoc);
-      
-      std::cout << "(" << p_i.imol << ") " 
-		<< SelAtom.atom_selection[p_i.atom_index]->name 
-		<< alt_conf_bit << "/"
-		<< SelAtom.atom_selection[p_i.atom_index]->GetModelNum()
-		<< "/chainid=\""
-		<< SelAtom.atom_selection[p_i.atom_index]->GetChainID()  << "\"/"
-		<< SelAtom.atom_selection[p_i.atom_index]->GetSeqNum()   
-		<< SelAtom.atom_selection[p_i.atom_index]->GetInsCode()  << "/"
-		<< SelAtom.atom_selection[p_i.atom_index]->GetResName()
-		<< ", occ: " 
-		<< SelAtom.atom_selection[p_i.atom_index]->occupancy 
-		<< " with B-factor: "
-		<< SelAtom.atom_selection[p_i.atom_index]->tempFactor
-		<< " element: "
-		<< SelAtom.atom_selection[p_i.atom_index]->element
-		<< " at " << translate_atom(SelAtom, p_i.atom_index, p_i.symm_trans) << std::endl;
+         alt_conf_bit=std::string(",") + std::string(at->altLoc);
+
+      std::cout << "(" << p_i.imol << ") "
+                << SelAtom.atom_selection[p_i.atom_index]->name
+                << alt_conf_bit << "/"
+                << SelAtom.atom_selection[p_i.atom_index]->GetModelNum()
+                << "/chainid=\""
+                << SelAtom.atom_selection[p_i.atom_index]->GetChainID()  << "\"/"
+                << SelAtom.atom_selection[p_i.atom_index]->GetSeqNum()
+                << SelAtom.atom_selection[p_i.atom_index]->GetInsCode()  << "/"
+                << SelAtom.atom_selection[p_i.atom_index]->GetResName()
+                << ", occ: "
+                << SelAtom.atom_selection[p_i.atom_index]->occupancy
+                << " with B-factor: "
+                << SelAtom.atom_selection[p_i.atom_index]->tempFactor
+                << " element: "
+                << SelAtom.atom_selection[p_i.atom_index]->element
+                << " at " << translate_atom(SelAtom, p_i.atom_index, p_i.symm_trans) << std::endl;
    }
 
    if (p_i.success) {
-      std::pair<symm_trans_t, Cell_Translation> symm_trans(p_i.symm_trans, p_i.pre_shift_to_origin);      
+      std::pair<symm_trans_t, Cell_Translation> symm_trans(p_i.symm_trans, p_i.pre_shift_to_origin);
       coot::Cartesian tpos = translate_atom_with_pre_shift(molecules[p_i.imol].atom_sel,
-							   p_i.atom_index,
-							   symm_trans);
+                                                           p_i.atom_index,
+                                                           symm_trans);
 
       std::string ai;
-      int expanded_flag = 1;
       ai = atom_info_as_text_for_statusbar(p_i.atom_index, p_i.imol, symm_trans);
       add_status_bar_text(ai);
-      //gtk_statusbar_push(GTK_STATUSBAR(graphics_info_t::statusbar),
-      //		 graphics_info_t::statusbar_context_id,
-      //		 ai.c_str());
    }
-   
-//    std::cout << "Picked: status: " << p_i.success << " index: "<< p_i.atom_index
-//  	     << " " << p_i.symm_trans << " "
-//  	     << p_i.pre_shift_to_origin << std::endl;
-   
+
+#ifdef DEBUG_SYMM_PICK
+   std::cout << "DEBUG:: Picked: status: " << p_i.success << " index: "<< p_i.atom_index
+               << " " << p_i.symm_trans << " "
+               << p_i.pre_shift_to_origin << std::endl;
+#endif
+
    return p_i;
 }
 
 // This presumes that the mmdb symop order is the same as the clipper
 // symop order [no longer true 12Nov2003]
-// 
-// private 
+//
+// private
 //
 // So, to recap what happened here: It turns out, that unlike I
 // expected, the clipper::Spacegroup::symops() don't come in the same
 // order as those of mmdb.  So we have to construct the symop (really
 // an RTop_orth here) from the mmdb matrix and transform the
-// coordinates with this rtop.  A bit ugly, eh? 
-// 
+// coordinates with this rtop.  A bit ugly, eh?
+//
 // But on the plus side, it works, no mind-boggling memory allocation
 // problems and it's quite fast compared to the old version.
 //
-void 
-graphics_info_t::fill_hybrid_atoms(std::vector<coot::clip_hybrid_atom> *hybrid_atoms, 
-				   const atom_selection_container_t &asc,
-				   const clipper::Spacegroup &spg, 
-				   const clipper::Cell &cell,
-				   const std::pair<symm_trans_t, Cell_Translation> &symm_trans) const { 
+void
+graphics_info_t::fill_hybrid_atoms(std::vector<coot::clip_hybrid_atom> *hybrid_atoms,
+                                   const atom_selection_container_t &asc,
+                                   const clipper::Spacegroup &spg,
+                                   const clipper::Cell &cell,
+                                   const std::pair<symm_trans_t, Cell_Translation> &symm_trans) const {
 
-   clipper::Coord_orth trans_pos; 
-   clipper::Coord_orth co; 
+   clipper::Coord_orth trans_pos;
+   clipper::Coord_orth co;
 
    // if (symm_trans.isym() == 3 && symm_trans.x() == 0 && symm_trans.y() == 0 && symm_trans.z() == 0) {
    // this does not return what I expect!  The [3] of P 21 21 21 is
    // 1/2+X,1/2-Y,-Z ,but this returns: -x+1/2, -y, z+1/2, the
    // [1] element of the [zero indexed] symops list.
-   // 
+   //
    // std::cout << "selected symm_trans: " << spg.symop(symm_trans.isym()).format() << std::endl;
 
    // so let's create a symop from symm_trans.isym() by creating an rtop_frac
-   // 
+   //
    // Either that or make which_box return clipper symop.  Yes, I like that.
-   // 
+   //
    mmdb::mat44 my_matt;
    mmdb::mat44 mol_to_origin_mat;
 
-   asc.mol->GetTMatrix(mol_to_origin_mat, 0, 
-		       -symm_trans.second.us,
-		       -symm_trans.second.vs,
-		       -symm_trans.second.ws);
-      
+   asc.mol->GetTMatrix(mol_to_origin_mat, 0,
+                       -symm_trans.second.us,
+                       -symm_trans.second.vs,
+                       -symm_trans.second.ws);
+
    asc.mol->GetTMatrix(my_matt,
-		       symm_trans.first.isym(),
-		       symm_trans.first.x(),
-		       symm_trans.first.y(),
-		       symm_trans.first.z());
-      
+                       symm_trans.first.isym(),
+                       symm_trans.first.x(),
+                       symm_trans.first.y(),
+                       symm_trans.first.z());
+
    //       std::cout << "my_matt is: " << std::endl
-   // 		<< my_matt[0][0] << " "  << my_matt[0][1] << " "
-   // 		<< my_matt[0][2] << " "  << my_matt[0][3] << " "  << std::endl
-   // 		<< my_matt[1][0] << " "  << my_matt[1][1] << " "
-   // 		<< my_matt[1][2] << " "  << my_matt[1][3] << " "  << std::endl
-   // 		<< my_matt[2][0] << " "  << my_matt[2][1] << " "
-   // 		<< my_matt[2][2] << " "  << my_matt[2][3] << " "  << std::endl
-   // 		<< my_matt[3][0] << " "  << my_matt[3][1] << " "
-   // 		<< my_matt[3][2] << " "  << my_matt[3][3] << " "  << std::endl; 
-      
+   //                 << my_matt[0][0] << " "  << my_matt[0][1] << " "
+   //                 << my_matt[0][2] << " "  << my_matt[0][3] << " "  << std::endl
+   //                 << my_matt[1][0] << " "  << my_matt[1][1] << " "
+   //                 << my_matt[1][2] << " "  << my_matt[1][3] << " "  << std::endl
+   //                 << my_matt[2][0] << " "  << my_matt[2][1] << " "
+   //                 << my_matt[2][2] << " "  << my_matt[2][3] << " "  << std::endl
+   //                 << my_matt[3][0] << " "  << my_matt[3][1] << " "
+   //                 << my_matt[3][2] << " "  << my_matt[3][3] << " "  << std::endl;
+
    clipper::Mat33<double> clipper_mol_to_ori_mat(mol_to_origin_mat[0][0], mol_to_origin_mat[0][1], mol_to_origin_mat[0][2],
-						 mol_to_origin_mat[1][0], mol_to_origin_mat[1][1], mol_to_origin_mat[1][2],
-						 mol_to_origin_mat[2][0], mol_to_origin_mat[2][1], mol_to_origin_mat[2][2]);
+                                                 mol_to_origin_mat[1][0], mol_to_origin_mat[1][1], mol_to_origin_mat[1][2],
+                                                 mol_to_origin_mat[2][0], mol_to_origin_mat[2][1], mol_to_origin_mat[2][2]);
    clipper::Mat33<double> clipper_mat(my_matt[0][0], my_matt[0][1], my_matt[0][2],
-				      my_matt[1][0], my_matt[1][1], my_matt[1][2],
-				      my_matt[2][0], my_matt[2][1], my_matt[2][2]);
+                                      my_matt[1][0], my_matt[1][1], my_matt[1][2],
+                                      my_matt[2][0], my_matt[2][1], my_matt[2][2]);
    clipper::Coord_orth  cco(my_matt[0][3], my_matt[1][3], my_matt[2][3]);
    clipper::Coord_orth  cco_mol_to_ori(mol_to_origin_mat[0][3], mol_to_origin_mat[1][3], mol_to_origin_mat[2][3]);
    clipper::RTop_orth rtop_mol_to_ori(clipper_mol_to_ori_mat, cco_mol_to_ori);
    clipper::RTop_orth rtop(clipper_mat, cco);
-      
+
    for(int i=0; i<asc.n_selected_atoms; i++) {
-      co = clipper::Coord_orth(asc.atom_selection[i]->x, 
-			       asc.atom_selection[i]->y, 
-			       asc.atom_selection[i]->z);
+      co = clipper::Coord_orth(asc.atom_selection[i]->x,
+                               asc.atom_selection[i]->y,
+                               asc.atom_selection[i]->z);
       trans_pos = co.transform(rtop_mol_to_ori).transform(rtop);
 
-//       std::cout << i << "  " << cf.format() << "  " << trans_pos_cf.format() 
-// 		<< "  " << spg.symop(symm_trans.isym()).format() << std::endl;
-      (*hybrid_atoms)[i] = coot::clip_hybrid_atom(asc.atom_selection[i], 
-						  coot::Cartesian(trans_pos.x(),
-								  trans_pos.y(),
-								  trans_pos.z()));
+//       std::cout << i << "  " << cf.format() << "  " << trans_pos_cf.format()
+//                 << "  " << spg.symop(symm_trans.isym()).format() << std::endl;
+      (*hybrid_atoms)[i] = coot::clip_hybrid_atom(asc.atom_selection[i],
+                                                  coot::Cartesian(trans_pos.x(),
+                                                                  trans_pos.y(),
+                                                                  trans_pos.z()));
    }
 }
 
@@ -449,12 +541,12 @@ graphics_info_t::fixed_atom_for_refinement_p(mmdb::Atom *at) {
    if (is_valid_model_molecule(imol_moving_atoms)) {
       std::vector<coot::atom_spec_t> fixed = molecules[imol_moving_atoms].get_fixed_atoms();
       for (unsigned int ifixed=0; ifixed<fixed.size(); ifixed++) {
-	      if (fixed[ifixed].matches_spec(at)) {
-            // 	    std::cout << " fixed_atom_for_refinement_p found a matcher "
-            // 		           << fixed[ifixed] << std::endl;
-	         r = 1;
-	         break;
-	      }
+              if (fixed[ifixed].matches_spec(at)) {
+                 //             std::cout << " fixed_atom_for_refinement_p found a matcher "
+                 //                            << fixed[ifixed] << std::endl;
+                 r = 1;
+                 break;
+              }
       }
    }
    return r;
@@ -1050,36 +1142,30 @@ graphics_info_t::rotate_intermediate_atoms_round_screen_x(double angle) {
 	 }
       }
    }
-} 
+}
 
 
 
 int graphics_info_t::move_reference_chain_to_symm_chain_position() {
 
    int r = 0;
-   if (use_graphics_interface_flag) { 
-      GtkAllocation allocation = get_glarea_allocation();
-      int iw = allocation.width;
-      int ih = allocation.height;
-      glm::vec4 glm_front = unproject(iw/2, ih/2, 0);
-      glm::vec4 glm_back  = unproject(iw/2, ih/2, 1);
-      coot::Cartesian front(glm_front.x, glm_front.y, glm_front.z);
-      coot::Cartesian back(glm_back.x, glm_back.y, glm_back.z);
-      coot::Symm_Atom_Pick_Info_t naii = symmetry_atom_pick(front, back);
+   if (use_graphics_interface_flag) {
+      coot::Symm_Atom_Pick_Info_t naii = symmetry_atom_close_to_screen_centre();
+      std::cout << "------------- in move_reference_chain_to_symm_chain_position() naii.success is "
+                << naii.success << std::endl;
       if (naii.success == GL_TRUE) {
-	 if (is_valid_model_molecule(naii.imol)) {
-	    graphics_info_t::molecules[naii.imol].move_reference_chain_to_symm_chain_position(naii);
-	    graphics_draw();
-	 } else {
-	    std::cout << "not valid mol" << std::endl;
-	 }
+         if (is_valid_model_molecule(naii.imol)) {
+            graphics_info_t::molecules[naii.imol].move_reference_chain_to_symm_chain_position(naii);
+            graphics_draw();
+         } else {
+            std::cout << "not valid mol" << std::endl;
+         }
       } else {
-	 std::cout << "bad pick " << std::endl;
-	 std::string s = "Symm Atom not found at centre.  Are you centred on a symm atom?";
-	 add_status_bar_text(s);
-	 // gdk_beep();
+         std::cout << "DEBUG:: move_reference_chain_to_symm_chain_position() bad pick " << std::endl;
+         std::string s = "Symm Atom not found at centre.  Are you centred on a symm atom?";
+         add_status_bar_text(s);
+         // gdk_beep();
       }
    }
    return r;
 }
-

@@ -31,8 +31,15 @@
 
 
 
+// 20240719-PE draw_mode is added so that I can distingush usage of the function
+// in the "check_if_hud_bar_moused_over_or_act_on_hud_bar_clicked()" function
+// vs the Rama drawing function
+// draw_mode = 1 for drawing and
+// draw_mode = 0 for checking if a mouse click was over a residue
+// ... later: actually this draw mode is not needed, because I can use the same plot for drawing and checking
+// if picked. What I actually needed was get_mouse_over_hit().
 void
-gl_rama_plot_t::setup_from(int imol, mmdb::Manager *mol, const std::string &residue_selection_in) {
+gl_rama_plot_t::setup_from(int imol, mmdb::Manager *mol, const std::string &residue_selection_in, draw_mode_t draw_mode) {
 
    // auto tp_0 = std::chrono::high_resolution_clock::now();
    if (mol) {
@@ -46,7 +53,9 @@ gl_rama_plot_t::setup_from(int imol, mmdb::Manager *mol, const std::string &resi
 
       if (do_the_update) {
          phi_psi_map = generate_phi_psis(imol, residue_selection_in, mol);
-         update_hud_tmeshes(phi_psi_map); // no need for attach_buffers() as this is instanced data.
+         if (draw_mode == draw_mode_t::DRAW_MODE) {
+            update_hud_tmeshes(phi_psi_map); // no need for attach_buffers() as this is instanced data.
+         }
          position_hash = position_hash_now;
       }
       residue_selection = residue_selection_in;
@@ -193,6 +202,8 @@ gl_rama_plot_t::update_hud_tmeshes(const std::map<coot::residue_spec_t, rama_plo
 
 void
 gl_rama_plot_t::init() {
+
+   rama_plot_scale = 0.8;
 
    current_background_type = clipper::Ramachandran::All;
    draw_outliers_only_flag = false;
@@ -649,7 +660,7 @@ gl_rama_plot_t::get_mouse_over_hit(double x_widget, double y_widget, int widget_
                                        glm::vec2 rpp_4a(rpp_3a.x/scales.x, rpp_3a.y/scales.y);
                                        glm::vec2 rpp_5a(rpp_4a.x/sf, rpp_4a.y/sf);
 
-                                       if (false)
+                                       if (true)
                                           std::cout << "debug:: window-pos-corr " << glm::to_string(window_resize_position_correction)
                                                     << " in " << x_widget << " " << y_widget
                                                     << " opengl " << x_opengl << " " << y_opengl << " "

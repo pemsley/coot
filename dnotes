@@ -1038,15 +1038,15 @@ Wed Dec  5 14:13:31 GMT 2007
 
     Particular alt confs cannot be selected for.
 
-    Questions:  How shall we create new represenations for this molecule?
+    Questions:  How shall we create new representations for this molecule?
 
     // return
-    int add_representation imol represenation-spec
+    int add_representation imol representation-spec
 
     // used by GUI
-    undisplay_represenation imol respresentation-number
+    undisplay_representation imol respresentation-number
 
-    undisplay_represenation imol residue_spec
+    undisplay_representation imol residue_spec
     which needs to be unambiguated. Test in this order:
 
      o Was there a line_representation that has that residue_spec?
@@ -3980,19 +3980,15 @@ INFO::
    o Make sure RELEASE-NOTES are up to date and add a ----- marker at the top
      Make sure the release is called Release, not pre-release
    o change the version in configure.ac
-   o Artists acknowledged in glade/aboutdialog?
    o Correct the version in the about_dialog in the coot-gtk4.ui file
+   o Artists acknowledged in glade/aboutdialog?
    o Use []
-        Change the splash screen
+        Change the splash screen?
         Change the release name in the About dialog (aboutdialog) (not needed for bug fix)
         and copyright years.
-        To correct the transparency, duplicate layer, bucket fill with white
-        the bottom layer, merge and bevel 6.
-        git commit pixmaps/coot-0.9.5.png
-   o git add the new splash screen pixmap
-   o Change the pixmaps/Makefile.am for the current splash screen image
-   o are coot_wrap*cc generated correctly (no enhanced-ligand code)?
-     rm src/coot_wrap*.cc
+        git add the new splash screen pixmap
+        Change the pixmaps/Makefile.am for the current splash screen image
+
      configure with configure-it-for-release
      make clean && make
    o make dist to make a tar-ball
@@ -11432,4 +11428,110 @@ GTK4 pixel scaling
 https://www.reddit.com/r/GTK/comments/1c0xaar/gtk4_any_way_to_lock_the_size_of_a_logical_pixel/
 https://news.ycombinator.com/item?id=30796841
 
+-----
+Fri 26 Jul 2024 19:16:14 BST
 
+   modelangelo build example 24677
+   https://cosmic-cryoem.org/tools/modelangelo/
+
+---
+Fri Aug 30 09:04:18 PM BST 2024
+
+   Good example for tubes:
+   https://www.ebi.ac.uk/pdbe/entry/pdb/7uaa
+   There is a low resolution map EMD-26312
+
+---
+Fri Aug 30 09:11:27 PM BST 2024
+
+   DPS dataset is EMD-11210
+   https://www.ebi.ac.uk/emdb/EMD-11210
+   https://www.ebi.ac.uk/pdbe/entry/pdb/6zgl
+
+---
+Fri Sep  6 10:14:55 PM BST 2024
+
+   o Sketch out the widgets on paper
+   o Add a dialog to coot-gtk4.ui. Use the dialog snippet
+   o The button to invoke this is in a module?
+      - Look in python/coot_gui.py for neighboring menu item
+      - Add a add_action() line
+      - Add a wrapper and the function it wraps
+     else
+      - add your action to create-menu-item-actions.cc
+   o Add a coot api function that is called by the function
+     e.g. display the new dialog, which fills the entries
+          and comboboxes.
+
+     Use
+     g.new_fill_combobox_with_coordinates_options(combobox_2, callback, imol_active);
+     fill_combobox_with_map_options(combobox_1, callback);
+
+   o The response handler, on_new_function_dialog_response() is
+     added to glade-callback.cc, make it call an api cc-interface.hh
+     function
+
+   e.g. see commit 0aee836257053b5c9cdbceb6b3896b39cddfd797
+
+---
+Sat Sep  7 03:41:40 PM BST 2024
+
+   map_partition_by_chain_threaded() is a good example of non-blocking
+   map generation. It creates a detacted thread and a callback to look
+   for the results of the thread. The results are stored in graphics_info_t.
+
+   In this case the selector is a dialog, it should be, for such a small
+   interface, a main-window overlay.
+
+   see commit 0cf8c4679a84a6dd4f51011c49bbc489ad2cba83
+              d18123bc1ef908a2a833e05a6a02a5ccaa5ea615
+
+---
+Thu 22 Aug 2024 03:57:42 BST
+
+   what is the Intel Open Image Denoise 2.2 benchmark?
+
+
+---
+Thu  5 Sep 2024 16:41:54 BST
+
+   Plant FASTA genome
+   https://ftp.ensemblgenomes.ebi.ac.uk/pub/plants/release-59/fasta/chlamydomonas_reinhardtii/pep
+   more in
+   https://ftp.ensemblgenomes.ebi.ac.uk/pub/
+   you want the peps
+
+----
+
+        updateFloatParameter("ribbonStyleCoilThickness",0.3);
+        updateFloatParameter("ribbonStyleHelixWidth",1.2);
+        updateFloatParameter("ribbonStyleStrandWidth",1.2);
+        updateFloatParameter("ribbonStyleArrowWidth",1.5);
+        updateFloatParameter("ribbonStyleDNARNAWidth",1.5);
+        updateFloatParameter("cylindersStyleCylinderRadius",0.2);
+        updateFloatParameter("cylindersStyleBallRadius",0.2);
+        updateFloatParameter("surfaceStyleProbeRadius",1.4);
+        updateFloatParameter("ballsStyleRadiusMultiplier",1.);
+        updateIntParameter  ("ribbonStyleAxialSampling",6);
+        updateIntParameter  ("cylindersStyleAngularSampling",6);
+        updateIntParameter  ("dishStyleAngularSampling",32);
+
+
+---
+Fri Sep 13 04:03:17 AM BST 2024
+
+   To move the Preferences Close button to the right-hand side, I added
+               <property name="halign">end</property>
+   to the GtkBox which contained the button
+
+
+----
+Sun  6 Oct 18:04:53 BST 2024
+
+   arch linux by default redirects the core dumps
+   To fix:
+   kernel.core_pattern=core in /etc/sysctl.d/50-coredump.conf
+
+---
+
+Old Coot: package glib2-devel needed on arch to provide glib-mkenums gtkglext

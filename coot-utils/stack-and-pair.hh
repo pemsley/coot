@@ -46,7 +46,7 @@ namespace coot {
       double angle_crit;
       std::map<mmdb::Residue *, clipper::Coord_orth> normal_map;
       std::pair<bool, clipper::Coord_orth> get_base_normal(mmdb::Residue *residue_p) const;
-      int mark_donors_and_acceptors(mmdb::Manager *mol, int selection_handle, const protein_geometry &geom);
+      int mark_donors_and_acceptors(mmdb::Manager *mol, int selection_handle, const protein_geometry &geom, int imol_enc);
       std::pair<bool,clipper::Coord_orth> get_base_centre(mmdb::Residue *residue_this) const;
       std::set<std::string> base_atom_name_set;
       void init();
@@ -91,7 +91,8 @@ namespace coot {
       paired_residues(mmdb::Manager *mol,
 		      const std::vector<std::pair<bool, mmdb::Residue *> > &residues_vec,
 		      bool residues_are_all_moving_flag,
-		      const protein_geometry &geom);
+		      const protein_geometry &geom,
+                      int imol_enc);
 
       std::vector<std::pair<residue_spec_t, residue_spec_t> >
       paired_residue_specs(mmdb::Manager *mol,

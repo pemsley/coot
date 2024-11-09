@@ -389,3 +389,124 @@ void servalcat_refine(int imol_model,
    }
 
 }
+
+// in c-interface-gui.cc
+// fill_combobox_with_map_options(combobox_1, callback);
+// but not in a header
+int fill_combobox_with_map_options(GtkWidget *combobox, GCallback signalfunc);
+
+void show_map_partition_by_chain_dialog() {
+
+   GtkWidget *dialog = widget_from_builder("map_partition_by_chain_dialog");
+
+   // fill map partion dialog
+   GtkWidget *combobox_1 = widget_from_builder("map_partition_by_chain_map_combobox");
+   GtkWidget *combobox_2 = widget_from_builder("map_partition_by_chain_model_combobox");
+
+   int imol_active = 0;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > active_atom = graphics_info_t::active_atom_spec();
+   if (active_atom.first)
+      imol_active = active_atom.second.first;
+
+   GCallback callback = G_CALLBACK(nullptr);
+   graphics_info_t g;
+   g.new_fill_combobox_with_coordinates_options(combobox_2, callback, imol_active);
+
+   // in c-interface-gui.cc
+   fill_combobox_with_map_options(combobox_1, callback);
+
+   gtk_widget_set_visible(dialog, TRUE);
+
+}
+
+// use this for interactive
+void map_partition_by_chain_threaded(int imol_map, int imol_model) {
+
+   auto map_partition_func = [] (const clipper::Xmap<float> &xmap, mmdb::Manager *mol) {
+
+      std::string &state_string = graphics_info_t::map_partition_results_state_string;
+      graphics_info_t::map_partition_results_state = 1;
+      graphics_info_t::map_partition_results = coot::util::partition_map_by_chain(xmap, mol, &state_string);
+      graphics_info_t::map_partition_results_state = 0;
+   };
+
+   auto check_map_partition_results = +[] (gpointer data) {
+
+      bool keep_going = TRUE;
+      int imol_map = GPOINTER_TO_INT(data);
+      // std::cout << "checking...  " << graphics_info_t::map_partition_results_state << std::endl;
+      GtkWidget *label = widget_from_builder("partition_map_by_chain_status_label");
+      if (label) {
+         gtk_widget_set_visible(label, TRUE);
+         gtk_label_set_text(GTK_LABEL(label), graphics_info_t::map_partition_results_state_string.c_str());
+      }
+      if (graphics_info_t::map_partition_results_state == 1) {
+         // keep going
+      } else {
+         if (! graphics_info_t::map_partition_results.empty()) {
+            bool is_em_map = graphics_info_t::molecules[imol_map].is_EM_map();
+            for (const auto &mi : graphics_info_t::map_partition_results) {
+               std::string chain_id = mi.first;
+               int imol_for_map = graphics_info_t::create_molecule();
+               std::string label = "Partitioned map Chain " + chain_id;
+               graphics_info_t::molecules[imol_for_map].install_new_map(mi.second, label, is_em_map);
+            }
+            // Let's just check that the user didn't delete the original map in the meantime...
+            if (graphics_info_t::is_valid_map_molecule(imol_map))
+               graphics_info_t::molecules[imol_map].set_map_is_displayed(false);
+
+            if (label) {
+               gtk_label_set_text(GTK_LABEL(label), "");
+               gtk_widget_set_visible(label, FALSE);
+            }
+
+            keep_going = FALSE; // turn off the timeout
+
+            graphics_info_t::graphics_draw();
+         }
+      }
+      return keep_going;
+   };
+
+   std::vector<int> v;
+   graphics_info_t g;
+   if (g.is_valid_model_molecule(imol_model)) {
+      if (g.is_valid_map_molecule(imol_map)) {
+         const clipper::Xmap<float> &xmap = graphics_info_t::molecules[imol_map].xmap;
+         mmdb::Manager *mol = graphics_info_t::molecules[imol_model].atom_sel.mol;
+         std::thread t(map_partition_func, xmap, mol);
+         t.detach();
+         GSourceFunc cb = GSourceFunc(check_map_partition_results);
+         g_timeout_add(1000, cb, GINT_TO_POINTER(imol_map));
+      }
+   }
+}
+
+// use this version for scripting
+std::vector<int> map_partition_by_chain(int imol_map, int imol_model) {
+
+   std::vector<int> v;
+   graphics_info_t g;
+   if (g.is_valid_model_molecule(imol_model)) {
+      if (g.is_valid_map_molecule(imol_map)) {
+         const clipper::Xmap<float> &xmap = graphics_info_t::molecules[imol_map].xmap;
+         mmdb::Manager *mol = graphics_info_t::molecules[imol_model].atom_sel.mol;
+         std::string info_string;
+         std::vector<std::pair<std::string, clipper::Xmap<float> > > maps_info =
+            coot::util::partition_map_by_chain(xmap, mol, &info_string);
+         if (! maps_info.empty()) {
+            for (const auto &mi : maps_info) {
+               std::string chain_id = mi.first;
+               int imol_for_map = g.create_molecule();
+               std::string label = "Partioned map Chain " + chain_id;
+               bool is_em_map = g.molecules[imol_map].is_EM_map();
+               g.molecules[imol_for_map].install_new_map(mi.second, label, is_em_map);
+               v.push_back(imol_for_map);
+            }
+            g.molecules[imol_map].set_map_is_displayed(false);
+         }
+      }
+   }
+   g.graphics_draw();
+   return v;
+}

@@ -132,7 +132,9 @@ void LaylaState::update_status(const char* new_status) noexcept {
 }
 
 int LaylaState::append_molecule(RDKit::RWMol* molecule_ptr) {
-    RDKit::MolOps::sanitizeMol(*molecule_ptr);
+    if(!coot_ligand_editor_canvas_get_allow_invalid_molecules(this->canvas)) {
+        RDKit::MolOps::sanitizeMol(*molecule_ptr);
+    }
     return coot_ligand_editor_canvas_append_molecule(this->canvas, std::shared_ptr<RDKit::RWMol>(molecule_ptr));
 }
 
@@ -178,8 +180,7 @@ void LaylaState::load_from_smiles() {
         g_info("Importing SMILES...");
         auto* text_buf = GTK_ENTRY_BUFFER(user_data);
         try {
-
-            RDKit::RWMol* molecule = RDKit::SmilesToMol(gtk_entry_buffer_get_text(text_buf));
+            RDKit::RWMol* molecule = RDKit::SmilesToMol(gtk_entry_buffer_get_text(text_buf), 0, false);
             if(!molecule) {
                 throw std::runtime_error("RDKit::RWMol* is a nullptr. The SMILES code is probably invalid.");
             }
@@ -563,13 +564,15 @@ void LaylaState::file_save_as() {
             int chosen_molecule = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(window), "chosen_molecule"));
             LaylaState* self = (LaylaState*) g_object_get_data(G_OBJECT(window), "ligand_builder_instance");
             if(chosen_molecule == -1) {
-                auto* message = gtk_message_dialog_new(window,
-                                                       GTK_DIALOG_DESTROY_WITH_PARENT, 
-                                                       GTK_MESSAGE_ERROR, 
-                                                       GTK_BUTTONS_CLOSE,
-                                                       "Nothing was chosen!",
-                                                       NULL);
-                gtk_widget_show(message);
+               // gtk_message_dialog_new() is deprecated now
+               GtkWidget* message = gtk_message_dialog_new(window,
+                                                           GTK_DIALOG_DESTROY_WITH_PARENT, // flags
+                                                           GTK_MESSAGE_ERROR, // type
+                                                           GTK_BUTTONS_CLOSE, // buttons
+                                                           "Nothing was chosen!" // message_format
+                                                           ); // G_GNUC_PRINTF (5, 6);
+
+                gtk_widget_set_visible(message, TRUE);
                 g_info("Nothing was chosen.");
             } else {
                 self->run_file_save_dialog(chosen_molecule);

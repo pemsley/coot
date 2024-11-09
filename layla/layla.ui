@@ -677,8 +677,11 @@ Alter charge of an atom.
                 <property name="tooltip-markup">&lt;b&gt;Delete Tool&lt;/b&gt;
 Delete atoms, bonds or molecules.
 
-&lt;b&gt;Left click on a bond&lt;/b&gt; - Removes the bond.
-&lt;b&gt;Left click on an atom&lt;/b&gt; - Removes the atom.
+&lt;b&gt;Left click on a bond&lt;/b&gt; - Removes the bond (or the whole R-chain).
+&lt;b&gt;Left click on an atom&lt;/b&gt; - Removes the atom (or the whole R-chain).
+
+&lt;b&gt;Control + Alt + Left click on a bond&lt;/b&gt; - Removes just the bond (without any R-chains).
+&lt;b&gt;Control + Alt + Left click on an atom&lt;/b&gt; - Removes just the atom (without any R-chains).
 
 &lt;b&gt;Control + Left click on a molecule&lt;/b&gt; - Remove the selected molecule.
                 </property>
@@ -1407,10 +1410,10 @@ Add a new atom or replace an existent atom with the chosen element.
             <child>
               <object class="GtkScrolledWindow" id="layla_smiles_textview_sw">
                 <property name="child">
-                  <object class="GtkTextView" id="layla_smiles_textview">
-                    <property name="editable">False</property>
+                  <object class="GtkGrid" id="layla_smiles_display_grid">
                     <property name="hexpand">True</property>
-                    <property name="monospace">True</property>
+                    <property name="column-spacing">5</property>
+                    <!-- <property name="orientation">horizontal</property> -->
                   </object>
                 </property>
               </object>

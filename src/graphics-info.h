@@ -675,7 +675,7 @@ class graphics_info_t {
    std::string state_command(const std::string &name_space, const std::string &str,                 short int state_lang) const;
    std::string state_command(const std::string &name_space, const std::string &str, int i,          short int state_lang) const;
    std::string state_command(const std::string &name_space, const std::string &str, int i1, int i2, short int state_lang) const;
-   std::string state_command(const std::string &str, float f,        short int state_lang) const;
+   std::string state_command(const std::string &name_space, const std::string &str, float f,        short int state_lang) const;
    std::string state_command(const std::string &str, float f,        short int state_lang, short unsigned int v) const;
    std::string state_command(const std::string &name_space, const std::string &str, float f1, float f2, float f3, short int state_lang) const;
    std::string state_command(const std::string &name_space, const std::string &str, const std::string &str2, short int state_lang);
@@ -978,9 +978,11 @@ public:
    void init();
    void setup_key_bindings();
 
+   static bool graphics_is_gl_es; // can we make a fallback coot where this is true?
+
    static bool use_gemmi;
    void set_use_gemmi(bool state) { use_gemmi = state; }
-   logging log;
+   static logging log;
 
    static bool coot_is_a_python_module; //turned off in main()
    static bool prefer_python;
@@ -1633,7 +1635,9 @@ public:
    static bool auto_recontour_map_flag;
 
    //
-   static float rotation_centre_cube_size;
+   static float rotation_centre_cube_size; // cross-hair
+   static glm::vec4 rotation_centre_cross_hairs_colour;
+   void set_rotation_centre_cross_hairs_colour(const glm::vec4 &c) { rotation_centre_cross_hairs_colour = c; }
 
    static void Increment_Frames() {
       Frames++;
@@ -1945,6 +1949,7 @@ public:
 
    coot::Symm_Atom_Pick_Info_t symmetry_atom_pick() const;
    coot::Symm_Atom_Pick_Info_t symmetry_atom_pick(const coot::Cartesian &front, const coot::Cartesian &back) const;
+   coot::Symm_Atom_Pick_Info_t symmetry_atom_close_to_screen_centre() const;
 
    bool tomo_pick(double x, double y, gint n_press, bool shift_is_pressed);
 
@@ -3147,6 +3152,7 @@ public:
    bool check_if_hud_button_moused_over(double x, double y, bool button_1_is_down);
    bool check_if_hud_button_moused_over_or_act_on_hit(double x, double y, bool act_on_hit, bool button_1_is_down);
 
+   bool check_if_hud_rama_plot_clicked(double mouse_x, double mouse_y);
 
    void unset_moving_atoms_currently_dragged_atom_index() {
      moving_atoms_currently_dragged_atom_index = -1;
@@ -4080,7 +4086,8 @@ public:
    int add_molecular_representation(int imol,
                                     const std::string &atom_selection,
 				    const std::string &colour_scheme,
-				    const std::string &style);
+				    const std::string &style,
+                                    int secondary_structure_usage_flag);
    int add_ribbon_representation_with_user_defined_colours(int imol, const std::string &name);
    void remove_molecular_representation(int imol, int idx);
 
@@ -4138,7 +4145,7 @@ public:
       // std::cout << "generic_objects_dialog_grid_add_object_internal() --- start --- " << std::endl;
 
       if (! gdo.mesh.is_closed()) {
-         std::cout << "generic_objects_dialog_grid_add_object_internal() no-closed " << io << std::endl;
+         // std::cout << "generic_objects_dialog_grid_add_object_internal() no-closed " << io << std::endl;
          GtkWidget *checkbutton = gtk_check_button_new_with_mnemonic (("Display"));
          std::string label_str = gdo.mesh.name;
          GtkWidget *label = gtk_label_new(label_str.c_str());
@@ -4676,6 +4683,7 @@ string   static std::string sessionid;
    static double mouse_y;
    static double drag_begin_x; // gtk pixels
    static double drag_begin_y;
+   static double mouse_speed; // default 1.0, but adjusted to be bigger for wide display
    static std::pair<double, double> mouse_previous_position;
    static void set_mouse_previous_position(double x, double y) { mouse_previous_position.first = x; mouse_previous_position.second = y; }
    static double get_mouse_previous_position_x() { return mouse_previous_position.first; }
@@ -5422,6 +5430,10 @@ string   static std::string sessionid;
 
    static bool curmudgeon_mode; // default false, particles and faces
    static bool use_sounds; // default true
+
+   static std::vector<std::pair<std::string, clipper::Xmap<float> > > map_partition_results;
+   static int map_partition_results_state;
+   static std::string map_partition_results_state_string; // "Done A Chain" etc.
 
    // add a pumpkin as a graphics object and draw it.
    void pumpkin();

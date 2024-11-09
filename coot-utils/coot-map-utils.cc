@@ -25,6 +25,7 @@
 #include <fstream>
 #include <thread>
 #include <iomanip>
+#include <filesystem>
 
 #include <gsl/gsl_sf_bessel.h>
 
@@ -51,6 +52,7 @@ coot::util::map_fill_from_mtz(clipper::Xmap<float> *xmap,
                               short int use_weights,
                               float sampling_rate) {
 
+   // sampling_rate is optional arg with default value 1.5
    return coot::util::map_fill_from_mtz(xmap, mtz_file_name, f_col, phi_col, weight_col,
                                         use_weights, 0, 0, sampling_rate);
 }
@@ -66,81 +68,43 @@ coot::util::map_fill_from_mtz(clipper::Xmap<float> *xmap,
                               short int use_reso_limit_high,
                               float sampling_rate) {
 
+   // sampling_rate is optional arg with default value 1.5
 
-   auto make_import_datanames = [] (const std::string &f_col_in,
-                                                      const std::string &phi_col_in,
-                                                      const std::string &weight_col_in,
-                                                      int use_weights) {
+   auto path_to_file = [] (const std::string &p_col_in) {
 
-      // Return a pair.
-      //
-      // If first string of length 0 on error to construct dataname(s).
-      //
-      //       std::pair<std::string, std::string>
-      //
-      // If use_weights return 2 strings, else set something useful only for pair.first
+			 std::filesystem::path p(p_col_in);
+			 std::filesystem::path p_col_path = p.filename();
+			 std::string p_col = p_col_path.string();
+			 return p_col;
+		       };
 
-      std::string f_col = f_col_in;
-      std::string phi_col = phi_col_in;
-      std::string weight_col = weight_col_in;
 
-#ifdef WINDOWS_MINGW
-      std::string::size_type islash_f   = coot::util::intelligent_debackslash(  f_col).find_last_of("/");
-      std::string::size_type islash_phi = coot::util::intelligent_debackslash(phi_col).find_last_of("/");
-#else
-      std::string::size_type islash_f   =      f_col.find_last_of("/");
-      std::string::size_type islash_phi =    phi_col.find_last_of("/");
-#endif // MINGW
+   // I am not sure that stripping the dataset info is a good thing.
+   //
+   auto make_import_datanames = [path_to_file] (const std::string &f_col_in,
+						const std::string &phi_col_in,
+						const std::string &weight_col_in,
+						bool use_weights) {
 
-      short int label_error = 0;
+				  std::pair<std::string, std::string> p("", ""); // return this
 
-      if (islash_f != std::string::npos) {
-         // f_col is of form e.g. xxx/yyy/FWT
-         if (f_col.length() > islash_f)
-            f_col = f_col.substr(islash_f+1);
-         else
-            label_error = 1;
-      }
+				  std::string      f_col = path_to_file(f_col_in);
+				  std::string    phi_col = path_to_file(phi_col_in);
+				  std::string weight_col = path_to_file(weight_col_in);
 
-      if (islash_phi != std::string::npos) {
-         // phi_col is of form e.g. xxx/yyy/PHWT
-         if (phi_col.length() > islash_phi)
-            phi_col = phi_col.substr(islash_phi+1);
-         else
-            label_error = 1;
-      }
-
-      if (use_weights) {
-#ifdef WINDOWS_MINGW
-         std::string::size_type islash_fom = coot::util::intelligent_debackslash(weight_col).find_last_of("/");
-#else
-         std::string::size_type islash_fom = weight_col.find_last_of("/");
-#endif
-         if (islash_fom != std::string::npos) {
-            // weight_col is of form e.g. xxx/yyy/WT
-            if (weight_col.length() > islash_fom)
-               weight_col = weight_col.substr(islash_fom+1);
-            else
-               label_error = 1;
-         }
-      }
-
-      std::pair<std::string, std::string> p("", "");
-
-      if (!label_error) {
-         std::string no_xtal_dataset_prefix= "/*/*/";
-         if (use_weights) {
-            p.first  = no_xtal_dataset_prefix + "[" +   f_col + " " +      f_col + "]";
-            p.second = no_xtal_dataset_prefix + "[" + phi_col + " " + weight_col + "]";
-         } else {
-            p.first  = no_xtal_dataset_prefix + "[" +   f_col + " " + phi_col + "]";
-         }
-      }
-      return p;
-   };
+				  std::string no_xtal_dataset_prefix= "/*/*/";
+				  if (use_weights) {
+				    p.first  = no_xtal_dataset_prefix + "[" +   f_col + " " +      f_col + "]";
+				    p.second = no_xtal_dataset_prefix + "[" + phi_col + " " + weight_col + "]";
+				  } else {
+				    p.first  = no_xtal_dataset_prefix + "[" +   f_col + " " + phi_col + "]";
+				  }
+				  return p;
+				};
+   
 
    if (!file_exists(mtz_file_name))
-      return 0;
+      return false;
 
    clipper::HKL_info myhkl;
    clipper::MTZdataset myset;
@@ -169,7 +133,7 @@ coot::util::map_fill_from_mtz(clipper::Xmap<float> *xmap,
       dataname = datanames.second;
       mtzin.import_hkl_data( phi_fom_data, myset, myxtl, dataname );
       mtzin.close_read();
-      // std::cout << "We should use the weights: " << weight_col << std::endl;
+      std::cout << "in map_fill_from_mtz(): We should use the weights: " << weight_col << std::endl;
 
       fphidata.compute(f_sigf_data, phi_fom_data,
                        clipper::datatypes::Compute_fphi_from_fsigf_phifom<float>());
@@ -199,11 +163,14 @@ coot::util::map_fill_from_mtz(clipper::Xmap<float> *xmap,
    std::cout << "Grid..." << gs.format() << "\n";
    std::cout << "Cell..." << myhkl.cell().format() << "\n";
    std::cout << "Spacegroup..." << myhkl.spacegroup().symbol_hm() << "\n";
+   if (gs.nu() == 0) { std::cout << "Bad Grid\n"; return false; }
+   if (gs.nv() == 0) { std::cout << "Bad Grid\n"; return false; }
+   if (gs.nw() == 0) { std::cout << "Bad Grid\n"; return false; }
    xmap->init( myhkl.spacegroup(), myhkl.cell(), gs);
    // std::cout << "doing fft..." << std::endl;
    xmap->fft_from( fphidata );                  // generate map
    // std::cout << "done fft..." << std::endl;
-   return 1;
+   return true;
 }
 
 // Return a map that is a copy of the given map with interpolation,
@@ -4208,6 +4175,87 @@ coot::util::map_molecule_recentre_from_position(const clipper::Xmap<float> &xmap
    return mmci;
 }
 
+clipper::Xmap<float>
+coot::util::power_scale(const clipper::Xmap<float> &xmap_1, const clipper::Xmap<float> &xmap_2) {
+
+   float mg = coot::util::max_gridding(xmap_1); // A/grid
+   clipper::Resolution reso(2.0 * mg); // Angstroms
+   std::cout << "# making data info 1" << std::endl;
+   clipper::HKL_info hkl_info_1(xmap_1.spacegroup(), xmap_1.cell(), reso, true);
+   std::cout << "# making data info 2" << std::endl;
+   clipper::HKL_info hkl_info_2(xmap_2.spacegroup(), xmap_2.cell(), reso, true);
+   clipper::HKL_data< clipper::datatypes::F_phi<float> > fphis_1(hkl_info_1);
+   clipper::HKL_data< clipper::datatypes::F_phi<float> > fphis_2(hkl_info_2);
+   std::cout << "# starting Fouriers" << std::endl;
+   xmap_1.fft_to(fphis_1);
+   std::cout << "# done map-1" << std::endl;
+   xmap_2.fft_to(fphis_2);
+   std::cout << "# done map-2" << std::endl;
+   std::map<unsigned int, double> fref2_sums;
+   std::map<unsigned int, double> fother2_sums;
+   std::map<unsigned int, unsigned int> f2_counts;
+   clipper::HKL_info::HKL_reference_index hri;
+   for (hri = fphis_1.first(); !hri.last(); hri.next()) {
+      float fr = fphis_1[hri].f();
+      if (! clipper::Util::is_nan(fr)) {
+         int h = hri.hkl().h();
+         int k = hri.hkl().k();
+         int l = hri.hkl().l();
+         double rr = std::sqrt(h * h + k * k + l * l);
+         unsigned int bin_index = static_cast<int>(rr);
+         std::map<unsigned int, double>::const_iterator it = fref2_sums.find(bin_index);
+         if (it == fref2_sums.end()) {
+            fref2_sums[bin_index]   = fr * fr;
+         } else {
+            fref2_sums[bin_index]   += fr * fr;
+         }
+      }
+   }
+   for (hri = fphis_2.first(); !hri.last(); hri.next()) {
+      float fo = fphis_2[hri].f();
+      if (! clipper::Util::is_nan(fo)) {
+         int h = hri.hkl().h();
+         int k = hri.hkl().k();
+         int l = hri.hkl().l();
+         double rr = std::sqrt(h * h + k * k + l * l);
+         unsigned int bin_index = static_cast<int>(rr);
+         std::map<unsigned int, double>::const_iterator it = fother2_sums.find(bin_index);
+         if (it == fother2_sums.end()) {
+            fother2_sums[bin_index] = fo * fo;
+            f2_counts[bin_index] = 1;
+         } else {
+            fother2_sums[bin_index] += fo * fo;
+            f2_counts[bin_index] += 1;
+         }
+      }
+   }
+   for (hri = fphis_2.first(); !hri.last(); hri.next()) {
+      float fo = fphis_2[hri].f();
+      if (! clipper::Util::is_nan(fo)) {
+         int h = hri.hkl().h();
+         int k = hri.hkl().k();
+         int l = hri.hkl().l();
+         double rr = std::sqrt(h * h + k * k + l * l);
+         unsigned int bin_index = static_cast<int>(rr);
+         double sf = fref2_sums[bin_index] / fother2_sums[bin_index];
+         fphis_2[hri].f() *= sf;
+      }
+   }
+
+   std::map<unsigned int, double>::const_iterator it;
+   for (it=fref2_sums.begin(); it!=fref2_sums.end(); ++it) {
+      const auto &key(it->first);
+      const auto &fref2_sum = it->second;
+      const auto &fother = fother2_sums[key];
+      float scale = fref2_sum / fother;
+      std::cout << "compare-sums: " << key << "  " << fref2_sum << " " << fother << " scale " << scale << std::endl;
+   }
+
+   clipper::Xmap<float> xmap_scaled = xmap_2;
+   xmap_scaled.fft_from(fphis_2);
+   return xmap_scaled;
+}
+
 
 
 std::vector<std::pair<clipper::Resolution, double> >
@@ -4691,15 +4739,51 @@ coot::util::analyse_map_point_density_change(const std::vector<std::pair<clipper
                               };
 
 
-   clipper::Xmap<float> resulting_map; // initially empty
+   clipper::Xmap<float> empty_map; // initially empty
 
-   if (xmaps.size() < 2) return resulting_map;
-   if (! all_maps_have_the_same_grid()) return resulting_map;
+   if (xmaps.size() < 2) return empty_map;
+   if (! all_maps_have_the_same_grid()) return empty_map;
 
-   resulting_map = make_linear_fit_map();
+   clipper::Xmap<float> resulting_map = make_linear_fit_map();
    return resulting_map;
 
 }
+
+// user checks that the vector is not empty before calling this function.
+clipper::Xmap<float>
+coot::util::real_space_zero_dose_extrapolation(const std::vector<clipper::Xmap<float> *> &xmaps,
+                                                const clipper::Xmap<float> &xmap_mask) {
+
+   if (xmaps.empty())
+      throw(std::runtime_error("empty xmaps"));
+   clipper::Xmap<float> xmap_result(*xmaps[0]);
+   clipper::Xmap_base::Map_reference_index ix;
+   unsigned int n_masked = 0;
+   unsigned int n_non_masked = 0;
+   for (ix = xmap_result.first(); !ix.last(); ix.next() ) {
+      if (xmap_mask[ix] > 0.2) {
+         n_non_masked++;
+         std::vector<std::pair<double, double> > f_values(xmaps.size());
+         for (unsigned int imap=0; imap<xmaps.size(); imap++) {
+            const auto &xmap = *xmaps[imap];
+            float f = xmap[ix];
+            f_values.push_back(std::make_pair(static_cast<double>(imap), static_cast<double>(f)));
+         }
+         least_squares_fit lsq(f_values);
+         xmap_result[ix] = lsq.at(0);
+      } else {
+         n_masked++;
+         xmap_result[ix] = 0.0f;
+      }
+   }
+   std::cout << "masked counts " << n_masked << " " << n_non_masked << std::endl;
+   unsigned int n_sum = n_masked + n_non_masked;
+   float f1 = static_cast<float>(    n_masked)/static_cast<float>(n_sum);
+   float f2 = static_cast<float>(n_non_masked)/static_cast<float>(n_sum);
+   std::cout << "masked counts " << 100.0 * f1 << "% "  << 100.0 * f2 << "%" << std::endl;
+   return xmap_result;
+}
+
 
 
 // negative becomes positive and positive becomes negative.
@@ -4718,4 +4802,424 @@ coot::util::reverse_map(clipper::Xmap<float> *xmap_p) {
       float f = xmap[ix];
       xmap[ix] = -f - base;
    }
+}
+
+
+// this function should be passed a mask too.
+// Otherwise we would spend a lot of time calculating
+// distances of pixel in the map that noone cares about.
+// This is currently prevented by testing for 0.0 in the input map
+// but using a mask would be better.
+
+std::vector<std::pair<std::string, clipper::Xmap<float> > >
+coot::util::partition_map_by_chain(const clipper::Xmap<float> &xmap, mmdb::Manager *mol,
+                                   std::string *state_string_p) {
+
+   std::vector<std::pair<std::string, clipper::Xmap<float> > > v;
+
+   // this is only called for amino acids
+   auto make_side_chain_centre = [] (mmdb::Residue *residue_p) {
+      bool status = false;
+      clipper::Coord_orth centre;
+      int count = 0;
+      mmdb::Atom **residue_atoms = nullptr;
+      int n_residue_atoms = 0;
+      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      for(int iat=0; iat<n_residue_atoms; iat++) {
+         mmdb::Atom *at = residue_atoms[iat];
+         if (! at->isTer()) {
+            std::string atom_name(at->GetAtomName());
+            if (atom_name == " N  " || atom_name == " H  " || atom_name == " C  " ||
+               atom_name == " CA " || atom_name == " O  " || atom_name == " HA ")
+               continue;
+            centre += coot::co(at);
+            count += 1;
+         }
+      }
+      if (count > 0) {
+         double sf = 1.0/static_cast<double>(count);
+         centre = clipper::Coord_orth(centre.x() * sf, centre.y() * sf, centre.z() * sf);
+         status = true;
+      }
+      return std::make_pair(status, centre);
+   };
+
+   auto make_reference_points_for_chains = [make_side_chain_centre] (mmdb::Manager *mol,
+                                                const clipper::Cell &cell,
+                                                const clipper::Grid_sampling &gs) {
+      // chain-id and CA positions as grid points
+      std::map<std::string, std::vector<clipper::Coord_grid> > coordinates_grid_points_map;
+      for (int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+         mmdb::Model *model_p = mol->GetModel(imod);
+         if (model_p) {
+            int n_chains = model_p->GetNumberOfChains();
+            for (int ichain=0; ichain<n_chains; ichain++) {
+               mmdb::Chain *chain_p = model_p->GetChain(ichain);
+               std::string chain_id(chain_p->GetChainID());
+               int n_res = chain_p->GetNumberOfResidues();
+               for (int ires=0; ires<n_res; ires++) {
+                  mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                  if (residue_p) {
+                     int n_atoms = residue_p->GetNumberOfAtoms();
+                     for (int iat=0; iat<n_atoms; iat++) {
+                        mmdb::Atom *at = residue_p->GetAtom(iat);
+                        if (! at->isTer()) {
+                           std::string name(at->GetAtomName());
+                           if (name == " CA " || name == " P  " || name == " C4'" ||
+                               name == " N9 " || name == " N1 " || name == " C4 ") {
+                              clipper::Coord_orth co = coot::co(at);
+                              clipper::Coord_frac cf = co.coord_frac(cell);
+                              clipper::Coord_grid cg = cf.coord_grid(gs);
+                              coordinates_grid_points_map[chain_id].push_back(cg);
+                           }
+                        }
+                     }
+                     if (residue_p->isAminoacid()) {
+                        std::pair<bool, clipper::Coord_orth> side_chain_centre =
+                           make_side_chain_centre(residue_p);
+                        if (side_chain_centre.first) {
+                           clipper::Coord_frac cf = side_chain_centre.second.coord_frac(cell);
+                           clipper::Coord_grid cg = cf.coord_grid(gs);
+                           coordinates_grid_points_map[chain_id].push_back(cg);
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      }
+      return coordinates_grid_points_map;
+   };
+
+   auto split_biggest_chain = [] (std::map<std::string, std::vector<clipper::Coord_grid> > *rp_p) {
+      std::map<std::string, std::vector<clipper::Coord_grid> >::const_iterator it;
+      unsigned int n_biggest = 0;
+      std::string biggest_chain;
+      for (it=rp_p->begin(); it!=rp_p->end(); ++it) {
+         unsigned int n = it->second.size();
+         if (n > n_biggest) {
+            const std::string chain_id = it->first;
+            n_biggest = n;
+            biggest_chain = chain_id;
+         }
+      }
+      if (n_biggest > 0) {
+         std::vector<clipper::Coord_grid> &v = (*rp_p)[biggest_chain];
+         size_t half_size = n_biggest / 2;
+         if (n_biggest % 2 != 0) half_size += 1;
+         std::vector<clipper::Coord_grid> new_v;
+         for (unsigned int i=half_size; i<v.size(); i++)
+            new_v.push_back(v[i]);
+         v.resize(half_size);
+         std::string new_chain_id = biggest_chain + "+";
+         (*rp_p)[new_chain_id] = new_v;
+      }
+   };
+
+   std::cout << "Making reference points for chains" << std::endl;
+   if (state_string_p) *state_string_p = "Making reference points for chains";
+   clipper::Cell cell = xmap.cell();
+   clipper::Spacegroup sg = xmap.spacegroup();
+   clipper::Grid_sampling gs = xmap.grid_sampling();
+   std::map<std::string, std::vector<clipper::Coord_grid> > rp =
+      make_reference_points_for_chains(mol, cell, gs);
+
+   split_biggest_chain(&rp);
+
+   std::vector<std::string> chain_ids;
+   for(const auto &item : rp)
+      chain_ids.push_back(item.first);
+   clipper::Xmap<std::map<std::string, int> > distance_map;
+   distance_map.init(sg, cell, gs);
+
+   std::cout << "INFO:: Filling distance map with initial values" << std::endl;
+   if (state_string_p) *state_string_p = "Filling distance map with initial values";
+   std::map<std::string, int> starting_distance_map;
+   for (const auto &item : chain_ids)
+      starting_distance_map[item] = 999999;
+   clipper::Xmap_base::Map_reference_index ix;
+   for (ix = distance_map.first(); !ix.last(); ix.next())  {
+      clipper::Coord_grid cg = ix.coord();
+      float f = xmap.get_data(cg);
+      if (f != 0.0)
+         distance_map[ix] = starting_distance_map;
+   }
+
+   auto manhattan_check = +[] (const std::string &chain_id,
+                               const std::vector<clipper::Coord_grid> &reference_points,
+                               clipper::Xmap<std::map<std::string, int> > *distance_map_p,
+                               std::string *info_string_p) {
+
+      if (info_string_p) *info_string_p = "Distance check for " + chain_id;
+      clipper::Xmap_base::Map_reference_index ix;
+      for (ix = distance_map_p->first(); !ix.last(); ix.next()) {
+         std::map<std::string, int>::const_iterator it;
+         if ((*distance_map_p)[ix].empty()) continue;
+         auto &current_dist = (*distance_map_p)[ix][chain_id];
+         clipper::Coord_grid cg = ix.coord();
+         for (unsigned int i=0; i<reference_points.size(); i++) {
+            const auto &ref_grid_pt = reference_points[i];
+            int d_u = ref_grid_pt.u() - cg.u();
+            int d_v = ref_grid_pt.v() - cg.v();
+            int d_w = ref_grid_pt.w() - cg.w();
+            int manhattan_dist = abs(d_u) + abs(d_v) + abs(d_w);
+            if (manhattan_dist < current_dist) {
+               current_dist = manhattan_dist;
+            }
+         }
+      }
+      std::cout << "INFO:: manhattan map check done " << chain_id << std::endl;
+   };
+
+   std::vector<std::thread> threads;
+   for (const auto &chain_id : chain_ids) {
+      // this block can be multi-threaded, I think
+      const std::vector<clipper::Coord_grid> &reference_points = rp[chain_id];
+      // modify distance map
+      // manhattan_check(chain_id, reference_points, &distance_map);
+      threads.push_back(std::thread(manhattan_check, chain_id, reference_points, &distance_map,
+                                    state_string_p));
+   }
+
+   if (state_string_p) *state_string_p = "Joining threads...";
+   std::cout << "INFO:: joining threads" << std::endl;
+   for (auto &thread : threads) thread.join();
+
+   // now extract each of the maps for each chain
+   std::cout << "INFO:: now constructing the map for each chain" << std::endl;
+   if (state_string_p) *state_string_p = "Constructing the map for each chain";
+
+   clipper::Xmap<std::string> chain_map;
+   chain_map.init(sg, cell, gs);
+   for (ix = distance_map.first(); !ix.last(); ix.next()) {
+      const auto &dist_map = distance_map[ix];
+      std::string best_chain_id;
+      int dist_best = 999999;
+      std::map<std::string, int>::const_iterator it;
+      for (it=dist_map.begin(); it!=dist_map.end(); ++it) {
+         if (it->second < dist_best) {
+            dist_best = it->second;
+            best_chain_id = it->first;
+            // std::cout << " best-chain " << ix.coord().format() << " " << best_chain_id << std::endl;
+         }
+      }
+      // chaid-ids ending in "+" really are part of another chain.
+      if (best_chain_id.size() == 2)
+         if (best_chain_id[1] == '+')
+            best_chain_id = best_chain_id[0];
+      chain_map[ix] = best_chain_id;
+   }
+
+   for(const auto &chain_id : chain_ids) {
+      // chaid-ids ending in "+" really are part of another chain.
+      if (chain_id.size() == 2)
+         if (chain_id[1] == '+')
+            continue;
+      std::cout << "INFO:: constructing map for chain " << chain_id << std::endl;
+      if (state_string_p) *state_string_p = "Constructing map for chain " + chain_id;
+      clipper::Xmap<float> map_for_chain;
+      map_for_chain.init(sg, cell, gs);
+      for (ix = chain_map.first(); !ix.last(); ix.next()) {
+         const auto &chain_for_this_grid_point = chain_map[ix];
+         clipper::Coord_grid cg = ix.coord();
+         if (chain_for_this_grid_point == chain_id) {
+            float f = xmap.get_data(cg);
+            map_for_chain.set_data(cg, f);
+         } else {
+            map_for_chain.set_data(cg, 0.0f);
+         }
+      }
+      v.push_back(std::make_pair(chain_id, map_for_chain));
+   }
+
+   return v;
+}
+
+
+clipper::Xmap<float>
+coot::util::make_map_mask(const clipper::Spacegroup &space_group,
+                          const clipper::Cell &cell,
+                          const clipper::Grid_sampling &grid_sampling,
+                          mmdb::Manager *mol,
+                          int atom_selection_handle,
+                          float radius,
+                          float smooth) {
+
+   float outer_space_f = -1.1f;
+   clipper::Xmap<float> xmap(space_group, cell, grid_sampling);
+   clipper::Xmap_base::Map_reference_index ix;
+   for (ix = xmap.first(); !ix.last(); ix.next())
+      xmap[ix] = outer_space_f;
+
+   mmdb::Atom **selected_atoms = 0;
+   int n_atoms = 0;
+   mol->GetSelIndex(atom_selection_handle, selected_atoms, n_atoms);
+   for (int iat=0; iat<n_atoms; iat++) {
+      mmdb::Atom *at = selected_atoms[iat];
+      if (! at->isTer()) {
+
+         float atom_radius_sq = radius * radius;
+         clipper::Coord_orth pt = co(at);
+         clipper::Coord_frac cf = pt.coord_frac(cell);
+         clipper::Coord_frac box0(
+                                  cf.u() - radius/cell.descr().a(),
+                                  cf.v() - radius/cell.descr().b(),
+                                  cf.w() - radius/cell.descr().c());
+         clipper::Coord_frac box1(
+                                  cf.u() + radius/cell.descr().a(),
+                                  cf.v() + radius/cell.descr().b(),
+                                  cf.w() + radius/cell.descr().c());
+         clipper::Grid_map grid(box0.coord_grid(grid_sampling),
+                                box1.coord_grid(grid_sampling));
+
+         if (smooth > 0.0) {
+            clipper::Xmap_base::Map_reference_coord ix(xmap, grid.min() ), iu, iv, iw;
+            for (iu = ix; iu.coord().u() <= grid.max().u(); iu.next_u() ) {
+               for ( iv = iu; iv.coord().v() <= grid.max().v(); iv.next_v() ) {
+                  for ( iw = iv; iw.coord().w() <= grid.max().w(); iw.next_w() ) {
+                     clipper::Coord_orth gp_orth = iw.coord().coord_frac(grid_sampling).coord_orth(cell);
+                     float dd = (gp_orth - pt).lengthsq();
+                     const float &current_v = xmap[iw];
+                     if (current_v < 1.0) {
+                        if (dd < atom_radius_sq) {
+                           float d = sqrtf(dd);
+                           float v_delta = 1.0 - d/radius;
+                           xmap[iw] += v_delta;
+                           if (xmap[iw] > 1.0) xmap[iw] = 1.0;
+                        }
+                     }
+                  }
+               }
+            }
+
+         } else {
+            // no smoothing
+            clipper::Xmap_base::Map_reference_coord ix(xmap, grid.min() ), iu, iv, iw;
+            for (iu = ix; iu.coord().u() <= grid.max().u(); iu.next_u() ) {
+               for ( iv = iu; iv.coord().v() <= grid.max().v(); iv.next_v() ) {
+                  for ( iw = iv; iw.coord().w() <= grid.max().w(); iw.next_w() ) {
+                     float dd = (iw.coord().coord_frac(grid_sampling).coord_orth(cell) - pt).lengthsq();
+                     if (dd < atom_radius_sq) {
+                        xmap[iw] = 1.0;
+                     }
+                  }
+               }
+            }
+         }
+      }
+   }
+
+   // remove voids, the starting points of which are the masking values between 1.0 and 0.0
+
+   bool continue_removing_voids = true;
+   int count = 0;
+   float cut_off = 1.0f;
+
+   clipper::Xmap<short int> considered_map(space_group, cell, grid_sampling);
+   clipper::Xmap<short int>  outer_surface(space_group, cell, grid_sampling);
+   for (ix = considered_map.first(); !ix.last(); ix.next()) considered_map[ix] = 0;
+   for (ix = outer_surface.first();  !ix.last(); ix.next())  outer_surface[ix] = 0;
+
+   clipper::Skeleton_basic::Neighbours neighb(xmap);
+
+   while (continue_removing_voids) {
+
+      if (false)
+         std::cout << "void removal round " << count << std::endl;
+      continue_removing_voids = false;
+
+      std::queue<clipper::Coord_grid> q;
+      for (ix = xmap.first(); !ix.last(); ix.next()) {
+         const float &xmix = xmap[ix];
+         if (xmix < cut_off) {
+            if (xmix > 0.0f) {
+               q.push(ix.coord());
+            }
+         }
+
+         if (! q.empty()) {
+            if (considered_map.get_data(ix.coord()) == 1) {
+            } else {
+               considered_map[ix] = 1;
+               std::vector<clipper::Coord_grid> cluster_grid_points;
+               while (! q.empty()) {
+                  clipper::Coord_grid c_g_start = q.front();
+                  q.pop();
+                  cluster_grid_points.push_back(c_g_start);
+                  for (int i=0; i<neighb.size(); i++) {
+                     clipper::Coord_grid c_g = c_g_start + neighb[i];
+                     if (considered_map.get_data(c_g) == 0) {
+                        float f = xmap.get_data(c_g);
+                        if (f < cut_off) {
+                           considered_map.set_data(c_g, 1);
+                           cluster_grid_points.push_back(c_g);
+                           if (f > 0.0f)
+                              q.push(c_g);
+                        }
+                     }
+                  }
+               }
+               // std::cout << "cluster size " << cluster_grid_points.size() << " for " << ix.coord().format() << std::endl;
+
+               if (false) { // debug
+                  if (cluster_grid_points.size() > 100) {
+                     for (unsigned int ii=0; ii<cluster_grid_points.size(); ii++) {
+                        const auto &gp = cluster_grid_points[ii];
+                        std::cout << " cluster-grid-point " << gp.u() << " " << gp.v() << " " << gp.w() << " "
+                                  << xmap.get_data(gp) << std::endl;
+                     }
+                  }
+               }
+
+               if (cluster_grid_points.size() < 100) { // need testing
+                  for (unsigned int ii=0; ii<cluster_grid_points.size(); ii++) {
+                     const auto &gp = cluster_grid_points[ii];
+                     xmap.set_data(gp, 1.0f);
+                  }
+                  continue_removing_voids = true;
+               } else {
+                  for (unsigned int ii=0; ii<cluster_grid_points.size(); ii++) {
+                     const auto &gp = cluster_grid_points[ii];
+                     outer_surface.set_data(gp, 1);
+                  }
+               }
+            }
+         }
+      }
+      count += 1;
+   }
+
+   // what's left is voids with values of actually zero
+
+   continue_removing_voids = true;
+   while (continue_removing_voids) {
+
+      continue_removing_voids = false;
+
+      for (ix = xmap.first(); !ix.last(); ix.next()) {
+         const float &xmix = xmap[ix];
+         if (xmix == 0.0f) {
+            clipper::Coord_grid c_g_start = ix.coord();
+            if (considered_map.get_data(c_g_start) == 1) {
+            } else {
+               bool has_non_zero_neighb = false;
+               for (int i=0; i<neighb.size(); i++) {
+                  clipper::Coord_grid c_g = c_g_start + neighb[i];
+                  if (xmap.get_data(c_g) > 0.0) {
+                     if (outer_surface.get_data(c_g) != 1) {
+                        has_non_zero_neighb = true;
+                        break;
+                     }
+                     if (has_non_zero_neighb) {
+                        xmap.set_data(c_g, 1.0);
+                        continue_removing_voids = true;
+                     }
+                  }
+               }
+            }
+         }
+      }
+   }
+
+   return xmap;
 }

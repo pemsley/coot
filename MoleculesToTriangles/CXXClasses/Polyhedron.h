@@ -55,7 +55,8 @@ public:
 		*this = oldOne;
 	}
 	PolyhedronFace(int indexCount, int *newIndices){
-		if (indices.size() != indexCount) indices.resize(indexCount);
+                int indices_size = indices.size(); // convert type
+		if (indices_size != indexCount) indices.resize(indexCount);
 		for (int i=0; i<indexCount; i++){
 			indices[i] = newIndices[i];
 		}

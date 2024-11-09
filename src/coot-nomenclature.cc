@@ -37,7 +37,7 @@
 // by renaming atoms.
 // 
 std::vector<mmdb::Residue *>
-coot::nomenclature::fix(coot::protein_geometry *Geom_p) {
+coot::nomenclature::fix(const coot::protein_geometry *Geom_p) {
 
    std::vector<mmdb::Residue *> vr = fix_and_swap_maybe(Geom_p, 1);
    return vr;
@@ -46,7 +46,7 @@ coot::nomenclature::fix(coot::protein_geometry *Geom_p) {
 // just list the swaps needed - don't apply them.
 // 
 std::vector<mmdb::Residue *>
-coot::nomenclature::list(coot::protein_geometry *Geom_p) {
+coot::nomenclature::list(const coot::protein_geometry *Geom_p) {
 
    std::vector<mmdb::Residue *> vr = fix_and_swap_maybe(Geom_p, 0);
    return vr;
@@ -57,7 +57,7 @@ coot::nomenclature::list(coot::protein_geometry *Geom_p) {
 // by renaming atoms.
 // 
 std::vector<mmdb::Residue *>
-coot::nomenclature::fix_and_swap_maybe(coot::protein_geometry *Geom_p, bool apply_swaps) {
+coot::nomenclature::fix_and_swap_maybe(const coot::protein_geometry *Geom_p, bool apply_swaps) {
 
    std::vector<mmdb::Residue *> vr;
    if (mol_) { 

@@ -1944,10 +1944,11 @@ Bond_lines_container::construct_from_model_links(mmdb::Model *model_p,
                                                  int udd_user_defined_atom_colour_index_handle,
                                                  int atom_colour_type) {
 
-   if (false) { // debugging
+   if (false) { // debugging: show the model
       // udd_atom_index_handle is -1 for intermediate atoms
       std::cout << "in construct_from_model_links() udd_atom_index_handle is " << udd_atom_index_handle
                 << "\n";
+
       if (model_p) {
          int n_chains = model_p->GetNumberOfChains();
          for (int ichain=0; ichain<n_chains; ichain++) {
@@ -1960,7 +1961,7 @@ Bond_lines_container::construct_from_model_links(mmdb::Model *model_p,
                   mmdb::Atom *at = residue_p->GetAtom(iat);
                   int atom_index = -1;
                   int udd_status = at->GetUDData(udd_atom_index_handle, atom_index);
-                  std::cout << "  in construct_from_model_links()"
+                  std::cout << "  in construct_from_model_links() "
                             << coot::atom_spec_t(at) << " " << udd_status << " " << atom_index << "\n";
                }
             }
@@ -1978,6 +1979,8 @@ Bond_lines_container::construct_from_model_links(mmdb::Model *model_p,
    if (model_p) {
 
       int n_links = model_p->GetNumberOfLinks();
+      if (false)
+         std::cout << "debug:: in construct_from_model_links() n_links: " << n_links << std::endl;
       if (n_links > 0) {
          for (int i_link=1; i_link<=n_links; i_link++) {
             mmdb::Link *link = model_p->GetLink(i_link);
@@ -2013,7 +2016,6 @@ Bond_lines_container::add_link_bond(mmdb::Model *model_p,
       std::cout << "calling add_link_bond with LINK "
                 << "\"" << link->chainID1 << "\""
                 << " "  << link->seqNum1   << " "
-                << "\"" << link->seqNum1  << "\""
                 << "\"" << link->atName1  << "\""
                 << " to "
                 << "\"" << link->chainID2 << "\""
@@ -2032,7 +2034,7 @@ Bond_lines_container::add_link_bond(mmdb::Model *model_p,
                                     mmdb::LinkR *linkr) {
 
    // Missing LINKR bond is due to incorrect placement of atom names in the LINKR card
-   if (0)
+   if (false)
       std::cout << "calling add_link_bond_templ with LINKR "
                 << "\"" << linkr->chainID1 << "\""
                 << " "  << linkr->seqNum1   << " "
@@ -2186,6 +2188,13 @@ Bond_lines_container::add_link_bond_templ(mmdb::Model *model_p, int udd_atom_ind
          col = atom_colour(atom_2, atom_colour_type, udd_user_defined_atom_colour_index_handle);
          add_dashed_bond(col, bond_mid_point, pos_2, HALF_BOND_SECOND_ATOM, graphics_line_t::SINGLE, model_number, atom_index_1, atom_index_2);
       }
+   } else {
+      if (! atom_1)
+         std::cout << "debug:: in add_link_bond_templ() failed to find atom-1 "
+                   << "\"" << link->chainID1 << "\" " << link->seqNum1 << " \"" << link->atName1 << "\"" << std::endl;
+      if (! atom_2)
+         std::cout << "debug:: in add_link_bond_templ() failed to find atom-2 "
+                   << "\"" << link->chainID2 << "\" " << link->seqNum2 << " \"" << link->atName2 << "\"" << std::endl;
    }
 }
 
@@ -8538,6 +8547,8 @@ Bond_lines_container::add_atom_centres(int imol,
                if (! have_dict_for_this_type)
                   if (atom_colour_type != coot::COLOUR_BY_ATOM_TYPE)
                      gbai.set_radius_scale_for_atom_with_no_dictionary(at);
+
+            gbai.set_radius_scale_for_atom(at, make_fat_atom);
 
             // this is a bit hacky
             if (atom_colour_type == coot::COLOUR_BY_USER_DEFINED_COLOURS)

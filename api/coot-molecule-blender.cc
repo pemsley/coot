@@ -52,9 +52,10 @@ coot::molecule_t::make_mesh_for_bonds_for_blender(const std::string &mode, prote
 void
 coot::molecule_t::make_mesh_for_molecular_representation_for_blender(const std::string &cid,
                                                                      const std::string &colour_scheme,
-                                                                     const std::string &style) {
+                                                                     const std::string &style,
+                                                                     int secondary_structure_usage_flag) {
 
-   simple_mesh_t mesh = get_molecular_representation_mesh(cid, colour_scheme, style);
+   simple_mesh_t mesh = get_molecular_representation_mesh(cid, colour_scheme, style, secondary_structure_usage_flag);
 
    blender_mesh_t bm(mesh);
    blender_mesh = std::move(bm);

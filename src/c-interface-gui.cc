@@ -1506,8 +1506,9 @@ coot_no_state_real_exit(int retval) {
 void
 coot_save_state_and_exit(int retval, int save_state_flag) {
 
-   // wait for refinement to finish (c.f conditionally_wait_for_refinement_to_finish())
+   graphics_info_t::static_thread_pool.stop(true);
 
+   // wait for refinement to finish (c.f conditionally_wait_for_refinement_to_finish())
    while (graphics_info_t::restraints_lock) {
       std::this_thread::sleep_for(std::chrono::milliseconds(30));
    }
@@ -1517,9 +1518,11 @@ coot_save_state_and_exit(int retval, int save_state_flag) {
    }
 
    // save the history
-   graphics_info_t g;
-   if (! g.disable_state_script_writing)
-      g.save_history();
+   if (save_state_flag) {
+      graphics_info_t g;
+      if (! g.disable_state_script_writing)
+         g.save_history();
+   }
 
 #ifdef USE_MYSQL_DATABASE
    db_finish_up();
@@ -2052,36 +2055,40 @@ void handle_get_accession_code(GtkWidget *frame, GtkWidget *entry) {
       // 20240630-PE need to check that the file already exists before downloading it
       xdg_t xdg;
       std::string download_dir = join(xdg.get_cache_home().string(), "coot-download");
-      std::string down_id = coot::util::downcase(text);
-      std::string pdbe_server = "https://www.ebi.ac.uk";
-      std::string pdbe_pdb_file_dir = "pdbe/entry-files/download";
-      std::string pdb_url_dir = pdbe_server + "/" + pdbe_pdb_file_dir;
+      std::string dld = coot::get_directory(download_dir);
+      if (! dld.empty()) {
+         download_dir = dld;
+         std::string down_id = coot::util::downcase(text);
+         std::string pdbe_server = "https://www.ebi.ac.uk";
+         std::string pdbe_pdb_file_dir = "pdbe/entry-files/download";
+         std::string pdb_url_dir = pdbe_server + "/" + pdbe_pdb_file_dir;
 
-      std::string pdb_file_name = std::string("pdb") + down_id + std::string(".ent");
-      std::string cif_file_name = std::string("pdb") + down_id + std::string(".cif");
-      std::string pdb_filepath = coot::util::append_dir_file(download_dir, pdb_file_name);
-      std::string cif_filepath = coot::util::append_dir_file(download_dir, cif_file_name);
+         std::string pdb_file_name = std::string("pdb") + down_id + std::string(".ent");
+         std::string cif_file_name = std::string("pdb") + down_id + std::string(".cif");
+         std::string pdb_filepath = coot::util::append_dir_file(download_dir, pdb_file_name);
+         std::string cif_filepath = coot::util::append_dir_file(download_dir, cif_file_name);
 
-      std::string pdb_url = join(pdb_url_dir, pdb_file_name);
-      std::string cif_url = join(pdb_url_dir, cif_file_name);
+         std::string pdb_url = join(pdb_url_dir, pdb_file_name);
+         std::string cif_url = join(pdb_url_dir, cif_file_name);
 
-      if (mode == 1) { // mtz mode
-         std::string mtz_file_name = down_id + std::string("_map.mtz");
-         std::string mtz_filepath = coot::util::append_dir_file(download_dir, mtz_file_name);
-         std::string mtz_url = join_2d(pdbe_server, pdbe_pdb_file_dir, mtz_file_name);
-         int status = coot_get_url(mtz_url, mtz_filepath);
-         if (status == 0) {
-            auto_read_make_and_draw_maps(mtz_filepath.c_str());
-         }
-      } else {
-         // blocking!
-         int status = coot_get_url(pdb_url, pdb_file_name);
-         if (status == 0) {
-            read_pdb(pdb_file_name);
-         } else {
-            status = coot_get_url(cif_url, cif_file_name);
+         if (mode == 1) { // mtz mode
+            std::string mtz_file_name = down_id + std::string("_map.mtz");
+            std::string mtz_filepath = coot::util::append_dir_file(download_dir, mtz_file_name);
+            std::string mtz_url = join_2d(pdbe_server, pdbe_pdb_file_dir, mtz_file_name);
+            int status = coot_get_url(mtz_url, mtz_filepath);
             if (status == 0) {
-               read_pdb(cif_file_name);
+               auto_read_make_and_draw_maps(mtz_filepath.c_str());
+            }
+         } else {
+            // blocking!
+            int status = coot_get_url(pdb_url, pdb_file_name);
+            if (status == 0) {
+               read_pdb(pdb_file_name);
+            } else {
+               status = coot_get_url(cif_url, cif_file_name);
+               if (status == 0) {
+                  read_pdb(cif_file_name);
+               }
             }
          }
       }
@@ -2089,27 +2096,34 @@ void handle_get_accession_code(GtkWidget *frame, GtkWidget *entry) {
 
    auto fetch_pdb_redo = [join] (const std::string &code) {
 
-      // 20240630-PE need to check that the file already existss before downloading it
+      // 20240630-PE need to check that the file already exists before downloading it
       xdg_t xdg;
       std::string download_dir = join(xdg.get_cache_home().string(), "coot-download");
-      std::string down_id = coot::util::downcase(code);
-      std::string server = "https://pdb-redo.eu";
-      std::string server_dir = std::string("db") + "/" + code;
-      std::string pdb_file_name = code + "_final.pdb";
-      std::string mtz_file_name = code + "_final.mtz";
-      // make a "join()" function
-      std::string pdb_url = server + "/" + server_dir + "/" + pdb_file_name;
-      std::string mtz_url = server + "/" + server_dir + "/" + mtz_file_name;
-      std::string pdb_filepath = coot::util::append_dir_dir(download_dir, pdb_file_name);
-      std::string mtz_filepath = coot::util::append_dir_dir(download_dir, mtz_file_name);
-      int status = coot_get_url(pdb_url, pdb_filepath);
-      if (status == 0) {
-         read_pdb(pdb_filepath);
-         status = coot_get_url(mtz_url, mtz_filepath);
+      std::string dld = coot::get_directory(download_dir);
+      if (! dld.empty()) {
+         download_dir = dld;
+         std::string down_id = coot::util::downcase(code);
+         std::string server = "https://pdb-redo.eu";
+         std::string server_dir = std::string("db") + "/" + code;
+         std::string pdb_file_name = code + "_final.pdb";
+         std::string mtz_file_name = code + "_final.mtz";
+         // make a "join()" function
+         std::string pdb_url = server + "/" + server_dir + "/" + pdb_file_name;
+         std::string mtz_url = server + "/" + server_dir + "/" + mtz_file_name;
+         std::string pdb_filepath = coot::util::append_dir_dir(download_dir, pdb_file_name);
+         std::string mtz_filepath = coot::util::append_dir_dir(download_dir, mtz_file_name);
+         int status = coot_get_url(pdb_url, pdb_filepath);
          if (status == 0) {
-            // why is auto_read_mtz() not a thing? Use a std::string arg
-            auto_read_make_and_draw_maps(mtz_filepath.c_str());
+            read_pdb(pdb_filepath);
+            status = coot_get_url(mtz_url, mtz_filepath);
+            if (status == 0) {
+               // why is auto_read_mtz() not a thing? Use a std::string arg
+               auto_read_make_and_draw_maps(mtz_filepath.c_str());
+            }
          }
+      } else {
+         std::cout << "WARNING:: failed to make directory " << download_dir
+                   << std::endl;
       }
 
    };

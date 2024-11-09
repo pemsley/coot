@@ -965,9 +965,9 @@ void difference_map_peaks_from_dialog() {
    bool around_model_only = true;
 
    if (good_sigma)
-	   difference_map_peaks(imol_diff_map, imol_coords, v,
-		      	      graphics_info_t::difference_map_peaks_max_closeness,
-			            do_positive_level, do_negative_level, around_model_only);
+      difference_map_peaks(imol_diff_map, imol_coords, v,
+                           graphics_info_t::difference_map_peaks_max_closeness,
+                           do_positive_level, do_negative_level, around_model_only);
 }
 
 

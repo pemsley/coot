@@ -103,9 +103,6 @@
 
 #include "skeleton/BuildCas.h"
 
-#include "trackball.h" // adding exportable rotate interface
-
-
 #include "c-interface.h"
 #include "c-interface-gtk-widgets.h"
 #include "cc-interface.hh"
@@ -833,8 +830,12 @@ int handle_read_draw_molecule_with_recentre(const std::string &filename,
 	 // algorithm.
 
 
-	 std::vector<std::string> types_with_no_dictionary =
+	 std::vector<std::string> types_with_no_dictionary;
+         const coot::protein_geometry *geom_p = g.Geom_p();
+         if (g.Geom_p())
 	    g.molecules[imol].no_dictionary_for_residue_type_as_yet(*g.Geom_p());
+         else
+            std::cout << "ERROR:: handle_read_draw_molecule_with_recentre() Geom_p() returns null" << std::endl;
 
 	 int first_n_types_with_no_dictionary = types_with_no_dictionary.size();
 
@@ -850,7 +851,8 @@ int handle_read_draw_molecule_with_recentre(const std::string &filename,
 	    g.cif_dictionary_read_number++;
 	 }
 
-	 types_with_no_dictionary = g.molecules[imol].no_dictionary_for_residue_type_as_yet(*g.Geom_p());
+         if (geom_p)
+	    types_with_no_dictionary = g.molecules[imol].no_dictionary_for_residue_type_as_yet(*geom_p);
 
 	 if (types_with_no_dictionary.size()) {
 	    if (g.Geom_p()->try_load_ccp4srs_description(types_with_no_dictionary))
@@ -866,8 +868,9 @@ int handle_read_draw_molecule_with_recentre(const std::string &filename,
 
 	 if (graphics_info_t::nomenclature_errors_mode == coot::PROMPT) {
 	    // Now, did that PDB file contain nomenclature errors?
-	    std::vector<std::pair<std::string,coot::residue_spec_t> > nomenclature_errors =
-	       g.molecules[imol].list_nomenclature_errors(g.Geom_p());
+	    std::vector<std::pair<std::string,coot::residue_spec_t> > nomenclature_errors;
+            if (geom_p)
+               nomenclature_errors = g.molecules[imol].list_nomenclature_errors(geom_p);
 	    // gui function checks use_graphics_interface_flag
 	    if (nomenclature_errors.size())
 	       show_fix_nomenclature_errors_gui(imol, nomenclature_errors);
@@ -3271,7 +3274,7 @@ void set_default_bond_thickness(int t) {
 
 }
 
-/*! \brief set the default represenation type (default 1).*/
+/*! \brief set the default representation type (default 1).*/
 void set_default_representation_type(int type) {
    graphics_info_t g;
    g.default_bonds_box_type = type;
@@ -3832,12 +3835,12 @@ void set_rotation_centre_size_from_widget(const gchar *text) {
    float val;
    graphics_info_t g;
 
-   val = atof(text); 
-   if ((val > 1000) || (val < 0)) { 
+   val = atof(text);
+   if ((val > 1000) || (val < 0)) {
       std::cout << "Invalid cube size: " << text << ". Assuming 1.0A" << std::endl;
       val = 1.0;
-   } 
-   g.rotation_centre_cube_size = val; 
+   }
+   g.rotation_centre_cube_size = val;
    graphics_draw();
 }
 
@@ -3846,6 +3849,19 @@ void set_rotation_centre_size(float f) {
    g.rotation_centre_cube_size = f;
    graphics_draw();
 }
+
+/*! \brief set rotation centre colour
+
+This is the colour for a dark background - if the background colour is not dark,
+then the cross-hair colour becomes the inverse colour */
+void set_rotation_centre_cross_hairs_colour(float r, float g, float b, float alpha) {
+
+   glm::vec4 c(r,g,b,alpha);
+   graphics_info_t gg;
+   gg.set_rotation_centre_cross_hairs_colour(c);
+   graphics_draw();
+}
+
 
 gchar *get_text_for_rotation_centre_cube_size() {
 
@@ -5895,7 +5911,7 @@ void display_maps_py(PyObject *pyo) {
 void
 set_display_control_button_state(int imol, const std::string &button_type, int state) {
 
-   //   button type is "Active" or "Displayed"
+   // button type is "Active" or "Displayed"
    if (false)
       std::cout << "start: set_display_control_button_state() imol " << imol << " type " << button_type
                 << " new_state: " << state << std::endl;
@@ -6124,14 +6140,12 @@ void set_only_last_model_molecule_displayed() {
          // set_mol_displayed(turn_these_off[j], 0);
          // set_mol_active(turn_these_off[j], 0);
 
-               std::cout << ".....  turning off " << turn_these_off[j] << std::endl;
+         // std::cout << ".....  turning off button for " << turn_these_off[j] << std::endl;
 
          g.molecules[turn_these_off[j]].set_mol_is_displayed(0);
          g.molecules[turn_these_off[j]].set_mol_is_active(0);
-         if (g.display_control_window())
-            set_display_control_button_state(turn_these_off[j], "Displayed", 0);
-         if (g.display_control_window())
-            set_display_control_button_state(turn_these_off[j], "Active", 0);
+         set_display_control_button_state(turn_these_off[j], "Displayed", 0);
+         set_display_control_button_state(turn_these_off[j], "Active", 0);
       }
    }
    if (is_valid_model_molecule(imol_last)) {
@@ -6142,8 +6156,7 @@ void set_only_last_model_molecule_displayed() {
 
 	 g.molecules[imol_last].set_mol_is_displayed(1);
 	 g.molecules[imol_last].set_mol_is_active(1);
-	 if (g.display_control_window())
-	    set_display_control_button_state(imol_last, "Displayed", 1);
+         set_display_control_button_state(imol_last, "Displayed", 1);
       }
    }
    g.mol_displayed_toggle_do_redraw = true; // back on again
@@ -9522,3 +9535,40 @@ void set_show_non_bonded_contact_baddies_markers(int imol, int state) {
       graphics_draw();
    }
 }
+
+
+#ifdef USE_PYTHON
+/* Get model molecule list */
+PyObject *get_model_molecule_list_py() {
+
+   std::vector<int> v;
+   graphics_info_t g;
+   unsigned int n = g.n_molecules();
+   for (unsigned int i=0; i<n; i++) {
+      if (is_valid_model_molecule(i))
+         v.push_back(i);
+   }
+   PyObject *l_py = PyList_New(v.size());
+   for (unsigned int ii=0; ii<v.size(); ii++) {
+      PyList_SetItem(l_py, ii, PyLong_FromLong(v[ii]));
+   }
+   return l_py;
+}
+#endif
+
+#ifdef USE_GUILE
+/* Get model molecule list */
+SCM get_model_molecule_list_scm() {
+
+   std::vector<int> v;
+   graphics_info_t g;
+   unsigned int n = g.n_molecules();
+   for (unsigned int i=0; i<n; i++) {
+      if (is_valid_model_molecule(i))
+         v.push_back(i);
+   }
+   SCM l_scm = SCM_EOL;
+   // 20240802-PE fill me.
+   return l_scm;
+}
+#endif

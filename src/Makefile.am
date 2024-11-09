@@ -643,6 +643,8 @@ libcootsumo_la_SOURCES = \
 	lbg-callbacks-outer.cc   \
 	lbg-interface.cc         \
 	ligand-check.hh          \
+        M2T-interface.hh         \
+        M2T-interface.cc         \
 	Model.cc Model.hh        \
 	make-a-dodec.cc make-a-dodec.hh \
 	map-statistics.hh               \
@@ -748,7 +750,6 @@ libcootsumo_la_SOURCES = \
 	Texture.cc Texture.hh    \
 	TextureMesh.cc TextureMesh.hh \
 	tomo-tools.cc \
-	trackball.c trackball.h  \
 	triangle-extras.h        \
 	user-mods.hh user-mods.cc\
 	xmap-utils.cc 		 \

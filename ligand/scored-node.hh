@@ -26,6 +26,7 @@
 #ifndef SCORED_NODE_HH
 #define SCORED_NODE_HH
 
+#include <string>
 #include <utility>
 
 namespace coot {

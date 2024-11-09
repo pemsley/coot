@@ -27,11 +27,12 @@ find_package(Python REQUIRED)
 find_package(Boost COMPONENTS iostreams system python regex thread serialization REQUIRED)
 find_package(glm REQUIRED)
 
+set(THREADS_PREFER_PTHREAD_FLAG ON)
 
 # Charles wants 3.9 here, but if I change to 3.9 then it will not build for me
 # Hmm...
 # What do I need to do here so that Charles can specify on the command line what the version of Python should be?
-find_package(Python 3.10
+find_package(Python 3.12.4
   REQUIRED COMPONENTS Interpreter Development.Module
   OPTIONAL_COMPONENTS Development.SABIModule)
 
@@ -57,15 +58,11 @@ add_definitions(-DANALYSE_REFINEMENT_TIMING -DPACKAGE_VERSION="1"
   -DHAVE_CXX_THREAD -DHAVE_SSMLIB -DHAVE_BOOST -DUSE_LIBPNG=1 -DCLIPPER_HAS_TOP8000 -DUSE_GEMMI -DHAVE_BOOST_THREAD -DHAVE_GSL
   -DPKGDATADIR="${CMAKE_INSTALL_PREFIX}/share/coot" -DXDATADIR="${CMAKE_INSTALL_PREFIX}/share")
 
-if (ENHANCED_LIGAND_TOOLS)
-   add_definitions(-DMAKE_ENHANCED_LIGAND_TOOLS)
-   message("-- Found ENHANCED_LIGAND_TOOLS setting - now requiring the RDKit")
-   find_package(Cairo REQUIRED)
-   find_package(RDKit CONFIG COMPONENTS RDGeneral REQUIRED)
-   set(RDKit_libs_for_libcootapi RDKit::rdkit_base RDKit::Descriptors RDKit::ForceFieldHelpers RDKit::ForceField RDKit::Optimizer RDKit::MolDraw2D  RDKit::MolChemicalFeatures)
-else()
-    message("-- Note: MAKE_ENHANCED_LIGAND_TOOLS was not enabled")
-endif()
+add_definitions(-DMAKE_ENHANCED_LIGAND_TOOLS)
+message("-- Found ENHANCED_LIGAND_TOOLS setting - now requiring the RDKit")
+find_package(Cairo REQUIRED)
+find_package(RDKit CONFIG COMPONENTS RDGeneral REQUIRED)
+set(RDKit_libs_for_libcootapi RDKit::rdkit_base RDKit::Descriptors RDKit::ForceFieldHelpers RDKit::ForceField RDKit::Optimizer RDKit::MolDraw2D  RDKit::MolChemicalFeatures)
 
 # we can be on Apple, and also have access to homebrew dwarf and elf - but this typically not the case
 # should this actually be ENABLE_BACKWARD? (util/backward.cpp is not conditionally compiled)
@@ -166,6 +163,7 @@ add_library(cootapi SHARED
             ${coot_src}/api/coot-colour.cc
             ${coot_src}/api/coot-molecule.cc
             ${coot_src}/api/coot-molecule-backup.cc
+            ${coot_src}/api/coot-molecule-blender.cc
             ${coot_src}/api/coot-molecule-bonds.cc
             ${coot_src}/api/coot-molecule-bonds-instanced.cc
             ${coot_src}/api/coot-molecule-maps.cc
@@ -173,9 +171,9 @@ add_library(cootapi SHARED
             ${coot_src}/api/coot-molecule-moltris.cc
             ${coot_src}/api/coot-molecule-validation.cc
             ${coot_src}/api/coot-molecule-merge-molecules.cc
+            ${coot_src}/api/coot-molecule-modelling.cc
             ${coot_src}/api/coot-molecule-refine.cc
             ${coot_src}/api/coot-molecule-replace-fragment.cc
-            ${coot_src}/api/coot-molecule-blender.cc
             ${coot_src}/api/molecules-container-blender.cc
             ${coot_src}/api/molecules-container.cc
             ${coot_src}/api/molecules-container-gltf.cc
@@ -185,6 +183,7 @@ add_library(cootapi SHARED
             ${coot_src}/api/molecules-container-superpose.cc
             ${coot_src}/api/molecules-container-modelling.cc
             ${coot_src}/api/molecules-container-ligand-fitting.cc
+            ${coot_src}/api/mmcif-tests.cc
             ${coot_src}/api/phi-psi-prob.cc
             ${coot_src}/api/moorhen-h-bonds.cc
             ${coot_src}/api/add-terminal-residue.cc
@@ -259,10 +258,10 @@ add_library(cootapi SHARED
             ${coot_src}/high-res/coot-atom-graph.cc
             ${coot_src}/high-res/sequence-assignment.cc
             ${coot_src}/high-res/high-res.cc
-            #${coot_src}/protein_db/protein_db.cpp
-            #${coot_src}/protein_db/protein_db_utils.cpp
-            #${coot_src}/protein_db/rna_db.cpp
-            #${coot_src}/pli/specs.cc
+            ${coot_src}/protein_db/protein_db.cpp
+            ${coot_src}/protein_db/protein_db_utils.cpp
+            ${coot_src}/protein_db/rna_db.cpp
+            ${coot_src}/pli/specs.cc
             ${coot_src}/pli/flev-annotations.cc
             ${coot_src}/pli/protein-ligand-interactions.cc
             ${coot_src}/pli/pi-stacking.cc
@@ -317,6 +316,7 @@ add_library(cootapi SHARED
             ${coot_src}/coot-utils/coot-shelx-ins.cc
             ${coot_src}/coot-utils/contacts-by-bricks.cc
             ${coot_src}/coot-utils/lsq-improve.cc
+            ${coot_src}/coot-utils/merge-C-and-N-terminii.cc
             ${coot_src}/coot-utils/trim.cc
             ${coot_src}/coot-utils/coot_shiftfield.cpp
             ${coot_src}/coot-utils/coot-fffear.cc
@@ -402,6 +402,7 @@ add_library(cootapi SHARED
             ${coot_src}/angles/AngleInfo-theta_2-autogen.cc
             ${coot_src}/angles/AngleInfo.cc
             ${coot_src}/ligand/dipole.cc
+            ${coot_src}/ligand/dSFMT.c
             ${coot_src}/ligand/chi-angles.cc
             ${coot_src}/ligand/monomer-utils.cc
             ${coot_src}/ligand/ligand-score-card.cc
@@ -416,6 +417,9 @@ add_library(cootapi SHARED
             ${coot_src}/ligand/richardson-rotamers.cc
             ${coot_src}/ligand/ligands-db.cc
             ${coot_src}/ligand/ligand-extras.cc
+            ${coot_src}/ligand/libres-tracer.cc
+            ${coot_src}/ligand/new-residue-by-3-phi-psi.cc
+            ${coot_src}/ligand/rama-rsr-extend-fragments.cc
             ${coot_src}/ligand/residue_by_phi_psi.cc
             ${coot_src}/ligand/base-pairing.cc
             ${coot_src}/ligand/ideal-rna.cc
@@ -450,6 +454,8 @@ target_include_directories(cootapi PRIVATE ${coot_src} ${coot_src}/coords ${coot
 # Charles adds Boost::iostreams Boost::filesystem Boost::system. I don't know why Boost::filesystem was added - I have removed it.
 target_link_libraries(cootapi PRIVATE ${SSM_LIBRARY} ${CLIPPER-MINIMOL_LIBRARY} ${CLIPPER-MMDB_LIBRARY} ${CLIPPER-CIF_LIBRARY} ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${CLIPPER-CONTRIB_LIBRARY} ${FFTW2_LIBRARY} ${RFFTW2_LIBRARY} ${MMDB2_LIBRARY} ${CCP4C_LIBRARY} ${ZLIB_LIBRARIES} ${GSL_LIBRARIES} ${GSL_CBLAS_LIBRARY} ${RDKit_libs_for_libcootapi} ${PNG_LIBRARY} Boost::iostreams Boost::system gemmi::gemmi_cpp ${libdwarf} ${libelf})
 
+target_compile_features(cootapi PRIVATE cxx_std_17)
+
 # Charles adds this MSVC CXX compiler test
 if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
   target_compile_options(cootapi PRIVATE
@@ -473,7 +479,15 @@ add_executable(findwaters ${coot_src}/ligand/find-waters.cc)
 
 add_executable(coot-mini-rsr ${coot_src}/ideal/mini-rsr.cc)
 
+add_executable(res-tracer-libcootapi ${coot_src}/ligand/res-tracer.cc)
+
 add_executable(test-molecules-container ${coot_src}/api/test-molecules-container.cc ${coot_src}/api/filo-tests.cc ${coot_src}/api/lucrezia-tests.cc)
+
+add_executable(mmcif-tests ${coot_src}/api/mmcif-tests-main.cc ${coot_src}/api/mmcif-tests.cc)
+
+target_compile_features(coot-mini-rsr PRIVATE cxx_std_17)
+
+target_compile_features(res-tracer-libcootapi PRIVATE cxx_std_17)
 
 target_link_libraries(chapi PUBLIC cootapi  ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${MMDB2_LIBRARY} ${libdwarf} ${libelf})
 
@@ -483,15 +497,23 @@ target_include_directories(findwaters PRIVATE ${MMDB2_INCLUDE_DIR} ${coot_src})
 
 target_include_directories(coot-mini-rsr PRIVATE ${MMDB2_INCLUDE_DIR} ${coot_src} ${PNG_INCLUDE_DIR})
 
+target_include_directories(res-tracer-libcootapi PRIVATE ${MMDB2_INCLUDE_DIR} ${coot_src} ${PNG_INCLUDE_DIR})
+
 target_link_libraries(findligand PUBLIC cootapi ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${MMDB2_LIBRARY} Threads::Threads)
 
 target_link_libraries(findwaters PUBLIC cootapi ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${MMDB2_LIBRARY})
 
 target_link_libraries(coot-mini-rsr PUBLIC cootapi ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${MMDB2_LIBRARY} Threads::Threads)
 
+target_link_libraries(res-tracer-libcootapi PUBLIC cootapi ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${MMDB2_LIBRARY} Threads::Threads)
+
 target_include_directories(test-molecules-container PRIVATE ${coot_src} ${coot_src}/coords ${coot_src}/utils ${coot_src}/ccp4mg-utils ${coot_src}/ccp4mg-utils/util ${coot_src}/ccp4mg-utils/pygl ${MMDB2_INCLUDE_DIR}/include ${SSM_INCLUDE_DIR} ${CLIPPER-CORE_INCLUDE_DIR} ${CLIPPER-MMDB_INCLUDE_DIR} ${CLIPPER-CCP4_INCLUDE_DIR} ${FFTW2_INCLUDE_DIRS} ${RDKit_INCLUDE_DIRS} ${PNG_INCLUDE_DIR})
 
-target_link_libraries(test-molecules-container PUBLIC cootapi ${SSM_LIBRARY} ${CLIPPER-MINIMOL_LIBRARY} ${CLIPPER-MMDB_LIBRARY} ${CLIPPER-CIF_LIBRARY} ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${CLIPPER-CONTRIB_LIBRARY} ${FFTW2_LIBRARY} ${RFFTW2_LIBRARY} ${MMDB2_LIBRARY} ${CCP4C_LIBRARY} ${ZLIB_LIBRARIES} ${GSL_LIBRARIES} ${RDKit_libs_for_libcootapi} ${PNG_LIBRARY} gemmi::gemmi_cpp ${libdwarf} ${libelf})
+target_link_libraries(test-molecules-container PUBLIC cootapi ${SSM_LIBRARY} ${CLIPPER-MINIMOL_LIBRARY} ${CLIPPER-MMDB_LIBRARY} ${CLIPPER-CIF_LIBRARY} ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${CLIPPER-CONTRIB_LIBRARY} ${FFTW2_LIBRARY} ${RFFTW2_LIBRARY} ${MMDB2_LIBRARY} ${CCP4C_LIBRARY} ${ZLIB_LIBRARIES} ${GSL_LIBRARIES} ${RDKit_libs_for_libcootapi} ${PNG_LIBRARY} gemmi::gemmi_cpp ${libdwarf} ${libelf} Threads::Threads)
+
+target_include_directories(mmcif-tests PRIVATE ${CLIPPER-MMDB_INCLUDE_DIR})
+
+target_link_libraries(mmcif-tests PUBLIC ${MMDB2_LIBRARY})
 
 set_target_properties(cootapi PROPERTIES INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 

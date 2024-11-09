@@ -32,3 +32,5 @@ int test_non_drawn_bond_multi_cid_2(molecules_container_t &mc);
 int test_change_chain_id_1(molecules_container_t &molecules_container);
 
 int test_change_rotamer(molecules_container_t &molecules_container);
+
+int test_import_ligands_with_same_name_and_animated_refinement(molecules_container_t &molecules_container);

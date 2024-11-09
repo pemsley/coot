@@ -21,11 +21,15 @@
  */
 
 
+#include <cmath>
 #include <stdexcept>
 #include <iomanip>
 #include <algorithm> // for std::find
 #include <queue>
+#include <string>
+#include <functional>
 
+#include "acedrg-types-for-residue.hh"
 #include "string.h"
 
 #include "compat/coot-sysdep.h"
@@ -34,7 +38,7 @@
 #include "coot-coord-utils.hh"
 #include "coot-coord-extras.hh"
 #include "atom-tree.hh"
-
+#include "contact-info.hh"
 
 
 // Return 0 if any of the residues don't have a dictionary entry
@@ -1461,3 +1465,605 @@ coot::cis_peptide_quads_from_coords(mmdb::Manager *mol,
    return v;
 }
 
+
+#include "atom-tree.hh"
+
+std::vector<mmdb::Residue *>
+coot::util::get_dictionary_conformers(const dictionary_residue_restraints_t &restraints,
+                                      bool remove_internal_clash_conformers) {
+
+   std::vector<mmdb::Residue *> rv;
+   std::string comp_id = restraints.residue_info.comp_id;
+   bool include_hydrogen_torsions_flag = false;
+   std::vector <coot::dict_torsion_restraint_t> torsion_restraints =
+      restraints.get_non_const_torsions(include_hydrogen_torsions_flag);
+
+   std::vector<unsigned int> conformers_per_torsion;
+   unsigned int n_conformers = 1; // this gets multipled, not added to
+   std::vector <coot::dict_torsion_restraint_t> rotatable_torsions; // fill this
+   for (const auto &torsion : torsion_restraints) {
+      if (torsion.is_pyranose_ring_torsion(comp_id)) {
+         // pass
+      } else {
+         std::vector<std::vector<std::string> > ring_atoms_sets;
+         if (false) { // test is_ring_torsion here
+         } else {
+            if (torsion.periodicity() > 1) {
+	       if (! torsion.is_peptide_torsion()) {
+		  rotatable_torsions.push_back(torsion);
+		  conformers_per_torsion.push_back(torsion.periodicity());
+		  n_conformers *= torsion.periodicity();
+	       }
+	    }
+         }
+      }
+   }
+
+   if (false) { // debug
+      std::cout << "here with rotatable_torsions size " << rotatable_torsions.size() << std::endl;
+      for (unsigned int i_tor=0; i_tor<rotatable_torsions.size(); i_tor++) {
+         std::cout << "   i_tor " << i_tor << " " << rotatable_torsions[i_tor] << std::endl;
+      }
+   }
+
+   auto debug_torsion_angles = [] (const std::vector<std::vector<double> > &torsion_angles) {
+      for (unsigned int i_conf=0; i_conf<torsion_angles.size(); i_conf++) {
+         const auto &conformer_set = torsion_angles[i_conf];
+         std::cout << " " << std::setw(2) << i_conf << " [" << conformer_set.size() << "] : ";
+         for (unsigned int i_tor=0; i_tor<conformer_set.size(); i_tor++)
+            std::cout << std::setw(3) << conformer_set[i_tor] << "  ";
+         std::cout << std::endl;
+      }
+   };
+
+   auto periods_to_torsions = [] (const std::vector<int> &torsions_periods,
+                                  const std::vector <coot::dict_torsion_restraint_t> &rotatable_torsions) {
+
+      std::vector<double> angles(torsions_periods.size());
+      for (unsigned int i=0; i<torsions_periods.size(); i++) {
+         const auto &torsion_restraint = rotatable_torsions[i];
+         double variant = torsion_restraint.angle() + torsions_periods[i] * 360.0 / static_cast<double>(torsion_restraint.periodicity());
+         angles[i] = variant;
+      }
+      return angles;
+   };
+
+   auto make_bond_or_angle_related_pairs = [] (const dictionary_residue_restraints_t &restraints,
+                                               mmdb::Residue *residue_p) {
+
+      std::vector<std::pair<int, int> > bond_or_angle_related_pairs;
+
+      mmdb::Atom **residue_atoms_1 = 0;
+      int n_residue_atoms_1 = 0;
+      residue_p->GetAtomTable(residue_atoms_1, n_residue_atoms_1);
+
+      // bonds
+      for (unsigned int i=0; i<restraints.bond_restraint.size(); i++) {
+         const auto &bond_restraint = restraints.bond_restraint[i];
+         std::string atom_id_1 = bond_restraint.atom_id_1_4c();
+         std::string atom_id_2 = bond_restraint.atom_id_2_4c();
+         int atom_id_1_idx = -1;
+         int atom_id_2_idx = -1;
+         bool found_bond = false;
+         for (int iat=0; iat<n_residue_atoms_1; iat++) {
+            mmdb::Atom *at_1 = residue_atoms_1[iat];
+            if (! at_1->isTer()) {
+               std::string atom_name_1(at_1->GetAtomName());
+               if (atom_name_1 == atom_id_1) {
+                  mmdb::Atom **residue_atoms_2 = 0;
+                  int n_residue_atoms_2 = 0;
+                  residue_p->GetAtomTable(residue_atoms_2, n_residue_atoms_2);
+                  for (int jat=0; jat<n_residue_atoms_2; jat++) {
+                     mmdb::Atom *at_2 = residue_atoms_2[jat];
+                     if (! at_2->isTer()) {
+                        std::string atom_name_2(at_2->GetAtomName());
+                        if (atom_name_2 == atom_id_2) {
+                           atom_id_1_idx = iat;
+                           atom_id_2_idx = jat;
+                           bond_or_angle_related_pairs.push_back(std::make_pair(atom_id_1_idx, atom_id_2_idx));
+                           found_bond = true;
+                        }
+                     }
+                     if (found_bond) break;
+                  }
+               }
+            }
+            if (found_bond) break;
+         }
+      }
+
+      // angles
+      for (unsigned int i=0; i<restraints.angle_restraint.size(); i++) {
+         const auto &angle_restraint = restraints.angle_restraint[i];
+         std::string atom_id_1 = angle_restraint.atom_id_1_4c();
+         std::string atom_id_3 = angle_restraint.atom_id_3_4c();
+         int atom_id_1_idx = -1;
+         int atom_id_3_idx = -1;
+         bool found_angle = false;
+         for (int iat=0; iat<n_residue_atoms_1; iat++) {
+            mmdb::Atom *at_1 = residue_atoms_1[iat];
+            if (! at_1->isTer()) {
+               std::string atom_name_1(at_1->GetAtomName());
+               if (atom_name_1 == atom_id_1) {
+                  mmdb::Atom **residue_atoms_2 = 0;
+                  int n_residue_atoms_2 = 0;
+                  residue_p->GetAtomTable(residue_atoms_2, n_residue_atoms_2);
+                  for (int jat=0; jat<n_residue_atoms_2; jat++) {
+                     mmdb::Atom *at_2 = residue_atoms_2[jat];
+                     if (! at_2->isTer()) {
+                        std::string atom_name_2(at_2->GetAtomName());
+                        if (atom_name_2 == atom_id_3) {
+                           atom_id_1_idx = iat;
+                           atom_id_3_idx = jat;
+                           bond_or_angle_related_pairs.push_back(std::make_pair(atom_id_1_idx, atom_id_3_idx));
+                           found_angle = true;
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      }
+
+      if (false) { // debugging
+         std::cout << "These " << bond_or_angle_related_pairs.size()  << " pairs are related by bond or angle" << std::endl;
+         for (unsigned int ii=0; ii<bond_or_angle_related_pairs.size(); ii++) {
+            int idx_1 = bond_or_angle_related_pairs[ii].first;
+            int idx_2 = bond_or_angle_related_pairs[ii].second;
+            std::cout << std::setw(2) << ii << " " << std::setw(2) << idx_1 << " : " << std::setw(2) << idx_2 << " "
+                      << coot::atom_spec_t(residue_atoms_1[idx_1]) << " "
+                      << coot::atom_spec_t(residue_atoms_1[idx_2]) << " "
+                      << std::endl;
+         }
+      }
+
+      return bond_or_angle_related_pairs;
+   };
+
+   // count *down*, not up.
+   auto get_previous_period_set = [&conformers_per_torsion] (std::vector<int> period_set) {
+      int period_set_size = period_set.size();
+      bool done = false;
+      for (int i=period_set.size()-1; i >= 0; i--) {
+         if (period_set[i] > 0) {
+            period_set[i] -= 1;
+            done = true;
+         } else {
+            // the heart - let's find a previous period that isn't zero.
+            int i_prev = i - 1;
+            for (int j=i_prev; j >= 0; j--) {
+               if (period_set[j] > 0) {
+                  period_set[j] -= 1;
+                  // and put the next torsions back to max index
+                  for (int jj=0; jj<period_set_size; jj++) {
+                     if (jj > j)
+                        period_set[jj] = conformers_per_torsion[jj] -1;
+                  }
+                  done = true;
+               }
+               if (done) break;
+            }
+         }
+         if (done) break;
+      }
+      return period_set;
+   };
+
+   std::function<std::vector<std::vector<int> >(std::vector<int>)> func = [&func, get_previous_period_set] (const std::vector<int> &period_set) {
+      bool all_zeros = true;
+      for (unsigned int i=0; i<period_set.size(); i++) {
+         if (period_set[i] != 0) {
+            all_zeros = false;
+            break;
+         }
+      }
+      if (all_zeros) {
+         // end case
+         return std::vector<std::vector<int> > {period_set};
+      } else {
+         std::vector<int> next_period = get_previous_period_set(period_set);
+         std::vector<std::vector<int> > r = func(next_period);
+         r.push_back(period_set);
+         return r;
+      }
+   };
+
+   auto get_self_clash = [] (mmdb::Residue *residue_p, const std::vector<std::pair<int, int> > &bond_or_angle_related_pairs) {
+
+      // check non-bonded contacts are not too close. I guess I setup a refinement for this
+      // and look through the non-bonded contacts. So the restraints should be passed to this function.
+
+      // 20240817-PE ah, but if I am going to set up a restraints_container_t or a reduced_angle_info_container_t
+      // then I will need to move this functionality into the ideal directory. I don't want to do that, so I will
+      // make a function here that makes bond-or-angle-related pairs
+
+      bool status = false; // return this
+
+      // This 1-4 distance in a PHE is 2.79A, so we need to be a bit less than that
+      float dist_crit = 2.65;
+
+      // check is made both ways around - I guess that could be changed for speed if needed.
+      //
+      mmdb::Atom **residue_atoms = 0;
+      int n_residue_atoms = 0;
+      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (int iat=0; iat<n_residue_atoms; iat++) {
+         mmdb::Atom *at_1 = residue_atoms[iat];
+         std::string ele_1(at_1->element);
+         if (ele_1 == " H") continue;
+         if (! at_1->isTer()) {
+            for (int jat=0; jat<n_residue_atoms; jat++) {
+               if (iat == jat) continue;
+               mmdb::Atom *at_2 = residue_atoms[jat];
+               std::string ele_2(at_2->element);
+               if (ele_2 == " H") continue;
+               if (! at_2->isTer()) {
+                  float dx = at_2->x - at_1->x;
+                  float dy = at_2->y - at_1->y;
+                  float dz = at_2->z - at_1->z;
+                  if (fabsf(dx) < dist_crit) {
+                     if (fabsf(dy) < dist_crit) {
+                        if (fabsf(dz) < dist_crit) {
+                           float dd = dx * dx + dy * dy + dz * dz;
+                           float d = sqrtf(dd);
+                           if (d < dist_crit) {
+                              // 20240817-PE OK now ignore out all "O" and "OXT" clashes
+                              // (this is something that might be best under user-control)
+                              // but for now - just jam it in.
+                              std::string atom_name_1(at_1->GetAtomName());
+                              std::string atom_name_2(at_2->GetAtomName());
+                              if (atom_name_1 == " O  ") continue;
+                              if (atom_name_2 == " O  ") continue;
+                              if (atom_name_1 == " OXT") continue;
+                              if (atom_name_2 == " OXT") continue;
+                              // OK, now check if this is OK because bond or angle
+                              bool found = false;
+                              for (unsigned int ii=0; ii<bond_or_angle_related_pairs.size(); ii++) {
+                                 const int &i_1 = bond_or_angle_related_pairs[ii].first;
+                                 const int &i_2 = bond_or_angle_related_pairs[ii].second;
+                                 if (iat == i_1) { if (jat == i_2) { found = true; } }
+                                 if (iat == i_2) { if (jat == i_1) { found = true; } }
+                                 if (found) break;
+                              }
+                              if (! found) {
+                                 status = true;
+                                 if (false)
+                                    std::cout << "clash! " << coot::atom_spec_t(at_1) << " " << coot::atom_spec_t(at_2)
+                                              << " " << d << std::endl;
+                              }
+                           }
+                        }
+                     }
+                  }
+               }
+               if (status) break;
+            }
+         }
+         if (status) break;
+      }
+      return status;
+   };
+
+   // rotate_residue_about_torsions(r, rotatable_torsions, t);
+
+   auto rotate_residue_about_torsions = [] (mmdb::Residue *residue_p,
+                                            const coot::dictionary_residue_restraints_t &rest,
+                                            const std::vector <coot::dict_torsion_restraint_t> &rotatable_torsions,
+                                            const std::vector<double> &torsion_angles) {
+
+      // I could use multi-torsion here. Not sure that it's worth it.
+      if (rotatable_torsions.size() == torsion_angles.size()) {
+         for (unsigned int i=0; i<rotatable_torsions.size(); i++) {
+            double torsion_angle = torsion_angles[i];
+            const auto &torsion_restraint = rotatable_torsions[i];
+            std::string atom_name_1 = torsion_restraint.atom_id_1_4c();
+            std::string atom_name_2 = torsion_restraint.atom_id_2_4c();
+            std::string atom_name_3 = torsion_restraint.atom_id_3_4c();
+            std::string atom_name_4 = torsion_restraint.atom_id_4_4c();
+            mmdb::Atom *at_1 = nullptr;
+            mmdb::Atom *at_2 = nullptr;
+            mmdb::Atom *at_3 = nullptr;
+            mmdb::Atom *at_4 = nullptr;
+            mmdb::Atom **residue_atoms = 0;
+            int n_residue_atoms = 0;
+            residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+            for (int iat=0; iat<n_residue_atoms; iat++) {
+               mmdb::Atom *at = residue_atoms[iat];
+               if (! at->isTer()) {
+                  std::string atom_name(at->GetAtomName());
+                  if (atom_name == atom_name_1) at_1 = at;
+                  if (atom_name == atom_name_2) at_2 = at;
+                  if (atom_name == atom_name_3) at_3 = at;
+                  if (atom_name == atom_name_4) at_4 = at;
+               }
+            }
+            if (at_1 && at_2 && at_3 && at_4) {
+               try {
+
+		 // 20240819-PE atom_tree_t is constructed from a restraints that has a tree.
+		 // that seems not to be the case for restraints these days
+                  coot::atom_quad quad(at_1, at_2, at_3, at_4);
+                  coot::atom_tree_t tree(rest, residue_p, "");
+                  tree.set_dihedral(quad, torsion_angle, false);
+
+               }
+               catch (const std::runtime_error &e) {
+                  std::cout << "WARNING::" << e.what() << std::endl;
+               }
+            }
+         }
+      }
+   };
+
+
+   // here find which atom index pairs are related by bond or angles.
+
+   std::vector<int> period_set(conformers_per_torsion.size());
+   for (unsigned int i=0; i<conformers_per_torsion.size(); i++)
+      period_set[i] = conformers_per_torsion[i] - 1;
+   
+   std::vector<std::vector<int> > torsions_periods = func(period_set);
+   std::vector<std::vector<double> > torsion_angles; // outer index is conformer index
+                                                     // inner index is i_tor
+   for (unsigned int i=0; i<torsions_periods.size(); i++) {
+      const auto &torsion_periods = torsions_periods[i];
+      std::vector<double> angles = periods_to_torsions(torsion_periods, rotatable_torsions);
+      torsion_angles.push_back(angles);
+   }
+
+   // debug_torsion_angles(torsion_angles);
+
+   mmdb::Residue *residue_p = restraints.GetResidue(false, 10.0f);
+   std::vector<std::pair<int, int> > bond_or_angle_related_pairs = make_bond_or_angle_related_pairs(restraints, residue_p);
+
+   for (unsigned int i=0; i<torsion_angles.size(); i++) {
+      const std::vector<double> &t = torsion_angles[i];
+      mmdb::Residue *r = deep_copy_this_residue(residue_p);
+      rotate_residue_about_torsions(r, restraints, rotatable_torsions, t);
+      bool is_clashing = get_self_clash(r, bond_or_angle_related_pairs);
+      if (! is_clashing)
+         rv.push_back(r);
+      else
+         if (false)
+            std::cout << "self clash torsion-set " << i << std::endl;
+   }
+   delete residue_p;
+   return rv;
+}
+
+
+// 20240817-PE old scripting function is moved into libcootapi core
+int
+coot::util::mutate_by_overlap(mmdb::Residue *residue_p, mmdb::Manager *mol,
+                              const dictionary_residue_restraints_t &restraints_current_type,
+                              const dictionary_residue_restraints_t &restraints_new_type) {
+
+   auto is_in_residue = [] (mmdb::Residue *residue_p, const std::string &atom_name) {
+
+      bool status = false;
+      mmdb::Atom **residue_atoms = 0;
+      int n_residue_atoms = 0;
+      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (int iat=0; iat<n_residue_atoms; iat++) {
+         mmdb::Atom *at = residue_atoms[iat];
+         if (! at->isTer()) {
+            std::string res_atom_name(at->GetAtomName());
+            if (res_atom_name == atom_name) {
+               status = true;
+               break;
+            }
+         }
+      }
+      return status;
+   };
+
+   auto reposition_copy_or_delete_atoms = [mol, is_in_residue] (mmdb::Residue *res_mutable,
+                                                                mmdb::Residue *residue_ref,
+                                                                bool move_O_atom) {
+      // first, delete the atoms of res_mutable that are not in residue_ref;
+      std::vector<std::string> keep_atoms;
+      std::vector<mmdb::Atom *> delete_atoms;
+
+      mmdb::Atom **residue_atoms = 0;
+      int n_residue_atoms = 0;
+      residue_ref->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (int iat=0; iat<n_residue_atoms; iat++) {
+         mmdb::Atom *at = residue_atoms[iat];
+         if (! at->isTer()) {
+            std::string atom_name(at->GetAtomName());
+            keep_atoms.push_back(atom_name);
+         }
+      }
+
+      mmdb::Atom **residue_atoms_mutable = 0;
+      int n_residue_atoms_mutable = 0;
+      res_mutable->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (int iat=0; iat<n_residue_atoms_mutable; iat++) {
+         mmdb::Atom *at = residue_atoms_mutable[iat];
+         if (! at->isTer()) {
+            std::string atom_name(at->GetAtomName());
+            if (std::find(keep_atoms.begin(), keep_atoms.end(), atom_name) == keep_atoms.end()) {
+               // not found
+               delete_atoms.push_back(at);
+            }
+         }
+      }
+
+      for (auto atom : delete_atoms)
+         delete atom;
+
+      mol->FinishStructEdit();
+
+      for (int iat=0; iat<n_residue_atoms; iat++) {
+         mmdb::Atom *at = residue_atoms[iat];
+         if (! at->isTer()) {
+            std::string atom_name(at->GetAtomName());
+
+            for (int jat=0; jat<n_residue_atoms_mutable; jat++) {
+               mmdb::Atom *at_mutable = residue_atoms_mutable[jat];
+               if (! at_mutable->isTer()) {
+                  std::string atom_name_mutable(at_mutable->GetAtomName());
+
+                  if (atom_name == atom_name_mutable) {
+
+                     if (atom_name != " O   " || move_O_atom) {
+
+                        at_mutable->x = at->x;
+                        at_mutable->y = at->y;
+                        at_mutable->z = at->z;
+                     }
+                  }
+               }
+            }
+         }
+      }
+
+      // add new
+      for (int iat=0; iat<n_residue_atoms; iat++) {
+         mmdb::Atom *at = residue_atoms[iat];
+         if (! at->isTer()) {
+            std::string atom_name(at->GetAtomName());
+            if (! is_in_residue(res_mutable, atom_name)) {
+               mmdb::Atom *at_copy = new mmdb::Atom;
+               std::string at_name = at->GetAtomName();
+               if (atom_name != " OXT") { // extra atom in an amino acid
+                  if (atom_name != " OP3") {  // extra atom in a nucleic acid
+                     at_copy->Copy(at);
+                     res_mutable->AddAtom(at_copy);
+                  }
+               }
+            }
+         }
+      }
+      mol->FinishStructEdit();
+
+   };
+
+   // --- main line
+
+   // note to self: match_ligand_torsions should be here somewhere
+
+   int status = 0;
+
+   bool is_nucl = is_nucleotide(residue_p);
+   bool is_aa   = residue_p->isAminoacid();
+
+   mmdb::Residue *restraints_residue_p = restraints_new_type.GetResidue(false, 10.0f);
+   if (restraints_residue_p) {
+      mmdb::Manager *mol_from_restraints_residue = create_mmdbmanager_from_residue(restraints_residue_p);
+      mmdb::Residue *rr = get_first_residue(mol_from_restraints_residue);
+      if (rr) {
+         if (is_aa) {
+
+            std::vector<lsq_range_match_info_t> lsq_matchers;
+            std::vector<std::string> atom_names = {" N  ", " CA ", " C  "};
+            std::string ref_chain_id = residue_p->GetChainID();
+            int ref_res_no = residue_p->GetSeqNum();
+            std::string  ref_ins_code = residue_p->GetInsCode();
+            std::string matcher_chain_id = restraints_residue_p->GetChainID();
+            int matcher_res_no = restraints_residue_p->GetSeqNum();
+            std::string matcher_ins_code = restraints_residue_p->GetInsCode();
+            for (const auto &atom_name : atom_names) {
+               std::string alt_conf;
+               lsq_range_match_info_t m(ref_chain_id, ref_res_no, ref_ins_code, atom_name, alt_conf,
+                                        matcher_chain_id, matcher_res_no, matcher_ins_code,
+                                        atom_name, alt_conf);
+               lsq_matchers.push_back(m);
+            }
+            std::pair<short int, clipper::RTop_orth> rtop_info =
+               get_lsq_matrix(mol, mol_from_restraints_residue, lsq_matchers, 1, false);
+            if (rtop_info.first)
+               transform_atoms(restraints_residue_p, rtop_info.second);
+
+            // moving and reference
+            const auto &tr_ligand  = restraints_new_type.torsion_restraint;
+            const auto &tr_res_ref = restraints_current_type.torsion_restraint;
+            match_torsions mt(restraints_residue_p, residue_p, restraints_new_type);
+            int n_torsions_moved = mt.match(tr_ligand, tr_res_ref);
+
+            // now copy or replace to coordinates the atoms of restraints_residue_p into residue_p
+            // and remove atoms in residue_p that are not in restraints_residue_p
+
+            reposition_copy_or_delete_atoms(residue_p, restraints_residue_p, false);
+
+            delete mol_from_restraints_residue;
+         }
+
+         if (is_nucl) {
+            std::vector<std::string> purine_set = {" N9 ", " N7 ", " C5 ", " N1 ", " N3 "};
+            std::vector<std::string> pyrimidine_set = {" N1 ", " C5 ", " N3 "};
+            std::vector<std::string> purine_to_pyrimidine_set = {" N1 ", " C2 ", " N3 "};
+            std::vector<std::string> pyrimidine_to_purine_set = {" N9 ", " C4 ", " N5 "};
+
+            std::pair<bool, clipper::RTop_orth> rtop_info =
+               nucleotide_to_nucleotide(residue_p, rr, false);
+            if (rtop_info.first)
+               transform_atoms(restraints_residue_p, rtop_info.second);
+
+            const auto &tr_ligand  = restraints_new_type.torsion_restraint;
+            const auto &tr_res_ref = restraints_current_type.torsion_restraint;
+            match_torsions mt(restraints_residue_p, residue_p, restraints_new_type);
+            int n_torsions_moved = mt.match(tr_ligand, tr_res_ref);
+
+            reposition_copy_or_delete_atoms(residue_p, restraints_residue_p, true);
+         }
+      }
+   }
+   delete restraints_residue_p;
+   return status;
+}
+
+coot::acedrg_types_for_residue_t
+coot::get_acedrg_types_for_residue(mmdb::Residue *residue_p, int imol_enc,
+                                   const coot::protein_geometry &geom) {
+
+   coot::acedrg_types_for_residue_t types;
+   std::string residue_type = residue_p->GetResName();
+   auto r = geom.get_monomer_restraints(residue_type, imol_enc);
+   if (r.first) {
+      const auto &restraints = r.second;
+      for (unsigned int ib=0; ib<restraints.bond_restraint.size(); ib++) {
+         const auto &bond_restraint = restraints.bond_restraint[ib];
+         const std::string &atom_name_1 = bond_restraint.atom_id_1();
+         const std::string &atom_name_2 = bond_restraint.atom_id_2();
+         mmdb::Atom **residue_atoms = 0;
+         int n_residue_atoms = 0;
+         int idx_1 = -1;
+         int idx_2 = -1;
+         residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+         for (int iat=0; iat<n_residue_atoms; iat++) {
+            mmdb::Atom *at = residue_atoms[iat];
+            if (! at->isTer()) {
+               std::string atom_name = at->GetAtomName();
+               if (atom_name == atom_name_1) idx_1 = iat;
+               if (atom_name == atom_name_2) idx_2 = iat;
+            }
+         }
+         if (idx_1 != -1) {
+            if (idx_2 != -1) {
+               clipper::Coord_orth at_pos_1 = co(residue_atoms[idx_1]);
+               clipper::Coord_orth at_pos_2 = co(residue_atoms[idx_2]);
+               double bb = (at_pos_2 - at_pos_1).lengthsq();
+               double bond_length = std::sqrt(bb);
+
+               std::string type_1;
+               std::string type_2;
+
+               for (unsigned int ii=0; ii<restraints.atom_info.size(); ii++) {
+                  const auto &atom = restraints.atom_info[ii];
+                  if (atom.atom_id_4c == atom_name_1) type_1 = atom.acedrg_atom_type;
+                  if (atom.atom_id_4c == atom_name_2) type_2 = atom.acedrg_atom_type;
+               }
+
+               if (! type_1.empty()) {
+                  if (! type_2.empty()) {
+                     acedrg_types_for_bond_t bt(atom_name_1, atom_name_2, type_1, type_2, bond_length);
+                     types.bond_types.push_back(bt);
+                  }
+               }
+            }
+         }
+      }
+   }
+   return types;
+}

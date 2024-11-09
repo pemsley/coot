@@ -5,7 +5,7 @@
 #include <vector>
 #include <clipper/core/coords.h>
 
-#include "lidia-core/lig-build.hh"
+#include "lidia-core/svg-molecule.hh"
 #include "geometry/residue-and-atom-specs.hh"
 #include "bond-to-ligand.hh"
 
@@ -109,8 +109,8 @@ public:
       return is_a_primary_residue_;
    }
 
-   // std::vector<std::pair<lig_build::pos_t, double> >
-   // get_attachment_points(const lig_build::molecule_t &mol) const;
+   std::vector<std::pair<lig_build::pos_t, double> >
+   get_attachment_points(const svg_molecule_t &mol) const;
 
    // friend std::ostream& operator<<(std::ostream &s, residue_circle_t r);
 };

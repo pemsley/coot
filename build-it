@@ -3594,6 +3594,9 @@ if [ "$build_rdkit" = true ] ; then
          pwd
          tree_from_build=..
 
+         # now patch rapidjson document.h
+         sed -i.backup -e 's/const SizeType length/SizeType length/' ../External/rapidjson-1.1.0/include/rapidjson/document.h
+
       fi
 
 

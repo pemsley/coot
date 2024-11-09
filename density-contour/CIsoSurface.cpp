@@ -781,10 +781,9 @@ CIsoSurface<T>::GenerateSurface_from_NXmap(const clipper::NXmap<T>& nx_map,
 			    centre_fr.w() + 0.2);
 
    clipper::Coord_frac grid_min_cf;
-   clipper::Coord_grid grid_min;
-   clipper::Coord_grid grid_max;
+   clipper::Coord_grid grid_min = box0.coord_grid(nx_map.grid());
+   clipper::Coord_grid grid_max = box1.coord_grid(nx_map.grid());
    clipper::Grid_range grid(grid_min, grid_max);
-
 
    T* ptScalarField = new T[grid.size()];
 
@@ -833,7 +832,8 @@ CIsoSurface<T>::GenerateTriangles_from_Xmap(const clipper::Xmap<T>& crystal_map,
                                             coot::Cartesian centre_point,
                                             int isample_step,
                                             int iream_start, int n_reams,
-                                            bool is_em_map) {
+                                            bool is_em_map,
+                                            bool use_vertex_gradients_for_map_normals_flag) {
 
    coot::density_contour_triangles_container_t tri_con;
 
@@ -1044,10 +1044,10 @@ CIsoSurface<T>::GenerateTriangles_from_Xmap(const clipper::Xmap<T>& crystal_map,
       }
    }
 
-   if (true) // add user control
-      tri_con.calculate_normals();
-   else
+   if (use_vertex_gradients_for_map_normals_flag)
       tri_con.calculate_normals_for_vertices(crystal_map);
+   else
+      tri_con.calculate_normals();
 
       // tri_con.remove_small_triangles(); // all very interesting, but not the way to do it.
                                         // We need to merge and remove after all the

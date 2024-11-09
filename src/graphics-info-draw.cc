@@ -521,20 +521,28 @@ graphics_info_t::get_projection_matrix(bool do_orthographic_projection,
    float h = static_cast<float>(graphics_y_size);
    float screen_ratio = static_cast<float>(w)/static_cast<float>(h);
    if (do_orthographic_projection) {
+
+      // 20240814-PE if clipping front and back are somehow zero (I don't know
+      // how that happened, but those were the values in the state script)
+      // the we get nan and infs in matrices
+      //
+      if (clipping_front < 0.00001) clipping_front = 0.00001;
+      if (clipping_back  < 0.00001) clipping_back  = 0.00001;
+
       float sr = screen_ratio;
       GLfloat near =  -0.1 * zoom * clipping_front + eye_position.z;
       GLfloat far  =   0.3 * zoom * clipping_back  + eye_position.z;
 
-      if (false)
+      glm::mat4 projection_matrix = glm::ortho(-0.3f*zoom*sr, 0.3f*zoom*sr,
+                                               -0.3f*zoom,    0.3f*zoom,
+                                               near, far);
+      if (false) {
          std::cout << "debug:: get_projection_matrix() near " << near << " far " << far
                    << " clipping-front: " << clipping_front << " clipping_back: " << clipping_back << " "
                    << "eye_position " << glm::to_string(eye_position)
                    << " zoom " << zoom << std::endl;
-
-      glm::mat4 projection_matrix = glm::ortho(-0.3f*zoom*sr, 0.3f*zoom*sr,
-                                               -0.3f*zoom,    0.3f*zoom,
-                                               near, far);
-      // std::cout << "projection matrix ortho " << glm::to_string(projection_matrix) << std::endl;
+         std::cout << "projection matrix ortho " << glm::to_string(projection_matrix) << std::endl;
+      }
       return projection_matrix;
    } else {
       // perspective_fov is in degrees
@@ -627,7 +635,7 @@ graphics_info_t::get_molecule_mvp(bool debug_matrices) {
    int w = graphics_x_size;
    int h = graphics_y_size;
 
-   if (true) {  // debug problematic matrices - get rid of this, make sure that it doesn't do anything                    
+   if (false) {  // debug problematic matrices - get rid of this, make sure that it doesn't do anything
       GtkAllocation allocation;
       gtk_widget_get_allocation(graphics_info_t::glareas[0], &allocation);
       w = allocation.width;
@@ -2616,7 +2624,10 @@ graphics_info_t::draw_rotation_centre_crosshairs(GtkGLArea *glarea, unsigned int
 
    glm::vec3 rc = graphics_info_t::get_rotation_centre();
    mvp = glm::translate(mvp, rc);
-   float s = 6.0f * rotation_centre_cube_size;
+   // 20241105-PE is this a good idea?
+   if (rotation_centre_cube_size < 0.02)
+      rotation_centre_cube_size = 0.02;
+   float s = 2.0f * rotation_centre_cube_size;
    glm::vec3 sc(s,s,s);
    mvp = glm::scale(mvp, sc);
 
@@ -2632,10 +2643,14 @@ graphics_info_t::draw_rotation_centre_crosshairs(GtkGLArea *glarea, unsigned int
                       << std::endl;
 
    if (pass_type == PASS_TYPE_STANDARD) {
+
       bool is_bb = graphics_info_t::background_is_black_p();
-      glm::vec4 line_colour(0.8f, 0.8f, 0.8f, 1.0f);
-      if (! is_bb) 
-         line_colour = glm::vec4(0.2f, 0.2f, 0.2f, 1.0f);
+      glm::vec4 line_colour = rotation_centre_cross_hairs_colour;
+      if (! is_bb)
+         line_colour = glm::vec4(1.0f - rotation_centre_cross_hairs_colour[0],
+                                 1.0f - rotation_centre_cross_hairs_colour[1],
+                                 1.0f - rotation_centre_cross_hairs_colour[0],
+                                 1.0f);
 
       GLuint line_colour_uniform_location = shader_for_central_cube.line_colour_uniform_location;
       glUniform4fv(line_colour_uniform_location, 1, glm::value_ptr(line_colour));
@@ -2673,222 +2688,12 @@ graphics_info_t::draw_rotation_centre_crosshairs(GtkGLArea *glarea, unsigned int
 
 }
 
-#if 0 // reproduced in new-startup.cc
-
-<<<<<<< HEAD
-void on_glarea_drag_begin_primary(GtkGestureDrag *gesture,
-                          double          x,
-                          double          y,
-                          GtkWidget      *area) {
-
-   // display_info_t di;
-   // di.mouse_x = x;
-   // di.mouse_y = y;
-   // di.drag_begin_x = x;
-   // di.drag_begin_y = y;
-=======
-// create and pack, but don't show it (in this function).
-//
-GtkWidget *create_and_pack_gtkglarea(GtkWidget *vbox, bool use_gtk_builder) {
->>>>>>> gtk3
-
-   graphics_info_t g;
-   g.on_glarea_drag_begin_primary(gesture, x, y, area);
-
-<<<<<<< HEAD
-=======
-   GtkWidget *w = gtk_gl_area_new();
-
-   auto get_gl_widget_dimension_scale_factor  = [] () {
-                                                   int sf = 1;
-                                                   char *e = getenv("COOT_OPENGL_WIDGET_SCALE_FACTOR");
-                                                   if (e) {
-                                                      std::string ee(e);
-                                                      sf = std::stoi(ee);
-                                                   }
-                                                   return sf;
-                                                };
-
-   // allow the user to set the major and minor version (for debugging)
-
-   int opengl_major_version = 3;
-   int opengl_minor_version = 3;
-   char *e1 = getenv("COOT_OPENGL_MAJOR_VERSION");
-   char *e2 = getenv("COOT_OPENGL_MINOR_VERSION");
-   if (e1) {
-      std::string e1s(e1);
-      opengl_major_version = std::stoi(e1s);
-   }
-   if (e2) {
-      std::string e2s(e2);
-      opengl_minor_version = std::stoi(e2s);
-   }
-
-   if (e1 || e2)
-      std::cout << "INFO:: setting OpenGL required version to "
-                << opengl_major_version << " " << opengl_minor_version << std::endl;
-
-   gtk_gl_area_set_required_version(GTK_GL_AREA(w), opengl_major_version, opengl_minor_version);
-
-   unsigned int dimensions = 900;
-   int gl_widget_dimension_scale_factor = get_gl_widget_dimension_scale_factor();
-   gtk_widget_set_size_request(w,
-                               gl_widget_dimension_scale_factor * dimensions,
-                               gl_widget_dimension_scale_factor * dimensions);
-   gtk_box_pack_start(GTK_BOX(vbox), w, TRUE, TRUE, 0);
-   return w;
->>>>>>> gtk3
-}
-
-void on_glarea_drag_update_primary(GtkGestureDrag *gesture,
-                           double          delta_x,
-                           double          delta_y,
-                           GtkWidget      *area) {
-
-   graphics_info_t g;
-   g.on_glarea_drag_update_primary(gesture, delta_x, delta_y, area);
-
-}
-
-void on_glarea_drag_end_primary(GtkGestureDrag *gesture,
-                                double          x,
-                                double          y,
-                                GtkWidget      *area) {
-
-   // std::cout << "drag end" << std::endl;
-   // do nothing at the moment.
-   graphics_info_t g;
-   g.on_glarea_drag_end_primary(gesture, x, y, area);
-}
-
-
-void on_glarea_drag_begin_secondary(GtkGestureDrag *gesture,
-                          double          x,
-                          double          y,
-                          GtkWidget      *area) {
-
-   graphics_info_t g;
-   g.on_glarea_drag_begin_secondary(gesture, x, y, area);
-
-}
-
-void on_glarea_drag_update_secondary(GtkGestureDrag *gesture,
-                                     double          delta_x,
-                                     double          delta_y,
-                                     GtkWidget      *area) {
-
-   graphics_info_t g;
-   g.on_glarea_drag_update_secondary(gesture, delta_x, delta_y, area);
-
-}
-
-void on_glarea_drag_end_secondary(GtkGestureDrag *gesture,
-                                  double          x,
-                                  double          y,
-                                  GtkWidget      *area) {
-
-   graphics_info_t g;
-   g.on_glarea_drag_end_secondary(gesture, x, y, area);
-}
-
-
-
-void on_glarea_drag_begin_middle(GtkGestureDrag *gesture,
-                          double          x,
-                          double          y,
-                          GtkWidget      *area) {
-
-   graphics_info_t g;
-   g.on_glarea_drag_begin_middle(gesture, x, y, area);
-
-}
-
-void on_glarea_drag_update_middle(GtkGestureDrag *gesture,
-                                  double          delta_x,
-                                  double          delta_y,
-                                  GtkWidget      *area) {
-
-   graphics_info_t g;
-   g.on_glarea_drag_update_middle(gesture, delta_x, delta_y, area);
-
-}
-
-void on_glarea_drag_end_middle(GtkGestureDrag *gesture,
-                               double          x,
-                               double          y,
-                               GtkWidget      *area) {
-
-
-   graphics_info_t g;
-   g.on_glarea_drag_end_middle(gesture, x, y, area);
-}
-
-#endif // reproduced in new-startup.cc
-
-
-
-
-#if 0 // old
-// ---------------------------------------------------------------------------------------------------
-// ---------------------------------------------------------------------------------------------------
-//                            key press
-// ---------------------------------------------------------------------------------------------------
-// ---------------------------------------------------------------------------------------------------
-
-
-gboolean
-on_glarea_key_controller_key_pressed(GtkEventControllerKey *controller,
-                                     guint                  keyval,
-                                     guint                  keycode,
-                                     guint                  modifiers,
-                                     GtkButton             *button) {
-
-   graphics_info_t g;
-   // allow other controllers to act (say TAB has been pressed)
-   gboolean handled = g.on_glarea_key_controller_key_pressed(controller, keyval, keycode, modifiers);
-   return gboolean(handled);
-}
-
-void
-on_glarea_key_controller_key_released(GtkEventControllerKey *controller,
-                                      guint                  keyval,
-                                      guint                  keycode,
-                                      guint                  modifiers,
-                                      GtkButton             *button) {
-
-   graphics_info_t g;
-   g.on_glarea_key_controller_key_released(controller, keyval, keycode, modifiers);
-
-}
-
-void
-on_glarea_click(GtkGestureClick* click_gesture,
-                gint n_press,
-                gdouble x,
-                gdouble y,
-                gpointer user_data) {
-
-   graphics_info_t g;
-   g.on_glarea_click(click_gesture, n_press, x, y, user_data);
-
-}
-
-void
-on_glarea_scrolled(GtkEventControllerScroll *controller,
-                   double                    dx,
-                   double                    dy,
-                   gpointer                  user_data) {
-
-   graphics_info_t g;
-   g.on_glarea_scrolled(controller, dx, dy, user_data);
-
-}
-
-#endif // event handlers
 
 // #include "event-controller-callbacks.hh"
 
 void print_opengl_info() {
+
+   // std::cout << "----------------------- print_opengl_info() ----------" << std::endl;
 
    const char *s1 = reinterpret_cast<const char *>(glGetString(GL_VERSION));
    const char *s2 = reinterpret_cast<const char *>(glGetString(GL_SHADING_LANGUAGE_VERSION));
@@ -3299,6 +3104,9 @@ graphics_info_t::clear_gl_rama_plot() {
 void
 graphics_info_t::draw_hud_ramachandran_plot() {
 
+   // 20240719-PE we do both the setup and draw here! I am not sure that is the right way.
+   //             It might be vey slow. Ah, no, I was a bit clever, there is a position hash.
+
    GtkGLArea *gl_area = GTK_GL_AREA(glareas[0]);
    GtkAllocation allocation;
    gtk_widget_get_allocation(GTK_WIDGET(gl_area), &allocation);
@@ -3310,7 +3118,8 @@ graphics_info_t::draw_hud_ramachandran_plot() {
          if (moving_atoms_asc) {
             if (moving_atoms_asc->n_selected_atoms > 0) {
                std::string residue_selection = "//";
-               gl_rama_plot.setup_from(imol_moving_atoms, moving_atoms_asc->mol, residue_selection); // checks to see if an update is acutally needed.
+               gl_rama_plot_t::draw_mode_t draw_mode = gl_rama_plot_t::draw_mode_t::DRAW_MODE;
+               gl_rama_plot.setup_from(imol_moving_atoms, moving_atoms_asc->mol, residue_selection, draw_mode); // checks to see if an update is acutally needed.
                // no context switch needed for the HUD Rama plot
                bool clear_needed_flag = false;
                gl_rama_plot.draw(&shader_for_rama_plot_axes_and_ticks,
@@ -4454,6 +4263,74 @@ graphics_info_t::draw_hud_elements() {
    draw_hud_colour_bar();
 
 }
+
+bool
+graphics_info_t::check_if_hud_rama_plot_clicked(double mouse_x, double mouse_y) {
+
+   auto get_rotation_centre_from_intermediate_atoms_residue_spec = [] (const coot::residue_spec_t &rs) {
+      bool status;
+      coot::Cartesian pos;
+      if (moving_atoms_asc) {
+         mmdb::Manager *mol = moving_atoms_asc->mol;
+         mmdb::Residue *residue_p = coot::util::get_residue(rs, mol);
+         if (residue_p) {
+            mmdb::Atom **residue_atoms = 0;
+            int n_residue_atoms = 0;
+            residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+            for (int iat=0; iat<n_residue_atoms; iat++) {
+               mmdb::Atom *at = residue_atoms[iat];
+               if (! at->isTer()) {
+                  std::string atom_name(at->GetAtomName());
+                  if (atom_name == " CA ") {
+                     pos = coot::Cartesian(at->x, at->y, at->z);
+                     status = true;
+                  }
+               }
+            }
+         }
+      }
+      return std::make_pair(status, pos);
+   };
+
+   // c.f. draw_hud_ramachandran_plot()
+
+   bool status = false;
+
+   if (! moving_atoms_asc) return false;
+   if (! moving_atoms_asc->mol) return false;
+
+   if (draw_gl_ramachandran_plot_flag) {
+      if (draw_gl_ramachandran_plot_user_control_flag) {
+         if (moving_atoms_asc) {
+            if (moving_atoms_asc->n_selected_atoms > 0) {
+               int imol = imol_moving_atoms;
+               //gl_rama_plot_t rama;
+               // std::string residue_selection = "//";     // Hmm!
+               // gl_rama_plot_t::draw_mode_t draw_mode = gl_rama_plot_t::draw_mode_t::CHECK_IF_PICKED;
+               // rama.setup_from(imol, moving_atoms_asc->mol, residue_selection, draw_mode);
+               GtkAllocation allocation;
+               GtkWidget *gl_area = glareas[0];
+               gtk_widget_get_allocation(GTK_WIDGET(gl_area), &allocation);
+               int w = allocation.width;
+               int h = allocation.height;
+               mouse_over_hit_t hit = gl_rama_plot.get_mouse_over_hit(mouse_x, mouse_y, w, h);
+               std::cout << "hit: plot clicked: " << hit.plot_was_clicked
+                         << " residue_was_clicked: " << hit.residue_was_clicked
+                         << " spec " << hit.residue_spec << std::endl;
+               if (hit.plot_was_clicked) status = true;
+               if (hit.residue_was_clicked) {
+                  std::pair<bool, coot::Cartesian> rc = get_rotation_centre_from_intermediate_atoms_residue_spec(hit.residue_spec);
+                  if (rc.first) {
+                     setRotationCentre(rc.second, false);
+                  }
+               }
+            }
+         }
+      }
+   }
+   return status;
+}
+
 
 void
 graphics_info_t::render_3d_scene(GtkGLArea *gl_area) {
@@ -6956,12 +6833,26 @@ graphics_info_t::setup_key_bindings() {
                     return gboolean(TRUE);
                  };
 
+   auto lc_toggle_validation_side_panel = [] () {
+      graphics_info_t g;
+      GtkWidget* pane = widget_from_builder("main_window_ramchandran_and_validation_pane");
+      if (pane) {
+         if (gtk_widget_get_visible(pane) == TRUE) {
+            gtk_widget_set_visible(pane, FALSE);
+         } else {
+            gtk_widget_set_visible(pane, TRUE);
+         }
+      }
+      return gboolean(TRUE);
+   };
+
    key_bindings_t ctrl_arrow_left_key_binding(lc4, "R/T Left");
    key_bindings_t ctrl_arrow_right_key_binding(lc5, "R/T Right");
    key_bindings_t ctrl_arrow_up_key_binding(lc6, "R/T Up");
    key_bindings_t ctrl_arrow_down_key_binding(lc7, "R/T Down");
    key_bindings_t ctrl_eigen_flip(l20, "Eigen-Flip");
    key_bindings_t ctrl_quick_save(lc_qsa, "Quick Save");
+   key_bindings_t ctrl_toggle_panel(lc_toggle_validation_side_panel, "Toggle Validation Panel");
 
    std::pair<keyboard_key_t, key_bindings_t> p4(keyboard_key_t(GDK_KEY_Left,  true), ctrl_arrow_left_key_binding);
    std::pair<keyboard_key_t, key_bindings_t> p5(keyboard_key_t(GDK_KEY_Right, true), ctrl_arrow_right_key_binding);
@@ -6969,6 +6860,7 @@ graphics_info_t::setup_key_bindings() {
    std::pair<keyboard_key_t, key_bindings_t> p7(keyboard_key_t(GDK_KEY_Down,  true), ctrl_arrow_down_key_binding);
    std::pair<keyboard_key_t, key_bindings_t> p8(keyboard_key_t(GDK_KEY_e,     true), ctrl_eigen_flip);
    std::pair<keyboard_key_t, key_bindings_t> p9(keyboard_key_t(GDK_KEY_s,     true), ctrl_quick_save);
+   std::pair<keyboard_key_t, key_bindings_t> p10(keyboard_key_t(GDK_KEY_b,     true), ctrl_toggle_panel);
 
    kb_vec.push_back(p4);
    kb_vec.push_back(p5);
@@ -6976,6 +6868,7 @@ graphics_info_t::setup_key_bindings() {
    kb_vec.push_back(p7);
    kb_vec.push_back(p8);
    kb_vec.push_back(p9);
+   kb_vec.push_back(p10);
 
    std::vector<std::pair<keyboard_key_t, key_bindings_t> >::const_iterator it;
    for (it=kb_vec.begin(); it!=kb_vec.end(); ++it)

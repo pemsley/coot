@@ -2476,6 +2476,12 @@ gchar *get_text_for_rotation_centre_cube_size();
 /*! \brief set rotoation centre marker size */
 void set_rotation_centre_size(float f); /* and redraw (maybe) */
 
+/*! \brief set rotation centre colour
+
+This is the colour for a dark background - if the background colour is not dark,
+then the cross-hair colour becomes the inverse colour */
+void set_rotation_centre_cross_hairs_colour(float r, float g, float b, float alpha);
+
 /*! \brief return the recentre-on-pdb state */
 short int recentre_on_read_pdb();
 /*! \brief set the recentre-on-pdb state */
@@ -2526,6 +2532,20 @@ void set_draw_axes(int i);
 /* section Atom Selection Utilities */
 /*! \name  Atom Selection Utilities */
 /* \{ */
+
+#ifdef __cplusplus /* protection from use in callbacks.c, else compilation probs */
+#ifdef USE_PYTHON
+/* Get model molecule list */
+PyObject *get_model_molecule_list_py();
+#endif
+#endif
+
+#ifdef __cplusplus
+#ifdef USE_GUILE
+/* Get model molecule list */
+SCM get_model_molecule_list_scm();
+#endif
+#endif
 
 /* does not account for alternative conformations properly */
 /* return -1 if atom not found. */
@@ -3347,6 +3367,8 @@ int  refinement_immediate_replacement_state();
 
 void set_refine_use_noughties_physics(short int state);
 
+int get_refine_use_noughties_physics_state();
+
 /*! \brief set the number of frames for which the selected residue
   range flashes
 
@@ -4035,24 +4057,6 @@ int read_cif_data_with_phases_2fo_fc(const char *filename);
 int read_cif_data_with_phases_nfo_fc(const char *filename,
 				     int map_type);
 int read_cif_data_with_phases_fo_alpha_calc(const char *filename);
-
-
-/*                  cif (geometry) dictionary                            */
-/* \brief return the number of bonds read (> 0 can be treated as success) */
-int handle_cif_dictionary(const char *filename);
-/* \brief synonym for above.
-
-return the number of bonds read (> 0 can be treated as success) */
-int read_cif_dictionary(const char *filename);
-
-/* \brief return the number of bonds read (> 0 can be treated as success).
- Apply to the given molecule.
-
- imol_enc can be the model molecule number or
- IMOL_ENC_ANY = -999999, IMOL_ENC_AUTO = -999998, IMOL_ENC_UNSET = -999997
-
- */
-int handle_cif_dictionary_for_molecule(const char *filename, int imol_enc, short int new_molecule_from_dictionary_cif_checkbutton_state);
 
 int write_connectivity(const char* monomer_name, const char *filename);
 /*! \brief open the cif dictionary file selector dialog */

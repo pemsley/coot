@@ -146,18 +146,19 @@ molecules_container_t::get_pythonic_map_mesh(int imol, float x, float y, float z
    coot::simple_mesh_t mesh;
    clipper::Coord_orth pt(x,y,z);
    if (is_valid_map_molecule(imol)) {
-      mesh = molecules[imol].get_map_contours_mesh(pt, radius, contour_level, map_is_contoured_using_thread_pool_flag, &static_thread_pool);
+      mesh = molecules[imol].get_map_contours_mesh(pt, radius, contour_level, map_is_contoured_using_thread_pool_flag, &thread_pool);
    }
    return simple_mesh_to_pythonic_mesh(mesh, SINGLE_COLOUR);
 }
 
 PyObject *
 molecules_container_t::get_pythonic_molecular_representation_mesh(int imol, const std::string &atom_selection,
-                                                        const std::string &colour_scheme,
-                                                        const std::string &style) {
+                                                                  const std::string &colour_scheme,
+                                                                  const std::string &style,
+                                                                  int secondary_structure_usage_flag) {
    coot::simple_mesh_t mesh;
    if (is_valid_model_molecule(imol)) {
-      mesh = molecules[imol].get_molecular_representation_mesh(atom_selection, colour_scheme, style);
+      mesh = molecules[imol].get_molecular_representation_mesh(atom_selection, colour_scheme, style, secondary_structure_usage_flag);
    }
    return simple_mesh_to_pythonic_mesh(mesh, MULTI_COLOUR);
 }

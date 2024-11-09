@@ -59,10 +59,10 @@ coot-molecule-bonds.cc	     coot-molecule-validation.cc                      mol
 molecules-container.cc       make-a-dodec.cc	                              molecules-container-ligand-fitting.cc \
 phi-psi-prob.cc              coot-molecule-moltris.cc                         coot-molecule-replace-fragment.cc \
 coot-molecule-backup.cc      coot-molecule-bonds-instanced.cc                 molecules-container-mmrrcc.cc \
-molecules-container-gltf.cc \
+molecules-container-gltf.cc  mmcif-tests.cc \
 coot-molecule-refine.cc      molecules-container-superpose.cc                 rigid-body-fit.cc \
 moorhen-h-bonds.cc           molecules-container-bucca-ml-growing.cc          instancing.cc  \
-molecules-container-maps.cc  coot-molecule-change-chain-id.cc    \
+molecules-container-maps.cc  coot-molecule-change-chain-id.cc                 coot-molecule-modelling.cc \
 blender-mesh.cc              coot-molecule-blender.cc                         molecules-container-blender.cc
 
 libcoot_api_la_LDFLAGS = $(SHARED_LDFLAGS)            \

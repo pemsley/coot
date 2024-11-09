@@ -88,6 +88,9 @@ init_coot_as_python_module() {
    curl_global_init(CURL_GLOBAL_NOTHING); // nothing extra (e.g. ssl or WIN32)
 #endif
 
+   // 20240717-PE why is this stuff here - in python-related code?
+   //       It is so that "import coot" from python init's coot properly
+
    mmdb::InitMatType();
    setup_syminfo();
    check_reference_structures_dir();

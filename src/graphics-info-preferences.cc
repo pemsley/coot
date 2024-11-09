@@ -70,259 +70,221 @@ graphics_info_t::save_preference_file(const std::string &filename, short int il)
    commands.push_back(comment_str);
    
    unsigned short int v = 4;
-   int preference_type;
    float fval1;
    float fval2;
    float fval3;
    std::vector<int> ivector;
    graphics_info_t g;
    for (unsigned int i=0; i<g.preferences_internal.size(); i++) {
-     preference_type = g.preferences_internal[i].preference_type;
-     switch (preference_type) {
 
-     case PREFERENCES_FILE_CHOOSER:
-       commands.push_back(state_command("coot", "set-file-chooser-selector",
-					g.preferences_internal[i].ivalue1, il));
-       break;
+      int preference_type = g.preferences_internal[i].preference_type;
 
-     case PREFERENCES_FILE_OVERWRITE:
-       commands.push_back(state_command("coot", "set-file-chooser-overwrite",
-					g.preferences_internal[i].ivalue1, il));
-       break;
+      // std::cout << "preference_type: " << preference_type << std::endl;
+
+      switch (preference_type) {
+
+      case PREFERENCES_FILE_CHOOSER:
+         commands.push_back(state_command("coot", "set-file-chooser-selector",
+                                          g.preferences_internal[i].ivalue1, il));
+         break;
+
+      case PREFERENCES_FILE_OVERWRITE:
+         commands.push_back(state_command("coot", "set-file-chooser-overwrite",
+                                          g.preferences_internal[i].ivalue1, il));
+         break;
        
-     case PREFERENCES_FILE_FILTER:
-       commands.push_back(state_command("coot", "set-filter-fileselection-filenames", 
-					g.preferences_internal[i].ivalue1, il));
-       break;
+      case PREFERENCES_FILE_FILTER:
+         commands.push_back(state_command("coot", "set-filter-fileselection-filenames", 
+                                          g.preferences_internal[i].ivalue1, il));
+         break;
        
-     case PREFERENCES_FILE_SORT_DATE:
-       if (g.preferences_internal[i].ivalue1 == 1) {
-	 commands.push_back(state_command("coot", "set-sticky-sort-by-date", il));
-       } else {
-	 commands.push_back(state_command("coot", "unset-sticky-sort-by-date", il));
-       }
-       break;
-       
-     case PREFERENCES_ACCEPT_DIALOG_DOCKED:
-       commands.push_back(state_command("coot", "set-accept-reject-dialog-docked",
-					g.preferences_internal[i].ivalue1, il));
-       break;
-
-     case PREFERENCES_ACCEPT_DIALOG_DOCKED_SHOW:
-       commands.push_back(state_command("coot", "set-accept-reject-dialog-docked-show",
-					g.preferences_internal[i].ivalue1, il));
-       break;
-       
-     case PREFERENCES_IMMEDIATE_REPLACEMENT:
-       commands.push_back(state_command("coot", "set-refinement-immediate-replacement",
-					g.preferences_internal[i].ivalue1, il));
-      break;
-      
-     case PREFERENCES_VT_SURFACE:
-       commands.push_back(state_command("coot", "vt-surface",
-					g.preferences_internal[i].ivalue1, il));
-       break;
-
-     case PREFERENCES_RECENTRE_PDB:
-       commands.push_back(state_command("coot", "set-recentre-on-read-pdb",
-					g.preferences_internal[i].ivalue1, il));
-       break;
-
-     case PREFERENCES_BONDS_THICKNESS:
-       commands.push_back(state_command("coot", "set-default-bond-thickness",
-					g.preferences_internal[i].ivalue1, il));
-       break;
-       
-     case PREFERENCES_BOND_COLOURS_MAP_ROTATION:
-       commands.push_back(state_command("coot", "set-colour-map-rotation-on-read-pdb",
-					g.preferences_internal[i].fvalue1, il));
-       break;
-       
-     case PREFERENCES_BOND_COLOUR_ROTATION_C_ONLY:
-       commands.push_back(state_command("coot", "set-colour-map-rotation-on-read-pdb-c-only-flag",
-					g.preferences_internal[i].ivalue1, il));
-       break;
-       
-     case PREFERENCES_MAP_RADIUS:
-       commands.push_back(state_command("coot", "set-map-radius",
-					 g.preferences_internal[i].fvalue1, il));
-       break;
-       
-     case PREFERENCES_MAP_ISOLEVEL_INCREMENT:
-       commands.push_back(state_command("coot", "set-iso-level-increment",
-					 g.preferences_internal[i].fvalue1, il, v));
-       break;
-
-     case PREFERENCES_DIFF_MAP_ISOLEVEL_INCREMENT:
-       commands.push_back(state_command("coot", "set-diff-map-iso-level-increment",
-					 g.preferences_internal[i].fvalue1, il, v));
-       break;
-
-     case PREFERENCES_MAP_SAMPLING_RATE:
-       commands.push_back(state_command("coot", "set-map-sampling-rate",
-					 g.preferences_internal[i].fvalue1, il, v));
-       break;
-
-     case PREFERENCES_DYNAMIC_MAP_SAMPLING:
-       if (g.preferences_internal[i].ivalue1 == 1) {
-	 commands.push_back(state_command("coot", "set-dynamic-map-sampling-on", il));
-       } else {
-	 commands.push_back(state_command("coot", "set-dynamic-map-sampling-off", il));
-       }
-       break;
-      
-     case PREFERENCES_DYNAMIC_MAP_SIZE_DISPLAY:
-       if (g.preferences_internal[i].ivalue1 == 1) {
-	 commands.push_back(state_command("coot", "set-dynamic-map-size-display-on", il));
-       } else {
-	 commands.push_back(state_command("coot", "set-dynamic-map-size-display-off", il));
-       }
-       break;
-
-     case PREFERENCES_SWAP_DIFF_MAP_COLOURS:
-       commands.push_back(state_command("coot", "set-swap-difference-map-colours",
-					g.preferences_internal[i].ivalue1, il));
-       break;
-
-     case PREFERENCES_MAP_COLOURS_MAP_ROTATION:
-       commands.push_back(state_command("coot", "set-colour-map-rotation-for-map",
-					g.preferences_internal[i].fvalue1, il));
-       break;
-
-     case PREFERENCES_SMOOTH_SCROLL:
-       commands.push_back(state_command("coot", "set-smooth-scroll-flag",
-					g.preferences_internal[i].ivalue1, il));
-       break;
-
-     case PREFERENCES_SMOOTH_SCROLL_STEPS:
-       commands.push_back(state_command("coot", "set-smooth-scroll-steps",
-					g.preferences_internal[i].ivalue1, il));
-       break;
-
-     case PREFERENCES_SMOOTH_SCROLL_LIMIT:
-       commands.push_back(state_command("coot", "set-smooth-scroll-limit",
-					g.preferences_internal[i].fvalue1, il));
-       break;
-
-     case PREFERENCES_MAP_DRAG:
-       commands.push_back(state_command("coot", "set-active-map-drag-flag",
-					g.preferences_internal[i].ivalue1, il));
-       break;
-
-     case PREFERENCES_MARK_CIS_BAD:
-       commands.push_back(state_command("coot", "set-mark-cis-peptides-as-bad",
-					g.preferences_internal[i].ivalue1, il));     
-       break;
-
-     case PREFERENCES_BG_COLOUR:      
-       fval1 = g.preferences_internal[i].fvalue1;  // red
-       fval2 = g.preferences_internal[i].fvalue2;  // green
-       fval3 = g.preferences_internal[i].fvalue3;  // blue
-       if (fval1 < 0.01 && fval2 < 0.01 && fval3 < 0.01) {
-	 // black
-	 commands.push_back(state_command("coot", "set-background-colour", 0, 0, 0, il));
-       } else if (fval1 > 0.99 && fval2 > 0.99 && fval3 > 0.99) {
-	 // white
-	 commands.push_back(state_command("coot", "set-background-colour", 1, 1, 1, il));
-       } else {
-	  // other colour
-          if (false)
-             std::cout << "on save other colour: " << fval1 << " " << fval2 << " " << fval3
-                       << std::endl;
-	  commands.push_back(state_command("coot", "set-background-colour", fval1, fval2, fval3, il));
-       }
-       break;
-
-     case PREFERENCES_ANTIALIAS:
-       commands.push_back(state_command("coot", "set-do-anti-aliasing",
-					g.preferences_internal[i].ivalue1, il));
-       break;
-
-     case PREFERENCES_CONSOLE_COMMANDS:
-       commands.push_back(state_command("coot", "set-console-display-commands-state",
-					g.preferences_internal[i].ivalue1, il));
-       break;
-
-     case PREFERENCES_REFINEMENT_SPEED:
-       commands.push_back(state_command("coot", "set-dragged-refinement-steps-per-frame",
-					g.preferences_internal[i].ivalue1, il));
-       break;
-
-     case PREFERENCES_SPIN_SPEED:
-       commands.push_back(state_command("coot", "set-idle-function-rotate-angle",
-					g.preferences_internal[i].fvalue1, il));
-       break;
-      
-     case PREFERENCES_FONT_SIZE:
-       commands.push_back(state_command("coot", "set-font-size",
-					g.preferences_internal[i].ivalue1, il));
-       break;
-      
-     case PREFERENCES_FONT_COLOUR:      
-       fval1 = g.preferences_internal[i].fvalue1;  // red
-       fval2 = g.preferences_internal[i].fvalue2;  // green
-       fval3 = g.preferences_internal[i].fvalue3;  // blue
-       if (fval1 >= 0.999 && 
-	  fval2 >= 0.799 && fval2 <= 0.801 &&
-	  fval3 >= 0.799 && fval3 <= 0.801) {
-	  commands.push_back(state_command("coot", "set-font-colour", 1.0, 0.8, 0.8, il));
-       } else {
-	  commands.push_back(state_command("coot", "set-font-colour", fval1, fval2, fval3, il));
-       }
-       break;
-
-     case PREFERENCES_PINK_POINTER:
-       commands.push_back(state_command("coot", "set-rotation-centre-size",
-					g.preferences_internal[i].fvalue1, il));
-       break;
-      
-     case PREFERENCES_MODEL_TOOLBAR_SHOW:
-       if (g.preferences_internal[i].ivalue1 == 0) {
-	 commands.push_back(state_command("coot", "hide-modelling-toolbar", il));
-       } else {
-	 commands.push_back(state_command("coot", "show-modelling-toolbar", il));
-       }
-       break;
-
-     case PREFERENCES_MODEL_TOOLBAR_ICONS:
-       if (g.preferences_internal[i].ivalue2 == 1) {
-	 commands.push_back(state_command("coot", "show-model-toolbar-icon",
-					  g.preferences_internal[i].ivalue1, il));
-       } else {
-	 commands.push_back(state_command("coot", "hide-model-toolbar-icon",
-					  g.preferences_internal[i].ivalue1, il));
-       }
-       break;
-
-     case PREFERENCES_MAIN_TOOLBAR_SHOW:
-       if (g.preferences_internal[i].ivalue1 == 0) {
-	 commands.push_back(state_command("coot", "hide-main-toolbar", il));
-       } else {
-	 commands.push_back(state_command("coot", "show-main-toolbar", il));
-       }
-       break;
-
-       //case PREFERENCES_MAIN_TOOLBAR_POSITION:
-       //commands.push_back(state_command("set-main-toolbar-docked-position",
-       //				g.preferences_internal[i].ivalue1, il));
-       //break;
-
-     case PREFERENCES_MAIN_TOOLBAR_STYLE:
-       commands.push_back(state_command("coot", "set-main-toolbar-style",
-					g.preferences_internal[i].ivalue1, il));
-       break;
-
-     case PREFERENCES_MAIN_TOOLBAR_ICONS:
-         if (g.preferences_internal[i].ivalue2 == 1) {
-             commands.push_back(state_command("coot", "show-main-toolbar-icon",
-                                              g.preferences_internal[i].ivalue1, il));
+      case PREFERENCES_FILE_SORT_DATE:
+         if (g.preferences_internal[i].ivalue1 == 1) {
+            commands.push_back(state_command("coot", "set-sticky-sort-by-date", il));
          } else {
-             commands.push_back(state_command("coot", "hide-main-toolbar-icon",
-                                              g.preferences_internal[i].ivalue1, il));
+            commands.push_back(state_command("coot", "unset-sticky-sort-by-date", il));
+         }
+         break;
+       
+      case PREFERENCES_ACCEPT_DIALOG_DOCKED:
+         commands.push_back(state_command("coot", "set-accept-reject-dialog-docked",
+                                          g.preferences_internal[i].ivalue1, il));
+         break;
+
+      case PREFERENCES_ACCEPT_DIALOG_DOCKED_SHOW:
+         commands.push_back(state_command("coot", "set-accept-reject-dialog-docked-show",
+                                          g.preferences_internal[i].ivalue1, il));
+         break;
+       
+      case PREFERENCES_IMMEDIATE_REPLACEMENT:
+         commands.push_back(state_command("coot", "set-refinement-immediate-replacement",
+                                          g.preferences_internal[i].ivalue1, il));
+         break;
+      
+      case PREFERENCES_VT_SURFACE:
+         commands.push_back(state_command("coot", "vt-surface",
+                                          g.preferences_internal[i].ivalue1, il));
+         break;
+
+      case PREFERENCES_VIEW_ROTATION_MOUSE_BUTTON:
+         commands.push_back(state_command("coot", "set-use-primary-mouse-button-for-rotation",
+                                          g.preferences_internal[i].ivalue1, il));
+         break;
+
+      case PREFERENCES_RECENTRE_PDB:
+         commands.push_back(state_command("coot", "set-recentre-on-read-pdb",
+                                          g.preferences_internal[i].ivalue1, il));
+         break;
+
+      case PREFERENCES_BONDS_THICKNESS:
+         commands.push_back(state_command("coot", "set-default-bond-thickness",
+                                          g.preferences_internal[i].ivalue1, il));
+         break;
+       
+      case PREFERENCES_BOND_COLOURS_MAP_ROTATION:
+         commands.push_back(state_command("coot", "set-colour-map-rotation-on-read-pdb",
+                                          g.preferences_internal[i].fvalue1, il));
+         break;
+       
+      case PREFERENCES_BOND_COLOUR_ROTATION_C_ONLY:
+         commands.push_back(state_command("coot", "set-colour-map-rotation-on-read-pdb-c-only-flag",
+                                          g.preferences_internal[i].ivalue1, il));
+         break;
+       
+      case PREFERENCES_MAP_RADIUS:
+         commands.push_back(state_command("coot", "set-map-radius",
+                                          g.preferences_internal[i].fvalue1, il));
+         break;
+
+      case PREFERENCES_MAP_ISOLEVEL_INCREMENT:
+         commands.push_back(state_command("coot", "set-iso-level-increment",
+                                          g.preferences_internal[i].fvalue1, il, v));
+         break;
+
+      case PREFERENCES_DIFF_MAP_ISOLEVEL_INCREMENT:
+         commands.push_back(state_command("coot", "set-diff-map-iso-level-increment",
+                                          g.preferences_internal[i].fvalue1, il, v));
+         break;
+
+      case PREFERENCES_MAP_SAMPLING_RATE:
+         commands.push_back(state_command("coot", "set-map-sampling-rate",
+                                          g.preferences_internal[i].fvalue1, il, v));
+         break;
+
+      case PREFERENCES_DYNAMIC_MAP_SAMPLING:
+         if (g.preferences_internal[i].ivalue1 == 1) {
+            commands.push_back(state_command("coot", "set-dynamic-map-sampling-on", il));
+         } else {
+            commands.push_back(state_command("coot", "set-dynamic-map-sampling-off", il));
          }
          break;
 
-     }
+      case PREFERENCES_DYNAMIC_MAP_SIZE_DISPLAY:
+         if (g.preferences_internal[i].ivalue1 == 1) {
+            commands.push_back(state_command("coot", "set-dynamic-map-size-display-on", il));
+         } else {
+            commands.push_back(state_command("coot", "set-dynamic-map-size-display-off", il));
+         }
+         break;
+
+      case PREFERENCES_SWAP_DIFF_MAP_COLOURS:
+         commands.push_back(state_command("coot", "set-swap-difference-map-colours",
+                                          g.preferences_internal[i].ivalue1, il));
+         break;
+
+      case PREFERENCES_MAP_COLOURS_MAP_ROTATION:
+         commands.push_back(state_command("coot", "set-colour-map-rotation-for-map",
+                                          g.preferences_internal[i].fvalue1, il));
+         break;
+
+      case PREFERENCES_SMOOTH_SCROLL:
+         commands.push_back(state_command("coot", "set-smooth-scroll-flag",
+                                          g.preferences_internal[i].ivalue1, il));
+         break;
+
+      case PREFERENCES_SMOOTH_SCROLL_STEPS:
+         commands.push_back(state_command("coot", "set-smooth-scroll-steps",
+                                          g.preferences_internal[i].ivalue1, il));
+         break;
+
+      case PREFERENCES_SMOOTH_SCROLL_LIMIT:
+         commands.push_back(state_command("coot", "set-smooth-scroll-limit",
+                                          g.preferences_internal[i].fvalue1, il));
+         break;
+
+      case PREFERENCES_MAP_DRAG:
+         commands.push_back(state_command("coot", "set-active-map-drag-flag",
+                                          g.preferences_internal[i].ivalue1, il));
+         break;
+
+      // case PREFERENCES_MARK_CIS_BAD:
+      //    commands.push_back(state_command("coot", "set-mark-cis-peptides-as-bad",
+      //                                     g.preferences_internal[i].ivalue1, il));
+      //    break;
+
+      case PREFERENCES_BG_COLOUR:
+         fval1 = g.preferences_internal[i].fvalue1;  // red
+         fval2 = g.preferences_internal[i].fvalue2;  // green
+         fval3 = g.preferences_internal[i].fvalue3;  // blue
+         if (fval1 < 0.01 && fval2 < 0.01 && fval3 < 0.01) {
+            // black
+            commands.push_back(state_command("coot", "set-background-colour", 0, 0, 0, il));
+         } else if (fval1 > 0.99 && fval2 > 0.99 && fval3 > 0.99) {
+            // white
+            commands.push_back(state_command("coot", "set-background-colour", 1, 1, 1, il));
+         } else {
+            // other colour
+            if (false)
+               std::cout << "on save other colour: " << fval1 << " " << fval2 << " " << fval3
+                         << std::endl;
+            commands.push_back(state_command("coot", "set-background-colour", fval1, fval2, fval3, il));
+         }
+         break;
+
+      case PREFERENCES_ANTIALIAS:
+         commands.push_back(state_command("coot", "set-do-anti-aliasing",
+                                          g.preferences_internal[i].ivalue1, il));
+         break;
+
+      case PREFERENCES_CONSOLE_COMMANDS:
+         commands.push_back(state_command("coot", "set-console-display-commands-state",
+                                          g.preferences_internal[i].ivalue1, il));
+         break;
+
+      case PREFERENCES_REFINEMENT_SPEED:
+         commands.push_back(state_command("coot", "set-dragged-refinement-steps-per-frame",
+                                          g.preferences_internal[i].ivalue1, il));
+         break;
+
+      case PREFERENCES_SPIN_SPEED:
+         commands.push_back(state_command("coot", "set-idle-function-rotate-angle",
+                                          g.preferences_internal[i].fvalue1, il));
+         break;
+      
+      case PREFERENCES_FONT_SIZE:
+         commands.push_back(state_command("coot", "set-font-size",
+                                          g.preferences_internal[i].ivalue1, il));
+         break;
+
+      case PREFERENCES_FONT_COLOUR:      
+         fval1 = g.preferences_internal[i].fvalue1;  // red
+         fval2 = g.preferences_internal[i].fvalue2;  // green
+         fval3 = g.preferences_internal[i].fvalue3;  // blue
+         if (fval1 >= 0.999 && 
+             fval2 >= 0.799 && fval2 <= 0.801 &&
+             fval3 >= 0.799 && fval3 <= 0.801) {
+            commands.push_back(state_command("coot", "set-font-colour", 1.0, 0.8, 0.8, il));
+         } else {
+            commands.push_back(state_command("coot", "set-font-colour", fval1, fval2, fval3, il));
+         }
+         break;
+
+      case PREFERENCES_PINK_POINTER:
+         commands.push_back(state_command("coot", "set-rotation-centre-size",
+                                          g.preferences_internal[i].fvalue1, il));
+         break;
+      }
+      
    }
 
    istat = write_state(commands, filename);
@@ -390,6 +352,11 @@ graphics_info_t::make_preferences_internal() {
   //  on = graphics_info_t::vt_surface_status();
   p.preference_type = PREFERENCES_VT_SURFACE;
   p.ivalue1 = on;
+  ret.push_back(p);
+
+  // left mouse for rotation
+  p.preference_type = PREFERENCES_VIEW_ROTATION_MOUSE_BUTTON;
+  p.ivalue1 = 0;
   ret.push_back(p);
 
   // recentre pdb
@@ -550,15 +517,15 @@ graphics_info_t::make_preferences_internal() {
 
   // Geometry preference settings
   // Cis peptides
-  on = show_mark_cis_peptides_as_bad_state();
-  p.preference_type = PREFERENCES_MARK_CIS_BAD;
-  p.ivalue1 = on;
-  ret.push_back(p);
+  // on = show_mark_cis_peptides_as_bad_state();
+  // p.preference_type = PREFERENCES_MARK_CIS_BAD;
+  // p.ivalue1 = on;
+  // ret.push_back(p);
 
   p.preference_type = PREFERENCES_DEFAULT_B_FACTOR;
   p.fvalue1 = default_new_atoms_b_factor;
   ret.push_back(p);
-  
+
   // Colour preference settings
   // Background colour
   p.preference_type = PREFERENCES_BG_COLOUR;

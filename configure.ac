@@ -255,7 +255,31 @@ CFLAGS="$save_cflags"
 
 dnl =========================== GLM ================================
 
-PKG_CHECK_MODULES(GLM, glm >= 0.9.9)
+# While GLM has no pkgconfig glm.pc file, we have to be a bit more hand-to-mouth
+# about its configuration
+# PKG_CHECK_MODULES(GLM, glm >= 0.9.9)
+
+# Copied and adapted from how gemmi and rdkit are found below
+AC_ARG_WITH([glm], AS_HELP_STRING([--with-glm location of the GLM package]), with_glm="$withval", with_glm=false)
+
+AC_MSG_CHECKING([for GLM])
+if test "x$with_glm" = xfalse ; then
+   if test -x $prefix/include/glm ; then
+      #echo OK, good we found glm in $prefix
+      AC_MSG_RESULT(yes)
+      glm_install_dir=$prefix
+      AC_SUBST(GLM_CXXFLAGS, "-I$glm_install_dir/include")
+      AC_SUBST(GLM_LIBS, "-L$glm_install_dir/lib -lglm")
+   else
+      AC_MSG_RESULT(no)
+      echo Configuration error. Could not find GLM.
+      exit 1
+   fi
+else
+   AC_MSG_RESULT(yes)
+   AC_SUBST(GLM_CXXFLAGS, "-I$withval/include")
+   AC_SUBST(GLM_LIBS, "-L$withval/lib -lglm")
+fi
 
 dnl =========================== GTK ===========================
 
@@ -308,12 +332,14 @@ AC_SUBST(L_BOOST_PYTHON)
 
 dnl =========================== RDKit =========================
 
+# this does nothing now - keep it for backwards compatibility
 AC_ARG_WITH(enhanced-ligand-tools, [  --with-enhanced-ligand-tools with optional ligand-related dependencies ],
  coot_enhanced_ligand_additions="true",
  coot_enhanced_ligand_additions="false")
 
 # but we can't use enhanced-ligand-tools without python:
 if $coot_enhanced_ligand_additions = true ; then
+   echo no longer need to specify --with-enhanced-ligand-tools
    if test -n "$COOT_USE_PYTHON_TRUE" ; then
       echo Configuration error: cant use enhanced-ligand-tools without python
       exit 1
@@ -342,7 +368,6 @@ if test x$rdkit_prefix = xfalse ; then
       echo OK, good we found RDKit in $prefix
       rdkit_install_dir=$prefix
       RDKIT_CXXFLAGS="-I$rdkit_install_dir/include/rdkit -DRDKIT_HAS_CAIRO_SUPPORT"
-      RDKIT_LIBS="-L$rdkit_install_dir/lib -lRDKitMolDraw2D -lRDKitForceFieldHelpers -lRDKitDescriptors -lRDKitForceField -lRDKitSubstructMatch -lRDKitOptimizer -lRDKitDistGeomHelpers -lRDKitDistGeometry -lRDKitChemReactions -lRDKitAlignment -lRDKitEigenSolvers -lRDKitDepictor -lRDKitcoordgen -lRDKitMolChemicalFeatures -lRDKitPartialCharges -lRDKitFileParsers -lRDKitRDGeometryLib -lRDKitGraphMol -lRDKitShapeHelpers -lRDKitFingerprints -lRDKitMolAlign -lRDKitMolTransforms -lRDKitChemTransforms -lRDKitSmilesParse -lRDKitGenericGroups -lRDKitRingDecomposerLib -lRDKitFilterCatalog -lRDKitCatalogs -lRDKitSubgraphs -lRDKitPartialCharges -lRDKitRDGeneral -lRDKitDataStructs -lboost_serialization -lboost_iostreams"
    else
       echo Configuration error. No, bad... we do not have necessary RDKIT
       exit 1
@@ -351,16 +376,16 @@ else
    rdkit_install_dir="$withval"
    # better RDKit linking I hope
    RDKIT_CXXFLAGS="-I$rdkit_install_dir/include/rdkit -DRDKIT_HAS_CAIRO_SUPPORT"
-   RDKIT_LIBS="-L$rdkit_install_dir/lib -lRDKitMolDraw2D -lRDKitForceFieldHelpers -lRDKitDescriptors -lRDKitForceField -lRDKitSubstructMatch -lRDKitOptimizer -lRDKitDistGeomHelpers -lRDKitDistGeometry -lRDKitChemReactions -lRDKitAlignment -lRDKitEigenSolvers -lRDKitDepictor -lRDKitcoordgen -lRDKitMolChemicalFeatures -lRDKitPartialCharges -lRDKitFileParsers -lRDKitRDGeometryLib -lRDKitGraphMol -lRDKitShapeHelpers -lRDKitFingerprints -lRDKitMolAlign -lRDKitMolTransforms -lRDKitChemTransforms -lRDKitSmilesParse -lRDKitGenericGroups -lRDKitRingDecomposerLib -lRDKitFilterCatalog -lRDKitCatalogs -lRDKitSubgraphs -lRDKitPartialCharges -lRDKitRDGeneral -lRDKitDataStructs -lboost_serialization -lboost_iostreams"
 fi
+# test here for presence of coordgen in the RDKit
+librdkitcoordgen=-lRDKitcoordgen
+# librdkitcoordgen=
+RDKIT_LIBS="-L$rdkit_install_dir/lib -lRDKitMolDraw2D -lRDKitForceFieldHelpers -lRDKitDescriptors -lRDKitForceField -lRDKitSubstructMatch -lRDKitOptimizer -lRDKitDistGeomHelpers -lRDKitDistGeometry -lRDKitChemReactions -lRDKitAlignment -lRDKitEigenSolvers -lRDKitDepictor $librdkitcoordgen -lRDKitMolChemicalFeatures -lRDKitPartialCharges -lRDKitFileParsers -lRDKitRDGeometryLib -lRDKitGraphMol -lRDKitShapeHelpers -lRDKitFingerprints -lRDKitMolAlign -lRDKitMolTransforms -lRDKitChemTransforms -lRDKitSmilesParse -lRDKitGenericGroups -lRDKitRingDecomposerLib -lRDKitFilterCatalog -lRDKitCatalogs -lRDKitSubgraphs -lRDKitPartialCharges -lRDKitRDGeneral -lRDKitDataStructs -lboost_serialization -lboost_iostreams"
 
-if test x$coot_enhanced_ligand_additions = xtrue ; then
-   ENHANCED_LIGAND_TOOLS_CPPFLAGS="-DMAKE_ENHANCED_LIGAND_TOOLS"
-else
-   ENHANCED_LIGAND_TOOLS_CPPFLAGS=""
-fi
+# this must always be true now
+ENHANCED_LIGAND_TOOLS_CPPFLAGS="-DMAKE_ENHANCED_LIGAND_TOOLS"
 
-echo ENHANCED_LIGAND_TOOLS_CPPFLAGS $ENHANCED_LIGAND_TOOLS_CPPFLAGS
+# echo ENHANCED_LIGAND_TOOLS_CPPFLAGS $ENHANCED_LIGAND_TOOLS_CPPFLAGS
 
 AC_ARG_ENABLE(layla-only, [  --enable-layla-only build layla only (not coot) ],
  layla_only="yes",

@@ -865,7 +865,7 @@ coot::restraints_container_t::make_strand_pseudo_bond_restraints() {
 #include "coot-utils/coot-h-bonds.hh"
 
 void
-coot::restraints_container_t::make_h_bond_restraints_from_res_vec_auto(const coot::protein_geometry &geom) {
+coot::restraints_container_t::make_h_bond_restraints_from_res_vec_auto(const coot::protein_geometry &geom, int imol) {
 
    auto tp_0 = std::chrono::high_resolution_clock::now();
    int SelHnd = mol->NewSelection(); // d
@@ -877,7 +877,7 @@ coot::restraints_container_t::make_h_bond_restraints_from_res_vec_auto(const coo
       residue_spec_t(r).select_atoms(mol, SelHnd, mmdb::SKEY_OR);
    }
    auto tp_2 = std::chrono::high_resolution_clock::now();
-   std::vector<h_bond> v = hbs.get(SelHnd, SelHnd, mol, geom);
+   std::vector<h_bond> v = hbs.get(SelHnd, SelHnd, mol, geom, imol);
    auto tp_3 = std::chrono::high_resolution_clock::now();
 
    unsigned int n_bonds = 0;
@@ -1033,6 +1033,12 @@ coot::restraints_container_t::make_monomer_restraints_by_residue(int imol, mmdb:
 								 const protein_geometry &geom,
 								 bool do_residue_internal_torsions) {
 
+   if (false)
+      std::cout << "----------- make_monomer_restraints_by_residue() "
+                << residue_p->GetChain() << " "
+                << residue_p->GetSeqNum()<< " : "
+                << residue_p->GetResName() << std::endl;
+
    restraint_counts_t local;
 
    if (! residue_p) {
@@ -1045,14 +1051,23 @@ coot::restraints_container_t::make_monomer_restraints_by_residue(int imol, mmdb:
 
    if (false)
       std::cout << "--------------- make_monomer_restraints_by_residue() called "
-                << residue_spec_t(residue_p) << " with " << residue_p->GetNumberOfAtoms() << " atoms "
+                << residue_spec_t(residue_p) << " with " << residue_p->GetNumberOfAtoms() << " atoms"
                 <<  " and using type :" << pdb_resname << ": and imol "
                 << imol << " do_residue_internal_torsions: "
                 << do_residue_internal_torsions << std::endl;
 
    // idr: index dictionary residue
    int idr = geom.get_monomer_restraints_index(pdb_resname, imol, false);
-   if (idr >= 0) {
+
+   if (false) {
+      std::cout << "debug:: in make_monomer_restraints_by_residue() here with idr " << idr << std::endl;
+   }
+
+   if (idr == -1) {
+
+      std::cout << "ERROR:: failed to get restraints index for monomer " << pdb_resname << std::endl;
+
+   } else {
 
       // if (geom[idr].comp_id == pdb_resname) {
       // old style comp_id usage

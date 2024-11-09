@@ -243,8 +243,7 @@ void fle_view_internal_to_png(int imol, const char *chain_id, int res_no,
 	       graphics_info_t::molecules[imol_ligand_fragment].atom_sel.mol;
 	    int every_nth = 1;
 	    std::vector<coot::lsq_range_match_info_t> matches;
-	    coot::lsq_range_match_info_t match(1, 1, "", res_no, res_no, chain_id,
-					       COOT_LSQ_ALL);
+	    coot::lsq_range_match_info_t match(1, 1, "", res_no, res_no, chain_id, coot::lsq_t::ALL);
 	    matches.push_back(match);
 	    std::pair<short int, clipper::RTop_orth> lsq_mat = 
 	       coot::util::get_lsq_matrix(flat.mol, ligand_mol, matches, every_nth);
@@ -301,7 +300,7 @@ void fle_view_internal_to_png(int imol, const char *chain_id, int res_no,
 	       //
 	       std::vector<pli::fle_ligand_bond_t> bonds_to_ligand =
 		  pli::get_fle_ligand_bonds(res_ref, filtered_residues, mol,
-					     name_map, *geom_p,
+					     name_map, *geom_p, imol,
 					     graphics_info_t::fle_water_dist_max,
 					     graphics_info_t::fle_h_bond_dist_max);
 
@@ -716,7 +715,7 @@ coot::get_flev_residue_centres(mmdb::Residue *residue_ligand_3d,
       int every_nth = 1;
       std::vector<coot::lsq_range_match_info_t> matches;
       coot::lsq_range_match_info_t match(1, 1, "", res_no, res_no, chain_id,
- 					 COOT_LSQ_ALL);
+ 					 coot::lsq_t::ALL);
        matches.push_back(match);
        std::pair<short int, clipper::RTop_orth> lsq_mat =
 	  coot::util::get_lsq_matrix(flat_mol, mol_containing_residue_ligand, matches, every_nth);

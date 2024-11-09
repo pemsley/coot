@@ -316,6 +316,7 @@ graphics_info_t::init() {
       // preferences_general_tabs.push_back("preferences_file_selection");
       // preferences_general_tabs.push_back("preferences_dock_accept_dialog");
       preferences_general_tabs.push_back("preferences_hid");
+      preferences_general_tabs.push_back("preferences_noughties_physics");
       preferences_general_tabs.push_back("preferences_recentre_pdb");
       preferences_general_tabs.push_back("preferences_smooth_scroll");
       // preferences_general_tabs.push_back("preferences_model_toolbar_style");

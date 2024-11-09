@@ -58,6 +58,23 @@
 
 #include "coot-utils.hh"
 
+// bellow function sets this:
+static std::string real_path_for_coot_executable;
+
+//! do this on startup
+void coot::set_realpath_for_coot_executable(const std::string &argv0) {
+
+   // 20240902-PE patch from Charles - compiling on Windows
+#ifdef _MSC_VER
+   char *exec_path = _fullpath(NULL, argv0.c_str(), MAX_PATH);
+#else
+   char *exec_path = realpath(argv0.c_str(), NULL);
+#endif
+   if (exec_path) {
+      real_path_for_coot_executable = exec_path;
+   }
+}
+
 
 std::string
 coot::util::append_dir_dir (const std::string &s1, const std::string &dir) {
@@ -931,6 +948,7 @@ coot::get_home_dir() {
    return ""; //empty
 }
 
+#include <filesystem>
 
 // The user can set COOT_DATA_DIR (in fact this is the usual case
 // when using binaries) and that should over-ride the built-in
@@ -949,6 +967,24 @@ coot::package_data_dir() {
       char *env = getenv("COOT_PREFIX");
       if (env)
          pkgdatadir = std::string(env) + std::string("/share/coot");
+   }
+   if (std::filesystem::exists(pkgdatadir)) {
+      // good - we are (probably) not using relocated binaries
+   } else {
+      // let set pkgdatadir relative to the binary we are running (which was set
+      // using set_realpath_for_coot_executable())
+      // std::cout << "................. real_path_for_coot_executable " << real_path_for_coot_executable << std::endl;
+      if (real_path_for_coot_executable.empty()) {
+         std::cout << "OOPS:: real_path_for_coot_executable is empty " << std::endl;
+      } else {
+         std::filesystem::path p(real_path_for_coot_executable);
+         std::filesystem::path p_1 =   p.parent_path();
+         std::filesystem::path p_2 = p_1.parent_path();
+         // std::cout << "here with p_2 " << p_2.string() << std::endl;
+         std::filesystem::path p_3 = p_2 / "share";
+         std::filesystem::path p_4 = p_3 / "coot";
+         pkgdatadir = p_4.string();
+      }
    }
    return pkgdatadir;
 }

@@ -27,10 +27,13 @@
 #ifndef PY_SPECS_HH
 #define PY_SPECS_HH
 
+#ifdef USE_PYTHON
 #include <Python.h>
+#endif // USE_PYTHON
 
 #include "geometry/residue-and-atom-specs.hh"
 
+#ifdef USE_PYTHON
 namespace coot {
 
    class py_atom_spec_t : public atom_spec_t {
@@ -49,4 +52,5 @@ namespace coot {
 
 }
 
+#endif // USE_PYTHON
 #endif // PY_SPECS_HH

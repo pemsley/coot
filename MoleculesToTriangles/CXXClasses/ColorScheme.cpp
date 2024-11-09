@@ -53,12 +53,12 @@ std::shared_ptr<ColorScheme> ColorScheme::colorBySecondaryScheme()
 
 std::shared_ptr<ColorScheme> ColorScheme::colorRampChainsScheme(){
 
-   // std::cout << "#######  colorRampChainsScheme() !!" << std::endl;
+   std::cout << "####### M2T colorRampChainsScheme() !!" << std::endl;
 
    std::string chainIds(" ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnpqrstuvwxyz1234567890");
     std::shared_ptr<ColorScheme> result(new ColorScheme());
     
-    for (int i=0; i<chainIds.length(); i++){
+    for (unsigned int i=0; i<chainIds.length(); i++){
         std::string selectionString("/*/");
         selectionString.append(1, chainIds[i]);
         selectionString.append("/*.*/*:*");
@@ -74,7 +74,7 @@ std::shared_ptr<ColorScheme> ColorScheme::colorRampChainsScheme(){
 
 std::shared_ptr<ColorScheme> ColorScheme::colorChainsScheme(){
 
-   // std::cout << "#######  colorChainsScheme() !" << std::endl;
+   std::cout << "####### M2T colorChainsScheme() !" << std::endl;
 
     std::shared_ptr<ColorScheme> result(new ColorScheme());
     std::string colorNames[] = {

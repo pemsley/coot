@@ -45,7 +45,7 @@ MyMolecule::~MyMolecule(){
     if (ownsMMDB) delete mmdb;
 };
 
-int MyMolecule::loadCoords( char *data, int length)
+int MyMolecule::loadCoords( char *data, int length, int secondaryStructureUsageFlag)
 {
     Delimiters delimiters("\n\r");
     TokenIterator<char*, Delimiters> charIter(data, data + length, delimiters), end2;
@@ -109,23 +109,118 @@ int MyMolecule::loadCoords( char *data, int length)
             int RC = mmdb->PutPDBString ( formattedCard );
         }
     }
-    return processCoords();
+    return processCoords(secondaryStructureUsageFlag);
 }
 
-int MyMolecule::processCoords(){
-    //mmdb->Cryst.CalcCoordTransforms();
-    identifyBonds();
-    CXXUtils::assignUnitedAtomRadius(mmdb);
-    int nModels = mmdb->GetNumberOfModels();
-    for (int iModel = 1; iModel <= nModels; iModel++){
-        mmdb::Model *model = mmdb->GetModel(iModel);
+void
+secondary_structure_header_to_residue_sse(mmdb::Manager *mol) {
+
+   // add the SSE atribute for residue of the mol, extracted
+   // from the HELIX and SHEET records
+
+   for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+      mmdb::Model *model_p = mol->GetModel(imod);
+      if (model_p) {
+         int n_sheets  = model_p->GetNumberOfSheets();
+         int n_helices = model_p->GetNumberOfHelices();
+
+         for (int ih=1; ih<=n_helices; ih++) {
+            mmdb:: Helix *helix_p = model_p->GetHelix(ih);
+            if (helix_p) {
+               std::string chain_id = helix_p->initChainID;
+
+               int n_chains = model_p->GetNumberOfChains();
+               for (int ichain=0; ichain<n_chains; ichain++) {
+                  mmdb::Chain *chain_p = model_p->GetChain(ichain);
+                  if (chain_p) {
+                     std::string this_chain_id = chain_p->GetChainID();
+                     if (this_chain_id == chain_id) {
+                        int start_res_no = helix_p->initSeqNum;
+                        int   end_res_no = helix_p->endSeqNum;
+                        int n_res = chain_p->GetNumberOfResidues();
+                        for (int ires=0; ires<n_res; ires++) {
+                           mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                           if (residue_p) {
+                              if (residue_p->GetSeqNum() >= start_res_no) {
+                                 if (residue_p->GetSeqNum() <= end_res_no) {
+                                    residue_p->SSE = mmdb::SSE_Helix;
+                                 }
+                              }
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+         }
+
+         for (int isheet=1; isheet<=n_sheets; isheet++) {
+            mmdb::Sheet *sheet_p = model_p->GetSheet(isheet);
+            if (sheet_p) {
+               int n_strands = model_p->GetNumberOfStrands(isheet);
+               for (int istrand=1; istrand<=n_strands; istrand++) {
+                  mmdb::Strand *strand_p = model_p->GetStrand(isheet, istrand);
+                  if (strand_p) {
+                     std::string chain_id = strand_p->initChainID;
+                     int start_res_no = strand_p->initSeqNum;
+                     int   end_res_no = strand_p->endSeqNum;
+                     int n_chains = model_p->GetNumberOfChains();
+                     for (int ichain=0; ichain<n_chains; ichain++) {
+                        mmdb::Chain *chain_p = model_p->GetChain(ichain);
+                        if (chain_p) {
+                           std::string this_chain_id = chain_p->GetChainID();
+                           if (this_chain_id == chain_id) {
+                              int n_res = chain_p->GetNumberOfResidues();
+                              for (int ires=0; ires<n_res; ires++) {
+                                 mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                                 if (residue_p) {
+                                    if (residue_p->GetSeqNum() >= start_res_no) {
+                                       if (residue_p->GetSeqNum() <= end_res_no) {
+                                          residue_p->SSE = mmdb::SSE_Strand;
+                                       }
+                                    }
+                                 }
+                              }
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      }
+   }
+}
+
+
+int MyMolecule::processCoords(int secondaryStructureUsageFlag){
+
+   bool calc_secondary_structure = false;
+   bool transfer_secondary_structure = false;
+   if (secondaryStructureUsageFlag == CALC_SECONDARY_STRUCTURE)
+      calc_secondary_structure = true;
+   if (secondaryStructureUsageFlag == USE_HEADER_INFO)
+      transfer_secondary_structure = true;
+
+   //mmdb->Cryst.CalcCoordTransforms();
+   identifyBonds();
+   CXXUtils::assignUnitedAtomRadius(mmdb);
+
+   if (calc_secondary_structure) {
+      int nModels = mmdb->GetNumberOfModels();
+      for (int iModel = 1; iModel <= nModels; iModel++){
+         mmdb::Model *model = mmdb->GetModel(iModel);
         model->CalcSecStructure(true);
-    }
+      }
+   }
     
-    return 0;
+   if (transfer_secondary_structure)
+      secondary_structure_header_to_residue_sse(mmdb);
+
+   return 0;
 }
 
-int MyMolecule::loadFromPDB(const char *filePath){
+int MyMolecule::loadFromPDB(const char *filePath, int secondaryStructureUsageFlag){
     int RC;
     mmdb::InitMatType();
     mmdb = new mmdb::Manager();
@@ -139,19 +234,19 @@ int MyMolecule::loadFromPDB(const char *filePath){
         filePath << endl;
     }
     else {
-        std::cout << processCoords();
+        std::cout << processCoords(secondaryStructureUsageFlag);
     }
     return RC;
 }
 
-MyMolecule::MyMolecule(const char *filePath) : MyMolecule()
+MyMolecule::MyMolecule(const char *filePath, int secondaryStructureUsageFlag) : MyMolecule()
 {
-    int RC = loadFromPDB(filePath);
+    int RC = loadFromPDB(filePath, secondaryStructureUsageFlag);
 }
 
-MyMolecule::MyMolecule(std::string filePathString) : MyMolecule()
+MyMolecule::MyMolecule(std::string filePathString, int secondaryStructureUsageFlag) : MyMolecule()
 {
-    int RC = loadFromPDB(filePathString.c_str());
+    int RC = loadFromPDB(filePathString.c_str(), secondaryStructureUsageFlag);
 }
 
 int MyMolecule::FormatPDBCard (AtomCard theAtom, char *card,int count){

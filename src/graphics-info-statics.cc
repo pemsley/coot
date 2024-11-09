@@ -68,7 +68,11 @@ bool graphics_info_t::prefer_python = 0; // no GUILE or PYTHON
 bool graphics_info_t::prefer_python = 1; // Default: yes in Windows
 #endif // windows test
 
+bool graphics_info_t::graphics_is_gl_es = false;
+
 bool graphics_info_t::using_trackpad = false;
+
+logging graphics_info_t::log;
 
 bool graphics_info_t::use_gemmi = false;
 short int graphics_info_t::python_at_prompt_flag = 0;
@@ -90,6 +94,10 @@ ctpl::thread_pool graphics_info_t::static_thread_pool(coot::get_max_number_of_th
 #endif // HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 
 clipper::Xmap<float> *graphics_info_t::dummy_xmap = new clipper::Xmap<float>;
+std::vector<std::pair<std::string, clipper::Xmap<float> > > graphics_info_t::map_partition_results;
+int graphics_info_t::map_partition_results_state = 0; // inactive
+std::string graphics_info_t::map_partition_results_state_string; // "Done A Chain" etc.
+
 
 //WII
 #ifdef WII_INTERFACE_WIIUSE
@@ -200,6 +208,7 @@ int    graphics_info_t::smooth_scroll_current_step = 0;
 coot::Cartesian graphics_info_t::smooth_scroll_delta;
 int    graphics_info_t::mouse_just_cliked     = 0;
 float  graphics_info_t::rotation_centre_cube_size = 0.1; // Angstroems
+glm::vec4 graphics_info_t::rotation_centre_cross_hairs_colour = glm::vec4(0.8, 0.8, 0.8, 1.0);
 short int graphics_info_t::quanta_like_zoom_flag = 0;
 int    graphics_info_t::go_to_ligand_animate_view_n_steps = 50;
 
@@ -290,6 +299,7 @@ double graphics_info_t::drag_begin_x = 0.0;
 double graphics_info_t::drag_begin_y = 0.0;
 double graphics_info_t::mouse_x = 0.0;
 double graphics_info_t::mouse_y = 0.0;
+double graphics_info_t::mouse_speed = 2.0;
 std::pair<double, double> graphics_info_t::mouse_previous_position = std::make_pair(0.0, 0.0);
 
 // residue reorientation on "space"
@@ -899,7 +909,7 @@ float graphics_info_t::map_radius_slider_max = 50.0;
 short int graphics_info_t::rotate_colour_map_on_read_pdb_flag = 1; // do it.
 short int graphics_info_t::rotate_colour_map_on_read_pdb_c_only_flag = 1; // rotate Cs only by default
 float     graphics_info_t::rotate_colour_map_on_read_pdb = 21.0;  // degrees
-float     graphics_info_t::rotate_colour_map_for_map = 14.0;  // degrees
+float     graphics_info_t::rotate_colour_map_for_map = 31.0; // 20240907-PE 14.0;  // degrees
 
 float graphics_info_t::goodsell_chain_colour_wheel_rotation_step = 0.221;
 

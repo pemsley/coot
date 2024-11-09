@@ -58,9 +58,9 @@ coot::util::slurp_fill_xmap_from_map_file(const std::string &file_name,
       n_rows = *reinterpret_cast<int *>(data+4);
       n_secs = *reinterpret_cast<int *>(data+8);
       if (debug) {
-         std::cout << "n_cols " << n_cols << std::endl;
-         std::cout << "n_rows " << n_rows << std::endl;
-         std::cout << "n_sections " << n_secs << std::endl;
+         std::cout << "debug:: n_cols " << n_cols << std::endl;
+         std::cout << "debug:: n_rows " << n_rows << std::endl;
+         std::cout << "debug:: n_sections " << n_secs << std::endl;
       }
    };
 
@@ -121,7 +121,7 @@ coot::util::slurp_fill_xmap_from_map_file(const std::string &file_name,
          if (fstat == 0) {
             FILE *fptr = fopen(file_name.c_str(), "rb");
             off_t st_size = s.st_size;
-            std::cout << "st_size: " << st_size << std::endl;
+            // std::cout << "st_size: " << st_size << std::endl;
             try {
                // 20231006-PE as it used to be.
                char *space = new char[st_size+1];
@@ -150,7 +150,8 @@ coot::util::slurp_fill_xmap_from_map_file(const std::string &file_name,
       std::cout << "WARNING:: file does not exist " << file_name << std::endl;
    }
 
-   std::cout << "DEBUG:: slurp_fill_xmap_from_map_file() returning " << status << std::endl;
+   if (false)
+      std::cout << "DEBUG:: slurp_fill_xmap_from_map_file() returning " << status << std::endl;
    return status;
 }
 
@@ -158,7 +159,8 @@ coot::util::slurp_fill_xmap_from_map_file(const std::string &file_name,
 
 // return value (status) means "is_basic_EM_map" (that's slurpable)
 bool
-coot::util::slurp_parse_xmap_data(char *data, clipper::Xmap<float> *xmap_p,
+coot::util::slurp_parse_xmap_data(char *data,
+                                  clipper::Xmap<float> *xmap_p,
                                   bool check_only) {
 
    bool debug = true;
@@ -172,9 +174,9 @@ coot::util::slurp_parse_xmap_data(char *data, clipper::Xmap<float> *xmap_p,
    n_rows = *reinterpret_cast<int *>(data+4);
    n_secs = *reinterpret_cast<int *>(data+8);
    if (debug) {
-      std::cout << "n_cols " << n_cols << std::endl;
-      std::cout << "n_rows " << n_rows << std::endl;
-      std::cout << "n_sections " << n_secs << std::endl;
+      std::cout << "debug:: n_cols " << n_cols << std::endl;
+      std::cout << "debug:: n_rows " << n_rows << std::endl;
+      std::cout << "debug:: n_sections " << n_secs << std::endl;
    }
 
    int mode = -1;
@@ -184,7 +186,7 @@ coot::util::slurp_parse_xmap_data(char *data, clipper::Xmap<float> *xmap_p,
    if (mode == 1) data_size = 2;
    if (mode == 6) data_size = 2; // two-byte integer. Needs fixing in the casting.
    if (debug)
-      std::cout << "slurp_map() mode: " << mode << std::endl;
+      std::cout << "debug:: slurp_map() mode: " << mode << std::endl;
 
    int nx_start = -1, ny_start = -1, nz_start = -1;
    int mx = -1, my = -1, mz = -1;
@@ -223,7 +225,7 @@ coot::util::slurp_parse_xmap_data(char *data, clipper::Xmap<float> *xmap_p,
    axis_order_xyz[map_sec-1] = 2;
 
    if (debug)
-      std::cout << "axis order " << map_row << " " << map_col << " " << map_sec << std::endl;
+      std::cout << "debug:: axis order " << map_row << " " << map_col << " " << map_sec << std::endl;
 
    // At the moment this function only works with simple X Y Z map ordering.
    // So escape with fail status if that is not the case
@@ -540,7 +542,7 @@ int main(int argc, char **argv) {
             fclose(fptr);
             auto tp_4 = std::chrono::high_resolution_clock::now();
             // now act on st_size bytes of space
-            std::cout << "st_size " << st_size << " st_size_2 " << st_size_2 << std::endl;
+            // std::cout << "st_size " << st_size << " st_size_2 " << st_size_2 << std::endl;
             if (st_size_2 == 1) {
                // Happy Path
                if (st_size > 1024) {

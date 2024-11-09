@@ -5502,6 +5502,10 @@ def add_module_cryo_em_gui():
             imol = active_atom[0]
             coot.make_masked_maps_split_by_chain(imol, coot.imol_refinement_map())
 
+    def make_partitioned_maps():
+        coot.show_map_partition_by_chain_dialog()
+        # C++ takes control
+
     def go_to_box_middle():
         m_list = coot_utils.map_molecule_list()
         if len(m_list) > 0:
@@ -5559,6 +5563,9 @@ def add_module_cryo_em_gui():
         def mask_map_by_chains_wrapper(_simple_action, _arg2):
             make_masked_maps_using_active_atom()
 
+        def partition_map_by_chains_wrapper(_simple_action, _arg2):
+            make_partitioned_maps()
+
         def go_to_map_molecule_centre_wrapper(_simple_action, _arg2):
             imol_map = coot.imol_refinement_map()
             coot.go_to_map_molecule_centre(imol_map)
@@ -5589,24 +5596,13 @@ def add_module_cryo_em_gui():
         def add_action(displayed_name,action_name,on_activate_callback):
             add_simple_action_to_menu(menu,displayed_name,action_name,on_activate_callback)
 
-        add_action("Sharpen/Blur/Resample...",
-            "sharpen_blur_map_gui",
-            sharpen_blur_map_gui_wrapper)
-        add_action("Multi-sharpen",
-            "multi_sharpen_map_gui",
-            multi_sharpen_map_gui_wrapper)
-        add_action("Mask Map by Chains",
-            "mask_map_by_chains",
-            mask_map_by_chains_wrapper)
-        add_action("Go To Map Molecule Middle",
-            "go_to_map_molecule_centre",
-            go_to_map_molecule_centre_wrapper)
-        add_action("Map Box Middle",
-            "go_to_map_box_middle",
-            go_to_map_box_middle_wrapper)
-        add_action("Flip Map Hand",
-            "flip_map_hand",
-            flip_map_hand_wrapper)
+        add_action("Sharpen/Blur/Resample...",  "sharpen_blur_map_gui", sharpen_blur_map_gui_wrapper)
+        add_action("Multi-sharpen",             "multi_sharpen_map_gui", multi_sharpen_map_gui_wrapper)
+        add_action("Mask Map by Chains",        "mask_map_by_chains", mask_map_by_chains_wrapper)
+        add_action("Partition Map by Chains",   "partition_map_by_chains", partition_map_by_chains_wrapper)
+        add_action("Go To Map Molecule Middle", "go_to_map_molecule_centre", go_to_map_molecule_centre_wrapper)
+        add_action("Map Box Middle",            "go_to_map_box_middle", go_to_map_box_middle_wrapper)
+        add_action("Flip Map Hand",             "flip_map_hand", flip_map_hand_wrapper)
 
         # where does this one belong?
 

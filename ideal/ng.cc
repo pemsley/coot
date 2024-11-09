@@ -49,6 +49,7 @@ coot::restraints_container_t::make_restraints_ng(int imol,
 
 
    // std::cout << "..................     make_restraints_ng() --- start --- n_atoms: " << n_atoms << std::endl;
+
    // debug_sets();
 
    bool console_output_for_restraints_generation_timings = false;
@@ -182,7 +183,7 @@ coot::restraints_container_t::make_restraints_ng(int imol,
 
          if (residues_vec.size() > 1)
             if (do_auto_h_bond_restraints)
-               make_h_bond_restraints_from_res_vec_auto(geom);
+               make_h_bond_restraints_from_res_vec_auto(geom, imol);
 
          if (residues_vec.size() > 1)
             make_base_pairing_and_stacking_restraints_ng(imol, geom);
@@ -329,7 +330,7 @@ coot::restraints_container_t::make_base_pairing_and_stacking_restraints_ng(int i
    // base pairs:
    bool all_atoms_are_moving_flag = false; // can be true in the future.
    std::vector<stack_and_pair::paired_residues_info_t> pr =
-      sp.paired_residues(mol, residues_vec, all_atoms_are_moving_flag, geom);
+      sp.paired_residues(mol, residues_vec, all_atoms_are_moving_flag, geom, imol);
 
    auto tp_8 = std::chrono::high_resolution_clock::now();
 
@@ -2019,6 +2020,7 @@ void
 coot::restraints_container_t::make_header_metal_links_ng(const coot::protein_geometry &geom) {
    // we need to use the links passed to the constructor - currently they are not saved.
 
+
    int imol = protein_geometry::IMOL_ENC_ANY;
    for (std::size_t i=0; i<links.size(); i++) {
      const mmdb::Link &link = links[i];
@@ -2051,8 +2053,8 @@ coot::restraints_container_t::make_header_metal_links_ng(const coot::protein_geo
 
          if (false)
             std::cout << "here with link "
-                      << a1 << " " << is_oxygen_a1 << " "
-                      << a2 << " " << is_oxygen_a2 << std::endl;
+                      << a1 << " is_oxygen_a1 " << is_oxygen_a1 << " "
+                      << a2 << " is_oxygen_a2 " << is_oxygen_a2 << std::endl;
 
          if (is_oxygen_a1) {
             std::map<std::string, double>::const_iterator it = geom.metal_O_map.find(rn_2);
@@ -2096,6 +2098,7 @@ coot::restraints_container_t::make_header_metal_links_ng(const coot::protein_geo
          }
       }
    }
+   std::cout << "------------------------- done make_header_metal_links_ng() " << std::endl;
 }
 
 
@@ -2199,15 +2202,15 @@ coot::restraints_container_t::make_other_types_of_link(const coot::protein_geome
                   // it was a new pair.
 
                   if (false) {
-                     std::cout << "                 Here in make_other_types_of_link() A with at_1 at_2 "
+                     std::cout << "                 Here in make_other_types_of_link() A with at_1 at_2:    "
                                << coot::atom_spec_t(at_1) << " " << coot::atom_spec_t(at_2) << std::endl;
-                     std::cout << "failed to find these residues in the polyer-linked set: "
+                     std::cout << "                 failed to find these residues in the polyer-linked set: "
                                << residue_spec_t(res_1) << " "
                                << residue_spec_t(res_2) << std::endl;
                   }
 
                   if (false) {
-                     std::cout << "Here are the pairs in the linked set " << std::endl;
+                     std::cout << "debug:: Here are the pairs in the linked set " << std::endl;
                      std::set<std::pair<mmdb::Residue *, mmdb::Residue *> >::const_iterator it_inner;
                      for (it_inner=residue_pair_link_set.begin(); it_inner!=residue_pair_link_set.end(); ++it_inner)
                         std::cout << "   " << residue_spec_t(it_inner->first) << " " << residue_spec_t(it_inner->second)
@@ -2226,17 +2229,20 @@ coot::restraints_container_t::make_other_types_of_link(const coot::protein_geome
                   if (std::find(tested_but_nothing.begin(),
                                 tested_but_nothing.end(),
                                 pair_for_nothing_test) != tested_but_nothing.end()) {
-                     // std::cout << "     tested but nothing" << std::endl;
+                     // std::cout << "     this has already been tested and nothing was found" << std::endl;
                      continue;
                   }
 
                   if (false)
-                     std::cout << "---- for atom pair " << atom_spec_t(at_1) << " " << atom_spec_t(at_2)
-                               << "considering residues " << residue_spec_t(res_1) << " to " << residue_spec_t(res_2)
+                     std::cout << "debug:: ---- for atom pair " << atom_spec_t(at_1) << " " << atom_spec_t(at_2)
+                               << " considering residues " << residue_spec_t(res_1) << " to " << residue_spec_t(res_2)
                                << std::endl;
 
                   // Returns first (link_type) as "" if not found, second is order switch flag
                   std::pair<std::string, bool> lt = find_link_type_2022(res_1, res_2, geom);
+
+                  if (false)
+                     std::cout << "debug:: lt.first size " << lt.first.size() << std::endl;
 
                   if (! lt.first.empty())
                      std::cout << "DEBUG:: make_other_types_of_link() \"" << lt.first << "\""
@@ -2248,7 +2254,7 @@ coot::restraints_container_t::make_other_types_of_link(const coot::protein_geome
                      // will return a peptide link (for links that were not made before (perhaps because
                      // missing atoms)).
                      if ((lt.first != "TRANS") && (lt.first != "PTRANS") && (lt.first != "CIS") && (lt.first != "PCIS") && (lt.first != "p")) {
-                        if (true)
+                        if (false)
                            std::cout << "DEBUG:: make_other_types_of_link(): now making a link restraint "
                                      << residue_spec_t(res_1) << " " << residue_spec_t(res_2)
                                      << " with type " << lt.first << " and order switch " << lt.second
@@ -2295,34 +2301,28 @@ coot::restraints_container_t::make_link_restraints_ng(const coot::protein_geomet
 
    // bonded_atom_indices is a vector of what is bonded or angle-bonded to each atom.
 
-   bool for_beasty = false;
+   make_flanking_atoms_restraints_ng(geom,
+                                     residue_link_vector_map_p,
+                                     residue_pair_link_set_p,
+                                     do_rama_plot_restraints,  // not done here.
+                                     do_trans_peptide_restraints);
 
-   // for_beasty = true; // skip other links
+   auto tp_2 = std::chrono::high_resolution_clock::now();
 
-   if (! for_beasty) {
+   std::cout << "debug:: calling make_other_types_of_link() with links size " << links.size() << std::endl;
 
-      make_flanking_atoms_restraints_ng(geom,
-                                        residue_link_vector_map_p,
-                                        residue_pair_link_set_p,
-                                        do_rama_plot_restraints,  // not done here.
-                                        do_trans_peptide_restraints);
+   link_restraints_counts others = make_other_types_of_link(geom, *residue_link_vector_map_p, *residue_pair_link_set_p);
 
-      auto tp_2 = std::chrono::high_resolution_clock::now();
+   if (verbose_geometry_reporting != QUIET)
+      others.report();
 
-      link_restraints_counts others = make_other_types_of_link(geom, *residue_link_vector_map_p, *residue_pair_link_set_p);
-
-      if (verbose_geometry_reporting != QUIET)
-         others.report();
-
-      if (show_timings) {
-         auto tp_3 = std::chrono::high_resolution_clock::now();
-         auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
-         auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
-         auto d32 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_3 - tp_2).count();
-         std::cout << "------------------ timings: for make_link_restraints_ng(): polymers: "
-                   << d10 << " flanking: " << d21 << " others: " << d32 << " milliseconds " << std::endl;
-      }
-
+   if (show_timings) {
+      auto tp_3 = std::chrono::high_resolution_clock::now();
+      auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
+      auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
+      auto d32 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_3 - tp_2).count();
+      std::cout << "------------------ timings: for make_link_restraints_ng(): polymers: "
+                << d10 << " flanking: " << d21 << " others: " << d32 << " milliseconds " << std::endl;
    }
 }
 

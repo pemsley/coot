@@ -312,3 +312,97 @@ int test_change_rotamer(molecules_container_t &molecules_container) {
 
    return status;
  }
+
+
+// test.skip("Test import ligands with same name and animated refinement", () => {
+int test_import_ligands_with_same_name_and_animated_refinement(molecules_container_t &molecules_container) {
+
+   int status = 0;
+   int coordMolNo_1 = molecules_container.read_pdb(reference_data("./5a3h.pdb"));
+   int coordMolNo_2 = molecules_container.read_pdb(reference_data("./5fjj.pdb"));
+   int mapMolNo = molecules_container.read_mtz(reference_data("./5a3h_sigmaa.mtz"), "FWT", "PHWT", "", false, false);
+
+   molecules_container.import_cif_dictionary(     reference_data("./benzene.cif"), coordMolNo_1);
+   molecules_container.import_cif_dictionary(reference_data("./nitrobenzene.cif"), coordMolNo_2);
+
+   const std::string tlc = "LIG";
+
+   int ligandMolNo_1 = molecules_container.get_monomer_and_position_at(tlc, coordMolNo_1, 0,0,0);
+   auto merge_info_1 = molecules_container.merge_molecules(coordMolNo_1, std::to_string(ligandMolNo_1));
+   std::cout << "merge_info_1.second.size() " << merge_info_1.second.size() << std::endl;
+   if (merge_info_1.second.size() == 1) {
+
+      int ligandMolNo_2 = molecules_container.get_monomer_and_position_at(tlc, coordMolNo_2, 0,0,0);
+      auto merge_info_2 = molecules_container.merge_molecules(coordMolNo_2, std::to_string(ligandMolNo_2));
+      // the first indicates that the merge actually happened.
+      std::cout << "merge_info_2.first " << merge_info_2.first << std::endl;
+      std::cout << "merge_info_2.second.size() " << merge_info_2.second.size() << std::endl;
+      if (merge_info_2.second.size() == 1) {
+
+         int copyMolNo_1 = molecules_container.copy_fragment_for_refinement_using_cid(coordMolNo_1, "/1/C/1/*");
+         molecules_container.init_refinement_of_molecule_as_fragment_based_on_reference(copyMolNo_1, coordMolNo_1, mapMolNo);
+         bool copy_status_1 = molecules_container.copy_dictionary("LIG", coordMolNo_1, copyMolNo_1);
+         std::cout << "debug:: copy_dictionary() copy_status_1: " << copy_status_1 << std::endl;
+         // let result_1 = [];
+         molecules_container.display_molecule_names_table();
+         std::cout << "debug:: copyMolNo_1 is " << copyMolNo_1 << std::endl;
+         std::vector<glm::vec3> result_1;
+         auto refine_result_1 = molecules_container.refine(copyMolNo_1, 5000); // returns a mesh in a pair
+         const coot::instanced_mesh_t &instanced_mesh_1 = refine_result_1.second;
+         const auto &geom_vec_1 = instanced_mesh_1.geom;
+         unsigned int geom_vec_1_size = geom_vec_1.size();
+         for (unsigned int i = 0; i < geom_vec_1_size; i++) {
+            const auto &geom = geom_vec_1.at(i);
+            const auto &inst_data_B_vec = geom.instancing_data_B;
+            unsigned int inst_data_B_vec_size = inst_data_B_vec.size();
+            for (unsigned int j = 0; j < inst_data_B_vec_size; j++) {
+               const auto &inst_data_B = inst_data_B_vec.at(j);
+               result_1.push_back(inst_data_B.size);
+            }
+         }
+         molecules_container.clear_refinement(coordMolNo_1);
+
+         int copyMolNo_2 = molecules_container.copy_fragment_for_refinement_using_cid(coordMolNo_2, "/1/j/1/*");
+         molecules_container.init_refinement_of_molecule_as_fragment_based_on_reference(copyMolNo_2, coordMolNo_2, mapMolNo);
+         bool copy_status_2 = molecules_container.copy_dictionary("LIG", coordMolNo_2, copyMolNo_2);
+         std::cout << "debug:: copy_dictionary() copy_status_2: " << copy_status_2 << std::endl;
+         // let result_2 = []
+         std::vector<glm::vec3> result_2;
+         auto refine_result_2 = molecules_container.refine(copyMolNo_2, 5000);
+         const auto &instanced_mesh_2 = refine_result_2.second;
+         const auto &geom_vec_2 = instanced_mesh_2.geom;
+         unsigned int geom_vec_2_size = geom_vec_2.size();
+         for (unsigned int i = 0; i < geom_vec_2_size; i++) {
+            const auto &geom = geom_vec_2.at(i);
+            const auto &inst_data_B_vec = geom.instancing_data_B;
+            unsigned inst_data_B_vec_size = inst_data_B_vec.size();
+            for (unsigned int j = 0; j < inst_data_B_vec_size; j++) {
+               const auto &inst_data_B = inst_data_B_vec.at(j);
+               result_2.push_back(inst_data_B.size);
+            }
+         }
+         molecules_container.clear_refinement(coordMolNo_2);
+
+         if (result_1.size() == 15) {
+            if (result_2.size() == 22) {
+
+               status = 1;
+
+               // expect(result_1.every(size => size <= 2.25)).toBeTruthy()
+               // expect(result_2.every(size => size <= 2.25)).toBeTruthy()
+
+               for (const auto &r1 : result_1) {
+                  std::cout << "r1.z " << r1.z << std::endl;
+                  if (r1.z > 2.25) { status = 0; break; }
+               }
+               for (const auto &r2 : result_2) {
+                  std::cout << "r2.z " << r2.z << std::endl;
+                  if (r2.z > 2.25) { status = 0; break; }
+               }
+            }
+         }
+      }
+   }
+   return status;
+}
+   

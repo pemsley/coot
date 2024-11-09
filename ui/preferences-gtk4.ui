@@ -2,7 +2,7 @@
 <interface>
   <requires lib="gtk" version="4.0"/>
   <object class="GtkAdjustment" id="adjustment1">
-    <property name="upper">370</property>
+    <property name="upper">37</property>
     <property name="step-increment">1</property>
     <property name="page-increment">20</property>
     <property name="page-size">10.1000003815</property>
@@ -55,7 +55,7 @@
                             <child>
                               <object class="GtkImage">
                                 <property name="icon-name">preferences-system</property>
-                             `</object>
+                             </object>
                             </child>
                             <child>
                               <object class="GtkLabel">
@@ -80,7 +80,7 @@
                             <child>
                               <object class="GtkImage">
                                 <property name="icon-name">preferences-system-sharing</property>
-                             `</object>
+                             </object>
                             </child>
                             <child>
                               <object class="GtkLabel">
@@ -105,7 +105,7 @@
                             <child>
                               <object class="GtkImage">
                                 <property name="icon-name">map</property>
-                             `</object>
+                              </object>
                             </child>
                             <child>
                               <object class="GtkLabel">
@@ -130,7 +130,7 @@
                             <child>
                               <object class="GtkImage">
                                 <property name="icon-name">applications-accessories</property>
-                             `</object>
+                             </object>
                             </child>
                             <child>
                               <object class="GtkLabel">
@@ -155,7 +155,7 @@
                             <child>
                               <object class="GtkImage">
                                 <property name="icon-name">applications-graphics</property>
-                             `</object>
+                             </object>
                             </child>
                             <child>
                               <object class="GtkLabel">
@@ -180,7 +180,7 @@
                             <child>
                               <object class="GtkImage">
                                 <property name="icon-name">dialog-question</property>
-                             `</object>
+                              </object>
                             </child>
                             <child>
                               <object class="GtkLabel">
@@ -196,12 +196,158 @@
                 </property>
               </object>
             </child>
+
             <child>
               <object class="GtkNotebook" id="preferences_notebook">
                 <property name="hexpand">1</property>
                 <property name="visible">1</property>
                 <property name="focusable">1</property>
                 <property name="scrollable">1</property>
+
+                <child>
+                  <object class="GtkNotebookPage">
+                    <property name="position">1</property>
+                    <property name="tab">
+                      <object class="GtkLabel" id="label476">
+                        <property name="visible">1</property>
+                        <property name="label" translatable="yes">    HID    </property>
+                      </object>
+                    </property>
+                    <property name="child">
+                      <object class="GtkFrame" id="preferences_hid">
+                        <property name="visible">1</property>
+                        <property name="child">
+                          <object class="GtkBox" id="vbox238">
+                            <property name="orientation">vertical</property>
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="valign">center</property>
+                                <property name="visible">1</property>
+                                <property name="label" translatable="yes">Mouse button for View Rotation</property>
+                                <property name="justify">center</property>
+                                <property name="margin-top">6</property>
+                                <property name="margin-bottom">6</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkBox" id="vbox_for_view_rotation_mouse_button">
+                                <property name="orientation">vertical</property>
+                                <child>
+                                  <object class="GtkCheckButton" id="preferences_view_rotation_left_mouse_checkbutton">
+                                    <property name="label" translatable="yes">Left (Primary)</property>
+                                    <property name="active">1</property>
+                                    <signal name="toggled" handler="on_preferences_view_rotation_left_mouse_checkbutton_toggled" swapped="no"/>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkCheckButton" id="preferences_view_rotation_right_mouse_checkbutton">
+                                    <property name="label" translatable="yes">Right (Secondary)</property>
+                                    <property name="group">preferences_view_rotation_left_mouse_checkbutton</property>
+                                    <property name="active">1</property>
+                                  </object>
+                                </child>
+
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkLabel" id="label563">
+                                <property name="valign">center</property>
+                                <property name="visible">1</property>
+                                <property name="label" translatable="yes">Virtual trackball</property>
+                                <property name="justify">center</property>
+                                <property name="margin-top">6</property>
+                                <property name="margin-bottom">6</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkFrame" id="frame233">
+                                <property name="visible">1</property>
+                                <property name="child">
+                                  <object class="GtkBox" id="vbox239">
+                                    <property name="orientation">vertical</property>
+                                    <child>
+                                      <object class="GtkCheckButton" id="preferences_hid_spherical_radiobutton">
+                                        <property name="valign">center</property>
+                                        <property name="label" translatable="yes">Spherical Surface</property>
+                                        <property name="use-underline">1</property>
+                                        <signal name="toggled" handler="on_preferences_hid_spherical_radiobutton_toggled" swapped="no"/>
+                                      </object>
+                                    </child>
+                                    <child>
+                                      <object class="GtkCheckButton" id="preferences_hid_flat_radiobutton">
+                                        <property name="valign">center</property>
+                                        <property name="label" translatable="yes">Turntable Mode (Flat)</property>
+                                        <property name="use-underline">1</property>
+                                        <property name="group">preferences_hid_spherical_radiobutton</property>
+                                        <signal name="toggled" handler="on_preferences_hid_flat_radiobutton_toggled" swapped="no"/>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </property>
+                              </object>
+                            </child>
+                          </object>
+                        </property>
+                      </object>
+                    </property>
+                  </object>
+                </child>
+
+                <child>
+                  <object class="GtkNotebookPage">
+                    <property name="position">2</property>
+                    <property name="tab">
+                      <object class="GtkLabel">
+                        <property name="visible">1</property>
+                        <property name="label" translatable="yes">Physics</property>
+                      </object>
+                    </property>
+                    <property name="child">
+                      <object class="GtkFrame" id="preferences_noughties_physics">
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="label" translatable="yes">Noughties Physics</property>
+                            <property name="justify">center</property>
+                          </object>
+                        </child>
+
+                        <child>
+                          <object class="GtkBox" id="vbox_for_physics">
+                            <property name="vexpand">0</property>
+                            <property name="hexpand">0</property>
+                            <property name="orientation">horizontal</property>
+
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="label" translatable="yes">     Noughties Physics: </property>
+                                <property name="justify">center</property>
+                              </object>
+                            </child>
+
+                            <child>
+                              <object class="GtkCheckButton" id="noughties_physics_on_checkbutton">
+                                <property name="label" translatable="yes">On</property>
+                                <property name="active">0</property>
+                                <signal name="toggled" handler="on_noughties_physics_checkbutton_toggled" swapped="no"/>
+                              </object>
+                            </child>
+
+                            <child>
+                              <object class="GtkCheckButton" id="noughties_physics_off_checkbutton">
+                                <property name="label" translatable="yes">Off</property>
+                                <property name="active">1</property>
+                                <property name="group">noughties_physics_on_checkbutton</property>
+                                <signal name="toggled" handler="on_noughties_physics_checkbutton_toggled" swapped="no"/>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                    </property>
+                  </object>
+                </child>
+
+                
                 <child>
                   <object class="GtkNotebookPage">
                     <property name="position">4</property>
@@ -259,6 +405,7 @@
                     </property>
                   </object>
                 </child>
+
                 <child>
                   <object class="GtkNotebookPage">
                     <property name="position">5</property>
@@ -401,123 +548,10 @@ distances more than:</property>
                     </property>
                   </object>
                 </child>
-                <child>
-                  <object class="GtkNotebookPage">
-                    <property name="position">6</property>
-                    <property name="child">
-                      <object class="GtkFrame" id="preferences_hid">
-                        <property name="visible">1</property>
-                        <property name="child">
-                          <object class="GtkBox" id="vbox238">
-                            <property name="orientation">vertical</property>
-                            <child>
-                              <object class="GtkLabel" id="label563">
-                                <property name="valign">center</property>
-                                <property name="visible">1</property>
-                                <property name="label" translatable="yes">Virtual trackball</property>
-                                <property name="justify">center</property>
-                              </object>
-                            </child>
-                            <child>
-                              <object class="GtkFrame" id="frame233">
-                                <property name="visible">1</property>
-                                <property name="child">
-                                  <object class="GtkBox" id="vbox239">
-                                    <property name="orientation">vertical</property>
-                                    <child>
-                                      <object class="GtkCheckButton" id="preferences_hid_spherical_radiobutton">
-                                        <property name="valign">center</property>
-                                        <property name="label" translatable="yes">Spherical Surface</property>
-                                        <property name="use-underline">1</property>
-                                        <signal name="toggled" handler="on_preferences_hid_spherical_radiobutton_toggled" swapped="no"/>
-                                      </object>
-                                    </child>
-                                    <child>
-                                      <object class="GtkCheckButton" id="preferences_hid_flat_radiobutton">
-                                        <property name="valign">center</property>
-                                        <property name="label" translatable="yes">Turntable Mode (Flat)</property>
-                                        <property name="use-underline">1</property>
-                                        <property name="group">preferences_hid_spherical_radiobutton</property>
-                                        <signal name="toggled" handler="on_preferences_hid_flat_radiobutton_toggled" swapped="no"/>
-                                      </object>
-                                    </child>
-                                  </object>
-                                </property>
-                              </object>
-                            </child>
-                          </object>
-                        </property>
-                      </object>
-                    </property>
-                    <property name="tab">
-                      <object class="GtkLabel" id="label476">
-                        <property name="visible">1</property>
-                        <property name="label" translatable="yes">    HID    </property>
-                      </object>
-                    </property>
-                  </object>
-                </child>
+
                 <child>
                   <object class="GtkNotebookPage">
                     <property name="position">7</property>
-                    <property name="child">
-                      <object class="GtkFrame" id="preferences_bond_parameters">
-                        <property name="visible">1</property>
-                        <property name="child">
-                          <object class="GtkBox" id="vbox222">
-                            <property name="orientation">vertical</property>
-                            <child>
-                              <object class="GtkBox" id="vbox223">
-                                <property name="vexpand">1</property>
-                                <property name="orientation">vertical</property>
-                                <child>
-                                  <object class="GtkFrame" id="frame212">
-                                    <property name="visible">1</property>
-                                    <property name="child">
-                                      <object class="GtkBox" id="vbox224">
-                                        <property name="orientation">vertical</property>
-                                        <child>
-                                          <object class="GtkBox" id="hbox304">
-                                            <child>
-                                              <object class="GtkComboBoxText" id="preferences_bond_width_combobox">
-                                                <property name="halign">center</property>
-                                                <signal name="changed" handler="on_preferences_bond_width_combobox_changed" swapped="no"/>
-                                              </object>
-                                            </child>
-                                            <child>
-                                              <object class="GtkLabel" id="label526">
-                                                <property name="label" translatable="yes"> units </property>
-                                              </object>
-                                            </child>
-                                          </object>
-                                        </child>
-                                      </object>
-                                    </property>
-                                    <child type="label">
-                                      <object class="GtkLabel" id="label527">
-                                        <property name="visible">1</property>
-                                        <property name="label" translatable="yes">Molecule Bond Width:</property>
-                                      </object>
-                                    </child>
-                                  </object>
-                                </child>
-                              </object>
-                            </child>
-                          </object>
-                        </property>
-                      </object>
-                    </property>
-                    <property name="tab">
-                      <object class="GtkLabel" id="label478">
-                        <property name="visible">1</property>
-                        <property name="label" translatable="yes">Bond Parameters</property>
-                      </object>
-                    </property>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkNotebookPage">
-                    <property name="position">8</property>ba
                     <property name="child">
                       <object class="GtkFrame" id="preferences_bond_colours">
                         <property name="visible">1</property>
@@ -602,9 +636,10 @@ distances more than:</property>
                     </property>
                   </object>
                 </child>
+
                 <child>
                   <object class="GtkNotebookPage">
-                    <property name="position">9</property>
+                    <property name="position">8</property>
                     <property name="child">
                       <object class="GtkFrame" id="preferences_map_parameters">
                         <property name="visible">1</property>
@@ -778,9 +813,10 @@ distances more than:</property>
                     </property>
                   </object>
                 </child>
+
                 <child>
                   <object class="GtkNotebookPage">
-                    <property name="position">10</property>
+                    <property name="position">9</property>
                     <property name="child">
                       <object class="GtkFrame" id="preferences_map_colours">
                         <property name="visible">1</property>
@@ -883,9 +919,10 @@ distances more than:</property>
                     </property>
                   </object>
                 </child>
+
                 <child>
                   <object class="GtkNotebookPage">
-                    <property name="position">11</property>
+                    <property name="position">10</property>
                     <property name="child">
                       <object class="GtkFrame" id="preferences_map_drag">
                         <property name="visible">1</property>
@@ -942,70 +979,13 @@ distances more than:</property>
 
                 <child>
                   <object class="GtkNotebookPage">
-                    <property name="position">12</property>
-                    <property name="child">
-                      <object class="GtkFrame" id="preferences_cis_peptides">
-                        <property name="visible">1</property>
-                        <property name="child">
-                          <object class="GtkBox" id="vbox139">
-                            <property name="orientation">vertical</property>
-                            <child>
-                              <object class="GtkLabel" id="label226">
-                                <property name="valign">center</property>
-                                <property name="visible">1</property>
-                                <property name="label" translatable="yes">Mark cis-Peptides as Bad in Geometry Graph?</property>
-                                <property name="justify">center</property>
-                              </object>
-                            </child>
-                            <child>
-                              <object class="GtkFrame" id="frame136">
-                                <property name="visible">1</property>
-                                <property name="child">
-                                  <object class="GtkBox" id="vbox140">
-                                    <property name="orientation">vertical</property>
-                                    <child>
-                                      <object class="GtkCheckButton" id="preferences_geometry_cis_peptide_bad_yes_radiobutton">
-                                        <property name="valign">center</property>
-                                        <property name="label" translatable="yes"> Yes</property>
-                                        <property name="use-underline">1</property>
-                                        <signal name="toggled" handler="on_preferences_geometry_cis_peptide_bad_yes_radiobutton_toggled" swapped="no"/>
-                                      </object>
-                                    </child>
-                                    <child>
-                                      <object class="GtkCheckButton" id="preferences_geometry_cis_peptide_bad_no_radiobutton">
-                                        <property name="valign">center</property>
-                                        <property name="label" translatable="yes"> No</property>
-                                        <property name="use-underline">1</property>
-                                        <property name="group">preferences_geometry_cis_peptide_bad_yes_radiobutton</property>
-                                        <signal name="toggled" handler="on_preferences_geometry_cis_peptide_bad_no_radiobutton_toggled" swapped="no"/>
-                                      </object>
-                                    </child>
-                                  </object>
-                                </property>
-                              </object>
-                            </child>
-                          </object>
-                        </property>
-                      </object>
-                    </property>
-                    <property name="tab">
-                      <object class="GtkLabel" id="label568">
-                        <property name="visible">1</property>
-                        <property name="label" translatable="yes">cis-Peptides</property>
-                      </object>
-                    </property>
-                  </object>
-                </child>
-
-                <child>
-                  <object class="GtkNotebookPage">
+                    <property name="position">11</property>
                     <property name="tab">
                       <object class="GtkLabel">
                         <property name="visible">1</property>
                         <property name="label" translatable="yes">Default B-factor</property>
                       </object>
                     </property>
-                    <property name="position">17</property>
                     <property name="child">
                       <object class="GtkFrame" id="preferences_default_b_factor_frame">
                         <property name="vexpand">0</property>
@@ -1306,6 +1286,7 @@ distances more than:</property>
                     </property>
                   </object>
                 </child>
+
                 <child>
                   <object class="GtkNotebookPage">
                     <property name="position">18</property>
@@ -1384,6 +1365,7 @@ distances more than:</property>
         </child>
         <child type="action">
           <object class="GtkBox" id="hbox115">
+            <property name="halign">end</property>
             <child>
               <object class="GtkButton" id="preferences_ok_button">
                 <property name="visible">1</property>

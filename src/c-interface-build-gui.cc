@@ -65,8 +65,6 @@
 #include "ligand/helix-placement.hh"
 #include "ligand/fast-ss-search.hh"
 
-#include "trackball.h" // adding exportable rotate interface
-
 #include "utils/coot-utils.hh"  // for is_member_p
 #include "coot-utils/coot-map-heavy.hh"  // for fffear
 
@@ -1677,7 +1675,14 @@ void  do_edit_copy_fragment() {
 }
 
 
-void  do_edit_replace_fragment() {
+// 20240930-PE remove the usage of scripting from this function
+// Make it an overlay
+void do_edit_replace_fragment() {
+
+   // Molecule Working     [molecule chooser] # needs updating
+   // Molecule Reference   [molecule chooser] # contains the fragment to be copied
+   // Atom Selection       [________________]
+   //                        Cancel   Replace
 
 
 #ifdef USE_PYTHON

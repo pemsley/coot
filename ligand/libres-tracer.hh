@@ -47,13 +47,15 @@ public:
    }
 };
 
-// working_mol is so that the graphics can show were we are in the building. Change count_p when working_mol gets updated.
-// If count_p is null, then don't try to update working_mol
+// working_mol is so that the graphics can show were we are in the building.
 //
-// When the work is finished, set *finished_p to true;
-void res_tracer_proc(const clipper::Xmap<float> &xmap, const coot::fasta_multi &fam, double variation,
+void res_tracer_proc(const clipper::Xmap<float> &xmap, float xmap_rmsd, const coot::fasta_multi &fam, double variation,
                      unsigned int n_top_spin_pairs, unsigned int n_top_fragments,
                      float rmsd_cut_off_for_flood, float flood_atom_mask_radius, float weight, unsigned int n_phi_psi_trials,
                      bool with_ncs, watch_res_tracer_data_t *watch_res_tracer_data_p);
+
+void res_tracer_learn(const clipper::Xmap<float> &xmap, float weight, float xmap_rmsd, float rmsd_cut_off,
+                      const coot::fasta_multi &fam, double variation,
+                      unsigned int n_top_spin_pairs, float flood_atom_mask_radius, mmdb::Manager *reference_mol);
 
 #endif // LIBRES_TRACER_HH

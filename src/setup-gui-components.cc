@@ -436,10 +436,12 @@ void set_vertical_toolbar_internal_alignment() {
          GtkWidget* parent_widget = gtk_widget_get_parent(target);
          if(!GTK_IS_BOX(parent_widget)) {
             if(GTK_IS_BOX(target)) {
+#if GTK_MINOR_VERSION < 14 // 20241001-PE so that I don't see this when using fatal warnings
                g_warning("set_vertical_toolbar_internal_alignment: Toolbar item %p of type %s: "
                "The parent widget that wraps %s::child is not a GtkBox but a %s. "
                "%s::child however is a GtkBox. Attempt will be made to align it. It might not work.",
                child,G_OBJECT_TYPE_NAME(child),G_OBJECT_TYPE_NAME(child),G_OBJECT_TYPE_NAME(parent_widget),G_OBJECT_TYPE_NAME(child));
+#endif
                parent_widget = target;
             } else {
                g_warning("set_vertical_toolbar_internal_alignment: Skippping toolbar item %p of type %s: "
@@ -471,6 +473,41 @@ void setup_tomo_widgets() {
    g_signal_connect(G_OBJECT(adjustment_current), "value_changed", G_CALLBACK(tomo_scale_adjustment_changed), NULL);
 }
 
+
+void setup_preferences() {
+
+   // 20230627-PE put this in setup-gui-components - it should only happen once.
+   // 20240916-PE done!
+   {
+      // fill the bond combobox
+      GtkComboBoxText *combobox = GTK_COMBO_BOX_TEXT(widget_from_preferences_builder("preferences_bond_width_combobox"));
+      if (combobox) {
+         for (int j = 1; j < 21; j++) {
+            std::string s = graphics_info_t::int_to_string(j);
+            gtk_combo_box_text_append_text(combobox, s.c_str());
+         }
+      } else {
+         std::cout << "ERROR:: failed to find preferences_bond_width_combobox " << std::endl;
+      }
+      // fill the font combobox
+      combobox = GTK_COMBO_BOX_TEXT(widget_from_preferences_builder("preferences_font_size_combobox"));
+      // 20230926-PE there was a crash here - maybe combobox was not looked up correctly.
+      // Needs investigation, but add protection for now
+      if (combobox) {
+         std::vector<std::string> fonts;
+         // fonts.push_back("Times Roman 10");
+         // fonts.push_back("Times Roman 24");
+         fonts.push_back("Fixed 8/13");
+         fonts.push_back("Fixed 9/15");
+         for (unsigned int j = 0; j < fonts.size(); j++)
+            gtk_combo_box_text_append_text(combobox, fonts[j].c_str());
+      } else {
+         std::cout << "ERROR:: failed to find preferences_font_size_combobox" << std::endl;
+      }
+   }
+
+}
+
 void setup_gui_components() {
 
    g_info("Initializing UI components...");
@@ -483,6 +520,7 @@ void setup_gui_components() {
    setup_python_scripting_entry();
    setup_curlew_banner();
    setup_tomo_widgets();
+   setup_preferences();
    attach_css_style_class_to_overlays();
    set_vertical_toolbar_internal_alignment();
    g_info("Done initializing UI components.");

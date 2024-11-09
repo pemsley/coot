@@ -100,7 +100,6 @@ monomer_restraints_from_python(PyObject *restraints) {
 	 }
       }
 
-
       if (key_string == "_chem_comp_atom") {
 	 PyObject *chem_comp_atom_list = value;
 	 if (PyList_Check(chem_comp_atom_list)) {
@@ -142,8 +141,8 @@ monomer_restraints_from_python(PyObject *restraints) {
 			   clipper::Coord_orth co(x,y,z);
 			   at.model_Cartn = std::pair<bool, clipper::Coord_orth> (true, co);
 			}
-		     } 
-		  } 
+		     }
+		  }
 		  atoms.push_back(at);
 	       }
 	    }
@@ -166,8 +165,8 @@ monomer_restraints_from_python(PyObject *restraints) {
 		  if (PyUnicode_Check(atom_1_py) &&
 		      PyUnicode_Check(atom_2_py) &&
 		      PyUnicode_Check(type_py) &&
-		      PyUnicode_Check(dist_py) && 
-		      PyUnicode_Check(esd_py)) {
+		      PyFloat_Check(dist_py) &&
+		      PyFloat_Check(esd_py)) {
 		     std::string atom_1 = PyBytes_AS_STRING(PyUnicode_AsUTF8String(atom_1_py));
 		     std::string atom_2 = PyBytes_AS_STRING(PyUnicode_AsUTF8String(atom_2_py));
 		     std::string type   = PyBytes_AS_STRING(PyUnicode_AsUTF8String(type_py));
@@ -175,7 +174,10 @@ monomer_restraints_from_python(PyObject *restraints) {
 		     float  esd  = PyFloat_AsDouble(esd_py);
 		     coot::dict_bond_restraint_t rest(atom_1, atom_2, type, dist, esd, 0.0, 0.0, false);
 		     bond_restraints.push_back(rest);
-		  }
+		  } else {
+                     // ERROR?
+                     std::cout << "WARNING:: Bad Pythonic type match in bond restraint" << std::endl;
+                  }
 	       }
 	    }
 	 }
@@ -188,7 +190,7 @@ monomer_restraints_from_python(PyObject *restraints) {
 	    int n_angles = PyObject_Length(angle_restraint_list);
 	    for (int i_angle=0; i_angle<n_angles; i_angle++) {
 	       PyObject *angle_restraint = PyList_GetItem(angle_restraint_list, i_angle);
-	       if (PyObject_Length(angle_restraint) == 5) { 
+	       if (PyObject_Length(angle_restraint) == 5) {
 		  PyObject *atom_1_py = PyList_GetItem(angle_restraint, 0);
 		  PyObject *atom_2_py = PyList_GetItem(angle_restraint, 1);
 		  PyObject *atom_3_py = PyList_GetItem(angle_restraint, 2);
@@ -382,7 +384,13 @@ monomer_restraints_from_python(PyObject *restraints) {
    monomer_restraints.chiral_restraint  = chiral_restraints;
    monomer_restraints.plane_restraint   = plane_restraints;
    monomer_restraints.residue_info      = residue_info;
-   monomer_restraints.atom_info         = atoms; 
+   monomer_restraints.atom_info         = atoms;
+
+   if (false)
+      std::cout << "debug:: monomer_restraints_from_python() returning monomer_restraints "
+                << "with bond_restraints size " << monomer_restraints.bond_restraint.size()
+                << std::endl;
+
    return monomer_restraints;
 } 
 

@@ -1120,7 +1120,7 @@ molecular_triangles_mesh_t::add_to_mesh(const std::vector<s_generic_vertex> &gv,
 
 
 std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> >
-molecular_mesh_generator_t::get_test_molecular_triangles_mesh(mmdb::Manager *mol) {
+molecular_mesh_generator_t::get_test_molecular_triangles_mesh(mmdb::Manager *mol, int secondary_structure_usage_flag) {
 
    std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > vp;
 
@@ -1129,7 +1129,7 @@ molecular_mesh_generator_t::get_test_molecular_triangles_mesh(mmdb::Manager *mol
    int imodel = 1;
    mmdb::Model *model_p = mol->GetModel(imodel);
    if (model_p) {
-      auto my_mol = std::make_shared<MyMolecule>(mol);
+      auto my_mol = std::make_shared<MyMolecule>(mol, secondary_structure_usage_flag);
       auto ss_cs = ColorScheme::colorBySecondaryScheme();
       auto ribbon_ramp_cs = ColorScheme::colorRampChainsScheme();
       auto chain_cs = ColorScheme::colorChainsScheme();

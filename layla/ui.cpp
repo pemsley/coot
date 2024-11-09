@@ -146,17 +146,103 @@ GtkApplicationWindow* coot::layla::setup_main_window(GtkApplication* app, GtkBui
     }), scale_spinbutton);
 
 
-    GtkTextView* smiles_display = (GtkTextView*) gtk_builder_get_object(builder, "layla_smiles_textview");
+    GtkGrid* smiles_display_grid = (GtkGrid*) gtk_builder_get_object(builder, "layla_smiles_display_grid");
     g_signal_connect(canvas, "smiles-changed", G_CALLBACK(+[](CootLigandEditorCanvas* self, gpointer user_data){
-        GtkTextView* view = GTK_TEXT_VIEW(user_data);
+        GtkGrid* display_grid = GTK_GRID(user_data);
+        // Don't clear the widget all the time. It will create horrible mess
+        // for(auto* i = gtk_widget_get_first_child(GTK_WIDGET(display_grid)); i != nullptr; i = gtk_widget_get_next_sibling(GTK_WIDGET(i))) {
+        //     gtk_grid_remove(display_grid, i);
+        // }
+        auto get_widget_for_mol_id = [display_grid](unsigned int id) -> GtkWidget* {
+            for(auto* i = gtk_widget_get_first_child(GTK_WIDGET(display_grid)); i != nullptr; i = gtk_widget_get_next_sibling(GTK_WIDGET(i))) {
+                if(! GTK_IS_EDITABLE_LABEL(i)) {
+                    // g_info("Skipping widget of type %s", G_OBJECT_TYPE_NAME(i));
+                    continue;
+                }
+                // g_info("Inspecting a widget for \"mol_id\"");
+                gpointer mol_id_gptr = g_object_get_data(G_OBJECT(i),"mol_id");
+                if(mol_id_gptr) {
+                    // Differeniate between nullptr and zero
+                    if(GPOINTER_TO_UINT(mol_id_gptr) - 1 == id) {
+                        return i;
+                    }
+                } else {
+                    // g_info("Skipping null gpointer");
+                }
+            }
+            return nullptr;
+        };
+
         auto smiles_map = coot_ligand_editor_canvas_get_smiles(self);
-        std::string smiles;
         for(const auto& [mol_idx, smiles_code] : smiles_map) {
-            smiles += std::to_string(mol_idx) + ": " + smiles_code + "\n";
+            auto* widget_ptr = get_widget_for_mol_id(mol_idx);
+            if(widget_ptr) {
+                if(! gtk_editable_label_get_editing(GTK_EDITABLE_LABEL(widget_ptr))) {
+                    g_info("Updating SMILES text for mol %u", mol_idx);
+                    gtk_editable_set_text(GTK_EDITABLE(widget_ptr), smiles_code.c_str());
+                } else {
+                    g_info("Not updating SMILES for mol %u, with SMILES text currently being edited.", mol_idx);
+                }
+            } else {
+                g_info("Creating SMILES row for mol %u ", mol_idx);
+                // Create widgets
+                auto l_str = std::to_string(mol_idx) + ":";
+                GtkLabel* label = (GtkLabel*) gtk_label_new(l_str.c_str());
+                // Differeniate between nullptr and zero
+                g_object_set_data(G_OBJECT(label), "mol_id", GUINT_TO_POINTER(mol_idx + 1));
+                gtk_grid_attach(display_grid, GTK_WIDGET(label), 0, mol_idx, 1, 1);
+
+                GtkEditableLabel* smiles_label =  (GtkEditableLabel*) gtk_editable_label_new(smiles_code.c_str());
+                // Differeniate between nullptr and zero
+                g_object_set_data(G_OBJECT(smiles_label), "mol_id", GUINT_TO_POINTER(mol_idx + 1));
+                g_signal_connect(smiles_label, "changed", G_CALLBACK(+[](GtkEditable* smiles_label, gpointer user_data){
+                    if(! gtk_editable_label_get_editing(GTK_EDITABLE_LABEL(smiles_label))) {
+                        // We don't want to update the mol from smiles if the text changed
+                        // as a result of the molecule being modified on screen by the user
+                        return;
+                    }
+                    CootLigandEditorCanvas* self = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
+                    std::string smiles_text = gtk_editable_get_text(smiles_label);
+                    unsigned int mol_id = GPOINTER_TO_UINT(g_object_get_data(G_OBJECT(smiles_label),"mol_id")) - 1;
+                    coot_ligand_editor_canvas_update_molecule_from_smiles(self, mol_id, smiles_text.c_str());
+                }), self);
+
+                GtkCssProvider *provider = gtk_css_provider_new();
+                std::string smiles_label_font_string = ".smiles_label { font-family: monospace; }";
+#if (GTK_MAJOR_VERSION == 4) && (GTK_MINOR_VERSION > 11) // available since 4.12
+                gtk_css_provider_load_from_string(provider, smiles_label_font_string.c_str());
+#else
+                gtk_css_provider_load_from_data(provider, smiles_label_font_string.c_str(), smiles_label_font_string.size());
+#endif
+                GtkStyleContext *context = gtk_widget_get_style_context(GTK_WIDGET(smiles_label));
+                gtk_style_context_add_provider (context, GTK_STYLE_PROVIDER (provider), GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+                gtk_style_context_add_class (context, "smiles_label");      
+
+                gtk_grid_attach(display_grid, GTK_WIDGET(smiles_label), 1, mol_idx, 1, 1);
+            }
         }
-        GtkTextBuffer* buf = gtk_text_view_get_buffer(view);
-        gtk_text_buffer_set_text(buf,smiles.c_str(),-1);
-    }), smiles_display);
+    }), smiles_display_grid);
+
+    g_signal_connect(canvas, "molecule-deleted", G_CALLBACK(+[](CootLigandEditorCanvas* self, unsigned int deleted_mol_idx, gpointer user_data){
+        GtkGrid* display_grid = GTK_GRID(user_data);
+        // Prevents iterator invalidation
+        std::vector<GtkWidget*> to_be_removed(2);
+        for(auto* i = gtk_widget_get_first_child(GTK_WIDGET(display_grid)); i != nullptr; i = gtk_widget_get_next_sibling(GTK_WIDGET(i))) {
+            // if(g_object_get_data(G_OBJECT(i),"is_id_label")) {
+            //     continue;
+            // }
+            gpointer mol_id_gptr = g_object_get_data(G_OBJECT(i), "mol_id");
+            if(mol_id_gptr) {
+                // Differeniate between nullptr and zero
+                if(GPOINTER_TO_UINT(mol_id_gptr) - 1 == deleted_mol_idx) {
+                    to_be_removed.push_back(i);
+                }
+            }
+        }
+        for(const auto& i: to_be_removed) {
+            gtk_grid_remove(display_grid, i);
+        }
+    }), smiles_display_grid);
 
     GtkNotebook* qed_notebook = (GtkNotebook*) gtk_builder_get_object(builder, "layla_qed_notebook");
 
@@ -227,7 +313,7 @@ GtkApplicationWindow* coot::layla::setup_main_window(GtkApplication* app, GtkBui
             gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(progress_bar), progress_bar_value);
         };
 
-        std::cout << "debug molecular_weight " << qed_info->molecular_weight << " " << qed_info->ads_mw << std::endl;
+        // std::cout << "debug molecular_weight " << qed_info->molecular_weight << " " << qed_info->ads_mw << std::endl;
         // these are (carefully) accessed by grid location, not name:
         update_progressbar_info_box(gtk_grid_get_child_at(GTK_GRID(tab), 0, 0), qed_info->qed_score,                         qed_info->qed_score);
         update_progressbar_info_box(gtk_grid_get_child_at(GTK_GRID(tab), 0, 1), qed_info->molecular_weight,                  qed_info->ads_mw);

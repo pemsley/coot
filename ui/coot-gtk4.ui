@@ -497,7 +497,7 @@
           <attribute name="target">bigger</attribute>
         </item>
         <item>
-          <attribute name="label">Replace Residue</attribute>
+          <attribute name="label">Replace Residue...</attribute>
           <attribute name="action">app.replace_residue_action</attribute>
         </item>
         <item>
@@ -542,6 +542,10 @@
             <item>
               <attribute name="label">Black</attribute>
               <attribute name="action">app.background_black_action</attribute>
+            </item>
+            <item>
+              <attribute name="label">Nearly Black</attribute>
+              <attribute name="action">app.background_nearly_black_action</attribute>
             </item>
             <item>
               <attribute name="label">Dark Grey</attribute>
@@ -627,14 +631,33 @@
           </item>
 
           <submenu>
+            <attribute name="label">Bond Smoothness</attribute>
+            <item>
+              <attribute name="label">Default</attribute>
+              <attribute name="action">app.bond_smoothness_action</attribute>
+              <attribute name="target">1</attribute>
+            </item>
+            <item>
+              <attribute name="label">Smooth</attribute>
+              <attribute name="action">app.bond_smoothness_action</attribute>
+              <attribute name="target">2</attribute>
+            </item>
+            <item>
+              <attribute name="label">Fine</attribute>
+              <attribute name="action">app.bond_smoothness_action</attribute>
+              <attribute name="target">3</attribute>
+            </item>
+          </submenu>
+
+          <submenu>
             <attribute name="label">Carbon Colours</attribute>
             <item>
               <attribute name="label">Grey Carbon Colours</attribute>
-              <attribute name="action">app.grey_carbon_colours</attribute>
+              <attribute name="action">app.grey_carbon_colours_action</attribute>
             </item>
             <item>
               <attribute name="label">Coloured Carbon Colours</attribute>
-              <attribute name="action">app.coloured_carbon_colours</attribute>
+              <attribute name="action">app.coloured_carbon_colours_action</attribute>
             </item>
           </submenu>
 
@@ -1289,7 +1312,7 @@ Copyright 2023 Global Phasing Ltd.</property>
     <property name="license-type">lgpl-3-0</property>
     <property name="logo-icon-name">coot</property>
     <property name="program-name">Coot</property>
-    <property name="version">1.1.08</property>
+    <property name="version">1.1.x-pre</property>
     <property name="website">https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot</property>
     <property name="website-label">The Coot Website</property>
   </object>
@@ -5684,7 +5707,8 @@ Do you want to continue?
                 <child>
                   <object class="GtkToggleButton" id="generic_objects_display_all_togglebutton">
                     <property name="label" translatable="yes">Display/Undisplay All</property>
-                    <property name="can-focus">1</property>
+                    <property name="active">1</property>
+                    <property name="can-focus">0</property>
                     <property name="receives-default">1</property>
                     <property name="margin-start">8</property>
                     <property name="margin-end">4</property>
@@ -7690,7 +7714,7 @@ Do you want to continue?
                 <property name="hexpand">True</property>
                 <property name="visible">True</property>
                 <property name="transition-type">GTK_REVEALER_TRANSITION_TYPE_SLIDE_UP</property>
-                <property name="transition-duration">350</property>
+                <property name="transition-duration">300</property>
                 <property name="can-focus">True</property>
                 <child>
                   <object class="GtkOverlay" id="python_scripting_overlay">
@@ -7964,6 +7988,24 @@ Do you want to continue?
             </child>
 
             <child type="overlay">
+              <object class="GtkLabel" id="session_saved_label">
+                <property name="visible">False</property>
+                <property name="halign">center</property>
+                <property name="valign">start</property>
+                <property name="label" translatable="yes"> Session Saved </property>
+              </object>
+            </child>
+
+            <child type="overlay">
+              <object class="GtkLabel" id="partition_map_by_chain_status_label">
+                <property name="visible">False</property>
+                <property name="halign">center</property>
+                <property name="valign">start</property>
+                <property name="label" translatable="yes">Pending...</property>
+              </object>
+            </child>
+
+            <child type="overlay">
               <object class="GtkFrame" id="export_map_frame">
                 <property name="visible">False</property>
                 <property name="halign">center</property>
@@ -8036,6 +8078,7 @@ Do you want to continue?
             </child>
           </object>
         </child>
+
         <child>
           <object class="GtkBox" id="main_window_vbox_inner">
             <property name="orientation">vertical</property>
@@ -8844,45 +8887,48 @@ Do you want to continue?
   </object>
   <object class="GtkDialog" id="least_squares_dialog">
     <property name="title" translatable="yes">Least Squares Fit</property>
+    <property name="hide-on-close">true</property>
     <child>
       <object class="GtkBox" id="dialog-vbox97">
         <property name="orientation">vertical</property>
-         <child type="action">
-              <object class="GtkBox" id="hbox146">
-                <property name="homogeneous">1</property>
-                <child>
-                  <object class="GtkButton" id="least_squares_cancel_button">
-                    <property name="label">Close</property>
-                    <property name="can-focus">1</property>
-                    <signal name="clicked" handler="on_least_squares_cancel_button_clicked" swapped="no"/>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkButton" id="least_squares_ok_button">
-                    <property name="label" translatable="yes">Fit</property>
-                    <property name="can-focus">1</property>
-                    <signal name="clicked" handler="on_least_squares_ok_button_clicked" swapped="no"/>
-                  </object>
-                </child>
-              </object>
-        </child>
+        <property name="spacing">5</property>
+        <property name="margin-end">5</property>
+        <property name="margin-start">5</property>
+        <property name="margin-top">5</property>
+        <property name="margin-bottom">5</property>
         <child>
           <object class="GtkBox" id="vbox187">
             <property name="orientation">vertical</property>
+            <property name="spacing">5</property>
             <child>
               <object class="GtkFrame" id="frame170">
                 <child>
-                  <object class="GtkBox" id="vbox189">
+                  <object class="GtkGrid" id="grid189">
                     <property name="orientation">vertical</property>
+                    <property name="column-homogeneous">true</property>
+                    <property name="row-spacing">5</property>
+                    <property name="column-spacing">5</property>
+                    <property name="margin-end">5</property>
+                    <property name="margin-start">5</property>
+                    <property name="margin-top">5</property>
+                    <property name="margin-bottom">5</property>
                     <child>
                       <object class="GtkLabel" id="label292">
                         <property name="label" translatable="yes">Reference Molecule:</property>
                         <property name="justify">center</property>
                         <property name="xalign">0</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="row">0</property>
+                        </layout>
                       </object>
                     </child>
                     <child>
                       <object class="GtkComboBoxText" id="least_squares_reference_molecule_combobox">
+                        <layout>
+                          <property name="column">1</property>
+                          <property name="row">0</property>
+                        </layout>
                       </object>
                     </child>
                     <child>
@@ -8890,10 +8936,18 @@ Do you want to continue?
                         <property name="label" translatable="yes">Moving Molecule:</property>
                         <property name="justify">center</property>
                         <property name="xalign">0</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="row">1</property>
+                        </layout>
                       </object>
                     </child>
                     <child>
                       <object class="GtkComboBoxText" id="least_squares_moving_molecule_combobox">
+                        <layout>
+                          <property name="column">1</property>
+                          <property name="row">1</property>
+                        </layout>
                       </object>
                     </child>
                   </object>
@@ -8903,86 +8957,134 @@ Do you want to continue?
             <child>
               <object class="GtkFrame" id="frame171">
                 <child>
-                  <object class="GtkBox" id="vbox190">
+                  <object class="GtkGrid" id="grid190">
                     <property name="orientation">vertical</property>
+                    <property name="margin-end">5</property>
+                    <property name="margin-start">5</property>
+                    <property name="margin-top">5</property>
+                    <property name="margin-bottom">5</property>
+                    <property name="column-spacing">5</property>
+                    <property name="row-spacing">5</property>
+
+
                     <child>
-                      <object class="GtkBox" id="hbox147">
-                        <child>
-                          <object class="GtkLabel" id="label294">
-                            <property name="label" translatable="yes">Reference Residue Range </property>
-                            <property name="justify">center</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkEntry" id="least_squares_reference_range_1_entry">
-                            <property name="can-focus">1</property>
-                            <property name="primary-icon-activatable">0</property>
-                            <property name="secondary-icon-activatable">0</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkLabel" id="label295">
-                            <property name="label" translatable="yes"> to </property>
-                            <property name="justify">center</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkEntry" id="least_squares_reference_range_2_entry">
-                            <property name="can-focus">1</property>
-                            <property name="primary-icon-activatable">0</property>
-                            <property name="secondary-icon-activatable">0</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkLabel" id="label296">
-                            <property name="label" translatable="yes">  Chain </property>
-                            <property name="justify">center</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkComboBoxText" id="least_squares_reference_chain_id_combobox">
-                          </object>
-                        </child>
+                      <object class="GtkLabel" id="label294">
+                        <property name="label" translatable="yes">Reference Residue Range</property>
+                        <property name="justify">center</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="row">0</property>
+                        </layout>
                       </object>
                     </child>
                     <child>
-                      <object class="GtkBox" id="hbox148">
-                        <child>
-                          <object class="GtkLabel" id="label297">
-                            <property name="label" translatable="yes">   Moving Residue Range  </property>
-                            <property name="justify">center</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkEntry" id="least_squares_moving_range_1_entry">
-                            <property name="can-focus">1</property>
-                            <property name="primary-icon-activatable">0</property>
-                            <property name="secondary-icon-activatable">0</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkLabel" id="label298">
-                            <property name="label" translatable="yes"> to </property>
-                            <property name="justify">center</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkEntry" id="least_squares_moving_range_2_entry">
-                            <property name="can-focus">1</property>
-                            <property name="primary-icon-activatable">0</property>
-                            <property name="secondary-icon-activatable">0</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkLabel" id="label299">
-                            <property name="label" translatable="yes">  Chain </property>
-                            <property name="justify">center</property>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkComboBoxText" id="least_squares_moving_chain_id_combobox">
-                          </object>
-                        </child>
+                      <object class="GtkEntry" id="least_squares_reference_range_1_entry">
+                        <property name="can-focus">1</property>
+                        <property name="primary-icon-activatable">0</property>
+                        <property name="secondary-icon-activatable">0</property>
+                        <layout>
+                          <property name="column">1</property>
+                          <property name="row">0</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="label295">
+                        <property name="label" translatable="yes">to</property>
+                        <property name="justify">center</property>
+                        <layout>
+                          <property name="column">2</property>
+                          <property name="row">0</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkEntry" id="least_squares_reference_range_2_entry">
+                        <property name="can-focus">1</property>
+                        <property name="primary-icon-activatable">0</property>
+                        <property name="secondary-icon-activatable">0</property>
+                        <layout>
+                          <property name="column">3</property>
+                          <property name="row">0</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="label296">
+                        <property name="label" translatable="yes">Chain</property>
+                        <property name="justify">center</property>
+                        <layout>
+                          <property name="column">4</property>
+                          <property name="row">0</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkComboBoxText" id="least_squares_reference_chain_id_combobox">
+                        <layout>
+                          <property name="column">5</property>
+                          <property name="row">0</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="label297">
+                        <property name="label" translatable="yes">Moving Residue Range</property>
+                        <property name="justify">center</property>
+                        <layout>
+                          <property name="column">0</property>
+                          <property name="row">1</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkEntry" id="least_squares_moving_range_1_entry">
+                        <property name="can-focus">1</property>
+                        <property name="primary-icon-activatable">0</property>
+                        <property name="secondary-icon-activatable">0</property>
+                        <layout>
+                          <property name="column">1</property>
+                          <property name="row">1</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="label298">
+                        <property name="label" translatable="yes">to</property>
+                        <property name="justify">center</property>
+                        <layout>
+                          <property name="column">2</property>
+                          <property name="row">1</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkEntry" id="least_squares_moving_range_2_entry">
+                        <property name="can-focus">1</property>
+                        <property name="primary-icon-activatable">0</property>
+                        <property name="secondary-icon-activatable">0</property>
+                        <layout>
+                          <property name="column">3</property>
+                          <property name="row">1</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkLabel" id="label299">
+                        <property name="label" translatable="yes">Chain</property>
+                        <property name="justify">center</property>
+                        <layout>
+                          <property name="column">4</property>
+                          <property name="row">1</property>
+                        </layout>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkComboBoxText" id="least_squares_moving_chain_id_combobox">
+                        <layout>
+                          <property name="column">5</property>
+                          <property name="row">1</property>
+                        </layout>
                       </object>
                     </child>
                   </object>
@@ -8994,6 +9096,10 @@ Do you want to continue?
                 <child>
                   <object class="GtkBox" id="vbox188">
                     <property name="orientation">vertical</property>
+                    <property name="margin-end">5</property>
+                    <property name="margin-start">5</property>
+                    <property name="margin-top">5</property>
+                    <property name="margin-bottom">5</property>
                     <child>
                       <object class="GtkCheckButton" id="least_squares_match_type_all_radiobutton">
                         <property name="label" translatable="yes">All Atoms</property>
@@ -9028,6 +9134,26 @@ Do you want to continue?
                     <property name="label" translatable="yes">Match Atoms</property>
                   </object>
                 </child>
+              </object>
+            </child>
+          </object>
+        </child>
+        <child type="action">
+          <object class="GtkBox" id="hbox146">
+            <property name="halign">end</property>
+            <property name="spacing">5</property>
+            <child>
+              <object class="GtkButton" id="least_squares_cancel_button">
+                <property name="label">Close</property>
+                <property name="can-focus">1</property>
+                <signal name="clicked" handler="on_least_squares_cancel_button_clicked" swapped="no" />
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="least_squares_ok_button">
+                <property name="label" translatable="yes">Fit</property>
+                <property name="can-focus">1</property>
+                <signal name="clicked" handler="on_least_squares_ok_button_clicked" swapped="no" />
               </object>
             </child>
           </object>
@@ -9596,14 +9722,14 @@ density (too big to be waters):
             </child>
           </object>
         </child>
-         <child type="action">
-              <object class="GtkButton" id="map_sharpening_dialog_ok_button">
-                <property name="label">OK</property>
-                <property name="margin-top">4</property>
-                <property name="margin-bottom">4</property>
-                <property name="margin-start">6</property>
-                <property name="margin-end">6</property>
-              </object>
+        <child type="action">
+          <object class="GtkButton" id="map_sharpening_dialog_ok_button">
+            <property name="label">OK</property>
+            <property name="margin-top">4</property>
+            <property name="margin-bottom">4</property>
+            <property name="margin-start">6</property>
+            <property name="margin-end">6</property>
+          </object>
         </child>
       </object>
     </child>
@@ -9612,6 +9738,72 @@ density (too big to be waters):
     </action-widgets>
   </object>
 
+  <object class="GtkDialog" id="map_partition_by_chain_dialog">
+    <property name="title" translatable="yes">Coot: Partition Map by Chain</property>
+    <property name="default-width">500</property>
+    <signal name="response" handler="on_map_partition_by_chain_dialog_response" swapped="no"/>
+    <child>
+      <object class="GtkBox" id="map_partition_by_chain_vbox_internal">
+        <property name="orientation">vertical</property>
+        <property name="spacing">2</property>
+        <child>
+          <object class="GtkLabel">
+            <property name="label" translatable="yes">Map</property>
+            <property name="justify">center</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkComboBoxText" id="map_partition_by_chain_map_combobox">
+            <property name="margin-top">4</property>
+            <property name="margin-bottom">4</property>
+            <property name="margin-start">6</property>
+            <property name="margin-end">6</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkLabel">
+            <property name="label" translatable="yes">Model</property>
+            <property name="justify">center</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkComboBoxText" id="map_partition_by_chain_model_combobox">
+            <property name="margin-top">4</property>
+            <property name="margin-bottom">4</property>
+            <property name="margin-start">6</property>
+            <property name="margin-end">6</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkBox">
+            <property name="orientation">horizontal</property>
+            <property name="halign">end</property>
+            <property name="margin-top">4</property>
+            <property name="margin-bottom">4</property>
+            <property name="margin-start">6</property>
+            <property name="margin-end">6</property>
+            <property name="spacing">10</property>
+            <child type="action">
+              <object class="GtkButton" id="map_partition_by_chain_cancel_button">
+                <property name="label" translatable="yes">Cancel</property>
+              </object>
+            </child>
+            <child type="action">
+              <object class="GtkButton" id="map_partition_by_chain_ok_button">
+                <property name="label" translatable="yes">  OK  </property>
+              </object>
+            </child>
+          </object>
+        </child>
+
+      </object>
+    </child>
+    <action-widgets>
+      <action-widget response="-6">map_partition_by_chain_cancel_button</action-widget>
+      <action-widget response="-5">map_partition_by_chain_ok_button</action-widget>
+    </action-widgets>
+  </object>
+  
   <object class="GtkDialog" id="merge_molecules_dialog">
     <property name="title" translatable="yes">Coot: Merge Molecules</property>
     <child>

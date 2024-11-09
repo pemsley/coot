@@ -88,6 +88,7 @@ void on_coords_filechooser_dialog_response_gtk4(GtkDialog *dialog,
       }
    }
    gtk_window_close(GTK_WINDOW(dialog));
+   graphics_info_t::graphics_grab_focus();
 }
 
 void on_dataset_filechooser_dialog_response_gtk4(GtkDialog *dialog,
@@ -117,6 +118,7 @@ void on_dataset_filechooser_dialog_response_gtk4(GtkDialog *dialog,
 
    }
    gtk_window_close(GTK_WINDOW(dialog));
+   graphics_info_t::graphics_grab_focus();
 }
 
 
@@ -134,6 +136,7 @@ void on_map_filechooser_dialog_response_gtk4(GtkDialog *dialog,
       handle_read_ccp4_map(file_name, is_diff_map_flag);
    }
    gtk_window_close(GTK_WINDOW(dialog));
+   graphics_info_t::graphics_grab_focus();
 }
 
 void open_coordinates_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -295,7 +298,7 @@ void open_map_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 void load_tutorial_model_and_data_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                          G_GNUC_UNUSED GVariant *parameter,
                                          G_GNUC_UNUSED gpointer user_data) {
-   load_tutorial_model_and_data();
+   load_tutorial_model_and_data(); // does a graphics_grab_focus()
 }
 
 void exit_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -338,6 +341,7 @@ void get_monomer_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    GtkWidget *entry = widget_from_builder("get_monomer_entry");
    gtk_widget_grab_focus(entry);
    gtk_widget_set_visible(frame, TRUE);
+   graphics_info_t::graphics_grab_focus();
 }
 
 
@@ -364,6 +368,7 @@ void on_cif_dictionary_filechooser_dialog_response_gtk4(GtkDialog *dialog,
       int monomer_index = handle_cif_dictionary_for_molecule(file_name, imol_enc, create_ligand);
    }
    gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
+   graphics_info_t::graphics_grab_focus();
 }
 
 void import_cif_dictionary_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -830,7 +835,7 @@ void
 edit_replace_fragment_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                              G_GNUC_UNUSED GVariant *parameter,
                              G_GNUC_UNUSED gpointer user_data) {
-     do_edit_replace_fragment();
+   do_edit_replace_fragment();
 }
 
 void
@@ -1343,8 +1348,9 @@ void add_HOLE_module_action(GSimpleAction *simple_action,
    std::string sc = g.state_command("coot_hole", "hole_ify", args, lang);
    safe_python_command("import coot_gui");
    safe_python_command("import coot_hole");
-   std::cout << "calling this: " << sc << std::endl;
+   std::cout << "DEBUG:: calling this: " << sc << std::endl;
    safe_python_command(sc);
+   graphics_info_t::graphics_grab_focus();
 
    // needed?
    // g_simple_action_set_enabled(simple_action,FALSE);
@@ -1356,6 +1362,7 @@ void add_ccp4_module_action(GSimpleAction *simple_action,
    safe_python_command("import coot_gui");
    safe_python_command("coot_gui.add_module_ccp4()");
    g_simple_action_set_enabled(simple_action,FALSE);
+   graphics_info_t::graphics_grab_focus();
 }
 
 void add_carbohydrate_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -1364,6 +1371,7 @@ void add_carbohydrate_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    safe_python_command("import gui_add_linked_cho");
    safe_python_command("gui_add_linked_cho.add_module_carbohydrate_gui()");
    g_simple_action_set_enabled(simple_action,FALSE);
+   graphics_info_t::graphics_grab_focus();
 }
 
 void add_cryo_em_module_action(GSimpleAction *simple_action,
@@ -1373,6 +1381,7 @@ void add_cryo_em_module_action(GSimpleAction *simple_action,
    safe_python_command("import coot_gui");
    safe_python_command("coot_gui.add_module_cryo_em()");
    g_simple_action_set_enabled(simple_action,FALSE);
+   graphics_info_t::graphics_grab_focus();
 }
 
 void add_ligand_module_action(GSimpleAction *simple_action,
@@ -1383,6 +1392,7 @@ void add_ligand_module_action(GSimpleAction *simple_action,
    safe_python_command("import coot_gui");
    safe_python_command("coot_gui.add_module_ligand()");
    g_simple_action_set_enabled(simple_action,FALSE);
+   graphics_info_t::graphics_grab_focus();
 }
 
 void add_prosmart_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -1391,6 +1401,7 @@ void add_prosmart_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    safe_python_command("import gui_prosmart");
    safe_python_command("gui_prosmart.add_module_prosmart()");
    g_simple_action_set_enabled(simple_action,FALSE);
+   graphics_info_t::graphics_grab_focus();
 }
 
 void add_rcrane_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -1406,6 +1417,7 @@ void add_restraints_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    safe_python_command("import gui_prosmart");
    safe_python_command("gui_prosmart.add_module_restraints()");
    g_simple_action_set_enabled(simple_action,FALSE);
+   graphics_info_t::graphics_grab_focus();
 }
 
 void add_refine_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -1414,6 +1426,7 @@ void add_refine_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    safe_python_command("import coot_gui");
    safe_python_command("coot_gui.add_module_refine()");
    g_simple_action_set_enabled(simple_action,FALSE);
+   graphics_info_t::graphics_grab_focus();
 }
 
 void add_shelx_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -1422,6 +1435,7 @@ void add_shelx_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
    std::cout << "No SHELXL yet! " << std::endl;
    info_dialog("INFO:: No SHELXL interface yet! - sorry");
+   graphics_info_t::graphics_grab_focus();
 }
 
 void add_views_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -1555,6 +1569,7 @@ whats_this_action(G_GNUC_UNUSED GSimpleAction *simple_action,
       std::string s = rs.format() + std::string(" ") + rn;
       add_status_bar_text(s);
    }
+   graphics_info_t::graphics_grab_focus();
 }
 
 
@@ -1666,7 +1681,7 @@ calculate_updating_maps_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    auto      map_list =      get_map_molecule_vector();
    auto diff_map_list = get_diff_map_molecule_vector();
 
-   std::cout << "::::::::::::::::::::::: diff_map_list size " << diff_map_list.size() << std::endl;
+   std::cout << "::::::::: diff_map_list size " << diff_map_list.size() << std::endl;
 
    GCallback func = G_CALLBACK(nullptr); // we don't care until this dialog is read
 
@@ -1687,7 +1702,17 @@ background_black_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
    graphics_info_t::background_colour = glm::vec3(0,0,0);
    graphics_info_t::graphics_draw();
-   
+   graphics_info_t::graphics_grab_focus();
+}
+
+void
+background_nearly_black_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                               G_GNUC_UNUSED GVariant *parameter,
+                               G_GNUC_UNUSED gpointer user_data) {
+
+   graphics_info_t::background_colour = glm::vec3(0.035f,0.035f,0.035f);
+   graphics_info_t::graphics_draw();
+   graphics_info_t::graphics_grab_focus();
 }
 
 void
@@ -1706,6 +1731,7 @@ background_semi_dark_grey_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
    graphics_info_t::background_colour = glm::vec3(0.207f,0.207f,0.207f);
    graphics_info_t::graphics_draw();
+   graphics_info_t::graphics_grab_focus();
 }
 
 void
@@ -1715,6 +1741,7 @@ background_light_grey_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
    graphics_info_t::background_colour = glm::vec3(0.83f, 0.83f, 0.83f);
    graphics_info_t::graphics_draw();
+   graphics_info_t::graphics_grab_focus();
 }
 
 void
@@ -1736,7 +1763,50 @@ bond_colours_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    g.fill_bond_colours_dialog_internal(w);
    set_transient_for_main_window(w);
    gtk_widget_set_visible(w, TRUE);
+}
 
+void
+grey_carbon_colours_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                           G_GNUC_UNUSED GVariant *parameter,
+                           G_GNUC_UNUSED gpointer user_data) {
+
+
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      set_use_grey_carbons_for_molecule(imol, 1);
+   }
+   graphics_info_t::graphics_grab_focus();
+}
+
+void
+coloured_carbon_colours_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                               G_GNUC_UNUSED GVariant *parameter,
+                               G_GNUC_UNUSED gpointer user_data) {
+
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      set_use_grey_carbons_for_molecule(imol, 0);
+   }
+   graphics_info_t::graphics_grab_focus();
+}
+
+
+void
+bond_smoothness_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                       G_GNUC_UNUSED GVariant *parameter,
+                       G_GNUC_UNUSED gpointer user_data) {
+
+   gchar* mode_cstr;
+   g_variant_get(parameter, "s", &mode_cstr);
+   std::string mode(mode_cstr);
+   if (mode == "1") set_bond_smoothness_factor(1);
+   if (mode == "2") set_bond_smoothness_factor(2);
+   if (mode == "3") set_bond_smoothness_factor(3);
+   graphics_info_t::graphics_grab_focus();
 }
 
 
@@ -1759,6 +1829,7 @@ void add_hydrogen_atoms_action(G_GNUC_UNUSED GSimpleAction *simple_action,
       int imol = pp.second.first;
       coot_add_hydrogen_atoms(imol);
    }
+   graphics_info_t::graphics_grab_focus();
 }
 
 void add_hydrogen_atoms_using_refmac_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -1775,6 +1846,7 @@ void add_hydrogen_atoms_using_refmac_action(G_GNUC_UNUSED GSimpleAction *simple_
       safe_python_command("import coot_utils");
       safe_python_command(sc);
    }
+   graphics_info_t::graphics_grab_focus();
 }
 
 void add_an_atom_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -1787,6 +1859,7 @@ void add_an_atom_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
    GtkWidget *box = widget_from_builder("add_an_atom_box");
    gtk_widget_set_visible(box, TRUE);
+   graphics_info_t::graphics_grab_focus();
 
 }
 
@@ -1810,6 +1883,7 @@ void find_waters_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    GtkWidget *w = wrapped_create_find_waters_dialog();
    set_transient_for_main_window(w);
    gtk_widget_set_visible(w, TRUE);
+   graphics_info_t::graphics_grab_focus();
 
 }
 
@@ -1828,6 +1902,7 @@ void place_helix_here_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                              G_GNUC_UNUSED gpointer user_data) {
 
    place_helix_here();
+   graphics_info_t::graphics_grab_focus();
 }
 
 
@@ -1852,6 +1927,7 @@ void cis_trans_convert_action(G_GNUC_UNUSED GSimpleAction *simple_action,
       std::string atom_name = at->name;
       cis_trans_convert(imol, at->GetChainID(), at->GetSeqNum(), at->GetInsCode());
    }
+   graphics_info_t::graphics_grab_focus();
 }
 
 void add_OXT_to_residue_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -1861,7 +1937,7 @@ void add_OXT_to_residue_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    GtkWidget *w = wrapped_create_add_OXT_dialog(); // uses builder
    set_transient_for_main_window(w);
    gtk_widget_set_visible(w, TRUE);
-
+   graphics_info_t::graphics_grab_focus();
 }
 
 void reverse_chain_direction_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -1876,6 +1952,7 @@ void reverse_chain_direction_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 	 reverse_direction_of_fragment(imol, pp.second.second.chain_id.c_str(), pp.second.second.res_no);
       }
    }
+   graphics_info_t::graphics_grab_focus();
 
 }
 
@@ -1883,11 +1960,13 @@ void arrange_waters_around_protein_action(G_GNUC_UNUSED GSimpleAction *simple_ac
                                           G_GNUC_UNUSED GVariant *parameter,
                                           G_GNUC_UNUSED gpointer user_data) {
 
+   graphics_info_t::graphics_grab_focus();
 }
 
 void assign_hetatms_for_this_residue_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                             G_GNUC_UNUSED GVariant *parameter,
                                             G_GNUC_UNUSED gpointer user_data) {
+   graphics_info_t::graphics_grab_focus();
 
 }
 
@@ -1895,6 +1974,7 @@ void assign_hetatoms_to_molecule_action(G_GNUC_UNUSED GSimpleAction *simple_acti
                                         G_GNUC_UNUSED GVariant *parameter,
                                         G_GNUC_UNUSED gpointer user_data) {
 
+   graphics_info_t::graphics_grab_focus();
 }
 
 void backrub_rotamers_for_chain_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -1908,8 +1988,8 @@ void backrub_rotamers_for_chain_action(G_GNUC_UNUSED GSimpleAction *simple_actio
       std::string chain_id = pp.second.second.chain_id;
       short int lang = coot::STATE_PYTHON;
       std::vector<coot::command_arg_t> args = { coot::command_arg_t(imol), coot::command_arg_t(chain_id) };
-      std::string sc = g.state_command("fitting", "backrub_rotamers_for_chain", args, lang);
-      safe_python_command("import fitting");
+      std::string sc = g.state_command("coot_fitting", "backrub_rotamers_for_chain", args, lang);
+      safe_python_command("import coot_fitting");
       safe_python_command(sc);
    }
 }
@@ -1918,12 +1998,14 @@ void find_helices_in_map_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                 G_GNUC_UNUSED GVariant *parameter,
                                 G_GNUC_UNUSED gpointer user_data) {
 
+   graphics_info_t::graphics_grab_focus();
 }
 
 void find_strands_in_map_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                 G_GNUC_UNUSED GVariant *parameter,
                                 G_GNUC_UNUSED gpointer user_data) {
 
+   graphics_info_t::graphics_grab_focus();
 }
 
 void
@@ -1931,12 +2013,14 @@ fill_partial_residues_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                              G_GNUC_UNUSED GVariant *parameter,
                              G_GNUC_UNUSED gpointer user_data) {
 
+   graphics_info_t::graphics_grab_focus();
 }
 
 void phosphorylate_this_residue_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                        G_GNUC_UNUSED GVariant *parameter,
                                        G_GNUC_UNUSED gpointer user_data) {
 
+   graphics_info_t::graphics_grab_focus();
 }
 
 void rebuild_fragment_using_dbloop_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -1961,9 +2045,15 @@ void replace_residue_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                             G_GNUC_UNUSED GVariant *parameter,
                             G_GNUC_UNUSED gpointer user_data) {
 
-   std::cout << "replace_residue_action() fill me! " << std::endl;
+   // 20240930-PE there are now 2 "Replace Residue" menu items - I am not sure if that is what I want.
+   // Perhaps this one should be removed.
 
-   // use an overlay.
+   // 20240817-PE note to self - this is the callback from the Modelling menu - there is
+   // also edit_replace_residue_action()!
+   // That needs to be sorted out.
+
+   edit_replace_residue_action(simple_action, parameter, user_data);
+
 }
 
 void rigid_body_fit_residue_ranges_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -1985,6 +2075,7 @@ void rigid_body_fit_molecule_action(G_GNUC_UNUSED GSimpleAction *simple_action,
       rigid_body_refine_by_atom_selection(imol, "/");
       graphics_draw();
    }
+   graphics_info_t::graphics_grab_focus();
 }
 
 void superpose_ligands_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -1998,7 +2089,9 @@ void superpose_ligands_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 void symm_shift_reference_chain_here_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                             G_GNUC_UNUSED GVariant *parameter,
                                             G_GNUC_UNUSED gpointer user_data) {
-   move_reference_chain_to_symm_chain_position();
+   graphics_info_t g;
+   g.move_reference_chain_to_symm_chain_position();
+   graphics_info_t::graphics_grab_focus();
 }
 
 
@@ -2013,6 +2106,7 @@ draw_cell_and_symmetry_action(G_GNUC_UNUSED GSimpleAction *simple_action,
       set_transient_for_main_window(show_symm_window);
       gtk_widget_set_visible(show_symm_window, TRUE);
    }
+   graphics_info_t::graphics_grab_focus();
 }
 
 
@@ -2022,6 +2116,7 @@ display_only_active_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                            G_GNUC_UNUSED gpointer user_data) {
 
    display_only_active();
+   graphics_info_t::graphics_grab_focus();
 }
 
 void
@@ -2029,6 +2124,7 @@ fullscreen_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                   G_GNUC_UNUSED GVariant *parameter,
                   G_GNUC_UNUSED gpointer user_data) {
    fullscreen();
+   graphics_info_t::graphics_grab_focus();
 }
 
 void
@@ -2063,7 +2159,7 @@ go_to_atom_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 				   have coordinates. */
 
    gtk_widget_set_visible(widget, TRUE);
-   graphics_info_t g;
+   graphics_info_t::graphics_grab_focus();
 }
 
 
@@ -2073,6 +2169,7 @@ label_atoms_in_residue_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                               G_GNUC_UNUSED gpointer user_data) {
 
    label_atoms_in_residue();
+   graphics_info_t::graphics_grab_focus();
 }
 
 
@@ -2091,6 +2188,7 @@ label_CA_atoms_action(G_GNUC_UNUSED GSimpleAction *simple_action,
       label_all_CAs(imol);
       graphics_draw();
    }
+   graphics_info_t::graphics_grab_focus();
 }
 
 
@@ -2099,6 +2197,7 @@ label_neighbours_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                         G_GNUC_UNUSED GVariant *parameter,
                         G_GNUC_UNUSED gpointer user_data) {
    label_neighbours();
+   graphics_info_t::graphics_grab_focus();
 }
 
 
@@ -2151,6 +2250,7 @@ show_map_parameters_dialog() {
 
  /* Show the widget */
    gtk_widget_set_visible(density_window, TRUE);
+   graphics_info_t::graphics_grab_focus();
 }
 
 
@@ -2159,6 +2259,7 @@ map_parameters_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                       G_GNUC_UNUSED GVariant *parameter,
                       G_GNUC_UNUSED gpointer user_data) {
    show_map_parameters_dialog();
+   graphics_info_t::graphics_grab_focus();
 }
 
 
@@ -2168,6 +2269,7 @@ ghost_control_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                      G_GNUC_UNUSED gpointer user_data) {
    GtkWidget *w = wrapped_create_ncs_control_dialog(); // uses builder
    gtk_widget_set_visible(w, TRUE);
+   graphics_info_t::graphics_grab_focus();
 }
 
 
@@ -2176,6 +2278,7 @@ spin_view_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                  G_GNUC_UNUSED GVariant *parameter,
                  G_GNUC_UNUSED gpointer user_data) {
    toggle_idle_spin_function();
+   graphics_info_t::graphics_grab_focus();
 }
 
 
@@ -2186,6 +2289,7 @@ rock_view_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    toggle_idle_rock_function();
 }
 
+#include "MoleculesToTriangles/CXXClasses/MyMolecule.h"
 
 void
 ribbons_colour_by_chain_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -2198,9 +2302,12 @@ ribbons_colour_by_chain_action(G_GNUC_UNUSED GSimpleAction *simple_action,
       std::string colour_scheme = "Chain";
       std::string atom_selection = "//";
       std::string style = "Ribbon";
+      int secondary_structure_usage_flag = CALC_SECONDARY_STRUCTURE;
       graphics_info_t g;
-      int status = g.add_molecular_representation(imol, atom_selection, colour_scheme, style);
+      int status = g.add_molecular_representation(imol, atom_selection, colour_scheme, style,
+                                                  secondary_structure_usage_flag);
    }
+   graphics_info_t::graphics_grab_focus();
 }
 
 
@@ -2215,9 +2322,12 @@ ribbons_colour_rainbow_action(G_GNUC_UNUSED GSimpleAction *simple_action,
       std::string colour_scheme = "colorRampChainsScheme";
       std::string atom_selection = "//";
       std::string style = "Ribbon";
+      int secondary_structure_usage_flag = CALC_SECONDARY_STRUCTURE;
       graphics_info_t g;
-      int status = g.add_molecular_representation(imol, atom_selection, colour_scheme, style);
+      int status = g.add_molecular_representation(imol, atom_selection, colour_scheme, style,
+                                                  secondary_structure_usage_flag);
    }
+   graphics_info_t::graphics_grab_focus();
 }
 
 
@@ -2232,8 +2342,11 @@ ribbons_colour_by_secondary_structure_action(G_GNUC_UNUSED GSimpleAction *simple
       std::string atom_selection = "//";
       std::string style = "Ribbon";
       graphics_info_t g;
-      int status = g.add_molecular_representation(imol, atom_selection, colour_scheme, style);
+      int secondary_structure_usage_flag = CALC_SECONDARY_STRUCTURE;
+      int status = g.add_molecular_representation(imol, atom_selection, colour_scheme, style,
+                                                  secondary_structure_usage_flag);
    }
+   graphics_info_t::graphics_grab_focus();
 }
 
 void
@@ -2258,6 +2371,7 @@ scene_preset_model_building_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    g.clipping_front = 1.0;
    g.clipping_back  = 1.0;
    g.graphics_draw();
+   graphics_info_t::graphics_grab_focus();
 }
 
 void
@@ -2268,7 +2382,7 @@ scene_preset_figure_making_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    g.clipping_front = 4.5;
    g.clipping_back  = 1.3;
    g.graphics_draw();
-
+   graphics_info_t::graphics_grab_focus();
 }
 
 
@@ -2282,6 +2396,7 @@ sequence_view_action(G_GNUC_UNUSED GSimpleAction *simple_action,
       int imol = pp.second.first;
       sequence_view(imol);
    }
+   graphics_info_t::graphics_grab_focus();
 }
 
 void
@@ -2290,6 +2405,7 @@ undo_last_navigation_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                             G_GNUC_UNUSED gpointer user_data) {
 
    undo_last_move();
+   graphics_info_t::graphics_grab_focus();
 }
 
 void
@@ -2297,6 +2413,7 @@ undo_symmetry_view_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                           G_GNUC_UNUSED GVariant *parameter,
                           G_GNUC_UNUSED gpointer user_data) {
    undo_symmetry_view();
+   graphics_info_t::graphics_grab_focus();
 }
 
 void
@@ -2304,6 +2421,7 @@ clear_atom_labels_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                           G_GNUC_UNUSED GVariant *parameter,
                           G_GNUC_UNUSED gpointer user_data) {
    remove_all_atom_labels();
+   graphics_info_t::graphics_grab_focus();
 }
 
 
@@ -2312,12 +2430,12 @@ distances_and_angles_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                             G_GNUC_UNUSED GVariant *parameter,
                             G_GNUC_UNUSED gpointer user_data) {
 
-  GtkWidget* widget = widget_from_builder("geometry_frame");
-  store_geometry_dialog(widget); /* needed to deactivate the distance
-				    togglebutton after 2nd atoms
-				    clicked in graphics */
-  gtk_widget_set_visible(widget, TRUE);
-
+   GtkWidget* widget = widget_from_builder("geometry_frame");
+   store_geometry_dialog(widget); /* needed to deactivate the distance
+                                     togglebutton after 2nd atoms
+                                     clicked in graphics */
+   gtk_widget_set_visible(widget, TRUE);
+   graphics_info_t::graphics_grab_focus();
 }
 
 void
@@ -2329,6 +2447,7 @@ pointer_distances_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    fill_pointer_distances_widget(w);
    set_transient_for_main_window(w);
    gtk_widget_set_visible(w, TRUE);
+   graphics_info_t::graphics_grab_focus();
 }
 
 void
@@ -2339,7 +2458,7 @@ environment_distances_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    GtkWidget *widget = widget_from_builder("environment_distance_dialog");
    fill_environment_widget(widget);
    gtk_widget_set_visible(widget, TRUE);
-
+   graphics_info_t::graphics_grab_focus();
 }
 
 
@@ -3652,11 +3771,17 @@ create_actions(GtkApplication *application) {
 
    // Draw
 
+   // these could be done with a parameter add_action_with_param()
    add_action(          "background_black_action",          background_black_action);
+   add_action(   "background_nearly_black_action",   background_nearly_black_action);
    add_action(     "background_light_grey_action",     background_light_grey_action);
    add_action(      "background_dark_grey_action",      background_dark_grey_action);
-   add_action("background_semi_dark_grey_action",  background_semi_dark_grey_action);
+   add_action( "background_semi_dark_grey_action", background_semi_dark_grey_action);
    add_action(          "background_white_action",          background_white_action);
+
+   add_action(       "grey_carbon_colours_action",       grey_carbon_colours_action);
+   add_action(   "coloured_carbon_colours_action",   coloured_carbon_colours_action);
+
    add_action(    "display_only_active_action",     display_only_active_action);
    add_action(        "bond_parameters_action",         bond_parameters_action);
    add_action(           "bond_colours_action",            bond_colours_action);
@@ -3765,6 +3890,9 @@ create_actions(GtkApplication *application) {
    // Mutate menu
    add_action_with_param("mutate_to_type", mutate_to_type);
    add_action_with_param("mutate_base_to_type", mutate_base_to_type);
+
+   // Draw menu
+   add_action_with_param("bond_smoothness_action", bond_smoothness_action);
 
    // Delete menu
    add_action_with_param("delete_item", delete_item);

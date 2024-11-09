@@ -69,12 +69,11 @@ coot::molecule_t::is_EM_map() const {
 
    bool ret_is_em = false;
 
-   std::cout << "in coot::molecule::is_EM_map() A " << std::endl;
+   if (false)
+      std::cout << "in coot::molecule::is_EM_map() A " << std::endl;
 
    if (has_xmap()) {
-      std::cout << "in coot::molecule_t::is_EM_map() B " << is_em_map_cached_flag << std::endl;
       if (is_em_map_cached_flag == 1) { // -1 means unset
-         std::cout << "in coot::molecule_t::is_EM_map() C " << std::endl;
          ret_is_em = true;
       }
    }
@@ -315,10 +314,12 @@ void gensurf_and_add_vecs_threaded_workpackage(const clipper::Xmap<float> *xmap_
    try {
       CIsoSurface<float> my_isosurface;
 
+      bool use_vertex_gradients_for_map_normals_flag = false; // give user control
       coot::density_contour_triangles_container_t tri_con =
         my_isosurface.GenerateTriangles_from_Xmap(std::cref(*xmap_p),
                                                   contour_level, dy_radius, centre, isample_step,
-                                                  iream_start, n_reams, is_em_map);
+                                                  iream_start, n_reams, is_em_map,
+                                                  use_vertex_gradients_for_map_normals_flag);
 
       // we are about to put the triangles into draw_vectors, so get the lock to
       // do that, so that the threads don't try to change draw_vectors at the same time.
@@ -1300,7 +1301,7 @@ coot::molecule_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
                                                         mmr.second, chain_id,
                                                         mmr.first,
                                                         mmr.second, chain_id,
-                                                        COOT_LSQ_MAIN);
+                                                        lsq_t::MAIN);
                      matches.push_back(match);
                      mmdb::Manager *mol_1 = mol;
                      mmdb::Manager *mol_2 = atom_sel.mol;

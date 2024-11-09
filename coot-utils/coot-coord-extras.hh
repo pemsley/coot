@@ -32,6 +32,7 @@
 #include "mini-mol/atom-quads.hh"
 #include "mini-mol/mini-mol.hh"
 #include "bonded-pairs.hh"
+#include "acedrg-types-for-residue.hh"
 
 // functions and classes here (in extras) can use protein_geometry.
 
@@ -70,6 +71,15 @@ namespace coot {
       get_contact_indices_for_PRO_residue(mmdb::PPAtom residue_atom,
 					  int nResidueAtoms, 
 					  protein_geometry *geom_p);
+
+      std::vector<mmdb::Residue *>
+      get_dictionary_conformers(const dictionary_residue_restraints_t &restraints,
+                                bool remove_internal_clash_conformers);
+
+      // 20240817-PE old scripting function is moved into libcootapi core
+      int mutate_by_overlap(mmdb::Residue *residue_p, mmdb::Manager *mol,
+                            const dictionary_residue_restraints_t &restraints_current_type,
+                            const dictionary_residue_restraints_t &restraints_new_type);
 
       // class definition is here but functionality is in molecule-class-info-other
       class missing_atom_info {
@@ -362,6 +372,10 @@ namespace coot {
                                  int model_number,
                                  const protein_geometry *geom_p,
                                  bool strictly_cis_flag = false);
+
+
+   acedrg_types_for_residue_t get_acedrg_types_for_residue(mmdb::Residue *residue_p, int imol_enc,
+                                                           const protein_geometry &geom);
 
 }
 

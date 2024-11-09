@@ -365,6 +365,7 @@ namespace coot {
       bool is_pyranose_ring_torsion(const std::string &comp_id) const;
       bool is_ring_torsion(const std::vector<std::vector<std::string> > &ring_atoms_sets) const;
       // hack for mac, ostream problems
+      bool is_peptide_torsion() const;
       std::string format() const;
       void set_atom_1_atom_id(const std::string &id) { set_atom_id_1(id); }
       void set_atom_2_atom_id(const std::string &id) { set_atom_id_2(id); }
@@ -582,6 +583,7 @@ namespace coot {
       std::string atom_id_4c;
       std::string type_symbol;
       std::string type_energy;
+      std::string acedrg_atom_type;
       aromaticity_t aromaticity;
       bool is_hydrogen_flag;
       std::pair<bool, float> partial_charge;
@@ -911,6 +913,9 @@ namespace coot {
 
       // If new_comp_id is "auto", suggest_new_comp_id() is called to
       // generate a comp_id string.
+      //
+      // If residue_p is not null, then change the atom names
+      // in the residue.
       //
       dictionary_match_info_t
       match_to_reference(const dictionary_residue_restraints_t &ref,
@@ -1373,6 +1378,8 @@ namespace coot {
                                                  // chirals added (almost certainly just
                                                  // one of them, of course).
 
+      void chem_comp_acedrg(mmdb::mmcif::PLoop mmCIFLoop, int imol_enc);
+
       void add_chem_links (mmdb::mmcif::PLoop mmCIFLoop); // references to the modifications
                                                 // to the link groups (the modifications
                                                 // themselves are in data_mod_list)
@@ -1424,6 +1431,10 @@ namespace coot {
       void mon_lib_add_atom(const std::string &comp_id,
                             int imol_enc,
                             const dict_atom &atom_info);
+
+      void mon_lib_add_acedrg_atom_type(const std::string &comp_id, int imol_enc,
+                                        const std::string &atom_id,
+                                        const std::string &atom_type);
 
       // called because they were all at origin, for example.
       void delete_atom_positions(const std::string &comp_id, int imol_enc, int pos_type);
@@ -1770,6 +1781,8 @@ namespace coot {
                                                                      // 20161004 we also need to match
                                                                      // imols before deletion occurs
 
+      void print_dictionary_store() const;
+
       // return a pair, the first is status (1 if the name was found, 0 if not)
       // 
       std::pair<bool, std::string> get_monomer_name(const std::string &comp_id, int imol_enc) const;
@@ -1794,6 +1807,8 @@ namespace coot {
       std::pair<bool, dict_atom> get_monomer_atom_info(const std::string &monomer_name,
                                                        const std::string &atom_name,
                                                        int imol_enc) const;
+
+      std::vector<std::pair<int, std::string> > get_monomer_names() const;
 
       bool copy_monomer_restraints(const std::string &monomer_type, int imol_enc_current, int imol_enc_new);
 
@@ -2244,6 +2259,8 @@ namespace coot {
       void all_plane_restraints_to_improper_dihedrals();
       void delete_plane_restraints();
 
+      std::vector<std::pair<std::string, std::string> > get_acedrg_atom_types(const std::string &comp_id,
+                                                                              int imol_enc) const;
 
 #ifdef HAVE_CCP4SRS
       match_results_t residue_from_best_match(mmdb::math::Graph &graph1, mmdb::math::Graph &graph2,

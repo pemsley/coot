@@ -61,7 +61,7 @@ coot::operator<<(std::ostream &s, h_bond hb) {
 // selHnd_2 is for everything (else).
 // 
 std::vector<coot::h_bond>
-coot::h_bonds::get(int selHnd_1, int selHnd_2, mmdb::Manager *mol, const coot::protein_geometry &geom) {
+coot::h_bonds::get(int selHnd_1, int selHnd_2, mmdb::Manager *mol, const coot::protein_geometry &geom, int imol) {
 
    bool debug = 0;
    
@@ -70,7 +70,7 @@ coot::h_bonds::get(int selHnd_1, int selHnd_2, mmdb::Manager *mol, const coot::p
    
    std::vector<coot::h_bond> v;
 
-   int hb_type_udd_handle = mark_donors_and_acceptors(selHnd_1, selHnd_2, mol, geom); // using UDD data
+   int hb_type_udd_handle = mark_donors_and_acceptors(selHnd_1, selHnd_2, mol, geom, imol); // using UDD data
 
    // What is the nearest neighbour of the atoms in mol?
    // 
@@ -334,11 +334,11 @@ coot::h_bonds::get(int selHnd_1, int selHnd_2, mmdb::Manager *mol, const coot::p
 // 
 std::vector<coot::h_bond>
 coot::h_bonds::get_mcdonald_and_thornton(int selHnd_1, int selHnd_2, mmdb::Manager *mol,
-                                         const protein_geometry &geom,
+                                         const protein_geometry &geom, int imol,
                                          mmdb::realtype max_dist) {
    std::vector<coot::h_bond> v;
    // (and mark HB hydrogens too)
-   int hb_type_udd_handle = mark_donors_and_acceptors(selHnd_1, selHnd_2, mol, geom); // using UDD data
+   int hb_type_udd_handle = mark_donors_and_acceptors(selHnd_1, selHnd_2, mol, geom, imol); // using UDD data
 
    // These distance are from the acceptor to the H - not the donor
    mmdb::realtype min_dist = 0.1; // H-bonds are longer than this
@@ -698,7 +698,7 @@ coot::h_bonds::make_h_bond_from_environment_residue_hydrogen(mmdb::Atom *at_1, /
 // return the UDD handle
 int
 coot::h_bonds::mark_donors_and_acceptors(int selHnd_1, int selHnd_2, mmdb::Manager *mol,
-                                         const coot::protein_geometry &geom) {
+                                         const coot::protein_geometry &geom, int imol) {
 
    bool debug = false;
    mmdb::PPAtom sel_1_atoms = 0;
@@ -712,7 +712,7 @@ coot::h_bonds::mark_donors_and_acceptors(int selHnd_1, int selHnd_2, mmdb::Manag
    for (int i=0; i<n_sel_1_atoms; i++) { 
       std::string name = sel_1_atoms[i]->name;
       std::string res_name = sel_1_atoms[i]->GetResName();
-      int h_bond_type = geom.get_h_bond_type(name, res_name, protein_geometry::IMOL_ENC_ANY);
+      int h_bond_type = geom.get_h_bond_type(name, res_name, imol);
       sel_1_atoms[i]->PutUDData(udd_h_bond_type_handle, h_bond_type);
       if (debug)
          std::cout << "   h_bonds:: " 
@@ -726,7 +726,7 @@ coot::h_bonds::mark_donors_and_acceptors(int selHnd_1, int selHnd_2, mmdb::Manag
       for (int i=0; i<n_sel_2_atoms; i++) { 
          std::string name = sel_2_atoms[i]->name;
          std::string res_name = sel_2_atoms[i]->GetResName();
-         int h_bond_type = geom.get_h_bond_type(name, res_name, protein_geometry::IMOL_ENC_ANY);
+         int h_bond_type = geom.get_h_bond_type(name, res_name, imol);
          sel_2_atoms[i]->PutUDData(udd_h_bond_type_handle, h_bond_type);
       if (debug)
          std::cout << "h_bonds:: "
@@ -876,14 +876,14 @@ coot::h_bonds::make_neighbour_map(int selHnd_1, int selHnd_2, mmdb::Manager *mol
 // return the hb_type_udd_handle as second.
 // 
 std::pair<bool, int>
-coot::h_bonds::check_hb_status(int selhnd, mmdb::Manager *mol, const protein_geometry &geom) {
+coot::h_bonds::check_hb_status(int selhnd, mmdb::Manager *mol, const protein_geometry &geom, int imol) {
 
    bool status = false;
    mmdb::PPAtom residue_atoms = 0;
    int n_residue_atoms;
 
    int hb_type = HB_UNASSIGNED;
-   int hb_type_udd_handle = mark_donors_and_acceptors(selhnd, -1, mol, geom); // using UDD data
+   int hb_type_udd_handle = mark_donors_and_acceptors(selhnd, -1, mol, geom, imol); // using UDD data
 
    mol->GetSelIndex(selhnd, residue_atoms, n_residue_atoms);
    for (int iat=0; iat<n_residue_atoms; iat++) { 

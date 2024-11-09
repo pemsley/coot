@@ -211,6 +211,10 @@ coot::match_restraints_to_dictionaries(PyObject *restraints_py,
       }
    }
 
+   if (false)
+      std::cout << "debug:: -------- match_restraints_to_dictionaries() calls "
+                << "match_restraints_to_reference_dictionaries()" << std::endl;
+
    mmdb::Residue *dummy_residue_p = NULL;
    matching_dict_t md = match_restraints_to_reference_dictionaries(restraints, dummy_residue_p,
 								   comp_ids, dictionary_file_names);
@@ -233,7 +237,7 @@ coot::match_restraints_to_dictionaries(PyObject *restraints_py,
 coot::matching_dict_t
 coot::match_restraints_to_amino_acids(const coot::dictionary_residue_restraints_t &restraints,
 				      mmdb::Residue *residue_p) {
-   
+
    matching_dict_t dict;
 
    unsigned int n_comp_ids = 21;
@@ -266,9 +270,11 @@ coot::match_restraints_to_reference_dictionaries(const coot::dictionary_residue_
    matching_dict_t dict;
    protein_geometry pg;
 
-#ifdef HAVE_CCP4SRS
-   // test_ccp4srs_usage(restraints);
-#endif
+   if (false) {
+      std::cout << "debug:: match_restraints_to_reference_dictionaries() -- start -- " << std::endl;
+      std::cout << "debug:: match_restraints_to_reference_dictionaries() with "
+                <<  restraints.bond_restraint.size() << " bond restraints" << std::endl;
+   }
 
    pg.set_verbose(false);
    int read_number = 0;
@@ -283,6 +289,10 @@ coot::match_restraints_to_reference_dictionaries(const coot::dictionary_residue_
    std::string out_comp_id = restraints.residue_info.comp_id;
    dictionary_match_info_t best_match;
    int best_idx = -1;
+
+   if (false)
+      std::cout << "debug:: match_restraints_to_reference_dictionaries() pg has size "
+                << pg.size() << std::endl;
 
    for (unsigned int idx=0; idx<pg.size(); idx++) { 
       const dictionary_residue_restraints_t &rest = pg.get_monomer_restraints(idx);

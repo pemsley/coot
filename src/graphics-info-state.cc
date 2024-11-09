@@ -78,9 +78,13 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
       // python
       comment_str  = "# These commands are the saved state of coot.  You can evaluate them\n";
       comment_str += "# using \"Calculate->Run Script...\".\n\n";
-      comment_str += "import coot\n";           // these are not really comments, but we
-      comment_str += "import coot_gui\n";       // don't want to munge them.
-      comment_str += "import coot_utils\n"; // a better organization would be "import coot.utils"
+      // comment_str += "import coot\n";           // these are not really comments, but we
+      // comment_str += "import coot_gui\n";       // don't want to munge them.
+      // comment_str += "import coot_utils\n"; // a better organization would be "import coot.utils"
+
+      // 20241016-PE currently coot can't do coot_gui - so let's remove that import.
+      // There are no coot_gui functions in the state script AFAICS at the moment.
+      comment_str += "import coot\n";
    }
    commands.push_back(comment_str);
 
@@ -236,6 +240,11 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
    //
    if (rotamer_search_mode == ROTAMERSEARCHLOWRES)
       commands.push_back(state_command("coot", "set-rotamer-search-mode", ROTAMERSEARCHLOWRES, il));
+
+   // Lighting
+   if (displayed_image_type == graphics_info_t::SHOW_AO_SCENE) // else SHOW_BASIC_SCENE
+      commands.push_back(state_command("coot", "set-use-fancy-lighting", 1, il));
+
 
    std::vector <std::string> command_strings;
 
@@ -757,7 +766,7 @@ graphics_info_t::save_state_data_and_models(short int lang_flag) const {
    // add a hash at the start for python comments
    if (lang_flag == 2) {
       for (unsigned int i=0; i<v.size(); i++) {
-	      v[i] = "#" + v[i];
+         v[i] = "#" + v[i]; // this should be "# " to make a bone fide python comment
       }
    }
    return v;
@@ -830,8 +839,8 @@ graphics_info_t::save_state() {
 std::string
 graphics_info_t::state_command(const std::string &name_space,
                                const std::string &str,
-			       int i1,
-			       short int state_lang) const {
+                               int i1,
+                               short int state_lang) const {
 
    std::vector<coot::command_arg_t> command_args;
    command_args.push_back(coot::command_arg_t(i1));
@@ -841,9 +850,9 @@ graphics_info_t::state_command(const std::string &name_space,
 std::string
 graphics_info_t::state_command(const std::string &name_space,
                                const std::string &str,
-			       int i1,
-			       int i2,
-			       short int state_lang) const {
+                               int i1,
+                               int i2,
+                               short int state_lang) const {
 
    std::vector<coot::command_arg_t> command_args;
    command_args.push_back(coot::command_arg_t(i1));
@@ -852,16 +861,17 @@ graphics_info_t::state_command(const std::string &name_space,
 }
 
 std::string
-graphics_info_t::state_command(const std::string &str,
-			       float f,
-			       short int state_lang) const {
+graphics_info_t::state_command(const std::string &name_space,
+                               const std::string &str,
+                               float f,
+                               short int state_lang) const {
 
-   std::string name_space = "coot"; // this is a guess/hack!
    std::vector<coot::command_arg_t> command_args;
    command_args.push_back(coot::command_arg_t(f));
    return state_command(name_space, str, command_args, state_lang);
 }
 
+// this needs to be cleaned up one day.
 std::string
 graphics_info_t::state_command(const std::string &str,
 			       float f,
@@ -1003,7 +1013,7 @@ graphics_info_t::state_command(const std::string &module, const std::string &fun
 //
 short int
 graphics_info_t::write_state(const std::vector<std::string> &commands,
-			                    const std::string &filename) const {
+                             const std::string &filename) const {
 
    bool do_c_mode = false; // it's 2020 - Mac problems have gone away?
 
@@ -1024,7 +1034,7 @@ graphics_info_t::write_state(const std::vector<std::string> &commands,
 //
 short int
 graphics_info_t::write_state_fstream_mode(const std::vector<std::string> &commands,
-					                           const std::string &filename) const {
+                                          const std::string &filename) const {
 
    short int istat = 1;
 
@@ -1033,7 +1043,7 @@ graphics_info_t::write_state_fstream_mode(const std::vector<std::string> &comman
 
    if (f) {
       for (unsigned int i=0; i<commands.size(); i++) {
-	      f << commands[i] << "\n";
+         f << commands[i] << "\n";
          // std::cout << "write_state_fstream_mode() " << commands[i] << std::endl;
       }
       f.flush();  // fixes valgrind problem?
@@ -1056,7 +1066,7 @@ graphics_info_t::write_state_fstream_mode(const std::vector<std::string> &comman
 
    } else {
       std::cout << "WARNING: couldn't write to state file " << filename
-		          << std::endl;
+                << std::endl;
       istat = 0;
    }
    return istat;

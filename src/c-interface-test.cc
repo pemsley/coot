@@ -103,9 +103,6 @@
 
 #include "skeleton/BuildCas.h"
 
-#include "trackball.h" // adding exportable rotate interface
-
-
 #include "c-interface.h"
 #include "c-interface-generic-objects.h"
 #include "c-interface-gtk-widgets.h"
@@ -579,13 +576,14 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
       label = "Map";
       bool is_em_map_flag = false;
       g.molecules[imol_new_map].install_new_map(xmap, label, is_em_map_flag);
+      float xmap_rmsd = g.molecules[imol_new_map].map_sigma();
       g.graphics_draw();
 
       watch_res_tracer_data_t *watch_data_p = new watch_res_tracer_data_t(working_mol, imol_new);
       std::cout << "post-constructor with mol_edit_lock: " << watch_data_p->mol_edit_lock << std::endl;
 
       // pass geom to this too.
-      std::thread t(res_tracer_proc, xmap, fam, variation, n_top_spin_pairs, n_top_fragments, rmsd_cuffoff, flood_atom_mask_radius,
+      std::thread t(res_tracer_proc, xmap, xmap_rmsd, fam, variation, n_top_spin_pairs, n_top_fragments, rmsd_cuffoff, flood_atom_mask_radius,
                     weight, n_phi_psi_trials, with_ncs, watch_data_p);
 
       auto watching_timeout_func = [] (gpointer data) {
@@ -1679,7 +1677,8 @@ PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
             std::string ass = "//A";
             std::string cs = "colorRampChainsScheme";
             std::string style = "Ribbon";
-            graphics_info_t::molecules[imol].add_molecular_representation(ass, cs, style);
+            int secondary_structure_usage_flag = CALC_SECONDARY_STRUCTURE;
+            graphics_info_t::molecules[imol].add_molecular_representation(ass, cs, style, secondary_structure_usage_flag);
             std::cout << "debug:: meshes size " << graphics_info_t::molecules[imol].meshes.size() << std::endl;
             auto &mesh = graphics_info_t::molecules[imol].meshes[0];
             bool is_binary_format = true; // no need for this here. binary type is tested internally now.
@@ -1721,7 +1720,8 @@ PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
       if (is_valid_model_molecule(imol)) {
             molecule_class_info_t &m = g.molecules[imol];
             gl_rama_plot_t rama;
-            rama.setup_from(imol, m.atom_sel.mol, "//");
+            gl_rama_plot_t::draw_mode_t draw_mode = gl_rama_plot_t::draw_mode_t::CHECK_IF_PICKED;
+            rama.setup_from(imol, m.atom_sel.mol, "//", draw_mode);
       }
    }
 

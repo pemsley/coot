@@ -38,12 +38,12 @@ public:
       std::size_t n_atoms = v.size();
       if (n_atoms > 0) {
 	 FCXXCoord sum;
-	 for (int i=0; i<n_atoms; i++)
+	 for (std::size_t i=0; i<n_atoms; i++)
 	    sum += v[i];
 	 centre_ = sum/float(v.size());
 
 	 clipper::Matrix<double> mat(3,3);
-	 for (int i=0; i<n_atoms; i++) {
+	 for (std::size_t i=0; i<n_atoms; i++) {
 	    mat(0,0) += (v[i].x() - centre_.x()) * (v[i].x() - centre_.x());
 	    mat(1,1) += (v[i].y() - centre_.y()) * (v[i].y() - centre_.y());
 	    mat(2,2) += (v[i].z() - centre_.z()) * (v[i].z() - centre_.z());

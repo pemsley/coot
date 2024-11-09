@@ -236,6 +236,7 @@ struct CootLigandEditorCanvas : coot::ligand_editor_canvas::impl::CootLigandEdit
     void set_active_tool(std::unique_ptr<coot::ligand_editor_canvas::ActiveTool> active_tool);
     /// Returns the ID of new molecule or '-1' on error
     int append_molecule(std::shared_ptr<RDKit::RWMol> rdkit_mol) noexcept;
+    void update_molecule_from_smiles(unsigned int molecule_idx, const std::string& smiles);
     void set_scale(float scale) noexcept;
     float get_scale() noexcept;
     void undo() noexcept;
@@ -260,7 +261,7 @@ struct CootLigandEditorCanvas : coot::ligand_editor_canvas::impl::CootLigandEdit
     // Implemented at 'ligand_editor_canvas.cpp'
     SizingInfo measure(MeasurementDirection orientation) const noexcept;
     // Implemented at 'ligand_editor_canvas.cpp'
-    void on_hover(double x, double y, bool alt_pressed);
+    void on_hover(double x, double y, bool alt_pressed, bool control_pressed);
     // Implemented at 'ligand_editor_canvas.cpp'
     void on_scroll(double dx, double dy, bool control_pressed);
     // Implemented at 'ligand_editor_canvas.cpp'

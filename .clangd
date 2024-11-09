@@ -1,0 +1,5 @@
+
+IncludePaths:
+  Add:
+    - "."
+    - ".."
