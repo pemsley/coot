@@ -1,10 +1,10 @@
 ----
 
-coot --dictionary should make a molecule of that instance.
-
-Is there a rotation-centre size widget in Preferences?
+coot --dictionary should make a molecule instance from the dictionary
 
 Oliver Clarke issues.
+
+api make a version of density_correlation_analysis() that takes a cid (as q-score now does)
 
 mmrrcc to Coot. side chain score show out of register error?
 
