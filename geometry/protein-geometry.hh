@@ -1808,6 +1808,8 @@ namespace coot {
                                                        const std::string &atom_name,
                                                        int imol_enc) const;
 
+      std::vector<std::pair<int, std::string> > get_monomer_names() const;
+
       bool copy_monomer_restraints(const std::string &monomer_type, int imol_enc_current, int imol_enc_new);
 
       // Return success status in first (0 is fail) and the second is

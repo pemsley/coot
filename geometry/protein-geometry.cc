@@ -1078,8 +1078,18 @@ coot::protein_geometry::get_monomer_atom_info(const std::string &monomer_name,
    return std::pair<bool, dict_atom> (status, da);
 }
 
+std::vector<std::pair<int, std::string> >
+coot::protein_geometry::get_monomer_names() const {
 
-
+   std::vector<std::pair<int, std::string> > v;
+   unsigned int nrest = dict_res_restraints.size();
+   for (unsigned int i=0; i<nrest; i++) {
+      const auto &r = dict_res_restraints[i];
+      std::pair<int, std::string> p(r.first, r.second.residue_info.comp_id);
+      v.push_back(p);
+   }
+   return v;
+}
 
 std::vector <std::string>
 coot::protein_geometry::standard_protein_monomer_files() const {
