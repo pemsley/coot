@@ -5329,7 +5329,7 @@ float residue_density_fit_scale_factor() {
 
 
 // dictionary
-int handle_cif_dictionary(const char *filename) {
+int handle_cif_dictionary(const std::string &filename) {
 
    short int new_molecule_flag = 0; // no
    return handle_cif_dictionary_for_molecule(filename, coot::protein_geometry::IMOL_ENC_ANY,
@@ -5344,7 +5344,7 @@ int handle_cif_dictionary(const char *filename) {
 // This function now handles the optional generation of a new molecule
 // based on the value of new_molecule_from_dictionary_cif_checkbutton_state
 //
-int handle_cif_dictionary_for_molecule(const char *filename, int imol_enc,
+int handle_cif_dictionary_for_molecule(const std::string &filename, int imol_enc,
 				       short int new_molecule_from_dictionary_cif_checkbutton_state) {
 
    graphics_info_t g;
@@ -5394,7 +5394,7 @@ int handle_cif_dictionary_for_molecule(const char *filename, int imol_enc,
    return rmit.monomer_idx;
 }
 
-int read_cif_dictionary(const char *filename) {
+int read_cif_dictionary(const std::string &filename) {
 
    return handle_cif_dictionary(filename);
 

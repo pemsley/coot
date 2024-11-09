@@ -607,10 +607,33 @@ std::pair<int, std::vector<merge_molecule_results_info_t> > merge_molecules_by_v
 /*  ----------------------------------------------------------------------- */
 //! \name Dictionary Functions
 //! \{
+
+/*                  cif (geometry) dictionary                            */
+/* \brief return the number of bonds read (> 0 can be treated as success) */
+int handle_cif_dictionary(const std::string &filename);
+/* \brief synonym for above.
+
+return the number of bonds read (> 0 can be treated as success) */
+int read_cif_dictionary(const std::string &filename);
+
+/* \brief return the number of bonds read (> 0 can be treated as success).
+ Apply to the given molecule.
+
+ imol_enc can be the model molecule number or
+ IMOL_ENC_ANY = -999999, IMOL_ENC_AUTO = -999998, IMOL_ENC_UNSET = -999997
+
+ */
+int handle_cif_dictionary_for_molecule(const std::string &filename, int imol_enc, short int new_molecule_from_dictionary_cif_checkbutton_state);
+
+//! dictionary entries
 std::vector<std::string> dictionary_entries();
+
+//! debug dictionary information
 void debug_dictionary();
-// this can throw an exception
+
+//! this can throw an exception
 std::string SMILES_for_comp_id(const std::string &comp_id);
+
 /*! \brief return a list of all the dictionaries read */
 #ifdef USE_GUILE
 SCM dictionaries_read();
