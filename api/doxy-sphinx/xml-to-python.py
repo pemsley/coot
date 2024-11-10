@@ -33,7 +33,11 @@ def convert_type(tt: str) -> str:
     if tt == 'const std::vector< std::pair< std::string, unsigned int > > &': tt = "list"
     if tt == 'const std::vector< std::pair< std::string, unsigned int > > &': tt = "list"
     if tt == 'const std::vector< std::pair< bool, mmdb::Residue * > > &, links: const std::vector< mmdb::Link > &': tt = "list"
-    if tt == 'std::vector<': tt == list
+    if tt == 'std::vector<': tt = list
+    if tt == 'const coot::residue_spec_t &': tt = 'str'
+    if tt == 'const coot::colour_t &': tt = 'list'   #use the proper type later
+    if tt == 'const coot::atom_spec_t &': tt = 'str'
+    if tt == 'coot::residue_spec_t &': tt = 'list'
     return tt
 
 def make_paren_string(function: dict) -> str:
@@ -211,6 +215,34 @@ for x in myroot.iter('sectiondef'):
                                     print('      chunk', jj, ":", chunk, "len:", len(chunk))
                                     if chunk.tag == "parameterlist":
                                         print("        handle parameterlist here")
+
+                                        for pk,pchunk in enumerate(chunk):
+                                               print("pk:", pk, 'pchunk', pchunk)
+                                               for ck,cchunk in enumerate(pchunk):
+                                                   print("ck:", ck, 'cchunk', cchunk)
+
+                                                   if cchunk.tag == "parameternamelist":
+                                                      parts += "\n"
+                                                      for kk,kchunk in enumerate(cchunk):
+                                                           if kchunk.tag == "parametername":
+                                                              print("kchunk", kk, "text:", kchunk.text)
+                                                              parts += "\n       " + ":param " + kchunk.text + ": "
+
+                                                   if cchunk.tag == "parameterdescription":
+                                                       print('len(cchunk)', len(cchunk))
+                                                       for kk,kchunk in enumerate(cchunk):
+                                                           if kchunk.tag == "para":
+                                                              print("kchunk", kk, "text:", kchunk.text)
+                                                              parts += " " + kchunk.text
+                                                              for kk,pchunk in enumerate(kchunk):
+                                                                  if pchunk.tag == "computeroutput":
+                                                                     if pchunk.text:
+                                                                        print("        computeroutput:", pchunk.text)
+                                                                        parts += "`"
+                                                                        parts += pchunk.text
+                                                                        parts += "`"
+                                                                        parts += pchunk.tail
+
                                     if chunk.tag == "computeroutput":
                                         print("        computeroutput:", chunk.text)
                                         if chunk.text:
@@ -226,7 +258,18 @@ for x in myroot.iter('sectiondef'):
                                             # print("kk:", kk, kchunk)
                                             if kchunk.tag == "para":
                                                 print("kchunk", kk, "text:", kchunk.text)
-                                                parts += kchunk.text
+                                                #parts += "Return" + " " + kchunk.text
+                                                parts += "\n\n       " + ":return: " + kchunk.text
+                                                for kk,pchunk in enumerate(kchunk):
+                                                    if pchunk.tag == "computeroutput":
+                                                       if pchunk.text:
+                                                          print("        computeroutput:", pchunk.text)
+                                                          parts += "`"
+                                                          parts += pchunk.text
+                                                          parts += "`"
+                                                          parts += pchunk.tail
+
+
                     if parts:
                         a_function["detaileddescription"] = parts
                 if a_function:
