@@ -12,7 +12,7 @@
 # and modify it by tracking changes made to the nanobinds file.
 
 import xml.etree.ElementTree as ET
-mytree = ET.parse('doxygen_output/xml/classmolecules__container__t.xml')
+mytree = ET.parse('doxygen_results/xml/classmolecules__container__t.xml')
 myroot = mytree.getroot()
 
 def convert_type(tt: str) -> str:
@@ -38,6 +38,9 @@ def convert_type(tt: str) -> str:
     if tt == 'const coot::colour_t &': tt = 'list'   #use the proper type later
     if tt == 'const coot::atom_spec_t &': tt = 'str'
     if tt == 'coot::residue_spec_t &': tt = 'list'
+    if tt == 'std::vector< coot::api::moved_atom_t > &': tt = 'list'
+    if tt == 'const std::vector< coot::api::moved_residue_t > &': tt = 'list'
+
     return tt
 
 def make_paren_string(function: dict) -> str:
