@@ -1544,13 +1544,13 @@ coot::protein_geometry::copy_monomer_restraints(const std::string &monomer_type,
 // In future, try to come here only with the monomer_type adjusted to
 // the comp_id, for example, monomer_type should be "NAG-b-D", not
 // "NAG".
-// 
+//
 std::pair<bool, coot::dictionary_residue_restraints_t>
 coot::protein_geometry::get_monomer_restraints(const std::string &monomer_type,
 					       int imol_enc) const {
 
    return get_monomer_restraints_internal(monomer_type, imol_enc, 0);
-   
+
 }
 
 std::pair<bool, coot::dictionary_residue_restraints_t>
@@ -1580,7 +1580,7 @@ coot::protein_geometry::get_monomer_restraints_internal(const std::string &monom
    // This is how it used to be - starting from the beginning.
    // 20161004
    // Now we want to start from the end.
-   // 
+   //
 //    for (unsigned int i=0; i<nrest; i++) {
 //       if (dict_res_restraints[i].second.residue_info.comp_id == monomer_type) {
 // 	 if (matches_imol(dict_res_restraints[i].first, imol_enc)) {
@@ -1625,10 +1625,10 @@ coot::protein_geometry::get_monomer_restraints_internal(const std::string &monom
 	 }
       }
    }
-   
+
    if (!r.first) {
       // OK, that failed, perhaps there is a synonym?
-      for (unsigned int i=0; i<residue_name_synonyms.size(); i++) { 
+      for (unsigned int i=0; i<residue_name_synonyms.size(); i++) {
 	 if (residue_name_synonyms[i].comp_alternative_id == monomer_type) {
 	    int ndict = dict_res_restraints.size();
 	    for (int j=0; j<ndict; j++) {
@@ -1648,7 +1648,7 @@ coot::protein_geometry::get_monomer_restraints_internal(const std::string &monom
       for (unsigned int i=0; i<nrest; i++) {
 	 if (dict_res_restraints[i].second.residue_info.three_letter_code == monomer_type) {
 	    if (matches_imol(dict_res_restraints[i].first, imol_enc)) {
-	       if (allow_minimal_flag || (! dict_res_restraints[i].second.is_bond_order_data_only())) { 
+	       if (allow_minimal_flag || (! dict_res_restraints[i].second.is_bond_order_data_only())) {
 		  r.second = dict_res_restraints[i].second;
 		  r.first = true;
 		  break;
