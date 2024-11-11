@@ -4,6 +4,8 @@ coot --dictionary should make a molecule of that instance.
 
 Oliver Clarke issues.
 
+For tubes repo, we need loops - reuse the stuart loops
+
 mmrrcc to Coot. side chain score show out of register error?
 
 Get the "shape" of RNA bases in cryo-EM maps - for validation of RNA sequence.
