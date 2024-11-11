@@ -1812,7 +1812,8 @@ int auto_load_dictionary(const char *comp_id) {
    int r = 0;
    if (comp_id) {
       std::string s = comp_id;
-      if (g.Geom_p()->have_dictionary_for_residue_type_no_dynamic_add(s)) {
+      int imol_enc = coot::protein_geometry::IMOL_ENC_ANY;
+      if (g.Geom_p()->have_dictionary_for_residue_type_no_dynamic_add(s, imol_enc)) {
 	 r = 2;
       } else {
 	 int status = g.Geom_p()->try_dynamic_add(s, g.cif_dictionary_read_number);
@@ -3480,7 +3481,7 @@ double get_ligand_percentile(std::string metric_name, double metric_value, short
 
 
 void
-coot_contact_dots_for_ligand_instancing_version(int imol, coot::residue_spec_t &res_spec) {
+coot_contact_dots_for_ligand_instancing_version(int imol, const coot::residue_spec_t &res_spec) {
 
 
 #if 0 // 20210911-PE - goodbye ball clashes.
@@ -3540,7 +3541,7 @@ coot_contact_dots_for_ligand_instancing_version(int imol, coot::residue_spec_t &
                                                return colour_map.find(c)->second;
                                             };
       std::vector<mmdb::Residue *> neighbs = coot::residues_near_residue(residue_p, mol, 5);
-      coot::atom_overlaps_container_t overlaps(residue_p, neighbs, mol, g.Geom_p(), 0.5, 0.25);
+      coot::atom_overlaps_container_t overlaps(residue_p, neighbs, mol, imol, g.Geom_p(), 0.5, 0.25);
       float cdd = graphics_info_t::contact_dots_density;
 
       coot::atom_overlaps_dots_container_t c = overlaps.contact_dots_for_ligand(cdd);
@@ -3592,7 +3593,7 @@ coot_contact_dots_for_ligand_instancing_version(int imol, coot::residue_spec_t &
 }
 
 void
-coot_contact_dots_for_ligand_internal(int imol, coot::residue_spec_t &res_spec) {
+coot_contact_dots_for_ligand_internal(int imol, const coot::residue_spec_t &res_spec) {
 
    graphics_info_t g;
    mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
@@ -3601,7 +3602,7 @@ coot_contact_dots_for_ligand_internal(int imol, coot::residue_spec_t &res_spec) 
       std::cout << "Can't find residue" << res_spec << std::endl;
    } else {
       std::vector<mmdb::Residue *> neighbs = coot::residues_near_residue(residue_p, mol, 5);
-      coot::atom_overlaps_container_t overlaps(residue_p, neighbs, mol, g.Geom_p(), 0.5, 0.25);
+      coot::atom_overlaps_container_t overlaps(residue_p, neighbs, mol, imol, g.Geom_p(), 0.5, 0.25);
       coot::atom_overlaps_dots_container_t c = overlaps.contact_dots_for_ligand();
       std::cout << "------------- coot_contact_dots_for_ligand_internal(): score " << c.score() << std::endl;
 

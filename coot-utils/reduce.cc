@@ -1326,7 +1326,8 @@ coot::reduce::find_best_his_protonation_orientation(mmdb::Residue *residue_p) {
          double bl = 0.86;
          std::vector<mmdb::Atom *> v = add_his_ring_H(" HE2", " CE1", "NE2", " CD2", bl, residue_p);
          std::vector<mmdb::Residue *> neighbs = coot::residues_near_residue(residue_p, mol, 5);
-         atom_overlaps_container_t ao_1(residue_p, neighbs, mol, geom_p, 0.5);
+         int imol_enc = protein_geometry::IMOL_ENC_ANY; // hack
+         atom_overlaps_container_t ao_1(residue_p, neighbs, mol, imol_enc, geom_p, 0.5);
          atom_overlaps_dots_container_t aod_1 = ao_1.contact_dots_for_ligand(0.7);
          double s1 = aod_1.score();
          // this only does the first alt conf. It can get messy with alt confs.
@@ -1338,7 +1339,7 @@ coot::reduce::find_best_his_protonation_orientation(mmdb::Residue *residue_p) {
          }
 
          v = add_his_ring_H(" HD1", " CG ", "ND1", " CE1", bl, residue_p);
-         atom_overlaps_container_t ao_2(residue_p, neighbs, mol, geom_p, 0.5);
+         atom_overlaps_container_t ao_2(residue_p, neighbs, mol, imol_enc, geom_p, 0.5);
          atom_overlaps_dots_container_t aod_2 = ao_2.contact_dots_for_ligand(0.7);
          double s2 = aod_2.score();
          if (false)

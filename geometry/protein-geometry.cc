@@ -106,7 +106,7 @@ coot::protein_geometry::assign_chiral_volume_targets() {
 
    for (unsigned int idict=0; idict<dict_res_restraints.size(); idict++) {
       if (dict_res_restraints[idict].second.has_unassigned_chiral_volumes()) {
-	 if (0) 
+	 if (false)
 	    std::cout << "DEBUG:: assign_chiral_volume_targets for dict_res_restraints entry: "
 		      << idict << " "
 		      << dict_res_restraints[idict].second.residue_info.comp_id
@@ -1146,7 +1146,7 @@ coot::protein_geometry::standard_protein_monomer_files() const {
    s.push_back("d/DC.cif");
    s.push_back("d/DG.cif");
    s.push_back("d/DT.cif");
-   
+
    s.push_back("h/HOH.cif");
    s.push_back("n/NA.cif"); // for quiet
 
@@ -1177,7 +1177,7 @@ coot::protein_geometry::have_dictionary_for_residue_type(const std::string &mono
 
    if (! ifound) {
       // OK, that failed to, perhaps there is a synonym?
-      for (unsigned int i=0; i<residue_name_synonyms.size(); i++) { 
+      for (unsigned int i=0; i<residue_name_synonyms.size(); i++) {
 	 if (residue_name_synonyms[i].comp_alternative_id == monomer_type) {
 	    for (int j=0; j<ndict; j++) {
 	       if (dict_res_restraints[j].second.residue_info.comp_id == residue_name_synonyms[i].comp_id) {
@@ -1213,6 +1213,9 @@ coot::protein_geometry::have_dictionary_for_residue_type(const std::string &mono
          // << ifound << std::endl;
       }
    }
+
+   std::cout << ".......................have_dictionary_for_residue_type() " << monomer_type << " " << imol_enc
+             << " returns " << ifound << std::endl;
 
    return ifound;
 }
@@ -1619,7 +1622,12 @@ coot::protein_geometry::get_monomer_restraints_internal(const std::string &monom
 	    if (matches_imol(dict_res_restraints[i].first, imol_enc)) {
 	       r.second = dict_res_restraints[i].second;
 	       r.first = true;
-	       // std::cout << "found " << std::endl;
+	       break;
+	    }
+            // try "any" then...
+	    if (matches_imol(dict_res_restraints[i].first, IMOL_ENC_ANY)) {
+	       r.second = dict_res_restraints[i].second;
+	       r.first = true;
 	       break;
 	    }
 	 }

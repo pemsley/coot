@@ -5743,7 +5743,7 @@ int add_linked_residue(int imol, const char *chain_id, int resno, const char *in
    int status = 0;
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
-      if (g.Geom_p()->have_dictionary_for_residue_type_no_dynamic_add(new_residue_comp_id)) {
+      if (g.Geom_p()->have_dictionary_for_residue_type_no_dynamic_add(new_residue_comp_id, imol)) {
       } else {
 	 g.Geom_p()->try_dynamic_add(new_residue_comp_id, g.cif_dictionary_read_number);
       }
@@ -5759,8 +5759,7 @@ int add_linked_residue(int imol, const char *chain_id, int resno, const char *in
 
       if (! new_res_spec.unset_p()) {
 	 if (is_valid_map_molecule(imol_refinement_map())) {
-	    const clipper::Xmap<float> &xmap =
-	       g.molecules[imol_refinement_map()].xmap;
+	    const clipper::Xmap<float> &xmap = g.molecules[imol_refinement_map()].xmap;
 	    std::vector<coot::residue_spec_t> residue_specs;
 	    residue_specs.push_back(res_spec);
 	    residue_specs.push_back(new_res_spec);
@@ -5791,7 +5790,7 @@ SCM add_linked_residue_scm(int imol, const char *chain_id, int resno, const char
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
 
-      if (g.Geom_p()->have_dictionary_for_residue_type_no_dynamic_add(new_residue_comp_id)) {
+      if (g.Geom_p()->have_dictionary_for_residue_type_no_dynamic_add(new_residue_comp_id, imol)) {
       } else {
 	 std::cout << "INFO:: dictionary does not already have " << new_residue_comp_id
 		   << " dynamic add it now" << std::endl;
@@ -5859,7 +5858,7 @@ PyObject *add_linked_residue_py(int imol, const char *chain_id, int resno, const
 
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
-      if (g.Geom_p()->have_dictionary_for_residue_type_no_dynamic_add(new_residue_comp_id)) {
+      if (g.Geom_p()->have_dictionary_for_residue_type_no_dynamic_add(new_residue_comp_id, imol)) {
       } else {
 	 std::cout << "INFO:: dictionary does not already have " << new_residue_comp_id
 		   << " dynamic add it now" << std::endl;
