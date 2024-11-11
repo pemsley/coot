@@ -1220,14 +1220,14 @@ coot::protein_geometry::have_dictionary_for_residue_type(const std::string &mono
 // this is const because there is no dynamic add
 // This is a test for "shall we add a new dictionary?"
 bool
-coot::protein_geometry::have_dictionary_for_residue_type_no_dynamic_add(const std::string &monomer_type) const {
+coot::protein_geometry::have_dictionary_for_residue_type_no_dynamic_add(const std::string &monomer_type, int imol_no) const {
 
-   bool ifound = 0;
+   bool ifound = false;
 
    int ndict = dict_res_restraints.size();
    for (int i=0; i<ndict; i++) {
       if (dict_res_restraints[i].second.residue_info.comp_id == monomer_type) {
-	 if (matches_imol(dict_res_restraints[i].first, IMOL_ENC_ANY)) {
+	 if (matches_imol(dict_res_restraints[i].first, imol_no)) {
 	    if (! dict_res_restraints[i].second.is_bond_order_data_only()) {
 	       ifound = 1;
 	       break;
@@ -2249,7 +2249,7 @@ coot::protein_geometry::get_group(const std::string &res_name_in) const {
       }
    }
 
-   for (unsigned int i=0; i<dict_res_restraints.size(); i++) { 
+   for (unsigned int i=0; i<dict_res_restraints.size(); i++) {
       if (dict_res_restraints[i].second.residue_info.comp_id == res_name) {
 	 found = true;
 	 group = dict_res_restraints[i].second.residue_info.group;
@@ -2276,6 +2276,7 @@ coot::protein_geometry::residue_names_with_no_dictionary(mmdb::Manager *mol, int
       int imod = 1;
       mmdb::Model *model_p = mol->GetModel(imod);
       if (model_p) {
+         std::set<std::string> already_tested_names;
 	 int nchains = model_p->GetNumberOfChains();
 	 for (int ichain=0; ichain<nchains; ichain++) {
 	    mmdb::Chain *chain_p = model_p->GetChain(ichain);
@@ -2284,9 +2285,12 @@ coot::protein_geometry::residue_names_with_no_dictionary(mmdb::Manager *mol, int
 	       mmdb::Residue *residue_p = chain_p->GetResidue(ires);
 	       if (residue_p) {
 		  std::string residue_name = residue_p->GetResName();
-		  if (! have_dictionary_for_residue_type_no_dynamic_add(residue_name))
-                     if (std::find(v.begin(), v.end(), residue_name) == v.end())
-                        v.push_back(residue_name);
+                  if (already_tested_names.find(residue_name) == already_tested_names.end()) {
+                     if (! have_dictionary_for_residue_type_no_dynamic_add(residue_name, imol_no))
+                        if (std::find(v.begin(), v.end(), residue_name) == v.end())
+                           v.push_back(residue_name);
+                     already_tested_names.insert(residue_name);
+                  }
 	       }
 	    }
 	 }
