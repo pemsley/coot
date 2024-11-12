@@ -106,7 +106,7 @@ coot::protein_geometry::assign_chiral_volume_targets() {
 
    for (unsigned int idict=0; idict<dict_res_restraints.size(); idict++) {
       if (dict_res_restraints[idict].second.has_unassigned_chiral_volumes()) {
-	 if (0) 
+	 if (false)
 	    std::cout << "DEBUG:: assign_chiral_volume_targets for dict_res_restraints entry: "
 		      << idict << " "
 		      << dict_res_restraints[idict].second.residue_info.comp_id
@@ -1078,8 +1078,18 @@ coot::protein_geometry::get_monomer_atom_info(const std::string &monomer_name,
    return std::pair<bool, dict_atom> (status, da);
 }
 
+std::vector<std::pair<int, std::string> >
+coot::protein_geometry::get_monomer_names() const {
 
-
+   std::vector<std::pair<int, std::string> > v;
+   unsigned int nrest = dict_res_restraints.size();
+   for (unsigned int i=0; i<nrest; i++) {
+      const auto &r = dict_res_restraints[i];
+      std::pair<int, std::string> p(r.first, r.second.residue_info.comp_id);
+      v.push_back(p);
+   }
+   return v;
+}
 
 std::vector <std::string>
 coot::protein_geometry::standard_protein_monomer_files() const {
@@ -1136,7 +1146,7 @@ coot::protein_geometry::standard_protein_monomer_files() const {
    s.push_back("d/DC.cif");
    s.push_back("d/DG.cif");
    s.push_back("d/DT.cif");
-   
+
    s.push_back("h/HOH.cif");
    s.push_back("n/NA.cif"); // for quiet
 
@@ -1167,7 +1177,7 @@ coot::protein_geometry::have_dictionary_for_residue_type(const std::string &mono
 
    if (! ifound) {
       // OK, that failed to, perhaps there is a synonym?
-      for (unsigned int i=0; i<residue_name_synonyms.size(); i++) { 
+      for (unsigned int i=0; i<residue_name_synonyms.size(); i++) {
 	 if (residue_name_synonyms[i].comp_alternative_id == monomer_type) {
 	    for (int j=0; j<ndict; j++) {
 	       if (dict_res_restraints[j].second.residue_info.comp_id == residue_name_synonyms[i].comp_id) {
@@ -1204,20 +1214,23 @@ coot::protein_geometry::have_dictionary_for_residue_type(const std::string &mono
       }
    }
 
+   std::cout << ".......................have_dictionary_for_residue_type() " << monomer_type << " " << imol_enc
+             << " returns " << ifound << std::endl;
+
    return ifound;
 }
 
 // this is const because there is no dynamic add
 // This is a test for "shall we add a new dictionary?"
 bool
-coot::protein_geometry::have_dictionary_for_residue_type_no_dynamic_add(const std::string &monomer_type) const {
+coot::protein_geometry::have_dictionary_for_residue_type_no_dynamic_add(const std::string &monomer_type, int imol_no) const {
 
-   bool ifound = 0;
+   bool ifound = false;
 
    int ndict = dict_res_restraints.size();
    for (int i=0; i<ndict; i++) {
       if (dict_res_restraints[i].second.residue_info.comp_id == monomer_type) {
-	 if (matches_imol(dict_res_restraints[i].first, IMOL_ENC_ANY)) {
+	 if (matches_imol(dict_res_restraints[i].first, imol_no)) {
 	    if (! dict_res_restraints[i].second.is_bond_order_data_only()) {
 	       ifound = 1;
 	       break;
@@ -1534,13 +1547,13 @@ coot::protein_geometry::copy_monomer_restraints(const std::string &monomer_type,
 // In future, try to come here only with the monomer_type adjusted to
 // the comp_id, for example, monomer_type should be "NAG-b-D", not
 // "NAG".
-// 
+//
 std::pair<bool, coot::dictionary_residue_restraints_t>
 coot::protein_geometry::get_monomer_restraints(const std::string &monomer_type,
 					       int imol_enc) const {
 
    return get_monomer_restraints_internal(monomer_type, imol_enc, 0);
-   
+
 }
 
 std::pair<bool, coot::dictionary_residue_restraints_t>
@@ -1570,7 +1583,7 @@ coot::protein_geometry::get_monomer_restraints_internal(const std::string &monom
    // This is how it used to be - starting from the beginning.
    // 20161004
    // Now we want to start from the end.
-   // 
+   //
 //    for (unsigned int i=0; i<nrest; i++) {
 //       if (dict_res_restraints[i].second.residue_info.comp_id == monomer_type) {
 // 	 if (matches_imol(dict_res_restraints[i].first, imol_enc)) {
@@ -1609,16 +1622,21 @@ coot::protein_geometry::get_monomer_restraints_internal(const std::string &monom
 	    if (matches_imol(dict_res_restraints[i].first, imol_enc)) {
 	       r.second = dict_res_restraints[i].second;
 	       r.first = true;
-	       // std::cout << "found " << std::endl;
+	       break;
+	    }
+            // try "any" then...
+	    if (matches_imol(dict_res_restraints[i].first, IMOL_ENC_ANY)) {
+	       r.second = dict_res_restraints[i].second;
+	       r.first = true;
 	       break;
 	    }
 	 }
       }
    }
-   
+
    if (!r.first) {
       // OK, that failed, perhaps there is a synonym?
-      for (unsigned int i=0; i<residue_name_synonyms.size(); i++) { 
+      for (unsigned int i=0; i<residue_name_synonyms.size(); i++) {
 	 if (residue_name_synonyms[i].comp_alternative_id == monomer_type) {
 	    int ndict = dict_res_restraints.size();
 	    for (int j=0; j<ndict; j++) {
@@ -1638,7 +1656,7 @@ coot::protein_geometry::get_monomer_restraints_internal(const std::string &monom
       for (unsigned int i=0; i<nrest; i++) {
 	 if (dict_res_restraints[i].second.residue_info.three_letter_code == monomer_type) {
 	    if (matches_imol(dict_res_restraints[i].first, imol_enc)) {
-	       if (allow_minimal_flag || (! dict_res_restraints[i].second.is_bond_order_data_only())) { 
+	       if (allow_minimal_flag || (! dict_res_restraints[i].second.is_bond_order_data_only())) {
 		  r.second = dict_res_restraints[i].second;
 		  r.first = true;
 		  break;
@@ -2239,7 +2257,7 @@ coot::protein_geometry::get_group(const std::string &res_name_in) const {
       }
    }
 
-   for (unsigned int i=0; i<dict_res_restraints.size(); i++) { 
+   for (unsigned int i=0; i<dict_res_restraints.size(); i++) {
       if (dict_res_restraints[i].second.residue_info.comp_id == res_name) {
 	 found = true;
 	 group = dict_res_restraints[i].second.residue_info.group;
@@ -2266,6 +2284,7 @@ coot::protein_geometry::residue_names_with_no_dictionary(mmdb::Manager *mol, int
       int imod = 1;
       mmdb::Model *model_p = mol->GetModel(imod);
       if (model_p) {
+         std::set<std::string> already_tested_names;
 	 int nchains = model_p->GetNumberOfChains();
 	 for (int ichain=0; ichain<nchains; ichain++) {
 	    mmdb::Chain *chain_p = model_p->GetChain(ichain);
@@ -2274,9 +2293,12 @@ coot::protein_geometry::residue_names_with_no_dictionary(mmdb::Manager *mol, int
 	       mmdb::Residue *residue_p = chain_p->GetResidue(ires);
 	       if (residue_p) {
 		  std::string residue_name = residue_p->GetResName();
-		  if (! have_dictionary_for_residue_type_no_dynamic_add(residue_name))
-                     if (std::find(v.begin(), v.end(), residue_name) == v.end())
-                        v.push_back(residue_name);
+                  if (already_tested_names.find(residue_name) == already_tested_names.end()) {
+                     if (! have_dictionary_for_residue_type_no_dynamic_add(residue_name, imol_no))
+                        if (std::find(v.begin(), v.end(), residue_name) == v.end())
+                           v.push_back(residue_name);
+                     already_tested_names.insert(residue_name);
+                  }
 	       }
 	    }
 	 }

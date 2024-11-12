@@ -124,7 +124,7 @@ flev_t::initial_residues_circles_layout() {
       }
       // show_mol_ring_centres();
 
-      position_non_primaries(grid, primary_indices); // untrap residues as needed.
+      // position_non_primaries(grid, primary_indices); // untrap residues as needed.
 
       std::cout << "HHHHHHHHHHHHHere D with residue_circles.size() " << residue_circles.size() << std::endl;
       if (true) {

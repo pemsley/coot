@@ -1,10 +1,10 @@
 ----
 
-coot --dictionary should make a molecule of that instance.
+For tubes repo, we need loops - reuse the stuart loops
 
 Oliver Clarke issues.
 
-For tubes repo, we need loops - reuse the stuart loops
+api make a version of density_correlation_analysis() that takes a cid (as q-score now does)
 
 mmrrcc to Coot. side chain score show out of register error?
 
@@ -94,6 +94,9 @@ Martin request: libcootapi: Step sample maps
 Adaptive rotation for the mouse motion - make it more for a widescreen.
 
 SVG for pli
+
+coot --dictionary should make a molecule instance from the dictionary
+* Done.
 
 What's up with the cross-hairs? Allow user to set the colour.
 * Done - well - the first part at least

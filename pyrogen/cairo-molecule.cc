@@ -42,7 +42,7 @@ coot::cairo_molecule_t::import_rdkit_mol(RDKit::ROMol *rdkm, int iconf) {
    //
    // So typically, user has called Chem.RemoveHs() or remove_non_polar_Hs()
    // and MolOps::Kekulize() and WedgeMolBonds() before calling this function.
-   
+
    int n_conf  = rdkm->getNumConformers();
    if (iconf < n_conf) {
       const RDKit::PeriodicTable *tbl = RDKit::PeriodicTable::getTable();
@@ -1032,7 +1032,8 @@ coot::cairo_png_depict_from_mmcif(const std::string &mmcif_file_name,
    bool dictionary_only = false;
 
    if (dictionary_only) {
-      if (geom.have_dictionary_for_residue_type_no_dynamic_add(comp_id)) {
+      int imol_enc = protein_geometry::IMOL_ENC_ANY;
+      if (geom.have_dictionary_for_residue_type_no_dynamic_add(comp_id, imol_enc)) {
 	 std::pair<bool, coot::dictionary_residue_restraints_t> dp =
 	    geom.get_monomer_restraints(comp_id, coot::protein_geometry::IMOL_ENC_ANY);
 	 if (dp.first) {
@@ -1056,7 +1057,8 @@ coot::cairo_png_depict_from_mmcif(const std::string &mmcif_file_name,
    } else {
 
       try {
-	 if (geom.have_dictionary_for_residue_type_no_dynamic_add(comp_id)) {
+         int imol_enc = protein_geometry::IMOL_ENC_ANY;
+	 if (geom.have_dictionary_for_residue_type_no_dynamic_add(comp_id, imol_enc)) {
 	    std::pair<bool, coot::dictionary_residue_restraints_t> dp =
 	       geom.get_monomer_restraints(comp_id, coot::protein_geometry::IMOL_ENC_ANY);
 	    if (dp.first) {

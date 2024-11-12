@@ -24,11 +24,11 @@ namespace pli {
 	 int ires_1_index;
 	 int ires_2_index;
       };
-      int status; 
+      int status;
       static double f(const gsl_vector *v, void *params);
-      static void  df(const gsl_vector *v, void *params, gsl_vector *df); 
+      static void  df(const gsl_vector *v, void *params, gsl_vector *df);
       static void fdf(const gsl_vector *x, void *params, double *f, gsl_vector *df);
-      
+
       std::vector<residue_circle_t> starting_circles;
       std::vector<residue_circle_t>  current_circles;
 
@@ -41,7 +41,7 @@ namespace pli {
       // these can be unstaticed by passing an lbg_info_t to f(), df()
       // as part of params.  Hmmm... it is already.  Should be easy to
       // fix then.  But not now.
-      // 
+      //
       static bool score_vs_ligand_atoms;
       static bool score_vs_ring_centres;
       static bool score_vs_other_residues;

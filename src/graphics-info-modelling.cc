@@ -2348,7 +2348,8 @@ graphics_info_t::load_needed_monomers(const std::vector<std::string> &pdb_residu
    for (unsigned int ipdb=0; ipdb<pdb_residue_types.size(); ipdb++) {
       bool ifound = 0;
 
-      if (geom_p->have_dictionary_for_residue_type_no_dynamic_add(pdb_residue_types[ipdb]))
+      int imol_enc = coot::protein_geometry::IMOL_ENC_ANY;
+      if (geom_p->have_dictionary_for_residue_type_no_dynamic_add(pdb_residue_types[ipdb], imol_enc))
 	 ifound = true;
 
       if (! ifound) {
