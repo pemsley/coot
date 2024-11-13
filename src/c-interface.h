@@ -4058,24 +4058,6 @@ int read_cif_data_with_phases_nfo_fc(const char *filename,
 				     int map_type);
 int read_cif_data_with_phases_fo_alpha_calc(const char *filename);
 
-
-/*                  cif (geometry) dictionary                            */
-/* \brief return the number of bonds read (> 0 can be treated as success) */
-int handle_cif_dictionary(const char *filename);
-/* \brief synonym for above.
-
-return the number of bonds read (> 0 can be treated as success) */
-int read_cif_dictionary(const char *filename);
-
-/* \brief return the number of bonds read (> 0 can be treated as success).
- Apply to the given molecule.
-
- imol_enc can be the model molecule number or
- IMOL_ENC_ANY = -999999, IMOL_ENC_AUTO = -999998, IMOL_ENC_UNSET = -999997
-
- */
-int handle_cif_dictionary_for_molecule(const char *filename, int imol_enc, short int new_molecule_from_dictionary_cif_checkbutton_state);
-
 int write_connectivity(const char* monomer_name, const char *filename);
 /*! \brief open the cif dictionary file selector dialog */
 void open_cif_dictionary_file_selector_dialog();

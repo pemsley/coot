@@ -2627,7 +2627,7 @@ graphics_info_t::draw_rotation_centre_crosshairs(GtkGLArea *glarea, unsigned int
    // 20241105-PE is this a good idea?
    if (rotation_centre_cube_size < 0.02)
       rotation_centre_cube_size = 0.02;
-   float s = 6.0f * rotation_centre_cube_size;
+   float s = 2.0f * rotation_centre_cube_size;
    glm::vec3 sc(s,s,s);
    mvp = glm::scale(mvp, sc);
 
@@ -2693,7 +2693,7 @@ graphics_info_t::draw_rotation_centre_crosshairs(GtkGLArea *glarea, unsigned int
 
 void print_opengl_info() {
 
-   std::cout << "----------------------- print_opengl_info() ----------" << std::endl;
+   // std::cout << "----------------------- print_opengl_info() ----------" << std::endl;
 
    const char *s1 = reinterpret_cast<const char *>(glGetString(GL_VERSION));
    const char *s2 = reinterpret_cast<const char *>(glGetString(GL_SHADING_LANGUAGE_VERSION));

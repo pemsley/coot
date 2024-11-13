@@ -546,6 +546,15 @@ svg_bond_t::draw_bond(const svg_atom_t &at_1, const svg_atom_t &at_2,
 	 // cairo_move_to(cr, sc_p5.x, sc_p5.y);
 	 // cairo_line_to(cr, sc_p6.x, sc_p6.y);
 	 // cairo_stroke(cr);
+
+         std::string bond_string;
+         bond_string = make_bond_line_string(sc_p1, sc_p2, bond_colour);
+         s += bond_string;
+         bond_string = make_bond_line_string(sc_p3, sc_p4, bond_colour);
+         s += bond_string;
+         bond_string = make_bond_line_string(sc_p5, sc_p6, bond_colour);
+         s += bond_string;
+
       }
       break;
 

@@ -1,17 +1,25 @@
 ----
 
-coot --dictionary should make a molecule of that instance.
-
-Is there a rotation-centre size widget in Preferences?
+For tubes repo, we need loops - reuse the stuart loops
 
 Oliver Clarke issues.
+
+api make a version of density_correlation_analysis() that takes a cid (as q-score now does)
 
 mmrrcc to Coot. side chain score show out of register error?
 
 Get the "shape" of RNA bases in cryo-EM maps - for validation of RNA sequence.
 
+bring chopping of residues in low density to the API
+
+bring water flood to the API
+
+servalcat refine using chapi molecules
+
 configure needs to know if RDKitcoordgen was used to make RDKit and change the Makefile libs
 and we need to conditionally compile the code that uses coordgen (in layla).
+
+Install this on hal: https://github.com/chaidiscovery/chai-lab
 
 Button no labels and labels no buttons for the vertical toolbar.
 
@@ -86,6 +94,9 @@ Martin request: libcootapi: Step sample maps
 Adaptive rotation for the mouse motion - make it more for a widescreen.
 
 SVG for pli
+
+coot --dictionary should make a molecule instance from the dictionary
+* Done.
 
 What's up with the cross-hairs? Allow user to set the colour.
 * Done - well - the first part at least
@@ -320,13 +331,9 @@ Non-trivial C++ Mini-Projects
  o Add gesamt to moorhen and coot
  o parser for PISA output (maybe Python will do)
  o Filled bases for DNA/RNA
-<<<<<<< HEAD
  o Is this useful? https://github.com/CGAL/cgal/ Surface Mesh
-=======
  o Use VTE for a Python console
  o Get CFC working again (needs C++ clustering)
-
->>>>>>> refs/remotes/origin/main
 
 Non-trivial C++ Projects
  o Improved ligand fitting with machine learning

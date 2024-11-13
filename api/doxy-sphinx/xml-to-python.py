@@ -12,7 +12,7 @@
 # and modify it by tracking changes made to the nanobinds file.
 
 import xml.etree.ElementTree as ET
-mytree = ET.parse('doxygen_output/xml/classmolecules__container__t.xml')
+mytree = ET.parse('xml/classmolecules__container__t.xml')
 myroot = mytree.getroot()
 
 def convert_type(tt: str) -> str:
@@ -33,7 +33,14 @@ def convert_type(tt: str) -> str:
     if tt == 'const std::vector< std::pair< std::string, unsigned int > > &': tt = "list"
     if tt == 'const std::vector< std::pair< std::string, unsigned int > > &': tt = "list"
     if tt == 'const std::vector< std::pair< bool, mmdb::Residue * > > &, links: const std::vector< mmdb::Link > &': tt = "list"
-    if tt == 'std::vector<': tt == list
+    if tt == 'std::vector<': tt = list
+    if tt == 'const coot::residue_spec_t &': tt = 'str'
+    if tt == 'const coot::colour_t &': tt = 'list'   #use the proper type later
+    if tt == 'const coot::atom_spec_t &': tt = 'str'
+    if tt == 'coot::residue_spec_t &': tt = 'list'
+    if tt == 'std::vector< coot::api::moved_atom_t > &': tt = 'list'
+    if tt == 'const std::vector< coot::api::moved_residue_t > &': tt = 'list'
+
     return tt
 
 def make_paren_string(function: dict) -> str:
@@ -56,7 +63,7 @@ def make_paren_string(function: dict) -> str:
 
 
 def make_return_type(function: dict) -> str:
-    print("--- make_return_type() dict is ", function)
+    # print("--- make_return_type() dict is ", function)
     return_type = ""
     rt = ""
     t = str(function['type'])
@@ -77,14 +84,19 @@ def make_python_script(functions: list) -> None:
     f = open("chapi-functions.py", "w")
     f.write("class molecules_container_t:\n")
     for function in functions:
-        print("\n--- make_python_script(): Handling function: ", function, ":")
+        func_name = ""
+        try:
+            func_name = function['name']
+        except AttributeError as e:
+            pass
+        print("\n--- make_python_script(): Handling function: ", func_name)
 
         parens = ""
         def_ = ""
         if function['kind'] == "function":
             parens = make_paren_string(function)
             return_type, return_type_with_arrow = make_return_type(function)
-            print("debug args: function ", function, "made args:", parens)
+            # print("debug args: function ", function, "made args:", parens)
             def_ = "def "
             s = f"    {def_}{function['name']}{parens}{return_type_with_arrow}:\n"
             f.write(s)
@@ -94,7 +106,7 @@ def make_python_script(functions: list) -> None:
             f.write('        """ ')
             try:
                 d = function["briefdescription"]
-                print(f"debug:: briefdescription:{d}:")
+                # print(f"debug:: briefdescription:{d}:")
                 f.write(d)
                 # f.write('\n')
                 done_brief = True
@@ -106,7 +118,7 @@ def make_python_script(functions: list) -> None:
             # maybe use a for loop for this and the above ["briefdescription", "detaileddescription"]
             try:
                 d = function["detaileddescription"]
-                print(f"debug:: detaileddescription:{d}:")
+                # print(f"debug:: detaileddescription:{d}:")
                 # f.write('        """ ')
                 f.write(d)
                 # f.write('\n')
@@ -125,7 +137,7 @@ def make_python_script(functions: list) -> None:
             if not return_type:               f.write("        pass\n")
             if return_type == "int":          f.write("        return 0\n")
             if return_type == "float":        f.write("        return 0.0\n")
-            if return_type == "str":          f.write("        return 'Cabbages-and-Kings'\n")
+            if return_type == "str":          f.write("        return 'a-string'\n")
             if return_type == "bool":         f.write("        return True\n")
 
         f.write("\n")
@@ -160,12 +172,10 @@ for x in myroot.iter('sectiondef'):
                     if ch.tag == "definition":
                         if ch.text == "molecules_container_t::~molecules_container_t":
                             keep_going = False
-                            print('breaking out')
                             break
                             # next memberdef
                         if ch.text == "molecules_container_t::molecules_container_t":
                             keep_going = False
-                            print('breaking out')
                             break
                     if ch.tag == "param":
                         t = ch.find("type")
@@ -211,6 +221,34 @@ for x in myroot.iter('sectiondef'):
                                     print('      chunk', jj, ":", chunk, "len:", len(chunk))
                                     if chunk.tag == "parameterlist":
                                         print("        handle parameterlist here")
+
+                                        for pk,pchunk in enumerate(chunk):
+                                               print("pk:", pk, 'pchunk', pchunk)
+                                               for ck,cchunk in enumerate(pchunk):
+                                                   print("ck:", ck, 'cchunk', cchunk)
+
+                                                   if cchunk.tag == "parameternamelist":
+                                                      parts += "\n"
+                                                      for kk,kchunk in enumerate(cchunk):
+                                                           if kchunk.tag == "parametername":
+                                                              print("kchunk", kk, "text:", kchunk.text)
+                                                              parts += "\n       " + " :param " + kchunk.text + ": "
+
+                                                   if cchunk.tag == "parameterdescription":
+                                                       print('len(cchunk)', len(cchunk))
+                                                       for kk,kchunk in enumerate(cchunk):
+                                                           if kchunk.tag == "para":
+                                                              print("kchunk", kk, "text:", kchunk.text)
+                                                              parts += " " + kchunk.text
+                                                              for kk,pchunk in enumerate(kchunk):
+                                                                  if pchunk.tag == "computeroutput":
+                                                                     if pchunk.text:
+                                                                        print("        computeroutput:", pchunk.text)
+                                                                        parts += "`"
+                                                                        parts += pchunk.text
+                                                                        parts += "`"
+                                                                        parts += pchunk.tail
+
                                     if chunk.tag == "computeroutput":
                                         print("        computeroutput:", chunk.text)
                                         if chunk.text:
@@ -219,14 +257,22 @@ for x in myroot.iter('sectiondef'):
                                             parts += "`"
                                             parts += chunk.tail
                                     if chunk.tag == "simplesect":
-                                        print("simplesect:", chunk.text)
-                                        print(dir(chunk))
-                                        print('len(chunk)', len(chunk))
                                         for kk,kchunk in enumerate(chunk):
                                             # print("kk:", kk, kchunk)
                                             if kchunk.tag == "para":
                                                 print("kchunk", kk, "text:", kchunk.text)
-                                                parts += kchunk.text
+                                                #parts += "Return" + " " + kchunk.text
+                                                parts += "\n\n       " + " :return: " + kchunk.text
+                                                for kk,pchunk in enumerate(kchunk):
+                                                    if pchunk.tag == "computeroutput":
+                                                       if pchunk.text:
+                                                          print("        computeroutput:", pchunk.text)
+                                                          parts += "`"
+                                                          parts += pchunk.text
+                                                          parts += "`"
+                                                          parts += pchunk.tail
+
+
                     if parts:
                         a_function["detaileddescription"] = parts
                 if a_function:

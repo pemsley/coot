@@ -135,8 +135,8 @@ namespace coot {
       }
       int ligand_atom_index;
       double r_1, r_2;
-      mmdb::Atom *atom_1; 
-      mmdb::Atom *atom_2; 
+      mmdb::Atom *atom_1;
+      mmdb::Atom *atom_2;
       double overlap_volume;
       bool is_h_bond;
    };
@@ -148,6 +148,7 @@ namespace coot {
       enum overlap_mode_t { CENTRAL_RESIDUE, ALL_ATOM };
       overlap_mode_t overlap_mode;
       mmdb::Manager *mol;
+      int imol_enc;
       bool have_dictionary; // for central residue (or should it be all residues?)
       bool molecule_has_hydrogens;
       mmdb::Residue *res_central;
@@ -292,7 +293,7 @@ namespace coot {
       static bool overlap_sorter(const atom_overlap_t &ao1, const atom_overlap_t &ao2);
       void sort_overlaps();
       bool kludge_filter(mmdb::Atom *at_1, mmdb::Atom *at_2) const;
-      
+
    public:
       // we need mol to use UDDs to mark the HB donors and acceptors (using coot-h-bonds.hh)
       atom_overlaps_container_t(mmdb::Residue *res_central_in,
@@ -307,6 +308,7 @@ namespace coot {
       atom_overlaps_container_t(mmdb::Residue *res_central_in,
 				const std::vector<mmdb::Residue *> &neighbours_in,
 				mmdb::Manager *mol,
+                                int imol_enc, // so that we can correctly look up the dictionaries
 				const protein_geometry *geom_p_in,
 				double clash_spike_length_in,
 				double probe_radius_in = 0.25);

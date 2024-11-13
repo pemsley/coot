@@ -196,7 +196,7 @@ coot::molecule_t::contact_dots_for_ligand(const std::string &cid, const coot::pr
 
       mmdb::Manager *mol = atom_sel.mol;
       std::vector<mmdb::Residue *> neighbs = coot::residues_near_residue(residue_p, mol, 5);
-      coot::atom_overlaps_container_t overlaps(residue_p, neighbs, mol, &geom, 0.5, 0.25);
+      coot::atom_overlaps_container_t overlaps(residue_p, neighbs, mol, imol_no, &geom, 0.5, 0.25);
 
       coot::atom_overlaps_dots_container_t c = overlaps.contact_dots_for_ligand(cdd);
       float ball_size = 0.07;

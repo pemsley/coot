@@ -1808,6 +1808,8 @@ namespace coot {
                                                        const std::string &atom_name,
                                                        int imol_enc) const;
 
+      std::vector<std::pair<int, std::string> > get_monomer_names() const;
+
       bool copy_monomer_restraints(const std::string &monomer_type, int imol_enc_current, int imol_enc_new);
 
       // Return success status in first (0 is fail) and the second is
@@ -1884,7 +1886,6 @@ namespace coot {
       void replace_monomer_restraints_conservatively_angles(int irest,
                                                             const dictionary_residue_restraints_t &mon_res);
 
-      
       // this function is no longer const because it can run try_dynamic_add
       //
       bool have_dictionary_for_residue_type(const std::string &monomer_type,
@@ -1903,16 +1904,16 @@ namespace coot {
       // this is const because there is no dynamic add.
       //
       // if there is just an ccp4srs entry, then this returns false.
-      // 
-      bool have_dictionary_for_residue_type_no_dynamic_add(const std::string &monomer_type) const;
-      
+      //
+      bool have_dictionary_for_residue_type_no_dynamic_add(const std::string &monomer_type, int imol) const;
+
       // this is const because there is no dynamic add.
       //
       // if there is (even) a ccp4srs entry, then this returns true.
-      // 
+      //
       bool have_at_least_minimal_dictionary_for_residue_type(const std::string &monomer_type,
                                                              int imol) const;
-      
+
       // likewise not const
       bool have_dictionary_for_residue_types(const std::vector<std::string> &residue_types,
                                              int imol_enc,

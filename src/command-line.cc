@@ -47,7 +47,7 @@
 
 #ifdef WINDOWS_MINGW
 // for whatever reason (getopt) include python here for windows
-#include "Python.h"  
+#include "Python.h"
 #endif //WINDOWS_MINGW
 
 #include <iostream>
@@ -78,19 +78,19 @@ parse_command_line(int argc, char ** argv ) {
    coot_optind = 0; // reset the (global) extern because
 	            // parse_command_line() is/can be called more once.
 
-   int ch; 
+   int ch;
 
- /* 
+ /*
    * the option string will be passed to getopt(3), the format
    * of our string "sf:v:" will allow us to accept -s as a flag,
    * and -f or -v with an argument, the colon suffix tells getopt(3)
    * that we're expecting an argument.  Eg:  optest -s -f this -v8
    *
    */
- 
-   const char *optstr = "p:m:d:s:c:"; 
 
-     /* 
+   const char *optstr = "p:m:d:s:c:";
+
+     /*
    * getopt(3) takes our argc, and argv, it also takes
    * the option string we set up earlier.  It will assign
    * the switch character to ch, and -1 when there are no more
@@ -129,14 +129,14 @@ parse_command_line(int argc, char ** argv ) {
       {"no-startup-scripts", 0, 0, 0},
       {"no-graphics",      0, 0, 0},
       {"no-splash-screen", 0, 0, 0},
-      {"stereo",           0, 0, 0},        // no arguments 
+      {"stereo",           0, 0, 0},        // no arguments
       {"side-by-side",     0, 0, 0},  //
       {"zalman-stereo",    0, 0, 0},  //
       {"version",          0, 0, 0},        //
       {"version-full",     0, 0, 0},     //
       {"no-guano",         0, 0, 0},        //
       {"small-screen", 0, 0, 0},      // no arguments (setting for small screens)
-      {"update-self", 0, 0, 0},  
+      {"update-self", 0, 0, 0},
       {0, 0, 0, 0}	       // must have blanks at end
    };
 
@@ -144,35 +144,35 @@ parse_command_line(int argc, char ** argv ) {
 
    bool found_no_graphics_in_the_command_line = false;
 
-   while( -1 != 
+   while( -1 !=
 	  (ch = coot_getopt_long(argc, argv, optstr, long_options, &option_index) )) {
 
       switch(ch) {
-	 
+
       case 0:
 
 	 if (coot_optarg) {
 
 	    // options that need an argument:
-	    
+
 	    std::string arg_str = long_options[option_index].name;
 
-	    if (arg_str == "pdb") { 
+	    if (arg_str == "pdb") {
 	       cld.coords.push_back(coot_optarg);
 	    }
-	    if (arg_str == "coords") { 
+	    if (arg_str == "coords") {
 	       cld.coords.push_back(coot_optarg);
 	    }
 	    if (arg_str == "xyzin") {
 	       cld.coords.push_back(coot_optarg);
 	    }
-	    if (arg_str == "map") { 
+	    if (arg_str == "map") {
 	       cld.maps.push_back(coot_optarg);
 	    }
-	    if (arg_str == "data") { 
+	    if (arg_str == "data") {
 	       cld.datasets.push_back(coot_optarg);
 	    }
-	    if (arg_str == "hklin") { 
+	    if (arg_str == "hklin") {
 	       cld.datasets.push_back(coot_optarg);
 	    }
 	    if (arg_str == "script") {
@@ -183,10 +183,10 @@ parse_command_line(int argc, char ** argv ) {
 	    }
 	    if (arg_str == "port") {
 	       cld.port = atoi(coot_optarg);
-	    } 
+	    }
 	    if (arg_str == "host") {
 	       cld.hostname = coot_optarg;
-	    } 
+	    }
 	    if (arg_str == "hostname") {
 	       cld.hostname = coot_optarg;
 	    }
@@ -218,7 +218,7 @@ parse_command_line(int argc, char ** argv ) {
 	       cld.alternate_splash_screen_file_name = coot_optarg;
 	    }
 
-	 } else { 
+	 } else {
 
 	    // long argument without parameter:
 	    std::string arg_str(long_options[option_index].name);
@@ -229,9 +229,9 @@ parse_command_line(int argc, char ** argv ) {
 	       if (arg_str == "zalman-stereo") {
 		  cld.hardware_stereo_flag = 5;
 	       } else {
-		  
+
 		  // Thanks for suggesting this Ezra.
-		  // 
+		  //
 		  if (arg_str == "help") {
 		     std::cout << std::endl
 			       << "Usage: coot [--pdb pdb-file-name]\n"
@@ -261,7 +261,7 @@ parse_command_line(int argc, char ** argv ) {
 			       << std::endl;
 		     coot_no_state_real_exit(0);
 		  } else {
-		     
+
 			if (arg_str == "version") {
 			   std::cout  << VERSION << " " << coot_version_extra_info();
 			   // this is in coot_version_extra_info() now
@@ -307,7 +307,7 @@ parse_command_line(int argc, char ** argv ) {
 			   if (s.length())
 			      std::cout << "Builder_info: " << s << std::endl;
 			   exit(0);
-			   
+
 			} else {
 			   if (arg_str == "python") {
 			      cld.script_is_python_flag = 1;
@@ -367,50 +367,50 @@ parse_command_line(int argc, char ** argv ) {
                               }
 			   }
 			}
-		     
+
 		  }
 	       }
 	    }
 	 }
-	 break; 
-	 
+	 break;
+
 	 // try short options then...
-	 
+
       case 'p':
 	 cld.coords.push_back(coot_optarg);
-	 break; 
-	 
+	 break;
+
       case 's':
 	 cld.script.push_back(coot_optarg);
-	 break; 
-	 
+	 break;
+
       case 'd':
 	 cld.datasets.push_back(coot_optarg);
-	 break; 
-	 
+	 break;
+
       case 'a':
 	 cld.auto_datasets.push_back(coot_optarg);
 	 break;
-	 
+
       case 'm':
 	 cld.maps.push_back(coot_optarg);
-	 break; 
-	 
+	 break;
+
       case 'c':
-         if (coot_optarg) { 
+         if (coot_optarg) {
             // std::cout << "command coot_optarg: " << coot_optarg << std::endl;
 	    cld.command.push_back(coot_optarg);
-         } else { 
+         } else {
             std::cout << "command coot_optarg is NULL " << std::endl;
-         } 
-	 break; 
-	 
+         }
+	 break;
+
       case '?':
 	 std::cout << "Unrecognised option: " << optopt << std::endl;
 	 break;
-	 
+
       default:
-	 std::cout << "Unaccounted for coot_optarg condition " << std::endl; 
+	 std::cout << "Unaccounted for coot_optarg condition " << std::endl;
 	 break;
       }
    }
@@ -423,9 +423,9 @@ parse_command_line(int argc, char ** argv ) {
 
    cld.roberto_pdbs(argc, argv);
 
-   return cld; 
+   return cld;
 
-} 
+}
 
 void
 command_line_data::handle_immediate_settings() {

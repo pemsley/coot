@@ -5,19 +5,19 @@
 // I don't know why these are static.
 bool pli::optimise_residue_circles::score_vs_ligand_atoms              = true;
 bool pli::optimise_residue_circles::score_vs_ring_centres              = false;
-bool pli::optimise_residue_circles::score_vs_other_residues            = true;
+bool pli::optimise_residue_circles::score_vs_other_residues            = false;
 bool pli::optimise_residue_circles::score_vs_original_positions        = true;
 bool pli::optimise_residue_circles::score_vs_other_residues_for_angles = false; //  problem. Fix later
 bool pli::optimise_residue_circles::score_vs_ligand_atom_bond_length   = true;
 
-pli::optimise_residue_circles::optimise_residue_circles(const std::vector<residue_circle_t> &r,
-                                                        const std::vector<residue_circle_t> &c,
+pli::optimise_residue_circles::optimise_residue_circles(const std::vector<residue_circle_t> &r, // starting points
+                                                        const std::vector<residue_circle_t> &c, // current points
                                                         const svg_molecule_t &mol_in,
                                                         const std::vector<int> &primary_indices_in) {
 
    bool show_dynamics = false;
 
-   score_vs_ligand_atoms_rk = 3000.0;
+   score_vs_ligand_atoms_rk = 300.0;
    score_vs_ligand_atoms_exp_scale = 0.0008; // quite sensitive value - 0.0002 is big kick
    score_vs_original_positions_kk = 1.1;
    score_vs_ligand_atom_bond_length_kk = 0.001;
@@ -26,7 +26,6 @@ pli::optimise_residue_circles::optimise_residue_circles(const std::vector<residu
    score_vs_other_residues_exp_scale = 0.001;
 
    mol = mol_in;
-   starting_circles = r;
    current_circles = c;
    primary_indices = primary_indices_in;
 
@@ -37,6 +36,15 @@ pli::optimise_residue_circles::optimise_residue_circles(const std::vector<residu
       return;
 
    gsl_multimin_function_fdf my_func;
+
+   // starting_circles.clear();
+   // for (unsigned int i=0; i<r.size(); i++) {
+   //    if (r[i].is_a_primary_residue())
+   //       starting_circles.push_back(r[i]);
+   // }
+   starting_circles = r;
+
+   std::cout << "starting_circles has size " << starting_circles.size() << std::endl;
 
    int n_var = starting_circles.size()*2;
    my_func.n = n_var;  /* number of function components */
@@ -49,7 +57,9 @@ pli::optimise_residue_circles::optimise_residue_circles(const std::vector<residu
    gsl_vector *x = gsl_vector_alloc(n_var);
 
    for (unsigned int i=0; i<starting_circles.size(); i++) {
-      std::cout << "starting_circle " << i << " is at " << current_circles[i].pos.x << " " << current_circles[i].pos.y
+      const auto &c = starting_circles[i];
+      std::cout << "starting_circle " << i << ": " << c.residue_type << " " << c.residue_label
+                << " is at " << current_circles[i].pos.x << " " << current_circles[i].pos.y
                 << std::endl;
       gsl_vector_set(x, 2*i,   current_circles[i].pos.x);
       gsl_vector_set(x, 2*i+1, current_circles[i].pos.y);
@@ -61,7 +71,7 @@ pli::optimise_residue_circles::optimise_residue_circles(const std::vector<residu
    s = gsl_multimin_fdfminimizer_alloc (T, n_var);
    gsl_multimin_fdfminimizer_set (s, &my_func, x, 1, 1e-4);
    size_t iter = 0;
-   size_t n_steps = 500; // increase? (was 400) trying 500
+   size_t n_steps = 2000; // increase? (was 400) trying 500
    if (show_dynamics)
       n_steps = 60;
 
@@ -118,10 +128,13 @@ pli::optimise_residue_circles::f(const gsl_vector *v, void *params) {
 	    const double &d_pt_2 = gsl_vector_get(v, 2*i+1) - orc->mol.atoms[iat].atom_position.y;
 	    double d2 = d_pt_1 * d_pt_1 + d_pt_2 * d_pt_2;
 	    score += rk * exp(-0.5*exp_scale*d2);
-            std::cout << "circles-vs-ligand-atoms circle " << i << " iat: " << iat << " at "
-                      << orc->mol.atoms[iat].atom_position.x << " "
-                      << orc->mol.atoms[iat].atom_position.y << " circle: "
-                      << d_pt_1 << " " << d_pt_2 << " d " << std::sqrt(d2) << " score " << score << std::endl;
+            if (false)
+               std::cout << "circles-vs-ligand-atoms circle " << i
+                         << " " << d_pt_1 << " " << d_pt_2
+                         << " iat: " << iat << " at "
+                         << orc->mol.atoms[iat].atom_position.x << " "
+                         << orc->mol.atoms[iat].atom_position.y
+                         << " d " << std::sqrt(d2) << " score " << score << std::endl;
 	 }
       }
 
@@ -164,7 +177,13 @@ pli::optimise_residue_circles::f(const gsl_vector *v, void *params) {
 	 double k = orc->score_vs_original_positions_kk;
 	 double d_1 = gsl_vector_get(v, 2*i  ) - orc->starting_circles[i].pos.x;
 	 double d_2 = gsl_vector_get(v, 2*i+1) - orc->starting_circles[i].pos.y;
-	 score += k * (d_1*d_1 + d_2*d_2);
+         double delta = k * (d_1*d_1 + d_2*d_2);
+         if (i == 0)
+            std::cout << "score_vs_original_pos " << orc->starting_circles[i].pos
+                      << " " << gsl_vector_get(v, 2*i) << " " << gsl_vector_get(v, 2*i+1)
+                      << " d " << sqrt(d_1*d_1 + d_2*d_2)
+                      << " delta: " << delta << std::endl;
+	 score += delta;
       }
    }
 
@@ -206,16 +225,21 @@ pli::optimise_residue_circles::f(const gsl_vector *v, void *params) {
 	    orc->current_circles[idx].get_attachment_points(orc->mol);
 	 for (unsigned int iattach=0; iattach<attachment_points.size(); iattach++) {
 	    //
-	    double target_length = 1.5 * LIGAND_TO_CANVAS_SCALE_FACTOR *
-	       attachment_points[iattach].second * 3.0;
-	    lig_build::pos_t current_pos(gsl_vector_get(v, 2*idx),
-					 gsl_vector_get(v, 2*idx+1));
-	    lig_build::pos_t bond_vector = (attachment_points[iattach].first - current_pos);
+            // these are positions (on the ligand) and length
+            const auto &attachment_point = attachment_points[iattach];
+	    double target_length = attachment_point.second;
+	    lig_build::pos_t current_pos(gsl_vector_get(v, 2*idx), gsl_vector_get(v, 2*idx+1));
+	    lig_build::pos_t bond_vector = (attachment_point.first - current_pos);
 	    double dist_to_attachment_point = bond_vector.length();
 	    double d = dist_to_attachment_point - target_length;
 	    double bond_length_penalty = kk * d * d;
-            std::cout << "bond_vector: attachment " << iprimary << " " << iattach << " "
-                      << bond_vector.x << " " << bond_vector.y << " d  " << d << std::endl;
+            std::cout << "bond_vector: attachment " << iprimary << " " << iattach
+                      << " attachment_point " << attachment_point.first << " "
+                      << " current_pos " << current_pos
+                      << " diff-vector: " << bond_vector.x << " " << bond_vector.y
+                      << "  target_length " << target_length
+                      << "  d " << d
+                      << " bond_length_penalty " << bond_length_penalty << std::endl;
 	    score += bond_length_penalty;
 	 }
       }
@@ -369,10 +393,8 @@ pli::optimise_residue_circles::df(const gsl_vector *v, void *params, gsl_vector 
             // circle is aesthetically distanced from the ligand
             // atom.
             //
-            double target_length = 1.5 * LIGAND_TO_CANVAS_SCALE_FACTOR *
-               attachment_points[iattach].second * 3.0;
-            lig_build::pos_t current_pos(gsl_vector_get(v, 2*idx),
-                                         gsl_vector_get(v, 2*idx+1));
+            double target_length = attachment_points[iattach].second;
+            lig_build::pos_t current_pos(gsl_vector_get(v, 2*idx), gsl_vector_get(v, 2*idx+1));
             lig_build::pos_t bond_vector = (attachment_points[iattach].first - current_pos);
             double dist_to_attachment_point = bond_vector.length();
             double frac_bond_length_dev = (dist_to_attachment_point - target_length)/dist_to_attachment_point;

@@ -1858,8 +1858,8 @@ flev_t::ligand_grid::fill(svg_molecule_t mol) {
       }
    }
 
-   if (true) { // print grid
-      int grid_size = grid_.size(); 
+   if (false) { // print grid
+      int grid_size = grid_.size();
       for (int ipos_x = 0; ipos_x < grid_size; ipos_x++) {
          int grid_x_size = grid_[ipos_x].size();
          for (int ipos_y= 0; ipos_y<= grid_x_size; ipos_y++) {
@@ -2132,10 +2132,10 @@ flev_t::draw_residue_circle_top_layer(const residue_circle_t &residue_circle,
       text_1 += std::to_string(pos.x);
       text_1 += std::string("\"");
       text_1 += std::string(" y=\"");
-      text_1 += std::to_string(pos.y-3.0);
+      text_1 += std::to_string(pos.y-2.9);
       text_1 += std::string("\"");
       text_1 += std::string(" text-anchor=\"middle\"");
-      text_1 += std::string(" font-family=\"Helvetica, sans-serif\" font-size=\"1.3em\">");
+      text_1 += std::string(" font-family=\"Helvetica, sans-serif\" font-size=\"1.14em\">");
       text_1 += rt;
       text_1 += std::string("</text>\n");
       svgc.add(text_1);
@@ -2143,12 +2143,12 @@ flev_t::draw_residue_circle_top_layer(const residue_circle_t &residue_circle,
       std::string text_2("   <text ");
       text_2 += std::string("fill=\"#111111\"");
       text_2 += std::string(" x=\"");
-      text_2 += std::to_string(pos.x-9.0);
+      text_2 += std::to_string(pos.x); // was -9
       text_2 += std::string("\"");
       text_2 += std::string(" y=\"");
       text_2 += std::to_string(pos.y + 10.5);
       text_2 += std::string("\"");
-      text_1 += std::string(" text-anchor=\"middle\"");
+      text_2 += std::string(" text-anchor=\"middle\"");
       text_2 += std::string(" font-family=\"Helvetica, sans-serif\" font-size=\"0.8em\">");
       text_2 += residue_circle.residue_label;
       text_2 += std::string("</text>\n");
@@ -2329,10 +2329,12 @@ flev_t::ligand_grid::find_nearest_zero(const lig_build::pos_t &pos,
          // search for someplace else
          for (int ix=0; ix<x_size(); ix++) {
             for (int iy=0; iy<y_size(); iy++) {
-               std::cout << "grid_value " << ix << " " << iy << " is " << grid_[ix][iy] << std::endl;
+               if (false)
+                  std::cout << "grid_value " << ix << " " << iy << " is " << grid_[ix][iy] << std::endl;
                if (grid_[ix][iy] < crit) {
                   lig_build::pos_t gp = to_canvas_pos(ix, iy);
-                  std::cout << "   ix " << ix << " iy " << iy << " gp " << gp << " c.f. pos " << pos << std::endl;
+                  if (false)
+                     std::cout << "   ix " << ix << " iy " << iy << " gp " << gp << " c.f. pos " << pos << std::endl;
                   double d = (gp - pos).lengthsq();
                   if (d < shortest_dist) {
                      grid_index_t candidate_grid_index(ix, iy);
@@ -2443,8 +2445,8 @@ flev_t::ligand_grid::add_quadratic(const std::vector<std::pair<lig_build::pos_t,
 // minimise layout energy
 std::pair<int, std::vector<residue_circle_t> >
 flev_t::optimise_residue_circle_positions(const std::vector<residue_circle_t> &r,
-                                              const std::vector<residue_circle_t> &c,
-                                              const std::vector<int> &primary_indices) const {
+                                          const std::vector<residue_circle_t> &c,
+                                          const std::vector<int> &primary_indices) const {
    if (r.size() > 0) {
       if (c.size() == r.size()) {
          pli::optimise_residue_circles orc(r, c, mol, primary_indices);
