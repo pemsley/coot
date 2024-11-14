@@ -1859,7 +1859,8 @@ coot::util::mutate_by_overlap(mmdb::Residue *residue_p, mmdb::Manager *mol,
 
    auto reposition_copy_or_delete_atoms = [mol, is_in_residue] (mmdb::Residue *res_mutable,
                                                                 mmdb::Residue *residue_ref,
-                                                                bool move_O_atom) {
+                                                                bool move_O_atom,
+                                                                bool is_nucleotide) {
       // first, delete the atoms of res_mutable that are not in residue_ref;
       std::vector<std::string> keep_atoms;
       std::vector<mmdb::Atom *> delete_atoms;
@@ -1872,12 +1873,20 @@ coot::util::mutate_by_overlap(mmdb::Residue *residue_p, mmdb::Manager *mol,
          if (! at->isTer()) {
             std::string atom_name(at->GetAtomName());
             keep_atoms.push_back(atom_name);
+            std::cout << "push back to keep_atoms: " << atom_name << std::endl;
+         }
+      }
+
+      for (int iat=0; iat<n_residue_atoms; iat++) {
+         mmdb::Atom *at = residue_atoms[iat];
+         if (! at->isTer()) {
+            std::cout << "start " << at->name << std::endl;
          }
       }
 
       mmdb::Atom **residue_atoms_mutable = 0;
       int n_residue_atoms_mutable = 0;
-      res_mutable->GetAtomTable(residue_atoms, n_residue_atoms);
+      res_mutable->GetAtomTable(residue_atoms_mutable, n_residue_atoms_mutable);
       for (int iat=0; iat<n_residue_atoms_mutable; iat++) {
          mmdb::Atom *at = residue_atoms_mutable[iat];
          if (! at->isTer()) {
@@ -1885,6 +1894,7 @@ coot::util::mutate_by_overlap(mmdb::Residue *residue_p, mmdb::Manager *mol,
             if (std::find(keep_atoms.begin(), keep_atoms.end(), atom_name) == keep_atoms.end()) {
                // not found
                delete_atoms.push_back(at);
+               std::cout << "push back to delete_atoms: " << atom_name << std::endl;
             }
          }
       }
@@ -1911,6 +1921,8 @@ coot::util::mutate_by_overlap(mmdb::Residue *residue_p, mmdb::Manager *mol,
                         at_mutable->x = at->x;
                         at_mutable->y = at->y;
                         at_mutable->z = at->z;
+                        std::cout << "moved atom " << coot::atom_spec_t(at_mutable)
+                                  << " to " << at->x << " " << at->y << " " << at->z << std::endl;
                      }
                   }
                }
@@ -1927,9 +1939,10 @@ coot::util::mutate_by_overlap(mmdb::Residue *residue_p, mmdb::Manager *mol,
                mmdb::Atom *at_copy = new mmdb::Atom;
                std::string at_name = at->GetAtomName();
                if (atom_name != " OXT") { // extra atom in an amino acid
-                  if (atom_name != " OP3") {  // extra atom in a nucleic acid
+                  if (! (atom_name != " OP3" && is_nucleotide)) {  // extra atom in a nucleic acid
                      at_copy->Copy(at);
                      res_mutable->AddAtom(at_copy);
+                     std::cout << "adding atom " << coot::atom_spec_t(at_copy) << std::endl;
                   }
                }
             }
@@ -1937,6 +1950,18 @@ coot::util::mutate_by_overlap(mmdb::Residue *residue_p, mmdb::Manager *mol,
       }
       mol->FinishStructEdit();
 
+   };
+
+   auto convert_to_hetatoms = [] (mmdb::Residue *residue_p) {
+
+      mmdb::Atom **residue_atoms = 0;
+      int n_residue_atoms = 0;
+      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (int iat=0; iat<n_residue_atoms; iat++) {
+         mmdb::Atom *at = residue_atoms[iat];
+         at->Het = 1;
+         std::cout << "convert atom " << at->GetAtomName() << " to HET" << std::endl;
+      }
    };
 
    // --- main line
@@ -1947,6 +1972,7 @@ coot::util::mutate_by_overlap(mmdb::Residue *residue_p, mmdb::Manager *mol,
 
    bool is_nucl = is_nucleotide(residue_p);
    bool is_aa   = residue_p->isAminoacid();
+
 
    mmdb::Residue *restraints_residue_p = restraints_new_type.GetResidue(false, 10.0f);
    if (restraints_residue_p) {
@@ -1984,7 +2010,13 @@ coot::util::mutate_by_overlap(mmdb::Residue *residue_p, mmdb::Manager *mol,
             // now copy or replace to coordinates the atoms of restraints_residue_p into residue_p
             // and remove atoms in residue_p that are not in restraints_residue_p
 
-            reposition_copy_or_delete_atoms(residue_p, restraints_residue_p, false);
+            reposition_copy_or_delete_atoms(residue_p, restraints_residue_p, false, false);
+
+            std::string new_residue_name = restraints_new_type.residue_info.comp_id;
+            if (! util::is_standard_amino_acid_name(new_residue_name))
+               convert_to_hetatoms(residue_p);
+
+            residue_p->SetResName(new_residue_name.c_str());
 
             delete mol_from_restraints_residue;
          }
@@ -2005,7 +2037,7 @@ coot::util::mutate_by_overlap(mmdb::Residue *residue_p, mmdb::Manager *mol,
             match_torsions mt(restraints_residue_p, residue_p, restraints_new_type);
             int n_torsions_moved = mt.match(tr_ligand, tr_res_ref);
 
-            reposition_copy_or_delete_atoms(residue_p, restraints_residue_p, true);
+            reposition_copy_or_delete_atoms(residue_p, restraints_residue_p, true, true);
          }
       }
    }
