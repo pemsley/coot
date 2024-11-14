@@ -1190,11 +1190,11 @@ coot::protein_geometry::have_dictionary_for_residue_type(const std::string &mono
 	    break;
       }
    }
-	 
+
    // OK so the monomer_type did not match the comp_id.  Perhaps the
    // comp_id was not the same as the three letter code, so let's
    // check the monomer_type against the three_letter_codes.
-   // 
+   //
    if (ifound == 0) {
       for (int i=0; i<ndict; i++) {
 	 if (dict_res_restraints[i].second.residue_info.three_letter_code == monomer_type) {
@@ -1214,8 +1214,9 @@ coot::protein_geometry::have_dictionary_for_residue_type(const std::string &mono
       }
    }
 
-   std::cout << ".......................have_dictionary_for_residue_type() " << monomer_type << " " << imol_enc
-             << " returns " << ifound << std::endl;
+   if (false)
+      std::cout << ".......................have_dictionary_for_residue_type() " << monomer_type
+                << " " << imol_enc << " returns " << ifound << std::endl;
 
    return ifound;
 }
@@ -2362,6 +2363,7 @@ coot::protein_geometry::get_residue(const std::string &comp_id, int imol_enc,
 
    // might use try_dynamic_add (if needed).
    bool r = have_dictionary_for_residue_type(comp_id, imol_enc, try_autoload_if_needed);
+
    if (false)
       std::cout << "------------------ in get_residue() have_dictionary_for_residue_type() returns  "
                 << r << std::endl;
@@ -2381,7 +2383,7 @@ coot::protein_geometry::get_residue(const std::string &comp_id, int imol_enc,
       }
    }
    return residue_p;
-} 
+}
 
 
 
