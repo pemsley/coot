@@ -437,6 +437,39 @@ molecules_container_t::minimize_energy(int imol, const std::string &atom_selecti
 
 }
 
+//! @param imol is the model molecule index
+//! @param atom_selection_cid is the selection CID e.g. "//A/15" (residue 15 of chain A)
+//! @param n_cycles is the number of refinement cycles. If you pass n_cycles = 100 (or some such) then you can
+//!         get the mesh for the partially optimized ligand/residues
+//! @param do_rama_plot_restraints is the flag for the usage of Ramachandran plot restraints
+//! @param rama_plot_weight is the flag to set the Ramachandran plot restraints weight
+//! @param do_torsion_restraints is the flag for the usage of torsion restraints
+//! @param torsion_weight is the flag to set the torsion restraints weight
+//! @param refinement_is_quiet is used to reduce the amount of diagnostic text written to the output
+//!
+//! @return the function value at termination
+float
+molecules_container_t::minimize(int imol, const std::string &atom_selection_cid,
+                                int n_cycles,
+                                bool do_rama_plot_restraints, float rama_plot_weight,
+                                bool do_torsion_restraints, float torsion_weight, bool refinement_is_quiet) {
+
+   int status = 0;
+   coot::instanced_mesh_t im;
+   if (is_valid_model_molecule(imol)) {
+      status = molecules[imol].minimize(atom_selection_cid, n_cycles,
+                                        do_rama_plot_restraints, rama_plot_weight,
+                                        do_torsion_restraints, torsion_weight,
+                                        refinement_is_quiet, &geom);
+
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+
+   return status; // this is the wrong return value.
+}
+
+
 
 coot::graph_match_info_t
 molecules_container_t::overlap_ligands_internal(int imol_ligand, int imol_ref, const std::string &chain_id_ref,

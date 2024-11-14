@@ -2229,6 +2229,23 @@ public:
                    bool do_rama_plot_restraints, float rama_plot_weight,
                    bool do_torsion_restraints, float torsion_weight, bool refinement_is_quiet);
 
+   //! @param imol is the model molecule index
+   //! @param atom_selection_cid is the selection CID e.g. "//A/15" (residue 15 of chain A)
+   //! @param n_cycles is the number of refinement cycles. If you pass n_cycles = 100 (or some such) then you can
+   //!         get the mesh for the partially optimized ligand/residues
+   //! @param do_rama_plot_restraints is the flag for the usage of Ramachandran plot restraints
+   //! @param rama_plot_weight is the flag to set the Ramachandran plot restraints weight
+   //! @param do_torsion_restraints is the flag for the usage of torsion restraints
+   //! @param torsion_weight is the flag to set the torsion restraints weight
+   //! @param refinement_is_quiet is used to reduce the amount of diagnostic text written to the output
+   //!
+   //! @return the function value at termination
+   float
+   minimize(int imol, const std::string &atom_selection_cid,
+            int n_cycles,
+            bool do_rama_plot_restraints, float rama_plot_weight,
+            bool do_torsion_restraints, float torsion_weight, bool refinement_is_quiet);
+
    //! Fix atoms during refinement
    //!
    //! Does nothing at the moment
