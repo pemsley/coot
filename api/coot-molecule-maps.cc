@@ -1492,3 +1492,31 @@ coot::molecule_t::get_number_of_map_sections(int axis_id) const {
    }
    return n;
 }
+
+
+double
+coot::molecule_t::sum_density_for_atoms_in_residue(const std::string &cid,
+                                                   const std::vector<std::string> &atom_names,
+                                                   const clipper::Xmap<float> &xmap) const {
+
+   double v = 0.0;
+   mmdb::Residue *residue_p = cid_to_residue(cid);
+   if (residue_p) {
+      mmdb::Atom **residue_atoms = 0;
+      int n_residue_atoms = 0;
+      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (int iat=0; iat<n_residue_atoms; iat++) {
+         mmdb::Atom *at = residue_atoms[iat];
+         if (! at->isTer()) {
+            std::string atom_name = at->GetAtomName();
+            if (std::find(atom_names.begin(), atom_names.end(), atom_name) != atom_names.end()) {
+               clipper::Coord_orth pos = co(at);
+               float d = util::density_at_point(xmap, pos);
+               v += static_cast<double>(d);
+            }
+         }
+      }
+   }
+   return v;
+}
+

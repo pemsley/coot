@@ -379,6 +379,7 @@ namespace coot {
                                      coot::protein_geometry &geom,
                                      ctpl::thread_pool &static_thread_pool);
 
+
       // ====================== dragged refinement ======================================
 
       coot::restraints_container_t *last_restraints;
@@ -844,6 +845,15 @@ namespace coot {
                                      coot::protein_geometry &geom,
                                      ctpl::thread_pool &static_thread_pool);
 
+      // I want a function that does the evaluation of the distortion
+      // in place - I don't want to get a function that allows me to
+      // calculate the distortion from the restraints.
+      //
+      std::pair<int, double>
+      simple_geometric_distortions_from_mol(const std::string &ligand_cid, bool with_nbcs,
+                                            coot::protein_geometry &geom,
+                                            ctpl::thread_pool &static_thread_pool);
+
       coot::instanced_mesh_t get_extra_restraints_mesh(int mode) const;
 
       //! @return a list of residues specs that have atoms within dist of the atoms of the specified residue
@@ -1186,6 +1196,11 @@ namespace coot {
       // --------------- rigid body fit
       int rigid_body_fit(const std::string &mult_cids, const clipper::Xmap<float> &xmap);
 
+      int rotate_around_bond(const std::string &residue_cid,
+                             const std::string &alt_conf,
+                             coot::atom_name_quad quad,
+                             double torsion_angle, protein_geometry &geom);
+
       // ----------------------- map functions
 
       bool is_EM_map() const;
@@ -1252,6 +1267,10 @@ namespace coot {
       void set_other_map_for_colouring_invert_colour_ramp(bool state) {
          radial_map_colour_invert_flag = state;
       }
+
+      double sum_density_for_atoms_in_residue(const std::string &cid,
+                                              const std::vector<std::string> &atom_names,
+                                              const clipper::Xmap<float> &xmap) const;
 
       //! The container class for an interesting place.
       //!

@@ -722,3 +722,30 @@ molecules_container_t::replace_residue(int imol, const std::string &residue_cid,
    }
    // return status
 }
+
+
+//! Rotate atoms around torsion
+//!
+//! the bond is presumed to be between atom-2 and atom-3. Atom-1 and atom-4 are
+//! used to define the absolute torsion angle.
+//!
+//! @return status 1 if successful, 0 if not.
+int
+molecules_container_t::rotate_around_bond(int imol, const std::string &residue_cid,
+                                          const std::string &atom_name_1,
+                                          const std::string &atom_name_2,
+                                          const std::string &atom_name_3,
+                                          const std::string &atom_name_4,
+                                          double torsion_angle) {
+
+   std::string alt_conf = "";
+   int status = 0;
+   if (is_valid_model_molecule(imol)) {
+      coot::atom_name_quad quad(atom_name_1, atom_name_2, atom_name_3, atom_name_4);
+      status = molecules[imol].rotate_around_bond(residue_cid, alt_conf, quad, torsion_angle, geom);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol
+                << std::endl;
+   }
+   return status;
+}
