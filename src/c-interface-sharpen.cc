@@ -43,7 +43,7 @@ float optimal_B_kurtosis(int imol) {
    // substract a linear background to find local maxima
    //
    float sharpening_limit = graphics_info_t::map_sharpening_scale_limit;
-   float golden_ratio = (sqrt(5.0)-1.0)*0.5;
+   float golden_ratio = (sqrt(5.0)-1.0)*0.5; // 20241115-PE this is NOT the Golden Ratio!
    float kurtosis = 0.0, B_optimal = 0.0;
    float a = -1.0*sharpening_limit, b = 1.0*sharpening_limit, TOL = 1E-2, TOLB = 40E0;
    float fc = 0.0, fd = 0.0, k = 0.0, m = 0.0;
