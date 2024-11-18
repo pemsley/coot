@@ -1,6 +1,13 @@
 ----
 
-For tubes repo, we need loops - reuse the stuart loops
+Use alignment text-anchor="middle" for text in molecule svg
+
+For tubes repo, we need loops - reuse the Stuart loops
+
+api: what is the energy of this residue? (for conformers, say)
+
+api: rotate torsion to value
+* Done.
 
 Oliver Clarke issues.
 

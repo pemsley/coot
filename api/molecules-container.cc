@@ -1330,6 +1330,28 @@ molecules_container_t::density_fit_analysis(int imol_model, int imol_map) const 
    return r;
 }
 
+//! @return the sum of the density of the given atoms in the specified CID
+//!  return -1001 on failure to find the residue or any atoms in the residue or if imol_map is not a map
+double
+molecules_container_t::get_sum_density_for_atoms_in_residue(int imol, const std::string &cid,
+                                                            const std::vector<std::string> &atom_names,
+                                                            int imol_map) {
+   double v = 1001.0;
+   if (is_valid_model_molecule(imol)) {
+      if (is_valid_map_molecule(imol_map)) {
+         const clipper::Xmap<float> &xmap = molecules.at(imol_map).xmap;
+         v = molecules[imol].sum_density_for_atoms_in_residue(cid, atom_names, xmap);
+      } else {
+         std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid map molecule " << imol_map << std::endl;
+      }
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return v;
+
+}
+
+
 //! density correlation validation information
 coot::validation_information_t
 molecules_container_t::density_correlation_analysis(int imol_model, int imol_map) const {
@@ -5076,6 +5098,30 @@ molecules_container_t::get_ligand_validation_vs_dictionary(int imol, const std::
    }
    return v;
 }
+
+//! Get ligand distortion
+//!
+//! a more simple interface to the above
+//!
+//! @return a pair: the first is the status (1 for OK, 0 for fail)
+//!
+// should this be const?
+std::pair<int, double>
+molecules_container_t::get_ligand_distortion(int imol, const std::string &ligand_cid, bool with_nbcs) {
+
+   int status = 0;
+   double d = 0;
+   if (is_valid_model_molecule(imol)) {
+      std::pair<int, double> p =
+         molecules[imol].simple_geometric_distortions_from_mol(ligand_cid, with_nbcs, geom, thread_pool);
+      status = p.first;
+      d = p.second;
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return std::make_pair(status, d);
+}
+
 
 
 //! set the map saturation

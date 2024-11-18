@@ -2135,6 +2135,19 @@ public:
    //! @param imol_map is the map molecule index
    int rigid_body_fit(int imol, const std::string &multi_cid, int imol_map);
 
+   //! Rotate atoms around torsion
+   //!
+   //! the bond is presumed to be between atom-2 and atom-3. Atom-1 and atom-4 are
+   //! used to define the absolute torsion angle.
+   //!
+   //! @return status 1 if successful, 0 if not.
+   int rotate_around_bond(int imol, const std::string &residue_cid,
+                          const std::string &atom_name_1,
+                          const std::string &atom_name_2,
+                          const std::string &atom_name_3,
+                          const std::string &atom_name_4,
+                          double torsion_angle);
+
    //! Change the chain ID
    //!
    //! @param imol is the model molecule index
@@ -2228,6 +2241,23 @@ public:
                    int n_cycles,
                    bool do_rama_plot_restraints, float rama_plot_weight,
                    bool do_torsion_restraints, float torsion_weight, bool refinement_is_quiet);
+
+   //! @param imol is the model molecule index
+   //! @param atom_selection_cid is the selection CID e.g. "//A/15" (residue 15 of chain A)
+   //! @param n_cycles is the number of refinement cycles. If you pass n_cycles = 100 (or some such) then you can
+   //!         get the mesh for the partially optimized ligand/residues
+   //! @param do_rama_plot_restraints is the flag for the usage of Ramachandran plot restraints
+   //! @param rama_plot_weight is the flag to set the Ramachandran plot restraints weight
+   //! @param do_torsion_restraints is the flag for the usage of torsion restraints
+   //! @param torsion_weight is the flag to set the torsion restraints weight
+   //! @param refinement_is_quiet is used to reduce the amount of diagnostic text written to the output
+   //!
+   //! @return the function value at termination
+   float
+   minimize(int imol, const std::string &atom_selection_cid,
+            int n_cycles,
+            bool do_rama_plot_restraints, float rama_plot_weight,
+            bool do_torsion_restraints, float torsion_weight, bool refinement_is_quiet);
 
    //! Fix atoms during refinement
    //!
@@ -2503,6 +2533,13 @@ public:
    std::vector<coot::geometry_distortion_info_container_t>
    get_ligand_validation_vs_dictionary(int imol, const std::string &ligand_cid, bool include_non_bonded_contacts);
 
+   //! Get ligand distortion
+   //!
+   //! a more simple interface to the above
+   //!
+   //! @return a pair: the first is the status (1 for OK, 0 for fail)
+   std::pair<int, double> get_ligand_distortion(int imol, const std::string &ligand_cid, bool include_non_bonded_contacts);
+
    //! Match ligand torsions
    //!
    //! @param imol_ligand is the ligand molecule index
@@ -2572,6 +2609,12 @@ public:
    //!
    //! @returns an object `validation_information_t`
    coot::validation_information_t density_fit_analysis(int imol_model, int imol_map) const;
+
+   //! @return the sum of the density of the given atoms in the specified CID
+   //!  return -1001 on failure to find the residue or any atoms in the residue or if imol_map is not a map
+   double get_sum_density_for_atoms_in_residue(int imol, const std::string &cid,
+                                               const std::vector<std::string> &atom_names,
+                                               int imol_map);
 
    //! Get the density correlation validation information
    //!
