@@ -1,5 +1,11 @@
 ----
 
+add to api: centre_of_residue() centre_of_sidechain(), CA_of_residue()
+
+Easy function: for Coot API pentakis dodec vertices and convert them to
+cylinders and make a generic display object out of them given centre and radius.
+Allow the user to change the centre and radius using some (python?) gui.
+
 Use alignment text-anchor="middle" for text in molecule svg
 
 For tubes repo, we need loops - reuse the Stuart loops

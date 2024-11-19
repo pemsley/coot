@@ -5900,3 +5900,50 @@ molecules_container_t::dictionary_atom_name_map(const std::string &comp_id_1, in
    return m;
 }
 
+
+
+//! get the residue CA position
+//!
+//! @return a vector. The length of the vector is 0 on failure, otherwise it is the x,y,z values
+std::vector<double>
+molecules_container_t::get_residue_CA_position(int imol, const std::string &cid) const {
+
+   std::vector<double> v;
+   if (is_valid_model_molecule(imol)) {
+      v = molecules[imol].get_residue_CA_position(cid);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return v;
+
+}
+
+//! get the avarge residue position
+//!
+//! @return a vector. The length of the vector is 0 on failure, otherwise it is the x,y,z values
+std::vector<double>
+molecules_container_t::get_residue_average_position(int imol, const std::string &cid) const {
+
+   std::vector<double> v;
+   if (is_valid_model_molecule(imol)) {
+      v = molecules[imol].get_residue_average_position(cid);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return v;
+}
+
+//! get the avarge residue side-chain position
+//!
+//! @return a vector. The length of the vector is 0 on failure, otherwise it is the x,y,z values
+std::vector<double>
+molecules_container_t::get_residue_sidechain_average_position(int imol, const std::string &cid) const {
+
+   std::vector<double> v;
+   if (is_valid_model_molecule(imol)) {
+      v = molecules[imol].get_residue_sidechain_average_position(cid);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return v;
+}

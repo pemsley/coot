@@ -4740,3 +4740,105 @@ coot::molecule_t::assign_sequence(const clipper::Xmap<float> &xmap, const coot::
 }
 
 
+
+
+//! get the residue CA position
+//!
+//! @return a vector. The length of the vector is 0 on failure, otherwise it is the x,y,z values
+std::vector<double>
+coot::molecule_t::get_residue_CA_position(const std::string &cid) const {
+
+   std::vector<double> v;
+   mmdb::Residue *residue_p = cid_to_residue(cid);
+   if (residue_p) {
+      mmdb::Atom **residue_atoms = 0;
+      int n_residue_atoms = 0;
+      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (int iat=0; iat<n_residue_atoms; iat++) {
+         mmdb::Atom *at = residue_atoms[iat];
+         if (! at->isTer()) {
+            std::string name = at->GetAtomName();
+            if (name == " CA ") {
+               v.push_back(at->x);
+               v.push_back(at->y);
+               v.push_back(at->z);
+               break;
+            }
+         }
+      }
+   }
+   return v;
+}
+
+//! get the avarge residue position
+//!
+//! @return a vector. The length of the vector is 0 on failure, otherwise it is the x,y,z values
+std::vector<double>
+coot::molecule_t::get_residue_average_position(const std::string &cid) const {
+
+   std::vector<double> v;
+   mmdb::Residue *residue_p = cid_to_residue(cid);
+   if (residue_p) {
+      std::vector<clipper::Coord_orth> atom_positions;
+      mmdb::Atom **residue_atoms = 0;
+      int n_residue_atoms = 0;
+      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (int iat=0; iat<n_residue_atoms; iat++) {
+         mmdb::Atom *at = residue_atoms[iat];
+         if (! at->isTer()) {
+            clipper::Coord_orth p = co(at);
+            atom_positions.push_back(p);
+         }
+      }
+      if (! atom_positions.empty()) {
+         clipper::Coord_orth sum(0,0,0);
+         for (const auto &pos : atom_positions)
+            sum += pos;
+         double is = 1.0/static_cast<double>(atom_positions.size());
+         v = {sum.x() * is, sum.y() * is, sum.z() * is};
+      }
+   }
+   return v;
+}
+
+//! get the avarge residue side-chain position
+//!
+//! @return a vector. The length of the vector is 0 on failure, otherwise it is the x,y,z values
+std::vector<double>
+coot::molecule_t::get_residue_sidechain_average_position(const std::string &cid) const {
+
+   std::vector<double> v;
+   mmdb::Residue *residue_p = cid_to_residue(cid);
+   if (residue_p) {
+      std::vector<clipper::Coord_orth> side_chain_positions;
+      std::set<std::string> main_chain_atoms;
+      main_chain_atoms.insert(" CA ");
+      main_chain_atoms.insert(" C  ");
+      main_chain_atoms.insert(" N  ");
+      main_chain_atoms.insert(" O  ");
+      main_chain_atoms.insert(" H  ");
+      main_chain_atoms.insert(" HA ");
+      mmdb::Atom **residue_atoms = 0;
+      int n_residue_atoms = 0;
+      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (int iat=0; iat<n_residue_atoms; iat++) {
+         mmdb::Atom *at = residue_atoms[iat];
+         if (! at->isTer()) {
+            std::string atom_name(at->GetAtomName());
+            if (main_chain_atoms.find(atom_name) == main_chain_atoms.end()) {
+               clipper::Coord_orth p = co(at);
+               side_chain_positions.push_back(p);
+            }
+         }
+      }
+      if (! side_chain_positions.empty()) {
+         clipper::Coord_orth sum(0,0,0);
+         for (const auto &pos : side_chain_positions)
+            sum += pos;
+         double is = 1.0/static_cast<double>(side_chain_positions.size());
+         v = {sum.x() * is, sum.y() * is, sum.z() * is};
+      }
+   }
+   return v;
+}
+

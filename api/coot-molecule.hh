@@ -631,6 +631,21 @@ namespace coot {
       //! Get the chains that are related by NCS:
       std::vector<std::vector<std::string> > get_ncs_related_chains() const;
 
+      //! get the residue CA position
+      //!
+      //! @return a vector. The length of the vector is 0 on failure, otherwise it is the x,y,z values
+      std::vector<double> get_residue_CA_position(const std::string &cid) const;
+
+      //! get the avarge residue position
+      //!
+      //! @return a vector. The length of the vector is 0 on failure, otherwise it is the x,y,z values
+      std::vector<double> get_residue_average_position(const std::string &cid) const;
+
+      //! get the avarge residue side-chain position
+      //!
+      //! @return a vector. The length of the vector is 0 on failure, otherwise it is the x,y,z values
+      std::vector<double> get_residue_sidechain_average_position(const std::string &cid) const;
+
       // ----------------------- model bonds
 
       simple_mesh_t get_bonds_mesh(const std::string &mode, protein_geometry *geom,

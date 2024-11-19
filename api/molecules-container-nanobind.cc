@@ -314,8 +314,11 @@ NB_MODULE(chapi, m) {
     .def("get_ramachandran_validation_markup_mesh",&molecules_container_t::get_ramachandran_validation_markup_mesh)
     //Using allow_raw_pointers(). Perhaps suggests we need to do something different from exposing mmdb pointers to JS.
     .def("get_residue",&molecules_container_t::get_residue, nb::rv_policy::reference)
+    .def("get_residue_average_position",&molecules_container_t::get_residue_average_position)
+    .def("get_residue_CA_position",&molecules_container_t::get_residue_CA_position)
     .def("get_residue_name",&molecules_container_t::get_residue_name)
     .def("get_residue_names_with_no_dictionary",&molecules_container_t::get_residue_names_with_no_dictionary)
+    .def("get_residue_sidechain_average_position",&molecules_container_t::get_residue_sidechain_average_position)
     .def("get_residue_using_cid",&molecules_container_t::get_residue_using_cid)
     .def("get_residues_near_residue",&molecules_container_t::get_residues_near_residue)
     .def("get_rotamer_dodecs",&molecules_container_t::get_rotamer_dodecs)
