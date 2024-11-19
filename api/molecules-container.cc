@@ -25,6 +25,7 @@
  */
 
 #include <iomanip>
+#include <filesystem>
 
 #include <sys/types.h> // for stating
 #include <sys/stat.h>
@@ -336,7 +337,6 @@ molecules_container_t::testing_stop_long_term_job() {
 
 }
 
-
 void
 molecules_container_t::read_standard_residues() {
 
@@ -348,10 +348,11 @@ molecules_container_t::read_standard_residues() {
       std::string dir = coot::package_data_dir();
       std::string standard_file_name = coot::util::append_dir_file(dir, "standard-residues.pdb");
 
-      struct stat buf;
-      int status = stat(standard_file_name.c_str(), &buf);
-      if (status != 0) { // standard-residues file was not found in
-                         // default location either...
+      std::filesystem::path standard_residues_file_path(standard_file_name);
+
+      // failure case first:
+      if (! std::filesystem::is_regular_file(standard_residues_file_path)) { // standard-residues file was not found in
+                                                                             // default location either...
          std::cout << "WARNING:: default location: " << standard_file_name << std::endl;
          std::cout << "WARNING:: Can't find standard residues file in the default location \n";
          std::cout << "         and environment variable for standard residues ";
@@ -362,8 +363,8 @@ molecules_container_t::read_standard_residues() {
          standard_residues_asc.read_success = 0;
          standard_residues_asc.n_selected_atoms = 0;
          // std::cout << "DEBUG:: standard_residues_asc marked as empty" << std::endl;
+
       } else {
-         // stat success:
 
 #if 0
          // unresolved (linking related?) startup bug here:
