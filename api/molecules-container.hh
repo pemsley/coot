@@ -3220,6 +3220,16 @@ public:
                                       float bond_width, float atom_radius_to_bond_width_ratio,
                                       int smoothness_factor);
    //! Function for Blender interface
+   //!
+   //! Make an (internal) mesh
+   //!
+   //! This function doesn't return a value, instead it stores a `blender_mesh_t` blender_mesh
+   //! in this model. One then (shortly later) uses get_triangles_for_blender(imol) (etc)
+   //! to import this mesh into blender.
+   //!
+   //! @modifies internal state to fill the internal `blender_mesh` object
+   //!
+   //!
    void make_mesh_for_molecular_representation_for_blender(int imol,
                                                            const std::string &cid,
                                                            const std::string &colour_scheme,

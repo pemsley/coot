@@ -1342,6 +1342,12 @@ namespace coot {
                                       float bond_width, float atom_radius_to_bond_width_ratio,
                                       int smoothness_factor);
 
+      //! Make an (internal) mesh
+      //!
+      //! this function doesn't return a value, instead it stores a `blender_mesh_t` blender_mesh
+      //! in this model
+      //!
+      //! @modifies internal state to fill the internal `blender_mesh` object
       void make_mesh_for_molecular_representation_for_blender(const std::string &cid,
                                                               const std::string &colour_scheme,
                                                               const std::string &style,
