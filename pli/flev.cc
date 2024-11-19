@@ -810,10 +810,11 @@ svg_container_t
 flev_t::draw_all_flev_residue_attribs() {
 
    svg_container_t svgc;
-   svg_container_t svgc_rc = draw_residue_circles(residue_circles, additional_representation_handles);
-   std::string btl = draw_bonds_to_ligand();
-   svg_container_t svgc_si = draw_stacking_interactions(residue_circles);
+   svg_container_t svgc_rc  = draw_residue_circles(residue_circles, additional_representation_handles);
+   svg_container_t svgc_btl = draw_bonds_to_ligand();
+   svg_container_t svgc_si  = draw_stacking_interactions(residue_circles);
    svgc.add(svgc_rc);
+   svgc.add(svgc_btl);
    svgc.add(svgc_si);
    return svgc;
 }
@@ -1020,10 +1021,10 @@ flev_t::draw_annotated_stacking_line(const lig_build::pos_t &ligand_ring_centre,
    return svgc;
 }
 
-std::string
+svg_container_t
 flev_t::draw_bonds_to_ligand() {
 
-   std::string svg_string;
+   svg_container_t svgc;
 
    // GooCanvasItem *root = goo_canvas_get_root_item (GOO_CANVAS(canvas));
 
@@ -1038,6 +1039,7 @@ flev_t::draw_bonds_to_ligand() {
 
             try {
 
+               double unit_scale = mol.get_scale(); // move up
                lig_build::pos_t pos = residue_circles[ic].pos;
                std::string at_name = residue_circles[ic].bonds_to_ligand[ib].ligand_atom_name;
                lig_build::pos_t lig_atom_pos = mol.get_atom_canvas_position(at_name);
@@ -1048,8 +1050,17 @@ flev_t::draw_bonds_to_ligand() {
                if (residue_circles[ic].bonds_to_ligand[ib].bond_type != pli::fle_ligand_bond_t::BOND_COVALENT)
                   B -= rc_to_lig_atom_uv * 8; // put the end point (say) of a hydrogen bond
                                               // some pixels away from the atom centre - for better
-                                                    // aesthetics.
+                                              // aesthetics.
                lig_build::pos_t A = pos + rc_to_lig_atom_uv * 20;
+
+               A.x *= unit_scale;
+               A.y *= unit_scale;
+               B.x *= unit_scale;
+               B.y *= unit_scale;
+               A.x += 0.5;
+               A.y += 0.5;
+               B.x += 0.5;
+               B.y += 0.5; // middle of the ligand is now at 0.5, 0.5
 
                // some colours
                std::string blue = "blue";
@@ -1102,10 +1113,31 @@ flev_t::draw_bonds_to_ligand() {
                //                                                    B.x, B.y,
                //                                                    "line-width", 2.5, // in draw_bonds_to_ligand()
                //                                                    "line-dash", dash,
-                //                                                    "start_arrow", start_arrow,
-                //                                                    "end_arrow",   end_arrow,
+               //                                                    "start_arrow", start_arrow,
+               //                                                    "end_arrow",   end_arrow,
                //                                                    "stroke-color", stroke_colour.c_str(),
                //                                                    NULL);
+
+               // this needs to be an arrow
+               //
+               std::string s;
+               double sf = 0.02 * scale_factor; // Hmm.. made-up number
+               std::string bond_colour = "green";
+               s += "   <line x1=\"";
+               s += std::to_string(scale_factor * A.x);
+               s += "\" y1=\"";
+               s += std::to_string(scale_factor * A.y);
+               s += "\" x2=\"";
+               s += std::to_string(scale_factor * B.x);
+               s += "\" y2=\"";
+               s += std::to_string(scale_factor * B.y);
+               s += "\"";
+               s += " style=\"stroke:";
+               // s += "#202020";
+               s += bond_colour;
+               s += "; stroke-width:2; fill:none; stroke-linecap:round;\" />\n";
+               svgc.add(s);
+
             }
             catch (const std::runtime_error &rte) {
                std::cout << "WARNING:: " << rte.what() << std::endl;
@@ -1119,7 +1151,7 @@ flev_t::draw_bonds_to_ligand() {
                       << residue_circles[ic].residue_type << std::endl;
       }
    }
-   return svg_string;
+   return svgc;
 }
 
 
@@ -2038,9 +2070,7 @@ flev_t::draw_residue_circles(const std::vector<residue_circle_t> &l_residue_circ
 
             svg_container_t svgc_s = draw_residue_circle_top_layer(l_residue_circles[i],
                                                                    ligand_centre, add_rep_handle);
-            std::cout << "--- calling svgc.add() " << std::endl;
             svgc.add(svgc_s);
-            std::cout << "--- done calling svgc.add() " << std::endl;
 	 }
       }
       catch (const std::runtime_error &rte) {
@@ -2104,22 +2134,27 @@ flev_t::draw_residue_circle_top_layer(const residue_circle_t &residue_circle,
 
    if (col.first != "") {
 
+      double unit_scale = mol.get_scale();
+
       // where do these values come from?
-      pos.x += 200;
-      pos.y += 200;
-      std::string circle_string = std::string("   ") +
-         "<circle cx=\"" + std::to_string(pos.x) + std::string("\" cy=\"") +
-         std::to_string(pos.y) +
-         std::string("\" r=\"22.2\"") +
-         std::string(" fill=\"")   + col.first  + std::string("\"") +
-         std::string(" stroke=\"") + col.second + std::string("\"") +
-         std::string(" stroke-width=\"") + std::to_string(stroke_width) + std::string("\"") +
+      pos.x *= unit_scale;
+      pos.y *= unit_scale;
+      pos.x += 0.5;
+      pos.y += 0.5; // middle of the ligand is now at 0.5, 0.5
+      std::string circle_string = std::string("   <circle ") +
+         std::string("cx=\"") + std::to_string(scale_factor * pos.x) + std::string("\" ") +
+         std::string("cy=\"") + std::to_string(scale_factor * pos.y) + std::string("\" ") +
+         // std::string("\" r=\"22.2\"") +
+         std::string("r=\"22.2\" ") +
+         std::string("fill=\"")   + col.first  + std::string("\" ") +
+         std::string("stroke=\"") + col.second + std::string("\" ") +
+         std::string("stroke-width=\"") + std::to_string(stroke_width) + std::string("\"") +
          std::string("/>\n");
-      float delta = 50.0; // about this?
+      float delta = 100.0; // about this? // was 50.0
       svgc.add("<!-- Residue Circle " + residue_circle.residue_label + std::string(" -->\n"));
       svgc.add(circle_string);
-      svgc.set_bounds(pos.x - delta, pos.y - delta,
-                      pos.x + delta, pos.y + delta);
+      svgc.set_bounds(scale_factor * pos.x - delta, scale_factor * pos.y - delta,
+                      scale_factor * pos.x + delta, scale_factor * pos.y + delta);
 
       // 20241002-PE note to self, "Phe" is too far to the right
       //                           "Ile" is too tar to the left
@@ -2129,10 +2164,10 @@ flev_t::draw_residue_circle_top_layer(const residue_circle_t &residue_circle,
       std::string text_1("   <text ");
       text_1 += std::string("fill=\"#111111\"");
       text_1 += std::string(" x=\"");
-      text_1 += std::to_string(pos.x);
+      text_1 += std::to_string(scale_factor * pos.x);
       text_1 += std::string("\"");
       text_1 += std::string(" y=\"");
-      text_1 += std::to_string(pos.y-2.9);
+      text_1 += std::to_string(scale_factor * pos.y - 2.9);
       text_1 += std::string("\"");
       text_1 += std::string(" text-anchor=\"middle\"");
       text_1 += std::string(" font-family=\"Helvetica, sans-serif\" font-size=\"1.14em\">");
@@ -2143,10 +2178,10 @@ flev_t::draw_residue_circle_top_layer(const residue_circle_t &residue_circle,
       std::string text_2("   <text ");
       text_2 += std::string("fill=\"#111111\"");
       text_2 += std::string(" x=\"");
-      text_2 += std::to_string(pos.x); // was -9
+      text_2 += std::to_string(scale_factor * pos.x); // was -9
       text_2 += std::string("\"");
       text_2 += std::string(" y=\"");
-      text_2 += std::to_string(pos.y + 10.5);
+      text_2 += std::to_string(scale_factor * pos.y + 10.5);
       text_2 += std::string("\"");
       text_2 += std::string(" text-anchor=\"middle\"");
       text_2 += std::string(" font-family=\"Helvetica, sans-serif\" font-size=\"0.8em\">");

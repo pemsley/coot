@@ -25,7 +25,7 @@ int main(int argc, char **argv) {
    if (atom_sel.read_success) {
 
       std::string output_file_name = "test.svg";
-      float radius = 4.4; // was 4.8;
+      float radius = 4.2; // was 4.4; // was 4.8;
       int imol = coot::protein_geometry::IMOL_ENC_ANY;
       coot::reduce r(atom_sel.mol, imol);
       bool nuclear_flag = false;

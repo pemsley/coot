@@ -2,13 +2,6 @@
 #include "flev-scale-factor.hh"
 #include "optimise-residue-circles.hh"
 
-// I don't know why these are static.
-bool pli::optimise_residue_circles::score_vs_ligand_atoms              = true;
-bool pli::optimise_residue_circles::score_vs_ring_centres              = false;
-bool pli::optimise_residue_circles::score_vs_other_residues            = false;
-bool pli::optimise_residue_circles::score_vs_original_positions        = true;
-bool pli::optimise_residue_circles::score_vs_other_residues_for_angles = false; //  problem. Fix later
-bool pli::optimise_residue_circles::score_vs_ligand_atom_bond_length   = true;
 
 pli::optimise_residue_circles::optimise_residue_circles(const std::vector<residue_circle_t> &r, // starting points
                                                         const std::vector<residue_circle_t> &c, // current points
@@ -17,13 +10,19 @@ pli::optimise_residue_circles::optimise_residue_circles(const std::vector<residu
 
    bool show_dynamics = false;
 
-   score_vs_ligand_atoms_rk = 300.0;
-   score_vs_ligand_atoms_exp_scale = 0.0008; // quite sensitive value - 0.0002 is big kick
-   score_vs_original_positions_kk = 1.1;
+   score_vs_ligand_atoms              = true;
+   score_vs_ring_centres              = true;
+   score_vs_original_positions        = true;
+   score_vs_other_residues_for_angles = false; //  problem. Fix later
+   score_vs_ligand_atom_bond_length   = true;
+
+   score_vs_ligand_atoms_rk = 50000.0;
+   score_vs_ligand_atoms_exp_scale = 0.0002; // quite sensitive value - 0.0002 is big kick
+   score_vs_original_positions_kk = 500.0;
    score_vs_ligand_atom_bond_length_kk = 0.001;
 
-   score_vs_other_residues_kk = 0.5;
-   score_vs_other_residues_exp_scale = 0.001;
+   score_vs_other_residues_kk = 2000.0;
+   score_vs_other_residues_exp_scale = 0.5;
 
    mol = mol_in;
    current_circles = c;
@@ -128,8 +127,8 @@ pli::optimise_residue_circles::f(const gsl_vector *v, void *params) {
 	    const double &d_pt_2 = gsl_vector_get(v, 2*i+1) - orc->mol.atoms[iat].atom_position.y;
 	    double d2 = d_pt_1 * d_pt_1 + d_pt_2 * d_pt_2;
 	    score += rk * exp(-0.5*exp_scale*d2);
-            if (false)
-               std::cout << "circles-vs-ligand-atoms circle " << i
+            if (true)
+               std::cout << "residue-circles-vs-ligand-atoms circle " << i
                          << " " << d_pt_1 << " " << d_pt_2
                          << " iat: " << iat << " at "
                          << orc->mol.atoms[iat].atom_position.x << " "
@@ -178,8 +177,8 @@ pli::optimise_residue_circles::f(const gsl_vector *v, void *params) {
 	 double d_1 = gsl_vector_get(v, 2*i  ) - orc->starting_circles[i].pos.x;
 	 double d_2 = gsl_vector_get(v, 2*i+1) - orc->starting_circles[i].pos.y;
          double delta = k * (d_1*d_1 + d_2*d_2);
-         if (i == 0)
-            std::cout << "score_vs_original_pos " << orc->starting_circles[i].pos
+         if (true)
+            std::cout << "score_vs_original_pos " << i << " " << orc->starting_circles[i].pos
                       << " " << gsl_vector_get(v, 2*i) << " " << gsl_vector_get(v, 2*i+1)
                       << " d " << sqrt(d_1*d_1 + d_2*d_2)
                       << " delta: " << delta << std::endl;

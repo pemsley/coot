@@ -42,12 +42,12 @@ namespace pli {
       // as part of params.  Hmmm... it is already.  Should be easy to
       // fix then.  But not now.
       //
-      static bool score_vs_ligand_atoms;
-      static bool score_vs_ring_centres;
-      static bool score_vs_other_residues;
-      static bool score_vs_other_residues_for_angles;
-      static bool score_vs_original_positions;
-      static bool score_vs_ligand_atom_bond_length;
+      bool score_vs_ligand_atoms;
+      bool score_vs_ring_centres;
+      bool score_vs_other_residues;
+      bool score_vs_other_residues_for_angles;
+      bool score_vs_original_positions;
+      bool score_vs_ligand_atom_bond_length;
 
       double score_vs_ligand_atoms_rk;
       double score_vs_ligand_atoms_exp_scale;
