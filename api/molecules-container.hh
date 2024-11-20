@@ -1294,7 +1294,14 @@ public:
                                 const std::string &chain_id_mov, int res_no_mov_start, int res_no_mov_end,
                                 int match_type);
 
-
+   //! Superpose using LSQ for a scpecific atom - setup the matches
+   //!
+   //! @param chain_id_ref the chain ID for the reference chain
+   //! @param res_no_ref the residue number in the reference chain
+   //! @param atom_name_ref the name of the reference atom
+   //! @param chain_id_mov the chain ID for the moving chain
+   //! @param res_no_mov the residue number in the moving chain
+   //! @param atom_name_mov the name of the moving atom
    void add_lsq_superpose_atom_match(const std::string &chain_id_ref, int res_no_ref, const std::string &atom_name_ref,
                                      const std::string &chain_id_mov, int res_no_mov, const std::string &atom_name_mov);
 
@@ -1309,7 +1316,15 @@ public:
    //! @param imol_mov the moving model molecule index
    void lsq_superpose(int imol_ref, int imol_mov);
 
-   //! transform a map and create a new map
+   //! Transform a map and create a new map
+   //!
+   //! @param imol_map map molecule index
+   //! @param lsq_matrix is an object of type lsq_results_t, is the object returned by `get_lsq_matrix()`
+   //! @param x is the point in the map about which the map is transformed
+   //! @param y is the point in the map about which the map is transformed
+   //! @param z is the point in the map about which the map is transformed
+   //! @param radius the radius of the transformed map, typically between 10 and 100 A
+   //!
    //! @return the molecule index of the new map, -1 for failure
    int transform_map_using_lsq_matrix(int imol_map, lsq_results_t lsq_matrix, float x, float y, float z, float radius);
    //! Get LSQ matrix
