@@ -289,7 +289,7 @@ class flev_t {
    void draw_solvent_accessibility_of_atoms();
 
    void draw_substitution_contour();
-   std::string draw_bonds_to_ligand();
+   svg_container_t draw_bonds_to_ligand();
    svg_container_t draw_solvent_exposure_circle(const residue_circle_t &residue_circle,
                                                 const lig_build::pos_t &ligand_centre);
    std::string get_residue_solvent_exposure_fill_colour(double radius_extra) const;
@@ -349,7 +349,7 @@ public:
       fle_water_dist_max = 3.25;
       fle_h_bond_dist_max = 3.9;
       standard_residue_circle_radius = 15.45;
-      scale_factor = 400.0;
+      scale_factor = 400.0; // used in svg_molecule
    }
 
 

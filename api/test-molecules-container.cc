@@ -6145,6 +6145,39 @@ int test_dictionary_atom_name_match(molecules_container_t &mc) {
    return status;
 }
 
+int test_average_position_functions(molecules_container_t &mc) {
+
+   auto close_position = [] (const std::vector<double> &p,
+                             const clipper::Coord_orth &r) {
+      double t = 0.9;
+      if (abs(p[0] - r.x()) < t) {
+         if (abs(p[1] - r.y()) < t) {
+            if (abs(p[2] - r.z()) < t) {
+               return true;
+            }
+         }
+      }
+      return false;
+   };
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   std::vector<double> ap_1 = mc.get_residue_average_position(imol, "//A/15");
+   std::vector<double> ap_2 = mc.get_residue_sidechain_average_position(imol, "//A/15");
+   std::vector<double> ap_3 = mc.get_residue_CA_position(imol, "//A/15");
+
+   int n_pass = 0;
+   if (close_position(ap_1, clipper::Coord_orth(16.4, 10.1, 57.5))) n_pass += 1;
+   if (close_position(ap_2, clipper::Coord_orth(16.2,  8.9, 56.0))) n_pass += 2;
+   if (close_position(ap_3, clipper::Coord_orth(16.4, 11.5, 58.7))) n_pass += 4;
+
+   std::cout << "here with n_pass " << n_pass << std::endl;
+   if (n_pass == 7) status = 1;
+   return status;
+}
+
 
 int test_template(molecules_container_t &mc) {
 
@@ -6463,7 +6496,8 @@ int main(int argc, char **argv) {
          // status += run_test(test_long_name_ligand_cif_merge, "test long name ligand cif merge", mc);
          // status += run_test(test_merge_ligand_and_gemmi_parse_mmcif, "test_merge_ligand_and_gemmi_parse_mmcif", mc);
          // status += run_test(test_delete_two_add_one_using_gemmi, "test_delete_two_add_one_using_gemmi", mc);
-         status += run_test(test_dictionary_atom_name_match, "dictionary atom names match", mc);
+         // status += run_test(test_dictionary_atom_name_match, "dictionary atom names match", mc);
+         status += run_test(test_average_position_functions, "average position functions", mc);
          if (status == n_tests) all_tests_status = 0;
 
          print_results_summary();

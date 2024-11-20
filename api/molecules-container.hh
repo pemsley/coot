@@ -1179,6 +1179,21 @@ public:
    std::pair<bool, coot::Cartesian> get_atom_position(int imol, coot::atom_spec_t &atom_spec);
 #endif
 
+   //! get the residue CA position
+   //!
+   //! @return a vector. The length of the vector is 0 on failure, otherwise it is the x,y,z values
+   std::vector<double> get_residue_CA_position(int imol, const std::string &cid) const;
+
+   //! get the avarge residue position
+   //!
+   //! @return a vector. The length of the vector is 0 on failure, otherwise it is the x,y,z values
+   std::vector<double> get_residue_average_position(int imol, const std::string &cid) const;
+
+   //! get the avarge residue side-chain position
+   //!
+   //! @return a vector. The length of the vector is 0 on failure, otherwise it is the x,y,z values
+   std::vector<double> get_residue_sidechain_average_position(int imol, const std::string &cid) const;
+
    //! Get number of atoms
    //!
    //! @param imol is the model molecule index
@@ -3235,6 +3250,16 @@ public:
                                       float bond_width, float atom_radius_to_bond_width_ratio,
                                       int smoothness_factor);
    //! Function for Blender interface
+   //!
+   //! Make an (internal) mesh
+   //!
+   //! This function doesn't return a value, instead it stores a `blender_mesh_t` blender_mesh
+   //! in this model. One then (shortly later) uses get_triangles_for_blender(imol) (etc)
+   //! to import this mesh into blender.
+   //!
+   //! @modifies internal state to fill the internal `blender_mesh` object
+   //!
+   //!
    void make_mesh_for_molecular_representation_for_blender(int imol,
                                                            const std::string &cid,
                                                            const std::string &colour_scheme,

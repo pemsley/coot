@@ -357,13 +357,18 @@ svg_bond_t::draw_double_bond(const lig_build::atom_t &at_1,
 
 // static
 lig_build::pos_t
-svg_molecule_t::svg_molecule_t::mol_coords_to_svg_coords(const lig_build::pos_t &pos_1,
-                                                         const lig_build::pos_t &centre,
-                                                         double scale) {
+svg_molecule_t::mol_coords_to_svg_coords(const lig_build::pos_t &pos_1,
+                                         const lig_build::pos_t &centre,
+                                         double scale) {
 
    lig_build::pos_t p1 = (pos_1 - centre) * scale;
    p1.y = -p1.y; // canvas is upside down c.f. normal/real-world/molecule coordinates
-   p1 += lig_build::pos_t(0.5,0.5);
+   p1 += lig_build::pos_t(0.5,0.5); // 20241116-PE removed this offset - why was it here?
+
+   std::cout << "mol_coords_to_svg_coords: "
+             << " scale " << scale
+             << " input " << pos_1 << " centre " << centre
+             << " output " << p1 << std::endl;
    return p1;
 
 }
@@ -741,7 +746,7 @@ svg_atom_t::set_colour(bool against_a_dark_background) {
    if (element == "I") colour = "purple";
    if (element == "P") colour = "orange";
    if (element == "Fe") colour = "brown";
-   if (element == "H") colour = "lightgrey";
+   if (element == "H") colour = "slategrey";
 
    if (against_a_dark_background) {
       if (element == "C") colour = "#cccccc";
@@ -763,12 +768,12 @@ svg_atom_t::make_text_item(const lig_build::atom_id_info_t &atom_id_info,
 
       // cairo_set_font_size(cr, 0.44 * scale * median_bond_length);
       lig_build::pos_t p = svg_molecule_t::mol_coords_to_svg_coords(atom_position, centre, scale);
-      p += atom_id_info.offsets[i].tweak * scale * 0.030 * median_bond_length;
+      // p += atom_id_info.offsets[i].tweak * scale * 0.030 * median_bond_length;
 
       // should these positions depend on the median_bond_length_?
 
       if (atom_id_info[i].text_pos_offset == lig_build::offset_text_t::UP)
-	 p.y -= 0.4 * scale * median_bond_length; // was 0.36
+	 p.y -= 0.42 * scale * median_bond_length; // was 0.4 // was 0.36
       if (atom_id_info[i].text_pos_offset == lig_build::offset_text_t::DOWN)
 	 p.y += 0.4 * scale * median_bond_length; // was 0.36
 
@@ -785,7 +790,7 @@ svg_atom_t::make_text_item(const lig_build::atom_id_info_t &atom_id_info,
 	 p.y -= 0.2 * scale * median_bond_length;
       }
 
-      if (false)
+      if (true)
 	 std::cout << "Rendering tweak " << i << " :" << atom_id_info[i].text
 		   << ": with tweak " << atom_id_info[i].tweak
 		   << ": with size_hint " << atom_id_info.size_hint
@@ -818,10 +823,11 @@ svg_atom_t::make_text_item(const lig_build::atom_id_info_t &atom_id_info,
 	    // cairo_stroke(cr);
 
             // 20230215-PE updated
-            double x_fudge = -sf * 0.50 / 50.0;
-            double y_fudge =  sf * 0.65 / 50.0;
+            // 20241117-PE updated again
+            double x_fudge = -sf * 0.0 / 50.0;
+            double y_fudge =  sf * 0.7 / 50.0;
 
-            // these were adjusted by eye, previolsy fs was just 0.8;
+            // these were adjusted by eye, previously fs was just 0.8;
             double fs = 0.8;
             fs *= (scale/0.044);
             if (fs < 0.7) fs = 0.7;
@@ -840,7 +846,9 @@ svg_atom_t::make_text_item(const lig_build::atom_id_info_t &atom_id_info,
             atom_string += std::to_string(sf * p.x + x_fudge);
             atom_string += "\" y=\"";
             atom_string += std::to_string(sf * p.y + y_fudge);
-            atom_string += "\" font-family=\"Helvetica, sans-serif\" font-size=" + font_size + " fill=\"";
+            atom_string += "\"";
+            atom_string += std::string(" text-anchor=\"middle\"");
+            atom_string += " font-family=\"Helvetica, sans-serif\" font-size=" + font_size + " fill=\"";
             atom_string += colour;
             atom_string += "\">";
             atom_string += txt;
