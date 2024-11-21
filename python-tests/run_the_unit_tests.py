@@ -27,7 +27,7 @@ from TestInternalFunctions  import *
 # as well as to sys.stdout
 class StreamIO:
         
-    def __init__(self, etxra, src=sys.stderr, dst=sys.stdout):
+    def __init__(self, src=sys.stderr, dst=sys.stdout):
         import io
         global unittest_output
         unittest_output = io.StringIO()
@@ -41,6 +41,9 @@ class StreamIO:
         self.dst.write(msg)
 
     def flush(self):
+        self.src.flush()
+        self.dst.flush()
+        self.extra.flush()
         pass
 
 
