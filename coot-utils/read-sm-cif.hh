@@ -24,8 +24,9 @@
  *
  */
 
-#include "clipper/cif/cif_data_io.h"
-#include "clipper/core/xmap.h"
+#include <mmdb2/mmdb_manager.h>
+#include <clipper/cif/cif_data_io.h>
+#include <clipper/core/xmap.h>
 
 namespace coot {
 
@@ -55,19 +56,18 @@ namespace coot {
       clipper::HKL_data<clipper::datatypes::F_sigF<float> > my_fsigf;
       // and this (from the real and imaginary components)
       clipper::HKL_data<clipper::datatypes::F_phi<float> >  my_fphi;
-      
+
       // c.f. get_cell() from a coords file
       clipper::Cell get_cell_for_data(const std::string &file_name) const;
-      
+
       std::pair<bool,clipper::Spacegroup> get_space_group(const std::string &file_name) const;
 
       clipper::Resolution get_resolution(const clipper::Cell &cell,
 					 const std::string &file_name) const;
       void setup_hkls(const std::string &file_name);
 
-      // various ways in which the symmetry can be specified 
+      // various ways in which the symmetry can be specified
       //
-      
 
    public:
       smcif() {};
@@ -82,7 +82,7 @@ namespace coot {
       bool check_for_f_phis() const; // use sigmaa_maps if we have phis, use
                                      // sigmaa_maps_by_calc_sfs if we don't.
       // calculate maps using fcalc and phi calc in the .cif files
-      // return an empty map in first if not possible, 
+      // return an empty map in first if not possible,
       std::pair<clipper::Xmap<float>, clipper::Xmap<float> > sigmaa_maps();
       // return an empty map in first if not possible
       std::pair<clipper::Xmap<float>, clipper::Xmap<float> > sigmaa_maps_by_calc_sfs(mmdb::Atom **atom_selection, int n_selected_atoms);
@@ -110,7 +110,6 @@ namespace coot {
 	 u12 = u12_in;
 	 u13 = u13_in;
 	 u23 = u23_in;
-      } 
+      }
    };
-   
 }
