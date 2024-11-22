@@ -824,8 +824,8 @@ int CXXCreator::evolve(int optionSOR, double convergenceCriterion) {
                             
                             // eFactor*currentPotential = (sum(6 nearest Epsilons) + kappaFactor) sourceTerms: charge*chargeFactor
                             double resid = eFactor*currentPotential - passableSpace->getGridCharge(i,j,k)*chargeFactor
-                            - passableSpace->getDielGrid(i-1,j,k,0)*passableSpace->getPotential(i-1,j,k) - passableSpace->getDielGrid(i,j,k,0)*space->getPotential(i+1,j,k)
-                            - passableSpace->getDielGrid(i,j-1,k,1)*passableSpace->getPotential(i,j-1,k) - passableSpace->getDielGrid(i,j,k,1)*space->getPotential(i,j+1,k)
+                            - passableSpace->getDielGrid(i-1,j,k,0)*passableSpace->getPotential(i-1,j,k) - passableSpace->getDielGrid(i,j,k,0)*passableSpace->getPotential(i+1,j,k)
+                            - passableSpace->getDielGrid(i,j-1,k,1)*passableSpace->getPotential(i,j-1,k) - passableSpace->getDielGrid(i,j,k,1)*passableSpace->getPotential(i,j+1,k)
                             - passableSpace->getDielGrid(i,j,k-1,2)*passableSpace->getPotential(i,j,k-1) - passableSpace->getDielGrid(i,j,k,2)*passableSpace->getPotential(i,j,k+1);
                             
                             // use residual and over correct current potenttial by over relaxation to calculate new potential
@@ -848,8 +848,8 @@ int CXXCreator::evolve(int optionSOR, double convergenceCriterion) {
 #else
                 }
 #endif
-                // for (size_t j=0; j<space->getDimJ(); j++) largestChange = max(largestChange,largestChangeOfRow[j]);
-                // for (size_t j=0; j<space->getDimJ(); j++) largestPotential = max(largestPotential,largestPotentialOfRow[j]);
+                for (size_t j=0; j<space->getDimJ(); j++) largestChange = max(largestChange,largestChangeOfRow[j]);
+                for (size_t j=0; j<space->getDimJ(); j++) largestPotential = max(largestPotential,largestPotentialOfRow[j]);
             }
             
             
