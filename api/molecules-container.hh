@@ -204,11 +204,14 @@ class molecules_container_t {
 
    bool particles_have_been_shown_already_for_this_round_flag;
 
+#ifdef SKIP_FOR_PYTHON_DOXYGEN
+#else
    //! Get LSQ matrix internal (private)
    //!
    //! @param imol_ref the reference model molecule index
    //! @param imol_mov the moving model molecule index
    std::pair<short int, clipper::RTop_orth> get_lsq_matrix_internal(int imol_ref, int imol_mov, bool summary_to_screen) const;
+#endif
 
    coot::validation_information_t
    get_q_score_validation_information(mmdb::Manager *mol, int udd_q_score, bool do_per_atom) const;
