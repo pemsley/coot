@@ -628,6 +628,8 @@ public:
 #else
    //! don't use this in ecmascript
    mmdb::Manager *get_mol(unsigned int imol) const { // 20221018-PE function name change
+
+
       if (is_valid_model_molecule(imol)) {
          return molecules[imol].atom_sel.mol;
       } else {
@@ -1186,17 +1188,17 @@ public:
    std::pair<bool, coot::Cartesian> get_atom_position(int imol, coot::atom_spec_t &atom_spec);
 #endif
 
-   //! get the residue CA position
+   //! Get the residue CA position
    //!
    //! @return a vector. The length of the vector is 0 on failure, otherwise it is the x,y,z values
    std::vector<double> get_residue_CA_position(int imol, const std::string &cid) const;
 
-   //! get the avarge residue position
+   //! Get the average residue position
    //!
    //! @return a vector. The length of the vector is 0 on failure, otherwise it is the x,y,z values
    std::vector<double> get_residue_average_position(int imol, const std::string &cid) const;
 
-   //! get the avarge residue side-chain position
+   //! Get the average residue side-chain position
    //!
    //! @return a vector. The length of the vector is 0 on failure, otherwise it is the x,y,z values
    std::vector<double> get_residue_sidechain_average_position(int imol, const std::string &cid) const;

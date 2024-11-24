@@ -5925,7 +5925,7 @@ molecules_container_t::dictionary_atom_name_map(const std::string &comp_id_1, in
 
 
 
-//! get the residue CA position
+//! Get the residue CA position
 //!
 //! @return a vector. The length of the vector is 0 on failure, otherwise it is the x,y,z values
 std::vector<double>
@@ -5941,7 +5941,7 @@ molecules_container_t::get_residue_CA_position(int imol, const std::string &cid)
 
 }
 
-//! get the avarge residue position
+//! Get the average residue position
 //!
 //! @return a vector. The length of the vector is 0 on failure, otherwise it is the x,y,z values
 std::vector<double>
@@ -5956,7 +5956,7 @@ molecules_container_t::get_residue_average_position(int imol, const std::string 
    return v;
 }
 
-//! get the avarge residue side-chain position
+//! Get the average residue side-chain position
 //!
 //! @return a vector. The length of the vector is 0 on failure, otherwise it is the x,y,z values
 std::vector<double>
