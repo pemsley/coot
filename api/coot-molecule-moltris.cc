@@ -366,15 +366,12 @@ coot::molecule_t::get_molecular_representation_mesh(const std::string &atom_sele
    };
 
    auto set_vertex_colour = [] (api::vnc_vertex &vertex, float potential) {
-      float pk = 10.0;
-      if (potential == 0.0) {
-         vertex.color = glm::vec4(0.6, 0.6, 0.6, 1.0);
-      } else {
-         if (potential < 0.0)
-            vertex.color = glm::vec4(0.6 - pk, 0.6 + pk * 0.5, 0.6 + pk * 0.5, 1.0);
-         else
-            vertex.color = glm::vec4(0.6 - pk * 0.5, 0.6 - pk * 0.5, 0.6 + pk, 1.0);
-      }
+       float pot_f = min(1.0,fabs(potential)*2.);
+       if (potential < 0.0){
+           vertex.color = glm::vec4(1.0, 1.0-pot_f, 1.0-pot_f, 1.0);
+       } else {
+           vertex.color = glm::vec4(1.0-pot_f, 1.0-pot_f, 1.0, 1.0);
+       }
    };
 
    coot::simple_mesh_t mesh;

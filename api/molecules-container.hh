@@ -733,6 +733,13 @@ public:
    //! @return the new molecule index on success and -1 on failure
    int read_pdb(const std::string &file_name);
 
+   //! Read a Small molecule CIF file
+   //!
+   //! @param file_name is the cif file-name
+   //!
+   //! @return the new molecule index on success and -1 on failure
+   int read_small_molecule_cif(const std::string &file_name);
+
    //! Print the secondary structure information
    //!
    //! @param imol is the model molecule index

@@ -35,7 +35,7 @@ make_instanced_graphical_bonds_bonds(coot::instanced_mesh_t &m,
 void make_graphical_bonds_spherical_atoms_with_vdw_radii_instanced(coot::instanced_mesh_t &m, const graphical_bonds_container &gbc,
                                                                    unsigned int num_subdivisions,
                                                                    const std::vector<glm::vec4> &colour_table,
-                                                                   const coot::protein_geometry &geom);
+                                                                   const coot::protein_geometry &geom, int imol=coot::protein_geometry::IMOL_ENC_ANY);
 
 void
 make_instanced_graphical_bonds_bonds(coot::instanced_mesh_t &m,

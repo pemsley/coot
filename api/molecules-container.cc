@@ -36,6 +36,7 @@
 #include "coot-utils/coot-map-utils.hh"
 #include "coot-utils/secondary-structure-headers.hh"
 #include "coot-utils/oct.hh"
+#include "coot-utils/read-sm-cif.hh"
 
 #include "coords/Bond_lines.h"
 #include "coords/mmdb.hh"
@@ -716,6 +717,28 @@ molecules_container_t::read_pdb(const std::string &file_name) {
 
    return read_coordinates(file_name);
 }
+
+//! Read a Small molecule CIF file
+//!
+//! @param file_name is the cif file-name
+//!
+//! @return the new molecule index on success and -1 on failure
+int
+molecules_container_t::read_small_molecule_cif(const std::string &file_name) {
+
+   int imol = -1;
+
+   coot::smcif cif;
+   mmdb::Manager *mol = cif.read_sm_cif(file_name);
+   if (mol) {
+      imol = molecules.size();
+      atom_selection_container_t asc = make_asc(mol);
+      molecules.push_back(coot::molecule_t(asc, imol, file_name));
+   }
+   return imol;
+}
+
+
 
 //! read a PDB file (or mmcif coordinates file, despite the name) to
 //! replace the current molecule. This will only work if the molecules
