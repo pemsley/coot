@@ -517,7 +517,7 @@ coot::restraints_container_t::add_extra_restraints(int imol,
       std::cout << "--------------------- in add_extra_restraints() adding "
 		<< extra_restraints.torsion_restraints.size() << " extra torsion restraints "
 		<< std::endl;
-      std::cout << "--------------------- in add_extra_restraints() parallel-plan adding "
+      std::cout << "--------------------- in add_extra_restraints() parallel-plane adding "
 		<< extra_restraints.parallel_plane_restraints.size() << " pp restraints "
 		<< std::endl;
       std::cout << "--------------------- in add_extra_restraints() target-position adding "
@@ -957,8 +957,8 @@ coot::restraints_container_t::add_extra_geman_mcclure_restraints(const extra_res
 void
 coot::restraints_container_t::add_extra_torsion_restraints(const extra_restraints_t &extra_restraints) {
 
-   std::cout << "in add_extra_torsion_restraints() << extra_restraints.torsion_restraints "
-	     << extra_restraints.torsion_restraints.size() << std::endl;
+   // std::cout << "in add_extra_torsion_restraints() << extra_restraints.torsion_restraints "
+   // << extra_restraints.torsion_restraints.size() << std::endl;
 
    for (unsigned int i=0; i<extra_restraints.torsion_restraints.size(); i++) {
 
@@ -1127,7 +1127,7 @@ coot::restraints_container_t::add_extra_parallel_plane_restraints(int imol,
       mmdb::Residue *r_1 = util::get_residue(r.plane_1_atoms.res_spec, mol);
       mmdb::Residue *r_2 = util::get_residue(r.plane_2_atoms.res_spec, mol);
 
-      if (0) { 
+      if (false) {
 	 std::cout << "------ in add_extra_parallel_plane_restraints() extracting 1 " << r.plane_1_atoms.res_spec
 		   << std::endl;
 	 std::cout << "------ in add_extra_parallel_plane_restraints() extracting 2 " << r.plane_2_atoms.res_spec

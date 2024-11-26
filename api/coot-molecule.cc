@@ -2414,7 +2414,7 @@ coot::molecule_t::refine_direct(std::vector<mmdb::Residue *> rv, const std::stri
       local_residues.push_back(std::make_pair(false, r));
 
    if (false) { // debugging
-      std::cout << "----------------------------- local_residues " << local_residues.size() << " --------" << std::endl;
+      std::cout << "---------- local_residues " << local_residues.size() << " --------" << std::endl;
       for (unsigned int i=0; i<local_residues.size(); i++) {
          std::cout << "                 " << i << " " << local_residues[i].second << std::endl;
       }
