@@ -1342,7 +1342,7 @@ coot::restraints_container_t::link_infos_are_glycosidic_by_name_p(const std::vec
 // the the neighbouring residues too (flanking residues) so that
 // have_intermediate_residue_by_seqnum() can use them (to check for
 // spurious bonding from highly distorted structure).
-// 
+//
 std::pair<std::string, bool>
 coot::restraints_container_t::find_link_type_complicado(mmdb::Residue *first,
 							mmdb::Residue *second,
@@ -1507,7 +1507,8 @@ coot::restraints_container_t::find_link_type_2022(mmdb::Residue *first_residue,
                                             const std::string &link_id,
                                             bool order_switch_flag) {
 
-      if (false)
+      bool debug = false;
+      if (debug)
          std::cout << "link_type_filter_general() starting with link_id " << link_id << std::endl;
 
       double dist_crit = 3.0; // A
@@ -1563,7 +1564,7 @@ coot::restraints_container_t::find_link_type_2022(mmdb::Residue *first_residue,
             }
          }
       }
-      if (false)
+      if (debug)
          std::cout << "link_type_filter_general() checking type " << link_id << " and returns \""
                    << found_link << "\"" << std::endl;
       return found_link;
@@ -1720,6 +1721,10 @@ coot::restraints_container_t::find_link_type_2022(mmdb::Residue *first_residue,
 
    if (link_type == "pyr-SER")
       link_type = pyr_SER_filter(first_residue, second_residue, order_switch_was_needed);
+
+   if (link_type == "p") // 20241126-PE
+      if (! get_consecutive(first_residue, second_residue))
+         link_type = ""; // nope
 
    // now check other links (but no need to check the links that we have already checked)
    if (! link_type.empty()) {

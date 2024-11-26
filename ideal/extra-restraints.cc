@@ -486,9 +486,9 @@ coot::extra_restraints_t::matches_bond_template_p(const std::vector<std::string>
       }
    } else {
       std::cout << "not 24 words" << std::endl;
-   } 
+   }
    return status;
-} 
+}
 
 
 
@@ -498,7 +498,7 @@ coot::restraints_container_t::add_extra_restraints(int imol,
 						   const extra_restraints_t &extra_restraints,
 						   const protein_geometry &geom) {
 
-   std::cout << "HHHHHHHHHere in add_extra_restraints() - from " << description << std::endl;
+   // std::cout << "HHHHHHHHHere in add_extra_restraints() - from " << description << std::endl;
 
    if (true) {
       std::cout << "INFO:: extra restraints origin: " << description << std::endl;
@@ -812,7 +812,7 @@ coot::restraints_container_t::add_extra_bond_restraints(const extra_restraints_t
 	 }
       }
    }
-   if (true)
+   if (false)
       std::cout << "INFO:: --------------------------  made " << n_extra_bond_restraints
 		<< " extra bond restraints" << std::endl;
 }
