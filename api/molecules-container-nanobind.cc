@@ -369,6 +369,7 @@ NB_MODULE(chapi, m) {
     .def("ramachandran_validation",&molecules_container_t::ramachandran_validation)
     .def("read_coordinates",&molecules_container_t::read_coordinates)
     .def("read_ccp4_map",&molecules_container_t::read_ccp4_map)
+    .def("read_extra_restraints",&molecules_container_t::read_extra_restraints)
     .def("read_mtz",&molecules_container_t::read_mtz)
     .def("read_pdb",&molecules_container_t::read_pdb)
     .def("read_small_molecule_cif",&molecules_container_t::read_small_molecule_cif)

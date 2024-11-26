@@ -3640,7 +3640,7 @@ molecules_container_t::make_last_restraints(const std::vector<std::pair<bool,mmd
 
    if (molecules[imol_moving_atoms].extra_restraints.has_restraints()) {
       std::cout << "debug:: calling add_extra_restraints() from make_last_restraints() " << std::endl;
-      last_restraints->add_extra_restraints(imol_moving_atoms, "user-defined from make_last_restraints()",
+      last_restraints->add_extra_restraints(imol_moving_atoms, "user-defined restraints called from make_last_restraints()",
                                             molecules[imol_moving_atoms].extra_restraints, geom);
    }
 
