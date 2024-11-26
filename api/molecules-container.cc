@@ -2891,11 +2891,15 @@ molecules_container_t::refine_direct(int imol, std::vector<mmdb::Residue *> rv, 
                 << " and imol_refinement_map " << imol_refinement_map
                 << std::endl;
 
+   // this is not stored in molecules_container!
+   unsigned int max_number_of_threads = thread_pool.size();
+
    int status = 0;
    if (is_valid_model_molecule(imol)) {
       if (is_valid_map_molecule(imol_refinement_map)) {
          const clipper::Xmap<float> &xmap = molecules[imol_refinement_map].xmap;
-         status = molecules[imol].refine_direct(rv, alt_loc, xmap, map_weight, n_cycles, geom,
+         status = molecules[imol].refine_direct(rv, alt_loc, xmap, max_number_of_threads,
+                                                map_weight, n_cycles, geom,
                                        use_rama_plot_restraints, rama_plot_restraints_weight,
                                        use_torsion_restraints, torsion_restraints_weight,
                                        refinement_is_quiet);

@@ -398,6 +398,7 @@ NB_MODULE(chapi, m) {
     .def("set_make_backups",&molecules_container_t::set_make_backups)
     .def("set_map_sampling_rate",&molecules_container_t::set_map_sampling_rate)
     .def("set_map_weight",&molecules_container_t::set_map_weight)
+    .def("set_max_number_of_threads",&molecules_container_t::set_max_number_of_threads)
     .def("set_molecule_name",&molecules_container_t::set_molecule_name)
     .def("set_rama_plot_restraints_weight",&molecules_container_t::set_rama_plot_restraints_weight)
     .def("set_refinement_is_verbose",&molecules_container_t::set_refinement_is_verbose)

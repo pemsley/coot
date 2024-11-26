@@ -2399,6 +2399,7 @@ coot::molecule_t::get_fixed_atoms() const {
 
 int
 coot::molecule_t::refine_direct(std::vector<mmdb::Residue *> rv, const std::string &alt_loc, const clipper::Xmap<float> &xmap,
+                                unsigned int max_number_of_threads,
                                 float map_weight, int n_cycles, const coot::protein_geometry &geom,
                                 bool do_rama_plot_restraints, float rama_plot_weight,
                                 bool do_torsion_restraints, float torsion_weight,
@@ -2447,7 +2448,7 @@ coot::molecule_t::refine_direct(std::vector<mmdb::Residue *> rv, const std::stri
    if (do_torsion_restraints) flags = TYPICAL_RESTRAINTS_WITH_TORSIONS;
    pseudo_restraint_bond_type pseudos = NO_PSEUDO_BONDS;
 
-   int n_threads = 4; // coot::get_max_number_of_threads();
+   int n_threads = max_number_of_threads;
    ctpl::thread_pool thread_pool(n_threads);
    restraints.thread_pool(&thread_pool, n_threads);
 

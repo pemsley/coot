@@ -2108,7 +2108,7 @@ void set_map_radius_em(float radius) {
    for (int ii=0; ii<g.n_molecules(); ii++)
       g.molecules[ii].update_map(true);
    graphics_draw();
-   std::string cmd = "set-radius-em";
+   std::string cmd = "set-map-radius-em";
    std::vector<coot::command_arg_t> args;
    args.push_back(radius);
    add_to_history_typed(cmd, args);
