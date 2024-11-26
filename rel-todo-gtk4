@@ -1,12 +1,40 @@
 ----
 
-add to api: centre_of_residue() centre_of_sidechain(), CA_of_residue()
+In member function 'std::pair<_T1, _T2>& std::pair<_T1, _T2>::operator=(std::__conditional_t<((bool)std::__and_<std::is_move_assignable<_Tp>, std::is_move_assignable<_T2> >::value), std::pair<_T1, _T2>&&, std::__nonesuch&&>) [with _T1 = bool; _T2 = clipper::Coord_orth]',
+    inlined from 'coot::residue_by_phi_psi::connecting_atoms_t& coot::residue_by_phi_psi::connecting_atoms_t::operator=(coot::residue_by_phi_psi::connecting_atoms_t&&)' at ../../coot/ligand/residue_by_phi_psi.hh:46:13,
+    inlined from 'coot::residue_by_phi_psi::connecting_atoms_t coot::residue_by_phi_psi::get_connecting_residue_atoms() const' at ../../coot/ligand/residue_by_phi_psi.cc:682:73:
+/usr/include/c++/14.2.1/bits/stl_pair.h:938:9: warning: '<unnamed>.coot::residue_by_phi_psi::connecting_atoms_t::upstream_C.std::pair<bool, clipper::Coord_orth>::second' may be used uninitialized [-Wmaybe-uninitialized]
+  938 |         second = std::forward<second_type>(__p.second);
+      |         ^~~~~~
+../../coot/ligand/residue_by_phi_psi.cc: In member function 'coot::residue_by_phi_psi::connecting_atoms_t coot::residue_by_phi_psi::get_connecting_residue_atoms() const':
+../../coot/ligand/residue_by_phi_psi.cc:682:80: note: '<anonymous>' declared here
+  682 |             atoms_in_residue = connecting_atoms_t(N_at_pos, CA_at_pos, C_at_pos);
+      |                                                                                ^
+In member function 'std::pair<_T1, _T2>& std::pair<_T1, _T2>::operator=(std::__conditional_t<((bool)std::__and_<std::is_move_assignable<_Tp>, std::is_move_assignable<_T2> >::value), std::pair<_T1, _T2>&&, std::__nonesuch&&>) [with _T1 = bool; _T2 = clipper::Coord_orth]',
+    inlined from 'coot::residue_by_phi_psi::connecting_atoms_t& coot::residue_by_phi_psi::connecting_atoms_t::operator=(coot::residue_by_phi_psi::connecting_atoms_t&&)' at ../../coot/ligand/residue_by_phi_psi.hh:46:13,
+    inlined from 'coot::residue_by_phi_psi::connecting_atoms_t coot::residue_by_phi_psi::get_connecting_residue_atoms() const' at ../../coot/ligand/residue_by_phi_psi.cc:682:73:
+/usr/include/c++/14.2.1/bits/stl_pair.h:938:9: warning: '<unnamed>.coot::residue_by_phi_psi::connecting_atoms_t::downstream_N.std::pair<bool, clipper::Coord_orth>::second' may be used uninitialized [-Wmaybe-uninitialized]
+  938 |         second = std::forward<second_type>(__p.second);
+      |         ^~~~~~
+../../coot/ligand/residue_by_phi_psi.cc: In member function 'coot::residue_by_phi_psi::connecting_atoms_t coot::residue_by_phi_psi::get_connecting_residue_atoms() const':
+../../coot/ligand/residue_by_phi_psi.cc:682:80: note: '<anonymous>' declared here
+  682 |             atoms_in_residue = connecting_atoms_t(N_at_pos, CA_at_pos, C_at_pos);
+      |                                                                                ^
+mv -f .deps/richardson-rotamers.Tpo .deps/richardson-rotamers.Plo
+
+
+set_max_number_of_threads() seems not to be honoured in chapi
+
+INFO:: there are 0 helices and 0 sheets.
+Don't go on to try to write them out then.
+
+read small molecule hkl cif in libcootapi? e.g 2019830.hkl
+
+read small molecule hkl cif in Coot? e.g 2019830.hkl - or does it work already?
 
 Easy function: for Coot API pentakis dodec vertices and convert them to
 cylinders and make a generic display object out of them given centre and radius.
 Allow the user to change the centre and radius using some (python?) gui.
-
-Use alignment text-anchor="middle" for text in molecule svg
 
 For tubes repo, we need loops - reuse the Stuart loops
 
@@ -107,6 +135,12 @@ Martin request: libcootapi: Step sample maps
 Adaptive rotation for the mouse motion - make it more for a widescreen.
 
 SVG for pli
+
+add to api: centre_of_residue() centre_of_sidechain(), CA_of_residue()
+* Done.
+
+Use alignment text-anchor="middle" for text in molecule svg
+* Done.
 
 coot --dictionary should make a molecule instance from the dictionary
 * Done.
