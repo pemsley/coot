@@ -201,7 +201,7 @@ make_instanced_graphical_bonds_hemispherical_atoms(coot::instanced_mesh_t &m, //
 void make_graphical_bonds_spherical_atoms_with_vdw_radii_instanced(coot::instanced_mesh_t &m, const graphical_bonds_container &gbc,
                                                                    unsigned int num_subdivisions,
                                                                    const std::vector<glm::vec4> &colour_table,
-                                                                   const coot::protein_geometry &geom) {
+                                                                   const coot::protein_geometry &geom, int imol_no) {
 
    coot::instanced_geometry_t ig("vdW Balls");
 
@@ -235,7 +235,7 @@ void make_graphical_bonds_spherical_atoms_with_vdw_radii_instanced(coot::instanc
          } else {
             std::string atom_name(at->GetAtomName());
             std::string residue_name(at->GetResName());
-            atom_radius = geom.get_vdw_radius(atom_name, residue_name, coot::protein_geometry::IMOL_ENC_ANY, false);
+            atom_radius = geom.get_vdw_radius(atom_name, residue_name, imol_no, false);
             ele_to_radius_map[ele] = atom_radius;
          }
 
@@ -463,7 +463,7 @@ coot::molecule_t::get_bonds_mesh_instanced(const std::string &mode, coot::protei
       // makebonds() is a trivial wrapper of make_colour_by_chain_bonds(), so just remove the makebonds() call.
       makebonds(geom, nullptr, no_bonds_to_these_atoms, draw_hydrogen_atoms_flag, draw_missing_residue_loops_flag); // this makes the bonds_box.
       std::vector<glm::vec4> colour_table = make_colour_table(against_a_dark_background);
-      make_graphical_bonds_spherical_atoms_with_vdw_radii_instanced(m, bonds_box, num_subdivisions, colour_table, *geom);
+      make_graphical_bonds_spherical_atoms_with_vdw_radii_instanced(m, bonds_box, num_subdivisions, colour_table, *geom, imol_no);
 
    }
 
@@ -643,7 +643,7 @@ coot::molecule_t::get_bonds_mesh_for_selection_instanced(const std::string &mode
       bonds_box = bonds.make_graphical_bonds();
 
       std::vector<glm::vec4> colour_table = make_colour_table(against_a_dark_background); // uses bonds_box
-      make_graphical_bonds_spherical_atoms_with_vdw_radii_instanced(m, bonds_box, num_subdivisions, colour_table, *geom);
+      make_graphical_bonds_spherical_atoms_with_vdw_radii_instanced(m, bonds_box, num_subdivisions, colour_table, *geom, imol_no);
       bonds_box.clear_up();
    }
 
@@ -813,7 +813,7 @@ coot::molecule_t::get_goodsell_style_mesh_instanced(protein_geometry *geom_p, fl
    bonds_box = bonds.make_graphical_bonds();
    std::vector<glm::vec4> colour_table = make_colour_table_for_goodsell_style(colour_wheel_rotation_step, saturation, goodselliness);
    unsigned int num_subdivisions = 3;
-   make_graphical_bonds_spherical_atoms_with_vdw_radii_instanced(im, bonds_box, num_subdivisions, colour_table, *geom_p);
+   make_graphical_bonds_spherical_atoms_with_vdw_radii_instanced(im, bonds_box, num_subdivisions, colour_table, *geom_p, imol_no);
 
    return im;
 }
