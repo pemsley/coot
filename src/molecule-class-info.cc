@@ -1029,7 +1029,8 @@ molecule_class_info_t::draw_anisotropic_atoms() {
                         // mat.print_matrix();
                         // std::cout << "Choleskied: " << std::endl;
                         // mat.cholesky().print_matrix();
-                        std::pair<bool,GL_matrix> chol_pair = mat.cholesky();
+                        // std::pair<bool,GL_matrix> chol_pair = mat.cholesky();
+                        std::pair<bool,GL_matrix> chol_pair = mat.eigensystem();
                         if (chol_pair.first) {
                            glMultMatrixf(chol_pair.second.get());
                            rad_50 = r_50(atom_sel.atom_selection[i]->element);

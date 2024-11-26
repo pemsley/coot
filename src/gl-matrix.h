@@ -26,7 +26,10 @@
 
 enum { TRANSPOSE }; 
 
-#include <gsl/gsl_linalg.h>
+#ifdef HAVE_GSL
+#include "gsl/gsl_linalg.h"
+#include <gsl/gsl_eigen.h>
+#endif
 
 #include <clipper/core/coords.h>
 #include "coords/Cartesian.h"
@@ -63,6 +66,7 @@ class GL_matrix {
    // return a "this is a useful matrix" flag, so that we don't draw
    // elipsoids for atoms with non-positive definite U matrices.
    std::pair<bool,GL_matrix> cholesky() const; 
+   std::pair<bool,GL_matrix> eigensystem() const; 
 
    GL_matrix transpose() const; 
 
