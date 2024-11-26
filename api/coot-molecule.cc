@@ -2464,6 +2464,8 @@ coot::molecule_t::refine_direct(std::vector<mmdb::Residue *> rv, const std::stri
                               do_auto_strand_restraints,
                               do_h_bond_restraints,
                               pseudos);
+   restraints.add_extra_restraints(imol, "stored extra retraints called from refine_direct()",
+                                   extra_restraints, geom);
    int nsteps_max = n_cycles;
    short int print_chi_sq_flag = 1;
    restraints.minimize(flags, nsteps_max, print_chi_sq_flag);

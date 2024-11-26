@@ -695,13 +695,14 @@ coot::restraints_container_t::add_link_torsion(std::string link_type,
                                     if (pdb_atom_name_1 == " CA " && pdb_atom_name_4 == " CA ") continue;
                                     if (pdb_atom_name_1 == " C  " && pdb_atom_name_4 == " C  ") continue;
 
-                                    std::cout << "----------------------- adding link torsion! "
-                                              << coot::atom_spec_t(atom_1) << " "
-                                              << coot::atom_spec_t(atom_2) << " "
-                                              << coot::atom_spec_t(atom_3) << " "
-                                              << coot::atom_spec_t(atom_4) << " "
-                                              << ltr.angle() << " " << ltr.period()
-                                              << std::endl;
+				    if (false)
+				       std::cout << "adding link torsion "
+						 << coot::atom_spec_t(atom_1) << " "
+						 << coot::atom_spec_t(atom_2) << " "
+						 << coot::atom_spec_t(atom_3) << " "
+						 << coot::atom_spec_t(atom_4) << " "
+						 << ltr.angle() << " " << ltr.period()
+						 << std::endl;
 
                                     add(TORSION_RESTRAINT, index_1, index_2, index_3, index_4,
                                         fixed_flag, ltr.angle(), ltr.angle_esd(), 1.2, ltr.period());

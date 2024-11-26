@@ -32,6 +32,7 @@ namespace coot {
 
       bool matches_bond_template_p(const std::vector<std::string> &words) const;
       bool matches_angle_template_p(const std::vector<std::string> &words) const;
+      bool matches_torsion_template_p(const std::vector<std::string> &words) const;
 
    public:
 

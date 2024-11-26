@@ -131,24 +131,194 @@ coot::extra_restraints_t::read_refmac_extra_restraints(const std::string &file_n
 	       }
 
 	    } else {
-	    
-	       parallel_planes_t ppr(lines[i]); // try to parse the line and make a restraint
-	       if (ppr.matches) {
-		  // add parallel plane (aka "stacking") restraint
-		  parallel_plane_restraints.push_back(ppr);
+
+	       if (matches_torsion_template_p(words)) {
+
+		  try {
+		     std::string chain_id_1 = words[4];
+		     std::string ins_code_1 = words[8];
+		     std::string atm_name_1 = words[10];
+		     int res_no_1 = util::string_to_int(words[6]);
+
+		     std::string chain_id_2 = words[13];
+		     std::string ins_code_2 = words[17];
+		     std::string atm_name_2 = words[19];
+		     int res_no_2 = util::string_to_int(words[15]);
+
+		     std::string chain_id_3 = words[22];
+		     std::string ins_code_3 = words[26];
+		     std::string atm_name_3 = words[28];
+		     int res_no_3 = util::string_to_int(words[24]);
+
+		     std::string chain_id_4 = words[31];
+		     std::string ins_code_4 = words[35];
+		     std::string atm_name_4 = words[37];
+		     int res_no_4 = util::string_to_int(words[33]);
+
+		     if (ins_code_1 == ".") ins_code_1 = "";
+		     if (ins_code_2 == ".") ins_code_2 = "";
+		     if (ins_code_3 == ".") ins_code_3 = "";
+		     if (ins_code_4 == ".") ins_code_4 = "";
+
+		     double d = util::string_to_float(words[39]);
+		     double e = util::string_to_float(words[41]);
+
+		     std::string n1 = atom_id_mmdb_expand(atm_name_1);
+		     std::string n2 = atom_id_mmdb_expand(atm_name_2);
+		     std::string n3 = atom_id_mmdb_expand(atm_name_3);
+		     std::string n4 = atom_id_mmdb_expand(atm_name_4);
+
+		     atom_spec_t spec_1(chain_id_1, res_no_1, ins_code_1, n1, "");
+		     atom_spec_t spec_2(chain_id_2, res_no_2, ins_code_2, n2, "");
+		     atom_spec_t spec_3(chain_id_3, res_no_3, ins_code_3, n3, "");
+		     atom_spec_t spec_4(chain_id_4, res_no_4, ins_code_4, n4, "");
+		     extra_torsion_restraint_t tr(spec_1, spec_2, spec_3, spec_4, d, e, 1);
+		     torsion_restraints.push_back(tr);
+
+		  }
+		  catch (const std::runtime_error &rte) {
+		     std::cout << "WARNING:: rte on : " << lines[i] << std::endl;
+		  }
+
 	       } else {
-		  std::cout << "INFO:: Failed to match restraint to templates:\n" << lines[i] << std::endl;
+	    
+		  parallel_planes_t ppr(lines[i]); // try to parse the line and make a restraint
+		  if (ppr.matches) {
+		     // add parallel plane (aka "stacking") restraint
+		     parallel_plane_restraints.push_back(ppr);
+		  } else {
+		     std::cout << "INFO:: Failed to match restraint to templates:\n" << lines[i] << std::endl;
+		  }
 	       }
 	    }
 	 } 
       }
    }
+   std::cout  << "at end of read_refmac_extra_restraints() torsion_restraints has size "
+	      << torsion_restraints.size() << std::endl;
 }
 
 void
 coot::extra_restraints_t::delete_restraints_for_residue(const residue_spec_t &rs) {
 
    bond_restraints.erase(std::remove(bond_restraints.begin(), bond_restraints.end(), rs), bond_restraints.end());
+}
+
+bool
+coot::extra_restraints_t::matches_torsion_template_p(const std::vector<std::string> &words) const {
+
+   bool status = false;
+
+   if (words.size() == 42 || words.size() == 44) { // allow type field at the end
+      std::vector<std::string> u(words.size());
+      for (unsigned int i=0; i<words.size(); i++)
+	 u[i] = coot::util::upcase(words[i]);
+      if (u[0].length() > 3) {
+	 if (u[0].substr(0,4) == "EXTE") {
+	    if (u[1].length() > 3) {
+	       if (u[1].substr(0,4) == "TORS") {
+		  if (u[2].length() > 3) {
+		     if (u[2].substr(0,4) == "FIRS") {
+			if (u[3].length() > 3) {
+			   if (u[3].substr(0,4) == "CHAI") {
+			      if (u[5].length() > 3) {
+				 if (u[5].substr(0,4) == "RESI") {
+				    if (u[7].length() > 2) {
+				       if (u[7].substr(0,3) == "INS") {
+					  if (u[9].length() > 3) {
+					     if (u[9].substr(0,4) == "ATOM") {
+						if (u[11].length() > 3) {
+						   if (u[11].substr(0,4) == "NEXT") {
+						      if (u[12].length() > 3) {
+							 if (u[12].substr(0,4) == "CHAI") {
+							    if (u[14].length() > 3) {
+							       if (u[14].substr(0,4) == "RESI") {
+								  if (u[16].length() > 2) {
+								     if (u[16].substr(0,3) == "INS") {
+									if (u[18].length() > 3) {
+									   if (u[18].substr(0,4) == "ATOM") {
+									      if (u[20].length() > 3) {
+										 if (u[20].substr(0,4) == "NEXT") {
+										    if (u[21].length() > 3) {
+										       if (u[21].substr(0,4) == "CHAI") {
+											  if (u[23].length() > 3) {
+											     if (u[23].substr(0,4) == "RESI") {
+												if (u[25].length() > 2) {
+												   if (u[25].substr(0,3) == "INS") {
+												      if (u[27].length() > 3) {
+													 if (u[27].substr(0,4) == "ATOM") {
+													    if (u[29].length() > 3) {
+													       if (u[29].substr(0,4) == "NEXT") {
+														  if (u[30].length() > 3) {
+														     if (u[30].substr(0,4) == "CHAI") {
+															if (u[32].length() > 3) {
+															   if (u[32].substr(0,4) == "RESI") {
+															      if (u[34].length() > 2) {
+																 if (u[34].substr(0,3) == "INS") {
+																    if (u[36].length() > 3) {
+																       if (u[36].substr(0,4) == "ATOM") {
+																	  if (u[38].length() > 3) {
+																	     if (u[38].substr(0,4) == "VALU") {
+																		if (u[40].length() > 3) {
+																		   if (u[40].substr(0,4) == "SIGM") {
+																		      status = true;
+																		   }
+																		}
+																	     }
+																	  }
+																       }
+																    }
+																 }
+															      }
+															   }
+															}
+														     }
+														  }
+													       }
+													    }
+													 }
+												      }
+												   }
+												}
+											     }
+											  }
+										       }
+										    }
+										 }
+									      }
+									   }
+									}
+								     }
+								  }
+							       }
+							    }
+							 }
+						      }
+						   }
+						}
+					     }
+					  }
+				       }
+				    }
+				 }
+			      }
+			   }
+			}
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+
+   if (false) { // debugging
+      for (unsigned int i=0; i<words.size(); i++) {
+	 std::cout << " " << words[i] <<  " ";
+      }
+      std::cout << "status: " << status << std::endl;
+   }
+   return status;
 }
 
 bool
@@ -328,6 +498,7 @@ coot::restraints_container_t::add_extra_restraints(int imol,
 						   const extra_restraints_t &extra_restraints,
 						   const protein_geometry &geom) {
 
+   std::cout << "HHHHHHHHHere in add_extra_restraints() - from " << description << std::endl;
 
    if (true) {
       std::cout << "INFO:: extra restraints origin: " << description << std::endl;
@@ -343,7 +514,10 @@ coot::restraints_container_t::add_extra_restraints(int imol,
       std::cout << "--------------------- in add_extra_restraints() adding "
 		<< extra_restraints.angle_restraints.size() << " extra angle restraints "
 		<< std::endl;
-      std::cout << "--------------------- in add_extra_restraints() par-plan adding "
+      std::cout << "--------------------- in add_extra_restraints() adding "
+		<< extra_restraints.torsion_restraints.size() << " extra torsion restraints "
+		<< std::endl;
+      std::cout << "--------------------- in add_extra_restraints() parallel-plan adding "
 		<< extra_restraints.parallel_plane_restraints.size() << " pp restraints "
 		<< std::endl;
       std::cout << "--------------------- in add_extra_restraints() target-position adding "
@@ -783,7 +957,20 @@ coot::restraints_container_t::add_extra_geman_mcclure_restraints(const extra_res
 void
 coot::restraints_container_t::add_extra_torsion_restraints(const extra_restraints_t &extra_restraints) {
 
+   std::cout << "in add_extra_torsion_restraints() << extra_restraints.torsion_restraints "
+	     << extra_restraints.torsion_restraints.size() << std::endl;
+
    for (unsigned int i=0; i<extra_restraints.torsion_restraints.size(); i++) {
+
+      if (false) {
+	 std::cout << "in add_extra_torsion_restraints() loop " << i << std::endl;
+	 std::cout << " "
+		   << extra_restraints.torsion_restraints[i].atom_1 << "\n "
+		   << extra_restraints.torsion_restraints[i].atom_2 << "\n "
+		   << extra_restraints.torsion_restraints[i].atom_3 << "\n "
+		   << extra_restraints.torsion_restraints[i].atom_4 << std::endl;
+      }
+
       mmdb::Residue *r_1 = NULL;
       mmdb::Residue *r_2 = NULL;
       mmdb::Residue *r_3 = NULL;
@@ -820,9 +1007,9 @@ coot::restraints_container_t::add_extra_torsion_restraints(const extra_restraint
 	    }
 	 }
       } else {
-	 
+
 	 // bleugh.
-	 int selHnd = mol->NewSelection();
+	 int selHnd = mol->NewSelection(); // d
 	 mol->Select (selHnd, mmdb::STYPE_RESIDUE, 1,       // .. TYPE, iModel
 		      chain_id_save.c_str(), // Chain(s)
 		      istart_res, "*", // starting res
@@ -904,7 +1091,7 @@ coot::restraints_container_t::add_extra_torsion_restraints(const extra_restraint
 	       if (fixed_3) fixed_flags[2] = 1;
 	       if (fixed_4) fixed_flags[3] = 1;
 
-	       if (0)
+	       if (true)
 		  std::cout << "DEBUG:: adding user-defined torsion restraint with fixed flags: "
 		            << "[" << index_1 << " " << coot::atom_spec_t(atom[index_1]) << " " << fixed_flags[0] << "]  " 
 		            << "[" << index_2 << " " << coot::atom_spec_t(atom[index_2]) << " " << fixed_flags[1] << "]  " 
