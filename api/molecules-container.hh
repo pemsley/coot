@@ -1323,7 +1323,7 @@ public:
    //! @param chain_id_mov the chain ID for the moving chain
    //! @param res_no_mov_start the starting residue number in the moving chain
    //! @param res_no_mov_end the ending residue number in the moving chain
-   //! @param match_type 0: all, 1: main, 2: CAs, 3: N, CA, C
+   //! @param match_type 0: all, 1: main, 2: CAs, 3: N, CA, C, 4: N, CA, CB, C
    void add_lsq_superpose_match(const std::string &chain_id_ref, int res_no_ref_start, int res_no_ref_end,
                                 const std::string &chain_id_mov, int res_no_mov_start, int res_no_mov_end,
                                 int match_type);

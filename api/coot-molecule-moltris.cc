@@ -195,6 +195,73 @@ coot::molecule_t::print_M2T_IntParameters() const {
 #include "MoleculesToTriangles/CXXSurface/CXXSurface.h"
 #include "MoleculesToTriangles/CXXSurface/CXXCreator.h"
 
+#include "MoleculesToTriangles/CXXClasses/NRStuff.h"
+
+// Put this function somewhere outside of api - so that Coot can use it without getting tangled with api
+//
+coot::simple_mesh_t
+make_tubes_representation(mmdb::Manager *mol,
+                          const std::string &atom_selection_str,
+                          const std::string &colour_scheme,
+                          int secondaryStructureUsageFlag) {
+
+   std::cout << "******************************** my make_tubes_representation() " << std::endl;
+
+   coot::simple_mesh_t m_all;
+   int nsteps = 300;
+   int Cn = 30;
+   int iinterp = 1;
+
+   std::vector<std::vector<mmdb::Residue *> > runs_of_residues;
+   int imod = 1;
+   mmdb::Model *model_p = mol->GetModel(imod);
+   if (model_p) {
+      int n_chains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<n_chains; ichain++) {
+         mmdb::Chain *chain_p = model_p->GetChain(ichain);
+         int n_res = chain_p->GetNumberOfResidues();
+         std::vector<mmdb::Residue *> a_run_of_residues;
+         for (int ires=0; ires<n_res; ires++) {
+            mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+            if (a_run_of_residues.empty()) {
+               a_run_of_residues.push_back(residue_p);
+            } else {
+               int idx_r_1 = a_run_of_residues.back()->index;
+               int idx_r_2 = residue_p->index;
+               if (idx_r_2 == (idx_r_1 + 1)) {
+                  std::cout << "pushing back residue " << residue_p << coot::residue_spec_t(residue_p) << std::endl;
+                  a_run_of_residues.push_back(residue_p);
+               }
+            }
+         }
+         if (! a_run_of_residues.empty())
+            runs_of_residues.push_back(a_run_of_residues);
+      }
+   }
+   if (! runs_of_residues.empty()) {
+      for (unsigned int i=0; i<runs_of_residues.size(); i++) {
+         if (i>0) continue;
+         std::vector<mmdb::Residue *> &a_run_of_residues = runs_of_residues[i];
+         std::vector<FCXXCoord> ctlPts; // From Martin
+         for (unsigned int ir=0; ir<a_run_of_residues.size(); ir++) {
+            mmdb::Residue *residue_p = a_run_of_residues[ir];
+            mmdb::Atom *ca_at = residue_p->GetAtom(" CA ");
+            if (ca_at) {
+               FCXXCoord fc(ca_at->x, ca_at->y, ca_at->z);
+               ctlPts.push_back(fc);
+            }
+         }
+         CoordSpline cs;
+         std::vector<FCXXCoord> v = cs.SplineCurve(ctlPts, nsteps, Cn, iinterp);
+         std::cout << "spline-curve size " << v.size() << std::endl;
+         for (unsigned int ii=0; ii<v.size(); ii++) {
+            std::cout << "spline-curve-point     " << v[ii] << std::endl;
+         }
+      }
+   }
+   return m_all;
+}
+
 coot::simple_mesh_t
 coot::molecule_t::get_molecular_representation_mesh(const std::string &atom_selection_str,
                                                     const std::string &colour_scheme,
@@ -374,81 +441,90 @@ coot::molecule_t::get_molecular_representation_mesh(const std::string &atom_sele
        }
    };
 
+   // ----------------- main line -------------------
+
    coot::simple_mesh_t mesh;
 
    if (false)
       std::cout << "get_molecular_representation_mesh() atom_selection: " << atom_selection_str
                 << " colour_scheme: " << colour_scheme << " style: " << style << std::endl;
 
-   try {
+   if (style == "Tubes") {
 
-      auto my_mol = std::make_shared<MyMolecule>(atom_sel.mol, secondaryStructureUsageFlag);
-      // auto chain_cs = ColorScheme::colorChainsScheme();
-      auto chain_cs = ColorScheme::colorChainsSchemeWithColourRules(colour_rules);
-      if (! colour_rules.empty())
-         chain_cs = ColorScheme::colorChainsSchemeWithColourRules(colour_rules);
-      auto ele_cs   = ColorScheme::colorByElementScheme();
-      auto ss_cs    = ColorScheme::colorBySecondaryScheme();
-      auto bf_cs    = ColorScheme::colorBFactorScheme();
-      auto this_cs  = chain_cs; // default
-      if (colour_scheme == "Chains")    this_cs = chain_cs;
-      if (colour_scheme == "Element")   this_cs = ele_cs;
-      if (colour_scheme == "BFactor")   this_cs = bf_cs;
-      if (colour_scheme == "Secondary") this_cs = ss_cs;
-      if (colour_scheme == "RampChains") {
-         mesh = ramp_chains(my_mol, atom_selection_str, style, M2T_float_params, M2T_int_params);
-      } else {
+      mesh = make_tubes_representation(atom_sel.mol, atom_selection_str, colour_scheme, secondaryStructureUsageFlag);
 
-         if (colour_scheme == "ByOwnPotential") {
+   } else {
 
-            std::shared_ptr<MolecularRepresentationInstance> molrepinst =
-               MolecularRepresentationInstance::create(my_mol, this_cs, atom_selection_str, style);
-            mesh = molecular_representation_instance_to_mesh(molrepinst, M2T_float_params, M2T_int_params);
+      try {
 
-            //Instantiate an electrostatics map and cause it to calculate itself
-            CXXChargeTable theChargeTable;
-            CXXUtils::assignCharge(atom_sel.mol, atom_sel.SelectionHandle, &theChargeTable);
-            CXXCreator *theCreator = new CXXCreator(atom_sel.mol, atom_sel.SelectionHandle);
-            theCreator->calculate();
-            clipper::Cell cell;
-            clipper::NXmap<double> theClipperNXMap;
-            theClipperNXMap = theCreator->coerceToClipperMap(cell);
-
-            for (unsigned int i=0; i<mesh.vertices.size(); i++) {
-               clipper::Coord_orth orthogonals = glm_to_clipper(mesh.vertices[i].pos);
-               const clipper::Coord_map mapUnits(theClipperNXMap.coord_map(orthogonals));
-               float potential = theClipperNXMap.interp<clipper::Interp_cubic>( mapUnits );
-               // subSurfaceIter->setScalar(potentialHandle, i, potential);
-               // std::cout << "potential: " << potential << std::endl;  // 20240226-PE Quiet! (now that this test is run)
-               set_vertex_colour(mesh.vertices[i], potential); // change ref
-            }
-
-            delete theCreator;
-
+         auto my_mol = std::make_shared<MyMolecule>(atom_sel.mol, secondaryStructureUsageFlag);
+         // auto chain_cs = ColorScheme::colorChainsScheme();
+         auto chain_cs = ColorScheme::colorChainsSchemeWithColourRules(colour_rules);
+         if (! colour_rules.empty())
+            chain_cs = ColorScheme::colorChainsSchemeWithColourRules(colour_rules);
+         auto ele_cs   = ColorScheme::colorByElementScheme();
+         auto ss_cs    = ColorScheme::colorBySecondaryScheme();
+         auto bf_cs    = ColorScheme::colorBFactorScheme();
+         auto this_cs  = chain_cs; // default
+         if (colour_scheme == "Chains")    this_cs = chain_cs;
+         if (colour_scheme == "Element")   this_cs = ele_cs;
+         if (colour_scheme == "BFactor")   this_cs = bf_cs;
+         if (colour_scheme == "Secondary") this_cs = ss_cs;
+         if (colour_scheme == "RampChains") {
+            mesh = ramp_chains(my_mol, atom_selection_str, style, M2T_float_params, M2T_int_params);
          } else {
 
-            std::shared_ptr<MolecularRepresentationInstance> molrepinst =
-               MolecularRepresentationInstance::create(my_mol, this_cs, atom_selection_str, style);
-            mesh = molecular_representation_instance_to_mesh(molrepinst, M2T_float_params, M2T_int_params);
+            if (colour_scheme == "ByOwnPotential") {
 
-            if (false) {
+               std::shared_ptr<MolecularRepresentationInstance> molrepinst =
+                  MolecularRepresentationInstance::create(my_mol, this_cs, atom_selection_str, style);
+               mesh = molecular_representation_instance_to_mesh(molrepinst, M2T_float_params, M2T_int_params);
+
+               //Instantiate an electrostatics map and cause it to calculate itself
+               CXXChargeTable theChargeTable;
+               CXXUtils::assignCharge(atom_sel.mol, atom_sel.SelectionHandle, &theChargeTable);
+               CXXCreator *theCreator = new CXXCreator(atom_sel.mol, atom_sel.SelectionHandle);
+               theCreator->calculate();
+               clipper::Cell cell;
+               clipper::NXmap<double> theClipperNXMap;
+               theClipperNXMap = theCreator->coerceToClipperMap(cell);
+
                for (unsigned int i=0; i<mesh.vertices.size(); i++) {
-                  const auto &vertex = mesh.vertices[i];
-                  std::cout << i << " " << glm::to_string(vertex.pos) << " " << glm::to_string(vertex.color) << std::endl;
+                  clipper::Coord_orth orthogonals = glm_to_clipper(mesh.vertices[i].pos);
+                  const clipper::Coord_map mapUnits(theClipperNXMap.coord_map(orthogonals));
+                  float potential = theClipperNXMap.interp<clipper::Interp_cubic>( mapUnits );
+                  // subSurfaceIter->setScalar(potentialHandle, i, potential);
+                  // std::cout << "potential: " << potential << std::endl;  // 20240226-PE Quiet! (now that this test is run)
+                  set_vertex_colour(mesh.vertices[i], potential); // change ref
+               }
+
+               delete theCreator;
+
+            } else {
+
+               std::shared_ptr<MolecularRepresentationInstance> molrepinst =
+                  MolecularRepresentationInstance::create(my_mol, this_cs, atom_selection_str, style);
+               mesh = molecular_representation_instance_to_mesh(molrepinst, M2T_float_params, M2T_int_params);
+
+               if (false) {
+                  for (unsigned int i=0; i<mesh.vertices.size(); i++) {
+                     const auto &vertex = mesh.vertices[i];
+                     std::cout << i << " " << glm::to_string(vertex.pos) << " " << glm::to_string(vertex.color) << std::endl;
+                  }
                }
             }
          }
+         mesh.fill_colour_map(); // for blendering
       }
-      mesh.fill_colour_map(); // for blendering
-   }
-   catch (const std::out_of_range &oor) {
-      std::cout << "ERROR:: out of range in get_molecular_representation_mesh() " << oor.what() << std::endl;
-   }
-   catch (const std::runtime_error &rte) {
-      std::cout << "ERROR:: runtime error in get_molecular_representation_mesh() " << rte.what() << std::endl;
-   }
-   catch (...) {
-      std::cout << "ERROR:: unknown exception in get_molecular_representation_mesh()! " << std::endl;
+      catch (const std::out_of_range &oor) {
+         std::cout << "ERROR:: out of range in get_molecular_representation_mesh() " << oor.what() << std::endl;
+      }
+      catch (const std::runtime_error &rte) {
+         std::cout << "ERROR:: runtime error in get_molecular_representation_mesh() " << rte.what() << std::endl;
+      }
+      catch (...) {
+         std::cout << "ERROR:: unknown exception in get_molecular_representation_mesh()! " << std::endl;
+      }
    }
 
    return mesh;
