@@ -463,6 +463,7 @@ coot_bin_SOURCES = \
 	graphics-ligand-view.cc	 \
 	graphics-ligand-view.hh	 \
 	gl-matrix.cc 		 \
+	gl-matrix-eigensystem.cc \
 	graphics-info.h 	 \
 	gtk-manual.cc		 \
 	gtk-manual.h		 \
