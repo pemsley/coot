@@ -1,11 +1,6 @@
 ----
 
-set_max_number_of_threads() seems not to be honoured in chapi
-* Done
-
-INFO:: there are 0 helices and 0 sheets.
-Don't go on to try to write them out then.
-* Done.
+libcootapi: Give me the SMILES of the specified residue
 
 read small molecule hkl cif in libcootapi? e.g 2019830.hkl
 
@@ -17,11 +12,6 @@ Allow the user to change the centre and radius using some (python?) gui.
 
 For tubes repo, we need loops - reuse the Stuart loops
 
-api: what is the energy of this residue? (for conformers, say)
-
-api: rotate torsion to value
-* Done.
-
 Oliver Clarke issues.
 
 api make a version of density_correlation_analysis() that takes a cid (as q-score now does)
@@ -32,7 +22,7 @@ Get the "shape" of RNA bases in cryo-EM maps - for validation of RNA sequence.
 
 bring chopping of residues in low density to the API
 
-bring water flood to the API
+bring water flood to the API.
 
 servalcat refine using chapi molecules
 
@@ -54,8 +44,6 @@ Validation: Tell me when I have links that are too long (based on
 simple rules (enerlib.cif) not on link dictionary values)
 
 Unmodelled blobs near sequons?
-
-Paul Bond bug.
 
 Martin Maly: How do I load external (refmac) restraints into Coot 1?
 
@@ -114,6 +102,19 @@ Martin request: libcootapi: Step sample maps
 Adaptive rotation for the mouse motion - make it more for a widescreen.
 
 SVG for pli
+
+api: what is the energy of this residue? (for conformers, say)
+* Done.
+
+set_max_number_of_threads() seems not to be honoured in chapi
+* Done
+
+INFO:: there are 0 helices and 0 sheets.
+Don't go on to try to write them out then.
+* Done.
+
+api: rotate torsion to value
+* Done.
 
 add to api: centre_of_residue() centre_of_sidechain(), CA_of_residue()
 * Done.
