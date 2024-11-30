@@ -4845,17 +4845,17 @@ Bond_lines_container::do_Ca_loop(int imod, int ires, int nres,
 
                // Are C of previous and N of next close as in a peptide bond?
                // Then we don't want to draw a loop
-               {
+               if (loop_is_possible) {
                   bool C_and_N_are_close = false;
                   mmdb::Atom *C_prev = residue_prev->GetAtom(" C  ");
-                  mmdb::Atom *N_this = residue_this->GetAtom(" N  ");
                   if (C_prev) {
+		    mmdb::Atom *N_this = residue_this->GetAtom(" N  ");
                      if (N_this) {
                         float dist_sqrd =
                            (C_prev->x - N_this->x) * (C_prev->x - N_this->x) +
                            (C_prev->y - N_this->y) * (C_prev->y - N_this->y) +
                            (C_prev->z - N_this->z) * (C_prev->z - N_this->z);
-                        if (dist_sqrd < 2.5)
+                        if (dist_sqrd < 2.5 * 2.5)
                            C_and_N_are_close = true;
                      }
                   }
@@ -4863,6 +4863,25 @@ Bond_lines_container::do_Ca_loop(int imod, int ires, int nres,
                      loop_is_possible = false;
                }
 
+               // Are P of previous and O3' of prev close as in a phosphodiester?
+               // Then we don't want to draw a loop
+               if (loop_is_possible) {
+                  bool P_and_O3prime_are_close = false;
+                  mmdb::Atom *O3prime_prev = residue_prev->GetAtom(" O3'");
+                  if (O3prime_prev) {
+		    mmdb::Atom *P_this = residue_this->GetAtom(" P  ");
+                     if (P_this) {
+                        float dist_sqrd =
+                           (O3prime_prev->x - P_this->x) * (O3prime_prev->x - P_this->x) +
+                           (O3prime_prev->y - P_this->y) * (O3prime_prev->y - P_this->y) +
+                           (O3prime_prev->z - P_this->z) * (O3prime_prev->z - P_this->z);
+                        if (dist_sqrd < 2.5 * 2.5) // c.f 1.6 * 1.6
+                           P_and_O3prime_are_close = true;
+                     }
+                  }
+                  if (P_and_O3prime_are_close)
+                     loop_is_possible = false;
+               }
 
                if (loop_is_possible) {
 
