@@ -104,6 +104,13 @@ void CoordSpline::DialASpline(float t, const std::vector<float> &a,  const std::
 
 std::vector <FCXXCoord> CoordSpline::SplineCurve(const std::vector<FCXXCoord> &ctlPts, int nsteps, int Cn, int iinterp){
 
+   std::cout << "CoordSpline::SplineCurve() debug: ctlPts size() " << ctlPts.size() << std::endl;
+   for (unsigned int ii=0; ii<ctlPts.size(); ii++)
+      std::cout << "CoordSpline::SplineCurve() debug: ctlPts " << ii << " " << ctlPts[ii] << std::endl;
+   std::cout << "CoordSpline::SplineCurve() debug: nsteps " << nsteps << std::endl;
+   std::cout << "CoordSpline::SplineCurve() debug: Cn " << Cn << std::endl;
+   std::cout << "CoordSpline::SplineCurve() debug: iinterp " << iinterp << std::endl;
+
    std::vector<FCXXCoord> output;
    if(ctlPts.size()==1){
        output.push_back(ctlPts[0]);

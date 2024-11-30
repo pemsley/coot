@@ -1133,6 +1133,7 @@ namespace coot {
 
       //! real space refinement
       int refine_direct(std::vector<mmdb::Residue *> rv, const std::string &alt_loc, const clipper::Xmap<float> &xmap,
+                        unsigned int max_number_of_threads,
                         float map_weight, int n_cycles, const coot::protein_geometry &geom,
                         bool do_rama_plot_restraints, float rama_plot_weight,
                         bool do_torsion_restraints, float torsion_weight,

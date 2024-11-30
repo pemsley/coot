@@ -28,7 +28,7 @@
 #define COOT_LSQ_TYPES_HH
 
 namespace coot {
-  enum lsq_t { ALL, MAIN, CA, NCAC };
+   enum lsq_t { ALL, MAIN, CA, NCAC, NCACBC };
 }
 
 #endif // COOT_LSQ_TYPES_HH

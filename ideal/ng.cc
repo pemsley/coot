@@ -308,7 +308,7 @@ coot::restraints_container_t::make_rama_plot_restraints_ng(const std::map<mmdb::
 void
 coot::restraints_container_t::make_base_pairing_and_stacking_restraints_ng(int imol, const coot::protein_geometry &geom) {
 
-   bool console_output_for_restraints_generation_timings = false;
+   bool console_output_for_restraints_generation_timings = true;
    auto tp_6 = std::chrono::high_resolution_clock::now();
    stack_and_pair sp(mol, residues_vec);
    std::vector<stack_and_pair::stacked_planes_info_t> stacked_residues = sp.stacked_residues(mol);

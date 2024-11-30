@@ -8569,36 +8569,41 @@ coot::util::print_secondary_structure_info(mmdb::Model *model_p) {
    mmdb::PSheet sheet_p;
    mmdb::PStrand strand_p;
 
-   std::cout << "               Helix info: " << std::endl;
-   std::cout << "------------------------------------------------\n";
-   for (int ih=1; ih<=nhelix; ih++) {
-      helix_p = model_p->GetHelix(ih);
-      if (helix_p) {
-         std::cout << helix_p->serNum << " " << helix_p->helixID << " "
-                   << helix_p->initChainID << " " << helix_p->initSeqNum
-                   << " " << helix_p->endChainID << " " << helix_p->endSeqNum << " "
-                   << helix_p->length << " " << helix_p->comment << std::endl;
-      } else {
-         std::cout << "ERROR: no helix!?" << std::endl;
-      }
-   }
-   std::cout << "               Sheet info: " << std::endl;
-   std::cout << "------------------------------------------------\n";
-   for (int is=1; is<=nsheet; is++) {
-      sheet_p = model_p->GetSheet(is);
-
-      int nstrand = sheet_p->nStrands;
-      for (int istrand=0; istrand<nstrand; istrand++) {
-         strand_p = sheet_p->strand[istrand];
-         if (strand_p) {
-            std::cout << strand_p->sheetID << " " << strand_p->strandNo << " "
-                      << strand_p->initChainID << " " << strand_p->initSeqNum
-                      << " " << strand_p->endChainID << " " << strand_p->endSeqNum
-                      << std::endl;
+   if (nhelix > 0) {
+      std::cout << "               Helix info: " << std::endl;
+      std::cout << "------------------------------------------------\n";
+      for (int ih=1; ih<=nhelix; ih++) {
+         helix_p = model_p->GetHelix(ih);
+         if (helix_p) {
+            std::cout << helix_p->serNum << " " << helix_p->helixID << " "
+                      << helix_p->initChainID << " " << helix_p->initSeqNum
+                      << " " << helix_p->endChainID << " " << helix_p->endSeqNum << " "
+                      << helix_p->length << " " << helix_p->comment << std::endl;
+         } else {
+            std::cout << "ERROR: null helix!?" << std::endl;
          }
       }
    }
-   std::cout << "------------------------------------------------\n";
+
+   if (nsheet > 0) {
+      std::cout << "               Sheet info: " << std::endl;
+      std::cout << "------------------------------------------------\n";
+      for (int is=1; is<=nsheet; is++) {
+         sheet_p = model_p->GetSheet(is);
+
+         int nstrand = sheet_p->nStrands;
+         for (int istrand=0; istrand<nstrand; istrand++) {
+            strand_p = sheet_p->strand[istrand];
+            if (strand_p) {
+               std::cout << strand_p->sheetID << " " << strand_p->strandNo << " "
+                         << strand_p->initChainID << " " << strand_p->initSeqNum
+                         << " " << strand_p->endChainID << " " << strand_p->endSeqNum
+                         << std::endl;
+            }
+         }
+      }
+      std::cout << "------------------------------------------------\n";
+   }
 }
 
 // return a string description of MMDB SSE values
@@ -8607,7 +8612,7 @@ coot::util::sse_to_string(int sse) {
 
    std::string r;
    switch (sse)  {
-   case mmdb::SSE_None: 
+   case mmdb::SSE_None:
       r = "None";
       break;
    case mmdb::SSE_Strand:

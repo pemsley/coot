@@ -1,12 +1,19 @@
 ----
 
-add to api: centre_of_residue() centre_of_sidechain(), CA_of_residue()
+set_max_number_of_threads() seems not to be honoured in chapi
+* Done
+
+INFO:: there are 0 helices and 0 sheets.
+Don't go on to try to write them out then.
+* Done.
+
+read small molecule hkl cif in libcootapi? e.g 2019830.hkl
+
+read small molecule hkl cif in Coot? e.g 2019830.hkl - or does it work already?
 
 Easy function: for Coot API pentakis dodec vertices and convert them to
 cylinders and make a generic display object out of them given centre and radius.
 Allow the user to change the centre and radius using some (python?) gui.
-
-Use alignment text-anchor="middle" for text in molecule svg
 
 For tubes repo, we need loops - reuse the Stuart loops
 
@@ -107,6 +114,12 @@ Martin request: libcootapi: Step sample maps
 Adaptive rotation for the mouse motion - make it more for a widescreen.
 
 SVG for pli
+
+add to api: centre_of_residue() centre_of_sidechain(), CA_of_residue()
+* Done.
+
+Use alignment text-anchor="middle" for text in molecule svg
+* Done.
 
 coot --dictionary should make a molecule instance from the dictionary
 * Done.
