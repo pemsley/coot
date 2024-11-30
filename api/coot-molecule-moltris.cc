@@ -38,6 +38,8 @@
 #include <MoleculesToTriangles/CXXClasses/VertexColorNormalPrimitive.h>
 #include <MoleculesToTriangles/CXXClasses/BallsPrimitive.h>
 
+#include "MoleculesToTriangles/CXXClasses/tubes.hh"
+
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/string_cast.hpp>
 
@@ -195,72 +197,6 @@ coot::molecule_t::print_M2T_IntParameters() const {
 #include "MoleculesToTriangles/CXXSurface/CXXSurface.h"
 #include "MoleculesToTriangles/CXXSurface/CXXCreator.h"
 
-#include "MoleculesToTriangles/CXXClasses/NRStuff.h"
-
-// Put this function somewhere outside of api - so that Coot can use it without getting tangled with api
-//
-coot::simple_mesh_t
-make_tubes_representation(mmdb::Manager *mol,
-                          const std::string &atom_selection_str,
-                          const std::string &colour_scheme,
-                          int secondaryStructureUsageFlag) {
-
-   std::cout << "******************************** my make_tubes_representation() " << std::endl;
-
-   coot::simple_mesh_t m_all;
-   int nsteps = 300;
-   int Cn = 30;
-   int iinterp = 1;
-
-   std::vector<std::vector<mmdb::Residue *> > runs_of_residues;
-   int imod = 1;
-   mmdb::Model *model_p = mol->GetModel(imod);
-   if (model_p) {
-      int n_chains = model_p->GetNumberOfChains();
-      for (int ichain=0; ichain<n_chains; ichain++) {
-         mmdb::Chain *chain_p = model_p->GetChain(ichain);
-         int n_res = chain_p->GetNumberOfResidues();
-         std::vector<mmdb::Residue *> a_run_of_residues;
-         for (int ires=0; ires<n_res; ires++) {
-            mmdb::Residue *residue_p = chain_p->GetResidue(ires);
-            if (a_run_of_residues.empty()) {
-               a_run_of_residues.push_back(residue_p);
-            } else {
-               int idx_r_1 = a_run_of_residues.back()->index;
-               int idx_r_2 = residue_p->index;
-               if (idx_r_2 == (idx_r_1 + 1)) {
-                  std::cout << "pushing back residue " << residue_p << coot::residue_spec_t(residue_p) << std::endl;
-                  a_run_of_residues.push_back(residue_p);
-               }
-            }
-         }
-         if (! a_run_of_residues.empty())
-            runs_of_residues.push_back(a_run_of_residues);
-      }
-   }
-   if (! runs_of_residues.empty()) {
-      for (unsigned int i=0; i<runs_of_residues.size(); i++) {
-         if (i>0) continue;
-         std::vector<mmdb::Residue *> &a_run_of_residues = runs_of_residues[i];
-         std::vector<FCXXCoord> ctlPts; // From Martin
-         for (unsigned int ir=0; ir<a_run_of_residues.size(); ir++) {
-            mmdb::Residue *residue_p = a_run_of_residues[ir];
-            mmdb::Atom *ca_at = residue_p->GetAtom(" CA ");
-            if (ca_at) {
-               FCXXCoord fc(ca_at->x, ca_at->y, ca_at->z);
-               ctlPts.push_back(fc);
-            }
-         }
-         CoordSpline cs;
-         std::vector<FCXXCoord> v = cs.SplineCurve(ctlPts, nsteps, Cn, iinterp);
-         std::cout << "spline-curve size " << v.size() << std::endl;
-         for (unsigned int ii=0; ii<v.size(); ii++) {
-            std::cout << "spline-curve-point     " << v[ii] << std::endl;
-         }
-      }
-   }
-   return m_all;
-}
 
 coot::simple_mesh_t
 coot::molecule_t::get_molecular_representation_mesh(const std::string &atom_selection_str,
@@ -451,7 +387,7 @@ coot::molecule_t::get_molecular_representation_mesh(const std::string &atom_sele
 
    if (style == "Tubes") {
 
-      mesh = make_tubes_representation(atom_sel.mol, atom_selection_str, colour_scheme, secondaryStructureUsageFlag);
+      // mesh = make_tubes_representation(atom_sel.mol, atom_selection_str, colour_scheme, secondaryStructureUsageFlag);
 
    } else {
 
