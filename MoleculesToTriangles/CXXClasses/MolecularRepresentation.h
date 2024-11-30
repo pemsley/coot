@@ -48,13 +48,13 @@ private:
     std::shared_ptr<CompoundSelection> selection;
     std::shared_ptr<ColorScheme> colorScheme;
     std::string renderStyle;
-	//not modelled    
+	//not modelled
     int selHnd;
     std::vector<DiscreteSegment *> segments;
 public:
     static std::string renderStyles[];
-	//Also modelled 
-    
+	//Also modelled
+
     MolecularRepresentation() : Representation(), myMolecule(0), selection(0), colorScheme(0), selHnd(-999) {
         redrawNeeded = true;
         inRedraw = false;
@@ -78,7 +78,7 @@ public:
         updateIntParameter  ("cylindersStyleAngularSampling",6);
         updateFloatParameter("cylindersStyleCylinderRadius",0.2);
         updateIntParameter  ("dishStyleAngularSampling",32);
-        updateFloatParameter("cylindersStyleBallRadius",0.2);        
+        updateFloatParameter("cylindersStyleBallRadius",0.2);
         updateFloatParameter("surfaceStyleProbeRadius",1.4);
         updateFloatParameter("ballsStyleRadiusMultiplier",1.);
         updateBoolParameter ("smoothBetas",true);
@@ -104,9 +104,9 @@ public:
     int drawHydrogenBonds();
     int drawDishyBases();
     int drawStickBases();
-    
+
     void renderWithRenderer(Renderer *renderer);
-	
+
     void deletePrimitives(){
         /*
          for (unsigned long i=0; i< displayPrimitives.size(); i++){
@@ -115,7 +115,7 @@ public:
         }
          */
         displayPrimitives.clear();
-    };    
+    };
     std::shared_ptr<CompoundSelection> getCompoundSelection(){
         return selection;
     };
