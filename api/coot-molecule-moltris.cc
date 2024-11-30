@@ -385,11 +385,7 @@ coot::molecule_t::get_molecular_representation_mesh(const std::string &atom_sele
       std::cout << "get_molecular_representation_mesh() atom_selection: " << atom_selection_str
                 << " colour_scheme: " << colour_scheme << " style: " << style << std::endl;
 
-   if (style == "Tubes") {
-
-      // mesh = make_tubes_representation(atom_sel.mol, atom_selection_str, colour_scheme, secondaryStructureUsageFlag);
-
-   } else {
+   {
 
       try {
 
