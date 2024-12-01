@@ -571,7 +571,7 @@ libcootsumo_la_SOURCES = \
 	gl-rama-plot.hh          \
 	gl-bits.hh		 \
 	globjects.cc 		 \
-	globjects.h gl-matrix.h  \
+	globjects.h              \
 	globularize.cc           \
 	glarea_tick_function.hh  \
 	globularize.hh           \
@@ -607,8 +607,6 @@ libcootsumo_la_SOURCES = \
 	graphics-ligand-view.hh	 \
 	graphics-ligand-mesh-molecule.cc \
 	graphics-ligand-mesh-molecule.hh \
-	gl-matrix.cc 		 \
-	gl-matrix-eigensystem.cc \
 	graphics-info.h 	 \
 	gtkglarea-rama-plot.cc   \
 	gtkglarea-rama-plot.hh   \

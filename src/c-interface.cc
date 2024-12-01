@@ -56,6 +56,7 @@
 #endif // USE_PYTHON
 
 #include "compat/sleep-fixups.h"
+#include "coot-utils/gl-matrix.h"
 
 // Here we used to define GTK_ENABLE_BROKEN if defined(WINDOWS_MINGW)
 // Now we don't want to enable broken stuff.  That is not the way.
@@ -4173,7 +4174,6 @@ void set_debug_atom_picking(int istate) {
 }
 
 
-#include "gl-matrix.h"
 void print_view_matrix() { 		/* print the view matrix */
 
    graphics_info_t g;

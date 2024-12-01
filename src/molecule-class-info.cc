@@ -76,9 +76,7 @@ const double pi = M_PI;
 #include "coords/mmdb-extras.h"
 #include "coords/mmdb.hh"
 #include "coords/mmdb-crystal.h"
-#ifndef EMSCRIPTEN
 #include "gtk-manual.hh"
-#endif
 
 // For stat, mkdir:
 #include <sys/types.h>
@@ -86,15 +84,13 @@ const double pi = M_PI;
 
 #include "coords/Bond_lines.h"
 
-#include "gl-matrix.h"
+#include "coot-utils/gl-matrix.h"
 #include "graphics-info.h"
 
 #include "coords/Bond_lines_ext.h"
 
-#ifndef EMSCRIPTEN
 // just delete this header?
 #include "globjects.h" // for set_bond_colour(), r_50
-#endif
 
 #include "coot-utils/coot-coord-utils.hh"
 #include "utils/coot-utils.hh"
