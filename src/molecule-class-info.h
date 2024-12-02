@@ -1110,7 +1110,23 @@ public:        //                      public
    void make_glsl_symmetry_bonds();
    void update_strict_ncs_symmetry(const coot::Cartesian &centre_point,
 				   const molecule_extents_t &extents); // in m-c-i-ncs.cc
-   void draw_anisotropic_atoms();
+   void old_draw_anisotropic_atoms(); // old OpenGL function
+   bool show_atoms_as_aniso_flag;
+   bool show_aniso_atoms_as_ortep_flag;
+   void set_show_atoms_as_aniso(bool state) {
+      if (state != show_atoms_as_aniso_flag) {
+         show_atoms_as_aniso_flag = state;
+         make_bonds_type_checked("set_show_atoms_as_aniso()");
+      }
+   }
+   void set_show_aniso_atoms_as_ortep(bool state) {
+      if (state)
+         show_atoms_as_aniso_flag = true;
+      if (state != show_aniso_atoms_as_ortep_flag) {
+         show_aniso_atoms_as_ortep_flag = state;
+         make_bonds_type_checked("set_show_aniso_atoms_as_ortep()");
+      }
+   }
 
    // void draw_coord_unit_cell(const coot::colour_holder &cell_colour);
    // void draw_map_unit_cell(const coot::colour_holder &cell_colour);

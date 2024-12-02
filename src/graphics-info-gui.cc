@@ -74,7 +74,7 @@
 #include "molecule-class-info.h"
 #include "skeleton/BuildCas.h"
 
-#include "gl-matrix.h" // for baton rotation
+#include "coot-utils/gl-matrix.h" // for baton rotation
 
 #include "analysis/bfkurt.hh"
 

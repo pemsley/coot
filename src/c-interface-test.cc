@@ -1235,7 +1235,7 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
 #endif
 
 
-#include "coot-utils/oct.hh" // ortep 20230108-PE
+#include "coot-utils/ortep.hh" // ortep 20230108-PE // 20241202-PE
 #include "utils/dodec.hh"
 #include "widget-from-builder.hh"
 

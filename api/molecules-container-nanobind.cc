@@ -1,3 +1,4 @@
+
 #include <nanobind/nanobind.h>
 #include <nanobind/stl/string.h>
 #include <nanobind/stl/pair.h>
@@ -13,6 +14,8 @@
 #include "coot-utils/acedrg-types-for-residue.hh"
 #include "coot-utils/g_triangle.hh"
 #include "mini-mol/mini-mol-utils.hh"
+
+#undef MAKE_ENHANCED_LIGAND_TOOLS
 #include "molecules-container.hh"
 
 
@@ -369,6 +372,7 @@ NB_MODULE(chapi, m) {
     .def("ramachandran_validation",&molecules_container_t::ramachandran_validation)
     .def("read_coordinates",&molecules_container_t::read_coordinates)
     .def("read_ccp4_map",&molecules_container_t::read_ccp4_map)
+    .def("read_extra_restraints",&molecules_container_t::read_extra_restraints)
     .def("read_mtz",&molecules_container_t::read_mtz)
     .def("read_pdb",&molecules_container_t::read_pdb)
     .def("read_small_molecule_cif",&molecules_container_t::read_small_molecule_cif)
@@ -397,6 +401,7 @@ NB_MODULE(chapi, m) {
     .def("set_make_backups",&molecules_container_t::set_make_backups)
     .def("set_map_sampling_rate",&molecules_container_t::set_map_sampling_rate)
     .def("set_map_weight",&molecules_container_t::set_map_weight)
+    .def("set_max_number_of_threads",&molecules_container_t::set_max_number_of_threads)
     .def("set_molecule_name",&molecules_container_t::set_molecule_name)
     .def("set_rama_plot_restraints_weight",&molecules_container_t::set_rama_plot_restraints_weight)
     .def("set_refinement_is_verbose",&molecules_container_t::set_refinement_is_verbose)

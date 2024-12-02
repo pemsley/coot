@@ -661,6 +661,8 @@ namespace coot {
       instanced_mesh_t get_bonds_mesh_instanced(const std::string &mode, protein_geometry *geom,
                                                 bool against_a_dark_background,
                                                 float bonds_width, float atom_radius_to_bond_width_ratio,
+                                                bool render_atoms_as_aniso, // if possible, of course
+                                                bool render_aniso_atoms_as_ortep,
                                                 int smoothness_factor,
                                                 bool draw_hydrogen_atoms_flag,
                                                 bool draw_missing_residue_loops);
@@ -1133,6 +1135,7 @@ namespace coot {
 
       //! real space refinement
       int refine_direct(std::vector<mmdb::Residue *> rv, const std::string &alt_loc, const clipper::Xmap<float> &xmap,
+                        unsigned int max_number_of_threads,
                         float map_weight, int n_cycles, const coot::protein_geometry &geom,
                         bool do_rama_plot_restraints, float rama_plot_weight,
                         bool do_torsion_restraints, float torsion_weight,

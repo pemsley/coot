@@ -301,7 +301,8 @@ molecule_class_info_t::occupancy_representation() {
    Bond_lines_container::bond_representation_type bond_type =
       Bond_lines_container::COLOUR_BY_OCCUPANCY;
 
-   Bond_lines_container bonds(atom_sel, imol_no, bond_type);
+   // 20241130-PE Constructor I - it was using Constructor A until now.
+   Bond_lines_container bonds(atom_sel, imol_no, graphics_info_t::Geom_p(), bond_type);
    bonds_box = bonds.make_graphical_bonds();
    bonds_box_type = coot::COLOUR_BY_OCCUPANCY_BONDS;
    make_glsl_bonds_type_checked(__FUNCTION__);

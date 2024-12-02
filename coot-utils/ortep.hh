@@ -1,7 +1,7 @@
 /*
- * coot-utils/coot-lsq-types.hh
+ * coot-utils/ortep.hh
  *
- * Copyright 2007 by University of York
+ * Copyright 2023 by Medical Research Council
  * Author: Paul Emsley
  *
  * This file is part of Coot
@@ -24,11 +24,24 @@
  *
  */
 
-#ifndef COOT_LSQ_TYPES_HH
-#define COOT_LSQ_TYPES_HH
+#include <vector>
+#include <glm/glm.hpp>
+#include "g_triangle.hh"
 
-namespace coot {
-   enum lsq_t { ALL, MAIN, CA, NCAC, NCACBC };
-}
+class ortep_t {
+public:
+   std::vector<glm::vec3> vertices;
+   std::vector<glm::vec3> normals;
+   std::vector<g_triangle> triangles;
 
-#endif // COOT_LSQ_TYPES_HH
+   std::vector<glm::vec3> vertices_for_lines;
+   std::vector<std::pair<unsigned int, unsigned int> > indices_for_lines;
+
+   void make_lines();
+   void transform(const glm::mat4 &m);
+};
+
+// put this inside ortep_t?
+ortep_t
+tessellate_sphere_sans_octant();
+

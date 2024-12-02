@@ -133,6 +133,9 @@ cylinder::init(const std::pair<glm::vec3, glm::vec3> &pos_pair,
          coot::api::vnc_vertex &v = vertices[idx];
          v.color = basic_colour;
          v.pos = glm::vec3(ori * p_1);
+         if (false)
+            std::cout << "in cylinder: i_stack " << i_stack << " i_slice " << i_slice << " z_this: " << z_this
+                      << " v.pos.z " << v.pos.z << " start " << glm::to_string(start) << std::endl;
          v.pos += start;
          v.normal = ori * p_n;
          idx++;

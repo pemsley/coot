@@ -1079,7 +1079,8 @@ graphics_info_t::rotate_intermediate_atoms_round_screen_z(double angle) {
 	       regularize_object_bonds_box.clear_up();
 	       regularize_object_bonds_box = bonds.make_graphical_bonds();
 	    } else {
-	       Bond_lines_container bonds(*moving_atoms_asc, do_disulphide_flag);
+               bool show_atoms_as_aniso_flag = false;
+	       Bond_lines_container bonds(*moving_atoms_asc, imol_moving_atoms, show_atoms_as_aniso_flag, do_disulphide_flag); // A
 	       regularize_object_bonds_box.clear_up();
 	       regularize_object_bonds_box = bonds.make_graphical_bonds();
 	    }
@@ -1134,7 +1135,8 @@ graphics_info_t::rotate_intermediate_atoms_round_screen_x(double angle) {
 	       regularize_object_bonds_box.clear_up();
 	       regularize_object_bonds_box = bonds.make_graphical_bonds();
 	    } else {
-	       Bond_lines_container bonds(*moving_atoms_asc, do_disulphide_flag);
+               bool show_atoms_as_aniso_flag = false;
+	       Bond_lines_container bonds(*moving_atoms_asc, imol_moving_atoms, show_atoms_as_aniso_flag, do_disulphide_flag);
 	       regularize_object_bonds_box.clear_up();
 	       regularize_object_bonds_box = bonds.make_graphical_bonds();
 	    }
