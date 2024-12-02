@@ -425,7 +425,13 @@ molecules_container_t::minimize_energy(int imol, const std::string &atom_selecti
                                         refinement_is_quiet, &geom);
       std::string mode = "COLOUR-BY-CHAIN-AND-DICTIONARY";
       bool draw_hydrogen_atoms_flag = true; // use data member as we do for draw_missing_residue_loops_flag?
-      im = molecules[imol].get_bonds_mesh_instanced(mode, &geom, true, 0.12, 1.4, 1,
+      unsigned int smoothness_factor = 1;
+      bool show_atoms_as_aniso_flag = false;
+      bool show_aniso_atoms_as_ortep = false;
+      im = molecules[imol].get_bonds_mesh_instanced(mode, &geom, true, 0.12, 1.4,
+                                                    show_atoms_as_aniso_flag,
+                                                    show_aniso_atoms_as_ortep,
+                                                    smoothness_factor,
                                                     draw_hydrogen_atoms_flag, draw_missing_residue_loops_flag);
 
    } else {

@@ -295,6 +295,7 @@ coot::molecule_t::make_colour_by_chain_bonds(coot::protein_geometry *geom,
 
    bool draw_hydrogens_flag = draw_hydrogen_atoms_flag;
 
+   // Constructor M
    Bond_lines_container bonds(geom, no_bonds_to_these_atoms, draw_hydrogens_flag);
 
    bonds.add_rotamer_tables(tables_p);
@@ -1908,10 +1909,9 @@ coot::molecule_t::get_simple_molecule(int imol, mmdb::Residue *residue_p, bool d
       }
 
       for (int icol=0; icol<gbc.num_colours; icol++) {
-         glm::vec4 col = colour_table[icol];
          graphical_bonds_lines_list<graphics_line_t> &ll = gbc.bonds_[icol];
          for (int j=0; j<ll.num_lines; j++) {
-            bool thin = ll.thin_lines_flag; // do something with this?
+            // const bool &thin = ll.thin_lines_flag; // do something with this?
             simple::bond_t::bond_type_t bt = simple::bond_t::SINGLE_BOND;
             sm.add_bond(simple::bond_t(ll.pair_list[j].atom_index_1, ll.pair_list[j].atom_index_2, bt));
          }
@@ -1925,7 +1925,8 @@ coot::molecule_t::get_simple_molecule(int imol, mmdb::Residue *residue_p, bool d
    mmdb::Manager *new_mol = util::create_mmdbmanager_from_residue(residue_p);
    atom_selection_container_t atom_sel = make_asc(new_mol);
    Bond_lines_container bonds(geom_p, no_bonds_to_these_atoms, draw_hydrogen_atoms_flag);
-   bonds.do_colour_by_chain_bonds(atom_sel, false, imol, draw_hydrogen_atoms_flag, false, true, false, false);
+   bonds.do_colour_by_chain_bonds(atom_sel, false, imol, draw_hydrogen_atoms_flag,
+                                  false, true, false, false);
    bonds_box = bonds.make_graphical_bonds();
    sm = make_simple_molecule(bonds_box);
    atom_sel.clear_up();

@@ -87,8 +87,16 @@ model_molecule_meshes_t::draw_for_ssao(Shader *shader_for_meshes_p,
 void
 model_molecule_meshes_t::make_graphical_bonds(int imol, const graphical_bonds_container &bonds_box,
                                               float atom_radius, float bond_radius,
+                                              bool show_atoms_as_aniso_flag,
+                                              bool show_aniso_atoms_as_ortep_flag,
                                               int num_subdivisions, int n_slices, int n_stacks,
                                               const std::vector<glm::vec4> &colour_table) {
+
+   std::cout << "................................... in model_molecule_meshes_t::make_graphical_bonds()) with show_aniso_atoms_as_ortep_flag "
+             << show_aniso_atoms_as_ortep_flag << std::endl;
+
+   // who calls this function?
+
 
    // first clear the buffers of what we ready (might) have
    instanced_meshes.clear();
@@ -100,14 +108,17 @@ model_molecule_meshes_t::make_graphical_bonds(int imol, const graphical_bonds_co
 
    // std::cout << "calling make_instanced_graphical_bonds_spherical_atoms() with atom_radius " << atom_radius << std::endl;
    // Atom radii are limited to 2.0
+
+   // these are in api/coot-molecule-bonds-instanced
    make_instanced_graphical_bonds_spherical_atoms(im, bonds_box, dummy_bonds_box_type, atom_radius, bond_radius,
+                                                  show_atoms_as_aniso_flag, show_aniso_atoms_as_ortep_flag,
                                                   num_subdivisions, colour_table);
    make_instanced_graphical_bonds_bonds(im, bonds_box, bond_radius, n_slices, n_stacks, colour_table);
    make_graphical_bonds_cis_peptides(im.markup, bonds_box);
    add_rotamer_dodecs(imol, bonds_box);
    add_ramachandran_spheres(imol, bonds_box);
 
-   
+
    // ===================================== now convert instancing.hh meshes to src style "Mesh"es =======================
 
 

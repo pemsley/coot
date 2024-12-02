@@ -1,5 +1,7 @@
 ----
 
+cylinder class need an init_unit(n_slices);
+
 libcootapi: Give me the SMILES of the specified residue
 
 read small molecule hkl cif in libcootapi? e.g 2019830.hkl

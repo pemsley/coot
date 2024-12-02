@@ -146,6 +146,9 @@ molecule_class_info_t::setup_internal() { // init
    // we want the radius to be bigger. So allow the user to control that.
    atom_radius_scale_factor = 1.0; // used in making balls for atoms
 
+   show_atoms_as_aniso_flag = false;
+   show_aniso_atoms_as_ortep_flag = false;
+
    ghost_bond_width = 2.0;
 
    // initial bonds type (checked and reset in handle_read_draw_molecule)
@@ -956,7 +959,7 @@ molecule_class_info_t::trim_atom_label_table() {
 
 
 void
-molecule_class_info_t::draw_anisotropic_atoms() {
+molecule_class_info_t::old_draw_anisotropic_atoms() {
 #if 0
    int c; // atom colour
 
@@ -4283,6 +4286,8 @@ molecule_class_info_t::make_meshes_from_bonds_box_instanced_version() {
 
       // std::cout << "DEBUG:: ************* atom_radius: " << atom_radius << std::endl;
       model_molecule_meshes.make_graphical_bonds(imol_no, bonds_box, atom_radius, bond_radius,
+                                                 show_atoms_as_aniso_flag, // class member - user setable
+                                                 show_aniso_atoms_as_ortep_flag, // ditto
                                                  num_subdivisions, n_slices, n_stacks, colour_table);
 
       if (true) // test that model_molecule_meshes is not empty()

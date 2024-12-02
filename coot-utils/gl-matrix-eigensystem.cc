@@ -19,10 +19,8 @@
  * 02110-1301, USA
  */
 
-#include "gl-matrix.h"
-
-#ifdef HAVE_GSL
 #include <gsl/gsl_matrix.h>
+#include "gl-matrix.h"
 
 std::pair<bool,GL_matrix>
 GL_matrix::eigensystem() const {
@@ -102,4 +100,3 @@ GL_matrix::eigensystem() const {
    }
 }
 
-#endif

@@ -4095,7 +4095,7 @@ coot::molecule_t::add_target_position_restraint_and_refine(const std::string &at
    if (n_cycles < 0) {
       // simple communication test.
    } else {
-      // acutally do some refinement then
+      // actually do some refinement then
       if (last_restraints) {
          clipper::Coord_orth pos(pos_x, pos_y, pos_z);
          mmdb::Atom *at = cid_to_atom(atom_cid);
@@ -4114,7 +4114,12 @@ coot::molecule_t::add_target_position_restraint_and_refine(const std::string &at
    }
 
    std::string mode = "COLOUR-BY-CHAIN-AND-DICTIONARY";
-   m = get_bonds_mesh_instanced(mode, geom_p, true, 0.1, 1.4, 1, true, true);
+   unsigned int smoothness_factor = 1;
+   bool show_atoms_as_aniso_flag = false;
+   bool show_aniso_atoms_as_ortep_flag = false;
+   m = get_bonds_mesh_instanced(mode, geom_p, true, 0.1, 1.4,
+                                show_atoms_as_aniso_flag, show_aniso_atoms_as_ortep_flag,
+                                smoothness_factor, true, true);
    return m;
 
 }
