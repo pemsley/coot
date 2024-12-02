@@ -24,6 +24,6 @@ As well as attractive HTML output, the intermediate documented python
 function stubs work with LSP and intellisense to provide api documentation
 and completions.
 
-The script works pretty well for us [chapi documentation](https://www.mrc-lmb.cam.ac.uk/lucrezia/libcootapi-documentation/api.html).
+The script works pretty well for our [chapi documentation](https://www.mrc-lmb.cam.ac.uk/lucrezia/libcootapi-documentation/api.html).
 It might work for other nanobinders in a similar situation.
 
