@@ -976,7 +976,8 @@ public:
    //! @param bond_width is the bond width in Angstroms. 0.12 is a reasonable default value.
    //! @param atom_radius_to_bond_width_ratio allows the representation of "ball and stick". To do so use a value
    //! between 1.5 and 3.0. The ratio for "liquorice" representation is 1.0.
-   //!       more doc                                                       
+   //! @param show_atoms_as_aniso_flag if possible, show the atoms with thermal ellipsoids.
+   //! @param show_aniso_atoms_as_ortep_flag show any anisotrop atoms with ortep style.
    //! @return a `instanced_mesh_t`
    coot::instanced_mesh_t get_bonds_mesh_instanced(int imol, const std::string &mode,
                                                    bool against_a_dark_background,
