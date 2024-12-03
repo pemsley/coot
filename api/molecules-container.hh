@@ -969,15 +969,16 @@ public:
    //! @param against_a_dark_background allows the bond colours to be relevant for the background.
    //! When the background is dark, the colours should (as a rule) be bright and pastelly.
    //! When the background is light/white, the colour are darker and more saturated.
+   //! @param bond_width is the bond width in Angstroms. 0.12 is a reasonable default value.
+   //! @param atom_radius_to_bond_width_ratio allows the representation of "ball and stick". To do so use a value
+   //! between 1.5 and 3.0. The ratio for "liquorice" representation is 1.0.
+   //! @param show_atoms_as_aniso_flag if true, if possible, show the atoms with thermal ellipsoids.
+   //! @param show_aniso_atoms_as_ortep_flag if true, show any anisotropic atoms with ortep style.
+   //! @param draw_hydrogen_atoms_flag if true, bonds to hydrogen atoms should be added.
    //! @param smoothness_factor controls the number of triangles used to make the bond cylinders
    //! and spheres for the atoms - it rises in powers of 4. 1 is the smallest smoothness_factor,
    //! 2 looks nice and 3 is best. Instancing may mean that smoothness factor 3 should
    //! be used by default.
-   //! @param bond_width is the bond width in Angstroms. 0.12 is a reasonable default value.
-   //! @param atom_radius_to_bond_width_ratio allows the representation of "ball and stick". To do so use a value
-   //! between 1.5 and 3.0. The ratio for "liquorice" representation is 1.0.
-   //! @param show_atoms_as_aniso_flag if possible, show the atoms with thermal ellipsoids.
-   //! @param show_aniso_atoms_as_ortep_flag show any anisotrop atoms with ortep style.
    //! @return a `instanced_mesh_t`
    coot::instanced_mesh_t get_bonds_mesh_instanced(int imol, const std::string &mode,
                                                    bool against_a_dark_background,
