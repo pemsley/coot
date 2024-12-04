@@ -84,7 +84,7 @@ make_instanced_graphical_bonds_spherical_atoms(coot::instanced_mesh_t &m, // add
       }
    }
 
-   coot::instanced_geometry_t ig_sphere("spherical-atoms");
+   coot::instanced_geometry_t ig_sphere("anisotropic-atoms");
 
    bool atoms_have_bigger_radius_than_bonds = false;
    if (base_atom_radius > base_bond_radius) atoms_have_bigger_radius_than_bonds = true;
@@ -105,7 +105,7 @@ make_instanced_graphical_bonds_spherical_atoms(coot::instanced_mesh_t &m, // add
    // ----------------------- setup the vertices and triangles for ortep instancing ---------------------
 
    // Oak Ridge Thermal Ellipsoids
-   coot::instanced_geometry_t ig_ortep("anisotropic atoms");
+   coot::instanced_geometry_t ig_ortep("anisotropic-ortep-atoms");
    ortep_t ortep = tessellate_sphere_sans_octant();
    bool do_ellipse_rings = true;
    std::vector<coot::api::vn_vertex> local_vertices_ortep(ortep.vertices.size());
