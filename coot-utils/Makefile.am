@@ -142,6 +142,7 @@ libcoot_map_utils_la_SOURCES = coot-map-utils.cc peak-search.cc peak-search-from
 libcoot_map_utils_la_LIBADD = \
    libcoot-coord-utils.la \
    $(top_builddir)/lidia-core/libcoot-lidia-core.la \
+   $(top_builddir)/protein_db/libcoot-protein-db.la \
    $(top_builddir)/geometry/libcoot-geometry.la \
    $(top_builddir)/utils/libcoot-utils.la \
    $(CLIPPER_LIBS) $(gsl_LIBS) -lpthread -lz
