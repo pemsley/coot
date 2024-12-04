@@ -91,7 +91,6 @@ libcoot_coord_utils_la_SOURCES = coot-coord-utils.cc \
 # in the source files for libcoot-coord-utils?
 libcoot_coord_utils_la_LIBADD = \
     $(top_builddir)/lidia-core/libcoot-lidia-core.la \
-    $(top_builddir)/protein_db/libcoot-protein-db.la \
     $(top_builddir)/geometry/libcoot-geometry.la     \
     $(top_builddir)/mini-mol/libcoot-mini-mol.la     \
     $(top_builddir)/utils/libcoot-utils.la           \
