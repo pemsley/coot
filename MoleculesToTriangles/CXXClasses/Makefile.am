@@ -20,7 +20,8 @@ libMoleculesToTrianglesCXXClasses_la_SOURCES=AtomPropertyRampColorRule.cpp	 \
 	VertexColorNormalPrimitive.cpp CylindersPrimitive.cpp  \
 	oglPolyhedron.cpp MolecularRepresentationInstance.cpp Quaternion.cpp	 \
 	Vector2.cpp Vector3.cpp lfit.c DishyBase.cpp            \
-        FlatFanPrimitive.cpp
+        FlatFanPrimitive.cpp \
+	tubes.cc
 
 # I want pkg-config/configure to make MMDB_CPPFLAGS, not MMDB_CFLAGS (but, after some reading,
 # I don't think that's how pkg-config works - oh well).
@@ -59,7 +60,7 @@ include_HEADERS = Quaternion.hpp Vector.hpp Vector2.hpp Vector3.hpp \
    CompoundSelection.h		PositionedEntity.h			lfit.h                          \
    CylinderPoint.h		Renderer.h				oglPolyhedron.h                 \
    CylindersPrimitive.h		RendererGL.h                            RendererGLSL.hpp                \
-   DishyBase.h                  FlatFanPrimitive.h
+   DishyBase.h                  FlatFanPrimitive.h                      tubes.hh
 
 # PointLight.hpp: $(top_srcdir)/PointLight.frag $(top_srcdir)/PointLight.vert $(top_srcdir)/ShaderPacker.py
 # python $(top_srcdir)/ShaderPacker.py PointLight $(top_srcdir)

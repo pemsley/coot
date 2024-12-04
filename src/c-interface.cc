@@ -56,6 +56,7 @@
 #endif // USE_PYTHON
 
 #include "compat/sleep-fixups.h"
+#include "coot-utils/gl-matrix.h"
 
 // Here we used to define GTK_ENABLE_BROKEN if defined(WINDOWS_MINGW)
 // Now we don't want to enable broken stuff.  That is not the way.
@@ -3224,6 +3225,21 @@ void
 set_show_aniso(int state) {
 
    graphics_info_t::show_aniso_atoms_flag = state;
+
+   // add it in to the molecules too
+   for (unsigned int i=0; i<graphics_info_t::molecules.size(); i++) {
+      if (graphics_info_t::is_valid_model_molecule(i))
+          graphics_info_t::molecules[i].set_show_atoms_as_aniso(state);
+   }
+   graphics_draw();
+}
+
+/*! \brief set show aniso atoms as ortep */
+void set_show_aniso_atoms_as_ortep(int imol, int state) {
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t::molecules[imol].set_show_aniso_atoms_as_ortep(state);
+   }
    graphics_draw();
 }
 
@@ -4173,7 +4189,6 @@ void set_debug_atom_picking(int istate) {
 }
 
 
-#include "gl-matrix.h"
 void print_view_matrix() { 		/* print the view matrix */
 
    graphics_info_t g;

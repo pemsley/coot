@@ -1,3 +1,4 @@
+
 #include <nanobind/nanobind.h>
 #include <nanobind/stl/string.h>
 #include <nanobind/stl/pair.h>
@@ -13,6 +14,8 @@
 #include "coot-utils/acedrg-types-for-residue.hh"
 #include "coot-utils/g_triangle.hh"
 #include "mini-mol/mini-mol-utils.hh"
+
+#undef MAKE_ENHANCED_LIGAND_TOOLS
 #include "molecules-container.hh"
 
 

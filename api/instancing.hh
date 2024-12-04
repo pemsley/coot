@@ -27,7 +27,7 @@ namespace coot {
       glm::vec3 size;
       //! the orientation matrix rotates the vector away from "z is up"
       glm::mat4 orientation; // 3 sets of vec3 in the shader. 20230114-PE not glm::mat4
-      instancing_data_type_B_t(const glm::vec3 &position_in, const glm::vec4 &colour_in, const glm::vec3 &size_in, glm::mat4 &ori) :
+      instancing_data_type_B_t(const glm::vec3 &position_in, const glm::vec4 &colour_in, const glm::vec3 &size_in, const glm::mat4 &ori) :
          position(position_in), colour(colour_in), size(size_in), orientation(ori) {}
       instancing_data_type_B_t() {}
    };
@@ -45,6 +45,7 @@ namespace coot {
       explicit instanced_geometry_t(const std::string &n) : name(n) {};
       instanced_geometry_t(const std::vector<api::vn_vertex> &v, const std::vector<g_triangle> &t) :
          vertices(v), triangles(t) {}
+      bool empty() { return instancing_data_A.empty() && instancing_data_B.empty(); }
 
       //! a vector of type A instancing
       std::vector<instancing_data_type_A_t> instancing_data_A;

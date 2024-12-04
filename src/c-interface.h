@@ -2292,25 +2292,28 @@ float get_limit_aniso();           /* not a function of the molecule */
 /*! \brief get show the aniso limit */
 short int get_show_limit_aniso();  /* not a function of the molecule */
 
-/*! \brief return show-aniso-atoms state */
+/*! \brief return show-aniso-atoms state  - FIXME- per molecule */
 short int get_show_aniso();       /*  not a function of the molecule */
 
 /*! \brief set the aniso atom limit */
 void set_limit_aniso(short int state);
 
-/* MOVE-ME to c-interface-gtk-widgets.h */
-void set_aniso_limit_size_from_widget(const char *text);
-
 /*! \brief set show aniso atoms */
 void set_show_aniso(int state);
 
-/* MOVE-ME to c-interface-gtk-widgets.h */
+/*! \brief set show aniso atoms as ortep */
+void set_show_aniso_atoms_as_ortep(int imol, int state);
+
+/* DELETE-ME */
+void set_aniso_limit_size_from_widget(const char *text);
+
+/* DELETE-ME .h */
 char *get_text_for_aniso_limit_radius_entry();
 
-/*! \brief set aniso probability */
+/*! DELETE-ME */
 void set_aniso_probability(float f);
 
-/*! \brief get aniso probability */
+/*! DELETE-ME  */
 float get_aniso_probability();
 
 /* \} */

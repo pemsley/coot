@@ -30,6 +30,10 @@ coot::molecule_t::make_mesh_for_bonds_for_blender(const std::string &mode, prote
                                       float bond_width, float atom_radius_to_bond_width_ratio,
                                       int smoothness_factor) {
 
+   bool show_atoms_as_aniso_flag = true; // pass this
+   bool show_aniso_atoms_as_ortep = true; // pass this also
+   // 20241202-PE start the stopwatch... when will Lucrezia complain?
+
    // from the swig version:
    // PyList_SetItem(r_py, 0, vertices_py);
    // PyList_SetItem(r_py, 1, tris_py);
@@ -41,7 +45,10 @@ coot::molecule_t::make_mesh_for_bonds_for_blender(const std::string &mode, prote
    bool draw_hydrogen_atoms_flag = true;
    bool draw_missing_loops_flag = true;
 
-   instanced_mesh_t im = get_bonds_mesh_instanced(mode, geom, against_a_dark_background, bond_width, atom_radius_to_bond_width_ratio,
+   instanced_mesh_t im = get_bonds_mesh_instanced(mode, geom, against_a_dark_background,
+                                                  bond_width, atom_radius_to_bond_width_ratio,
+                                                  show_atoms_as_aniso_flag,
+                                                  show_aniso_atoms_as_ortep,
                                                   smoothness_factor, draw_hydrogen_atoms_flag, draw_missing_loops_flag);
 
    blender_mesh_t bm(im);

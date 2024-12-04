@@ -25,6 +25,7 @@
  */
 #define _USE_MATH_DEFINES
 #include <iostream>
+#include <iomanip>
 #include <vector>
 #include <chrono>
 
@@ -35,6 +36,7 @@
 
 #include "prideout-octasphere.hh"
 #include "oct.hh"
+#include "ortep.hh"
 
 std::vector<g_triangle>
 make_octasphere_triangles(unsigned int i_row,
@@ -626,8 +628,6 @@ tessellate_sphere_sans_octant() {
 
    return ortep;
 }
-
-#include <iomanip>
 
 void
 ortep_t::make_lines() {
