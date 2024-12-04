@@ -11,16 +11,42 @@ read small molecule hkl cif in libcootapi? e.g 2019830.hkl
 
 read small molecule hkl cif in Coot? e.g 2019830.hkl - or does it work already?
 
+add "rdkit-has-coordgen" flag to configure
+
+the SEP in 6il9 - is not a conformer from acedrg
+
+1ag6 A64 His bonding in Moorhen/colour-by-chain/dict mode
+
+Are base pairing restraints working? - check using Martin M. 3a3a
+Yes they are - they are just normal bond restraints - they
+don't appear as extras.
+
+3a3a residue 16-18 gap loop drawn - but not a gap!
+coords/Bond_lines.cc:4848 - copy that code block and use p linked atoms.
+
+Can I delete hydrogen atoms on saving in new coot?
+
+How do I see molprobity rama plot from inside coot?
+
+change the class of chapi.py from xml-to-python.py so that it takes
+an argument - maybe __new__() or __init__()?
+
+add to api: centre_of_residue() centre_of_sidechain(), CA_of_residue()
+
 Easy function: for Coot API pentakis dodec vertices and convert them to
 cylinders and make a generic display object out of them given centre and radius.
 Allow the user to change the centre and radius using some (python?) gui.
+
+Use alignment text-anchor="middle" for text in molecule svg
+* Done.
 
 For tubes repo, we need loops - reuse the Stuart loops
 
 api: what is the energy of this residue? (for conformers, say)
 
-api: rotate torsion to value
-* Done.
+For tubes repo, we need loops - reuse the stuart loops
+
+Do refmac torsion restraints work in Coot?
 
 Oliver Clarke issues.
 
@@ -119,6 +145,11 @@ add to api: centre_of_residue() centre_of_sidechain(), CA_of_residue()
 * Done.
 
 Use alignment text-anchor="middle" for text in molecule svg
+
+api: rotate torsion to value
+* Done.
+
+Given a quad of atom names and a residue spec, what is the torsion?
 * Done.
 
 coot --dictionary should make a molecule instance from the dictionary
