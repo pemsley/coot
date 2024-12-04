@@ -2094,8 +2094,10 @@ molecules_container_t::get_bonds_mesh_for_selection_instanced(int imol, const st
                                                               const std::string &mode,
                                                               bool against_a_dark_background,
                                                               float bond_width, float atom_radius_to_bond_width_ratio,
+                                                              bool show_atoms_as_aniso_flag,
+                                                              bool show_aniso_atoms_as_ortep_flag,
+                                                              bool draw_hydrogen_atoms_flag,
                                                               int smoothness_factor) {
-   bool draw_hydrogen_atoms_flag = true; // pass this
 
    // auto tp_0 = std::chrono::high_resolution_clock::now();
 
@@ -2103,7 +2105,11 @@ molecules_container_t::get_bonds_mesh_for_selection_instanced(int imol, const st
    if (is_valid_model_molecule(imol)) {
       im = molecules[imol].get_bonds_mesh_for_selection_instanced(mode, atom_selection_cid,
                                                                   &geom, against_a_dark_background, bond_width, atom_radius_to_bond_width_ratio,
-                                                                  smoothness_factor, draw_hydrogen_atoms_flag, draw_missing_residue_loops_flag);
+                                                                  show_atoms_as_aniso_flag,
+                                                                  show_aniso_atoms_as_ortep_flag,
+                                                                  smoothness_factor,
+                                                                  draw_hydrogen_atoms_flag,
+                                                                  draw_missing_residue_loops_flag);
    } else {
       std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }

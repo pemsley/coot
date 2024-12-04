@@ -4419,8 +4419,14 @@ coot::molecule_t::export_model_molecule_as_gltf(const std::string &mode,
                                                 bool draw_hydrogen_atoms_flag, bool draw_missing_residue_loops,
                                                 const std::string &file_name) {
 
+   bool show_atoms_as_aniso_flag = true;
+   bool show_aniso_atoms_as_ortep_flag = false; // pass these
+
    instanced_mesh_t im = get_bonds_mesh_for_selection_instanced(mode, selection_cid, geom, against_a_dark_background,
-                                                                bonds_width, atom_radius_to_bond_width_ratio, smoothness_factor,
+                                                                bonds_width, atom_radius_to_bond_width_ratio,
+                                                                show_atoms_as_aniso_flag,
+                                                                show_aniso_atoms_as_ortep_flag,
+                                                                smoothness_factor,
                                                                 draw_hydrogen_atoms_flag, draw_missing_residue_loops);
 
    coot::simple_mesh_t sm = coot::instanced_mesh_to_simple_mesh(im);

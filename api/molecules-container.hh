@@ -997,6 +997,9 @@ public:
                                                                  const std::string &mode,
                                                                  bool against_a_dark_background,
                                                                  float bond_width, float atom_radius_to_bond_width_ratio,
+                                                                 bool show_atoms_as_aniso_flag,
+                                                                 bool show_aniso_atoms_as_ortep_flag,
+                                                                 bool draw_hydrogen_atoms_flag,
                                                                  int smoothness_factor);
 
    //! Get the Goodsell style mesh
