@@ -3756,10 +3756,12 @@ PyObject *cif_file_for_comp_id_py(const std::string &comp_id) {
 // can throw and std::runtime_error exception
 std::string SMILES_for_comp_id(const std::string &comp_id) {
 
+   int imol_enc = coot::protein_geometry::IMOL_ENC_ANY; // pass this?
+
    graphics_info_t g;
    std::string s;
    try {
-      s = g.Geom_p()->Get_SMILES_for_comp_id(comp_id); // can throw
+      s = g.Geom_p()->Get_SMILES_for_comp_id(comp_id, imol_enc); // can throw
    }
    catch (const std::runtime_error &e) {
       std::cout << "WARNING::" << e.what() << std::endl;

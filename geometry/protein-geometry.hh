@@ -2199,7 +2199,7 @@ namespace coot {
       std::vector<std::string> monomer_restraints_comp_ids() const;
 
       // can throw a std::runtime_error
-      std::string Get_SMILES_for_comp_id(const std::string &comp_id) const;
+      std::string Get_SMILES_for_comp_id(const std::string &comp_id,  int imol_enc) const;
 
       // debug
       void debug() const;

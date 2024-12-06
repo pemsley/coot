@@ -2641,30 +2641,32 @@ coot::protein_geometry::monomer_restraints_comp_ids() const {
    for (unsigned int i=0; i<dict_res_restraints.size(); i++)
       v.push_back(dict_res_restraints[i].second.residue_info.comp_id);
    return v;
-} 
+}
 
 
 // can throw a std::runtime_error
 std::string
-coot::protein_geometry::Get_SMILES_for_comp_id(const std::string &comp_id) const {
+coot::protein_geometry::Get_SMILES_for_comp_id(const std::string &comp_id, int imol_enc) const {
 
    bool found = false;
-   std::string s; 
+   std::string s;
    for (unsigned int i=0; i<dict_res_restraints.size(); i++) {
 
       if (dict_res_restraints[i].second.residue_info.comp_id == comp_id) {
+         if (dict_res_restraints[i].first == imol_enc) {
 
-	 unsigned int nd = dict_res_restraints[i].second.descriptors.descriptors.size();
-	 for (unsigned int idesc=0; idesc<nd; idesc++) { 
-	    if (dict_res_restraints[i].second.descriptors.descriptors[idesc].type == "SMILES_CANONICAL") { 
-	       s = dict_res_restraints[i].second.descriptors.descriptors[idesc].descriptor;
-	       found = true;
-	       break;
-	    }
-	 }
+            unsigned int nd = dict_res_restraints[i].second.descriptors.descriptors.size();
+            for (unsigned int idesc=0; idesc<nd; idesc++) {
+               if (dict_res_restraints[i].second.descriptors.descriptors[idesc].type == "SMILES_CANONICAL") {
+                  s = dict_res_restraints[i].second.descriptors.descriptors[idesc].descriptor;
+                  found = true;
+                  break;
+               }
+            }
+         }
+         if (found)
+            break;
       }
-      if (found)
-	 break;
    }
 
    if (! found){
@@ -2674,7 +2676,7 @@ coot::protein_geometry::Get_SMILES_for_comp_id(const std::string &comp_id) const
       if (dict_res_restraints[i].second.residue_info.comp_id == comp_id) {
 
 	 unsigned int nd = dict_res_restraints[i].second.descriptors.descriptors.size();
-	 for (unsigned int idesc=0; idesc<nd; idesc++) { 
+	 for (unsigned int idesc=0; idesc<nd; idesc++) {
 	    if (dict_res_restraints[i].second.descriptors.descriptors[idesc].type == "SMILES") {
 	       s = dict_res_restraints[i].second.descriptors.descriptors[idesc].descriptor;
 	       found = true;

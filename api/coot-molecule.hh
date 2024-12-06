@@ -646,6 +646,14 @@ namespace coot {
       //! @return a vector. The length of the vector is 0 on failure, otherwise it is the x,y,z values
       std::vector<double> get_residue_sidechain_average_position(const std::string &cid) const;
 
+      //! set occupancy
+      //!
+      //! set the occupancy for the given atom selection
+      //!
+      //! @param imol is the model molecule index
+      //! @param cod is the atom selection CID
+      void set_occupancy(const std::string &cid, float occ_new);
+
       // ----------------------- model bonds
 
       simple_mesh_t get_bonds_mesh(const std::string &mode, protein_geometry *geom,

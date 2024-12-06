@@ -5630,6 +5630,20 @@ molecules_container_t::get_residue_name(int imol, const std::string &chain_id, i
 }
 
 
+//! Get the SMILES string for the give residue type
+//!
+//! @param residue name the compound-id
+//! @param is the molecule index for the residue type/compound_id
+//! @return the SMILES string if the residue type can be foound in the dictionary store
+//!         or the empty string on a failure.
+std::string
+molecules_container_t::get_SMILES_for_residue_type(const std::string &residue_name, int imol_enc) const {
+
+   std::string s = geom.Get_SMILES_for_comp_id(residue_name, imol_enc);
+   return s;
+}
+
+
 //! @return an estimate of the diameter of the model molecule (-1 on failure)
 float
 molecules_container_t::get_molecule_diameter(int imol) const {
@@ -5990,4 +6004,20 @@ molecules_container_t::get_residue_sidechain_average_position(int imol, const st
       std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
    return v;
+}
+
+//! set the occupancy for the given atom selection
+//!
+//! @param imol is the model molecule index
+//! @param cod is the atom selection CID
+//! @param is the new occupancy
+void
+molecules_container_t::set_occupancy(int imol, const std::string &cid, float occ_new) {
+
+   if (is_valid_model_molecule(imol)) {
+      molecules[imol].set_occupancy(cid, occ_new);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+
 }
