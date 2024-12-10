@@ -110,7 +110,7 @@ make_instanced_graphical_bonds_spherical_atoms(coot::instanced_mesh_t &m, // add
    bool do_ellipse_rings = true;
    std::vector<coot::api::vn_vertex> local_vertices_ortep(ortep.vertices.size());
    for (unsigned int i=0; i<ortep.vertices.size(); i++)
-      local_vertices_ortep[i] = coot::api::vn_vertex(ortep.vertices[i], -ortep.normals[i]);
+      local_vertices_ortep[i] = coot::api::vn_vertex(ortep.vertices[i], ortep.normals[i]);
    ig_ortep.vertices = local_vertices_ortep;
    ig_ortep.triangles = ortep.triangles;
 
