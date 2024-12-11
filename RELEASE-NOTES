@@ -1,4 +1,21 @@
 
+  Release 1.1.11
+
+  o FEATURE: One can now dynamically edit SMILES in layla
+
+  o FEATURE: Anisotropic atom representation
+             [thanks to Global Phasing]
+
+  o FEATURE: Better linking across sequence gaps in RNA and DNA
+
+  o FEATURE: Electrostatic representation [Stuart McNicholas]
+
+  o FEATURE: Acedrg atom types are now parsed from dictionaries
+
+  o FEATURE: Function partition_map_by_chain() added
+
+  o CHANGE: Various non-user-visible changes for Flatpak compatibility
+
 -----
 
   Release 1.1.10
