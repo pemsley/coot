@@ -1293,7 +1293,8 @@ PyObject *residue_info_py(int imol, const char* chain_id, int resno, const char 
                         int idx = -1;
                         int ierr = at->GetUDData(udd_handle, idx);
                         if (ierr != mmdb::UDDATA_Ok) {
-                           std::cout << "WARNING:: error getting uddata for atom " << at << std::endl;
+                           std::cout << "WARNING:: residue_info_py(): error getting uddata for atom "
+                                     << at << std::endl;
                            idx = -1; // maybe not needed
                         }
                         PyObject *atom_idx_py = PyLong_FromLong(idx);

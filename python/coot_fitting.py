@@ -18,7 +18,8 @@
 
 import coot
 import coot_utils
-import coot_gui
+
+# import coot_gui - coot_gui - this file is for scripting
 # import coot_toolbuttons # 20220910-PE FIXME later
 
 # For each residue in the protein (molecule number @var{imol}), do a
@@ -254,63 +255,6 @@ def interruptible_fit_protein(imol, func):
         multi_refine_idle_proc = idle_func
         coot.set_go_to_atom_molecule(imol)
 
-# this will stop the currently running interuptible fit protein function
-#
-def stop_interruptible_fit_protein():
-    global continue_multi_refine
-    global multi_refine_stop_button
-    global multi_refine_cancel_button
-    global multi_refine_continue_button
-    
-    continue_multi_refine = False
-
-    multi_refine_cancel_button = coot_gui.coot_toolbar_button("Cancel",
-                                                     "cancel_interruptible_fit_protein()",
-                                                     "gtk-cancel")
-    multi_refine_continue_button = coot_gui.coot_toolbar_button("Continue",
-                                                     "continue_interruptible_fit_protein()",
-                                                     "gtk-apply")
-    
-    multi_refine_stop_button.set_sensitive(False)
-    #multi_refine_cancel_button.set_sensitive(True)
-    #multi_refine_continue_button.set_sensitive(True)
-
-# Continue with the interruptible fitting
-#
-def continue_interruptible_fit_protein():
-    global multi_refine_stop_button
-    global multi_refine_cancel_button
-    global multi_refine_continue_button
-    global continue_multi_refine
-    global multi_refine_idle_proc
-
-    multi_refine_stop_button.set_sensitive(True)
-    multi_refine_cancel_button.destroy()
-    multi_refine_cancel_button = False
-    multi_refine_continue_button.destroy()
-    multi_refine_continue_button = False
-    continue_multi_refine = True
-    # gobject.idle_add(multi_refine_idle_proc)
-
-# use to completely stop the interruptible fit function
-#
-def cancel_interruptible_fit_protein():
-    global multi_refine_stop_button
-    global multi_refine_cancel_button
-    global multi_refine_continue_button
-    global multi_refine_separator
-    global continue_multi_refine
-
-    continue_multi_refine = False
-    multi_refine_stop_button.destroy()
-    multi_refine_stop_button = False
-    multi_refine_cancel_button.destroy()
-    multi_refine_cancel_button = False
-    multi_refine_continue_button.destroy()
-    multi_refine_continue_button = False
-    multi_refine_separator.destroy()
-    multi_refine_separator = False
-    
 
 # For each residue in chain chain-id of molecule number imol, do a
 # rotamer fit and real space refinement of each residue.  Don't

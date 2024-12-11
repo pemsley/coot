@@ -1864,6 +1864,8 @@ public:        //                      public
    int mutate_base(const coot::residue_spec_t &res_spec, std::string type,
 		   bool use_old_style_naming);
 
+   int mutate_by_overlap(const std::string &chain_id, int res_no, const std::string &new_type);
+
    // and the biggie: lots of mutations/deletions/insertions from an
    // alignment:
    //

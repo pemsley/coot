@@ -61,13 +61,14 @@ int main(int argc, char **argv) {
       int isample_step = 1;
       int n_reams = 1;
       int iream_start = 0;
+      bool use_vertex_gradients_for_map_normals_flag = true;
 
       coot::density_contour_triangles_container_t tri_con;
       tri_con = my_isosurface.GenerateTriangles_from_Xmap(xmap,
                                                           contour_level,
                                                           dy_radius, centre,
                                                           isample_step, iream_start,
-                                                          n_reams, is_em_map);
+                                                          n_reams, is_em_map, use_vertex_gradients_for_map_normals_flag);
       auto tp_2 = std::chrono::high_resolution_clock::now();
 
       // tri_con contains points, normals and triangle indices

@@ -183,7 +183,7 @@ class TestPdbMtzFunctions(unittest.TestCase):
 
         imol = coot_testing_utils.unittest_pdb("tutorial-modern.pdb")
 
-        coot_utils.mutate_by_overlap(imol, "A", 86, "PTR")
+        coot.mutate_by_overlap(imol, "A", 86, "PTR")
         rn = coot.residue_name(imol, "A", 86, "")
         self.assertTrue(rn == "PTR")
         # OK, did the the refinement run OK? Check the C-N distance
