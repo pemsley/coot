@@ -72,6 +72,8 @@ coot::molecule_t::rotate_around_bond(const std::string &residue_cid,
 bool
 coot::molecule_t::copy_ncs_chain(const std::string &from_chain_id, const std::string &to_chain_id) {
 
-   
+   bool status = false;
+
+   return status;
 
 }
