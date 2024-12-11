@@ -8784,9 +8784,13 @@ void make_generic_surface(int imol, const char *selection_str, int mode) {
       coot::molecule_t cm(g.molecules[imol].atom_sel, 0, "");
       //  coot::simple_mesh_t smesh = cm.get_molecular_representation_mesh(selection_string, "ByOwnPotential", "Chains", 0);
       coot::simple_mesh_t smesh;
+      std::string type = "";
 
       if (mode == 1) smesh = cm.get_molecular_representation_mesh(selection_string, "ByOwnPotential", "MolecularSurface", 0);
       if (mode == 2) smesh = cm.get_molecular_representation_mesh(selection_string, "Chains", "MolecularSurface", 0);
+
+      if (mode == 1) type = "Electrostatic";
+      if (mode == 2) type = "Molecular";
 
       g.attach_buffers();
       // do I need this vertex type conversion? Yes
@@ -8796,7 +8800,7 @@ void make_generic_surface(int imol, const char *selection_str, int mode) {
                                         smesh.vertices[i].normal,
                                         smesh.vertices[i].color);
       }
-      std::string object_name = "Electrostatic Surface " + std::to_string(imol) +
+      std::string object_name = type + " Surface " + std::to_string(imol) +
          std::string(" ") + std::string(selection_string);
       int obj_mesh = new_generic_object_number(object_name);
       meshed_generic_display_object &obj = g.generic_display_objects[obj_mesh];
