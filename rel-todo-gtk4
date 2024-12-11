@@ -1,8 +1,7 @@
 ----
 
-cylinder class need an init_unit(n_slices);
-
-libcootapi: Give me the SMILES of the specified residue
+configure needs to know if RDKitcoordgen was used to make RDKit and change the Makefile libs
+and we need to conditionally compile the code that uses coordgen (in layla).
 
 read small molecule hkl cif in libcootapi? e.g 2019830.hkl
 
@@ -12,7 +11,7 @@ Easy function: for Coot API pentakis dodec vertices and convert them to
 cylinders and make a generic display object out of them given centre and radius.
 Allow the user to change the centre and radius using some (python?) gui.
 
-For tubes repo, we need loops - reuse the Stuart loops
+For tubes repo, we need loops
 
 Oliver Clarke issues.
 
@@ -28,19 +27,9 @@ bring water flood to the API.
 
 servalcat refine using chapi molecules
 
-configure needs to know if RDKitcoordgen was used to make RDKit and change the Makefile libs
-and we need to conditionally compile the code that uses coordgen (in layla).
-
 Install this on hal: https://github.com/chaidiscovery/chai-lab
 
 Button no labels and labels no buttons for the vertical toolbar.
-
-Read in two dictionaries and return an atom name map.
-std::map<std::string, std::string>
-dictionary_atom_name_map(comp_id_1, imol_1, comp_id_2, imol_2)
-How do I handle the map in python?
-https://nanobind.readthedocs.io/en/latest/exchanging.html
-Seems that is could be "naturally."
 
 Validation: Tell me when I have links that are too long (based on
 simple rules (enerlib.cif) not on link dictionary values)
@@ -104,6 +93,23 @@ Martin request: libcootapi: Step sample maps
 Adaptive rotation for the mouse motion - make it more for a widescreen.
 
 SVG for pli
+
+Add extra arguments to get_bonds_mesh_for_selection_instanced()
+* Done.
+
+cylinder class need an init_unit(n_slices);
+* Done.
+
+libcootapi: Give me the SMILES of the specified residue
+* Done.
+
+Read in two dictionaries and return an atom name map.
+std::map<std::string, std::string>
+dictionary_atom_name_map(comp_id_1, imol_1, comp_id_2, imol_2)
+How do I handle the map in python?
+https://nanobind.readthedocs.io/en/latest/exchanging.html
+Seems that is could be "naturally."
+* Done.
 
 api: what is the energy of this residue? (for conformers, say)
 * Done.
