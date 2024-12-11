@@ -2134,6 +2134,36 @@ gaussian_surface_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    show_gaussian_surface_overlay();
 }
 
+void
+molecular_surface_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                         G_GNUC_UNUSED GVariant *parameter,
+                         G_GNUC_UNUSED gpointer user_data) {
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      std::string selection_string = "//";
+      make_molecular_surface(imol, selection_string.c_str());
+      graphics_draw();
+   }
+   graphics_info_t::graphics_grab_focus();
+}
+
+void
+electrostatic_surface_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                             G_GNUC_UNUSED GVariant *parameter,
+                             G_GNUC_UNUSED gpointer user_data) {
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      std::string selection_string = "//";
+      make_electrostatic_surface(imol, selection_string.c_str());
+      graphics_draw();
+   }
+   graphics_info_t::graphics_grab_focus();
+}
+
 
 #include "generic-display-objects-c.h"
 void
@@ -3786,12 +3816,14 @@ create_actions(GtkApplication *application) {
    add_action(        "bond_parameters_action",         bond_parameters_action);
    add_action(           "bond_colours_action",            bond_colours_action);
    add_action(             "fullscreen_action",              fullscreen_action);
-   add_action(       "gaussian_surface_action",        gaussian_surface_action);
    add_action(             "go_to_atom_action",              go_to_atom_action);
    add_action(         "label_CA_atoms_action",          label_CA_atoms_action);
    add_action(         "map_parameters_action",          map_parameters_action);
    add_action(        "generic_objects_action",         generic_objects_action);
    add_action(       "label_neighbours_action",        label_neighbours_action);
+   add_action(       "gaussian_surface_action",        gaussian_surface_action);
+   add_action(      "molecular_surface_action",       molecular_surface_action);
+   add_action(  "electrostatic_surface_action",   electrostatic_surface_action);
    add_action( "label_atoms_in_residue_action",  label_atoms_in_residue_action);
    add_action( "draw_cell_and_symmetry_action",  draw_cell_and_symmetry_action);
 

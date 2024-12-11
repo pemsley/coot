@@ -131,7 +131,7 @@ public:
         return colorScheme;
     };
     virtual void redraw(){
-       std::cout << "++++++++++++++++++++++++++++++++++++++++++++ redraw with renderStyle " << renderStyle << std::endl;
+       // std::cout << "++++++++++++++++++++++++++++++++++++++++++++ redraw with renderStyle " << renderStyle << std::endl;
 		if (selection != 0 && colorScheme != 0 && renderStyle != "" && myMolecule != 0){
 			deletePrimitives();
 			if (renderStyle == "Ribbon"){

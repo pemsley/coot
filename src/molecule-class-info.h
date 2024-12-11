@@ -1393,18 +1393,6 @@ public:        //                      public
    void make_surface(int SelHnd_selection, int SelHnd_all, const coot::protein_geometry &geom,
 		     float col_scale);
 
-   bool molecule_is_drawn_as_surface() const {
-#if 0
-      if (cootsurface)
-	 return true;
-      else
-	 return false;
-#else
-      return true; // for now (in 0.9.x)
-#endif
-   }
-   //
-
    // a generic function to convert from a residue_spec_vec to a
    // selection handle. Caller creates the SelHnd_selection so that it
    // is clearer where the SelHnd_selection should be deleted.

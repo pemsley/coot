@@ -66,3 +66,12 @@ coot::molecule_t::rotate_around_bond(const std::string &residue_cid,
    }
    return status;
 }
+
+
+//! copy chain using NCS matrix
+bool
+coot::molecule_t::copy_ncs_chain(const std::string &from_chain_id, const std::string &to_chain_id) {
+
+   
+
+}

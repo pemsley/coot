@@ -631,6 +631,9 @@ namespace coot {
       //! Get the chains that are related by NCS:
       std::vector<std::vector<std::string> > get_ncs_related_chains() const;
 
+      //! copy chain using NCS matrix
+      bool copy_ncs_chain(const std::string &from_chain_id, const std::string &to_chain_id);
+
       //! get the residue CA position
       //!
       //! @return a vector. The length of the vector is 0 on failure, otherwise it is the x,y,z values
