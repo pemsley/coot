@@ -1,7 +1,12 @@
 ----
 
+
 turn on debugging in get_monomer_restraints_internal() and see if this gets called
 too many times - noticed in COD cif 1100118
+
+test mmdb->gemmi updates from Marcin.
+
+ERROR:: pane main_window_ramchandran_and_validation_pane not found
 
 configure needs to know if RDKitcoordgen was used to make RDKit and change the Makefile libs
 and we need to conditionally compile the code that uses coordgen (in layla).

@@ -14,7 +14,7 @@
 
   o FEATURE: Function partition_map_by_chain() added
 
-  o CHANGE: Various non-user-visible changes for Flatpak compatibility
+  o OTHER:   Various non-user-visible changes for Flatpak compatibility
 
 -----
 
