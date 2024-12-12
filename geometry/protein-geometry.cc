@@ -1575,7 +1575,7 @@ coot::protein_geometry::get_monomer_restraints_internal(const std::string &monom
 							int imol_enc,
 							bool allow_minimal_flag) const {
 
-   if (true)
+   if (false)
       std::cout << "debug:: get_monomer_restraints_internal() called with type: "
                 << monomer_type << " imol_enc: " << imol_enc
                 << " allow-minimal: " << allow_minimal_flag << std::endl;
@@ -1673,7 +1673,6 @@ coot::protein_geometry::get_monomer_restraints_internal(const std::string &monom
 	 }
       }
    }
-   std::cout << "returning r.first: " << r.first << std::endl;
    return r;
 }
 
