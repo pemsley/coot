@@ -49,7 +49,7 @@ generic-3d-lines.hh      cell.hh                    coot-simple-molecule.hh     
 api-cell.hh              bond-colour.hh             make-instanced-graphical-bonds.hh      \
 symmetry-info.hh         instancing.hh              merge-molecule-results-info-t.hh       \
 coot-molecule-bonds.hh   clipper-ccp4-map-file-wrapper.hh blender-mesh.hh plain-atom-overlap.hh \
-ncs-ghosts.hh
+ncs-ghosts.hh            moved-atom.hh              moved-residue.hh
 
 lib_LTLIBRARIES=libcoot-api.la
 
