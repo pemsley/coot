@@ -3930,7 +3930,9 @@ on_draw_ncs_ghosts_yes_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-/* Function no longer used.  Kept in glade (not visible) for historical reasons
+/* Function no longer used. Handled in another dialog
+
+   Kept in glade (not visible) for historical reasons
 
    GtkWidget *w = widget_from_builder("bond_parameters_dialog");
    if (gtk_toggle_button_get_active(togglebutton)) {
@@ -3949,6 +3951,57 @@ on_draw_ncs_ghosts_no_radiobutton_toggled
 {
 
 }
+
+extern "C" G_MODULE_EXPORT
+void
+on_draw_anisotropic_atoms_yes_radiobutton_toggled(GtkCheckButton *checkbutton,
+                                                  gpointer         user_data) {
+
+   GtkWidget *bond_parameters_molecule_comboboxtext =
+      widget_from_builder("bond_parameters_molecule_comboboxtext");
+   if (bond_parameters_molecule_comboboxtext) {
+      graphics_info_t g;
+      int imol = g.combobox_get_imol(GTK_COMBO_BOX(bond_parameters_molecule_comboboxtext));
+      if (gtk_check_button_get_active(checkbutton)) {
+         set_show_aniso_atoms(imol, 1);
+      } else {
+         set_show_aniso_atoms(imol, 0);
+      }
+   }
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_draw_anisotropic_atoms_no_radiobutton_toggled(GtkCheckButton *checkbutton,
+                                                 gpointer         user_data) {
+
+   // handled above
+
+}
+
+extern "C" G_MODULE_EXPORT
+void
+show_anisotropic_atoms_as_ortep_switch_state_set(GtkSwitch *switch_widget,
+                                                 gboolean   state,
+                                                 gpointer   user_data) {
+
+   GtkWidget *bond_parameters_molecule_comboboxtext =
+      widget_from_builder("bond_parameters_molecule_comboboxtext");
+
+   if (bond_parameters_molecule_comboboxtext) {
+      graphics_info_t g;
+      int imol = g.combobox_get_imol(GTK_COMBO_BOX(bond_parameters_molecule_comboboxtext));
+      set_show_aniso_atoms_as_ortep(imol, state);
+      if (state) {
+         // for the aniso button on:
+         GtkWidget *checkbutton = widget_from_builder("draw_anisotropic_atoms_yes_radiobutton");
+         if (checkbutton) {
+            gtk_check_button_set_active(GTK_CHECK_BUTTON(checkbutton), TRUE);
+         }
+      }
+   }
+}
+
 
 
 extern "C" G_MODULE_EXPORT

@@ -2298,8 +2298,11 @@ short int get_show_aniso();       /*  not a function of the molecule */
 /*! \brief set the aniso atom limit */
 void set_limit_aniso(short int state);
 
-/*! \brief set show aniso atoms */
+/*! \brief does nothing */
 void set_show_aniso(int state);
+
+/*! \brief set show aniso atoms */
+void set_show_aniso_atoms(int imol, int state);
 
 /*! \brief set show aniso atoms as ortep */
 void set_show_aniso_atoms_as_ortep(int imol, int state);

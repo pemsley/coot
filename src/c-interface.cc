@@ -3223,13 +3223,16 @@ get_show_aniso() {
 
 void
 set_show_aniso(int state) {
+   graphics_info_t::log.log(logging::WARNING, logging::function_name_t(__FUNCTION__),
+                            "don't use this");
+}
 
-   graphics_info_t::show_aniso_atoms_flag = state;
+/*! \brief set show aniso atoms */
+void set_show_aniso_atoms(int imol, int state) {
 
-   // add it in to the molecules too
-   for (unsigned int i=0; i<graphics_info_t::molecules.size(); i++) {
-      if (graphics_info_t::is_valid_model_molecule(i))
-          graphics_info_t::molecules[i].set_show_atoms_as_aniso(state);
+   if (is_valid_model_molecule(imol)) {
+      bool st = state;
+      graphics_info_t::molecules[imol].set_show_atoms_as_aniso(st);
    }
    graphics_draw();
 }

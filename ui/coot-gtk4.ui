@@ -1311,17 +1311,17 @@
     with support and contributions from Kevin Cowtan,
     Bernhard Lohkamp, Jakub Smulski and Martin Noble</property>
     <property name="comments">Welcome to Coot</property>
-    <property name="copyright">Copyright 2000, 2007, 2012-2022 by Paul Emsley
+    <property name="copyright">Copyright 2000, 2007, 2012-2024 by Paul Emsley
 Copyright 2002, 2003, 2004, 2005, 2006, 2007 by The University of York
 Copyright 2007, 2008, 2009, 2010, 2011, 2012 by The UKRI
-Copyright 2023 Global Phasing Ltd.</property>
+Copyright 2023, 2024 Global Phasing Ltd.</property>
     <property name="documenters">Paul Emsley</property>
     <property name="halign">center</property>
     <property name="license">GNU LGPL version 3</property>
     <property name="license-type">lgpl-3-0</property>
     <property name="logo-icon-name">coot</property>
     <property name="program-name">Coot</property>
-    <property name="version">1.1.x-pre</property>
+    <property name="version">1.1.11</property>
     <property name="website">https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot</property>
     <property name="website-label">The Coot Website</property>
   </object>
@@ -2436,6 +2436,7 @@ Calculate a skeleton now?
                 </child>
               </object>
             </child>
+
             <child>
               <object class="GtkFrame" id="frame112">
                 <child>
@@ -2467,9 +2468,11 @@ Calculate a skeleton now?
                 </child>
               </object>
             </child>
+
             <child>
               <object class="GtkFrame" id="ncs_frame">
                 <property name="sensitive">0</property>
+                <property name="visible">false</property>
                 <child>
                   <object class="GtkBox" id="vbox146">
                     <property name="orientation">vertical</property>
@@ -2494,7 +2497,75 @@ Calculate a skeleton now?
                     <property name="label" translatable="yes">Draw Non-Crystallographic Ghosts?</property>
                   </object>
                 </child>
+              </object>
+            </child>
 
+            <child>
+              <object class="GtkFrame" id="anisotropic_atom_frame">
+                <property name="sensitive">1</property>
+
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+
+                    <child type="label">
+                      <object class="GtkLabel">
+                        <property name="label" translatable="yes">  Draw Anisotropic Atoms Anisotropically?  </property>
+                        <property name="justify">left</property>
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="GtkCheckButton" id="draw_anisotropic_atoms_yes_radiobutton">
+                        <property name="label" translatable="yes">Yes</property>
+                        <property name="active">0</property>
+                        <signal name="toggled" handler="on_draw_anisotropic_atoms_yes_radiobutton_toggled" swapped="no"/>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkCheckButton" id="draw_anisotropic_atoms_no_radiobutton">
+                        <property name="label" translatable="yes">No</property>
+                        <property name="group">draw_anisotropic_atoms_yes_radiobutton</property>
+                        <signal name="toggled" handler="on_draw_anisotropic_atoms_no_radiobutton_toggled" swapped="no"/>
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="GtkBox">
+                        <property name="orientation">horizontal</property>
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="label" translatable="yes">Ortep Style:  Off</property>
+                            <property name="margin-top">2</property>
+                            <property name="margin-bottom">2</property>
+                            <property name="margin-start">4</property>
+                            <property name="margin-end">4</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkSwitch" id="show_anisotropic_atoms_as_ortep">
+                            <property name="active">False</property>
+                            <property name="width-request">40</property>
+                            <property name="margin-top">2</property>
+                            <property name="margin-bottom">2</property>
+                            <property name="margin-start">4</property>
+                            <property name="margin-end">4</property>
+                            <signal name="state-set" handler="show_anisotropic_atoms_as_ortep_switch_state_set"/>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="label" translatable="yes">On</property>
+                            <property name="margin-top">2</property>
+                            <property name="margin-bottom">2</property>
+                            <property name="margin-start">4</property>
+                            <property name="margin-end">4</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
               </object>
             </child>
 
@@ -14068,7 +14139,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                                 <signal name="state-set" handler="show_symmetry_switch_state_set"/>
                               </object>
                             </child>
-                            
+
                             <child>
                               <object class="GtkLabel">
                                 <property name="label" translatable="yes">On</property>
@@ -14081,7 +14152,6 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
 
                           </object>
                         </child>
-                        
 
                         <child>
                           <object class="GtkCheckButton" id="symmetry_always_on_checkbutton">
