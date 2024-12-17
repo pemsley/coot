@@ -8969,7 +8969,7 @@ molecule_class_info_t::write_cif_file(const std::string &filename) {
 // molecule.  Else fail (return status 0).
 //
 int
-molecule_class_info_t::insert_waters_into_molecule(const coot::minimol::molecule &water_mol) {
+molecule_class_info_t::insert_waters_into_molecule(const coot::minimol::molecule &water_mol, const std::string &res_name) {
 
    int istat = 0;  // set to failure initially
 
@@ -9050,7 +9050,7 @@ molecule_class_info_t::insert_waters_into_molecule(const coot::minimol::molecule
             for (unsigned int iatom=0; iatom<water_mol[ifrag][ires].atoms.size(); iatom++) {
                const coot::minimol::atom &atom = water_mol[ifrag][ires][iatom];
                new_residue_p = new mmdb::Residue;
-               new_residue_p->SetResName("HOH");
+               new_residue_p->SetResName(res_name.c_str());
                new_residue_p->seqNum = prev_max_resno + 1 + water_count;
                water_count++;
                bf = water_mol[ifrag][ires][iatom].temperature_factor;

@@ -18,7 +18,6 @@
 #undef MAKE_ENHANCED_LIGAND_TOOLS
 #include "molecules-container.hh"
 
-
 namespace nb = nanobind;
 
 struct RamachandranInfo {
@@ -203,6 +202,7 @@ NB_MODULE(chapi, m) {
     .def("add_lsq_superpose_atom_match",&molecules_container_t::add_lsq_superpose_atom_match)
     .def("add_target_position_restraint",&molecules_container_t::add_target_position_restraint)
     .def("add_target_position_restraint_and_refine",&molecules_container_t::add_target_position_restraint_and_refine)
+    .def("add_terminal_residue_directly",&molecules_container_t::add_terminal_residue_directly)
     .def("add_terminal_residue_directly_using_cid",&molecules_container_t::add_terminal_residue_directly_using_cid)
     .def("add_to_non_drawn_bonds",&molecules_container_t::add_to_non_drawn_bonds)
     .def("add_waters",&molecules_container_t::add_waters)
@@ -230,6 +230,7 @@ NB_MODULE(chapi, m) {
     .def("copy_fragment_for_refinement_using_cid",&molecules_container_t::copy_fragment_for_refinement_using_cid)
     .def("copy_fragment_using_cid",&molecules_container_t::copy_fragment_using_cid)
     .def("copy_fragment_using_residue_range",&molecules_container_t::copy_fragment_using_residue_range)
+    .def("copy_molecule",&molecules_container_t::copy_molecule)
     .def("delete_atom",&molecules_container_t::delete_atom)
     .def("delete_atom_using_cid",&molecules_container_t::delete_atom_using_cid)
     .def("delete_chain_using_cid",&molecules_container_t::delete_chain_using_cid)
@@ -263,6 +264,7 @@ NB_MODULE(chapi, m) {
     .def("flipPeptide",       nb::overload_cast<int, const coot::atom_spec_t&,const std::string&>(&molecules_container_t::flip_peptide))
     .def("flipPeptide_cid",   nb::overload_cast<int, const std::string&,      const std::string&>(&molecules_container_t::flip_peptide_using_cid))
     .def("flip_hand",&molecules_container_t::flip_hand)
+    .def("flood",&molecules_container_t::flood)
     .def("fourier_shell_correlation",&molecules_container_t::fourier_shell_correlation)
     .def("generate_self_restraints",&molecules_container_t::generate_self_restraints)
     .def("geometry_init_standard",&molecules_container_t::geometry_init_standard)
@@ -335,6 +337,7 @@ NB_MODULE(chapi, m) {
     .def("get_use_gemmi",&molecules_container_t::get_use_gemmi)
     .def("get_use_rama_plot_restraints",&molecules_container_t::get_use_rama_plot_restraints)
     .def("get_use_torsion_restraints",&molecules_container_t::get_use_torsion_restraints)
+    .def("get_validation_vs_dictionary_for_selection", &molecules_container_t::get_validation_vs_dictionary_for_selection)
     .def("get_vertices_for_blender", &molecules_container_t::get_vertices_for_blender)
     .def("go_to_blob",&molecules_container_t::go_to_blob)
     .def("import_cif_dictionary",&molecules_container_t::import_cif_dictionary)
@@ -390,6 +393,7 @@ NB_MODULE(chapi, m) {
     .def("rigid_body_fit",&molecules_container_t::rigid_body_fit)
     .def("rotamer_analysis",&molecules_container_t::rotamer_analysis)
     .def("rotate_around_bond",&molecules_container_t::rotate_around_bond)
+    .def("servalcat_refine_xray",&molecules_container_t::servalcat_refine_xray)
     .def("set_add_waters_sigma_cutoff",&molecules_container_t::set_add_waters_sigma_cutoff)
     .def("set_add_waters_variance_limit",&molecules_container_t::set_add_waters_variance_limit)
     .def("set_add_waters_water_to_protein_distance_lim_min",&molecules_container_t::set_add_waters_water_to_protein_distance_lim_min)
@@ -443,6 +447,16 @@ NB_MODULE(chapi, m) {
     .def_prop_ro("spec",[](merge_molecule_results_info_t &t) { return t.spec ; })
     .def_ro("is_chain", &merge_molecule_results_info_t::is_chain)
     ;
+    nb::enum_<coot::graph_data_type>(m, "graph_data_type")
+       .value("Unset",          coot::graph_data_type::UNSET)
+       .value("Density",        coot::graph_data_type::DENSITY)
+       .value("Distortion",     coot::graph_data_type::DISTORTION)
+       .value("Energy",         coot::graph_data_type::ENERGY)
+       .value("Probability",    coot::graph_data_type::PROBABILITY)
+       .value("Correlation",    coot::graph_data_type::CORRELATION)
+       .value("LogProbability", coot::graph_data_type::LOG_PROBABILITY)
+       .value("TorsionAngle",   coot::graph_data_type::TORSION_ANGLE)
+       ;
     nb::class_<coot::residue_validation_information_t>(m,"residue_validation_information_t")
     .def_ro("function_value", &coot::residue_validation_information_t::function_value)
     .def_ro("label", &coot::residue_validation_information_t::label)
@@ -459,13 +473,31 @@ NB_MODULE(chapi, m) {
     .def_ro("cviv", &coot::validation_information_t::cviv)
     .def("get_index_for_chain",&coot::validation_information_t::get_index_for_chain)
     ;
+    nb::enum_<coot::restraint_type_t>(m, "restraint_type")
+       .value("Bond", coot::restraint_type_t::BOND_RESTRAINT)
+       .value("Angle", coot::restraint_type_t::ANGLE_RESTRAINT)
+       .value("Torsion", coot::restraint_type_t::TORSION_RESTRAINT)
+       .value("Plane", coot::restraint_type_t::PLANE_RESTRAINT)
+       .value("Non-Bonded-Contact", coot::restraint_type_t::NON_BONDED_CONTACT_RESTRAINT)
+       .value("Chiral-Volume", coot::restraint_type_t::CHIRAL_VOLUME_RESTRAINT)
+       .value("Trans-Peptide", coot::restraint_type_t::TRANS_PEPTIDE_RESTRAINT)
+       .value("Geman-McClure", coot::restraint_type_t::GEMAN_MCCLURE_DISTANCE_RESTRAINT)// add start pos and target pos at some stage
+       ;
     nb::class_<coot::simple_restraint>(m, "simple_restraint")
        .def_ro("restraint_type", &coot::simple_restraint::restraint_type)
        .def_ro("target_value",   &coot::simple_restraint::target_value)
     ;
+    nb::class_<coot::geometry_distortion_info_t>(m, "geometry_distortion_info_t")
+       .def_ro("distortion_score",  &coot::geometry_distortion_info_t::distortion_score)
+       .def_ro("atom_indices",      &coot::geometry_distortion_info_t::atom_indices)
+       .def_ro("residue_spec",      &coot::geometry_distortion_info_t::residue_spec)
+       .def_ro("restraint",         &coot::geometry_distortion_info_t::restraint)
+       ;
     nb::class_<coot::geometry_distortion_info_container_t>(m, "geometry_distortion_info_container_t")
-       .def("distortion",             &coot::geometry_distortion_info_container_t::distortion)
+       .def_ro("chain_id",            &coot::geometry_distortion_info_container_t::chain_id)
+       .def("distortion_sum",         &coot::geometry_distortion_info_container_t::distortion_sum)
        .def("size",                   &coot::geometry_distortion_info_container_t::size)
+       .def("get_geometry_distortion_info", &coot::geometry_distortion_info_container_t::get_geometry_distortion_info)
        .def_ro("geometry_distortion", &coot::geometry_distortion_info_container_t::geometry_distortion)
     ;
     nb::class_<molecules_container_t::fit_ligand_info_t>(m, "fit_ligand_info_t")

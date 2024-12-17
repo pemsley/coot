@@ -47,7 +47,7 @@ key_bindings_t::run() const {
       if (! scripting_function_text.empty())
          PyRun_SimpleString(scripting_function_text.c_str());
 
-      // This is when we get a propr function - but (currently) if I pass that, then
+      // This is when we get a proper function - but (currently) if I pass that, then
       // the error messages disappear
 
       if (function_py) {

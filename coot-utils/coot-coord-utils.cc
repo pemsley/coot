@@ -3672,7 +3672,7 @@ coot::util::create_mmdbmanager_from_res_selection(mmdb::Manager *orig_mol,
 //
 // The residues are added in order, the chains are added in order.
 // The returned mol has the same chain ids as do the input residues.
-// 
+//
 std::pair<bool, mmdb::Manager *>
 coot::util::create_mmdbmanager_from_residue_vector(const std::vector<mmdb::Residue *> &res_vec,
                                                    mmdb::Manager *old_mol,
@@ -3687,9 +3687,9 @@ coot::util::create_mmdbmanager_from_residue_vector(const std::vector<mmdb::Resid
    // So, first make a vector of residue sets, one residue set for each chain.
    std::vector<chain_id_residue_vec_helper_t> residues_of_chain;
 
-   for (unsigned int i=0; i<res_vec.size(); i++) { 
+   for (unsigned int i=0; i<res_vec.size(); i++) {
       std::string chain_id = res_vec[i]->GetChainID();
-      
+
       // is chain_id already in residues_of_chain?  Do it in line here
       //
       bool found = 0;

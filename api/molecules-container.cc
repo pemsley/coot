@@ -3971,13 +3971,55 @@ molecules_container_t::add_waters(int imol_model, int imol_map) {
          lig.water_fit(ligand_water_sigma_cut_off, n_cycles);
 
          coot::minimol::molecule water_mol = lig.water_mol();
-         molecules[imol_model].insert_waters_into_molecule(water_mol);
+         molecules[imol_model].insert_waters_into_molecule(water_mol, "HOH");
          n_waters_added = water_mol.count_atoms();
          set_updating_maps_need_an_update(imol_model);
       }
    }
    return n_waters_added;
 }
+
+//! Flood with dummy atoms
+//! @param imol is the model molecule index
+//! @param imol_map is the map molecule index
+//!
+//! @return the number of waters added on a success, -1 on failure.
+int
+molecules_container_t::flood(int imol_model, int imol_map, float n_rmsd) {
+
+   int n_waters_added = -1;
+   if (is_valid_model_molecule(imol_model)) {
+      if (is_valid_map_molecule(imol_map)) {
+         mmdb::Manager *mol = get_mol(imol_model);
+         if (mol) {
+            float flood_atom_mask_radius = 1.0; // was 1.4
+            coot::ligand lig;
+            short int mask_waters_flag = true;
+            lig.import_map_from(molecules[imol_map].xmap);
+            lig.mask_map(mol, mask_waters_flag);
+            lig.set_cluster_size_check_off();
+            lig.set_chemically_sensible_check_off();
+            lig.set_sphericity_test_off();
+
+            lig.set_map_atom_mask_radius(flood_atom_mask_radius);
+            // lig.set_water_to_protein_distance_limits(10.0, 1.5); // should not be
+            // used in lig.
+            float water_to_protein_max_dist = 99.9;
+            float water_to_protein_min_dist = 1.5;
+            lig.set_water_to_protein_distance_limits(water_to_protein_max_dist,
+                                                     water_to_protein_min_dist);
+            float map_rmsd = get_map_rmsd_approx(imol_map);
+            lig.flood2(n_rmsd * map_rmsd);
+            coot::minimol::molecule water_mol = lig.water_mol();
+            molecules[imol_model].insert_waters_into_molecule(water_mol, "DUM");
+            n_waters_added = water_mol.get_number_of_atoms();
+         }
+      }
+   }
+   return n_waters_added;
+}
+
+
 
 std::vector<coot::molecule_t::interesting_place_t>
 molecules_container_t::unmodelled_blobs(int imol_model, int imol_map) const {
@@ -5132,17 +5174,43 @@ molecules_container_t::get_mesh_for_ligand_validation_vs_dictionary(int imol, co
 //!
 //! @return a vector of `geometry_distortion_info_container_t`
 std::vector<coot::geometry_distortion_info_container_t>
-molecules_container_t::get_ligand_validation_vs_dictionary(int imol, const std::string &ligand_cid,
+molecules_container_t::get_ligand_validation_vs_dictionary(int imol,
+                                                           const std::string &ligand_cid,
                                                            bool with_nbcs) {
 
    std::vector<coot::geometry_distortion_info_container_t> v;
    if (is_valid_model_molecule(imol)) {
-      v = molecules[imol].geometric_distortions_from_mol(ligand_cid, with_nbcs, geom, thread_pool);
+      v = molecules[imol].geometric_distortions_for_one_residue_from_mol(ligand_cid, with_nbcs, geom, thread_pool);
    } else {
       std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
    return v;
 }
+
+//! General fragment distortion analysis
+//!
+//! @param imol is the model molecule index
+//! @param selection_cid is the selection CID e.g "//A/15-23"
+//! @param include_non_bonded_contacts is the flag to include non bonded contacts
+//!
+//! @return a vector/list of interesting geometry
+std::vector<coot::geometry_distortion_info_container_t>
+molecules_container_t::get_validation_vs_dictionary_for_selection(int imol,
+                                                                  const std::string &selection_cid,
+                                                                  bool include_non_bonded_contacts) {
+
+   std::vector<coot::geometry_distortion_info_container_t> v;
+   if (is_valid_model_molecule(imol)) {
+      v = molecules[imol].geometric_distortions_for_selection_from_mol(selection_cid,
+                                                                       include_non_bonded_contacts,
+                                                                       geom,
+                                                                       thread_pool);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return v;
+}
+
 
 //! Get ligand distortion
 //!
@@ -6021,3 +6089,102 @@ molecules_container_t::set_occupancy(int imol, const std::string &cid, float occ
    }
 
 }
+
+#include <format>
+#include "utils/subprocess.hpp"
+using namespace std::chrono_literals;
+
+//! External refinement using servalcat
+int
+molecules_container_t::servalcat_refine_xray(int imol, int imol_map, const std::string &output_prefix) {
+
+   int imol_refined_model = -1;
+
+   if (is_valid_model_molecule(imol)) {
+      if (is_valid_map_molecule(imol_map)) {
+
+         bool clibd_mon_is_set = false;
+         char *e = getenv("CLIBD_MON");
+         if (e) {
+            std::string env(e);
+            if (std::filesystem::exists(env))
+               clibd_mon_is_set = true;
+         }
+         if (clibd_mon_is_set) {
+            std::string mtz_file   = molecules[imol_map].refmac_mtz_filename;
+            std::string fobs_col   = molecules[imol_map].refmac_fobs_col;
+            std::string sigfob_col = molecules[imol_map].refmac_sigfobs_col;
+            std::string r_free_col = molecules[imol_map].refmac_r_free_col;
+            if (! mtz_file.empty()) {
+
+               bool read_pdb_output = false; // this gets set to true if the output pdb is sane
+
+               std::string c(",");
+               std::string labin = fobs_col + c + sigfob_col + c + r_free_col;
+
+               std::string dir_1 = "coot-servalcat";
+               coot::util::create_directory(dir_1);
+               std::string prefix = coot::util::append_dir_file(dir_1, output_prefix);
+               std::string  input_pdb_file_name = prefix + std::string("-in.pdb");
+               std::string output_pdb_file_name = prefix + std::string(".pdb"); // named by servalcat
+               int status = molecules[imol].write_coordinates(input_pdb_file_name);
+               // see https://www.ebi.ac.uk/pdbe/docs/cldoc/object/cl_obj_rdwr.html#CMMDBManager::WritePDBASCII
+               if (status == 0) {
+                  bool output_pdb_file_name_exists = false;
+                  std::filesystem::file_time_type output_pdb_file_name_time;
+                  std::filesystem::path p(output_pdb_file_name);
+                  if (std::filesystem::exists(p)) {
+                     output_pdb_file_name_exists = true;
+                     output_pdb_file_name_time = std::filesystem::last_write_time(p);
+                  }
+                  std::vector<std::string> cmd_list = {"servalcat", "refine_xtal_norefmac",
+                                                       "-s", "xray", "--model", input_pdb_file_name,
+                                                       "--hklin", mtz_file, "--labin", labin,
+                                                       "-o", prefix};
+                  std::cout << "running servalcat..." << std::endl;
+                  subprocess::OutBuffer obuf = subprocess::check_output(cmd_list);
+                  if (std::filesystem::exists(p)) {
+                     if (output_pdb_file_name_exists) {
+                        std::filesystem::file_time_type new_output_pdb_file_name_time = std::filesystem::last_write_time(p);
+                        auto t1 =     output_pdb_file_name_time.time_since_epoch();
+                        auto t2 = new_output_pdb_file_name_time.time_since_epoch();
+                        auto tt1 = std::chrono::duration_cast<std::chrono::seconds>(t1).count();
+                        auto tt2 = std::chrono::duration_cast<std::chrono::seconds>(t2).count();
+                        auto d = tt2 - tt1;
+                        std::cout << ":::::::::: compare " << tt1 << " " << tt2 << " " << d << std::endl;
+                        if (d > 0)
+                           read_pdb_output = true;
+                     } else {
+                        read_pdb_output = true;
+                     }
+                     if (read_pdb_output) {
+                        imol_refined_model = read_coordinates(output_pdb_file_name);
+                     }
+                  } else {
+                     std::cout << "WARNING:: " << __FUNCTION__ << "(): path does not exist " << p << std::endl;
+                  }
+               } else {
+                  std::cout << "WARNING::" << __FUNCTION__ << "(): bad status on writing servalcat input file" << std::endl;
+               }
+            } else {
+               std::cout << "WARNING::" << __FUNCTION__ << "(): mtz file_name was empty" << std::endl;
+            }
+         } else {
+            std::cout << "WARNING::" << __FUNCTION__ << "(): CLIBD_MON was not set correctly" << std::endl;
+         }
+      } else {
+         std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid map molecule " << imol_map << std::endl;
+      }
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return imol_refined_model;
+}
+
+
+// void
+// molecules_container_t::servalcat_refine_cryoem(int imol,
+//                                                const std::string &half_map_1,
+//                                                const std::string &half_map_2,
+//                                                const std::string &mask,
+//                                                const std::string &output_prefix);

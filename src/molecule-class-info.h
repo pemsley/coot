@@ -1670,7 +1670,7 @@ public:        //                      public
    // But we should try to put the waters into (add/append to) a chain
    // of waters in this molecule, if it has one.
    //
-   int insert_waters_into_molecule(const coot::minimol::molecule &water_mol);
+   int insert_waters_into_molecule(const coot::minimol::molecule &water_mol, const std::string &res_name);
    int append_to_molecule(const coot::minimol::molecule &water_mol);
    mmdb::Residue *residue_from_external(int reso, const std::string &insertion_code,
 					const std::string &chain_id) const;

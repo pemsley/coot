@@ -294,8 +294,8 @@ get_atom_selection(std::string pdb_name,
 #endif // USE_GEMMI
 
    if (true) // too noisy
-      std::cout << "debug():: ============ get_atom_selection() with file \"" << pdb_name << "\""
-                << " use_gemmi " << use_gemmi << std::endl;
+      std::cout << "DEBUG:: get_atom_selection() with file \"" << pdb_name << "\""
+                << " use_gemmi: " << use_gemmi << std::endl;
 
    mmdb::ERROR_CODE err;
    mmdb::Manager* MMDBManager;

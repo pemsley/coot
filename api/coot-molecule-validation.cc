@@ -237,12 +237,11 @@ coot::molecule_t::all_molecule_contact_dots(const coot::protein_geometry &geom,
 }
 
 // this function is a wrapper for the below function,
-// but returns something without expired pointers.
 //
 std::vector<coot::geometry_distortion_info_container_t>
-coot::molecule_t::geometric_distortions_from_mol(const std::string &ligand_cid, bool with_nbcs,
-                                                 coot::protein_geometry &geom,
-                                                 ctpl::thread_pool &static_thread_pool) {
+coot::molecule_t::geometric_distortions_for_one_residue_from_mol(const std::string &ligand_cid, bool with_nbcs,
+                                                                 coot::protein_geometry &geom,
+                                                                 ctpl::thread_pool &static_thread_pool) {
 
    std::vector<coot::geometry_distortion_info_container_t> v;
    mmdb::Residue *residue_p = cid_to_residue(ligand_cid);
@@ -250,7 +249,30 @@ coot::molecule_t::geometric_distortions_from_mol(const std::string &ligand_cid, 
       mmdb::Manager *mol = coot::util::create_mmdbmanager_from_residue(residue_p);
       if (mol) {
          atom_selection_container_t asc = make_asc(mol);
+         // does v contain pointers to atoms (I'd rather that it didnt)
          v = geometric_distortions_from_mol(asc, with_nbcs, geom, static_thread_pool);
+         // asc.clear_up();  asc is no longer needed?
+      }
+   }
+   return v;
+}
+
+//
+std::vector<coot::geometry_distortion_info_container_t>
+coot::molecule_t::geometric_distortions_for_selection_from_mol(const std::string &cid, bool with_nbcs,
+                                                               coot::protein_geometry &geom,
+                                                               ctpl::thread_pool &static_thread_pool) {
+
+   std::vector<coot::geometry_distortion_info_container_t> v;
+   std::vector<mmdb::Residue *> residues = cid_to_residues(cid);
+   if (! residues.empty()) {
+      std::pair<bool, mmdb::Manager *> mol_p = coot::util::create_mmdbmanager_from_residue_vector(residues, atom_sel.mol);
+      if (mol_p.first) {
+         mmdb::Manager *mol = mol_p.second;
+         atom_selection_container_t asc = make_asc(mol);
+         // does v contain pointers to atoms (I'd rather that it didnt)
+         v = geometric_distortions_from_mol(asc, with_nbcs, geom, static_thread_pool);
+         asc.clear_up();  // asc is no longer needed
       }
    }
    return v;

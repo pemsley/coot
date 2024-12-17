@@ -922,6 +922,8 @@ namespace coot {
       int size () const { return geometry_distortion.size(); }
       double print() const;  // return the total distortion
       double distortion() const;  // return the total distortion
+      double distortion_sum() const; // return the sum of the distortions from the restraints - no calculation
+      geometry_distortion_info_t get_geometry_distortion_info(unsigned int idx) const;
       friend std::ostream &operator<<(std::ostream &s, geometry_distortion_info_container_t);
    };
    std::ostream &operator<<(std::ostream &s, geometry_distortion_info_container_t gdic);

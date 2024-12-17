@@ -302,6 +302,30 @@ coot::geometry_distortion_info_container_t::print() const {
    return total_distortion;
 }
 
+double
+coot::geometry_distortion_info_container_t::distortion_sum() const {
+
+   double sum = 0.0;
+   for (unsigned int i=0; i< geometry_distortion.size(); i++) {
+      const coot::simple_restraint &rest  = geometry_distortion[i].restraint;
+      const double &rest_distortion_score = geometry_distortion[i].distortion_score;
+      if (false)
+         std::cout << "debug: rest_distortion_score " << rest.restraint_type
+                   << " " << rest_distortion_score << std::endl;
+      sum += rest_distortion_score;
+   }
+   return sum;
+}
+
+coot::geometry_distortion_info_t
+coot::geometry_distortion_info_container_t::get_geometry_distortion_info(unsigned int idx) const {
+
+   coot::geometry_distortion_info_t gdi;
+   if (idx < geometry_distortion.size())
+      gdi = geometry_distortion[idx];
+   return gdi;
+}
+
 
 double
 coot::geometry_distortion_info_container_t::distortion() const {
@@ -318,6 +342,12 @@ coot::geometry_distortion_info_container_t::distortion() const {
       }
 
       if (rest.restraint_type == coot::BOND_RESTRAINT) {
+         std::cout << "bond rest_distortion_score " << rest_distortion_score << std::endl;
+      }
+
+      continue;
+
+      if (rest.restraint_type == coot::BOND_RESTRAINT) {
 	 mmdb::Atom *at_1 = atom[rest.atom_index_1];
 	 mmdb::Atom *at_2 = atom[rest.atom_index_2];
 	 if (at_1 && at_2) {
@@ -326,6 +356,8 @@ coot::geometry_distortion_info_container_t::distortion() const {
 	    double d = sqrt((p2-p1).lengthsq());
 	    double distortion = d - rest.target_value;
 	    double pen_score = distortion*distortion/(rest.sigma*rest.sigma);
+            std::cout << "bond c.f.: pen_score " << pen_score << " rest_distortion_score " << rest_distortion_score
+                      << std::endl;
 	    total_distortion += pen_score;
 	 }
       }
@@ -1589,11 +1621,9 @@ double
 coot::distortion_score_parallel_planes(const simple_restraint &ppr,
 				       const gsl_vector *v) {
 
-   double score = 0;
-
    plane_distortion_info_t info =
       distortion_score_2_planes(ppr.plane_atom_index, ppr.atom_index_other_plane, ppr.sigma, v);
-   if (0)
+   if (false)
       std::cout << "parallel plane-combined abcd "
 		<< info.abcd[0] << " "
 		<< info.abcd[1] << " "

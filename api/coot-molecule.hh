@@ -579,7 +579,8 @@ namespace coot {
       std::pair<bool, residue_spec_t> cid_to_residue_spec(const std::string &cid) const;
       std::pair<bool, atom_spec_t> cid_to_atom_spec(const std::string &cid) const;
       std::vector<std::string> get_residue_names_with_no_dictionary(const protein_geometry &geom) const;
-      int insert_waters_into_molecule(const minimol::molecule &water_mol);
+      // here res-name might be HOH or DUM
+      int insert_waters_into_molecule(const minimol::molecule &water_mol, const std::string &res_name);
 
       // ----------------------- model utils
 
@@ -611,6 +612,7 @@ namespace coot {
       bool have_unsaved_changes() const { return modification_info.have_unsaved_changes(); }
       int undo(); // 20221018-PE return status not yet useful
       int redo(); // likewise
+      // the return value of WritePDBASCII() or WriteCIFASCII(). mmdb return type
       int write_coordinates(const std::string &file_name) const; // return 0 on OK, 1 on failure
 
       //! @return a model molecule imol as a string. Return emtpy string on error
@@ -869,11 +871,23 @@ namespace coot {
                                                                        coot::protein_geometry &geom,
                                                                        ctpl::thread_pool &static_thread_pool);
 
-      // this function is another version of the above function, but returns distortion values
+      //! this function is another version of the above function, but returns distortion values
+      //!
+      //! this function returns a vector of the wrong type (it has pointers to expired molecules).
+      //!
       std::vector<coot::geometry_distortion_info_container_t>
-      geometric_distortions_from_mol(const std::string &ligand_cid, bool with_nbcs,
-                                     coot::protein_geometry &geom,
-                                     ctpl::thread_pool &static_thread_pool);
+      geometric_distortions_for_one_residue_from_mol(const std::string &ligand_cid, bool with_nbcs,
+                                                     coot::protein_geometry &geom,
+                                                     ctpl::thread_pool &static_thread_pool);
+
+      //! this function is another version of the above function, but returns distortion values
+      //!
+      //! this function returns a vector of the wrong type (it has pointers to expired molecules).
+      //!
+      std::vector<coot::geometry_distortion_info_container_t>
+      geometric_distortions_for_selection_from_mol(const std::string &selection_cid, bool with_nbcs,
+                                                   coot::protein_geometry &geom,
+                                                   ctpl::thread_pool &static_thread_pool);
 
       // I want a function that does the evaluation of the distortion
       // in place - I don't want to get a function that allows me to

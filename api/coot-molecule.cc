@@ -277,7 +277,7 @@ coot::molecule_t::write_coordinates(const std::string &file_name) const {
          write_shelx_ins_file(file_name);
       } else {
          if (ext == ".cif") {
-            mmdb::byte bz = mmdb::io::GZM_NONE; // 20221018-PE  this should be used too
+            mmdb::byte bz = mmdb::io::GZM_NONE; // 20221018-PE  this should be used
             err = coot::write_coords_cif(atom_sel.mol, file_name);
          } else {
             mmdb::byte bz = mmdb::io::GZM_NONE; // 20221018-PE  this should be used too
@@ -285,7 +285,7 @@ coot::molecule_t::write_coordinates(const std::string &file_name) const {
          }
       }
    }
-   return err;
+   return err; // the return value of WritePDBASCII() or WriteCIFASCII(). mmdb return type
 }
 
 unsigned int
@@ -3222,7 +3222,7 @@ coot::molecule_t::remove_TER_internal(mmdb::Residue *res_p) {
 
 
 int
-coot::molecule_t::insert_waters_into_molecule(const coot::minimol::molecule &water_mol) {
+coot::molecule_t::insert_waters_into_molecule(const coot::minimol::molecule &water_mol, const std::string &res_name) {
 
    int istat = 0;  // set to failure initially
 
@@ -3303,7 +3303,7 @@ coot::molecule_t::insert_waters_into_molecule(const coot::minimol::molecule &wat
               ires++) {
             for (unsigned int iatom=0; iatom<water_mol[ifrag][ires].atoms.size(); iatom++) {
                new_residue_p = new mmdb::Residue;
-               new_residue_p->SetResName("HOH");
+               new_residue_p->SetResName(res_name.c_str());
                new_residue_p->seqNum = prev_max_resno + 1 + water_count;
                water_count++;
                bf = water_mol[ifrag][ires][iatom].temperature_factor;

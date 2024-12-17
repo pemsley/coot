@@ -3,6 +3,34 @@
 #include "coot-utils/atom-selection-container.hh"
 #include "molecules-container.hh"
 
+//! Copy the molecule
+//!
+//! @param imol the specified molecule
+//! @return the new molecule number
+int
+molecules_container_t::copy_molecule(int imol) {
+
+   int imol_new = -1;
+   if (is_valid_model_molecule(imol)) {
+      imol_new = molecules.size();
+      mmdb::Manager *mol = coot::util::copy_molecule(molecules[imol].atom_sel.mol);
+      atom_selection_container_t asc = make_asc(mol);
+      std::string new_name = "copy-of-molecule-" + std::to_string(imol);
+      molecules.push_back(coot::molecule_t(asc, imol_new, new_name));
+   }
+
+   if (is_valid_map_molecule(imol)) {
+      imol_new = molecules.size();
+      std::string new_name = "copy-of-molecule-" + std::to_string(imol);
+      const clipper::Xmap<float> &xmap = molecules[imol].xmap;
+      bool is_em = molecules[imol].is_EM_map();
+      molecules.push_back(coot::molecule_t(new_name, imol_new, xmap, is_em));
+   }
+   return imol_new;
+}
+
+
+
 //! return the new molecule number (or -1 on no atoms selected)
 int
 molecules_container_t::copy_fragment_using_cid(int imol, const std::string &multi_cids) {

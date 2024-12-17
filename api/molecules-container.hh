@@ -1912,7 +1912,7 @@ public:
    //! @param res_no is the residue number, e.g. 12
    //! @param ins_code is the insertion code, e.g. "A"
    //!
-   //! @return 1 on success.
+   //! @return first: 1 on success, second is failure message
    std::pair<int, std::string> add_terminal_residue_directly(int imol, const std::string &chain_id, int res_no, const std::string &ins_code);
 
    // std::pair<int, std::string> add_terminal_residue_directly_using_cid(int imol, const std::string &cid);
@@ -1921,9 +1921,12 @@ public:
    //!
    //! @param imol is the model molecule index
    //! @param cid is the selection CID e.g "//A/15/OH" (atom OH in residue 15)
+   //! @return success status (1 for good, 0 for not done)
    int add_terminal_residue_directly_using_cid(int imol, const std::string &cid);
 
    //! Add a residue onto the end of the chain by fitting to density using Buccaneer building and cid
+   //!
+   //! This function has been removed - is is now a noop.
    //!
    //! @param imol is the model molecule index
    //! @param cid is the atom selection CID e.g "//A/15/OH" (atom OH in residue 15)
@@ -1970,6 +1973,13 @@ public:
    //!
    //! @return the number of waters added on a success, -1 on failure.
    int add_waters(int imol_model, int imol_map);
+
+   //! Flood with dummy atoms
+   //! @param imol is the model molecule index
+   //! @param imol_map is the map molecule index
+   //!
+   //! @return the number of waters added on a success, -1 on failure.
+   int flood(int imol_model, int imol_map, float n_rmsd);
 
    //! Add hydrogen atoms
    //!
@@ -2099,6 +2109,12 @@ public:
    //!
    //! @return the molecule centre
    coot::Cartesian get_molecule_centre(int imol) const;
+
+   //! Copy the molecule
+   //!
+   //! @param imol the specified molecule
+   //! @return the new molecule number
+   int copy_molecule(int imol);
 
    //! Copy a fragment given the multi_cid selection string
    //!
@@ -2527,6 +2543,11 @@ public:
    //! @param imol is the model molecule index
    void clear_extra_restraints(int imol);
 
+   //! External refinement using servalcat, using data that has already been associated.
+   //!
+   //! @return the imol of the refined model.
+   int servalcat_refine_xray(int imol, int imol_map, const std::string &output_prefix);
+
    // -------------------------------- Coordinates validation ------------------------------
    //! \name Coordinates Validation
 
@@ -2618,15 +2639,25 @@ public:
    //! @param ligand_cid is the ligand selection CID e.g "//A/15" (ligand 15 of chain A)
    //! @param include_non_bonded_contacts is the flag to include non bonded contacts
    //!
-   //! @return a vector/list of interesting geometry
+   //! @return a vector/list of interesting geometry - one for each chain involved
    std::vector<coot::geometry_distortion_info_container_t>
    get_ligand_validation_vs_dictionary(int imol, const std::string &ligand_cid, bool include_non_bonded_contacts);
+
+   //! General fragment distortion analysis
+   //!
+   //! @param imol is the model molecule index
+   //! @param selection_cid is the selection CID e.g "//A/15-23"
+   //! @param include_non_bonded_contacts is the flag to include non bonded contacts
+   //!
+   //! @return a vector/list of interesting geometry - one for each chain involved
+   std::vector<coot::geometry_distortion_info_container_t>
+   get_validation_vs_dictionary_for_selection(int imol, const std::string &selection_cid, bool include_non_bonded_contacts);
 
    //! Get ligand distortion
    //!
    //! a more simple interface to the above
    //!
-   //! @return a pair: the first is the status (1 for OK, 0 for fail)
+   //! @return a pair: the first is the status (1 for OK, 0 for failed to determine the distortion)
    std::pair<int, double> get_ligand_distortion(int imol, const std::string &ligand_cid, bool include_non_bonded_contacts);
 
    //! Match ligand torsions
