@@ -1994,14 +1994,12 @@ coot::util::mutate_by_overlap(mmdb::Residue *residue_p, mmdb::Manager *mol,
    bool is_nucl = is_nucleotide(residue_p);
    bool is_aa   = residue_p->isAminoacid();
 
-
    mmdb::Residue *restraints_residue_p = restraints_new_type.GetResidue(false, 10.0f);
    if (restraints_residue_p) {
       mmdb::Manager *mol_from_restraints_residue = create_mmdbmanager_from_residue(restraints_residue_p);
       mmdb::Residue *rr = get_first_residue(mol_from_restraints_residue);
       if (rr) {
          if (is_aa) {
-
             std::vector<lsq_range_match_info_t> lsq_matchers;
             std::vector<std::string> atom_names = {" N  ", " CA ", " C  "};
             if (both_have_CB(restraints_residue_p, residue_p))

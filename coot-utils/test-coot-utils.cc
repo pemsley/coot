@@ -392,8 +392,9 @@ int test_atom_overlaps() {
    if (read_status == mmdb::Error_NoError) {
      mmdb::Residue *residue_p = coot::util::get_residue(spec, mol);
      if (residue_p) {
+        int imol = 0;
         std::vector<mmdb::Residue *> neighbs = coot::residues_near_residue(residue_p, mol, 5);
-        coot::atom_overlaps_container_t overlaps(residue_p, neighbs, mol, &geom, 0.5, 0.25);
+        coot::atom_overlaps_container_t overlaps(residue_p, neighbs, mol, imol, &geom, 0.5, 0.25);
         coot::atom_overlaps_dots_container_t c = overlaps.contact_dots_for_ligand();
      } else {
        std::cout << "Can't find residue" << spec << std::endl;

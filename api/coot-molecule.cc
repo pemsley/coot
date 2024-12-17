@@ -4419,8 +4419,14 @@ coot::molecule_t::export_model_molecule_as_gltf(const std::string &mode,
                                                 bool draw_hydrogen_atoms_flag, bool draw_missing_residue_loops,
                                                 const std::string &file_name) {
 
+   bool show_atoms_as_aniso_flag = true;
+   bool show_aniso_atoms_as_ortep_flag = false; // pass these
+
    instanced_mesh_t im = get_bonds_mesh_for_selection_instanced(mode, selection_cid, geom, against_a_dark_background,
-                                                                bonds_width, atom_radius_to_bond_width_ratio, smoothness_factor,
+                                                                bonds_width, atom_radius_to_bond_width_ratio,
+                                                                show_atoms_as_aniso_flag,
+                                                                show_aniso_atoms_as_ortep_flag,
+                                                                smoothness_factor,
                                                                 draw_hydrogen_atoms_flag, draw_missing_residue_loops);
 
    coot::simple_mesh_t sm = coot::instanced_mesh_to_simple_mesh(im);
@@ -4848,5 +4854,30 @@ coot::molecule_t::get_residue_sidechain_average_position(const std::string &cid)
       }
    }
    return v;
+}
+
+
+//! set occupancy
+//!
+//! set the occupancy for the given atom selection
+//!
+//! @param imol is the model molecule index
+//! @param cod is the atom selection CID
+void
+coot::molecule_t::set_occupancy(const std::string &cid, float occ_new) {
+
+   int selHnd = atom_sel.mol->NewSelection(); // d
+   mmdb::Atom **SelAtoms = nullptr;
+   int nSelAtoms = 0;
+   atom_sel.mol->Select(selHnd, mmdb::STYPE_ATOM, cid.c_str(), mmdb::SKEY_NEW);
+   atom_sel.mol->GetSelIndex(selHnd, SelAtoms, nSelAtoms);
+
+   for (int i=0; i<nSelAtoms; i++) {
+      mmdb:: Atom *at = SelAtoms[i];
+      if (! at->isTer()) {
+         at->occupancy = occ_new;
+      }
+   }
+   atom_sel.mol->DeleteSelection(selHnd);
 }
 

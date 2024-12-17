@@ -259,7 +259,7 @@ parse_command_line(int argc, char ** argv ) {
 			       << "            [--no-graphics]\n"
 			       << "            [--no-guano]\n"
 			       << std::endl;
-		     coot_no_state_real_exit(0);
+		     coot_no_state_real_exit(0); // merge conflict resolved 4c1ace414
 		  } else {
 
 			if (arg_str == "version") {
@@ -307,7 +307,6 @@ parse_command_line(int argc, char ** argv ) {
 			   if (s.length())
 			      std::cout << "Builder_info: " << s << std::endl;
 			   exit(0);
-
 			} else {
 			   if (arg_str == "python") {
 			      cld.script_is_python_flag = 1;

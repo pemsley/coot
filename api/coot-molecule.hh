@@ -631,6 +631,9 @@ namespace coot {
       //! Get the chains that are related by NCS:
       std::vector<std::vector<std::string> > get_ncs_related_chains() const;
 
+      //! copy chain using NCS matrix
+      bool copy_ncs_chain(const std::string &from_chain_id, const std::string &to_chain_id);
+
       //! get the residue CA position
       //!
       //! @return a vector. The length of the vector is 0 on failure, otherwise it is the x,y,z values
@@ -645,6 +648,14 @@ namespace coot {
       //!
       //! @return a vector. The length of the vector is 0 on failure, otherwise it is the x,y,z values
       std::vector<double> get_residue_sidechain_average_position(const std::string &cid) const;
+
+      //! set occupancy
+      //!
+      //! set the occupancy for the given atom selection
+      //!
+      //! @param imol is the model molecule index
+      //! @param cod is the atom selection CID
+      void set_occupancy(const std::string &cid, float occ_new);
 
       // ----------------------- model bonds
 
@@ -671,6 +682,8 @@ namespace coot {
                                                               protein_geometry *geom,
                                                               bool against_a_dark_background,
                                                               float bonds_width, float atom_radius_to_bond_width_ratio,
+                                                              bool render_atoms_as_aniso, // if possible, of course
+                                                              bool render_aniso_atoms_as_ortep,
                                                               int smoothness_factor,
                                                               bool draw_hydrogen_atoms_flag,
                                                               bool draw_missing_residue_loops);

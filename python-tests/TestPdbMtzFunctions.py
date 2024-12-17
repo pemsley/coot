@@ -183,7 +183,7 @@ class TestPdbMtzFunctions(unittest.TestCase):
 
         imol = coot_testing_utils.unittest_pdb("tutorial-modern.pdb")
 
-        coot_utils.mutate_by_overlap(imol, "A", 86, "PTR")
+        coot.mutate_by_overlap(imol, "A", 86, "PTR")
         rn = coot.residue_name(imol, "A", 86, "")
         self.assertTrue(rn == "PTR")
         # OK, did the the refinement run OK? Check the C-N distance
@@ -452,6 +452,26 @@ class TestPdbMtzFunctions(unittest.TestCase):
         r = coot.residue_info_py(imol, "A", 42, "")
         print("residue info (should be False):", r)
         self.assertFalse(r)
+
+
+    def test13_2(self):
+       """Undo and redo, i.e. backup"""
+
+       imol = coot.read_pdb(coot_testing_utils.rnase_pdb())
+       self.assertTrue(coot_utils.valid_model_molecule_qm(imol))
+       coot.delete_residue(imol, "A", 42, "")
+       r1 = coot.residue_info_py(imol, "A", 42, "")
+       print("residue info (after delete should be False):", r1)
+       # now undo and r should be back
+       coot.set_undo_molecule(imol)
+       coot.apply_undo()
+       r2 = coot.residue_info_py(imol, "A", 42, "")
+       print("now residue info (after undo should be something):", r2)
+       self.assertTrue(len(r2) > 0)
+       coot.apply_redo()
+       r3 = coot.residue_info_py(imol, "A", 42, "")
+       print("now residue info (after redo should be False again):", r3)
+       self.assertFalse(r3)
 
 
     def test14_0(self):

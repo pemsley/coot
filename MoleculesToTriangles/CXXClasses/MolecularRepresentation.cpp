@@ -777,6 +777,7 @@ int MolecularRepresentation::drawSurfaceOfKind(int surfaceKind)
     int chunkSize = 1000000;
     if (sizeof(GLIndexType) == sizeof(short)) chunkSize = 100;
     mmdb->GetSelIndex(selHnd, SelAtoms, nAtoms);
+
     int iAtom = 0;
     int chunkHndl = mmdb->NewSelection();
 

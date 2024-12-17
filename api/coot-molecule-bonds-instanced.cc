@@ -606,6 +606,8 @@ coot::instanced_mesh_t
 coot::molecule_t::get_bonds_mesh_for_selection_instanced(const std::string &mode, const std::string &multi_cids,
                                                          coot::protein_geometry *geom, bool against_a_dark_background,
                                                          float bond_radius, float atom_radius_to_bond_width_ratio,
+                                                         bool show_atoms_as_aniso_flag,
+                                                         bool show_aniso_atoms_as_ortep_flag,
                                                          int  num_subdivisions,
                                                          bool draw_hydrogen_atoms_flag,
                                                          bool draw_missing_residue_loops) {
@@ -635,9 +637,6 @@ coot::molecule_t::get_bonds_mesh_for_selection_instanced(const std::string &mode
       }
       return n;
    };
-
-   bool show_atoms_as_aniso_flag = true; // this should be passed
-   bool show_aniso_atoms_as_ortep = false; // pass this also
 
    coot::instanced_mesh_t m;
 
@@ -714,7 +713,7 @@ coot::molecule_t::get_bonds_mesh_for_selection_instanced(const std::string &mode
 
       make_instanced_graphical_bonds_spherical_atoms(m, gbc, bonds_box_type, atom_radius, bond_radius,
                                                      show_atoms_as_aniso_flag,
-                                                     show_aniso_atoms_as_ortep,
+                                                     show_aniso_atoms_as_ortep_flag,
                                                      num_subdivisions, colour_table);
       make_instanced_graphical_bonds_hemispherical_atoms(m, gbc, bonds_box_type, atom_radius, bond_radius,
                                                          num_subdivisions, colour_table);

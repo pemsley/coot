@@ -24,6 +24,7 @@
  *
  */
 
+#include "compat/coot-sysdep.h"
 #include "clipper/core/clipper_types.h"
 #include "clipper/core/coords.h"
 #include "mmdb2/mmdb_atom.h"

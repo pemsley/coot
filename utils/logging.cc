@@ -41,7 +41,7 @@ gettimeofday (struct timeval *tv, void *tz)
     FILETIME ft;
   } now;
 
-  GetSystemTimeAsFileTime (&now.ft);
+  GetSystemTimeAsFileTime(&now.ft);
   tv->tv_usec = (long) ((now.ns100 / 10LL) % 1000000LL);
   tv->tv_sec = (long) ((now.ns100 - EPOCHFILETIME) / 10000000LL);
   return (0);
@@ -58,7 +58,7 @@ logging::log(logging::type_t type, const std::string &s) {
    int success = gettimeofday(&current_time, NULL);
    if (success == 0) // was successful
       l.t = current_time.tv_sec;
-   
+
    history.push_back(l);
 
 }
@@ -72,10 +72,21 @@ logging::log(const std::string &s) {
    int success = gettimeofday(&current_time, NULL);
    if (success == 0) // was successful
       l.t = current_time.tv_sec;
-   
+
    history.push_back(l);
 
 }
+
+void
+logging::log(type_t type_in, const function_name_t &fn, const std::string &s1) {
+   log_item l(type_in, fn, s1);
+   timeval current_time;
+   int success = gettimeofday(&current_time, NULL);
+   if (success == 0) // was successful
+      l.t = current_time.tv_sec;
+   history.push_back(l);
+}
+
 
 
 void

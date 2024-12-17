@@ -168,6 +168,14 @@ cylinder::init(const std::pair<glm::vec3, glm::vec3> &pos_pair,
    // std::cout << "Finished cylinder constructor" << std::endl;
 }
 
+void
+cylinder::init_unit(unsigned int n_slices) {
+
+   glm::vec4 col(0.5, 0.5, 0.5, 1.0);
+   std::pair<glm::vec3, glm::vec3> p(glm::vec3(0,0,1), glm::vec3(0,0,0));
+   init(p, 1.0, 1.0, 1.0, col, n_slices, 2);
+}
+
 
 
 void

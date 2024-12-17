@@ -342,6 +342,8 @@ add_library(cootapi SHARED
             ${coot_src}/coot-utils/oct.cc
             ${coot_src}/coot-utils/shapes.cc
             ${coot_src}/coot-utils/simple-mesh.cc
+            ${coot_src}/coot-utils/gl-matrix.cc
+            ${coot_src}/coot-utils/gl-matrix-eigensystem.cc
             ${coot_src}/coords/phenix-geo-bonds.cc
             ${coot_src}/coords/Bond_lines_ext.cc
             ${coot_src}/coords/mmdb-crystal.cc
@@ -442,7 +444,6 @@ add_library(cootapi SHARED
             ${coot_src}/db-main/db-main.cc
             ${coot_src}/compat/getopt.cc
             ${coot_src}/compat/getopt1.cc
-            ${coot_src}/src/gl-matrix.cc
             ${coot_src}/ideal/write-png.cc
             )
 

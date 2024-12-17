@@ -919,6 +919,13 @@ public:
    //! @return a `coot::acedrg_types_for_residue_t` - which contains a vector/list of bond descriptions.
    coot::acedrg_types_for_residue_t get_acedrg_atom_types_for_ligand(int imol, const std::string &residue_cid) const;
 
+   //! set the occupancy for the given atom selection
+   //!
+   //! @param imol is the model molecule index
+   //! @param cod is the atom selection CID
+   //! @param is the new occupancy
+   void set_occupancy(int imol, const std::string &cid, float occ_new);
+
    //! Write a PNG for the given compound_id.
    //!
    //! Currently this function does nothing (drawing is done with the not-allowed cairo)
@@ -997,6 +1004,9 @@ public:
                                                                  const std::string &mode,
                                                                  bool against_a_dark_background,
                                                                  float bond_width, float atom_radius_to_bond_width_ratio,
+                                                                 bool show_atoms_as_aniso_flag,
+                                                                 bool show_aniso_atoms_as_ortep_flag,
+                                                                 bool draw_hydrogen_atoms_flag,
                                                                  int smoothness_factor);
 
    //! Get the Goodsell style mesh
@@ -1277,6 +1287,14 @@ public:
    //!
    //! @return the residue name, return a blank string on residue not found.
    std::string get_residue_name(int imol, const std::string &chain_id, int res_no, const std::string &ins_code) const;
+
+   //! Get the SMILES string for the give residue type
+   //!
+   //! @param residue name the compound-id
+   //! @param is the molecule index for the residue type/compound_id
+   //! @return the SMILES string if the residue type can be foound in the dictionary store
+   //!         or the empty string on a failure.
+   std::string get_SMILES_for_residue_type(const std::string &residue_name, int imol_enc) const;
 
    //! Get residues with missing atoms
    //!

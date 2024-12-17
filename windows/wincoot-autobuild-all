@@ -1,6 +1,8 @@
 #!/bin/bash
 # This is the master script to make a windows Coot installer
 #
+# args: pre-release guile installer_only
+#
 # 1.) build a python version
 # 2.) build a python + guile version
 # 3.) pack into an installer
@@ -59,8 +61,8 @@ if [ -z "$build_enhanced_ligand" ] ; then
 fi
 
 #
-BINARY_DIR=/c/MinGW/msys/1.0/home/bernhard/public_html/software/binaries/pre-release
-PRE_BINARY_DIR=/c/MinGW/msys/1.0/home/bernhard/public_html/software/binaries/pre-release
+BINARY_DIR=/c/msys64/home/bernhard/public_html/software/binaries/pre-release
+PRE_BINARY_DIR=/c/msys64/home/bernhard/public_html/software/binaries/pre-release
 # test if there is enough disk space first
 (
 fsutil.exe volume diskfree c: > ${HOME}/diskspace.tmp
@@ -79,7 +81,9 @@ fi
 rm ${HOME}/diskspace.tmp
 ) 2>&1 > $HOME/disk-space-status
 OS=`uname`
+OS=${OS%-*}
 HOST=`hostname`
+HOST=${HOST%-*}
 
 # function to copy all logs to windos host
 # not copying status files yet. FIXME
@@ -107,13 +111,13 @@ function copy_logs {
 }
 
 # location of the build-it script
-build_it=${HOME}/Projects/coot/build-it-win
+build_it=${HOME}/Projects/coot-gtk4/build-it-win
 
 # location of makensis.exe
-makensis="/c/Program Files/NSIS/makensis.exe"
+makensis="/c/Program Files (x86)/NSIS/makensis.exe"
 
 # location of installerscript
-wincoot_installer_script=${HOME}/Projects/coot/windows/WinCoot_install_masta.nsi
+wincoot_installer_script=${HOME}/Projects/coot-gtk4/windows/WinCoot_install_masta.nsi
 
 # coot_version file for python and guile+python build
 LOCAL_HTML_LOGS=$HOME/public_html/build-logs/${OS}-${HOST}
@@ -127,7 +131,7 @@ PUBLIC_NIGHTLY_DEST_DIR=${PUBLIC_NIGHTLY_DEST_DIR:=/z/software/binaries/pre-rele
 
 # before we really start building, lets do a git pull from BL repo to get the
 # latest build script
-cd ~/Projects/coot
+cd ~/Projects/coot-gtk4
 git pull 
 cd -
 
@@ -160,9 +164,9 @@ else
 fi
 
 if [ "$build_coot_prerelease" = "0" ] ; then
-    install_top_dir=${HOME}/autobuild/${OS}-${HOST}-gtk2
+    install_top_dir=${HOME}/autobuild/${OS}-${HOST}-gtk4
 else
-    install_top_dir=${HOME}/autobuild/${OS}-${HOST}-pre-release-gtk2
+    install_top_dir=${HOME}/autobuild/${OS}-${HOST}-pre-release-gtk4
 fi
 
 # another checkpoint to remove debug symbols
@@ -187,6 +191,7 @@ if [ $make_installer_only == 0 ] ; then
       copy_logs python
       # read in variables from install run
       . ${HOME}/wincoot-installer-variables
+      # NOTE:: this overrides what is given in commandline args. Shouldnt. FIXME
       if [ -z "$build_coot_prerelease" ] ; then
           build_coot_prerelease=0
       fi
@@ -309,18 +314,21 @@ else
     . ${HOME}/wincoot-installer-variables
     coot_test_status=0
     echo '!define WinCootVersion "'${wincoot_version}'"' >$install_top_dir/coot-version
+    echo '!define cif_dict_filename "monomers_050924.tar.gz"' >>$install_top_dir/coot-version
 fi
 
 # flag for makensis, i.e. overwrite binary dir when stable release
 makensis_flag=
-src_dir=//Dsrc_dir="C:\MinGW\msys\1.0\home\bernhard\autobuild\MINGW32_NT-6.1-bernie-pc-pre-release-gtk2"
+top_dir=//Dtop_dir="$install_top_dir"
+abs_home=`cygpath -aw $HOME`
+src_dir=//Dsrc_dir="$abs_home\Projects\coot-gtk4"
+echo srcdir is $src_dir
 PUBLIC_BINARY_DIR=$PUBLIC_NIGHTLY_DEST_DIR
 if [ "$build_coot_prerelease" != "1" ] ; then
    # stable release
    echo Have stable release and set variables now
-   makensis_flag=//Dbinary_dir="C:\MinGW\msys\1.0\home\bernhard\public_html\software\binaries\stable"
-   src_dir=//Dsrc_dir="C:\MinGW\msys\1.0\home\bernhard\autobuild\MINGW32_NT-6.1-bernie-pc-gtk2"
-   BINARY_DIR=/c/MinGW/msys/1.0/home/bernhard/public_html/software/binaries/stable
+   makensis_flag=//Dbinary_dir="C:\msys64\home\bernhard\public_html\software\binaries\stable"
+   BINARY_DIR=/c/msys64/home/bernhard/public_html/software/binaries/stable
    PUBLIC_BINARY_DIR=$PUBLIC_STABLE_DEST_DIR
 fi
 
@@ -374,6 +382,7 @@ if [ "$build_installer" = "0" ] ; then
    # But should get the icons e.g.
    wget -N -P ${HOME}/autobuild/extras http://bernhardcl.github.io/coot/software/extras/coot-icon.ico
    wget -N -P ${HOME}/autobuild/extras http://bernhardcl.github.io/coot/software/extras/rama_all.ico
+   wget -N -P ${HOME}/autobuild/extras http://bernhardcl.github.io/coot/software/extras/go-to-ligand.ico
    # some more extras (for probe and reduce)
    wget --no-check-certificate -N -P ${HOME}/autobuild/extras https://github.com/bernhardcl/coot/raw/gh-binaries/auxil_binaries/libgcc_s_dw2-1.dll
    wget --no-check-certificate -N -P ${HOME}/autobuild/extras https://github.com/bernhardcl/coot/raw/gh-binaries/auxil_binaries/libstdc++-6.dll
@@ -382,6 +391,10 @@ if [ "$build_installer" = "0" ] ; then
    wget --no-check-certificate -N -P ${HOME}/autobuild/extras https://github.com/bernhardcl/coot/raw/gh-binaries/auxil_binaries/reduce.exe
    wget -N -P ${HOME}/autobuild/extras http://bernhardcl.github.io/coot/software/extras/reduce_wwPDB_het_dict.txt
    wget -N -P ${HOME}/autobuild/extras http://bernhardcl.github.io/coot/software/extras/probe_reduce.txt
+   # some more...
+   wget --no-check-certificate -N -P ${HOME}/autobuild/extras https://github.com/bernhardcl/coot/raw/gh-binaries/auxil_binaries/ppm2bmp.exe
+   wget --no-check-certificate -N -P ${HOME}/autobuild/extras https://github.com/bernhardcl/coot/raw/gh-binaries/auxil_binaries/gzip.exe
+
    # now make the installer
    echo installer-progress > $PUBLIC_HTML_LOGS/gtk2-build-status
    echo
