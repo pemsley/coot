@@ -58,9 +58,9 @@ void on_coords_filechooser_dialog_response_gtk4(GtkDialog *dialog,
       const char *r = gtk_file_chooser_get_choice(GTK_FILE_CHOOSER(dialog), "recentering");
       if (r) {
          std::string sr(r);
-         if (sr == "No Recentre")
+         if (sr == "no-recentre-view")
             recentre_on_read_pdb_flag = false;
-         if (sr == "Move Molecule Here")
+         if (sr == "move-mol-here")
             move_molecule_here_flag = true;
       }
 
