@@ -1,6 +1,5 @@
 ----
 
-
 turn on debugging in get_monomer_restraints_internal() and see if this gets called
 too many times - noticed in COD cif 1100118
 
@@ -10,6 +9,27 @@ ERROR:: pane main_window_ramchandran_and_validation_pane not found
 
 configure needs to know if RDKitcoordgen was used to make RDKit and change the Makefile libs
 and we need to conditionally compile the code that uses coordgen (in layla).
+
+Idea from Clemens:
+  1: Display mode where only "" and "A" atoms are displayed
+     and I can flip to display of only "" and "B", then
+     "" and "C"
+  2: I choose an Alt-Conf specifier and the bonds for the others
+     are drawn transparent. Again, allow me to flip between
+     specifiers.
+
+Make this work: github DiffSBDD
+https://www.nature.com/articles/s43588-024-00737-x
+
+Make Link should be in Coot
+
+Validate vs Sequence in Moorhen.
+
+cylinder class need an init_unit(n_slices);
+* Done.
+
+libcootapi: Give me the SMILES of the specified residue
+* Done.
 
 read small molecule hkl cif in libcootapi? e.g 2019830.hkl
 
