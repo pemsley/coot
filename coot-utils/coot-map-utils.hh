@@ -605,6 +605,8 @@ namespace coot {
       clipper::Xmap<float> real_space_zero_dose_extrapolation(const std::vector<clipper::Xmap<float> *> &xmaps,
                                                    const clipper::Xmap<float> &xmap_for_mask);
 
+      int split_residue_using_map(mmdb::Residue *residue_p, mmdb::Manager *mol, const clipper::Xmap<float> &xmap);
+
    }
 }
 

@@ -29,6 +29,7 @@
 
 #include <gsl/gsl_sf_bessel.h>
 
+#include "clipper/core/coords.h"
 #include "clipper/core/map_interp.h"
 #include "clipper/core/hkl_compute.h"
 #include "clipper/mmdb/clipper_mmdb.h"
@@ -37,6 +38,7 @@
 #include "clipper/contrib/skeleton.h"
 #include <clipper/contrib/edcalc.h>
 
+#include "coot-coord-utils.hh"
 #include "utils/coot-utils.hh"
 #include "coot-map-utils.hh"
 #include "geometry/main-chain.hh"
@@ -5222,4 +5224,165 @@ coot::util::make_map_mask(const clipper::Spacegroup &space_group,
    }
 
    return xmap;
+}
+
+
+#include <string.h>
+#include "fib-sphere.hh"
+
+int
+coot::util::split_residue_using_map(mmdb::Residue *residue_p,
+                                    mmdb::Manager *mol,
+                                    const clipper::Xmap<float> &xmap) {
+
+   auto direction_of_a_to_b_alt_conf = [] (mmdb::Residue *residue_p) {
+
+      mmdb::Atom **residue_atoms = 0;
+      int n_residue_atoms = 0;
+      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      std::map<std::string, std::pair<mmdb:: Atom *, mmdb:: Atom *> > atom_name_map;
+      for (int iat=0; iat<n_residue_atoms; iat++) {
+         mmdb::Atom *at = residue_atoms[iat];
+         if (! at->isTer()) {
+            // let's handle the perverse case where B alt confs come before the A alt confs
+            std::string atom_name(at->name);
+            std::map<std::string, std::pair<mmdb:: Atom *, mmdb:: Atom *> >::iterator it;
+            it = atom_name_map.find(atom_name);
+            std::string alt_loc = at->altLoc;
+            if (it == atom_name_map.end()) {
+               if (alt_loc == "A") atom_name_map[atom_name] = std::make_pair(at, nullptr);
+               if (alt_loc == "B") atom_name_map[atom_name] = std::make_pair(nullptr, at);
+            } else {
+               if (alt_loc == "A") it->second.first  = at; // shouldn't happen
+               if (alt_loc == "B") it->second.second = at; // normal case
+            }
+         }
+      }
+
+      std::cout << ":::::::: debug:: split_residue_using_map() here with residue
+                << coot::residue_spec_t(residue_p)
+                << " " << residue_p->GetResName() <<  " with atom_name_map size "
+                << atom_name_map.size() << std::endl;
+
+      bool status = false;
+      clipper::Coord_orth a_b_uv(0,0,0);
+      clipper::Coord_orth sum_diff(0,0,0);
+      if (! atom_name_map.empty()) {
+         std::map<std::string, std::pair<mmdb:: Atom *, mmdb:: Atom *> >::iterator it;
+         for (it=atom_name_map.begin(); it!=atom_name_map.end(); ++it) {
+            const auto &atom_name(it->first);
+            mmdb:: Atom *at_1 = it->second.first;
+            mmdb:: Atom *at_2 = it->second.second;
+            if (at_1 && at_2) {
+               status = true;
+               clipper::Coord_orth pos_1 = co(at_1);
+               clipper::Coord_orth pos_2 = co(at_2);
+               clipper::Coord_orth diff = pos_2 - pos_1;
+               sum_diff += diff;
+            }
+         }
+      }
+      if (status) {
+         a_b_uv = clipper::Coord_orth(sum_diff.unit());
+      }
+      return std::pair<bool, clipper::Coord_orth> (status, a_b_uv);
+   };
+
+   auto split_residue = [] (mmdb::Residue *residue_p, const clipper::Coord_orth &v) {
+
+      mmdb::Atom **residue_atoms = 0;
+      int n_residue_atoms = 0;
+      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      clipper::Coord_orth h = 0.5 * v;
+      for (int iat=0; iat<n_residue_atoms; iat++) {
+         mmdb::Atom *at = residue_atoms[iat];
+         mmdb::Atom *at_copy = new mmdb::Atom;
+         at_copy->Copy(at);
+         strncpy(at->altLoc,      "A", 2);
+         strncpy(at_copy->altLoc, "B", 2);
+         at->x      += h.x();      at->y += h.y();      at->z += h.z();
+         at_copy->x -= h.x(); at_copy->y -= h.y(); at_copy->z -= h.z();
+         residue_p->AddAtom(at_copy);
+      }
+   };
+
+   int status = 0;
+
+   // 0.6, 0.75, 0.9
+   std::vector<clipper::Coord_orth> fs = fibonacci_sphere(50);
+
+   mmdb::Atom **residue_atoms = 0;
+   int n_residue_atoms = 0;
+   residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+   std::vector<std::pair<clipper::Coord_orth, float> > atom_map_vector;
+   for (int iat=0; iat<n_residue_atoms; iat++) {
+      mmdb::Atom *at = residue_atoms[iat];
+      if (! at->isTer()) {
+         clipper::Coord_orth at_pos = co(at);
+         float d_at = density_at_point(xmap, at_pos);
+         clipper::Coord_orth vector_sum(0,0,0);
+         float w_sum = 0.0;
+         for (const auto &sf : {0.6, 0.75, 0.9}) {
+            for (unsigned int i=0; i<fs.size(); i++) {
+               if (fs[i].z() < 0.0) continue;
+               clipper::Coord_orth pt_1 = at_pos - sf * fs[i];
+               clipper::Coord_orth pt_2 = at_pos + sf * fs[i];
+               float d_1 = density_at_point(xmap, pt_1);
+               float d_2 = density_at_point(xmap, pt_2);
+               float w = d_1 + d_2 - 2.0f * d_at;
+               if (w > 0.0) {
+                  clipper::Coord_orth delta = (pt_2 - pt_1);
+                  vector_sum += w * delta;
+                  w_sum += w;
+               }
+            }
+         }
+         atom_map_vector.push_back(std::make_pair(vector_sum, w_sum));
+      }
+   }
+
+   clipper::Coord_orth vector_sum(0,0,0);
+   float w_sum = 0.0;
+   for (unsigned int i=0; i<atom_map_vector.size(); i++) {
+      const float &w = atom_map_vector[i].second;
+      vector_sum += w * atom_map_vector[i].first;
+      w_sum += w;
+   }
+
+   double one_over_w_sum = 1.0 / w_sum;
+   clipper::Coord_orth map_vector = one_over_w_sum * vector_sum;
+   clipper::Coord_orth vec = clipper::Coord_orth(map_vector.unit());
+
+   mmdb::Residue *residue_prev = previous_residue(residue_p);
+   mmdb::Residue *residue_next = next_residue(residue_p);
+
+   clipper::Coord_orth neighbour_vec(0,0,0);
+   bool has_altconfed_neighbour = false;
+   if (residue_prev) {
+      auto d = direction_of_a_to_b_alt_conf(residue_prev);
+      if (d.first) {
+         has_altconfed_neighbour = true;
+         neighbour_vec += d.second;
+      }
+   }
+   if (residue_next) {
+      auto d = direction_of_a_to_b_alt_conf(residue_next);
+      if (d.first) {
+         has_altconfed_neighbour = true;
+         neighbour_vec += d.second;
+      }
+   }
+   if (has_altconfed_neighbour) {
+      double dp_1 = clipper::Coord_orth::dot(vec, neighbour_vec);
+      double dp_2 = clipper::Coord_orth::dot(vec, -neighbour_vec);
+
+      std::cout << "dp_1 " << dp_1 << " dp_2 " << dp_2 << std::endl;
+      if (dp_1 > 0.0)
+         vec = - vec;
+   }
+
+   split_residue(residue_p, vec);
+
+   return status;
+
 }
