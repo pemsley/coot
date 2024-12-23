@@ -5259,7 +5259,7 @@ coot::util::split_residue_using_map(mmdb::Residue *residue_p,
          }
       }
 
-      std::cout << ":::::::: debug:: split_residue_using_map() here with residue
+      std::cout << ":::::::: debug:: split_residue_using_map() here with residue "
                 << coot::residue_spec_t(residue_p)
                 << " " << residue_p->GetResName() <<  " with atom_name_map size "
                 << atom_name_map.size() << std::endl;
