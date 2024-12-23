@@ -42,13 +42,63 @@ ERROR:: pane main_window_ramchandran_and_validation_pane not found
 configure needs to know if RDKitcoordgen was used to make RDKit and change the Makefile libs
 and we need to conditionally compile the code that uses coordgen (in layla).
 
+Idea from Clemens:
+  1: Display mode where only "" and "A" atoms are displayed
+     and I can flip to display of only "" and "B", then
+     "" and "C"
+  2: I choose an Alt-Conf specifier and the bonds for the others
+     are drawn transparent. Again, allow me to flip between
+     specifiers.
+
+Make this work: github DiffSBDD
+https://www.nature.com/articles/s43588-024-00737-x
+
+Make Link should be in Coot
+
+Validate vs Sequence in Moorhen.
+
+cylinder class need an init_unit(n_slices);
+* Done.
+
+libcootapi: Give me the SMILES of the specified residue
+* Done.
+
 read small molecule hkl cif in libcootapi? e.g 2019830.hkl
 
 read small molecule hkl cif in Coot? e.g 2019830.hkl - or does it work already?
 
+add "rdkit-has-coordgen" flag to configure
+
+the SEP in 6il9 - is not a conformer from acedrg
+
+1ag6 A64 His bonding in Moorhen/colour-by-chain/dict mode
+
+Are base pairing restraints working? - check using Martin M. 3a3a
+Yes they are - they are just normal bond restraints - they
+don't appear as extras.
+
+3a3a residue 16-18 gap loop drawn - but not a gap!
+coords/Bond_lines.cc:4848 - copy that code block and use p linked atoms.
+
+Can I delete hydrogen atoms on saving in new coot?
+
+How do I see molprobity rama plot from inside coot?
+
+change the class of chapi.py from xml-to-python.py so that it takes
+an argument - maybe __new__() or __init__()?
+
+add to api: centre_of_residue() centre_of_sidechain(), CA_of_residue()
+
 Easy function: for Coot API pentakis dodec vertices and convert them to
 cylinders and make a generic display object out of them given centre and radius.
 Allow the user to change the centre and radius using some (python?) gui.
+
+Use alignment text-anchor="middle" for text in molecule svg
+* Done.
+
+api: what is the energy of this residue? (for conformers, say)
+
+Do refmac torsion restraints work in Coot?
 
 For tubes repo, we need loops
 
@@ -165,6 +215,11 @@ add to api: centre_of_residue() centre_of_sidechain(), CA_of_residue()
 * Done.
 
 Use alignment text-anchor="middle" for text in molecule svg
+
+api: rotate torsion to value
+* Done.
+
+Given a quad of atom names and a residue spec, what is the torsion?
 * Done.
 
 coot --dictionary should make a molecule instance from the dictionary

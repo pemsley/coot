@@ -2893,6 +2893,13 @@ molecules_container_t::thread_for_refinement_loop_threaded() {
 
 }
 
+std::pair<int, double>
+molecules_container_t::get_torsion(int imol, const std::string &cid, const std::vector<std::string> &atom_names) {
+
+   return std::make_pair(0, 0.0);
+}
+
+
 
 int
 molecules_container_t::refine_direct(int imol, std::vector<mmdb::Residue *> rv, const std::string &alt_loc, int n_cycles) {
