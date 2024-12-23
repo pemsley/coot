@@ -783,3 +783,23 @@ molecules_container_t::rotate_around_bond(int imol, const std::string &residue_c
    }
    return status;
 }
+
+
+
+
+//! change the alt confs
+//!
+//! @param change_mode is either "residue", "side-chain" or a comma-separated atom-name
+//! pairs (e.g "N,CA") - you can (of course) specify just one atom: "N".
+// @return the success status (1 is done, 0 means failed to do)
+int
+molecules_container_t::change_alt_locs(int imol, const std::string &cid, const std::string &change_mode) {
+
+   int status = 0;
+   if (is_valid_model_molecule(imol)) {
+      status = molecules[imol].change_alt_locs(cid, change_mode);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return status;
+}

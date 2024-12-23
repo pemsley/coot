@@ -204,6 +204,13 @@ class molecules_container_t {
 
    bool particles_have_been_shown_already_for_this_round_flag;
 
+#ifdef DOXYGEN_SHOULD_PARSE_THIS
+#else
+   int servalcat_refine_xray_internal(int imol, int imol_map, const std::string &output_prefix,
+                                      const std::map<std::string, std::string> &key_value_pairs);
+#endif
+
+
 #ifdef SKIP_FOR_PYTHON_DOXYGEN
 #else
    //! Get LSQ matrix internal (private)
@@ -1905,6 +1912,16 @@ public:
    //! @return 1 on successful deletion, return 0 on failure to delete.
    std::pair<int, unsigned int> delete_literal_using_cid(int imol, const std::string &cid);
 
+   //! (I should have) change(d) that stupid (alt) loc (I should have made you leave your key)
+   //!
+   //! Note that thus function only deals with (swaps) alt confs "A" and "B" - any
+   //! alt-conf other than that is ignored.
+   //!
+   //! @param change_mode is either "residue", "main-chain", "side-chain" or a comma-separated atom-name
+   //! pairs (e.g "N,CA") - you can (of course) specify just one atom, e.g.: "N".
+   //! @return the success status (1 is done, 0 means failed to do)
+   int change_alt_locs(int imol, const std::string &cid, const std::string &change_mode);
+
    //! Add a residue onto the end of the chain by fitting to density
    //!
    //! @param imol is the model molecule index
@@ -2269,6 +2286,16 @@ public:
                                                bool use_resno_range,
                                                int start_resno, int end_resno);
 
+   //! split a residue into alt-confs
+   //!
+   //! do nothing if the residue already has alt-confs.
+   //!
+   //! @param imol the modified model
+   //! @param residue_cid the modified residue
+   //! @param the difference map that is used to determine the residue split
+   //! @return split success status
+   int split_residue_using_map(int imol, const std::string &residue_cid, int imol_diff_map);
+
    //! Associate a sequence with a molecule
    //!
    //! @param imol is the model molecule index
@@ -2547,6 +2574,14 @@ public:
    //!
    //! @return the imol of the refined model.
    int servalcat_refine_xray(int imol, int imol_map, const std::string &output_prefix);
+
+#if NB_VERSION_MAJOR
+   //! External refinement using servalcat, using data that has already been associated.
+   //!
+   //! @return the imol of the refined model.
+   int servalcat_refine_xray_with_keywords(int imol, int imol_map, const std::string &output_prefix,
+                                           const nanobind::dict &key_value_pairs);
+#endif
 
    // -------------------------------- Coordinates validation ------------------------------
    //! \name Coordinates Validation

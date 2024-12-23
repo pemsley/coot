@@ -2412,7 +2412,7 @@ molecules_container_t::delete_residue_atoms_with_alt_conf(int imol, const std::s
       std::string atom_cid = std::string("//") + chain_id + std::string("/") + std::to_string(res_no) + ins_code;
       coot::atom_spec_t atom_spec = atom_cid_to_atom_spec(imol, atom_cid);
       coot::residue_spec_t residue_spec(atom_spec);
-      status = molecules[imol].delete_residue(residue_spec);
+      status = molecules[imol].delete_residue_atoms_with_alt_conf(residue_spec, alt_conf);
       set_updating_maps_need_an_update(imol);
    }
    unsigned int atom_count = get_number_of_atoms(imol);
@@ -6094,14 +6094,37 @@ molecules_container_t::set_occupancy(int imol, const std::string &cid, float occ
 #include "utils/subprocess.hpp"
 using namespace std::chrono_literals;
 
+
+
 //! External refinement using servalcat
 int
 molecules_container_t::servalcat_refine_xray(int imol, int imol_map, const std::string &output_prefix) {
+
+   std::map<std::string, std::string> kvm;
+   return servalcat_refine_xray_internal(imol, imol_map, output_prefix, kvm);
+
+}
+
+
+int
+molecules_container_t::servalcat_refine_xray_internal(int imol, int imol_map, const std::string &output_prefix,
+                                                      const std::map<std::string, std::string> &key_value_pairs) {
 
    int imol_refined_model = -1;
 
    if (is_valid_model_molecule(imol)) {
       if (is_valid_map_molecule(imol_map)) {
+
+         bool set_weight = false;
+         std::string weight_str;
+         if (! key_value_pairs.empty()) {
+            for (const auto &kv : key_value_pairs) {
+               if (kv.first == "weight") {
+                  set_weight = true;
+                  weight_str = kv.second;
+               }
+            }
+         }
 
          bool clibd_mon_is_set = false;
          char *e = getenv("CLIBD_MON");
@@ -6141,6 +6164,16 @@ molecules_container_t::servalcat_refine_xray(int imol, int imol_map, const std::
                                                        "-s", "xray", "--model", input_pdb_file_name,
                                                        "--hklin", mtz_file, "--labin", labin,
                                                        "-o", prefix};
+                  if (set_weight) {
+                     cmd_list.push_back("--weight");
+                     cmd_list.push_back(weight_str);
+                  }
+
+                  if (true) {
+                     std::cout << "commandline: ";
+                     for (unsigned int i=0; i<cmd_list.size(); i++) std::cout << " " << cmd_list[i];
+                     std::cout << "\n";
+                  }
                   std::cout << "running servalcat..." << std::endl;
                   subprocess::OutBuffer obuf = subprocess::check_output(cmd_list);
                   if (std::filesystem::exists(p)) {
@@ -6151,7 +6184,6 @@ molecules_container_t::servalcat_refine_xray(int imol, int imol_map, const std::
                         auto tt1 = std::chrono::duration_cast<std::chrono::seconds>(t1).count();
                         auto tt2 = std::chrono::duration_cast<std::chrono::seconds>(t2).count();
                         auto d = tt2 - tt1;
-                        std::cout << ":::::::::: compare " << tt1 << " " << tt2 << " " << d << std::endl;
                         if (d > 0)
                            read_pdb_output = true;
                      } else {
@@ -6188,3 +6220,32 @@ molecules_container_t::servalcat_refine_xray(int imol, int imol_map, const std::
 //                                                const std::string &half_map_2,
 //                                                const std::string &mask,
 //                                                const std::string &output_prefix);
+
+
+//! split a residue into alt-confs
+//!
+//! do nothing if the residue already has alt-confs.
+//!
+//! @param imol the modified model
+//! @param residue_cid the modified residue
+//! @param the difference map that is used to determine the residue split
+//! @return split success status
+int
+molecules_container_t::split_residue_using_map(int imol, const std::string &residue_cid, int imol_diff_map) {
+
+   int status = 0;
+   if (is_valid_model_molecule(imol)) {
+      if (is_valid_map_molecule(imol_diff_map)) {
+         mmdb::Residue *residue_p = molecules[imol].get_residue(residue_cid);
+         if (residue_p) {
+            mmdb::Manager *mol = get_mol(imol);
+            if (mol) {
+               const clipper::Xmap<float> &xmap = molecules[imol_diff_map].xmap;
+               coot::util::split_residue_using_map(residue_p, mol, xmap);
+            }
+         }
+      }
+   }
+   return status;
+}
+

@@ -950,6 +950,8 @@ namespace coot {
       int delete_chain_using_atom_cid(const std::string &cid);
       int delete_literal_using_cid(const std::string &cid); // cid is an atom selection, e.g. containing a residue range
 
+      int change_alt_locs(const std::string &cid, const std::string &change_mode);
+
       std::pair<int, std::string> add_terminal_residue_directly(const residue_spec_t &spec,
                                                                 const std::string &new_res_type,
                                                                 const protein_geometry &geom,

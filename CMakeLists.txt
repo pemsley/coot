@@ -175,10 +175,10 @@ add_library(cootapi SHARED
             ${coot_src}/api/coot-molecule-modelling.cc
             ${coot_src}/api/coot-molecule-refine.cc
             ${coot_src}/api/coot-molecule-replace-fragment.cc
-            ${coot_src}/api/molecules-container-blender.cc
             ${coot_src}/api/molecules-container.cc
-            ${coot_src}/api/molecules-container-gltf.cc
+            ${coot_src}/api/molecules-container-blender.cc
             ${coot_src}/api/molecules-container-bucca-ml-growing.cc
+            ${coot_src}/api/molecules-container-gltf.cc
             ${coot_src}/api/molecules-container-maps.cc
             ${coot_src}/api/molecules-container-mmrrcc.cc
             ${coot_src}/api/molecules-container-superpose.cc
@@ -448,7 +448,8 @@ add_library(cootapi SHARED
             )
 
 
-nanobind_add_module(chapi ${coot_src}/api/molecules-container-nanobind.cc)
+nanobind_add_module(chapi ${coot_src}/api/molecules-container-nanobind.cc
+                          ${coot_src}/api/molecules-container-nanobind-functions.cc)
 
 # use MMDB2_INCLUDE_DIR to find the RDKIT for now.
 target_include_directories(cootapi PRIVATE ${coot_src} ${coot_src}/coords ${coot_src}/utils ${coot_src}/ccp4mg-utils ${coot_src}/ccp4mg-utils/util ${coot_src}/ccp4mg-utils/pygl ${MMDB2_INCLUDE_DIR} ${SSM_INCLUDE_DIR} ${CLIPPER-CORE_INCLUDE_DIR} ${CLIPPER-MMDB_INCLUDE_DIR} ${CLIPPER-CCP4_INCLUDE_DIR} ${FFTW2_INCLUDE_DIRS} ${RDKit_INCLUDE_DIRS} ${GLM_INCLUDE_DIRS} ${GSL_INCLUDE_DIRS} ${PNG_PNG_INCLUDE_DIR} ${RDKit_INCLUDE_DIR})

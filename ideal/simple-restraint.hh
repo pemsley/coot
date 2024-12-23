@@ -860,6 +860,7 @@ namespace coot {
       double distortion_score;
       simple_restraint restraint;
       std::vector<int> atom_indices;
+      std::vector<atom_spec_t> atom_specs;
       residue_spec_t residue_spec;
       friend std::ostream &operator<<(std::ostream &s, geometry_distortion_info_t);
 

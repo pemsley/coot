@@ -1146,7 +1146,8 @@ double coot::distortion_score(const gsl_vector *v, void *params) {
 }
 
 coot::geometry_distortion_info_container_t
-coot::restraints_container_t::distortion_vector(const gsl_vector *v, bool keep_distortion_for_hydrogen_atom_restraints) const {
+coot::restraints_container_t::distortion_vector(const gsl_vector *v,
+                                                bool keep_distortion_for_hydrogen_atom_restraints) const {
 
    std::string chainid("blank");
    if (n_atoms > 0)
@@ -1294,6 +1295,10 @@ coot::restraints_container_t::distortion_vector(const gsl_vector *v, bool keep_d
                coot::residue_spec_t rs(atom[atom_index]->GetResidue());
                coot::geometry_distortion_info_t gdi(distortion, rest, rs);
                gdi.atom_indices = atom_indices;
+               std::vector<atom_spec_t> atom_specs;
+               for (unsigned int ii=0; ii<atom_indices.size(); ii++)
+                  atom_specs.push_back(atom_spec_t(atom[atom_indices[ii]]));
+               gdi.atom_specs = atom_specs;
                distortion_vec_container.geometry_distortion.push_back(gdi);
             }
 	 }

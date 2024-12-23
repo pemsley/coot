@@ -2186,6 +2186,38 @@ coot::molecule_t::delete_residue(coot::residue_spec_t &residue_spec) {
 }
 
 int
+coot::molecule_t::delete_residue_atoms_with_alt_conf(coot::residue_spec_t &residue_spec, const std::string &alt_conf) {
+
+   int status = 0;
+   std::vector<mmdb::Atom *> atoms_to_be_deleted;
+
+   mmdb::Residue *residue_p = get_residue(residue_spec);
+   if (residue_p) {
+      mmdb::Atom **residue_atoms = 0;
+      int n_residue_atoms = 0;
+      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (int iat=0; iat<n_residue_atoms; iat++) {
+         mmdb::Atom *at = residue_atoms[iat];
+         std::string al(at->altLoc);
+         if (al == alt_conf)
+            atoms_to_be_deleted.push_back(at);
+      }
+   }
+   bool was_deleted = false;
+   for (auto &at : atoms_to_be_deleted) {
+      delete at;
+      was_deleted = true;
+   }
+   if (was_deleted) {
+      status = true;
+      atom_sel.mol->FinishStructEdit();
+      atom_sel = make_asc(atom_sel.mol);
+   }
+   return status;
+}
+
+
+int
 coot::molecule_t::delete_chain_using_atom_cid(const std::string &cid) {
 
    int done = 0;
@@ -2265,7 +2297,131 @@ coot::molecule_t::delete_literal_using_cid(const std::string &atom_selection_cid
    return status;
 }
 
+#include "geometry/main-chain.hh"
 
+int
+coot::molecule_t::change_alt_locs(const std::string &cid, const std::string &change_mode) {
+
+   auto change_residue_alt_locs = [] (mmdb::Residue *residue_p) {
+      int status = 0;
+      std::vector<mmdb::Atom *> atoms_with_alt_loc_A;
+      std::vector<mmdb::Atom *> atoms_with_alt_loc_B;
+      mmdb::Atom **residue_atoms = 0;
+      int n_residue_atoms = 0;
+      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (int iat=0; iat<n_residue_atoms; iat++) {
+         mmdb::Atom *at = residue_atoms[iat];
+         std::string alt_loc = at->altLoc;
+         if (alt_loc == "A") atoms_with_alt_loc_A.push_back(at);
+         if (alt_loc == "B") atoms_with_alt_loc_B.push_back(at);
+      }
+      for (auto atom : atoms_with_alt_loc_A) strncpy(atom->altLoc, "B", 2);
+      for (auto atom : atoms_with_alt_loc_B) strncpy(atom->altLoc, "A", 2);
+      if (! atoms_with_alt_loc_A.empty()) status = 1;
+      if (! atoms_with_alt_loc_B.empty()) status = 1;
+      return status;
+   };
+
+   auto change_side_chain_alt_locs = [] (mmdb::Residue *residue_p) {
+      int status = 0;
+      std::vector<mmdb::Atom *> atoms_with_alt_loc_A;
+      std::vector<mmdb::Atom *> atoms_with_alt_loc_B;
+      mmdb::Atom **residue_atoms = 0;
+      int n_residue_atoms = 0;
+      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (int iat=0; iat<n_residue_atoms; iat++) {
+         mmdb::Atom *at = residue_atoms[iat];
+         if (is_main_chain_p(at)) {
+         } else {
+            std::string alt_loc = at->altLoc;
+            if (alt_loc == "A") atoms_with_alt_loc_A.push_back(at);
+            if (alt_loc == "B") atoms_with_alt_loc_B.push_back(at);
+         }
+      }
+      for (auto atom : atoms_with_alt_loc_A) strncpy(atom->altLoc, "B", 2);
+      for (auto atom : atoms_with_alt_loc_B) strncpy(atom->altLoc, "A", 2);
+      if (! atoms_with_alt_loc_A.empty()) status = 1;
+      if (! atoms_with_alt_loc_B.empty()) status = 1;
+      return status;
+   };
+
+   auto change_main_chain_alt_locs = [] (mmdb::Residue *residue_p) {
+      int status = 0;
+      std::vector<mmdb::Atom *> atoms_with_alt_loc_A;
+      std::vector<mmdb::Atom *> atoms_with_alt_loc_B;
+      mmdb::Atom **residue_atoms = 0;
+      int n_residue_atoms = 0;
+      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (int iat=0; iat<n_residue_atoms; iat++) {
+         mmdb::Atom *at = residue_atoms[iat];
+         if (is_main_chain_p(at)) {
+            std::string alt_loc = at->altLoc;
+            if (alt_loc == "A") atoms_with_alt_loc_A.push_back(at);
+            if (alt_loc == "B") atoms_with_alt_loc_B.push_back(at);
+         }
+      }
+      for (auto atom : atoms_with_alt_loc_A) strncpy(atom->altLoc, "B", 2);
+      for (auto atom : atoms_with_alt_loc_B) strncpy(atom->altLoc, "A", 2);
+      if (! atoms_with_alt_loc_A.empty()) status = 1;
+      if (! atoms_with_alt_loc_B.empty()) status = 1;
+      return status;
+   };
+
+   auto change_atom_list_alt_locs = [] (mmdb::Residue *residue_p, const std::string &change_mode) {
+      int status = 0;
+      std::vector<std::string> names = util::split_string(change_mode, ",");
+      if (! names.empty()) {
+         for (const auto &n : names) {
+            std::string name = n;
+            // hacky
+            if (n.length() == 3) name = std::string(" ") + n;
+            if (n.length() == 2) name = std::string(" ") + n + std::string(" ");
+            if (n.length() == 1) name = std::string(" ") + n + std::string("  ");
+            mmdb::Atom **residue_atoms = 0;
+            int n_residue_atoms = 0;
+            residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+            for (int iat=0; iat<n_residue_atoms; iat++) {
+               mmdb::Atom *at = residue_atoms[iat];
+               std::string atom_name(at->name);
+               if (atom_name == name) {
+                  std::string alt_loc = at->altLoc;
+                  if (alt_loc == "A") {
+                     strncpy(at->altLoc, "B", 2);
+                     status = 1;
+                  } else {
+                     if (alt_loc == "B") {
+                        strncpy(at->altLoc, "A", 2);
+                        status = 1;
+                     }
+                  }
+               }
+            }
+         }
+      }
+      return status;
+   };
+
+   int status = 0;
+   std::vector<mmdb::Residue *> residues = cid_to_residues(cid);
+   if (! residues.empty()) {
+      for(auto residue : residues) {
+         if (change_mode == "residue") {
+            status = change_residue_alt_locs(residue);
+         } else {
+            if (change_mode == "side-chain") {
+               status = change_side_chain_alt_locs(residue);
+            } else {
+               if (change_mode == "main-chain") {
+                  status = change_main_chain_alt_locs(residue);
+               } else {
+                  status = change_atom_list_alt_locs(residue, change_mode);
+               }
+            }
+         }
+      }
+   }
+   return status;
+}
 
 std::vector<std::string>
 coot::molecule_t::non_standard_residue_types_in_model() const {
