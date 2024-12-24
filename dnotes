@@ -11549,9 +11549,11 @@ Mon 25 Nov 2024 10:44:25 GMT
    Find coot.rb here:
    https://github.com/brewsci/homebrew-bio/tree/develop/Formula
 
+   to install coot from homebrew:
+   brew install brewsci/bio/coot
 ---
 
-interesting?
+   interesting?
    xclip -r -selection clipboard
 
 ----
@@ -11559,4 +11561,5 @@ Fri 13 Dec 22:37:16 GMT 2024
 
    7gww is part of a multi tetrapeptide screen (it seems)
 
+---
 
