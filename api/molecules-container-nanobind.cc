@@ -302,6 +302,7 @@ NB_MODULE(chapi, m) {
     .def("get_map_rmsd_approx",&molecules_container_t::get_map_rmsd_approx)
     .def("get_map_weight",&molecules_container_t::get_map_weight)
     .def("get_median_temperature_factor",&molecules_container_t::get_median_temperature_factor)
+    .def("get_missing_residue_ranges",&molecules_container_t::get_missing_residue_ranges)
     .def("get_molecular_representation_mesh",&molecules_container_t::get_molecular_representation_mesh)
     .def("get_molecule_centre",&molecules_container_t::get_molecule_centre)
     .def("get_molecule_name",&molecules_container_t::get_molecule_name)
