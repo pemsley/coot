@@ -1011,6 +1011,9 @@ namespace coot {
       // the residues in restraints_container (there we rather need to know the references indices,
       // not the indices from the fragment molecule). The label (for lookup later) is
       // "index from reference residue".
+      //
+      // the first of the retuned pair should be the success status - currently it is set to true
+      //
       std::pair<bool, mmdb::Manager *>
       create_mmdbmanager_from_residue_vector(const std::vector<mmdb::Residue *> &res_vec,
 					     mmdb::Manager *mol_old,

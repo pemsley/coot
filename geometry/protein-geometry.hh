@@ -1766,10 +1766,19 @@ namespace coot {
 
       int init_standard(); // standard protein residues and links.
                                   // Return the current read_number
-      
+
+      // if the dictionary is already in the store, then do nothing, otherwise
+      // try_dynamic_add().
+      //
+      // Internally this function wraps have_dictionary_for_residue_type() which
+      // is not as good a name as check_and_try_dynamic_add() for what the function
+      // does.
+      //
+      int check_and_try_dynamic_add(const std::string &resname, int imol_enc, int read_number);  // return success status?
+
       // Return 0 on failure to do a dynamic add, otherwise return the
       // number of atoms read.
-      // 
+      //
       int try_dynamic_add(const std::string &resname, int read_number);  // return success status?
       // this is not const if we use dynamic add.
 
@@ -1784,7 +1793,7 @@ namespace coot {
       void print_dictionary_store() const;
 
       // return a pair, the first is status (1 if the name was found, 0 if not)
-      // 
+      //
       std::pair<bool, std::string> get_monomer_name(const std::string &comp_id, int imol_enc) const;
 
       // return 2-3 filtered torsions
@@ -2199,7 +2208,7 @@ namespace coot {
       std::vector<std::string> monomer_restraints_comp_ids() const;
 
       // can throw a std::runtime_error
-      std::string Get_SMILES_for_comp_id(const std::string &comp_id) const;
+      std::string Get_SMILES_for_comp_id(const std::string &comp_id,  int imol_enc) const;
 
       // debug
       void debug() const;

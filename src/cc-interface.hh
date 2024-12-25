@@ -1400,6 +1400,10 @@ void mutate_active_residue_to_single_letter_code(const std::string &slc);
 //! \brief show keyboard mutate dialog
 void show_keyboard_mutate_dialog();
 
+//! mutate by overlap
+int mutate_by_overlap(int imol, const std::string &chain_id, int res_no, const std::string &new_type);
+
+
 /*  ----------------------------------------------------------------------- */
 /*                  ligands                                                 */
 /*  ----------------------------------------------------------------------- */

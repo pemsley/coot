@@ -505,7 +505,7 @@ coot::protein_geometry::comp_id_to_file_name(const std::string &comp_id) const {
 
    std::string file_name;
 
-   if (comp_id.length() > 0) { 
+   if (comp_id.length() > 0) {
       char *cmld = getenv("COOT_MONOMER_LIB_DIR");
       std::string d;
       if (! cmld) {
@@ -528,6 +528,12 @@ coot::protein_geometry::comp_id_to_file_name(const std::string &comp_id) const {
    return file_name;
 }
 
+int
+coot::protein_geometry::check_and_try_dynamic_add(const std::string &resname, int imol_enc, int read_number) {
+
+   bool try_autoload = true;
+   return have_dictionary_for_residue_type(resname, imol_enc, read_number, try_autoload);
+}
 
 // Return 0 on failure to do a dynamic add (actually, the number of
 // atoms read).
@@ -601,7 +607,7 @@ coot::protein_geometry::try_dynamic_add(const std::string &resname, int read_num
       std::string alt_beta_anomer_name;
       std::string alt_alpha_anomer_name;
 
-      if (cmld) { 
+      if (cmld) {
 	 filename = cmld;
 	 filename += "/";
       } else {
@@ -623,8 +629,8 @@ coot::protein_geometry::try_dynamic_add(const std::string &resname, int read_num
 	 filename += letter;
 	 filename += "/";
 	 std::string upcased_resname_filename = filename;
-	 if (resname.length() > 2 ) { 
-	    if (resname[2] != ' ') { 
+	 if (resname.length() > 2 ) {
+	    if (resname[2] != ' ') {
 	       filename += resname;
 	       upcased_resname_filename += coot::util::upcase(resname);
 	    } else {
@@ -1570,8 +1576,9 @@ coot::protein_geometry::get_monomer_restraints_internal(const std::string &monom
 							bool allow_minimal_flag) const {
 
    if (false)
-      std::cout << "debug:: get_monomer_restraints_internal() called with "
-                << monomer_type << " imol_enc: " << imol_enc << " allow-minimal: " << allow_minimal_flag << std::endl;
+      std::cout << "debug:: get_monomer_restraints_internal() called with type: "
+                << monomer_type << " imol_enc: " << imol_enc
+                << " allow-minimal: " << allow_minimal_flag << std::endl;
 
    // 20161028
    // Compiling with SRS causes a crash when we access dict_res_restraints.
@@ -2641,30 +2648,32 @@ coot::protein_geometry::monomer_restraints_comp_ids() const {
    for (unsigned int i=0; i<dict_res_restraints.size(); i++)
       v.push_back(dict_res_restraints[i].second.residue_info.comp_id);
    return v;
-} 
+}
 
 
 // can throw a std::runtime_error
 std::string
-coot::protein_geometry::Get_SMILES_for_comp_id(const std::string &comp_id) const {
+coot::protein_geometry::Get_SMILES_for_comp_id(const std::string &comp_id, int imol_enc) const {
 
    bool found = false;
-   std::string s; 
+   std::string s;
    for (unsigned int i=0; i<dict_res_restraints.size(); i++) {
 
       if (dict_res_restraints[i].second.residue_info.comp_id == comp_id) {
+         if (dict_res_restraints[i].first == imol_enc) {
 
-	 unsigned int nd = dict_res_restraints[i].second.descriptors.descriptors.size();
-	 for (unsigned int idesc=0; idesc<nd; idesc++) { 
-	    if (dict_res_restraints[i].second.descriptors.descriptors[idesc].type == "SMILES_CANONICAL") { 
-	       s = dict_res_restraints[i].second.descriptors.descriptors[idesc].descriptor;
-	       found = true;
-	       break;
-	    }
-	 }
+            unsigned int nd = dict_res_restraints[i].second.descriptors.descriptors.size();
+            for (unsigned int idesc=0; idesc<nd; idesc++) {
+               if (dict_res_restraints[i].second.descriptors.descriptors[idesc].type == "SMILES_CANONICAL") {
+                  s = dict_res_restraints[i].second.descriptors.descriptors[idesc].descriptor;
+                  found = true;
+                  break;
+               }
+            }
+         }
+         if (found)
+            break;
       }
-      if (found)
-	 break;
    }
 
    if (! found){
@@ -2674,7 +2683,7 @@ coot::protein_geometry::Get_SMILES_for_comp_id(const std::string &comp_id) const
       if (dict_res_restraints[i].second.residue_info.comp_id == comp_id) {
 
 	 unsigned int nd = dict_res_restraints[i].second.descriptors.descriptors.size();
-	 for (unsigned int idesc=0; idesc<nd; idesc++) { 
+	 for (unsigned int idesc=0; idesc<nd; idesc++) {
 	    if (dict_res_restraints[i].second.descriptors.descriptors[idesc].type == "SMILES") {
 	       s = dict_res_restraints[i].second.descriptors.descriptors[idesc].descriptor;
 	       found = true;

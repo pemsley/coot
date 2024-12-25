@@ -36,6 +36,7 @@
 #include "Representation.h"
 #include "DiscreteSegment.h"
 
+#include "compat/coot-sysdep.h"
 #include "mmdb2/mmdb_manager.h"
 
 class Renderer;
@@ -131,7 +132,7 @@ public:
         return colorScheme;
     };
     virtual void redraw(){
-       std::cout << "++++++++++++++++++++++++++++++++++++++++++++ redraw with renderStyle " << renderStyle << std::endl;
+       // std::cout << "++++++++++++++++++++++++++++++++++++++++++++ redraw with renderStyle " << renderStyle << std::endl;
 		if (selection != 0 && colorScheme != 0 && renderStyle != "" && myMolecule != 0){
 			deletePrimitives();
 			if (renderStyle == "Ribbon"){

@@ -289,6 +289,8 @@ namespace coot {
 	 std::vector<float> get_cell() const;
 	 std::string get_spacegroup() const;
 
+         unsigned int get_number_of_atoms() const;
+
 	 void transform(const clipper::RTop_orth &rtop);
 	 // apply a shift of -pos before transforming (then apply shift back again)
 	 void transform(const clipper::RTop_orth &rtop, const clipper::Coord_orth &pos);

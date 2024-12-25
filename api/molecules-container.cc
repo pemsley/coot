@@ -2094,8 +2094,10 @@ molecules_container_t::get_bonds_mesh_for_selection_instanced(int imol, const st
                                                               const std::string &mode,
                                                               bool against_a_dark_background,
                                                               float bond_width, float atom_radius_to_bond_width_ratio,
+                                                              bool show_atoms_as_aniso_flag,
+                                                              bool show_aniso_atoms_as_ortep_flag,
+                                                              bool draw_hydrogen_atoms_flag,
                                                               int smoothness_factor) {
-   bool draw_hydrogen_atoms_flag = true; // pass this
 
    // auto tp_0 = std::chrono::high_resolution_clock::now();
 
@@ -2103,7 +2105,11 @@ molecules_container_t::get_bonds_mesh_for_selection_instanced(int imol, const st
    if (is_valid_model_molecule(imol)) {
       im = molecules[imol].get_bonds_mesh_for_selection_instanced(mode, atom_selection_cid,
                                                                   &geom, against_a_dark_background, bond_width, atom_radius_to_bond_width_ratio,
-                                                                  smoothness_factor, draw_hydrogen_atoms_flag, draw_missing_residue_loops_flag);
+                                                                  show_atoms_as_aniso_flag,
+                                                                  show_aniso_atoms_as_ortep_flag,
+                                                                  smoothness_factor,
+                                                                  draw_hydrogen_atoms_flag,
+                                                                  draw_missing_residue_loops_flag);
    } else {
       std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
@@ -2406,7 +2412,7 @@ molecules_container_t::delete_residue_atoms_with_alt_conf(int imol, const std::s
       std::string atom_cid = std::string("//") + chain_id + std::string("/") + std::to_string(res_no) + ins_code;
       coot::atom_spec_t atom_spec = atom_cid_to_atom_spec(imol, atom_cid);
       coot::residue_spec_t residue_spec(atom_spec);
-      status = molecules[imol].delete_residue(residue_spec);
+      status = molecules[imol].delete_residue_atoms_with_alt_conf(residue_spec, alt_conf);
       set_updating_maps_need_an_update(imol);
    }
    unsigned int atom_count = get_number_of_atoms(imol);
@@ -2886,6 +2892,13 @@ molecules_container_t::thread_for_refinement_loop_threaded() {
 #endif
 
 }
+
+std::pair<int, double>
+molecules_container_t::get_torsion(int imol, const std::string &cid, const std::vector<std::string> &atom_names) {
+
+   return std::make_pair(0, 0.0);
+}
+
 
 
 int
@@ -3965,13 +3978,55 @@ molecules_container_t::add_waters(int imol_model, int imol_map) {
          lig.water_fit(ligand_water_sigma_cut_off, n_cycles);
 
          coot::minimol::molecule water_mol = lig.water_mol();
-         molecules[imol_model].insert_waters_into_molecule(water_mol);
+         molecules[imol_model].insert_waters_into_molecule(water_mol, "HOH");
          n_waters_added = water_mol.count_atoms();
          set_updating_maps_need_an_update(imol_model);
       }
    }
    return n_waters_added;
 }
+
+//! Flood with dummy atoms
+//! @param imol is the model molecule index
+//! @param imol_map is the map molecule index
+//!
+//! @return the number of waters added on a success, -1 on failure.
+int
+molecules_container_t::flood(int imol_model, int imol_map, float n_rmsd) {
+
+   int n_waters_added = -1;
+   if (is_valid_model_molecule(imol_model)) {
+      if (is_valid_map_molecule(imol_map)) {
+         mmdb::Manager *mol = get_mol(imol_model);
+         if (mol) {
+            float flood_atom_mask_radius = 1.0; // was 1.4
+            coot::ligand lig;
+            short int mask_waters_flag = true;
+            lig.import_map_from(molecules[imol_map].xmap);
+            lig.mask_map(mol, mask_waters_flag);
+            lig.set_cluster_size_check_off();
+            lig.set_chemically_sensible_check_off();
+            lig.set_sphericity_test_off();
+
+            lig.set_map_atom_mask_radius(flood_atom_mask_radius);
+            // lig.set_water_to_protein_distance_limits(10.0, 1.5); // should not be
+            // used in lig.
+            float water_to_protein_max_dist = 99.9;
+            float water_to_protein_min_dist = 1.5;
+            lig.set_water_to_protein_distance_limits(water_to_protein_max_dist,
+                                                     water_to_protein_min_dist);
+            float map_rmsd = get_map_rmsd_approx(imol_map);
+            lig.flood2(n_rmsd * map_rmsd);
+            coot::minimol::molecule water_mol = lig.water_mol();
+            molecules[imol_model].insert_waters_into_molecule(water_mol, "DUM");
+            n_waters_added = water_mol.get_number_of_atoms();
+         }
+      }
+   }
+   return n_waters_added;
+}
+
+
 
 std::vector<coot::molecule_t::interesting_place_t>
 molecules_container_t::unmodelled_blobs(int imol_model, int imol_map) const {
@@ -5126,17 +5181,43 @@ molecules_container_t::get_mesh_for_ligand_validation_vs_dictionary(int imol, co
 //!
 //! @return a vector of `geometry_distortion_info_container_t`
 std::vector<coot::geometry_distortion_info_container_t>
-molecules_container_t::get_ligand_validation_vs_dictionary(int imol, const std::string &ligand_cid,
+molecules_container_t::get_ligand_validation_vs_dictionary(int imol,
+                                                           const std::string &ligand_cid,
                                                            bool with_nbcs) {
 
    std::vector<coot::geometry_distortion_info_container_t> v;
    if (is_valid_model_molecule(imol)) {
-      v = molecules[imol].geometric_distortions_from_mol(ligand_cid, with_nbcs, geom, thread_pool);
+      v = molecules[imol].geometric_distortions_for_one_residue_from_mol(ligand_cid, with_nbcs, geom, thread_pool);
    } else {
       std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
    return v;
 }
+
+//! General fragment distortion analysis
+//!
+//! @param imol is the model molecule index
+//! @param selection_cid is the selection CID e.g "//A/15-23"
+//! @param include_non_bonded_contacts is the flag to include non bonded contacts
+//!
+//! @return a vector/list of interesting geometry
+std::vector<coot::geometry_distortion_info_container_t>
+molecules_container_t::get_validation_vs_dictionary_for_selection(int imol,
+                                                                  const std::string &selection_cid,
+                                                                  bool include_non_bonded_contacts) {
+
+   std::vector<coot::geometry_distortion_info_container_t> v;
+   if (is_valid_model_molecule(imol)) {
+      v = molecules[imol].geometric_distortions_for_selection_from_mol(selection_cid,
+                                                                       include_non_bonded_contacts,
+                                                                       geom,
+                                                                       thread_pool);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return v;
+}
+
 
 //! Get ligand distortion
 //!
@@ -5624,6 +5705,20 @@ molecules_container_t::get_residue_name(int imol, const std::string &chain_id, i
 }
 
 
+//! Get the SMILES string for the give residue type
+//!
+//! @param residue name the compound-id
+//! @param is the molecule index for the residue type/compound_id
+//! @return the SMILES string if the residue type can be foound in the dictionary store
+//!         or the empty string on a failure.
+std::string
+molecules_container_t::get_SMILES_for_residue_type(const std::string &residue_name, int imol_enc) const {
+
+   std::string s = geom.Get_SMILES_for_comp_id(residue_name, imol_enc);
+   return s;
+}
+
+
 //! @return an estimate of the diameter of the model molecule (-1 on failure)
 float
 molecules_container_t::get_molecule_diameter(int imol) const {
@@ -5985,3 +6080,190 @@ molecules_container_t::get_residue_sidechain_average_position(int imol, const st
    }
    return v;
 }
+
+//! set the occupancy for the given atom selection
+//!
+//! @param imol is the model molecule index
+//! @param cod is the atom selection CID
+//! @param is the new occupancy
+void
+molecules_container_t::set_occupancy(int imol, const std::string &cid, float occ_new) {
+
+   if (is_valid_model_molecule(imol)) {
+      molecules[imol].set_occupancy(cid, occ_new);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+
+}
+
+#include <format>
+#include "utils/subprocess.hpp"
+using namespace std::chrono_literals;
+
+
+
+//! External refinement using servalcat
+int
+molecules_container_t::servalcat_refine_xray(int imol, int imol_map, const std::string &output_prefix) {
+
+   std::map<std::string, std::string> kvm;
+   return servalcat_refine_xray_internal(imol, imol_map, output_prefix, kvm);
+
+}
+
+
+int
+molecules_container_t::servalcat_refine_xray_internal(int imol, int imol_map, const std::string &output_prefix,
+                                                      const std::map<std::string, std::string> &key_value_pairs) {
+
+   int imol_refined_model = -1;
+
+   if (is_valid_model_molecule(imol)) {
+      if (is_valid_map_molecule(imol_map)) {
+
+         bool set_weight = false;
+         std::string weight_str;
+         if (! key_value_pairs.empty()) {
+            for (const auto &kv : key_value_pairs) {
+               if (kv.first == "weight") {
+                  set_weight = true;
+                  weight_str = kv.second;
+               }
+            }
+         }
+
+         bool clibd_mon_is_set = false;
+         char *e = getenv("CLIBD_MON");
+         if (e) {
+            std::string env(e);
+            if (std::filesystem::exists(env))
+               clibd_mon_is_set = true;
+         }
+         if (clibd_mon_is_set) {
+            std::string mtz_file   = molecules[imol_map].refmac_mtz_filename;
+            std::string fobs_col   = molecules[imol_map].refmac_fobs_col;
+            std::string sigfob_col = molecules[imol_map].refmac_sigfobs_col;
+            std::string r_free_col = molecules[imol_map].refmac_r_free_col;
+            if (! mtz_file.empty()) {
+
+               bool read_pdb_output = false; // this gets set to true if the output pdb is sane
+
+               std::string c(",");
+               std::string labin = fobs_col + c + sigfob_col + c + r_free_col;
+
+               std::string dir_1 = "coot-servalcat";
+               coot::util::create_directory(dir_1);
+               std::string prefix = coot::util::append_dir_file(dir_1, output_prefix);
+               std::string  input_pdb_file_name = prefix + std::string("-in.pdb");
+               std::string output_pdb_file_name = prefix + std::string(".pdb"); // named by servalcat
+               int status = molecules[imol].write_coordinates(input_pdb_file_name);
+               // see https://www.ebi.ac.uk/pdbe/docs/cldoc/object/cl_obj_rdwr.html#CMMDBManager::WritePDBASCII
+               if (status == 0) {
+                  bool output_pdb_file_name_exists = false;
+                  std::filesystem::file_time_type output_pdb_file_name_time;
+                  std::filesystem::path p(output_pdb_file_name);
+                  if (std::filesystem::exists(p)) {
+                     output_pdb_file_name_exists = true;
+                     output_pdb_file_name_time = std::filesystem::last_write_time(p);
+                  }
+                  std::vector<std::string> cmd_list = {"servalcat", "refine_xtal_norefmac",
+                                                       "-s", "xray", "--model", input_pdb_file_name,
+                                                       "--hklin", mtz_file, "--labin", labin,
+                                                       "-o", prefix};
+                  if (set_weight) {
+                     cmd_list.push_back("--weight");
+                     cmd_list.push_back(weight_str);
+                  }
+
+                  if (true) {
+                     std::cout << "commandline: ";
+                     for (unsigned int i=0; i<cmd_list.size(); i++) std::cout << " " << cmd_list[i];
+                     std::cout << "\n";
+                  }
+                  std::cout << "running servalcat..." << std::endl;
+                  subprocess::OutBuffer obuf = subprocess::check_output(cmd_list);
+                  if (std::filesystem::exists(p)) {
+                     if (output_pdb_file_name_exists) {
+                        std::filesystem::file_time_type new_output_pdb_file_name_time = std::filesystem::last_write_time(p);
+                        auto t1 =     output_pdb_file_name_time.time_since_epoch();
+                        auto t2 = new_output_pdb_file_name_time.time_since_epoch();
+                        auto tt1 = std::chrono::duration_cast<std::chrono::seconds>(t1).count();
+                        auto tt2 = std::chrono::duration_cast<std::chrono::seconds>(t2).count();
+                        auto d = tt2 - tt1;
+                        if (d > 0)
+                           read_pdb_output = true;
+                     } else {
+                        read_pdb_output = true;
+                     }
+                     if (read_pdb_output) {
+                        imol_refined_model = read_coordinates(output_pdb_file_name);
+                     }
+                  } else {
+                     std::cout << "WARNING:: " << __FUNCTION__ << "(): path does not exist " << p << std::endl;
+                  }
+               } else {
+                  std::cout << "WARNING::" << __FUNCTION__ << "(): bad status on writing servalcat input file" << std::endl;
+               }
+            } else {
+               std::cout << "WARNING::" << __FUNCTION__ << "(): mtz file_name was empty" << std::endl;
+            }
+         } else {
+            std::cout << "WARNING::" << __FUNCTION__ << "(): CLIBD_MON was not set correctly" << std::endl;
+         }
+      } else {
+         std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid map molecule " << imol_map << std::endl;
+      }
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return imol_refined_model;
+}
+
+
+// void
+// molecules_container_t::servalcat_refine_cryoem(int imol,
+//                                                const std::string &half_map_1,
+//                                                const std::string &half_map_2,
+//                                                const std::string &mask,
+//                                                const std::string &output_prefix);
+
+
+//! split a residue into alt-confs
+//!
+//! do nothing if the residue already has alt-confs.
+//!
+//! @param imol the modified model
+//! @param residue_cid the modified residue
+//! @param the difference map that is used to determine the residue split
+//! @return split success status
+int
+molecules_container_t::split_residue_using_map(int imol, const std::string &residue_cid, int imol_diff_map) {
+
+   int status = 0;
+   if (is_valid_model_molecule(imol)) {
+      if (is_valid_map_molecule(imol_diff_map)) {
+         mmdb::Residue *residue_p = molecules[imol].get_residue(residue_cid);
+         if (residue_p) {
+            mmdb::Manager *mol = get_mol(imol);
+            if (mol) {
+               const clipper::Xmap<float> &xmap = molecules[imol_diff_map].xmap;
+               coot::util::split_residue_using_map(residue_p, mol, xmap);
+            }
+         }
+      }
+   }
+   return status;
+}
+
+
+std::vector<coot::residue_range_t>
+molecules_container_t::get_missing_residue_ranges(int imol) const {
+
+   std::vector<coot::residue_range_t> v;
+   if (is_valid_model_molecule(imol)) {
+      v = molecules[imol].get_missing_residue_ranges();
+   }
+   return v;
+}
+

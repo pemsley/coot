@@ -98,6 +98,15 @@ namespace coot {
 
    enum { RESIDUE_NUMBER_UNSET = -1111}; // from molecule-class-info
 
+   class residue_range_t {
+   public:
+      residue_range_t() : res_no_start(-999), res_no_end(-999) {}
+      residue_range_t(const std::string &c, int r1, int r2) : res_no_start(r1), res_no_end(r2) {}
+      std::string chain_id;
+      int res_no_start;
+      int res_no_end;
+   };
+
    class molecule_t {
 
       class molecule_save_info_t {
@@ -579,9 +588,16 @@ namespace coot {
       std::pair<bool, residue_spec_t> cid_to_residue_spec(const std::string &cid) const;
       std::pair<bool, atom_spec_t> cid_to_atom_spec(const std::string &cid) const;
       std::vector<std::string> get_residue_names_with_no_dictionary(const protein_geometry &geom) const;
-      int insert_waters_into_molecule(const minimol::molecule &water_mol);
+      // here res-name might be HOH or DUM
+      int insert_waters_into_molecule(const minimol::molecule &water_mol, const std::string &res_name);
 
       // ----------------------- model utils
+
+     //! get missing residue ranges
+     //!
+     //! @param imol is the model molecule index
+     //! @return missing residue ranges
+     std::vector<residue_range_t> get_missing_residue_ranges() const;
 
       // public
       void make_bonds(protein_geometry *geom, rotamer_probability_tables *rot_prob_tables_p,
@@ -611,6 +627,7 @@ namespace coot {
       bool have_unsaved_changes() const { return modification_info.have_unsaved_changes(); }
       int undo(); // 20221018-PE return status not yet useful
       int redo(); // likewise
+      // the return value of WritePDBASCII() or WriteCIFASCII(). mmdb return type
       int write_coordinates(const std::string &file_name) const; // return 0 on OK, 1 on failure
 
       //! @return a model molecule imol as a string. Return emtpy string on error
@@ -631,6 +648,9 @@ namespace coot {
       //! Get the chains that are related by NCS:
       std::vector<std::vector<std::string> > get_ncs_related_chains() const;
 
+      //! copy chain using NCS matrix
+      bool copy_ncs_chain(const std::string &from_chain_id, const std::string &to_chain_id);
+
       //! get the residue CA position
       //!
       //! @return a vector. The length of the vector is 0 on failure, otherwise it is the x,y,z values
@@ -645,6 +665,14 @@ namespace coot {
       //!
       //! @return a vector. The length of the vector is 0 on failure, otherwise it is the x,y,z values
       std::vector<double> get_residue_sidechain_average_position(const std::string &cid) const;
+
+      //! set occupancy
+      //!
+      //! set the occupancy for the given atom selection
+      //!
+      //! @param imol is the model molecule index
+      //! @param cod is the atom selection CID
+      void set_occupancy(const std::string &cid, float occ_new);
 
       // ----------------------- model bonds
 
@@ -671,6 +699,8 @@ namespace coot {
                                                               protein_geometry *geom,
                                                               bool against_a_dark_background,
                                                               float bonds_width, float atom_radius_to_bond_width_ratio,
+                                                              bool render_atoms_as_aniso, // if possible, of course
+                                                              bool render_aniso_atoms_as_ortep,
                                                               int smoothness_factor,
                                                               bool draw_hydrogen_atoms_flag,
                                                               bool draw_missing_residue_loops);
@@ -856,11 +886,23 @@ namespace coot {
                                                                        coot::protein_geometry &geom,
                                                                        ctpl::thread_pool &static_thread_pool);
 
-      // this function is another version of the above function, but returns distortion values
+      //! this function is another version of the above function, but returns distortion values
+      //!
+      //! this function returns a vector of the wrong type (it has pointers to expired molecules).
+      //!
       std::vector<coot::geometry_distortion_info_container_t>
-      geometric_distortions_from_mol(const std::string &ligand_cid, bool with_nbcs,
-                                     coot::protein_geometry &geom,
-                                     ctpl::thread_pool &static_thread_pool);
+      geometric_distortions_for_one_residue_from_mol(const std::string &ligand_cid, bool with_nbcs,
+                                                     coot::protein_geometry &geom,
+                                                     ctpl::thread_pool &static_thread_pool);
+
+      //! this function is another version of the above function, but returns distortion values
+      //!
+      //! this function returns a vector of the wrong type (it has pointers to expired molecules).
+      //!
+      std::vector<coot::geometry_distortion_info_container_t>
+      geometric_distortions_for_selection_from_mol(const std::string &selection_cid, bool with_nbcs,
+                                                   coot::protein_geometry &geom,
+                                                   ctpl::thread_pool &static_thread_pool);
 
       // I want a function that does the evaluation of the distortion
       // in place - I don't want to get a function that allows me to
@@ -922,6 +964,8 @@ namespace coot {
       int delete_residue_atoms_with_alt_conf(coot::residue_spec_t &residue_spec, const std::string &alt_conf);
       int delete_chain_using_atom_cid(const std::string &cid);
       int delete_literal_using_cid(const std::string &cid); // cid is an atom selection, e.g. containing a residue range
+
+      int change_alt_locs(const std::string &cid, const std::string &change_mode);
 
       std::pair<int, std::string> add_terminal_residue_directly(const residue_spec_t &spec,
                                                                 const std::string &new_res_type,

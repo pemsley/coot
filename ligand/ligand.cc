@@ -1063,7 +1063,6 @@ coot::ligand::n_grid_limit_for_water_cluster() const {
 void
 coot::ligand::find_clusters_water_flood(float z_cut_off_in,
                                         const std::vector <clipper::Coord_orth> &sampled_protein_coords) {
-
    if (xmap_masked_stats.first == 0) {
       clipper::Map_stats stats(xmap_cluster);
       xmap_masked_stats.first  = 1;

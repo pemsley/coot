@@ -377,9 +377,17 @@ else
    # better RDKit linking I hope
    RDKIT_CXXFLAGS="-I$rdkit_install_dir/include/rdkit -DRDKIT_HAS_CAIRO_SUPPORT"
 fi
-# test here for presence of coordgen in the RDKit
-librdkitcoordgen=-lRDKitcoordgen
-# librdkitcoordgen=
+
+
+# test here for presence of coordgen in the RDKit.
+# To clarify, this is not related to how to configure Coot, it is related to how the RDKit was configured (and linked).
+# We need to clarify that so that Coot can be linked correctly.
+librdkitcoordgen=
+AC_ARG_WITH([coordgen], AS_HELP_STRING([--with-coordgen Specify that the RDKit was compiled with coordgen]), with_rdkit_coordgen="$withval", with_rdkit_coordgen=false)
+if "$with_rdkit_coordgen" = true ; then
+    librdkitcoordgen=-lRDKitcoordgen
+fi
+
 RDKIT_LIBS="-L$rdkit_install_dir/lib -lRDKitMolDraw2D -lRDKitForceFieldHelpers -lRDKitDescriptors -lRDKitForceField -lRDKitSubstructMatch -lRDKitOptimizer -lRDKitDistGeomHelpers -lRDKitDistGeometry -lRDKitChemReactions -lRDKitAlignment -lRDKitEigenSolvers -lRDKitDepictor $librdkitcoordgen -lRDKitMolChemicalFeatures -lRDKitPartialCharges -lRDKitFileParsers -lRDKitRDGeometryLib -lRDKitGraphMol -lRDKitShapeHelpers -lRDKitFingerprints -lRDKitMolAlign -lRDKitMolTransforms -lRDKitChemTransforms -lRDKitSmilesParse -lRDKitGenericGroups -lRDKitRingDecomposerLib -lRDKitFilterCatalog -lRDKitCatalogs -lRDKitSubgraphs -lRDKitPartialCharges -lRDKitRDGeneral -lRDKitDataStructs -lboost_serialization -lboost_iostreams"
 
 # this must always be true now

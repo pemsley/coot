@@ -780,7 +780,6 @@ coot::distorted_chiral_volumes(int imol, mmdb::Manager *mol, protein_geometry *g
       geometry_distortion_info_container_t gdic = restraints.geometric_distortions();
       for (std::size_t id=0; id<gdic.geometry_distortion.size(); id++) {
          const auto &rest = gdic.geometry_distortion[id];
-         // std::cout << "   " << resst << std::endl;
          if (rest.distortion_score > chiral_volume_limit_for_outlier) {
             if (rest.atom_indices.size() == 4) {
                mmdb:: Atom *at = restraints.get_atom(rest.atom_indices[0]); // the chiral centre of course

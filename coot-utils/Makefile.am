@@ -45,7 +45,7 @@ pkginclude_HEADERS = peak-search.hh coot-trim.hh \
 	cylinder.hh cylinder-with-rotation-translation.hh oct.hh prideout-octasphere.hh cmtz-interface.hh mtz-column-auto-read.hh \
 	pugixml.hpp pugiconfig.hpp find-water-baddies.hh voidp-buffer.hh parse-pisa.hh diff-diff-map-peaks.hh tiny_gltf.h json.hpp \
 	stb_image.h stb_image_write.h glyco-tree.hh positron.hh mini-texture.hh texture-as-floats.hh pae.hh q-score.hh \
-	acedrg-types-for-residue.hh gl-matrix.h
+	acedrg-types-for-residue.hh gl-matrix.h ortep.hh
 
 
 pkgincludedir = $(includedir)/coot/coot-utils
@@ -91,7 +91,6 @@ libcoot_coord_utils_la_SOURCES = coot-coord-utils.cc \
 # in the source files for libcoot-coord-utils?
 libcoot_coord_utils_la_LIBADD = \
     $(top_builddir)/lidia-core/libcoot-lidia-core.la \
-    $(top_builddir)/protein_db/libcoot-protein-db.la \
     $(top_builddir)/geometry/libcoot-geometry.la     \
     $(top_builddir)/mini-mol/libcoot-mini-mol.la     \
     $(top_builddir)/utils/libcoot-utils.la           \
@@ -142,6 +141,7 @@ libcoot_map_utils_la_SOURCES = coot-map-utils.cc peak-search.cc peak-search-from
 libcoot_map_utils_la_LIBADD = \
    libcoot-coord-utils.la \
    $(top_builddir)/lidia-core/libcoot-lidia-core.la \
+   $(top_builddir)/protein_db/libcoot-protein-db.la \
    $(top_builddir)/geometry/libcoot-geometry.la \
    $(top_builddir)/utils/libcoot-utils.la \
    $(CLIPPER_LIBS) $(gsl_LIBS) -lpthread -lz

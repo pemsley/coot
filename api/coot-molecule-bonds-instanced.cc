@@ -84,7 +84,7 @@ make_instanced_graphical_bonds_spherical_atoms(coot::instanced_mesh_t &m, // add
       }
    }
 
-   coot::instanced_geometry_t ig_sphere("spherical-atoms");
+   coot::instanced_geometry_t ig_sphere("anisotropic-atoms");
 
    bool atoms_have_bigger_radius_than_bonds = false;
    if (base_atom_radius > base_bond_radius) atoms_have_bigger_radius_than_bonds = true;
@@ -105,7 +105,7 @@ make_instanced_graphical_bonds_spherical_atoms(coot::instanced_mesh_t &m, // add
    // ----------------------- setup the vertices and triangles for ortep instancing ---------------------
 
    // Oak Ridge Thermal Ellipsoids
-   coot::instanced_geometry_t ig_ortep("anisotropic atoms");
+   coot::instanced_geometry_t ig_ortep("anisotropic-ortep-atoms");
    ortep_t ortep = tessellate_sphere_sans_octant();
    bool do_ellipse_rings = true;
    std::vector<coot::api::vn_vertex> local_vertices_ortep(ortep.vertices.size());
@@ -606,6 +606,8 @@ coot::instanced_mesh_t
 coot::molecule_t::get_bonds_mesh_for_selection_instanced(const std::string &mode, const std::string &multi_cids,
                                                          coot::protein_geometry *geom, bool against_a_dark_background,
                                                          float bond_radius, float atom_radius_to_bond_width_ratio,
+                                                         bool show_atoms_as_aniso_flag,
+                                                         bool show_aniso_atoms_as_ortep_flag,
                                                          int  num_subdivisions,
                                                          bool draw_hydrogen_atoms_flag,
                                                          bool draw_missing_residue_loops) {
@@ -635,9 +637,6 @@ coot::molecule_t::get_bonds_mesh_for_selection_instanced(const std::string &mode
       }
       return n;
    };
-
-   bool show_atoms_as_aniso_flag = true; // this should be passed
-   bool show_aniso_atoms_as_ortep = false; // pass this also
 
    coot::instanced_mesh_t m;
 
@@ -714,7 +713,7 @@ coot::molecule_t::get_bonds_mesh_for_selection_instanced(const std::string &mode
 
       make_instanced_graphical_bonds_spherical_atoms(m, gbc, bonds_box_type, atom_radius, bond_radius,
                                                      show_atoms_as_aniso_flag,
-                                                     show_aniso_atoms_as_ortep,
+                                                     show_aniso_atoms_as_ortep_flag,
                                                      num_subdivisions, colour_table);
       make_instanced_graphical_bonds_hemispherical_atoms(m, gbc, bonds_box_type, atom_radius, bond_radius,
                                                          num_subdivisions, colour_table);

@@ -237,12 +237,11 @@ coot::molecule_t::all_molecule_contact_dots(const coot::protein_geometry &geom,
 }
 
 // this function is a wrapper for the below function,
-// but returns something without expired pointers.
 //
 std::vector<coot::geometry_distortion_info_container_t>
-coot::molecule_t::geometric_distortions_from_mol(const std::string &ligand_cid, bool with_nbcs,
-                                                 coot::protein_geometry &geom,
-                                                 ctpl::thread_pool &static_thread_pool) {
+coot::molecule_t::geometric_distortions_for_one_residue_from_mol(const std::string &ligand_cid, bool with_nbcs,
+                                                                 coot::protein_geometry &geom,
+                                                                 ctpl::thread_pool &static_thread_pool) {
 
    std::vector<coot::geometry_distortion_info_container_t> v;
    mmdb::Residue *residue_p = cid_to_residue(ligand_cid);
@@ -250,7 +249,30 @@ coot::molecule_t::geometric_distortions_from_mol(const std::string &ligand_cid, 
       mmdb::Manager *mol = coot::util::create_mmdbmanager_from_residue(residue_p);
       if (mol) {
          atom_selection_container_t asc = make_asc(mol);
+         // does v contain pointers to atoms (I'd rather that it didnt)
          v = geometric_distortions_from_mol(asc, with_nbcs, geom, static_thread_pool);
+         // asc.clear_up();  asc is no longer needed?
+      }
+   }
+   return v;
+}
+
+//
+std::vector<coot::geometry_distortion_info_container_t>
+coot::molecule_t::geometric_distortions_for_selection_from_mol(const std::string &cid, bool with_nbcs,
+                                                               coot::protein_geometry &geom,
+                                                               ctpl::thread_pool &static_thread_pool) {
+
+   std::vector<coot::geometry_distortion_info_container_t> v;
+   std::vector<mmdb::Residue *> residues = cid_to_residues(cid);
+   if (! residues.empty()) {
+      std::pair<bool, mmdb::Manager *> mol_p = coot::util::create_mmdbmanager_from_residue_vector(residues, atom_sel.mol);
+      if (mol_p.first) {
+         mmdb::Manager *mol = mol_p.second;
+         atom_selection_container_t asc = make_asc(mol);
+         // does v contain pointers to atoms (I'd rather that it didnt)
+         v = geometric_distortions_from_mol(asc, with_nbcs, geom, static_thread_pool);
+         asc.clear_up();  // asc is no longer needed
       }
    }
    return v;
@@ -878,4 +900,56 @@ coot::molecule_t::get_overlap_dots_for_ligand(const std::string &cid_ligand,
    }
    return aodc;
 
+}
+
+//! get missing residue ranges
+//!
+//! @param imol is the model molecule index
+//! @return missing residue ranges
+std::vector<coot::residue_range_t>
+coot::molecule_t::get_missing_residue_ranges() const {
+
+   // put this in coot-utils, I think
+
+   std::vector<residue_range_t> v;
+
+   int imod = 1;
+   mmdb::Manager *mol = atom_sel.mol;
+   if (! mol) return v;
+
+   mmdb::Model *model_p = mol->GetModel(imod);
+   if (model_p) {
+      int n_chains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<n_chains; ichain++) {
+         mmdb::Chain *chain_p = model_p->GetChain(ichain);
+	 std::string chain_id = chain_p->GetChainID();
+         int n_res = chain_p->GetNumberOfResidues();
+         for (int ires=0; ires<(n_res-1); ires++) {
+            mmdb::Residue *residue_this = chain_p->GetResidue(ires);
+            mmdb::Residue *residue_next = chain_p->GetResidue(ires+1);
+            if (residue_this) {
+	       if (residue_next) {
+		  int rn1 = residue_this->GetSeqNum();
+		  int rn2 = residue_next->GetSeqNum();
+		  if (rn2 > (rn1+1)) {
+		     bool is_close = false;
+		     std::pair<bool,float> ca = closest_approach(mol, residue_this, residue_next);
+		     if (ca.first) {
+			if (ca.second < 3.0) {
+			   is_close = true;
+			}
+		     }
+		     if (! is_close) {
+			int rn1_gap = rn1 + 1;
+			int rn2_gap = rn2 - 1;
+			residue_range_t rr(chain_id, rn1_gap, rn2_gap);
+			v.push_back(rr);
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+   return v;
 }
