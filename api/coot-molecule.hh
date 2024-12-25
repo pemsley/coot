@@ -98,6 +98,15 @@ namespace coot {
 
    enum { RESIDUE_NUMBER_UNSET = -1111}; // from molecule-class-info
 
+   class residue_range_t {
+   public:
+      residue_range_t() : res_no_start(-999), res_no_end(-999) {}
+      residue_range_t(const std::string &c, int r1, int r2) : res_no_start(r1), res_no_end(r2) {}
+      std::string chain_id;
+      int res_no_start;
+      int res_no_end;
+   };
+
    class molecule_t {
 
       class molecule_save_info_t {
@@ -583,6 +592,12 @@ namespace coot {
       int insert_waters_into_molecule(const minimol::molecule &water_mol, const std::string &res_name);
 
       // ----------------------- model utils
+
+     //! get missing residue ranges
+     //!
+     //! @param imol is the model molecule index
+     //! @return missing residue ranges
+     std::vector<residue_range_t> get_missing_residue_ranges() const;
 
       // public
       void make_bonds(protein_geometry *geom, rotamer_probability_tables *rot_prob_tables_p,

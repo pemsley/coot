@@ -1323,6 +1323,11 @@ public:
    coot::util::missing_atom_info missing_atoms_info_raw(int imol);
 #endif
 
+   //! get missing residue ranges
+   //!
+   //! @param imol is the model molecule index
+   //! @return missing residue ranges
+   std::vector<coot::residue_range_t> get_missing_residue_ranges(int imol) const;
 
    //! Get a list of residues specs that have atoms within distance of the atoms of the specified residue
    //!

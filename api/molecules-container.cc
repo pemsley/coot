@@ -6256,3 +6256,14 @@ molecules_container_t::split_residue_using_map(int imol, const std::string &resi
    return status;
 }
 
+
+std::vector<coot::residue_range_t>
+molecules_container_t::get_missing_residue_ranges(int imol) const {
+
+   std::vector<coot::residue_range_t> v;
+   if (is_valid_model_molecule(imol)) {
+      v = molecules[imol].get_missing_residue_ranges();
+   }
+   return v;
+}
+

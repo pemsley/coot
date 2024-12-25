@@ -6216,6 +6216,35 @@ int test_set_occupancy(molecules_container_t &mc) {
    return status;
 }
 
+int test_missing_residues(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol     = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   if (mc.is_valid_model_molecule(imol)) {
+     mc.delete_residue(imol, "A", 10, "");
+     mc.delete_residue(imol, "A", 11, "");
+     mc.delete_residue(imol, "A", 12, "");
+     mc.delete_residue(imol, "A", 15, "");
+
+     auto vec = mc.get_missing_residue_ranges(imol);
+     for (const auto &rr : vec) {
+       std::cout << "   " << rr.chain_id << " " << rr.res_no_start << " " << rr.res_no_end
+		 << std::endl;
+     }
+     if (vec.size() == 5) {
+       if (vec[0].res_no_start ==  10 && vec[0].res_no_end ==  12)
+       if (vec[1].res_no_start ==  15 && vec[1].res_no_end ==  15)
+       if (vec[2].res_no_start ==  37 && vec[2].res_no_end ==  45)
+       if (vec[3].res_no_start ==  73 && vec[3].res_no_end ==  75)
+       if (vec[4].res_no_start == 147 && vec[4].res_no_end == 165)
+	 status = 1;
+     }
+   }
+   return status;
+}
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -6536,6 +6565,7 @@ int main(int argc, char **argv) {
          // status += run_test(test_dictionary_atom_name_match, "dictionary atom names match", mc);
          // status += run_test(test_average_position_functions, "average position functions", mc);
          status += run_test(test_set_occupancy, "set occupancy", mc);
+         status += run_test(test_missing_residues, "missing residues", mc);
          if (status == n_tests) all_tests_status = 0;
 
          print_results_summary();
