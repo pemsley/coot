@@ -532,6 +532,12 @@ NB_MODULE(chapi, m) {
     .def_rw("string_user_data",&coot::atom_spec_t::string_user_data)
     .def_rw("model_number",&coot::atom_spec_t::model_number)
     ;
+    nb::class_<coot::residue_range_t>(m,"residue_range_t")
+      .def(nb::init<>())
+      .def_rw("chain_id",     &coot::residue_range_t::chain_id)
+      .def_rw("res_no_start", &coot::residue_range_t::res_no_start)
+      .def_rw("res_no_end",   &coot::residue_range_t::res_no_end)
+      ;
     nb::class_<generic_3d_lines_bonds_box_t>(m,"generic_3d_lines_bonds_box_t")
     .def_ro("line_segments", &generic_3d_lines_bonds_box_t::line_segments)
     ;
