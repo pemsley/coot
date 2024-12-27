@@ -2968,7 +2968,7 @@ fi
 
 ############ test python, exit on failure ##################
 
-$install_top_dir/bin/python3 <<EOF
+$install_top_dir/bin/$python_version <<EOF
 import ctypes
 print(dir(ctypes))
 EOF
@@ -3032,8 +3032,8 @@ if $build_meson = true ; then
    ${WGET} https://github.com/mesonbuild/meson/releases/download/$meson_version/meson-$meson_version.tar.gz
    tar xf ${AUTOBUILD_SOURCES}/meson-$meson_version.tar.gz
    cd meson-$meson_version
-   python3 setup.py build
-   python3 setup.py install
+   $python_version setup.py build
+   $python_version setup.py install
    cd -
    echo which meson
    which meson
@@ -3064,7 +3064,7 @@ if [ $build_ninja = true ] ; then
    ${WGET} https://github.com/ninja-build/ninja/archive/refs/tags/v$ninja_version.tar.gz
    tar xf ${AUTOBUILD_SOURCES}/v$ninja_version.tar.gz
    cd ninja-$ninja_version
-   python3 ./configure.py --bootstrap # builds ninja, requires python
+   $python_version ./configure.py --bootstrap # builds ninja, requires python
    if [ -e ninja ] ; then
       cp ninja $install_top_dir/bin
    else
@@ -3400,10 +3400,10 @@ if [ "$build_boost" = true ] ; then
       address_model=64
       pwd
       # echo "using python : 3.10 : $install_top_dir/bin/python3 ;" > user-config.jam
-      echo "using python : $python_version_extension : $install_top_dir/bin/python3 ;" > user-config.jam
-      echo ./bootstrap.sh --prefix=$install_top_dir --with-python=$install_top_dir/bin/python3 --with-python-root=$install_top_dir --with-libraries=system,python,regex,thread,serialization,iostreams,program_options --without-icu
-      echo ./bootstrap.sh --prefix=$install_top_dir --with-python=$install_top_dir/bin/python3 --with-python-root=$install_top_dir --with-libraries=system,python,regex,thread,serialization,iostreams,program_options --without-icu > bootstrap-command-save
-      ./bootstrap.sh --prefix=$install_top_dir --with-python=$install_top_dir/bin/python3 --with-python-root=$install_top_dir --with-libraries=system,python,regex,thread,serialization,iostreams,program_options --without-icu
+      echo "using python : $python_version_extension : $install_top_dir/bin/$python_version ;" > user-config.jam
+      echo ./bootstrap.sh --prefix=$install_top_dir --with-python=$install_top_dir/bin/$python_version --with-python-root=$install_top_dir --with-libraries=system,python,regex,thread,serialization,iostreams,program_options --without-icu
+      echo ./bootstrap.sh --prefix=$install_top_dir --with-python=$install_top_dir/bin/$python_version --with-python-root=$install_top_dir --with-libraries=system,python,regex,thread,serialization,iostreams,program_options --without-icu > bootstrap-command-save
+      ./bootstrap.sh --prefix=$install_top_dir --with-python=$install_top_dir/bin/$python_version --with-python-root=$install_top_dir --with-libraries=system,python,regex,thread,serialization,iostreams,program_options --without-icu
       echo boostrap.sh done
 
       # now edit the project-config.jam file using python line
