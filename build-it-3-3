@@ -2928,7 +2928,7 @@ if test -n "$build_python" ; then
    # test it
    echo test cypes in the new python
    # or use this test: if $install_top_dir/bin/python3 -c 'import ctypes' ; then ...
-   $install_top_dir/bin/python3 <<EOF
+   $install_top_dir/bin/$python_version <<EOF
 import ctypes
 print(dir(ctypes))
 print('post ctypes test')
