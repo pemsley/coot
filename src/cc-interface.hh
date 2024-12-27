@@ -1200,7 +1200,7 @@ bool get_regenerate_bonds_needs_make_bonds_type_checked_state();
 //! \brief
 //! return 0 on fail to refine (no sensible place to put atoms) and 1
 //! on fitting happened.
-int rigid_body_fit_with_residue_ranges(int imol, const std::vector<coot::residue_range_t> &ranges);
+int rigid_body_fit_with_residue_ranges(int imol, const std::vector<coot::high_res_residue_range_t> &ranges);
 
 // Model morphing (average the atom shift by using shifts of the
 // atoms within shift_average_radius A of the central residue).
