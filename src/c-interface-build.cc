@@ -4592,7 +4592,7 @@ SCM
 rigid_body_refine_by_residue_ranges_scm(int imol, SCM residue_ranges) {
 
    SCM ret_val = SCM_BOOL_F;
-   std::vector<coot::residue_range_t> res_ranges;
+   std::vector<coot::high_res_residue_range_t> res_ranges;
    if (scm_is_true(scm_list_p(residue_ranges))) {
       SCM rr_length_scm = scm_length(residue_ranges);
       int rr_length = scm_to_int(rr_length_scm);
@@ -4618,7 +4618,7 @@ rigid_body_refine_by_residue_ranges_scm(int imol, SCM residue_ranges) {
 			   // the chain.  So, check and swap if needed.
 			   if (resno_end < resno_start)
 			      std::swap<int>(resno_start, resno_end);
-			   coot::residue_range_t rr(chain_id, resno_start, resno_end);
+			   coot::high_res_residue_range_t rr(chain_id, resno_start, resno_end);
 			   res_ranges.push_back(rr);
 			}
 		     }
