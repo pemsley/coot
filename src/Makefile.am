@@ -531,8 +531,6 @@ libcootsumo_la_SOURCES = \
 	coot-database.hh	 \
 	coot-colour.hh		 \
 	coot-colour.cc		 \
-	coot-align.cc		 \
-	coot-align.hh		 \
 	coot-nomenclature.cc	 \
 	coot-nomenclature.hh     \
 	coot-fileselections.h    \

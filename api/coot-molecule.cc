@@ -5037,3 +5037,111 @@ coot::molecule_t::set_occupancy(const std::string &cid, float occ_new) {
    atom_sel.mol->DeleteSelection(selHnd);
 }
 
+
+std::vector<std::pair<std::string, std::string> >
+coot::molecule_t::get_sequence_info() const {
+
+   std::vector<std::pair<std::string, std::string> > v;
+   return v;
+
+}
+
+#include <mmdb2/mmdb_math_align.h>
+#include <mmdb2/mmdb_tables.h>
+#include "coot-utils/coot-align.hh"
+
+//! return the mismatches/mutations:
+coot::chain_mutation_info_container_t
+coot::molecule_t::get_mutation_info() const {
+
+   auto get_chain_sequence = [] (mmdb::Chain *chain_p,
+                                 mmdb::Residue **selResidues,
+                                 int nSelResidues) {
+      std::string s;
+      for (int ires=0; ires<nSelResidues; ires++) {
+         mmdb::Residue *residue_p = selResidues[ires];
+         char r[10];
+         if (residue_p) {
+            auto rn = residue_p->GetResName();
+            mmdb::Get1LetterCode(rn, r);
+            s += r;
+         }
+      }
+      return s;
+   };
+
+   auto align_on_chain = [get_chain_sequence] (mmdb::Chain *chain_p,
+                                               mmdb::PResidue *SelResidues,
+                                               int nSelResidues,
+                                               const std::string &target) {
+
+      chain_mutation_info_container_t ch_info(chain_p->GetChainID());
+      std::string model = get_chain_sequence(chain_p, SelResidues, nSelResidues);
+      mmdb::math::Alignment align;
+      mmdb::realtype wgap = 0.0;
+      mmdb::realtype wspace = -1.0;
+      std::string stripped_target = util::remove_whitespace(target);
+      align.Align(model.c_str(), stripped_target.c_str());
+      std::string s = align.GetAlignedS();
+      std::string t = align.GetAlignedT();
+      std::cout << "model:  " << s << std::endl;
+      std::cout << "target: " << t << std::endl;
+      std::cout << "score:  " << align.GetScore() << std::endl;
+      if (s.length() == t.length()) {
+	 std::vector<int> resno_offsets(s.length(), 0);
+	 for (unsigned int ires=0; ires<s.length(); ires++) {
+	    if (s[ires] != t[ires]) {
+	       // Case 1: simple mutation:
+	       if (s[ires] != '-' && t[ires] != '-') {
+		  std::string target_type = coot::util::single_letter_to_3_letter_code(t[ires]);
+		  residue_spec_t res_spec(ires);
+		  ch_info.add_mutation(res_spec, target_type);
+	       }
+
+	       // Case 2: model has an insertion
+	       if (s[ires] != '-' && t[ires] == '-') {
+		  for (unsigned int i=ires+1; i<s.length(); i++)
+		     resno_offsets[i] -= 1;
+		  residue_spec_t res_spec(ires);
+		  ch_info.add_deletion(res_spec);
+	       }
+
+	       // Case 3: model has a deletion
+	       if (s[ires] == '-' && t[ires] != '-') {
+		  for (unsigned int i=ires+1; i<s.length(); i++)
+		     resno_offsets[i] += 1;
+		  residue_spec_t res_spec(ires);
+		  std::string target_type = coot::util::single_letter_to_3_letter_code(t[ires]);
+		  ch_info.add_insertion(res_spec, target_type);
+	       }
+	    }
+         }
+      }
+      ch_info.rationalize_insertions();
+      return ch_info;
+   };
+
+   chain_mutation_info_container_t ch_info;
+
+   int imod = 1;
+   mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+   if (model_p) {
+      int n_chains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<n_chains; ichain++) {
+	 mmdb::Chain *chain_p = model_p->GetChain(ichain);
+	 std::string chain_id(chain_p->GetChainID());
+	 std::pair<bool, std::string> target_pair = multi_fasta_seq.get_fasta_for_name(chain_id);
+	 if (target_pair.first) {
+	    std::string target = target_pair.second;
+	    if (! target.empty()) {
+	       int n_res = chain_p->GetNumberOfResidues();
+	       mmdb::Residue **chain_residues = 0;
+	       chain_p->GetResidueTable(chain_residues, n_res);
+	       ch_info = align_on_chain(chain_p, chain_residues, n_res, target);
+	    }
+	 }
+      }
+   }
+
+   return ch_info;
+}

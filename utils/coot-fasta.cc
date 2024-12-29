@@ -250,3 +250,24 @@ coot::fasta_multi::read(const std::string &file_name) {
       std::cout << "File not found: " << file_name << std::endl;
    }
 }
+
+
+std::pair<bool, std::string>
+coot::fasta_multi::get_fasta_for_name(const std::string &chain_id) const {
+
+   std::pair<bool, std::string> p(false, "");
+
+   if (false)
+      std::cout << "debug in get_fasta_for_name() given chain_id " << chain_id
+		<< " there are " << sequences.size() << " sequences"
+		<< std::endl;
+
+   for(const auto &seq : sequences) {
+      if (seq.name == chain_id) {
+	 p.first = true;
+	 p.second = seq.sequence;
+	 break;
+      }
+   }
+   return p;
+}

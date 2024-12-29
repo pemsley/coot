@@ -106,7 +106,7 @@ enum {CONTOUR_UP, CONTOUR_DOWN};
 #include "coot-render.hh" // 20220723-PE no graphics for WebAssembly build
 
 // #include "coot-surface/coot-surface.hh" dead now
-#include "coot-align.hh"
+#include "coot-utils/coot-align.hh"
 #include "utils/coot-fasta.hh"
 #include "coot-utils/coot-shelx.hh"
 #include "utils/coot-utils.hh"

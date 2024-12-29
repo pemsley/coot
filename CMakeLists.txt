@@ -267,6 +267,7 @@ add_library(cootapi SHARED
             ${coot_src}/pli/protein-ligand-interactions.cc
             ${coot_src}/pli/pi-stacking.cc
             ${coot_src}/pli/sdf-interface.cc
+            ${coot_src}/coot-utils/coot-align.cc
             ${coot_src}/coot-utils/cmtz-interface.cc
             ${coot_src}/coot-utils/lidia-core-functions.cc
             ${coot_src}/coot-utils/atom-selection-container.cc

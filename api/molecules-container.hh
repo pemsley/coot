@@ -349,6 +349,7 @@ class molecules_container_t {
    std::string generate_horizontal_ssm_sequence_alignment_string(const std::pair<std::string, std::string> &aligned_sequences) const;
 
 #endif  // HAVE_SSMLIB
+
 #ifdef SKIP_FOR_PYTHON_DOXYGEN
 #else
    //! Check valid labels for auto-read mtz function (private)
@@ -2317,6 +2318,15 @@ public:
    //! @param imol is the model molecule index
    //! @param imol_map is the map molecule index
    void assign_sequence(int imol_model, int imol_map);
+
+   //! Get the sequence information
+   //!
+   //! @param imol is the molecule index
+   //! @return the sequence information
+   std::vector<std::pair<std::string, std::string> > get_sequence_info(int imol) const;
+
+  //! return the mismatches/mutations:
+  coot::chain_mutation_info_container_t get_mutation_info(int imol) const;
 
    // -------------------------------- Coordinates Refinement ------------------------------
    //! \name Coordinates Refinement
