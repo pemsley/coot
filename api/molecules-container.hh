@@ -2325,8 +2325,14 @@ public:
    //! @return the sequence information
    std::vector<std::pair<std::string, std::string> > get_sequence_info(int imol) const;
 
-  //! return the mismatches/mutations:
-  coot::chain_mutation_info_container_t get_mutation_info(int imol) const;
+   //! get mutation information
+   //!
+   //! The reference sequece is that which has been provided using the
+   //! `associate_sequence()` function
+   //!
+   //! @param imol is the model molecule index
+   //! @return the mismatches/mutations as insertions, deletions or mutations
+   coot::chain_mutation_info_container_t get_mutation_info(int imol) const;
 
    // -------------------------------- Coordinates Refinement ------------------------------
    //! \name Coordinates Refinement

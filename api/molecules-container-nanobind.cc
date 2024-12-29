@@ -435,6 +435,18 @@ NB_MODULE(chapi, m) {
     .def("write_map",&molecules_container_t::write_map)
     .def("write_png",&molecules_container_t::write_png)
     ;
+    nb::class_<coot::chain_mutation_info_container_t>(m,"chain_mutation_info_container_t")
+      .def_ro("chain_id",         &coot::chain_mutation_info_container_t::chain_id)
+      .def_ro("alignedS",         &coot::chain_mutation_info_container_t::alignedS)
+      .def_ro("alignedT",         &coot::chain_mutation_info_container_t::alignedT)
+      .def_ro("alignedS_label",   &coot::chain_mutation_info_container_t::alignedS_label)
+      .def_ro("alignedT_label",   &coot::chain_mutation_info_container_t::alignedT_label)
+      .def_ro("alignment_string", &coot::chain_mutation_info_container_t::alignment_string)
+      .def_ro("alignment_score",  &coot::chain_mutation_info_container_t::alignment_score)
+      .def_ro("insertions",       &coot::chain_mutation_info_container_t::insertions)
+      .def_ro("deletions",        &coot::chain_mutation_info_container_t::deletions)
+      .def_ro("mutations",        &coot::chain_mutation_info_container_t::mutations)
+      ;
     nb::class_<molecules_container_js, molecules_container_t>(m,"molecules_container_py")
     .def(nb::init<bool>())
     .def("writePDBASCII",&molecules_container_js::writePDBASCII)
