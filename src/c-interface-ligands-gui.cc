@@ -1361,3 +1361,11 @@ PyObject *get_ligand_distortion_summary_info_py(int imol, PyObject *residue_spec
 }
 #endif
 
+void
+show_acedrg_link_interface_overlay() {
+
+  GtkWidget *w = widget_from_builder("acedrg_link_interface_frame");
+  gtk_widget_set_visible(w, TRUE);
+
+}
+

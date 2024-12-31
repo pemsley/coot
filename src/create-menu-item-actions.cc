@@ -1356,12 +1356,49 @@ void add_HOLE_module_action(GSimpleAction *simple_action,
    // g_simple_action_set_enabled(simple_action,FALSE);
 }
 
-void add_ccp4_module_action(GSimpleAction *simple_action,
+void acedrg_link_interface_action(GSimpleAction *simple_action,
                             G_GNUC_UNUSED GVariant *parameter,
                             G_GNUC_UNUSED gpointer user_data) {
-   safe_python_command("import coot_gui");
-   safe_python_command("coot_gui.add_module_ccp4()");
-   g_simple_action_set_enabled(simple_action,FALSE);
+
+   std::cout << "show acedrg link interface overlay" << std::endl;
+
+   show_acedrg_link_interface_overlay();
+
+}
+
+void add_ccp4_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                            G_GNUC_UNUSED GVariant *parameter,
+                            G_GNUC_UNUSED gpointer user_data) {
+
+   // Pythonic:
+   //
+   // safe_python_command("import coot_gui");
+   // safe_python_command("coot_gui.add_module_ccp4()");
+   // g_simple_action_set_enabled(simple_action,FALSE);
+
+   GtkWidget *toolbar_hbox = widget_from_builder("main_window_toolbar_hbox");
+
+   GtkWidget *ccp4_menubutton = gtk_menu_button_new();
+   gtk_menu_button_set_label(GTK_MENU_BUTTON(ccp4_menubutton), "CCP4");
+   gtk_box_append(GTK_BOX(toolbar_hbox), ccp4_menubutton);
+
+   // the non-menu way
+
+   // GtkWidget *popover = gtk_popover_new();
+   // gtk_popover_set_position(GTK_POPOVER(popover), GTK_POS_BOTTOM);
+   // gtk_menu_button_set_popover(GTK_MENU_BUTTON(ccp4_menubutton), popover);
+   // GtkWidget *hbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 6);
+   // GtkWidget *acedrg_button = gtk_button_new_with_label("Acedrg");
+   // gtk_box_append(GTK_BOX(hbox), acedrg_button);
+   // gtk_popover_set_child(GTK_POPOVER(popover), hbox);
+
+   // the menu style of popover
+
+   GtkWidget *menu = widget_from_builder("ccp4-menu");
+   GMenuModel *model = G_MENU_MODEL(menu);
+   GtkWidget *popover = gtk_popover_menu_new_from_model(model);
+   gtk_menu_button_set_popover(GTK_MENU_BUTTON(ccp4_menubutton), popover);
+
    graphics_info_t::graphics_grab_focus();
 }
 
@@ -3755,6 +3792,8 @@ create_actions(GtkApplication *application) {
    add_action(      "add_refine_module_action",       add_refine_module_action);
    add_action(       "add_shelx_module_action",        add_shelx_module_action);
    add_action(       "add_views_module_action",        add_views_module_action);
+
+   add_action(             "acedrg_link_interface_action", acedrg_link_interface_action);
 
    // Calculate -> NCS
 

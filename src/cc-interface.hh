@@ -1938,6 +1938,7 @@ void set_gaussian_surface_chain_colour_mode(short int mode);
 
 void show_gaussian_surface_overlay();
 
+
 /* ------------------------------------------------------------------------- */
 /*                      LINKs                                                */
 /* ------------------------------------------------------------------------- */
@@ -1961,6 +1962,7 @@ void make_link_py(int imol, PyObject *spec_1, PyObject *spec_2, const std::strin
 PyObject *link_info_py(int imol);
 #endif
 
+void show_acedrg_link_interface_overlay();
 
 /* ------------------------------------------------------------------------- */
 /*                      Drag and drop                                        */

@@ -1166,6 +1166,15 @@
     </section>
   </menu>
 
+  <menu id="ccp4-menu">
+    <section>
+      <item>
+        <attribute name="label" translatable="no">Acedrg</attribute>
+        <attribute name="action">app.acedrg_link_interface_action</attribute>
+      </item>
+    </section>
+  </menu>
+
   <menu id="mutate-protein-menu">
     <section>
       <item>
@@ -6894,6 +6903,273 @@ Do you want to continue?
               </object>
             </child>
 
+            <child type="overlay">
+              <object class="GtkFrame" id="acedrg_link_interface_frame">
+                <property name="halign">center</property>
+                <property name="valign">start</property>
+                <property name="visible">False</property>
+                <property name="can_focus">True</property>
+                <property name="margin-bottom">5</property>
+                <property name="margin-end">5</property>
+                <property name="margin-start">5</property>
+                <property name="margin-top">5</property>
+
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                    <property name="spacing">5</property>
+
+		    <child>
+		      <object class="GtkFrame" id="acedrg_link_bond_order_frame">
+			<property name="label">Bond Order</property>
+			<child>
+			  <object class="GtkComboBoxText" id="acedrg_link_bond_order_combobox">
+			    <property name="margin-bottom">5</property>
+			    <property name="margin-end">6</property>
+			    <property name="margin-start">6</property>
+			    <property name="margin-top">5</property>
+
+                            <layout>
+                              <property name="column">1</property>
+                              <property name="row">1</property>
+                            </layout>
+                            <items>
+                              <item translatable="yes">single</item>
+                              <item translatable="yes">double</item>
+                              <item translatable="yes">triple</item>
+                            </items>
+
+			  </object>
+                        </child>
+                      </object>
+                   </child>
+
+		   <child>
+		     <object class="GtkFrame" id="acedrg_link_interface_first_residue">
+		       <property name="label">First Monomer to be Linked</property>
+		       <property name="halign">start</property>
+		       <property name="valign">start</property>
+		       <property name="margin-bottom">5</property>
+		       <property name="margin-end">5</property>
+		       <property name="margin-start">5</property>
+		       <property name="margin-top">5</property>
+		       <child>
+			 <object class="GtkBox">
+			   <property name="orientation">vertical</property>
+			   <property name="spacing">5</property>
+			   <child>
+			     <object class="GtkBox">
+			       <property name="orientation">horizontal</property>
+			       <property name="spacing">2</property>
+			       <child>
+				 <object class="GtkLabel">
+				   <property name="label">Residue Name: </property>
+				   <property name="margin-end">0</property>
+				   <property name="margin-start">0</property>
+				 </object>
+			       </child>
+			       <child>
+				 <object class="GtkEntry" id="acedrg_link_first_residue_name_entry">
+				   <property name="can-focus">1</property>
+				   <property name="hexpand">False</property>
+				 </object>
+			       </child>
+			       <child>
+				 <object class="GtkLabel">
+				   <property name="label">Linking Atom: </property>
+				   <property name="margin-end">5</property>
+				   <property name="margin-start">5</property>
+				 </object>
+			       </child>
+			       <child>
+				 <object class="GtkComboBoxText" id="acedrg_link_first_atom_name_chooser_combobox">
+				   <property name="margin-top">2</property>
+				   <property name="margin-bottom">2</property>
+				   <property name="margin-start">6</property>
+				   <property name="margin-end">6</property>
+				 </object>
+			       </child>
+			     </object>
+			   </child>
+
+			   <child>
+			     <object class="GtkBox">
+			       <property name="orientation">horizontal</property>
+			       <property name="spacing">5</property>
+			       <child>
+				 <object class="GtkCheckButton" id="acedrg_link_first_delete_atom_checkbutton">
+                                   <property name="label" translatable="yes">Delete Atom</property>
+                                   <signal name="toggled" handler="on_acedrg_link_first_delete_atom_checkbutton_toggled" />
+				 </object>
+			       </child>
+			       <child>
+				 <object class="GtkComboBoxText" id="acedrg_link_first_delete_atom_chooser_combobox">
+                                   <property name="sensitive">False</property>
+				   <property name="margin-bottom">2</property>
+				   <property name="margin-start">6</property>
+				 </object>
+			       </child>
+			     </object>
+			   </child>
+
+			   <child>
+			     <object class="GtkBox">
+			       <property name="orientation">horizontal</property>
+			       <property name="spacing">5</property>
+			       <child>
+				 <object class="GtkCheckButton" id="acedg_link_first_change_bond_order_checkbutton">
+                                   <property name="label" translatable="yes">Change Bond Order</property>
+                                   <signal name="toggled" handler="on_acedrg_link_first_change_bond_order_checkbutton_toggled" />
+				 </object>
+			       </child>
+
+			       <child>
+				 <object class="GtkComboBoxText" id="acedrg_link_first_change_bond_order_combobox">
+                                   <property name="sensitive">False</property>
+				   <property name="margin-bottom">2</property>
+				   <property name="margin-start">6</property>
+				   <items>
+				     <item translatable="yes">single</item>
+				     <item translatable="yes">double</item>
+				     <item translatable="yes">triple</item>
+				   </items>
+				 </object>
+			       </child>
+
+			     </object>
+			   </child>
+
+			 </object>
+		       </child>
+		     </object>
+		   </child>
+
+		   <child>
+		     <object class="GtkFrame" id="acedrg_link_interface_second_residue">
+		       <property name="label">Second Monomer to be Linked</property>
+		       <property name="halign">start</property>
+		       <property name="valign">start</property>
+		       <property name="margin-bottom">5</property>
+		       <property name="margin-end">5</property>
+		       <property name="margin-start">5</property>
+		       <property name="margin-top">5</property>
+		       <child>
+			 <object class="GtkBox">
+			   <property name="orientation">vertical</property>
+			   <property name="spacing">5</property>
+			   <child>
+			     <object class="GtkBox">
+			       <property name="orientation">horizontal</property>
+			       <property name="spacing">2</property>
+			       <child>
+				 <object class="GtkLabel">
+				   <property name="label">Residue Name: </property>
+				   <property name="margin-end">0</property>
+				   <property name="margin-start">0</property>
+				 </object>
+			       </child>
+			       <child>
+				 <object class="GtkEntry" id="acedrg_link_second_residue_name_entry">
+				   <property name="can-focus">1</property>
+				   <property name="hexpand">False</property>
+				 </object>
+			       </child>
+			       <child>
+				 <object class="GtkLabel">
+				   <property name="label">Linking Atom: </property>
+				   <property name="margin-end">5</property>
+				   <property name="margin-start">5</property>
+				 </object>
+			       </child>
+			       <child>
+				 <object class="GtkComboBoxText" id="acedrg_link_second_atom_name_chooser_combobox">
+				   <property name="margin-top">2</property>
+				   <property name="margin-bottom">2</property>
+				   <property name="margin-start">6</property>
+				   <property name="margin-end">6</property>
+				 </object>
+			       </child>
+			     </object>
+			   </child>
+
+			   <child>
+			     <object class="GtkBox">
+			       <property name="orientation">horizontal</property>
+			       <property name="spacing">5</property>
+			       <child>
+				 <object class="GtkCheckButton" id="acedrg_link_second_delete_atom_checkbutton">
+                                   <property name="label" translatable="yes">Delete Atom</property>
+                                   <signal name="toggled" handler="on_acedrg_link_second_delete_atom_checkbutton_toggled" />
+				 </object>
+			       </child>
+			       <child>
+				 <object class="GtkComboBox" id="acedrg_link_second_delete_atom_chooser_combobox">
+                                   <property name="sensitive">False</property>
+				   <property name="margin-bottom">2</property>
+				   <property name="margin-start">6</property>
+				 </object>
+			       </child>
+			     </object>
+			   </child>
+
+			   <child>
+			     <object class="GtkBox">
+			       <property name="orientation">horizontal</property>
+			       <property name="spacing">5</property>
+			       <child>
+				 <object class="GtkCheckButton" id="acedg_link_second_change_bond_order_checkbutton">
+                                   <property name="label" translatable="yes">Change Bond Order</property>
+                                   <signal name="toggled" handler="on_acedrg_link_second_change_bond_order_checkbutton_toggled" />
+				 </object>
+			       </child>
+
+			       <child>
+				 <object class="GtkComboBoxText" id="acedrg_link_second_change_bond_order_combobox">
+                                   <property name="sensitive">False</property>
+				   <property name="margin-bottom">2</property>
+				   <property name="margin-start">6</property>
+				   <items>
+				     <item translatable="yes">single</item>
+				     <item translatable="yes">double</item>
+				     <item translatable="yes">triple</item>
+				   </items>
+				 </object>
+			       </child>
+
+			     </object>
+			   </child>
+
+			 </object>
+		       </child>
+		     </object>
+		   </child>
+
+		   <child>
+		     <object class="GtkBox">
+		       <property name="orientation">horizontal</property>
+		       <property name="spacing">5</property>
+		       <property name="halign">end</property>
+		       <property name="margin-end">5</property>
+		       <property name="margin-start">4</property>
+		       <child>
+			 <object class="GtkButton" id="acedrg_link_cancel_button">
+			   <property name="label" translatable="yes">Cancel</property>
+			   <signal name="clicked" handler="on_acedrg_link_cancel_button_clicked" />
+			 </object>
+		       </child>
+		       <child>
+			 <object class="GtkButton" id="acedrg_link_ok_button">
+			   <property name="label" translatable="yes">OK</property>
+			   <signal name="clicked" handler="on_acedrg_link_ok_button_clicked" />
+			 </object>
+		       </child>
+                     </object>
+                   </child>
+
+		  </object>
+		</child>
+	      </object>
+	    </child>
 
             <child type="overlay">
               <object class="GtkFrame" id="replace_residue_frame">

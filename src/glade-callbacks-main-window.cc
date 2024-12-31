@@ -848,3 +848,63 @@ on_gaussian_surface_ok_button_clicked(GtkButton       *button,
    gtk_widget_set_visible(frame, FALSE);
 
 }
+
+extern "C" G_MODULE_EXPORT
+void
+on_acedrg_link_first_delete_atom_checkbutton_toggled(GtkCheckButton *checkbutton,
+						     gpointer         user_data) {
+
+  std::cout << "toggled" << std::endl;
+
+}
+
+
+extern "C" G_MODULE_EXPORT
+void
+on_acedrg_link_first_change_bond_order_checkbutton_toggled(GtkCheckButton *checkbutton,
+							   gpointer         user_data) {
+
+  std::cout << "toggled" << std::endl;
+
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_acedrg_link_second_delete_atom_checkbutton_toggled(GtkCheckButton *checkbutton,
+						     gpointer         user_data) {
+
+  std::cout << "toggled" << std::endl;
+
+}
+
+
+extern "C" G_MODULE_EXPORT
+void
+on_acedrg_link_second_change_bond_order_checkbutton_toggled(GtkCheckButton *checkbutton,
+							   gpointer         user_data) {
+
+  std::cout << "toggled" << std::endl;
+
+}
+
+
+extern "C" G_MODULE_EXPORT
+void
+on_acedrg_link_ok_button_clicked(GtkButton       *button,
+				 gpointer         user_data) {
+
+  std::cout << "OK - now do something" << std::endl;
+  GtkWidget *w = widget_from_builder("acedrg_link_interface_frame");
+  gtk_widget_set_visible(w, FALSE);
+
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_acedrg_link_cancel_button_clicked(GtkButton       *button,
+				     gpointer         user_data) {
+
+  std::cout << "Cancel" << std::endl;
+  GtkWidget *w = widget_from_builder("acedrg_link_interface_frame");
+  gtk_widget_set_visible(w, FALSE);
+}
