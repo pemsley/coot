@@ -50,7 +50,7 @@ flatpak install flathub io.github.pemsley.coot
 flatpak run io.github.pemsley.coot  
 ```
 
-You can see the flatpak manifest [here](https://github.com/flathub/io.github.pemsley.coot)
+You can see the flatpak manifest [here](https://github.com/flathub/io.github.pemsley.coot).
 
 ## Building from source
 
