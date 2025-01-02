@@ -50,6 +50,8 @@ flatpak install flathub io.github.pemsley.coot
 flatpak run io.github.pemsley.coot  
 ```
 
+You can see the flatpak manifest [here](https://github.com/flathub/io.github.pemsley.coot)
+
 ## Building from source
 
 See [this](https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/web/build-install-coot-from-scratch.html).
