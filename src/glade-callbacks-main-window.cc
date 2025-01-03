@@ -925,10 +925,10 @@ on_acedrg_link_ok_button_clicked(GtkButton       *button,
 	       if (gtk_check_button_get_active(GTK_CHECK_BUTTON(delete_atom_checkbutton_second))) change_bond_order_second = true;
 	       std::string residue_name_first  = gtk_editable_get_text(GTK_EDITABLE(entry_first));
 	       std::string residue_name_second = gtk_editable_get_text(GTK_EDITABLE(entry_second));
-	       char *da_first   = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(delete_atom_combobox_first);
-	       char *da_second  = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(delete_atom_combobox_second);
-	       char *cbo_first  = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(change_bond_order_first);
-	       char *cbo_second = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(change_bond_order_second);
+	       char *da_first   = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(delete_atom_combobox_first));
+	       char *da_second  = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(delete_atom_combobox_second));
+	       char *cbo_first  = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(change_bond_order_first));
+	       char *cbo_second = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(change_bond_order_second));
 	    }
 	 }
       }
