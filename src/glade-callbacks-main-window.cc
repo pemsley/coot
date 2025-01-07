@@ -893,10 +893,46 @@ void
 on_acedrg_link_ok_button_clicked(GtkButton       *button,
 				 gpointer         user_data) {
 
-  std::cout << "OK - now do something" << std::endl;
-  GtkWidget *w = widget_from_builder("acedrg_link_interface_frame");
-  gtk_widget_set_visible(w, FALSE);
+   std::cout << "OK - now do something" << std::endl;
+   GtkWidget *w = widget_from_builder("acedrg_link_interface_frame");
+   gtk_widget_set_visible(w, FALSE);
 
+   GtkWidget *entry_first                         = widget_from_builder("acedrg_link_first_residue_name_entry");
+   GtkWidget *atom_name_combobox_first            = widget_from_builder("acedrg_link_first_atom_name_chooser_combobox");
+   GtkWidget *delete_atom_checkbutton_first       = widget_from_builder("acedrg_link_first_delete_atom_checkbutton");
+   GtkWidget *delete_atom_combobox_first          = widget_from_builder("acedrg_link_first_delete_atom_chooser_combobox");
+   GtkWidget *change_bond_order_checkbutton_first = widget_from_builder("acedrg_link_first_change_bond_order_checkbutton");
+   GtkWidget *change_bond_order_combobox_first    = widget_from_builder("acedrg_link_first_change_bond_order_combobox");
+
+   GtkWidget *entry_second                         = widget_from_builder("acedrg_link_second_residue_name_entry");
+   GtkWidget *atom_name_combobox_second            = widget_from_builder("acedrg_link_second_atom_name_chooser_combobox");
+   GtkWidget *delete_atom_checkbutton_second       = widget_from_builder("acedrg_link_second_delete_atom_checkbutton");
+   GtkWidget *delete_atom_combobox_second          = widget_from_builder("acedrg_link_second_delete_atom_chooser_combobox");
+   GtkWidget *change_bond_order_checkbutton_second = widget_from_builder("acedrg_link_second_change_bond_order_checkbutton");
+   GtkWidget *change_bond_order_combobox_second    = widget_from_builder("acedrg_link_second_change_bond_order_combobox");
+
+   if (entry_first && atom_name_combobox_first && delete_atom_combobox_first && delete_atom_checkbutton_first) {
+      if (change_bond_order_combobox_first && change_bond_order_checkbutton_first) {
+	 if (entry_second && atom_name_combobox_second && delete_atom_combobox_second && delete_atom_checkbutton_second) {
+	    if (change_bond_order_combobox_second && change_bond_order_checkbutton_second) {
+	       bool change_bond_order_first  = false;
+	       bool change_bond_order_second = false;
+	       if (gtk_check_button_get_active(GTK_CHECK_BUTTON(change_bond_order_checkbutton_first)))  change_bond_order_first  = true;
+	       if (gtk_check_button_get_active(GTK_CHECK_BUTTON(change_bond_order_checkbutton_second))) change_bond_order_second = true;
+	       bool delete_atom_first  = false;
+	       bool delete_atom_second = false;
+	       if (gtk_check_button_get_active(GTK_CHECK_BUTTON(delete_atom_checkbutton_first)))  change_bond_order_first  = true;
+	       if (gtk_check_button_get_active(GTK_CHECK_BUTTON(delete_atom_checkbutton_second))) change_bond_order_second = true;
+	       std::string residue_name_first  = gtk_editable_get_text(GTK_EDITABLE(entry_first));
+	       std::string residue_name_second = gtk_editable_get_text(GTK_EDITABLE(entry_second));
+	       char *da_first   = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(delete_atom_combobox_first);
+	       char *da_second  = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(delete_atom_combobox_second);
+	       char *cbo_first  = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(change_bond_order_first);
+	       char *cbo_second = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(change_bond_order_second);
+	    }
+	 }
+      }
+   }
 }
 
 extern "C" G_MODULE_EXPORT

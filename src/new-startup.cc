@@ -825,6 +825,7 @@ new_startup_application_activate(GtkApplication *application,
       };
 
       graphics_info_t graphics_info;
+      graphics_info.init(); // added 20241231
 
       // use this to look up things - and it is used to attach the lidia
       // application window
@@ -837,7 +838,8 @@ new_startup_application_activate(GtkApplication *application,
       // but let's do it once at least!
 
       // this is done in the python startup now.
-      // std::cout << "#################### new_startup_application_activate()  calling graphics_info.init() " << std::endl;
+      // std::cout << "#################### new_startup_application_activate()  calling graphics_info.init() "
+      //           << std::endl;
       // graphics_info.init();
 
       GtkBuilder *builder = gtk_builder_new();
