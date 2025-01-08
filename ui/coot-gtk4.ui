@@ -6972,6 +6972,7 @@ Do you want to continue?
 				 <object class="GtkEntry" id="acedrg_link_first_residue_name_entry">
 				   <property name="can-focus">1</property>
 				   <property name="hexpand">False</property>
+                                   <signal name="activate" handler="on_acedrg_link_first_residue_activate" />
 				 </object>
 			       </child>
 			       <child>
@@ -7017,7 +7018,7 @@ Do you want to continue?
 			       <property name="orientation">horizontal</property>
 			       <property name="spacing">5</property>
 			       <child>
-				 <object class="GtkCheckButton" id="acedg_link_first_change_bond_order_checkbutton">
+				 <object class="GtkCheckButton" id="acedrg_link_first_change_bond_order_checkbutton">
                                    <property name="label" translatable="yes">Change Bond Order</property>
                                    <signal name="toggled" handler="on_acedrg_link_first_change_bond_order_checkbutton_toggled" />
 				 </object>
@@ -7033,6 +7034,22 @@ Do you want to continue?
 				     <item translatable="yes">double</item>
 				     <item translatable="yes">triple</item>
 				   </items>
+				 </object>
+			       </child>
+
+			       <child>
+				 <object class="GtkComboBoxText" id="acedrg_link_first_change_bond_order_atom_1_combobox">
+                                   <property name="sensitive">False</property>
+				   <property name="margin-bottom">2</property>
+				   <property name="margin-start">6</property>
+				 </object>
+			       </child>
+
+			       <child>
+				 <object class="GtkComboBoxText" id="acedrg_link_first_change_bond_order_atom_2_combobox">
+                                   <property name="sensitive">False</property>
+				   <property name="margin-bottom">2</property>
+				   <property name="margin-start">6</property>
 				 </object>
 			       </child>
 
@@ -7072,6 +7089,7 @@ Do you want to continue?
 				 <object class="GtkEntry" id="acedrg_link_second_residue_name_entry">
 				   <property name="can-focus">1</property>
 				   <property name="hexpand">False</property>
+                                   <signal name="activate" handler="on_acedrg_link_second_residue_activate" />
 				 </object>
 			       </child>
 			       <child>
@@ -7103,7 +7121,7 @@ Do you want to continue?
 				 </object>
 			       </child>
 			       <child>
-				 <object class="GtkComboBox" id="acedrg_link_second_delete_atom_chooser_combobox">
+				 <object class="GtkComboBoxText" id="acedrg_link_second_delete_atom_chooser_combobox">
                                    <property name="sensitive">False</property>
 				   <property name="margin-bottom">2</property>
 				   <property name="margin-start">6</property>
@@ -7117,7 +7135,7 @@ Do you want to continue?
 			       <property name="orientation">horizontal</property>
 			       <property name="spacing">5</property>
 			       <child>
-				 <object class="GtkCheckButton" id="acedg_link_second_change_bond_order_checkbutton">
+				 <object class="GtkCheckButton" id="acedrg_link_second_change_bond_order_checkbutton">
                                    <property name="label" translatable="yes">Change Bond Order</property>
                                    <signal name="toggled" handler="on_acedrg_link_second_change_bond_order_checkbutton_toggled" />
 				 </object>
@@ -7133,6 +7151,22 @@ Do you want to continue?
 				     <item translatable="yes">double</item>
 				     <item translatable="yes">triple</item>
 				   </items>
+				 </object>
+			       </child>
+
+			       <child>
+				 <object class="GtkComboBoxText" id="acedrg_link_second_change_bond_order_atom_1_combobox">
+                                   <property name="sensitive">False</property>
+				   <property name="margin-bottom">2</property>
+				   <property name="margin-start">6</property>
+				 </object>
+			       </child>
+
+			       <child>
+				 <object class="GtkComboBoxText" id="acedrg_link_second_change_bond_order_atom_2_combobox">
+                                   <property name="sensitive">False</property>
+				   <property name="margin-bottom">2</property>
+				   <property name="margin-start">6</property>
 				 </object>
 			       </child>
 
