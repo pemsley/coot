@@ -55,8 +55,6 @@ bool graphics_info_t::prefer_python = 0;
 bool graphics_info_t::scm_boot_guile_booted = false; // false until my_wrap_scm_boot_guile() has been run
 #endif
 
-
-
 #else // USE_GUILE test (no guile path)
 #ifdef USE_PYTHON
 bool graphics_info_t::prefer_python = 1; // Python, not guile

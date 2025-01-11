@@ -615,6 +615,14 @@
             <attribute name="label">Undo Symmetry View</attribute>
             <attribute name="action">app.undo_symmetry_view_action</attribute>
           </item>
+          <item>
+            <attribute name="label">Scale Up Graphics</attribute>
+            <attribute name="action">app.scale_up_graphics_action</attribute>
+          </item>
+          <item>
+            <attribute name="label">Scale Down Graphics</attribute>
+            <attribute name="action">app.scale_down_graphics_action</attribute>
+          </item>
         </section>
       </submenu>
 
@@ -1169,7 +1177,7 @@
   <menu id="ccp4-menu">
     <section>
       <item>
-        <attribute name="label" translatable="no">Acedrg</attribute>
+        <attribute name="label" translatable="no">Acedrg Link</attribute>
         <attribute name="action">app.acedrg_link_interface_action</attribute>
       </item>
     </section>

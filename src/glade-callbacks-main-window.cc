@@ -788,6 +788,7 @@ on_graphics_grab_focus_button_clicked (GtkButton       *button,
                                        gpointer         user_data) {
    graphics_info_t g;
    g.graphics_grab_focus();
+
 }
 
 #include "cc-interface-graphics.hh"
@@ -986,14 +987,50 @@ on_acedrg_link_second_change_bond_order_checkbutton_toggled(GtkCheckButton *chec
 extern "C" G_MODULE_EXPORT
 void
 on_acedrg_link_ok_button_clicked(GtkButton       *button,
-				 gpointer         user_data) {
+                                 gpointer         user_data) {
 
    auto simple_link = [] (const std::string &residue_name_first,
                           const std::string &residue_name_second,
                           const std::string &atom_name_first,
                           const std::string &atom_name_second,
+                          const std::string &cif_file_name_1,
+                          const std::string &cif_file_name_2,
                           const std::string &bond_order) {
 
+      std::string ss = "LINK: ";
+
+      ss += "RES-NAME-1 ";
+      ss += residue_name_first;
+      ss += " ";
+      ss += "ATOM-NAME-1 ";
+      ss += atom_name_first;
+      ss += " ";
+      if (!cif_file_name_1.empty())
+         ss + "FILE-1 " + cif_file_name_1;
+
+      ss += "RES-NAME-2 ";
+      ss += residue_name_second;
+      ss += " ";
+      ss += "ATOM-NAME-2 ";
+      ss += atom_name_second;
+      if (!cif_file_name_2.empty())
+         ss + "FILE-2 " + cif_file_name_2;
+
+      ss += " BOND-TYPE ";
+      ss += coot::util::upcase(bond_order);
+      std::cout << ss << std::endl;
+   };
+   auto link = [] (const std::string &residue_name_first, const std::string &residue_name_second,
+                   const std::string &atom_name_first, const std::string &atom_name_second,
+                   const std::string &cif_file_name_1, const std::string &cif_file_name_2,
+                   const std::string &bond_order,
+                   bool delete_atom_first, const char *da_first,
+                   bool delete_atom_second, const char *da_second,
+                   bool change_bond_order_first, const char *cbo_first,
+                   const char *change_bond_order_first_atom_1,  const char *change_bond_order_first_atom_2,
+                   bool change_bond_order_second, const char *cbo_second,
+                   const char *change_bond_order_second_atom_1, const char *change_bond_order_second_atom_2
+                   ) {
       std::string ss = "LINK: ";
       ss += "RES-NAME-1 ";
       ss += residue_name_first;
@@ -1001,17 +1038,48 @@ on_acedrg_link_ok_button_clicked(GtkButton       *button,
       ss += "ATOM-NAME-1 ";
       ss += atom_name_first;
       ss += " ";
+      if (!cif_file_name_1.empty())
+         ss + "FILE-1 " + cif_file_name_1 + std::string(" ");
+      if (delete_atom_first)
+         if (da_first)
+         ss += "DELETE " + std::string(da_first) + std::string(" ");
+      if (change_bond_order_first)
+         if (cbo_first)
+            if (change_bond_order_first_atom_1)
+               if (change_bond_order_first_atom_1)
+                  ss += "CHANGE BOND-ORDER 1 " + std::string(cbo_first) + std::string(" ") + change_bond_order_first_atom_1 +
+                        std::string(" ") + change_bond_order_first_atom_2;
+
       ss += "RES-NAME-2 ";
       ss += residue_name_second;
       ss += " ";
       ss += "ATOM-NAME-2 ";
       ss += atom_name_second;
+      if (!cif_file_name_2.empty())
+         ss + "FILE-2 " + cif_file_name_2;
+      if (delete_atom_second)
+         if (da_second)
+         ss += "DELETE " + std::string(da_second);
+
       ss += " BOND-TYPE ";
       ss += coot::util::upcase(bond_order);
       std::cout << ss << std::endl;
    };
 
-   std::cout << "OK - now do something" << std::endl;
+   auto get_cif_file_name = [] (const std::string &residue_type) {
+
+      std::string file_name;
+      auto &geom = *graphics_info_t::Geom_p();
+      int imol = 0;
+      bool state = geom.have_dictionary_for_residue_type(residue_type, imol, graphics_info_t::cif_dictionary_read_number, true);
+      graphics_info_t::cif_dictionary_read_number++;
+      std::pair<bool, coot::dictionary_residue_restraints_t> rp = geom.get_monomer_restraints(residue_type, imol);
+      if (rp.first) {
+          file_name = rp.second.cif_file_name;
+      }
+      return file_name;
+   };
+
    GtkWidget *w = widget_from_builder("acedrg_link_interface_frame");
    gtk_widget_set_visible(w, FALSE);
 
@@ -1030,6 +1098,10 @@ on_acedrg_link_ok_button_clicked(GtkButton       *button,
    GtkWidget *delete_atom_combobox_second          = widget_from_builder("acedrg_link_second_delete_atom_chooser_combobox");
    GtkWidget *change_bond_order_checkbutton_second = widget_from_builder("acedrg_link_second_change_bond_order_checkbutton");
    GtkWidget *change_bond_order_combobox_second    = widget_from_builder("acedrg_link_second_change_bond_order_combobox");
+   GtkWidget *cbcbof1                              = widget_from_builder("acedrg_link_first_change_bond_order_atom_1_combobox");
+   GtkWidget *cbcbof2                              = widget_from_builder("acedrg_link_first_change_bond_order_atom_2_combobox");
+   GtkWidget *cbcbos1                              = widget_from_builder("acedrg_link_second_change_bond_order_atom_1_combobox");
+   GtkWidget *cbcbos2                              = widget_from_builder("acedrg_link_second_change_bond_order_atom_2_combobox");
 
    // need to add a pair of comboboxes for change bond order atom names for both first and second.
 
@@ -1039,13 +1111,13 @@ on_acedrg_link_ok_button_clicked(GtkButton       *button,
       std::cout << "Here A " << change_bond_order_combobox_first << " " << change_bond_order_checkbutton_first << std::endl;
       if (change_bond_order_combobox_first && change_bond_order_checkbutton_first) {
          std::cout << "Here B " << std::endl;
-	 if (entry_second && atom_name_combobox_second && delete_atom_combobox_second && delete_atom_checkbutton_second) {
+         if (entry_second && atom_name_combobox_second && delete_atom_combobox_second && delete_atom_checkbutton_second) {
             std::cout << "Here C " << std::endl;
-	    if (change_bond_order_combobox_second && change_bond_order_checkbutton_second) {
+         if (change_bond_order_combobox_second && change_bond_order_checkbutton_second) {
                std::cout << "Here D " << atom_name_combobox_first << " " << atom_name_combobox_second << std::endl;
                std::cout << "Here D first  " << GTK_IS_COMBO_BOX_TEXT(atom_name_combobox_first)  << std::endl;
                std::cout << "Here D second " << GTK_IS_COMBO_BOX_TEXT(atom_name_combobox_second) << std::endl;
-	       char *bond_order = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(bond_order_combobox));
+               char *bond_order = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(bond_order_combobox));
                if (bond_order) {
                   std::cout << "Here D 0" << std::endl;
                   char *atom_name_first  = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(atom_name_combobox_first));
@@ -1058,22 +1130,24 @@ on_acedrg_link_ok_button_clicked(GtkButton       *button,
                   if (atom_name_first && atom_name_second) {
                      std::cout << "Here E atom_name_first " << atom_name_first << std::endl;
                      std::cout << "Here E atom_name_second " << atom_name_second << std::endl;
-	             bool change_bond_order_first  = false;
-	             bool change_bond_order_second = false;
-	             if (gtk_check_button_get_active(GTK_CHECK_BUTTON(change_bond_order_checkbutton_first)))  change_bond_order_first  = true;
-	             if (gtk_check_button_get_active(GTK_CHECK_BUTTON(change_bond_order_checkbutton_second))) change_bond_order_second = true;
-	             bool delete_atom_first  = false;
-	             bool delete_atom_second = false;
-	             if (gtk_check_button_get_active(GTK_CHECK_BUTTON(delete_atom_checkbutton_first)))  change_bond_order_first  = true;
-	             if (gtk_check_button_get_active(GTK_CHECK_BUTTON(delete_atom_checkbutton_second))) change_bond_order_second = true;
-	             const char *residue_name_first  = gtk_editable_get_text(GTK_EDITABLE(entry_first));
-	             const char *residue_name_second = gtk_editable_get_text(GTK_EDITABLE(entry_second));
+                     bool change_bond_order_first  = false;
+                     bool change_bond_order_second = false;
+                     if (gtk_check_button_get_active(GTK_CHECK_BUTTON(change_bond_order_checkbutton_first)))  change_bond_order_first  = true;
+                     if (gtk_check_button_get_active(GTK_CHECK_BUTTON(change_bond_order_checkbutton_second))) change_bond_order_second = true;
+                     bool delete_atom_first  = false;
+                     bool delete_atom_second = false;
+                     if (gtk_check_button_get_active(GTK_CHECK_BUTTON(delete_atom_checkbutton_first)))  change_bond_order_first  = true;
+                     if (gtk_check_button_get_active(GTK_CHECK_BUTTON(delete_atom_checkbutton_second))) change_bond_order_second = true;
+                     const char *residue_name_first  = gtk_editable_get_text(GTK_EDITABLE(entry_first));
+                     const char *residue_name_second = gtk_editable_get_text(GTK_EDITABLE(entry_second));
                      if (residue_name_first) {
                         if (residue_name_second) {
-	                   char *da_first   = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(delete_atom_combobox_first));
-	                   char *da_second  = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(delete_atom_combobox_second));
-	                   char *cbo_first  = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(change_bond_order_combobox_first));
-	                   char *cbo_second = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(change_bond_order_combobox_second));
+                           std::string cif_file_name_1 = get_cif_file_name(residue_name_first);
+                           std::string cif_file_name_2 = get_cif_file_name(residue_name_second);
+                           char *da_first   = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(delete_atom_combobox_first));
+                           char *da_second  = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(delete_atom_combobox_second));
+                           char *cbo_first  = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(change_bond_order_combobox_first));
+                           char *cbo_second = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(change_bond_order_combobox_second));
                            if (gtk_check_button_get_active(GTK_CHECK_BUTTON(change_bond_order_checkbutton_first)))
                               change_bond_order_first = true;
                            if (gtk_check_button_get_active(GTK_CHECK_BUTTON(change_bond_order_checkbutton_second)))
@@ -1086,16 +1160,32 @@ on_acedrg_link_ok_button_clicked(GtkButton       *button,
                                      << delete_atom_first << " " << delete_atom_second << std::endl;
                            if (atom_name_first && atom_name_second) {
                               if (!change_bond_order_first && !change_bond_order_second && !delete_atom_first && !delete_atom_second) {
-                                 simple_link(residue_name_first, residue_name_second, atom_name_first, atom_name_second, std::string(bond_order));
+                                 simple_link(residue_name_first, residue_name_second, atom_name_first, atom_name_second,
+                                             cif_file_name_1, cif_file_name_2, std::string(bond_order));
                               } else {
+                                 if (cbcbof1 && cbcbof2 && cbcbos1 && cbcbos2) {
+                                    const char *change_bond_order_first_atom_1  = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(cbcbof1));
+                                    const char *change_bond_order_first_atom_2  = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(cbcbof2));
+                                    const char *change_bond_order_second_atom_1 = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(cbcbos1));
+                                    const char *change_bond_order_second_atom_2 = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(cbcbos2));
+                                    link(residue_name_first, residue_name_second, atom_name_first, atom_name_second,
+                                         cif_file_name_1, cif_file_name_2, std::string(bond_order),
+                                         delete_atom_first, da_first,
+                                         delete_atom_second, da_second,
+                                         change_bond_order_first, cbo_first,   change_bond_order_first_atom_1,  change_bond_order_first_atom_2,
+                                         change_bond_order_second, cbo_second, change_bond_order_second_atom_1, change_bond_order_second_atom_2
+                                     );
+                                 } else {
+                                    std::cout << "combobox cbo lookup failure" << std::endl;
+                                 }
                               }
                            }
                         }
                      }
                   }
                }
-	    }
-	 }
+            }
+         }
       }
    }
 }

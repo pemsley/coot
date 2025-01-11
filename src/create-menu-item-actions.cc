@@ -46,6 +46,11 @@
 #include "labelled-button-info.hh"
 #include "cc-interface.hh" // for fullscreen()
 
+// These don't work if they are in graphics-info-statics.cc
+// Possibly because the gui is loaded at run-time.
+int graphics_info_t::scale_up_graphics = 1;
+int graphics_info_t::scale_down_graphics = 1;
+
 extern "C" { void load_tutorial_model_and_data(); }
 
 
@@ -2484,6 +2489,36 @@ undo_symmetry_view_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 }
 
 void
+scale_up_graphics_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                         G_GNUC_UNUSED GVariant *parameter,
+                         G_GNUC_UNUSED gpointer user_data) {
+
+   graphics_info_t g;
+   if (g.scale_down_graphics > 1)
+      g.scale_down_graphics -= 1;
+   else
+      g.scale_up_graphics += 1;
+   graphics_draw();
+   graphics_info_t::graphics_grab_focus();
+
+}
+
+void
+scale_down_graphics_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                           G_GNUC_UNUSED GVariant *parameter,
+                           G_GNUC_UNUSED gpointer user_data) {
+
+   graphics_info_t g;
+   if (g.scale_up_graphics > 1)
+      g.scale_up_graphics -= 1;
+   else
+      g.scale_down_graphics += 1;
+   graphics_draw();
+   graphics_info_t::graphics_grab_focus();
+
+}
+
+void
 clear_atom_labels_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                           G_GNUC_UNUSED GVariant *parameter,
                           G_GNUC_UNUSED gpointer user_data) {
@@ -3879,6 +3914,8 @@ create_actions(GtkApplication *application) {
 
    add_action("screenshot_action",                           screenshot_action);
    add_action("sequence_view_action",                     sequence_view_action);
+   add_action("scale_up_graphics_action",             scale_up_graphics_action);
+   add_action("scale_down_graphics_action",         scale_down_graphics_action);
    add_action("undo_symmetry_view_action",           undo_symmetry_view_action);
    add_action("undo_last_navigation_action",       undo_last_navigation_action);
    add_action("ribbons_colour_by_chain_action", ribbons_colour_by_chain_action);

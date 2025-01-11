@@ -642,6 +642,16 @@ graphics_info_t::get_molecule_mvp(bool debug_matrices) {
       h = allocation.height;
    }
 
+   if (scale_up_graphics != 1) {
+      w *= scale_up_graphics;
+      h *= scale_up_graphics;
+   }
+   if (scale_down_graphics != 1) {
+      w /= scale_down_graphics;
+      h /= scale_down_graphics;
+   }
+   // std::cout << scale_up_graphics << " " << scale_down_graphics << " " << w << " " << h << std::endl;
+
    bool do_orthographic_projection = ! perspective_projection_flag; // weird
    glm::mat4  view_matrix =       get_view_matrix();
    glm::mat4 model_matrix =      get_model_matrix();
