@@ -1,5 +1,20 @@
 ----
 
+Add Phi psi labels on the HUD Rama plot
+
+On reading a dictionary find the atoms that are
+connected to only one other non-hydrogen atom.
+
+How do we import the PDB validation report into Coot?
+
+Make a coot version of clash score.
+
+set occupancy of ligand or residue in moorhen
+
+Clemens: Give me a Coot function to toggle the alt confs of a residue (typically a water)
+
+Clemens: Give me a "show me A+"" , B+"" or Both" button/menu (and key-binding, I imagine)
+
 How do I use colour rules to colour by alt-loc in Coot?
 How do set_user_defined_bond_colours() and set_user_defined_atom_colour_by_selection() work?
 
