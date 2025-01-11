@@ -235,14 +235,16 @@ new_startup_on_glarea_resize(GtkGLArea *glarea, gint width, gint height) {
    if (true)
       std::cout << "DEBUG:: --- new_startup_on_glarea_resize() " <<  width << " " << height << std::endl;
 
-   // std::cout << "resize(): int max " << INT_MAX << " " << std::sqrt(INT_MAX) << std::endl;
-
    graphics_info_t g;
    // for the GL widget, not the window.
    g.graphics_x_size = width;
    g.graphics_y_size = height;
-   g.reset_frame_buffers(width, height); // currently makes the widget blank (not drawn)
-   g.resize_framebuffers_textures_renderbuffers(width, height); // 20220131-PE added from crows merge
+   if (g.graphics_is_gl_es) {
+      // don't touch the framebuffers
+   } else {
+       g.reset_frame_buffers(width, height); // currently makes the widget blank (not drawn)
+       g.resize_framebuffers_textures_renderbuffers(width, height); // 20220131-PE added from crows merge
+   }
    g.reset_hud_buttons_size_and_position();
    g.mouse_speed = static_cast<double>(width) / 900.0;
 
