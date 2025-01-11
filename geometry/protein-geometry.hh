@@ -199,6 +199,8 @@ namespace coot {
       double dist_nuclear_;
       double dist_nuclear_esd_;
       bool dist_nuclear_was_set;
+      bool atom_has_only_this_non_hydrogen_bond_first;
+      bool atom_has_only_this_non_hydrogen_bond_second;
 
    public:
       enum bond_length_type_t { UNKNOWN, NUCLEAR_POSITION, ELECTONS_POSITION };
@@ -223,6 +225,8 @@ namespace coot {
          have_target_values = 1;
          aromaticity = arom_in;
          bond_length_type_ = blt;
+	 atom_has_only_this_non_hydrogen_bond_first  = false;
+	 atom_has_only_this_non_hydrogen_bond_second = false;
          dist_nuclear_ = -1.0;
          dist_nuclear_esd_ = -1.0;
          dist_nuclear_was_set = dist_nuclear_was_set_in;
@@ -240,6 +244,8 @@ namespace coot {
          have_target_values = 0;
          aromaticity = arom_in;
          bond_length_type_ = UNKNOWN;
+	 atom_has_only_this_non_hydrogen_bond_first  = false;
+	 atom_has_only_this_non_hydrogen_bond_second = false;
          dist_nuclear_ = -1.0;
          dist_nuclear_esd_ = -1.0;
          dist_nuclear_was_set = false;
