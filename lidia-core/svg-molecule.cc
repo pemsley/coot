@@ -129,7 +129,7 @@ svg_molecule_t::import_rdkit_mol(RDKit::ROMol *rdkm, int iconf) {
 	    std::cout << "on import got bt " << bt << " from " << bond_p->getBondType()
 		      << std::endl;
 
-	 try { 
+	 try {
 	    const svg_atom_t &cat1 = atoms[idx_1];
 	    const svg_atom_t &cat2 = atoms[idx_2];
 	    bool shorten_first  = false;
@@ -905,8 +905,6 @@ svg_molecule_t::make_svg(double sf, bool dark_background_flag) {
 
    svg_container_t svg;
 
-   std::string s; // this can be removed, I think, now
-   s.reserve(2048);
    std::string svg_header_1 = "<svg xmlns=\"http://www.w3.org/2000/svg\"\n    xmlns:xlink=\"http://www.w3.org/1999/xlink\" ";
    std::string svg_header_2 = ">\n";
    std::string svg_footer = "</svg>\n";
@@ -919,7 +917,8 @@ svg_molecule_t::make_svg(double sf, bool dark_background_flag) {
    std::string viewBox_string;
    if (! atoms.empty()) {
       lig_build::pos_t centre = get_ligand_centre();
-      double scale = get_scale();
+      // double scale = get_scale();
+      double scale = sf;
       std::cout << "debug:: in svg_molecule_t::make_svg() A scale is " << scale << std::endl;
       float min_x =  100000.0;
       float min_y =  100000.0;
@@ -959,9 +958,12 @@ svg_molecule_t::make_svg(double sf, bool dark_background_flag) {
    // just testing that I can see something. No longer needed because I can
    // s += "   <rect x=\"10\" y=\"10\" width=\"10\" height=\"10\" style=\"stroke:#ff0000; fill: #ff6666;\" />\n";
 
-   double scale = get_scale();
+   // double scale = get_scale();
+   double scale = sf;
+   scale = 5.0;
    std::cout << "debug:: in svg_molecule_t::make_svg() B scale is " << scale << std::endl;
    lig_build::pos_t centre = get_ligand_centre();
+   centre += lig_build::pos_t(-7, 8);
 
    std::cout << "debug:: in svg_molecule_t::make_svg() C ligand_centre is " << centre << std::endl;
 
@@ -986,6 +988,8 @@ svg_molecule_t::make_svg(double sf, bool dark_background_flag) {
 	 std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > other_connections_to_second_atom =
 	    make_other_connections_to_second_atom_info(ib);
 
+
+         std::cout << "draw bond " << ib << " using scale " << scale << std::endl;
          std::string bond_string = bonds[ib].draw_bond(atoms[idx_1], atoms[idx_2],
                                                        at_1_in_ring_flag,
                                                        at_2_in_ring_flag,
@@ -996,8 +1000,6 @@ svg_molecule_t::make_svg(double sf, bool dark_background_flag) {
                                                        other_connections_to_second_atom,
                                                        centre, scale);
 	 std::string bc = make_bond_comment(ib, bonds[ib]);
-	 s += bc;
-         s += bond_string;
          std::cout << "debug:: in svg_molecule_t::make_svg() bond_string is " << bond_string << std::endl;
 
 	 // I don't care about s now
@@ -1008,7 +1010,9 @@ svg_molecule_t::make_svg(double sf, bool dark_background_flag) {
 
    // ---------------------- Atoms -------------------------------------
 
-   s += std::string("<!-- Atom Labels -->\n");
+   double scale_for_atoms = get_scale();
+   if (!atoms.empty())
+      svg.add(std::string("<!-- Atom Labels -->\n"));
    for (unsigned int iat=0; iat<atoms.size(); iat++) {
       std::string ele = atoms[iat].element;
       if (dark_background_flag) {
@@ -1024,9 +1028,8 @@ svg_molecule_t::make_svg(double sf, bool dark_background_flag) {
 	    std::cout << "in render(): atom_index " << iat << " with charge "
 		      << atoms[iat].charge << " made atom_id_info "
 		      << atom_id_info << std::endl;
-         // std::cout << "atom block: passing scale " << scale << std::endl;
-	 std::string a = atoms[iat].make_text_item(atom_id_info, centre, scale, median_bond_length_);
-	 s += a;
+         std::cout << "atom block: passing scale_for_atoms " << scale_for_atoms << std::endl;
+	 std::string a = atoms[iat].make_text_item(atom_id_info, centre, scale_for_atoms, median_bond_length_);
 	 svg.add(a);
       } else {
 
@@ -1038,8 +1041,7 @@ svg_molecule_t::make_svg(double sf, bool dark_background_flag) {
 
             lig_build::atom_id_info_t atom_id_info = make_atom_id_by_using_bonds(iat, "C", local_bonds, gl_flag);
             atoms[iat].set_atom_id(atom_id_info.atom_id); // quick hack
-	    std::string a = atoms[iat].make_text_item(atom_id_info, centre, scale, median_bond_length_);
-	    s += a;
+	    std::string a = atoms[iat].make_text_item(atom_id_info, centre, scale_for_atoms, median_bond_length_);
 	    svg.add(a);
 	 }
       }
