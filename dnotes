@@ -11573,6 +11573,11 @@ https://huggingface.co/Qwen/Qwen2.5-Coder-32B
 
 ---
 
-enamine.net for ligand manipulation?
+enamine.net for fragmenst and ligand manipulation gui? Arno.
 
+----
+Sat  4 Jan 03:32:14 GMT 2025
+
+  stumbling block removed?
+  https://github.com/rdkit/rdkit/pull/7389/commits/407ef993981de44c72efa7df11a2cca9354df4c2
 
