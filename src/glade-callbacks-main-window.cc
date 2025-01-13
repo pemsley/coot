@@ -1020,6 +1020,12 @@ on_acedrg_link_ok_button_clicked(GtkButton       *button,
       ss += coot::util::upcase(bond_order);
       std::cout << ss << std::endl;
    };
+
+   // Here's an exmple:
+   //
+   // LINK: RES-NAME-1 LYS ATOM-NAME-1 NZ RES-NAME-2 PLP ATOM-NAME-2 C4A BOND-TYPE DOUBLE DELETE ATOM O 1 DELETE ATOM O4A 2 CHANGE BOND C OXT double 1 CHANGE BOND C4 C4A triple 2
+
+
    auto link = [] (const std::string &residue_name_first, const std::string &residue_name_second,
                    const std::string &atom_name_first, const std::string &atom_name_second,
                    const std::string &cif_file_name_1, const std::string &cif_file_name_2,
@@ -1042,13 +1048,13 @@ on_acedrg_link_ok_button_clicked(GtkButton       *button,
          ss + "FILE-1 " + cif_file_name_1 + std::string(" ");
       if (delete_atom_first)
          if (da_first)
-         ss += "DELETE " + std::string(da_first) + std::string(" ");
+         ss += "DELETE " + std::string(da_first) + std::string(" 1 ");
       if (change_bond_order_first)
          if (cbo_first)
             if (change_bond_order_first_atom_1)
                if (change_bond_order_first_atom_1)
-                  ss += "CHANGE BOND-ORDER 1 " + std::string(cbo_first) + std::string(" ") + change_bond_order_first_atom_1 +
-                        std::string(" ") + change_bond_order_first_atom_2;
+                  ss += "CHANGE BOND " + change_bond_order_first_atom_1 + std::string(" ") +
+                  change_bond_order_first_atom_2 + std::string(" ") + std::string(cbo_first) + " 1 ";
 
       ss += "RES-NAME-2 ";
       ss += residue_name_second;
@@ -1059,7 +1065,13 @@ on_acedrg_link_ok_button_clicked(GtkButton       *button,
          ss + "FILE-2 " + cif_file_name_2;
       if (delete_atom_second)
          if (da_second)
-         ss += "DELETE " + std::string(da_second);
+         ss += "DELETE " + std::string(da_second) + std::string(" 2 ");
+      if (change_bond_order_second)
+         if (cbo_second)
+            if (change_bond_order_second_atom_1)
+               if (change_bond_order_second_atom_1)
+                  ss += "CHANGE BOND " + change_bond_order_second_atom_1 + std::string(" ") +
+                  change_bond_order_second_atom_2 + std::string(" ") + std::string(cbo_second) + " 1 ";
 
       ss += " BOND-TYPE ";
       ss += coot::util::upcase(bond_order);
