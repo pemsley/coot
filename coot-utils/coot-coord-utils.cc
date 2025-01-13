@@ -9590,3 +9590,38 @@ coot::util::split_multi_model_molecule(mmdb::Manager *mol) {
 }
 
 
+
+
+std::vector<std::string>
+coot::util::alt_confs_in_molecule(mmdb::Manager *mol) {
+
+   std::vector<std::string> v;
+   std::set<std::string> s;
+   int imod = 1;
+   mmdb::Model *model_p = mol->GetModel(imod);
+   if (model_p) {
+      int n_chains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<n_chains; ichain++) {
+         mmdb::Chain *chain_p = model_p->GetChain(ichain);
+         int n_res = chain_p->GetNumberOfResidues();
+         for (int ires=0; ires<n_res; ires++) {
+            mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+            if (residue_p) {
+               int n_atoms = residue_p->GetNumberOfAtoms();
+               for (int iat=0; iat<n_atoms; iat++) {
+                  mmdb::Atom *at = residue_p->GetAtom(iat);
+                  std::string alt_conf(at->altLoc);
+                  if (! at->isTer()) {
+                     s.insert(alt_conf);
+                  }
+               }
+            }
+         }
+      }
+   }
+   // now convert s to v;
+   std::set<std::string>::const_iterator it;
+   for (it=s.begin(); it!=s.end(); ++it)
+      v.push_back(*it);
+   return v;
+}

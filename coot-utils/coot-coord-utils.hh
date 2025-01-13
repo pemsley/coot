@@ -782,6 +782,8 @@ namespace coot {
       // get the number of residue in chain, protein first.
       std::pair<unsigned int, unsigned int> get_number_of_protein_or_nucleotides(mmdb::Chain *chain_p);
 
+      std::vector<std::string> alt_confs_in_molecule(mmdb::Manager *mol);
+
       // Return NULL on no such chain:
       mmdb::Chain *chain_only_of_type(mmdb::Manager *mol, const std::string &residue_type);
 
