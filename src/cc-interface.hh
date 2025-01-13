@@ -459,6 +459,10 @@ void servalcat_refine(int imol_model,
                       const std::string &half_map_1, const std::string &half_map_2,
                       const std::string &mask_map, float resolution);
 
+//! run acedrg link
+void
+run_acedrg_link_generation(const std::string &acedrg_link_command);
+
 /*  ------------------------------------------------------------------------ */
 /*                             Add an Atom                                   */
 /*  ------------------------------------------------------------------------ */

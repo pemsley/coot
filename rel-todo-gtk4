@@ -1,5 +1,13 @@
 ----
 
+Fix Acedrg Link
+
+Fix other python modules
+
+Layla #HBonds etc need to be ints
+
+Layla delete Hydrogens
+
 When I'm fixing rotamers in intermediate atoms mode, I sometimes/often improve the geometry
 (bond, angles, planes, chirals, nbc) too, don't I? Can I have a sound for that?
 
@@ -13,7 +21,7 @@ How do we import the PDB validation report into Coot?
 
 Make a coot version of clash score.
 
-set occupancy of ligand or residue in moorhen
+Set occupancy of ligand or residue in moorhen
 
 Clemens: Give me a Coot function to switch the alt confs of a residue (typically a water)
 

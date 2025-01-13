@@ -97,9 +97,8 @@ on_model_toolbar_range_define_togglebutton_toggled(GtkToggleButton *togglebutton
       if (g.in_range_define == 2) g.in_range_define = 0;
    }
    std::cout << "here now with active " << active << " in_range_define " << g.in_range_define << std::endl;
-   
-}
 
+}
 
 
 extern "C" G_MODULE_EXPORT
@@ -853,6 +852,8 @@ on_gaussian_surface_ok_button_clicked(GtkButton       *button,
 void
 fill_comboboxtext_with_atom_of_residue_type(const char *rn, GtkWidget *comboboxtext) {
 
+   std::cout << "fill_comboboxtext_with_atom_of_residue_type() --- start --- " << std::endl;
+
    if (rn) {
       int imol = 0;
       std::string residue_type(rn);
@@ -861,15 +862,20 @@ fill_comboboxtext_with_atom_of_residue_type(const char *rn, GtkWidget *comboboxt
       graphics_info_t::cif_dictionary_read_number++;
       std::pair<bool, coot::dictionary_residue_restraints_t> rp = geom.get_monomer_restraints(residue_type, imol);
       if (rp.first) {
+         gtk_cell_layout_clear(GTK_CELL_LAYOUT(comboboxtext)); // clear combobox
          const auto &restraints = rp.second;
          const auto &atoms = restraints.atom_info;
          for (const auto &atom : atoms) {
             if (atom.type_symbol != "H") {
-               std::cout << "fill with " << atom.atom_id << std::endl;
+               std::cout << "  type " << rn << " fill comboboxtext " << comboboxtext << " with " << atom.atom_id << std::endl;
                gtk_combo_box_text_append(GTK_COMBO_BOX_TEXT(comboboxtext), atom.atom_id.c_str(), atom.atom_id.c_str());
             }
          }
+      } else {
+         std::cout << "ERROR get_monomer_restraints() failed for type " << residue_type << std::endl;
       }
+   } else {
+      std::cout << "ERROR:: null rn in fill_comboboxtext_with_atom_of_residue_type()" << std::endl;
    }
 }
 
@@ -1065,6 +1071,7 @@ on_acedrg_link_ok_button_clicked(GtkButton       *button,
       ss += " BOND-TYPE ";
       ss += coot::util::upcase(bond_order);
       std::cout << ss << std::endl;
+      run_acedrg_link_generation(ss);
    };
 
    // Here's an exmple:
@@ -1127,6 +1134,7 @@ on_acedrg_link_ok_button_clicked(GtkButton       *button,
 
       ss += std::string(" BOND-TYPE ");
       ss += coot::util::upcase(bond_order);
+      run_acedrg_link_generation(ss);
       std::cout << ss << std::endl;
    };
 
@@ -1255,6 +1263,8 @@ on_acedrg_link_ok_button_clicked(GtkButton       *button,
                            }
                         }
                      }
+                  } else {
+                     std::cout << "WARNING:: BAD input: atom_name_first && atom_name_second failed" << std::endl;
                   }
                }
             }
