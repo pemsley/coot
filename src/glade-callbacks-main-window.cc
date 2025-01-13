@@ -986,6 +986,52 @@ on_acedrg_link_second_change_bond_order_checkbutton_toggled(GtkCheckButton *chec
 
 extern "C" G_MODULE_EXPORT
 void
+on_acedrg_link_first_change_charge_on_atom_checkbutton_toggled(GtkCheckButton *checkbutton,
+                                                               gpointer         user_data) {
+
+   std::cout << "change charge atom first toggled" << std::endl;
+   GtkWidget *combobox = widget_from_builder("acedrg_link_first_change_charge_on_atom_chooser_combobox");
+   GtkWidget *entry    = widget_from_builder("acedrg_link_first_residue_name_entry");
+   if (combobox) {
+      if (entry) {
+         const char *t = gtk_editable_get_text(GTK_EDITABLE(entry));
+         if (t) {
+            if (gtk_check_button_get_active(checkbutton)) {
+               gtk_widget_set_sensitive(combobox, TRUE);
+               fill_comboboxtext_with_atom_of_residue_type(t, combobox);
+            } else {
+               gtk_widget_set_sensitive(combobox, FALSE);
+            }
+         }
+      }
+   }
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_acedrg_link_second_change_charge_on_atom_checkbutton_toggled(GtkCheckButton *checkbutton,
+                                                                gpointer         user_data) {
+
+   std::cout << "change charge atom second toggled" << std::endl;
+   GtkWidget *combobox = widget_from_builder("acedrg_link_second_change_charge_on_atom_chooser_combobox");
+   GtkWidget *entry    = widget_from_builder("acedrg_link_second_residue_name_entry");
+   if (combobox) {
+      if (entry) {
+         const char *t = gtk_editable_get_text(GTK_EDITABLE(entry));
+         if (t) {
+            if (gtk_check_button_get_active(checkbutton)) {
+               gtk_widget_set_sensitive(combobox, TRUE);
+               fill_comboboxtext_with_atom_of_residue_type(t, combobox);
+            } else {
+               gtk_widget_set_sensitive(combobox, FALSE);
+            }
+         }
+      }
+   }
+}
+
+extern "C" G_MODULE_EXPORT
+void
 on_acedrg_link_ok_button_clicked(GtkButton       *button,
                                  gpointer         user_data) {
 
@@ -1035,8 +1081,10 @@ on_acedrg_link_ok_button_clicked(GtkButton       *button,
                    bool change_bond_order_first, const char *cbo_first,
                    const char *change_bond_order_first_atom_1,  const char *change_bond_order_first_atom_2,
                    bool change_bond_order_second, const char *cbo_second,
-                   const char *change_bond_order_second_atom_1, const char *change_bond_order_second_atom_2
-                   ) {
+                   const char *change_bond_order_second_atom_1, const char *change_bond_order_second_atom_2,
+                   bool change_charge_on_first_residue_atom,  const char *change_charge_on_first_atom,
+                   bool change_charge_on_second_residue_atom, const char *change_charge_on_second_atom) {
+
       std::string ss = "LINK: ";
       ss += "RES-NAME-1 ";
       ss += residue_name_first;
@@ -1049,12 +1097,14 @@ on_acedrg_link_ok_button_clicked(GtkButton       *button,
       if (delete_atom_first)
          if (da_first)
          ss += "DELETE " + std::string(da_first) + std::string(" 1 ");
+      if (change_charge_on_first_residue_atom)
+         ss += std::string("CHANGE CHARGE ") + std::string(change_charge_on_first_atom) + std::string(" 1 ");
       if (change_bond_order_first)
          if (cbo_first)
             if (change_bond_order_first_atom_1)
                if (change_bond_order_first_atom_1)
-                  ss += "CHANGE BOND " + change_bond_order_first_atom_1 + std::string(" ") +
-                  change_bond_order_first_atom_2 + std::string(" ") + std::string(cbo_first) + " 1 ";
+                  ss += std::string("CHANGE BOND ") + std::string(change_bond_order_first_atom_1) + std::string(" ") +
+                     std::string(change_bond_order_first_atom_2) + std::string(" ") + std::string(cbo_first) + " 1 ";
 
       ss += "RES-NAME-2 ";
       ss += residue_name_second;
@@ -1062,18 +1112,20 @@ on_acedrg_link_ok_button_clicked(GtkButton       *button,
       ss += "ATOM-NAME-2 ";
       ss += atom_name_second;
       if (!cif_file_name_2.empty())
-         ss + "FILE-2 " + cif_file_name_2;
+         ss += std::string("FILE-2 ") + cif_file_name_2;
       if (delete_atom_second)
          if (da_second)
          ss += "DELETE " + std::string(da_second) + std::string(" 2 ");
+      if (change_charge_on_second_residue_atom)
+         ss += std::string("CHANGE CHARGE ") + std::string(change_charge_on_first_atom) + std::string(" 2 ");
       if (change_bond_order_second)
          if (cbo_second)
             if (change_bond_order_second_atom_1)
                if (change_bond_order_second_atom_1)
-                  ss += "CHANGE BOND " + change_bond_order_second_atom_1 + std::string(" ") +
-                  change_bond_order_second_atom_2 + std::string(" ") + std::string(cbo_second) + " 1 ";
+                  ss += std::string("CHANGE BOND ") + std::string(change_bond_order_second_atom_1) + std::string(" ") +
+                  change_bond_order_second_atom_2 + std::string(" ") + std::string(cbo_second) + " 2 ";
 
-      ss += " BOND-TYPE ";
+      ss += std::string(" BOND-TYPE ");
       ss += coot::util::upcase(bond_order);
       std::cout << ss << std::endl;
    };
@@ -1099,21 +1151,31 @@ on_acedrg_link_ok_button_clicked(GtkButton       *button,
 
    GtkWidget *entry_first                         = widget_from_builder("acedrg_link_first_residue_name_entry");
    GtkWidget *atom_name_combobox_first            = widget_from_builder("acedrg_link_first_atom_name_chooser_combobox");
-   GtkWidget *delete_atom_checkbutton_first       = widget_from_builder("acedrg_link_first_delete_atom_checkbutton");
-   GtkWidget *delete_atom_combobox_first          = widget_from_builder("acedrg_link_first_delete_atom_chooser_combobox");
-   GtkWidget *change_bond_order_checkbutton_first = widget_from_builder("acedrg_link_first_change_bond_order_checkbutton");
-   GtkWidget *change_bond_order_combobox_first    = widget_from_builder("acedrg_link_first_change_bond_order_combobox");
 
    GtkWidget *entry_second                         = widget_from_builder("acedrg_link_second_residue_name_entry");
    GtkWidget *atom_name_combobox_second            = widget_from_builder("acedrg_link_second_atom_name_chooser_combobox");
+
+   // delete atom
    GtkWidget *delete_atom_checkbutton_second       = widget_from_builder("acedrg_link_second_delete_atom_checkbutton");
    GtkWidget *delete_atom_combobox_second          = widget_from_builder("acedrg_link_second_delete_atom_chooser_combobox");
+   GtkWidget *delete_atom_checkbutton_first       = widget_from_builder("acedrg_link_first_delete_atom_checkbutton");
+   GtkWidget *delete_atom_combobox_first          = widget_from_builder("acedrg_link_first_delete_atom_chooser_combobox");
+
+   // change bond order
+   GtkWidget *change_bond_order_checkbutton_first = widget_from_builder("acedrg_link_first_change_bond_order_checkbutton");
+   GtkWidget *change_bond_order_combobox_first    = widget_from_builder("acedrg_link_first_change_bond_order_combobox");
    GtkWidget *change_bond_order_checkbutton_second = widget_from_builder("acedrg_link_second_change_bond_order_checkbutton");
    GtkWidget *change_bond_order_combobox_second    = widget_from_builder("acedrg_link_second_change_bond_order_combobox");
    GtkWidget *cbcbof1                              = widget_from_builder("acedrg_link_first_change_bond_order_atom_1_combobox");
    GtkWidget *cbcbof2                              = widget_from_builder("acedrg_link_first_change_bond_order_atom_2_combobox");
    GtkWidget *cbcbos1                              = widget_from_builder("acedrg_link_second_change_bond_order_atom_1_combobox");
    GtkWidget *cbcbos2                              = widget_from_builder("acedrg_link_second_change_bond_order_atom_2_combobox");
+
+   // change charge
+   GtkWidget *cc_combobox_first  = widget_from_builder("acedrg_link_first_change_charge_on_atom_chooser_combobox");
+   GtkWidget *cc_combobox_second = widget_from_builder("acedrg_link_second_change_charge_on_atom_chooser_combobox");
+   GtkWidget *change_charge_first_checkbutton  = widget_from_builder("on_acedrg_link_first_change_charge_on_atom_checkbutton");
+   GtkWidget *change_charge_second_checkbutton = widget_from_builder("on_acedrg_link_second_change_charge_on_atom_checkbutton");
 
    // need to add a pair of comboboxes for change bond order atom names for both first and second.
 
@@ -1148,10 +1210,14 @@ on_acedrg_link_ok_button_clicked(GtkButton       *button,
                      if (gtk_check_button_get_active(GTK_CHECK_BUTTON(change_bond_order_checkbutton_second))) change_bond_order_second = true;
                      bool delete_atom_first  = false;
                      bool delete_atom_second = false;
-                     if (gtk_check_button_get_active(GTK_CHECK_BUTTON(delete_atom_checkbutton_first)))  change_bond_order_first  = true;
-                     if (gtk_check_button_get_active(GTK_CHECK_BUTTON(delete_atom_checkbutton_second))) change_bond_order_second = true;
+                     if (gtk_check_button_get_active(GTK_CHECK_BUTTON(delete_atom_checkbutton_first)))  delete_atom_first  = true;
+                     if (gtk_check_button_get_active(GTK_CHECK_BUTTON(delete_atom_checkbutton_second))) delete_atom_second = true;
                      const char *residue_name_first  = gtk_editable_get_text(GTK_EDITABLE(entry_first));
                      const char *residue_name_second = gtk_editable_get_text(GTK_EDITABLE(entry_second));
+                     bool change_charge_first  = false;
+                     bool change_charge_second = false;
+                     if (gtk_check_button_get_active(GTK_CHECK_BUTTON(change_charge_first_checkbutton)))  change_charge_first  = true;
+                     if (gtk_check_button_get_active(GTK_CHECK_BUTTON(change_charge_second_checkbutton))) change_charge_second = true;
                      if (residue_name_first) {
                         if (residue_name_second) {
                            std::string cif_file_name_1 = get_cif_file_name(residue_name_first);
@@ -1160,14 +1226,6 @@ on_acedrg_link_ok_button_clicked(GtkButton       *button,
                            char *da_second  = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(delete_atom_combobox_second));
                            char *cbo_first  = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(change_bond_order_combobox_first));
                            char *cbo_second = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(change_bond_order_combobox_second));
-                           if (gtk_check_button_get_active(GTK_CHECK_BUTTON(change_bond_order_checkbutton_first)))
-                              change_bond_order_first = true;
-                           if (gtk_check_button_get_active(GTK_CHECK_BUTTON(change_bond_order_checkbutton_second)))
-                              change_bond_order_second = true;
-                           if (gtk_check_button_get_active(GTK_CHECK_BUTTON(delete_atom_checkbutton_first)))
-                              delete_atom_first = true;
-                           if (gtk_check_button_get_active(GTK_CHECK_BUTTON(delete_atom_checkbutton_second)))
-                              delete_atom_second = true;
                            std::cout << "Here F " << change_bond_order_first << " " << change_bond_order_second << " "
                                      << delete_atom_first << " " << delete_atom_second << std::endl;
                            if (atom_name_first && atom_name_second) {
@@ -1180,13 +1238,16 @@ on_acedrg_link_ok_button_clicked(GtkButton       *button,
                                     const char *change_bond_order_first_atom_2  = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(cbcbof2));
                                     const char *change_bond_order_second_atom_1 = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(cbcbos1));
                                     const char *change_bond_order_second_atom_2 = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(cbcbos2));
+                                    const char *cc_first_atom                   = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(cc_combobox_first));
+                                    const char *cc_second_atom                  = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(cc_combobox_second));
                                     link(residue_name_first, residue_name_second, atom_name_first, atom_name_second,
                                          cif_file_name_1, cif_file_name_2, std::string(bond_order),
                                          delete_atom_first, da_first,
                                          delete_atom_second, da_second,
                                          change_bond_order_first, cbo_first,   change_bond_order_first_atom_1,  change_bond_order_first_atom_2,
-                                         change_bond_order_second, cbo_second, change_bond_order_second_atom_1, change_bond_order_second_atom_2
-                                     );
+                                         change_bond_order_second, cbo_second, change_bond_order_second_atom_1, change_bond_order_second_atom_2,
+                                         change_charge_first, cc_first_atom,
+                                         change_charge_second, cc_second_atom);
                                  } else {
                                     std::cout << "combobox cbo lookup failure" << std::endl;
                                  }

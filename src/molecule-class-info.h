@@ -1067,6 +1067,7 @@ public:        //                      public
                                             bool all_atoms_mode,
                                             bool draw_missing_loops_flag);
 
+   void alt_conf_view_next_alt_conf(const std::string &current_alt_conf);
 
 
    // This doesn't catch the case when__builtin_FUNCTION exists but __has_builtin does not
