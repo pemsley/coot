@@ -4861,7 +4861,7 @@ Bond_lines_container::do_Ca_loop(int imod, int ires, int nres,
                   bool C_and_N_are_close = false;
                   mmdb::Atom *C_prev = residue_prev->GetAtom(" C  ");
                   if (C_prev) {
-		    mmdb::Atom *N_this = residue_this->GetAtom(" N  ");
+                     mmdb::Atom *N_this = residue_this->GetAtom(" N  ");
                      if (N_this) {
                         float dist_sqrd =
                            (C_prev->x - N_this->x) * (C_prev->x - N_this->x) +
@@ -4881,7 +4881,7 @@ Bond_lines_container::do_Ca_loop(int imod, int ires, int nres,
                   bool P_and_O3prime_are_close = false;
                   mmdb::Atom *O3prime_prev = residue_prev->GetAtom(" O3'");
                   if (O3prime_prev) {
-		    mmdb::Atom *P_this = residue_this->GetAtom(" P  ");
+                     mmdb::Atom *P_this = residue_this->GetAtom(" P  ");
                      if (P_this) {
                         float dist_sqrd =
                            (O3prime_prev->x - P_this->x) * (O3prime_prev->x - P_this->x) +
@@ -6816,7 +6816,8 @@ Bond_lines_container::add_residue_monomer_bonds(const std::map<std::string, std:
                                                        udd_user_defined_atom_colour_index_handle,
                                                        restraints.bond_restraint);
                                     } else {
-                                       addBond(col, p1, p2, graphics_line_t::SINGLE, model_number, iat_1_atom_index, iat_2_atom_index);
+                                       addBond(col, p1, p2, graphics_line_t::SINGLE, model_number,
+                                               iat_1_atom_index, iat_2_atom_index, false, false);
                                     }
                                  }
                               }
