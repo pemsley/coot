@@ -235,14 +235,16 @@ new_startup_on_glarea_resize(GtkGLArea *glarea, gint width, gint height) {
    if (true)
       std::cout << "DEBUG:: --- new_startup_on_glarea_resize() " <<  width << " " << height << std::endl;
 
-   // std::cout << "resize(): int max " << INT_MAX << " " << std::sqrt(INT_MAX) << std::endl;
-
    graphics_info_t g;
    // for the GL widget, not the window.
    g.graphics_x_size = width;
    g.graphics_y_size = height;
-   g.reset_frame_buffers(width, height); // currently makes the widget blank (not drawn)
-   g.resize_framebuffers_textures_renderbuffers(width, height); // 20220131-PE added from crows merge
+   if (g.graphics_is_gl_es) {
+      // don't touch the framebuffers
+   } else {
+       g.reset_frame_buffers(width, height); // currently makes the widget blank (not drawn)
+       g.resize_framebuffers_textures_renderbuffers(width, height); // 20220131-PE added from crows merge
+   }
    g.reset_hud_buttons_size_and_position();
    g.mouse_speed = static_cast<double>(width) / 900.0;
 
@@ -657,7 +659,7 @@ handle_start_scripts() {
    scripts = xdg.get_python_config_scripts();
    for (const auto &script : scripts) {
       std::cout << "Load python config script " << script.c_str() << std::endl;
-      run_python_script(script.c_str());
+      run_python_script(script.string().c_str());
    }
 #ifdef USE_GUILE
    if (graphics_info_t::run_startup_scripts_flag) {
@@ -673,7 +675,7 @@ handle_start_scripts() {
       if (graphics_info_t::run_state_file_status) {
          std::pair<bool, std::filesystem::path> script = xdg.get_python_state_script();
          if (script.first) {
-            run_python_script(script.second.c_str());
+            run_python_script(script.second.string().c_str());
          }
       }
    }
@@ -825,6 +827,7 @@ new_startup_application_activate(GtkApplication *application,
       };
 
       graphics_info_t graphics_info;
+      graphics_info.init(); // added 20241231
 
       // use this to look up things - and it is used to attach the lidia
       // application window
@@ -837,7 +840,8 @@ new_startup_application_activate(GtkApplication *application,
       // but let's do it once at least!
 
       // this is done in the python startup now.
-      // std::cout << "#################### new_startup_application_activate()  calling graphics_info.init() " << std::endl;
+      // std::cout << "#################### new_startup_application_activate()  calling graphics_info.init() "
+      //           << std::endl;
       // graphics_info.init();
 
       GtkBuilder *builder = gtk_builder_new();

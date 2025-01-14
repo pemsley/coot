@@ -44,7 +44,7 @@ int test_import_ligands_with_same_name(molecules_container_t &mc) {
    for (const auto &bond_size : results_1)
       std::cout << "results_1 " << bond_size.x <<  " " << bond_size.y << " " << bond_size.z << std::endl;
 
-   status = 1; 
+   status = 1;
    return status;
 }
 
@@ -74,7 +74,7 @@ int test_multiligands_lig_bonding(molecules_container_t &mc) {
          mc.write_coordinates(imol_lucr_prot, "l_test.pdb");
          std::pair<bool, coot::dictionary_residue_restraints_t> pair = geom.get_monomer_restraints("00Z", imol_lucr_prot);
          if (pair.first) {
-            coot::dictionary_residue_restraints_t restraints = pair.second; 
+            coot::dictionary_residue_restraints_t restraints = pair.second;
             // std::cout << "xxxxxxx" << restraints << std::endl;
             coot:: residue_spec_t res_spec("B", 1, "");
             mmdb::Residue *res = mc.get_residue(imol_lucr_prot, res_spec);
@@ -85,11 +85,11 @@ int test_multiligands_lig_bonding(molecules_container_t &mc) {
                 for(int iat = 0; iat < natoms; iat++) {
                     mmdb::Atom *at = atoms[iat];
                     // std::cout << "  " << iat << "  " << at->GetAtomName() << std::endl;
-                } 
+                }
                 bool check_hydrogens_too_flag = false;
                 bool apply_bond_distance_check = false;
                 std::pair<bool, std::vector<std::string> >
-                matchers = geom.atoms_match_dictionary(res, check_hydrogens_too_flag, apply_bond_distance_check, restraints); 
+                matchers = geom.atoms_match_dictionary(res, check_hydrogens_too_flag, apply_bond_distance_check, restraints);
                 if (matchers.first) {
                    // std::cout << "found " << matchers.second.size() << " matchers" << std::endl;
                    if (matchers.second.size() == 15) status = 1;

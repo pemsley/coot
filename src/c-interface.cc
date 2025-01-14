@@ -56,6 +56,7 @@
 #endif // USE_PYTHON
 
 #include "compat/sleep-fixups.h"
+#include "coot-utils/gl-matrix.h"
 
 // Here we used to define GTK_ENABLE_BROKEN if defined(WINDOWS_MINGW)
 // Now we don't want to enable broken stuff.  That is not the way.
@@ -2108,7 +2109,7 @@ void set_map_radius_em(float radius) {
    for (int ii=0; ii<g.n_molecules(); ii++)
       g.molecules[ii].update_map(true);
    graphics_draw();
-   std::string cmd = "set-radius-em";
+   std::string cmd = "set-map-radius-em";
    std::vector<coot::command_arg_t> args;
    args.push_back(radius);
    add_to_history_typed(cmd, args);
@@ -3222,8 +3223,26 @@ get_show_aniso() {
 
 void
 set_show_aniso(int state) {
+   graphics_info_t::log.log(logging::WARNING, logging::function_name_t(__FUNCTION__),
+                            "don't use this");
+}
 
-   graphics_info_t::show_aniso_atoms_flag = state;
+/*! \brief set show aniso atoms */
+void set_show_aniso_atoms(int imol, int state) {
+
+   if (is_valid_model_molecule(imol)) {
+      bool st = state;
+      graphics_info_t::molecules[imol].set_show_atoms_as_aniso(st);
+   }
+   graphics_draw();
+}
+
+/*! \brief set show aniso atoms as ortep */
+void set_show_aniso_atoms_as_ortep(int imol, int state) {
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t::molecules[imol].set_show_aniso_atoms_as_ortep(state);
+   }
    graphics_draw();
 }
 
@@ -4173,7 +4192,6 @@ void set_debug_atom_picking(int istate) {
 }
 
 
-#include "gl-matrix.h"
 void print_view_matrix() { 		/* print the view matrix */
 
    graphics_info_t g;
@@ -8753,21 +8771,68 @@ set_tip_of_the_day_flag (int state) {
 /*  ----------------------------------------------------------------------- */
 void do_surface(int imol, int state) {
 
-   float colour_scale = graphics_info_t::electrostatic_surface_charge_range; // 0.5, by default
+}
+
+#include "c-interface-generic-objects.h"
+#include "api/coot-molecule.hh"
+
+/* per-chain functions can be added later */
+void make_generic_surface(int imol, const char *selection_str, int mode) {
+
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
-      graphics_info_t::molecules[imol].make_surface(state, *g.Geom_p(), colour_scale);
+      float col_scale = g.electrostatic_surface_charge_range;
+      std::string selection_string(selection_str);
+      // use api!
+      coot::molecule_t cm(g.molecules[imol].atom_sel, 0, "");
+      //  coot::simple_mesh_t smesh = cm.get_molecular_representation_mesh(selection_string, "ByOwnPotential", "Chains", 0);
+      coot::simple_mesh_t smesh;
+      std::string type = "";
+
+      if (mode == 1) smesh = cm.get_molecular_representation_mesh(selection_string, "ByOwnPotential", "MolecularSurface", 0);
+      if (mode == 2) smesh = cm.get_molecular_representation_mesh(selection_string, "Chains", "MolecularSurface", 0);
+
+      if (mode == 1) type = "Electrostatic";
+      if (mode == 2) type = "Molecular";
+
+      g.attach_buffers();
+      // do I need this vertex type conversion? Yes
+      std::vector<s_generic_vertex> vertices(smesh.vertices.size());
+      for (unsigned int i = 0; i < smesh.vertices.size(); i++) {
+         vertices[i] = s_generic_vertex(smesh.vertices[i].pos,
+                                        smesh.vertices[i].normal,
+                                        smesh.vertices[i].color);
+      }
+      std::string object_name = type + " Surface " + std::to_string(imol) +
+         std::string(" ") + std::string(selection_string);
+      int obj_mesh = new_generic_object_number(object_name);
+      meshed_generic_display_object &obj = g.generic_display_objects[obj_mesh];
+      obj.imol = imol;
+      obj.mesh.name = object_name;
+      obj.mesh.set_draw_mesh_state(true);
+      obj.mesh.import(vertices, smesh.triangles);
+      obj.mesh.set_material_specularity(0.7, 128);
+      obj.mesh.setup_buffers();
+
       graphics_draw();
    }
+}
+/* per-chain functions can be added later */
+void make_molecular_surface(int imol, const char *selection_str) {
+
+   make_generic_surface(imol, selection_str, 2);
+}
+
+/* per-chain functions can be added later */
+void make_electrostatic_surface(int imol, const char *selection_str) {
+
+   make_generic_surface(imol, selection_str, 1);
 }
 
 int molecule_is_drawn_as_surface_int(int imol) {
 
-   int r = 0;
-   if (is_valid_model_molecule(imol)) {
-      r = graphics_info_t::molecules[imol].molecule_is_drawn_as_surface();
-   }
-   return r;
+   // useless function now - remove it.
+   return 1;
 }
 
 

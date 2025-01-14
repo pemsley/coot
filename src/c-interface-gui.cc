@@ -1539,6 +1539,7 @@ coot_save_state_and_exit(int retval, int save_state_flag) {
 
 #ifdef WINDOWS_MINGW
    clipper::ClipperInstantiator::instance().destroy();
+   graphics_info_t::static_thread_pool.stop(true);
 #endif
 
    exit(retval);

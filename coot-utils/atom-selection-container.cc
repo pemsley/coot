@@ -170,8 +170,9 @@ get_atom_selection(std::string pdb_name,
 
       std::vector<mmdb::Link> mmdb_links;
       for (const gemmi::Connection &con : st.connections) {
-         if (true) // debugging
-            std::cout << con.name << " " << con.partner1.str() << " " << con.partner2.str() << std::endl;
+         if (false) // debugging
+            std::cout << "INFO:: gemmi connection: " << con.name
+                      << " " << con.partner1.str() << " " << con.partner2.str() << std::endl;
          mmdb::Link l;
          std::string atom_name = con.partner1.atom_name;
          bool atom_1_is_metal = false;
@@ -294,8 +295,8 @@ get_atom_selection(std::string pdb_name,
 #endif // USE_GEMMI
 
    if (true) // too noisy
-      std::cout << "debug():: ============ get_atom_selection() with file \"" << pdb_name << "\""
-                << " use_gemmi " << use_gemmi << std::endl;
+      std::cout << "DEBUG:: get_atom_selection() with file \"" << pdb_name << "\""
+                << " use_gemmi: " << use_gemmi << std::endl;
 
    mmdb::ERROR_CODE err;
    mmdb::Manager* MMDBManager;

@@ -782,6 +782,8 @@ namespace coot {
       // get the number of residue in chain, protein first.
       std::pair<unsigned int, unsigned int> get_number_of_protein_or_nucleotides(mmdb::Chain *chain_p);
 
+      std::vector<std::string> alt_confs_in_molecule(mmdb::Manager *mol);
+
       // Return NULL on no such chain:
       mmdb::Chain *chain_only_of_type(mmdb::Manager *mol, const std::string &residue_type);
 
@@ -1011,6 +1013,9 @@ namespace coot {
       // the residues in restraints_container (there we rather need to know the references indices,
       // not the indices from the fragment molecule). The label (for lookup later) is
       // "index from reference residue".
+      //
+      // the first of the retuned pair should be the success status - currently it is set to true
+      //
       std::pair<bool, mmdb::Manager *>
       create_mmdbmanager_from_residue_vector(const std::vector<mmdb::Residue *> &res_vec,
 					     mmdb::Manager *mol_old,

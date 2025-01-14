@@ -26,6 +26,7 @@
 
 #include <iostream>
 #include <math.h>
+#include <gsl/gsl_matrix.h>
 
 #include "gl-matrix.h"
 
@@ -253,8 +254,8 @@ std::pair<bool,GL_matrix>
 GL_matrix::cholesky() const {
 
    double a_data[] = { mat[0], mat[1], mat[ 2],
-		       mat[4], mat[5], mat[ 6], 
-		       mat[8], mat[9], mat[10] }; 
+		       mat[4], mat[5], mat[ 6],
+		       mat[8], mat[9], mat[10] };
 
    gsl_matrix_view m = gsl_matrix_view_array (a_data, 3, 3);
 
@@ -286,7 +287,7 @@ GL_matrix::cholesky() const {
       old_handler = gsl_set_error_handler(my_aniso_error_handler);
       int ic = gsl_linalg_cholesky_decomp (&m.matrix);
       gsl_set_error_handler(old_handler);
-      
+
       return std::pair<bool, GL_matrix> (1, GL_matrix(gsl_matrix_get(&m.matrix, 0, 0),
 						      gsl_matrix_get(&m.matrix, 0, 1),
 						      gsl_matrix_get(&m.matrix, 0, 2),
@@ -297,7 +298,7 @@ GL_matrix::cholesky() const {
 						      gsl_matrix_get(&m.matrix, 2, 1),
 						      gsl_matrix_get(&m.matrix, 2, 2)));
    }
-} 
+}
 
 
 void my_aniso_error_handler (const char * reason,
@@ -310,7 +311,7 @@ void my_aniso_error_handler (const char * reason,
 
 // move these functions into the header file so that they
 // are inlined (when they work).
-// 
+//
 float
 GL_matrix::cholesky_diag(const GL_matrix &l, int i) const {
 

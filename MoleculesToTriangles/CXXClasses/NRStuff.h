@@ -34,7 +34,6 @@ class CoordSpline {
     std::vector<FCXXCoord> ctlPts;
     std::vector<FCXXCoord> spline;
     void DialASpline(float t, const std::vector<float> &a,  const std::vector<FCXXCoord> &p, int Cn, int interp, std::vector<FCXXCoord> &output, const int idx, std::vector<FCXXCoord> &work);
-    std::vector <FCXXCoord> SplineCurve(const std::vector<FCXXCoord> &ctlPts, int nsteps, int Cn, int iinterp);
   public:
     CoordSpline(){
     };
@@ -55,6 +54,7 @@ class CoordSpline {
         int accu = 6;
         spline = SplineCurve(ctlPts,(ctlPts.size()-1)*accu,3,1);
     }
+    std::vector <FCXXCoord> SplineCurve(const std::vector<FCXXCoord> &ctlPts, int nsteps, int Cn, int iinterp);
     void addPair(float xVal, const FCXXCoord  &coord) {
         ctlPts.push_back(coord);
     }

@@ -199,6 +199,8 @@ namespace coot {
       double dist_nuclear_;
       double dist_nuclear_esd_;
       bool dist_nuclear_was_set;
+      bool atom_has_only_this_non_hydrogen_bond_first;
+      bool atom_has_only_this_non_hydrogen_bond_second;
 
    public:
       enum bond_length_type_t { UNKNOWN, NUCLEAR_POSITION, ELECTONS_POSITION };
@@ -223,6 +225,8 @@ namespace coot {
          have_target_values = 1;
          aromaticity = arom_in;
          bond_length_type_ = blt;
+	 atom_has_only_this_non_hydrogen_bond_first  = false;
+	 atom_has_only_this_non_hydrogen_bond_second = false;
          dist_nuclear_ = -1.0;
          dist_nuclear_esd_ = -1.0;
          dist_nuclear_was_set = dist_nuclear_was_set_in;
@@ -240,6 +244,8 @@ namespace coot {
          have_target_values = 0;
          aromaticity = arom_in;
          bond_length_type_ = UNKNOWN;
+	 atom_has_only_this_non_hydrogen_bond_first  = false;
+	 atom_has_only_this_non_hydrogen_bond_second = false;
          dist_nuclear_ = -1.0;
          dist_nuclear_esd_ = -1.0;
          dist_nuclear_was_set = false;
@@ -274,6 +280,11 @@ namespace coot {
       }
       void set_atom_1_atom_id(const std::string &id) { set_atom_id_1(id); }
       void set_atom_2_atom_id(const std::string &id) { set_atom_id_2(id); }
+      // this function called by dictionary parser after all the bonds have been read
+      void set_only_bond(const std::string &pos, bool b) {
+         if (pos == "first")  atom_has_only_this_non_hydrogen_bond_first  = b;
+         if (pos == "second") atom_has_only_this_non_hydrogen_bond_second = b;
+      }
       friend std::ostream& operator<<(std::ostream &s, const dict_bond_restraint_t &rest);
    };
    std::ostream& operator<<(std::ostream &s, const dict_bond_restraint_t &rest);
@@ -578,7 +589,7 @@ namespace coot {
       }
    public:
       enum aromaticity_t { NON_AROMATIC, AROMATIC, UNASSIGNED };
-      enum { IDEAL_MODEL_POS, REAL_MODEL_POS}; 
+      enum { IDEAL_MODEL_POS, REAL_MODEL_POS};
       std::string atom_id;
       std::string atom_id_4c;
       std::string type_symbol;
@@ -715,7 +726,7 @@ namespace coot {
                if (pair_in.at_2 == at_1) {
                   shared_atom = at_1;
                }
-            } 
+            }
             return shared_atom;
          }
       };
@@ -734,7 +745,7 @@ namespace coot {
 
 
       void write_cif_pdbx_chem_comp_descriptor(mmdb::mmcif::Data *data) const;
-      
+
       // imol_enc can be the model molecule number or
       // -1 for all
       // -2 for auto
@@ -1265,7 +1276,7 @@ namespace coot {
             return 0;
       }
    };
-   
+
    class read_refmac_mon_lib_info_t {
    public:
       unsigned int n_atoms;
@@ -1289,7 +1300,7 @@ namespace coot {
    // class protein_geometry     the container class
    // ------------------------------------------------------------------------
    // ------------------------------------------------------------------------
-   // 
+   //
    // consider molecule_geometry
    class protein_geometry {
 
@@ -1632,14 +1643,14 @@ namespace coot {
       // the chiral restraint for this comp_id(s) may need filtering
       // (i.e. removing some of them if they are not real chiral centres
       // (e.g. from prodrg restraints)).
-      // 
+      //
       void filter_chiral_centres(int imol, const std::vector<std::string> & comp_id_for_filtering);
 
       // Return a filtered list, that is don't include chiral centers that
       // are connected to more than one hydrogen.
-      // 
+      //
       std::vector<dict_chiral_restraint_t> filter_chiral_centres(const dictionary_residue_restraints_t &restraints);
-      
+
       void assign_link_chiral_volume_targets();
       int read_number;
 
@@ -1680,9 +1691,9 @@ namespace coot {
       // return empty file name on failure.
       std::string comp_id_to_file_name(const std::string &comp_id) const;
 
-#ifdef HAVE_CCP4SRS      
+#ifdef HAVE_CCP4SRS
       ccp4srs::Manager *ccp4srs;
-#endif      
+#endif
 
       void add_molecule_number_to_entries(const std::vector<std::string> &comp_ids, int imol_enc);
 
@@ -1695,7 +1706,7 @@ namespace coot {
          read_number = 0;
          set_verbose(1);
          parse_metal_NOS_distance_tables();
-#if HAVE_CCP4SRS         
+#if HAVE_CCP4SRS
          ccp4srs = NULL;
 #endif
          fill_default_non_auto_load_residue_names();
@@ -1724,10 +1735,14 @@ namespace coot {
       // for the link_id (and that's fine)
       std::pair<chem_mod, chem_mod> get_chem_mods_for_link(const std::string &link_id) const;
       void debug_mods() const;
-      
-      
+
+      // when making the bonds mesh, we would like to have a mesh that includes a hemisphere
+      // where there are atoms that have only one non-Hydrogen bond. So the dictionary
+      // needs to know where such atoms here. We set them in this function.
+      void set_only_bonds(int dict_idx);
+
       // Refmac monomer lib things
-      // 
+      //
       // Return the number of bond restraints
       //
       read_refmac_mon_lib_info_t
@@ -1749,15 +1764,15 @@ namespace coot {
                r = dict_link_res_restraints[id];
                break;
             }
-         } 
+         }
          return r;
       }
 
       // return "" on comp_id not found, else return the file name.
-      // 
+      //
       std::string get_cif_file_name(const std::string &comp_id,
                                     int imol_enc) const;
-      
+
       int link_size() const { return dict_link_res_restraints.size(); }
       void info() const;
       std::string three_letter_code(const unsigned int &i) const;
@@ -1766,10 +1781,19 @@ namespace coot {
 
       int init_standard(); // standard protein residues and links.
                                   // Return the current read_number
-      
+
+      // if the dictionary is already in the store, then do nothing, otherwise
+      // try_dynamic_add().
+      //
+      // Internally this function wraps have_dictionary_for_residue_type() which
+      // is not as good a name as check_and_try_dynamic_add() for what the function
+      // does.
+      //
+      int check_and_try_dynamic_add(const std::string &resname, int imol_enc, int read_number);  // return success status?
+
       // Return 0 on failure to do a dynamic add, otherwise return the
       // number of atoms read.
-      // 
+      //
       int try_dynamic_add(const std::string &resname, int read_number);  // return success status?
       // this is not const if we use dynamic add.
 
@@ -1784,7 +1808,7 @@ namespace coot {
       void print_dictionary_store() const;
 
       // return a pair, the first is status (1 if the name was found, 0 if not)
-      // 
+      //
       std::pair<bool, std::string> get_monomer_name(const std::string &comp_id, int imol_enc) const;
 
       // return 2-3 filtered torsions
@@ -1798,7 +1822,7 @@ namespace coot {
       // as above, except filter out of the returned vectors torsions
       // that move (or are based on) hydrogens.
       // return 2-3 filtered torsions
-      // 
+      //
       std::vector <dict_torsion_restraint_t>
       get_monomer_torsions_from_geometry(const std::string &monomer_type,
                                          int imol_enc,
@@ -2199,7 +2223,7 @@ namespace coot {
       std::vector<std::string> monomer_restraints_comp_ids() const;
 
       // can throw a std::runtime_error
-      std::string Get_SMILES_for_comp_id(const std::string &comp_id) const;
+      std::string Get_SMILES_for_comp_id(const std::string &comp_id,  int imol_enc) const;
 
       // debug
       void debug() const;

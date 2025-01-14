@@ -37,7 +37,7 @@ svg_molecule_t::import_rdkit_mol(RDKit::ROMol *rdkm, int iconf) {
    //
    // So typically, user has called Chem.RemoveHs() or remove_non_polar_Hs()
    // and MolOps::Kekulize() and WedgeMolBonds() before calling this function.
-   
+
    int n_conf  = rdkm->getNumConformers();
    if (iconf < n_conf) {
       const RDKit::PeriodicTable *tbl = RDKit::PeriodicTable::getTable();
@@ -59,7 +59,7 @@ svg_molecule_t::import_rdkit_mol(RDKit::ROMol *rdkm, int iconf) {
       }
 
       // set the scale correction
-      // 
+      //
       std::vector<double> bond_lengths;
       for (unsigned int i=0; i<rdkm->getNumBonds(); i++) {
 	 const RDKit::Bond *bond_p = rdkm->getBondWithIdx(i);
@@ -129,7 +129,7 @@ svg_molecule_t::import_rdkit_mol(RDKit::ROMol *rdkm, int iconf) {
 	    std::cout << "on import got bt " << bt << " from " << bond_p->getBondType()
 		      << std::endl;
 
-	 try { 
+	 try {
 	    const svg_atom_t &cat1 = atoms[idx_1];
 	    const svg_atom_t &cat2 = atoms[idx_2];
 	    bool shorten_first  = false;
@@ -210,7 +210,7 @@ svg_bond_t::draw_double_in_ring_bond(const lig_build::pos_t &pos_1_in,
    lig_build::pos_t p2 = svg_molecule_t::mol_coords_to_svg_coords(pos_2, centre, scale);
 
    // for inner bond
-   std::pair<lig_build::pos_t, lig_build::pos_t> p = 
+   std::pair<lig_build::pos_t, lig_build::pos_t> p =
       make_double_aromatic_short_stick(pos_1_in, pos_2_in, shorten_first, shorten_second);
 
    // cairo_set_source_rgb(cr, 0.1, 0.1, 0.1);
@@ -218,7 +218,7 @@ svg_bond_t::draw_double_in_ring_bond(const lig_build::pos_t &pos_1_in,
    // cairo_line_to(cr, p2.x, p2.y);
    // cairo_stroke(cr);
 
-   s += make_bond_line_string(p1, p2, bond_colour);
+   s += make_bond_line_string(p1, p2, scale, bond_colour);
 
    p1 = svg_molecule_t::mol_coords_to_svg_coords(p.first,  centre, scale);
    p2 = svg_molecule_t::mol_coords_to_svg_coords(p.second, centre, scale);
@@ -230,7 +230,7 @@ svg_bond_t::draw_double_in_ring_bond(const lig_build::pos_t &pos_1_in,
    if (dashed_inner) {
       s += make_dashed_bond_line_string(p1, p2, bond_colour);
    } else {
-      s += make_bond_line_string(p1, p2, bond_colour);
+      s += make_bond_line_string(p1, p2, scale, bond_colour);
    }
 
    if (dashed_inner) {
@@ -315,7 +315,7 @@ svg_bond_t::draw_double_bond(const lig_build::atom_t &at_1,
       // cairo_line_to(cr, p2.x, p2.y);
       // cairo_stroke(cr);
 
-      s += make_bond_line_string(p1, p2, bond_colour);
+      s += make_bond_line_string(p1, p2, scale, bond_colour);
 
       p1 = svg_molecule_t::mol_coords_to_svg_coords(p.second.first,  centre, scale);
       p2 = svg_molecule_t::mol_coords_to_svg_coords(p.second.second, centre, scale);
@@ -324,7 +324,7 @@ svg_bond_t::draw_double_bond(const lig_build::atom_t &at_1,
       // cairo_line_to(cr, p2.x, p2.y);
       // cairo_stroke(cr);
 
-      s += make_bond_line_string(p1, p2, bond_colour);
+      s += make_bond_line_string(p1, p2, scale, bond_colour);
 
    } else {
 
@@ -340,15 +340,15 @@ svg_bond_t::draw_double_bond(const lig_build::atom_t &at_1,
       // cairo_move_to(cr, p1.x, p1.y);
       // cairo_line_to(cr, p2.x, p2.y);
 
-      s += make_bond_line_string(p1, p2, bond_colour);
+      s += make_bond_line_string(p1, p2, scale, bond_colour);
 
-      p1 = svg_molecule_t::mol_coords_to_svg_coords(bonds.second.first,  centre, scale);
-      p2 = svg_molecule_t::mol_coords_to_svg_coords(bonds.second.second, centre, scale);
+      lig_build::pos_t p1s = svg_molecule_t::mol_coords_to_svg_coords(bonds.second.first,  centre, scale);
+      lig_build::pos_t p2s = svg_molecule_t::mol_coords_to_svg_coords(bonds.second.second, centre, scale);
       // cairo_move_to(cr, p1.x, p1.y);
       // cairo_line_to(cr, p2.x, p2.y);
       // cairo_stroke(cr);
 
-      s += make_bond_line_string(p1, p2, bond_colour);
+      s += make_bond_line_string(p1s, p2s, scale, bond_colour);
    }
    return s;
 }
@@ -375,9 +375,9 @@ svg_molecule_t::mol_coords_to_svg_coords(const lig_build::pos_t &pos_1,
 
 std::string
 svg_bond_t::make_bond_line_string(const lig_build::pos_t &p1, const lig_build::pos_t &p2,
+                                  double sf,
                                   const std::string &bond_colour) const {
 
-   double sf = 400.0; // scale factor
    std::string s;
    s += "   <line x1=\"";
    s += std::to_string(sf * p1.x);
@@ -445,7 +445,7 @@ svg_bond_t::draw_bond(const svg_atom_t &at_1, const svg_atom_t &at_2,
    if (shorten_second)
       pos_2 = lig_build::pos_t::fraction_point(pos_1_in, pos_2_in, shorten_fraction);
 
-   if (false)
+   if (true)
       std::cout << "------ draw_bond for bt " << bt << " between " << at_1 << " and " << at_2
                 << " c.f. "
                 << " single-bond " << lig_build::bond_t::SINGLE_BOND
@@ -475,8 +475,8 @@ svg_bond_t::draw_bond(const svg_atom_t &at_1, const svg_atom_t &at_2,
 	 pos_2 = bp.second;
          lig_build::pos_t p1 = svg_molecule_t::mol_coords_to_svg_coords(pos_1, centre, scale);
          lig_build::pos_t p2 = svg_molecule_t::mol_coords_to_svg_coords(pos_2, centre, scale);
-         if (false)
-            std::cout << "pos_1 " << pos_1 << " pos_2 " << pos_2
+         if (true)
+            std::cout << "   draw_bond(): pos_1 " << pos_1 << " pos_2 " << pos_2
                       << " bp.first " << bp.first << " bp.second " << bp.second
                       << " p1 " << p1 << " p2 " << p2 << std::endl;
 
@@ -485,7 +485,7 @@ svg_bond_t::draw_bond(const svg_atom_t &at_1, const svg_atom_t &at_2,
 	 // cairo_line_to(cr, p2.x, p2.y);
 	 // cairo_stroke(cr);
 
-         std::string bond_string = make_bond_line_string(p1, p2, bond_colour);
+         std::string bond_string = make_bond_line_string(p1, p2, scale, bond_colour);
 
          s += bond_string;
       }
@@ -553,11 +553,11 @@ svg_bond_t::draw_bond(const svg_atom_t &at_1, const svg_atom_t &at_2,
 	 // cairo_stroke(cr);
 
          std::string bond_string;
-         bond_string = make_bond_line_string(sc_p1, sc_p2, bond_colour);
+         bond_string = make_bond_line_string(sc_p1, sc_p2, scale, bond_colour);
          s += bond_string;
-         bond_string = make_bond_line_string(sc_p3, sc_p4, bond_colour);
+         bond_string = make_bond_line_string(sc_p3, sc_p4, scale, bond_colour);
          s += bond_string;
-         bond_string = make_bond_line_string(sc_p5, sc_p6, bond_colour);
+         bond_string = make_bond_line_string(sc_p5, sc_p6, scale, bond_colour);
          s += bond_string;
 
       }
@@ -570,7 +570,7 @@ svg_bond_t::draw_bond(const svg_atom_t &at_1, const svg_atom_t &at_2,
 	    lig_build::pos_t::make_wedge_in_bond(pos_1, pos_2);
 	 if (vp.size()) {
 	    // cairo_set_source_rgb(0.1, 0.1, 0.1);
-	    for (unsigned int i=0; i<vp.size(); i++) { 
+	    for (unsigned int i=0; i<vp.size(); i++) {
 
 	       lig_build::pos_t p1 = svg_molecule_t::mol_coords_to_svg_coords(vp[i].first,  centre, scale);
 	       lig_build::pos_t p2 = svg_molecule_t::mol_coords_to_svg_coords(vp[i].second, centre, scale);
@@ -578,7 +578,7 @@ svg_bond_t::draw_bond(const svg_atom_t &at_1, const svg_atom_t &at_2,
 	       // cairo_move_to(p1.x, p1.y);
 	       // cairo_line_to(p2.x, p2.y);
 
-               std::string bond_string = make_bond_line_string(p1, p2, bond_colour);
+               std::string bond_string = make_bond_line_string(p1, p2, scale, bond_colour);
                s += bond_string;
 	    }
             // cairo_stroke(cr);
@@ -673,7 +673,7 @@ svg_bond_t::draw_sheared_or_darted_wedge_bond(const lig_build::pos_t &pos_1,
 	 // cairo_line_to(cr, p2.x, p2.y);
 	 // cairo_stroke(cr);
 
-         s += make_bond_line_string(p1, p2, bond_colour);
+         s += make_bond_line_string(p1, p2, scale, bond_colour);
 
       }
    }
@@ -901,10 +901,10 @@ svg_molecule_t::make_svg(double sf, bool dark_background_flag) {
       return s;
    };
 
+   std::cout << "debug:: in svg_molecule_t::make_svg() scale_factor is " << sf << std::endl;
+
    svg_container_t svg;
 
-   std::string s; // this can be removed, I think, now
-   s.reserve(2048);
    std::string svg_header_1 = "<svg xmlns=\"http://www.w3.org/2000/svg\"\n    xmlns:xlink=\"http://www.w3.org/1999/xlink\" ";
    std::string svg_header_2 = ">\n";
    std::string svg_footer = "</svg>\n";
@@ -917,7 +917,9 @@ svg_molecule_t::make_svg(double sf, bool dark_background_flag) {
    std::string viewBox_string;
    if (! atoms.empty()) {
       lig_build::pos_t centre = get_ligand_centre();
-      double scale = get_scale();
+      // double scale = get_scale();
+      double scale = sf;
+      std::cout << "debug:: in svg_molecule_t::make_svg() A scale is " << scale << std::endl;
       float min_x =  100000.0;
       float min_y =  100000.0;
       float max_x = -100000.0;
@@ -940,10 +942,6 @@ svg_molecule_t::make_svg(double sf, bool dark_background_flag) {
 
       svg.set_bounds(min_x, min_y, max_x, max_y);
 
-      float width  = max_x - min_x;
-      float height = max_y - min_y;
-
-      // std::cout << "width: " << width << std::endl;
       viewBox_string = "viewBox=" + std::string("\"") +
          std::to_string(min_x) + std::string(" ") +
          std::to_string(min_y) + std::string(" ") +
@@ -951,17 +949,23 @@ svg_molecule_t::make_svg(double sf, bool dark_background_flag) {
          std::to_string(max_y) + std::string("\"");
    }
 
-   s += svg_header_1;
-   s += viewBox_string;
-   s += svg_header_2;
+   // s += svg_header_1;
+   // s += viewBox_string;
+   // s += svg_header_2;
 
    // std::cout << "viewBox: " << viewBox_string << std::endl;
 
    // just testing that I can see something. No longer needed because I can
    // s += "   <rect x=\"10\" y=\"10\" width=\"10\" height=\"10\" style=\"stroke:#ff0000; fill: #ff6666;\" />\n";
 
-   double scale = get_scale();
+   // double scale = get_scale();
+   double scale = sf;
+   scale = 5.0;
+   std::cout << "debug:: in svg_molecule_t::make_svg() B scale is " << scale << std::endl;
    lig_build::pos_t centre = get_ligand_centre();
+   centre += lig_build::pos_t(-7, 8);
+
+   std::cout << "debug:: in svg_molecule_t::make_svg() C ligand_centre is " << centre << std::endl;
 
    // cairo_set_line_cap(cr, CAIRO_LINE_CAP_ROUND);
    // cairo_set_line_width(cr, 0.07 * scale * median_bond_length_);
@@ -984,6 +988,8 @@ svg_molecule_t::make_svg(double sf, bool dark_background_flag) {
 	 std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > other_connections_to_second_atom =
 	    make_other_connections_to_second_atom_info(ib);
 
+
+         std::cout << "draw bond " << ib << " using scale " << scale << std::endl;
          std::string bond_string = bonds[ib].draw_bond(atoms[idx_1], atoms[idx_2],
                                                        at_1_in_ring_flag,
                                                        at_2_in_ring_flag,
@@ -994,8 +1000,7 @@ svg_molecule_t::make_svg(double sf, bool dark_background_flag) {
                                                        other_connections_to_second_atom,
                                                        centre, scale);
 	 std::string bc = make_bond_comment(ib, bonds[ib]);
-	 s += bc;
-         s += bond_string;
+         std::cout << "debug:: in svg_molecule_t::make_svg() bond_string is " << bond_string << std::endl;
 
 	 // I don't care about s now
 	 svg.add(bc);
@@ -1005,7 +1010,9 @@ svg_molecule_t::make_svg(double sf, bool dark_background_flag) {
 
    // ---------------------- Atoms -------------------------------------
 
-   s += std::string("<!-- Atom Labels -->\n");
+   double scale_for_atoms = get_scale();
+   if (!atoms.empty())
+      svg.add(std::string("<!-- Atom Labels -->\n"));
    for (unsigned int iat=0; iat<atoms.size(); iat++) {
       std::string ele = atoms[iat].element;
       if (dark_background_flag) {
@@ -1021,9 +1028,8 @@ svg_molecule_t::make_svg(double sf, bool dark_background_flag) {
 	    std::cout << "in render(): atom_index " << iat << " with charge "
 		      << atoms[iat].charge << " made atom_id_info "
 		      << atom_id_info << std::endl;
-         // std::cout << "atom block: passing scale " << scale << std::endl;
-	 std::string a = atoms[iat].make_text_item(atom_id_info, centre, scale, median_bond_length_);
-	 s += a;
+         std::cout << "atom block: passing scale_for_atoms " << scale_for_atoms << std::endl;
+	 std::string a = atoms[iat].make_text_item(atom_id_info, centre, scale_for_atoms, median_bond_length_);
 	 svg.add(a);
       } else {
 
@@ -1035,8 +1041,7 @@ svg_molecule_t::make_svg(double sf, bool dark_background_flag) {
 
             lig_build::atom_id_info_t atom_id_info = make_atom_id_by_using_bonds(iat, "C", local_bonds, gl_flag);
             atoms[iat].set_atom_id(atom_id_info.atom_id); // quick hack
-	    std::string a = atoms[iat].make_text_item(atom_id_info, centre, scale, median_bond_length_);
-	    s += a;
+	    std::string a = atoms[iat].make_text_item(atom_id_info, centre, scale_for_atoms, median_bond_length_);
 	    svg.add(a);
 	 }
       }

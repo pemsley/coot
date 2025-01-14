@@ -1593,18 +1593,17 @@ molecule_class_info_t::copy_chain(const std::string &from_chain_str,
 
    if (atom_sel.n_selected_atoms > 0) {
       if (ncs_ghosts.size() > 0) {
-	 if (ncs_ghosts[0].is_empty() || ncs_ghosts_have_rtops_flag == 0) { 
+	 if (ncs_ghosts[0].is_empty() || ncs_ghosts_have_rtops_flag == 0) {
 	    // std::cout << "   %%%%%%%%% calling fill_ghost_info from copy_chain "
 	    // 		      << std::endl;
 	    fill_ghost_info(1, 0.7); // 0.7?
 	 }
-	 short int done_copy_flag = 0;
 	 for (unsigned int ighost=0; ighost<ncs_ghosts.size(); ighost++) {
 	    if  (ncs_ghosts[ighost].chain_id == to_chain_str) {
 	       if (ncs_ghosts[ighost].target_chain_id == from_chain_str) {
 		  clipper::RTop_orth rtop = ncs_ghosts[ighost].rtop.inverse();
 		  mmdb::PPAtom atom_selection = NULL;
-		  int n_atoms;
+		  int n_atoms = 0;
 		  atom_sel.mol->GetSelIndex(ncs_ghosts[ighost].SelectionHandle,
 					    atom_selection, n_atoms);
 		  if (n_atoms > 0) {
@@ -1622,7 +1621,6 @@ molecule_class_info_t::copy_chain(const std::string &from_chain_str,
 			if (from_chain_str == chain_id) {
 			   mmdb::Chain *from_chain = chain_p;
 			   copy_chain(from_chain, to_chain, rtop);
-			   done_copy_flag = 1;
 			   break;
 			}
 		     }
@@ -1794,7 +1792,7 @@ molecule_class_info_t::copy_residue_range_from_ncs_master_to_others(const std::s
       if (ncopied == 0) {
 	 std::cout << "WARNING:: failed to find master_chain_id \"" << master_chain_id
 		   << "\" in " << ncs_ghosts.size() << " NCS ghosts" << std::endl;
-	 for (unsigned int ighost=0; ighost<ncs_ghosts.size(); ighost++) { 
+	 for (unsigned int ighost=0; ighost<ncs_ghosts.size(); ighost++) {
 	    std::cout << "    ghost: chainid \"" << ncs_ghosts[ighost].chain_id
 		      << "\" has NCS master \"" << ncs_ghosts[ighost] << "\""
 		      << std::endl;

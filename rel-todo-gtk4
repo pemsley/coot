@@ -1,5 +1,127 @@
 ----
 
+Add a commit and version to chapi
+
+Fix Acedrg Link
+
+Fix other python modules
+
+Layla #HBonds etc need to be ints
+
+Layla delete Hydrogens
+
+When I'm fixing rotamers in intermediate atoms mode, I sometimes/often improve the geometry
+(bond, angles, planes, chirals, nbc) too, don't I? Can I have a sound for that?
+
+Arno: Add Phi,Psi labels on the HUD Rama plot
+
+On reading a dictionary find the atoms that are connected to only one other non-hydrogen atom.
+For better/smoother bond meshes.
+* Started
+
+How do we import the PDB validation report into Coot?
+
+Make a coot version of clash score.
+
+Set occupancy of ligand or residue in moorhen
+
+Clemens: Give me a Coot function to switch the alt confs of a residue (typically a water)
+
+Clemens: Give me a "show me A+"", B+"" or Both" button/menu (and key-binding, I imagine)
+
+Andrey: I don't like the "delete residue" in new coot.
+Maybe a entry for a selection?
+
+Remove the error messages for framebuffer buffers in --opengl-es mode
+
+How do I use colour rules to colour by alt-loc in Coot?
+How do set_user_defined_bond_colours() and set_user_defined_atom_colour_by_selection() work?
+
+swap-alt-confs: residue, side, or comma-separated-atom-name-list
+
+bug: bernie cif phases bug - in clipper?
+
+Chapi: I have a reference model and a partial model - how do I measure completeness?
+Make a function to do that.
+
+Chapi: add flood to the api
+* Done.
+
+Chapi: Add a function for missing residue ranges
+
+Chapi: residue_spec_t previous_residue(residue_spec_t);
+
+Add NCS completion to ncs tools.
+
+prune tools?
+
+bug: make_mesh_for_gaussian_surface_for_blender(int, float, float, float, float, float)
+maybe true?
+#4  0x00007dc59381e864 in fftw_plan_awake () from /usr/lib/libfftw3.so.3
+#5  0x00007dc5939142c6 in fftw_destroy_plan () from /usr/lib/libfftw3.so.3
+#6  0x00007dc51a0960f4 in clipper::FFTmap_sparse_p1_xh::fft_x_to_h (this=0x7fffaebfe6b0, scale=<optimized out>) at fftmap_sparse.cpp:375
+#7  0x00007dc510c3188e in clipper::Xmap<float>::fft_to<clipper::HKL_data<clipper::datatypes::F_phi<float> > > (this=0x7fffaebff630, fphidata=..., type=clipper::Xmap_base::Default) at /home/paule/autobuild/build-for-chapi-arch-gtk4/include/clipper/core/xmap.h:695
+#8  0x00007dc510d24abf in coot::util::sharpen_blur_map (xmap_p=0x7fffaebff630, b_factor=80) at /home/paule/Projects/coot/git/coot-main/coot/coot-utils/coot-map-utils.cc:704
+#9  0x00007dc510957282 in coot::gaussian_surface_t::using_an_xmap (this=0x7fffaebffa90, mol=0x7dc51c832400, chain_id=..., sigma_in=4.4000001, contour_level_in=4, box_radius_in=5, grid_scale=1.20000005, fft_b_factor=80) at /home/paule/Projects/coot/git/coot-main/coot/density-contour/gaussian-surface.cc:224
+#10 0x00007dc5109586e8 in coot::gaussian_surface_t::gaussian_surface_t (this=0x7fffaebffa90, mol=0x7dc51c832400, chain_id=..., sigma=4.4000001, contour_level=4, box_radius=5, grid_scale=1.20000005, b_factor=80) at /home/paule/Projects/coot/git/coot-main/coot/density-contour/gaussian-surface.cc:400
+#11 0x00007dc51075ebb3 in coot::molecule_t::get_gaussian_surface (this=0x7dc51c615000, sigma=4.4000001, contour_level=4, box_radius=5, grid_scale=1.20000005, b_factor=80) at /home/paule/Projects/coot/git/coot-main/coot/api/coot-molecule.cc:3666
+
+
+turn on debugging in get_monomer_restraints_internal() and see if this gets called
+too many times - noticed in COD cif 1100118
+
+test mmdb->gemmi updates from Marcin.
+
+ERROR:: pane main_window_ramchandran_and_validation_pane not found
+
+configure needs to know if RDKitcoordgen was used to make RDKit and change the Makefile libs
+and we need to conditionally compile the code that uses coordgen (in layla).
+
+Idea from Clemens:
+  1: Display mode where only "" and "A" atoms are displayed
+     and I can flip to display of only "" and "B", then
+     "" and "C"
+  2: I choose an Alt-Conf specifier and the bonds for the others
+     are drawn transparent. Again, allow me to flip between
+     specifiers.
+
+Make this work: github DiffSBDD
+https://www.nature.com/articles/s43588-024-00737-x
+
+Make Link should be in Coot
+
+Validate vs Sequence in Moorhen.
+
+cylinder class need an init_unit(n_slices);
+* Done.
+
+libcootapi: Give me the SMILES of the specified residue
+* Done.
+
+read small molecule hkl cif in libcootapi? e.g 2019830.hkl
+
+read small molecule hkl cif in Coot? e.g 2019830.hkl - or does it work already?
+
+add "rdkit-has-coordgen" flag to configure
+
+the SEP in 6il9 - is not a conformer from acedrg
+
+1ag6 A64 His bonding in Moorhen/colour-by-chain/dict mode
+
+Are base pairing restraints working? - check using Martin M. 3a3a
+Yes they are - they are just normal bond restraints - they
+don't appear as extras.
+
+3a3a residue 16-18 gap loop drawn - but not a gap!
+coords/Bond_lines.cc:4848 - copy that code block and use p linked atoms.
+
+Can I delete hydrogen atoms on saving in new coot?
+
+How do I see molprobity rama plot from inside coot?
+
+change the class of chapi.py from xml-to-python.py so that it takes
+an argument - maybe __new__() or __init__()?
+
 add to api: centre_of_residue() centre_of_sidechain(), CA_of_residue()
 
 Easy function: for Coot API pentakis dodec vertices and convert them to
@@ -7,13 +129,13 @@ cylinders and make a generic display object out of them given centre and radius.
 Allow the user to change the centre and radius using some (python?) gui.
 
 Use alignment text-anchor="middle" for text in molecule svg
-
-For tubes repo, we need loops - reuse the Stuart loops
+* Done.
 
 api: what is the energy of this residue? (for conformers, say)
 
-api: rotate torsion to value
-* Done.
+Do refmac torsion restraints work in Coot?
+
+For tubes repo, we need loops
 
 Oliver Clarke issues.
 
@@ -25,30 +147,18 @@ Get the "shape" of RNA bases in cryo-EM maps - for validation of RNA sequence.
 
 bring chopping of residues in low density to the API
 
-bring water flood to the API
+bring water flood to the API.
 
 servalcat refine using chapi molecules
-
-configure needs to know if RDKitcoordgen was used to make RDKit and change the Makefile libs
-and we need to conditionally compile the code that uses coordgen (in layla).
 
 Install this on hal: https://github.com/chaidiscovery/chai-lab
 
 Button no labels and labels no buttons for the vertical toolbar.
 
-Read in two dictionaries and return an atom name map.
-std::map<std::string, std::string>
-dictionary_atom_name_map(comp_id_1, imol_1, comp_id_2, imol_2)
-How do I handle the map in python?
-https://nanobind.readthedocs.io/en/latest/exchanging.html
-Seems that is could be "naturally."
-
 Validation: Tell me when I have links that are too long (based on
 simple rules (enerlib.cif) not on link dictionary values)
 
 Unmodelled blobs near sequons?
-
-Paul Bond bug.
 
 Martin Maly: How do I load external (refmac) restraints into Coot 1?
 
@@ -100,13 +210,52 @@ Martin request: libcootapi: coordinates -> mask with same coordinates
 
 Make mask by position (a sphere around a point)
 
-Add Noughties Physics into the Preferences
-
 Martin request: libcootapi: Step sample maps
 
 Adaptive rotation for the mouse motion - make it more for a widescreen.
 
 SVG for pli
+
+Add extra arguments to get_bonds_mesh_for_selection_instanced()
+* Done.
+
+cylinder class need an init_unit(n_slices);
+* Done.
+
+libcootapi: Give me the SMILES of the specified residue
+* Done.
+
+Read in two dictionaries and return an atom name map.
+std::map<std::string, std::string>
+dictionary_atom_name_map(comp_id_1, imol_1, comp_id_2, imol_2)
+How do I handle the map in python?
+https://nanobind.readthedocs.io/en/latest/exchanging.html
+Seems that is could be "naturally."
+* Done.
+
+api: what is the energy of this residue? (for conformers, say)
+* Done.
+
+set_max_number_of_threads() seems not to be honoured in chapi
+* Done
+
+INFO:: there are 0 helices and 0 sheets.
+Don't go on to try to write them out then.
+* Done.
+
+api: rotate torsion to value
+* Done.
+
+add to api: centre_of_residue() centre_of_sidechain(), CA_of_residue()
+* Done.
+
+Use alignment text-anchor="middle" for text in molecule svg
+
+api: rotate torsion to value
+* Done.
+
+Given a quad of atom names and a residue spec, what is the torsion?
+* Done.
 
 coot --dictionary should make a molecule instance from the dictionary
 * Done.
@@ -181,7 +330,7 @@ Smooth Recentering setting saved (now)?
 Add Noughties Physics into the Preferences
 * Done.
 
-chapi: a function to return a list of tuples atom types for ligand:
+chapi: a function to return a list of tuples atom types for ligand from acedrg:
 get_acedrg_atom_types(comp_id, imol_enc);
 * Done.
 
@@ -195,12 +344,6 @@ Identify the acedrg atom types - or use the dictionary to look them up.
 
 acedrg atom types in cif parse.
 * Already Done.
-
-Key-binding to hide/show right-hand panel.
-      GtkWidget *status_bar = widget_from_builder("main_window_statusbar");
-      GtkWidget *tool_bar   = widget_from_builder("main_window_toolbar_hbox_outer");
-      GtkWidget *sidebar    = widget_from_builder("main_window_vbox_inner");
-* Done.
 
 Add "Rotate View is on Left/Right mouse" mode in Preferences
 * Done.
@@ -273,8 +416,6 @@ Add read_coordinates() to the read-molecule.hh api.
 Draw Hydrogen Atoms checkbutton in Bond Parameters widget is broken - try running run-servalcat-32143.py
 * Done.
 
-Make torsion restraints for Rama and rota refinement for servalcat.
-
 Test that the bonds and atoms are being added just once for the bond generations - when trying to fix the
 colour-by-molecule bonds, it seemed that there were multiple adds. Hmm.
 
@@ -286,8 +427,6 @@ From watching https://www.youtube.com/watch?v=mDwMUH181-s
   o Find a molecule with a chunk of RNA
      build hunks, refine and merge fragments
   o Assign the sequence
-
-Use 2DT dictionary for link and refinement - George.
 
 Talking to Martin Maly: OEX CA1 is in the wrong column when reading external distance restraints: 4ub6.
 
@@ -791,8 +930,7 @@ e.g. the map of 8ox5. Lucrezia to investigate?
 moorhen SMILES: nitrobezene svg ligand rep - charge position size offset of the + and - needs
   to be fixed.
 
-libcootapi:
-  get rid of #define HAVE_BOOST_BASED_THREAD_POOL_LIBRARY in add-terminal-residue.cc
+libcootapi:  get rid of #define HAVE_BOOST_BASED_THREAD_POOL_LIBRARY in add-terminal-residue.cc
 
 libcootapi: look at merging 7ZTVU (or whatever it was) into a cif file. Look at the output cif for
    ligand: atom_site seq_id.
@@ -1134,17 +1272,6 @@ Pyrogen needs to work ::: 2
 
 Greg Crichlow cifs
 
-Full-fat render path - i.e. framebuffer need to be set up correctly (at the right time?) ::: 2
-set_framebuffer_scale_factor().
-Well this works just like gtk3 version does. No effect on the framebuffer using "Fancy" path and
-shows a quadrant in "Plane" mode. The output tga file is full-resolution though, which is nice.
-Don't confuse the scaling of the framebuffer for screenshot (in "Plain" mode) and
-the scaling of the framebuffers for super-sampling (in "Fancy" mode).
-OK, so the framebuffer scaling works in simple mode.
-Make it work in "fancy" mode and I will call it done.
-
-Missing Bernie cherries
-
 Fix build for St Judes Walid
 
 2koc: do a Coot contact dots analysis on it.
@@ -1344,11 +1471,6 @@ on the atom that is blocking. :::- 1
 Light Mode, Dark Mode, Automatic (tracks background colour) :::- 1
 Put this in preferences.
 
-Change the colour of the Dotted Surface
-* This exits and it draws OK, but I don't see how to change the colour yet.
-  Changing the colour is very tricky beacuse balls is not part of the coot::dots_representation_info_t
-  class. Perhaps it should be? (see add_dots()).
-
 Update Dynamic validation on making links (the NBC clashes should disappear)
 
 7a0l colour by B-factor with fat bonds. Bonds to hydrogen atoms are grey and fat. :::- 5
@@ -1363,7 +1485,6 @@ How should the "model representation change" work? Ctrl Shift 2-finger scroll? :
 
 AWC chirality in the ring - wedge bond is pointing in the wrong direction? Nice example of sp2 Se-ring (not aromatic)
 
-Open dictionary should provide a widget to specify the molecule for dictionary.
 
 --- Done Items ---
 
@@ -1426,9 +1547,6 @@ Get Python gui scripts communication working ::: 2
 * Done.
 
 Get PyGObject working with GTK4 (Not a Coot thing) ::: 2
-* Done.
-
-Fixed Atoms click should show a menu, not a dialog ::: 1
 * Done.
 
 Make the "Fetch..." Functions work ::: 1
@@ -1579,9 +1697,6 @@ Make the Fast-go-to-residue dialog be an overlay? No. A transient will do for no
 
 Fix "Edit Chi Angles" button ::: 1
 
-Wed  3 May 2023 14:43:36 BST
-check the HUD NBC blocks in 89A - shouldn't lots of them be be labelled with "this residue" marker? ::: 1
-
 Restore ^C interrupt (python-related?) ::: 1
 
 Add contact dots ::; 1
@@ -1630,11 +1745,6 @@ HOLE ::: 1
 
 Making the window larger exposes more of the validation pane - even without validation graphs present ::: 1
 No longer. But make the startup window wider. now app window is 1000x900.
-
-Dotted Surface ::: 1
-* This exits and it draws OK, but I don't see how to change the colour yet.
-  Changing the colour is very tricky beacuse balls is not part of the coot::dots_representation_info_t
-  class. Perhaps it should be? (see add_dots()).
 
 7a0l.cif doesn't load from the command line (related to 7a0l-assembly.cif non-load, I guess).
 It's a molecule not a dictionary. The command_line::add() function needs to detect the difference.
@@ -1735,7 +1845,7 @@ On changing the selection in the rama plot, it says "now do something with //A".
 Rama plots need to read the imol in on_ramachandran_plot_molecule_chooser_ok_button_clicked() ::: 0.1
 
 Go into perspective project and with left-mouse pressed wave around the mouse wildly ::: 0.2
-*Done. Added stabilization in mouse_zoom().
+* Done. Added stabilization in mouse_zoom().
 
 Curlew: Goodsell, speed-run and CaBLAM ::: 5
 * Monster effort - rewrite from scratch.
@@ -1792,8 +1902,6 @@ SMILES -> simple 3D ::: 1
 Show Chemical Features ::: 2
 Display Ligand distorsions ::: 1
 Quick Ligand Validate ::: 3
-Isolated Molprobity dots for this ligand - what is this? How is it different to contact dots for ligand?
-   contact_score_ligand_func(). Hmm.
 [Ligand Metric Sliders]
 
 "About Coot" is empty (was fixed in GTK3 version). Remake it in Cambalache?  ::: 0.5
@@ -2165,7 +2273,7 @@ Coot: Add to Draw menu "Activate Scene Preset" Figure making or Model-building
 
 Coot: write a script that reads a map and undisplays it (positron). Now open the Display Manager.
    The map "Display" checkbuttons are on.
-*Done.
+* Done.
 
 Coot: check that a Gaussian chain surface should be displayed before using it in the SSAO image.
-*Done.
+* Done.

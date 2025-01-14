@@ -59,6 +59,7 @@ class svg_bond_t : public lig_build::bond_t {
                                                  const lig_build::pos_t &centre,
                                                  double scale) const;
    std::string make_bond_line_string(const lig_build::pos_t &p1, const lig_build::pos_t &p2,
+                                     double scale_factor,
                                      const std::string &bond_colour) const;
    std::string make_dashed_bond_line_string(const lig_build::pos_t &p1, const lig_build::pos_t &p2,
                                             const std::string &bond_colour) const;

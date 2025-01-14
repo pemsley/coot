@@ -333,6 +333,28 @@ coot::util::get_matching_indices(mmdb::Manager *mol1,
             }
          }
 
+         // NCACBC
+         if (match.match_type_flag == lsq_t::NCACBC) {
+            if (! match.is_single_atom_match) {
+               std::vector<std::string> atom_names = {" N  ", " CA ", " CB ", " C  "}; // PDBV3-FIXME
+               for (unsigned int iat=0; iat<atom_names.size(); iat++) {
+                  const std::string &atom_name = atom_names[iat];
+                  mmdb::Atom *at1 = SelResidue_1[0]->GetAtom(atom_name.c_str());
+                  mmdb::Atom *at2 = SelResidue_2[0]->GetAtom(atom_name.c_str());
+                  if (at1) {
+                     if (at2) {
+                        if (! at1->isTer()) {
+                           if (! at2->isTer()) {
+                              v1.push_back(clipper::Coord_orth(at1->x, at1->y, at1->z));
+                              v2.push_back(clipper::Coord_orth(at2->x, at2->y, at2->z));
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+         }
+
          // ----------------- All Atom ---------------------
          //
          if (match.match_type_flag == lsq_t::ALL) {

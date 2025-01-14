@@ -1,7 +1,26 @@
+/* pli/optimmise-residue-cirlces.cc
+ *
+ * Copyright 2012 by The University of Oxford
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA
+ */
 
 #include "flev-scale-factor.hh"
 #include "optimise-residue-circles.hh"
-
+#include "utils/coot-utils.hh"
 
 pli::optimise_residue_circles::optimise_residue_circles(const std::vector<residue_circle_t> &r, // starting points
                                                         const std::vector<residue_circle_t> &c, // current points
@@ -23,6 +42,27 @@ pli::optimise_residue_circles::optimise_residue_circles(const std::vector<residu
 
    score_vs_other_residues_kk = 2000.0;
    score_vs_other_residues_exp_scale = 0.5;
+
+   bool debug_weights = true; // 20250106-PE for now
+
+   if (debug_weights) {
+      std::string weights_file_name("optimise-residue-circles-weights.tab");
+      std::ifstream f(weights_file_name);
+      std::string line;
+      while (std::getline(f, line)) {
+         std::vector<std::string> parts = coot::util::split_string_no_blanks(line);
+         if (parts.size() == 2) {
+            float f = coot::util::string_to_float(parts[1]);
+            if (parts[0] == "score_vs_ligand_atoms_rk")            score_vs_ligand_atoms_rk = f;
+            if (parts[0] == "score_vs_ligand_atoms_exp_scale")     score_vs_ligand_atoms_exp_scale = f;
+            if (parts[0] == "score_vs_original_positions_kk")      score_vs_original_positions_kk = f;
+            if (parts[0] == "score_vs_ligand_atom_bond_length_kk") score_vs_ligand_atom_bond_length_kk = f;
+            if (parts[0] == "score_vs_other_residues_kk")          score_vs_other_residues_kk = f;
+            if (parts[0] == "score_vs_other_residues_exp_scale")   score_vs_other_residues_exp_scale = f;
+         }
+      }
+   }
+
 
    mol = mol_in;
    current_circles = c;

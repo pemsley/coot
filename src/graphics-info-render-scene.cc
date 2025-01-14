@@ -743,6 +743,17 @@ graphics_info_t::render_scene() {
 #endif
       // we always want this viewport to be the size of the widget (in the case of APPLE, theree
       // is the double resolution issue to handle)
+
+      if (scale_up_graphics != 1) {
+         width *= scale_up_graphics;
+         height *= scale_up_graphics;
+      }
+      if (scale_down_graphics != 1) {
+         width /= scale_down_graphics;
+         height /= scale_down_graphics;
+      }
+      // std::cout << "render_scene_basic() " << width << " " << height << std::endl;
+
       glViewport(0, 0, width * sf, height * sf);
       attach_buffers(); // just GTK things
       glClearColor(background_colour.r, background_colour.g, background_colour.b, 1.0);
@@ -776,6 +787,8 @@ graphics_info_t::render_scene() {
    gboolean status = gboolean(true);
 
    bool show_basic_scene_state = (displayed_image_type == SHOW_BASIC_SCENE);
+
+   // std::cout << "render_scene(): show_basic_scene_state " << show_basic_scene_state << std::endl;
 
    if (show_basic_scene_state) {
       render_scene_basic();

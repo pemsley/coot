@@ -251,7 +251,9 @@ flev_t::annotate(const std::vector<std::pair<coot::atom_spec_t, float> > &s_a_v,
       lig_build::pos_t pos = input_coords_to_canvas_coords(cp);
       circle.set_canvas_pos(pos);
       std::cout << "debug:: in flev_t::annotate() residue-circle "
-                << cp.x() << " " << cp.y() << " " << cp.z() << " canvas coord " << pos.x << " " << pos.y << std::endl;
+                << cp.x() << " " << cp.y() << " " << cp.z()
+                << " canvas coord " << pos.x << " " << pos.y << std::endl;
+
       if (centres[i].residue_name == "HOH") {
          for (unsigned int ib=0; ib<bonds_to_ligand.size(); ib++) {
             if (bonds_to_ligand[ib].res_spec == centres[i].spec) {
@@ -413,6 +415,8 @@ pli::fle_view_with_rdkit_internal(mmdb::Manager *mol,
 
    double weight_for_3d_distances = 0.4; // for 3d distances
    std::string output_format = file_format;
+
+   bool wrap_in_refresh_html = true;
 
    if (mol) {
       mmdb::Residue  *res_ref = coot::util::get_residue(chain_id, res_no, ins_code, mol);
@@ -581,14 +585,29 @@ pli::fle_view_with_rdkit_internal(mmdb::Manager *mol,
                   // ah.cannonballs(res_ref, mol_for_res_ref, p.second);
                   ah.distances_to_protein_using_correct_Hs(res_ref, mol_for_res_ref, *geom_p);
 
-                  // ------------ show it -----------------
+                  // ------------ show annotations -----------------
                   //
                   bool annotate_status = flev.annotate(s_a_v, res_centres, add_reps_vec, bonds_to_ligand,
                                                        sed, ah, pi_stack_info, p.second);
 
                   svg_container_t svgc_2 = flev.draw_all_flev_annotations();
                   svgc.add(svgc_2);
-                  write_string_to_file(svgc.compose(), "flev-test-all-parts.svg");
+
+                  if (wrap_in_refresh_html) {
+                     // 20250106-PE: hack the bounds for now
+                     svgc.set_bounds(-90, -70, 640, 540);
+                     std::string s = svgc.compose();
+                     unsigned int refresh_delta = 1;
+                     std::string html_top = "<!DOCTYPE html><html><head><meta http-equiv=\"refresh\" ";
+                     html_top += "content=\"" + std::to_string(refresh_delta);
+                     html_top += "\"></head><body>\n";
+                     std::string html_foot = "</body><html>\n";
+                     std::string ss = html_top + s + html_foot;
+                     s = ss;
+                     write_string_to_file(ss, "flev-test-all-parts-svg.html");
+                  } else {
+                     write_string_to_file(svgc.compose(), "flev-test-all-parts.svg");
+                  }
 
                   if (output_format == "png") flev.write_png(output_image_file_name);
                   if (output_format == "svg") flev.write_svg(output_image_file_name);
@@ -1071,8 +1090,8 @@ flev_t::draw_bonds_to_ligand() {
                // arrows (acceptor/donor) and stroke colour (depending
                // on mainchain or sidechain interaction)
                //
-               bool start_arrow = 0;
-               bool   end_arrow = 0;
+               bool start_arrow = false;
+               bool   end_arrow = false;
                if (residue_circles[ic].bonds_to_ligand[ib].bond_type == bond_to_ligand_t::H_BOND_DONOR_SIDECHAIN) {
                   end_arrow = 1;
                   stroke_colour = green;
@@ -1120,17 +1139,18 @@ flev_t::draw_bonds_to_ligand() {
 
                // this needs to be an arrow
                //
+               std::cout << "debug:: in draw_bonds_to_ligand() with scale_factor " << scale_factor << std::endl;
                std::string s;
                double sf = 0.02 * scale_factor; // Hmm.. made-up number
                std::string bond_colour = "green";
                s += "   <line x1=\"";
-               s += std::to_string(scale_factor * A.x);
+               s += std::to_string(sf * A.x);
                s += "\" y1=\"";
-               s += std::to_string(scale_factor * A.y);
+               s += std::to_string(sf * A.y);
                s += "\" x2=\"";
-               s += std::to_string(scale_factor * B.x);
+               s += std::to_string(sf * B.x);
                s += "\" y2=\"";
-               s += std::to_string(scale_factor * B.y);
+               s += std::to_string(sf * B.y);
                s += "\"";
                s += " style=\"stroke:";
                // s += "#202020";
@@ -2150,7 +2170,7 @@ flev_t::draw_residue_circle_top_layer(const residue_circle_t &residue_circle,
          std::string("stroke=\"") + col.second + std::string("\" ") +
          std::string("stroke-width=\"") + std::to_string(stroke_width) + std::string("\"") +
          std::string("/>\n");
-      float delta = 100.0; // about this? // was 50.0
+      float delta = 50.0; // about this? // was 50.0
       svgc.add("<!-- Residue Circle " + residue_circle.residue_label + std::string(" -->\n"));
       svgc.add(circle_string);
       svgc.set_bounds(scale_factor * pos.x - delta, scale_factor * pos.y - delta,

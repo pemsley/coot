@@ -65,7 +65,7 @@ coot::peak_search::get_peaks(const clipper::Xmap<float> &xmap,
 
    peak_search_0(xmap, &marked_map, n_sigma);
 
-   for (ix = marked_map.first(); !ix.last(); ix.next())  { 
+   for (ix = marked_map.first(); !ix.last(); ix.next())  {
       if (marked_map[ix] == 2) {
          // why do I move peak pos to grid?
          r.push_back(move_grid_to_peak(xmap, ix.coord()));
@@ -75,7 +75,7 @@ coot::peak_search::get_peaks(const clipper::Xmap<float> &xmap,
    return r;
 }
 
-std::vector<clipper::Coord_orth> 
+std::vector<clipper::Coord_orth>
 coot::peak_search::get_peaks_for_flooding(const clipper::Xmap<float> &xmap,
                                           float n_sigma) {
 
@@ -88,7 +88,7 @@ coot::peak_search::get_peaks_for_flooding(const clipper::Xmap<float> &xmap,
 
    peak_search_for_flooding(xmap, &marked_map, n_sigma);
 
-   for (ix = marked_map.first(); !ix.last(); ix.next())  { 
+   for (ix = marked_map.first(); !ix.last(); ix.next())  {
       if (marked_map[ix] == 2) {
          r.push_back(move_grid_to_peak(xmap, ix.coord()));
       }
@@ -110,7 +110,7 @@ coot::peak_search::get_peak_map_indices(const clipper::Xmap<float> &xmap,
 
    peak_search_0(xmap, &marked_map, n_sigma);
 
-   for (ix = marked_map.first(); !ix.last(); ix.next())  { 
+   for (ix = marked_map.first(); !ix.last(); ix.next())  {
       if (marked_map[ix] == 2) {
          std::cout << "Peak at " << ix.coord().format() << " " << xmap[ix] << std::endl;
          v.push_back(std::pair<clipper::Xmap<float>::Map_reference_index, float> (ix, xmap[ix]));
@@ -118,7 +118,7 @@ coot::peak_search::get_peak_map_indices(const clipper::Xmap<float> &xmap,
    }
    std::sort(v.begin(), v.end(), compare_ps_peaks_mri);
 
-   // debuggin
+   // debugging
    if (v.size() > 4) {
       for (int i=0; i<4; i++)
          std::cout << v[i].first.coord().format() << " " << v[i].second << " \n";
@@ -166,7 +166,7 @@ coot::peak_search::get_minima_grid_points(const clipper::Xmap<float> &xmap,
 
    peak_search_0_minima(xmap, &marked_map);
 
-   for (ix = marked_map.first(); !ix.last(); ix.next())  { 
+   for (ix = marked_map.first(); !ix.last(); ix.next())  {
       if (marked_map[ix] == 2) {
           v.push_back(std::pair<clipper::Coord_grid, float> (ix.coord(), xmap[ix]));
       }
@@ -202,12 +202,13 @@ coot::peak_search::peak_search_0(const clipper::Xmap<float> &xmap,
    int is_peak;
    float v;
    float cut_off = map_rms * n_sigma;
-   short int IN_CLUSTER = 3; 
+   short int IN_CLUSTER = 3;
 
+   // 20241217-PE I need to come back to this to diagnose what is going in in flood2().
    if (false)
       std::cout << "debug:: peak_search_0():: map rms: " << map_rms << ", peak cut-off: "
                 << cut_off << "\n";
-   
+
 //    std::cout << "There are " << neighb.size() << " neighbours\n";
 //    for (int i=0; i<neighb.size(); i++) {
 //       std::cout << i << " " << neighb[i].format() << "\n";

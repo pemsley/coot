@@ -3801,6 +3801,10 @@ if [ "$build_rdkit" = true ] ; then
          echo patch -p0 < ${AUTOBUILD_SOURCES}/rdkit-maeparser.patch
          patch -p0 < ${AUTOBUILD_SOURCES}/rdkit-maeparser.patch
 
+         # now fix for modern boost:
+         # Code/RDGeneral/RDValue-taggedunion.h needs numeric_cast.hpp
+
+
          mkdir -p build
          cd build
          pwd

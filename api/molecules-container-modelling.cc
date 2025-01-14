@@ -3,6 +3,34 @@
 #include "coot-utils/atom-selection-container.hh"
 #include "molecules-container.hh"
 
+//! Copy the molecule
+//!
+//! @param imol the specified molecule
+//! @return the new molecule number
+int
+molecules_container_t::copy_molecule(int imol) {
+
+   int imol_new = -1;
+   if (is_valid_model_molecule(imol)) {
+      imol_new = molecules.size();
+      mmdb::Manager *mol = coot::util::copy_molecule(molecules[imol].atom_sel.mol);
+      atom_selection_container_t asc = make_asc(mol);
+      std::string new_name = "copy-of-molecule-" + std::to_string(imol);
+      molecules.push_back(coot::molecule_t(asc, imol_new, new_name));
+   }
+
+   if (is_valid_map_molecule(imol)) {
+      imol_new = molecules.size();
+      std::string new_name = "copy-of-molecule-" + std::to_string(imol);
+      const clipper::Xmap<float> &xmap = molecules[imol].xmap;
+      bool is_em = molecules[imol].is_EM_map();
+      molecules.push_back(coot::molecule_t(new_name, imol_new, xmap, is_em));
+   }
+   return imol_new;
+}
+
+
+
 //! return the new molecule number (or -1 on no atoms selected)
 int
 molecules_container_t::copy_fragment_using_cid(int imol, const std::string &multi_cids) {
@@ -425,7 +453,13 @@ molecules_container_t::minimize_energy(int imol, const std::string &atom_selecti
                                         refinement_is_quiet, &geom);
       std::string mode = "COLOUR-BY-CHAIN-AND-DICTIONARY";
       bool draw_hydrogen_atoms_flag = true; // use data member as we do for draw_missing_residue_loops_flag?
-      im = molecules[imol].get_bonds_mesh_instanced(mode, &geom, true, 0.12, 1.4, 1,
+      unsigned int smoothness_factor = 1;
+      bool show_atoms_as_aniso_flag = false;
+      bool show_aniso_atoms_as_ortep = false;
+      im = molecules[imol].get_bonds_mesh_instanced(mode, &geom, true, 0.12, 1.4,
+                                                    show_atoms_as_aniso_flag,
+                                                    show_aniso_atoms_as_ortep,
+                                                    smoothness_factor,
                                                     draw_hydrogen_atoms_flag, draw_missing_residue_loops_flag);
 
    } else {
@@ -746,6 +780,26 @@ molecules_container_t::rotate_around_bond(int imol, const std::string &residue_c
    } else {
       std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol
                 << std::endl;
+   }
+   return status;
+}
+
+
+
+
+//! change the alt confs
+//!
+//! @param change_mode is either "residue", "side-chain" or a comma-separated atom-name
+//! pairs (e.g "N,CA") - you can (of course) specify just one atom: "N".
+// @return the success status (1 is done, 0 means failed to do)
+int
+molecules_container_t::change_alt_locs(int imol, const std::string &cid, const std::string &change_mode) {
+
+   int status = 0;
+   if (is_valid_model_molecule(imol)) {
+      status = molecules[imol].change_alt_locs(cid, change_mode);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
    return status;
 }

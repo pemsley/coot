@@ -3672,7 +3672,7 @@ coot::util::create_mmdbmanager_from_res_selection(mmdb::Manager *orig_mol,
 //
 // The residues are added in order, the chains are added in order.
 // The returned mol has the same chain ids as do the input residues.
-// 
+//
 std::pair<bool, mmdb::Manager *>
 coot::util::create_mmdbmanager_from_residue_vector(const std::vector<mmdb::Residue *> &res_vec,
                                                    mmdb::Manager *old_mol,
@@ -3687,9 +3687,9 @@ coot::util::create_mmdbmanager_from_residue_vector(const std::vector<mmdb::Resid
    // So, first make a vector of residue sets, one residue set for each chain.
    std::vector<chain_id_residue_vec_helper_t> residues_of_chain;
 
-   for (unsigned int i=0; i<res_vec.size(); i++) { 
+   for (unsigned int i=0; i<res_vec.size(); i++) {
       std::string chain_id = res_vec[i]->GetChainID();
-      
+
       // is chain_id already in residues_of_chain?  Do it in line here
       //
       bool found = 0;
@@ -8569,36 +8569,41 @@ coot::util::print_secondary_structure_info(mmdb::Model *model_p) {
    mmdb::PSheet sheet_p;
    mmdb::PStrand strand_p;
 
-   std::cout << "               Helix info: " << std::endl;
-   std::cout << "------------------------------------------------\n";
-   for (int ih=1; ih<=nhelix; ih++) {
-      helix_p = model_p->GetHelix(ih);
-      if (helix_p) {
-         std::cout << helix_p->serNum << " " << helix_p->helixID << " "
-                   << helix_p->initChainID << " " << helix_p->initSeqNum
-                   << " " << helix_p->endChainID << " " << helix_p->endSeqNum << " "
-                   << helix_p->length << " " << helix_p->comment << std::endl;
-      } else {
-         std::cout << "ERROR: no helix!?" << std::endl;
-      }
-   }
-   std::cout << "               Sheet info: " << std::endl;
-   std::cout << "------------------------------------------------\n";
-   for (int is=1; is<=nsheet; is++) {
-      sheet_p = model_p->GetSheet(is);
-
-      int nstrand = sheet_p->nStrands;
-      for (int istrand=0; istrand<nstrand; istrand++) {
-         strand_p = sheet_p->strand[istrand];
-         if (strand_p) {
-            std::cout << strand_p->sheetID << " " << strand_p->strandNo << " "
-                      << strand_p->initChainID << " " << strand_p->initSeqNum
-                      << " " << strand_p->endChainID << " " << strand_p->endSeqNum
-                      << std::endl;
+   if (nhelix > 0) {
+      std::cout << "               Helix info: " << std::endl;
+      std::cout << "------------------------------------------------\n";
+      for (int ih=1; ih<=nhelix; ih++) {
+         helix_p = model_p->GetHelix(ih);
+         if (helix_p) {
+            std::cout << helix_p->serNum << " " << helix_p->helixID << " "
+                      << helix_p->initChainID << " " << helix_p->initSeqNum
+                      << " " << helix_p->endChainID << " " << helix_p->endSeqNum << " "
+                      << helix_p->length << " " << helix_p->comment << std::endl;
+         } else {
+            std::cout << "ERROR: null helix!?" << std::endl;
          }
       }
    }
-   std::cout << "------------------------------------------------\n";
+
+   if (nsheet > 0) {
+      std::cout << "               Sheet info: " << std::endl;
+      std::cout << "------------------------------------------------\n";
+      for (int is=1; is<=nsheet; is++) {
+         sheet_p = model_p->GetSheet(is);
+
+         int nstrand = sheet_p->nStrands;
+         for (int istrand=0; istrand<nstrand; istrand++) {
+            strand_p = sheet_p->strand[istrand];
+            if (strand_p) {
+               std::cout << strand_p->sheetID << " " << strand_p->strandNo << " "
+                         << strand_p->initChainID << " " << strand_p->initSeqNum
+                         << " " << strand_p->endChainID << " " << strand_p->endSeqNum
+                         << std::endl;
+            }
+         }
+      }
+      std::cout << "------------------------------------------------\n";
+   }
 }
 
 // return a string description of MMDB SSE values
@@ -8607,7 +8612,7 @@ coot::util::sse_to_string(int sse) {
 
    std::string r;
    switch (sse)  {
-   case mmdb::SSE_None: 
+   case mmdb::SSE_None:
       r = "None";
       break;
    case mmdb::SSE_Strand:
@@ -9585,3 +9590,38 @@ coot::util::split_multi_model_molecule(mmdb::Manager *mol) {
 }
 
 
+
+
+std::vector<std::string>
+coot::util::alt_confs_in_molecule(mmdb::Manager *mol) {
+
+   std::vector<std::string> v;
+   std::set<std::string> s;
+   int imod = 1;
+   mmdb::Model *model_p = mol->GetModel(imod);
+   if (model_p) {
+      int n_chains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<n_chains; ichain++) {
+         mmdb::Chain *chain_p = model_p->GetChain(ichain);
+         int n_res = chain_p->GetNumberOfResidues();
+         for (int ires=0; ires<n_res; ires++) {
+            mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+            if (residue_p) {
+               int n_atoms = residue_p->GetNumberOfAtoms();
+               for (int iat=0; iat<n_atoms; iat++) {
+                  mmdb::Atom *at = residue_p->GetAtom(iat);
+                  std::string alt_conf(at->altLoc);
+                  if (! at->isTer()) {
+                     s.insert(alt_conf);
+                  }
+               }
+            }
+         }
+      }
+   }
+   // now convert s to v;
+   std::set<std::string>::const_iterator it;
+   for (it=s.begin(); it!=s.end(); ++it)
+      v.push_back(*it);
+   return v;
+}

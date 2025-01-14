@@ -133,6 +133,9 @@ cylinder::init(const std::pair<glm::vec3, glm::vec3> &pos_pair,
          coot::api::vnc_vertex &v = vertices[idx];
          v.color = basic_colour;
          v.pos = glm::vec3(ori * p_1);
+         if (false)
+            std::cout << "in cylinder: i_stack " << i_stack << " i_slice " << i_slice << " z_this: " << z_this
+                      << " v.pos.z " << v.pos.z << " start " << glm::to_string(start) << std::endl;
          v.pos += start;
          v.normal = ori * p_n;
          idx++;
@@ -163,6 +166,14 @@ cylinder::init(const std::pair<glm::vec3, glm::vec3> &pos_pair,
       }
    }
    // std::cout << "Finished cylinder constructor" << std::endl;
+}
+
+void
+cylinder::init_unit(unsigned int n_slices) {
+
+   glm::vec4 col(0.5, 0.5, 0.5, 1.0);
+   std::pair<glm::vec3, glm::vec3> p(glm::vec3(0,0,1), glm::vec3(0,0,0));
+   init(p, 1.0, 1.0, 1.0, col, n_slices, 2);
 }
 
 

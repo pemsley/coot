@@ -88,7 +88,7 @@ namespace coot {
       // throw an execption if there is no residue type to return for
       // the given spec.
       std::string get_residue_type(const residue_spec_t &spec) const;
-      
+
       void print() const;
 
       double dissimilarity_score() const;

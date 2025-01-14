@@ -46,6 +46,11 @@
 #include "labelled-button-info.hh"
 #include "cc-interface.hh" // for fullscreen()
 
+// These don't work if they are in graphics-info-statics.cc
+// Possibly because the gui is loaded at run-time.
+int graphics_info_t::scale_up_graphics = 1;
+int graphics_info_t::scale_down_graphics = 1;
+
 extern "C" { void load_tutorial_model_and_data(); }
 
 
@@ -58,9 +63,9 @@ void on_coords_filechooser_dialog_response_gtk4(GtkDialog *dialog,
       const char *r = gtk_file_chooser_get_choice(GTK_FILE_CHOOSER(dialog), "recentering");
       if (r) {
          std::string sr(r);
-         if (sr == "No Recentre")
+         if (sr == "no-recentre-view")
             recentre_on_read_pdb_flag = false;
-         if (sr == "Move Molecule Here")
+         if (sr == "move-mol-here")
             move_molecule_here_flag = true;
       }
 
@@ -1356,12 +1361,49 @@ void add_HOLE_module_action(GSimpleAction *simple_action,
    // g_simple_action_set_enabled(simple_action,FALSE);
 }
 
-void add_ccp4_module_action(GSimpleAction *simple_action,
+void acedrg_link_interface_action(GSimpleAction *simple_action,
                             G_GNUC_UNUSED GVariant *parameter,
                             G_GNUC_UNUSED gpointer user_data) {
-   safe_python_command("import coot_gui");
-   safe_python_command("coot_gui.add_module_ccp4()");
-   g_simple_action_set_enabled(simple_action,FALSE);
+
+   std::cout << "show acedrg link interface overlay" << std::endl;
+
+   show_acedrg_link_interface_overlay();
+
+}
+
+void add_ccp4_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                            G_GNUC_UNUSED GVariant *parameter,
+                            G_GNUC_UNUSED gpointer user_data) {
+
+   // Pythonic:
+   //
+   // safe_python_command("import coot_gui");
+   // safe_python_command("coot_gui.add_module_ccp4()");
+   // g_simple_action_set_enabled(simple_action,FALSE);
+
+   GtkWidget *toolbar_hbox = widget_from_builder("main_window_toolbar_hbox");
+
+   GtkWidget *ccp4_menubutton = gtk_menu_button_new();
+   gtk_menu_button_set_label(GTK_MENU_BUTTON(ccp4_menubutton), "CCP4");
+   gtk_box_append(GTK_BOX(toolbar_hbox), ccp4_menubutton);
+
+   // the non-menu way
+
+   // GtkWidget *popover = gtk_popover_new();
+   // gtk_popover_set_position(GTK_POPOVER(popover), GTK_POS_BOTTOM);
+   // gtk_menu_button_set_popover(GTK_MENU_BUTTON(ccp4_menubutton), popover);
+   // GtkWidget *hbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 6);
+   // GtkWidget *acedrg_button = gtk_button_new_with_label("Acedrg");
+   // gtk_box_append(GTK_BOX(hbox), acedrg_button);
+   // gtk_popover_set_child(GTK_POPOVER(popover), hbox);
+
+   // the menu style of popover
+
+   GtkWidget *menu = widget_from_builder("ccp4-menu");
+   GMenuModel *model = G_MENU_MODEL(menu);
+   GtkWidget *popover = gtk_popover_menu_new_from_model(model);
+   gtk_menu_button_set_popover(GTK_MENU_BUTTON(ccp4_menubutton), popover);
+
    graphics_info_t::graphics_grab_focus();
 }
 
@@ -2134,6 +2176,36 @@ gaussian_surface_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    show_gaussian_surface_overlay();
 }
 
+void
+molecular_surface_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                         G_GNUC_UNUSED GVariant *parameter,
+                         G_GNUC_UNUSED gpointer user_data) {
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      std::string selection_string = "//";
+      make_molecular_surface(imol, selection_string.c_str());
+      graphics_draw();
+   }
+   graphics_info_t::graphics_grab_focus();
+}
+
+void
+electrostatic_surface_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                             G_GNUC_UNUSED GVariant *parameter,
+                             G_GNUC_UNUSED gpointer user_data) {
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      std::string selection_string = "//";
+      make_electrostatic_surface(imol, selection_string.c_str());
+      graphics_draw();
+   }
+   graphics_info_t::graphics_grab_focus();
+}
+
 
 #include "generic-display-objects-c.h"
 void
@@ -2414,6 +2486,36 @@ undo_symmetry_view_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                           G_GNUC_UNUSED gpointer user_data) {
    undo_symmetry_view();
    graphics_info_t::graphics_grab_focus();
+}
+
+void
+scale_up_graphics_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                         G_GNUC_UNUSED GVariant *parameter,
+                         G_GNUC_UNUSED gpointer user_data) {
+
+   graphics_info_t g;
+   if (g.scale_down_graphics > 1)
+      g.scale_down_graphics -= 1;
+   else
+      g.scale_up_graphics += 1;
+   graphics_draw();
+   graphics_info_t::graphics_grab_focus();
+
+}
+
+void
+scale_down_graphics_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                           G_GNUC_UNUSED GVariant *parameter,
+                           G_GNUC_UNUSED gpointer user_data) {
+
+   graphics_info_t g;
+   if (g.scale_up_graphics > 1)
+      g.scale_up_graphics -= 1;
+   else
+      g.scale_down_graphics += 1;
+   graphics_draw();
+   graphics_info_t::graphics_grab_focus();
+
 }
 
 void
@@ -3726,6 +3828,8 @@ create_actions(GtkApplication *application) {
    add_action(       "add_shelx_module_action",        add_shelx_module_action);
    add_action(       "add_views_module_action",        add_views_module_action);
 
+   add_action(             "acedrg_link_interface_action", acedrg_link_interface_action);
+
    // Calculate -> NCS
 
    add_action("copy_ncs_residue_range_action", copy_ncs_residue_range_action);
@@ -3786,12 +3890,14 @@ create_actions(GtkApplication *application) {
    add_action(        "bond_parameters_action",         bond_parameters_action);
    add_action(           "bond_colours_action",            bond_colours_action);
    add_action(             "fullscreen_action",              fullscreen_action);
-   add_action(       "gaussian_surface_action",        gaussian_surface_action);
    add_action(             "go_to_atom_action",              go_to_atom_action);
    add_action(         "label_CA_atoms_action",          label_CA_atoms_action);
    add_action(         "map_parameters_action",          map_parameters_action);
    add_action(        "generic_objects_action",         generic_objects_action);
    add_action(       "label_neighbours_action",        label_neighbours_action);
+   add_action(       "gaussian_surface_action",        gaussian_surface_action);
+   add_action(      "molecular_surface_action",       molecular_surface_action);
+   add_action(  "electrostatic_surface_action",   electrostatic_surface_action);
    add_action( "label_atoms_in_residue_action",  label_atoms_in_residue_action);
    add_action( "draw_cell_and_symmetry_action",  draw_cell_and_symmetry_action);
 
@@ -3808,6 +3914,8 @@ create_actions(GtkApplication *application) {
 
    add_action("screenshot_action",                           screenshot_action);
    add_action("sequence_view_action",                     sequence_view_action);
+   add_action("scale_up_graphics_action",             scale_up_graphics_action);
+   add_action("scale_down_graphics_action",         scale_down_graphics_action);
    add_action("undo_symmetry_view_action",           undo_symmetry_view_action);
    add_action("undo_last_navigation_action",       undo_last_navigation_action);
    add_action("ribbons_colour_by_chain_action", ribbons_colour_by_chain_action);

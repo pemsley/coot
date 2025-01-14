@@ -76,9 +76,7 @@ const double pi = M_PI;
 #include "coords/mmdb-extras.h"
 #include "coords/mmdb.hh"
 #include "coords/mmdb-crystal.h"
-#ifndef EMSCRIPTEN
 #include "gtk-manual.hh"
-#endif
 
 // For stat, mkdir:
 #include <sys/types.h>
@@ -86,15 +84,13 @@ const double pi = M_PI;
 
 #include "coords/Bond_lines.h"
 
-#include "gl-matrix.h"
+#include "coot-utils/gl-matrix.h"
 #include "graphics-info.h"
 
 #include "coords/Bond_lines_ext.h"
 
-#ifndef EMSCRIPTEN
 // just delete this header?
 #include "globjects.h" // for set_bond_colour(), r_50
-#endif
 
 #include "coot-utils/coot-coord-utils.hh"
 #include "utils/coot-utils.hh"
@@ -149,6 +145,9 @@ molecule_class_info_t::setup_internal() { // init
    // By default atoms have the same radius as bonds. For ball and stick
    // we want the radius to be bigger. So allow the user to control that.
    atom_radius_scale_factor = 1.0; // used in making balls for atoms
+
+   show_atoms_as_aniso_flag = false;
+   show_aniso_atoms_as_ortep_flag = false;
 
    ghost_bond_width = 2.0;
 
@@ -960,7 +959,7 @@ molecule_class_info_t::trim_atom_label_table() {
 
 
 void
-molecule_class_info_t::draw_anisotropic_atoms() {
+molecule_class_info_t::old_draw_anisotropic_atoms() {
 #if 0
    int c; // atom colour
 
@@ -1029,7 +1028,8 @@ molecule_class_info_t::draw_anisotropic_atoms() {
                         // mat.print_matrix();
                         // std::cout << "Choleskied: " << std::endl;
                         // mat.cholesky().print_matrix();
-                        std::pair<bool,GL_matrix> chol_pair = mat.cholesky();
+                        // std::pair<bool,GL_matrix> chol_pair = mat.cholesky();
+                        std::pair<bool,GL_matrix> chol_pair = mat.eigensystem();
                         if (chol_pair.first) {
                            glMultMatrixf(chol_pair.second.get());
                            rad_50 = r_50(atom_sel.atom_selection[i]->element);
@@ -4286,6 +4286,8 @@ molecule_class_info_t::make_meshes_from_bonds_box_instanced_version() {
 
       // std::cout << "DEBUG:: ************* atom_radius: " << atom_radius << std::endl;
       model_molecule_meshes.make_graphical_bonds(imol_no, bonds_box, atom_radius, bond_radius,
+                                                 show_atoms_as_aniso_flag, // class member - user setable
+                                                 show_aniso_atoms_as_ortep_flag, // ditto
                                                  num_subdivisions, n_slices, n_stacks, colour_table);
 
       if (true) // test that model_molecule_meshes is not empty()
@@ -8125,6 +8127,11 @@ molecule_class_info_t::get_save_molecule_filename(const std::string &dir) {
       t_name_1 = name_for_display_manager();
    std::string t_name_2 = replace_char(t_name_1, '/');
    std::string t_name_3 = replace_char(t_name_2, ' ');
+#ifdef WINDOWS_MINGW
+   std::string t_name_x = replace_char(t_name_3, '\\');
+   std::string t_name_y = replace_char(t_name_x, ':');
+   t_name_3 = t_name_y;
+#endif
 
    if (save_time_string.empty()) {
       time_t t;
@@ -8962,7 +8969,7 @@ molecule_class_info_t::write_cif_file(const std::string &filename) {
 // molecule.  Else fail (return status 0).
 //
 int
-molecule_class_info_t::insert_waters_into_molecule(const coot::minimol::molecule &water_mol) {
+molecule_class_info_t::insert_waters_into_molecule(const coot::minimol::molecule &water_mol, const std::string &res_name) {
 
    int istat = 0;  // set to failure initially
 
@@ -9043,7 +9050,7 @@ molecule_class_info_t::insert_waters_into_molecule(const coot::minimol::molecule
             for (unsigned int iatom=0; iatom<water_mol[ifrag][ires].atoms.size(); iatom++) {
                const coot::minimol::atom &atom = water_mol[ifrag][ires][iatom];
                new_residue_p = new mmdb::Residue;
-               new_residue_p->SetResName("HOH");
+               new_residue_p->SetResName(res_name.c_str());
                new_residue_p->seqNum = prev_max_resno + 1 + water_count;
                water_count++;
                bf = water_mol[ifrag][ires][iatom].temperature_factor;
