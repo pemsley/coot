@@ -327,6 +327,7 @@ NB_MODULE(chapi, m) {
     .def("get_sum_density_for_atoms_in_residue",&molecules_container_t::get_sum_density_for_atoms_in_residue)
     .def("get_svg_for_residue_type",&molecules_container_t::get_svg_for_residue_type)
     .def("get_symmetry",&molecules_container_t::get_symmetry)
+    .def("get_torsion",&molecules_container_t::get_torsion)
     .def("get_torsion_restraints_weight",&molecules_container_t::get_torsion_restraints_weight)
     .def("get_triangles_for_blender", &molecules_container_t::get_triangles_for_blender)
     .def("get_use_gemmi",&molecules_container_t::get_use_gemmi)

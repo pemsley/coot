@@ -104,3 +104,21 @@ int test_multiligands_lig_bonding(molecules_container_t &mc) {
    }
    return status;
 }
+
+int test_get_torsion(molecules_container_t &mc) {
+   starting_test(__FUNCTION__);
+   int status = 0;
+   mc.set_use_gemmi(false);
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   if (mc.is_valid_model_molecule(imol)) {
+      std::vector<std::string> atom_names = {" CA ", " CB ", " CG ", " CD1"};
+      std::pair<int, double> p = mc.get_torsion(imol, "//A/168", atom_names);
+      if (p.first == 1) {
+         std::cout << "found torsion value " << p.second << std::endl;
+         if (p.second > -86)
+            if (p.second < -85)
+               status = 1;
+      }
+   }
+   return status;
+}

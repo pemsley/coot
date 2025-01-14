@@ -1118,6 +1118,10 @@ namespace coot {
       std::pair<int, std::vector<merge_molecule_results_info_t> >
       merge_molecules(const std::vector<atom_selection_container_t> &add_molecules);
 
+
+      std::pair<int, double>
+      get_torsion(const std::string &cid, const std::vector<std::string> &atom_names) const;
+
       // ----------------------- refinement
 
       coot::extra_restraints_t extra_restraints;

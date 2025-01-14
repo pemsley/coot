@@ -5947,3 +5947,23 @@ molecules_container_t::get_residue_sidechain_average_position(int imol, const st
    }
    return v;
 }
+
+//! Get the torsion of the specified atom in the specified residue
+//!
+//! @param imol is the model molecule index
+//! @param cid is the selection CID, e.g. //A/15 (residue 15 in chain A)
+//! @param atom_names is a list of atom names, e.g. ["CA", "CB", "CG", "CD"]
+//!
+//! @return a pair, the first of which is a succes status (1 success, 0 failure), the second is the torsion in degrees
+std::pair<int, double>
+molecules_container_t::get_torsion(int imol, const std::string &cid, const std::vector<std::string> &atom_names) {
+   std::pair<int, double> p(0,0);
+
+   if (is_valid_model_molecule(imol)) {
+      p = molecules[imol].get_torsion(cid, atom_names);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return p;
+}
+

@@ -6040,14 +6040,17 @@ int test_delete_two_add_one_using_gemmi(molecules_container_t &mc) {
 
 int test_merge_ligand_and_gemmi_parse_mmcif(molecules_container_t &mc) {
 
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+#ifdef USE_GEMMI_REALLY
+
   auto read_structure_from_string = [] (const std::string &data, const std::string& path){
     char *c_data = (char *)data.c_str();
     size_t size = data.length();
-    return gemmi::read_structure_from_char_array(c_data,size,path);
+    // return gemmi::read_structure_from_char_array(c_data,size,path);
+    return nullptr;
   };
-
-   starting_test(__FUNCTION__);
-   int status = 0;
 
    auto coordMolNo_1 = mc.read_pdb(reference_data("5a3h.mmcif"));
    // expect(coordMolNo_1).toBe(0)
@@ -6111,6 +6114,8 @@ int test_merge_ligand_and_gemmi_parse_mmcif(molecules_container_t &mc) {
    if (model.chains.size() == 3)
       if (chains[2].get_ligands().size() == 1)
          status = 1;
+
+#endif
 
    return status;
 
@@ -6497,7 +6502,8 @@ int main(int argc, char **argv) {
          // status += run_test(test_merge_ligand_and_gemmi_parse_mmcif, "test_merge_ligand_and_gemmi_parse_mmcif", mc);
          // status += run_test(test_delete_two_add_one_using_gemmi, "test_delete_two_add_one_using_gemmi", mc);
          // status += run_test(test_dictionary_atom_name_match, "dictionary atom names match", mc);
-         status += run_test(test_average_position_functions, "average position functions", mc);
+         // status += run_test(test_average_position_functions, "average position functions", mc);
+         status += run_test(test_get_torsion, "get_torsion", mc);
          if (status == n_tests) all_tests_status = 0;
 
          print_results_summary();
