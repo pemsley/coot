@@ -53,6 +53,19 @@
   <update_contact>pemsley_AT_mrc-lmb.cam.ac.uk</update_contact>
   <content_rating type="oars-1.1" />
   <releases>
+    <release version="1.1.11" date="2024-12-12">
+      <description>
+        <ul>
+          <li>FEATURE: One can now dynamically edit SMILES in layla.</li>
+          <li>FEATURE: Anisotropic atom representation [thanks to Global Phasing].</li>
+          <li>FEATURE: Better linking across sequence gaps in RNA and DNA.</li>
+          <li>FEATURE: Electrostatic representation [Stuart McNicholas].</li>
+          <li>FEATURE: Acedrg atom types are now parsed from dictionaries.</li>
+          <li>FEATURE: Function `partition_map_by_chain()` added.</li>
+          <li>OTHER: Various non-user-visible changes for Flatpak compatibility.</li>
+        </ul>
+      </description>
+    </release>
     <release version="1.1.10" date="2024-07-21">
       <description>
         <ul>
