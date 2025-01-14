@@ -862,7 +862,8 @@ fill_comboboxtext_with_atom_of_residue_type(const char *rn, GtkWidget *comboboxt
       graphics_info_t::cif_dictionary_read_number++;
       std::pair<bool, coot::dictionary_residue_restraints_t> rp = geom.get_monomer_restraints(residue_type, imol);
       if (rp.first) {
-         gtk_cell_layout_clear(GTK_CELL_LAYOUT(comboboxtext)); // clear combobox
+	 // don't do it like this -- maybe more code is needed. With this in place the combobox is just blank entries.
+         // gtk_cell_layout_clear(GTK_CELL_LAYOUT(comboboxtext)); // clear combobox
          const auto &restraints = rp.second;
          const auto &atoms = restraints.atom_info;
          for (const auto &atom : atoms) {

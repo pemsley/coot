@@ -7047,7 +7047,7 @@ Do you want to continue?
 			       <property name="spacing">5</property>
 			       <child>
 				 <object class="GtkCheckButton" id="acedrg_link_first_change_bond_order_checkbutton">
-                                   <property name="label" translatable="yes">Change Bond Order</property>
+                                   <property name="label" translatable="yes">Change Bond Order to </property>
                                    <signal name="toggled" handler="on_acedrg_link_first_change_bond_order_checkbutton_toggled" />
 				 </object>
 			       </child>
@@ -7066,10 +7066,26 @@ Do you want to continue?
 			       </child>
 
 			       <child>
+				 <object class="GtkLabel">
+				   <property name="label"> between </property>
+				   <property name="margin-end">0</property>
+				   <property name="margin-start">0</property>
+				 </object>
+			       </child>
+
+			       <child>
 				 <object class="GtkComboBoxText" id="acedrg_link_first_change_bond_order_atom_1_combobox">
                                    <property name="sensitive">False</property>
 				   <property name="margin-bottom">2</property>
 				   <property name="margin-start">6</property>
+				 </object>
+			       </child>
+
+			       <child>
+				 <object class="GtkLabel">
+				   <property name="label">and</property>
+				   <property name="margin-end">0</property>
+				   <property name="margin-start">0</property>
 				 </object>
 			       </child>
 
