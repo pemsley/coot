@@ -1183,6 +1183,72 @@
     </section>
   </menu>
 
+  <menu id="cryo-em-menu">
+    <section>
+      <item>
+        <attribute name="label" translatable="no">Solidify Maps</attribute>
+        <attribute name="action">app.cryo_em_solidify_maps_action</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="no">UnSolidify Maps</attribute>
+        <attribute name="action">app.cryo_em_unsolidify_maps_action</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="no">Add Molecular Symmetry MTRIX</attribute>
+        <attribute name="action">app.cryo_em_add_molecular_symmetry_mtrix_action</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="no">Go to Box Middle</attribute>
+        <attribute name="action">app.cryo_em_go_to_box_middle_action</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="no">Go to Middle of Map</attribute>
+        <attribute name="action">app.cryo_em_go_to_middle_of_map_action</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="no">Flip Hand of Map</attribute>
+        <attribute name="action">app.cryo_em_flip_hand_action</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="no">Make Masked Maps</attribute>
+        <attribute name="action">app.cryo_em_make_masked_maps_action</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="no">Make Partitioned</attribute>
+        <attribute name="action">app.cryo_em_make_partitioned_maps_action</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="no">Assign Sequence to Fragment</attribute>
+        <attribute name="action">app.cryo_em_assign_sequence_to_active_fragment_action</attribute>
+      </item>
+      <section>
+        <submenu>
+          <attribute name="label">Jiggle-Fit...</attribute>
+          <item>
+            <attribute name="label">Jiggle-Fit Chain Simple</attribute>
+            <attribute name="action">app.jiggle_fit_chain_simple_action</attribute>
+          </item>
+          <item>
+            <attribute name="label">Jiggle-Fit Molecule Simple</attribute>
+            <attribute name="action">app.jiggle_fit_molecule_simple_action</attribute>
+          </item>
+          <item>
+            <attribute name="label">Jiggle-Fit Chain with Fourier Filtering</attribute>
+            <attribute name="action">app.jiggle_fit_chain_with_fourier_filtering_action</attribute>
+          </item>
+          <item>
+            <attribute name="label">Jiggle-Fit Molecule with Fourier Filtering</attribute>
+            <attribute name="action">app.jiggle_fit_molecule_with_fourier_filtering_action</attribute>
+          </item>
+        </submenu>
+      </section>
+      <item>
+        <attribute name="label" translatable="no">Sharpen/Blur Map</attribute>
+        <attribute name="action">app.cryo_em_sharpen_blur_map_action</attribute>
+      </item>
+    </section>
+  </menu>
+
   <menu id="mutate-protein-menu">
     <section>
       <item>

@@ -1207,7 +1207,7 @@ mask_map_by_atom_selection_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    GtkWidget *dialog = widget_from_builder("mask_map_by_atom_selection_dialog");
    GtkWidget *model_combobox = widget_from_builder("mask_map_by_atom_selection_model_combobox");
    GtkWidget *map_combobox   = widget_from_builder("mask_map_by_atom_selection_map_combobox");
-   
+
    int imol_mol_active = -1;
    int imol_map_active = -1;
    GCallback func = G_CALLBACK(nullptr); // we don't care until this dialog is read
@@ -1406,6 +1406,197 @@ void add_ccp4_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    graphics_info_t::graphics_grab_focus();
 }
 
+void cryo_em_solidify_maps_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                  G_GNUC_UNUSED GVariant *parameter,
+                                  G_GNUC_UNUSED gpointer user_data) {
+
+   graphics_info_t g;
+   int n_mol = g.n_molecules();
+   for (int i=0; i<n_mol; i++) {
+      if (g.is_valid_map_molecule(i)) {
+         set_draw_solid_density_surface(i, 1);
+      }
+   }
+   graphics_info_t::graphics_grab_focus();
+}
+
+void cryo_em_unsolidify_maps_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                    G_GNUC_UNUSED GVariant *parameter,
+                                    G_GNUC_UNUSED gpointer user_data) {
+   graphics_info_t g;
+   int n_mol = g.n_molecules();
+   for (int i=0; i<n_mol; i++) {
+      if (g.is_valid_map_molecule(i)) {
+         set_draw_solid_density_surface(i, 0);
+      }
+   }
+   graphics_info_t::graphics_grab_focus();
+}
+
+void cryo_em_add_molecular_symmetry_mtrix_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                                 G_GNUC_UNUSED GVariant *parameter,
+                                                 G_GNUC_UNUSED gpointer user_data) {
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      add_molecular_symmetry_from_mtrix_from_self_file(imol);
+   }
+}
+
+void cryo_em_go_to_box_middle_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                     G_GNUC_UNUSED GVariant *parameter,
+                                     G_GNUC_UNUSED gpointer user_data) {
+   int imol = imol_refinement_map();
+   if (is_valid_map_molecule(imol)) {
+      clipper::Cell cell = graphics_info_t::molecules[imol].xmap.cell();
+      double a = cell.a();
+      double b = cell.b();
+      double c = cell.c();
+      set_rotation_centre(0.5 * a, 0.5 * b, 0.5 *c);
+   }
+   graphics_info_t::graphics_grab_focus();
+}
+
+void cryo_em_go_to_middle_of_map_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                        G_GNUC_UNUSED GVariant *parameter,
+                                        G_GNUC_UNUSED gpointer user_data) {
+   int imol = imol_refinement_map();
+   if (is_valid_map_molecule(imol)) {
+      go_to_map_molecule_centre(imol);
+   }
+   graphics_info_t::graphics_grab_focus();
+}
+
+void cryo_em_flip_hand_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                              G_GNUC_UNUSED GVariant *parameter,
+                              G_GNUC_UNUSED gpointer user_data) {
+
+   std::cout << "This needs a molecule chooser dialog/overlay" << std::endl;
+   graphics_info_t::graphics_grab_focus();
+}
+
+void cryo_em_make_masked_maps_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                     G_GNUC_UNUSED GVariant *parameter,
+                                     G_GNUC_UNUSED gpointer user_data) {
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      int imol_map = imol_refinement_map();
+      if (is_valid_map_molecule(imol_map)) {
+         make_masked_maps_split_by_chain(imol, imol_map);
+      }
+   }
+   graphics_info_t::graphics_grab_focus();
+}
+
+void cryo_em_make_partitioned_maps_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                          G_GNUC_UNUSED GVariant *parameter,
+                                          G_GNUC_UNUSED gpointer user_data) {
+
+   std::cout << "This needs a molecule chooser dialog/overlay" << std::endl;
+   graphics_info_t::graphics_grab_focus();
+}
+
+void cryo_em_sharpen_blur_map_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                     G_GNUC_UNUSED GVariant *parameter,
+                                     G_GNUC_UNUSED gpointer user_data) {
+   std::cout << "This needs a molecule chooser dialog/overlay" << std::endl;
+   graphics_info_t::graphics_grab_focus();
+}
+
+void cryo_em_assign_sequence_to_active_fragment_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                                       G_GNUC_UNUSED GVariant *parameter,
+                                                       G_GNUC_UNUSED gpointer user_data) {
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      std::string chain_id = pp.second.second.chain_id;
+      int imol_map = imol_refinement_map();
+      if (is_valid_map_molecule(imol_map)) {
+         assign_sequence(imol, imol_map, chain_id.c_str());
+      } else {
+         std::cout << "WARNING:: not a valid map " << imol_map << std::endl;
+      }
+   } else {
+      std::cout << "WARNING:: no molecule picked " << std::endl;
+   }
+   graphics_info_t::graphics_grab_focus();
+}
+
+void jiggle_fit_chain_simple_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                    G_GNUC_UNUSED GVariant *parameter,
+                                    G_GNUC_UNUSED gpointer user_data) {
+
+   int n_trials = 4000;
+   float scale_factor = 2.0;
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      std::string chain_id = pp.second.second.chain_id;
+      int imol_map = imol_refinement_map();
+      if (is_valid_map_molecule(imol_map)) {
+         fit_chain_to_map_by_random_jiggle(imol, chain_id.c_str(), n_trials, scale_factor);
+      }
+   }
+   graphics_info_t::graphics_grab_focus();
+}
+
+void jiggle_fit_molecule_simple_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                       G_GNUC_UNUSED GVariant *parameter,
+                                       G_GNUC_UNUSED gpointer user_data) {
+   int n_trials = 4000;
+   float scale_factor = 2.0;
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      int imol_map = imol_refinement_map();
+      if (is_valid_map_molecule(imol_map)) {
+         fit_molecule_to_map_by_random_jiggle(imol, n_trials, scale_factor);
+      }
+   }
+   graphics_info_t::graphics_grab_focus();
+}
+
+void jiggle_fit_chain_with_fourier_filtering_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                                    G_GNUC_UNUSED GVariant *parameter,
+                                                    G_GNUC_UNUSED gpointer user_data) {
+   int n_trials = 4000;
+   float scale_factor = 2.0;
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      std::string chain_id = pp.second.second.chain_id;
+      int imol_map = imol_refinement_map();
+      if (is_valid_map_molecule(imol_map)) {
+         fit_chain_to_map_by_random_jiggle_and_blur(imol, chain_id.c_str(), n_trials, scale_factor, 300.0);
+      }
+   }
+   graphics_info_t::graphics_grab_focus();
+}
+
+void jiggle_fit_molecule_with_fourier_filtering_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                                       G_GNUC_UNUSED GVariant *parameter,
+                                                       G_GNUC_UNUSED gpointer user_data) {
+   int n_trials = 4000;
+   float scale_factor = 2.0;
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      int imol_map = imol_refinement_map();
+      if (is_valid_map_molecule(imol_map)) {
+         fit_molecule_to_map_by_random_jiggle_and_blur(imol, n_trials, scale_factor, 300.0);
+      }
+   }
+   graphics_info_t::graphics_grab_focus();
+}
+
+
 void add_carbohydrate_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                     G_GNUC_UNUSED GVariant *parameter,
                                     G_GNUC_UNUSED gpointer user_data) {
@@ -1439,6 +1630,16 @@ void add_cryo_em_module_action(GSimpleAction *simple_action,
    // jiggle-fit chain with fourier filtering
    // jiggle-fit mol with fourier filtering
    // sharpen-blur map
+
+   GtkWidget *toolbar_hbox = widget_from_builder("main_window_toolbar_hbox");
+   GtkWidget *menubutton = gtk_menu_button_new();
+   gtk_menu_button_set_label(GTK_MENU_BUTTON(menubutton), "Cryo-EM");
+   gtk_box_append(GTK_BOX(toolbar_hbox), menubutton);
+
+   GtkWidget *menu = widget_from_builder("cryo-em-menu");
+   GMenuModel *model = G_MENU_MODEL(menu);
+   GtkWidget *popover = gtk_popover_menu_new_from_model(model);
+   gtk_menu_button_set_popover(GTK_MENU_BUTTON(menubutton), popover);
 
    g_simple_action_set_enabled(simple_action,FALSE);
    graphics_info_t::graphics_grab_focus();
@@ -2131,7 +2332,7 @@ void replace_residue_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 void rigid_body_fit_residue_ranges_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                           G_GNUC_UNUSED GVariant *parameter,
                                           G_GNUC_UNUSED gpointer user_data) {
-   
+
    safe_python_command("import coot_gui");
    safe_python_command("coot_gui.rigid_body_refine_residue_ranges_gui()");
 
@@ -3858,8 +4059,6 @@ create_actions(GtkApplication *application) {
    add_action(       "add_shelx_module_action",        add_shelx_module_action);
    add_action(       "add_views_module_action",        add_views_module_action);
 
-   add_action(     "acedrg_link_interface_action", acedrg_link_interface_action);
-
    // Calculate -> NCS
 
    add_action("copy_ncs_residue_range_action", copy_ncs_residue_range_action);
@@ -4034,4 +4233,29 @@ create_actions(GtkApplication *application) {
 
    // Delete menu
    add_action_with_param("delete_item", delete_item);
+
+
+   // --- Modules ---
+
+   // CCP4 menu
+   add_action(     "acedrg_link_interface_action", acedrg_link_interface_action);
+
+   // Cryo-EM menu
+   add_action("cryo_em_solidify_maps_action",                cryo_em_solidify_maps_action);
+   add_action("cryo_em_unsolidify_maps_action",              cryo_em_unsolidify_maps_action);
+   add_action("cryo_em_add_molecular_symmetry_mtrix_action", cryo_em_add_molecular_symmetry_mtrix_action);
+   add_action("cryo_em_go_to_box_middle_action",             cryo_em_go_to_box_middle_action);
+   add_action("cryo_em_go_to_middle_of_map_action",          cryo_em_go_to_middle_of_map_action);
+   add_action("cryo_em_flip_hand_action",                    cryo_em_flip_hand_action);
+   add_action("cryo_em_make_masked_maps_action",             cryo_em_make_masked_maps_action);
+   add_action("cryo_em_make_partitioned_maps_action",        cryo_em_make_partitioned_maps_action);
+   add_action("cryo_em_sharpen_blur_map_action",             cryo_em_sharpen_blur_map_action);
+   add_action("cryo_em_assign_sequence_to_active_fragment_action", cryo_em_assign_sequence_to_active_fragment_action);
+
+   add_action("jiggle_fit_chain_simple_action",                    jiggle_fit_chain_simple_action);
+   add_action("jiggle_fit_molecule_simple_action",                 jiggle_fit_molecule_simple_action);
+   add_action("jiggle_fit_chain_with_fourier_filtering_action",    jiggle_fit_chain_with_fourier_filtering_action);
+   add_action("jiggle_fit_molecule_with_fourier_filtering_action", jiggle_fit_molecule_with_fourier_filtering_action);
+
+
 }
