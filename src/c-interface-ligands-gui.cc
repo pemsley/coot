@@ -1366,42 +1366,5 @@ show_acedrg_link_interface_overlay() {
 
    GtkWidget *w = widget_from_builder("acedrg_link_interface_frame");
    gtk_widget_set_visible(w, TRUE);
-
-   // what is the residue at the centre of the screen?
-   // Fill the comboboxes dependent on that
-
-   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
-   if (pp.first) {
-      int imol = pp.second.first;
-      const auto &atom_spec = pp.second.second;
-      auto res_spec = coot::residue_spec_t(atom_spec);
-      std::string rn = graphics_info_t::molecules[imol].get_residue_name(res_spec);
-      if (graphics_info_t::Geom_p()) {
-	 if (! rn.empty()) {
-	    std::pair<bool, coot::dictionary_residue_restraints_t> p =
-	       graphics_info_t::Geom_p()->get_monomer_restraints(rn, imol);
-	    if (p.first) {
-	       GtkWidget *entry    = widget_from_builder("acedrg_link_first_residue_name_entry");
-	       GtkWidget *combobox = widget_from_builder("acedrg_link_first_atom_name_chooser_combobox");
-	       if (entry) {
-		  if (combobox) {
-		     std::cout << "add " << rn << " to " << entry << std::endl;
-		     gtk_editable_set_text(GTK_EDITABLE(entry), rn.c_str());
-		     const auto &rest = p.second;
-		     const std::vector<coot::dict_atom> &atoms = rest.atom_info;
-		     gtk_cell_layout_clear(GTK_CELL_LAYOUT(combobox));
-		     for(const auto &atom : atoms) {
-			const std::string &atom_name = atom.atom_id_4c;
-			gtk_combo_box_text_append_text(GTK_COMBO_BOX_TEXT(combobox), atom_name.c_str());
-		     }
-		  }
-	       }
-	    }
-	 }
-      } else {
-	 std::cout << "ERROR:: Geom_p() is null" << std::endl;
-      }
-   }
-
 }
 

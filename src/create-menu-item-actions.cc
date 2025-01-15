@@ -1361,12 +1361,11 @@ void add_HOLE_module_action(GSimpleAction *simple_action,
    // g_simple_action_set_enabled(simple_action,FALSE);
 }
 
-void acedrg_link_interface_action(GSimpleAction *simple_action,
-                            G_GNUC_UNUSED GVariant *parameter,
-                            G_GNUC_UNUSED gpointer user_data) {
+void acedrg_link_interface_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                  G_GNUC_UNUSED GVariant *parameter,
+                                  G_GNUC_UNUSED gpointer user_data) {
 
    std::cout << "show acedrg link interface overlay" << std::endl;
-
    show_acedrg_link_interface_overlay();
 
 }
@@ -1420,19 +1419,50 @@ void add_cryo_em_module_action(GSimpleAction *simple_action,
                                G_GNUC_UNUSED GVariant *parameter,
                                G_GNUC_UNUSED gpointer user_data) {
 
+#if 0
    safe_python_command("import coot_gui");
    safe_python_command("coot_gui.add_module_cryo_em()");
+#endif
+
+   // in C++:
+   // Solidify
+   // Unsolidify
+   // add mol sym mtrix
+   // go to box middle
+   // go to map middle
+   // flip hand
+   // make masked maps
+   // make partitioned maps
+   // assign sequence to active fragment
+   // jiggle-fit chain simple
+   // jiggle-fit molecule simple
+   // jiggle-fit chain with fourier filtering
+   // jiggle-fit mol with fourier filtering
+   // sharpen-blur map
+
    g_simple_action_set_enabled(simple_action,FALSE);
    graphics_info_t::graphics_grab_focus();
+
 }
 
 void add_ligand_module_action(GSimpleAction *simple_action,
                               G_GNUC_UNUSED GVariant *parameter,
                               G_GNUC_UNUSED gpointer user_data) {
-
+#if 0
    safe_python_command("import coot_utils");
    safe_python_command("import coot_gui");
    safe_python_command("coot_gui.add_module_ligand()");
+#endif
+
+   // Jiggle-fit active residue
+   // Coot contact dots for ligand
+   // Geometric distortions
+   // [probe dots for ligand]
+   // Make LINK
+   // SMILES -> 3D
+   // Show Chemical Features
+   // Quick Ligand Validate
+
    g_simple_action_set_enabled(simple_action,FALSE);
    graphics_info_t::graphics_grab_focus();
 }
@@ -3828,7 +3858,7 @@ create_actions(GtkApplication *application) {
    add_action(       "add_shelx_module_action",        add_shelx_module_action);
    add_action(       "add_views_module_action",        add_views_module_action);
 
-   add_action(             "acedrg_link_interface_action", acedrg_link_interface_action);
+   add_action(     "acedrg_link_interface_action", acedrg_link_interface_action);
 
    // Calculate -> NCS
 
