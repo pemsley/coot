@@ -1274,6 +1274,8 @@ on_acedrg_link_ok_button_clicked(GtkButton       *button,
          }
       }
    }
+   graphics_info_t g;
+   g.graphics_grab_focus();
 }
 
 extern "C" G_MODULE_EXPORT
@@ -1309,10 +1311,39 @@ on_acedrg_link_second_residue_activate(GtkEntry *entry, gpointer user_data) {
 
 extern "C" G_MODULE_EXPORT
 void
-on_acedrg_link_cancel_button_clicked(GtkButton       *button,
-				     gpointer         user_data) {
+on_acedrg_link_cancel_button_clicked(G_GNUC_UNUSED GtkButton       *button,
+				     G_GNUC_UNUSED gpointer         user_data) {
 
-  std::cout << "Cancel" << std::endl;
-  GtkWidget *w = widget_from_builder("acedrg_link_interface_frame");
-  gtk_widget_set_visible(w, FALSE);
+   std::cout << "Cancel" << std::endl;
+   GtkWidget *w = widget_from_builder("acedrg_link_interface_frame");
+   gtk_widget_set_visible(w, FALSE);
+   graphics_info_t g;
+   g.graphics_grab_focus();
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_flip_hand_cancel_button_clicked(G_GNUC_UNUSED GtkButton       *button,
+                                   G_GNUC_UNUSED gpointer         user_data) {
+
+   GtkWidget *frame = widget_from_builder("flip_map_hand_frame");
+   gtk_widget_set_visible(frame, FALSE);
+   graphics_info_t g;
+   g.graphics_grab_focus();
+
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_flip_hand_ok_button_clicked(G_GNUC_UNUSED GtkButton       *button,
+                               G_GNUC_UNUSED gpointer         user_data) {
+
+   GtkWidget *frame                = widget_from_builder("flip_map_hand_frame");
+   GtkWidget *mol_chooser_combobox = widget_from_builder("flip_map_hand_comboboxtext");
+   gtk_widget_set_visible(frame, FALSE);
+   int imol = my_combobox_get_imol(GTK_COMBO_BOX(mol_chooser_combobox));
+   flip_hand(imol);
+   graphics_info_t g;
+   g.graphics_grab_focus();
+
 }

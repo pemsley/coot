@@ -1472,7 +1472,19 @@ void cryo_em_flip_hand_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                               G_GNUC_UNUSED GVariant *parameter,
                               G_GNUC_UNUSED gpointer user_data) {
 
-   std::cout << "This needs a molecule chooser dialog/overlay" << std::endl;
+   GtkWidget *flip_map_hand_frame = widget_from_builder("flip_map_hand_frame");
+   if (flip_map_hand_frame) {
+      GtkWidget *combobox = widget_from_builder("flip_map_hand_comboboxtext");
+      if (combobox) {
+         graphics_info_t g;
+         int imol_map = 0;
+         int irm = imol_refinement_map();
+         if (is_valid_map_molecule(irm))
+            imol_map = irm;
+         g.fill_combobox_with_map_options(combobox, G_CALLBACK(nullptr), imol_map);
+         gtk_widget_set_visible(flip_map_hand_frame, TRUE);
+      }
+   }
    graphics_info_t::graphics_grab_focus();
 }
 

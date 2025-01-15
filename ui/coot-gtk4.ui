@@ -7509,6 +7509,65 @@ Do you want to continue?
             </child>
 
             <child type="overlay">
+              <object class="GtkFrame" id="flip_map_hand_frame">
+                <property name="halign">center</property>
+                <property name="valign">start</property>
+                <property name="visible">False</property>
+                <property name="can_focus">True</property>
+                <property name="margin-bottom">5</property>
+                <property name="margin-end">5</property>
+                <property name="margin-start">5</property>
+                <property name="margin-top">5</property>
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                    <property name="spacing">5</property>
+                    <child>
+                      <object class="GtkLabel" id="flip_map_hand_label">
+                        <property name="label" translatable="yes">Flip Map Hand</property>
+                        <property name="justify">center</property>
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="GtkComboBoxText" id="flip_map_hand_comboboxtext">
+                        <property name="margin-start">8</property>
+                        <property name="margin-end">8</property>
+                        <property name="margin-top">4</property>
+                        <property name="margin-bottom">4</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkBox" id="vbox_flip_hand_buttons">
+                        <property name="homogeneous">True</property>
+                        <property name="spacing">5</property>
+                        <property name="orientation">horizontal</property>
+                        <property name="margin-bottom">8</property>
+                        <property name="margin-end">8</property>
+                        <property name="margin-start">8</property>
+                        <property name="margin-top">8</property>
+                        <child>
+                          <object class="GtkButton" id="flip_hand_cancel_button">
+                            <property name="label" translatable="yes">Cancel</property>
+                            <property name="receives-default">1</property>
+                            <signal name="clicked" handler="on_flip_hand_cancel_button_clicked"/>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkButton" id="flip_hand_ok_button">
+                            <property name="label" translatable="yes">Flip</property>
+                            <property name="receives-default">1</property>
+                            <signal name="clicked" handler="on_flip_hand_ok_button_clicked"/>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+
+            <child type="overlay">
               <object class="GtkFrame" id="emdb_map_code_frame">
                 <property name="halign">center</property>
                 <property name="valign">start</property>
