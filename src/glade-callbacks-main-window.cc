@@ -863,12 +863,6 @@ fill_comboboxtext_with_atom_of_residue_type(const char *rn, GtkWidget *comboboxt
       std::pair<bool, coot::dictionary_residue_restraints_t> rp = geom.get_monomer_restraints(residue_type, imol);
       if (rp.first) {
          gtk_combo_box_text_remove_all(GTK_COMBO_BOX_TEXT(comboboxtext));
-         if (false) {
-            // gtk_cell_layout_clear(GTK_CELL_LAYOUT(comboboxtext)); // clear combobox
-            GtkTreeModel *model = gtk_combo_box_get_model(GTK_COMBO_BOX(comboboxtext));
-            GtkListStore *list_store = GTK_LIST_STORE(model);
-            gtk_list_store_clear(list_store);
-         }
          const auto &restraints = rp.second;
          const auto &atoms = restraints.atom_info;
          for (const auto &atom : atoms) {
