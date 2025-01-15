@@ -1058,17 +1058,18 @@ on_acedrg_link_ok_button_clicked(GtkButton       *button,
       ss += atom_name_first;
       ss += " ";
       if (!cif_file_name_1.empty())
-         ss + "FILE-1 " + cif_file_name_1;
+         ss += std::string("FILE-1 ") + cif_file_name_1;
 
       ss += "RES-NAME-2 ";
       ss += residue_name_second;
       ss += " ";
       ss += "ATOM-NAME-2 ";
       ss += atom_name_second;
+      ss += " ";
       if (!cif_file_name_2.empty())
-         ss + "FILE-2 " + cif_file_name_2;
+         ss += std::string("FILE-2 ") + cif_file_name_2;
 
-      ss += " BOND-TYPE ";
+      ss += std::string(" BOND-TYPE ");
       ss += coot::util::upcase(bond_order);
       std::cout << ss << std::endl;
       run_acedrg_link_generation(ss);
@@ -1100,10 +1101,10 @@ on_acedrg_link_ok_button_clicked(GtkButton       *button,
       ss += atom_name_first;
       ss += " ";
       if (!cif_file_name_1.empty())
-         ss + "FILE-1 " + cif_file_name_1 + std::string(" ");
+         ss += "FILE-1 " + cif_file_name_1 + std::string(" ");
       if (delete_atom_first)
          if (da_first)
-         ss += "DELETE " + std::string(da_first) + std::string(" 1 ");
+         ss += "DELETE ATOM " + std::string(da_first) + std::string(" 1 ");
       if (change_charge_on_first_residue_atom)
          ss += std::string("CHANGE CHARGE ") + std::string(change_charge_on_first_atom) + std::string(" 1 ");
       if (change_bond_order_first)
@@ -1117,14 +1118,16 @@ on_acedrg_link_ok_button_clicked(GtkButton       *button,
       ss += residue_name_second;
       ss += " ";
       ss += "ATOM-NAME-2 ";
+      ss += " ";
       ss += atom_name_second;
+      ss += " ";
       if (!cif_file_name_2.empty())
-         ss += std::string("FILE-2 ") + cif_file_name_2;
+         ss += std::string("FILE-2 ") + cif_file_name_2 + std::string(" ");
       if (delete_atom_second)
          if (da_second)
-         ss += "DELETE " + std::string(da_second) + std::string(" 2 ");
+         ss += "DELETE ATOM " + std::string(da_second) + std::string(" 2 ");
       if (change_charge_on_second_residue_atom)
-         ss += std::string("CHANGE CHARGE ") + std::string(change_charge_on_first_atom) + std::string(" 2 ");
+         ss += std::string("CHANGE CHARGE ") + std::string(change_charge_on_second_atom) + std::string(" 2 ");
       if (change_bond_order_second)
          if (cbo_second)
             if (change_bond_order_second_atom_1)
