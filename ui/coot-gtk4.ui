@@ -1206,7 +1206,7 @@
         <attribute name="action">app.cryo_em_go_to_middle_of_map_action</attribute>
       </item>
       <item>
-        <attribute name="label" translatable="no">Flip Hand of Map</attribute>
+        <attribute name="label" translatable="no">Flip Hand of Map...</attribute>
         <attribute name="action">app.cryo_em_flip_hand_action</attribute>
       </item>
       <item>
@@ -1214,7 +1214,7 @@
         <attribute name="action">app.cryo_em_make_masked_maps_action</attribute>
       </item>
       <item>
-        <attribute name="label" translatable="no">Make Partitioned</attribute>
+        <attribute name="label" translatable="no">Make Partitioned Maps</attribute>
         <attribute name="action">app.cryo_em_make_partitioned_maps_action</attribute>
       </item>
       <item>
@@ -1243,7 +1243,7 @@
         </submenu>
       </section>
       <item>
-        <attribute name="label" translatable="no">Sharpen/Blur Map</attribute>
+        <attribute name="label" translatable="no">Sharpen/Blur Map...</attribute>
         <attribute name="action">app.cryo_em_sharpen_blur_map_action</attribute>
       </item>
     </section>
@@ -7568,6 +7568,159 @@ Do you want to continue?
             </child>
 
             <child type="overlay">
+              <object class="GtkFrame" id="sharpen_blur_map_frame">
+                <property name="halign">center</property>
+                <property name="valign">start</property>
+                <property name="visible">False</property>
+                <property name="can_focus">True</property>
+                <property name="margin-bottom">5</property>
+                <property name="margin-end">5</property>
+                <property name="margin-start">5</property>
+                <property name="margin-top">5</property>
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                    <property name="spacing">5</property>
+
+                    <child>
+                      <object class="GtkLabel" id="sharpen_blur_map_label">
+                        <property name="label" translatable="yes">Sharpen/Blur Map</property>
+                        <property name="justify">left</property>
+                        <property name="margin-top">4</property>
+                        <property name="margin-bottom">4</property>
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="GtkComboBoxText" id="sharpen_blur_map_comboboxtext">
+                        <property name="margin-start">8</property>
+                        <property name="margin-end">8</property>
+                        <property name="margin-top">4</property>
+                        <property name="margin-bottom">4</property>
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="GtkBox">
+                        <property name="orientation">horizontal</property>
+                        <property name="homogeneous">False</property>
+                        <property name="spacing">4</property>
+                        <property name="margin-top">4</property>
+                        <property name="margin-bottom">4</property>
+                        <property name="margin-start">6</property>
+                        <property name="margin-end">1</property>
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="label" translatable="yes">Sharpen Blur by</property>
+                            <property name="justify">left</property>
+                          </object>
+                        </child>
+
+                        <child>
+                          <object class="GtkEntry" id="sharpen_blur_map_entry">
+                            <property name="width-request">5</property>
+                            <property name="can-focus">1</property>
+                            <property name="text">20.0</property>
+                          </object>
+                        </child>
+
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="label" translatable="yes">Ångströms</property>
+                            <property name="margin-end">10</property>
+                            <property name="justify">left</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="GtkBox">
+                        <property name="orientation">horizontal</property>
+                        <child>
+                          <object class="GtkCheckButton" id="sharpen_blur_map_resample_checkbutton">
+                            <property name="label" translatable="yes">Resample</property>
+                            <property name="active">0</property>
+                            <property name="margin-start">4</property>
+                            <property name="margin-end">4</property>
+                            <property name="margin-top">4</property>
+                            <property name="margin-bottom">4</property>
+                            <signal name="toggled" handler="on_sharpen_blur_map_resample_checkbutton_toggled" swapped="no"/>
+                          </object>
+                        </child>
+
+                        <child>
+                          <object class="GtkLabel" id="sharpen_blur_map_resample_label">
+                            <property name="label" translatable="yes"> Factor: </property>
+                            <property name="sensitive">0</property>
+                            <property name="justify">center</property>
+                            <property name="margin-start">4</property>
+                            <property name="margin-end">2</property>
+                            <property name="margin-top">4</property>
+                            <property name="margin-bottom">4</property>
+                          </object>
+                        </child>
+
+                        <child>
+                          <object class="GtkEntry" id="sharpen_blur_map_resample_entry">
+                            <property name="text">1.3</property>
+                            <property name="sensitive">0</property>
+                            <property name="width-request">5</property>
+                            <property name="can-focus">1</property>
+                            <property name="margin-start">4</property>
+                            <property name="margin-end">4</property>
+                            <property name="margin-top">4</property>
+                            <property name="margin-bottom">4</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="GtkBox">
+                        <property name="orientation">horizontal</property>
+                        <property name="halign">GTK_ALIGN_END</property>
+                        <property name="homogeneous">True</property>
+                        <property name="margin-start">4</property>
+                        <property name="margin-end">4</property>
+                        <property name="margin-top">4</property>
+                        <property name="margin-bottom">4</property>
+
+                        <child>
+                          <object class="GtkButton" id="sharpen_blur_map_cancel_button">
+                            <property name="label">Cancel</property>
+                            <property name="margin-start">4</property>
+                            <property name="margin-end">4</property>
+                            <property name="margin-top">4</property>
+                            <property name="margin-bottom">4</property>
+                            <signal name="clicked" handler="on_sharpen_blur_map_cancel_button_clicked" swapped="no"/>
+                          </object>
+                        </child>
+
+                        <child>
+                          <object class="GtkButton" id="sharpen_blur_map_ok_button">
+                            <property name="label">Go</property>
+                            <property name="margin-start">4</property>
+                            <property name="margin-end">4</property>
+                            <property name="margin-top">4</property>
+                            <property name="margin-bottom">4</property>
+                            <signal name="clicked" handler="on_sharpen_blur_map_ok_button_clicked" swapped="no"/>
+                            <style>
+                              <class name="suggested-action"/>
+                            </style>
+                          </object>
+                        </child>
+
+                      </object>
+                    </child>
+
+
+                  </object>
+                </child>
+              </object>
+            </child>
+
+            <child type="overlay">
               <object class="GtkFrame" id="emdb_map_code_frame">
                 <property name="halign">center</property>
                 <property name="valign">start</property>
@@ -10088,7 +10241,7 @@ density (too big to be waters):
           </child>
           </object>
         </child>
-        
+
         <child>
           <object class="GtkBox">>
           <property name="margin-top">6</property>

@@ -1347,3 +1347,98 @@ on_flip_hand_ok_button_clicked(G_GNUC_UNUSED GtkButton       *button,
    g.graphics_grab_focus();
 
 }
+
+extern "C" G_MODULE_EXPORT
+void
+on_make_masked_maps_by_chain_ok_button_clicked(G_GNUC_UNUSED GtkButton       *button,
+                                                   G_GNUC_UNUSED gpointer         user_data) {
+
+   GtkWidget *frame = widget_from_builder("make_masked_maps_by_chain_frame");
+   GtkWidget *mol_chooser_combobox = widget_from_builder("make_masked_maps_by_chain_model_comboboxtext");
+   GtkWidget *map_chooser_combobox = widget_from_builder("make_masked_maps_by_chain_map_comboboxtext");
+   int imol     = my_combobox_get_imol(GTK_COMBO_BOX(mol_chooser_combobox));
+   int imol_map = my_combobox_get_imol(GTK_COMBO_BOX(map_chooser_combobox));
+   make_masked_maps_split_by_chain(imol, imol_map);
+   gtk_widget_set_visible(frame, FALSE);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_make_masked_maps_by_chain_cancel_button_clicked(G_GNUC_UNUSED GtkButton       *button,
+                                                   G_GNUC_UNUSED gpointer         user_data) {
+
+   GtkWidget *frame = widget_from_builder("make_masked_maps_by_chain_frame");
+   gtk_widget_set_visible(frame, FALSE);
+}
+
+
+extern "C" G_MODULE_EXPORT
+void
+on_sharpen_blur_map_ok_button_clicked(G_GNUC_UNUSED GtkButton       *button,
+                                      G_GNUC_UNUSED gpointer         user_data) {
+
+   GtkWidget *frame          = widget_from_builder("sharpen_blur_map_frame");
+   GtkWidget *combobox       = widget_from_builder("sharpen_blur_map_comboboxtext");
+   GtkWidget *checkbutton    = widget_from_builder("sharpen_blur_map_resample_checkbutton");
+   GtkWidget *resample_entry = widget_from_builder("sharpen_blur_map_resample_entry");
+   GtkWidget *b_factor_entry = widget_from_builder("sharpen_blur_map_entry");
+   int imol_map = my_combobox_get_imol(GTK_COMBO_BOX(combobox));
+   float resample_factor = 1.0;
+   float b_factor = 0.0;
+   if (b_factor_entry) {
+      const char *t = gtk_editable_get_text(GTK_EDITABLE(b_factor_entry));
+      try {
+         b_factor = coot::util::string_to_float(std::string(t));
+      }
+      catch (const std::runtime_error &e) {
+         std::cout << "WARNING::" << e.what() << std::endl;
+      }
+   }
+   if (gtk_check_button_get_active(GTK_CHECK_BUTTON(checkbutton))) {
+      const char *t = gtk_editable_get_text(GTK_EDITABLE(resample_entry));
+      try {
+         resample_factor = coot::util::string_to_float(std::string(t));
+      }
+      catch (const std::runtime_error &e) {
+         std::cout << "WARNING::" << e.what() << std::endl;
+      }
+      // 20250115-PE make this non-blocking if you can (non-trivial)
+      // you will need to split the calculation from the update of the gui and graphics.
+      sharpen_blur_map_with_resampling(imol_map, b_factor, resample_factor);
+   } else {
+      // 20250115-PE make this non-blocking if you can
+      sharpen_blur_map(imol_map, b_factor);
+   }
+   if (frame)
+      gtk_widget_set_visible(frame, FALSE);
+
+}
+extern "C" G_MODULE_EXPORT
+
+void
+on_sharpen_blur_map_cancel_button_clicked(G_GNUC_UNUSED GtkButton       *button,
+                                          G_GNUC_UNUSED gpointer         user_data) {
+
+   GtkWidget *frame = widget_from_builder("sharpen_blur_map_frame");
+   if (frame)
+      gtk_widget_set_visible(frame, FALSE);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_sharpen_blur_map_resample_checkbutton_toggled(GtkCheckButton *checkbutton,
+                                                 G_GNUC_UNUSED gpointer         user_data) {
+
+   GtkWidget *resample_entry = widget_from_builder("sharpen_blur_map_resample_entry");
+   GtkWidget *resample_label = widget_from_builder("sharpen_blur_map_resample_label");
+   if (resample_entry) {
+      if (gtk_check_button_get_active(checkbutton)) {
+         gtk_widget_set_sensitive(resample_entry, TRUE);
+         gtk_widget_set_sensitive(resample_label, TRUE);
+      } else {
+         gtk_widget_set_sensitive(resample_entry, FALSE);
+         gtk_widget_set_sensitive(resample_label, FALSE);
+      }
+   }
+}
+

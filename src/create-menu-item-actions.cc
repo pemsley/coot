@@ -1507,14 +1507,30 @@ void cryo_em_make_partitioned_maps_action(G_GNUC_UNUSED GSimpleAction *simple_ac
                                           G_GNUC_UNUSED GVariant *parameter,
                                           G_GNUC_UNUSED gpointer user_data) {
 
-   std::cout << "This needs a molecule chooser dialog/overlay" << std::endl;
-   graphics_info_t::graphics_grab_focus();
+   show_map_partition_by_chain_dialog();
 }
 
 void cryo_em_sharpen_blur_map_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                      G_GNUC_UNUSED GVariant *parameter,
                                      G_GNUC_UNUSED gpointer user_data) {
-   std::cout << "This needs a molecule chooser dialog/overlay" << std::endl;
+
+   auto get_map_molecule_vector = [] () {
+                                     graphics_info_t g;
+                                     std::vector<int> vec;
+                                     int n_mol = g.n_molecules();
+                                     for (int i=0; i<n_mol; i++)
+                                        if (g.is_valid_map_molecule(i))
+                                           vec.push_back(i);
+                                     return vec;
+                                  };
+   graphics_info_t g;
+   GtkWidget *sharpen_blur_map_frame = widget_from_builder("sharpen_blur_map_frame");
+   GtkWidget *map_combobox      = widget_from_builder("sharpen_blur_map_comboboxtext");
+   GCallback func = G_CALLBACK(nullptr); // we don't care until this dialog is read
+   int imol_map_active = -1;
+   auto map_list = get_map_molecule_vector();
+   g.fill_combobox_with_molecule_options(map_combobox, func, imol_map_active, map_list);
+   gtk_widget_set_visible(sharpen_blur_map_frame, TRUE);
    graphics_info_t::graphics_grab_focus();
 }
 
@@ -4268,6 +4284,5 @@ create_actions(GtkApplication *application) {
    add_action("jiggle_fit_molecule_simple_action",                 jiggle_fit_molecule_simple_action);
    add_action("jiggle_fit_chain_with_fourier_filtering_action",    jiggle_fit_chain_with_fourier_filtering_action);
    add_action("jiggle_fit_molecule_with_fourier_filtering_action", jiggle_fit_molecule_with_fourier_filtering_action);
-
 
 }
