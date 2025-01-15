@@ -1553,6 +1553,88 @@ void cryo_em_assign_sequence_to_active_fragment_action(G_GNUC_UNUSED GSimpleActi
    graphics_info_t::graphics_grab_focus();
 }
 
+void coot_contact_dots_for_ligand_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                         G_GNUC_UNUSED GVariant *parameter,
+                                         G_GNUC_UNUSED gpointer user_data) {
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      coot::residue_spec_t res_spec(pp.second.second);
+      coot_contact_dots_for_ligand_instancing_version(imol, res_spec);
+   }
+   graphics_info_t::graphics_grab_focus();
+}
+
+void geometric_distortions_for_ligand_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                             G_GNUC_UNUSED GVariant *parameter,
+                                             G_GNUC_UNUSED gpointer user_data) {
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      coot::residue_spec_t res_spec(pp.second.second);
+      display_residue_distortions(imol, res_spec.chain_id, res_spec.res_no, res_spec.ins_code);
+   }
+   graphics_info_t::graphics_grab_focus();
+}
+
+void SMILES_to_3D_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                         G_GNUC_UNUSED GVariant *parameter,
+                         G_GNUC_UNUSED gpointer user_data) {
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   do_smiles_to_simple_3d_overlay_frame();
+}
+
+#include "sdf-interface.hh"
+
+void show_chemical_features_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                   G_GNUC_UNUSED GVariant *parameter,
+                                   G_GNUC_UNUSED gpointer user_data) {
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      coot::residue_spec_t res_spec(pp.second.second);
+      show_feats(imol, res_spec.chain_id.c_str(), res_spec.res_no, res_spec.ins_code.c_str());
+   }
+   graphics_info_t::graphics_grab_focus();
+
+}
+
+void quick_ligand_validate_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                  G_GNUC_UNUSED GVariant *parameter,
+                                  G_GNUC_UNUSED gpointer user_data) {
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      coot::residue_spec_t res_spec(pp.second.second);
+      // 20250115-PE this is too tricky for now. It needs the conversion of all of
+      // coot_ligand_check.py
+   }
+   graphics_info_t::graphics_grab_focus();
+
+}
+
+
+void jiggle_fit_active_residue_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                      G_GNUC_UNUSED GVariant *parameter,
+                                      G_GNUC_UNUSED gpointer user_data) {
+
+   int n_trials = 4000;
+   float scale_factor = 2.0;
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      std::string chain_id = pp.second.second.chain_id;
+      int res_no = pp.second.second.res_no;
+      std::string ins_code = pp.second.second.ins_code;
+      fit_to_map_by_random_jiggle(imol, chain_id.c_str(), res_no, ins_code.c_str(), n_trials, scale_factor);
+   }
+   graphics_info_t::graphics_grab_focus();
+}
+
 void jiggle_fit_chain_simple_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                     G_GNUC_UNUSED GVariant *parameter,
                                     G_GNUC_UNUSED gpointer user_data) {
@@ -1691,6 +1773,16 @@ void add_ligand_module_action(GSimpleAction *simple_action,
    // SMILES -> 3D
    // Show Chemical Features
    // Quick Ligand Validate
+
+   GtkWidget *toolbar_hbox = widget_from_builder("main_window_toolbar_hbox");
+   GtkWidget *menubutton = gtk_menu_button_new();
+   gtk_menu_button_set_label(GTK_MENU_BUTTON(menubutton), "Ligand");
+   gtk_box_append(GTK_BOX(toolbar_hbox), menubutton);
+
+   GtkWidget *menu = widget_from_builder("ligand-menu");
+   GMenuModel *model = G_MENU_MODEL(menu);
+   GtkWidget *popover = gtk_popover_menu_new_from_model(model);
+   gtk_menu_button_set_popover(GTK_MENU_BUTTON(menubutton), popover);
 
    g_simple_action_set_enabled(simple_action,FALSE);
    graphics_info_t::graphics_grab_focus();
@@ -4284,5 +4376,13 @@ create_actions(GtkApplication *application) {
    add_action("jiggle_fit_molecule_simple_action",                 jiggle_fit_molecule_simple_action);
    add_action("jiggle_fit_chain_with_fourier_filtering_action",    jiggle_fit_chain_with_fourier_filtering_action);
    add_action("jiggle_fit_molecule_with_fourier_filtering_action", jiggle_fit_molecule_with_fourier_filtering_action);
+
+   // Ligand menu
+   add_action("jiggle_fit_active_residue_action",          jiggle_fit_active_residue_action);
+   add_action("coot_contact_dots_for_ligand_action",       coot_contact_dots_for_ligand_action);
+   add_action("geometric_distortions_for_ligand_action",   geometric_distortions_for_ligand_action);
+   add_action("SMILES_to_3D_action",                       SMILES_to_3D_action);
+   add_action("show_chemical_features_action",             show_chemical_features_action);
+   // add_action("quick_ligand_validate_action",              quick_ligand_validate_action);
 
 }

@@ -982,22 +982,23 @@
         <attribute name="label">Cryo-EM</attribute>
         <attribute name="action">app.add_cryo_em_module_action</attribute>
       </item>
-      <item>
-        <attribute name="label">HOLE</attribute>
-        <attribute name="action">app.add_HOLE_module_action</attribute>
-      </item>
+      <!-- <item> -->
+      <!--   <attribute name="label">HOLE</attribute> -->
+      <!--   <attribute name="action">app.add_HOLE_module_action</attribute> -->
+      <!-- </item> -->
       <item>
         <attribute name="label">Ligand</attribute>
         <attribute name="action">app.add_ligand_module_action</attribute>
       </item>
-      <item>
-        <attribute name="label">ProSMART</attribute>
-        <attribute name="action">app.add_prosmart_module_action</attribute>
-      </item>
-      <item>
-        <attribute name="label">RCrane</attribute>
-        <attribute name="action">app.add_rcrane_module_action</attribute>
-      </item>
+      <!-- 20250115-PE this also is a hunk of pythonic gui - remove for now -->
+      <!-- <item> -->
+      <!--   <attribute name="label">ProSMART</attribute> -->
+      <!--   <attribute name="action">app.add_prosmart_module_action</attribute> -->
+      <!-- </item> -->
+      <!-- <item> -->
+      <!--   <attribute name="label">RCrane</attribute> -->
+      <!--   <attribute name="action">app.add_rcrane_module_action</attribute> -->
+      <!-- </item> -->
       <item>
         <attribute name="label">Restraints</attribute>
         <attribute name="action">app.add_restraints_module_action</attribute>
@@ -1006,10 +1007,10 @@
         <attribute name="label">Refine</attribute>
         <attribute name="action">app.add_refine_module_action</attribute>
       </item>
-      <item>
-        <attribute name="label">SHELX</attribute>
-        <attribute name="action">app.add_shelx_module_action</attribute>
-      </item>
+      <!-- <item> -->
+      <!--   <attribute name="label">SHELX</attribute> -->
+      <!--   <attribute name="action">app.add_shelx_module_action</attribute> -->
+      <!-- </item> -->
       <item>
         <attribute name="label">Views</attribute>
         <attribute name="action">app.add_views_module_action</attribute>
@@ -1246,6 +1247,40 @@
         <attribute name="label" translatable="no">Sharpen/Blur Map...</attribute>
         <attribute name="action">app.cryo_em_sharpen_blur_map_action</attribute>
       </item>
+    </section>
+  </menu>
+
+  <menu id="ligand-menu">
+    <section>
+      <item>
+        <attribute name="label" translatable="no">Jiggle Fit Residue</attribute>
+        <attribute name="action">app.jiggle_fit_active_residue_action</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="no">Contact Dots for Ligand</attribute>
+        <attribute name="action">app.coot_contact_dots_for_ligand_action</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="no">Geometric Distortions</attribute>
+        <attribute name="action">app.geometric_distortions_for_ligand_action</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="no">Make LINK...</attribute>
+        <attribute name="action">app.make_link_action</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="no">SMILES to 3D</attribute>
+        <attribute name="action">app.SMILES_to_3D_action</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="no">Show Chemical Features</attribute>
+        <attribute name="action">app.show_chemical_features_action</attribute>
+      </item>
+      <!-- 20250115-PE this needs coot_ligand_check.py converted to C++ - big job. Another time -->
+      <!-- <item> -->
+      <!--   <attribute name="label" translatable="no">Quick Ligand Validate</attribute> -->
+      <!--   <attribute name="action">app.quick_ligand_validate_action</attribute> -->
+      <!-- </item> -->
     </section>
   </menu>
 
