@@ -4,16 +4,22 @@ Add a commit and version to chapi
 
 Fix Acedrg Link
 
-Fix other python modules
+1.1.12: Untangle the disulfide refinement in the untangle challenge file from Eleanor.
 
-Layla #HBonds etc need to be ints
+1.1.12: More work to be done to remove framebuffer usage in --opengl-es mode
 
-Layla delete Hydrogens
+1.1.12: Fix Acedrg Link
+
+1.1.12: Convert other python modules
+
+1.1.12: Layla #HBonds etc need to be ints
+
+1.1.12: Layla delete Hydrogens
+
+1.1.12: Arno: Add Phi,Psi labels on the HUD Rama plot
 
 When I'm fixing rotamers in intermediate atoms mode, I sometimes/often improve the geometry
 (bond, angles, planes, chirals, nbc) too, don't I? Can I have a sound for that?
-
-Arno: Add Phi,Psi labels on the HUD Rama plot
 
 On reading a dictionary find the atoms that are connected to only one other non-hydrogen atom.
 For better/smoother bond meshes.
@@ -30,9 +36,7 @@ Clemens: Give me a Coot function to switch the alt confs of a residue (typically
 Clemens: Give me a "show me A+"", B+"" or Both" button/menu (and key-binding, I imagine)
 
 Andrey: I don't like the "delete residue" in new coot.
-Maybe a entry for a selection?
-
-Remove the error messages for framebuffer buffers in --opengl-es mode
+Maybe a entry for a selection? Add app.delete_atom_selection to delete-item-menu
 
 How do I use colour rules to colour by alt-loc in Coot?
 How do set_user_defined_bond_colours() and set_user_defined_atom_colour_by_selection() work?

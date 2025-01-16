@@ -536,7 +536,7 @@
           <!--   <attribute name="label">Background Colour...</attribute> -->
           <!--   <attribute name="action">app.background_colour_action</attribute> -->
           <!-- </item> -->
- 
+
           <submenu>
             <attribute name="label">Background Colour...</attribute>
             <item>
@@ -1281,6 +1281,43 @@
       <!--   <attribute name="label" translatable="no">Quick Ligand Validate</attribute> -->
       <!--   <attribute name="action">app.quick_ligand_validate_action</attribute> -->
       <!-- </item> -->
+    </section>
+  </menu>
+
+  <menu id="restraints-menu">
+    <section>
+      <item>
+        <attribute name="label" translatable="no">Generate Self Restraints for Chain 3.7</attribute>
+        <attribute name="action">app.generate_self_restraints_chain_3_7_action</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="no">Generate Self Restraints for Chain 4.3 </attribute>
+        <attribute name="action">app.generate_self_restraints_chain_4_3_action</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="no">Generate Self Restraints for Chain 5.0 </attribute>
+        <attribute name="action">app.generate_self_restraints_chain_5_0_action</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="no">Generate Self Restraints for Chain 6.0 </attribute>
+        <attribute name="action">app.generate_self_restraints_chain_6_0_action</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="no">Generate All-molecule Self Restraints 4.3</attribute>
+        <attribute name="action">app.generate_all_molecule_self_restraints_4_3_action</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="no">Generate All-molecule Self Restraints 5.0</attribute>
+        <attribute name="action">app.generate_all_molecule_self_restraints_5_0_action</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="no">Generate All-molecule Self Restraints 6.0</attribute>
+        <attribute name="action">app.generate_all_molecule_self_restraints_6_0_action</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="no">Delete All Extra Restraints</attribute>
+        <attribute name="action">app.delete_all_extra_restraints_action</attribute>
+      </item>
     </section>
   </menu>
 
