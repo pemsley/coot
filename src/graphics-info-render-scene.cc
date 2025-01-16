@@ -729,6 +729,7 @@ graphics_info_t::render_scene() {
       // std::cout << "--- render_scene_basic() ---------------------------------------- " << std::endl;
       // auto tp_0 = std::chrono::high_resolution_clock::now();
 
+      graphics_info_t g;// needed? Yes.
       GtkAllocation allocation;
       auto gl_area = graphics_info_t::glareas[0];
       gtk_widget_get_allocation(gl_area, &allocation);
@@ -744,13 +745,13 @@ graphics_info_t::render_scene() {
       // we always want this viewport to be the size of the widget (in the case of APPLE, theree
       // is the double resolution issue to handle)
 
-      if (scale_up_graphics != 1) {
-         width *= scale_up_graphics;
-         height *= scale_up_graphics;
+      if (g.scale_up_graphics != 1) {
+         width *= g.scale_up_graphics;
+         height *= g.scale_up_graphics;
       }
-      if (scale_down_graphics != 1) {
-         width /= scale_down_graphics;
-         height /= scale_down_graphics;
+      if (g.scale_down_graphics != 1) {
+         width /= g.scale_down_graphics;
+         height /= g.scale_down_graphics;
       }
       // std::cout << "render_scene_basic() " << width << " " << height << std::endl;
 
@@ -768,7 +769,6 @@ graphics_info_t::render_scene() {
          tmesh_for_background_image.draw(&shader_for_background_image, HUDTextureMesh::TOP_LEFT);
       }
       
-      graphics_info_t g;// needed? Yes.
       g.draw_models(&shader_for_tmeshes, &shader_for_meshes, nullptr, nullptr, width, height);
       draw_rotation_centre_crosshairs(GTK_GL_AREA(gl_area), PASS_TYPE_STANDARD);
       render_3d_scene(GTK_GL_AREA(gl_area));
