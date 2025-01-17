@@ -741,7 +741,7 @@ public:
    //! @return the new molecule index on success and -1 on failure
    int read_pdb(const std::string &file_name);
 
-   //! Read a small molecule CIF file
+   //! Read a Small molecule CIF file
    //!
    //! @param file_name is the cif file-name
    //!
@@ -922,16 +922,16 @@ public:
    //! Get AceDRG atom types for ligand bonds
    //!
    //! @param imol is the model molecule index
-   //! @param residue_cid is the atom selection CID e.g "//A/15" (residue 15 of chain A)
+   //! @param residue_cid is the atom selection CID e.g "//A/15" (all the atoms in residue 15 of chain A)
    //!
    //! @return a `coot::acedrg_types_for_residue_t` - which contains a vector/list of bond descriptions.
    coot::acedrg_types_for_residue_t get_acedrg_atom_types_for_ligand(int imol, const std::string &residue_cid) const;
 
-   //! Set the occupancy for the given atom selection
+   //! set the occupancy for the given atom selection
    //!
    //! @param imol is the model molecule index
-   //! @param cid is the atom selection CID e.g "//A/15/OH" (atom OH in residue 15 of chain A)
-   //! @param occ_new is the new occupancy
+   //! @param cod is the atom selection CID
+   //! @param is the new occupancy
    void set_occupancy(int imol, const std::string &cid, float occ_new);
 
    //! Write a PNG for the given compound_id.
@@ -1298,11 +1298,10 @@ public:
 
    //! Get the SMILES string for the give residue type
    //!
-   //! @param residue 3 letter-code/name of the compound-id
-   //! @param imol_enc is the molecule index for the residue type/compound_id
-   //!
-   //! @return the SMILES string if the residue type can be found in the dictionary store
-   //! or the empty string on a failure.
+   //! @param residue name the compound-id
+   //! @param is the molecule index for the residue type/compound_id
+   //! @return the SMILES string if the residue type can be foound in the dictionary store
+   //!         or the empty string on a failure.
    std::string get_SMILES_for_residue_type(const std::string &residue_name, int imol_enc) const;
 
    //! Get residues with missing atoms
@@ -1325,7 +1324,7 @@ public:
    coot::util::missing_atom_info missing_atoms_info_raw(int imol);
 #endif
 
-   //! Get missing residue ranges
+   //! get missing residue ranges
    //!
    //! @param imol is the model molecule index
    //! @return missing residue ranges
@@ -1453,13 +1452,6 @@ public:
    //!
    //! @return a pair, the first of which is a succes status (1 success, 0 failure), the second is the torsion in degrees
    std::pair<int, double> get_torsion(int imol, const std::string &cid, const std::vector<std::string> &atom_names);
-
-   //! Change the B factors
-   //!
-   //! @param imol is the model molecule index
-   //! @param cid is the selection CID, e.g. //A/15 (residue 15 in chain A)
-   //! @param temp_fact is the isotropic ADP/temperature factor, e.g.,  22
-   void set_temperature_factors_using_cid(int imol, const std::string &cid, float temp_fact);
 
    // -------------------------------- map utils -------------------------------------------
    //! \name Map Utils
@@ -1926,18 +1918,13 @@ public:
    //! @return 1 on successful deletion, return 0 on failure to delete.
    std::pair<int, unsigned int> delete_literal_using_cid(int imol, const std::string &cid);
 
-   // (I should have) change(d) that stupid (alt) loc (I should have made you leave your key)
-   //
-   //! Change alternate conformation
+   //! (I should have) change(d) that stupid (alt) loc (I should have made you leave your key)
    //!
-   //! Note that this function only deals with (swaps) alt confs "A" and "B" - any
+   //! Note that thus function only deals with (swaps) alt confs "A" and "B" - any
    //! alt-conf other than that is ignored.
    //!
-   //! @param imol is the model molecule index
-   //! @param cid is the selection CID e.g "//A/15" (residue 15 in chain A)
    //! @param change_mode is either "residue", "main-chain", "side-chain" or a comma-separated atom-name
    //! pairs (e.g "N,CA") - you can (of course) specify just one atom, e.g.: "N".
-   //!
    //! @return the success status (1 is done, 0 means failed to do)
    int change_alt_locs(int imol, const std::string &cid, const std::string &change_mode);
 
@@ -2011,10 +1998,8 @@ public:
    int add_waters(int imol_model, int imol_map);
 
    //! Flood with dummy atoms
-   //!
    //! @param imol is the model molecule index
    //! @param imol_map is the map molecule index
-   //! @param n_rmsd e.g., 4.0
    //!
    //! @return the number of waters added on a success, -1 on failure.
    int flood(int imol_model, int imol_map, float n_rmsd);
@@ -2150,8 +2135,7 @@ public:
 
    //! Copy the molecule
    //!
-   //! @param imol the specified molecule 
-   //!
+   //! @param imol the specified molecule
    //! @return the new molecule number
    int copy_molecule(int imol);
 
@@ -2308,14 +2292,13 @@ public:
                                                bool use_resno_range,
                                                int start_resno, int end_resno);
 
-   //! Split a residue into alt-confs
+   //! split a residue into alt-confs
    //!
    //! do nothing if the residue already has alt-confs.
    //!
    //! @param imol the modified model
-   //! @param residue_cid the modified residue, the residue selection CID e.g "//A/15" (residue 15 of chain A)
-   //! @param imol_diff_map is the difference map that is used to determine the residue split
-   //!
+   //! @param residue_cid the modified residue
+   //! @param the difference map that is used to determine the residue split
    //! @return split success status
    int split_residue_using_map(int imol, const std::string &residue_cid, int imol_diff_map);
 
@@ -2342,7 +2325,7 @@ public:
    //! @return the sequence information
    std::vector<std::pair<std::string, std::string> > get_sequence_info(int imol) const;
 
-   //! Get mutation information
+   //! get mutation information
    //!
    //! The reference sequece is that which has been provided using the
    //! `associate_sequence()` function
@@ -2610,14 +2593,11 @@ public:
 
    //! External refinement using servalcat, using data that has already been associated.
    //!
-   //! @param imol is the model molecule index
-   //! @param imol_map is the map molecule index
-   //! @param output_prefix is the prefix of the output filename, e.g. "ref-1"
-   //!
    //! @return the imol of the refined model.
    int servalcat_refine_xray(int imol, int imol_map, const std::string &output_prefix);
 
 #if NB_VERSION_MAJOR
+   //! External refinement using servalcat, using data that has already been associated.
    //!
    //! @return the imol of the refined model.
    int servalcat_refine_xray_with_keywords(int imol, int imol_map, const std::string &output_prefix,
@@ -2732,10 +2712,6 @@ public:
    //! Get ligand distortion
    //!
    //! a more simple interface to the above
-   //!
-   //! @param imol is the model molecule index
-   //! @param selection_cid is the selection CID e.g "//A/15-23"
-   //! @param include_non_bonded_contacts is the flag to include non bonded contacts
    //!
    //! @return a pair: the first is the status (1 for OK, 0 for failed to determine the distortion)
    std::pair<int, double> get_ligand_distortion(int imol, const std::string &ligand_cid, bool include_non_bonded_contacts);

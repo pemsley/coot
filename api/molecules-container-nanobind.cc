@@ -415,7 +415,6 @@ NB_MODULE(chapi, m) {
     .def("set_refinement_is_verbose",&molecules_container_t::set_refinement_is_verbose)
     .def("set_refinement_geman_mcclure_alpha",&molecules_container_t::set_refinement_geman_mcclure_alpha)
     .def("set_show_timings",&molecules_container_t::set_show_timings)
-    .def("set_temperature_factors_using_cid",&molecules_container_t::set_temperature_factors_using_cid)
     .def("set_torsion_restraints_weight",&molecules_container_t::set_torsion_restraints_weight)
     .def("set_use_gemmi",&molecules_container_t::set_use_gemmi)
     .def("set_use_rama_plot_restraints",&molecules_container_t::set_use_rama_plot_restraints)
