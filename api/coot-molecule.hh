@@ -1175,6 +1175,10 @@ namespace coot {
       std::pair<int, double>
       get_torsion(const std::string &cid, const std::vector<std::string> &atom_names) const;
 
+
+      void
+      set_temperature_factors_using_cid(const std::string &cid, float temp_fact);
+
       // ----------------------- refinement
 
       coot::extra_restraints_t extra_restraints;

@@ -2893,14 +2893,6 @@ molecules_container_t::thread_for_refinement_loop_threaded() {
 
 }
 
-std::pair<int, double>
-molecules_container_t::get_torsion(int imol, const std::string &cid, const std::vector<std::string> &atom_names) {
-
-   return std::make_pair(0, 0.0);
-}
-
-
-
 int
 molecules_container_t::refine_direct(int imol, std::vector<mmdb::Residue *> rv, const std::string &alt_loc, int n_cycles) {
 
@@ -6317,4 +6309,18 @@ molecules_container_t::get_mutation_info(int imol) const {
     std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
   }
   return mci;
+}
+  
+//! Change the B factors
+//!
+//! @param imol is the model molecule index
+//! @param cid is the selection CID, e.g. //A/15 (residue 15 in chain A)
+//! @param temp_fact is the isotropic ADP/temperature factor, e.g.,  22
+void
+molecules_container_t::set_temperature_factors_using_cid(int imol, const std::string &cid, float temp_fact) {
+   if (is_valid_model_molecule(imol)) {
+      molecules[imol].set_temperature_factors_using_cid(cid, temp_fact);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
 }
