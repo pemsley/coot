@@ -1,22 +1,37 @@
 ----
 
-Add a commit and version to chapi
-
-Fix Acedrg Link
-
-1.1.12: Untangle the disulfide refinement in the untangle challenge file from Eleanor.
-
-1.1.12: More work to be done to remove framebuffer usage in --opengl-es mode
-
-1.1.12: Fix Acedrg Link
-
-1.1.12: Convert other python modules
+1.1.12 make svg molecule work again (pli need not work).
 
 1.1.12: Layla #HBonds etc need to be ints
 
 1.1.12: Layla delete Hydrogens
 
-1.1.12: Arno: Add Phi,Psi labels on the HUD Rama plot
+1.1.12: Untangle the disulfide refinement in the untangle challenge file from Eleanor.
+
+1.1.12: More work to be done to remove framebuffer usage in --opengl-es mode - optional
+
+1.1.12 Add a commit and version to chapi
+* Done. Well, the package version is that. That should do - at least for now.
+
+1.1.12: Fix Acedrg Link
+* Done.
+
+1.1.12: Convert Cryo-EM Python module
+* Done.
+
+1.1.12: Convert Ligand Python module
+* Done.
+
+1.1.12: Convert ProSMART Python module
+* Too hard for now.
+
+1.1.12: Convert Restraints Python module
+* Done.
+
+1.1.12: Convert Refine Python module
+* Done.
+
+Too hard for 1.1.12:: Add Phi,Psi labels on the HUD Rama plot.
 
 When I'm fixing rotamers in intermediate atoms mode, I sometimes/often improve the geometry
 (bond, angles, planes, chirals, nbc) too, don't I? Can I have a sound for that?
