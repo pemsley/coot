@@ -60,6 +60,8 @@
 
 enum {VIEW_CENTRAL_CUBE, ORIGIN_CUBE};
 
+int graphics_info_t::scale_up_graphics = 1;
+int graphics_info_t::scale_down_graphics = 1;
 
 glm::vec3
 get_camera_up_direction(const glm::mat4 &mouse_quat_mat) {
@@ -632,6 +634,7 @@ graphics_info_t::get_light_space_mvp(int light_index) {
 glm::mat4
 graphics_info_t::get_molecule_mvp(bool debug_matrices) {
 
+   graphics_info_t g;
    int w = graphics_x_size;
    int h = graphics_y_size;
 
@@ -642,13 +645,13 @@ graphics_info_t::get_molecule_mvp(bool debug_matrices) {
       h = allocation.height;
    }
 
-   if (scale_up_graphics != 1) {
-      w *= scale_up_graphics;
-      h *= scale_up_graphics;
+   if (g.scale_up_graphics != 1) {
+      w *= g.scale_up_graphics;
+      h *= g.scale_up_graphics;
    }
-   if (scale_down_graphics != 1) {
-      w /= scale_down_graphics;
-      h /= scale_down_graphics;
+   if (g.scale_down_graphics != 1) {
+      w /= g.scale_down_graphics;
+      h /= g.scale_down_graphics;
    }
    // std::cout << scale_up_graphics << " " << scale_down_graphics << " " << w << " " << h << std::endl;
 
