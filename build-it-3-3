@@ -1068,7 +1068,19 @@ if test $OS = Linux ; then
       else
          dist_name='unknown'
       fi
+   else
+     if test -e /etc/os-release ; then
+         # 20240914 strip quote marks also now
+         dist_name=$(grep ^ID= /etc/os-release | sed -e 's/ID=//' -e 's/"//g')
+         dist_ver=$(grep ^VERSION_ID /etc/os-release | sed -e 's/VERSION_ID=//')
+         if grep BUILD_ID=rolling /etc/os-release ; then
+             dist_ver=rolling
+         fi
+     fi
    fi
+
+   echo here 2222 with dist_name $dist_name
+   echo here 2222 with dist_ver $dist_ver
 
   case ${dist_name} in
 
@@ -1099,6 +1111,10 @@ if test $OS = Linux ; then
 
     sl )
       systype=${architecture}-scientific-linux-${dist_ver}
+      ;;
+
+    arch )
+      systype=${architecture}-arch
       ;;
 
 
@@ -3360,17 +3376,20 @@ if [ "$build_boost" = true ] ; then
       boost_version=1_74_0
       boost_version=1_83_0
       boost_version=1_86_0
+      boost_version=1_87_0
       boost_server_dir=1.72.0
       boost_server_dir=1.72.0
       boost_server_dir=1.74.0
       boost_server_dir=1.82.0
       boost_server_dir=1.83.0
       boost_server_dir=1.86.0
+      boost_server_dir=1.87.0
       echo BUILDING boost $boost_version :
       echo BUILDING boost $boost_version >&2
 
       boost_home_url=https://dl.bintray.com/boostorg/release/$boost_server_dir/source # old
       boost_home_url=https://boostorg.jfrog.io/artifactory/main/release/$boost_server_dir/source
+      boost_home_url=https://archives.boost.io/release/$boost_server_dir/source/
       echo wgetting $boost_home_url/boost_$boost_version.tar.gz
       echo ${WGET} $boost_home_url/boost_$boost_version.tar.gz 2>&1
       ${WGET} $boost_home_url/boost_$boost_version.tar.gz
@@ -3670,6 +3689,7 @@ rdkit_version=2018_09_2 # Atom pointer wrappers gone, needs coot Dec 2020 patch
 rdkit_version=2020_09_3
 rdkit_version=2023_03_1
 rdkit_version=2023_09_4
+rdkit_version=2024_09_4
 # see https://github.com/rdkit/rdkit/releases
 rdkit_home=https://github.com/rdkit/rdkit/archive
 rdkit_tar_host_file_name=Release_$rdkit_version.tar.gz
@@ -3678,6 +3698,7 @@ rdkit_tar_size=54644792
 rdkit_tar_size=58598385 # 2020_09_3
 rdkit_tar_size=79454133 # 2023_03_1
 rdkit_tar_size=80212603 # 2023_09_4
+rdkit_tar_size=82055856 # 2024_09_4
 
 if [ "$build_rdkit" = true ] ; then
    skip_this=false
