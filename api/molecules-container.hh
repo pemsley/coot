@@ -3178,7 +3178,7 @@ public:
    //! @return a value less than -99.9 on failure to fit.
    float fit_to_map_by_random_jiggle_using_cid(int imol, const std::string &cid, int n_trials, float translation_scale_factor);
 
-   //! Jiggle-Fit an atom selection, typically a whole molecule or a chain 
+   //! Jiggle-Fit an atom selection, typically a whole molecule or a chain
    //!
    //! @param imol is the model molecule index
    //! @param cid is the selection CID, e.g. "//A" (chain A)
