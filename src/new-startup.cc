@@ -154,9 +154,10 @@ new_startup_realize(GtkWidget *gl_area) {
    g.init_shaders();
    g.setup_lights();
    // 20241001-PE glDrawBuffer() in init_framebuffers() barfs with GL ES.
-   if (!g.graphics_is_gl_es)
+   if (!g.graphics_is_gl_es) {
       g.init_framebuffers(w, h);
-   g.init_joey_ssao_stuff(w, h);
+      g.init_joey_ssao_stuff(w, h);
+   }
 
    float x_scale = 4.4;  // what are these numbers!?
    float y_scale = 1.2;
