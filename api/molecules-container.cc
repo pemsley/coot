@@ -55,6 +55,18 @@ molecules_container_t::~molecules_container_t() {
    standard_residues_asc.clear_up();
 }
 
+//! Get the package version
+//!
+//! @return the package version, e.g. "1.1.11" - if this is a not yet a release version
+//! the version will end in a "+", such as "1.1.11+"
+std::string
+molecules_container_t::package_version() const {
+
+   std::string s(PACKAGE_VERSION);
+   return s;
+
+}
+
 //! get imol_enc_any
 //!
 //! @return the value of imol_enc_any (meaning "the molecule number for dictionary that

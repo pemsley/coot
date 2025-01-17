@@ -440,6 +440,15 @@ public:
 
    bool use_gemmi; // for mmcif and PDB parsing. 20240112-PE set to true by default in init()
 
+   // -------------------------------- Basic Utilities -----------------------------------
+   //! \name Basic Utilities
+
+   //! Get the package version
+   //!
+   //! @return the package version, e.g. "1.1.11" - if this is a not yet a release version
+   //! the version will end in a "+", such as "1.1.11+"
+   std::string package_version() const;
+
    //! Set the state of using GEMMI for coordinates parsing
    //!
    //! @param state is True to mean that it is enabled. The default is True.
@@ -448,8 +457,6 @@ public:
    //! Get the state of using GEMMI for coordinates parsing
    bool get_use_gemmi() { return use_gemmi; }
 
-   // -------------------------------- Basic Utilities -----------------------------------
-   //! \name Basic Utilities
 
    //! Allow the user to disable/enable backups
    //!

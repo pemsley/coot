@@ -368,6 +368,7 @@ NB_MODULE(chapi, m) {
     .def("new_positions_for_atoms_in_residues",&molecules_container_t::new_positions_for_atoms_in_residues)
     .def("new_positions_for_residue_atoms",&molecules_container_t::new_positions_for_residue_atoms)
     .def("non_standard_residue_types_in_model",&molecules_container_t::non_standard_residue_types_in_model)
+    .def("package_version",&molecules_container_t::package_version)
     .def("partition_map_by_chain",&molecules_container_t::partition_map_by_chain)
     .def("pepflips_using_difference_map",&molecules_container_t::pepflips_using_difference_map)
     .def("peptide_omega_analysis",&molecules_container_t::peptide_omega_analysis)
