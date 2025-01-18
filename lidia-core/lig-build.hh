@@ -43,7 +43,7 @@ namespace lig_build {
    // -----------------------------------------------------------------
    //                   pos_t
    // -----------------------------------------------------------------
-   // 
+   //
    class pos_t {
    public:
       double x;
@@ -338,12 +338,12 @@ namespace lig_build {
       }
       std::string get_atom_name() const {
 	 return atom_name;
-      } 
+      }
       std::string get_atom_id() const { return atom_id; }
       // return atom-id-was-changed status
       bool set_atom_id(const std::string &atom_id_in ) {
 	 bool changed_status = 0;
-	 if (atom_id != atom_id_in) { 
+	 if (atom_id != atom_id_in) {
 	    changed_status = 1;
 	    atom_id = atom_id_in;
 	 }
@@ -374,9 +374,9 @@ namespace lig_build {
 	 return theta;
       }
    };
-   
+
    std::ostream& operator<<(std::ostream &s, atom_t);
-   
+
    // trivial container for a (copy of an) atom an its ring centre (if
    // it has one)
    class atom_ring_centre_info_t {
@@ -400,7 +400,7 @@ namespace lig_build {
    class bond_t {
    public:
       // IN_BOND and OUT_BOND are a type of single bond.
-      // 
+      //
       enum bond_type_t { BOND_UNDEFINED=100, SINGLE_BOND=101, DOUBLE_BOND=102,
 			 TRIPLE_BOND=103, AROMATIC_BOND=4, IN_BOND=104, OUT_BOND=105,
 			 SINGLE_OR_DOUBLE=5, SINGLE_OR_AROMATIC=6,
@@ -489,7 +489,7 @@ namespace lig_build {
 	    }
 	 } else {
 	    return false;
-	 } 
+	 }
       }
 
       unsigned int get_other_index(const unsigned int &atom_index) const {
@@ -1596,7 +1596,7 @@ namespace lig_build {
 	    if (! bonds[vb[iv]].is_closed())
 	       v.push_back(vb[iv]);
 	 }
-	 
+
 	 return v;
       }
 
@@ -1606,9 +1606,9 @@ namespace lig_build {
 
 	 std::vector<unsigned int> v;
 	 for (unsigned int iat=0; iat<atoms.size(); iat++) {
-	    if (! atoms[iat].is_closed()) { 
+	    if (! atoms[iat].is_closed()) {
 	       bool in_a_bond = 0;
-	       for (unsigned int ib=0; ib<bonds.size(); ib++) { 
+	       for (unsigned int ib=0; ib<bonds.size(); ib++) {
 		  if (! bonds[ib].is_closed()) {
 		     if (bonds[ib].get_atom_1_index() == iat)
 			in_a_bond = 1;
@@ -1626,12 +1626,12 @@ namespace lig_build {
       }
 
       // can throw an exception (no atoms)
-      // 
+      //
       pos_t get_ligand_centre() const {
 
 	 pos_t centre(0,0);
 
-	 if (atoms.size() == 0) {
+	 if (atoms.empty()) {
 	    std::string message("No atoms in ligand");
 	    throw std::runtime_error(message);
 	 } else {
@@ -1639,8 +1639,9 @@ namespace lig_build {
 	    for (unsigned int iat=0; iat<atoms.size(); iat++) {
 	       centre_sum += atoms[iat].atom_position;
 	    }
-	    if (atoms.size() > 0)
-	       centre = centre_sum * (1.0/double(atoms.size()));
+            unsigned int n_atoms = atoms.size();
+	    if (n_atoms > 0)
+	       centre = pos_t(centre_sum.x / static_cast<double>(n_atoms), centre_sum.y / static_cast<double>(n_atoms));
 	 }
 	 return centre;
       }

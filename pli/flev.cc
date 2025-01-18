@@ -508,17 +508,41 @@ pli::fle_view_with_rdkit_internal(mmdb::Manager *mol,
                   }
 
 
-                  int mol_2d_depict_conformer =
-                     coot::add_2d_conformer(&rdkm, weight_for_3d_distances);
-                  lig_build::molfile_molecule_t m =
-                     coot::make_molfile_molecule(rdkm, mol_2d_depict_conformer);
+                  int mol_2d_depict_conformer = coot::add_2d_conformer(&rdkm, weight_for_3d_distances);
+                  lig_build::molfile_molecule_t m = coot::make_molfile_molecule(rdkm, mol_2d_depict_conformer);
 
                   flev_t flev;
 
                   flev.mol.import_rdkit_mol(&rdkm, mol_2d_depict_conformer);
+                  // these coordinates are in molecule coordinates based around the middle of the residue
+                  if (false) {
+                     std::cout << "--------------- pre make_svg() for molecule" << std::endl;
+                     std::cout << "there were " << flev.mol.num_atoms() << " in svg mol" << std::endl;
+                     unsigned int n = flev.mol.num_atoms();
+                     for (unsigned int i=0; i<n; i++) {
+                        const auto &atom = flev.mol.atoms[i];
+                        std::cout << "atom " << i << " " << atom.atom_id << " " << atom.atom_position << std::endl;
+                     }
+                  }
+
+                  scale_factor = 1.0;
                   svg_container_t svgc = flev.mol.make_svg(scale_factor, dark_background_flag);
 
-                  write_string_to_file(svgc.compose(), "flev-test-1.svg");
+                  if (wrap_in_refresh_html) {
+                     // 20250106-PE: hack the bounds for now
+                     svgc.set_bounds(-9, -7, 20, 20);
+                     std::string s = svgc.compose();
+                     unsigned int refresh_delta = 1;
+                     std::string html_top = "<!DOCTYPE html><html><head><meta http-equiv=\"refresh\" ";
+                     html_top += "content=\"" + std::to_string(refresh_delta);
+                     html_top += "\"></head><body>\n";
+                     std::string html_foot = "</body><html>\n";
+                     std::string ss = html_top + s + html_foot;
+                     s = ss;
+                     write_string_to_file(ss, "flev-test-1.svg.html");
+                  } else {
+                     write_string_to_file(svgc.compose(), "flev-test-1.svg");
+                  }
 
                   mmdb::Residue *residue_flat = coot::make_residue(rdkm, mol_2d_depict_conformer, "XXX");
                   mmdb::Manager *mol_for_flat_residue = coot::util::create_mmdbmanager_from_residue(residue_flat); // d
@@ -567,13 +591,15 @@ pli::fle_view_with_rdkit_internal(mmdb::Manager *mol,
 
                   std::vector<int> add_reps_vec;
 
-#if 0 // 20240614-PE linking problems! - unresolved operator<<().
                   if (true) {
-                     for (unsigned int ic=0; ic<res_centres.size(); ic++)
-                        std::cout << "   " << ic << "  " << res_centres[ic]
+                     for (unsigned int ic=0; ic<res_centres.size(); ic++) {
+                        const auto &res_centre = res_centres[ic];
+                        std::cout << "  res_centres: " << ic
+                                  << " " << res_centre.spec << " " << res_centre.residue_name
+                                  << " " << res_centre.transformed_relative_centre.format()
                                   << std::endl;
+                     }
                   }
-#endif
 
                   // ----------- residue infos ----------
                   //
@@ -595,7 +621,7 @@ pli::fle_view_with_rdkit_internal(mmdb::Manager *mol,
 
                   if (wrap_in_refresh_html) {
                      // 20250106-PE: hack the bounds for now
-                     svgc.set_bounds(-90, -70, 640, 540);
+                     svgc.set_bounds(-20, -20, 40, 40);
                      std::string s = svgc.compose();
                      unsigned int refresh_delta = 1;
                      std::string html_top = "<!DOCTYPE html><html><head><meta http-equiv=\"refresh\" ";
@@ -2073,8 +2099,7 @@ flev_t::draw_residue_circles(const std::vector<residue_circle_t> &l_residue_circ
 
 	 if (draw_solvent_exposures)
 	    for (unsigned int i=0; i<l_residue_circles.size(); i++) {
-	       svg_container_t svgc_ec = draw_solvent_exposure_circle(l_residue_circles[i],
-                                                                      ligand_centre);
+	       svg_container_t svgc_ec = draw_solvent_exposure_circle(l_residue_circles[i], ligand_centre);
                // svgc.add(svgc_ec);
             }
 
@@ -2111,8 +2136,8 @@ flev_t::draw_residue_circle_top_layer(const residue_circle_t &residue_circle,
 
    svg_container_t svgc;
 
-   if (false)
-      std::cout << "   adding cirles " << residue_circle.residue_type
+   if (true)
+      std::cout << "   draw_residue_circle_top_layer() " << residue_circle.residue_type
                 << " at init pos " << residue_circle.pos << " and canvas_drag_offset "
                 << std::endl;
 
@@ -2148,24 +2173,19 @@ flev_t::draw_residue_circle_top_layer(const residue_circle_t &residue_circle,
 
    // fill colour and stroke colour of the residue circle
    std::pair<std::string, std::string> col = get_residue_circle_colour(residue_circle.residue_type);
-   double stroke_width = 2.0;
+   double stroke_width = 0.1;
    if (col.second != "#111111") // needs checking, FIXME
-      stroke_width = 4.0;
+      stroke_width = 0.15;
+
+   scale_factor = 1.0; // remove the use of this later
 
    if (col.first != "") {
 
-      double unit_scale = mol.get_scale();
-
-      // where do these values come from?
-      pos.x *= unit_scale;
-      pos.y *= unit_scale;
-      pos.x += 0.5;
-      pos.y += 0.5; // middle of the ligand is now at 0.5, 0.5
       std::string circle_string = std::string("   <circle ") +
          std::string("cx=\"") + std::to_string(scale_factor * pos.x) + std::string("\" ") +
          std::string("cy=\"") + std::to_string(scale_factor * pos.y) + std::string("\" ") +
          // std::string("\" r=\"22.2\"") +
-         std::string("r=\"22.2\" ") +
+         std::string("r=\"1.2\" ") +
          std::string("fill=\"")   + col.first  + std::string("\" ") +
          std::string("stroke=\"") + col.second + std::string("\" ") +
          std::string("stroke-width=\"") + std::to_string(stroke_width) + std::string("\"") +
@@ -2184,13 +2204,13 @@ flev_t::draw_residue_circle_top_layer(const residue_circle_t &residue_circle,
       std::string text_1("   <text ");
       text_1 += std::string("fill=\"#111111\"");
       text_1 += std::string(" x=\"");
-      text_1 += std::to_string(scale_factor * pos.x);
+      text_1 += std::to_string(pos.x);
       text_1 += std::string("\"");
       text_1 += std::string(" y=\"");
-      text_1 += std::to_string(scale_factor * pos.y - 2.9);
+      text_1 += std::to_string(pos.y - 0.1);
       text_1 += std::string("\"");
       text_1 += std::string(" text-anchor=\"middle\"");
-      text_1 += std::string(" font-family=\"Helvetica, sans-serif\" font-size=\"1.14em\">");
+      text_1 += std::string(" font-family=\"Helvetica, sans-serif\" font-size=\"0.06em\">");
       text_1 += rt;
       text_1 += std::string("</text>\n");
       svgc.add(text_1);
@@ -2201,10 +2221,10 @@ flev_t::draw_residue_circle_top_layer(const residue_circle_t &residue_circle,
       text_2 += std::to_string(scale_factor * pos.x); // was -9
       text_2 += std::string("\"");
       text_2 += std::string(" y=\"");
-      text_2 += std::to_string(scale_factor * pos.y + 10.5);
+      text_2 += std::to_string(scale_factor * pos.y + 0.6);
       text_2 += std::string("\"");
       text_2 += std::string(" text-anchor=\"middle\"");
-      text_2 += std::string(" font-family=\"Helvetica, sans-serif\" font-size=\"0.8em\">");
+      text_2 += std::string(" font-family=\"Helvetica, sans-serif\" font-size=\"0.04em\">");
       text_2 += residue_circle.residue_label;
       text_2 += std::string("</text>\n");
       svgc.add(text_2);
