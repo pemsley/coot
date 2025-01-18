@@ -190,8 +190,10 @@ flev_t::annotate(const std::vector<std::pair<coot::atom_spec_t, float> > &s_a_v,
       }
    };
 
+   std::cout << "--------------------------- debug in ::annotate() with pi_stack_info.stackings.size "
+             << pi_stack_info.stackings.size() << std::endl;
 
-   if (true) {
+   if (false) {
       std::cout << "debug::flev_t::annotate(): " << bonds_to_ligand.size() << " bonds to ligand" << std::endl;
       for (unsigned int ib=0; ib<bonds_to_ligand.size(); ib++) {
          std::cout << "  =============== flev_t::annotate() bond to ligand " << ib << " "
@@ -279,6 +281,7 @@ flev_t::annotate(const std::vector<std::pair<coot::atom_spec_t, float> > &s_a_v,
       for (unsigned int istack=0; istack<pi_stack_info.stackings.size(); istack++) {
          coot::residue_spec_t spec(pi_stack_info.stackings[istack].res);
          if (spec == centres[i].spec) {
+            std::cout << "------------------- pi_stacking for residue " << spec << std::endl;
             if (pi_stack_info.stackings[istack].type == pli::pi_stacking_instance_t::PI_PI_STACKING) {
                std::vector<std::string> lra = pi_stack_info.stackings[istack].ligand_ring_atom_names;
                circle.set_stacking("pi-pi", lra, "");
@@ -895,18 +898,23 @@ flev_t::draw_stacking_interactions(const std::vector<residue_circle_t> &rc) {
             try {
                lig_build::pos_t lc = mol.get_ring_centre(ligand_ring_atom_names);
                svg_container_t svgc_asl = draw_annotated_stacking_line(lc, rc[ires].pos, st, click_pos);
+               svgc.add(svgc_asl);
             }
             catch (const std::runtime_error &rte) {
                std::cout << rte.what() << std::endl;
             }
          }
       }
+
       if (st == residue_circle_t::CATION_PI_STACKING) {
          std::string at_name = rc[ires].get_ligand_cation_atom_name();
          lig_build::pos_t atom_pos = mol.get_atom_canvas_position(at_name);
-         draw_annotated_stacking_line(atom_pos, rc[ires].pos, st, click_pos);
+         svg_container_t svgc_asl = draw_annotated_stacking_line(atom_pos, rc[ires].pos, st, click_pos);
+         svgc.add(svgc_asl);
       }
    }
+
+   std::cout << "draw_stacking_interactions returns an svg of size " << svgc.svg.size() << std::endl;
    return svgc;
 }
 
@@ -919,27 +927,49 @@ flev_t::draw_annotated_stacking_line(const lig_build::pos_t &ligand_ring_centre,
                                          int stacking_type,
                                          const clipper::Coord_orth &click_pos) {
 
-   svg_container_t svgc;
+   auto do_polygon = [] (const std::vector<std::pair<double, double> > &hex_points) {
+      std::string s = "   <polygon points=\"";
+      for (unsigned int i=0; i<hex_points.size(); i++)
+         s += std::to_string(hex_points[i].first) + "," + std::to_string(-hex_points[i].second) + " ";
+      s += "\" style=\"fill:none;stroke:#109910;stroke-width:0.1\" />\n";
+      return s;
+   };
 
-   double ligand_target_shortening_factor = 3;
+   auto make_line = [] (const lig_build::pos_t &p1, const lig_build::pos_t &p2,
+                        double line_width, const std::string &stroke_colour, bool dashed) {
+      std::string s;
+      s += "   <line x1=\"" + std::to_string(p1.x) + "\" y1=\"" + std::to_string(-p1.y) + "\" ";
+      s += "x2=\"" + std::to_string(p2.x) + "\" y2=\"" + std::to_string(-p2.y) + "\" ";
+      s += "style=\"stroke:" + stroke_colour + ";stroke-width:" + std::to_string(line_width) + ";";
+      s += "stroke-linecap:round;";
+      if (dashed)
+         s += "stroke-dasharray:0.1,0.2;";
+      s += "\" />\n";
+      return s;
+   };
+
+   svg_container_t svgc;
+   svgc.add_comment("Stacking Line");
+
+   double ligand_target_shortening_factor = 0.1;
    if (stacking_type == residue_circle_t::CATION_PI_STACKING)
-      ligand_target_shortening_factor = 6;
+      ligand_target_shortening_factor = 0.2;
    lig_build::pos_t a_to_b_uv = (ligand_ring_centre - residue_pos).unit_vector();
-   lig_build::pos_t A = residue_pos + a_to_b_uv * 20;
+   lig_build::pos_t A = residue_pos + a_to_b_uv * 0.2;
    lig_build::pos_t B = ligand_ring_centre;
    // just short of the middle of the ring
    lig_build::pos_t C = B - a_to_b_uv * ligand_target_shortening_factor;
    lig_build::pos_t mid_pt = (A + B) * 0.5;
-   lig_build::pos_t close_mid_pt_1 = mid_pt - a_to_b_uv * 17;
-   lig_build::pos_t close_mid_pt_2 = mid_pt + a_to_b_uv * 17;
+   lig_build::pos_t close_mid_pt_1 = mid_pt - a_to_b_uv * 1;
+   lig_build::pos_t close_mid_pt_2 = mid_pt + a_to_b_uv * 1;
 
-   bool start_arrow = 0;
-   bool end_arrow = 1;
+   bool start_arrow = false;
+   bool end_arrow = true;
    std::string stroke_colour = "#008000";
 
    std::vector<lig_build::pos_t> hex_and_ring_centre(2);
-   hex_and_ring_centre[0] = mid_pt - a_to_b_uv * 7;
-   hex_and_ring_centre[1] = mid_pt + a_to_b_uv * 7;
+   hex_and_ring_centre[0] = mid_pt - a_to_b_uv * 0.4;
+   hex_and_ring_centre[1] = mid_pt + a_to_b_uv * 0.4;
 
    // for cations, we draw a 6-member ring and a "+" text.
    //
@@ -947,11 +977,11 @@ flev_t::draw_annotated_stacking_line(const lig_build::pos_t &ligand_ring_centre,
    //
    for(int ir=0; ir<2; ir++) {
 
-      bool do_ring = 0;
-      bool do_anion = 0;
+      bool do_ring  = false;
+      bool do_anion = false;
 
       if (stacking_type == residue_circle_t::PI_PI_STACKING) {
-         do_ring = 1;
+         do_ring = true;
       }
       if (stacking_type == residue_circle_t::PI_CATION_STACKING) {
          if (ir == 0) {
@@ -973,36 +1003,28 @@ flev_t::draw_annotated_stacking_line(const lig_build::pos_t &ligand_ring_centre,
       }
 
       if (do_ring) {
+
+         std::cout << "--------------------- in the do_ring block residue_pos " << residue_pos
+                   << " hex_and_ring_centre[ir] " << hex_and_ring_centre[ir] << std::endl;
+
          double angle_step = 60;
-         double r = 8; // radius
+         double r = 0.4; // radius
+         std::vector<std::pair<double, double> > hex_points(6);
          for (int ipt=1; ipt<=6; ipt++) {
             int ipt_0 = ipt - 1;
-            double theta_deg_1 = 30 + angle_step * ipt;
-            double theta_1 = theta_deg_1 * DEG_TO_RAD;
-            lig_build::pos_t pt_1 =
-               hex_and_ring_centre[ir] + lig_build::pos_t(sin(theta_1), cos(theta_1)) * r;
-
             double theta_deg_0 = 30 + angle_step * ipt_0;
             double theta_0 = theta_deg_0 * DEG_TO_RAD;
-            lig_build::pos_t pt_0 =
-               hex_and_ring_centre[ir] + lig_build::pos_t(sin(theta_0), cos(theta_0)) * r;
-            // GooCanvasItem *line = goo_canvas_polyline_new_line(group,
-            //                                                    pt_1.x, pt_1.y,
-            //                                                    pt_0.x, pt_0.y,
-            //                                                    "line_width", 1.8,
-            //                                                    NULL);
-            clipper::Coord_orth *pos_l = new clipper::Coord_orth(click_pos);
-            // g_object_set_data_full(G_OBJECT(line), "position", pos_l, g_free);
+            lig_build::pos_t pt_0 = hex_and_ring_centre[ir] + lig_build::pos_t(sin(theta_0), cos(theta_0)) * r;
+            hex_points[ipt_0] = std::make_pair(pt_0.x, pt_0.y);
          }
-         // Now the circle in the annotation aromatic ring:
-         // GooCanvasItem *ring = goo_canvas_ellipse_new(group,
-         //                                              hex_and_ring_centre[ir].x,
-         //                                              hex_and_ring_centre[ir].y,
-         //                                              4.0, 4.0,
-         //                                              "line_width", 1.0,
-         //                                              NULL);
-         clipper::Coord_orth *pos_r = new clipper::Coord_orth(click_pos);
-         // g_object_set_data_full(G_OBJECT(ring), "position", pos_r, g_free);
+         std::string ring_text = do_polygon(hex_points);
+         svgc.add(ring_text);
+
+         lig_build::pos_t ring_centre = hex_and_ring_centre[ir];
+         lig_build::pos_t circle_centre(ring_centre.x, -ring_centre.y);
+         std::string circle = make_circle(circle_centre, 0.2, 0.08, "none", stroke_colour);
+         svgc.add(circle);
+
       }
 
       if (do_anion) {
@@ -1021,7 +1043,6 @@ flev_t::draw_annotated_stacking_line(const lig_build::pos_t &ligand_ring_centre,
          // g_object_set_data_full(G_OBJECT(text_1), "position", pos_p, g_free);
       }
    }
-
 
    // GooCanvasLineDash *dash = goo_canvas_line_dash_new (2, 2.5, 2.5);
    // GooCanvasItem *item_1 =
@@ -1043,8 +1064,11 @@ flev_t::draw_annotated_stacking_line(const lig_build::pos_t &ligand_ring_centre,
    //                                 "stroke-color", stroke_colour.c_str(),
    //                                 NULL);
 
-   clipper::Coord_orth *pos_1 = new clipper::Coord_orth(click_pos);
-   clipper::Coord_orth *pos_2 = new clipper::Coord_orth(click_pos);
+   // now draw the stacking interaction dotted lines
+   std::string s1 = make_line(A,                  close_mid_pt_1, 0.15, stroke_colour, true);
+   std::string s2 = make_line(ligand_ring_centre, close_mid_pt_2, 0.15, stroke_colour, true);
+   svgc.add(s1);
+   svgc.add(s2);
 
    // Now the circle blob at the centre of the aromatic ligand ring:
    if (stacking_type != residue_circle_t::CATION_PI_STACKING) {
@@ -1055,13 +1079,12 @@ flev_t::draw_annotated_stacking_line(const lig_build::pos_t &ligand_ring_centre,
       //                                                "fill_color", stroke_colour.c_str(),
       //                                                NULL);
 
-      float radius = 67.0;
-      float stroke_width = 10.0;
-      std::string c = make_circle(B, radius, stroke_width, stroke_colour, stroke_colour);
+      float radius = 0.2; // 20250118-PE was 67.0;
+      float stroke_width = 0.01; // 20250118-PE was 10.0;
+      auto ligand_ring_centre_inv_y = lig_build::pos_t(ligand_ring_centre.x, -ligand_ring_centre.y);
+      std::string c = make_circle(ligand_ring_centre_inv_y, radius, stroke_width, stroke_colour, stroke_colour);
       svgc.add(c);
    }
-
-   clipper::Coord_orth *pos_p = new clipper::Coord_orth(click_pos);
 
    return svgc;
 }
@@ -1081,11 +1104,12 @@ flev_t::draw_bonds_to_ligand() {
    for (unsigned int ic=0; ic<residue_circles.size(); ic++) {
       if (residue_circles[ic].bonds_to_ligand.size()) {
          for (unsigned int ib=0; ib<residue_circles[ic].bonds_to_ligand.size(); ib++) {
+            const bond_to_ligand_t &bond_to_ligand = residue_circles[ic].bonds_to_ligand[ib];
 
             try {
 
                lig_build::pos_t pos = residue_circles[ic].pos;
-               std::string at_name = residue_circles[ic].bonds_to_ligand[ib].ligand_atom_name;
+               std::string at_name = bond_to_ligand.ligand_atom_name;
                lig_build::pos_t lig_atom_pos = mol.get_atom_canvas_position(at_name);
                lig_build::pos_t rc_to_lig_atom = lig_atom_pos - pos;
                lig_build::pos_t rc_to_lig_atom_uv = rc_to_lig_atom.unit_vector();
@@ -1094,18 +1118,15 @@ flev_t::draw_bonds_to_ligand() {
                double shorten_factor = 0.6;
                // a HOH residue cirle bond-to-ligand doesn't have an arrow-head
                if (residue_circles[ic].residue_type == "HOH") shorten_factor = 0.5;
-               if (residue_circles[ic].bonds_to_ligand[ib].bond_type != pli::fle_ligand_bond_t::BOND_COVALENT)
+               if (bond_to_ligand.bond_type != pli::fle_ligand_bond_t::BOND_COVALENT)
                   B -= rc_to_lig_atom_uv * shorten_factor; // put the end point (say) of a hydrogen bond
                                                            // some pixels away from the atom centre - for better
                                                            // aesthetics.
                shorten_factor = 1.3;
                // but if it has a start arrow, we need to make it shorter so that the line and
                // the tip of the arrow don't overlap. Who ever will notice, I wonder...
-               if (residue_circles[ic].bonds_to_ligand[ib].bond_type == bond_to_ligand_t::H_BOND_ACCEPTOR_MAINCHAIN)
-                  shorten_factor = 1.4;
-               if (residue_circles[ic].bonds_to_ligand[ib].bond_type == bond_to_ligand_t::H_BOND_ACCEPTOR_SIDECHAIN)
-                  shorten_factor = 1.4;
-               std::cout << "ib" << ib  << " shorten_factor " << shorten_factor << std::endl;
+               if (bond_to_ligand.bond_type == bond_to_ligand_t::H_BOND_ACCEPTOR_MAINCHAIN) shorten_factor = 1.4;
+               if (bond_to_ligand.bond_type == bond_to_ligand_t::H_BOND_ACCEPTOR_SIDECHAIN) shorten_factor = 1.4;
                lig_build::pos_t A = pos + rc_to_lig_atom_uv * shorten_factor;
 
                // some colours
@@ -1164,8 +1185,6 @@ flev_t::draw_bonds_to_ligand() {
                //                                                    "stroke-color", stroke_colour.c_str(),
                //                                                    NULL);
 
-               // this needs to be an arrow
-               //
                std::string s;
                std::string bond_colour = stroke_colour;
                s += "<!-- Bond to Ligand -->\n";
@@ -2292,6 +2311,8 @@ flev_t::draw_residue_circle_top_layer(const residue_circle_t &residue_circle,
    return svgc;
 }
 
+// Set the fill_colour to "none" if you don't want a fill.
+// Note that this function does not apply the inversion of the y axis coordinate.
 std::string
 flev_t::make_circle(const lig_build::pos_t &pos, double radius, double stroke_width,
                     const std::string &fill_color, const std::string &stroke_color) const {
@@ -2301,8 +2322,9 @@ flev_t::make_circle(const lig_build::pos_t &pos, double radius, double stroke_wi
       std::to_string(pos.y) +
       std::string("\" r=\"") +
       std::to_string(radius) +
-      std::string("\"") +
-      std::string(" fill=\"")   + fill_color  + std::string("\"") +
+      std::string("\"");
+      circle_string += std::string(" fill=\"")   + fill_color  + std::string("\"");
+   circle_string +=
       std::string(" stroke=\"") + stroke_color + std::string("\"") +
       std::string(" stroke-width=\"") + std::to_string(stroke_width) + std::string("\"") +
       std::string("/>\n");
