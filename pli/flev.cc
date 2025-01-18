@@ -126,7 +126,7 @@ pli::get_flev_residue_centres(mmdb::Residue *residue_ligand_3d,
          delete res_copy;
       }
    }
-   if (true)
+   if (false)
       for (unsigned int ic=0; ic<centres.size(); ic++) {
          std::cout << "centre " << ic << " has TR_centre "
                    << centres[ic].transformed_relative_centre.format() << std::endl;
@@ -594,7 +594,7 @@ pli::fle_view_with_rdkit_internal(mmdb::Manager *mol,
 
                   std::vector<int> add_reps_vec;
 
-                  if (true) {
+                  if (false) {
                      for (unsigned int ic=0; ic<res_centres.size(); ic++) {
                         const auto &res_centre = res_centres[ic];
                         std::cout << "  res_centres: " << ic
@@ -960,8 +960,8 @@ flev_t::draw_annotated_stacking_line(const lig_build::pos_t &ligand_ring_centre,
    // just short of the middle of the ring
    lig_build::pos_t C = B - a_to_b_uv * ligand_target_shortening_factor;
    lig_build::pos_t mid_pt = (A + B) * 0.5;
-   lig_build::pos_t close_mid_pt_1 = mid_pt - a_to_b_uv * 1;
-   lig_build::pos_t close_mid_pt_2 = mid_pt + a_to_b_uv * 1;
+   lig_build::pos_t close_mid_pt_1 = mid_pt - a_to_b_uv * 0.92;
+   lig_build::pos_t close_mid_pt_2 = mid_pt + a_to_b_uv * 0.92;
 
    bool start_arrow = false;
    bool end_arrow = true;
@@ -1044,40 +1044,15 @@ flev_t::draw_annotated_stacking_line(const lig_build::pos_t &ligand_ring_centre,
       }
    }
 
-   // GooCanvasLineDash *dash = goo_canvas_line_dash_new (2, 2.5, 2.5);
-   // GooCanvasItem *item_1 =
-   //    goo_canvas_polyline_new_line(group,
-   //                                 A.x, A.y,
-   //                                 close_mid_pt_1.x, close_mid_pt_1.y,
-   //                                 "line-width", 2.5, // in draw_annotated_stacking_line()
-   //                                 "line-dash", dash,
-   //                                 "stroke-color", stroke_colour.c_str(),
-   //                                 NULL);
-
-   // GooCanvasItem *item_2 =
-   //    goo_canvas_polyline_new_line(group,
-   //                                 close_mid_pt_2.x, close_mid_pt_2.y,
-   //                                 C.x, C.y,
-   //                                 "line-width", 2.5, // in draw_annotated_stacking_line()
-   //                                 "line-dash", dash,
-   //                                 // "end_arrow",   end_arrow,
-   //                                 "stroke-color", stroke_colour.c_str(),
-   //                                 NULL);
-
    // now draw the stacking interaction dotted lines
-   std::string s1 = make_line(A,                  close_mid_pt_1, 0.15, stroke_colour, true);
+   lig_build::pos_t A_prime = A + a_to_b_uv * 1.0;
+   std::string s1 = make_line(A_prime,            close_mid_pt_1, 0.15, stroke_colour, true);
    std::string s2 = make_line(ligand_ring_centre, close_mid_pt_2, 0.15, stroke_colour, true);
    svgc.add(s1);
    svgc.add(s2);
 
    // Now the circle blob at the centre of the aromatic ligand ring:
    if (stacking_type != residue_circle_t::CATION_PI_STACKING) {
-      // GooCanvasItem *item_o = goo_canvas_ellipse_new(group,
-      //                                                B.x, B.y,
-      //                                                3.0, 3.0,
-      //                                                "line_width", 1.0,
-      //                                                "fill_color", stroke_colour.c_str(),
-      //                                                NULL);
 
       float radius = 0.2; // 20250118-PE was 67.0;
       float stroke_width = 0.01; // 20250118-PE was 10.0;
@@ -1989,7 +1964,7 @@ flev_t::ligand_grid::fill(svg_molecule_t mol) {
    int grid_extent = 50 ; // untraps 2wot residues?
 
    for (unsigned int iat=0; iat<mol.atoms.size(); iat++) {
-      std::cout << "mol iat: " << iat << " at " << mol.atoms[iat].atom_position << std::endl;
+      // std::cout << "mol iat: " << iat << " at " << mol.atoms[iat].atom_position << std::endl;
       for (int ipos_x= -grid_extent; ipos_x<=grid_extent; ipos_x++) {
          for (int ipos_y= -grid_extent; ipos_y<=grid_extent; ipos_y++) {
             std::pair<int, int> p = canvas_pos_to_grid_pos(mol.atoms[iat].atom_position);
