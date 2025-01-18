@@ -1084,7 +1084,6 @@ flev_t::draw_bonds_to_ligand() {
 
             try {
 
-               double unit_scale = mol.get_scale(); // move up
                lig_build::pos_t pos = residue_circles[ic].pos;
                std::string at_name = residue_circles[ic].bonds_to_ligand[ib].ligand_atom_name;
                lig_build::pos_t lig_atom_pos = mol.get_atom_canvas_position(at_name);
@@ -1092,20 +1091,14 @@ flev_t::draw_bonds_to_ligand() {
                lig_build::pos_t rc_to_lig_atom_uv = rc_to_lig_atom.unit_vector();
                lig_build::pos_t B = lig_atom_pos;
 
+               double shorten_factor = 0.6;
+               // a HOH residue cirle bond-to-ligand doesn't have an arrow-head
+               if (residue_circles[ic].residue_type == "HOH") shorten_factor = 0.5;
                if (residue_circles[ic].bonds_to_ligand[ib].bond_type != pli::fle_ligand_bond_t::BOND_COVALENT)
-                  B -= rc_to_lig_atom_uv * 8; // put the end point (say) of a hydrogen bond
-                                              // some pixels away from the atom centre - for better
-                                              // aesthetics.
-               lig_build::pos_t A = pos + rc_to_lig_atom_uv * 20;
-
-               A.x *= unit_scale;
-               A.y *= unit_scale;
-               B.x *= unit_scale;
-               B.y *= unit_scale;
-               A.x += 0.5;
-               A.y += 0.5;
-               B.x += 0.5;
-               B.y += 0.5; // middle of the ligand is now at 0.5, 0.5
+                  B -= rc_to_lig_atom_uv * shorten_factor; // put the end point (say) of a hydrogen bond
+                                                           // some pixels away from the atom centre - for better
+                                                           // aesthetics.
+               lig_build::pos_t A = pos + rc_to_lig_atom_uv * 1.3;
 
                // some colours
                std::string blue = "blue";
@@ -1149,8 +1142,8 @@ flev_t::draw_bonds_to_ligand() {
 
                if (residue_circles[ic].residue_type == "HOH") {
                   stroke_colour = lime;
-                  start_arrow = 0;
-                  end_arrow = 0;
+                  start_arrow = false;
+                  end_arrow = false;
                   // dash = dash_dash;
                }
                // GooCanvasItem *item = goo_canvas_polyline_new_line(root,
@@ -1167,22 +1160,54 @@ flev_t::draw_bonds_to_ligand() {
                //
                std::cout << "debug:: in draw_bonds_to_ligand() with scale_factor " << scale_factor << std::endl;
                std::string s;
-               double sf = 0.02 * scale_factor; // Hmm.. made-up number
-               std::string bond_colour = "green";
+               double sf = 1.0;
+               std::string bond_colour = stroke_colour;
+               s += "<!-- Bond to Ligand -->\n";
                s += "   <line x1=\"";
                s += std::to_string(sf * A.x);
                s += "\" y1=\"";
-               s += std::to_string(sf * A.y);
+               s += std::to_string(-sf * A.y);
                s += "\" x2=\"";
                s += std::to_string(sf * B.x);
                s += "\" y2=\"";
-               s += std::to_string(sf * B.y);
+               s += std::to_string(-sf * B.y);
                s += "\"";
                s += " style=\"stroke:";
                // s += "#202020";
                s += bond_colour;
-               s += "; stroke-width:2; fill:none; stroke-linecap:round;\" />\n";
+               s += "; stroke-width:0.15; fill:none; stroke-linecap:round; ";
+               s += "\"";
+               s += "/>\n";
                svgc.add(s);
+
+               if (end_arrow) {
+                  // add a triangle arrow head
+                  lig_build::pos_t tip = lig_atom_pos - rc_to_lig_atom_uv * 0.35;
+                  double l1 = 0.85;
+                  double l2 = 0.3;
+                  lig_build::pos_t rcla_uv_90 = rc_to_lig_atom_uv.rotate(90);
+                  lig_build::pos_t pt_1 = tip;
+                  lig_build::pos_t pt_2 = tip - rc_to_lig_atom_uv * l1 + rcla_uv_90 * l2;
+                  lig_build::pos_t pt_3 = tip - rc_to_lig_atom_uv * l1 - rcla_uv_90 * l2;
+                  // std::string ts = "<polygon points="100,10 150,190 50,190" style="fill:lime;"/>";
+                  std::string ts = "   <polygon points =\"";
+                  ts += std::to_string(pt_1.x);
+                  ts += ",";
+                  ts += std::to_string(-pt_1.y);
+                  ts += " ";
+                  ts += std::to_string(pt_2.x);
+                  ts += ",";
+                  ts += std::to_string(-pt_2.y);
+                  ts += " ";
+                  ts += std::to_string(pt_3.x);
+                  ts += ",";
+                  ts += std::to_string(-pt_3.y);
+                  ts += "\" style=\"fill:";
+                  ts += bond_colour;
+                  ts += ";\"/>";
+                  ts += "\n";
+                  svgc.add(ts);
+               }
 
             }
             catch (const std::runtime_error &rte) {

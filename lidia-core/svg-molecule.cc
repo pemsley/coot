@@ -393,11 +393,11 @@ svg_bond_t::make_bond_line_string(const lig_build::pos_t &p1, const lig_build::p
    s += "   <line x1=\"";
    s += std::to_string(sf * p1.x);
    s += "\" y1=\"";
-   s += std::to_string(sf * p1.y);
+   s += std::to_string(-sf * p1.y);
    s += "\" x2=\"";
    s += std::to_string(sf * p2.x);
    s += "\" y2=\"";
-   s += std::to_string(sf * p2.y);
+   s += std::to_string(-sf * p2.y);
    s += "\"";
    s += " style=\"stroke:";
    // s += "#202020";
@@ -410,16 +410,16 @@ std::string
 svg_bond_t::make_dashed_bond_line_string(const lig_build::pos_t &p1, const lig_build::pos_t &p2,
                                          const std::string &bond_colour) const {
 
-   double sf = 400.0; // scale factor
+   double sf = 1.0;
    std::string s;
    s += "   <line x1=\"";
    s += std::to_string(sf * p1.x);
    s += "\" y1=\"";
-   s += std::to_string(sf * p1.y);
+   s += std::to_string(-sf * p1.y);
    s += "\" x2=\"";
    s += std::to_string(sf * p2.x);
    s += "\" y2=\"";
-   s += std::to_string(sf * p2.y);
+   s += std::to_string(-sf * p2.y);
    s += "\"";
    s += " style=\"stroke:";
    // s += "#202020";
@@ -438,11 +438,12 @@ svg_bond_t::draw_bond(const svg_atom_t &at_1, const svg_atom_t &at_2,
                       const std::vector<std::pair<lig_build::atom_t, lig_build::bond_t> > &other_connections_to_second_atom,
                       const lig_build::pos_t &centre, double scale) {
 
-   std::cout << "\ndebug:: in svg_bond_t::draw_bond() --- start --- "
-             << " at_1 " << at_1.atom_id << " " << at_1.atom_position
-             << " at_2 " << at_2.atom_id << " " << at_2.atom_position
-             << " centre " << centre
-             << std::endl;
+   if (false)
+      std::cout << "\ndebug:: in svg_bond_t::draw_bond() --- start --- "
+                << " at_1 " << at_1.atom_id << " " << at_1.atom_position
+                << " at_2 " << at_2.atom_id << " " << at_2.atom_position
+                << " centre " << centre
+                << std::endl;
 
    scale = 1.0;
    std::string s;
@@ -462,7 +463,7 @@ svg_bond_t::draw_bond(const svg_atom_t &at_1, const svg_atom_t &at_2,
    if (shorten_second)
       pos_2 = lig_build::pos_t::fraction_point(pos_1_in, pos_2_in, shorten_fraction);
 
-   if (true)
+   if (false)
       std::cout << "------ draw_bond for bt " << bt << " between " << at_1 << " and " << at_2
                 << " c.f. "
                 << " single-bond " << lig_build::bond_t::SINGLE_BOND
@@ -851,7 +852,7 @@ svg_atom_t::make_text_item(const lig_build::atom_id_info_t &atom_id_info,
             atom_string += "   <text x=\"";
             atom_string += std::to_string(sf * p.x + x_fudge);
             atom_string += "\" y=\"";
-            atom_string += std::to_string(sf * p.y + y_fudge);
+            atom_string += std::to_string(-sf * p.y + y_fudge);
             atom_string += "\"";
             atom_string += std::string(" text-anchor=\"middle\"");
             atom_string += " font-family=\"Helvetica, sans-serif\" font-size=" + font_size + " fill=\"";
