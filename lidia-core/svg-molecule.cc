@@ -376,10 +376,11 @@ svg_molecule_t::mol_coords_to_svg_coords(const lig_build::pos_t &pos_1,
    p1.y = -p1.y; // canvas is upside down c.f. normal/real-world/molecule coordinates
    p1 += lig_build::pos_t(0.5,0.5); // 20241116-PE removed this offset - why was it here?
 
-   std::cout << "mol_coords_to_svg_coords: "
-             << " scale " << scale
-             << " input " << pos_1 << " centre " << centre
-             << " output " << p1 << std::endl;
+   if (false)
+      std::cout << "mol_coords_to_svg_coords: "
+                << " scale " << scale
+                << " input " << pos_1 << " centre " << centre
+                << " output " << p1 << std::endl;
    return p1;
 
 }
@@ -1000,7 +1001,7 @@ svg_molecule_t::make_svg(double sf, bool dark_background_flag) {
                                                        other_connections_to_second_atom,
                                                        centre, scale);
 	 std::string bc = make_bond_comment(ib, bonds[ib]);
-         std::cout << "debug:: in svg_molecule_t::make_svg() bond_string is " << bond_string << std::endl;
+         // std::cout << "debug:: in svg_molecule_t::make_svg() bond_string is " << bond_string << std::endl;
 
 	 // I don't care about s now
 	 svg.add(bc);
