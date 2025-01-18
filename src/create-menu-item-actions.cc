@@ -2344,6 +2344,7 @@ background_dark_grey_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
    graphics_info_t::background_colour = glm::vec3(0.07f,0.07f,0.07f);
    graphics_info_t::graphics_draw();
+   graphics_info_t::graphics_grab_focus();
 }
 
 void
@@ -2373,6 +2374,7 @@ background_white_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
    graphics_info_t::background_colour = glm::vec3(1,1,1);
    graphics_info_t::graphics_draw();
+   graphics_info_t::graphics_grab_focus();
 }
 
 void
@@ -2385,6 +2387,7 @@ bond_colours_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    g.fill_bond_colours_dialog_internal(w);
    set_transient_for_main_window(w);
    gtk_widget_set_visible(w, TRUE);
+   graphics_info_t::graphics_grab_focus();
 }
 
 void
