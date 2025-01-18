@@ -1098,7 +1098,15 @@ flev_t::draw_bonds_to_ligand() {
                   B -= rc_to_lig_atom_uv * shorten_factor; // put the end point (say) of a hydrogen bond
                                                            // some pixels away from the atom centre - for better
                                                            // aesthetics.
-               lig_build::pos_t A = pos + rc_to_lig_atom_uv * 1.3;
+               shorten_factor = 1.3;
+               // but if it has a start arrow, we need to make it shorter so that the line and
+               // the tip of the arrow don't overlap. Who ever will notice, I wonder...
+               if (residue_circles[ic].bonds_to_ligand[ib].bond_type == bond_to_ligand_t::H_BOND_ACCEPTOR_MAINCHAIN)
+                  shorten_factor = 1.4;
+               if (residue_circles[ic].bonds_to_ligand[ib].bond_type == bond_to_ligand_t::H_BOND_ACCEPTOR_SIDECHAIN)
+                  shorten_factor = 1.4;
+               std::cout << "ib" << ib  << " shorten_factor " << shorten_factor << std::endl;
+               lig_build::pos_t A = pos + rc_to_lig_atom_uv * shorten_factor;
 
                // some colours
                std::string blue = "blue";
@@ -1158,19 +1166,17 @@ flev_t::draw_bonds_to_ligand() {
 
                // this needs to be an arrow
                //
-               std::cout << "debug:: in draw_bonds_to_ligand() with scale_factor " << scale_factor << std::endl;
                std::string s;
-               double sf = 1.0;
                std::string bond_colour = stroke_colour;
                s += "<!-- Bond to Ligand -->\n";
                s += "   <line x1=\"";
-               s += std::to_string(sf * A.x);
+               s += std::to_string(A.x);
                s += "\" y1=\"";
-               s += std::to_string(-sf * A.y);
+               s += std::to_string(-A.y);
                s += "\" x2=\"";
-               s += std::to_string(sf * B.x);
+               s += std::to_string(B.x);
                s += "\" y2=\"";
-               s += std::to_string(-sf * B.y);
+               s += std::to_string(-B.y);
                s += "\"";
                s += " style=\"stroke:";
                // s += "#202020";
@@ -1179,6 +1185,35 @@ flev_t::draw_bonds_to_ligand() {
                s += "\"";
                s += "/>\n";
                svgc.add(s);
+
+               if (start_arrow) {
+                  // add a triangle arrow head
+                  lig_build::pos_t tip = pos + rc_to_lig_atom_uv * 1.15;
+                  double l1 = 0.85;
+                  double l2 = 0.3;
+                  lig_build::pos_t rcla_uv_90 = rc_to_lig_atom_uv.rotate(90);
+                  lig_build::pos_t pt_1 = tip;
+                  lig_build::pos_t pt_2 = tip + rc_to_lig_atom_uv * l1 + rcla_uv_90 * l2;
+                  lig_build::pos_t pt_3 = tip + rc_to_lig_atom_uv * l1 - rcla_uv_90 * l2;
+                  // std::string ts = "<polygon points="100,10 150,190 50,190" style="fill:lime;"/>";
+                  std::string ts = "   <polygon points =\"";
+                  ts += std::to_string(pt_1.x);
+                  ts += ",";
+                  ts += std::to_string(-pt_1.y);
+                  ts += " ";
+                  ts += std::to_string(pt_2.x);
+                  ts += ",";
+                  ts += std::to_string(-pt_2.y);
+                  ts += " ";
+                  ts += std::to_string(pt_3.x);
+                  ts += ",";
+                  ts += std::to_string(-pt_3.y);
+                  ts += "\" style=\"fill:";
+                  ts += bond_colour;
+                  ts += ";\"/>";
+                  ts += "\n";
+                  svgc.add(ts);
+               }
 
                if (end_arrow) {
                   // add a triangle arrow head
@@ -1240,14 +1275,12 @@ flev_t::draw_solvent_accessibility_of_atoms() {
 void
 flev_t::draw_solvent_accessibility_of_atom(const lig_build::pos_t &pos, double sa) {
 
-   double LIGAND_TO_CANVAS_SCALE_FACTOR = 1.0; // this needs to go somewhere
-
    if (true) {
       int n_circles = int(sa*40) + 1;    // needs fiddling?
       if (n_circles> 10) n_circles = 10; // needs fiddling?
 
       for (int i=0; i<n_circles; i++) {
-         double rad =  LIGAND_TO_CANVAS_SCALE_FACTOR/23.0 * 3.0 * double(i+1); // needs fiddling?
+         double rad = 0.1 * double(i+1); // needs fiddling?
 
          // CONVERT-TO-SVG
          // GooCanvasItem *circle = goo_canvas_ellipse_new(group,
@@ -2117,15 +2150,14 @@ flev_t::draw_residue_circles(const std::vector<residue_circle_t> &l_residue_circ
    bool draw_flev_annotations_flag = true; // is this a class member now?
 
    if (draw_flev_annotations_flag) {
-      bool draw_solvent_exposures = 1;
+      bool draw_solvent_exposures = true;
       try {
 	 lig_build::pos_t ligand_centre = mol.get_ligand_centre();
-	 // GooCanvasItem *root = goo_canvas_get_root_item (GOO_CANVAS(canvas));
 
 	 if (draw_solvent_exposures)
 	    for (unsigned int i=0; i<l_residue_circles.size(); i++) {
 	       svg_container_t svgc_ec = draw_solvent_exposure_circle(l_residue_circles[i], ligand_centre);
-               // svgc.add(svgc_ec);
+               svgc.add(svgc_ec);
             }
 
 	 for (unsigned int i=0; i<l_residue_circles.size(); i++) {
@@ -2289,25 +2321,26 @@ flev_t::draw_solvent_exposure_circle(const residue_circle_t &residue_circle,
    if (residue_circle.residue_type != "HOH") {
       if (residue_circle.se_diff_set()) {
 	 std::pair<double, double> se_pair = residue_circle.solvent_exposures();
-	 double radius_extra = (se_pair.second - se_pair.first) * 19;  // was 18, was 14, was 22.
+	 double radius_extra = (se_pair.second - se_pair.first) * 1.2;  // was 19, was 18, was 14, was 22.
 	 if (radius_extra > 0) {
 	    lig_build::pos_t to_lig_centre_uv = (ligand_centre - residue_circle.pos).unit_vector();
 	    lig_build::pos_t se_circle_centre = residue_circle.pos - to_lig_centre_uv * radius_extra;
 
 	    std::string fill_colour = get_residue_solvent_exposure_fill_colour(radius_extra);
-	    double r = 2.0 * standard_residue_circle_radius + radius_extra;
+	    double r = standard_residue_circle_radius + radius_extra;
+            std::cout << "in draw_solvent_exposure_circle() to_lig_centre_uv " << to_lig_centre_uv << " "
+                      << "se_circle_centre " << se_circle_centre << " fill_colour " << fill_colour << " "
+                      << "radius_extra " << radius_extra << " "
+                      << "r " << r << std::endl;
             double line_width = 0.0;
-            std::vector<double> vv = {5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70,
-                                      75, 80, 85, 90, 95, 100};
-            vv.resize(1);
-            vv[0] = 20.0;
-            for (unsigned int ii=0; ii<vv.size(); ii++) {
-               svgc.add("<!-- Exposure Circle -->\n");
-               lig_build::pos_t pos = se_circle_centre * vv[ii];
-               pos += lig_build::pos_t(200, 200);
-               std::string c = make_circle(pos, r, line_width, fill_colour, "black");
-               svgc.add(c);
-            }
+            double vv0 = 0.5;
+            svgc.add("<!-- Exposure Circle -->\n");
+            lig_build::pos_t pos = se_circle_centre;
+            pos.y = -pos.y; // to match the top layer
+            pos += lig_build::pos_t(0.0002, 0.0002);
+            std::cout << "   pos " << pos << " se_circle_centre " << se_circle_centre << std::endl;
+            std::string c = make_circle(pos, r, line_width, fill_colour, "black");
+            svgc.add(c);
 	 }
       }
    }
@@ -2317,8 +2350,9 @@ flev_t::draw_solvent_exposure_circle(const residue_circle_t &residue_circle,
 std::string
 flev_t::get_residue_solvent_exposure_fill_colour(double r) const {
 
+   // r is ~0.4 max
    std::string colour = "#8080ff";
-   double step = 0.7;
+   double step = 0.04;
    if (r > step)
       colour = "#e0e0ff";
    if (r > step * 2)

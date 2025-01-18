@@ -312,22 +312,22 @@ class flev_t {
    void refine_residue_circle_positions(); // changes the positions of residue_circles
    std::vector<int> get_primary_indices() const;
    void initial_residues_circles_layout();
-  
+
    // fiddle with the position of the residue_circles[primary_index].
-   //   
+   //
    void initial_primary_residue_circles_layout(const ligand_grid &grid,
                                                int primary_index,
                                                const std::vector<std::pair<lig_build::pos_t, double> > &attachment_points);
-  
+
    // untrap residues as needed.
    void position_non_primaries(const ligand_grid &grid,
                                const std::vector<int> &primary_indices);
-       
+
    void numerical_gradients(gsl_vector *x, gsl_vector *df, void *params) const;
 
    // return 1 on solution having problems, 0 for no problems, also
    // return a list of the residue circles with problems.
-   //   
+   //
    std::pair<bool, std::vector<int> > solution_has_problems_p() const;
 
    // minimise layout energy
@@ -348,7 +348,7 @@ public:
    void init() {
       fle_water_dist_max = 3.25;
       fle_h_bond_dist_max = 3.9;
-      standard_residue_circle_radius = 15.45;
+      standard_residue_circle_radius = 1.2; // 20250118-PE was 15.45; c.f. r in draw_residue_circle_top_layer()
       scale_factor = 400.0; // used in svg_molecule
    }
 
