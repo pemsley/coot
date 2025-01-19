@@ -75,6 +75,9 @@ namespace lig_build {
 	 x -= p.x;
 	 y -= p.y;
       }
+      pos_t invert_y() const {
+         return pos_t(x, -y);
+      }
       bool close_point(const pos_t &other) const {
 	 double small_bit = 3;
 	 return near_point(other, small_bit);
@@ -126,13 +129,13 @@ namespace lig_build {
 	 double new_y = cen.y + (x - cen.x) * sin_theta + (y - cen.y) * cos_theta;
 	 return pos_t(new_x, new_y);
       }
-      
+
       pos_t operator*(float sc) const {
 	 return pos_t(x*sc, y*sc);
       }
       double length() const {
 	 return sqrt(x*x + y*y);
-      } 
+      }
       double lengthsq() const {
 	 return (x*x + y*y);
       }
