@@ -317,11 +317,11 @@ coot::h_bonds::get(int selHnd_1, int selHnd_2, mmdb::Manager *mol, const coot::p
 //
 //          H
 //         /
-//        /              A   
+//        /              A
 //   DD--D                \                        .
 //        \                \                       .
 //         \               AA
-//         DD             
+//         DD
 //
 // D-H-A  > 90 degrees
 // H-A-AA > 90 degrees
@@ -331,7 +331,7 @@ coot::h_bonds::get(int selHnd_1, int selHnd_2, mmdb::Manager *mol, const coot::p
 //
 // Do not consider internal hydrogen bonds (check that the residues
 // are different in H-bond analysis).
-// 
+//
 std::vector<coot::h_bond>
 coot::h_bonds::get_mcdonald_and_thornton(int selHnd_1, int selHnd_2, mmdb::Manager *mol,
                                          const protein_geometry &geom, int imol,
@@ -342,7 +342,7 @@ coot::h_bonds::get_mcdonald_and_thornton(int selHnd_1, int selHnd_2, mmdb::Manag
 
    // These distance are from the acceptor to the H - not the donor
    mmdb::realtype min_dist = 0.1; // H-bonds are longer than this
-   
+
    mmdb::PPAtom sel_1_atoms = 0;
    mmdb::PPAtom sel_2_atoms = 0;
    int n_sel_1_atoms;
@@ -351,11 +351,11 @@ coot::h_bonds::get_mcdonald_and_thornton(int selHnd_1, int selHnd_2, mmdb::Manag
    mmdb::Contact *pscontact = NULL;
    int n_contacts;
    long i_contact_group = 1;
-   for (int i=0; i<4; i++) 
-      for (int j=0; j<4; j++) 
-         my_matt[i][j] = 0.0;      
+   for (int i=0; i<4; i++)
+      for (int j=0; j<4; j++)
+         my_matt[i][j] = 0.0;
    for (int i=0; i<4; i++) my_matt[i][i] = 1.0;
-   
+
    mol->GetSelIndex   (selHnd_1, sel_1_atoms, n_sel_1_atoms);
    mol->GetSelIndex   (selHnd_2, sel_2_atoms, n_sel_2_atoms);
 
@@ -370,10 +370,10 @@ coot::h_bonds::get_mcdonald_and_thornton(int selHnd_1, int selHnd_2, mmdb::Manag
       if (pscontact) {
 
          // What is the nearest neighbour of the atoms in mol?
-         // 
+         //
          std::map<mmdb::Atom *, std::vector<std::pair<mmdb::Atom *, float> > > neighbour_map =
             make_neighbour_map(selHnd_1, selHnd_2, mol);
-         
+
          for (int i_contact=0; i_contact<n_contacts; i_contact++) {
             mmdb::Atom *at_1 = sel_1_atoms[pscontact[i_contact].id1];
             mmdb::Atom *at_2 = sel_2_atoms[pscontact[i_contact].id2];
@@ -385,7 +385,7 @@ coot::h_bonds::get_mcdonald_and_thornton(int selHnd_1, int selHnd_2, mmdb::Manag
                if (alt_conf_1 != alt_conf_2)
                   continue;
 
-            if (at_1->residue != at_2->residue) { 
+            if (at_1->residue != at_2->residue) {
 
                // are they HB_HYDROGEN and HB_ACCEPTOR?
                //
@@ -395,7 +395,7 @@ coot::h_bonds::get_mcdonald_and_thornton(int selHnd_1, int selHnd_2, mmdb::Manag
                at_1->GetUDData(hb_type_udd_handle, hb_type_1);
                at_2->GetUDData(hb_type_udd_handle, hb_type_2);
 
-               if (false) // checking this? Are the types HB_UNASSIGNED?
+               if (true) // checking this? Are the types HB_UNASSIGNED?
                   std::cout << "DEBUG:: in get_mcdonald_and_thornton() "
                             << coot::atom_spec_t(at_1) << " "
                             << coot::atom_spec_t(at_2) << "   "
@@ -403,7 +403,7 @@ coot::h_bonds::get_mcdonald_and_thornton(int selHnd_1, int selHnd_2, mmdb::Manag
                             << coot::HB_UNASSIGNED << std::endl;
 
                // hydrogen on ligand
-               // 
+               //
                if (hb_type_1 == coot::HB_HYDROGEN) {
                   if (hb_type_2 == coot::HB_ACCEPTOR ||
                       hb_type_2 == coot::HB_BOTH) {
@@ -415,16 +415,14 @@ coot::h_bonds::get_mcdonald_and_thornton(int selHnd_1, int selHnd_2, mmdb::Manag
                      if (b_hbond.first)
                         v.push_back(b_hbond.second);
                   }
-               } else {
-                  // std::cout << ".... rejected..." << std::endl;
-               } 
+               }
 
                // hydrogen on environment (protein) residue
                //
                // Allow a special alternative case where the acceptor
                // is on the ligand and the donor is a water (because
                // waters may not (probably do not) have hydrogens.
-               // 
+               //
                if (hb_type_1 == coot::HB_ACCEPTOR ||
                    hb_type_1 == coot::HB_BOTH) {
                   if (hb_type_2 == coot::HB_HYDROGEN ||
@@ -436,7 +434,7 @@ coot::h_bonds::get_mcdonald_and_thornton(int selHnd_1, int selHnd_2, mmdb::Manag
                         make_h_bond_from_environment_residue_hydrogen(at_1, at_2, nb_1, nb_2);
 
                      if (b_hbond.first) {
-                        if (false)
+                        if (true)
                            std::cout << "DEBUG:: ===> in get_m&d: pushing back b_hbond "
                                      << b_hbond.second << std::endl;
                         v.push_back(b_hbond.second);
