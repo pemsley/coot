@@ -576,19 +576,14 @@ svg_bond_t::draw_bond(const svg_atom_t &at_1, const svg_atom_t &at_2,
 	 std::vector<std::pair<lig_build::pos_t, lig_build::pos_t> > vp =
 	    lig_build::pos_t::make_wedge_in_bond(pos_1, pos_2);
 	 if (vp.size()) {
-	    // cairo_set_source_rgb(0.1, 0.1, 0.1);
 	    for (unsigned int i=0; i<vp.size(); i++) {
 
-	       lig_build::pos_t p1 = svg_molecule_t::mol_coords_to_svg_coords(vp[i].first,  centre, scale);
-	       lig_build::pos_t p2 = svg_molecule_t::mol_coords_to_svg_coords(vp[i].second, centre, scale);
-
-	       // cairo_move_to(p1.x, p1.y);
-	       // cairo_line_to(p2.x, p2.y);
+	       lig_build::pos_t p1 = vp[i].first;
+               lig_build::pos_t p2 = vp[i].second;
 
                std::string bond_string = make_bond_line_string(p1, p2, scale, bond_colour);
                s += bond_string;
 	    }
-            // cairo_stroke(cr);
 	 }
       }
       break;

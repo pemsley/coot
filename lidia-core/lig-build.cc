@@ -48,7 +48,7 @@ lig_build::bond_t::over_bond(double x_in, double y_in,
 //       static
 std::vector<std::pair<lig_build::pos_t, lig_build::pos_t> >
 lig_build::pos_t::make_wedge_in_bond(const pos_t &pos_1, const pos_t &pos_2) {
-   
+
    std::vector<std::pair<pos_t, pos_t> > lines;
    pos_t buv = (pos_2-pos_1).unit_vector();
    pos_t buv_90 = buv.rotate(90);
