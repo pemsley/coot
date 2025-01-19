@@ -81,12 +81,12 @@ namespace lig_build {
       }
       bool near_point(const pos_t &other, double small_bit) const {
 	 bool status = 0;
-	 if (fabs(x-other.x) < small_bit) { 
+	 if (fabs(x-other.x) < small_bit) {
 	    if (fabs(y-other.y) < small_bit) {
 	       status = 1;
 	    }
 	 }
-	 return status; 
+	 return status;
       }
       static pos_t fraction_point(const pos_t &first,
 				  const pos_t &second,
@@ -117,7 +117,7 @@ namespace lig_build {
 	 double new_y = y_cen + (x - x_cen) * sin_theta + (y - y_cen) * cos_theta;
 	 return pos_t(new_x, new_y);
       }
-      
+
       pos_t rotate_about(const pos_t &cen, double angle) {
 	 double theta_l = angle * DEG_TO_RAD;
 	 double sin_theta = sin(theta_l);
@@ -178,7 +178,7 @@ namespace lig_build {
    // -----------------------------------------------------------------
    //                   offset text
    // -----------------------------------------------------------------
-   // 
+   //
    // 20110410 this is so that NH and OH can be typeset in various
    // ways, e.g. HO or with the N appearing above the H.  It depends
    // on the bonds to which this atom is attached.  So instead of
@@ -255,24 +255,24 @@ namespace lig_build {
 	 offsets.push_back(ot1);
 	 offsets.push_back(ot2);
 	 size_hint = 0;
-      } 
+      }
 
       std::vector<offset_text_t> offsets;
       int size_hint; // a hint so that atom names can be rendered smaller than normal
                      // -1 means smaller
-      
+
       void set_atom_id(const std::string &atom_id_in) {
 	 atom_id = atom_id_in;
       }
-      
+
       const offset_text_t &operator[](const unsigned int &indx) const {
 	 return offsets[indx];
       }
       void add(const offset_text_t &off) {
 	 offsets.push_back(off);
-      } 
-      unsigned int n_offsets() const { return offsets.size(); } 
-      
+      }
+      unsigned int n_offsets() const { return offsets.size(); }
+
       std::string atom_id; // what we used to return, this is used for
 			   // testing against what we had so we know
 			   // if we need to change the id.
