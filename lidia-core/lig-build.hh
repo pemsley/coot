@@ -296,8 +296,8 @@ namespace lig_build {
    // atom_name is the matching name from the PDB file (if any),
    // e.g. " C12", " OD2" etc.  This can be "" if there was no atom
    // name assigned.
-   
-   
+
+
    class atom_t {
       bool is_closed_; // because we can't delete atoms, we can only close
                        // them (deleting/erase()ing atoms would mess up
@@ -327,7 +327,7 @@ namespace lig_build {
       // internal element, change status is 0).
       bool change_element(const std::string &ele_in) {
 	 bool ch_status = 0;
-	 if (element != ele_in) { 
+	 if (element != ele_in) {
 	    element = ele_in;
 	    ch_status = 1;
 	 }
@@ -1101,6 +1101,19 @@ namespace lig_build {
       //
       virtual std::pair<bool, int> add_atom(const Ta &at) {
          return checked_add(at);
+      }
+
+      std::pair<bool, lig_build::atom_t> get_atom_by_name(const std::string &name) const {
+         bool status = false;
+         lig_build::atom_t at(lig_build::pos_t(0,0), "", 0);
+         for (unsigned int i=0; i<atoms.size(); i++) {
+            if (atoms[i].get_atom_name() == name) {
+               status = true;
+               at = atoms[i];
+               break;
+            }
+         }
+         return std::make_pair(status, at);
       }
 
       // can throw a std::runtime_error exception

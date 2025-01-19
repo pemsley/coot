@@ -464,14 +464,17 @@ svg_bond_t::draw_bond(const svg_atom_t &at_1, const svg_atom_t &at_2,
    if (shorten_second)
       pos_2 = lig_build::pos_t::fraction_point(pos_1_in, pos_2_in, shorten_fraction);
 
-   if (false)
-      std::cout << "------ draw_bond for bt " << bt << " between " << at_1 << " and " << at_2
-                << " c.f. "
+   if (true)
+      std::cout << "------ draw_bond for bt " << bt << " between "
+                << at_1 << " " <<  at_1.atom_name << " and "
+                << at_2 << " " <<  at_2.atom_name << " and "
+                << "   c.f. "
                 << " single-bond " << lig_build::bond_t::SINGLE_BOND
                 << " single-or-double " << lig_build::bond_t::SINGLE_OR_DOUBLE
                 << " single-or-aromatic " << lig_build::bond_t::SINGLE_OR_AROMATIC
                 << " deloc-on-and-half " << lig_build::bond_t::DELOC_ONE_AND_A_HALF
                 << " bond-any " << lig_build::bond_t::BOND_ANY
+                << " in-bond " << lig_build::bond_t::IN_BOND
                 << " out-bond " << lig_build::bond_t::OUT_BOND
                 << std::endl;
 
@@ -576,6 +579,8 @@ svg_bond_t::draw_bond(const svg_atom_t &at_1, const svg_atom_t &at_2,
 	 std::vector<std::pair<lig_build::pos_t, lig_build::pos_t> > vp =
 	    lig_build::pos_t::make_wedge_in_bond(pos_1, pos_2);
 	 if (vp.size()) {
+            std::string ss = "<!-- in-bond " + at_1.atom_name  + " " + at_2.atom_name + " -->\n";
+            s += ss;
 	    for (unsigned int i=0; i<vp.size(); i++) {
 
 	       lig_build::pos_t p1 = vp[i].first;
@@ -600,6 +605,7 @@ svg_bond_t::draw_bond(const svg_atom_t &at_1, const svg_atom_t &at_2,
 	       if (other_connections_to_second_atom.size() <= 2)
 		  draw_dart_or_wedge = true;
 	    if (draw_dart_or_wedge) {
+               std::string ss = "<!-- out-bond " + at_1.atom_name  + " " + at_2.atom_name + " -->\n";
                std::string bond_string = draw_sheared_or_darted_wedge_bond(pos_1, pos_2, bond_colour,
                                                                            other_connections_to_second_atom,
                                                                            centre, scale);
@@ -612,32 +618,21 @@ svg_bond_t::draw_bond(const svg_atom_t &at_1, const svg_atom_t &at_2,
 	 if (! done_darted) {
 	    // filled shape (normal wedge)
 	    std::vector<lig_build::pos_t> v = lig_build::pos_t::make_wedge_out_bond(pos_1, pos_2);
-
-	    // lig_build::pos_t p = svg_molecule_t::mol_coords_to_svg_coords(v[0], centre, scale);
-	    // cairo_move_to(cr, p.x, p.y);
-	    // cairo_set_source_rgb(cr, 0.1, 0.1, 0.1);
-	    for (unsigned int i=1; i<v.size(); i++) {
-	       // lig_build::pos_t p_i = svg_molecule_t::mol_coords_to_svg_coords(v[i], centre, scale);
-	       // cairo_line_to(cr, p_i.x, p_i.y);
+            if (!v.empty()) {
                std::string bond_string = "   <polygon points=\"";
                for (unsigned int i=0; i<v.size(); i++) {
-                  double sf = 400.0; // scale_factor
-                  lig_build::pos_t p_i = svg_molecule_t::mol_coords_to_svg_coords(v[i], centre, scale);
-                  bond_string += std::to_string(sf * p_i.x);
+                  const auto &p_i = v[i];
+                  bond_string += std::to_string(p_i.x);
                   bond_string += ",";
-                  bond_string += std::to_string(sf * p_i.y);
+                  bond_string += std::to_string(-p_i.y);
                   bond_string += " ";
                }
                bond_string += "\" style=\"fill:";
                bond_string += bond_colour; //#202020
                bond_string += ";\" />\n";
                s += bond_string;
-	    }
-	    // cairo_close_path(cr);
-	    // cairo_fill(cr);
-	    // cairo_stroke(cr);
+            }
 	 }
-
       }
       break;
    case BOND_UNDEFINED:
@@ -656,6 +651,7 @@ svg_bond_t::draw_sheared_or_darted_wedge_bond(const lig_build::pos_t &pos_1,
                                               double scale) const {
 
    std::string s;
+   s += "<!-- sheared_or_darted_wedge_bond -->\n";
 
    std::vector<lig_build::pos_t> v = coords_for_sheared_or_darted_wedge_bond(pos_1, pos_2, other_connections_to_second_atom);
 
@@ -710,15 +706,13 @@ svg_bond_t::draw_sheared_or_darted_wedge_bond(const lig_build::pos_t &pos_1,
    // cairo_fill(cr);
    // cairo_stroke(cr);
 
-   double sf = 400.0; // scale_factor
-
    if (v.size() >= 4) {
-      s += "<polygon points=\"";
+      s += "   <polygon points=\"";
       for (unsigned int i=0; i<v.size(); i++) {
-         lig_build::pos_t p_i = svg_molecule_t::mol_coords_to_svg_coords(v[i], centre, scale);
-         s += std::to_string(sf * p_i.x);
+         lig_build::pos_t p_i = v[i];
+         s += std::to_string(p_i.x);
          s += ",";
-         s += std::to_string(sf * p_i.y);
+         s += std::to_string(-p_i.y);
          s += " ";
       }
       s += "\" style=\"fill:";
