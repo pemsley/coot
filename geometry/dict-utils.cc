@@ -1112,6 +1112,11 @@ coot::dictionary_residue_restraints_t::is_connected_to_donor(const std::string &
 	       break;
 	    }
 	 }
+         // 20250119-PE c.f.atom-overlaps comments about NR5. It can be (is?) a donor
+         if (energy_type == "NR5") {
+            result = true;
+            break;
+         }
       }
    }
    return result;
