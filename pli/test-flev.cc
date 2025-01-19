@@ -10,15 +10,18 @@ int main(int argc, char **argv) {
    coot::protein_geometry geom;
    geom.set_verbose(false);
    geom.init_standard();
-   std::string pdb_file_name = "2vtq.pdb";
-   std::string ligand_code = "LZA";
+
+   std::string pdb_file_name = "1x8b.pdb";
+   std::string ligand_code = "824";
    std::string chain_id = "A";
    std::string ins_code = "";
-   int res_no = 1299;
+   int res_no = 901;
 
-   pdb_file_name = "1x8b.pdb";
-   ligand_code = "824";
-   res_no = 901;
+   if (argc == 2) {
+      pdb_file_name = "2vtq.pdb";
+      ligand_code = "LZA";
+      res_no = 1299;
+   }
 
    bool use_gemmi = false;
    atom_selection_container_t atom_sel = get_atom_selection(pdb_file_name, use_gemmi, true, false);
