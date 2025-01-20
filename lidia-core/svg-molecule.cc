@@ -464,7 +464,7 @@ svg_bond_t::draw_bond(const svg_atom_t &at_1, const svg_atom_t &at_2,
    if (shorten_second)
       pos_2 = lig_build::pos_t::fraction_point(pos_1_in, pos_2_in, shorten_fraction);
 
-   if (true)
+   if (false)
       std::cout << "------ draw_bond for bt " << bt << " between "
                 << at_1 << " " <<  at_1.atom_name << " and "
                 << at_2 << " " <<  at_2.atom_name << " and "
@@ -472,7 +472,7 @@ svg_bond_t::draw_bond(const svg_atom_t &at_1, const svg_atom_t &at_2,
                 << " single-bond " << lig_build::bond_t::SINGLE_BOND
                 << " single-or-double " << lig_build::bond_t::SINGLE_OR_DOUBLE
                 << " single-or-aromatic " << lig_build::bond_t::SINGLE_OR_AROMATIC
-                << " deloc-on-and-half " << lig_build::bond_t::DELOC_ONE_AND_A_HALF
+                << " deloc-one-and-half " << lig_build::bond_t::DELOC_ONE_AND_A_HALF
                 << " bond-any " << lig_build::bond_t::BOND_ANY
                 << " in-bond " << lig_build::bond_t::IN_BOND
                 << " out-bond " << lig_build::bond_t::OUT_BOND
