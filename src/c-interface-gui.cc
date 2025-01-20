@@ -2065,7 +2065,7 @@ void handle_get_accession_code(GtkWidget *frame, GtkWidget *entry) {
          std::string pdb_url_dir = pdbe_server + "/" + pdbe_pdb_file_dir;
 
          std::string pdb_file_name = std::string("pdb") + down_id + std::string(".ent");
-         std::string cif_file_name = std::string("pdb") + down_id + std::string(".cif");
+         std::string cif_file_name =                      down_id + std::string(".cif");
          std::string pdb_filepath = coot::util::append_dir_file(download_dir, pdb_file_name);
          std::string cif_filepath = coot::util::append_dir_file(download_dir, cif_file_name);
 
@@ -2082,11 +2082,13 @@ void handle_get_accession_code(GtkWidget *frame, GtkWidget *entry) {
             }
          } else {
             // blocking!
-            int status = coot_get_url(pdb_url, pdb_file_name);
+            int status = coot_get_url(pdb_url, pdb_filepath);
+            // coot_get_url() returns the return value of curl_easy_perform()
+            // CURLE_OK is 0
             if (status == 0) {
                read_pdb(pdb_file_name);
             } else {
-               status = coot_get_url(cif_url, cif_file_name);
+               status = coot_get_url(cif_url, cif_filepath);
                if (status == 0) {
                   read_pdb(cif_file_name);
                }
