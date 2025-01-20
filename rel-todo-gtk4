@@ -1,14 +1,33 @@
 ----
 
-1.1.12 make svg molecule work again (pli need not work).
+MM: Try harder to get the NCS jumping matrix correct.
 
-1.1.12: Layla #HBonds etc need to be ints
+Look at 2vtq add Hydrogen atoms and look for O16 on the ligand.
+Why is there not a hydrogen bond dots to the water?
+Also O8.
 
-1.1.12: Layla delete Hydrogens
+1.1.12 make svg molecule work again (pli need not work). Test wedge bonds.
 
 1.1.12: Untangle the disulfide refinement in the untangle challenge file from Eleanor.
+* Can't reproduce
 
-1.1.12: More work to be done to remove framebuffer usage in --opengl-es mode - optional
+--code 2vtq doesn't work - it should load the cached files
+* Done.
+
+MM: EDS for 8aq8 - where is the model? (no .ent on server).
+* Done.
+
+2vtq missing bond in svg molecule between either C25 C26 or C3 C4.
+* Done.
+
+1.1.12: More work to be done to remove framebuffer usage in --opengl-es mode
+* Done.
+
+1.1.12: Layla delete Hydrogens
+* Done.
+
+1.1.12: Layla #HBonds etc need to be ints
+* Done.
 
 1.1.12 Add a commit and version to chapi
 * Done. Well, the package version is that. That should do - at least for now.
@@ -32,6 +51,14 @@
 * Done.
 
 Too hard for 1.1.12:: Add Phi,Psi labels on the HUD Rama plot.
+
+INFO:: Model: Bad Non-Bonded Contact: [spec: model 1 "A"   16 "" " CB " ""] CYS to [spec: model 1 "A"   22 "" " SG " ""] CYS delta -0.728 target 4.110 distortion 57.145
+
+imol = coot.read_pdb("27_paule_xyzout_coot_rebuild_1.pdb")
+imol_map = coot.read_mtz("chapi-coot-servalcat/best-ref.mtz", "FWT", "PHWT", "W", False, False)
+On refining sphere on residue 16:
+INFO:: Model: Bad Non-Bonded Contact: [spec: model 1 "A"   16 "" " CB " ""] CYS to [spec: model 1 "A"   22 "" " SG " ""] CYS delta -0.727 target 4.110 distortion 56.931
+There should be an SSBOND angle restraint - hence no NBC restraint.
 
 When I'm fixing rotamers in intermediate atoms mode, I sometimes/often improve the geometry
 (bond, angles, planes, chirals, nbc) too, don't I? Can I have a sound for that?

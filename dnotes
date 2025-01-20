@@ -3981,6 +3981,7 @@ INFO::
    o Make sure RELEASE-NOTES are up to date and add a ----- marker at the top
      Make sure the release is called Release, not pre-release
    o change the version in configure.ac
+   o change the PACKAGE_VERSION in CMakeLists.txt
    o Correct the version in the about_dialog in the coot-gtk4.ui file
    o Artists acknowledged in glade/aboutdialog?
    o Use []
