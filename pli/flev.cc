@@ -160,6 +160,162 @@ flev_t::render() {
 
 }
 
+// return 1 on solution having problems, 0 for no problems, also
+// return a list of the residue circles with problems.
+//
+std::pair<bool, std::vector<int> >
+flev_t::solution_has_problems_p() const {
+
+   std::vector<int> v;
+   bool status = 0;
+
+   // scale factor of 1.2 is too small, 2.0 seems good for H102 in 2aei
+   // double crit_dist_2 = 2.0 * SINGLE_BOND_CANVAS_LENGTH * SINGLE_BOND_CANVAS_LENGTH;
+   double crit_dist = 2.5;
+   double crit_dist_sqrd = crit_dist * crit_dist;
+   double crit_dist_wide_2 = 4 * crit_dist_sqrd;
+
+   // a problem can be 2 atoms < crit_dist_2 or
+   //                  5 atoms < crit_dist_wide_2
+   //
+   // we need the wider check to find atoms that are enclosed by a
+   // system of 10 or so atoms.
+   //
+
+   for (unsigned int i=0; i<residue_circles.size(); i++) {
+      int n_close = 0;
+      int n_close_wide = 0;
+      for (unsigned int j=0; j<mol.atoms.size(); j++) {
+	 double d2 = (residue_circles[i].pos-mol.atoms[j].atom_position).lengthsq();
+         std::string mark = "";
+         if (d2 < crit_dist_sqrd) mark = " ***";
+         std::cout << "in solution_has_problems_p(): comparing " << std::sqrt(d2) << " " << crit_dist
+                   << " residue: " << residue_circles[i].residue_label
+                   << " atom: " << mol.atoms[j].atom_name << " " << mark
+                   << std::endl;
+	 if (d2 < crit_dist_sqrd) {
+	    n_close++;
+	    if (n_close > 1) {
+	       v.push_back(i);
+	       status = 1;
+	       break;
+	    }
+	 }
+
+	 if (d2 < crit_dist_wide_2) {
+	    n_close_wide++;
+	    if (n_close_wide > 5) {
+	       v.push_back(i);
+	       status = 1;
+	       break;
+	    }
+	 }
+      }
+   }
+   return std::pair<bool, std::vector<int> > (status, v);
+}
+
+// check that the residues with bonds to the ligand have sane distances to the
+// bonding ligand atom
+std::pair<bool, std::vector<int> >
+flev_t::solution_has_bonded_problems_p() const {
+
+   bool status = false;
+   std::vector<int> v;
+   for (unsigned int i=0; i<residue_circles.size(); i++) {
+      const auto &rc = residue_circles[i];
+      if (rc.is_a_primary_residue()) {
+         for (unsigned int ib=0; ib<rc.bonds_to_ligand.size(); ib++) {
+            const auto &btl = rc.bonds_to_ligand[ib];
+            const std::string &ligand_atom_name = btl.ligand_atom_name;
+            std::pair<bool, lig_build::atom_t> ligand_atom_pair = mol.get_atom_by_name(ligand_atom_name);
+            if (ligand_atom_pair.first) {
+               const auto &ligand_atom = ligand_atom_pair.second;
+               lig_build::pos_t ligand_atom_pos = ligand_atom.atom_position;
+               double d = (rc.pos - ligand_atom_pos).length();
+               if (d > (btl.bond_length + 1.9)) {
+                  std::cout << "target distance for atom " << ligand_atom_name << " "
+                            << btl.bond_length << " vs actual: " << d << std::endl;
+                  status = true;
+                  v.push_back(i);
+               }
+            }
+         }
+      }
+   }
+   return std::pair<bool, std::vector<int> >(status, v);
+}
+
+// fiddle with the position of problematic residues that are bonded to the ligand
+//
+void
+flev_t::reposition_bonded_problematics_and_reoptimise(const std::vector<int> &problematics,
+                                                      const std::vector<int> &primary_indices) {
+
+   std::cout << "in reposition_bonded_problematics_and_reoptimise() we have "
+             << problematics.size() << " problematics " << std::endl;
+   for (unsigned int ip=0; ip<problematics.size(); ip++) {
+      const auto &problematic = residue_circles[problematics[ip]];
+      const lig_build::pos_t &res_pos = problematic.pos;
+      std::vector<std::pair<lig_build::pos_t, double> > aps =
+         problematic.get_attachment_points(mol);
+      if (! aps.empty()) {
+         for (unsigned int i=0; i<aps.size(); i++) {
+            const auto &attachment_point_pair = aps[i];
+
+         }
+      }
+   }
+}
+
+
+// fiddle with the position of some residues in residue_circles
+//
+void
+flev_t::reposition_problematics_and_reoptimise(const std::vector<int> &problematics,
+                                               const std::vector<int> &primary_indices) {
+
+   std::pair<lig_build::pos_t, lig_build::pos_t> l_e_pair = mol.ligand_extents();
+   ligand_grid grid(l_e_pair.first, l_e_pair.second);
+   grid.fill(mol);
+
+   for (unsigned int ip=0; ip<problematics.size(); ip++) {
+
+      // A trapped residue is now treated as a primary (bonding)
+      // residue with a distance to the "bad" solution of 3.5A (this
+      // distance does not matter) - for initial positioning.  It is
+      // not added to the primaries, so this bond length is not
+      // optimised.
+
+      std::vector<std::pair<lig_build::pos_t, double> > attachment_points;
+      lig_build::pos_t attach_pos = residue_circles[problematics[ip]].pos;
+      attach_pos += lig_build::pos_t (5.0 * double(rand())/double(RAND_MAX),
+                                      5.0 * double(rand())/double(RAND_MAX));
+
+      std::pair<lig_build::pos_t, double> p(attach_pos, 3.5);
+
+      attachment_points.push_back(p);
+      initial_primary_residue_circles_layout(grid, problematics[ip], attachment_points);
+   }
+
+   // set the initial positions for optimisation, now that we have
+   // fiddled with residue_circles
+   std::vector<residue_circle_t> current_circles = residue_circles;
+
+   for (int iround=0; iround<120; iround++) {
+      std::pair<int, std::vector<residue_circle_t> > new_c =
+	 optimise_residue_circle_positions(residue_circles, current_circles, primary_indices);
+      current_circles = new_c.second;
+      if (new_c.first == GSL_ENOPROG)
+	 break;
+      if (new_c.first == GSL_SUCCESS)
+	 break;
+   }
+   // now transfer results from the updating/tmp current_circles to the class data item:
+   residue_circles = current_circles;
+}
+
+
 bool
 flev_t::annotate(const std::vector<std::pair<coot::atom_spec_t, float> > &s_a_v,
                  const std::vector<pli::fle_residues_helper_t> &centres,
@@ -346,17 +502,30 @@ flev_t::annotate(const std::vector<std::pair<coot::atom_spec_t, float> > &s_a_v,
       }
    }
 
-   render();
-
-#ifdef COMPILE_THE_HEART
-
-   import_from_widgeted_molecule(new_mol);
-   render();
    refine_residue_circle_positions();
 
+   std::pair<bool, std::vector<int> > bonded_problem_status = solution_has_bonded_problems_p();
+   std::cout << "::::::::: bonded problem status: " << bonded_problem_status.first << std::endl;
+   for (unsigned int ip=0; ip<bonded_problem_status.second.size(); ip++) {
+      std::cout << ":::::::::::: "
+                << residue_circles[bonded_problem_status.second[ip]].residue_label << " "
+                << residue_circles[bonded_problem_status.second[ip]].residue_type << " "
+                << residue_circles[bonded_problem_status.second[ip]].pos
+                << std::endl;
+   }
+   if (! bonded_problem_status.second.empty()) {
+      // fiddle with residue_circles and reoptimise.
+      std::vector<int> primary_indices = get_primary_indices();
+      // ordinary residues
+      reposition_bonded_problematics_and_reoptimise(bonded_problem_status.second, primary_indices);
+   }
+
+   // Now test the ordinary residues (not bonded to the ligand)
+   //
    // has the current solution problems due to residues too close to the ligand?
+
    std::pair<bool, std::vector<int> > problem_status = solution_has_problems_p();
-   // std::cout << "::::::::: problem status: " << problem_status.first << std::endl;
+   std::cout << "::::::::: problem status: " << problem_status.first << std::endl;
    for (unsigned int ip=0; ip<problem_status.second.size(); ip++) {
       std::cout << ":::::::::::: "
                 << residue_circles[problem_status.second[ip]].residue_label << " "
@@ -364,18 +533,12 @@ flev_t::annotate(const std::vector<std::pair<coot::atom_spec_t, float> > &s_a_v,
                 << residue_circles[problem_status.second[ip]].pos
                 << std::endl;
    }
-
-   if (problem_status.second.size()) {
+   if (! problem_status.second.empty()) {
       // fiddle with residue_circles and reoptimise.
       std::vector<int> primary_indices = get_primary_indices();
+      // ordinary residues
       reposition_problematics_and_reoptimise(problem_status.second, primary_indices);
    }
-
-   recentre_considering_residue_centres();
-
-#endif // COMPILE_THE_HEART
-
-   refine_residue_circle_positions();
 
    return r;
 }

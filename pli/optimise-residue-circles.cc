@@ -284,7 +284,7 @@ pli::optimise_residue_circles::f(const gsl_vector *v, void *params) {
 	 }
       }
    }
-   std::cout << "optimise_residue_circles() returning score " << score << std::endl;
+   // std::cout << "optimise_residue_circles() returning score " << score << std::endl;
    return score;
 }
 

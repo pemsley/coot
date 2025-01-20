@@ -325,10 +325,23 @@ class flev_t {
 
    void numerical_gradients(gsl_vector *x, gsl_vector *df, void *params) const;
 
-   // return 1 on solution having problems, 0 for no problems, also
+   // return first true on solution having problems, false for no problems, also
    // return a list of the residue circles with problems.
    //
    std::pair<bool, std::vector<int> > solution_has_problems_p() const;
+
+   // check that the residues with bonds to the ligand have sane distances to the
+   // bonding ligand atom
+   std::pair<bool, std::vector<int> > solution_has_bonded_problems_p() const;
+
+   void reposition_bonded_problematics_and_reoptimise(const std::vector<int> &problematics,
+                                                      const std::vector<int> &primary_indices);
+
+   // the other residues, not bonded to the ligand.
+   //
+   // This is (currently) not a clever repositioning!
+   void reposition_problematics_and_reoptimise(const std::vector<int> &problematics,
+                                               const std::vector<int> &primary_indices);
 
    // minimise layout energy
    std::pair<int, std::vector<residue_circle_t> >
