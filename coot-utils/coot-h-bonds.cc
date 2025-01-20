@@ -389,8 +389,8 @@ coot::h_bonds::get_mcdonald_and_thornton(int selHnd_1, int selHnd_2, mmdb::Manag
 
                // are they HB_HYDROGEN and HB_ACCEPTOR?
                //
-               int hb_type_1 = coot::HB_UNASSIGNED;
-               int hb_type_2 = coot::HB_UNASSIGNED;
+               int hb_type_1 = -999; // was coot::HB_UNASSIGNED;
+               int hb_type_2 = -999; // was coot::HB_UNASSIGNED;
 
                at_1->GetUDData(hb_type_udd_handle, hb_type_1);
                at_2->GetUDData(hb_type_udd_handle, hb_type_2);
@@ -399,7 +399,7 @@ coot::h_bonds::get_mcdonald_and_thornton(int selHnd_1, int selHnd_2, mmdb::Manag
                   std::cout << "DEBUG:: in get_mcdonald_and_thornton() "
                             << coot::atom_spec_t(at_1) << " "
                             << coot::atom_spec_t(at_2) << "   "
-                            << hb_type_1 << " " << hb_type_2 << " vs HB_UNASSIGNED:"
+                            << hb_type_1 << " " << hb_type_2 << " vs HB_UNASSIGNED: "
                             << coot::HB_UNASSIGNED << std::endl;
 
                // hydrogen on ligand
@@ -685,14 +685,14 @@ coot::h_bonds::make_h_bond_from_environment_residue_hydrogen(mmdb::Atom *at_1, /
 
    return std::pair<bool, h_bond> (neighbour_distances_and_angles_are_good && good_donor_acceptor_dist, bond);
 
-} 
+}
 
 
 
 
 
 // using UDD data
-// 
+//
 // return the UDD handle
 int
 coot::h_bonds::mark_donors_and_acceptors(int selHnd_1, int selHnd_2, mmdb::Manager *mol,
@@ -707,21 +707,23 @@ coot::h_bonds::mark_donors_and_acceptors(int selHnd_1, int selHnd_2, mmdb::Manag
    mol->GetSelIndex(selHnd_2, sel_2_atoms, n_sel_2_atoms);
    int udd_h_bond_type_handle = mol->RegisterUDInteger(mmdb::UDR_ATOM, "hb_type");
 
-   for (int i=0; i<n_sel_1_atoms; i++) { 
+   for (int i=0; i<n_sel_1_atoms; i++) {
       std::string name = sel_1_atoms[i]->name;
       std::string res_name = sel_1_atoms[i]->GetResName();
+
       int h_bond_type = geom.get_h_bond_type(name, res_name, imol);
+
       sel_1_atoms[i]->PutUDData(udd_h_bond_type_handle, h_bond_type);
       if (debug)
-         std::cout << "   h_bonds:: " 
+         std::cout << "   h_bonds:: "
                    << sel_1_atoms[i]->GetChainID() << " "
-                   << sel_1_atoms[i]->GetSeqNum() << " "
+                   << sel_1_atoms[i]->GetSeqNum()  << " "
                    << sel_1_atoms[i]->GetResName() << " "
                    << "name: " << name << " marked as " << h_bond_type << "\n";
    }
 
    if (selHnd_1 != selHnd_2) {
-      for (int i=0; i<n_sel_2_atoms; i++) { 
+      for (int i=0; i<n_sel_2_atoms; i++) {
          std::string name = sel_2_atoms[i]->name;
          std::string res_name = sel_2_atoms[i]->GetResName();
          int h_bond_type = geom.get_h_bond_type(name, res_name, imol);
@@ -740,7 +742,7 @@ coot::h_bonds::mark_donors_and_acceptors(int selHnd_1, int selHnd_2, mmdb::Manag
 
 
 // What is the nearest neighbour of the atoms in mol?
-// 
+//
 std::map<mmdb::Atom *, std::vector<std::pair<mmdb::Atom *, float> > >
 coot::h_bonds::make_neighbour_map(int selHnd_1, int selHnd_2, mmdb::Manager *mol) {
 
