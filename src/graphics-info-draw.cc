@@ -24,6 +24,7 @@
  *
  */
 
+#include "glm/matrix.hpp"
 #ifdef USE_PYTHON
 #include <Python.h>
 #endif // USE_PYTHON
@@ -6183,7 +6184,7 @@ graphics_info_t::idle_contour_function(gpointer data) {
 // can't be a lambda funtion because of capture issues
 
 void keypad_translate_xyz(short int axis, short int direction) {
-      
+
       graphics_info_t g;
       if (axis == 3) {
          coot::Cartesian v = screen_z_to_real_space_vector(graphics_info_t::glareas[0]);
@@ -6452,39 +6453,23 @@ graphics_info_t::setup_key_bindings() {
                                                                               forward_flag);
                              if (new_ori.first) {
 
-                                coot::util::quaternion q(new_ori.second.rot());
-                                glm::quat q_ncs = coot_quaternion_to_glm(q);
-
-                                // glm::quat qq = view_quaternion * q_ncs;
-                                // glm::quat qq = view_quaternion * glm::inverse(q_ncs);
-                                // glm::quat qq = view_quaternion * glm::conjugate(q_ncs);
-                                // glm::quat qq = q_ncs * view_quaternion;
-                                // glm::quat qq = glm::inverse(q_ncs) * view_quaternion;
-                                // glm::quat qq = glm::conjugate(q_ncs) * view_quaternion;
-
-                                glm::quat qq = glm::conjugate(q_ncs) * view_quaternion;
-
-                                view_quaternion = qq;
-                                // view_quaternion = glm::normalize(view_quaternion * q_ncs); // wrong
-
                                 clipper::Coord_orth t(new_ori.second.trn());
                                 set_rotation_centre(t);
 
-                                glm::quat q_ncs_1 = glm::rotate(q_ncs,   3.1415926f, glm::vec3(1,0,0));
-                                glm::quat q_ncs_2 = glm::rotate(q_ncs_1, 3.1415926f, glm::vec3(1,0,0));
-                                glm::quat q_ncs_3 = glm::inverse(q_ncs_2);
+                                coot::util::quaternion q(new_ori.second.rot());
+                                glm::quat q_ncs = coot_quaternion_to_glm(q);
 
-                                coot::util::quaternion cq = glm_to_coot_quaternion(q_ncs_3);
+                                // view_quaternion = glm::inverse(q_ncs) * view_quaternion; no
+                                // view_quaternion = q_ncs * view_quaternion; // no
+                                // view_quaternion = view_quaternion * q_ncs; // no
+                                // view_quaternion = view_quaternion * glm::inverse(q_ncs); // no
+                                // view_quaternion = view_quaternion * glm::conjugate(q_ncs); no
+                                // view_quaternion = glm::conjugate(q_ncs) * view_quaternion; // no
 
-                                std::cout << "debug q_ncs  : " << glm::to_string(q_ncs)   << std::endl;
-                                std::cout << "debug q_ncs_1: " << glm::to_string(q_ncs_1) << std::endl;
-                                std::cout << "debug q_ncs_2: " << glm::to_string(q_ncs_2) << std::endl;
-                                std::cout << "debug q_ncs_3: " << glm::to_string(q_ncs_3) << std::endl;
-                                std::cout << "before: " << q << " after " << cq << std::endl;
+                                // I don't get it - annoying.
 
                                 graphics_info_t g;
-                                g.update_things_on_move();
-
+                                g.update_things_on_move(); // not static
                              }
                              break;
                           }
