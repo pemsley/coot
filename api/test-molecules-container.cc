@@ -3446,9 +3446,9 @@ int test_svg(molecules_container_t &mc) {
 
    mc.import_cif_dictionary("ATP.cif", imol_1);
    mc.import_cif_dictionary("ATP.cif", imol_2);
-   bool dark_bg = false;
    bool use_rdkit_svg = false;
-   std::string s = mc.get_svg_for_residue_type(imol_1, "ATP", use_rdkit_svg, dark_bg);
+   std::string bg = "dark-bonds/opaque-bg";
+   std::string s = mc.get_svg_for_residue_type(imol_1, "ATP", use_rdkit_svg, bg);
 
    if (s.length() > 0) {
 
@@ -3457,7 +3457,7 @@ int test_svg(molecules_container_t &mc) {
       f.close();
       {
          mc.import_cif_dictionary("G37.cif", coot::protein_geometry::IMOL_ENC_ANY);
-         s = mc.get_svg_for_residue_type(imol_1, "G37", use_rdkit_svg, dark_bg);
+         s = mc.get_svg_for_residue_type(imol_1, "G37", use_rdkit_svg, bg);
          std::ofstream f2("G37.svg");
          f2 << s;
          f2.close();
@@ -3465,7 +3465,7 @@ int test_svg(molecules_container_t &mc) {
 
       {
          mc.import_cif_dictionary("GLC.cif", coot::protein_geometry::IMOL_ENC_ANY);
-         s = mc.get_svg_for_residue_type(imol_1, "GLC", use_rdkit_svg, dark_bg);
+         s = mc.get_svg_for_residue_type(imol_1, "GLC", use_rdkit_svg, bg);
          std::ofstream f2("GLC.svg");
          f2 << s;
          f2.close();
@@ -4552,8 +4552,8 @@ int test_pdbe_dictionary_depiction(molecules_container_t &mc) {
    // if (coot::file_exists("MOI-depiction.png")) status = 1; // not a good test.
 
    bool use_rdkit_rendering = true;
-   bool dark_background = false;
-   std::string svg = mc.get_svg_for_residue_type(coot::protein_geometry::IMOL_ENC_ANY, "MOI", use_rdkit_rendering, dark_background);
+   std::string bg = "dark-bonds/opaque-bg";
+   std::string svg = mc.get_svg_for_residue_type(coot::protein_geometry::IMOL_ENC_ANY, "MOI", use_rdkit_rendering, bg);
    std::ofstream f("MOI.svg");
    f << svg;
    f.close();
