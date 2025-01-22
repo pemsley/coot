@@ -470,7 +470,7 @@ void find_waters(int imol_for_map,
 	    }
 	 } else {
 	    // waters added to masking molecule
-	    g.molecules[imol_for_protein].insert_waters_into_molecule(water_mol);
+	    g.molecules[imol_for_protein].insert_waters_into_molecule(water_mol, "HOH");
 	    g.update_go_to_atom_window_on_changed_mol(imol_for_protein);
             g.update_validation(imol_for_protein);
 	 }
@@ -487,7 +487,7 @@ void  free_blob_dialog_memory(GtkWidget *w) {
 
 }
 
-   
+
 // We don't do a malloc for this one, so this is not needed.  I think
 // that there are others we we do and it is, but the memory is not
 // freed.

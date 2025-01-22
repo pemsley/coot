@@ -2824,7 +2824,7 @@ int test_instanced_bonds_mesh(molecules_container_t &mc) {
 
    std::string mode("COLOUR-BY-CHAIN-AND-DICTIONARY");
    if (mc.is_valid_model_molecule(imol)) {
-      coot::instanced_mesh_t im = mc.get_bonds_mesh_instanced(imol, mode, true, 0.1, 1.0, 1);
+      coot::instanced_mesh_t im = mc.get_bonds_mesh_instanced(imol, mode, true, 0.1, 1.0, false, false, true, 1);
       std::cout << "instanced mesh has " << im.geom.size()  << " geoms" << std::endl;
       if (im.geom.size() > 3) {
          if (false) {
@@ -2850,7 +2850,7 @@ int test_instanced_bonds_mesh(molecules_container_t &mc) {
    }
 
    std::string cid("/*/A/270");
-   coot::instanced_mesh_t im_lig = mc.get_bonds_mesh_for_selection_instanced(imol, cid, mode, true, 0.1, 1.0, 1);
+   coot::instanced_mesh_t im_lig = mc.get_bonds_mesh_for_selection_instanced(imol, cid, mode, true, 0.1, 1.0, false, false, true, 1);
    unsigned int n_geoms = im_lig.geom.size();
    for (unsigned int i=0; i<n_geoms; i++) {
       std::cout << "test_instanced_bonds_mesh()) im_lig " << im_lig.geom[i].name << " " << i << " has A " << im_lig.geom[i].instancing_data_A.size() << std::endl;
@@ -2873,10 +2873,10 @@ int test_instanced_bonds_mesh_v2(molecules_container_t &mc) {
    std::string selection_cid = "//A/1301"; // "//A/1301||//A/456";
 
    int imol_frag = mc.copy_fragment_using_cid(imol, selection_cid);
-   coot::instanced_mesh_t im_frag = mc.get_bonds_mesh_instanced(imol, mode, true, 0.2, 1.0, 2);
+   coot::instanced_mesh_t im_frag = mc.get_bonds_mesh_instanced(imol, mode, true, 0.2, 1.0, false, false, true, 2);
    colour_analysis(im_frag);
 
-   coot::instanced_mesh_t im = mc.get_bonds_mesh_for_selection_instanced(imol_frag, selection_cid, mode, true, 0.2, 1.0, 2);
+   coot::instanced_mesh_t im = mc.get_bonds_mesh_for_selection_instanced(imol_frag, selection_cid, mode, true, 0.2, 1.0, false, false, true, 2);
    colour_analysis(im);
 
    unsigned int n_geoms = im.geom.size();
@@ -3221,7 +3221,7 @@ int test_colour_rules(molecules_container_t &mc) {
    auto v = mc.get_colour_rules(imol_0);
 
    std::string mode("COLOUR-BY-CHAIN-AND-DICTIONARY");
-   auto mesh = mc.get_bonds_mesh_instanced(imol_0, mode, true, 0.1, 1.0, 1);
+   auto mesh = mc.get_bonds_mesh_instanced(imol_0, mode, true, 0.1, 1.0, false, false, true, 1);
 
    if (true) {
       std::cout << "colour rules: " << std::endl;
@@ -3573,9 +3573,9 @@ int test_non_drawn_atoms(molecules_container_t &mc) {
    int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
    glm::vec3 ca_pos(26.83, 3.43, 31.43);
    std::string mode("COLOUR-BY-CHAIN-AND-DICTIONARY");
-   auto mesh_1 = mc.get_bonds_mesh_instanced(imol, mode, true, 0.1, 1.0, 1);
+   auto mesh_1 = mc.get_bonds_mesh_instanced(imol, mode, true, 0.1, 1.0, false, false, true, 1);
    mc.add_to_non_drawn_bonds(imol, "//A/270");
-   auto mesh_2 = mc.get_bonds_mesh_instanced(imol, mode, true, 0.1, 1.0, 1);
+   auto mesh_2 = mc.get_bonds_mesh_instanced(imol, mode, true, 0.1, 1.0, false, false, true, 1);
 
    // the first one should have the atom, the second should not.
    bool f1 = atom_in_mesh(mesh_1, ca_pos);
@@ -3771,7 +3771,7 @@ int test_user_defined_bond_colours(molecules_container_t &mc) {
          mc.set_user_defined_bond_colours(imol, colour_map);
          bool colour_applies_to_non_carbon_atoms_also = true;
          mc.set_user_defined_atom_colour_by_selection(imol, indexed_residues_cids, colour_applies_to_non_carbon_atoms_also);
-         coot::instanced_mesh_t im = mc.get_bonds_mesh_instanced(imol, mode, true, 0.1, 1.0, 1);
+         coot::instanced_mesh_t im = mc.get_bonds_mesh_instanced(imol, mode, true, 0.1, 1.0, false, false, true, 1);
          if (im.geom.size() > 3) {
             if (im.geom[0].instancing_data_A.size() > 1000)
                status = 1;
@@ -3928,7 +3928,7 @@ int test_bespoke_carbon_colour(molecules_container_t &mc) {
       mc.set_use_bespoke_carbon_atom_colour(imol, true);
       mc.set_bespoke_carbon_atom_colour(imol, col);
       std::string mode("VDW-BALLS");
-      coot::instanced_mesh_t im = mc.get_bonds_mesh_instanced(imol, mode, true, 0.1, 1.0, 1);
+      coot::instanced_mesh_t im = mc.get_bonds_mesh_instanced(imol, mode, true, 0.1, 1.0, false, false, true, 1);
 
       std::cout << "There are " << im.geom.size() << " geoms " << std::endl;
       for (unsigned int ig=0; ig<im.geom.size(); ig++) {
@@ -3965,8 +3965,8 @@ int test_dark_mode_colours(molecules_container_t &mc) {
    int imol = mc.get_monomer("LZA");
    if (mc.is_valid_model_molecule(imol)) {
       std::string mode = "COLOUR-BY-CHAIN-AND-DICTIONARY";
-      auto mesh_light = mc.get_bonds_mesh_instanced(imol, mode, false, 0.2, 1.0, 1);
-      auto mesh_dark  = mc.get_bonds_mesh_instanced(imol, mode, true,  0.2, 1.0, 1);
+      auto mesh_light = mc.get_bonds_mesh_instanced(imol, mode, false, 0.2, 1.0, false, false, true, 1);
+      auto mesh_dark  = mc.get_bonds_mesh_instanced(imol, mode, true,  0.2, 1.0, false, false, true, 1);
       std::cout << "starting colour analysis for mesh_light" << std::endl;
       colour_analysis(mesh_light);
       std::cout << "starting colour analysis for mesh_dark" << std::endl;
@@ -4217,7 +4217,7 @@ int test_user_defined_bond_colours_v2(molecules_container_t &mc) {
      }
    }
 
-   auto bonds = mc.get_bonds_mesh_instanced(imol, mode, false, 0.2, 1.0, 1);
+   auto bonds = mc.get_bonds_mesh_instanced(imol, mode, false, 0.2, 1.0, false, false, true, 1);
 
    auto colour_table = mc.get_colour_table(imol, false);
    for (unsigned int i=0; i<colour_table.size(); i++) {
@@ -4233,7 +4233,7 @@ int test_user_defined_bond_colours_v2(molecules_container_t &mc) {
                   if (close_float(colour_table[13][2], 1.0))
                      status = 1;
 
-   coot::instanced_mesh_t im = mc.get_bonds_mesh_for_selection_instanced(imol, "//A/1-3", "VDW-BALLS", false, 0.1, 1.0, 1);
+   coot::instanced_mesh_t im = mc.get_bonds_mesh_for_selection_instanced(imol, "//A/1-3", "VDW-BALLS", false, 0.1, 1.0, false, false, true, 1);
    if (! im.geom.empty()) {
       const coot::instanced_geometry_t &ig = im.geom[0]; // 0 is spheres
       std::cout << "debug:: in im type A data size: " << ig.instancing_data_A.size() << std::endl;
@@ -4314,7 +4314,7 @@ int test_user_defined_bond_colours_v3(molecules_container_t &mc) {
       std::string mode = "COLOUR-BY-CHAIN-AND-DICTIONARY";
 
       // now test the colours:
-      auto bonds = mc.get_bonds_mesh_for_selection_instanced(imol, "/", mode, false, 0.2, 1.0, 1);
+      auto bonds = mc.get_bonds_mesh_for_selection_instanced(imol, "/", mode, false, 0.2, 1.0, false, false, true, 1);
       auto &geom = bonds.geom;
       auto ca = get_colour_analysis(bonds);
 
@@ -4386,10 +4386,10 @@ int test_other_user_defined_colours_other(molecules_container_t &mc) {
          std::vector<std::pair<std::string, unsigned int> > indexed_cids;
          indexed_cids.push_back(std::make_pair("//A/1-5", 21));
          bool non_carbon_atoms_also_flag = false;
-         auto bonds_1 = mc.get_bonds_mesh_for_selection_instanced(imol, "/", mode, false, 0.2, 1.0, 1);
-         auto bonds_2 = mc.get_bonds_mesh_instanced(imol, mode, false, 0.2, 1.0, 1);
+         auto bonds_1 = mc.get_bonds_mesh_for_selection_instanced(imol, "/", mode, false, 0.2, 1.0, false, false, true, 1);
+         auto bonds_2 = mc.get_bonds_mesh_instanced(imol, mode, false, 0.2, 1.0, false, false, true, 1);
          mc.set_user_defined_atom_colour_by_selection(imol, indexed_cids, non_carbon_atoms_also_flag);
-         auto bonds_3 = mc.get_bonds_mesh_for_selection_instanced(imol, "/", mode, false, 0.2, 1.0, 1);
+         auto bonds_3 = mc.get_bonds_mesh_for_selection_instanced(imol, "/", mode, false, 0.2, 1.0, false, false, true, 1);
          auto &geom_1 = bonds_1.geom;
          auto &geom_3 = bonds_3.geom;
 
@@ -4959,7 +4959,7 @@ int test_gltf_export(molecules_container_t &mc) {
    int imol_lig = mc.get_monomer("LZA");
    int imol_frag = mc.copy_fragment_using_cid(imol, "//A/1299");
    std::cout << "test_gltf_export() imol_frag " << imol_frag << std::endl;
-   coot::instanced_mesh_t im    = mc.get_bonds_mesh_instanced(imol_frag, mode, true, 0.1, 1.0, 1);
+   coot::instanced_mesh_t im    = mc.get_bonds_mesh_instanced(imol_frag, mode, true, 0.1, 1.0, false, false, true, 1);
    coot::simple_mesh_t sm_lig = coot::instanced_mesh_to_simple_mesh(im);
    sm_lig.export_to_gltf("lig.glb", true);
 
@@ -4967,7 +4967,7 @@ int test_gltf_export(molecules_container_t &mc) {
    std::vector<coot::residue_spec_t> neighbs = mc.get_residues_near_residue(imol, "//A/1299", 4.2);
    std::string multi_cid = make_multi_cid(neighbs);
    mc.set_draw_missing_residue_loops(false);
-   coot::instanced_mesh_t im_neighbs = mc.get_bonds_mesh_for_selection_instanced(imol, multi_cid, mode, true, 0.15, 1.0, 1);
+   coot::instanced_mesh_t im_neighbs = mc.get_bonds_mesh_for_selection_instanced(imol, multi_cid, mode, true, 0.15, 1.0, false, false, true, 1);
    coot::simple_mesh_t sm_neighbs = coot::instanced_mesh_to_simple_mesh(im_neighbs);
    sm_neighbs.export_to_gltf("neighbs.glb", true);
 
@@ -5284,7 +5284,7 @@ int test_non_drawn_CA_bonds(molecules_container_t &mc) {
       int imol_frag = mc.copy_fragment_using_cid(imol, "//A/101-111");
       mc.add_to_non_drawn_bonds(imol_frag, "//A/103-111");
       std::string mode = "CA+LIGANDS";
-      auto bonds = mc.get_bonds_mesh_for_selection_instanced(imol_frag, "//A", mode, false, 0.2, 1.0, 1);
+      auto bonds = mc.get_bonds_mesh_for_selection_instanced(imol_frag, "//A", mode, false, 0.2, 1.0, false, false, true, 1);
       auto &geom = bonds.geom;
       // should be size 2 of course, if we don't add the range to the non-drawn bond
       // not 4
@@ -5631,6 +5631,8 @@ int test_texture_as_floats(molecules_container_t &mc) {
 
    int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
 
+   if (!mc.is_valid_map_molecule(imol_map)) std::cout << "Failed to read moorhen-tutorial-map-number-1.mtz" << std::endl;
+
    texture_as_floats_t tf = mc.get_map_section_texture(imol_map, 6, 0, -0.1, 0.2);
 
    std::cout << " image data size " << tf.image_data.size() << std::endl;
@@ -5737,7 +5739,7 @@ int test_alpha_in_colour_holder(molecules_container_t &mc) {
       mc.set_user_defined_bond_colours(imol_1, colour_map);
       mc.set_user_defined_atom_colour_by_selection(imol_1, indexed_residues_cids, true);
       std::string mode = "COLOUR-BY-CHAIN-AND-DICTIONARY";
-      auto mesh = mc.get_bonds_mesh_instanced(imol_1, mode, true,  0.2, 1.0, 1);
+      auto mesh = mc.get_bonds_mesh_instanced(imol_1, mode, true,  0.2, 1.0, false, false, true, 1);
       std::vector<std::pair<glm::vec4, unsigned int> > colour_count = colour_analysis(mesh);
       unsigned int n_transparent = 0;
       for(const auto &cc : colour_count) {
@@ -5871,7 +5873,7 @@ int test_for_long_bonds(molecules_container_t &mc, int imol) {
 
    int state = -1; // unset
    if (mc.is_valid_model_molecule(imol)) {
-      auto instanced_mesh = mc.get_bonds_mesh_instanced(imol, "COLOUR-BY-CHAIN-AND-DICTIONARY", false, 0.1f, 1.0f, 1);
+      auto instanced_mesh = mc.get_bonds_mesh_instanced(imol, "COLOUR-BY-CHAIN-AND-DICTIONARY", false, 0.1f, 1.0f, false, false, true, 1);
       const auto &geom_vec = instanced_mesh.geom;
       unsigned int geom_vec_size = geom_vec.size();
       for (unsigned int i = 0; i < geom_vec_size; i++) {
@@ -6178,6 +6180,110 @@ int test_average_position_functions(molecules_container_t &mc) {
    return status;
 }
 
+int test_set_occupancy(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int n_zero = 0;
+   mc.set_occupancy(imol, "//A/18-19", 0.0);
+
+   mmdb::Manager *mol = mc.get_mol(imol);
+   for (int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+      mmdb::Model *model_p = mol->GetModel(imod);
+      if (model_p) {
+         int n_chains = model_p->GetNumberOfChains();
+         for (int ichain=0; ichain<n_chains; ichain++) {
+            mmdb::Chain *chain_p = model_p->GetChain(ichain);
+            int n_res = chain_p->GetNumberOfResidues();
+            for (int ires=0; ires<n_res; ires++) {
+               mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+               if (residue_p) {
+                  int n_atoms = residue_p->GetNumberOfAtoms();
+                  for (int iat=0; iat<n_atoms; iat++) {
+                     mmdb::Atom *at = residue_p->GetAtom(iat);
+                     if (! at->isTer()) {
+                        if (at->occupancy < 0.00001) n_zero++;
+                     }
+                  }
+               }
+            }
+         }
+      }
+   }
+   if (n_zero == 19) status = 1;
+   return status;
+}
+
+int test_missing_residues(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol     = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   if (mc.is_valid_model_molecule(imol)) {
+      mc.delete_residue(imol, "A", 10, "");
+      mc.delete_residue(imol, "A", 11, "");
+      mc.delete_residue(imol, "A", 12, "");
+      mc.delete_residue(imol, "A", 15, "");
+
+      auto vec = mc.get_missing_residue_ranges(imol);
+      for (const auto &rr : vec) {
+         std::cout << "   " << rr.chain_id << " " << rr.res_no_start << " " << rr.res_no_end
+	  	   << std::endl;
+       }
+       if (vec.size() == 5) {
+          if (vec[0].res_no_start ==  10 && vec[0].res_no_end ==  12)
+          if (vec[1].res_no_start ==  15 && vec[1].res_no_end ==  15)
+          if (vec[2].res_no_start ==  37 && vec[2].res_no_end ==  45)
+          if (vec[3].res_no_start ==  73 && vec[3].res_no_end ==  75)
+          if (vec[4].res_no_start == 147 && vec[4].res_no_end == 165)
+ 	     status = 1;
+       }
+   }
+   return status;
+}
+
+int test_mutation_info(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   if (mc.is_valid_model_molecule(imol)) {
+      mc.delete_residue(imol, "A", 10, "");
+      mc.delete_residue(imol, "A", 11, "");
+      mc.delete_residue(imol, "A", 12, "");
+      mc.delete_residue(imol, "A", 15, "");
+
+      std::string t("MENFQKVEKIGEGTYGVVYKARNKLTGEVVALKKIRLDTETEGVPSTAIREISLLKELNHPNIVKLLDVIHTENKLYLVFEFLHQDLKKFMDASALTGIPLPLIKSYLFQLLQGLAFCHSHRVLHRDLKPQNLLINTEGAIKLADFGLARAFGVPVRTYTHEVVTLWYRAPEILLGCKYYSTAVDIWSLGCIFAEMVTRRALFPGDSEIDQLFRIFRTLGTPDEVVWPGVTSMPDYKPSFPKWARQDFSKVVPPLDEDGRSLLSQMLHYDPNKRISAKAALAHPFFQDVTKPVPHLRL");
+
+      mc.associate_sequence(imol, "A", t);
+      auto mi = mc.get_mutation_info(imol);
+      std::cout << "mutation-info: "
+		<< mi.mutations.size()  << " mutations "
+		<< mi.insertions.size() << " insertions "
+		<< mi.deletions.size()  << " deletions "
+		<< std::endl;
+
+      for (const auto &m : mi.mutations)
+	 std::cout << "   mutation " << m.first << " " << m.second << std::endl;
+      for (const auto &m : mi.insertions) {
+	 std::cout << "   insertions " << m.start_resno << std::endl << "  ";
+	 for (const auto &t : m.types)
+	    std::cout << " " << t;
+	 std::cout << std::endl;
+      }
+      for (const auto &m : mi.deletions)
+	 std::cout << "   deletions " << m << std::endl;
+
+      if (mi.mutations.size() > 2)
+	 if (mi.insertions.size() > 2)
+	    status = 1;
+   }
+   return status;
+}
 
 int test_template(molecules_container_t &mc) {
 
@@ -6497,8 +6603,11 @@ int main(int argc, char **argv) {
          // status += run_test(test_merge_ligand_and_gemmi_parse_mmcif, "test_merge_ligand_and_gemmi_parse_mmcif", mc);
          // status += run_test(test_delete_two_add_one_using_gemmi, "test_delete_two_add_one_using_gemmi", mc);
          // status += run_test(test_dictionary_atom_name_match, "dictionary atom names match", mc);
-         status += run_test(test_average_position_functions, "average position functions", mc);
-         if (status == n_tests) all_tests_status = 0;
+         // status += run_test(test_average_position_functions, "average position functions", mc);
+         status += run_test(test_set_occupancy, "set occupancy", mc);
+         status += run_test(test_missing_residues, "missing residues", mc);
+         status += run_test(test_mutation_info, "mutation info", mc);
+        if (status == n_tests) all_tests_status = 0;
 
          print_results_summary();
       }

@@ -18,7 +18,6 @@
 #undef MAKE_ENHANCED_LIGAND_TOOLS
 #include "molecules-container.hh"
 
-
 namespace nb = nanobind;
 
 struct RamachandranInfo {
@@ -203,6 +202,7 @@ NB_MODULE(chapi, m) {
     .def("add_lsq_superpose_atom_match",&molecules_container_t::add_lsq_superpose_atom_match)
     .def("add_target_position_restraint",&molecules_container_t::add_target_position_restraint)
     .def("add_target_position_restraint_and_refine",&molecules_container_t::add_target_position_restraint_and_refine)
+    .def("add_terminal_residue_directly",&molecules_container_t::add_terminal_residue_directly)
     .def("add_terminal_residue_directly_using_cid",&molecules_container_t::add_terminal_residue_directly_using_cid)
     .def("add_to_non_drawn_bonds",&molecules_container_t::add_to_non_drawn_bonds)
     .def("add_waters",&molecules_container_t::add_waters)
@@ -224,12 +224,14 @@ NB_MODULE(chapi, m) {
     .def("clear_non_drawn_bonds",&molecules_container_t::clear_non_drawn_bonds)
     .def("clear_refinement",&molecules_container_t::clear_refinement)
     .def("clear_target_position_restraints",&molecules_container_t::clear_target_position_restraints)
+    .def("change_alt_locs",&molecules_container_t::change_alt_locs)
     .def("close_molecule",&molecules_container_t::close_molecule)
     .def("connect_updating_maps",&molecules_container_t::connect_updating_maps)
     .def("contact_dots_for_ligand",&molecules_container_t::contact_dots_for_ligand)
     .def("copy_fragment_for_refinement_using_cid",&molecules_container_t::copy_fragment_for_refinement_using_cid)
     .def("copy_fragment_using_cid",&molecules_container_t::copy_fragment_using_cid)
     .def("copy_fragment_using_residue_range",&molecules_container_t::copy_fragment_using_residue_range)
+    .def("copy_molecule",&molecules_container_t::copy_molecule)
     .def("delete_atom",&molecules_container_t::delete_atom)
     .def("delete_atom_using_cid",&molecules_container_t::delete_atom_using_cid)
     .def("delete_chain_using_cid",&molecules_container_t::delete_chain_using_cid)
@@ -263,6 +265,7 @@ NB_MODULE(chapi, m) {
     .def("flipPeptide",       nb::overload_cast<int, const coot::atom_spec_t&,const std::string&>(&molecules_container_t::flip_peptide))
     .def("flipPeptide_cid",   nb::overload_cast<int, const std::string&,      const std::string&>(&molecules_container_t::flip_peptide_using_cid))
     .def("flip_hand",&molecules_container_t::flip_hand)
+    .def("flood",&molecules_container_t::flood)
     .def("fourier_shell_correlation",&molecules_container_t::fourier_shell_correlation)
     .def("generate_self_restraints",&molecules_container_t::generate_self_restraints)
     .def("geometry_init_standard",&molecules_container_t::geometry_init_standard)
@@ -299,6 +302,7 @@ NB_MODULE(chapi, m) {
     .def("get_map_rmsd_approx",&molecules_container_t::get_map_rmsd_approx)
     .def("get_map_weight",&molecules_container_t::get_map_weight)
     .def("get_median_temperature_factor",&molecules_container_t::get_median_temperature_factor)
+    .def("get_missing_residue_ranges",&molecules_container_t::get_missing_residue_ranges)
     .def("get_molecular_representation_mesh",&molecules_container_t::get_molecular_representation_mesh)
     .def("get_molecule_centre",&molecules_container_t::get_molecule_centre)
     .def("get_molecule_name",&molecules_container_t::get_molecule_name)
@@ -335,6 +339,7 @@ NB_MODULE(chapi, m) {
     .def("get_use_gemmi",&molecules_container_t::get_use_gemmi)
     .def("get_use_rama_plot_restraints",&molecules_container_t::get_use_rama_plot_restraints)
     .def("get_use_torsion_restraints",&molecules_container_t::get_use_torsion_restraints)
+    .def("get_validation_vs_dictionary_for_selection", &molecules_container_t::get_validation_vs_dictionary_for_selection)
     .def("get_vertices_for_blender", &molecules_container_t::get_vertices_for_blender)
     .def("go_to_blob",&molecules_container_t::go_to_blob)
     .def("import_cif_dictionary",&molecules_container_t::import_cif_dictionary)
@@ -363,6 +368,7 @@ NB_MODULE(chapi, m) {
     .def("new_positions_for_atoms_in_residues",&molecules_container_t::new_positions_for_atoms_in_residues)
     .def("new_positions_for_residue_atoms",&molecules_container_t::new_positions_for_residue_atoms)
     .def("non_standard_residue_types_in_model",&molecules_container_t::non_standard_residue_types_in_model)
+    .def("package_version",&molecules_container_t::package_version)
     .def("partition_map_by_chain",&molecules_container_t::partition_map_by_chain)
     .def("pepflips_using_difference_map",&molecules_container_t::pepflips_using_difference_map)
     .def("peptide_omega_analysis",&molecules_container_t::peptide_omega_analysis)
@@ -390,6 +396,8 @@ NB_MODULE(chapi, m) {
     .def("rigid_body_fit",&molecules_container_t::rigid_body_fit)
     .def("rotamer_analysis",&molecules_container_t::rotamer_analysis)
     .def("rotate_around_bond",&molecules_container_t::rotate_around_bond)
+    .def("servalcat_refine_xray",&molecules_container_t::servalcat_refine_xray)
+    .def("servalcat_refine_xray_with_keywords",&molecules_container_t::servalcat_refine_xray_with_keywords)
     .def("set_add_waters_sigma_cutoff",&molecules_container_t::set_add_waters_sigma_cutoff)
     .def("set_add_waters_variance_limit",&molecules_container_t::set_add_waters_variance_limit)
     .def("set_add_waters_water_to_protein_distance_lim_min",&molecules_container_t::set_add_waters_water_to_protein_distance_lim_min)
@@ -419,6 +427,7 @@ NB_MODULE(chapi, m) {
     .def("sharpen_blur_map_with_resample",&molecules_container_t::sharpen_blur_map_with_resample)
     .def("side_chain_180",    nb::overload_cast<int, const std::string&>                         (&molecules_container_t::side_chain_180))
     .def("split_multi_model_molecule",&molecules_container_t::split_multi_model_molecule)
+    .def("split_residue_using_map",&molecules_container_t::split_residue_using_map)
     .def("test_origin_cube",&molecules_container_t::test_origin_cube)
     .def("transform_map_using_lsq_matrix",&molecules_container_t::transform_map_using_lsq_matrix)
     .def("undo",&molecules_container_t::undo)
@@ -427,6 +436,18 @@ NB_MODULE(chapi, m) {
     .def("write_map",&molecules_container_t::write_map)
     .def("write_png",&molecules_container_t::write_png)
     ;
+    nb::class_<coot::chain_mutation_info_container_t>(m,"chain_mutation_info_container_t")
+      .def_ro("chain_id",         &coot::chain_mutation_info_container_t::chain_id)
+      .def_ro("alignedS",         &coot::chain_mutation_info_container_t::alignedS)
+      .def_ro("alignedT",         &coot::chain_mutation_info_container_t::alignedT)
+      .def_ro("alignedS_label",   &coot::chain_mutation_info_container_t::alignedS_label)
+      .def_ro("alignedT_label",   &coot::chain_mutation_info_container_t::alignedT_label)
+      .def_ro("alignment_string", &coot::chain_mutation_info_container_t::alignment_string)
+      .def_ro("alignment_score",  &coot::chain_mutation_info_container_t::alignment_score)
+      .def_ro("insertions",       &coot::chain_mutation_info_container_t::insertions)
+      .def_ro("deletions",        &coot::chain_mutation_info_container_t::deletions)
+      .def_ro("mutations",        &coot::chain_mutation_info_container_t::mutations)
+      ;
     nb::class_<molecules_container_js, molecules_container_t>(m,"molecules_container_py")
     .def(nb::init<bool>())
     .def("writePDBASCII",&molecules_container_js::writePDBASCII)
@@ -443,6 +464,16 @@ NB_MODULE(chapi, m) {
     .def_prop_ro("spec",[](merge_molecule_results_info_t &t) { return t.spec ; })
     .def_ro("is_chain", &merge_molecule_results_info_t::is_chain)
     ;
+    nb::enum_<coot::graph_data_type>(m, "graph_data_type")
+       .value("Unset",          coot::graph_data_type::UNSET)
+       .value("Density",        coot::graph_data_type::DENSITY)
+       .value("Distortion",     coot::graph_data_type::DISTORTION)
+       .value("Energy",         coot::graph_data_type::ENERGY)
+       .value("Probability",    coot::graph_data_type::PROBABILITY)
+       .value("Correlation",    coot::graph_data_type::CORRELATION)
+       .value("LogProbability", coot::graph_data_type::LOG_PROBABILITY)
+       .value("TorsionAngle",   coot::graph_data_type::TORSION_ANGLE)
+       ;
     nb::class_<coot::residue_validation_information_t>(m,"residue_validation_information_t")
     .def_ro("function_value", &coot::residue_validation_information_t::function_value)
     .def_ro("label", &coot::residue_validation_information_t::label)
@@ -459,13 +490,32 @@ NB_MODULE(chapi, m) {
     .def_ro("cviv", &coot::validation_information_t::cviv)
     .def("get_index_for_chain",&coot::validation_information_t::get_index_for_chain)
     ;
+    nb::enum_<coot::restraint_type_t>(m, "restraint_type")
+       .value("Bond", coot::restraint_type_t::BOND_RESTRAINT)
+       .value("Angle", coot::restraint_type_t::ANGLE_RESTRAINT)
+       .value("Torsion", coot::restraint_type_t::TORSION_RESTRAINT)
+       .value("Plane", coot::restraint_type_t::PLANE_RESTRAINT)
+       .value("Non-Bonded-Contact", coot::restraint_type_t::NON_BONDED_CONTACT_RESTRAINT)
+       .value("Chiral-Volume", coot::restraint_type_t::CHIRAL_VOLUME_RESTRAINT)
+       .value("Trans-Peptide", coot::restraint_type_t::TRANS_PEPTIDE_RESTRAINT)
+       .value("Geman-McClure", coot::restraint_type_t::GEMAN_MCCLURE_DISTANCE_RESTRAINT)// add start pos and target pos at some stage
+       ;
     nb::class_<coot::simple_restraint>(m, "simple_restraint")
        .def_ro("restraint_type", &coot::simple_restraint::restraint_type)
        .def_ro("target_value",   &coot::simple_restraint::target_value)
     ;
+    nb::class_<coot::geometry_distortion_info_t>(m, "geometry_distortion_info_t")
+       .def_ro("distortion_score",  &coot::geometry_distortion_info_t::distortion_score)
+       .def_ro("atom_indices",      &coot::geometry_distortion_info_t::atom_indices)
+       .def_ro("atom_specs",        &coot::geometry_distortion_info_t::atom_specs)
+       .def_ro("residue_spec",      &coot::geometry_distortion_info_t::residue_spec)
+       .def_ro("restraint",         &coot::geometry_distortion_info_t::restraint)
+       ;
     nb::class_<coot::geometry_distortion_info_container_t>(m, "geometry_distortion_info_container_t")
-       .def("distortion",             &coot::geometry_distortion_info_container_t::distortion)
+       .def_ro("chain_id",            &coot::geometry_distortion_info_container_t::chain_id)
+       .def("distortion_sum",         &coot::geometry_distortion_info_container_t::distortion_sum)
        .def("size",                   &coot::geometry_distortion_info_container_t::size)
+       .def("get_geometry_distortion_info", &coot::geometry_distortion_info_container_t::get_geometry_distortion_info)
        .def_ro("geometry_distortion", &coot::geometry_distortion_info_container_t::geometry_distortion)
     ;
     nb::class_<molecules_container_t::fit_ligand_info_t>(m, "fit_ligand_info_t")
@@ -495,6 +545,12 @@ NB_MODULE(chapi, m) {
     .def_rw("string_user_data",&coot::atom_spec_t::string_user_data)
     .def_rw("model_number",&coot::atom_spec_t::model_number)
     ;
+    nb::class_<coot::residue_range_t>(m,"residue_range_t")
+      .def(nb::init<>())
+      .def_rw("chain_id",     &coot::residue_range_t::chain_id)
+      .def_rw("res_no_start", &coot::residue_range_t::res_no_start)
+      .def_rw("res_no_end",   &coot::residue_range_t::res_no_end)
+      ;
     nb::class_<generic_3d_lines_bonds_box_t>(m,"generic_3d_lines_bonds_box_t")
     .def_ro("line_segments", &generic_3d_lines_bonds_box_t::line_segments)
     ;

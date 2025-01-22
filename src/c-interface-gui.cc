@@ -89,6 +89,7 @@
 
 #include "widget-from-builder.hh"
 #include "utils/coot-utils.hh"
+#include "read-molecule.hh"
 
 void set_show_paths_in_display_manager(int i) {
    std::string cmd = "set-show-paths-in-display-manager";
@@ -1539,6 +1540,7 @@ coot_save_state_and_exit(int retval, int save_state_flag) {
 
 #ifdef WINDOWS_MINGW
    clipper::ClipperInstantiator::instance().destroy();
+   graphics_info_t::static_thread_pool.stop(true);
 #endif
 
    exit(retval);
@@ -2030,17 +2032,9 @@ const char *coot_file_chooser_file_name(GtkWidget *widget) {
    return f;
 }
 
-
-
-/*  ----------------------------------------------------------------------- */
-/*                  get by accession code:                                  */
-/*  ----------------------------------------------------------------------- */
-
-#include "read-molecule.hh" // move this up
-
-/* Accession code, and dispatch guile command to download and display
-   the model.  Hmmm.  */
-void handle_get_accession_code(GtkWidget *frame, GtkWidget *entry) {
+// this is not a gui function - it is a network function
+//
+void network_get_accession_code_entity(const std::string &text, int mode) {
 
    auto join = [] (const std::string &d, const std::string &f) {
       return d + std::string("/") + f;
@@ -2050,48 +2044,74 @@ void handle_get_accession_code(GtkWidget *frame, GtkWidget *entry) {
       return d1 + std::string("/") + d2 + std::string("/") + f;
    };
 
-   auto network_get_accession_code_entity = [join, join_2d] (const std::string &text, int mode) {
+   // 20240630-PE need to check that the file already exists before downloading it
+   xdg_t xdg;
+   std::string download_dir = join(xdg.get_cache_home().string(), "coot-download");
+   std::string dld = coot::get_directory(download_dir);
+   if (! dld.empty()) {
+      download_dir = dld;
+      std::string down_id = coot::util::downcase(text);
+      std::string pdbe_server = "https://www.ebi.ac.uk";
+      std::string pdbe_pdb_file_dir = "pdbe/entry-files/download";
+      std::string pdb_url_dir = pdbe_server + "/" + pdbe_pdb_file_dir;
 
-      // 20240630-PE need to check that the file already exists before downloading it
-      xdg_t xdg;
-      std::string download_dir = join(xdg.get_cache_home().string(), "coot-download");
-      std::string dld = coot::get_directory(download_dir);
-      if (! dld.empty()) {
-         download_dir = dld;
-         std::string down_id = coot::util::downcase(text);
-         std::string pdbe_server = "https://www.ebi.ac.uk";
-         std::string pdbe_pdb_file_dir = "pdbe/entry-files/download";
-         std::string pdb_url_dir = pdbe_server + "/" + pdbe_pdb_file_dir;
+      std::string pdb_file_name = std::string("pdb") + down_id + std::string(".ent");
+      std::string cif_file_name =                      down_id + std::string(".cif");
+      std::string pdb_filepath = coot::util::append_dir_file(download_dir, pdb_file_name);
+      std::string cif_filepath = coot::util::append_dir_file(download_dir, cif_file_name);
 
-         std::string pdb_file_name = std::string("pdb") + down_id + std::string(".ent");
-         std::string cif_file_name = std::string("pdb") + down_id + std::string(".cif");
-         std::string pdb_filepath = coot::util::append_dir_file(download_dir, pdb_file_name);
-         std::string cif_filepath = coot::util::append_dir_file(download_dir, cif_file_name);
+      std::string pdb_url = join(pdb_url_dir, pdb_file_name);
+      std::string cif_url = join(pdb_url_dir, cif_file_name);
 
-         std::string pdb_url = join(pdb_url_dir, pdb_file_name);
-         std::string cif_url = join(pdb_url_dir, cif_file_name);
-
-         if (mode == 1) { // mtz mode
-            std::string mtz_file_name = down_id + std::string("_map.mtz");
-            std::string mtz_filepath = coot::util::append_dir_file(download_dir, mtz_file_name);
+      if (mode == 1) { // mtz mode
+         std::string mtz_file_name = down_id + std::string("_map.mtz");
+         std::string mtz_filepath = coot::util::append_dir_file(download_dir, mtz_file_name);
+         if (coot::file_exists(mtz_filepath)) {
+            auto_read_make_and_draw_maps(mtz_filepath.c_str()); // get rid of .c_str() one day
+         } else {
             std::string mtz_url = join_2d(pdbe_server, pdbe_pdb_file_dir, mtz_file_name);
             int status = coot_get_url(mtz_url, mtz_filepath);
             if (status == 0) {
                auto_read_make_and_draw_maps(mtz_filepath.c_str());
             }
+         }
+      } else {
+         // blocking!
+         int status = coot_get_url(pdb_url, pdb_filepath);
+         // coot_get_url() returns the return value of curl_easy_perform()
+         // CURLE_OK is 0
+         if (coot::file_exists(pdb_filepath)) {
+            read_pdb(pdb_file_name);
          } else {
-            // blocking!
-            int status = coot_get_url(pdb_url, pdb_file_name);
             if (status == 0) {
                read_pdb(pdb_file_name);
             } else {
-               status = coot_get_url(cif_url, cif_file_name);
-               if (status == 0) {
+               if (coot::file_exists(cif_filepath)) {
                   read_pdb(cif_file_name);
+               } else {
+                  status = coot_get_url(cif_url, cif_filepath);
+                  if (status == 0) {
+                     read_pdb(cif_file_name);
+                  }
                }
             }
          }
       }
+   }
+ }
+
+
+
+/*  ----------------------------------------------------------------------- */
+/*                  get by accession code:                                  */
+/*  ----------------------------------------------------------------------- */
+
+/* Accession code, and dispatch guile command to download and display
+   the model.  Hmmm.  */
+void handle_get_accession_code(GtkWidget *frame, GtkWidget *entry) {
+
+   auto join = [] (const std::string &d, const std::string &f) {
+      return d + std::string("/") + f;
    };
 
    auto fetch_pdb_redo = [join] (const std::string &code) {
@@ -2128,7 +2148,7 @@ void handle_get_accession_code(GtkWidget *frame, GtkWidget *entry) {
 
    };
 
-   auto network_get = [network_get_accession_code_entity, fetch_pdb_redo] (const std::string &text, int n) {
+   auto network_get = [fetch_pdb_redo] (const std::string &text, int n) {
 
       if (n == COOT_ACCESSION_CODE_WINDOW_OCA) {
          network_get_accession_code_entity(text, 0); // coords

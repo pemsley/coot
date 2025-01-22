@@ -642,6 +642,16 @@ graphics_info_t::get_molecule_mvp(bool debug_matrices) {
       h = allocation.height;
    }
 
+   if (scale_up_graphics != 1) {
+      w *= scale_up_graphics;
+      h *= scale_up_graphics;
+   }
+   if (scale_down_graphics != 1) {
+      w /= scale_down_graphics;
+      h /= scale_down_graphics;
+   }
+   // std::cout << scale_up_graphics << " " << scale_down_graphics << " " << w << " " << h << std::endl;
+
    bool do_orthographic_projection = ! perspective_projection_flag; // weird
    glm::mat4  view_matrix =       get_view_matrix();
    glm::mat4 model_matrix =      get_model_matrix();
@@ -6834,7 +6844,6 @@ graphics_info_t::setup_key_bindings() {
                  };
 
    auto lc_toggle_validation_side_panel = [] () {
-      graphics_info_t g;
       GtkWidget* pane = widget_from_builder("main_window_ramchandran_and_validation_pane");
       if (pane) {
          if (gtk_widget_get_visible(pane) == TRUE) {
@@ -6846,6 +6855,17 @@ graphics_info_t::setup_key_bindings() {
       return gboolean(TRUE);
    };
 
+   auto lc_toggle_alt_conf_view = [] () {
+      graphics_info_t g;
+      std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+      const std::string &current_alt_conf = pp.second.second.alt_conf;
+      if (pp.first) {
+         int imol = pp.second.first;
+         g.molecules[imol].alt_conf_view_next_alt_conf(current_alt_conf);
+      }
+      return gboolean(TRUE);
+   };
+
    key_bindings_t ctrl_arrow_left_key_binding(lc4, "R/T Left");
    key_bindings_t ctrl_arrow_right_key_binding(lc5, "R/T Right");
    key_bindings_t ctrl_arrow_up_key_binding(lc6, "R/T Up");
@@ -6853,14 +6873,16 @@ graphics_info_t::setup_key_bindings() {
    key_bindings_t ctrl_eigen_flip(l20, "Eigen-Flip");
    key_bindings_t ctrl_quick_save(lc_qsa, "Quick Save");
    key_bindings_t ctrl_toggle_panel(lc_toggle_validation_side_panel, "Toggle Validation Panel");
+   key_bindings_t ctrl_toggle_alt_conf_view(lc_toggle_alt_conf_view, "Toggle Alt Conf View");
 
    std::pair<keyboard_key_t, key_bindings_t> p4(keyboard_key_t(GDK_KEY_Left,  true), ctrl_arrow_left_key_binding);
    std::pair<keyboard_key_t, key_bindings_t> p5(keyboard_key_t(GDK_KEY_Right, true), ctrl_arrow_right_key_binding);
    std::pair<keyboard_key_t, key_bindings_t> p6(keyboard_key_t(GDK_KEY_Up,    true), ctrl_arrow_up_key_binding);
    std::pair<keyboard_key_t, key_bindings_t> p7(keyboard_key_t(GDK_KEY_Down,  true), ctrl_arrow_down_key_binding);
-   std::pair<keyboard_key_t, key_bindings_t> p8(keyboard_key_t(GDK_KEY_e,     true), ctrl_eigen_flip);
-   std::pair<keyboard_key_t, key_bindings_t> p9(keyboard_key_t(GDK_KEY_s,     true), ctrl_quick_save);
-   std::pair<keyboard_key_t, key_bindings_t> p10(keyboard_key_t(GDK_KEY_b,     true), ctrl_toggle_panel);
+   std::pair<keyboard_key_t, key_bindings_t> p11(keyboard_key_t(GDK_KEY_a,    true), ctrl_toggle_alt_conf_view);
+   std::pair<keyboard_key_t, key_bindings_t> p10(keyboard_key_t(GDK_KEY_b,    true), ctrl_toggle_panel);
+   std::pair<keyboard_key_t, key_bindings_t>  p8(keyboard_key_t(GDK_KEY_e,    true), ctrl_eigen_flip);
+   std::pair<keyboard_key_t, key_bindings_t>  p9(keyboard_key_t(GDK_KEY_s,    true), ctrl_quick_save);
 
    kb_vec.push_back(p4);
    kb_vec.push_back(p5);

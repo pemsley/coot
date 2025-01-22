@@ -71,7 +71,8 @@ int main(int argc, char **argv) {
          geom.read_energy_lib(energy_cif_file_name);
 
          coot::h_bonds hbs;
-         std::vector<coot::h_bond> v = hbs.get(SelHnd, SelHnd, m, geom);
+         int imol = 0;
+         std::vector<coot::h_bond> v = hbs.get(SelHnd, SelHnd, m, geom, imol);
 
          for (unsigned int i=0; i<v.size(); i++) {
             std::cout << v[i].donor_neigh->GetChainID() << "/"

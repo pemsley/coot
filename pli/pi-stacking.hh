@@ -49,18 +49,18 @@ namespace pli {
       mmdb::Residue *res;
       stacking_t type; // pi-pi or pi-cation
       std::vector<std::string> ligand_ring_atom_names;
-      float overlap_score; 
+      float overlap_score;
       std::string ligand_cationic_atom_name; // for cations on the ligand
-      
+
       pi_stacking_instance_t(mmdb::Residue *res_in, stacking_t type_in,
 			     const std::vector<std::string> &ring_atoms) : ligand_ring_atom_names(ring_atoms) {
 	 res = res_in;
 	 type = type_in;
          overlap_score = 0;
       }
-      
+
       // and the constructor for CATION_PI_STACKING
-      // 
+      //
       pi_stacking_instance_t(mmdb::Residue *residue_in,
 			     const std::string &ligand_atom_name_in) : ligand_cationic_atom_name(ligand_atom_name_in) {
 	 type = CATION_PI_STACKING;
@@ -72,26 +72,26 @@ namespace pli {
    std::ostream& operator<< (std::ostream& s, const pi_stacking_instance_t &spec);
 
    class pi_stacking_container_t {
-   private: 
+   private:
       // can throw an exception
       std::pair<float, pi_stacking_instance_t::stacking_t>
       get_pi_overlap_to_ligand_ring(mmdb::Residue *res, const clipper::Coord_orth &pt) const;
 
       float get_pi_overlap_to_ligand_cation(mmdb::Residue *res, const clipper::Coord_orth &pt) const;
-      
+
       std::pair<clipper::Coord_orth, clipper::Coord_orth>
       get_ring_pi_centre_points(const std::vector<std::string> &ring_atom_names,
 				mmdb::Residue *res_ref) const;
-      
+
       // can throw an exception if not enough points found in pts.
       std::pair<clipper::Coord_orth, clipper::Coord_orth>
       ring_centre_and_normal(const std::vector<clipper::Coord_orth> &pts) const;
 
       // TRP has 2 rings, so we have to return a vector
-      // 
+      //
       std::vector<std::vector<std::string> >
       ring_atom_names(const std::string &residue_name) const;
-      
+
       float overlap_of_pi_spheres(const clipper::Coord_orth &pt1,
 				  const clipper::Coord_orth &pt2,
 				  const double &m1_pt_1, const double &m2_pt_1,
@@ -120,7 +120,7 @@ namespace pli {
 		mmdb::Residue *res_ref,
 		const std::vector<std::vector<std::string> > &aromatic_ring_list_atom_names);
 
-      
+
    public:
       // a vector of residues and types
       std::vector<pi_stacking_instance_t> stackings;

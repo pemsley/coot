@@ -377,7 +377,6 @@ void servalcat_refine(int imol_model,
       std::string n = g.molecules[imol_model].Refmac_name_stub();
       std::string prefix_dir = std::string("servalcat-refine-") + n;
       std::string prefix = (xdg.get_data_home() / prefix_dir).string();
-      std::cout << "!!!!!!!!!!!!!!!!!!! prefix: " << prefix << std::endl;
       std::string pdb_file_name = prefix + "_input.pdb";
       g.molecules[imol_model].write_pdb_file(pdb_file_name);
       std::thread thread(servalcat_refine_func, half_map_1, half_map_2, mask_map, pdb_file_name, prefix, resolution);

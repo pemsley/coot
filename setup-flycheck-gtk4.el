@@ -5,10 +5,13 @@
 
 ;; remove USE_GUILE=1 for now
 ;; "USE_MOLECULES_TO_TRIANGLES=1"
-;; "HAVE_GOOCANVAS=1" 
+;; "HAVE_GOOCANVAS=1"
 ;;
-(setq flycheck-gcc-definitions   (list "HAVE_CXX_THREAD=1" "HAVE_GSL=1" "VERSION=\"0.9.9-pre\"" "HAVE_BOOST=1" "HAVE_BOOST_BASED_THREAD_POOL_LIBRARY=1" "PKGDATADIR=11111" "USE_PYTHON=1" "PYTHONDIR=/asdf" "PKGPYTHONDIR=asdf" "USE_LIBCURL=1" "BUILD_CURLEW=1" "COOT_BUILD_INFO_STRING=x" "_OPENMP=1" "MAKE_ENHANCED_LIGAND_TOOLS=1" "WITH_SOUND=1" "USE_GEMMI=1"))
-(setq flycheck-clang-definitions (list "HAVE_CXX_THREAD=1" "HAVE_GSL=1" "VERSION=\"0.9.9-pre\"" "HAVE_BOOST=1" "HAVE_BOOST_BASED_THREAD_POOL_LIBRARY=1" "PKGDATADIR=11111" "USE_PYTHON=1" "PYTHONDIR=/asdf" "PKGPYTHONDIR=asdf" "USE_LIBCURL=1" "BUILD_CURLEW=1" "COOT_BUILD_INFO_STRING=x" "_OPENMP=1" "MAKE_ENHANCED_LIGAND_TOOLS=1" "WITH_SOUND=1" "USE_GEMMI=1"))
+(setq flycheck-gcc-definitions   (list "HAVE_CXX_THREAD=1" "HAVE_GSL=1" "VERSION=\"0.9.9-pre\"" "PACKAGE=Coot" "PACKAGE_VERSION=1.1.11+" "HAVE_BOOST=1" "PKGDATADIR=11111" "USE_PYTHON=1" "PYTHONDIR=/asdf" "PKGPYTHONDIR=asdf" "USE_LIBCURL=1" "BUILD_CURLEW=1" "COOT_BUILD_INFO_STRING=x" "_OPENMP=1" "MAKE_ENHANCED_LIGAND_TOOLS=1" "WITH_SOUND=1" "USE_GEMMI=1"))
+(setq flycheck-clang-definitions (list "HAVE_CXX_THREAD=1" "HAVE_GSL=1" "VERSION=\"0.9.9-pre\"" "PACKAGE=Coot" "PACKAGE_VERSION=1.1.11+" "HAVE_BOOST=1" "PKGDATADIR=11111" "USE_PYTHON=1" "PYTHONDIR=/asdf" "PKGPYTHONDIR=asdf" "USE_LIBCURL=1" "BUILD_CURLEW=1" "COOT_BUILD_INFO_STRING=x" "_OPENMP=1" "MAKE_ENHANCED_LIGAND_TOOLS=1" "WITH_SOUND=1" "USE_GEMMI=1"))
+
+;; this is configured now, we don't need it on the command line
+;;  "HAVE_BOOST_BASED_THREAD_POOL_LIBRARY=1"
 
 (setq flycheck-gcc-args   '("-Wno-unknown-pragmas" "-std=c++17"))
 (setq flycheck-clang-args '("-Wno-unknown-pragmas" "-std=c++17"))
@@ -34,6 +37,7 @@
 
    "/home/paule/python3/include/python3.9"
    "/home/paule/autobuild/build-for-chapi-gtk4/lib/python3.10/site-packages/nanobind/include"
+   "/home/paule/autobuild/build-for-chapi-arch-gtk4/lib/python3.12/site-packages/nanobind/include"
    "/home/paule/autobuild/Linux-penelope-gtk4-python/include"
 
    ;; from https://github.com/Wilfred/flycheck-pkg-config/issues/2

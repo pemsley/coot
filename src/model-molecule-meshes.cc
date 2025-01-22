@@ -92,11 +92,10 @@ model_molecule_meshes_t::make_graphical_bonds(int imol, const graphical_bonds_co
                                               int num_subdivisions, int n_slices, int n_stacks,
                                               const std::vector<glm::vec4> &colour_table) {
 
-   std::cout << "................................... in model_molecule_meshes_t::make_graphical_bonds()) with show_aniso_atoms_as_ortep_flag "
-             << show_aniso_atoms_as_ortep_flag << std::endl;
+   //    std::cout << "DEBUG:: in model_molecule_meshes_t::make_graphical_bonds()) with show_aniso_atoms_as_ortep_flag "
+   // << show_aniso_atoms_as_ortep_flag << std::endl;
 
    // who calls this function?
-
 
    // first clear the buffers of what we ready (might) have
    instanced_meshes.clear();

@@ -81,7 +81,7 @@ pli::get_fle_ligand_bonds(mmdb::Residue *ligand_res,
       std::vector<coot::h_bond> hbonds = hb.get_mcdonald_and_thornton(SelHnd_lig, SelHnd_all, m.second,
 								      geom, h_bond_dist_max);
 
-      if (debug)
+      if (true)
 	 std::cout << "DEBUG:: get_fle_ligand_bonds from h_bonds class found "
 		   << hbonds.size() << " H bonds." << std::endl;
 
@@ -96,7 +96,7 @@ pli::get_fle_ligand_bonds(mmdb::Residue *ligand_res,
 							  hbonds[i].acceptor,
 							  hbonds[i].ligand_atom_is_donor);
 	 // override these 2 if ligand atom is donor
-	 // 
+	 //
 	 mmdb::Atom      *ligand_atom = hbonds[i].acceptor;
 	 mmdb::Atom *env_residue_atom = hbonds[i].donor;
 	 double explict_H_bond_fudge_factor = 0.0; // for H-bonds with no Hs.
@@ -107,7 +107,7 @@ pli::get_fle_ligand_bonds(mmdb::Residue *ligand_res,
 	 }
 
 	 // OK, 20110511 new style, where is the hydrogen?
-	 // 
+	 //
 	 if (hbonds[i].has_hydrogen()) {
 	    if (hbonds[i].ligand_atom_is_H()) {
 	       ligand_atom      = hbonds[i].hb_hydrogen;
@@ -121,8 +121,8 @@ pli::get_fle_ligand_bonds(mmdb::Residue *ligand_res,
 
 	 // This map no longer works because we don't pass ligand atom
 	 // name any more (we pass a spec).
-	 // 
-	 
+	 //
+
 // 	 // Now, in 3D (pre-prodrgification) we don't have (polar) Hs on the ligand
 // 	 // (but we do in 2D), the map allows transfer from the ligand O or N to the
 // 	 // polar H in FLEV.

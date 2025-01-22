@@ -48,7 +48,8 @@ phi-psi-prob.hh          saved-strand-info.hh       simple-molecule.hh          
 generic-3d-lines.hh      cell.hh                    coot-simple-molecule.hh                \
 api-cell.hh              bond-colour.hh             make-instanced-graphical-bonds.hh      \
 symmetry-info.hh         instancing.hh              merge-molecule-results-info-t.hh       \
-coot-molecule-bonds.hh   clipper-ccp4-map-file-wrapper.hh blender-mesh.hh plain-atom-overlap.hh
+coot-molecule-bonds.hh   clipper-ccp4-map-file-wrapper.hh blender-mesh.hh plain-atom-overlap.hh \
+ncs-ghosts.hh            moved-atom.hh              moved-residue.hh
 
 lib_LTLIBRARIES=libcoot-api.la
 
@@ -59,7 +60,7 @@ coot-molecule-bonds.cc	     coot-molecule-validation.cc                      mol
 molecules-container.cc       make-a-dodec.cc	                              molecules-container-ligand-fitting.cc \
 phi-psi-prob.cc              coot-molecule-moltris.cc                         coot-molecule-replace-fragment.cc \
 coot-molecule-backup.cc      coot-molecule-bonds-instanced.cc                 molecules-container-mmrrcc.cc \
-molecules-container-gltf.cc  mmcif-tests.cc \
+molecules-container-gltf.cc  mmcif-tests.cc                                   ncs-ghosts.cc \
 coot-molecule-refine.cc      molecules-container-superpose.cc                 rigid-body-fit.cc \
 moorhen-h-bonds.cc           molecules-container-bucca-ml-growing.cc          instancing.cc  \
 molecules-container-maps.cc  coot-molecule-change-chain-id.cc                 coot-molecule-modelling.cc \
@@ -124,3 +125,12 @@ _coot_headless_api_la_CXXFLAGS = -DUSE_PYTHON -DSWIG
 _coot_headless_api_la_LIBADD = libcoot-api.la
 
 _coot_headless_api_la_LDFLAGS = -module $(SHARED_LDFLAGS) --no-undefined
+
+if OS_WIN32
+# Python .pyd modules are simply DLLs, but they have to be called .pyd for
+# python to find them, and libtool only creates .dll.
+install-exec-hook:
+	cp $(pyexecdir)/_coot_headless_api-0.dll $(pyexecdir)/_coot_headless_api.pyd
+endif
+
+

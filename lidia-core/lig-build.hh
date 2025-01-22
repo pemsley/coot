@@ -43,7 +43,7 @@ namespace lig_build {
    // -----------------------------------------------------------------
    //                   pos_t
    // -----------------------------------------------------------------
-   // 
+   //
    class pos_t {
    public:
       double x;
@@ -75,18 +75,21 @@ namespace lig_build {
 	 x -= p.x;
 	 y -= p.y;
       }
+      pos_t invert_y() const {
+         return pos_t(x, -y);
+      }
       bool close_point(const pos_t &other) const {
 	 double small_bit = 3;
 	 return near_point(other, small_bit);
       }
       bool near_point(const pos_t &other, double small_bit) const {
 	 bool status = 0;
-	 if (fabs(x-other.x) < small_bit) { 
+	 if (fabs(x-other.x) < small_bit) {
 	    if (fabs(y-other.y) < small_bit) {
 	       status = 1;
 	    }
 	 }
-	 return status; 
+	 return status;
       }
       static pos_t fraction_point(const pos_t &first,
 				  const pos_t &second,
@@ -117,7 +120,7 @@ namespace lig_build {
 	 double new_y = y_cen + (x - x_cen) * sin_theta + (y - y_cen) * cos_theta;
 	 return pos_t(new_x, new_y);
       }
-      
+
       pos_t rotate_about(const pos_t &cen, double angle) {
 	 double theta_l = angle * DEG_TO_RAD;
 	 double sin_theta = sin(theta_l);
@@ -126,13 +129,13 @@ namespace lig_build {
 	 double new_y = cen.y + (x - cen.x) * sin_theta + (y - cen.y) * cos_theta;
 	 return pos_t(new_x, new_y);
       }
-      
+
       pos_t operator*(float sc) const {
 	 return pos_t(x*sc, y*sc);
       }
       double length() const {
 	 return sqrt(x*x + y*y);
-      } 
+      }
       double lengthsq() const {
 	 return (x*x + y*y);
       }
@@ -178,7 +181,7 @@ namespace lig_build {
    // -----------------------------------------------------------------
    //                   offset text
    // -----------------------------------------------------------------
-   // 
+   //
    // 20110410 this is so that NH and OH can be typeset in various
    // ways, e.g. HO or with the N appearing above the H.  It depends
    // on the bonds to which this atom is attached.  So instead of
@@ -255,24 +258,24 @@ namespace lig_build {
 	 offsets.push_back(ot1);
 	 offsets.push_back(ot2);
 	 size_hint = 0;
-      } 
+      }
 
       std::vector<offset_text_t> offsets;
       int size_hint; // a hint so that atom names can be rendered smaller than normal
                      // -1 means smaller
-      
+
       void set_atom_id(const std::string &atom_id_in) {
 	 atom_id = atom_id_in;
       }
-      
+
       const offset_text_t &operator[](const unsigned int &indx) const {
 	 return offsets[indx];
       }
       void add(const offset_text_t &off) {
 	 offsets.push_back(off);
-      } 
-      unsigned int n_offsets() const { return offsets.size(); } 
-      
+      }
+      unsigned int n_offsets() const { return offsets.size(); }
+
       std::string atom_id; // what we used to return, this is used for
 			   // testing against what we had so we know
 			   // if we need to change the id.
@@ -293,8 +296,8 @@ namespace lig_build {
    // atom_name is the matching name from the PDB file (if any),
    // e.g. " C12", " OD2" etc.  This can be "" if there was no atom
    // name assigned.
-   
-   
+
+
    class atom_t {
       bool is_closed_; // because we can't delete atoms, we can only close
                        // them (deleting/erase()ing atoms would mess up
@@ -324,7 +327,7 @@ namespace lig_build {
       // internal element, change status is 0).
       bool change_element(const std::string &ele_in) {
 	 bool ch_status = 0;
-	 if (element != ele_in) { 
+	 if (element != ele_in) {
 	    element = ele_in;
 	    ch_status = 1;
 	 }
@@ -338,12 +341,12 @@ namespace lig_build {
       }
       std::string get_atom_name() const {
 	 return atom_name;
-      } 
+      }
       std::string get_atom_id() const { return atom_id; }
       // return atom-id-was-changed status
       bool set_atom_id(const std::string &atom_id_in ) {
 	 bool changed_status = 0;
-	 if (atom_id != atom_id_in) { 
+	 if (atom_id != atom_id_in) {
 	    changed_status = 1;
 	    atom_id = atom_id_in;
 	 }
@@ -374,9 +377,9 @@ namespace lig_build {
 	 return theta;
       }
    };
-   
+
    std::ostream& operator<<(std::ostream &s, atom_t);
-   
+
    // trivial container for a (copy of an) atom an its ring centre (if
    // it has one)
    class atom_ring_centre_info_t {
@@ -400,7 +403,7 @@ namespace lig_build {
    class bond_t {
    public:
       // IN_BOND and OUT_BOND are a type of single bond.
-      // 
+      //
       enum bond_type_t { BOND_UNDEFINED=100, SINGLE_BOND=101, DOUBLE_BOND=102,
 			 TRIPLE_BOND=103, AROMATIC_BOND=4, IN_BOND=104, OUT_BOND=105,
 			 SINGLE_OR_DOUBLE=5, SINGLE_OR_AROMATIC=6,
@@ -489,7 +492,7 @@ namespace lig_build {
 	    }
 	 } else {
 	    return false;
-	 } 
+	 }
       }
 
       unsigned int get_other_index(const unsigned int &atom_index) const {
@@ -1100,6 +1103,19 @@ namespace lig_build {
          return checked_add(at);
       }
 
+      std::pair<bool, lig_build::atom_t> get_atom_by_name(const std::string &name) const {
+         bool status = false;
+         lig_build::atom_t at(lig_build::pos_t(0,0), "", 0);
+         for (unsigned int i=0; i<atoms.size(); i++) {
+            if (atoms[i].get_atom_name() == name) {
+               status = true;
+               at = atoms[i];
+               break;
+            }
+         }
+         return std::make_pair(status, at);
+      }
+
       // can throw a std::runtime_error exception
       lig_build::pos_t get_atom_canvas_position(const std::string &atom_name) const {
          lig_build::pos_t p;
@@ -1596,7 +1612,7 @@ namespace lig_build {
 	    if (! bonds[vb[iv]].is_closed())
 	       v.push_back(vb[iv]);
 	 }
-	 
+
 	 return v;
       }
 
@@ -1606,9 +1622,9 @@ namespace lig_build {
 
 	 std::vector<unsigned int> v;
 	 for (unsigned int iat=0; iat<atoms.size(); iat++) {
-	    if (! atoms[iat].is_closed()) { 
+	    if (! atoms[iat].is_closed()) {
 	       bool in_a_bond = 0;
-	       for (unsigned int ib=0; ib<bonds.size(); ib++) { 
+	       for (unsigned int ib=0; ib<bonds.size(); ib++) {
 		  if (! bonds[ib].is_closed()) {
 		     if (bonds[ib].get_atom_1_index() == iat)
 			in_a_bond = 1;
@@ -1626,12 +1642,12 @@ namespace lig_build {
       }
 
       // can throw an exception (no atoms)
-      // 
+      //
       pos_t get_ligand_centre() const {
 
 	 pos_t centre(0,0);
 
-	 if (atoms.size() == 0) {
+	 if (atoms.empty()) {
 	    std::string message("No atoms in ligand");
 	    throw std::runtime_error(message);
 	 } else {
@@ -1639,8 +1655,9 @@ namespace lig_build {
 	    for (unsigned int iat=0; iat<atoms.size(); iat++) {
 	       centre_sum += atoms[iat].atom_position;
 	    }
-	    if (atoms.size() > 0)
-	       centre = centre_sum * (1.0/double(atoms.size()));
+            unsigned int n_atoms = atoms.size();
+	    if (n_atoms > 0)
+	       centre = pos_t(centre_sum.x / static_cast<double>(n_atoms), centre_sum.y / static_cast<double>(n_atoms));
 	 }
 	 return centre;
       }

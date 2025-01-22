@@ -545,7 +545,7 @@ coot::sequence_assignment::side_chain_score_t::generate_scores(mmdb::Manager *mo
    mark_unassigned_residues(); // uses mol
 
    float pr_cut = 0.1; 
-   std::vector<residue_range_t> urv = find_unassigned_regions(pr_cut);
+   std::vector<high_res_residue_range_t> urv = find_unassigned_regions(pr_cut);
    std::cout << "There were " << urv.size() << " unassigned regions\n";
    
       
@@ -687,10 +687,10 @@ coot::sequence_assignment::side_chain_score_t::cache_standard_residues() {
 // Mark up the input structure as unassigned.  Use Residue UDD to do
 // the assignment.
 // 
-std::vector<coot::residue_range_t>
+std::vector<coot::high_res_residue_range_t>
 coot::sequence_assignment::side_chain_score_t::find_unassigned_regions(float pr_cut) { 
 
-   std::vector<coot::residue_range_t> v;
+   std::vector<coot::high_res_residue_range_t> v;
    int istate; // for UDD data reading
 
    int n_models = mol->GetNumberOfModels();
@@ -739,7 +739,7 @@ coot::sequence_assignment::side_chain_score_t::find_unassigned_regions(float pr_
 		     // a range...
 		     if (in_ala_range_flag == 1) {
 			if (previous_residue) { 
-			   v.push_back(coot::residue_range_t(chain_id,
+			   v.push_back(coot::high_res_residue_range_t(chain_id,
 							     start_resno,
 							     previous_residue->seqNum));
 			   in_ala_range_flag = 0;
@@ -757,7 +757,7 @@ coot::sequence_assignment::side_chain_score_t::find_unassigned_regions(float pr_
 	    // range? If so, use previous_residue to push back a range info
 	    if (in_ala_range_flag)
 	       if (previous_residue)
-		  v.push_back(coot::residue_range_t(chain_id,
+		  v.push_back(coot::high_res_residue_range_t(chain_id,
 						    start_resno,
 						    previous_residue->seqNum));
 	 }
@@ -874,7 +874,7 @@ coot::sequence_assignment::side_chain_score_t::mark_unassigned_residues() {
 // returned sequences: 1 to 39 and 51 to 100.
 // 
 std::vector<coot::sequence_assignment::sequence_range_t>
-coot::sequence_assignment::side_chain_score_t::find_unassigned_sequence(const coot::residue_range_t &a_residue_range) const {
+coot::sequence_assignment::side_chain_score_t::find_unassigned_sequence(const coot::high_res_residue_range_t &a_residue_range) const {
    
    float v_crit = 0.1;
    unsigned int required_range_size = a_residue_range.length();
@@ -932,7 +932,7 @@ void
 coot::sequence_assignment::side_chain_score_t::test_residue_range_marking() {
 
    std::cout << "in test_residue_range_marking" << std::endl;
-   std::vector<coot::residue_range_t> v = find_unassigned_regions(0.1);
+   std::vector<coot::high_res_residue_range_t> v = find_unassigned_regions(0.1);
 
    std::cout << "There were " << v.size() << " unassigned regions:\n";
    for (unsigned int i=0; i<v.size(); i++) {
@@ -941,7 +941,7 @@ coot::sequence_assignment::side_chain_score_t::test_residue_range_marking() {
 		<< v[i].end_resno << std::endl;
    }
 
-   coot::residue_range_t rr("A", 20, 30);
+   coot::high_res_residue_range_t rr("A", 20, 30);
 
    // assign some sequence: that is apply some high proproability to
    // some sequence_infos data.

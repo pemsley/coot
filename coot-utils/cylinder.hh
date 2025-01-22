@@ -61,6 +61,7 @@ public:
             float base_radius, float top_radius, float height,
             const glm::vec4 &base_colour,
             unsigned int n_slices=8, unsigned int n_stacks=2);
+   void init_unit(unsigned int n_slices=12);
    void add_flat_end_cap();
    void add_flat_start_cap();
    void add_octahemisphere_end_cap();

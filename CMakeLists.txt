@@ -54,7 +54,7 @@ endif(WIN32)
 
 set(coot_src ${CMAKE_CURRENT_SOURCE_DIR})
 
-add_definitions(-DANALYSE_REFINEMENT_TIMING -DPACKAGE_VERSION="1"
+add_definitions(-DANALYSE_REFINEMENT_TIMING -DPACKAGE_VERSION="1.1.11+"
   -DHAVE_CXX_THREAD -DHAVE_SSMLIB -DHAVE_BOOST -DUSE_LIBPNG=1 -DCLIPPER_HAS_TOP8000 -DUSE_GEMMI -DHAVE_BOOST_THREAD -DHAVE_GSL
   -DPKGDATADIR="${CMAKE_INSTALL_PREFIX}/share/coot" -DXDATADIR="${CMAKE_INSTALL_PREFIX}/share")
 
@@ -175,10 +175,10 @@ add_library(cootapi SHARED
             ${coot_src}/api/coot-molecule-modelling.cc
             ${coot_src}/api/coot-molecule-refine.cc
             ${coot_src}/api/coot-molecule-replace-fragment.cc
-            ${coot_src}/api/molecules-container-blender.cc
             ${coot_src}/api/molecules-container.cc
-            ${coot_src}/api/molecules-container-gltf.cc
+            ${coot_src}/api/molecules-container-blender.cc
             ${coot_src}/api/molecules-container-bucca-ml-growing.cc
+            ${coot_src}/api/molecules-container-gltf.cc
             ${coot_src}/api/molecules-container-maps.cc
             ${coot_src}/api/molecules-container-mmrrcc.cc
             ${coot_src}/api/molecules-container-superpose.cc
@@ -267,6 +267,7 @@ add_library(cootapi SHARED
             ${coot_src}/pli/protein-ligand-interactions.cc
             ${coot_src}/pli/pi-stacking.cc
             ${coot_src}/pli/sdf-interface.cc
+            ${coot_src}/coot-utils/coot-align.cc
             ${coot_src}/coot-utils/cmtz-interface.cc
             ${coot_src}/coot-utils/lidia-core-functions.cc
             ${coot_src}/coot-utils/atom-selection-container.cc
@@ -342,6 +343,8 @@ add_library(cootapi SHARED
             ${coot_src}/coot-utils/oct.cc
             ${coot_src}/coot-utils/shapes.cc
             ${coot_src}/coot-utils/simple-mesh.cc
+            ${coot_src}/coot-utils/gl-matrix.cc
+            ${coot_src}/coot-utils/gl-matrix-eigensystem.cc
             ${coot_src}/coords/phenix-geo-bonds.cc
             ${coot_src}/coords/Bond_lines_ext.cc
             ${coot_src}/coords/mmdb-crystal.cc
@@ -442,12 +445,12 @@ add_library(cootapi SHARED
             ${coot_src}/db-main/db-main.cc
             ${coot_src}/compat/getopt.cc
             ${coot_src}/compat/getopt1.cc
-            ${coot_src}/src/gl-matrix.cc
             ${coot_src}/ideal/write-png.cc
             )
 
 
-nanobind_add_module(chapi ${coot_src}/api/molecules-container-nanobind.cc)
+nanobind_add_module(chapi ${coot_src}/api/molecules-container-nanobind.cc
+                          ${coot_src}/api/molecules-container-nanobind-functions.cc)
 
 # use MMDB2_INCLUDE_DIR to find the RDKIT for now.
 target_include_directories(cootapi PRIVATE ${coot_src} ${coot_src}/coords ${coot_src}/utils ${coot_src}/ccp4mg-utils ${coot_src}/ccp4mg-utils/util ${coot_src}/ccp4mg-utils/pygl ${MMDB2_INCLUDE_DIR} ${SSM_INCLUDE_DIR} ${CLIPPER-CORE_INCLUDE_DIR} ${CLIPPER-MMDB_INCLUDE_DIR} ${CLIPPER-CCP4_INCLUDE_DIR} ${FFTW2_INCLUDE_DIRS} ${RDKit_INCLUDE_DIRS} ${GLM_INCLUDE_DIRS} ${GSL_INCLUDE_DIRS} ${PNG_PNG_INCLUDE_DIR} ${RDKit_INCLUDE_DIR})

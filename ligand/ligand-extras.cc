@@ -788,7 +788,7 @@ coot::ligand::flood2(float n_sigma) {
       clipper::CCP4MAPfile mapout;
       mapout.open_write("flood2-masked.map");
       mapout.export_xmap(xmap_masked);
-      mapout.close_write(); 
+      mapout.close_write();
    }
 
    std::vector<clipper::Coord_orth> water_list;
@@ -808,7 +808,7 @@ coot::ligand::flood2(float n_sigma) {
       coot::peak_search ps(xmap_masked);
       ps.set_max_closeness(0);
       std::vector<clipper::Coord_orth> peaks = ps.get_peaks_for_flooding(xmap_masked, n_sigma_crit);
-      
+
       if (debug) {
 	 for (unsigned int ipeak=0; ipeak<peaks.size(); ipeak++) {
 	    float d = density_at_point(peaks[ipeak], xmap_masked);
@@ -824,12 +824,15 @@ coot::ligand::flood2(float n_sigma) {
       }
       // mask new waters
       for (unsigned int iw=0; iw<peaks.size(); iw++) {
-	 if (! close_to_another(peaks[iw], water_list, map_atom_mask_radius)) {
-	    // change xmap_masked:
-	    mask_around_coord(peaks[iw], map_atom_mask_radius, &xmap_masked);
-	    water_list.push_back(peaks[iw]);
-	    n_added_waters++;
-	 }
+         // 20241217-PE Hmm - why do I want to not mask peaks that are close to
+         // aother peak in flood mode? I will try remving this test
+	 // if (! close_to_another(peaks[iw], water_list, map_atom_mask_radius)) {
+         // change xmap_masked:
+         // ... Hmm.. didn't make much difference (if any)
+         mask_around_coord(peaks[iw], map_atom_mask_radius, &xmap_masked);
+         water_list.push_back(peaks[iw]);
+         n_added_waters++;
+         // }
       }
    }
 
@@ -844,14 +847,15 @@ coot::ligand::flood2(float n_sigma) {
    }
 
    // move these waters to around protein:
-   // 
+   //
    std::vector <clipper::Coord_orth> sampled_protein_coords = make_sample_protein_coords();
    std::cout << "DEBUG:: in flood2() sampled_protein_coords() size is "
 	     << sampled_protein_coords.size() << std::endl;
 
-   std::vector<clipper::Coord_orth> moved_waters;   
+   std::vector<clipper::Coord_orth> moved_waters;
    if (sampled_protein_coords.size()) {
-      std::cout << "DEBUG:: moving dummy atoms around the protein.." << std::endl;
+      std::cout << "DEBUG:: moving " << water_list.size() << " dummy atoms to around the protein.."
+                << std::endl;
       moved_waters = move_waters_close_to_protein(water_list, sampled_protein_coords);
    } else {
       moved_waters = water_list; // unomved waters
@@ -882,7 +886,7 @@ coot::ligand::flood2(float n_sigma) {
       mol.write_file("post-filter.pdb", 12);
    }
 
-   std::cout << "INFO:: added " << n_added_waters << " waters to molecule\n";
+   std::cout << "INFO:: added " << n_added_waters << " dummy atoms to molecule\n";
    std::string ch = protein_atoms.unused_chain_id("W");
    // coot::minimol::molecule mol(water_list, "DUM", " DUM", ch);
    std::string ele = "NA";

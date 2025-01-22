@@ -106,7 +106,7 @@ enum {CONTOUR_UP, CONTOUR_DOWN};
 #include "coot-render.hh" // 20220723-PE no graphics for WebAssembly build
 
 // #include "coot-surface/coot-surface.hh" dead now
-#include "coot-align.hh"
+#include "coot-utils/coot-align.hh"
 #include "utils/coot-fasta.hh"
 #include "coot-utils/coot-shelx.hh"
 #include "utils/coot-utils.hh"
@@ -1067,6 +1067,7 @@ public:        //                      public
                                             bool all_atoms_mode,
                                             bool draw_missing_loops_flag);
 
+   void alt_conf_view_next_alt_conf(const std::string &current_alt_conf);
 
 
    // This doesn't catch the case when__builtin_FUNCTION exists but __has_builtin does not
@@ -1393,18 +1394,6 @@ public:        //                      public
    void make_surface(int SelHnd_selection, int SelHnd_all, const coot::protein_geometry &geom,
 		     float col_scale);
 
-   bool molecule_is_drawn_as_surface() const {
-#if 0
-      if (cootsurface)
-	 return true;
-      else
-	 return false;
-#else
-      return true; // for now (in 0.9.x)
-#endif
-   }
-   //
-
    // a generic function to convert from a residue_spec_vec to a
    // selection handle. Caller creates the SelHnd_selection so that it
    // is clearer where the SelHnd_selection should be deleted.
@@ -1682,7 +1671,7 @@ public:        //                      public
    // But we should try to put the waters into (add/append to) a chain
    // of waters in this molecule, if it has one.
    //
-   int insert_waters_into_molecule(const coot::minimol::molecule &water_mol);
+   int insert_waters_into_molecule(const coot::minimol::molecule &water_mol, const std::string &res_name);
    int append_to_molecule(const coot::minimol::molecule &water_mol);
    mmdb::Residue *residue_from_external(int reso, const std::string &insertion_code,
 					const std::string &chain_id) const;
@@ -1875,6 +1864,8 @@ public:        //                      public
    // Here is something that does DNA/RNA
    int mutate_base(const coot::residue_spec_t &res_spec, std::string type,
 		   bool use_old_style_naming);
+
+   int mutate_by_overlap(const std::string &chain_id, int res_no, const std::string &new_type);
 
    // and the biggie: lots of mutations/deletions/insertions from an
    // alignment:

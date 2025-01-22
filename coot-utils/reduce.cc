@@ -322,6 +322,7 @@ coot::reduce::add_riding_hydrogens(double bl_aliph,
             // what about strange missing residues - where we can place the CA HA
             // (but not the N's H).
             bool done = add_riding_hydrogens(residue_p, residue_prev_p, bl_aliph, bl_arom, bl_amino, bl_oh, bl_sh);
+            // std::cout << "for residue_p " << coot::residue_spec_t(residue_p) << " done status " << done << std::endl;
             if (! done) {
                hydrogen_placement_by_dictionary(residue_p, bl_aliph, bl_arom, bl_amino, bl_oh, bl_sh);
             } else {
@@ -1618,6 +1619,8 @@ coot::reduce::hydrogen_placement_by_dictionary(mmdb::Residue *residue_p,
          if (p.first) {
             hydrogen_placement_by_dictionary(p.second, residue_p, bl_aliph, bl_arom, bl_amino, bl_oh, bl_sh);
          }
+      } else {
+         std::cout << "WARNING:: in hydrogen_placement_by_dictionary(): null geom_p" << std::endl;
       }
    }
 }

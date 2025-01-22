@@ -1,7 +1,26 @@
+/* pli/optimmise-residue-cirlces.cc
+ *
+ * Copyright 2012 by The University of Oxford
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or (at
+ * your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA
+ */
 
 #include "flev-scale-factor.hh"
 #include "optimise-residue-circles.hh"
-
+#include "utils/coot-utils.hh"
 
 pli::optimise_residue_circles::optimise_residue_circles(const std::vector<residue_circle_t> &r, // starting points
                                                         const std::vector<residue_circle_t> &c, // current points
@@ -23,6 +42,27 @@ pli::optimise_residue_circles::optimise_residue_circles(const std::vector<residu
 
    score_vs_other_residues_kk = 2000.0;
    score_vs_other_residues_exp_scale = 0.5;
+
+   bool debug_weights = true; // 20250106-PE for now
+
+   if (debug_weights) {
+      std::string weights_file_name("optimise-residue-circles-weights.tab");
+      std::ifstream f(weights_file_name);
+      std::string line;
+      while (std::getline(f, line)) {
+         std::vector<std::string> parts = coot::util::split_string_no_blanks(line);
+         if (parts.size() == 2) {
+            float f = coot::util::string_to_float(parts[1]);
+            if (parts[0] == "score_vs_ligand_atoms_rk")            score_vs_ligand_atoms_rk = f;
+            if (parts[0] == "score_vs_ligand_atoms_exp_scale")     score_vs_ligand_atoms_exp_scale = f;
+            if (parts[0] == "score_vs_original_positions_kk")      score_vs_original_positions_kk = f;
+            if (parts[0] == "score_vs_ligand_atom_bond_length_kk") score_vs_ligand_atom_bond_length_kk = f;
+            if (parts[0] == "score_vs_other_residues_kk")          score_vs_other_residues_kk = f;
+            if (parts[0] == "score_vs_other_residues_exp_scale")   score_vs_other_residues_exp_scale = f;
+         }
+      }
+   }
+
 
    mol = mol_in;
    current_circles = c;
@@ -127,7 +167,7 @@ pli::optimise_residue_circles::f(const gsl_vector *v, void *params) {
 	    const double &d_pt_2 = gsl_vector_get(v, 2*i+1) - orc->mol.atoms[iat].atom_position.y;
 	    double d2 = d_pt_1 * d_pt_1 + d_pt_2 * d_pt_2;
 	    score += rk * exp(-0.5*exp_scale*d2);
-            if (true)
+            if (false)
                std::cout << "residue-circles-vs-ligand-atoms circle " << i
                          << " " << d_pt_1 << " " << d_pt_2
                          << " iat: " << iat << " at "
@@ -177,7 +217,7 @@ pli::optimise_residue_circles::f(const gsl_vector *v, void *params) {
 	 double d_1 = gsl_vector_get(v, 2*i  ) - orc->starting_circles[i].pos.x;
 	 double d_2 = gsl_vector_get(v, 2*i+1) - orc->starting_circles[i].pos.y;
          double delta = k * (d_1*d_1 + d_2*d_2);
-         if (true)
+         if (false)
             std::cout << "score_vs_original_pos " << i << " " << orc->starting_circles[i].pos
                       << " " << gsl_vector_get(v, 2*i) << " " << gsl_vector_get(v, 2*i+1)
                       << " d " << sqrt(d_1*d_1 + d_2*d_2)
@@ -232,18 +272,19 @@ pli::optimise_residue_circles::f(const gsl_vector *v, void *params) {
 	    double dist_to_attachment_point = bond_vector.length();
 	    double d = dist_to_attachment_point - target_length;
 	    double bond_length_penalty = kk * d * d;
-            std::cout << "bond_vector: attachment " << iprimary << " " << iattach
-                      << " attachment_point " << attachment_point.first << " "
-                      << " current_pos " << current_pos
-                      << " diff-vector: " << bond_vector.x << " " << bond_vector.y
-                      << "  target_length " << target_length
-                      << "  d " << d
-                      << " bond_length_penalty " << bond_length_penalty << std::endl;
+            if (false)
+               std::cout << "bond_vector: attachment " << iprimary << " " << iattach
+                         << " attachment_point " << attachment_point.first << " "
+                         << " current_pos " << current_pos
+                         << " diff-vector: " << bond_vector.x << " " << bond_vector.y
+                         << "  target_length " << target_length
+                         << "  d " << d
+                         << " bond_length_penalty " << bond_length_penalty << std::endl;
 	    score += bond_length_penalty;
 	 }
       }
    }
-   std::cout << "optimise_residue_circles() returning score " << score << std::endl;
+   // std::cout << "optimise_residue_circles() returning score " << score << std::endl;
    return score;
 }
 
@@ -475,7 +516,9 @@ residue_circle_t::get_attachment_points(const svg_molecule_t &mol) const {
             lig_build::pos_t pos =
                mol.get_atom_canvas_position(bonds_to_ligand[i].ligand_atom_name);
             if (bonds_to_ligand[i].is_set()) {
-               std::pair<lig_build::pos_t, double> p(pos, bonds_to_ligand[i].bond_length);
+               double bl = bonds_to_ligand[i].bond_length;
+               double target_dist = bl * 1.5;
+               std::pair<lig_build::pos_t, double> p(pos, target_dist);
                v.push_back(p);
             }
          }
@@ -491,6 +534,7 @@ residue_circle_t::get_attachment_points(const svg_molecule_t &mol) const {
       try {
          lig_build::pos_t pos = mol.get_ring_centre(ligand_ring_atom_names);
          double stacking_dist = 4.5; // A
+         stacking_dist = 6.0; // 20250118-PE tweek this for better looks
          std::pair<lig_build::pos_t, double> p(pos, stacking_dist);
          v.push_back(p);
       }
@@ -510,6 +554,7 @@ residue_circle_t::get_attachment_points(const svg_molecule_t &mol) const {
                                      // short (->crowded) when
                                      // showing 3 cation-pi interactions
                                      // on a alkylated N.
+         stacking_dist = 5.2; // 20250118-PE tweek
 
          lig_build::pos_t pos = mol.get_atom_canvas_position(at_name);
          std::pair<lig_build::pos_t, double> p(pos, stacking_dist);

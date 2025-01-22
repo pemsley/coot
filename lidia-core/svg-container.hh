@@ -71,6 +71,12 @@ public:
       update_bounds(svgc_in.min_x, svgc_in.min_y, svgc_in.max_x, svgc_in.max_y);
    }
 
+   void add_comment(const std::string comment) {
+      svg += "<!-- ";
+      svg += comment;
+      svg += " -->\n";
+   }
+
    std::string compose() const {
 
       std::string s = svg_header_1;

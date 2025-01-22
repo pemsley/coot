@@ -2298,8 +2298,11 @@ short int get_show_aniso();       /*  not a function of the molecule */
 /*! \brief set the aniso atom limit */
 void set_limit_aniso(short int state);
 
-/*! \brief set show aniso atoms */
+/*! \brief does nothing */
 void set_show_aniso(int state);
+
+/*! \brief set show aniso atoms */
+void set_show_aniso_atoms(int imol, int state);
 
 /*! \brief set show aniso atoms as ortep */
 void set_show_aniso_atoms_as_ortep(int imol, int state);
@@ -6539,6 +6542,17 @@ void do_clipped_surface_scm(int imol, SCM residue_specs);
 void do_clipped_surface_py(int imol, PyObject *residue_specs);
 #endif /*  USE_PYTHON */
 #endif	/* __cplusplus */
+
+/*! make molecular surface for given atom selection
+
+    per-chain functions can be added later */
+void make_molecular_surface(int imol, const char *selection_string);
+
+/*! make electrostatics surface for given atom selection
+
+  per-chain functions can be added later */
+void make_electrostatic_surface(int imol, const char *selection_string);
+
 void set_electrostatic_surface_charge_range(float v);
 float get_electrostatic_surface_charge_range();
 

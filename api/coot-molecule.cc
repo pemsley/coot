@@ -277,7 +277,7 @@ coot::molecule_t::write_coordinates(const std::string &file_name) const {
          write_shelx_ins_file(file_name);
       } else {
          if (ext == ".cif") {
-            mmdb::byte bz = mmdb::io::GZM_NONE; // 20221018-PE  this should be used too
+            mmdb::byte bz = mmdb::io::GZM_NONE; // 20221018-PE  this should be used
             err = coot::write_coords_cif(atom_sel.mol, file_name);
          } else {
             mmdb::byte bz = mmdb::io::GZM_NONE; // 20221018-PE  this should be used too
@@ -285,7 +285,7 @@ coot::molecule_t::write_coordinates(const std::string &file_name) const {
          }
       }
    }
-   return err;
+   return err; // the return value of WritePDBASCII() or WriteCIFASCII(). mmdb return type
 }
 
 unsigned int
@@ -2186,6 +2186,38 @@ coot::molecule_t::delete_residue(coot::residue_spec_t &residue_spec) {
 }
 
 int
+coot::molecule_t::delete_residue_atoms_with_alt_conf(coot::residue_spec_t &residue_spec, const std::string &alt_conf) {
+
+   int status = 0;
+   std::vector<mmdb::Atom *> atoms_to_be_deleted;
+
+   mmdb::Residue *residue_p = get_residue(residue_spec);
+   if (residue_p) {
+      mmdb::Atom **residue_atoms = 0;
+      int n_residue_atoms = 0;
+      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (int iat=0; iat<n_residue_atoms; iat++) {
+         mmdb::Atom *at = residue_atoms[iat];
+         std::string al(at->altLoc);
+         if (al == alt_conf)
+            atoms_to_be_deleted.push_back(at);
+      }
+   }
+   bool was_deleted = false;
+   for (auto &at : atoms_to_be_deleted) {
+      delete at;
+      was_deleted = true;
+   }
+   if (was_deleted) {
+      status = true;
+      atom_sel.mol->FinishStructEdit();
+      atom_sel = make_asc(atom_sel.mol);
+   }
+   return status;
+}
+
+
+int
 coot::molecule_t::delete_chain_using_atom_cid(const std::string &cid) {
 
    int done = 0;
@@ -2265,7 +2297,131 @@ coot::molecule_t::delete_literal_using_cid(const std::string &atom_selection_cid
    return status;
 }
 
+#include "geometry/main-chain.hh"
 
+int
+coot::molecule_t::change_alt_locs(const std::string &cid, const std::string &change_mode) {
+
+   auto change_residue_alt_locs = [] (mmdb::Residue *residue_p) {
+      int status = 0;
+      std::vector<mmdb::Atom *> atoms_with_alt_loc_A;
+      std::vector<mmdb::Atom *> atoms_with_alt_loc_B;
+      mmdb::Atom **residue_atoms = 0;
+      int n_residue_atoms = 0;
+      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (int iat=0; iat<n_residue_atoms; iat++) {
+         mmdb::Atom *at = residue_atoms[iat];
+         std::string alt_loc = at->altLoc;
+         if (alt_loc == "A") atoms_with_alt_loc_A.push_back(at);
+         if (alt_loc == "B") atoms_with_alt_loc_B.push_back(at);
+      }
+      for (auto atom : atoms_with_alt_loc_A) strncpy(atom->altLoc, "B", 2);
+      for (auto atom : atoms_with_alt_loc_B) strncpy(atom->altLoc, "A", 2);
+      if (! atoms_with_alt_loc_A.empty()) status = 1;
+      if (! atoms_with_alt_loc_B.empty()) status = 1;
+      return status;
+   };
+
+   auto change_side_chain_alt_locs = [] (mmdb::Residue *residue_p) {
+      int status = 0;
+      std::vector<mmdb::Atom *> atoms_with_alt_loc_A;
+      std::vector<mmdb::Atom *> atoms_with_alt_loc_B;
+      mmdb::Atom **residue_atoms = 0;
+      int n_residue_atoms = 0;
+      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (int iat=0; iat<n_residue_atoms; iat++) {
+         mmdb::Atom *at = residue_atoms[iat];
+         if (is_main_chain_p(at)) {
+         } else {
+            std::string alt_loc = at->altLoc;
+            if (alt_loc == "A") atoms_with_alt_loc_A.push_back(at);
+            if (alt_loc == "B") atoms_with_alt_loc_B.push_back(at);
+         }
+      }
+      for (auto atom : atoms_with_alt_loc_A) strncpy(atom->altLoc, "B", 2);
+      for (auto atom : atoms_with_alt_loc_B) strncpy(atom->altLoc, "A", 2);
+      if (! atoms_with_alt_loc_A.empty()) status = 1;
+      if (! atoms_with_alt_loc_B.empty()) status = 1;
+      return status;
+   };
+
+   auto change_main_chain_alt_locs = [] (mmdb::Residue *residue_p) {
+      int status = 0;
+      std::vector<mmdb::Atom *> atoms_with_alt_loc_A;
+      std::vector<mmdb::Atom *> atoms_with_alt_loc_B;
+      mmdb::Atom **residue_atoms = 0;
+      int n_residue_atoms = 0;
+      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (int iat=0; iat<n_residue_atoms; iat++) {
+         mmdb::Atom *at = residue_atoms[iat];
+         if (is_main_chain_p(at)) {
+            std::string alt_loc = at->altLoc;
+            if (alt_loc == "A") atoms_with_alt_loc_A.push_back(at);
+            if (alt_loc == "B") atoms_with_alt_loc_B.push_back(at);
+         }
+      }
+      for (auto atom : atoms_with_alt_loc_A) strncpy(atom->altLoc, "B", 2);
+      for (auto atom : atoms_with_alt_loc_B) strncpy(atom->altLoc, "A", 2);
+      if (! atoms_with_alt_loc_A.empty()) status = 1;
+      if (! atoms_with_alt_loc_B.empty()) status = 1;
+      return status;
+   };
+
+   auto change_atom_list_alt_locs = [] (mmdb::Residue *residue_p, const std::string &change_mode) {
+      int status = 0;
+      std::vector<std::string> names = util::split_string(change_mode, ",");
+      if (! names.empty()) {
+         for (const auto &n : names) {
+            std::string name = n;
+            // hacky
+            if (n.length() == 3) name = std::string(" ") + n;
+            if (n.length() == 2) name = std::string(" ") + n + std::string(" ");
+            if (n.length() == 1) name = std::string(" ") + n + std::string("  ");
+            mmdb::Atom **residue_atoms = 0;
+            int n_residue_atoms = 0;
+            residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+            for (int iat=0; iat<n_residue_atoms; iat++) {
+               mmdb::Atom *at = residue_atoms[iat];
+               std::string atom_name(at->name);
+               if (atom_name == name) {
+                  std::string alt_loc = at->altLoc;
+                  if (alt_loc == "A") {
+                     strncpy(at->altLoc, "B", 2);
+                     status = 1;
+                  } else {
+                     if (alt_loc == "B") {
+                        strncpy(at->altLoc, "A", 2);
+                        status = 1;
+                     }
+                  }
+               }
+            }
+         }
+      }
+      return status;
+   };
+
+   int status = 0;
+   std::vector<mmdb::Residue *> residues = cid_to_residues(cid);
+   if (! residues.empty()) {
+      for(auto residue : residues) {
+         if (change_mode == "residue") {
+            status = change_residue_alt_locs(residue);
+         } else {
+            if (change_mode == "side-chain") {
+               status = change_side_chain_alt_locs(residue);
+            } else {
+               if (change_mode == "main-chain") {
+                  status = change_main_chain_alt_locs(residue);
+               } else {
+                  status = change_atom_list_alt_locs(residue, change_mode);
+               }
+            }
+         }
+      }
+   }
+   return status;
+}
 
 std::vector<std::string>
 coot::molecule_t::non_standard_residue_types_in_model() const {
@@ -3222,7 +3378,7 @@ coot::molecule_t::remove_TER_internal(mmdb::Residue *res_p) {
 
 
 int
-coot::molecule_t::insert_waters_into_molecule(const coot::minimol::molecule &water_mol) {
+coot::molecule_t::insert_waters_into_molecule(const coot::minimol::molecule &water_mol, const std::string &res_name) {
 
    int istat = 0;  // set to failure initially
 
@@ -3303,7 +3459,7 @@ coot::molecule_t::insert_waters_into_molecule(const coot::minimol::molecule &wat
               ires++) {
             for (unsigned int iatom=0; iatom<water_mol[ifrag][ires].atoms.size(); iatom++) {
                new_residue_p = new mmdb::Residue;
-               new_residue_p->SetResName("HOH");
+               new_residue_p->SetResName(res_name.c_str());
                new_residue_p->seqNum = prev_max_resno + 1 + water_count;
                water_count++;
                bf = water_mol[ifrag][ires][iatom].temperature_factor;
@@ -4419,8 +4575,14 @@ coot::molecule_t::export_model_molecule_as_gltf(const std::string &mode,
                                                 bool draw_hydrogen_atoms_flag, bool draw_missing_residue_loops,
                                                 const std::string &file_name) {
 
+   bool show_atoms_as_aniso_flag = true;
+   bool show_aniso_atoms_as_ortep_flag = false; // pass these
+
    instanced_mesh_t im = get_bonds_mesh_for_selection_instanced(mode, selection_cid, geom, against_a_dark_background,
-                                                                bonds_width, atom_radius_to_bond_width_ratio, smoothness_factor,
+                                                                bonds_width, atom_radius_to_bond_width_ratio,
+                                                                show_atoms_as_aniso_flag,
+                                                                show_aniso_atoms_as_ortep_flag,
+                                                                smoothness_factor,
                                                                 draw_hydrogen_atoms_flag, draw_missing_residue_loops);
 
    coot::simple_mesh_t sm = coot::instanced_mesh_to_simple_mesh(im);
@@ -4850,3 +5012,136 @@ coot::molecule_t::get_residue_sidechain_average_position(const std::string &cid)
    return v;
 }
 
+
+//! set occupancy
+//!
+//! set the occupancy for the given atom selection
+//!
+//! @param imol is the model molecule index
+//! @param cod is the atom selection CID
+void
+coot::molecule_t::set_occupancy(const std::string &cid, float occ_new) {
+
+   int selHnd = atom_sel.mol->NewSelection(); // d
+   mmdb::Atom **SelAtoms = nullptr;
+   int nSelAtoms = 0;
+   atom_sel.mol->Select(selHnd, mmdb::STYPE_ATOM, cid.c_str(), mmdb::SKEY_NEW);
+   atom_sel.mol->GetSelIndex(selHnd, SelAtoms, nSelAtoms);
+
+   for (int i=0; i<nSelAtoms; i++) {
+      mmdb:: Atom *at = SelAtoms[i];
+      if (! at->isTer()) {
+         at->occupancy = occ_new;
+      }
+   }
+   atom_sel.mol->DeleteSelection(selHnd);
+}
+
+
+std::vector<std::pair<std::string, std::string> >
+coot::molecule_t::get_sequence_info() const {
+
+   std::vector<std::pair<std::string, std::string> > v;
+   return v;
+
+}
+
+#include <mmdb2/mmdb_math_align.h>
+#include <mmdb2/mmdb_tables.h>
+#include "coot-utils/coot-align.hh"
+
+//! return the mismatches/mutations:
+coot::chain_mutation_info_container_t
+coot::molecule_t::get_mutation_info() const {
+
+   auto get_chain_sequence = [] (mmdb::Chain *chain_p,
+                                 mmdb::Residue **selResidues,
+                                 int nSelResidues) {
+      std::string s;
+      for (int ires=0; ires<nSelResidues; ires++) {
+         mmdb::Residue *residue_p = selResidues[ires];
+         char r[10];
+         if (residue_p) {
+            auto rn = residue_p->GetResName();
+            mmdb::Get1LetterCode(rn, r);
+            s += r;
+         }
+      }
+      return s;
+   };
+
+   auto align_on_chain = [get_chain_sequence] (mmdb::Chain *chain_p,
+                                               mmdb::PResidue *SelResidues,
+                                               int nSelResidues,
+                                               const std::string &target) {
+
+      chain_mutation_info_container_t ch_info(chain_p->GetChainID());
+      std::string model = get_chain_sequence(chain_p, SelResidues, nSelResidues);
+      mmdb::math::Alignment align;
+      mmdb::realtype wgap = 0.0;
+      mmdb::realtype wspace = -1.0;
+      std::string stripped_target = util::remove_whitespace(target);
+      align.Align(model.c_str(), stripped_target.c_str());
+      std::string s = align.GetAlignedS();
+      std::string t = align.GetAlignedT();
+      std::cout << "model:  " << s << std::endl;
+      std::cout << "target: " << t << std::endl;
+      std::cout << "score:  " << align.GetScore() << std::endl;
+      if (s.length() == t.length()) {
+	 std::vector<int> resno_offsets(s.length(), 0);
+	 for (unsigned int ires=0; ires<s.length(); ires++) {
+	    if (s[ires] != t[ires]) {
+	       // Case 1: simple mutation:
+	       if (s[ires] != '-' && t[ires] != '-') {
+		  std::string target_type = coot::util::single_letter_to_3_letter_code(t[ires]);
+		  residue_spec_t res_spec(ires);
+		  ch_info.add_mutation(res_spec, target_type);
+	       }
+
+	       // Case 2: model has an insertion
+	       if (s[ires] != '-' && t[ires] == '-') {
+		  for (unsigned int i=ires+1; i<s.length(); i++)
+		     resno_offsets[i] -= 1;
+		  residue_spec_t res_spec(ires);
+		  ch_info.add_deletion(res_spec);
+	       }
+
+	       // Case 3: model has a deletion
+	       if (s[ires] == '-' && t[ires] != '-') {
+		  for (unsigned int i=ires+1; i<s.length(); i++)
+		     resno_offsets[i] += 1;
+		  residue_spec_t res_spec(ires);
+		  std::string target_type = coot::util::single_letter_to_3_letter_code(t[ires]);
+		  ch_info.add_insertion(res_spec, target_type);
+	       }
+	    }
+         }
+      }
+      ch_info.rationalize_insertions();
+      return ch_info;
+   };
+
+   chain_mutation_info_container_t ch_info;
+
+   int imod = 1;
+   mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+   if (model_p) {
+      int n_chains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<n_chains; ichain++) {
+	 mmdb::Chain *chain_p = model_p->GetChain(ichain);
+	 std::string chain_id(chain_p->GetChainID());
+	 std::pair<bool, std::string> target_pair = multi_fasta_seq.get_fasta_for_name(chain_id);
+	 if (target_pair.first) {
+	    std::string target = target_pair.second;
+	    if (! target.empty()) {
+	       int n_res = chain_p->GetNumberOfResidues();
+	       mmdb::Residue **chain_residues = 0;
+	       chain_p->GetResidueTable(chain_residues, n_res);
+	       ch_info = align_on_chain(chain_p, chain_residues, n_res, target);
+	    }
+	 }
+      }
+   }
+
+   return ch_info;
+}

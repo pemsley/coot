@@ -2138,7 +2138,7 @@ coot::restraints_container_t::make_header_metal_links_ng(const coot::protein_geo
          }
       }
    }
-   std::cout << "------------------------- done make_header_metal_links_ng() " << std::endl;
+   // std::cout << "------------------------- done make_header_metal_links_ng() " << std::endl;
 }
 
 
@@ -2349,7 +2349,7 @@ coot::restraints_container_t::make_link_restraints_ng(const coot::protein_geomet
 
    auto tp_2 = std::chrono::high_resolution_clock::now();
 
-   std::cout << "debug:: calling make_other_types_of_link() with links size " << links.size() << std::endl;
+   // std::cout << "debug:: calling make_other_types_of_link() with links size " << links.size() << std::endl;
 
    link_restraints_counts others = make_other_types_of_link(geom, *residue_link_vector_map_p, *residue_pair_link_set_p);
 

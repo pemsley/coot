@@ -432,6 +432,10 @@ coot::protein_geometry::get_h_bond_type(const std::string &te) const {
    std::map<std::string, energy_lib_atom>::const_iterator it = energy_lib.atom_map.find(te);
    if (it != energy_lib.atom_map.end()) {
       hb_type = it->second.hb_type;
+   } else {
+      if (false)
+         std::cout << "in get_h_bond_type() " << te << " not found in energy_lib atom map"
+                   << std::endl;
    }
    return hb_type;
 }
@@ -442,8 +446,10 @@ coot::protein_geometry::get_h_bond_type(const std::string &atom_name,
 					int imol_enc) const {
 
    if (false)
-      std::cout << "debug:: get_h_bond_type() called with " << monomer_name << " " << imol_enc << " " << atom_name << std::endl;
+      std::cout << "debug:: get_h_bond_type() called with " << monomer_name << " "
+                << imol_enc << " " << atom_name << std::endl;
 
+   // NR5?
    bool debug = false;  // before debugging this, is ener_lib.cif being
 		        // read correctly?
 
@@ -452,7 +458,7 @@ coot::protein_geometry::get_h_bond_type(const std::string &atom_name,
    // std::cout << thing << " " << *thing << std::endl;
 
    // this is heavy!
-   // 
+   //
    std::pair<bool, dictionary_residue_restraints_t> r =
       get_monomer_restraints(monomer_name, imol_enc);
 
@@ -496,13 +502,13 @@ coot::protein_geometry::get_h_bond_type(const std::string &atom_name,
 	    break;
 	 }
       }
-   } 
+   }
 
    if (debug)
       if (hb_type == HB_UNASSIGNED)
 	 std::cout << " failed to get_h_bond_type for " << atom_name << " in " << monomer_name
 		   << std::endl;
-	 
+
    return hb_type;
 
 }

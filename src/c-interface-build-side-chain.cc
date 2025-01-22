@@ -692,6 +692,17 @@ void show_keyboard_mutate_dialog() {
 }
 
 
+//! mutate by overlap - 20241211-PE welcome into Coot at long last.
+int mutate_by_overlap(int imol, const std::string &chain_id, int res_no, const std::string &new_type) {
+
+   int status = 0;
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      status = g.molecules[imol].mutate_by_overlap(chain_id, res_no, new_type);
+   }
+   return status;
+}
+
 
 // return success on residue type match
 // success: 1, failure: 0.
@@ -712,12 +723,12 @@ mutate_internal(int ires_serial, const char *chain_id, int imol, std::string &ta
 
 // causes a make_backup()
 int
-mutate(int imol, const char *chain_id, int ires, const char *inscode,  const char *target_res_type) { 
+mutate(int imol, const char *chain_id, int ires, const char *inscode,  const char *target_res_type) {
 
    int istate = 0;
    std::string target_type(target_res_type);
 
-   if (is_valid_model_molecule(imol)) { 
+   if (is_valid_model_molecule(imol)) {
       istate = graphics_info_t::molecules[imol].mutate(ires, inscode, std::string(chain_id), std::string(target_res_type));
       graphics_info_t g;
       g.update_validation(imol);
@@ -731,7 +742,7 @@ mutate(int imol, const char *chain_id, int ires, const char *inscode,  const cha
    args.push_back(coot::util::single_quote(inscode));
    args.push_back(coot::util::single_quote(target_res_type));
    add_to_history_typed(cmd, args);
-   
+
    return istate;
 }
 

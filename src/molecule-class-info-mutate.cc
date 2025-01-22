@@ -1087,6 +1087,56 @@ molecule_class_info_t::find_terminal_residue_type(const std::string &chain_id, i
    return std::pair<bool, std::string> (found, type);
 }
 
+int
+molecule_class_info_t::mutate_by_overlap(const std::string &chain_id, int res_no, const std::string &new_type) {
+
+   int status = 0;
+   graphics_info_t g;
+   mmdb::Residue *residue_p = get_residue(coot::residue_spec_t(chain_id, res_no, ""));
+
+   if (residue_p) {
+      std::string current_residue_type = residue_p->GetResName();
+      g.Geom_p()->check_and_try_dynamic_add(current_residue_type, imol_no, g.cif_dictionary_read_number);
+      g.cif_dictionary_read_number++;
+      std::pair<bool, coot::dictionary_residue_restraints_t> rp_current =
+         g.Geom_p()->get_monomer_restraints(current_residue_type, imol_no);
+      if (rp_current.first) {
+         mmdb::Manager *mol = g.molecules[imol_no].atom_sel.mol;
+         const auto &restraints_current_type = rp_current.second;
+
+         g.Geom_p()->check_and_try_dynamic_add(new_type, imol_no, g.cif_dictionary_read_number);
+         g.cif_dictionary_read_number++;
+         std::pair<bool, coot::dictionary_residue_restraints_t> rp_new_type =
+            g.Geom_p()->get_monomer_restraints(new_type, imol_no);
+         if (rp_new_type.first) {
+            const auto &restraints_new_type = rp_new_type.second;
+
+            mmdb::Residue *restraints_new_type_residue_p = restraints_new_type.GetResidue(false, 10.0f);
+
+            if (restraints_new_type_residue_p) {
+
+               status = coot::util::mutate_by_overlap(residue_p, mol, restraints_current_type, restraints_new_type);
+               atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
+               atom_sel.mol->FinishStructEdit();
+               atom_sel.regen_atom_selection();
+               make_bonds_type_checked();
+
+               if (status == 0)
+                  graphics_info_t::log.log(logging::WARNING, "mutate_by_overlap() failed");
+            } else {
+               std::string m = "mutate_by_overlap() restraints_new_type_residue_p was null";
+               graphics_info_t::log.log(logging::WARNING, m);
+            }
+         } else {
+            std::string m = "failed to get restraints for " + new_type;
+            graphics_info_t::log.log(logging::WARNING, logging::function_name_t(__FUNCTION__), m);
+         }
+      }
+   }
+   return status;
+}
+
+
 
 // Here is something that does DNA/RNA
 int

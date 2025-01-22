@@ -62,33 +62,40 @@
 // return 0 on success
 #ifdef USE_LIBCURL
 int coot_get_url(const std::string &url, const std::string  &file_name) {
+
    std::optional<ProgressNotifier> notifier = std::nullopt;
    return coot_get_url_and_activate_curl_hook(url, file_name, 0, notifier);
 }
-int coot_get_url_with_notifier(const std::string &url, const std::string  &file_name, std::optional<ProgressNotifier> notifier) {
+
+int coot_get_url_with_notifier(const std::string &url,
+                               const std::string  &file_name,
+                               std::optional<ProgressNotifier> notifier) {
+
    return coot_get_url_and_activate_curl_hook(url, file_name, 0, notifier);
 }
 #endif /* USE_LIBCURL */
 
 
 #ifdef USE_LIBCURL
-
 int coot_curl_progress_callback(void *clientp,
-   curl_off_t dltotal,
-   curl_off_t dlnow,
-   curl_off_t ultotal,
-   curl_off_t ulnow) {
-      ProgressNotifier* notifier_ptr = (ProgressNotifier*)(clientp);
-      if(dltotal == 0) {
-         dltotal++;
-      }
-      g_debug("Inside coot_curl_progress_callback(); dlnow=%li, dltotal=%li", dlnow, dltotal);
-      notifier_ptr->update_progress((float)dlnow/(float)dltotal);
-      return 0;
+                                curl_off_t dltotal,
+                                curl_off_t dlnow,
+                                curl_off_t ultotal,
+                                curl_off_t ulnow) {
+
+   ProgressNotifier* notifier_ptr = (ProgressNotifier*)(clientp);
+   if(dltotal == 0) {
+      dltotal++;
+   }
+   g_debug("Inside coot_curl_progress_callback(); dlnow=%li, dltotal=%li", dlnow, dltotal);
+   notifier_ptr->update_progress((float)dlnow/(float)dltotal);
+   return 0;
 }
 
-int coot_get_url_and_activate_curl_hook(const std::string &url, const std::string &file_name,
-					short int activate_curl_hook_flag, std::optional<ProgressNotifier> notifier) {
+int coot_get_url_and_activate_curl_hook(const std::string &url,
+                                        const std::string &file_name,
+					short int activate_curl_hook_flag,
+                                        std::optional<ProgressNotifier> notifier) {
 
    std::cout << "DEBUG:: in coot_get_url_and_activate_curl_hook "
 	     << url << " " << file_name << std::endl;
@@ -103,6 +110,16 @@ int coot_get_url_and_activate_curl_hook(const std::string &url, const std::strin
    // long-lived function to that.
    //
    // Thanks to Andy Wingo for help here.
+
+
+   auto is_html = [] (const std::string &file_name) {
+	 std::ifstream f(file_name.c_str());
+	 std::string line;
+	 std::getline(f, line);
+         if (line.find("html") != std::string::npos)
+            return true;
+         return false;
+   };
 
    // write binary
    FILE *f = fopen(file_name.c_str(), "wb");
@@ -143,6 +160,9 @@ int coot_get_url_and_activate_curl_hook(const std::string &url, const std::strin
       }
       std::pair <CURL *, std::string> p(c,file_name);
       CURLcode success = CURLcode(-1);
+
+      std::cout << "debug:: here in coot_get_url_and_activate_curl_hook() with activate_curl_hook_flag "
+                << activate_curl_hook_flag << std::endl;
       if (activate_curl_hook_flag) {
 	 graphics_info_t g;
 	 g.add_curl_handle_and_file_name(p);
@@ -160,7 +180,13 @@ int coot_get_url_and_activate_curl_hook(const std::string &url, const std::strin
 	 g.remove_curl_handle_with_file_name(file_name);
       } else {
 	 success = curl_easy_perform(c);
-         // std::cout << "coot_get_url_and_activate_curl_hook() here with status " << success << std::endl;
+         if (coot::file_exists(file_name)) {
+            if (is_html(file_name)) {
+               success = CURLcode(23); // CURL write error (say)
+            }
+         } else {
+            success = CURLcode(23); // CURL write error (say)
+         }
       }
 
       fclose(f);
@@ -186,7 +212,7 @@ std::string coot_get_url_as_string_internal(const char *url) {
    std::string s;
 
    // Wikipedia wants a user-agent
-   // 
+   //
    std::string user_agent = PACKAGE;
    user_agent += " ";
    user_agent += VERSION;

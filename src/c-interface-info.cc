@@ -1293,7 +1293,8 @@ PyObject *residue_info_py(int imol, const char* chain_id, int resno, const char 
                         int idx = -1;
                         int ierr = at->GetUDData(udd_handle, idx);
                         if (ierr != mmdb::UDDATA_Ok) {
-                           std::cout << "WARNING:: error getting uddata for atom " << at << std::endl;
+                           std::cout << "WARNING:: residue_info_py(): error getting uddata for atom "
+                                     << at << std::endl;
                            idx = -1; // maybe not needed
                         }
                         PyObject *atom_idx_py = PyLong_FromLong(idx);
@@ -3756,10 +3757,12 @@ PyObject *cif_file_for_comp_id_py(const std::string &comp_id) {
 // can throw and std::runtime_error exception
 std::string SMILES_for_comp_id(const std::string &comp_id) {
 
+   int imol_enc = coot::protein_geometry::IMOL_ENC_ANY; // pass this?
+
    graphics_info_t g;
    std::string s;
    try {
-      s = g.Geom_p()->Get_SMILES_for_comp_id(comp_id); // can throw
+      s = g.Geom_p()->Get_SMILES_for_comp_id(comp_id, imol_enc); // can throw
    }
    catch (const std::runtime_error &e) {
       std::cout << "WARNING::" << e.what() << std::endl;
