@@ -1413,8 +1413,8 @@ on_sharpen_blur_map_ok_button_clicked(G_GNUC_UNUSED GtkButton       *button,
       gtk_widget_set_visible(frame, FALSE);
 
 }
-extern "C" G_MODULE_EXPORT
 
+extern "C" G_MODULE_EXPORT
 void
 on_sharpen_blur_map_cancel_button_clicked(G_GNUC_UNUSED GtkButton       *button,
                                           G_GNUC_UNUSED gpointer         user_data) {
@@ -1442,3 +1442,31 @@ on_sharpen_blur_map_resample_checkbutton_toggled(GtkCheckButton *checkbutton,
    }
 }
 
+
+extern "C" G_MODULE_EXPORT
+void
+on_ccp4i2_save_button_clicked(G_GNUC_UNUSED GtkButton       *button,
+                              G_GNUC_UNUSED gpointer         user_data) {
+
+   auto get_first_model_molecule = [] () {
+      graphics_info_t g;
+      int imol = -1;
+      int n_mol = g.molecules.size();
+      for (int ii=0; ii<n_mol; ii++) {
+         if (is_valid_model_molecule(ii))
+            return ii;
+      }
+      return imol;
+   };
+
+   int imol = get_first_model_molecule();
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      std::filesystem::path save_dir("coot-ccp4i2");
+      if (! std::filesystem::exists(save_dir))
+         std::filesystem::create_directory(save_dir);
+      std::string s = g.molecules[imol].stripped_save_name_suggestion();
+      std::filesystem::path fn = save_dir / s;
+      g.molecules[imol].save_coordinates(fn);
+   }
+}
