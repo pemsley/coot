@@ -2,34 +2,38 @@
 
 Surface display is missing a shader?
 
-Catch RDKit::AtomValenceException in delete_non_polar_hydrogens
-
-MM: Try harder to get the NCS jumping matrix correct.
-
 How do I open a .ccp4 map?
+
+1.1.12: Oli's Rama bug.
+
+get_atom() and get_residue() would be nice in chapi.
+Needs to make a chapi version of an mmdb atom I think.
+Post-release.
+
+on delete hydrogen atoms on a non-sane molecule throws an exception.
+Catch RDKit::AtomValenceException in delete_non_polar_hydrogens
+* Done.
 
 When getting files from EDS:
 this directory did not exist:
 /home/martin/.cache/Coot/coot-download/
+* Done.
 
-Try downloading 8aq8 from EDS. There is no .ent file.
-So, if the download of the .ent file files, try .cif.
-
-get_atom() and get_residue() would be nice in chapi.
-Needs to make a chapi version of an mmdb atom I think.
-
-Have another look at the orientation matrix on ncs jumping.
-
-Add a commit and version to chapi
-
-Look at 2vtq add Hydrogen atoms and look for O16 on the ligand.
-Why is there not a hydrogen bond dots to the water?
-Also O8.
+Add a "Save to CCP4i2 button which saves the first model into a "ccp4i2-coot-save" directory.
+* Done.
 
 1.1.12 make svg molecule work again (pli need not work). Test wedge bonds.
 
 1.1.12: Untangle the disulfide refinement in the untangle challenge file from Eleanor.
 * Can't reproduce
+
+MM: Try harder to get the NCS jumping matrix correct.
+* Tried. Failed.
+
+Look at 2vtq add Hydrogen atoms and look for O16 on the ligand.
+Why is there not a hydrogen bond dots to the water?
+Also O8.
+* Done. Missed  h_bond_info_t::is_h_bond_donor_and_acceptor case
 
 --code 2vtq doesn't work - it should load the cached files
 * Done.
