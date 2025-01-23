@@ -56,13 +56,22 @@ int main(int argc, char** argv) {
         auto *win = coot::layla::setup_main_window(app, builder);
 
         auto* icon_theme = gtk_icon_theme_get_for_display(gtk_widget_get_display(GTK_WIDGET(win)));
+        gboolean dark_mode_flag = FALSE;
+        g_object_get(gtk_settings_get_default(), "gtk-application-prefer-dark-theme", &dark_mode_flag, NULL);
 
         std::string package_dir = coot::package_data_dir();
         std::string prefix_dir = coot::prefix_dir();
         std::string pixmaps_path_for_icons = coot::util::append_dir_dir(package_dir, "pixmaps");
+        if(dark_mode_flag) {
+            g_info("Enabling dark theme icons.");
+            pixmaps_path_for_icons = coot::util::append_dir_dir(pixmaps_path_for_icons, "dark");
+        } else {
+            g_info("Not using dark theme icons.");
+        }
         std::string prefix_main_path_for_icons = coot::util::append_dir_dir(prefix_dir, "share");
         prefix_main_path_for_icons = coot::util::append_dir_dir(prefix_main_path_for_icons, "icons");
         gtk_icon_theme_add_search_path(icon_theme, pixmaps_path_for_icons.c_str());
+        g_info("Appended icon theme search path: %s", pixmaps_path_for_icons.c_str());
         gtk_icon_theme_add_search_path(icon_theme, prefix_main_path_for_icons.c_str());
 
         coot::layla::global_generator_request_task_cancellable = nullptr;
