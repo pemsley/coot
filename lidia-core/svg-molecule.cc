@@ -754,7 +754,7 @@ svg_atom_t::make_text_item(const lig_build::atom_id_info_t &atom_id_info,
       // should these positions depend on the median_bond_length_?
 
       if (atom_id_info[i].text_pos_offset == lig_build::offset_text_t::UP)
-	 p.y += 0.42 * scale * median_bond_length; // was 0.4 // was 0.36
+	 p.y += 0.45 * scale * median_bond_length; // was 0.4 // was 0.36
       if (atom_id_info[i].text_pos_offset == lig_build::offset_text_t::DOWN)
 	 p.y -= 0.4 * scale * median_bond_length; // was 0.36
 
@@ -810,7 +810,7 @@ svg_atom_t::make_text_item(const lig_build::atom_id_info_t &atom_id_info,
             double y_fudge = 0.20;
 
             // these were adjusted by eye, previously fs was just 0.8;
-            double fs = 0.07; // 20250121-PE was 0.04;
+            double fs = 0.055; // 0.07 is too big // 20250121-PE was 0.04;
 
             // if (fs < 0.7) fs = 0.7;
 
