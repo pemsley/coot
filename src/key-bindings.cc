@@ -52,7 +52,7 @@ key_bindings_t::run() const {
 
       if (function_py) {
          PyObject *arg_list = PyTuple_New(0);
-         PyObject *result_py = PyEval_CallObject(function_py, arg_list);
+         PyObject *result_py = PyObject_CallObject(function_py, arg_list);
          if (result_py == NULL) {
             std::cout << "result_py was null" << std::endl;
             if (PyErr_Occurred())
