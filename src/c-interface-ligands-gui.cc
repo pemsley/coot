@@ -1361,3 +1361,16 @@ PyObject *get_ligand_distortion_summary_info_py(int imol, PyObject *residue_spec
 }
 #endif
 
+void
+show_acedrg_link_interface_overlay() {
+
+   GtkWidget *w = widget_from_builder("acedrg_link_interface_frame");
+   gtk_widget_set_visible(w, TRUE);
+
+   // This doesn't work and it's too much effort to get right
+   // GtkWidget *frame_1 = widget_from_builder("acedrg_link_bond_order_frame");
+   // GtkStyleContext *sc = gtk_widget_get_style_context(frame_1);
+   // std::cout << "gtk_style_context_add_class to " << sc << std::endl;
+   // gtk_style_context_add_class(sc, "bold");
+
+}

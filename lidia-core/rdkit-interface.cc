@@ -2531,13 +2531,13 @@ coot::remove_Hs_and_clean(const RDKit::ROMol &rdkm, bool set_aromaticity) {
    rdk_mol_with_no_Hs.updatePropertyCache();
 
    RDKit::MolOps::assignRadicals(rdk_mol_with_no_Hs);
-	    
+
    if (set_aromaticity)
       RDKit::MolOps::setAromaticity(rdk_mol_with_no_Hs);
-    
+
    // set conjugation
    RDKit::MolOps::setConjugation(rdk_mol_with_no_Hs);
-	       
+
    // set hybridization
    RDKit::MolOps::setHybridization(rdk_mol_with_no_Hs); // non-linear ester bonds, yay!
 

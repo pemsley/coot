@@ -52,6 +52,48 @@
 
 #include "lbg-graph.hh"
 
+void
+coot::protein_geometry::set_only_bonds(int dict_idx) {
+
+   if (dict_idx != -1) {
+      int drr_size = dict_res_restraints.size(); // type change
+      if (dict_idx < drr_size) {
+         dictionary_residue_restraints_t &dict = dict_res_restraints[dict_idx].second;
+         std::map<std::string, std::vector<std::pair<unsigned int, std::string> > > atom_name_map;
+         for (unsigned int i=0; i<dict.bond_restraint.size(); i++) {
+            const auto &bond = dict.bond_restraint[i];
+            if (bond.type() == "single") {
+               const std::string &atom_name_1 = bond.atom_id_1();
+               const std::string &atom_name_2 = bond.atom_id_2();
+               bool is_H_1 = dict.is_hydrogen(atom_name_1);
+               bool is_H_2 = dict.is_hydrogen(atom_name_2);
+               if (! is_H_1 && !is_H_2) {
+                  std::pair<unsigned int, std::string> p1(i, "first");
+                  std::pair<unsigned int, std::string> p2(i, "second");
+                  atom_name_map[bond.atom_id_1()].push_back(p1);
+                  atom_name_map[bond.atom_id_2()].push_back(p2);
+               }
+            }
+         }
+         std::map<std::string, std::vector<std::pair<unsigned int, std::string> > >::const_iterator it;
+         for (it=atom_name_map.begin(); it!=atom_name_map.end(); ++it) {
+            const std::vector<std::pair<unsigned int, std::string> > &v = it->second;
+            if (v.size() == 1) {
+               const auto &atom_name = it->first;
+               unsigned int bond_index = v[0].first;
+               const std::string &pos  = v[0].second;
+               dict.bond_restraint[bond_index].set_only_bond(pos, true);
+               if (false)
+                  std::cout << "debug:: set_only_bond() in " << dict.residue_info.comp_id
+                            << " atom " << atom_name << " " << pos
+                            << " " << dict.bond_restraint[bond_index].type()
+                            << " has only one non-Hydrogen bond" << std::endl;
+            }
+         }
+      }
+   }
+}
+
 // return the number of atoms read (not the number of bonds (because
 // that is not a good measure of having read the file properly for
 // (for example) CL)).
@@ -195,7 +237,6 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 
                mmdb::mmcif::PLoop mmCIFLoop = data->GetLoop(cat_name.c_str() );
 
-               int n_loop_time = 0;
                if (mmCIFLoop == NULL) {
 
                   bool handled = false;
@@ -257,7 +298,6 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 
                } else {
 
-                  n_loop_time++;
 
                   // We currently want to stop adding chem comp info
                   // if the chem_comp info comes from mon_lib_list.cif:
@@ -291,7 +331,7 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 
                   // chiral
                   if (cat_name == "_chem_comp_chir") {
-                     std::pair<int, std::vector<std::string> > chirals = 
+                     std::pair<int, std::vector<std::string> > chirals =
                         comp_chiral(mmCIFLoop, imol_enc);
                      n_chiral += chirals.first;
                      for (unsigned int ichir=0; ichir<chirals.second.size(); ichir++)
@@ -347,6 +387,8 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
    } // is regular file test
 
    // debug_mods();
+
+   set_only_bonds(rmit.monomer_idx);
 
    if (comp_ids.size() > 0)
       rmit.comp_id = comp_ids[0];

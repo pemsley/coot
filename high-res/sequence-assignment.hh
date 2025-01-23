@@ -42,13 +42,15 @@ namespace coot {
    // structure (poly-ala) but no assigned sequence - they refer to
    // the structure.
    // 
-   class residue_range_t {
+   // 20241227-PE change the name of this class to distinguish it
+   // from the new class of the same name used for missing loops
+   class high_res_residue_range_t {
    public:
       std::string chain_id;
       int chain_id_index;
       int start_resno;
       int end_resno; // inclusive
-      residue_range_t(const std::string &chain_id_in,
+      high_res_residue_range_t(const std::string &chain_id_in,
 		      int start_resno_in,
 		      int end_resno_in) : chain_id(chain_id_in) {
 	 start_resno = start_resno_in;
@@ -58,7 +60,7 @@ namespace coot {
       int length() const { return end_resno - start_resno + 1; }
    };
 
-   namespace sequence_assignment { 
+   namespace sequence_assignment {
 
       enum side_chain_name_index { GLY, ALA, SER, VAL, THR, PRO, ASN, ASP, CYS,
 				   GLN, GLU, HIS, ILE, LEU, LYS, MET, PHE, TYR,
@@ -183,7 +185,7 @@ namespace coot {
 				  mmdb::Residue *res) const;
 
 	 // not const because it adds UDD data to mol
-	 std::vector<residue_range_t> find_unassigned_regions(float pr_cut);
+	 std::vector<high_res_residue_range_t> find_unassigned_regions(float pr_cut);
 	 int udd_assigned_handle; // the UDD handle
 
 	 // Find unassigned bits of the sequences that are long enough
@@ -192,7 +194,7 @@ namespace coot {
 	 // returned sequences: 1 to 39 and 51 to 100.
 	 // 
 	 std::vector<sequence_range_t>
-	 find_unassigned_sequence(const residue_range_t &a_residue_range) const;
+	 find_unassigned_sequence(const high_res_residue_range_t &a_residue_range) const;
 	 // And here is how we mark them up initially when we get them:
 	 // (notice that we can also pass a critical value (0.0->1.0) below
 	 // which the residues are considered unassigned.  Typical value of

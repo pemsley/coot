@@ -675,7 +675,7 @@ class graphics_info_t {
    std::string state_command(const std::string &name_space, const std::string &str,                 short int state_lang) const;
    std::string state_command(const std::string &name_space, const std::string &str, int i,          short int state_lang) const;
    std::string state_command(const std::string &name_space, const std::string &str, int i1, int i2, short int state_lang) const;
-   std::string state_command(const std::string &str, float f,        short int state_lang) const;
+   std::string state_command(const std::string &name_space, const std::string &str, float f,        short int state_lang) const;
    std::string state_command(const std::string &str, float f,        short int state_lang, short unsigned int v) const;
    std::string state_command(const std::string &name_space, const std::string &str, float f1, float f2, float f3, short int state_lang) const;
    std::string state_command(const std::string &name_space, const std::string &str, const std::string &str2, short int state_lang);
@@ -978,9 +978,11 @@ public:
    void init();
    void setup_key_bindings();
 
+   static bool graphics_is_gl_es; // can we make a fallback coot where this is true?
+
    static bool use_gemmi;
    void set_use_gemmi(bool state) { use_gemmi = state; }
-   logging log;
+   static logging log;
 
    static bool coot_is_a_python_module; //turned off in main()
    static bool prefer_python;
@@ -1633,7 +1635,9 @@ public:
    static bool auto_recontour_map_flag;
 
    //
-   static float rotation_centre_cube_size;
+   static float rotation_centre_cube_size; // cross-hair
+   static glm::vec4 rotation_centre_cross_hairs_colour;
+   void set_rotation_centre_cross_hairs_colour(const glm::vec4 &c) { rotation_centre_cross_hairs_colour = c; }
 
    static void Increment_Frames() {
       Frames++;
@@ -4782,6 +4786,9 @@ string   static std::string sessionid;
    bool init_shader(const std::string &shader_file_name);
    void init_framebuffers(unsigned int width, unsigned int height);// 20220129-PE a crows thing
 
+   static int scale_up_graphics;    // default 1
+   static int scale_down_graphics;  // default 1
+
    // draw-2 functions
    void init_screen_quads();
    void init_blur_quads();
@@ -5423,6 +5430,8 @@ string   static std::string sessionid;
 
    static std::pair<bool, std::string> servalcat_fofc;
    static std::pair<bool, std::string> servalcat_refine; // output "pdb" file name
+
+   static std::pair<bool, std::string> acedrg_link;
 
    static bool curmudgeon_mode; // default false, particles and faces
    static bool use_sounds; // default true

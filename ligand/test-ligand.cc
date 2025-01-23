@@ -75,7 +75,7 @@ compare_by_overlap(std::string chain_id, int resno, mmdb::Manager *mol1, mmdb::M
    std::vector<coot::lsq_range_match_info_t> matches;
    matches.push_back(coot::lsq_range_match_info_t(resno, resno, chain_id,
 						  resno, resno, chain_id,
-						  COOT_LSQ_ALL));
+						  coot::lsq_t::ALL));
 
    std::pair<short int, clipper::RTop_orth> p = coot::util::get_lsq_matrix(mol1, mol2, matches, 1);
 

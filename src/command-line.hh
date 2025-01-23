@@ -30,7 +30,7 @@
 #include <string>
 #include <vector>
 
-class command_line_data { 
+class command_line_data {
 
 public:
    std::vector<std::string> coords;
@@ -45,6 +45,7 @@ public:
    std::vector<std::string> emdb_codes;
    std::vector<std::string> comp_ids;
    short int hardware_stereo_flag;
+   bool use_opengl_es;
    bool script_is_python_flag;
    int port;
    std::string hostname;
@@ -56,11 +57,12 @@ public:
    bool disable_state_script_writing;
    bool use_splash_screen;
    bool update_self;
-   std::string alternate_splash_screen_file_name; 
+   std::string alternate_splash_screen_file_name;
    bool run_internal_tests_and_exit;
    bool em_mode;
    bool use_gtkbuilder;
-   command_line_data() { 
+   bool show_ccp4i2_save_button;
+   command_line_data() {
      hardware_stereo_flag = 0; // default off
      port = 0;
      try_listener = 0;
@@ -74,6 +76,8 @@ public:
      run_internal_tests_and_exit = 0;
      em_mode = false;
      use_gtkbuilder = true;
+     use_opengl_es = false;
+     show_ccp4i2_save_button = false;
    }
    void handle_immediate_settings();
    void add(const std::string &file); // determine where it goes based on extension and contents
@@ -82,13 +86,13 @@ public:
 
 
 command_line_data
-parse_command_line(int argc, char ** argv ); 
+parse_command_line(int argc, char ** argv );
 
 
 #ifdef __cplusplus
 extern "C"
 #endif
-void 
-handle_command_line_data(command_line_data cld); 
+void
+handle_command_line_data(command_line_data cld);
 
 #endif // COMMAND_LINE_HH

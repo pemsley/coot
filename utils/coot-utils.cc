@@ -58,7 +58,7 @@
 
 #include "coot-utils.hh"
 
-// bellow function sets this:
+// below function sets this:
 static std::string real_path_for_coot_executable;
 
 //! do this on startup
@@ -975,12 +975,13 @@ coot::package_data_dir() {
       // using set_realpath_for_coot_executable())
       // std::cout << "................. real_path_for_coot_executable " << real_path_for_coot_executable << std::endl;
       if (real_path_for_coot_executable.empty()) {
-         std::cout << "OOPS:: real_path_for_coot_executable is empty " << std::endl;
+	 // there is no oops if this is chapi or moorhen - so removee the messaage
+         // std::cout << "OOPS:: real_path_for_coot_executable is empty " << std::endl;
       } else {
          std::filesystem::path p(real_path_for_coot_executable);
          std::filesystem::path p_1 =   p.parent_path();
          std::filesystem::path p_2 = p_1.parent_path();
-         std::cout << "here with p_2 " << p_2.string() << std::endl;
+         // std::cout << "here with p_2 " << p_2.string() << std::endl;
          std::filesystem::path p_3 = p_2 / "share";
          std::filesystem::path p_4 = p_3 / "coot";
          pkgdatadir = p_4.string();

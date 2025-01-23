@@ -47,12 +47,12 @@ key_bindings_t::run() const {
       if (! scripting_function_text.empty())
          PyRun_SimpleString(scripting_function_text.c_str());
 
-      // This is when we get a propr function - but (currently) if I pass that, then
+      // This is when we get a proper function - but (currently) if I pass that, then
       // the error messages disappear
 
       if (function_py) {
          PyObject *arg_list = PyTuple_New(0);
-         PyObject *result_py = PyObject_CallObject(function_py, arg_list);
+         PyObject *result_py = PyObject_Call(function_py, arg_list, nullptr);
          if (result_py == NULL) {
             std::cout << "result_py was null" << std::endl;
             if (PyErr_Occurred())

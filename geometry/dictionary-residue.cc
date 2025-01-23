@@ -916,17 +916,17 @@ coot::dictionary_residue_restraints_t::get_bonded_atom(const std::string &H_atom
 bool
 coot::dictionary_residue_restraints_t::is_ring_torsion(const coot::atom_name_quad &quad) const {
 
-   bool match = false; 
+   bool match = false;
    std::vector<std::string> torsion_atom_names(2);
    torsion_atom_names[0] = quad.atom_name(1);
    torsion_atom_names[1] = quad.atom_name(2);
    std::vector<std::vector<std::string> > ring_atoms_sets = get_ligand_ring_list();
 
-   for (unsigned int iring=0; iring<ring_atoms_sets.size(); iring++) { 
+   for (unsigned int iring=0; iring<ring_atoms_sets.size(); iring++) {
       const std::vector<std::string> &ring_atom_names = ring_atoms_sets[iring];
       int n_match = 0;
       for (unsigned int iname_1=0; iname_1<ring_atom_names.size(); iname_1++) {
-	 for (unsigned int iname_2=0; iname_2<torsion_atom_names.size(); iname_2++) { 
+	 for (unsigned int iname_2=0; iname_2<torsion_atom_names.size(); iname_2++) {
 	    if (ring_atom_names[iname_1] == torsion_atom_names[iname_2])
 	       n_match++;
 	 }
@@ -943,24 +943,24 @@ coot::dictionary_residue_restraints_t::is_ring_torsion(const coot::atom_name_qua
 bool
 coot::dict_torsion_restraint_t::is_peptide_torsion() const {
 
-  if (atom_id_1_4c() == " O  ") {
-    if (atom_id_2_4c() == " C  ") {
-      if (atom_id_3_4c() == " CA ") {
-	if (atom_id_3_4c() == " N  ") {
-	  return true;
-	}
+   if (atom_id_1_4c() == " O  ") {
+      if (atom_id_2_4c() == " C  ") {
+         if (atom_id_3_4c() == " CA ") {
+            if (atom_id_4_4c() == " N  ") {
+               return true;
+            }
+         }
       }
-    }
-  }
-  if (atom_id_1_4c() == " N  ") {
-    if (atom_id_2_4c() == " CA ") {
-      if (atom_id_3_4c() == " C  ") {
-	if (atom_id_3_4c() == " O  ") {
-	  return true;
-	}
+   }
+   if (atom_id_1_4c() == " N  ") {
+      if (atom_id_2_4c() == " CA ") {
+         if (atom_id_3_4c() == " C  ") {
+            if (atom_id_4_4c() == " O  ") {
+               return true;
+            }
+         }
       }
-    }
-  }
+   }
   return false;
 }
 

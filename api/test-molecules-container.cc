@@ -8,6 +8,13 @@
 
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/string_cast.hpp>
+#ifdef USE_GEMMI
+#include <gemmi/mmread.hpp>
+#include <gemmi/mmdb.hpp>
+#include <gemmi/enumstr.hpp>
+#include <gemmi/metadata.hpp>
+#include <gemmi/polyheur.hpp>
+#endif
 #include "MoleculesToTriangles/CXXClasses/MyMolecule.h"
 #include "molecules-container.hh"
 #include "coot-utils/acedrg-types-for-residue.hh"
@@ -1793,11 +1800,11 @@ int test_new_position_for_atoms(molecules_container_t &mc) {
    if (pos.first) {
       coot::Cartesian pos_pre = pos.second;
 
-      std::vector<coot::molecule_t::moved_atom_t> moved_atom_positions;
+      std::vector<coot::api::moved_atom_t> moved_atom_positions;
       std::vector<std::string> atom_names = {" N  ", " CA ", " C  ", " O  ", " CB ", " CG1", " CG2"};
       for (const auto &name : atom_names) {
          coot::atom_spec_t as("A", 20, "", name, "");
-         moved_atom_positions.push_back(coot::molecule_t::moved_atom_t(name, "", 2.1, 3.2, 4.3));
+         moved_atom_positions.push_back(coot::api::moved_atom_t(name, "", 2.1, 3.2, 4.3));
       }
 
       mc.new_positions_for_residue_atoms(imol, "//A/20", moved_atom_positions);
@@ -1829,11 +1836,11 @@ int test_new_position_for_atoms_in_residues(molecules_container_t &mc) {
       coot::Cartesian pos_pre = pos.second;
 
       std::vector<std::string> atom_names = {" N  ", " CA ", " C  ", " O  ", " CB ", " CG1", " CG2"};
-      std::vector<coot::molecule_t::moved_residue_t> moved_atoms_residue_vec;
-      coot::molecule_t::moved_residue_t mr("A", 20, "");
+      std::vector<coot::api::moved_residue_t> moved_atoms_residue_vec;
+      coot::api::moved_residue_t mr("A", 20, "");
       for (const auto &name : atom_names) {
          coot::atom_spec_t as("A", 20, "", name, "");
-         mr.add_atom(coot::molecule_t::moved_atom_t(name, "", 2.1, 3.2, 4.3));
+         mr.add_atom(coot::api::moved_atom_t(name, "", 2.1, 3.2, 4.3));
       }
       moved_atoms_residue_vec.push_back(mr);
 
@@ -2817,7 +2824,7 @@ int test_instanced_bonds_mesh(molecules_container_t &mc) {
 
    std::string mode("COLOUR-BY-CHAIN-AND-DICTIONARY");
    if (mc.is_valid_model_molecule(imol)) {
-      coot::instanced_mesh_t im = mc.get_bonds_mesh_instanced(imol, mode, true, 0.1, 1.0, 1);
+      coot::instanced_mesh_t im = mc.get_bonds_mesh_instanced(imol, mode, true, 0.1, 1.0, false, false, true, 1);
       std::cout << "instanced mesh has " << im.geom.size()  << " geoms" << std::endl;
       if (im.geom.size() > 3) {
          if (false) {
@@ -2843,7 +2850,7 @@ int test_instanced_bonds_mesh(molecules_container_t &mc) {
    }
 
    std::string cid("/*/A/270");
-   coot::instanced_mesh_t im_lig = mc.get_bonds_mesh_for_selection_instanced(imol, cid, mode, true, 0.1, 1.0, 1);
+   coot::instanced_mesh_t im_lig = mc.get_bonds_mesh_for_selection_instanced(imol, cid, mode, true, 0.1, 1.0, false, false, true, 1);
    unsigned int n_geoms = im_lig.geom.size();
    for (unsigned int i=0; i<n_geoms; i++) {
       std::cout << "test_instanced_bonds_mesh()) im_lig " << im_lig.geom[i].name << " " << i << " has A " << im_lig.geom[i].instancing_data_A.size() << std::endl;
@@ -2866,10 +2873,10 @@ int test_instanced_bonds_mesh_v2(molecules_container_t &mc) {
    std::string selection_cid = "//A/1301"; // "//A/1301||//A/456";
 
    int imol_frag = mc.copy_fragment_using_cid(imol, selection_cid);
-   coot::instanced_mesh_t im_frag = mc.get_bonds_mesh_instanced(imol, mode, true, 0.2, 1.0, 2);
+   coot::instanced_mesh_t im_frag = mc.get_bonds_mesh_instanced(imol, mode, true, 0.2, 1.0, false, false, true, 2);
    colour_analysis(im_frag);
 
-   coot::instanced_mesh_t im = mc.get_bonds_mesh_for_selection_instanced(imol_frag, selection_cid, mode, true, 0.2, 1.0, 2);
+   coot::instanced_mesh_t im = mc.get_bonds_mesh_for_selection_instanced(imol_frag, selection_cid, mode, true, 0.2, 1.0, false, false, true, 2);
    colour_analysis(im);
 
    unsigned int n_geoms = im.geom.size();
@@ -3214,7 +3221,7 @@ int test_colour_rules(molecules_container_t &mc) {
    auto v = mc.get_colour_rules(imol_0);
 
    std::string mode("COLOUR-BY-CHAIN-AND-DICTIONARY");
-   auto mesh = mc.get_bonds_mesh_instanced(imol_0, mode, true, 0.1, 1.0, 1);
+   auto mesh = mc.get_bonds_mesh_instanced(imol_0, mode, true, 0.1, 1.0, false, false, true, 1);
 
    if (true) {
       std::cout << "colour rules: " << std::endl;
@@ -3439,9 +3446,9 @@ int test_svg(molecules_container_t &mc) {
 
    mc.import_cif_dictionary("ATP.cif", imol_1);
    mc.import_cif_dictionary("ATP.cif", imol_2);
-   bool dark_bg = false;
    bool use_rdkit_svg = false;
-   std::string s = mc.get_svg_for_residue_type(imol_1, "ATP", use_rdkit_svg, dark_bg);
+   std::string bg = "dark-bonds/opaque-bg";
+   std::string s = mc.get_svg_for_residue_type(imol_1, "ATP", use_rdkit_svg, bg);
 
    if (s.length() > 0) {
 
@@ -3450,7 +3457,7 @@ int test_svg(molecules_container_t &mc) {
       f.close();
       {
          mc.import_cif_dictionary("G37.cif", coot::protein_geometry::IMOL_ENC_ANY);
-         s = mc.get_svg_for_residue_type(imol_1, "G37", use_rdkit_svg, dark_bg);
+         s = mc.get_svg_for_residue_type(imol_1, "G37", use_rdkit_svg, bg);
          std::ofstream f2("G37.svg");
          f2 << s;
          f2.close();
@@ -3458,7 +3465,7 @@ int test_svg(molecules_container_t &mc) {
 
       {
          mc.import_cif_dictionary("GLC.cif", coot::protein_geometry::IMOL_ENC_ANY);
-         s = mc.get_svg_for_residue_type(imol_1, "GLC", use_rdkit_svg, dark_bg);
+         s = mc.get_svg_for_residue_type(imol_1, "GLC", use_rdkit_svg, bg);
          std::ofstream f2("GLC.svg");
          f2 << s;
          f2.close();
@@ -3566,9 +3573,9 @@ int test_non_drawn_atoms(molecules_container_t &mc) {
    int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
    glm::vec3 ca_pos(26.83, 3.43, 31.43);
    std::string mode("COLOUR-BY-CHAIN-AND-DICTIONARY");
-   auto mesh_1 = mc.get_bonds_mesh_instanced(imol, mode, true, 0.1, 1.0, 1);
+   auto mesh_1 = mc.get_bonds_mesh_instanced(imol, mode, true, 0.1, 1.0, false, false, true, 1);
    mc.add_to_non_drawn_bonds(imol, "//A/270");
-   auto mesh_2 = mc.get_bonds_mesh_instanced(imol, mode, true, 0.1, 1.0, 1);
+   auto mesh_2 = mc.get_bonds_mesh_instanced(imol, mode, true, 0.1, 1.0, false, false, true, 1);
 
    // the first one should have the atom, the second should not.
    bool f1 = atom_in_mesh(mesh_1, ca_pos);
@@ -3764,7 +3771,7 @@ int test_user_defined_bond_colours(molecules_container_t &mc) {
          mc.set_user_defined_bond_colours(imol, colour_map);
          bool colour_applies_to_non_carbon_atoms_also = true;
          mc.set_user_defined_atom_colour_by_selection(imol, indexed_residues_cids, colour_applies_to_non_carbon_atoms_also);
-         coot::instanced_mesh_t im = mc.get_bonds_mesh_instanced(imol, mode, true, 0.1, 1.0, 1);
+         coot::instanced_mesh_t im = mc.get_bonds_mesh_instanced(imol, mode, true, 0.1, 1.0, false, false, true, 1);
          if (im.geom.size() > 3) {
             if (im.geom[0].instancing_data_A.size() > 1000)
                status = 1;
@@ -3921,7 +3928,7 @@ int test_bespoke_carbon_colour(molecules_container_t &mc) {
       mc.set_use_bespoke_carbon_atom_colour(imol, true);
       mc.set_bespoke_carbon_atom_colour(imol, col);
       std::string mode("VDW-BALLS");
-      coot::instanced_mesh_t im = mc.get_bonds_mesh_instanced(imol, mode, true, 0.1, 1.0, 1);
+      coot::instanced_mesh_t im = mc.get_bonds_mesh_instanced(imol, mode, true, 0.1, 1.0, false, false, true, 1);
 
       std::cout << "There are " << im.geom.size() << " geoms " << std::endl;
       for (unsigned int ig=0; ig<im.geom.size(); ig++) {
@@ -3958,8 +3965,8 @@ int test_dark_mode_colours(molecules_container_t &mc) {
    int imol = mc.get_monomer("LZA");
    if (mc.is_valid_model_molecule(imol)) {
       std::string mode = "COLOUR-BY-CHAIN-AND-DICTIONARY";
-      auto mesh_light = mc.get_bonds_mesh_instanced(imol, mode, false, 0.2, 1.0, 1);
-      auto mesh_dark  = mc.get_bonds_mesh_instanced(imol, mode, true,  0.2, 1.0, 1);
+      auto mesh_light = mc.get_bonds_mesh_instanced(imol, mode, false, 0.2, 1.0, false, false, true, 1);
+      auto mesh_dark  = mc.get_bonds_mesh_instanced(imol, mode, true,  0.2, 1.0, false, false, true, 1);
       std::cout << "starting colour analysis for mesh_light" << std::endl;
       colour_analysis(mesh_light);
       std::cout << "starting colour analysis for mesh_dark" << std::endl;
@@ -4210,7 +4217,7 @@ int test_user_defined_bond_colours_v2(molecules_container_t &mc) {
      }
    }
 
-   auto bonds = mc.get_bonds_mesh_instanced(imol, mode, false, 0.2, 1.0, 1);
+   auto bonds = mc.get_bonds_mesh_instanced(imol, mode, false, 0.2, 1.0, false, false, true, 1);
 
    auto colour_table = mc.get_colour_table(imol, false);
    for (unsigned int i=0; i<colour_table.size(); i++) {
@@ -4226,7 +4233,7 @@ int test_user_defined_bond_colours_v2(molecules_container_t &mc) {
                   if (close_float(colour_table[13][2], 1.0))
                      status = 1;
 
-   coot::instanced_mesh_t im = mc.get_bonds_mesh_for_selection_instanced(imol, "//A/1-3", "VDW-BALLS", false, 0.1, 1.0, 1);
+   coot::instanced_mesh_t im = mc.get_bonds_mesh_for_selection_instanced(imol, "//A/1-3", "VDW-BALLS", false, 0.1, 1.0, false, false, true, 1);
    if (! im.geom.empty()) {
       const coot::instanced_geometry_t &ig = im.geom[0]; // 0 is spheres
       std::cout << "debug:: in im type A data size: " << ig.instancing_data_A.size() << std::endl;
@@ -4307,7 +4314,7 @@ int test_user_defined_bond_colours_v3(molecules_container_t &mc) {
       std::string mode = "COLOUR-BY-CHAIN-AND-DICTIONARY";
 
       // now test the colours:
-      auto bonds = mc.get_bonds_mesh_for_selection_instanced(imol, "/", mode, false, 0.2, 1.0, 1);
+      auto bonds = mc.get_bonds_mesh_for_selection_instanced(imol, "/", mode, false, 0.2, 1.0, false, false, true, 1);
       auto &geom = bonds.geom;
       auto ca = get_colour_analysis(bonds);
 
@@ -4379,10 +4386,10 @@ int test_other_user_defined_colours_other(molecules_container_t &mc) {
          std::vector<std::pair<std::string, unsigned int> > indexed_cids;
          indexed_cids.push_back(std::make_pair("//A/1-5", 21));
          bool non_carbon_atoms_also_flag = false;
-         auto bonds_1 = mc.get_bonds_mesh_for_selection_instanced(imol, "/", mode, false, 0.2, 1.0, 1);
-         auto bonds_2 = mc.get_bonds_mesh_instanced(imol, mode, false, 0.2, 1.0, 1);
+         auto bonds_1 = mc.get_bonds_mesh_for_selection_instanced(imol, "/", mode, false, 0.2, 1.0, false, false, true, 1);
+         auto bonds_2 = mc.get_bonds_mesh_instanced(imol, mode, false, 0.2, 1.0, false, false, true, 1);
          mc.set_user_defined_atom_colour_by_selection(imol, indexed_cids, non_carbon_atoms_also_flag);
-         auto bonds_3 = mc.get_bonds_mesh_for_selection_instanced(imol, "/", mode, false, 0.2, 1.0, 1);
+         auto bonds_3 = mc.get_bonds_mesh_for_selection_instanced(imol, "/", mode, false, 0.2, 1.0, false, false, true, 1);
          auto &geom_1 = bonds_1.geom;
          auto &geom_3 = bonds_3.geom;
 
@@ -4545,8 +4552,8 @@ int test_pdbe_dictionary_depiction(molecules_container_t &mc) {
    // if (coot::file_exists("MOI-depiction.png")) status = 1; // not a good test.
 
    bool use_rdkit_rendering = true;
-   bool dark_background = false;
-   std::string svg = mc.get_svg_for_residue_type(coot::protein_geometry::IMOL_ENC_ANY, "MOI", use_rdkit_rendering, dark_background);
+   std::string bg = "dark-bonds/opaque-bg";
+   std::string svg = mc.get_svg_for_residue_type(coot::protein_geometry::IMOL_ENC_ANY, "MOI", use_rdkit_rendering, bg);
    std::ofstream f("MOI.svg");
    f << svg;
    f.close();
@@ -4764,6 +4771,7 @@ int test_long_name_ligand_cif_merge(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
    int status = 0;
+   mc.set_use_gemmi(true);
    int imol = mc.read_pdb(reference_data("8a2q.cif"));
    mc.import_cif_dictionary(reference_data("7ZTVU.cif"), coot::protein_geometry::IMOL_ENC_ANY);
    int imol_lig = mc.get_monomer("7ZTVU");
@@ -4788,7 +4796,7 @@ int test_long_name_ligand_cif_merge(molecules_container_t &mc) {
    if (found_it) status = 1;
    return status;
 }
-
+#undef USE_GEMMI
 #ifdef USE_GEMMI
 #include "gemmi/mmread.hpp"
 #include "gemmi/mmdb.hpp"
@@ -4798,7 +4806,8 @@ int test_disappearing_ligand(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
    // int imol = mc.read_pdb(reference_data("6ttq.cif")); // needs gemmi
-   int imol = mc.read_pdb(reference_data("8a2q.cif"));
+   // mc.set_use_gemmi(true);
+   int imol = mc.read_coordinates(reference_data("8a2q.cif"));
    if (mc.is_valid_model_molecule(imol)) {
       mmdb::Manager *mol = mc.get_mol(imol);
       for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
@@ -4950,7 +4959,7 @@ int test_gltf_export(molecules_container_t &mc) {
    int imol_lig = mc.get_monomer("LZA");
    int imol_frag = mc.copy_fragment_using_cid(imol, "//A/1299");
    std::cout << "test_gltf_export() imol_frag " << imol_frag << std::endl;
-   coot::instanced_mesh_t im    = mc.get_bonds_mesh_instanced(imol_frag, mode, true, 0.1, 1.0, 1);
+   coot::instanced_mesh_t im    = mc.get_bonds_mesh_instanced(imol_frag, mode, true, 0.1, 1.0, false, false, true, 1);
    coot::simple_mesh_t sm_lig = coot::instanced_mesh_to_simple_mesh(im);
    sm_lig.export_to_gltf("lig.glb", true);
 
@@ -4958,7 +4967,7 @@ int test_gltf_export(molecules_container_t &mc) {
    std::vector<coot::residue_spec_t> neighbs = mc.get_residues_near_residue(imol, "//A/1299", 4.2);
    std::string multi_cid = make_multi_cid(neighbs);
    mc.set_draw_missing_residue_loops(false);
-   coot::instanced_mesh_t im_neighbs = mc.get_bonds_mesh_for_selection_instanced(imol, multi_cid, mode, true, 0.15, 1.0, 1);
+   coot::instanced_mesh_t im_neighbs = mc.get_bonds_mesh_for_selection_instanced(imol, multi_cid, mode, true, 0.15, 1.0, false, false, true, 1);
    coot::simple_mesh_t sm_neighbs = coot::instanced_mesh_to_simple_mesh(im_neighbs);
    sm_neighbs.export_to_gltf("neighbs.glb", true);
 
@@ -4988,7 +4997,7 @@ int test_gltf_export_via_api(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
 
-   mc.set_use_gemmi(false); // 20240727-PE there seems to be a memory problem when using gemmi atm
+   mc.set_use_gemmi(true); // 20240727-PE there seems to be a memory problem when using gemmi atm
                             // so for now, let's not use gemmi for the tests.
 
    int imol     = mc.read_pdb(reference_data("2vtq.cif"));
@@ -5275,7 +5284,7 @@ int test_non_drawn_CA_bonds(molecules_container_t &mc) {
       int imol_frag = mc.copy_fragment_using_cid(imol, "//A/101-111");
       mc.add_to_non_drawn_bonds(imol_frag, "//A/103-111");
       std::string mode = "CA+LIGANDS";
-      auto bonds = mc.get_bonds_mesh_for_selection_instanced(imol_frag, "//A", mode, false, 0.2, 1.0, 1);
+      auto bonds = mc.get_bonds_mesh_for_selection_instanced(imol_frag, "//A", mode, false, 0.2, 1.0, false, false, true, 1);
       auto &geom = bonds.geom;
       // should be size 2 of course, if we don't add the range to the non-drawn bond
       // not 4
@@ -5338,7 +5347,7 @@ int test_shiftfield_b_factor_refinement(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
 
-   mc.set_use_gemmi(false); // 20240211-PE crash if set_use_gemmi(true) (the default).
+   mc.set_use_gemmi(true); // 20240211-PE crash if set_use_gemmi(true) (the default).
    int imol     = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
    int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
    int imol_diff_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "DELFWT", "PHDELWT", "W", false, true);
@@ -5410,7 +5419,7 @@ int test_copy_molecule_memory_leak(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
 
-   mc.set_use_gemmi(false);
+   mc.set_use_gemmi(true);
    int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
    const unsigned int n_new_mols = 200;
 
@@ -5622,6 +5631,8 @@ int test_texture_as_floats(molecules_container_t &mc) {
 
    int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
 
+   if (!mc.is_valid_map_molecule(imol_map)) std::cout << "Failed to read moorhen-tutorial-map-number-1.mtz" << std::endl;
+
    texture_as_floats_t tf = mc.get_map_section_texture(imol_map, 6, 0, -0.1, 0.2);
 
    std::cout << " image data size " << tf.image_data.size() << std::endl;
@@ -5685,7 +5696,8 @@ int test_lsq_superpose(molecules_container_t &mc) {
    int imol_2 = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
    mc.clear_lsq_matches();
    mc.add_lsq_superpose_match("A", 185, 195, "A", 105, 115, 1);
-   auto tm = mc.get_lsq_matrix(imol_1, imol_2);
+   bool summary_to_screen = false;
+   auto tm = mc.get_lsq_matrix(imol_1, imol_2, summary_to_screen);
    mc.lsq_superpose(imol_1, imol_2);
    for(unsigned int i=0; i<tm.rotation_matrix.size(); i++)
       std::cout << " " << tm.rotation_matrix[i];
@@ -5727,7 +5739,7 @@ int test_alpha_in_colour_holder(molecules_container_t &mc) {
       mc.set_user_defined_bond_colours(imol_1, colour_map);
       mc.set_user_defined_atom_colour_by_selection(imol_1, indexed_residues_cids, true);
       std::string mode = "COLOUR-BY-CHAIN-AND-DICTIONARY";
-      auto mesh = mc.get_bonds_mesh_instanced(imol_1, mode, true,  0.2, 1.0, 1);
+      auto mesh = mc.get_bonds_mesh_instanced(imol_1, mode, true,  0.2, 1.0, false, false, true, 1);
       std::vector<std::pair<glm::vec4, unsigned int> > colour_count = colour_analysis(mesh);
       unsigned int n_transparent = 0;
       for(const auto &cc : colour_count) {
@@ -5774,7 +5786,7 @@ int test_assign_sequence(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
 
-   mc.set_use_gemmi(false);
+   mc.set_use_gemmi(true);
    int imol = mc.read_pdb(reference_data("pdb7vvl.ent"));
    if (mc.is_valid_model_molecule(imol)) {
       int imol_map = mc.read_ccp4_map(reference_data("emd_32143.map"), false);
@@ -5861,7 +5873,7 @@ int test_for_long_bonds(molecules_container_t &mc, int imol) {
 
    int state = -1; // unset
    if (mc.is_valid_model_molecule(imol)) {
-      auto instanced_mesh = mc.get_bonds_mesh_instanced(imol, "COLOUR-BY-CHAIN-AND-DICTIONARY", false, 0.1f, 1.0f, 1);
+      auto instanced_mesh = mc.get_bonds_mesh_instanced(imol, "COLOUR-BY-CHAIN-AND-DICTIONARY", false, 0.1f, 1.0f, false, false, true, 1);
       const auto &geom_vec = instanced_mesh.geom;
       unsigned int geom_vec_size = geom_vec.size();
       for (unsigned int i = 0; i < geom_vec_size; i++) {
@@ -5955,6 +5967,323 @@ int test_dictionary_acedrg_atom_types_for_ligand(molecules_container_t &mc) {
    return status;
 }
 
+
+int test_links_in_model_read_via_gemmi(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   mc.set_use_gemmi(true);
+   int imol = mc.read_pdb(reference_data("6dgd.cif"));
+   if (mc.is_valid_model_molecule(imol)) {
+      mmdb::Manager *mol = mc.get_mol(imol);
+      for (int imod = 1; imod <= mol->GetNumberOfModels(); imod++) {
+         mmdb::Model *model_p = mol->GetModel(imod);
+         if (model_p) {
+            int n_links = model_p->GetNumberOfLinks();
+            std::cout << "Found n_links: " << n_links << std::endl;
+            for (int i_link = 0; i_link < n_links; i_link++) {
+               mmdb::Link *link_p = model_p->GetLink(i_link);
+               // std::cout << "Link " << i_link << " " << link_p << std::endl;
+            }
+            if (n_links > 4) status = 1;
+         }
+      }
+   }
+
+   return status;
+}
+
+int test_delete_two_add_one_using_gemmi(molecules_container_t &mc) {
+
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+   mc.set_use_gemmi(true);
+
+   int coordMolNo = mc.read_pdb(reference_data("./5a3h.pdb"));
+   int mapMolNo = mc.read_mtz(reference_data("./5a3h_sigmaa.mtz"), "FWT", "PHWT", "", false, false);
+   mc.set_imol_refinement_map(mapMolNo);
+
+   mc.delete_using_cid(coordMolNo, "A/100-101/*", "LITERAL");
+   mc.write_coordinates(coordMolNo, "add_terminal_test_tmp_1.pdb");
+
+   int result = mc.add_terminal_residue_directly_using_cid(coordMolNo, "A/99");
+
+   mc.write_coordinates(coordMolNo, "add_terminal_test_tmp_2.pdb");
+
+   std::vector<mmdb::Residue *> A100s;
+   mmdb::Manager *mol = mc.get_mol(coordMolNo);
+   for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+      mmdb::Model *model_p = mol->GetModel(imod);
+      if (model_p) {
+         int n_chains = model_p->GetNumberOfChains();
+         for (int ichain=0; ichain<n_chains; ichain++) {
+            mmdb::Chain *chain_p = model_p->GetChain(ichain);
+            int n_res = chain_p->GetNumberOfResidues();
+            std::cout << "    " << chain_p->GetChainID() << " " << n_res << " residues " << std::endl;
+            std::string chain_id = chain_p->GetChainID();
+            if (chain_id == "A") {
+               for (int ires=0; ires<n_res; ires++) {
+                  mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                  int seq_num = residue_p->GetSeqNum();
+                  if (seq_num == 100)
+                     A100s.push_back(residue_p);
+               }
+            }
+         }
+      }
+   }
+   std::cout << " here with " << A100s.size() << " residues A 100s" << std::endl;
+   if (A100s.size() == 1)
+      status = 1;
+   return status;
+}
+
+int test_merge_ligand_and_gemmi_parse_mmcif(molecules_container_t &mc) {
+
+  auto read_structure_from_string = [] (const std::string &data, const std::string& path){
+    char *c_data = (char *)data.c_str();
+    size_t size = data.length();
+    return gemmi::read_structure_from_char_array(c_data,size,path);
+  };
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   auto coordMolNo_1 = mc.read_pdb(reference_data("5a3h.mmcif"));
+   // expect(coordMolNo_1).toBe(0)
+   if (! mc.is_valid_model_molecule(coordMolNo_1))
+     return status;
+
+   int import_status = mc.import_cif_dictionary(reference_data("LZA.cif"), -999999);
+   // expect(result_import_dict).toBe(1)
+   if (import_status == 0)
+     return status;
+
+   auto ligandMolNo = mc.get_monomer_and_position_at("LZA", -999999, 0, 0, 0);
+   // expect(ligandMolNo).toBe(1);
+
+   auto merge_info = mc.merge_molecules(coordMolNo_1, std::to_string(ligandMolNo));
+   // expect(merge_info.second.size()).toBe(1)
+
+   mc.write_coordinates(coordMolNo_1, "my-mol-with-ligand.cif");
+
+   bool merge_chain_parts = true;
+   gemmi::Structure st = gemmi::read_structure_file("my-mol-with-ligand.cif");
+   if (merge_chain_parts)
+      st.merge_chain_parts();
+
+   // std::string mmcifString = mc.get_molecule_atoms(coordMolNo_1, "mmcif");
+   // auto st = read_structure_from_string(mmcifString, "test-molecule");
+   gemmi::setup_entities(st);
+   gemmi::add_entity_types(st, true);
+
+   auto model = st.first_model();
+   auto chains = model.chains;
+   auto chain = chains[2];
+   gemmi::ResidueSpan ligands = chain.get_ligands();
+   // expect(ligands.length()).toBe(1);
+
+   std::cout << "we found " << model.chains.size() << " model chains" << std::endl;
+
+   std::cout << "debug:: test_merge_ligand_and_gemmi_parse_mmcif() merge_info second length "
+	     << merge_info.second.size() << std::endl;
+
+   std::cout << "debug:: test_merge_ligand_and_gemmi_parse_mmcif() ligands length() "
+	     << ligands.size() << std::endl;
+
+   std::cout << "chain things " << chain.whole().size() << std::endl;
+   std::cout << "chain 0 things " << chains[0].name << " " << chains[0].whole().size() << std::endl;
+   std::cout << "chain 1 things " << chains[1].name << " " << chains[1].whole().size() << std::endl;
+   std::cout << "chain 2 things " << chains[2].name << " " << chains[2].whole().size() << std::endl;
+   // std::cout << "chain 3 things " << chains[3].name << " " << chains[3].whole().size() << std::endl;
+
+   std::cout << "get_ligands(): size    " << chains[2].get_ligands().size()   << std::endl;
+   std::cout << "get_ligands(): length  " << chains[2].get_ligands().length() << std::endl;
+   std::cout << "get polymer " << chains[2].get_polymer().length() << std::endl;
+   std::cout << "get waters  " << chains[2].get_waters().length()  << std::endl;
+
+   gemmi::EntityType et = chains[2].whole().at(0).entity_type;
+   std::cout << "get_ligands(): whole " << gemmi::entity_type_to_string(et) << std::endl;
+
+   gemmi::ResidueSpan whole = chains[2].whole();
+   std::cout << "whole span length: " << whole.length() << std::endl;
+
+   if (model.chains.size() == 3)
+      if (chains[2].get_ligands().size() == 1)
+         status = 1;
+
+   return status;
+
+}
+
+int test_dictionary_atom_name_match(molecules_container_t &mc) {
+
+   int status = 0;
+   starting_test(__FUNCTION__);
+
+   std::string comp_id_1 = "TYR";
+   std::string comp_id_2 = "PTR";
+   int imol_1 = coot::protein_geometry::IMOL_ENC_ANY;
+   int imol_2 = coot::protein_geometry::IMOL_ENC_ANY;
+
+   // 20241031-PE these are relatively modern dictionaries (from CCP4-9)
+   mc.import_cif_dictionary(reference_data("TYR.cif"), imol_1);
+   mc.import_cif_dictionary(reference_data("PTR.cif"), imol_2);
+
+   int imol_pty = mc.get_monomer(comp_id_2);  // I want the dictionary, not the molecule
+
+   if (mc.is_valid_model_molecule(imol_pty)) {
+      std::map<std::string, std::string> m =
+         mc.dictionary_atom_name_map(comp_id_1, imol_1, comp_id_2, imol_2);
+
+      std::cout << "got a name map of size " << m.size() << std::endl;
+      for (const auto &name : m)
+         std::cout << "    " << name.first << " " << name.second << std::endl;
+      if (m.size() > 8) status = 1;
+   }
+
+   return status;
+}
+
+int test_average_position_functions(molecules_container_t &mc) {
+
+   auto close_position = [] (const std::vector<double> &p,
+                             const clipper::Coord_orth &r) {
+      double t = 0.9;
+      if (abs(p[0] - r.x()) < t) {
+         if (abs(p[1] - r.y()) < t) {
+            if (abs(p[2] - r.z()) < t) {
+               return true;
+            }
+         }
+      }
+      return false;
+   };
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   std::vector<double> ap_1 = mc.get_residue_average_position(imol, "//A/15");
+   std::vector<double> ap_2 = mc.get_residue_sidechain_average_position(imol, "//A/15");
+   std::vector<double> ap_3 = mc.get_residue_CA_position(imol, "//A/15");
+
+   int n_pass = 0;
+   if (close_position(ap_1, clipper::Coord_orth(16.4, 10.1, 57.5))) n_pass += 1;
+   if (close_position(ap_2, clipper::Coord_orth(16.2,  8.9, 56.0))) n_pass += 2;
+   if (close_position(ap_3, clipper::Coord_orth(16.4, 11.5, 58.7))) n_pass += 4;
+
+   std::cout << "here with n_pass " << n_pass << std::endl;
+   if (n_pass == 7) status = 1;
+   return status;
+}
+
+int test_set_occupancy(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int n_zero = 0;
+   mc.set_occupancy(imol, "//A/18-19", 0.0);
+
+   mmdb::Manager *mol = mc.get_mol(imol);
+   for (int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+      mmdb::Model *model_p = mol->GetModel(imod);
+      if (model_p) {
+         int n_chains = model_p->GetNumberOfChains();
+         for (int ichain=0; ichain<n_chains; ichain++) {
+            mmdb::Chain *chain_p = model_p->GetChain(ichain);
+            int n_res = chain_p->GetNumberOfResidues();
+            for (int ires=0; ires<n_res; ires++) {
+               mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+               if (residue_p) {
+                  int n_atoms = residue_p->GetNumberOfAtoms();
+                  for (int iat=0; iat<n_atoms; iat++) {
+                     mmdb::Atom *at = residue_p->GetAtom(iat);
+                     if (! at->isTer()) {
+                        if (at->occupancy < 0.00001) n_zero++;
+                     }
+                  }
+               }
+            }
+         }
+      }
+   }
+   if (n_zero == 19) status = 1;
+   return status;
+}
+
+int test_missing_residues(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol     = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   if (mc.is_valid_model_molecule(imol)) {
+      mc.delete_residue(imol, "A", 10, "");
+      mc.delete_residue(imol, "A", 11, "");
+      mc.delete_residue(imol, "A", 12, "");
+      mc.delete_residue(imol, "A", 15, "");
+
+      auto vec = mc.get_missing_residue_ranges(imol);
+      for (const auto &rr : vec) {
+         std::cout << "   " << rr.chain_id << " " << rr.res_no_start << " " << rr.res_no_end
+	  	   << std::endl;
+       }
+       if (vec.size() == 5) {
+          if (vec[0].res_no_start ==  10 && vec[0].res_no_end ==  12)
+          if (vec[1].res_no_start ==  15 && vec[1].res_no_end ==  15)
+          if (vec[2].res_no_start ==  37 && vec[2].res_no_end ==  45)
+          if (vec[3].res_no_start ==  73 && vec[3].res_no_end ==  75)
+          if (vec[4].res_no_start == 147 && vec[4].res_no_end == 165)
+ 	     status = 1;
+       }
+   }
+   return status;
+}
+
+int test_mutation_info(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   if (mc.is_valid_model_molecule(imol)) {
+      mc.delete_residue(imol, "A", 10, "");
+      mc.delete_residue(imol, "A", 11, "");
+      mc.delete_residue(imol, "A", 12, "");
+      mc.delete_residue(imol, "A", 15, "");
+
+      std::string t("MENFQKVEKIGEGTYGVVYKARNKLTGEVVALKKIRLDTETEGVPSTAIREISLLKELNHPNIVKLLDVIHTENKLYLVFEFLHQDLKKFMDASALTGIPLPLIKSYLFQLLQGLAFCHSHRVLHRDLKPQNLLINTEGAIKLADFGLARAFGVPVRTYTHEVVTLWYRAPEILLGCKYYSTAVDIWSLGCIFAEMVTRRALFPGDSEIDQLFRIFRTLGTPDEVVWPGVTSMPDYKPSFPKWARQDFSKVVPPLDEDGRSLLSQMLHYDPNKRISAKAALAHPFFQDVTKPVPHLRL");
+
+      mc.associate_sequence(imol, "A", t);
+      auto mi = mc.get_mutation_info(imol);
+      std::cout << "mutation-info: "
+		<< mi.mutations.size()  << " mutations "
+		<< mi.insertions.size() << " insertions "
+		<< mi.deletions.size()  << " deletions "
+		<< std::endl;
+
+      for (const auto &m : mi.mutations)
+	 std::cout << "   mutation " << m.first << " " << m.second << std::endl;
+      for (const auto &m : mi.insertions) {
+	 std::cout << "   insertions " << m.start_resno << std::endl << "  ";
+	 for (const auto &t : m.types)
+	    std::cout << " " << t;
+	 std::cout << std::endl;
+      }
+      for (const auto &m : mi.deletions)
+	 std::cout << "   deletions " << m << std::endl;
+
+      if (mi.mutations.size() > 2)
+	 if (mi.insertions.size() > 2)
+	    status = 1;
+   }
+   return status;
+}
 
 int test_template(molecules_container_t &mc) {
 
@@ -6081,11 +6410,12 @@ int main(int argc, char **argv) {
       // access (memory allocated but not deleted - e.g. Atom Selections)
       //
       molecules_container_t mc(true); // quiet
+      mc.set_use_gemmi(true);
 
       // now check that the monomer library was read OK
       int imol = mc.get_monomer("ATP");
       if (! mc.is_valid_model_molecule(imol)) {
-         std::cout << "Failed to read the monomer library" << std::endl;
+         std::cout << "Failed to read the monomer library - exit now" << std::endl;
          exit(1);
       } else {
          mc.close_molecule(imol);
@@ -6267,10 +6597,17 @@ int main(int argc, char **argv) {
          // status += run_test(test_ligand_distortion,   "Ligand Distortion", mc);
          // status += run_test(test_import_LIG_dictionary,   "Import LIG.cif", mc);
          // status += run_test(test_tricky_ligand_problem,   "Tricky Ligand import/refine", mc);
-         status += run_test(test_dictionary_acedrg_atom_types, "Acedrg atom types", mc);
-         status += run_test(test_dictionary_acedrg_atom_types_for_ligand, "Acedrg atom types for ligand", mc);
-
-         if (status == n_tests) all_tests_status = 0;
+         // status += run_test(test_dictionary_acedrg_atom_types, "Acedrg atom types", mc);
+         // status += run_test(test_dictionary_acedrg_atom_types_for_ligand, "Acedrg atom types for ligand", mc);
+         // status += run_test(test_long_name_ligand_cif_merge, "test long name ligand cif merge", mc);
+         // status += run_test(test_merge_ligand_and_gemmi_parse_mmcif, "test_merge_ligand_and_gemmi_parse_mmcif", mc);
+         // status += run_test(test_delete_two_add_one_using_gemmi, "test_delete_two_add_one_using_gemmi", mc);
+         // status += run_test(test_dictionary_atom_name_match, "dictionary atom names match", mc);
+         // status += run_test(test_average_position_functions, "average position functions", mc);
+         status += run_test(test_set_occupancy, "set occupancy", mc);
+         status += run_test(test_missing_residues, "missing residues", mc);
+         status += run_test(test_mutation_info, "mutation info", mc);
+        if (status == n_tests) all_tests_status = 0;
 
          print_results_summary();
       }

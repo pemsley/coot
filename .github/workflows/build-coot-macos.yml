@@ -36,9 +36,11 @@ jobs:
 
     - name: Get coot.rb file
       # try this modified version for now:
-      run:  wget https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/files/coot.rb
+      # run:  wget https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/files/coot.rb
       # back to Yoshitaka Moriwaki version
       # run:  wget https://raw.githubusercontent.com/YoshitakaMo/homebrew-bio/coot/Formula/coot.rb
+      # use the version on github:
+      run: wget https://raw.githubusercontent.com/brewsci/homebrew-bio/refs/heads/develop/Formula/coot.rb
 
     - name: Compile Homebrew coot HEAD
       # don't stall waiting for user input to resolve the failed patch
@@ -51,7 +53,7 @@ jobs:
         path: /Users/runner/Library/Logs/Homebrew/coot
         retention-days: 3
 
-    - name: ls the executable
+    - name: ls the executable in /opt/homebrew/bin
       run: ls -lt /opt/homebrew/bin
 
     # 20240911 this has stopped working.

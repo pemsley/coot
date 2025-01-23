@@ -138,7 +138,6 @@ namespace coot {
 					   // a minimol residue, the
 					   // get_contact_indices_from_restraints()
 					   // needs a mmdb::Residue *.  Caller disposes.
-      
 
 
    class recursive_forwards_container_t {
@@ -150,11 +149,11 @@ namespace coot {
       }
       recursive_forwards_container_t() {
 	 done = 0;
-      } 
+      }
    };
 
    // Move the atoms in res_moving.
-   // 
+   //
    // Return the number of rotated torsions.
    //
    class match_torsions {
@@ -172,8 +171,8 @@ namespace coot {
       std::pair<bool, double> get_torsion(int torsion_type, const atom_name_quad &quad) const;
       // return in radians
       std::pair<bool, double> get_torsion(mmdb::Residue *res, const atom_name_quad &quad) const;
-      
-   public: 
+
+   public:
       match_torsions(mmdb::Residue *res_moving, mmdb::Residue *res_ref,
 		     const dictionary_residue_restraints_t &moving_residue_restraints_in);
       int match (const std::vector<dict_torsion_restraint_t>  &tr_moving,
@@ -186,7 +185,7 @@ namespace coot {
    //
    // (just the torsionable bonds (middle atom pairs)) by looking at
    // the monomer restraints
-   // 
+   //
    // Don't return any hydrogen torsions - perhaps we should make that a
    // passed parameter.
    //

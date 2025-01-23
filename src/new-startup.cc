@@ -121,6 +121,7 @@ new_startup_realize(GtkWidget *gl_area) {
          std::cout << "INFO:: monitor " << imon << " refresh rate " << monitor_refresh_rate << " mHz"  << std::endl;
          int monitor_scale_factor = gdk_monitor_get_scale_factor(monitor);
          std::cout << "INFO:: monitor " << imon << " scale_factor " << monitor_scale_factor << std::endl;
+
 #if GTK_MINOR_VERSION >= 14
          double monitor_scale = gdk_monitor_get_scale(monitor);
          std::cout << "INFO:: monitor " << imon << " scale " << monitor_scale << std::endl;
@@ -152,8 +153,11 @@ new_startup_realize(GtkWidget *gl_area) {
    g.init_buffers();
    g.init_shaders();
    g.setup_lights();
-   g.init_framebuffers(w, h);
-   g.init_joey_ssao_stuff(w, h);
+   // 20241001-PE glDrawBuffer() in init_framebuffers() barfs with GL ES.
+   if (!g.graphics_is_gl_es) {
+      g.init_framebuffers(w, h);
+      g.init_joey_ssao_stuff(w, h);
+   }
 
    float x_scale = 4.4;  // what are these numbers!?
    float y_scale = 1.2;
@@ -232,14 +236,16 @@ new_startup_on_glarea_resize(GtkGLArea *glarea, gint width, gint height) {
    if (true)
       std::cout << "DEBUG:: --- new_startup_on_glarea_resize() " <<  width << " " << height << std::endl;
 
-   // std::cout << "resize(): int max " << INT_MAX << " " << std::sqrt(INT_MAX) << std::endl;
-
    graphics_info_t g;
    // for the GL widget, not the window.
    g.graphics_x_size = width;
    g.graphics_y_size = height;
-   g.reset_frame_buffers(width, height); // currently makes the widget blank (not drawn)
-   g.resize_framebuffers_textures_renderbuffers(width, height); // 20220131-PE added from crows merge
+   if (g.graphics_is_gl_es) {
+      // don't touch the framebuffers
+   } else {
+       g.reset_frame_buffers(width, height); // currently makes the widget blank (not drawn)
+       g.resize_framebuffers_textures_renderbuffers(width, height); // 20220131-PE added from crows merge
+   }
    g.reset_hud_buttons_size_and_position();
    g.mouse_speed = static_cast<double>(width) / 900.0;
 
@@ -269,16 +275,16 @@ GtkWidget *new_startup_create_glarea_widget() {
 
    GtkWidget *gl_area = gtk_gl_area_new();
 
-#if GTK_MINOR_VERSION >= 12
-   // Disable OpenGL ES
-   gtk_gl_area_set_allowed_apis(GTK_GL_AREA(gl_area), GDK_GL_API_GL);
+#if (GTK_MAJOR_VERSION > 4) || (GTK_MAJOR_VERSION == 4 && GTK_MINOR_VERSION >= 12)
+   // Disable OpenGL ES (if not OpenGL_ES set on the command line)
+   if (! graphics_info_t::graphics_is_gl_es)
+      gtk_gl_area_set_allowed_apis(GTK_GL_AREA(gl_area), GDK_GL_API_GL);
 #endif
 
    g_signal_connect(gl_area, "realize",   G_CALLBACK(new_startup_realize),   NULL);
    g_signal_connect(gl_area, "unrealize", G_CALLBACK(new_startup_unrealize), NULL);
    g_signal_connect(gl_area, "render",    G_CALLBACK(new_startup_on_glarea_render),  NULL);
    g_signal_connect(gl_area, "resize",    G_CALLBACK(new_startup_on_glarea_resize),  NULL);
-   // g_signal_connect(gl_area, "enter",     G_CALLBACK(new_startup_on_glarea_enter),  NULL);
 
    gtk_widget_set_can_focus(gl_area, TRUE);
    gtk_widget_set_focusable(gl_area, TRUE);
@@ -654,7 +660,7 @@ handle_start_scripts() {
    scripts = xdg.get_python_config_scripts();
    for (const auto &script : scripts) {
       std::cout << "Load python config script " << script.c_str() << std::endl;
-      run_python_script(script.c_str());
+      run_python_script(script.string().c_str());
    }
 #ifdef USE_GUILE
    if (graphics_info_t::run_startup_scripts_flag) {
@@ -670,7 +676,7 @@ handle_start_scripts() {
       if (graphics_info_t::run_state_file_status) {
          std::pair<bool, std::filesystem::path> script = xdg.get_python_state_script();
          if (script.first) {
-            run_python_script(script.second.c_str());
+            run_python_script(script.second.string().c_str());
          }
       }
    }
@@ -822,6 +828,7 @@ new_startup_application_activate(GtkApplication *application,
       };
 
       graphics_info_t graphics_info;
+      graphics_info.init(); // added 20241231
 
       // use this to look up things - and it is used to attach the lidia
       // application window
@@ -834,7 +841,8 @@ new_startup_application_activate(GtkApplication *application,
       // but let's do it once at least!
 
       // this is done in the python startup now.
-      // std::cout << "#################### new_startup_application_activate()  calling graphics_info.init() " << std::endl;
+      // std::cout << "#################### new_startup_application_activate()  calling graphics_info.init() "
+      //           << std::endl;
       // graphics_info.init();
 
       GtkBuilder *builder = gtk_builder_new();
@@ -1075,6 +1083,9 @@ int new_startup(int argc, char **argv) {
    if(!cld.do_graphics) {
       return do_no_graphics_mode(cld, argc, argv);
    }
+
+   if (cld.use_opengl_es)
+      graphics_info_t::graphics_is_gl_es = true;
 
    gtk_init();
 

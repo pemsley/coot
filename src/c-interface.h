@@ -2292,25 +2292,31 @@ float get_limit_aniso();           /* not a function of the molecule */
 /*! \brief get show the aniso limit */
 short int get_show_limit_aniso();  /* not a function of the molecule */
 
-/*! \brief return show-aniso-atoms state */
+/*! \brief return show-aniso-atoms state  - FIXME- per molecule */
 short int get_show_aniso();       /*  not a function of the molecule */
 
 /*! \brief set the aniso atom limit */
 void set_limit_aniso(short int state);
 
-/* MOVE-ME to c-interface-gtk-widgets.h */
-void set_aniso_limit_size_from_widget(const char *text);
-
-/*! \brief set show aniso atoms */
+/*! \brief does nothing */
 void set_show_aniso(int state);
 
-/* MOVE-ME to c-interface-gtk-widgets.h */
+/*! \brief set show aniso atoms */
+void set_show_aniso_atoms(int imol, int state);
+
+/*! \brief set show aniso atoms as ortep */
+void set_show_aniso_atoms_as_ortep(int imol, int state);
+
+/* DELETE-ME */
+void set_aniso_limit_size_from_widget(const char *text);
+
+/* DELETE-ME .h */
 char *get_text_for_aniso_limit_radius_entry();
 
-/*! \brief set aniso probability */
+/*! DELETE-ME */
 void set_aniso_probability(float f);
 
-/*! \brief get aniso probability */
+/*! DELETE-ME  */
 float get_aniso_probability();
 
 /* \} */
@@ -2475,6 +2481,12 @@ gchar *get_text_for_rotation_centre_cube_size();
 
 /*! \brief set rotoation centre marker size */
 void set_rotation_centre_size(float f); /* and redraw (maybe) */
+
+/*! \brief set rotation centre colour
+
+This is the colour for a dark background - if the background colour is not dark,
+then the cross-hair colour becomes the inverse colour */
+void set_rotation_centre_cross_hairs_colour(float r, float g, float b, float alpha);
 
 /*! \brief return the recentre-on-pdb state */
 short int recentre_on_read_pdb();
@@ -4051,24 +4063,6 @@ int read_cif_data_with_phases_2fo_fc(const char *filename);
 int read_cif_data_with_phases_nfo_fc(const char *filename,
 				     int map_type);
 int read_cif_data_with_phases_fo_alpha_calc(const char *filename);
-
-
-/*                  cif (geometry) dictionary                            */
-/* \brief return the number of bonds read (> 0 can be treated as success) */
-int handle_cif_dictionary(const char *filename);
-/* \brief synonym for above.
-
-return the number of bonds read (> 0 can be treated as success) */
-int read_cif_dictionary(const char *filename);
-
-/* \brief return the number of bonds read (> 0 can be treated as success).
- Apply to the given molecule.
-
- imol_enc can be the model molecule number or
- IMOL_ENC_ANY = -999999, IMOL_ENC_AUTO = -999998, IMOL_ENC_UNSET = -999997
-
- */
-int handle_cif_dictionary_for_molecule(const char *filename, int imol_enc, short int new_molecule_from_dictionary_cif_checkbutton_state);
 
 int write_connectivity(const char* monomer_name, const char *filename);
 /*! \brief open the cif dictionary file selector dialog */
@@ -6548,6 +6542,17 @@ void do_clipped_surface_scm(int imol, SCM residue_specs);
 void do_clipped_surface_py(int imol, PyObject *residue_specs);
 #endif /*  USE_PYTHON */
 #endif	/* __cplusplus */
+
+/*! make molecular surface for given atom selection
+
+    per-chain functions can be added later */
+void make_molecular_surface(int imol, const char *selection_string);
+
+/*! make electrostatics surface for given atom selection
+
+  per-chain functions can be added later */
+void make_electrostatic_surface(int imol, const char *selection_string);
+
 void set_electrostatic_surface_charge_range(float v);
 float get_electrostatic_surface_charge_range();
 

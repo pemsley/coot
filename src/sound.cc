@@ -68,6 +68,8 @@ play_sound_file_macos(const std::string &file_name) {
 
    auto play_sound_file_inner = [_] (const std::string &file_name) {
 
+      std::cout << "DEBUG:: play_sound_file_inner: " << file_name << std::endl;
+
       ALCdevice *m_pDevice = alcOpenDevice(NULL);
       alcCreateContext(m_pDevice, NULL);
 

@@ -65,12 +65,12 @@ molecule_class_info_t::draw_surface() {
 void
 molecule_class_info_t::draw_transparent_molecular_surface() {
 #if 0
-   float opacity = 0.4; // pass this 
+   float opacity = 0.4; // pass this
    if (cootsurface) {
       cootsurface->transparent_draw(opacity);
    }
 #endif
-} 
+}
 
 
 void
@@ -82,7 +82,7 @@ molecule_class_info_t::make_surface(int on_off_flag,
    if (atom_sel.n_selected_atoms > 0) {
 
       bool charges_applied_flag = apply_charges(geom);
-      
+
       if (on_off_flag == 0) {
 	 cootsurface = NULL;
 	 glDeleteLists(theSurface, 1);
@@ -95,14 +95,14 @@ molecule_class_info_t::make_surface(int on_off_flag,
 	 if (charges_applied_flag)
 	    need_charges_assigned = 0;
 
-	 if (0) 
+	 if (false)
 	    std::cout << "in molecule_class_info_t::make_surface() charges_applied_flag "
 		      << charges_applied_flag
 		      << " need_charges_assigned " << need_charges_assigned << std::endl;
-	 
+
 	 cootsurface->fill_from(atom_sel.mol, atom_sel.SelectionHandle, col_scale,
 				need_charges_assigned);
-	 if (cootsurface) 
+	 if (cootsurface)
 	    cootsurface->draw(0, 0);
 	 glEndList();
       }

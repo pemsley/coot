@@ -38,12 +38,22 @@ class logging {
 public:
    enum type_t { INFO, WARNING, DEBUG, ERROR, UNSPECIFIED};
 
+   class function_name_t {
+   public:
+      explicit function_name_t() { fn = "unspecified"; }
+      explicit function_name_t(const std::string &s) { fn = s; }
+      std::string fn;
+   };
+
    class log_item {
    public:
       time_t t;
       type_t type;
+      function_name_t function_name;
       std::string message;
       log_item(type_t type_in, const std::string &message_in) : t(0), type(type_in), message(message_in) {}
+      log_item(type_t type_in, const function_name_t &fn, const std::string &message_in) :
+         t(0), type(type_in), function_name(fn), message(message_in) {}
       log_item(const std::string &message_in) : t(0), type(UNSPECIFIED), message(message_in) {}
       friend std::ostream& operator<<(std::ostream &o, const log_item &li);
    };
@@ -83,6 +93,10 @@ private:
    void log(type_t type_in,
             const ltw &l1, const ltw &l2, const ltw &l3, const ltw &l4, const ltw &l5,
             const ltw &l6, const ltw &l7, const ltw &l8, const ltw &l9, const ltw &l10, const ltw &l11);
+
+   // 20241211-PE now I want to pass the function name also - let's do those...
+   void log(type_t type_in, const function_name_t &fn, const std::string &s1);
+
    void show() const;
    friend std::ostream& operator<<(std::ostream &o, const log_item &li);
 };

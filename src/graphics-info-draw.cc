@@ -24,6 +24,7 @@
  *
  */
 
+#include "glm/matrix.hpp"
 #ifdef USE_PYTHON
 #include <Python.h>
 #endif // USE_PYTHON
@@ -635,12 +636,22 @@ graphics_info_t::get_molecule_mvp(bool debug_matrices) {
    int w = graphics_x_size;
    int h = graphics_y_size;
 
-   if (true) {  // debug problematic matrices - get rid of this, make sure that it doesn't do anything                    
+   if (false) {  // debug problematic matrices - get rid of this, make sure that it doesn't do anything
       GtkAllocation allocation;
       gtk_widget_get_allocation(graphics_info_t::glareas[0], &allocation);
       w = allocation.width;
       h = allocation.height;
    }
+
+   if (scale_up_graphics != 1) {
+      w *= scale_up_graphics;
+      h *= scale_up_graphics;
+   }
+   if (scale_down_graphics != 1) {
+      w /= scale_down_graphics;
+      h /= scale_down_graphics;
+   }
+   // std::cout << scale_up_graphics << " " << scale_down_graphics << " " << w << " " << h << std::endl;
 
    bool do_orthographic_projection = ! perspective_projection_flag; // weird
    glm::mat4  view_matrix =       get_view_matrix();
@@ -2624,7 +2635,10 @@ graphics_info_t::draw_rotation_centre_crosshairs(GtkGLArea *glarea, unsigned int
 
    glm::vec3 rc = graphics_info_t::get_rotation_centre();
    mvp = glm::translate(mvp, rc);
-   float s = 6.0f * rotation_centre_cube_size;
+   // 20241105-PE is this a good idea?
+   if (rotation_centre_cube_size < 0.02)
+      rotation_centre_cube_size = 0.02;
+   float s = 2.0f * rotation_centre_cube_size;
    glm::vec3 sc(s,s,s);
    mvp = glm::scale(mvp, sc);
 
@@ -2640,10 +2654,14 @@ graphics_info_t::draw_rotation_centre_crosshairs(GtkGLArea *glarea, unsigned int
                       << std::endl;
 
    if (pass_type == PASS_TYPE_STANDARD) {
+
       bool is_bb = graphics_info_t::background_is_black_p();
-      glm::vec4 line_colour(0.8f, 0.8f, 0.8f, 1.0f);
-      if (! is_bb) 
-         line_colour = glm::vec4(0.2f, 0.2f, 0.2f, 1.0f);
+      glm::vec4 line_colour = rotation_centre_cross_hairs_colour;
+      if (! is_bb)
+         line_colour = glm::vec4(1.0f - rotation_centre_cross_hairs_colour[0],
+                                 1.0f - rotation_centre_cross_hairs_colour[1],
+                                 1.0f - rotation_centre_cross_hairs_colour[0],
+                                 1.0f);
 
       GLuint line_colour_uniform_location = shader_for_central_cube.line_colour_uniform_location;
       glUniform4fv(line_colour_uniform_location, 1, glm::value_ptr(line_colour));
@@ -2681,224 +2699,12 @@ graphics_info_t::draw_rotation_centre_crosshairs(GtkGLArea *glarea, unsigned int
 
 }
 
-#if 0 // reproduced in new-startup.cc
-
-<<<<<<< HEAD
-void on_glarea_drag_begin_primary(GtkGestureDrag *gesture,
-                          double          x,
-                          double          y,
-                          GtkWidget      *area) {
-
-   // display_info_t di;
-   // di.mouse_x = x;
-   // di.mouse_y = y;
-   // di.drag_begin_x = x;
-   // di.drag_begin_y = y;
-=======
-// create and pack, but don't show it (in this function).
-//
-GtkWidget *create_and_pack_gtkglarea(GtkWidget *vbox, bool use_gtk_builder) {
->>>>>>> gtk3
-
-   graphics_info_t g;
-   g.on_glarea_drag_begin_primary(gesture, x, y, area);
-
-<<<<<<< HEAD
-=======
-   GtkWidget *w = gtk_gl_area_new();
-
-   auto get_gl_widget_dimension_scale_factor  = [] () {
-                                                   int sf = 1;
-                                                   char *e = getenv("COOT_OPENGL_WIDGET_SCALE_FACTOR");
-                                                   if (e) {
-                                                      std::string ee(e);
-                                                      sf = std::stoi(ee);
-                                                   }
-                                                   return sf;
-                                                };
-
-   // allow the user to set the major and minor version (for debugging)
-
-   int opengl_major_version = 3;
-   int opengl_minor_version = 3;
-   char *e1 = getenv("COOT_OPENGL_MAJOR_VERSION");
-   char *e2 = getenv("COOT_OPENGL_MINOR_VERSION");
-   if (e1) {
-      std::string e1s(e1);
-      opengl_major_version = std::stoi(e1s);
-   }
-   if (e2) {
-      std::string e2s(e2);
-      opengl_minor_version = std::stoi(e2s);
-   }
-
-   if (e1 || e2)
-      std::cout << "INFO:: setting OpenGL required version to "
-                << opengl_major_version << " " << opengl_minor_version << std::endl;
-
-   gtk_gl_area_set_required_version(GTK_GL_AREA(w), opengl_major_version, opengl_minor_version);
-
-   unsigned int dimensions = 900;
-   int gl_widget_dimension_scale_factor = get_gl_widget_dimension_scale_factor();
-   gtk_widget_set_size_request(w,
-                               gl_widget_dimension_scale_factor * dimensions,
-                               gl_widget_dimension_scale_factor * dimensions);
-   gtk_box_pack_start(GTK_BOX(vbox), w, TRUE, TRUE, 0);
-   return w;
->>>>>>> gtk3
-}
-
-void on_glarea_drag_update_primary(GtkGestureDrag *gesture,
-                           double          delta_x,
-                           double          delta_y,
-                           GtkWidget      *area) {
-
-   graphics_info_t g;
-   g.on_glarea_drag_update_primary(gesture, delta_x, delta_y, area);
-
-}
-
-void on_glarea_drag_end_primary(GtkGestureDrag *gesture,
-                                double          x,
-                                double          y,
-                                GtkWidget      *area) {
-
-   // std::cout << "drag end" << std::endl;
-   // do nothing at the moment.
-   graphics_info_t g;
-   g.on_glarea_drag_end_primary(gesture, x, y, area);
-}
-
-
-void on_glarea_drag_begin_secondary(GtkGestureDrag *gesture,
-                          double          x,
-                          double          y,
-                          GtkWidget      *area) {
-
-   graphics_info_t g;
-   g.on_glarea_drag_begin_secondary(gesture, x, y, area);
-
-}
-
-void on_glarea_drag_update_secondary(GtkGestureDrag *gesture,
-                                     double          delta_x,
-                                     double          delta_y,
-                                     GtkWidget      *area) {
-
-   graphics_info_t g;
-   g.on_glarea_drag_update_secondary(gesture, delta_x, delta_y, area);
-
-}
-
-void on_glarea_drag_end_secondary(GtkGestureDrag *gesture,
-                                  double          x,
-                                  double          y,
-                                  GtkWidget      *area) {
-
-   graphics_info_t g;
-   g.on_glarea_drag_end_secondary(gesture, x, y, area);
-}
-
-
-
-void on_glarea_drag_begin_middle(GtkGestureDrag *gesture,
-                          double          x,
-                          double          y,
-                          GtkWidget      *area) {
-
-   graphics_info_t g;
-   g.on_glarea_drag_begin_middle(gesture, x, y, area);
-
-}
-
-void on_glarea_drag_update_middle(GtkGestureDrag *gesture,
-                                  double          delta_x,
-                                  double          delta_y,
-                                  GtkWidget      *area) {
-
-   graphics_info_t g;
-   g.on_glarea_drag_update_middle(gesture, delta_x, delta_y, area);
-
-}
-
-void on_glarea_drag_end_middle(GtkGestureDrag *gesture,
-                               double          x,
-                               double          y,
-                               GtkWidget      *area) {
-
-
-   graphics_info_t g;
-   g.on_glarea_drag_end_middle(gesture, x, y, area);
-}
-
-#endif // reproduced in new-startup.cc
-
-
-
-
-#if 0 // old
-// ---------------------------------------------------------------------------------------------------
-// ---------------------------------------------------------------------------------------------------
-//                            key press
-// ---------------------------------------------------------------------------------------------------
-// ---------------------------------------------------------------------------------------------------
-
-
-gboolean
-on_glarea_key_controller_key_pressed(GtkEventControllerKey *controller,
-                                     guint                  keyval,
-                                     guint                  keycode,
-                                     guint                  modifiers,
-                                     GtkButton             *button) {
-
-   graphics_info_t g;
-   // allow other controllers to act (say TAB has been pressed)
-   gboolean handled = g.on_glarea_key_controller_key_pressed(controller, keyval, keycode, modifiers);
-   return gboolean(handled);
-}
-
-void
-on_glarea_key_controller_key_released(GtkEventControllerKey *controller,
-                                      guint                  keyval,
-                                      guint                  keycode,
-                                      guint                  modifiers,
-                                      GtkButton             *button) {
-
-   graphics_info_t g;
-   g.on_glarea_key_controller_key_released(controller, keyval, keycode, modifiers);
-
-}
-
-void
-on_glarea_click(GtkGestureClick* click_gesture,
-                gint n_press,
-                gdouble x,
-                gdouble y,
-                gpointer user_data) {
-
-   graphics_info_t g;
-   g.on_glarea_click(click_gesture, n_press, x, y, user_data);
-
-}
-
-void
-on_glarea_scrolled(GtkEventControllerScroll *controller,
-                   double                    dx,
-                   double                    dy,
-                   gpointer                  user_data) {
-
-   graphics_info_t g;
-   g.on_glarea_scrolled(controller, dx, dy, user_data);
-
-}
-
-#endif // event handlers
 
 // #include "event-controller-callbacks.hh"
 
 void print_opengl_info() {
 
-   std::cout << "----------------------- print_opengl_info() ----------" << std::endl;
+   // std::cout << "----------------------- print_opengl_info() ----------" << std::endl;
 
    const char *s1 = reinterpret_cast<const char *>(glGetString(GL_VERSION));
    const char *s2 = reinterpret_cast<const char *>(glGetString(GL_SHADING_LANGUAGE_VERSION));
@@ -6378,7 +6184,7 @@ graphics_info_t::idle_contour_function(gpointer data) {
 // can't be a lambda funtion because of capture issues
 
 void keypad_translate_xyz(short int axis, short int direction) {
-      
+
       graphics_info_t g;
       if (axis == 3) {
          coot::Cartesian v = screen_z_to_real_space_vector(graphics_info_t::glareas[0]);
@@ -6647,39 +6453,23 @@ graphics_info_t::setup_key_bindings() {
                                                                               forward_flag);
                              if (new_ori.first) {
 
-                                coot::util::quaternion q(new_ori.second.rot());
-                                glm::quat q_ncs = coot_quaternion_to_glm(q);
-
-                                // glm::quat qq = view_quaternion * q_ncs;
-                                // glm::quat qq = view_quaternion * glm::inverse(q_ncs);
-                                // glm::quat qq = view_quaternion * glm::conjugate(q_ncs);
-                                // glm::quat qq = q_ncs * view_quaternion;
-                                // glm::quat qq = glm::inverse(q_ncs) * view_quaternion;
-                                // glm::quat qq = glm::conjugate(q_ncs) * view_quaternion;
-
-                                glm::quat qq = glm::conjugate(q_ncs) * view_quaternion;
-
-                                view_quaternion = qq;
-                                // view_quaternion = glm::normalize(view_quaternion * q_ncs); // wrong
-
                                 clipper::Coord_orth t(new_ori.second.trn());
                                 set_rotation_centre(t);
 
-                                glm::quat q_ncs_1 = glm::rotate(q_ncs,   3.1415926f, glm::vec3(1,0,0));
-                                glm::quat q_ncs_2 = glm::rotate(q_ncs_1, 3.1415926f, glm::vec3(1,0,0));
-                                glm::quat q_ncs_3 = glm::inverse(q_ncs_2);
+                                coot::util::quaternion q(new_ori.second.rot());
+                                glm::quat q_ncs = coot_quaternion_to_glm(q);
 
-                                coot::util::quaternion cq = glm_to_coot_quaternion(q_ncs_3);
+                                // view_quaternion = glm::inverse(q_ncs) * view_quaternion; no
+                                // view_quaternion = q_ncs * view_quaternion; // no
+                                // view_quaternion = view_quaternion * q_ncs; // no
+                                // view_quaternion = view_quaternion * glm::inverse(q_ncs); // no
+                                // view_quaternion = view_quaternion * glm::conjugate(q_ncs); no
+                                // view_quaternion = glm::conjugate(q_ncs) * view_quaternion; // no
 
-                                std::cout << "debug q_ncs  : " << glm::to_string(q_ncs)   << std::endl;
-                                std::cout << "debug q_ncs_1: " << glm::to_string(q_ncs_1) << std::endl;
-                                std::cout << "debug q_ncs_2: " << glm::to_string(q_ncs_2) << std::endl;
-                                std::cout << "debug q_ncs_3: " << glm::to_string(q_ncs_3) << std::endl;
-                                std::cout << "before: " << q << " after " << cq << std::endl;
+                                // I don't get it - annoying.
 
                                 graphics_info_t g;
-                                g.update_things_on_move();
-
+                                g.update_things_on_move(); // not static
                              }
                              break;
                           }
@@ -7039,7 +6829,6 @@ graphics_info_t::setup_key_bindings() {
                  };
 
    auto lc_toggle_validation_side_panel = [] () {
-      graphics_info_t g;
       GtkWidget* pane = widget_from_builder("main_window_ramchandran_and_validation_pane");
       if (pane) {
          if (gtk_widget_get_visible(pane) == TRUE) {
@@ -7051,6 +6840,17 @@ graphics_info_t::setup_key_bindings() {
       return gboolean(TRUE);
    };
 
+   auto lc_toggle_alt_conf_view = [] () {
+      graphics_info_t g;
+      std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+      const std::string &current_alt_conf = pp.second.second.alt_conf;
+      if (pp.first) {
+         int imol = pp.second.first;
+         g.molecules[imol].alt_conf_view_next_alt_conf(current_alt_conf);
+      }
+      return gboolean(TRUE);
+   };
+
    key_bindings_t ctrl_arrow_left_key_binding(lc4, "R/T Left");
    key_bindings_t ctrl_arrow_right_key_binding(lc5, "R/T Right");
    key_bindings_t ctrl_arrow_up_key_binding(lc6, "R/T Up");
@@ -7058,14 +6858,16 @@ graphics_info_t::setup_key_bindings() {
    key_bindings_t ctrl_eigen_flip(l20, "Eigen-Flip");
    key_bindings_t ctrl_quick_save(lc_qsa, "Quick Save");
    key_bindings_t ctrl_toggle_panel(lc_toggle_validation_side_panel, "Toggle Validation Panel");
+   key_bindings_t ctrl_toggle_alt_conf_view(lc_toggle_alt_conf_view, "Toggle Alt Conf View");
 
    std::pair<keyboard_key_t, key_bindings_t> p4(keyboard_key_t(GDK_KEY_Left,  true), ctrl_arrow_left_key_binding);
    std::pair<keyboard_key_t, key_bindings_t> p5(keyboard_key_t(GDK_KEY_Right, true), ctrl_arrow_right_key_binding);
    std::pair<keyboard_key_t, key_bindings_t> p6(keyboard_key_t(GDK_KEY_Up,    true), ctrl_arrow_up_key_binding);
    std::pair<keyboard_key_t, key_bindings_t> p7(keyboard_key_t(GDK_KEY_Down,  true), ctrl_arrow_down_key_binding);
-   std::pair<keyboard_key_t, key_bindings_t> p8(keyboard_key_t(GDK_KEY_e,     true), ctrl_eigen_flip);
-   std::pair<keyboard_key_t, key_bindings_t> p9(keyboard_key_t(GDK_KEY_s,     true), ctrl_quick_save);
-   std::pair<keyboard_key_t, key_bindings_t> p10(keyboard_key_t(GDK_KEY_b,     true), ctrl_toggle_panel);
+   std::pair<keyboard_key_t, key_bindings_t> p11(keyboard_key_t(GDK_KEY_a,    true), ctrl_toggle_alt_conf_view);
+   std::pair<keyboard_key_t, key_bindings_t> p10(keyboard_key_t(GDK_KEY_b,    true), ctrl_toggle_panel);
+   std::pair<keyboard_key_t, key_bindings_t>  p8(keyboard_key_t(GDK_KEY_e,    true), ctrl_eigen_flip);
+   std::pair<keyboard_key_t, key_bindings_t>  p9(keyboard_key_t(GDK_KEY_s,    true), ctrl_quick_save);
 
    kb_vec.push_back(p4);
    kb_vec.push_back(p5);

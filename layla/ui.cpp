@@ -303,27 +303,33 @@ GtkApplicationWindow* coot::layla::setup_main_window(GtkApplication* app, GtkBui
             return qed_grid;
         };
 
+        enum class num_rep_t {FLOAT, INT};
+
         GtkWidget* tab = find_or_create_tab_for_mol_id(molecule_id);
 
-        auto update_progressbar_info_box = [] (GtkWidget *info_box, double value, double progress_bar_value) {
+        auto update_progressbar_info_box = [] (GtkWidget *info_box, num_rep_t t, double value, double progress_bar_value) {
             GtkWidget* label = gtk_widget_get_first_child(info_box);
             GtkWidget* progress_bar = gtk_widget_get_next_sibling(label);
             auto value_as_str = std::to_string(value);
+            if (t == num_rep_t::INT) {
+               int i = static_cast<int>(value);
+               value_as_str = std::to_string(i);
+            }
             gtk_progress_bar_set_text(GTK_PROGRESS_BAR(progress_bar), value_as_str.c_str());
             gtk_progress_bar_set_fraction(GTK_PROGRESS_BAR(progress_bar), progress_bar_value);
         };
 
         // std::cout << "debug molecular_weight " << qed_info->molecular_weight << " " << qed_info->ads_mw << std::endl;
         // these are (carefully) accessed by grid location, not name:
-        update_progressbar_info_box(gtk_grid_get_child_at(GTK_GRID(tab), 0, 0), qed_info->qed_score,                         qed_info->qed_score);
-        update_progressbar_info_box(gtk_grid_get_child_at(GTK_GRID(tab), 0, 1), qed_info->molecular_weight,                  qed_info->ads_mw);
-        update_progressbar_info_box(gtk_grid_get_child_at(GTK_GRID(tab), 1, 1), qed_info->molecular_polar_surface_area,      qed_info->ads_psa);
-        update_progressbar_info_box(gtk_grid_get_child_at(GTK_GRID(tab), 2, 1), qed_info->alogp,                             qed_info->ads_alogp);
-        update_progressbar_info_box(gtk_grid_get_child_at(GTK_GRID(tab), 3, 1), qed_info->number_of_hydrogen_bond_acceptors, qed_info->ads_hba);
-        update_progressbar_info_box(gtk_grid_get_child_at(GTK_GRID(tab), 0, 2), qed_info->number_of_hydrogen_bond_donors,    qed_info->ads_hbd);
-        update_progressbar_info_box(gtk_grid_get_child_at(GTK_GRID(tab), 1, 2), qed_info->number_of_rotatable_bonds,         qed_info->ads_rotb);
-        update_progressbar_info_box(gtk_grid_get_child_at(GTK_GRID(tab), 2, 2), qed_info->number_of_aromatic_rings,          qed_info->ads_arom);
-        update_progressbar_info_box(gtk_grid_get_child_at(GTK_GRID(tab), 3, 2), qed_info->number_of_alerts,                  qed_info->ads_alert);
+        update_progressbar_info_box(gtk_grid_get_child_at(GTK_GRID(tab), 0, 0), num_rep_t::FLOAT, qed_info->qed_score,                         qed_info->qed_score);
+        update_progressbar_info_box(gtk_grid_get_child_at(GTK_GRID(tab), 0, 1), num_rep_t::INT,   qed_info->molecular_weight,                  qed_info->ads_mw);
+        update_progressbar_info_box(gtk_grid_get_child_at(GTK_GRID(tab), 1, 1), num_rep_t::FLOAT, qed_info->molecular_polar_surface_area,      qed_info->ads_psa);
+        update_progressbar_info_box(gtk_grid_get_child_at(GTK_GRID(tab), 2, 1), num_rep_t::FLOAT, qed_info->alogp,                             qed_info->ads_alogp);
+        update_progressbar_info_box(gtk_grid_get_child_at(GTK_GRID(tab), 3, 1), num_rep_t::INT,   qed_info->number_of_hydrogen_bond_acceptors, qed_info->ads_hba);
+        update_progressbar_info_box(gtk_grid_get_child_at(GTK_GRID(tab), 0, 2), num_rep_t::INT,   qed_info->number_of_hydrogen_bond_donors,    qed_info->ads_hbd);
+        update_progressbar_info_box(gtk_grid_get_child_at(GTK_GRID(tab), 1, 2), num_rep_t::INT,   qed_info->number_of_rotatable_bonds,         qed_info->ads_rotb);
+        update_progressbar_info_box(gtk_grid_get_child_at(GTK_GRID(tab), 2, 2), num_rep_t::INT,   qed_info->number_of_aromatic_rings,          qed_info->ads_arom);
+        update_progressbar_info_box(gtk_grid_get_child_at(GTK_GRID(tab), 3, 2), num_rep_t::INT,   qed_info->number_of_alerts,                  qed_info->ads_alert);
 
     };
     g_signal_connect(canvas, "qed-info-updated", G_CALLBACK(+qed_info_updated_handler), qed_notebook);
@@ -350,7 +356,7 @@ GtkApplicationWindow* coot::layla::setup_main_window(GtkApplication* app, GtkBui
 GtkBuilder* coot::layla::load_gtk_builder() {
 
         g_info("Loading Layla's UI...");
-        
+
         std::string dir = coot::package_data_dir();
         // all ui files should live here:
         std::string dir_ui = coot::util::append_dir_dir(dir, "ui");

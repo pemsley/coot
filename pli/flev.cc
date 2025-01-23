@@ -1,4 +1,25 @@
+/* pli/flev.cc
+ * 
+ * Copyright 2012 by The University of Oxford
+ * 
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 3 of the License, or (at
+ * your option) any later version.
+ * 
+ * This program is distributed in the hope that it will be useful, but
+ * WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+ * General Public License for more details.
+ * 
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
+ * 02110-1301, USA
+ */
 
+#include <cstdint> // fix std::uint64_t problems
+#include "lidia-core/svg-container.hh"
 #include "lidia-core/rdkit-interface.hh"
 #include "coot-utils/coot-coord-utils.hh"
 #include "flev.hh"
@@ -6,6 +27,7 @@
 #include "dots-representation-info.hh"
 #include "protein-ligand-interactions.hh"
 #include "atom-ring-centre-info.hh"
+#include <string>
 
 
 std::map<std::string, std::string>
@@ -104,7 +126,7 @@ pli::get_flev_residue_centres(mmdb::Residue *residue_ligand_3d,
          delete res_copy;
       }
    }
-   if (true)
+   if (false)
       for (unsigned int ic=0; ic<centres.size(); ic++) {
          std::cout << "centre " << ic << " has TR_centre "
                    << centres[ic].transformed_relative_centre.format() << std::endl;
@@ -138,6 +160,162 @@ flev_t::render() {
 
 }
 
+// return 1 on solution having problems, 0 for no problems, also
+// return a list of the residue circles with problems.
+//
+std::pair<bool, std::vector<int> >
+flev_t::solution_has_problems_p() const {
+
+   std::vector<int> v;
+   bool status = 0;
+
+   // scale factor of 1.2 is too small, 2.0 seems good for H102 in 2aei
+   // double crit_dist_2 = 2.0 * SINGLE_BOND_CANVAS_LENGTH * SINGLE_BOND_CANVAS_LENGTH;
+   double crit_dist = 2.5;
+   double crit_dist_sqrd = crit_dist * crit_dist;
+   double crit_dist_wide_2 = 4 * crit_dist_sqrd;
+
+   // a problem can be 2 atoms < crit_dist_2 or
+   //                  5 atoms < crit_dist_wide_2
+   //
+   // we need the wider check to find atoms that are enclosed by a
+   // system of 10 or so atoms.
+   //
+
+   for (unsigned int i=0; i<residue_circles.size(); i++) {
+      int n_close = 0;
+      int n_close_wide = 0;
+      for (unsigned int j=0; j<mol.atoms.size(); j++) {
+	 double d2 = (residue_circles[i].pos-mol.atoms[j].atom_position).lengthsq();
+         std::string mark = "";
+         if (d2 < crit_dist_sqrd) mark = " ***";
+         std::cout << "in solution_has_problems_p(): comparing " << std::sqrt(d2) << " " << crit_dist
+                   << " residue: " << residue_circles[i].residue_label
+                   << " atom: " << mol.atoms[j].atom_name << " " << mark
+                   << std::endl;
+	 if (d2 < crit_dist_sqrd) {
+	    n_close++;
+	    if (n_close > 1) {
+	       v.push_back(i);
+	       status = 1;
+	       break;
+	    }
+	 }
+
+	 if (d2 < crit_dist_wide_2) {
+	    n_close_wide++;
+	    if (n_close_wide > 5) {
+	       v.push_back(i);
+	       status = 1;
+	       break;
+	    }
+	 }
+      }
+   }
+   return std::pair<bool, std::vector<int> > (status, v);
+}
+
+// check that the residues with bonds to the ligand have sane distances to the
+// bonding ligand atom
+std::pair<bool, std::vector<int> >
+flev_t::solution_has_bonded_problems_p() const {
+
+   bool status = false;
+   std::vector<int> v;
+   for (unsigned int i=0; i<residue_circles.size(); i++) {
+      const auto &rc = residue_circles[i];
+      if (rc.is_a_primary_residue()) {
+         for (unsigned int ib=0; ib<rc.bonds_to_ligand.size(); ib++) {
+            const auto &btl = rc.bonds_to_ligand[ib];
+            const std::string &ligand_atom_name = btl.ligand_atom_name;
+            std::pair<bool, lig_build::atom_t> ligand_atom_pair = mol.get_atom_by_name(ligand_atom_name);
+            if (ligand_atom_pair.first) {
+               const auto &ligand_atom = ligand_atom_pair.second;
+               lig_build::pos_t ligand_atom_pos = ligand_atom.atom_position;
+               double d = (rc.pos - ligand_atom_pos).length();
+               if (d > (btl.bond_length + 1.9)) {
+                  std::cout << "target distance for atom " << ligand_atom_name << " "
+                            << btl.bond_length << " vs actual: " << d << std::endl;
+                  status = true;
+                  v.push_back(i);
+               }
+            }
+         }
+      }
+   }
+   return std::pair<bool, std::vector<int> >(status, v);
+}
+
+// fiddle with the position of problematic residues that are bonded to the ligand
+//
+void
+flev_t::reposition_bonded_problematics_and_reoptimise(const std::vector<int> &problematics,
+                                                      const std::vector<int> &primary_indices) {
+
+   std::cout << "in reposition_bonded_problematics_and_reoptimise() we have "
+             << problematics.size() << " problematics " << std::endl;
+   for (unsigned int ip=0; ip<problematics.size(); ip++) {
+      const auto &problematic = residue_circles[problematics[ip]];
+      const lig_build::pos_t &res_pos = problematic.pos;
+      std::vector<std::pair<lig_build::pos_t, double> > aps =
+         problematic.get_attachment_points(mol);
+      if (! aps.empty()) {
+         for (unsigned int i=0; i<aps.size(); i++) {
+            const auto &attachment_point_pair = aps[i];
+
+         }
+      }
+   }
+}
+
+
+// fiddle with the position of some residues in residue_circles
+//
+void
+flev_t::reposition_problematics_and_reoptimise(const std::vector<int> &problematics,
+                                               const std::vector<int> &primary_indices) {
+
+   std::pair<lig_build::pos_t, lig_build::pos_t> l_e_pair = mol.ligand_extents();
+   ligand_grid grid(l_e_pair.first, l_e_pair.second);
+   grid.fill(mol);
+
+   for (unsigned int ip=0; ip<problematics.size(); ip++) {
+
+      // A trapped residue is now treated as a primary (bonding)
+      // residue with a distance to the "bad" solution of 3.5A (this
+      // distance does not matter) - for initial positioning.  It is
+      // not added to the primaries, so this bond length is not
+      // optimised.
+
+      std::vector<std::pair<lig_build::pos_t, double> > attachment_points;
+      lig_build::pos_t attach_pos = residue_circles[problematics[ip]].pos;
+      attach_pos += lig_build::pos_t (5.0 * double(rand())/double(RAND_MAX),
+                                      5.0 * double(rand())/double(RAND_MAX));
+
+      std::pair<lig_build::pos_t, double> p(attach_pos, 3.5);
+
+      attachment_points.push_back(p);
+      initial_primary_residue_circles_layout(grid, problematics[ip], attachment_points);
+   }
+
+   // set the initial positions for optimisation, now that we have
+   // fiddled with residue_circles
+   std::vector<residue_circle_t> current_circles = residue_circles;
+
+   for (int iround=0; iround<120; iround++) {
+      std::pair<int, std::vector<residue_circle_t> > new_c =
+	 optimise_residue_circle_positions(residue_circles, current_circles, primary_indices);
+      current_circles = new_c.second;
+      if (new_c.first == GSL_ENOPROG)
+	 break;
+      if (new_c.first == GSL_SUCCESS)
+	 break;
+   }
+   // now transfer results from the updating/tmp current_circles to the class data item:
+   residue_circles = current_circles;
+}
+
+
 bool
 flev_t::annotate(const std::vector<std::pair<coot::atom_spec_t, float> > &s_a_v,
                  const std::vector<pli::fle_residues_helper_t> &centres,
@@ -168,10 +346,13 @@ flev_t::annotate(const std::vector<std::pair<coot::atom_spec_t, float> > &s_a_v,
       }
    };
 
+   std::cout << "--------------------------- debug in ::annotate() with pi_stack_info.stackings.size "
+             << pi_stack_info.stackings.size() << std::endl;
 
-   if (true) {
+   if (false) {
+      std::cout << "debug::flev_t::annotate(): " << bonds_to_ligand.size() << " bonds to ligand" << std::endl;
       for (unsigned int ib=0; ib<bonds_to_ligand.size(); ib++) {
-         std::cout << "  =============== lbg::annotate() bond to ligand " << ib << " "
+         std::cout << "  =============== flev_t::annotate() bond to ligand " << ib << " "
                    << bonds_to_ligand[ib].ligand_atom_spec.atom_name
                    << " by residue " << bonds_to_ligand[ib].res_spec.chain_id << " "
                    << bonds_to_ligand[ib].res_spec.res_no << " type: "
@@ -182,7 +363,7 @@ flev_t::annotate(const std::vector<std::pair<coot::atom_spec_t, float> > &s_a_v,
 
    if (true) {
       std::cout << "--------------------------------------------------------------" << std::endl;
-      std::cout << "======== lbg_info_t::annotate() here are bash distances for atoms:" << std::endl;
+      std::cout << "======== flev_t::annotate() here are bash distances for atoms:" << std::endl;
       std::map<std::string, std::vector<coot::bash_distance_t> >::const_iterator it;
       for (it=ah.atom_bashes.begin(); it!=ah.atom_bashes.end(); it++) {
          std::cout << it->first << " " << it->second.size() << " bashes " << std::endl;
@@ -206,7 +387,7 @@ flev_t::annotate(const std::vector<std::pair<coot::atom_spec_t, float> > &s_a_v,
    for (unsigned int i=0; i<centres.size(); i++) {
 
       if (true)
-         std::cout << "debugg:: in lbg_info_t::annotate() handling circle " << i << " of "
+         std::cout << "debug:: in flev_t::annotate() handling circle " << i << " of "
                    << centres.size() << std::endl;
 
       std::string label = centres[i].spec.chain_id;
@@ -227,6 +408,10 @@ flev_t::annotate(const std::vector<std::pair<coot::atom_spec_t, float> > &s_a_v,
       // lig_build::pos_t pos = mol.input_coords_to_canvas_coords(cp); // 20240601-PE
       lig_build::pos_t pos = input_coords_to_canvas_coords(cp);
       circle.set_canvas_pos(pos);
+      std::cout << "debug:: in flev_t::annotate() residue-circle "
+                << cp.x() << " " << cp.y() << " " << cp.z()
+                << " canvas coord " << pos.x << " " << pos.y << std::endl;
+
       if (centres[i].residue_name == "HOH") {
          for (unsigned int ib=0; ib<bonds_to_ligand.size(); ib++) {
             if (bonds_to_ligand[ib].res_spec == centres[i].spec) {
@@ -252,6 +437,7 @@ flev_t::annotate(const std::vector<std::pair<coot::atom_spec_t, float> > &s_a_v,
       for (unsigned int istack=0; istack<pi_stack_info.stackings.size(); istack++) {
          coot::residue_spec_t spec(pi_stack_info.stackings[istack].res);
          if (spec == centres[i].spec) {
+            std::cout << "------------------- pi_stacking for residue " << spec << std::endl;
             if (pi_stack_info.stackings[istack].type == pli::pi_stacking_instance_t::PI_PI_STACKING) {
                std::vector<std::string> lra = pi_stack_info.stackings[istack].ligand_ring_atom_names;
                circle.set_stacking("pi-pi", lra, "");
@@ -296,7 +482,7 @@ flev_t::annotate(const std::vector<std::pair<coot::atom_spec_t, float> > &s_a_v,
    // just checking that it was passed correctly -
    //
    if (true) {
-      std::cout << "------------------- ring list ------------" << std::endl;
+      std::cout << "debug:: in flev_t::annotate() ------------------- ring list ------------" << std::endl;
       for (unsigned int i=0; i<ring_atoms_list.size(); i++) {
          std::cout << "ring list " << i << "   ";
          for (unsigned int j=0; j<ring_atoms_list[i].size(); j++) {
@@ -306,17 +492,40 @@ flev_t::annotate(const std::vector<std::pair<coot::atom_spec_t, float> > &s_a_v,
       }
    }
 
-   render();
+   if (true) {
+      std::cout << "debug:: in flev_t::annotate() ------------------- residue circles ------------" << std::endl;
+      for (unsigned int i=0; i<residue_circles.size(); i++) {
+         const auto &rc = residue_circles[i];
+         std::cout << "   " << std::setw(2) << i << " : "
+                 << std::setw(10) << std::setprecision(5) << std::right << std::fixed << rc.pos.x << " "
+                 << std::setw(10) << std::setprecision(5) << std::right << std::fixed << rc.pos.y << std::endl;
+      }
+   }
 
-#ifdef COMPILE_THE_HEART
-
-   import_from_widgeted_molecule(new_mol);
-   render();
    refine_residue_circle_positions();
 
+   std::pair<bool, std::vector<int> > bonded_problem_status = solution_has_bonded_problems_p();
+   std::cout << "::::::::: bonded problem status: " << bonded_problem_status.first << std::endl;
+   for (unsigned int ip=0; ip<bonded_problem_status.second.size(); ip++) {
+      std::cout << ":::::::::::: "
+                << residue_circles[bonded_problem_status.second[ip]].residue_label << " "
+                << residue_circles[bonded_problem_status.second[ip]].residue_type << " "
+                << residue_circles[bonded_problem_status.second[ip]].pos
+                << std::endl;
+   }
+   if (! bonded_problem_status.second.empty()) {
+      // fiddle with residue_circles and reoptimise.
+      std::vector<int> primary_indices = get_primary_indices();
+      // ordinary residues
+      reposition_bonded_problematics_and_reoptimise(bonded_problem_status.second, primary_indices);
+   }
+
+   // Now test the ordinary residues (not bonded to the ligand)
+   //
    // has the current solution problems due to residues too close to the ligand?
+
    std::pair<bool, std::vector<int> > problem_status = solution_has_problems_p();
-   // std::cout << "::::::::: problem status: " << problem_status.first << std::endl;
+   std::cout << "::::::::: problem status: " << problem_status.first << std::endl;
    for (unsigned int ip=0; ip<problem_status.second.size(); ip++) {
       std::cout << ":::::::::::: "
                 << residue_circles[problem_status.second[ip]].residue_label << " "
@@ -324,16 +533,12 @@ flev_t::annotate(const std::vector<std::pair<coot::atom_spec_t, float> > &s_a_v,
                 << residue_circles[problem_status.second[ip]].pos
                 << std::endl;
    }
-
-   if (problem_status.second.size()) {
+   if (! problem_status.second.empty()) {
       // fiddle with residue_circles and reoptimise.
       std::vector<int> primary_indices = get_primary_indices();
+      // ordinary residues
       reposition_problematics_and_reoptimise(problem_status.second, primary_indices);
    }
-
-   recentre_considering_residue_centres();
-
-#endif // COMPILE_THE_HEART
 
    return r;
 }
@@ -362,14 +567,22 @@ pli::fle_view_with_rdkit_internal(mmdb::Manager *mol,
                                   float residues_near_radius,
                                   const std::string &file_format, const std::string &output_image_file_name) {
 
-#ifndef MAKE_ENHANCED_LIGAND_TOOLS
+   auto write_string_to_file = [] (const std::string &s, const std::string &fn) {
 
-   std::cout << "WARNING:: fle_view_with_rdkit_internal() not enhanced ligand " << std::endl;
+      std::cout << "write string to file! " << fn << std::endl;
+      std::ofstream f(fn);
+      f << s;
+      f << "\n";
+      f.close();
+   };
 
-# else
+   double scale_factor = 400.0;
+   bool dark_background_flag = false; // pass this
 
    double weight_for_3d_distances = 0.4; // for 3d distances
    std::string output_format = file_format;
+
+   bool wrap_in_refresh_html = true;
 
    if (mol) {
       mmdb::Residue  *res_ref = coot::util::get_residue(chain_id, res_no, ins_code, mol);
@@ -461,10 +674,42 @@ pli::fle_view_with_rdkit_internal(mmdb::Manager *mol,
                   }
 
 
-                  int mol_2d_depict_conformer =
-                     coot::add_2d_conformer(&rdkm, weight_for_3d_distances);
-                  lig_build::molfile_molecule_t m =
-                     coot::make_molfile_molecule(rdkm, mol_2d_depict_conformer);
+                  int mol_2d_depict_conformer = coot::add_2d_conformer(&rdkm, weight_for_3d_distances);
+                  lig_build::molfile_molecule_t m = coot::make_molfile_molecule(rdkm, mol_2d_depict_conformer);
+
+                  flev_t flev;
+
+                  flev.mol.import_rdkit_mol(&rdkm, mol_2d_depict_conformer);
+                  // these coordinates are in molecule coordinates based around the middle of the residue
+                  if (false) {
+                     std::cout << "--------------- pre make_svg() for molecule" << std::endl;
+                     std::cout << "there were " << flev.mol.num_atoms() << " in svg mol" << std::endl;
+                     unsigned int n = flev.mol.num_atoms();
+                     for (unsigned int i=0; i<n; i++) {
+                        const auto &atom = flev.mol.atoms[i];
+                        std::cout << "atom " << i << " " << atom.atom_id << " " << atom.atom_position << std::endl;
+                     }
+                  }
+
+                  scale_factor = 1.0;
+                  bool add_background = false;
+                  svg_container_t svgc = flev.mol.make_svg(scale_factor, dark_background_flag, add_background);
+
+                  if (wrap_in_refresh_html) {
+                     // 20250106-PE: hack the bounds for now
+                     svgc.set_bounds(-9, -7, 20, 20);
+                     std::string s = svgc.compose(true);
+                     unsigned int refresh_delta = 1;
+                     std::string html_top = "<!DOCTYPE html><html><head><meta http-equiv=\"refresh\" ";
+                     html_top += "content=\"" + std::to_string(refresh_delta);
+                     html_top += "\"></head><body>\n";
+                     std::string html_foot = "</body><html>\n";
+                     std::string ss = html_top + s + html_foot;
+                     s = ss;
+                     write_string_to_file(ss, "flev-test-1.svg.html");
+                  } else {
+                     write_string_to_file(svgc.compose(true), "flev-test-1.svg");
+                  }
 
                   mmdb::Residue *residue_flat = coot::make_residue(rdkm, mol_2d_depict_conformer, "XXX");
                   mmdb::Manager *mol_for_flat_residue = coot::util::create_mmdbmanager_from_residue(residue_flat); // d
@@ -498,8 +743,6 @@ pli::fle_view_with_rdkit_internal(mmdb::Manager *mol,
 
                    std::map<std::string, std::string> name_map = pli::make_flat_ligand_name_map(res_ref);
 
-                  flev_t flev;
-
                   // should this be a flev function?
                   std::vector<pli::fle_ligand_bond_t> bonds_to_ligand =
                      pli::get_fle_ligand_bonds(res_ref, filtered_residues,
@@ -515,29 +758,49 @@ pli::fle_view_with_rdkit_internal(mmdb::Manager *mol,
 
                   std::vector<int> add_reps_vec;
 
-#if 0 // 20240614-PE linking problems! - unresolved operator<<().
-                  if (true) {
-                     for (unsigned int ic=0; ic<res_centres.size(); ic++)
-                        std::cout << "   " << ic << "  " << res_centres[ic]
+                  if (false) {
+                     for (unsigned int ic=0; ic<res_centres.size(); ic++) {
+                        const auto &res_centre = res_centres[ic];
+                        std::cout << "  res_centres: " << ic
+                                  << " " << res_centre.spec << " " << res_centre.residue_name
+                                  << " " << res_centre.transformed_relative_centre.format()
                                   << std::endl;
+                     }
                   }
-#endif
 
                   // ----------- residue infos ----------
                   //
                   pli::pi_stacking_container_t pi_stack_info(p.second, filtered_residues, res_ref, rdkm);
-                  
+
                   // ----------- ligand atom infos ------
                   //
                   flev_attached_hydrogens_t ah(p.second);
                   // ah.cannonballs(res_ref, mol_for_res_ref, p.second);
                   ah.distances_to_protein_using_correct_Hs(res_ref, mol_for_res_ref, *geom_p);
-                  
-                  // ------------ show it -----------------
+
+                  // ------------ show annotations -----------------
                   //
-                  flev.annotate(s_a_v, res_centres, add_reps_vec, bonds_to_ligand, sed, ah, pi_stack_info, p.second);
-                  
-                  flev.draw_all_flev_annotations();
+                  bool annotate_status = flev.annotate(s_a_v, res_centres, add_reps_vec, bonds_to_ligand,
+                                                       sed, ah, pi_stack_info, p.second);
+
+                  svg_container_t svgc_2 = flev.draw_all_flev_annotations();
+                  svgc.add(svgc_2);
+
+                  if (wrap_in_refresh_html) {
+                     // 20250106-PE: hack the bounds for now
+                     svgc.set_bounds(-20, -20, 40, 40);
+                     std::string s = svgc.compose(true);
+                     unsigned int refresh_delta = 1;
+                     std::string html_top = "<!DOCTYPE html><html><head><meta http-equiv=\"refresh\" ";
+                     html_top += "content=\"" + std::to_string(refresh_delta);
+                     html_top += "\"></head><body>\n";
+                     std::string html_foot = "</body><html>\n";
+                     std::string ss = html_top + s + html_foot;
+                     s = ss;
+                     write_string_to_file(ss, "flev-test-all-parts-svg.html");
+                  } else {
+                     write_string_to_file(svgc.compose(true), "flev-test-all-parts.svg");
+                  }
 
                   if (output_format == "png") flev.write_png(output_image_file_name);
                   if (output_format == "svg") flev.write_svg(output_image_file_name);
@@ -555,7 +818,6 @@ pli::fle_view_with_rdkit_internal(mmdb::Manager *mol,
          }
       }
    }
-#endif // MAKE_ENHANCED_LIGAND_TOOLS
 }
 
 void
@@ -590,6 +852,9 @@ flev_t::draw_substitution_contour() {
                std::pair<lig_build::pos_t, lig_build::pos_t> l_e_pair =
                   mol.ligand_extents();
 
+               std::cout << "draw_substitution_contour(): creating ligand grid with args "
+                         << l_e_pair.first << " " << l_e_pair.second
+                         << std::endl;
                ligand_grid grid(l_e_pair.first, l_e_pair.second);
 
                if (true) { // debug
@@ -742,34 +1007,51 @@ flev_t::flev_residues_extents() const {
    return p;
 }
 
-void
+svg_container_t
 flev_t::draw_all_flev_annotations() {
 
-   draw_all_flev_residue_attribs();
-   draw_all_flev_ligand_annotations();
+   svg_container_t svgc;
+   svg_container_t svgc_ra = draw_all_flev_residue_attribs();
+   svg_container_t svgc_li = draw_all_flev_ligand_annotations();
+   svgc.add(svgc_ra);
+   svgc.add(svgc_li);
+   return svgc;
 }
 
-void
+svg_container_t
 flev_t::draw_all_flev_residue_attribs() {
 
-   draw_residue_circles(residue_circles, additional_representation_handles);
-   draw_bonds_to_ligand();
-   draw_stacking_interactions(residue_circles);
+   svg_container_t svgc;
+   svg_container_t svgc_rc  = draw_residue_circles(residue_circles, additional_representation_handles);
+   svg_container_t svgc_btl = draw_bonds_to_ligand();
+   svg_container_t svgc_si  = draw_stacking_interactions(residue_circles);
+   svgc.add(svgc_rc);
+   svgc.add(svgc_btl);
+   svgc.add(svgc_si);
+   return svgc;
 }
 
-void
+svg_container_t
 flev_t::draw_all_flev_ligand_annotations() {
 
+   svg_container_t svgc;
    draw_substitution_contour();
    draw_solvent_accessibility_of_atoms();
+   return svgc;
 }
 
-void
+svg_container_t
 flev_t::draw_stacking_interactions(const std::vector<residue_circle_t> &rc) {
+
+   svg_container_t svgc;
 
    for (unsigned int ires=0; ires<rc.size(); ires++) {
       int st = rc[ires].get_stacking_type();
       clipper::Coord_orth click_pos = rc[ires].residue_centre_real;
+
+      std::cout << ":::::::::::::::::: stacking: ires " << ires << " "
+                << rc[ires].has_ring_stacking_interaction()
+                << std::endl;
 
       if (rc[ires].has_ring_stacking_interaction()) {
 
@@ -779,49 +1061,79 @@ flev_t::draw_stacking_interactions(const std::vector<residue_circle_t> &rc) {
              (st == residue_circle_t::PI_CATION_STACKING)) {
             try {
                lig_build::pos_t lc = mol.get_ring_centre(ligand_ring_atom_names);
-               draw_annotated_stacking_line(lc, rc[ires].pos, st, click_pos);
+               svg_container_t svgc_asl = draw_annotated_stacking_line(lc, rc[ires].pos, st, click_pos);
+               svgc.add(svgc_asl);
             }
             catch (const std::runtime_error &rte) {
                std::cout << rte.what() << std::endl;
             }
          }
       }
+
       if (st == residue_circle_t::CATION_PI_STACKING) {
          std::string at_name = rc[ires].get_ligand_cation_atom_name();
          lig_build::pos_t atom_pos = mol.get_atom_canvas_position(at_name);
-         draw_annotated_stacking_line(atom_pos, rc[ires].pos, st, click_pos);
+         svg_container_t svgc_asl = draw_annotated_stacking_line(atom_pos, rc[ires].pos, st, click_pos);
+         svgc.add(svgc_asl);
       }
    }
+
+   std::cout << "draw_stacking_interactions returns an svg of size " << svgc.svg.size() << std::endl;
+   return svgc;
 }
 
 
 // click_pos is where we recentre in 3D graphics when the annotation
 // (line) is clicked.
-void
+svg_container_t
 flev_t::draw_annotated_stacking_line(const lig_build::pos_t &ligand_ring_centre,
                                          const lig_build::pos_t &residue_pos,
                                          int stacking_type,
                                          const clipper::Coord_orth &click_pos) {
 
-   double ligand_target_shortening_factor = 3;
+   auto do_polygon = [] (const std::vector<std::pair<double, double> > &hex_points) {
+      std::string s = "   <polygon points=\"";
+      for (unsigned int i=0; i<hex_points.size(); i++)
+         s += std::to_string(hex_points[i].first) + "," + std::to_string(-hex_points[i].second) + " ";
+      s += "\" style=\"fill:none;stroke:#109910;stroke-width:0.1\" />\n";
+      return s;
+   };
+
+   auto make_line = [] (const lig_build::pos_t &p1, const lig_build::pos_t &p2,
+                        double line_width, const std::string &stroke_colour, bool dashed) {
+      std::string s;
+      s += "   <line x1=\"" + std::to_string(p1.x) + "\" y1=\"" + std::to_string(-p1.y) + "\" ";
+      s += "x2=\"" + std::to_string(p2.x) + "\" y2=\"" + std::to_string(-p2.y) + "\" ";
+      s += "style=\"stroke:" + stroke_colour + ";stroke-width:" + std::to_string(line_width) + ";";
+      s += "stroke-linecap:round;";
+      if (dashed)
+         s += "stroke-dasharray:0.1,0.2;";
+      s += "\" />\n";
+      return s;
+   };
+
+   svg_container_t svgc;
+   svgc.add_comment("Stacking Line");
+
+   double ligand_target_shortening_factor = 0.1;
    if (stacking_type == residue_circle_t::CATION_PI_STACKING)
-      ligand_target_shortening_factor = 6;
+      ligand_target_shortening_factor = 0.2;
    lig_build::pos_t a_to_b_uv = (ligand_ring_centre - residue_pos).unit_vector();
-   lig_build::pos_t A = residue_pos + a_to_b_uv * 20;
+   lig_build::pos_t A = residue_pos + a_to_b_uv * 0.2;
    lig_build::pos_t B = ligand_ring_centre;
    // just short of the middle of the ring
    lig_build::pos_t C = B - a_to_b_uv * ligand_target_shortening_factor;
    lig_build::pos_t mid_pt = (A + B) * 0.5;
-   lig_build::pos_t close_mid_pt_1 = mid_pt - a_to_b_uv * 17;
-   lig_build::pos_t close_mid_pt_2 = mid_pt + a_to_b_uv * 17;
+   lig_build::pos_t close_mid_pt_1 = mid_pt - a_to_b_uv * 0.92;
+   lig_build::pos_t close_mid_pt_2 = mid_pt + a_to_b_uv * 0.92;
 
-   bool start_arrow = 0;
-   bool end_arrow = 1;
+   bool start_arrow = false;
+   bool end_arrow = true;
    std::string stroke_colour = "#008000";
 
    std::vector<lig_build::pos_t> hex_and_ring_centre(2);
-   hex_and_ring_centre[0] = mid_pt - a_to_b_uv * 7;
-   hex_and_ring_centre[1] = mid_pt + a_to_b_uv * 7;
+   hex_and_ring_centre[0] = mid_pt - a_to_b_uv * 0.4;
+   hex_and_ring_centre[1] = mid_pt + a_to_b_uv * 0.4;
 
    // for cations, we draw a 6-member ring and a "+" text.
    //
@@ -829,11 +1141,11 @@ flev_t::draw_annotated_stacking_line(const lig_build::pos_t &ligand_ring_centre,
    //
    for(int ir=0; ir<2; ir++) {
 
-      bool do_ring = 0;
-      bool do_anion = 0;
+      bool do_ring  = false;
+      bool do_anion = false;
 
       if (stacking_type == residue_circle_t::PI_PI_STACKING) {
-         do_ring = 1;
+         do_ring = true;
       }
       if (stacking_type == residue_circle_t::PI_CATION_STACKING) {
          if (ir == 0) {
@@ -855,36 +1167,28 @@ flev_t::draw_annotated_stacking_line(const lig_build::pos_t &ligand_ring_centre,
       }
 
       if (do_ring) {
+
+         std::cout << "--------------------- in the do_ring block residue_pos " << residue_pos
+                   << " hex_and_ring_centre[ir] " << hex_and_ring_centre[ir] << std::endl;
+
          double angle_step = 60;
-         double r = 8; // radius
+         double r = 0.4; // radius
+         std::vector<std::pair<double, double> > hex_points(6);
          for (int ipt=1; ipt<=6; ipt++) {
             int ipt_0 = ipt - 1;
-            double theta_deg_1 = 30 + angle_step * ipt;
-            double theta_1 = theta_deg_1 * DEG_TO_RAD;
-            lig_build::pos_t pt_1 =
-               hex_and_ring_centre[ir] + lig_build::pos_t(sin(theta_1), cos(theta_1)) * r;
-
             double theta_deg_0 = 30 + angle_step * ipt_0;
             double theta_0 = theta_deg_0 * DEG_TO_RAD;
-            lig_build::pos_t pt_0 =
-               hex_and_ring_centre[ir] + lig_build::pos_t(sin(theta_0), cos(theta_0)) * r;
-            // GooCanvasItem *line = goo_canvas_polyline_new_line(group,
-            //                                                    pt_1.x, pt_1.y,
-            //                                                    pt_0.x, pt_0.y,
-            //                                                    "line_width", 1.8,
-            //                                                    NULL);
-            clipper::Coord_orth *pos_l = new clipper::Coord_orth(click_pos);
-            // g_object_set_data_full(G_OBJECT(line), "position", pos_l, g_free);
+            lig_build::pos_t pt_0 = hex_and_ring_centre[ir] + lig_build::pos_t(sin(theta_0), cos(theta_0)) * r;
+            hex_points[ipt_0] = std::make_pair(pt_0.x, pt_0.y);
          }
-         // Now the circle in the annotation aromatic ring:
-         // GooCanvasItem *ring = goo_canvas_ellipse_new(group,
-         //                                              hex_and_ring_centre[ir].x,
-         //                                              hex_and_ring_centre[ir].y,
-         //                                              4.0, 4.0,
-         //                                              "line_width", 1.0,
-         //                                              NULL);
-         clipper::Coord_orth *pos_r = new clipper::Coord_orth(click_pos);
-         // g_object_set_data_full(G_OBJECT(ring), "position", pos_r, g_free);
+         std::string ring_text = do_polygon(hex_points);
+         svgc.add(ring_text);
+
+         lig_build::pos_t ring_centre = hex_and_ring_centre[ir];
+         lig_build::pos_t circle_centre(ring_centre.x, -ring_centre.y);
+         std::string circle = make_circle(circle_centre, 0.2, 0.08, "none", stroke_colour);
+         svgc.add(circle);
+
       }
 
       if (do_anion) {
@@ -904,52 +1208,30 @@ flev_t::draw_annotated_stacking_line(const lig_build::pos_t &ligand_ring_centre,
       }
    }
 
-
-   // GooCanvasLineDash *dash = goo_canvas_line_dash_new (2, 2.5, 2.5);
-   // GooCanvasItem *item_1 =
-   //    goo_canvas_polyline_new_line(group,
-   //                                 A.x, A.y,
-   //                                 close_mid_pt_1.x, close_mid_pt_1.y,
-   //                                 "line-width", 2.5, // in draw_annotated_stacking_line()
-   //                                 "line-dash", dash,
-   //                                 "stroke-color", stroke_colour.c_str(),
-   //                                 NULL);
-
-   // GooCanvasItem *item_2 =
-   //    goo_canvas_polyline_new_line(group,
-   //                                 close_mid_pt_2.x, close_mid_pt_2.y,
-   //                                 C.x, C.y,
-   //                                 "line-width", 2.5, // in draw_annotated_stacking_line()
-   //                                 "line-dash", dash,
-   //                                 // "end_arrow",   end_arrow,
-   //                                 "stroke-color", stroke_colour.c_str(),
-   //                                 NULL);
-
-   clipper::Coord_orth *pos_1 = new clipper::Coord_orth(click_pos);
-   clipper::Coord_orth *pos_2 = new clipper::Coord_orth(click_pos);
-   // g_object_set_data_full(G_OBJECT(item_1), "position", pos_1, g_free);
-   // g_object_set_data_full(G_OBJECT(item_2), "position", pos_2, g_free);
+   // now draw the stacking interaction dotted lines
+   lig_build::pos_t A_prime = A + a_to_b_uv * 1.0;
+   std::string s1 = make_line(A_prime,            close_mid_pt_1, 0.15, stroke_colour, true);
+   std::string s2 = make_line(ligand_ring_centre, close_mid_pt_2, 0.15, stroke_colour, true);
+   svgc.add(s1);
+   svgc.add(s2);
 
    // Now the circle blob at the centre of the aromatic ligand ring:
    if (stacking_type != residue_circle_t::CATION_PI_STACKING) {
-      // GooCanvasItem *item_o = goo_canvas_ellipse_new(group,
-      //                                                B.x, B.y,
-      //                                                3.0, 3.0,
-      //                                                "line_width", 1.0,
-      //                                                "fill_color", stroke_colour.c_str(),
-      //                                                NULL);
-      clipper::Coord_orth *pos_o = new clipper::Coord_orth(click_pos);
-      // g_object_set_data_full(G_OBJECT(item_o), "position", pos_o, g_free);
+
+      float radius = 0.2; // 20250118-PE was 67.0;
+      float stroke_width = 0.01; // 20250118-PE was 10.0;
+      auto ligand_ring_centre_inv_y = lig_build::pos_t(ligand_ring_centre.x, -ligand_ring_centre.y);
+      std::string c = make_circle(ligand_ring_centre_inv_y, radius, stroke_width, stroke_colour, stroke_colour);
+      svgc.add(c);
    }
 
-   clipper::Coord_orth *pos_p = new clipper::Coord_orth(click_pos);
-   // g_object_set_data_full(G_OBJECT(group), "position", pos_p, g_free);
-
-
+   return svgc;
 }
 
-void
+svg_container_t
 flev_t::draw_bonds_to_ligand() {
+
+   svg_container_t svgc;
 
    // GooCanvasItem *root = goo_canvas_get_root_item (GOO_CANVAS(canvas));
 
@@ -961,21 +1243,30 @@ flev_t::draw_bonds_to_ligand() {
    for (unsigned int ic=0; ic<residue_circles.size(); ic++) {
       if (residue_circles[ic].bonds_to_ligand.size()) {
          for (unsigned int ib=0; ib<residue_circles[ic].bonds_to_ligand.size(); ib++) {
+            const bond_to_ligand_t &bond_to_ligand = residue_circles[ic].bonds_to_ligand[ib];
 
             try {
 
                lig_build::pos_t pos = residue_circles[ic].pos;
-               std::string at_name = residue_circles[ic].bonds_to_ligand[ib].ligand_atom_name;
+               std::string at_name = bond_to_ligand.ligand_atom_name;
                lig_build::pos_t lig_atom_pos = mol.get_atom_canvas_position(at_name);
                lig_build::pos_t rc_to_lig_atom = lig_atom_pos - pos;
                lig_build::pos_t rc_to_lig_atom_uv = rc_to_lig_atom.unit_vector();
                lig_build::pos_t B = lig_atom_pos;
 
-               if (residue_circles[ic].bonds_to_ligand[ib].bond_type != pli::fle_ligand_bond_t::BOND_COVALENT)
-                  B -= rc_to_lig_atom_uv * 8; // put the end point (say) of a hydrogen bond
-                                              // some pixels away from the atom centre - for better
-                                                    // aesthetics.
-               lig_build::pos_t A = pos + rc_to_lig_atom_uv * 20;
+               double shorten_factor = 0.6;
+               // a HOH residue cirle bond-to-ligand doesn't have an arrow-head
+               if (residue_circles[ic].residue_type == "HOH") shorten_factor = 0.5;
+               if (bond_to_ligand.bond_type != pli::fle_ligand_bond_t::BOND_COVALENT)
+                  B -= rc_to_lig_atom_uv * shorten_factor; // put the end point (say) of a hydrogen bond
+                                                           // some pixels away from the atom centre - for better
+                                                           // aesthetics.
+               shorten_factor = 1.3;
+               // but if it has a start arrow, we need to make it shorter so that the line and
+               // the tip of the arrow don't overlap. Who ever will notice, I wonder...
+               if (bond_to_ligand.bond_type == bond_to_ligand_t::H_BOND_ACCEPTOR_MAINCHAIN) shorten_factor = 1.4;
+               if (bond_to_ligand.bond_type == bond_to_ligand_t::H_BOND_ACCEPTOR_SIDECHAIN) shorten_factor = 1.4;
+               lig_build::pos_t A = pos + rc_to_lig_atom_uv * shorten_factor;
 
                // some colours
                std::string blue = "blue";
@@ -986,8 +1277,8 @@ flev_t::draw_bonds_to_ligand() {
                // arrows (acceptor/donor) and stroke colour (depending
                // on mainchain or sidechain interaction)
                //
-               bool start_arrow = 0;
-               bool   end_arrow = 0;
+               bool start_arrow = false;
+               bool   end_arrow = false;
                if (residue_circles[ic].bonds_to_ligand[ib].bond_type == bond_to_ligand_t::H_BOND_DONOR_SIDECHAIN) {
                   end_arrow = 1;
                   stroke_colour = green;
@@ -1019,8 +1310,8 @@ flev_t::draw_bonds_to_ligand() {
 
                if (residue_circles[ic].residue_type == "HOH") {
                   stroke_colour = lime;
-                  start_arrow = 0;
-                  end_arrow = 0;
+                  start_arrow = false;
+                  end_arrow = false;
                   // dash = dash_dash;
                }
                // GooCanvasItem *item = goo_canvas_polyline_new_line(root,
@@ -1028,10 +1319,89 @@ flev_t::draw_bonds_to_ligand() {
                //                                                    B.x, B.y,
                //                                                    "line-width", 2.5, // in draw_bonds_to_ligand()
                //                                                    "line-dash", dash,
-                //                                                    "start_arrow", start_arrow,
-                //                                                    "end_arrow",   end_arrow,
+               //                                                    "start_arrow", start_arrow,
+               //                                                    "end_arrow",   end_arrow,
                //                                                    "stroke-color", stroke_colour.c_str(),
                //                                                    NULL);
+
+               std::string s;
+               std::string bond_colour = stroke_colour;
+               s += "<!-- Bond to Ligand -->\n";
+               s += "   <line x1=\"";
+               s += std::to_string(A.x);
+               s += "\" y1=\"";
+               s += std::to_string(-A.y);
+               s += "\" x2=\"";
+               s += std::to_string(B.x);
+               s += "\" y2=\"";
+               s += std::to_string(-B.y);
+               s += "\"";
+               s += " style=\"stroke:";
+               // s += "#202020";
+               s += bond_colour;
+               s += "; stroke-width:0.15; fill:none; stroke-linecap:round; ";
+               s += "\"";
+               s += "/>\n";
+               svgc.add(s);
+
+               if (start_arrow) {
+                  // add a triangle arrow head
+                  lig_build::pos_t tip = pos + rc_to_lig_atom_uv * 1.15;
+                  double l1 = 0.85;
+                  double l2 = 0.3;
+                  lig_build::pos_t rcla_uv_90 = rc_to_lig_atom_uv.rotate(90);
+                  lig_build::pos_t pt_1 = tip;
+                  lig_build::pos_t pt_2 = tip + rc_to_lig_atom_uv * l1 + rcla_uv_90 * l2;
+                  lig_build::pos_t pt_3 = tip + rc_to_lig_atom_uv * l1 - rcla_uv_90 * l2;
+                  // std::string ts = "<polygon points="100,10 150,190 50,190" style="fill:lime;"/>";
+                  std::string ts = "   <polygon points =\"";
+                  ts += std::to_string(pt_1.x);
+                  ts += ",";
+                  ts += std::to_string(-pt_1.y);
+                  ts += " ";
+                  ts += std::to_string(pt_2.x);
+                  ts += ",";
+                  ts += std::to_string(-pt_2.y);
+                  ts += " ";
+                  ts += std::to_string(pt_3.x);
+                  ts += ",";
+                  ts += std::to_string(-pt_3.y);
+                  ts += "\" style=\"fill:";
+                  ts += bond_colour;
+                  ts += ";\"/>";
+                  ts += "\n";
+                  svgc.add(ts);
+               }
+
+               if (end_arrow) {
+                  // add a triangle arrow head
+                  lig_build::pos_t tip = lig_atom_pos - rc_to_lig_atom_uv * 0.35;
+                  double l1 = 0.85;
+                  double l2 = 0.3;
+                  lig_build::pos_t rcla_uv_90 = rc_to_lig_atom_uv.rotate(90);
+                  lig_build::pos_t pt_1 = tip;
+                  lig_build::pos_t pt_2 = tip - rc_to_lig_atom_uv * l1 + rcla_uv_90 * l2;
+                  lig_build::pos_t pt_3 = tip - rc_to_lig_atom_uv * l1 - rcla_uv_90 * l2;
+                  // std::string ts = "<polygon points="100,10 150,190 50,190" style="fill:lime;"/>";
+                  std::string ts = "   <polygon points =\"";
+                  ts += std::to_string(pt_1.x);
+                  ts += ",";
+                  ts += std::to_string(-pt_1.y);
+                  ts += " ";
+                  ts += std::to_string(pt_2.x);
+                  ts += ",";
+                  ts += std::to_string(-pt_2.y);
+                  ts += " ";
+                  ts += std::to_string(pt_3.x);
+                  ts += ",";
+                  ts += std::to_string(-pt_3.y);
+                  ts += "\" style=\"fill:";
+                  ts += bond_colour;
+                  ts += ";\"/>";
+                  ts += "\n";
+                  svgc.add(ts);
+               }
+
             }
             catch (const std::runtime_error &rte) {
                std::cout << "WARNING:: " << rte.what() << std::endl;
@@ -1045,6 +1415,7 @@ flev_t::draw_bonds_to_ligand() {
                       << residue_circles[ic].residue_type << std::endl;
       }
    }
+   return svgc;
 }
 
 
@@ -1062,14 +1433,12 @@ flev_t::draw_solvent_accessibility_of_atoms() {
 void
 flev_t::draw_solvent_accessibility_of_atom(const lig_build::pos_t &pos, double sa) {
 
-   double LIGAND_TO_CANVAS_SCALE_FACTOR = 1.0; // this needs to go somewhere
-
    if (true) {
       int n_circles = int(sa*40) + 1;    // needs fiddling?
       if (n_circles> 10) n_circles = 10; // needs fiddling?
 
       for (int i=0; i<n_circles; i++) {
-         double rad =  LIGAND_TO_CANVAS_SCALE_FACTOR/23.0 * 3.0 * double(i+1); // needs fiddling?
+         double rad = 0.1 * double(i+1); // needs fiddling?
 
          // CONVERT-TO-SVG
          // GooCanvasItem *circle = goo_canvas_ellipse_new(group,
@@ -1152,24 +1521,24 @@ flev_t::ligand_grid::add_for_accessibility_no_bash_dist_atom(double scale,
 flev_t::ligand_grid::ligand_grid(const lig_build::pos_t &low_x_and_y,
                                  const lig_build::pos_t &high_x_and_y) {
 
-   double extra_extents = 100;
+   double extra_extents = 10;
    top_left     = low_x_and_y  - lig_build::pos_t(extra_extents, extra_extents);
    bottom_right = high_x_and_y + lig_build::pos_t(extra_extents, extra_extents);
    scale_fac = 5; // seems good
    double delta_x = bottom_right.x - top_left.x;
    double delta_y = bottom_right.y - top_left.y;
-   if (0)
-      std::cout << " in making grid, got delta_x and delta_y "
+   if (true)
+      std::cout << "debug:: ligand_grid constructor: in making grid, got delta_x and delta_y "
                 << delta_x << " " << delta_y << std::endl;
    x_size_ = int(delta_x/scale_fac+1);
    y_size_ = int(delta_y/scale_fac+1);
 
-   std::vector<double> tmp_y (y_size_, 0.0);
+   std::vector<double> tmp_y(y_size_, 0.0);
    grid_.resize(x_size_);
    for (int i=0; i<x_size_; i++)
       grid_[i] = tmp_y;
    if (true)
-      std::cout << "--- ligand_grid constructor, grid has extents "
+      std::cout << "debug:: in ligand_grid constructor: grid has extents "
                 << x_size_ << " " << y_size_ << " real " << grid_.size()
                 << " " << grid_[0].size()
                 << std::endl;
@@ -1188,9 +1557,17 @@ flev_t::ligand_grid::canvas_pos_to_grid_pos(const lig_build::pos_t &pos) const {
 lig_build::pos_t
 flev_t::ligand_grid::to_canvas_pos(const double &ii, const double &jj) const {
 
+#if 0
+   std::cout << "to_canvas_pos() using scale_fac " << scale_fac << " and top_left " << top_left << std::endl;
    lig_build::pos_t p(ii*scale_fac, jj*scale_fac);
    p += top_left;
    return p;
+#endif
+
+   double sf = 1.0;
+   lig_build::pos_t p(ii*sf, jj*sf);
+   return p;
+
 }
 
 void
@@ -1199,22 +1576,22 @@ flev_t::ligand_grid::avoid_ring_centres(const std::vector<std::vector<std::strin
 
    // For the substitution contour we blob in a circle of radius
    // 1/(2*sin(180/n_ring_atoms)) bond lengths.
-   
+
    for (unsigned int iring=0; iring<ring_atoms_list.size(); iring++) {
-      try { 
-	 lig_build::pos_t centre = mol.get_ring_centre(ring_atoms_list[iring]);
-	 int n_atoms = ring_atoms_list[iring].size();
-	 // just in case we get here with n_atoms = 1 for some reason...
-	 if (n_atoms < 3) n_atoms = 3;
-	 
-	 double radius = 1/(2*sin(M_PI/double(n_atoms))) * 1.5; // in "A" or close
-	 // std::cout << "avoid_ring_centres() adding ring centre at " << centre
-	 // << " n_atoms: " << n_atoms << " radius " << radius << std::endl;
-	 add_for_accessibility(radius, centre);
+      try {
+         lig_build::pos_t centre = mol.get_ring_centre(ring_atoms_list[iring]);
+         int n_atoms = ring_atoms_list[iring].size();
+         // just in case we get here with n_atoms = 1 for some reason...
+         if (n_atoms < 3) n_atoms = 3;
+
+         double radius = 1/(2*sin(M_PI/double(n_atoms))) * 1.5; // in "A" or close
+         // std::cout << "avoid_ring_centres() adding ring centre at " << centre
+         // << " n_atoms: " << n_atoms << " radius " << radius << std::endl;
+         add_for_accessibility(radius, centre);
       }
       catch (const std::runtime_error &rte) {
-	 std::cout << "Opps - failed to find ring centre for ring atom name "
-		   << iring << std::endl;
+         std::cout << "Opps - failed to find ring centre for ring atom name "
+                   << iring << std::endl;
       }
    }
 }
@@ -1223,7 +1600,7 @@ void
 flev_t::ligand_grid::show_contour(float contour_level) {
 
    std::vector<lig_build::atom_ring_centre_info_t> dummy_unlimited_atoms;
-   std::vector<std::vector<std::string> > dummy_ring_atom_names;   
+   std::vector<std::vector<std::string> > dummy_ring_atom_names;
    show_contour(contour_level, dummy_unlimited_atoms, dummy_ring_atom_names);
 }
 
@@ -1241,13 +1618,13 @@ flev_t::ligand_grid::show_contour(float contour_level,
 
    // fill the ring centre vector, if the unlimited atom have ring centres
    std::vector<std::pair<bool, lig_build::pos_t> > ring_centres(unlimited_atoms.size());
-   for (unsigned int i=0; i<unlimited_atoms.size(); i++) { 
+   for (unsigned int i=0; i<unlimited_atoms.size(); i++) {
       try {
-	 lig_build::pos_t p;
+         lig_build::pos_t p;
       }
       catch (const std::runtime_error &rte) {
-	 std::cout << rte.what() << std::endl;
-      } 
+         std::cout << rte.what() << std::endl;
+      }
    }
 
    std::vector<std::pair<lig_build::pos_t, lig_build::pos_t> > line_fragments;
@@ -1256,89 +1633,88 @@ flev_t::ligand_grid::show_contour(float contour_level,
 
    for (int ix=0; ix<x_size(); ix+=1) {
       for (int iy=0; iy<y_size(); iy+=1) {
-	 int ms_type = square_type(ix, iy, contour_level);
+         int ms_type = square_type(ix, iy, contour_level);
 
-	 grid_index_t grid_index(ix,iy);
+         grid_index_t grid_index(ix,iy);
 
-	 if ((ms_type != MS_NO_CROSSING) && (ms_type != MS_NO_SQUARE)) { 
-	    contour_fragment cf(ms_type, contour_level,
+         if ((ms_type != MS_NO_CROSSING) && (ms_type != MS_NO_SQUARE)) {
+            contour_fragment cf(ms_type, contour_level,
                                 grid_index_prev,
                                 grid_index,
                                 *this); // sign of bad architecture
 
-	    if (cf.coords.size() == 1) {
+            if (cf.coords.size() == 1) {
 
-	       if (debug)
-		  std::cout << "plot contour ("
-			    << cf.get_coords(ix, iy, 0).first << " "
-			    << cf.get_coords(ix, iy, 0).second << ") to ("
-			    << cf.get_coords(ix, iy, 1).first << " "
-			    << cf.get_coords(ix, iy, 1).second << ")" << std::endl;
-			
-	       std::pair<double, double> xy_1 = cf.get_coords(ix, iy, 0);
-	       std::pair<double, double> xy_2 = cf.get_coords(ix, iy, 1);
-	       lig_build::pos_t pos_1 = to_canvas_pos(xy_1.first, xy_1.second);
-	       lig_build::pos_t pos_2 = to_canvas_pos(xy_2.first, xy_2.second);
+               if (debug)
+                  std::cout << "plot contour ("
+                            << cf.get_coords(ix, iy, 0).first << " "
+                            << cf.get_coords(ix, iy, 0).second << ") to ("
+                            << cf.get_coords(ix, iy, 1).first << " "
+                            << cf.get_coords(ix, iy, 1).second << ")" << std::endl;
 
-	       lig_build::pos_t p1 = to_canvas_pos(cf.get_coords(ix, iy, 0).first,
-						   cf.get_coords(ix, iy, 0).second);
-	       lig_build::pos_t p2 = to_canvas_pos(cf.get_coords(ix, iy, 1).first,
-						   cf.get_coords(ix, iy, 1).second);
-	       std::pair<lig_build::pos_t, lig_build::pos_t> fragment_pair(p1, p2);
+               std::pair<double, double> xy_1 = cf.get_coords(ix, iy, 0);
+               std::pair<double, double> xy_2 = cf.get_coords(ix, iy, 1);
+               lig_build::pos_t pos_1 = to_canvas_pos(xy_1.first, xy_1.second);
+               lig_build::pos_t pos_2 = to_canvas_pos(xy_2.first, xy_2.second);
 
-	       // Now filter out this fragment pair if it is too close
-	       // to an unlimited_atom_positions
-	       bool plot_it = 1;
-	       double dist_crit = 4.0 * LIGAND_TO_CANVAS_SCALE_FACTOR;
+               lig_build::pos_t p1 = to_canvas_pos(cf.get_coords(ix, iy, 0).first,
+                                                   cf.get_coords(ix, iy, 0).second);
+               lig_build::pos_t p2 = to_canvas_pos(cf.get_coords(ix, iy, 1).first,
+                                                   cf.get_coords(ix, iy, 1).second);
+               std::pair<lig_build::pos_t, lig_build::pos_t> fragment_pair(p1, p2);
 
-	       
-	       for (unsigned int i=0; i<unlimited_atoms.size(); i++) { 
-// 		  lig_build::pos_t p = to_canvas_pos(unlimited_atom_positions[i].x,
-// 						     unlimited_atom_positions[i].y);
-		  
-		  lig_build::pos_t p = unlimited_atoms[i].atom.atom_position;
+               // Now filter out this fragment pair if it is too close
+               // to an unlimited_atom_positions
+               bool plot_it = 1;
+               double dist_crit = 4.0 * LIGAND_TO_CANVAS_SCALE_FACTOR;
 
-		  // if this atom has a ring centre, use the ring
-		  // centre to atom vector to unplot vectors only in a
-		  // particular direction.
-		  // 
-		  if ((p - p1).lengthsq() < (dist_crit * dist_crit)) {
-		     if (1) { // for debugging
-			if (unlimited_atoms[i].has_ring_centre_flag) {
-			   // std::cout << " atom " << i << " has ring_centre ";
-			   lig_build::pos_t d_1 =
-			      unlimited_atoms[i].ring_centre - unlimited_atoms[i].atom.atom_position;
-			   lig_build::pos_t d_2 = unlimited_atoms[i].atom.atom_position - p1;
-			   double cos_theta =
-			      lig_build::pos_t::dot(d_1, d_2)/(d_1.length()*d_2.length());
-			   // std::cout << " cos_theta " << cos_theta << " for unlimited atom " << i << std::endl;
-			   if (cos_theta > 0.3) { // only cut in the "forwards" direction
+               for (unsigned int i=0; i<unlimited_atoms.size(); i++) {
+//                   lig_build::pos_t p = to_canvas_pos(unlimited_atom_positions[i].x,
+//                                                      unlimited_atom_positions[i].y);
 
-// 			      std::cout << " cutting by ring-centred unlimited atom " << i << " "
-// 				 << unlimited_atoms[i].atom.get_atom_name()
-// 					<< std::endl;
-			      
-			      plot_it = 0;
-			      break;
-			   }
-			   // std::cout << std::endl;
-			
-			} else {
-			   plot_it = 0;
-//  			   std::cout << " cutting by unlimited atom " << i << " "
-//  				     << unlimited_atoms[i].atom.get_atom_name()
-//  				     << std::endl;
-			   break;
-			}
-		     }
-		  }
-		  
-	       } // end unlimited atoms loop
+                  lig_build::pos_t p = unlimited_atoms[i].atom.atom_position;
 
-	       if (plot_it)
-		  line_fragments.push_back(fragment_pair);
-	    } 
-	 }
+                  // if this atom has a ring centre, use the ring
+                  // centre to atom vector to unplot vectors only in a
+                  // particular direction.
+                  //
+                  if ((p - p1).lengthsq() < (dist_crit * dist_crit)) {
+                     if (1) { // for debugging
+                        if (unlimited_atoms[i].has_ring_centre_flag) {
+                           // std::cout << " atom " << i << " has ring_centre ";
+                           lig_build::pos_t d_1 =
+                              unlimited_atoms[i].ring_centre - unlimited_atoms[i].atom.atom_position;
+                           lig_build::pos_t d_2 = unlimited_atoms[i].atom.atom_position - p1;
+                           double cos_theta =
+                              lig_build::pos_t::dot(d_1, d_2)/(d_1.length()*d_2.length());
+                           // std::cout << " cos_theta " << cos_theta << " for unlimited atom " << i << std::endl;
+                           if (cos_theta > 0.3) { // only cut in the "forwards" direction
+
+//                               std::cout << " cutting by ring-centred unlimited atom " << i << " "
+//                                  << unlimited_atoms[i].atom.get_atom_name()
+//                                         << std::endl;
+
+                              plot_it = 0;
+                              break;
+                           }
+                           // std::cout << std::endl;
+
+                        } else {
+                           plot_it = 0;
+//                             std::cout << " cutting by unlimited atom " << i << " "
+//                                       << unlimited_atoms[i].atom.get_atom_name()
+//                                       << std::endl;
+                           break;
+                        }
+                     }
+                  }
+
+               } // end unlimited atoms loop
+
+               if (plot_it)
+                  line_fragments.push_back(fragment_pair);
+            }
+         }
       }
    }
 
@@ -1348,17 +1724,17 @@ flev_t::ligand_grid::show_contour(float contour_level,
 
 #if 0
    // check the orientation of the canvas
-   if (0) { 
+   if (false) {
       lig_build::pos_t grid_ori = to_canvas_pos(0.0, 0.0);
       goo_canvas_rect_new (group,
-			   grid_ori.x, grid_ori.y, 5.0, 5.0,
-			   "line-width", 1.0, // in show_contour()
-			   "stroke-color", "green",
-			   "fill_color", "blue",
-			   NULL);
+                           grid_ori.x, grid_ori.y, 5.0, 5.0,
+                           "line-width", 1.0, // in show_contour()
+                           "stroke-color", "green",
+                           "fill_color", "blue",
+                           NULL);
    }
 #endif
-} 
+}
 
 
 
@@ -1533,7 +1909,7 @@ flev_t::contour_fragment::contour_fragment(int ms_type,
 
    case ligand_grid::MS_UP_0_1:
    case ligand_grid::MS_UP_0_0_and_1_0_and_1_1:
-      
+
       // these look fine
       // std::cout << " ----- case MS_UP_0,1 " << std::endl;
       frac_y1 = (v00 - contour_level)/(v00-v01);
@@ -1677,9 +2053,9 @@ flev_t::ligand_grid::square_type(int ii, int jj, float contour_level) const {
 	 } else {
 
 	    // 0,0 is up
-	    
-	    if (v01 < contour_level) { 
-	       if (v10 < contour_level) { 
+
+	    if (v01 < contour_level) {
+	       if (v10 < contour_level) {
 		  if (v11 < contour_level) {
 		     return ligand_grid::MS_UP_0_0;
 		  } else {
@@ -1696,8 +2072,8 @@ flev_t::ligand_grid::square_type(int ii, int jj, float contour_level) const {
 	    } else {
 
 	       // 0,1 is up
-	       
-	       if (v10 < contour_level) { 
+
+	       if (v10 < contour_level) {
 		  if (v11 < contour_level) {
 		     return ligand_grid::MS_UP_0_0_and_0_1;
 		  } else {
@@ -1710,15 +2086,111 @@ flev_t::ligand_grid::square_type(int ii, int jj, float contour_level) const {
 		  }
 	       }
 	    }
-	 } 
+	 }
       }
    }
    return square_type;
 }
+// scale peak value to 1.0
+
+void
+flev_t::ligand_grid::normalize() {
+
+   double max_int = 0.0;
+
+   // std::cout << "normalizing grid " << x_size() << " by " << y_size() << std::endl;
+   for (int ix=0; ix<x_size(); ix++) {
+      for (int iy=0; iy<y_size(); iy++) {
+         double intensity = grid_[ix][iy];
+         if (intensity > max_int)
+            max_int = intensity;
+      }
+   }
+   if (max_int > 0.0) {
+      double sc_fac = 1.0/max_int;
+      for (int ix=0; ix<x_size(); ix++) {
+         for (int iy=0; iy<y_size(); iy++) {
+            grid_[ix][iy] *= sc_fac;
+         }
+      }
+   }
+}
+
+
+// 20241005-PE note to self get_ring_centre() caches the result, so we can't user a const mol here
+void
+flev_t::ligand_grid::fill(svg_molecule_t mol) {
+
+   double exp_scale = 0.0011;
+   double rk = 3000.0;
+
+   // int grid_extent = 15; // 10, 12 is not enough
+   int grid_extent = 50 ; // untraps 2wot residues?
+
+   for (unsigned int iat=0; iat<mol.atoms.size(); iat++) {
+      // std::cout << "mol iat: " << iat << " at " << mol.atoms[iat].atom_position << std::endl;
+      for (int ipos_x= -grid_extent; ipos_x<=grid_extent; ipos_x++) {
+         for (int ipos_y= -grid_extent; ipos_y<=grid_extent; ipos_y++) {
+            std::pair<int, int> p = canvas_pos_to_grid_pos(mol.atoms[iat].atom_position);
+            int ix_grid = ipos_x + p.first;
+            int iy_grid = ipos_y + p.second;
+            // std::cout << "    grid: ix " << ix_grid << " iy " << iy_grid << std::endl;
+            if ((ix_grid >= 0) && (ix_grid < x_size())) {
+               if ((iy_grid >= 0) && (iy_grid < y_size())) {
+                  double d2 = (to_canvas_pos(ix_grid, iy_grid) - mol.atoms[iat].atom_position).lengthsq();
+                  double val =  rk * exp(-0.5*exp_scale*d2);
+                  grid_[ix_grid][iy_grid] += val;
+               } else {
+//                std::cout << "ERROR:: out of range in y: " << ix_grid << "," << iy_grid << " "
+//                          << "and grid size: " << x_size() << "," << y_size() << std::endl;
+               }
+            } else {
+//             std::cout << "ERROR:: out of range in x: " << ix_grid << "," << iy_grid << " "
+//                       << "and grid size: " << x_size() << "," << y_size() << std::endl;
+            }
+         }
+      }
+   }
+
+   if (false) { // print grid
+      int grid_size = grid_.size();
+      for (int ipos_x = 0; ipos_x < grid_size; ipos_x++) {
+         int grid_x_size = grid_[ipos_x].size();
+         for (int ipos_y= 0; ipos_y<= grid_x_size; ipos_y++) {
+            double g = grid_[ipos_x][ipos_y];
+            std::cout << "ligand_grid: " << ipos_x << " " << ipos_y << " " << g << "\n";
+         }
+      }
+   }
+
+   std::vector<lig_build::pos_t> mol_ring_centres = mol.get_ring_centres();
+
+   // std::cout << "DEBUG:: found " << mol_ring_centres.size() << " ring centres " << std::endl;
+
+   for (unsigned int ir=0; ir<mol_ring_centres.size(); ir++) {
+      for (int ipos_x= -10; ipos_x<=10; ipos_x++) {
+         for (int ipos_y= -10; ipos_y<=10; ipos_y++) {
+            std::pair<int, int> p = canvas_pos_to_grid_pos(mol_ring_centres[ir]);
+            int ix_grid = ipos_x + p.first;
+            int iy_grid = ipos_y + p.second;
+            if ((ix_grid >= 0) && (ix_grid < x_size())) {
+               if ((iy_grid >= 0) && (iy_grid < y_size())) {
+                  double d2 = (to_canvas_pos(ix_grid, iy_grid) - mol_ring_centres[ir]).lengthsq();
+                  double val = rk * exp(-0.5* exp_scale * d2);
+                  grid_[ix_grid][iy_grid] += val;
+               }
+            }
+         }
+      }
+   }
+   normalize(); // scaled peak value to 1.
+}
+
+
 
 
 // Return the fill colour and the stroke colour.
-// 
+//
 std::pair<std::string, std::string>
 flev_t::get_residue_circle_colour(const std::string &residue_type) const {
 
@@ -1800,10 +2272,9 @@ flev_t::get_residue_circle_colour(const std::string &residue_type) const {
    if (residue_type == "DC")  fill_colour = purple;
    if (residue_type == "DA")  fill_colour = purple;
    if (residue_type == "DG")  fill_colour = purple;
-   
 
    // metals
-   if (residue_type == "ZN") 
+   if (residue_type == "ZN")
       fill_colour = metalic_grey;
    if (residue_type == "MG")
       fill_colour = metalic_grey;
@@ -1813,66 +2284,81 @@ flev_t::get_residue_circle_colour(const std::string &residue_type) const {
       fill_colour = metalic_grey;
    if (residue_type == "K")
       fill_colour = metalic_grey;
-	 
+
    return std::pair<std::string, std::string> (fill_colour, stroke_colour);
 }
 
 
 
 // if you don't have add_rep_handles, then pass a vector or size 0.
-// 
-void
+//
+svg_container_t
 flev_t::draw_residue_circles(const std::vector<residue_circle_t> &l_residue_circles,
                              const std::vector<int> &add_rep_handles) {
 
+   svg_container_t svgc;
+
+   std::cout << "-------------------- here we are in draw_residue_circles "
+             << l_residue_circles.size() << " " << add_rep_handles.size() << std::endl;
+
    double max_dist_water_to_ligand_atom  = 3.3; // don't draw waters that are far from ligand
-   double max_dist_water_to_protein_atom = 3.3; // don't draw waters that are not somehow 
+   double max_dist_water_to_protein_atom = 3.3; // don't draw waters that are not somehow
                                                 // attached to the protein.
 
    bool draw_flev_annotations_flag = true; // is this a class member now?
 
-   if (draw_flev_annotations_flag) { 
-      bool draw_solvent_exposures = 1;
-      try { 
+   if (draw_flev_annotations_flag) {
+      bool draw_solvent_exposures = true;
+      try {
 	 lig_build::pos_t ligand_centre = mol.get_ligand_centre();
-	 // GooCanvasItem *root = goo_canvas_get_root_item (GOO_CANVAS(canvas));
 
 	 if (draw_solvent_exposures)
-	    for (unsigned int i=0; i<l_residue_circles.size(); i++)
-	       draw_solvent_exposure_circle(l_residue_circles[i], ligand_centre);
+	    for (unsigned int i=0; i<l_residue_circles.size(); i++) {
+	       svg_container_t svgc_ec = draw_solvent_exposure_circle(l_residue_circles[i], ligand_centre);
+               svgc.add(svgc_ec);
+            }
 
 	 for (unsigned int i=0; i<l_residue_circles.size(); i++) {
-	    lig_build::pos_t pos = l_residue_circles[i].pos;
+            const auto &residue_circle = l_residue_circles[i];
+            std::cout << "handling residue circle " << i << " " << residue_circle.residue_label
+                      << std::endl;
+	    lig_build::pos_t pos = residue_circle.pos;
+            // get rid of add_rep_handles in the following function call
 	    int add_rep_handle = -1; // default, no handle
 	    if (add_rep_handles.size() == l_residue_circles.size())
 	       add_rep_handle = add_rep_handles[i];
 
-	    draw_residue_circle_top_layer(l_residue_circles[i], ligand_centre, add_rep_handle);
+            svg_container_t svgc_s = draw_residue_circle_top_layer(l_residue_circles[i],
+                                                                   ligand_centre, add_rep_handle);
+            svgc.add(svgc_s);
 	 }
       }
       catch (const std::runtime_error &rte) {
 	 std::cout << "WARNING:: draw_residue_circles: " << rte.what() << std::endl;
       }
    }
+   return svgc;
 }
 
 #include "utils/coot-utils.hh"
 
 // if you don't have an add_rep_handle, then pass -1 (something negative)
-// 
-void
+//
+svg_container_t
 flev_t::draw_residue_circle_top_layer(const residue_circle_t &residue_circle,
                                       const lig_build::pos_t &ligand_centre,
                                       int add_rep_handle) {
 
+   svg_container_t svgc;
 
-   if (0)
-      std::cout << "   adding cirles " << residue_circle.residue_type
-		<< " at init pos " << residue_circle.pos << " and canvas_drag_offset "
+   if (true)
+      std::cout << "   draw_residue_circle_top_layer() " << residue_circle.residue_type
+                << " at init pos " << residue_circle.pos << " and canvas_drag_offset "
                 << std::endl;
 
-   lig_build::pos_t circle_pos = residue_circle.pos;
-      
+   lig_build::pos_t circle_pos(residue_circle.pos.x, -residue_circle.pos.y);
+   lig_build::pos_t pos = circle_pos;
+
    // GooCanvasItem *root = goo_canvas_get_root_item (GOO_CANVAS(canvas));
 
    //GooCanvasItem *group = goo_canvas_group_new (root, "stroke-color", "#111111", NULL);
@@ -1883,123 +2369,151 @@ flev_t::draw_residue_circle_top_layer(const residue_circle_t &residue_circle,
    //
    if (residue_circle.residue_type == "HOH") {
       if (residue_circle.bonds_to_ligand.size() == 0) {
-	 return;
+         return svgc;
       }
    }
 
    // Capitalise the residue type (takes less space than upper case).
    std::string rt = residue_circle.residue_type.substr(0,1);
    rt += coot::util::downcase(residue_circle.residue_type.substr(1));
-   
+
    // correct that if we are looking at dna: DA, DT, DC, DG
    if (residue_circle.residue_type == "DA" ||
-       residue_circle.residue_type == "DT" || 
-       residue_circle.residue_type == "DC" || 
+       residue_circle.residue_type == "DT" ||
+       residue_circle.residue_type == "DC" ||
        residue_circle.residue_type == "DG") {
       rt = "d";
       rt += residue_circle.residue_type.substr(1);
-   } 
+   }
 
    // fill colour and stroke colour of the residue circle
    std::pair<std::string, std::string> col = get_residue_circle_colour(residue_circle.residue_type);
-   double line_width = 1.0;
+   double stroke_width = 0.1;
    if (col.second != "#111111") // needs checking, FIXME
-      line_width = 3.0;
+      stroke_width = 0.15;
 
-   // GooCanvasItem *circle = NULL;
-   // GooCanvasItem *text_1 = NULL;
-   // GooCanvasItem *text_2 = NULL;
-   
+   scale_factor = 1.0; // remove the use of this later
 
    if (col.first != "") {
-      // circle = goo_canvas_ellipse_new(group,
-      //   			      circle_pos.x, circle_pos.y,
-      //   			      standard_residue_circle_radius,
-      //   			      standard_residue_circle_radius,
-      //   			      "line_width", line_width,
-      //   			      "fill-color",   col.first.c_str(),
-      //   			      "stroke-color", col.second.c_str(),
-      //   			      NULL);
+
+      std::string circle_string = std::string("   <circle ") +
+         std::string("cx=\"") + std::to_string(scale_factor * pos.x) + std::string("\" ") +
+         std::string("cy=\"") + std::to_string(scale_factor * pos.y) + std::string("\" ") +
+         // std::string("\" r=\"22.2\"") +
+         std::string("r=\"1.2\" ") +
+         std::string("fill=\"")   + col.first  + std::string("\" ") +
+         std::string("stroke=\"") + col.second + std::string("\" ") +
+         std::string("stroke-width=\"") + std::to_string(stroke_width) + std::string("\"") +
+         std::string("/>\n");
+      float delta = 50.0; // about this? // was 50.0
+      svgc.add("<!-- Residue Circle " + residue_circle.residue_label + std::string(" -->\n"));
+      svgc.add(circle_string);
+      svgc.set_bounds(scale_factor * pos.x - delta, scale_factor * pos.y - delta,
+                      scale_factor * pos.x + delta, scale_factor * pos.y + delta);
+
+      // 20241002-PE note to self, "Phe" is too far to the right
+      //                           "Ile" is too tar to the left
+      //             I want to be able to specify the middle of the label, not
+      //             bottom left.
+      // 20241005-PE Ah, now it is. Better.
+      std::string text_1("   <text ");
+      text_1 += std::string("fill=\"#111111\"");
+      text_1 += std::string(" x=\"");
+      text_1 += std::to_string(pos.x);
+      text_1 += std::string("\"");
+      text_1 += std::string(" y=\"");
+      text_1 += std::to_string(pos.y - 0.1);
+      text_1 += std::string("\"");
+      text_1 += std::string(" text-anchor=\"middle\"");
+      text_1 += std::string(" font-family=\"Helvetica, sans-serif\" font-size=\"0.06em\">");
+      text_1 += rt;
+      text_1 += std::string("</text>\n");
+      svgc.add(text_1);
+
+      std::string text_2("   <text ");
+      text_2 += std::string("fill=\"#111111\"");
+      text_2 += std::string(" x=\"");
+      text_2 += std::to_string(scale_factor * pos.x); // was -9
+      text_2 += std::string("\"");
+      text_2 += std::string(" y=\"");
+      text_2 += std::to_string(scale_factor * pos.y + 0.6);
+      text_2 += std::string("\"");
+      text_2 += std::string(" text-anchor=\"middle\"");
+      text_2 += std::string(" font-family=\"Helvetica, sans-serif\" font-size=\"0.04em\">");
+      text_2 += residue_circle.residue_label;
+      text_2 += std::string("</text>\n");
+      svgc.add(text_2);
+
    } else {
-      // circle = goo_canvas_ellipse_new(group,
-      //   			      circle_pos.x, circle_pos.y,
-      //   			      standard_residue_circle_radius,
-      //   			      standard_residue_circle_radius,
-      //   			      "line_width", line_width,
-      //   			      "stroke-color", col.second.c_str(),
-      //   			      NULL);
+      std::cout << "................ missing blank colour residue circle top" << std::endl;
    }
-   
-   // text_1 = goo_canvas_text_new(group, rt.c_str(),
-   //      			circle_pos.x, circle_pos.y-6, -1,
-   //      			GOO_CANVAS_ANCHOR_CENTER,
-   //      			"font", "Sans 9",
-   //      			"fill_color", "#111111",
-   //      			NULL);
+   return svgc;
+}
 
-   // text_2 = goo_canvas_text_new(group, residue_circle.residue_label.c_str(),
-   //      			circle_pos.x, circle_pos.y+6.5, -1,
-   //      			GOO_CANVAS_ANCHOR_CENTER,
-   //      			"font", "Sans 7",
-   //      			"fill_color", "#111111",
-   //      			NULL);
+// Set the fill_colour to "none" if you don't want a fill.
+// Note that this function does not apply the inversion of the y axis coordinate.
+std::string
+flev_t::make_circle(const lig_build::pos_t &pos, double radius, double stroke_width,
+                    const std::string &fill_color, const std::string &stroke_color) const {
 
-   // if (circle && text_1 && text_2) {
-   //    // so that if a residue is clicked on (or moused over or
-   //    // whatever, then the target_item has some interesting attached
-   //    // data for use in the callback)
-   //    coot::residue_spec_t *sp_p_1 = new coot::residue_spec_t(residue_circle.spec);
-   //    coot::residue_spec_t *sp_p_2 = new coot::residue_spec_t(residue_circle.spec);
-   //    coot::residue_spec_t *sp_p_3 = new coot::residue_spec_t(residue_circle.spec);
-   //    sp_p_1->int_user_data = imol;
-   //    sp_p_2->int_user_data = imol;
-   //    sp_p_3->int_user_data = imol;
-   //    g_object_set_data_full(G_OBJECT(circle), "spec", sp_p_1, g_free);
-   //    g_object_set_data_full(G_OBJECT(text_1), "spec", sp_p_2, g_free);
-   //    g_object_set_data_full(G_OBJECT(text_2), "spec", sp_p_3, g_free);
-   //    int *add_rep_handle_p_1 = new int(add_rep_handle);
-   //    int *add_rep_handle_p_2 = new int(add_rep_handle);
-   //    int *add_rep_handle_p_3 = new int(add_rep_handle);
-   //    g_object_set_data_full(G_OBJECT(circle), "add_rep_handle", add_rep_handle_p_1, g_free);
-   //    g_object_set_data_full(G_OBJECT(text_1), "add_rep_handle", add_rep_handle_p_2, g_free);
-   //    g_object_set_data_full(G_OBJECT(text_2), "add_rep_handle", add_rep_handle_p_3, g_free);
-   // }
-
+   std::string circle_string = std::string("   ") +
+      "<circle cx=\"" + std::to_string(pos.x) + std::string("\" cy=\"") +
+      std::to_string(pos.y) +
+      std::string("\" r=\"") +
+      std::to_string(radius) +
+      std::string("\"");
+      circle_string += std::string(" fill=\"")   + fill_color  + std::string("\"");
+   circle_string +=
+      std::string(" stroke=\"") + stroke_color + std::string("\"") +
+      std::string(" stroke-width=\"") + std::to_string(stroke_width) + std::string("\"") +
+      std::string("/>\n");
+   float delta = 50.0; // about this?
+   return circle_string;
 }
 
 
 // solvent exposure difference of the residue due to ligand binding
-void 
+svg_container_t
 flev_t::draw_solvent_exposure_circle(const residue_circle_t &residue_circle,
                                      const lig_build::pos_t &ligand_centre) {
 
-   if (residue_circle.residue_type != "HOH") { 
+   svg_container_t svgc;
+
+   if (residue_circle.residue_type != "HOH") {
       if (residue_circle.se_diff_set()) {
 	 std::pair<double, double> se_pair = residue_circle.solvent_exposures();
-	 double radius_extra = (se_pair.second - se_pair.first) * 19;  // was 18, was 14, was 22.
+	 double radius_extra = (se_pair.second - se_pair.first) * 1.2;  // was 19, was 18, was 14, was 22.
 	 if (radius_extra > 0) {
 	    lig_build::pos_t to_lig_centre_uv = (ligand_centre - residue_circle.pos).unit_vector();
 	    lig_build::pos_t se_circle_centre = residue_circle.pos - to_lig_centre_uv * radius_extra;
 
 	    std::string fill_colour = get_residue_solvent_exposure_fill_colour(radius_extra);
 	    double r = standard_residue_circle_radius + radius_extra;
-
-	    // GooCanvasItem *circle = goo_canvas_ellipse_new(group,
-	    //     					   se_circle_centre.x, se_circle_centre.y,
-	    //     					   r, r,
-	    //     					   "line_width", 0.0,
-	    //     					   "fill-color", fill_colour.c_str(),
-	    //     					   NULL);
+            std::cout << "in draw_solvent_exposure_circle() to_lig_centre_uv " << to_lig_centre_uv << " "
+                      << "se_circle_centre " << se_circle_centre << " fill_colour " << fill_colour << " "
+                      << "radius_extra " << radius_extra << " "
+                      << "r " << r << std::endl;
+            double line_width = 0.0;
+            double vv0 = 0.5;
+            svgc.add("<!-- Exposure Circle -->\n");
+            lig_build::pos_t pos = se_circle_centre;
+            pos.y = -pos.y; // to match the top layer
+            pos += lig_build::pos_t(0.0002, 0.0002);
+            std::cout << "   pos " << pos << " se_circle_centre " << se_circle_centre << std::endl;
+            std::string c = make_circle(pos, r, line_width, fill_colour, "black");
+            svgc.add(c);
 	 }
       }
-   } 
+   }
+   return svgc;
 }
 
 std::string
 flev_t::get_residue_solvent_exposure_fill_colour(double r) const {
 
+   // r is ~0.4 max
    std::string colour = "#8080ff";
-   double step = 0.7;
+   double step = 0.04;
    if (r > step)
       colour = "#e0e0ff";
    if (r > step * 2)
@@ -2020,4 +2534,223 @@ flev_t::get_residue_solvent_exposure_fill_colour(double r) const {
       colour = "#70a0ff";
 
    return colour;
-} 
+}
+
+
+// untrap residues as needed.
+void
+flev_t::position_non_primaries(const ligand_grid &grid,
+                               const std::vector<int> &primary_indices) {
+
+   std::vector<grid_index_t> already_positioned;
+
+   for (unsigned int irc=0; irc<residue_circles.size(); irc++) {
+      // if not a primary...
+      if (std::find(primary_indices.begin(), primary_indices.end(), irc) ==
+          primary_indices.end()) {
+
+         // if this point has rejection underneath it, find the
+         // position in grid that doesn't have any rejection.
+         //
+
+         std::pair<grid_index_t, lig_build::pos_t> pos =
+            grid.find_nearest_zero(residue_circles[irc].pos, already_positioned);
+         residue_circles[irc].pos = pos.second;
+         if (pos.first.is_valid_p()) {
+            std::cout << "position_non_primaries() " << irc << " " << pos.first.i() << " " << pos.first.j() << std::endl;
+            already_positioned.push_back(pos.first);
+         }
+      }
+   }
+}
+
+// can throw a std::runtime_error.
+//
+flev_t::grid_index_t
+flev_t::ligand_grid::grid_pos_nearest(const lig_build::pos_t &pos) const {
+
+   lig_build::pos_t p = pos - top_left;
+   int idx_x = int(p.x/scale_fac+0.5);
+   int idx_y = int(p.y/scale_fac+0.5);
+
+   if ((idx_x < 0) || (idx_x >= x_size()) || (idx_y < 0) || (idx_y >= y_size()))
+       throw std::runtime_error("out of grid index");
+
+   return grid_index_t(idx_x, idx_y);
+}
+
+
+// can throw an exception
+lig_build::pos_t
+flev_t::ligand_grid::find_minimum_position() const {
+
+   double best_pos_score = 1000000;
+   lig_build::pos_t best_pos;
+   for (int ix=0; ix<x_size(); ix++) {
+      for (int iy=0; iy<y_size(); iy++) {
+         if (grid_[ix][iy] < best_pos_score) {
+            best_pos_score = grid_[ix][iy];
+            best_pos = to_canvas_pos(ix,iy);
+         }
+      }
+   }
+   if (best_pos_score > (1000000-1))
+      throw std::runtime_error("failed to get minimum position from ligand grid");
+   return best_pos;
+}
+
+
+// actually, not exactly zero but something small.
+//
+// Don't return a grid-point/position that matches anything in
+// already_positioned.
+//
+std::pair<flev_t::grid_index_t, lig_build::pos_t>
+flev_t::ligand_grid::find_nearest_zero(const lig_build::pos_t &pos,
+                                       const std::vector<flev_t::grid_index_t> &already_positioned) const {
+
+   lig_build::pos_t p;
+   grid_index_t rgi; // initially invalid
+   double shortest_dist = 43e23;
+   double crit = 0.05; // less than this is effectively zero.
+
+   try {
+      grid_index_t gi=grid_pos_nearest(pos);
+      if (grid_[gi.i()][gi.j()] < crit) {
+         p = pos; // fine, no change
+         std::cout << "fine, no change " << p << std::endl;
+      } else {
+         std::cout << "search for some place else, grid lims: " << x_size() << " " << y_size() << std::endl;
+         // search for someplace else
+         for (int ix=0; ix<x_size(); ix++) {
+            for (int iy=0; iy<y_size(); iy++) {
+               if (false)
+                  std::cout << "grid_value " << ix << " " << iy << " is " << grid_[ix][iy] << std::endl;
+               if (grid_[ix][iy] < crit) {
+                  lig_build::pos_t gp = to_canvas_pos(ix, iy);
+                  if (false)
+                     std::cout << "   ix " << ix << " iy " << iy << " gp " << gp << " c.f. pos " << pos << std::endl;
+                  double d = (gp - pos).lengthsq();
+                  if (d < shortest_dist) {
+                     grid_index_t candidate_grid_index(ix, iy);
+                     // This is OK if there is no other previous
+                     // solution at the same position (if there is,
+                     // keep trying, of course).
+                     if (std::find(already_positioned.begin(), already_positioned.end(),
+                                   candidate_grid_index) == already_positioned.end()) {
+                        shortest_dist = d;
+                        p = gp;
+                        rgi = candidate_grid_index;
+                        std::cout << "found some place else: " << p << std::endl;
+                     }
+                  }
+               }
+            }
+         }
+      }
+   }
+   catch (const std::runtime_error &rte) {
+      // the pos was off the grid.  It won't be trapped inside the
+      // ligand, so just return what we were given.
+      p = pos;
+   }
+   return std::pair<grid_index_t, lig_build::pos_t> (rgi, p);
+}
+
+
+
+
+
+void
+flev_t::initial_primary_residue_circles_layout(const ligand_grid &grid,
+                                               int primary_index,
+                                               const std::vector<std::pair<lig_build::pos_t, double> > &attachment_points) {
+
+   if (false)
+      std::cout << "DEBUG:: starting initial_primary_residue_circles_layout() primary_index " << primary_index
+                << " " << residue_circles[primary_index].residue_label << " "
+                << residue_circles[primary_index].residue_type
+                << " has position " << residue_circles[primary_index].pos
+                << std::endl;
+
+   if (false)
+      std::cout << " =========== adding quadratic for residue "
+                << residue_circles[primary_index].residue_label
+                << " ============================"
+                << std::endl;
+   ligand_grid primary_grid = grid;
+
+   // attachment points are points on the ligand, in ligand
+   // coordinates to which this primary residue circle is
+   // attached (often only one attachment, but can be 2
+   // sometimes).
+   primary_grid.add_quadratic(attachment_points);
+
+   // if (true)
+   //    if (primary_index == 0)
+   //       show_grid(grid);
+
+   lig_build::pos_t best_pos = primary_grid.find_minimum_position();
+
+   // OK, consider the case where there are 2 residues bonding to the
+   // same atom in the ligand.  They wil both be given exactly the
+   // same best_pos and they will subsequently refine together,
+   // resulting in one residue sitting on top of another - bad news.
+   //
+   // So let's shift the residue a bit in the direction that it came
+   // from so that the residues don't refine together.
+   //
+   lig_build::pos_t a_to_b_uv = (residue_circles[primary_index].pos - best_pos).unit_vector();
+
+   residue_circles[primary_index].pos = best_pos + a_to_b_uv * 4;
+
+   if (false)
+      std::cout << "DEBUG::  ending initial_primary_residue_circles_layout() primary_index "
+                << primary_index
+                << " " << residue_circles[primary_index].residue_label << " "
+                << residue_circles[primary_index].residue_type
+                << " has position " << residue_circles[primary_index].pos
+                << std::endl;
+
+}
+
+// attachment points are points on the ligand, in ligand coordinates
+// to which this primary residue circle is attached (often only one
+// attachment, but can be 2 sometimes).
+//
+void
+flev_t::ligand_grid::add_quadratic(const std::vector<std::pair<lig_build::pos_t, double> > &attachment_points) {
+
+   if (attachment_points.size()) {
+      double scale_by_n_attach = 1.0/double(attachment_points.size());
+
+      for (unsigned int iattach=0; iattach<attachment_points.size(); iattach++) {
+         for (int ix=0; ix<x_size(); ix++) {
+            for (int iy=0; iy<y_size(); iy++) {
+               lig_build::pos_t pos = to_canvas_pos(ix, iy);
+               double d2 = (pos-attachment_points[iattach].first).lengthsq();
+               double val = 0.00002 * d2 * scale_by_n_attach;
+               grid_[ix][iy] += val;
+            }
+         }
+      }
+   }
+}
+
+// minimise layout energy
+std::pair<int, std::vector<residue_circle_t> >
+flev_t::optimise_residue_circle_positions(const std::vector<residue_circle_t> &r,
+                                          const std::vector<residue_circle_t> &c,
+                                          const std::vector<int> &primary_indices) const {
+   if (r.size() > 0) {
+      if (c.size() == r.size()) {
+         pli::optimise_residue_circles orc(r, c, mol, primary_indices);
+         int status = orc.get_gsl_min_status();
+         std::cout << "debug:: in optimise_residue_circles() get_gsl_min_status() status "
+                   << status << std::endl;
+         return orc.solution();
+      }
+   }
+   std::vector<residue_circle_t> dv; // dummy
+   return std::pair<int, std::vector<residue_circle_t> > (0, dv);
+}

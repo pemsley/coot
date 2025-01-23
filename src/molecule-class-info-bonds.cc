@@ -19,6 +19,7 @@
  * Fifth Floor, Boston, MA, 02110-1301, USA.
  */
 
+#include "coot-utils/atom-selection-container.hh"
 #include "molecule-class-info.h"
 
 #include "graphics-info.h" // for attach_buffers()
@@ -140,4 +141,51 @@ molecule_class_info_t::get_atom_at_pos(const coot::Cartesian &pt) const {
    return at;
 
 
+}
+
+
+void
+molecule_class_info_t::alt_conf_view_next_alt_conf(const std::string &current_alt_conf) {
+
+   std::vector<std::string> alt_confs;
+   int n = alt_confs.size();
+   if (n > 1) {
+      int idx_this = -1; // unset
+      int next_index = 0;
+      for (int i=0; i<n; i++) {
+         const std::string a = alt_confs[i];
+         if (current_alt_conf == a) {
+            idx_this = i;
+         }
+      }
+      if (idx_this != -1) {
+         next_index = idx_this + 1;
+         if (next_index == n)
+            next_index = 0;
+      }
+      std::string alt_conf = alt_confs[next_index];
+      std::string atom_selection = "//";
+      if (! alt_conf.empty()) {
+         atom_selection = "//*/*/*:" + alt_conf;
+      }
+
+      mmdb::Manager *mol = atom_sel.mol;
+      int SelectionHandle = mol->NewSelection(); // d
+      mol->Select(SelectionHandle, mmdb::STYPE_ATOM, atom_selection.c_str(), mmdb::SKEY_NEW);
+      mmdb::Manager *new_mol = coot::util::create_mmdbmanager_from_atom_selection(mol, SelectionHandle);
+
+      atom_selection_container_t asc_selection = make_asc(new_mol);
+      bool draw_hydrogens_flag = true;
+      bool draw_missing_loops_flag = true;
+      bool do_goodsell_colour_mode = false;
+      bool do_rama_markup = false;
+      std::set<int> no_bonds_to_these_atoms;
+      bool include_disulphides = 1;
+      coot::protein_geometry *geom_in = graphics_info_t::Geom_p();
+      int model_number = 0;
+      Bond_lines_container blc(asc_selection, imol_no, no_bonds_to_these_atoms, geom_in, include_disulphides, draw_hydrogens_flag,
+                               draw_missing_loops_flag, model_number, "", false, false, false, nullptr);
+
+      mol->DeleteSelection(SelectionHandle);
+   }
 }

@@ -42,6 +42,7 @@ namespace coot {
       enum { FASTA_BLOCK, SIMPLE_STRING};
       bool is_fasta_aa(const std::string &a) const;
       explicit fasta(const std::string &combined_string); // decomposition happens in constructor
+     // often/typically the name_in is the chain_id
       fasta(const std::string &name_in, const std::string &fasta_seq, int type);
       fasta(const std::string &name_in, const std::string &plain_seq, const std::string &dummy) :
          name(name_in), sequence(plain_seq) { if (dummy.empty()) {} }
@@ -63,6 +64,7 @@ namespace coot {
       const fasta &operator[](unsigned int i) const { return sequences[i]; }
       void read(const std::string &file_name);
       unsigned int size() const { return sequences.size(); }
+      std::pair<bool, std::string> get_fasta_for_name(const std::string &chain_id) const;
    };
 } 
 

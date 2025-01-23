@@ -56,6 +56,7 @@
 #endif // USE_PYTHON
 
 #include "compat/sleep-fixups.h"
+#include "coot-utils/gl-matrix.h"
 
 // Here we used to define GTK_ENABLE_BROKEN if defined(WINDOWS_MINGW)
 // Now we don't want to enable broken stuff.  That is not the way.
@@ -830,8 +831,12 @@ int handle_read_draw_molecule_with_recentre(const std::string &filename,
 	 // algorithm.
 
 
-	 std::vector<std::string> types_with_no_dictionary =
+	 std::vector<std::string> types_with_no_dictionary;
+         const coot::protein_geometry *geom_p = g.Geom_p();
+         if (g.Geom_p())
 	    g.molecules[imol].no_dictionary_for_residue_type_as_yet(*g.Geom_p());
+         else
+            std::cout << "ERROR:: handle_read_draw_molecule_with_recentre() Geom_p() returns null" << std::endl;
 
 	 int first_n_types_with_no_dictionary = types_with_no_dictionary.size();
 
@@ -847,7 +852,8 @@ int handle_read_draw_molecule_with_recentre(const std::string &filename,
 	    g.cif_dictionary_read_number++;
 	 }
 
-	 types_with_no_dictionary = g.molecules[imol].no_dictionary_for_residue_type_as_yet(*g.Geom_p());
+         if (geom_p)
+	    types_with_no_dictionary = g.molecules[imol].no_dictionary_for_residue_type_as_yet(*geom_p);
 
 	 if (types_with_no_dictionary.size()) {
 	    if (g.Geom_p()->try_load_ccp4srs_description(types_with_no_dictionary))
@@ -863,8 +869,9 @@ int handle_read_draw_molecule_with_recentre(const std::string &filename,
 
 	 if (graphics_info_t::nomenclature_errors_mode == coot::PROMPT) {
 	    // Now, did that PDB file contain nomenclature errors?
-	    std::vector<std::pair<std::string,coot::residue_spec_t> > nomenclature_errors =
-	       g.molecules[imol].list_nomenclature_errors(g.Geom_p());
+	    std::vector<std::pair<std::string,coot::residue_spec_t> > nomenclature_errors;
+            if (geom_p)
+               nomenclature_errors = g.molecules[imol].list_nomenclature_errors(geom_p);
 	    // gui function checks use_graphics_interface_flag
 	    if (nomenclature_errors.size())
 	       show_fix_nomenclature_errors_gui(imol, nomenclature_errors);
@@ -2102,7 +2109,7 @@ void set_map_radius_em(float radius) {
    for (int ii=0; ii<g.n_molecules(); ii++)
       g.molecules[ii].update_map(true);
    graphics_draw();
-   std::string cmd = "set-radius-em";
+   std::string cmd = "set-map-radius-em";
    std::vector<coot::command_arg_t> args;
    args.push_back(radius);
    add_to_history_typed(cmd, args);
@@ -3216,8 +3223,26 @@ get_show_aniso() {
 
 void
 set_show_aniso(int state) {
+   graphics_info_t::log.log(logging::WARNING, logging::function_name_t(__FUNCTION__),
+                            "don't use this");
+}
 
-   graphics_info_t::show_aniso_atoms_flag = state;
+/*! \brief set show aniso atoms */
+void set_show_aniso_atoms(int imol, int state) {
+
+   if (is_valid_model_molecule(imol)) {
+      bool st = state;
+      graphics_info_t::molecules[imol].set_show_atoms_as_aniso(st);
+   }
+   graphics_draw();
+}
+
+/*! \brief set show aniso atoms as ortep */
+void set_show_aniso_atoms_as_ortep(int imol, int state) {
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t::molecules[imol].set_show_aniso_atoms_as_ortep(state);
+   }
    graphics_draw();
 }
 
@@ -3268,7 +3293,7 @@ void set_default_bond_thickness(int t) {
 
 }
 
-/*! \brief set the default represenation type (default 1).*/
+/*! \brief set the default representation type (default 1).*/
 void set_default_representation_type(int type) {
    graphics_info_t g;
    g.default_bonds_box_type = type;
@@ -3829,12 +3854,12 @@ void set_rotation_centre_size_from_widget(const gchar *text) {
    float val;
    graphics_info_t g;
 
-   val = atof(text); 
-   if ((val > 1000) || (val < 0)) { 
+   val = atof(text);
+   if ((val > 1000) || (val < 0)) {
       std::cout << "Invalid cube size: " << text << ". Assuming 1.0A" << std::endl;
       val = 1.0;
-   } 
-   g.rotation_centre_cube_size = val; 
+   }
+   g.rotation_centre_cube_size = val;
    graphics_draw();
 }
 
@@ -3843,6 +3868,19 @@ void set_rotation_centre_size(float f) {
    g.rotation_centre_cube_size = f;
    graphics_draw();
 }
+
+/*! \brief set rotation centre colour
+
+This is the colour for a dark background - if the background colour is not dark,
+then the cross-hair colour becomes the inverse colour */
+void set_rotation_centre_cross_hairs_colour(float r, float g, float b, float alpha) {
+
+   glm::vec4 c(r,g,b,alpha);
+   graphics_info_t gg;
+   gg.set_rotation_centre_cross_hairs_colour(c);
+   graphics_draw();
+}
+
 
 gchar *get_text_for_rotation_centre_cube_size() {
 
@@ -4154,7 +4192,6 @@ void set_debug_atom_picking(int istate) {
 }
 
 
-#include "gl-matrix.h"
 void print_view_matrix() { 		/* print the view matrix */
 
    graphics_info_t g;
@@ -7085,6 +7122,9 @@ void post_scheme_scripting_window() {
 
 }
 
+// this needs a header?
+// mode 1 means "mtz" and 0 means coords
+void network_get_accession_code_entity(const std::string &text, int mode);
 
 /* called from c-inner-main */
 // If you edit this again, move it to graphics_info_t.
@@ -7113,7 +7153,7 @@ run_command_line_scripts() {
    }
 
    // --------- commands ------------
-   
+
    for (unsigned int i=0; i<graphics_info_t::command_line_commands.commands.size(); i++)
       if (graphics_info_t::command_line_commands.is_python)
          safe_python_command(graphics_info_t::command_line_commands.commands[i].c_str());
@@ -7128,22 +7168,10 @@ run_command_line_scripts() {
 
    graphics_info_t g;
    for (unsigned int i=0; i<graphics_info_t::command_line_accession_codes.size(); i++) {
-      std::cout << "run_command_line_scripts(): get accession code "
-                << graphics_info_t::command_line_accession_codes[i] << std::endl;
-      std::vector<std::string> c;
-      c.push_back("get_ebi.get-eds-pdb-and-mtz");
-      c.push_back(single_quote(graphics_info_t::command_line_accession_codes[i]));
-
-#ifdef USE_GUILE
-       std::string sc = g.state_command(c, graphics_info_t::USE_SCM_STATE_COMMANDS);
-       safe_scheme_command(sc.c_str());
-#else
-#ifdef USE_PYTHON
-      std::string pc = g.state_command(c, graphics_info_t::USE_PYTHON_STATE_COMMANDS);
-      safe_python_command("import get_ebi");
-      safe_python_command(pc.c_str());
-#endif
-#endif
+      const std::string &code = g.command_line_accession_codes[i];
+      std::cout << "run_command_line_scripts(): get accession code " << code << std::endl;
+      network_get_accession_code_entity(code, 0); // mode 0 means "not mtz"
+      network_get_accession_code_entity(code, 1); // mtz mode
    }
 }
 
@@ -8734,21 +8762,68 @@ set_tip_of_the_day_flag (int state) {
 /*  ----------------------------------------------------------------------- */
 void do_surface(int imol, int state) {
 
-   float colour_scale = graphics_info_t::electrostatic_surface_charge_range; // 0.5, by default
+}
+
+#include "c-interface-generic-objects.h"
+#include "api/coot-molecule.hh"
+
+/* per-chain functions can be added later */
+void make_generic_surface(int imol, const char *selection_str, int mode) {
+
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
-      graphics_info_t::molecules[imol].make_surface(state, *g.Geom_p(), colour_scale);
+      float col_scale = g.electrostatic_surface_charge_range;
+      std::string selection_string(selection_str);
+      // use api!
+      coot::molecule_t cm(g.molecules[imol].atom_sel, 0, "");
+      //  coot::simple_mesh_t smesh = cm.get_molecular_representation_mesh(selection_string, "ByOwnPotential", "Chains", 0);
+      coot::simple_mesh_t smesh;
+      std::string type = "";
+
+      if (mode == 1) smesh = cm.get_molecular_representation_mesh(selection_string, "ByOwnPotential", "MolecularSurface", 0);
+      if (mode == 2) smesh = cm.get_molecular_representation_mesh(selection_string, "Chains", "MolecularSurface", 0);
+
+      if (mode == 1) type = "Electrostatic";
+      if (mode == 2) type = "Molecular";
+
+      g.attach_buffers();
+      // do I need this vertex type conversion? Yes
+      std::vector<s_generic_vertex> vertices(smesh.vertices.size());
+      for (unsigned int i = 0; i < smesh.vertices.size(); i++) {
+         vertices[i] = s_generic_vertex(smesh.vertices[i].pos,
+                                        smesh.vertices[i].normal,
+                                        smesh.vertices[i].color);
+      }
+      std::string object_name = type + " Surface " + std::to_string(imol) +
+         std::string(" ") + std::string(selection_string);
+      int obj_mesh = new_generic_object_number(object_name);
+      meshed_generic_display_object &obj = g.generic_display_objects[obj_mesh];
+      obj.imol = imol;
+      obj.mesh.name = object_name;
+      obj.mesh.set_draw_mesh_state(true);
+      obj.mesh.import(vertices, smesh.triangles);
+      obj.mesh.set_material_specularity(0.7, 128);
+      obj.mesh.setup_buffers();
+
       graphics_draw();
    }
+}
+/* per-chain functions can be added later */
+void make_molecular_surface(int imol, const char *selection_str) {
+
+   make_generic_surface(imol, selection_str, 2);
+}
+
+/* per-chain functions can be added later */
+void make_electrostatic_surface(int imol, const char *selection_str) {
+
+   make_generic_surface(imol, selection_str, 1);
 }
 
 int molecule_is_drawn_as_surface_int(int imol) {
 
-   int r = 0;
-   if (is_valid_model_molecule(imol)) {
-      r = graphics_info_t::molecules[imol].molecule_is_drawn_as_surface();
-   }
-   return r;
+   // useless function now - remove it.
+   return 1;
 }
 
 

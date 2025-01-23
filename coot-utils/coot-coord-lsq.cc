@@ -35,8 +35,8 @@ coot::util::get_lsq_matrix(mmdb::Manager *mol1,
    short int istat = 0;
    clipper::RTop_orth rtop(clipper::Mat33<double>(0,0,0,0,0,0,0,0,0),
                            clipper::Coord_orth(0,0,0));
-   int SelHnd1 = mol1->NewSelection();
-   int SelHnd2 = mol2->NewSelection();
+   int SelHnd1 = mol1->NewSelection(); // d
+   int SelHnd2 = mol2->NewSelection(); // d
 
    std::vector<clipper::Coord_orth> co1v;
    std::vector<clipper::Coord_orth> co2v;
@@ -44,6 +44,10 @@ coot::util::get_lsq_matrix(mmdb::Manager *mol1,
       std::pair<std::vector<clipper::Coord_orth>, std::vector<clipper::Coord_orth> > p =
         get_matching_indices(mol1, mol2, matches[i], every_nth);
       if ((p.first.size() > 0) && (p.first.size() == p.second.size())) {
+         if (false) { // debugging
+            if (p.first.size() == 1)
+               std::cout << "    " << matches[i] << " " << p.first[0].format() << " " << p.second[0].format() << std::endl;
+         }
          for (unsigned int j=0; j<p.first.size(); j++) {
             co1v.push_back(p.first[j]);
             co2v.push_back(p.second[j]);
@@ -80,7 +84,7 @@ coot::util::get_lsq_matrix(mmdb::Manager *mol1,
             // not variance about mean, variance from 0.
             //double var  = sum_dist2/double(co2v.size()) - mean*mean;
             double v    = sum_dist2/double(co2v.size());
-            if (summary_to_screen) 
+            if (summary_to_screen)
                std::cout << "INFO:: " << co1v.size() << " matched atoms had: \n"
                          << "   mean devi: " << mean << "\n"
                          << "    rms devi: " << sqrt(v) << "\n"
@@ -91,7 +95,7 @@ coot::util::get_lsq_matrix(mmdb::Manager *mol1,
             std::cout << "WARNING:: not enough points to do matching (matching)"
                       << std::endl;
          }
-      } else { 
+      } else {
          std::cout << "WARNING:: not enough points to do matching (reference)"
                    << std::endl;
       }
@@ -104,8 +108,8 @@ coot::util::get_lsq_matrix(mmdb::Manager *mol1,
 }
 
 // On useful return, first.size() == second.size() and first.size() > 0.
-// 
-std::pair<std::vector<clipper::Coord_orth>, std::vector<clipper::Coord_orth> > 
+//
+std::pair<std::vector<clipper::Coord_orth>, std::vector<clipper::Coord_orth> >
 coot::util::get_matching_indices(mmdb::Manager *mol1,
                                  mmdb::Manager *mol2,
                                  const coot::lsq_range_match_info_t &match,
@@ -178,7 +182,7 @@ coot::util::get_matching_indices(mmdb::Manager *mol1,
    }
 
 //   for (int ires=match.to_reference_start_resno; ires<=match.to_reference_end_resno; ires++) {
-   if (every_nth < 1 || every_nth > 10) 
+   if (every_nth < 1 || every_nth > 10)
      every_nth = 1;   // reset for nonsense values
    for (int ires=match.to_reference_start_resno; ires<=match.to_reference_end_resno; ires+=every_nth) {
       int ires_matcher = ires - match.to_reference_start_resno + match.from_matcher_start_resno;
@@ -206,7 +210,7 @@ coot::util::get_matching_indices(mmdb::Manager *mol1,
                     "*",  // altLocs
                     mmdb::SKEY_NEW // selection key
                     );
-      mol2->Select (SelHnd_res2, mmdb::STYPE_RESIDUE, // .. TYPE, 
+      mol2->Select (SelHnd_res2, mmdb::STYPE_RESIDUE, // .. TYPE,
                     match.model_number_matcher,
                     match.matcher_chain_id.c_str(), // Chain(s)
                     ires_matcher, "*",  // starting res
@@ -233,7 +237,7 @@ coot::util::get_matching_indices(mmdb::Manager *mol1,
 
       if (nSelResidues_1 == 0 || nSelResidues_2 == 0) {
 
-         if (nSelResidues_1 == 0) { 
+         if (nSelResidues_1 == 0) {
             std::string s = "WARNING:: - no residue for reference molecule residue number ";
             s += util::int_to_string(ires);
             s += " for reference chain-id: \"";
@@ -241,7 +245,7 @@ coot::util::get_matching_indices(mmdb::Manager *mol1,
             s += "\"";
             warnings.push_back(s);
          }
-         if (nSelResidues_2 == 0) { 
+         if (nSelResidues_2 == 0) {
             std::string s = "WARNING:: - no residue for moving    molecule residue number ";
             s += util::int_to_string(ires_matcher);
             s += " for reference chain-id: \"";
@@ -252,7 +256,7 @@ coot::util::get_matching_indices(mmdb::Manager *mol1,
       } else {
 
          // So we have 2 good residues
-         
+
          // Let's get their residue type:
          std::string res_type_1(SelResidue_1[0]->GetResName());
          std::string res_type_2(SelResidue_2[0]->GetResName());
@@ -294,7 +298,6 @@ coot::util::get_matching_indices(mmdb::Manager *mol1,
             }
          }
 
-
          // ----------------- Mainchain ---------------------
          //
          if ((match.match_type_flag == lsq_t::MAIN) ||
@@ -308,26 +311,49 @@ coot::util::get_matching_indices(mmdb::Manager *mol1,
                if (match.match_type_flag == lsq_t::NCAC)
                   mc_at_names = aa_core_mc_at_names;
             }
-            for (unsigned int iat=0; iat<mc_at_names.size(); iat++) {
-               mmdb::Atom *at1 = SelResidue_1[0]->GetAtom(mc_at_names[iat].c_str());
-               mmdb::Atom *at2 = SelResidue_2[0]->GetAtom(mc_at_names[iat].c_str());
-               if (at1) {
-                  if (!at2) {
-                     std::cout << "WARNING:: no " << mc_at_names[iat]
-                               << " in this moving residue " << ires_matcher
-                               << std::endl;
-                  } else {
-                     if (false)
-                        std::cout << "Found match "
-                                  << atom_spec_t(at1) << " to "
-                                  << atom_spec_t(at2) << std::endl;
-                     v1.push_back(clipper::Coord_orth(at1->x, at1->y, at1->z));
-                     v2.push_back(clipper::Coord_orth(at2->x, at2->y, at2->z));
+            if (! match.is_single_atom_match) {
+               for (unsigned int iat=0; iat<mc_at_names.size(); iat++) {
+                  mmdb::Atom *at1 = SelResidue_1[0]->GetAtom(mc_at_names[iat].c_str());
+                  mmdb::Atom *at2 = SelResidue_2[0]->GetAtom(mc_at_names[iat].c_str());
+                  if (at1) {
+                     if (!at2) {
+                        std::cout << "WARNING:: no " << mc_at_names[iat]
+                                  << " in this moving residue " << ires_matcher
+                                  << std::endl;
+                     } else {
+                        if (false)
+                           std::cout << "Found match "
+                                     << atom_spec_t(at1) << " to "
+                                     << atom_spec_t(at2) << std::endl;
+                        v1.push_back(clipper::Coord_orth(at1->x, at1->y, at1->z));
+                        v2.push_back(clipper::Coord_orth(at2->x, at2->y, at2->z));
+                     }
                   }
                }
             }
          }
 
+         // NCACBC
+         if (match.match_type_flag == lsq_t::NCACBC) {
+            if (! match.is_single_atom_match) {
+               std::vector<std::string> atom_names = {" N  ", " CA ", " CB ", " C  "}; // PDBV3-FIXME
+               for (unsigned int iat=0; iat<atom_names.size(); iat++) {
+                  const std::string &atom_name = atom_names[iat];
+                  mmdb::Atom *at1 = SelResidue_1[0]->GetAtom(atom_name.c_str());
+                  mmdb::Atom *at2 = SelResidue_2[0]->GetAtom(atom_name.c_str());
+                  if (at1) {
+                     if (at2) {
+                        if (! at1->isTer()) {
+                           if (! at2->isTer()) {
+                              v1.push_back(clipper::Coord_orth(at1->x, at1->y, at1->z));
+                              v2.push_back(clipper::Coord_orth(at2->x, at2->y, at2->z));
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+         }
 
          // ----------------- All Atom ---------------------
          //
@@ -359,6 +385,7 @@ coot::util::get_matching_indices(mmdb::Manager *mol1,
                   }
                }
             } else {
+
                // is single atom match
                mmdb::PAtom *residue_atoms1 = NULL;
                mmdb::PAtom *residue_atoms2 = NULL;
@@ -368,20 +395,20 @@ coot::util::get_matching_indices(mmdb::Manager *mol1,
                SelResidue_2[0]->GetAtomTable(residue_atoms2, n_residue_atoms2);
 //                std::cout << "single atom match: residue: ref: "
 //                          << coot::residue_spec_t(SelResidue_1[0])
-//                          << " to " 
+//                          << " to "
 //                          << coot::residue_spec_t(SelResidue_2[0])
 //                          << std::endl;
                for (int iat=0; iat<n_residue_atoms1; iat++) {
                   mmdb::Atom *at1 = residue_atoms1[iat];
                   std::string at1_name(at1->name);
                   std::string at1_altconf(at1->altLoc);
-                  if (at1_name == match.reference_atom_name) { 
-                     if (at1_altconf == match.reference_alt_conf) { 
+                  if (at1_name == match.reference_atom_name) {
+                     if (at1_altconf == match.reference_alt_conf) {
                         for (int jat=0; jat<n_residue_atoms2; jat++) {
                            mmdb::Atom *at2 = residue_atoms2[jat];
                            std::string at2_name(at2->name);
                            std::string at2_altconf(at2->altLoc);
-                           if (at2_name == match.matcher_atom_name) { 
+                           if (at2_name == match.matcher_atom_name) {
                               if (at2_altconf == match.matcher_alt_conf) {
                                  v1.push_back(clipper::Coord_orth(at1->x, at1->y, at1->z));
                                  v2.push_back(clipper::Coord_orth(at2->x, at2->y, at2->z));
@@ -391,7 +418,7 @@ coot::util::get_matching_indices(mmdb::Manager *mol1,
                      }
                   }
                }
-            } 
+            }
          }
       }
 

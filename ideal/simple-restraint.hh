@@ -860,6 +860,7 @@ namespace coot {
       double distortion_score;
       simple_restraint restraint;
       std::vector<int> atom_indices;
+      std::vector<atom_spec_t> atom_specs;
       residue_spec_t residue_spec;
       friend std::ostream &operator<<(std::ostream &s, geometry_distortion_info_t);
 
@@ -922,6 +923,8 @@ namespace coot {
       int size () const { return geometry_distortion.size(); }
       double print() const;  // return the total distortion
       double distortion() const;  // return the total distortion
+      double distortion_sum() const; // return the sum of the distortions from the restraints - no calculation
+      geometry_distortion_info_t get_geometry_distortion_info(unsigned int idx) const;
       friend std::ostream &operator<<(std::ostream &s, geometry_distortion_info_container_t);
    };
    std::ostream &operator<<(std::ostream &s, geometry_distortion_info_container_t gdic);
@@ -1923,6 +1926,7 @@ namespace coot {
                                  std::map<mmdb::Residue *, std::vector<mmdb::Residue *> > *residue_link_count_map_p,
                                  std::set<std::pair<mmdb::Residue *, mmdb::Residue *> > *residue_pair_link_set_p);
       bool N_and_C_are_close_ng(mmdb::Residue *res_1, mmdb::Residue *res_2, float d_crit) const;
+      bool O3prime_and_P_are_close_ng(mmdb::Residue *res_1, mmdb::Residue *res_2, float d_crit) const;
 
       std::pair<bool, link_restraints_counts> try_make_peptide_link_ng(const coot::protein_geometry &geom,
                                                                        std::pair<bool, mmdb::Residue *> res_1,

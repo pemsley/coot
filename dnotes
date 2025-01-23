@@ -1038,15 +1038,15 @@ Wed Dec  5 14:13:31 GMT 2007
 
     Particular alt confs cannot be selected for.
 
-    Questions:  How shall we create new represenations for this molecule?
+    Questions:  How shall we create new representations for this molecule?
 
     // return
-    int add_representation imol represenation-spec
+    int add_representation imol representation-spec
 
     // used by GUI
-    undisplay_represenation imol respresentation-number
+    undisplay_representation imol respresentation-number
 
-    undisplay_represenation imol residue_spec
+    undisplay_representation imol residue_spec
     which needs to be unambiguated. Test in this order:
 
      o Was there a line_representation that has that residue_spec?
@@ -3972,6 +3972,7 @@ INFO::
 	How to do a release
 	How to make a release
 
+   o Up to date with Bernie's commits?
    o Run the damn tests - don't be lazy
    o make check
    o before the release commit, make sure it builds and passes tests on charybdis
@@ -3980,6 +3981,7 @@ INFO::
    o Make sure RELEASE-NOTES are up to date and add a ----- marker at the top
      Make sure the release is called Release, not pre-release
    o change the version in configure.ac
+   o change the PACKAGE_VERSION in CMakeLists.txt
    o Correct the version in the about_dialog in the coot-gtk4.ui file
    o Artists acknowledged in glade/aboutdialog?
    o Use []
@@ -11524,4 +11526,66 @@ Fri Sep 13 04:03:17 AM BST 2024
                <property name="halign">end</property>
    to the GtkBox which contained the button
 
+
+----
+Sun  6 Oct 18:04:53 BST 2024
+
+   arch linux by default redirects the core dumps
+   To fix:
+   kernel.core_pattern=core in /etc/sysctl.d/50-coredump.conf
+
+---
+
+Old Coot: package glib2-devel needed on arch to provide glib-mkenums gtkglext
+
+---
+Tue 12 Nov 14:21:20 GMT 2024
+
+   PyVOL
+   Avner Schlessinger
+
+---
+Mon 25 Nov 2024 10:44:25 GMT
+
+   Find coot.rb here:
+   https://github.com/brewsci/homebrew-bio/tree/develop/Formula
+
+   to install coot from homebrew:
+   brew install brewsci/bio/coot
+---
+
+   interesting?
+   xclip -r -selection clipboard
+
+----
+Fri 13 Dec 22:37:16 GMT 2024
+
+   7gww is part of a multi tetrapeptide screen (it seems)
+
+---
+
+nerd fonts:
+https://gist.github.com/davidteren/898f2dcccd42d9f8680ec69a3a5d350e
+
+-----
+
+https://huggingface.co/spaces/Qwen/Qwen2.5-Coder-demo
+https://huggingface.co/Qwen/Qwen2.5-Coder-32B
+
+---
+
+enamine.net for fragmenst and ligand manipulation gui? Arno.
+
+----
+Sat  4 Jan 03:32:14 GMT 2025
+
+  stumbling block removed?
+  https://github.com/rdkit/rdkit/pull/7389/commits/407ef993981de44c72efa7df11a2cca9354df4c2
+
+
+---
+Wed 22 Jan 2025 07:36:17 GMT
+
+  the value of tests:
+  https://www.youtube.com/shorts/u49giZDzSDI
 

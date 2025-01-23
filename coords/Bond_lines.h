@@ -251,8 +251,11 @@ class Bond_lines_container {
    void add_deuterium_spots(const atom_selection_container_t &SelAtom);
    void add_ramachandran_goodness_spots(const atom_selection_container_t &SelAtom);
    void add_rotamer_goodness_markup(const atom_selection_container_t &SelAtom);
-   void add_atom_centres(int imol, const atom_selection_container_t &SelAtom, int atom_colour_type,
+   void add_atom_centres(int imol,
+                         const atom_selection_container_t &SelAtom,
+                         int atom_colour_type,
                          coot::my_atom_colour_map_t *atom_colour_map = 0);
+
    int add_ligand_bonds(const atom_selection_container_t &SelAtom, int imol,
                         mmdb::PPAtom ligand_atoms_selection, int n_ligand_atoms);
    std::vector<rotamer_markup_container_t> dodecs;
@@ -558,6 +561,8 @@ public:
                                    COLOUR_BY_USER_DEFINED_COLOURS=604
    };
 
+   // Constructor A
+   //
    // getting caught out with Bond_lines_container dependencies?
    // We need:  mmdb-extras.h which needs mmdb-manager.h and <string>
    // Bond_lines_container(const atom_selection_container_t &asc);
@@ -569,6 +574,8 @@ public:
                                  bool do_rota_markup=false,
                                  coot::rotamer_probability_tables *tables_p=0);
 
+   // Constructor B
+   //
    // the constructor for bond by dictionary - should use this most of the time.
    // geom_in can be null if you don't have it.
    //
@@ -591,11 +598,18 @@ public:
                         bool do_sticks_for_waters=true,
                         coot::rotamer_probability_tables *tables_p=0);
 
-   Bond_lines_container(atom_selection_container_t, int imol, float max_dist);
+   // Constructor C
+   //
+   Bond_lines_container(atom_selection_container_t asc, int imol,
+                        float max_dist);
 
+   // Constructor D
+   //
    Bond_lines_container(atom_selection_container_t asc, int imol,
                         float min_dist, float max_dist);
 
+   // Constructor E
+   //
    // The constructor for ball and stick, this constructor implies that
    // for_GL_solid_model_rendering is set.
    //
@@ -604,10 +618,14 @@ public:
                          int imol,
                          const coot::protein_geometry *geom);
 
+   // Constructor F
+   //
    Bond_lines_container(atom_selection_container_t SelAtom, coot::Cartesian point,
                         float symm_distance,
                         std::vector<symm_trans_t> symm_trans); // const & FIXME
 
+   // Constructor G
+   //
    // This finds bonds between a residue and the protein (in SelAtom).
    // It is used for the environment bonds box.
    //
@@ -620,6 +638,8 @@ public:
                         float min_dist,
                         float max_dist);
 
+   // Constructor H
+   //
    // same as above, except this does symmetry contacts too.
    //
    Bond_lines_container(const atom_selection_container_t &SelAtom,
@@ -630,16 +650,24 @@ public:
                         bool draw_env_distances_to_hydrogens_flag,
                         short int do_symmetry);
 
+   // Constructor I
+   //
    // This is the one for user-defined, occupancy and B-factor representation
    //
    Bond_lines_container (const atom_selection_container_t &SelAtom, int imol,
                          const coot::protein_geometry *protein_geom,
                          bond_representation_type br_type);
 
+   // Constructor J
+   //
    explicit Bond_lines_container(int col);
 
+   // Constructor K
+   //
    explicit Bond_lines_container(symm_keys key);
 
+   // Constructor L
+   //
    // Used by various CA-mode bonds
    //
    explicit Bond_lines_container(coot::protein_geometry *protein_geom,
@@ -668,6 +696,8 @@ public:
       }
    }
 
+   // Constructor M
+   //
    // Used by make_colour_by_chain_bonds() - and others in the future?
    // Used by get_bonds_mesh_for_selection_instanced() in coot_molecule_bonds_instanced.cc
    //
@@ -694,10 +724,14 @@ public:
       }
    }
 
+   // Constructor N
+   //
    // Phenix Geo
    //
    Bond_lines_container(mmdb::Manager *mol, const coot::phenix_geo_bonds &gb);
 
+   // Constructor O
+   //
    // initial constructor, added to by  addSymmetry_vector_symms from update_symmetry()
    //
    Bond_lines_container() {

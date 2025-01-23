@@ -11,6 +11,8 @@ make_instanced_graphical_bonds_spherical_atoms(coot::instanced_mesh_t &m, // add
                                                coot::api_bond_colour_t bonds_box_type,
                                                float base_atom_radius,
                                                float base_bond_radius,
+                                               bool show_atoms_as_aniso_flag,
+                                               bool show_aniso_atoms_as_ortep,
                                                unsigned int num_subdivisions,
                                                const std::vector<glm::vec4> &colour_table);
 
@@ -35,7 +37,7 @@ make_instanced_graphical_bonds_bonds(coot::instanced_mesh_t &m,
 void make_graphical_bonds_spherical_atoms_with_vdw_radii_instanced(coot::instanced_mesh_t &m, const graphical_bonds_container &gbc,
                                                                    unsigned int num_subdivisions,
                                                                    const std::vector<glm::vec4> &colour_table,
-                                                                   const coot::protein_geometry &geom);
+                                                                   const coot::protein_geometry &geom, int imol=coot::protein_geometry::IMOL_ENC_ANY);
 
 void
 make_instanced_graphical_bonds_bonds(coot::instanced_mesh_t &m,

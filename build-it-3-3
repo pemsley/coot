@@ -1,3 +1,4 @@
+#!/bin/bash
 # 
 # -*-shell-script-*-
 # Local Variables:
@@ -1044,7 +1045,8 @@ if test $OS = Linux ; then
    if [ -e /bin/rpm ] ; then
       if rpm -a ; then
          if test -e /etc/os-release ; then
-             dist_name=$(grep ^ID= /etc/os-release | sed -e 's/ID=//')
+             # 20240914 strip quote marks also now
+             dist_name=$(grep ^ID= /etc/os-release | sed -e 's/ID=//' -e 's/"//g')
              dist_ver=$(grep ^VERSION_ID /etc/os-release | sed -e 's/VERSION_ID=//')
          else
              for i in fedora-release redhat-release redhat-release-workstation centos-release sl-release openSUSE-release ; do
@@ -1066,7 +1068,19 @@ if test $OS = Linux ; then
       else
          dist_name='unknown'
       fi
+   else
+     if test -e /etc/os-release ; then
+         # 20240914 strip quote marks also now
+         dist_name=$(grep ^ID= /etc/os-release | sed -e 's/ID=//' -e 's/"//g')
+         dist_ver=$(grep ^VERSION_ID /etc/os-release | sed -e 's/VERSION_ID=//')
+         if grep BUILD_ID=rolling /etc/os-release ; then
+             dist_ver=rolling
+         fi
+     fi
    fi
+
+   echo here 2222 with dist_name $dist_name
+   echo here 2222 with dist_ver $dist_ver
 
   case ${dist_name} in
 
@@ -1090,7 +1104,7 @@ if test $OS = Linux ; then
     esac
     ;;
 
-    fedora | centos | openSUSE | rocky)
+    fedora | centos | openSUSE | rocky | almalinux)
       systype=${architecture}-${dist_name}-${dist_ver}
     ;;
 
@@ -1099,19 +1113,23 @@ if test $OS = Linux ; then
       systype=${architecture}-scientific-linux-${dist_ver}
       ;;
 
+    arch )
+      systype=${architecture}-arch
+      ;;
+
 
     * )
       if test -r /etc/issue; then
-        echo this fallback case............
-        dist_name=$(awk 'NR==1{print tolower($1)}' /etc/issue)
-        if [ "$dist_name" = "debian" ] ; then
-           dist_ver=$(awk  'NR==1{x=tolower($2); y=tolower($3); gsub("/","-",x); gsub("/","-",y); print x "-" y}' /etc/issue)
-        else
-           dist_ver=$(awk  'NR==1{x=tolower($2); gsub("/","-",x); print x}' /etc/issue)
-        fi
-        systype=${architecture}-${dist_name}-${dist_ver}
+          echo this fallback case............
+          dist_name=$(awk 'NR==1{print tolower($1)}' /etc/issue)
+          if [ "$dist_name" = "debian" ] ; then
+              dist_ver=$(awk  'NR==1{x=tolower($2); y=tolower($3); gsub("/","-",x); gsub("/","-",y); print x "-" y}' /etc/issue)
+          else
+              dist_ver=$(awk  'NR==1{x=tolower($2); gsub("/","-",x); print x}' /etc/issue)
+          fi
+          systype=${architecture}-${dist_name}-${dist_ver}
       else
-        systype=${architecture}-unknown-Linux
+          systype=${architecture}-unknown-Linux
       fi
     ;;
   esac
@@ -2083,12 +2101,15 @@ python_version_squish=311
 
 # for Blender 4 in 2024, we want Python 3.10.13, so uncomment the 3 lines below:
 if [ "$CHAPI_ONLY" = true ] ; then
-    python_version=python3.10
-    pver=3.10.13
-    python_version_extension=3.10
-    python_version_squish=310
+    # python_version=python3.10
+    # pver=3.10.13
+    # python_version_extension=3.10
+    # python_version_squish=310
+    python_version=python3.12
+    pver=3.12.7
+    python_version_extension=3.12
+    python_version_squish=312
 fi
-
 
 
 # for compatibility with gtk build system
@@ -2688,6 +2709,8 @@ export PATH=$install_top_dir/bin:$PATH
 
 libffi_version=3.2.1
 # libffi_version=3.4.3 is available now 20231021-PE
+libffi_version=3.4.6
+
 skip_build=false
 if [ $test_for_already_installed_dependencies = true ] ; then
       if [ -e $install_top_dir/include/ffi.h ] ; then
@@ -2699,8 +2722,8 @@ if [ $test_for_already_installed_dependencies = true ] ; then
 fi
 
 if [ $skip_build = false ] ; then
-    echo BUILDING libffi $libffi_version:
-    echo BUILDING libffi $libffi_version: >&2
+    echo BUILDING libffi from libffi-master.zip
+    echo BUILDING libffi from libffi-master.zip >&2
     (
     unset LD_LIBRARY_PATH
 
@@ -2727,6 +2750,42 @@ fi
 echo post libffi with LD_LIBRARY_PATH $LD_LIBRARY_PATH
 echo post libffi with LD_LIBRARY_PATH $LD_LIBRARY_PATH >&2
 
+############## 09b-libffi #####################
+
+build_libffi=true
+echo ================= here with build_libffi $build_libffi
+#
+if [ "$build_libffi" = true ] ; then
+   skip_this=false
+   if [ "$test_for_already_installed_dependencies" = true ] ; then
+      if [ -e $install_top_dir/lib/pkgconfig/libffi.pc ] ; then
+         skip_this=true
+      fi
+   fi
+
+   if [ $skip_this = false ] ; then
+      echo ========================= build 09b-libffi =================================
+      (
+      unset LD_LIBRARY_PATH # or otherwise UP in libreadline problems
+      echo ========================= build 09b-libffi =================================
+      echo BUILDING libffi $libffi_version >&2
+      ${WGET} https://github.com/libffi/libffi/releases/download/v$libffi_version/libffi-$libffi_version.tar.gz
+      if [ -e ${AUTOBUILD_SOURCES}/libffi-$libffi_version.tar.gz ] ; then
+         tar xf ${AUTOBUILD_SOURCES}/libffi-$libffi_version.tar.gz
+      else
+         exit
+      fi
+      cd libffi-$libffi_version
+      # if ./configure --prefix=$install_top_dir --disable-multi-os-directory --enable-portable-binary --enable-shared --disable-static ; then
+      if ./configure --prefix=$install_top_dir --enable-portable-binary --enable-shared --disable-static ; then
+         if $MAKE ; then
+            make install
+         fi
+      fi
+      cd -
+      ) > $HOSTLOGDIR/09b-libffi.txt 2>&1
+   fi
+fi
 build_openssl=false
 if [ $OS = Darwin ] ; then
    if [ -e $install_top_dir/include/openssl ] ; then
@@ -3072,7 +3131,7 @@ if [ -e $install_top_dir/include/cairo/cairo.h ] ; then
 else
     # we need modern cairo - because that is what is used by GTK4.
     # in fact, perhaps we should build cairo at all on arch...
-    if test $dist_name = arch ; then
+    if test "$dist_name" = arch ; then
         (
         cairo_version=1.18.2
         echo BUILDING: cairo $cairo_version
@@ -3307,20 +3366,30 @@ if [ "$build_boost" = true ] ; then
    fi
 
    if [ $skip_this = false ] ;  then
+
+      # 20241002-PE
+      # try 1.86.0 becausee 1.83 doesn't compile - like this:
+      # https://github.com/bambulab/BambuStudio/issues/3957
+      # They fixed the problem by udating the boost - let's try that
       boost_version=1_71_0
       boost_version=1_72_0
       boost_version=1_74_0
       boost_version=1_83_0
+      boost_version=1_86_0
+      boost_version=1_87_0
       boost_server_dir=1.72.0
       boost_server_dir=1.72.0
       boost_server_dir=1.74.0
       boost_server_dir=1.82.0
       boost_server_dir=1.83.0
+      boost_server_dir=1.86.0
+      boost_server_dir=1.87.0
       echo BUILDING boost $boost_version :
       echo BUILDING boost $boost_version >&2
 
       boost_home_url=https://dl.bintray.com/boostorg/release/$boost_server_dir/source # old
       boost_home_url=https://boostorg.jfrog.io/artifactory/main/release/$boost_server_dir/source
+      boost_home_url=https://archives.boost.io/release/$boost_server_dir/source/
       echo wgetting $boost_home_url/boost_$boost_version.tar.gz
       echo ${WGET} $boost_home_url/boost_$boost_version.tar.gz 2>&1
       ${WGET} $boost_home_url/boost_$boost_version.tar.gz
@@ -3620,6 +3689,7 @@ rdkit_version=2018_09_2 # Atom pointer wrappers gone, needs coot Dec 2020 patch
 rdkit_version=2020_09_3
 rdkit_version=2023_03_1
 rdkit_version=2023_09_4
+rdkit_version=2024_09_4
 # see https://github.com/rdkit/rdkit/releases
 rdkit_home=https://github.com/rdkit/rdkit/archive
 rdkit_tar_host_file_name=Release_$rdkit_version.tar.gz
@@ -3628,6 +3698,7 @@ rdkit_tar_size=54644792
 rdkit_tar_size=58598385 # 2020_09_3
 rdkit_tar_size=79454133 # 2023_03_1
 rdkit_tar_size=80212603 # 2023_09_4
+rdkit_tar_size=82055856 # 2024_09_4
 
 if [ "$build_rdkit" = true ] ; then
    skip_this=false
@@ -3751,6 +3822,10 @@ if [ "$build_rdkit" = true ] ; then
          echo patch -p0 < ${AUTOBUILD_SOURCES}/rdkit-maeparser.patch
          patch -p0 < ${AUTOBUILD_SOURCES}/rdkit-maeparser.patch
 
+         # now fix for modern boost:
+         # Code/RDGeneral/RDValue-taggedunion.h needs numeric_cast.hpp
+
+
          mkdir -p build
          cd build
          pwd
@@ -3820,13 +3895,19 @@ if [ "$build_rdkit" = true ] ; then
           if test "$dist_name" = ubuntu ; then
               echo don.t mess with LDFLAGS here on ubuntu
           else
-              if test "$dist_name" = arch ; then
-                  echo don.t mess with LDFLAGS here on arch
+              if test "$dist_name" = almalinux ; then
+                  echo don.t mess with LDFLAGS on almalinux
               else
-                  export LDFLAGS="-L$install_top_dir/lib -lintl"
+		  if test "$dist_name" = arch ; then
+		      echo don.t mess with LDFLAGS here on arch
+                  else
+                      export LDFLAGS="-L$install_top_dir/lib -lintl"
+                  fi
               fi
           fi
       fi
+
+      echo AAAAAAAAAAAAAAAAAAAAAAAA LDFLAGS is $LDFLAGS
 
       # echo will configure with cmake like this:
       # DBoost_PYTHON39_LIBRARY_RELEASE needs to be extracted?
@@ -4232,7 +4313,6 @@ guile_cairo_version=1.9.91
 # wget http://mirrorservice.org/sites/ftp.gnu.org/gnu/readline/readline-6.3.tar.gz
 # wget http://download.savannah.gnu.org/releases/guile-cairo/guile-cairo-$guile_cairo_version.tar.gz
 
-build_libffi=true
 build_guile=true
 build_g_wrap=true
 build_gmp=true
@@ -4242,35 +4322,6 @@ build_guile_gnome_platform=true
 build_guile_cairo=true
 build_guile_lib=true
 
-
-if [ "$build_libffi" = true ] ; then
-   skip_this=false
-   if [ "$test_for_already_installed_dependencies" = true ] ; then
-      if [ -e $install_top_dir/lib/pkgconfig/libffi.pc ] ; then
-         skip_this=true
-      fi
-   fi
-
-   if [ $skip_this = false ] ; then
-      (
-      echo ========================= build libffi =================================
-      echo BUILDING libffi $libffi_version >&2
-      if [ -e ${AUTOBUILD_SOURCES}/libffi-$libffi_version.tar.gz ] ; then
-         tar xf ${AUTOBUILD_SOURCES}/libffi-$libffi_version.tar.gz
-      else
-         exit
-      fi
-      cd libffi-$libffi_version
-      # if ./configure --prefix=$install_top_dir --disable-multi-os-directory --enable-portable-binary --enable-shared --disable-static ; then
-      if ./configure --prefix=$install_top_dir --enable-portable-binary --enable-shared --disable-static ; then
-         if $MAKE ; then
-            make install
-         fi
-      fi
-      cd -
-      ) > $HOSTLOGDIR/35-ffi.txt 2>&1
-   fi
-fi
 
 if [ "$build_unistring" = true ] ; then
    skip_this=false

@@ -360,7 +360,10 @@ graphics_info_t::render_scene_sans_depth_blur(Shader *shader_for_tmeshes_p, Shad
                shader_for_effects.set_int_for_uniform("screenTexture", 0);
                shader_for_effects.set_int_for_uniform("screenDepth",   1);
                shader_for_effects.set_int_for_uniform("ssao",          2); // sampler2D
-               shader_for_effects.set_int_for_uniform("effects_output_type", effects_shader_output_type);
+               if (graphics_info_t::graphics_is_gl_es)
+                  std::cout << "INFO:: no effects shader in OpenGL-ES mode" << std::endl;
+               else
+                  shader_for_effects.set_int_for_uniform("effects_output_type", effects_shader_output_type);
                shader_for_effects.set_bool_for_uniform("use_ssao", di.use_ssao);
                shader_for_effects.set_bool_for_uniform("show_ssao", di.show_just_ssao);
                shader_for_effects.set_float_for_uniform("ssao_strength", di.ssao_strength);
@@ -740,6 +743,17 @@ graphics_info_t::render_scene() {
 #endif
       // we always want this viewport to be the size of the widget (in the case of APPLE, theree
       // is the double resolution issue to handle)
+
+      if (scale_up_graphics != 1) {
+         width *= scale_up_graphics;
+         height *= scale_up_graphics;
+      }
+      if (scale_down_graphics != 1) {
+         width /= scale_down_graphics;
+         height /= scale_down_graphics;
+      }
+      // std::cout << "render_scene_basic() " << width << " " << height << std::endl;
+
       glViewport(0, 0, width * sf, height * sf);
       attach_buffers(); // just GTK things
       glClearColor(background_colour.r, background_colour.g, background_colour.b, 1.0);
@@ -773,6 +787,8 @@ graphics_info_t::render_scene() {
    gboolean status = gboolean(true);
 
    bool show_basic_scene_state = (displayed_image_type == SHOW_BASIC_SCENE);
+
+   // std::cout << "render_scene(): show_basic_scene_state " << show_basic_scene_state << std::endl;
 
    if (show_basic_scene_state) {
       render_scene_basic();

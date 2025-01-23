@@ -459,6 +459,10 @@ void servalcat_refine(int imol_model,
                       const std::string &half_map_1, const std::string &half_map_2,
                       const std::string &mask_map, float resolution);
 
+//! run acedrg link
+void
+run_acedrg_link_generation(const std::string &acedrg_link_command);
+
 /*  ------------------------------------------------------------------------ */
 /*                             Add an Atom                                   */
 /*  ------------------------------------------------------------------------ */
@@ -607,10 +611,33 @@ std::pair<int, std::vector<merge_molecule_results_info_t> > merge_molecules_by_v
 /*  ----------------------------------------------------------------------- */
 //! \name Dictionary Functions
 //! \{
+
+/*                  cif (geometry) dictionary                            */
+/* \brief return the number of bonds read (> 0 can be treated as success) */
+int handle_cif_dictionary(const std::string &filename);
+/* \brief synonym for above.
+
+return the number of bonds read (> 0 can be treated as success) */
+int read_cif_dictionary(const std::string &filename);
+
+/* \brief return the number of bonds read (> 0 can be treated as success).
+ Apply to the given molecule.
+
+ imol_enc can be the model molecule number or
+ IMOL_ENC_ANY = -999999, IMOL_ENC_AUTO = -999998, IMOL_ENC_UNSET = -999997
+
+ */
+int handle_cif_dictionary_for_molecule(const std::string &filename, int imol_enc, short int new_molecule_from_dictionary_cif_checkbutton_state);
+
+//! dictionary entries
 std::vector<std::string> dictionary_entries();
+
+//! debug dictionary information
 void debug_dictionary();
-// this can throw an exception
+
+//! this can throw an exception
 std::string SMILES_for_comp_id(const std::string &comp_id);
+
 /*! \brief return a list of all the dictionaries read */
 #ifdef USE_GUILE
 SCM dictionaries_read();
@@ -1177,7 +1204,7 @@ bool get_regenerate_bonds_needs_make_bonds_type_checked_state();
 //! \brief
 //! return 0 on fail to refine (no sensible place to put atoms) and 1
 //! on fitting happened.
-int rigid_body_fit_with_residue_ranges(int imol, const std::vector<coot::residue_range_t> &ranges);
+int rigid_body_fit_with_residue_ranges(int imol, const std::vector<coot::high_res_residue_range_t> &ranges);
 
 // Model morphing (average the atom shift by using shifts of the
 // atoms within shift_average_radius A of the central residue).
@@ -1376,6 +1403,10 @@ void mutate_active_residue_to_single_letter_code(const std::string &slc);
 
 //! \brief show keyboard mutate dialog
 void show_keyboard_mutate_dialog();
+
+//! mutate by overlap
+int mutate_by_overlap(int imol, const std::string &chain_id, int res_no, const std::string &new_type);
+
 
 /*  ----------------------------------------------------------------------- */
 /*                  ligands                                                 */
@@ -1911,6 +1942,7 @@ void set_gaussian_surface_chain_colour_mode(short int mode);
 
 void show_gaussian_surface_overlay();
 
+
 /* ------------------------------------------------------------------------- */
 /*                      LINKs                                                */
 /* ------------------------------------------------------------------------- */
@@ -1934,6 +1966,7 @@ void make_link_py(int imol, PyObject *spec_1, PyObject *spec_2, const std::strin
 PyObject *link_info_py(int imol);
 #endif
 
+void show_acedrg_link_interface_overlay();
 
 /* ------------------------------------------------------------------------- */
 /*                      Drag and drop                                        */

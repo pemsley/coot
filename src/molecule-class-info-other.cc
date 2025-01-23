@@ -301,7 +301,8 @@ molecule_class_info_t::occupancy_representation() {
    Bond_lines_container::bond_representation_type bond_type =
       Bond_lines_container::COLOUR_BY_OCCUPANCY;
 
-   Bond_lines_container bonds(atom_sel, imol_no, bond_type);
+   // 20241130-PE Constructor I - it was using Constructor A until now.
+   Bond_lines_container bonds(atom_sel, imol_no, graphics_info_t::Geom_p(), bond_type);
    bonds_box = bonds.make_graphical_bonds();
    bonds_box_type = coot::COLOUR_BY_OCCUPANCY_BONDS;
    make_glsl_bonds_type_checked(__FUNCTION__);
@@ -8034,7 +8035,7 @@ molecule_class_info_t::fix_nomenclature_errors(coot::protein_geometry *geom_p) {
 // nomenclature errors
 // return a vector of the changed residues (used for updating the rotamer graph)
 std::vector<std::pair<std::string, coot::residue_spec_t> >
-molecule_class_info_t::list_nomenclature_errors(coot::protein_geometry *geom_p) {
+molecule_class_info_t::list_nomenclature_errors(const coot::protein_geometry *geom_p) {
                                                       // by looking for bad rotamers in
                                                       // some residue types and alter ing
                                                           // the atom names to see if they get
