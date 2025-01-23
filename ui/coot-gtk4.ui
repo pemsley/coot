@@ -6725,6 +6725,16 @@ Do you want to continue?
                   <property name="visible">False</property>
                 </object>
               </child>
+
+              <child>
+                <object class="GtkButton" id="ccp4i2-save-button">
+                  <property name="label" translatable="yes">Save Mol to CCP4i2</property>
+                  <property name="can-focus">0</property>
+                  <signal name="clicked" handler="on_ccp4i2_save_button_clicked" swapped="no"/>
+                  <property name="visible">False</property>
+                </object>
+              </child>
+
             </object>
           </child>
 

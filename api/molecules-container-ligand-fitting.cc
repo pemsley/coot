@@ -505,9 +505,15 @@ molecules_container_t::get_eigenvalues(int imol, const std::string &chain_id, in
 //!
 std::string
 molecules_container_t::get_svg_for_residue_type(int imol, const std::string &comp_id,
-                                                bool use_rdkit_svg, bool dark_bg_flag) {
+                                                bool use_rdkit_svg,
+                                                const std::string &background_type) {
 
    std::string s = "Needs-to-be-compiled-with-the-RDKit"; // gets changed to the correct string (hopefully)
+
+   bool dark_bg_flag = false;
+   // "dark-mode" representation
+   if (background_type == "light-bonds/transparent-bg") dark_bg_flag = true;
+   if (background_type == "light-bonds/opaque-bg")      dark_bg_flag = true;
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 
@@ -521,6 +527,7 @@ molecules_container_t::get_svg_for_residue_type(int imol, const std::string &com
 
       std::pair<bool, coot::dictionary_residue_restraints_t> mr = geom.get_monomer_restraints(comp_id, imol);
       if (mr.first) {
+
          try {
             const coot::dictionary_residue_restraints_t &restraints = mr.second;
             std::pair<int, RDKit::RWMol> mol_pair = coot::rdkit_mol_with_2d_depiction(restraints);
@@ -547,7 +554,10 @@ molecules_container_t::get_svg_for_residue_type(int imol, const std::string &com
                   svg_molecule_t svg;
                   svg.import_rdkit_mol(&mol, iconf);
                   double sf = 400.0;
-                  s = svg.render_to_svg_string(sf, dark_bg_flag);
+                  bool add_bg = true;
+                  if (background_type == "light-bonds/transparent-bg") add_bg = false;
+                  if (background_type == "dark-bonds/transparent-bg")  add_bg = false;
+                  s = svg.render_to_svg_string(sf, dark_bg_flag, add_bg);
                   ligand_svg_store[key] = s;
                }
             } else {
@@ -577,15 +587,23 @@ molecules_container_t::get_svg_for_residue_type(int imol, const std::string &com
                   RDKit::WedgeMolBonds(rdkit_mol, &conf);
                   svg_molecule_t svg;
                   svg.import_rdkit_mol(&rdkit_mol, conformer_id);
-                  dark_bg_flag = false;
                   double sf = 400.0;
-                  s = svg.render_to_svg_string(sf, dark_bg_flag);
+                  bool add_background_rect = true;
+                  if (background_type == "light-bonds/transparent-bg") add_background_rect = false;
+                  if (background_type == "dark-bonds/transparent-bg")  add_background_rect = false;
+                  s = svg.render_to_svg_string(sf, dark_bg_flag, add_background_rect);
                }
                ligand_svg_store[key] = s;
             }
          }
          catch (const Invar::Invariant &e) {
             std::cout << "error " << e.what() << std::endl;
+         }
+         catch (const std::runtime_error &e) {
+            std::cout << "error " << e.what() << std::endl;
+         }
+         catch (...) {
+            std::cout << "error something" << std::endl;
          }
 
       } else {

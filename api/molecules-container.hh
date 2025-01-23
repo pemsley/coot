@@ -3195,17 +3195,28 @@ public:
    //! Get svg for residue type
    //!
    //! It won't work unless the dictionary for that ligand has been imported.
-   //! The output renderings are not very good at the moment.
+   //! The native output renderings are not very good at the moment.
+   //! (The RDKit renderings are pretty good).
    //!
    //! @param imol is the model molecule index, except for unusual cases, it will be IMOL_ENC_ANY (-999999)
    //! @param comp_id is the 3-letter code for the residue/ligand, e.g. "ALA" for alanine
    //! @param use_rdkit_svg is the flag for using the rdkit svg renderer
-   //! @param dark_background_flag returns a representation suitable for rendering on a dark background
+   //! @param background_type is one of:
+   //!  - "light-bonds/transparent-bg"
+   //!  - "light-bonds/opaque-bg"
+   //!  - "dark-bonds/transparent-bg"
+   //!  - "dark-bonds/opaque-bg"
    //!
-   // This function is not const because it caches the svgs if it can.
+   //! If you want to load them into another image, you'd typicaly want "dark-bonds/transparent-bg"
+   //! If you want to see ligands, e.g. in a grid or list, you'd typically want "dark-bonds/opaque-bg"
+   //! which will give you a white rectangle behind the ligand figure.
+   //!
+   //! This function is not const because it caches the svgs.
    //!
    //! @return the string for the SVG representation.
-   std::string get_svg_for_residue_type(int imol, const std::string &comp_id, bool use_rdkit_svg, bool dark_background_flag);
+   std::string get_svg_for_residue_type(int imol, const std::string &comp_id,
+                                        bool use_rdkit_svg,
+                                        const std::string &background_type);
 
    //! This function is for adding compounds/molecules like buffer agents and precipitants or anions and cations.
    //! e.g. those ligands that can be positioned without need for internal torsion angle manipulation.

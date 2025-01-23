@@ -183,6 +183,9 @@ int coot_get_url_and_activate_curl_hook(const std::string &url,
          if (coot::file_exists(file_name)) {
             if (is_html(file_name)) {
                success = CURLcode(23); // CURL write error (say)
+               int rm_status = remove(file_name.c_str()); // Ciao Bella
+               if (rm_status == 0)
+                  std::cout << "INFO:: " << file_name << " removed" << std::endl;
             }
          } else {
             success = CURLcode(23); // CURL write error (say)
