@@ -1,6 +1,26 @@
 ----
 
+Surface display is missing a shader?
+
+Catch RDKit::AtomValenceException in delete_non_polar_hydrogens
+
 MM: Try harder to get the NCS jumping matrix correct.
+
+How do I open a .ccp4 map?
+
+When getting files from EDS:
+this directory did not exist:
+/home/martin/.cache/Coot/coot-download/
+
+Try downloading 8aq8 from EDS. There is no .ent file.
+So, if the download of the .ent file files, try .cif.
+
+get_atom() and get_residue() would be nice in chapi.
+Needs to make a chapi version of an mmdb atom I think.
+
+Have another look at the orientation matrix on ncs jumping.
+
+Add a commit and version to chapi
 
 Look at 2vtq add Hydrogen atoms and look for O16 on the ligand.
 Why is there not a hydrogen bond dots to the water?
