@@ -59,12 +59,17 @@ void coot::layla::remove_non_polar_hydrogens(RDKit::RWMol& mol) {
      }
    */
 
-   // so if we pass an ROMol to removeHs(), it returns a value, if we passs a RWMol
-   // then it does not.
-   //
-   bool implicit_only = false;
-   bool update_explicit_count = true;
-   bool sanitize = true;
-   RDKit::MolOps::removeHs(mol, implicit_only, update_explicit_count, sanitize);
+   try {
+      // so if we pass an ROMol to removeHs(), it returns a value, if we passs a RWMol
+      // then it does not.
+      //
+      bool implicit_only = false;
+      bool update_explicit_count = true;
+      bool sanitize = true;
+      RDKit::MolOps::removeHs(mol, implicit_only, update_explicit_count, sanitize);
+   }
+   catch (const RDKit::AtomValenceException &e) {
+	   std::cout << "WARNING:: " << e.what() << std::endl;
+   }
 
 }
