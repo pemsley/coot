@@ -1,15 +1,23 @@
 ----
 
-MM: Try harder to get the NCS jumping matrix correct.
+Add a "Save to CCP4i2 button which saves the first model into a "ccp4i2-coot-save" directory.
 
-Look at 2vtq add Hydrogen atoms and look for O16 on the ligand.
-Why is there not a hydrogen bond dots to the water?
-Also O8.
+on delete hydrogen atoms on a non-sane molecule throws an exception.
+
+1.1.12: Oli's Rama bug.
 
 1.1.12 make svg molecule work again (pli need not work). Test wedge bonds.
 
 1.1.12: Untangle the disulfide refinement in the untangle challenge file from Eleanor.
 * Can't reproduce
+
+MM: Try harder to get the NCS jumping matrix correct.
+* Tried. Failed.
+
+Look at 2vtq add Hydrogen atoms and look for O16 on the ligand.
+Why is there not a hydrogen bond dots to the water?
+Also O8.
+* Done. Missed  h_bond_info_t::is_h_bond_donor_and_acceptor case
 
 --code 2vtq doesn't work - it should load the cached files
 * Done.
