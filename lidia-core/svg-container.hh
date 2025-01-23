@@ -54,11 +54,13 @@ public:
 
    std::string make_viewbox_string() const {
 
+      float width  = max_x - min_x;
+      float height = max_y - min_y;
       std::string viewBox_string = "viewBox=" + std::string("\"") +
          std::to_string(min_x) + std::string(" ") +
          std::to_string(min_y) + std::string(" ") +
-         std::to_string(max_x) + std::string(" ") +
-         std::to_string(max_y) + std::string("\"");
+         std::to_string(width) + std::string(" ") +
+         std::to_string(height) + std::string("\"");
       return viewBox_string;
    }
 
@@ -71,11 +73,44 @@ public:
       update_bounds(svgc_in.min_x, svgc_in.min_y, svgc_in.max_x, svgc_in.max_y);
    }
 
-   std::string compose() const {
+   void add_comment(const std::string comment) {
+      svg += "<!-- ";
+      svg += comment;
+      svg += " -->\n";
+   }
+
+   std::string compose(bool add_background_rect) const {
+
+      auto quoted = [] (float v) {
+         std::string s = std::to_string(v);
+         return std::string("'" + s + "'");
+      };
+
+      auto make_background_rect = [quoted] (float min_x, float min_y, float max_x, float max_y) {
+         float w = max_x - min_x;
+         float h = max_y - min_y;
+         std::string s = "<!-- background-rectangle -->\n";
+         s += "   <rect style='opacity:1.0;fill:#FFFFFF;stroke:none' width=";
+         // s += "400.0' height='400.0' x='0.0' y='0.0'";
+         s += quoted(w);
+         s += " ";
+         s += "height=";
+         s += quoted(h);
+         s += " ";
+         s += "x=";
+         s += quoted(min_x);
+         s += " ";
+         s += "y=";
+         s += quoted(min_y);
+         s += "> </rect>\n";
+         return s;
+      };
 
       std::string s = svg_header_1;
       s += make_viewbox_string();
       s += svg_header_2;
+      if (add_background_rect)
+         s += make_background_rect(min_x, min_y, max_x, max_y);
       s += svg;
       s += svg_footer;
       return s;

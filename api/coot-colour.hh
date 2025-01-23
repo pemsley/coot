@@ -31,7 +31,7 @@
 
 #include "utils/colour-holder.hh"  // funny old thing. Consolidate the colour class one day.
 
-namespace coot { 
+namespace coot {
    class colour_t {
       void init(float r, float g, float b) {
 	 col.resize(3);

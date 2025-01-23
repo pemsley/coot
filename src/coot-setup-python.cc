@@ -75,7 +75,6 @@ void setup_python_basic(int argc, char **argv) {
    // std::cout << "in setup_python_basic() globals " << globals << std::endl;
    PyObject *locals  = PyEval_GetLocals();
    // std::cout << "in setup_python_basic() locals " << locals << std::endl;
-   
 
 #endif // USE_PYMAC_INIT
 
@@ -162,42 +161,46 @@ void setup_python_with_coot_modules(int argc, char **argv) {
    g_debug("in setup_python()    pydirectory is %s ",pydirectory.c_str());
    g_debug("in setup_python() pkgpydirectory is %s ",pkgpydirectory.c_str());
 
-   // std::cout << "in setup_python_with_coot_modules() pkgpydirectory: " << pkgpydirectory << std::endl;
-   // std::cout << "in setup_python_with_coot_modules()    pydirectory: " <<    pydirectory << std::endl;
+   std::cout << "in setup_python_with_coot_modules() pkgpydirectory: " << pkgpydirectory << std::endl;
+   std::cout << "in setup_python_with_coot_modules()    pydirectory: " <<    pydirectory << std::endl;
 
    PyObject *sys_path = PySys_GetObject("path");
    PyList_Append(sys_path, PyUnicode_FromString(pydirectory.c_str()));
 
-   // int err = PyRun_SimpleString("import coot");
+   int err = PyRun_SimpleString("import coot");
+   std::cout << "err:: " << err << std::endl;
 
    PyObject *sys = PyImport_ImportModule("sys");
    if (! sys) {
       std::cout << "ERROR:: setup_python() Null sys" << std::endl;
    } else {
-      // std::cout << "sys imported" << std::endl;
+      std::cout << "sys imported" << std::endl;
    }
 
    PyObject *coot = PyImport_ImportModule("coot");
-   // std::cout << "DEBUG:: setup_python_with_coot_modules() PyImport_ImportModule() coot: " << coot << std::endl;
+   std::cout << "DEBUG:: setup_python_with_coot_modules() PyImport_ImportModule() coot: " << coot << std::endl;
 
    if (! coot) {
       std::cout << "ERROR:: setup_python() Null coot" << std::endl;
    } else {
 
       PyObject *coot_utils = PyImport_ImportModule("coot_utils");
+      std::cout << "DEBUG:: setup_python_with_coot_modules() PyImport_ImportModule() coot_utils: " << coot_utils << std::endl;
 
-      // std::cout << "DEBUG:: setup_python_with_coot_modules() PyImport_ImportModule() coot_utils: " << coot_utils << std::endl;
-         
       // This has do be done carefully - bit by bit. extension.py has many Python2/Python3
       // idioms.
       // PyImport_ImportModule("extensions");
 
+
       // this should not be called if we are not starting the graphics. But for now, add
       // it without that test
       //
+      PyErr_Clear();
+      PyErr_Print();
       PyObject *gui_module = PyImport_ImportModule("coot_gui");
+      PyErr_Print();
 
-      // std::cout << "DEBUG:: setup_python_with_coot_modules() PyImport_ImportModule() for gui_module: " << gui_module << std::endl;
+      std::cout << "DEBUG:: setup_python_with_coot_modules() PyImport_ImportModule() for gui_module: " << gui_module << std::endl;
 
       initcoot_python_gobject(); // this is not a good name for this function. We need to say
                                  // this this is the module that wraps the glue to get

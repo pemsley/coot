@@ -3544,7 +3544,7 @@ coot_contact_dots_for_ligand_instancing_version(int imol, const coot::residue_sp
       coot::atom_overlaps_container_t overlaps(residue_p, neighbs, mol, imol, g.Geom_p(), 0.5, 0.25);
       float cdd = graphics_info_t::contact_dots_density;
 
-      coot::atom_overlaps_dots_container_t c = overlaps.contact_dots_for_ligand(cdd);
+      coot::atom_overlaps_dots_container_t c = overlaps.contact_dots_for_ligand(cdd * 2.0f);
 
       gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0]));
       std::string molecule_name_stub = "Molecule " + coot::util::int_to_string(imol) + ": Ligand Contact Dots ";

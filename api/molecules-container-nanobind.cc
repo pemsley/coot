@@ -368,6 +368,7 @@ NB_MODULE(chapi, m) {
     .def("new_positions_for_atoms_in_residues",&molecules_container_t::new_positions_for_atoms_in_residues)
     .def("new_positions_for_residue_atoms",&molecules_container_t::new_positions_for_residue_atoms)
     .def("non_standard_residue_types_in_model",&molecules_container_t::non_standard_residue_types_in_model)
+    .def("package_version",&molecules_container_t::package_version)
     .def("partition_map_by_chain",&molecules_container_t::partition_map_by_chain)
     .def("pepflips_using_difference_map",&molecules_container_t::pepflips_using_difference_map)
     .def("peptide_omega_analysis",&molecules_container_t::peptide_omega_analysis)
@@ -435,6 +436,18 @@ NB_MODULE(chapi, m) {
     .def("write_map",&molecules_container_t::write_map)
     .def("write_png",&molecules_container_t::write_png)
     ;
+    nb::class_<coot::chain_mutation_info_container_t>(m,"chain_mutation_info_container_t")
+      .def_ro("chain_id",         &coot::chain_mutation_info_container_t::chain_id)
+      .def_ro("alignedS",         &coot::chain_mutation_info_container_t::alignedS)
+      .def_ro("alignedT",         &coot::chain_mutation_info_container_t::alignedT)
+      .def_ro("alignedS_label",   &coot::chain_mutation_info_container_t::alignedS_label)
+      .def_ro("alignedT_label",   &coot::chain_mutation_info_container_t::alignedT_label)
+      .def_ro("alignment_string", &coot::chain_mutation_info_container_t::alignment_string)
+      .def_ro("alignment_score",  &coot::chain_mutation_info_container_t::alignment_score)
+      .def_ro("insertions",       &coot::chain_mutation_info_container_t::insertions)
+      .def_ro("deletions",        &coot::chain_mutation_info_container_t::deletions)
+      .def_ro("mutations",        &coot::chain_mutation_info_container_t::mutations)
+      ;
     nb::class_<molecules_container_js, molecules_container_t>(m,"molecules_container_py")
     .def(nb::init<bool>())
     .def("writePDBASCII",&molecules_container_js::writePDBASCII)
@@ -532,6 +545,12 @@ NB_MODULE(chapi, m) {
     .def_rw("string_user_data",&coot::atom_spec_t::string_user_data)
     .def_rw("model_number",&coot::atom_spec_t::model_number)
     ;
+    nb::class_<coot::residue_range_t>(m,"residue_range_t")
+      .def(nb::init<>())
+      .def_rw("chain_id",     &coot::residue_range_t::chain_id)
+      .def_rw("res_no_start", &coot::residue_range_t::res_no_start)
+      .def_rw("res_no_end",   &coot::residue_range_t::res_no_end)
+      ;
     nb::class_<generic_3d_lines_bonds_box_t>(m,"generic_3d_lines_bonds_box_t")
     .def_ro("line_segments", &generic_3d_lines_bonds_box_t::line_segments)
     ;

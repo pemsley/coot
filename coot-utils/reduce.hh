@@ -39,7 +39,7 @@ namespace coot {
 
       class torsion_info_t {
       public:
-	 torsion_info_t(const std::string &at_name_1_in, // CA 
+	 torsion_info_t(const std::string &at_name_1_in, // CA
 			const std::string &at_name_2_in, // CB
 			const std::string &at_name_3_in, // CG1 (i.e. other way round)
 			double bond_length_in,
@@ -183,7 +183,7 @@ namespace coot {
 				    const std::string &first_neighb,
 				    const std::vector<std::string> &second_neighb_vec,
 				    double bl, mmdb::Residue *residue_p);
-      
+
       void add_aromatic_hydrogen(const std::string &H_at_name,
 				 const std::string &neighb_at_name_1,
 				 const std::string &neighb_at_name_2, // add to this
@@ -251,8 +251,8 @@ namespace coot {
 		    double ang_deg,
 		    double torsion_deg,
 		    mmdb::Residue *residue_p);
-      
-      
+
+
       void add_his_ring_C_Hs(mmdb::Residue *residue_p, double bl_arom);
       std::vector<mmdb::Atom *> add_his_ring_H(const std::string &H_name,
 					       const std::string &at_name_1,
@@ -355,7 +355,7 @@ namespace coot {
 
       // atoms that are connected to the second neighbour that aren't the first neighbour.
       //
-      std::map<std::string, std::vector<std::string> > 
+      std::map<std::string, std::vector<std::string> >
       third_neighbour_map(const std::string &first_neighb,
 			  const std::vector<std::string> &second_neighb_vec,
 			  const dictionary_residue_restraints_t &rest) const;
@@ -410,7 +410,7 @@ namespace coot {
       // change HE2 to HD1 and vice versa
       void switch_his_protonation(mmdb::Residue *residue_p, mmdb::Atom *current_H_atom);
       void set_verbose_output(bool flag) { verbose_output = flag; }
-      
+
    };
 
 }

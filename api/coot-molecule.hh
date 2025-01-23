@@ -43,6 +43,7 @@
 #include "coot-utils/sfcalc-genmap.hh"
 #include "coot-utils/atom-tree.hh"
 #include "coot-utils/texture-as-floats.hh"
+#include "coot-utils/coot-align.hh"
 #include "geometry/residue-and-atom-specs.hh"
 #include "coords/Cartesian.h"
 #include "coords/Bond_lines.h"
@@ -1133,6 +1134,12 @@ namespace coot {
 
       //! try to fit all of the sequences to all of the chains
       void assign_sequence(const clipper::Xmap<float> &xmap, const coot::protein_geometry &geom);
+
+      //!  simple return the associated sequences
+      std::vector<std::pair<std::string, std::string> > get_sequence_info() const;
+
+      //! return the mismatches/mutations:
+      chain_mutation_info_container_t get_mutation_info() const;
 
       // ----------------------- merge molecules
 

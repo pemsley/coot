@@ -24,6 +24,7 @@
  *
  */
 
+#include "glm/matrix.hpp"
 #ifdef USE_PYTHON
 #include <Python.h>
 #endif // USE_PYTHON
@@ -641,6 +642,16 @@ graphics_info_t::get_molecule_mvp(bool debug_matrices) {
       w = allocation.width;
       h = allocation.height;
    }
+
+   if (scale_up_graphics != 1) {
+      w *= scale_up_graphics;
+      h *= scale_up_graphics;
+   }
+   if (scale_down_graphics != 1) {
+      w /= scale_down_graphics;
+      h /= scale_down_graphics;
+   }
+   // std::cout << scale_up_graphics << " " << scale_down_graphics << " " << w << " " << h << std::endl;
 
    bool do_orthographic_projection = ! perspective_projection_flag; // weird
    glm::mat4  view_matrix =       get_view_matrix();
@@ -6173,7 +6184,7 @@ graphics_info_t::idle_contour_function(gpointer data) {
 // can't be a lambda funtion because of capture issues
 
 void keypad_translate_xyz(short int axis, short int direction) {
-      
+
       graphics_info_t g;
       if (axis == 3) {
          coot::Cartesian v = screen_z_to_real_space_vector(graphics_info_t::glareas[0]);
@@ -6442,39 +6453,23 @@ graphics_info_t::setup_key_bindings() {
                                                                               forward_flag);
                              if (new_ori.first) {
 
-                                coot::util::quaternion q(new_ori.second.rot());
-                                glm::quat q_ncs = coot_quaternion_to_glm(q);
-
-                                // glm::quat qq = view_quaternion * q_ncs;
-                                // glm::quat qq = view_quaternion * glm::inverse(q_ncs);
-                                // glm::quat qq = view_quaternion * glm::conjugate(q_ncs);
-                                // glm::quat qq = q_ncs * view_quaternion;
-                                // glm::quat qq = glm::inverse(q_ncs) * view_quaternion;
-                                // glm::quat qq = glm::conjugate(q_ncs) * view_quaternion;
-
-                                glm::quat qq = glm::conjugate(q_ncs) * view_quaternion;
-
-                                view_quaternion = qq;
-                                // view_quaternion = glm::normalize(view_quaternion * q_ncs); // wrong
-
                                 clipper::Coord_orth t(new_ori.second.trn());
                                 set_rotation_centre(t);
 
-                                glm::quat q_ncs_1 = glm::rotate(q_ncs,   3.1415926f, glm::vec3(1,0,0));
-                                glm::quat q_ncs_2 = glm::rotate(q_ncs_1, 3.1415926f, glm::vec3(1,0,0));
-                                glm::quat q_ncs_3 = glm::inverse(q_ncs_2);
+                                coot::util::quaternion q(new_ori.second.rot());
+                                glm::quat q_ncs = coot_quaternion_to_glm(q);
 
-                                coot::util::quaternion cq = glm_to_coot_quaternion(q_ncs_3);
+                                // view_quaternion = glm::inverse(q_ncs) * view_quaternion; no
+                                // view_quaternion = q_ncs * view_quaternion; // no
+                                // view_quaternion = view_quaternion * q_ncs; // no
+                                // view_quaternion = view_quaternion * glm::inverse(q_ncs); // no
+                                // view_quaternion = view_quaternion * glm::conjugate(q_ncs); no
+                                // view_quaternion = glm::conjugate(q_ncs) * view_quaternion; // no
 
-                                std::cout << "debug q_ncs  : " << glm::to_string(q_ncs)   << std::endl;
-                                std::cout << "debug q_ncs_1: " << glm::to_string(q_ncs_1) << std::endl;
-                                std::cout << "debug q_ncs_2: " << glm::to_string(q_ncs_2) << std::endl;
-                                std::cout << "debug q_ncs_3: " << glm::to_string(q_ncs_3) << std::endl;
-                                std::cout << "before: " << q << " after " << cq << std::endl;
+                                // I don't get it - annoying.
 
                                 graphics_info_t g;
-                                g.update_things_on_move();
-
+                                g.update_things_on_move(); // not static
                              }
                              break;
                           }
@@ -6834,7 +6829,6 @@ graphics_info_t::setup_key_bindings() {
                  };
 
    auto lc_toggle_validation_side_panel = [] () {
-      graphics_info_t g;
       GtkWidget* pane = widget_from_builder("main_window_ramchandran_and_validation_pane");
       if (pane) {
          if (gtk_widget_get_visible(pane) == TRUE) {
@@ -6846,6 +6840,17 @@ graphics_info_t::setup_key_bindings() {
       return gboolean(TRUE);
    };
 
+   auto lc_toggle_alt_conf_view = [] () {
+      graphics_info_t g;
+      std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+      const std::string &current_alt_conf = pp.second.second.alt_conf;
+      if (pp.first) {
+         int imol = pp.second.first;
+         g.molecules[imol].alt_conf_view_next_alt_conf(current_alt_conf);
+      }
+      return gboolean(TRUE);
+   };
+
    key_bindings_t ctrl_arrow_left_key_binding(lc4, "R/T Left");
    key_bindings_t ctrl_arrow_right_key_binding(lc5, "R/T Right");
    key_bindings_t ctrl_arrow_up_key_binding(lc6, "R/T Up");
@@ -6853,14 +6858,16 @@ graphics_info_t::setup_key_bindings() {
    key_bindings_t ctrl_eigen_flip(l20, "Eigen-Flip");
    key_bindings_t ctrl_quick_save(lc_qsa, "Quick Save");
    key_bindings_t ctrl_toggle_panel(lc_toggle_validation_side_panel, "Toggle Validation Panel");
+   key_bindings_t ctrl_toggle_alt_conf_view(lc_toggle_alt_conf_view, "Toggle Alt Conf View");
 
    std::pair<keyboard_key_t, key_bindings_t> p4(keyboard_key_t(GDK_KEY_Left,  true), ctrl_arrow_left_key_binding);
    std::pair<keyboard_key_t, key_bindings_t> p5(keyboard_key_t(GDK_KEY_Right, true), ctrl_arrow_right_key_binding);
    std::pair<keyboard_key_t, key_bindings_t> p6(keyboard_key_t(GDK_KEY_Up,    true), ctrl_arrow_up_key_binding);
    std::pair<keyboard_key_t, key_bindings_t> p7(keyboard_key_t(GDK_KEY_Down,  true), ctrl_arrow_down_key_binding);
-   std::pair<keyboard_key_t, key_bindings_t> p8(keyboard_key_t(GDK_KEY_e,     true), ctrl_eigen_flip);
-   std::pair<keyboard_key_t, key_bindings_t> p9(keyboard_key_t(GDK_KEY_s,     true), ctrl_quick_save);
-   std::pair<keyboard_key_t, key_bindings_t> p10(keyboard_key_t(GDK_KEY_b,     true), ctrl_toggle_panel);
+   std::pair<keyboard_key_t, key_bindings_t> p11(keyboard_key_t(GDK_KEY_a,    true), ctrl_toggle_alt_conf_view);
+   std::pair<keyboard_key_t, key_bindings_t> p10(keyboard_key_t(GDK_KEY_b,    true), ctrl_toggle_panel);
+   std::pair<keyboard_key_t, key_bindings_t>  p8(keyboard_key_t(GDK_KEY_e,    true), ctrl_eigen_flip);
+   std::pair<keyboard_key_t, key_bindings_t>  p9(keyboard_key_t(GDK_KEY_s,    true), ctrl_quick_save);
 
    kb_vec.push_back(p4);
    kb_vec.push_back(p5);

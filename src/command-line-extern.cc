@@ -107,6 +107,12 @@ handle_command_line_data(command_line_data cld) {
       graphics_info_t::command_line_accession_codes.push_back(cld.accession_codes[i]);
    }
 
+   if (cld.show_ccp4i2_save_button) {
+      GtkWidget *button = widget_from_builder("ccp4i2-save-button");
+      if (button) {
+         gtk_widget_set_visible(button, TRUE);
+      }
+   }
 
    if (cld.em_mode) {
       graphics_info_t::box_radius_xray = graphics_info_t::box_radius_em;

@@ -4786,6 +4786,9 @@ string   static std::string sessionid;
    bool init_shader(const std::string &shader_file_name);
    void init_framebuffers(unsigned int width, unsigned int height);// 20220129-PE a crows thing
 
+   static int scale_up_graphics;    // default 1
+   static int scale_down_graphics;  // default 1
+
    // draw-2 functions
    void init_screen_quads();
    void init_blur_quads();
@@ -5427,6 +5430,8 @@ string   static std::string sessionid;
 
    static std::pair<bool, std::string> servalcat_fofc;
    static std::pair<bool, std::string> servalcat_refine; // output "pdb" file name
+
+   static std::pair<bool, std::string> acedrg_link;
 
    static bool curmudgeon_mode; // default false, particles and faces
    static bool use_sounds; // default true

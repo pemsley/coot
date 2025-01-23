@@ -45,12 +45,16 @@
    "/usr/local/include/libdrm"
    "/usr/local/include/harfbuzz" "/usr/local/include/freetype2"
    "/usr/lib/glib-2.0/include" "/usr/local/include/glib-2.0"
+   "/usr/local/Cellar/glib/2.82.4/lib/glib-2.0/include"
+   "/usr/local/Cellar/graphene/1.10.8/include/graphene-1.0"
+   "/usr/local/Cellar/graphene/1.10.8/lib/graphene-1.0/include"
    "/usr/local/include/libpng16" "/usr/local/include/pixman-1"
    "/usr/local/include/cairo" "/usr/local/include/atk-1.0" "/usr/local/include/pango-1.0"
    "/usr/local/include/gio-unix-2.0"
    "/usr/lib/dbus-1.0/include" "/usr/local/include/dbus-1.0"
    "/usr/local/include/at-spi-2.0"
    "/usr/local/include/at-spi2-atk/2.0"
+   "/usr/local/Cellar/python@3.12/3.12.8//Frameworks/Python.framework/Versions/3.12/include/python3.12"
    ))
 
 

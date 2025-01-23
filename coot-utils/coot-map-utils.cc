@@ -5259,10 +5259,11 @@ coot::util::split_residue_using_map(mmdb::Residue *residue_p,
          }
       }
 
-      std::cout << ":::::::: debug:: split_residue_using_map() here with residue "
-                << coot::residue_spec_t(residue_p)
-                << " " << residue_p->GetResName() <<  " with atom_name_map size "
-                << atom_name_map.size() << std::endl;
+      if (false)
+	 std::cout << ":::::::: debug:: split_residue_using_map() here with residue "
+		  << coot::residue_spec_t(residue_p)
+		  << " " << residue_p->GetResName() <<  " with atom_name_map size "
+		   << atom_name_map.size() << std::endl;
 
       bool status = false;
       clipper::Coord_orth a_b_uv(0,0,0);
@@ -5294,6 +5295,7 @@ coot::util::split_residue_using_map(mmdb::Residue *residue_p,
       int n_residue_atoms = 0;
       residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
       clipper::Coord_orth h = 0.5 * v;
+      std::vector<mmdb::Atom *> atoms_to_be_added;
       for (int iat=0; iat<n_residue_atoms; iat++) {
          mmdb::Atom *at = residue_atoms[iat];
          mmdb::Atom *at_copy = new mmdb::Atom;
@@ -5302,8 +5304,10 @@ coot::util::split_residue_using_map(mmdb::Residue *residue_p,
          strncpy(at_copy->altLoc, "B", 2);
          at->x      += h.x();      at->y += h.y();      at->z += h.z();
          at_copy->x -= h.x(); at_copy->y -= h.y(); at_copy->z -= h.z();
-         residue_p->AddAtom(at_copy);
+	 atoms_to_be_added.push_back(at_copy);
       }
+      for(mmdb::Atom *at_copy : atoms_to_be_added)
+	residue_p->AddAtom(at_copy);
    };
 
    int status = 0;
@@ -5376,7 +5380,7 @@ coot::util::split_residue_using_map(mmdb::Residue *residue_p,
       double dp_1 = clipper::Coord_orth::dot(vec, neighbour_vec);
       double dp_2 = clipper::Coord_orth::dot(vec, -neighbour_vec);
 
-      std::cout << "dp_1 " << dp_1 << " dp_2 " << dp_2 << std::endl;
+      // std::cout << "dp_1 " << dp_1 << " dp_2 " << dp_2 << std::endl;
       if (dp_1 > 0.0)
          vec = - vec;
    }

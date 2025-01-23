@@ -6876,3 +6876,5 @@ on_button_clicked(GtkButton       *button,
    gtk_widget_set_visible(dialog, FALSE);
 
 }
+
+

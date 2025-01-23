@@ -349,6 +349,7 @@ class molecules_container_t {
    std::string generate_horizontal_ssm_sequence_alignment_string(const std::pair<std::string, std::string> &aligned_sequences) const;
 
 #endif  // HAVE_SSMLIB
+
 #ifdef SKIP_FOR_PYTHON_DOXYGEN
 #else
    //! Check valid labels for auto-read mtz function (private)
@@ -439,6 +440,15 @@ public:
 
    bool use_gemmi; // for mmcif and PDB parsing. 20240112-PE set to true by default in init()
 
+   // -------------------------------- Basic Utilities -----------------------------------
+   //! \name Basic Utilities
+
+   //! Get the package version
+   //!
+   //! @return the package version, e.g. "1.1.11" - if this is a not yet a release version
+   //! the version will end in a "+", such as "1.1.11+"
+   std::string package_version() const;
+
    //! Set the state of using GEMMI for coordinates parsing
    //!
    //! @param state is True to mean that it is enabled. The default is True.
@@ -447,8 +457,6 @@ public:
    //! Get the state of using GEMMI for coordinates parsing
    bool get_use_gemmi() { return use_gemmi; }
 
-   // -------------------------------- Basic Utilities -----------------------------------
-   //! \name Basic Utilities
 
    //! Allow the user to disable/enable backups
    //!
@@ -2320,6 +2328,21 @@ public:
    //! @param imol_map is the map molecule index
    void assign_sequence(int imol_model, int imol_map);
 
+   //! Get the sequence information
+   //!
+   //! @param imol is the molecule index
+   //! @return the sequence information
+   std::vector<std::pair<std::string, std::string> > get_sequence_info(int imol) const;
+
+   //! get mutation information
+   //!
+   //! The reference sequece is that which has been provided using the
+   //! `associate_sequence()` function
+   //!
+   //! @param imol is the model molecule index
+   //! @return the mismatches/mutations as insertions, deletions or mutations
+   coot::chain_mutation_info_container_t get_mutation_info(int imol) const;
+
    // -------------------------------- Coordinates Refinement ------------------------------
    //! \name Coordinates Refinement
 
@@ -3157,7 +3180,7 @@ public:
    //! @return a value less than -99.9 on failure to fit.
    float fit_to_map_by_random_jiggle_using_cid(int imol, const std::string &cid, int n_trials, float translation_scale_factor);
 
-   //! Jiggle-Fit an atom selection, typically a whole molecule or a chain 
+   //! Jiggle-Fit an atom selection, typically a whole molecule or a chain
    //!
    //! @param imol is the model molecule index
    //! @param cid is the selection CID, e.g. "//A" (chain A)
@@ -3174,17 +3197,28 @@ public:
    //! Get svg for residue type
    //!
    //! It won't work unless the dictionary for that ligand has been imported.
-   //! The output renderings are not very good at the moment.
+   //! The native output renderings are not very good at the moment.
+   //! (The RDKit renderings are pretty good).
    //!
    //! @param imol is the model molecule index, except for unusual cases, it will be IMOL_ENC_ANY (-999999)
    //! @param comp_id is the 3-letter code for the residue/ligand, e.g. "ALA" for alanine
    //! @param use_rdkit_svg is the flag for using the rdkit svg renderer
-   //! @param dark_background_flag returns a representation suitable for rendering on a dark background
+   //! @param background_type is one of:
+   //!  - "light-bonds/transparent-bg"
+   //!  - "light-bonds/opaque-bg"
+   //!  - "dark-bonds/transparent-bg"
+   //!  - "dark-bonds/opaque-bg"
    //!
-   // This function is not const because it caches the svgs if it can.
+   //! If you want to load them into another image, you'd typicaly want "dark-bonds/transparent-bg"
+   //! If you want to see ligands, e.g. in a grid or list, you'd typically want "dark-bonds/opaque-bg"
+   //! which will give you a white rectangle behind the ligand figure.
+   //!
+   //! This function is not const because it caches the svgs.
    //!
    //! @return the string for the SVG representation.
-   std::string get_svg_for_residue_type(int imol, const std::string &comp_id, bool use_rdkit_svg, bool dark_background_flag);
+   std::string get_svg_for_residue_type(int imol, const std::string &comp_id,
+                                        bool use_rdkit_svg,
+                                        const std::string &background_type);
 
    //! This function is for adding compounds/molecules like buffer agents and precipitants or anions and cations.
    //! e.g. those ligands that can be positioned without need for internal torsion angle manipulation.

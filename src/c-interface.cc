@@ -7122,6 +7122,9 @@ void post_scheme_scripting_window() {
 
 }
 
+// this needs a header?
+// mode 1 means "mtz" and 0 means coords
+void network_get_accession_code_entity(const std::string &text, int mode);
 
 /* called from c-inner-main */
 // If you edit this again, move it to graphics_info_t.
@@ -7150,7 +7153,7 @@ run_command_line_scripts() {
    }
 
    // --------- commands ------------
-   
+
    for (unsigned int i=0; i<graphics_info_t::command_line_commands.commands.size(); i++)
       if (graphics_info_t::command_line_commands.is_python)
          safe_python_command(graphics_info_t::command_line_commands.commands[i].c_str());
@@ -7165,22 +7168,10 @@ run_command_line_scripts() {
 
    graphics_info_t g;
    for (unsigned int i=0; i<graphics_info_t::command_line_accession_codes.size(); i++) {
-      std::cout << "run_command_line_scripts(): get accession code "
-                << graphics_info_t::command_line_accession_codes[i] << std::endl;
-      std::vector<std::string> c;
-      c.push_back("get_ebi.get-eds-pdb-and-mtz");
-      c.push_back(single_quote(graphics_info_t::command_line_accession_codes[i]));
-
-#ifdef USE_GUILE
-       std::string sc = g.state_command(c, graphics_info_t::USE_SCM_STATE_COMMANDS);
-       safe_scheme_command(sc.c_str());
-#else
-#ifdef USE_PYTHON
-      std::string pc = g.state_command(c, graphics_info_t::USE_PYTHON_STATE_COMMANDS);
-      safe_python_command("import get_ebi");
-      safe_python_command(pc.c_str());
-#endif
-#endif
+      const std::string &code = g.command_line_accession_codes[i];
+      std::cout << "run_command_line_scripts(): get accession code " << code << std::endl;
+      network_get_accession_code_entity(code, 0); // mode 0 means "not mtz"
+      network_get_accession_code_entity(code, 1); // mtz mode
    }
 }
 

@@ -4592,7 +4592,7 @@ SCM
 rigid_body_refine_by_residue_ranges_scm(int imol, SCM residue_ranges) {
 
    SCM ret_val = SCM_BOOL_F;
-   std::vector<coot::residue_range_t> res_ranges;
+   std::vector<coot::high_res_residue_range_t> res_ranges;
    if (scm_is_true(scm_list_p(residue_ranges))) {
       SCM rr_length_scm = scm_length(residue_ranges);
       int rr_length = scm_to_int(rr_length_scm);
@@ -4618,7 +4618,7 @@ rigid_body_refine_by_residue_ranges_scm(int imol, SCM residue_ranges) {
 			   // the chain.  So, check and swap if needed.
 			   if (resno_end < resno_start)
 			      std::swap<int>(resno_start, resno_end);
-			   coot::residue_range_t rr(chain_id, resno_start, resno_end);
+			   coot::high_res_residue_range_t rr(chain_id, resno_start, resno_end);
 			   res_ranges.push_back(rr);
 			}
 		     }
@@ -4650,7 +4650,7 @@ PyObject *
 rigid_body_refine_by_residue_ranges_py(int imol, PyObject *residue_ranges) {
 
    PyObject *ret_val = Py_False;
-   std::vector<coot::residue_range_t> res_ranges;
+   std::vector<coot::high_res_residue_range_t> res_ranges;
    if (PyList_Check(residue_ranges)) {
       int rr_length = PyObject_Length(residue_ranges);
       if (rr_length > 0) {
@@ -4674,7 +4674,7 @@ rigid_body_refine_by_residue_ranges_py(int imol, PyObject *residue_ranges) {
 		     // the chain.  So, check and swap if needed.
 		     if (resno_end < resno_start)
 		       std::swap<int>(resno_start, resno_end);
-		     coot::residue_range_t rr(chain_id, resno_start, resno_end);
+		     coot::high_res_residue_range_t rr(chain_id, resno_start, resno_end);
 		     res_ranges.push_back(rr);
 		   }
 		 }
@@ -4706,7 +4706,7 @@ rigid_body_refine_by_residue_ranges_py(int imol, PyObject *residue_ranges) {
 /*                  rigid body fitting (multiple residue ranges)            */
 /*  ----------------------------------------------------------------------- */
 int rigid_body_fit_with_residue_ranges(int imol,
-					const std::vector<coot::residue_range_t> &residue_ranges) {
+					const std::vector<coot::high_res_residue_range_t> &residue_ranges) {
 
    int success = 0;
    graphics_info_t g;

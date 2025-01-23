@@ -536,7 +536,7 @@
           <!--   <attribute name="label">Background Colour...</attribute> -->
           <!--   <attribute name="action">app.background_colour_action</attribute> -->
           <!-- </item> -->
- 
+
           <submenu>
             <attribute name="label">Background Colour...</attribute>
             <item>
@@ -614,6 +614,14 @@
           <item>
             <attribute name="label">Undo Symmetry View</attribute>
             <attribute name="action">app.undo_symmetry_view_action</attribute>
+          </item>
+          <item>
+            <attribute name="label">Scale Up Graphics</attribute>
+            <attribute name="action">app.scale_up_graphics_action</attribute>
+          </item>
+          <item>
+            <attribute name="label">Scale Down Graphics</attribute>
+            <attribute name="action">app.scale_down_graphics_action</attribute>
           </item>
         </section>
       </submenu>
@@ -974,22 +982,23 @@
         <attribute name="label">Cryo-EM</attribute>
         <attribute name="action">app.add_cryo_em_module_action</attribute>
       </item>
-      <item>
-        <attribute name="label">HOLE</attribute>
-        <attribute name="action">app.add_HOLE_module_action</attribute>
-      </item>
+      <!-- <item> -->
+      <!--   <attribute name="label">HOLE</attribute> -->
+      <!--   <attribute name="action">app.add_HOLE_module_action</attribute> -->
+      <!-- </item> -->
       <item>
         <attribute name="label">Ligand</attribute>
         <attribute name="action">app.add_ligand_module_action</attribute>
       </item>
-      <item>
-        <attribute name="label">ProSMART</attribute>
-        <attribute name="action">app.add_prosmart_module_action</attribute>
-      </item>
-      <item>
-        <attribute name="label">RCrane</attribute>
-        <attribute name="action">app.add_rcrane_module_action</attribute>
-      </item>
+      <!-- 20250115-PE this also is a hunk of pythonic gui - remove for now -->
+      <!-- <item> -->
+      <!--   <attribute name="label">ProSMART</attribute> -->
+      <!--   <attribute name="action">app.add_prosmart_module_action</attribute> -->
+      <!-- </item> -->
+      <!-- <item> -->
+      <!--   <attribute name="label">RCrane</attribute> -->
+      <!--   <attribute name="action">app.add_rcrane_module_action</attribute> -->
+      <!-- </item> -->
       <item>
         <attribute name="label">Restraints</attribute>
         <attribute name="action">app.add_restraints_module_action</attribute>
@@ -998,10 +1007,10 @@
         <attribute name="label">Refine</attribute>
         <attribute name="action">app.add_refine_module_action</attribute>
       </item>
-      <item>
-        <attribute name="label">SHELX</attribute>
-        <attribute name="action">app.add_shelx_module_action</attribute>
-      </item>
+      <!-- <item> -->
+      <!--   <attribute name="label">SHELX</attribute> -->
+      <!--   <attribute name="action">app.add_shelx_module_action</attribute> -->
+      <!-- </item> -->
       <item>
         <attribute name="label">Views</attribute>
         <attribute name="action">app.add_views_module_action</attribute>
@@ -1162,6 +1171,152 @@
         <attribute name="label" translatable="no">Uracil (U)</attribute>
         <attribute name="action">app.mutate_base_to_type</attribute>
         <attribute name="target">U</attribute>
+      </item>
+    </section>
+  </menu>
+
+  <menu id="ccp4-menu">
+    <section>
+      <item>
+        <attribute name="label" translatable="no">Acedrg Link</attribute>
+        <attribute name="action">app.acedrg_link_interface_action</attribute>
+      </item>
+    </section>
+  </menu>
+
+  <menu id="cryo-em-menu">
+    <section>
+      <item>
+        <attribute name="label" translatable="no">Solidify Maps</attribute>
+        <attribute name="action">app.cryo_em_solidify_maps_action</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="no">UnSolidify Maps</attribute>
+        <attribute name="action">app.cryo_em_unsolidify_maps_action</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="no">Add Molecular Symmetry MTRIX</attribute>
+        <attribute name="action">app.cryo_em_add_molecular_symmetry_mtrix_action</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="no">Go to Box Middle</attribute>
+        <attribute name="action">app.cryo_em_go_to_box_middle_action</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="no">Go to Middle of Map</attribute>
+        <attribute name="action">app.cryo_em_go_to_middle_of_map_action</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="no">Flip Hand of Map...</attribute>
+        <attribute name="action">app.cryo_em_flip_hand_action</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="no">Make Masked Maps</attribute>
+        <attribute name="action">app.cryo_em_make_masked_maps_action</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="no">Make Partitioned Maps</attribute>
+        <attribute name="action">app.cryo_em_make_partitioned_maps_action</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="no">Assign Sequence to Fragment</attribute>
+        <attribute name="action">app.cryo_em_assign_sequence_to_active_fragment_action</attribute>
+      </item>
+      <section>
+        <submenu>
+          <attribute name="label">Jiggle-Fit...</attribute>
+          <item>
+            <attribute name="label">Jiggle-Fit Chain Simple</attribute>
+            <attribute name="action">app.jiggle_fit_chain_simple_action</attribute>
+          </item>
+          <item>
+            <attribute name="label">Jiggle-Fit Molecule Simple</attribute>
+            <attribute name="action">app.jiggle_fit_molecule_simple_action</attribute>
+          </item>
+          <item>
+            <attribute name="label">Jiggle-Fit Chain with Fourier Filtering</attribute>
+            <attribute name="action">app.jiggle_fit_chain_with_fourier_filtering_action</attribute>
+          </item>
+          <item>
+            <attribute name="label">Jiggle-Fit Molecule with Fourier Filtering</attribute>
+            <attribute name="action">app.jiggle_fit_molecule_with_fourier_filtering_action</attribute>
+          </item>
+        </submenu>
+      </section>
+      <item>
+        <attribute name="label" translatable="no">Sharpen/Blur Map...</attribute>
+        <attribute name="action">app.cryo_em_sharpen_blur_map_action</attribute>
+      </item>
+    </section>
+  </menu>
+
+  <menu id="ligand-menu">
+    <section>
+      <item>
+        <attribute name="label" translatable="no">Jiggle Fit Residue</attribute>
+        <attribute name="action">app.jiggle_fit_active_residue_action</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="no">Contact Dots for Ligand</attribute>
+        <attribute name="action">app.coot_contact_dots_for_ligand_action</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="no">Geometric Distortions</attribute>
+        <attribute name="action">app.geometric_distortions_for_ligand_action</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="no">Make LINK...</attribute>
+        <attribute name="action">app.make_link_action</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="no">SMILES to 3D</attribute>
+        <attribute name="action">app.SMILES_to_3D_action</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="no">Show Chemical Features</attribute>
+        <attribute name="action">app.show_chemical_features_action</attribute>
+      </item>
+      <!-- 20250115-PE this needs coot_ligand_check.py converted to C++ - big job. Another time -->
+      <!-- <item> -->
+      <!--   <attribute name="label" translatable="no">Quick Ligand Validate</attribute> -->
+      <!--   <attribute name="action">app.quick_ligand_validate_action</attribute> -->
+      <!-- </item> -->
+    </section>
+  </menu>
+
+  <menu id="restraints-menu">
+    <section>
+      <item>
+        <attribute name="label" translatable="no">Generate Self Restraints for Chain 3.7</attribute>
+        <attribute name="action">app.generate_self_restraints_chain_3_7_action</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="no">Generate Self Restraints for Chain 4.3 </attribute>
+        <attribute name="action">app.generate_self_restraints_chain_4_3_action</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="no">Generate Self Restraints for Chain 5.0 </attribute>
+        <attribute name="action">app.generate_self_restraints_chain_5_0_action</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="no">Generate Self Restraints for Chain 6.0 </attribute>
+        <attribute name="action">app.generate_self_restraints_chain_6_0_action</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="no">Generate All-molecule Self Restraints 4.3</attribute>
+        <attribute name="action">app.generate_all_molecule_self_restraints_4_3_action</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="no">Generate All-molecule Self Restraints 5.0</attribute>
+        <attribute name="action">app.generate_all_molecule_self_restraints_5_0_action</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="no">Generate All-molecule Self Restraints 6.0</attribute>
+        <attribute name="action">app.generate_all_molecule_self_restraints_6_0_action</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="no">Delete All Extra Restraints</attribute>
+        <attribute name="action">app.delete_all_extra_restraints_action</attribute>
       </item>
     </section>
   </menu>
@@ -6570,6 +6725,16 @@ Do you want to continue?
                   <property name="visible">False</property>
                 </object>
               </child>
+
+              <child>
+                <object class="GtkButton" id="ccp4i2-save-button">
+                  <property name="label" translatable="yes">Save Mol to CCP4i2</property>
+                  <property name="can-focus">0</property>
+                  <signal name="clicked" handler="on_ccp4i2_save_button_clicked" swapped="no"/>
+                  <property name="visible">False</property>
+                </object>
+              </child>
+
             </object>
           </child>
 
@@ -6894,6 +7059,363 @@ Do you want to continue?
               </object>
             </child>
 
+            <child type="overlay">
+              <object class="GtkFrame" id="acedrg_link_interface_frame">
+                <property name="halign">center</property>
+                <property name="valign">start</property>
+                <property name="visible">False</property>
+                <property name="can_focus">True</property>
+                <property name="margin-bottom">5</property>
+                <property name="margin-end">5</property>
+                <property name="margin-start">5</property>
+                <property name="margin-top">5</property>
+
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                    <property name="spacing">5</property>
+
+		    <child>
+		      <object class="GtkFrame" id="acedrg_link_bond_order_frame">
+			<property name="label">Bond Order</property>
+			<child>
+			  <object class="GtkComboBoxText" id="acedrg_link_bond_order_combobox">
+			    <property name="margin-bottom">5</property>
+			    <property name="margin-end">6</property>
+			    <property name="margin-start">6</property>
+			    <property name="margin-top">5</property>
+
+                            <layout>
+                              <property name="column">1</property>
+                              <property name="row">1</property>
+                            </layout>
+                            <items>
+                              <item translatable="yes">single</item>
+                              <item translatable="yes">double</item>
+                              <item translatable="yes">triple</item>
+                            </items>
+
+			  </object>
+                        </child>
+                      </object>
+                   </child>
+
+		   <child>
+		     <object class="GtkFrame" id="acedrg_link_interface_first_residue">
+		       <property name="label">First Monomer to be Linked</property>
+		       <property name="halign">start</property>
+		       <property name="valign">start</property>
+		       <property name="margin-bottom">5</property>
+		       <property name="margin-end">5</property>
+		       <property name="margin-start">5</property>
+		       <property name="margin-top">5</property>
+		       <child>
+			 <object class="GtkBox">
+			   <property name="orientation">vertical</property>
+			   <property name="spacing">5</property>
+			   <child>
+			     <object class="GtkBox">
+			       <property name="orientation">horizontal</property>
+			       <property name="spacing">2</property>
+			       <child>
+				 <object class="GtkLabel">
+				   <property name="label">Residue Name: </property>
+				   <property name="margin-end">0</property>
+				   <property name="margin-start">0</property>
+				 </object>
+			       </child>
+			       <child>
+				 <object class="GtkEntry" id="acedrg_link_first_residue_name_entry">
+				   <property name="can-focus">1</property>
+				   <property name="hexpand">False</property>
+                                   <signal name="activate" handler="on_acedrg_link_first_residue_activate" />
+				 </object>
+			       </child>
+			       <child>
+				 <object class="GtkLabel">
+				   <property name="label">Linking Atom: </property>
+				   <property name="margin-end">5</property>
+				   <property name="margin-start">5</property>
+				 </object>
+			       </child>
+			       <child>
+				 <object class="GtkComboBoxText" id="acedrg_link_first_atom_name_chooser_combobox">
+				   <property name="margin-top">2</property>
+				   <property name="margin-bottom">2</property>
+				   <property name="margin-start">6</property>
+				   <property name="margin-end">6</property>
+				 </object>
+			       </child>
+			     </object>
+			   </child>
+
+			   <child>
+			     <object class="GtkBox">
+			       <property name="orientation">horizontal</property>
+			       <property name="spacing">5</property>
+			       <child>
+				 <object class="GtkCheckButton" id="acedrg_link_first_delete_atom_checkbutton">
+                                   <property name="label" translatable="yes">Delete Atom</property>
+                                   <signal name="toggled" handler="on_acedrg_link_first_delete_atom_checkbutton_toggled" />
+				 </object>
+			       </child>
+			       <child>
+				 <object class="GtkComboBoxText" id="acedrg_link_first_delete_atom_chooser_combobox">
+                                   <property name="sensitive">False</property>
+				   <property name="margin-bottom">2</property>
+				   <property name="margin-start">6</property>
+				 </object>
+			       </child>
+			     </object>
+			   </child>
+
+			   <child>
+			     <object class="GtkBox">
+			       <property name="orientation">horizontal</property>
+			       <property name="spacing">5</property>
+			       <child>
+				 <object class="GtkCheckButton" id="acedrg_link_first_change_charge_atom_checkbutton">
+                                   <property name="label" translatable="yes">Change Charge on Atom</property>
+                                   <signal name="toggled" handler="on_acedrg_link_first_change_charge_on_atom_checkbutton_toggled" />
+				 </object>
+			       </child>
+			       <child>
+				 <object class="GtkComboBoxText" id="acedrg_link_first_change_charge_on_atom_chooser_combobox">
+                                   <property name="sensitive">False</property>
+				   <property name="margin-bottom">2</property>
+				   <property name="margin-start">6</property>
+				 </object>
+			       </child>
+			     </object>
+			   </child>
+
+			   <child>
+			     <object class="GtkBox">
+			       <property name="orientation">horizontal</property>
+			       <property name="spacing">5</property>
+			       <child>
+				 <object class="GtkCheckButton" id="acedrg_link_first_change_bond_order_checkbutton">
+                                   <property name="label" translatable="yes">Change Bond Order to </property>
+                                   <signal name="toggled" handler="on_acedrg_link_first_change_bond_order_checkbutton_toggled" />
+				 </object>
+			       </child>
+
+			       <child>
+				 <object class="GtkComboBoxText" id="acedrg_link_first_change_bond_order_combobox">
+                                   <property name="sensitive">False</property>
+				   <property name="margin-bottom">2</property>
+				   <property name="margin-start">6</property>
+				   <items>
+				     <item translatable="yes">single</item>
+				     <item translatable="yes">double</item>
+				     <item translatable="yes">triple</item>
+				   </items>
+				 </object>
+			       </child>
+
+			       <child>
+				 <object class="GtkLabel">
+				   <property name="label"> between </property>
+				   <property name="margin-end">0</property>
+				   <property name="margin-start">0</property>
+				 </object>
+			       </child>
+
+			       <child>
+				 <object class="GtkComboBoxText" id="acedrg_link_first_change_bond_order_atom_1_combobox">
+                                   <property name="sensitive">False</property>
+				   <property name="margin-bottom">2</property>
+				   <property name="margin-start">6</property>
+				 </object>
+			       </child>
+
+			       <child>
+				 <object class="GtkLabel">
+				   <property name="label">and</property>
+				   <property name="margin-end">0</property>
+				   <property name="margin-start">0</property>
+				 </object>
+			       </child>
+
+			       <child>
+				 <object class="GtkComboBoxText" id="acedrg_link_first_change_bond_order_atom_2_combobox">
+                                   <property name="sensitive">False</property>
+				   <property name="margin-bottom">2</property>
+				   <property name="margin-start">6</property>
+				 </object>
+			       </child>
+
+			     </object>
+			   </child>
+
+			 </object>
+		       </child>
+		     </object>
+		   </child>
+
+		   <child>
+		     <object class="GtkFrame" id="acedrg_link_interface_second_residue">
+		       <property name="label">Second Monomer to be Linked</property>
+		       <property name="halign">start</property>
+		       <property name="valign">start</property>
+		       <property name="margin-bottom">5</property>
+		       <property name="margin-end">5</property>
+		       <property name="margin-start">5</property>
+		       <property name="margin-top">5</property>
+		       <child>
+			 <object class="GtkBox">
+			   <property name="orientation">vertical</property>
+			   <property name="spacing">5</property>
+			   <child>
+			     <object class="GtkBox">
+			       <property name="orientation">horizontal</property>
+			       <property name="spacing">2</property>
+			       <child>
+				 <object class="GtkLabel">
+				   <property name="label">Residue Name: </property>
+				   <property name="margin-end">0</property>
+				   <property name="margin-start">0</property>
+				 </object>
+			       </child>
+			       <child>
+				 <object class="GtkEntry" id="acedrg_link_second_residue_name_entry">
+				   <property name="can-focus">1</property>
+				   <property name="hexpand">False</property>
+                                   <signal name="activate" handler="on_acedrg_link_second_residue_activate" />
+				 </object>
+			       </child>
+			       <child>
+				 <object class="GtkLabel">
+				   <property name="label">Linking Atom: </property>
+				   <property name="margin-end">5</property>
+				   <property name="margin-start">5</property>
+				 </object>
+			       </child>
+			       <child>
+				 <object class="GtkComboBoxText" id="acedrg_link_second_atom_name_chooser_combobox">
+				   <property name="margin-top">2</property>
+				   <property name="margin-bottom">2</property>
+				   <property name="margin-start">6</property>
+				   <property name="margin-end">6</property>
+				 </object>
+			       </child>
+			     </object>
+			   </child>
+
+			   <child>
+			     <object class="GtkBox">
+			       <property name="orientation">horizontal</property>
+			       <property name="spacing">5</property>
+			       <child>
+				 <object class="GtkCheckButton" id="acedrg_link_second_delete_atom_checkbutton">
+                                   <property name="label" translatable="yes">Delete Atom</property>
+                                   <signal name="toggled" handler="on_acedrg_link_second_delete_atom_checkbutton_toggled" />
+				 </object>
+			       </child>
+			       <child>
+				 <object class="GtkComboBoxText" id="acedrg_link_second_delete_atom_chooser_combobox">
+                                   <property name="sensitive">False</property>
+				   <property name="margin-bottom">2</property>
+				   <property name="margin-start">6</property>
+				 </object>
+			       </child>
+			     </object>
+			   </child>
+
+			   <child>
+			     <object class="GtkBox">
+			       <property name="orientation">horizontal</property>
+			       <property name="spacing">5</property>
+			       <child>
+				 <object class="GtkCheckButton" id="acedrg_link_second_change_charge_atom_checkbutton">
+                                   <property name="label" translatable="yes">Change Charge on Atom</property>
+                                   <signal name="toggled" handler="on_acedrg_link_second_change_charge_on_atom_checkbutton_toggled" />
+				 </object>
+			       </child>
+			       <child>
+				 <object class="GtkComboBoxText" id="acedrg_link_second_change_charge_on_atom_chooser_combobox">
+                                   <property name="sensitive">False</property>
+				   <property name="margin-bottom">2</property>
+				   <property name="margin-start">6</property>
+				 </object>
+			       </child>
+			     </object>
+			   </child>
+
+			   <child>
+			     <object class="GtkBox">
+			       <property name="orientation">horizontal</property>
+			       <property name="spacing">5</property>
+			       <child>
+				 <object class="GtkCheckButton" id="acedrg_link_second_change_bond_order_checkbutton">
+                                   <property name="label" translatable="yes">Change Bond Order</property>
+                                   <signal name="toggled" handler="on_acedrg_link_second_change_bond_order_checkbutton_toggled" />
+				 </object>
+			       </child>
+
+			       <child>
+				 <object class="GtkComboBoxText" id="acedrg_link_second_change_bond_order_combobox">
+                                   <property name="sensitive">False</property>
+				   <property name="margin-bottom">2</property>
+				   <property name="margin-start">6</property>
+				   <items>
+				     <item translatable="yes">single</item>
+				     <item translatable="yes">double</item>
+				     <item translatable="yes">triple</item>
+				   </items>
+				 </object>
+			       </child>
+
+			       <child>
+				 <object class="GtkComboBoxText" id="acedrg_link_second_change_bond_order_atom_1_combobox">
+                                   <property name="sensitive">False</property>
+				   <property name="margin-bottom">2</property>
+				   <property name="margin-start">6</property>
+				 </object>
+			       </child>
+
+			       <child>
+				 <object class="GtkComboBoxText" id="acedrg_link_second_change_bond_order_atom_2_combobox">
+                                   <property name="sensitive">False</property>
+				   <property name="margin-bottom">2</property>
+				   <property name="margin-start">6</property>
+				 </object>
+			       </child>
+
+			     </object>
+			   </child>
+
+			 </object>
+		       </child>
+		     </object>
+		   </child>
+
+		   <child>
+		     <object class="GtkBox">
+		       <property name="orientation">horizontal</property>
+		       <property name="spacing">5</property>
+		       <property name="halign">end</property>
+		       <property name="margin-end">5</property>
+		       <property name="margin-start">4</property>
+		       <child>
+			 <object class="GtkButton" id="acedrg_link_cancel_button">
+			   <property name="label" translatable="yes">Cancel</property>
+			   <signal name="clicked" handler="on_acedrg_link_cancel_button_clicked" />
+			 </object>
+		       </child>
+		       <child>
+			 <object class="GtkButton" id="acedrg_link_ok_button">
+			   <property name="label" translatable="yes">OK</property>
+			   <signal name="clicked" handler="on_acedrg_link_ok_button_clicked" />
+			 </object>
+		       </child>
+                     </object>
+                   </child>
+
+		  </object>
+		</child>
+	      </object>
+	    </child>
 
             <child type="overlay">
               <object class="GtkFrame" id="replace_residue_frame">
@@ -7063,6 +7585,218 @@ Do you want to continue?
                         </child>
                       </object>
                     </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+
+            <child type="overlay">
+              <object class="GtkFrame" id="flip_map_hand_frame">
+                <property name="halign">center</property>
+                <property name="valign">start</property>
+                <property name="visible">False</property>
+                <property name="can_focus">True</property>
+                <property name="margin-bottom">5</property>
+                <property name="margin-end">5</property>
+                <property name="margin-start">5</property>
+                <property name="margin-top">5</property>
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                    <property name="spacing">5</property>
+                    <child>
+                      <object class="GtkLabel" id="flip_map_hand_label">
+                        <property name="label" translatable="yes">Flip Map Hand</property>
+                        <property name="justify">center</property>
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="GtkComboBoxText" id="flip_map_hand_comboboxtext">
+                        <property name="margin-start">8</property>
+                        <property name="margin-end">8</property>
+                        <property name="margin-top">4</property>
+                        <property name="margin-bottom">4</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkBox" id="vbox_flip_hand_buttons">
+                        <property name="homogeneous">True</property>
+                        <property name="spacing">5</property>
+                        <property name="orientation">horizontal</property>
+                        <property name="margin-bottom">8</property>
+                        <property name="margin-end">8</property>
+                        <property name="margin-start">8</property>
+                        <property name="margin-top">8</property>
+                        <child>
+                          <object class="GtkButton" id="flip_hand_cancel_button">
+                            <property name="label" translatable="yes">Cancel</property>
+                            <property name="receives-default">1</property>
+                            <signal name="clicked" handler="on_flip_hand_cancel_button_clicked"/>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkButton" id="flip_hand_ok_button">
+                            <property name="label" translatable="yes">Flip</property>
+                            <property name="receives-default">1</property>
+                            <signal name="clicked" handler="on_flip_hand_ok_button_clicked"/>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+
+            <child type="overlay">
+              <object class="GtkFrame" id="sharpen_blur_map_frame">
+                <property name="halign">center</property>
+                <property name="valign">start</property>
+                <property name="visible">False</property>
+                <property name="can_focus">True</property>
+                <property name="margin-bottom">5</property>
+                <property name="margin-end">5</property>
+                <property name="margin-start">5</property>
+                <property name="margin-top">5</property>
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                    <property name="spacing">5</property>
+
+                    <child>
+                      <object class="GtkLabel" id="sharpen_blur_map_label">
+                        <property name="label" translatable="yes">Sharpen/Blur Map</property>
+                        <property name="justify">left</property>
+                        <property name="margin-top">4</property>
+                        <property name="margin-bottom">4</property>
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="GtkComboBoxText" id="sharpen_blur_map_comboboxtext">
+                        <property name="margin-start">8</property>
+                        <property name="margin-end">8</property>
+                        <property name="margin-top">4</property>
+                        <property name="margin-bottom">4</property>
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="GtkBox">
+                        <property name="orientation">horizontal</property>
+                        <property name="homogeneous">False</property>
+                        <property name="spacing">4</property>
+                        <property name="margin-top">4</property>
+                        <property name="margin-bottom">4</property>
+                        <property name="margin-start">6</property>
+                        <property name="margin-end">1</property>
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="label" translatable="yes">Sharpen Blur by</property>
+                            <property name="justify">left</property>
+                          </object>
+                        </child>
+
+                        <child>
+                          <object class="GtkEntry" id="sharpen_blur_map_entry">
+                            <property name="width-request">5</property>
+                            <property name="can-focus">1</property>
+                            <property name="text">20.0</property>
+                          </object>
+                        </child>
+
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="label" translatable="yes">Ångströms</property>
+                            <property name="margin-end">10</property>
+                            <property name="justify">left</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="GtkBox">
+                        <property name="orientation">horizontal</property>
+                        <child>
+                          <object class="GtkCheckButton" id="sharpen_blur_map_resample_checkbutton">
+                            <property name="label" translatable="yes">Resample</property>
+                            <property name="active">0</property>
+                            <property name="margin-start">4</property>
+                            <property name="margin-end">4</property>
+                            <property name="margin-top">4</property>
+                            <property name="margin-bottom">4</property>
+                            <signal name="toggled" handler="on_sharpen_blur_map_resample_checkbutton_toggled" swapped="no"/>
+                          </object>
+                        </child>
+
+                        <child>
+                          <object class="GtkLabel" id="sharpen_blur_map_resample_label">
+                            <property name="label" translatable="yes"> Factor: </property>
+                            <property name="sensitive">0</property>
+                            <property name="justify">center</property>
+                            <property name="margin-start">4</property>
+                            <property name="margin-end">2</property>
+                            <property name="margin-top">4</property>
+                            <property name="margin-bottom">4</property>
+                          </object>
+                        </child>
+
+                        <child>
+                          <object class="GtkEntry" id="sharpen_blur_map_resample_entry">
+                            <property name="text">1.3</property>
+                            <property name="sensitive">0</property>
+                            <property name="width-request">5</property>
+                            <property name="can-focus">1</property>
+                            <property name="margin-start">4</property>
+                            <property name="margin-end">4</property>
+                            <property name="margin-top">4</property>
+                            <property name="margin-bottom">4</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="GtkBox">
+                        <property name="orientation">horizontal</property>
+                        <property name="halign">GTK_ALIGN_END</property>
+                        <property name="homogeneous">True</property>
+                        <property name="margin-start">4</property>
+                        <property name="margin-end">4</property>
+                        <property name="margin-top">4</property>
+                        <property name="margin-bottom">4</property>
+
+                        <child>
+                          <object class="GtkButton" id="sharpen_blur_map_cancel_button">
+                            <property name="label">Cancel</property>
+                            <property name="margin-start">4</property>
+                            <property name="margin-end">4</property>
+                            <property name="margin-top">4</property>
+                            <property name="margin-bottom">4</property>
+                            <signal name="clicked" handler="on_sharpen_blur_map_cancel_button_clicked" swapped="no"/>
+                          </object>
+                        </child>
+
+                        <child>
+                          <object class="GtkButton" id="sharpen_blur_map_ok_button">
+                            <property name="label">Go</property>
+                            <property name="margin-start">4</property>
+                            <property name="margin-end">4</property>
+                            <property name="margin-top">4</property>
+                            <property name="margin-bottom">4</property>
+                            <signal name="clicked" handler="on_sharpen_blur_map_ok_button_clicked" swapped="no"/>
+                            <style>
+                              <class name="suggested-action"/>
+                            </style>
+                          </object>
+                        </child>
+
+                      </object>
+                    </child>
+
+
                   </object>
                 </child>
               </object>
@@ -9589,7 +10323,7 @@ density (too big to be waters):
           </child>
           </object>
         </child>
-        
+
         <child>
           <object class="GtkBox">>
           <property name="margin-top">6</property>

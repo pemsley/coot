@@ -459,6 +459,10 @@ void servalcat_refine(int imol_model,
                       const std::string &half_map_1, const std::string &half_map_2,
                       const std::string &mask_map, float resolution);
 
+//! run acedrg link
+void
+run_acedrg_link_generation(const std::string &acedrg_link_command);
+
 /*  ------------------------------------------------------------------------ */
 /*                             Add an Atom                                   */
 /*  ------------------------------------------------------------------------ */
@@ -1200,7 +1204,7 @@ bool get_regenerate_bonds_needs_make_bonds_type_checked_state();
 //! \brief
 //! return 0 on fail to refine (no sensible place to put atoms) and 1
 //! on fitting happened.
-int rigid_body_fit_with_residue_ranges(int imol, const std::vector<coot::residue_range_t> &ranges);
+int rigid_body_fit_with_residue_ranges(int imol, const std::vector<coot::high_res_residue_range_t> &ranges);
 
 // Model morphing (average the atom shift by using shifts of the
 // atoms within shift_average_radius A of the central residue).
@@ -1938,6 +1942,7 @@ void set_gaussian_surface_chain_colour_mode(short int mode);
 
 void show_gaussian_surface_overlay();
 
+
 /* ------------------------------------------------------------------------- */
 /*                      LINKs                                                */
 /* ------------------------------------------------------------------------- */
@@ -1961,6 +1966,7 @@ void make_link_py(int imol, PyObject *spec_1, PyObject *spec_2, const std::strin
 PyObject *link_info_py(int imol);
 #endif
 
+void show_acedrg_link_interface_overlay();
 
 /* ------------------------------------------------------------------------- */
 /*                      Drag and drop                                        */

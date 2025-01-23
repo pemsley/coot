@@ -124,6 +124,7 @@ parse_command_line(int argc, char ** argv ) {
       {"run-state-script",   0, 0, 0},
       {"splash-screen",      1, 0, 0}, // alternate splash screen
       {"self-test",          0, 0, 0},
+      {"show-ccp4i2-save-button", 0, 0, 0},
       {"opengl-es",          0, 0, 0},
       {"no-state-script",    0, 0, 0},
       {"no-startup-scripts", 0, 0, 0},
@@ -211,6 +212,9 @@ parse_command_line(int argc, char ** argv ) {
 	    if (arg_str == "comp-id") {
 	       cld.comp_ids.push_back(coot_optarg);
 	    }
+	    if (arg_str == "show-ccp4i2-save-button") {
+	       cld.show_ccp4i2_save_button = true;
+	    }
 	    if (arg_str == "title") {
 	       cld.title = coot_optarg;
 	    }
@@ -248,9 +252,10 @@ parse_command_line(int argc, char ** argv ) {
 			       << "            [--small-screen]\n"
 			       << "            [--splash-screen]\n"
 			       << "            [--stereo]\n"
-			       << "            [--zalman-stereo]\n"
-			       << "            [--side-by-side]\n"
+                        //			       << "            [--zalman-stereo]\n"
+                        //                             << "            [--side-by-side]\n"
 			       << "            [--version]\n"
+			       << "            [--show-ccp4i2-save-button]\n"
 // 			       << "            [--update-self]\n"
 			       << "            [--self-test]\n"
 			       << "            [--no-state-script]\n"
@@ -345,13 +350,17 @@ parse_command_line(int argc, char ** argv ) {
                                                             if (arg_str == "opengl-es") {
                                                                cld.use_opengl_es = true;
                                                             } else {
-                                                               if (arg_str == "update-self") {
-                                                                  cld.update_self = 1;
-                                                                  cld.do_graphics = 0;
+                                                               if (arg_str == "show-ccp4i2-save-button") {
+                                                                  cld.show_ccp4i2_save_button = true;
                                                                } else {
-                                                                  std::cout << "WARNING! Malformed option - needs an argument: "
-                                                                            << long_options[option_index].name
-                                                                            << std::endl << std::endl;
+                                                                  if (arg_str == "update-self") {
+                                                                     cld.update_self = 1;
+                                                                     cld.do_graphics = 0;
+                                                                  } else {
+                                                                     std::cout << "WARNING! Malformed option - needs an argument: "
+                                                                               << long_options[option_index].name
+                                                                               << std::endl << std::endl;
+                                                                  }
                                                                }
                                                             }
                                                          }

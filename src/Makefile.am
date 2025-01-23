@@ -500,8 +500,9 @@ libcootsumo_la_SOURCES = \
 	cc-interface-molecular-symmetry.cc \
 	cc-interface-network.hh  \
 	cc-interface-mogul.hh    \
-	cc-interface-scripting.cc\
-	cc-interface-scripting.hh\
+	cc-interface-scripting.cc  \
+	cc-interface-scripting.hh  \
+	cc-interface-subprocess.cc \
 	cc-interface-map-utils.cc\
 	cc-interface-image.hh    \
 	cc-interface-png.cc      \
@@ -531,8 +532,6 @@ libcootsumo_la_SOURCES = \
 	coot-database.hh	 \
 	coot-colour.hh		 \
 	coot-colour.cc		 \
-	coot-align.cc		 \
-	coot-align.hh		 \
 	coot-nomenclature.cc	 \
 	coot-nomenclature.hh     \
 	coot-fileselections.h    \

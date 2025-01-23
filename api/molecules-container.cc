@@ -55,6 +55,18 @@ molecules_container_t::~molecules_container_t() {
    standard_residues_asc.clear_up();
 }
 
+//! Get the package version
+//!
+//! @return the package version, e.g. "1.1.11" - if this is a not yet a release version
+//! the version will end in a "+", such as "1.1.11+"
+std::string
+molecules_container_t::package_version() const {
+
+   std::string s(PACKAGE_VERSION);
+   return s;
+
+}
+
 //! get imol_enc_any
 //!
 //! @return the value of imol_enc_any (meaning "the molecule number for dictionary that
@@ -6263,7 +6275,39 @@ molecules_container_t::get_missing_residue_ranges(int imol) const {
    std::vector<coot::residue_range_t> v;
    if (is_valid_model_molecule(imol)) {
       v = molecules[imol].get_missing_residue_ranges();
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
    return v;
 }
 
+
+//! Get the sequence information
+//!
+//! @param imol is the molecule index
+//! @return the sequence information
+std::vector<std::pair<std::string, std::string> >
+molecules_container_t::get_sequence_info(int imol) const {
+
+   std::vector<std::pair<std::string, std::string> > v;
+   if (is_valid_model_molecule(imol)) {
+      v = molecules[imol].get_sequence_info();
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return v;
+}
+
+
+//! return the mismatches/mutations:
+coot::chain_mutation_info_container_t
+molecules_container_t::get_mutation_info(int imol) const {
+
+  coot::chain_mutation_info_container_t mci;
+  if (is_valid_model_molecule(imol)) {
+    mci = molecules[imol].get_mutation_info();
+  } else {
+    std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+  }
+  return mci;
+}
