@@ -1,10 +1,32 @@
 ----
 
-Add a "Save to CCP4i2 button which saves the first model into a "ccp4i2-coot-save" directory.
+1.1.12 Import the CCD for A1AWR and try to regularize the ligand.
+It should give an error message, not proceed with the refinement!
 
-on delete hydrogen atoms on a non-sane molecule throws an exception.
+get pull request (?) for column labels from Clemens.
+
+Do the other pull requests
+
+Release new 0.9.8.x
+
+Send Charles info about Coot tests.
 
 1.1.12: Oli's Rama bug.
+
+Ligand+CA doesn't have thin bond to hydrogen atoms
+H Atoms are small though.
+Ligand in SS CA mode does have thin bonds to hydrogen atoms
+* Done. Hostage to fortune? b3178827c24a788d4d1830261610b0ab29f25719
+
+1.1.12 Import a dictionary and make an instance - does that work?
+No.
+* Fixed.
+
+Add a "Save to CCP4i2 button which saves the first model into a "ccp4i2-coot-save" directory.
+* Done.
+
+on delete hydrogen atoms on a non-sane molecule throws an exception.
+* Done.
 
 1.1.12 make svg molecule work again (pli need not work). Test wedge bonds.
 
