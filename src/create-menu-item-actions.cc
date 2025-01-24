@@ -352,28 +352,37 @@ void get_monomer_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
 void on_cif_dictionary_filechooser_dialog_response_gtk4(GtkDialog *dialog,
                                                         int        response) {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 
    if (response == GTK_RESPONSE_ACCEPT) {
       GtkFileChooser *chooser = GTK_FILE_CHOOSER (dialog);
       GFile *file = gtk_file_chooser_get_file(chooser);
       char *file_name = g_file_get_path(file);
-      int imol_enc = -999997;
+      int imol_enc = coot::protein_geometry::IMOL_ENC_ANY;
 
       bool create_ligand = false;
       const char *r = gtk_file_chooser_get_choice(GTK_FILE_CHOOSER(dialog), "create-molecule");
       if (r) {
+         std::cout << "we got r " << r << std::endl;
          std::string sr(r);
-         if (sr == "Create New Instance")
+         if (sr == "create-new-instance")
             create_ligand = true;
+      } else {
+         std::cout << "ERROR:: r was null" << std::endl;
       }
+
+      std::cout << "here with create_ligand " << create_ligand << std::endl;
 
       if (create_ligand) {
          std::cout << "create ligand! " << std::endl;
+         // the monomer index is returned rom handle_cif_dictionary_for_molecule()
+         handle_cif_dictionary_for_molecule(file_name, imol_enc, create_ligand);
       }
-      int monomer_index = handle_cif_dictionary_for_molecule(file_name, imol_enc, create_ligand);
    }
    gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
    graphics_info_t::graphics_grab_focus();
+#pragma GCC diagnostic pop
 }
 
 void import_cif_dictionary_action(G_GNUC_UNUSED GSimpleAction *simple_action,
