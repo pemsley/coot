@@ -2318,7 +2318,7 @@ graphics_info_t::draw_molecules_other_meshes(unsigned int pass_type) {
    // graphics_info_t::draw_instanced_meshes() A Molecule 2: Ligand Contact Dots vdw-surface
    // graphics_info_t::draw_instanced_meshes() A Molecule 2: Ligand Contact Dots big-overlap
 
-   // std::cout << "------------- draw_meshed_generic_display_object_meshes() " << std::endl;
+   // std::cout << "------------- draw_molecules_other_meshes() " << std::endl;
 
    bool draw_meshes = true;
    bool draw_mesh_normals = false;
