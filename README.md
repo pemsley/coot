@@ -41,7 +41,6 @@ coot
 <a href="https://flathub.org/apps/io.github.pemsley.coot"><img width='240' alt='Download on Flathub' src='https://dl.flathub.org/assets/badges/flathub-badge-en.svg' align="right"/></a>
 
 After [installing Flatpak and registering Flathub](https://flatpak.org/setup/), run the commands below.
-(You will need admin privileges to install Flatpak with `sudo`.)
 
 ```shell
 flatpak install flathub io.github.pemsley.coot
@@ -49,6 +48,8 @@ flatpak install flathub io.github.pemsley.coot
 # Simply click Coot's icon in the menu, or
 flatpak run io.github.pemsley.coot  
 ```
+
+You can see the flatpak manifest [here](https://github.com/flathub/io.github.pemsley.coot).
 
 ## Building from source
 
