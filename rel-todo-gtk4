@@ -3,17 +3,27 @@
 1.1.12 Import the CCD for A1AWR and try to regularize the ligand.
 It should give an error message, not proceed with the refinement!
 
-get pull request (?) for column labels from Clemens.
+Review the github pull requests
 
-Do the other pull requests
-
-Release new 0.9.8.x
-
-Surface display is missing a shader?
+Surface display is missing a shader? (Not on mac)
 
 Send Charles info about Coot tests.
 
+1.1.12 make svg molecule work again (pli need not work). Test wedge bonds. Test atom
+label positioning.
+
 1.1.12: Oli's Rama bug.
+
+Release new 0.9.8.x
+
+post-release: 1ajs, do a tandem refine on 222B - why do I get an bad contact marker
+with 258 N1? Ah! They are both acceptors! Interesting. What to do about it?
+
+Make a blog post: Coot and the XDG Base Directory Protocol
+Where do files from Acedrg go? Or downloaded/fetched? Or servalcat?
+
+get pull request (?) for column labels from Clemens.
+* Done.
 
 Ligand+CA doesn't have thin bond to hydrogen atoms
 H Atoms are small though.
@@ -26,7 +36,9 @@ No.
 
 get_atom() and get_residue() would be nice in chapi.
 Needs to make a chapi version of an mmdb atom I think.
-Post-release.
+
+How do I open a .ccp4 map?
+* Done.
 
 When getting files from EDS:
 this directory did not exist:
@@ -42,8 +54,6 @@ Add a "Save to CCP4i2 button which saves the first model into a "ccp4i2-coot-sav
 on delete hydrogen atoms on a non-sane molecule throws an exception.
 Catch RDKit::AtomValenceException in delete_non_polar_hydrogens
 * Done.
-
-1.1.12 make svg molecule work again (pli need not work). Test wedge bonds.
 
 1.1.12: Untangle the disulfide refinement in the untangle challenge file from Eleanor.
 * Can't reproduce
@@ -139,12 +149,15 @@ Chapi: add flood to the api
 * Done.
 
 Chapi: Add a function for missing residue ranges
+* Done. It's cool
 
 Chapi: residue_spec_t previous_residue(residue_spec_t);
 
 Add NCS completion to ncs tools.
 
 prune tools?
+
+draw_generic_objects needs to work with shadows and SSAO.
 
 bug: make_mesh_for_gaussian_surface_for_blender(int, float, float, float, float, float)
 maybe true?
