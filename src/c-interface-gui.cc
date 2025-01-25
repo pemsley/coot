@@ -2082,17 +2082,17 @@ void network_get_accession_code_entity(const std::string &text, int mode) {
          // coot_get_url() returns the return value of curl_easy_perform()
          // CURLE_OK is 0
          if (coot::file_exists(pdb_filepath)) {
-            read_pdb(pdb_file_name);
+            read_pdb(pdb_filepath);
          } else {
             if (status == 0) {
-               read_pdb(pdb_file_name);
+               read_pdb(pdb_filepath);
             } else {
                if (coot::file_exists(cif_filepath)) {
-                  read_pdb(cif_file_name);
+                  read_pdb(cif_filepath);
                } else {
                   status = coot_get_url(cif_url, cif_filepath);
                   if (status == 0) {
-                     read_pdb(cif_file_name);
+                     read_pdb(cif_filepath);
                   }
                }
             }

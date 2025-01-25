@@ -1181,6 +1181,10 @@
         <attribute name="label" translatable="no">Acedrg Link</attribute>
         <attribute name="action">app.acedrg_link_interface_action</attribute>
       </item>
+      <item>
+        <attribute name="label" translatable="no">Acedrg via CCD</attribute>
+        <attribute name="action">app.run_acedrg_via_CCD_dictionary_download_action</attribute>
+      </item>
     </section>
   </menu>
 
@@ -7056,6 +7060,25 @@ Do you want to continue?
                   </object>
                 </child>
 
+              </object>
+            </child>
+
+            <child type="overlay">
+              <object class="GtkFrame" id="acedrg_running_frame">
+                <property name="halign">center</property>
+                <property name="valign">start</property>
+                <property name="visible">False</property>
+                <property name="margin-bottom">5</property>
+                <property name="margin-end">5</property>
+                <property name="margin-start">5</property>
+                <property name="margin-top">5</property>
+	        <child>
+		    <object class="GtkLabel">
+			   <property name="label">Acedrg is runninng...</property>
+			   <property name="margin-end">6</property>
+			   <property name="margin-start">6</property>
+		    </object>
+	       </child>
               </object>
             </child>
 

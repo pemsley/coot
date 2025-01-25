@@ -25,6 +25,7 @@ SUBDIRS = icons
 
 cootpixmapdir = $(pkgdatadir)/pixmaps
 cootsplashscreendir = $(pkgdatadir)/images
+cootpixmapdarkdir = $(pkgdatadir)/pixmaps/dark
 
 dist_cootsplashscreen_DATA = coot-1.png
 
@@ -81,10 +82,16 @@ koppi-green-tick-64.png rygle-red-cross-64.png forest51690-dwcheckno-incomplete-
   layla_3c.svg            layla_4c.svg           layla_5c.svg                    \
   layla_6arom.svg         layla_6c.svg           layla_7c.svg                    \
   layla_8c.svg            layla_charge_tool.svg  layla_delete_hydrogens_tool.svg \
-  layla_double_bond.svg   layla_format_tool.svg  layla_geometry_tool-dark.svg    \
+  layla_double_bond.svg   layla_format_tool.svg \
   layla_geometry_tool.svg layla_key.svg          layla_move_tool.svg             \
   layla_single_bond.svg   layla_triple_bond.svg
 
+dist_cootpixmapdark_DATA = dark/layla_3c.svg            dark/layla_4c.svg           dark/layla_5c.svg                    \
+  dark/layla_6arom.svg         dark/layla_6c.svg           dark/layla_7c.svg                    \
+  dark/layla_8c.svg            dark/layla_charge_tool.svg  dark/layla_delete_hydrogens_tool.svg \
+  dark/layla_double_bond.svg   dark/layla_format_tool.svg \
+  dark/layla_geometry_tool.svg dark/layla_key.svg          dark/layla_move_tool.svg             \
+  dark/layla_single_bond.svg   dark/layla_triple_bond.svg
 
 if CLIPPER_TOP8000
 dist_cootpixmap_DATA += \
