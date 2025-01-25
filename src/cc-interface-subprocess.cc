@@ -66,6 +66,8 @@ run_acedrg_link_generation(const std::string &acedrg_link_command) {
             // graphics_info_t::log.log(logging::WARNING, "failed to make link dictionary", file_name);
          }
          graphics_info_t::acedrg_link.first = false; // reset
+         GtkWidget *w = widget_from_builder("acedrg_running_frame");
+         if (w) gtk_widget_set_visible(w, FALSE);
          return (gboolean)false; // remove the timeout
       } else {
          return (gboolean)true; // keep the timeout
@@ -83,5 +85,7 @@ run_acedrg_link_generation(const std::string &acedrg_link_command) {
    thread.detach();
    GSourceFunc f = GSourceFunc(check_it);
    g_timeout_add(400, f, nullptr);
+   GtkWidget *w = widget_from_builder("acedrg_running_frame");
+   if (w) gtk_widget_set_visible(w, FALSE);
 
 }
