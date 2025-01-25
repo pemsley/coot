@@ -4010,3 +4010,100 @@ void smiles_to_simple_3d(const std::string &smiles) {
    PyObject *r2 = safe_python_command_with_return(sc);
 
 }
+
+#include "curl-utils.hh"
+#include "geometry/residue-and-atom-specs.hh"
+#include "utils/subprocess.hpp"
+
+/* ------------------------------------------------------------------------- */
+/*                      Acedrg for dictionary                                */
+/* ------------------------------------------------------------------------- */
+
+int get_pdbe_cif_for_comp_id(const std::string &comp_id) {
+   int status =-1;
+   xdg_t xdg;
+   std::filesystem::path user_data_dir = xdg.get_data_home();
+   std::filesystem::path cif_file_path = user_data_dir / std::string(comp_id + ".cif");
+   if (std::filesystem::exists(cif_file_path)) {
+      std::cout << "INFO:: found " << cif_file_path << std::endl;
+   } else {
+      std::string url = "https://www.ebi.ac.uk/pdbe/static/files/pdbechem_v2/" + comp_id + ".cif";
+      std::cout << "INFO:: downloading " << url << " "  << cif_file_path << std::endl;
+      status = coot_get_url(url, cif_file_path.string());
+   }
+   return status;
+}
+
+bool graphics_info_t::acedrg_running = false; // set the static on startup
+
+void run_acedrg_for_ccd_dict_async(const std::string &residue_name,
+                                    const std::string &cif_file_path) {
+
+   auto run_acedrg_func = [] (const std::string &residue_name,
+                              const std::string &cif_file_path) {
+      std::vector<std::string> cmd_list =
+      {"acedrg", "-r", residue_name, "--noGeoOpt", "--coords", "-c", cif_file_path};
+      try {
+         graphics_info_t::acedrg_running = true;
+         subprocess::OutBuffer obuf = subprocess::check_output(cmd_list);
+         graphics_info_t::acedrg_running = false;
+      }
+      catch (const subprocess::CalledProcessError &e) {
+         std::cout << "WARNING::" << e.what() << std::endl;
+         graphics_info_t::acedrg_running = false; // reset
+      }
+   };
+
+   auto check_it = +[] () {
+      std::cout << "check !!!!! " << graphics_info_t::acedrg_running << std::endl;
+
+      if (graphics_info_t::acedrg_running) {
+         return (gboolean)G_SOURCE_CONTINUE;
+      } else{
+         GtkWidget *w = widget_from_builder("acedrg_running_frame");
+         if (w)
+            gtk_widget_set_visible(w, FALSE);
+         // where is the Acedrg output?
+         std::string acedrg_output_file_name = "AcedrgOut.cif";
+         if (std::filesystem::exists(acedrg_output_file_name)) {
+            read_cif_dictionary(acedrg_output_file_name);
+         }
+         return (gboolean)G_SOURCE_REMOVE;
+      }
+   };
+
+   if (!graphics_info_t::acedrg_running) {
+      std::thread thread(run_acedrg_func, residue_name, cif_file_path);
+      thread.detach();
+      GSourceFunc f = GSourceFunc(check_it);
+      g_timeout_add(1000, f, nullptr);
+      GtkWidget *w = widget_from_builder("acedrg_running_frame");
+      if (w)
+         gtk_widget_set_visible(w, TRUE);
+      else
+         std::cout << "ERROR:: can't find acedrg_running_frame" << std::endl;
+   } else {
+      std::cout << "INFO:: acedrg is already running" << std::endl;
+   }
+
+}
+
+void make_acedrg_dictionary_via_CCD_dictionary(int imol, const coot::residue_spec_t &spec) {
+
+   if (is_valid_model_molecule(imol)) {
+      mmdb::Residue *residue_p = graphics_info_t::molecules[imol].get_residue(spec);
+      if (residue_p) {
+         std::string residue_name = residue_p->GetResName();
+         int status = get_pdbe_cif_for_comp_id(residue_name);
+         if (status == CURLE_OK) {
+            xdg_t xdg;
+            std::filesystem::path user_data_dir = xdg.get_data_home();
+            std::filesystem::path cif_file_path = user_data_dir / std::string(residue_name + ".cif");
+            run_acedrg_for_ccd_dict_async(residue_name, cif_file_path.string());
+         }
+      }
+   }
+
+}
+
+

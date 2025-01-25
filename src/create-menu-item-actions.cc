@@ -1371,6 +1371,20 @@ void acedrg_link_interface_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
 }
 
+void run_acedrg_via_CCD_dictionary_download_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                  G_GNUC_UNUSED GVariant *parameter,
+                                  G_GNUC_UNUSED gpointer user_data) {
+
+   std::cout << "get dict..." << std::endl;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      coot::residue_spec_t res_spec(pp.second.second);
+      make_acedrg_dictionary_via_CCD_dictionary(imol, res_spec);
+   }
+}
+
+
 void add_ccp4_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                             G_GNUC_UNUSED GVariant *parameter,
                             G_GNUC_UNUSED gpointer user_data) {
@@ -4592,6 +4606,7 @@ create_actions(GtkApplication *application) {
 
    // CCP4 menu
    add_action(     "acedrg_link_interface_action", acedrg_link_interface_action);
+   add_action(     "run_acedrg_via_CCD_dictionary_download_action", run_acedrg_via_CCD_dictionary_download_action);
 
    // Cryo-EM menu
    add_action("cryo_em_solidify_maps_action",                cryo_em_solidify_maps_action);

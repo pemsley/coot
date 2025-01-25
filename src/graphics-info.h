@@ -5432,6 +5432,7 @@ string   static std::string sessionid;
    static std::pair<bool, std::string> servalcat_refine; // output "pdb" file name
 
    static std::pair<bool, std::string> acedrg_link;
+   static bool acedrg_running; // not link acedrg - this is acedrg from CCD
 
    static bool curmudgeon_mode; // default false, particles and faces
    static bool use_sounds; // default true
