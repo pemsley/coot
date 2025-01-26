@@ -313,7 +313,7 @@ molecules_container_t::get_number_of_hydrogen_atoms(int imol) const {
 
 void
 molecules_container_t::set_draw_missing_residue_loops(bool state) {
-   std::cout << "****** in set_draw_missing_residue_loops() with state " << state << std::endl;
+   // std::cout << "****** in set_draw_missing_residue_loops() with state " << state << std::endl;
    draw_missing_residue_loops_flag = state;
 }
 
