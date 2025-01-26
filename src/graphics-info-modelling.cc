@@ -375,11 +375,14 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
 void
 graphics_info_t::info_dialog_missing_refinement_residues(const std::vector<std::string> &res_names) {
 
-   std::string problem_residues = "WARNING: Refinement setup failure.\nFailed to find restraints for:\n";
-
    std::set<std::string> res_set;
    for (unsigned int icheck_res=0; icheck_res<res_names.size(); icheck_res++)
       res_set.insert(res_names[icheck_res]);
+
+   std::string problem_residues = "WARNING: Refinement setup failure.\nFailed to find restraints for ";
+   problem_residues += "these ";
+   problem_residues += std::to_string(res_set.size());
+   problem_residues += " residue types:\n";
 
    std::set<std::string>::const_iterator it;
    unsigned int count = 0;
@@ -1470,6 +1473,7 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 					      mmdb::Manager *mol,
 					      bool use_map_flag) {
 
+
    auto tp_0 = std::chrono::high_resolution_clock::now();
 
    coot::refinement_results_t rr(0, GSL_CONTINUE, "");
@@ -1511,13 +1515,14 @@ graphics_info_t::generate_molecule_and_refine(int imol,
       // in create_mmdbmanager_from_res_vector() make sure that that contains the flanking atoms.
       // The create_mmdbmanager_from_res_vector() from this class is used, not coot::util
       //
-      // The flanking atoms are fixed the passed residues are not fixed.
+      // The flanking atoms are fixed, the passed residues are not fixed.
       // Keep a clear head.
 
       std::vector<std::string> residue_types = coot::util::residue_types_in_residue_vec(residues);
       // use try_dynamic_add()
       bool have_restraints = geom_p->have_restraints_dictionary_for_residue_types(residue_types, imol,
                                                                                   cif_dictionary_read_number);
+
       cif_dictionary_read_number += residue_types.size();
 
       if (have_restraints) {
@@ -1886,21 +1891,22 @@ graphics_info_t::draw_moving_atoms_restraints_graphics_object() {
 std::pair<int, std::vector<std::string> >
 graphics_info_t::check_dictionary_for_residue_restraints(int imol, mmdb::PResidue *SelResidues, int nSelResidues) {
 
-   int status;
+   // Are you sure you want this function?
+
    bool status_OK = 1; // pass, by default
    std::vector<std::string> res_name_vec;
 
    for (int ires=0; ires<nSelResidues; ires++) {
       std::string resn(SelResidues[ires]->GetResName());
       std::string resname = adjust_refinement_residue_name(resn);
-      status = geom_p->have_dictionary_for_residue_type(resname, imol, cif_dictionary_read_number);
+      bool status = geom_p->have_dictionary_for_residue_type(resname, imol, cif_dictionary_read_number);
       cif_dictionary_read_number++;
       if (! status) {
-	 status_OK = 0;
+	 status_OK = false;
 	 res_name_vec.push_back(resname);
       }
 
-      if (0)
+      if (false)
 	 std::cout << "DEBUG:: have_dictionary_for_residues() on residue "
 		   << ires << " of " << nSelResidues << ", "
 		   << resname << " returns "
@@ -1910,21 +1916,31 @@ graphics_info_t::check_dictionary_for_residue_restraints(int imol, mmdb::PResidu
    return std::pair<int, std::vector<std::string> > (status_OK, res_name_vec);
 }
 
+// Return 0 (first) if any of the residues don't have a dictionary
+// entry and a list of the residue type that don't have restraints.
+//
 std::pair<int, std::vector<std::string> >
 graphics_info_t::check_dictionary_for_residue_restraints(int imol, const std::vector<mmdb::Residue *> &residues) {
 
-   std::vector<std::string> res_name_vec;
-   std::pair<int, std::vector<std::string> > r(0, res_name_vec);
-   for (unsigned int i=0; i<residues.size(); i++) {
-      std::string resname = adjust_refinement_residue_name(residues[i]->GetResName());
-      int status = geom_p->have_dictionary_for_residue_type(resname, imol, cif_dictionary_read_number);
-      if (! status) {
-	 r.first = 0;
-	 r.second.push_back(resname);
+   int status = 1;
+   std::vector<std::string> missings;
+   std::vector<std::string> types;
+   for (unsigned int i=0; i<residues.size(); i++)
+      types.push_back(residues[i]->GetResName());
+
+   bool r_status = geom_p->have_restraints_dictionary_for_residue_types(types, imol, cif_dictionary_read_number++);
+   if (! r_status) {
+      // OK, compile a list of the missings
+      for (const auto &rn : types) {
+         std::vector<std::string> v = {rn};
+         bool status_inner = geom_p->have_restraints_dictionary_for_residue_types(v, imol, cif_dictionary_read_number++);
+         if (! status_inner) {
+            missings.push_back(rn);
+            status = 0;
+         }
       }
-      cif_dictionary_read_number++; // not sure why this is needed.
    }
-   return r;
+   return std::make_pair(status, missings);
 }
 
 
