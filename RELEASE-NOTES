@@ -103,7 +103,7 @@
   o FEATURE: generic_object_mesh_calculate_normals() function added to the API.
              This averages winding-based normals for shared vertices.
 
-  o CHANGE:  In "configure" relocatable bianries are no longer enabled by default.
+  o CHANGE:  In "configure" relocatable binaries are no longer enabled by default.
              Use --enable-relocatable-binaries to turn them on if needed.
 
   o CHANGE:  rework logic of the glyco chiral test for BETA1-6 and ALPHA1-6 links
