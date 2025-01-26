@@ -1327,6 +1327,20 @@ void
 make_a_difference_map_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                              G_GNUC_UNUSED GVariant *parameter,
                              G_GNUC_UNUSED gpointer user_data) {
+
+   GtkWidget *frame = widget_from_builder("make_difference_map_frame");
+   if (frame) {
+      gtk_widget_set_visible(frame, TRUE);
+      GtkWidget *map_combobox_1 = widget_from_builder("make_difference_map_map_1_comboboxtext");
+      GtkWidget *map_combobox_2 = widget_from_builder("make_difference_map_map_2_comboboxtext");
+      GCallback func = G_CALLBACK(nullptr); // we don't care until this dialog is read
+      int imol_map_active = -1;
+      auto map_list = get_map_molecule_vector();
+      if (! map_list.empty()) imol_map_active = map_list[0];
+      graphics_info_t g;
+      g.fill_combobox_with_molecule_options(map_combobox_1, func, imol_map_active, map_list);
+      g.fill_combobox_with_molecule_options(map_combobox_2, func, imol_map_active, map_list);
+   }
 }
 
 void

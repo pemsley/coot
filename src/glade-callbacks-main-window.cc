@@ -1526,3 +1526,37 @@ on_make_smooth_map_ok_button_clicked(G_GNUC_UNUSED GtkButton       *button,
    if (frame)
       gtk_widget_set_visible(frame, FALSE);
 }
+
+extern "C" G_MODULE_EXPORT
+void
+on_make_difference_map_cancel_button_clicked(G_GNUC_UNUSED GtkButton       *button,
+                                             G_GNUC_UNUSED gpointer         user_data) {
+
+   GtkWidget *frame = widget_from_builder("make_difference_map_frame");
+   if (frame)
+      gtk_widget_set_visible(frame, FALSE);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_make_difference_map_ok_button_clicked(G_GNUC_UNUSED GtkButton       *button,
+                                         G_GNUC_UNUSED gpointer         user_data) {
+
+
+   GtkWidget *map_combobox_1 = widget_from_builder("make_difference_map_map_1_comboboxtext");
+   GtkWidget *map_combobox_2 = widget_from_builder("make_difference_map_map_2_comboboxtext");
+   int imol_map_1 = my_combobox_get_imol(GTK_COMBO_BOX(map_combobox_1));
+   int imol_map_2 = my_combobox_get_imol(GTK_COMBO_BOX(map_combobox_2));
+   const char *t = gtk_editable_get_text(GTK_EDITABLE(widget_from_builder("make_difference_map_scale_entry")));
+   try{
+      float scale = coot::util::string_to_float(std::string(t));
+      difference_map(imol_map_1, imol_map_2, scale);
+   }
+   catch (const std::runtime_error &e) {
+      std::cout << "WARNING::" << e.what() << std::endl;
+   }
+
+   GtkWidget *frame = widget_from_builder("make_difference_map_frame");
+   if (frame)
+      gtk_widget_set_visible(frame, FALSE);
+}
