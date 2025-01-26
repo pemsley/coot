@@ -22,14 +22,19 @@
 
   o BUG-FIX: Contact dots for ligands now show ligand donor to water H-bonds
 
+  o BUG-FIX: One can no longer refine using a CCD dictionary [Lorenzo Masso]
+
+  o BUG-FIX: Use the correct shader for surfaces in "Plain" mode
+
   o CHANGE:  Remove/reduce framebuffer usage in --opengl-es mode
 
   o CHANGE:  Module menus depthonized
 
   o CHANGE:  Overlay added for Cryo-EM "Flip Hand" tool
- 
+
 
 -----
+
   Release 1.1.11
 
   o FEATURE: One can now dynamically edit SMILES in layla
@@ -223,7 +228,7 @@
 ----
 
   Release 1.1
-  
+
 18 months after the release of Coot 1 it's time for Coot 1.1
 
 Coot 1.1 is a major change beyond Coot 1. It has required a lot of
@@ -394,7 +399,7 @@ Future:
  o BUG-FIX: Check/Delete waters no longer considers hydrogen atoms in close-contact analysis
 
  o BUG-FIX: Replace Residue works for residues in the B chain [Paul Bond]
- 
+
 ----
 
   Release 0.9.8.9
