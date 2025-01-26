@@ -1259,7 +1259,7 @@ coot::protein_geometry::have_dictionary_for_residue_types(const std::vector<std:
       int ifound = have_dictionary_for_residue_type(residue_types[i], imol_enc, read_number);
       if (ifound == 0) {
 	 have_all = 0;
-      } 
+      }
       read_number++;
    }
    return have_all;
@@ -1273,6 +1273,7 @@ coot::protein_geometry::have_restraints_dictionary_for_residue_types(const std::
 
    bool have_all = true;
    for (unsigned int i=0; i<residue_types.size(); i++) {
+      if (! have_all) continue;
       const std::string &rt = residue_types[i];
       int idx = get_monomer_restraints_index(rt, imol_enc, false);
       if (idx != -1) {
@@ -1280,6 +1281,16 @@ coot::protein_geometry::have_restraints_dictionary_for_residue_types(const std::
          if (restraints.bond_restraint.empty()) {
             have_all = false;
             break;
+         } else {
+            for (auto it=restraints.bond_restraint.begin(); it!=restraints.bond_restraint.end(); ++it) {
+               try {
+                  // this will throw an exception if there are no bond *restraints*
+                  float v = it->value_dist();
+               }
+               catch (const std::runtime_error &e) {
+                  have_all = false;
+               }
+            }
          }
       } else {
          have_all = false;
