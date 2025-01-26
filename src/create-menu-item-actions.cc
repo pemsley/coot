@@ -1203,6 +1203,18 @@ use_clustalw_for_alignment_then_mutate_action(G_GNUC_UNUSED GSimpleAction *simpl
 
 }
 
+std::vector<int>
+get_map_molecule_vector() {
+
+   graphics_info_t g;
+   std::vector<int> vec;
+   int n_mol = g.n_molecules();
+   for (int i=0; i<n_mol; i++)
+      if (g.is_valid_map_molecule(i))
+         vec.push_back(i);
+   return vec;
+}
+
 
 void
 mask_map_by_atom_selection_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -1259,8 +1271,32 @@ copy_map_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                 G_GNUC_UNUSED gpointer user_data) {
 
    // not modern but works
-   std::string cmd = "import coot; import coot_gui; coot_gui.map_molecule_chooser_gui(\"Molecule to Copy...\", lambda imol: coot.copy_molecule(imol))";
-   safe_python_command(cmd);
+   // std::string cmd = "import coot; import coot_gui; coot_gui.map_molecule_chooser_gui(\"Molecule to Copy...\", lambda imol: coot.copy_molecule(imol))";
+   // safe_python_command(cmd);
+
+   auto get_map_molecule_vector = [] () {
+                                 graphics_info_t g;
+                                 std::vector<int> vec;
+                                 int n_mol = g.n_molecules();
+                                 for (int i=0; i<n_mol; i++)
+                                    if (g.is_valid_map_molecule(i))
+                                       vec.push_back(i);
+                                 return vec;
+                              };
+
+
+   GtkWidget *frame = widget_from_builder("copy_map_frame");
+   if (frame)
+      gtk_widget_set_visible(frame, TRUE);
+   graphics_info_t g;
+   GtkWidget *map_combobox = widget_from_builder("copy_map_comboboxtext");
+   GCallback func = G_CALLBACK(nullptr); // we don't care until this dialog is read
+
+   int imol_map_active = -1;
+   auto   map_list = get_map_molecule_vector();
+   if (!   map_list.empty()) imol_map_active =   map_list[0];
+   g.fill_combobox_with_molecule_options(  map_combobox, func, imol_map_active,   map_list);
+
 
 }
 
@@ -1269,20 +1305,22 @@ make_a_smoother_copy_of_a_map_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                      G_GNUC_UNUSED GVariant *parameter,
                                      G_GNUC_UNUSED gpointer user_data) {
 
-   safe_python_command("import coot_gui");
-   std::string sc = "coot_gui.map_molecule_chooser_gui(\"Map Molecule to Smoothenize...\", lambda imol: coot.smooth_map(imol, 1.25))";
-   safe_python_command(sc);
+   // safe_python_command("import coot_gui");
+   // std::string sc = "coot_gui.map_molecule_chooser_gui(\"Map Molecule to Smoothenize...\", lambda imol: coot.smooth_map(imol, 1.25))";
+   // safe_python_command(sc);
 
-}
-
-void
-make_a_very_smooth_copy_of_a_map_action(G_GNUC_UNUSED GSimpleAction *simple_action,
-                                        G_GNUC_UNUSED GVariant *parameter,
-                                        G_GNUC_UNUSED gpointer user_data) {
-
-   safe_python_command("import coot_gui");
-   std::string sc = "coot_gui.map_molecule_chooser_gui(\"Map Molecule to Smoothenize...\", lambda imol: coot.smooth_map(imol, 2.0))";
-   safe_python_command(sc);
+   GtkWidget *frame = widget_from_builder("make_smooth_map_frame");
+   if (frame)
+      gtk_widget_set_visible(frame, TRUE);
+   graphics_info_t g;
+   GtkWidget *map_combobox = widget_from_builder("make_smooth_map_comboboxtext");
+   GCallback func = G_CALLBACK(nullptr); // we don't care until this dialog is read
+   int imol_map_active = -1;
+   auto map_list = get_map_molecule_vector();
+   if (! map_list.empty()) imol_map_active = map_list[0];
+   g.fill_combobox_with_molecule_options(map_combobox, func, imol_map_active,   map_list);
+   GtkWidget *factor_combobox = widget_from_builder("make_smooth_map_factor_comboboxtext");
+   gtk_combo_box_set_active(GTK_COMBO_BOX(factor_combobox), 0);
 }
 
 void
@@ -4417,7 +4455,6 @@ create_actions(GtkApplication *application) {
    add_action(      "mask_map_by_atom_selection_action",       mask_map_by_atom_selection_action);
    add_action(   "make_a_smoother_copy_of_a_map_action",    make_a_smoother_copy_of_a_map_action);
    add_action(  "transform_map_by_lsq_model_fit_action",   transform_map_by_lsq_model_fit_action);
-   add_action("make_a_very_smooth_copy_of_a_map_action", make_a_very_smooth_copy_of_a_map_action);
 
    // Calculate -> Modules
 

@@ -1075,7 +1075,7 @@ on_acedrg_link_ok_button_clicked(GtkButton       *button,
       run_acedrg_link_generation(ss);
    };
 
-   // Here's an exmple:
+   // Here's an example:
    //
    // LINK: RES-NAME-1 LYS ATOM-NAME-1 NZ RES-NAME-2 PLP ATOM-NAME-2 C4A BOND-TYPE DOUBLE DELETE ATOM O 1 DELETE ATOM O4A 2 CHANGE BOND C OXT double 1 CHANGE BOND C4 C4A triple 2
 
@@ -1469,4 +1469,60 @@ on_ccp4i2_save_button_clicked(G_GNUC_UNUSED GtkButton       *button,
       std::filesystem::path fn = save_dir / s;
       g.molecules[imol].save_coordinates(fn);
    }
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_copy_map_cancel_button_clicked(G_GNUC_UNUSED GtkButton       *button,
+                                  G_GNUC_UNUSED gpointer         user_data) {
+
+   GtkWidget *frame = widget_from_builder("copy_map_frame");
+   if (frame)
+      gtk_widget_set_visible(frame, FALSE);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_copy_map_ok_button_clicked(G_GNUC_UNUSED GtkButton       *button,
+                              G_GNUC_UNUSED gpointer         user_data) {
+
+   GtkWidget *frame = widget_from_builder("copy_map_frame");
+   GtkWidget *map_chooser_combobox = widget_from_builder("copy_map_comboboxtext");
+   int imol_map = my_combobox_get_imol(GTK_COMBO_BOX(map_chooser_combobox));
+   copy_molecule(imol_map);
+   if (frame)
+      gtk_widget_set_visible(frame, FALSE);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_make_smooth_map_cancel_button_clicked(G_GNUC_UNUSED GtkButton       *button,
+                                         G_GNUC_UNUSED gpointer         user_data) {
+
+   GtkWidget *frame = widget_from_builder("make_smooth_map_frame");
+   if (frame)
+      gtk_widget_set_visible(frame, FALSE);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_make_smooth_map_ok_button_clicked(G_GNUC_UNUSED GtkButton       *button,
+                                         G_GNUC_UNUSED gpointer         user_data) {
+
+   GtkWidget *combobox_map    = widget_from_builder("make_smooth_map_comboboxtext");
+   GtkWidget *combobox_factor = widget_from_builder("make_smooth_map_factor_comboboxtext");
+   int imol_map = my_combobox_get_imol(GTK_COMBO_BOX(combobox_map));
+   const char *t = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(combobox_factor));
+
+   try {
+      float factor = coot::util::string_to_float(std::string(t));
+      smooth_map(imol_map, factor);
+   }
+   catch (const std::runtime_error &e) {
+      std::cout << "WARNING::" << e.what() << std::endl;
+   }
+
+   GtkWidget *frame = widget_from_builder("make_smooth_map_frame");
+   if (frame)
+      gtk_widget_set_visible(frame, FALSE);
 }

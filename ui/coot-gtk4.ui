@@ -297,10 +297,6 @@
               <attribute name="action">app.make_a_smoother_copy_of_a_map_action</attribute>
             </item>
             <item>
-              <attribute name="action">app.make_a_very_smooth_copy_of_a_map_action</attribute>
-              <attribute name="label">Make a Very Smooth Copy</attribute>
-            </item>
-            <item>
               <attribute name="label">Make a Difference Map...</attribute>
               <attribute name="action">app.make_a_difference_map_action</attribute>
             </item>
@@ -7072,16 +7068,168 @@ Do you want to continue?
                 <property name="margin-end">5</property>
                 <property name="margin-start">5</property>
                 <property name="margin-top">5</property>
-	        <child>
-		    <object class="GtkLabel">
-			   <property name="label">Acedrg is runninng...</property>
-			   <property name="margin-end">6</property>
-			   <property name="margin-start">6</property>
-		    </object>
-	       </child>
+                  <child>
+                    <object class="GtkLabel">
+                           <property name="label">Acedrg is running...</property>
+                           <property name="margin-end">6</property>
+                           <property name="margin-start">6</property>
+                    </object>
+               </child>
               </object>
             </child>
 
+            <child type="overlay">
+              <object class="GtkFrame" id="subtask_running_frame">
+                <property name="halign">center</property>
+                <property name="valign">start</property>
+                <property name="visible">False</property>
+                <property name="margin-bottom">5</property>
+                <property name="margin-end">5</property>
+                <property name="margin-start">5</property>
+                <property name="margin-top">5</property>
+                  <child>
+                    <object class="GtkLabel">
+                           <property name="label">Subtask is running...</property>
+                           <property name="margin-end">6</property>
+                           <property name="margin-start">6</property>
+                    </object>
+               </child>
+              </object>
+            </child>
+
+            <child type="overlay">
+              <object class="GtkFrame" id="copy_map_frame">
+                <property name="halign">center</property>
+                <property name="valign">start</property>
+                <property name="visible">False</property>
+                <property name="margin-bottom">5</property>
+                <property name="margin-end">5</property>
+                <property name="margin-start">5</property>
+                <property name="margin-top">5</property>
+
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                    <property name="spacing">5</property>
+                    <child>
+                      <object class="GtkLabel">
+                           <property name="label">Copy Map:</property>
+                           <property name="margin-end">5</property>
+                           <property name="margin-start">5</property>
+                      </object>
+                    </child>
+                    <child>
+                       <object class="GtkComboBoxText" id="copy_map_comboboxtext">
+                            <property name="margin-bottom">5</property>
+                            <property name="margin-end">6</property>
+                            <property name="margin-start">6</property>
+                            <property name="margin-top">5</property>
+                       </object>
+                    </child>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="orientation">horizontal</property>
+                        <property name="spacing">5</property>
+                        <property name="halign">end</property>
+                        <property name="margin-end">5</property>
+                        <property name="margin-start">4</property>
+                        <child>
+                          <object class="GtkButton" id="copy_map_cancel_button">
+                            <property name="label" translatable="yes">Cancel</property>
+                            <signal name="clicked" handler="on_copy_map_cancel_button_clicked" />
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkButton" id="copy_map_ok_button">
+                            <property name="label" translatable="yes">OK</property>
+                            <signal name="clicked" handler="on_copy_map_ok_button_clicked" />
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+
+                  </object>
+                </child>
+              </object>
+            </child>
+
+            <child type="overlay">
+              <object class="GtkFrame" id="make_smooth_map_frame">
+                <property name="halign">center</property>
+                <property name="valign">start</property>
+                <property name="visible">False</property>
+                <property name="margin-bottom">5</property>
+                <property name="margin-end">5</property>
+                <property name="margin-start">5</property>
+                <property name="margin-top">5</property>
+
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                    <property name="spacing">5</property>
+                    <child>
+                      <object class="GtkLabel">
+                           <property name="label">Smooth Factor:</property>
+                           <property name="margin-end">5</property>
+                           <property name="margin-start">5</property>
+                      </object>
+                    </child>
+                    <child>
+                       <object class="GtkComboBoxText" id="make_smooth_map_factor_comboboxtext">
+                            <property name="margin-bottom">5</property>
+                            <property name="margin-end">6</property>
+                            <property name="margin-start">6</property>
+                            <property name="margin-top">5</property>
+                            <property name="active">0</property>
+                            <items>
+                              <item translatable="yes">1.25</item>
+                              <item translatable="yes">1.5</item>
+                              <item translatable="yes">2.0</item>
+                              <item translatable="yes">3.0</item>
+                            </items>
+                       </object>
+                    </child>
+                    <child>
+                      <object class="GtkLabel">
+                           <property name="label">Reference Map:</property>
+                           <property name="margin-end">5</property>
+                           <property name="margin-start">5</property>
+                      </object>
+                    </child>
+                    <child>
+                       <object class="GtkComboBoxText" id="make_smooth_map_comboboxtext">
+                            <property name="margin-bottom">5</property>
+                            <property name="margin-end">6</property>
+                            <property name="margin-start">6</property>
+                            <property name="margin-top">5</property>
+                       </object>
+                    </child>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="orientation">horizontal</property>
+                        <property name="spacing">5</property>
+                        <property name="halign">end</property>
+                        <property name="margin-end">5</property>
+                        <property name="margin-start">4</property>
+                        <child>
+                          <object class="GtkButton" id="make_smooth_map_cancel_button">
+                            <property name="label" translatable="yes">Cancel</property>
+                            <signal name="clicked" handler="on_make_smooth_map_cancel_button_clicked" />
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkButton" id="make_smooth_map_ok_button">
+                            <property name="label" translatable="yes">OK</property>
+                            <signal name="clicked" handler="on_make_smooth_map_ok_button_clicked" />
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+
+                  </object>
+                </child>
+              </object>
+            </child>
             <child type="overlay">
               <object class="GtkFrame" id="acedrg_link_interface_frame">
                 <property name="halign">center</property>
