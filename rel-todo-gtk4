@@ -1,11 +1,20 @@
 ----
 
-1.1.12 Import the CCD for A1AWR and try to regularize the ligand.
-It should give an error message, not proceed with the refinement!
+HOLE is missing
 
-Review the github pull requests
+make_a_difference_map_action
+transform_map_by_lsq_model_fit_action
+average_maps_action
+brighten_maps_action
+set_map_is_difference_map_action
+another_contour_level_action
+multichicken_action
+copy_ncs_residue_range_action
+copy_ncs_chain_action
+ncs_jumping_action
+ncs_ligands_action
 
-Surface display is missing a shader? (Not on mac)
+Make a very smooth copy: Depythonize.
 
 Send Charles info about Coot tests.
 
@@ -22,7 +31,24 @@ with 258 N1? Ah! They are both acceptors! Interesting. What to do about it?
 Make a blog post: Coot and the XDG Base Directory Protocol
 Where do files from Acedrg go? Or downloaded/fetched? Or servalcat?
 
+1.1.12 Import the CCD for A1AWR and try to regularize the ligand.
+It should give an error message, not proceed with the refinement!
+* Done. Nice.
+
+Ligand -> Overlay gui: Get CCD for type:
+No, it's a Fetch. And it's already there.
+It would be nice to have an intermediate overlay
+with the comp_id of the current residue filled.
+Another time.
+* Done - for now.
+
+Surface display is missing a shader? (Not on mac)
+* Done. Idiot edit a6065f50399fabb2a4e767ec27973dfa9da874e3 Dec 2022.
+
 get pull request (?) for column labels from Clemens.
+* Done.
+
+Review the github pull requests
 * Done.
 
 Ligand+CA doesn't have thin bond to hydrogen atoms
