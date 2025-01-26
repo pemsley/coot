@@ -1560,3 +1560,30 @@ on_make_difference_map_ok_button_clicked(G_GNUC_UNUSED GtkButton       *button,
    if (frame)
       gtk_widget_set_visible(frame, FALSE);
 }
+
+extern "C" G_MODULE_EXPORT
+void
+on_set_map_is_difference_map_cancel_button_clicked(G_GNUC_UNUSED GtkButton       *button,
+                                                   G_GNUC_UNUSED gpointer         user_data) {
+
+   GtkWidget *frame = widget_from_builder("set_map_is_difference_map_frame");
+   if (frame)
+      gtk_widget_set_visible(frame, FALSE);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_set_map_is_difference_map_ok_button_clicked(G_GNUC_UNUSED GtkButton       *button,
+                                               G_GNUC_UNUSED gpointer         user_data) {
+
+
+   GtkWidget *map_combobox = widget_from_builder("set_map_is_difference_map_map_comboboxtext");
+   int imol_map = my_combobox_get_imol(GTK_COMBO_BOX(map_combobox));
+   // I could have another widget here - a switch to turn to back to not a difference map
+   // in the future.
+   set_map_is_difference_map(imol_map, TRUE);
+
+   GtkWidget *frame = widget_from_builder("set_map_is_difference_map_frame");
+   if (frame)
+      gtk_widget_set_visible(frame, FALSE);
+}

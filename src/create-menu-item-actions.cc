@@ -1359,12 +1359,34 @@ void
 brighten_maps_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                      G_GNUC_UNUSED GVariant *parameter,
                      G_GNUC_UNUSED gpointer user_data) {
+
+   auto map_list = get_map_molecule_vector();
+   for (unsigned int i=0; i<map_list.size(); i++) {
+      const auto &imol = map_list[i];
+      float rc = graphics_info_t::molecules[imol].map_colour.red;
+      float gc = graphics_info_t::molecules[imol].map_colour.green;
+      float bc = graphics_info_t::molecules[imol].map_colour.blue;
+      float fac = 1.25;
+      set_map_colour(imol, rc * fac, gc * fac, bc * fac);
+   }
 }
 
 void
 set_map_is_difference_map_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                  G_GNUC_UNUSED GVariant *parameter,
                                  G_GNUC_UNUSED gpointer user_data) {
+
+   GtkWidget *frame = widget_from_builder("set_map_is_difference_map_frame");
+   if (frame) {
+      gtk_widget_set_visible(frame, TRUE);
+      GtkWidget *map_combobox = widget_from_builder("set_map_is_difference_map_map_comboboxtext");
+      GCallback func = G_CALLBACK(nullptr); // we don't care until this dialog is read
+      int imol_map_active = -1;
+      auto map_list = get_map_molecule_vector();
+      if (! map_list.empty()) imol_map_active = map_list[0];
+      graphics_info_t g;
+      g.fill_combobox_with_molecule_options(map_combobox, func, imol_map_active, map_list);
+   }
 }
 
 void

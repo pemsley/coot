@@ -312,7 +312,7 @@
               <attribute name="label">Map Density Histogram [Placeholder]</attribute>
             </item>
             <item>
-              <attribute name="label">Brighten Maps...</attribute>
+              <attribute name="label">Brighten Maps</attribute>
               <attribute name="action">app.brighten_maps_action</attribute>
             </item>
             <item>
@@ -7221,6 +7221,62 @@ Do you want to continue?
                           <object class="GtkButton" id="make_smooth_map_ok_button">
                             <property name="label" translatable="yes">OK</property>
                             <signal name="clicked" handler="on_make_smooth_map_ok_button_clicked" />
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+
+                  </object>
+                </child>
+              </object>
+            </child>
+
+            <child type="overlay">
+              <object class="GtkFrame" id="set_map_is_difference_map_frame">
+                <property name="halign">center</property>
+                <property name="valign">start</property>
+                <property name="visible">False</property>
+                <property name="margin-bottom">5</property>
+                <property name="margin-end">5</property>
+                <property name="margin-start">5</property>
+                <property name="margin-top">5</property>
+
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                    <property name="spacing">5</property>
+                    <child>
+                      <object class="GtkLabel">
+                           <property name="label">Make this a Difference Map:</property>
+                           <property name="margin-end">5</property>
+                           <property name="margin-start">5</property>
+                      </object>
+                    </child>
+                    <child>
+                       <object class="GtkComboBoxText" id="set_map_is_difference_map_map_comboboxtext">
+                            <property name="margin-bottom">5</property>
+                            <property name="margin-end">6</property>
+                            <property name="margin-start">6</property>
+                            <property name="margin-top">5</property>
+                       </object>
+                    </child>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="orientation">horizontal</property>
+                        <property name="spacing">5</property>
+                        <property name="halign">end</property>
+                        <property name="margin-end">5</property>
+                        <property name="margin-start">4</property>
+                        <child>
+                          <object class="GtkButton" id="set_map_is_difference_map_cancel_button">
+                            <property name="label" translatable="yes">Cancel</property>
+                            <signal name="clicked" handler="on_set_map_is_difference_map_cancel_button_clicked" />
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkButton" id="set_map_is_difference_map_ok_button">
+                            <property name="label" translatable="yes">OK</property>
+                            <signal name="clicked" handler="on_set_map_is_difference_map_ok_button_clicked" />
                           </object>
                         </child>
                       </object>
