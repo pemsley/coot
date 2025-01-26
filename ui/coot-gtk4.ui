@@ -1257,10 +1257,6 @@
   <menu id="ligand-menu">
     <section>
       <item>
-        <attribute name="label" translatable="no">Jiggle Fit Residue</attribute>
-        <attribute name="action">app.jiggle_fit_active_residue_action</attribute>
-      </item>
-      <item>
         <attribute name="label" translatable="no">Contact Dots for Ligand</attribute>
         <attribute name="action">app.coot_contact_dots_for_ligand_action</attribute>
       </item>
@@ -1269,16 +1265,20 @@
         <attribute name="action">app.geometric_distortions_for_ligand_action</attribute>
       </item>
       <item>
+        <attribute name="label" translatable="no">Jiggle Fit Residue</attribute>
+        <attribute name="action">app.jiggle_fit_active_residue_action</attribute>
+      </item>
+      <item>
         <attribute name="label" translatable="no">Make LINK...</attribute>
         <attribute name="action">app.make_link_action</attribute>
       </item>
       <item>
-        <attribute name="label" translatable="no">SMILES to 3D</attribute>
-        <attribute name="action">app.SMILES_to_3D_action</attribute>
-      </item>
-      <item>
         <attribute name="label" translatable="no">Show Chemical Features</attribute>
         <attribute name="action">app.show_chemical_features_action</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="no">SMILES to 3D</attribute>
+        <attribute name="action">app.SMILES_to_3D_action</attribute>
       </item>
       <!-- 20250115-PE this needs coot_ligand_check.py converted to C++ - big job. Another time -->
       <!-- <item> -->
@@ -6772,7 +6772,7 @@ Do you want to continue?
                   <property name="can-focus">0</property>
                   <signal name="clicked" handler="on_python_scripting_button" swapped="no"/>
                   <property name="margin-start">2</property>
-                  <property name="halign">end</property> 
+                  <property name="halign">end</property>
                   <child>
                     <object class="GtkBox">
                       <property name="orientation">vertical</property>
