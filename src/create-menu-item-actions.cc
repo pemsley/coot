@@ -365,15 +365,12 @@ void on_cif_dictionary_filechooser_dialog_response_gtk4(GtkDialog *dialog,
       bool create_ligand = false;
       const char *r = gtk_file_chooser_get_choice(GTK_FILE_CHOOSER(dialog), "create-molecule");
       if (r) {
-         std::cout << "we got r " << r << std::endl;
          std::string sr(r);
          if (sr == "create-new-instance")
             create_ligand = true;
       } else {
          std::cout << "ERROR:: r was null" << std::endl;
       }
-
-      std::cout << "here with create_ligand " << create_ligand << std::endl;
 
       if (create_ligand) {
          std::cout << "create ligand! " << std::endl;
@@ -511,7 +508,7 @@ fetch_map_from_emdb_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
    GtkWidget *frame = widget_from_builder("emdb_map_code_frame");
    gtk_widget_set_visible(frame, TRUE);
-   
+
 }
 
 
@@ -538,10 +535,11 @@ fetch_pdbe_ligand_description_action(G_GNUC_UNUSED GSimpleAction *simple_action,
       // maybe check that the file exists first?
       std::string url = std::string("https://www.ebi.ac.uk/pdbe/static/files/pdbechem_v2/") + file_name;
       int status = coot_get_url(url, file_path.string());
-      if (status == 0) {
-         read_cif_dictionary(file_name.c_str());  // remove above include and put this function into cc-interface.hh
+      if (status == CURLE_OK) { // 0
+         read_cif_dictionary(file_path.string().c_str());  // remove above include and put this function into cc-interface.hh
       }
    }
+   g.graphics_grab_focus();
 }
 
 void
