@@ -6109,10 +6109,7 @@ molecules_container_t::set_occupancy(int imol, const std::string &cid, float occ
 
 }
 
-#include <format>
 #include "utils/subprocess.hpp"
-using namespace std::chrono_literals;
-
 
 
 //! External refinement using servalcat
