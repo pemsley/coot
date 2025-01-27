@@ -1587,3 +1587,48 @@ on_set_map_is_difference_map_ok_button_clicked(G_GNUC_UNUSED GtkButton       *bu
    if (frame)
       gtk_widget_set_visible(frame, FALSE);
 }
+
+extern "C" G_MODULE_EXPORT
+void
+on_make_an_average_map_cancel_button_clicked(G_GNUC_UNUSED GtkButton       *button,
+                                             G_GNUC_UNUSED gpointer         user_data) {
+
+   GtkWidget *frame = widget_from_builder("make_an_average_map_frame");
+   if (frame)
+      gtk_widget_set_visible(frame, FALSE);
+}
+
+
+extern "C" G_MODULE_EXPORT
+void
+on_make_an_average_map_ok_button_clicked(G_GNUC_UNUSED GtkButton       *button,
+                                         G_GNUC_UNUSED gpointer         user_data) {
+
+   GtkWidget *box = widget_from_builder("make_an_average_map_box");
+   GtkWidget *item_widget = gtk_widget_get_first_child(box);
+   std::vector<std::pair<int, float> > imol_map_and_scale_vec;
+   while (item_widget) {
+      GtkWidget *map_combobox = gtk_widget_get_first_child(item_widget);
+      GtkWidget *label = gtk_widget_get_next_sibling(map_combobox);
+      GtkWidget *entry =gtk_widget_get_next_sibling(label);
+      int imol_map = my_combobox_get_imol(GTK_COMBO_BOX(map_combobox));
+      const char *t = gtk_editable_get_text(GTK_EDITABLE(entry));
+      if (t) {
+         try {
+            float scale = coot::util::string_to_float(std::string(t));
+            imol_map_and_scale_vec.push_back(std::make_pair(imol_map, scale));
+         }
+         catch (const std::runtime_error &e) {
+            std::cout << "WARNING::" << e.what() << std::endl;
+         }
+      } else {
+         std::cout << "null t in on_make_an_average_map_ik_button_clicked()" << std::endl;
+      }
+      item_widget = gtk_widget_get_next_sibling(item_widget);
+   };
+
+
+   GtkWidget *frame = widget_from_builder("make_an_average_map_frame");
+   if (frame)
+      gtk_widget_set_visible(frame, FALSE);
+}

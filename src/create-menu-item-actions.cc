@@ -1349,10 +1349,106 @@ transform_map_by_lsq_model_fit_action(G_GNUC_UNUSED GSimpleAction *simple_action
                                       G_GNUC_UNUSED gpointer user_data) {
 }
 
+class average_map_box_widgets_container_t {
+   public:
+      GtkWidget *box;
+      GtkWidget *map_combobox;
+      GtkWidget *label;
+      GtkWidget *entry;
+      GtkWidget *plus_button;
+      GtkWidget *minus_button;
+};
+
+average_map_box_widgets_container_t
+make_an_average_map_widget_box(GtkWidget *frame_box) {
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+
+   auto plus_button_clicked = +[] (GtkButton *button, gpointer user_data) {
+      GtkWidget *frame_box = GTK_WIDGET(user_data);
+      average_map_box_widgets_container_t ambw = make_an_average_map_widget_box(frame_box);
+      gtk_box_append(GTK_BOX(frame_box), ambw.box);
+   };
+
+   auto minus_button_clicked = +[] (GtkButton *button, gpointer user_data) {
+      GtkWidget *box = GTK_WIDGET(user_data);
+      GtkWidget *first_child = gtk_widget_get_first_child(GTK_WIDGET(box));
+      bool safe_to_remove = false;
+      if (first_child) {
+         GtkWidget *next_child = gtk_widget_get_next_sibling(first_child);
+         if (next_child)
+             safe_to_remove = true;
+      }
+      if (safe_to_remove) {
+         GtkWidget *last_child = gtk_widget_get_last_child(GTK_WIDGET(box));
+         gtk_box_remove(GTK_BOX(box), last_child);
+      }
+   };
+
+   GtkWidget *box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
+   GtkWidget *map_combobox = gtk_combo_box_text_new();
+   GtkWidget *label = gtk_label_new("Weight");
+   GtkWidget *entry = gtk_entry_new();
+   GtkWidget *plus_button  = gtk_button_new_with_label("+");
+   GtkWidget *minus_button = gtk_button_new_with_label("-");
+
+   gtk_editable_set_text(GTK_EDITABLE(entry), "1.0");
+
+   gtk_widget_set_margin_start(map_combobox, 4);
+   gtk_widget_set_margin_start(label, 4);
+   gtk_widget_set_margin_start(entry, 4);
+   gtk_widget_set_margin_start(plus_button, 4);
+   gtk_widget_set_margin_start(minus_button, 4);
+
+   gtk_widget_set_margin_end(map_combobox, 4);
+   gtk_widget_set_margin_end(label, 4);
+   gtk_widget_set_margin_end(entry, 4);
+   gtk_widget_set_margin_end(plus_button, 4);
+   gtk_widget_set_margin_end(minus_button, 4);
+
+   gtk_box_append(GTK_BOX(box), map_combobox);
+   gtk_box_append(GTK_BOX(box), label);
+   gtk_box_append(GTK_BOX(box), entry);
+   gtk_box_append(GTK_BOX(box), plus_button);
+   gtk_box_append(GTK_BOX(box), minus_button);
+
+   average_map_box_widgets_container_t ambw;
+   ambw.box = box;
+   ambw.map_combobox = map_combobox;
+   ambw.label = label;
+   ambw.entry = entry;
+   ambw.plus_button = plus_button;
+   ambw.minus_button = minus_button;
+
+   auto map_list = get_map_molecule_vector();
+   int imol_map_active = map_list[0];
+   graphics_info_t g;
+   GCallback func = G_CALLBACK(nullptr); // we don't care until this dialog is read
+   g.fill_combobox_with_molecule_options(ambw.map_combobox, func, imol_map_active, map_list);
+
+   g_signal_connect(plus_button,  "clicked", G_CALLBACK(plus_button_clicked),  frame_box);
+   g_signal_connect(minus_button, "clicked", G_CALLBACK(minus_button_clicked), frame_box);
+
+   return ambw;
+
+#pragma GCC diagnostic pop
+}
+
 void
 average_maps_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                     G_GNUC_UNUSED GVariant *parameter,
                     G_GNUC_UNUSED gpointer user_data) {
+
+   auto map_list = get_map_molecule_vector();
+   if (! map_list.empty()) {
+      GtkWidget *frame = widget_from_builder("make_an_average_map_frame");
+      std::cout << "in average_maps_action(): got frame: " << frame << std::endl;
+      gtk_widget_set_visible(frame, TRUE);
+      GtkWidget *box = widget_from_builder("make_an_average_map_box");
+      average_map_box_widgets_container_t ambw = make_an_average_map_widget_box(box);
+      gtk_box_append(GTK_BOX(box), ambw.box);
+   }
 }
 
 void
@@ -1393,12 +1489,39 @@ void
 another_contour_level_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                              G_GNUC_UNUSED GVariant *parameter,
                              G_GNUC_UNUSED gpointer user_data) {
+
+   another_level();
+   graphics_info_t::graphics_grab_focus();
 }
 
 void
 multichicken_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                     G_GNUC_UNUSED GVariant *parameter,
                     G_GNUC_UNUSED gpointer user_data) {
+
+   auto rotate_colour_map = [] (const coot::colour_t &col, float degrees) {
+      coot::colour_t colo(degrees/360.0f, col[1], col[2] - degrees/360.0f);
+      return colo;
+   };
+
+   int imol_map = imol_refinement_map();
+   if (is_valid_map_molecule(imol_map)) {
+      unsigned int n_colours =  10;
+      float start = 1.0;
+      float stop = 6.0;
+      float colour_range = 360.0;
+      graphics_info_t g;
+      float sigma = g.molecules[imol_map].map_sigma();
+      coot::colour_t initial_colour(0.2, 0.2, 0.8);
+      for (unsigned int icol=0; icol<n_colours; icol++) {
+         int new_map = copy_molecule(imol_map);
+         float frac = static_cast<float>(icol) / static_cast<float>(n_colours);
+         float contour_level_sigma = start + (stop - start) * frac;
+         set_last_map_contour_level(sigma * contour_level_sigma);
+         auto rot_col = rotate_colour_map(initial_colour, colour_range * frac);
+         set_last_map_colour(rot_col[0], rot_col[1], rot_col[2]);
+      }
+   }
 }
 
 void

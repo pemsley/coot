@@ -301,7 +301,7 @@
               <attribute name="action">app.make_a_difference_map_action</attribute>
             </item>
             <item>
-              <attribute name="label">Transform Map by LSQ Model Fit...</attribute>
+              <attribute name="label">Transform Map by LSQ Model Fit...[Placeholder]</attribute>
               <attribute name="action">app.transform_map_by_lsq_model_fit_action</attribute>
             </item>
             <item>
@@ -324,7 +324,7 @@
               <attribute name="action">app.another_contour_level_action</attribute>
             </item>
             <item>
-              <attribute name="label">Multi-Chicken...</attribute>
+              <attribute name="label">Multi-Chicken</attribute>
               <attribute name="action">app.multichicken_action</attribute>
             </item>
           </section>
@@ -5551,7 +5551,7 @@ Do you want to continue?
             </child>
           </object>
         </child>
-        
+
       </object>
     </child>
   </object>
@@ -7221,6 +7221,9 @@ Do you want to continue?
                           <object class="GtkButton" id="make_smooth_map_ok_button">
                             <property name="label" translatable="yes">OK</property>
                             <signal name="clicked" handler="on_make_smooth_map_ok_button_clicked" />
+                            <style>
+                              <class name="suggested-action"/>
+                            </style>
                           </object>
                         </child>
                       </object>
@@ -7277,6 +7280,9 @@ Do you want to continue?
                           <object class="GtkButton" id="set_map_is_difference_map_ok_button">
                             <property name="label" translatable="yes">OK</property>
                             <signal name="clicked" handler="on_set_map_is_difference_map_ok_button_clicked" />
+                            <style>
+                              <class name="suggested-action"/>
+                            </style>
                           </object>
                         </child>
                       </object>
@@ -7284,6 +7290,68 @@ Do you want to continue?
 
                   </object>
                 </child>
+              </object>
+            </child>
+
+            <child type="overlay">
+              <!-- the comboboxes and weight widgets are added dynamically -->
+              <object class="GtkFrame" id="make_an_average_map_frame">
+                <property name="halign">center</property>
+                <property name="valign">start</property>
+                <property name="visible">False</property>
+                <property name="margin-bottom">5</property>
+                <property name="margin-end">5</property>
+                <property name="margin-start">5</property>
+                <property name="margin-top">5</property>
+
+                <child>
+                  <object class="GtkBox" id="vbox_outer_for_averge_map">
+                    <property name="orientation">vertical</property>
+
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="label" translatable="yes">Make an Average Map</property>
+                        <property name="justify">center</property>
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="GtkBox" id="make_an_average_map_box">
+                        <property name="orientation">vertical</property>
+                        <property name="spacing">6</property>
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="GtkBox">
+                        <property name="orientation">horizontal</property>
+                        <property name="spacing">5</property>
+                        <property name="halign">end</property>
+                        <property name="margin-end">10</property>
+                        <property name="margin-start">10</property>
+                        <property name="margin-top">10</property>
+                        <property name="margin-bottom">10</property>
+                        <child>
+                          <object class="GtkButton" id="make_an_average_map_cancel_button">
+                            <property name="label" translatable="yes">Cancel</property>
+                            <signal name="clicked" handler="on_make_an_average_map_cancel_button_clicked" />
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkButton" id="make_an_average_map_ok_button">
+                            <property name="label" translatable="yes">OK</property>
+                            <signal name="clicked" handler="on_make_an_average_map_ok_button_clicked" />
+                            <style>
+                              <class name="suggested-action"/>
+                            </style>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+
+                  </object>
+                </child>
+
               </object>
             </child>
 
@@ -7336,8 +7404,7 @@ Do you want to continue?
                         </child>
                         <child>
                           <object class="GtkLabel">
-                            <property name="label" translatable="yes"></property>
-                            <property name="justify">  Scale: </property>
+                            <property name="label" translatable="yes">Scale:</property>
                           </object>
                         </child>
                         <child>
@@ -7369,6 +7436,9 @@ Do you want to continue?
                           <object class="GtkButton" id="make_difference_map_ok_button">
                             <property name="label" translatable="yes">OK</property>
                             <signal name="clicked" handler="on_make_difference_map_ok_button_clicked" />
+                            <style>
+                              <class name="suggested-action"/>
+                            </style>
                           </object>
                         </child>
                       </object>
@@ -7727,6 +7797,9 @@ Do you want to continue?
 			 <object class="GtkButton" id="acedrg_link_ok_button">
 			   <property name="label" translatable="yes">OK</property>
 			   <signal name="clicked" handler="on_acedrg_link_ok_button_clicked" />
+                           <style>
+                             <class name="suggested-action"/>
+                           </style>
 			 </object>
 		       </child>
                      </object>
