@@ -136,7 +136,7 @@ graphics_info_t::draw_generic_objects(unsigned int pass_type) {
       glm::mat4 model_rotation = get_model_rotation();
       glm::vec4 bg_col(background_colour, 1.0);
       Shader &shader = shader_for_moleculestotriangles;
-      shader = shader_for_meshes_with_shadows;
+      // 20250125-PE shader = shader_for_meshes_with_shadows; what an idiot
 
       glDisable(GL_BLEND);
       // consider

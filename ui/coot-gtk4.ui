@@ -297,15 +297,11 @@
               <attribute name="action">app.make_a_smoother_copy_of_a_map_action</attribute>
             </item>
             <item>
-              <attribute name="action">app.make_a_very_smooth_copy_of_a_map_action</attribute>
-              <attribute name="label">Make a Very Smooth Copy</attribute>
-            </item>
-            <item>
               <attribute name="label">Make a Difference Map...</attribute>
               <attribute name="action">app.make_a_difference_map_action</attribute>
             </item>
             <item>
-              <attribute name="label">Transform Map by LSQ Model Fit...</attribute>
+              <attribute name="label">Transform Map by LSQ Model Fit...[Placeholder]</attribute>
               <attribute name="action">app.transform_map_by_lsq_model_fit_action</attribute>
             </item>
             <item>
@@ -316,7 +312,7 @@
               <attribute name="label">Map Density Histogram [Placeholder]</attribute>
             </item>
             <item>
-              <attribute name="label">Brighten Maps...</attribute>
+              <attribute name="label">Brighten Maps</attribute>
               <attribute name="action">app.brighten_maps_action</attribute>
             </item>
             <item>
@@ -328,7 +324,7 @@
               <attribute name="action">app.another_contour_level_action</attribute>
             </item>
             <item>
-              <attribute name="label">Multi-Chicken...</attribute>
+              <attribute name="label">Multi-Chicken</attribute>
               <attribute name="action">app.multichicken_action</attribute>
             </item>
           </section>
@@ -1181,6 +1177,10 @@
         <attribute name="label" translatable="no">Acedrg Link</attribute>
         <attribute name="action">app.acedrg_link_interface_action</attribute>
       </item>
+      <item>
+        <attribute name="label" translatable="no">Acedrg via CCD</attribute>
+        <attribute name="action">app.run_acedrg_via_CCD_dictionary_download_action</attribute>
+      </item>
     </section>
   </menu>
 
@@ -1253,10 +1253,6 @@
   <menu id="ligand-menu">
     <section>
       <item>
-        <attribute name="label" translatable="no">Jiggle Fit Residue</attribute>
-        <attribute name="action">app.jiggle_fit_active_residue_action</attribute>
-      </item>
-      <item>
         <attribute name="label" translatable="no">Contact Dots for Ligand</attribute>
         <attribute name="action">app.coot_contact_dots_for_ligand_action</attribute>
       </item>
@@ -1265,16 +1261,20 @@
         <attribute name="action">app.geometric_distortions_for_ligand_action</attribute>
       </item>
       <item>
+        <attribute name="label" translatable="no">Jiggle Fit Residue</attribute>
+        <attribute name="action">app.jiggle_fit_active_residue_action</attribute>
+      </item>
+      <item>
         <attribute name="label" translatable="no">Make LINK...</attribute>
         <attribute name="action">app.make_link_action</attribute>
       </item>
       <item>
-        <attribute name="label" translatable="no">SMILES to 3D</attribute>
-        <attribute name="action">app.SMILES_to_3D_action</attribute>
-      </item>
-      <item>
         <attribute name="label" translatable="no">Show Chemical Features</attribute>
         <attribute name="action">app.show_chemical_features_action</attribute>
+      </item>
+      <item>
+        <attribute name="label" translatable="no">SMILES to 3D</attribute>
+        <attribute name="action">app.SMILES_to_3D_action</attribute>
       </item>
       <!-- 20250115-PE this needs coot_ligand_check.py converted to C++ - big job. Another time -->
       <!-- <item> -->
@@ -5551,7 +5551,7 @@ Do you want to continue?
             </child>
           </object>
         </child>
-        
+
       </object>
     </child>
   </object>
@@ -6768,7 +6768,7 @@ Do you want to continue?
                   <property name="can-focus">0</property>
                   <signal name="clicked" handler="on_python_scripting_button" swapped="no"/>
                   <property name="margin-start">2</property>
-                  <property name="halign">end</property> 
+                  <property name="halign">end</property>
                   <child>
                     <object class="GtkBox">
                       <property name="orientation">vertical</property>
@@ -7056,6 +7056,396 @@ Do you want to continue?
                   </object>
                 </child>
 
+              </object>
+            </child>
+
+            <child type="overlay">
+              <object class="GtkFrame" id="acedrg_running_frame">
+                <property name="halign">center</property>
+                <property name="valign">start</property>
+                <property name="visible">False</property>
+                <property name="margin-bottom">5</property>
+                <property name="margin-end">5</property>
+                <property name="margin-start">5</property>
+                <property name="margin-top">5</property>
+                  <child>
+                    <object class="GtkLabel">
+                           <property name="label">Acedrg is running...</property>
+                           <property name="margin-end">6</property>
+                           <property name="margin-start">6</property>
+                    </object>
+               </child>
+              </object>
+            </child>
+
+            <child type="overlay">
+              <object class="GtkFrame" id="subtask_running_frame">
+                <property name="halign">center</property>
+                <property name="valign">start</property>
+                <property name="visible">False</property>
+                <property name="margin-bottom">5</property>
+                <property name="margin-end">5</property>
+                <property name="margin-start">5</property>
+                <property name="margin-top">5</property>
+                  <child>
+                    <object class="GtkLabel">
+                           <property name="label">Subtask is running...</property>
+                           <property name="margin-end">6</property>
+                           <property name="margin-start">6</property>
+                    </object>
+               </child>
+              </object>
+            </child>
+
+            <child type="overlay">
+              <object class="GtkFrame" id="copy_map_frame">
+                <property name="halign">center</property>
+                <property name="valign">start</property>
+                <property name="visible">False</property>
+                <property name="margin-bottom">5</property>
+                <property name="margin-end">5</property>
+                <property name="margin-start">5</property>
+                <property name="margin-top">5</property>
+
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                    <property name="spacing">5</property>
+                    <child>
+                      <object class="GtkLabel">
+                           <property name="label">Copy Map:</property>
+                           <property name="margin-end">5</property>
+                           <property name="margin-start">5</property>
+                      </object>
+                    </child>
+                    <child>
+                       <object class="GtkComboBoxText" id="copy_map_comboboxtext">
+                            <property name="margin-bottom">5</property>
+                            <property name="margin-end">6</property>
+                            <property name="margin-start">6</property>
+                            <property name="margin-top">5</property>
+                       </object>
+                    </child>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="orientation">horizontal</property>
+                        <property name="spacing">5</property>
+                        <property name="halign">end</property>
+                        <property name="margin-end">5</property>
+                        <property name="margin-start">4</property>
+                        <child>
+                          <object class="GtkButton" id="copy_map_cancel_button">
+                            <property name="label" translatable="yes">Cancel</property>
+                            <signal name="clicked" handler="on_copy_map_cancel_button_clicked" />
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkButton" id="copy_map_ok_button">
+                            <property name="label" translatable="yes">OK</property>
+                            <signal name="clicked" handler="on_copy_map_ok_button_clicked" />
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+
+                  </object>
+                </child>
+              </object>
+            </child>
+
+            <child type="overlay">
+              <object class="GtkFrame" id="make_smooth_map_frame">
+                <property name="halign">center</property>
+                <property name="valign">start</property>
+                <property name="visible">False</property>
+                <property name="margin-bottom">5</property>
+                <property name="margin-end">5</property>
+                <property name="margin-start">5</property>
+                <property name="margin-top">5</property>
+
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                    <property name="spacing">5</property>
+                    <child>
+                      <object class="GtkLabel">
+                           <property name="label">Smooth Factor:</property>
+                           <property name="margin-end">5</property>
+                           <property name="margin-start">5</property>
+                      </object>
+                    </child>
+                    <child>
+                       <object class="GtkComboBoxText" id="make_smooth_map_factor_comboboxtext">
+                            <property name="margin-bottom">5</property>
+                            <property name="margin-end">6</property>
+                            <property name="margin-start">6</property>
+                            <property name="margin-top">5</property>
+                            <property name="active">0</property>
+                            <items>
+                              <item translatable="yes">1.25</item>
+                              <item translatable="yes">1.5</item>
+                              <item translatable="yes">2.0</item>
+                              <item translatable="yes">3.0</item>
+                            </items>
+                       </object>
+                    </child>
+                    <child>
+                      <object class="GtkLabel">
+                           <property name="label">Reference Map:</property>
+                           <property name="margin-end">5</property>
+                           <property name="margin-start">5</property>
+                      </object>
+                    </child>
+                    <child>
+                       <object class="GtkComboBoxText" id="make_smooth_map_comboboxtext">
+                            <property name="margin-bottom">5</property>
+                            <property name="margin-end">6</property>
+                            <property name="margin-start">6</property>
+                            <property name="margin-top">5</property>
+                       </object>
+                    </child>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="orientation">horizontal</property>
+                        <property name="spacing">5</property>
+                        <property name="halign">end</property>
+                        <property name="margin-end">5</property>
+                        <property name="margin-start">4</property>
+                        <child>
+                          <object class="GtkButton" id="make_smooth_map_cancel_button">
+                            <property name="label" translatable="yes">Cancel</property>
+                            <signal name="clicked" handler="on_make_smooth_map_cancel_button_clicked" />
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkButton" id="make_smooth_map_ok_button">
+                            <property name="label" translatable="yes">OK</property>
+                            <signal name="clicked" handler="on_make_smooth_map_ok_button_clicked" />
+                            <style>
+                              <class name="suggested-action"/>
+                            </style>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+
+                  </object>
+                </child>
+              </object>
+            </child>
+
+            <child type="overlay">
+              <object class="GtkFrame" id="set_map_is_difference_map_frame">
+                <property name="halign">center</property>
+                <property name="valign">start</property>
+                <property name="visible">False</property>
+                <property name="margin-bottom">5</property>
+                <property name="margin-end">5</property>
+                <property name="margin-start">5</property>
+                <property name="margin-top">5</property>
+
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                    <property name="spacing">5</property>
+                    <child>
+                      <object class="GtkLabel">
+                           <property name="label">Make this a Difference Map:</property>
+                           <property name="margin-end">5</property>
+                           <property name="margin-start">5</property>
+                      </object>
+                    </child>
+                    <child>
+                       <object class="GtkComboBoxText" id="set_map_is_difference_map_map_comboboxtext">
+                            <property name="margin-bottom">5</property>
+                            <property name="margin-end">6</property>
+                            <property name="margin-start">6</property>
+                            <property name="margin-top">5</property>
+                       </object>
+                    </child>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="orientation">horizontal</property>
+                        <property name="spacing">5</property>
+                        <property name="halign">end</property>
+                        <property name="margin-end">5</property>
+                        <property name="margin-start">4</property>
+                        <child>
+                          <object class="GtkButton" id="set_map_is_difference_map_cancel_button">
+                            <property name="label" translatable="yes">Cancel</property>
+                            <signal name="clicked" handler="on_set_map_is_difference_map_cancel_button_clicked" />
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkButton" id="set_map_is_difference_map_ok_button">
+                            <property name="label" translatable="yes">OK</property>
+                            <signal name="clicked" handler="on_set_map_is_difference_map_ok_button_clicked" />
+                            <style>
+                              <class name="suggested-action"/>
+                            </style>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+
+                  </object>
+                </child>
+              </object>
+            </child>
+
+            <child type="overlay">
+              <!-- the comboboxes and weight widgets are added dynamically -->
+              <object class="GtkFrame" id="make_an_average_map_frame">
+                <property name="halign">center</property>
+                <property name="valign">start</property>
+                <property name="visible">False</property>
+                <property name="margin-bottom">5</property>
+                <property name="margin-end">5</property>
+                <property name="margin-start">5</property>
+                <property name="margin-top">5</property>
+
+                <child>
+                  <object class="GtkBox" id="vbox_outer_for_averge_map">
+                    <property name="orientation">vertical</property>
+
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="label" translatable="yes">Make an Average Map</property>
+                        <property name="justify">center</property>
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="GtkBox" id="make_an_average_map_box">
+                        <property name="orientation">vertical</property>
+                        <property name="spacing">6</property>
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="GtkBox">
+                        <property name="orientation">horizontal</property>
+                        <property name="spacing">5</property>
+                        <property name="halign">end</property>
+                        <property name="margin-end">10</property>
+                        <property name="margin-start">10</property>
+                        <property name="margin-top">10</property>
+                        <property name="margin-bottom">10</property>
+                        <child>
+                          <object class="GtkButton" id="make_an_average_map_cancel_button">
+                            <property name="label" translatable="yes">Cancel</property>
+                            <signal name="clicked" handler="on_make_an_average_map_cancel_button_clicked" />
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkButton" id="make_an_average_map_ok_button">
+                            <property name="label" translatable="yes">OK</property>
+                            <signal name="clicked" handler="on_make_an_average_map_ok_button_clicked" />
+                            <style>
+                              <class name="suggested-action"/>
+                            </style>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+
+                  </object>
+                </child>
+
+              </object>
+            </child>
+
+            <child type="overlay">
+              <object class="GtkFrame" id="make_difference_map_frame">
+                <property name="halign">center</property>
+                <property name="valign">start</property>
+                <property name="visible">False</property>
+                <property name="margin-bottom">5</property>
+                <property name="margin-end">5</property>
+                <property name="margin-start">5</property>
+                <property name="margin-top">5</property>
+
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                    <property name="spacing">5</property>
+                    <child>
+                      <object class="GtkLabel">
+                           <property name="label">First Map:</property>
+                           <property name="margin-end">5</property>
+                           <property name="margin-start">5</property>
+                      </object>
+                    </child>
+                    <child>
+                       <object class="GtkComboBoxText" id="make_difference_map_map_1_comboboxtext">
+                            <property name="margin-bottom">5</property>
+                            <property name="margin-end">6</property>
+                            <property name="margin-start">6</property>
+                            <property name="margin-top">5</property>
+                       </object>
+                    </child>
+                    <child>
+                      <object class="GtkLabel">
+                           <property name="label">Subtract this Map:</property>
+                           <property name="margin-end">5</property>
+                           <property name="margin-start">5</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="orientation">horizontal</property>
+                        <child>
+                          <object class="GtkComboBoxText" id="make_difference_map_map_2_comboboxtext">
+                            <property name="margin-bottom">5</property>
+                            <property name="margin-end">6</property>
+                            <property name="margin-start">6</property>
+                            <property name="margin-top">5</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="label" translatable="yes">Scale:</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkEntry" id="make_difference_map_scale_entry">
+                            <property name="width-request">5</property>
+                            <property name="can-focus">1</property>
+                            <property name="text">1.0</property>
+                            <property name="margin-end">12</property>
+                            <property name="margin-start">6</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="GtkBox">
+                        <property name="orientation">horizontal</property>
+                        <property name="spacing">5</property>
+                        <property name="halign">end</property>
+                        <property name="margin-end">5</property>
+                        <property name="margin-start">4</property>
+                        <child>
+                          <object class="GtkButton" id="make_difference_map_cancel_button">
+                            <property name="label" translatable="yes">Cancel</property>
+                            <signal name="clicked" handler="on_make_difference_map_cancel_button_clicked" />
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkButton" id="make_difference_map_ok_button">
+                            <property name="label" translatable="yes">OK</property>
+                            <signal name="clicked" handler="on_make_difference_map_ok_button_clicked" />
+                            <style>
+                              <class name="suggested-action"/>
+                            </style>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+
+                  </object>
+                </child>
               </object>
             </child>
 
@@ -7407,6 +7797,9 @@ Do you want to continue?
 			 <object class="GtkButton" id="acedrg_link_ok_button">
 			   <property name="label" translatable="yes">OK</property>
 			   <signal name="clicked" handler="on_acedrg_link_ok_button_clicked" />
+                           <style>
+                             <class name="suggested-action"/>
+                           </style>
 			 </object>
 		       </child>
                      </object>

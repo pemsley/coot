@@ -313,7 +313,7 @@ molecules_container_t::get_number_of_hydrogen_atoms(int imol) const {
 
 void
 molecules_container_t::set_draw_missing_residue_loops(bool state) {
-   std::cout << "****** in set_draw_missing_residue_loops() with state " << state << std::endl;
+   // std::cout << "****** in set_draw_missing_residue_loops() with state " << state << std::endl;
    draw_missing_residue_loops_flag = state;
 }
 
@@ -1114,7 +1114,7 @@ molecules_container_t::auto_read_mtz(const std::string &mtz_file_name) {
    auto_mtz_pairs.push_back(coot::mtz_column_trials_info_t("FDM",          "PHIDM",     false));
    auto_mtz_pairs.push_back(coot::mtz_column_trials_info_t("FAN",          "PHAN",      true));
    auto_mtz_pairs.push_back(coot::mtz_column_trials_info_t("F_ano",        "PHI_ano",   true));
-   auto_mtz_pairs.push_back(coot::mtz_column_trials_info_t("F_early-Flate","PHI_early-late", true));
+   auto_mtz_pairs.push_back(coot::mtz_column_trials_info_t("F_early-late", "PHI_early-late", true));
 
    auto add_r_free_column_label = [] (auto_read_mtz_info_t *a, const coot::mtz_column_types_info_t &r) {
       for (unsigned int i=0; i<r.r_free_cols.size(); i++) {
@@ -6109,10 +6109,7 @@ molecules_container_t::set_occupancy(int imol, const std::string &cid, float occ
 
 }
 
-#include <format>
 #include "utils/subprocess.hpp"
-using namespace std::chrono_literals;
-
 
 
 //! External refinement using servalcat

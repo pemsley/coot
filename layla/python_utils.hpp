@@ -22,7 +22,7 @@
 #ifndef LAYLA_PYTHON_UTILS_HPP
 #define LAYLA_PYTHON_UTILS_HPP
 #include <string>
-#include "Python.h"
+// #include "Python.h"
 
 namespace coot::layla {
 

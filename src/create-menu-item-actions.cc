@@ -292,6 +292,7 @@ void open_map_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    GtkFileFilter *filterselect = gtk_file_filter_new();
    gtk_file_filter_add_pattern(filterselect, "*.map");
    gtk_file_filter_add_pattern(filterselect, "*.mrc");
+   gtk_file_filter_add_pattern(filterselect, "*.ccp4");
    gtk_file_filter_add_pattern(filterselect, "*.mrc.gz");
    gtk_file_filter_add_pattern(filterselect, "*.map.gz");
    gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog), filterselect);
@@ -352,28 +353,34 @@ void get_monomer_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
 void on_cif_dictionary_filechooser_dialog_response_gtk4(GtkDialog *dialog,
                                                         int        response) {
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
 
    if (response == GTK_RESPONSE_ACCEPT) {
       GtkFileChooser *chooser = GTK_FILE_CHOOSER (dialog);
       GFile *file = gtk_file_chooser_get_file(chooser);
       char *file_name = g_file_get_path(file);
-      int imol_enc = -999997;
+      int imol_enc = coot::protein_geometry::IMOL_ENC_ANY;
 
       bool create_ligand = false;
       const char *r = gtk_file_chooser_get_choice(GTK_FILE_CHOOSER(dialog), "create-molecule");
       if (r) {
          std::string sr(r);
-         if (sr == "Create New Instance")
+         if (sr == "create-new-instance")
             create_ligand = true;
+      } else {
+         std::cout << "ERROR:: r was null" << std::endl;
       }
 
       if (create_ligand) {
          std::cout << "create ligand! " << std::endl;
+         // the monomer index is returned rom handle_cif_dictionary_for_molecule()
+         handle_cif_dictionary_for_molecule(file_name, imol_enc, create_ligand);
       }
-      int monomer_index = handle_cif_dictionary_for_molecule(file_name, imol_enc, create_ligand);
    }
    gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
    graphics_info_t::graphics_grab_focus();
+#pragma GCC diagnostic pop
 }
 
 void import_cif_dictionary_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -501,7 +508,7 @@ fetch_map_from_emdb_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
    GtkWidget *frame = widget_from_builder("emdb_map_code_frame");
    gtk_widget_set_visible(frame, TRUE);
-   
+
 }
 
 
@@ -528,10 +535,11 @@ fetch_pdbe_ligand_description_action(G_GNUC_UNUSED GSimpleAction *simple_action,
       // maybe check that the file exists first?
       std::string url = std::string("https://www.ebi.ac.uk/pdbe/static/files/pdbechem_v2/") + file_name;
       int status = coot_get_url(url, file_path.string());
-      if (status == 0) {
-         read_cif_dictionary(file_name.c_str());  // remove above include and put this function into cc-interface.hh
+      if (status == CURLE_OK) { // 0
+         read_cif_dictionary(file_path.string().c_str());  // remove above include and put this function into cc-interface.hh
       }
    }
+   g.graphics_grab_focus();
 }
 
 void
@@ -1195,6 +1203,18 @@ use_clustalw_for_alignment_then_mutate_action(G_GNUC_UNUSED GSimpleAction *simpl
 
 }
 
+std::vector<int>
+get_map_molecule_vector() {
+
+   graphics_info_t g;
+   std::vector<int> vec;
+   int n_mol = g.n_molecules();
+   for (int i=0; i<n_mol; i++)
+      if (g.is_valid_map_molecule(i))
+         vec.push_back(i);
+   return vec;
+}
+
 
 void
 mask_map_by_atom_selection_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -1251,8 +1271,32 @@ copy_map_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                 G_GNUC_UNUSED gpointer user_data) {
 
    // not modern but works
-   std::string cmd = "import coot; import coot_gui; coot_gui.map_molecule_chooser_gui(\"Molecule to Copy...\", lambda imol: coot.copy_molecule(imol))";
-   safe_python_command(cmd);
+   // std::string cmd = "import coot; import coot_gui; coot_gui.map_molecule_chooser_gui(\"Molecule to Copy...\", lambda imol: coot.copy_molecule(imol))";
+   // safe_python_command(cmd);
+
+   auto get_map_molecule_vector = [] () {
+                                 graphics_info_t g;
+                                 std::vector<int> vec;
+                                 int n_mol = g.n_molecules();
+                                 for (int i=0; i<n_mol; i++)
+                                    if (g.is_valid_map_molecule(i))
+                                       vec.push_back(i);
+                                 return vec;
+                              };
+
+
+   GtkWidget *frame = widget_from_builder("copy_map_frame");
+   if (frame)
+      gtk_widget_set_visible(frame, TRUE);
+   graphics_info_t g;
+   GtkWidget *map_combobox = widget_from_builder("copy_map_comboboxtext");
+   GCallback func = G_CALLBACK(nullptr); // we don't care until this dialog is read
+
+   int imol_map_active = -1;
+   auto   map_list = get_map_molecule_vector();
+   if (!   map_list.empty()) imol_map_active =   map_list[0];
+   g.fill_combobox_with_molecule_options(  map_combobox, func, imol_map_active,   map_list);
+
 
 }
 
@@ -1261,26 +1305,42 @@ make_a_smoother_copy_of_a_map_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                      G_GNUC_UNUSED GVariant *parameter,
                                      G_GNUC_UNUSED gpointer user_data) {
 
-   safe_python_command("import coot_gui");
-   std::string sc = "coot_gui.map_molecule_chooser_gui(\"Map Molecule to Smoothenize...\", lambda imol: coot.smooth_map(imol, 1.25))";
-   safe_python_command(sc);
+   // safe_python_command("import coot_gui");
+   // std::string sc = "coot_gui.map_molecule_chooser_gui(\"Map Molecule to Smoothenize...\", lambda imol: coot.smooth_map(imol, 1.25))";
+   // safe_python_command(sc);
 
-}
-
-void
-make_a_very_smooth_copy_of_a_map_action(G_GNUC_UNUSED GSimpleAction *simple_action,
-                                        G_GNUC_UNUSED GVariant *parameter,
-                                        G_GNUC_UNUSED gpointer user_data) {
-
-   safe_python_command("import coot_gui");
-   std::string sc = "coot_gui.map_molecule_chooser_gui(\"Map Molecule to Smoothenize...\", lambda imol: coot.smooth_map(imol, 2.0))";
-   safe_python_command(sc);
+   GtkWidget *frame = widget_from_builder("make_smooth_map_frame");
+   if (frame)
+      gtk_widget_set_visible(frame, TRUE);
+   graphics_info_t g;
+   GtkWidget *map_combobox = widget_from_builder("make_smooth_map_comboboxtext");
+   GCallback func = G_CALLBACK(nullptr); // we don't care until this dialog is read
+   int imol_map_active = -1;
+   auto map_list = get_map_molecule_vector();
+   if (! map_list.empty()) imol_map_active = map_list[0];
+   g.fill_combobox_with_molecule_options(map_combobox, func, imol_map_active,   map_list);
+   GtkWidget *factor_combobox = widget_from_builder("make_smooth_map_factor_comboboxtext");
+   gtk_combo_box_set_active(GTK_COMBO_BOX(factor_combobox), 0);
 }
 
 void
 make_a_difference_map_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                              G_GNUC_UNUSED GVariant *parameter,
                              G_GNUC_UNUSED gpointer user_data) {
+
+   GtkWidget *frame = widget_from_builder("make_difference_map_frame");
+   if (frame) {
+      gtk_widget_set_visible(frame, TRUE);
+      GtkWidget *map_combobox_1 = widget_from_builder("make_difference_map_map_1_comboboxtext");
+      GtkWidget *map_combobox_2 = widget_from_builder("make_difference_map_map_2_comboboxtext");
+      GCallback func = G_CALLBACK(nullptr); // we don't care until this dialog is read
+      int imol_map_active = -1;
+      auto map_list = get_map_molecule_vector();
+      if (! map_list.empty()) imol_map_active = map_list[0];
+      graphics_info_t g;
+      g.fill_combobox_with_molecule_options(map_combobox_1, func, imol_map_active, map_list);
+      g.fill_combobox_with_molecule_options(map_combobox_2, func, imol_map_active, map_list);
+   }
 }
 
 void
@@ -1289,34 +1349,179 @@ transform_map_by_lsq_model_fit_action(G_GNUC_UNUSED GSimpleAction *simple_action
                                       G_GNUC_UNUSED gpointer user_data) {
 }
 
+class average_map_box_widgets_container_t {
+   public:
+      GtkWidget *box;
+      GtkWidget *map_combobox;
+      GtkWidget *label;
+      GtkWidget *entry;
+      GtkWidget *plus_button;
+      GtkWidget *minus_button;
+};
+
+average_map_box_widgets_container_t
+make_an_average_map_widget_box(GtkWidget *frame_box) {
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+
+   auto plus_button_clicked = +[] (GtkButton *button, gpointer user_data) {
+      GtkWidget *frame_box = GTK_WIDGET(user_data);
+      average_map_box_widgets_container_t ambw = make_an_average_map_widget_box(frame_box);
+      gtk_box_append(GTK_BOX(frame_box), ambw.box);
+   };
+
+   auto minus_button_clicked = +[] (GtkButton *button, gpointer user_data) {
+      GtkWidget *box = GTK_WIDGET(user_data);
+      GtkWidget *first_child = gtk_widget_get_first_child(GTK_WIDGET(box));
+      bool safe_to_remove = false;
+      if (first_child) {
+         GtkWidget *next_child = gtk_widget_get_next_sibling(first_child);
+         if (next_child)
+             safe_to_remove = true;
+      }
+      if (safe_to_remove) {
+         GtkWidget *last_child = gtk_widget_get_last_child(GTK_WIDGET(box));
+         gtk_box_remove(GTK_BOX(box), last_child);
+      }
+   };
+
+   GtkWidget *box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 6);
+   GtkWidget *map_combobox = gtk_combo_box_text_new();
+   GtkWidget *label = gtk_label_new("Weight");
+   GtkWidget *entry = gtk_entry_new();
+   GtkWidget *plus_button  = gtk_button_new_with_label("+");
+   GtkWidget *minus_button = gtk_button_new_with_label("-");
+
+   gtk_editable_set_text(GTK_EDITABLE(entry), "1.0");
+
+   gtk_widget_set_margin_start(map_combobox, 4);
+   gtk_widget_set_margin_start(label, 4);
+   gtk_widget_set_margin_start(entry, 4);
+   gtk_widget_set_margin_start(plus_button, 4);
+   gtk_widget_set_margin_start(minus_button, 4);
+
+   gtk_widget_set_margin_end(map_combobox, 4);
+   gtk_widget_set_margin_end(label, 4);
+   gtk_widget_set_margin_end(entry, 4);
+   gtk_widget_set_margin_end(plus_button, 4);
+   gtk_widget_set_margin_end(minus_button, 4);
+
+   gtk_box_append(GTK_BOX(box), map_combobox);
+   gtk_box_append(GTK_BOX(box), label);
+   gtk_box_append(GTK_BOX(box), entry);
+   gtk_box_append(GTK_BOX(box), plus_button);
+   gtk_box_append(GTK_BOX(box), minus_button);
+
+   average_map_box_widgets_container_t ambw;
+   ambw.box = box;
+   ambw.map_combobox = map_combobox;
+   ambw.label = label;
+   ambw.entry = entry;
+   ambw.plus_button = plus_button;
+   ambw.minus_button = minus_button;
+
+   auto map_list = get_map_molecule_vector();
+   int imol_map_active = map_list[0];
+   graphics_info_t g;
+   GCallback func = G_CALLBACK(nullptr); // we don't care until this dialog is read
+   g.fill_combobox_with_molecule_options(ambw.map_combobox, func, imol_map_active, map_list);
+
+   g_signal_connect(plus_button,  "clicked", G_CALLBACK(plus_button_clicked),  frame_box);
+   g_signal_connect(minus_button, "clicked", G_CALLBACK(minus_button_clicked), frame_box);
+
+   return ambw;
+
+#pragma GCC diagnostic pop
+}
+
 void
 average_maps_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                     G_GNUC_UNUSED GVariant *parameter,
                     G_GNUC_UNUSED gpointer user_data) {
+
+   auto map_list = get_map_molecule_vector();
+   if (! map_list.empty()) {
+      GtkWidget *frame = widget_from_builder("make_an_average_map_frame");
+      std::cout << "in average_maps_action(): got frame: " << frame << std::endl;
+      gtk_widget_set_visible(frame, TRUE);
+      GtkWidget *box = widget_from_builder("make_an_average_map_box");
+      average_map_box_widgets_container_t ambw = make_an_average_map_widget_box(box);
+      gtk_box_append(GTK_BOX(box), ambw.box);
+   }
 }
 
 void
 brighten_maps_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                      G_GNUC_UNUSED GVariant *parameter,
                      G_GNUC_UNUSED gpointer user_data) {
+
+   auto map_list = get_map_molecule_vector();
+   for (unsigned int i=0; i<map_list.size(); i++) {
+      const auto &imol = map_list[i];
+      float rc = graphics_info_t::molecules[imol].map_colour.red;
+      float gc = graphics_info_t::molecules[imol].map_colour.green;
+      float bc = graphics_info_t::molecules[imol].map_colour.blue;
+      float fac = 1.25;
+      set_map_colour(imol, rc * fac, gc * fac, bc * fac);
+   }
 }
 
 void
 set_map_is_difference_map_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                  G_GNUC_UNUSED GVariant *parameter,
                                  G_GNUC_UNUSED gpointer user_data) {
+
+   GtkWidget *frame = widget_from_builder("set_map_is_difference_map_frame");
+   if (frame) {
+      gtk_widget_set_visible(frame, TRUE);
+      GtkWidget *map_combobox = widget_from_builder("set_map_is_difference_map_map_comboboxtext");
+      GCallback func = G_CALLBACK(nullptr); // we don't care until this dialog is read
+      int imol_map_active = -1;
+      auto map_list = get_map_molecule_vector();
+      if (! map_list.empty()) imol_map_active = map_list[0];
+      graphics_info_t g;
+      g.fill_combobox_with_molecule_options(map_combobox, func, imol_map_active, map_list);
+   }
 }
 
 void
 another_contour_level_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                              G_GNUC_UNUSED GVariant *parameter,
                              G_GNUC_UNUSED gpointer user_data) {
+
+   another_level();
+   graphics_info_t::graphics_grab_focus();
 }
 
 void
 multichicken_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                     G_GNUC_UNUSED GVariant *parameter,
                     G_GNUC_UNUSED gpointer user_data) {
+
+   auto rotate_colour_map = [] (const coot::colour_t &col, float degrees) {
+      coot::colour_t colo(degrees/360.0f, col[1], col[2] - degrees/360.0f);
+      return colo;
+   };
+
+   int imol_map = imol_refinement_map();
+   if (is_valid_map_molecule(imol_map)) {
+      unsigned int n_colours =  10;
+      float start = 1.0;
+      float stop = 6.0;
+      float colour_range = 360.0;
+      graphics_info_t g;
+      float sigma = g.molecules[imol_map].map_sigma();
+      coot::colour_t initial_colour(0.2, 0.2, 0.8);
+      for (unsigned int icol=0; icol<n_colours; icol++) {
+         int new_map = copy_molecule(imol_map);
+         float frac = static_cast<float>(icol) / static_cast<float>(n_colours);
+         float contour_level_sigma = start + (stop - start) * frac;
+         set_last_map_contour_level(sigma * contour_level_sigma);
+         auto rot_col = rotate_colour_map(initial_colour, colour_range * frac);
+         set_last_map_colour(rot_col[0], rot_col[1], rot_col[2]);
+      }
+   }
 }
 
 void
@@ -1369,6 +1574,20 @@ void acedrg_link_interface_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    show_acedrg_link_interface_overlay();
 
 }
+
+void run_acedrg_via_CCD_dictionary_download_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                  G_GNUC_UNUSED GVariant *parameter,
+                                  G_GNUC_UNUSED gpointer user_data) {
+
+   std::cout << "get dict..." << std::endl;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      coot::residue_spec_t res_spec(pp.second.second);
+      make_acedrg_dictionary_via_CCD_dictionary(imol, res_spec);
+   }
+}
+
 
 void add_ccp4_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                             G_GNUC_UNUSED GVariant *parameter,
@@ -4395,7 +4614,6 @@ create_actions(GtkApplication *application) {
    add_action(      "mask_map_by_atom_selection_action",       mask_map_by_atom_selection_action);
    add_action(   "make_a_smoother_copy_of_a_map_action",    make_a_smoother_copy_of_a_map_action);
    add_action(  "transform_map_by_lsq_model_fit_action",   transform_map_by_lsq_model_fit_action);
-   add_action("make_a_very_smooth_copy_of_a_map_action", make_a_very_smooth_copy_of_a_map_action);
 
    // Calculate -> Modules
 
@@ -4591,6 +4809,7 @@ create_actions(GtkApplication *application) {
 
    // CCP4 menu
    add_action(     "acedrg_link_interface_action", acedrg_link_interface_action);
+   add_action(     "run_acedrg_via_CCD_dictionary_download_action", run_acedrg_via_CCD_dictionary_download_action);
 
    // Cryo-EM menu
    add_action("cryo_em_solidify_maps_action",                cryo_em_solidify_maps_action);

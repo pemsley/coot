@@ -1259,7 +1259,7 @@ coot::protein_geometry::have_dictionary_for_residue_types(const std::vector<std:
       int ifound = have_dictionary_for_residue_type(residue_types[i], imol_enc, read_number);
       if (ifound == 0) {
 	 have_all = 0;
-      } 
+      }
       read_number++;
    }
    return have_all;
@@ -1273,6 +1273,7 @@ coot::protein_geometry::have_restraints_dictionary_for_residue_types(const std::
 
    bool have_all = true;
    for (unsigned int i=0; i<residue_types.size(); i++) {
+      if (! have_all) continue;
       const std::string &rt = residue_types[i];
       int idx = get_monomer_restraints_index(rt, imol_enc, false);
       if (idx != -1) {
@@ -1280,6 +1281,16 @@ coot::protein_geometry::have_restraints_dictionary_for_residue_types(const std::
          if (restraints.bond_restraint.empty()) {
             have_all = false;
             break;
+         } else {
+            for (auto it=restraints.bond_restraint.begin(); it!=restraints.bond_restraint.end(); ++it) {
+               try {
+                  // this will throw an exception if there are no bond *restraints*
+                  float v = it->value_dist();
+               }
+               catch (const std::runtime_error &e) {
+                  have_all = false;
+               }
+            }
          }
       } else {
          have_all = false;
@@ -1695,7 +1706,7 @@ coot::protein_geometry::get_monomer_restraints_index(const std::string &monomer_
       if (dict_res_restraints[i].second.residue_info.comp_id == monomer_type) {
 	 if (matches_imol(dict_res_restraints[i].first, imol_enc)) {
 	    // if (dict_res_restraints[i].first == imol_enc) {
-	    if ((allow_minimal_flag == 1) || (! dict_res_restraints[i].second.is_bond_order_data_only())) { 
+	    if ((allow_minimal_flag == 1) || (! dict_res_restraints[i].second.is_bond_order_data_only())) {
 	       r = i;
 	       break;
 	    }
@@ -1707,7 +1718,7 @@ coot::protein_geometry::get_monomer_restraints_index(const std::string &monomer_
       for (unsigned int i=0; i<nrest; i++) {
 	 if (dict_res_restraints[i].second.residue_info.comp_id  == monomer_type) {
 	    if (matches_imol(dict_res_restraints[i].first, imol_enc)) {
-	       if ((allow_minimal_flag == 1) || (! dict_res_restraints[i].second.is_bond_order_data_only())) { 
+	       if ((allow_minimal_flag == 1) || (! dict_res_restraints[i].second.is_bond_order_data_only())) {
 		  r = i;
 		  break;
 	       }
@@ -1715,10 +1726,10 @@ coot::protein_geometry::get_monomer_restraints_index(const std::string &monomer_
 	 }
       }
    }
-   
+
    if (r == -1) {
       // OK, that failed to, perhaps there is a synonym?
-      for (unsigned int i=0; i<residue_name_synonyms.size(); i++) { 
+      for (unsigned int i=0; i<residue_name_synonyms.size(); i++) {
 	 if (residue_name_synonyms[i].comp_alternative_id == monomer_type) {
 	    if (matches_imol(dict_res_restraints[i].first, imol_enc)) {
 	       int ndict = dict_res_restraints.size();
@@ -1734,12 +1745,12 @@ coot::protein_geometry::get_monomer_restraints_index(const std::string &monomer_
 	 }
       }
    }
-   
+
    if (r == -1) {
       for (unsigned int i=0; i<nrest; i++) {
 	 if (dict_res_restraints[i].second.residue_info.three_letter_code  == monomer_type) {
 	    if (matches_imol(dict_res_restraints[i].first, imol_enc)) {
-	       if ((allow_minimal_flag == 1) || (! dict_res_restraints[i].second.is_bond_order_data_only())) { 
+	       if ((allow_minimal_flag == 1) || (! dict_res_restraints[i].second.is_bond_order_data_only())) {
 		  r = i;
 		  break;
 	       }
@@ -1747,15 +1758,34 @@ coot::protein_geometry::get_monomer_restraints_index(const std::string &monomer_
 	 }
       }
    }
-   
+
    return r;
 }
+
+// 20250124-PE and the reverse
+//
+// return the second blank on lookup failure
+std::pair<int, std::string>
+coot::protein_geometry::get_monomer_name(int monomer_index) const {
+
+   int imol = -1;
+   std::string comp_id;
+   int n_rest = dict_res_restraints.size();
+   if (monomer_index >= 0) {
+      if (monomer_index < n_rest) {
+         imol = dict_res_restraints[monomer_index].first;
+         comp_id = dict_res_restraints[monomer_index].second.residue_info.comp_id;
+      }
+   }
+   return std::make_pair(imol, comp_id);
+}
+
 
 
 std::string
 coot::protein_geometry::get_type_energy(const std::string &atom_name,
 					const std::string &residue_name,
-					int imol) const { 
+					int imol) const {
    // return "" if not found, else return the energy type found in ener_lib.cif
    //
    std::string r;
@@ -1768,7 +1798,7 @@ coot::protein_geometry::get_type_energy(const std::string &atom_name,
 }
 
 // return -1.1 on failure to look up.
-// 
+//
 double
 coot::protein_geometry::get_vdw_radius(const std::string &atom_name,
 				       const std::string &residue_name,

@@ -1594,22 +1594,20 @@ Bond_lines_container::add_bonds_het_residues(const std::vector<std::pair<bool, m
                                              int udd_atom_index_handle,
                                              int udd_user_defined_atom_colour_index_handle) {
 
-   // std::cout << "################## add_bonds_het_residues --- start ---" << std::endl;
-
    coot::my_atom_colour_map_t atom_colour_map;
    atom_colour_map.fill_chain_id_map(atom_sel); // 20230206-PE should be the same "algorithm" as is
                                                 // used in fill_default_colour_rules()
                                                 // so that M2T ribbons have the same colours, by default
                                                 // add Coot does in colour-by-chain-and-dictionary mode.
 
-   if (het_residues.size()) {
+   if (! het_residues.empty()) {
       for (unsigned int ires=0; ires<het_residues.size(); ires++) {
          if (het_residues[ires].first) {
             std::string res_name = het_residues[ires].second->GetResName();
             std::pair<bool, coot::dictionary_residue_restraints_t> restraints =
                geom->get_monomer_restraints_at_least_minimal(res_name, imol);
 
-            if (false)
+            if (false) // debugging
                if (res_name != "HOH")
                   std::cout << "          ============== Considering bonding HET residue: "
                             << coot::residue_spec_t(het_residues[ires].second) << " "
@@ -1629,7 +1627,7 @@ Bond_lines_container::add_bonds_het_residues(const std::vector<std::pair<bool, m
                   std::string atom_name_2 = restraints.second.bond_restraint[ib].atom_id_2_4c();
                   std::string bt = restraints.second.bond_restraint[ib].type();
 
-                  bool added_bond = 0;
+                  bool added_bond = false;
                   for (int iat=0; iat<n_atoms; iat++) {
                      std::string residue_atom_name_1(residue_atoms[iat]->name);
                      if (atom_name_1 == residue_atom_name_1) {
@@ -1651,9 +1649,10 @@ Bond_lines_container::add_bonds_het_residues(const std::vector<std::pair<bool, m
                                  residue_atoms[iat]->GetUDData(udd_atom_index_handle, iat_1_atom_index);
                                  residue_atoms[jat]->GetUDData(udd_atom_index_handle, iat_2_atom_index);
 
-                                 // std::cout << "making bond between :" << residue_atoms[iat]->name
-                                 // << ": and :" << residue_atoms[jat]->name << ": "
-                                 // << bt << std::endl;
+                                 if (false)
+                                    std::cout << "making bond between :" << residue_atoms[iat]->name
+                                              << ": and :" << residue_atoms[jat]->name << ": "
+                                              << bt << std::endl;
 
                                  std::string element_1 = residue_atoms[iat]->element;
                                  std::string element_2 = residue_atoms[jat]->element;
@@ -1761,7 +1760,7 @@ Bond_lines_container::add_bonds_het_residues(const std::vector<std::pair<bool, m
                                     residue_atoms[iat]->PutUDData(udd_bond_handle, graphical_bonds_container::BONDED_WITH_HETATM_BOND);
                                     residue_atoms[jat]->PutUDData(udd_bond_handle, graphical_bonds_container::BONDED_WITH_HETATM_BOND);
                                  }
-                                 added_bond = 1;
+                                 added_bond = true;
                                  // break; // nope! if this is in place: "" - "" is OK
                                  //                                      "A" - "A" is OK
                                  //                                      "A" - "B" is rejected as should be
@@ -4996,7 +4995,8 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
    for (int i=0; i<SelAtom.n_selected_atoms; i++)
       SelAtom.atom_selection[i]->PutUDData(udd_has_bond_handle, 0);
 
-   int udd_user_defined_atom_colour_index_handle = SelAtom.mol->GetUDDHandle(mmdb::UDR_ATOM, "user-defined-atom-colour-index");
+   int udd_user_defined_atom_colour_index_handle = SelAtom.mol->GetUDDHandle(mmdb::UDR_ATOM,
+                                                                             "user-defined-atom-colour-index");
 
    auto get_atom_colour_index = [udd_user_defined_atom_colour_index_handle] (mmdb:: Atom *at,
                                                                              const std::string &chain_id,
@@ -5010,8 +5010,10 @@ Bond_lines_container::do_Ca_or_P_bonds_internal(atom_selection_container_t SelAt
    };
 
    auto new_style_nucleotide_backbone_chain_rep = [this, get_atom_colour_index] (int imod,  mmdb::Chain *chain_p,
-                                                          int n_atoms_prev, mmdb::Residue *residue_prev, int n_atoms_this, mmdb::Residue *residue_this,
-                                                          const std::string &res_name_1, const std::string &res_name_2,
+                                                                                 int n_atoms_prev, mmdb::Residue *residue_prev,
+                                                                                 int n_atoms_this, mmdb::Residue *residue_this,
+                                                                                 const std::string &res_name_1,
+                                                                                 const std::string &res_name_2,
                                                           int udd_atom_index_handle, int bond_colour_type,
                                                           int atom_colours_udd,
                                                           coot::my_atom_colour_map_t &atom_colour_map, // reference
@@ -5807,7 +5809,7 @@ Bond_lines_container::do_Ca_plus_ligands_bonds(atom_selection_container_t SelAto
                                                coot::protein_geometry *pg,
                                                float min_dist,
                                                float max_dist,
-                      bool draw_missing_loops_flag,
+                                               bool draw_missing_loops_flag,
                                                bool do_bonds_to_hydrogens_in) {
 
    do_bonds_to_hydrogens = do_bonds_to_hydrogens_in;
@@ -5867,7 +5869,8 @@ Bond_lines_container::do_Ca_plus_ligands_bonds(atom_selection_container_t SelAto
       have_dictionary = true;
    }
 
-   int udd_user_defined_atom_colour_index_handle = SelAtom.mol->GetUDDHandle(mmdb::UDR_ATOM, "user-defined-atom-colour-index");
+   int udd_user_defined_atom_colour_index_handle = SelAtom.mol->GetUDDHandle(mmdb::UDR_ATOM,
+                                                                             "user-defined-atom-colour-index");
 
    if (model_p) {
       try_set_b_factor_scale(SelAtom.mol);
@@ -5957,10 +5960,11 @@ Bond_lines_container::do_Ca_plus_ligands_bonds(atom_selection_container_t SelAto
       bool have_udd_atoms = false;
       int udd_bond_handle = -1;
       int udd_atom_index_handle = SelAtom.UDDAtomIndexHandle;
-      add_bonds_het_residues(het_residues, SelAtom, imol, het_atoms_colour_type, have_udd_atoms, udd_bond_handle, udd_atom_index_handle,
+      add_bonds_het_residues(het_residues, SelAtom, imol, het_atoms_colour_type,
+                             have_udd_atoms, udd_bond_handle, udd_atom_index_handle,
                              udd_user_defined_atom_colour_index_handle);
 
-      if (ligand_atoms.size() > 0) {
+      if (! ligand_atoms.empty()) {
          mmdb::PAtom *ligand_atoms_selection = new mmdb::PAtom[ligand_atoms.size()];
          for(unsigned int iat=0; iat<ligand_atoms.size(); iat++) {
             ligand_atoms_selection[iat] = ligand_atoms[iat];

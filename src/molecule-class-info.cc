@@ -3706,7 +3706,13 @@ molecule_class_info_t::make_ca_plus_ligands_bonds(coot::protein_geometry *geom_p
    Bond_lines_container bonds(geom_p, "dummy-CA-mode", no_bonds_to_these_atom_indices, false);
    bonds.do_Ca_plus_ligands_bonds(atom_sel, imol_no, geom_p, 2.4, 4.7, draw_hydrogens_flag,
                                   graphics_info_t::draw_missing_loops_flag);
-   bonds_box = bonds.make_graphical_bonds_no_thinning();
+
+   // 20250124-PE is this a hostage to fortune? We don't want ligands with fat bonds to hydrogen
+   // atoms - but does that mean that one of the Protein chains will be thin?
+   // bonds_box = bonds.make_graphical_bonds_no_thinning();
+   // withe the thinning flag on, bonds with colour HYDROGEN_GREY_BOND are drawn thin.
+   bonds_box = bonds.make_graphical_bonds();
+
    bonds_box_type = coot::CA_BONDS_PLUS_LIGANDS;
    make_glsl_bonds_type_checked(__FUNCTION__);
 

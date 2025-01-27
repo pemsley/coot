@@ -758,10 +758,10 @@ pli::fle_view_with_rdkit_internal(mmdb::Manager *mol,
 
                   std::vector<int> add_reps_vec;
 
-                  if (false) {
+                  if (true) {
                      for (unsigned int ic=0; ic<res_centres.size(); ic++) {
                         const auto &res_centre = res_centres[ic];
-                        std::cout << "  res_centres: " << ic
+                        std::cout << "  fle_view_with_rdkit_internal(): res_centres: " << ic
                                   << " " << res_centre.spec << " " << res_centre.residue_name
                                   << " " << res_centre.transformed_relative_centre.format()
                                   << std::endl;
