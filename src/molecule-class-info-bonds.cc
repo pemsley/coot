@@ -172,7 +172,7 @@ molecule_class_info_t::alt_conf_view_next_alt_conf(const std::string &current_al
       mmdb::Manager *mol = atom_sel.mol;
       int SelectionHandle = mol->NewSelection(); // d
       mol->Select(SelectionHandle, mmdb::STYPE_ATOM, atom_selection.c_str(), mmdb::SKEY_NEW);
-      mmdb::Manager *new_mol = coot::util::create_mmdbmanager_from_atom_selection(mol, SelectionHandle);
+      mmdb::Manager *new_mol = coot::util::create_mmdbmanager_from_atom_selection(mol, SelectionHandle); // deleted?
 
       atom_selection_container_t asc_selection = make_asc(new_mol);
       bool draw_hydrogens_flag = true;
