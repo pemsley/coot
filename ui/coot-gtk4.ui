@@ -7154,6 +7154,251 @@ Do you want to continue?
             </child>
 
             <child type="overlay">
+              <object class="GtkFrame" id="transform_map_by_lsq_model_fit_frame">
+                <property name="halign">center</property>
+                <property name="valign">start</property>
+                <property name="visible">False</property>
+                <property name="margin-bottom">5</property>
+                <property name="margin-end">5</property>
+                <property name="margin-start">5</property>
+                <property name="margin-top">5</property>
+
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                    <property name="spacing">12</property>
+                    <property name="margin-bottom">6</property>
+                    <property name="margin-end">6</property>
+                    <property name="margin-start">6</property>
+                    <property name="margin-top">6</property>
+
+                    <child>
+                      <object class="GtkFrame" id="tmblmf_ref_frame_1">
+			<property name="label">Reference Model Residue Range</property>
+                        <property name="halign">start</property>
+                        <property name="margin-bottom">4</property>
+                        <property name="margin-end">4</property>
+                        <property name="margin-start">4</property>
+                        <property name="margin-top">4</property>
+                        <child>
+                          <object class="GtkBox">
+                            <property name="orientation">vertical</property>
+                            <child>
+                              <object class="GtkComboBoxText" id="tmblmf_comboboxtext_1">
+                                <property name="margin-start">8</property>
+                                <property name="margin-end">8</property>
+                                <property name="margin-top">4</property>
+                                <property name="margin-bottom">4</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkBox">
+                                <property name="spacing">8</property>
+                                <property name="orientation">horizontal</property>
+                                <property name="margin-start">8</property>
+                                <property name="margin-end">8</property>
+                                <property name="margin-top">4</property>
+                                <property name="margin-bottom">4</property>
+                                <child>
+                                  <object class="GtkLabel">
+                                    <property name="label" translatable="yes">Chain ID</property>
+                                    <property name="justify">center</property>
+                                  </object>
+                                </child>
+
+                                <child>
+                                  <object class="GtkEntry" id="tmblmf_chain_id_1_entry">
+                                    <property name="width-request">5</property>
+                                    <property name="margin-end">6</property>
+                                    <property name="margin-start">6</property>
+                                    <property name="placeholder-text">A</property>
+                                  </object>
+                                </child>
+
+                                <child>
+                                  <object class="GtkLabel">
+                                    <property name="label" translatable="yes">Resno Start</property>
+                                    <property name="justify">center</property>
+                                  </object>
+                                </child>
+
+                                <child>
+                                  <object class="GtkEntry" id="tmblmf_resno_start_1_entry">
+                                    <property name="placeholder-text">1</property>
+                                    <property name="width-request">5</property>
+                                    <property name="margin-end">6</property>
+                                    <property name="margin-start">6</property>
+                                  </object>
+                                </child>
+
+                                <child>
+                                  <object class="GtkLabel">
+                                    <property name="label" translatable="yes">Resno End</property>
+                                    <property name="justify">center</property>
+                                  </object>
+                                </child>
+
+                                <child>
+                                  <object class="GtkEntry" id="tmblmf_resno_end_1_entry">
+                                    <property name="placeholder-text">20</property>
+                                    <property name="width-request">5</property>
+                                    <property name="margin-end">6</property>
+                                    <property name="margin-start">6</property>
+                                  </object>
+                                </child>
+
+                              </object>
+                            </child>
+
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="GtkFrame" id="tmblmf_ref_frame_2">
+			<property name="label">"Moving" Model Residue Range</property>
+                        <property name="halign">start</property>
+                        <property name="margin-bottom">4</property>
+                        <property name="margin-end">4</property>
+                        <property name="margin-start">4</property>
+                        <property name="margin-top">4</property>
+                        <child>
+                          <object class="GtkBox">
+                            <property name="orientation">vertical</property>
+                            <child>
+                              <object class="GtkComboBoxText" id="tmblmf_comboboxtext_2">
+                                <property name="margin-start">8</property>
+                                <property name="margin-end">8</property>
+                                <property name="margin-top">4</property>
+                                <property name="margin-bottom">4</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkBox">
+                                <property name="spacing">8</property>
+                                <property name="orientation">horizontal</property>
+                                <property name="margin-start">8</property>
+                                <property name="margin-end">8</property>
+                                <property name="margin-top">4</property>
+                                <property name="margin-bottom">4</property>
+                                <child>
+                                  <object class="GtkLabel">
+                                    <property name="label" translatable="yes">Chain ID</property>
+                                    <property name="justify">center</property>
+                                  </object>
+                                </child>
+
+                                <child>
+                                  <object class="GtkEntry" id="tmblmf_chain_id_2_entry">
+                                    <property name="placeholder-text">B</property>
+                                    <property name="width-request">5</property>
+                                    <property name="margin-end">6</property>
+                                    <property name="margin-start">6</property>
+                                  </object>
+                                </child>
+
+                                <child>
+                                  <object class="GtkLabel">
+                                    <property name="label" translatable="yes">Resno Start</property>
+                                    <property name="justify">center</property>
+                                  </object>
+                                </child>
+
+                                <child>
+                                  <object class="GtkEntry" id="tmblmf_resno_start_2_entry">
+                                    <property name="placeholder-text">1</property>
+                                    <property name="width-request">5</property>
+                                    <property name="margin-end">6</property>
+                                    <property name="margin-start">6</property>
+                                  </object>
+                                </child>
+
+                                <child>
+                                  <object class="GtkLabel">
+                                    <property name="label" translatable="yes">Resno End</property>
+                                    <property name="justify">center</property>
+                                  </object>
+                                </child>
+
+                                <child>
+                                  <object class="GtkEntry" id="tmblmf_resno_end_2_entry">
+                                    <property name="placeholder-text">20</property>
+                                    <property name="width-request">5</property>
+                                    <property name="margin-end">6</property>
+                                    <property name="margin-start">6</property>
+                                  </object>
+                                </child>
+
+                              </object>
+                            </child>
+
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="GtkBox">
+                        <property name="orientation">horizontal</property>
+                        <property name="spacing">8</property>
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="label" translatable="yes">Radius</property>
+                            <property name="justify">center</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkEntry" id="tmblmf_radius_entry">
+                            <property name="text">12</property>
+                            <property name="width-request">5</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="label" translatable="yes">Note that this will transform the current refinement map to around the screen centre</property>
+                        <property name="justify">center</property>
+                        <property name="margin-start">8</property>
+                        <property name="margin-end">8</property>
+                        <property name="margin-top">8</property>
+                        <property name="margin-bottom">8</property>
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="GtkBox">
+                        <property name="orientation">horizontal</property>
+                        <property name="spacing">5</property>
+                        <property name="halign">end</property>
+                        <property name="margin-end">5</property>
+                        <property name="margin-start">4</property>
+                        <child>
+                          <object class="GtkButton" id="tmblmf_cancel_button">
+                            <property name="label" translatable="yes">Cancel</property>
+                            <signal name="clicked" handler="on_tmblmf_cancel_button_clicked" />
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkButton" id="tmblmf_ok_button">
+                            <property name="label" translatable="yes">OK</property>
+                            <signal name="clicked" handler="on_tmblmf_ok_button_clicked" />
+                            <style>
+                              <class name="suggested-action"/>
+                            </style>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+
+
+            <child type="overlay">
               <object class="GtkFrame" id="make_smooth_map_frame">
                 <property name="halign">center</property>
                 <property name="valign">start</property>

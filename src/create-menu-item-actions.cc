@@ -1347,6 +1347,30 @@ void
 transform_map_by_lsq_model_fit_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                       G_GNUC_UNUSED GVariant *parameter,
                                       G_GNUC_UNUSED gpointer user_data) {
+
+   auto get_model_molecule_vector = [] () {
+                                       graphics_info_t g;
+                                       std::vector<int> vec;
+                                       int n_mol = g.n_molecules();
+                                       for (int i=0; i<n_mol; i++)
+                                          if (g.is_valid_model_molecule(i))
+                                             vec.push_back(i);
+                                       return vec;
+                                    };
+
+   GtkWidget *frame = widget_from_builder("transform_map_by_lsq_model_fit_frame");
+   if (frame) {
+      gtk_widget_set_visible(frame, TRUE);
+      GtkWidget *map_combobox_1 = widget_from_builder("tmblmf_comboboxtext_1");
+      GtkWidget *map_combobox_2 = widget_from_builder("tmblmf_comboboxtext_2");
+      GCallback func = G_CALLBACK(nullptr); // we don't care until this dialog is read
+      int imol_map_active = -1;
+      auto model_list = get_model_molecule_vector();
+      if (! model_list.empty()) imol_map_active = model_list[0];
+      graphics_info_t g;
+      g.fill_combobox_with_molecule_options(map_combobox_1, func, imol_map_active, model_list);
+      g.fill_combobox_with_molecule_options(map_combobox_2, func, imol_map_active, model_list);
+   }
 }
 
 class average_map_box_widgets_container_t {

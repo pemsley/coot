@@ -870,8 +870,8 @@ coot::util::transform_map(const clipper::Xmap<float> &xmap_in,
 
    xmap.init(new_space_group, new_cell, new_gs);
 
-   std::cout << "coord info:         to_pt: " << to_pt.format()    << std::endl;
-   std::cout << "coord info:      about_pt: " << about_pt.format() << std::endl;
+   std::cout << "INFO:: coord info:         to_pt: " << to_pt.format()    << std::endl;
+   std::cout << "INFO:: coord info:      about_pt: " << about_pt.format() << std::endl;
 
    clipper::Grid_sampling grid = xmap.grid_sampling();
    clipper::Grid_range gr(xmap.cell(), xmap.grid_sampling(), box_size);
@@ -880,6 +880,16 @@ coot::util::transform_map(const clipper::Xmap<float> &xmap_in,
    typedef clipper::Xmap<float>::Map_reference_coord MRC;
    MRC i0, iu, iv, iw;
    g = to_pt.coord_frac(new_cell).coord_grid(new_gs);
+
+   if (false) { // 20250128-PE  have you got the correct cell angles?
+      std::cout << "INFO:: new_cell: " << new_cell.format() << std::endl;
+      std::cout << "INFO:: new_gs: " << new_gs.format() << std::endl;
+      std::cout << "INFO:: to_pt: " << to_pt.format() << std::endl;
+      clipper::Coord_frac cf = to_pt.coord_frac(new_cell);
+      std::cout << "INFO:: to_pt.coord_frac: " << cf.format() << std::endl;
+      std::cout << "INFO:: to_pt.coord_frac.coord_grid: " << to_pt.coord_frac(new_cell).coord_grid(new_gs).format()
+                << std::endl;
+   }
 
    std::cout << "DEBUG:: pulling map from point:   " << about_pt.format() << std::endl;
    std::cout << "DEBUG:: creating map about point: " << to_pt.format() << std::endl;
