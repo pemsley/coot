@@ -16,8 +16,6 @@ copy_ncs_chain_action
 ncs_jumping_action
 ncs_ligands_action
 
-Make a very smooth copy: Depythonize.
-
 Send Charles info about Coot tests.
 
 1.1.12 make svg molecule work again (pli need not work). Test wedge bonds. Test atom
@@ -30,8 +28,14 @@ Release new 0.9.8.x
 post-release: 1ajs, do a tandem refine on 222B - why do I get an bad contact marker
 with 258 N1? Ah! They are both acceptors! Interesting. What to do about it?
 
+More work on molecule_class_info_t::alt_conf_view_next_alt_conf(const std::string &current_alt_conf)
+needed.
+
 Make a blog post: Coot and the XDG Base Directory Protocol
 Where do files from Acedrg go? Or downloaded/fetched? Or servalcat?
+
+Make a very smooth copy: Depythonize.
+* Done.
 
 1.1.12 Import the CCD for A1AWR and try to regularize the ligand.
 It should give an error message, not proceed with the refinement!
