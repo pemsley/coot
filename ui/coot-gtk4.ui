@@ -301,16 +301,18 @@
               <attribute name="action">app.make_a_difference_map_action</attribute>
             </item>
             <item>
-              <attribute name="label">Transform Map by LSQ Model Fit...[Placeholder]</attribute>
+              <attribute name="label">Transform Map by LSQ Model Fit...</attribute>
               <attribute name="action">app.transform_map_by_lsq_model_fit_action</attribute>
             </item>
             <item>
               <attribute name="label">Average Maps...</attribute>
               <attribute name="action">app.average_maps_action</attribute>
             </item>
+            <!-- Placeholder
             <item>
               <attribute name="label">Map Density Histogram [Placeholder]</attribute>
             </item>
+            -->
             <item>
               <attribute name="label">Brighten Maps</attribute>
               <attribute name="action">app.brighten_maps_action</attribute>
@@ -4300,6 +4302,7 @@ the Ctrl key when moving the mouse.</property>
           <object class="GtkBox">
             <property name="orientation">horizontal</property>
             <property name="spacing">6</property>
+            <property name="halign">end</property>
             <child>
               <object class="GtkButton" id="copy_fragment_cancel_button">
                 <property name="label" translatable="yes"> Cancel </property>
@@ -7143,6 +7146,9 @@ Do you want to continue?
                           <object class="GtkButton" id="copy_map_ok_button">
                             <property name="label" translatable="yes">OK</property>
                             <signal name="clicked" handler="on_copy_map_ok_button_clicked" />
+                            <style>
+                              <class name="suggested-action"/>
+                            </style>
                           </object>
                         </child>
                       </object>
