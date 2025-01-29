@@ -1,6 +1,23 @@
 ----
 
-Transfer aniso-B information in gemmi-mmdb
+GEMMI: Transfer aniso-B information in gemmi-mmdb
+
+Moorhen: Delete Waters
+
+Moorhen: Session file doesn't save the environment distances on restore.
+
+Are the GLUprot ASPprot Hisprot1 Hisprot2 in the monomer library mon_lib_list.cif (from github)
+
+Sprout hydrogens should work on protein residues
+Sprout hydrogens should be in the ligand menu
+
+NCS Ghost Control (github issue Oli)
+
+EDStats interface for chapi and coot.
+
+Add hydrogen atoms to waters - don't care about orientation.
+
+Add Deuteurium fraction information in the status bar on atom click
 
 HOLE is missing
 
@@ -30,6 +47,9 @@ with 258 N1? Ah! They are both acceptors! Interesting. What to do about it?
 
 More work on molecule_class_info_t::alt_conf_view_next_alt_conf(const std::string &current_alt_conf)
 needed.
+
+Does copy-fragment work with ||?
+* Done.
 
 Make a blog post: Coot and the XDG Base Directory Protocol
 Where do files from Acedrg go? Or downloaded/fetched? Or servalcat?
