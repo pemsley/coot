@@ -1589,6 +1589,11 @@ public:
    static float RotationCentre_y() { return rotation_centre_y; }
    static float RotationCentre_z() { return rotation_centre_z; }
 
+   static clipper::Coord_orth hole_start;
+   static clipper::Coord_orth hole_end;
+   void set_hole_start() { hole_start = get_rotation_centre_co(); }
+   void set_hole_end()   { hole_end   = get_rotation_centre_co(); }
+
    static coot::Cartesian smooth_scroll_start_point;
    static coot::Cartesian smooth_scroll_target_point;
 

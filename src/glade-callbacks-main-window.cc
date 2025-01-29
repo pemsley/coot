@@ -1730,3 +1730,71 @@ on_tmblmf_ok_button_clicked(G_GNUC_UNUSED GtkButton       *button,
    if (frame)
       gtk_widget_set_visible(frame, FALSE);
 }
+
+extern "C" G_MODULE_EXPORT
+void
+on_hole_dialog_response(GtkDialog       *dialog,
+                        gint             response_id,
+                        gpointer         user_data) {
+
+   std::cout << "-------------------------------- on_hole_dialog_response() " << response_id << std::endl;
+
+   if (response_id == GTK_RESPONSE_OK) {
+      std::cout << "here.... " << std::endl;
+      graphics_info_t g;
+      clipper::Coord_orth start = g.hole_start;
+      clipper::Coord_orth   end = g.hole_end;
+      GtkWidget *commbobox = widget_from_builder("hole_model_comboboxtext");
+      int imol = my_combobox_get_imol(GTK_COMBO_BOX(commbobox));
+      std::cout << "here.... with imol " << imol << std::endl;
+      if (is_valid_model_molecule(imol)) {
+         float colour_map_multiplier = 1.0;
+         float colour_map_offset = 0.0;
+         int n_runs = 1000;
+         bool show_probe_radius_graph_flag = true;
+         GtkWidget *entry = widget_from_builder("hole_surface_dots_file_name_entry");
+         const char *t = gtk_editable_get_text(GTK_EDITABLE(entry));
+         if (t) {
+            std::string export_surface_dots_file_name = std::string(t);
+            hole(imol, start.x(), start.y(), start.z(), end.x(), end.y(), end.z(),
+                 colour_map_multiplier, colour_map_offset,
+                 n_runs, show_probe_radius_graph_flag,
+                 export_surface_dots_file_name);
+         }
+      }
+   }
+
+   gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_hole_set_start_button_clicked(G_GNUC_UNUSED GtkButton       *button,
+                                 G_GNUC_UNUSED gpointer         user_data) {
+
+   GtkWidget *entry = widget_from_builder("hole_start_entry");
+   const char *t = gtk_editable_get_text(GTK_EDITABLE(entry));
+   try {
+      graphics_info_t g;
+      g.set_hole_start();
+   }
+   catch (const std::runtime_error &e) {
+      std::cout << "WARNING::" << e.what() << std::endl;
+   }
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_hole_set_end_button_clicked(G_GNUC_UNUSED GtkButton       *button,
+                               G_GNUC_UNUSED gpointer         user_data) {
+
+   GtkWidget *entry = widget_from_builder("hole_end_entry");
+   const char *t = gtk_editable_get_text(GTK_EDITABLE(entry));
+   try {
+      graphics_info_t g;
+      g.set_hole_end();
+   }
+   catch (const std::runtime_error &e) {
+      std::cout << "WARNING::" << e.what() << std::endl;
+   }
+}
