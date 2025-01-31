@@ -500,7 +500,7 @@ coot::restraints_container_t::add_extra_restraints(int imol,
 
    // std::cout << "HHHHHHHHHere in add_extra_restraints() - from " << description << std::endl;
 
-   if (true) {
+   if (false) {
       std::cout << "INFO:: extra restraints origin: " << description << std::endl;
       std::cout << "--------------------- in add_extra_restraints() we have "
 		<< restraints_vec.size() << " standard restraints "
