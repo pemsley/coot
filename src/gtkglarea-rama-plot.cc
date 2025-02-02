@@ -35,10 +35,13 @@ gtkgl_rama_realize(GtkWidget *gtk_gl_area) {
 
    graphics_info_t g;
    if (!g.rama_plot_boxes.empty()) {
+      GtkWidget *pane_to_show  = widget_from_builder("main_window_ramchandran_and_validation_pane");
+      gtk_widget_set_visible(pane_to_show, TRUE);
       GtkWidget *paned = widget_from_builder("main_window_graphics_rama_vs_graphics_pane");
       int position = gtk_paned_get_position(GTK_PANED(paned));
-      // std::cout << ":::::::::::: in gtkgl_rama_realize() the paned had position " << position << std::endl;
-      if (position < 10) {
+      // std::cout << ":::::::::::: in gtkgl_rama_realize() the paned had position "
+      // << position << std::endl;
+      if (position < 400) {
          gtk_paned_set_position(GTK_PANED(paned), 400);
          // std::cout << ":::::::::::: gtk_paned_set_position 400 here " << std::endl;
       }
@@ -76,7 +79,6 @@ gtkgl_rama_realize(GtkWidget *gtk_gl_area) {
 void
 gtkgl_rama_unrealize(GtkWidget *gl_area) {
 
-
 }
 
 void
@@ -87,7 +89,7 @@ gtkgl_rama_on_glarea_render(GtkWidget *gtk_gl_area) {
       if (g.rama_plot_boxes[i].gtk_gl_area == gtk_gl_area) {
 
          // Dangerous for main window code
-         // GdkGLContext *context = gtk_gl_area_get_context(GTK_GL_AREA(gtk_gl_area)); // needed?
+         GdkGLContext *context = gtk_gl_area_get_context(GTK_GL_AREA(gtk_gl_area)); // needed?
          gtk_gl_area_make_current(GTK_GL_AREA (gtk_gl_area));
          bool need_clear = true; // this is a "validation" Rama plot and has its own context
 
@@ -209,7 +211,7 @@ void show_opengl_ramachandran_plot(int imol, const std::string &residue_selectio
          GtkWidget *box_for_all_plots = widget_from_builder("ramachandran_plots_vbox");
          GtkWidget *box_for_this_plot = GTK_WIDGET(user_data);
          graphics_info_t g;
-         g.remove_plot_from_rama_plots(box_for_this_plot); 
+         g.remove_plot_from_rama_plots(box_for_this_plot);
          gtk_box_remove(GTK_BOX(box_for_all_plots), box_for_this_plot);
          GtkWidget *scrolled = widget_from_builder("ramachandran_plots_scrolled_window");
          gtk_widget_set_visible(scrolled, FALSE);

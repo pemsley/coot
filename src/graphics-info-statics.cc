@@ -195,6 +195,9 @@ float  graphics_info_t::rotation_centre_z = 0.0;
 // float  graphics_info_t::old_rotation_centre_y = 0.0;
 // float  graphics_info_t::old_rotation_centre_z = 0.0;
 coot::Cartesian graphics_info_t::old_rotation_centre(0,0,0);
+clipper::Coord_orth graphics_info_t::hole_start = clipper::Coord_orth(0,0,0);
+clipper::Coord_orth graphics_info_t::hole_end   = clipper::Coord_orth(0,0,0);
+
 float  graphics_info_t::zoom                = 100;
 int    graphics_info_t::smooth_scroll       =   1; // flag: default is ..
 int    graphics_info_t::smooth_scroll_n_steps =  20;

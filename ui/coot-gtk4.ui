@@ -811,6 +811,10 @@
           <attribute name="label">Pointer Distances...</attribute>
           <attribute name="action">app.pointer_distances_action</attribute>
         </item>
+        <item>
+          <attribute name="label">HOLE...</attribute>
+          <attribute name="action">app.HOLE_action</attribute>
+        </item>
       </section>
     </submenu>
 
@@ -6842,10 +6846,11 @@ Do you want to continue?
                             <child>
                               <!-- difference map peaks and unmodelled blobs "dialogs" should go here -->
                               <object class="GtkBox" id="validation_boxes_vbox">
+                                <property name="visible">False</property>
                                 <property name="orientation">vertical</property>
 
                                 <child>
-                                  <object class="GtkBox" id="dialog-vbox78">
+                                  <object class="GtkBox" id="dialog-vbox78"> <!-- change this name one day -->
                                     <property name="visible">False</property>
                                     <property name="orientation">vertical</property>
                                     <child>
@@ -17281,27 +17286,142 @@ Move a copy?</property>
     </child>
   </object>
 
-  <!-- make this an overlay from the start -->
-  <object class="GtkDialog" id="acedrg_link_dialog__wip">
-    <property name="title" translatable="yes">Coot: Acedrg Link dialog</property>
+  <object class="GtkDialog" id="hole_dialog">
+    <property name="title" translatable="yes">Coot: HOLE</property>
+    <signal name="response" handler="on_hole_dialog_response" swapped="no"/>
+    <property name="margin-start">4</property>
+    <property name="margin-end">4</property>
+    <property name="margin-top">4</property>
+    <property name="margin-bottom">4</property>
+
     <child>
-      <object class="GtkBox">
+      <object class="GtkBox" id="hole_vbox_internal">
         <property name="orientation">vertical</property>
-        <property name="spacing">4</property>
+        <property name="spacing">2</property>
+        <property name="margin-start">4</property>
+        <property name="margin-end">4</property>
+        <property name="margin-top">4</property>
+        <property name="margin-bottom">4</property>
         <child>
           <object class="GtkBox">
-            <property name="orientation">horizontal</property>
+            <property name="orientation">vertical</property>
+            <property name="margin-start">4</property>
+            <property name="margin-end">4</property>
+            <property name="margin-top">4</property>
+            <property name="margin-bottom">4</property>
             <child>
               <object class="GtkLabel">
-                <property name="label" translatable="yes">Order:</property>
+                <property name="label" translatable="yes">Coot's Implementation of Oliver Smart's HOLE</property>
                 <property name="justify">center</property>
               </object>
             </child>
-
+            <child>
+              <object class="GtkComboBoxText" id="hole_model_comboboxtext">
+                <property name="margin-start">8</property>
+                <property name="margin-end">8</property>
+                <property name="margin-top">4</property>
+                <property name="margin-bottom">4</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkBox" id="hbox_1_hole">
+                <property name="orientation">horizontal</property>
+                <property name="margin-start">4</property>
+                <property name="margin-end">4</property>
+                <property name="margin-top">4</property>
+                <property name="margin-bottom">4</property>
+                <child>
+                  <object class="GtkButton" id="hole_set_start_point_button">
+                    <property name="label">Set Start Point</property>
+                    <property name="margin-start">4</property>
+                    <property name="margin-end">4</property>
+                    <property name="margin-top">4</property>
+                    <property name="margin-bottom">4</property>
+                    <signal name="clicked" handler="on_hole_set_start_button_clicked" swapped="no"/>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkButton" id="hole_set_end_end_button">
+                    <property name="label">Set End Point</property>
+                    <property name="margin-start">4</property>
+                    <property name="margin-end">4</property>
+                    <property name="margin-top">4</property>
+                    <property name="margin-bottom">4</property>
+                    <signal name="clicked" handler="on_hole_set_end_button_clicked" swapped="no"/>
+                  </object>
+                </child>
+              </object>
+            </child>
           </object>
         </child>
+        <child>
+          <object class="GtkBox" id="hbox_2_hole">
+            <property name="orientation">horizontal</property>
+            <property name="margin-start">4</property>
+            <property name="margin-end">4</property>
+            <property name="margin-top">4</property>
+            <property name="margin-bottom">4</property>
+            <child>
+              <object class="GtkLabel">
+                <property name="label" translatable="yes">Export surface dots to file</property>
+                <property name="justify">center</property>
+                <property name="margin-start">4</property>
+                <property name="margin-end">4</property>
+                <property name="margin-top">4</property>
+                <property name="margin-bottom">4</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkEntry" id="hole_surface_dots_file_name_entry">
+                <property name="width-request">30</property>
+                <property name="text">hole-surface-dots.dat</property>
+                <property name="margin-start">4</property>
+                <property name="margin-end">4</property>
+                <property name="margin-top">4</property>
+                <property name="margin-bottom">4</property>
+              </object>
+            </child>
+          </object>
+        </child>
+
+        <child>
+          <object class="GtkBox">
+            <property name="orientation">horizontal</property>
+            <property name="spacing">6</property>
+            <property name="halign">end</property>
+            <property name="margin-end">6</property>
+            <property name="margin-start">4</property>
+            <child>
+              <object class="GtkButton" id="hole_dialog_cancel_button">
+                <property name="label" translatable="yes">Cancel</property>
+                <property name="margin-start">4</property>
+                <property name="margin-end">4</property>
+                <property name="margin-top">4</property>
+                <property name="margin-bottom">4</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="hole_dialog_ok_button">
+                <property name="label" translatable="yes">OK</property>
+                <property name="margin-start">4</property>
+                <property name="margin-end">4</property>
+                <property name="margin-top">4</property>
+                <property name="margin-bottom">4</property>
+                <style>
+                  <class name="suggested-action"/>
+                </style>
+              </object>
+            </child>
+          </object>
+        </child>
+
       </object>
     </child>
+
+    <action-widgets>
+      <action-widget response="-6">hole_dialog_cancel_button</action-widget>
+      <action-widget response="-5">hole_dialog_ok_button</action-widget>
+    </action-widgets>
   </object>
 
   <object class="GtkShortcutsWindow" id="coot_shortcuts_window">

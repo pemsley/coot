@@ -1572,10 +1572,11 @@ ncs_ligands_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                    G_GNUC_UNUSED gpointer user_data) {
 }
 
-void add_HOLE_module_action(GSimpleAction *simple_action,
-                            G_GNUC_UNUSED GVariant *parameter,
-                            G_GNUC_UNUSED gpointer user_data) {
+void HOLE_action(GSimpleAction *simple_action,
+                 G_GNUC_UNUSED GVariant *parameter,
+                 G_GNUC_UNUSED gpointer user_data) {
 
+#if 0
    graphics_info_t g;
    short int lang = coot::STATE_PYTHON;
    std::vector<coot::command_arg_t> args = {};
@@ -1586,8 +1587,27 @@ void add_HOLE_module_action(GSimpleAction *simple_action,
    safe_python_command(sc);
    graphics_info_t::graphics_grab_focus();
 
-   // needed?
-   // g_simple_action_set_enabled(simple_action,FALSE);
+#endif
+
+   auto get_model_molecule_vector = [] () {
+                                       graphics_info_t g;
+                                       std::vector<int> vec;
+                                       int n_mol = g.n_molecules();
+                                       for (int i=0; i<n_mol; i++)
+                                          if (g.is_valid_model_molecule(i))
+                                             vec.push_back(i);
+                                       return vec;
+                                    };
+
+   GtkWidget *dialog = widget_from_builder("hole_dialog");
+   GtkWidget *combobox = widget_from_builder("hole_model_comboboxtext");
+   graphics_info_t g;
+   int imol_active = -1;
+   auto model_list = get_model_molecule_vector();
+   if (! model_list.empty()) imol_active = model_list[0];
+   GCallback func = G_CALLBACK(nullptr); // we don't care until this dialog is read
+   g.fill_combobox_with_molecule_options(combobox, func, imol_active, model_list);
+   gtk_widget_set_visible(dialog, TRUE);
 }
 
 void acedrg_link_interface_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -3541,7 +3561,7 @@ void highly_coordinates_waters_action(G_GNUC_UNUSED GSimpleAction *simple_action
                                           G_GNUC_UNUSED GVariant *parameter,
                                           G_GNUC_UNUSED gpointer user_data) {
 
-   
+
    graphics_info_t g;
    short int lang = coot::STATE_PYTHON;
    std::string module = "coot_gui";
@@ -3561,13 +3581,15 @@ void overlaps_peptides_cbeta_ramas_and_rotas_action(G_GNUC_UNUSED GSimpleAction 
 
    graphics_info_t g;
    std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
-   std::cout << "in overlaps_peptides_cbeta_ramas_and_rotas_action() with pp " << pp.first << " " << pp.second.first << std::endl;
    if (pp.first) {
+
+      GtkWidget* vbox_vbox = widget_from_builder("validation_boxes_vbox");
+      gtk_widget_set_visible(vbox_vbox, TRUE);
 
       int imol = pp.second.first;
       overlaps_peptides_cbeta_ramas_and_rotas_internal(imol);
    }
-   
+
    // graphics_info_t g;
    // std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
    // if (pp.first) {
@@ -3607,6 +3629,8 @@ void validation_outliers_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
       int imol = pp.second.first;
       int imol_map = imol_refinement_map();
+      GtkWidget* vbox_vbox = widget_from_builder("validation_boxes_vbox");
+      gtk_widget_set_visible(vbox_vbox, TRUE);
       dynamic_validation_internal(imol, imol_map);
 
       // Goodbye wretched python
@@ -4641,7 +4665,6 @@ create_actions(GtkApplication *application) {
 
    // Calculate -> Modules
 
-   add_action(        "add_HOLE_module_action",         add_HOLE_module_action);
    add_action(        "add_ccp4_module_action",         add_ccp4_module_action);
    add_action("add_carbohydrate_module_action", add_carbohydrate_module_action);
    add_action(     "add_cryo_em_module_action",      add_cryo_em_module_action);
@@ -4756,6 +4779,7 @@ create_actions(GtkApplication *application) {
    add_action(    "pointer_distances_action",     pointer_distances_action);
    add_action( "distances_and_angles_action",  distances_and_angles_action);
    add_action("environment_distances_action", environment_distances_action);
+   add_action(                 "HOLE_action",                  HOLE_action);
 
    // Validate
 
