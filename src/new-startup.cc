@@ -975,13 +975,19 @@ new_startup_application_activate(GtkApplication *application,
       // load_tutorial_model_and_data();
       delete activate_data;
 
-      g_idle_add(+[](gpointer data)-> gboolean {
+      auto destroy_splash_screen_callback = +[] (gpointer data) {
          GtkWindow* splash_screen = GTK_WINDOW(data);
          gtk_window_destroy(splash_screen);
          return G_SOURCE_REMOVE;
-      }, splash_screen);
+      };
+      g_idle_add(destroy_splash_screen_callback, splash_screen);
 
-      g_idle_add([](gpointer user_data) { run_command_line_scripts(); return FALSE; }, nullptr);
+      auto run_command_line_scripts_callback = +[] (gpointer user_data) {
+         run_command_line_scripts();
+         return G_SOURCE_REMOVE;
+      };
+      g_idle_add(run_command_line_scripts_callback, nullptr);
+
       return G_SOURCE_REMOVE;
    }, activate_data);
 

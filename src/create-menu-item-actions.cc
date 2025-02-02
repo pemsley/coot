@@ -3561,7 +3561,7 @@ void highly_coordinates_waters_action(G_GNUC_UNUSED GSimpleAction *simple_action
                                           G_GNUC_UNUSED GVariant *parameter,
                                           G_GNUC_UNUSED gpointer user_data) {
 
-   
+
    graphics_info_t g;
    short int lang = coot::STATE_PYTHON;
    std::string module = "coot_gui";
@@ -3581,13 +3581,15 @@ void overlaps_peptides_cbeta_ramas_and_rotas_action(G_GNUC_UNUSED GSimpleAction 
 
    graphics_info_t g;
    std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
-   std::cout << "in overlaps_peptides_cbeta_ramas_and_rotas_action() with pp " << pp.first << " " << pp.second.first << std::endl;
    if (pp.first) {
+
+      GtkWidget* vbox_vbox = widget_from_builder("validation_boxes_vbox");
+      gtk_widget_set_visible(vbox_vbox, TRUE);
 
       int imol = pp.second.first;
       overlaps_peptides_cbeta_ramas_and_rotas_internal(imol);
    }
-   
+
    // graphics_info_t g;
    // std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
    // if (pp.first) {
@@ -3627,6 +3629,8 @@ void validation_outliers_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
       int imol = pp.second.first;
       int imol_map = imol_refinement_map();
+      GtkWidget* vbox_vbox = widget_from_builder("validation_boxes_vbox");
+      gtk_widget_set_visible(vbox_vbox, TRUE);
       dynamic_validation_internal(imol, imol_map);
 
       // Goodbye wretched python

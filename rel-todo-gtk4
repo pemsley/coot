@@ -1,5 +1,11 @@
 ----
 
+acedrg standalone?
+BUSTER progress?
+
+Feature request: occupancy and b-factors of atoms close to the centre of screen.
+Key binding.
+
 GEMMI: Transfer aniso-B information in gemmi-mmdb
 
 Moorhen: Delete Waters
@@ -19,15 +25,14 @@ Add hydrogen atoms to waters - don't care about orientation.
 
 Add Deuteurium fraction information in the status bar on atom click
 
-HOLE is missing
-
-make_a_difference_map_action
-transform_map_by_lsq_model_fit_action
-average_maps_action
-brighten_maps_action
-set_map_is_difference_map_action
-another_contour_level_action
-multichicken_action
+HOLE (use a dialog, not an overlay)   o Done.
+make_a_difference_map_action          * Done.
+transform_map_by_lsq_model_fit_action * Done.
+average_maps_action                   * Done.
+brighten_maps_action                  * Done.
+set_map_is_difference_map_action      * Done.
+another_contour_level_action          * Done.
+multichicken_action                   * Done.
 copy_ncs_residue_range_action
 copy_ncs_chain_action
 ncs_jumping_action

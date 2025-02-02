@@ -936,12 +936,18 @@ void
 graphics_info_t::update_validation(int imol_changed_model) {
 
    // 20230910-PE, well, we only want to update the validation if it was already being displayed.
+   // 20250202-PE so the caller sets the visibility of validation_boxes_vbox to true.
 
    if (! use_graphics_interface_flag) return;
 
+   bool do_dynamic_validation = false;
+   GtkWidget* vbox_dv = widget_from_builder("validation_boxes_vbox");
+   if (gtk_widget_get_visible(vbox_dv)) do_dynamic_validation = true;
+
    update_validation_graphs(imol_changed_model);
    update_ramachandran_plot(imol_changed_model);
-   update_dynamic_validation_for_molecule(imol_changed_model); // maybe.
+   if (do_dynamic_validation)
+      update_dynamic_validation_for_molecule(imol_changed_model); // maybe.
 
    if (coot_all_atom_contact_dots_are_begin_displayed_for(imol_changed_model)) {
       mmdb::Manager *mol = molecules[imol_changed_model].atom_sel.mol;

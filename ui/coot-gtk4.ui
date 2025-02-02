@@ -6846,10 +6846,11 @@ Do you want to continue?
                             <child>
                               <!-- difference map peaks and unmodelled blobs "dialogs" should go here -->
                               <object class="GtkBox" id="validation_boxes_vbox">
+                                <property name="visible">False</property>
                                 <property name="orientation">vertical</property>
 
                                 <child>
-                                  <object class="GtkBox" id="dialog-vbox78">
+                                  <object class="GtkBox" id="dialog-vbox78"> <!-- change this name one day -->
                                     <property name="visible">False</property>
                                     <property name="orientation">vertical</property>
                                     <child>
