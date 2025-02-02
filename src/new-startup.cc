@@ -936,8 +936,8 @@ new_startup_application_activate(GtkApplication *application,
       gtk_box_prepend(GTK_BOX(graphics_hbox), gl_area);
       gtk_window_set_application(GTK_WINDOW(app_window), application);
 #ifdef __APPLE__
-      gtk_widget_set_size_request(gl_area, 550, 550); // Hmm
-      gtk_window_set_default_size(GTK_WINDOW(app_window), 580, 580);
+      gtk_widget_set_size_request(gl_area, 600, 600); // Hmm
+      gtk_window_set_default_size(GTK_WINDOW(app_window), 600, 600);
       gtk_window_set_default_widget(GTK_WINDOW(app_window), gl_area);
       gtk_widget_set_visible(app_window, TRUE);
       gtk_window_set_focus_visible(GTK_WINDOW(app_window), TRUE);
