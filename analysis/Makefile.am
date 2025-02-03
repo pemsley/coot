@@ -23,7 +23,7 @@
 
 lib_LTLIBRARIES=libcoot-analysis.la
 
-pkginclude_HEADERS=bfkurt.hh mogul-interface.hh stats.hh daca.hh rna-backbone.hh
+pkginclude_HEADERS=bfkurt.hh mogul-interface.hh stats.hh daca.hh rna-backbone.hh chi-squared.hh
 pkgincludedir = $(includedir)/coot/analysis
 
 AM_CPPFLAGS = \
@@ -34,7 +34,7 @@ AM_CPPFLAGS = \
 
 libcoot_analysis_la_SOURCES = bfkurt.cc mogul.cc kolmogorov.hh kolmogorov.cc stats.cc \
 	cablam.hh cablam.cc typed-distances.cc typed-distances.hh \
-	b-factor-histogram.cc b-factor-histogram.hh daca.cc rna-backbone.cc
+	b-factor-histogram.cc b-factor-histogram.hh daca.cc rna-backbone.cc chi-squared.cc
 
 # note to self: does RDKIT_LIBS belong here or should it be added to the LDADD of
 # one of these libraries?
