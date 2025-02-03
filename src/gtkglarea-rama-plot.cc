@@ -33,9 +33,21 @@ gtkgl_rama_realize(GtkWidget *gtk_gl_area) {
 
    // ----- expand the Rama pane if needed
 
+   if (false) { // debugging failure to view on macOS
+      // fix these names at some stage
+      GtkWidget *pane_1 = widget_from_builder("main_window_ramchandran_and_validation_pane");
+      GtkWidget *pane_2 = widget_from_builder("main_window_graphics_rama_vs_graphics_pane");
+      GtkWidget *sw = widget_from_builder("ramachandran_plots_scrolled_window");
+      GtkWidget *plots_vbox = widget_from_builder("ramachandran_plots_vbox");
+      gtk_widget_set_visible(pane_1, TRUE);
+      gtk_widget_set_visible(pane_2, TRUE);
+      gtk_widget_set_visible(sw, TRUE);
+      gtk_widget_set_visible(plots_vbox, TRUE);
+   }
+
    graphics_info_t g;
    if (!g.rama_plot_boxes.empty()) {
-      GtkWidget *pane_to_show  = widget_from_builder("main_window_ramchandran_and_validation_pane");
+      GtkWidget *pane_to_show = widget_from_builder("main_window_ramchandran_and_validation_pane");
       gtk_widget_set_visible(pane_to_show, TRUE);
       GtkWidget *paned = widget_from_builder("main_window_graphics_rama_vs_graphics_pane");
       int position = gtk_paned_get_position(GTK_PANED(paned));
