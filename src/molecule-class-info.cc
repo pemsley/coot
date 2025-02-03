@@ -77,7 +77,7 @@
 #include "graphics-info.h"
 
 #include "coords/Bond_lines_ext.h"
-#include "globjects.h" // for set_bond_colour(), r_50
+#include "globjects.h" // for set_bond_colour(), prob_to_radius
 
 #include "coot-utils/coot-coord-utils.hh"
 #include "utils/coot-utils.hh"
@@ -679,7 +679,7 @@ molecule_class_info_t::draw_anisotropic_atoms() {
             float x1, y1, z1;
             float x_diff, y_diff, z_diff;
             float d2, mc_r2 = g.show_aniso_atoms_radius*g.show_aniso_atoms_radius;
-            float rad_50, r;
+            float r;
 
             for (int i=0; i<atom_sel.n_selected_atoms; i++) {
 
@@ -733,9 +733,7 @@ molecule_class_info_t::draw_anisotropic_atoms() {
                         std::pair<bool,GL_matrix> chol_pair = mat.eigensystem();
                         if (chol_pair.first) {
                            glMultMatrixf(chol_pair.second.get());
-                           rad_50 = r_50(atom_sel.atom_selection[i]->element);
-                           r = rad_50_and_prob_to_radius(rad_50,
-                                                         g.show_aniso_atoms_probability);
+                           r = prob_to_radius(g.show_aniso_atoms_probability);
                            // note: g.show_aniso_atoms_probability is in the range
                            // 0.0 -> 100.0
                            glutWireSphere(r, 10, 10);
