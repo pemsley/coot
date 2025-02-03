@@ -937,11 +937,11 @@ new_startup_application_activate(GtkApplication *application,
       gtk_window_set_application(GTK_WINDOW(app_window), application);
 #ifdef __APPLE__
       gtk_widget_set_size_request(gl_area, 600, 600); // Hmm
-      gtk_window_set_default_size(GTK_WINDOW(app_window), 600, 600);
+      gtk_window_set_default_size(GTK_WINDOW(app_window), 700, 700);
       gtk_window_set_default_widget(GTK_WINDOW(app_window), gl_area);
-      gtk_widget_set_visible(app_window, TRUE);
-      gtk_window_set_focus_visible(GTK_WINDOW(app_window), TRUE);
 #else
+      gtk_window_set_focus_visible(GTK_WINDOW(app_window), TRUE);
+
       // 20230729-PE
       // gtk_widget_set_size_request() does't seem to work on the gl_area.
       // So expand the gl_area by setting thw window size just so. This makes the
