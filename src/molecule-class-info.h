@@ -609,6 +609,7 @@ class molecule_class_info_t {
    bool residue_has_TER_atom(mmdb::Residue *res_p) const;
    void remove_TER_internal(mmdb::Residue *res_p);
    void remove_TER_on_last_residue(mmdb::Chain *chain_p);
+   void remove_TER_on_residue_if_last_residue(mmdb::Chain *chain_p, mmdb::Residue *residue_p);
 
    // Return a new orienation, to be used to set the view orientation/quaternion.
    //
