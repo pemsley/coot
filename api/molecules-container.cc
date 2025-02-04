@@ -4952,13 +4952,13 @@ molecules_container_t::get_simple_molecule(int imol, const std::string &residue_
 
 //! @return a vector of lines for non-bonded contacts and hydrogen bonds
 generic_3d_lines_bonds_box_t
-molecules_container_t::make_exportable_environment_bond_box(int imol, coot::residue_spec_t &spec) {
+molecules_container_t::make_exportable_environment_bond_box(int imol, coot::residue_spec_t &spec, float max_dist) {
 
    // this function is non-const because the Bonds_lines function needs a mutable protein_geometry
 
    generic_3d_lines_bonds_box_t bonds_box;
    if (is_valid_model_molecule(imol)) {
-      bonds_box = molecules[imol].make_exportable_environment_bond_box(spec, geom);
+      bonds_box = molecules[imol].make_exportable_environment_bond_box(spec, max_dist, geom);
    } else {
       std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
@@ -6091,6 +6091,25 @@ molecules_container_t::get_residue_sidechain_average_position(int imol, const st
       std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
    return v;
+}
+
+//! Get the torsion of the specified atom in the specified residue
+//!
+//! @param imol is the model molecule index
+//! @param cid is the selection CID, e.g. //A/15 (residue 15 in chain A)
+//! @param atom_names is a list of atom names, e.g. ["CA", "CB", "CG", "CD"]
+//!
+//! @return a pair, the first of which is a succes status (1 success, 0 failure), the second is the torsion in degrees
+std::pair<int, double>
+molecules_container_t::get_torsion(int imol, const std::string &cid, const std::vector<std::string> &atom_names) {
+   std::pair<int, double> p(0,0);
+
+   if (is_valid_model_molecule(imol)) {
+      p = molecules[imol].get_torsion(cid, atom_names);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return p;
 }
 
 //! set the occupancy for the given atom selection

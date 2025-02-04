@@ -5012,6 +5012,22 @@ coot::molecule_t::get_residue_sidechain_average_position(const std::string &cid)
    return v;
 }
 
+std::pair<int, double>
+coot::molecule_t::get_torsion(const std::string &cid, const std::vector<std::string> &atom_names) const {
+   std::pair<int, double> p(0,0);
+   mmdb::Residue * residue_p = cid_to_residue(cid);
+   if (residue_p) {
+      if (atom_names.size() == 4) {
+         atom_name_quad quad(atom_names[0], atom_names[1], atom_names[2], atom_names[3]);
+         double torsion = quad.torsion(residue_p);
+         p.first =1;
+         p.second = torsion;
+      }
+
+   }
+
+   return p;
+}
 
 //! set occupancy
 //!
