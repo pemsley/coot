@@ -1,7 +1,6 @@
 ----
 
-acedrg standalone?
-BUSTER progress?
+Delete Residue using ctrl-D - or button/menu-item (2vtq, say) and try to undelete it - fails.
 
 Feature request: occupancy and b-factors of atoms close to the centre of screen.
 Key binding.
