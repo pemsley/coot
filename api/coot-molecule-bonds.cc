@@ -1833,6 +1833,7 @@ coot::molecule_t::make_exportable_environment_bond_box(coot::residue_spec_t &spe
    //
    auto make_bonds_box_env = [] (const coot::residue_spec_t &spec,
                                  atom_selection_container_t atom_sel,
+				 float max_dist,
                                  coot::protein_geometry &geom) {
       graphical_bonds_container bonds_box_env;
       float environment_min_distance = 0.0f;
@@ -1871,7 +1872,7 @@ coot::molecule_t::make_exportable_environment_bond_box(coot::residue_spec_t &spe
       return bonds_box_env;
    };
 
-   graphical_bonds_container bonds_box_env = make_bonds_box_env(spec, atom_sel, geom);
+   graphical_bonds_container bonds_box_env = make_bonds_box_env(spec, atom_sel, max_dist, geom);
    return generic_3d_lines_bonds_box_t(bonds_box_env);
 
 }
