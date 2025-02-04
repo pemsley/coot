@@ -4940,13 +4940,13 @@ molecules_container_t::get_simple_molecule(int imol, const std::string &residue_
 
 //! @return a vector of lines for non-bonded contacts and hydrogen bonds
 generic_3d_lines_bonds_box_t
-molecules_container_t::make_exportable_environment_bond_box(int imol, coot::residue_spec_t &spec) {
+molecules_container_t::make_exportable_environment_bond_box(int imol, coot::residue_spec_t &spec, float max_dist) {
 
    // this function is non-const because the Bonds_lines function needs a mutable protein_geometry
 
    generic_3d_lines_bonds_box_t bonds_box;
    if (is_valid_model_molecule(imol)) {
-      bonds_box = molecules[imol].make_exportable_environment_bond_box(spec, geom);
+      bonds_box = molecules[imol].make_exportable_environment_bond_box(spec, max_dist, geom);
    } else {
       std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }

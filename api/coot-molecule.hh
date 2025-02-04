@@ -866,7 +866,7 @@ namespace coot {
                                                  unsigned int num_subdivisions) const;
 
       generic_3d_lines_bonds_box_t
-      make_exportable_environment_bond_box(coot::residue_spec_t &spec, coot::protein_geometry &geom) const;
+      make_exportable_environment_bond_box(coot::residue_spec_t &spec, float max_dist, coot::protein_geometry &geom) const;
 
       //! we pass the imol because we use that to look up the residue type in the dictionary
       //! annoyingly, we pass a non-const pointer to the protein-geometry because that is what
