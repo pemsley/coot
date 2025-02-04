@@ -2876,9 +2876,12 @@ public:
    //!
    //! @param imol_model is the model molecule index
    //! @param imol_map is the map molecule index
+   //! @param rmsd_cut_off is the low map limit for cluster generation
+   //!        1.4 is a reasonable value.
    //!
    //! @return a vector/list of `validation_information_t`
-   std::vector<coot::molecule_t::interesting_place_t> unmodelled_blobs(int imol_model, int imol_map) const;
+   std::vector<coot::molecule_t::interesting_place_t> unmodelled_blobs(int imol_model, int imol_map,
+                                                                       float rmsd_cut_off) const;
 
    //! Check waters, using implicit logical OR
    //!

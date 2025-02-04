@@ -116,10 +116,7 @@ void draw_surface_not_display_list();
 
 void aniso_atom(int i, float x, float y, float z); 
 
-
-float r_50(std::string ele);
-
-float rad_50_and_prob_to_radius(float rad_50, float prob);
+float prob_to_radius(float prob);
 
 void draw_axes(GL_matrix &m);
 void graphics_ligand_view();

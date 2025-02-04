@@ -278,10 +278,12 @@ int replace_fragment(int imol_target, int imol_fragment,
    if (is_valid_model_molecule(imol_target)) {
       if (is_valid_model_molecule(imol_fragment)) {
 	 mmdb::Manager *mol = graphics_info_t::molecules[imol_fragment].atom_sel.mol;
+
+         std::vector<std::string> parts = coot::util::split_string(mmdb_atom_selection_str, "||");
 	 int SelHnd = mol->NewSelection();
-	 mol->Select(SelHnd, mmdb::STYPE_ATOM, mmdb_atom_selection_str, mmdb::SKEY_OR);
-	 mmdb::Manager *mol_new =
-	    coot::util::create_mmdbmanager_from_atom_selection(mol, SelHnd);
+         for (const auto &part : parts)
+            mol->Select(SelHnd, mmdb::STYPE_ATOM, part.c_str(), mmdb::SKEY_OR);
+	 mmdb::Manager *mol_new = coot::util::create_mmdbmanager_from_atom_selection(mol, SelHnd);
 	 atom_selection_container_t asc = make_asc(mol_new);
 	 istate = graphics_info_t::molecules[imol_target].replace_fragment(asc);
 	 mol->DeleteSelection(SelHnd);
@@ -4913,12 +4915,12 @@ int new_molecule_by_atom_selection(int imol_orig, const char* atom_selection_str
       imol = graphics_info_t::create_molecule();
       mmdb::Manager *mol_orig = graphics_info_t::molecules[imol_orig].atom_sel.mol;
       int SelectionHandle = mol_orig->NewSelection();
-      mol_orig->Select(SelectionHandle, mmdb::STYPE_ATOM,
-		       atom_selection_str,
-		       mmdb::SKEY_OR);
-      mmdb::Manager *mol =
-	 coot::util::create_mmdbmanager_from_atom_selection(mol_orig,
-							    SelectionHandle);
+
+      std::vector<std::string> parts = coot::util::split_string(std::string(atom_selection_str), "||");
+      for (const auto &part : parts)
+         mol_orig->Select(SelectionHandle, mmdb::STYPE_ATOM, part.c_str(), mmdb::SKEY_OR);
+
+      mmdb::Manager *mol = coot::util::create_mmdbmanager_from_atom_selection(mol_orig, SelectionHandle);
 
       if (mol) {
 	 std::string name = "Atom selection ";

@@ -4041,7 +4041,7 @@ molecules_container_t::flood(int imol_model, int imol_map, float n_rmsd) {
 
 
 std::vector<coot::molecule_t::interesting_place_t>
-molecules_container_t::unmodelled_blobs(int imol_model, int imol_map) const {
+molecules_container_t::unmodelled_blobs(int imol_model, int imol_map, float rmsd_cut_off) const {
 
    std::vector<coot::molecule_t::interesting_place_t> v;
    if (is_valid_model_molecule(imol_model)) {
@@ -4054,7 +4054,7 @@ molecules_container_t::unmodelled_blobs(int imol_model, int imol_map) const {
          lig.import_map_from(molecules[imol_map].xmap, sigma);
          lig.set_map_atom_mask_radius(1.9); // Angstrom
          lig.mask_map(molecules[imol_model].atom_sel.mol, mask_waters_flag);
-         float sigma_cut_off = 1.4;
+         float sigma_cut_off = rmsd_cut_off;
          std::cout << "Unmodelled blobs using sigma cut off " << sigma_cut_off << std::endl;
          int n_cycles = 1;
          lig.water_fit(sigma_cut_off, n_cycles);
