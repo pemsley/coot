@@ -1,6 +1,9 @@
 ----
 
-Delete Residue using ctrl-D - or button/menu-item (2vtq, say) and try to undelete it - fails.
+Fix this startup message
+
+ERROR:: failed to find preferences_bond_width_combobox
+ERROR:: failed to find preferences_font_size_combobox
 
 Feature request: occupancy and b-factors of atoms close to the centre of screen.
 Key binding.
