@@ -2111,11 +2111,13 @@ coot::restraints_container_t::make_other_types_of_link(const coot::protein_geome
    for (std::size_t i=0; i<vcontacts.size(); i++) {
       const std::set<unsigned int> &n_set = vcontacts[i];
       mmdb::Atom *at_1 = atom[i];
+      if (strcmp(at_1->element, " H") == 0) continue;
       // if (! is_fully_linked_ng(at_1->residue, residue_link_count_map)) {
       if (true) {
          std::set<unsigned int>::const_iterator it;
          for (it=n_set.begin(); it!=n_set.end(); ++it) {
             mmdb::Atom *at_2 = atom[*it];
+            if (strcmp(at_2->element, " H") == 0) continue;
 
             mmdb::Residue *res_1 = at_1->residue;
             mmdb::Residue *res_2 = at_2->residue;
