@@ -646,6 +646,8 @@ public:
 #else
    //! don't use this in ecmascript
    mmdb::Manager *get_mol(unsigned int imol) const { // 20221018-PE function name change
+
+
       if (is_valid_model_molecule(imol)) {
          return molecules[imol].atom_sel.mol;
       } else {
@@ -1235,7 +1237,7 @@ public:
    //! @return a vector. The length of the vector is 0 on failure, otherwise it is the x,y,z values
    std::vector<double> get_residue_average_position(int imol, const std::string &cid) const;
 
-   //! Get the avarage residue side-chain position
+   //! Get the average residue side-chain position
    //!
    //! @param imol is the model molecule index
    //! @param cid is the selection CID e.g "//A/15" (residue 15 of chain A)
@@ -2671,11 +2673,13 @@ public:
    // Note this function is not const because we pass a pointer to the protein_geometry geom.
    coot::simple::molecule_t get_simple_molecule(int imol, const std::string &residue_cid, bool draw_hydrogen_atoms_flag);
 
+   //! @param imol is the model molecule index
    //! @param spec is the residue specifier, e.g. residue_spec_t("A", 10, "")
+   //! @param max_dist specifies the maximum distance of the interaction, typically 3.8
    //!
    //! @return a vector of lines for non-bonded contacts and hydrogen bonds
    generic_3d_lines_bonds_box_t
-   make_exportable_environment_bond_box(int imol, coot::residue_spec_t &spec);
+   make_exportable_environment_bond_box(int imol, coot::residue_spec_t &spec, float max_dist);
 
    //! Get hydrogen bonds
    //!
