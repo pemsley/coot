@@ -11599,7 +11599,7 @@ Sun 26 Jan 19:43:47 GMT 2025
 
    Nice graphs? Job for Jakub.
    https://gitlab.gnome.org/World/Graphs
-
+   o Nope. Python and vala. Do it in svg.
 
 ---
 Sun 26 Jan 20:21:59 GMT 2025
@@ -11647,5 +11647,4 @@ Wed Feb  5 13:18:33 GMT 2025
 getting python to start up correctly:
 
 https://stackoverflow.com/questions/47885615/python-systemerror-when-using-the-c-api-pyrun-string
-
 
