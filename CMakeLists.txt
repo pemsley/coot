@@ -197,6 +197,7 @@ add_library(cootapi SHARED
             ${coot_src}/analysis/b-factor-histogram.cc
             ${coot_src}/analysis/typed-distances.cc
             ${coot_src}/analysis/cablam.cc
+            ${coot_src}/analysis/chi-squared.cc
             ${coot_src}/density-contour/density-contour-triangles.cc
             ${coot_src}/density-contour/Vectors.cpp
             ${coot_src}/density-contour/CIsoSurface.cpp
