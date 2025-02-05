@@ -752,7 +752,7 @@ Mesh::setup_buffers() {
 
    GLenum err = glGetError();
    if (err)
-      std::cout << "GL ERROR:: Mesh::setup_buffers() --- start --- " << std::endl;
+      std::cout << "GL ERROR:: Mesh::setup_buffers() " << name << " --- start --- " << std::endl;
 
    bool setup_buffers_for_gl_lines = false;
    if (! lines_vertex_indices.empty())
