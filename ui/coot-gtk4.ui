@@ -1142,7 +1142,7 @@
       <item>
         <attribute name="label" translatable="yes">Hydrogen Atoms in Molecule</attribute>
         <attribute name="action">app.delete_item</attribute>
-        <attribute name="target">hdyrogen-atoms-in-molecule</attribute>
+        <attribute name="target">hydrogen-atoms-in-molecule</attribute>
       </item>
    </section>
   </menu>

@@ -4526,6 +4526,10 @@ delete_item(GSimpleAction *simple_action,
             m.delete_residue_hydrogens(res_spec.chain_id, res_spec.res_no, res_spec.ins_code, atom_spec.alt_conf);
             graphics_draw();
          }
+         if (par == "hydrogen-atoms-in-molecule") {
+            g.molecules[imol].delete_hydrogens();
+            g.graphics_draw();
+         }
          if (par == "residue-range") {
             // use old-style "setup"
             // Needs "check_if_in_range_defines" to be working.
