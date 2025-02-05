@@ -1589,6 +1589,11 @@ public:
    static float RotationCentre_y() { return rotation_centre_y; }
    static float RotationCentre_z() { return rotation_centre_z; }
 
+   static clipper::Coord_orth hole_start;
+   static clipper::Coord_orth hole_end;
+   void set_hole_start() { hole_start = get_rotation_centre_co(); }
+   void set_hole_end()   { hole_end   = get_rotation_centre_co(); }
+
    static coot::Cartesian smooth_scroll_start_point;
    static coot::Cartesian smooth_scroll_target_point;
 
@@ -5432,6 +5437,7 @@ string   static std::string sessionid;
    static std::pair<bool, std::string> servalcat_refine; // output "pdb" file name
 
    static std::pair<bool, std::string> acedrg_link;
+   static bool acedrg_running; // not link acedrg - this is acedrg from CCD
 
    static bool curmudgeon_mode; // default false, particles and faces
    static bool use_sounds; // default true

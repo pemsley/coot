@@ -48,6 +48,11 @@ void update_dynamic_validation() {
 
 void update_dynamic_validation_for_molecule(int imol) {
 
+   // 20250202-PE as of today, this function makes validation_boxes_vbox visible.
+   // It is up to the calling function to decide if this function should be called
+   // and hence overlaps_peptides_cbeta_ramas_and_rotas_internal()
+   //
+
    // only update if dynamic validation was being displayed already.
 
    // does main_window_ramchandran_and_validation_pane exist today? I can't find it.
@@ -56,13 +61,13 @@ void update_dynamic_validation_for_molecule(int imol) {
    GtkWidget* pane_1 = widget_from_builder("main_window_ramchandran_and_validation_pane");
    GtkWidget* vbox_2 = widget_from_builder("validation_boxes_vbox");
    GtkWidget *vbox_1  = widget_from_builder("dynamic_validation_outliers_vbox");
+
+   gtk_widget_set_visible(vbox_2, TRUE);
    if (gtk_widget_get_visible(vbox_1)) {
-      if (gtk_widget_get_visible(vbox_2)) {
-         if (gtk_widget_get_visible(pane_1)) {
-            overlaps_peptides_cbeta_ramas_and_rotas_internal(imol);
-         } else {
-            std::cout << "ERROR:: pane main_window_ramchandran_and_validation_pane not found " << std::endl;
-         }
+      if (gtk_widget_get_visible(pane_1)) {
+         overlaps_peptides_cbeta_ramas_and_rotas_internal(imol);
+      } else {
+         std::cout << "ERROR:: pane main_window_ramchandran_and_validation_pane not found " << std::endl;
       }
    }
 }

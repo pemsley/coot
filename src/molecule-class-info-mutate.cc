@@ -1836,6 +1836,16 @@ molecule_class_info_t::remove_TER_on_last_residue(mmdb::Chain *chain_p) {
    }
 }
 
+void
+molecule_class_info_t::remove_TER_on_residue_if_last_residue(mmdb::Chain *chain_p, mmdb::Residue *residue_p) {
+
+   int n_residues = chain_p->GetNumberOfResidues();
+   if (n_residues > 0) {
+      mmdb::Residue *r = chain_p->GetResidue(n_residues-1); // last residue
+      if (r == residue_p)
+	 remove_TER_internal(r);
+   }
+}
 
 // remove TER record from residue
 //
@@ -1864,47 +1874,13 @@ void
 molecule_class_info_t::remove_ter_atoms(const coot::residue_spec_t &spec) {  // from all models
 
    // do a backup only if this chain has a residue with a TER atom.
-   bool has_ter = 0;
-
-   for(int imod=1; imod<=atom_sel.mol->GetNumberOfModels(); imod++) {
-      mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
-      mmdb::Chain *chain_p;
-      // run over chains of the existing mol
-      int nchains = model_p->GetNumberOfChains();
-      for (int ichain=0; ichain<nchains; ichain++) {
-	 chain_p = model_p->GetChain(ichain);
-	 if (spec.chain_id == chain_p->GetChainID()) {
-	    int nres = chain_p->GetNumberOfResidues();
-	    if (nres > 0) {
-	       mmdb::Residue *residue_p = chain_p->GetResidue(nres-1);
-	       if (spec.res_no == residue_p->GetSeqNum()) {
-		  has_ter = residue_has_TER_atom(residue_p);
-	       }
-	    }
-	 }
-      }
-   }
-
+   bool has_ter = false;
+   mmdb::Residue *residue_p = get_residue(spec);
+   if (residue_p)
+      has_ter = residue_has_TER_atom(residue_p);
    if (has_ter) {
       make_backup();
-      for(int imod=1; imod<=atom_sel.mol->GetNumberOfModels(); imod++) {
-	 mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
-	 mmdb::Chain *chain_p;
-	 // run over chains of the existing mol
-	 int nchains = model_p->GetNumberOfChains();
-	 for (int ichain=0; ichain<nchains; ichain++) {
-	    chain_p = model_p->GetChain(ichain);
-	    if (spec.chain_id == chain_p->GetChainID()) {
-	       int nres = chain_p->GetNumberOfResidues();
-	       if (nres > 0) {
-		  mmdb::Residue *residue_p = chain_p->GetResidue(nres-1);
-		  if (spec.res_no == residue_p->GetSeqNum()) {
-		     remove_TER_internal(residue_p);
-		  }
-	       }
-	    }
-	 }
-      }
+      remove_TER_internal(residue_p);
    }
 }
 

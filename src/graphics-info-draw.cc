@@ -2318,7 +2318,7 @@ graphics_info_t::draw_molecules_other_meshes(unsigned int pass_type) {
    // graphics_info_t::draw_instanced_meshes() A Molecule 2: Ligand Contact Dots vdw-surface
    // graphics_info_t::draw_instanced_meshes() A Molecule 2: Ligand Contact Dots big-overlap
 
-   // std::cout << "------------- draw_meshed_generic_display_object_meshes() " << std::endl;
+   // std::cout << "------------- draw_molecules_other_meshes() " << std::endl;
 
    bool draw_meshes = true;
    bool draw_mesh_normals = false;
@@ -3316,7 +3316,7 @@ graphics_info_t::hide_atom_pull_toolbar_buttons() {
    if (use_graphics_interface_flag) {
       GtkWidget *button_1 = get_widget_from_builder("clear_atom_pull_restraints_toolbutton");
       GtkWidget *button_2 = get_widget_from_builder("auto_clear_atom_pull_restraints_togglebutton");
-      
+
       if (button_1)
          gtk_widget_set_visible(button_1, FALSE);
       if (button_2)
@@ -3360,6 +3360,7 @@ graphics_info_t::show_accept_reject_hud_buttons() {
    button_4.set_scales_and_position_offset(7, w, h);
 
    auto button_1_func = [] () {
+
                            graphics_info_t g;
                            g.stop_refinement_internal();
                            g.accept_moving_atoms();

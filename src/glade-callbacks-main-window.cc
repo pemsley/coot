@@ -738,7 +738,7 @@ void
 on_diff_map_peaks_update_button_clicked(GtkButton *button,
                                        gpointer         user_data) {
    graphics_info_t g;
-   g.fill_difference_map_peaks_button_box(); 
+   g.fill_difference_map_peaks_button_box();
 
 }
 
@@ -1075,7 +1075,7 @@ on_acedrg_link_ok_button_clicked(GtkButton       *button,
       run_acedrg_link_generation(ss);
    };
 
-   // Here's an exmple:
+   // Here's an example:
    //
    // LINK: RES-NAME-1 LYS ATOM-NAME-1 NZ RES-NAME-2 PLP ATOM-NAME-2 C4A BOND-TYPE DOUBLE DELETE ATOM O 1 DELETE ATOM O4A 2 CHANGE BOND C OXT double 1 CHANGE BOND C4 C4A triple 2
 
@@ -1468,5 +1468,333 @@ on_ccp4i2_save_button_clicked(G_GNUC_UNUSED GtkButton       *button,
       std::string s = g.molecules[imol].stripped_save_name_suggestion();
       std::filesystem::path fn = save_dir / s;
       g.molecules[imol].save_coordinates(fn);
+   }
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_copy_map_cancel_button_clicked(G_GNUC_UNUSED GtkButton       *button,
+                                  G_GNUC_UNUSED gpointer         user_data) {
+
+   GtkWidget *frame = widget_from_builder("copy_map_frame");
+   if (frame)
+      gtk_widget_set_visible(frame, FALSE);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_copy_map_ok_button_clicked(G_GNUC_UNUSED GtkButton       *button,
+                              G_GNUC_UNUSED gpointer         user_data) {
+
+   GtkWidget *frame = widget_from_builder("copy_map_frame");
+   GtkWidget *map_chooser_combobox = widget_from_builder("copy_map_comboboxtext");
+   int imol_map = my_combobox_get_imol(GTK_COMBO_BOX(map_chooser_combobox));
+   copy_molecule(imol_map);
+   if (frame)
+      gtk_widget_set_visible(frame, FALSE);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_make_smooth_map_cancel_button_clicked(G_GNUC_UNUSED GtkButton       *button,
+                                         G_GNUC_UNUSED gpointer         user_data) {
+
+   GtkWidget *frame = widget_from_builder("make_smooth_map_frame");
+   if (frame)
+      gtk_widget_set_visible(frame, FALSE);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_make_smooth_map_ok_button_clicked(G_GNUC_UNUSED GtkButton       *button,
+                                         G_GNUC_UNUSED gpointer         user_data) {
+
+   GtkWidget *combobox_map    = widget_from_builder("make_smooth_map_comboboxtext");
+   GtkWidget *combobox_factor = widget_from_builder("make_smooth_map_factor_comboboxtext");
+   int imol_map = my_combobox_get_imol(GTK_COMBO_BOX(combobox_map));
+   const char *t = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(combobox_factor));
+
+   try {
+      float factor = coot::util::string_to_float(std::string(t));
+      smooth_map(imol_map, factor);
+   }
+   catch (const std::runtime_error &e) {
+      std::cout << "WARNING::" << e.what() << std::endl;
+   }
+
+   GtkWidget *frame = widget_from_builder("make_smooth_map_frame");
+   if (frame)
+      gtk_widget_set_visible(frame, FALSE);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_make_difference_map_cancel_button_clicked(G_GNUC_UNUSED GtkButton       *button,
+                                             G_GNUC_UNUSED gpointer         user_data) {
+
+   GtkWidget *frame = widget_from_builder("make_difference_map_frame");
+   if (frame)
+      gtk_widget_set_visible(frame, FALSE);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_make_difference_map_ok_button_clicked(G_GNUC_UNUSED GtkButton       *button,
+                                         G_GNUC_UNUSED gpointer         user_data) {
+
+
+   GtkWidget *map_combobox_1 = widget_from_builder("make_difference_map_map_1_comboboxtext");
+   GtkWidget *map_combobox_2 = widget_from_builder("make_difference_map_map_2_comboboxtext");
+   int imol_map_1 = my_combobox_get_imol(GTK_COMBO_BOX(map_combobox_1));
+   int imol_map_2 = my_combobox_get_imol(GTK_COMBO_BOX(map_combobox_2));
+   const char *t = gtk_editable_get_text(GTK_EDITABLE(widget_from_builder("make_difference_map_scale_entry")));
+   try{
+      float scale = coot::util::string_to_float(std::string(t));
+      difference_map(imol_map_1, imol_map_2, scale);
+   }
+   catch (const std::runtime_error &e) {
+      std::cout << "WARNING::" << e.what() << std::endl;
+   }
+
+   GtkWidget *frame = widget_from_builder("make_difference_map_frame");
+   if (frame)
+      gtk_widget_set_visible(frame, FALSE);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_set_map_is_difference_map_cancel_button_clicked(G_GNUC_UNUSED GtkButton       *button,
+                                                   G_GNUC_UNUSED gpointer         user_data) {
+
+   GtkWidget *frame = widget_from_builder("set_map_is_difference_map_frame");
+   if (frame)
+      gtk_widget_set_visible(frame, FALSE);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_set_map_is_difference_map_ok_button_clicked(G_GNUC_UNUSED GtkButton       *button,
+                                               G_GNUC_UNUSED gpointer         user_data) {
+
+
+   GtkWidget *map_combobox = widget_from_builder("set_map_is_difference_map_map_comboboxtext");
+   int imol_map = my_combobox_get_imol(GTK_COMBO_BOX(map_combobox));
+   // I could have another widget here - a switch to turn to back to not a difference map
+   // in the future.
+   set_map_is_difference_map(imol_map, TRUE);
+
+   GtkWidget *frame = widget_from_builder("set_map_is_difference_map_frame");
+   if (frame)
+      gtk_widget_set_visible(frame, FALSE);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_make_an_average_map_cancel_button_clicked(G_GNUC_UNUSED GtkButton       *button,
+                                             G_GNUC_UNUSED gpointer         user_data) {
+
+   GtkWidget *frame = widget_from_builder("make_an_average_map_frame");
+   if (frame)
+      gtk_widget_set_visible(frame, FALSE);
+}
+
+
+extern "C" G_MODULE_EXPORT
+void
+on_make_an_average_map_ok_button_clicked(G_GNUC_UNUSED GtkButton       *button,
+                                         G_GNUC_UNUSED gpointer         user_data) {
+
+   GtkWidget *box = widget_from_builder("make_an_average_map_box");
+   GtkWidget *item_widget = gtk_widget_get_first_child(box);
+   std::vector<std::pair<int, float> > imol_map_and_scale_vec;
+   while (item_widget) {
+      GtkWidget *map_combobox = gtk_widget_get_first_child(item_widget);
+      GtkWidget *label = gtk_widget_get_next_sibling(map_combobox);
+      GtkWidget *entry =gtk_widget_get_next_sibling(label);
+      int imol_map = my_combobox_get_imol(GTK_COMBO_BOX(map_combobox));
+      const char *t = gtk_editable_get_text(GTK_EDITABLE(entry));
+      if (t) {
+         try {
+            float scale = coot::util::string_to_float(std::string(t));
+            imol_map_and_scale_vec.push_back(std::make_pair(imol_map, scale));
+         }
+         catch (const std::runtime_error &e) {
+            std::cout << "WARNING::" << e.what() << std::endl;
+         }
+      } else {
+         std::cout << "null t in on_make_an_average_map_ik_button_clicked()" << std::endl;
+      }
+      item_widget = gtk_widget_get_next_sibling(item_widget);
+   };
+
+
+   GtkWidget *frame = widget_from_builder("make_an_average_map_frame");
+   if (frame)
+      gtk_widget_set_visible(frame, FALSE);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_tmblmf_cancel_button_clicked(G_GNUC_UNUSED GtkButton       *button,
+                                G_GNUC_UNUSED gpointer         user_data) {
+
+   GtkWidget *frame = widget_from_builder("transform_map_by_lsq_model_fit_frame");
+   if (frame)
+      gtk_widget_set_visible(frame, FALSE);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_tmblmf_ok_button_clicked(G_GNUC_UNUSED GtkButton       *button,
+                            G_GNUC_UNUSED gpointer         user_data) {
+
+   GtkWidget *combobox_1 = widget_from_builder("tmblmf_comboboxtext_1");
+   GtkWidget *combobox_2 = widget_from_builder("tmblmf_comboboxtext_2");
+   int imol_model_1 = my_combobox_get_imol(GTK_COMBO_BOX(combobox_1));
+   int imol_model_2 = my_combobox_get_imol(GTK_COMBO_BOX(combobox_2));
+
+   GtkWidget *chain_id_1_entry    = widget_from_builder("tmblmf_chain_id_1_entry");
+   GtkWidget *chain_id_2_entry    = widget_from_builder("tmblmf_chain_id_2_entry");
+   GtkWidget *resno_start_1_entry = widget_from_builder("tmblmf_resno_start_1_entry");
+   GtkWidget *resno_start_2_entry = widget_from_builder("tmblmf_resno_start_1_entry");
+   GtkWidget *resno_end_1_entry   = widget_from_builder("tmblmf_resno_end_1_entry");
+   GtkWidget *resno_end_2_entry   = widget_from_builder("tmblmf_resno_end_1_entry");
+
+   GtkWidget *radius_entry = widget_from_builder("tmblmf_radius_entry");
+
+   const char *chain_id_1_text    = gtk_editable_get_text(GTK_EDITABLE(chain_id_1_entry));
+   const char *chain_id_2_text    = gtk_editable_get_text(GTK_EDITABLE(chain_id_2_entry));
+   const char *resno_start_1_text = gtk_editable_get_text(GTK_EDITABLE(resno_start_1_entry));
+   const char *resno_start_2_text = gtk_editable_get_text(GTK_EDITABLE(resno_start_2_entry));
+   const char *resno_end_1_text   = gtk_editable_get_text(GTK_EDITABLE(resno_end_1_entry));
+   const char *resno_end_2_text   = gtk_editable_get_text(GTK_EDITABLE(resno_end_2_entry));
+
+   const char *radius_text = gtk_editable_get_text(GTK_EDITABLE(radius_entry));
+   try {
+      float radius = coot::util::string_to_float(std::string(radius_text));
+      int resno_start_1 = coot::util::string_to_int(std::string(resno_start_1_text));
+      int resno_start_2 = coot::util::string_to_int(std::string(resno_start_2_text));
+      int resno_end_1   = coot::util::string_to_int(std::string(resno_end_1_text));
+      int resno_end_2   = coot::util::string_to_int(std::string(resno_end_2_text));
+
+      // get the matrix and call transform_map_raw()
+
+      graphics_info_t g;
+      int match_type = 1; // main - does this also work for RNA?
+      coot::lsq_range_match_info_t match_info(resno_start_1, resno_end_1, chain_id_1_text,
+                                              resno_start_2, resno_end_2, chain_id_2_text,
+                                              match_type);
+
+      g.lsq_matchers->push_back(match_info);
+
+      // 20250128-PE note to self: use a transform_map() function where
+      // I can pass the cell and rtop and spacegroup as objects,
+      // c.f. coot::util::transform_map()
+
+      std::pair<int, clipper::RTop_orth> status_and_rtop =
+         g.apply_lsq(imol_model_1, imol_model_2, *g.lsq_matchers);
+      int status = status_and_rtop.first;
+      if (status == 1) {
+         int imol_refinement_map = g.Imol_Refinement_Map();
+         if (is_valid_map_molecule(imol_refinement_map)) {
+            g.lsq_matchers->clear();
+            const clipper::Xmap<float> &xmap = g.molecules[imol_refinement_map].xmap;
+            clipper::Spacegroup spacegroup = xmap.spacegroup();
+            clipper::Cell cell = xmap.cell();
+            const clipper::RTop_orth &rtop = status_and_rtop.second;
+            clipper::Mat33<double>  mat = rtop.rot();
+            clipper::Vec3<double> trans = rtop.trn();
+            clipper::Coord_orth rotation_centre = g.get_rotation_centre_co();
+            float alpha = clipper::Util::rad2d(cell.alpha());  // need degrees
+            float beta  = clipper::Util::rad2d(cell.beta());
+            float gamma = clipper::Util::rad2d(cell.gamma());
+            transform_map_raw(imol_refinement_map,
+                              mat(0,0), mat(0,1), mat(0,2),
+                              mat(1,0), mat(1,1), mat(1,2),
+                              mat(2,0), mat(2,1), mat(2,2),
+                              trans[0], trans[1], trans[2],
+                              rotation_centre.x(), rotation_centre.y(), rotation_centre.z(),
+                              radius, spacegroup.symbol_hm().c_str(),
+                              cell.a(), cell.b(), cell.c(),
+                              alpha, beta, gamma);
+         }
+      } else {
+         std::cout << "WARNING:: in on_tmblmf_ok_button_clicked() bad matrix status" << std::endl;
+      }
+   }
+   catch (const std::runtime_error &e) {
+      std::cout << "WARNING::" << e.what() << std::endl;
+   }
+
+   GtkWidget *frame = widget_from_builder("transform_map_by_lsq_model_fit_frame");
+   if (frame)
+      gtk_widget_set_visible(frame, FALSE);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_hole_dialog_response(GtkDialog       *dialog,
+                        gint             response_id,
+                        gpointer         user_data) {
+
+   std::cout << "-------------------------------- on_hole_dialog_response() " << response_id << std::endl;
+
+   if (response_id == GTK_RESPONSE_OK) {
+      std::cout << "here.... " << std::endl;
+      graphics_info_t g;
+      clipper::Coord_orth start = g.hole_start;
+      clipper::Coord_orth   end = g.hole_end;
+      GtkWidget *commbobox = widget_from_builder("hole_model_comboboxtext");
+      int imol = my_combobox_get_imol(GTK_COMBO_BOX(commbobox));
+      std::cout << "here.... with imol " << imol << std::endl;
+      if (is_valid_model_molecule(imol)) {
+         float colour_map_multiplier = 1.0;
+         float colour_map_offset = 0.0;
+         int n_runs = 1000;
+         bool show_probe_radius_graph_flag = true;
+         GtkWidget *entry = widget_from_builder("hole_surface_dots_file_name_entry");
+         const char *t = gtk_editable_get_text(GTK_EDITABLE(entry));
+         if (t) {
+            std::string export_surface_dots_file_name = std::string(t);
+            hole(imol, start.x(), start.y(), start.z(), end.x(), end.y(), end.z(),
+                 colour_map_multiplier, colour_map_offset,
+                 n_runs, show_probe_radius_graph_flag,
+                 export_surface_dots_file_name);
+         }
+      }
+   }
+
+   gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_hole_set_start_button_clicked(G_GNUC_UNUSED GtkButton       *button,
+                                 G_GNUC_UNUSED gpointer         user_data) {
+
+   GtkWidget *entry = widget_from_builder("hole_start_entry");
+   const char *t = gtk_editable_get_text(GTK_EDITABLE(entry));
+   try {
+      graphics_info_t g;
+      g.set_hole_start();
+   }
+   catch (const std::runtime_error &e) {
+      std::cout << "WARNING::" << e.what() << std::endl;
+   }
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_hole_set_end_button_clicked(G_GNUC_UNUSED GtkButton       *button,
+                               G_GNUC_UNUSED gpointer         user_data) {
+
+   GtkWidget *entry = widget_from_builder("hole_end_entry");
+   const char *t = gtk_editable_get_text(GTK_EDITABLE(entry));
+   try {
+      graphics_info_t g;
+      g.set_hole_end();
+   }
+   catch (const std::runtime_error &e) {
+      std::cout << "WARNING::" << e.what() << std::endl;
    }
 }

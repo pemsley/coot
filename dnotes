@@ -11589,3 +11589,49 @@ Wed 22 Jan 2025 07:36:17 GMT
   the value of tests:
   https://www.youtube.com/shorts/u49giZDzSDI
 
+---
+Sat 25 Jan 20:03:47 GMT 2025
+
+   When debugging the lighting, the molecular surface of 1ajs looks bad/weird.
+
+---
+Sun 26 Jan 19:43:47 GMT 2025
+
+   Nice graphs? Job for Jakub.
+   https://gitlab.gnome.org/World/Graphs
+
+
+---
+Sun 26 Jan 20:21:59 GMT 2025
+
+turn off deprecated in a particular function:
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wdeprecated-declarations"
+...
+#pragma GCC diagnostic pop
+
+https://stackoverflow.com/questions/13459602/how-can-i-get-rid-of-deprecated-warnings-in-deprecated-functions-in-gcc
+
+----
+Sun 26 Jan 21:27:29 GMT 2025
+
+  suggested action for OK buttons:
+
+              <object class="GtkButton" id="find_waters_ok_button">
+                <property name="label" translatable="yes">Find Waters</property>
+                <property name="can-focus">1</property>
+                <property name="margin-start">4</property>
+                <property name="margin-end">4</property>
+                <property name="margin-top">4</property>
+                <property name="margin-bottom">4</property>
+                <signal name="clicked" handler="on_find_waters_ok_button_clicked" swapped="no"/>
+                <style>
+                  <class name="suggested-action"/>
+                </style>
+
+
+---
+Fri 31 Jan 2025 04:09:26 GMT
+
+https://lbc-lnbio.github.io/KVFinder-web/

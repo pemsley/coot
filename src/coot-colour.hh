@@ -36,13 +36,13 @@
 #   include <GL/gl.h>
 #endif
 
-std::vector<float> rotate_rgb(std::vector<float> &in_vals, float amount); 
+std::vector<float> rotate_rgb(std::vector<float> &in_vals, float amount);
 std::vector<float> convert_rgb_to_hsv(const std::vector<float> &rgb);
 std::vector<float> convert_hsv_to_rgb(const std::vector<float> &hsv);
 
 #include "utils/colour-holder.hh"  // funny old thing. Consolidate the colour class one day.
 
-namespace coot { 
+namespace coot {
    class colour_t {
       void init(float r, float g, float b) {
 	 col.resize(3);

@@ -40,7 +40,7 @@
 #ifdef HAVE_SSMLIB
 #include <string>
 #include <vector>
-#include <gtk/gtk.h> 
+#include <gtk/gtk.h>
 #include "c-interface.h"
 #include "c-interface-gtk-widgets.h"
 #include "cc-interface.hh"
@@ -48,7 +48,7 @@
 #include <iostream>
 #include "interface.h"
 
-#else 
+#else
 
 #include <gtk/gtk.h>
 #include "interface.h"
@@ -62,16 +62,16 @@
 
 #include "widget-from-builder.hh"
 
-void superpose(int imol1, int imol2, short int move_copy_of_imol2_flag) { 
+void superpose(int imol1, int imol2, short int move_copy_of_imol2_flag) {
 
 #ifdef HAVE_SSMLIB
 
-   std::cout << "superposing molecule " << imol2 << " on to " << imol1  
+   std::cout << "superposing molecule " << imol2 << " on to " << imol1
 	     << " (reference)\n";
 
-   if (graphics_info_t::molecules[imol1].has_model()) { 
-      if (graphics_info_t::molecules[imol2].has_model()) { 
-	 
+   if (graphics_info_t::molecules[imol1].has_model()) {
+      if (graphics_info_t::molecules[imol2].has_model()) {
+
 	 graphics_info_t g;
 	 std::string name = graphics_info_t::molecules[imol2].name_for_display_manager();
 	 std::string reference_name = graphics_info_t::molecules[imol1].name_for_display_manager();
@@ -85,8 +85,8 @@ void superpose(int imol1, int imol2, short int move_copy_of_imol2_flag) {
 	    mmdb::Manager *m2 = graphics_info_t::molecules[imol_new].atom_sel.mol;
 
 	    bool success = coot::util::copy_cell_and_symm_headers(m1, m2);
-	    
-	 } 
+
+	 }
 
       } else {
 	 std::cout << "WARNING:: Molecule " << imol2 << " has no model\n";
@@ -101,13 +101,13 @@ void superpose(int imol1, int imol2, short int move_copy_of_imol2_flag) {
    command_strings.push_back(graphics_info_t::int_to_string(imol2));
    command_strings.push_back(graphics_info_t::int_to_string(move_copy_of_imol2_flag));
    add_to_history(command_strings);
-      
+
 #endif // HAVE_SSMLIB
 }
 
 
 // we use short int move_imol2_flag because this has a C interface.
-// 
+//
 void superpose_with_chain_selection(int imol1, int imol2, 
 				    const char *chain_imol1,
 				    const char *chain_imol2,

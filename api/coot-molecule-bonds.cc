@@ -1826,17 +1826,18 @@ coot::molecule_t::get_bonds_mesh(const std::string &mode, coot::protein_geometry
 
 
 generic_3d_lines_bonds_box_t
-coot::molecule_t::make_exportable_environment_bond_box(coot::residue_spec_t &spec, coot::protein_geometry &geom) const {
+coot::molecule_t::make_exportable_environment_bond_box(coot::residue_spec_t &spec, float max_dist, coot::protein_geometry &geom) const {
 
    // 20230327-PE when you make the libcootapi version, just export this function
    // and make a simple_mesh_t from the bonds_box_env.
    //
    auto make_bonds_box_env = [] (const coot::residue_spec_t &spec,
                                  atom_selection_container_t atom_sel,
+				 float max_dist,
                                  coot::protein_geometry &geom) {
       graphical_bonds_container bonds_box_env;
       float environment_min_distance = 0.0f;
-      float environment_max_distance = 3.5f;
+      float environment_max_distance = max_dist;
       bool draw_bonds_to_hydrogens_flag = true;
 
       mmdb::Residue *residue_p = coot::util::get_residue(spec, atom_sel.mol);
@@ -1871,7 +1872,7 @@ coot::molecule_t::make_exportable_environment_bond_box(coot::residue_spec_t &spe
       return bonds_box_env;
    };
 
-   graphical_bonds_container bonds_box_env = make_bonds_box_env(spec, atom_sel, geom);
+   graphical_bonds_container bonds_box_env = make_bonds_box_env(spec, atom_sel, max_dist, geom);
    return generic_3d_lines_bonds_box_t(bonds_box_env);
 
 }

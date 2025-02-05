@@ -1,17 +1,99 @@
 ----
 
-Surface display is missing a shader?
+Delete Residue using ctrl-D - or button/menu-item (2vtq, say) and try to undelete it - fails.
 
-How do I open a .ccp4 map?
+Feature request: occupancy and b-factors of atoms close to the centre of screen.
+Key binding.
+
+GEMMI: Transfer aniso-B information in gemmi-mmdb
+
+Moorhen: Delete Waters
+
+Moorhen: Session file doesn't save the environment distances on restore.
+
+Are the GLUprot ASPprot Hisprot1 Hisprot2 in the monomer library mon_lib_list.cif (from github)
+
+Sprout hydrogens should work on protein residues
+Sprout hydrogens should be in the ligand menu
+
+NCS Ghost Control (github issue Oli)
+
+EDStats interface for chapi and coot.
+
+Add hydrogen atoms to waters - don't care about orientation.
+
+Add Deuteurium fraction information in the status bar on atom click
+
+HOLE (use a dialog, not an overlay)   o Done.
+make_a_difference_map_action          * Done.
+transform_map_by_lsq_model_fit_action * Done.
+average_maps_action                   * Done.
+brighten_maps_action                  * Done.
+set_map_is_difference_map_action      * Done.
+another_contour_level_action          * Done.
+multichicken_action                   * Done.
+copy_ncs_residue_range_action
+copy_ncs_chain_action
+ncs_jumping_action
+ncs_ligands_action
+
+Send Charles info about Coot tests.
+
+1.1.12 make svg molecule work again (pli need not work). Test wedge bonds. Test atom
+label positioning.
 
 1.1.12: Oli's Rama bug.
 
+Release new 0.9.8.x
+
+post-release: 1ajs, do a tandem refine on 222B - why do I get an bad contact marker
+with 258 N1? Ah! They are both acceptors! Interesting. What to do about it?
+
+More work on molecule_class_info_t::alt_conf_view_next_alt_conf(const std::string &current_alt_conf)
+needed.
+
+Does copy-fragment work with ||?
+* Done.
+
+Make a blog post: Coot and the XDG Base Directory Protocol
+Where do files from Acedrg go? Or downloaded/fetched? Or servalcat?
+
+Make a very smooth copy: Depythonize.
+* Done.
+
+1.1.12 Import the CCD for A1AWR and try to regularize the ligand.
+It should give an error message, not proceed with the refinement!
+* Done. Nice.
+
+Ligand -> Overlay gui: Get CCD for type:
+No, it's a Fetch. And it's already there.
+It would be nice to have an intermediate overlay
+with the comp_id of the current residue filled.
+Another time.
+* Done - for now.
+
+Surface display is missing a shader? (Not on mac)
+* Done. Idiot edit a6065f50399fabb2a4e767ec27973dfa9da874e3 Dec 2022.
+
+get pull request (?) for column labels from Clemens.
+* Done.
+
+Review the github pull requests
+* Done.
+
+Ligand+CA doesn't have thin bond to hydrogen atoms
+H Atoms are small though.
+Ligand in SS CA mode does have thin bonds to hydrogen atoms
+* Done. Hostage to fortune? b3178827c24a788d4d1830261610b0ab29f25719
+
+1.1.12 Import a dictionary and make an instance - does that work?
+No.
+* Fixed.
+
 get_atom() and get_residue() would be nice in chapi.
 Needs to make a chapi version of an mmdb atom I think.
-Post-release.
 
-on delete hydrogen atoms on a non-sane molecule throws an exception.
-Catch RDKit::AtomValenceException in delete_non_polar_hydrogens
+How do I open a .ccp4 map?
 * Done.
 
 When getting files from EDS:
@@ -19,10 +101,15 @@ this directory did not exist:
 /home/martin/.cache/Coot/coot-download/
 * Done.
 
+How do I open a .ccp4 map?
+* Done.
+
 Add a "Save to CCP4i2 button which saves the first model into a "ccp4i2-coot-save" directory.
 * Done.
 
-1.1.12 make svg molecule work again (pli need not work). Test wedge bonds.
+on delete hydrogen atoms on a non-sane molecule throws an exception.
+Catch RDKit::AtomValenceException in delete_non_polar_hydrogens
+* Done.
 
 1.1.12: Untangle the disulfide refinement in the untangle challenge file from Eleanor.
 * Can't reproduce
@@ -118,12 +205,15 @@ Chapi: add flood to the api
 * Done.
 
 Chapi: Add a function for missing residue ranges
+* Done. It's cool
 
 Chapi: residue_spec_t previous_residue(residue_spec_t);
 
 Add NCS completion to ncs tools.
 
 prune tools?
+
+draw_generic_objects needs to work with shadows and SSAO.
 
 bug: make_mesh_for_gaussian_surface_for_blender(int, float, float, float, float, float)
 maybe true?

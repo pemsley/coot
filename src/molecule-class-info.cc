@@ -89,9 +89,6 @@ const double pi = M_PI;
 
 #include "coords/Bond_lines_ext.h"
 
-// just delete this header?
-#include "globjects.h" // for set_bond_colour(), r_50
-
 #include "coot-utils/coot-coord-utils.hh"
 #include "utils/coot-utils.hh"
 
@@ -978,7 +975,7 @@ molecule_class_info_t::old_draw_anisotropic_atoms() {
             float x1, y1, z1;
             float x_diff, y_diff, z_diff;
             float d2, mc_r2 = g.show_aniso_atoms_radius*g.show_aniso_atoms_radius;
-            float rad_50, r;
+            float r;
 
             for (int i=0; i<atom_sel.n_selected_atoms; i++) {
 
@@ -1032,9 +1029,7 @@ molecule_class_info_t::old_draw_anisotropic_atoms() {
                         std::pair<bool,GL_matrix> chol_pair = mat.eigensystem();
                         if (chol_pair.first) {
                            glMultMatrixf(chol_pair.second.get());
-                           rad_50 = r_50(atom_sel.atom_selection[i]->element);
-                           r = rad_50_and_prob_to_radius(rad_50,
-                                                         g.show_aniso_atoms_probability);
+                           r = prob_to_radius(g.show_aniso_atoms_probability);
                            // note: g.show_aniso_atoms_probability is in the range
                            // 0.0 -> 100.0
                            // glutWireSphere(r, 10, 10);
@@ -3706,7 +3701,13 @@ molecule_class_info_t::make_ca_plus_ligands_bonds(coot::protein_geometry *geom_p
    Bond_lines_container bonds(geom_p, "dummy-CA-mode", no_bonds_to_these_atom_indices, false);
    bonds.do_Ca_plus_ligands_bonds(atom_sel, imol_no, geom_p, 2.4, 4.7, draw_hydrogens_flag,
                                   graphics_info_t::draw_missing_loops_flag);
-   bonds_box = bonds.make_graphical_bonds_no_thinning();
+
+   // 20250124-PE is this a hostage to fortune? We don't want ligands with fat bonds to hydrogen
+   // atoms - but does that mean that one of the Protein chains will be thin?
+   // bonds_box = bonds.make_graphical_bonds_no_thinning();
+   // withe the thinning flag on, bonds with colour HYDROGEN_GREY_BOND are drawn thin.
+   bonds_box = bonds.make_graphical_bonds();
+
    bonds_box_type = coot::CA_BONDS_PLUS_LIGANDS;
    make_glsl_bonds_type_checked(__FUNCTION__);
 

@@ -107,7 +107,6 @@ graphics_info_t::lsq_get_and_apply_matrix_maybe(int imol_ref, int imol_moving,
 			    << clipper::Rotation(rtop_info.second.rot()).polar_ccp4().format()
 			    << std::endl;
 
-
 		  if (apply_matrix) {
 		     molecules[imol_moving].transform_by(rtop_info.second);
 		     coot::util::copy_cell_and_symm_headers(mol_ref, mol_mov);

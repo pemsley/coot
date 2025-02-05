@@ -1870,6 +1870,11 @@ namespace coot {
                                        int imol_enc,
                                        bool allow_minimal_flag) const;
 
+      // 20250124-PE and the reverse
+      //
+      // return the second blank on lookup failure
+      std::pair<int, std::string> get_monomer_name(int monomer_index) const;
+
       // non-const because we try to read in stuff from ccp4srs when
       // it's not in the dictionary yet.  ccp4srs gives us bond orders.
       //

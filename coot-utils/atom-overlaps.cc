@@ -263,6 +263,9 @@ coot::atom_overlaps_container_t::mark_donors_and_acceptors_central_residue(int u
             energy_lib_atom ela = geom_p->get_energy_lib_atom(energy_type);
             hb_t hb_type = ela.hb_type;
             at->PutUDData(udd_h_bond_type_handle, hb_type); // hb_t -> int
+            if (false)
+               std::cout << "marked ligand atom " << coot::atom_spec_t(at) << " as hb_type " << hb_type
+                         << " note HB_DONOR " << HB_DONOR << " HB_ACCEPTOR " << HB_ACCEPTOR << std::endl;
 	    if (energy_type == "NR5") {
 	      // test here that there is a hydrogen atom bonded to this one
 	      if (true) {
@@ -331,7 +334,7 @@ coot::atom_overlaps_container_t::mark_donors_and_acceptors_for_neighbours(int ud
                   energy_lib_atom neighb_ela = geom_p->get_energy_lib_atom(neigh_energy_type);
                   hb_t neighb_hb_type = neighb_ela.hb_type;
                   if (false)
-                     std::cout << "2222222222222222222222 mark_donors_and_acceptors_for_neighbours() "
+                     std::cout << "222 mark_donors_and_acceptors_for_neighbours() "
                                << "heavy_neighb_of_H_atom " << heavy_neighb_of_H_atom << " neigh_hb_type for H-atom "
                                << atom_name << " is " << neighb_hb_type << " with neighb_ela type " << neighb_ela.type << std::endl;
                   if (neighb_hb_type == coot::HB_DONOR) {
@@ -354,8 +357,9 @@ coot::atom_overlaps_container_t::mark_donors_and_acceptors_for_neighbours(int ud
                std::string energy_type = dict.type_energy(atom_name);
                energy_lib_atom ela = geom_p->get_energy_lib_atom(energy_type);
                hb_t hb_type = ela.hb_type;
-               // std::cout << "----- adding env hb_type " << hb_type << " udd " << atom_spec_t(n_at) << " "
-               // << n_at << " using handle " << udd_h_bond_type_handle << std::endl;
+               if (false)
+                  std::cout << "----- adding env hb_type " << hb_type << " udd " << atom_spec_t(n_at) << " "
+                            << " using handle " << udd_h_bond_type_handle << std::endl;
                if (n_at->PutUDData(udd_h_bond_type_handle, hb_type) == mmdb::UDDATA_Ok) { // hb_t -> int
                   // std::cout << "putting uddata for hb_type " << hb_type << " OK" << std::endl;
                } else {
@@ -1287,7 +1291,7 @@ coot::atom_overlaps_container_t::contact_dots_for_ligand(double dot_density_in) 
                   sphere_points_for_atom = H_sphere_points;
 
                for (unsigned int j=0; j<sphere_points_for_atom.size(); j++) {
-                  
+
                   const clipper::Coord_orth &pt(sphere_points[j]);
                   clipper::Coord_orth pt_at_surface = r_1 * pt + pt_at_1;
                   bool draw_it = ! is_inside_another_ligand_atom(iat, pt_at_surface);
@@ -1364,8 +1368,8 @@ coot::atom_overlaps_container_t::contact_dots_for_ligand(double dot_density_in) 
                         // is_h_bond_H_and_acceptor(cr_at, atom_with_biggest_overlap, udd_h_bond_type_handle);
                         h_bond_info_t hbi(cr_at, atom_with_biggest_overlap, udd_h_bond_type_handle);
                         bool is_h_bond = false;
-                        if (hbi.is_h_bond_H_and_acceptor)
-                           is_h_bond = true;
+                        if (hbi.is_h_bond_H_and_acceptor) is_h_bond = true;
+                        if (hbi.is_h_bond_donor_and_acceptor)  is_h_bond = true;
 
                         std::pair<std::string, std::string> c_type_col =
                            overlap_delta_to_contact_type(overlap_delta, is_h_bond);
@@ -1373,7 +1377,10 @@ coot::atom_overlaps_container_t::contact_dots_for_ligand(double dot_density_in) 
                         const std::string &col    = c_type_col.second;
 
                         if (false)
-                           std::cout << "............ here with is_h_bond " << is_h_bond
+                           std::cout << "............ here in contact_dots_for_ligand() "
+                                     << coot::atom_spec_t(cr_at) << " "
+                                     << coot::atom_spec_t(atom_with_biggest_overlap) << " "
+                                     << "with is_h_bond " << is_h_bond
                                      << " " <<  c_type << " " << col << std::endl;
 
                         if (false)

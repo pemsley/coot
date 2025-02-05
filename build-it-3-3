@@ -1471,6 +1471,8 @@ else
    fi
 fi
 
+echo number of processors for compiling: $np
+
 echo testing for patch
 patch --version > /dev/null
 if [ $? -ne 0 ] ; then
@@ -2101,14 +2103,16 @@ python_version_squish=311
 
 # for Blender 4 in 2024, we want Python 3.10.13, so uncomment the 3 lines below:
 if [ "$CHAPI_ONLY" = true ] ; then
-    # python_version=python3.10
-    # pver=3.10.13
-    # python_version_extension=3.10
-    # python_version_squish=310
-    python_version=python3.12
-    pver=3.12.7
-    python_version_extension=3.12
-    python_version_squish=312
+
+    python_version=python3.10
+    pver=3.10.13
+    python_version_extension=3.10
+    python_version_squish=310
+
+    # python_version=python3.12
+    # pver=3.12.7
+    # python_version_extension=3.12
+    # python_version_squish=312
 fi
 
 
@@ -2256,22 +2260,22 @@ else
     build_ccp4c=1
 fi
 
-if [ -e $install_top_dir/bin/python3 ] ; then
-   if ${install_top_dir}/bin/python3 -V ; then
+if [ -e $install_top_dir/bin/$python_version ] ; then
+   if ${install_top_dir}/bin/$python_version -V ; then
       # test for ctypes - was it installed correctly?
       ld_lib_path_backup=$LD_LIBRARY_PATH
       unset LD_LIBRARY_PATH
-      if [ "$(${install_top_dir}/bin/python3 -V)" = "Python $pver" ] ; then
-         echo found version of Python `${install_top_dir}/bin/python3 -V` 2>&1
-         if ${install_top_dir}/bin/python3 -c 'import ctypes' ; then
-            echo we have python3 with working ctypes
+      if [ "$(${install_top_dir}/bin/$python_version -V)" = "Python $pver" ] ; then
+         echo found version of Python `${install_top_dir}/bin/$python_version -V` 2>&1
+         if ${install_top_dir}/bin/$python_version -c 'import ctypes' ; then
+            echo we have $python_version with working ctypes
          else
-            echo python3 ctypes failure
+            echo $python_version ctypes failure
             build_python=1
          fi
       else
          echo wrong version of Python - needs rebuild
-         ${install_top_dir}/bin/python3 -V
+         ${install_top_dir}/bin/$python_version -V
       fi
       export LD_LIBRARY_PATH=$ld_lib_path_backup
    else
@@ -2984,7 +2988,7 @@ fi
 
 ############ test python, exit on failure ##################
 
-$install_top_dir/bin/python3 <<EOF
+$install_top_dir/bin/$python_version <<EOF
 import ctypes
 print(dir(ctypes))
 EOF
@@ -3042,8 +3046,9 @@ fi
 
 if $build_meson = true ; then
    meson_version=1.2.3
-   echo BUILDING meson $meson_version:
-   echo BUILDING meson $meson_version: >&2
+   meson_version=1.7.0
+   echo BUILDING: meson $meson_version:
+   echo BUILDING: meson $meson_version: >&2
    (
    ${WGET} https://github.com/mesonbuild/meson/releases/download/$meson_version/meson-$meson_version.tar.gz
    tar xf ${AUTOBUILD_SOURCES}/meson-$meson_version.tar.gz
@@ -3235,6 +3240,87 @@ else
     echo not building libidn2:
 fi
 
+# note: libpsl depends on libunistring. If I compile on the command line
+# libpsl#s configure finds a library for u8_tolower. From this script
+# it does (did) not. Hence move this build up before libpsl
+###############################################################################
+##########       build unistring                                  #############
+###############################################################################
+
+build_unistring=true
+unistring_version=0.9.6
+unistring_version=0.9.10
+
+if [ "$build_unistring" = true ] ; then
+   skip_this=false
+   if [ "$test_for_already_installed_dependencies" = true ] ; then
+      if [ -e $install_top_dir/include/unistr.h ] ; then
+         skip_this=true
+      fi
+   fi
+
+   echo libunistring skip_this $skip_this
+
+   if [ $skip_this = false ] ; then
+      echo BUILDING libunistring $unistring_version >&2
+      echo BUILDING libunistring:
+      (
+      unset LD_LIBRARY_PATH
+      echo ========================= build unistring =================================
+      if [ -e $AUTOBUILD_SOURCES/libunistring-$unistring_version.tar.gz ] ; then
+         tar xf $AUTOBUILD_SOURCES/libunistring-$unistring_version.tar.gz
+      else
+         echo missing file $AUTOBUILD_SOURCES/libunistring-$unistring_version.tar.gz
+         ${WGET} http://mirrorservice.org/sites/ftp.gnu.org/gnu/libunistring/libunistring-$unistring_version.tar.gz
+         tar xf $AUTOBUILD_SOURCES/libunistring-$unistring_version.tar.gz
+      fi
+      cd libunistring-$unistring_version
+      echo ./configure --prefix=$install_top_dir
+      if ./configure --prefix=$install_top_dir  ; then
+         if $MAKE ; then
+            make install
+         fi
+      fi
+      cd -
+      ) > $HOSTLOGDIR/18-libubunistring.txt 2>&1
+      echo done libunistring $unistring_version >&2
+   else
+      echo not building libunistring
+   fi
+fi
+
+
+
+#
+###############################################################################
+##########         build libpsl                                   #############
+###############################################################################
+#
+
+# curl depends on libpsl - should we build that?
+# https://github.com/rockdaboot/libpsl/releases/download/0.21.5/libpsl-0.21.5.tar.gz
+# seems straightforward...
+
+build_libpsl=true
+if test -e $install_top_dir/include/libpsl.h ; then
+    build_libpsl=false
+fi
+
+if test $build_libpsl = true ; then
+   libpsl_version=0.21.5
+   echo BUILDING: libpsl $libpsl_version
+   echo BUILDING: libpsl $libpsl_version >&2
+   (
+   pwd
+   unset LD_LIBRARY_PATH
+   ${WGET} https://github.com/rockdaboot/libpsl/releases/download/0.21.5/libpsl-0.21.5.tar.gz
+   tar xf ${AUTOBUILD_SOURCES}/libpsl-0.21.5.tar.gz
+   cd libpsl-$libpsl_version
+   ./configure --prefix=$install_top_dir
+   $MAKE && make install
+   ) > $HOSTLOGDIR/18-libpsl.txt
+fi
+
 #
 ###############################################################################
 ##########         build curl                                     #############
@@ -3242,12 +3328,16 @@ fi
 #
 
 if test -n "$build_curl" ; then
+   # curl version 8.10.1 has a build problem on Alma 9.4 (at least). Let's
+   # try the latest version: 8.11.1
    libcurl_version=7.65.3
    libcurl_version=8.10.1
+   libcurl_version=8.11.1
    libcurl_version_directory=7_65_3
    libcurl_version_directory=8_10_1
-   echo BUILDING curl: $libcurl_version
-   echo BUILDING curl: $libcurl_version >&2
+   libcurl_version_directory=8_11_1
+   echo BUILDING: curl $libcurl_version
+   echo BUILDING: curl $libcurl_version >&2
    (
    # get libcurl from here:
    # libcurl_version=7.19.7
@@ -3352,6 +3442,9 @@ fi
 ###############################################################################
 ##########         build boost                                    #############
 ###############################################################################
+
+# there is something wrong here - boost needs to come after numpy
+# rdkit needs boost-numpy
 
 build_boost=true
 test_for_already_installed_dependencies=true
@@ -3562,10 +3655,16 @@ if [ true = true ] ; then
       # 20240127-PE Using 1.19.4 I am getting an error installing with Python 3.10 [errno #1].
       # So let's try the latest numpy - 1.26.3
       numpy_version=1.26.3
+      # still compilation errors:
+      # numpy-1.26.3/numpy/core/src/npysort/simd_qsort.dispatch.cpp:11:14: fatal error: x86 -simd-sort/src/avx512-32bit-qsort.hpp: No such file or directory
+      # 11 |     #include "x86-simd-sort/src/avx512-32bit-qsort.hpp"
+      #    |              ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+      # compilation terminated.
+      # numpy_version=2.2.2 # hellish build complexity
+      numpy_version=1.26.4
       echo BUILDING numpy $numpy_version
       echo BUILDING numpy $numpy_version >&2
       (
-      echo building ========================= numpy ==============================
       echo this gfortran:
       command -v gfortran
       echo $PATH
@@ -3578,17 +3677,12 @@ if [ true = true ] ; then
       # numpy source is now zip
       # ${WGET} https://pypi.python.org/packages/source/n/numpy/numpy-$numpy_version.tar.gz
       # ${WGET} https://pypi.python.org/packages/source/n/numpy/numpy-$numpy_version.zip
-      echo Fetching https://github.com/numpy/numpy/archive/refs/tags/v$numpy_version.tar.gz >&2
-      ${WGET} https://github.com/numpy/numpy/archive/refs/tags/v$numpy_version.tar.gz
+      # echo Fetching https://github.com/numpy/numpy/archive/refs/tags/v$numpy_version.tar.gz >&2
+      # ${WGET} https://github.com/numpy/numpy/archive/refs/tags/v$numpy_version.tar.gz
+      echo ${WGET} https://github.com/numpy/numpy/releases/download/v$numpy_version/numpy-$numpy_version.tar.gz
+      ${WGET} https://github.com/numpy/numpy/releases/download/v$numpy_version/numpy-$numpy_version.tar.gz
       #
-      ls -l ${AUTOBUILD_SOURCES}/v$numpy_version.tar.gz
-      if [ ! -e ${AUTOBUILD_SOURCES}/v$numpy_version.tar.gz ] ; then
-         echo ${AUTOBUILD_SOURCES}/v$numpy_version.tar.gz not found - exit build
-         exit
-      fi
-      ls -l ${AUTOBUILD_SOURCES}/v$numpy_version.tar.gz
-      echo tar xf ${AUTOBUILD_SOURCES}/v$numpy_version.tar.gz
-      tar xf ${AUTOBUILD_SOURCES}/v$numpy_version.tar.gz
+      tar xf ${AUTOBUILD_SOURCES}/numpy-$numpy_version.tar.gz
       cd numpy-$numpy_version/
       # we need to check that we have a fortran compiler, in this case gnu95
       #
@@ -4294,8 +4388,6 @@ g_wrap_version=1.9.15
 libtool_version=2.4.6
 gmp_version=6.1.1
 gmp_version=6.2.1
-unistring_version=0.9.6
-unistring_version=0.9.10
 guile_gnome_platform_version=2.16.5
 readline_version=6.3
 gc_version=8.0.4
@@ -4316,50 +4408,11 @@ guile_cairo_version=1.9.91
 build_guile=true
 build_g_wrap=true
 build_gmp=true
-build_unistring=true
 build_guile_gnome_platform=true
 # build_readline=true
 build_guile_cairo=true
 build_guile_lib=true
 
-
-if [ "$build_unistring" = true ] ; then
-   skip_this=false
-   if [ "$test_for_already_installed_dependencies" = true ] ; then
-      if [ -e $install_top_dir/include/unistr.h ] ; then
-         skip_this=true
-      fi
-   fi
-
-   echo libunistring skip_this $skip_this
-
-   if [ $skip_this = false ] ; then
-      echo BUILDING libunistring $unistring_version >&2
-      echo BUILDING libunistring:
-      (
-      unset LD_LIBRARY_PATH
-      echo ========================= build unistring =================================
-      if [ -e $AUTOBUILD_SOURCES/libunistring-$unistring_version.tar.gz ] ; then
-         tar xf $AUTOBUILD_SOURCES/libunistring-$unistring_version.tar.gz
-      else
-         echo missing file $AUTOBUILD_SOURCES/libunistring-$unistring_version.tar.gz
-         ${WGET} http://mirrorservice.org/sites/ftp.gnu.org/gnu/libunistring/libunistring-$unistring_version.tar.gz
-         tar xf $AUTOBUILD_SOURCES/libunistring-$unistring_version.tar.gz
-      fi
-      cd libunistring-$unistring_version
-      echo ./configure --prefix=$install_top_dir
-      if ./configure --prefix=$install_top_dir  ; then
-         if $MAKE ; then
-            make install
-         fi
-      fi
-      cd -
-      ) > $HOSTLOGDIR/36-libubunistring.txt 2>&1
-      echo done libunistring $unistring_version >&2
-   else
-      echo not building libunistring
-   fi
-fi
 
 
 build_gc=true
