@@ -594,6 +594,8 @@ install_icons_into_theme(GtkWidget *w) {
    GtkIconTheme *icon_theme = gtk_icon_theme_get_for_display(gtk_widget_get_display(w));
    std::string pkg_data_dir = coot::package_data_dir();
    std::string pixmap_dir = coot::util::append_dir_dir(pkg_data_dir, "pixmaps");
+   std::string pixmap_dark_dir = coot::util::append_dir_dir(pixmap_dir, "dark");
+   gtk_icon_theme_add_search_path(icon_theme, pixmap_dark_dir.c_str());
    gtk_icon_theme_add_search_path(icon_theme, pixmap_dir.c_str());
 
    // This is only necessary when coot is installed in a non-standard location
