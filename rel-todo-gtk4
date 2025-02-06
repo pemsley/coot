@@ -1,6 +1,9 @@
 ----
 
+add-geometry-distance in state command needs coot namespace
+
 Why doesn't YTD import into layla after reading acedrg-YTD.cif?
+Because it doesn't share geom. It should.
 
 Fix this startup message:
 ERROR:: failed to find preferences_bond_width_combobox

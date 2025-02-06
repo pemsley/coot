@@ -14,7 +14,13 @@
     get_missing_residue_ranges()
     get_mutation_info()
 
-  o FEATURE: Acedrg link interface
+  o FEATURE: Added graphics viewport scaling
+
+  o FEATURE: Added Acedrg link interface
+
+  o FEATURE: HOLE interface has been restored
+
+  o FEATURE: Transform map by LSQ model fit has been restored
 
   o BUG-FIX: --code <accession-code> now works again after XDG Directory Protocol update
 
@@ -26,11 +32,29 @@
 
   o BUG-FIX: Use the correct shader for surfaces in "Plain" mode
 
+  o BUG-FIX: LSQ Fit dialog now works
+
+  o BUG-FIX: CYS with hydrogen atoms no longer try to make SS bonds [Jordan Dialpuri]
+
+  o BUG-FIX: End-of-chain TER atom now removed on adding a new terminal residue
+
+  o BUG-FIX: Dark mode icons now work in Layla
+
+  o BUG-FIX: Use a wider window on startup on macOS
+
+  o BUG-FIX: Global Phasing column labels F_early-late now auto-read
+
+  o BUG-FIX: Delete Hydrogen atom in Layla now works
+
   o CHANGE:  Remove/reduce framebuffer usage in --opengl-es mode
 
   o CHANGE:  Module menus depthonized
 
   o CHANGE:  Overlay added for Cryo-EM "Flip Hand" tool
+
+  o CHANGE:  Pythonic start-up has been changed - hopefully improved
+
+  o KNOWN-BUGS: Ramachandran Plot display on (some?) macOS
 
 
 -----
