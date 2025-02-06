@@ -476,9 +476,13 @@ void setup_tomo_widgets() {
 
 void setup_preferences() {
 
+	// This stuff is no longer in preferences - perhaps they should be but they are not today,
+	// so #ifdef out the code.
+
    // 20230627-PE put this in setup-gui-components - it should only happen once.
    // 20240916-PE done!
    {
+#if 0
       // fill the bond combobox
       GtkComboBoxText *combobox = GTK_COMBO_BOX_TEXT(widget_from_preferences_builder("preferences_bond_width_combobox"));
       if (combobox) {
@@ -489,6 +493,9 @@ void setup_preferences() {
       } else {
          std::cout << "ERROR:: failed to find preferences_bond_width_combobox " << std::endl;
       }
+#endif
+
+#if 0
       // fill the font combobox
       combobox = GTK_COMBO_BOX_TEXT(widget_from_preferences_builder("preferences_font_size_combobox"));
       // 20230926-PE there was a crash here - maybe combobox was not looked up correctly.
@@ -504,6 +511,7 @@ void setup_preferences() {
       } else {
          std::cout << "ERROR:: failed to find preferences_font_size_combobox" << std::endl;
       }
+#endif
    }
 
 }
