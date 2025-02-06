@@ -4,7 +4,7 @@
     <property name="width_request">400</property>
     <property name="height_request">460</property>
     <property name="visible">True</property>
-    <property name="title" translatable="yes">Restraints Editor</property>
+    <property name="title" translatable="yes">Coot: Restraints Editor</property>
     <property name="modal">False</property>
     <property name="resizable">True</property>
     <child>
@@ -279,7 +279,7 @@
                 <signal name="clicked" handler="on_restraints_editor_delete_restraint_button_clicked"/>
               </object>
             </child>
-            
+
           </object>
         </child>
 
@@ -292,6 +292,7 @@
           <object class="GtkBox" id="dialog-action_area1">
             <property name="orientation">horizontal</property>
             <property name="visible">True</property>
+            <property name="halign">end</property>
             <child>
               <object class="GtkButton" id="restraints_editor_close_button">
                 <property name="visible">True</property>

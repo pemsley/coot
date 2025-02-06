@@ -13851,8 +13851,8 @@ just the cell and symmetry)
             <child>
               <object class="GtkButton" id="residue_editor_select_monomer_type_cancel_button">
                 <property name="label" translatable="yes">Cancel</property>
-                <property name="margin-top">4</property>
-                <property name="margin-bottom">4</property>
+                <property name="margin-top">2</property>
+                <property name="margin-bottom">6</property>
                 <property name="margin-start">6</property>
                 <property name="margin-end">6</property>
                 <signal name="clicked" handler="on_residue_editor_select_monomer_type_cancel_button_clicked" />
@@ -13861,8 +13861,8 @@ just the cell and symmetry)
             <child>
               <object class="GtkButton" id="residue_editor_select_monomer_type_ok_button">
                 <property name="label" translatable="yes">OK</property>
-                <property name="margin-top">4</property>
-                <property name="margin-bottom">4</property>
+                <property name="margin-top">2</property>
+                <property name="margin-bottom">6</property>
                 <property name="margin-start">6</property>
                 <property name="margin-end">6</property>
                 <signal name="clicked" handler="on_residue_editor_select_monomer_type_ok_button_clicked" />
