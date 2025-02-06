@@ -1,15 +1,22 @@
 ----
 
-Delete Residue using ctrl-D - or button/menu-item (2vtq, say) and try to undelete it - fails.
+Why doesn't YTD import into layla after reading acedrg-YTD.cif?
 
-Feature request: occupancy and b-factors of atoms close to the centre of screen.
+Fix this startup message:
+ERROR:: failed to find preferences_bond_width_combobox
+ERROR:: failed to find preferences_font_size_combobox
+
+Feature request: occupancy and B-factors of atoms close to the centre of screen.
 Key binding.
 
-GEMMI: Transfer aniso-B information in gemmi-mmdb
+Edit Restraints dialog should be an overlay.
+
+GEMMI: Transfer aniso-B information in gemmi-mmdb - aniso table is missing from
+output cif - why? Ask Marcin.
 
 Moorhen: Delete Waters
 
-Moorhen: Session file doesn't save the environment distances on restore.
+Moorhen: Session file doesn't save the environment distances on restore. Fixed?
 
 Are the GLUprot ASPprot Hisprot1 Hisprot2 in the monomer library mon_lib_list.cif (from github)
 
@@ -24,7 +31,7 @@ Add hydrogen atoms to waters - don't care about orientation.
 
 Add Deuteurium fraction information in the status bar on atom click
 
-HOLE (use a dialog, not an overlay)   o Done.
+HOLE (use a dialog, not an overlay)   * Done.
 make_a_difference_map_action          * Done.
 transform_map_by_lsq_model_fit_action * Done.
 average_maps_action                   * Done.
@@ -57,6 +64,10 @@ Does copy-fragment work with ||?
 
 Make a blog post: Coot and the XDG Base Directory Protocol
 Where do files from Acedrg go? Or downloaded/fetched? Or servalcat?
+
+Delete Residue using ctrl-D - or button/menu-item (2vtq, say) and try to undelete it - fails.
+My setup, I think. readline installation problem.
+* Done - for now.
 
 Make a very smooth copy: Depythonize.
 * Done.

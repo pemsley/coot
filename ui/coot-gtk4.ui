@@ -1142,7 +1142,7 @@
       <item>
         <attribute name="label" translatable="yes">Hydrogen Atoms in Molecule</attribute>
         <attribute name="action">app.delete_item</attribute>
-        <attribute name="target">hdyrogen-atoms-in-molecule</attribute>
+        <attribute name="target">hydrogen-atoms-in-molecule</attribute>
       </item>
    </section>
   </menu>
@@ -13809,13 +13809,25 @@ just the cell and symmetry)
         <child>
           <object class="GtkBox">
             <property name="orientation">vertical</property>
+            <property name="margin-start">4</property>
+            <property name="margin-end">4</property>
+            <property name="margin-top">4</property>
+            <property name="margin-bottom">4</property>
             <child>
               <object class="GtkLabel">
                 <property name="label" translatable="yes">Select Monomer Type</property>
+                <property name="margin-top">4</property>
+                <property name="margin-bottom">4</property>
+                <property name="margin-start">4</property>
+                <property name="margin-end">4</property>
               </object>
             </child>
             <child>
               <object class="GtkComboBoxText" id="residue_editor_select_monomer_type_combobox">
+                <property name="margin-start">8</property>
+                <property name="margin-end">8</property>
+                <property name="margin-top">4</property>
+                <property name="margin-bottom">4</property>
               </object>
             </child>
           </object>
@@ -13823,6 +13835,7 @@ just the cell and symmetry)
         <child>
           <object class="GtkBox">
             <property name="orientation">horizontal</property>
+            <property name="halign">end</property>
 
             <child>
               <object class="GtkButton" id="residue_editor_select_monomer_type_cancel_button">
@@ -13842,6 +13855,9 @@ just the cell and symmetry)
                 <property name="margin-start">6</property>
                 <property name="margin-end">6</property>
                 <signal name="clicked" handler="on_residue_editor_select_monomer_type_ok_button_clicked" />
+                <style>
+                  <class name="suggested-action"/>
+                </style>
               </object>
             </child>
 

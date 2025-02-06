@@ -2910,6 +2910,8 @@ molecules_container_t::thread_for_refinement_loop_threaded() {
 int
 molecules_container_t::refine_direct(int imol, std::vector<mmdb::Residue *> rv, const std::string &alt_loc, int n_cycles) {
 
+   // note to self: did you set imol_refinement_map?
+
    if (false)
       std::cout << "starting mc::refine_direct() with imol " << imol
                 << " and imol_refinement_map " << imol_refinement_map
