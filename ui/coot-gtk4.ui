@@ -10610,13 +10610,24 @@ Do you want to continue?
                 <property name="label">Close</property>
                 <property name="can-focus">1</property>
                 <signal name="clicked" handler="on_least_squares_cancel_button_clicked" swapped="no" />
+                <property name="margin-start">6</property>
+                <property name="margin-end">6</property>
+                <property name="margin-top">4</property>
+                <property name="margin-bottom">4</property>
               </object>
             </child>
             <child>
               <object class="GtkButton" id="least_squares_ok_button">
                 <property name="label" translatable="yes">Fit</property>
                 <property name="can-focus">1</property>
+                <property name="margin-start">6</property>
+                <property name="margin-end">6</property>
+                <property name="margin-top">4</property>
+                <property name="margin-bottom">4</property>
                 <signal name="clicked" handler="on_least_squares_ok_button_clicked" swapped="no" />
+                <style>
+                  <class name="suggested-action"/>
+                </style>
               </object>
             </child>
           </object>
