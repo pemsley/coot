@@ -7683,6 +7683,8 @@ void sequence_view(int imol) {
          auto click_function = +[] (CootSequenceView* self, int imol, const coot::residue_spec_t &spec, gpointer userdata) {
             graphics_info_t g;
             g.go_to_residue(imol, spec);
+            update_go_to_atom_from_current_position();
+            g.graphics_grab_focus();
          };
          g_signal_connect(sv, "residue-clicked", G_CALLBACK(click_function), nullptr);
       }
