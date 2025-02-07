@@ -6323,3 +6323,18 @@ molecules_container_t::get_mutation_info(int imol) const {
   }
   return mci;
 }
+
+//! Change the B factors
+//!
+//! @param imol is the model molecule index
+//! @param cid is the selection CID, e.g. //A/15 (residue 15 in chain A)
+//! @param temp_fact is the isotropic ADP/temperature factor, e.g.,  22
+void
+molecules_container_t::set_temperature_factors_using_cid(int imol, const std::string &cid, float temp_fact) {
+
+   if (is_valid_model_molecule(imol)) {
+      molecules[imol].set_temperature_factors_using_cid(cid, temp_fact);
+   }
+}
+
+

@@ -5161,3 +5161,21 @@ coot::molecule_t::get_mutation_info() const {
 
    return ch_info;
 }
+
+void
+coot::molecule_t::set_temperature_factors_using_cid(const std::string &cid, float temp_fact) {
+   if (atom_sel.mol) {
+      int selHnd = atom_sel.mol->NewSelection(); // d
+      mmdb::Atom **SelAtoms = nullptr;
+      int nSelAtoms = 0;
+      atom_sel.mol->Select(selHnd, mmdb::STYPE_ATOM, cid.c_str(), mmdb::SKEY_NEW);
+      atom_sel.mol->GetSelIndex(selHnd, SelAtoms, nSelAtoms);
+      if (nSelAtoms > 0) {
+         for (int i=0; i<nSelAtoms; i++) {
+            mmdb::Atom *atom = SelAtoms[i];
+            atom->tempFactor = temp_fact;
+         }
+      }
+      atom_sel.mol->DeleteSelection(selHnd);
+   }
+}
