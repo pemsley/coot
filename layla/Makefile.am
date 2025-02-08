@@ -68,7 +68,7 @@ AM_CXXFLAGS = \
 	-DPKGDATADIR='"$(pkgdatadir)"' \
 	$(SQLITE3_CFLAGS)              \
 	$(COOT_WINDOWS_CFLAGS)         \
-	$(CURL_LIBS)                   \
+	$(CURL_CFLAGS)                 \
         $(LIBPNG_CFLAGS)
 
 # maybe libexec_PROGRAMS if/when we use a shell-script wrapper
