@@ -1,15 +1,9 @@
 ----
 
-add-geometry-distance in state command needs coot namespace
-
 LaylaState::LaylaState(CootLigandEditorCanvas* canvas_widget, GtkWindow* win, GtkLabel* status_label) noexcept {
     this->monomer_library_info_store = std::make_unique<protein_geometry>();
 There is no transfer of the geometry store from Coot to Layla.
 Failing that, let's add an "Import from mmCIF file" into Layla Find menu.
-
-Fix this startup message:
-ERROR:: failed to find preferences_bond_width_combobox
-ERROR:: failed to find preferences_font_size_combobox
 
 Feature request: occupancy and B-factors of atoms close to the centre of screen.
 Key binding.
@@ -19,7 +13,7 @@ Edit Restraints dialog should be an overlay.
 GEMMI: Transfer aniso-B information in gemmi-mmdb - aniso table is missing from
 output cif - why? Ask Marcin.
 
-Moorhen: Delete Waters
+Add feature: Moorhen: Delete Waters
 
 Moorhen: Session file doesn't save the environment distances on restore. Fixed?
 
@@ -29,6 +23,11 @@ Sprout hydrogens should work on protein residues
 Sprout hydrogens should be in the ligand menu
 
 NCS Ghost Control (github issue Oli)
+
+4aw9 - build in the missing loop helix by place helix here. Now try
+coot.merge_molecules([3], 0)
+coot.merge_fragments(0)
+On merging fragments, the helix disappears.
 
 EDStats interface for chapi and coot.
 
@@ -63,6 +62,14 @@ with 258 N1? Ah! They are both acceptors! Interesting. What to do about it?
 
 More work on molecule_class_info_t::alt_conf_view_next_alt_conf(const std::string &current_alt_conf)
 needed.
+
+Fix this startup message:
+ERROR:: failed to find preferences_bond_width_combobox
+ERROR:: failed to find preferences_font_size_combobox
+* Done
+
+add-geometry-distance in state command needs coot namespace
+* Done.
 
 Does copy-fragment work with ||?
 * Done.
