@@ -1,14 +1,15 @@
 
   Release 1.1.12
 
-  o TERMINAL OUTPUT: Coot's startup, in particular the graphics and Python, have long
-       been problematic (i.e. flakey/broken).  Different operating systems, different
-       drivers, and different versions of Python add to the complexity.  We have spent
-       quite some time refactoring this - and especially so in the last few weeks.
-       To help diagnose what is going wrong on startup I have increased the amount
-       of diagnostic information on the terminal - so it's a bit ugly at the moment.
-       When issues have been resolved and the starup is stable, I will reduce/remove
-       the diagnostics.
+  o TERMINAL OUTPUT: Coot's startup, in particular the graphics and Python, have
+    long been problematic (i.e. flakey/broken).  Different operating systems,
+    different drivers, and different versions of Python add to the complexity.
+    We have spent quite some time refactoring this - and especially so in the
+    last few weeks. To help diagnose what is going wrong on startup I have
+    increased the amount of diagnostic information on the terminal - so it's a
+    bit ugly at the moment.
+    When issues have been resolved and the starup is stable, I will reduce/remove
+    the diagnostics.
 
   o FEATURE: new chapi functions:
 
@@ -22,6 +23,11 @@
     split_residue_using_map()
     get_missing_residue_ranges()
     get_mutation_info()
+    set_temperature_factor_using_cid()
+    Pythonic API:
+       https://www.mrc-lmb.cam.ac.uk/lucrezia/libcootapi-documentation/api.html
+    C++ API:
+       https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/docs/api/html/
 
   o FEATURE: Added graphics viewport scaling
 
@@ -31,7 +37,8 @@
 
   o FEATURE: Transform map by LSQ model fit has been restored
 
-  o BUG-FIX: --code <accession-code> now works again after XDG Directory Protocol update
+  o BUG-FIX: --code <accession-code> now works again after XDG Directory Protocol
+             update
 
   o BUG-FIX: Fix the use of the no-recentre-view in coordinate file open dialog
 
@@ -43,7 +50,8 @@
 
   o BUG-FIX: LSQ Fit dialog now works
 
-  o BUG-FIX: CYS with hydrogen atoms no longer try to make SS bonds [Jordan Dialpuri]
+  o BUG-FIX: CYS with hydrogen atoms no longer try to make SS bonds
+             [Jordan Dialpuri]
 
   o BUG-FIX: End-of-chain TER atom now removed on adding a new terminal residue
 
