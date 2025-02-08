@@ -1731,6 +1731,8 @@ on_tmblmf_ok_button_clicked(G_GNUC_UNUSED GtkButton       *button,
       gtk_widget_set_visible(frame, FALSE);
 }
 
+// this does not belong in main window. Move it.
+
 extern "C" G_MODULE_EXPORT
 void
 on_hole_dialog_response(GtkDialog       *dialog,
@@ -1750,7 +1752,7 @@ on_hole_dialog_response(GtkDialog       *dialog,
       if (is_valid_model_molecule(imol)) {
          float colour_map_multiplier = 1.0;
          float colour_map_offset = 0.0;
-         int n_runs = 1000;
+         int n_runs = 3000;
          bool show_probe_radius_graph_flag = true;
          GtkWidget *entry = widget_from_builder("hole_surface_dots_file_name_entry");
          const char *t = gtk_editable_get_text(GTK_EDITABLE(entry));

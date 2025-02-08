@@ -2,8 +2,10 @@
 
 add-geometry-distance in state command needs coot namespace
 
-Why doesn't YTD import into layla after reading acedrg-YTD.cif?
-Because it doesn't share geom. It should.
+LaylaState::LaylaState(CootLigandEditorCanvas* canvas_widget, GtkWindow* win, GtkLabel* status_label) noexcept {
+    this->monomer_library_info_store = std::make_unique<protein_geometry>();
+There is no transfer of the geometry store from Coot to Layla.
+Failing that, let's add an "Import from mmCIF file" into Layla Find menu.
 
 Fix this startup message:
 ERROR:: failed to find preferences_bond_width_combobox
