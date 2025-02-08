@@ -1090,6 +1090,11 @@ public:        //                      public
    void make_glsl_bonds_type_checked(const char *s = 0);
 #endif
 
+   void add_to_non_drawn_bonds(const std::string &cid);
+   // this clears the old no_bonds_to_these_atom_indices set and replaces it with a new one - and regens bonds.
+   void set_new_non_drawn_bonds(const std::string &cid);
+   std::set<int> no_bonds_to_these_atom_indices;
+   void clear_non_drawn_bonds(bool regen_bonds);
 
    float atom_radius_scale_factor; // 3 is quite nice, 1 by default.
    void set_atom_radius_scale_factor(float sf); // regenerate

@@ -1074,11 +1074,20 @@ void label_closest_atoms_in_neighbour_residues_py(int imol, PyObject *residue_sp
 //
 PyObject *get_bonds_representation(int imol);
 
+//! \brief replace any current non-drawn bonds with these - and regen bonds
+void set_new_non_drawn_bonds(int imol, const std::string &cid);
+
+//! \brief add to non-drawn bonds - and regen bonds
+void add_to_non_drawn_bonds(int imol, const std::string &cid);
+
+//! \brief clear the non-drawn bonds - don't regen bonds
+void clear_non_drawn_bonds(int imol);
+
 //! \brief return a Python object for the radii of the atoms in the dictionary
 //
 PyObject *get_dictionary_radii();
 
-//! \brief return a Python object for the representation of bump and hydrogen bonds of
+//! \brief return a Python object for the representation of bump and hydrogen bonds oft
 //          the specified residue
 PyObject *get_environment_distances_representation_py(int imol, PyObject *residue_spec_py);
 
