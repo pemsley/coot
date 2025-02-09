@@ -870,29 +870,28 @@ void on_save_coords_filechooser_dialog_response(GtkDialog *dialog,
 
 }
 
+extern "C" G_MODULE_EXPORT
+void
+on_save_coords_cancel_clicked(G_GNUC_UNUSED GtkButton       *button,
+                              G_GNUC_UNUSED gpointer         user_data) {
 
+   GtkWidget *mol_selector_frame = widget_from_builder("save_coords_frame");
+   gtk_widget_set_visible(mol_selector_frame, FALSE);
+}
 
 extern "C" G_MODULE_EXPORT
 void
-on_save_coords_dialog_save_button_clicked(G_GNUC_UNUSED GtkButton       *button,
-                                          G_GNUC_UNUSED gpointer         user_data) {
+on_save_coords_save_button_clicked(G_GNUC_UNUSED GtkButton       *button,
+                                   G_GNUC_UNUSED gpointer         user_data) {
 
    // we need to select the molecule to save - this is someone clicking on the
    // "Save Molecule" button in the save molecule chooser - not in a file selector
 
    GtkWidget *combobox = widget_from_builder("save_coordinates_combobox");
-   GtkWidget *mol_selector_dialog = widget_from_builder("save_coords_dialog");
+   GtkWidget *mol_selector_frame = widget_from_builder("save_coords_frame");
    if (! combobox) {
       std::cout << "ERROR:: on_save_coords_dialog_save_button_clicked: bad combobox\n";
    } else {
-
-#if 0 // 20230910-PE old - delete when no longer useful
-      int imol = my_combobox_get_imol(GTK_COMBO_BOX(combobox));
-      GtkWidget *chooser = coot_save_coords_chooser(); // uses builder
-      g_object_set_data(G_OBJECT(chooser), "imol", GINT_TO_POINTER(imol));
-      gtk_widget_set_visible(chooser, TRUE);
-      set_transient_and_position(COOT_UNDEFINED_WINDOW, chooser);
-#endif
 
       int imol = my_combobox_get_imol(GTK_COMBO_BOX(combobox));
       GtkWindow *parent_window = GTK_WINDOW(graphics_info_t::get_main_window());
@@ -920,7 +919,7 @@ on_save_coords_dialog_save_button_clicked(G_GNUC_UNUSED GtkButton       *button,
       add_filename_filter_button(file_chooser_dialog, COOT_SAVE_COORDS_FILE_SELECTION);
 
    }
-   gtk_widget_set_visible(mol_selector_dialog, FALSE);
+   gtk_widget_set_visible(mol_selector_frame, FALSE);
 
 }
 

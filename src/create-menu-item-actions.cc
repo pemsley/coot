@@ -569,7 +569,8 @@ save_coordinates_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
    // this is the molecule chooser, not the file chooser
    //
-   GtkWidget *widget = widget_from_builder("save_coords_dialog");
+   // GtkWidget *widget = widget_from_builder("save_coords_dialog");
+   GtkWidget *widget = widget_from_builder("save_coords_frame");
    GtkWidget *combobox = widget_from_builder("save_coordinates_combobox");
 
    if (combobox) {

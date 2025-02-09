@@ -7106,6 +7106,74 @@ Do you want to continue?
             </child>
 
             <child type="overlay">
+              <object class="GtkFrame" id="save_coords_frame">
+                <property name="halign">center</property>
+                <property name="valign">start</property>
+                <property name="visible">False</property>
+                <property name="margin-bottom">5</property>
+                <property name="margin-end">5</property>
+                <property name="margin-start">5</property>
+                <property name="margin-top">5</property>
+                <child>
+                  <object class="GtkBox">
+                    <property name="spacing">6</property>
+                    <property name="orientation">vertical</property>
+
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="label" translatable="yes">Select Molecule Number to Save:</property>
+                        <property name="justify">center</property>
+                        <property name="margin-start">4</property>
+                        <property name="margin-end">4</property>
+                        <property name="margin-top">4</property>
+                        <property name="margin-bottom">4</property>
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="GtkComboBoxText" id="save_coordinates_combobox">
+                        <property name="margin-start">4</property>
+                        <property name="margin-end">4</property>
+                        <property name="margin-top">4</property>
+                        <property name="margin-bottom">4</property>
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="GtkBox">
+                        <property name="orientation">horizontal</property>
+                        <property name="halign">end</property>
+                        <child>
+                          <object class="GtkButton" id="save_coords_cancel_button">
+                            <signal name="clicked" handler="on_save_coords_cancel_clicked" swapped="no"/>
+                            <property name="label" translatable="yes">Cancel</property>
+                            <property name="margin-start">10</property>
+                            <property name="margin-end">10</property>
+                            <property name="margin-top">4</property>
+                            <property name="margin-bottom">10</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkButton" id="save_coords_save_button">
+                            <signal name="clicked" handler="on_save_coords_save_button_clicked" swapped="no"/>
+                            <property name="label" translatable="yes">Save</property>
+                            <property name="margin-start">10</property>
+                            <property name="margin-end">10</property>
+                            <property name="margin-top">4</property>
+                            <property name="margin-bottom">10</property>
+                            <style>
+                              <class name="suggested-action"/>
+                            </style>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+
+            <child type="overlay">
               <object class="GtkFrame" id="copy_map_frame">
                 <property name="halign">center</property>
                 <property name="valign">start</property>
@@ -14787,52 +14855,6 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                 <property name="can-focus">1</property>
                 <property name="receives-default">1</property>
               </object>
-        </child>
-      </object>
-    </child>
-  </object>
-
-  <object class="GtkDialog" id="save_coords_dialog">
-    <property name="title" translatable="yes">Save Coordinates Molecule Selector</property>
-    <child>
-      <object class="GtkFrame">
-        <child>
-          <object class="GtkBox">
-            <property name="spacing">6</property>
-            <property name="orientation">vertical</property>
-
-            <child>
-              <object class="GtkLabel">
-                <property name="label" translatable="yes">Select Molecule Number to Save:</property>
-                <property name="justify">center</property>
-                <property name="margin-start">4</property>
-                <property name="margin-end">4</property>
-                <property name="margin-top">4</property>
-                <property name="margin-bottom">4</property>
-              </object>
-            </child>
-
-            <child>
-              <object class="GtkComboBoxText" id="save_coordinates_combobox">
-                <property name="margin-start">4</property>
-                <property name="margin-end">4</property>
-                <property name="margin-top">4</property>
-                <property name="margin-bottom">4</property>
-              </object>
-            </child>
-
-            <child>
-              <object class="GtkButton" id="save_coords_dialog_save_button">
-                <signal name="clicked" handler="on_save_coords_dialog_save_button_clicked" swapped="no"/>
-                <property name="label" translatable="yes">Save</property>
-                <property name="margin-start">10</property>
-                <property name="margin-end">10</property>
-                <property name="margin-top">4</property>
-                <property name="margin-bottom">10</property>
-              </object>
-            </child>
-
-          </object>
         </child>
       </object>
     </child>
