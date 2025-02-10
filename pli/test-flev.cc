@@ -23,7 +23,7 @@ int main(int argc, char **argv) {
       res_no = 1299;
    }
 
-   // Also test 5a3h
+   // Also test 5a3h, 2wot
 
    bool use_gemmi = false;
    atom_selection_container_t atom_sel = get_atom_selection(pdb_file_name, use_gemmi, true, false);

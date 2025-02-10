@@ -1464,13 +1464,13 @@ flev_t::ligand_grid::add_for_accessibility(double bash_dist, const lig_build::po
 
    for (int ipos_x= -grid_extent; ipos_x<=grid_extent; ipos_x++) {
       for (int ipos_y= -grid_extent; ipos_y<=grid_extent; ipos_y++) {
-         std::pair<int, int> p = canvas_pos_to_grid_pos(atom_pos);
+         std::pair<int, int> p = mol_space_pos_to_grid_pos(atom_pos);
          int ix_grid = ipos_x + p.first;
          int iy_grid = ipos_y + p.second;
          if ((ix_grid >= 0) && (ix_grid < x_size())) {
             if ((iy_grid >= 0) && (iy_grid < y_size())) {
 
-               double d2 = (to_canvas_pos(ix_grid, iy_grid) - atom_pos).lengthsq();
+               double d2 = (grid_pos_to_mol_space_pos(ix_grid, iy_grid) - atom_pos).lengthsq();
                d2 *= (inv_scale_factor * inv_scale_factor);
                double val = substitution_value(d2, bash_dist);
                if (debug)
@@ -1490,19 +1490,18 @@ flev_t::ligand_grid::add_for_accessibility_no_bash_dist_atom(double scale,
 
    bool debug = 1;
    int grid_extent = 40;
-   double LIGAND_TO_CANVAS_SCALE_FACTOR = 1.0; // this needs to go somewhere
 
    double inv_scale_factor = 1.0/double(LIGAND_TO_CANVAS_SCALE_FACTOR);
 
    for (int ipos_x= -grid_extent; ipos_x<=grid_extent; ipos_x++) {
       for (int ipos_y= -grid_extent; ipos_y<=grid_extent; ipos_y++) {
-         std::pair<int, int> p = canvas_pos_to_grid_pos(atom_pos);
+         std::pair<int, int> p = mol_space_pos_to_grid_pos(atom_pos);
          int ix_grid = ipos_x + p.first;
          int iy_grid = ipos_y + p.second;
          if ((ix_grid >= 0) && (ix_grid < x_size())) {
             if ((iy_grid >= 0) && (iy_grid < y_size())) {
 
-               double d2 = (to_canvas_pos(ix_grid, iy_grid) - atom_pos).lengthsq();
+               double d2 = (grid_pos_to_mol_space_pos(ix_grid, iy_grid) - atom_pos).lengthsq();
                d2 *= (inv_scale_factor * inv_scale_factor);
                // a triangle function, 1 at the atom centre, 0 at 1.5A and beyond
                //
@@ -1522,16 +1521,21 @@ flev_t::ligand_grid::ligand_grid(const lig_build::pos_t &low_x_and_y,
                                  const lig_build::pos_t &high_x_and_y) {
 
    double extra_extents = 10;
-   top_left     = low_x_and_y  - lig_build::pos_t(extra_extents, extra_extents);
-   bottom_right = high_x_and_y + lig_build::pos_t(extra_extents, extra_extents);
+   // top_left     = low_x_and_y  - lig_build::pos_t(extra_extents, extra_extents);
+   // bottom_right = high_x_and_y + lig_build::pos_t(extra_extents, extra_extents);
+   ligand_atoms_min_x =  low_x_and_y.x;
+   ligand_atoms_min_y =  low_x_and_y.y;
+   ligand_atoms_max_x = high_x_and_y.x;
+   ligand_atoms_max_y = high_x_and_y.y;
    scale_fac = 5; // seems good
-   double delta_x = bottom_right.x - top_left.x;
-   double delta_y = bottom_right.y - top_left.y;
+   double n_grid_per_angstrom = 5.0;
+   double delta_x = ligand_atoms_max_x - ligand_atoms_min_x;
+   double delta_y = ligand_atoms_max_y - ligand_atoms_min_y;
    if (true)
       std::cout << "debug:: ligand_grid constructor: in making grid, got delta_x and delta_y "
                 << delta_x << " " << delta_y << std::endl;
-   x_size_ = int(delta_x/scale_fac+1);
-   y_size_ = int(delta_y/scale_fac+1);
+   x_size_ = int(delta_x * n_grid_per_angstrom) + 1;
+   y_size_ = int(delta_y * n_grid_per_angstrom) + 1;
 
    std::vector<double> tmp_y(y_size_, 0.0);
    grid_.resize(x_size_);
@@ -1544,30 +1548,24 @@ flev_t::ligand_grid::ligand_grid(const lig_build::pos_t &low_x_and_y,
                 << std::endl;
 }
 
-std::pair<int, int>
-flev_t::ligand_grid::canvas_pos_to_grid_pos(const lig_build::pos_t &pos) const {
 
-   lig_build::pos_t p = pos - top_left;
-   int ix = (int)(p.x/scale_fac);
-   int iy = (int)(p.y/scale_fac);
-   return std::pair<int, int> (ix, iy);
-}
+void
+flev_t::ligand_grid::print(int primary_index) const {
 
+   int xs = x_size();
+   int ys = y_size();
 
-lig_build::pos_t
-flev_t::ligand_grid::to_canvas_pos(const double &ii, const double &jj) const {
-
-#if 0
-   std::cout << "to_canvas_pos() using scale_fac " << scale_fac << " and top_left " << top_left << std::endl;
-   lig_build::pos_t p(ii*scale_fac, jj*scale_fac);
-   p += top_left;
-   return p;
-#endif
-
-   double sf = 1.0;
-   lig_build::pos_t p(ii*sf, jj*sf);
-   return p;
-
+   std::string file_name = "ligand-grid-" + std::to_string(primary_index) + ".table";
+   std::ofstream f(file_name);
+   if (f) {
+      for (int ix=0; ix<xs; ix++) {
+         for (int iy=0; iy<ys; iy++) {
+            double v = get(ix, iy);
+            f << ix << " " << iy << " " << v << "\n";
+         }
+      }
+      f.close();
+   }
 }
 
 void
@@ -1654,13 +1652,13 @@ flev_t::ligand_grid::show_contour(float contour_level,
 
                std::pair<double, double> xy_1 = cf.get_coords(ix, iy, 0);
                std::pair<double, double> xy_2 = cf.get_coords(ix, iy, 1);
-               lig_build::pos_t pos_1 = to_canvas_pos(xy_1.first, xy_1.second);
-               lig_build::pos_t pos_2 = to_canvas_pos(xy_2.first, xy_2.second);
+               lig_build::pos_t pos_1 = grid_pos_to_mol_space_pos(xy_1.first, xy_1.second);
+               lig_build::pos_t pos_2 = grid_pos_to_mol_space_pos(xy_2.first, xy_2.second);
 
-               lig_build::pos_t p1 = to_canvas_pos(cf.get_coords(ix, iy, 0).first,
-                                                   cf.get_coords(ix, iy, 0).second);
-               lig_build::pos_t p2 = to_canvas_pos(cf.get_coords(ix, iy, 1).first,
-                                                   cf.get_coords(ix, iy, 1).second);
+               lig_build::pos_t p1 = grid_pos_to_mol_space_pos(cf.get_coords(ix, iy, 0).first,
+                                                               cf.get_coords(ix, iy, 0).second);
+               lig_build::pos_t p2 = grid_pos_to_mol_space_pos(cf.get_coords(ix, iy, 1).first,
+                                                               cf.get_coords(ix, iy, 1).second);
                std::pair<lig_build::pos_t, lig_build::pos_t> fragment_pair(p1, p2);
 
                // Now filter out this fragment pair if it is too close
@@ -1722,18 +1720,6 @@ flev_t::ligand_grid::show_contour(float contour_level,
 
    plot_contour_lines(contour_lines);
 
-#if 0
-   // check the orientation of the canvas
-   if (false) {
-      lig_build::pos_t grid_ori = to_canvas_pos(0.0, 0.0);
-      goo_canvas_rect_new (group,
-                           grid_ori.x, grid_ori.y, 5.0, 5.0,
-                           "line-width", 1.0, // in show_contour()
-                           "stroke-color", "green",
-                           "fill_color", "blue",
-                           NULL);
-   }
-#endif
 }
 
 
@@ -2116,74 +2102,94 @@ flev_t::ligand_grid::normalize() {
    }
 }
 
+std::pair<int, int>
+flev_t::ligand_grid::mol_space_pos_to_grid_pos(const lig_build::pos_t &pos) const {
+
+   double lminx = ligand_atoms_min_x;
+   double lminy = ligand_atoms_min_y;
+   double n_grid_per_angstrom = 5.0; // make this a class variable
+
+   lig_build::pos_t bl(lminx, lminy);
+   lig_build::pos_t p = pos - bl;
+   int nx = p.x * n_grid_per_angstrom;
+   int ny = p.y * n_grid_per_angstrom;
+   return std::pair<int, int> (nx, ny);
+}
+
+lig_build::pos_t
+flev_t::ligand_grid::grid_pos_to_mol_space_pos(int ix, int iy) const {
+
+   double lminx = ligand_atoms_min_x;
+   double lminy = ligand_atoms_min_y;
+   double n_grid_per_angstrom = 5.0; // make this a class variable
+
+   lig_build::pos_t bl(lminx, lminy);
+   lig_build::pos_t p(static_cast<double>(ix) / n_grid_per_angstrom, static_cast<double>(iy) / n_grid_per_angstrom);
+   lig_build::pos_t d = p + bl;
+   return d;
+}
+
+
+
 
 // 20241005-PE note to self get_ring_centre() caches the result, so we can't user a const mol here
 void
 flev_t::ligand_grid::fill(svg_molecule_t mol) {
 
    double exp_scale = 0.0011;
+   exp_scale = 1.0;
    double rk = 3000.0;
 
    // int grid_extent = 15; // 10, 12 is not enough
-   int grid_extent = 50 ; // untraps 2wot residues?
+   // int grid_extent = 50 ; // untraps 2wot residues?
 
    for (unsigned int iat=0; iat<mol.atoms.size(); iat++) {
       // std::cout << "mol iat: " << iat << " at " << mol.atoms[iat].atom_position << std::endl;
-      for (int ipos_x= -grid_extent; ipos_x<=grid_extent; ipos_x++) {
-         for (int ipos_y= -grid_extent; ipos_y<=grid_extent; ipos_y++) {
-            std::pair<int, int> p = canvas_pos_to_grid_pos(mol.atoms[iat].atom_position);
-            int ix_grid = ipos_x + p.first;
-            int iy_grid = ipos_y + p.second;
-            // std::cout << "    grid: ix " << ix_grid << " iy " << iy_grid << std::endl;
-            if ((ix_grid >= 0) && (ix_grid < x_size())) {
-               if ((iy_grid >= 0) && (iy_grid < y_size())) {
-                  double d2 = (to_canvas_pos(ix_grid, iy_grid) - mol.atoms[iat].atom_position).lengthsq();
-                  double val =  rk * exp(-0.5*exp_scale*d2);
-                  grid_[ix_grid][iy_grid] += val;
-               } else {
-//                std::cout << "ERROR:: out of range in y: " << ix_grid << "," << iy_grid << " "
-//                          << "and grid size: " << x_size() << "," << y_size() << std::endl;
-               }
-            } else {
-//             std::cout << "ERROR:: out of range in x: " << ix_grid << "," << iy_grid << " "
-//                       << "and grid size: " << x_size() << "," << y_size() << std::endl;
-            }
+      for (int ipos_x=0; ipos_x<x_size_; ipos_x++) {
+         for (int ipos_y=0; ipos_y<y_size_; ipos_y++) {
+            lig_build::pos_t mol_space_pos_for_grid_point = grid_pos_to_mol_space_pos(ipos_x, ipos_y);
+            lig_build::pos_t delta = mol_space_pos_for_grid_point - mol.atoms[iat].atom_position;
+            double d2 = delta.lengthsq();
+            double val =  rk * exp(-0.5*exp_scale*d2);
+            grid_[ipos_x][ipos_y] += val;
          }
       }
    }
 
-   if (false) { // print grid
-      int grid_size = grid_.size();
+   auto print_grid = [] (const std::vector<std::vector<double> > &grid, const std::string &label) {
+      int grid_size = grid.size();
       for (int ipos_x = 0; ipos_x < grid_size; ipos_x++) {
-         int grid_x_size = grid_[ipos_x].size();
+         int grid_x_size = grid[ipos_x].size();
          for (int ipos_y= 0; ipos_y<= grid_x_size; ipos_y++) {
-            double g = grid_[ipos_x][ipos_y];
-            std::cout << "ligand_grid: " << ipos_x << " " << ipos_y << " " << g << "\n";
+            double g = grid[ipos_x][ipos_y];
+            std::cout << "ligand_grid::fill() " << label << " " << ipos_x << " " << ipos_y << " " << g << "\n";
          }
       }
-   }
+   };
+
+   if (true)
+      print_grid(grid_, "A");
 
    std::vector<lig_build::pos_t> mol_ring_centres = mol.get_ring_centres();
 
    // std::cout << "DEBUG:: found " << mol_ring_centres.size() << " ring centres " << std::endl;
 
    for (unsigned int ir=0; ir<mol_ring_centres.size(); ir++) {
-      for (int ipos_x= -10; ipos_x<=10; ipos_x++) {
-         for (int ipos_y= -10; ipos_y<=10; ipos_y++) {
-            std::pair<int, int> p = canvas_pos_to_grid_pos(mol_ring_centres[ir]);
-            int ix_grid = ipos_x + p.first;
-            int iy_grid = ipos_y + p.second;
-            if ((ix_grid >= 0) && (ix_grid < x_size())) {
-               if ((iy_grid >= 0) && (iy_grid < y_size())) {
-                  double d2 = (to_canvas_pos(ix_grid, iy_grid) - mol_ring_centres[ir]).lengthsq();
-                  double val = rk * exp(-0.5* exp_scale * d2);
-                  grid_[ix_grid][iy_grid] += val;
-               }
-            }
+      for (int ipos_x=0; ipos_x<x_size_; ipos_x++) {
+         for (int ipos_y=0; ipos_y<y_size_; ipos_y++) {
+            lig_build::pos_t mol_space_pos_for_grid_point = grid_pos_to_mol_space_pos(ipos_x, ipos_y);
+            lig_build::pos_t delta = mol_space_pos_for_grid_point - mol_ring_centres[ir];
+            double d2 = delta.lengthsq();
+            double val =  rk * exp(-0.5*exp_scale*d2);
+            grid_[ipos_x][ipos_y] += val;
          }
       }
    }
-   normalize(); // scaled peak value to 1.
+
+   if (true)
+      print_grid(grid_, "B");
+
+   //  normalize(); // scaled peak value to 1.
 }
 
 
@@ -2569,7 +2575,7 @@ flev_t::position_non_primaries(const ligand_grid &grid,
 flev_t::grid_index_t
 flev_t::ligand_grid::grid_pos_nearest(const lig_build::pos_t &pos) const {
 
-   lig_build::pos_t p = pos - top_left;
+   lig_build::pos_t p = pos - lig_build::pos_t(ligand_atoms_min_x, ligand_atoms_min_y);
    int idx_x = int(p.x/scale_fac+0.5);
    int idx_y = int(p.y/scale_fac+0.5);
 
@@ -2590,7 +2596,7 @@ flev_t::ligand_grid::find_minimum_position() const {
       for (int iy=0; iy<y_size(); iy++) {
          if (grid_[ix][iy] < best_pos_score) {
             best_pos_score = grid_[ix][iy];
-            best_pos = to_canvas_pos(ix,iy);
+            best_pos = grid_pos_to_mol_space_pos(ix,iy);
          }
       }
    }
@@ -2627,7 +2633,7 @@ flev_t::ligand_grid::find_nearest_zero(const lig_build::pos_t &pos,
                if (false)
                   std::cout << "grid_value " << ix << " " << iy << " is " << grid_[ix][iy] << std::endl;
                if (grid_[ix][iy] < crit) {
-                  lig_build::pos_t gp = to_canvas_pos(ix, iy);
+                  lig_build::pos_t gp = grid_pos_to_mol_space_pos(ix, iy);
                   if (false)
                      std::cout << "   ix " << ix << " iy " << iy << " gp " << gp << " c.f. pos " << pos << std::endl;
                   double d = (gp - pos).lengthsq();
@@ -2666,18 +2672,23 @@ flev_t::initial_primary_residue_circles_layout(const ligand_grid &grid,
                                                int primary_index,
                                                const std::vector<std::pair<lig_build::pos_t, double> > &attachment_points) {
 
-   if (false)
+   if (true)
       std::cout << "DEBUG:: starting initial_primary_residue_circles_layout() primary_index " << primary_index
                 << " " << residue_circles[primary_index].residue_label << " "
                 << residue_circles[primary_index].residue_type
                 << " has position " << residue_circles[primary_index].pos
                 << std::endl;
 
-   if (false)
-      std::cout << " =========== adding quadratic for residue "
+   if (true)
+      std::cout << "DEBUG:: initial_primary_residue_circles_layout() =========== adding quadratic for residue "
                 << residue_circles[primary_index].residue_label
                 << " ============================"
                 << std::endl;
+
+   if (true) {
+      grid.print(primary_index);
+   }
+
    ligand_grid primary_grid = grid;
 
    // attachment points are points on the ligand, in ligand
@@ -2727,7 +2738,7 @@ flev_t::ligand_grid::add_quadratic(const std::vector<std::pair<lig_build::pos_t,
       for (unsigned int iattach=0; iattach<attachment_points.size(); iattach++) {
          for (int ix=0; ix<x_size(); ix++) {
             for (int iy=0; iy<y_size(); iy++) {
-               lig_build::pos_t pos = to_canvas_pos(ix, iy);
+               lig_build::pos_t pos = grid_pos_to_mol_space_pos(ix, iy);
                double d2 = (pos-attachment_points[iattach].first).lengthsq();
                double val = 0.00002 * d2 * scale_by_n_attach;
                grid_[ix][iy] += val;

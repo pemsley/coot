@@ -54,13 +54,13 @@ flev_t::initial_residues_circles_layout() {
       for (unsigned int i=0; i<residue_circles.size(); i++) {
          const auto &rc = residue_circles[i];
          std::cout << "   " << std::setw(2) << i << " : "
-                 << std::setw(10) << std::setprecision(5) << std::right << std::fixed << rc.pos.x << " "
-                 << std::setw(10) << std::setprecision(5) << std::right << std::fixed << rc.pos.y << std::endl;
+                   << std::setw(10) << std::setprecision(5) << std::right << std::fixed << rc.pos.x << " "
+                   << std::setw(10) << std::setprecision(5) << std::right << std::fixed << rc.pos.y << std::endl;
       }
    }
 
 
-   // when we move a primary, we want to know it's index in
+   // when we move a primary, we want to know its index in
    // residue_circles, because that's what we really want to move.
    //
    // std::vector<std::pair<int, lbg_info_t::residue_circle_t> > primaries;
@@ -85,16 +85,15 @@ flev_t::initial_residues_circles_layout() {
    // cross).
    //
    try {
-      std::pair<lig_build::pos_t, lig_build::pos_t> l_e_pair =
-         mol.ligand_extents();
-      std::cout << "initial_residues_circles_layout(): creating ligand grid with args "
-                << l_e_pair.first << " " << l_e_pair.second
-                << std::endl;
+      std::pair<lig_build::pos_t, lig_build::pos_t> l_e_pair = mol.ligand_extents();
+      if (true)
+         std::cout << "initial_residues_circles_layout(): creating ligand grid with args "
+                   << l_e_pair.first << " " << l_e_pair.second << std::endl;
       ligand_grid grid(l_e_pair.first, l_e_pair.second);
       grid.fill(mol);
 
-      std::cout << "HHHHHHHHHHHHHere B with residue_circles.size() " << residue_circles.size() << std::endl;
-      if (true) {
+      if (true) { // debug
+         std::cout << "HHHHHHHHHHHHHere B with residue_circles.size() " << residue_circles.size() << std::endl;
          std::cout << "------------------- flev_t::initial_residues_circles_layout() post B residue circles ------------"
                    << std::endl;
          for (unsigned int i=0; i<residue_circles.size(); i++) {
@@ -158,12 +157,12 @@ flev_t::refine_residue_circle_positions() { // changes the positions of residue_
    for (int iround=0; iround<30; iround++) {
       std::cout << "flev_t::refine_residue_circle_positions(): iround      " << iround << std::endl;
       std::pair<int, std::vector<residue_circle_t> > new_c =
-	 optimise_residue_circle_positions(residue_circles, current_circles, primary_indices);
+         optimise_residue_circle_positions(residue_circles, current_circles, primary_indices);
       current_circles = new_c.second;
       if (new_c.first == GSL_ENOPROG)
-	 break;
+         break;
       if (new_c.first == GSL_SUCCESS) {
-	 break;
+         break;
       }
    }
    residue_circles = current_circles;
@@ -178,8 +177,8 @@ flev_t::get_residue_circles_top_left() const {
    if (residue_circles.size()) {
       status = true;
       for (unsigned int i=0; i<residue_circles.size(); i++) {
-	 if (residue_circles[i].pos.x < p.x) p.x = residue_circles[i].pos.x;
-	 if (residue_circles[i].pos.y < p.y) p.y = residue_circles[i].pos.y;
+         if (residue_circles[i].pos.x < p.x) p.x = residue_circles[i].pos.x;
+         if (residue_circles[i].pos.y < p.y) p.y = residue_circles[i].pos.y;
       }
    }
    return std::pair<bool, lig_build::pos_t> (status, p);
