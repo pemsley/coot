@@ -1,4 +1,11 @@
 
+  Release 0.9.8.96
+
+  o BUG-FIX: Anisotropic temperature factor representation
+             [Global Phasing Ltd.]
+
+---
+
   Release 0.9.8.95
 
   o BUG-FIX: allow bonding of het residue in polymer bonds
