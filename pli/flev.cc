@@ -144,6 +144,7 @@ flev_t::convert(const std::vector<std::pair<coot::atom_spec_t, float> > &s_a_v,
       std::string name = s_a_v[i].first.atom_name;
       r[i].atom_name = name;
       r[i].solvent_accessibility = s_a_v[i].second;
+      // std::cout << "convert(): " << i << " " << name << " " << s_a_v[i].second << std::endl;
 
       std::map<std::string, std::vector<coot::bash_distance_t> >::const_iterator it =
          ah.atom_bashes.find(name);
@@ -189,10 +190,11 @@ flev_t::solution_has_problems_p() const {
 	 double d2 = (residue_circles[i].pos-mol.atoms[j].atom_position).lengthsq();
          std::string mark = "";
          if (d2 < crit_dist_sqrd) mark = " ***";
-         std::cout << "in solution_has_problems_p(): comparing " << std::sqrt(d2) << " " << crit_dist
-                   << " residue: " << residue_circles[i].residue_label
-                   << " atom: " << mol.atoms[j].atom_name << " " << mark
-                   << std::endl;
+         if (false)
+            std::cout << "in solution_has_problems_p(): comparing " << std::sqrt(d2) << " " << crit_dist
+                      << " residue: " << residue_circles[i].residue_label
+                      << " atom: " << mol.atoms[j].atom_name << " " << mark
+                      << std::endl;
 	 if (d2 < crit_dist_sqrd) {
 	    n_close++;
 	    if (n_close > 1) {
@@ -361,7 +363,7 @@ flev_t::annotate(const std::vector<std::pair<coot::atom_spec_t, float> > &s_a_v,
       }
    }
 
-   if (true) {
+   if (false) {
       std::cout << "--------------------------------------------------------------" << std::endl;
       std::cout << "======== flev_t::annotate() here are bash distances for atoms:" << std::endl;
       std::map<std::string, std::vector<coot::bash_distance_t> >::const_iterator it;
@@ -376,10 +378,10 @@ flev_t::annotate(const std::vector<std::pair<coot::atom_spec_t, float> > &s_a_v,
 
    bool r = false;
    std::vector<pli::solvent_accessible_atom_t> solvent_accessible_atoms = convert(s_a_v, ah);
+   std::cout << "annotate(): solvent_accessible_atoms size " << solvent_accessible_atoms.size() << std::endl;
 
-   lig_build::molecule_t<svg_atom_t, svg_bond_t> new_mol = mol;
-   // modify the atoms of new_mol
-   map_solvent_accessibilities_to_atoms(&new_mol, solvent_accessible_atoms);
+   // modify the atoms of mol
+   map_solvent_accessibilities_to_atoms(&mol, solvent_accessible_atoms);
 
    // fill class data item std::vector<residue_circle_t> residue_circles;
    //
@@ -820,8 +822,10 @@ pli::fle_view_with_rdkit_internal(mmdb::Manager *mol,
    }
 }
 
-void
+svg_container_t
 flev_t::draw_substitution_contour() {
+
+   svg_container_t svgc;
 
    bool debug = true;
 
@@ -982,6 +986,7 @@ flev_t::draw_substitution_contour() {
          }
       }
    }
+   return svgc;
 }
 
 
@@ -1035,8 +1040,10 @@ svg_container_t
 flev_t::draw_all_flev_ligand_annotations() {
 
    svg_container_t svgc;
-   draw_substitution_contour();
-   draw_solvent_accessibility_of_atoms();
+   svg_container_t svg_sc  = draw_substitution_contour();
+   svg_container_t svg_saa = draw_solvent_accessibility_of_atoms();
+   svgc.add(svg_sc);
+   svgc.add(svg_saa);
    return svgc;
 }
 
@@ -1419,38 +1426,41 @@ flev_t::draw_bonds_to_ligand() {
 }
 
 
-void
+svg_container_t
 flev_t::draw_solvent_accessibility_of_atoms() {
 
+   svg_container_t svgc;
    for (unsigned int iat=0; iat<mol.atoms.size(); iat++) {
       lig_build::pos_t pos = mol.atoms[iat].atom_position;
       double sa = mol.atoms[iat].get_solvent_accessibility();
-      if (sa  > 0)
-         draw_solvent_accessibility_of_atom(pos, sa);
-   }
-}
-
-void
-flev_t::draw_solvent_accessibility_of_atom(const lig_build::pos_t &pos, double sa) {
-
-   if (true) {
-      int n_circles = int(sa*40) + 1;    // needs fiddling?
-      if (n_circles> 10) n_circles = 10; // needs fiddling?
-
-      for (int i=0; i<n_circles; i++) {
-         double rad = 0.1 * double(i+1); // needs fiddling?
-
-         // CONVERT-TO-SVG
-         // GooCanvasItem *circle = goo_canvas_ellipse_new(group,
-         //                                                pos.x, pos.y,
-         //                                                rad, rad,
-         //                                                "line_width", 0.0,
-         //                                                "fill-color-rgba", 0x5555cc30,
-         //                                                NULL);
-         // goo_canvas_item_lower(group, NULL); // to the bottom
-
+      // saa of -1 is "unset"
+      if (sa  > 0.0) {
+         svg_container_t saa = draw_solvent_accessibility_of_atom(pos, sa);
+         svgc.add(saa);
       }
    }
+   return svgc;
+}
+
+svg_container_t
+flev_t::draw_solvent_accessibility_of_atom(const lig_build::pos_t &pos, double sa) {
+
+   svg_container_t svgc;
+
+   int n_circles = int(sa*40) + 1;    // needs fiddling?
+   if (n_circles> 10) n_circles = 10; // needs fiddling?
+
+   for (int i=0; i<n_circles; i++) {
+      double rad = 0.1 * double(i+1); // needs fiddling?
+
+      std::string comment = "Solvent Accessibilty of Atom";
+      // needs to be drawn first? Use a group for sovlent accessibility circles?
+      std::string c = make_circle(pos.invert_y(), rad, 0.0, "#5555cc30", "#5555cc30");
+      svgc.add_comment(comment);
+      svgc.add(c);
+   }
+
+   return svgc;
 }
 
 void
@@ -1520,32 +1530,37 @@ flev_t::ligand_grid::add_for_accessibility_no_bash_dist_atom(double scale,
 flev_t::ligand_grid::ligand_grid(const lig_build::pos_t &low_x_and_y,
                                  const lig_build::pos_t &high_x_and_y) {
 
-   double extra_extents = 10;
-   // top_left     = low_x_and_y  - lig_build::pos_t(extra_extents, extra_extents);
-   // bottom_right = high_x_and_y + lig_build::pos_t(extra_extents, extra_extents);
+   extra_extents = 10; // grid points, added to both sides
+   n_grid_per_angstrom = 5.0;
+   scale_fac = 5; // same thing? (old and not used?)
+
    ligand_atoms_min_x =  low_x_and_y.x;
    ligand_atoms_min_y =  low_x_and_y.y;
    ligand_atoms_max_x = high_x_and_y.x;
    ligand_atoms_max_y = high_x_and_y.y;
-   scale_fac = 5; // seems good
-   double n_grid_per_angstrom = 5.0;
-   double delta_x = ligand_atoms_max_x - ligand_atoms_min_x;
-   double delta_y = ligand_atoms_max_y - ligand_atoms_min_y;
-   if (true)
-      std::cout << "debug:: ligand_grid constructor: in making grid, got delta_x and delta_y "
-                << delta_x << " " << delta_y << std::endl;
-   x_size_ = int(delta_x * n_grid_per_angstrom) + 1;
-   y_size_ = int(delta_y * n_grid_per_angstrom) + 1;
+
+   mol_space_grid_min_x = ligand_atoms_min_x - extra_extents / n_grid_per_angstrom;
+   mol_space_grid_min_y = ligand_atoms_min_y - extra_extents / n_grid_per_angstrom;
+
+   double mol_space_grid_max_x = ligand_atoms_max_x + extra_extents / n_grid_per_angstrom;
+   double mol_space_grid_max_y = ligand_atoms_max_y + extra_extents / n_grid_per_angstrom;
+
+   std::cout << "in constructor with ligand_atoms_min_x " << ligand_atoms_min_x << std::endl;
+   std::cout << "in constructor with ligand_atoms_min_y " << ligand_atoms_min_y << std::endl;
+
+   std::cout << "in constructor with mol_space_grid_min_x " << mol_space_grid_min_x << std::endl;
+   std::cout << "in constructor with mol_space_grid_min_y " << mol_space_grid_min_x << std::endl;
+
+   double delta_x = mol_space_grid_max_x - mol_space_grid_min_x;
+   double delta_y = mol_space_grid_max_y - mol_space_grid_min_y;
+   x_size_ = int(delta_x * n_grid_per_angstrom + 2 * extra_extents) + 1;
+   y_size_ = int(delta_y * n_grid_per_angstrom + 2 * extra_extents) + 1;
 
    std::vector<double> tmp_y(y_size_, 0.0);
    grid_.resize(x_size_);
    for (int i=0; i<x_size_; i++)
       grid_[i] = tmp_y;
-   if (true)
-      std::cout << "debug:: in ligand_grid constructor: grid has extents "
-                << x_size_ << " " << y_size_ << " real " << grid_.size()
-                << " " << grid_[0].size()
-                << std::endl;
+
 }
 
 
@@ -2102,59 +2117,39 @@ flev_t::ligand_grid::normalize() {
    }
 }
 
+// --------------------------- coordinate transformation -----------------------------
 std::pair<int, int>
 flev_t::ligand_grid::mol_space_pos_to_grid_pos(const lig_build::pos_t &pos) const {
 
-   double lminx = ligand_atoms_min_x;
-   double lminy = ligand_atoms_min_y;
-   double n_grid_per_angstrom = 5.0; // make this a class variable
+   double gminx = mol_space_grid_min_x;
+   double gminy = mol_space_grid_min_y;
+   lig_build::pos_t grid_offset(gminx, gminy);
 
-   lig_build::pos_t bl(lminx, lminy);
-   lig_build::pos_t p = pos - bl;
+   lig_build::pos_t p = pos - grid_offset;
    int nx = p.x * n_grid_per_angstrom;
    int ny = p.y * n_grid_per_angstrom;
    return std::pair<int, int> (nx, ny);
 }
 
+// --------------------------- coordinate transformation -----------------------------
 lig_build::pos_t
 flev_t::ligand_grid::grid_pos_to_mol_space_pos(int ix, int iy) const {
 
-   double lminx = ligand_atoms_min_x;
-   double lminy = ligand_atoms_min_y;
-   double n_grid_per_angstrom = 5.0; // make this a class variable
+   double gminx = mol_space_grid_min_x;
+   double gminy = mol_space_grid_min_y;
+   lig_build::pos_t grid_offset(gminx, gminy);
 
-   lig_build::pos_t bl(lminx, lminy);
-   lig_build::pos_t p(static_cast<double>(ix) / n_grid_per_angstrom, static_cast<double>(iy) / n_grid_per_angstrom);
-   lig_build::pos_t d = p + bl;
+   double rx = static_cast<double>(ix) / n_grid_per_angstrom;
+   double ry = static_cast<double>(iy) / n_grid_per_angstrom;
+   lig_build::pos_t p(rx, ry);
+   lig_build::pos_t d = p + grid_offset;
    return d;
 }
-
-
 
 
 // 20241005-PE note to self get_ring_centre() caches the result, so we can't user a const mol here
 void
 flev_t::ligand_grid::fill(svg_molecule_t mol) {
-
-   double exp_scale = 0.0011;
-   exp_scale = 1.0;
-   double rk = 3000.0;
-
-   // int grid_extent = 15; // 10, 12 is not enough
-   // int grid_extent = 50 ; // untraps 2wot residues?
-
-   for (unsigned int iat=0; iat<mol.atoms.size(); iat++) {
-      // std::cout << "mol iat: " << iat << " at " << mol.atoms[iat].atom_position << std::endl;
-      for (int ipos_x=0; ipos_x<x_size_; ipos_x++) {
-         for (int ipos_y=0; ipos_y<y_size_; ipos_y++) {
-            lig_build::pos_t mol_space_pos_for_grid_point = grid_pos_to_mol_space_pos(ipos_x, ipos_y);
-            lig_build::pos_t delta = mol_space_pos_for_grid_point - mol.atoms[iat].atom_position;
-            double d2 = delta.lengthsq();
-            double val =  rk * exp(-0.5*exp_scale*d2);
-            grid_[ipos_x][ipos_y] += val;
-         }
-      }
-   }
 
    auto print_grid = [] (const std::vector<std::vector<double> > &grid, const std::string &label) {
       int grid_size = grid.size();
@@ -2167,13 +2162,56 @@ flev_t::ligand_grid::fill(svg_molecule_t mol) {
       }
    };
 
+   double exp_scale = 0.0011;
+   exp_scale = 1.0;
+   double rk = 3000.0;
+
+   // int grid_extent = 15; // 10, 12 is not enough
+   // int grid_extent = 50 ; // untraps 2wot residues?
+
+
+   if (false) { // debug
+      for (unsigned int iat=0; iat<mol.atoms.size(); iat++) {
+         for (int ipos_x=0; ipos_x<x_size_; ipos_x++) {
+            for (int ipos_y=0; ipos_y<y_size_; ipos_y++) {
+               lig_build::pos_t mol_space_pos_for_grid_point = grid_pos_to_mol_space_pos(ipos_x, ipos_y);
+               std::pair<int, int> gp = mol_space_pos_to_grid_pos(mol_space_pos_for_grid_point);
+               std::cout << "grid: XXX: " << ipos_x << " " << gp.first << " YYY: " << ipos_y << " " << gp.second
+                         << std::endl;
+            }
+         }
+      }
+   }
+
+   for (unsigned int iat=0; iat<mol.atoms.size(); iat++) {
+      const auto &atom_pos = mol.atoms[iat].atom_position;
+      for (int ipos_x=0; ipos_x<x_size_; ipos_x++) {
+         for (int ipos_y=0; ipos_y<y_size_; ipos_y++) {
+            lig_build::pos_t mol_space_pos_for_grid_point = grid_pos_to_mol_space_pos(ipos_x, ipos_y);
+            lig_build::pos_t delta = mol_space_pos_for_grid_point - atom_pos;
+            double d2 = delta.lengthsq();
+            double val =  rk * exp(-0.5*exp_scale*d2);
+            grid_[ipos_x][ipos_y] += val;
+            if (iat == 1) {
+               double d = sqrt(d2);
+               // std::cout << "debug-grid: " << ipos_x << " " << ipos_y << " " << d << std::endl;
+               std::cout << "debug-grid: ipos_x " << ipos_x << " ipos_y " << ipos_y
+                         << " atom_pos.x " << atom_pos.x << " atom_pos.y " << atom_pos.y
+                         << " msgp.x " << mol_space_pos_for_grid_point.x << " "
+                         << " msgp.y " << mol_space_pos_for_grid_point.y << " "
+                         << " delta.x " << delta.x << " "
+                         << " delta.y " << delta.y << " "
+                         << " d " << d << std::endl;
+            }
+         }
+      }
+   }
+
    if (true)
       print_grid(grid_, "A");
 
    std::vector<lig_build::pos_t> mol_ring_centres = mol.get_ring_centres();
-
    // std::cout << "DEBUG:: found " << mol_ring_centres.size() << " ring centres " << std::endl;
-
    for (unsigned int ir=0; ir<mol_ring_centres.size(); ir++) {
       for (int ipos_x=0; ipos_x<x_size_; ipos_x++) {
          for (int ipos_y=0; ipos_y<y_size_; ipos_y++) {
@@ -2304,7 +2342,7 @@ flev_t::draw_residue_circles(const std::vector<residue_circle_t> &l_residue_circ
 
    svg_container_t svgc;
 
-   std::cout << "-------------------- here we are in draw_residue_circles "
+   std::cout << "debug:: Here we are in draw_residue_circles() "
              << l_residue_circles.size() << " " << add_rep_handles.size() << std::endl;
 
    double max_dist_water_to_ligand_atom  = 3.3; // don't draw waters that are far from ligand
@@ -2741,6 +2779,7 @@ flev_t::ligand_grid::add_quadratic(const std::vector<std::pair<lig_build::pos_t,
                lig_build::pos_t pos = grid_pos_to_mol_space_pos(ix, iy);
                double d2 = (pos-attachment_points[iattach].first).lengthsq();
                double val = 0.00002 * d2 * scale_by_n_attach;
+               val *= 10000.0;
                grid_[ix][iy] += val;
             }
          }

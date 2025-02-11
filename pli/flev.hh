@@ -82,6 +82,11 @@ class flev_t {
       double ligand_atoms_min_y;
       double ligand_atoms_max_x;
       double ligand_atoms_max_y;
+      double extra_extents; // added to both front and end, top and bottom.
+      double n_grid_per_angstrom;
+      // useful for coordinate transformation
+      double mol_space_grid_min_x;
+      double mol_space_grid_min_y;
       std::vector<std::vector<double> > grid_;
       int x_size_;
       int y_size_;
@@ -97,7 +102,6 @@ class flev_t {
 
 
    public:
-      // (low means low numbers, not low on the canvas)
       //
       ligand_grid(const lig_build::pos_t &low_x_and_y,
                   const lig_build::pos_t &high_x_and_y);
@@ -289,10 +293,10 @@ class flev_t {
                                                  const lig_build::pos_t &ligand_centre,
                                                  int add_rep_handle);
 
-   void draw_solvent_accessibility_of_atom(const lig_build::pos_t &pos, double sa);
-   void draw_solvent_accessibility_of_atoms();
+   svg_container_t draw_solvent_accessibility_of_atom(const lig_build::pos_t &pos, double sa);
+   svg_container_t draw_solvent_accessibility_of_atoms();
 
-   void draw_substitution_contour();
+   svg_container_t draw_substitution_contour();
    svg_container_t draw_bonds_to_ligand();
    svg_container_t draw_solvent_exposure_circle(const residue_circle_t &residue_circle,
                                                 const lig_build::pos_t &ligand_centre);
