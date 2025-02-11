@@ -1,5 +1,8 @@
 ----
 
+picking should use non-drawn atom indicies
+
+Why doesn't YTD import into layla after reading acedrg-YTD.cif?
 LaylaState::LaylaState(CootLigandEditorCanvas* canvas_widget, GtkWindow* win, GtkLabel* status_label) noexcept {
     this->monomer_library_info_store = std::make_unique<protein_geometry>();
 There is no transfer of the geometry store from Coot to Layla.
