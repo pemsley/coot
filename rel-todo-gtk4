@@ -63,6 +63,9 @@ with 258 N1? Ah! They are both acceptors! Interesting. What to do about it?
 More work on molecule_class_info_t::alt_conf_view_next_alt_conf(const std::string &current_alt_conf)
 needed.
 
+The first save coords molecule selector dialog should be an overlay.
+* Done. Nice.
+
 Fix this startup message:
 ERROR:: failed to find preferences_bond_width_combobox
 ERROR:: failed to find preferences_font_size_combobox
