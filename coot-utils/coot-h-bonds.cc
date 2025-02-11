@@ -395,7 +395,7 @@ coot::h_bonds::get_mcdonald_and_thornton(int selHnd_1, int selHnd_2, mmdb::Manag
                at_1->GetUDData(hb_type_udd_handle, hb_type_1);
                at_2->GetUDData(hb_type_udd_handle, hb_type_2);
 
-               if (true) // checking this? Are the types HB_UNASSIGNED?
+               if (false) // checking this? Are the types HB_UNASSIGNED?
                   std::cout << "DEBUG:: in get_mcdonald_and_thornton() "
                             << coot::atom_spec_t(at_1) << " "
                             << coot::atom_spec_t(at_2) << "   "
