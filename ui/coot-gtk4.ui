@@ -11838,31 +11838,22 @@ density (too big to be waters):
   </object>
 
   <object class="GtkDialog" id="ncs_control_dialog">
-    <property name="width-request">400</property>
-    <property name="height-request">340</property>
-    <property name="title" translatable="yes">NCS Control</property>
+    <!-- <property name="width-request">400</property> -->
+    <!-- <property name="height-request">340</property> -->
+    <property name="title" translatable="yes">Coot: NCS Control</property>
     <child>
       <object class="GtkBox" id="dialog-vbox91">
         <property name="orientation">vertical</property>
-         <child type="action">
-              <object class="GtkButton" id="ncs_control_ok_button">
-                <property name="label" translatable="yes">   OK   </property>
-                <property name="can-focus">1</property>
-                <property name="use-underline">1</property>
-                <signal name="clicked" handler="on_ncs_control_ok_button_clicked" swapped="no"/>
-              </object>
-        </child>
         <child>
           <object class="GtkBox" id="vbox170">
             <property name="orientation">vertical</property>
-            <child>
-              <object class="GtkLabel" id="label263">
-                <property name="label" translatable="yes">NCS Controller</property>
-                <property name="justify">center</property>
-              </object>
-            </child>
+
             <child>
               <object class="GtkScrolledWindow" id="scrolledwindow25">
+                <property name="hexpand">1</property>
+                <property name="vexpand">1</property>
+                <property name="height-request">200</property>
+                <property name="width-request">400</property>
                 <child>
                   <object class="GtkViewport" id="viewport19">
                     <child>
@@ -11893,7 +11884,7 @@ density (too big to be waters):
                                           <object class="GtkLabel" id="label264">
                                             <property name="label" translatable="yes">Displayed Chains</property>
                                             <property name="justify">center</property>
-                                            <property name="xalign">0.4000000059604645</property>
+                                            <property name="xalign">0.4</property>
                                           </object>
                                         </child>
                                         <child>
@@ -11931,7 +11922,7 @@ density (too big to be waters):
                                           <object class="GtkLabel" id="label265">
                                             <property name="label" translatable="yes">NCS Master Chain</property>
                                             <property name="justify">center</property>
-                                            <property name="xalign">0.4000000059604645</property>
+                                            <property name="xalign">0.4</property>
                                           </object>
                                         </child>
                                         <child>
@@ -11981,13 +11972,27 @@ density (too big to be waters):
                 </child>
               </object>
             </child>
+
           </object>
         </child>
+        <child>
+          <object class="GtkBox">
+            <property name="orientation">vertical</property>
+            <property name="margin-start">4</property>
+            <property name="margin-end">4</property>
+            <property name="margin-top">4</property>
+            <property name="margin-bottom">4</property>
+            <child type="action">
+              <object class="GtkButton" id="ncs_control_ok_button">
+                <property name="label" translatable="yes">   OK   </property>
+                <signal name="clicked" handler="on_ncs_control_ok_button_clicked" swapped="no"/>
+              </object>
+            </child>
+          </object>
+        </child>
+
       </object>
     </child>
-    <action-widgets>
-      <action-widget response="0">ncs_control_ok_button</action-widget>
-    </action-widgets>
   </object>
 
   <object class="GtkDialog" id="molecule_chooser_dialog">
@@ -12145,8 +12150,6 @@ density (too big to be waters):
           </object>
         </child>
       </object>
-    </child>
-    <child type="titlebar">
     </child>
   </object>
 
