@@ -2,13 +2,13 @@
   Release 1.1.12
 
   o TERMINAL OUTPUT: Coot's startup, in particular the graphics and Python, have
-    lately been problematic (i.e. flakey/broken).  Different operating systems,
+    lately been problematic (i.e. flaky/broken).  Different operating systems,
     different drivers, and different versions of Python add to the complexity.
     We have spent quite some time refactoring this - and especially so in the
     last few weeks. To help understand what is going wrong on startup I have
     increased the amount of diagnostic information on the terminal - so it's a
     bit ugly at the moment.
-    When issues have been resolved and the starup is stable, I will reduce/remove
+    When issues have been resolved and the startup is stable, I will reduce/remove
     the diagnostics.
 
   o FEATURE: new chapi functions:
