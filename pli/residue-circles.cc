@@ -108,6 +108,17 @@ flev_t::initial_residues_circles_layout() {
          int idx = primary_indices[iprimary];
          std::vector<std::pair<lig_build::pos_t, double> > attachment_points =
             residue_circles[idx].get_attachment_points(mol);
+
+         if (true) { // debug
+            for (unsigned int iattach=0; iattach<attachment_points.size(); iattach++) {
+               std::cout << "debug:: in initial_residues_circles_layout()"
+                         << " iprimary " << iprimary << " iattach " << iattach
+                         << " pos " << attachment_points[iattach].first
+                         << " target-dist " << attachment_points[iattach].second
+                         << std::endl;
+            }
+         }
+
          initial_primary_residue_circles_layout(grid, idx, attachment_points);
       }
       std::cout << "HHHHHHHHHHHHHere C with residue_circles.size() " << residue_circles.size() << std::endl;

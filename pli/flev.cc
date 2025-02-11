@@ -277,6 +277,8 @@ void
 flev_t::reposition_problematics_and_reoptimise(const std::vector<int> &problematics,
                                                const std::vector<int> &primary_indices) {
 
+   // is this function used!?
+
    std::pair<lig_build::pos_t, lig_build::pos_t> l_e_pair = mol.ligand_extents();
    ligand_grid grid(l_e_pair.first, l_e_pair.second);
    grid.fill(mol);
@@ -2778,8 +2780,7 @@ flev_t::ligand_grid::add_quadratic(const std::vector<std::pair<lig_build::pos_t,
             for (int iy=0; iy<y_size(); iy++) {
                lig_build::pos_t pos = grid_pos_to_mol_space_pos(ix, iy);
                double d2 = (pos-attachment_points[iattach].first).lengthsq();
-               double val = 0.00002 * d2 * scale_by_n_attach;
-               val *= 10000.0;
+               double val = 0.2 * d2 * scale_by_n_attach; // test scaling here FIXME
                grid_[ix][iy] += val;
             }
          }

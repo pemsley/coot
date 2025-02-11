@@ -513,11 +513,10 @@ residue_circle_t::get_attachment_points(const svg_molecule_t &mol) const {
    for (unsigned int i=0; i<bonds_to_ligand.size(); i++) {
       if (bonds_to_ligand[i].is_set()) {
          try {
-            lig_build::pos_t pos =
-               mol.get_atom_canvas_position(bonds_to_ligand[i].ligand_atom_name);
+            lig_build::pos_t pos = mol.get_atom_canvas_position(bonds_to_ligand[i].ligand_atom_name);
             if (bonds_to_ligand[i].is_set()) {
                double bl = bonds_to_ligand[i].bond_length;
-               double target_dist = bl * 1.5;
+               double target_dist = bl;
                std::pair<lig_build::pos_t, double> p(pos, target_dist);
                v.push_back(p);
             }
