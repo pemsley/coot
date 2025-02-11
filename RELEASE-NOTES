@@ -5,7 +5,7 @@
     lately been problematic (i.e. flakey/broken).  Different operating systems,
     different drivers, and different versions of Python add to the complexity.
     We have spent quite some time refactoring this - and especially so in the
-    last few weeks. To help diagnose what is going wrong on startup I have
+    last few weeks. To help understand what is going wrong on startup I have
     increased the amount of diagnostic information on the terminal - so it's a
     bit ugly at the moment.
     When issues have been resolved and the starup is stable, I will reduce/remove
@@ -28,6 +28,11 @@
        https://www.mrc-lmb.cam.ac.uk/lucrezia/libcootapi-documentation/api.html
     C++ API:
        https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/docs/api/html/
+
+  o FEATURE: New Coot API functions:
+
+    set_new_non_drawn_bonds()
+    add_new_non_draw_bonds()
 
   o FEATURE: Added graphics viewport scaling
 
