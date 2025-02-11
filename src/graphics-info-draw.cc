@@ -6853,6 +6853,7 @@ graphics_info_t::setup_key_bindings() {
    auto lc_qsa = [] () {
                     graphics_info_t g;
                     g.quick_save();
+                    g.graphics_grab_focus();
                     return gboolean(TRUE);
                  };
 
