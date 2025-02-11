@@ -2,7 +2,7 @@
   Release 1.1.12
 
   o TERMINAL OUTPUT: Coot's startup, in particular the graphics and Python, have
-    long been problematic (i.e. flakey/broken).  Different operating systems,
+    lately been problematic (i.e. flakey/broken).  Different operating systems,
     different drivers, and different versions of Python add to the complexity.
     We have spent quite some time refactoring this - and especially so in the
     last few weeks. To help diagnose what is going wrong on startup I have
