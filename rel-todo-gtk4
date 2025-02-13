@@ -2,6 +2,13 @@
 
 picking should use non-drawn atom indicies
 
+it's a mistake to recontour the maps when they are not displayed.
+Instead of recontouring, mark them as 'outdated'
+When the set_map_is_displayed() function is activated the "map state"
+is checked and contoured regenerated if the map state is 'outdated'.
+
+add show_hydrogen_bonds to chapi api
+
 Why doesn't YTD import into layla after reading acedrg-YTD.cif?
 LaylaState::LaylaState(CootLigandEditorCanvas* canvas_widget, GtkWindow* win, GtkLabel* status_label) noexcept {
     this->monomer_library_info_store = std::make_unique<protein_geometry>();
@@ -13,10 +20,15 @@ Key binding.
 
 Edit Restraints dialog should be an overlay.
 
+Add "fat atom" refinement - instead of using just the atom centre, use a box of points around it also.
+Box size can depend on B-factor.
+
 GEMMI: Transfer aniso-B information in gemmi-mmdb - aniso table is missing from
 output cif - why? Ask Marcin.
 
 Add feature: Moorhen: Delete Waters
+
+Replace line symmetry with 3d model
 
 Moorhen: Session file doesn't save the environment distances on restore. Fixed?
 
