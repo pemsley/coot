@@ -1080,7 +1080,7 @@ void set_new_non_drawn_bonds(int imol, const std::string &cid);
 //! \brief add to non-drawn bonds - and regen bonds
 void add_to_non_drawn_bonds(int imol, const std::string &cid);
 
-//! \brief clear the non-drawn bonds - don't regen bonds
+//! \brief clear the non-drawn bonds - force regen bonds to restore all
 void clear_non_drawn_bonds(int imol);
 
 //! \brief return a Python object for the radii of the atoms in the dictionary
