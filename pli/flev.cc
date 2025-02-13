@@ -855,12 +855,10 @@ flev_t::draw_substitution_contour() {
 
             try {
 
-               std::pair<lig_build::pos_t, lig_build::pos_t> l_e_pair =
-                  mol.ligand_extents();
+               std::pair<lig_build::pos_t, lig_build::pos_t> l_e_pair = mol.ligand_extents();
 
                std::cout << "draw_substitution_contour(): creating ligand grid with args "
-                         << l_e_pair.first << " " << l_e_pair.second
-                         << std::endl;
+                         << l_e_pair.first << " " << l_e_pair.second << std::endl;
                ligand_grid grid(l_e_pair.first, l_e_pair.second);
 
                if (true) { // debug
@@ -877,7 +875,6 @@ flev_t::draw_substitution_contour() {
                         std::cout << std::endl;
                   }
                }
-
 
                std::vector<lig_build::atom_ring_centre_info_t> unlimited_atoms;
                // std::vector<widgeted_atom_ring_centre_info_t> unlimited_atoms;
@@ -974,7 +971,7 @@ flev_t::draw_substitution_contour() {
                // show_unlimited_atoms(unlimited_atoms);
                // show_ring_centres(ring_atoms_list, mol);
 
-               if (debug) {
+               if (false) {
                   std::cout << "Here are the "<< unlimited_atoms.size()
                             << " unlimited atoms: " << std::endl;
                   for (unsigned int iat=0; iat<unlimited_atoms.size(); iat++)
@@ -988,6 +985,7 @@ flev_t::draw_substitution_contour() {
          }
       }
    }
+   // std::cout << "subsitution-contour: " << svgc.svg << std::endl;
    return svgc;
 }
 
@@ -1471,8 +1469,7 @@ flev_t::ligand_grid::add_for_accessibility(double bash_dist, const lig_build::po
    bool debug = 0;
    int grid_extent = 45;
 
-   double LIGAND_TO_CANVAS_SCALE_FACTOR = 1.0; // this needs to go somewhere
-   double inv_scale_factor = 1.0/double(LIGAND_TO_CANVAS_SCALE_FACTOR);
+   double inv_scale_factor = 1.0;
 
    for (int ipos_x= -grid_extent; ipos_x<=grid_extent; ipos_x++) {
       for (int ipos_y= -grid_extent; ipos_y<=grid_extent; ipos_y++) {
@@ -1733,6 +1730,7 @@ flev_t::ligand_grid::show_contour(float contour_level,
       }
    }
 
+   std::cout << "end of thing: n line-fragments: " << line_fragments.size() << std::endl;
    std::vector<std::vector<lig_build::pos_t> > contour_lines = make_contour_lines(line_fragments);
 
    plot_contour_lines(contour_lines);

@@ -81,7 +81,7 @@ libcoot_coord_utils_la_SOURCES = coot-coord-utils.cc \
 	3d-texture.cc merge-molecules.cc fragment-container.cc mutate.cc \
 	cylinder.cc cylinder-with-rotation-translation.cc oct.cc prideout-octasphere.cc simple-mesh.cc \
 	shapes.cc cmtz-interface.cc pugixml.cpp parse-pisa.cc gltf-export.cc pae.cc \
-	gl-matrix.cc gl-matrix-eigensystem.cc coot-align.cc
+	gl-matrix.cc gl-matrix-eigensystem.cc coot-align.cc grid-balls.cc
 
 #    $(top_builddir)/mini-mol/libcoot-mini-mol.la
 #    $(top_builddir)/utils/libcoot-utils.la
@@ -172,7 +172,7 @@ check_PROGRAMS = test-h-bonds testshelxreader test-hole test-elastic \
 		 test-cod-atom-types dictionary-atom-types cod-db-access \
 		 test-5-residue-fragments test-diff-diff-map-peaks \
 		 make-cablam-like-stats test-cod-atom-types-from-sm-cif test-parse-pisa \
-		 test-coot-utils test-pae test-q-score servalcat-tracker test-zd
+		 test-coot-utils test-pae test-q-score servalcat-tracker test-zd test-grid-balls
 
 # wrong build order - delete from make check for now.
 # test-emma test-convolute test-coot-utils test-segmap
@@ -299,6 +299,10 @@ glyco_torsions_LDADD   = ./libcoot-coord-utils.la    \
 	$(top_builddir)/geometry/libcoot-geometry.la \
 	$(top_builddir)/utils/libcoot-utils.la       \
 	$(MMDB_LIBS)
+
+test_grid_balls_SOURCES = test-grid-balls.cc
+test_grid_balls_LDADD   = ./libcoot-coord-utils.la    \
+	$(CLIPPER_LIBS) $(MMDB_LIBS)
 
 
 test_chem_feat_SOURCES = test-chem-feat.cc

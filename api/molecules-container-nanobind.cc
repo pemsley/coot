@@ -649,6 +649,7 @@ NB_MODULE(chapi, m) {
        .def_ro("atom_type_1", &coot::acedrg_types_for_bond_t::atom_type_1)
        .def_ro("atom_type_2", &coot::acedrg_types_for_bond_t::atom_type_2)
        .def_ro("bond_length", &coot::acedrg_types_for_bond_t::bond_length)
+       .def_ro("bond_is_between_atoms_in_the_same_ring", &coot::acedrg_types_for_bond_t::bond_is_between_atoms_in_the_same_ring)
     ;
     nb::class_<coot::acedrg_types_for_residue_t>(m,"acedrg_types_for_residue_t")
         .def_ro("bond_types", &coot::acedrg_types_for_residue_t::bond_types)

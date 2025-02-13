@@ -68,6 +68,11 @@ public:
       svg += s;
    }
 
+   void prepend(const svg_container_t &svgc_in) {
+      svg = svgc_in.svg + svg;
+      update_bounds(svgc_in.min_x, svgc_in.min_y, svgc_in.max_x, svgc_in.max_y);
+   }
+
    void add(const svg_container_t &svgc_in) {
       svg += svgc_in.svg;
       update_bounds(svgc_in.min_x, svgc_in.min_y, svgc_in.max_x, svgc_in.max_y);
