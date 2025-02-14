@@ -994,8 +994,13 @@ if [ -n "$TEE_STDOUT" ]; then
    echo INFO:: std output will be both printed here and written to $LOGS/build-gtk4.log
    exec > >(tee $LOGS/build-gtk4.log)
 else
-   echo INFO:: redirecting std output to $LOGS/build-gtk4.log
-   exec > $LOGS/build-gtk4.log
+    if test "$CHAPI_ONLY" = true ; then
+	echo INFO:: redirecting std output to $LOGS/build-chapi.log
+	exec > $LOGS/build-chapi.log
+    else
+	echo INFO:: redirecting std output to $LOGS/build-gtk4.log
+	exec > $LOGS/build-gtk4.log
+    fi
 fi
 
 date
@@ -1397,6 +1402,9 @@ v_fid=`echo $v | sed 's/ /_/g'`
 w_fid=`echo $w | sed 's/ /_/g'`
 
 compilers_dir=$build_type-${v_fid}_and_${w_fid}
+if test "$CHAPI_ONLY" = true ; then
+    compilers_dir=chapi-${v_fid}_and_${w_fid}
+fi
 HOSTLOGDIR=$LOGS/$compilers_dir
 if [ ! -e $HOSTLOGDIR ] ; then
   mkdir -p $HOSTLOGDIR
@@ -3693,16 +3701,16 @@ if [ true = true ] ; then
         exit 2
       fi
       which python3
-      # let's just try to install it using pip! Maybe that will do good things?
-      python3 -m pip install numpy
       # OK, back to compiling...
-      python3 setup.py build --fcompiler=gfortran
-      python3 setup.py install
+      $python_version setup.py build --fcompiler=gfortran
+      $python_version setup.py install
       if [ ! $? ] ; then
          echo something bad about numpy.
          exit 2
       fi
       cd -
+      # let's just try to install it using pip! Maybe that will do good things?
+      $python_version -m pip install numpy==$numpy_version --force-reinstall
       ) > $HOSTLOGDIR/23-numpy.txt 2>&1
       echo BUILDING numpy $numpy_version finished >&2
    fi
@@ -3784,6 +3792,7 @@ rdkit_version=2020_09_3
 rdkit_version=2023_03_1
 rdkit_version=2023_09_4
 rdkit_version=2024_09_4
+rdkit_version=2024_09_5
 # see https://github.com/rdkit/rdkit/releases
 rdkit_home=https://github.com/rdkit/rdkit/archive
 rdkit_tar_host_file_name=Release_$rdkit_version.tar.gz
@@ -3793,6 +3802,7 @@ rdkit_tar_size=58598385 # 2020_09_3
 rdkit_tar_size=79454133 # 2023_03_1
 rdkit_tar_size=80212603 # 2023_09_4
 rdkit_tar_size=82055856 # 2024_09_4
+rdkit_tar_size=82181626 # 2024_09_5
 
 if [ "$build_rdkit" = true ] ; then
    skip_this=false
@@ -4163,6 +4173,8 @@ fi
 ##########         gobject-introspection                          #############
 ###############################################################################
 
+# hack to use system library:
+build_gobject_introspection=false
 if test "$build_gobject_introspection" = true ; then
    echo BUILDING gobject-introspection:
    echo BUILDING gobject-introspection: >&2
@@ -4309,6 +4321,13 @@ if [ $test_for_already_installed_dependencies = true ] ; then
       skip_build=true
    fi
 fi
+if [ /usr/include/pygobject-3.0 ] ; then
+    skip_build=true
+fi
+
+echo /lmb/home/pemsley/autobuild/Linux-hal.lmb.internal-gtk4/bin/glib-compile-schemas --targetdir tests ../tests
+/lmb/home/pemsley/autobuild/Linux-hal.lmb.internal-gtk4/bin/glib-compile-schemas --targetdir tests ../tests
+
 
 if [ $skip_build = false ] ; then
 
@@ -4317,6 +4336,8 @@ if [ $skip_build = false ] ; then
       (
       echo :::: PKG_CONFIG_PATH is $PKG_CONFIG_PATH
       unset LD_LIBRARY_PATH
+      echo /lmb/home/pemsley/autobuild/Linux-hal.lmb.internal-gtk4/bin/glib-compile-schemas --targetdir tests ../tests
+      /lmb/home/pemsley/autobuild/Linux-hal.lmb.internal-gtk4/bin/glib-compile-schemas --targetdir tests ../tests
       ${WGET} $extras_place/PyGObject-$pygobject_version.tar.gz
       echo ::: trying to untar ${AUTOBUILD_SOURCES}/PyGObject-$pygobject_version.tar.gz
       if [ -e ${AUTOBUILD_SOURCES}/PyGObject-$pygobject_version.tar.gz ] ; then
@@ -4335,9 +4356,12 @@ if [ $skip_build = false ] ; then
             echo :::: meson passed
             cd build
             echo :::: ninja
-            ninja
-            echo :::: ninja install
-            ninja install
+            if ninja ; then
+                echo :::: ninja install
+                ninja install
+            else
+                echo ninja failed
+            fi
          else
             echo :::: meson failed
          fi
@@ -4927,6 +4951,7 @@ fi
 
 # if compiling with sound on ubuntu libvorbis-dev libasound2-dev
 
+unset LD_LIBRARY_PATH
 echo :::::::::::::::::::::::::::::::::::::::::::::::::::::::
 echo LD_LIBRARY_PATH $LD_LIBRARY_PATH
 echo :::::::::::::::::::::::::::::::::::::::::::::::::::::::
