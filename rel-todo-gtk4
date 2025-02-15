@@ -1,6 +1,19 @@
 ----
 
-picking should use non-drawn atom indicies
+add terminal residue for nucleic acic in moorhen.
+Add a function is_nucleic_acid(imol, cid)
+
+scale the map in moorhen.
+
+Friday: papper (and session with Moorhen/Cloud?)
+
+Download svg in Moorhen ligands and carbohydrate.
+
+Look at fftw2 usage in electrostatics
+
+Coot: picking should use non-drawn atom indicies
+
+Discs for HOLE output?
 
 it's a mistake to recontour the maps when they are not displayed.
 Instead of recontouring, mark them as 'outdated'
