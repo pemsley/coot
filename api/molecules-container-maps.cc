@@ -401,3 +401,16 @@ molecules_container_t::transform_map_using_lsq_matrix(int imol_map, lsq_results_
    }
    return imol_map_new;
 }
+
+//! Scale map
+//!
+//! @param imol is the model molecule index
+void
+molecules_container_t::scale_map(int imol, float factor) {
+
+   if (is_valid_map_molecule(imol)) {
+      molecules[imol].scale_map(factor);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+}

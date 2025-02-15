@@ -6290,6 +6290,31 @@ int test_mutation_info(molecules_container_t &mc) {
    return status;
 }
 
+int test_scale_map(molecules_container_t &mc) {
+
+   auto close_float = [] (float a, float b) {
+      return fabsf(a - b) < 0.001;
+   };
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"),
+                              "FWT", "PHWT", "W", false, false);
+   if (mc.is_valid_map_molecule(imol_map)) {
+      float sf = 2.4;
+      float r_1 = mc.get_map_rmsd_approx(imol_map);
+      mc.scale_map(imol_map, sf);
+      float r_2 = mc.get_map_rmsd_approx(imol_map);
+      float f = r_2 / r_1;
+      std::cout << ":::::::::::::: f " << f << std::endl;
+      if (close_float(f, sf))
+         status = 1;
+   }
+   return status;
+}
+
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -6614,6 +6639,7 @@ int main(int argc, char **argv) {
          status += run_test(test_set_occupancy, "set occupancy", mc);
          status += run_test(test_missing_residues, "missing residues", mc);
          status += run_test(test_mutation_info, "mutation info", mc);
+         status += run_test(test_scale_map, "scale_map", mc);
          if (status == n_tests) all_tests_status = 0;
 
          print_results_summary();

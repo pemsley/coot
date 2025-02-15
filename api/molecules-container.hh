@@ -506,6 +506,12 @@ public:
    //! @return the map weight
    float get_map_weight() const { return map_weight; }
 
+   //! Scale map
+   //!
+   //! @param imol is the model molecule index
+   //! @param scale_factor is the scale factor
+   void scale_map(int imol_map, float scale_factor);
+
    //! Convert atom cid string to a coot atom specifier
    //!
    //! @param imol is the model molecule index

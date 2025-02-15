@@ -95,6 +95,19 @@ coot::molecule_t::is_em_map_cached_state() {
 }
 
 void
+coot::molecule_t::scale_map(float scale_factor) {
+
+   // can be multi-threaded?
+
+   if (has_xmap()) {
+      clipper::Xmap_base::Map_reference_index ix;
+      for (ix = xmap.first(); !ix.last(); ix.next() )
+	 xmap[ix] *= scale_factor;
+   }
+}
+
+
+void
 coot::molecule_t::set_map_is_difference_map(bool state) {
    xmap_is_diff_map = state;
 }

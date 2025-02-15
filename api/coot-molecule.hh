@@ -1280,6 +1280,8 @@ namespace coot {
 
       // ----------------------- map functions
 
+      void scale_map(float scale_factor);
+
       bool is_EM_map() const;
 
       float get_density_at_position(const clipper::Coord_orth &pos) const;
