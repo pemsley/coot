@@ -99,6 +99,7 @@ class flev_t {
 
       std::pair<int, int> mol_space_pos_to_grid_pos(const lig_build::pos_t &pos) const;
       lig_build::pos_t grid_pos_to_mol_space_pos(int ix, int iy) const;
+      lig_build::pos_t grid_pos_as_double_to_mol_space_pos(double x, double y) const;
 
 
    public:
@@ -156,7 +157,9 @@ class flev_t {
       void avoid_ring_centres(const std::vector<std::vector<std::string> > &ring_atoms_list,
                               const lig_build::molecule_t<svg_atom_t, svg_bond_t> &mol);
 
-      void add_for_accessibility(double bash_dist, const lig_build::pos_t &atom_pos);
+      void add_for_accessibility(double bash_dist,
+                                 double exp_fac, // 0.03 say
+                                 const lig_build::pos_t &atom_pos);
 
       // fudge in a smoothly varing function (so that the contouring
       // behaves smoothly, rather that the jaggies that we'd get if we
@@ -167,12 +170,18 @@ class flev_t {
       // REPLACE-ME-WITH-SVG
       void show_contour(float contour_level);
 
+      svg_container_t show_contour(float contour_level,
+                                   bool is_dashed,
+                                   const std::string &col,
+                                   const std::vector<lig_build::atom_ring_centre_info_t> &unlimited_atoms,
+                                   const std::vector<std::vector<std::string> > &ring_atoms_list);
+
       // the "cutting" of the contour behaves differently if the
       // unlimited atom is a member of a ring (compared to if it is
       // not).
-      void show_contour(float contour_level,
-                        const std::vector<lig_build::atom_ring_centre_info_t> &unlimited_atoms,
-                        const std::vector<std::vector<std::string> > &ring_atoms_list);
+      // void show_contour_old(float contour_level,
+      //                           const std::vector<lig_build::atom_ring_centre_info_t> &unlimited_atoms,
+      //                           const std::vector<std::vector<std::string> > &ring_atoms_list);
 
    };
 
