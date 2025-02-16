@@ -18,10 +18,19 @@ int main(int argc, char **argv) {
    int res_no = 901;
 
    if (argc == 2) {
-      pdb_file_name = "2vtq.pdb";
-      ligand_code = "LZA";
-      res_no = 1299;
+      std::string code = argv[1];
+      if (code == "2vtq") {
+         pdb_file_name = "2vtq.pdb";
+         ligand_code = "LZA";
+         res_no = 1299;
+      }
+      if (code == "2cmf") {
+         pdb_file_name = "2cmf.pdb";
+         ligand_code = "F11";
+         res_no = 1536;
+      }
    }
+
 
    // Also test 5a3h, 2wot
 

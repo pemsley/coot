@@ -936,6 +936,9 @@ namespace coot {
       coot::atom_overlaps_dots_container_t get_overlap_dots_for_ligand(const std::string &cid_ligand,
                                                                        protein_geometry *geom_p);
 
+      instanced_mesh_t get_HOLE(const clipper::Coord_orth &start_pos, const clipper::Coord_orth &end_pos,
+                                const coot::protein_geometry &geom_in) const;
+
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
       //! if the ligand cid specifies more than one residue, only the first is returned.
       //! @return nullptr on error or failure to specify a ligand.

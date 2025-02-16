@@ -6330,6 +6330,36 @@ int test_add_RNA_residue(molecules_container_t &mc) {
    return status;
 }
 
+int test_HOLE(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+   int imol = mc.read_coordinates(reference_data("pdb2y5m.ent"));
+   // get restraints for 15P, DVA, FVA, DLE and, of course ETA.
+   int imol_enc = coot::protein_geometry::IMOL_ENC_ANY;
+   std::vector<std::string> new_types = {"15P", "DVA", "FVA", "DLE", "ETA"};
+   for (const auto &type : new_types) {
+      int imol_type = mc.get_monomer_from_dictionary(type, imol_enc, true);
+      if (! mc.is_valid_model_molecule(imol_type))
+         std::cout << "Failed to get_monomer_from_dictionary() for " << type << std::endl;
+   }
+   if (mc.is_valid_model_molecule(imol)) {
+      clipper::Coord_orth s(1.6, 14.9, -14.2);
+      clipper::Coord_orth e(8.4, -16.8, -17.0);
+      coot::instanced_mesh_t im = mc.get_HOLE(imol, s.x(), s.y(), s.z(), e.x(), e.y(), e.z());
+      if (! im.geom.empty()) {
+         const coot::instanced_geometry_t &ig = im.geom[0];
+         unsigned int n_spots = ig.instancing_data_A.size();
+         std::cout << "n_spots " << n_spots << std::endl;
+         if (n_spots > 1000) {
+            status = 1;
+         }
+      }
+   } else {
+      std::cout << "Failed to read pdb2y5m.ent" << std::endl;
+   }
+   return status;
+}
 
 int test_template(molecules_container_t &mc) {
 
@@ -6657,6 +6687,7 @@ int main(int argc, char **argv) {
          status += run_test(test_mutation_info, "mutation info", mc);
          status += run_test(test_scale_map, "scale_map", mc);
          status += run_test(test_add_RNA_residue, "add RNA residue", mc);
+         status += run_test(test_HOLE, "HOLE", mc);
          if (status == n_tests) all_tests_status = 0;
 
          print_results_summary();

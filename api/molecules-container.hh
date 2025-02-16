@@ -2936,6 +2936,10 @@ public:
                       bool ignore_part_occ_contact_flag,
                       bool ignore_zero_occ_flag);
 
+   coot::instanced_mesh_t get_HOLE(int imol,
+                                   float start_pos_x, float start_pos_y, float start_pos_z,
+                                   float end_pos_x, float end_pos_y, float end_pos_z) const;
+
    // Calculate the MMRRCC for the residues in the chain
    // Multi Masked Residue Range Corellation Coefficient
 #ifdef SWIG

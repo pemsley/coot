@@ -803,3 +803,21 @@ molecules_container_t::change_alt_locs(int imol, const std::string &cid, const s
    }
    return status;
 }
+
+
+coot::instanced_mesh_t
+molecules_container_t::get_HOLE(int imol,
+                                float start_pos_x, float start_pos_y, float start_pos_z,
+                                float end_pos_x, float end_pos_y, float end_pos_z) const {
+
+   coot::instanced_mesh_t m;
+   if (is_valid_model_molecule(imol)) {
+      clipper::Coord_orth start_pos(start_pos_x, start_pos_y, start_pos_z);
+      clipper::Coord_orth end_pos(end_pos_x, end_pos_y, end_pos_z);
+      m = molecules[imol].get_HOLE(start_pos, end_pos, geom);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return m;
+
+}

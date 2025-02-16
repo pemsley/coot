@@ -953,3 +953,40 @@ coot::molecule_t::get_missing_residue_ranges() const {
    }
    return v;
 }
+
+#include "coot-utils/coot-hole.hh"
+//
+// Put this in coot-molecule-analysis one day
+//
+coot::instanced_mesh_t
+coot::molecule_t::get_HOLE(const clipper::Coord_orth &start_pos, const clipper::Coord_orth &end_pos,
+                           const coot::protein_geometry &geom) const {
+
+   auto coord_orth_to_glm = [] (const clipper::Coord_orth &co) {
+      return glm::vec3(co.x(), co.y(), co.z());
+   };
+
+   coot::instanced_mesh_t m;
+   coot::hole hole(atom_sel.mol, start_pos, end_pos, geom);
+   std::pair<std::vector<std::pair<clipper::Coord_orth, double> >, std::vector<hole_surface_point_t> >
+      hole_path_and_surface = hole.generate();
+
+   const auto &path    = hole_path_and_surface.first;
+   const auto &surface = hole_path_and_surface.second;
+
+   std::cout << "in get_HOLE() path: " << path.size() << " surface " << surface.size() << std::endl;
+
+   coot::instanced_geometry_t ig;
+   glm::vec3 size(0.1f, 0.1f, 0.1f); // needs testing.
+   ig.instancing_data_A.resize(surface.size());
+   for (unsigned int i=0; i<surface.size(); i++) {
+      const auto &s_p = surface[i].position;
+      const coot::colour_holder &s_c = surface[i].colour;
+      glm::vec3 pos = coord_orth_to_glm(s_p);
+      glm::vec4 col = colour_holder_to_glm(s_c);
+      coot::instancing_data_type_A_t id(pos, col, size);
+      ig.instancing_data_A[i] = id;
+   }
+   m.geom.push_back(ig);
+   return m;
+}
