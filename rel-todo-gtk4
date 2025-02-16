@@ -43,6 +43,8 @@ Add feature: Moorhen: Delete Waters
 
 Replace line symmetry with 3d model
 
+For tubes view, use 8a5y and 8a61 as an example.
+
 Moorhen: Session file doesn't save the environment distances on restore. Fixed?
 
 Are the GLUprot ASPprot Hisprot1 Hisprot2 in the monomer library mon_lib_list.cif (from github)
