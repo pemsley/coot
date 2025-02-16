@@ -283,6 +283,9 @@ namespace coot {
       std::vector<density_contour_triangles_container_t> draw_diff_map_vector_sets;
       std::vector<std::pair<int, TRIANGLE> > map_triangle_centres; // with associated mid-points and indices
 
+      // insert coords - c.f function in molecule-class-info_t
+      void insert_coords_internal(const atom_selection_container_t &asc);
+
       // This function no longer does a backup or updates the save_info!
       // The calling function should do that.
       void replace_coords(const atom_selection_container_t &asc,
@@ -972,7 +975,16 @@ namespace coot {
                                                                 const std::string &new_res_type,
                                                                 const protein_geometry &geom,
                                                                 const clipper::Xmap<float> &xmap,
+                                                                mmdb::Manager *standard_residues_asc_mol, // for RNA
                                                                 ctpl::thread_pool &static_thread_pool);
+
+      void execute_simple_nucleotide_addition(const std::string &term_type,
+                                              mmdb::Residue *res_p, const std::string &chain_id,
+                                              mmdb::Manager *standard_residues_asc_mol);
+      void execute_simple_nucleotide_addition(mmdb::Residue *residue_p,
+                                              mmdb::Manager *standard_residues_asc_mol);
+      void execute_simple_nucleotide_addition(const std::string &cid,
+                                              mmdb::Manager *standard_residues_asc_mol);
 
       int add_compound(const dictionary_residue_restraints_t &monomer_restraints, const Cartesian &position,
                        const clipper::Xmap<float> &xmap, float map_rmsd);

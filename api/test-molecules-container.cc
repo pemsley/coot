@@ -6307,9 +6307,25 @@ int test_scale_map(molecules_container_t &mc) {
       mc.scale_map(imol_map, sf);
       float r_2 = mc.get_map_rmsd_approx(imol_map);
       float f = r_2 / r_1;
-      std::cout << ":::::::::::::: f " << f << std::endl;
       if (close_float(f, sf))
          status = 1;
+   }
+   return status;
+}
+
+int test_add_RNA_residue(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+   int imol = mc.read_coordinates(reference_data("5bjo-needs-E6.pdb"));
+   if (mc.is_valid_model_molecule(imol)) {
+      mc.add_terminal_residue_directly_using_cid(imol, "//E/5");
+      mmdb::Residue *residue_p = mc.get_residue_using_cid(imol, "//E/6");
+      if (residue_p) {
+         status = true;
+      }
+   } else {
+      std::cout << "failed to read 5bjo-needs-E6.pdb" << std::endl;
    }
    return status;
 }
@@ -6640,6 +6656,7 @@ int main(int argc, char **argv) {
          status += run_test(test_missing_residues, "missing residues", mc);
          status += run_test(test_mutation_info, "mutation info", mc);
          status += run_test(test_scale_map, "scale_map", mc);
+         status += run_test(test_add_RNA_residue, "add RNA residue", mc);
          if (status == n_tests) all_tests_status = 0;
 
          print_results_summary();
