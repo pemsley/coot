@@ -48,6 +48,8 @@ int main(int argc, char **argv) {
       std::cout << "have_dictionary_for_residue_type LZA: " << rs << std::endl;
       rs = geom.have_dictionary_for_residue_type("824", imol_enc, try_autoload_if_needed);
       std::cout << "have_dictionary_for_residue_type 824: " << rs << std::endl;
+      rs = geom.have_dictionary_for_residue_type("F11", imol_enc, try_autoload_if_needed);
+      std::cout << "have_dictionary_for_residue_type F11: " << rs << std::endl;
 
       std::string output_file_name = "test.svg";
       float radius = 4.2; // was 4.4; // was 4.8;

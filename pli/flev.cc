@@ -897,7 +897,8 @@ flev_t::draw_substitution_contour() {
             grid.avoid_ring_centres(ring_atoms_list, mol);
 
             // for debugging
-            show_grid(grid);
+            if (false)
+               show_grid(grid);
 
             std::vector<lig_build::atom_ring_centre_info_t> unlimited_atoms;
             for (unsigned int iat=0; iat<mol.atoms.size(); iat++) {
@@ -909,16 +910,11 @@ flev_t::draw_substitution_contour() {
             }
 
             if (false) {
-               std::vector<float> contour_levels = {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0,
-                                                    1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0,
-                                                    2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9, 3.0,
-                                                    3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 3.8, 3.9, 4.0,
-                                                    4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 4.7, 4.8, 4.9, 5.0};
-               contour_levels = { 0.2, 0.4, 0.6, 0.8, 1.0,
-                                  1.2, 1.4, 1.6, 1.8, 2.0,
-                                  2.2, 2.4, 2.6, 2.8, 3.0,
-                                  3.2, 3.4, 3.6, 3.8, 4.0,
-                                  4.2, 4.4, 4.6, 4.8, 5.0 };
+               std::vector<float> contour_levels = { 0.2, 0.4, 0.6, 0.8, 1.0,
+                                                     1.2, 1.4, 1.6, 1.8, 2.0,
+                                                     2.2, 2.4, 2.6, 2.8, 3.0,
+                                                     3.2, 3.4, 3.6, 3.8, 4.0,
+                                                     4.2, 4.4, 4.6, 4.8, 5.0 };
 
                std::string col = "#bbbbbb";
                bool is_dashed = false;
@@ -1432,7 +1428,7 @@ flev_t::ligand_grid::add_for_accessibility(double bash_dist,
                                            double exp_fac,
                                            const lig_build::pos_t &atom_pos) {
 
-   bool debug = true;
+   bool debug = false;
    int feature_extent = 45;
 
    double inv_scale_factor = 1.0;
@@ -1563,7 +1559,7 @@ flev_t::ligand_grid::avoid_ring_centres(const std::vector<std::vector<std::strin
          double radius = 1/(2*sin(M_PI/double(n_atoms))) * 1.5; // in "A" or close
          // std::cout << "avoid_ring_centres() adding ring centre at " << centre
          // << " n_atoms: " << n_atoms << " radius " << radius << std::endl;
-         add_for_accessibility(radius, 0.07, centre);
+         add_for_accessibility(radius, 0.1, centre);
       }
       catch (const std::runtime_error &rte) {
          std::cout << "Opps - failed to find ring centre for ring atom name "

@@ -235,6 +235,7 @@ pli::flev_attached_hydrogens_t::distances_to_protein_using_correct_Hs(mmdb::Resi
          if (lig_at && H_at)
             break;
       }
+
       if (lig_at && H_at) {
          clipper::Coord_orth H_pt(H_at->x, H_at->y, H_at->z);
          clipper::Coord_orth lig_atom_pt(lig_at->x, lig_at->y, lig_at->z);
