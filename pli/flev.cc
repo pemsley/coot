@@ -563,13 +563,12 @@ flev_t::write_svg(const std::string &file_name) const {
 
 
 
-void
+svg_container_t
 pli::fle_view_with_rdkit_internal(mmdb::Manager *mol,
                                   int imol,
                                   coot::protein_geometry *geom_p,
                                   const std::string &chain_id, int res_no, const std::string &ins_code,
-                                  float residues_near_radius,
-                                  const std::string &file_format, const std::string &output_image_file_name) {
+                                  float residues_near_radius) {
 
    auto write_string_to_file = [] (const std::string &s, const std::string &fn) {
 
@@ -584,9 +583,9 @@ pli::fle_view_with_rdkit_internal(mmdb::Manager *mol,
    bool dark_background_flag = false; // pass this
 
    double weight_for_3d_distances = 0.4; // for 3d distances
-   std::string output_format = file_format;
 
    bool wrap_in_refresh_html = true;
+   svg_container_t svgc;
 
    if (mol) {
       mmdb::Residue  *res_ref = coot::util::get_residue(chain_id, res_no, ins_code, mol);
@@ -697,7 +696,7 @@ pli::fle_view_with_rdkit_internal(mmdb::Manager *mol,
 
                   scale_factor = 1.0;
                   bool add_background = false;
-                  svg_container_t svgc = flev.mol.make_svg(scale_factor, dark_background_flag, add_background);
+                  svgc = flev.mol.make_svg(scale_factor, dark_background_flag, add_background);
 
                   if (wrap_in_refresh_html) {
                      // 20250106-PE: hack the bounds for now
@@ -806,8 +805,8 @@ pli::fle_view_with_rdkit_internal(mmdb::Manager *mol,
                      write_string_to_file(svgc.compose(true), "flev-test-all-parts.svg");
                   }
 
-                  if (output_format == "png") flev.write_png(output_image_file_name);
-                  if (output_format == "svg") flev.write_svg(output_image_file_name);
+                  // if (output_format == "png") flev.write_png(output_image_file_name);
+                  // if (output_format == "svg") flev.write_svg(output_image_file_name);
 
                   delete mol_for_flat_residue;
                }
@@ -822,6 +821,7 @@ pli::fle_view_with_rdkit_internal(mmdb::Manager *mol,
          }
       }
    }
+   return svgc;
 }
 
 svg_container_t
@@ -837,8 +837,6 @@ flev_t::draw_substitution_contour() {
    };
 
    svg_container_t svgc;
-
-   bool debug = true;
 
    bool draw_flev_annotations_flag = true; // why wouldn't it be?
 
@@ -897,7 +895,7 @@ flev_t::draw_substitution_contour() {
             grid.avoid_ring_centres(ring_atoms_list, mol);
 
             // for debugging
-            if (false)
+            if (true)
                show_grid(grid);
 
             std::vector<lig_build::atom_ring_centre_info_t> unlimited_atoms;
@@ -909,7 +907,7 @@ flev_t::draw_substitution_contour() {
                }
             }
 
-            if (false) {
+            if (true) {
                std::vector<float> contour_levels = { 0.2, 0.4, 0.6, 0.8, 1.0,
                                                      1.2, 1.4, 1.6, 1.8, 2.0,
                                                      2.2, 2.4, 2.6, 2.8, 3.0,
@@ -1603,7 +1601,7 @@ flev_t::ligand_grid::show_contour(float contour_level,
       return svgc;
    };
 
-   bool debug = false;
+   bool debug = true;
 
    // fill the ring centre vector, if the unlimited atom have ring centres
    std::vector<std::pair<bool, lig_build::pos_t> > ring_centres(unlimited_atoms.size());
@@ -1635,10 +1633,10 @@ flev_t::ligand_grid::show_contour(float contour_level,
             if (cf.coords.size() == 1) {
 
                if (debug)
-                  std::cout << "plot_contour A "
-                            << cf.get_coords(ix, iy, 0).first << " "
+                  std::cout << "plot_contour A, ms_type " << ms_type << " "
+                            << cf.get_coords(ix, iy, 0).first  << " "
                             << cf.get_coords(ix, iy, 0).second << " to "
-                            << cf.get_coords(ix, iy, 1).first << " "
+                            << cf.get_coords(ix, iy, 1).first  << " "
                             << cf.get_coords(ix, iy, 1).second << "" << std::endl;
 
                std::pair<double, double> xy_1 = cf.get_coords(ix, iy, 0);
@@ -1648,7 +1646,7 @@ flev_t::ligand_grid::show_contour(float contour_level,
 
                std::pair<lig_build::pos_t, lig_build::pos_t> fragment_pair(pos_1, pos_2);
                if (debug)
-                  std::cout << "plot_contour B "
+                  std::cout << "plot_contour B, ms_type " << ms_type << " "
                             << pos_1.x << " " << pos_1.y << " to "
                             << pos_2.x << " " << pos_2.y << std::endl;
 
@@ -1828,29 +1826,26 @@ flev_t::ligand_grid::plot_contour_lines(const std::vector<std::vector<lig_build:
 				      "line_width", 1.0,
 				      "line-dash", dash,
 				      NULL);
-	 
+
       }
    }
    goo_canvas_line_dash_unref(dash);
 #endif
-   
+
 }
 
 flev_t::contour_fragment::contour_fragment(int ms_type,
-                                           const float &contour_level, 
+                                           const float &contour_level,
                                            const grid_index_t &grid_index_prev,
                                            const grid_index_t &grid_index,
                                            const ligand_grid &grid) {
-
-   int ii_next = grid_index_t::INVALID_INDEX;
-   int jj_next = grid_index_t::INVALID_INDEX;
 
    float v00 = grid.get(grid_index.i(),   grid_index.j());
    float v01 = grid.get(grid_index.i(),   grid_index.j()+1);
    float v10 = grid.get(grid_index.i()+1, grid_index.j());
    float v11 = grid.get(grid_index.i()+1, grid_index.j()+1);
 
-   float frac_x1 = -1; 
+   float frac_x1 = -1;
    float frac_y1 = -1;
    float frac_x2 = -1;  // for hideous valley
    float frac_y2 = -1;
@@ -1858,7 +1853,9 @@ flev_t::contour_fragment::contour_fragment(int ms_type,
    contour_fragment::coordinates c1(0.0, X_AXIS_LOW);
    contour_fragment::coordinates c2(Y_AXIS_LOW, 0.0);
    cp_t p(c1,c2);
-   
+
+   // std::cout << "contour_fragment with ms_type " << ms_type << std::endl;
+
    switch (ms_type) {
 
    case ligand_grid::MS_UP_0_0:
@@ -1885,10 +1882,9 @@ flev_t::contour_fragment::contour_fragment(int ms_type,
       coords.push_back(p);
       break;
 
-      
    case ligand_grid::MS_UP_1_0:
    case ligand_grid::MS_UP_0_0_and_0_1_and_1_1:
-      
+
       // std::cout << " ----- case MS_UP_1,0 " << std::endl;
       frac_x1 = (contour_level - v00)/(v10-v00);
       frac_y1 = (contour_level - v10)/(v11-v10);
@@ -1898,8 +1894,6 @@ flev_t::contour_fragment::contour_fragment(int ms_type,
       coords.push_back(p);
       break;
 
-      
-      
    case ligand_grid::MS_UP_1_1:
    case ligand_grid::MS_UP_0_0_and_0_1_and_1_0:
 
@@ -1914,19 +1908,20 @@ flev_t::contour_fragment::contour_fragment(int ms_type,
 
    case ligand_grid::MS_UP_0_0_and_0_1:
    case ligand_grid::MS_UP_1_0_and_1_1:
-      
-      // std::cout << " ----- case MS_UP_0,0 and 0,1 " << std::endl;
+
+      std::cout << " ----- case MS_UP_0,0 and 0,1 " << std::endl;
       frac_x1 = (v00-contour_level)/(v00-v10);
       frac_x2 = (v01-contour_level)/(v01-v11);
       c1 = contour_fragment::coordinates(frac_x1, X_AXIS_LOW);
       c2 = contour_fragment::coordinates(frac_x2, X_AXIS_HIGH);
+      std::cout << "frac_x1: " << frac_x1 << " frac_x2: " << frac_x2 << std::endl;
       p = cp_t(c1,c2);
       coords.push_back(p);
       break;
 
    case ligand_grid::MS_UP_0_0_and_1_0:
    case ligand_grid::MS_UP_0_1_and_1_1:
-      
+
       // std::cout << " ----- case MS_UP_0,0 and 1,0 " << std::endl;
       frac_y1 = (v00-contour_level)/(v00-v01);
       frac_y2 = (v10-contour_level)/(v10-v11);
@@ -1935,12 +1930,12 @@ flev_t::contour_fragment::contour_fragment(int ms_type,
       p = cp_t(c1,c2);
       coords.push_back(p);
       break;
-      
+
 
    default:
       std::cout << "ERROR:: unhandled square type: " << ms_type << std::endl;
 
-   } 
+   }
 
 }
 

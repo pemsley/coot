@@ -821,3 +821,24 @@ molecules_container_t::get_HOLE(int imol,
    return m;
 
 }
+
+//! Get SVG for 2d ligand environment view (FLEV)
+//!
+//! The caller should make sure that the dictionary for the ligand has been loaded - this
+//! function won't do that. It will add hydrogen atoms if needed.
+//!
+//! @param imol is the model molecule index
+//! @param residue_cid is the cid for the residue
+std::string
+molecules_container_t::get_svg_for_2d_ligand_environment_view(int imol, const std::string &residue_cid) {
+
+   std::string s;
+   if (is_valid_model_molecule(imol)) {
+      s = molecules[imol].get_svg_for_2d_ligand_environment_view(residue_cid, &geom);
+      std::cout << "in get_svg_for_2d_ligand_environment_view() s length " << s.length() << std::endl;
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return s;
+}
+

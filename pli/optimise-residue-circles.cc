@@ -35,13 +35,13 @@ pli::optimise_residue_circles::optimise_residue_circles(const std::vector<residu
    score_vs_other_residues_for_angles = false; //  problem. Fix later
    score_vs_ligand_atom_bond_length   = true;
 
-   score_vs_ligand_atoms_rk = 50000.0;
-   score_vs_ligand_atoms_exp_scale = 0.0002; // quite sensitive value - 0.0002 is big kick
-   score_vs_original_positions_kk = 500.0;
-   score_vs_ligand_atom_bond_length_kk = 1.001;
+   score_vs_ligand_atoms_rk = 200.0;
+   score_vs_ligand_atoms_exp_scale = 0.2; // quite sensitive value - 0.0002 is big kick
+   score_vs_original_positions_kk = 3.0;
+   score_vs_ligand_atom_bond_length_kk = 10.0;
 
-   score_vs_other_residues_kk = 2000.0;
-   score_vs_other_residues_exp_scale = 0.5;
+   score_vs_other_residues_kk = 80.0;
+   score_vs_other_residues_exp_scale = 0.25;
 
    bool debug_weights = true; // 20250106-PE for now
 

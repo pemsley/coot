@@ -936,8 +936,20 @@ namespace coot {
       coot::atom_overlaps_dots_container_t get_overlap_dots_for_ligand(const std::string &cid_ligand,
                                                                        protein_geometry *geom_p);
 
-      instanced_mesh_t get_HOLE(const clipper::Coord_orth &start_pos, const clipper::Coord_orth &end_pos,
-                                const coot::protein_geometry &geom_in) const;
+      instanced_mesh_t get_HOLE(const clipper::Coord_orth &start_pos,
+                                const clipper::Coord_orth &end_pos,
+                                const protein_geometry &geom) const;
+
+      //! Get SVG for 2d ligand environment view (FLEV)
+      //!
+      //! The caller should make sure that the dictionary for the ligand has been loaded - this
+      //! function won't do that. It will add hydrogen atoms if needed.
+      //! The can modify the protein_geometry
+      //!
+      //! @param residue_cid is the cid for the residue
+      std::string get_svg_for_2d_ligand_environment_view(const std::string &residue_cid,
+                                                         protein_geometry *geom) const;
+
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
       //! if the ligand cid specifies more than one residue, only the first is returned.

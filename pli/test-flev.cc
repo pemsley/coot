@@ -5,6 +5,15 @@
 
 int main(int argc, char **argv) {
 
+   auto write_string_to_file = [] (const std::string &s, const std::string &fn) {
+
+      std::cout << "write string to file! " << fn << std::endl;
+      std::ofstream f(fn);
+      f << s;
+      f << "\n";
+      f.close();
+   };
+
    int status = 0;
 
    coot::protein_geometry geom;
@@ -64,10 +73,11 @@ int main(int argc, char **argv) {
          atom_sel.mol->WritePDBASCII("test-flev-with-H.pdb");
       }
 
-      if (ligand_mol)
-         pli::fle_view_with_rdkit_internal(atom_sel.mol, imol, &geom,
-                                           chain_id, res_no, ins_code, radius, "svg", output_file_name);
-
+      if (ligand_mol) {
+         svg_container_t svgc = pli::fle_view_with_rdkit_internal(atom_sel.mol, imol, &geom,
+                                                                  chain_id, res_no, ins_code, radius);
+         write_string_to_file(svgc.compose(false), "output.html");
+      }
    }
    return status;
 }

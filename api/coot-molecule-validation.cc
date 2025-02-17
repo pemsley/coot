@@ -990,3 +990,32 @@ coot::molecule_t::get_HOLE(const clipper::Coord_orth &start_pos, const clipper::
    m.geom.push_back(ig);
    return m;
 }
+
+#include "pli/flev.hh"
+
+// Put this in coot-molecule-analysis one day
+//
+//! Get SVG for 2d ligand environment view (FLEV)
+//!
+//! The caller should make sure that the dictionary for the ligand has been loaded - this
+//! function won't do that. It will add hydrogen atoms if needed.
+//!
+//! @param residue_cid is the cid for the residue
+std::string
+coot::molecule_t::get_svg_for_2d_ligand_environment_view(const std::string &residue_cid,
+                                                         coot::protein_geometry *geom) const {
+
+   float radius = 4.8; // pass this, I think.
+
+   std::string s;
+   mmdb::Residue *residue_p = get_residue(residue_cid);
+   if (residue_p) {
+      std::string chain_id = residue_p->GetChainID();
+      int res_no = residue_p->GetSeqNum();
+      std::string ins_code = residue_p->GetInsCode();
+      svg_container_t svgc = pli::fle_view_with_rdkit_internal(atom_sel.mol, imol_no, geom,
+                                                               chain_id, res_no, ins_code, radius);
+      s = svgc.compose(true);
+   }
+   return s;
+}
