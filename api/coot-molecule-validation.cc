@@ -1005,7 +1005,7 @@ std::string
 coot::molecule_t::get_svg_for_2d_ligand_environment_view(const std::string &residue_cid,
                                                          coot::protein_geometry *geom) const {
 
-   float radius = 4.8; // pass this, I think.
+   float radius = 4.2; // pass this, I think.
 
    std::string s;
    mmdb::Residue *residue_p = get_residue(residue_cid);

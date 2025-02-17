@@ -832,6 +832,7 @@ molecules_container_t::get_HOLE(int imol,
 std::string
 molecules_container_t::get_svg_for_2d_ligand_environment_view(int imol, const std::string &residue_cid) {
 
+   float radius = 4.2; // pass this
    std::string s;
    if (is_valid_model_molecule(imol)) {
       s = molecules[imol].get_svg_for_2d_ligand_environment_view(residue_cid, &geom);

@@ -900,7 +900,7 @@ flev_t::draw_substitution_contour() {
             grid.avoid_ring_centres(ring_atoms_list, mol);
 
             // for debugging
-            if (false)
+            if (true)
                show_grid(grid);
 
             std::vector<lig_build::atom_ring_centre_info_t> unlimited_atoms;
