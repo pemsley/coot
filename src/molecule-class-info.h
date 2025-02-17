@@ -882,9 +882,8 @@ public:        //                      public
 	 pickable_atom_selection = 0;
    }
 
-   void set_map_is_displayed(int state) {
-      draw_it_for_map = state;
-   }
+   void set_map_is_displayed(int state); // 20250216-PE moved out of header, to handle
+                                         // expired map contours
 
    void set_map_is_displayed_as_standard_lines(short int state) {
       draw_it_for_map_standard_lines = state;
@@ -1414,6 +1413,8 @@ public:        //                      public
 
    void clear_draw_vecs();
    void clear_diff_map_draw_vecs();
+
+   bool map_contours_outdated;
 
    // void add_draw_vecs_to_set(const coot::CartesianPairInfo &cpi);
 

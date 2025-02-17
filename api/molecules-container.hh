@@ -506,6 +506,12 @@ public:
    //! @return the map weight
    float get_map_weight() const { return map_weight; }
 
+   //! Scale map
+   //!
+   //! @param imol is the model molecule index
+   //! @param scale_factor is the scale factor
+   void scale_map(int imol_map, float scale_factor);
+
    //! Convert atom cid string to a coot atom specifier
    //!
    //! @param imol is the model molecule index
@@ -2930,6 +2936,10 @@ public:
                       bool ignore_part_occ_contact_flag,
                       bool ignore_zero_occ_flag);
 
+   coot::instanced_mesh_t get_HOLE(int imol,
+                                   float start_pos_x, float start_pos_y, float start_pos_z,
+                                   float end_pos_x, float end_pos_y, float end_pos_z) const;
+
    // Calculate the MMRRCC for the residues in the chain
    // Multi Masked Residue Range Corellation Coefficient
 #ifdef SWIG
@@ -3221,6 +3231,20 @@ public:
    float fit_to_map_by_random_jiggle_with_blur_using_cid(int imol, int imol_map, const std::string &cid, float b_factor,
                                                          int n_trials, float translation_scale_factor);
 
+   //! This function is for adding compounds/molecules like buffer agents and precipitants or anions and cations.
+   //! e.g. those ligands that can be positioned without need for internal torsion angle manipulation.
+   //!
+   //! @param imol is the model molecule index
+   //! @param tlc is the 3-letter-code/compound-id
+   //! @param imol_dict is the molecule to which the ligand is attached (if any). Typically this will be IMOL_ENC_ANY (-999999).
+   //! @param imol_map is the map molecule index
+   //! @param x is the x position
+   //! @param y is the y position
+   //! @param z is the z position
+   //!
+   //! @return the success status, 1 for good, 0 for not good.
+
+   int add_compound(int imol, const std::string &tlc, int imol_dict, int imol_map, float x, float y, float z);
    // This is a ligand function, not really a ligand-fitting function.
    //!
    //! Get svg for residue type
@@ -3249,19 +3273,16 @@ public:
                                         bool use_rdkit_svg,
                                         const std::string &background_type);
 
-   //! This function is for adding compounds/molecules like buffer agents and precipitants or anions and cations.
-   //! e.g. those ligands that can be positioned without need for internal torsion angle manipulation.
+   //! Get SVG for 2d ligand environment view (FLEV)
+   //!
+   //! The caller should make sure that the dictionary for the ligand has been loaded - this
+   //! function won't do that. It will add hydrogen atoms if needed.
+   //!
+   //! Not const because get_monomer_restraints_at_least_minimal() is called. Hmm.
    //!
    //! @param imol is the model molecule index
-   //! @param tlc is the 3-letter-code/compound-id
-   //! @param imol_dict is the molecule to which the ligand is attached (if any). Typically this will be IMOL_ENC_ANY (-999999).
-   //! @param imol_map is the map molecule index
-   //! @param x is the x position
-   //! @param y is the y position
-   //! @param z is the z position
-   //!
-   //! @return the success status, 1 for good, 0 for not good.
-   int add_compound(int imol, const std::string &tlc, int imol_dict, int imol_map, float x, float y, float z);
+   //! @param residue_cid is the cid for the residue
+   std::string get_svg_for_2d_ligand_environment_view(int imol, const std::string &residue_cid);
 
    //! Get non-standard residues in a model
    //!

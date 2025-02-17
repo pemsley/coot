@@ -563,13 +563,12 @@ flev_t::write_svg(const std::string &file_name) const {
 
 
 
-void
+svg_container_t
 pli::fle_view_with_rdkit_internal(mmdb::Manager *mol,
                                   int imol,
                                   coot::protein_geometry *geom_p,
                                   const std::string &chain_id, int res_no, const std::string &ins_code,
-                                  float residues_near_radius,
-                                  const std::string &file_format, const std::string &output_image_file_name) {
+                                  float residues_near_radius) {
 
    auto write_string_to_file = [] (const std::string &s, const std::string &fn) {
 
@@ -580,11 +579,14 @@ pli::fle_view_with_rdkit_internal(mmdb::Manager *mol,
       f.close();
    };
 
+   std::string output_image_file_name = "something.svg";
+   svg_container_t svgc_outer;
+
    double scale_factor = 400.0;
    bool dark_background_flag = false; // pass this
 
    double weight_for_3d_distances = 0.4; // for 3d distances
-   std::string output_format = file_format;
+   std::string output_format = "svg"; // was file_format;
 
    bool wrap_in_refresh_html = true;
 
@@ -822,6 +824,7 @@ pli::fle_view_with_rdkit_internal(mmdb::Manager *mol,
          }
       }
    }
+   return svgc_outer;
 }
 
 svg_container_t
@@ -897,7 +900,8 @@ flev_t::draw_substitution_contour() {
             grid.avoid_ring_centres(ring_atoms_list, mol);
 
             // for debugging
-            show_grid(grid);
+            if (true)
+               show_grid(grid);
 
             std::vector<lig_build::atom_ring_centre_info_t> unlimited_atoms;
             for (unsigned int iat=0; iat<mol.atoms.size(); iat++) {
@@ -908,17 +912,12 @@ flev_t::draw_substitution_contour() {
                }
             }
 
-            if (false) {
-               std::vector<float> contour_levels = {0.1, 0.2, 0.3, 0.4, 0.5, 0.6, 0.7, 0.8, 0.9, 1.0,
-                                                    1.1, 1.2, 1.3, 1.4, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0,
-                                                    2.1, 2.2, 2.3, 2.4, 2.5, 2.6, 2.7, 2.8, 2.9, 3.0,
-                                                    3.1, 3.2, 3.3, 3.4, 3.5, 3.6, 3.7, 3.8, 3.9, 4.0,
-                                                    4.1, 4.2, 4.3, 4.4, 4.5, 4.6, 4.7, 4.8, 4.9, 5.0};
-               contour_levels = { 0.2, 0.4, 0.6, 0.8, 1.0,
-                                  1.2, 1.4, 1.6, 1.8, 2.0,
-                                  2.2, 2.4, 2.6, 2.8, 3.0,
-                                  3.2, 3.4, 3.6, 3.8, 4.0,
-                                  4.2, 4.4, 4.6, 4.8, 5.0 };
+            if (true) {
+               std::vector<float> contour_levels = { 0.2, 0.4, 0.6, 0.8, 1.0,
+                                                     1.2, 1.4, 1.6, 1.8, 2.0,
+                                                     2.2, 2.4, 2.6, 2.8, 3.0,
+                                                     3.2, 3.4, 3.6, 3.8, 4.0,
+                                                     4.2, 4.4, 4.6, 4.8, 5.0 };
 
                std::string col = "#bbbbbb";
                bool is_dashed = false;
@@ -1432,7 +1431,7 @@ flev_t::ligand_grid::add_for_accessibility(double bash_dist,
                                            double exp_fac,
                                            const lig_build::pos_t &atom_pos) {
 
-   bool debug = true;
+   bool debug = false;
    int feature_extent = 45;
 
    double inv_scale_factor = 1.0;
@@ -1563,7 +1562,7 @@ flev_t::ligand_grid::avoid_ring_centres(const std::vector<std::vector<std::strin
          double radius = 1/(2*sin(M_PI/double(n_atoms))) * 1.5; // in "A" or close
          // std::cout << "avoid_ring_centres() adding ring centre at " << centre
          // << " n_atoms: " << n_atoms << " radius " << radius << std::endl;
-         add_for_accessibility(radius, 0.07, centre);
+         add_for_accessibility(radius, 0.1, centre);
       }
       catch (const std::runtime_error &rte) {
          std::cout << "Opps - failed to find ring centre for ring atom name "
@@ -1821,9 +1820,9 @@ flev_t::ligand_grid::plot_contour_lines(const std::vector<std::vector<lig_build:
 						NULL);
    GooCanvasLineDash *dash = goo_canvas_line_dash_new (2, 1.5, 2.5);
 
-   for (unsigned int i=0; i<contour_lines.size(); i++) { 
+   for (unsigned int i=0; i<contour_lines.size(); i++) {
       for (int j=0; j<int(contour_lines[i].size()-1); j++) {
-	 
+
 	 goo_canvas_polyline_new_line(group,
 				      contour_lines[i][j].x,
 				      contour_lines[i][j].y,
@@ -1832,16 +1831,15 @@ flev_t::ligand_grid::plot_contour_lines(const std::vector<std::vector<lig_build:
 				      "line_width", 1.0,
 				      "line-dash", dash,
 				      NULL);
-	 
       }
    }
    goo_canvas_line_dash_unref(dash);
 #endif
-   
+
 }
 
 flev_t::contour_fragment::contour_fragment(int ms_type,
-                                           const float &contour_level, 
+                                           const float &contour_level,
                                            const grid_index_t &grid_index_prev,
                                            const grid_index_t &grid_index,
                                            const ligand_grid &grid) {
@@ -1854,7 +1852,7 @@ flev_t::contour_fragment::contour_fragment(int ms_type,
    float v10 = grid.get(grid_index.i()+1, grid_index.j());
    float v11 = grid.get(grid_index.i()+1, grid_index.j()+1);
 
-   float frac_x1 = -1; 
+   float frac_x1 = -1;
    float frac_y1 = -1;
    float frac_x2 = -1;  // for hideous valley
    float frac_y2 = -1;
@@ -1862,7 +1860,7 @@ flev_t::contour_fragment::contour_fragment(int ms_type,
    contour_fragment::coordinates c1(0.0, X_AXIS_LOW);
    contour_fragment::coordinates c2(Y_AXIS_LOW, 0.0);
    cp_t p(c1,c2);
-   
+
    switch (ms_type) {
 
    case ligand_grid::MS_UP_0_0:

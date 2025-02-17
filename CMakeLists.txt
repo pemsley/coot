@@ -86,7 +86,6 @@ add_library(cootapi SHARED
             ${coot_src}/lidia-core/cod-atom-type-t.cc
             ${coot_src}/lidia-core/rdkit-interface.cc
             ${coot_src}/lidia-core/bond-table-record-t.cc
-            ${coot_src}/pli/pi-stacking.cc
             ${coot_src}/src/coot-hydrogens.cc
             ${coot_src}/src/cfc.cc
             ${coot_src}/MoleculesToTriangles/CXXSurface/CXXBall.cpp
@@ -263,11 +262,18 @@ add_library(cootapi SHARED
             ${coot_src}/protein_db/protein_db.cpp
             ${coot_src}/protein_db/protein_db_utils.cpp
             ${coot_src}/protein_db/rna_db.cpp
-            ${coot_src}/pli/specs.cc
             ${coot_src}/pli/flev-annotations.cc
+            ${coot_src}/pli/flev.cc
+            ${coot_src}/pli/flev-annotations.cc
+            ${coot_src}/pli/flev-attached-hydrogens.cc
+            ${coot_src}/pli/optimise-residue-circles.cc
+            ${coot_src}/pli/residue-circles.cc
+            ${coot_src}/pli/dots-representation-info.cc
+            ${coot_src}/pli/pi-stacking.cc
             ${coot_src}/pli/protein-ligand-interactions.cc
             ${coot_src}/pli/pi-stacking.cc
             ${coot_src}/pli/sdf-interface.cc
+            ${coot_src}/pli/specs.cc
             ${coot_src}/coot-utils/coot-align.cc
             ${coot_src}/coot-utils/cmtz-interface.cc
             ${coot_src}/coot-utils/lidia-core-functions.cc

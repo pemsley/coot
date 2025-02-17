@@ -2656,23 +2656,28 @@ std::pair<int, std::string>
 coot::molecule_t::add_terminal_residue_directly(const residue_spec_t &spec, const std::string &new_res_type,
                                                 const coot::protein_geometry &geom,
                                                 const clipper::Xmap<float> &xmap,
+                                                mmdb::Manager *standard_residues_asc_mol, // for RNA
                                                 ctpl::thread_pool &static_thread_pool) {
 
    std::pair<int, std::string> r;
    mmdb::Residue *residue_p = util::get_residue(spec, atom_sel.mol);
    if (residue_p) {
-      std::string terminus_type = get_term_type(residue_p, atom_sel.mol);
-      float bf_new = default_temperature_factor_for_new_atoms;
-      make_backup("add_terminal_residue_directly");
-      r = add_terminal_residue(imol_no, terminus_type, residue_p,
-                               atom_sel.mol, atom_sel.UDDAtomIndexHandle,
-                               spec.chain_id, new_res_type,
-                               bf_new, xmap, geom, static_thread_pool);
-      atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
-      atom_sel.mol->FinishStructEdit();
-      util::pdbcleanup_serial_residue_numbers(atom_sel.mol);
-      atom_sel = make_asc(atom_sel.mol);
-      // save_info.new_modification("add-terminal-residue");
+      if (util::is_nucleotide_by_dict(residue_p, geom)) {
+         execute_simple_nucleotide_addition(residue_p, standard_residues_asc_mol);
+      } else {
+         std::string terminus_type = get_term_type(residue_p, atom_sel.mol);
+         float bf_new = default_temperature_factor_for_new_atoms;
+         make_backup("add_terminal_residue_directly");
+         r = add_terminal_residue(imol_no, terminus_type, residue_p,
+                                  atom_sel.mol, atom_sel.UDDAtomIndexHandle,
+                                  spec.chain_id, new_res_type,
+                                  bf_new, xmap, geom, static_thread_pool);
+         atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
+         atom_sel.mol->FinishStructEdit();
+         util::pdbcleanup_serial_residue_numbers(atom_sel.mol);
+         atom_sel = make_asc(atom_sel.mol);
+         // save_info.new_modification("add-terminal-residue");
+      }
    } else {
       std::cout << "WARNING:: in add_terminal_residue_directly() null residue_p " << std::endl;
    }

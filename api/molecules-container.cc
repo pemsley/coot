@@ -2565,11 +2565,16 @@ molecules_container_t::add_terminal_residue_directly(int imol, const std::string
    std::string message;
 
    if (is_valid_model_molecule(imol)) {
-      if (is_valid_map_molecule(imol_refinement_map)) {
+      coot::residue_spec_t spec(chain_id, res_no, ins_code);
+      mmdb::Residue *residue_p = molecules[imol].get_residue(spec);
+      bool is_RNA = coot::util::is_nucleotide_by_dict(residue_p, geom);
+      if (is_valid_map_molecule(imol_refinement_map) || is_RNA) {
          clipper::Xmap<float> &xmap = molecules[imol_refinement_map].xmap;
          coot::residue_spec_t residue_spec(chain_id, res_no, ins_code);
          std::pair<int, std::string> m = molecules[imol].add_terminal_residue_directly(residue_spec, new_res_type,
-                                                                                       geom, xmap, thread_pool);
+                                                                                       geom, xmap,
+                                                                                       standard_residues_asc.mol,
+                                                                                       thread_pool);
          status  = m.first;
          message = m.second;
          if (! message.empty())

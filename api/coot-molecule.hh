@@ -283,6 +283,9 @@ namespace coot {
       std::vector<density_contour_triangles_container_t> draw_diff_map_vector_sets;
       std::vector<std::pair<int, TRIANGLE> > map_triangle_centres; // with associated mid-points and indices
 
+      // insert coords - c.f function in molecule-class-info_t
+      void insert_coords_internal(const atom_selection_container_t &asc);
+
       // This function no longer does a backup or updates the save_info!
       // The calling function should do that.
       void replace_coords(const atom_selection_container_t &asc,
@@ -933,6 +936,21 @@ namespace coot {
       coot::atom_overlaps_dots_container_t get_overlap_dots_for_ligand(const std::string &cid_ligand,
                                                                        protein_geometry *geom_p);
 
+      instanced_mesh_t get_HOLE(const clipper::Coord_orth &start_pos,
+                                const clipper::Coord_orth &end_pos,
+                                const protein_geometry &geom) const;
+
+      //! Get SVG for 2d ligand environment view (FLEV)
+      //!
+      //! The caller should make sure that the dictionary for the ligand has been loaded - this
+      //! function won't do that. It will add hydrogen atoms if needed.
+      //! The can modify the protein_geometry
+      //!
+      //! @param residue_cid is the cid for the residue
+      std::string get_svg_for_2d_ligand_environment_view(const std::string &residue_cid,
+                                                         protein_geometry *geom) const;
+
+
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
       //! if the ligand cid specifies more than one residue, only the first is returned.
       //! @return nullptr on error or failure to specify a ligand.
@@ -972,7 +990,16 @@ namespace coot {
                                                                 const std::string &new_res_type,
                                                                 const protein_geometry &geom,
                                                                 const clipper::Xmap<float> &xmap,
+                                                                mmdb::Manager *standard_residues_asc_mol, // for RNA
                                                                 ctpl::thread_pool &static_thread_pool);
+
+      void execute_simple_nucleotide_addition(const std::string &term_type,
+                                              mmdb::Residue *res_p, const std::string &chain_id,
+                                              mmdb::Manager *standard_residues_asc_mol);
+      void execute_simple_nucleotide_addition(mmdb::Residue *residue_p,
+                                              mmdb::Manager *standard_residues_asc_mol);
+      void execute_simple_nucleotide_addition(const std::string &cid,
+                                              mmdb::Manager *standard_residues_asc_mol);
 
       int add_compound(const dictionary_residue_restraints_t &monomer_restraints, const Cartesian &position,
                        const clipper::Xmap<float> &xmap, float map_rmsd);
@@ -1279,6 +1306,8 @@ namespace coot {
                              double torsion_angle, protein_geometry &geom);
 
       // ----------------------- map functions
+
+      void scale_map(float scale_factor);
 
       bool is_EM_map() const;
 

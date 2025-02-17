@@ -279,7 +279,7 @@ class flev_t {
    std::vector<residue_circle_t> residue_circles;
    std::string make_circle(const lig_build::pos_t &pos, double radius, double stroke_width,
                            const std::string &fill_color, const std::string &stroke_color) const;
-   
+
    // a set of handles (returned from
    // additional_representation_by_attributes()) that correspond to
    // the residues in residue_circles.  If there are no additional
@@ -404,12 +404,11 @@ namespace pli {
 
    // the src directory already has a function of this name. So here we will put it in the pli namespace
 
-   void fle_view_with_rdkit_internal(mmdb::Manager *mol,
-                                     int imol, // for looking up ligands in the dictionary
-                                     coot::protein_geometry *geom_p,
-                                     const std::string &chain_id, int res_no, const std::string &ins_code,
-                                     float residues_near_radius,
-                                     const std::string &file_format, const std::string &output_image_file_name);
+   svg_container_t fle_view_with_rdkit_internal(mmdb::Manager *mol,
+                                                int imol, // for looking up ligands in the dictionary
+                                                coot::protein_geometry *geom_p,
+                                                const std::string &chain_id, int res_no, const std::string &ins_code,
+                                                float residues_near_radius);
 
    std::vector<fle_residues_helper_t>
    get_flev_residue_centres(mmdb::Residue *residue_ligand_3d,

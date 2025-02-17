@@ -6290,6 +6290,77 @@ int test_mutation_info(molecules_container_t &mc) {
    return status;
 }
 
+int test_scale_map(molecules_container_t &mc) {
+
+   auto close_float = [] (float a, float b) {
+      return fabsf(a - b) < 0.001;
+   };
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"),
+                              "FWT", "PHWT", "W", false, false);
+   if (mc.is_valid_map_molecule(imol_map)) {
+      float sf = 2.4;
+      float r_1 = mc.get_map_rmsd_approx(imol_map);
+      mc.scale_map(imol_map, sf);
+      float r_2 = mc.get_map_rmsd_approx(imol_map);
+      float f = r_2 / r_1;
+      if (close_float(f, sf))
+         status = 1;
+   }
+   return status;
+}
+
+int test_add_RNA_residue(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+   int imol = mc.read_coordinates(reference_data("5bjo-needs-E6.pdb"));
+   if (mc.is_valid_model_molecule(imol)) {
+      mc.add_terminal_residue_directly_using_cid(imol, "//E/5");
+      mmdb::Residue *residue_p = mc.get_residue_using_cid(imol, "//E/6");
+      if (residue_p) {
+         status = true;
+      }
+   } else {
+      std::cout << "failed to read 5bjo-needs-E6.pdb" << std::endl;
+   }
+   return status;
+}
+
+int test_HOLE(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+   int imol = mc.read_coordinates(reference_data("pdb2y5m.ent"));
+   // get restraints for 15P, DVA, FVA, DLE and, of course ETA.
+   int imol_enc = coot::protein_geometry::IMOL_ENC_ANY;
+   std::vector<std::string> new_types = {"15P", "DVA", "FVA", "DLE", "ETA"};
+   for (const auto &type : new_types) {
+      int imol_type = mc.get_monomer_from_dictionary(type, imol_enc, true);
+      if (! mc.is_valid_model_molecule(imol_type))
+         std::cout << "Failed to get_monomer_from_dictionary() for " << type << std::endl;
+   }
+   if (mc.is_valid_model_molecule(imol)) {
+      clipper::Coord_orth s(1.6, 14.9, -14.2);
+      clipper::Coord_orth e(8.4, -16.8, -17.0);
+      coot::instanced_mesh_t im = mc.get_HOLE(imol, s.x(), s.y(), s.z(), e.x(), e.y(), e.z());
+      if (! im.geom.empty()) {
+         const coot::instanced_geometry_t &ig = im.geom[0];
+         unsigned int n_spots = ig.instancing_data_A.size();
+         std::cout << "n_spots " << n_spots << std::endl;
+         if (n_spots > 1000) {
+            status = 1;
+         }
+      }
+   } else {
+      std::cout << "Failed to read pdb2y5m.ent" << std::endl;
+   }
+   return status;
+}
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -6614,6 +6685,9 @@ int main(int argc, char **argv) {
          status += run_test(test_set_occupancy, "set occupancy", mc);
          status += run_test(test_missing_residues, "missing residues", mc);
          status += run_test(test_mutation_info, "mutation info", mc);
+         status += run_test(test_scale_map, "scale_map", mc);
+         status += run_test(test_add_RNA_residue, "add RNA residue", mc);
+         status += run_test(test_HOLE, "HOLE", mc);
          if (status == n_tests) all_tests_status = 0;
 
          print_results_summary();
