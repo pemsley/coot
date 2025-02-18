@@ -2436,6 +2436,10 @@ void curmudgeon_mode();
 
 void halloween();
 
+void display_svg_from_file_in_a_dialog(const std::string &file_name);
+
+void display_svg_from_string_in_a_dialog(const std::string &string);
+
 //! return the section index (the middle section currently)
 int setup_tomo_slider(int imol);
 void tomo_section_view(int imol, int axis_id);

@@ -229,6 +229,7 @@ AM_CXXFLAGS = \
 	-DCOOT_SYS_BUILD_TYPE='"$(COOT_SYS_BUILD_TYPE)"' \
 	-DCOOT_BUILD_INFO_STRING='"$(COOT_BUILD_INFO_STRING)"' \
         $(OpenAL_CFLAGS)        \
+	$(RSVG_CFLAGS)		\
 	$(USE_LIBCURL)          \
 	$(WITH_GUILE_CFLAGS)	\
 	$(GUILE_CFLAGS)		\
@@ -895,6 +896,7 @@ libcootsumo_la_LIBADD = $(OPENMP_CFLAGS) \
 		$(gsl_LIBS) -lblas    \
 		$(MYSQL_LIBS)	      \
 		$(CURL_LIBS)	      \
+		$(RSVG_LIBS)	      \
 	  	$(RDKIT_LIBS)	      \
 		$(BOOST_LDFLAGS)      \
 		$(L_BOOST_PYTHON)     \

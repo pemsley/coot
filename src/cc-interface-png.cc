@@ -242,8 +242,114 @@ std::string text_png_as_string(PyObject *text_info_dict_py) {
    cairo_destroy(cr);
    cairo_surface_destroy(surface);
 
-	
    return r;
 }
 
 #endif // USE_PYTHON
+
+
+void display_svg_from_file_in_a_dialog(const std::string &file_name) {
+
+   auto file_to_string = [] (const std::string &file_name) {
+      std::string s;
+      std::string line;
+      std::ifstream f(file_name);
+      if (!f) {
+         std::cout << "Failed to open " << file_name << std::endl;
+      } else {
+         while (std::getline(f, line)) {
+            s += line;
+            s += "\n";
+         }
+      }
+      return s;
+   };
+
+   if (coot::file_exists(file_name)) {
+      std::string s = file_to_string(file_name);
+      display_svg_from_string_in_a_dialog(s);
+   }
+
+}
+
+
+//  ------------------------- svg (not png) ------------------------------
+
+#ifdef HAVE_RSVG
+#include <librsvg/rsvg.h>
+#endif
+
+void display_svg_from_string_in_a_dialog(const std::string &string) {
+
+   // the api function declaration exists
+
+#ifdef HAVE_RSVG
+   // Load the SVG file
+   GError *error = NULL;
+   RsvgHandle *handle = rsvg_handle_new_from_data((const unsigned char *)string.c_str(),
+                                                  string.length(), &error);
+
+   if (handle == NULL) {
+      g_printerr("Error loading SVG: %s\n", error->message);
+      g_error_free(error);
+      return;
+   } else {
+      GtkWidget *window = gtk_window_new();
+      gtk_window_set_title(GTK_WINDOW(window), "Coot: SVG Viewer");
+      // Create a drawing area
+      GtkWidget *drawing_area = gtk_drawing_area_new();
+      gtk_widget_set_hexpand(drawing_area, TRUE); // Allow expansion in x direction
+      gtk_widget_set_vexpand(drawing_area, TRUE); // Allow expansion in y direction
+      gtk_window_set_child(GTK_WINDOW(window), drawing_area);
+
+      // Connect the draw signal to our drawing function, passing the SVG handle
+
+      // void rsvg_handle_get_intrinsic_dimensions (RsvgHandle* handle,
+      //                                            gboolean* out_has_width,
+      //                                            RsvgLength* out_width,
+      //                                            gboolean* out_has_height,
+      //                                            RsvgLength* out_height,
+      //                                            gboolean* out_has_viewbox,
+      //                                            RsvgRectangle* out_viewbox)
+
+
+      auto draw_svg = +[] (GtkDrawingArea *da, cairo_t *cr, int w, int h, gpointer data) {
+
+         GError *error = NULL;
+         RsvgHandle *handle = static_cast<RsvgHandle *>(data);
+         GdkRectangle allocation;
+         gtk_widget_get_allocation(GTK_WIDGET(da), &allocation);
+         // Scale the SVG to fit the widget (optional, adjust as needed)
+         gboolean has_width, has_height, has_viewbox;
+         RsvgLength width, height;
+         RsvgRectangle viewbox;
+         rsvg_handle_get_intrinsic_dimensions(handle, &has_width, &width, &has_height, &height,
+                                              &has_viewbox, &viewbox);
+
+         if (has_width && has_height) {
+
+            double w_int = static_cast<double>(width.length);
+            double h_int = static_cast<double>(height.length);
+            std::cout << "intrinsic w unit " << width.unit << std::endl;
+            double scale_x = static_cast<double>(allocation.width) / w_int;
+            double scale_y = static_cast<double>(allocation.height) / h_int;
+            double scale = std::min(scale_x, scale_y);
+            std::cout << "intrinsic w and h " << w_int << " h_int " << h_int
+                      << " window w and h " << allocation.width << " " << allocation.height
+                      << std::endl;
+            scale = static_cast<double>(allocation.width) / 60.0;
+            cairo_scale(cr, scale, scale);
+            cairo_translate(cr, 18.0, 18.0);
+         }
+
+         // Render the SVG
+         rsvg_handle_render_document(handle, cr, &viewbox, &error);
+      };
+
+      gtk_drawing_area_set_draw_func(GTK_DRAWING_AREA(drawing_area), draw_svg, handle, NULL);
+      gtk_widget_set_visible(window, TRUE);
+   }
+#endif // HAVE_LIBRSVG
+}
+
+
