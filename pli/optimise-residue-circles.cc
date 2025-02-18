@@ -97,9 +97,10 @@ pli::optimise_residue_circles::optimise_residue_circles(const std::vector<residu
 
    for (unsigned int i=0; i<starting_circles.size(); i++) {
       const auto &c = starting_circles[i];
-      std::cout << "starting_circle " << i << ": " << c.residue_type << " " << c.residue_label
-                << " is at " << current_circles[i].pos.x << " " << current_circles[i].pos.y
-                << std::endl;
+      if (false)
+         std::cout << "starting_circle " << i << ": " << c.residue_type << " " << c.residue_label
+                   << " is at " << current_circles[i].pos.x << " " << current_circles[i].pos.y
+                   << std::endl;
       gsl_vector_set(x, 2*i,   current_circles[i].pos.x);
       gsl_vector_set(x, 2*i+1, current_circles[i].pos.y);
    }
