@@ -589,7 +589,7 @@ pli::fle_view_with_rdkit_internal(mmdb::Manager *mol,
    double weight_for_3d_distances = 0.4; // for 3d distances
    std::string output_format = "svg"; // was file_format;
 
-   bool wrap_in_refresh_html = true;
+   bool wrap_in_refresh_html = false;
 
    if (mol) {
       mmdb::Residue  *res_ref = coot::util::get_residue(chain_id, res_no, ins_code, mol);
@@ -700,12 +700,12 @@ pli::fle_view_with_rdkit_internal(mmdb::Manager *mol,
 
                   scale_factor = 1.0;
                   bool add_background = false;
-                  svg_container_t svgc = flev.mol.make_svg(scale_factor, dark_background_flag, add_background);
+                  svg_container_t svgc_mol = flev.mol.make_svg(scale_factor, dark_background_flag, add_background);
 
                   if (wrap_in_refresh_html) {
                      // 20250106-PE: hack the bounds for now
-                     svgc.set_bounds(-9, -7, 20, 20);
-                     std::string s = svgc.compose(true);
+                     svgc_mol.set_bounds(-9, -7, 20, 20);
+                     std::string s = svgc_mol.compose(true);
                      unsigned int refresh_delta = 1;
                      std::string html_top = "<!DOCTYPE html><html><head><meta http-equiv=\"refresh\" ";
                      html_top += "content=\"" + std::to_string(refresh_delta);
@@ -715,7 +715,7 @@ pli::fle_view_with_rdkit_internal(mmdb::Manager *mol,
                      s = ss;
                      write_string_to_file(ss, "flev-test-1.svg.html");
                   } else {
-                     write_string_to_file(svgc.compose(true), "flev-test-1.svg");
+                     write_string_to_file(svgc_mol.compose(true), "flev-test-1.svg");
                   }
 
                   mmdb::Residue *residue_flat = coot::make_residue(rdkm, mol_2d_depict_conformer, "XXX");
@@ -765,7 +765,7 @@ pli::fle_view_with_rdkit_internal(mmdb::Manager *mol,
 
                   std::vector<int> add_reps_vec;
 
-                  if (true) {
+                  if (false) {
                      for (unsigned int ic=0; ic<res_centres.size(); ic++) {
                         const auto &res_centre = res_centres[ic];
                         std::cout << "  fle_view_with_rdkit_internal(): res_centres: " << ic
@@ -790,13 +790,14 @@ pli::fle_view_with_rdkit_internal(mmdb::Manager *mol,
                   bool annotate_status = flev.annotate(s_a_v, res_centres, add_reps_vec, bonds_to_ligand,
                                                        sed, ah, pi_stack_info, p.second);
 
+                  svgc_outer.add(svgc_mol);
                   svg_container_t svgc_2 = flev.draw_all_flev_annotations();
-                  svgc.prepend(svgc_2);
+                  svgc_outer.prepend(svgc_2);
 
                   if (wrap_in_refresh_html) {
                      // 20250106-PE: hack the bounds for now
-                     svgc.set_bounds(-20, -20, 40, 40);
-                     std::string s = svgc.compose(true);
+                     svgc_outer.set_bounds(-20, -20, 40, 40);
+                     std::string s = svgc_outer.compose(true);
                      unsigned int refresh_delta = 1;
                      std::string html_top = "<!DOCTYPE html><html><head><meta http-equiv=\"refresh\" ";
                      html_top += "content=\"" + std::to_string(refresh_delta);
@@ -806,7 +807,7 @@ pli::fle_view_with_rdkit_internal(mmdb::Manager *mol,
                      s = ss;
                      write_string_to_file(ss, "flev-test-all-parts-svg.html");
                   } else {
-                     write_string_to_file(svgc.compose(true), "flev-test-all-parts.svg");
+                     write_string_to_file(svgc_outer.compose(true), "flev-test-all-parts.svg");
                   }
 
                   if (output_format == "png") flev.write_png(output_image_file_name);
@@ -825,6 +826,9 @@ pli::fle_view_with_rdkit_internal(mmdb::Manager *mol,
          }
       }
    }
+
+   // 20250106-PE: hack the bounds for now
+   svgc_outer.set_bounds(-20, -20, 40, 40);
    return svgc_outer;
 }
 
