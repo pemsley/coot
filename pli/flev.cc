@@ -390,7 +390,7 @@ flev_t::annotate(const std::vector<std::pair<coot::atom_spec_t, float> > &s_a_v,
    residue_circles.clear();
    for (unsigned int i=0; i<centres.size(); i++) {
 
-      if (true)
+      if (false)
          std::cout << "debug:: in flev_t::annotate() handling circle " << i << " of "
                    << centres.size() << std::endl;
 
@@ -412,9 +412,10 @@ flev_t::annotate(const std::vector<std::pair<coot::atom_spec_t, float> > &s_a_v,
       // lig_build::pos_t pos = mol.input_coords_to_canvas_coords(cp); // 20240601-PE
       lig_build::pos_t pos = input_coords_to_canvas_coords(cp);
       circle.set_canvas_pos(pos);
-      std::cout << "debug:: in flev_t::annotate() residue-circle "
-                << cp.x() << " " << cp.y() << " " << cp.z()
-                << " canvas coord " << pos.x << " " << pos.y << std::endl;
+      if (false)
+         std::cout << "debug:: in flev_t::annotate() residue-circle "
+                   << cp.x() << " " << cp.y() << " " << cp.z()
+                   << " canvas coord " << pos.x << " " << pos.y << std::endl;
 
       if (centres[i].residue_name == "HOH") {
          for (unsigned int ib=0; ib<bonds_to_ligand.size(); ib++) {
@@ -588,7 +589,7 @@ pli::fle_view_with_rdkit_internal(mmdb::Manager *mol,
    double weight_for_3d_distances = 0.4; // for 3d distances
    std::string output_format = "svg"; // was file_format;
 
-   bool wrap_in_refresh_html = true;
+   bool wrap_in_refresh_html = false;
 
    if (mol) {
       mmdb::Residue  *res_ref = coot::util::get_residue(chain_id, res_no, ins_code, mol);
@@ -699,12 +700,12 @@ pli::fle_view_with_rdkit_internal(mmdb::Manager *mol,
 
                   scale_factor = 1.0;
                   bool add_background = false;
-                  svg_container_t svgc = flev.mol.make_svg(scale_factor, dark_background_flag, add_background);
+                  svg_container_t svgc_mol = flev.mol.make_svg(scale_factor, dark_background_flag, add_background);
 
                   if (wrap_in_refresh_html) {
                      // 20250106-PE: hack the bounds for now
-                     svgc.set_bounds(-9, -7, 20, 20);
-                     std::string s = svgc.compose(true);
+                     svgc_mol.set_bounds(-9, -7, 20, 20);
+                     std::string s = svgc_mol.compose(true);
                      unsigned int refresh_delta = 1;
                      std::string html_top = "<!DOCTYPE html><html><head><meta http-equiv=\"refresh\" ";
                      html_top += "content=\"" + std::to_string(refresh_delta);
@@ -714,7 +715,7 @@ pli::fle_view_with_rdkit_internal(mmdb::Manager *mol,
                      s = ss;
                      write_string_to_file(ss, "flev-test-1.svg.html");
                   } else {
-                     write_string_to_file(svgc.compose(true), "flev-test-1.svg");
+                     write_string_to_file(svgc_mol.compose(true), "flev-test-1.svg");
                   }
 
                   mmdb::Residue *residue_flat = coot::make_residue(rdkm, mol_2d_depict_conformer, "XXX");
@@ -764,7 +765,7 @@ pli::fle_view_with_rdkit_internal(mmdb::Manager *mol,
 
                   std::vector<int> add_reps_vec;
 
-                  if (true) {
+                  if (false) {
                      for (unsigned int ic=0; ic<res_centres.size(); ic++) {
                         const auto &res_centre = res_centres[ic];
                         std::cout << "  fle_view_with_rdkit_internal(): res_centres: " << ic
@@ -789,13 +790,14 @@ pli::fle_view_with_rdkit_internal(mmdb::Manager *mol,
                   bool annotate_status = flev.annotate(s_a_v, res_centres, add_reps_vec, bonds_to_ligand,
                                                        sed, ah, pi_stack_info, p.second);
 
+                  svgc_outer.add(svgc_mol);
                   svg_container_t svgc_2 = flev.draw_all_flev_annotations();
-                  svgc.prepend(svgc_2);
+                  svgc_outer.prepend(svgc_2);
 
                   if (wrap_in_refresh_html) {
                      // 20250106-PE: hack the bounds for now
-                     svgc.set_bounds(-20, -20, 40, 40);
-                     std::string s = svgc.compose(true);
+                     svgc_outer.set_bounds(-20, -20, 40, 40);
+                     std::string s = svgc_outer.compose(true);
                      unsigned int refresh_delta = 1;
                      std::string html_top = "<!DOCTYPE html><html><head><meta http-equiv=\"refresh\" ";
                      html_top += "content=\"" + std::to_string(refresh_delta);
@@ -805,7 +807,7 @@ pli::fle_view_with_rdkit_internal(mmdb::Manager *mol,
                      s = ss;
                      write_string_to_file(ss, "flev-test-all-parts-svg.html");
                   } else {
-                     write_string_to_file(svgc.compose(true), "flev-test-all-parts.svg");
+                     write_string_to_file(svgc_outer.compose(true), "flev-test-all-parts.svg");
                   }
 
                   if (output_format == "png") flev.write_png(output_image_file_name);
@@ -824,6 +826,9 @@ pli::fle_view_with_rdkit_internal(mmdb::Manager *mol,
          }
       }
    }
+
+   // 20250106-PE: hack the bounds for now
+   svgc_outer.set_bounds(-20, -20, 40, 40);
    return svgc_outer;
 }
 
@@ -841,7 +846,7 @@ flev_t::draw_substitution_contour() {
 
    svg_container_t svgc;
 
-   bool debug = true;
+   bool debug = false;
 
    bool draw_flev_annotations_flag = true; // why wouldn't it be?
 
@@ -900,7 +905,7 @@ flev_t::draw_substitution_contour() {
             grid.avoid_ring_centres(ring_atoms_list, mol);
 
             // for debugging
-            if (true)
+            if (debug)
                show_grid(grid);
 
             std::vector<lig_build::atom_ring_centre_info_t> unlimited_atoms;
@@ -912,7 +917,7 @@ flev_t::draw_substitution_contour() {
                }
             }
 
-            if (true) {
+            if (false) {
                std::vector<float> contour_levels = { 0.2, 0.4, 0.6, 0.8, 1.0,
                                                      1.2, 1.4, 1.6, 1.8, 2.0,
                                                      2.2, 2.4, 2.6, 2.8, 3.0,
@@ -1019,9 +1024,10 @@ flev_t::draw_stacking_interactions(const std::vector<residue_circle_t> &rc) {
       int st = rc[ires].get_stacking_type();
       clipper::Coord_orth click_pos = rc[ires].residue_centre_real;
 
-      std::cout << ":::::::::::::::::: stacking: ires " << ires << " "
-                << rc[ires].has_ring_stacking_interaction()
-                << std::endl;
+      if (false)
+         std::cout << ":::::::::::::::::: stacking: ires " << ires << " "
+                   << rc[ires].has_ring_stacking_interaction()
+                   << std::endl;
 
       if (rc[ires].has_ring_stacking_interaction()) {
 
@@ -1138,8 +1144,9 @@ flev_t::draw_annotated_stacking_line(const lig_build::pos_t &ligand_ring_centre,
 
       if (do_ring) {
 
-         std::cout << "--------------------- in the do_ring block residue_pos " << residue_pos
-                   << " hex_and_ring_centre[ir] " << hex_and_ring_centre[ir] << std::endl;
+         if (false)
+            std::cout << "--------------------- in the do_ring block residue_pos " << residue_pos
+                      << " hex_and_ring_centre[ir] " << hex_and_ring_centre[ir] << std::endl;
 
          double angle_step = 60;
          double r = 0.4; // radius
@@ -1621,31 +1628,31 @@ flev_t::ligand_grid::show_contour(float contour_level,
 
    std::vector<std::pair<lig_build::pos_t, lig_build::pos_t> > line_fragments;
 
-   grid_index_t grid_index_prev(0,0);
-
-   for (int ix=0; ix<x_size(); ix+=1) {
-      for (int iy=0; iy<y_size(); iy+=1) {
+   for (int ix=0; ix<x_size()-1; ix+=1) {
+      for (int iy=0; iy<y_size()-1; iy+=1) {
          int ms_type = square_type(ix, iy, contour_level);
 
-         grid_index_t grid_index(ix,iy);
-
          if ((ms_type != MS_NO_CROSSING) && (ms_type != MS_NO_SQUARE)) {
-            contour_fragment cf(ms_type, contour_level,
-                                grid_index_prev,
-                                grid_index,
-                                *this); // sign of bad architecture
 
-            if (cf.coords.size() == 1) {
+            double v00 = get(ix,   iy);   // the values of the grid at these positions
+            double v01 = get(ix,   iy+1);
+            double v10 = get(ix+1, iy);
+            double v11 = get(ix+1, iy+1);
 
-               if (debug)
-                  std::cout << "plot_contour A "
-                            << cf.get_coords(ix, iy, 0).first << " "
-                            << cf.get_coords(ix, iy, 0).second << " to "
-                            << cf.get_coords(ix, iy, 1).first << " "
-                            << cf.get_coords(ix, iy, 1).second << "" << std::endl;
+            contour_fragment cf(ms_type, contour_level, v00, v01, v10, v11);
+
+            if (cf.coords_size() == 1) {
 
                std::pair<double, double> xy_1 = cf.get_coords(ix, iy, 0);
                std::pair<double, double> xy_2 = cf.get_coords(ix, iy, 1);
+
+               if (debug)
+                  std::cout << "plot_contour A "
+                            << xy_1.first  << " "
+                            << xy_1.second << " to "
+                            << xy_2.first  << " "
+                            << xy_2.second << "  " << ms_type << std::endl;
+
                lig_build::pos_t pos_1 = grid_pos_as_double_to_mol_space_pos(xy_1.first, xy_1.second);
                lig_build::pos_t pos_2 = grid_pos_as_double_to_mol_space_pos(xy_2.first, xy_2.second);
 
@@ -1840,22 +1847,21 @@ flev_t::ligand_grid::plot_contour_lines(const std::vector<std::vector<lig_build:
 
 flev_t::contour_fragment::contour_fragment(int ms_type,
                                            const float &contour_level,
-                                           const grid_index_t &grid_index_prev,
-                                           const grid_index_t &grid_index,
-                                           const ligand_grid &grid) {
+                                           double v00, double v01, double v10, double v11) {
 
    int ii_next = grid_index_t::INVALID_INDEX;
    int jj_next = grid_index_t::INVALID_INDEX;
 
-   float v00 = grid.get(grid_index.i(),   grid_index.j());
-   float v01 = grid.get(grid_index.i(),   grid_index.j()+1);
-   float v10 = grid.get(grid_index.i()+1, grid_index.j());
-   float v11 = grid.get(grid_index.i()+1, grid_index.j()+1);
+   // now done by caller
+   // float v00 = grid.get(grid_index.i(),   grid_index.j());
+   // float v01 = grid.get(grid_index.i(),   grid_index.j()+1);
+   // float v10 = grid.get(grid_index.i()+1, grid_index.j());
+   // float v11 = grid.get(grid_index.i()+1, grid_index.j()+1);
 
-   float frac_x1 = -1;
-   float frac_y1 = -1;
-   float frac_x2 = -1;  // for hideous valley
-   float frac_y2 = -1;
+   double frac_x1 = -1;
+   double frac_y1 = -1;
+   double frac_x2 = -1;  // for hideous valley
+   double frac_y2 = -1;
 
    contour_fragment::coordinates c1(0.0, X_AXIS_LOW);
    contour_fragment::coordinates c2(Y_AXIS_LOW, 0.0);
@@ -1887,10 +1893,9 @@ flev_t::contour_fragment::contour_fragment(int ms_type,
       coords.push_back(p);
       break;
 
-      
    case ligand_grid::MS_UP_1_0:
    case ligand_grid::MS_UP_0_0_and_0_1_and_1_1:
-      
+
       // std::cout << " ----- case MS_UP_1,0 " << std::endl;
       frac_x1 = (contour_level - v00)/(v10-v00);
       frac_y1 = (contour_level - v10)/(v11-v10);
@@ -1900,8 +1905,7 @@ flev_t::contour_fragment::contour_fragment(int ms_type,
       coords.push_back(p);
       break;
 
-      
-      
+
    case ligand_grid::MS_UP_1_1:
    case ligand_grid::MS_UP_0_0_and_0_1_and_1_0:
 
@@ -1916,7 +1920,7 @@ flev_t::contour_fragment::contour_fragment(int ms_type,
 
    case ligand_grid::MS_UP_0_0_and_0_1:
    case ligand_grid::MS_UP_1_0_and_1_1:
-      
+
       // std::cout << " ----- case MS_UP_0,0 and 0,1 " << std::endl;
       frac_x1 = (v00-contour_level)/(v00-v10);
       frac_x2 = (v01-contour_level)/(v01-v11);
@@ -1928,7 +1932,7 @@ flev_t::contour_fragment::contour_fragment(int ms_type,
 
    case ligand_grid::MS_UP_0_0_and_1_0:
    case ligand_grid::MS_UP_0_1_and_1_1:
-      
+
       // std::cout << " ----- case MS_UP_0,0 and 1,0 " << std::endl;
       frac_y1 = (v00-contour_level)/(v00-v01);
       frac_y2 = (v10-contour_level)/(v10-v11);
@@ -1937,24 +1941,55 @@ flev_t::contour_fragment::contour_fragment(int ms_type,
       p = cp_t(c1,c2);
       coords.push_back(p);
       break;
-      
 
    default:
       std::cout << "ERROR:: unhandled square type: " << ms_type << std::endl;
 
-   } 
+   }
 
 }
 
 
+std::pair<double, double>
+flev_t::contour_fragment::get_coords(int ii, int jj, int coord_indx) const {
+
+   coordinates c;
+
+   if (coord_indx == 0)
+      if (coords.size() == 0)
+         std::cout << "disaster A in get_coords()" << std::endl;
+
+   if (coord_indx == 1)
+      if (coords.size() == 0)
+         std::cout << "disaster B in get_coords()" << std::endl;
+
+   if (coord_indx == 0)
+      c = coords[0].first;
+   if (coord_indx == 1)
+      c = coords[0].second;
+
+   // these are for hideous value (two crossing vectors)
+   if (coord_indx == 2)
+      c = coords[1].first;
+   if (coord_indx == 3)
+      c = coords[1].second;
+
+   double iid = static_cast<double>(ii);
+   double jjd = static_cast<double>(jj);
+   // std::cout << "get_coords for coord_indx " << coord_indx << " parts " << iid << " " << jjd
+   //           << " fracs: " << c.get_frac_x() << " " << c.get_frac_y() << std::endl;
+   return std::pair<double, double> (iid+c.get_frac_x(), jjd+c.get_frac_y());
+}
+
+
 // for marching squares, ii and jj are the indices of the bottom left-hand side.
-int 
+int
 flev_t::ligand_grid::square_type(int ii, int jj, float contour_level) const {
 
    int square_type = ligand_grid::MS_NO_SQUARE;
    if ((ii+1) >= x_size_) {
       return ligand_grid::MS_NO_SQUARE;
-   } else { 
+   } else {
       if ((jj+1) >= y_size_) {
 	 return ligand_grid::MS_NO_SQUARE;
       } else {
@@ -1962,9 +1997,9 @@ flev_t::ligand_grid::square_type(int ii, int jj, float contour_level) const {
 	 float v01 = get(ii, jj+1);
 	 float v10 = get(ii+1, jj);
 	 float v11 = get(ii+1, jj+1);
-	 if (v00 > contour_level) { 
-	    if (v01 > contour_level) { 
-	       if (v10 > contour_level) { 
+	 if (v00 > contour_level) {
+	    if (v01 > contour_level) {
+	       if (v10 > contour_level) {
 		  if (v11 > contour_level) {
 		     return ligand_grid::MS_NO_CROSSING;
 		  }
@@ -2175,20 +2210,20 @@ flev_t::ligand_grid::fill(svg_molecule_t mol) {
             grid_[ipos_x][ipos_y] += val;
             if (iat == 1) {
                double d = sqrt(d2);
-               // std::cout << "debug-grid: " << ipos_x << " " << ipos_y << " " << d << std::endl;
-               std::cout << "debug-grid: ipos_x " << ipos_x << " ipos_y " << ipos_y
-                         << " atom_pos.x " << atom_pos.x << " atom_pos.y " << atom_pos.y
-                         << " msgp.x " << mol_space_pos_for_grid_point.x << " "
-                         << " msgp.y " << mol_space_pos_for_grid_point.y << " "
-                         << " delta.x " << delta.x << " "
-                         << " delta.y " << delta.y << " "
-                         << " d " << d << std::endl;
+               if (false)
+                  std::cout << "debug-grid: ipos_x " << ipos_x << " ipos_y " << ipos_y
+                            << " atom_pos.x " << atom_pos.x << " atom_pos.y " << atom_pos.y
+                            << " msgp.x " << mol_space_pos_for_grid_point.x << " "
+                            << " msgp.y " << mol_space_pos_for_grid_point.y << " "
+                            << " delta.x " << delta.x << " "
+                            << " delta.y " << delta.y << " "
+                            << " d " << d << std::endl;
             }
          }
       }
    }
 
-   if (true)
+   if (false)
       print_grid(grid_, "A");
 
    std::vector<lig_build::pos_t> mol_ring_centres = mol.get_ring_centres();
@@ -2205,8 +2240,7 @@ flev_t::ligand_grid::fill(svg_molecule_t mol) {
       }
    }
 
-   if (true)
-      print_grid(grid_, "B");
+   // print_grid(grid_, "B");
 
    //  normalize(); // scaled peak value to 1.
 }
@@ -2323,8 +2357,9 @@ flev_t::draw_residue_circles(const std::vector<residue_circle_t> &l_residue_circ
 
    svg_container_t svgc;
 
-   std::cout << "debug:: Here we are in draw_residue_circles() "
-             << l_residue_circles.size() << " " << add_rep_handles.size() << std::endl;
+   if (false)
+      std::cout << "debug:: Here we are in draw_residue_circles() "
+                << l_residue_circles.size() << " " << add_rep_handles.size() << std::endl;
 
    double max_dist_water_to_ligand_atom  = 3.3; // don't draw waters that are far from ligand
    double max_dist_water_to_protein_atom = 3.3; // don't draw waters that are not somehow
@@ -2514,17 +2549,18 @@ flev_t::draw_solvent_exposure_circle(const residue_circle_t &residue_circle,
 
 	    std::string fill_colour = get_residue_solvent_exposure_fill_colour(radius_extra);
 	    double r = standard_residue_circle_radius + radius_extra;
-            std::cout << "in draw_solvent_exposure_circle() to_lig_centre_uv " << to_lig_centre_uv << " "
-                      << "se_circle_centre " << se_circle_centre << " fill_colour " << fill_colour << " "
-                      << "radius_extra " << radius_extra << " "
-                      << "r " << r << std::endl;
+            if (false)
+               std::cout << "in draw_solvent_exposure_circle() to_lig_centre_uv " << to_lig_centre_uv << " "
+                         << "se_circle_centre " << se_circle_centre << " fill_colour " << fill_colour << " "
+                         << "radius_extra " << radius_extra << " "
+                         << "r " << r << std::endl;
             double line_width = 0.0;
-            double vv0 = 0.5;
             svgc.add("<!-- Exposure Circle -->\n");
             lig_build::pos_t pos = se_circle_centre;
             pos.y = -pos.y; // to match the top layer
             pos += lig_build::pos_t(0.0002, 0.0002);
-            std::cout << "   pos " << pos << " se_circle_centre " << se_circle_centre << std::endl;
+            if (false)
+               std::cout << "   pos " << pos << " se_circle_centre " << se_circle_centre << std::endl;
             std::string c = make_circle(pos, r, line_width, fill_colour, "black");
             svgc.add(c);
 	 }
@@ -2691,22 +2727,21 @@ flev_t::initial_primary_residue_circles_layout(const ligand_grid &grid,
                                                int primary_index,
                                                const std::vector<std::pair<lig_build::pos_t, double> > &attachment_points) {
 
-   if (true)
+   if (false)
       std::cout << "DEBUG:: starting initial_primary_residue_circles_layout() primary_index " << primary_index
                 << " " << residue_circles[primary_index].residue_label << " "
                 << residue_circles[primary_index].residue_type
                 << " has position " << residue_circles[primary_index].pos
                 << std::endl;
 
-   if (true)
+   if (false)
       std::cout << "DEBUG:: initial_primary_residue_circles_layout() =========== adding quadratic for residue "
                 << residue_circles[primary_index].residue_label
                 << " ============================"
                 << std::endl;
 
-   if (true) {
+   if (false)
       grid.print(primary_index);
-   }
 
    ligand_grid primary_grid = grid;
 

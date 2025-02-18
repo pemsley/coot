@@ -47,10 +47,10 @@ flev_t::get_primary_indices() const {
 void
 flev_t::initial_residues_circles_layout() {
 
-   std::cout << "HHHHHHHHHHHHHere A with residue_circles.size() " << residue_circles.size() << std::endl;
+   if (false) {
+      std::cout << "------------------- flev_t::initial_residues_circles_layout() residue circles ------------"
+                << std::endl;
 
-   if (true) {
-      std::cout << "------------------- flev_t::initial_residues_circles_layout() residue circles ------------" << std::endl;
       for (unsigned int i=0; i<residue_circles.size(); i++) {
          const auto &rc = residue_circles[i];
          std::cout << "   " << std::setw(2) << i << " : "

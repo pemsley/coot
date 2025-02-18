@@ -185,26 +185,24 @@ class flev_t {
 
    };
 
-   // The lines constituting the fragment and the indices of the next
-   // square for the contour line that we are chasing (the indices are
-   // not necessarility valid).
+   // The lines constituting the fragment
    //
    class contour_fragment {
 
    public:
       enum { X_AXIS_LOW, X_AXIS_HIGH, Y_AXIS_LOW, Y_AXIS_HIGH };
       class coordinates {
-         float frac_x;
-         float frac_y;
+         double frac_x;
+         double frac_y;
          int i_ax;
          bool x_y_axis;
 
       public:
          coordinates() { frac_x = 0; frac_y = 0; i_ax = 0; x_y_axis = true; }
-         coordinates(float f, int i) {
+         coordinates(double f, int i) {
             x_y_axis = true;
-            if (f>1.0)
 #ifdef HAVE_IOSTREAM_HEADER
+            if (f>1.0)
                std::cout << "-----> Bad frac " << f << std::endl;
             if (f<0.0)
                std::cout << "-----> Bad frac " << f << std::endl;
@@ -222,7 +220,7 @@ class flev_t {
                             << f << "  i: " << i << std::endl;
 #endif
          }
-         coordinates(int i, float f) {
+         coordinates(int i, double f) {
             x_y_axis = true;
 #ifdef HAVE_IOSTREAM_HEADER
             if (f>1.0)
@@ -243,36 +241,27 @@ class flev_t {
                             << i << "  f: " << f << std::endl;
 #endif
          }
-         float get_frac_x() { return frac_x; }
-         float get_frac_y() { return frac_y; }
+         double get_frac_x() { return frac_x; }
+         double get_frac_y() { return frac_y; }
       };
+
+      typedef std::pair<coordinates, coordinates> cp_t;
+
+   private:
+
+      std::vector<cp_t> coords;
+
+   public:
 
       grid_index_t grid_index_next;
       lig_build::pos_t start_point; // on either the x or y axis
       lig_build::pos_t end_point;
       contour_fragment(int ms_type,
                        const float &contour_level,
-                       const grid_index_t &grid_index_prev,
-                       const grid_index_t &grid_index,
-                       const ligand_grid &grid);
+                       double v00, double v01, double v10, double v11);
 
-      typedef std::pair<coordinates, coordinates> cp_t;
-      std::vector<cp_t> coords;
-      std::pair<double, double> get_coords(int ii, int jj, int coord_indx) {
-         coordinates c;
-         if (coord_indx == 0)
-            c = coords[0].first;
-         if (coord_indx == 1)
-            c = coords[0].second;
-
-         // these are for hideous value (two crossing vectors)
-         if (coord_indx == 2)
-            c = coords[1].first;
-         if (coord_indx == 3)
-            c = coords[1].second;
-
-         return std::pair<double, double> (ii+c.get_frac_x(), jj+c.get_frac_y());
-      }
+      std::pair<double, double> get_coords(int ii, int jj, int coord_indx) const;
+      unsigned int coords_size() const { return coords.size(); }
 
    };
 
