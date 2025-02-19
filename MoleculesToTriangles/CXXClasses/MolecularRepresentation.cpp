@@ -449,6 +449,7 @@ int MolecularRepresentation::drawStickBases() {
    };
 
    mmdb::Manager *mmdb = myMolecule->getMmdb();
+   selHnd = selection->handleInMMDB(mmdb);
    shared_ptr<CylindersPrimitive>cylinder(new CylindersPrimitive());
    cylinder->setAngularSampling(intParameters["cylindersStyleAngularSampling"]);
    float cylinderRadius = floatParameters[std::string("cylindersStyleCylinderRadius")];
@@ -494,11 +495,13 @@ int MolecularRepresentation::drawStickBases() {
                                     atom_2 = at;
                            }
                            if (atom_1 && atom_2) {
-                              FCXXCoord atom1Color = colorScheme->colorForAtom(atom_1, handles);
-                              FCXXCoord atom2Color = colorScheme->colorForAtom(atom_2, handles);
-                              cylinder->addHalfAtomBond(atom_1, atom1Color, atom_2, atom2Color, cylinderRadius);
-                              FCXXCoord atom1Coord(atom_2->x,atom_2->y, atom_2->z);
-                              balls->addBall(atom1Coord, atom1Color, ballRadius);
+                               if(atom_1->isInSelection(selHnd)&&atom_2->isInSelection(selHnd)) {
+                                   FCXXCoord atom1Color = colorScheme->colorForAtom(atom_1, handles);
+                                   FCXXCoord atom2Color = colorScheme->colorForAtom(atom_2, handles);
+                                   cylinder->addHalfAtomBond(atom_1, atom1Color, atom_2, atom2Color, cylinderRadius);
+                                   FCXXCoord atom1Coord(atom_2->x,atom_2->y, atom_2->z);
+                                   balls->addBall(atom1Coord, atom1Color, ballRadius);
+                              }
                            }
                         }
                      }
@@ -509,6 +512,7 @@ int MolecularRepresentation::drawStickBases() {
       }
    }
 
+   mmdb->DeleteSelection(selHnd);
    displayPrimitives.push_back(cylinder);
    displayPrimitives.push_back(balls);
    colorScheme->freeSelectionHandles(mmdb, handles);
