@@ -481,6 +481,18 @@ else
    AC_SUBST(SOUND_FLAGS, -DWITH_SOUND)
 fi
 
+
+PKG_CHECK_MODULES([RSVG], [librsvg-2.0 >= 2.40], [
+                            AC_DEFINE(HAVE_RSVG, 1, [Define if librsvg is available])
+], [
+])
+
+# Add the compiler and linker flags from pkg-config
+AC_SUBST(RSVG_CFLAGS)
+AC_SUBST(RSVG_LIBS)
+
+
+
 AM_WITH_MYSQL_DATABASE
 
 COOT_CURL

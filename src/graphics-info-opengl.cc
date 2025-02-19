@@ -79,6 +79,7 @@ std::vector<std::reference_wrapper<Shader> > get_shader_refs() {
       rs.push_back(graphics_info_t::shader_for_meshes_shadow_map);
       rs.push_back(graphics_info_t::shader_for_instanced_meshes_shadow_map);
       rs.push_back(graphics_info_t::shader_for_meshes_for_ssao);
+      rs.push_back(graphics_info_t::shader_for_instanced_meshes_for_ssao);
       rs.push_back(graphics_info_t::shader_for_instanced_meshes_with_shadows);
       rs.push_back(graphics_info_t::shader_for_tmeshes_for_ssao);
       rs.push_back(graphics_info_t::shader_for_tmeshes_with_shadows);

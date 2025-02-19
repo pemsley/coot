@@ -7,8 +7,8 @@
 ;; "USE_MOLECULES_TO_TRIANGLES=1"
 ;; "HAVE_GOOCANVAS=1"
 ;;
-(setq flycheck-gcc-definitions   (list "HAVE_CXX_THREAD=1" "HAVE_GSL=1" "VERSION=\"0.9.9-pre\"" "PACKAGE=Coot" "PACKAGE_VERSION=1.1.11+" "HAVE_BOOST=1" "PKGDATADIR=11111" "USE_PYTHON=1" "PYTHONDIR=/asdf" "PKGPYTHONDIR=asdf" "USE_LIBCURL=1" "BUILD_CURLEW=1" "COOT_BUILD_INFO_STRING=x" "_OPENMP=1" "MAKE_ENHANCED_LIGAND_TOOLS=1" "WITH_SOUND=1" "USE_GEMMI=1"))
-(setq flycheck-clang-definitions (list "HAVE_CXX_THREAD=1" "HAVE_GSL=1" "VERSION=\"0.9.9-pre\"" "PACKAGE=Coot" "PACKAGE_VERSION=1.1.11+" "HAVE_BOOST=1" "PKGDATADIR=11111" "USE_PYTHON=1" "PYTHONDIR=/asdf" "PKGPYTHONDIR=asdf" "USE_LIBCURL=1" "BUILD_CURLEW=1" "COOT_BUILD_INFO_STRING=x" "_OPENMP=1" "MAKE_ENHANCED_LIGAND_TOOLS=1" "WITH_SOUND=1" "USE_GEMMI=1"))
+(setq flycheck-gcc-definitions   (list "HAVE_CXX_THREAD=1" "HAVE_GSL=1" "VERSION=\"0.9.9-pre\"" "PACKAGE=Coot" "PACKAGE_VERSION=1.1.11+" "HAVE_BOOST=1" "PKGDATADIR=11111" "USE_PYTHON=1" "PYTHONDIR=/asdf" "PKGPYTHONDIR=asdf" "USE_LIBCURL=1" "BUILD_CURLEW=1" "COOT_BUILD_INFO_STRING=x" "_OPENMP=1" "MAKE_ENHANCED_LIGAND_TOOLS=1" "WITH_SOUND=1" "USE_GEMMI=1" "HAVE_RSVG=1"))
+(setq flycheck-clang-definitions (list "HAVE_CXX_THREAD=1" "HAVE_GSL=1" "VERSION=\"0.9.9-pre\"" "PACKAGE=Coot" "PACKAGE_VERSION=1.1.11+" "HAVE_BOOST=1" "PKGDATADIR=11111" "USE_PYTHON=1" "PYTHONDIR=/asdf" "PKGPYTHONDIR=asdf" "USE_LIBCURL=1" "BUILD_CURLEW=1" "COOT_BUILD_INFO_STRING=x" "_OPENMP=1" "MAKE_ENHANCED_LIGAND_TOOLS=1" "WITH_SOUND=1" "USE_GEMMI=1" "HAVE_RSVG=1"))
 
 ;; this is configured now, we don't need it on the command line
 ;;  "HAVE_BOOST_BASED_THREAD_POOL_LIBRARY=1"
@@ -47,6 +47,7 @@
    "/home/paule/gtk/lib/x86_64-linux-gnu/graphene-1.0/include" ;; for graphene-config.h
    "/usr/include/libpng16" "/usr/include/gdk-pixbuf-2.0"
    "/usr/include/libdrm"
+   "/usr/include/librsvg-2.0"
    "/usr/include/harfbuzz" "/usr/include/freetype2"
    "/usr/lib/glib-2.0/include" "/usr/include/glib-2.0"
    "/usr/include/libpng16" "/usr/include/pixman-1"

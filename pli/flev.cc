@@ -1063,9 +1063,9 @@ flev_t::draw_stacking_interactions(const std::vector<residue_circle_t> &rc) {
 // (line) is clicked.
 svg_container_t
 flev_t::draw_annotated_stacking_line(const lig_build::pos_t &ligand_ring_centre,
-                                         const lig_build::pos_t &residue_pos,
-                                         int stacking_type,
-                                         const clipper::Coord_orth &click_pos) {
+                                     const lig_build::pos_t &residue_pos,
+                                     int stacking_type,
+                                     const clipper::Coord_orth &click_pos) {
 
    auto do_polygon = [] (const std::vector<std::pair<double, double> > &hex_points) {
       std::string s = "   <polygon points=\"";
@@ -1103,8 +1103,6 @@ flev_t::draw_annotated_stacking_line(const lig_build::pos_t &ligand_ring_centre,
    lig_build::pos_t close_mid_pt_1 = mid_pt - a_to_b_uv * 0.92;
    lig_build::pos_t close_mid_pt_2 = mid_pt + a_to_b_uv * 0.92;
 
-   bool start_arrow = false;
-   bool end_arrow = true;
    std::string stroke_colour = "#008000";
 
    std::vector<lig_build::pos_t> hex_and_ring_centre(2);
@@ -1125,20 +1123,20 @@ flev_t::draw_annotated_stacking_line(const lig_build::pos_t &ligand_ring_centre,
       }
       if (stacking_type == residue_circle_t::PI_CATION_STACKING) {
          if (ir == 0) {
-            do_ring = 0;
-            do_anion = 1;
+            do_ring = false;
+            do_anion = true;
          } else {
-            do_ring = 1;
-            do_anion = 0;
+            do_ring = true;
+            do_anion = false;
          }
       }
       if (stacking_type == residue_circle_t::CATION_PI_STACKING) {
          if (ir == 0) {
-            do_ring = 1;
-            do_anion = 0;
+            do_ring = true;
+            do_anion = false;
          } else {
-            do_ring = 0;
-            do_anion = 1;
+            do_ring = false;
+            do_anion = true;
          }
       }
 
@@ -1169,19 +1167,24 @@ flev_t::draw_annotated_stacking_line(const lig_build::pos_t &ligand_ring_centre,
       }
 
       if (do_anion) {
-         // the "+" symbol for the anion
-         //
-         // GooCanvasItem *text_1 = goo_canvas_text_new(group,
-         //                                             "+",
-         //                                             hex_and_ring_centre[ir].x,
-         //                                             hex_and_ring_centre[ir].y,
-         //                                             -1,
-         //                                             GOO_CANVAS_ANCHOR_CENTER,
-         //                                             "font", "Sans 12",
-         //                                             "fill_color", stroke_colour.c_str(),
-         //                                             NULL);
-         clipper::Coord_orth *pos_p = new clipper::Coord_orth(click_pos);
-         // g_object_set_data_full(G_OBJECT(text_1), "position", pos_p, g_free);
+         // the "+" symbol for the anion.
+         // note that the anchor "middle" applies to x, not y
+         std::string t("   <text ");
+         t += std::string("fill=\"");
+         t += stroke_colour;
+         t += std::string("\"");
+         t += std::string(" x=\"");
+         t += std::to_string(hex_and_ring_centre[ir].x);
+         t += std::string("\"");
+         t += std::string(" y=\"");
+         t += std::to_string(-hex_and_ring_centre[ir].y+0.16);
+         t += std::string("\"");
+         t += std::string(" text-anchor=\"middle\"");
+         t += std::string(" font-family=\"Helvetica, sans-serif\" font-size=\"0.06em\">");
+         t += std::string("+");
+         t += std::string("</text>\n");
+
+         svgc.add(t);
       }
    }
 
