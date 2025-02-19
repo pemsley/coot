@@ -455,6 +455,11 @@ int MyMolecule::identifyDishyBases(std::map<mmdb::Chain *, DishyBaseContainer_t>
                             residue_p->GetAtomTable(residue_atoms, nAtoms);
                             std::string res_name = residue_p->GetResName();
                             
+                            if(nAtoms>0){
+                               if(!residue_atoms[0]->isInSelection(selHnd)) {
+                                   continue;
+                               }
+                            }
                             // setup the alt confs for this residue
                             //
                             std::set<std::string> residue_alt_confs_set;
