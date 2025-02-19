@@ -277,6 +277,7 @@ molecule_class_info_t::setup_internal() { // init
    shader_shininess = 6.0;
    shader_specular_strength = 0.5;
 
+   map_contours_outdated = false;
    map_mesh_first_time = true;
    model_mesh_first_time = true;
 

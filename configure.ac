@@ -26,7 +26,7 @@ dnl
 dnl Process this file with autoconf to produce a configure script.
 
 
-AC_INIT([coot],[1.1.x-pre])
+AC_INIT([coot],[1.1.12])
 AC_CONFIG_SRCDIR(src/main.cc)
 AM_INIT_AUTOMAKE
 
@@ -480,6 +480,18 @@ else
    # Use Core Audio on macOS. Consider PortAudio instead of using alsa directly.
    AC_SUBST(SOUND_FLAGS, -DWITH_SOUND)
 fi
+
+
+PKG_CHECK_MODULES([RSVG], [librsvg-2.0 >= 2.40], [
+                            AC_DEFINE(HAVE_RSVG, 1, [Define if librsvg is available])
+], [
+])
+
+# Add the compiler and linker flags from pkg-config
+AC_SUBST(RSVG_CFLAGS)
+AC_SUBST(RSVG_LIBS)
+
+
 
 AM_WITH_MYSQL_DATABASE
 

@@ -78,21 +78,31 @@ class flev_t {
    class ligand_grid {
       double scale_fac;
       double LIGAND_TO_CANVAS_SCALE_FACTOR;
-      lig_build::pos_t top_left;
-      lig_build::pos_t bottom_right;
+      double ligand_atoms_min_x;
+      double ligand_atoms_min_y;
+      double ligand_atoms_max_x;
+      double ligand_atoms_max_y;
+      double extra_extents; // added to both front and end, top and bottom.
+      double n_grid_per_angstrom;
+      // useful for coordinate transformation
+      double mol_space_grid_min_x;
+      double mol_space_grid_min_y;
       std::vector<std::vector<double> > grid_;
       int x_size_;
       int y_size_;
       void normalize(); // scale peak value to 1.0
-      std::pair<int, int> canvas_pos_to_grid_pos(const lig_build::pos_t &atom_pos) const;
       int square_type(int ii, int jj, float contour_level) const;
       std::vector<std::vector<lig_build::pos_t> > make_contour_lines(const std::vector<std::pair<lig_build::pos_t, lig_build::pos_t> > &line_fragments) const;
       double substitution_value(double r_squared, double bash_dist) const;
       // can throw a std::runtime_error (if result is out of grid)
       grid_index_t grid_pos_nearest(const lig_build::pos_t &pos) const;
 
+      std::pair<int, int> mol_space_pos_to_grid_pos(const lig_build::pos_t &pos) const;
+      lig_build::pos_t grid_pos_to_mol_space_pos(int ix, int iy) const;
+      lig_build::pos_t grid_pos_as_double_to_mol_space_pos(double x, double y) const;
+
+
    public:
-      // (low means low numbers, not low on the canvas)
       //
       ligand_grid(const lig_build::pos_t &low_x_and_y,
                   const lig_build::pos_t &high_x_and_y);
@@ -118,9 +128,6 @@ class flev_t {
              MS_UP_0_1_and_1_0_and_1_1,
              };
 
-      // lig_build::pos_t to_canvas_pos(const int &ii, const int &jj) const;
-      lig_build::pos_t to_canvas_pos(const double &ix, const double &iy) const;
-
       // Actually, not exactly zero but something small.
       // Don't return a grid-point/position that matches anything in
       // already_positioned.
@@ -132,6 +139,8 @@ class flev_t {
       // the return value inside mol.
       //
       void fill(svg_molecule_t mol);
+
+      void print(int primary_index) const;
 
       double get(int i, int j) const {
          return grid_[i][j];
@@ -148,7 +157,9 @@ class flev_t {
       void avoid_ring_centres(const std::vector<std::vector<std::string> > &ring_atoms_list,
                               const lig_build::molecule_t<svg_atom_t, svg_bond_t> &mol);
 
-      void add_for_accessibility(double bash_dist, const lig_build::pos_t &atom_pos);
+      void add_for_accessibility(double bash_dist,
+                                 double exp_fac, // 0.03 say
+                                 const lig_build::pos_t &atom_pos);
 
       // fudge in a smoothly varing function (so that the contouring
       // behaves smoothly, rather that the jaggies that we'd get if we
@@ -159,35 +170,39 @@ class flev_t {
       // REPLACE-ME-WITH-SVG
       void show_contour(float contour_level);
 
+      svg_container_t show_contour(float contour_level,
+                                   bool is_dashed,
+                                   const std::string &col,
+                                   const std::vector<lig_build::atom_ring_centre_info_t> &unlimited_atoms,
+                                   const std::vector<std::vector<std::string> > &ring_atoms_list);
+
       // the "cutting" of the contour behaves differently if the
       // unlimited atom is a member of a ring (compared to if it is
       // not).
-      void show_contour(float contour_level,
-                        const std::vector<lig_build::atom_ring_centre_info_t> &unlimited_atoms,
-                        const std::vector<std::vector<std::string> > &ring_atoms_list);
+      // void show_contour_old(float contour_level,
+      //                           const std::vector<lig_build::atom_ring_centre_info_t> &unlimited_atoms,
+      //                           const std::vector<std::vector<std::string> > &ring_atoms_list);
 
    };
 
-   // The lines constituting the fragment and the indices of the next
-   // square for the contour line that we are chasing (the indices are
-   // not necessarility valid).
+   // The lines constituting the fragment
    //
    class contour_fragment {
 
    public:
       enum { X_AXIS_LOW, X_AXIS_HIGH, Y_AXIS_LOW, Y_AXIS_HIGH };
       class coordinates {
-         float frac_x;
-         float frac_y;
+         double frac_x;
+         double frac_y;
          int i_ax;
          bool x_y_axis;
 
       public:
          coordinates() { frac_x = 0; frac_y = 0; i_ax = 0; x_y_axis = true; }
-         coordinates(float f, int i) {
+         coordinates(double f, int i) {
             x_y_axis = true;
-            if (f>1.0)
 #ifdef HAVE_IOSTREAM_HEADER
+            if (f>1.0)
                std::cout << "-----> Bad frac " << f << std::endl;
             if (f<0.0)
                std::cout << "-----> Bad frac " << f << std::endl;
@@ -205,7 +220,7 @@ class flev_t {
                             << f << "  i: " << i << std::endl;
 #endif
          }
-         coordinates(int i, float f) {
+         coordinates(int i, double f) {
             x_y_axis = true;
 #ifdef HAVE_IOSTREAM_HEADER
             if (f>1.0)
@@ -226,43 +241,34 @@ class flev_t {
                             << i << "  f: " << f << std::endl;
 #endif
          }
-         float get_frac_x() { return frac_x; }
-         float get_frac_y() { return frac_y; }
+         double get_frac_x() { return frac_x; }
+         double get_frac_y() { return frac_y; }
       };
+
+      typedef std::pair<coordinates, coordinates> cp_t;
+
+   private:
+
+      std::vector<cp_t> coords;
+
+   public:
 
       grid_index_t grid_index_next;
       lig_build::pos_t start_point; // on either the x or y axis
       lig_build::pos_t end_point;
       contour_fragment(int ms_type,
                        const float &contour_level,
-                       const grid_index_t &grid_index_prev,
-                       const grid_index_t &grid_index,
-                       const ligand_grid &grid);
+                       double v00, double v01, double v10, double v11);
 
-      typedef std::pair<coordinates, coordinates> cp_t;
-      std::vector<cp_t> coords;
-      std::pair<double, double> get_coords(int ii, int jj, int coord_indx) {
-         coordinates c;
-         if (coord_indx == 0)
-            c = coords[0].first;
-         if (coord_indx == 1)
-            c = coords[0].second;
-
-         // these are for hideous value (two crossing vectors)
-         if (coord_indx == 2)
-            c = coords[1].first;
-         if (coord_indx == 3)
-            c = coords[1].second;
-
-         return std::pair<double, double> (ii+c.get_frac_x(), jj+c.get_frac_y());
-      }
+      std::pair<double, double> get_coords(int ii, int jj, int coord_indx) const;
+      unsigned int coords_size() const { return coords.size(); }
 
    };
 
    std::vector<residue_circle_t> residue_circles;
    std::string make_circle(const lig_build::pos_t &pos, double radius, double stroke_width,
                            const std::string &fill_color, const std::string &stroke_color) const;
-   
+
    // a set of handles (returned from
    // additional_representation_by_attributes()) that correspond to
    // the residues in residue_circles.  If there are no additional
@@ -285,10 +291,10 @@ class flev_t {
                                                  const lig_build::pos_t &ligand_centre,
                                                  int add_rep_handle);
 
-   void draw_solvent_accessibility_of_atom(const lig_build::pos_t &pos, double sa);
-   void draw_solvent_accessibility_of_atoms();
+   svg_container_t draw_solvent_accessibility_of_atom(const lig_build::pos_t &pos, double sa);
+   svg_container_t draw_solvent_accessibility_of_atoms();
 
-   void draw_substitution_contour();
+   svg_container_t draw_substitution_contour();
    svg_container_t draw_bonds_to_ligand();
    svg_container_t draw_solvent_exposure_circle(const residue_circle_t &residue_circle,
                                                 const lig_build::pos_t &ligand_centre);
@@ -387,12 +393,11 @@ namespace pli {
 
    // the src directory already has a function of this name. So here we will put it in the pli namespace
 
-   void fle_view_with_rdkit_internal(mmdb::Manager *mol,
-                                     int imol, // for looking up ligands in the dictionary
-                                     coot::protein_geometry *geom_p,
-                                     const std::string &chain_id, int res_no, const std::string &ins_code,
-                                     float residues_near_radius,
-                                     const std::string &file_format, const std::string &output_image_file_name);
+   svg_container_t fle_view_with_rdkit_internal(mmdb::Manager *mol,
+                                                int imol, // for looking up ligands in the dictionary
+                                                coot::protein_geometry *geom_p,
+                                                const std::string &chain_id, int res_no, const std::string &ins_code,
+                                                float residues_near_radius);
 
    std::vector<fle_residues_helper_t>
    get_flev_residue_centres(mmdb::Residue *residue_ligand_3d,

@@ -84,7 +84,7 @@ coot::restraints_editor::widget_from_builder(const std::string &widget_name) {
 }
 
 void
-coot::restraints_editor::fill_dialog(const coot::dictionary_residue_restraints_t &restraints) { 
+coot::restraints_editor::fill_dialog(const coot::dictionary_residue_restraints_t &restraints) {
 
    // dialog = create_restraints_editor_dialog(); // defined in interface.h
    // dialog = widget_from_builder("restraints_editor_dialog");
@@ -117,7 +117,7 @@ coot::restraints_editor::fill_dialog(const coot::dictionary_residue_restraints_t
 
 void
 coot::restraints_editor::fill_atom_tree_data(G_GNUC_UNUSED GtkWidget *restraints_editor_dialog,
-					     const coot::dictionary_residue_restraints_t &restraints) { 
+					     const coot::dictionary_residue_restraints_t &restraints) {
 
    // GtkWidget *atoms_treeview = lookup_widget(restraints_editor_dialog, "atoms_treeview");
    GtkWidget *atoms_treeview = widget_from_builder("atoms_treeview");
@@ -130,7 +130,7 @@ coot::restraints_editor::fill_atom_tree_data(G_GNUC_UNUSED GtkWidget *restraints
 
    view_and_store_atoms.store = tree_store_atoms;
    view_and_store_atoms.view  = tv_atoms;
-   
+
    GtkTreeIter toplevel;
    gtk_tree_view_set_model(tv_atoms, GTK_TREE_MODEL(tree_store_atoms));
 
@@ -1437,7 +1437,7 @@ void restraints_editor_add_restraint_by_widget(GtkWidget *w) {
    if (re.is_valid()) {
       re.add_restraint(w);
    }
-} 
+}
 
 void
 coot::restraints_editor::add_restraint(GtkWidget *w) {
@@ -1445,12 +1445,12 @@ coot::restraints_editor::add_restraint(GtkWidget *w) {
    //first find the active tab in the notebook.  That will give us the
    //model and view
    GtkTreeIter   iter;
-   
+
    // GtkWidget *nb = lookup_widget(w, "restraints_editor_notebook");
    GtkWidget *nb = widget_from_builder("restraints_editor_notebook");
    GtkNotebook *notebook = GTK_NOTEBOOK(nb);
    gint current_page_index = gtk_notebook_get_current_page(notebook);
-   if (current_page_index != -1) { 
+   if (current_page_index != -1) {
       GtkTreeStore *tree_store = get_tree_store_by_notebook_page(current_page_index);
       GtkTreeView *tree_view = get_tree_view_by_notebook_page(current_page_index);
       GtkTreeSelection *tree_selection = gtk_tree_view_get_selection(tree_view);
@@ -1528,3 +1528,49 @@ coot::restraints_editor::get_tree_view_by_notebook_page(gint current_page_index)
    return tree_view;
 }
 
+extern "C" G_MODULE_EXPORT
+void
+on_restraints_editor_delete_restraint_button_clicked(GtkButton       *button,
+                                                  gpointer         user_data) {
+
+   GtkWidget *w = widget_from_builder("restraints_editor_dialog");
+   restraints_editor_delete_restraint_by_widget(w);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_restraints_editor_add_restraint_button_clicked(GtkButton       *button,
+                                                  gpointer         user_data) {
+
+   GtkWidget *w = widget_from_builder("restraints_editor_dialog");
+   restraints_editor_add_restraint_by_widget(w);
+
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_restraints_editor_close_button_clicked(GtkButton       *button,
+                                          gpointer         user_data) {
+
+   std::cout << "closebuttonclicked" << std::endl;
+
+   graphics_info_t g;
+   coot::restraints_editor re = g.get_restraints_editor(GTK_WIDGET(button));
+   if (re.is_valid()) {
+      GtkWidget *dialog = re.get_dialog();
+      if (dialog)
+         gtk_widget_set_visible(dialog, FALSE);
+   }
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_restraints_editor_apply_button_clicked(GtkButton       *button,
+                                          gpointer         user_data) {
+
+   std::cout << "applybuttonclicked" << std::endl;
+   GtkWidget *w = widget_from_builder("restraints_editor_dialog");
+   apply_restraint_by_widget(w);
+   gtk_widget_set_visible(w, FALSE);
+
+}

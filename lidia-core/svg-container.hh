@@ -4,6 +4,8 @@
 #include <string>
 #include <iostream> // for debugging - remove later.
 
+#include "lig-build.hh"
+
 class svg_container_t {
 
 public:
@@ -68,16 +70,36 @@ public:
       svg += s;
    }
 
+   void prepend(const svg_container_t &svgc_in) {
+      svg = svgc_in.svg + svg;
+      update_bounds(svgc_in.min_x, svgc_in.min_y, svgc_in.max_x, svgc_in.max_y);
+   }
+
    void add(const svg_container_t &svgc_in) {
       svg += svgc_in.svg;
       update_bounds(svgc_in.min_x, svgc_in.min_y, svgc_in.max_x, svgc_in.max_y);
    }
 
-   void add_comment(const std::string comment) {
+   void add_comment(const std::string &comment) {
       svg += "<!-- ";
       svg += comment;
       svg += " -->\n";
    }
+
+   void add_line(const lig_build::pos_t &p1, const lig_build::pos_t &p2,
+                 double line_width, const std::string &stroke_colour, bool dashed) {
+      std::string s;
+      s += "   <line x1=\"" + std::to_string(p1.x) + "\" y1=\"" + std::to_string(-p1.y) + "\" ";
+      s += "x2=\"" + std::to_string(p2.x) + "\" y2=\"" + std::to_string(-p2.y) + "\" ";
+      s += "style=\"stroke:" + stroke_colour + ";stroke-width:" + std::to_string(line_width) + ";";
+      s += "stroke-linecap:round;";
+      if (dashed)
+         s += "stroke-dasharray:0.1,0.2;";
+      s += "\" />\n";
+      svg += s;
+   };
+
+
 
    std::string compose(bool add_background_rect) const {
 

@@ -729,6 +729,10 @@ graphics_info_t::render_scene() {
       // std::cout << "--- render_scene_basic() ---------------------------------------- " << std::endl;
       // auto tp_0 = std::chrono::high_resolution_clock::now();
 
+      GLenum err = glGetError();
+      if (err)
+         std::cout << "GL ERROR:: render_scene_basic() --- start --- " << err << std::endl;
+
       GtkAllocation allocation;
       auto gl_area = graphics_info_t::glareas[0];
       gtk_widget_get_allocation(gl_area, &allocation);
@@ -754,12 +758,40 @@ graphics_info_t::render_scene() {
       }
       // std::cout << "render_scene_basic() " << width << " " << height << std::endl;
 
-      glViewport(0, 0, width * sf, height * sf);
+      err = glGetError();
+      if (err)
+         std::cout << "GL ERROR:: render_scene_basic() A " << err << std::endl;
+
       attach_buffers(); // just GTK things
+      err = glGetError();
+      if (err)
+         std::cout << "GL ERROR:: render_scene_basic() B " << err << std::endl;
+
+      glViewport(0, 0, width * sf, height * sf);
+      err = glGetError();
+      if (err)
+         std::cout << "GL ERROR:: render_scene_basic() C " << err << std::endl;
+
       glClearColor(background_colour.r, background_colour.g, background_colour.b, 1.0);
+      err = glGetError();
+      if (err)
+         std::cout << "GL ERROR:: render_scene_basic() D " << err << std::endl;
+
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+      err = glGetError();
+      if (err)
+         std::cout << "GL ERROR:: render_scene_basic() E " << err << std::endl;
+
       glDisable(GL_BLEND);
+      err = glGetError();
+      if (err)
+         std::cout << "GL ERROR:: render_scene_basic() F " << err << std::endl;
+
       glEnable(GL_DEPTH_TEST);
+      err = glGetError();
+      if (err)
+         std::cout << "GL ERROR:: render_scene_basic() G " << err << std::endl;
+
       glDepthFunc(GL_LESS);
 
       if (draw_background_image_flag) {
@@ -769,12 +801,24 @@ graphics_info_t::render_scene() {
       }
       
       graphics_info_t g;// needed? Yes.
+      err = glGetError();
+      if (err)
+         std::cout << "GL ERROR:: render_scene_basic() H " << err << std::endl;
+
       g.draw_models(&shader_for_tmeshes, &shader_for_meshes, nullptr, nullptr, width, height);
+      err = glGetError();
+      if (err)
+         std::cout << "GL ERROR:: render_scene_basic() I " << err << std::endl;
+
       draw_rotation_centre_crosshairs(GTK_GL_AREA(gl_area), PASS_TYPE_STANDARD);
       render_3d_scene(GTK_GL_AREA(gl_area));
       // HUD things? Not here?
-      if (show_fps_flag)
+      if (show_fps_flag) {
+         err = glGetError();
+         if (err)
+            std::cout << "GL ERROR:: render_scene_basic() J " << err << std::endl;
          draw_hud_fps();
+      }
    };
 
 
@@ -791,6 +835,11 @@ graphics_info_t::render_scene() {
    // std::cout << "render_scene(): show_basic_scene_state " << show_basic_scene_state << std::endl;
 
    if (show_basic_scene_state) {
+
+      GLenum err = glGetError();
+      if (err)
+         std::cout << "GL ERROR:: render_scene() basic path " << err << std::endl;
+
       render_scene_basic();
    } else {
       if (shader_do_depth_of_field_blur_flag || shader_do_outline_flag) {

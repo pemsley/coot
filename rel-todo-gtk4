@@ -1,15 +1,49 @@
 ----
 
-Delete Residue using ctrl-D - or button/menu-item (2vtq, say) and try to undelete it - fails.
+add terminal residue for nucleic acic in moorhen.
+Add a function is_nucleic_acid(imol, cid)
 
-Feature request: occupancy and b-factors of atoms close to the centre of screen.
+scale the map in moorhen.
+
+Friday: papper (and session with Moorhen/Cloud?)
+
+Download svg in Moorhen ligands and carbohydrate.
+
+Look at fftw2 usage in electrostatics
+
+Coot: picking should use non-drawn atom indicies
+
+Discs for HOLE output?
+
+it's a mistake to recontour the maps when they are not displayed.
+Instead of recontouring, mark them as 'outdated'
+When the set_map_is_displayed() function is activated the "map state"
+is checked and contoured regenerated if the map state is 'outdated'.
+
+add show_hydrogen_bonds to chapi api
+
+Why doesn't YTD import into layla after reading acedrg-YTD.cif?
+LaylaState::LaylaState(CootLigandEditorCanvas* canvas_widget, GtkWindow* win, GtkLabel* status_label) noexcept {
+    this->monomer_library_info_store = std::make_unique<protein_geometry>();
+There is no transfer of the geometry store from Coot to Layla.
+Failing that, let's add an "Import from mmCIF file" into Layla Find menu.
+
+Feature request: occupancy and B-factors of atoms close to the centre of screen.
 Key binding.
 
-GEMMI: Transfer aniso-B information in gemmi-mmdb
+Edit Restraints dialog should be an overlay.
 
-Moorhen: Delete Waters
+Add "fat atom" refinement - instead of using just the atom centre, use a box of points around it also.
+Box size can depend on B-factor.
 
-Moorhen: Session file doesn't save the environment distances on restore.
+GEMMI: Transfer aniso-B information in gemmi-mmdb - aniso table is missing from
+output cif - why? Ask Marcin.
+
+Add feature: Moorhen: Delete Waters
+
+Replace line symmetry with 3d model
+
+Moorhen: Session file doesn't save the environment distances on restore. Fixed?
 
 Are the GLUprot ASPprot Hisprot1 Hisprot2 in the monomer library mon_lib_list.cif (from github)
 
@@ -18,13 +52,18 @@ Sprout hydrogens should be in the ligand menu
 
 NCS Ghost Control (github issue Oli)
 
+4aw9 - build in the missing loop helix by place helix here. Now try
+coot.merge_molecules([3], 0)
+coot.merge_fragments(0)
+On merging fragments, the helix disappears.
+
 EDStats interface for chapi and coot.
 
 Add hydrogen atoms to waters - don't care about orientation.
 
 Add Deuteurium fraction information in the status bar on atom click
 
-HOLE (use a dialog, not an overlay)   o Done.
+HOLE (use a dialog, not an overlay)   * Done.
 make_a_difference_map_action          * Done.
 transform_map_by_lsq_model_fit_action * Done.
 average_maps_action                   * Done.
@@ -52,11 +91,26 @@ with 258 N1? Ah! They are both acceptors! Interesting. What to do about it?
 More work on molecule_class_info_t::alt_conf_view_next_alt_conf(const std::string &current_alt_conf)
 needed.
 
+The first save coords molecule selector dialog should be an overlay.
+* Done. Nice.
+
+Fix this startup message:
+ERROR:: failed to find preferences_bond_width_combobox
+ERROR:: failed to find preferences_font_size_combobox
+* Done
+
+add-geometry-distance in state command needs coot namespace
+* Done.
+
 Does copy-fragment work with ||?
 * Done.
 
 Make a blog post: Coot and the XDG Base Directory Protocol
 Where do files from Acedrg go? Or downloaded/fetched? Or servalcat?
+
+Delete Residue using ctrl-D - or button/menu-item (2vtq, say) and try to undelete it - fails.
+My setup, I think. readline installation problem.
+* Done - for now.
 
 Make a very smooth copy: Depythonize.
 * Done.

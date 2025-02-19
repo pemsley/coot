@@ -91,3 +91,32 @@ read_positron_metadata(const std::string &z_data, const std::string &s_data) {
 
    coot::read_positron_metadata(&graphics_info_t::positron_metadata, z_data, s_data);
 }
+
+//! \brief add to non-drawn bonds - using atom selection cid
+void add_to_non_drawn_bonds(int imol, const std::string &cid) {
+
+   graphics_info_t g;
+   if (g.is_valid_model_molecule(imol)) {
+      graphics_info_t::molecules[imol].add_to_non_drawn_bonds(cid);
+   }
+   g.graphics_draw();
+}
+
+void set_new_non_drawn_bonds(int imol, const std::string &cid) {
+
+   graphics_info_t g;
+   if (g.is_valid_model_molecule(imol)) {
+      graphics_info_t::molecules[imol].set_new_non_drawn_bonds(cid);
+   }
+   g.graphics_draw();
+}
+
+//! \brief clear the non-drawn bonds
+void clear_non_drawn_bonds(int imol) {
+
+    graphics_info_t g;
+    if (g.is_valid_model_molecule(imol))
+       g.molecules[imol].clear_non_drawn_bonds(true);
+    g.graphics_draw();
+}
+

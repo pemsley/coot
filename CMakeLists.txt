@@ -54,7 +54,7 @@ endif(WIN32)
 
 set(coot_src ${CMAKE_CURRENT_SOURCE_DIR})
 
-add_definitions(-DANALYSE_REFINEMENT_TIMING -DPACKAGE_VERSION="1.1.11+"
+add_definitions(-DANALYSE_REFINEMENT_TIMING -DPACKAGE_VERSION="1.1.12"
   -DHAVE_CXX_THREAD -DHAVE_SSMLIB -DHAVE_BOOST -DUSE_LIBPNG=1 -DCLIPPER_HAS_TOP8000 -DUSE_GEMMI -DHAVE_BOOST_THREAD -DHAVE_GSL
   -DPKGDATADIR="${CMAKE_INSTALL_PREFIX}/share/coot" -DXDATADIR="${CMAKE_INSTALL_PREFIX}/share")
 
@@ -86,7 +86,6 @@ add_library(cootapi SHARED
             ${coot_src}/lidia-core/cod-atom-type-t.cc
             ${coot_src}/lidia-core/rdkit-interface.cc
             ${coot_src}/lidia-core/bond-table-record-t.cc
-            ${coot_src}/pli/pi-stacking.cc
             ${coot_src}/src/coot-hydrogens.cc
             ${coot_src}/src/cfc.cc
             ${coot_src}/MoleculesToTriangles/CXXSurface/CXXBall.cpp
@@ -197,6 +196,7 @@ add_library(cootapi SHARED
             ${coot_src}/analysis/b-factor-histogram.cc
             ${coot_src}/analysis/typed-distances.cc
             ${coot_src}/analysis/cablam.cc
+            ${coot_src}/analysis/chi-squared.cc
             ${coot_src}/density-contour/density-contour-triangles.cc
             ${coot_src}/density-contour/Vectors.cpp
             ${coot_src}/density-contour/CIsoSurface.cpp
@@ -262,11 +262,18 @@ add_library(cootapi SHARED
             ${coot_src}/protein_db/protein_db.cpp
             ${coot_src}/protein_db/protein_db_utils.cpp
             ${coot_src}/protein_db/rna_db.cpp
-            ${coot_src}/pli/specs.cc
             ${coot_src}/pli/flev-annotations.cc
+            ${coot_src}/pli/flev.cc
+            ${coot_src}/pli/flev-annotations.cc
+            ${coot_src}/pli/flev-attached-hydrogens.cc
+            ${coot_src}/pli/optimise-residue-circles.cc
+            ${coot_src}/pli/residue-circles.cc
+            ${coot_src}/pli/dots-representation-info.cc
+            ${coot_src}/pli/pi-stacking.cc
             ${coot_src}/pli/protein-ligand-interactions.cc
             ${coot_src}/pli/pi-stacking.cc
             ${coot_src}/pli/sdf-interface.cc
+            ${coot_src}/pli/specs.cc
             ${coot_src}/coot-utils/coot-align.cc
             ${coot_src}/coot-utils/cmtz-interface.cc
             ${coot_src}/coot-utils/lidia-core-functions.cc

@@ -72,7 +72,8 @@ target_sources(lh PRIVATE
 
 add_executable(lhasa embind.cpp embind.hpp)
 
-set_target_properties(lhasa PROPERTIES LINK_FLAGS " -s ENVIRONMENT=web,worker -s EXPORT_ES6=1 -s MODULARIZE=1 -s EXPORT_NAME='Lhasa' -s ALLOW_MEMORY_GROWTH=1 -s ASSERTIONS")
+set_target_properties(lhasa PROPERTIES LINK_FLAGS " -s ENVIRONMENT=web,worker -s MODULARIZE=1 -s EXPORT_NAME='Lhasa' -s ALLOW_MEMORY_GROWTH=1 -s ASSERTIONS")
+#set_target_properties(lhasa PROPERTIES LINK_FLAGS " -s ENVIRONMENT=web,worker -s EXPORT_ES6=1 -s MODULARIZE=1 -s EXPORT_NAME='Lhasa' -s ALLOW_MEMORY_GROWTH=1 -s ASSERTIONS")
 
 target_link_libraries(lhasa PRIVATE 
     RDKitDepictor 

@@ -147,11 +147,11 @@ molecule_class_info_t::draw_map_molecule( bool draw_transparent_maps,
                              };
 
 
-   
+
    if (! draw_it_for_map) return;
 
    bool cosine_dependent_map_opacity = true; // I wonder what this does these days
-                                
+
    if (draw_transparent_maps) {
       if (is_an_opaque_map())
          return; // not this round
@@ -267,6 +267,27 @@ molecule_class_info_t::draw_map_molecule_for_ssao(Shader *shader_p,
       }
    }
 }
+
+
+void
+molecule_class_info_t::set_map_is_displayed(int state) {
+
+   draw_it_for_map = state;
+   if (draw_it_for_map) {
+      if (map_contours_outdated) {
+         float radius = graphics_info_t::box_radius_xray;
+         if (has_xmap()) {
+            if (is_EM_map())
+               radius = graphics_info_t::box_radius_em;
+            coot::Cartesian centre(graphics_info_t::RotationCentre_x(),
+                                   graphics_info_t::RotationCentre_y(),
+                                   graphics_info_t::RotationCentre_z());
+            update_map_triangles(radius, centre);
+         }
+      }
+   }
+}
+
 
 
 //
@@ -693,6 +714,12 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
    // thing to do.
 
    // if (! graphics_info_t::use_graphics_interface_flag) return;
+
+   // 20250216-PE new style - don't do anything, just set the map contours as expired
+   if (! draw_it_for_map) {
+      map_contours_outdated = true;
+      return;
+   }
 
    CIsoSurface<float> my_isosurface;
    coot::CartesianPairInfo v;

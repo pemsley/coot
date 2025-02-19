@@ -372,11 +372,9 @@ void on_cif_dictionary_filechooser_dialog_response_gtk4(GtkDialog *dialog,
          std::cout << "ERROR:: r was null" << std::endl;
       }
 
-      if (create_ligand) {
-         std::cout << "create ligand! " << std::endl;
-         // the monomer index is returned rom handle_cif_dictionary_for_molecule()
-         handle_cif_dictionary_for_molecule(file_name, imol_enc, create_ligand);
-      }
+      if (create_ligand) create_ligand =  true;
+      // the monomer index is returned from handle_cif_dictionary_for_molecule()
+      handle_cif_dictionary_for_molecule(file_name, imol_enc, create_ligand);
    }
    gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
    graphics_info_t::graphics_grab_focus();
@@ -571,7 +569,8 @@ save_coordinates_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
    // this is the molecule chooser, not the file chooser
    //
-   GtkWidget *widget = widget_from_builder("save_coords_dialog");
+   // GtkWidget *widget = widget_from_builder("save_coords_dialog");
+   GtkWidget *widget = widget_from_builder("save_coords_frame");
    GtkWidget *combobox = widget_from_builder("save_coordinates_combobox");
 
    if (combobox) {
@@ -4525,6 +4524,10 @@ delete_item(GSimpleAction *simple_action,
             std::cout << "DEBUG:: calling delete_residue_hydrogens() with " << res_spec << std::endl;
             m.delete_residue_hydrogens(res_spec.chain_id, res_spec.res_no, res_spec.ins_code, atom_spec.alt_conf);
             graphics_draw();
+         }
+         if (par == "hydrogen-atoms-in-molecule") {
+            g.molecules[imol].delete_hydrogens();
+            g.graphics_draw();
          }
          if (par == "residue-range") {
             // use old-style "setup"

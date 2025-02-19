@@ -11599,7 +11599,7 @@ Sun 26 Jan 19:43:47 GMT 2025
 
    Nice graphs? Job for Jakub.
    https://gitlab.gnome.org/World/Graphs
-
+   o Nope. Python and vala. Do it in svg.
 
 ---
 Sun 26 Jan 20:21:59 GMT 2025
@@ -11635,3 +11635,16 @@ Sun 26 Jan 21:27:29 GMT 2025
 Fri 31 Jan 2025 04:09:26 GMT
 
 https://lbc-lnbio.github.io/KVFinder-web/
+
+---
+gtk4 python startup:
+
+https://stackoverflow.com/questions/56823857/valueerror-namespace-gtk-not-available
+
+---
+Wed Feb  5 13:18:33 GMT 2025
+
+getting python to start up correctly:
+
+https://stackoverflow.com/questions/47885615/python-systemerror-when-using-the-c-api-pyrun-string
+

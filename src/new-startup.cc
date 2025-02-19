@@ -594,6 +594,8 @@ install_icons_into_theme(GtkWidget *w) {
    GtkIconTheme *icon_theme = gtk_icon_theme_get_for_display(gtk_widget_get_display(w));
    std::string pkg_data_dir = coot::package_data_dir();
    std::string pixmap_dir = coot::util::append_dir_dir(pkg_data_dir, "pixmaps");
+   std::string pixmap_dark_dir = coot::util::append_dir_dir(pixmap_dir, "dark");
+   gtk_icon_theme_add_search_path(icon_theme, pixmap_dark_dir.c_str());
    gtk_icon_theme_add_search_path(icon_theme, pixmap_dir.c_str());
 
    // This is only necessary when coot is installed in a non-standard location
@@ -726,7 +728,7 @@ new_startup_create_splash_screen_window() {
    GtkWidget *splash_screen_window = gtk_window_new();
    gtk_window_set_title(GTK_WINDOW(splash_screen_window), "Coot-Splash");
    gtk_window_set_decorated(GTK_WINDOW(splash_screen_window), FALSE);
-   GtkWidget *picture = create_local_picture("coot-1.png");
+   GtkWidget *picture = create_local_picture("coot-1.1.12.png");
 
    gtk_widget_set_hexpand(GTK_WIDGET(picture),TRUE);
    gtk_widget_set_vexpand(GTK_WIDGET(picture),TRUE);

@@ -803,3 +803,43 @@ molecules_container_t::change_alt_locs(int imol, const std::string &cid, const s
    }
    return status;
 }
+
+
+coot::instanced_mesh_t
+molecules_container_t::get_HOLE(int imol,
+                                float start_pos_x, float start_pos_y, float start_pos_z,
+                                float end_pos_x, float end_pos_y, float end_pos_z) const {
+
+   coot::instanced_mesh_t m;
+   if (is_valid_model_molecule(imol)) {
+      clipper::Coord_orth start_pos(start_pos_x, start_pos_y, start_pos_z);
+      clipper::Coord_orth end_pos(end_pos_x, end_pos_y, end_pos_z);
+      m = molecules[imol].get_HOLE(start_pos, end_pos, geom);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return m;
+
+}
+
+//! Get SVG for 2d ligand environment view (FLEV)
+//!
+//! The caller should make sure that the dictionary for the ligand has been loaded - this
+//! function won't do that. It will add hydrogen atoms if needed.
+//!
+//! @param imol is the model molecule index
+//! @param residue_cid is the cid for the residue
+std::string
+molecules_container_t::get_svg_for_2d_ligand_environment_view(int imol, const std::string &residue_cid) {
+
+   float radius = 4.2; // pass this
+   std::string s;
+   if (is_valid_model_molecule(imol)) {
+      s = molecules[imol].get_svg_for_2d_ligand_environment_view(residue_cid, &geom);
+      std::cout << "in get_svg_for_2d_ligand_environment_view() s length " << s.length() << std::endl;
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return s;
+}
+

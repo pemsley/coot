@@ -135,9 +135,9 @@ pli::get_fle_ligand_bonds(mmdb::Residue *ligand_res,
 // 	    ligand_atom_name = it->second;
 // 	 }
 
-	 if (debug) 
+	 if (debug)
 	    std::cout << "constructing fle ligand bond " << ligand_atom->name
-		      << " " << bond_type << " " << hbonds[i].dist << " " 
+		      << " " << bond_type << " " << hbonds[i].dist << " "
 		      << coot::atom_spec_t(env_residue_atom) << " "
 		      << env_residue_atom->GetResName()
 		      << std::endl;
@@ -158,7 +158,7 @@ pli::get_fle_ligand_bonds(mmdb::Residue *ligand_res,
 	    // coot::fle_ligand_bond_t bond(ligand_atom_name, bond_type, hbonds[i].dist, res_spec);
 	    //
 	    fle_ligand_bond_t bond(coot::atom_spec_t(ligand_atom),
-					 coot::atom_spec_t(env_residue_atom), 
+					 coot::atom_spec_t(env_residue_atom),
 					 bond_type,
 					 hbonds[i].dist+explict_H_bond_fudge_factor, is_bond_to_water);
 
@@ -174,7 +174,7 @@ pli::get_fle_ligand_bonds(mmdb::Residue *ligand_res,
 	 std::cout << ".... get_fle_ligand_bonds(): after h-bonds v.size() is " << v.size() << std::endl;
 
       // -----------------------
-      //   covalent bonds 
+      //   covalent bonds
       // -----------------------
 
       // by distance and by LINK
@@ -193,10 +193,9 @@ pli::get_fle_ligand_bonds(mmdb::Residue *ligand_res,
       // finally add the covent bonds to all-bonds
       for (unsigned int i=0; i<covalent_bonds.size(); i++)
 	 v.push_back(covalent_bonds[i]);
-      
-     
+
       // -----------------------
-      //   metal bonds 
+      //   metal bonds
       // -----------------------
 
       std::vector<fle_ligand_bond_t> metal_bonds = get_metal_bonds(ligand_res, residues);

@@ -5,6 +5,15 @@
 
 int main(int argc, char **argv) {
 
+   auto write_string_to_file = [] (const std::string &s, const std::string &fn) {
+
+      std::cout << "write string to file! " << fn << std::endl;
+      std::ofstream f(fn);
+      f << s;
+      f << "\n";
+      f.close();
+   };
+
    int status = 0;
 
    coot::protein_geometry geom;
@@ -18,12 +27,21 @@ int main(int argc, char **argv) {
    int res_no = 901;
 
    if (argc == 2) {
-      pdb_file_name = "2vtq.pdb";
-      ligand_code = "LZA";
-      res_no = 1299;
+      std::string code = argv[1];
+      if (code == "2vtq") {
+         pdb_file_name = "2vtq.pdb";
+         ligand_code = "LZA";
+         res_no = 1299;
+      }
+      if (code == "2cmf") {
+         pdb_file_name = "2cmf.pdb";
+         ligand_code = "F11";
+         res_no = 1536;
+      }
    }
 
-   // Also test 5a3h
+
+   // Also test 5a3h, 2wot
 
    bool use_gemmi = false;
    atom_selection_container_t atom_sel = get_atom_selection(pdb_file_name, use_gemmi, true, false);
@@ -39,6 +57,8 @@ int main(int argc, char **argv) {
       std::cout << "have_dictionary_for_residue_type LZA: " << rs << std::endl;
       rs = geom.have_dictionary_for_residue_type("824", imol_enc, try_autoload_if_needed);
       std::cout << "have_dictionary_for_residue_type 824: " << rs << std::endl;
+      rs = geom.have_dictionary_for_residue_type("F11", imol_enc, try_autoload_if_needed);
+      std::cout << "have_dictionary_for_residue_type F11: " << rs << std::endl;
 
       std::string output_file_name = "test.svg";
       float radius = 4.2; // was 4.4; // was 4.8;
@@ -53,10 +73,11 @@ int main(int argc, char **argv) {
          atom_sel.mol->WritePDBASCII("test-flev-with-H.pdb");
       }
 
-      if (ligand_mol)
-         pli::fle_view_with_rdkit_internal(atom_sel.mol, imol, &geom,
-                                           chain_id, res_no, ins_code, radius, "svg", output_file_name);
-
+      if (ligand_mol) {
+         svg_container_t svgc = pli::fle_view_with_rdkit_internal(atom_sel.mol, imol, &geom,
+                                                                  chain_id, res_no, ins_code, radius);
+         write_string_to_file(svgc.compose(false), "output.html");
+      }
    }
    return status;
 }

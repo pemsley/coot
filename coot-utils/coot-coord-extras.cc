@@ -2143,7 +2143,8 @@ coot::get_acedrg_types_for_residue(mmdb::Residue *residue_p, int imol_enc,
 
                if (! type_1.empty()) {
                   if (! type_2.empty()) {
-                     acedrg_types_for_bond_t bt(atom_name_1, atom_name_2, type_1, type_2, bond_length);
+                     bool in_same_ring_flag = restraints.in_same_ring(atom_name_1, atom_name_2);
+                     acedrg_types_for_bond_t bt(atom_name_1, atom_name_2, type_1, type_2, bond_length, in_same_ring_flag);
                      types.bond_types.push_back(bt);
                   }
                }
