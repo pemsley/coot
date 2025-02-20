@@ -1,24 +1,28 @@
 ----
 
-add terminal residue for nucleic acic in moorhen.
-Add a function is_nucleic_acid(imol, cid)
+Send Charles info about Coot tests.
 
-scale the map in moorhen.
+Add a function is_nucleic_acid(imol, residue_cid)
 
-Friday: papper (and session with Moorhen/Cloud?)
+Friday: paper (and session with Moorhen/Cloud?)
 
-Download svg in Moorhen ligands and carbohydrate.
+Stuart: Download svg in Moorhen ligands and carbohydrate.
+
+Stuart: hydrogen bonds?
 
 Look at fftw2 usage in electrostatics
 
-Coot: picking should use non-drawn atom indicies
+Coot: picking should use the non-drawn atom indicies vector
+
+Add feature: Moorhen: Delete Waters
+
+(Conditional) Recontour on button-release in "Dragged-map no" mode? At least as
+an option. (Based on how far we have moved since the last contouring and the map radius)
+
+2pwt: add hydrogen atoms and refine - see that the bases are pushed away.
+What's going wrong - hydrogen bond distance restraints? Lucrezia script.
 
 Discs for HOLE output?
-
-it's a mistake to recontour the maps when they are not displayed.
-Instead of recontouring, mark them as 'outdated'
-When the set_map_is_displayed() function is activated the "map state"
-is checked and contoured regenerated if the map state is 'outdated'.
 
 add show_hydrogen_bonds to chapi api
 
@@ -38,8 +42,6 @@ Box size can depend on B-factor.
 
 GEMMI: Transfer aniso-B information in gemmi-mmdb - aniso table is missing from
 output cif - why? Ask Marcin.
-
-Add feature: Moorhen: Delete Waters
 
 Replace line symmetry with 3d model
 
@@ -76,8 +78,6 @@ copy_ncs_chain_action
 ncs_jumping_action
 ncs_ligands_action
 
-Send Charles info about Coot tests.
-
 1.1.12 make svg molecule work again (pli need not work). Test wedge bonds. Test atom
 label positioning.
 
@@ -90,6 +90,18 @@ with 258 N1? Ah! They are both acceptors! Interesting. What to do about it?
 
 More work on molecule_class_info_t::alt_conf_view_next_alt_conf(const std::string &current_alt_conf)
 needed.
+
+It's a mistake to recontour the maps when they are not displayed.
+Instead of recontouring, mark them as 'outdated'
+When the set_map_is_displayed() function is activated the "map state"
+is checked and contoured regenerated if the map state is 'outdated'.
+* Done.
+
+add terminal residue for nucleic acic in moorhen.
+* Done.
+
+scale the map in moorhen.
+* Done. Good.
 
 The first save coords molecule selector dialog should be an overlay.
 * Done. Nice.
