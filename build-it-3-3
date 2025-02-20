@@ -415,6 +415,7 @@
 # 6.20 20240326-PE Add cairo
 # 6.21 20240327-PE Reposition the cairo build (after ninja)
 # 6.22 20240427-PE Fix-ups for building on fedora (partial)
+# 6.23 20250214-PE Remove build_type (gtk4) from directory names
 script_version=6.22
 
 
@@ -897,7 +898,7 @@ function fixup_libcurl {
 
 # now we can set the gtk version
 gtk_version=${gtk_version:=4}
-build_type=gtk$gtk_version # python is implicit - we will do guile when we can
+build_type="" # python and gtk4 are implicit - we will do guile when we can
 
 
 # now on to some code!
@@ -929,9 +930,9 @@ fi
 # It's a logical mess.
 #
 if test "$build_coot_prerelease" = 1 ; then
-   PATH=${AUTOBUILD_INSTALLED}-pre-release-$build_type/bin:$PATH
+   PATH=${AUTOBUILD_INSTALLED}-pre-release/bin:$PATH
 else
-   PATH=$AUTOBUILD_INSTALLED-$build_type/bin:$PATH
+   PATH=$AUTOBUILD_INSTALLED/bin:$PATH
 fi
    
 PATH=$PATH:/usr/local/bin:/usr/sbin:/usr/bsd:/sbin:/usr/bin:/bin:
@@ -1401,7 +1402,7 @@ fi
 v_fid=`echo $v | sed 's/ /_/g'`
 w_fid=`echo $w | sed 's/ /_/g'`
 
-compilers_dir=$build_type-${v_fid}_and_${w_fid}
+compilers_dir=gtk4-coot-${v_fid}_and_${w_fid}
 if test "$CHAPI_ONLY" = true ; then
     compilers_dir=chapi-${v_fid}_and_${w_fid}
 fi
@@ -1687,7 +1688,7 @@ if test "$build_coot_prerelease" = 1 ; then
       build_coot_prerelease=1  # belt and braces
       coot_prerelease_exists=1
       # tinker with coot_prefix, it is generic_prefix with pre-release added to prefix dir
-      coot_prefix="--prefix=${AUTOBUILD_INSTALLED}-pre-release-${build_type} ${config_extras:-}"
+      coot_prefix="--prefix=${AUTOBUILD_INSTALLED}-pre-release ${config_extras:-}"
       coot_source_tar_file=${pre_release_server_dir}/$coot_version_pre.tar.gz
       echo DEBUG:: set coot_source_tar_file to $coot_source_tar_file
       coot_version=`echo $coot_version_pre | sed s/\.tar.gz//`
@@ -1747,18 +1748,18 @@ echo INFO:: build_type is $build_type
 #
 if [ "$build_coot_prerelease" = 1 ] ; then
     if [ "$coot_prerelease_exists" = 1 ] ; then
-      generic_prefix="--prefix=${AUTOBUILD_INSTALLED}-pre-release-${build_type} ${config_extras:-}"
+      generic_prefix="--prefix=${AUTOBUILD_INSTALLED}-pre-release ${config_extras:-}"
       coot_prefix="$generic_prefix"
-      install_top_dir=${AUTOBUILD_INSTALLED}-pre-release-${build_type}
+      install_top_dir=${AUTOBUILD_INSTALLED}-pre-release
       # python seems to link OK on Darwin, so no need for this jiggery pokery
       if [ $(uname) != Darwin ] ; then
          # 20220228-PE also -L$install_top_dir/lib64
-         python_lib_flags=LDFLAGS="-L$install_top_dir/lib64 -Wl,--rpath=${AUTOBUILD_INSTALLED}-pre-release-${build_type}/lib"
-         python_ldflags="LDFLAGS=-Wl,--rpath=${AUTOBUILD_INSTALLED}-pre-release-${build_type}/lib"
+         python_lib_flags=LDFLAGS="-L$install_top_dir/lib64 -Wl,--rpath=${AUTOBUILD_INSTALLED}-pre-release/lib"
+         python_ldflags="LDFLAGS=-Wl,--rpath=${AUTOBUILD_INSTALLED}-pre-release/lib"
          python_libs="LIBS=\"-L$install_top_dir/lib64 -lffi\""
          python_libs="LIBS='""-L$install_top_dir/lib64 -lffi""'"
          python_libs="LIBS=-L$install_top_dir/lib64"  # finds libffi
-         python_rpath="LDFLAGS=-Wl,--rpath=${AUTOBUILD_INSTALLED}-pre-release-${build_type}/lib"
+         python_rpath="LDFLAGS=-Wl,--rpath=${AUTOBUILD_INSTALLED}-pre-release/lib"
       else
          pv=$(sw_vers -productVersion)
          # e.g. 10.10
@@ -1767,25 +1768,25 @@ if [ "$build_coot_prerelease" = 1 ] ; then
       fi
     else
       # don't use pre-release
-      generic_prefix="--prefix=$AUTOBUILD_INSTALLED-${build_type} ${config_extras:-}"
+      generic_prefix="--prefix=$AUTOBUILD_INSTALLED ${config_extras:-}"
       coot_prefix="$generic_prefix"
-      install_top_dir=${AUTOBUILD_INSTALLED}-${build_type}
+      install_top_dir=${AUTOBUILD_INSTALLED}
       if [ $(uname) != Darwin ] ; then
-         python_lib_flags=LDFLAGS="-L$install_top_dir/lib64 -Wl,--rpath=${AUTOBUILD_INSTALLED}-pre-release-${build_type}/lib"
+         python_lib_flags=LDFLAGS="-L$install_top_dir/lib64 -Wl,--rpath=${AUTOBUILD_INSTALLED}-pre-release/lib"
       fi
     fi
 else
    # not pre-release
-   generic_prefix="--prefix=$AUTOBUILD_INSTALLED-${build_type} ${config_extras:-}"
-   install_top_dir=${AUTOBUILD_INSTALLED}-${build_type}
+   generic_prefix="--prefix=$AUTOBUILD_INSTALLED ${config_extras:-}"
+   install_top_dir=${AUTOBUILD_INSTALLED}
    coot_prefix="$generic_prefix"
    if [ $(uname) != Darwin ] ; then
-      python_lib_flags=LDFLAGS="-L$install_top_dir/lib64 -Wl,--rpath=${AUTOBUILD_INSTALLED}-${build_type}/lib"
-      python_ldflags="LDFLAGS=-Wl,--rpath=${AUTOBUILD_INSTALLED}-${build_type}/lib"
+      python_lib_flags=LDFLAGS="-L$install_top_dir/lib64 -Wl,--rpath=${AUTOBUILD_INSTALLED}/lib"
+      python_ldflags="LDFLAGS=-Wl,--rpath=${AUTOBUILD_INSTALLED}/lib"
       python_libs="LIBS=\"-L$install_top_dir/lib64 -lffi\""
       python_libs="LIBS='""-L$install_top_dir/lib64 -lffi""'"
       python_libs="LIBS=-L$install_top_dir/lib64"  # finds libffi
-      python_rpath="LDFLAGS=-Wl,--rpath=${AUTOBUILD_INSTALLED}-${build_type}/lib"
+      python_rpath="LDFLAGS=-Wl,--rpath=${AUTOBUILD_INSTALLED}/lib"
       echo python_libs is $python_libs
 
    else
@@ -1888,6 +1889,13 @@ if pkg-config freetype2 ; then
 else
    echo freetype2 should be built
    build_freetype2=1
+fi
+
+if command -v swig -version ; then
+    echo swig found
+else
+    echo swig is needed
+    exit 2
 fi
 
 
@@ -3447,114 +3455,6 @@ else
     echo not building gsl:
 fi
 
-###############################################################################
-##########         build boost                                    #############
-###############################################################################
-
-# there is something wrong here - boost needs to come after numpy
-# rdkit needs boost-numpy
-
-build_boost=true
-test_for_already_installed_dependencies=true
-
-if [ "$build_boost" = true ] ; then
-   skip_this=false
-   if [ "$test_for_already_installed_dependencies" = true ] ; then
-      if [ -e $install_top_dir/include/boost/functional/hash.hpp ] ;  then
-         echo not building boost
-         skip_this=true
-      fi
-   fi
-
-   if [ $skip_this = false ] ;  then
-
-      # 20241002-PE
-      # try 1.86.0 becausee 1.83 doesn't compile - like this:
-      # https://github.com/bambulab/BambuStudio/issues/3957
-      # They fixed the problem by udating the boost - let's try that
-      boost_version=1_71_0
-      boost_version=1_72_0
-      boost_version=1_74_0
-      boost_version=1_83_0
-      boost_version=1_86_0
-      boost_version=1_87_0
-      boost_server_dir=1.72.0
-      boost_server_dir=1.72.0
-      boost_server_dir=1.74.0
-      boost_server_dir=1.82.0
-      boost_server_dir=1.83.0
-      boost_server_dir=1.86.0
-      boost_server_dir=1.87.0
-      echo BUILDING boost $boost_version :
-      echo BUILDING boost $boost_version >&2
-
-      boost_home_url=https://dl.bintray.com/boostorg/release/$boost_server_dir/source # old
-      boost_home_url=https://boostorg.jfrog.io/artifactory/main/release/$boost_server_dir/source
-      boost_home_url=https://archives.boost.io/release/$boost_server_dir/source/
-      echo wgetting $boost_home_url/boost_$boost_version.tar.gz
-      echo ${WGET} $boost_home_url/boost_$boost_version.tar.gz 2>&1
-      ${WGET} $boost_home_url/boost_$boost_version.tar.gz
-      echo done ${WGET} $boost_home_url/boost_$boost_version.tar.gz 2>&1
-      echo fetch of $boost_home_url/boost_$boost_version.tar.gz complete.. compiling...
-
-      (
-      echo building ========================= boost $boost_version =========================
-
-      gzip -dc ${AUTOBUILD_SOURCES}/boost_$boost_version.tar.gz | tar xf -
-      cd boost_$boost_version
-
-      # compilation falls over
-
-      # cc.compile.c++ bin.v2/libs/python/build/gcc-9/release/address-model-/python-3.6/threading-multi/visibility-hidden/long.o
-      # In file included from ./boost/python/detail/prefix.hpp:13,
-      #           from ./boost/python/long.hpp:8,
-      #           from libs/python/src/long.cpp:5:
-      # ./boost/python/detail/wrap_python.hpp:57:11: fatal error: pyconfig.h: No such file or directory
-      #    57 | # include <pyconfig.h>
-      #       |           ^~~~~~~~~~~~
-      # compilation terminated.
-
-      # But pyconfig.h is here:
-      # $HOME/autobuild/Linux-penelope-pre-release-gtk3-python/include/python3.6m/pyconfig.h
-
-      address_model=64
-      pwd
-      # echo "using python : 3.10 : $install_top_dir/bin/python3 ;" > user-config.jam
-      echo "using python : $python_version_extension : $install_top_dir/bin/python3 ;" > user-config.jam
-      echo ./bootstrap.sh --prefix=$install_top_dir --with-python=$install_top_dir/bin/python3 --with-python-root=$install_top_dir --with-libraries=system,python,regex,thread,serialization,iostreams,program_options --without-icu
-      echo ./bootstrap.sh --prefix=$install_top_dir --with-python=$install_top_dir/bin/python3 --with-python-root=$install_top_dir --with-libraries=system,python,regex,thread,serialization,iostreams,program_options --without-icu > bootstrap-command-save
-      ./bootstrap.sh --prefix=$install_top_dir --with-python=$install_top_dir/bin/python3 --with-python-root=$install_top_dir --with-libraries=system,python,regex,thread,serialization,iostreams,program_options --without-icu
-      echo boostrap.sh done
-
-      # now edit the project-config.jam file using python line
-
-      cp project-config.jam project-config.jam-orig
-      # awk -v itd=$install_top_dir '
-      #    /using python : 3.6/ { print "   ",$1,$2,$3,$4,$5,"python3 :", itd "/include/python3.6m :", itd "/lib/libpython3.6m.so ;" }
-      #   $0 !~ "using python : 3.6 "
-      # ' project-config.jam-orig > project-config.jam
-      # that was flipping hard work.
-      # 20201215-PE and now I've commented it out.
-
-      # bjam no longer exists
-      # use -Wno-deprecated-declarations
-      echo ./b2 address-model=$address_model --debug-configuration cflags=-fPIC -j$np cxxflags="-fPIC -I$install_top_dir/include/python$python_version_extension$python_abiflags -Wno-maybe-uninitialized -Wno-deprecated-declarations" install > b2-command-save
-           ./b2 address-model=$address_model --debug-configuration cflags=-fPIC -j$np cxxflags="-fPIC -I$install_top_dir/include/python$python_version_extension$python_abiflags -Wno-maybe-uninitialized -Wno-deprecated-declarations" install
-      cd -
-      ) > $HOSTLOGDIR/21-boost.txt
-      echo done boost $boost_version >&2
-   fi
-fi
-
-if [ -e $install_top_dir/lib/libboost_python$python_version_squish.a ] ; then
-   echo libboost_python $install_top_dir/lib/libboost_python$python_version_squish.a was installed
-else
-   echo libboost_python $install_top_dir/lib/libboost_python$python_version_squish.a was not installed
-   echo libboost_python $install_top_dir/lib/libboost_python$python_version_squish.a was not installed >&2
-   exit
-fi
-
-
 
 ###############################################################################
 ##########         GLM                                            #############
@@ -3715,6 +3615,118 @@ if [ true = true ] ; then
       echo BUILDING numpy $numpy_version finished >&2
    fi
 fi
+
+###############################################################################
+##########         build boost  - after numpy                     #############
+###############################################################################
+# which messes up the log numbering
+
+# there is something wrong here - boost needs to come after numpy
+# rdkit needs boost-numpy
+
+build_boost=true
+test_for_already_installed_dependencies=true
+
+if [ "$build_boost" = true ] ; then
+   skip_this=false
+   if [ "$test_for_already_installed_dependencies" = true ] ; then
+      if [ -e $install_top_dir/include/boost/functional/hash.hpp ] ;  then
+         echo not building boost
+         skip_this=true
+      fi
+   fi
+
+   if [ $skip_this = false ] ;  then
+
+      # 20241002-PE
+      # try 1.86.0 becausee 1.83 doesn't compile - like this:
+      # https://github.com/bambulab/BambuStudio/issues/3957
+      # They fixed the problem by udating the boost - let's try that
+      boost_version=1_71_0
+      boost_version=1_72_0
+      boost_version=1_74_0
+      boost_version=1_83_0
+      boost_version=1_86_0
+      boost_version=1_87_0
+      boost_server_dir=1.72.0
+      boost_server_dir=1.72.0
+      boost_server_dir=1.74.0
+      boost_server_dir=1.82.0
+      boost_server_dir=1.83.0
+      boost_server_dir=1.86.0
+      boost_server_dir=1.87.0
+      echo BUILDING boost $boost_version :
+      echo BUILDING boost $boost_version >&2
+
+      boost_home_url=https://dl.bintray.com/boostorg/release/$boost_server_dir/source # old
+      boost_home_url=https://boostorg.jfrog.io/artifactory/main/release/$boost_server_dir/source
+      boost_home_url=https://archives.boost.io/release/$boost_server_dir/source/
+      echo wgetting $boost_home_url/boost_$boost_version.tar.gz
+      echo ${WGET} $boost_home_url/boost_$boost_version.tar.gz 2>&1
+      ${WGET} $boost_home_url/boost_$boost_version.tar.gz
+      echo done ${WGET} $boost_home_url/boost_$boost_version.tar.gz 2>&1
+      echo fetch of $boost_home_url/boost_$boost_version.tar.gz complete.. compiling...
+
+      (
+      echo building ========================= boost $boost_version =========================
+
+      gzip -dc ${AUTOBUILD_SOURCES}/boost_$boost_version.tar.gz | tar xf -
+      cd boost_$boost_version
+
+      # compilation falls over
+
+      # cc.compile.c++ bin.v2/libs/python/build/gcc-9/release/address-model-/python-3.6/threading-multi/visibility-hidden/long.o
+      # In file included from ./boost/python/detail/prefix.hpp:13,
+      #           from ./boost/python/long.hpp:8,
+      #           from libs/python/src/long.cpp:5:
+      # ./boost/python/detail/wrap_python.hpp:57:11: fatal error: pyconfig.h: No such file or directory
+      #    57 | # include <pyconfig.h>
+      #       |           ^~~~~~~~~~~~
+      # compilation terminated.
+
+      # But pyconfig.h is here:
+      # $HOME/autobuild/Linux-penelope-pre-release-gtk3-python/include/python3.6m/pyconfig.h
+
+      address_model=64
+      pwd
+      # echo "using python : 3.10 : $install_top_dir/bin/python3 ;" > user-config.jam
+      echo "using python : $python_version_extension : $install_top_dir/bin/python3 ;" > user-config.jam
+      echo ./bootstrap.sh --prefix=$install_top_dir --with-python=$install_top_dir/bin/python3 --with-python-root=$install_top_dir --with-libraries=system,python,regex,thread,serialization,iostreams,program_options --without-icu
+      echo ./bootstrap.sh --prefix=$install_top_dir --with-python=$install_top_dir/bin/python3 --with-python-root=$install_top_dir --with-libraries=system,python,regex,thread,serialization,iostreams,program_options --without-icu > bootstrap-command-save
+      ./bootstrap.sh --prefix=$install_top_dir --with-python=$install_top_dir/bin/python3 --with-python-root=$install_top_dir --with-libraries=system,python,regex,thread,serialization,iostreams,program_options --without-icu
+      echo boostrap.sh done
+
+      # now edit the project-config.jam file using python line
+
+      cp project-config.jam project-config.jam-orig
+      # awk -v itd=$install_top_dir '
+      #    /using python : 3.6/ { print "   ",$1,$2,$3,$4,$5,"python3 :", itd "/include/python3.6m :", itd "/lib/libpython3.6m.so ;" }
+      #   $0 !~ "using python : 3.6 "
+      # ' project-config.jam-orig > project-config.jam
+      # that was flipping hard work.
+      # 20201215-PE and now I've commented it out.
+
+      # bjam no longer exists
+      # use -Wno-deprecated-declarations
+      echo ./b2 address-model=$address_model --debug-configuration cflags=-fPIC -j$np cxxflags="-fPIC -I$install_top_dir/include/python$python_version_extension$python_abiflags -Wno-maybe-uninitialized -Wno-deprecated-declarations" install > b2-command-save
+           ./b2 address-model=$address_model --debug-configuration cflags=-fPIC -j$np cxxflags="-fPIC -I$install_top_dir/include/python$python_version_extension$python_abiflags -Wno-maybe-uninitialized -Wno-deprecated-declarations" install
+      cd -
+      ) > $HOSTLOGDIR/23-boost.txt
+      echo done boost $boost_version >&2
+   fi
+fi
+
+
+################## python diagnostics #########################################
+
+if [ -e $install_top_dir/lib/libboost_python$python_version_squish.a ] ; then
+   echo libboost_python $install_top_dir/lib/libboost_python$python_version_squish.a was installed
+else
+   echo libboost_python $install_top_dir/lib/libboost_python$python_version_squish.a was not installed
+   echo libboost_python $install_top_dir/lib/libboost_python$python_version_squish.a was not installed >&2
+   exit
+fi
+
 
 # this is a hack for charybdis   - we need cmake version 3.1 or later
 # export PATH=$HOME/cmake/bin:$PATH
@@ -5098,9 +5110,9 @@ fi
 
 if [ $clear_up_type != "" ] ; then
    if [ "$ENABLE_PYTHON_COOT" = "yes" ] ; then
-      slim_dir=$(dirname $install_top_dir)/coot-${OS}-${systype}${pre_release_str}-${build_type}-python
+      slim_dir=$(dirname $install_top_dir)/coot-${OS}-${systype}${pre_release_str}-gtk4-python
    else
-      slim_dir=$(dirname $install_top_dir)/coot-${OS}-${systype}${pre_release_str}-$build_type
+      slim_dir=$(dirname $install_top_dir)/coot-${OS}-${systype}${pre_release_str}-gtk4
    fi
    echo post-install slim... >&2
    post_install_slim $install_top_dir $slim_dir $clear_up_type
