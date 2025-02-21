@@ -1,10 +1,30 @@
 ----
 
+
 Send Charles info about Coot tests.
 
 Add a function is_nucleic_acid(imol, residue_cid)
 
-Friday: paper (and session with Moorhen/Cloud?)
+double-clicking on a HUD button does a "go to blob"
+(haha)
+
+add scaling for view rotation/pixel
+
+Analyse/Validate fragment - do refinement setup energy
+and rama, rota etc and density fit.
+
+Do ribbons cast shadows?
+
+add terminal residue for nucleic acic in moorhen.
+Add a function is_nucleic_acid(imol, cid)
+
+In jiggle fit, at the end of a scoring, some atoms have zero
+density and other high density. Multiply the density value
+by the position of the atom relative to the center of
+the chain/fragment. That will give you a direction
+to move the molecule - you might like to try several
+different rotation/translation hypotheses to check
+for consistency.
 
 Stuart: Download svg in Moorhen ligands and carbohydrate.
 
@@ -21,6 +41,8 @@ an option. (Based on how far we have moved since the last contouring and the map
 
 2pwt: add hydrogen atoms and refine - see that the bases are pushed away.
 What's going wrong - hydrogen bond distance restraints? Lucrezia script.
+
+Look at picking in RNA stick mode
 
 Discs for HOLE output?
 
@@ -44,6 +66,8 @@ GEMMI: Transfer aniso-B information in gemmi-mmdb - aniso table is missing from
 output cif - why? Ask Marcin.
 
 Replace line symmetry with 3d model
+
+For tubes view, use 8a5y and 8a61 as an example.
 
 Moorhen: Session file doesn't save the environment distances on restore. Fixed?
 

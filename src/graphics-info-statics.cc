@@ -35,6 +35,9 @@
 
 #if !defined WINDOWS_MINGW
 
+int graphics_info_t::scale_down_graphics = 1;
+int graphics_info_t::scale_up_graphics = 1;
+
 #ifdef USE_GUILE
 #ifdef USE_GUILE_GTK
 bool graphics_info_t::prefer_python = 0; // prefer python scripts when
