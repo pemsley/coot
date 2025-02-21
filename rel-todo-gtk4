@@ -1,7 +1,25 @@
 ----
 
+double-clicking on a HUD button does a "go to blob"
+(haha)
+
+add scaling for view rotation/pixel
+
+Analyse/Validate fragment - do refinement setup energy
+and rama, rota etc and density fit.
+
+Do ribbons cast shadows?
+
 add terminal residue for nucleic acic in moorhen.
 Add a function is_nucleic_acid(imol, cid)
+
+In jiggle fit, at the end of a scoring, some atoms have zero
+density and other high density. Multiply the density value
+by the position of the atom relative to the center of
+the chain/fragment. That will give you a direction
+to move the molecule - you might like to try several
+different rotation/translation hypotheses to check
+for consistency.
 
 scale the map in moorhen.
 
@@ -12,6 +30,8 @@ Download svg in Moorhen ligands and carbohydrate.
 Look at fftw2 usage in electrostatics
 
 Coot: picking should use non-drawn atom indicies
+
+Look at picking in RNA stick mode
 
 Discs for HOLE output?
 
