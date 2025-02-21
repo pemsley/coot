@@ -11866,7 +11866,7 @@ density (too big to be waters):
                                 <property name="orientation">vertical</property>
                                 <child>
                                   <object class="GtkCheckButton" id="ncs_controller_molecule_n_display_ncs_checkbutton">
-                                    <property name="label" translatable="yes">Display Non-cystallographic Ghosts</property>
+                                    <property name="label" translatable="yes">xxx Display Non-cystallographic Ghosts</property>
                                     <property name="can-focus">1</property>
                                     <property name="use-underline">1</property>
                                   </object>
@@ -11882,7 +11882,7 @@ density (too big to be waters):
                                         <property name="orientation">vertical</property>
                                         <child>
                                           <object class="GtkLabel" id="label264">
-                                            <property name="label" translatable="yes">Displayed Chains</property>
+                                            <property name="label" translatable="yes">xxx Displayed Chains</property>
                                             <property name="justify">center</property>
                                             <property name="xalign">0.4</property>
                                           </object>
@@ -11892,21 +11892,7 @@ density (too big to be waters):
                                             <property name="orientation">vertical</property>
                                             <child>
                                               <object class="GtkCheckButton" id="ncs_controller_molecule_n_display_chain_ich_checkbutton">
-                                                <property name="label" translatable="yes">Chain A</property>
-                                                <property name="can-focus">1</property>
-                                                <property name="use-underline">1</property>
-                                              </object>
-                                            </child>
-                                            <child>
-                                              <object class="GtkCheckButton" id="checkbutton4">
-                                                <property name="label" translatable="yes">checkbutton4</property>
-                                                <property name="can-focus">1</property>
-                                                <property name="use-underline">1</property>
-                                              </object>
-                                            </child>
-                                            <child>
-                                              <object class="GtkCheckButton" id="checkbutton5">
-                                                <property name="label" translatable="yes">checkbutton5</property>
+                                                <property name="label" translatable="yes">xxx Chain A</property>
                                                 <property name="can-focus">1</property>
                                                 <property name="use-underline">1</property>
                                               </object>

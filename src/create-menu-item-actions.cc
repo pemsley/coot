@@ -47,7 +47,9 @@
 #include "cc-interface.hh" // for fullscreen()
 
 // These don't work if they are in graphics-info-statics.cc
-// Possibly because the gui is loaded at run-time.
+// Possibly because the gui (this file included) is loaded at run-time.
+// 20250221-PE now thay are in graphics-info-statics also.
+// Hmm
 int graphics_info_t::scale_up_graphics = 1;
 int graphics_info_t::scale_down_graphics = 1;
 
