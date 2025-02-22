@@ -174,6 +174,7 @@ add_library(cootapi SHARED
             ${coot_src}/api/coot-molecule-modelling.cc
             ${coot_src}/api/coot-molecule-refine.cc
             ${coot_src}/api/coot-molecule-replace-fragment.cc
+            ${coot_src}/api/ghost-molecule-display.cc
             ${coot_src}/api/molecules-container.cc
             ${coot_src}/api/molecules-container-blender.cc
             ${coot_src}/api/molecules-container-bucca-ml-growing.cc
@@ -186,7 +187,6 @@ add_library(cootapi SHARED
             ${coot_src}/api/mmcif-tests.cc
             ${coot_src}/api/phi-psi-prob.cc
             ${coot_src}/api/moorhen-h-bonds.cc
-            ${coot_src}/api/add-terminal-residue.cc
             ${coot_src}/api/rama-plot-phi-psi.cc
             ${coot_src}/analysis/daca.cc
             ${coot_src}/analysis/kolmogorov.cc

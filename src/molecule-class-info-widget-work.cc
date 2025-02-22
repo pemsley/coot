@@ -67,8 +67,7 @@ on_ncs_controller_molecule_n_display_ncs_checkbutton_toggled_gtkbuilder_callback
 void
 on_ncs_controller_molecule_n_display_chain_ich_checkbutton_toggled_gtkbuilder_callback
                                         (GtkCheckButton *checkbutton,
-                                         gpointer         user_data)
-{
+                                         gpointer         user_data) {
    int imol_chain = GPOINTER_TO_INT(user_data);
    int imol = imol_chain/1000;
    int ich = imol_chain - imol*1000;
@@ -90,23 +89,22 @@ on_ncs_controller_ncs_master_chain_ich_radiobutton_toggled_gtkbuilder_callback(G
    int imol_chain = GPOINTER_TO_INT(user_data);
    int imol = imol_chain/1000;
    int ich = imol_chain - imol*1000;
-/*    printf("==== DEBUG:: chain raiobutton toggled: imol %d ich %d active-state: %d \n",  */
-/* 	  imol, gtk_toggle_button_get_active(ich, togglebutton)); */
+   /*    printf("==== DEBUG:: chain raiobutton toggled: imol %d ich %d active-state: %d \n",  */
+   /* 	  imol, gtk_toggle_button_get_active(ich, togglebutton)); */
    if (gtk_check_button_get_active(checkbutton)) {
-/*      printf("NCS_controller_ncs_master_chain_ich_radiobutton_toggled on for imol %d %d %d\n",  */
-/* 	    imol_chain, imol, ich); */
+      /*      printf("NCS_controller_ncs_master_chain_ich_radiobutton_toggled on for imol %d %d %d\n",  */
+      /* 	    imol_chain, imol, ich); */
 
-/*      ncs_control_change_ncs_master_to_chain(imol, ich); (done in the following function) */
+      /*      ncs_control_change_ncs_master_to_chain(imol, ich); (done in the following function) */
 
-     ncs_control_change_ncs_master_to_chain_update_widget(w, imol, ich);
+      ncs_control_change_ncs_master_to_chain_update_widget(w, imol, ich);
    }
 }
 
 
 void
 on_molecule_0_checkbutton_toggled_gtkbuilder_callback(GtkCheckButton *checkbutton,
-                                                      gpointer        user_data)
-{
+                                                      gpointer        user_data) {
 
   int imol = GPOINTER_TO_INT(user_data);
   if (gtk_check_button_get_active(checkbutton))
@@ -512,10 +510,9 @@ molecule_class_info_t::fill_symmetry_control_frame(GtkWidget *symmetry_controlle
 void
 molecule_class_info_t::fill_ncs_control_frame(GtkWidget *ncs_control_dialog) const {
 
-
    if (atom_sel.n_selected_atoms > 0) {
       if (ncs_ghosts.size() > 0) {
-	       fill_ncs_control_frame_internal(ncs_control_dialog);
+         fill_ncs_control_frame_internal(ncs_control_dialog);
       }
    }
 }
@@ -527,234 +524,132 @@ molecule_class_info_t::fill_ncs_control_frame(GtkWidget *ncs_control_dialog) con
 void
 molecule_class_info_t::fill_ncs_control_frame_internal(GtkWidget *ncs_control_dialog) const {
 
-   // GtkWidget *ncs_control_vbox = lookup_widget(ncs_control_dialog, "ncs_control_vbox");
-   GtkWidget *ncs_control_vbox = widget_from_builder("ncs_control_vbox");
-   GtkWidget *frame_molecule_N;
-   GtkWidget *vbox176;
-   GtkWidget *ncs_controller_molecule_n_display_ncs_checkbutton;
-   GtkWidget *hseparator11;
-   GtkWidget *hbox134;
-   GtkWidget *vbox172;
-   GtkWidget *label264;
-   GtkWidget *ncs_controller_molecule_n_display_chain_vbox;
-   GtkWidget *ncs_controller_molecule_n_display_chain_ich_checkbutton = nullptr;
-   GtkWidget *vbox174;
-   GtkWidget *label265;
-   GtkWidget *ncs_controller_molecule_n_vbox;
-   GSList *molecule_n_ncs_master_chain_gr_group = NULL;
-   GtkWidget *ncs_controller_ncs_master_chain_ich_radiobutton = nullptr;
-   // GtkTooltips *tooltips;
-
    if (! ncs_control_dialog) return;
 
-   // funny place to put this function...
+   GtkWidget *ncs_control_vbox = widget_from_builder("ncs_control_vbox");
    graphics_info_t::clear_out_container(ncs_control_vbox);
 
    std::string m("Molecule ");
-   std::string imol_str = coot::util::int_to_string(imol_no);
-   m += imol_str;
-   m += " ";
    m += dotted_chopped_name();
-   // tooltips = gtk_tooltips_new ();
 
-   frame_molecule_N = gtk_frame_new (m.c_str());
-   // gtk_widget_ref (frame_molecule_N);
-   g_object_set_data_full (G_OBJECT (ncs_control_dialog),
-			     "frame_molecule_N",
-			     frame_molecule_N, NULL);
+   GtkWidget *frame = gtk_frame_new(m.c_str());
+   GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 6);
+   GtkWidget *display_checkbutton = gtk_check_button_new_with_label("Display Non-crystallographic Ghosts");
+   GtkWidget *sep = gtk_separator_new(GTK_ORIENTATION_HORIZONTAL);
+   GtkWidget *grid = gtk_grid_new();
+   GtkWidget *ld      = gtk_label_new("Displayed Chains");
+   GtkWidget *lmaster = gtk_label_new("NCS Master Chain");
 
-   gtk_box_append(GTK_BOX (ncs_control_vbox), frame_molecule_N);
-
-   vbox176 = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
-   // gtk_widget_ref (vbox176);
-   g_object_set_data_full (G_OBJECT (ncs_control_dialog), "vbox176", vbox176, NULL);
-   gtk_widget_set_visible (vbox176, TRUE);
-   gtk_frame_set_child(GTK_FRAME(frame_molecule_N), vbox176);
-
-   ncs_controller_molecule_n_display_ncs_checkbutton =
-      gtk_check_button_new_with_label ("Display Non-cystallographic Ghosts");
-   // gtk_widget_ref (ncs_controller_molecule_n_display_ncs_checkbutton);
-
-   std::string label_str_stub = "ncs_controller_molecule_";
-   std::string label_str = label_str_stub + imol_str;
-   label_str += "_display_ncs_checkbutton";
-   g_object_set_data_full (G_OBJECT (ncs_control_dialog),
-			     label_str.c_str(),
-			     ncs_controller_molecule_n_display_ncs_checkbutton, NULL);
-   gtk_widget_set_visible (ncs_controller_molecule_n_display_ncs_checkbutton, TRUE);
-
-   gtk_box_append(GTK_BOX (vbox176), ncs_controller_molecule_n_display_ncs_checkbutton);
    if (show_ghosts_flag)
-      gtk_check_button_set_active(GTK_CHECK_BUTTON(ncs_controller_molecule_n_display_ncs_checkbutton), TRUE);
+      gtk_check_button_set_active(GTK_CHECK_BUTTON(display_checkbutton), TRUE);
 
+   gtk_box_append(GTK_BOX(ncs_control_vbox), frame);
+   gtk_frame_set_child(GTK_FRAME(frame), box);
+   gtk_box_append(GTK_BOX(box), display_checkbutton);
+   gtk_box_append(GTK_BOX(box), sep);
+   gtk_box_append(GTK_BOX(box), grid);
+   gtk_grid_attach(GTK_GRID(grid), ld,      0, 0, 1, 1);
+   gtk_grid_attach(GTK_GRID(grid), lmaster, 1, 0, 1, 1);
 
-   //
-   hseparator11 = gtk_separator_new (GTK_ORIENTATION_HORIZONTAL);
-   // gtk_widget_ref (hseparator11);
-   g_object_set_data_full (G_OBJECT (ncs_control_dialog), "hseparator11", hseparator11, NULL);
-   gtk_widget_set_visible (hseparator11, TRUE);
-   gtk_box_append(GTK_BOX (vbox176), hseparator11);
+   gtk_widget_set_sensitive(grid, FALSE); // insensitive when Display button is off
 
-   hbox134 = gtk_box_new (GTK_ORIENTATION_HORIZONTAL, 0);
-   // gtk_widget_ref (hbox134);
-   g_object_set_data_full (G_OBJECT (ncs_control_dialog), "hbox134", hbox134, NULL);
-   gtk_widget_set_visible (hbox134, TRUE);
-   gtk_box_append(GTK_BOX (vbox176), hbox134);
+   gtk_widget_set_margin_start(frame, 6);
+   gtk_widget_set_margin_end(frame, 6);
+   gtk_widget_set_margin_top(frame, 2);
+   gtk_widget_set_margin_bottom(frame, 2);
+   gtk_widget_set_margin_start(ld, 6);
+   gtk_widget_set_margin_end(ld, 10);
+   gtk_widget_set_margin_start(lmaster, 6);
+   gtk_widget_set_margin_end(lmaster, 6);
 
-   vbox172 = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
-   // gtk_widget_ref (vbox172);
-   g_object_set_data_full (G_OBJECT (ncs_control_dialog), "vbox172", vbox172, NULL);
-   gtk_widget_set_visible (vbox172, TRUE);
-   gtk_box_append(GTK_BOX (hbox134), vbox172);
+   auto display_checkbutton_callback = +[] (GtkCheckButton *cb, gpointer data) {
 
-   label264 = gtk_label_new("Displayed Chains");
-   // gtk_widget_ref (label264);
-   g_object_set_data_full (G_OBJECT (ncs_control_dialog), "label264", label264, NULL);
-   gtk_widget_set_visible (label264, TRUE);
-   gtk_box_append(GTK_BOX(vbox172), label264);
+      GtkWidget *grid = static_cast<GtkWidget *>(data);
+      int n_chains = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(data), "n_chains"));
+      int imol     = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(data), "imol"));
+      if (gtk_check_button_get_active(cb)) {
+         gtk_widget_set_sensitive(grid, TRUE);
+         if (n_chains > 1) {
+            for (int ii=0; ii<n_chains; ii++) {
+               GtkWidget *cbd = gtk_grid_get_child_at(GTK_GRID(grid), 0, ii+1);
+               GtkWidget *cbm = gtk_grid_get_child_at(GTK_GRID(grid), 1, ii+1);
+               if (gtk_check_button_get_active(GTK_CHECK_BUTTON(cbd))) {
+                  // show NCS for chain ii
+                  ncs_control_display_chain(imol, ii, true);
+               } else {
+                  ncs_control_display_chain(imol, ii, false);
+               }
+            }
+         }
+      } else {
+         graphics_info_t::molecules[imol].set_show_ghosts(0);
+         gtk_widget_set_sensitive(grid, FALSE);
+         graphics_info_t::graphics_draw();
+      }
+   };
+   g_signal_connect(G_OBJECT(display_checkbutton), "toggled",
+                    G_CALLBACK(display_checkbutton_callback), grid);
 
-   ncs_controller_molecule_n_display_chain_vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 0);
-   // gtk_widget_ref (ncs_controller_molecule_n_display_chain_vbox);
-   g_object_set_data_full (G_OBJECT (ncs_control_dialog),
-			     "ncs_controller_molecule_n_display_chain_vbox",
-			     ncs_controller_molecule_n_display_chain_vbox, NULL);
-   gtk_widget_set_visible (ncs_controller_molecule_n_display_chain_vbox, TRUE);
-
-   gtk_box_append(GTK_BOX (vbox172), ncs_controller_molecule_n_display_chain_vbox);
-
-
-   // for each [displayed?] chain:
    std::vector<std::string> v = coot::util::chains_in_molecule(atom_sel.mol);
    int n_chains = v.size();
-   int ighost = 0;
+   g_object_set_data(G_OBJECT(grid), "n_chains", GINT_TO_POINTER(n_chains));
+   g_object_set_data(G_OBJECT(grid), "imol",     GINT_TO_POINTER(imol_no));
+   GtkWidget *master_chain_group = nullptr;
+   auto cbd_toggled = +[] (GtkCheckButton *checkbutton, gpointer data) {
 
-   // is ncs_ghosts filled right now?
+      int imol    = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(checkbutton), "imol"));
+      int i_chain = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(checkbutton), "i_chain"));
+      GtkWidget *display_checkbutton = GTK_WIDGET(g_object_get_data(G_OBJECT(checkbutton), "display_checkbutton"));
+      std::cout << "debug:: checkbutton " << checkbutton << std::endl;
+      std::cout << "debug:: display_checkbutton " << display_checkbutton << std::endl;
+      if (gtk_check_button_get_active(checkbutton)) {
+         if (gtk_check_button_get_active(GTK_CHECK_BUTTON(display_checkbutton)))
+            ncs_control_display_chain(imol, i_chain, true);
+      } else {
+         ncs_control_display_chain(imol, i_chain, false);
+      }
+   };
+   auto cbm_toggled = +[] (GtkCheckButton *checkbutton, gpointer data) {
 
-   std::string master = ncs_ghosts[ighost].target_chain_id;
+      std::cout << "do something with the master chain change " << checkbutton << std::endl;
+      if (gtk_check_button_get_active(checkbutton)) {
+         int i_chain = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(checkbutton), "i_chain"));
+         int imol    = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(checkbutton), "imol"));
+         std::cout << "set chain " << i_chain << " to master chain" << std::endl;
+         GtkWidget *w = nullptr; // not used
+         ::ncs_control_change_ncs_master_to_chain_update_widget(w, imol, i_chain);
+      }
+   };
    for (int ich=0; ich<n_chains; ich++) {
       std::string label = "Chain ";
       label += v[ich];
-      ncs_controller_molecule_n_display_chain_ich_checkbutton =
-	       gtk_check_button_new_with_label (label.c_str());
-      // gtk_widget_ref (ncs_controller_molecule_n_display_chain_ich_checkbutton);
-      std::string name = "ncs_controller_molecule_";
-      name += imol_str;
-      name += "_display_chain_";
-      name += coot::util::int_to_string(ich);
-      name += "_checkbutton";
-      g_object_set_data_full (G_OBJECT (ncs_control_dialog),
-				name.c_str(),
-				ncs_controller_molecule_n_display_chain_ich_checkbutton, NULL);
-      gtk_widget_set_visible (ncs_controller_molecule_n_display_chain_ich_checkbutton, TRUE);
-
-      gtk_box_append(GTK_BOX(ncs_controller_molecule_n_display_chain_vbox),
-                     ncs_controller_molecule_n_display_chain_ich_checkbutton);
-
-      std::cout << "Fix the tip B" << std::endl;
-
-      // g_tooltips_set_tip (tooltips, ncs_controller_molecule_n_display_chain_ich_checkbutton,
-	// 		    _("Show this chain as a ghost chain?"), NULL);
-      g_signal_connect (G_OBJECT (ncs_controller_molecule_n_display_chain_ich_checkbutton),
-			  "toggled",
-			  G_CALLBACK (on_ncs_controller_molecule_n_display_chain_ich_checkbutton_toggled_gtkbuilder_callback),
-			  GINT_TO_POINTER(imol_no*1000 + ich));
-
-      // we set the Displayed ghost chain to insensitive if it is the
-      // master (which doesn't make sense)
-      //
-      // We also make it insensitive if this chain is not a ghost of
-      // the master.
-      //
-      // e.g. conside the case: B matches A, D matches C.  If A is the
-      // master, then we should not be seeing C or D ghosts.
-      //
-      if (v[ich] == master) {
-	       gtk_widget_set_sensitive(ncs_controller_molecule_n_display_chain_ich_checkbutton, FALSE);
-      }
-
-
-      ighost = -1;
-      for (unsigned int jghost=0; jghost<ncs_ghosts.size(); jghost++) {
-	       if ( v[ich] == ncs_ghosts[jghost].chain_id) {
-	          ighost = jghost;
-	          break;
-	       }
-      }
-      if (ighost != -1)
-	 // 	 if (ncs_ghosts[ighost].display_it_flag)
-	       gtk_check_button_set_active(GTK_CHECK_BUTTON(ncs_controller_molecule_n_display_chain_ich_checkbutton), TRUE);
-   }
-
-   vbox174 = gtk_box_new (GTK_ORIENTATION_VERTICAL, 2);
-   // gtk_widget_ref (vbox174);
-   g_object_set_data_full (G_OBJECT (ncs_control_dialog), "vbox174", vbox174, NULL);
-   gtk_widget_set_visible (vbox174, TRUE);
-   gtk_box_append(GTK_BOX (hbox134), vbox174);
-
-   label265 = gtk_label_new ("NCS Master Chain");
-   // gtk_widget_ref (label265);
-   g_object_set_data_full (G_OBJECT (ncs_control_dialog), "label265", label265, NULL);
-   gtk_widget_set_visible (label265, TRUE);
-   // 20220528-PE FIXME set alignment
-   gtk_box_append(GTK_BOX (vbox174), label265);
-
-   ncs_controller_molecule_n_vbox = gtk_box_new (GTK_ORIENTATION_VERTICAL, 2);
-   // gtk_widget_ref (ncs_controller_molecule_n_vbox);
-   g_object_set_data_full (G_OBJECT (ncs_control_dialog),
-			     "ncs_controller_molecule_n_vbox", ncs_controller_molecule_n_vbox, NULL);
-   gtk_widget_set_visible (ncs_controller_molecule_n_vbox, TRUE);
-
-   gtk_box_append(GTK_BOX (vbox174), ncs_controller_molecule_n_vbox);
-
-   // ncs master
-   for (int ich=0; ich<n_chains; ich++) {
-      std::string chain_str = v[ich];
-      std::string label = "Chain ";
-      label += chain_str;
-#if (GTK_MAJOR_VERSION >= 4)
-   // 20220602-PE FIXME radio buttons
-    std::cout << "FIXME radio buttons" << std::endl;
-#else
-      ncs_controller_ncs_master_chain_ich_radiobutton =
-	 gtk_radio_button_new_with_label (molecule_n_ncs_master_chain_gr_group, label.c_str());
-      molecule_n_ncs_master_chain_gr_group =
-	 gtk_radio_button_get_group (GTK_RADIO_BUTTON (ncs_controller_ncs_master_chain_ich_radiobutton));
-#endif
-      // gtk_widget_ref (ncs_controller_ncs_master_chain_ich_radiobutton);
-      std::string name = "ncs_controller_ncs_master_chain_";
-      name += imol_str;
-      name += "_radiobutton";
-      g_object_set_data_full (G_OBJECT (ncs_control_dialog),
-				name.c_str(),
-				ncs_controller_ncs_master_chain_ich_radiobutton, NULL);
-      gtk_widget_set_visible (ncs_controller_ncs_master_chain_ich_radiobutton, TRUE);
-      gtk_box_append(GTK_BOX (ncs_controller_molecule_n_vbox),
-                     ncs_controller_ncs_master_chain_ich_radiobutton);
-      std::cout << "Fix the tip BB" << std::endl;
-      // gtk_tooltips_set_tip (tooltips, ncs_controller_ncs_master_chain_ich_radiobutton,
-	// 		    _("The chain to which operators and ghosts are generated from other chains"), NULL);
-      g_signal_connect (G_OBJECT (ncs_controller_ncs_master_chain_ich_radiobutton),
-			  "toggled",
-			  G_CALLBACK (on_ncs_controller_ncs_master_chain_ich_radiobutton_toggled_gtkbuilder_callback),
-			  GINT_TO_POINTER(imol_no*1000 + ich));
-
-      if (chain_str == master) {
-	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(ncs_controller_ncs_master_chain_ich_radiobutton), TRUE);
+      GtkWidget *cbd = gtk_check_button_new_with_label(label.c_str());
+      GtkWidget *cbm = gtk_check_button_new_with_label(label.c_str());
+      g_object_set_data(G_OBJECT(cbd), "imol",    GINT_TO_POINTER(imol_no));
+      g_object_set_data(G_OBJECT(cbd), "i_chain", GINT_TO_POINTER(ich));
+      g_object_set_data(G_OBJECT(cbm), "imol",    GINT_TO_POINTER(imol_no));
+      g_object_set_data(G_OBJECT(cbm), "i_chain", GINT_TO_POINTER(ich));
+      g_object_set_data(G_OBJECT(cbd), "display_checkbutton", display_checkbutton);
+      gtk_grid_attach(GTK_GRID(grid), cbd, 0, ich+1, 1, 1);
+      gtk_grid_attach(GTK_GRID(grid), cbm, 1, ich+1, 1, 1);
+      g_signal_connect(G_OBJECT(cbd), "toggled", G_CALLBACK(cbd_toggled), nullptr);
+      g_signal_connect(G_OBJECT(cbm), "toggled", G_CALLBACK(cbm_toggled), nullptr);
+      if (ich > 0)
+         gtk_check_button_set_active(GTK_CHECK_BUTTON(cbd), TRUE);
+      if (master_chain_group) {
+         gtk_check_button_set_group(GTK_CHECK_BUTTON(cbm), GTK_CHECK_BUTTON(master_chain_group));
+      } else {
+         // the first chain is the master by default
+         master_chain_group = cbm;
+         gtk_check_button_set_active(GTK_CHECK_BUTTON(cbm), TRUE);
       }
    }
-
-   g_signal_connect (G_OBJECT (ncs_controller_molecule_n_display_ncs_checkbutton),
-		       "toggled",
-		       G_CALLBACK (on_ncs_controller_molecule_n_display_ncs_checkbutton_toggled_gtkbuilder_callback),
-		       GINT_TO_POINTER(imol_no));
-
-   gtk_widget_set_visible(frame_molecule_N, TRUE);
-
 }
 
 
+// widget is no longer used (it used to be needed for lookups)
 void
-molecule_class_info_t::ncs_control_change_ncs_master_to_chain_update_widget(GtkWidget *w, int imaster) const {
+molecule_class_info_t::ncs_control_change_ncs_master_to_chain_update_widget(GtkWidget *widget, int imaster) const {
 
    // Now we want to update the widget.  We need to change the sensitivity of
    // all the Chain check boxes in the dispaly ncs chain vbox.
@@ -765,31 +660,29 @@ molecule_class_info_t::ncs_control_change_ncs_master_to_chain_update_widget(GtkW
    // First find imaster
    std::vector<std::string> chain_ids = coot::util::chains_in_molecule(atom_sel.mol);
 
-   if (w) {
-      if (imaster != -1) {
-	 // GtkWidget *vbox = lookup_widget(w, "ncs_controller_molecule_n_display_chain_vbox");
-	 GtkWidget *vbox = widget_from_builder("ncs_controller_molecule_n_display_chain_vbox");
-	 std::string imol_str = coot::util::int_to_string(imol_no);
-	 for (unsigned int i=0; i<chain_ids.size(); i++) {
-	    std::string name = "ncs_controller_molecule_";
-	    name += imol_str;
-	    name += "_display_chain_";
-	    name += coot::util::int_to_string(i);
-	    name += "_checkbutton";
-	    // GtkWidget *checkbutton = lookup_widget(vbox, name.c_str());
-	    GtkWidget *checkbutton = 0;
-            std::cout << "in ncs_control_change_ncs_master_to_chain_update_widget() set the checkbutton correctly" << std::endl;
-	    if (checkbutton) {
-	       if (int(i) == imaster) {
-		  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), FALSE);
-		  gtk_widget_set_sensitive(checkbutton, FALSE);
-	       } else {
-		  gtk_widget_set_sensitive(checkbutton, TRUE);
-		  // ncs control turns on all chains when we change the master
-		  gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), TRUE);
-	       }
-	    }
-	 }
+   if (imaster != -1) {
+      // GtkWidget *vbox = lookup_widget(w, "ncs_controller_molecule_n_display_chain_vbox");
+      GtkWidget *vbox = widget_from_builder("ncs_controller_molecule_n_display_chain_vbox");
+      std::string imol_str = coot::util::int_to_string(imol_no);
+      for (unsigned int i=0; i<chain_ids.size(); i++) {
+         std::string name = "ncs_controller_molecule_";
+         name += imol_str;
+         name += "_display_chain_";
+         name += coot::util::int_to_string(i);
+         name += "_checkbutton";
+         // GtkWidget *checkbutton = lookup_widget(vbox, name.c_str());
+         GtkWidget *checkbutton = 0;
+         std::cout << "in ncs_control_change_ncs_master_to_chain_update_widget() set the checkbutton correctly" << std::endl;
+         if (checkbutton) {
+            if (int(i) == imaster) {
+               gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), FALSE);
+               gtk_widget_set_sensitive(checkbutton, FALSE);
+            } else {
+               gtk_widget_set_sensitive(checkbutton, TRUE);
+               // ncs control turns on all chains when we change the master
+               gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(checkbutton), TRUE);
+            }
+         }
       }
    }
 }

@@ -32,6 +32,7 @@ pli::optimise_residue_circles::optimise_residue_circles(const std::vector<residu
    score_vs_ligand_atoms              = true;
    score_vs_ring_centres              = true;
    score_vs_original_positions        = true;
+   score_vs_other_residues            = true;
    score_vs_other_residues_for_angles = false; //  problem. Fix later
    score_vs_ligand_atom_bond_length   = true;
 
@@ -40,7 +41,7 @@ pli::optimise_residue_circles::optimise_residue_circles(const std::vector<residu
    score_vs_original_positions_kk = 3.0;
    score_vs_ligand_atom_bond_length_kk = 10.0;
 
-   score_vs_other_residues_kk = 80.0;
+   score_vs_other_residues_kk = 180.0;
    score_vs_other_residues_exp_scale = 0.25;
 
    bool debug_weights = true; // 20250106-PE for now
@@ -111,7 +112,7 @@ pli::optimise_residue_circles::optimise_residue_circles(const std::vector<residu
    s = gsl_multimin_fdfminimizer_alloc (T, n_var);
    gsl_multimin_fdfminimizer_set (s, &my_func, x, 1, 1e-4);
    size_t iter = 0;
-   size_t n_steps = 2000; // increase? (was 400) trying 500
+   size_t n_steps = 500; // increase? (was 400) trying 500
    if (show_dynamics)
       n_steps = 60;
 

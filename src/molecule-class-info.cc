@@ -859,7 +859,10 @@ molecule_class_info_t::install_model_with_ghosts(int imol_no_in,
       bool do_rtops = true;
       fill_ghost_info(do_rtops, graphics_info_t::ncs_homology_level);
    } else {
-      ncs_ghosts = ncs_ghosts_in;
+      // ncs_ghosts = ncs_ghosts_in;
+      ncs_ghosts.clear();
+      for (unsigned int i=0; i<ncs_ghosts_in.size(); i++)
+         ncs_ghosts.push_back(drawn_ghost_molecule_display_t(ncs_ghosts_in[i]));
    }
    initialize_coordinate_things_on_read_molecule_internal(name, is_undo_or_redo);
 }
