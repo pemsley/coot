@@ -254,11 +254,8 @@ molecule_class_info_t::draw_ncs_ghosts(Shader *shader_for_meshes,
                                        const glm::vec3 &eye_position,
                                        const glm::vec4 &background_colour) {
 
-   std::cout << "in draw_ncs_ghosts() AAA " << show_ghosts_flag << std::endl;
    if (show_ghosts_flag) {
-      std::cout << "in draw_ncs_ghosts() BBB " << ncs_ghosts.size() << std::endl;
       for (auto &ghost : ncs_ghosts) {
-         std::cout << "... do the draw()" << std::endl;
          ghost.draw(shader_for_meshes, mvp, model_rotation_matrix, lights, eye_position, background_colour);
       }
    }
@@ -273,8 +270,9 @@ drawn_ghost_molecule_display_t::draw(Shader *shader_p,
                                      const glm::vec3 &eye_position, // eye position in view space (not molecule space)
                                      const glm::vec4 &background_colour) {
 
-   std::cout << "ncs_ghosts::draw() n-verts: " << mesh.vertices.size()
-             << " n-tris: " << mesh.triangles.size() << std::endl;
+   if (false)
+      std::cout << "ncs_ghosts::draw() n-verts: " << mesh.vertices.size()
+                << " n-tris: " << mesh.triangles.size() << std::endl;
    glm::vec3 rc = graphics_info_t::get_rotation_centre();
    mesh.draw(shader_p, mvp, view_rotation_matrix, lights, eye_position, rc, 1.0, background_colour, false, true, false);
 }
@@ -307,7 +305,7 @@ molecule_class_info_t::fill_ghost_info(short int do_rtops_flag,
    bool allow_offset_flag = 0;
    if (is_from_shelx_ins_flag)
       allow_offset_flag = 1;
-   
+
    // start from a blank slate:
    ncs_ghosts.clear();
 

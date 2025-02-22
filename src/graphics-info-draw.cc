@@ -947,7 +947,6 @@ graphics_info_t::draw_model_molecules() {
       m.draw_dots(&shader_for_rama_balls, mvp, model_rotation, lights, eye_position,
                      bgc, shader_do_depth_fog_flag);
 
-      std::cout << "calling draw_ncs_ghosts()" << std::endl;
       m.draw_ncs_ghosts(&shader_for_meshes, mvp, model_rotation, lights, eye_position, bgc);
 
       glEnable(GL_BLEND);
