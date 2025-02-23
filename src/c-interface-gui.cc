@@ -2450,9 +2450,9 @@ void toggle_environment_show_distances(GtkCheckButton *button) {
       // std::cout << "toggled evironment distances off" << std::endl;
       g.environment_show_distances = 0;
       gtk_widget_set_sensitive(hbox, FALSE);
-      gtk_widget_set_sensitive(label_atom_check_button, FALSE);
       gtk_widget_set_sensitive(distance_type_frame, FALSE);
       graphics_draw();
+      // gtk_widget_set_sensitive(label_atom_check_button, FALSE); // keep it always active
    }
 }
 

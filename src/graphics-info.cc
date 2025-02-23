@@ -793,12 +793,18 @@ graphics_info_t::set_rotation_centre(const clipper::Coord_orth &pt) {
 
 void
 graphics_info_t::setRotationCentre(int index, int imol) {
+
    mmdb::Atom *atom = molecules[imol].atom_sel.atom_selection[index];
    float x = atom->x;
    float y = atom->y;
    float z = atom->z;
    clipper::Coord_orth pt(x,y,z);
    set_rotation_centre(pt);
+
+   if (environment_distance_label_atom) {
+      molecules[imol].unlabel_last_atom();
+      molecules[imol].add_to_labelled_atom_list(index);
+   }
 
 }
 
@@ -1292,13 +1298,12 @@ graphics_info_t::setRotationCentre(coot::Cartesian new_centre, bool force_jump) 
 
 void
 graphics_info_t::setRotationCentreAndZoom(coot::Cartesian centre,
-     float target_zoom) {
+                                          float target_zoom) {
 
    set_old_rotation_centre(RotationCentre());
 
    if (graphics_info_t::smooth_scroll == 1)
-      smooth_scroll_maybe(centre.x(), centre.y(), centre.z(),
-     1, target_zoom);
+      smooth_scroll_maybe(centre.x(), centre.y(), centre.z(), 1, target_zoom);
 
    rotation_centre_x = centre.get_x();
    rotation_centre_y = centre.get_y();
@@ -3839,7 +3844,6 @@ graphics_info_t::start_baton_here() {
          GtkWidget *w = wrapped_create_skeleton_dialog(1);
          gtk_widget_set_visible(w, TRUE);
          return 0;
-         
 
       } else {
 

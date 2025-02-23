@@ -1910,17 +1910,16 @@ on_unsaved_changes_continue_button_clicked
 
 extern "C" G_MODULE_EXPORT
 void
-on_environment_distance_label_atom_checkbutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
+on_environment_distance_label_atom_checkbutton_toggled(GtkCheckButton *checkbutton,
+                                                       gpointer        user_data) {
 
-  if (gtk_toggle_button_get_active(togglebutton)) {
-    set_environment_distances_label_atom(1);
+  if (gtk_check_button_get_active(checkbutton)) {
+     set_environment_distances_label_atom(1);
+     graphics_info_t g;
+     g.try_label_unlabel_active_atom();
   } else {
-    set_environment_distances_label_atom(0);
+     set_environment_distances_label_atom(0);
   }
-
 }
 
 
