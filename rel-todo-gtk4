@@ -29,7 +29,7 @@ to move the molecule - you might like to try several
 different rotation/translation hypotheses to check
 for consistency.
 
-Stuart: Download svg in Moorhen ligands and carbohydrate.
+Friday: paper (and session with Moorhen/Cloud?)
 
 Stuart: hydrogen bonds?
 
@@ -136,7 +136,7 @@ The first save coords molecule selector dialog should be an overlay.
 Fix this startup message:
 ERROR:: failed to find preferences_bond_width_combobox
 ERROR:: failed to find preferences_font_size_combobox
-* Done
+* Done.
 
 add-geometry-distance in state command needs coot namespace
 * Done.
