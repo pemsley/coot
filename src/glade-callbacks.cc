@@ -3852,7 +3852,7 @@ on_shader_settings_dialog_close(GtkDialog *dialog,
 
    // The ::close signal is a keybinding signal which gets emitted when the user uses a keybinding to close the dialog.
    // The default binding for this signal is the Escape key.
-   
+
    std::cout << "-------------- on_shader_settings_dialog close  " << std::endl;
 }
 
@@ -3888,47 +3888,51 @@ on_generate_diff_map_peaks_cancel_button_clicked
 
 extern "C" G_MODULE_EXPORT
 void
-on_superpose_reference_chain_checkbutton_toggled(GtkToggleButton *togglebutton,
-                                                                     gpointer user_data) {
+on_superpose_reference_chain_checkbutton_toggled(GtkCheckButton *checkbutton,
+                                                 gpointer user_data) {
 
-  GtkWidget *combobox = widget_from_builder("superpose_dialog_reference_chain_combobox");
-  if (gtk_toggle_button_get_active(togglebutton)) {
-    gtk_widget_set_sensitive(GTK_WIDGET(combobox), TRUE);
-    printf("calling fill_superpose_combobox_with_chain_options()\n");
-    fill_superpose_combobox_with_chain_options(combobox, 1);
-    printf("done fill_superpose_combobox_with_chain_options()\n");
-  } else {
-    gtk_widget_set_sensitive(GTK_WIDGET(combobox), FALSE);
-  }
+   GtkWidget *combobox = widget_from_builder("superpose_dialog_reference_chain_combobox");
+   if (gtk_check_button_get_active(checkbutton)) {
+      gtk_widget_set_sensitive(GTK_WIDGET(combobox), TRUE);
 
-  printf("done on_superpose_reference_chain_checkbutton_toggled()\n");
+      GtkWidget *combobox_1 = widget_from_builder("superpose_dialog_reference_mol_combobox");
+      GtkWidget *combobox_2 = widget_from_builder("superpose_dialog_moving_mol_combobox");
 
+      int imol1 = my_combobox_get_imol(GTK_COMBO_BOX(combobox_1));
+      int imol2 = my_combobox_get_imol(GTK_COMBO_BOX(combobox_2));
+      int imol_active = imol1;
+
+      fill_superpose_combobox_with_chain_options(imol_active, 1);
+   } else {
+      gtk_widget_set_sensitive(GTK_WIDGET(combobox), FALSE);
+   }
 }
 
 
 extern "C" G_MODULE_EXPORT
 void
-on_superpose_moving_chain_checkbutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
-  GtkWidget *combobox = widget_from_builder("superpose_dialog_moving_chain_combobox");
+on_superpose_moving_chain_checkbutton_toggled(GtkCheckButton *checkbutton,
+                                              gpointer        user_data) {
 
-  if (gtk_toggle_button_get_active(togglebutton)) {
-    fill_superpose_combobox_with_chain_options(combobox, 0);
-    gtk_widget_set_sensitive(GTK_WIDGET(combobox), TRUE);
-  } else {
-    gtk_widget_set_sensitive(GTK_WIDGET(combobox), FALSE);
-  }
+   GtkWidget *combobox = widget_from_builder("superpose_dialog_moving_chain_combobox");
+   if (gtk_check_button_get_active(checkbutton)) {
+      GtkWidget *combobox_2 = widget_from_builder("superpose_dialog_moving_mol_combobox");
+      int imol2 = my_combobox_get_imol(GTK_COMBO_BOX(combobox_2));
+      int imol_active = imol2;
+
+      fill_superpose_combobox_with_chain_options(imol_active, 0);
+      gtk_widget_set_sensitive(GTK_WIDGET(combobox), TRUE);
+   } else {
+      gtk_widget_set_sensitive(GTK_WIDGET(combobox), FALSE);
+   }
 }
 
-
+// is this used now?
 extern "C" G_MODULE_EXPORT
 void
 on_draw_ncs_ghosts_yes_radiobutton_toggled
                                         (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
+                                        gpointer         user_data) {
 /* Function no longer used. Handled in another dialog
 
    Kept in glade (not visible) for historical reasons
@@ -3942,12 +3946,11 @@ on_draw_ncs_ghosts_yes_radiobutton_toggled
 }
 
 
+// is this used now?
 extern "C" G_MODULE_EXPORT
 void
-on_draw_ncs_ghosts_no_radiobutton_toggled
-                                        (GtkToggleButton *togglebutton,
-                                        gpointer         user_data)
-{
+on_draw_ncs_ghosts_no_radiobutton_toggled(GtkToggleButton *togglebutton,
+                                          gpointer         user_data) {
 
 }
 
@@ -6772,6 +6775,7 @@ on_ramachandran_plot_molecule_chooser_ok_button_clicked(GtkButton       *button,
       std::cout << "ERROR:: on_ramachandran_plot_molecule_chooser_ok_button_clicked() get active iter failed"
                 << std::endl;
    }
+   graphics_info_t::graphics_grab_focus();
 }
 
 
@@ -6781,6 +6785,7 @@ on_ramachandran_plot_molecule_chooser_cancel_button_clicked (GtkButton       *bu
                                                              gpointer         user_data) {
    GtkWidget *w = widget_from_builder("ramachandran_plot_molecule_chooser_dialog");
    gtk_widget_set_visible(w, FALSE);
+   graphics_info_t::graphics_grab_focus();
 
 }
 
@@ -6794,10 +6799,11 @@ on_map_properties_dialog_specularity_state_checkbutton_toggled(GtkCheckButton *c
    // was it set?
    int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(checkbutton), "imol"));
    handle_map_properties_specularity_change(imol, GTK_WIDGET(checkbutton));
+   graphics_info_t::graphics_grab_focus();
 
 }
 
-// ----------------------------------- updating maps 
+// ----------------------------------- updating maps -----
 
 extern "C" G_MODULE_EXPORT
 void
@@ -6806,6 +6812,7 @@ on_updating_maps_cancel_button_clicked(GtkButton       *button,
 
    GtkWidget *dialog = widget_from_builder("updating_maps_dialog");
    gtk_widget_set_visible(dialog, FALSE);
+   graphics_info_t::graphics_grab_focus();
 
 }
 
@@ -6838,6 +6845,7 @@ on_updating_maps_ok_button_clicked(GtkButton       *button,
 
    GtkWidget *points_button = widget_from_builder("coot-points-button");
    gtk_widget_set_visible(points_button, TRUE);
+   graphics_info_t::graphics_grab_focus();
 
 }
 
@@ -6849,6 +6857,7 @@ on_ligand_check_dialog_close_button_clicked(GtkButton       *button,
 
    GtkWidget *dialog = widget_from_builder("ligand_check_dialog");
    gtk_widget_set_visible(dialog, FALSE);
+   graphics_info_t::graphics_grab_focus();
 
 }
 
@@ -6864,6 +6873,7 @@ on_generic_validation_box_of_buttons_close_button_clicked(GtkButton       *butto
       g.clear_out_container(box);
    }
    gtk_widget_set_visible(dialog, FALSE);
+   graphics_info_t::graphics_grab_focus();
 }
 
 extern "C" G_MODULE_EXPORT

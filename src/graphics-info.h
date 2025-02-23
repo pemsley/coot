@@ -3657,8 +3657,8 @@ public:
 
    static void superpose_combobox_changed_mol1(GtkWidget *c, gpointer data);
    static void superpose_combobox_changed_mol2(GtkWidget *c, gpointer data);
-   static void fill_superpose_combobox_with_chain_options(GtkWidget *combobox,
-							  int is_reference_structure_flag);
+   static void fill_superpose_combobox_with_chain_options(int imol_active,
+							  bool is_reference_structure_flag);
    static int         ramachandran_plot_differences_imol1;
    static int         ramachandran_plot_differences_imol2;
    static std::string ramachandran_plot_differences_imol1_chain;

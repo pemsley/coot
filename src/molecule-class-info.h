@@ -3604,6 +3604,8 @@ void draw_map_molecule(bool draw_transparent_maps,
                                                                     const std::string &mesh_name);
    void remove_molecular_representation(int idx);
 
+   void delete_all_carbohydrate();
+
    // carbohydrate validation tools
    void glyco_tree_internal_distances_fn(const coot::residue_spec_t &base_residue_spec,
 					 coot::protein_geometry *geom_p,

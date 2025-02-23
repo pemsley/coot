@@ -1609,6 +1609,7 @@ void HOLE_action(GSimpleAction *simple_action,
    GCallback func = G_CALLBACK(nullptr); // we don't care until this dialog is read
    g.fill_combobox_with_molecule_options(combobox, func, imol_active, model_list);
    gtk_widget_set_visible(dialog, TRUE);
+   graphics_info_t::graphics_grab_focus();
 }
 
 void acedrg_link_interface_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -1617,6 +1618,7 @@ void acedrg_link_interface_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
    std::cout << "show acedrg link interface overlay" << std::endl;
    show_acedrg_link_interface_overlay();
+   graphics_info_t::graphics_grab_focus();
 
 }
 
@@ -1624,15 +1626,65 @@ void run_acedrg_via_CCD_dictionary_download_action(G_GNUC_UNUSED GSimpleAction *
                                   G_GNUC_UNUSED GVariant *parameter,
                                   G_GNUC_UNUSED gpointer user_data) {
 
-   std::cout << "get dict..." << std::endl;
    std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
    if (pp.first) {
       int imol = pp.second.first;
       coot::residue_spec_t res_spec(pp.second.second);
       make_acedrg_dictionary_via_CCD_dictionary(imol, res_spec);
    }
+   graphics_info_t::graphics_grab_focus();
 }
 
+// Carbohydrate
+
+   // add_action(   "carbohydrate_add_nag_nag_bma_action", carbohydrate_add_nag_nag_bma_action);
+   // add_action(  "carbohydrate_add_high_mannose_action", carbohydrate_add_high_mannose_action);
+   // add_action( "carbohydrate_add_hybrid_mammal_action", carbohydrate_add_hybrid_mammal_action);
+   // add_action("carbohydrate_add_complex_mammal_action", carbohydrate_add_complex_mammal_action);
+
+void delete_carbohydrate_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                G_GNUC_UNUSED GVariant *parameter,
+                                G_GNUC_UNUSED gpointer user_data) {
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      graphics_info_t::molecules[imol].delete_all_carbohydrate();
+   }
+   graphics_info_t::graphics_grab_focus();
+   graphics_info_t::graphics_draw();
+}
+
+void carbohydrate_add_nag_nag_bma_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                         G_GNUC_UNUSED GVariant *parameter,
+                                         G_GNUC_UNUSED gpointer user_data) {
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      // need to convert the algoritm
+   }
+   graphics_info_t::graphics_grab_focus();
+   graphics_info_t::graphics_draw();
+}
+
+void carbohydrate_add_high_mannose_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                          G_GNUC_UNUSED GVariant *parameter,
+                                          G_GNUC_UNUSED gpointer user_data) {
+
+}
+
+void carbohydrate_add_hybrid_mammal_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                           G_GNUC_UNUSED GVariant *parameter,
+                                           G_GNUC_UNUSED gpointer user_data) {
+
+}
+
+void carbohydrate_add_complex_mammal_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                            G_GNUC_UNUSED GVariant *parameter,
+                                            G_GNUC_UNUSED gpointer user_data) {
+
+}
 
 void add_ccp4_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                             G_GNUC_UNUSED GVariant *parameter,
@@ -2084,10 +2136,25 @@ void jiggle_fit_molecule_with_fourier_filtering_action(G_GNUC_UNUSED GSimpleActi
 void add_carbohydrate_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                     G_GNUC_UNUSED GVariant *parameter,
                                     G_GNUC_UNUSED gpointer user_data) {
+#if 0
    safe_python_command("import gui_add_linked_cho");
    safe_python_command("gui_add_linked_cho.add_module_carbohydrate_gui()");
    g_simple_action_set_enabled(simple_action,FALSE);
+#endif
+
+   GtkWidget *toolbar_hbox = widget_from_builder("main_window_toolbar_hbox");
+   GtkWidget *menubutton = gtk_menu_button_new();
+   gtk_menu_button_set_label(GTK_MENU_BUTTON(menubutton), "Carbohydrate");
+   gtk_box_append(GTK_BOX(toolbar_hbox), menubutton);
+
+   GtkWidget *menu = widget_from_builder("carbohydrate-menu");
+   GMenuModel *model = G_MENU_MODEL(menu);
+   GtkWidget *popover = gtk_popover_menu_new_from_model(model);
+   gtk_menu_button_set_popover(GTK_MENU_BUTTON(menubutton), popover);
+
+   g_simple_action_set_enabled(simple_action, FALSE);
    graphics_info_t::graphics_grab_focus();
+
 }
 
 void add_cryo_em_module_action(GSimpleAction *simple_action,
@@ -2461,7 +2528,6 @@ whats_this_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
 
 
-
 void
 ssm_superposition_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                          G_GNUC_UNUSED GVariant *parameter,
@@ -2472,8 +2538,10 @@ ssm_superposition_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    /* we get returned w = 0 when there is no MMDBSSM. (We are doing it
       this way because we don't have to introduce HAVE_MMDBSSM into the
       *c* compiler arguments (this is simpler)).  */
-  if (w)
-     gtk_widget_set_visible(w, TRUE);
+   if (w) {
+      gtk_widget_set_visible(w, TRUE);
+      set_transient_for_main_window(w);
+   }
 }
 
 
@@ -3186,7 +3254,9 @@ void
 ghost_control_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                      G_GNUC_UNUSED GVariant *parameter,
                      G_GNUC_UNUSED gpointer user_data) {
+
    GtkWidget *w = wrapped_create_ncs_control_dialog(); // uses builder
+   set_transient_for_main_window(w);
    gtk_widget_set_visible(w, TRUE);
    graphics_info_t::graphics_grab_focus();
 }
@@ -4863,6 +4933,13 @@ create_actions(GtkApplication *application) {
    // CCP4 menu
    add_action(     "acedrg_link_interface_action", acedrg_link_interface_action);
    add_action(     "run_acedrg_via_CCD_dictionary_download_action", run_acedrg_via_CCD_dictionary_download_action);
+
+   // Carbohydrate
+   add_action(            "delete_carbohydrate_action", delete_carbohydrate_action);
+   add_action(   "carbohydrate_add_nag_nag_bma_action", carbohydrate_add_nag_nag_bma_action);
+   add_action(  "carbohydrate_add_high_mannose_action", carbohydrate_add_high_mannose_action);
+   add_action( "carbohydrate_add_hybrid_mammal_action", carbohydrate_add_hybrid_mammal_action);
+   add_action("carbohydrate_add_complex_mammal_action", carbohydrate_add_complex_mammal_action);
 
    // Cryo-EM menu
    add_action("cryo_em_solidify_maps_action",                cryo_em_solidify_maps_action);

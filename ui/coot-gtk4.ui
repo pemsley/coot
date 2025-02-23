@@ -16363,6 +16363,7 @@ distances more than:</property>
     <child type="titlebar">
     </child>
   </object>
+
   <object class="GtkDialog" id="stereo_dialog">
     <property name="title" translatable="yes">Stereo/Mono</property>
     <child>
@@ -16383,8 +16384,7 @@ distances more than:</property>
                 <property name="orientation">vertical</property>
                 <child>
                   <object class="GtkLabel" id="label222">
-                    <property name="label" translatable="yes">
-View Mode</property>
+                    <property name="label" translatable="yes">View Mode</property>
                     <property name="justify">center</property>
                   </object>
                 </child>
@@ -16444,138 +16444,121 @@ View Mode</property>
     <child type="titlebar">
     </child>
   </object>
+
   <object class="GtkDialog" id="superpose_dialog">
-    <property name="title" translatable="yes">SSM Superpose</property>
-    <property name="deletable">0</property>
+    <property name="title" translatable="yes">Coot: SSM Superpose</property>
+    <property name="default-width">400</property>
     <child>
-      <object class="GtkBox" id="dialog-vbox49">
+      <object class="GtkBox" id="superpose_vbox_internal">
         <property name="orientation">vertical</property>
-         <child type="action">
-              <object class="GtkBox" id="hbox83">
-                <child>
-                  <object class="GtkButton" id="superpose_dialog_cancel_button">
-                    <property name="label" translatable="yes">  Cancel  </property>
-                    <property name="can-focus">1</property>
-                    <property name="use-underline">1</property>
-                    <signal name="clicked" handler="on_superpose_dialog_cancel_button_clicked" swapped="no"/>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkButton" id="superpose_dialog_superpose_button">
-                    <property name="label" translatable="yes">  Superpose  </property>
-                    <property name="can-focus">1</property>
-                    <property name="use-underline">1</property>
-                    <signal name="clicked" handler="on_superpose_dialog_superpose_button_clicked" swapped="no"/>
-                  </object>
-                </child>
-              </object>
-        </child>
+        <property name="spacing">2</property>
+
         <child>
-          <object class="GtkBox" id="vbox109">
-            <property name="orientation">vertical</property>
+          <object class="GtkFrame" id="superpose_reference_frame">
+            <property name="label" translatable="yes">Reference Structure</property>
+            <property name="halign">center</property>
+            <property name="valign">start</property>
+            <property name="margin-bottom">5</property>
+            <property name="margin-end">5</property>
+            <property name="margin-start">5</property>
+            <property name="margin-top">5</property>
             <child>
-              <object class="GtkLabel" id="label159">
-                <property name="label" translatable="yes">Superpose Molecules</property>
-                <property name="justify">center</property>
-              </object>
-            </child>
-            <child>
-              <object class="GtkFrame" id="frame98">
+              <object class="GtkBox">
+                <property name="orientation">vertical</property>
                 <child>
-                  <object class="GtkBox" id="vbox142">
-                    <property name="orientation">vertical</property>
-                    <child>
-                      <object class="GtkComboBoxText" id="superpose_dialog_reference_mol_combobox">
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkFrame" id="superpose_reference_structure_frame">
-                        <child>
-                          <object class="GtkBox" id="vbox144">
-                            <property name="orientation">vertical</property>
-                            <child>
-                              <object class="GtkCheckButton" id="superpose_reference_chain_checkbutton">
-                                <property name="label" translatable="yes">Use Specific Chain</property>
-                                <property name="can-focus">1</property>
-                                <property name="use-underline">1</property>
-                                <signal name="toggled" handler="on_superpose_reference_chain_checkbutton_toggled" swapped="no"/>
-                              </object>
-                            </child>
-                            <child>
-                              <object class="GtkComboBoxText" id="superpose_dialog_reference_chain_combobox">
-                              </object>
-                            </child>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
+                  <object class="GtkComboBoxText" id="superpose_dialog_reference_mol_combobox">
                   </object>
                 </child>
-                <child type="label">
-                  <object class="GtkLabel" id="label304">
-                    <property name="label" translatable="yes">Reference Structure</property>
-                  </object>
-                </child>
-              </object>
-            </child>
-            <child>
-              <object class="GtkLabel" id="label160">
-                <property name="justify">center</property>
-              </object>
-            </child>
-            <child>
-              <object class="GtkFrame" id="frame99">
                 <child>
-                  <object class="GtkBox" id="vbox143">
-                    <property name="orientation">vertical</property>
-                    <child>
-                      <object class="GtkComboBoxText" id="superpose_dialog_moving_mol_combobox">
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkFrame" id="superpose_moving_structure_frame">
-                        <child>
-                          <object class="GtkBox" id="vbox145">
-                            <property name="orientation">vertical</property>
-                            <child>
-                              <object class="GtkCheckButton" id="superpose_moving_chain_checkbutton">
-                                <property name="label" translatable="yes">Use Specific Chain</property>
-                                <property name="can-focus">1</property>
-                                <property name="use-underline">1</property>
-                                <signal name="toggled" handler="on_superpose_moving_chain_checkbutton_toggled" swapped="no"/>
-                              </object>
-                            </child>
-                            <child>
-                              <object class="GtkComboBoxText" id="superpose_dialog_moving_chain_combobox">
-                              </object>
-                            </child>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
+                  <object class="GtkCheckButton" id="superpose_reference_chain_checkbutton">
+                    <property name="label" translatable="yes">Use Specific Chain</property>
+                    <signal name="toggled" handler="on_superpose_reference_chain_checkbutton_toggled" swapped="no"/>
                   </object>
                 </child>
-                <child type="label">
-                  <object class="GtkLabel" id="label305">
-                    <property name="label" translatable="yes">Moving Structure</property>
+                <child>
+                  <object class="GtkComboBoxText" id="superpose_dialog_reference_chain_combobox">
                   </object>
                 </child>
               </object>
             </child>
+          </object>
+        </child>
+
+        <child>
+          <object class="GtkFrame" id="superpose_moving_frame">
+            <property name="label" translatable="yes">Moving Structure</property>
+            <property name="halign">center</property>
+            <property name="valign">start</property>
+            <property name="margin-bottom">5</property>
+            <property name="margin-end">5</property>
+            <property name="margin-start">5</property>
+            <property name="margin-top">5</property>
             <child>
-              <object class="GtkCheckButton" id="superpose_dialog_move_copy_checkbutton">
-                <property name="label" translatable="yes">Move copy of Moving Structure</property>
-                <property name="can-focus">1</property>
-                <property name="use-underline">1</property>
+              <object class="GtkBox">
+                <property name="orientation">vertical</property>
+                <child>
+                  <object class="GtkComboBoxText" id="superpose_dialog_moving_mol_combobox">
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkCheckButton" id="superpose_moving_chain_checkbutton">
+                    <property name="label" translatable="yes">Use Specific Chain</property>
+                    <signal name="toggled" handler="on_superpose_moving_chain_checkbutton_toggled" swapped="no"/>
+                  </object>
+                </child>
+                <child>
+                  <object class="GtkComboBoxText" id="superpose_dialog_moving_chain_combobox">
+                  </object>
+                </child>
+              </object>
+            </child>
+          </object>
+        </child>
+
+        <child>
+          <object class="GtkCheckButton" id="superpose_dialog_move_copy_checkbutton">
+            <property name="label" translatable="yes">Move a Copy</property>
+            <property name="active">1</property>
+          </object>
+        </child>
+
+        <child>
+          <object class="GtkSeparator">
+            <property name="margin-bottom">2</property>
+            <property name="margin-top">2</property>
+          </object>
+        </child>
+
+        <child>
+          <object class="GtkBox">
+            <property name="orientation">horizontal</property>
+            <property name="spacing">6</property>
+            <property name="halign">end</property>
+            <property name="margin-end">6</property>
+            <property name="margin-top">4</property>
+            <property name="margin-bottom">6</property>
+            <property name="margin-start">4</property>
+            <child>
+              <object class="GtkButton" id="superpose_cancel_button">
+                <property name="label" translatable="yes">Cancel</property>
+                <signal name="clicked" handler="on_superpose_dialog_cancel_button_clicked" />
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="superpose_ok_button">
+                <property name="label" translatable="yes">Superpose</property>
+                <signal name="clicked" handler="on_superpose_dialog_superpose_button_clicked" />
+                <style>
+                  <class name="suggested-action"/>
+                </style>
               </object>
             </child>
           </object>
         </child>
       </object>
     </child>
-    <child type="titlebar">
-    </child>
   </object>
+
   <object class="GtkDialog" id="superpose_nonsense_dialog">
     <property name="title" translatable="yes">Nonsense!</property>
     <child>
