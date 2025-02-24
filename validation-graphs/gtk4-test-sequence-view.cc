@@ -52,7 +52,7 @@ void fill(GtkWidget *window, mmdb::Manager *mol) {
    g_signal_connect(sv, "residue-clicked", G_CALLBACK(click_function_callback), nullptr);
 
    GtkWidget *button = gtk_button_new_with_label("Close");
-   
+
    gtk_overlay_add_overlay(GTK_OVERLAY(overlay), button);
    gtk_widget_set_halign(GTK_WIDGET(button),GTK_ALIGN_START);
    gtk_widget_set_valign(GTK_WIDGET(button),GTK_ALIGN_END);
@@ -68,7 +68,13 @@ int main(int argc, char **argv) {
       if (atom_sel.read_success) {
          gtk_init();
          g_object_set(gtk_settings_get_default(), "gtk-application-prefer-dark-theme", TRUE, NULL);
-         GtkApplication* app = gtk_application_new("org.pemsley.test-sequence-view", G_APPLICATION_DEFAULT_FLAGS);
+
+#if GLIB_CHECK_VERSION(2, 74, 0) // or later
+         GApplicationFlags flags = G_APPLICATION_DEFAULT_FLAGS;
+#else
+         GApplicationFlags flags = G_APPLICATION_FLAGS_NONE;
+#endif
+         GtkApplication* app = gtk_application_new("org.pemsley.test-sequence-view", flags);
          GError *error = NULL;
          g_application_register(G_APPLICATION(app), NULL, &error);
          if (error) {
@@ -95,7 +101,7 @@ int main(int argc, char **argv) {
             // g_signal_connect(app, "open", G_CALLBACK(open_callback), activate_data).
             return g_application_run(G_APPLICATION(app), 0, 0);
          }
-      
+
       } else {
          status = 1; // bad input
       }
