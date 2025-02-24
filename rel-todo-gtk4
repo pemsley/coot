@@ -1,12 +1,8 @@
 ----
 
-When "spacing" through a chain, if the CA of the current atom is labelled,
-then label the CA of next atom.
-
-try to diagnose the GL errors on startup.
-
-Fix SSM superpose dialog
-* Done. What a grid.
+Tutorial modern - add hydrogen atoms and chain refine with contact dots:
+ERROR:: mark_donors_and_acceptors_for_neighbours() oops empty heavy for H-atom  H1
+Interesting. First fix the bug, then have a look to see if things can be speeded up.
 
 Fix Undo (Molecule) dialog - maybe compression problems
 
@@ -128,6 +124,16 @@ It's a mistake to recontour the maps when they are not displayed.
 Instead of recontouring, mark them as 'outdated'
 When the set_map_is_displayed() function is activated the "map state"
 is checked and contoured regenerated if the map state is 'outdated'.
+* Done.
+
+Try to diagnose the GL errors on startup.
+* Tried. Added some diagnostics. No progress though.
+
+Fix SSM superpose dialog
+* Done. What a grid.
+
+When "spacing" through a chain, if the CA of the current atom is labelled,
+then label the CA of next atom.
 * Done.
 
 add terminal residue for nucleic acic in moorhen.
