@@ -436,8 +436,11 @@ graphics_info_t::set_clipping_front(float v) {
    } else {
       clipping_front = v;
    }
-   std::cout << "DEBUG:: in set_clipping_front() now planes: front: " << clipping_front << " back: " << clipping_back
-             << " eye-position " << glm::to_string(eye_position) << std::endl;
+
+   // std::cout << "DEBUG:: in set_clipping_front() now planes: front: " << clipping_front
+   //           << " back: " << clipping_back
+   //           << " eye-position " << glm::to_string(eye_position) << std::endl;
+
    graphics_draw();
 }
 
