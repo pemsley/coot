@@ -45,7 +45,7 @@ pkginclude_HEADERS = peak-search.hh coot-trim.hh \
 	cylinder.hh cylinder-with-rotation-translation.hh oct.hh prideout-octasphere.hh cmtz-interface.hh mtz-column-auto-read.hh \
 	pugixml.hpp pugiconfig.hpp find-water-baddies.hh voidp-buffer.hh parse-pisa.hh diff-diff-map-peaks.hh tiny_gltf.h json.hpp \
 	stb_image.h stb_image_write.h glyco-tree.hh positron.hh mini-texture.hh texture-as-floats.hh pae.hh q-score.hh \
-	acedrg-types-for-residue.hh gl-matrix.h ortep.hh coot-align.hh
+	acedrg-types-for-residue.hh gl-matrix.h ortep.hh coot-align.hh grid-balls.hh
 
 
 pkgincludedir = $(includedir)/coot/coot-utils

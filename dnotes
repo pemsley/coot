@@ -3975,8 +3975,7 @@ INFO::
    o Up to date with Bernie's commits?
    o Run the damn tests - don't be lazy
    o make check
-   o before the release commit, make sure it builds and passes tests on charybdis
-   o try the build on the virtual machines - ubuntu at work, debian at home.
+   o before the release commit, make sure it builds and passes tests on cluster
    o New entry in ChangeLog
    o Make sure RELEASE-NOTES are up to date and add a ----- marker at the top
      Make sure the release is called Release, not pre-release
@@ -3996,7 +3995,7 @@ INFO::
    o make dist to make a tar-ball
         Use this to untar and make a build - this will test that the tarball has
         all the files before commit:
-        cd ../build-test-dist
+        cd ../build-coot-1.1
         and untar it there
         copy into the new directory the script configure-it.
         configure and make check
@@ -11647,4 +11646,30 @@ Wed Feb  5 13:18:33 GMT 2025
 getting python to start up correctly:
 
 https://stackoverflow.com/questions/47885615/python-systemerror-when-using-the-c-api-pyrun-string
+
+
+---
+Sun 23 Feb 03:20:25 GMT 2025
+
+c-interface-superpose.cc - make fill-combobox-with-molecule-options.hh
+
+// make this available
+void
+fill_combobox_with_molecule_options_simple(GtkWidget *combobox) {
+
+  auto get_model_molecule_vector = [] () {
+                                       graphics_info_t g;
+                                       std::vector<int> vec;
+                                       int n_mol = g.n_molecules();
+                                       for (int i=0; i<n_mol; i++)
+                                          if (g.is_valid_model_molecule(i))
+                                             vec.push_back(i);
+                                       return vec;
+                                    };
+   int imol_active = -1;
+   auto mol_vec = get_model_molecule_vector();
+   if (! mol_vec.empty()) imol_active = mol_vec[0];
+   graphics_info_t g;
+   g.fill_combobox_with_molecule_options(combobox, G_CALLBACK(nullptr), imol_active, mol_vec);
+}
 
