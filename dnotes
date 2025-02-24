@@ -4001,34 +4001,13 @@ INFO::
         configure and make check
    o git status # what did you forget to add?
    o are the shaders up to date?
+   o Transfer the dist tar to hal and build it there
    o git commit -a
    o git tag Release-0.x.y
    o git push origin Release-0.x.y  # publish the tag
    o git push # push the actual release commit
-   o Passes build (build-latest) on pc?
-     cd build-for-release, configure it, make and make dist.
-     So that works? Now use md...
-   o on charybdis: md: check that it builds, the build will put the release in the
-                   pre-release directory. So move it to release (and remove the
-                   revision tag)
-                   cd ~/fuse/ftp/coot/source/pre-releases/
-                   mv coot-0.9.4.1-revision-10273.tar.gz coot-0.9.4.1.tar.gz
-                   mv coot-0.9.4.1.tar.gz ../releases/
-                   give-read-permission coot-0.9.4.1.tar.gz
-   o on charybdis: disable the build-latest cron-job
-   o on charybdis: clear out coot/source/pre-releases
-   o on charybdis: cd /home/emsley/Projects/coot/git/coot-refinement/build-from-build-it
-                   unfortunately the 1.0 release complicated the extraction of the latest release for this.
-                   So the version is hard coded now! You will need to change it, line 1617
-   o on charybdis: bash wrap-build-it-for-release.sh
-                   that doesn't do the transfer to web server at the moment, so:
-                   cp ~/public_html/software/binaries/stable/coot-0.9.4.1-*  ~/fuse/ftp/coot/binaries/release/
-                   cd ~/fuse/ftp/coot/binaries/release/
-                   give-read-permission to the new files
-   o Build binaries on some hosts: ubuntu1604, gough (clear out the autobuild/building directory)
    o on charybdis: Update latest version info on coot web page:
                    cd Projects/coot/web/index.html
-                   bash transfer-the-file.sh
    o Blog post
    o Mail mailing list
 
