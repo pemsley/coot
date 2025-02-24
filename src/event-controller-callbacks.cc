@@ -232,7 +232,8 @@ graphics_info_t::on_glarea_drag_update_secondary(GtkGestureDrag *gesture,
                }
             }
             if (! handled) {
-               do_view_rotation(drag_delta_x, drag_delta_y);
+               do_view_rotation(view_rotation_per_pixel_scale_factor * drag_delta_x,
+                                view_rotation_per_pixel_scale_factor * drag_delta_y);
             }
          }
       }

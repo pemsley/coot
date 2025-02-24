@@ -617,6 +617,12 @@ short int python_at_prompt_at_startup_state();
    go to the previous molecule, if we are there, then go to the origin. */
 int reset_view();
 
+/*! \brief set the view rotation scale factor
+
+ Useful/necessary for high resolution displayed, where, without this factor
+ the view doesn't rotate enough */
+void set_view_rotation_scale_factor(float f);
+
 /*! \brief return the number of molecules (coordinates molecules and
   map molecules combined) that are currently in coot
 

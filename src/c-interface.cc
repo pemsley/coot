@@ -4343,6 +4343,18 @@ int reset_view() {
 }
 
 
+/*! \brief set the view rotation scale factor
+
+ Useful/necessary for high resolution displayed, where, without this factor
+ the view doesn't rotate enough */
+void set_view_rotation_scale_factor(float f) {
+
+   graphics_info_t::view_rotation_per_pixel_scale_factor = f;
+
+}
+
+
+
 
 // ------------------------------------------------------
 //                   Skeleton

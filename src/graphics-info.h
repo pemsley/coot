@@ -525,6 +525,7 @@ class graphics_info_t {
    static coot::Cartesian get_old_rotation_centre() {
      return old_rotation_centre;
    }
+
    // delete these when working
    // static float old_rotation_centre_x;
    // static float old_rotation_centre_y;
@@ -4662,6 +4663,10 @@ string   static std::string sessionid;
    // this one is used by clicking on the fip-180 modelling tooglebutton and then picking on an active atom
    void side_chain_flip_180_moving_atoms_residue(const coot::residue_spec_t &spec,
                                                  const std::string &alt_conf);
+
+   // ---------------------------------------------
+
+   static float view_rotation_per_pixel_scale_factor;
 
    // ---------------------------------------------
 
