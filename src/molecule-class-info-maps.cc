@@ -1147,6 +1147,26 @@ molecule_class_info_t::sort_map_triangles(const clipper::Coord_orth &eye_positio
 void
 molecule_class_info_t::setup_glsl_map_rendering(const clipper::Coord_orth &centre, float radius) {
 
+   auto stringify_error_message = [] (GLenum err) {
+
+      std::string r = std::to_string(err);
+      if (err == GL_INVALID_ENUM)      r = "GL_INVALID_ENUM";
+      if (err == GL_INVALID_VALUE)     r = "GL_INVALID_VALUE";
+      if (err == GL_INVALID_OPERATION) r = "GL_INVALID_OPERATION";
+      return r;
+   };
+
+   GdkGLContext *context = gtk_gl_area_get_context(GTK_GL_AREA(graphics_info_t::glareas[0]));
+
+   GLenum err = glGetError();
+   if (err) {
+      std::cout << "GL ERROR:: Mesh::setup_glsl_map_rendering() \""  << "\" --- start --- "
+                << stringify_error_message(err) << std::endl;
+   } else {
+      // std::cout << "INFO:: Mesh::setup_glsl_map_rendering() \""  << "\" --- start --- "
+      //                 << "no error here" << std::endl;
+   }
+
    // This is called from update_map_triangles().
 
    auto gdk_col_to_glm = [] (const GdkRGBA &rgba) {
@@ -1159,7 +1179,25 @@ molecule_class_info_t::setup_glsl_map_rendering(const clipper::Coord_orth &centr
 
    if (! has_xmap()) return;
 
+   err = glGetError();
+   if (err) {
+      std::cout << "GL ERROR:: Mesh::setup_glsl_map_rendering() Pos A0 "
+                << stringify_error_message(err) << std::endl;
+   } else {
+      // std::cout << "INFO:: Mesh::setup_glsl_map_rendering() Pos A0 "
+      // << "no error here" << std::endl;
+   }
+
    graphics_info_t::attach_buffers();
+
+   err = glGetError();
+   if (err) {
+      std::cout << "GL ERROR:: Mesh::setup_glsl_map_rendering() Pos A1 "
+                << stringify_error_message(err) << std::endl;
+   } else {
+      // std::cout << "INFO:: Mesh::setup_glsl_map_rendering() Pos A1 "
+      // << "no error here" << std::endl;
+   }
 
    std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > vertices_and_triangles;
    auto &vertices = vertices_and_triangles.first;
@@ -1167,6 +1205,15 @@ molecule_class_info_t::setup_glsl_map_rendering(const clipper::Coord_orth &centr
    std::vector<std::pair<int, map_triangle_t> > map_triangle_centres; // for sorting
 
    auto tp_0 = std::chrono::high_resolution_clock::now();
+
+   err = glGetError();
+   if (err) {
+      std::cout << "GL ERROR:: Mesh::setup_glsl_map_rendering() Pos A "
+                << stringify_error_message(err) << std::endl;
+   } else {
+      // std::cout << "INFO:: Mesh::setup_glsl_map_rendering() Pos A "
+      // << "no error here" << std::endl;
+   }
 
    if (colour_map_using_other_map_flag) {
 
@@ -1243,8 +1290,18 @@ molecule_class_info_t::setup_glsl_map_rendering(const clipper::Coord_orth &centr
    if (false) // useful for me, not others
       std::cout << "INFO:: with storing map triangles centres " << d10 << " milliseconds" << std::endl;
 
+   err = glGetError();
+   if (err) {
+      std::cout << "GL ERROR:: Mesh::setup_glsl_map_rendering() Pos B "
+                << stringify_error_message(err) << std::endl;
+   } else {
+      // std::cout << "INFO:: Mesh::setup_glsl_map_rendering() Pos B "
+      // << "no error here" << std::endl;
+   }
+
    if (xmap_is_diff_map) {
-      glm::vec4 diff_map_col(map_colour_negative_level.red, map_colour_negative_level.green, map_colour_negative_level.blue, 1.0f);
+      glm::vec4 diff_map_col(map_colour_negative_level.red, map_colour_negative_level.green,
+                             map_colour_negative_level.blue, 1.0f);
       std::vector<coot::density_contour_triangles_container_t>::const_iterator it;
       for (it=draw_diff_map_vector_sets.begin(); it!=draw_diff_map_vector_sets.end(); ++it) {
          const coot::density_contour_triangles_container_t &tri_con(*it);
@@ -1269,15 +1326,34 @@ molecule_class_info_t::setup_glsl_map_rendering(const clipper::Coord_orth &centr
       map_as_mesh.set_is_headless();
       map_as_mesh_gl_lines_version.set_is_headless();
    }
+
+   err = glGetError();
+   if (err) {
+      std::cout << "GL ERROR:: Mesh::setup_glsl_map_rendering() Pos C "
+                << stringify_error_message(err) << std::endl;
+   } else {
+      // std::cout << "INFO:: Mesh::setup_glsl_map_rendering() Pos C "
+      //                 << "no error here" << std::endl;
+   }
+
    map_as_mesh.clear();
-   map_as_mesh.import(vertices_and_triangles, map_triangle_centres);
    map_as_mesh.set_name(name_);
+   map_as_mesh.import(vertices_and_triangles, map_triangle_centres);
    map_as_mesh.translate_by(glm::vec3(0,0,0)); // calls private setup_buffers(). There should be a better way.
 
    map_as_mesh_gl_lines_version.clear();
    map_as_mesh_gl_lines_version.import(vertices_and_triangles, map_triangle_centres, true); // setup lines indices too
    map_as_mesh_gl_lines_version.set_name(name_ + " gl-lines-version");
    map_as_mesh_gl_lines_version.translate_by(glm::vec3(0,0,0)); // calls private setup_buffers(). There should be a better way.
+
+   err = glGetError();
+   if (err) {
+      std::cout << "GL ERROR:: Mesh::setup_glsl_map_rendering() Pos D "
+                << stringify_error_message(err) << std::endl;
+   } else {
+      // std::cout << "INFO:: Mesh::setup_glsl_map_rendering() Pos D "
+      // << "no error here" << std::endl;
+   }
 
    // 20220211-PE we need to store map triangle centres (for sorting) and that information needs to be added to a Mesh
    // Come back to this later.
