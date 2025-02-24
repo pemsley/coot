@@ -77,7 +77,7 @@ tlc_to_svg_file(const std::string &tlc, coot::protein_geometry &geom) {
          svg_molecule_t svg;
          svg.import_rdkit_mol(&mol_rw, iconf);
          double scale_factor = 1.0;
-         std::string s = svg.render_to_svg_string(scale_factor, dark_background_flag);
+         std::string s = svg.render_to_svg_string(scale_factor, dark_background_flag, true);
          if (true) {
             std::string fn = tlc + std::string(".svg");
             std::ofstream f(fn);
