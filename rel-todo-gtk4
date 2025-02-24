@@ -1,6 +1,12 @@
 ----
 
+When "spacing" through a chain, if the CA of the current atom is labelled,
+then label the CA of next atom.
+
+try to diagnose the GL errors on startup.
+
 Fix SSM superpose dialog
+* Done. What a grid.
 
 Fix Undo (Molecule) dialog - maybe compression problems
 

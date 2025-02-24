@@ -1,4 +1,8 @@
 
+2025-02-23  Paul Emsley  <pemsley at mrc dash lmb dot cam ac dot uk>
+
+	* Release 1.1.13
+
 2025-02-09  Paul Emsley  <pemsley at mrc dash lmb dot cam ac dot uk>
 
 	* Release 1.1.12
@@ -283,7 +287,7 @@
 	change_chain_id_with_residue_range_helper_insert_or_add() the
 	target_residue should simply be a residue that will appear in the
 	pdb file before the inserted residue.
- 
+
 2007-05-18  Paul Emsley  <emsley@ysbl.york.ac.uk>
 
 	* src/c-interface.cc: (hardware_stereo_mode): kill off the
@@ -787,7 +791,7 @@
 	* src/c-interface-waters.cc (renumber_waters): function added
 
 	* src/molecule-class-info-other.cc (renumber_waters): function
-	added. 
+	added.
 
 	* src/c-interface.cc: (auto_read_make_and_draw_maps): if "FWT",
 	"DELFWT" column labels fail, try "2FOFCWT" and "FOFCWT" also.
@@ -795,7 +799,7 @@
 	* src/rama_plot.cc: created function phi_psi_pair_helper_t
 	make_phi_psi_pair() which is the engine for making phi/psi pairs
 	from 2 chains.  Uses new utility function std::pair<short int,
-	coot::phi_psi_t> get_phi_psi().  
+	coot::phi_psi_t> get_phi_psi().
 
 	The GUI menu item has been renamed to "Kleywegt Plot" as per
 	conversation with George Sheldrick.

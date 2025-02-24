@@ -3467,8 +3467,8 @@ molecule_class_info_t::draw_atom_label(int atom_index,
                                        short int seg_ids_in_atom_labels_flag,
                                        const glm::vec4 &atom_label_colour,
                                        const glm::mat4 &mvp,
-                                       const glm::mat4 &view_rotation) { // not used - removed this argument      
-#ifndef EMSCRIPTEN
+                                       const glm::mat4 &view_rotation) {
+
    if (has_model()) {
       if (atom_index < atom_sel.n_selected_atoms) {
          mmdb::Atom *atom = atom_sel.atom_selection[atom_index];
@@ -3494,7 +3494,7 @@ molecule_class_info_t::draw_atom_label(int atom_index,
          unlabel_atom(atom_index);
       }
    }
-#endif
+
 }
 
 // Put a label at the ith atom of mol_class_info::atom_selection.
@@ -3505,7 +3505,7 @@ molecule_class_info_t::draw_symm_atom_label(int atom_index,
                                             const glm::vec4 &atom_label_colour,
                                             const glm::mat4 &mvp,
                                             const glm::mat4 &view_rotation) {
-#ifndef EMSCRIPTEN
+
    if (has_model()) {
       if (atom_index < atom_sel.n_selected_atoms) {
          mmdb::Atom *atom = atom_sel.atom_selection[atom_index];
@@ -3531,7 +3531,7 @@ molecule_class_info_t::draw_symm_atom_label(int atom_index,
          unlabel_atom(atom_index);
       }
    }
-#endif
+
 }
 
 

@@ -79,7 +79,7 @@ pli::get_fle_ligand_bonds(mmdb::Residue *ligand_res,
 	 std::cout << "WARNING:: ===================== no HB status on atoms of ligand! ======="
 		   << "=========" << std::endl;
       std::vector<coot::h_bond> hbonds = hb.get_mcdonald_and_thornton(SelHnd_lig, SelHnd_all, m.second,
-								      geom, h_bond_dist_max);
+								      geom, imol, h_bond_dist_max);
 
       if (true)
 	 std::cout << "DEBUG:: get_fle_ligand_bonds from h_bonds class found "
@@ -559,7 +559,7 @@ pli::protein_ligand_interactions(mmdb::Residue *ligand_residue_p, mmdb::Manager 
       std::cout << "WARNING:: no HB status on atoms of ligand\n";
    std::vector<coot::h_bond> hbonds = hb.get_mcdonald_and_thornton(SelHnd_lig,
                                                                    SelHnd_all,
-                                                                   mol, *geom_p, h_bond_dist_max);
+                                                                   mol, *geom_p, imol, h_bond_dist_max);
 
    for (unsigned int i=0; i<hbonds.size(); i++) {
       if (true)

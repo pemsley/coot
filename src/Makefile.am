@@ -567,6 +567,7 @@ libcootsumo_la_SOURCES = \
 	drag-and-drop.hh         \
 	drag-and-drop.cc         \
 	draw-generic-display-objects.cc \
+	drawn-ghost-molecule-display.hh \
 	dynamic-validation.cc    \
 	dynamic-validation.hh    \
 	eyes.cc eyes.hh		 \
