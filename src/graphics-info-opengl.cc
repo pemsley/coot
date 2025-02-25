@@ -920,6 +920,7 @@ graphics_info_t::coot_all_atom_contact_dots_instanced(mmdb::Manager *mol, int im
    };
 
    // more sensible
+
    coot::atom_overlaps_container_t overlaps(mol, graphics_info_t::Geom_p(), ignore_waters, 0.5, 0.25);
    bool do_vdw_surface = all_atom_contact_dots_do_vdw_surface; // static class variable
    c = overlaps.all_atom_contact_dots(contact_dots_density, do_vdw_surface);
