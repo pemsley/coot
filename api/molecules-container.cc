@@ -5560,6 +5560,14 @@ molecules_container_t::mmcif_tests(bool last_test_only) {
 }
 
 
+void
+molecules_container_t::test_function(const std::string &s) {
+
+   // test pyrogen here.
+
+}
+
+
 
 //! @return a vector of string pairs that were part of a gphl_chem_comp_info.
 //!  return an empty vector on failure to find any such info.

@@ -3498,6 +3498,8 @@ public:
 
    // -------------------------------- Other ---------------------------------------
 
+   void test_function(const std::string &s);
+
 #ifdef SWIG
 #if NB_VERSION_MAJOR
    // skip this (old) block for nanobinds
