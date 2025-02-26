@@ -335,8 +335,8 @@ graphics_info_t::on_glarea_drag_end_middle(GtkGestureDrag *gesture, double drag_
 void
 graphics_info_t::on_glarea_click(GtkGestureClick *controller,
                                  gint n_press,
-                                 G_GNUC_UNUSED gdouble x,
-                                 G_GNUC_UNUSED gdouble y,
+                                 gdouble x,
+                                 gdouble y,
                                  G_GNUC_UNUSED gpointer user_data) {
 
    auto check_if_refinement_dialog_arrow_tab_was_clicked = [] () {
@@ -397,7 +397,9 @@ graphics_info_t::on_glarea_click(GtkGestureClick *controller,
          }
 
          if (! handled) {
-            blob_under_pointer_to_screen_centre();
+            bool was_on_a_hud_button = check_if_hud_button_moused_over_or_act_on_hit(x, y, false, true);
+            if (! was_on_a_hud_button)
+               blob_under_pointer_to_screen_centre();
          }
       }
 
