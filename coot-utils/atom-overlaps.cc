@@ -20,6 +20,7 @@
  * 02110-1301, USA
  */
 
+#include "mmdb2/mmdb_uddata.h"
 #include <stdlib.h> // needed from abs()
 
 #include <iomanip>
@@ -94,6 +95,7 @@ coot::atom_overlaps_container_t::atom_overlaps_container_t(mmdb::Manager *mol_in
                                                            bool ignore_water_contacts_flag_in,
                                                            double clash_spike_length_in,
                                                            double probe_radius_in) {
+
    geom_p = geom_p_in;
    res_central = 0;
    mol = mol_in;
@@ -112,6 +114,8 @@ void
 coot::atom_overlaps_container_t::init() {
 
    overlap_mode = CENTRAL_RESIDUE;
+
+   udd_residue_index_handle = -1; // unset
 
    have_dictionary = false; // initially.
    molecule_has_hydrogens = false; // initially
@@ -152,6 +156,7 @@ coot::atom_overlaps_container_t::init() {
 
       if (have_dictionary) {
          fill_ligand_atom_neighbour_map(); // and add radius
+
          mark_donors_and_acceptors();
       }
    }
@@ -163,13 +168,31 @@ coot::atom_overlaps_container_t::init() {
 void
 coot::atom_overlaps_container_t::init_for_all_atom() {
 
+   // 20250225-PE the molecule could be re-used in a new atom_overlaps_container_t
+   // so let's check if we have a udd for hb_type and if so, we can skip this
+   // init() - because the molecule has already been setup.
+   // int udd_test_handle = mol->GetUDDHandle(mmdb::UDR_ATOM, "hb_typeadsfadf");
+   // std::cout << "::::::::::::::::::::::::: udd_test_handle " << udd_test_handle << std::endl;
+
    overlap_mode = ALL_ATOM;
+
+   int udd_handle_t2 = mol->GetUDDHandle(mmdb::UDR_HIERARCHY, "setup-hydrogen-types");
+   // std::cout << "::::: udd_handle_t2 " << udd_handle_t2 << std::endl;
+   if (udd_handle_t2 == 0) {
+      udd_handle_t2 = mol->RegisterUDInteger(mmdb::UDR_HIERARCHY, "setup-hydrogen-types");
+      mol->PutUDData(udd_handle_t2, 11);
+   } else {
+      // std::cout << ":::: udd_handle_t2 found - returning early" << std::endl;
+      // return;
+   }
+
+   // only do this once
+   udd_residue_index_handle = mol->RegisterUDInteger(mmdb::UDR_ATOM, "neighb-residue-index");
 
    // neighbours is a misnomer in this case - it is merely a list of all residue
 
    have_dictionary = true; // initially.
    molecule_has_hydrogens = false; // initially
-
 
    for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
       mmdb::Model *model_p = mol->GetModel(imod);
@@ -181,7 +204,18 @@ coot::atom_overlaps_container_t::init_for_all_atom() {
             for (int ires=0; ires<nres; ires++) {
                mmdb::Residue *residue_p = chain_p->GetResidue(ires);
                if (residue_p) {
+                  int neigh_idx = neighbours.size();
                   neighbours.push_back(residue_p);
+
+                  // for lookups in setup_env_residue_atoms_radii()
+                  mmdb::Atom **residue_atoms = 0;
+                  int n_residue_atoms;
+                  residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+                  for (int iat=0; iat<n_residue_atoms; iat++) {
+                     mmdb::Atom *at = residue_atoms[iat];
+                     at->PutUDData(udd_residue_index_handle, neigh_idx);
+                  }
+
                   std::string residue_name(residue_p->GetResName());
                   std::map<std::string, dictionary_residue_restraints_t>::const_iterator it;
                   it = dictionary_map.find(residue_name);
@@ -205,6 +239,8 @@ coot::atom_overlaps_container_t::init_for_all_atom() {
    // now mark donors and acceptors.
    //
    udd_h_bond_type_handle = mol->RegisterUDInteger(mmdb::UDR_ATOM, "hb_type");
+   // std::cout << "::::: registered ud integer handle: " << udd_h_bond_type_handle
+   //           << " for mol " << mol << std::endl;
 
    mark_donors_and_acceptors_for_neighbours(udd_h_bond_type_handle);
 
@@ -282,7 +318,13 @@ coot::atom_overlaps_container_t::mark_donors_and_acceptors_central_residue(int u
 const coot::dictionary_residue_restraints_t &
 coot::atom_overlaps_container_t::get_dictionary(mmdb::Residue *r, unsigned int idx) const {
 
+   if (false)
+      std::cout << ":::::::::::::::::::::::: in get_dictionary() the dictionary_map is of size "
+                << dictionary_map.size() << " and idx is " << idx
+                << " overlap_mode " << overlap_mode  << " vs ALL_ATOM " << ALL_ATOM << std::endl;
+
    if (overlap_mode == ALL_ATOM) {
+
       std::string res_name = r->GetResName();
       std::map<std::string, dictionary_residue_restraints_t>::const_iterator it =
          dictionary_map.find(res_name);
@@ -305,6 +347,8 @@ coot::atom_overlaps_container_t::get_dictionary(mmdb::Residue *r, unsigned int i
 //
 void
 coot::atom_overlaps_container_t::mark_donors_and_acceptors_for_neighbours(int udd_h_bond_type_handle) {
+
+   // std::cout << "mark_donors_and_acceptors_for_neighbours() " << udd_h_bond_type_handle << std::endl;
 
    if (false) {
       std::cout << "mark_donors_and_acceptors_for_neighbours() here are the neigbhors"
@@ -1479,7 +1523,7 @@ coot::atom_overlaps_container_t::all_atom_contact_dots(double dot_density_in,
       //
          ao = all_atom_contact_dots_internal_single_thread(dot_density_in, mol, i_sel_hnd, i_sel_hnd,
                                                            min_dist, max_dist, make_vdw_surface);
-         
+
 #endif //
 
          mol->DeleteSelection(i_sel_hnd);
@@ -1744,7 +1788,7 @@ coot::atom_overlaps_container_t::all_atom_contact_dots_internal_multi_thread(dou
    for (int i=0; i<4; i++) my_matt[i][i] = 1.0;
 
    mmdb::Atom **atom_selection = 0;
-   int n_selected_atoms;
+   int n_selected_atoms = 0;
    mol->GetSelIndex(i_sel_hnd_1, atom_selection, n_selected_atoms);
    setup_env_residue_atoms_radii(i_sel_hnd_1);
    mmdb::Contact *pscontact = NULL;
@@ -2408,6 +2452,8 @@ coot::atom_overlaps_container_t::add_residue_neighbour_index_to_neighbour_atoms(
 void
 coot::atom_overlaps_container_t::setup_env_residue_atoms_radii(int i_sel_hnd_env_atoms) {
 
+   if (! neighb_atom_radius.empty()) return;
+
    if (!have_dictionary) {
       std::cout << "setup_env_residue_atoms_radii() no dictionary " << std::endl;
    }
@@ -2417,30 +2463,55 @@ coot::atom_overlaps_container_t::setup_env_residue_atoms_radii(int i_sel_hnd_env
    mol->GetSelIndex(i_sel_hnd_env_atoms, env_residue_atoms, n_env_residue_atoms);
    neighb_atom_radius.resize(n_env_residue_atoms);
 
+   if (false) {
+      for (int i=0; i<n_env_residue_atoms; i++) {
+         mmdb::Atom *at = env_residue_atoms[i];
+         std::cout << "atom at " << i << " " << coot::atom_spec_t(at) << std::endl;
+      }
+   }
+
    for (int i=0; i<n_env_residue_atoms; i++) {
       mmdb::Atom *at = env_residue_atoms[i];
-      mmdb::Residue *res = at->residue;
-      int residue_index;
-      at->GetUDData(udd_residue_index_handle, residue_index);
-      // const dictionary_residue_restraints_t &rest = neighb_dictionaries[residue_index];
-      try {
-         const dictionary_residue_restraints_t &rest = get_dictionary(res, residue_index);
-         std::string te = rest.type_energy(at->GetAtomName());
-         if (! te.empty()) {
-            std::map<std::string, double>::const_iterator it_type = type_to_vdw_radius_map.find(te);
-            if (it_type == type_to_vdw_radius_map.end()) {
-               if (geom_p)
-                  r = type_energy_to_radius(te);
-               type_to_vdw_radius_map[te] = r;
-               // std::cout << "debug type_to_vdw_radius_map " << std::setw(4) << te << "   " << r << std::endl;
-            } else {
-               r = it_type->second;
+      // std::cout << "loop that breaks " << i << " " << at << " " << at->GetAtomName() << std::endl;
+      int residue_index = -1;
+      int ierr = at->GetUDData(udd_residue_index_handle, residue_index);
+
+      if (ierr == mmdb::UDDATA_Ok) {
+
+         // const dictionary_residue_restraints_t &rest = neighb_dictionaries[residue_index];
+         try {
+
+            // in ALL_ATOM mode the lookup uses the residue name, not the index.
+            // there should be two functions because this is confusing.
+            if (false)
+               std::cout << ":::::::::::::::::: in setup_env_residue_atoms_radii() the dictionary_map is of size "
+                         << dictionary_map.size() << " and residue_index is " << residue_index << std::endl;
+
+            mmdb::Residue *res = at->residue;
+            const dictionary_residue_restraints_t &rest = get_dictionary(res, residue_index);
+            // is rest sane?
+            // std::cout << "debug:: rest has " << rest.atom_info.size() << " atoms "<< std::endl;
+            // std::cout << "debug:: rest has " << rest.bond_restraint.size() << " bond restraints "<< std::endl;
+            std::string atom_name = at->GetAtomName();
+            std::string te = rest.type_energy(atom_name);
+            if (! te.empty()) {
+               std::map<std::string, double>::const_iterator it_type = type_to_vdw_radius_map.find(te);
+               if (it_type == type_to_vdw_radius_map.end()) {
+                  if (geom_p)
+                     r = type_energy_to_radius(te);
+                  type_to_vdw_radius_map[te] = r;
+                  // std::cout << "debug type_to_vdw_radius_map " << std::setw(4) << te << "   " << r << std::endl;
+               } else {
+                  r = it_type->second;
+               }
+               neighb_atom_radius[i] = r;
             }
-            neighb_atom_radius[i] = r;
          }
-      }
-      catch (const std::out_of_range &ex) {
-         std::cout << "OOpps " << ex.what() << std::endl;
+         catch (const std::out_of_range &ex) {
+            std::cout << "OOpps " << ex.what() << std::endl;
+         }
+      } else {
+         std::cout << "ERROR:: failed to get UDData for residue index" << std::endl;
       }
    }
 }
@@ -2562,7 +2633,7 @@ coot::atom_overlaps_container_t::bonded_angle_or_ring_related(mmdb::Manager *mol
             std::cout << "------------------ in bonded_angle_or_ring_related() with res names " << res_name_1 << " " << res_name_2
                       << " and ignore_water_contacts_flag " << ignore_water_contacts_flag << " ait: " << ait << std::endl;
          }
-         
+
       }
    } else {
 
