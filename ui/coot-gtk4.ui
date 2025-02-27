@@ -16693,7 +16693,7 @@ Move a copy?</property>
         </child>
          <child type="action">
               <object class="GtkButton" id="undo_molecule_chooser_ok_button">
-                <property name="label" translatable="yes">Close</property>
+                <property name="label" translatable="yes">OK</property>
                 <property name="margin-start">8</property>
                 <property name="margin-end">8</property>
                 <property name="margin-top">4</property>
