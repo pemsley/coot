@@ -53,6 +53,19 @@
   <update_contact>pemsley_AT_mrc-lmb.cam.ac.uk</update_contact>
   <content_rating type="oars-1.1" />
   <releases>
+    <release version="1.1.13" date="2025-02-24">
+      <description>
+        <ul>
+          <li>FEATURE: New chapi functions added: `get_svg_for_2d_ligand_environment_view()`, `get_HOLE()`, and `scale_map()`. Additionally, nucleic acids now work with `add_terminal_residue()` and sticks and dishy bases are not drawn for atoms not in selection.</li>
+          <li>FEATURE: Non-drawn maps are not recontoured on view translation; they now wait until the map is displayed. [Elegant-Land-8008]</li>
+          <li>FUNCTION-RESTORED: When "Spacing" along a chain, the CA label follows.</li>
+          <li>FUNCTION-RESTORED: SSM dialog now works.</li>
+          <li>FUNCTION-RESTORED: NCS Ghosts dialog now works.</li>
+          <li>BUG-FIX: Missing shader for instanced geometry for SSAO added back.</li>
+          <li>COMPILATION: Issue for `graphics_info_t::scale_up_graphics` has been resolved.</li>
+        </ul>
+      </description>
+    </release>
     <release version="1.1.12" date="2025-02-11">
       <description>
         <ul>
