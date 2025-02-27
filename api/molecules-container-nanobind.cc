@@ -284,6 +284,7 @@ NB_MODULE(chapi, m) {
     .def("get_colour_table_for_blender", &molecules_container_t::get_colour_table_for_blender)
     .def("get_density_at_position", &molecules_container_t::get_density_at_position)
     .def("get_dictionary_conformers", &molecules_container_t::get_dictionary_conformers)
+    .def("get_distances_between_atoms_of_residues", &molecules_container_t::get_distances_between_atoms_of_residues)
     .def("get_gaussian_surface",&molecules_container_t::get_gaussian_surface)
     .def("get_goodsell_style_mesh_instanced",&molecules_container_t::get_goodsell_style_mesh_instanced)
     .def("get_gphl_chem_comp_info",&molecules_container_t::get_gphl_chem_comp_info)
@@ -552,9 +553,9 @@ NB_MODULE(chapi, m) {
     .def_rw("model_number",&coot::atom_spec_t::model_number)
     ;
     nb::class_<coot::atom_distance_t>(m,"atom_distance_t")
-      .def_rw("atom_1", &coot::atom_spec_t)
-      .def_rw("atom_2", &coot::atom_spec_t)
-      .def_rw("distance", float)
+      .def_ro("atom_1", &coot::atom_distance_t::atom_1)
+      .def_ro("atom_2", &coot::atom_distance_t::atom_2)
+      .def_ro("distance", &coot::atom_distance_t::distance)
       ;
     nb::class_<coot::residue_range_t>(m,"residue_range_t")
       .def(nb::init<>())
