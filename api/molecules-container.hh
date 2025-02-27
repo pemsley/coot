@@ -1355,6 +1355,12 @@ public:
    //! @return a list of residue specs
    std::vector<coot::residue_spec_t> get_residues_near_residue(int imol, const std::string &residue_cid, float dist) const;
 
+  //! get atom distances
+  //! other stuff here
+  std::vector<coot::atom_distance_t>
+  get_distances_between_atoms_of_residues(int imol, const std::string &cid_res_1, const std::string &cid_res_2,
+					  float dist_max) const;
+
    //! Superposition (using SSM)
    //!
    //! @param imol_ref the reference model molecule index

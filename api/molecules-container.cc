@@ -6343,3 +6343,20 @@ molecules_container_t::set_temperature_factors_using_cid(int imol, const std::st
 }
 
 
+//! get atom distances
+//! other stuff here
+std::vector<coot::atom_distance_t>
+molecules_container_t::get_distances_between_atoms_of_residues(int imol,
+							       const std::string &cid_res_1,
+							       const std::string &cid_res_2,
+							       float dist_max) const {
+  std::vector<coot::atom_distance_t> v;
+  if (is_valid_model_molecule(imol)) {
+    v = molecules[imol].get_distances_between_atoms_of_residues(cid_res_1, cid_res_2, dist_max);
+  } else {
+    std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+  }
+
+  return v;
+
+}

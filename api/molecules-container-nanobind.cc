@@ -551,6 +551,11 @@ NB_MODULE(chapi, m) {
     .def_rw("string_user_data",&coot::atom_spec_t::string_user_data)
     .def_rw("model_number",&coot::atom_spec_t::model_number)
     ;
+    nb::class_<coot::atom_distance_t>(m,"atom_distance_t")
+      .def_rw("atom_1", &coot::atom_spec_t)
+      .def_rw("atom_2", &coot::atom_spec_t)
+      .def_rw("distance", float)
+      ;
     nb::class_<coot::residue_range_t>(m,"residue_range_t")
       .def(nb::init<>())
       .def_rw("chain_id",     &coot::residue_range_t::chain_id)
