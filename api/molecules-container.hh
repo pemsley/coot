@@ -1227,6 +1227,16 @@ public:
    std::pair<bool, coot::Cartesian> get_atom_position(int imol, coot::atom_spec_t &atom_spec);
 #endif
 
+   //! Residue is nucleic acid?
+   //!
+   //! Every residue in the selection is checked
+   //!
+   //! @param imol is the model molecule index
+   //! @param cid is the selection CID e.g "//A/15" (residue 15 of chain A)
+   //!
+   //! @return a bool
+   bool residue_is_nucleic_acid(int imol, const std::string &cid) const;
+
    //! Get the residue CA position
    //!
    //! @param imol is the model molecule index

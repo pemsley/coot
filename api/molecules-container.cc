@@ -6351,3 +6351,23 @@ molecules_container_t::set_temperature_factors_using_cid(int imol, const std::st
 }
 
 
+
+//! Residue is nucleic acid?
+//!
+//! Every residue in the selection is checked
+//!
+//! @param imol is the model molecule index
+//! @param cid is the selection CID e.g "//A/15" (residue 15 of chain A)
+//!
+//! @return a bool
+bool
+molecules_container_t::residue_is_nucleic_acid(int imol, const std::string &cid) const {
+
+   bool status = false;
+   if (is_valid_model_molecule(imol)) {
+      status = molecules[imol].residue_is_nucleic_acid(cid);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return status;
+}
