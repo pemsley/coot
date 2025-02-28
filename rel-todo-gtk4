@@ -1,15 +1,18 @@
 ----
 
+get (make sure that) the coot api documentation up to date.
+
 Use the dictionary-based conformer generator and then minimize
-and look at the coot-energies. Try for multiple ligands.
+and look at the coot-energies. Try with multiple ligands.
+
+Get FLEV into Coot.
 
 Density contour or height colours for LSQ plane through atom
 selection (a ligand, say).
 
 Go to A40 (ARG) mainchain O. Add hydrogen atoms and refine chain. We
-get a diego. But not for sphere refine.
-
-Send Maria info about Coot tests.
+get a diego. But not for sphere refine. hb_type for fixed atoms not
+working correctly?
 
 Carbohydrate WTA mode in C++
 
@@ -52,9 +55,8 @@ to move the molecule for some hypotheses next round - you
 might like to try several different rotation/translation
 hypotheses to check for consistency.
 
-Stuart: Download svg in Moorhen ligands and carbohydrate.
-
-Stuart: hydrogen bonds?
+Moorhen: hydrogen bonds?
+add show_hydrogen_bonds to chapi api
 
 Look at fftw2 usage in electrostatics
 
@@ -71,8 +73,6 @@ What's going wrong - hydrogen bond distance restraints? Lucrezia script.
 Look at picking in RNA stick mode
 
 Discs for HOLE output?
-
-add show_hydrogen_bonds to chapi api
 
 Why doesn't YTD import into layla after reading acedrg-YTD.cif?
 LaylaState::LaylaState(CootLigandEditorCanvas* canvas_widget, GtkWindow* win, GtkLabel* status_label) noexcept {
@@ -155,6 +155,9 @@ It's a mistake to recontour the maps when they are not displayed.
 Instead of recontouring, mark them as 'outdated'
 When the set_map_is_displayed() function is activated the "map state"
 is checked and contoured regenerated if the map state is 'outdated'.
+* Done.
+
+Send Maria info about Coot tests.
 * Done.
 
 add scaling for view rotation/pixel
