@@ -828,7 +828,7 @@ pli::fle_view_with_rdkit_internal(mmdb::Manager *mol,
    }
 
    // 20250106-PE: hack the bounds for now
-   svgc_outer.set_bounds(-20, -20, 40, 40);
+   // svgc_outer.set_bounds(-20, -20, 40, 40);
    return svgc_outer;
 }
 
@@ -2468,7 +2468,7 @@ flev_t::draw_residue_circle_top_layer(const residue_circle_t &residue_circle,
          std::string("stroke=\"") + col.second + std::string("\" ") +
          std::string("stroke-width=\"") + std::to_string(stroke_width) + std::string("\"") +
          std::string("/>\n");
-      float delta = 50.0; // about this? // was 50.0
+      float delta = 3.0; // about this? // was 50.0
       svgc.add("<!-- Residue Circle " + residue_circle.residue_label + std::string(" -->\n"));
       svgc.add(circle_string);
       svgc.set_bounds(scale_factor * pos.x - delta, scale_factor * pos.y - delta,
