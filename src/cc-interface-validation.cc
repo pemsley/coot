@@ -31,7 +31,7 @@ using json = nlohmann::json;
 void read_interesting_places_json_file(const std::string &file_name) {
 
    if (coot::file_exists(file_name)) {
-      
+
       std::string s;
       std::fstream f(file_name);
       f.seekg(0, std::ios::end);
@@ -46,7 +46,7 @@ void read_interesting_places_json_file(const std::string &file_name) {
       std::cout << "items has " << n_items << " items" << std::endl;
       for (std::size_t i=0; i<n_items; i++) {
 	 const json &j_item = j_items[i];
-	 json::iterator it = item.find(std::string("type"));
+	 json::const_iterator it = j_item.find(std::string("type"));
 	 if (it != j_item.end()) {
 	    std::string type = it.value();
 	    if (type == "Chiral") {
@@ -54,7 +54,7 @@ void read_interesting_places_json_file(const std::string &file_name) {
 	    if (type == "Bad Density Fit") {
 	    }
 	    if (type == "Blob") {
-	       it = item.find(std::string("position"));
+	       it = j_item.find(std::string("position"));
 	       if (it != j_item.end()) {
 	       }
 	    }
