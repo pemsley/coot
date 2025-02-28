@@ -58,6 +58,8 @@ hypotheses to check for consistency.
 Moorhen: hydrogen bonds?
 add show_hydrogen_bonds to chapi api
 
+Stuart: hydrogen bonds?
+
 Look at fftw2 usage in electrostatics
 
 Coot: picking should use the non-drawn atom indicies vector
@@ -185,7 +187,7 @@ The first save coords molecule selector dialog should be an overlay.
 Fix this startup message:
 ERROR:: failed to find preferences_bond_width_combobox
 ERROR:: failed to find preferences_font_size_combobox
-* Done
+* Done.
 
 add-geometry-distance in state command needs coot namespace
 * Done.

@@ -507,6 +507,7 @@ libcootsumo_la_SOURCES = \
 	cc-interface-map-utils.cc\
 	cc-interface-image.hh    \
 	cc-interface-png.cc      \
+	cc-interface-validation.cc      \
 	cc-interface-user-defined-atom-colours.hh \
 	cc-interface-user-defined-atom-colours.cc \
 	cc-interface-molecular-representation.hh  \
