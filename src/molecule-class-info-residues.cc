@@ -2462,10 +2462,42 @@ molecule_class_info_t::delete_sidechain_range(const coot::residue_spec_t &res_1,
 void
 molecule_class_info_t::delete_all_carbohydrate() {
 
-   std::cout << "delete stuff here" << std::endl;
-   // (if (or (string=? "NAG" rn) (string=? "MAN" rn) (string=? "BMA" rn) (string=? "FUL" rn)
-   //         (string=? "FUC" rn) (string=? "XYP" rn) (string=? "SIA" rn) (string=? "GAL" rn)
-   //         (string=? "NDG" rn) (string=? "BGC" rn) (string=? "A2G" rn))
+   // this can be put in coord utils
+
+   std::set<std::string> cho_set;
+   cho_set.insert("NAG"); cho_set.insert("MAN"); cho_set.insert("BMA"); cho_set.insert("FUL");
+   cho_set.insert("FUC"); cho_set.insert("XYP"); cho_set.insert("SIA"); cho_set.insert("GAL");
+   cho_set.insert("NDG"); cho_set.insert("BGC"); cho_set.insert("A2G");
+
+   std::vector<mmdb::Residue *> residues_to_be_removed;
+
+   for(int imod = 1; imod<=atom_sel.mol->GetNumberOfModels(); imod++) {
+      mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+      if (model_p) {
+         int n_chains = model_p->GetNumberOfChains();
+         for (int ichain=0; ichain<n_chains; ichain++) {
+            mmdb::Chain *chain_p = model_p->GetChain(ichain);
+            int n_res = chain_p->GetNumberOfResidues();
+            for (int ires=0; ires<n_res; ires++) {
+               mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+               if (residue_p) {
+                  std::string rn = residue_p->GetResName();
+                  if (cho_set.find(rn) != cho_set.end()) {
+                     residues_to_be_removed.push_back(residue_p);
+                  }
+               }
+            }
+         }
+      }
+   }
+
+   if (! residues_to_be_removed.empty()) {
+      make_backup();
+      for (mmdb::Residue *r : residues_to_be_removed) {
+         delete r;
+      }
+      make_bonds_type_checked();
+   }
 
 }
 
