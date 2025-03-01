@@ -66,6 +66,16 @@
 #include "old-generic-display-object.hh"
 #endif
 
+// this can be outside of Mesh
+std::string stringify_error_message(GLenum err) {
+
+   std::string r = std::to_string(err);
+   if (err == GL_INVALID_ENUM)  r = "GL_INVALID_ENUM";
+   if (err == GL_INVALID_VALUE) r = "GL_INVALID_VALUE";
+   if (err == GL_INVALID_OPERATION) r = "GL_INVALID_OPERATION";
+   return r;
+}
+
 void
 Mesh::init() {
 
@@ -343,6 +353,10 @@ Mesh::debug() const {
 // 20210910-PE remove the Shader argument, surely not needed.
 void
 Mesh::setup(const Material &material_in) {
+
+   // 20250224-PE I don't like the idea of mixing up material
+   // and buffers. Rename this to set_material()0
+   // and don't setup_buffers().
 
    // Generic objects need a lot of reworking
    // because I want to "setup" only after all objects have been added - not
@@ -751,8 +765,18 @@ Mesh::setup_buffers() {
    if (triangles.empty() && lines_vertex_indices.empty()) return;
 
    GLenum err = glGetError();
-   if (err)
-      std::cout << "GL ERROR:: Mesh::setup_buffers() \"" << name << "\" --- start --- " << std::endl;
+   if (err) {
+      std::cout << "GL ERROR:: Mesh::setup_buffers() \"" << name << "\" --- start --- "
+                << stringify_error_message(err) << std::endl;
+      err = glGetError();
+      if (err != 0)
+         std::cout << "GL ERROR:: Mesh::setup_buffers() \"" << name << "\" --- start --- stack-clear "
+                   << stringify_error_message(err) << std::endl;
+      err = glGetError();
+      if (err != 0)
+         std::cout << "GL ERROR:: Mesh::setup_buffers() \"" << name << "\" --- start --- stack-clear "
+                   << stringify_error_message(err) << std::endl;
+   }
 
    bool setup_buffers_for_gl_lines = false;
    if (! lines_vertex_indices.empty())

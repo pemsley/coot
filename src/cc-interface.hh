@@ -2440,6 +2440,8 @@ void display_svg_from_file_in_a_dialog(const std::string &file_name);
 
 void display_svg_from_string_in_a_dialog(const std::string &string);
 
+void read_interesting_places_json_file(const std::string &file_name);
+
 //! return the section index (the middle section currently)
 int setup_tomo_slider(int imol);
 void tomo_section_view(int imol, int axis_id);

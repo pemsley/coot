@@ -1227,6 +1227,16 @@ public:
    std::pair<bool, coot::Cartesian> get_atom_position(int imol, coot::atom_spec_t &atom_spec);
 #endif
 
+   //! Residue is nucleic acid?
+   //!
+   //! Every residue in the selection is checked
+   //!
+   //! @param imol is the model molecule index
+   //! @param cid is the selection CID e.g "//A/15" (residue 15 of chain A)
+   //!
+   //! @return a bool
+   bool residue_is_nucleic_acid(int imol, const std::string &cid) const;
+
    //! Get the residue CA position
    //!
    //! @param imol is the model molecule index
@@ -1354,6 +1364,12 @@ public:
    //!
    //! @return a list of residue specs
    std::vector<coot::residue_spec_t> get_residues_near_residue(int imol, const std::string &residue_cid, float dist) const;
+
+  //! get atom distances
+  //! other stuff here
+  std::vector<coot::atom_distance_t>
+  get_distances_between_atoms_of_residues(int imol, const std::string &cid_res_1, const std::string &cid_res_2,
+					  float dist_max) const;
 
    //! Superposition (using SSM)
    //!
@@ -3497,6 +3513,8 @@ public:
    std::vector<int>   get_triangles_for_blender(int imol);
 
    // -------------------------------- Other ---------------------------------------
+
+   void test_function(const std::string &s);
 
 #ifdef SWIG
 #if NB_VERSION_MAJOR

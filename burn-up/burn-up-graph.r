@@ -1,15 +1,13 @@
 
-ylim=120 # was 105
-xlim=480 # was 105
+# every month or so
+xlim=40
+ylim=20 # reasonable scope
 
-# prediction_text_x_placement = 68
-# prediction_text_y_placement = 18
-prediction_text_x_placement = 140
+prediction_text_x_placement = 10
 prediction_text_y_placement = 0
 
-legend_x = 340
-legend_y = 10
-
+legend_x = 24
+legend_y = 4
 
 source('arrow.r')
 
@@ -108,8 +106,8 @@ do_plot = function() {
     ## the columns are time(days) n-items-todo n-items-done
 
     plot(ylim=c(0,ylim), xlim=c(0,xlim), NULL, NULL, t='n', cex.main=1.0,
-               main="GTK4 Coot-1.0 Development Progress\n(ignoring Validation Graphs & Ligand Builder and SeqView)",
-               xlab="Real Days since records began (6 Aug 2022)",
+               main="Development Progress",
+               xlab="Real Days since records began (26 Feb 2025)",
                ylab="Scope & Work Done (Days)")
 
     grid()
@@ -137,25 +135,8 @@ do_plot()
 
 predict(prediction_text_x_placement, prediction_text_y_placement)
 
-betterArrow(48, 36, 21, 30, 0.2, col='grey30', code=2)
-text(78, 38., labels="Python Menu\nDump", col='grey30', cex=1.0)
-
-betterArrow(55, 25, 45, 16, 0.2, col='grey30', code=2)
-text(89, 25., labels="Moorhen", col='grey30', cex=1.0)
-
-betterArrow(280, 10, 260, 15, 0.2, col='grey30', code=2)
-text(290, 5, labels="Validation\nGraphs", col='grey30', cex=1.0)
-
-betterArrow(280, 110, 303, 102, 0.2, col='grey30', code=2)
-text(236, 112, labels="Ligand Menu", col='grey30', cex=1.0)
-
-# text(43, 9., labels="Illness", col='grey', cex=1.0)
-
-## betterArrow(70, 32, 44, 38.3, 0.2, col='grey', code=2)
-## text(84, 32., labels="Runs on Mac OS", col='grey', cex=1.0)
-
-## betterArrow(50, 57, 73, 52.0, 0.2, col='grey', code=2)
-## text(40, 58., labels="Goodbye PISA", col='grey', cex=1.0)
+# betterArrow(48, 36, 21, 30, 0.2, col='grey30', code=2)
+# text(78, 38., labels="Python Menu\nDump", col='grey30', cex=1.0)
 
 dev.off()
 

@@ -1,12 +1,9 @@
 import datetime
 
 def proc():
-    # f = open("../rel-todo-gtk3")
-    fn = "../menu-items-to-fix"
-    fn = "../rel-todo-gtk4"
+    fn = "../rel-todo"
     f = open(fn)
     lines = f.readlines()
-    # add_to_other_items = False
     add_to_other_items = True
     add_to_done_other_items = False
     n_other_items = 0
@@ -36,8 +33,7 @@ def proc():
 
 (n_other_items, n_done_other_items) = proc()
 
-
-start = datetime.datetime(2022, 8, 6)
+start = datetime.datetime(2025, 2, 26)
 now   = datetime.datetime.now()
 
 delta_s = int(now.strftime("%s")) - int(start.strftime("%s"))

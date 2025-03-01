@@ -64,10 +64,10 @@ Particle::update_gone_diego_particle() {
 void
 Particle::update_gone_diff_map_particle() {
 
-   float v_scale = 0.18;
+   float v_scale = 0.25; // was 0.18;
    glm::vec3 delta = v_scale * velocity;
    position += delta;
-   life -= 0.03; // starts around 10 or so
+   life -= 0.06; // starts around 10 or so
    rotation += 0.01; // this number is not used in draw_particles(). Instead the
                      // rotation is based on the number of times the particle
                      // has been drawn. It *should* use this value.

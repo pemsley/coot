@@ -350,3 +350,32 @@ coot::molecule_t::insert_coords_internal(const atom_selection_container_t &asc) 
    }
    atom_sel.mol->FinishStructEdit();
 }
+
+
+//! Residue is nucleic acid?
+//!
+//! Every residue in the selection is checked
+//!
+//! @param imol is the model molecule index
+//! @param cid is the selection CID e.g "//A/15" (residue 15 of chain A)
+//!
+//! @return a bool
+bool
+coot::molecule_t::residue_is_nucleic_acid(const std::string &cid) const {
+
+   bool status = false;
+
+   std::vector<mmdb::Residue *> v = cid_to_residues(cid);
+   if (! v.empty()) {
+      bool all_true = true;
+      for (mmdb::Residue *residue_p : v) {
+         short int in = util::is_nucleotide(residue_p);
+         if (in == 0) {
+            all_true = false;
+            break;
+         }
+      }
+      if (all_true) status = true;
+   }
+   return status;
+}

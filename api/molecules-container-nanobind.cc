@@ -284,6 +284,7 @@ NB_MODULE(chapi, m) {
     .def("get_colour_table_for_blender", &molecules_container_t::get_colour_table_for_blender)
     .def("get_density_at_position", &molecules_container_t::get_density_at_position)
     .def("get_dictionary_conformers", &molecules_container_t::get_dictionary_conformers)
+    .def("get_distances_between_atoms_of_residues", &molecules_container_t::get_distances_between_atoms_of_residues)
     .def("get_gaussian_surface",&molecules_container_t::get_gaussian_surface)
     .def("get_goodsell_style_mesh_instanced",&molecules_container_t::get_goodsell_style_mesh_instanced)
     .def("get_gphl_chem_comp_info",&molecules_container_t::get_gphl_chem_comp_info)
@@ -434,6 +435,7 @@ NB_MODULE(chapi, m) {
     .def("side_chain_180",    nb::overload_cast<int, const std::string&>                         (&molecules_container_t::side_chain_180))
     .def("split_multi_model_molecule",&molecules_container_t::split_multi_model_molecule)
     .def("split_residue_using_map",&molecules_container_t::split_residue_using_map)
+    .def("test_function",&molecules_container_t::test_function)
     .def("test_origin_cube",&molecules_container_t::test_origin_cube)
     .def("transform_map_using_lsq_matrix",&molecules_container_t::transform_map_using_lsq_matrix)
     .def("undo",&molecules_container_t::undo)
@@ -551,6 +553,11 @@ NB_MODULE(chapi, m) {
     .def_rw("string_user_data",&coot::atom_spec_t::string_user_data)
     .def_rw("model_number",&coot::atom_spec_t::model_number)
     ;
+    nb::class_<coot::atom_distance_t>(m,"atom_distance_t")
+      .def_ro("atom_1", &coot::atom_distance_t::atom_1)
+      .def_ro("atom_2", &coot::atom_distance_t::atom_2)
+      .def_ro("distance", &coot::atom_distance_t::distance)
+      ;
     nb::class_<coot::residue_range_t>(m,"residue_range_t")
       .def(nb::init<>())
       .def_rw("chain_id",     &coot::residue_range_t::chain_id)

@@ -1721,7 +1721,7 @@ graphics_info_t::accept_moving_atoms() {
       setup_for_probe_dots_on_chis_molprobity(imol_moving_atoms);
    }
 
-   std::cout << "debug:: accept_moving_atoms:: GTK4 update: update rama plot for " << imol_moving_atoms << std::endl;
+   std::cout << "DEBUG:: accept_moving_atoms() GTK4 update: update rama plot for " << imol_moving_atoms << std::endl;
 
    clear_all_atom_pull_restraints(false); // no re-refine
    clear_up_moving_atoms();

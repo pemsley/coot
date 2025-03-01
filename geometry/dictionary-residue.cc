@@ -628,7 +628,7 @@ coot::dictionary_residue_restraints_t::element(const std::string &atom_name) con
    }
    if (r.length() == 1)
       r = " " + r;
-   
+
    // std::cout << " dictionary_residue_restraints_t::element()"
    // 	     << " on atom name :" << atom_name << ": returns :" << r << ":" << std::endl;
    return r;
@@ -636,7 +636,7 @@ coot::dictionary_residue_restraints_t::element(const std::string &atom_name) con
 
 // likewise look up the energy type.  Return "" on no atom found
 // with that atom_name.
-// 
+//
 std::string
 coot::dictionary_residue_restraints_t::type_energy(const std::string &atom_name) const {
 
@@ -644,9 +644,9 @@ coot::dictionary_residue_restraints_t::type_energy(const std::string &atom_name)
 
    // If you are reading this, then you are looking in a dictionary looked up from an index
    // that is out of bounds.
-   // 
-   // std::cout << "dictionary_has " << atom_info.size() << " atoms" << std::endl;
-   
+   //
+   // std::cout << "debug:: in type_energy(): dictionary_has " << atom_info.size() << " atoms" << std::endl;
+
    for (unsigned int iat=0; iat<atom_info.size(); iat++) {
       if (false)
 	 std::cout << "comparing :" << atom_name << ": with :" << atom_info[iat].atom_id_4c
@@ -877,7 +877,7 @@ coot::dictionary_residue_restraints_t::is_hydrogen(unsigned int idx) const {
       const std::string &ele = atom_info[idx].type_symbol;
       if (ele == " H" || ele == "H" || ele == "D")
 	 r = true;
-   } 
+   }
    return r;
 }
 
@@ -906,6 +906,15 @@ coot::dictionary_residue_restraints_t::get_bonded_atom(const std::string &H_atom
       r = bond_restraint[i].atom_id_1_4c();
       break;
     }
+  }
+
+  // 20250225-PE rescue poor H1 - which is not in the monomer library for amino acids
+  if (r.empty() && (H_atom_name == " H1 ")) {
+     for (unsigned int i=0; i<bond_restraint.size(); i++) {
+        if (bond_restraint[i].atom_id_1_4c() == " N  ") {
+           r = " N  ";
+        }
+     }
   }
   return r;
 }
