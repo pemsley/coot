@@ -3293,11 +3293,15 @@ public:
    //!
    //! The caller should make sure that the dictionary for the ligand has been loaded - this
    //! function won't do that. It will add hydrogen atoms if needed.
+   //! 
+   //! From time to time (depending on the ligand) this function will fail to produce a
+   //! result.
    //!
    //! Not const because get_monomer_restraints_at_least_minimal() is called. Hmm.
    //!
    //! @param imol is the model molecule index
    //! @param residue_cid is the cid for the residue
+   //! @return an svg string of the representation. On failure, return an empty string.
    std::string get_svg_for_2d_ligand_environment_view(int imol, const std::string &residue_cid);
 
    //! Get non-standard residues in a model
