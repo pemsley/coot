@@ -1031,32 +1031,32 @@ coot::molecule_t::get_distances_between_atoms_of_residues(const std::string &cid
   std::vector<atom_distance_t> v;
   mmdb::Residue *residue_1 = cid_to_residue(cid_res_1);
   mmdb::Residue *residue_2 = cid_to_residue(cid_res_2);
-  if(residue_1) {
-    if(residue_2) {
-      int nResidueAtoms_1 = 0;
-      mmdb::PPAtom ResidueAtoms_1 = nullptr;
-      residue_1->GetAtomTable(ResidueAtoms_1, nResidueAtoms_1);
-      int nResidueAtoms_2 = 0;
-      mmdb::PPAtom ResidueAtoms_2 = nullptr;
-      residue_2->GetAtomTable(ResidueAtoms_2, nResidueAtoms_2);
-      for (int ii=0; ii<nResidueAtoms_1; ii++) {
-	mmdb::Atom *at_1 = ResidueAtoms_1[ii];
-	for (int jj=0; jj<nResidueAtoms_2; jj++) {
-	  mmdb::Atom *at_2 = ResidueAtoms_2[jj];
-	  double dd =
-	    (at_2->x - at_1->x) * (at_2->x - at_1->x) +
-	    (at_2->y - at_1->y) * (at_2->y - at_1->y) +
-	    (at_2->z - at_1->z) * (at_2->z - at_1->z);
-	  double d = std::sqrt(dd);
-	  if (d < dist_max) {
-	    atom_spec_t spec_1(at_1);
-	    atom_spec_t spec_2(at_2);
-	    atom_distance_t ad(spec_1, spec_2, d);
-	    v.push_back(ad);
-	  }
-	}
-      }
-    }
+  if (residue_1) {
+     if (residue_2) {
+        int nResidueAtoms_1 = 0;
+        mmdb::PPAtom ResidueAtoms_1 = nullptr;
+        residue_1->GetAtomTable(ResidueAtoms_1, nResidueAtoms_1);
+        int nResidueAtoms_2 = 0;
+        mmdb::PPAtom ResidueAtoms_2 = nullptr;
+        residue_2->GetAtomTable(ResidueAtoms_2, nResidueAtoms_2);
+        for (int ii=0; ii<nResidueAtoms_1; ii++) {
+	        mmdb::Atom *at_1 = ResidueAtoms_1[ii];
+	        for (int jj=0; jj<nResidueAtoms_2; jj++) {
+	           mmdb::Atom *at_2 = ResidueAtoms_2[jj];
+	           double dd =
+	      (at_2->x - at_1->x) * (at_2->x - at_1->x) +
+	      (at_2->y - at_1->y) * (at_2->y - at_1->y) +
+	      (at_2->z - at_1->z) * (at_2->z - at_1->z);
+	           double d = std::sqrt(dd);
+	           if (d < dist_max) {
+	              atom_spec_t spec_1(at_1);
+	              atom_spec_t spec_2(at_2);
+	              atom_distance_t ad(spec_1, spec_2, d);
+	              v.push_back(ad);
+	           }
+	        }
+        }
+     }
   }
   return v;
 }
