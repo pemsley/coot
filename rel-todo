@@ -7,7 +7,7 @@ Add a function is_nucleic_acid(imol, cid) ::: 1
 
 Get FLEV into Coot ::: 2
 
-Coot: picking should use the non-drawn atom indicies vector ::: 1
+Coot: picking should use the non-drawn atom indices vector ::: 1
 
 Replace line symmetry with 3d model ::: 3
 
