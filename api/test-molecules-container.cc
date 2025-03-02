@@ -6361,6 +6361,52 @@ int test_HOLE(molecules_container_t &mc) {
    return status;
 }
 
+int test_is_nucleic_acid(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   bool fail = false;
+   int imol_1 = mc.read_coordinates(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int imol_2 = mc.read_coordinates(reference_data("5bjo-needs-E6.pdb"));
+   for (unsigned int res_no=0; res_no<=298; res_no++) {
+      std::string cid = "//A/" + std::to_string(res_no);
+      bool r = mc.residue_is_nucleic_acid(imol_1, cid);
+      std::string rn = "--unset--";
+      mmdb::Residue *residue_p = mc.get_residue_using_cid(imol_1, cid);
+      if (residue_p)
+         rn = residue_p->GetResName();
+      if (r) {
+         std::cout << "fail for imol_1 " << cid << " type " << rn << std::endl;
+         fail = true;
+         break;
+      }
+   }
+   std::cout << "here A with fail " << fail << std::endl;
+   for (unsigned int res_no=1; res_no<=16; res_no++) {
+      if (res_no == 6) continue;
+      if (res_no == 7) continue;
+      std::string cid = "//E/" + std::to_string(res_no);
+      bool r = mc.residue_is_nucleic_acid(imol_2, cid);
+      mmdb::Residue *residue_p = mc.get_residue_using_cid(imol_2, cid);
+      std::string rn = "--unset--";
+      if (residue_p)
+         rn = residue_p->GetResName();
+      if (! r) {
+         std::cout << "fail for imol_2 " << cid << " type " << rn << std::endl;
+         fail = true;
+      } else {
+         std::cout << "pass for imol_2 " << cid << " type " << rn << std::endl;
+      }
+   }
+
+   if (fail)
+      status = 0;
+   else
+      status = 1;
+   return status;
+}
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -6688,6 +6734,7 @@ int main(int argc, char **argv) {
          status += run_test(test_scale_map, "scale_map", mc);
          status += run_test(test_add_RNA_residue, "add RNA residue", mc);
          status += run_test(test_HOLE, "HOLE", mc);
+         status += run_test(test_is_nucleic_acid, "is nucleic acid?", mc);
          if (status == n_tests) all_tests_status = 0;
 
          print_results_summary();
