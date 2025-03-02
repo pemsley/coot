@@ -53,6 +53,58 @@
   <update_contact>pemsley_AT_mrc-lmb.cam.ac.uk</update_contact>
   <content_rating type="oars-1.1" />
   <releases>
+    <release version="1.1.13" date="2025-02-24">
+      <description>
+        <ul>
+          <li>FEATURE: New chapi functions added: `get_svg_for_2d_ligand_environment_view()`, `get_HOLE()`, and `scale_map()`. Additionally, nucleic acids now work with `add_terminal_residue()` and sticks and dishy bases are not drawn for atoms not in selection.</li>
+          <li>FEATURE: Non-drawn maps are not recontoured on view translation; they now wait until the map is displayed. [Elegant-Land-8008]</li>
+          <li>FUNCTION-RESTORED: When "Spacing" along a chain, the CA label follows.</li>
+          <li>FUNCTION-RESTORED: SSM dialog now works.</li>
+          <li>FUNCTION-RESTORED: NCS Ghosts dialog now works.</li>
+          <li>BUG-FIX: Missing shader for instanced geometry for SSAO added back.</li>
+          <li>COMPILATION: Issue for `graphics_info_t::scale_up_graphics` has been resolved.</li>
+        </ul>
+      </description>
+    </release>
+    <release version="1.1.12" date="2025-02-11">
+      <description>
+        <ul>
+          <li>TERMINAL OUTPUT: Increased diagnostic output on startup to help troubleshoot graphics
+            and Python issues across diverse operating systems, drivers, and Python versions.</li>
+          <li>FEATURE: New chapi functions added: `add_terminal_residue_directly()`,
+            `copy_molecule()`, `flood()`, `get_validation_vs_dictionary_for_selection()`,
+            `servalcat_refine_xray()`, `get_torsion()`, `change_alt_locs()`,
+            `split_residue_using_map()`, `get_missing_residue_ranges()`, `get_mutation_info()`, and
+            `set_temperature_factor_using_cid()` (see Pythonic and C++ API documentation).</li>
+          <li>FEATURE: New Coot API functions added: `set_new_non_drawn_bonds()` and
+            `add_new_non_draw_bonds()`.</li>
+          <li>FEATURE: Graphics viewport scaling added.</li>
+          <li>FEATURE: Acedrg link interface added.</li>
+          <li>FEATURE: HOLE interface restored.</li>
+          <li>FEATURE: Transform map by LSQ model fit restored.</li>
+          <li>BUG-FIX: '--code &lt;accession-code&gt;' now functions correctly following the XDG
+            Directory Protocol update.</li>
+          <li>BUG-FIX: Resolved the no-recentre-view issue in the coordinate file open dialog.</li>
+          <li>BUG-FIX: Contact dots for ligands now correctly display ligand donor to water hydrogen
+            bonds.</li>
+          <li>BUG-FIX: Disabled refinement using a CCD dictionary (thanks to Lorenzo Masso).</li>
+          <li>BUG-FIX: Correct shader usage implemented for surfaces in "Plain" mode.</li>
+          <li>BUG-FIX: LSQ Fit dialog functionality restored.</li>
+          <li>BUG-FIX: Prevented CYS with hydrogen atoms from forming spurious disulfide bonds
+            (thanks to Jordan Dialpuri).</li>
+          <li>BUG-FIX: End-of-chain TER atom removal on adding a new terminal residue fixed.</li>
+          <li>BUG-FIX: Dark mode icons now display correctly in Layla.</li>
+          <li>BUG-FIX: Startup window width increased on macOS for better usability.</li>
+          <li>BUG-FIX: Global Phasing column labels (F_early-late) now auto-read.</li>
+          <li>BUG-FIX: Hydrogen atom deletion in Layla now works properly.</li>
+          <li>CHANGE: Framebuffer usage reduced/removed in --opengl-es mode.</li>
+          <li>CHANGE: Module menus now depthonized.</li>
+          <li>CHANGE: Overlay added for the Cryo-EM "Flip Hand" tool.</li>
+          <li>CHANGE: Pythonic startup process updated for improved performance.</li>
+          <li>KNOWN BUG: Ramachandran Plot display issues persist on some macOS systems.</li>
+        </ul>
+      </description>
+    </release>
     <release version="1.1.11" date="2024-12-12">
       <description>
         <ul>
@@ -69,7 +121,9 @@
     <release version="1.1.10" date="2024-07-21">
       <description>
         <ul>
-          <li>FEATURE: Noughties-physics - add a refinement/atom manipulation mode so that Coot behaves like it used to up to (and including) version 0.8.x: `coot.set_refine_use_noughties_physics()`.</li>
+          <li>FEATURE: Noughties-physics - add a refinement/atom manipulation mode so that Coot
+            behaves like it used to up to (and including) version 0.8.x:
+            `coot.set_refine_use_noughties_physics()`.</li>
           <li>FEATURE: Layla now displays QED Scores for molecules.</li>
           <li>FEATURE: `read_coordinates()` added to the Coot.</li>
           <li>FEATURE: Cryo-EM servalcat use added to the Coot API.</li>
@@ -77,10 +131,13 @@
           <li>CHANGE: HUD Ramachandran Plot is now pickable.</li>
           <li>CHANGE: Ligands with no dictionary are drawn with bonds in "Colour by Chain" mode.</li>
           <li>CHANGE: Python requests is no longer a dependency.</li>
-          <li>BUG-FIX: Scroll wheel indicator in the Display Manager now correctly updates on use of a key-binding to change the scrollable map.</li>
+          <li>BUG-FIX: Scroll wheel indicator in the Display Manager now correctly updates on use of
+            a key-binding to change the scrollable map.</li>
           <li>BUG-FIX: Ugly least-squares fit dialog has been modernized.</li>
-          <li>BUG-FIX: Fix the callback actions for the "Display Hydrogen Atoms" in the Bonds control dialog.</li>
-          <li>BUG-FIX: Rework the calculation of `pkg_data_dir()` - particularly in the case of relocatable binaries.</li>
+          <li>BUG-FIX: Fix the callback actions for the "Display Hydrogen Atoms" in the Bonds
+            control dialog.</li>
+          <li>BUG-FIX: Rework the calculation of `pkg_data_dir()` - particularly in the case of
+            relocatable binaries.</li>
         </ul>
       </description>
     </release>
