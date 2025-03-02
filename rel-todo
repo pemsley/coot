@@ -1,20 +1,34 @@
 
 --- Items ---
 
-G2F in 5a3h flev needs fixing? Can we see something? ::: 2
-
-Add a function is_nucleic_acid(imol, cid) ::: 1
-
 Get FLEV into Coot ::: 2
 
 Coot: picking should use the non-drawn atom indices vector ::: 1
 
+In FLEV, use the tweaks to position the text ::: 1
+
+delete_all_carbohydrate() needs a test. Move it to coot-utils and
+give moorhen/chapi access to it ::: 2
+
+Coot: picking should use the non-drawn atom indicies vector ::: 1
+
 Replace line symmetry with 3d model ::: 3
 
+Change chapi/mc to coot_headless_api/chapi ::: 1
+
+Look at dots() - does the atom_radius parameter have an effect? ::: 0.5
 
 --- Done Items ---
 
 Fix the super-atoms in svg-molecule/flev ::: 1
 
 Double-clicking on a HUD button does a "go to blob" ::: 1
+
+Add a function is_nucleic_acid(imol, cid) ::: 1
+
+G2F in 5a3h flev needs fixing? Can we see something? ::: 2
+* Empty return value - that will have to do for now.
+
+In FLEV make "Hoh" say "Water" - smaller font needed maybe ::: 0.5
+* Done.
 
