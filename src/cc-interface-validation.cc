@@ -46,7 +46,7 @@ void read_interesting_places_json_file(const std::string &file_name) {
       std::cout << "items has " << n_items << " items" << std::endl;
       for (std::size_t i=0; i<n_items; i++) {
 	 const json &j_item = j_items[i];
-	 json::iterator it = item.find(std::string("type"));
+	 json::const_iterator it = j_item.find(std::string("type"));
 	 if (it != j_item.end()) {
 	    std::string type = it.value();
 	    if (type == "Chiral") {
@@ -54,8 +54,19 @@ void read_interesting_places_json_file(const std::string &file_name) {
 	    if (type == "Bad Density Fit") {
 	    }
 	    if (type == "Blob") {
-	       it = item.find(std::string("position"));
+	       it = j_item.find(std::string("position"));
 	       if (it != j_item.end()) {
+		  const json &j_pos = *it;
+		  unsigned int l = j_pos.size();
+		  if (l == 3) {
+		     std::cout << "Found a position" << std::endl;
+		     const json &x_item = j_pos[0];
+		     const json &y_item = j_pos[1];
+		     const json &z_item = j_pos[2];
+		     float x = x_item.get<float>();
+		     float y = y_item.get<float>();
+		     float z = z_item.get<float>();
+		  }
 	       }
 	    }
 	 }
