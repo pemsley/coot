@@ -1654,7 +1654,7 @@ graphics_info_t::make_moving_atoms_asc(mmdb::Manager *residues_mol,
       local_moving_atoms_asc.UDDOldAtomIndexHandle = -1;  // true?
       local_moving_atoms_asc.UDDAtomIndexHandle = -1;
       if (residues_mol)
-	 local_moving_atoms_asc.read_success = 1;
+         local_moving_atoms_asc.read_success = 1;
 
       local_moving_atoms_asc.SelectionHandle = residues_mol->NewSelection();
       residues_mol->SelectAtoms (local_moving_atoms_asc.SelectionHandle, 0, "*",
@@ -1669,8 +1669,8 @@ graphics_info_t::make_moving_atoms_asc(mmdb::Manager *residues_mol,
 				 );
 
       residues_mol->GetSelIndex(local_moving_atoms_asc.SelectionHandle,
-				local_moving_atoms_asc.atom_selection,
-				local_moving_atoms_asc.n_selected_atoms);
+                                local_moving_atoms_asc.atom_selection,
+                                local_moving_atoms_asc.n_selected_atoms);
 
       local_moving_atoms_asc.fill_links_using_mol(residues_mol);
 
@@ -1681,12 +1681,15 @@ graphics_info_t::make_moving_atoms_asc(mmdb::Manager *residues_mol,
 
 atom_selection_container_t
 graphics_info_t::make_moving_atoms_asc(mmdb::Manager *residues_mol,
-				       const std::vector<mmdb::Residue *> &residues) const {
+                                       const std::vector<mmdb::Residue *> &residues) const {
 
    // This also rebonds the imol_moving_atoms molecule
 
-   GLenum err = glGetError();
-   if (err) std::cout << "GL ERROR:: in make_moving_atoms_asc()-- start --\n"; // hmm were was thig from?
+   GLenum err;
+   if (use_graphics_interface_flag) {
+      err = glGetError();
+      if (err) std::cout << "GL ERROR:: in make_moving_atoms_asc()-- start --\n"; // hmm were was thig from?
+   }
 
    atom_selection_container_t local_moving_atoms_asc;
    local_moving_atoms_asc.UDDAtomIndexHandle = -1;
@@ -1720,8 +1723,8 @@ graphics_info_t::make_moving_atoms_asc(mmdb::Manager *residues_mol,
 
    if (false) {
       std::cout << "returning an atom selection for all moving atoms "
-		<< local_moving_atoms_asc.n_selected_atoms << " atoms "
-		<< std::endl;
+                << local_moving_atoms_asc.n_selected_atoms << " atoms "
+                << std::endl;
    }
 
    // This new block added so that we don't draw atoms in the "static" molecule when we have the
@@ -1733,25 +1736,27 @@ graphics_info_t::make_moving_atoms_asc(mmdb::Manager *residues_mol,
    if (false) { // debug atoms in other molecule
       std::set<int>::const_iterator it;
       for (it=atom_set.begin(); it!=atom_set.end(); ++it) {
-	 int idx = *it;
-	 mmdb::Atom *at = imol_asc.atom_selection[idx];
-	 coot::atom_spec_t as(at);
-	 std::cout << " this is a moving atom: " << idx << " " << as << std::endl;
+         int idx = *it;
+         mmdb::Atom *at = imol_asc.atom_selection[idx];
+         coot::atom_spec_t as(at);
+         std::cout << " this is a moving atom: " << idx << " " << as << std::endl;
       }
    }
 
    if (false) { // debug old atom index
       for (int i=0; i<local_moving_atoms_asc.n_selected_atoms; i++) {
-	 mmdb::Atom *at = local_moving_atoms_asc.atom_selection[i];
-	 coot::atom_spec_t as(at);
-	 int idx = -1;
-	 at->GetUDData(local_moving_atoms_asc.UDDOldAtomIndexHandle, idx);
-	 std::cout << "DEBUG:: in make_moving_atoms_asc " << as << " idx " << idx << std::endl;
+          mmdb::Atom *at = local_moving_atoms_asc.atom_selection[i];
+          coot::atom_spec_t as(at);
+          int idx = -1;
+          at->GetUDData(local_moving_atoms_asc.UDDOldAtomIndexHandle, idx);
+          std::cout << "DEBUG:: in make_moving_atoms_asc " << as << " idx " << idx << std::endl;
       }
    }
 
-   err = glGetError();
-   if (err) std::cout << "GL ERROR:: in make_moving_atoms_asc()-- before end --\n";
+   if (use_graphics_interface_flag) {
+      err = glGetError();
+      if (err) std::cout << "GL ERROR:: in make_moving_atoms_asc()-- before end --\n";
+   }
 
    // now rebond molecule imol without bonds to atoms in atom_set
    if (atom_set.size() > 0) {

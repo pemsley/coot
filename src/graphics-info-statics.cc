@@ -105,6 +105,8 @@ std::string graphics_info_t::map_partition_results_state_string; // "Done A Chai
 wiimote** graphics_info_t::wiimotes = NULL;
 #endif
 
+float graphics_info_t::view_rotation_per_pixel_scale_factor = 1.0;
+
 // Views
 float graphics_info_t::views_play_speed = 10.0;
 

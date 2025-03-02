@@ -435,6 +435,7 @@ NB_MODULE(chapi, m) {
     .def("side_chain_180",    nb::overload_cast<int, const std::string&>                         (&molecules_container_t::side_chain_180))
     .def("split_multi_model_molecule",&molecules_container_t::split_multi_model_molecule)
     .def("split_residue_using_map",&molecules_container_t::split_residue_using_map)
+    .def("test_function",&molecules_container_t::test_function)
     .def("test_origin_cube",&molecules_container_t::test_origin_cube)
     .def("transform_map_using_lsq_matrix",&molecules_container_t::transform_map_using_lsq_matrix)
     .def("undo",&molecules_container_t::undo)

@@ -2281,6 +2281,8 @@ void add_refine_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    // so here, check if the menubutton already exists.
    // How do I do that?
    //
+   // 20250225-PE Ah, the menu item in the pop-up become insensitve - nice.
+
    if (true) {
       GtkWidget *toolbar_hbox = widget_from_builder("main_window_toolbar_hbox");
       GtkWidget *menubutton = gtk_menu_button_new();
@@ -2342,6 +2344,11 @@ void add_refine_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,
          }
          return static_cast<gboolean>(FALSE);
       };
+
+      if (graphics_info_t::do_intermediate_atoms_rama_markup)
+         gtk_switch_set_active(GTK_SWITCH(switch_rama), TRUE);
+      if (graphics_info_t::do_intermediate_atoms_rota_markup)
+         gtk_switch_set_active(GTK_SWITCH(switch_rota), TRUE);
 
       g_signal_connect(G_OBJECT(switch_contact_dots),  "state-set", G_CALLBACK(switch_contact_dots_switched),  nullptr);
       g_signal_connect(G_OBJECT(switch_GM_restraints), "state-set", G_CALLBACK(switch_GM_restraints_switched), nullptr);

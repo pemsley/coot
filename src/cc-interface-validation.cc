@@ -31,7 +31,7 @@ using json = nlohmann::json;
 void read_interesting_places_json_file(const std::string &file_name) {
 
    if (coot::file_exists(file_name)) {
-      
+
       std::string s;
       std::fstream f(file_name);
       f.seekg(0, std::ios::end);

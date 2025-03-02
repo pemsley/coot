@@ -1079,6 +1079,16 @@ namespace coot {
       //! @return 1 on a successful additions, 0 on failure.
       int delete_hydrogen_atoms();
 
+      //! Residue is nucleic acid?
+      //!
+      //! Every residue in the selection is checked
+      //!
+      //! @param imol is the model molecule index
+      //! @param cid is the selection CID e.g "//A/15" (residue 15 of chain A)
+      //!
+      //! @return a bool
+      bool residue_is_nucleic_acid(const std::string &cid) const;
+
       // change the chain id
       // return -1 on a conflict
       // 1 on good.

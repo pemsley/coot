@@ -5560,6 +5560,14 @@ molecules_container_t::mmcif_tests(bool last_test_only) {
 }
 
 
+void
+molecules_container_t::test_function(const std::string &s) {
+
+   // test pyrogen here.
+
+}
+
+
 
 //! @return a vector of string pairs that were part of a gphl_chem_comp_info.
 //!  return an empty vector on failure to find any such info.
@@ -6342,6 +6350,25 @@ molecules_container_t::set_temperature_factors_using_cid(int imol, const std::st
    }
 }
 
+//! Residue is nucleic acid?
+//!
+//! Every residue in the selection is checked
+//!
+//! @param imol is the model molecule index
+//! @param cid is the selection CID e.g "//A/15" (residue 15 of chain A)
+//!
+//! @return a bool
+bool
+molecules_container_t::residue_is_nucleic_acid(int imol, const std::string &cid) const {
+
+   bool status = false;
+   if (is_valid_model_molecule(imol)) {
+      status = molecules[imol].residue_is_nucleic_acid(cid);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return status;
+}
 
 //! get atom distances
 //! other stuff here
@@ -6358,5 +6385,4 @@ molecules_container_t::get_distances_between_atoms_of_residues(int imol,
   }
 
   return v;
-
 }

@@ -828,7 +828,7 @@ pli::fle_view_with_rdkit_internal(mmdb::Manager *mol,
    }
 
    // 20250106-PE: hack the bounds for now
-   svgc_outer.set_bounds(-20, -20, 40, 40);
+   // svgc_outer.set_bounds(-20, -20, 40, 40);
    return svgc_outer;
 }
 
@@ -2439,6 +2439,8 @@ flev_t::draw_residue_circle_top_layer(const residue_circle_t &residue_circle,
    // Capitalise the residue type (takes less space than upper case).
    std::string rt = residue_circle.residue_type.substr(0,1);
    rt += coot::util::downcase(residue_circle.residue_type.substr(1));
+   if (residue_circle.residue_type == "HOH")
+      rt = "WATER";
 
    // correct that if we are looking at dna: DA, DT, DC, DG
    if (residue_circle.residue_type == "DA" ||
@@ -2468,7 +2470,7 @@ flev_t::draw_residue_circle_top_layer(const residue_circle_t &residue_circle,
          std::string("stroke=\"") + col.second + std::string("\" ") +
          std::string("stroke-width=\"") + std::to_string(stroke_width) + std::string("\"") +
          std::string("/>\n");
-      float delta = 50.0; // about this? // was 50.0
+      float delta = 3.0; // about this? // was 50.0
       svgc.add("<!-- Residue Circle " + residue_circle.residue_label + std::string(" -->\n"));
       svgc.add(circle_string);
       svgc.set_bounds(scale_factor * pos.x - delta, scale_factor * pos.y - delta,
@@ -2479,16 +2481,20 @@ flev_t::draw_residue_circle_top_layer(const residue_circle_t &residue_circle,
       //             I want to be able to specify the middle of the label, not
       //             bottom left.
       // 20241005-PE Ah, now it is. Better.
+      double y_offset = 0.1;
+      std::string font_size = "0.06";
+      if (residue_circle.residue_type == "HOH") font_size = "0.035";
+      if (residue_circle.residue_type == "HOH") y_offset = 0.18;
       std::string text_1("   <text ");
       text_1 += std::string("fill=\"#111111\"");
       text_1 += std::string(" x=\"");
       text_1 += std::to_string(pos.x);
       text_1 += std::string("\"");
       text_1 += std::string(" y=\"");
-      text_1 += std::to_string(pos.y - 0.1);
+      text_1 += std::to_string(pos.y - y_offset);
       text_1 += std::string("\"");
       text_1 += std::string(" text-anchor=\"middle\"");
-      text_1 += std::string(" font-family=\"Helvetica, sans-serif\" font-size=\"0.06em\">");
+      text_1 += std::string(" font-family=\"Helvetica, sans-serif\" font-size=\"" + font_size + "em\">");
       text_1 += rt;
       text_1 += std::string("</text>\n");
       svgc.add(text_1);

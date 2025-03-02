@@ -525,6 +525,7 @@ class graphics_info_t {
    static coot::Cartesian get_old_rotation_centre() {
      return old_rotation_centre;
    }
+
    // delete these when working
    // static float old_rotation_centre_x;
    // static float old_rotation_centre_y;
@@ -4665,6 +4666,10 @@ string   static std::string sessionid;
 
    // ---------------------------------------------
 
+   static float view_rotation_per_pixel_scale_factor;
+
+   // ---------------------------------------------
+
    /* model-view-projection matrix */
    static float *mvp; // needed?
    static int mvp_location;            // GLSL
@@ -5321,6 +5326,15 @@ string   static std::string sessionid;
 
    void load_gltf_model(const std::string &gltf_file_name);
 
+   static std::string stringify_error_message(GLenum err) {
+
+      std::string r = std::to_string(err);
+      if (err == GL_INVALID_ENUM)      r = "GL_INVALID_ENUM";
+      if (err == GL_INVALID_VALUE)     r = "GL_INVALID_VALUE";
+      if (err == GL_INVALID_OPERATION) r = "GL_INVALID_OPERATION";
+      return r;
+   };
+
    static void attach_buffers(const char *s = __builtin_FUNCTION()) {
 
       bool print_errors = false;
@@ -5328,7 +5342,8 @@ string   static std::string sessionid;
          if (print_errors) {
             GLenum err = glGetError();
             if (err) {
-               std::cout << "GL ERROR:: attach_buffers --- start ---\n";
+               std::cout << "GL ERROR:: attach_buffers --- start --- "
+                         << stringify_error_message(err) <<  " \n";
 #ifdef USE_BACKWARD
                backward::StackTrace st;
                backward::Printer p;
@@ -5341,8 +5356,8 @@ string   static std::string sessionid;
             err = glGetError();
             if (err) {
                std::cout << "GL ERROR:: attach_buffers() --- post gtk_gl_area_attach_buffers() "
-                         << " with gl_area " << gl_area << " calling function: "
-                         << s << "()\n";
+                         << stringify_error_message(err) << " with gl_area " << gl_area
+                         << " calling function: " << s << "()\n";
 #ifdef USE_BACKWARD
                backward::StackTrace st;
                backward::Printer p;

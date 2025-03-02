@@ -1,23 +1,43 @@
 ----
 
-When "spacing" through a chain, if the CA of the current atom is labelled,
-then label the CA of next atom.
+get (make sure that) the coot api documentation up to date.
 
-try to diagnose the GL errors on startup.
+Use the dictionary-based conformer generator and then minimize
+and look at the coot-energies. Try with multiple ligands.
 
-Fix SSM superpose dialog
-* Done. What a grid.
+Get FLEV into Coot.
 
-Fix Undo (Molecule) dialog - maybe compression problems
+Density contour or height colours for LSQ plane through atom
+selection (a ligand, say).
 
-Send Charles info about Coot tests.
+Go to A40 (ARG) mainchain O. Add hydrogen atoms and refine chain. We
+get a diego. But not for sphere refine. hb_type for fixed atoms not
+working correctly?
+
+Carbohydrate WTA mode in C++
+
+NCS menu items - needs a review/rewrite
+
+atom-overlaps.cc
+Do we need to call setup_env_residue_atoms_radii() every time?
+Rewrite atom-overlap - dynamic-atom-overlap which creates an
+object that lasts for the duration of the refinement - where
+the chemistry (hydrogen bonds etc) is calculated only once up front.
+
+Pyrogen sans python?
+What api do I want? CCD mmCIF and SMILES
+
+Chemical feature clustering - what's blocking?
+
+Fix the specular lighting!
+
+Measure a distance and then delete the model - the distance should disappear.
+Maybe just undisplaying the model should make the distance disappear.
 
 Add a function is_nucleic_acid(imol, residue_cid)
 
 double-clicking on a HUD button does a "go to blob"
 (haha)
-
-add scaling for view rotation/pixel
 
 Analyse/Validate fragment - do refinement setup energy
 and rama, rota etc and density fit.
@@ -31,11 +51,12 @@ In jiggle fit, at the end of a scoring, some atoms have zero
 density and other high density. Multiply the density value
 by the position of the atom relative to the center of
 the chain/fragment. That will give you a direction
-to move the molecule - you might like to try several
-different rotation/translation hypotheses to check
-for consistency.
+to move the molecule for some hypotheses next round - you
+might like to try several different rotation/translation
+hypotheses to check for consistency.
 
-Friday: paper (and session with Moorhen/Cloud?)
+Moorhen: hydrogen bonds?
+add show_hydrogen_bonds to chapi api
 
 Stuart: hydrogen bonds?
 
@@ -54,8 +75,6 @@ What's going wrong - hydrogen bond distance restraints? Lucrezia script.
 Look at picking in RNA stick mode
 
 Discs for HOLE output?
-
-add show_hydrogen_bonds to chapi api
 
 Why doesn't YTD import into layla after reading acedrg-YTD.cif?
 LaylaState::LaylaState(CootLigandEditorCanvas* canvas_widget, GtkWindow* win, GtkLabel* status_label) noexcept {
@@ -124,10 +143,36 @@ with 258 N1? Ah! They are both acceptors! Interesting. What to do about it?
 More work on molecule_class_info_t::alt_conf_view_next_alt_conf(const std::string &current_alt_conf)
 needed.
 
+Open up the Refine module - Rama and Rota markup is not set as "on"
+* Done.
+
+Tutorial modern - add hydrogen atoms and chain refine with contact dots:
+ERROR:: mark_donors_and_acceptors_for_neighbours() oops empty heavy for H-atom H1
+Interesting. First fix the bug, then have a look to see if things can be speeded up
+by not repeatedly calling that function.
+* Fixed - not really a bug because H1 is not in the monomer library for
+  amino acids.
+
 It's a mistake to recontour the maps when they are not displayed.
 Instead of recontouring, mark them as 'outdated'
 When the set_map_is_displayed() function is activated the "map state"
 is checked and contoured regenerated if the map state is 'outdated'.
+* Done.
+
+Send Maria info about Coot tests.
+* Done.
+
+add scaling for view rotation/pixel
+* Done. Nice.
+
+Try to diagnose the GL errors on startup.
+* Tried. Added some diagnostics. No progress though.
+
+Fix SSM superpose dialog
+* Done. What a grid.
+
+When "spacing" through a chain, if the CA of the current atom is labelled,
+then label the CA of next atom.
 * Done.
 
 add terminal residue for nucleic acic in moorhen.

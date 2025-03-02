@@ -836,7 +836,6 @@ molecules_container_t::get_svg_for_2d_ligand_environment_view(int imol, const st
    std::string s;
    if (is_valid_model_molecule(imol)) {
       s = molecules[imol].get_svg_for_2d_ligand_environment_view(residue_cid, &geom);
-      std::cout << "in get_svg_for_2d_ligand_environment_view() s length " << s.length() << std::endl;
    } else {
       std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }

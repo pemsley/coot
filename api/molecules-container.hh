@@ -1227,6 +1227,16 @@ public:
    std::pair<bool, coot::Cartesian> get_atom_position(int imol, coot::atom_spec_t &atom_spec);
 #endif
 
+   //! Residue is nucleic acid?
+   //!
+   //! Every residue in the selection is checked
+   //!
+   //! @param imol is the model molecule index
+   //! @param cid is the selection CID e.g "//A/15" (residue 15 of chain A)
+   //!
+   //! @return a bool
+   bool residue_is_nucleic_acid(int imol, const std::string &cid) const;
+
    //! Get the residue CA position
    //!
    //! @param imol is the model molecule index
@@ -3283,11 +3293,15 @@ public:
    //!
    //! The caller should make sure that the dictionary for the ligand has been loaded - this
    //! function won't do that. It will add hydrogen atoms if needed.
+   //! 
+   //! From time to time (depending on the ligand) this function will fail to produce a
+   //! result.
    //!
    //! Not const because get_monomer_restraints_at_least_minimal() is called. Hmm.
    //!
    //! @param imol is the model molecule index
    //! @param residue_cid is the cid for the residue
+   //! @return an svg string of the representation. On failure, return an empty string.
    std::string get_svg_for_2d_ligand_environment_view(int imol, const std::string &residue_cid);
 
    //! Get non-standard residues in a model
@@ -3503,6 +3517,8 @@ public:
    std::vector<int>   get_triangles_for_blender(int imol);
 
    // -------------------------------- Other ---------------------------------------
+
+   void test_function(const std::string &s);
 
 #ifdef SWIG
 #if NB_VERSION_MAJOR

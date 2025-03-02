@@ -436,8 +436,11 @@ graphics_info_t::set_clipping_front(float v) {
    } else {
       clipping_front = v;
    }
-   std::cout << "DEBUG:: in set_clipping_front() now planes: front: " << clipping_front << " back: " << clipping_back
-             << " eye-position " << glm::to_string(eye_position) << std::endl;
+
+   // std::cout << "DEBUG:: in set_clipping_front() now planes: front: " << clipping_front
+   //           << " back: " << clipping_back
+   //           << " eye-position " << glm::to_string(eye_position) << std::endl;
+
    graphics_draw();
 }
 
@@ -917,6 +920,7 @@ graphics_info_t::coot_all_atom_contact_dots_instanced(mmdb::Manager *mol, int im
    };
 
    // more sensible
+
    coot::atom_overlaps_container_t overlaps(mol, graphics_info_t::Geom_p(), ignore_waters, 0.5, 0.25);
    bool do_vdw_surface = all_atom_contact_dots_do_vdw_surface; // static class variable
    c = overlaps.all_atom_contact_dots(contact_dots_density, do_vdw_surface);

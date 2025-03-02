@@ -109,6 +109,7 @@ public:
       };
 
       auto make_background_rect = [quoted] (float min_x, float min_y, float max_x, float max_y) {
+
          float w = max_x - min_x;
          float h = max_y - min_y;
          std::string s = "<!-- background-rectangle -->\n";
@@ -128,14 +129,18 @@ public:
          return s;
       };
 
-      std::string s = svg_header_1;
-      s += make_viewbox_string();
-      s += svg_header_2;
-      if (add_background_rect)
-         s += make_background_rect(min_x, min_y, max_x, max_y);
-      s += svg;
-      s += svg_footer;
-      return s;
+      if (max_x > min_x) {
+         std::string s = svg_header_1;
+         s += make_viewbox_string();
+         s += svg_header_2;
+         if (add_background_rect)
+            s += make_background_rect(min_x, min_y, max_x, max_y);
+         s += svg;
+         s += svg_footer;
+         return s;
+      } else {
+         return "";
+      }
    }
 
 };
