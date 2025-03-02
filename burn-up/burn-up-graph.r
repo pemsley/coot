@@ -7,7 +7,10 @@ prediction_text_x_placement = 10
 prediction_text_y_placement = 0
 
 legend_x = 24
-legend_y = 4
+legend_y = 3
+
+non_converging_x = 22
+non_converging_y = 1
 
 source('arrow.r')
 
@@ -83,7 +86,7 @@ predict = function(x_pos, y_pos) {
 
         nct = paste('Non-converging:', round(m_diff, digits=3))
         print(nct)
-        legend(34, 3.6, nct, cex=0.8, box.lwd=0)
+        legend(non_converging_x, non_converging_y, nct, cex=0.8, box.lwd=0)
 
         ## (x-values), (y-values)
 
@@ -106,7 +109,7 @@ do_plot = function() {
     ## the columns are time(days) n-items-todo n-items-done
 
     plot(ylim=c(0,ylim), xlim=c(0,xlim), NULL, NULL, t='n', cex.main=1.0,
-               main="Development Progress",
+               main="Coot 1.1.14 Development Progress",
                xlab="Real Days since records began (26 Feb 2025)",
                ylab="Scope & Work Done (Days)")
 
