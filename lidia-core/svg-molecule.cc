@@ -749,7 +749,8 @@ svg_atom_t::make_text_item(const lig_build::atom_id_info_t &atom_id_info,
       // cairo_set_font_size(cr, 0.44 * scale * median_bond_length);
       // lig_build::pos_t p = svg_molecule_t::mol_coords_to_svg_coords(atom_position, centre, scale);
       lig_build::pos_t p = atom_position;
-      // p += atom_id_info.offsets[i].tweak * scale * 0.030 * median_bond_length;
+
+      p += atom_id_info.offsets[i].tweak * scale * 0.030 * median_bond_length;
 
       // should these positions depend on the median_bond_length_?
 
@@ -809,19 +810,21 @@ svg_atom_t::make_text_item(const lig_build::atom_id_info_t &atom_id_info,
             double x_fudge = 0.0;
             double y_fudge = 0.20;
 
+            // x_fudge += 0.45 * static_cast<double>(i);
+
             // these were adjusted by eye, previously fs was just 0.8;
-            double fs = 0.055; // 0.07 is too big // 20250121-PE was 0.04;
+            double fs = 0.05; // 0.07 is too big // 20250121-PE was 0.04;
 
             // if (fs < 0.7) fs = 0.7;
 
             std::string fss = std::to_string(fs);
             std::string default_font_size = "\"" + fss + "em\"";
             std::string font_size = default_font_size;
-            if (atom_id_info.offsets[i].superscript) font_size = "\"0.03em\"";
-            if (atom_id_info.offsets[i].subscript)   font_size = "\"0.03em\"";
-            if (atom_id_info.offsets[i].subscript) x_fudge += sf * 0.4;
+            if (atom_id_info.offsets[i].superscript) font_size = "\"0.035em\"";
+            if (atom_id_info.offsets[i].subscript)   font_size = "\"0.035em\"";
+            if (atom_id_info.offsets[i].subscript) x_fudge += 0.004; //needs checking
             if (txt == "-") font_size = "\"0.04em\"";
-            if (txt == "-") x_fudge += sf * 0.005;
+            if (txt == "-") x_fudge += 0.05;
 
             std::string atom_string;
             atom_string += "   <text x=\"";
