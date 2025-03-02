@@ -714,8 +714,6 @@ pli::fle_view_with_rdkit_internal(mmdb::Manager *mol,
                      std::string ss = html_top + s + html_foot;
                      s = ss;
                      write_string_to_file(ss, "flev-test-1.svg.html");
-                  } else {
-                     write_string_to_file(svgc_mol.compose(true), "flev-test-1.svg");
                   }
 
                   mmdb::Residue *residue_flat = coot::make_residue(rdkm, mol_2d_depict_conformer, "XXX");
@@ -806,8 +804,6 @@ pli::fle_view_with_rdkit_internal(mmdb::Manager *mol,
                      std::string ss = html_top + s + html_foot;
                      s = ss;
                      write_string_to_file(ss, "flev-test-all-parts-svg.html");
-                  } else {
-                     write_string_to_file(svgc_outer.compose(true), "flev-test-all-parts.svg");
                   }
 
                   if (output_format == "png") flev.write_png(output_image_file_name);
