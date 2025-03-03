@@ -1,22 +1,14 @@
 
 --- Items ---
 
-Get FLEV into Coot ::: 2
-
-Coot: picking should use the non-drawn atom indices vector ::: 1
-
-In FLEV, use the tweaks to position the text ::: 1
-
 delete_all_carbohydrate() needs a test. Move it to coot-utils and
 give moorhen/chapi access to it ::: 2
 
-Coot: picking should use the non-drawn atom indicies vector ::: 1
+Get FLEV into Coot ::: 2
+
+Coot: picking should use the non-drawn atom indices vector ::: 0.6
 
 Replace line symmetry with 3d model ::: 3
-
-Change chapi/mc to coot_headless_api/chapi ::: 1
-
-Look at dots() - does the atom_radius parameter have an effect? ::: 0.5
 
 --- Done Items ---
 
@@ -32,3 +24,8 @@ G2F in 5a3h flev needs fixing? Can we see something? ::: 2
 In FLEV make "Hoh" say "Water" - smaller font needed maybe ::: 0.5
 * Done.
 
+In FLEV, use the tweaks to position the text ::: 0.5
+* Done. Nice.
+
+Change chapi/mc to coot_headless_api/chapi ::: 0.5
+* OK. There will be pain.

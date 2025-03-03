@@ -11652,3 +11652,13 @@ fill_combobox_with_molecule_options_simple(GtkWidget *combobox) {
    g.fill_combobox_with_molecule_options(combobox, G_CALLBACK(nullptr), imol_active, mol_vec);
 }
 
+----
+Sun  2 Mar 15:22:53 GMT 2025
+
+  don't use
+  gtk_widget_set_size_request(drawing_area, 800, 600);
+  because it sets the minimum size
+
+  consider use
+  gtk_window_set_default_size(window, w, h);
+
