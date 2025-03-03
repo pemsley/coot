@@ -116,7 +116,7 @@ std::string text_png_as_string(PyObject *text_info_dict_py) {
 	       std::cout << "font-size: value is not an int or a float" << std::endl;
 	    }
 	 }
-	 
+
 	 if (key_string == "fg-colour") {
 	    if (PyUnicode_Check(value)) {
               std::string s = PyBytes_AS_STRING(PyUnicode_AsUTF8String(value));
@@ -200,7 +200,7 @@ std::string text_png_as_string(PyObject *text_info_dict_py) {
 
    if (npy.first == false)
       npy.second = std::lround(std::floor(float(font_size)*1.3)) + 1; // fudge factors
-   
+
    cairo_surface_t *surface = cairo_image_surface_create(CAIRO_FORMAT_ARGB32, npx.second, npy.second);
    cairo_t *cr = cairo_create(surface);
 
@@ -267,7 +267,8 @@ void display_svg_from_file_in_a_dialog(const std::string &file_name) {
 
    if (coot::file_exists(file_name)) {
       std::string s = file_to_string(file_name);
-      display_svg_from_string_in_a_dialog(s);
+      std::string title = "SVG: " + file_name;
+      display_svg_from_string_in_a_dialog(s, title);
    }
 
 }
@@ -279,11 +280,79 @@ void display_svg_from_file_in_a_dialog(const std::string &file_name) {
 #include <librsvg/rsvg.h>
 #endif
 
-void display_svg_from_string_in_a_dialog(const std::string &string) {
+void display_svg_from_string_in_a_dialog(const std::string &string, const std::string &title) {
 
    // the api function declaration exists
 
 #ifdef HAVE_RSVG
+
+   class svg_viewBox_t {
+   public:
+      bool is_valid;
+      double min_x;
+      double min_y;
+      double max_x;
+      double max_y;
+      svg_viewBox_t() : is_valid(false), min_x(0.0), min_y(0.0), max_x(0.0), max_y(0.0) {}
+      svg_viewBox_t(double min_x_in, double min_y_in, double max_x_in, double max_y_in) :
+         is_valid(true), min_x(min_x_in), min_y(min_y_in), max_x(max_x_in), max_y(max_y_in) {}
+   };
+
+   auto get_dimension_from_viewBox = [] (const std::string &svg) {
+      // find a line-break in svg:
+      svg_viewBox_t vb;
+      size_t pos = svg.find("\n");
+      if (pos != std::string::npos) {
+         bool keep_going = true;
+         while (keep_going) {
+            // now extract a substring from the start of the svg string to the first line break
+            std::string line = svg.substr(0, pos);
+            // now find the vewBox in line:
+            size_t pos_vb = line.find("viewBox");
+            if (pos_vb != std::string::npos) {
+               // now find the first quote after the viewBox:
+               size_t pos_q1 = line.find("\"", pos_vb);
+               if (pos_q1 != std::string::npos) {
+                  // now find the second quote after the first quote:
+                  size_t pos_q2 = line.find("\"", pos_q1+1);
+                  if (pos_q2 != std::string::npos) {
+                     // now extract the string between the quotes:
+                     std::string vb = line.substr(pos_q1+1, pos_q2-pos_q1-1);
+                     // now split the string into 4 parts:
+                     std::vector<std::string> parts;
+                     size_t pos = 0;
+                     size_t pos2 = 0;
+                     while (pos != std::string::npos) {
+                        pos2 = vb.find(" ", pos);
+                        if (pos2 != std::string::npos) {
+                           parts.push_back(vb.substr(pos, pos2-pos));
+                           pos = pos2+1;
+                        } else {
+                           parts.push_back(vb.substr(pos));
+                           pos = pos2;
+                        }
+                     }
+                     std::cout << "Hereeerere D " << std::endl;
+                     if (parts.size() == 4) {
+                        double min_x = std::stod(parts[0]);
+                        double min_y = std::stod(parts[1]);
+                        double max_x = std::stod(parts[2]);
+                        double max_y = std::stod(parts[3]);
+                        return svg_viewBox_t(min_x, min_y, max_x, max_y);
+                     }
+                  }
+               }
+            }
+            // find next line break in svg after pos:
+            pos = svg.find("\n", pos+1);
+            if (pos == std::string::npos) {
+               keep_going = false;
+            }
+         }
+      }
+      return vb; // bad
+   };
+
    // Load the SVG file
    GError *error = NULL;
    RsvgHandle *handle = rsvg_handle_new_from_data((const unsigned char *)string.c_str(),
@@ -295,60 +364,101 @@ void display_svg_from_string_in_a_dialog(const std::string &string) {
       return;
    } else {
       GtkWidget *window = gtk_window_new();
-      gtk_window_set_title(GTK_WINDOW(window), "Coot: SVG Viewer");
+      std::string tt = "Coot: " + title;
+      gtk_window_set_title(GTK_WINDOW(window), tt.c_str());
       // Create a drawing area
+      GtkWidget *scrolled_win = gtk_scrolled_window_new();
       GtkWidget *drawing_area = gtk_drawing_area_new();
+      GtkWidget *vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
       gtk_widget_set_hexpand(drawing_area, TRUE); // Allow expansion in x direction
       gtk_widget_set_vexpand(drawing_area, TRUE); // Allow expansion in y direction
-      gtk_window_set_child(GTK_WINDOW(window), drawing_area);
+      gtk_window_set_child(GTK_WINDOW(window), vbox);
+      gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(scrolled_win), drawing_area);
+      gtk_box_append(GTK_BOX(vbox), scrolled_win);
+      GtkWidget *buttons_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+      GtkWidget *button_close = gtk_button_new_with_label("Close");
+      gtk_widget_set_halign(buttons_box, GTK_ALIGN_END);
+      gtk_box_append(GTK_BOX(buttons_box), button_close);
+      gtk_box_append(GTK_BOX(vbox), buttons_box);
+
+      gtk_widget_set_margin_start(button_close, 10);
+      gtk_widget_set_margin_end(button_close, 10);
+      gtk_widget_set_margin_top(button_close, 14);
+      gtk_widget_set_margin_bottom(button_close, 10);
+
+      gtk_window_set_default_size(GTK_WINDOW(window), 600, 620);
 
       // Connect the draw signal to our drawing function, passing the SVG handle
-
-      // void rsvg_handle_get_intrinsic_dimensions (RsvgHandle* handle,
-      //                                            gboolean* out_has_width,
-      //                                            RsvgLength* out_width,
-      //                                            gboolean* out_has_height,
-      //                                            RsvgLength* out_height,
-      //                                            gboolean* out_has_viewbox,
-      //                                            RsvgRectangle* out_viewbox)
-
 
       auto draw_svg = +[] (GtkDrawingArea *da, cairo_t *cr, int w, int h, gpointer data) {
 
          GError *error = NULL;
          RsvgHandle *handle = static_cast<RsvgHandle *>(data);
+
          GdkRectangle allocation;
          gtk_widget_get_allocation(GTK_WIDGET(da), &allocation);
          // Scale the SVG to fit the widget (optional, adjust as needed)
          gboolean has_width, has_height, has_viewbox;
          RsvgLength width, height;
          RsvgRectangle viewbox;
+         RsvgDimensionData dimension_data;
          rsvg_handle_get_intrinsic_dimensions(handle, &has_width, &width, &has_height, &height,
                                               &has_viewbox, &viewbox);
+         rsvg_handle_get_dimensions(handle, &dimension_data);
+         std::cout << "in draw_svg(): dims " << dimension_data.width << " " << dimension_data.height << " "
+                   << " em: " << dimension_data.em << " ex: " << dimension_data.ex << std::endl;
 
-         if (has_width && has_height) {
-
-            double w_int = static_cast<double>(width.length);
-            double h_int = static_cast<double>(height.length);
-            std::cout << "intrinsic w unit " << width.unit << std::endl;
-            double scale_x = static_cast<double>(allocation.width) / w_int;
-            double scale_y = static_cast<double>(allocation.height) / h_int;
-            double scale = std::min(scale_x, scale_y);
-            std::cout << "intrinsic w and h " << w_int << " h_int " << h_int
-                      << " window w and h " << allocation.width << " " << allocation.height
-                      << std::endl;
-            scale = static_cast<double>(allocation.width) / 60.0;
-            cairo_scale(cr, scale, scale);
-            cairo_translate(cr, 18.0, 18.0);
-         }
+         double scale = static_cast<double>(w / dimension_data.em);
+         cairo_scale(cr, scale, scale);
+         cairo_translate(cr, dimension_data.em/2.0, dimension_data.ex/2.0);
 
          // Render the SVG
          rsvg_handle_render_document(handle, cr, &viewbox, &error);
       };
 
+      auto on_drawing_area_resize = +[] (GtkDrawingArea *da, int w, int h, gpointer data) {
+         std::cout << "on_drawing_area_resize: " << w << " " << h << std::endl;
+         gtk_widget_queue_draw(GTK_WIDGET(da));
+      };
+
+
+      // might these be useful?
+      // gtk_drawing_area_set_content_width (GTK_DRAWING_AREA (drawing_area), 100);
+      // gtk_drawing_area_set_content_height (GTK_DRAWING_AREA (drawing_area), 100);
       gtk_drawing_area_set_draw_func(GTK_DRAWING_AREA(drawing_area), draw_svg, handle, NULL);
+      g_signal_connect(G_OBJECT(drawing_area), "resize", G_CALLBACK(on_drawing_area_resize), NULL);
       gtk_widget_set_visible(window, TRUE);
-   }
+
+      auto close_button_callback = +[] (GtkButton *button, gpointer data) {
+         GtkWindow *window = static_cast<GtkWindow *>(data);
+         gtk_window_destroy(window);
+      };
+      g_signal_connect(G_OBJECT(button_close), "clicked", G_CALLBACK(close_button_callback), window);
+
+      auto on_drawing_area_scrolled = +[] (GtkEventControllerScroll *controller,
+                                           double                    dx,
+                                           double                    dy,
+                                           gpointer                  user_data) {
+
+         GtkEventController *ec = GTK_EVENT_CONTROLLER(controller);
+         GtkWidget *drawing_area = gtk_event_controller_get_widget(ec);
+         // GtkDrawingArea *drawing_area = static_cast<GtkDrawingArea *>(user_data);
+         std::cout << "scrolled event " << dx << " " << dy << std::endl;
+         if (dy > 0.0) {
+            // std::cout << "zoom in" << std::endl;
+            // invoke the drawing_area resize method
+            // g_signal_emit_by_name(G_OBJECT(drawing_area), "resize");
+         } else {
+            // std::cout << "zoom out" << std::endl;
+         }
+      };
+
+      GtkEventControllerScrollFlags scroll_flags = GTK_EVENT_CONTROLLER_SCROLL_VERTICAL;
+      GtkEventController *scroll_controller = gtk_event_controller_scroll_new(scroll_flags);
+      gtk_widget_add_controller(GTK_WIDGET(drawing_area), GTK_EVENT_CONTROLLER(scroll_controller));
+      g_signal_connect(scroll_controller, "scroll",  G_CALLBACK(on_drawing_area_scrolled), drawing_area);
+
+}
 #endif // HAVE_LIBRSVG
 }
 
