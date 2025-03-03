@@ -3,7 +3,7 @@
 xlim=40
 ylim=20 # reasonable scope
 
-prediction_text_x_placement = 10
+prediction_text_x_placement = 15
 prediction_text_y_placement = 0
 
 legend_x = 24
