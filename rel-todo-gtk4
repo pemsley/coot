@@ -24,6 +24,8 @@ Rewrite atom-overlap - dynamic-atom-overlap which creates an
 object that lasts for the duration of the refinement - where
 the chemistry (hydrogen bonds etc) is calculated only once up front.
 
+Look at dots() - does the atom_radius parameter have an effect? ::: 0.5
+
 Pyrogen sans python?
 What api do I want? CCD mmCIF and SMILES
 

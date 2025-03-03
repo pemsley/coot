@@ -6407,11 +6407,38 @@ int test_is_nucleic_acid(molecules_container_t &mc) {
    return status;
 }
 
-int test_delete_all_carbohydroate(molecules_container_t &mc) {
+int test_delete_all_carbohydrate(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
    int status = 0;
 
+   int imol = mc.read_pdb(reference_data("pdb8ox7.ent"));
+   if (mc.is_valid_model_molecule(imol)) {
+      mc.delete_all_carbohydrate(imol);
+      mmdb::Manager *mol = mc.get_mol(imol);
+      if (mol) {
+         // check for remaining NAGs
+         int n_nags = 0;
+         for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+            mmdb::Model *model_p = mol->GetModel(imod);
+            if (model_p) {
+               int n_chains = model_p->GetNumberOfChains();
+               for (int ichain=0; ichain<n_chains; ichain++) {
+                  mmdb::Chain *chain_p = model_p->GetChain(ichain);
+                  int n_res = chain_p->GetNumberOfResidues();
+                  for (int ires=0; ires<n_res; ires++) {
+                     mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                     if (residue_p) {
+                        std::string rn = residue_p->GetResName();
+                        if (rn == "NAG") n_nags++;
+                     }
+                  }
+               }
+            }
+         }
+         if (n_nags == 0) status = 1;
+      }
+   }
    return status;
 }
 
@@ -6743,7 +6770,7 @@ int main(int argc, char **argv) {
          status += run_test(test_add_RNA_residue, "add RNA residue", mc);
          status += run_test(test_HOLE, "HOLE", mc);
          status += run_test(test_is_nucleic_acid, "is nucleic acid?", mc);
-         status += run_test(test_delete_all_carbohydroate, "delete all carbohyrate", mc);
+         status += run_test(test_delete_all_carbohydrate, "delete all carbohydrate", mc);
          if (status == n_tests) all_tests_status = 0;
 
          print_results_summary();

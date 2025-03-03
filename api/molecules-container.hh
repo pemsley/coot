@@ -1957,6 +1957,13 @@ public:
    //! @return 1 on successful deletion, return 0 on failure to delete.
    std::pair<int, unsigned int> delete_literal_using_cid(int imol, const std::string &cid);
 
+   //! delete all carbohydrate
+   //!
+   //! @param imol is the model molecule index
+   //!
+   //! @return true on successful deletion, return false on no deletion.
+   bool delete_all_carbohydrate(int imol);
+
    // (I should have) change(d) that stupid (alt) loc (I should have made you leave your key)
    //
    //! Change alternate conformation

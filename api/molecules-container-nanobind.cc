@@ -232,6 +232,7 @@ NB_MODULE(coot_headless_api, m) {
     .def("copy_fragment_using_cid",&molecules_container_t::copy_fragment_using_cid)
     .def("copy_fragment_using_residue_range",&molecules_container_t::copy_fragment_using_residue_range)
     .def("copy_molecule",&molecules_container_t::copy_molecule)
+    .def("delete_all_carbohydrate",&molecules_container_t::delete_all_carbohydrate)
     .def("delete_atom",&molecules_container_t::delete_atom)
     .def("delete_atom_using_cid",&molecules_container_t::delete_atom_using_cid)
     .def("delete_chain_using_cid",&molecules_container_t::delete_chain_using_cid)
