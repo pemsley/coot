@@ -16,6 +16,9 @@ working correctly?
 
 Carbohydrate WTA mode in C++
 
+Add a filter for overlapping points after importing M2T
+geometry - don't leave it up to Blender.
+
 NCS menu items - needs a review/rewrite
 
 atom-overlaps.cc
@@ -24,12 +27,27 @@ Rewrite atom-overlap - dynamic-atom-overlap which creates an
 object that lasts for the duration of the refinement - where
 the chemistry (hydrogen bonds etc) is calculated only once up front.
 
+is there a combine-maps/make-average map
+in moorhen?
+
+Fetch "code" in chapi.
+
+add reidues_near_residues to chapi
+
+Click and drag on a generic object.
+Generic object need to be "active"
+Nice if they got outlined when you do. Can this be done on the fly?
+
+Rama balls in 3SOB H 25A [Kevin Jude].
+
 Pyrogen sans python?
 What api do I want? CCD mmCIF and SMILES
 
 Chemical feature clustering - what's blocking?
 
 Fix the specular lighting!
+
+Make dots() work - make the radius scaling work.
 
 Measure a distance and then delete the model - the distance should disappear.
 Maybe just undisplaying the model should make the distance disappear.
@@ -38,6 +56,8 @@ Add a function is_nucleic_acid(imol, residue_cid)
 
 double-clicking on a HUD button does a "go to blob"
 (haha)
+
+Add scaling for view rotation/pixel
 
 Analyse/Validate fragment - do refinement setup energy
 and rama, rota etc and density fit.
@@ -173,7 +193,9 @@ Fix SSM superpose dialog
 
 When "spacing" through a chain, if the CA of the current atom is labelled,
 then label the CA of next atom.
-* Done.
+
+Fix Undo (Molecule) dialog - maybe compression problems
+* No problem when compiled properly.
 
 add terminal residue for nucleic acic in moorhen.
 * Done.
