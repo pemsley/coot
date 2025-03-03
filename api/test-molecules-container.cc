@@ -6407,6 +6407,14 @@ int test_is_nucleic_acid(molecules_container_t &mc) {
    return status;
 }
 
+int test_delete_all_carbohydroate(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   return status;
+}
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -6735,6 +6743,7 @@ int main(int argc, char **argv) {
          status += run_test(test_add_RNA_residue, "add RNA residue", mc);
          status += run_test(test_HOLE, "HOLE", mc);
          status += run_test(test_is_nucleic_acid, "is nucleic acid?", mc);
+         status += run_test(test_delete_all_carbohydroate, "delete all carbohyrate", mc);
          if (status == n_tests) all_tests_status = 0;
 
          print_results_summary();

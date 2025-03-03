@@ -61,7 +61,7 @@ class molecules_container_js : public molecules_container_t {
         }
 };
 
-NB_MODULE(chapi, m) {
+NB_MODULE(coot_headless_api, m) {
     nb::class_<clipper::Coord_orth>(m,"Coord_orth")
     .def(nb::init<const clipper::ftype&, const clipper::ftype&, const clipper::ftype&>())
     .def("x", &clipper::Coord_orth::x)
