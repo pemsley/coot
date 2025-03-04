@@ -54,7 +54,7 @@ endif(WIN32)
 
 set(coot_src ${CMAKE_CURRENT_SOURCE_DIR})
 
-add_definitions(-DANALYSE_REFINEMENT_TIMING -DPACKAGE_VERSION="1.1.13"
+add_definitions(-DANALYSE_REFINEMENT_TIMING -DPACKAGE_VERSION="1.1.x-pre"
   -DHAVE_CXX_THREAD -DHAVE_SSMLIB -DHAVE_BOOST -DUSE_LIBPNG=1 -DCLIPPER_HAS_TOP8000 -DUSE_GEMMI -DHAVE_BOOST_THREAD -DHAVE_GSL
   -DPKGDATADIR="${CMAKE_INSTALL_PREFIX}/share/coot" -DXDATADIR="${CMAKE_INSTALL_PREFIX}/share")
 
@@ -456,8 +456,8 @@ add_library(cootapi SHARED
             )
 
 
-nanobind_add_module(chapi ${coot_src}/api/molecules-container-nanobind.cc
-                          ${coot_src}/api/molecules-container-nanobind-functions.cc)
+nanobind_add_module(coot_headless_api ${coot_src}/api/molecules-container-nanobind.cc
+                                      ${coot_src}/api/molecules-container-nanobind-functions.cc)
 
 # use MMDB2_INCLUDE_DIR to find the RDKIT for now.
 target_include_directories(cootapi PRIVATE ${coot_src} ${coot_src}/coords ${coot_src}/utils ${coot_src}/ccp4mg-utils ${coot_src}/ccp4mg-utils/util ${coot_src}/ccp4mg-utils/pygl ${MMDB2_INCLUDE_DIR} ${SSM_INCLUDE_DIR} ${CLIPPER-CORE_INCLUDE_DIR} ${CLIPPER-MMDB_INCLUDE_DIR} ${CLIPPER-CCP4_INCLUDE_DIR} ${FFTW2_INCLUDE_DIRS} ${RDKit_INCLUDE_DIRS} ${GLM_INCLUDE_DIRS} ${GSL_INCLUDE_DIRS} ${PNG_PNG_INCLUDE_DIR} ${RDKit_INCLUDE_DIR})
@@ -477,12 +477,13 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "MSVC")
   target_link_libraries(cootapi PRIVATE netapi32.lib)
 endif()
 
-target_include_directories(chapi PRIVATE ${coot_src} ${coot_src}/coords ${coot_src}/utils ${coot_src}/ccp4mg-utils
-                                         ${coot_src}/ccp4mg-utils/util ${coot_src}/ccp4mg-utils/pygl
-                                         ${MMDB2_INCLUDE_DIR} ${SSM_INCLUDE_DIR} ${CLIPPER-CORE_INCLUDE_DIR}
-                                         ${CLIPPER-MMDB_INCLUDE_DIR} ${CLIPPER-CCP4_INCLUDE_DIR} ${FFTW2_INCLUDE_DIRS}
-                                         ${RDKit_INCLUDE_DIRS} ${GLM_INCLUDE_DIRS}
-                                         ${GSL_INCLUDE_DIRS} ${PNG_PNG_INCLUDE_DIR})
+target_include_directories(coot_headless_api PRIVATE ${coot_src} ${coot_src}/coords ${coot_src}/utils ${coot_src}/ccp4mg-utils
+                                                     ${coot_src}/ccp4mg-utils/util ${coot_src}/ccp4mg-utils/pygl
+                                                     ${MMDB2_INCLUDE_DIR} ${SSM_INCLUDE_DIR} ${CLIPPER-CORE_INCLUDE_DIR}
+                                                     ${CLIPPER-MMDB_INCLUDE_DIR} ${CLIPPER-CCP4_INCLUDE_DIR}
+                                                     ${FFTW2_INCLUDE_DIRS}
+                                                     ${RDKit_INCLUDE_DIRS} ${GLM_INCLUDE_DIRS}
+                                                     ${GSL_INCLUDE_DIRS} ${PNG_PNG_INCLUDE_DIR})
 
 add_executable(findligand ${coot_src}/ligand/find-ligand.cc)
 
@@ -492,7 +493,9 @@ add_executable(coot-mini-rsr ${coot_src}/ideal/mini-rsr.cc)
 
 add_executable(res-tracer-libcootapi ${coot_src}/ligand/res-tracer.cc)
 
-add_executable(test-molecules-container ${coot_src}/api/test-molecules-container.cc ${coot_src}/api/filo-tests.cc ${coot_src}/api/lucrezia-tests.cc)
+add_executable(test-molecules-container ${coot_src}/api/test-molecules-container.cc
+                                        ${coot_src}/api/filo-tests.cc
+                                        ${coot_src}/api/lucrezia-tests.cc)
 
 add_executable(mmcif-tests ${coot_src}/api/mmcif-tests-main.cc ${coot_src}/api/mmcif-tests.cc)
 
@@ -500,7 +503,7 @@ target_compile_features(coot-mini-rsr PRIVATE cxx_std_17)
 
 target_compile_features(res-tracer-libcootapi PRIVATE cxx_std_17)
 
-target_link_libraries(chapi PUBLIC cootapi  ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${MMDB2_LIBRARY} ${libdwarf} ${libelf})
+target_link_libraries(coot_headless_api PUBLIC cootapi  ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${MMDB2_LIBRARY} ${libdwarf} ${libelf})
 
 target_include_directories(findligand PRIVATE ${MMDB2_INCLUDE_DIR} ${coot_src})
 
@@ -530,9 +533,9 @@ set_target_properties(cootapi PROPERTIES INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/
 
 set_target_properties(cootapi PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE)
 
-set_target_properties(chapi PROPERTIES INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
+set_target_properties(coot_headless_api PROPERTIES INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 
-set_target_properties(chapi PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE)
+set_target_properties(coot_headless_api PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE)
 
 install(TARGETS cootapi)
 
@@ -547,9 +550,9 @@ install(DIRECTORY rama-data         DESTINATION share/coot)
 install(DIRECTORY data/metal        DESTINATION share/coot/data)
 
 # Thanks Charles B.
-install(TARGETS chapi DESTINATION ${Python_SITELIB})
+install(TARGETS coot_headless_api DESTINATION ${Python_SITELIB})
 
-install(TARGETS cootapi DESTINATION lib)
+install(TARGETS coot_headless_api DESTINATION lib)
 
 # thanks merkys
 set_target_properties(cootapi PROPERTIES SOVERSION 1.1)

@@ -581,13 +581,14 @@ pli::fle_view_with_rdkit_internal(mmdb::Manager *mol,
    };
 
    std::string output_image_file_name = "something.svg";
+   std::string output_format = "svg"; // was file_format;
+
    svg_container_t svgc_outer;
 
    double scale_factor = 400.0;
    bool dark_background_flag = false; // pass this
 
    double weight_for_3d_distances = 0.4; // for 3d distances
-   std::string output_format = "svg"; // was file_format;
 
    bool wrap_in_refresh_html = false;
 
@@ -714,8 +715,6 @@ pli::fle_view_with_rdkit_internal(mmdb::Manager *mol,
                      std::string ss = html_top + s + html_foot;
                      s = ss;
                      write_string_to_file(ss, "flev-test-1.svg.html");
-                  } else {
-                     write_string_to_file(svgc_mol.compose(true), "flev-test-1.svg");
                   }
 
                   mmdb::Residue *residue_flat = coot::make_residue(rdkm, mol_2d_depict_conformer, "XXX");
@@ -806,12 +805,14 @@ pli::fle_view_with_rdkit_internal(mmdb::Manager *mol,
                      std::string ss = html_top + s + html_foot;
                      s = ss;
                      write_string_to_file(ss, "flev-test-all-parts-svg.html");
-                  } else {
-                     write_string_to_file(svgc_outer.compose(true), "flev-test-all-parts.svg");
                   }
 
-                  if (output_format == "png") flev.write_png(output_image_file_name);
-                  if (output_format == "svg") flev.write_svg(output_image_file_name);
+                  // 20250303-PE this function now returns an svg - let's not
+                  // write out a png part-way through now this is in production
+                  if (false) {
+                     if (output_format == "png") flev.write_png(output_image_file_name);
+                     if (output_format == "svg") flev.write_svg(output_image_file_name);
+                  }
 
                   delete mol_for_flat_residue;
                }

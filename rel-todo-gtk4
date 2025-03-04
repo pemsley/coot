@@ -40,6 +40,8 @@ Nice if they got outlined when you do. Can this be done on the fly?
 
 Rama balls in 3SOB H 25A [Kevin Jude].
 
+Look at dots() - does the atom_radius parameter have an effect? ::: 0.5
+
 Pyrogen sans python?
 What api do I want? CCD mmCIF and SMILES
 

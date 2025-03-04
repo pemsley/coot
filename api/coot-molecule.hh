@@ -1079,6 +1079,11 @@ namespace coot {
       //! @return 1 on a successful additions, 0 on failure.
       int delete_hydrogen_atoms();
 
+      //! delete all carbohydrate
+      //!
+      //! @return true on successful deletion, return false on no deletion.
+      bool delete_all_carbohydrate();
+
       //! Residue is nucleic acid?
       //!
       //! Every residue in the selection is checked

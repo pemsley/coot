@@ -1174,8 +1174,11 @@ namespace coot {
       std::vector<std::pair<int, int> > pair_residue_atoms(mmdb::Residue *a_residue_p,
 							   mmdb::Residue *b_residue_p);
 
-      // CBs in GLY etc
+      //! CBs in GLY etc
       void delete_anomalous_atoms(mmdb::Manager *mol);
+
+      //! delete all carbohydrate
+      bool delete_all_carbohydrate(mmdb::Manager *mol);
 
       // A useful function that was (is) in molecule_class_info_t
       //

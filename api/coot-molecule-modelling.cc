@@ -379,3 +379,18 @@ coot::molecule_t::residue_is_nucleic_acid(const std::string &cid) const {
    }
    return status;
 }
+
+//! delete all carbohydrate
+//!
+//! @return true on successful deletion, return false on no deletion.
+bool
+coot::molecule_t::delete_all_carbohydrate() {
+
+   bool status = false;
+   if (atom_sel.mol) {
+      make_backup("delete_all_carbohydrate");
+      status = coot::util::delete_all_carbohydrate(atom_sel.mol);
+   }
+   return status;
+}
+
