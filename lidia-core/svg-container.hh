@@ -54,6 +54,11 @@ public:
       return bounding_box_updated;
    }
 
+   // used to add a key to flev
+   void add_to_y_bounds(double yy) {
+      max_y += yy;
+   }
+
    std::string make_viewbox_string() const {
 
       float width  = max_x - min_x;

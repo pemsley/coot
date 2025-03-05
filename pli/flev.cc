@@ -29,6 +29,10 @@
 #include "atom-ring-centre-info.hh"
 #include <string>
 
+std::string make_arrow(const lig_build::pos_t &A, const lig_build::pos_t &B,
+                       const std::string &stroke_colour, bool start_arrow, bool end_arrow,
+                       const lig_build::pos_t &pos,
+                       const lig_build::pos_t &lig_atom_pos);
 
 std::map<std::string, std::string>
 pli::make_flat_ligand_name_map(mmdb::Residue *flat_res) {
@@ -562,7 +566,134 @@ flev_t::write_svg(const std::string &file_name) const {
    std::cout << "write svg file " << file_name << std::endl;
 }
 
+svg_container_t
+pli::make_key(double top_left_x, double top_left_y) {
 
+   auto add_text = [] (const lig_build::pos_t &pos, const std::string &tt) {
+      std::string text_colour = "#111111";
+      std::string t("   <text ");
+      t += std::string("fill=\"");
+      t += text_colour;
+      t += std::string("\"");
+      t += std::string(" x=\"");
+      t += std::to_string(pos.x);
+      t += std::string("\"");
+      t += std::string(" y=\"");
+      t += std::to_string(pos.y);
+      t += std::string("\"");
+      t += std::string(" text-anchor=\"start\"");
+      t += std::string(" font-family=\"Helvetica, sans-serif\" font-size=\"0.06em\">");
+      t += tt;
+      t += std::string("</text>\n");
+      return t;
+   };
+
+   // first column 
+
+   svg_container_t svgc;
+   svgc.add_comment("Key");
+   std::string green = "darkgreen";
+   std::string lime = "#888820";
+   std::string metal = "#990099";
+   lig_build::pos_t A(top_left_x, top_left_y);
+   lig_build::pos_t top_left(top_left_x, top_left_y);
+   lig_build::pos_t B = A + lig_build::pos_t(5, 0);
+   lig_build::pos_t x_bit(0.7, 0);
+   lig_build::pos_t x_step_for_text(7.7, 0);
+   double y_line_step = 1.7;
+   std::string a1 = make_arrow(A, B, "blue", false, true, A, B + x_bit);
+   svgc.add(a1);
+   A += lig_build::pos_t(0, -y_line_step);
+   B += lig_build::pos_t(0, -y_line_step);
+   std::string a2 = make_arrow(A, B, "blue", true, false, A - x_bit * 1.9, B);
+   svgc.add(a2);
+   A += lig_build::pos_t(0, -y_line_step);
+   B += lig_build::pos_t(0, -y_line_step);
+   std::string a3 = make_arrow(A, B, green, false, true, A, B + x_bit);
+   svgc.add(a3);
+   A += lig_build::pos_t(0, -y_line_step);
+   B += lig_build::pos_t(0, -y_line_step);
+   std::string a4 = make_arrow(A, B, green, true, false, A - x_bit * 1.9, B);
+   svgc.add(a4);
+   A += lig_build::pos_t(0, -y_line_step);
+   B += lig_build::pos_t(0, -y_line_step);
+   std::string a5 = make_arrow(A, B, lime, false, false, A - x_bit * 1.9, B);
+   svgc.add(a5);
+   A += lig_build::pos_t(0, -y_line_step);
+   B += lig_build::pos_t(0, -y_line_step);
+   std::string a6 = make_arrow(A, B, metal, false, false, A - x_bit * 1.9, B);
+   svgc.add(a6);
+   lig_build::pos_t text_pos_1(top_left_x + 5.5, -top_left_y + 0.2);
+   lig_build::pos_t text_pos_2(top_left_x + 5.5, -top_left_y + 0.2 + 1.0 * y_line_step);
+   lig_build::pos_t text_pos_3(top_left_x + 5.5, -top_left_y + 0.2 + 2.0 * y_line_step);
+   lig_build::pos_t text_pos_4(top_left_x + 5.5, -top_left_y + 0.2 + 3.0 * y_line_step);
+   lig_build::pos_t text_pos_5(top_left_x + 5.5, -top_left_y + 0.2 + 4.0 * y_line_step);
+   lig_build::pos_t text_pos_6(top_left_x + 5.5, -top_left_y + 0.2 + 5.0 * y_line_step);
+   std::string t1 = add_text(text_pos_1, "Main-chain acceptor");
+   std::string t2 = add_text(text_pos_2, "Main-chain donor");
+   std::string t3 = add_text(text_pos_3, "Side-chain acceptor");
+   std::string t4 = add_text(text_pos_4, "Side-chain donor");
+   std::string t5 = add_text(text_pos_5, "H-bond to Water");
+   std::string t6 = add_text(text_pos_6, "Metal bond");
+   svgc.add(t1);
+   svgc.add(t2);
+   svgc.add(t3);
+   svgc.add(t4);
+   svgc.add(t5);
+   svgc.add(t6);
+
+   // second column
+
+   std::string purple = "#eeccee";
+   std::string red    = "#cc0000";
+   std::string blue   = "#0000cc";
+   std::string metalic_grey = "#d9d9d9";
+
+   std::string grease = "#ccffbb";
+   std::string polar  = purple;
+   std::string acidic = red;
+   std::string basic  = blue;
+   lig_build::pos_t tlc2 = top_left.invert_y() + lig_build::pos_t(16.4, 0.0);
+   lig_build::pos_t grease_pos = tlc2;
+   std::string circle_g = make_circle(grease_pos, 0.8, 0.1, grease, "#111111");
+   svgc.add(circle_g);
+   lig_build::pos_t polar_pos = tlc2 + lig_build::pos_t(0, y_line_step);
+   std::string circle_p = make_circle(polar_pos, 0.78, 0.1, polar, "#111111");
+   svgc.add(circle_p);
+   lig_build::pos_t acidic_pos = tlc2 + lig_build::pos_t(0, 2.0 * y_line_step);
+   std::string circle_a = make_circle(acidic_pos, 0.78, 0.15, polar, red);
+   svgc.add(circle_a);
+   lig_build::pos_t basic_pos = tlc2 + lig_build::pos_t(0, 3.0 * y_line_step);
+   std::string circle_b = make_circle(basic_pos, 0.78, 0.15, polar, blue);
+   svgc.add(circle_b);
+   lig_build::pos_t water_pos = tlc2 + lig_build::pos_t(0, 4.0 * y_line_step);
+   std::string circle_w = make_circle(water_pos, 0.78, 0.1, "white", "#111111");
+   svgc.add(circle_w);
+   lig_build::pos_t metal_pos = tlc2 + lig_build::pos_t(0, 5.0 * y_line_step);
+   std::string circle_m = make_circle(metal_pos, 0.78, 0.1, metalic_grey, "#111111");
+   svgc.add(circle_m);
+
+   lig_build::pos_t text_pos_7( top_left_x + 17.6, -top_left_y + 0.2);
+   lig_build::pos_t text_pos_8( top_left_x + 17.6, -top_left_y + 0.2 + 1.0 * y_line_step);
+   lig_build::pos_t text_pos_9( top_left_x + 17.6, -top_left_y + 0.2 + 2.0 * y_line_step);
+   lig_build::pos_t text_pos_10(top_left_x + 17.6, -top_left_y + 0.2 + 3.0 * y_line_step);
+   lig_build::pos_t text_pos_11(top_left_x + 17.6, -top_left_y + 0.2 + 4.0 * y_line_step);
+   lig_build::pos_t text_pos_12(top_left_x + 17.6, -top_left_y + 0.2 + 5.0 * y_line_step);
+   std::string t7  = add_text(text_pos_7,  "Grease");
+   std::string t8  = add_text(text_pos_8,  "Polar");
+   std::string t9  = add_text(text_pos_9,  "Acidic");
+   std::string t10 = add_text(text_pos_10, "Basic");
+   std::string t11 = add_text(text_pos_11, "Water");
+   std::string t12 = add_text(text_pos_12, "Metal");
+   svgc.add(t7);
+   svgc.add(t8);
+   svgc.add(t9);
+   svgc.add(t10);
+   svgc.add(t11);
+   svgc.add(t12);
+
+   return svgc;
+}
 
 svg_container_t
 pli::fle_view_with_rdkit_internal(mmdb::Manager *mol,
@@ -815,6 +946,10 @@ pli::fle_view_with_rdkit_internal(mmdb::Manager *mol,
                   }
 
                   delete mol_for_flat_residue;
+
+                  svg_container_t svgc_key = make_key(-12, -15);
+                  svgc_outer.add(svgc_key);
+                  svgc_outer.add_to_y_bounds(11.0);
                }
             }
             catch (const std::runtime_error &rte) {
@@ -1162,7 +1297,7 @@ flev_t::draw_annotated_stacking_line(const lig_build::pos_t &ligand_ring_centre,
 
          lig_build::pos_t ring_centre = hex_and_ring_centre[ir];
          lig_build::pos_t circle_centre(ring_centre.x, -ring_centre.y);
-         std::string circle = make_circle(circle_centre, 0.2, 0.08, "none", stroke_colour);
+         std::string circle = pli::make_circle(circle_centre, 0.2, 0.08, "none", stroke_colour);
          svgc.add(circle);
 
       }
@@ -1202,24 +1337,105 @@ flev_t::draw_annotated_stacking_line(const lig_build::pos_t &ligand_ring_centre,
       float radius = 0.2; // 20250118-PE was 67.0;
       float stroke_width = 0.01; // 20250118-PE was 10.0;
       auto ligand_ring_centre_inv_y = lig_build::pos_t(ligand_ring_centre.x, -ligand_ring_centre.y);
-      std::string c = make_circle(ligand_ring_centre_inv_y, radius, stroke_width, stroke_colour, stroke_colour);
+      std::string c = pli::make_circle(ligand_ring_centre_inv_y, radius, stroke_width, stroke_colour, stroke_colour);
       svgc.add(c);
    }
-
    return svgc;
 }
+
+std::string make_arrow(const lig_build::pos_t &A, const lig_build::pos_t &B,
+                       const std::string &stroke_colour, bool start_arrow, bool end_arrow,
+                       const lig_build::pos_t &pos,
+                       const lig_build::pos_t &lig_atom_pos) {
+
+   std::string arrow_string;
+   lig_build::pos_t rc_to_lig_atom = lig_atom_pos - pos;
+   lig_build::pos_t rc_to_lig_atom_uv = rc_to_lig_atom.unit_vector();
+   std::string s;
+   std::string bond_colour = stroke_colour;
+   s += "<!-- Bond to Ligand -->\n";
+   s += "   <line x1=\"";
+   s += std::to_string(A.x);
+   s += "\" y1=\"";
+   s += std::to_string(-A.y);
+   s += "\" x2=\"";
+   s += std::to_string(B.x);
+   s += "\" y2=\"";
+   s += std::to_string(-B.y);
+   s += "\"";
+   s += " style=\"stroke:";
+   // s += "#202020";
+   s += bond_colour;
+   s += "; stroke-width:0.15; fill:none; stroke-linecap:round; ";
+   s += "\"";
+   s += "/>\n";
+   arrow_string += s;
+
+   if (start_arrow) {
+      // add a triangle arrow head
+      lig_build::pos_t tip = pos + rc_to_lig_atom_uv * 1.15;
+      double l1 = 0.85;
+      double l2 = 0.3;
+      lig_build::pos_t rcla_uv_90 = rc_to_lig_atom_uv.rotate(90);
+      lig_build::pos_t pt_1 = tip;
+      lig_build::pos_t pt_2 = tip + rc_to_lig_atom_uv * l1 + rcla_uv_90 * l2;
+      lig_build::pos_t pt_3 = tip + rc_to_lig_atom_uv * l1 - rcla_uv_90 * l2;
+      // std::string ts = "<polygon points="100,10 150,190 50,190" style="fill:lime;"/>";
+      std::string ts = "   <polygon points =\"";
+      ts += std::to_string(pt_1.x);
+      ts += ",";
+      ts += std::to_string(-pt_1.y);
+      ts += " ";
+      ts += std::to_string(pt_2.x);
+      ts += ",";
+      ts += std::to_string(-pt_2.y);
+      ts += " ";
+      ts += std::to_string(pt_3.x);
+      ts += ",";
+      ts += std::to_string(-pt_3.y);
+      ts += "\" style=\"fill:";
+      ts += bond_colour;
+      ts += ";\"/>";
+      ts += "\n";
+      arrow_string += ts;
+   }
+
+   if (end_arrow) {
+      // add a triangle arrow head
+      lig_build::pos_t tip = lig_atom_pos - rc_to_lig_atom_uv * 0.35;
+      double l1 = 0.85;
+      double l2 = 0.3;
+      lig_build::pos_t rcla_uv_90 = rc_to_lig_atom_uv.rotate(90);
+      lig_build::pos_t pt_1 = tip;
+      lig_build::pos_t pt_2 = tip - rc_to_lig_atom_uv * l1 + rcla_uv_90 * l2;
+      lig_build::pos_t pt_3 = tip - rc_to_lig_atom_uv * l1 - rcla_uv_90 * l2;
+      // std::string ts = "<polygon points="100,10 150,190 50,190" style="fill:lime;"/>";
+      std::string ts = "   <polygon points =\"";
+      ts += std::to_string(pt_1.x);
+      ts += ",";
+      ts += std::to_string(-pt_1.y);
+      ts += " ";
+      ts += std::to_string(pt_2.x);
+      ts += ",";
+      ts += std::to_string(-pt_2.y);
+      ts += " ";
+      ts += std::to_string(pt_3.x);
+      ts += ",";
+      ts += std::to_string(-pt_3.y);
+      ts += "\" style=\"fill:";
+      ts += bond_colour;
+      ts += ";\"/>";
+      ts += "\n";
+      arrow_string += ts;
+   }
+   return arrow_string;
+}
+
 
 svg_container_t
 flev_t::draw_bonds_to_ligand() {
 
    svg_container_t svgc;
-
-   // GooCanvasItem *root = goo_canvas_get_root_item (GOO_CANVAS(canvas));
-
-   // GooCanvasLineDash *dash_dash     = goo_canvas_line_dash_new (2, 2.1, 2.1);
-   // GooCanvasLineDash *dash_unbroken = goo_canvas_line_dash_new (1, 3);
-
-   // GooCanvasLineDash *dash = dash_dash; // re-assigned later (hopefully)
 
    for (unsigned int ic=0; ic<residue_circles.size(); ic++) {
       if (residue_circles[ic].bonds_to_ligand.size()) {
@@ -1295,93 +1511,9 @@ flev_t::draw_bonds_to_ligand() {
                   end_arrow = false;
                   // dash = dash_dash;
                }
-               // GooCanvasItem *item = goo_canvas_polyline_new_line(root,
-               //                                                    A.x, A.y,
-               //                                                    B.x, B.y,
-               //                                                    "line-width", 2.5, // in draw_bonds_to_ligand()
-               //                                                    "line-dash", dash,
-               //                                                    "start_arrow", start_arrow,
-               //                                                    "end_arrow",   end_arrow,
-               //                                                    "stroke-color", stroke_colour.c_str(),
-               //                                                    NULL);
 
-               std::string s;
-               std::string bond_colour = stroke_colour;
-               s += "<!-- Bond to Ligand -->\n";
-               s += "   <line x1=\"";
-               s += std::to_string(A.x);
-               s += "\" y1=\"";
-               s += std::to_string(-A.y);
-               s += "\" x2=\"";
-               s += std::to_string(B.x);
-               s += "\" y2=\"";
-               s += std::to_string(-B.y);
-               s += "\"";
-               s += " style=\"stroke:";
-               // s += "#202020";
-               s += bond_colour;
-               s += "; stroke-width:0.15; fill:none; stroke-linecap:round; ";
-               s += "\"";
-               s += "/>\n";
-               svgc.add(s);
-
-               if (start_arrow) {
-                  // add a triangle arrow head
-                  lig_build::pos_t tip = pos + rc_to_lig_atom_uv * 1.15;
-                  double l1 = 0.85;
-                  double l2 = 0.3;
-                  lig_build::pos_t rcla_uv_90 = rc_to_lig_atom_uv.rotate(90);
-                  lig_build::pos_t pt_1 = tip;
-                  lig_build::pos_t pt_2 = tip + rc_to_lig_atom_uv * l1 + rcla_uv_90 * l2;
-                  lig_build::pos_t pt_3 = tip + rc_to_lig_atom_uv * l1 - rcla_uv_90 * l2;
-                  // std::string ts = "<polygon points="100,10 150,190 50,190" style="fill:lime;"/>";
-                  std::string ts = "   <polygon points =\"";
-                  ts += std::to_string(pt_1.x);
-                  ts += ",";
-                  ts += std::to_string(-pt_1.y);
-                  ts += " ";
-                  ts += std::to_string(pt_2.x);
-                  ts += ",";
-                  ts += std::to_string(-pt_2.y);
-                  ts += " ";
-                  ts += std::to_string(pt_3.x);
-                  ts += ",";
-                  ts += std::to_string(-pt_3.y);
-                  ts += "\" style=\"fill:";
-                  ts += bond_colour;
-                  ts += ";\"/>";
-                  ts += "\n";
-                  svgc.add(ts);
-               }
-
-               if (end_arrow) {
-                  // add a triangle arrow head
-                  lig_build::pos_t tip = lig_atom_pos - rc_to_lig_atom_uv * 0.35;
-                  double l1 = 0.85;
-                  double l2 = 0.3;
-                  lig_build::pos_t rcla_uv_90 = rc_to_lig_atom_uv.rotate(90);
-                  lig_build::pos_t pt_1 = tip;
-                  lig_build::pos_t pt_2 = tip - rc_to_lig_atom_uv * l1 + rcla_uv_90 * l2;
-                  lig_build::pos_t pt_3 = tip - rc_to_lig_atom_uv * l1 - rcla_uv_90 * l2;
-                  // std::string ts = "<polygon points="100,10 150,190 50,190" style="fill:lime;"/>";
-                  std::string ts = "   <polygon points =\"";
-                  ts += std::to_string(pt_1.x);
-                  ts += ",";
-                  ts += std::to_string(-pt_1.y);
-                  ts += " ";
-                  ts += std::to_string(pt_2.x);
-                  ts += ",";
-                  ts += std::to_string(-pt_2.y);
-                  ts += " ";
-                  ts += std::to_string(pt_3.x);
-                  ts += ",";
-                  ts += std::to_string(-pt_3.y);
-                  ts += "\" style=\"fill:";
-                  ts += bond_colour;
-                  ts += ";\"/>";
-                  ts += "\n";
-                  svgc.add(ts);
-               }
+               std::string arrow_string = make_arrow(A, B, stroke_colour, start_arrow, end_arrow, pos, lig_atom_pos);
+               svgc.add(arrow_string);
 
             }
             catch (const std::runtime_error &rte) {
@@ -1429,7 +1561,7 @@ flev_t::draw_solvent_accessibility_of_atom(const lig_build::pos_t &pos, double s
 
       std::string comment = "Solvent Accessibilty of Atom";
       // needs to be drawn first? Use a group for sovlent accessibility circles?
-      std::string c = make_circle(pos.invert_y(), rad, 0.0, "#5555cc30", "#5555cc30");
+      std::string c = pli::make_circle(pos.invert_y(), rad, 0.0, "#5555cc30", "#5555cc30");
       svgc.add_comment(comment);
       svgc.add(c);
    }
@@ -2523,8 +2655,8 @@ flev_t::draw_residue_circle_top_layer(const residue_circle_t &residue_circle,
 // Set the fill_colour to "none" if you don't want a fill.
 // Note that this function does not apply the inversion of the y axis coordinate.
 std::string
-flev_t::make_circle(const lig_build::pos_t &pos, double radius, double stroke_width,
-                    const std::string &fill_color, const std::string &stroke_color) const {
+pli::make_circle(const lig_build::pos_t &pos, double radius, double stroke_width,
+                    const std::string &fill_color, const std::string &stroke_color) {
 
    std::string circle_string = std::string("   ") +
       "<circle cx=\"" + std::to_string(pos.x) + std::string("\" cy=\"") +
@@ -2571,7 +2703,7 @@ flev_t::draw_solvent_exposure_circle(const residue_circle_t &residue_circle,
             pos += lig_build::pos_t(0.0002, 0.0002);
             if (false)
                std::cout << "   pos " << pos << " se_circle_centre " << se_circle_centre << std::endl;
-            std::string c = make_circle(pos, r, line_width, fill_colour, "black");
+            std::string c = pli::make_circle(pos, r, line_width, fill_colour, "black");
             svgc.add(c);
 	 }
       }
