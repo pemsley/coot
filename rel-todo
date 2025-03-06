@@ -10,6 +10,8 @@ Coot: picking should use the non-drawn atom indices vector ::: 0.6
 
 Replace line symmetry with 3d model ::: 3
 
+Bring PAE to Coot and moorhen ::: 1.5
+
 --- Done Items ---
 
 Fix the super-atoms in svg-molecule/flev ::: 1
