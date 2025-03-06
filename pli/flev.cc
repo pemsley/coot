@@ -588,6 +588,28 @@ pli::make_key(double top_left_x, double top_left_y) {
       return t;
    };
 
+   auto draw_dashed_ellipse = [] (const lig_build::pos_t &pos) {
+
+      double radius_x = 1.14;
+      double radius_y = 0.8;
+      double stroke_width = 0.1;
+      std::string stroke_color = "#808080";
+      std::string circle_string = std::string("   ") + "<ellipse cx=\"" + std::to_string(pos.x) + std::string("\" cy=\"") +
+           std::to_string(pos.y) +
+           std::string("\" rx=\"") +
+           std::to_string(radius_x) +
+           std::string("\" ry=\"") +
+           std::to_string(radius_y) +
+           std::string("\"");
+      circle_string += " fill=\"none\" ";
+      circle_string += "style=\"stroke-linecap:round; stroke-dasharray:0.1,0.2;\" ";
+      circle_string +=
+           std::string(" stroke=\"") + stroke_color + std::string("\"") +
+           std::string(" stroke-width=\"") + std::to_string(stroke_width) + std::string("\"") +
+           std::string("/>\n");
+      return circle_string;
+   };
+
    // first column 
 
    svg_container_t svgc;
@@ -597,7 +619,7 @@ pli::make_key(double top_left_x, double top_left_y) {
    std::string metal = "#990099";
    lig_build::pos_t A(top_left_x, top_left_y);
    lig_build::pos_t top_left(top_left_x, top_left_y);
-   lig_build::pos_t B = A + lig_build::pos_t(5, 0);
+   lig_build::pos_t B = A + lig_build::pos_t(4.4, 0);
    lig_build::pos_t x_bit(0.7, 0);
    lig_build::pos_t x_step_for_text(7.7, 0);
    double y_line_step = 1.7;
@@ -655,30 +677,30 @@ pli::make_key(double top_left_x, double top_left_y) {
    std::string basic  = blue;
    lig_build::pos_t tlc2 = top_left.invert_y() + lig_build::pos_t(16.4, 0.0);
    lig_build::pos_t grease_pos = tlc2;
-   std::string circle_g = make_circle(grease_pos, 0.8, 0.1, grease, "#111111");
+   std::string circle_g = make_circle(grease_pos, 0.75, 0.1, grease, "#111111");
    svgc.add(circle_g);
    lig_build::pos_t polar_pos = tlc2 + lig_build::pos_t(0, y_line_step);
-   std::string circle_p = make_circle(polar_pos, 0.78, 0.1, polar, "#111111");
+   std::string circle_p = make_circle(polar_pos, 0.75, 0.1, polar, "#111111");
    svgc.add(circle_p);
    lig_build::pos_t acidic_pos = tlc2 + lig_build::pos_t(0, 2.0 * y_line_step);
-   std::string circle_a = make_circle(acidic_pos, 0.78, 0.15, polar, red);
+   std::string circle_a = make_circle(acidic_pos, 0.75, 0.15, polar, red);
    svgc.add(circle_a);
    lig_build::pos_t basic_pos = tlc2 + lig_build::pos_t(0, 3.0 * y_line_step);
-   std::string circle_b = make_circle(basic_pos, 0.78, 0.15, polar, blue);
+   std::string circle_b = make_circle(basic_pos, 0.75, 0.15, polar, blue);
    svgc.add(circle_b);
    lig_build::pos_t water_pos = tlc2 + lig_build::pos_t(0, 4.0 * y_line_step);
-   std::string circle_w = make_circle(water_pos, 0.78, 0.1, "white", "#111111");
+   std::string circle_w = make_circle(water_pos, 0.75, 0.1, "white", "#111111");
    svgc.add(circle_w);
    lig_build::pos_t metal_pos = tlc2 + lig_build::pos_t(0, 5.0 * y_line_step);
-   std::string circle_m = make_circle(metal_pos, 0.78, 0.1, metalic_grey, "#111111");
+   std::string circle_m = make_circle(metal_pos, 0.75, 0.1, metalic_grey, "#111111");
    svgc.add(circle_m);
 
-   lig_build::pos_t text_pos_7( top_left_x + 17.6, -top_left_y + 0.2);
-   lig_build::pos_t text_pos_8( top_left_x + 17.6, -top_left_y + 0.2 + 1.0 * y_line_step);
-   lig_build::pos_t text_pos_9( top_left_x + 17.6, -top_left_y + 0.2 + 2.0 * y_line_step);
-   lig_build::pos_t text_pos_10(top_left_x + 17.6, -top_left_y + 0.2 + 3.0 * y_line_step);
-   lig_build::pos_t text_pos_11(top_left_x + 17.6, -top_left_y + 0.2 + 4.0 * y_line_step);
-   lig_build::pos_t text_pos_12(top_left_x + 17.6, -top_left_y + 0.2 + 5.0 * y_line_step);
+   lig_build::pos_t text_pos_7( top_left_x + 17.7, -top_left_y + 0.2);
+   lig_build::pos_t text_pos_8( top_left_x + 17.7, -top_left_y + 0.2 + 1.0 * y_line_step);
+   lig_build::pos_t text_pos_9( top_left_x + 17.7, -top_left_y + 0.2 + 2.0 * y_line_step);
+   lig_build::pos_t text_pos_10(top_left_x + 17.7, -top_left_y + 0.2 + 3.0 * y_line_step);
+   lig_build::pos_t text_pos_11(top_left_x + 17.7, -top_left_y + 0.2 + 4.0 * y_line_step);
+   lig_build::pos_t text_pos_12(top_left_x + 17.7, -top_left_y + 0.2 + 5.0 * y_line_step);
    std::string t7  = add_text(text_pos_7,  "Grease");
    std::string t8  = add_text(text_pos_8,  "Polar");
    std::string t9  = add_text(text_pos_9,  "Acidic");
@@ -692,6 +714,33 @@ pli::make_key(double top_left_x, double top_left_y) {
    svgc.add(t11);
    svgc.add(t12);
 
+   // third column
+
+   lig_build::pos_t sa_pos = top_left.invert_y() + lig_build::pos_t(24.4, 0.0);
+   lig_build::pos_t se_pos_1 = sa_pos   + lig_build::pos_t(0, 1.4 * y_line_step);
+   lig_build::pos_t se_pos_2 = se_pos_1 + lig_build::pos_t(0.2, 0.2);
+   svg_container_t solvent_accessibility = draw_solvent_accessibility_of_atom(sa_pos.invert_y(), 0.15);
+   svgc.add(solvent_accessibility);
+   std::string circle_se_1 = make_circle(se_pos_1, 0.85, 0.00,  "#b0c0ff", "none");
+   std::string circle_se_2 = make_circle(se_pos_2, 0.55, 0.06, "white",   "#111111");
+   svgc.add(circle_se_1);
+   svgc.add(circle_se_2);
+   lig_build::pos_t sc_pos = se_pos_1 + lig_build::pos_t(0, 1.5 * y_line_step);
+   std::string substitution_contour = draw_dashed_ellipse(sc_pos);
+   svgc.add(substitution_contour);
+
+   // labels for 3rd column
+
+   lig_build::pos_t text_pos_13(top_left_x + 26.0, -top_left_y + 0.2 + 0.0 * y_line_step);
+   lig_build::pos_t text_pos_14(top_left_x + 26.0, -top_left_y + 0.2 + 1.5 * y_line_step);
+   lig_build::pos_t text_pos_15(top_left_x + 26.0, -top_left_y + 0.2 + 3.0 * y_line_step);
+   std::string t13 = add_text(text_pos_13, "Solvent Accessibility");
+   std::string t14 = add_text(text_pos_14, "Residue Protection");
+   std::string t15 = add_text(text_pos_15, "Substitution Contour");
+   svgc.add(t13);
+   svgc.add(t14);
+   svgc.add(t15);
+
    return svgc;
 }
 
@@ -700,7 +749,8 @@ pli::fle_view_with_rdkit_internal(mmdb::Manager *mol,
                                   int imol,
                                   coot::protein_geometry *geom_p,
                                   const std::string &chain_id, int res_no, const std::string &ins_code,
-                                  float residues_near_radius) {
+                                  float residues_near_radius,
+                                  bool add_key) {
 
    auto write_string_to_file = [] (const std::string &s, const std::string &fn) {
 
@@ -947,9 +997,11 @@ pli::fle_view_with_rdkit_internal(mmdb::Manager *mol,
 
                   delete mol_for_flat_residue;
 
-                  svg_container_t svgc_key = make_key(-12, -15);
-                  svgc_outer.add(svgc_key);
-                  svgc_outer.add_to_y_bounds(11.0);
+                  if (add_key) {
+                     svg_container_t svgc_key = make_key(-12, -15);
+                     svgc_outer.add(svgc_key);
+                     svgc_outer.add_to_y_bounds(11.0);
+                  }
                }
             }
             catch (const std::runtime_error &rte) {
@@ -1541,7 +1593,7 @@ flev_t::draw_solvent_accessibility_of_atoms() {
       double sa = mol.atoms[iat].get_solvent_accessibility();
       // saa of -1 is "unset"
       if (sa  > 0.0) {
-         svg_container_t saa = draw_solvent_accessibility_of_atom(pos, sa);
+         svg_container_t saa = pli::draw_solvent_accessibility_of_atom(pos, sa);
          svgc.add(saa);
       }
    }
@@ -1549,7 +1601,7 @@ flev_t::draw_solvent_accessibility_of_atoms() {
 }
 
 svg_container_t
-flev_t::draw_solvent_accessibility_of_atom(const lig_build::pos_t &pos, double sa) {
+pli::draw_solvent_accessibility_of_atom(const lig_build::pos_t &pos, double sa) {
 
    svg_container_t svgc;
 
@@ -2705,7 +2757,7 @@ flev_t::draw_solvent_exposure_circle(const residue_circle_t &residue_circle,
                std::cout << "   pos " << pos << " se_circle_centre " << se_circle_centre << std::endl;
             std::string c = pli::make_circle(pos, r, line_width, fill_colour, "black");
             svgc.add(c);
-	 }
+         }
       }
    }
    return svgc;

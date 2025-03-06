@@ -3308,8 +3308,9 @@ public:
    //!
    //! @param imol is the model molecule index
    //! @param residue_cid is the cid for the residue
+   //! @param add_key should a key be added to the figure?
    //! @return an svg string of the representation. On failure, return an empty string.
-   std::string get_svg_for_2d_ligand_environment_view(int imol, const std::string &residue_cid);
+   std::string get_svg_for_2d_ligand_environment_view(int imol, const std::string &residue_cid, bool add_key);
 
    //! Get non-standard residues in a model
    //!

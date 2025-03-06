@@ -395,11 +395,14 @@ namespace pli {
                                                 int imol, // for looking up ligands in the dictionary
                                                 coot::protein_geometry *geom_p,
                                                 const std::string &chain_id, int res_no, const std::string &ins_code,
-                                                float residues_near_radius);
+                                                float residues_near_radius,
+						bool add_key);
 
    svg_container_t make_key(double xoff, double yoff);
    std::string make_circle(const lig_build::pos_t &pos, double radius, double stroke_width,
                            const std::string &fill_color, const std::string &stroke_color);
+
+   svg_container_t draw_solvent_accessibility_of_atom(const lig_build::pos_t &pos, double sa);
 
    std::vector<fle_residues_helper_t>
    get_flev_residue_centres(mmdb::Residue *residue_ligand_3d,
