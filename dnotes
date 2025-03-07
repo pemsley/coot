@@ -3980,6 +3980,7 @@ INFO::
    o Make sure RELEASE-NOTES are up to date and add a ----- marker at the top
      Make sure the release is called Release, not pre-release
    o change the version in configure.ac
+   o change the version in coot.appdata.xml - add release notes
    o change the PACKAGE_VERSION in CMakeLists.txt
    o Correct the version in the about_dialog in the coot-gtk4.ui file
    o Artists acknowledged in glade/aboutdialog?
@@ -11662,3 +11663,14 @@ Sun  2 Mar 15:22:53 GMT 2025
   consider use
   gtk_window_set_default_size(window, w, h);
 
+----
+Mon  3 Mar 16:23:38 GMT 2025
+    Key Atom Pair Distances:
+
+    Adenine-Thymine (A-T) Base Pairs:
+        N1 of Adenine to N3 of Thymine: Approximately 2.86 Å
+        N6 of Adenine to O4 of Thymine: Approximately 2.90 Å
+    Guanine-Cytosine (G-C) Base Pairs:
+        N1 of Guanine to N3 of Cytosine: Approximately 2.91 Å
+        N2 of Guanine to O2 of Cytosine: Approximately 2.89 Å
+        O6 of Guanine to N4 of Cytosine: Approximately 2.93 Å
