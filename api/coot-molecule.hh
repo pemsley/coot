@@ -964,7 +964,8 @@ namespace coot {
       //!
       //! @param residue_cid is the cid for the residue
       std::string get_svg_for_2d_ligand_environment_view(const std::string &residue_cid,
-                                                         protein_geometry *geom) const;
+                                                         protein_geometry *geom,
+                                                         bool add_key) const;
 
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS

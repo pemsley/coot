@@ -1003,7 +1003,8 @@ coot::molecule_t::get_HOLE(const clipper::Coord_orth &start_pos, const clipper::
 //! @param residue_cid is the cid for the residue
 std::string
 coot::molecule_t::get_svg_for_2d_ligand_environment_view(const std::string &residue_cid,
-                                                         coot::protein_geometry *geom) const {
+                                                         coot::protein_geometry *geom,
+                                                         bool add_key) const {
 
    float radius = 4.2; // pass this, I think.
 
@@ -1014,7 +1015,7 @@ coot::molecule_t::get_svg_for_2d_ligand_environment_view(const std::string &resi
       int res_no = residue_p->GetSeqNum();
       std::string ins_code = residue_p->GetInsCode();
       svg_container_t svgc = pli::fle_view_with_rdkit_internal(atom_sel.mol, imol_no, geom,
-                                                               chain_id, res_no, ins_code, radius);
+                                                               chain_id, res_no, ins_code, radius, add_key);
       s = svgc.compose(true);
    }
    return s;

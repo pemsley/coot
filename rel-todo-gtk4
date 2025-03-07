@@ -1,5 +1,9 @@
 ----
 
+Paul Bond: named argument support in chapi?
+
+Jordan: how about stubgen for nanobind functions?
+
 get (make sure that) the coot api documentation up to date.
 
 Use the dictionary-based conformer generator and then minimize
@@ -16,6 +20,9 @@ working correctly?
 
 Carbohydrate WTA mode in C++
 
+find-ligand executable doesn't read mmcif? if dictionary is
+loaded, then one donesn't need ligand.pdb as input.
+
 Add a filter for overlapping points after importing M2T
 geometry - don't leave it up to Blender.
 
@@ -31,6 +38,9 @@ is there a combine-maps/make-average map
 in moorhen?
 
 Fetch "code" in chapi.
+
+Try Get webkit into a Coot binary.
+Try running moorhen in that browser.
 
 add reidues_near_residues to chapi
 
