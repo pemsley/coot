@@ -1259,6 +1259,10 @@
   <menu id="ligand-menu">
     <section>
       <item>
+        <attribute name="label" translatable="no">2D Ligand Environment View</attribute>
+        <attribute name="action">app.flev_action</attribute>
+      </item>
+      <item>
         <attribute name="label" translatable="no">Contact Dots for Ligand</attribute>
         <attribute name="action">app.coot_contact_dots_for_ligand_action</attribute>
       </item>
@@ -16912,6 +16916,7 @@ Move a copy?</property>
             <property name="margin-bottom">10</property>
             <property name="margin-start">6</property>
             <property name="margin-end">6</property>
+            <property name="halign">end</property>
             <child>
               <object class="GtkButton" id="unsaved_changes_cancel_button">
                 <property name="label" translatable="yes">Cancel</property>
