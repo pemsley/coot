@@ -2642,24 +2642,23 @@ flev_t::draw_residue_circle_top_layer(const residue_circle_t &residue_circle,
    if (col.second != "#111111") // needs checking, FIXME
       stroke_width = 0.15;
 
-   scale_factor = 1.0; // remove the use of this later
-
    if (col.first != "") {
 
       std::string circle_string = std::string("   <circle ") +
-         std::string("cx=\"") + std::to_string(scale_factor * pos.x) + std::string("\" ") +
-         std::string("cy=\"") + std::to_string(scale_factor * pos.y) + std::string("\" ") +
+         std::string("cx=\"") + std::to_string(pos.x) + std::string("\" ") +
+         std::string("cy=\"") + std::to_string(pos.y) + std::string("\" ") +
          // std::string("\" r=\"22.2\"") +
          std::string("r=\"1.2\" ") +
          std::string("fill=\"")   + col.first  + std::string("\" ") +
          std::string("stroke=\"") + col.second + std::string("\" ") +
          std::string("stroke-width=\"") + std::to_string(stroke_width) + std::string("\"") +
          std::string("/>\n");
-      float delta = 3.0; // about this? // was 50.0
+      // expand the bounding box a bit beyond the position of the residue
+      float delta = 3.7; // 20250303-PE was 3.0 // about this? // was 50.0
       svgc.add("<!-- Residue Circle " + residue_circle.residue_label + std::string(" -->\n"));
       svgc.add(circle_string);
-      svgc.set_bounds(scale_factor * pos.x - delta, scale_factor * pos.y - delta,
-                      scale_factor * pos.x + delta, scale_factor * pos.y + delta);
+      svgc.set_bounds(pos.x - delta, pos.y - delta,
+                      pos.x + delta, pos.y + delta);
 
       // 20241002-PE note to self, "Phe" is too far to the right
       //                           "Ile" is too tar to the left
@@ -2687,10 +2686,10 @@ flev_t::draw_residue_circle_top_layer(const residue_circle_t &residue_circle,
       std::string text_2("   <text ");
       text_2 += std::string("fill=\"#111111\"");
       text_2 += std::string(" x=\"");
-      text_2 += std::to_string(scale_factor * pos.x); // was -9
+      text_2 += std::to_string(pos.x); // was -9
       text_2 += std::string("\"");
       text_2 += std::string(" y=\"");
-      text_2 += std::to_string(scale_factor * pos.y + 0.6);
+      text_2 += std::to_string(pos.y + 0.6);
       text_2 += std::string("\"");
       text_2 += std::string(" text-anchor=\"middle\"");
       text_2 += std::string(" font-family=\"Helvetica, sans-serif\" font-size=\"0.04em\">");
