@@ -296,9 +296,11 @@ graphics_info_t::atom_pick_gtk3(bool intermediate_atoms_only_flag) const {
                const molecule_class_info_t &m = graphics_info_t::molecules[ii];
                pick_info mpi = l(m, ii);
                if (mpi.success) {
-                  if (mpi.min_dist < dist_closest) {
-                     p_i = mpi;
-                     dist_closest = mpi.min_dist;
+                  if (m.no_bonds_to_these_atom_indices.find(mpi.atom_index) ==  m.no_bonds_to_these_atom_indices.end()) {
+                     if (mpi.min_dist < dist_closest) {
+                        p_i = mpi;
+                        dist_closest = mpi.min_dist;
+                     }
                   }
                }
             }

@@ -7124,6 +7124,11 @@ void set_add_linked_residue_do_fit_and_refine(int state);
 /*  ----------------------------------------------------------------------- */
 /*! \name FLE-View */
 /*! \{ */
+
+void fle_view(int imol, const char *chain_id, int res_no, const char *ins_code, float dist_max);
+
+/* delete these other functions  */
+
 void fle_view_internal(int imol, const char *chain_id, int res_no,
 		       const char *ins_code,
 		       int imol_ligand_fragment,

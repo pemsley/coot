@@ -1,16 +1,11 @@
 
 --- Items ---
 
-delete_all_carbohydrate() needs a test. Move it to coot-utils and
-give moorhen/chapi access to it ::: 2
-
-Get FLEV into Coot ::: 2
-
-Coot: picking should use the non-drawn atom indices vector ::: 0.6
+Bring PAE to Coot and moorhen ::: 1.5
 
 Replace line symmetry with 3d model ::: 3
 
-Bring PAE to Coot and moorhen ::: 1.5
+Fix Jordan's unwritable xdg cache-dir download directory bug.
 
 --- Done Items ---
 
@@ -31,3 +26,16 @@ In FLEV, use the tweaks to position the text ::: 0.5
 
 Change chapi/mc to coot_headless_api/chapi ::: 0.5
 * OK. There will be pain.
+
+delete_all_carbohydrate() needs a test. Move it to coot-utils and
+give moorhen/chapi access to it ::: 0.6
+
+Get FLEV into Coot ::: 2
+
+FLEV needs a key ::: 2
+
+Coot: picking should use the non-drawn atom indices vector ::: 0.2
+
+Add add_hydrogen_atoms() to the api (just a wrapper need) ::: 0.2
+there is coot_add_hydrogen_atoms().
+

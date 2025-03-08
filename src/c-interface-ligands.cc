@@ -3727,6 +3727,10 @@ void coot_add_hydrogen_atoms(int imol) {
    }
 }
 
+void add_hydrogen_atoms(int imol) {
+   coot_add_hydrogen_atoms(imol);
+}
+
 void coot_reduce(int imol) {
    coot_add_hydrogen_atoms(imol);
 }

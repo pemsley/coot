@@ -199,6 +199,10 @@ void switch_HIS_protonation_py(int imol, PyObject *residue_spec);
 //! \brief add Hydrogen atoms to the molecule
 void coot_add_hydrogen_atoms(int imol);
 
+// this is not a ligand function - it does not belong here.
+//! \brief add Hydrogen atoms to the molecule
+void add_hydrogen_atoms(int imol);
+
 void coot_reduce(int imol);
 
 

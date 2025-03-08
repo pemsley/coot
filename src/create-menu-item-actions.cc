@@ -1881,6 +1881,20 @@ void coot_contact_dots_for_ligand_action(G_GNUC_UNUSED GSimpleAction *simple_act
    graphics_info_t::graphics_grab_focus();
 }
 
+void flev_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                 G_GNUC_UNUSED GVariant *parameter,
+                 G_GNUC_UNUSED gpointer user_data) {
+
+   float dist_max = 4.5; // make this a graphics_info_t variable.
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      coot::residue_spec_t res_spec(pp.second.second);
+      fle_view(imol, res_spec.chain_id.c_str(), res_spec.res_no, res_spec.ins_code.c_str(), dist_max);
+   }
+   graphics_info_t::graphics_grab_focus();
+}
+
 void geometric_distortions_for_ligand_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                              G_GNUC_UNUSED GVariant *parameter,
                                              G_GNUC_UNUSED gpointer user_data) {
@@ -4967,6 +4981,7 @@ create_actions(GtkApplication *application) {
 
    // Ligand menu
    add_action("jiggle_fit_active_residue_action",          jiggle_fit_active_residue_action);
+   add_action("flev_action",                               flev_action);
    add_action("coot_contact_dots_for_ligand_action",       coot_contact_dots_for_ligand_action);
    add_action("geometric_distortions_for_ligand_action",   geometric_distortions_for_ligand_action);
    add_action("SMILES_to_3D_action",                       SMILES_to_3D_action);
