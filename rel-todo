@@ -1,11 +1,9 @@
 
 --- Items ---
 
-Bring PAE to Coot and moorhen ::: 1.5
+Bring PAE to Coot :: 1
 
 Replace line symmetry with 3d model ::: 3
-
-Fix Jordan's unwritable xdg cache-dir download directory bug.
 
 --- Done Items ---
 
@@ -39,3 +37,6 @@ Coot: picking should use the non-drawn atom indices vector ::: 0.2
 Add add_hydrogen_atoms() to the api (just a wrapper need) ::: 0.2
 there is coot_add_hydrogen_atoms().
 
+Fix Jordan's unwritable xdg cache-dir download directory bug ::: 0.3
+
+Clipping of key for FLEV in moorhen - text goes beyond residue circles in x ::: 0.5

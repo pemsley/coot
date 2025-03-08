@@ -1,5 +1,7 @@
 ----
 
+Update xdg repo with new try/catch code.
+
 Paul Bond: named argument support in chapi?
 
 Jordan: how about stubgen for nanobind functions?
