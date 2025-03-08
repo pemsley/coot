@@ -25,17 +25,16 @@
   <screenshots>
     <screenshot type="default">
       <image type="source">
-        https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/web/screenshots/other/coot-viagra-1.png</image>
+        https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/web/screenshots/coot1/coot1_1.PNG</image>
       <caption>Coot is typically used to view protein models and electron density</caption>
     </screenshot>
     <screenshot>
       <image type="source">
-        https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/web/screenshots/other/coot-ligand-builder.png</image>
-      <caption>Coot can be used to convert from 2D ligands to 3D and from 3D to 2D</caption>
+        https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/web/screenshots/coot1/coot1_2.png</image>
     </screenshot>
     <screenshot>
       <image type="source">
-        https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/web/screenshots/apoferritin/sapphires-and-emeralds.png</image>
+        https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/web/screenshots/coot1/coot1_12.png</image>
     </screenshot>
   </screenshots>
   <branding>
