@@ -59,6 +59,8 @@
 #include "curl-utils.hh"
 #include <zlib.h>
 
+#include "coot-utils/pae.hh"
+
 // return 0 on success
 #ifdef USE_LIBCURL
 int coot_get_url(const std::string &url, const std::string  &file_name) {
@@ -433,7 +435,7 @@ SCM curl_progress_info(const char *file_name) {
       }
    } else {
       // std::cout << "Found no CURL handle for  " << f << std::endl;
-   } 
+   }
    return r;
 }
 #endif // USE_GUILE
@@ -450,7 +452,7 @@ PyObject *curl_progress_info_py(const char *file_name) {
    long int liv;
    CURL *c = g.get_curl_handle_for_file_name(f);
 
-   if (c) { 
+   if (c) {
 
      r = PyDict_New();
      info = CURLINFO_CONTENT_LENGTH_DOWNLOAD;
@@ -470,7 +472,7 @@ PyObject *curl_progress_info_py(const char *file_name) {
      }
    } else {
       // std::cout << "Found no CURL handle for  " << f << std::endl;
-   } 
+   }
    if (PyBool_Check(r)) {
      Py_INCREF(r);
    }
@@ -531,30 +533,65 @@ void fetch_and_superpose_alphafold_models(int imol) {
    }
 }
 
+void display_png_from_string_in_a_dialog(const std::string &string, const std::string &title);
+
 int
 fetch_alphafold_model_for_uniprot_id(const std::string &uniprot_id) {
 
-   std::string fn_tail = std::string("AF-") + uniprot_id + std::string("-F1-model_v3.pdb");
+   auto join = [] (const std::string &d, const std::string &f) {
+      return d + std::string("/") + f;
+   };
+
+   auto write_string_to_file = [] (const std::string &s, const std::string &fn) {
+
+      std::cout << "write string to file! " << fn << std::endl;
+      std::ofstream f(fn);
+      f << s;
+      f << "\n";
+      f.close();
+   };
+
+   int imol = -1; // return this
+   // https://alphafold.ebi.ac.uk/files/AF-Q7N8I7-F1-model_v4.pdb
+   // https://alphafold.ebi.ac.uk/files/AF-Q7N8I7-F1-predicted_aligned_error_v4.json
+   std::string fn_tail_pdb = std::string("AF-") + uniprot_id + std::string("-F1-model_v3.pdb");
+   std::string fn_tail_pae = std::string("AF-") + uniprot_id + std::string("-F1-predicted_aligned_error_v4.json");
+
+   xdg_t xdg;
+   std::string download_dir = join(xdg.get_cache_home().string(), "coot-download");
    // make coot-download if needed
-   std::string download_dir = "coot-download";
-   download_dir = coot::get_directory(download_dir.c_str());
-   std::string fn = coot::util::append_dir_file(download_dir, fn_tail);
-   std::string url = std::string("https://alphafold.ebi.ac.uk/files/") + fn_tail;
-   bool needs_downloading = true;
-   int imol = -1;
-   if (coot::file_exists_and_non_tiny(fn, 500))
-      needs_downloading = false;
-   if (needs_downloading) {
-      coot_get_url(url.c_str(), fn.c_str());
-      if (coot::file_exists_and_non_tiny(fn, 500)) {
-         imol = handle_read_draw_molecule_and_move_molecule_here(fn);
-      } else {
-         std::string m = "WARNING:: UniProt ID " + uniprot_id + std::string(" not found");
-         info_dialog(m.c_str());
+   std::string dld = coot::get_directory(download_dir);
+   if (! dld.empty()) {
+      download_dir = dld;
+      std::string fn_pdb = coot::util::append_dir_file(download_dir, fn_tail_pdb);
+      std::string url = std::string("https://alphafold.ebi.ac.uk/files/") + fn_tail_pdb;
+      bool needs_downloading = true;
+      if (coot::file_exists_and_non_tiny(fn_pdb, 500)) needs_downloading = false;
+      if (needs_downloading) {
+         coot_get_url(url.c_str(), fn_pdb.c_str());
+         if (coot::file_exists_and_non_tiny(fn_pdb, 500)) {
+            imol = handle_read_draw_molecule_and_move_molecule_here(fn_pdb);
+         } else {
+            std::string m = "WARNING:: UniProt ID " + uniprot_id + std::string(" not found");
+            info_dialog(m.c_str());
+         }
       }
-   } else {
-      graphics_info_t g;
-      imol = handle_read_draw_molecule_and_move_molecule_here(fn);
+
+      // now let's do the PAE file
+      std::string fn_pae = coot::util::append_dir_file(download_dir, fn_tail_pae);
+      url = std::string("https://alphafold.ebi.ac.uk/files/") + fn_tail_pae;
+      needs_downloading = true;
+      if (coot::file_exists_and_non_tiny(fn_pae, 500)) needs_downloading = false;
+      if (needs_downloading) {
+         coot_get_url(url.c_str(), fn_pae.c_str());
+         if (coot::file_exists_and_non_tiny(fn_pae, 500)) {
+            display_pae_from_file_in_a_dialog(fn_pae);
+         }
+      } else {
+         display_pae_from_file_in_a_dialog(fn_pae);
+      }
+
+      imol = handle_read_draw_molecule_and_move_molecule_here(fn_pdb);
       graphics_draw();
    }
    return imol;
@@ -732,7 +769,7 @@ void curl_test_make_a_post() {
 #ifdef NO_ANOMYMOUS_DATA
    // don't do anything
 #else
-   
+
    CURL *c = curl_easy_init();
    long int no_signal = 1; // for multi-threading
 
@@ -765,7 +802,7 @@ void curl_test_make_a_post() {
 #ifdef USE_LIBCURL
 void
 curl_post(const std::string &url, const std::string &post_string) {
-   
+
    CURL *c = curl_easy_init();
    long int no_signal = 1; // for multi-threading
    curl_easy_setopt(c, CURLOPT_NOSIGNAL, no_signal);

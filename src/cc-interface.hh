@@ -2440,6 +2440,8 @@ void display_svg_from_file_in_a_dialog(const std::string &file_name);
 
 void display_svg_from_string_in_a_dialog(const std::string &string, const std::string &title);
 
+void display_pae_from_file_in_a_dialog(const std::string &file_name);
+
 void read_interesting_places_json_file(const std::string &file_name);
 
 //! return the section index (the middle section currently)

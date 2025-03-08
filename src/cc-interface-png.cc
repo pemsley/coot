@@ -273,6 +273,75 @@ void display_svg_from_file_in_a_dialog(const std::string &file_name) {
 
 }
 
+void display_png_from_string_in_a_dialog(const std::string &string, const std::string &title) {
+
+   GtkWidget *window = gtk_window_new();
+   std::string tt = "Coot: " + title;
+   gtk_window_set_title(GTK_WINDOW(window), tt.c_str());
+   // Create a drawing area
+   GtkWidget *scrolled_win = gtk_scrolled_window_new();
+   GtkWidget *drawing_area = gtk_drawing_area_new();
+   GtkWidget *vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+   gtk_widget_set_hexpand(drawing_area, TRUE); // Allow expansion in x direction
+   gtk_widget_set_vexpand(drawing_area, TRUE); // Allow expansion in y direction
+   gtk_window_set_child(GTK_WINDOW(window), vbox);
+   gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(scrolled_win), drawing_area);
+   gtk_box_append(GTK_BOX(vbox), scrolled_win);
+   GtkWidget *buttons_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+   GtkWidget *button_close = gtk_button_new_with_label("Close");
+   gtk_widget_set_halign(buttons_box, GTK_ALIGN_END);
+   gtk_box_append(GTK_BOX(buttons_box), button_close);
+   gtk_box_append(GTK_BOX(vbox), buttons_box);
+
+   gtk_widget_set_margin_start(button_close, 10);
+   gtk_widget_set_margin_end(button_close, 10);
+   gtk_widget_set_margin_top(button_close, 14);
+   gtk_widget_set_margin_bottom(button_close, 10);
+
+   gtk_window_set_default_size(GTK_WINDOW(window), 600, 620);
+
+
+   // Convert string to GdkPixbuf
+   // std::vector<guint8> data(string.begin(), string.end());
+   // GdkPixbuf *pixbuf = gdk_pixbuf_new_from_bytes(g_bytes_new_static(data.data(), data.size()), NULL);
+
+   GdkColorspace colorspace = GDK_COLORSPACE_RGB;
+   GBytes *data = g_bytes_new(reinterpret_cast<const guint8*>(string.data()), string.size());
+   gboolean has_alpha = false;
+   int bits_per_sample = 24;
+   int width  = 600;
+   int height = 700;
+   int rowstride = 600*3;
+   GdkPixbuf *pixbuf = gdk_pixbuf_new_from_bytes(data, colorspace, has_alpha, bits_per_sample, width, height, rowstride);
+   std::cout << "debug:: pixbuf " << pixbuf << std::endl;
+
+   if (pixbuf) {
+      // Set the drawing area's draw function
+      g_signal_connect(drawing_area, "draw", G_CALLBACK(+[](GtkWidget *widget, cairo_t *cr, gpointer user_data) {
+         GdkPixbuf *pixbuf = static_cast<GdkPixbuf *>(user_data);
+         gdk_cairo_set_source_pixbuf(cr, pixbuf, 0, 0);
+         cairo_paint(cr);
+         return FALSE; // Indicate that the event was handled
+      }), pixbuf);
+
+      // Set the drawing area's size to the pixbuf's size
+      gtk_widget_set_size_request(drawing_area, gdk_pixbuf_get_width(pixbuf), gdk_pixbuf_get_height(pixbuf));
+
+      // Free the pixbuf when the window is destroyed
+      g_signal_connect_swapped(window, "destroy", G_CALLBACK(g_object_unref), pixbuf);
+
+   } else {
+      std::cout << "ERROR:: loading PNG from string." << std::endl;
+   }
+
+   // Connect the close button
+   g_signal_connect_swapped(button_close, "clicked", G_CALLBACK(gtk_window_destroy), window);
+
+   gtk_widget_set_visible(window, TRUE);
+
+}
+
+
 
 //  ------------------------- svg (not png) ------------------------------
 
