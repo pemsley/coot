@@ -567,7 +567,7 @@ flev_t::write_svg(const std::string &file_name) const {
 }
 
 svg_container_t
-pli::make_key(double top_left_x, double top_left_y) {
+pli::make_key(const lig_build::pos_t &key_pos) {
 
    auto add_text = [] (const lig_build::pos_t &pos, const std::string &tt) {
       std::string text_colour = "#111111";
@@ -582,7 +582,7 @@ pli::make_key(double top_left_x, double top_left_y) {
       t += std::to_string(pos.y);
       t += std::string("\"");
       t += std::string(" text-anchor=\"start\"");
-      t += std::string(" font-family=\"Helvetica, sans-serif\" font-size=\"0.06em\">");
+      t += std::string(" font-family=\"Helvetica, sans-serif\" font-size=\"0.05em\">");
       t += tt;
       t += std::string("</text>\n");
       return t;
@@ -617,8 +617,8 @@ pli::make_key(double top_left_x, double top_left_y) {
    std::string green = "darkgreen";
    std::string lime = "#888820";
    std::string metal = "#990099";
-   lig_build::pos_t A(top_left_x, top_left_y);
-   lig_build::pos_t top_left(top_left_x, top_left_y);
+   lig_build::pos_t A = key_pos;
+   lig_build::pos_t top_left = key_pos;
    lig_build::pos_t B = A + lig_build::pos_t(4.4, 0);
    lig_build::pos_t x_bit(0.7, 0);
    lig_build::pos_t x_step_for_text(7.7, 0);
@@ -645,6 +645,8 @@ pli::make_key(double top_left_x, double top_left_y) {
    B += lig_build::pos_t(0, -y_line_step);
    std::string a6 = make_arrow(A, B, metal, false, false, A - x_bit * 1.9, B);
    svgc.add(a6);
+   double top_left_x = key_pos.x;
+   double top_left_y = key_pos.y;
    lig_build::pos_t text_pos_1(top_left_x + 5.5, -top_left_y + 0.2);
    lig_build::pos_t text_pos_2(top_left_x + 5.5, -top_left_y + 0.2 + 1.0 * y_line_step);
    lig_build::pos_t text_pos_3(top_left_x + 5.5, -top_left_y + 0.2 + 2.0 * y_line_step);
@@ -675,7 +677,7 @@ pli::make_key(double top_left_x, double top_left_y) {
    std::string polar  = purple;
    std::string acidic = red;
    std::string basic  = blue;
-   lig_build::pos_t tlc2 = top_left.invert_y() + lig_build::pos_t(16.4, 0.0);
+   lig_build::pos_t tlc2 = top_left.invert_y() + lig_build::pos_t(15.0, 0.0);
    lig_build::pos_t grease_pos = tlc2;
    std::string circle_g = make_circle(grease_pos, 0.75, 0.1, grease, "#111111");
    svgc.add(circle_g);
@@ -695,12 +697,12 @@ pli::make_key(double top_left_x, double top_left_y) {
    std::string circle_m = make_circle(metal_pos, 0.75, 0.1, metalic_grey, "#111111");
    svgc.add(circle_m);
 
-   lig_build::pos_t text_pos_7( top_left_x + 17.7, -top_left_y + 0.2);
-   lig_build::pos_t text_pos_8( top_left_x + 17.7, -top_left_y + 0.2 + 1.0 * y_line_step);
-   lig_build::pos_t text_pos_9( top_left_x + 17.7, -top_left_y + 0.2 + 2.0 * y_line_step);
-   lig_build::pos_t text_pos_10(top_left_x + 17.7, -top_left_y + 0.2 + 3.0 * y_line_step);
-   lig_build::pos_t text_pos_11(top_left_x + 17.7, -top_left_y + 0.2 + 4.0 * y_line_step);
-   lig_build::pos_t text_pos_12(top_left_x + 17.7, -top_left_y + 0.2 + 5.0 * y_line_step);
+   lig_build::pos_t text_pos_7( top_left_x + 16.2, -top_left_y + 0.2);
+   lig_build::pos_t text_pos_8( top_left_x + 16.2, -top_left_y + 0.2 + 1.0 * y_line_step);
+   lig_build::pos_t text_pos_9( top_left_x + 16.2, -top_left_y + 0.2 + 2.0 * y_line_step);
+   lig_build::pos_t text_pos_10(top_left_x + 16.2, -top_left_y + 0.2 + 3.0 * y_line_step);
+   lig_build::pos_t text_pos_11(top_left_x + 16.2, -top_left_y + 0.2 + 4.0 * y_line_step);
+   lig_build::pos_t text_pos_12(top_left_x + 16.2, -top_left_y + 0.2 + 5.0 * y_line_step);
    std::string t7  = add_text(text_pos_7,  "Grease");
    std::string t8  = add_text(text_pos_8,  "Polar");
    std::string t9  = add_text(text_pos_9,  "Acidic");
@@ -716,7 +718,7 @@ pli::make_key(double top_left_x, double top_left_y) {
 
    // third column
 
-   lig_build::pos_t sa_pos = top_left.invert_y() + lig_build::pos_t(24.4, 0.0);
+   lig_build::pos_t sa_pos = top_left.invert_y() + lig_build::pos_t(21.0, 0.0);
    lig_build::pos_t se_pos_1 = sa_pos   + lig_build::pos_t(0, 1.4 * y_line_step);
    lig_build::pos_t se_pos_2 = se_pos_1 + lig_build::pos_t(0.2, 0.2);
    svg_container_t solvent_accessibility = draw_solvent_accessibility_of_atom(sa_pos.invert_y(), 0.15);
@@ -731,9 +733,9 @@ pli::make_key(double top_left_x, double top_left_y) {
 
    // labels for 3rd column
 
-   lig_build::pos_t text_pos_13(top_left_x + 26.0, -top_left_y + 0.2 + 0.0 * y_line_step);
-   lig_build::pos_t text_pos_14(top_left_x + 26.0, -top_left_y + 0.2 + 1.5 * y_line_step);
-   lig_build::pos_t text_pos_15(top_left_x + 26.0, -top_left_y + 0.2 + 3.0 * y_line_step);
+   lig_build::pos_t text_pos_13(top_left_x + 22.4, -top_left_y + 0.2 + 0.0 * y_line_step);
+   lig_build::pos_t text_pos_14(top_left_x + 22.4, -top_left_y + 0.2 + 1.5 * y_line_step);
+   lig_build::pos_t text_pos_15(top_left_x + 22.4, -top_left_y + 0.2 + 3.0 * y_line_step);
    std::string t13 = add_text(text_pos_13, "Solvent Accessibility");
    std::string t14 = add_text(text_pos_14, "Residue Protection");
    std::string t15 = add_text(text_pos_15, "Substitution Contour");
@@ -998,7 +1000,10 @@ pli::fle_view_with_rdkit_internal(mmdb::Manager *mol,
                   delete mol_for_flat_residue;
 
                   if (add_key) {
-                     svg_container_t svgc_key = make_key(-12, -15);
+                     double x =  svgc_outer.min_x + 3.0;
+                     double y = -svgc_outer.max_y;
+                     lig_build::pos_t key_pos(x, y); // top left
+                     svg_container_t svgc_key = make_key(key_pos);
                      svgc_outer.add(svgc_key);
                      svgc_outer.add_to_y_bounds(11.0);
                   }
