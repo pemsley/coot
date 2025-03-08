@@ -4761,6 +4761,7 @@ graphics_info_t::try_label_unlabel_active_atom() {
          int ierr = at->GetUDData(molecules[im].atom_sel.UDDAtomIndexHandle, atom_index);
 	 if (ierr == mmdb::UDDATA_Ok) {
             molecules[im].add_to_labelled_atom_list(atom_index);
+	    add_picked_atom_info_to_status_bar(im, atom_index);
             graphics_draw();
          } else {
             std::cout << "WARNING:: Bad UDData for atom_index for atom " << std::endl;

@@ -9557,7 +9557,7 @@ void load_tutorial_model_and_data() {
    }
 
    graphics_info_t g;
-   g.graphics_grab_focus();
+   gint idle = g_idle_add((GSourceFunc)g.graphics_grab_focus, NULL);
 
 }
 
