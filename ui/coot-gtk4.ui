@@ -2533,7 +2533,7 @@ Calculate a skeleton now?
   </object>
 
   <object class="GtkDialog" id="bond_parameters_dialog">
-    <property name="title" translatable="yes">Coot Bond Parameters</property>
+    <property name="title" translatable="yes">Coot: Bond Parameters</property>
     <child>
       <object class="GtkBox" id="dialog-vbox59">
         <property name="orientation">vertical</property>
@@ -2741,6 +2741,7 @@ Calculate a skeleton now?
                 <property name="margin-bottom">6</property>
                 <property name="margin-start">6</property>
                 <property name="margin-end">6</property>
+                <property name="halign">end</property>
 
                 <!-- this dialog is dynamic now (or should be) - no need for "Apply" buton -->
                 <!-- <child> -->
