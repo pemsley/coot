@@ -1,7 +1,10 @@
 
 --- Items ---
 
-Bring PAE to Coot :: 1
+What's up with Ribbon diagrams? ::: 1
+
+This function is missing:
+coot.set_user_defined_atom_colour_by_residue_py(imol, specs_list)
 
 Replace line symmetry with 3d model ::: 3
 
@@ -40,3 +43,5 @@ there is coot_add_hydrogen_atoms().
 Fix Jordan's unwritable xdg cache-dir download directory bug ::: 0.3
 
 Clipping of key for FLEV in moorhen - text goes beyond residue circles in x ::: 0.5
+
+Bring PAE to Coot :: 1
