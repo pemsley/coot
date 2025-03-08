@@ -396,9 +396,9 @@ namespace pli {
                                                 coot::protein_geometry *geom_p,
                                                 const std::string &chain_id, int res_no, const std::string &ins_code,
                                                 float residues_near_radius,
-						bool add_key);
+						                              bool add_key);
 
-   svg_container_t make_key(double xoff, double yoff);
+   svg_container_t make_key(const lig_build::pos_t &pos);
    std::string make_circle(const lig_build::pos_t &pos, double radius, double stroke_width,
                            const std::string &fill_color, const std::string &stroke_color);
 
