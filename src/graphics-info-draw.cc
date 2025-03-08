@@ -6459,17 +6459,7 @@ graphics_info_t::setup_key_bindings() {
                                 clipper::Coord_orth t(new_ori.second.trn());
                                 set_rotation_centre(t);
 
-                                coot::util::quaternion q(new_ori.second.rot());
-                                glm::quat q_ncs = coot_quaternion_to_glm(q);
-
-                                // view_quaternion = glm::inverse(q_ncs) * view_quaternion; no
-                                // view_quaternion = q_ncs * view_quaternion; // no
-                                // view_quaternion = view_quaternion * q_ncs; // no
-                                // view_quaternion = view_quaternion * glm::inverse(q_ncs); // no
-                                // view_quaternion = view_quaternion * glm::conjugate(q_ncs); no
-                                // view_quaternion = glm::conjugate(q_ncs) * view_quaternion; // no
-
-                                // I don't get it - annoying.
+				view_quaternion = matrix_to_quaternion(new_ori.second.rot());
 
                                 graphics_info_t g;
                                 g.update_things_on_move(); // not static
