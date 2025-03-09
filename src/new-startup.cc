@@ -96,6 +96,7 @@ void init_framebuffers(GtkWidget *glarea) {
 
 
 #include "text-rendering-utils.hh"
+std::string stringify_error_message(GLenum err);
 
 void
 new_startup_realize(GtkWidget *gl_area) {
@@ -192,15 +193,24 @@ new_startup_realize(GtkWidget *gl_area) {
 
    g.tmesh_for_shadow_map.setup_quad();
 
-   g.attach_buffers();
    Material material;
+   GLenum err = glGetError();
+   if (err)
+      std::cout << "ERROR:: new_startup_realize() pos-D err is " << stringify_error_message(err)
+                << std::endl;
+   // g.attach_buffers();
+   err = glGetError();
+   if (err)
+      std::cout << "ERROR:: new_startup_realize() pos-E post attach_buffers() err is "
+                << stringify_error_message(err) << std::endl;
    g.mesh_for_extra_distance_restraints.setup_extra_distance_restraint_cylinder(material); // init
 
    g.setup_key_bindings();
 
-   GLenum err = glGetError();
+   err = glGetError();
    if (err)
-      std::cout << "ERROR:: new_startup_realize() --start-- err is " << err << std::endl;
+      std::cout << "ERROR:: new_startup_realize() --end-- err is " << stringify_error_message(err)
+                << std::endl;
 
    // Hmm! - causes weird graphics problems
    // setup_python(0, NULL); // needs to called after GTK has started - because it depends on gtk.
@@ -232,9 +242,6 @@ new_startup_on_glarea_render(GtkGLArea *glarea) {
 #include "c-interface.h" // for run_script()
 void
 new_startup_on_glarea_resize(GtkGLArea *glarea, gint width, gint height) {
-
-   if (true)
-      std::cout << "DEBUG:: --- new_startup_on_glarea_resize() " <<  width << " " << height << std::endl;
 
    graphics_info_t g;
    // for the GL widget, not the window.
