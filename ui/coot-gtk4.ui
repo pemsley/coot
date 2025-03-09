@@ -13374,37 +13374,6 @@ just the cell and symmetry)
     <child type="titlebar">
     </child>
   </object>
-  <object class="GtkDialog" id="preferences">
-    <property name="title" translatable="yes">Preferences</property>
-    <signal name="destroy" handler="on_preferences_destroy" swapped="no"/>
-    <child>
-      <object class="GtkBox" id="dialog-vbox77">
-        <property name="orientation">vertical</property>
-         <child type="action">
-              <object class="GtkBox" id="hbox115">
-                <child>
-                  <object class="GtkButton" id="preferences_ok_button">
-                    <property name="label" translatable="yes">  OK  </property>
-                    <property name="can-focus">1</property>
-                    <property name="use-underline">1</property>
-                    <signal name="clicked" handler="on_preferences_ok_button_clicked" swapped="no"/>
-                  </object>
-                </child>
-              </object>
-        </child>
-        <child>
-          <object class="GtkBox" id="hbox114">
-            <child>
-              <object class="GtkFrame" id="frame137">
-              </object>
-            </child>
-          </object>
-        </child>
-      </object>
-    </child>
-    <child type="titlebar">
-    </child>
-  </object>
 
   <object class="GtkDialog" id="ramachandran_plot_differences_dialog">
     <property name="title" translatable="yes">Ramachandran Plot Differences</property>

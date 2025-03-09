@@ -139,11 +139,11 @@ on_preferences_reset_button_clicked    (GtkButton       *button,
 }
 
 extern "C" G_MODULE_EXPORT
-void
-on_preferences_destroy                 (GtkWidget       *object,
-                                        gpointer         user_data)
-{
-  clear_preferences();
+gboolean
+on_preferences_close_request(GtkWidget       *dialog,
+                             gpointer         user_data) {
+   gtk_widget_set_visible(dialog, FALSE);
+   return TRUE; // has been handled - no need to find another handler.
 }
 
 void set_use_trackpad(short int state); // or #include cc-interface.hh

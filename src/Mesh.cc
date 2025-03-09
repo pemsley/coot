@@ -144,6 +144,9 @@ Mesh::Mesh(const std::string &name_in, const coot::simple_mesh_t &mesh) {
 
 Mesh::~Mesh() {
 
+   if (false)
+      std::cout << "DEBUG:: Mesh destructor " << name << " with vao " << vao << std::endl;
+
    bool gl_buffers_flag = false;
    clear(gl_buffers_flag);
 }
@@ -728,8 +731,14 @@ Mesh::delete_gl_buffers() {
    // once causes as crash.
    // So let's not delete it at all (Hmm)
 
+
+   if (false)
+      std::cout << "INFO:: Mesh::delete_gl_buffers() called for mesh \"" << name << "\""
+                << " with vao " << vao << std::endl;
+
    if (vao == VAO_NOT_SET) {
-      std::cout << "ERROR:: Mesh::delete_gl_buffers() called without the VAO set for mesh \"" << name << "\"" << std::endl;
+      std::cout << "ERROR:: Mesh::delete_gl_buffers() called without the VAO set for mesh \""
+                << name << "\"" << std::endl;
    } else {
       glBindVertexArray(vao);
       if (buffer_id != 0) { // 0 is not valid
@@ -750,7 +759,6 @@ Mesh::delete_gl_buffers() {
       glDeleteVertexArrays(1, &vao);
       vao = VAO_NOT_SET;
    }
-
 }
 
 void
@@ -784,8 +792,8 @@ Mesh::setup_buffers() {
 
    if (first_time) {
       glGenVertexArrays(1, &vao);
-      // std::cout << "DEBUG:: Mesh::setup_buffers() ######### \"" << name << "\" first time: generated VAO " << vao << std::endl;
-      //   don't return before we set first_time = false at the end
+      // std::cout << "DEBUG:: Mesh::setup_buffers() \"" << name << "\" first time: generated VAO " << vao << std::endl;
+      // note: don't return before we set first_time = false at the end
    } else {
       // std::cout << "DEBUG:: Mesh::setup_buffers() ######### not first time \"" << name << "\" using VAO " << vao << std::endl;
    }
@@ -2783,7 +2791,7 @@ Mesh::setup_instancing_buffer_data_for_extra_distance_restraints(unsigned int n_
    // 3 float width
    // 4 float length
    // 5 vec3 position
-   // 6 mat3 ori 0 
+   // 6 mat3 ori 0
    // 7 mat3 ori 1
    // 8 mat3 ori 2
    // 9 vec4 colour inst
@@ -2797,7 +2805,6 @@ Mesh::setup_instancing_buffer_data_for_extra_distance_restraints(unsigned int n_
    glVertexAttribDivisor(4, 1);
    err = glGetError(); if (err) std::cout << "   error setup_instancing_buffer_data_for_extra_distance_restraints() C4 " << err << std::endl;
 
-   
    glEnableVertexAttribArray(5);
    glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, size_of_edrmidt, reinterpret_cast<void *>(2 * sizeof(float)));
    glVertexAttribDivisor(5, 1);
@@ -2886,9 +2893,13 @@ Mesh::update_instancing_buffer_data_for_particles(const particle_container_t &pa
    is_instanced = true;
    is_instanced_colours = true;
 
+   if (false) // debugging
+      std::cout << "DEBUG:: Mesh::update_instancing_buffer_data_for_particles() " << name
+                << " --- start --- " << std::endl;
+
    GLenum err = glGetError();
    if (err) std::cout << "GL ERROR:: Mesh::update_instancing_buffer_data_for_particles() A0 "
-                      << "binding vao " << vao << " error " << _(err) << std::endl;
+                      << "--- start --- " << _(err) << std::endl;
 
    if (vao == VAO_NOT_SET)
       std::cout << "GL ERROR:: You forgot to setup this Mesh " << name << std::endl;
@@ -2904,27 +2915,32 @@ Mesh::update_instancing_buffer_data_for_particles(const particle_container_t &pa
       n_instances = n_instances_allocated;
    }
 
-   if (false)
-      std::cout << "DEBUG:: update_instancing_buffer_data_for_particles() transfering " << n_instances
-                << " particle/instances " << std::endl;
+   if (n_instances > 0) {
 
-   // std::cout << " particle 0 position " << glm::to_string(particles.particles[0].position)
-   //           << std::endl;
-   glBindBuffer(GL_ARRAY_BUFFER, inst_model_translation_buffer_id);
-   err = glGetError();
-   if (err) std::cout << "GL ERROR:: Mesh::update_instancing_buffer_data_for_particles() A3 "
-                      << " vao " << vao
-                      << " inst_model_translation_buffer_id " << inst_model_translation_buffer_id
-                      << "\n";
-   glBufferSubData(GL_ARRAY_BUFFER, 0, n_instances * sizeof(Particle), &(particles.particles[0]));
-   err = glGetError();
-   if (err) std::cout << "GL ERROR:: Mesh::update_instancing_buffer_data_for_particles() B " << _(err) << "\n";
-   glBindBuffer(GL_ARRAY_BUFFER, inst_colour_buffer_id);
-   err = glGetError();
-   if (err) std::cout << "GL ERROR:: Mesh::update_instancing_buffer_data_for_particles() C\n";
-   glBufferSubData(GL_ARRAY_BUFFER, 0, n_instances * sizeof(Particle), &(particles.particles[0]));
-   err = glGetError();
-   if (err) std::cout << "GL ERROR:: Mesh::update_instancing_buffer_data_for_particles() D " << _(err) << "\n";
+      if (false)
+         std::cout << "DEBUG:: update_instancing_buffer_data_for_particles() transfering " << n_instances
+                   << " particle/instances " << std::endl;
+
+      glBindBuffer(GL_ARRAY_BUFFER, inst_model_translation_buffer_id);
+      err = glGetError();
+      if (err) std::cout << "GL ERROR:: Mesh::update_instancing_buffer_data_for_particles() A3 "
+                         << " vao " << vao
+                         << " inst_model_translation_buffer_id " << inst_model_translation_buffer_id
+                         << "\n";
+      glBufferSubData(GL_ARRAY_BUFFER, 0, n_instances * sizeof(Particle), &(particles.particles[0]));
+      err = glGetError();
+      if (err) std::cout << "GL ERROR:: Mesh::update_instancing_buffer_data_for_particles() B " << _(err) << "\n";
+      glBindBuffer(GL_ARRAY_BUFFER, inst_colour_buffer_id);
+      err = glGetError();
+      if (err) std::cout << "GL ERROR:: Mesh::update_instancing_buffer_data_for_particles() C\n";
+      glBufferSubData(GL_ARRAY_BUFFER, 0, n_instances * sizeof(Particle), &(particles.particles[0]));
+      err = glGetError();
+      if (err) std::cout << "GL ERROR:: Mesh::update_instancing_buffer_data_for_particles() D " << _(err) << "\n";
+   }
+
+   if (false)
+      std::cout << "DEBUG:: Mesh::update_instancing_buffer_data_for_particles() " << name
+                << " --- returning --- " << std::endl;
 
 }
 
@@ -3251,6 +3267,18 @@ Mesh::setup_hydrogen_bond_cyclinders(Shader *shader_p, const Material &material_
 
 void
 Mesh::setup_extra_distance_restraint_cylinder(const Material &material_in) { // make a cylinder for instancing
+
+   GLenum err = glGetError();
+   if (err) {
+      std::cout << "GL ERROR:: Mesh::setup_extra_distance_restraint_cylinder() \""
+                << name << "\" --- start --- "
+                << stringify_error_message(err) << std::endl;
+      err = glGetError();
+      if (err != 0)
+         std::cout << "GL ERROR:: Mesh::setup_extra_distance_restraint_cylinder() \""
+                   << name << "\" --- start --- stack-clear "
+                   << stringify_error_message(err) << std::endl;
+   }
 
    auto vnc_vertex_to_generic_vertex = [] (const coot::api::vnc_vertex &v) {
       return s_generic_vertex(v.pos, v.normal, v.color);

@@ -84,10 +84,10 @@ make_instanced_graphical_bonds_spherical_atoms(coot::instanced_mesh_t &m, // add
       }
    }
 
-   coot::instanced_geometry_t ig_sphere("anisotropic-atoms");
+   coot::instanced_geometry_t ig_sphere("atoms");
 
-   bool atoms_have_bigger_radius_than_bonds = false;
-   if (base_atom_radius > base_bond_radius) atoms_have_bigger_radius_than_bonds = true;
+   // bool atoms_have_bigger_radius_than_bonds = false;
+   // if (base_atom_radius > base_bond_radius) atoms_have_bigger_radius_than_bonds = true;
 
    std::pair<std::vector<glm::vec3>, std::vector<g_triangle> > octosphere_geom =
       tessellate_octasphere(num_subdivisions);

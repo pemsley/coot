@@ -3296,6 +3296,7 @@ graphics_info_t::draw_hud_fps() {
 void
 graphics_info_t::show_atom_pull_toolbar_buttons() {
 
+#if 0 // this is old-school graphics/gui, isn't it?
    if (use_graphics_interface_flag) {
       GtkWidget *button_1 = get_widget_from_builder("clear_atom_pull_restraints_toolbutton");
       GtkWidget *button_2 = get_widget_from_builder("auto_clear_atom_pull_restraints_togglebutton");
@@ -3309,6 +3310,7 @@ graphics_info_t::show_atom_pull_toolbar_buttons() {
       else
          std::cout << "in show_atom_pull_toolbar_buttons() missing button2" << std::endl;
    }
+#endif
 }
 
 
@@ -3330,7 +3332,8 @@ void
 graphics_info_t::show_accept_reject_hud_buttons() {
 
 
-   std::cout << "--------------------- show_accept_reject_hud_buttons() " << std::endl;
+   if (false)
+      std::cout << "--------------------- show_accept_reject_hud_buttons() " << std::endl;
 
    // add some HUD buttons
 

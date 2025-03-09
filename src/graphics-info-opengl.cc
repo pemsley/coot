@@ -685,7 +685,8 @@ graphics_info_t::setup_cylinder_clashes(const coot::atom_overlaps_dots_container
    //
    graphics_info_t g;
    if (c.clashes.size() == 0) {
-      std::cout << "zero clashes" << std::endl;
+      if (false)
+         std::cout << "zero clashes" << std::endl;
       std::string clashes_name = get_clashes_object_name(imol);
       int clashes_obj_index = generic_object_index(clashes_name);
       if (clashes_obj_index == -1) {
