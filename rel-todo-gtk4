@@ -18,6 +18,8 @@ and look at the coot-energies. Try with multiple ligands.
 
 Get FLEV into Coot.
 
+Compile chapi without rdkit - that's what Charles does.
+
 Density contour or height colours for LSQ plane through atom
 selection (a ligand, say).
 

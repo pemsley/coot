@@ -1,24 +1,25 @@
 
   Release 1.1.14
 
-  o FEATURE: Clark&Labute-like 2D-ligand environment view,
-             in Coot, Moorhen and chapi
+  o FEATURE: Clark&Labute-like 2D-ligand environment view in Coot,
+             Moorhen and chapi
 
   o FEATURE: new chapi functions:
 
     is_nucleic_acid()
     delete_all_carbohydrate()
 
-  o FEATURE: PAE
+  o FEATURE: PAE Plots on downloading Alphafold models
 
   o FEATURE: 3D symmetry
 
-  o CHANGE:
+  o CHANGE:  chapi modules name now changed to coot_headless_api
+             so that the molecules_container object can be called
+             chapi
 
-    chapi modules name now changed to coot_headless_api
-    so that the molecules_container object can be called chapi
+  o CHANGE:  Alphafold downloads are now XDG Base Directory compliant
 
-  o CHANGE: Alphafold downloads are now XDG Base Directory compliant
+  o BUG-FIX: NCS-jumping has been fixed - Bernhard Lohkamp
 
   o BUG-FIX: unwritable XDG cache dir now longer causes a crash
              [Jordan Dialpuri]

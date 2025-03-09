@@ -5,10 +5,10 @@ What's up with Ribbon diagrams? ::: 1
 
 Replace line symmetry with 3d model ::: 3
 
-Open the "About" dialog twice - it can't be destroyed/hidden now. ::: 1
+revisit the chapi ligand-fit build script. ::: 2
 
-Can you fix this?
-    GL ERROR:: Mesh::setup_buffers() "mesh_for_extra_distance_restraints" --- start --- ::: 1
+When user selects left-mouse for view rotation, make the right
+mouse do zoom ::: 2
 
 --- Done Items ---
 
@@ -47,3 +47,9 @@ Fix Jordan's unwritable xdg cache-dir download directory bug ::: 0.3
 Clipping of key for FLEV in moorhen - text goes beyond residue circles in x ::: 0.5
 
 Bring PAE to Coot :: 1
+
+Open the "About" dialog twice - it can't be destroyed/hidden now. ::: 0.5
+
+Can you fix this?
+    GL ERROR:: Mesh::setup_buffers() "mesh_for_extra_distance_restraints" --- start --- ::: 1
+* Yes 000793e22792439053238833cb9587dd9a4bfaf9.
