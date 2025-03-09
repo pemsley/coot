@@ -4761,6 +4761,7 @@ graphics_info_t::try_label_unlabel_active_atom() {
          int ierr = at->GetUDData(molecules[im].atom_sel.UDDAtomIndexHandle, atom_index);
 	 if (ierr == mmdb::UDDATA_Ok) {
             molecules[im].add_to_labelled_atom_list(atom_index);
+	    add_picked_atom_info_to_status_bar(im, atom_index);
             graphics_draw();
          } else {
             std::cout << "WARNING:: Bad UDData for atom_index for atom " << std::endl;
@@ -6459,17 +6460,7 @@ graphics_info_t::setup_key_bindings() {
                                 clipper::Coord_orth t(new_ori.second.trn());
                                 set_rotation_centre(t);
 
-                                coot::util::quaternion q(new_ori.second.rot());
-                                glm::quat q_ncs = coot_quaternion_to_glm(q);
-
-                                // view_quaternion = glm::inverse(q_ncs) * view_quaternion; no
-                                // view_quaternion = q_ncs * view_quaternion; // no
-                                // view_quaternion = view_quaternion * q_ncs; // no
-                                // view_quaternion = view_quaternion * glm::inverse(q_ncs); // no
-                                // view_quaternion = view_quaternion * glm::conjugate(q_ncs); no
-                                // view_quaternion = glm::conjugate(q_ncs) * view_quaternion; // no
-
-                                // I don't get it - annoying.
+				view_quaternion = matrix_to_quaternion(new_ori.second.rot());
 
                                 graphics_info_t g;
                                 g.update_things_on_move(); // not static
