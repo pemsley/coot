@@ -63,6 +63,11 @@
 // this from callbacks.h (which I don't want to include here)
 typedef const char entry_char_type;
 
+extern "C" G_MODULE_EXPORT
+gboolean on_about_dialog_close_request(GtkAboutDialog *dialog, gpointer user_data) {
+   gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
+   return TRUE; // Prevent the default close behavior (destruction)
+}
 
 extern "C" G_MODULE_EXPORT
 void

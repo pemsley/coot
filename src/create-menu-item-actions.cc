@@ -3769,7 +3769,7 @@ about_coot_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    GtkWidget *dialog = widget_from_builder("about_dialog");
    if (dialog) {
       set_transient_for_main_window(dialog);
-      gtk_widget_set_visible(dialog, TRUE);
+      gtk_window_present(GTK_WINDOW(dialog));
    }
 }
 
