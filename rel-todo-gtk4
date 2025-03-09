@@ -6,6 +6,11 @@ Paul Bond: named argument support in chapi?
 
 Jordan: how about stubgen for nanobind functions?
 
+I'd like a "focus" atom-selection - the ligand and residues
+surrounding. Maybe have a button for this in the gui?
+A row of 3 buttons:
+All-atom(colour by chain/dict), Focus, Ribbon + Ligand
+
 get (make sure that) the coot api documentation up to date.
 
 Use the dictionary-based conformer generator and then minimize

@@ -3,10 +3,12 @@
 
 What's up with Ribbon diagrams? ::: 1
 
-This function is missing:
-coot.set_user_defined_atom_colour_by_residue_py(imol, specs_list)
-
 Replace line symmetry with 3d model ::: 3
+
+Open the "About" dialog twice - it can't be destroyed/hidden now. ::: 1
+
+Can you fix this?
+    GL ERROR:: Mesh::setup_buffers() "mesh_for_extra_distance_restraints" --- start --- ::: 1
 
 --- Done Items ---
 
