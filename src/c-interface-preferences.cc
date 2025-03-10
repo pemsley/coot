@@ -218,11 +218,18 @@ void update_preference_gui() {
   if (debug)
      std::cout << "--------------------------- update_preference_gui() " << std::endl;
 
-  GtkWidget *dialog = widget_from_preferences_builder("preferences");
-
   if (debug)
      std::cout << "--------------------------- update_preference_gui() preferences internal size "
                << g.preferences_internal.size() << std::endl;
+
+  // this might be done wrongly
+  if (graphics_info_t::use_primary_mouse_for_view_rotation_flag) {
+     GtkWidget *button = widget_from_preferences_builder("preferences_view_rotation_left_mouse_checkbutton");
+     gtk_check_button_set_active(GTK_CHECK_BUTTON(button), TRUE);
+  } else {
+     GtkWidget *button = widget_from_preferences_builder("preferences_view_rotation_left_mouse_checkbutton");
+     gtk_check_button_set_active(GTK_CHECK_BUTTON(button), FALSE);
+  }
 
   for (unsigned int i=0; i<g.preferences_internal.size(); i++) {
      auto preference_type = g.preferences_internal[i].preference_type;
@@ -241,7 +248,7 @@ void update_preference_gui() {
                   << g.preferences_internal[i].fvalue1 << std::endl;
 
      switch (preference_type) {
-      
+
      case PREFERENCES_VT_SURFACE:
         w = widget_from_preferences_builder("preferences_hid_spherical_radiobutton");
         ivalue = g.preferences_internal[i].ivalue1;
