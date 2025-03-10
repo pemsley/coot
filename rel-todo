@@ -5,8 +5,6 @@ What's up with Ribbon diagrams? ::: 1
 
 Replace line symmetry with 3d model ::: 3
 
-revisit the chapi ligand-fit build script. ::: 2
-
 When user selects left-mouse for view rotation, make the right
 mouse do zoom ::: 2
 
@@ -53,3 +51,8 @@ Open the "About" dialog twice - it can't be destroyed/hidden now. ::: 0.5
 Can you fix this?
     GL ERROR:: Mesh::setup_buffers() "mesh_for_extra_distance_restraints" --- start --- ::: 1
 * Yes 000793e22792439053238833cb9587dd9a4bfaf9.
+
+revisit the chapi ligand-fit build script. ::: 0.5
+* I did. I won't fix it for this release.
+
+
