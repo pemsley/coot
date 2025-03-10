@@ -4242,11 +4242,14 @@ molecule_class_info_t::make_meshes_from_bonds_box_instanced_version() {
       }
    };
 
+   GLenum err = glGetError();
+   if (err) std::cout << "GL ERROR:: in make_glsl_bonds_type_checked() --- start ---\n";
+
    if (atom_sel.mol) {
 
       unsigned int num_subdivisions = 2;
       unsigned int n_slices = 8;
-      unsigned int n_stacks = 2; // try 1
+      unsigned int n_stacks = 2;
       // do smooth
       if (graphics_info_t::bond_smoothness_factor == 1) {
          num_subdivisions = 1;
@@ -4273,10 +4276,10 @@ molecule_class_info_t::make_meshes_from_bonds_box_instanced_version() {
       // radius_scale *= atom_radius_scale_factor;
 
       if (false) {
-         std::cout << "DEBUG:: ************* model_representation_mode: BALL_AND_STICK " << int(Mesh::representation_mode_t::BALL_AND_STICK) << std::endl;
-         std::cout << "DEBUG:: ************* model_representation_mode: BALLS_NOT_BONDS " << int(Mesh::representation_mode_t::BALLS_NOT_BONDS) << std::endl;
-         std::cout << "DEBUG:: ************* model_representation_mode: VDW_BALLS " << int(Mesh::representation_mode_t::VDW_BALLS) << std::endl;
-         std::cout << "DEBUG:: ************* model_representation_mode: " << int(model_representation_mode) << std::endl;
+         std::cout << "DEBUG:: ********** model_representation_mode: BALL_AND_STICK " << int(Mesh::representation_mode_t::BALL_AND_STICK) << std::endl;
+         std::cout << "DEBUG:: ********** model_representation_mode: BALLS_NOT_BONDS " << int(Mesh::representation_mode_t::BALLS_NOT_BONDS) << std::endl;
+         std::cout << "DEBUG:: ********** model_representation_mode: VDW_BALLS " << int(Mesh::representation_mode_t::VDW_BALLS) << std::endl;
+         std::cout << "DEBUG:: ********** model_representation_mode: " << int(model_representation_mode) << std::endl;
       }
 
       if (model_representation_mode == Mesh::representation_mode_t::BALLS_NOT_BONDS) {
@@ -4286,10 +4289,11 @@ molecule_class_info_t::make_meshes_from_bonds_box_instanced_version() {
       }
 
       std::vector<glm::vec4> colour_table = make_colour_table();
-
       // print_colour_table(" ");
 
-      // std::cout << "DEBUG:: ************* atom_radius: " << atom_radius << std::endl;
+      err = glGetError();
+      if (err) std::cout << "error in make_glsl_bonds_type_checked() pre molecules_as_mesh\n";
+
       model_molecule_meshes.make_graphical_bonds(imol_no, bonds_box, atom_radius, bond_radius,
                                                  show_atoms_as_aniso_flag, // class member - user setable
                                                  show_aniso_atoms_as_ortep_flag, // ditto
@@ -4298,7 +4302,7 @@ molecule_class_info_t::make_meshes_from_bonds_box_instanced_version() {
       if (true) // test that model_molecule_meshes is not empty()
          draw_it = 1;
 
-      GLenum err = glGetError();
+      err = glGetError();
       if (err) std::cout << "error in make_glsl_bonds_type_checked() post molecules_as_mesh\n";
    } else {
       std::cout << "ERROR:: Null mol in make_glsl_bonds_type_checked() " << std::endl;

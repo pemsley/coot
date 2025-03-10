@@ -2320,8 +2320,6 @@ graphics_info_t::draw_molecules_other_meshes(unsigned int pass_type) {
    // graphics_info_t::draw_instanced_meshes() A Molecule 2: Ligand Contact Dots vdw-surface
    // graphics_info_t::draw_instanced_meshes() A Molecule 2: Ligand Contact Dots big-overlap
 
-   // std::cout << "------------- draw_molecules_other_meshes() " << std::endl;
-
    bool draw_meshes = true;
    bool draw_mesh_normals = false;
 
@@ -2368,7 +2366,7 @@ graphics_info_t::draw_molecules_other_meshes(unsigned int pass_type) {
          // std::cout << "   Here A in draw_meshed_generic_display_object_meshes() " << std::endl;
          glDisable(GL_BLEND);
          for (int ii=n_molecules()-1; ii>=0; ii--) {
-            // std::cout << "Here B in draw_meshed_generic_display_object_meshes() " << ii  << std::endl;
+
             molecule_class_info_t &m = molecules[ii]; // not const because the shader changes
             if (! is_valid_model_molecule(ii)) continue;
             for (unsigned int jj=0; jj<m.meshes.size(); jj++) {
@@ -2376,7 +2374,7 @@ graphics_info_t::draw_molecules_other_meshes(unsigned int pass_type) {
                Mesh &mesh = m.meshes[jj];
 
                if (false)
-                  std::cout << "mesh jj " << jj << " of " << m.meshes.size()
+                  std::cout << "debug:: mesh jj " << jj << " of " << m.meshes.size()
                             << " instanced: " << m.meshes[jj].is_instanced << std::endl;
 
                if (mesh.is_instanced) {
@@ -2387,13 +2385,15 @@ graphics_info_t::draw_molecules_other_meshes(unsigned int pass_type) {
                                       model_rotation, lights, eye_position,
                                       bg_col, do_depth_fog, transferred_colour_is_instanced);
                } else {
+
                   if (pass_type == PASS_TYPE_STANDARD) {
                      bool show_just_shadows = false;
                      bool wireframe_mode = false;
                      float opacity = 1.0f;
-                     m.meshes[jj].draw(&shader_for_meshes_with_shadows, mvp,
+                     m.meshes[jj].draw(&shader_for_moleculestotriangles, mvp,
                                        model_rotation, lights, eye_position, rc, opacity, bg_col,
                                        wireframe_mode, do_depth_fog, show_just_shadows);
+
                   }
                   if (pass_type == PASS_TYPE_SSAO) {
                      bool do_orthographic_projection = ! perspective_projection_flag;
@@ -4443,7 +4443,7 @@ graphics_info_t::render_3d_scene_for_ssao() {
 }
 
 
-
+// these are both optional arguments.
 gboolean
 graphics_info_t::render(bool to_screendump_framebuffer_flag, const std::string &output_file_name) {
 

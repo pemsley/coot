@@ -2163,12 +2163,12 @@ Mesh::draw_with_shadows(Shader *shader_p,
    glUniformMatrix4fv(shader_p->view_rotation_uniform_location, 1, GL_FALSE, &view_rotation_matrix[0][0]);
    err = glGetError();
    if (err) std::cout << "GL ERROR:: Mesh::draw_with_shadows() " << name << " " << shader_p->name
-                      << " draw() post view rotation uniform " << err << std::endl;
+                      << " draw() post view rotation uniform err " << _(err) << std::endl;
 
    shader_p->set_mat4_for_uniform("light_space_mvp", light_view_mvp);
    err = glGetError();
    if (err) std::cout << "GL ERROR: TextureMesh::draw_with_shadows(): "
-                      << shader_p->name << " post light-space-mvp " << err << std::endl;
+                      << shader_p->name << " post light-space-mvp err " << _(err) << std::endl;
 
    std::map<unsigned int, lights_info_t>::const_iterator it;
    unsigned int light_idx = 0;
@@ -2181,10 +2181,10 @@ Mesh::draw_with_shadows(Shader *shader_p,
       shader_p->setup_light(light_idx, it->second, view_rotation_matrix);
 
    glActiveTexture(GL_TEXTURE0);
-   err = glGetError(); if (err) std::cout << "GL ERROR:: Mesh::draw_with_shadows() A4 " << err << std::endl;
+   err = glGetError(); if (err) std::cout << "GL ERROR:: Mesh::draw_with_shadows() A4 err " << _(err) << std::endl;
    glBindTexture(GL_TEXTURE_2D, shadow_depthMap);
    shader_p->set_int_for_uniform("shadow_map", 0); // there is only one sampler2D
-   err = glGetError(); if (err) std::cout << "GL ERROR:: Mesh::draw_with_shadows() A5 " << err << std::endl;
+   err = glGetError(); if (err) std::cout << "GL ERROR:: Mesh::draw_with_shadows() A5 err " << _(err) << std::endl;
 
    shader_p->set_float_for_uniform("opacity", opacity);
 
