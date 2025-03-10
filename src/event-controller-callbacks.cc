@@ -79,6 +79,18 @@ graphics_info_t::on_glarea_drag_begin_primary(GtkGestureDrag *gesture, double x,
 void
 graphics_info_t::on_glarea_drag_update_primary(GtkGestureDrag *gesture, double drag_delta_x, double drag_delta_y, GtkWidget *gl_area) {
 
+   auto do_view_rotation = [gl_area] (double delta_x, double delta_y) {
+      GtkAllocation allocation;
+      gtk_widget_get_allocation(gl_area, &allocation);
+      int w = allocation.width;
+      int h = allocation.height;
+      update_view_quaternion(w, h, delta_x, delta_y);
+   };
+
+   if (false)
+      std::cout << "debug:: use_primary_mouse_for_view_rotation_flag "
+                << use_primary_mouse_for_view_rotation_flag << std::endl;
+
    // Ctrl left-mouse means pan
    GdkModifierType modifier = gtk_event_controller_get_current_event_state(GTK_EVENT_CONTROLLER(gesture));
    bool control_is_pressed = (modifier & GDK_CONTROL_MASK);
@@ -88,18 +100,28 @@ graphics_info_t::on_glarea_drag_update_primary(GtkGestureDrag *gesture, double d
    double delta_delta_y = y - get_mouse_previous_position_y();
    set_mouse_previous_position(x, y);
 
+   bool handled = false;
    if (in_moving_atoms_drag_atom_mode_flag) {
       if (last_restraints_size() > 0) {
          // move an already picked atom
          move_atom_pull_target_position(x, y, control_is_pressed);
+         handled = true;
+      } else {
       }
    } else {
       if (control_is_pressed) {
          do_drag_pan_gtk3(gl_area, drag_delta_x, drag_delta_y); // 20220613-PE no redraw here currently
+         handled = true;
          graphics_draw();
+      } else {
+         if (use_primary_mouse_for_view_rotation_flag) {
+            do_view_rotation(drag_delta_x, drag_delta_y);
+            graphics_draw();
+         } else {
+            // is this logic correct?
+            rotate_chi(delta_delta_x, delta_delta_y); // does its own graphics_draw()
+         }
       }
-      // is this logic correct?
-      rotate_chi(delta_delta_x, delta_delta_y);
    }
 }
 
@@ -140,11 +162,13 @@ graphics_info_t::on_glarea_drag_begin_secondary(G_GNUC_UNUSED GtkGestureDrag *ge
    set_mouse_previous_position(x,y);
 
    bool trackpad_drag = false;
+#if 0 // try to use "click" event for this
    if (using_trackpad) {
       trackpad_drag = true;
-      check_if_in_range_defines();
+      check_if_in_range_defines(); // this does a pick and looks for distances and angle defines.
    }
-   if (trackpad_drag) {
+#endif
+   if (use_primary_mouse_for_view_rotation_flag) {
       bool was_a_double_click = false; // maybe set this correctly?
       bool handled = check_if_moving_atom_pull(was_a_double_click);
    }
@@ -204,33 +228,15 @@ graphics_info_t::on_glarea_drag_update_secondary(GtkGestureDrag *gesture,
             do_view_zoom(drag_delta_x, drag_delta_y);
          } else {
 
-            bool trackpad_drag = false;
-            if (using_trackpad)
-               trackpad_drag = true;
+            bool old_style_mouse = false;
+            if (use_primary_mouse_for_view_rotation_flag)
+               old_style_mouse = true;
             bool handled = false;
-            if (trackpad_drag) {
-               if (in_moving_atoms_drag_atom_mode_flag) {
-                  if (last_restraints_size() > 0) {
-                     // move an already picked atom
-                     move_atom_pull_target_position(x, y, control_is_pressed);
-                     handled = true;
-                  }
-               } else {
-                  int x_as_int = static_cast<int>(x);
-                  int y_as_int = static_cast<int>(y);
-                  if (moving_atoms_asc) {
-                     if (moving_atoms_asc->n_selected_atoms > 0) {
-                        if (last_restraints_size() > 0) {
-                           // here we are refining atoms, but are trying to rotate
-                           // the view, and not dragging on an atom
-                        } else {
-                           rotate_chi(x_as_int, y_as_int);
-                           handled = true;
-                        }
-                     }
-                  }
-               }
+            if (old_style_mouse) {
+               do_view_zoom(drag_delta_x, drag_delta_y);
+               handled = true;
             }
+
             if (! handled) {
                do_view_rotation(view_rotation_per_pixel_scale_factor * drag_delta_x,
                                 view_rotation_per_pixel_scale_factor * drag_delta_y);
@@ -352,6 +358,8 @@ graphics_info_t::on_glarea_click(GtkGestureClick *controller,
          std::cout << "debug:: check_if_refinement_dialog_arrow_tab_was_clicked() returns " << handled << std::endl;
       return gboolean(handled);
    };
+
+   std::cout << "(mouse) click!" << std::endl;
 
    SetMouseBegin(x,y);
 

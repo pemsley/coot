@@ -71,7 +71,9 @@ bool graphics_info_t::prefer_python = 1; // Default: yes in Windows
 
 bool graphics_info_t::graphics_is_gl_es = false;
 
-bool graphics_info_t::using_trackpad = false;
+// bool graphics_info_t::using_trackpad = false;
+bool graphics_info_t::use_primary_mouse_for_view_rotation_flag = false;
+
 
 logging graphics_info_t::log;
 

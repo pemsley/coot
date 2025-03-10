@@ -321,10 +321,13 @@ void on_glarea_drag_begin_primary(GtkGestureDrag *gesture,
 
    graphics_info_t g;
 
-   if (g.using_trackpad)
-      g.on_glarea_drag_begin_secondary(gesture, x, y, area);
-   else
-      g.on_glarea_drag_begin_primary(gesture, x, y, area);
+   // if (g.using_trackpad)
+   //    g.on_glarea_drag_begin_secondary(gesture, x, y, area);
+   // else
+   //    g.on_glarea_drag_begin_primary(gesture, x, y, area);
+
+   g.on_glarea_drag_begin_primary(gesture, x, y, area);
+
 }
 
 void on_glarea_drag_update_primary(GtkGestureDrag *gesture,
@@ -334,11 +337,13 @@ void on_glarea_drag_update_primary(GtkGestureDrag *gesture,
 
    graphics_info_t g;
 
-   if (g.using_trackpad)
-      // Hack for mac. Needs more thought.
-      g.on_glarea_drag_update_secondary(gesture, delta_x, delta_y, area);
-   else
-      g.on_glarea_drag_update_primary(gesture, delta_x, delta_y, area);
+   // if (g.using_trackpad)
+   //    // Hack for mac. Needs more thought.
+   //    g.on_glarea_drag_update_secondary(gesture, delta_x, delta_y, area);
+   // else
+   //    g.on_glarea_drag_update_primary(gesture, delta_x, delta_y, area);
+
+   g.on_glarea_drag_update_primary(gesture, delta_x, delta_y, area);
 
 }
 

@@ -4688,7 +4688,8 @@ string   static std::string sessionid;
      rotation_centre_z += offset.z;
    }
 
-   static bool using_trackpad;
+   // static bool using_trackpad;
+   static bool use_primary_mouse_for_view_rotation_flag;
    static double mouse_x;
    static double mouse_y;
    static double drag_begin_x; // gtk pixels

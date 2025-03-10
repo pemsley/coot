@@ -43,13 +43,12 @@ void unfullscreen() {
 }
 
 void set_use_trackpad(short int state) {
-   graphics_info_t::using_trackpad = state;
+   set_use_primary_mouse_button_for_view_rotation(state);
 }
 
-
 //! this is an alias for the above (at the moment).
-void set_use_primary_mouse_button_for_rotation(short int state) {
-   set_use_trackpad(state);
+void set_use_primary_mouse_button_for_view_rotation(short int state) {
+   graphics_info_t::use_primary_mouse_for_view_rotation_flag = state;
 }
 
 

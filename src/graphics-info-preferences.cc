@@ -127,7 +127,7 @@ graphics_info_t::save_preference_file(const std::string &filename, short int il)
          break;
 
       case PREFERENCES_VIEW_ROTATION_MOUSE_BUTTON:
-         commands.push_back(state_command("coot", "set-use-primary-mouse-button-for-rotation",
+         commands.push_back(state_command("coot", "set-use-primary-mouse-button-for-view-rotation",
                                           g.preferences_internal[i].ivalue1, il));
          break;
 
