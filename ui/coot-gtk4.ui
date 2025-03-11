@@ -15785,6 +15785,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
         </child>
         <child>
           <object class="GtkBox" id="hbox133">
+            <property name="halign">end</property>
 
             <!-- there is only one button now "Close" - because the widget act when changed -->
 
