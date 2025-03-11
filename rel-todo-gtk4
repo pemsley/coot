@@ -2,10 +2,15 @@
 
 Update xdg repo with new try/catch code.
 
-when updating glbuffersubdata, no need to rebind the glbuffers after binding the vao, i think.
-Maybe this speeds things up?
+when updating glbuffersubdata, no need to rebind the glbuffers after
+binding the vao, i think. Maybe this speeds things up?
 
 Paul Bond: named argument support in chapi?
+
+Check Phosphoserine in FLEV
+
+Chapi function to "get" pdb/mmcif and mtz for accession code.
+Extra points for getting the map for EM cases.
 
 Jordan: how about stubgen for nanobind functions?
 
@@ -29,6 +34,8 @@ selection (a ligand, say).
 Go to A40 (ARG) mainchain O. Add hydrogen atoms and refine chain. We
 get a diego. But not for sphere refine. hb_type for fixed atoms not
 working correctly?
+
+B-factor of atoms around the centre of the screen 
 
 Carbohydrate WTA mode in C++
 
