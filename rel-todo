@@ -1,19 +1,12 @@
 
 --- Items ---
 
-What's up with Ribbon diagrams? ::: 1
-
 Replace line symmetry with 3d model ::: 3
 
-Fix this crash.
-
-#7    Object "/app/lib/libcootsumo.so.0.0.0", at 0x7fbe9dfa5211, in graphics_info_t::regenerate_intermediate_atoms_bonds_timeout_function_and_draw(void*)
-#6    Object "/app/lib/libcootsumo.so.0.0.0", at 0x7fbe9dfa50ce, in graphics_info_t::regenerate_intermediate_atoms_bonds_timeout_function()
-#5    Object "/app/lib/libcootsumo.so.0.0.0", at 0x7fbe9df468f8, in graphics_info_t::update_bad_nbc_atom_pair_marker_positions()
-#4    Object "/app/lib/libcootsumo.so.0.0.0", at 0x7fbe9e21573e, in TextureMesh::update_instancing_buffer_data(std::vector<glm::vec<3, float, (glm::qualifier)0>, std::allocator<glm::vec<3, float, (glm::qualifier)0> > > const&)
-#3    Object "/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33", at 0x7fbe9b6e8c1c, in std::__glibcxx_assert_fail(char const*, int, char const*, char const*)
-
 --- Done Items ---
+
+What's up with Ribbon diagrams? ::: 1
+* Done. Use the correct shader for ribbons.
 
 Fix the super-atoms in svg-molecule/flev ::: 1
 
@@ -63,4 +56,14 @@ revisit the chapi ligand-fit build script. ::: 0.5
 When user selects left-mouse for view rotation, make the right
 mouse do zoom ::: 1
 * Done.
+
+Fix this crash:
+#7    Object "/app/lib/libcootsumo.so.0.0.0", at 0x7fbe9dfa5211, in graphics_info_t::regenerate_intermediate_atoms_bonds_timeout_function_and_draw(void*)
+#6    Object "/app/lib/libcootsumo.so.0.0.0", at 0x7fbe9dfa50ce, in graphics_info_t::regenerate_intermediate_atoms_bonds_timeout_function()
+#5    Object "/app/lib/libcootsumo.so.0.0.0", at 0x7fbe9df468f8, in graphics_info_t::update_bad_nbc_atom_pair_marker_positions()
+#4    Object "/app/lib/libcootsumo.so.0.0.0", at 0x7fbe9e21573e, in TextureMesh::update_instancing_buffer_data(std::vector<glm::vec<3, float, (glm::qualifier)0>, std::allocator<glm::vec<3, float, (glm::qualifier)0> > > const&)
+#3    Object "/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33", at 0x7fbe9b6e8c1c, in std::__glibcxx_assert_fail(char const*, int, char const*, char const*)
+::: 1
+* Hopefully done! TextureMesh::update_instancing_buffer_data() reworked extensively.
+
 
