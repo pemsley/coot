@@ -44,6 +44,8 @@
    "/home/paule/gtk4/include/gtk-4.0"
    ;; "/usr/include/gtk-4.0"
    "/usr/include/graphene-1.0"
+   "/usr/lib/graphene-1.0/include"
+   "/usr/include/sysprof-6"
    "/home/paule/gtk/lib/x86_64-linux-gnu/graphene-1.0/include" ;; for graphene-config.h
    "/usr/include/libpng16" "/usr/include/gdk-pixbuf-2.0"
    "/usr/include/libdrm"
