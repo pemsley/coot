@@ -2,6 +2,9 @@
 
 Update xdg repo with new try/catch code.
 
+when updating glbuffersubdata, no need to rebind the glbuffers after binding the vao, i think.
+Maybe this speeds things up?
+
 Paul Bond: named argument support in chapi?
 
 Jordan: how about stubgen for nanobind functions?
