@@ -1,11 +1,18 @@
 ----
 
+Clemesns: json file: when you uget there, show the nneighbours
+action is a list of actions, each has their own button
+
 Update xdg repo with new try/catch code.
 
 when updating glbuffersubdata, no need to rebind the glbuffers after binding the vao, i think.
 Maybe this speeds things up?
 
 Paul Bond: named argument support in chapi?
+
+When the monomer library isn't install/doesn't work, ask the user if it should download
+the monomer restraints from github? Cache them in xdg cache and load from there on read
+without user intervention.
 
 Jordan: how about stubgen for nanobind functions?
 

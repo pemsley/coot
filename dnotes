@@ -11681,3 +11681,20 @@ Sat  8 Mar 19:53:59 GMT 2025
    have a look at 3decision videos on YouTube.
 
    https://www.discngine.com/discngine-labs-live-in-cambridge
+
+----
+Wed 12 Mar 13:49:49 GMT 2025
+
+put this somewhere perhaps
+
+   auto debug_instancing_meshes = [] (const coot::instanced_mesh_t &im) {
+      std::cout << "im has " << im.geom.size() << " geoms" << std::endl;
+      for (unsigned int ig=0; ig<im.geom.size(); ig++) {
+         unsigned int n_A = im.geom[ig].instancing_data_A.size();
+         unsigned int n_B = im.geom[ig].instancing_data_B.size();
+         std::cout << "   geom " << ig << " has " << im.geom[ig].vertices.size() << " vertices and "
+                   << im.geom[ig].triangles.size() << " triangles "
+                   << n_A << " type A instances and " << n_B << " type B instances" << std::endl;
+      }
+   };
+
