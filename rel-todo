@@ -3,8 +3,6 @@
 
 Replace line symmetry with 3d model ::: 3
 
-Fix HUDTexture mesh crash when/after refining ::: 1
-
 --- Done Items ---
 
 What's up with Ribbon diagrams? ::: 1
@@ -68,4 +66,7 @@ Fix this crash:
 ::: 1
 * Hopefully done! TextureMesh::update_instancing_buffer_data() reworked extensively.
 
+
+Fix HUDTexture mesh crash when/after refining ::: 1
+* Done - hopefully.
 

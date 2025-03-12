@@ -16,6 +16,8 @@ without user intervention.
 
 Jordan: how about stubgen for nanobind functions?
 
+Get PAE into moorhen
+
 I'd like a "focus" atom-selection - the ligand and residues
 surrounding. Maybe have a button for this in the gui?
 A row of 3 buttons:
