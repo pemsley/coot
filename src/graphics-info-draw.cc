@@ -4147,7 +4147,16 @@ graphics_info_t::check_if_hud_button_moused_over_or_act_on_hit(double x, double 
                                                     button.set_button_colour_for_mode(HUD_button_info_t::BASIC);
                                                  }
                                               }
+                                              GLenum err = glGetError();
+                                              if (err) std::cout << "GL ERROR:: highlight_just_button_with_index pos-B "
+                                                                 << err << std::endl;
+                                              attach_buffers();
+                                              err = glGetError();
+                                              if (err) std::cout << "GL ERROR:: highlight_just_button_with_index pos-C "
+                                                                 << err << std::endl;
                                               mesh_for_hud_buttons.update_instancing_buffer_data(hud_button_info);
+                                              if (err) std::cout << "GL ERROR:: highlight_just_button_with_index pos-D "
+                                                                 << err << std::endl;
                                               graphics_draw(); // let's see the changes then
                                            };
    auto unhighlight_all_buttons = [] () {
@@ -4155,7 +4164,17 @@ graphics_info_t::check_if_hud_button_moused_over_or_act_on_hit(double x, double 
                                                  auto &button = hud_button_info[i];
                                                  button.set_button_colour_for_mode(HUD_button_info_t::BASIC);
                                               }
+                                              GLenum err = glGetError();
+                                              if (err) std::cout << "GL ERROR:: unhighlight_all_buttons pos-B "
+                                                                 << err << std::endl;
+                                              attach_buffers();
+                                              err = glGetError();
+                                              if (err) std::cout << "GL ERROR:: unhighlight_all_buttons pos-C "
+                                                                 << err << std::endl;
                                               mesh_for_hud_buttons.update_instancing_buffer_data(hud_button_info);
+                                              err = glGetError();
+                                              if (err) std::cout << "GL ERROR:: unhighlight_all_buttons pos-D "
+                                                                 << err << std::endl;
                                   };
 
    bool status = false;

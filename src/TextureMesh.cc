@@ -971,10 +971,11 @@ TextureMesh::update_instancing_buffer_data(const std::vector<glm::vec3> &positio
    if (err)
       std::cout << "GL ERROR:: TextureMesh::setup_instancing_buffers() post binding vao " << _(err) << std::endl;
 
-   glBindBuffer(GL_ARRAY_BUFFER, inst_positions_id);
-   err = glGetError();
-   if (err)
-      std::cout << "GL ERROR:: TextureMesh::setup_instancing_buffers() post bind buffer " << _(err) << std::endl;
+   // glBindBuffer(GL_ARRAY_BUFFER, inst_positions_id);
+   // err = glGetError();
+   // if (err)
+   //    std::cout << "GL ERROR:: TextureMesh::setup_instancing_buffers() post bind buffer " << _(err) << std::endl;
+
    int n_positions = positions.size();
    n_instances = n_positions;
    if (n_positions > n_instances_allocated)
@@ -983,7 +984,8 @@ TextureMesh::update_instancing_buffer_data(const std::vector<glm::vec3> &positio
    if (positions.empty()) return;
 
    // glBufferData(GL_ARRAY_BUFFER, n_positions * sizeof(glm::vec3), &(positions[0]), GL_STATIC_DRAW);
-   glBindBuffer(GL_ARRAY_BUFFER, inst_positions_id);
+
+   glBindBuffer(GL_ARRAY_BUFFER, inst_positions_id); // 20250312-PE needed.
    glBufferSubData(GL_ARRAY_BUFFER, 0, n_positions * sizeof(glm::vec3), &(positions[0]));
 
 }
