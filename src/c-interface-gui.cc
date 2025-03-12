@@ -3453,7 +3453,7 @@ GtkWidget *wrapped_create_show_symmetry_window() {
        GtkWidget *switch_button = widget_from_builder("show_unit_cell_switch");
        if (get_show_unit_cell(imol) == 1)
           gtk_switch_set_active(GTK_SWITCH(switch_button), TRUE);
-       else 
+       else
           gtk_switch_set_active(GTK_SWITCH(switch_button), FALSE);
     }
 
@@ -3504,7 +3504,8 @@ GtkWidget *wrapped_create_show_symmetry_window() {
           };
 
           GdkRGBA rgba = graphics_info_t::symmetry_colour_to_rgba();
-          std::cout << " colours " << rgba.red << " " << rgba.green << " " << rgba.blue << std::endl;
+          if (false)
+             std::cout << " colours " << rgba.red << " " << rgba.green << " " << rgba.blue << std::endl;
           GtkWidget *colour_button = gtk_color_button_new_with_rgba(&rgba);
           gtk_box_append(GTK_BOX(box_for_colour_button), colour_button);
           g_signal_connect(G_OBJECT(colour_button), "color-set", G_CALLBACK(on_color_set_func), nullptr);

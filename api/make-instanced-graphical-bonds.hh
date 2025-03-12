@@ -4,6 +4,7 @@
 #include "coords/graphical-bonds-container.hh"
 #include "instancing.hh"
 #include "bond-colour.hh"
+#include "coords/mmdb-crystal.h" // for symm_trans_t
 
 void
 make_instanced_graphical_bonds_spherical_atoms(coot::instanced_mesh_t &m, // add to this
@@ -46,6 +47,15 @@ make_instanced_graphical_bonds_bonds(coot::instanced_mesh_t &m,
                                      unsigned int n_slices,
                                      unsigned int n_stacks,
                                      const std::vector<glm::vec4> &colour_table);
+
+void
+make_instanced_graphical_symmetry_bonds_bonds(coot::instanced_mesh_t &m,
+                                              std::pair<graphical_bonds_container, std::pair<symm_trans_t, Cell_Translation> > symmetry_bonds_box,
+                                              float bond_radius,
+                                              unsigned int n_slices,
+                                              unsigned int n_stacks,
+                                              const std::vector<glm::vec4> &colour_table);
+
 
 void
 make_graphical_bonds_cis_peptides(coot::simple_mesh_t &m,

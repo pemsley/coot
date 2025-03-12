@@ -109,7 +109,7 @@ molecule_class_info_t::add_to_non_drawn_bonds(const std::string &atom_selection_
             atom_sel.mol->Select(handle, mmdb::STYPE_ATOM, cid.c_str(), mmdb::SKEY_NEW);
             atom_sel.mol->GetSelIndex(handle, atom_selection, n_atoms);
             if (n_atoms > 0) {
-               for (size_t i = 0; i < n_atoms; i++) {
+               for (int i = 0; i < n_atoms; i++) {
                   mmdb::Atom *at = atom_selection[i];
                   int idx;
                   at->GetUDData(atom_index_udd_handle, idx);

@@ -4374,9 +4374,24 @@ molecule_class_info_t::make_glsl_symmetry_bonds() {
    // do things with symmetry_bonds_box;
    // std::vector<std::pair<graphical_bonds_container, std::pair<symm_trans_t, Cell_Translation> > > symmetry_bonds_box;
    graphics_info_t::attach_buffers();
+
+#if 0
    mesh_for_symmetry_atoms.make_symmetry_atoms_bond_lines(symmetry_bonds_box, // boxes
                                                           graphics_info_t::symmetry_colour,
                                                           graphics_info_t::symmetry_colour_merge_weight);
+#endif
+
+   float atom_radius = 0.1;
+   float bond_radius = 0.1;
+   int num_subdivisions = 2;
+   int n_slices = 8;
+   int n_stacks = 2;
+   std::vector<glm::vec4> colour_table = make_colour_table();
+
+   meshes_for_symmetry_atoms.make_symmetry_bonds(imol_no, symmetry_bonds_box,
+                                                 atom_radius, bond_radius,
+                                                 num_subdivisions, n_slices, n_stacks,
+                                                 colour_table);
 }
 
 // either we have licorice/ball-and-stick (licorice is a form of ball-and-stick) or big-ball-no-bonds
@@ -4492,11 +4507,27 @@ molecule_class_info_t::draw_symmetry(Shader *shader_p,
                                      const glm::vec4 &background_colour,
                                      bool do_depth_fog) {
 
-   if (draw_it)
-      if (show_symmetry)
-         if (this_molecule_has_crystallographic_symmetry)
+   if (draw_it) {
+      if (show_symmetry) {
+         if (this_molecule_has_crystallographic_symmetry) {
+
+#if 0 // 20250312-PE old line symmetry
             mesh_for_symmetry_atoms.draw_symmetry(shader_p, mvp, view_rotation, lights,
                                                   eye_position, background_colour, do_depth_fog);
+#endif
+
+            Shader *shader_for_simple_mesh = &graphics_info_t::shader_for_model_as_meshes;
+            Shader *shader_for_instances = &graphics_info_t::shader_for_instanced_objects;
+            float opacity = 1.0;
+            bool gl_lines_mode = false;
+            bool show_just_shadows = false;
+            meshes_for_symmetry_atoms.draw(shader_for_simple_mesh, shader_for_instances, mvp, view_rotation,
+                                           lights, eye_position, opacity, background_colour,
+                                           gl_lines_mode, do_depth_fog, show_just_shadows);
+
+         }
+      }
+   }
 }
 
 
