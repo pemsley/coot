@@ -4371,6 +4371,14 @@ void molecule_class_info_t::make_glsl_bonds_type_checked(const char *caller) {
 void
 molecule_class_info_t::make_glsl_symmetry_bonds() {
 
+   auto pastelize_colour_table = [] (const std::vector<glm::vec4> &colour_table) {
+      glm::vec4 grey(0.5, 0.5, 0.5, 1.0);
+      std::vector<glm::vec4> new_colour_table = colour_table;
+      for (unsigned int i=0; i<colour_table.size(); i++)
+         new_colour_table[i] = (colour_table[i] + grey * 2.0f) * 0.33f;
+      return new_colour_table;
+   };
+
    // do things with symmetry_bonds_box;
    // std::vector<std::pair<graphical_bonds_container, std::pair<symm_trans_t, Cell_Translation> > > symmetry_bonds_box;
    graphics_info_t::attach_buffers();
@@ -4388,10 +4396,12 @@ molecule_class_info_t::make_glsl_symmetry_bonds() {
    int n_stacks = 2;
    std::vector<glm::vec4> colour_table = make_colour_table();
 
+   std::vector<glm::vec4> new_colour_table = pastelize_colour_table(colour_table);
+
    meshes_for_symmetry_atoms.make_symmetry_bonds(imol_no, symmetry_bonds_box,
                                                  atom_radius, bond_radius,
                                                  num_subdivisions, n_slices, n_stacks,
-                                                 colour_table);
+                                                 new_colour_table);
 }
 
 // either we have licorice/ball-and-stick (licorice is a form of ball-and-stick) or big-ball-no-bonds
