@@ -36,7 +36,13 @@ coot
 
 ### Flatpak (Linux in general)
 
-<a href="https://flathub.org/apps/io.github.pemsley.coot"><img width='240' alt='Download on Flathub' src='https://dl.flathub.org/assets/badges/flathub-badge-en.svg' align="right"/></a>
+![Flathub version](https://img.shields.io/flathub/v/io.github.pemsley.coot)
+
+<div>
+  <a href="https://flathub.org/apps/io.github.pemsley.coot">
+    <img width='240' alt='Download on Flathub' src='https://dl.flathub.org/assets/badges/flathub-badge-en.svg' align="right"/>
+  </a>
+</div>
 
 After [installing Flatpak and registering Flathub](https://flatpak.org/setup/), run the commands below.
 
