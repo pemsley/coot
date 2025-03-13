@@ -13,8 +13,6 @@ refinement and validation.
 
 ## Installation
 
-### CCP4
-
 ### Homebrew (Mac / Linux)
 
 After [installing Homebrew](https://brew.sh/), run the commands below.
