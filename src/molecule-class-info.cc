@@ -3930,7 +3930,8 @@ molecule_class_info_t::make_bonds_type_checked(const char *caller) {
 
    // make glsl triangles
    glUseProgram(graphics_info_t::shader_for_models.get_program_id());
-   // std::cout << "make_bonds_type_checked() using model shader program_id is "  << graphics_info_t::shader_for_models.get_program_id() << std::endl;
+   // std::cout << "make_bonds_type_checked() using model shader program_id is "
+   //           << graphics_info_t::shader_for_models.get_program_id() << std::endl;
    GLenum err = glGetError();
    if (err) std::cout << "Error in glUseProgram() in make_bonds_type_checked() " << err << "\n";
 
