@@ -1165,6 +1165,10 @@ void fill_references_notebook(GtkButton *toolbutton, int reference_id) {
 }
 
 void set_graphics_window_size(int x_size, int y_size) {
+   set_graphics_window_size_internal(x_size, y_size, 0);
+}
+
+void set_graphics_window_size_internal(int x_size, int y_size, int as_widget_flag) {
 
    if (graphics_info_t::use_graphics_interface_flag) {
       graphics_info_t g;
@@ -1175,7 +1179,13 @@ void set_graphics_window_size(int x_size, int y_size) {
 	 GtkWindow *window = GTK_WINDOW(win);
 
 #if (GTK_MAJOR_VERSION >= 4)
-         gtk_widget_set_size_request(GTK_WIDGET(window), x_size, y_size);
+	 if (!as_widget_flag) {
+	    // this is the default, gtk_window should be resized this way
+            gtk_window_set_default_size(GTK_WINDOW(window), x_size, y_size);
+	 } else {
+	    // resize using this function at your own risk. It may do and/or result in unexpected things
+            gtk_widget_set_size_request(GTK_WIDGET(window), x_size, y_size);
+	 }
 #else
          gtk_window_resize(window, x_size, y_size);
 	 while (gtk_events_pending())
