@@ -13,7 +13,7 @@ refinement and validation.
 
 ## Installation
 
-### Homebrew (Mac / Linux)
+### Homebrew (MacOS / Linux)
 
 After [installing Homebrew](https://brew.sh/), run the commands below.
 
@@ -53,7 +53,7 @@ You can see the flatpak manifest [here](https://github.com/flathub/io.github.pem
 
 Download the installer for WinCoot from [here](https://bernhardcl.github.io/coot/wincoot-download.html).
 
-### As a component of CCP4 Suite
+### As a component of CCP4 Suite (Linux / MacOS / Windows)
 
 Coot-1 can be installed by using the package manager included in the CCP4 suite.
 
