@@ -36,7 +36,7 @@ coot
 
 ### Flatpak (Linux in general)
 
-![Flathub version](https://img.shields.io/flathub/v/io.github.pemsley.coot)
+![Flathub version](https://img.shields.io/flathub/v/io.github.pemsley.coot.svg?logo=flatpak&logoColor=white&color=blue&style=flat)
 
 <div>
   <a href="https://flathub.org/apps/io.github.pemsley.coot">
