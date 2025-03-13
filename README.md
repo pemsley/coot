@@ -11,9 +11,9 @@ model-building.  *Coot* uses GTK widgets
 mmdb, clipper, and OpenGL to provide interactive tools for model-building,
 refinement and validation.
 
-## Installing by package managers
+## Installation
 
-The easiest way to install *Coot* is using package managers.
+### CCP4
 
 ### Homebrew (Mac / Linux)
 
@@ -50,6 +50,16 @@ flatpak run io.github.pemsley.coot
 ```
 
 You can see the flatpak manifest [here](https://github.com/flathub/io.github.pemsley.coot).
+
+### Windows
+
+Download the installer for WinCoot from [here](https://bernhardcl.github.io/coot/wincoot-download.html).
+
+### As a component of CCP4 Suite
+
+Coot-1 can be installed by using the package manager included in the CCP4 suite.
+
+CCP4 Suite is can be downloaded from [CCP4 Download pages](https://www.ccp4.ac.uk/download/).
 
 ## Building from source
 
