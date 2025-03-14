@@ -1,12 +1,16 @@
 ----
 
-Clemesns: json file: when you uget there, show the nneighbours
+build chapi without rdkit
+
+Clemens: json file: when you uget there, show the nneighbours
 action is a list of actions, each has their own button
 
 Update xdg repo with new try/catch code.
 
 when updating glbuffersubdata, no need to rebind the glbuffers after binding the vao, i think.
 Maybe this speeds things up?
+
+Add anioscaling from Claus. Need to check mails or something for scaling code. patchkit.
 
 Paul Bond: named argument support in chapi?
 
