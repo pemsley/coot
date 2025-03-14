@@ -3369,7 +3369,7 @@ graphics_info_t::show_accept_reject_hud_buttons() {
                            graphics_info_t g;
                            g.stop_refinement_internal();
                            g.accept_moving_atoms();
-                           g.hud_button_info.clear();
+                           // g.hud_button_info.clear();
                            g.hide_atom_pull_toolbar_buttons();
                            // g.draw_bad_nbc_atom_pair_markers = false;
                            g.clear_gl_rama_plot();
@@ -3381,7 +3381,7 @@ graphics_info_t::show_accept_reject_hud_buttons() {
                            graphics_info_t g;
                            g.stop_refinement_internal();
                            g.clear_up_moving_atoms();
-                           g.hud_button_info.clear();
+                           // g.hud_button_info.clear();
                            // g.draw_bad_nbc_atom_pair_markers = false;
                            g.rebond_molecule_corresponding_to_moving_atoms();
                            g.graphics_draw();
@@ -4178,6 +4178,7 @@ graphics_info_t::check_if_hud_button_moused_over_or_act_on_hit(double x, double 
                                   };
 
    bool status = false;
+   bool clear_HUD_buttons_flag = false;
    if (! hud_button_info.empty()) {
       GtkGLArea *gl_area = GTK_GL_AREA(glareas[0]);
       GtkAllocation allocation;
@@ -4198,6 +4199,9 @@ graphics_info_t::check_if_hud_button_moused_over_or_act_on_hit(double x, double 
                if (button.callback_function) {
                   button.callback_function();
                }
+               // don't clear the hud buttons in the callback.
+               if (button.button_label == "Accept") clear_HUD_buttons_flag = true;
+               if (button.button_label == "Reject") clear_HUD_buttons_flag = true;
             }
             status = true;
             highlight_just_button_with_index(i);
@@ -4207,6 +4211,7 @@ graphics_info_t::check_if_hud_button_moused_over_or_act_on_hit(double x, double 
          unhighlight_all_buttons();
       }
    }
+   if (clear_HUD_buttons_flag) clear_hud_buttons();
 
    return status;
 }
