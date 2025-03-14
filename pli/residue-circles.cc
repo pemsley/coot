@@ -19,6 +19,8 @@
  * 02110-1301, USA
  */
 
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+
 #ifdef USE_PYTHON
 #include <Python.h>
 #endif
@@ -235,4 +237,6 @@ pli::optimise_residue_circles::setup_angles() {
 
 }
 
+
+#endif // MAKE_ENHANCED_LIGAND_TOOLS
 

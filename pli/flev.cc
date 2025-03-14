@@ -18,6 +18,8 @@
  * 02110-1301, USA
  */
 
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+
 #include <cstdint> // fix std::uint64_t problems
 #include "lidia-core/svg-container.hh"
 #include "lidia-core/rdkit-interface.hh"
@@ -3017,3 +3019,5 @@ flev_t::optimise_residue_circle_positions(const std::vector<residue_circle_t> &r
    std::vector<residue_circle_t> dv; // dummy
    return std::pair<int, std::vector<residue_circle_t> > (0, dv);
 }
+
+#endif // MAKE_ENHANCED_LIGAND_TOOLS
