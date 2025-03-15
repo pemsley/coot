@@ -7,7 +7,7 @@
 ![macOS binary build badge](https://github.com/pemsley/coot/actions/workflows/build-coot-macos.yml/badge.svg)
 
 *Coot* is a toolkit for Macromolecular Crystallography and
-model-building.  *Coot* uses GTK widgets 
+model-building.  *Coot* uses GTK widgets
 mmdb, clipper, and OpenGL to provide interactive tools for model-building,
 refinement and validation.
 
@@ -22,12 +22,19 @@ brew install brewsci/bio/coot
 coot
 ```
 
-### APT (Debian)
-
-Install to run using commands below. 
+To install the latest development version (bleeding edge), run the commands below.
 
 ```shell
-# Add sid (Debian's unstable package repo) 
+brew install --HEAD brewsci/bio/coot
+coot
+```
+
+### APT (Debian)
+
+Install to run using commands below.
+
+```shell
+# Add sid (Debian's unstable package repo)
 echo "deb http://deb.debian.org/debian unstable main" | sudo tee -a /etc/apt/sources.list
 sudo apt update
 sudo apt install coot
@@ -50,7 +57,16 @@ After [installing Flatpak and registering Flathub](https://flatpak.org/setup/), 
 flatpak install flathub io.github.pemsley.coot
 
 # Simply click Coot's icon in the menu, or
-flatpak run io.github.pemsley.coot  
+flatpak run io.github.pemsley.coot
+```
+
+To install the beta build, [register the beta repository](https://github.com/flathub/io.github.pemsley.coot?tab=readme-ov-file#beta-build), followed by the commands below.
+
+```shell
+flatpak install flathub-beta io.github.pemsley.coot
+
+# Simply click Coot's icon in the menu, or
+flatpak run io.github.pemsley.coot//beta
 ```
 
 You can see the flatpak manifest [here](https://github.com/flathub/io.github.pemsley.coot).
@@ -78,4 +94,3 @@ See [this](https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/web/build-instal
 [![Powered by RDKit](https://img.shields.io/badge/Powered%20by-RDKit-3838ff.svg?logo=data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAABAAAAAQBAMAAADt3eJSAAAABGdBTUEAALGPC/xhBQAAACBjSFJNAAB6JgAAgIQAAPoAAACA6AAAdTAAAOpgAAA6mAAAF3CculE8AAAAFVBMVEXc3NwUFP8UPP9kZP+MjP+0tP////9ZXZotAAAAAXRSTlMAQObYZgAAAAFiS0dEBmFmuH0AAAAHdElNRQfmAwsPGi+MyC9RAAAAQElEQVQI12NgQABGQUEBMENISUkRLKBsbGwEEhIyBgJFsICLC0iIUdnExcUZwnANQWfApKCK4doRBsKtQFgKAQC5Ww1JEHSEkAAAACV0RVh0ZGF0ZTpjcmVhdGUAMjAyMi0wMy0xMVQxNToyNjo0NyswMDowMDzr2J4AAAAldEVYdGRhdGU6bW9kaWZ5ADIwMjItMDMtMTFUMTU6MjY6NDcrMDA6MDBNtmAiAAAAAElFTkSuQmCC)](https://www.rdkit.org/)
 
 [![Python 3.11](https://img.shields.io/badge/python-3.11-blue.svg)](https://www.python.org/downloads/release/python-3114/)
-
