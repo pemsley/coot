@@ -79,7 +79,7 @@ Download the installer for WinCoot from [here](https://bernhardcl.github.io/coot
 
 Coot-1 can be installed by using the package manager included in the CCP4 suite.
 
-CCP4 Suite is can be downloaded from [CCP4 Download pages](https://www.ccp4.ac.uk/download/).
+CCP4 suite is can be downloaded from [CCP4 Download pages](https://www.ccp4.ac.uk/download/).
 
 ## Building from source
 
