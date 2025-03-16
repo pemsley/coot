@@ -4,6 +4,8 @@
   o FEATURE: Clark&Labute-like 2D-ligand environment view in Coot,
              Moorhen and chapi
 
+  o FEATURE: Symmetry represented as solid model (no longer just lines)
+
   o FEATURE: new chapi functions:
 
     is_nucleic_acid()

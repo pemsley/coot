@@ -7683,6 +7683,8 @@ void sequence_view(int imol) {
          auto click_function = +[] (CootSequenceView* self, int imol, const coot::residue_spec_t &spec, gpointer userdata) {
             graphics_info_t g;
             g.go_to_residue(imol, spec);
+            update_go_to_atom_from_current_position();
+            g.graphics_grab_focus();
          };
          g_signal_connect(sv, "residue-clicked", G_CALLBACK(click_function), nullptr);
       }
@@ -9557,7 +9559,7 @@ void load_tutorial_model_and_data() {
    }
 
    graphics_info_t g;
-   gint idle = g_idle_add((GSourceFunc)g.graphics_grab_focus, NULL);
+   gint idle = g_idle_add_once((GSourceOnceFunc)g.graphics_grab_focus, NULL);
 
 }
 

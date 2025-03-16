@@ -18,6 +18,8 @@
  * 02110-1301, USA
  */
 
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+
 #include "flev-scale-factor.hh"
 #include "optimise-residue-circles.hh"
 #include "utils/coot-utils.hh"
@@ -569,3 +571,4 @@ residue_circle_t::get_attachment_points(const svg_molecule_t &mol) const {
    return v;
 }
 
+#endif // MAKE_ENHANCED_LIGAND_TOOLS

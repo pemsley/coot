@@ -58,6 +58,8 @@ add_definitions(-DANALYSE_REFINEMENT_TIMING -DPACKAGE_VERSION="1.1.x-pre"
   -DHAVE_CXX_THREAD -DHAVE_SSMLIB -DHAVE_BOOST -DUSE_LIBPNG=1 -DCLIPPER_HAS_TOP8000 -DUSE_GEMMI -DHAVE_BOOST_THREAD -DHAVE_GSL
   -DPKGDATADIR="${CMAKE_INSTALL_PREFIX}/share/coot" -DXDATADIR="${CMAKE_INSTALL_PREFIX}/share")
 
+# 20250314-PE: Charles, I guess that you will need to comment out this block
+#
 add_definitions(-DMAKE_ENHANCED_LIGAND_TOOLS="1")
 message("-- Found ENHANCED_LIGAND_TOOLS setting - now requiring the RDKit")
 find_package(Cairo REQUIRED)

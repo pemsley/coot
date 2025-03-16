@@ -1,8 +1,6 @@
 
 --- Items ---
 
-Replace line symmetry with 3d model ::: 3
-
 --- Done Items ---
 
 What's up with Ribbon diagrams? ::: 1
@@ -69,4 +67,8 @@ Fix this crash:
 
 Fix HUDTexture mesh crash when/after refining ::: 1
 * Done - hopefully.
+
+
+Replace line symmetry with 3d model ::: 3
+* Done.
 

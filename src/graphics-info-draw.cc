@@ -2937,6 +2937,7 @@ graphics_info_t::setup_hud_buttons() {
 void
 graphics_info_t::clear_hud_buttons() {
 
+   attach_buffers();
    hud_button_info.clear();
    mesh_for_hud_buttons.update_instancing_buffer_data(hud_button_info); // empty
 }
@@ -6858,6 +6859,7 @@ graphics_info_t::setup_key_bindings() {
    auto lc_qsa = [] () {
                     graphics_info_t g;
                     g.quick_save();
+                    g.graphics_grab_focus();
                     return gboolean(TRUE);
                  };
 

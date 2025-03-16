@@ -2058,7 +2058,11 @@ molecule_class_info_t::initialize_map_things_on_read_molecule(std::string molecu
 
    colour_map_using_other_map_flag = false;
 
-   draw_it_for_map = 1;
+   if (graphics_info_t::use_graphics_interface_flag) {
+      draw_it_for_map = 1;
+   } else {
+      draw_it_for_map = 0;
+   }
    draw_it_for_map_standard_lines = 1; // display the map initially, by default
 
    // We can't call this untill xmap_is_filled[0] has been assigned,

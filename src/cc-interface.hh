@@ -463,6 +463,15 @@ void servalcat_refine(int imol_model,
 void
 run_acedrg_link_generation(const std::string &acedrg_link_command);
 
+//! run generic process - doesn't work at the moment - on_completion_args
+//! is wrongly interpretted.
+void add_toolbar_subprocess_button(const std::string &button_label,
+                                   const std::string &subprocess_command,
+                                   PyObject *arg_list,
+                                   PyObject *on_completion_function,
+                                   PyObject *on_completion_args);
+
+
 /*  ------------------------------------------------------------------------ */
 /*                             Add an Atom                                   */
 /*  ------------------------------------------------------------------------ */
