@@ -85,6 +85,11 @@ CCP4 suite is can be downloaded from [CCP4 Download pages](https://www.ccp4.ac.u
 
 See [this](https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/web/build-install-coot-from-scratch.html).
 
+## Documentation
+
+[Coot Documentation](https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/web/docs/index.html)
+[Libcootapi Documentation](https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/web/docs/libcootapi/index.html)
+
 ## Blog
 
 [Coot Development Blog](https://pemsley.github.io/coot/ "Coot Development Blog")
