@@ -2110,12 +2110,12 @@ fi
 # python_version is the filename of the python executable.  For python
 # 2.5.1 it is python2.5, not python2.5.1
 #
-python_version=python3.11
-pver=3.11.4
-python_version_extension=3.11 # extract this
+python_version=python3.13
+pver=3.13.2
+python_version_extension=3.13 # extract this
 # I think that for python to be compatible with Blender, we don't want the debug version
 # python_abiflags=d # because we use --with-pydebug on the command line for Python configure
-python_version_squish=311
+python_version_squish=313
 
 # for Blender 4 in 2024, we want Python 3.10.13, so uncomment the 3 lines below:
 if [ "$CHAPI_ONLY" = true ] ; then
