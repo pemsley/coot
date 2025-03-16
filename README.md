@@ -41,7 +41,7 @@ sudo apt install coot
 coot
 ```
 
-### Flatpak (Linux in general)
+### Flatpak (Linux)
 
 ![Flathub version](https://img.shields.io/flathub/v/io.github.pemsley.coot.svg?logo=flatpak&logoColor=white&color=blue&style=flat)
 
@@ -60,7 +60,7 @@ flatpak install flathub io.github.pemsley.coot
 flatpak run io.github.pemsley.coot
 ```
 
-To install the beta build, [register the beta repository](https://github.com/flathub/io.github.pemsley.coot?tab=readme-ov-file#beta-build), followed by the commands below.
+To install the beta build (more recent but possibly less stable), [register flahub-beta repository](https://github.com/flathub/io.github.pemsley.coot?tab=readme-ov-file#beta-build) and then run the commands below.
 
 ```shell
 flatpak install flathub-beta io.github.pemsley.coot
