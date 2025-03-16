@@ -90,6 +90,7 @@ See [this](https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/web/build-instal
 - [Coot Documentation](https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/web/docs/index.html)
 - [Libcootapi Documentation](https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/web/docs/libcootapi/index.html)
 - [Wiki](https://wiki.uni-konstanz.de/ccp4/index.php/COOT)
+- [FAQ](https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/web/docs/faq/index.html)
 - [Tutorials](https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/web/docs/tutorials/index.html)
 
 ## Blog
