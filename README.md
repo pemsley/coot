@@ -87,10 +87,10 @@ See [this](https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/web/build-instal
 
 ## Documentation
 
-[Coot Documentation](https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/web/docs/index.html)
-[Libcootapi Documentation](https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/web/docs/libcootapi/index.html)
-[Wiki](https://wiki.uni-konstanz.de/ccp4/index.php/COOT)
-[Tutorials](https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/web/docs/tutorials/index.html)
+- [Coot Documentation](https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/web/docs/index.html)
+- [Libcootapi Documentation](https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/web/docs/libcootapi/index.html)
+- [Wiki](https://wiki.uni-konstanz.de/ccp4/index.php/COOT)
+- [Tutorials](https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/web/docs/tutorials/index.html)
 
 ## Blog
 
