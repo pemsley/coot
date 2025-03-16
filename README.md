@@ -13,22 +13,6 @@ refinement and validation.
 
 ## Installation
 
-### Homebrew (MacOS / Linux)
-
-After [installing Homebrew](https://brew.sh/), run the commands below.
-
-```shell
-brew install brewsci/bio/coot
-coot
-```
-
-To install the latest development version (bleeding edge), run the commands below.
-
-```shell
-brew install --HEAD brewsci/bio/coot
-coot
-```
-
 ### APT (Debian)
 
 Install to run using commands below.
@@ -70,6 +54,22 @@ flatpak run io.github.pemsley.coot//beta
 ```
 
 You can see the flatpak manifest [here](https://github.com/flathub/io.github.pemsley.coot).
+
+### Homebrew (MacOS / Linux)
+
+After [installing Homebrew](https://brew.sh/), run the commands below.
+
+```shell
+brew install brewsci/bio/coot
+coot
+```
+
+To install the latest development version (bleeding edge), run the commands below.
+
+```shell
+brew install --HEAD brewsci/bio/coot
+coot
+```
 
 ### Windows
 
