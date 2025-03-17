@@ -2690,7 +2690,7 @@ flev_t::draw_residue_circle_top_layer(const residue_circle_t &residue_circle,
       if (residue_circle.residue_type == "PO4") font_size = "0.054";
       if (residue_circle.residue_type == "SO4") font_size = "0.054";
       if (residue_circle.residue_type == "HOH") y_offset = 0.18;
-      std::cout << "debug:: testing for residue_type " << residue_circle.residue_type << " font_size " << font_size << std::endl;
+      // std::cout << "debug:: testing for residue_type " << residue_circle.residue_type << " font_size " << font_size << std::endl;
       std::string text_1("   <text ");
       text_1 += std::string("fill=\"#111111\"");
       text_1 += std::string(" x=\"");
