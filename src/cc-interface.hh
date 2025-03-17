@@ -210,6 +210,10 @@ PyObject *get_symmetry_py(int imol);
 int clashes_with_symmetry(int imol, const char *chain_id, int res_no, const char *ins_code,
                           float clash_dist);
 
+//! Add molecular symmetry
+//!
+//! You will need to know how to expand your point group molecular symmetry
+//! to a set of 3x3 matrices. Call this function for every matrix.
 void add_molecular_symmetry(int imol,
                             double r_00, double r_01, double r_02,
                             double r_10, double r_11, double r_12,
@@ -218,8 +222,16 @@ void add_molecular_symmetry(int imol,
                             double about_origin_y,
                             double about_origin_z);
 
+//! Add molecular symmetry.
+//!
+//! Often molecular symmetry is descibed using MTRIX card in a PDB file header.
+//! Use this function to extract and apply such molecular symmmetry
 int add_molecular_symmetry_from_mtrix_from_file(int imol, const std::string &file_name);
 
+//! Add molecular symmetry
+//!
+//! This is a convenience function for the above - where you don't need to
+//! specify the PDB file name.
 int add_molecular_symmetry_from_mtrix_from_self_file(int imol);
 
 
