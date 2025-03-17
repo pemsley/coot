@@ -74,8 +74,9 @@ int main(int argc, char **argv) {
       }
 
       if (ligand_mol) {
+         bool add_key = true;
          svg_container_t svgc = pli::fle_view_with_rdkit_internal(atom_sel.mol, imol, &geom,
-                                                                  chain_id, res_no, ins_code, radius);
+                                                                  chain_id, res_no, ins_code, radius, add_key);
          write_string_to_file(svgc.compose(false), "output.html");
       }
    }

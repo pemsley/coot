@@ -762,7 +762,9 @@ void
 coot::restraints_container_t::unset_fixed_during_refinement_udd() {
 
    if (! mol) {
-      std::cout << "ERROR:: in unset_fixed_during_refinement_udd() mol is null" << std::endl;
+      // if the mol has been deleted and reset before destruction of a restraints_container_t
+      // then it is OK for mol to be null.
+      // std::cout << "ERROR:: in unset_fixed_during_refinement_udd() mol is null" << std::endl;
       return;
    }
    int uddHnd = mol->GetUDDHandle(mmdb::UDR_ATOM , "FixedDuringRefinement");
