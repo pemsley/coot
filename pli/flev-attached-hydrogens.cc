@@ -243,7 +243,7 @@ pli::flev_attached_hydrogens_t::distances_to_protein_using_correct_Hs(mmdb::Resi
          std::vector<mmdb::Atom *> atoms = close_atoms(H_pt, env_residues);
          coot::bash_distance_t bash = find_bash_distance(lig_atom_pt, H_pt, atoms);
          atom_bashes[atoms_with_riding_hydrogens[irh].first].push_back(bash);
-         if (true)
+         if (false)
             std::cout << " adding bash distance " << bash << " to atom "
                       << atoms_with_riding_hydrogens[irh].first << std::endl;
       }

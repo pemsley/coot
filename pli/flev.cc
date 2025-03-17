@@ -492,7 +492,7 @@ flev_t::annotate(const std::vector<std::pair<coot::atom_spec_t, float> > &s_a_v,
 
    // just checking that it was passed correctly -
    //
-   if (true) {
+   if (false) {
       std::cout << "debug:: in flev_t::annotate() ------------------- ring list ------------" << std::endl;
       for (unsigned int i=0; i<ring_atoms_list.size(); i++) {
          std::cout << "ring list " << i << "   ";
@@ -503,7 +503,7 @@ flev_t::annotate(const std::vector<std::pair<coot::atom_spec_t, float> > &s_a_v,
       }
    }
 
-   if (true) {
+   if (false) {
       std::cout << "debug:: in flev_t::annotate() ------------------- residue circles ------------" << std::endl;
       for (unsigned int i=0; i<residue_circles.size(); i++) {
          const auto &rc = residue_circles[i];
@@ -516,7 +516,8 @@ flev_t::annotate(const std::vector<std::pair<coot::atom_spec_t, float> > &s_a_v,
    refine_residue_circle_positions();
 
    std::pair<bool, std::vector<int> > bonded_problem_status = solution_has_bonded_problems_p();
-   std::cout << "::::::::: bonded problem status: " << bonded_problem_status.first << std::endl;
+   if (false)
+      std::cout << "::::::::: bonded problem status: " << bonded_problem_status.first << std::endl;
    for (unsigned int ip=0; ip<bonded_problem_status.second.size(); ip++) {
       std::cout << ":::::::::::: "
                 << residue_circles[bonded_problem_status.second[ip]].residue_label << " "
@@ -536,13 +537,16 @@ flev_t::annotate(const std::vector<std::pair<coot::atom_spec_t, float> > &s_a_v,
    // has the current solution problems due to residues too close to the ligand?
 
    std::pair<bool, std::vector<int> > problem_status = solution_has_problems_p();
-   std::cout << "::::::::: problem status: " << problem_status.first << std::endl;
-   for (unsigned int ip=0; ip<problem_status.second.size(); ip++) {
-      std::cout << ":::::::::::: "
-                << residue_circles[problem_status.second[ip]].residue_label << " "
-                << residue_circles[problem_status.second[ip]].residue_type << " "
-                << residue_circles[problem_status.second[ip]].pos
-                << std::endl;
+
+   if (false) {
+      std::cout << "::::::::: problem status: " << problem_status.first << std::endl;
+      for (unsigned int ip=0; ip<problem_status.second.size(); ip++) {
+         std::cout << ":::::::::::: "
+                   << residue_circles[problem_status.second[ip]].residue_label << " "
+                   << residue_circles[problem_status.second[ip]].residue_type << " "
+                   << residue_circles[problem_status.second[ip]].pos
+                   << std::endl;
+      }
    }
    if (! problem_status.second.empty()) {
       // fiddle with residue_circles and reoptimise.
@@ -1048,10 +1052,10 @@ flev_t::draw_substitution_contour() {
    auto debug_bash_distances = [] (const svg_molecule_t &mol) {
 
       for (unsigned int i=0; i<mol.atoms.size(); i++) {
-         std::cout << "in draw_substitution_contour() atom " << i << " "
-                   << mol.atoms[i].get_atom_name()
-                   << " has "  << mol.atoms[i].bash_distances.size()
-                   << " bash distances" << std::endl;
+            std::cout << "in draw_substitution_contour() atom " << i << " "
+                      << mol.atoms[i].get_atom_name()
+                      << " has "  << mol.atoms[i].bash_distances.size()
+                      << " bash distances" << std::endl;
          for (unsigned int j=0; j<mol.atoms[i].bash_distances.size(); j++) {
             std::cout << "  " << mol.atoms[i].bash_distances[j];
          }
@@ -1075,7 +1079,7 @@ flev_t::draw_substitution_contour() {
          try {
             std::pair<lig_build::pos_t, lig_build::pos_t> l_e_pair = mol.ligand_extents();
             ligand_grid grid(l_e_pair.first, l_e_pair.second);
-            debug_bash_distances(mol);
+            // debug_bash_distances(mol);
 
             for (unsigned int iat=0; iat<mol.atoms.size(); iat++) {
 
@@ -1133,7 +1137,7 @@ flev_t::draw_substitution_contour() {
             // show_unlimited_atoms(unlimited_atoms);
             // show_ring_centres(ring_atoms_list, mol);
 
-            if (true) {
+            if (false) {
                std::cout << "Here are the "<< unlimited_atoms.size()
                          << " unlimited atoms: " << std::endl;
                for (unsigned int iat=0; iat<unlimited_atoms.size(); iat++)
@@ -1249,7 +1253,7 @@ flev_t::draw_stacking_interactions(const std::vector<residue_circle_t> &rc) {
       }
    }
 
-   std::cout << "draw_stacking_interactions returns an svg of size " << svgc.svg.size() << std::endl;
+   // std::cout << "draw_stacking_interactions returns an svg of size " << svgc.svg.size() << std::endl;
    return svgc;
 }
 
@@ -1709,11 +1713,13 @@ flev_t::ligand_grid::ligand_grid(const lig_build::pos_t &low_x_and_y,
    double mol_space_grid_max_x = ligand_atoms_max_x + extra_extents / n_grid_per_angstrom;
    double mol_space_grid_max_y = ligand_atoms_max_y + extra_extents / n_grid_per_angstrom;
 
-   std::cout << "in constructor with ligand_atoms_min_x " << ligand_atoms_min_x << std::endl;
-   std::cout << "in constructor with ligand_atoms_min_y " << ligand_atoms_min_y << std::endl;
+   if (false) {
+      std::cout << "in constructor with ligand_atoms_min_x " << ligand_atoms_min_x << std::endl;
+      std::cout << "in constructor with ligand_atoms_min_y " << ligand_atoms_min_y << std::endl;
 
-   std::cout << "in constructor with mol_space_grid_min_x " << mol_space_grid_min_x << std::endl;
-   std::cout << "in constructor with mol_space_grid_min_y " << mol_space_grid_min_x << std::endl;
+      std::cout << "in constructor with mol_space_grid_min_x " << mol_space_grid_min_x << std::endl;
+      std::cout << "in constructor with mol_space_grid_min_y " << mol_space_grid_min_x << std::endl;
+   }
 
    double delta_x = mol_space_grid_max_x - mol_space_grid_min_x;
    double delta_y = mol_space_grid_max_y - mol_space_grid_min_y;
@@ -2448,7 +2454,7 @@ flev_t::ligand_grid::fill(svg_molecule_t mol) {
 std::pair<std::string, std::string>
 flev_t::get_residue_circle_colour(const std::string &residue_type) const {
 
-   std::string fill_colour = "";
+   std::string fill_colour = "#cccccc";
    std::string stroke_colour = "#111111";
 
    std::string grease = "#ccffbb";
@@ -2538,6 +2544,10 @@ flev_t::get_residue_circle_colour(const std::string &residue_type) const {
       fill_colour = metalic_grey;
    if (residue_type == "K")
       fill_colour = metalic_grey;
+   if (residue_type == "PO4")
+      fill_colour = "#ffcc90";
+   if (residue_type == "SO4")
+      fill_colour = "#ffff80";
 
    return std::pair<std::string, std::string> (fill_colour, stroke_colour);
 }
@@ -2575,8 +2585,9 @@ flev_t::draw_residue_circles(const std::vector<residue_circle_t> &l_residue_circ
 
 	 for (unsigned int i=0; i<l_residue_circles.size(); i++) {
             const auto &residue_circle = l_residue_circles[i];
-            std::cout << "handling residue circle " << i << " " << residue_circle.residue_label
-                      << std::endl;
+            if (false)
+               std::cout << "handling residue circle " << i << " " << residue_circle.residue_label
+                         << std::endl;
 	    lig_build::pos_t pos = residue_circle.pos;
             // get rid of add_rep_handles in the following function call
 	    int add_rep_handle = -1; // default, no handle
@@ -2606,7 +2617,7 @@ flev_t::draw_residue_circle_top_layer(const residue_circle_t &residue_circle,
 
    svg_container_t svgc;
 
-   if (true)
+   if (false)
       std::cout << "   draw_residue_circle_top_layer() " << residue_circle.residue_type
                 << " at init pos " << residue_circle.pos << " and canvas_drag_offset "
                 << std::endl;
@@ -2631,8 +2642,9 @@ flev_t::draw_residue_circle_top_layer(const residue_circle_t &residue_circle,
    // Capitalise the residue type (takes less space than upper case).
    std::string rt = residue_circle.residue_type.substr(0,1);
    rt += coot::util::downcase(residue_circle.residue_type.substr(1));
-   if (residue_circle.residue_type == "HOH")
-      rt = "WATER";
+   if (residue_circle.residue_type == "HOH") rt = "WATER";
+   if (residue_circle.residue_type == "PO4") rt = "PO4";
+   if (residue_circle.residue_type == "SO4") rt = "SO4";
 
    // correct that if we are looking at dna: DA, DT, DC, DG
    if (residue_circle.residue_type == "DA" ||
@@ -2675,7 +2687,10 @@ flev_t::draw_residue_circle_top_layer(const residue_circle_t &residue_circle,
       double y_offset = 0.1;
       std::string font_size = "0.06";
       if (residue_circle.residue_type == "HOH") font_size = "0.035";
+      if (residue_circle.residue_type == "PO4") font_size = "0.054";
+      if (residue_circle.residue_type == "SO4") font_size = "0.054";
       if (residue_circle.residue_type == "HOH") y_offset = 0.18;
+      std::cout << "debug:: testing for residue_type " << residue_circle.residue_type << " font_size " << font_size << std::endl;
       std::string text_1("   <text ");
       text_1 += std::string("fill=\"#111111\"");
       text_1 += std::string(" x=\"");

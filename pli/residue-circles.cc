@@ -88,13 +88,13 @@ flev_t::initial_residues_circles_layout() {
    //
    try {
       std::pair<lig_build::pos_t, lig_build::pos_t> l_e_pair = mol.ligand_extents();
-      if (true)
+      if (false)
          std::cout << "initial_residues_circles_layout(): creating ligand grid with extents "
                    << l_e_pair.first << " " << l_e_pair.second << std::endl;
       ligand_grid grid(l_e_pair.first, l_e_pair.second);
       grid.fill(mol);
 
-      if (true) { // debug
+      if (false) { // debug
          std::cout << "HHHHHHHHHHHHHere B with residue_circles.size() " << residue_circles.size() << std::endl;
          std::cout << "------------------- flev_t::initial_residues_circles_layout() post B residue circles ------------"
                    << std::endl;
@@ -111,7 +111,7 @@ flev_t::initial_residues_circles_layout() {
          std::vector<std::pair<lig_build::pos_t, double> > attachment_points =
             residue_circles[idx].get_attachment_points(mol);
 
-         if (true) { // debug
+         if (false) { // debug
             for (unsigned int iattach=0; iattach<attachment_points.size(); iattach++) {
                std::cout << "debug:: in initial_residues_circles_layout()"
                          << " iprimary " << iprimary << " iattach " << iattach
@@ -123,8 +123,8 @@ flev_t::initial_residues_circles_layout() {
 
          initial_primary_residue_circles_layout(grid, idx, attachment_points);
       }
-      std::cout << "HHHHHHHHHHHHHere C with residue_circles.size() " << residue_circles.size() << std::endl;
-      if (true) {
+
+      if (false) {
          std::cout << "------------------- flev_t::initial_residues_circles_layout() post C residue circles ------------"
                    << std::endl;
          for (unsigned int i=0; i<residue_circles.size(); i++) {
@@ -138,8 +138,7 @@ flev_t::initial_residues_circles_layout() {
 
       // position_non_primaries(grid, primary_indices); // untrap residues as needed.
 
-      std::cout << "HHHHHHHHHHHHHere D with residue_circles.size() " << residue_circles.size() << std::endl;
-      if (true) {
+      if (false) {
          std::cout << "------------------- flev_t::initial_residues_circles_layout() post D residue circles ------------"
                    << std::endl;
          for (unsigned int i=0; i<residue_circles.size(); i++) {
