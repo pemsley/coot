@@ -419,8 +419,9 @@ void add_toolbar_subprocess_button(const std::string &button_label,
          return "tuple";
       } else if (type == &PyDict_Type) {
          return "dict";
-      } else if (type == &_PyNone_Type) {
-         return "NoneType";
+      // I don't know what to do about Py_None
+      // } else if (type == &PyNone_Type) {
+      //    return "NoneType";
       } else if (type == &PyBytes_Type) {
          return "bytes";
       } else if (type == &PyByteArray_Type) {
@@ -469,7 +470,10 @@ void add_toolbar_subprocess_button(const std::string &button_label,
             py_transfer_t *pt = reinterpret_cast<py_transfer_t *>(data);
             // std::cout << "check_it: " << pt->termination_condtion << std::endl;
             if (pt->termination_condtion) {
-               PyObject *return_val = PyEval_CallObject(pt->on_completion_function, pt->on_completion_args);
+               PyObject *return_val = nullptr;
+#if 0 // check version of python here - less than 3.13 is my guess
+               return_val = PyEval_CallObject(pt->on_completion_function, pt->on_completion_args);
+#endif
                std::cout << "DEBUG:: return_val " << return_val << std::endl;
                PyObject *error_thing = PyErr_Occurred();
                if (! error_thing) {

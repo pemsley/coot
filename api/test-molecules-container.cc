@@ -2790,6 +2790,33 @@ int test_instanced_rota_markup(molecules_container_t &mc) {
    return status;
 }
 
+int test_instanced_goodsell_style_mesh(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+   mc.set_use_gemmi(false);
+   int imol = mc.read_pdb(reference_data("pdb8ox7.ent"));
+   float cwr = 97.0;
+   coot::instanced_mesh_t im = mc.get_goodsell_style_mesh_instanced(imol, cwr, 0.8, 0.6);
+   std::vector<std::pair<glm::vec4, unsigned int> > ca = colour_analysis(im);
+
+   // check that we have colour variation
+   unsigned int n_above = 0;
+   unsigned int n_below = 0;
+   for (unsigned int i=0; i<im.geom.size(); i++) {
+      const coot::instanced_geometry_t &ig = im.geom[i];
+      for (unsigned int jj=0; jj<ig.instancing_data_A.size(); jj++) {
+         const auto &col =  ig.instancing_data_A[jj].colour;
+         if (col.r > 0.8) n_above++;
+         if (col.r < 0.5) n_below++;
+      }
+   }
+   if (n_above > 1)
+      if (n_below > 1)
+         status = 1;
+   return status;
+}
+
 int test_gaussian_surface(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -6771,6 +6798,7 @@ int main(int argc, char **argv) {
          status += run_test(test_HOLE, "HOLE", mc);
          status += run_test(test_is_nucleic_acid, "is nucleic acid?", mc);
          status += run_test(test_delete_all_carbohydrate, "delete all carbohydrate", mc);
+         status += run_test(test_instanced_goodsell_style_mesh, "instanced goodsell style mesh", mc);
          if (status == n_tests) all_tests_status = 0;
 
          print_results_summary();
