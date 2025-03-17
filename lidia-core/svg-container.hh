@@ -40,7 +40,7 @@ public:
 
    bool update_bounds(float min_xx, float min_yy, float max_xx, float max_yy) {
       bool bounding_box_updated = false;
-#if 1
+#if 0
       if (min_xx < min_x) { std::cout << "debug:: min_x was " << min_x << " now " << min_xx << std::endl; }
       if (min_yy < min_y) { std::cout << "debug:: min_y was " << min_y << " now " << min_yy << std::endl; }
       if (max_xx > max_x) { std::cout << "debug:: max_x was " << max_x << " now " << max_xx << std::endl; }
