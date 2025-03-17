@@ -11700,8 +11700,18 @@ put this somewhere perhaps
 
 
 ---
+
 Thu 13 Mar 2025 18:49:24 GMT
 
    new ligand search:
 
    pdbe ligands latest release
+
+---
+Sat 15 Mar 14:21:29 GMT 2025
+
+   gdb flatpak coot
+
+   $ flatpak run --command=sh --devel --filesystem=`pwd` io.github.pemsley.coot/x86_64/test
+   $ gdb /app/libexec/coot-1 core.3
+

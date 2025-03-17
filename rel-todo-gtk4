@@ -5,6 +5,15 @@ show the neighbours, ie. action becomes a list of actions,
 each has their own button
 
 build chapi without rdkit
+* Done.
+
+have another look at monomer and python startup.
+
+bernie mail about shader errors.
+
+After creating a cryo-EM map, it looks like the contour
+level of the new map is 0 (or close to?)
+48083 and pdb9eih.
 
 Clemens: json file: when you uget there, show the nneighbours
 action is a list of actions, each has their own button
