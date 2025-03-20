@@ -264,9 +264,8 @@ coot::util::slurp_parse_xmap_data(char *data,
    if (check_only) {
       if (mx > 0 && my > 0 && mz > 0) {
          if (space_group_number == 1)
-            status = true;
-         if (space_group_number == 0)
-            status = true;
+            if(fabs(cell_al-90)<1e-4&&fabs(cell_be-90)<1e-4&&fabs(cell_ga-90)<1e-4)
+               status = true;
       }
       return status;
    }
