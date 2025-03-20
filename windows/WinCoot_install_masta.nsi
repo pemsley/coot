@@ -365,7 +365,7 @@ Section /o "!Monomer Library" SEC03
   ; first download, then unzip
   ClearErrors
 ;  !define cif_dict_filename "cif.tar.gz"
-  NScurl::http GET "http://bernhardcl.github.io/coot/software/extras/${cif_dict_filename}" "$TEMP\${cif_dict_filename}" /INSIST /CANCEL /Zone.Identifier /END
+  NScurl::http GET "https://github.com/bernhardcl/monomers/releases/download/for_Release_1.1.14/${cif_dict_filename}" "$TEMP\${cif_dict_filename}" /INSIST /CANCEL /Zone.Identifier /END
   Pop $0
   ${If} $0 == "OK"
     DetailPrint "Download of monomer library successful"
@@ -377,6 +377,8 @@ Section /o "!Monomer Library" SEC03
     MessageBox MB_OK 'Installation couldnt download the Monomer library. Will continue with installation nevertheless!$\n$\r$\n$\r \
     If you have, WinCoot will use the library from a CCP4 (or Phenix) installation. \
     Otherwise you can install it manually from https://github.com/MonomerLibrary/monomers/wiki/Installation.'
+    ; that's it. Just return.
+    Return
   ${EndIf}
 
   ; only unzip and install of download ok.
@@ -384,11 +386,13 @@ Section /o "!Monomer Library" SEC03
     IfFileExists $TEMP\${cif_dict_filename} 0 +6
       ; have cif file so unzip
       untgz::extract "-u" "-d" "$INSTDIR\share\coot\lib\data\" "$TEMP\${cif_dict_filename}"
-      StrCmp $R0 "success" +3
+      StrCmp $R0 "success" +4
         DetailPrint "  Failed to extract ${cif_dict_filename}"
         MessageBox MB_OK|MB_ICONEXCLAMATION|MB_DEFBUTTON1 "Failed to extract the monomer library...$\n$\r$\n$\r \
         Check $TEMP for the ${cif_dict_filename} and extract manually to $INSTDIR\share\coot\lib\data\."
-      ; delete tmp File
+	; just return no delete
+	Return
+      ; delete tmp File after successfull extraction
       Delete "$TEMP\${cif_dict_filename}"
   ${EndIf}
 
