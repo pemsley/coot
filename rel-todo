@@ -3,24 +3,38 @@
 
 o Fix zooming ::: 1
 
+o "No ligands found" when doing the tutorial with Coot 1 ::: 0.5
+
+o drag fixed atoms!
+
 o gihub sunchang: open close open the merge molecules dialog: see molecules repeated. ::: 0.5
 
-o WTA carbohydrate :: 4
-
-o Drag and drop (just "drop") ::: 2
-
-o have a look at Rama plot ::: 1
+o "Select map for fitting", open, close, open, typical failure
 
 o allow use-defined max_closeness for map peaks (not diff map peaks) ::: 1
+
+o Drag and drop (just "drop") ::: 2
 
 o After creating a cryo-EM map by masking, it looks like the contour
   level of the new map is 0 (or close to?)
   48083 and pdb9eih. ::: 1
 
-o Add anisotropic radius scaling from Claus. Need to check mails or something
-  for scaling code. ::: 1
+o backtick to show residue range (first)
 
-o Rework monomer library usage - make it more like Moorhen. ::: 2
+o anchor doesn't disappear on "Unfix Atom"
+
+o residue info buttons on the wrong side.
+
+--- Others ---
+
+o WTA carbohydrate :: 4
+
+o have a look at Rama plot ::: 1
+
+o Add anisotropic radius scaling from Claus. Need to check mails or something
+  for scaling code. :: 1
+
+o Rework monomer library usage - make it more like Moorhen. :: 2
 
 
 --- Done Items ---
