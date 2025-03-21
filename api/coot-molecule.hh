@@ -112,6 +112,7 @@ namespace coot {
    public:
      atom_distance_t(const atom_spec_t &a1, const atom_spec_t &a2,
 		    float d) : atom_1(a1), atom_2(a2), distance(d) {}
+     atom_distance_t() : distance(-1) {}
      atom_spec_t atom_1;
      atom_spec_t atom_2;
      float distance;

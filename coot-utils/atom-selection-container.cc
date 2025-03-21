@@ -35,6 +35,7 @@
 #include "lidia-core-functions.hh"
 #include "analysis/stats.hh"
 
+#undef USE_GEMMI // PaulE hack
 #ifdef USE_GEMMI
 #include "gemmi/mmread.hpp"
 #include "gemmi/mmdb.hpp"

@@ -275,6 +275,7 @@ NB_MODULE(coot_headless_api, m) {
     .def("get_acedrg_atom_types",&molecules_container_t::get_acedrg_atom_types)
     .def("get_acedrg_atom_types_for_ligand",&molecules_container_t::get_acedrg_atom_types_for_ligand)
     .def("get_atom",&molecules_container_t::get_atom, nb::rv_policy::reference)
+    .def("get_atom_differences",&molecules_container_t::get_atom_differences)
     .def("get_atom_using_cid",&molecules_container_t::get_atom_using_cid, nb::rv_policy::reference)
     .def("get_bonds_mesh",&molecules_container_t::get_bonds_mesh)
     .def("get_bonds_mesh_for_selection_instanced",&molecules_container_t::get_bonds_mesh_for_selection_instanced)
@@ -559,7 +560,14 @@ NB_MODULE(coot_headless_api, m) {
     .def_rw("string_user_data",&coot::atom_spec_t::string_user_data)
     .def_rw("model_number",&coot::atom_spec_t::model_number)
     ;
+    nb::class_<positioned_atom_spec_t>(m,"positioned_atom_spec_t")
+    .def(nb::init<>())
+    .def_ro("atom_spec", &positioned_atom_spec_t::atom_spec)
+    .def_ro("pos1", &positioned_atom_spec_t::pos1)
+    .def_ro("pos2", &positioned_atom_spec_t::pos2)
+    ;
     nb::class_<coot::atom_distance_t>(m,"atom_distance_t")
+      .def(nb::init<>())
       .def_ro("atom_1", &coot::atom_distance_t::atom_1)
       .def_ro("atom_2", &coot::atom_distance_t::atom_2)
       .def_ro("distance", &coot::atom_distance_t::distance)

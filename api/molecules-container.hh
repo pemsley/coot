@@ -36,6 +36,7 @@
 #include "svg-store-key.hh"
 #include "moorhen-h-bonds.hh"
 #include "header-info.hh"
+#include "positioned-atom-spec.hh"
 
 //! the container of molecules. The class for all **libcootapi** functions.
 class molecules_container_t {
@@ -1378,8 +1379,12 @@ public:
    //! @return a list of residue specs
    std::vector<coot::residue_spec_t> get_residues_near_residue(int imol, const std::string &residue_cid, float dist) const;
 
-  //! get atom distances
-  //! other stuff here
+   //! Get atom distances
+   //!
+   //! @param imol is the model molecule index
+   //! @param cid_res_1 is the first atom selection CID e.g "//A/15/OH" (atom OH in residue 15 of chain A)
+   //! @param cid_res_2 is the second atom selection CID e.g "//A/17/NH" (atom NH in residue 17 of chain A)
+   //! @param dist is the distance in Angstrom
   std::vector<coot::atom_distance_t>
   get_distances_between_atoms_of_residues(int imol, const std::string &cid_res_1, const std::string &cid_res_2,
 					  float dist_max) const;
@@ -2233,7 +2238,7 @@ public:
    //! so that those residues can be used for links and non-bonded contact restraints.
    //!
    //! @param imol is the model molecule index
-   //! @param multi_cids is a "||"-separated list of residues CIDs, e.g. "//A/12-52||//A/14-15||/B/56-66"
+   //! @param multi_cids is a "||"-separated list of residues CIDs, e.g. "//A/12-52||//A/14-15||//B/56-66"
    //!
    //! @return the new molecule number (or -1 on no atoms selected)
    int copy_fragment_for_refinement_using_cid(int imol, const std::string &multi_cid);
@@ -2685,6 +2690,12 @@ public:
    int servalcat_refine_xray(int imol, int imol_map, const std::string &output_prefix);
 
 #if NB_VERSION_MAJOR
+   //! Use servalcat keywords
+   //!
+   //! @param imol is the model molecule index
+   //! @param imol_map is the map molecule index
+   //! @param output_prefix is the prefix of the output filename, e.g. "ref-1"
+   //! @param key_value_pairs is a dictionary of key-value pairs for the servalcat keywords, e.g. resolution: 2.05
    //!
    //! @return the imol of the refined model.
    int servalcat_refine_xray_with_keywords(int imol, int imol_map, const std::string &output_prefix,
@@ -2868,6 +2879,17 @@ public:
    //! @param cid_ligand is the ligand selection CID e.g "//A/15" (ligand 15 of chain A)
    std::vector<coot::plain_atom_overlap_t> get_overlaps_for_ligand(int imol, const std::string &cid_ligand);
 
+   //! Get the atom differences between two molecules
+   //! typically after refinement
+   //!
+   //! @param imol1 is the first model molecule index
+   //! @param imol2 is the second model molecule index
+   //!
+   //! @return a vector/list of `positioned_atom_spec_t`
+   std::vector <positioned_atom_spec_t>
+   get_atom_differences(int imol1, int imol2);
+
+
    // -------------------------------- Coordinates and map validation ----------------------
    //! \name Coordinates and Map Validation
 
@@ -2988,6 +3010,11 @@ public:
                       bool ignore_part_occ_contact_flag,
                       bool ignore_zero_occ_flag);
 
+   //! Get HOLE
+   //! 
+   //! HOLE is a program for the analysis of the pore dimesions of ion channels. See Smart et al., 1996.
+   //!
+   //! @return a list of spheres on the surface of the pore
    coot::instanced_mesh_t get_HOLE(int imol,
                                    float start_pos_x, float start_pos_y, float start_pos_z,
                                    float end_pos_x, float end_pos_y, float end_pos_z) const;
