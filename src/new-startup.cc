@@ -988,9 +988,9 @@ new_startup_application_activate(GtkApplication *application,
 
       auto on_drop_performed = +[] (GtkDropTarget *drop_target, const GValue *value, double x, double y) {
 
-         g_print("Drop performed!\n");
+         g_print("DEBUG:: Drop performed!\n");
          GType type = G_VALUE_TYPE(value);
-         std::cout << "type is of type " << type << std::endl;
+         std::cout << "DEBUG:: type is of type " << type << std::endl;
 
          if (G_VALUE_HOLDS (value, G_TYPE_FILE)) {
             std::cout << "!!!!!!!!!!!!! holds a file!" << std::endl;
@@ -1036,13 +1036,12 @@ new_startup_application_activate(GtkApplication *application,
             std::cout << "G_TYPE_STRING! " << std::endl;
             const char *text = g_value_get_string(value);
             if (text) {
-               std::cout << "do something with this text: " << text << std::endl;
                unsigned long ll = strlen(text);
-               std::cout << "   text has length " << ll << std::endl;
+               std::cout << "DEBUG:: text has length " << ll << std::endl;
                if (ll > 0)
                   handle_drag_and_drop_string(text);
             } else {
-               std::cout << "text: was null" << std::endl;
+               std::cout << "DEBUG:: text: was null" << std::endl;
             }
          } else {
             std::cout << "not type G_TYPE_STRING! " << std::endl;
