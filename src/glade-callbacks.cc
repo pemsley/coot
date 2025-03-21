@@ -786,15 +786,11 @@ void
 on_find_ligand_ok_button_clicked       (GtkButton       *button,
                                                             gpointer         user_data) {
 
-   int n_ligands = execute_get_mols_ligand_search(GTK_WIDGET(button));
-			                    	/* which then runs execute_ligand_search */
-   if (n_ligands > 0) {
-      GtkWidget *window = widget_from_builder("find_ligand_dialog");
-      // free_ligand_search_user_data(GTK_WIDGET(button)); // not if not destroyed? Needs checking.
-      gtk_widget_set_visible(window, FALSE);
-   } else {
-      info_dialog("WARNING:: No ligands were selected");
-   }
+   // execute_get_mols_ligand_search() no longer returns the number of ligands
+   execute_get_mols_ligand_search(GTK_WIDGET(button)); /* which then runs execute_ligand_search */
+   GtkWidget *window = widget_from_builder("find_ligand_dialog");
+   // free_ligand_search_user_data(GTK_WIDGET(button)); // not if not destroyed? Needs checking.
+   gtk_widget_set_visible(window, FALSE);
 }
 
 
