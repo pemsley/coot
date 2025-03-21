@@ -45,6 +45,7 @@
 #include "c-interface-ligands.hh" // 20230920-PE new layla interface functions
 #include "labelled-button-info.hh"
 #include "cc-interface.hh" // for fullscreen()
+#include "rotate-translate-modes.hh"
 
 // These don't work if they are in graphics-info-statics.cc
 // Possibly because the gui (this file included) is loaded at run-time.
@@ -4213,7 +4214,7 @@ void
 fix_atom(GSimpleAction *simple_action,
          GVariant *parameter,
          gpointer user_data) {
-   
+
    graphics_info_t g;
    std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
    if (pp.first) {
@@ -4235,7 +4236,7 @@ unfix_atom(GSimpleAction *simple_action,
    if (pp.first) {
       int imol = pp.second.first;
       g.attach_buffers(); // 20220823-PE needed?
-      g.mark_atom_as_fixed(imol, pp.second.second, true);
+      g.mark_atom_as_fixed(imol, pp.second.second, false);
       g.graphics_draw(); // maybe not needed here
    }
 }
@@ -4254,7 +4255,6 @@ unfix_all_atoms(GSimpleAction *simple_action,
    }
 }
 
-#include "rotate-translate-modes.hh" // move up                
 
 void
 rotate_translate_atom(GSimpleAction *simple_action,
