@@ -14056,6 +14056,7 @@ just the cell and symmetry)
             <property name="margin-end">4</property>
             <property name="margin-top">4</property>
             <property name="margin-bottom">4</property>
+            <property name="halign">end</property>
             <child>
               <object class="GtkButton" id="residue_info_cancel_button">
                 <property name="label" translatable="yes">Close</property>
@@ -14869,6 +14870,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
 
   <object class="GtkDialog" id="select_fitting_map_dialog">
     <property name="title" translatable="yes">Select Map for Fitting</property>
+    <signal name="close-request" handler="on_select_fitting_map_dialog_close_request"/>
     <child>
       <object class="GtkBox" id="dialog-vbox32">
         <property name="orientation">vertical</property>
@@ -14950,11 +14952,6 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
           </object>
         </child>
       </object>
-    </child>
-    <action-widgets>
-      <action-widget response="0">select_map_for_fitting_button</action-widget>
-    </action-widgets>
-    <child type="titlebar">
     </child>
   </object>
 
@@ -15767,7 +15764,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                     <signal name="state-set" handler="show_unit_cell_switch_state_set"/>
                   </object>
                 </child>
-                
+
                 <child>
                   <object class="GtkLabel">
                     <property name="label" translatable="yes">Show</property>
