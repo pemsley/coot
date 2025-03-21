@@ -4,10 +4,14 @@ Clemens: interesting places json file: when you uget there,
 show the neighbours, ie. action becomes a list of actions,
 each has their own button
 
+Make a OccuPy screenshot - use Fancy mode.
+
 build chapi without rdkit
 * Done.
 
 have another look at monomer and python startup.
+
+What is the status of anisotropic atom scaling (Claus)
 
 bernie mail about shader errors.
 
@@ -22,6 +26,8 @@ Update xdg repo with new try/catch code.
 * Done.
 
 chapi needs a quick get-monomer (github) and get-code (pdbe)
+
+select fitting map should be an overlay, I think.
 
 when updating glbuffersubdata, no need to rebind the glbuffers after binding the vao, i think.
 Maybe this speeds things up?
