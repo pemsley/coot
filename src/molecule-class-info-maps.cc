@@ -2602,7 +2602,7 @@ molecule_class_info_t::is_em_map_cached_state() {
 }
 
 // user-setting over-ride internal rules for P1&909090 means EM
-void 
+void
 molecule_class_info_t::set_map_has_symmetry(bool is_em_map) {
 
    is_em_map_cached_flag = is_em_map;
@@ -2633,6 +2633,8 @@ molecule_class_info_t::install_new_map(const clipper::Xmap<float> &map_in, std::
 
       float mean = mv.mean;
       float var = mv.variance;
+
+      std::cout << "debug:: in install_new_map() contour_level is " << contour_level << " from " << mean << " " << sqrt(var) << std::endl;
       contour_level  = nearest_step(mean + 1.5*sqrt(var), 0.05);
       update_map_in_display_control_widget();
 
@@ -2643,6 +2645,42 @@ molecule_class_info_t::install_new_map(const clipper::Xmap<float> &map_in, std::
       update_map(true);
    }
 }
+
+void
+molecule_class_info_t::install_new_map_with_contour_level(const clipper::Xmap<float> &map_in, std::string name_in, float contour_level_in,
+                                                          bool is_em_map_flag_in) {
+
+   xmap = map_in;
+   if (is_em_map_flag_in)
+      is_em_map_cached_flag = 1;
+   // the map name is filled by using set_name(std::string)
+   // sets name_ to name_in:
+   initialize_map_things_on_read_molecule(name_in, false, false, false); // not a diff_map
+
+   // 20240702-PE now we can install empty maps (which get quickly overwritten by sensible maps)
+   // (adding servalcat interface)
+   //
+   if (! xmap.is_null()) {
+
+      bool ipz = graphics_info_t::ignore_pseudo_zeros_for_map_stats;
+      bool write_output_flag = false;
+      mean_and_variance<float> mv = map_density_distribution(xmap, 40, write_output_flag, ipz);
+
+      float mean = mv.mean;
+      float var = mv.variance;
+
+      std::cout << "debug:: in install_new_map_with_contour_level() contour_level is " << contour_level << std::endl;
+      contour_level  = contour_level_in;
+      update_map_in_display_control_widget();
+
+      // fill class variables
+      map_mean_ = mv.mean;
+      map_sigma_ = sqrt(mv.variance);
+
+      update_map(true);
+   }
+}
+
 
 void
 molecule_class_info_t::set_mean_and_sigma(bool show_terminal_output, bool ignore_pseudo_zeroes) {

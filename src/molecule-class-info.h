@@ -1616,6 +1616,8 @@ public:        //                      public
 
    void install_new_map(const clipper::Xmap<float> &mapin, std::string name, bool is_em_map_in);
 
+   void install_new_map_with_contour_level(const clipper::Xmap<float> &mapin, std::string name, float contour_level, bool is_em_map_in);
+
    void set_name(std::string name); // you are encouraged not to use
 				    // this (only for use after having
 				    // imported an xmap).
