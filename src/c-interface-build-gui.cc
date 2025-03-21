@@ -668,6 +668,9 @@ GtkWidget *wrapped_create_merge_molecules_dialog() {
 
    GCallback checkbox_callback_func = G_CALLBACK(nullptr);
 
+   graphics_info_t g;
+   g.clear_out_container(molecules_vbox);
+
    // the molecules vbox
    fill_vbox_with_coordinates_options(molecules_vbox, checkbox_callback_func);
 
@@ -681,8 +684,6 @@ GtkWidget *wrapped_create_merge_molecules_dialog() {
 	      }
       }
    }
-
-   graphics_info_t g;
 
    // 20220326-PE  this should be a member function of graphics_info_t and indeed should be
    // used in fill_combobox_with_model_molecule_options which wraps

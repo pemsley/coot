@@ -3285,8 +3285,7 @@ on_column_labels_use_resolution_limits_checkbutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  GtkWidget *frame = widget_from_builder(
-				   "resolution_limits_hbox");
+  GtkWidget *frame = widget_from_builder("resolution_limits_hbox");
   if (gtk_toggle_button_get_active(togglebutton))
      gtk_widget_set_sensitive(frame, TRUE);
   else
@@ -3305,6 +3304,14 @@ on_merge_molecules_ok_button_clicked(GtkButton       *button,
    do_merge_molecules(w);
    gtk_widget_set_visible(w, FALSE);
 
+}
+
+
+extern "C" G_MODULE_EXPORT
+gboolean
+on_merge_molecules_dialog_close_request(GtkAboutDialog *dialog, gpointer user_data) {
+   gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
+   return TRUE; // Prevent the default close behavior (destruction)
 }
 
 

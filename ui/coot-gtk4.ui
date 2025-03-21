@@ -11350,9 +11350,10 @@ density (too big to be waters):
       <action-widget response="-5">map_partition_by_chain_ok_button</action-widget>
     </action-widgets>
   </object>
-  
+
   <object class="GtkDialog" id="merge_molecules_dialog">
     <property name="title" translatable="yes">Coot: Merge Molecules</property>
+    <signal name="close-request" handler="on_merge_molecules_dialog_close_request"/>
     <child>
       <object class="GtkBox" id="dialog-vbox57">
         <property name="orientation">vertical</property>
@@ -11417,6 +11418,7 @@ density (too big to be waters):
         <child type="action">
           <object class="GtkBox" id="hbox89">
             <property name="spacing">6</property>
+            <property name="halign">end</property>
             <child>
               <object class="GtkButton" id="merge_molecules_cancel_button">
                 <property name="label" translatable="yes">   Cancel   </property>
@@ -11446,10 +11448,7 @@ density (too big to be waters):
             </child>
           </object>
         </child>
-
       </object>
-    </child>
-    <child type="titlebar">
     </child>
   </object>
 
