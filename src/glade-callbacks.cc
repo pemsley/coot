@@ -70,6 +70,13 @@ gboolean on_about_dialog_close_request(GtkAboutDialog *dialog, gpointer user_dat
 }
 
 extern "C" G_MODULE_EXPORT
+gboolean
+on_select_fitting_map_dialog_close_request(GtkAboutDialog *dialog, gpointer user_data) {
+   gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
+   return TRUE; // Prevent the default close behavior (destruction)
+}
+
+extern "C" G_MODULE_EXPORT
 void
 on_column_label_ok_button_clicked      (GtkButton       *button,
                                         gpointer         user_data)
