@@ -109,8 +109,8 @@ do_plot = function() {
     ## the columns are time(days) n-items-todo n-items-done
 
     plot(ylim=c(0,ylim), xlim=c(0,xlim), NULL, NULL, t='n', cex.main=1.0,
-               main="Coot 1.1.14 Development Progress",
-               xlab="Real Days since records began (26 Feb 2025)",
+               main="Coot 1.1.15 Development Progress",
+               xlab="Real Days since records began (20 Mar 2025)",
                ylab="Scope & Work Done (Days)")
 
     grid()
