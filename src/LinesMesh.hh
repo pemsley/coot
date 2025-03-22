@@ -70,11 +70,13 @@ public:
    std::vector<unsigned int> indices;
    void set_name(const std::string &n) { name = n; }
    void setup();
-   void setup_pulse(bool broken_line_mode);
+   void setup_red_pulse(bool broken_line_mode);
+   void setup_green_pulse(bool broken_line_mode);
    void set_scales(const glm::vec2 &s) { scales = s; scales_have_been_set = true; }
    void set_offset_positions(const glm::vec2 &p) { offset_positions = p; offset_positions_have_been_set = true; }
    void update_buffers_for_pulse(float delta_time, int direction=1); // delta time in ms.
    void update_buffers_for_invalid_residue_pulse(unsigned int n_times_called);
+   void update_buffers_by_resize(float resize_factor); // say 1.1 for growing rings
    void setup_vertices_and_indices(const std::vector<s_generic_vertex> &vertices,
                                    const std::vector<unsigned int> &indices); // calls setup().
    void update_vertices_and_indices(const std::vector<s_generic_vertex> &vertices,
