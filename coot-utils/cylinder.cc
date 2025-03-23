@@ -663,3 +663,67 @@ cylinder::crenulations() {
       triangles.push_back(g_triangle(idx_offset_origin, idx_this, idx_next));
    }
 }
+
+// angle in radians.
+glm::vec3
+rotate_around_vector(const glm::vec3 &direction,
+                     const glm::vec3 &position,
+                     const glm::vec3 &origin_shift,
+                     double angle) {
+
+   glm::vec3 unit_vec = glm::normalize(direction);
+
+   double l = unit_vec[0];
+   double m = unit_vec[1];
+   double n = unit_vec[2];
+
+   double ll = l*l;
+   double mm = m*m;
+   double nn = n*n;
+   double cosk = cos(angle);
+   double sink = sin(angle);
+   double I_cosk = 1.0 - cosk;
+
+   // The Rotation matrix angle w about vector with direction cosines l,m,n.
+   //
+   // ( l**2+(m**2+n**2)cos k     lm(1-cos k)-nsin k        nl(1-cos k)+msin k   )
+   // ( lm(1-cos k)+nsin k        m**2+(l**2+n**2)cos k     mn(1-cos k)-lsin k   )
+   // ( nl(1-cos k)-msin k        mn(1-cos k)+lsin k        n*2+(l**2+m**2)cos k )
+   //
+   // (Amore documentation) Thanks for that pointer EJD :).
+
+   glm::mat3 r(ll+(mm+nn)*cosk,    l*m*I_cosk-n*sink,  n*l*I_cosk+m*sink,
+               l*m*I_cosk+n*sink,  mm+(ll+nn)*cosk,    m*n*I_cosk-l*sink,
+               n*l*I_cosk-m*sink,  m*n*I_cosk+l*sink,  nn+(ll+mm)*cosk );
+
+   glm::vec3 p1 = position - origin_shift;
+   glm::vec3 p2 = r * p1;
+   glm::vec3 p3 = p2 + origin_shift;
+   return p3;
+
+}
+
+std::vector<glm::vec3>
+get_middle_ring(const glm::vec3 &p1,
+                const glm::vec3 &p2,
+                const glm::vec3 &p3) {
+
+   unsigned int n_slices = 10;
+   double cylinder_radius = 0.1;
+   std::vector<glm::vec3> v;
+   glm::vec3 v1 = glm::normalize(p2-p1);
+   glm::vec3 v2 = glm::normalize(p3-p2);
+   glm::vec3 mid_point_vec = (v1 + v2) * 0.5f;
+   glm::vec3 mid_point_vec_normal = glm::normalize(mid_point_vec);
+   glm::vec3 mid_point = p2 + (v1 + v2) * 0.5f;
+   glm::vec3 pos_start = p2 + 0.1f * mid_point_vec_normal;
+   // this is the vector to spin around the point on the circle
+   glm::vec3 normal_sum_normal  = glm::normalize(v2+v1);
+   glm::vec3 normal_diff_normal = glm::normalize(v2-v1);
+   for (unsigned int i_slice=0; i_slice<n_slices; i_slice++) {
+      double angle = 2 * M_PI * static_cast<double>(i_slice) / static_cast<double>(n_slices);
+      glm::vec3 p = rotate_around_vector(normal_sum_normal, pos_start, p2, angle);
+      v.push_back(p);
+   }
+   return v;
+}
