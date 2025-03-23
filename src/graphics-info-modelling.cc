@@ -4755,14 +4755,34 @@ graphics_info_t::drag_intermediate_atom(const coot::atom_spec_t &atom_spec, cons
 
 // static
 void
-graphics_info_t::mark_atom_as_fixed(int imol, const coot::atom_spec_t &atom_spec, bool state) {
+graphics_info_t::while_moving_atoms_active_mark_atom_as_fixed(int imol, const coot::atom_spec_t &atom_spec, bool state) {
 
-   std::cout << "Here in mark_atom_as_fixed() 1 - " << moving_atoms_asc << std::endl;
+   std::cout << "Here in while_moving_atoms_active_mark_atom_as_fixed() --- start --- maa: " << moving_atoms_asc << std::endl;
 
    // 20211202-PE I don't understand how this test works or why it is here.
-   if (!moving_atoms_asc) {
-      std::cout << "WARNING:: No intermediate atoms - fail" << std::endl;
+   if (moving_atoms_asc) {
+      std::cout << "Here in while_moving_atoms_active_mark_atom_as_fixed() 2" << std::endl;
+      if ((imol >=0) && (imol < n_molecules())) {
+         std::cout << "Here in while_moving_atoms_active_mark_atom_as_fixed() 3" << std::endl;
+         if (graphics_info_t::molecules[imol].has_model()) {
+            std::cout << "Here in while_moving_atoms_active_mark_atom_as_fixed() 4" << std::endl;
+            graphics_info_t::molecules[imol].mark_atom_as_fixed(atom_spec, state);
+            graphics_info_t g;
+            g.setup_draw_for_anchored_atom_markers();
+         }
+      }
    } else {
+      std::cout << "WARNING:: in while_moving_atoms_active_mark_atom_as_fixed() No intermediate atoms - fail" << std::endl;
+   }
+}
+
+// static
+void
+graphics_info_t::mark_atom_as_fixed(int imol, const coot::atom_spec_t &atom_spec, bool state) {
+
+   std::cout << "debug:: mark_atom_as_fixed() --- start --- maa: " << moving_atoms_asc << std::endl;
+
+   if (true) {
       std::cout << "Here in mark_atom_as_fixed() 2" << std::endl;
       if ((imol >=0) && (imol < n_molecules())) {
          std::cout << "Here in mark_atom_as_fixed() 3" << std::endl;

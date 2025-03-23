@@ -759,6 +759,99 @@ graphics_info_t::move_single_atom_of_moving_atoms(int screenx, int screeny) {
 }
 
 void
+graphics_info_t::move_dragged_anchored_atom(double screen_x, double screen_y) {
+
+   // outut in the range -1 to +1
+   auto mouse_coords_to_clip_space = [] (int screen_coord, int dimension) {
+                                        double fsc = static_cast<double>(screen_coord);
+                                        double fd = static_cast<double>(dimension);
+                                        double f = fsc/fd;
+                                        return 2.0 * f - 1.0;
+                                     };
+
+   auto get_position_diff = [mouse_coords_to_clip_space] (double screen_x, double screen_y) {
+
+      if (true)
+         std::cout << "in move_atom_pull_target_postion() "
+                   << " screen_x " << screen_x << " screen_y " << screen_y
+                   << " delta " << screen_x - mouse_begin.first  << " "
+                   << " delta " << screen_y - mouse_begin.second << " "
+                   << std::endl;
+
+      double delta_x = screen_x - mouse_begin.first;
+      double delta_y = screen_y - mouse_begin.second;
+
+      GtkAllocation allocation = get_glarea_allocation();
+      int iw = allocation.width;
+      int ih = allocation.height;
+
+      double mx_now =  mouse_coords_to_clip_space(screen_x, iw);
+      double my_now = -mouse_coords_to_clip_space(screen_y, ih);
+
+      glm::vec3   back_now = unproject_to_world_coordinates(glm::vec3(mx_now, my_now,  1.0));
+      glm::vec3  front_now = unproject_to_world_coordinates(glm::vec3(mx_now, my_now, -1.0));
+
+      bool ok_indexing = false;
+      if (moving_atoms_currently_dragged_atom_index < moving_atoms_asc->n_selected_atoms)
+         if (moving_atoms_currently_dragged_atom_index  >= 0)
+            ok_indexing = true;
+
+      if (ok_indexing == false) {
+         std::cout << "bad indexing for dragged moving atom " << moving_atoms_currently_dragged_atom_index
+                   << std::endl;
+         return std::make_pair(false, coot::Cartesian(0,0,0));
+      }
+
+      mmdb::Atom *at = moving_atoms_asc->atom_selection[moving_atoms_currently_dragged_atom_index];
+
+      glm::vec3 atom_position(at->x, at->y, at->z);
+
+      if (false)
+         std::cout << "in move_atom_pull_target_postion() " << moving_atoms_currently_dragged_atom_index
+                   << " " << at << " " << glm::to_string(atom_position) << std::endl;
+
+      // I *do* need know where the pointer is in 3d space - not just where the delta
+
+      glm::vec3 front_to_atom = atom_position - front_now;
+      glm::vec3 front_to_atom_uv = glm::normalize(front_to_atom);
+      glm::vec3 front_to_back = back_now - front_now;
+      glm::vec3 front_to_back_uv =  glm::normalize(front_to_back);
+      float dp = glm::dot(front_to_back_uv, front_to_atom_uv);
+      float cos_angle_between_front_to_back_and_front_to_atom = dp;
+
+      // distance between front and atom position
+      float d_f_a_p = glm::distance(front_now, atom_position);
+      float d_b_a_p = glm::distance(back_now,  atom_position);
+      float d_f_b   = glm::distance(front_now, back_now);
+
+      if (false)
+         std::cout << "dp " << dp << " d_f_a_p " << d_f_a_p << " d_b_a_p " << d_b_a_p << std::endl;
+
+      // the magic :-) Pythagoras in action.
+      glm::vec3 mouse_now = front_now + (back_now - front_now) * d_f_a_p * cos_angle_between_front_to_back_and_front_to_atom / d_f_b;
+
+      glm::vec3 new_position = mouse_now;
+      clipper::Coord_orth new_position_c(new_position.x, new_position.y, new_position.z);
+
+      coot::Cartesian diff_std(mouse_now.x - atom_position.x, mouse_now.y - atom_position.y, mouse_now.z - atom_position.z);
+      bool is_valid = true;
+      return std::pair<bool, coot::Cartesian>(is_valid, diff_std);
+   };
+
+   std::pair<bool, coot::Cartesian> diff = get_position_diff(screen_x, screen_y);
+   if (diff.first) {
+      std::cout << "diff_std: " << diff.second << std::endl;
+      mmdb::Atom *at = moving_atoms_asc->atom_selection[moving_atoms_currently_dragged_atom_index];
+      at->x += diff.second.x();
+      at->y += diff.second.y();
+      at->z += diff.second.z();
+      thread_for_refinement_loop_threaded();
+   }
+
+}
+
+
+void
 graphics_info_t::move_atom_pull_target_position(double screen_x, double screen_y, bool control_is_pressed) {
 
    // we pass control_is_pressed so that, if we are in noughties_physics mode,

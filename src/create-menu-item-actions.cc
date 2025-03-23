@@ -4217,10 +4217,13 @@ fix_atom(GSimpleAction *simple_action,
 
    graphics_info_t g;
    std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
+   std::cout << "debug:: in fix_atom() " << pp.first << " " << pp.second.first << " " << pp.second.second << std::endl;
    if (pp.first) {
       int imol = pp.second.first;
+      std::cout << "mark atom as fixed " << imol << " " << pp.second.second << std::endl;
       g.attach_buffers(); // 20220823-PE needed?
-      g.mark_atom_as_fixed(imol, pp.second.second, true);
+
+      // g.mark_atom_as_fixed(imol, pp.second.second, true);
       g.graphics_draw(); // maybe not needed here
    }
 }
@@ -4233,10 +4236,12 @@ unfix_atom(GSimpleAction *simple_action,
 
    graphics_info_t g;
    std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
+   std::cout << "debug:: in unfix_atom() " << pp.first << " " << pp.second.first << " " << pp.second.second << std::endl;
    if (pp.first) {
       int imol = pp.second.first;
       g.attach_buffers(); // 20220823-PE needed?
-      g.mark_atom_as_fixed(imol, pp.second.second, false);
+
+      // g.mark_atom_as_fixed(imol, pp.second.second, false);
       g.graphics_draw(); // maybe not needed here
    }
 }

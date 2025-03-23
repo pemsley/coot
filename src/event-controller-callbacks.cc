@@ -124,7 +124,7 @@ graphics_info_t::on_glarea_drag_update_primary(GtkGestureDrag *gesture,
 
          if (this_atom_is_anchored) {
             std::cout << "this atom is anchored! " << coot::atom_spec_t(dragged_anchored_atom) << std::endl;
-            // move_dragged_anchored_atom(dragged_anchored_atom)
+            move_dragged_anchored_atom(x, y);
          } else {
             std::cout << "calling move_atom_pull_target_position() " << std::endl;
             move_atom_pull_target_position(x, y, control_is_pressed);
