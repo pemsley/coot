@@ -1,4 +1,31 @@
 
+  Release 1.1.15
+
+ o FEATURE: Drag and drop (partial - it works from the file browser,
+            but not from CCP4i2)
+
+ o CHANGE:  Fixed atoms are now draggable
+
+ o CHANGE:  Backtick for selection now also shows the residue range
+            (if set)
+
+ o BUG-FIX: Track-pad zooming fixed
+
+ o BUG-FIX: Residue Info dialog buttons now on the right hand side
+
+ o BUG-FIX: Fix and Unfix atom now work as expected
+
+ o BUG-FIX: Remove erroneous "No ligands Found" dialog when
+            ligand fitting
+
+ o BUG-FIX: Select Map for Fitting dialog now behaves has expected
+            on reopen
+
+ o BUG-FIX: Merge Molecules dialog now behaves has expected on reopen
+
+ o BUG-FIX: Choose a better contour level for masked maps
+
+
   Release 1.1.14
 
   o FEATURE: Clark&Labute-like 2D-ligand environment view in Coot,

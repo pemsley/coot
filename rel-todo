@@ -3,19 +3,9 @@
 
 o Rama and Rota graphs validation graphs have terrible scaling ::: 1
 
-o backtick to show residue range (first) ::: 1
+--- Other Items ---
 
-o Fix zooming ::: 1
-
-o drag fixed atoms! ::: 1
-
-o gihub sunchang: open close open the merge molecules dialog: see molecules repeated. ::: 0.5
-
-o allow use-defined max_closeness for map peaks (not diff map peaks) ::: 1
-
-o Drag and drop (just "drop") ::: 2
-
---- Others ---
+o allow use-defined max_closeness for map peaks (not diff map peaks) :: 1
 
 o WTA carbohydrate :: 4
 
@@ -40,3 +30,13 @@ o "Select map for fitting", open, close, open, typical failure ::: 0.2
 o After creating a cryo-EM map by masking, it looks like the contour
   level of the new map is 0 (or close to?)
   48083 and pdb9eih. ::: 0.2
+
+o gihub sunchang: open close open the merge molecules dialog: see molecules repeated. ::: 0.5
+
+o Drag and drop (just "drop" from nautilus - that will do for now) ::: 1
+
+o backtick to show residue range (first) ::: 1
+
+o drag fixed atoms! ::: 1
+
+o Fix zooming ::: 1

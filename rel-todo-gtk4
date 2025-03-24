@@ -6,6 +6,8 @@ each has their own button
 
 Make a OccuPy screenshot - use Fancy mode.
 
+Validation graphs should be split-out-able - Preferences
+
 build chapi without rdkit
 * Done.
 
@@ -13,11 +15,6 @@ have another look at monomer and python startup.
 
 What is the status of anisotropic atom scaling (Claus)
 
-bernie mail about shader errors.
-
-After creating a cryo-EM map, it looks like the contour
-level of the new map is 0 (or close to?)
-48083 and pdb9eih.
 
 Clemens: json file: when you uget there, show the nneighbours
 action is a list of actions, each has their own button
@@ -39,7 +36,7 @@ Paul Bond: named argument support in chapi?
 Doable. Does Lucrezia want to do it?
 
 When the monomer library isn't install/doesn't work, ask the user if it should download
-the monomer restraints from github? Cache them in xdg cache .cache/Coot/monomes and load
+the monomer restraints from github? Cache them in xdg cache .cache/Coot/monomers and load
 from there on read without user intervention.
 
 Jordan: how about stubgen for nanobind functions?
@@ -71,7 +68,7 @@ working correctly?
 Carbohydrate WTA mode in C++
 
 find-ligand executable doesn't read mmcif? if dictionary is
-loaded, then one donesn't need ligand.pdb as input.
+loaded, then one doesn't need ligand.pdb as input.
 
 Add a filter for overlapping points after importing M2T
 geometry - don't leave it up to Blender.
@@ -224,6 +221,11 @@ with 258 N1? Ah! They are both acceptors! Interesting. What to do about it?
 
 More work on molecule_class_info_t::alt_conf_view_next_alt_conf(const std::string &current_alt_conf)
 needed.
+
+After creating a cryo-EM map, it looks like the contour
+level of the new map is 0 (or close to?)
+48083 and pdb9eih.
+* Done.
 
 Open up the Refine module - Rama and Rota markup is not set as "on"
 * Done.
