@@ -1,8 +1,6 @@
 
 --- Items ---
 
-o Rama and Rota graphs validation graphs have terrible scaling ::: 1
-
 --- Other Items ---
 
 o allow use-defined max_closeness for map peaks (not diff map peaks) :: 1
@@ -16,6 +14,7 @@ o Add anisotropic radius scaling from Claus. Need to check mails or something
 
 o Rework monomer library usage - make it more like Moorhen. :: 2
 
+o Rama and Rota graphs validation graphs have terrible scaling - difficult to fix :: 4
 
 --- Done Items ---
 
