@@ -51,8 +51,9 @@
 // Possibly because the gui (this file included) is loaded at run-time.
 // 20250221-PE now thay are in graphics-info-statics also.
 // Hmm
-int graphics_info_t::scale_up_graphics = 1;
-int graphics_info_t::scale_down_graphics = 1;
+// 2025-03-25-PE don't declare these twice (i.e.not here)
+// int graphics_info_t::scale_up_graphics = 1;
+// int graphics_info_t::scale_down_graphics = 1;
 
 extern "C" { void load_tutorial_model_and_data(); }
 
