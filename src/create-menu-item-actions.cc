@@ -4223,8 +4223,7 @@ fix_atom(GSimpleAction *simple_action,
       int imol = pp.second.first;
       std::cout << "mark atom as fixed " << imol << " " << pp.second.second << std::endl;
       g.attach_buffers(); // 20220823-PE needed?
-
-      // g.mark_atom_as_fixed(imol, pp.second.second, true);
+      g.mark_atom_as_fixed(imol, pp.second.second, true);
       g.graphics_draw(); // maybe not needed here
    }
 }
@@ -4241,8 +4240,7 @@ unfix_atom(GSimpleAction *simple_action,
    if (pp.first) {
       int imol = pp.second.first;
       g.attach_buffers(); // 20220823-PE needed?
-
-      // g.mark_atom_as_fixed(imol, pp.second.second, false);
+      g.mark_atom_as_fixed(imol, pp.second.second, false);
       g.graphics_draw(); // maybe not needed here
    }
 }
