@@ -403,8 +403,6 @@ LinesMesh::setup_red_pulse(bool broken_line_mode) {
 void
 LinesMesh::update_buffers_for_pulse(float n_steps, int direction) { // delta time in ms.
 
-   std::cout << "debug:: update_buffers_for_pulse() " << n_steps << " " << direction << std::endl;
-
    float r = 0.4 * n_steps;
    glm::vec4 colour(0.2, 0.8, 0.2, 1.0);
    if (direction == -1) {
