@@ -1020,6 +1020,7 @@ PyObject *map_peaks_py(int imol_map, float n_sigma) {
       int do_positive_levels_flag = 1;
       int also_negative_levels_flag = 0;
       coot::peak_search ps(xmap);
+      ps.set_max_closeness(0.0f);
       std::vector<std::pair<clipper::Coord_orth, float> > peaks =
 	 ps.get_peaks(xmap, n_sigma, do_positive_levels_flag, also_negative_levels_flag);
       r = PyList_New(peaks.size());
@@ -1104,6 +1105,7 @@ SCM map_peaks_scm(int imol_map, float n_sigma) {
       int do_positive_levels_flag = 1;
       int also_negative_levels_flag = 0;
       coot::peak_search ps(xmap);
+      ps.set_max_closeness(0.0f);
       std::vector<std::pair<clipper::Coord_orth, float> > peaks =
 	 ps.get_peaks(xmap, n_sigma, do_positive_levels_flag, also_negative_levels_flag);
       for (unsigned int i=0; i<peaks.size(); i++) {
