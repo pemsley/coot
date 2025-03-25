@@ -28,7 +28,7 @@
 #include <epoxy/gl.h>
 
 #define GLM_ENABLE_EXPERIMENTAL
-#include <glm/ext.hpp>
+// #include <glm/ext.hpp>
 #include "LinesMesh.hh"
 
 // should this have its own header?
@@ -337,10 +337,12 @@ LinesMesh::make_vertices_for_pulse(const glm::vec4 &colour, float radius_overall
 
    // we don't need to regenerate the indices if they have already been generated
 
+#if 0 // quick fix for glm compilation problems
    std::cout << "debug::  make_vertices_for_pulse() --- start --- "
              << glm::to_string(colour) << " r: "
              << radius_overall << " n-rings: " << n_rings << " "
              << std::endl;
+#endif
 
    vertices.clear();
    indices.clear();
@@ -377,9 +379,14 @@ LinesMesh::setup_green_pulse(bool broken_line_mode) {
 
    glm::vec4 colour(0.2, 0.8, 0.2, 1.0); // green(!?)
    unsigned int n_rings = 13;
+
+#if 0 // quick fix for glm compilation problems
    std::cout << "DEBUG:: calling make_vertices_for_pulse() with colour " << glm::to_string(colour) << std::endl;
+#endif
    make_vertices_for_pulse(colour, 13.0, n_rings, 0.0, broken_line_mode);
+#if 0 // quick fix for glm compilation problems
    std::cout << "DEBUG:: done make_vertices_for_pulse() " << vertices.size() << " " << indices.size() << std::endl;
+#endif
    setup();
 }
 
@@ -388,13 +395,9 @@ LinesMesh::setup_red_pulse(bool broken_line_mode) {
 
    glm::vec4 colour(0.8, 0.2, 0.2, 1.0);
    unsigned int n_rings = 3;
-   std::cout << "DEBUG:: calling make_vertices_for_pulse() with colour " << glm::to_string(colour) << std::endl;
    make_vertices_for_pulse(colour, 6.0, n_rings, 0.0, broken_line_mode);
-   std::cout << "DEBUG:: done make_vertices_for_pulse() " << vertices.size() << " " << indices.size() << std::endl;
    setup();
 }
-
-
 
 
 void

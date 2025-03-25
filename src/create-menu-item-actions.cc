@@ -51,8 +51,9 @@
 // Possibly because the gui (this file included) is loaded at run-time.
 // 20250221-PE now thay are in graphics-info-statics also.
 // Hmm
-int graphics_info_t::scale_up_graphics = 1;
-int graphics_info_t::scale_down_graphics = 1;
+// 2025-03-25-PE don't declare these twice (i.e.not here)
+// int graphics_info_t::scale_up_graphics = 1;
+// int graphics_info_t::scale_down_graphics = 1;
 
 extern "C" { void load_tutorial_model_and_data(); }
 
@@ -4222,8 +4223,7 @@ fix_atom(GSimpleAction *simple_action,
       int imol = pp.second.first;
       std::cout << "mark atom as fixed " << imol << " " << pp.second.second << std::endl;
       g.attach_buffers(); // 20220823-PE needed?
-
-      // g.mark_atom_as_fixed(imol, pp.second.second, true);
+      g.mark_atom_as_fixed(imol, pp.second.second, true);
       g.graphics_draw(); // maybe not needed here
    }
 }
@@ -4240,8 +4240,7 @@ unfix_atom(GSimpleAction *simple_action,
    if (pp.first) {
       int imol = pp.second.first;
       g.attach_buffers(); // 20220823-PE needed?
-
-      // g.mark_atom_as_fixed(imol, pp.second.second, false);
+      g.mark_atom_as_fixed(imol, pp.second.second, false);
       g.graphics_draw(); // maybe not needed here
    }
 }
