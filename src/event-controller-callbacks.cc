@@ -77,7 +77,9 @@ graphics_info_t::on_glarea_drag_begin_primary(GtkGestureDrag *gesture, double x,
 
 // drag_delta_x and drag_delta_y are the delta coordinates relative to where the drag began.
 void
-graphics_info_t::on_glarea_drag_update_primary(GtkGestureDrag *gesture, double drag_delta_x, double drag_delta_y, GtkWidget *gl_area) {
+graphics_info_t::on_glarea_drag_update_primary(GtkGestureDrag *gesture,
+                                               double drag_delta_x, double drag_delta_y,
+                                               GtkWidget *gl_area) {
 
    auto do_view_rotation = [gl_area] (double delta_x, double delta_y) {
       GtkAllocation allocation;
@@ -87,6 +89,10 @@ graphics_info_t::on_glarea_drag_update_primary(GtkGestureDrag *gesture, double d
       update_view_quaternion(w, h, delta_x, delta_y);
    };
 
+   auto do_view_zoom = [] (double drag_delta_x, double drag_delta_y) {
+      mouse_zoom(drag_delta_x, drag_delta_y);
+   };
+
    if (false)
       std::cout << "debug:: use_primary_mouse_for_view_rotation_flag "
                 << use_primary_mouse_for_view_rotation_flag << std::endl;
@@ -94,17 +100,39 @@ graphics_info_t::on_glarea_drag_update_primary(GtkGestureDrag *gesture, double d
    // Ctrl left-mouse means pan
    GdkModifierType modifier = gtk_event_controller_get_current_event_state(GTK_EVENT_CONTROLLER(gesture));
    bool control_is_pressed = (modifier & GDK_CONTROL_MASK);
+   bool   shift_is_pressed = (modifier & GDK_SHIFT_MASK);
    double x = drag_begin_x + drag_delta_x;
    double y = drag_begin_y + drag_delta_y;
    double delta_delta_x = x - get_mouse_previous_position_x();
    double delta_delta_y = y - get_mouse_previous_position_y();
-   set_mouse_previous_position(x, y);
 
    bool handled = false;
    if (in_moving_atoms_drag_atom_mode_flag) {
       if (last_restraints_size() > 0) {
          // move an already picked atom
-         move_atom_pull_target_position(x, y, control_is_pressed);
+         bool this_atom_is_anchored = false;
+         mmdb::Atom *dragged_anchored_atom = nullptr;
+         // use molecule-class-info's fixed atom specs to see if this is a fixed atom.
+
+         if (moving_atoms_asc) {
+            mmdb::Atom *at = moving_atoms_asc->atom_selection[moving_atoms_currently_dragged_atom_index];
+            coot::atom_spec_t at_spec(at);
+            for (unsigned int ispec=0; ispec<molecules[imol_moving_atoms].fixed_atom_specs.size(); ispec++) {
+               if (at_spec == molecules[imol_moving_atoms].fixed_atom_specs[ispec]) {
+                  this_atom_is_anchored = true;
+                  dragged_anchored_atom =  at;
+                  break;
+               }
+            }
+         }
+
+         if (this_atom_is_anchored) {
+            std::cout << "debug:: update primary: this atom is anchored! "
+                      << coot::atom_spec_t(dragged_anchored_atom) << std::endl;
+            // move_dragged_anchored_atom(dragged_anchored_atom)
+         } else {
+            move_atom_pull_target_position(x, y, control_is_pressed);
+         }
          handled = true;
       } else {
       }
@@ -114,15 +142,27 @@ graphics_info_t::on_glarea_drag_update_primary(GtkGestureDrag *gesture, double d
          handled = true;
          graphics_draw();
       } else {
-         if (use_primary_mouse_for_view_rotation_flag) {
-            do_view_rotation(drag_delta_x, drag_delta_y);
-            graphics_draw();
+         if (shift_is_pressed) {
+            do_view_zoom(drag_delta_x, drag_delta_y);
          } else {
-            // is this logic correct?
-            rotate_chi(delta_delta_x, delta_delta_y); // does its own graphics_draw()
+            if (use_primary_mouse_for_view_rotation_flag) {
+               do_view_rotation(drag_delta_x, drag_delta_y);
+               graphics_draw();
+            } else {
+               // is this logic correct?
+               rotate_chi(delta_delta_x, delta_delta_y); // does its own graphics_draw()
+            }
          }
       }
    }
+
+   graphics_draw();
+   mouse_current_x = mouse_clicked_begin.first  + drag_delta_x;
+   mouse_current_y = mouse_clicked_begin.second + drag_delta_y;
+
+   // we do this in the update of the secondary. Let's do it here too.
+   SetMouseBegin(mouse_current_x, mouse_current_y); // not really "begin", but "previous position"
+   set_mouse_previous_position(x, y);
 }
 
 

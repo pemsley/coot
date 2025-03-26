@@ -70,6 +70,13 @@ gboolean on_about_dialog_close_request(GtkAboutDialog *dialog, gpointer user_dat
 }
 
 extern "C" G_MODULE_EXPORT
+gboolean
+on_select_fitting_map_dialog_close_request(GtkAboutDialog *dialog, gpointer user_data) {
+   gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
+   return TRUE; // Prevent the default close behavior (destruction)
+}
+
+extern "C" G_MODULE_EXPORT
 void
 on_column_label_ok_button_clicked      (GtkButton       *button,
                                         gpointer         user_data)
@@ -786,15 +793,11 @@ void
 on_find_ligand_ok_button_clicked       (GtkButton       *button,
                                                             gpointer         user_data) {
 
-   int n_ligands = execute_get_mols_ligand_search(GTK_WIDGET(button));
-			                    	/* which then runs execute_ligand_search */
-   if (n_ligands > 0) {
-      GtkWidget *window = widget_from_builder("find_ligand_dialog");
-      // free_ligand_search_user_data(GTK_WIDGET(button)); // not if not destroyed? Needs checking.
-      gtk_widget_set_visible(window, FALSE);
-   } else {
-      info_dialog("WARNING:: No ligands were selected");
-   }
+   // execute_get_mols_ligand_search() no longer returns the number of ligands
+   execute_get_mols_ligand_search(GTK_WIDGET(button)); /* which then runs execute_ligand_search */
+   GtkWidget *window = widget_from_builder("find_ligand_dialog");
+   // free_ligand_search_user_data(GTK_WIDGET(button)); // not if not destroyed? Needs checking.
+   gtk_widget_set_visible(window, FALSE);
 }
 
 
@@ -3282,8 +3285,7 @@ on_column_labels_use_resolution_limits_checkbutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  GtkWidget *frame = widget_from_builder(
-				   "resolution_limits_hbox");
+  GtkWidget *frame = widget_from_builder("resolution_limits_hbox");
   if (gtk_toggle_button_get_active(togglebutton))
      gtk_widget_set_sensitive(frame, TRUE);
   else
@@ -3302,6 +3304,14 @@ on_merge_molecules_ok_button_clicked(GtkButton       *button,
    do_merge_molecules(w);
    gtk_widget_set_visible(w, FALSE);
 
+}
+
+
+extern "C" G_MODULE_EXPORT
+gboolean
+on_merge_molecules_dialog_close_request(GtkAboutDialog *dialog, gpointer user_data) {
+   gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
+   return TRUE; // Prevent the default close behavior (destruction)
 }
 
 

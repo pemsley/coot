@@ -2338,6 +2338,8 @@ float get_aniso_probability();
 
 /*! \brief set the window size */
 void   set_graphics_window_size(int x_size, int y_size);
+/*! \brief set the window size as gtk_widget (flag=1) or gtk_window (flag=0) */
+void   set_graphics_window_size_internal(int x_size, int y_size, int as_widget_flag);
 /*! \brief set the graphics window position */
 void   set_graphics_window_position(int x_pos, int y_pos);
 /*! \brief store the graphics window position */

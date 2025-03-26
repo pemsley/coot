@@ -1571,7 +1571,7 @@ std::vector<glm::vec4>
 coot::molecule_t::make_colour_table_for_goodsell_style(float colour_wheel_rotation_step, float saturation, float goodselliness) const {
 
    bool debug_colour_table = true;
-   float gcwrs = colour_wheel_rotation_step;
+   float gcwrs = colour_wheel_rotation_step / 360.0;
    std::vector<glm::vec4> colour_table;
    int icol_max = -1;
    for (int i=0; i<bonds_box.n_atom_centres_; i++) {
@@ -1587,16 +1587,22 @@ coot::molecule_t::make_colour_table_for_goodsell_style(float colour_wheel_rotati
          int icol = bonds_box.atom_centres_colour_[i];
          if (done_colours.find(icol) == done_colours.end()) {
             // c.f. molecules-class-info.cc lines 4000 or so
-            coot::colour_holder ch(0.8, 0.5, 0.6);
+            coot::colour_holder ch(0.8, 0.4, 0.6);
             int ic = icol - 100;
             bool is_C = !(ic%2);
             int chain_index =  ic/2;
-            float pastel_factor = 1.0/saturation;
-            ch.pastelize(pastel_factor);
+            if (is_C) {
+               float pastel_factor = 0.2;
+               ch.pastelize(pastel_factor);
+            }
             float rotation_angle = gcwrs * static_cast<float>(chain_index);
             ch.rotate_by(rotation_angle);
             if (is_C) ch.make_pale(goodselliness);
+            if (false)
+               std::cout << "colour table: " << icol << " rotation_angle " << rotation_angle << " "
+                         << ch.red << " " << ch.green << " " << ch.blue << std::endl;
             colour_table[icol] = glm::vec4(ch.red, ch.green, ch.blue, 1.0);
+            done_colours.insert(icol);
          }
       }
    }

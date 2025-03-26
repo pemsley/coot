@@ -2058,7 +2058,11 @@ molecule_class_info_t::initialize_map_things_on_read_molecule(std::string molecu
 
    colour_map_using_other_map_flag = false;
 
-   draw_it_for_map = 1;
+   if (graphics_info_t::use_graphics_interface_flag) {
+      draw_it_for_map = 1;
+   } else {
+      draw_it_for_map = 0;
+   }
    draw_it_for_map_standard_lines = 1; // display the map initially, by default
 
    // We can't call this untill xmap_is_filled[0] has been assigned,
@@ -3930,7 +3934,8 @@ molecule_class_info_t::make_bonds_type_checked(const char *caller) {
 
    // make glsl triangles
    glUseProgram(graphics_info_t::shader_for_models.get_program_id());
-   // std::cout << "make_bonds_type_checked() using model shader program_id is "  << graphics_info_t::shader_for_models.get_program_id() << std::endl;
+   // std::cout << "make_bonds_type_checked() using model shader program_id is "
+   //           << graphics_info_t::shader_for_models.get_program_id() << std::endl;
    GLenum err = glGetError();
    if (err) std::cout << "Error in glUseProgram() in make_bonds_type_checked() " << err << "\n";
 
@@ -4371,12 +4376,37 @@ void molecule_class_info_t::make_glsl_bonds_type_checked(const char *caller) {
 void
 molecule_class_info_t::make_glsl_symmetry_bonds() {
 
+   auto pastelize_colour_table = [] (const std::vector<glm::vec4> &colour_table) {
+      glm::vec4 grey(0.5, 0.5, 0.5, 1.0);
+      std::vector<glm::vec4> new_colour_table = colour_table;
+      for (unsigned int i=0; i<colour_table.size(); i++)
+         new_colour_table[i] = (colour_table[i] + grey * 2.0f) * 0.33f;
+      return new_colour_table;
+   };
+
    // do things with symmetry_bonds_box;
    // std::vector<std::pair<graphical_bonds_container, std::pair<symm_trans_t, Cell_Translation> > > symmetry_bonds_box;
    graphics_info_t::attach_buffers();
+
+#if 0
    mesh_for_symmetry_atoms.make_symmetry_atoms_bond_lines(symmetry_bonds_box, // boxes
                                                           graphics_info_t::symmetry_colour,
                                                           graphics_info_t::symmetry_colour_merge_weight);
+#endif
+
+   float atom_radius = 0.1;
+   float bond_radius = 0.1;
+   int num_subdivisions = 2;
+   int n_slices = 8;
+   int n_stacks = 2;
+   std::vector<glm::vec4> colour_table = make_colour_table();
+
+   std::vector<glm::vec4> new_colour_table = pastelize_colour_table(colour_table);
+
+   meshes_for_symmetry_atoms.make_symmetry_bonds(imol_no, symmetry_bonds_box,
+                                                 atom_radius, bond_radius,
+                                                 num_subdivisions, n_slices, n_stacks,
+                                                 new_colour_table);
 }
 
 // either we have licorice/ball-and-stick (licorice is a form of ball-and-stick) or big-ball-no-bonds
@@ -4492,11 +4522,27 @@ molecule_class_info_t::draw_symmetry(Shader *shader_p,
                                      const glm::vec4 &background_colour,
                                      bool do_depth_fog) {
 
-   if (draw_it)
-      if (show_symmetry)
-         if (this_molecule_has_crystallographic_symmetry)
+   if (draw_it) {
+      if (show_symmetry) {
+         if (this_molecule_has_crystallographic_symmetry) {
+
+#if 0 // 20250312-PE old line symmetry
             mesh_for_symmetry_atoms.draw_symmetry(shader_p, mvp, view_rotation, lights,
                                                   eye_position, background_colour, do_depth_fog);
+#endif
+
+            Shader *shader_for_simple_mesh = &graphics_info_t::shader_for_model_as_meshes;
+            Shader *shader_for_instances = &graphics_info_t::shader_for_instanced_objects;
+            float opacity = 1.0;
+            bool gl_lines_mode = false;
+            bool show_just_shadows = false;
+            meshes_for_symmetry_atoms.draw(shader_for_simple_mesh, shader_for_instances, mvp, view_rotation,
+                                           lights, eye_position, opacity, background_colour,
+                                           gl_lines_mode, do_depth_fog, show_just_shadows);
+
+         }
+      }
+   }
 }
 
 

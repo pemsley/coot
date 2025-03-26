@@ -33,6 +33,8 @@ constexpr float HUD_button_info_t::button_width;
 // static
 constexpr float HUD_button_info_t::button_height;
 
+std::string stringify_error_message(GLenum err); // from Mesh.cc
+
 void
 HUDMesh::init() {
 
@@ -327,10 +329,18 @@ HUDMesh::update_instancing_buffer_data(const std::vector<HUD_bar_attribs_t> &new
 void
 HUDMesh::update_instancing_buffer_data(const std::vector<HUD_button_info_t> &buttons_info) {
 
+   GLenum err = glGetError();
+   if (err)
+      std::cout << "GL ERROR:: HUDmesh::update_instancing_buffer_data(button_info) --start-- err "
+                << stringify_error_message(err) << std::endl;
+
    unsigned int s = buttons_info.size();
    n_instances = s;
    if (s> max_n_instances)
       n_instances = max_n_instances;
+
+   if (n_instances == 0) return; // like update_instancing_buffer_data() in HUDTextureMesh.
+
    glBindBuffer(GL_ARRAY_BUFFER, inst_hud_bar_attribs_buffer_id);
    // argh! - 20210828-PE OK! solved with inheritance.
    glBufferSubData(GL_ARRAY_BUFFER, 0, n_instances * sizeof(HUD_button_info_t), &(buttons_info[0]));

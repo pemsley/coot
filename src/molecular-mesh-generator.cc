@@ -575,7 +575,6 @@ molecular_mesh_generator_t::smooth_vertices(std::vector<s_generic_vertex> *v_p, 
       verts[it_udm->first].normal = glm::normalize(it_udm->second);
    }
 
-   
 }
 
 
@@ -1209,7 +1208,9 @@ molecular_mesh_generator_t::get_molecular_triangles_mesh_for_active_residue(int 
                                                                             mmdb::Residue *residue_p,
                                                                             const coot::protein_geometry *geom_in,
                                                                             int bond_width,
+                                                                            molecular_mesh_generator_t::range_t range,
                                                                             int selection_mode) {
+
    //! selection_mode is one of 1: residue, 2: sphere, 3: big sphere, 4: chain
 
    auto select_atoms_in_residues = [] (int selhnd, mmdb::Manager *mol,
@@ -1223,8 +1224,30 @@ molecular_mesh_generator_t::get_molecular_triangles_mesh_for_active_residue(int 
          }
    };
 
-   auto construct_selection = [select_atoms_in_residues] (mmdb::Manager *mol, int selection_mode,
-                                  mmdb::Residue *residue_p) {
+   auto residues_in_range = [] (mmdb::Chain *chain_p, int resno_start, int resno_end) {
+      std::vector<mmdb::Residue * > v;
+      if (chain_p) {
+         int n_residues = chain_p->GetNumberOfResidues();
+         for (int i=0; i<n_residues; i++) {
+            mmdb::Residue *residue_p = chain_p->GetResidue(i);
+            if (residue_p) {
+               int res_no = residue_p->GetSeqNum();
+               if (res_no >= resno_start) {
+                  if (res_no <= resno_end) {
+                     v.push_back(residue_p);
+                  }
+               }
+            }
+         }
+      }
+      return v;
+   };
+
+   auto construct_selection = [select_atoms_in_residues,
+                               residues_in_range] (mmdb::Manager *mol,
+                                                   range_t range,
+                                                   int selection_mode,
+                                                   mmdb::Residue *residue_p) {
       // c.f. coot::molecule_t::select_residues()
       int selhnd = mol->NewSelection();
       if (selection_mode == 1) { // residue
@@ -1251,6 +1274,21 @@ molecular_mesh_generator_t::get_molecular_triangles_mesh_for_active_residue(int 
             select_atoms_in_residues(selhnd, mol, rs);
          }
       }
+      if (selection_mode == 5) { // residue range
+         // if (graphics_info_t::in_range_define == 2) {
+         if (true) {
+            mmdb::Model *model_p = mol->GetModel(1);
+            if (model_p) {
+               mmdb::Chain *chain_p = residue_p->chain;
+               if (range.is_valid) {
+                  std::vector<mmdb::Residue * > rs = residues_in_range(chain_p, range.resno_start, range.resno_end);
+                  if (! rs.empty()) {
+                     select_atoms_in_residues(selhnd, mol, rs);
+                  }
+               }
+            }
+         }
+      }
       return selhnd;
    };
 
@@ -1261,7 +1299,7 @@ molecular_mesh_generator_t::get_molecular_triangles_mesh_for_active_residue(int 
    // res_spec.select_atoms(mol, selhnd, mmdb::SKEY_NEW);
    // replace asc innards with the atoms of the residue selection
    atom_selection_container_t asc = make_asc(mol);
-   int selhnd = construct_selection(mol, selection_mode, residue_p); // selection is deleted below
+   int selhnd = construct_selection(mol, range, selection_mode, residue_p); // selection is deleted below
    int n_selected_atoms = 0;
    mmdb::PAtom *atom_selection;
    mol->GetSelIndex(selhnd, atom_selection, n_selected_atoms);
@@ -1274,8 +1312,8 @@ molecular_mesh_generator_t::get_molecular_triangles_mesh_for_active_residue(int 
    bool draw_missing_loops_flag = false;
 
    auto cartesian_to_glm = [] (const coot::Cartesian &c) {
-                              return glm::vec3(c.x(), c.y(), c.z());
-                   };
+      return glm::vec3(c.x(), c.y(), c.z());
+   };
 
    auto vnc_vertex_to_generic_vertex = [] (const coot::api::vnc_vertex &v) {
       return s_generic_vertex(v.pos, v.normal, v.color);
@@ -1288,12 +1326,9 @@ molecular_mesh_generator_t::get_molecular_triangles_mesh_for_active_residue(int 
       return vo;
    };
 
-   float radius = 1;
-   glm::vec4 col(0.5, 0.5, 0.5, 1.0);
-   glm::vec3 origin(0,0,0);
-   unsigned int num_subdivisions = 2; // 2 should be the default?
-   std::pair<std::vector<coot::api::vnc_vertex>, std::vector<g_triangle> > octaball =
-      make_octasphere(num_subdivisions, origin, radius, col);
+   if (n_selected_atoms == 0) {
+      std::cout << "Play Nothing feedback here" << std::endl;
+   }
 
    auto make_generic_vertices_for_atoms = [atom_radius_scale_factor, cartesian_to_glm, vnc_vertex_to_generic_vertex]
       (const graphical_bonds_container &bonds_box,
@@ -1376,6 +1411,13 @@ molecular_mesh_generator_t::get_molecular_triangles_mesh_for_active_residue(int 
                                              }
                                              return std::make_pair(vertices, triangles);
                                           };
+
+   float radius = 1.0f;
+   glm::vec4 col(0.5, 0.5, 0.5, 1.0);
+   glm::vec3 origin(0,0,0);
+   unsigned int num_subdivisions = 2; // 2 should be the default?
+   std::pair<std::vector<coot::api::vnc_vertex>, std::vector<g_triangle> > octaball =
+      make_octasphere(num_subdivisions, origin, radius, col);
 
    Bond_lines_container bonds(asc, imol, no_bonds, geom_in, include_disulphides, include_hydrogens, draw_missing_loops_flag,
                               model_number, "");

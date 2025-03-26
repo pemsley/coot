@@ -655,7 +655,7 @@ public:        //                      public
    molecule_class_info_t() :
       map_as_mesh(Mesh("map-as-mesh")),
       map_as_mesh_gl_lines_version(Mesh("map-as-mesh-gl-lines")),
-      mesh_for_symmetry_atoms(Mesh("mesh-for-symmetry-atoms")),
+      // mesh_for_symmetry_atoms(Mesh("mesh-for-symmetry-atoms")),
       molecule_as_mesh_rama_balls(Mesh("molecule_as_mesh_rama_balls")),
       molecule_as_mesh_rota_dodecs(Mesh("molecule_as_mesh_rota_dodecs"))
    {
@@ -671,7 +671,7 @@ public:        //                      public
    molecule_class_info_t(int i) :
       map_as_mesh(Mesh("map-as-mesh")),
       map_as_mesh_gl_lines_version(Mesh("map-as-mesh-gl-lines")),
-      mesh_for_symmetry_atoms(Mesh("mesh-for-symmetry-atoms")),
+      // mesh_for_symmetry_atoms(Mesh("mesh-for-symmetry-atoms")),
       molecule_as_mesh_rama_balls(Mesh("molecule_as_mesh_rama_balls")),
       molecule_as_mesh_rota_dodecs(Mesh("molecule_as_mesh_rota_dodecs"))
    {
@@ -1615,6 +1615,8 @@ public:        //                      public
 			  float contour_level_in);
 
    void install_new_map(const clipper::Xmap<float> &mapin, std::string name, bool is_em_map_in);
+
+   void install_new_map_with_contour_level(const clipper::Xmap<float> &mapin, std::string name, float contour_level, bool is_em_map_in);
 
    void set_name(std::string name); // you are encouraged not to use
 				    // this (only for use after having
@@ -3755,7 +3757,8 @@ void draw_map_molecule(bool draw_transparent_maps,
    // these are for specific molecule-based objects using instancing Mesh
    std::vector<Instanced_Markup_Mesh> instanced_meshes;
    Instanced_Markup_Mesh &find_or_make_new(const std::string &mesh_name);
-   Mesh mesh_for_symmetry_atoms;
+   // Mesh mesh_for_symmetry_atoms;
+   model_molecule_meshes_t meshes_for_symmetry_atoms;
 
    // And now symmetry atoms are displayed as a Mesh
    bool this_molecule_has_crystallographic_symmetry;

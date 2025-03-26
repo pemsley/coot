@@ -1,69 +1,41 @@
 
 --- Items ---
 
-Replace line symmetry with 3d model ::: 3
+--- Other Items ---
+
+o allow use-defined max_closeness for map peaks (not diff map peaks) :: 1
+
+o WTA carbohydrate :: 4
+
+o have a look at Rama plot :: 1
+
+o Add anisotropic radius scaling from Claus. Need to check mails or something
+  for scaling code. :: 1
+
+o Rework monomer library usage - make it more like Moorhen. :: 2
+
+o Rama and Rota graphs validation graphs have terrible scaling - difficult to fix :: 4
 
 --- Done Items ---
 
-What's up with Ribbon diagrams? ::: 1
-* Done. Use the correct shader for ribbons.
+o residue info buttons on the wrong side. ::: 0.2
 
-Fix the super-atoms in svg-molecule/flev ::: 1
+o anchor doesn't disappear on "Unfix Atom" ::: 0.2
 
-Double-clicking on a HUD button does a "go to blob" ::: 1
+o "No ligands found" when doing the tutorial with Coot 1 ::: 0.5
 
-Add a function is_nucleic_acid(imol, cid) ::: 1
+o "Select map for fitting", open, close, open, typical failure ::: 0.2
 
-G2F in 5a3h flev needs fixing? Can we see something? ::: 2
-* Empty return value - that will have to do for now.
+o After creating a cryo-EM map by masking, it looks like the contour
+  level of the new map is 0 (or close to?)
+  48083 and pdb9eih. ::: 0.2
 
-In FLEV make "Hoh" say "Water" - smaller font needed maybe ::: 0.5
-* Done.
+o gihub sunchang: open close open the merge molecules dialog: see molecules repeated. ::: 0.5
 
-In FLEV, use the tweaks to position the text ::: 0.5
-* Done. Nice.
+o Drag and drop (just "drop" from nautilus - that will do for now) ::: 1
 
-Change chapi/mc to coot_headless_api/chapi ::: 0.5
-* OK. There will be pain.
+o backtick to show residue range (first) ::: 1
 
-delete_all_carbohydrate() needs a test. Move it to coot-utils and
-give moorhen/chapi access to it ::: 0.6
+o drag fixed atoms! ::: 1
 
-Get FLEV into Coot ::: 2
-
-FLEV needs a key ::: 2
-
-Coot: picking should use the non-drawn atom indices vector ::: 0.2
-
-Add add_hydrogen_atoms() to the api (just a wrapper need) ::: 0.2
-there is coot_add_hydrogen_atoms().
-
-Fix Jordan's unwritable xdg cache-dir download directory bug ::: 0.3
-
-Clipping of key for FLEV in moorhen - text goes beyond residue circles in x ::: 0.5
-
-Bring PAE to Coot :: 1
-
-Open the "About" dialog twice - it can't be destroyed/hidden now. ::: 0.5
-
-Can you fix this?
-    GL ERROR:: Mesh::setup_buffers() "mesh_for_extra_distance_restraints" --- start --- ::: 1
-* Yes 000793e22792439053238833cb9587dd9a4bfaf9.
-
-revisit the chapi ligand-fit build script. ::: 0.5
-* I did. I won't fix it for this release.
-
-When user selects left-mouse for view rotation, make the right
-mouse do zoom ::: 1
-* Done.
-
-Fix this crash:
-#7    Object "/app/lib/libcootsumo.so.0.0.0", at 0x7fbe9dfa5211, in graphics_info_t::regenerate_intermediate_atoms_bonds_timeout_function_and_draw(void*)
-#6    Object "/app/lib/libcootsumo.so.0.0.0", at 0x7fbe9dfa50ce, in graphics_info_t::regenerate_intermediate_atoms_bonds_timeout_function()
-#5    Object "/app/lib/libcootsumo.so.0.0.0", at 0x7fbe9df468f8, in graphics_info_t::update_bad_nbc_atom_pair_marker_positions()
-#4    Object "/app/lib/libcootsumo.so.0.0.0", at 0x7fbe9e21573e, in TextureMesh::update_instancing_buffer_data(std::vector<glm::vec<3, float, (glm::qualifier)0>, std::allocator<glm::vec<3, float, (glm::qualifier)0> > > const&)
-#3    Object "/usr/lib/x86_64-linux-gnu/libstdc++.so.6.0.33", at 0x7fbe9b6e8c1c, in std::__glibcxx_assert_fail(char const*, int, char const*, char const*)
-::: 1
-* Hopefully done! TextureMesh::update_instancing_buffer_data() reworked extensively.
-
-
+o Fix zooming ::: 1

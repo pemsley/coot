@@ -45,13 +45,15 @@
 #include "c-interface-ligands.hh" // 20230920-PE new layla interface functions
 #include "labelled-button-info.hh"
 #include "cc-interface.hh" // for fullscreen()
+#include "rotate-translate-modes.hh"
 
 // These don't work if they are in graphics-info-statics.cc
 // Possibly because the gui (this file included) is loaded at run-time.
 // 20250221-PE now thay are in graphics-info-statics also.
 // Hmm
-int graphics_info_t::scale_up_graphics = 1;
-int graphics_info_t::scale_down_graphics = 1;
+// 2025-03-25-PE don't declare these twice (i.e.not here)
+// int graphics_info_t::scale_up_graphics = 1;
+// int graphics_info_t::scale_down_graphics = 1;
 
 extern "C" { void load_tutorial_model_and_data(); }
 
@@ -4213,11 +4215,13 @@ void
 fix_atom(GSimpleAction *simple_action,
          GVariant *parameter,
          gpointer user_data) {
-   
+
    graphics_info_t g;
    std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
+   std::cout << "debug:: in fix_atom() " << pp.first << " " << pp.second.first << " " << pp.second.second << std::endl;
    if (pp.first) {
       int imol = pp.second.first;
+      std::cout << "mark atom as fixed " << imol << " " << pp.second.second << std::endl;
       g.attach_buffers(); // 20220823-PE needed?
       g.mark_atom_as_fixed(imol, pp.second.second, true);
       g.graphics_draw(); // maybe not needed here
@@ -4232,10 +4236,11 @@ unfix_atom(GSimpleAction *simple_action,
 
    graphics_info_t g;
    std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
+   std::cout << "debug:: in unfix_atom() " << pp.first << " " << pp.second.first << " " << pp.second.second << std::endl;
    if (pp.first) {
       int imol = pp.second.first;
       g.attach_buffers(); // 20220823-PE needed?
-      g.mark_atom_as_fixed(imol, pp.second.second, true);
+      g.mark_atom_as_fixed(imol, pp.second.second, false);
       g.graphics_draw(); // maybe not needed here
    }
 }
@@ -4254,7 +4259,6 @@ unfix_all_atoms(GSimpleAction *simple_action,
    }
 }
 
-#include "rotate-translate-modes.hh" // move up                
 
 void
 rotate_translate_atom(GSimpleAction *simple_action,

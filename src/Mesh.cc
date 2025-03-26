@@ -30,6 +30,9 @@
 #include <set>
 #include <chrono>
 
+#ifdef USE_BACKWARD
+#include <utils/backward.hpp>
+#endif
 
 
 // Having this up here...
@@ -768,6 +771,15 @@ Mesh::setup_buffers() {
 
    if (vertices.empty())  std::cout << "WARNING:: Mesh::setup_buffers() zero vertices -  probably an error" << std::endl;
    if (triangles.empty()) std::cout << "WARNING:: Mesh::setup_buffers() zero triangles - probably an error" << std::endl;
+
+   if (vertices.empty()) {
+#if USE_BACKWARD
+               backward::StackTrace st;
+               backward::Printer p;
+               st.load_here(32);
+               p.print(st);
+#endif
+   }
 
    if (vertices.empty()) return;
    if (triangles.empty() && lines_vertex_indices.empty()) return;

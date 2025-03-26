@@ -2138,9 +2138,24 @@ graphics_info_t::draw_environment_graphics_object() {
 }
 
 #include "molecular-mesh-generator.hh"
+#include "pulse-data.hh"
 
 void
 graphics_info_t::update_mesh_for_outline_of_active_residue(int imol, const coot::atom_spec_t &spec, int n_press) {
+
+   // if the range was not valid, but n_press was 5, we want some visual feedback - use
+   // the invalid residue pulse (maybe it needs a new name then?). It uses delete_item_pulse_centres
+   // for the centres of the pulses.
+   auto setup_invalid_residue_pulse_for_invalid_range_outine = [] () {
+      std::cout << "debug:: update_mesh_for_outline_of_active_residue: lambda start " << std::endl;
+      bool broken_line_mode = false;
+      lines_mesh_for_identification_pulse.setup_red_pulse(broken_line_mode);
+      pulse_data_t *pulse_data = new pulse_data_t(0, 12);
+      gpointer user_data = reinterpret_cast<void *>(pulse_data);
+      std::vector<glm::vec3> positions = { get_rotation_centre() };
+      delete_item_pulse_centres = positions;
+      gtk_widget_add_tick_callback(glareas[0], generic_pulse_function, user_data, NULL);
+   };
 
 
    if (is_valid_model_molecule(imol)) {
@@ -2153,13 +2168,43 @@ graphics_info_t::update_mesh_for_outline_of_active_residue(int imol, const coot:
             int bond_width = 9;
             int model_number = residue_p->GetModelNum();
             molecular_mesh_generator_t mmg;
+
+            // setup the range, if the user had defined one in this molecule
+            molecular_mesh_generator_t::range_t range;
+            int imol_1 = in_range_first_picked_atom.int_user_data;
+            int imol_2 = in_range_second_picked_atom.int_user_data;
+            if (imol_1 == imol_2) {
+               if (imol_1 == imol) {
+                  coot::atom_spec_t spec_1 = in_range_first_picked_atom;
+                  coot::atom_spec_t spec_2 = in_range_second_picked_atom;
+                  if (spec_1.chain_id == spec_2.chain_id) {
+                     int rn1 = spec_1.res_no;
+                     int rn2 = spec_2.res_no;
+                     if (rn2 < rn1) std::swap(rn1, rn2);
+                     range = molecular_mesh_generator_t::range_t(spec_1.chain_id, rn1, rn2);
+                  }
+               }
+            }
+
             std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > p =
                mmg.get_molecular_triangles_mesh_for_active_residue(imol, mol, model_number, residue_p, Geom_p(),
-                                                                   bond_width, n_press);
+                                                                   bond_width, range, n_press);
+
+            // if the range was not valid, but n_press was 5, we want some visual feedback - use
+            // the invalid residue pulse (maybe it needs a new name then?) It uses delete_item_pulse_centres
+            // for the centres of the pulses
+            if (n_press == 5) {
+               if (! range.is_valid) {
+                  setup_invalid_residue_pulse_for_invalid_range_outine();
+               }
+            }
+
             mesh_for_outline_of_active_residue.clear();
-            mesh_for_outline_of_active_residue.import(p);
-            Material mat;
-            mesh_for_outline_of_active_residue.setup(mat);
+            if (!p.first.empty()) {
+               mesh_for_outline_of_active_residue.import(p);
+               Material mat;
+               mesh_for_outline_of_active_residue.setup(mat);
+            }
          }
       }
    }
@@ -2937,6 +2982,7 @@ graphics_info_t::setup_hud_buttons() {
 void
 graphics_info_t::clear_hud_buttons() {
 
+   attach_buffers();
    hud_button_info.clear();
    mesh_for_hud_buttons.update_instancing_buffer_data(hud_button_info); // empty
 }
@@ -3369,7 +3415,7 @@ graphics_info_t::show_accept_reject_hud_buttons() {
                            graphics_info_t g;
                            g.stop_refinement_internal();
                            g.accept_moving_atoms();
-                           g.hud_button_info.clear();
+                           // g.hud_button_info.clear();
                            g.hide_atom_pull_toolbar_buttons();
                            // g.draw_bad_nbc_atom_pair_markers = false;
                            g.clear_gl_rama_plot();
@@ -3381,7 +3427,7 @@ graphics_info_t::show_accept_reject_hud_buttons() {
                            graphics_info_t g;
                            g.stop_refinement_internal();
                            g.clear_up_moving_atoms();
-                           g.hud_button_info.clear();
+                           // g.hud_button_info.clear();
                            // g.draw_bad_nbc_atom_pair_markers = false;
                            g.rebond_molecule_corresponding_to_moving_atoms();
                            g.graphics_draw();
@@ -4147,7 +4193,16 @@ graphics_info_t::check_if_hud_button_moused_over_or_act_on_hit(double x, double 
                                                     button.set_button_colour_for_mode(HUD_button_info_t::BASIC);
                                                  }
                                               }
+                                              GLenum err = glGetError();
+                                              if (err) std::cout << "GL ERROR:: highlight_just_button_with_index pos-B "
+                                                                 << err << std::endl;
+                                              attach_buffers();
+                                              err = glGetError();
+                                              if (err) std::cout << "GL ERROR:: highlight_just_button_with_index pos-C "
+                                                                 << err << std::endl;
                                               mesh_for_hud_buttons.update_instancing_buffer_data(hud_button_info);
+                                              if (err) std::cout << "GL ERROR:: highlight_just_button_with_index pos-D "
+                                                                 << err << std::endl;
                                               graphics_draw(); // let's see the changes then
                                            };
    auto unhighlight_all_buttons = [] () {
@@ -4155,10 +4210,21 @@ graphics_info_t::check_if_hud_button_moused_over_or_act_on_hit(double x, double 
                                                  auto &button = hud_button_info[i];
                                                  button.set_button_colour_for_mode(HUD_button_info_t::BASIC);
                                               }
+                                              GLenum err = glGetError();
+                                              if (err) std::cout << "GL ERROR:: unhighlight_all_buttons pos-B "
+                                                                 << err << std::endl;
+                                              attach_buffers();
+                                              err = glGetError();
+                                              if (err) std::cout << "GL ERROR:: unhighlight_all_buttons pos-C "
+                                                                 << err << std::endl;
                                               mesh_for_hud_buttons.update_instancing_buffer_data(hud_button_info);
+                                              err = glGetError();
+                                              if (err) std::cout << "GL ERROR:: unhighlight_all_buttons pos-D "
+                                                                 << err << std::endl;
                                   };
 
    bool status = false;
+   bool clear_HUD_buttons_flag = false;
    if (! hud_button_info.empty()) {
       GtkGLArea *gl_area = GTK_GL_AREA(glareas[0]);
       GtkAllocation allocation;
@@ -4179,6 +4245,9 @@ graphics_info_t::check_if_hud_button_moused_over_or_act_on_hit(double x, double 
                if (button.callback_function) {
                   button.callback_function();
                }
+               // don't clear the hud buttons in the callback.
+               if (button.button_label == "Accept") clear_HUD_buttons_flag = true;
+               if (button.button_label == "Reject") clear_HUD_buttons_flag = true;
             }
             status = true;
             highlight_just_button_with_index(i);
@@ -4188,6 +4257,7 @@ graphics_info_t::check_if_hud_button_moused_over_or_act_on_hit(double x, double 
          unhighlight_all_buttons();
       }
    }
+   if (clear_HUD_buttons_flag) clear_hud_buttons();
 
    return status;
 }
@@ -5778,7 +5848,7 @@ graphics_info_t::setup_delete_item_pulse(mmdb::Residue *residue_p) {
    delete_item_pulse_centres = positions;
    gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0]));
    bool broken_line_mode = true;
-   lines_mesh_for_delete_item_pulse.setup_pulse(broken_line_mode);
+   lines_mesh_for_delete_item_pulse.setup_red_pulse(broken_line_mode);
    gtk_widget_add_tick_callback(glareas[0], delete_item_pulse_func, user_data, NULL);
 
 };
@@ -5786,11 +5856,11 @@ graphics_info_t::setup_delete_item_pulse(mmdb::Residue *residue_p) {
 void
 graphics_info_t::setup_delete_residues_pulse(const std::vector<mmdb::Residue *> &residues) {
 
-   // next you use this functionn make it a member of graphics_info_t
+   // next you use this function make it a member of graphics_info_t
    // gboolean delete_item_pulse_func(GtkWidget *widget,
    //                                 GdkFrameClock *frame_clock,
    //                                 gpointer data)
-   // 
+   //
    auto delete_item_pulse_func = [] (GtkWidget *widget,
                                      GdkFrameClock *frame_clock,
                                      gpointer data) {
@@ -5821,15 +5891,12 @@ graphics_info_t::setup_delete_residues_pulse(const std::vector<mmdb::Residue *> 
    delete_item_pulse_centres = all_positions;
    gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0]));
    bool broken_line_mode = true;
-   lines_mesh_for_delete_item_pulse.setup_pulse(broken_line_mode);
+   lines_mesh_for_delete_item_pulse.setup_red_pulse(broken_line_mode);
    gtk_widget_add_tick_callback(glareas[0], delete_item_pulse_func, user_data, NULL);
 
 };
 
 
-// I think that this function should be part of glarea_tick_func().
-// (bring glarea_tick_func() into graphics_info_t.)
-//
 // static
 gboolean
 graphics_info_t::invalid_residue_pulse_function(GtkWidget *widget,
@@ -5851,6 +5918,28 @@ graphics_info_t::invalid_residue_pulse_function(GtkWidget *widget,
    return gboolean(continue_status);
 }
 
+// static
+gboolean
+graphics_info_t::generic_pulse_function(GtkWidget *widget,
+                                        GdkFrameClock *frame_clock,
+                                        gpointer data) {
+
+   gboolean continue_status = 1;
+   pulse_data_t *pulse_data = reinterpret_cast<pulse_data_t *>(data);
+   pulse_data->n_pulse_steps += 1;
+   if (pulse_data->n_pulse_steps > pulse_data->n_pulse_steps_max) {
+      continue_status = 0;
+      lines_mesh_for_identification_pulse.clear();
+      delete_item_pulse_centres.clear();
+   } else {
+      float f = 1.03f;
+      lines_mesh_for_identification_pulse.update_buffers_by_resize(f);
+   }
+   graphics_draw();
+   return gboolean(continue_status);
+}
+
+
 void
 graphics_info_t::setup_invalid_residue_pulse(mmdb::Residue *residue_p) {
 
@@ -5860,7 +5949,7 @@ graphics_info_t::setup_invalid_residue_pulse(mmdb::Residue *residue_p) {
    delete_item_pulse_centres = residue_positions; // sneakily use a wrongly named function
    gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0]));
    bool broken_line_mode = false;
-   lines_mesh_for_identification_pulse.setup_pulse(broken_line_mode);
+   lines_mesh_for_identification_pulse.setup_red_pulse(broken_line_mode);
    gtk_widget_add_tick_callback(glareas[0], invalid_residue_pulse_function, user_data, NULL);
 
 }
@@ -6504,7 +6593,7 @@ graphics_info_t::setup_key_bindings() {
          if (! tick_function_is_active()) {
             int new_tick_id = gtk_widget_add_tick_callback(glareas[0], glarea_tick_func, 0, 0);
          }
-         outline_for_active_residue_frame_count = 30;
+         outline_for_active_residue_frame_count = 40;
          do_tick_outline_for_active_residue = true;
       }
       return gboolean(TRUE);
@@ -6834,6 +6923,7 @@ graphics_info_t::setup_key_bindings() {
    auto lc_qsa = [] () {
                     graphics_info_t g;
                     g.quick_save();
+                    g.graphics_grab_focus();
                     return gboolean(TRUE);
                  };
 

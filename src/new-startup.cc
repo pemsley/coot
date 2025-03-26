@@ -740,7 +740,7 @@ new_startup_create_splash_screen_window() {
    GtkWidget *splash_screen_window = gtk_window_new();
    gtk_window_set_title(GTK_WINDOW(splash_screen_window), "Coot-Splash");
    gtk_window_set_decorated(GTK_WINDOW(splash_screen_window), FALSE);
-   GtkWidget *picture = create_local_picture("coot-1.1.13.png");
+   GtkWidget *picture = create_local_picture("coot-1.1.14.png");
 
    gtk_widget_set_hexpand(GTK_WIDGET(picture),TRUE);
    gtk_widget_set_vexpand(GTK_WIDGET(picture),TRUE);
@@ -795,6 +795,8 @@ add_key_bindings_for_application_window(GtkWidget *app_window) {
    gtk_widget_add_controller(app_window, key_controller);
 }
 
+// drag and drop code needs to be reworked. Add this here for now.
+int handle_drag_and_drop_string(const std::string &file_name);
 
 void
 new_startup_application_activate(GtkApplication *application,
@@ -970,6 +972,100 @@ new_startup_application_activate(GtkApplication *application,
       gtk_widget_set_visible(app_window, TRUE);
       gtk_window_set_focus_visible(GTK_WINDOW(app_window), TRUE);
 #endif
+
+      // ---------------------  -----------------------
+
+      // drag and drop: well, just drop for the moment:
+      //
+      // Set up drop target.
+      // GType types[2] = { GDK_TYPE_RGBA, G_TYPE_STRING };
+      GType types[7] = { GDK_TYPE_RGBA, G_TYPE_STRING, G_TYPE_PARAM,
+                         G_TYPE_OBJECT, G_TYPE_VARIANT, G_TYPE_FILE, G_TYPE_STRV};
+
+      GtkDropTarget *drop_target = gtk_drop_target_new(G_TYPE_STRING, GDK_ACTION_COPY);
+      gtk_drop_target_set_gtypes (drop_target, types, G_N_ELEMENTS (types));
+      gtk_widget_add_controller(GTK_WIDGET(gl_area), GTK_EVENT_CONTROLLER(drop_target));
+
+      auto on_drop_performed = +[] (GtkDropTarget *drop_target, const GValue *value, double x, double y) {
+
+         // return a gboolean
+         gboolean status = FALSE;
+
+         g_print("DEBUG:: Drop performed!\n");
+         GType type = G_VALUE_TYPE(value);
+         std::cout << "DEBUG:: type is of type " << type << std::endl;
+
+         if (G_VALUE_HOLDS(value, G_TYPE_FILE)) {
+            std::cout << "!!!!!!!!!!!!! holds a file!" << std::endl;
+            GFile *file = (GFile *)g_value_get_object(value);
+            if (file) {
+               std::cout << "got file " << file << std::endl;
+               const gchar *filename = g_file_get_path(file);
+               std::cout << "got filename " << filename << std::endl;
+               handle_drag_and_drop_string(filename);
+               status = TRUE;
+            } else {
+               std::cout << "got null file " << std::endl;
+            }
+         }
+
+         if (type == G_TYPE_OBJECT) {
+            std::cout << "G_TYPE_OBJECT! " << std::endl;
+         } else {
+            std::cout << "not type G_TYPE_OBJECT! " << std::endl;
+         }
+
+         if (type == G_TYPE_STRV) {
+            std::cout << "G_TYPE_STRV! " << std::endl;
+         } else {
+            std::cout << "not type G_TYPE_STRV! " << std::endl;
+         }
+
+         if (type == G_TYPE_FILE) {
+            std::cout << "G_TYPE_FILE! " << std::endl;
+         } else {
+            std::cout << "not type G_TYPE_FILE! " << std::endl;
+         }
+
+         if (type == G_TYPE_PARAM) {
+            std::cout << "G_TYPE_PARAM! " << std::endl;
+         } else {
+            std::cout << "not type G_TYPE_PARAM! " << std::endl;
+         }
+
+         if (type == G_TYPE_VARIANT) {
+            std::cout << "G_TYPE_VARIANT! " << std::endl;
+         } else {
+            std::cout << "not type G_TYPE_VARIANT! " << std::endl;
+         }
+
+         if (type == G_TYPE_POINTER) {
+            std::cout << "G_TYPE_POINTER! " << std::endl;
+         } else {
+            std::cout << "not type G_TYPE_POINTER! " << std::endl;
+         }
+
+         if (type == G_TYPE_STRING) {
+            std::cout << "G_TYPE_STRING! " << std::endl;
+            const char *text = g_value_get_string(value);
+            if (text) {
+               unsigned long ll = strlen(text);
+               std::cout << "DEBUG:: text has length " << ll << std::endl;
+               if (ll > 0) {
+                  handle_drag_and_drop_string(text);
+                  status = TRUE;
+               }
+            } else {
+               std::cout << "DEBUG:: text: was null" << std::endl;
+            }
+         } else {
+            std::cout << "not type G_TYPE_STRING! " << std::endl;
+         }
+         return status;
+      };
+      g_signal_connect(drop_target, "drop", G_CALLBACK(on_drop_performed), NULL);
+
+      // ---------------------  -----------------------
 
       gtk_widget_grab_focus(gl_area); // at the start, fixes focus problem
       setup_gestures_for_opengl_widget_in_main_window(gl_area);

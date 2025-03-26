@@ -3520,6 +3520,7 @@ public:
    void move_single_atom_of_moving_atoms(int screenx, int screeny);
    // if control_is_pressed is true, then we only want to move the dragged atom
    void move_atom_pull_target_position(double screenx, double screeny, bool control_is_pressed);
+   void move_dragged_anchored_atom(double screen_x, double screen_y);
    void add_target_position_restraint_for_intermediate_atom(const coot::atom_spec_t &spec,
 							    const clipper::Coord_orth &target_pos);
    void add_target_position_restraints_for_intermediate_atoms(const std::vector<std::pair<coot::atom_spec_t, clipper::Coord_orth> > &atom_spec_position_vec); // refines after added
@@ -3532,6 +3533,8 @@ public:
 
    static void drag_intermediate_atom(const coot::atom_spec_t &atom_spec, const clipper::Coord_orth &pt);
    static void mark_atom_as_fixed(int imol, const coot::atom_spec_t &atom_spec, bool state);
+   // this used to be called mark_atom_as_fixed() - I don't know why one would want to use it.
+   static void while_moving_atoms_active_mark_atom_as_fixed(int imol, const coot::atom_spec_t &atom_spec, bool state);
    // static std::vector<mmdb::Atom *> fixed_intermediate_atoms;
    static bool fixed_atom_for_refinement_p(mmdb::Atom *); // examines the imol_moving_atoms molecule
                                                           // for correspondence
@@ -5090,6 +5093,9 @@ string   static std::string sessionid;
    static gboolean invalid_residue_pulse_function(GtkWidget *widget,  // return the continue-status
                                                   GdkFrameClock *frame_clock,
                                                   gpointer data);
+   static gboolean generic_pulse_function(GtkWidget *widget,
+                                          GdkFrameClock *frame_clock,
+                                          gpointer data);
    static gboolean wait_for_hooray_refinement_tick_func(GtkWidget *widget,
                                                         GdkFrameClock *frame_clock,
                                                         gpointer data);

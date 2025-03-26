@@ -262,11 +262,11 @@ coot::util::slurp_parse_xmap_data(char *data,
    origin_c = *reinterpret_cast<float *>(data+204);
 
    if (check_only) {
+      auto is_small = [] (float v) { return (fabs(v) < 0.0001); };
       if (mx > 0 && my > 0 && mz > 0) {
          if (space_group_number == 1)
-            status = true;
-         if (space_group_number == 0)
-            status = true;
+            if(is_small(cell_al-90.0f) && is_small(cell_be-90.0f) && is_small(cell_ga-90.0f))
+               status = true;
       }
       return status;
    }

@@ -49,6 +49,7 @@
 #include "cc-interface.hh" // 20250310-PE for set_use_primary_mouse_button_for_view_rotation()
 #include "utils/coot-utils.hh"
 
+#include "graphics-info.h" // for grab focus
 #include "widget-from-builder.hh"
 
 // this from callbacks.h (which I don't want to include here)
@@ -144,6 +145,8 @@ gboolean
 on_preferences_close_request(GtkWidget       *dialog,
                              gpointer         user_data) {
    gtk_widget_set_visible(dialog, FALSE);
+   graphics_info_t g;
+   g.graphics_grab_focus();
    return TRUE; // has been handled - no need to find another handler.
 }
 

@@ -1,17 +1,47 @@
 
+  Release 1.1.15
+
+ o FEATURE: Drag and drop (partial - it works from the file browser,
+            but not from CCP4i2)
+
+ o CHANGE:  Fixed atoms are now draggable
+
+ o CHANGE:  Backtick for selection now also shows the residue range
+            (if set)
+
+ o BUG-FIX: Track-pad zooming fixed
+
+ o BUG-FIX: Residue Info dialog buttons now on the right hand side
+
+ o BUG-FIX: Fix and Unfix atom now work as expected
+
+ o BUG-FIX: Remove erroneous "No ligands Found" dialog when
+            ligand fitting
+
+ o BUG-FIX: Select Map for Fitting dialog now behaves has expected
+            on reopen
+
+ o BUG-FIX: Merge Molecules dialog now behaves has expected on reopen
+
+ o BUG-FIX: Choose a better contour level for masked maps
+
+
   Release 1.1.14
 
   o FEATURE: Clark&Labute-like 2D-ligand environment view in Coot,
              Moorhen and chapi
+
+  o FEATURE: Symmetry represented as solid model (no longer just lines)
+
+  o FEATURE: PAE Plots on downloading Alphafold models
 
   o FEATURE: new chapi functions:
 
     is_nucleic_acid()
     delete_all_carbohydrate()
 
-  o FEATURE: PAE Plots on downloading Alphafold models
-
-  o FEATURE: 3D symmetry
+  o FEATURE: Setting the primary mouse button for view rotation enables
+             secondary mouse button for zoom (like Old Coot)
 
   o CHANGE:  chapi modules name now changed to coot_headless_api
              so that the molecules_container object can be called
@@ -23,6 +53,12 @@
 
   o BUG-FIX: unwritable XDG cache dir now longer causes a crash
              [Jordan Dialpuri]
+
+  o BUG-FIX: Shader for drawing ribbons
+
+  o BUG-FIX: About and Preferences dialogs can now be properly closed.
+
+  o BUG-FIX: Texture handling for bad NBC markers updated [Fixes crash]
 
 -----
 
