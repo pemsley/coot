@@ -399,7 +399,8 @@ graphics_info_t::on_glarea_click(GtkGestureClick *controller,
       return gboolean(handled);
    };
 
-   std::cout << "(mouse) click!" << std::endl;
+   // no longer useful
+   // std::cout << "(mouse) click!" << std::endl;
 
    SetMouseBegin(x,y);
 
