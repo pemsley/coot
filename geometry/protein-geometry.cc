@@ -2280,7 +2280,7 @@ coot::protein_geometry::get_group(mmdb::Residue *r) const {
 
 std::string
 coot::protein_geometry::get_group(const std::string &res_name_in) const {
-   
+
    bool found = false;
    std::string group;
    std::string res_name = res_name_in;
@@ -2304,7 +2304,7 @@ coot::protein_geometry::get_group(const std::string &res_name_in) const {
    }
 
    if (! found) {
-      // std::string s = "WARNING:: No dictionary group found for residue type :";
+      std::string s = "WARNING:: No dictionary group found for residue type :";
       s += res_name;
       s += ":";
       throw std::runtime_error(s);
