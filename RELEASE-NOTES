@@ -6,6 +6,8 @@
 
  o CHANGE:  Fixed atoms are now draggable
 
+ o CHANGE:  max-closeness is no longer used to filter peaks in map_peaks_py()
+
  o CHANGE:  Backtick for selection now also shows the residue range
             (if set)
 
