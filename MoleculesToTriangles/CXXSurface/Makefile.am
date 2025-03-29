@@ -1,5 +1,8 @@
 
 ACLOCAL_AMFLAGS="-Im4"
+
+AM_CXXFLAGS = $(MMDB_CXXFLAGS) $(CLIPPER_CXXFLAGS) $(OPENMP_CFLAGS) $(COOT_WINDOWS_CFLAGS)
+
 lib_LTLIBRARIES=libMoleculesToTrianglesCXXSurface.la
 
 include_HEADERS = \
@@ -21,5 +24,4 @@ libMoleculesToTrianglesCXXSurface_la_LIBADD = $(CLIPPER_LIBS) $(FFTW2_LIBS) $(MM
 
 libMoleculesToTrianglesCXXSurface_la_LDFLAGS=$(SHARED_LDFLAGS)
 
-AM_CXXFLAGS=$(OPENMP_CFLAGS) $(COOT_WINDOWS_CFLAGS)
 

@@ -53,14 +53,15 @@ pkgincludedir = $(includedir)/coot/coot-utils
 AM_CPPFLAGS = \
 	-I$(top_srcdir)	\
 	$(ENHANCED_LIGAND_TOOLS_CPPFLAGS) \
-	$(CLIPPER_CXXFLAGS) 		\
-	$(GEMMI_CXXFLAGS)               \
-	$(MMDB_CXXFLAGS) 		\
-        $(CAIRO_CFLAGS)                 \
-	$(gsl_CFLAGS)			\
-	$(WITH_GUILE_CFLAGS)		\
-	$(RDKIT_CXXFLAGS) 		\
-	$(BOOST_CPPFLAGS) 		\
+	$(CLIPPER_CXXFLAGS)  \
+	$(GEMMI_CXXFLAGS)    \
+	$(MMDB_CXXFLAGS) 		 \
+  $(CAIRO_CFLAGS)      \
+	$(gsl_CFLAGS)			   \
+	$(GLM_CXXFLAGS)			 \
+	$(WITH_GUILE_CFLAGS) \
+	$(RDKIT_CXXFLAGS) 	 \
+	$(BOOST_CPPFLAGS) 	 \
 	$(WITH_PYTHON_CFLAGS)
 
 AM_CXXFLAGS = $(COOT_WINDOWS_CFLAGS) \

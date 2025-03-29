@@ -18,7 +18,7 @@
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
 # 02110-1301, USA
 
-AM_CPPFLAGS = -I.. -I$(top_srcdir) $(CLIPPER_CXXFLAGS) $(COOT_WINDOWS_CFLAGS)
+AM_CPPFLAGS = -I.. -I$(top_srcdir) $(CLIPPER_CXXFLAGS) $(COOT_WINDOWS_CFLAGS) $(GLM_CXXFLAGS)
 
 lib_LTLIBRARIES = libcoot-isosurface.la
 
