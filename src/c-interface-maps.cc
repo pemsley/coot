@@ -3300,6 +3300,20 @@ int analyse_map_point_density_change_py(PyObject *map_number_list_py, int imol_m
 }
 #endif
 
+// use (or not) vertex gradients for the specified map
+void set_use_vertex_gradients_for_map_normals(int imol, int state) {
+
+   if (is_valid_map_molecule(imol)) {
+      graphics_info_t::molecules[imol].set_use_vertex_gradients_for_map_normals(state);
+      graphics_info_t::graphics_draw();
+   }
+}
+
+//! the map should be displayed and not a difference map
+void set_use_vertex_gradients_for_map_normals_for_latest_map() {
+   use_vertex_gradients_for_map_normals_for_latest_map();
+}
+
 //! the map should be displayed and not a difference map
 void use_vertex_gradients_for_map_normals_for_latest_map() {
 

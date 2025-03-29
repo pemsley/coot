@@ -321,7 +321,7 @@ endif
 
 dist_bin_SCRIPTS = coot coot-density-score-by-residue
 
-check_PROGRAMS = test-coot-align test-cholesky
+check_PROGRAMS = test-coot-align test-cholesky test-tubular-spline
 
 #coot_fix_nomenclature_errors_SOURCES = \
 #	fix-nomenclature.cc    \
@@ -923,6 +923,11 @@ test_cholesky_LDADD =	\
 	$(top_builddir)/utils/libcoot-utils.la            \
         $(RDKIT_LIBS) \
 	$(CLIPPER_LIBS) $(MMDB_LIBS) $(gsl_LIBS)
+
+test_tubular_spline_SOURCES = test-tubular-spline.cc
+test_tubular_spline_LDADD = \
+	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
+	$(top_builddir)/MoleculesToTriangles/CXXClasses/libMoleculesToTrianglesCXXClasses.la
 
 # testmap_SOURCES = testmap.cc xmap-interface.cc
 # testmap_LDADD = $(COOT_EXTRA_LIBS) $(SURFACE_LIB) $(CLIPPER_LIBS)

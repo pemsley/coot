@@ -13,11 +13,9 @@ build chapi without rdkit
 
 have another look at monomer and python startup.
 
-What is the status of anisotropic atom scaling (Claus)
+What is the status of anisotropic atom scaling? (Claus)
 
-
-Clemens: json file: when you uget there, show the nneighbours
-action is a list of actions, each has their own button
+"Proportional editing" molecule rotation
 
 Update xdg repo with new try/catch code.
 * Done.
@@ -38,6 +36,11 @@ Doable. Does Lucrezia want to do it?
 When the monomer library isn't install/doesn't work, ask the user if it should download
 the monomer restraints from github? Cache them in xdg cache .cache/Coot/monomers and load
 from there on read without user intervention.
+
+Check Phosphoserine in FLEV
+
+Chapi function to "get" pdb/mmcif and mtz for accession code.
+Extra points for getting the map for EM cases.
 
 Jordan: how about stubgen for nanobind functions?
 * Done. Hmm. Partially.
@@ -64,6 +67,8 @@ selection (a ligand, say).
 Go to A40 (ARG) mainchain O. Add hydrogen atoms and refine chain. We
 get a diego. But not for sphere refine. hb_type for fixed atoms not
 working correctly?
+
+B-factor of atoms around the centre of the screen 
 
 Carbohydrate WTA mode in C++
 

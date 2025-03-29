@@ -4,7 +4,11 @@
  o FEATURE: Drag and drop (partial - it works from the file browser,
             but not from CCP4i2)
 
+ o FEATURE: set_use_vertex_gradients_for_map_normals() added to the Coot API
+
  o CHANGE:  Fixed atoms are now draggable
+
+ o CHANGE:  max-closeness is no longer used to filter peaks in map_peaks_py()
 
  o CHANGE:  Backtick for selection now also shows the residue range
             (if set)
@@ -25,6 +29,7 @@
 
  o BUG-FIX: Choose a better contour level for masked maps
 
+-----
 
   Release 1.1.14
 
