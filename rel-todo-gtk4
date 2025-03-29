@@ -13,11 +13,9 @@ build chapi without rdkit
 
 have another look at monomer and python startup.
 
-What is the status of anisotropic atom scaling (Claus)
+What is the status of anisotropic atom scaling? (Claus)
 
-
-Clemens: json file: when you uget there, show the nneighbours
-action is a list of actions, each has their own button
+"Proportional editing" molecule rotation
 
 Update xdg repo with new try/catch code.
 * Done.
