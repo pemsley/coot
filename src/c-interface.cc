@@ -9558,8 +9558,14 @@ void load_tutorial_model_and_data() {
       std::cout << "--------- imol_diff_map: " << imol_diff_map << std::endl;
    }
 
-   graphics_info_t g;
-   gint idle = g_idle_add_once((GSourceOnceFunc)g.graphics_grab_focus, NULL);
+   // 2025-03-26-PE not all GLibs have g_idle_add_once() at the moment
+   // gint idle = g_idle_add_once((GSourceOnceFunc)g.graphics_grab_focus, NULL);
+   auto callback = +[] (gpointer data) {
+     graphics_info_t g;
+     g.graphics_grab_focus();
+     return gboolean(TRUE);
+   };
+   gint idle = g_idle_add(callback, NULL);
 
 }
 
