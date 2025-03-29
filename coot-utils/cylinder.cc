@@ -664,9 +664,10 @@ cylinder::crenulations() {
    }
 }
 
+//
 // angle in radians.
 glm::vec3
-rotate_around_vector(const glm::vec3 &direction,
+cylinder::rotate_around_vector(const glm::vec3 &direction,
                      const glm::vec3 &position,
                      const glm::vec3 &origin_shift,
                      double angle) {
@@ -703,27 +704,3 @@ rotate_around_vector(const glm::vec3 &direction,
 
 }
 
-std::vector<glm::vec3>
-get_middle_ring(const glm::vec3 &p1,
-                const glm::vec3 &p2,
-                const glm::vec3 &p3) {
-
-   unsigned int n_slices = 10;
-   double cylinder_radius = 0.1;
-   std::vector<glm::vec3> v;
-   glm::vec3 v1 = glm::normalize(p2-p1);
-   glm::vec3 v2 = glm::normalize(p3-p2);
-   glm::vec3 mid_point_vec = (v1 + v2) * 0.5f;
-   glm::vec3 mid_point_vec_normal = glm::normalize(mid_point_vec);
-   glm::vec3 mid_point = p2 + (v1 + v2) * 0.5f;
-   glm::vec3 pos_start = p2 + 0.1f * mid_point_vec_normal;
-   // this is the vector to spin around the point on the circle
-   glm::vec3 normal_sum_normal  = glm::normalize(v2+v1);
-   glm::vec3 normal_diff_normal = glm::normalize(v2-v1);
-   for (unsigned int i_slice=0; i_slice<n_slices; i_slice++) {
-      double angle = 2 * M_PI * static_cast<double>(i_slice) / static_cast<double>(n_slices);
-      glm::vec3 p = rotate_around_vector(normal_sum_normal, pos_start, p2, angle);
-      v.push_back(p);
-   }
-   return v;
-}
