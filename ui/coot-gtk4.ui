@@ -1325,6 +1325,10 @@
         <attribute name="action">app.generate_all_molecule_self_restraints_6_0_action</attribute>
       </item>
       <item>
+        <attribute name="label" translatable="no">Import Restraints...</attribute>
+        <attribute name="action">app.import_restraints_action</attribute>
+      </item>
+      <item>
         <attribute name="label" translatable="no">Delete All Extra Restraints</attribute>
         <attribute name="action">app.delete_all_extra_restraints_action</attribute>
       </item>

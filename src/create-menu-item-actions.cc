@@ -304,6 +304,50 @@ void open_map_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    gtk_widget_set_visible(dialog, TRUE);
 }
 
+void import_restraints(int imol) {
+
+   graphics_info_t g;
+   GtkWindow *parent_window = GTK_WINDOW(g.get_main_window());
+   GtkFileChooserAction action = GTK_FILE_CHOOSER_ACTION_OPEN;
+   GtkWidget *dialog = gtk_file_chooser_dialog_new("Open File",
+                                                   parent_window,
+                                                   action,
+                                                   ("_Cancel"),
+                                                   GTK_RESPONSE_CANCEL,
+                                                   ("_Open"),
+                                                   GTK_RESPONSE_ACCEPT,
+                                                   NULL);
+
+   const gchar *labels[]  = {NULL};
+   const gchar *options[] = {NULL};
+
+   auto import_restraints_response = +[] (GtkDialog *dialog, int response) {
+
+      int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(dialog), "imol"));
+      if (response == GTK_RESPONSE_ACCEPT) {
+         GtkFileChooser *chooser = GTK_FILE_CHOOSER (dialog);
+         GListModel *lm = gtk_file_chooser_get_files(chooser);
+         guint n_items = g_list_model_get_n_items (lm);
+         if (n_items > 0) {
+            for (unsigned int i=0; i<n_items; i++) {
+               gpointer item = g_list_model_get_item(lm, i);
+               GFile *f = G_FILE(item);
+               char *file_name = g_file_get_path(f);
+               if (file_name) {
+                  add_refmac_extra_restraints(imol, file_name);
+               }
+            }
+         }
+      }
+      gtk_window_close(GTK_WINDOW(dialog));
+      graphics_info_t::graphics_grab_focus();
+   };
+   g_object_set_data(G_OBJECT(dialog), "imol", GINT_TO_POINTER(imol));
+   g_signal_connect(dialog, "response", G_CALLBACK(import_restraints_response), NULL);
+   gtk_widget_set_visible(dialog, TRUE);
+
+}
+
 
 void load_tutorial_model_and_data_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                          G_GNUC_UNUSED GVariant *parameter,
@@ -2038,6 +2082,19 @@ void delete_all_extra_restraints_action(G_GNUC_UNUSED GSimpleAction *simple_acti
    if (pp.first) {
       int imol = pp.second.first;
       delete_all_extra_restraints(imol);
+   }
+   graphics_info_t::graphics_grab_focus();
+
+}
+
+void import_restraints_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                              G_GNUC_UNUSED GVariant *parameter,
+                              G_GNUC_UNUSED gpointer user_data) {
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      import_restraints(imol); // use file browser
    }
    graphics_info_t::graphics_grab_focus();
 
@@ -5001,5 +5058,6 @@ create_actions(GtkApplication *application) {
    add_action("generate_all_molecule_self_restraints_5_0_action",     generate_all_molecule_self_restraints_5_0_action);
    add_action("generate_all_molecule_self_restraints_6_0_action",     generate_all_molecule_self_restraints_6_0_action);
    add_action("delete_all_extra_restraints_action",        delete_all_extra_restraints_action);
+   add_action("import_restraints_action",                  import_restraints_action);
 
 }
