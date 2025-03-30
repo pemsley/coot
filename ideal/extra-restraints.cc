@@ -24,6 +24,7 @@
 #include <stdexcept>
 #include <algorithm>
 #include <fstream>
+#include <optional>
 
 #include "simple-restraint.hh"
 
@@ -44,9 +45,374 @@ coot::extra_restraints_t::add_start_pos_restraint(const atom_spec_t &atom_1_in, 
    }
 }
 
-
 void
 coot::extra_restraints_t::read_refmac_extra_restraints(const std::string &file_name) {
+
+   class torsion_data_t {
+   public:
+      atom_spec_t spec_1;
+      atom_spec_t spec_2;
+      atom_spec_t spec_3;
+      atom_spec_t spec_4;
+      float value;
+      float sigma;
+      torsion_data_t() : value(0), sigma(0) {}
+      torsion_data_t(const atom_spec_t &a1, const atom_spec_t &a2, const atom_spec_t &a3, const atom_spec_t &a4) :
+         spec_1(a1), spec_2(a2), spec_3(a3), spec_4(a4), value(0), sigma(0) {}
+   };
+
+   // TIL to specify the return type of a lambda function
+   auto get_torsion_data = [] (const std::vector<std::string> &words_in) -> std::optional<torsion_data_t> {
+
+      torsion_data_t td;
+      if (true) {
+         unsigned int n_words = words_in.size();
+         std::vector<std::string> words = words_in;
+         for (std::string &word : words)
+            word = util::upcase(word);
+         unsigned int i_word = 0;
+
+         // ---------------- atom 1 ---------------------
+
+         if (i_word < n_words) {
+            if (words[i_word].length() > 3) {
+               if (words[i_word].substr(0,4) == "EXTE") {
+                  i_word++;
+               }  else { return {}; }
+            } else { return {}; }
+         } else { return {}; }
+
+         if (i_word < n_words) {
+            if (words[i_word].length() > 3) {
+               if (words[i_word].substr(0,4) == "TORS") {
+                  i_word++;
+               } else { return {}; }
+            } else { return {}; }
+         } else { return {}; }
+
+         if (i_word < n_words) {
+            if (words[i_word].length() > 3) {
+               if (words[i_word].substr(0,4) == "FIRS") {
+                  i_word++;
+               } else { return {}; }
+            } else { return {}; }
+         } else { return {}; }
+
+         if (i_word < n_words) {
+            if (words[i_word].length() > 3) {
+               if (words[i_word].substr(0,4) == "CHAI") {
+                  i_word++;
+               } else { return {}; }
+            } else { return {}; }
+         } else { return {}; }
+
+         if (i_word < n_words) {
+            td.spec_1.chain_id = words[i_word];
+            i_word++;
+         } else { return {}; }
+
+         if (i_word < n_words) {
+            if (words[i_word].length() > 3) {
+               if (words[i_word].substr(0,4) == "RESI") {
+                  i_word++;
+               } else { return {}; }
+            } else { return {}; }
+         } else { return {}; }
+
+         if (i_word < n_words) {
+            td.spec_1.res_no = util::string_to_int(words[i_word]);
+            i_word++;
+         } else { return {}; }
+
+         if (i_word < n_words) {
+            if (words[i_word].length() > 2) {
+               if (words[i_word].substr(0,3) == "INS") {
+                  i_word++;
+                  if (i_word < n_words) {
+                     td.spec_1.ins_code = words[i_word];
+                     i_word++;
+                  }
+               }
+            }
+         }
+
+         if (i_word < n_words) {
+            if (words[i_word].length() > 3) {
+               if (words[i_word].substr(0,4) == "ATOM") {
+                  i_word++;
+               } else { return {}; }
+            } else { return {}; }
+         } else { return {}; }
+
+         if (i_word < n_words) {
+            td.spec_1.atom_name = words[i_word];
+            i_word++;
+         } else { return {}; }
+
+         if (i_word < n_words) {
+            if (words[i_word].length() > 2) {
+               if (words[i_word].substr(0,3) == "INS") {
+                  i_word++;
+                  if (i_word < n_words) {
+                     td.spec_1.ins_code = words[i_word];
+                     i_word++;
+                  }
+               }
+            }
+         }
+
+
+         // ---------------- atom 2 ---------------------
+
+         if (i_word < n_words) {
+            if (words[i_word].length() > 3) {
+               if (words[i_word].substr(0,4) == "NEXT") {
+                  i_word++;
+               }  else { return {}; }
+            } else { return {}; }
+         } else { return {}; }
+
+         if (i_word < n_words) {
+            if (words[i_word].length() > 3) {
+               if (words[i_word].substr(0,4) == "CHAI") {
+                  i_word++;
+               } else { return {}; }
+            } else { return {}; }
+         } else { return {}; }
+
+         if (i_word < n_words) {
+            td.spec_2.chain_id = words[i_word];
+            i_word++;
+         } else { return {}; }
+
+         if (i_word < n_words) {
+            if (words[i_word].length() > 3) {
+               if (words[i_word].substr(0,4) == "RESI") {
+                  i_word++;
+               } else { return {}; }
+            } else { return {}; }
+         } else { return {}; }
+
+         if (i_word < n_words) {
+            td.spec_2.res_no = util::string_to_int(words[i_word]);
+            i_word++;
+         } else { return {}; }
+
+         if (i_word < n_words) {
+            if (words[i_word].length() > 2) {
+               if (words[i_word].substr(0,3) == "INS") {
+                  i_word++;
+                  if (i_word < n_words) {
+                     td.spec_2.ins_code = words[i_word];
+                     i_word++;
+                  }
+               }
+            }
+         }
+
+         if (i_word < n_words) {
+            if (words[i_word].length() > 3) {
+               if (words[i_word].substr(0,4) == "ATOM") {
+                  i_word++;
+               } else { return {}; }
+            } else { return {}; }
+         } else { return {}; }
+
+         if (i_word < n_words) {
+            td.spec_2.atom_name = words[i_word];
+            i_word++;
+         } else { return {}; }
+
+         if (i_word < n_words) {
+            if (words[i_word].length() > 2) {
+               if (words[i_word].substr(0,3) == "INS") {
+                  i_word++;
+                  if (i_word < n_words) {
+                     td.spec_2.ins_code = words[i_word];
+                     i_word++;
+                  }
+               }
+            }
+         }
+
+         // ---------------- atom 3 ---------------------
+
+         if (i_word < n_words) {
+            if (words[i_word].length() > 3) {
+               if (words[i_word].substr(0,4) == "NEXT") {
+                  i_word++;
+               }  else { return {}; }
+            } else { return {}; }
+         } else { return {}; }
+
+         if (i_word < n_words) {
+            if (words[i_word].length() > 3) {
+               if (words[i_word].substr(0,4) == "CHAI") {
+                  i_word++;
+               } else { return {}; }
+            } else { return {}; }
+         } else { return {}; }
+
+         if (i_word < n_words) {
+            td.spec_3.chain_id = words[i_word];
+            i_word++;
+         } else { return {}; }
+
+         if (i_word < n_words) {
+            if (words[i_word].length() > 3) {
+               if (words[i_word].substr(0,4) == "RESI") {
+                  i_word++;
+               } else { return {}; }
+            } else { return {}; }
+         } else { return {}; }
+
+         if (i_word < n_words) {
+            td.spec_3.res_no = util::string_to_int(words[i_word]);
+            i_word++;
+         } else { return {}; }
+
+         if (i_word < n_words) {
+            if (words[i_word].length() > 2) {
+               if (words[i_word].substr(0,3) == "INS") {
+                  i_word++;
+                  if (i_word < n_words) {
+                     td.spec_3.ins_code = words[i_word];
+                     i_word++;
+                  }
+               }
+            }
+         }
+
+         if (i_word < n_words) {
+            if (words[i_word].length() > 3) {
+               if (words[i_word].substr(0,4) == "ATOM") {
+                  i_word++;
+               } else { return {}; }
+            } else { return {}; }
+         } else { return {}; }
+
+         if (i_word < n_words) {
+            td.spec_3.atom_name = words[i_word];
+            i_word++;
+         } else { return {}; }
+
+         if (i_word < n_words) {
+            if (words[i_word].length() > 2) {
+               if (words[i_word].substr(0,3) == "INS") {
+                  i_word++;
+                  if (i_word < n_words) {
+                     td.spec_3.ins_code = words[i_word];
+                     i_word++;
+                  }
+               }
+            }
+         }
+
+         // ---------------- atom 4 ---------------------
+
+
+         if (i_word < n_words) {
+            if (words[i_word].length() > 3) {
+               if (words[i_word].substr(0,4) == "NEXT") {
+                  i_word++;
+               }  else { return {}; }
+            } else { return {}; }
+         } else { return {}; }
+
+         if (i_word < n_words) {
+            if (words[i_word].length() > 3) {
+               if (words[i_word].substr(0,4) == "CHAI") {
+                  i_word++;
+               } else { return {}; }
+            } else { return {}; }
+         } else { return {}; }
+
+         if (i_word < n_words) {
+            td.spec_4.chain_id = words[i_word];
+            i_word++;
+         } else { return {}; }
+
+         if (i_word < n_words) {
+            if (words[i_word].length() > 3) {
+               if (words[i_word].substr(0,4) == "RESI") {
+                  i_word++;
+               } else { return {}; }
+            } else { return {}; }
+         } else { return {}; }
+
+         if (i_word < n_words) {
+            td.spec_4.res_no = util::string_to_int(words[i_word]);
+            i_word++;
+         } else { return {}; }
+
+         if (i_word < n_words) {
+            if (words[i_word].length() > 2) {
+               if (words[i_word].substr(0,3) == "INS") {
+                  i_word++;
+                  if (i_word < n_words) {
+                     td.spec_4.ins_code = words[i_word];
+                     i_word++;
+                  }
+               }
+            }
+         }
+
+         if (i_word < n_words) {
+            if (words[i_word].length() > 3) {
+               if (words[i_word].substr(0,4) == "ATOM") {
+                  i_word++;
+               } else { return {}; }
+            } else { return {}; }
+         } else { return {}; }
+
+         if (i_word < n_words) {
+            td.spec_4.atom_name = words[i_word];
+            i_word++;
+         } else { return {}; }
+
+         if (i_word < n_words) {
+            if (words[i_word].length() > 2) {
+               if (words[i_word].substr(0,3) == "INS") {
+                  i_word++;
+                  if (i_word < n_words) {
+                     td.spec_4.ins_code = words[i_word];
+                     i_word++;
+                  }
+               }
+            }
+         }
+
+         if (i_word < n_words) {
+            if (words[i_word].length() > 3) {
+               if (words[i_word].substr(0,4) == "VALU") {
+                  i_word++;
+               } else { return {}; }
+            } else { return {}; }
+         } else { return {}; }
+
+         if (i_word < n_words) {
+            td.value = util::string_to_float(words[i_word]);
+            i_word++;
+         } else { return {}; }
+
+         if (i_word < n_words) {
+            if (words[i_word].length() > 3) {
+               if (words[i_word].substr(0,4) == "SIGM") {
+                  i_word++;
+               } else { return {}; }
+            } else { return {}; }
+         } else { return {}; }
+
+         if (i_word < n_words) {
+            td.sigma = util::string_to_float(words[i_word]);
+            return td;
+         } else { return {}; }
+
+      } else {
+         return {};
+      }
+   };
+
 
    if (file_exists(file_name)) {
       std::string line;
@@ -56,10 +422,11 @@ coot::extra_restraints_t::read_refmac_extra_restraints(const std::string &file_n
 	 lines.push_back(line);
       }
 
-      for (unsigned int i=0; i<lines.size(); i++) { 
+      for (unsigned int i=0; i<lines.size(); i++) {
+         const std::string line = lines[i];
 	 std::vector<std::string> words = util::split_string_no_blanks(lines[i], " ");
 	 if (matches_bond_template_p(words)) {
-	    try { 
+	    try {
 	       std::string chain_id_1 = words[4];
 	       std::string ins_code_1 = words[8];
 	       std::string atm_name_1 = words[10];
@@ -181,20 +548,37 @@ coot::extra_restraints_t::read_refmac_extra_restraints(const std::string &file_n
 		  }
 
 	       } else {
-	    
-		  parallel_planes_t ppr(lines[i]); // try to parse the line and make a restraint
-		  if (ppr.matches) {
-		     // add parallel plane (aka "stacking") restraint
-		     parallel_plane_restraints.push_back(ppr);
-		  } else {
-		     std::cout << "INFO:: Failed to match restraint to templates:\n" << lines[i] << std::endl;
-		  }
+
+                  std::optional<torsion_data_t> torsion_data = get_torsion_data(words);
+
+                  if (torsion_data) {
+                     extra_torsion_restraint_t tr(torsion_data.value().spec_1, torsion_data.value().spec_2,
+                                                  torsion_data.value().spec_3, torsion_data.value().spec_4,
+                                                  torsion_data.value().value, torsion_data.value().sigma, 1);
+                     std::cout << "read torsion "
+                               << torsion_data.value().spec_1 << " " << torsion_data.value().spec_2 << " "
+                               << torsion_data.value().spec_3 << " " << torsion_data.value().spec_4 << " "
+                               << torsion_data.value().value  << " " << torsion_data.value().sigma
+                               << std::endl;
+                     torsion_restraints.push_back(tr);
+
+                  } else {
+
+                     parallel_planes_t ppr(lines[i]); // try to parse the line and make a restraint
+                     if (ppr.matches) {
+                        // add parallel plane (aka "stacking") restraint
+                        parallel_plane_restraints.push_back(ppr);
+                     } else {
+                        std::cout << "INFO:: Failed to match restraint to templates:\n"
+                                  << lines[i] << std::endl;
+                     }
+                  }
 	       }
 	    }
-	 } 
+	 }
       }
    }
-   std::cout  << "at end of read_refmac_extra_restraints() torsion_restraints has size "
+   std::cout  << "debug:: at end of read_refmac_extra_restraints() torsion_restraints has size "
 	      << torsion_restraints.size() << std::endl;
 }
 
@@ -485,7 +869,8 @@ coot::extra_restraints_t::matches_bond_template_p(const std::vector<std::string>
 	 }
       }
    } else {
-      std::cout << "not 24 words" << std::endl;
+      if (true)
+         std::cout << "WARNING:: matches_bond_template_p() test: not 24 words" << std::endl;
    }
    return status;
 }
