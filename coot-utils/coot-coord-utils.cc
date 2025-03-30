@@ -2954,6 +2954,42 @@ coot::util::get_residue(const std::string &chain_id,
    return res;
 }
 
+// return first false on failure to find reseidue
+std::pair<bool, clipper::Coord_orth>
+coot::util::get_residue_mid_point(mmdb::Manager *mol, const coot::residue_spec_t &rs) {
+   bool status = false;
+   clipper::Coord_orth co(0,0,0);
+   if (mol) {
+      mmdb::Residue *residue_p = get_residue(rs, mol);
+      if (residue_p) {
+         unsigned int n = 0;
+         double sum_x = 0;
+         double sum_y = 0;
+         double sum_z = 0;
+         mmdb::Atom **residue_atoms = 0;
+         int n_residue_atoms = 0;
+         residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+         for (int iat=0; iat<n_residue_atoms; iat++) {
+            mmdb::Atom *at = residue_atoms[iat];
+            if (! at->isTer()) {
+               sum_x += at->x;
+               sum_y += at->y;
+               sum_z += at->z;
+               n += 1;
+            }
+         }
+         if (n > 0) {
+            double nn = static_cast<double>(n);
+            clipper::Coord_orth pt(sum_x/nn, sum_y/nn, sum_z/nn);
+            co = pt;
+            status = true;
+         }
+      }
+   }
+   return std::make_pair(status, co);
+}
+
+
 // Return NULL on residue not found in this molecule. Only look in
 // MODEL 1.
 //

@@ -6221,7 +6221,7 @@ Do you want to continue?
                 </layout>
               </object>
             </child>
-            
+
           </object>
         </child> <!-- end the grid -->
 
@@ -6898,6 +6898,29 @@ Do you want to continue?
                                         <property name="margin-start">6</property>
                                         <property name="margin-end">6</property>
                                         <signal name="clicked" handler="on_diff_map_peaks_close_button_clicked" swapped="no"/>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </child>
+
+                                <child>
+                                  <object class="GtkBox" id="interesting_places_outer_vbox">
+                                    <property name="orientation">vertical</property>
+                                    <child>
+                                      <object class="GtkLabel" id="interesting_places_label">
+                                        <property name="label" translatable="yes">Interesting Places</property>
+                                        <property name="justify">center</property>
+                                      </object>
+                                    </child>
+
+                                    <child>
+                                      <object class="GtkScrolledWindow">
+                                        <property name="vexpand">True</property>
+                                        <child>
+                                          <object class="GtkBox" id="interesting_places_vbox">
+                                            <property name="orientation">vertical</property>
+                                          </object>
+                                        </child>
                                       </object>
                                     </child>
                                   </object>

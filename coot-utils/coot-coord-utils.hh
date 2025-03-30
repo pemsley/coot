@@ -713,6 +713,8 @@ namespace coot {
       // convenience interface to above
       mmdb::Residue *get_residue(const residue_spec_t &rs, mmdb::Manager *mol);
 
+      std::pair<bool, clipper::Coord_orth> get_residue_mid_point(mmdb::Manager *mol, const coot::residue_spec_t &rs);
+
       // get this and next residue - either can be null - both need testing
       std::pair<mmdb::Residue *, mmdb::Residue *> get_this_and_next_residues(const residue_spec_t &rs, mmdb::Manager *mol);
 

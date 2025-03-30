@@ -4711,10 +4711,9 @@ graphics_info_t::update_molecular_representation_widgets() {
    }
 }
 
-// "Coot: " will be prepended to the dialog label before use
- void
-    graphics_info_t::fill_generic_validation_box_of_buttons(const std::string &dialog_label,
-                                                            const std::vector<labelled_button_info_t> &v) {
+void
+graphics_info_t::fill_generic_validation_box_of_buttons(const std::string &dialog_label,
+                                                        const std::vector<labelled_button_info_t> &v) {
 
     auto cb = +[] (GtkButton *button, gpointer user_data) {
        clipper::Coord_orth *co = reinterpret_cast<clipper::Coord_orth *>(user_data);
