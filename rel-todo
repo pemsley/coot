@@ -1,12 +1,6 @@
 
 --- Items ---
 
-o Martin Maly Torsion restraints ::: 1
-
-o validation json to gui ::: 1
-
-o splines for tubes ::: 1
-
 --- Other Items ---
 
 o allow use-defined max_closeness for map peaks (not diff map peaks) :: 1
@@ -45,3 +39,9 @@ o backtick to show residue range (first) ::: 1
 o drag fixed atoms! ::: 1
 
 o Fix zooming ::: 1
+
+o validation json to gui ::: 2
+
+o splines for tubes ::: 1
+
+o Martin Maly Torsion restraints ::: 1
