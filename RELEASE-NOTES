@@ -19,8 +19,7 @@
 
  o BUG-FIX: Fix and Unfix atom now work as expected
 
- o BUG-FIX: Remove erroneous "No ligands Found" dialog when
-            ligand fitting
+ o BUG-FIX: Remove erroneous "No ligands Found" dialog when ligand fitting
 
  o BUG-FIX: Select Map for Fitting dialog now behaves has expected
             on reopen
