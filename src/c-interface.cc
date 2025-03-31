@@ -9563,7 +9563,7 @@ void load_tutorial_model_and_data() {
    auto callback = +[] (gpointer data) {
      graphics_info_t g;
      g.graphics_grab_focus();
-     return gboolean(TRUE);
+     return gboolean(FALSE);
    };
    gint idle = g_idle_add(callback, NULL);
 
