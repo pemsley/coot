@@ -518,7 +518,7 @@ setup_mutate_auto_fit(short int state) {
 	 g.pick_pending_flag = 1;
       } else { 
 	 // map chooser dialog
-	 g.show_select_map_dialog();
+	 g.show_select_map_frame();
 	 g.in_mutate_auto_fit_define = 0;
 	 normal_cursor();
 	 g.model_fit_refine_unactive_togglebutton("model_refine_dialog_mutate_auto_fit_togglebutton");
@@ -1206,7 +1206,7 @@ void fill_partial_residues(int imol) {
 	    turn_on_backup(imol);
 
       } else {
-	 g.show_select_map_dialog();
+	 g.show_select_map_frame();
       }
       graphics_draw();
    }
@@ -1232,7 +1232,7 @@ void fill_partial_residue(int imol, const char *chain_id, int resno, const char*
 	 set_refinement_immediate_replacement(refinement_replacement_state);
 
       } else {
-	 g.show_select_map_dialog();
+	 g.show_select_map_frame();
       }
    }
 }

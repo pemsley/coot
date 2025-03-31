@@ -590,18 +590,19 @@ graphics_info_t::select_refinement_map_combobox_changed(GtkWidget *combobox, gpo
 }
 
 void
-graphics_info_t::show_select_map_dialog() {
+graphics_info_t::show_select_map_frame() {
 
-   show_select_map_dialog_gtkbuilder();
+   show_select_map_frame_gtkbuilder();
 
 }
 
 void
-graphics_info_t::show_select_map_dialog_gtkbuilder() {
+graphics_info_t::show_select_map_frame_gtkbuilder() {
+   std::cout << "here in show_select_map_dialog_gtkbuilder() " << std::endl;
 
    if (use_graphics_interface_flag) {
 
-      GtkWidget *dialog = get_widget_from_builder("select_fitting_map_dialog");
+      GtkWidget *frame = get_widget_from_builder("select_map_for_fitting_frame");
 
       int imol_map = Imol_Refinement_Map();
 
@@ -639,8 +640,8 @@ graphics_info_t::show_select_map_dialog_gtkbuilder() {
          std::cout << "ERROR:: show_select_map_dialog_gtkbuilder() failed to get estimate button" << std::endl;
       }
 
-      set_transient_for_main_window(dialog);
-      gtk_widget_set_visible(dialog, TRUE);
+      // set_transient_for_main_window(dialog);
+      gtk_widget_set_visible(frame, TRUE);
 
 
    }

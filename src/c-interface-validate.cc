@@ -490,7 +490,7 @@ void delete_checked_waters_baddies(int imol, float b_factor_lim, float map_sigma
    if (is_valid_model_molecule(imol)) {
       if (!is_valid_map_molecule(imol_for_map)) {
 	 std::cout << "WARNING:: Not a valid map for density testing " << imol_for_map << std::endl;
-	 show_select_map_dialog();
+	 show_select_map_frame();
       } else {
 	 std::vector<coot::atom_spec_t> baddies =
 	    graphics_info_t::molecules[imol].find_water_baddies(b_factor_lim,

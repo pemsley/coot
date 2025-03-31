@@ -108,18 +108,18 @@
 /*                    terminal residue functions:                            */
 /*  ------------------------------------------------------------------------ */
 
-void do_add_terminal_residue(short int state) { 
+void do_add_terminal_residue(short int state) {
 
    graphics_info_t g;
    g.in_terminal_residue_define = state;
    if (state) {
       int imol_map = g.Imol_Refinement_Map();
-      if (imol_map >= 0) { 
+      if (imol_map >= 0) {
 	 std::cout << "click on an atom of a terminal residue" << std::endl;
 	 g.pick_cursor_maybe();
 	 g.pick_pending_flag = 1;
       } else {
-	 g.show_select_map_dialog();
+	 g.show_select_map_frame();
 	 g.in_terminal_residue_define = 0;
 	 g.model_fit_refine_unactive_togglebutton("model_refine_dialog_fit_terminal_residue_togglebutton");
 	 g.normal_cursor();
@@ -133,7 +133,7 @@ void do_add_terminal_residue(short int state) {
    add_to_history(command_strings);
 }
 
-void 
+void
 set_add_terminal_residue_n_phi_psi_trials(int n) {
    graphics_info_t g;
    g.add_terminal_residue_n_phi_psi_trials = n;
@@ -501,7 +501,7 @@ int pepflip_intermediate_atoms_other_peptide() {
    return g.pepflip_intermediate_atoms_other_peptide();
 }
 
-									 
+
 /*  ----------------------------------------------------------------------- */
 /*                         Planar Peptide Restraints                        */
 /*  ----------------------------------------------------------------------- */
@@ -509,7 +509,7 @@ int pepflip_intermediate_atoms_other_peptide() {
 void add_planar_peptide_restraints() {
    graphics_info_t g;
    g.Geom_p()->add_planar_peptide_restraint();
-} 
+}
 
 void remove_planar_peptide_restraints() {
    graphics_info_t g;

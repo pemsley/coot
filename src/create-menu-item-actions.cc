@@ -3572,7 +3572,7 @@ check_delete_waters_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    if (imol_map < 0) {
       int n_map_molecules = graphics_info_t::n_map_molecules();
       if (n_map_molecules > 0)
-         show_select_map_dialog();
+         show_select_map_frame();
    }
 }
 

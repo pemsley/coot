@@ -78,7 +78,7 @@ void
 on_model_toolbar_select_map_button_clicked(G_GNUC_UNUSED GtkButton       *button,
                                            G_GNUC_UNUSED gpointer         user_data) {
 
-   show_select_map_dialog();
+   show_select_map_frame();
 }
 
 // <signal name="toggled" handler="on_model_toolbar_range_define_togglebutton_toggled" swapped="no"/>

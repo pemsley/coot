@@ -1977,8 +1977,8 @@ public:
    void stop_refinement_internal();
 
    void show_refine_params_dialog(); // not used for map selection now.
-   void show_select_map_dialog();
-   void show_select_map_dialog_gtkbuilder();
+   void show_select_map_frame(); // it's an overlay now
+   void show_select_map_frame_gtkbuilder();
    void show_select_map_dialog_old_style();
 
    // Map and molecule display.  We need this so that we can look up

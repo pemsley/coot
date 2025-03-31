@@ -1043,7 +1043,7 @@ void set_pick_cursor_index(int icursor_index);
 /*! \{ */
 
 /*! \brief display the Display Manager dialog */
-void show_select_map_dialog();
+void show_select_map_frame();
 /*! \brief Allow the changing of Model/Fit/Refine button label from
   "Rotate/Translate Zone" */
 void set_model_fit_refine_rotate_translate_zone_label(const char *txt);

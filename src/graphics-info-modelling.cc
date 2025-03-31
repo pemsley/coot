@@ -2634,7 +2634,7 @@ graphics_info_t::refine(int imol, short int auto_range_flag, int i_atom_no_1, in
    if (imol_map == -1) { // magic number check,
       // if not -1, then it has been set by user
 
-      show_select_map_dialog();
+      show_select_map_frame();
 
    } else {
 
@@ -2780,7 +2780,7 @@ graphics_info_t::refine_residue_range(int imol,
 
    if (imol_map == -1) { // magic number check,
       // if not -1, then it has been set by user
-      show_select_map_dialog();
+      show_select_map_frame();
 
    } else {
 
@@ -2848,7 +2848,7 @@ graphics_info_t::refine_residue_range(int imol,
 	 } else {
 	    std::cout << "Can't refine to a closed map.  Choose another map"
 		      << std::endl;
-	    show_select_map_dialog();
+	    show_select_map_frame();
 	 }
       }
    } // same chains test
@@ -2963,7 +2963,7 @@ graphics_info_t::execute_rigid_body_refine(short int auto_range_flag) {
       //
       std::cout << "Please set a map against which the refinement should occur"
 		<< std::endl;
-      show_select_map_dialog();  // protected
+      show_select_map_frame();  // protected
    } else {
 
       coot::minimol::molecule mol(molecules[imol_rigid_body_refine].atom_sel.mol);
@@ -6002,6 +6002,6 @@ graphics_info_t::auto_fit_rotamer_ng(int imol, const coot::residue_spec_t &res_s
       graphics_draw();
       run_post_manipulation_hook(imol, 0);
    } else {
-      show_select_map_dialog();
+      show_select_map_frame();
    }
 }

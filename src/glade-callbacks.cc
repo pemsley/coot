@@ -2550,10 +2550,19 @@ on_workflow_cancel_button_clicked      (GtkButton       *button,
 
 extern "C" G_MODULE_EXPORT
 void
-on_select_map_for_fitting_button_clicked(GtkButton       *button,
+on_select_map_for_fitting_cancel_button_clicked(GtkButton       *button,  // OK button
+                                                gpointer         user_data) {
+
+   GtkWidget *frame = widget_from_builder( "select_map_for_fitting_frame");
+   gtk_widget_set_visible(frame, FALSE);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_select_map_for_fitting_button_clicked(GtkButton       *button,  // OK button
                                          gpointer         user_data) {
 
-   GtkWidget *dialog       = widget_from_builder( "select_fitting_map_dialog");
+   GtkWidget *frame       = widget_from_builder( "select_map_for_fitting_frame");
    GtkWidget *weight_entry = widget_from_builder("select_fitting_map_dialog_weight_entry");
 
    if (weight_entry) {
@@ -2562,7 +2571,7 @@ on_select_map_for_fitting_button_clicked(GtkButton       *button,
       graphics_info_t g;
       g.geometry_vs_map_weight = f;
    }
-   gtk_widget_set_visible(dialog, FALSE);
+   gtk_widget_set_visible(frame, FALSE);
 
 }
 
@@ -2574,7 +2583,7 @@ on_model_refine_dialog_map_select_button_clicked
                                         (GtkButton       *button,
                                         gpointer         user_data)
 {
-   show_select_map_dialog();
+   show_select_map_frame();
 }
 
 
@@ -4406,7 +4415,7 @@ on_mutate_sequence_do_autofit_checkbutton_toggled(GtkCheckButton *checkbutton,
       imol_map = imol_refinement_map();
       if (imol_map == -1) {
 	 gtk_check_button_set_active(checkbutton, FALSE);
-	 show_select_map_dialog();
+	 show_select_map_frame();
 	 info_dialog("A map has not yet been assigned for Refinement/Fitting");
       }
    }

@@ -336,10 +336,10 @@ int keep_map_colour_after_refmac_state() {
 }
 
 
-void show_select_map_dialog() {
+void show_select_map_frame() {
    graphics_info_t g;
-   g.show_select_map_dialog();
-   add_to_history_simple("show-select-map-dialog");
+   g.show_select_map_frame();
+   add_to_history_simple("show-select-map-frame");
 }
 
 int read_mtz(const char *mtz_file_name,

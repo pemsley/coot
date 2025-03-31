@@ -294,7 +294,7 @@ graphics_info_t::do_mutation(int imol, const coot::residue_spec_t &res_spec,
       } else {
 
          // imol map chooser
-         show_select_map_dialog();
+         show_select_map_frame();
       }
 
    } else {

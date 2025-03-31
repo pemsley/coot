@@ -4188,7 +4188,7 @@ int place_helix_here() {
    } else {
       std::cout << " You need to set the map to fit against\n";
       g.add_status_bar_text("You need to set the map to fit against");
-      g.show_select_map_dialog();
+      g.show_select_map_frame();
       return -1;
    }
 }
@@ -4267,7 +4267,7 @@ int place_strand_here(int n_residues, int n_sample_strands) {
    } else {
       std::cout << " You need to set the map to fit against\n";
       g.add_status_bar_text("You need to set the map to fit against");
-      g.show_select_map_dialog();
+      g.show_select_map_frame();
       return -1;
    }
 }
@@ -4368,7 +4368,7 @@ int find_secondary_structure_local(
    } else {
       std::cout << " You need to set the map to fit against\n";
       g.add_status_bar_text("You need to set the map to fit against");
-      g.show_select_map_dialog();
+      g.show_select_map_frame();
       return -1;
    }
 }
@@ -4400,7 +4400,7 @@ int find_nucleic_acids_local(float radius) {
    if (imol_map == -1) {
       std::cout << " You need to set the map to fit against\n";
       g.add_status_bar_text("You need to set the map to fit against");
-      g.show_select_map_dialog();
+      g.show_select_map_frame();
       return -1;
    }
 
