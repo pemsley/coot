@@ -2284,8 +2284,12 @@ coot::protein_geometry::get_group(const std::string &res_name_in) const {
    bool found = false;
    std::string group;
    std::string res_name = res_name_in;
-   if (res_name.length() > 3)
-      res_name = res_name.substr(0,2);
+
+   // 20250331-PE Why would I do this?
+   //             Comment it out.
+   // if (res_name.length() > 3)
+   //    res_name = res_name.substr(0,2);
+
    unsigned int s = size(); // fails if the protein_geometry pointer was not valid
    for (unsigned int i=0; i<s; i++) {
       if (three_letter_code(i) == res_name) {
@@ -2304,7 +2308,7 @@ coot::protein_geometry::get_group(const std::string &res_name_in) const {
    }
 
    if (! found) {
-      std::string s = "WARNING:: No dictionary group found for residue type :";
+      std::string s = "WARNING:: get_group(): No dictionary group found for residue type :";
       s += res_name;
       s += ":";
       throw std::runtime_error(s);
