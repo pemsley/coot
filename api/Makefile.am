@@ -50,7 +50,7 @@ api-cell.hh              bond-colour.hh             make-instanced-graphical-bon
 symmetry-info.hh         instancing.hh              merge-molecule-results-info-t.hh       \
 coot-molecule-bonds.hh   clipper-ccp4-map-file-wrapper.hh blender-mesh.hh                  \
 ncs-ghosts.hh            moved-atom.hh              moved-residue.hh \
-filo-test.hh             plain-atom-overlap.hh      test-molecules-container.hh \
+filo-tests.hh            plain-atom-overlap.hh      test-molecules-container.hh \
 lucrezia-tests.hh
 
 lib_LTLIBRARIES=libcoot-api.la
