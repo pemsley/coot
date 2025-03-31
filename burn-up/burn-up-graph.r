@@ -1,7 +1,7 @@
 
 # every month or so
 xlim=40
-ylim=20 # reasonable scope
+ylim=16 # reasonable scope
 
 prediction_text_x_placement = 15
 prediction_text_y_placement = 0
@@ -109,8 +109,8 @@ do_plot = function() {
     ## the columns are time(days) n-items-todo n-items-done
 
     plot(ylim=c(0,ylim), xlim=c(0,xlim), NULL, NULL, t='n', cex.main=1.0,
-               main="Coot 1.1.15 Development Progress",
-               xlab="Real Days since records began (20 Mar 2025)",
+               main="Coot 1.1.16 Development Progress",
+               xlab="Real Days since records began (30 Mar 2025)",
                ylab="Scope & Work Done (Days)")
 
     grid()

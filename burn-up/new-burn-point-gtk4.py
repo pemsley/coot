@@ -33,7 +33,7 @@ def proc():
 
 (n_other_items, n_done_other_items) = proc()
 
-start = datetime.datetime(2025, 3, 20)
+start = datetime.datetime(2025, 3, 30)
 now   = datetime.datetime.now()
 
 delta_s = int(now.strftime("%s")) - int(start.strftime("%s"))
