@@ -4010,11 +4010,11 @@ INFO::
    o git push # push the actual release commit
    o Update latest version info on coot web page:
      cd Projects/coot/web/index.html
+   o Release on Github
    o update libcootapi documentation
    o update coot python documentation
-   o Release on Github
-   o Mail mailing list
    o Blog post
+   o Mail mailing list
 
 ---
 Mon Jan 12 00:17:05 GMT 2009

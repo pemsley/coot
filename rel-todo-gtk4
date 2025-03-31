@@ -68,7 +68,7 @@ Go to A40 (ARG) mainchain O. Add hydrogen atoms and refine chain. We
 get a diego. But not for sphere refine. hb_type for fixed atoms not
 working correctly?
 
-B-factor of atoms around the centre of the screen 
+B-factor of atoms around the centre of the screen
 
 Carbohydrate WTA mode in C++
 

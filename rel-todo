@@ -1,47 +1,32 @@
 
 --- Items ---
 
---- Other Items ---
+o B-factor of atoms around the centre of the screen ::: 1
 
-o allow use-defined max_closeness for map peaks (not diff map peaks) :: 1
+o mmcif/5-char ligand id/RSR - what's going wrong? ::: 3
 
-o WTA carbohydrate :: 4
-
-o have a look at Rama plot :: 1
+o WTA carbohydrate ::: 4
 
 o Add anisotropic radius scaling from Claus. Need to check mails or something
-  for scaling code. :: 1
+  for scaling code. ::: 1
 
-o Rework monomer library usage - make it more like Moorhen. :: 2
+o "Proportional editing" molecule rotation ::: 2
+
+o Rework monomer library usage - make it more like Moorhen. ::: 2
+
+o try texture atlas for text ::: 4
+
+o have another look at Rama plot ::: 1
+  So far it seems like a driver bug.
+
+--- Other Items ---
 
 o Rama and Rota graphs validation graphs have terrible scaling - difficult to fix :: 4
 
+o Have a look at contact dots during refinement - with the 3a3a say, there is hang, and the
+  final refined structure is shown - there is no animation :: 2
+
 --- Done Items ---
 
-o residue info buttons on the wrong side. ::: 0.2
+o Select fitting map should be an overlay, I think. ::: 0.5
 
-o anchor doesn't disappear on "Unfix Atom" ::: 0.2
-
-o "No ligands found" when doing the tutorial with Coot 1 ::: 0.5
-
-o "Select map for fitting", open, close, open, typical failure ::: 0.2
-
-o After creating a cryo-EM map by masking, it looks like the contour
-  level of the new map is 0 (or close to?)
-  48083 and pdb9eih. ::: 0.2
-
-o gihub sunchang: open close open the merge molecules dialog: see molecules repeated. ::: 0.5
-
-o Drag and drop (just "drop" from nautilus - that will do for now) ::: 1
-
-o backtick to show residue range (first) ::: 1
-
-o drag fixed atoms! ::: 1
-
-o Fix zooming ::: 1
-
-o validation json to gui ::: 2
-
-o splines for tubes ::: 1
-
-o Martin Maly Torsion restraints ::: 1
