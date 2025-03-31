@@ -815,6 +815,10 @@
           <attribute name="label">HOLE...</attribute>
           <attribute name="action">app.HOLE_action</attribute>
         </item>
+        <item>
+          <attribute name="label">Local B-factors</attribute>
+          <attribute name="action">app.local_b_factors_action</attribute>
+        </item>
       </section>
     </submenu>
 

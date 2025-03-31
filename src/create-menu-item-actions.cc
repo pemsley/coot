@@ -1658,6 +1658,24 @@ void HOLE_action(GSimpleAction *simple_action,
    graphics_info_t::graphics_grab_focus();
 }
 
+void local_b_factor_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                           G_GNUC_UNUSED GVariant *parameter,
+                           G_GNUC_UNUSED gpointer user_data) {
+
+   std::cout << "local b-factor action" << std::endl;
+
+   GtkWidget *toolbar_hbox = widget_from_builder("main_window_toolbar_hbox");
+   GtkWidget *toggle_button = gtk_toggle_button_new_with_label("Local B-factors");
+   auto callback = +[] (GtkToggleButton *toggle_button, gpointer data) {
+      short int state = 0;
+      if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(toggle_button))) state = 1;
+      set_show_local_b_factors(state);
+   };
+   g_signal_connect(G_OBJECT(toggle_button), "toggled", G_CALLBACK(callback), nullptr);
+   gtk_box_append(GTK_BOX(toolbar_hbox), toggle_button);
+}
+
+
 void acedrg_link_interface_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                   G_GNUC_UNUSED GVariant *parameter,
                                   G_GNUC_UNUSED gpointer user_data) {
@@ -1669,8 +1687,8 @@ void acedrg_link_interface_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 }
 
 void run_acedrg_via_CCD_dictionary_download_action(G_GNUC_UNUSED GSimpleAction *simple_action,
-                                  G_GNUC_UNUSED GVariant *parameter,
-                                  G_GNUC_UNUSED gpointer user_data) {
+                                                   G_GNUC_UNUSED GVariant *parameter,
+                                                   G_GNUC_UNUSED gpointer user_data) {
 
    std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
    if (pp.first) {
@@ -2428,8 +2446,8 @@ void add_refine_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,
       g_signal_connect(G_OBJECT(switch_rama), "state-set", G_CALLBACK(switch_rama_switched), nullptr);
       g_signal_connect(G_OBJECT(switch_rota), "state-set", G_CALLBACK(switch_rota_switched), nullptr);
 
-      GtkWidget *switch_contact_dots_label  = gtk_label_new("Intermediate Atom Contact Dots");
-      GtkWidget *switch_GM_restraints_label = gtk_label_new("Intermediate Atom GM Restraints");
+      GtkWidget *switch_contact_dots_label  = gtk_label_new("Intermediate Atoms Contact Dots");
+      GtkWidget *switch_GM_restraints_label = gtk_label_new("Intermediate Atoms GM Restraints");
       GtkWidget *switch_rama_label          = gtk_label_new("Ramachandran Probability Spheres");
       GtkWidget *switch_rota_label          = gtk_label_new("Rotamer Probability Dodecahedra");
 
@@ -4937,6 +4955,7 @@ create_actions(GtkApplication *application) {
    add_action( "distances_and_angles_action",  distances_and_angles_action);
    add_action("environment_distances_action", environment_distances_action);
    add_action(                 "HOLE_action",                  HOLE_action);
+   add_action(      "local_b_factors_action",        local_b_factor_action);
 
    // Validate
 
