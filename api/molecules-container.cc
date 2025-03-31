@@ -2944,12 +2944,11 @@ int
 molecules_container_t::refine_residues_using_atom_cid(int imol, const std::string &cid, const std::string &mode, int n_cycles) {
 
    auto debug_selected_residues = [cid] (const std::vector<mmdb::Residue *> &rv) {
-      std::cout << "refine_residues_using_atom_cid(): selected these " << rv.size() << " residues"
-         " from cid: \"" << cid << "\"" << std::endl;
+      std::cout << "debug:: selection: refine_residues_using_atom_cid(): selected these " << rv.size() << " residues"
+                << " from cid: \"" << cid << "\"" << std::endl;
       std::vector<mmdb::Residue *>::const_iterator it;
-      for (it=rv.begin(); it!=rv.end(); ++it) {
+      for (it=rv.begin(); it!=rv.end(); ++it)
          std::cout << "   " << coot::residue_spec_t(*it) << std::endl;
-      }
    };
 
    if (false)
