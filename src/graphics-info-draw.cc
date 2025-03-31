@@ -1015,10 +1015,29 @@ graphics_info_t::draw_molecule_atom_labels(molecule_class_info_t &m,
    int n_symm_atoms_to_label = m.labelled_symm_atom_index_list.size();
 
    // std::cout << "draw_molecule_atom_labels " << n_atoms_to_label << " " << n_symm_atoms_to_label << std::endl;
-   if (n_atoms_to_label == 0 && n_symm_atoms_to_label == 0) return;
 
-   m.draw_atom_labels(brief_atom_labels_flag, seg_ids_in_atom_labels_flag,
-                      label_colour, mvp, view_rotation);
+   if (n_atoms_to_label == 0 && n_symm_atoms_to_label == 0) {
+   } else {
+      m.draw_atom_labels(brief_atom_labels_flag, seg_ids_in_atom_labels_flag,
+                         label_colour, mvp, view_rotation);
+   }
+
+   // this is draw_generic_texts() - but not in its own function
+
+   if (! generic_texts.empty()) {
+      auto atom_label_colour = label_colour;
+      for (unsigned int i=0; i<generic_texts.size(); i++) {
+         const coot::generic_text_object_t gto = generic_texts[i];
+         const std::string &label = gto.s;
+         glm::vec3 position(gto.x, gto.y, gto.z);
+         tmesh_for_labels.draw_atom_label(label, position, atom_label_colour,
+                                          &shader_for_atom_labels, mvp, view_rotation,
+                                          glm::vec4(background_colour, 1.0),
+                                          shader_do_depth_fog_flag,
+                                          perspective_projection_flag);
+      }
+   }
+
 
    glDisable(GL_BLEND);
 
@@ -2066,8 +2085,6 @@ graphics_info_t::draw_molecules_atom_labels() {
          }
       }
    }
-
-
 }
 
 

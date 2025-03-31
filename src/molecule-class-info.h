@@ -1330,6 +1330,8 @@ public:        //                      public
 
    void add_labels_for_all_CAs();
 
+   void local_b_factor_display(bool state, const coot::Cartesian &screen_centre);
+
    // xmap information
    //
    // We have problems using static vectors, so to Kevin's irritation,

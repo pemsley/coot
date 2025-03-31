@@ -2423,7 +2423,51 @@ molecule_class_info_t::add_labels_for_all_CAs() {
    }
 }
 
+void
+molecule_class_info_t::local_b_factor_display(bool state,
+                                              const coot::Cartesian &screen_centre) {
 
+   float close_dist = 8.0;
+   float close_dist_sqrd = close_dist * close_dist;
+   if (state) {
+      int imod = 1;
+      if (! atom_sel.mol) return;
+      mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+      if (model_p) {
+         std::vector<coot::generic_text_object_t> text_objects;
+         int n_chains = model_p->GetNumberOfChains();
+         for (int ichain=0; ichain<n_chains; ichain++) {
+            mmdb::Chain *chain_p = model_p->GetChain(ichain);
+            int n_res = chain_p->GetNumberOfResidues();
+            for (int ires=0; ires<n_res; ires++) {
+               mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+               if (residue_p) {
+                  int n_atoms = residue_p->GetNumberOfAtoms();
+                  for (int iat=0; iat<n_atoms; iat++) {
+                     mmdb::Atom *at = residue_p->GetAtom(iat);
+                     if (! at->isTer()) {
+                        float dx = at->x - screen_centre.x();
+                        float dy = at->y - screen_centre.y();
+                        float dz = at->z - screen_centre.z();
+                        float dd = dx * dx + dy * dy + dz * dz;
+                        if (dd < close_dist_sqrd) {
+                           int handle = -1; // not set
+                           std::string label = coot::util::float_to_string_using_dec_pl(at->tempFactor, 1);
+                           coot::generic_text_object_t gto(label, handle, at->x + 0.2, at->y, at->z);
+                           text_objects.push_back(gto);
+                        }
+                     }
+                  }
+               }
+            }
+         }
+         if (! text_objects.empty())
+            graphics_info_t::generic_texts = text_objects;
+      }
+   } else {
+      graphics_info_t::generic_texts.clear();
+   }
+}
 
 
 

@@ -248,9 +248,6 @@ graphics_info_t::init() {
       // generic_objects_p = new std::vector<coot::old_generic_display_object_t>;
       generic_objects_dialog = NULL;
 
-      // generic text:
-      generic_texts_p = new std::vector<coot::old_generic_text_object_t>;
-
       // views
       // views = new std::vector<coot::view_info_t>; // not a pointer any more - hooray.
 

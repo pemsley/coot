@@ -4274,7 +4274,8 @@ public:
    static float probe_dots_on_chis_molprobity_radius;
 
    // a text string and a handle (so that it can be removed)
-   static std::vector<coot::old_generic_text_object_t> *generic_texts_p;
+   static std::vector<coot::generic_text_object_t> generic_texts;
+   // not that draw_generic_texts() is part of draw_molecule_atom_labels().
 
    // -- move molecule here
    static int move_molecule_here_molecule_number;

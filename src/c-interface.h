@@ -3957,7 +3957,8 @@ void label_neighbours();
 /*! \brief Label the atoms in the central residue */
 void label_atoms_in_residue();
 
-
+/*! \brief Label the atoms with their B-factors */
+void set_show_local_b_factors(short int state);
 
 /*! \brief Add a geometry distance between points in a given molecule
 
