@@ -167,7 +167,7 @@ public:
 			}
 			else if (renderStyle == "HydrogenBonds"){
 				drawHydrogenBonds();
-			}
+                        }
 		}
         redrawNeeded = false;
     };

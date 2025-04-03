@@ -9,7 +9,86 @@
 #include "mmdb2/mmdb_selmngr.h"
 #include "tubes.hh"
 
+
+
+
 void secondary_structure_header_to_residue_sse(mmdb::Manager *mol);
+
+coot::simple_mesh_t
+make_mesh_for_helical_representation(mmdb::Manager *mol,
+                                     const std::string &atom_selection_str,
+                                     float radius_for_helices,
+                                     unsigned int n_slices_for_helices) {
+   coot::simple_mesh_t m;
+   class helix_t{
+      public:
+      std::string chain_id;
+      int resno_start;
+      int resno_end;
+      helix_t() : chain_id(""), resno_start(-9999), resno_end(-9999) {}
+      helix_t(const std::string &c, int r1, int r2) : chain_id(c), resno_start(r1), resno_end(r2) {}
+   };
+
+   // find all the helices:
+   std::vector<helix_t> helices;
+
+   int sel_hnd = mol->NewSelection(); // d
+   mol->Select(sel_hnd, mmdb::STYPE_RESIDUE, atom_selection_str.c_str(), mmdb::SKEY_NEW);
+
+   for (int imod = 1; imod <= mol->GetNumberOfModels(); imod++) {
+      mmdb::Model *model_p = mol->GetModel(imod);
+      if (model_p) {
+         int n_chains = model_p->GetNumberOfChains();
+         for (int ichain=0; ichain<n_chains; ichain++) {
+            mmdb::Chain *chain_p = model_p->GetChain(ichain);
+            int n_res = chain_p-> GetNumberOfResidues();
+            helix_t helix_running;
+            int resno_latest = -1;
+            for (int ires=0; ires<n_res; ires++) {
+               mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+               if (residue_p) {
+                  resno_latest = residue_p->GetSeqNum();
+                  if (residue_p->SSE == mmdb::SSE_Helix) {
+                     if (residue_p->isInSelection(sel_hnd)) {
+                        if (helix_running.resno_start == -9999) {
+                           helix_running.resno_start = residue_p->GetSeqNum();
+                           helix_running.chain_id = chain_p->GetChainID();
+                        } else {
+                           // we are in a helix
+                           helix_running.resno_end = residue_p->GetSeqNum();
+                        }
+                     }
+                  } else {
+                     if (helix_running.resno_start == -9999) {
+                        // nothing
+                     } else {
+                        helices.push_back(helix_running);
+                        helix_running = helix_t();
+                     }
+                  }
+               }
+            }
+            if (helix_running.resno_start != -9999) {
+               helix_running.resno_end = resno_latest;
+               helices.push_back(helix_running);
+            }
+         }
+      }
+   }
+   mol->DeleteSelection(sel_hnd);
+
+   if (true) { // debug
+      for (const auto &h : helices) {
+         std::cout << "helix: " << h.chain_id << " " << h.resno_start << " " << h.resno_end
+                   << std::endl;
+      }
+   }
+
+   for (const auto &helix : helices) {
+   }
+
+   return m;
+}
 
 coot::simple_mesh_t
 make_tubes_representation(mmdb::Manager *mol,
@@ -23,6 +102,13 @@ make_tubes_representation(mmdb::Manager *mol,
    coot::simple_mesh_t m;
    bool remove_trace_for_helices = true;
    secondary_structure_header_to_residue_sse(mol);
+   float radius_for_helices = 3.2;
+   unsigned int n_slices_for_helices = 16;
+
+   coot::simple_mesh_t mesh_for_helices = make_mesh_for_helical_representation(
+      mol, atom_selection_str, radius_for_helices, n_slices_for_helices);
+
+   m.add_submesh(mesh_for_helices);
    m.add_submesh(make_coil_for_tubes_representation(mol, atom_selection_str,
                                                     radius_for_coil,
                                                     Cn_for_coil, accuracy_for_coil,
