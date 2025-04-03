@@ -22,6 +22,10 @@
 #include <algorithm>
 #include <cstdlib>
 
+#ifdef USE_BACKWARD
+#include <utils/backward.hpp>
+#endif
+
 #include "simple-restraint.hh"
 #include "coot-utils/coot-map-heavy.hh"
 
@@ -37,7 +41,7 @@
 std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> >
 coot::torsionable_bonds(int imol, mmdb::Manager *mol, mmdb::PPAtom atom_selection,
 			int n_selected_atoms,
-			protein_geometry *geom_p) { 
+			protein_geometry *geom_p) {
 
    std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> > v;
    bool include_pyranose_ring_torsions_flag = false;
@@ -52,7 +56,7 @@ coot::torsionable_bonds(int imol, mmdb::Manager *mol, mmdb::PPAtom atom_selectio
       atoms_in_residue[r].push_back(i);
    }
    std::map<mmdb::Residue *, dictionary_residue_restraints_t> res_restraints;
-   for (unsigned int ires=0; ires<residues.size(); ires++) { 
+   for (unsigned int ires=0; ires<residues.size(); ires++) {
       std::string rn = residues[ires]->GetResName();
       std::pair<bool, dictionary_residue_restraints_t> rest =
 	 geom_p->get_monomer_restraints(rn, imol);
@@ -78,13 +82,13 @@ coot::torsionable_bonds(int imol, mmdb::Manager *mol, mmdb::PPAtom atom_selectio
 	 v.push_back(v_inner[ip]);
    }
 
-   std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> > v_link =    
+   std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> > v_link =
       coot::torsionable_link_bonds(residues, mol, geom_p);
    for (unsigned int il=0; il<v_link.size(); il++)
       v.push_back(v_link[il]);
 
    if (0) // debug
-      for (unsigned int ipair=0; ipair<v.size(); ipair++) { 
+      for (unsigned int ipair=0; ipair<v.size(); ipair++) {
 	 std::cout << "   torsionable bond: "
 		   << atom_spec_t(v[ipair].first) << "  "
 		   << atom_spec_t(v[ipair].second)
@@ -102,7 +106,7 @@ coot::torsionable_link_bonds(std::vector<mmdb::Residue *> residues_in,
 
    if (! mol)
       return v;
-   
+
    std::vector<std::pair<bool, mmdb::Residue *> > residues(residues_in.size());
    for (unsigned int i=0; i<residues_in.size(); i++)
       residues[i] = std::pair<bool, mmdb::Residue *> (0, residues_in[i]);
@@ -198,10 +202,12 @@ coot::torsionable_quads(int imol, mmdb::Manager *mol, mmdb::PPAtom atom_selectio
 			int n_selected_atoms,
 			protein_geometry *geom_p) {
 
+   std::cout << "debug:: in torsionable_quads() with n_selected_atoms " << n_selected_atoms << std::endl;
+
    bool pyranose_ring_torsion_flag = false; // no thanks
    std::vector<torsion_atom_quad> quads;
    std::vector<mmdb::Residue *> residues;
-   for (int i=0; i<n_selected_atoms; i++) { 
+   for (int i=0; i<n_selected_atoms; i++) {
       mmdb::Residue *r = atom_selection[i]->residue;
       if (std::find(residues.begin(), residues.end(), r) == residues.end())
 	 residues.push_back(r);
@@ -224,12 +230,21 @@ coot::torsionable_quads(int imol, mmdb::Manager *mol, mmdb::PPAtom atom_selectio
    return quads;
 }
 
+
 // And the atom_quad version of that (for setting link torsions)
-// 
+//
 std::vector<coot::torsion_atom_quad>
 coot::torsionable_link_quads(int imol,
 			     std::vector<mmdb::Residue *> residues_in,
 			     mmdb::Manager *mol, protein_geometry *geom_p) {
+
+   if (true) {
+      std::cout << "torsionable_link_quads called with residues in size "
+                << residues_in.size() << std::endl;
+      for (unsigned int i=0; i<residues_in.size(); i++) {
+         std::cout << "   " << coot::residue_spec_t(residues_in[i]) << std::endl;
+      }
+   }
 
    std::vector<torsion_atom_quad> quads;
    std::vector<std::pair<bool, mmdb::Residue *> > residues(residues_in.size());
@@ -239,9 +254,9 @@ coot::torsionable_link_quads(int imol,
    // We want a quick way of getting to the restaints of an atom's
    // residue (link_atom_1 and link_atom_2 below).
    // So here we set up res_restraints map indexed by a mmdb::Residue *.
-   // 
+   //
    std::map<mmdb::Residue *, dictionary_residue_restraints_t> res_restraints;
-   for (unsigned int ires=0; ires<residues_in.size(); ires++) { 
+   for (unsigned int ires=0; ires<residues_in.size(); ires++) {
       std::string rn = residues_in[ires]->GetResName();
       std::pair<bool, dictionary_residue_restraints_t> rest = geom_p->get_monomer_restraints(rn, imol);
       if (! rest.first) {
@@ -263,18 +278,18 @@ coot::torsionable_link_quads(int imol,
       const dictionary_residue_link_restraints_t &link = geom_p->link(bpc[i].link_type);
 
       // In a NAG-ASN link the first residue should be the NAG and residue-2 should be the ASN.
-      // 
+      //
       // std::cout << "DEBUG:: link-idx: " << i << " link_id: \"" << link.link_id << "\"" << std::endl;
-      
+
       if (link.link_id != "") {
 
 	 // Don't use bonds - use link torsions if you can.
-	 // 
+	 //
 	 // std::cout << "DEBUG:: link " << link.link_id << " has " << link.link_torsion_restraint.size()
 	 //           << " torsion restraints " << std::endl;
 
-	 if (link.link_torsion_restraint.size() > 0) { 
-	 
+	 if (link.link_torsion_restraint.size() > 0) {
+
 	    for (unsigned int il=0; il<link.link_torsion_restraint.size(); il++) {
 	       // std::cout << "----------- link torsion restraint " << il << std::endl;
 	       const dict_link_torsion_restraint_t &rest = link.link_torsion_restraint[il];
@@ -303,9 +318,9 @@ coot::torsionable_link_quads(int imol,
 			       << atom_spec_t(link_atom_1) << " " << atom_spec_t(link_atom_2) << " "
 			       << atom_spec_t(link_atom_3) << " " << atom_spec_t(link_atom_4) << " "
 			       << std::endl;
-		     
-		  } 
-	       } else { 
+
+		  }
+	       } else {
 		  mmdb::Residue *r_1 = bpc[i].res_1;
 		  mmdb::Residue *r_2 = bpc[i].res_1;
 		  mmdb::Residue *r_3 = bpc[i].res_1;
@@ -322,7 +337,7 @@ coot::torsionable_link_quads(int imol,
 		  mmdb::Atom *link_atom_2 = r_2->GetAtom(rest.atom_id_2_4c().c_str());
 		  mmdb::Atom *link_atom_3 = r_3->GetAtom(rest.atom_id_3_4c().c_str());
 		  mmdb::Atom *link_atom_4 = r_4->GetAtom(rest.atom_id_4_4c().c_str());
-	    
+
 		  std::cout << "   link # " << il << " has residues    "
 			    << residue_spec_t(r_1) << "         " << residue_spec_t(r_2)
 			    << "         "
@@ -399,9 +414,9 @@ coot::torsionable_link_quads(int imol,
 		  if (! link_atom_2)
 		     std::cout << "   " << link.link_bond_restraint[ib].atom_id_2_4c().c_str()
 			       << " is missing from residue " << residue_spec_t(bpc[i].res_2) << std::endl;
-	       } 
+	       }
 	    }
-	 } 
+	 }
       }
    }
    return quads;
@@ -409,6 +424,11 @@ coot::torsionable_link_quads(int imol,
 
 
 // this can throw an exception.
+//
+// This presumes that mol is actually a mol-fragment, created something like:
+//    mmdb::Manager *moving_mol =
+//      coot::util::create_mmdbmanager_from_residue_specs(residue_specs, atom_sel.mol);
+//
 void
 coot::multi_residue_torsion_fit_map(int imol,
 				    mmdb::Manager *mol,
@@ -430,7 +450,7 @@ coot::multi_residue_torsion_fit_map(int imol,
    // update model so that it uses best_tree_dihedral_quads
 
    std::vector<std::pair<std::string, int> > atom_numbers = util::atomic_number_atom_list();
-   
+
    try {
       mmdb::PPAtom atom_selection = 0;
       int n_selected_atoms;
@@ -438,7 +458,7 @@ coot::multi_residue_torsion_fit_map(int imol,
       mol->SelectAtoms(selhnd, 0, "*",
 		       mmdb::ANY_RES, "*",
 		       mmdb::ANY_RES, "*",
-		       "*", "*", "*", "*"); 
+		       "*", "*", "*", "*");
       mol->GetSelIndex(selhnd, atom_selection, n_selected_atoms);
       std::vector<std::pair<mmdb::Atom *, float> > atoms(n_selected_atoms); // for density fitting
       for (int iat=0; iat<n_selected_atoms; iat++) {
@@ -449,24 +469,24 @@ coot::multi_residue_torsion_fit_map(int imol,
 	 atoms[iat] = std::pair<mmdb::Atom *, float> (atom_selection[iat], z);
       }
 
-      if (n_selected_atoms > 0) { 
-	 std::vector<torsion_atom_quad> quads = 
+      if (n_selected_atoms > 0) {
+	 std::vector<torsion_atom_quad> quads =
 	    torsionable_quads(imol, mol, atom_selection, n_selected_atoms, geom_p);
 
 	 // FIXME for future, calculate link_angle_atom_triples, using something analoguous to
 	 // torsionable_link_quads()
 
-	 if (false)
+	 if (true) // debug
 	    for (unsigned int iquad=0; iquad<quads.size(); iquad++)
-	       std::cout << "DEBUG tosion quads:  " << iquad << " "
-			 << atom_spec_t(quads[iquad].atom_1) << " " 
-			 << atom_spec_t(quads[iquad].atom_2) << " " 
-			 << atom_spec_t(quads[iquad].atom_3) << " " 
+	       std::cout << "DEBUG multi-residue-torsion-fit-map: tosion quads:  "
+                         << iquad << " "
+			 << atom_spec_t(quads[iquad].atom_1) << " "
+			 << atom_spec_t(quads[iquad].atom_2) << " "
+			 << atom_spec_t(quads[iquad].atom_3) << " "
 			 << atom_spec_t(quads[iquad].atom_4) << " \""
 			 << quads[iquad].name << "\" torsion: "
-			 << quads[iquad].torsion() 
+			 << quads[iquad].torsion()
 			 << std::endl;
-
 
 	 contact_info contacts(mol, imol, selhnd, quads, geom_p);
 	 std::vector<std::vector<int> > contact_indices =
@@ -491,7 +511,7 @@ coot::multi_residue_torsion_fit_map(int imol,
 	 // the first 15% should be small.
 	 //
 	 int itrial_n_small_lim(0.15*n_trials);
-	 // 
+	 //
 	 for (int itrial=0; itrial<n_trials; itrial++) {
 
 	    bool allow_conformer_switch = true;
@@ -499,30 +519,30 @@ coot::multi_residue_torsion_fit_map(int imol,
 	    if (itrial < itrial_n_small_lim) {
 	       allow_conformer_switch = false;
 	       small_torsion_changes = true;
-	    } 
-	       
-	    if (false)
+	    }
+
+	    if (true)
 	       std::cout << "Round " << itrial << " of " << n_trials << " for " << n_quads << " quads "
 			 << std::endl;
 
 	    std::vector<atom_tree_t::tree_dihedral_quad_info_t> torsion_quads;
-#ifdef HAVE_CXX11
+
 	    // debug, store angles in rand_angles: name current trial-value
 	    std::vector<std::tuple<std::string, double, double> > rand_angles(n_quads);
-#endif // HAVE_CXX11
+
 	    for (int iquad=0; iquad<n_quads; iquad++) {
 	       // quads[iquad] is passed for debugging
                double rand_angle = get_rand_angle(best_quads[iquad], quads[iquad], itrial,
 						  n_trials, allow_conformer_switch, small_torsion_changes);
-#ifdef HAVE_CXX11
+
 	       std::tuple<std::string, double, double> tup(quads[iquad].name, best_quads[iquad], rand_angle);
 	       rand_angles[iquad] = tup;
-#endif // HAVE_CXX11
+
 	       atom_tree_t::tree_dihedral_quad_info_t tor(quads[iquad], rand_angle, fixed_index);
 	       torsion_quads.push_back(tor);
 	    }
 
-#ifdef HAVE_CXX11
+
 	    if (false) { //debug
 	       for (int iquad=0; iquad<n_quads; iquad++) {
 		  std::cout << "debug: itrial " << itrial << " "
@@ -533,7 +553,7 @@ coot::multi_residue_torsion_fit_map(int imol,
 	       }
 	       std::cout << std::endl;
 	    }
-#endif // HAVE_CXX11
+
 	    tree.set_dihedral_multi(torsion_quads);
 	    // FIXME for futures, also include link_angle_atom_triples (for excluding of bumps)
 	    double self_clash_score = get_self_clash_score(mol, atom_selection, n_selected_atoms, quads);
@@ -557,20 +577,21 @@ coot::multi_residue_torsion_fit_map(int imol,
 	    } else {
 
 	       // happy path
-	    
+
 	       double this_score = util::z_weighted_density_score_new(atoms, xmap);
 
 	       // debugging of scores
-	       if (false) { 
+	       if (true) {
 		  std::cout << "debug trial " << itrial << " fit-score: " << this_score
-			    << " self-clash-score " << self_clash_score 
-			    << " for quads "; 
+			    << " self-clash-score " << self_clash_score
+			    << " for quads ";
 		  for (unsigned int iquad=0; iquad<quads.size(); iquad++)
 		     std::cout << "   " << quads[iquad].torsion();
 		  std::cout << std::endl;
 	       }
-	    
+
 	       if (this_score > best_score) {
+                  std::cout << ".... improved!" << std::endl;
 		  // save best torsion angles
 		  best_score = this_score;
 		  for (int iquad=0; iquad<n_quads; iquad++)
@@ -590,7 +611,7 @@ coot::multi_residue_torsion_fit_map(int imol,
 		     int nres = chain_p->GetNumberOfResidues();
 		     mmdb::Residue *residue_p;
 		     mmdb::Atom *at;
-		     for (int ires=0; ires<nres; ires++) { 
+		     for (int ires=0; ires<nres; ires++) {
 			residue_p = chain_p->GetResidue(ires);
 			int n_atoms = residue_p->GetNumberOfAtoms();
 			for (int iat=0; iat<n_atoms; iat++) {
@@ -612,15 +633,15 @@ coot::multi_residue_torsion_fit_map(int imol,
    catch (const std::runtime_error &rte) {
       std::cout << "WARNING:: " << rte.what() << std::endl;
    }
-} 
+}
 
 
-double 
-coot::get_rand_angle(double current_angle, 
-                     const torsion_atom_quad &quad, 
+double
+coot::get_rand_angle(double current_angle,
+                     const torsion_atom_quad &quad,
                      int itrial, int n_trials,
 		     bool allow_conformer_switch,
-		     bool small_torsion_changes) { 
+		     bool small_torsion_changes) {
 
    double r = current_angle;
    double minus_one_to_one = -1 + 2 * double(util::random())/double(RAND_MAX);

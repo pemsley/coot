@@ -1,23 +1,21 @@
 
 --- Items ---
 
-o B-factor of atoms around the centre of the screen ::: 1
+o WTA carbohydrate ::: 6
 
-o mmcif/5-char ligand id/RSR - what's going wrong? ::: 3
-
-o WTA carbohydrate ::: 4
+o "Proportional editing" molecule rotation ::: 2
 
 o Add anisotropic radius scaling from Claus. Need to check mails or something
   for scaling code. ::: 1
 
-o "Proportional editing" molecule rotation ::: 2
+o Rework monomer library usage - make it more like Moorhen. ::: 3
 
-o Rework monomer library usage - make it more like Moorhen. ::: 2
-
-o try texture atlas for text ::: 4
+o try texture atlas for text - make a new test app from scratch ::: 4
 
 o have another look at Rama plot ::: 1
   So far it seems like a driver bug.
+
+o check 2d ligand view on new MacBook Pro. ::: 0.5
 
 --- Other Items ---
 
@@ -26,7 +24,21 @@ o Rama and Rota graphs validation graphs have terrible scaling - difficult to fi
 o Have a look at contact dots during refinement - with the 3a3a say, there is hang, and the
   final refined structure is shown - there is no animation :: 2
 
+o Have a look at the poly-TRP problem of sequence identification. :: 4
+
+o  It was a strange bit of code in get_group().
+   Now the issue is duplication of the model on writing. mmdb bug.
+   Solved now? Am I using the right version?
+
 --- Done Items ---
 
 o Select fitting map should be an overlay, I think. ::: 0.5
+
+o B-factor of atoms around the centre of the screen ::: 1.5
+  local_b_factor_display(short int state)
+
+o mmcif/5-char ligand id/RSR - what's going wrong? ::: 0.5
+  It was a strange bit of code in get_group().
+  Now the issue is duplication of the model on writing. mmdb bug.
+  Solved now? Am I using the right version?
 

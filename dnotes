@@ -11781,4 +11781,27 @@ Here is how to show a validation vbox:
    gtk_widget_set_visible(vbox,       TRUE);
    gtk_widget_set_visible(label,      TRUE);
 
+----
+Wed  2 Apr 04:32:06 BST 2025
+
+   Here is how to add a stack trace:
+
+Add to the Makefile.am:
+
+if USE_BACKWARD
+   BACKWARD_FLAGS=-DUSE_BACKWARD
+endif
+
+Add to the AM_CPPFLAGS:
+	$(BACKWARD_FLAGS)
+
+
+Add to the code:
+
+#ifdef USE_BACKWARD
+               backward::StackTrace st;
+               backward::Printer p;
+               st.load_here(32);
+               p.print(st);
+#endif
 

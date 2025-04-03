@@ -761,7 +761,7 @@ make_link(int imol, coot::atom_spec_t &spec_1, coot::atom_spec_t &spec_2,
       graphics_info_t g;
       g.molecules[imol].make_link(spec_1, spec_2, link_name, length, *g.Geom_p());
       graphics_draw();
-   } 
+   }
 }
 
 #ifdef USE_GUILE

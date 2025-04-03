@@ -26,6 +26,9 @@
 #ifndef IDEAL_TORSION_BONDS_HH
 #define IDEAL_TORSION_BONDS_HH
 
+#include <clipper/core/xmap.h>
+#include "geometry/protein-geometry.hh"
+
 namespace coot {
 
    // this can throw an exception
@@ -40,7 +43,7 @@ namespace coot {
 			  protein_geometry *geom);
 
    // And the atom_quad version of that (for setting link torsions)
-   // 
+   //
    std::vector<torsion_atom_quad>
    torsionable_quads(int imol,
 		     mmdb::Manager *mol, mmdb::PPAtom atom_selection, int n_selected_atoms,
@@ -49,23 +52,23 @@ namespace coot {
    torsionable_link_quads(int imol,
 			  std::vector<mmdb::Residue *> residues_in,
 			  mmdb::Manager *mol, protein_geometry *geom_p);
-   
+
    // this can throw an std::runtime exception
    void multi_residue_torsion_fit_map(int imol,
 				      mmdb::Manager *mol,
 				      const clipper::Xmap<float> &xmap,
 				      const std::vector<std::pair<bool, clipper::Coord_orth> > &avoid_these_atoms, // flag is is-water?b
 				      int n_trials,
-				      protein_geometry *geom_p); 
-   // which calls 
+				      protein_geometry *geom_p);
+   // which calls
    double get_rand_angle(double current_angle, const torsion_atom_quad &quad, int itrial,
 			 int n_trials,
 			 bool allow_conformer_switch,
 			 bool small_torsion_changes);
-   
+
    // Does this model bang into itself?
    // Don't give atoms that are both in a quad a bang score
-   // 
+   //
    double get_self_clash_score(mmdb::Manager *mol,
 			       mmdb::PPAtom atom_selection,
 			       int n_selected_atoms,
@@ -79,6 +82,6 @@ namespace coot {
    bool both_in_a_torsion_p(mmdb::Atom *at_1,
 			    mmdb::Atom *at_2,
 			    const std::vector<torsion_atom_quad> &quads);
-} 
+}
 
 #endif // IDEAL_TORSION_BONDS_HH
