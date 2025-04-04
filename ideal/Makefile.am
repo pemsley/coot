@@ -38,7 +38,8 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir)     \
 	$(CLIPPER_CXXFLAGS) \
         $(BOOST_CPPFLAGS)   \
-	$(MMDB_CXXFLAGS)
+	$(MMDB_CXXFLAGS)    \
+	$(BACKWARD_FLAGS)
 
 AM_CXXFLAGS = $(gsl_CFLAGS) $(COOT_WINDOWS_CFLAGS) \
      $(CLIPPER_CXXFLAGS) $(MMDB_CXXFLAGS) $(LIBPNG_CFLAGS) $(RDKIT_CXXFLAGS)
@@ -80,11 +81,11 @@ libcoot_ideal_la_SOURCES = simple-restraint.cc make-restraints.cc ng.cc chi-squa
         extra-restraints-kk.cc simple-restraint-kk.cc torsion-bonds.cc \
 	coot-compare-residues.hh coot-compare-residues.cc link-restraints.cc \
 	parallel-planes.cc pull-restraint.cc trans-peptide.cc model-bond-deltas.cc \
-	write-png.cc zo-rama.cc crankshaft.hh crankshaft.cc phi-psi.cc neutron.cc
+	write-png.cc zo-rama.cc crankshaft.hh crankshaft.cc phi-psi.cc neutron.cc add-linked-cho.cc
 
 libcoot_ideal_la_LDFLAGS = $(SHARED_LDFLAGS) -lpthread
 
-check_PROGRAMS =  crankshaft-test test-rama-plot
+check_PROGRAMS =  crankshaft-test test-rama-plot test-add-linked-cho
 # removed for now: with-geometry logramatest
 
 if OS_WIN32
@@ -106,13 +107,21 @@ crankshaft_test_LDADD = ./libcoot-ideal.la \
 
 # with_geometry_SOURCES = with-geometry.cc
 
+if USE_BACKWARD
+   BACKWARD_FLAGS=-DUSE_BACKWARD
+endif
+
 mini_rsr_bin_SOURCES = mini-rsr.cc
 
 test_rama_plot_SOURCES = test-rama-plot.cc
 
 test_rama_plot_LDADD = ./libcoot-ideal.la \
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la \
-	$(top_builddir)/geometry/libcoot-geometry.la 
+	$(top_builddir)/geometry/libcoot-geometry.la
+
+test_add_linked_cho_SOURCES = test-add-linked-cho.cc
+
+test_add_linked_cho_LDADD = libcoot-ideal.la
 
 coot_ligand_validation_bin_SOURCES = lv.cc
 

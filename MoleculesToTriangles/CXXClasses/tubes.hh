@@ -29,3 +29,8 @@ make_coil_for_tubes_representation(mmdb::Manager *mol,
                                    int Cn_for_coil, int accuracy_for_coil,
                                    unsigned int n_slices_for_coil,
                                    bool remove_trace_for_helices);
+coot::simple_mesh_t
+make_mesh_for_helical_representation(mmdb::Manager *mol,
+                                     const std::string &atom_selection_str,
+                                     float radius_for_helices,
+                                     unsigned int n_slices_for_helices);

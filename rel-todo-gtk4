@@ -1,5 +1,9 @@
 ----
 
+validation json: sort by "badness" property. Also add "problem-type"
+These are optional.
+Sections added to the format.
+
 Clemens: interesting places json file: when you uget there,
 show the neighbours, ie. action becomes a list of actions,
 each has their own button
@@ -33,7 +37,7 @@ Add anioscaling from Claus. Need to check mails or something for scaling code. p
 Paul Bond: named argument support in chapi?
 Doable. Does Lucrezia want to do it?
 
-When the monomer library isn't install/doesn't work, ask the user if it should download
+When the monomer library isn't installed/doesn't work, ask the user if it should download
 the monomer restraints from github? Cache them in xdg cache .cache/Coot/monomers and load
 from there on read without user intervention.
 

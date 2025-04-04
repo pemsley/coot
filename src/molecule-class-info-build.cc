@@ -234,13 +234,13 @@ molecule_class_info_t::make_link(const coot::atom_spec_t &spec_1, const coot::at
 
    // 2014: link_name and length are not part curently of a mmdb::Link.
    // Perhaps they should not be passed then?
-   
+
    mmdb::Atom *at_1 = get_atom(spec_1);
    mmdb::Atom *at_2 = get_atom(spec_2);
 
    if (! at_1) {
       std::cout << "WARNING:: atom " << spec_1 << " not found - abandoning LINK addition " << std::endl;
-   } else { 
+   } else {
       if (! at_2) {
 	 std::cout << "WARNING:: atom " << spec_1 << " not found - abandoning LINK addition " << std::endl;
       } else {
@@ -258,7 +258,7 @@ molecule_class_info_t::make_link(const coot::atom_spec_t &spec_1, const coot::at
 	    make_backup();
 
 	    mmdb::Manager *mol = atom_sel.mol;
-	 
+
             mmdb::Link *link = new mmdb::Link; // sym ids default to 1555 1555
 
 	    strncpy(link->atName1,  at_1->GetAtomName(), 20);
@@ -302,10 +302,10 @@ molecule_class_info_t::make_link(const coot::atom_spec_t &spec_1, const coot::at
 	    asn_hydrogen_position_swap(residues); // HD21 and HD22 (HD22 will be deleted)
 	    bpc.apply_chem_mods(geom);
 	    atom_sel.mol->FinishStructEdit();
-	    
+
 	    update_molecule_after_additions();
 	 }
-      } 
+      }
    }
 }
 
@@ -427,6 +427,7 @@ molecule_class_info_t::delete_link(mmdb::Link *link, mmdb::Model *model_p) {
    }
 }
 
+// there is a copy of this in add-linked-cho now.
 void
 molecule_class_info_t::asn_hydrogen_position_swap(std::vector<std::pair<bool, mmdb::Residue *> > residues) {
 

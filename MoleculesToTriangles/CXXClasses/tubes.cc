@@ -1,6 +1,7 @@
 
 #include <iostream>
 
+#include <clipper/core/coords.h>
 #include "MoleculesToTriangles/CXXClasses/NRStuff.h"
 #include "coot-utils/cylinder.hh"
 
@@ -9,7 +10,209 @@
 #include "mmdb2/mmdb_selmngr.h"
 #include "tubes.hh"
 
+
+
+
 void secondary_structure_header_to_residue_sse(mmdb::Manager *mol);
+
+coot::simple_mesh_t
+make_mesh_for_helical_representation(mmdb::Manager *mol,
+                                     const std::string &atom_selection_str,
+                                     float radius_for_helices,
+                                     unsigned int n_slices_for_helices) {
+   coot::simple_mesh_t m;
+   class helix_t{
+      public:
+      std::string chain_id;
+      int resno_start;
+      int resno_end;
+      helix_t() : chain_id(""), resno_start(-9999), resno_end(-9999) {}
+      helix_t(const std::string &c, int r1, int r2) : chain_id(c), resno_start(r1), resno_end(r2) {}
+   };
+
+   auto get_ref_coords = [] (mmdb::Manager *helix_mol) {
+
+      std::vector<clipper::Coord_orth> coords;
+      int imod = 1;
+      mmdb::Model *model_p = helix_mol->GetModel(imod);
+      if (model_p) {
+         int n_chains = model_p->GetNumberOfChains();
+         for (int ichain=0; ichain<n_chains; ichain++) {
+            mmdb::Chain *chain_p = model_p->GetChain(ichain);
+            int n_res = chain_p->GetNumberOfResidues();
+            for (int ires=0; ires<n_res; ires++) {
+               mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+               if (residue_p) {
+                  int n_atoms = residue_p->GetNumberOfAtoms();
+                  int res_no = residue_p->GetSeqNum();
+                  if (res_no > 3) break;
+                  for (int iat=0; iat<n_atoms; iat++) {
+                     mmdb::Atom *at = residue_p->GetAtom(iat);
+                     clipper::Coord_orth pt(at->x, at->y, at->z);
+                     coords.push_back(pt);
+                  }
+               }
+            }
+         }
+      }
+      return coords;
+   };
+
+   auto get_rtop = [] (const std::string &chain_id, int res_no, mmdb::Manager *mol, std::vector<clipper::Coord_orth> &ref_coords) {
+      clipper::RTop_orth rtop;
+
+      std::vector<clipper::Coord_orth> coords;
+      int imod = 1;
+      mmdb::Model *model_p = mol->GetModel(imod);
+      if (model_p) {
+         int n_chains = model_p->GetNumberOfChains();
+         for (int ichain=0; ichain<n_chains; ichain++) {
+            mmdb::Chain *chain_p = model_p->GetChain(ichain);
+            std::string chain_id_this = chain_p->GetChainID();
+            if (chain_id_this ==  chain_id) {
+               int n_res = chain_p->GetNumberOfResidues();
+               for (int ires=0; ires<n_res; ires++) {
+                  mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                  if (residue_p) {
+                     int seq_num_this = residue_p->GetSeqNum();
+                     if (seq_num_this >= res_no) {
+                        if (seq_num_this <= (res_no+2)) {
+                           if (seq_num_this > (res_no+2)) break;
+                           int n_atoms = residue_p->GetNumberOfAtoms();
+                           for (int iat=0; iat<n_atoms; iat++) {
+                              mmdb::Atom *at = residue_p->GetAtom(iat);
+                              if (! at->isTer()) {
+                                 std::string atom_name = at->name;
+                                 // PDBv3 FIXME
+                                 if (atom_name == " N  " ||
+                                     atom_name == " CA " ||
+                                     atom_name == " C  " ||
+                                     atom_name == " O  ")  {
+                                    mmdb::Atom *at = residue_p->GetAtom(iat);
+                                    clipper::Coord_orth pt(at->x, at->y, at->z);
+                                    coords.push_back(pt);
+                                 }
+                              }
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      }
+      if (ref_coords.size() == coords.size()) {
+         rtop = clipper::RTop_orth(ref_coords, coords); // maybe the other way around
+      }
+      return rtop;
+   };
+
+   // find all the helices:
+   std::vector<helix_t> helices;
+
+   int sel_hnd = mol->NewSelection(); // d
+   mol->Select(sel_hnd, mmdb::STYPE_RESIDUE, atom_selection_str.c_str(), mmdb::SKEY_NEW);
+
+   for (int imod = 1; imod <= mol->GetNumberOfModels(); imod++) {
+      mmdb::Model *model_p = mol->GetModel(imod);
+      if (model_p) {
+         int n_chains = model_p->GetNumberOfChains();
+         for (int ichain=0; ichain<n_chains; ichain++) {
+            mmdb::Chain *chain_p = model_p->GetChain(ichain);
+            int n_res = chain_p-> GetNumberOfResidues();
+            helix_t helix_running;
+            for (int ires=0; ires<n_res; ires++) {
+               mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+               if (residue_p) {
+                  if (residue_p->SSE == mmdb::SSE_Helix) {
+                     if (residue_p->isInSelection(sel_hnd)) {
+                        if (helix_running.resno_start == -9999) {
+                           helix_running.resno_start = residue_p->GetSeqNum();
+                           helix_running.chain_id = chain_p->GetChainID();
+                        } else {
+                           // we are in a helix
+                           helix_running.resno_end = residue_p->GetSeqNum();
+                        }
+                     }
+                  } else {
+                     if (helix_running.resno_start == -9999) {
+                        // nothing
+                     } else {
+                        helices.push_back(helix_running);
+                        helix_running = helix_t();
+                     }
+                  }
+               }
+            }
+            if (helix_running.resno_start != -9999) {
+               helices.push_back(helix_running);
+            }
+         }
+      }
+   }
+   mol->DeleteSelection(sel_hnd);
+
+   if (true) { // debug
+      for (const auto &h : helices) {
+         std::cout << "helix: " << h.chain_id << " " << h.resno_start << " " << h.resno_end
+                   << std::endl;
+      }
+   }
+
+   if (! helices.empty()) {
+      mmdb::Manager *helix_mol = new mmdb::Manager();
+      helix_mol->ReadCoorFile("theor-helix-z-ori-v2.pdb");
+      std::vector<clipper::Coord_orth> ref_coords = get_ref_coords(helix_mol);
+
+      // let's pre-make the ring points
+      std::vector<clipper::Coord_orth> ring_points;
+      std::vector<clipper::Coord_orth> ring_point_normals;
+      for (unsigned int i_pt=0; i_pt<n_slices_for_helices; i_pt++) {
+         float theta = M_PI * 2.0 * static_cast<float>(i_pt) / static_cast<float>(n_slices_for_helices);
+         float x = radius_for_helices * sinf(theta);
+         float y = radius_for_helices * cosf(theta);
+         float z = 0;
+         float xn = sinf(theta);
+         float yn = cosf(theta);
+         float zn = 0;
+         ring_points.push_back(clipper::Coord_orth(x,y,z));
+         ring_point_normals.push_back(clipper::Coord_orth(xn,yn,zn));
+      }
+
+      for (const auto &helix : helices) {
+
+         std::vector<coot::api::vnc_vertex> vertices;
+         std::vector<g_triangle> triangles;
+
+         unsigned int n_rings_in_helix = 0;
+         for (int ires_no=helix.resno_start; ires_no<(helix.resno_end-1); ires_no++) {
+            clipper::RTop_orth rtop = get_rtop(helix.chain_id, ires_no, mol, ref_coords);
+            if (true) { // test here that rtop is sane
+               clipper::RTop_orth rtop_for_normals = rtop;
+               rtop_for_normals.trn() = clipper::Coord_orth(0,0,0);
+               n_rings_in_helix++;
+               std::vector<clipper::Coord_orth> transformed_points(ring_points.size());
+               std::vector<clipper::Coord_orth>    rotated_normals(ring_points.size());
+               for (unsigned int i_pt=0; i_pt<ring_points.size(); i_pt++) {
+                  const clipper::Coord_orth &pt   = ring_points[i_pt];
+                  const clipper::Coord_orth &n_pt = ring_point_normals[i_pt];
+                  clipper::Coord_orth t_pt = rtop * pt;
+                  clipper::Coord_orth t_n = rtop_for_normals * n_pt;
+                  transformed_points[i_pt] = t_pt;
+                  rotated_normals[i_pt] = t_n;
+               }
+            }
+         }
+
+         // now make the triangle for that helix
+         //
+         // try simple-minded first
+
+      }
+   }
+
+   return m;
+}
 
 coot::simple_mesh_t
 make_tubes_representation(mmdb::Manager *mol,
@@ -23,6 +226,13 @@ make_tubes_representation(mmdb::Manager *mol,
    coot::simple_mesh_t m;
    bool remove_trace_for_helices = true;
    secondary_structure_header_to_residue_sse(mol);
+   float radius_for_helices = 3.2;
+   unsigned int n_slices_for_helices = 16;
+
+   coot::simple_mesh_t mesh_for_helices = make_mesh_for_helical_representation(
+      mol, atom_selection_str, radius_for_helices, n_slices_for_helices);
+
+   m.add_submesh(mesh_for_helices);
    m.add_submesh(make_coil_for_tubes_representation(mol, atom_selection_str,
                                                     radius_for_coil,
                                                     Cn_for_coil, accuracy_for_coil,
