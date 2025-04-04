@@ -24,13 +24,13 @@
  *
  */
 
-#include "glm/matrix.hpp"
 #ifdef USE_PYTHON
 #include <Python.h>
 #endif // USE_PYTHON
 
 #include "compat/coot-sysdep.h"
 
+#include "glm/matrix.hpp"
 #define GLM_ENABLE_EXPERIMENTAL // # for norm things
 // #include <glm/ext.hpp>
 #include <glm/gtx/string_cast.hpp>  // to_string()
