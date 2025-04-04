@@ -1081,6 +1081,7 @@ public:
    //! @param colour_scheme is one of "colorRampChainsScheme", "colorBySecondaryScheme", "Chain"
    //! @param style "Ribbon" or "MolecularSurface"
    //! @param secondary_structure_usage_flag  0 (USE_HEADER), 1 (DONT_USE) or 2 (CALC_SECONDARY_STRUCTURE)
+   //! @param file_name of the glTF (the file will be compressed, so choose ".glb" as the extension)
    void export_molecular_representation_as_gltf(int imol, const std::string &atom_selection_cid,
                                                const std::string &colour_scheme, const std::string &style,
                                                int secondary_structure_usage_flag,
