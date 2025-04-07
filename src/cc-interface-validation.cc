@@ -274,113 +274,140 @@ void read_interesting_places_json_file(const std::string &file_name) {
          f.seekg(0, std::ios::beg);
          s.assign((std::istreambuf_iterator<char>(f)), std::istreambuf_iterator<char>());
 
-         std::string title = "<Title>";
-         json j = json::parse(s);
-         unsigned int n_outer = j.size();
-         std::cout << "Found " << n_outer << " parts in the json" << std::endl;
-         json j_items = j["items"];
-         unsigned int n_items = j_items.size();
-         std::cout << "items list has " << n_items << " button/place items" << std::endl;
+	 std::string title = "<Title>";
 
-         for (std::size_t i=0; i<n_items; i++) {
-            const json &j_item = j_items[i];
-            json::const_iterator it_1 = j_item.find(std::string("position-type"));
-            if (it_1 != j_item.end()) {
-               std::string position_type = it_1.value();
-               std::string label;
-               coot::Cartesian position(0,0,0);
-               json::const_iterator it_2 = j_item.find(std::string("label"));
-               if (it_2 != j_item.end()) {
-                  label = it_2.value();
-               }
+	 try {
+	    json j = json::parse(s);
+	    unsigned int n_outer = j.size();
+	    std::cout << "Found " << n_outer << " parts in the json" << std::endl;
+	    json::const_iterator j_title = j.find("title");
+	    if (j_title != j.end()) {
+	       title = j_title.value();
+	    }
+	    json j_sections = j["sections"];
+	    unsigned int n_sections = j_sections.size();
+	    if (true) {
+	       for (std::size_t i=0; i<n_sections; i++) {
+		  const json &j_section = j_sections[i];
+		  std::string section_title;
+		  json::const_iterator it_s = j_section.find(std::string("title"));
+		  if (it_s != j_section.end()) section_title = it_s.value();
 
-               if (position_type == "by-atom-spec") {
-                  std::cout << "--- found a by-atom-spec" << std::endl;
-                  json::const_iterator it_3 = j_item.find(std::string("atom-spec"));
-                  if (it_3 != j_item.end()) {
-                     const json &j_atom_spec = *it_3;
-                     coot::atom_spec_t atom_spec = get_atom_spec(j_atom_spec);
-                     if (atom_spec.chain_id != "unset") {
-                        atom_spec.string_user_data = label;
-                        atom_spec.int_user_data = i;
-                        atom_specs.push_back(atom_spec);
-                     }
-                  }
-               }
+		  // now iterate through the items of a section
 
-               if (position_type == "by-atom-spec-pair") {
-                  std::cout << "--- found a by-atom-spec-pair" << std::endl;
-                  coot::atom_spec_t atom_1_spec;
-                  coot::atom_spec_t atom_2_spec;
-                  std::string label;
-                  json::const_iterator it_2 = j_item.find(std::string("label"));
-                  if (it_2 != j_item.end()) {
-                     label = it_2.value();
-                  }
-                  json::const_iterator it_3 = j_item.find(std::string("atom-1-spec"));
-                  if (it_3 != j_item.end()) {
-                     const json &j_atom_spec = *it_3;
-                     atom_1_spec = get_atom_spec(j_atom_spec);
-                     if (atom_1_spec.chain_id != "unset") {
-                        atom_1_spec.string_user_data = label;
-                        atom_1_spec.int_user_data = i;
-                     }
-                  }
-                  it_3 = j_item.find(std::string("atom-2-spec"));
-                  if (it_3 != j_item.end()) {
-                     const json &j_atom_spec = *it_3;
-                     atom_2_spec = get_atom_spec(j_atom_spec);
-                     if (atom_2_spec.chain_id != "unset") {
-                        atom_2_spec.string_user_data = label;
-                        atom_2_spec.int_user_data = i;
-                     }
-                  }
-                  if (atom_1_spec.chain_id != "unset") {
-                     if (atom_2_spec.chain_id != "unset") {
-                        atom_spec_pair_t asp(atom_1_spec, atom_2_spec);
-                        asp.label = label;
-                        asp.button_index = i;
-                        atom_spec_pairs.push_back(asp);
-                     }
-                  }
-               }
+		  json j_items = j_section["items"];
+		  unsigned int n_items = j_items.size();
+		  std::cout << "items list has " << n_items << " button/place items" << std::endl;
 
-               if (position_type == "by-residue-spec") {
-                  std::cout << "--- found a by-residue-spec" << std::endl;
-                  json::const_iterator it_3 = j_item.find(std::string("residue-spec"));
-                  if (it_3 != j_item.end()) {
-                     const json &j_residue_spec = *it_3;
-                     coot::residue_spec_t residue_spec = get_residue_spec(j_residue_spec);
-                     if (residue_spec.chain_id != "unset") {
-                        residue_spec.string_user_data = label;
-                        residue_spec.int_user_data = i;
-                        residue_specs.push_back(residue_spec);
-                     }
-                  }
-               }
+		  for (std::size_t i=0; i<n_items; i++) {
+		     const json &j_item = j_items[i];
+		     json::const_iterator it_1 = j_item.find(std::string("position-type"));
+		     if (it_1 != j_item.end()) {
+			std::string position_type = it_1.value();
+			std::string label;
+			coot::Cartesian position(0,0,0);
+			json::const_iterator it_2 = j_item.find(std::string("label"));
+			if (it_2 != j_item.end()) {
+			   label = it_2.value();
+			}
 
-               if (position_type == "by-coordinates") {
-                  std::cout << "--- found a by-coordinates" << std::endl;
-                  json::const_iterator it_3 = j_item.find(std::string("position"));
-                  if (it_3 != j_item.end()) {
-                     const json &j_pos = *it_3;
-                     unsigned int l = j_pos.size();
-                     if (l == 3) {
-                        std::cout << "Found a position" << std::endl;
-                        const json &x_item = j_pos[0];
-                        const json &y_item = j_pos[1];
-                        const json &z_item = j_pos[2];
-                        float x = x_item.get<float>();
-                        float y = y_item.get<float>();
-                        float z = z_item.get<float>();
-                        coot::Cartesian c(x,y,z);
-                        interesting_position_button_t ipb(c, label, i);
-                        positions.push_back(ipb);
-                     }
-                  }
-               }
+			if (position_type == "by-atom-spec") {
+			   std::cout << "--- found a by-atom-spec" << std::endl;
+			   json::const_iterator it_3 = j_item.find(std::string("atom-spec"));
+			   if (it_3 != j_item.end()) {
+			      const json &j_atom_spec = *it_3;
+			      coot::atom_spec_t atom_spec = get_atom_spec(j_atom_spec);
+			      if (atom_spec.chain_id != "unset") {
+				 atom_spec.string_user_data = label;
+				 atom_spec.int_user_data = i;
+				 atom_specs.push_back(atom_spec);
+			      }
+			   }
+			}
+
+			if (position_type == "by-atom-spec-pair") {
+			   std::cout << "--- found a by-atom-spec-pair" << std::endl;
+			   coot::atom_spec_t atom_1_spec;
+			   coot::atom_spec_t atom_2_spec;
+			   std::string label;
+			   json::const_iterator it_2 = j_item.find(std::string("label"));
+			   if (it_2 != j_item.end()) {
+			      label = it_2.value();
+			   }
+			   json::const_iterator it_3 = j_item.find(std::string("atom-1-spec"));
+			   if (it_3 != j_item.end()) {
+			      const json &j_atom_spec = *it_3;
+			      atom_1_spec = get_atom_spec(j_atom_spec);
+			      if (atom_1_spec.chain_id != "unset") {
+				 atom_1_spec.string_user_data = label;
+				 atom_1_spec.int_user_data = i;
+			      }
+			   }
+			   it_3 = j_item.find(std::string("atom-2-spec"));
+			   if (it_3 != j_item.end()) {
+			      const json &j_atom_spec = *it_3;
+			      atom_2_spec = get_atom_spec(j_atom_spec);
+			      if (atom_2_spec.chain_id != "unset") {
+				 atom_2_spec.string_user_data = label;
+				 atom_2_spec.int_user_data = i;
+			      }
+			   }
+			   if (atom_1_spec.chain_id != "unset") {
+			      if (atom_2_spec.chain_id != "unset") {
+				 atom_spec_pair_t asp(atom_1_spec, atom_2_spec);
+				 asp.label = label;
+				 asp.button_index = i;
+				 atom_spec_pairs.push_back(asp);
+			      }
+			   }
+			}
+
+			if (position_type == "by-residue-spec") {
+			   std::cout << "--- found a by-residue-spec" << std::endl;
+			   json::const_iterator it_3 = j_item.find(std::string("residue-spec"));
+			   if (it_3 != j_item.end()) {
+			      const json &j_residue_spec = *it_3;
+			      coot::residue_spec_t residue_spec = get_residue_spec(j_residue_spec);
+			      if (residue_spec.chain_id != "unset") {
+				 residue_spec.string_user_data = label;
+				 residue_spec.int_user_data = i;
+				 residue_specs.push_back(residue_spec);
+			      }
+			   }
+			}
+
+			if (position_type == "by-coordinates") {
+			   std::cout << "--- found a by-coordinates" << std::endl;
+			   json::const_iterator it_3 = j_item.find(std::string("position"));
+			   if (it_3 != j_item.end()) {
+			      const json &j_pos = *it_3;
+			      unsigned int l = j_pos.size();
+			      if (l == 3) {
+				 std::cout << "Found a position" << std::endl;
+				 const json &x_item = j_pos[0];
+				 const json &y_item = j_pos[1];
+				 const json &z_item = j_pos[2];
+				 float x = x_item.get<float>();
+				 float y = y_item.get<float>();
+				 float z = z_item.get<float>();
+				 coot::Cartesian c(x,y,z);
+				 interesting_position_button_t ipb(c, label, i);
+				 positions.push_back(ipb);
+			      }
+			   }
+			}
+		     }
+		  }
+	       }
             }
          }
+	 catch(const nlohmann::detail::type_error &e) {
+	    std::cout << "ERROR:: " << e.what() << std::endl;
+	 }
+	 catch(const nlohmann::detail::parse_error &e) {
+	    std::cout << "ERROR:: " << e.what() << std::endl;
+	 }
+
 
          std::cout << "debug:: " << std::endl;
          std::cout << "debug:: atom_specs " << atom_specs.size() << std::endl;
