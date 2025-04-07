@@ -1934,6 +1934,10 @@ graphics_info_t::check_dictionary_for_residue_restraints(int imol, const std::ve
    for (unsigned int i=0; i<residues.size(); i++)
       types.push_back(residues[i]->GetResName());
 
+   if (false)
+     for (unsigned int i=0; i<types.size(); i++)
+       std::cout << " type :" << types[i] << ":" << std::endl;
+
    bool r_status = geom_p->have_restraints_dictionary_for_residue_types(types, imol, cif_dictionary_read_number++);
    if (! r_status) {
       // OK, compile a list of the missings
