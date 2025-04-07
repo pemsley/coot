@@ -1,0 +1,268 @@
+data_comp_list
+loop_
+_chem_comp.id
+_chem_comp.three_letter_code
+_chem_comp.name
+_chem_comp.group
+_chem_comp.number_atoms_all
+_chem_comp.number_atoms_nh
+_chem_comp.desc_level
+TYR TYR TYROSINE peptide 24 13 .
+
+data_comp_TYR
+loop_
+_chem_comp_atom.comp_id
+_chem_comp_atom.atom_id
+_chem_comp_atom.type_symbol
+_chem_comp_atom.type_energy
+_chem_comp_atom.charge
+_chem_comp_atom.x
+_chem_comp_atom.y
+_chem_comp_atom.z
+TYR N N NT3 1 5.311 5.160 15.589
+TYR CA C CH1 0 5.358 6.374 16.456
+TYR C C C 0 4.823 7.578 15.662
+TYR O O O 0 3.988 8.305 16.245
+TYR CB C CH2 0 6.763 6.679 16.994
+TYR CG C CR6 0 7.348 5.630 17.938
+TYR CD1 C CR16 0 7.096 5.672 19.314
+TYR CD2 C CR16 0 8.161 4.597 17.458
+TYR CE1 C CR16 0 7.628 4.720 20.176
+TYR CE2 C CR16 0 8.697 3.641 18.313
+TYR CZ C CR6 0 8.431 3.702 19.674
+TYR OH O OH1 0 8.982 2.738 20.476
+TYR OXT O OC -1 5.248 7.759 14.496
+TYR H H H 0 5.552 4.421 16.046
+TYR H2 H H 0 5.856 5.257 14.876
+TYR H3 H H 0 4.470 5.038 15.288
+TYR HA H H 0 4.756 6.220 17.232
+TYR HB3 H H 0 6.733 7.543 17.464
+TYR HB2 H H 0 7.369 6.788 16.227
+TYR HD1 H H 0 6.552 6.358 19.667
+TYR HD2 H H 0 8.350 4.543 16.534
+TYR HE1 H H 0 7.444 4.765 21.099
+TYR HE2 H H 0 9.240 2.953 17.971
+TYR HH H H 0 8.782 2.828 21.308
+
+loop_
+_chem_comp_tree.comp_id
+_chem_comp_tree.atom_id
+_chem_comp_tree.atom_back
+_chem_comp_tree.atom_forward
+_chem_comp_tree.connect_type
+TYR N n/a CA START
+TYR H N . .
+TYR H2 N . .
+TYR H3 N . .
+TYR CA N C .
+TYR HA CA . .
+TYR CB CA CG .
+TYR HB3 CB . .
+TYR HB2 CB . .
+TYR CG CB CD1 .
+TYR CD1 CG CE1 .
+TYR HD1 CD1 . .
+TYR CE1 CD1 CZ .
+TYR HE1 CE1 . .
+TYR CZ CE1 CE2 .
+TYR OH CZ HH .
+TYR HH OH . .
+TYR CE2 CZ CD2 .
+TYR HE2 CE2 . .
+TYR CD2 CE2 HD2 .
+TYR HD2 CD2 . .
+TYR C CA . END
+TYR O C . .
+TYR OXT C . .
+TYR CD2 CG . ADD
+
+loop_
+_chem_comp_acedrg.comp_id
+_chem_comp_acedrg.atom_id
+_chem_comp_acedrg.atom_type
+TYR N N(CCCH)(H)3
+TYR CA C(CC[6a]HH)(NH3)(COO)(H)
+TYR C C(CCHN)(O)2
+TYR O O(CCO)
+TYR CB C(C[6a]C[6a]2)(CCHN)(H)2
+TYR CG C[6a](C[6a]C[6a]H)2(CCHH){1|C<3>,2|H<1>}
+TYR CD1 C[6a](C[6a]C[6a]C)(C[6a]C[6a]H)(H){1|C<3>,1|H<1>,1|O<2>}
+TYR CD2 C[6a](C[6a]C[6a]C)(C[6a]C[6a]H)(H){1|C<3>,1|H<1>,1|O<2>}
+TYR CE1 C[6a](C[6a]C[6a]H)(C[6a]C[6a]O)(H){1|C<3>,1|C<4>,1|H<1>}
+TYR CE2 C[6a](C[6a]C[6a]H)(C[6a]C[6a]O)(H){1|C<3>,1|C<4>,1|H<1>}
+TYR CZ C[6a](C[6a]C[6a]H)2(OH){1|C<3>,2|H<1>}
+TYR OH O(C[6a]C[6a]2)(H)
+TYR OXT O(CCO)
+TYR H H(NCHH)
+TYR H2 H(NCHH)
+TYR H3 H(NCHH)
+TYR HA H(CCCN)
+TYR HB3 H(CC[6a]CH)
+TYR HB2 H(CC[6a]CH)
+TYR HD1 H(C[6a]C[6a]2)
+TYR HD2 H(C[6a]C[6a]2)
+TYR HE1 H(C[6a]C[6a]2)
+TYR HE2 H(C[6a]C[6a]2)
+TYR HH H(OC[6a])
+
+loop_
+_chem_comp_bond.comp_id
+_chem_comp_bond.atom_id_1
+_chem_comp_bond.atom_id_2
+_chem_comp_bond.type
+_chem_comp_bond.aromatic
+_chem_comp_bond.value_dist_nucleus
+_chem_comp_bond.value_dist_nucleus_esd
+_chem_comp_bond.value_dist
+_chem_comp_bond.value_dist_esd
+TYR N CA SINGLE n 1.489 0.0100 1.489 0.0100
+TYR CA C SINGLE n 1.531 0.0171 1.531 0.0171
+TYR CA CB SINGLE n 1.532 0.0100 1.532 0.0100
+TYR C O DOUBLE n 1.251 0.0183 1.251 0.0183
+TYR C OXT SINGLE n 1.251 0.0183 1.251 0.0183
+TYR CB CG SINGLE n 1.523 0.0100 1.523 0.0100
+TYR CG CD1 DOUBLE y 1.390 0.0116 1.390 0.0116
+TYR CG CD2 SINGLE y 1.390 0.0116 1.390 0.0116
+TYR CD1 CE1 SINGLE y 1.385 0.0100 1.385 0.0100
+TYR CD2 CE2 DOUBLE y 1.385 0.0100 1.385 0.0100
+TYR CE1 CZ DOUBLE y 1.383 0.0100 1.383 0.0100
+TYR CE2 CZ SINGLE y 1.383 0.0100 1.383 0.0100
+TYR CZ OH SINGLE n 1.365 0.0137 1.365 0.0137
+TYR N H SINGLE n 1.018 0.0520 0.902 0.0102
+TYR N H2 SINGLE n 1.018 0.0520 0.902 0.0102
+TYR N H3 SINGLE n 1.018 0.0520 0.902 0.0102
+TYR CA HA SINGLE n 1.092 0.0100 0.994 0.0200
+TYR CB HB3 SINGLE n 1.092 0.0100 0.983 0.0163
+TYR CB HB2 SINGLE n 1.092 0.0100 0.983 0.0163
+TYR CD1 HD1 SINGLE n 1.085 0.0150 0.944 0.0143
+TYR CD2 HD2 SINGLE n 1.085 0.0150 0.944 0.0143
+TYR CE1 HE1 SINGLE n 1.085 0.0150 0.942 0.0174
+TYR CE2 HE2 SINGLE n 1.085 0.0150 0.942 0.0174
+TYR OH HH SINGLE n 0.966 0.0059 0.858 0.0200
+
+loop_
+_chem_comp_angle.comp_id
+_chem_comp_angle.atom_id_1
+_chem_comp_angle.atom_id_2
+_chem_comp_angle.atom_id_3
+_chem_comp_angle.value_angle
+_chem_comp_angle.value_angle_esd
+TYR CA N H 109.791 3.00
+TYR CA N H2 109.791 3.00
+TYR CA N H3 109.791 3.00
+TYR H N H2 109.032 3.00
+TYR H N H3 109.032 3.00
+TYR H2 N H3 109.032 3.00
+TYR N CA C 109.085 1.50
+TYR N CA CB 109.965 3.00
+TYR N CA HA 108.547 1.50
+TYR C CA CB 111.980 3.00
+TYR C CA HA 108.746 1.50
+TYR CB CA HA 108.686 1.50
+TYR CA C O 117.219 3.00
+TYR CA C OXT 117.219 3.00
+TYR O C OXT 125.562 1.50
+TYR CA CB CG 114.693 2.05
+TYR CA CB HB3 108.494 1.50
+TYR CA CB HB2 108.494 1.50
+TYR CG CB HB3 108.859 1.50
+TYR CG CB HB2 108.859 1.50
+TYR HB3 CB HB2 107.843 2.16
+TYR CB CG CD1 121.060 1.50
+TYR CB CG CD2 121.060 1.50
+TYR CD1 CG CD2 117.879 1.50
+TYR CG CD1 CE1 121.468 1.50
+TYR CG CD1 HD1 119.327 1.50
+TYR CE1 CD1 HD1 119.205 1.50
+TYR CG CD2 CE2 121.468 1.50
+TYR CG CD2 HD2 119.327 1.50
+TYR CE2 CD2 HD2 119.205 1.50
+TYR CD1 CE1 CZ 119.794 1.50
+TYR CD1 CE1 HE1 120.177 1.50
+TYR CZ CE1 HE1 120.029 1.50
+TYR CD2 CE2 CZ 119.794 1.50
+TYR CD2 CE2 HE2 120.177 1.50
+TYR CZ CE2 HE2 120.029 1.50
+TYR CE1 CZ CE2 119.597 1.50
+TYR CE1 CZ OH 120.202 3.00
+TYR CE2 CZ OH 120.202 3.00
+TYR CZ OH HH 109.970 3.00
+
+loop_
+_chem_comp_tor.comp_id
+_chem_comp_tor.id
+_chem_comp_tor.atom_id_1
+_chem_comp_tor.atom_id_2
+_chem_comp_tor.atom_id_3
+_chem_comp_tor.atom_id_4
+_chem_comp_tor.value_angle
+_chem_comp_tor.value_angle_esd
+_chem_comp_tor.period
+TYR chi1 N CA CB CG -60.000 10.0 3
+TYR chi2 CA CB CG CD1 90.000 10.0 6
+TYR CONST_1 CB CG CD1 CE1 0.000 0.0 1
+TYR CONST_2 CG CD1 CE1 CZ 0.000 0.0 1
+TYR CONST_3 CZ CE2 CD2 CG 0.000 0.0 1
+TYR CONST_4 CD1 CE1 CZ CE2 0.000 0.0 1
+TYR CONST_5 CE1 CZ CE2 CD2 0.000 0.0 1
+TYR hh1 CE1 CZ OH HH 0.000 5.0 2
+TYR sp3_sp3_1 C CA N H 180.000 10.0 3
+TYR const_21 CE2 CD2 CG CD1 0.000 0.0 1
+TYR sp2_sp3_1 O C CA N 0.000 10.0 6
+
+loop_
+_chem_comp_chir.comp_id
+_chem_comp_chir.id
+_chem_comp_chir.atom_id_centre
+_chem_comp_chir.atom_id_1
+_chem_comp_chir.atom_id_2
+_chem_comp_chir.atom_id_3
+_chem_comp_chir.volume_sign
+TYR chir_1 CA N C CB positive
+
+loop_
+_chem_comp_plane_atom.comp_id
+_chem_comp_plane_atom.plane_id
+_chem_comp_plane_atom.atom_id
+_chem_comp_plane_atom.dist_esd
+TYR plan-1 CB 0.020
+TYR plan-1 CD1 0.020
+TYR plan-1 CD2 0.020
+TYR plan-1 CE1 0.020
+TYR plan-1 CE2 0.020
+TYR plan-1 CG 0.020
+TYR plan-1 CZ 0.020
+TYR plan-1 HD1 0.020
+TYR plan-1 HD2 0.020
+TYR plan-1 HE1 0.020
+TYR plan-1 HE2 0.020
+TYR plan-1 OH 0.020
+TYR plan-2 C 0.020
+TYR plan-2 CA 0.020
+TYR plan-2 O 0.020
+TYR plan-2 OXT 0.020
+
+loop_
+_pdbx_chem_comp_descriptor.comp_id
+_pdbx_chem_comp_descriptor.type
+_pdbx_chem_comp_descriptor.program
+_pdbx_chem_comp_descriptor.program_version
+_pdbx_chem_comp_descriptor.descriptor
+TYR SMILES ACDLabs 10.04 "O=C(O)C(N)Cc1ccc(O)cc1"
+TYR SMILES_CANONICAL CACTVS 3.341 "N[C@@H](Cc1ccc(O)cc1)C(O)=O"
+TYR SMILES CACTVS 3.341 "N[CH](Cc1ccc(O)cc1)C(O)=O"
+TYR SMILES_CANONICAL "OpenEye OEToolkits" 1.5.0 "c1cc(ccc1C[C@@H](C(=O)O)N)O"
+TYR SMILES "OpenEye OEToolkits" 1.5.0 "c1cc(ccc1CC(C(=O)O)N)O"
+TYR InChI InChI 1.03 "InChI=1S/C9H11NO3/c10-8(9(12)13)5-6-1-3-7(11)4-2-6/h1-4,8,11H,5,10H2,(H,12,13)/t8-/m0/s1"
+TYR InChIKey InChI 1.03 OUYCCCASQSFEME-QMMMGPOBSA-N
+
+loop_
+_pdbx_chem_comp_description_generator.comp_id
+_pdbx_chem_comp_description_generator.program_name
+_pdbx_chem_comp_description_generator.program_version
+_pdbx_chem_comp_description_generator.descriptor
+TYR acedrg 278 "dictionary generator"
+TYR acedrg_database 12 "data source"
+TYR rdkit 2019.09.1 "Chemoinformatics tool"
+TYR refmac5 5.8.0419 "optimization tool"
+TYR servalcat 0.4.57 'optimization tool'

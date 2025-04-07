@@ -1,0 +1,261 @@
+data_comp_list
+loop_
+_chem_comp.id
+_chem_comp.three_letter_code
+_chem_comp.name
+_chem_comp.group
+_chem_comp.number_atoms_all
+_chem_comp.number_atoms_nh
+_chem_comp.desc_level
+PHE PHE PHENYLALANINE peptide 23 12 .
+
+data_comp_PHE
+loop_
+_chem_comp_atom.comp_id
+_chem_comp_atom.atom_id
+_chem_comp_atom.type_symbol
+_chem_comp_atom.type_energy
+_chem_comp_atom.charge
+_chem_comp_atom.x
+_chem_comp_atom.y
+_chem_comp_atom.z
+PHE N N NT3 1 3.215 22.308 6.140
+PHE CA C CH1 0 4.240 21.287 5.785
+PHE C C C 0 5.492 21.998 5.258
+PHE O O O 0 5.348 22.751 4.269
+PHE CB C CH2 0 3.652 20.304 4.767
+PHE CG C CR6 0 4.548 19.121 4.423
+PHE CD1 C CR16 0 4.526 17.959 5.195
+PHE CD2 C CR16 0 5.408 19.169 3.325
+PHE CE1 C CR16 0 5.344 16.878 4.879
+PHE CE2 C CR16 0 6.225 18.087 3.012
+PHE CZ C CR16 0 6.192 16.943 3.789
+PHE OXT O OC -1 6.569 21.775 5.853
+PHE H H H 0 2.984 22.781 5.407
+PHE H2 H H 0 3.541 22.872 6.764
+PHE H3 H H 0 2.480 21.902 6.470
+PHE HA H H 0 4.482 20.785 6.608
+PHE HB3 H H 0 3.450 20.797 3.941
+PHE HB2 H H 0 2.802 19.961 5.122
+PHE HD1 H H 0 3.950 17.907 5.941
+PHE HD2 H H 0 5.437 19.946 2.791
+PHE HE1 H H 0 5.320 16.099 5.411
+PHE HE2 H H 0 6.803 18.134 2.267
+PHE HZ H H 0 6.746 16.210 3.575
+
+loop_
+_chem_comp_tree.comp_id
+_chem_comp_tree.atom_id
+_chem_comp_tree.atom_back
+_chem_comp_tree.atom_forward
+_chem_comp_tree.connect_type
+PHE N n/a CA START
+PHE H N . .
+PHE H2 N . .
+PHE H3 N . .
+PHE CA N C .
+PHE HA CA . .
+PHE CB CA CG .
+PHE HB3 CB . .
+PHE HB2 CB . .
+PHE CG CB CD1 .
+PHE CD1 CG CE1 .
+PHE HD1 CD1 . .
+PHE CE1 CD1 CZ .
+PHE HE1 CE1 . .
+PHE CZ CE1 CE2 .
+PHE HZ CZ . .
+PHE CE2 CZ CD2 .
+PHE HE2 CE2 . .
+PHE CD2 CE2 HD2 .
+PHE HD2 CD2 . .
+PHE C CA . END
+PHE O C . .
+PHE OXT C . .
+PHE CD2 CG . ADD
+
+loop_
+_chem_comp_acedrg.comp_id
+_chem_comp_acedrg.atom_id
+_chem_comp_acedrg.atom_type
+PHE N N(CCCH)(H)3
+PHE CA C(CC[6a]HH)(NH3)(COO)(H)
+PHE C C(CCHN)(O)2
+PHE O O(CCO)
+PHE CB C(C[6a]C[6a]2)(CCHN)(H)2
+PHE CG C[6a](C[6a]C[6a]H)2(CCHH){1|C<3>,2|H<1>}
+PHE CD1 C[6a](C[6a]C[6a]C)(C[6a]C[6a]H)(H){1|C<3>,2|H<1>}
+PHE CD2 C[6a](C[6a]C[6a]C)(C[6a]C[6a]H)(H){1|C<3>,2|H<1>}
+PHE CE1 C[6a](C[6a]C[6a]H)2(H){1|C<3>,1|C<4>,1|H<1>}
+PHE CE2 C[6a](C[6a]C[6a]H)2(H){1|C<3>,1|C<4>,1|H<1>}
+PHE CZ C[6a](C[6a]C[6a]H)2(H){1|C<3>,2|H<1>}
+PHE OXT O(CCO)
+PHE H H(NCHH)
+PHE H2 H(NCHH)
+PHE H3 H(NCHH)
+PHE HA H(CCCN)
+PHE HB3 H(CC[6a]CH)
+PHE HB2 H(CC[6a]CH)
+PHE HD1 H(C[6a]C[6a]2)
+PHE HD2 H(C[6a]C[6a]2)
+PHE HE1 H(C[6a]C[6a]2)
+PHE HE2 H(C[6a]C[6a]2)
+PHE HZ H(C[6a]C[6a]2)
+
+loop_
+_chem_comp_bond.comp_id
+_chem_comp_bond.atom_id_1
+_chem_comp_bond.atom_id_2
+_chem_comp_bond.type
+_chem_comp_bond.aromatic
+_chem_comp_bond.value_dist_nucleus
+_chem_comp_bond.value_dist_nucleus_esd
+_chem_comp_bond.value_dist
+_chem_comp_bond.value_dist_esd
+PHE N CA SINGLE n 1.489 0.0100 1.489 0.0100
+PHE CA C SINGLE n 1.531 0.0171 1.531 0.0171
+PHE CA CB SINGLE n 1.532 0.0100 1.532 0.0100
+PHE C O DOUBLE n 1.251 0.0183 1.251 0.0183
+PHE C OXT SINGLE n 1.251 0.0183 1.251 0.0183
+PHE CB CG SINGLE n 1.523 0.0100 1.523 0.0100
+PHE CG CD1 DOUBLE y 1.390 0.0116 1.390 0.0116
+PHE CG CD2 SINGLE y 1.390 0.0116 1.390 0.0116
+PHE CD1 CE1 SINGLE y 1.386 0.0131 1.386 0.0131
+PHE CD2 CE2 DOUBLE y 1.386 0.0131 1.386 0.0131
+PHE CE1 CZ DOUBLE y 1.376 0.0151 1.376 0.0151
+PHE CE2 CZ SINGLE y 1.376 0.0151 1.376 0.0151
+PHE N H SINGLE n 1.018 0.0520 0.902 0.0102
+PHE N H2 SINGLE n 1.018 0.0520 0.902 0.0102
+PHE N H3 SINGLE n 1.018 0.0520 0.902 0.0102
+PHE CA HA SINGLE n 1.092 0.0100 0.994 0.0200
+PHE CB HB3 SINGLE n 1.092 0.0100 0.983 0.0163
+PHE CB HB2 SINGLE n 1.092 0.0100 0.983 0.0163
+PHE CD1 HD1 SINGLE n 1.085 0.0150 0.944 0.0143
+PHE CD2 HD2 SINGLE n 1.085 0.0150 0.944 0.0143
+PHE CE1 HE1 SINGLE n 1.085 0.0150 0.944 0.0180
+PHE CE2 HE2 SINGLE n 1.085 0.0150 0.944 0.0180
+PHE CZ HZ SINGLE n 1.085 0.0150 0.944 0.0170
+
+loop_
+_chem_comp_angle.comp_id
+_chem_comp_angle.atom_id_1
+_chem_comp_angle.atom_id_2
+_chem_comp_angle.atom_id_3
+_chem_comp_angle.value_angle
+_chem_comp_angle.value_angle_esd
+PHE CA N H 109.791 3.00
+PHE CA N H2 109.791 3.00
+PHE CA N H3 109.791 3.00
+PHE H N H2 109.032 3.00
+PHE H N H3 109.032 3.00
+PHE H2 N H3 109.032 3.00
+PHE N CA C 109.085 1.50
+PHE N CA CB 109.965 3.00
+PHE N CA HA 108.547 1.50
+PHE C CA CB 111.980 3.00
+PHE C CA HA 108.746 1.50
+PHE CB CA HA 108.686 1.50
+PHE CA C O 117.219 3.00
+PHE CA C OXT 117.219 3.00
+PHE O C OXT 125.562 1.50
+PHE CA CB CG 114.693 2.05
+PHE CA CB HB3 108.494 1.50
+PHE CA CB HB2 108.494 1.50
+PHE CG CB HB3 108.859 1.50
+PHE CG CB HB2 108.859 1.50
+PHE HB3 CB HB2 107.843 2.16
+PHE CB CG CD1 120.965 1.50
+PHE CB CG CD2 120.965 1.50
+PHE CD1 CG CD2 118.071 1.50
+PHE CG CD1 CE1 120.673 1.50
+PHE CG CD1 HD1 119.564 1.50
+PHE CE1 CD1 HD1 119.763 1.50
+PHE CG CD2 CE2 120.673 1.50
+PHE CG CD2 HD2 119.564 1.50
+PHE CE2 CD2 HD2 119.763 1.50
+PHE CD1 CE1 CZ 120.297 1.50
+PHE CD1 CE1 HE1 119.796 1.50
+PHE CZ CE1 HE1 119.907 1.50
+PHE CD2 CE2 CZ 120.297 1.50
+PHE CD2 CE2 HE2 119.796 1.50
+PHE CZ CE2 HE2 119.907 1.50
+PHE CE1 CZ CE2 119.995 1.50
+PHE CE1 CZ HZ 120.000 1.50
+PHE CE2 CZ HZ 120.000 1.50
+
+loop_
+_chem_comp_tor.comp_id
+_chem_comp_tor.id
+_chem_comp_tor.atom_id_1
+_chem_comp_tor.atom_id_2
+_chem_comp_tor.atom_id_3
+_chem_comp_tor.atom_id_4
+_chem_comp_tor.value_angle
+_chem_comp_tor.value_angle_esd
+_chem_comp_tor.period
+PHE chi1 N CA CB CG -60.000 10.0 3
+PHE chi2 CA CB CG CD1 90.000 10.0 6
+PHE CONST_1 CB CG CD1 CE1 0.000 0.0 1
+PHE CONST_2 CG CD1 CE1 CZ 0.000 0.0 1
+PHE CONST_3 CZ CE2 CD2 CG 0.000 0.0 1
+PHE CONST_4 CD1 CE1 CZ CE2 0.000 0.0 1
+PHE CONST_5 CE1 CZ CE2 CD2 0.000 0.0 1
+PHE sp3_sp3_1 C CA N H 180.000 10.0 3
+PHE const_21 CE2 CD2 CG CD1 0.000 0.0 1
+PHE sp2_sp3_1 O C CA N 0.000 10.0 6
+
+loop_
+_chem_comp_chir.comp_id
+_chem_comp_chir.id
+_chem_comp_chir.atom_id_centre
+_chem_comp_chir.atom_id_1
+_chem_comp_chir.atom_id_2
+_chem_comp_chir.atom_id_3
+_chem_comp_chir.volume_sign
+PHE chir_1 CA N C CB positive
+
+loop_
+_chem_comp_plane_atom.comp_id
+_chem_comp_plane_atom.plane_id
+_chem_comp_plane_atom.atom_id
+_chem_comp_plane_atom.dist_esd
+PHE plan-1 CB 0.020
+PHE plan-1 CD1 0.020
+PHE plan-1 CD2 0.020
+PHE plan-1 CE1 0.020
+PHE plan-1 CE2 0.020
+PHE plan-1 CG 0.020
+PHE plan-1 CZ 0.020
+PHE plan-1 HD1 0.020
+PHE plan-1 HD2 0.020
+PHE plan-1 HE1 0.020
+PHE plan-1 HE2 0.020
+PHE plan-1 HZ 0.020
+PHE plan-2 C 0.020
+PHE plan-2 CA 0.020
+PHE plan-2 O 0.020
+PHE plan-2 OXT 0.020
+
+loop_
+_pdbx_chem_comp_descriptor.comp_id
+_pdbx_chem_comp_descriptor.type
+_pdbx_chem_comp_descriptor.program
+_pdbx_chem_comp_descriptor.program_version
+_pdbx_chem_comp_descriptor.descriptor
+PHE SMILES ACDLabs 10.04 O=C(O)C(N)Cc1ccccc1
+PHE SMILES_CANONICAL CACTVS 3.341 N[C@@H](Cc1ccccc1)C(O)=O
+PHE SMILES CACTVS 3.341 N[CH](Cc1ccccc1)C(O)=O
+PHE SMILES_CANONICAL "OpenEye OEToolkits" 1.5.0 c1ccc(cc1)C[C@@H](C(=O)O)N
+PHE SMILES "OpenEye OEToolkits" 1.5.0 c1ccc(cc1)CC(C(=O)O)N
+PHE InChI InChI 1.03 InChI=1S/C9H11NO2/c10-8(9(11)12)6-7-4-2-1-3-5-7/h1-5,8H,6,10H2,(H,11,12)/t8-/m0/s1
+PHE InChIKey InChI 1.03 COLNVLDHVKWLRT-QMMMGPOBSA-N
+
+loop_
+_pdbx_chem_comp_description_generator.comp_id
+_pdbx_chem_comp_description_generator.program_name
+_pdbx_chem_comp_description_generator.program_version
+_pdbx_chem_comp_description_generator.descriptor
+PHE acedrg 278 "dictionary generator"
+PHE acedrg_database 12 "data source"
+PHE rdkit 2019.09.1 "Chemoinformatics tool"
+PHE refmac5 5.8.0419 "optimization tool"

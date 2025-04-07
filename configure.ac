@@ -553,6 +553,7 @@ doc/Makefile
 validation-graphs/Makefile
 python/coot_load_modules.py
 data/Makefile
+monomers/Makefile
 data/rama-coeffs/Makefile
 data/metal/Makefile
 data/cho-models/Makefile
