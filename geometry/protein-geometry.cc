@@ -1271,6 +1271,12 @@ coot::protein_geometry::have_restraints_dictionary_for_residue_types(const std::
                                                                      int imol_enc,
                                                                      int read_number) {
 
+   if (false) {
+      std::cout << "debug:: in have_restraints_dictionary_for_residue_types() --- start --- " << std::endl;
+      for (const auto &r : residue_types)
+	 std::cout << "debug:: in have_restraints_dictionary_for_residue_types() type :" << r << ":" << std::endl;
+   }
+
    bool have_all = true;
    for (unsigned int i=0; i<residue_types.size(); i++) {
       if (! have_all) continue;
@@ -1278,7 +1284,11 @@ coot::protein_geometry::have_restraints_dictionary_for_residue_types(const std::
       int idx = get_monomer_restraints_index(rt, imol_enc, false);
       if (idx != -1) {
          const coot::dictionary_residue_restraints_t &restraints = dict_res_restraints[idx].second;
-         if (restraints.bond_restraint.empty()) {
+	 // this test does not make sense for MG, or other single atoms
+         // if (restraints.bond_restraint.empty()) {
+	 bool has_bonds = false;
+	 if (restraints.atom_info.size() > 1) has_bonds = true;
+         if (has_bonds && restraints.bond_restraint.empty()) {
             have_all = false;
             break;
          } else {
@@ -1694,15 +1704,17 @@ coot::protein_geometry::get_monomer_restraints_index(const std::string &monomer_
 						     bool allow_minimal_flag) const {
 
    int r = -1;
-   bool debug = false;
+   bool debug = false; // hello again
 
    unsigned int nrest = dict_res_restraints.size();
    for (unsigned int i=0; i<nrest; i++) {
+
       if (debug)
 	 std::cout << "in get_monomer_restraints_index() comparing dict: \""
 		   << dict_res_restraints[i].second.residue_info.comp_id << "\" vs mine: \"" << monomer_type
 		   << "\" and dict: " << dict_res_restraints[i].first << " vs mine: " <<  imol_enc
 		   << "     with allow_minimal_flag " << allow_minimal_flag << std::endl;
+
       if (dict_res_restraints[i].second.residue_info.comp_id == monomer_type) {
 	 if (matches_imol(dict_res_restraints[i].first, imol_enc)) {
 	    // if (dict_res_restraints[i].first == imol_enc) {
@@ -1758,6 +1770,8 @@ coot::protein_geometry::get_monomer_restraints_index(const std::string &monomer_
 	 }
       }
    }
+
+   // std::cout << "get_monomer_restraints_index() for " << monomer_type << " returns r " << r << std::endl;
 
    return r;
 }
