@@ -4,9 +4,16 @@ validation json: sort by "badness" property. Also add "problem-type"
 These are optional.
 Sections added to the format.
 
+see the patch show-the-dragged-refinement-problem.patch on the new mac.
+Apply those debugging messages and drag around the MG of the refine_error_mg.pdb.
+Look at the terminal to see what shouldn't be happening.
+
 Clemens: interesting places json file: when you uget there,
 show the neighbours, ie. action becomes a list of actions,
 each has their own button
+
+Martin: I want "atom overlaps" in the validation graphs
+        in Moorhen.
 
 Make a OccuPy screenshot - use Fancy mode.
 
