@@ -565,6 +565,7 @@ textures/Makefile
 sounds/Makefile
 rama-data/Makefile
 man/Makefile
+reference-structures/Makefile
 api/Makefile
 pli/Makefile
 fonts/Makefile
