@@ -77,7 +77,7 @@ coot::simple_mesh_t::export_to_gltf(const std::string &file_name, bool use_binar
    fill_buffer_info(ebi, vertices, triangles); // fills ebi
 
    tinygltf::Model model;
-   model.asset.generator = "Coot 1.0-pre 20220205";
+   model.asset.generator = "Coot 1.1.16 20250405";
    model.defaultScene = 0;
 
    // --- Materials ---
@@ -173,7 +173,7 @@ coot::simple_mesh_t::export_to_gltf(const std::string &file_name, bool use_binar
       model.accessors.push_back(accessor_for_positions);
 
    }
-   std::cout << "debug:: buffer.data.size() is now " << buffer.data.size() << std::endl;
+   std::cout << "debug:: export_to_gltf(): buffer.data.size() is now " << buffer.data.size() << std::endl;
 
    {  // ---- normals ----
 
