@@ -20,7 +20,11 @@
  * 02110-1301, USA
  */
 
+
+#include <iostream>
+
 #include "coot-utils.hh"
+#include "next-file-version.hh"
 
 int main(int argc, char **argv) {
 
@@ -31,6 +35,13 @@ int main(int argc, char **argv) {
       coot::copy_file(file_name, c);
 
       // now read both files and check that they are the same.
+
+   }
+
+   if (true) {
+
+     int nfv = next_file_version("test-utils", "o", ".");
+     std::cout << "next file version " << nfv << std::endl;
 
    }
 
