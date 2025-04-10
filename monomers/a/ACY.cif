@@ -1,0 +1,104 @@
+#
+data_comp_list
+loop_
+_chem_comp.id
+_chem_comp.three_letter_code
+_chem_comp.name
+_chem_comp.group
+_chem_comp.number_atoms_all
+_chem_comp.number_atoms_nh
+_chem_comp.desc_level
+ACY     ACY      "ACETIC ACID"     NON-POLYMER     7     4     .     
+#
+data_comp_ACY
+#
+loop_
+_chem_comp_atom.comp_id
+_chem_comp_atom.atom_id
+_chem_comp_atom.type_symbol
+_chem_comp_atom.type_energy
+_chem_comp_atom.charge
+_chem_comp_atom.x
+_chem_comp_atom.y
+_chem_comp_atom.z
+ACY     C       C       C       0       -8.721      8.205       3.828       
+ACY     O       O       O       0       -9.372      8.525       4.842       
+ACY     OXT     O       OC      -1      -8.317      7.048       3.597       
+ACY     CH3     C       CH3     0       -8.397      9.297       2.807       
+ACY     H1      H       H       0       -7.891      8.916       2.071       
+ACY     H2      H       H       0       -7.872      9.995       3.231       
+ACY     H3      H       H       0       -9.223      9.679       2.465       
+loop_
+_chem_comp_bond.comp_id
+_chem_comp_bond.atom_id_1
+_chem_comp_bond.atom_id_2
+_chem_comp_bond.type
+_chem_comp_bond.aromatic
+_chem_comp_bond.value_dist_nucleus
+_chem_comp_bond.value_dist_nucleus_esd
+_chem_comp_bond.value_dist
+_chem_comp_bond.value_dist_esd
+ACY           C           O      DOUBLE       n     1.247  0.0187     1.247  0.0187
+ACY           C         OXT      SINGLE       n     1.247  0.0187     1.247  0.0187
+ACY           C         CH3      SINGLE       n     1.530  0.0200     1.530  0.0200
+ACY         CH3          H1      SINGLE       n     1.089  0.0100     0.971  0.0140
+ACY         CH3          H2      SINGLE       n     1.089  0.0100     0.971  0.0140
+ACY         CH3          H3      SINGLE       n     1.089  0.0100     0.971  0.0140
+loop_
+_chem_comp_angle.comp_id
+_chem_comp_angle.atom_id_1
+_chem_comp_angle.atom_id_2
+_chem_comp_angle.atom_id_3
+_chem_comp_angle.value_angle
+_chem_comp_angle.value_angle_esd
+ACY           O           C         OXT     123.884    1.50
+ACY           O           C         CH3     118.052    1.94
+ACY         OXT           C         CH3     118.052    1.94
+ACY           C         CH3          H1     109.670    1.50
+ACY           C         CH3          H2     109.670    1.50
+ACY           C         CH3          H3     109.670    1.50
+ACY          H1         CH3          H2     109.424    1.50
+ACY          H1         CH3          H3     109.424    1.50
+ACY          H2         CH3          H3     109.424    1.50
+loop_
+_chem_comp_tor.comp_id
+_chem_comp_tor.id
+_chem_comp_tor.atom_id_1
+_chem_comp_tor.atom_id_2
+_chem_comp_tor.atom_id_3
+_chem_comp_tor.atom_id_4
+_chem_comp_tor.value_angle
+_chem_comp_tor.value_angle_esd
+_chem_comp_tor.period
+ACY             sp2_sp3_1           O           C         CH3          H1       0.000    10.0     6
+loop_
+_chem_comp_plane_atom.comp_id
+_chem_comp_plane_atom.plane_id
+_chem_comp_plane_atom.atom_id
+_chem_comp_plane_atom.dist_esd
+ACY    plan-1           C   0.020
+ACY    plan-1         CH3   0.020
+ACY    plan-1           O   0.020
+ACY    plan-1         OXT   0.020
+loop_
+_pdbx_chem_comp_descriptor.comp_id
+_pdbx_chem_comp_descriptor.type
+_pdbx_chem_comp_descriptor.program
+_pdbx_chem_comp_descriptor.program_version
+_pdbx_chem_comp_descriptor.descriptor
+ACY           SMILES              ACDLabs 11.02                               O=C(O)C
+ACY SMILES_CANONICAL               CACTVS 3.352                               CC(O)=O
+ACY           SMILES               CACTVS 3.352                               CC(O)=O
+ACY SMILES_CANONICAL "OpenEye OEToolkits" 1.7.0                               CC(=O)O
+ACY           SMILES "OpenEye OEToolkits" 1.7.0                               CC(=O)O
+ACY            InChI                InChI  1.03 InChI=1S/C2H4O2/c1-2(3)4/h1H3,(H,3,4)
+ACY         InChIKey                InChI  1.03           QTBSBXVTEAMEQO-UHFFFAOYSA-N
+loop_
+_pdbx_chem_comp_description_generator.comp_id
+_pdbx_chem_comp_description_generator.program_name
+_pdbx_chem_comp_description_generator.program_version
+_pdbx_chem_comp_description_generator.descriptor
+ACY acedrg               243         "dictionary generator"                  
+ACY acedrg_database      11          "data source"                           
+ACY rdkit                2017.03.2   "Chemoinformatics tool"
+ACY refmac5              5.8.0238    "optimization tool"                     

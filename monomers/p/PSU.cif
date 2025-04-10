@@ -1,0 +1,250 @@
+data_comp_list
+loop_
+_chem_comp.id
+_chem_comp.three_letter_code
+_chem_comp.name
+_chem_comp.group
+_chem_comp.number_atoms_all
+_chem_comp.number_atoms_nh
+_chem_comp.desc_level
+PSU PSU "PSEUDOURIDINE-5'-MONOPHOSPHATE" RNA 32 21 .
+
+data_comp_PSU
+loop_
+_chem_comp_atom.comp_id
+_chem_comp_atom.atom_id
+_chem_comp_atom.type_symbol
+_chem_comp_atom.type_energy
+_chem_comp_atom.charge
+_chem_comp_atom.x
+_chem_comp_atom.y
+_chem_comp_atom.z
+PSU N1     N NR16 0  46.164 -7.762  4.833
+PSU C2     C CR6  0  46.590 -7.315  3.610
+PSU N3     N NR16 0  47.833 -7.748  3.219
+PSU C4     C CR6  0  48.652 -8.579  3.959
+PSU C5     C CR6  0  48.162 -9.023  5.229
+PSU C6     C CR16 0  46.903 -8.584  5.636
+PSU O2     O O    0  45.910 -6.578  2.906
+PSU O4     O O    0  49.759 -8.895  3.485
+PSU "C1'"  C CH1  0  48.988 -9.928  6.111
+PSU "C2'"  C CH1  0  49.724 -9.224  7.265
+PSU "O2'"  O OH1  0  51.104 -9.536  7.260
+PSU "C3'"  C CH1  0  48.969 -9.682  8.522
+PSU "C4'"  C CH1  0  48.520 -11.085 8.105
+PSU "O3'"  O OH1  0  49.839 -9.721  9.649
+PSU "O4'"  O O2   0  48.167 -10.942 6.712
+PSU "C5'"  C CH2  0  47.359 -11.677 8.866
+PSU "O5'"  O O2   0  46.178 -10.856 8.677
+PSU P      P P    0  44.847 -11.206 9.521
+PSU OP1    O O    0  43.790 -10.223 9.054
+PSU OP2    O OP   -1 45.222 -11.019 10.980
+PSU OP3    O OP   -1 44.507 -12.644 9.180
+PSU HN1    H H    0  45.353 -7.490  5.108
+PSU HN3    H H    0  48.133 -7.472  2.427
+PSU H6     H H    0  46.552 -8.857  6.469
+PSU "H1'"  H H    0  49.672 -10.378 5.553
+PSU "H2'"  H H    0  49.616 -8.252  7.170
+PSU "HO2'" H H    0  51.463 -9.174  7.939
+PSU "H3'"  H H    0  48.194 -9.103  8.707
+PSU "H4'"  H H    0  49.285 -11.706 8.179
+PSU "HO3'" H H    0  49.417 -10.046 10.310
+PSU "H5'"  H H    0  47.583 -11.723 9.829
+PSU "H5''" H H    0  47.184 -12.595 8.543
+
+loop_
+_chem_comp_bond.comp_id
+_chem_comp_bond.atom_id_1
+_chem_comp_bond.atom_id_2
+_chem_comp_bond.type
+_chem_comp_bond.aromatic
+_chem_comp_bond.value_dist_nucleus
+_chem_comp_bond.value_dist_nucleus_esd
+_chem_comp_bond.value_dist
+_chem_comp_bond.value_dist_esd
+PSU N1    C2     SINGLE y 1.365 0.0100 1.365 0.0100
+PSU N1    C6     SINGLE y 1.355 0.0148 1.355 0.0148
+PSU C2    N3     SINGLE y 1.370 0.0100 1.370 0.0100
+PSU C2    O2     DOUBLE n 1.225 0.0100 1.225 0.0100
+PSU N3    C4     SINGLE y 1.379 0.0122 1.379 0.0122
+PSU C4    C5     SINGLE y 1.418 0.0200 1.418 0.0200
+PSU C4    O4     DOUBLE n 1.242 0.0172 1.242 0.0172
+PSU C5    C6     DOUBLE y 1.389 0.0100 1.389 0.0100
+PSU C5    "C1'"  SINGLE n 1.506 0.0100 1.506 0.0100
+PSU "C1'" "C2'"  SINGLE n 1.532 0.0100 1.532 0.0100
+PSU "C1'" "O4'"  SINGLE n 1.434 0.0100 1.434 0.0100
+PSU "C2'" "O2'"  SINGLE n 1.414 0.0100 1.414 0.0100
+PSU "C2'" "C3'"  SINGLE n 1.533 0.0100 1.533 0.0100
+PSU "C3'" "C4'"  SINGLE n 1.535 0.0100 1.535 0.0100
+PSU "C3'" "O3'"  SINGLE n 1.423 0.0100 1.423 0.0100
+PSU "C4'" "O4'"  SINGLE n 1.448 0.0100 1.448 0.0100
+PSU "C4'" "C5'"  SINGLE n 1.509 0.0100 1.509 0.0100
+PSU "C5'" "O5'"  SINGLE n 1.450 0.0166 1.450 0.0166
+PSU "O5'" P      SINGLE n 1.614 0.0178 1.614 0.0178
+PSU P     OP1    DOUBLE n 1.517 0.0192 1.517 0.0192
+PSU P     OP2    SINGLE n 1.517 0.0192 1.517 0.0192
+PSU P     OP3    SINGLE n 1.517 0.0192 1.517 0.0192
+PSU N1    HN1    SINGLE n 1.016 0.0100 0.898 0.0200
+PSU N3    HN3    SINGLE n 1.016 0.0100 0.889 0.0200
+PSU C6    H6     SINGLE n 1.082 0.0130 0.945 0.0200
+PSU "C1'" "H1'"  SINGLE n 1.089 0.0100 0.991 0.0119
+PSU "C2'" "H2'"  SINGLE n 1.089 0.0100 0.982 0.0200
+PSU "O2'" "HO2'" SINGLE n 0.970 0.0120 0.849 0.0200
+PSU "C3'" "H3'"  SINGLE n 1.089 0.0100 0.985 0.0200
+PSU "C4'" "H4'"  SINGLE n 1.089 0.0100 0.988 0.0200
+PSU "O3'" "HO3'" SINGLE n 0.970 0.0120 0.849 0.0200
+PSU "C5'" "H5'"  SINGLE n 1.089 0.0100 0.989 0.0200
+PSU "C5'" "H5''" SINGLE n 1.089 0.0100 0.989 0.0200
+
+loop_
+_chem_comp_angle.comp_id
+_chem_comp_angle.atom_id_1
+_chem_comp_angle.atom_id_2
+_chem_comp_angle.atom_id_3
+_chem_comp_angle.value_angle
+_chem_comp_angle.value_angle_esd
+PSU C2    N1    C6     122.342 1.50
+PSU C2    N1    HN1    117.656 2.18
+PSU C6    N1    HN1    120.002 2.19
+PSU N1    C2    N3     115.268 1.50
+PSU N1    C2    O2     122.598 1.50
+PSU N3    C2    O2     122.134 1.50
+PSU C2    N3    C4     125.337 1.50
+PSU C2    N3    HN3    117.319 2.30
+PSU C4    N3    HN3    117.344 1.50
+PSU N3    C4    C5     118.938 3.00
+PSU N3    C4    O4     117.999 1.50
+PSU C5    C4    O4     123.064 1.50
+PSU C4    C5    C6     119.178 1.66
+PSU C4    C5    "C1'"  120.411 1.56
+PSU C6    C5    "C1'"  120.411 1.56
+PSU N1    C6    C5     118.938 3.00
+PSU N1    C6    H6     120.523 1.97
+PSU C5    C6    H6     120.539 1.50
+PSU C5    "C1'" "C2'"  115.040 1.80
+PSU C5    "C1'" "O4'"  110.287 1.50
+PSU C5    "C1'" "H1'"  108.843 1.50
+PSU "C2'" "C1'" "O4'"  104.658 1.50
+PSU "C2'" "C1'" "H1'"  108.221 2.17
+PSU "O4'" "C1'" "H1'"  109.373 1.78
+PSU "C1'" "C2'" "O2'"  111.625 2.24
+PSU "C1'" "C2'" "C3'"  102.060 1.50
+PSU "C1'" "C2'" "H2'"  108.984 1.81
+PSU "O2'" "C2'" "C3'"  114.225 2.57
+PSU "O2'" "C2'" "H2'"  109.642 2.25
+PSU "C3'" "C2'" "H2'"  109.242 2.24
+PSU "C2'" "O2'" "HO2'" 108.353 3.00
+PSU "C2'" "C3'" "C4'"  101.721 1.50
+PSU "C2'" "C3'" "O3'"  109.895 1.81
+PSU "C2'" "C3'" "H3'"  111.377 1.50
+PSU "C4'" "C3'" "O3'"  111.281 2.46
+PSU "C4'" "C3'" "H3'"  110.452 2.54
+PSU "O3'" "C3'" "H3'"  110.380 1.67
+PSU "C3'" "C4'" "O4'"  106.192 1.50
+PSU "C3'" "C4'" "C5'"  116.008 1.52
+PSU "C3'" "C4'" "H4'"  109.363 1.86
+PSU "O4'" "C4'" "C5'"  109.123 1.50
+PSU "O4'" "C4'" "H4'"  108.995 1.50
+PSU "C5'" "C4'" "H4'"  108.268 1.50
+PSU "C3'" "O3'" "HO3'" 108.744 3.00
+PSU "C1'" "O4'" "C4'"  109.937 1.50
+PSU "C4'" "C5'" "O5'"  109.342 1.50
+PSU "C4'" "C5'" "H5'"  109.624 1.50
+PSU "C4'" "C5'" "H5''" 109.624 1.50
+PSU "O5'" "C5'" "H5'"  109.845 1.50
+PSU "O5'" "C5'" "H5''" 109.845 1.50
+PSU "H5'" "C5'" "H5''" 108.472 1.50
+PSU "C5'" "O5'" P      118.783 1.50
+PSU "O5'" P     OP1    105.808 2.07
+PSU "O5'" P     OP2    105.808 2.07
+PSU "O5'" P     OP3    105.808 2.07
+PSU OP1   P     OP2    112.864 1.69
+PSU OP1   P     OP3    112.864 1.69
+PSU OP2   P     OP3    112.864 1.69
+
+loop_
+_chem_comp_tor.comp_id
+_chem_comp_tor.id
+_chem_comp_tor.atom_id_1
+_chem_comp_tor.atom_id_2
+_chem_comp_tor.atom_id_3
+_chem_comp_tor.atom_id_4
+_chem_comp_tor.value_angle
+_chem_comp_tor.value_angle_esd
+_chem_comp_tor.period
+PSU C2e-nyu2        "C1'" "C2'" "C3'" "C4'"  326.9   3.600 1
+PSU C2e-nyu3        "C2'" "C3'" "C4'" "O4'"  22.600  4.500 1
+PSU C2e-nyu4        "C3'" "C4'" "O4'" "C1'"  357.700 6.100 1
+PSU C3e-nyu2        "C1'" "C2'" "C3'" "C4'"  35.9    2.800 1
+PSU C3e-nyu3        "C2'" "C3'" "C4'" "O4'"  324.700 3.100 1
+PSU C3e-nyu4        "C3'" "C4'" "O4'" "C1'"  20.500  5.100 1
+PSU alpha           "C5'" "O5'" P     OP3    -60.000 10.00 3
+PSU beta            P     "O5'" "C5'" "C4'"  180.000 10.00 3
+PSU epsi            "C4'" "C3'" "O3'" "HO3'" 180.000 10.00 3
+PSU gamma           "O5'" "C5'" "C4'" "C3'"  180.000 10.00 3
+PSU const_sp2_sp2_3 O2    C2    N1    C6     180.000 5.0   2
+PSU const_21        C5    C6    N1    C2     0.000   10.0  2
+PSU const_sp2_sp2_7 O2    C2    N3    C4     180.000 5.0   2
+PSU const_11        O4    C4    N3    C2     180.000 10.0  2
+PSU const_15        O4    C4    C5    C6     180.000 10.0  2
+PSU const_17        C4    C5    C6    N1     0.000   10.0  2
+PSU sp2_sp3_1       C4    C5    "C1'" "C2'"  150.000 10.0  6
+PSU sp3_sp3_32      C5    "C1'" "O4'" "C4'"  60.000  10.0  3
+PSU sp3_sp3_5       C5    "C1'" "C2'" "O2'"  60.000  10.0  3
+PSU sp3_sp3_34      "C1'" "C2'" "O2'" "HO2'" 180.000 10.0  3
+
+loop_
+_chem_comp_chir.comp_id
+_chem_comp_chir.id
+_chem_comp_chir.atom_id_centre
+_chem_comp_chir.atom_id_1
+_chem_comp_chir.atom_id_2
+_chem_comp_chir.atom_id_3
+_chem_comp_chir.volume_sign
+PSU chir_1 "C1'" "O4'" "C2'" C5    positive
+PSU chir_2 "C2'" "O2'" "C1'" "C3'" negative
+PSU chir_3 "C3'" "O3'" "C4'" "C2'" positive
+PSU chir_4 "C4'" "O4'" "C3'" "C5'" negative
+PSU chir_5 P     "O5'" OP2   OP3   both
+
+loop_
+_chem_comp_plane_atom.comp_id
+_chem_comp_plane_atom.plane_id
+_chem_comp_plane_atom.atom_id
+_chem_comp_plane_atom.dist_esd
+PSU plan-1 "C1'" 0.020
+PSU plan-1 C2    0.020
+PSU plan-1 C4    0.020
+PSU plan-1 C5    0.020
+PSU plan-1 C6    0.020
+PSU plan-1 H6    0.020
+PSU plan-1 HN1   0.020
+PSU plan-1 HN3   0.020
+PSU plan-1 N1    0.020
+PSU plan-1 N3    0.020
+PSU plan-1 O2    0.020
+PSU plan-1 O4    0.020
+
+loop_
+_pdbx_chem_comp_descriptor.comp_id
+_pdbx_chem_comp_descriptor.type
+_pdbx_chem_comp_descriptor.program
+_pdbx_chem_comp_descriptor.program_version
+_pdbx_chem_comp_descriptor.descriptor
+PSU SMILES           ACDLabs              10.04 O=P(OCC2OC(C1=CNC(=O)NC1=O)C(O)C2O)(O)O
+PSU SMILES_CANONICAL CACTVS               3.341 O[C@H]1[C@@H](O)[C@@H](O[C@@H]1CO[P](O)(O)=O)C2=CNC(=O)NC2=O
+PSU SMILES           CACTVS               3.341 O[CH]1[CH](O)[CH](O[CH]1CO[P](O)(O)=O)C2=CNC(=O)NC2=O
+PSU SMILES_CANONICAL "OpenEye OEToolkits" 1.5.0 C1=C(C(=O)NC(=O)N1)[C@H]2[C@@H]([C@@H]([C@H](O2)COP(=O)(O)O)O)O
+PSU SMILES           "OpenEye OEToolkits" 1.5.0 C1=C(C(=O)NC(=O)N1)C2C(C(C(O2)COP(=O)(O)O)O)O
+PSU InChI            InChI                1.03  InChI=1S/C9H13N2O9P/c12-5-4(2-19-21(16,17)18)20-7(6(5)13)3-1-10-9(15)11-8(3)14/h1,4-7,12-13H,2H2,(H2,16,17,18)(H2,10,11,14,15)/t4-,5-,6-,7+/m1/s1
+PSU InChIKey         InChI                1.03  MOBMOJGXNHLLIR-GBNDHIKLSA-N
+
+loop_
+_pdbx_chem_comp_description_generator.comp_id
+_pdbx_chem_comp_description_generator.program_name
+_pdbx_chem_comp_description_generator.program_version
+_pdbx_chem_comp_description_generator.descriptor
+PSU acedrg          243       "dictionary generator"
+PSU acedrg_database 11        "data source"
+PSU rdkit           2017.03.2 "Chemoinformatics tool"
+PSU refmac5         5.8.0238  "optimization tool"

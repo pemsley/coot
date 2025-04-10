@@ -1,0 +1,200 @@
+#
+data_comp_list
+loop_
+_chem_comp.id
+_chem_comp.three_letter_code
+_chem_comp.name
+_chem_comp.group
+_chem_comp.number_atoms_all
+_chem_comp.number_atoms_nh
+_chem_comp.desc_level
+PLP     PLP      "PYRIDOXAL-5'-PHOSPHATE"     NON-POLYMER     24     16     .     
+#
+data_comp_PLP
+#
+loop_
+_chem_comp_atom.comp_id
+_chem_comp_atom.atom_id
+_chem_comp_atom.type_symbol
+_chem_comp_atom.type_energy
+_chem_comp_atom.charge
+_chem_comp_atom.x
+_chem_comp_atom.y
+_chem_comp_atom.z
+PLP     N1      N       NRD6    0       -14.349     14.133      -7.922      
+PLP     C2      C       CR6     0       -13.036     14.180      -7.687      
+PLP     C2A     C       CH3     0       -12.425     15.509      -7.369      
+PLP     C3      C       CR6     0       -12.261     13.000      -7.741      
+PLP     O3      O       OH1     0       -10.904     13.013      -7.504      
+PLP     C4      C       CR6     0       -12.891     11.771      -8.047      
+PLP     C4A     C       C1      0       -12.092     10.543      -8.105      
+PLP     O4A     O       O       0       -11.093     10.379      -8.767      
+PLP     C5      C       CR6     0       -14.279     11.764      -8.290      
+PLP     C6      C       CR16    0       -14.950     12.958      -8.215      
+PLP     C5A     C       CH2     0       -15.027     10.500      -8.621      
+PLP     O4P     O       O2      0       -15.090     9.616       -7.458      
+PLP     P       P       P       0       -15.802     8.170       -7.537      
+PLP     O1P     O       O       0       -14.929     7.329       -8.450      
+PLP     O2P     O       OP      -1      -15.838     7.649       -6.113      
+PLP     O3P     O       OP      -1      -17.184     8.420       -8.109      
+PLP     H2A1    H       H       0       -11.473     15.414      -7.212      
+PLP     H2A2    H       H       0       -12.846     15.874      -6.573      
+PLP     H2A3    H       H       0       -12.568     16.115      -8.113      
+PLP     HO3     H       H       0       -10.588     12.646      -6.792      
+PLP     H4A     H       H       0       -12.388     9.814       -7.573      
+PLP     H6      H       H       0       -15.872     12.966      -8.373      
+PLP     H5A1    H       H       0       -14.580     10.029      -9.357      
+PLP     H5A2    H       H       0       -15.942     10.714      -8.906      
+loop_
+_chem_comp_bond.comp_id
+_chem_comp_bond.atom_id_1
+_chem_comp_bond.atom_id_2
+_chem_comp_bond.type
+_chem_comp_bond.aromatic
+_chem_comp_bond.value_dist_nucleus
+_chem_comp_bond.value_dist_nucleus_esd
+_chem_comp_bond.value_dist
+_chem_comp_bond.value_dist_esd
+PLP          N1          C2      DOUBLE       y     1.330  0.0101     1.330  0.0101
+PLP          N1          C6      SINGLE       y     1.349  0.0100     1.349  0.0100
+PLP          C2         C2A      SINGLE       n     1.494  0.0100     1.494  0.0100
+PLP          C2          C3      SINGLE       y     1.400  0.0136     1.400  0.0136
+PLP          C3          O3      SINGLE       n     1.374  0.0155     1.374  0.0155
+PLP          C3          C4      DOUBLE       y     1.409  0.0100     1.409  0.0100
+PLP          C4         C4A      SINGLE       n     1.464  0.0111     1.464  0.0111
+PLP          C4          C5      SINGLE       y     1.403  0.0100     1.403  0.0100
+PLP         C4A         O4A      DOUBLE       n     1.210  0.0148     1.210  0.0148
+PLP          C5          C6      DOUBLE       y     1.368  0.0100     1.368  0.0100
+PLP          C5         C5A      SINGLE       n     1.503  0.0100     1.503  0.0100
+PLP         C5A         O4P      SINGLE       n     1.462  0.0104     1.462  0.0104
+PLP         O4P           P      SINGLE       n     1.614  0.0178     1.614  0.0178
+PLP           P         O1P      DOUBLE       n     1.517  0.0192     1.517  0.0192
+PLP           P         O2P      SINGLE       n     1.517  0.0192     1.517  0.0192
+PLP           P         O3P      SINGLE       n     1.517  0.0192     1.517  0.0192
+PLP         C2A        H2A1      SINGLE       n     1.089  0.0100     0.971  0.0138
+PLP         C2A        H2A2      SINGLE       n     1.089  0.0100     0.971  0.0138
+PLP         C2A        H2A3      SINGLE       n     1.089  0.0100     0.971  0.0138
+PLP          O3         HO3      SINGLE       n     0.966  0.0059     0.861  0.0200
+PLP         C4A         H4A      SINGLE       n     1.082  0.0130     0.949  0.0200
+PLP          C6          H6      SINGLE       n     1.082  0.0130     0.935  0.0200
+PLP         C5A        H5A1      SINGLE       n     1.089  0.0100     0.982  0.0107
+PLP         C5A        H5A2      SINGLE       n     1.089  0.0100     0.982  0.0107
+loop_
+_chem_comp_angle.comp_id
+_chem_comp_angle.atom_id_1
+_chem_comp_angle.atom_id_2
+_chem_comp_angle.atom_id_3
+_chem_comp_angle.value_angle
+_chem_comp_angle.value_angle_esd
+PLP          C2          N1          C6     119.423    1.60
+PLP          N1          C2         C2A     119.020    1.50
+PLP          N1          C2          C3     120.363    1.50
+PLP         C2A          C2          C3     120.617    1.50
+PLP          C2         C2A        H2A1     109.484    1.50
+PLP          C2         C2A        H2A2     109.484    1.50
+PLP          C2         C2A        H2A3     109.484    1.50
+PLP        H2A1         C2A        H2A2     109.339    1.66
+PLP        H2A1         C2A        H2A3     109.339    1.66
+PLP        H2A2         C2A        H2A3     109.339    1.66
+PLP          C2          C3          O3     120.185    3.00
+PLP          C2          C3          C4     119.630    1.50
+PLP          O3          C3          C4     120.185    3.00
+PLP          C3          O3         HO3     120.000    3.00
+PLP          C3          C4         C4A     119.703    1.50
+PLP          C3          C4          C5     118.922    1.50
+PLP         C4A          C4          C5     121.375    2.22
+PLP          C4         C4A         O4A     125.762    1.85
+PLP          C4         C4A         H4A     116.796    1.55
+PLP         O4A         C4A         H4A     117.442    1.69
+PLP          C4          C5          C6     118.395    1.50
+PLP          C4          C5         C5A     121.689    1.50
+PLP          C6          C5         C5A     119.916    1.59
+PLP          N1          C6          C5     123.267    1.50
+PLP          N1          C6          H6     118.102    1.50
+PLP          C5          C6          H6     118.631    1.50
+PLP          C5         C5A         O4P     110.538    2.24
+PLP          C5         C5A        H5A1     109.800    1.50
+PLP          C5         C5A        H5A2     109.800    1.50
+PLP         O4P         C5A        H5A1     108.933    1.90
+PLP         O4P         C5A        H5A2     108.933    1.90
+PLP        H5A1         C5A        H5A2     108.248    1.50
+PLP         C5A         O4P           P     121.496    2.55
+PLP         O4P           P         O1P     105.808    2.07
+PLP         O4P           P         O2P     105.808    2.07
+PLP         O4P           P         O3P     105.808    2.07
+PLP         O1P           P         O2P     112.864    1.69
+PLP         O1P           P         O3P     112.864    1.69
+PLP         O2P           P         O3P     112.864    1.69
+loop_
+_chem_comp_tor.comp_id
+_chem_comp_tor.id
+_chem_comp_tor.atom_id_1
+_chem_comp_tor.atom_id_2
+_chem_comp_tor.atom_id_3
+_chem_comp_tor.atom_id_4
+_chem_comp_tor.value_angle
+_chem_comp_tor.value_angle_esd
+_chem_comp_tor.period
+PLP       const_sp2_sp2_2         C2A          C2          N1          C6     180.000     5.0     2
+PLP              const_19          C5          C6          N1          C2       0.000    10.0     2
+PLP             sp3_sp3_1          C5         C5A         O4P           P     180.000    10.0     3
+PLP             sp3_sp3_6         C5A         O4P           P         O1P      60.000    10.0     3
+PLP             sp2_sp3_1          N1          C2         C2A        H2A1     150.000    10.0     6
+PLP       const_sp2_sp2_6         C2A          C2          C3          O3       0.000     5.0     2
+PLP             sp2_sp2_1          C2          C3          O3         HO3     180.000     5.0     2
+PLP              const_10          O3          C3          C4         C4A       0.000    10.0     2
+PLP             sp2_sp2_3          C3          C4         C4A         O4A     180.000     5.0     2
+PLP              const_14         C4A          C4          C5         C5A       0.000    10.0     2
+PLP             sp2_sp3_8          C4          C5         C5A         O4P     -90.000    10.0     6
+PLP              const_17         C5A          C5          C6          N1     180.000    10.0     2
+loop_
+_chem_comp_chir.comp_id
+_chem_comp_chir.id
+_chem_comp_chir.atom_id_centre
+_chem_comp_chir.atom_id_1
+_chem_comp_chir.atom_id_2
+_chem_comp_chir.atom_id_3
+_chem_comp_chir.volume_sign
+PLP    chir_1    P    O4P    O2P    O3P    both
+loop_
+_chem_comp_plane_atom.comp_id
+_chem_comp_plane_atom.plane_id
+_chem_comp_plane_atom.atom_id
+_chem_comp_plane_atom.dist_esd
+PLP    plan-1          C2   0.020
+PLP    plan-1         C2A   0.020
+PLP    plan-1          C3   0.020
+PLP    plan-1          C4   0.020
+PLP    plan-1         C4A   0.020
+PLP    plan-1          C5   0.020
+PLP    plan-1         C5A   0.020
+PLP    plan-1          C6   0.020
+PLP    plan-1          H6   0.020
+PLP    plan-1          N1   0.020
+PLP    plan-1          O3   0.020
+PLP    plan-2          C4   0.020
+PLP    plan-2         C4A   0.020
+PLP    plan-2         H4A   0.020
+PLP    plan-2         O4A   0.020
+loop_
+_pdbx_chem_comp_descriptor.comp_id
+_pdbx_chem_comp_descriptor.type
+_pdbx_chem_comp_descriptor.program
+_pdbx_chem_comp_descriptor.program_version
+_pdbx_chem_comp_descriptor.descriptor
+PLP           SMILES              ACDLabs 10.04                                                                O=P(O)(O)OCc1cnc(c(O)c1C=O)C
+PLP SMILES_CANONICAL               CACTVS 3.341                                                              Cc1ncc(CO[P](O)(O)=O)c(C=O)c1O
+PLP           SMILES               CACTVS 3.341                                                              Cc1ncc(CO[P](O)(O)=O)c(C=O)c1O
+PLP SMILES_CANONICAL "OpenEye OEToolkits" 1.5.0                                                              Cc1c(c(c(cn1)COP(=O)(O)O)C=O)O
+PLP           SMILES "OpenEye OEToolkits" 1.5.0                                                              Cc1c(c(c(cn1)COP(=O)(O)O)C=O)O
+PLP            InChI                InChI  1.03 InChI=1S/C8H10NO6P/c1-5-8(11)7(3-10)6(2-9-5)4-15-16(12,13)14/h2-3,11H,4H2,1H3,(H2,12,13,14)
+PLP         InChIKey                InChI  1.03                                                                 NGVDGCNFYWLIFO-UHFFFAOYSA-N
+loop_
+_pdbx_chem_comp_description_generator.comp_id
+_pdbx_chem_comp_description_generator.program_name
+_pdbx_chem_comp_description_generator.program_version
+_pdbx_chem_comp_description_generator.descriptor
+PLP acedrg               243         "dictionary generator"                  
+PLP acedrg_database      11          "data source"                           
+PLP rdkit                2017.03.2   "Chemoinformatics tool"
+PLP refmac5              5.8.0238    "optimization tool"                     
