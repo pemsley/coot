@@ -459,6 +459,10 @@ namespace coot {
          }
 
          indexed_user_defined_colour_selection_cids_apply_to_non_carbon_atoms_also = true;
+
+         gltf_pbr_roughness = 0.2;
+         gltf_pbr_metalicity = 0.0;
+
       }
 
       // chain-id (maybe) and plain sequence.
@@ -845,6 +849,9 @@ namespace coot {
       void export_chemical_features_as_gltf(const std::string &cid,
                                             const protein_geometry &geom,
                                             const std::string &file_name) const;
+
+      float gltf_pbr_roughness;
+      float gltf_pbr_metalicity;
 
       void set_show_symmetry(bool f) { show_symmetry = f;}
       bool get_show_symmetry() { return show_symmetry;}

@@ -38,7 +38,9 @@
 // pass the name (that should be visible in blender?)
 // pass one of "SHINY_PLASTIC, CLAY or METALLIC" as a hint for how to consstruct the glTF material.
 void
-coot::simple_mesh_t::export_to_gltf(const std::string &file_name, bool use_binary_format) const {
+coot::simple_mesh_t::export_to_gltf(const std::string &file_name,
+                                    float roughness, float metalicity,
+                                    bool use_binary_format) const {
 
    std::string name = "Test Export";
 

@@ -390,13 +390,14 @@ coot::molecule_t::get_molecular_representation_mesh(const std::string &atom_sele
       mmdb::Manager *mol = atom_sel.mol;
       std::string atom_selection = "//";
       std::string colour_scheme = "Helix";
-      float radius_for_coil = 0.2;
+      float radius_for_helices = 3.2;
+      unsigned int n_slices_for_helices = 16;
+      float radius_for_coil = 0.8;
       float Cn_for_coil = 2;
       int accuracy_for_coil = 12;
       unsigned int n_slices_for_coil = 12;
-      int useSecondaryStructureFlag = 2;
       mesh = make_tubes_representation(mol, atom_selection, colour_scheme, radius_for_coil, Cn_for_coil,
-                                       accuracy_for_coil, n_slices_for_coil, useSecondaryStructureFlag);
+                                       accuracy_for_coil, n_slices_for_coil, secondaryStructureUsageFlag);
 
    } else {
 

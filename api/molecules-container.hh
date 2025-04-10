@@ -1092,6 +1092,18 @@ public:
    void export_chemical_features_as_gltf(int imol, const std::string &cid,
                                          const std::string &file_name) const;
 
+   //! set the gltf PBR roughness factor
+   //!
+   //! @param imol is the model molecule index
+   //! @param roughness_factor is the factor for the roughness (0.0 to 1.0)
+   void set_gltf_pbr_roughness_factor(int imol, float roughness_factor);
+
+   //! set the gltf PBR metalicity factor
+   //!
+   //! @param imol is the model molecule index
+   //! @param metalicity is the factor for the roughness (0.0 to 1.0)
+   void set_gltf_pbr_metalicity_factor(int imol, float metalicity);
+
    //! Get colour table (for testing)
    //!
    //! @param imol is the model molecule index
