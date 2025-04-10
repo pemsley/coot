@@ -6355,7 +6355,7 @@ graphics_info_t::setup_key_bindings() {
    auto l6 = []() {
 
                 if (do_tick_spin) {
-                  std::cout << "removing tick spin flag" << std::endl;
+                   std::cout << "removing tick spin flag" << std::endl;
                    do_tick_spin = false;
                 } else {
                    std::cout << "adding tick spin flag A" << std::endl;
