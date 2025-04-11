@@ -3202,7 +3202,7 @@ public:
    //! @param imol_protein is the model molecule index
    //! @param imol_map is the map molecule index
    //! @param imol_ligand is the ligand molecule index
-   //! @param n_rmsd number of sd, e.g. 4.8
+   //! @param n_rmsd the number of sd used as a cut-off for the map level when finding clusters, e.g. 1.2
    //! @param use_conformers is True for flexible ligands
    //! @param n_conformers set the number of conformers
    //!
