@@ -2309,6 +2309,7 @@ fi
 # libccp4: (not fortran)
 if test -n "$build_ccp4c" ; then
     libccp4_version=6.5.1
+    libccp4_version=8.0.0
     echo BUILDING libccp4: $libccp4_version
     # ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/libccp4c-5.0.2-ysbl-2.tar.gz
     # ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/libccp4c-5.0.2-ysbl-3.tar.gz
