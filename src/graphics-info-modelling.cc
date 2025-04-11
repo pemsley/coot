@@ -371,6 +371,24 @@ graphics_info_t::copy_mol_and_refine(int imol_for_atoms,
    return rr;
 }
 
+void
+graphics_info_t::show_missing_refinement_residues_dialog(const std::vector<std::string> &res_names) {
+
+   GtkWidget *dialog = widget_from_builder("download_monomers_dialog");
+   gtk_widget_set_visible(dialog, TRUE);
+   GtkWidget *vbox = widget_from_builder("download_monomers_dialog_vbox_inner");
+   gtk_widget_set_visible(vbox, TRUE);
+   clear_out_container(vbox);
+   for (const auto &rn : res_names) {
+      GtkWidget *label = gtk_label_new(rn.c_str());
+      char* ccx = new char[rn.size() + 1];
+      std::copy(rn.begin(), rn.end(), ccx);
+      g_object_set_data(G_OBJECT(label), "comp_id", ccx); // read in on_download_monomers_ok_button_clicked()
+      gtk_box_append(GTK_BOX(vbox), label);
+   }
+}
+
+
 // static
 void
 graphics_info_t::info_dialog_missing_refinement_residues(const std::vector<std::string> &res_names) {
@@ -1617,7 +1635,8 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 	 std::pair<int, std::vector<std::string> > icheck =
 	    check_dictionary_for_residue_restraints(imol, residues);
 	 if (icheck.first == 0) {
-	    info_dialog_missing_refinement_residues(icheck.second);
+	    // info_dialog_missing_refinement_residues(icheck.second);
+	    show_missing_refinement_residues_dialog(icheck.second);
 	 }
       }
    }
