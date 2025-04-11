@@ -5690,7 +5690,33 @@ void molecules_container_t::export_chemical_features_as_gltf(int imol, const std
 }
 
 
+//! set the gltf PBR roughness factor
+//!
+//! @param imol is the model molecule index
+//! @param roughness_factor is the factor for the roughness (0.0 to 1.0)
+void
+molecules_container_t::set_gltf_pbr_roughness_factor(int imol, float roughness_factor) {
 
+   if (is_valid_model_molecule(imol)) {
+      molecules[imol].gltf_pbr_roughness = roughness_factor;
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+}
+
+//! set the gltf PBR metalicity factor
+//!
+//! @param imol is the model molecule index
+//! @param metalicity is the factor for the roughness (0.0 to 1.0)
+void
+molecules_container_t::set_gltf_pbr_metalicity_factor(int imol, float metalicity) {
+
+   if (is_valid_model_molecule(imol)) {
+      molecules[imol].gltf_pbr_metalicity = metalicity;
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+}
 
 //! get density at position
 //! @return density value

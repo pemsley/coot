@@ -411,6 +411,8 @@ NB_MODULE(coot_headless_api, m) {
     .def("set_colour_wheel_rotation_base",&molecules_container_t::set_colour_wheel_rotation_base)
     .def("set_draw_missing_residue_loops",&molecules_container_t::set_draw_missing_residue_loops)
     .def("set_draw_missing_residue_loops",&molecules_container_t::set_draw_missing_residue_loops)
+    .def("set_gltf_pbr_metalicity_factor",&molecules_container_t::set_gltf_pbr_metalicity_factor)
+    .def("set_gltf_pbr_roughness_factor",&molecules_container_t::set_gltf_pbr_roughness_factor)
     .def("set_imol_refinement_map",&molecules_container_t::set_imol_refinement_map)
     .def("set_make_backups",&molecules_container_t::set_make_backups)
     .def("set_map_sampling_rate",&molecules_container_t::set_map_sampling_rate)

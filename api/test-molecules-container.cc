@@ -4978,7 +4978,7 @@ int test_gltf_export(molecules_container_t &mc) {
    float contour_level = 0.4;
    std::cout << "-------------------------------------------------- map mesh " << std::endl;
    coot::simple_mesh_t map_mesh = mc.get_map_contours_mesh(imol_map, p.x(), p.y(), p.z(), radius, contour_level);
-   map_mesh.export_to_gltf("map-around-ligand.glb", true);
+   map_mesh.export_to_gltf("map-around-ligand.glb", 0.5, 0.5, true);
 
    std::cout << "-------------------------------------------------- ligand mesh " << std::endl;
 
@@ -4988,7 +4988,7 @@ int test_gltf_export(molecules_container_t &mc) {
    std::cout << "test_gltf_export() imol_frag " << imol_frag << std::endl;
    coot::instanced_mesh_t im    = mc.get_bonds_mesh_instanced(imol_frag, mode, true, 0.1, 1.0, false, false, true, 1);
    coot::simple_mesh_t sm_lig = coot::instanced_mesh_to_simple_mesh(im);
-   sm_lig.export_to_gltf("lig.glb", true);
+   sm_lig.export_to_gltf("lig.glb", 0.5, 0.5, true);
 
    std::cout << "-------------------------------------------------- neighbour mesh " << std::endl;
    std::vector<coot::residue_spec_t> neighbs = mc.get_residues_near_residue(imol, "//A/1299", 4.2);
@@ -4996,7 +4996,7 @@ int test_gltf_export(molecules_container_t &mc) {
    mc.set_draw_missing_residue_loops(false);
    coot::instanced_mesh_t im_neighbs = mc.get_bonds_mesh_for_selection_instanced(imol, multi_cid, mode, true, 0.15, 1.0, false, false, true, 1);
    coot::simple_mesh_t sm_neighbs = coot::instanced_mesh_to_simple_mesh(im_neighbs);
-   sm_neighbs.export_to_gltf("neighbs.glb", true);
+   sm_neighbs.export_to_gltf("neighbs.glb", 0.5f, 0.5f, true);
 
    struct stat buf_1;
    int istat_1 = stat("lig.glb", &buf_1);
@@ -5025,7 +5025,7 @@ int test_gltf_export_via_api(molecules_container_t &mc) {
    int status = 0;
 
    mc.set_use_gemmi(true); // 20240727-PE there seems to be a memory problem when using gemmi atm
-                            // so for now, let's not use gemmi for the tests.
+                           // so for now, let's not use gemmi for the tests.
 
    int imol     = mc.read_pdb(reference_data("2vtq.cif"));
    int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
@@ -5070,7 +5070,7 @@ int test_5char_ligand_merge(molecules_container_t &mc) {
    int status = 0;
    int imol_enc = coot::protein_geometry::IMOL_ENC_ANY;
 
-   int imol     = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
    mc.import_cif_dictionary(reference_data("acedrg-7z-new.cif"), imol_enc);
    int imol_lig = mc.get_monomer("7ZTVU");
    if (mc.is_valid_model_molecule(imol)) {
