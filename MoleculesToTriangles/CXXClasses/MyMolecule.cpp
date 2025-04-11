@@ -213,7 +213,7 @@ int MyMolecule::processCoords(int secondaryStructureUsageFlag){
         model->CalcSecStructure(true);
       }
    }
-    
+
    if (transfer_secondary_structure)
       secondary_structure_header_to_residue_sse(mmdb);
 
@@ -224,7 +224,7 @@ int MyMolecule::loadFromPDB(const char *filePath, int secondaryStructureUsageFla
     int RC;
     mmdb::InitMatType();
     mmdb = new mmdb::Manager();
-    
+
     //Now read the MMDB for purpose of calculating surface
     mmdb->SetFlag( mmdb::MMDBF_PrintCIFWarnings );
     RC = mmdb->ReadCoorFile (filePath);
