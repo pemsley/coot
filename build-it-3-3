@@ -2161,7 +2161,7 @@ fi
 # the fink GSL if it is available.
 # 20240302-PE "fink"? Blimey.
 if test -e $install_top_dir/bin/gsl-config ; then
-    if test $dist_name = arch ; then
+    if test "$dist_name" = arch ; then
         unset LD_LIBRARY_PATH
     fi
     echo $install_top_dir/bin/gsl-config --prefix
