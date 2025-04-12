@@ -1,3 +1,4 @@
+#include <optional>
 
 namespace coot {
 
