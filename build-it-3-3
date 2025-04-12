@@ -1191,7 +1191,7 @@ case $dist_name in
        libblas-dev
        liblapack-dev
        libc6-dev
-       libncurses5-dev
+       libncurses-dev
        libjpeg-dev
        libgtk-4-dev'
        # gfortran is for numpy
@@ -3149,7 +3149,14 @@ if [ -e $install_top_dir/include/cairo/cairo.h ] ; then
 else
     # we need modern cairo - because that is what is used by GTK4.
     # in fact, perhaps we should build cairo at all on arch...
+    use_new_cairo=false
     if test "$dist_name" = arch ; then
+        use_new_cairo=true
+    fi
+    if test "$dist_name" = ubuntu ; then
+        use_new_cairo=true
+    fi
+    if $use_new_cairo = true ; then
         (
         cairo_version=1.18.2
         echo BUILDING: cairo $cairo_version
@@ -4330,7 +4337,7 @@ if [ $test_for_already_installed_dependencies = true ] ; then
       skip_build=true
    fi
 fi
-if [ /usr/include/pygobject-3.0 ] ; then
+if [ -e /usr/include/pygobject-3.0 ] ; then
     skip_build=true
 fi
 
