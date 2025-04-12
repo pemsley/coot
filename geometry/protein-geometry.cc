@@ -51,6 +51,7 @@
 #include "compat/coot-sysdep.h"
 
 #include "lbg-graph.hh"
+#include "utils/xdg-base.hh"
 
 // std::string 
 // coot::basic_dict_restraint_t::atom_id_1_4c() const {
@@ -566,7 +567,7 @@ coot::protein_geometry::try_dynamic_add(const std::string &resname, int read_num
    // $prefix/share/coot onto which we tag a "lib" dir.
    // 
 
-   char *s  = getenv("COOT_REFMAC_LIB_DIR");
+   char *s    = getenv("COOT_REFMAC_LIB_DIR");
    char *cmld = getenv("COOT_MONOMER_LIB_DIR");
 
    if (s) {
@@ -708,6 +709,40 @@ coot::protein_geometry::try_dynamic_add(const std::string &resname, int read_num
 	       }
 	    }
 	 }
+      }
+   }
+
+   if (!success) {
+      // try the XDG Base Directory Protocol cache
+      xdg_t xdg;
+      std::filesystem::path ch = xdg.get_cache_home();
+      if (std::filesystem::exists(ch)) {
+	 std::filesystem::path monomers_path = ch / "monomers";
+	 if (std::filesystem::exists(monomers_path)) {
+	    const char rs = resname[0];
+	    const char v = tolower(rs); // get the sub directory name
+	    std::string letter(1, v);
+	    std::filesystem::path sub_dir = ch / letter;
+	    if (std::filesystem::exists(sub_dir)) {
+	       std::string cif_file_name = resname + ".cif";
+	       std::filesystem::path cif_file_path = sub_dir / cif_file_name;
+	       if (std::filesystem::exists(cif_file_path)) {
+		  // read it
+		  read_refmac_mon_lib_info_t rmit = init_refmac_mon_lib(cif_file_path.string(), read_number);
+		  success = rmit.success;
+	       } else {
+		  // we will need to download it then
+		  // and put it in the above directory)
+		  std::cout << "DEBUG:: try_dynamic_add(): " << cif_file_path.string() << " does not exist" << std::endl;
+	       }
+	    } else {
+	       std::cout << "DEBUG:: try_dynamic_add(): " << sub_dir.string() << " does not exist" << std::endl;
+	    }
+	 } else {
+	    std::cout << "DEBUG:: try_dynamic_add(): " << monomers_path.string() << " does not exist" << std::endl;
+	 }
+      } else {
+	 std::cout << "DEBUG:: try_dynamic_add(): " << ch.string() << " does not exist" << std::endl;
       }
    }
 

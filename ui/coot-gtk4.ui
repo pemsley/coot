@@ -12594,6 +12594,86 @@ If you need symmetry, setup ccp4 before starting coot
     </child>
   </object>
 
+  <object class="GtkDialog" id="download_monomers_dialog">
+    <property name="title" translatable="yes">Coot: Download Monomers</property>
+
+    <child>
+      <object class="GtkBox" id="download_monomers_dialog_vbox">
+        <property name="orientation">vertical</property>
+	<child>
+	  <object class="GtkLabel">
+	    <property name="label" translatable="yes">Can't locate dictionaries for the folling types:</property>
+	    <property name="justify">center</property>
+	    <property name="margin-start">12</property>
+	    <property name="margin-end">12</property>
+	    <property name="margin-top">8</property>
+	    <property name="margin-bottom">4</property>
+	  </object>
+	</child>
+	<child>
+	  <object class="GtkBox" id="download_monomers_dialog_vbox_inner">
+            <property name="orientation">vertical</property>
+	    <property name="margin-start">4</property>
+	    <property name="margin-end">4</property>
+	    <property name="margin-top">4</property>
+	    <property name="margin-bottom">4</property>
+	  </object>
+	</child>
+	<child>
+	  <object class="GtkLabel">
+	    <property name="label" translatable="yes">Fetch from Github?</property>
+	    <property name="justify">center</property>
+	    <property name="margin-start">4</property>
+	    <property name="margin-end">4</property>
+	    <property name="margin-top">4</property>
+	    <property name="margin-bottom">4</property>
+	  </object>
+	</child>
+	<child>
+	  <object class="GtkSeparator">
+	    <property name="margin-start">4</property>
+	    <property name="margin-end">4</property>
+	    <property name="margin-top">4</property>
+	    <property name="margin-bottom">4</property>
+	  </object>
+	</child>
+	<child>
+	  <object class="GtkBox" id="download_monomers_dialog_buttons_hbox">
+            <property name="orientation">horizontal</property>
+            <property name="halign">end</property>
+	    <property name="margin-start">4</property>
+	    <property name="margin-end">4</property>
+	    <property name="margin-top">4</property>
+	    <property name="margin-bottom">4</property>
+            <child>
+              <object class="GtkButton" id="download_monomers_cancel_button">
+		<property name="label" translatable="yes">Cancel</property>
+		<signal name="clicked" handler="on_download_monomers_cancel_button_clicked" swapped="no"/>
+		<property name="margin-top">6</property>
+		<property name="margin-bottom">6</property>
+		<property name="margin-start">6</property>
+		<property name="margin-end">6</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="download_monomers_ok_button">
+		<property name="label" translatable="yes">Fetch</property>
+		<signal name="clicked" handler="on_download_monomers_ok_button_clicked" swapped="no"/>
+		<property name="margin-top">6</property>
+		<property name="margin-bottom">6</property>
+		<property name="margin-start">6</property>
+		<property name="margin-end">6</property>
+		<style>
+		  <class name="suggested-action"/>
+		</style>
+              </object>
+            </child>
+	  </object>
+	</child>
+      </object>
+    </child>
+  </object>
+
   <object class="GtkDialog" id="nothing_bad_dialog">
     <property name="title" translatable="yes">Coot: Info</property>
     <child>

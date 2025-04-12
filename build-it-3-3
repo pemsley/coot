@@ -2120,15 +2120,11 @@ python_version_squish=313
 # for Blender 4 in 2024, we want Python 3.10.13, so uncomment the 3 lines below:
 if [ "$CHAPI_ONLY" = true ] ; then
 
-    python_version=python3.10
-    pver=3.10.13
-    python_version_extension=3.10
-    python_version_squish=310
+    python_version=python3.11
+    pver=3.11.11
+    python_version_extension=3.11
+    python_version_squish=311
 
-    # python_version=python3.12
-    # pver=3.12.7
-    # python_version_extension=3.12
-    # python_version_squish=312
 fi
 
 
@@ -2165,7 +2161,7 @@ fi
 # the fink GSL if it is available.
 # 20240302-PE "fink"? Blimey.
 if test -e $install_top_dir/bin/gsl-config ; then
-    if test $dist_name = arch ; then
+    if test "$dist_name" = arch ; then
         unset LD_LIBRARY_PATH
     fi
     echo $install_top_dir/bin/gsl-config --prefix
@@ -2313,6 +2309,7 @@ fi
 # libccp4: (not fortran)
 if test -n "$build_ccp4c" ; then
     libccp4_version=6.5.1
+    libccp4_version=8.0.0
     echo BUILDING libccp4: $libccp4_version
     # ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/libccp4c-5.0.2-ysbl-2.tar.gz
     # ${WGET} http://www.ysbl.york.ac.uk/~emsley/software/extras/libccp4c-5.0.2-ysbl-3.tar.gz

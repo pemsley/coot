@@ -1,0 +1,138 @@
+#
+data_comp_list
+loop_
+_chem_comp.id
+_chem_comp.three_letter_code
+_chem_comp.name
+_chem_comp.group
+_chem_comp.number_atoms_all
+_chem_comp.number_atoms_nh
+_chem_comp.desc_level
+PEG     PEG      DI(HYDROXYETHYL)ETHER     NON-POLYMER     17     7     .     
+#
+data_comp_PEG
+#
+loop_
+_chem_comp_atom.comp_id
+_chem_comp_atom.atom_id
+_chem_comp_atom.type_symbol
+_chem_comp_atom.type_energy
+_chem_comp_atom.charge
+_chem_comp_atom.x
+_chem_comp_atom.y
+_chem_comp_atom.z
+PEG     C1      C       CH2     0       41.561      37.152      47.063      
+PEG     O1      O       OH1     0       41.065      36.188      46.155      
+PEG     C2      C       CH2     0       42.802      36.690      47.759      
+PEG     O2      O       O2      0       42.505      35.564      48.578      
+PEG     C3      C       CH2     0       43.645      35.062      49.268      
+PEG     C4      C       CH2     0       43.253      33.888      50.109      
+PEG     O4      O       OH1     0       44.370      33.256      50.702      
+PEG     H11     H       H       0       40.870      37.346      47.731      
+PEG     H12     H       H       0       41.754      37.980      46.576      
+PEG     HO1     H       H       0       40.396      36.506      45.747      
+PEG     H21     H       H       0       43.160      37.417      48.314      
+PEG     H22     H       H       0       43.482      36.446      47.095      
+PEG     H31     H       H       0       44.023      35.766      49.839      
+PEG     H32     H       H       0       44.330      34.791      48.620      
+PEG     H41     H       H       0       42.777      33.237      49.552      
+PEG     H42     H       H       0       42.643      34.187      50.815      
+PEG     HO4     H       H       0       44.736      33.789      51.248      
+loop_
+_chem_comp_bond.comp_id
+_chem_comp_bond.atom_id_1
+_chem_comp_bond.atom_id_2
+_chem_comp_bond.type
+_chem_comp_bond.aromatic
+_chem_comp_bond.value_dist_nucleus
+_chem_comp_bond.value_dist_nucleus_esd
+_chem_comp_bond.value_dist
+_chem_comp_bond.value_dist_esd
+PEG          C1          O1      SINGLE       n     1.414  0.0200     1.414  0.0200
+PEG          C1          C2      SINGLE       n     1.496  0.0200     1.496  0.0200
+PEG          C2          O2      SINGLE       n     1.423  0.0106     1.423  0.0106
+PEG          O2          C3      SINGLE       n     1.423  0.0106     1.423  0.0106
+PEG          C3          C4      SINGLE       n     1.496  0.0200     1.496  0.0200
+PEG          C4          O4      SINGLE       n     1.414  0.0200     1.414  0.0200
+PEG          C1         H11      SINGLE       n     1.089  0.0100     0.980  0.0144
+PEG          C1         H12      SINGLE       n     1.089  0.0100     0.980  0.0144
+PEG          O1         HO1      SINGLE       n     0.970  0.0120     0.846  0.0200
+PEG          C2         H21      SINGLE       n     1.089  0.0100     0.982  0.0175
+PEG          C2         H22      SINGLE       n     1.089  0.0100     0.982  0.0175
+PEG          C3         H31      SINGLE       n     1.089  0.0100     0.982  0.0175
+PEG          C3         H32      SINGLE       n     1.089  0.0100     0.982  0.0175
+PEG          C4         H41      SINGLE       n     1.089  0.0100     0.980  0.0144
+PEG          C4         H42      SINGLE       n     1.089  0.0100     0.980  0.0144
+PEG          O4         HO4      SINGLE       n     0.970  0.0120     0.846  0.0200
+loop_
+_chem_comp_angle.comp_id
+_chem_comp_angle.atom_id_1
+_chem_comp_angle.atom_id_2
+_chem_comp_angle.atom_id_3
+_chem_comp_angle.value_angle
+_chem_comp_angle.value_angle_esd
+PEG          O1          C1          C2     112.284    1.56
+PEG          O1          C1         H11     109.012    1.50
+PEG          O1          C1         H12     109.012    1.50
+PEG          C2          C1         H11     109.198    1.50
+PEG          C2          C1         H12     109.198    1.50
+PEG         H11          C1         H12     108.093    1.50
+PEG          C1          O1         HO1     109.347    1.86
+PEG          C1          C2          O2     109.904    1.68
+PEG          C1          C2         H21     109.795    1.50
+PEG          C1          C2         H22     109.795    1.50
+PEG          O2          C2         H21     109.691    1.50
+PEG          O2          C2         H22     109.691    1.50
+PEG         H21          C2         H22     108.274    1.50
+PEG          C2          O2          C3     112.795    1.50
+PEG          O2          C3          C4     109.904    1.68
+PEG          O2          C3         H31     109.691    1.50
+PEG          O2          C3         H32     109.691    1.50
+PEG          C4          C3         H31     109.795    1.50
+PEG          C4          C3         H32     109.795    1.50
+PEG         H31          C3         H32     108.274    1.50
+PEG          C3          C4          O4     112.284    1.56
+PEG          C3          C4         H41     109.198    1.50
+PEG          C3          C4         H42     109.198    1.50
+PEG          O4          C4         H41     109.012    1.50
+PEG          O4          C4         H42     109.012    1.50
+PEG         H41          C4         H42     108.093    1.50
+PEG          C4          O4         HO4     109.347    1.86
+loop_
+_chem_comp_tor.comp_id
+_chem_comp_tor.id
+_chem_comp_tor.atom_id_1
+_chem_comp_tor.atom_id_2
+_chem_comp_tor.atom_id_3
+_chem_comp_tor.atom_id_4
+_chem_comp_tor.value_angle
+_chem_comp_tor.value_angle_esd
+_chem_comp_tor.period
+PEG             sp3_sp3_1          C2          C1          O1         HO1     180.000    10.0     3
+PEG             sp3_sp3_4          O1          C1          C2          O2     180.000    10.0     3
+PEG            sp3_sp3_13          C1          C2          O2          C3     180.000    10.0     3
+PEG            sp3_sp3_16          C4          C3          O2          C2     180.000    10.0     3
+PEG            sp3_sp3_19          O2          C3          C4          O4     180.000    10.0     3
+PEG            sp3_sp3_28          C3          C4          O4         HO4     180.000    10.0     3
+loop_
+_pdbx_chem_comp_descriptor.comp_id
+_pdbx_chem_comp_descriptor.type
+_pdbx_chem_comp_descriptor.program
+_pdbx_chem_comp_descriptor.program_version
+_pdbx_chem_comp_descriptor.descriptor
+PEG           SMILES              ACDLabs 12.01                                     OCCOCCO
+PEG            InChI                InChI  1.03 InChI=1S/C4H10O3/c5-1-3-7-4-2-6/h5-6H,1-4H2
+PEG         InChIKey                InChI  1.03                 MTHSVFCYNBDYFN-UHFFFAOYSA-N
+PEG SMILES_CANONICAL               CACTVS 3.370                                     OCCOCCO
+PEG           SMILES               CACTVS 3.370                                     OCCOCCO
+PEG SMILES_CANONICAL "OpenEye OEToolkits" 1.7.6                                   C(COCCO)O
+PEG           SMILES "OpenEye OEToolkits" 1.7.6                                   C(COCCO)O
+loop_
+_pdbx_chem_comp_description_generator.comp_id
+_pdbx_chem_comp_description_generator.program_name
+_pdbx_chem_comp_description_generator.program_version
+_pdbx_chem_comp_description_generator.descriptor
+PEG acedrg               243         "dictionary generator"                  
+PEG acedrg_database      11          "data source"                           
+PEG rdkit                2017.03.2   "Chemoinformatics tool"
+PEG refmac5              5.8.0238    "optimization tool"                     

@@ -60,6 +60,9 @@
 #include "gtkglarea-rama-plot.hh"
 #include "cc-interface-scripting.hh"
 
+void get_monomer_dictionary_in_subthread(const std::string &comp_id);
+
+
 // this from callbacks.h (which I don't want to include here)
 typedef const char entry_char_type;
 
@@ -6901,6 +6904,38 @@ on_generic_validation_box_of_buttons_close_button_clicked(GtkButton       *butto
 
 extern "C" G_MODULE_EXPORT
 void
+on_download_monomers_cancel_button_clicked(GtkButton       *button,
+					   gpointer         user_data) {
+
+   GtkWidget *dialog = widget_from_builder("download_monomers_dialog");
+   gtk_widget_set_visible(dialog, FALSE);
+
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_download_monomers_ok_button_clicked(GtkButton       *button,
+				       gpointer         user_data) {
+
+   GtkWidget *vbox = widget_from_builder("download_monomers_dialog_vbox_inner");
+   if (vbox) {
+      GtkWidget *item_widget = gtk_widget_get_first_child(vbox);
+      while (item_widget) {
+	 gchar *comp_id = static_cast<gchar *>(g_object_get_data(G_OBJECT(item_widget), "comp_id"));
+	 if (comp_id) {
+	    get_monomer_dictionary_in_subthread(comp_id);
+	 }
+	 item_widget = gtk_widget_get_next_sibling(item_widget);
+      };
+
+   }
+
+   GtkWidget *dialog = widget_from_builder("download_monomers_dialog");
+   gtk_widget_set_visible(dialog, FALSE);
+}
+
+extern "C" G_MODULE_EXPORT
+void
 on_button_clicked(GtkButton       *button,
                   gpointer         user_data) {
 
@@ -6908,5 +6943,4 @@ on_button_clicked(GtkButton       *button,
    gtk_widget_set_visible(dialog, FALSE);
 
 }
-
 

@@ -349,11 +349,20 @@ void display_png_from_string_in_a_dialog(const std::string &string, const std::s
 #include <librsvg/rsvg.h>
 #endif
 
-void display_svg_from_string_in_a_dialog(const std::string &string, const std::string &title) {
+#include "utils/next-file-version.hh"
+
+
+void display_svg_from_string_in_a_dialog(const std::string &image_string, const std::string &title) {
 
    // the api function declaration exists
 
 #ifdef HAVE_RSVG
+
+   auto write_string_to_file = +[] (const std::string &s, const std::string &file_name) {
+      std::ofstream f(file_name);
+      f << s;
+      f.close();
+   };
 
    class svg_viewBox_t {
    public:
@@ -424,8 +433,8 @@ void display_svg_from_string_in_a_dialog(const std::string &string, const std::s
 
    // Load the SVG file
    GError *error = NULL;
-   RsvgHandle *handle = rsvg_handle_new_from_data((const unsigned char *)string.c_str(),
-                                                  string.length(), &error);
+   RsvgHandle *handle = rsvg_handle_new_from_data((const unsigned char *)image_string.c_str(),
+                                                  image_string.length(), &error);
 
    if (handle == NULL) {
       g_printerr("Error loading SVG: %s\n", error->message);
@@ -445,11 +454,17 @@ void display_svg_from_string_in_a_dialog(const std::string &string, const std::s
       gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(scrolled_win), drawing_area);
       gtk_box_append(GTK_BOX(vbox), scrolled_win);
       GtkWidget *buttons_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+      GtkWidget *button_export = gtk_button_new_with_label("Export");
       GtkWidget *button_close = gtk_button_new_with_label("Close");
       gtk_widget_set_halign(buttons_box, GTK_ALIGN_END);
+      gtk_box_append(GTK_BOX(buttons_box), button_export);
       gtk_box_append(GTK_BOX(buttons_box), button_close);
       gtk_box_append(GTK_BOX(vbox), buttons_box);
 
+      gtk_widget_set_margin_start(button_export, 10);
+      gtk_widget_set_margin_end(button_export, 10);
+      gtk_widget_set_margin_top(button_export, 14);
+      gtk_widget_set_margin_bottom(button_export, 10);
       gtk_widget_set_margin_start(button_close, 10);
       gtk_widget_set_margin_end(button_close, 10);
       gtk_widget_set_margin_top(button_close, 14);
@@ -497,6 +512,19 @@ void display_svg_from_string_in_a_dialog(const std::string &string, const std::s
       gtk_drawing_area_set_draw_func(GTK_DRAWING_AREA(drawing_area), draw_svg, handle, NULL);
       g_signal_connect(G_OBJECT(drawing_area), "resize", G_CALLBACK(on_drawing_area_resize), NULL);
       gtk_widget_set_visible(window, TRUE);
+
+      auto export_button_callback = +[] (GtkButton *button, gpointer user_data) {
+	 std::string fn = coot::get_versioned_file_name("coot-plot", "svg", ".");
+	 std::string *sp = static_cast<std::string *>(user_data);
+	 std::string s(*sp);
+	 std::ofstream f(fn);
+	 f << s;
+	 f.close();
+	 std::cout << "INFO:: wrote image to file name " << fn << std::endl;
+      };
+      std::string *svg_image_p = new std::string(image_string);
+      void * user_data = static_cast<void *>(svg_image_p);
+      g_signal_connect(G_OBJECT(button_export), "clicked", G_CALLBACK(export_button_callback), user_data);
 
       auto close_button_callback = +[] (GtkButton *button, gpointer data) {
          GtkWindow *window = static_cast<GtkWindow *>(data);

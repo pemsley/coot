@@ -834,3 +834,90 @@ void set_python_draw_function(const std::string &s) {
 }
 #endif // USE_PYTHON
 
+
+
+void get_monomer_dictionary_in_subthread(const std::string &comp_id) {
+
+   struct cif_data {
+      int fetch_done;
+      std::string comp_id;
+   };
+
+   auto get_dict = [] (const std::string &comp_id, struct cif_data *c) {
+
+      // https://raw.githubusercontent.com/MonomerLibrary/monomers/refs/heads/master/l/L36.cif
+      // put it in xdg cache monomers/l/L36.cif
+
+      const char rs = comp_id[0];
+      const char v = tolower(rs); // get the sub directory name
+      std::string letter(1, v);
+      std::string cif_file_name = comp_id + ".cif";
+      std::filesystem::path github = "https://raw.githubusercontent.com/MonomerLibrary/monomers/refs/heads/master";
+      std::filesystem::path url_path = github / letter / cif_file_name;
+
+      xdg_t xdg;
+
+      std::filesystem::path ch = xdg.get_cache_home();
+
+      if (! std::filesystem::exists(ch))
+	 std::filesystem::create_directories(ch);
+
+      if (! std::filesystem::exists(ch))
+	 std::filesystem::create_directories(ch);
+      std::filesystem::path monomers_path = ch / "monomers";
+      if (!std::filesystem::exists(monomers_path))
+	 std::filesystem::create_directories(monomers_path);
+      std::filesystem::path letter_dir_path = monomers_path / letter;
+      if (!std::filesystem::exists(letter_dir_path))
+	 std::filesystem::create_directories(letter_dir_path);
+
+      if (std::filesystem::exists(ch)) {
+	 std::filesystem::path monomers_path = ch / "monomers";
+	 if (std::filesystem::exists(monomers_path)) {
+	    std::filesystem::path letter_dir_path = monomers_path / letter;
+	    if (std::filesystem::exists(letter_dir_path)) {
+	       std::filesystem::path cif_file_path = letter_dir_path / cif_file_name;
+	       coot_get_url(url_path.string(), cif_file_path.string());
+	    } else {
+	       std::cout << "INFO:: " << letter_dir_path << " does not exist " << std::endl;
+	    }
+	 } else {
+	    std::cout << "INFO:: " << monomers_path << " does not exist " << std::endl;
+	 }
+      } else {
+	    std::cout << "INFO:: " << ch << " does not exist " << std::endl;
+      }
+      c->fetch_done = true;
+   };
+
+   if (! comp_id.empty()) {
+      std::cout << "Get " << comp_id << " in a sub-thread" << std::endl;
+      // get_dict(comp_id);
+
+      struct cif_data *c = new cif_data;
+      c->fetch_done = 0;
+      c->comp_id = comp_id;
+
+      std::thread thread(get_dict, comp_id, c);
+      thread.detach();
+
+      auto timeout_func = +[] (gpointer data) {
+         int s = 1;
+	 struct cif_data *cif_data = static_cast<struct cif_data *>(data);
+	 if (cif_data->fetch_done == 1) s = 0;
+	 const char rs = cif_data->comp_id[0];
+	 const char v = tolower(rs); // get the sub directory name
+	 std::string letter(1, v);
+	 std::string cif_file_name = cif_data->comp_id + ".cif";
+	 xdg_t xdg;
+	 std::filesystem::path ch = xdg.get_cache_home();
+	 std::filesystem::path monomers_path = ch / "monomers";
+	 std::filesystem::path letter_dir_path = monomers_path / letter;
+	 std::filesystem::path cif_file_path = letter_dir_path / cif_file_name;
+	 std::cout << ":::::::: read this cif " << cif_file_path << std::endl;
+	 read_cif_dictionary(cif_file_path.string());
+	 return gboolean(s);
+      };
+      g_timeout_add(500, GSourceFunc(timeout_func), c);
+   }
+}

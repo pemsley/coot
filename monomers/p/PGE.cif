@@ -1,0 +1,168 @@
+#
+data_comp_list
+loop_
+_chem_comp.id
+_chem_comp.three_letter_code
+_chem_comp.name
+_chem_comp.group
+_chem_comp.number_atoms_all
+_chem_comp.number_atoms_nh
+_chem_comp.desc_level
+PGE     PGE      "TRIETHYLENE GLYCOL"     NON-POLYMER     24     10     .     
+#
+data_comp_PGE
+#
+loop_
+_chem_comp_atom.comp_id
+_chem_comp_atom.atom_id
+_chem_comp_atom.type_symbol
+_chem_comp_atom.type_energy
+_chem_comp_atom.charge
+_chem_comp_atom.x
+_chem_comp_atom.y
+_chem_comp_atom.z
+PGE     C1      C       CH2     0       18.715      -18.946     34.930      
+PGE     O1      O       OH1     0       18.098      -20.073     34.339      
+PGE     C2      C       CH2     0       19.228      -19.237     36.305      
+PGE     O2      O       O2      0       18.136      -19.500     37.182      
+PGE     C3      C       CH2     0       18.527      -19.893     38.496      
+PGE     C4      C       CH2     0       18.196      -21.337     38.706      
+PGE     O4      O       OH1     0       19.209      -25.686     36.980      
+PGE     C6      C       CH2     0       19.520      -24.306     36.972      
+PGE     C5      C       CH2     0       18.689      -23.532     37.946      
+PGE     O3      O       O2      0       18.956      -22.140     37.808      
+PGE     H1      H       H       0       18.064      -18.215     34.977      
+PGE     H12     H       H       0       19.459      -18.656     34.363      
+PGE     HO1     H       H       0       17.842      -19.875     33.558      
+PGE     H2      H       H       0       19.741      -18.468     36.636      
+PGE     H22     H       H       0       19.826      -20.016     36.277      
+PGE     H3      H       H       0       18.049      -19.347     39.157      
+PGE     H32     H       H       0       19.492      -19.753     38.624      
+PGE     H4      H       H       0       17.237      -21.483     38.551      
+PGE     H42     H       H       0       18.400      -21.592     39.632      
+PGE     HO4     H       H       0       19.421      -26.016     37.730      
+PGE     H6      H       H       0       19.375      -23.952     36.071      
+PGE     H62     H       H       0       20.468      -24.192     37.195      
+PGE     H5      H       H       0       18.897      -23.819     38.861      
+PGE     H52     H       H       0       17.737      -23.704     37.778      
+loop_
+_chem_comp_bond.comp_id
+_chem_comp_bond.atom_id_1
+_chem_comp_bond.atom_id_2
+_chem_comp_bond.type
+_chem_comp_bond.aromatic
+_chem_comp_bond.value_dist_nucleus
+_chem_comp_bond.value_dist_nucleus_esd
+_chem_comp_bond.value_dist
+_chem_comp_bond.value_dist_esd
+PGE          C1          O1      SINGLE       n     1.414  0.0200     1.414  0.0200
+PGE          C1          C2      SINGLE       n     1.496  0.0200     1.496  0.0200
+PGE          C2          O2      SINGLE       n     1.423  0.0106     1.423  0.0106
+PGE          O2          C3      SINGLE       n     1.423  0.0106     1.423  0.0106
+PGE          C3          C4      SINGLE       n     1.496  0.0200     1.496  0.0200
+PGE          C4          O3      SINGLE       n     1.423  0.0106     1.423  0.0106
+PGE          O4          C6      SINGLE       n     1.414  0.0200     1.414  0.0200
+PGE          C6          C5      SINGLE       n     1.496  0.0200     1.496  0.0200
+PGE          C5          O3      SINGLE       n     1.423  0.0106     1.423  0.0106
+PGE          C1          H1      SINGLE       n     1.089  0.0100     0.980  0.0144
+PGE          C1         H12      SINGLE       n     1.089  0.0100     0.980  0.0144
+PGE          O1         HO1      SINGLE       n     0.970  0.0120     0.846  0.0200
+PGE          C2          H2      SINGLE       n     1.089  0.0100     0.982  0.0175
+PGE          C2         H22      SINGLE       n     1.089  0.0100     0.982  0.0175
+PGE          C3          H3      SINGLE       n     1.089  0.0100     0.982  0.0175
+PGE          C3         H32      SINGLE       n     1.089  0.0100     0.982  0.0175
+PGE          C4          H4      SINGLE       n     1.089  0.0100     0.982  0.0175
+PGE          C4         H42      SINGLE       n     1.089  0.0100     0.982  0.0175
+PGE          O4         HO4      SINGLE       n     0.970  0.0120     0.846  0.0200
+PGE          C6          H6      SINGLE       n     1.089  0.0100     0.980  0.0144
+PGE          C6         H62      SINGLE       n     1.089  0.0100     0.980  0.0144
+PGE          C5          H5      SINGLE       n     1.089  0.0100     0.982  0.0175
+PGE          C5         H52      SINGLE       n     1.089  0.0100     0.982  0.0175
+loop_
+_chem_comp_angle.comp_id
+_chem_comp_angle.atom_id_1
+_chem_comp_angle.atom_id_2
+_chem_comp_angle.atom_id_3
+_chem_comp_angle.value_angle
+_chem_comp_angle.value_angle_esd
+PGE          O1          C1          C2     112.284    1.56
+PGE          O1          C1          H1     109.012    1.50
+PGE          O1          C1         H12     109.012    1.50
+PGE          C2          C1          H1     109.198    1.50
+PGE          C2          C1         H12     109.198    1.50
+PGE          H1          C1         H12     108.093    1.50
+PGE          C1          O1         HO1     109.347    1.86
+PGE          C1          C2          O2     109.904    1.68
+PGE          C1          C2          H2     109.795    1.50
+PGE          C1          C2         H22     109.795    1.50
+PGE          O2          C2          H2     109.691    1.50
+PGE          O2          C2         H22     109.691    1.50
+PGE          H2          C2         H22     108.274    1.50
+PGE          C2          O2          C3     112.795    1.50
+PGE          O2          C3          C4     109.613    1.74
+PGE          O2          C3          H3     109.691    1.50
+PGE          O2          C3         H32     109.691    1.50
+PGE          C4          C3          H3     109.729    1.50
+PGE          C4          C3         H32     109.729    1.50
+PGE          H3          C3         H32     108.274    1.50
+PGE          C3          C4          O3     109.613    1.74
+PGE          C3          C4          H4     109.729    1.50
+PGE          C3          C4         H42     109.729    1.50
+PGE          O3          C4          H4     109.691    1.50
+PGE          O3          C4         H42     109.691    1.50
+PGE          H4          C4         H42     108.274    1.50
+PGE          C6          O4         HO4     109.347    1.86
+PGE          O4          C6          C5     112.284    1.56
+PGE          O4          C6          H6     109.012    1.50
+PGE          O4          C6         H62     109.012    1.50
+PGE          C5          C6          H6     109.198    1.50
+PGE          C5          C6         H62     109.198    1.50
+PGE          H6          C6         H62     108.093    1.50
+PGE          C6          C5          O3     109.904    1.68
+PGE          C6          C5          H5     109.795    1.50
+PGE          C6          C5         H52     109.795    1.50
+PGE          O3          C5          H5     109.691    1.50
+PGE          O3          C5         H52     109.691    1.50
+PGE          H5          C5         H52     108.274    1.50
+PGE          C4          O3          C5     112.795    1.50
+loop_
+_chem_comp_tor.comp_id
+_chem_comp_tor.id
+_chem_comp_tor.atom_id_1
+_chem_comp_tor.atom_id_2
+_chem_comp_tor.atom_id_3
+_chem_comp_tor.atom_id_4
+_chem_comp_tor.value_angle
+_chem_comp_tor.value_angle_esd
+_chem_comp_tor.period
+PGE             sp3_sp3_1          C2          C1          O1         HO1     180.000    10.0     3
+PGE             sp3_sp3_4          O1          C1          C2          O2     180.000    10.0     3
+PGE            sp3_sp3_13          C1          C2          O2          C3     180.000    10.0     3
+PGE            sp3_sp3_16          C4          C3          O2          C2     180.000    10.0     3
+PGE            sp3_sp3_19          O2          C3          C4          O3     180.000    10.0     3
+PGE            sp3_sp3_28          C3          C4          O3          C5     180.000    10.0     3
+PGE            sp3_sp3_31          C5          C6          O4         HO4     180.000    10.0     3
+PGE            sp3_sp3_34          O3          C5          C6          O4     180.000    10.0     3
+PGE            sp3_sp3_43          C6          C5          O3          C4     180.000    10.0     3
+loop_
+_pdbx_chem_comp_descriptor.comp_id
+_pdbx_chem_comp_descriptor.type
+_pdbx_chem_comp_descriptor.program
+_pdbx_chem_comp_descriptor.program_version
+_pdbx_chem_comp_descriptor.descriptor
+PGE           SMILES              ACDLabs 10.04                                         OCCOCCOCCO
+PGE SMILES_CANONICAL               CACTVS 3.341                                         OCCOCCOCCO
+PGE           SMILES               CACTVS 3.341                                         OCCOCCOCCO
+PGE SMILES_CANONICAL "OpenEye OEToolkits" 1.5.0                                       C(COCCOCCO)O
+PGE           SMILES "OpenEye OEToolkits" 1.5.0                                       C(COCCOCCO)O
+PGE            InChI                InChI  1.03 InChI=1S/C6H14O4/c7-1-3-9-5-6-10-4-2-8/h7-8H,1-6H2
+PGE         InChIKey                InChI  1.03                        ZIBGPFATKBEMQZ-UHFFFAOYSA-N
+loop_
+_pdbx_chem_comp_description_generator.comp_id
+_pdbx_chem_comp_description_generator.program_name
+_pdbx_chem_comp_description_generator.program_version
+_pdbx_chem_comp_description_generator.descriptor
+PGE acedrg               243         "dictionary generator"                  
+PGE acedrg_database      11          "data source"                           
+PGE rdkit                2017.03.2   "Chemoinformatics tool"
+PGE refmac5              5.8.0238    "optimization tool"                     

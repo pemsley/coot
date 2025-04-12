@@ -1,0 +1,126 @@
+#
+data_comp_list
+loop_
+_chem_comp.id
+_chem_comp.three_letter_code
+_chem_comp.name
+_chem_comp.group
+_chem_comp.number_atoms_all
+_chem_comp.number_atoms_nh
+_chem_comp.desc_level
+IPA     IPA      "ISOPROPYL ALCOHOL"     NON-POLYMER     12     4     .     
+#
+data_comp_IPA
+#
+loop_
+_chem_comp_atom.comp_id
+_chem_comp_atom.atom_id
+_chem_comp_atom.type_symbol
+_chem_comp_atom.type_energy
+_chem_comp_atom.charge
+_chem_comp_atom.x
+_chem_comp_atom.y
+_chem_comp_atom.z
+IPA     C1      C       CH3     0       62.280      -8.498      35.117      
+IPA     C2      C       CH1     0       61.447      -7.710      34.137      
+IPA     C3      C       CH3     0       59.991      -7.525      34.489      
+IPA     O2      O       OH1     0       61.558      -8.294      32.829      
+IPA     H11     H       H       0       62.847      -9.126      34.634      
+IPA     H12     H       H       0       61.704      -8.991      35.727      
+IPA     H13     H       H       0       62.841      -7.887      35.628      
+IPA     H2      H       H       0       61.850      -6.803      34.074      
+IPA     H31     H       H       0       59.439      -7.726      33.712      
+IPA     H32     H       H       0       59.840      -6.602      34.760      
+IPA     H33     H       H       0       59.745      -8.119      35.219      
+IPA     HO2     H       H       0       61.223      -9.073      32.847      
+loop_
+_chem_comp_bond.comp_id
+_chem_comp_bond.atom_id_1
+_chem_comp_bond.atom_id_2
+_chem_comp_bond.type
+_chem_comp_bond.aromatic
+_chem_comp_bond.value_dist_nucleus
+_chem_comp_bond.value_dist_nucleus_esd
+_chem_comp_bond.value_dist
+_chem_comp_bond.value_dist_esd
+IPA          C1          C2      SINGLE       n     1.494  0.0200     1.494  0.0200
+IPA          C2          C3      SINGLE       n     1.494  0.0200     1.494  0.0200
+IPA          C2          O2      SINGLE       n     1.430  0.0200     1.430  0.0200
+IPA          C1         H11      SINGLE       n     1.089  0.0100     0.974  0.0145
+IPA          C1         H12      SINGLE       n     1.089  0.0100     0.974  0.0145
+IPA          C1         H13      SINGLE       n     1.089  0.0100     0.974  0.0145
+IPA          C2          H2      SINGLE       n     1.089  0.0100     0.994  0.0123
+IPA          C3         H31      SINGLE       n     1.089  0.0100     0.974  0.0145
+IPA          C3         H32      SINGLE       n     1.089  0.0100     0.974  0.0145
+IPA          C3         H33      SINGLE       n     1.089  0.0100     0.974  0.0145
+IPA          O2         HO2      SINGLE       n     0.970  0.0120     0.848  0.0200
+loop_
+_chem_comp_angle.comp_id
+_chem_comp_angle.atom_id_1
+_chem_comp_angle.atom_id_2
+_chem_comp_angle.atom_id_3
+_chem_comp_angle.value_angle
+_chem_comp_angle.value_angle_esd
+IPA          C2          C1         H11     109.485    1.50
+IPA          C2          C1         H12     109.485    1.50
+IPA          C2          C1         H13     109.485    1.50
+IPA         H11          C1         H12     109.425    1.50
+IPA         H11          C1         H13     109.425    1.50
+IPA         H12          C1         H13     109.425    1.50
+IPA          C1          C2          C3     113.200    2.75
+IPA          C1          C2          O2     109.657    2.35
+IPA          C1          C2          H2     108.084    1.92
+IPA          C3          C2          O2     109.657    2.35
+IPA          C3          C2          H2     108.084    1.92
+IPA          O2          C2          H2     107.705    2.44
+IPA          C2          C3         H31     109.485    1.50
+IPA          C2          C3         H32     109.485    1.50
+IPA          C2          C3         H33     109.485    1.50
+IPA         H31          C3         H32     109.425    1.50
+IPA         H31          C3         H33     109.425    1.50
+IPA         H32          C3         H33     109.425    1.50
+IPA          C2          O2         HO2     108.448    2.60
+loop_
+_chem_comp_tor.comp_id
+_chem_comp_tor.id
+_chem_comp_tor.atom_id_1
+_chem_comp_tor.atom_id_2
+_chem_comp_tor.atom_id_3
+_chem_comp_tor.atom_id_4
+_chem_comp_tor.value_angle
+_chem_comp_tor.value_angle_esd
+_chem_comp_tor.period
+IPA             sp3_sp3_2         H11          C1          C2          C3     -60.000    10.0     3
+IPA            sp3_sp3_10          C1          C2          C3         H31     180.000    10.0     3
+IPA            sp3_sp3_20          C1          C2          O2         HO2      60.000    10.0     3
+loop_
+_chem_comp_chir.comp_id
+_chem_comp_chir.id
+_chem_comp_chir.atom_id_centre
+_chem_comp_chir.atom_id_1
+_chem_comp_chir.atom_id_2
+_chem_comp_chir.atom_id_3
+_chem_comp_chir.volume_sign
+IPA    chir_1    C2    O2    C1    C3    both
+loop_
+_pdbx_chem_comp_descriptor.comp_id
+_pdbx_chem_comp_descriptor.type
+_pdbx_chem_comp_descriptor.program
+_pdbx_chem_comp_descriptor.program_version
+_pdbx_chem_comp_descriptor.descriptor
+IPA           SMILES              ACDLabs 11.02                              OC(C)C
+IPA SMILES_CANONICAL               CACTVS 3.352                              CC(C)O
+IPA           SMILES               CACTVS 3.352                              CC(C)O
+IPA SMILES_CANONICAL "OpenEye OEToolkits" 1.7.0                              CC(C)O
+IPA           SMILES "OpenEye OEToolkits" 1.7.0                              CC(C)O
+IPA            InChI                InChI  1.03 InChI=1S/C3H8O/c1-3(2)4/h3-4H,1-2H3
+IPA         InChIKey                InChI  1.03         KFZMGEQAYNKOFK-UHFFFAOYSA-N
+loop_
+_pdbx_chem_comp_description_generator.comp_id
+_pdbx_chem_comp_description_generator.program_name
+_pdbx_chem_comp_description_generator.program_version
+_pdbx_chem_comp_description_generator.descriptor
+IPA acedrg               243         "dictionary generator"                  
+IPA acedrg_database      11          "data source"                           
+IPA rdkit                2017.03.2   "Chemoinformatics tool"
+IPA refmac5              5.8.0238    "optimization tool"                     
