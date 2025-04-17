@@ -4804,6 +4804,10 @@ that you wish to delete.               </property>
                     <property name="label" translatable="yes">Show Residue Environment?</property>
                     <property name="can-focus">1</property>
                     <property name="use-underline">1</property>
+                    <property name="margin-start">4</property>
+                    <property name="margin-end">4</property>
+                    <property name="margin-top">4</property>
+                    <property name="margin-bottom">4</property>
                     <signal name="toggled" handler="on_environment_distance_checkbutton_toggled" swapped="no"/>
                   </object>
                 </child>
