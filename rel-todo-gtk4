@@ -31,6 +31,8 @@ What is the status of anisotropic atom scaling? (Claus)
 Update xdg repo with new try/catch code.
 * Done.
 
+put the correct coot version in export-gltf.cc
+
 chapi needs a quick get-monomer (github) and get-code (pdbe)
 
 select fitting map should be an overlay, I think.

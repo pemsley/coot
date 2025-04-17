@@ -3,19 +3,20 @@
 
 o WTA carbohydrate ::: 6
 
-o "Proportional editing" molecule rotation ::: 2
-
 o Add anisotropic radius scaling from Claus. Need to check mails or something
   for scaling code. ::: 1
-
-o Rework monomer library usage - make it more like Moorhen. ::: 3
 
 o try texture atlas for text - make a new test app from scratch ::: 4
 
 o have another look at Rama plot ::: 1
-  So far it seems like a driver bug.
 
-o check 2d ligand view on new MacBook Pro. ::: 0.5
+o "Proportional editing" molecule rotation ::: 2
+
+o What is going wrong with Chemical Features? ::: 1
+
+o Validation json. ::: 2
+
+o Thierry Fischmann mail ::: 2
 
 --- Other Items ---
 
@@ -42,3 +43,10 @@ o mmcif/5-char ligand id/RSR - what's going wrong? ::: 0.5
   Now the issue is duplication of the model on writing. mmdb bug.
   Solved now? Am I using the right version?
 
+o check 2d ligand view on new MacBook Pro. ::: 0.5
+* is fine.
+
+o Add api for gltf export for pbr roughness-smoothness and metalicity ::: 0.5
+* Done
+
+o Rework monomer library usage - make it more like Moorhen. ::: 4
