@@ -32,19 +32,23 @@ namespace coot {
                                           int imol, // need for dictionaries
                                           const residue_spec_t &parent,
                                           const std::pair<std::string, std::string> &res_pair,
+                                          unsigned int level,
                                           float new_atoms_b_factor,
                                           protein_geometry &geom,
-                                          const clipper::Xmap<float> *xmap); // ca be null
+                                          const clipper::Xmap<float> *xmap, // xmap be null
+                                          float map_weight);
 
       residue_spec_t
       add_linked_residue(mmdb::Manager *mol,
                          int imol, // because dictionaries
                          const residue_spec_t &parent,
                          const std::pair<std::string, std::string> &new_link_types,
+                         unsigned int level,
                          float new_atoms_b_factor,
                          int mode,
                          protein_geometry &geom,
-                         const clipper::Xmap<float> *xmap);
+                         const clipper::Xmap<float> *xmap,
+                         float map_weight);
 
       // make this a coord utils function? (And others here, perhaps).
       // This adds a header - that is all..

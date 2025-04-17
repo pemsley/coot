@@ -1403,6 +1403,19 @@ coot::dictionary_residue_restraints_t::in_same_ring(const std::string &atom_name
    return match;
 }
 
+void
+coot::dictionary_residue_restraints_t::add_pyranose_pseudo_ring_plane_restraints(const std::string &plane_id,
+                                                                                 std::vector<std::string> &atom_name_vec,
+                                                                                 double esd) {
+
+   if (atom_name_vec.size() > 2) { // there are 4 of course
+      dict_plane_restraint_t pr(plane_id, atom_name_vec, esd);
+      plane_restraint.push_back(pr);
+   }
+
+}
+
+
 
 
 bool

@@ -1,3 +1,4 @@
+
 /* coot-utils/coot-map-utils.hh
  * 
  * Copyright 2004, 2005, 2006 The University of York
@@ -91,6 +92,9 @@ namespace coot {
 
       float z_weighted_density_score_new(const std::vector<std::pair<mmdb::Atom *, float> > &atom_atom_number_pairs,
 					 const clipper::Xmap<float> &map);
+
+      void debug_z_weighted_density_score_new(const std::vector<std::pair<mmdb::Atom *, float> > &atom_atom_number_pairs,
+                                              const clipper::Xmap<float> &map);
 
       float z_weighted_density_score(const minimol::molecule &mol,
 				     const std::vector<std::pair<std::string, int> > &atom_number_list,

@@ -1504,7 +1504,7 @@ coot::atom_tree_t::set_dihedral(const coot::atom_quad &quad, double angle,
 
    dihedral_angle = quad.torsion();
    return dihedral_angle;
-} 
+}
 
 
 // this can throw an exception
@@ -1515,7 +1515,7 @@ std::vector<double>
 coot::atom_tree_t::set_dihedral_multi(const std::vector<tree_dihedral_info_t> &di) {
 
    // tree_dihedral_info_t is an atom_name_quad and a angle in degrees.
-   // 
+   //
    std::vector<double> v(di.size());
    for (unsigned int id=0; id<di.size(); id++) {
       try {
@@ -1537,10 +1537,10 @@ coot::atom_tree_t::set_dihedral_multi(const std::vector<tree_dihedral_quad_info_
    for (unsigned int iquad=0; iquad<quads.size(); iquad++) {
       coot::map_index_t index2 = get_index(quads[iquad].quad.atom_2);
       coot::map_index_t index3 = get_index(quads[iquad].quad.atom_3);
-      if (0) 
+      if (false)
          std::cout << "testing if  " << quads[iquad].fixed_atom_index.index() << " "
                    << coot::atom_spec_t(atom_selection[quads[iquad].fixed_atom_index.index()]) << " "
-                   << "is a forward atom of " 
+                   << "is a forward atom of "
                    << index2.index() << " "
                    << coot::atom_spec_t(atom_selection[index2.index()]) << " "
                    << std::endl;
@@ -1556,7 +1556,7 @@ coot::atom_tree_t::set_dihedral_multi(const std::vector<tree_dihedral_quad_info_
       if (0)
          std::cout << "   result: " << iff << "  index3_is_forward_of_index2: "
                    << index3_is_forward_of_index2 << std::endl;
-      
+
       bool xor_reverse = ! (iff ^ index3_is_forward_of_index2);
       v[iquad] = set_dihedral(quads[iquad].quad, quads[iquad].dihedral_angle, xor_reverse);
    }

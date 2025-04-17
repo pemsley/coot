@@ -1,4 +1,6 @@
 
+#include <fstream>
+#include "extra-restraints.hh"
 #include "geometry/residue-and-atom-specs.hh"
 #include "coot-utils/coot-map-utils.hh"
 #include "coot-utils/coot-coord-utils.hh"
@@ -10,6 +12,7 @@
 #include "simple-restraint.hh"
 
 #include "add-linked-cho.hh"
+#include "utils/coot-utils.hh"
 
 int
 coot::cho::clashes_with_symmetry(mmdb::Manager *mol, const coot::residue_spec_t &res_spec, float clash_dist,
@@ -420,19 +423,216 @@ coot::cho::replace_coords(mmdb::Manager *fragment_mol, mmdb::Manager *mol) {
    }
 }
 
-
+#include  <filesystem>
 
 coot::residue_spec_t
 coot::cho::add_linked_residue(mmdb::Manager *mol,
                               int imol,
                               const residue_spec_t &parent,
                               const std::pair<std::string, std::string> &new_link_types,
+                              unsigned int level,
                               float new_atoms_b_factor,
                               int mode,
                               coot::protein_geometry &geom,
-                              const clipper::Xmap<float> *xmap) {
+                              const clipper::Xmap<float> *xmap,
+                              float map_weight) {
 
-   int n_trials = 5000;
+
+   auto make_refinement_residues = [](const std::vector<residue_spec_t> &residue_specs,
+                                      mmdb::Manager *mol) {
+
+      std::vector<std::pair<bool,mmdb::Residue *> > residues;
+      for (const auto &r : residue_specs) {
+         mmdb::Residue *residue_p = util::get_residue(r, mol);
+         if (residue_p) {
+            residues.push_back(std::make_pair(false, residue_p));
+         }
+      }
+      return residues;
+   };
+
+   auto debug_coords = [] (mmdb::Manager *mol) {
+      int icount = 0;
+      for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+         mmdb::Model *model_p = mol->GetModel(imod);
+         if (model_p) {
+            int n_chains = model_p->GetNumberOfChains();
+            for (int ichain=0; ichain<n_chains; ichain++) {
+               mmdb::Chain *chain_p = model_p->GetChain(ichain);
+               int n_res = chain_p->GetNumberOfResidues();
+               for (int ires=0; ires<n_res; ires++) {
+                  mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                  if (residue_p) {
+                     int n_atoms = residue_p->GetNumberOfAtoms();
+                     for (int iat=0; iat<n_atoms; iat++) {
+                        mmdb::Atom *at = residue_p->GetAtom(iat);
+                        if (! at->isTer()) {
+                           if (icount < 10) {
+                              std::cout << "atom: " << icount << " "
+                                        << at->GetChainID() << " "
+                                        << at->residue->GetSeqNum() << " "
+                                        << at->GetAtomName() << " "
+                                        << at->x << " " << at->y << " " << at->z << " "
+                                        << std::endl;
+                           } else {
+                              break;
+                           }
+                           icount++;
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      }
+   };
+
+   auto get_glyco_dir_path = [] () -> std::filesystem::path {
+      // look in package_data_dir ... share/coot/data/cho-models
+      std::string pkg_data_dir = package_data_dir();
+      std::filesystem::path pkg_data_path = std::filesystem::path(pkg_data_dir);
+      std::filesystem::path cho_models_path = pkg_data_path / "data" / "cho-models";
+      std::cout << "debug:: pkd_data_dir is " << pkg_data_dir << std::endl;
+      return cho_models_path;
+   };
+
+   class atom_pair_restraints_t {
+   public:
+      std::string atom_name_1;
+      std::string atom_name_2;
+      residue_spec_t parent_residue_spec;
+      residue_spec_t new_residue_spec;
+      double target_dist;
+      double sigma;
+      atom_pair_restraints_t(const std::string &a1, const std::string &a2,
+                             const residue_spec_t p, const residue_spec_t &n,
+                             double t, double s) : atom_name_1(a1), atom_name_2(a2),
+                                                   parent_residue_spec(p), new_residue_spec(n),
+                                                   target_dist(t), sigma(s) {}
+   };
+
+   auto add_extra_restraints = [get_glyco_dir_path] (coot::restraints_container_t *restraints_p,
+                                                     int imol,
+                                                     unsigned int level,
+                                                     const residue_spec_t &parent_spec,
+                                                     const std::string &parent_type,
+                                                     const residue_spec_t &new_residue_spec,
+                                                     const std::string &new_type,
+                                                     const std::string &link_type,
+                                                     const protein_geometry &geom) {
+
+      std::vector<atom_pair_restraints_t> extra_restraints;
+
+      //  new-type + link + parent-type
+      std::string fn = "model-level-" + std::to_string(level) + "-" + new_type + "-" + link_type + "-" + new_type + ".tab";
+      std::filesystem::path cho_models_path = get_glyco_dir_path();
+      std::filesystem::path model_path = cho_models_path / fn;
+      std::cout << "model file name: " << model_path.string() << std::endl;
+      if (std::filesystem::exists(model_path)) {
+         std::ifstream f(model_path);
+         if (f) {
+            std::vector<std::string> lines;
+            std::string line;
+            while (std::getline(f, line)) {
+               lines.push_back(line);
+            }
+            if (! lines.empty()) {
+               for (const auto &line : lines) {
+                  std::vector<std::string> parts = coot::util::split_string(line, " ");
+                  if (parts.size() == 7) {
+                     const std::string atom_name_1 = parts[0];
+                     const std::string atom_name_2 = parts[1];
+                     double target_dist = coot::util::string_to_double(parts[2]);
+                     double rmsd        = coot::util::string_to_double(parts[3]);
+                     unsigned int n     = coot::util::string_to_int(parts[4]);
+                     double d           = coot::util::string_to_double(parts[5]);
+                     // parts 6 is mod-sarle
+                     std::cout << "model: " << atom_name_1 << " " << atom_name_2 << " " << target_dist << " " << rmsd
+                               << std::endl;
+                     if (n > 20) {
+                        if (d < 0.42) {
+                           double s = 0.05;
+                           atom_pair_restraints_t apr(atom_name_1, atom_name_2, parent_spec, new_residue_spec,
+                                                      target_dist, s);
+                           extra_restraints.push_back(apr);
+                        }
+                     }
+                  }
+               }
+            }
+            f.close();
+         }
+      }
+
+      // let's add them outside the loop
+      if (!extra_restraints.empty()) {
+         extra_restraints_t er;
+         for (const auto &r : extra_restraints) {
+            coot::atom_spec_t atom_spec_1(r.parent_residue_spec.chain_id, r.parent_residue_spec.res_no,
+                                          r.parent_residue_spec.ins_code, r.atom_name_1, "");
+            coot::atom_spec_t atom_spec_2(r.new_residue_spec.chain_id, r.new_residue_spec.res_no,
+                                          r.new_residue_spec.ins_code, r.atom_name_2, "");
+            extra_restraints_t::extra_bond_restraint_t bond(atom_spec_1, atom_spec_2, r.target_dist, r.sigma);
+            er.bond_restraints.push_back(bond);
+         }
+         std::string descr("inter-residue CHO distance retraints");
+         restraints_p->add_extra_restraints(imol, descr, er, geom);
+      }
+   };
+
+   auto refine_direct = [add_extra_restraints] (const std::vector<std::pair<bool,mmdb::Residue *> > &residues,
+                                                mmdb::Manager *mol, int imol_no,
+                                                const std::vector<mmdb::Link> &links,
+                                                unsigned int level, // for extra restraints
+                                                const residue_spec_t &parent_spec,
+                                                const std::string &parent_type,
+                                                const residue_spec_t &new_residue_spec,
+                                                const std::string &new_type,
+                                                const std::string &link_type,
+                                                const protein_geometry &geom,
+                                                const std::vector<coot::atom_spec_t> &fixed_atom_specs,
+                                                const clipper::Xmap<float> &xmap,
+                                                double map_weight,
+                                                double torsion_restraints_weight) {
+
+      unsigned int number_of_threads = 4;
+      unsigned int n_cycles = 1000;
+      coot::restraints_container_t restraints(residues, links, geom, mol, fixed_atom_specs, &xmap);
+
+      if (false)
+         restraints.set_quiet_reporting();
+      restraints.set_torsion_restraints_weight(torsion_restraints_weight);
+      restraints.add_map(map_weight);
+      restraint_usage_Flags flags = TYPICAL_RESTRAINTS_WITH_TORSIONS;
+      pseudo_restraint_bond_type pseudos = NO_PSEUDO_BONDS;
+
+      ctpl::thread_pool local_thread_pool(number_of_threads);
+      restraints.thread_pool(&local_thread_pool, number_of_threads);
+      int imol = imol_no;
+      bool do_auto_helix_restraints = true;
+      bool do_auto_strand_restraints = false;
+      bool do_h_bond_restraints = false;
+      bool do_residue_internal_torsions = true;
+      bool make_trans_peptide_restraints = true;
+      double rama_plot_weight = 1.0;
+      bool do_rama_plot_restraints = false;
+      bool print_chi_sq_flag = true;
+      restraints.make_restraints(imol, geom, flags,
+                                 do_residue_internal_torsions,
+                                 make_trans_peptide_restraints,
+                                 rama_plot_weight, do_rama_plot_restraints,
+                                 do_auto_helix_restraints,
+                                 do_auto_strand_restraints,
+                                 do_h_bond_restraints,
+                                 pseudos);
+      add_extra_restraints(&restraints, imol_no, level, parent_spec, parent_type,
+                           new_residue_spec, new_type, link_type, geom); // modify restraints
+      restraints.minimize(flags, n_cycles, print_chi_sq_flag);
+      restraints.write_new_atoms("refined.pdb");
+
+   };
+
+   int n_trials = 500;
    int cif_dictionary_read_number = 60; // mergh. Pass a reference to this?
 
    const std::string &new_link     = new_link_types.first;
@@ -441,7 +641,7 @@ coot::cho::add_linked_residue(mmdb::Manager *mol,
    } else {
       int status = geom.try_dynamic_add(new_res_type, cif_dictionary_read_number);
       if (status == 0) { // fail
-         std::cout << "WARNING:: failed to add dictionary for " << new_res_type << std::endl;
+         std::cout << "WARNING:: failed to add dictionary for type \"" << new_res_type << "\"" << std::endl;
          std::cout << "WARNING:: add_linked_residue() stops here " << std::endl;
          return residue_spec_t();
       }
@@ -456,19 +656,42 @@ coot::cho::add_linked_residue(mmdb::Manager *mol,
             std::vector<residue_spec_t > residue_specs;
             residue_specs.push_back(parent);
             residue_specs.push_back(new_res_spec);
+            std::string parent_type;
+            mmdb::Residue *parent_residue_p = util::get_residue(parent, mol);
+            if (parent_residue_p)
+               parent_type = parent_residue_p->GetResName();
+            coot::residue_spec_t parent_spec(parent_residue_p);
             mmdb::Manager *moving_mol = util::create_mmdbmanager_from_residue_specs(residue_specs, mol);
 
-            int n_rounds_of_fit_and_refine = 3;
+            int n_rounds_of_fit_and_refine = 1;
             std::vector<std::pair<bool, clipper::Coord_orth> > avoid_these_atoms;
             for (int ii=0; ii<n_rounds_of_fit_and_refine; ii++) {
-               std::string file_name = "mrtf-pre-" + std::to_string(ii) + ".pdb";
-               moving_mol->WritePDBASCII(file_name.c_str());
+               // std::string file_name = "mrtf-pre-" + std::to_string(ii) + ".pdb";
+               // moving_mol->WritePDBASCII(file_name.c_str());
                multi_residue_torsion_fit_map(imol, moving_mol, *xmap, avoid_these_atoms, n_trials, &geom);
-               file_name = "mrtf-post-" + std::to_string(ii) + ".pdb";
-               moving_mol->WritePDBASCII(file_name.c_str());
+               // file_name = "mrtf-post-" + std::to_string(ii) + ".pdb";
+               // moving_mol->WritePDBASCII(file_name.c_str());
 
                if (mode == 3) {
-                  // refine the residue_specs. Not sure that I can do that here.
+
+                  std::vector<std::pair<bool,mmdb::Residue *> > residues =
+                     make_refinement_residues(residue_specs, moving_mol);
+                  std::vector<mmdb::Link> links;
+                  std::vector<atom_spec_t> fixed_atom_specs;
+                  double torsions_weight = 6.0;
+
+                  // debug_coords(moving_mol);
+                  refine_direct(residues, moving_mol, imol, links, level,
+                                parent_spec, parent_type, new_res_spec, new_res_type, new_link,
+                                geom, fixed_atom_specs,
+                                *xmap, map_weight, torsions_weight);
+
+                  // debug_coords(moving_mol);
+                  if (false) {
+                     std::string file_name = "post-refine-" + std::to_string(ii) + ".pdb";
+                     moving_mol->WritePDBASCII(file_name.c_str());
+                  }
+                  replace_coords(moving_mol, mol);
                }
             }
             // OK, we we want to add the atoms of moving_mol into mol
@@ -485,11 +708,13 @@ coot::residue_spec_t
 coot::cho::add_linked_residue_add_cho_function(mmdb::Manager *mol, int imol,
                                                const coot::residue_spec_t &parent,
                                                const std::pair<std::string, std::string> &new_link_types,
+                                               unsigned int level,
                                                float new_atoms_b_factor,
                                                coot::protein_geometry &geom,
-                                               const clipper::Xmap<float> *xmap) { // can be null
+                                               const clipper::Xmap<float> *xmap,
+                                               float map_weight) { // can be null
 
-   int mode = 2; // mode is either 1: add  2: add and fit  3: add, fit and refine
+   int mode = 3; // mode is either 1: add  2: add and fit  3: add, fit and refine
 
    const std::string &new_link     = new_link_types.first;
    const std::string &new_res_type = new_link_types.second;
@@ -497,10 +722,11 @@ coot::cho::add_linked_residue_add_cho_function(mmdb::Manager *mol, int imol,
    mmdb::Residue *residue_p = util::get_residue(parent, mol);
    coot::glyco_tree_t t(residue_p, mol, &geom); // geom is not const
    std::vector<mmdb::Residue *> tree_residues = t.residues(parent);
-   coot::residue_spec_t new_res_spec = add_linked_residue(mol, imol, parent, new_link_types,
-                                                          new_atoms_b_factor, mode, geom, xmap);
+   coot::residue_spec_t new_res_spec = add_linked_residue(mol, imol, parent, new_link_types, level,
+                                                          new_atoms_b_factor, mode, geom, xmap, map_weight);
 
    if (true) {
+      // if mode is 3, then this will be a post-refined model.
       std::string fn = "added-" + new_link + "-" + new_res_type + ".pdb";
       mol->WritePDBASCII(fn.c_str());
    }
