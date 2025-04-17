@@ -97,8 +97,8 @@ coot::simple_mesh_t::export_to_gltf(const std::string &file_name,
    mat.normalTexture        = tinygltf::NormalTextureInfo();
    mat.occlusionTexture     = tinygltf::OcclusionTextureInfo();
    mat.emissiveTexture      = tinygltf::TextureInfo();
-   mat.pbrMetallicRoughness.metallicFactor = 0.0;  // shiny plastic
-   mat.pbrMetallicRoughness.roughnessFactor = 0.2;
+   mat.pbrMetallicRoughness.metallicFactor = metalicity;
+   mat.pbrMetallicRoughness.roughnessFactor = roughness;
 
    model.materials.push_back(mat); // index 0
    int material_index = 0;
