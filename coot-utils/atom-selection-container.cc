@@ -944,13 +944,17 @@ make_asc(mmdb::Manager *mol, bool transfer_atom_index_flag) {
    asc.mol->GetSelIndex(asc.SelectionHandle, asc.atom_selection, asc.n_selected_atoms);
 
    int uddHnd = mol->RegisterUDInteger(mmdb::UDR_ATOM, "atom index");
+   if (false)
+      std::cout << "debug:: in make_asc(): uddHnd " << uddHnd << " for 'atom index' for mol "
+                << mol << std::endl;
    if (uddHnd < 0) {
       std::cout << "ERROR:: ----------------- atom index registration failed.\n";
    } else {
       // std::cout << "in make_asc() saving UDDAtomIndexHandle " << uddHnd << std::endl;
       asc.UDDAtomIndexHandle = uddHnd;
-      for (int i=0; i<asc.n_selected_atoms; i++)
-         asc.atom_selection[i]->PutUDData(uddHnd,i);
+      for (int i=0; i<asc.n_selected_atoms; i++) {
+         int status = asc.atom_selection[i]->PutUDData(uddHnd,i);
+      }
    }
    asc.read_error_message = "No error";
    asc.read_success = 1;

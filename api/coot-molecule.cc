@@ -4012,6 +4012,20 @@ coot::molecule_t::fill_partial_residues(const clipper::Xmap<float> &xmap, protei
    return status;
 }
 
+
+#include "ideal/add-linked-cho.hh"
+void
+coot::molecule_t::add_named_glyco_tree(const std::string &glycosylation_name, const std::string &chain_id, int res_no,
+                                       const clipper::Xmap<float> &xmap,
+                                       coot::protein_geometry *geom) {
+
+   coot::cho::add_named_glyco_tree(glycosylation_name, atom_sel.mol, imol_no,
+                                   xmap, geom, chain_id, res_no);
+
+}
+
+
+
 // --------------- rigid body fit
 #include "rigid-body-fit.hh"
 int

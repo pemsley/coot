@@ -476,7 +476,7 @@ coot::multi_residue_torsion_fit_map(int imol,
 	 // FIXME for future, calculate link_angle_atom_triples, using something analoguous to
 	 // torsionable_link_quads()
 
-	 if (true) // debug
+	 if (false) // debug
 	    for (unsigned int iquad=0; iquad<quads.size(); iquad++)
 	       std::cout << "DEBUG multi-residue-torsion-fit-map: tosion quads:  "
                          << iquad << " "
@@ -521,7 +521,7 @@ coot::multi_residue_torsion_fit_map(int imol,
 	       small_torsion_changes = true;
 	    }
 
-	    if (true)
+	    if (false)
 	       std::cout << "Round " << itrial << " of " << n_trials << " for " << n_quads << " quads "
 			 << std::endl;
 
@@ -554,7 +554,7 @@ coot::multi_residue_torsion_fit_map(int imol,
 	       std::cout << std::endl;
 	    }
 
-            if (true) {
+            if (false) {
                std::string file_name = "A-trial-" + std::to_string(itrial) + ".pdb";
                mol->WritePDBASCII(file_name.c_str());
             }
@@ -602,8 +602,9 @@ coot::multi_residue_torsion_fit_map(int imol,
 	       }
 
 	       if (this_score > best_score) {
-                  std::cout << ".... improved! was " << best_score << " now " << this_score << std::endl;
-                  util::debug_z_weighted_density_score_new(atoms,xmap);
+                  std::cout << "Round " << itrial << " improved! was " << best_score
+                            << " now " << this_score << std::endl;
+                  // util::debug_z_weighted_density_score_new(atoms,xmap);
 		  // save best torsion angles
 		  best_score = this_score;
 		  for (int iquad=0; iquad<n_quads; iquad++)
@@ -669,10 +670,10 @@ coot::get_rand_angle(double current_angle,
       r += 5.0 * minus_one_to_one;
    } else {
       r += 30 * minus_one_to_one * angle_scale_factor;
-   } 
+   }
 
    // allow gauche+/gauche-/trans
-   if (allow_conformer_switch) { 
+   if (allow_conformer_switch) {
       double rn = float(util::random())/float(RAND_MAX);
       double tf = 1 - trial_factor; // tf goes from 1 (start) to 0 (end)
       if (rn < (0.02 + 0.25 * tf)) {

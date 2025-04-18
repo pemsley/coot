@@ -4190,6 +4190,31 @@ molecules_container_t::fill_partial_residues(int imol) {
 
 }
 
+//! Add N-linked glycosylation
+//!
+//! @param imol_model is the model molecule index
+//! @param imol_map is the map molecule index
+//! @param glycosylation_name is the type of glycosylation, one of:
+//!       "NAG-NAG-BMA" or "high-mannose" or "hybrid" or "mammalian-biantennary" or "plant-biantennary"
+//! @param asn_chain_id is the chain-id of the ASN to which the carbohydrate is to be added
+//! @param asn_res_no is the residue number of the ASN to which the carbohydrate is to be added
+void
+molecules_container_t::add_named_glyco_tree(int imol_model, int imol_map, const std::string &glycosylation_name,
+                                            const std::string &asn_chain_id, int asn_res_no) {
+
+   int status = 0;
+   if (is_valid_model_molecule(imol_model)) {
+      if (is_valid_map_molecule(imol_map)) {
+         const clipper::Xmap<float> &xmap = molecules.at(imol_map).xmap;
+         molecules[imol_model].add_named_glyco_tree(glycosylation_name, asn_chain_id, asn_res_no, xmap, &geom);
+      } else {
+         std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid map molecule " << imol_map << std::endl;
+      }
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol_model << std::endl;
+   }
+
+}
 
 std::vector<std::string>
 molecules_container_t::get_chains_in_model(int imol) const {

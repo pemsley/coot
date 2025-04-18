@@ -8,12 +8,13 @@ dist_cootdata_DATA = \
              pyranose-pyranose-via-ALPHA1-3.pdb \
 	     pyranose-pyranose-via-ALPHA1-6.pdb	\
 	     SIA-pyranose-via-ALPHA2-3.pdb      \
-	     link-by-torsion-to-pyranose-core-ALPHA1-2.tab \
-	     link-by-torsion-to-pyranose-core-ALPHA1-3.tab \
 	     link-by-torsion-to-FUC-core-ALPHA1-3.tab \
 	     link-by-torsion-to-FUC-core-ALPHA1-2.tab \
 	     link-by-torsion-to-FUC-core-ALPHA1-6.tab \
              link-by-torsion-to-NAG-core-NAG-SER.tab \
+             link-by-torsion-to-pyranose-core-pyr-ASN.tab \
+	     link-by-torsion-to-pyranose-core-ALPHA1-2.tab \
+	     link-by-torsion-to-pyranose-core-ALPHA1-3.tab \
 	     link-by-torsion-to-pyranose-core-ALPHA1-6.tab \
 	     link-by-torsion-to-pyranose-core-ALPHA2-3.tab \
              link-by-torsion-to-pyranose-core-BETA1-2.tab  \

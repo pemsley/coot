@@ -200,6 +200,7 @@ NB_MODULE(coot_headless_api, m) {
     .def("add_hydrogen_atoms",&molecules_container_t::add_hydrogen_atoms)
     .def("add_lsq_superpose_match",&molecules_container_t::add_lsq_superpose_match)
     .def("add_lsq_superpose_atom_match",&molecules_container_t::add_lsq_superpose_atom_match)
+    .def("add_named_glyco_tree",&molecules_container_t::add_named_glyco_tree)
     .def("add_target_position_restraint",&molecules_container_t::add_target_position_restraint)
     .def("add_target_position_restraint_and_refine",&molecules_container_t::add_target_position_restraint_and_refine)
     .def("add_terminal_residue_directly",&molecules_container_t::add_terminal_residue_directly)

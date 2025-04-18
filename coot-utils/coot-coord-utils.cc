@@ -3714,6 +3714,57 @@ coot::util::create_mmdbmanager_from_residue_vector(const std::vector<mmdb::Resid
                                                    mmdb::Manager *old_mol,
                                                    const std::pair<bool,std::string> &use_alt_conf) {
 
+   if (false) {
+
+      // Have I added new atoms to the molecule?
+      //
+      // On creating an asc, the "atom index" UDD is created but new atoms don't have an atom index
+      // unless asc.regen_atom_selection() has been called.
+
+      for (auto &r : res_vec) {
+         coot::residue_spec_t spec(r);
+         std::cout << "create_mmdbmanager_from_residue_vector() input residue " << spec << std::endl;
+      }
+   }
+
+   if (false) {
+      int udd_atom_index_handle = old_mol->GetUDDHandle(mmdb::UDR_ATOM, "atom index");
+      std::cout << "in create_mmdbmanager_from_residue_vector() udd_atom_index_handle for old_mol "
+                << old_mol << " is " << udd_atom_index_handle << std::endl;
+   }
+
+   if (false) {
+      int udd_atom_index_handle = old_mol->GetUDDHandle(mmdb::UDR_ATOM, "atom index");
+      for(int imod = 1; imod<=old_mol->GetNumberOfModels(); imod++) {
+         mmdb::Model *model_p = old_mol->GetModel(imod);
+         if (model_p) {
+            int n_chains = model_p->GetNumberOfChains();
+            for (int ichain=0; ichain<n_chains; ichain++) {
+               mmdb::Chain *chain_p = model_p->GetChain(ichain);
+               int n_res = chain_p->GetNumberOfResidues();
+               for (int ires=0; ires<n_res; ires++) {
+                  mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                  if (residue_p) {
+                     int n_atoms = residue_p->GetNumberOfAtoms();
+                     for (int iat=0; iat<n_atoms; iat++) {
+                        mmdb::Atom *at = residue_p->GetAtom(iat);
+                        if (! at->isTer()) {
+                           int idx;
+                           if (at->GetUDData(udd_atom_index_handle, idx) == mmdb::UDDATA_Ok) {
+                              idx = -999;
+                           }
+                           std::cout << "input at " << at << "atom index " << idx
+                                     << " using udd_atom_index_handle " << udd_atom_index_handle << std::endl;
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      }
+   }
+
+
 
    // If use_alt_conf first is true then
    //    if use_alt_conf second is not blank
@@ -3787,12 +3838,15 @@ coot::util::create_mmdbmanager_from_residue_vector(const std::vector<mmdb::Resid
    int index_from_reference_residue_handle = mol->RegisterUDInteger(mmdb::UDR_RESIDUE,
                                                                     "index from reference residue");
    int udd_atom_index_handle = - 1;
-   if (old_mol)
+   if (old_mol) {
       udd_atom_index_handle = old_mol->GetUDDHandle(mmdb::UDR_ATOM, "atom index");
+      std::cout << "debug:: create_mmdbmanager_from_residue_vector(): udd_atom_index_handle "
+                << udd_atom_index_handle << std::endl;
+   }
    int udd_old_atom_index_handle = mol->RegisterUDInteger(mmdb::UDR_ATOM, "old atom index");
    mol->AddModel(model_p);
 
-   for (unsigned int ich=0; ich<residues_of_chain.size(); ich++) { 
+   for (unsigned int ich=0; ich<residues_of_chain.size(); ich++) {
       mmdb::Chain *chain_p = new mmdb::Chain;
       chain_p->SetChainID(residues_of_chain[ich].chain_id.c_str());
       for (unsigned int ires=0; ires<residues_of_chain[ich].residues.size(); ires++) {
@@ -3836,10 +3890,11 @@ coot::util::create_mmdbmanager_from_residue_vector(const std::vector<mmdb::Resid
                               } else {
                                  std::cout << "WARNING:: " <<  __FUNCTION__ << "(): oops extracting idx from input old_mol atom "
                                            << at_old << " " << coot::atom_spec_t(at_old)  << " old_mol " << old_mol
-                                           << " and udd_old_atom_index_handle " << udd_old_atom_index_handle << std::endl;
+                                           << " and udd_atom_index_handle " << udd_atom_index_handle << std::endl;
                               }
                            } else {
-                              std::cout << "DEBUG:: oops " << __FUNCTION__ << "(): mismatch altconf reject " << atom_spec_t(at_old) << std::endl;
+                              std::cout << "DEBUG:: oops " << __FUNCTION__ << "(): mismatch altconf reject "
+                                        << atom_spec_t(at_old) << std::endl;
                            }
                         }
                      } else {

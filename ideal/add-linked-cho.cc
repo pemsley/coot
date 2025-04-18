@@ -14,6 +14,245 @@
 #include "add-linked-cho.hh"
 #include "utils/coot-utils.hh"
 
+#include <memory>
+#include <variant>
+
+namespace coot {
+   namespace cho {
+      struct Node; // Forward declaration
+
+      struct Edge {
+         std::shared_ptr<Node> target;
+         std::string link_type;
+      };
+
+      struct Node {
+         std::string res_type;
+         std::vector<Edge> edges;
+         coot::residue_spec_t spec;
+         unsigned int level;
+      };
+
+      void printNodeInfo(const Node& node) {
+         std::cout << "Handle Node with Info: " << node.res_type << " spec: " << node.spec << std::endl;
+      }
+
+      void printEdgeInfo(const Edge& edge) {
+         std::cout << "  Edge Info: " << edge.link_type << std::endl;
+      }
+
+      void traverseTree(const Node& node) {
+         printNodeInfo(node);
+         for (const auto& edge : node.edges) {
+            printEdgeInfo(edge);
+            traverseTree(*edge.target); // Recursive traversal
+         }
+      }
+      void build_onto_node(const coot::cho::Node &node,
+                           mmdb::Manager *mol,
+                           int imol,
+                           coot::protein_geometry &geom,
+                           const clipper::Xmap<float> *xmap,
+                           float new_atoms_b_factor);
+
+      void traverse_tree_and_build(const coot::cho::Node& node,
+                                   mmdb::Manager *mol,
+                                   int imol,
+                                   coot::protein_geometry &geom,
+                                   const clipper::Xmap<float> *xmap,
+                                   float new_atoms_b_factor);
+   }
+}
+
+void coot::cho::build_onto_node(const coot::cho::Node &node,
+                                mmdb::Manager *mol,
+                                int imol,
+                                coot::protein_geometry &geom,
+                                const clipper::Xmap<float> *xmap,
+                                float new_atoms_b_factor) {
+
+   float map_weight = 400.0;
+
+   for (const auto& edge : node.edges) {
+      unsigned int new_level = node.level + 1;;
+      std::pair<std::string, std::string> res_pair(edge.link_type, edge.target->res_type);
+      coot::residue_spec_t new_res_spec =
+         coot::cho::add_linked_residue_add_cho_function(mol, imol, node.spec, res_pair, new_level,
+                                                        new_atoms_b_factor, geom, xmap, map_weight);
+      edge.target->spec = new_res_spec;
+   }
+}
+
+void
+coot::cho::traverse_tree_and_build(const coot::cho::Node& node,
+                                   mmdb::Manager *mol,
+                                   int imol,
+                                   coot::protein_geometry &geom,
+                                   const clipper::Xmap<float> *xmap,
+                                   float new_atoms_b_factor) {
+    printNodeInfo(node);
+    build_onto_node(node, mol, imol, geom, xmap, new_atoms_b_factor);
+    for (const auto& edge : node.edges) {
+        printEdgeInfo(edge);
+        traverse_tree_and_build(*edge.target, mol, imol, geom, xmap, new_atoms_b_factor);
+    }
+}
+
+// "NAG-NAG-BMA" or "high-mannose" or "hybrid" or "mammalian-biantennary" or "plant-biantennary"
+//
+void
+coot::cho::add_named_glyco_tree(const std::string &glycoylation_name, mmdb::Manager *mol, int imol,
+                                const clipper::Xmap<float> &xmap, coot::protein_geometry *geom,
+                                std::string asn_chain_id, int asn_res_no) {
+
+   auto make_high_mannose_tree = [] () {
+      // high mannose
+
+      auto root    = std::make_shared<Node>();   root->res_type  = "ASN";   root->level = 0;
+      auto child1  = std::make_shared<Node>(); child1->res_type  = "NAG"; child1->level = 1;
+      auto child2  = std::make_shared<Node>(); child2->res_type  = "NAG"; child2->level = 2;
+      auto child3  = std::make_shared<Node>(); child3->res_type  = "BMA"; child3->level = 3;
+      auto child4  = std::make_shared<Node>(); child4->res_type  = "MAN"; child4->level = 4;
+      auto child5  = std::make_shared<Node>(); child5->res_type  = "MAN"; child5->level = 5;
+      auto child6  = std::make_shared<Node>(); child6->res_type  = "MAN"; child6->level = 6;
+      auto child7  = std::make_shared<Node>(); child7->res_type  = "MAN"; child7->level = 4;
+      auto child8  = std::make_shared<Node>(); child8->res_type  = "MAN"; child8->level = 5;
+      auto child9  = std::make_shared<Node>(); child9->res_type  = "MAN"; child9->level = 6;
+      auto child10 = std::make_shared<Node>(); child10->res_type = "MAN"; child10->level = 5;
+
+      root->edges.push_back({child1,    "pyr-ASN"});
+      child1->edges.push_back({child2,  "BETA1-4"});
+      child2->edges.push_back({child3,  "BETA1-4"});
+      child3->edges.push_back({child4,  "ALPHA1-3"});
+      child4->edges.push_back({child5,  "ALPHA1-2"});
+      child5->edges.push_back({child6,  "ALPHA1-2"});
+
+      child3->edges.push_back({child7,  "ALPHA1-6"});
+      child7->edges.push_back({child8,  "ALPHA1-6"});
+      child8->edges.push_back({child9,  "ALPHA1-2"});
+      child7->edges.push_back({child10, "ALPHA1-3"});
+
+      return root;
+   };
+
+   // e.g 8zwp human galactosylltransferase
+
+   auto make_hybrid = [] () {
+
+      auto root   = std::make_shared<Node>();   root->res_type = "ASN";   root->level = 0;
+      auto child1 = std::make_shared<Node>(); child1->res_type = "NAG"; child1->level = 1;
+      auto child2 = std::make_shared<Node>(); child2->res_type = "NAG"; child2->level = 2;
+      auto child3 = std::make_shared<Node>(); child3->res_type = "BMA"; child3->level = 3;
+      auto child4 = std::make_shared<Node>(); child4->res_type = "MAN"; child4->level = 4;
+      auto child5 = std::make_shared<Node>(); child5->res_type = "MAN"; child5->level = 4;
+      auto child6 = std::make_shared<Node>(); child6->res_type = "FUC"; child6->level = 2;
+
+      root->edges.push_back({child1,    "pyr-ASN"});
+      child1->edges.push_back({child2,  "BETA1-4"});
+      child2->edges.push_back({child3,  "BETA1-4"});
+      child3->edges.push_back({child4,  "ALPHA1-3"});
+      child3->edges.push_back({child5,  "ALPHA1-6"});
+      child1->edges.push_back({child6,  "ALPHA1-6"});
+
+      return root;
+   };
+
+   //"mammalian-biantennary" or "plant-biantennary"
+
+   auto make_mammalian_biantennary = [] () {
+
+      auto root   = std::make_shared<Node>();   root->res_type = "ASN";   root->level = 0;
+      auto child1 = std::make_shared<Node>(); child1->res_type = "NAG"; child1->level = 1;
+      auto child2 = std::make_shared<Node>(); child2->res_type = "NAG"; child2->level = 2;
+      auto child3 = std::make_shared<Node>(); child3->res_type = "BMA"; child3->level = 3;
+      auto child4 = std::make_shared<Node>(); child4->res_type = "MAN"; child4->level = 4;
+      auto child5 = std::make_shared<Node>(); child5->res_type = "MAN"; child5->level = 4;
+
+      root->edges.push_back({child1,    "pyr-ASN"});
+      child1->edges.push_back({child2,  "BETA1-4"});
+      child2->edges.push_back({child3,  "BETA1-4"});
+      child3->edges.push_back({child4,  "ALPHA1-3"});
+      child3->edges.push_back({child5,  "ALPHA1-6"});
+
+      return root;
+   };
+
+   auto make_plant_biantennary = [] () {
+
+      auto root   = std::make_shared<Node>();   root->res_type = "ASN";   root->level = 0;
+      auto child1 = std::make_shared<Node>(); child1->res_type = "NAG"; child1->level = 1;
+      auto child2 = std::make_shared<Node>(); child2->res_type = "NAG"; child2->level = 2;
+      auto child3 = std::make_shared<Node>(); child3->res_type = "BMA"; child3->level = 3;
+      auto child4 = std::make_shared<Node>(); child4->res_type = "MAN"; child4->level = 4;
+      auto child5 = std::make_shared<Node>(); child5->res_type = "MAN"; child5->level = 4;
+
+      root->edges.push_back({child1,    "pyr-ASN"});
+      child1->edges.push_back({child2,  "BETA1-4"});
+      child2->edges.push_back({child3,  "BETA1-4"});
+      child3->edges.push_back({child4,  "ALPHA1-3"});
+      child3->edges.push_back({child5,  "ALPHA1-6"});
+
+      return root;
+   };
+
+   auto make_NAG_NAG_BMA = [] () {
+
+      auto root   = std::make_shared<Node>();   root->res_type = "ASN";   root->level = 0;
+      auto child1 = std::make_shared<Node>(); child1->res_type = "NAG"; child1->level = 1;
+      auto child2 = std::make_shared<Node>(); child2->res_type = "NAG"; child2->level = 2;
+      auto child3 = std::make_shared<Node>(); child3->res_type = "BMA"; child3->level = 3;
+
+      root->edges.push_back({child1,    "pyr-ASN"});
+      child1->edges.push_back({child2,  "BETA1-4"});
+      child2->edges.push_back({child3,  "BETA1-4"});
+
+      return root;
+   };
+
+   // "NAG-NAG-BMA" or "high-mannose" or "hybrid" or "mammalian-biantennary" or "plant-biantennary"
+   //
+   std::shared_ptr<Node> root;
+   if (glycoylation_name == "NAG-NAG-BMA")           root = make_NAG_NAG_BMA();
+   if (glycoylation_name == "high-mannose")          root = make_high_mannose_tree();
+   if (glycoylation_name == "hybrid")                root = make_hybrid();
+   if (glycoylation_name == "mammalian-biantennary") root = make_mammalian_biantennary();
+   if (glycoylation_name == "plant-biantennary")     root = make_plant_biantennary();
+
+   if (root) {
+
+      traverseTree(*root); // testing
+
+      std::vector<std::string> av1 = { " C1 ", " C2 ", " C4 ", " C5 "};
+      std::vector<std::string> av2 = { " C2 ", " C3 ", " C5 ", " O5 "};
+      std::vector<std::string> av3 = { " C3 ", " C4 ", " O5 ", " C1 "};
+      std::vector<std::string> rns = {"NAG", "MAN", "BMA", "FUC", "GLC", "GAL", "XYL", "SIA"};
+      int cif_read_number = 60;
+      for (const auto &rn : rns)
+         geom->use_unimodal_ring_torsion_restraints(imol, rn, cif_read_number++);
+      for (const auto &rn : rns) {
+         geom->add_pyranose_pseudo_ring_plane_restraints(rn, imol, "pseudo-plane-1", av1, 0.01);
+         geom->add_pyranose_pseudo_ring_plane_restraints(rn, imol, "pseudo-plane-2", av2, 0.01);
+         geom->add_pyranose_pseudo_ring_plane_restraints(rn, imol, "pseudo-plane-3", av3, 0.01);
+      }
+
+      coot::residue_spec_t parent(asn_chain_id, asn_res_no, "");
+      float new_atoms_b_factor = 30.0;
+
+      // std::pair<std::string, std::string> res_pair("pyr-ASN", "NAG");
+      // coot::residue_spec_t new_res_spec =
+      // coot::cho::add_linked_residue_add_cho_function(asc.mol, imol,
+      // parent, res_pair,
+      // new_atoms_b_factor,
+      // geom, &xmap);
+
+      root->spec = parent;
+
+      traverse_tree_and_build(*root, mol, imol, *geom, &xmap, new_atoms_b_factor);
+   }
+
+ }
+
+
 int
 coot::cho::clashes_with_symmetry(mmdb::Manager *mol, const coot::residue_spec_t &res_spec, float clash_dist,
                                  const coot::protein_geometry &geom) {
@@ -362,6 +601,8 @@ coot::cho::add_linked_residue_by_atom_torsions(mmdb::Manager *mol,
                                                const std::pair<std::string, std::string> &new_link_types,
                                                protein_geometry &geom,
                                                float new_atoms_b_factor) {
+
+   std::cout << "debug:: ::::::: add_linked_residue_by_atom_torsions() --- start --- " << std::endl;
    coot::residue_spec_t new_residue_spec;
    mmdb::Residue *residue_ref = util::get_residue(parent, mol);
    if (residue_ref) {
@@ -370,6 +611,8 @@ coot::cho::add_linked_residue_by_atom_torsions(mmdb::Manager *mol,
          const std::string &new_res_type  = new_link_types.second;
          link_by_torsion_t l(new_link_type, new_res_type);
          l.set_temperature_factor(new_atoms_b_factor);
+         std::cout << "debug:: ::::::: add_linked_residue_by_atom_torsions() calling make_residue() "
+                   << "using res-ref: " << coot::residue_spec_t(residue_ref) << std::endl;
          mmdb::Residue *result_residue = l.make_residue(residue_ref);
          mol->FinishStructEdit();
          std::pair<bool, mmdb::Residue *> status_pair = add_residue(mol, result_residue, parent.chain_id);
@@ -384,6 +627,7 @@ coot::cho::add_linked_residue_by_atom_torsions(mmdb::Manager *mol,
          std::cout << "WARNING:: " << rte.what() << std::endl;
       }
    }
+   std::cout << "debug:: ::::::: add_linked_residue_by_atom_torsions() done. " << std::endl;
    return new_residue_spec;
 }
 
@@ -547,8 +791,9 @@ coot::cho::add_linked_residue(mmdb::Manager *mol,
                      unsigned int n     = coot::util::string_to_int(parts[4]);
                      double d           = coot::util::string_to_double(parts[5]);
                      // parts 6 is mod-sarle
-                     std::cout << "model: " << atom_name_1 << " " << atom_name_2 << " " << target_dist << " " << rmsd
-                               << std::endl;
+                     if (false)
+                        std::cout << "model: " << atom_name_1 << " " << atom_name_2 << " "
+                                  << target_dist << " " << rmsd << std::endl;
                      if (n > 20) {
                         if (d < 0.42) {
                            double s = 0.05;
@@ -628,7 +873,6 @@ coot::cho::add_linked_residue(mmdb::Manager *mol,
       add_extra_restraints(&restraints, imol_no, level, parent_spec, parent_type,
                            new_residue_spec, new_type, link_type, geom); // modify restraints
       restraints.minimize(flags, n_cycles, print_chi_sq_flag);
-      restraints.write_new_atoms("refined.pdb");
 
    };
 

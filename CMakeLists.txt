@@ -278,6 +278,7 @@ add_library(cootapi SHARED
             ${coot_src}/pli/sdf-interface.cc
             ${coot_src}/pli/specs.cc
             ${coot_src}/coot-utils/coot-align.cc
+            ${coot_src}/coot-utils/dict-link-info.cc
             ${coot_src}/coot-utils/cmtz-interface.cc
             ${coot_src}/coot-utils/dict-link-info.cc
             ${coot_src}/coot-utils/lidia-core-functions.cc
@@ -551,15 +552,21 @@ set_target_properties(coot_headless_api PROPERTIES INSTALL_RPATH_USE_LINK_PATH T
 
 install(TARGETS cootapi)
 
-install(FILES standard-residues.pdb DESTINATION share/coot)
+install(FILES standard-residues.pdb  DESTINATION share/coot)
 
-install(FILES data/syminfo.lib      DESTINATION share/coot/data)
+install(FILES data/syminfo.lib       DESTINATION share/coot/data)
 
-install(DIRECTORY data/cho-links    DESTINATION share/coot)
+install(DIRECTORY rama-data          DESTINATION share/coot)
 
-install(DIRECTORY rama-data         DESTINATION share/coot)
+install(DIRECTORY data/metal         DESTINATION share/coot/data)
 
-install(DIRECTORY data/metal        DESTINATION share/coot/data)
+install(DIRECTORY data/cho-acedrg    DESTINATION share/coot/data)
+
+install(DIRECTORY data/cho-models    DESTINATION share/coot/data)
+
+install(DIRECTORY data/cho-links     DESTINATION share/coot/data)
+
+install(DIRECTORY data/pdb-templates DESTINATION share/coot/data)
 
 # Thanks Charles B.
 install(TARGETS coot_headless_api DESTINATION ${Python_SITELIB})

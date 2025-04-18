@@ -7,6 +7,11 @@ namespace coot {
 
    namespace cho {
 
+      // this is the outer function
+      void add_named_glyco_tree(const std::string &glycoylation_name, mmdb::Manager *mol, int imol,
+                                const clipper::Xmap<float> &xmap, coot::protein_geometry *geom,
+                                std::string asn_chain_id, int asn_res_no);
+
       // (define *add-linked-residue-tree-correlation-cut-off* 0.50)
 
       //! checks to see if residue_pp is well fitting and doesn't clash or symmetry clash

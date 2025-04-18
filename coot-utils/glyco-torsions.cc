@@ -46,7 +46,7 @@
 std::ostream&
 coot::operator<<(std::ostream &o, const atom_by_torsion_t &abt) {
 
-   o << "atom " << abt.atom_name << " " 
+   o << "atom " << abt.atom_name << " "
      << abt.element << " based-on "
      << abt.prior_atom_1.first << " "
      << abt.prior_atom_1.second << " "
@@ -61,13 +61,13 @@ coot::operator<<(std::ostream &o, const atom_by_torsion_t &abt) {
      << " angle: " << abt.angle
      << " tors: " << std::setw(10) << abt.torsion;
    return o;
-} 
-
+}
 
 // ext_residue_p is the residue being added.
 //
 clipper::Coord_orth
 coot::atom_by_torsion_t::pos(mmdb::Residue *base_residue_p, mmdb::Residue *ext_residue_p) const {
+
 
    mmdb::Atom *at_1 = NULL;
    mmdb::Atom *at_2 = NULL;
@@ -78,25 +78,25 @@ coot::atom_by_torsion_t::pos(mmdb::Residue *base_residue_p, mmdb::Residue *ext_r
    base_residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
 
    if (false) {
-      std::cout << "positioning atom " << atom_name << std::endl;
-      for (int iat=0; iat<n_residue_atoms; iat++) { 
+      std::cout << "debug:: atom_by_torsion_t::pos() positioning atom " << atom_name << std::endl;
+      for (int iat=0; iat<n_residue_atoms; iat++) {
 	 mmdb::Atom *at = residue_atoms[iat];
 	 std::cout << "   " << coot::atom_spec_t(at) << " vs "
 		   << prior_atom_1.first << " " << prior_atom_1.second << std::endl;
       }
    }
-      
+
    if (prior_atom_1.first)
       at_1 = base_residue_p->GetAtom(prior_atom_1.second.c_str());
-   else 
+   else
       at_1 = ext_residue_p->GetAtom(prior_atom_1.second.c_str());
    if (prior_atom_2.first)
       at_2 = base_residue_p->GetAtom(prior_atom_2.second.c_str());
-   else 
+   else
       at_2 = ext_residue_p->GetAtom(prior_atom_2.second.c_str());
    if (prior_atom_3.first)
       at_3 = base_residue_p->GetAtom(prior_atom_3.second.c_str());
-   else 
+   else
       at_3 = ext_residue_p->GetAtom(prior_atom_3.second.c_str());
 
    if (at_1 && at_2 && at_3) {
@@ -119,9 +119,9 @@ coot::atom_by_torsion_t::pos(mmdb::Residue *base_residue_p, mmdb::Residue *ext_r
       m += " in atom_by_torsion_t::pos() when positioning ";
       m += atom_name;
       m += " : ";
-      if (! at_1) m += " at_1 " + prior_atom_1.second;
-      if (! at_2) m += " at_2 " + prior_atom_2.second;
-      if (! at_3) m += " at_3 " + prior_atom_3.second;
+      if (! at_1) m += " at_1: " + prior_atom_1.second;
+      if (! at_2) m += " at_2: " + prior_atom_2.second;
+      if (! at_3) m += " at_3: " + prior_atom_3.second;
       m += " of ";
       m += util::int_to_string(n_residue_atoms);
       m += " base atoms";
@@ -166,15 +166,16 @@ coot::link_by_torsion_t::link_type_to_file_name(const std::string &link_type,
    std::string fn = "link-by-torsion-to-" + new_res_comp_id + "-core-" + link_type + ".tab";
    std::filesystem::path file_path = p / "data" / "cho-links" / fn;
 
-   std::cout << "......... checking for " << file_path << std::endl;
+   std::cout << "debug:: link_type_to_file_name(): checking for " << file_path << std::endl;
 
    if (std::filesystem::exists(file_path)) {
+      std::cout << "... found" << std::endl;
       return file_path.string();
    } else {
       fn = "link-by-torsion-to-pyranose-core-" + link_type + ".tab";
-      std::string ff = util::append_dir_file(p, fn);
+      std::filesystem::path ff = p / "data" / "cho-links" / fn;
       std::cout << "..that failed - trying  " << ff << std::endl;
-      return ff;
+      return ff.string();
    }
 }
 
@@ -203,6 +204,8 @@ coot::link_by_torsion_t::comp_id_to_decoration_file_name(const std::string &comp
 mmdb::Residue *
 coot::link_by_torsion_t::make_residue(mmdb::Residue *base_residue_p) const {
 
+   // get.pos() can throw an exception that is not handled here
+
    mmdb::Residue *r = NULL;
    if (geom_atom_torsions.size()) {
       r = new mmdb::Residue;
@@ -221,22 +224,23 @@ coot::link_by_torsion_t::make_residue(mmdb::Residue *base_residue_p) const {
 	 if (false)
 	    std::cout << "   " << gat.atom_name << " " << p.format()  << std::endl;
       }
-   } 
+   }
    return r;
-} 
+}
 
 
 coot::atom_by_torsion_t::atom_by_torsion_t(const atom_by_torsion_base_t &names,
 					   mmdb::Residue *residue_1_p,  // reference/lower
 					   mmdb::Residue *residue_2_p   // extension residue
 					   ) {
-   
+
    if (false)
       std::cout << "get "
 		<< names.prior_atom_1.first << " " << names.prior_atom_1.second << " "
 		<< names.prior_atom_2.first << " " << names.prior_atom_2.second << " "
 		<< names.prior_atom_3.first << " " << names.prior_atom_3.second << " "
 		<< std::endl;
+
    mmdb::PPAtom residue_atoms_1 = 0;
    mmdb::PPAtom residue_atoms_2 = 0;
    int n_residue_atoms_1;
@@ -245,13 +249,13 @@ coot::atom_by_torsion_t::atom_by_torsion_t(const atom_by_torsion_base_t &names,
    residue_2_p->GetAtomTable(residue_atoms_2, n_residue_atoms_2);
 
    mmdb::Atom *p_new = residue_2_p->GetAtom(names.atom_name.c_str());
-   if (p_new) { 
+   if (p_new) {
       mmdb::Atom *p_1 = NULL;
       mmdb::Atom *p_2 = NULL;
       mmdb::Atom *p_3 = NULL;
 
       // I could just GetAtom() here.
-      for (int iat=0; iat<n_residue_atoms_1; iat++) { 
+      for (int iat=0; iat<n_residue_atoms_1; iat++) {
 	 mmdb::Atom *at = residue_atoms_1[iat];
 	 std::string nb_name = coot::util::remove_whitespace(at->name);
 	 if (names.prior_atom_1.first)
@@ -264,7 +268,7 @@ coot::atom_by_torsion_t::atom_by_torsion_t(const atom_by_torsion_base_t &names,
 	    if (names.prior_atom_3.second == nb_name)
 	       p_3 = at;
       }
-      for (int iat=0; iat<n_residue_atoms_2; iat++) { 
+      for (int iat=0; iat<n_residue_atoms_2; iat++) {
 	 mmdb::Atom *at = residue_atoms_2[iat];
 	 std::string nb_name = coot::util::remove_whitespace(at->name);
 	 if (! names.prior_atom_1.first)
@@ -280,7 +284,7 @@ coot::atom_by_torsion_t::atom_by_torsion_t(const atom_by_torsion_base_t &names,
 
       if (p_1 && p_2 && p_3) {
 	 coot::atom_quad q(p_new, p_1, p_2, p_3);
-	 if (0) { 
+	 if (false) {
 	    std::cout << "check quad: " << q << " " << q.get_atom_name_quad() << std::endl;
 	    std::cout << "   check quad "
 		      << coot::atom_spec_t(q.atom_1) << " "
@@ -292,7 +296,7 @@ coot::atom_by_torsion_t::atom_by_torsion_t(const atom_by_torsion_base_t &names,
 	 clipper::Coord_orth pos_1 = coot::co(p_1);
 	 clipper::Coord_orth pos_2 = coot::co(p_2);
 	 clipper::Coord_orth pos_3 = coot::co(p_3);
-	 if (0) { 
+	 if (false) {
 	    std::cout << "... " << coot::atom_spec_t(p_new) << " has pos " << pos_n.format()
 		      << std::endl;
 	    std::cout << "... " << coot::atom_spec_t(p_1)   << " has pos " << pos_1.format()
@@ -320,7 +324,7 @@ coot::link_by_torsion_base_t coot::asn_pyranose_link_to_core() {
    ats.push_back(atom_by_torsion_base_t("O5", "O", BS(false, "C5" ), BS(false, "C4" ), BS(false, "C3" )));
    for (unsigned int i=0; i<ats.size(); i++) l.add(ats[i]);
    return l;
-} 
+}
 
 coot::link_by_torsion_base_t coot::ser_pyranose_link_to_core() {
 

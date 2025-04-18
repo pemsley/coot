@@ -352,7 +352,7 @@ coot::util::debug_z_weighted_density_score_new(const std::vector<std::pair<mmdb:
                 << " pos " << at->x << " " << at->y << " " << at->z
                 << " weight: " << w << " density:" << d << " running sum " << sum_d << std::endl;
    }
-   std::cout << "total: " << sum_d << std::endl;
+   std::cout << "debug:: debug_z_weighted_density_score_new(): total: " << sum_d << std::endl;
 }
 
 
