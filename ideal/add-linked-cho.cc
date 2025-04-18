@@ -1,5 +1,6 @@
 
 #include <fstream>
+#include "coot-utils/atom-selection-container.hh"
 #include "extra-restraints.hh"
 #include "geometry/residue-and-atom-specs.hh"
 #include "coot-utils/coot-map-utils.hh"
@@ -49,14 +50,14 @@ namespace coot {
          }
       }
       void build_onto_node(const coot::cho::Node &node,
-                           mmdb::Manager *mol,
+                           atom_selection_container_t *asc,
                            int imol,
                            coot::protein_geometry &geom,
                            const clipper::Xmap<float> *xmap,
                            float new_atoms_b_factor);
 
       void traverse_tree_and_build(const coot::cho::Node& node,
-                                   mmdb::Manager *mol,
+                                   atom_selection_container_t *asc,
                                    int imol,
                                    coot::protein_geometry &geom,
                                    const clipper::Xmap<float> *xmap,
@@ -65,7 +66,7 @@ namespace coot {
 }
 
 void coot::cho::build_onto_node(const coot::cho::Node &node,
-                                mmdb::Manager *mol,
+                                atom_selection_container_t *asc,
                                 int imol,
                                 coot::protein_geometry &geom,
                                 const clipper::Xmap<float> *xmap,
@@ -77,7 +78,7 @@ void coot::cho::build_onto_node(const coot::cho::Node &node,
       unsigned int new_level = node.level + 1;;
       std::pair<std::string, std::string> res_pair(edge.link_type, edge.target->res_type);
       coot::residue_spec_t new_res_spec =
-         coot::cho::add_linked_residue_add_cho_function(mol, imol, node.spec, res_pair, new_level,
+         coot::cho::add_linked_residue_add_cho_function(asc, imol, node.spec, res_pair, new_level,
                                                         new_atoms_b_factor, geom, xmap, map_weight);
       edge.target->spec = new_res_spec;
    }
@@ -85,23 +86,23 @@ void coot::cho::build_onto_node(const coot::cho::Node &node,
 
 void
 coot::cho::traverse_tree_and_build(const coot::cho::Node& node,
-                                   mmdb::Manager *mol,
+                                   atom_selection_container_t *asc,
                                    int imol,
                                    coot::protein_geometry &geom,
                                    const clipper::Xmap<float> *xmap,
                                    float new_atoms_b_factor) {
     printNodeInfo(node);
-    build_onto_node(node, mol, imol, geom, xmap, new_atoms_b_factor);
+    build_onto_node(node, asc, imol, geom, xmap, new_atoms_b_factor);
     for (const auto& edge : node.edges) {
         printEdgeInfo(edge);
-        traverse_tree_and_build(*edge.target, mol, imol, geom, xmap, new_atoms_b_factor);
+        traverse_tree_and_build(*edge.target, asc, imol, geom, xmap, new_atoms_b_factor);
     }
 }
 
 // "NAG-NAG-BMA" or "high-mannose" or "hybrid" or "mammalian-biantennary" or "plant-biantennary"
 //
 void
-coot::cho::add_named_glyco_tree(const std::string &glycoylation_name, mmdb::Manager *mol, int imol,
+coot::cho::add_named_glyco_tree(const std::string &glycoylation_name, atom_selection_container_t *asc, int imol,
                                 const clipper::Xmap<float> &xmap, coot::protein_geometry *geom,
                                 std::string asn_chain_id, int asn_res_no) {
 
@@ -247,7 +248,7 @@ coot::cho::add_named_glyco_tree(const std::string &glycoylation_name, mmdb::Mana
 
       root->spec = parent;
 
-      traverse_tree_and_build(*root, mol, imol, *geom, &xmap, new_atoms_b_factor);
+      traverse_tree_and_build(*root, asc, imol, *geom, &xmap, new_atoms_b_factor);
    }
 
  }
@@ -670,7 +671,7 @@ coot::cho::replace_coords(mmdb::Manager *fragment_mol, mmdb::Manager *mol) {
 #include  <filesystem>
 
 coot::residue_spec_t
-coot::cho::add_linked_residue(mmdb::Manager *mol,
+coot::cho::add_linked_residue(atom_selection_container_t *asc,
                               int imol,
                               const residue_spec_t &parent,
                               const std::pair<std::string, std::string> &new_link_types,
@@ -891,7 +892,9 @@ coot::cho::add_linked_residue(mmdb::Manager *mol,
       }
    }
    cif_dictionary_read_number++;
+   mmdb::Manager *mol = asc->mol;
    residue_spec_t new_res_spec = add_linked_residue_by_atom_torsions(mol, parent, new_link_types, geom, new_atoms_b_factor);
+   asc->regen_atom_selection();
    // delete extra restraints for new_res_spec - hmm
    if (! new_res_spec.unset_p()) {
       if (mode == 2 || mode == 3) {
@@ -949,7 +952,8 @@ coot::cho::add_linked_residue(mmdb::Manager *mol,
 //! do the thing.
 //! res-pair is new-link-type and new-res-type
 coot::residue_spec_t
-coot::cho::add_linked_residue_add_cho_function(mmdb::Manager *mol, int imol,
+coot::cho::add_linked_residue_add_cho_function(atom_selection_container_t *asc,
+                                               int imol,
                                                const coot::residue_spec_t &parent,
                                                const std::pair<std::string, std::string> &new_link_types,
                                                unsigned int level,
@@ -963,16 +967,16 @@ coot::cho::add_linked_residue_add_cho_function(mmdb::Manager *mol, int imol,
    const std::string &new_link     = new_link_types.first;
    const std::string &new_res_type = new_link_types.second;
 
-   mmdb::Residue *residue_p = util::get_residue(parent, mol);
-   coot::glyco_tree_t t(residue_p, mol, &geom); // geom is not const
+   mmdb::Residue *residue_p = util::get_residue(parent, asc->mol);
+   coot::glyco_tree_t t(residue_p, asc->mol, &geom); // geom is not const
    std::vector<mmdb::Residue *> tree_residues = t.residues(parent);
-   coot::residue_spec_t new_res_spec = add_linked_residue(mol, imol, parent, new_link_types, level,
+   coot::residue_spec_t new_res_spec = add_linked_residue(asc, imol, parent, new_link_types, level,
                                                           new_atoms_b_factor, mode, geom, xmap, map_weight);
 
-   if (true) {
+   if (false) {
       // if mode is 3, then this will be a post-refined model.
       std::string fn = "added-" + new_link + "-" + new_res_type + ".pdb";
-      mol->WritePDBASCII(fn.c_str());
+      asc->mol->WritePDBASCII(fn.c_str());
    }
 
    return new_res_spec;

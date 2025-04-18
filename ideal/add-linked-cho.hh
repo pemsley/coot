@@ -2,13 +2,17 @@
 #include <clipper/core/xmap.h>
 #include "geometry/protein-geometry.hh"
 #include "geometry/residue-and-atom-specs.hh"
+#include "coot-utils/atom-selection-container.hh"
 
 namespace coot {
 
    namespace cho {
 
-      // this is the outer function
-      void add_named_glyco_tree(const std::string &glycoylation_name, mmdb::Manager *mol, int imol,
+      // This is the outer function.
+      // We passe the atom selection container because it gets updated as atoms are added.
+      // If we dont regen_atom_selection() then there are warning messages from create_mmdbmanager_from_residue_specs()
+      //
+      void add_named_glyco_tree(const std::string &glycoylation_name, atom_selection_container_t *asc, int imol,
                                 const clipper::Xmap<float> &xmap, coot::protein_geometry *geom,
                                 std::string asn_chain_id, int asn_res_no);
 
@@ -33,7 +37,7 @@ namespace coot {
       //! do the thing. This function calls the others.
       //! res-pair is new-link-type and new-res-type
       residue_spec_t
-      add_linked_residue_add_cho_function(mmdb::Manager *mol,
+      add_linked_residue_add_cho_function(atom_selection_container_t *asc,
                                           int imol, // need for dictionaries
                                           const residue_spec_t &parent,
                                           const std::pair<std::string, std::string> &res_pair,
@@ -44,7 +48,7 @@ namespace coot {
                                           float map_weight);
 
       residue_spec_t
-      add_linked_residue(mmdb::Manager *mol,
+      add_linked_residue(atom_selection_container_t *asc,
                          int imol, // because dictionaries
                          const residue_spec_t &parent,
                          const std::pair<std::string, std::string> &new_link_types,

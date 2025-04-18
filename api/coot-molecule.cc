@@ -4019,7 +4019,8 @@ coot::molecule_t::add_named_glyco_tree(const std::string &glycosylation_name, co
                                        const clipper::Xmap<float> &xmap,
                                        coot::protein_geometry *geom) {
 
-   coot::cho::add_named_glyco_tree(glycosylation_name, atom_sel.mol, imol_no,
+   // the atom selection gets updated.
+   coot::cho::add_named_glyco_tree(glycosylation_name, &atom_sel, imol_no,
                                    xmap, geom, chain_id, res_no);
 
 }
