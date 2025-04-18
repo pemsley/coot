@@ -1,5 +1,8 @@
 
-EXTRA_DIST = ASN-NAG-via-NAG-ASN.pdb            \
+cootdatadir = $(pkgdatadir)/data/cho-links
+
+dist_cootdata_DATA = \
+	     ASN-NAG-via-NAG-ASN.pdb            \
              pyranose-pyranose-via-BETA1-4.pdb  \
              pyranose-pyranose-via-ALPHA1-2.pdb \
              pyranose-pyranose-via-ALPHA1-3.pdb \
@@ -26,8 +29,5 @@ EXTRA_DIST = ASN-NAG-via-NAG-ASN.pdb            \
              GAL-decorations.tab \
              FUC-decorations.tab \
              FUL-decorations.tab \
-             XYP-decorations.tab \
-	     theor-helix-70.pdb
+             XYP-decorations.tab
 
-subpkgdatadir = $(pkgdatadir)
-subpkgdata_DATA = $(EXTRA_DIST)

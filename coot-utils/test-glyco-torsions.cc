@@ -49,11 +49,13 @@ int main(int argc, char **argv) {
 
                // Get a base residue
                mmdb::Manager *mol = new mmdb::Manager;
-               std::string pdb_file_name =
-                  "pdb-templates/pyranose-pyranose-via-" + link_type + ".pdb";
+
+               // 20250418-PE I guess that these don't work correctly now. Not sure
+
+               std::string pdb_file_name = "data/cho-links/pyranose-pyranose-via-" + link_type + ".pdb";
 
                if (link_type == "NAG-ASN")
-                  pdb_file_name = "pdb-templates/ASN-NAG-via-NAG-ASN.pdb";
+                  pdb_file_name = "data/cho-links/ASN-NAG-via-NAG-ASN.pdb";
 
                if (! coot::file_exists(pdb_file_name)) {
                   std::cout << "ERROR:: pdb file " << pdb_file_name << " does not exist"

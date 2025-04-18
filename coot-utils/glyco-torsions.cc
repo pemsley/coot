@@ -139,11 +139,11 @@ coot::link_by_torsion_t::link_by_torsion_t(const std::string &link_type,
    read(fn);
 
    // now handle the decorations
-   // 
+   //
    std::string decor_file_name = comp_id_to_decoration_file_name(new_residue_comp_id_in);
    if (! file_exists(decor_file_name)) {
       std::cout << "No file " << decor_file_name << std::endl;
-   } else { 
+   } else {
       coot::link_by_torsion_t decor(decor_file_name);
       if (! decor.filled()) {
 	 std::cout << "Decorations not filled from " << decor_file_name
@@ -154,49 +154,52 @@ coot::link_by_torsion_t::link_by_torsion_t(const std::string &link_type,
    }
 }
 
+#include <filesystem>
+
 std::string
 coot::link_by_torsion_t::link_type_to_file_name(const std::string &link_type,
 						const std::string &new_res_comp_id) const {
 
    // try to get new_res_comp_id-specific template, if not, fall back to generic
    //
-   std::string p = package_data_dir();
-   std::string f = "link-by-torsion-to-" + new_res_comp_id + "-core-" + link_type + ".tab";
-   std::string ff = util::append_dir_file(p,f);
+   std::filesystem::path p(package_data_dir());
+   std::string fn = "link-by-torsion-to-" + new_res_comp_id + "-core-" + link_type + ".tab";
+   std::filesystem::path file_path = p / "data" / "cho-links" / fn;
 
-   std::cout << "......... checking for " << ff << std::endl;
+   std::cout << "......... checking for " << file_path << std::endl;
 
-   if (file_exists(ff)) {
-      return ff;
+   if (std::filesystem::exists(file_path)) {
+      return file_path.string();
    } else {
-      f = "link-by-torsion-to-pyranose-core-" + link_type + ".tab";
-      ff = util::append_dir_file(p,f);
+      fn = "link-by-torsion-to-pyranose-core-" + link_type + ".tab";
+      std::string ff = util::append_dir_file(p, fn);
       std::cout << "..that failed - trying  " << ff << std::endl;
+      return ff;
    }
-   return ff;
-} 
+}
 
 std::string
 coot::link_by_torsion_t::link_type_to_file_name(const std::string &link_type) const {
 
    std::string p = package_data_dir();
-   // std::string d = util::append_dir_dir(p, "pdb-templates"); not yet
-   std::string f = "link-by-torsion-to-pyranose-core-" + link_type + ".tab";
-   std::string ff = util::append_dir_file(p,f);
+   std::string fn = "link-by-torsion-to-pyranose-core-" + link_type + ".tab";
+   std::string ff = util::append_dir_dir(p,"data");
+   std::string fff = util::append_dir_dir(ff, "cho-links");
+   std::string ffff = util::append_dir_dir(fff, fn);
 
-   return ff;
-} 
+   return ffff;
+}
 
 std::string
 coot::link_by_torsion_t::comp_id_to_decoration_file_name(const std::string &comp_id) const {
 
-   std::string p = package_data_dir();
-   std::string f = new_residue_type + "-decorations.tab";
-   std::string ff = util::append_dir_file(p,f);
+   std::filesystem::path p(package_data_dir());
+   std::string fn = new_residue_type + "-decorations.tab";
+   std::filesystem::path pp = p / "data" / "cho-links" / fn;
 
-   return ff;
-} 
-   
+   return pp.string();
+}
+
 mmdb::Residue *
 coot::link_by_torsion_t::make_residue(mmdb::Residue *base_residue_p) const {
 

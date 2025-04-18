@@ -555,7 +555,7 @@ install(FILES standard-residues.pdb DESTINATION share/coot)
 
 install(FILES data/syminfo.lib      DESTINATION share/coot/data)
 
-install(DIRECTORY pdb-templates     DESTINATION share/coot)
+install(DIRECTORY data/cho-links    DESTINATION share/coot)
 
 install(DIRECTORY rama-data         DESTINATION share/coot)
 
