@@ -279,6 +279,7 @@ add_library(cootapi SHARED
             ${coot_src}/pli/specs.cc
             ${coot_src}/coot-utils/coot-align.cc
             ${coot_src}/coot-utils/cmtz-interface.cc
+            ${coot_src}/coot-utils/dict-link-info.cc
             ${coot_src}/coot-utils/lidia-core-functions.cc
             ${coot_src}/coot-utils/atom-selection-container.cc
             ${coot_src}/coot-utils/merge-atom-selections.cc
