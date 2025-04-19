@@ -300,7 +300,8 @@ coot::torsionable_link_quads(int imol,
 	       const dict_link_torsion_restraint_t &rest = link.link_torsion_restraint[il];
 	       if (rest.is_pyranose_ring_torsion()) {
 		  // pass
-		  std::cout << "   link # " << il << " is pyranose ring torsion # PASS" << std::endl;
+		  // std::cout << "   link # " << il << " is pyranose ring torsion # PASS" << std::endl;
+                  logger.log(log_t::INFO, "   link #", il, "is pyranose ring torsion # PASS");
 
 		  if (false) { // debug
 		     mmdb::Residue *r_1 = bpc[i].res_1;
@@ -319,10 +320,16 @@ coot::torsionable_link_quads(int imol,
 		     mmdb::Atom *link_atom_2 = r_2->GetAtom(rest.atom_id_2_4c().c_str());
 		     mmdb::Atom *link_atom_3 = r_3->GetAtom(rest.atom_id_3_4c().c_str());
 		     mmdb::Atom *link_atom_4 = r_4->GetAtom(rest.atom_id_4_4c().c_str());
-		     std::cout << "   link # " << il << " has link_atoms: "
-			       << atom_spec_t(link_atom_1) << " " << atom_spec_t(link_atom_2) << " "
-			       << atom_spec_t(link_atom_3) << " " << atom_spec_t(link_atom_4) << " "
-			       << std::endl;
+
+		     // std::cout << "   link # " << il << " has link_atoms: "
+		     //           << atom_spec_t(link_atom_1) << " " << atom_spec_t(link_atom_2) << " "
+		     //           << atom_spec_t(link_atom_3) << " " << atom_spec_t(link_atom_4) << " "
+		     //           << std::endl;
+                     logger.log(log_t::INFO, {"   link #", il, "has link_atoms:",
+                                              atom_spec_t(link_atom_1).format(),
+                                              atom_spec_t(link_atom_2).format(),
+                                              atom_spec_t(link_atom_3).format(),
+                                              atom_spec_t(link_atom_4).format()});
 
 		  }
 	       } else {
@@ -343,15 +350,27 @@ coot::torsionable_link_quads(int imol,
 		  mmdb::Atom *link_atom_3 = r_3->GetAtom(rest.atom_id_3_4c().c_str());
 		  mmdb::Atom *link_atom_4 = r_4->GetAtom(rest.atom_id_4_4c().c_str());
 
-		  std::cout << "   link # " << il << " has residues    "
-			    << residue_spec_t(r_1) << "         " << residue_spec_t(r_2)
-			    << "         "
-			    << residue_spec_t(r_3) << "         " << residue_spec_t(r_4)
-			    << std::endl;
-		  std::cout << "   link # " << il << " has link_atoms: "
-			    << atom_spec_t(link_atom_1) << " " << atom_spec_t(link_atom_2) << " "
-			    << atom_spec_t(link_atom_3) << " " << atom_spec_t(link_atom_4) << " "
-			    << std::endl;
+		  // std::cout << "   link # " << il << " has residues    "
+		  //           << residue_spec_t(r_1) << "         " << residue_spec_t(r_2)
+		  //           << "         "
+		  //           << residue_spec_t(r_3) << "         " << residue_spec_t(r_4)
+		  //           << std::endl;
+		  // std::cout << "   link # " << il << " has link_atoms: "
+		  //           << atom_spec_t(link_atom_1) << " " << atom_spec_t(link_atom_2) << " "
+		  //           << atom_spec_t(link_atom_3) << " " << atom_spec_t(link_atom_4) << " "
+		  //           << std::endl;
+
+                  logger.log(log_t::INFO, {"   link #", il, "has residues",
+                                           residue_spec_t(r_1).format(),
+                                           residue_spec_t(r_2).format(),
+                                           residue_spec_t(r_3).format(),
+                                           residue_spec_t(r_4).format()});
+                  logger.log(log_t::INFO, {"   link #", il, "has link_atoms:",
+                                           atom_spec_t(link_atom_1).format(),
+                                           atom_spec_t(link_atom_2).format(),
+                                           atom_spec_t(link_atom_3).format(),
+                                           atom_spec_t(link_atom_4).format()});
+
 		  if (link_atom_1 && link_atom_2 && link_atom_3 && link_atom_4) {
 		     torsion_atom_quad q(link_atom_1, link_atom_2, link_atom_3, link_atom_4,
 					 rest.angle(),
@@ -369,8 +388,8 @@ coot::torsionable_link_quads(int imol,
 
 	    // bleugh... OK, no torsion restraints.
 	    // So use a bond restaint to make one torsion (around the link bond).
-	    // 
-	    for (unsigned int ib=0; ib<link.link_bond_restraint.size(); ib++) { 
+	    //
+	    for (unsigned int ib=0; ib<link.link_bond_restraint.size(); ib++) {
 	       mmdb::Atom *link_atom_1 = bpc[i].res_1->GetAtom(link.link_bond_restraint[ib].atom_id_1_4c().c_str());
 	       mmdb::Atom *link_atom_2 = bpc[i].res_2->GetAtom(link.link_bond_restraint[ib].atom_id_2_4c().c_str());
 	       if (link_atom_1 && link_atom_2) {

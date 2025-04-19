@@ -744,7 +744,7 @@ coot::cho::add_linked_residue(atom_selection_container_t *asc,
       std::string pkg_data_dir = package_data_dir();
       std::filesystem::path pkg_data_path = std::filesystem::path(pkg_data_dir);
       std::filesystem::path cho_models_path = pkg_data_path / "data" / "cho-models";
-      std::cout << "debug:: pkd_data_dir is " << pkg_data_dir << std::endl;
+      // std::cout << "debug:: pkd_data_dir is " << pkg_data_dir << std::endl;
       return cho_models_path;
    };
 
@@ -779,7 +779,8 @@ coot::cho::add_linked_residue(atom_selection_container_t *asc,
       std::string fn = "model-level-" + std::to_string(level) + "-" + new_type + "-" + link_type + "-" + new_type + ".tab";
       std::filesystem::path cho_models_path = get_glyco_dir_path();
       std::filesystem::path model_path = cho_models_path / fn;
-      std::cout << "model file name: " << model_path.string() << std::endl;
+      // std::cout << "model file name: " << model_path.string() << std::endl;
+      logger.log(log_t::DEBUG, "model file name", model_path.string());
       if (std::filesystem::exists(model_path)) {
          std::ifstream f(model_path);
          if (f) {

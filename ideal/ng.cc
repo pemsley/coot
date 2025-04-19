@@ -32,6 +32,10 @@
 #include "coot-utils/contacts-by-bricks.hh"
 #include "coot-utils/stack-and-pair.hh"
 
+#include "utils/logging.hh"
+extern logging logger;
+
+
 int
 coot::restraints_container_t::make_restraints_ng(int imol,
                                                  const coot::protein_geometry &geom,
@@ -308,7 +312,9 @@ coot::restraints_container_t::make_rama_plot_restraints_ng(const std::map<mmdb::
 void
 coot::restraints_container_t::make_base_pairing_and_stacking_restraints_ng(int imol, const coot::protein_geometry &geom) {
 
-   bool console_output_for_restraints_generation_timings = true;
+   // maybe useful for to change to DEBUG
+   bool console_output_for_restraints_generation_timings = false;
+
    auto tp_6 = std::chrono::high_resolution_clock::now();
    stack_and_pair sp(mol, residues_vec);
    std::vector<stack_and_pair::stacked_planes_info_t> stacked_residues = sp.stacked_residues(mol);
@@ -354,9 +360,10 @@ coot::restraints_container_t::make_base_pairing_and_stacking_restraints_ng(int i
          }
       }
    }
-   if (console_output_for_restraints_generation_timings)
-      std::cout << "INFO:: Made " << n_base_pairing_bonds << " base pairing Hydrogen bonds"
-                << std::endl;
+
+   // std::cout << "INFO:: Made " << n_base_pairing_bonds << " base pairing Hydrogen bonds"
+   //           << std::endl;
+   logger.log(log_t::INFO, "Made", n_base_pairing_bonds, "base paring hydrogen bonds");
 
    auto tp_9 = std::chrono::high_resolution_clock::now();
 
@@ -2286,10 +2293,13 @@ coot::restraints_container_t::make_other_types_of_link(const coot::protein_geome
                   if (false)
                      std::cout << "debug:: lt.first size " << lt.first.size() << std::endl;
 
-                  if (! lt.first.empty())
-                     std::cout << "DEBUG:: make_other_types_of_link() \"" << lt.first << "\""
-                               << " for " << atom_spec_t(at_1) << " " << atom_spec_t(at_2)
-                               << " detected" << std::endl;
+                  if (! lt.first.empty()) {
+                     // std::cout << "DEBUG:: make_other_types_of_link() \"" << lt.first << "\""
+                     //           << " for " << atom_spec_t(at_1) << " " << atom_spec_t(at_2)
+                     //           << " detected" << std::endl;
+                     logger.log(log_t::DEBUG, "make_other_types_of_link()", lt.first, "for",
+                                atom_spec_t(at_1).format(), atom_spec_t(at_2).format(), "detected");
+                  }
 
                   if (! lt.first.empty()) {
                      // this is not the place to make peptide links, event though find_link_type_complicado()

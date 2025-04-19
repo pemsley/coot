@@ -63,6 +63,7 @@ public:
       ltw(const char *s);
       ltw(bool b);
       ltw(const int &i);
+      ltw(const unsigned int &i);
       ltw(const unsigned long &i);
       ltw(float f);
       ltw(const double &d);
@@ -118,6 +119,7 @@ public:
    void log(log_t type_in, ltw l1, ltw l2, ltw l3);
    void log(log_t type_in, const ltw &l1, const ltw &l2, const ltw &l3, const ltw &l4);
    void log(log_t type_in, ltw l1, ltw l2, ltw l3, ltw l4, ltw l5);
+   void log(log_t type_in, ltw l1, ltw l2, ltw l3, ltw l4, ltw l5, ltw l6);
    void log(log_t type_in,
             const ltw &l1, const ltw &l2, const ltw &l3, const ltw &l4, const ltw &l5,
             const ltw &l6, const ltw &l7, const ltw &l8, const ltw &l9, const ltw &l10);

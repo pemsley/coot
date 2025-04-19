@@ -58,6 +58,10 @@
 
 #include "compat/coot-sysdep.h"
 
+#include "utils/logging.hh"
+extern logging logger;
+
+
 zo::rama_table_set coot::restraints_container_t::zo_rama;
 std::atomic<bool> coot::restraints_container_t::print_lock(false);
 
@@ -259,20 +263,55 @@ coot::restraints_container_t::restraints_container_t(mmdb::PResidue *SelResidues
       if (resno > iend_res_l)
 	 iend_res_l = resno;
    }
-   
+
    short int have_flanking_residue_at_start = 0;
    short int have_flanking_residue_at_end = 0;
    short int have_disulfide_residues = 0;
    const char *chn = chain_id.c_str();
 
    // std::cout << "DEBUG:  ==== istart_res iend_res " << istart_res << " "
-   // << iend_res << std::endl; 
+   // << iend_res << std::endl;
 
    init_from_mol(istart_res_l, iend_res_l,
 		 have_flanking_residue_at_start,
 		 have_flanking_residue_at_end,
-		 have_disulfide_residues, 
+		 have_disulfide_residues,
 		 std::string(""), chn, mol_in, fixed_atoms_dummy);
+
+}
+
+void
+coot::restraints_container_t::link_restraints_counts::report() const {
+
+   // std::cout << "   Made " << n_link_bond_restr    << " " << link_type << " bond restraints\n";
+   // std::cout << "   Made " << n_link_angle_restr   << " " << link_type << " angle restraints\n";
+   // std::cout << "   Made " << n_link_plane_restr   << " " << link_type << " plane restraints\n";
+   // std::cout << "   Made " << n_link_trans_peptide << " " << link_type << " trans-peptide restraints\n";
+
+   logger.log(log_t::INFO, {"created", n_link_bond_restr,    link_type, "bond restraints"});
+   logger.log(log_t::INFO, {"created", n_link_angle_restr,   link_type, "angle restraints"});
+   logger.log(log_t::INFO, {"created", n_link_plane_restr,   link_type, "plane restraints"});
+   logger.log(log_t::INFO, {"created", n_link_trans_peptide, link_type, "trans-peptide restraints"});
+}
+
+void
+coot::restraints_container_t::restraint_counts_t::report(bool do_residue_internal_torsions) const {
+
+   // std::cout << "created " << n_bond_restraints   << " bond       restraints " << std::endl;
+   // std::cout << "created " << n_angle_restraints  << " angle      restraints " << std::endl;
+   // std::cout << "created " << n_plane_restraints  << " plane      restraints " << std::endl;
+   // std::cout << "created " << n_chiral_restr      << " chiral vol restraints " << std::endl;
+   // std::cout << "created " << n_improper_dihedral_restr << " improper dihedral restraints " << std::endl;
+   // if (do_residue_internal_torsions)
+   //    std::cout << "created " << n_torsion_restr << " torsion restraints " << std::endl;
+
+   logger.log(log_t::INFO, {"created", n_bond_restraints,  "bond       restraints"});
+   logger.log(log_t::INFO, {"created", n_angle_restraints, "angle      restraints"});
+   logger.log(log_t::INFO, {"created", n_plane_restraints, "plane      restraints"});
+   logger.log(log_t::INFO, {"created", n_chiral_restr,     "chiral vol restraints"});
+   logger.log(log_t::INFO, {"created", n_improper_dihedral_restr, "improper dihedral restraints"});
+   if (do_residue_internal_torsions)
+      logger.log(log_t::INFO, {"created", n_torsion_restr, "torsion restraints"});
 
 }
 

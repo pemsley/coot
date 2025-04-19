@@ -67,6 +67,12 @@ logging::ltw::ltw(const int &i_in) {
    i = i_in;
 }
 
+logging::ltw::ltw(const unsigned int &i_in) {
+   // slightly naughty
+   type = type_t::INT_TYPE;
+   i = i_in;
+}
+
 logging::ltw::ltw(const unsigned long &i_in) {
    // slightly naughty
    type = type_t::INT_TYPE;
@@ -345,6 +351,54 @@ logging::log(log_t type_in, const ltw &l1, const ltw &l2, const ltw &l3, const l
    output_to_terminal_maybe();
    notify();
 
+}
+
+void
+logging::log(log_t type_in, ltw l1, ltw l2, ltw l3, ltw l4, ltw l5) {
+
+   log_item l;
+   l.type = type_in;
+   timeval current_time;
+   int success = gettimeofday(&current_time, NULL);
+   if (success == 0) // was successful
+      l.t = current_time.tv_sec;
+   l.message += l1.to_string();
+   l.message += " ";
+   l.message += l2.to_string();
+   l.message += " ";
+   l.message += l3.to_string();
+   l.message += " ";
+   l.message += l4.to_string();
+   l.message += " ";
+   l.message += l5.to_string();
+   history.push_back(l);
+   output_to_terminal_maybe();
+   notify();
+}
+
+void
+logging::log(log_t type_in, ltw l1, ltw l2, ltw l3, ltw l4, ltw l5, ltw l6) {
+
+   log_item l;
+   l.type = type_in;
+   timeval current_time;
+   int success = gettimeofday(&current_time, NULL);
+   if (success == 0) // was successful
+      l.t = current_time.tv_sec;
+   l.message += l1.to_string();
+   l.message += " ";
+   l.message += l2.to_string();
+   l.message += " ";
+   l.message += l3.to_string();
+   l.message += " ";
+   l.message += l4.to_string();
+   l.message += " ";
+   l.message += l5.to_string();
+   l.message += " ";
+   l.message += l6.to_string();
+   history.push_back(l);
+   output_to_terminal_maybe();
+   notify();
 }
 
 void

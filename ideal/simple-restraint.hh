@@ -1146,15 +1146,7 @@ namespace coot {
             n_torsion_restr += r.n_torsion_restr;
             n_improper_dihedral_restr += r.n_improper_dihedral_restr;
          }
-         void report(bool do_residue_internal_torsions) {
-            std::cout << "created " << n_bond_restraints   << " bond       restraints " << std::endl;
-            std::cout << "created " << n_angle_restraints  << " angle      restraints " << std::endl;
-            std::cout << "created " << n_plane_restraints  << " plane      restraints " << std::endl;
-            std::cout << "created " << n_chiral_restr      << " chiral vol restraints " << std::endl;
-            std::cout << "created " << n_improper_dihedral_restr << " improper dihedral restraints " << std::endl;
-            if (do_residue_internal_torsions)
-               std::cout << "created " << n_torsion_restr << " torsion restraints " << std::endl;
-         }
+         void report(bool do_residue_internal_torsions) const;
       };
 
    private:
@@ -1893,12 +1885,7 @@ namespace coot {
             n_link_torsion_restr += lrc.n_link_torsion_restr;
             n_link_improper_dihedral_restr += lrc.n_link_improper_dihedral_restr;
          }
-         void report() const {
-            std::cout << "   Made " << n_link_bond_restr    << " " << link_type << " bond restraints\n";
-            std::cout << "   Made " << n_link_angle_restr   << " " << link_type << " angle restraints\n";
-            std::cout << "   Made " << n_link_plane_restr   << " " << link_type << " plane restraints\n";
-            std::cout << "   Made " << n_link_trans_peptide << " " << link_type << " trans-peptide restraints\n";
-         }
+         void report() const;
       };
 
       class reduced_angle_info_container_t {

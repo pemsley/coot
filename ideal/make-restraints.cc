@@ -603,8 +603,11 @@ coot::restraints_container_t::make_helix_pseudo_bond_restraints_from_res_vec_aut
 
    }
 
-   if (verbose_geometry_reporting)
-      std::cout << "INFO:: added " << n_helical_restraints << " helical restraints" << std::endl;
+   if (verbose_geometry_reporting) {
+      // std::cout << "INFO:: added " << n_helical_restraints << " helical restraints" << std::endl;
+      logger.log(log_t::INFO, "added", n_helical_restraints, "helical restraints");
+   }
+
    if (console_output_for_restraints_generation_timings) {
       auto tp_1 = std::chrono::high_resolution_clock::now();
       auto d10 = std::chrono::duration_cast<std::chrono::microseconds>(tp_1 - tp_0).count();
@@ -1133,12 +1136,10 @@ coot::restraints_container_t::make_monomer_restraints_by_residue(int imol, mmdb:
 
 
 	 if (restraints_usage_flag & CHIRAL_VOLUME_MASK) {
-	    local.n_chiral_restr += add_chirals(idr, res_selection, i_no_res_atoms, 
-						residue_p, geom);
+	    local.n_chiral_restr += add_chirals(idr, res_selection, i_no_res_atoms, residue_p, geom);
 	 }
 
-	 restraint_counts_t mod_counts =
-	    apply_mods(idr, res_selection, i_no_res_atoms, residue_p, geom);
+	 restraint_counts_t mod_counts = apply_mods(idr, res_selection, i_no_res_atoms, residue_p, geom);
 	 // now combine mod_counts with local
       }
    }
@@ -1177,7 +1178,7 @@ coot::restraints_container_t::add_bonds(int idr, mmdb::PPAtom res_selection,
 	    std::cout << "comparing first (pdb) :" << pdb_atom_name1
 		      << ": with (dict) :"
 		      << dict.bond_restraint[ib].atom_id_1_4c()
-		      << ":" << std::endl; 
+		      << ":" << std::endl;
 
 	 if (pdb_atom_name1 == dict.bond_restraint[ib].atom_id_1_4c()) {
 	    for (int iat2=0; iat2<i_no_res_atoms; iat2++) {
@@ -1195,9 +1196,9 @@ coot::restraints_container_t::add_bonds(int idr, mmdb::PPAtom res_selection,
 		  // check that the alt confs aren't different
 		  std::string alt_1(res_selection[iat ]->altLoc);
 		  std::string alt_2(res_selection[iat2]->altLoc);
-		  if (alt_1 == "" || alt_2 == "" || alt_1 == alt_2) { 
+		  if (alt_1 == "" || alt_2 == "" || alt_1 == alt_2) {
 
-		     if (debug) { 
+		     if (debug) {
 			std::cout << "atom match 1 " << pdb_atom_name1;
 			std::cout << " atom match 2 " << pdb_atom_name2
 				  << std::endl;
@@ -1428,7 +1429,7 @@ coot::restraints_container_t::add_torsion_internal(const coot::dict_torsion_rest
 
       if (torsion_restraint.periodicity() > 0) { // we had this test most inner
 	 if (torsion_restraint.esd() > 0.000001) { // new test
-	 
+
 	    // now find the atoms
 	    for (int iat=0; iat<i_no_res_atoms; iat++) {
 	       std::string pdb_atom_name1(res_selection[iat]->name);
@@ -1438,17 +1439,17 @@ coot::restraints_container_t::add_torsion_internal(const coot::dict_torsion_rest
 
 		     std::string pdb_atom_name2(res_selection[iat2]->name);
 		     if (pdb_atom_name2 == torsion_restraint.atom_id_2_4c()) {
-				    
+
 			for (int iat3=0; iat3<i_no_res_atoms; iat3++) {
-		     
+
 			   std::string pdb_atom_name3(res_selection[iat3]->name);
 			   if (pdb_atom_name3 == torsion_restraint.atom_id_3_4c()) {
-		  
+
 			      for (int iat4=0; iat4<i_no_res_atoms; iat4++) {
-		     
+
 				 std::string pdb_atom_name4(res_selection[iat4]->name);
 				 if (pdb_atom_name4 == torsion_restraint.atom_id_4_4c()) {
-		  
+
 				    // now we need the indices of
 				    // pdb_atom_name1 and
 				    // pdb_atom_name2 in asc.atom_selection:
