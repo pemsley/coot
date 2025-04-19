@@ -20,7 +20,6 @@
  * 02110-1301, USA
  */
 
-
 #ifndef LOGGING_HH
 #define LOGGING_HH
 
@@ -93,9 +92,12 @@ private:
    std::vector<log_item> history;
    void operator<<(const std::string &s);
    void output_to_terminal_maybe();
- public:
+   void (*update_notifier_function)();
+   void notify();
+
+public:
    enum class output_t {TERMINAL, TERMINAL_WITH_DEBUGGING, INTERNAL, BOTH};
-   logging() : output_type(output_t::TERMINAL) {}
+   logging() : update_notifier_function(nullptr), output_type(output_t::TERMINAL) {}
    output_t output_type;
    //! if output_type is TERMINAL, show_last() writes to the terminal. Else
    //! show_last() does nothing.
@@ -134,6 +136,8 @@ private:
 
    void show() const;
    void show_last() const;
+   void set_update_notifier_function(void (*func)()) { update_notifier_function = func; }
+
    friend std::ostream& operator<<(std::ostream &o, const log_item &li);
 };
 

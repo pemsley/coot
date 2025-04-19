@@ -93,7 +93,15 @@ logging::ltw::to_string() const {
       return std::to_string(f);
    if (type == type_t::DOUBLE_TYPE)
       return std::to_string(d);
-   return "---unknown-type-in-to-string---";
+   if (type == type_t::BOOL_TYPE)
+      return std::to_string(b);
+   return "--- unknown-type in ltw::to_string() ---";
+}
+
+void
+logging::notify() {
+   if (update_notifier_function)
+      update_notifier_function();
 }
 
 void
@@ -107,6 +115,7 @@ logging::log(const std::string &s) {
       l.t = current_time.tv_sec;
 
    history.push_back(l);
+   notify();
 
 }
 
@@ -122,7 +131,7 @@ logging::log(log_t type, const std::string &s) {
       l.t = current_time.tv_sec;
    history.push_back(l);
    output_to_terminal_maybe();
-
+   notify();
 }
 
 void
@@ -140,7 +149,7 @@ logging::log(log_t type, const std::string &s1, const std::string &s2) {
    l.add_to_message(s2);
    history.push_back(l);
    output_to_terminal_maybe();
-
+   notify();
 }
 
 void
@@ -153,6 +162,7 @@ logging::log(log_t type_in, const function_name_t &fn, const std::string &s1) {
       l.t = current_time.tv_sec;
    history.push_back(l);
    output_to_terminal_maybe();
+   notify();
 }
 
 void
@@ -167,6 +177,7 @@ logging::log(log_t type_in, const function_name_t &fn, const std::string &s1, co
    l.add_to_message(s2);
    history.push_back(l);
    output_to_terminal_maybe();
+   notify();
 }
 
 void
@@ -183,6 +194,7 @@ logging::log(log_t type_in, const function_name_t &fn, const std::vector<ltw> &v
    }
    history.push_back(l);
    output_to_terminal_maybe();
+   notify();
 }
 
 
@@ -203,6 +215,7 @@ logging::log(log_t type_in, const std::string &s1, bool v1, const std::string &s
    l.message += s2;
    history.push_back(l);
    output_to_terminal_maybe();
+   notify();
 
 }
 
@@ -219,6 +232,7 @@ logging::log(log_t type_in, const std::string &s1, const int &i) {
    l.message += std::to_string(i);
    history.push_back(l);
    output_to_terminal_maybe();
+   notify();
 }
 
 
@@ -241,6 +255,7 @@ logging::log(log_t type_in, const std::string &s1, bool v1, const std::string &s
    l.message += s3;
    history.push_back(l);
    output_to_terminal_maybe();
+   notify();
 }
 
 
@@ -254,6 +269,9 @@ logging::log(log_t type_in, const std::string &s1, const double &d1) {
       l.t = current_time.tv_sec;
    l.add_to_message(s1);
    l.add_to_message(std::to_string(d1));
+   history.push_back(l);
+   output_to_terminal_maybe();
+   notify();
 }
 
 void
@@ -266,6 +284,9 @@ logging::log(log_t type_in, const std::string &s1, const float &f1) {
       l.t = current_time.tv_sec;
    l.add_to_message(s1);
    l.add_to_message(std::to_string(f1));
+   history.push_back(l);
+   output_to_terminal_maybe();
+   notify();
 }
 
 void
@@ -282,7 +303,7 @@ logging::log(log_t type_in, ltw l1, ltw l2) {
    l.message += l2.to_string();
    history.push_back(l);
    output_to_terminal_maybe();
-
+   notify();
 }
 
 void
@@ -301,7 +322,7 @@ logging::log(log_t type_in, ltw l1, ltw l2, ltw l3) {
    l.message += l3.to_string();
    history.push_back(l);
    output_to_terminal_maybe();
-
+   notify();
 }
 
 void
@@ -322,6 +343,7 @@ logging::log(log_t type_in, const ltw &l1, const ltw &l2, const ltw &l3, const l
    l.message += l4.to_string();
    history.push_back(l);
    output_to_terminal_maybe();
+   notify();
 
 }
 
@@ -340,6 +362,7 @@ logging::log(log_t type_in, const std::vector<ltw> &ls) {
    }
    history.push_back(l);
    output_to_terminal_maybe();
+   notify();
 }
 
 void
