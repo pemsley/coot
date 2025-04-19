@@ -44,7 +44,7 @@ namespace coot {
       }
 
       void printEdgeInfo(const Edge& edge) {
-         std::cout << "  Edge Info: " << edge.link_type << std::endl;
+         // std::cout << "  Edge Info: " << edge.link_type << std::endl;
          logger.log(log_t::INFO, logging::ltw("    Edge Info: "), logging::ltw(edge.link_type));
       }
 

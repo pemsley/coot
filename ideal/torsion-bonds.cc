@@ -35,6 +35,9 @@
 
 #include "torsion-bonds.hh"
 
+#include "utils/logging.hh"
+extern logging logger;
+
 
 // this can throw an exception
 // 
@@ -202,8 +205,6 @@ coot::torsionable_quads(int imol, mmdb::Manager *mol, mmdb::PPAtom atom_selectio
 			int n_selected_atoms,
 			protein_geometry *geom_p) {
 
-   std::cout << "debug:: in torsionable_quads() with n_selected_atoms " << n_selected_atoms << std::endl;
-
    bool pyranose_ring_torsion_flag = false; // no thanks
    std::vector<torsion_atom_quad> quads;
    std::vector<mmdb::Residue *> residues;
@@ -238,12 +239,16 @@ coot::torsionable_link_quads(int imol,
 			     std::vector<mmdb::Residue *> residues_in,
 			     mmdb::Manager *mol, protein_geometry *geom_p) {
 
-   if (true) {
-      std::cout << "torsionable_link_quads called with residues in size "
+   if (false) {
+      std::cout << "DEBUG:: torsionable_link_quads called with residues in size "
                 << residues_in.size() << std::endl;
       for (unsigned int i=0; i<residues_in.size(); i++) {
-         std::cout << "   " << coot::residue_spec_t(residues_in[i]) << std::endl;
+         std::cout << "DEBUG::   " << coot::residue_spec_t(residues_in[i]) << std::endl;
       }
+      logger.log(log_t::DEBUG, logging::ltw("torsionable_link_quads called with residues in size"),
+                 logging::ltw(residues_in.size()));
+      for (unsigned int i=0; i<residues_in.size(); i++)
+         logger.log(log_t::DEBUG, residue_spec_t(residues_in[i]).format());
    }
 
    std::vector<torsion_atom_quad> quads;
@@ -602,8 +607,11 @@ coot::multi_residue_torsion_fit_map(int imol,
 	       }
 
 	       if (this_score > best_score) {
-                  std::cout << "Round " << itrial << " improved! was " << best_score
-                            << " now " << this_score << std::endl;
+                  // std::cout << "Round " << itrial << " improved! was " << best_score
+                  // << " now " << this_score << std::endl;
+                  logger.log(log_t::DEBUG, {std::string("Round"), itrial,
+                                            std::string("improvement - was"), best_score,
+                                            std::string("now"), this_score});
                   // util::debug_z_weighted_density_score_new(atoms,xmap);
 		  // save best torsion angles
 		  best_score = this_score;

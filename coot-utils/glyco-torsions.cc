@@ -42,6 +42,8 @@
 #include <fstream>
 #include "utils/coot-utils.hh"
 #include "glyco-torsions.hh"
+#include "utils/logging.hh"
+extern logging logger;
 
 std::ostream&
 coot::operator<<(std::ostream &o, const atom_by_torsion_t &abt) {
@@ -166,15 +168,18 @@ coot::link_by_torsion_t::link_type_to_file_name(const std::string &link_type,
    std::string fn = "link-by-torsion-to-" + new_res_comp_id + "-core-" + link_type + ".tab";
    std::filesystem::path file_path = p / "data" / "cho-links" / fn;
 
-   std::cout << "debug:: link_type_to_file_name(): checking for " << file_path << std::endl;
+   // std::cout << "debug:: link_type_to_file_name(): checking for " << file_path << std::endl;
+   logger.log(log_t::DEBUG, logging::function_name_t(__FUNCTION__), "checking for", file_path.string());
 
    if (std::filesystem::exists(file_path)) {
-      std::cout << "... found" << std::endl;
+      // std::cout << "... found" << std::endl;
+      logger.log(log_t::DEBUG, logging::function_name_t(__FUNCTION__), file_path.string(), "found");
       return file_path.string();
    } else {
       fn = "link-by-torsion-to-pyranose-core-" + link_type + ".tab";
       std::filesystem::path ff = p / "data" / "cho-links" / fn;
-      std::cout << "..that failed - trying  " << ff << std::endl;
+      // std::cout << "..that failed - trying  " << ff << std::endl;
+      logger.log(log_t::DEBUG, logging::function_name_t(__FUNCTION__), "that failed, trying", ff.string());
       return ff.string();
    }
 }
@@ -620,23 +625,25 @@ void
 coot::link_by_torsion_t::read(const std::string &file_name) {
 
    if (! file_exists(file_name)) {
-      std::cout << "ERROR:: file not found " << file_name << std::endl;
+      // std::cout << "ERROR:: file not found " << file_name << std::endl;
+      logger.log(log_t::ERROR, "file not found:", file_name);
       return;
    } else {
-      std::cout << "reading " << file_name << std::endl;
-   } 
+      // std::cout << "reading " << file_name << std::endl;
+      logger.log(log_t::INFO, "reading", file_name);
+   }
 
    std::ifstream f(file_name.c_str());
 
    if (f) {
       std::vector<std::string> lines;
       std::string line;
-      while (std::getline(f, line)) { 
+      while (std::getline(f, line)) {
 	 lines.push_back(line);
       }
 
       if (lines.size()) {
-	 for (unsigned int i=0; i<lines.size(); i++) { 
+	 for (unsigned int i=0; i<lines.size(); i++) {
 	    std::vector<std::string> bits = coot::util::split_string_no_blanks(lines[i]);
 	    if (bits.size() == 16) {
 	       if (bits[0] == "atom") {
@@ -661,7 +668,8 @@ coot::link_by_torsion_t::read(const std::string &file_name) {
 		     add(abt);
 		  }
 		  catch (const std::runtime_error &rte) {
-		     std::cout << "Failed to parse: " << line << std::endl;
+		     std::cout << "ERROR:: Failed to parse: " << line << std::endl;
+                     logger.log(log_t::ERROR, "Failed to parse", line);
 		  }
 	       }
 	    }
@@ -669,9 +677,11 @@ coot::link_by_torsion_t::read(const std::string &file_name) {
       }
    }
    // std::cout << "finished read() with " << geom_atom_torsions.size() << " torsions" << std::endl;
-   if (geom_atom_torsions.size() == 0) 
-      std::cout << "After read()ing, we have " << geom_atom_torsions.size()
-		<< " atom torsions" << std::endl;
+   if (geom_atom_torsions.size() == 0) {
+      // std::cout << "DEBUG:: After read()ing, we have " << geom_atom_torsions.size()
+      // << " atom torsions" << std::endl;
+      logger.log(log_t::DEBUG, "After reading we have", geom_atom_torsions.size(), "atom torsions");
+   }
 }
 
 

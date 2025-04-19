@@ -3840,8 +3840,9 @@ coot::util::create_mmdbmanager_from_residue_vector(const std::vector<mmdb::Resid
    int udd_atom_index_handle = - 1;
    if (old_mol) {
       udd_atom_index_handle = old_mol->GetUDDHandle(mmdb::UDR_ATOM, "atom index");
-      std::cout << "debug:: create_mmdbmanager_from_residue_vector(): udd_atom_index_handle "
-                << udd_atom_index_handle << std::endl;
+      if (false)
+         std::cout << "debug:: create_mmdbmanager_from_residue_vector(): udd_atom_index_handle "
+                   << udd_atom_index_handle << std::endl;
    }
    int udd_old_atom_index_handle = mol->RegisterUDInteger(mmdb::UDR_ATOM, "old atom index");
    mol->AddModel(model_p);

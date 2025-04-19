@@ -51,6 +51,10 @@
 
 #include "compat/coot-sysdep.h"
 
+#include "utils/logging.hh"
+extern logging logger;
+
+
 // We need to fill restraints_vec (which is a vector of
 // simple_restraint) using the coordinates () and the dictionary of
 // restraints, protein_geometry geom.
@@ -1016,11 +1020,14 @@ coot::restraints_container_t::make_monomer_restraints_from_res_vec(int imol,
          std::cout << "ERROR:: in make_monomer_restraints_from_res_vec() null residue "
                    << ir << " of " << residues_vec.size() << std::endl;
       }
-   } 
+   }
 
    if (verbose_geometry_reporting != QUIET) {
-      std::cout << "INFO:: make_monomer_restraints_from_res_vec() of size " << residues_vec.size() << " created " << size()
-                << " monomer restraints " << std::endl;
+      // std::cout << "INFO:: make_monomer_restraints_from_res_vec() of size " << residues_vec.size()
+      // << " created " << size() << " monomer restraints " << std::endl;
+      logger.log(log_t::INFO, logging::function_name_t("make_monomer_restraints_from_res_vec()"),
+                 {std::string("of size"), residues_vec.size(), std::string("created"),
+                  size(), "monomer restraints"});
       sum.report(do_residue_internal_torsions);
    }
    return iret;

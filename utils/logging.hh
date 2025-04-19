@@ -61,8 +61,10 @@ public:
       float f;
    public:
       ltw(const std::string &s);
+      ltw(const char *s);
       ltw(bool b);
       ltw(const int &i);
+      ltw(const unsigned long &i);
       ltw(float f);
       ltw(const double &d);
       std::string to_string() const;
@@ -125,6 +127,8 @@ private:
 
    // 20241211-PE now I want to pass the function name also - let's do those...
    void log(log_t type_in, const function_name_t &fn, const std::string &s1);
+
+   void log(log_t type_in, const function_name_t &fn, const std::string &s1, const std::string &s2);
 
    void log(log_t type_in, const function_name_t &fn, const std::vector<ltw> &v);
 

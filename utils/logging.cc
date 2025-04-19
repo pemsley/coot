@@ -51,12 +51,24 @@ logging::ltw::ltw(const std::string &s_in) {
    s = s_in;
 }
 
+logging::ltw::ltw(const char *s_in) {
+   type = type_t::STRING_TYPE;
+   if (s_in)
+      s = std::string(s_in);
+}
+
 logging::ltw::ltw(bool b_in) {
    type = type_t::BOOL_TYPE;
    b = b_in;
 }
 
 logging::ltw::ltw(const int &i_in) {
+   type = type_t::INT_TYPE;
+   i = i_in;
+}
+
+logging::ltw::ltw(const unsigned long &i_in) {
+   // slightly naughty
    type = type_t::INT_TYPE;
    i = i_in;
 }
@@ -144,6 +156,20 @@ logging::log(log_t type_in, const function_name_t &fn, const std::string &s1) {
 }
 
 void
+logging::log(log_t type_in, const function_name_t &fn, const std::string &s1, const std::string &s2) {
+
+   log_item l(type_in, fn);
+   timeval current_time;
+   int success = gettimeofday(&current_time, NULL);
+   if (success == 0) // was successful
+      l.t = current_time.tv_sec;
+   l.add_to_message(s1);
+   l.add_to_message(s2);
+   history.push_back(l);
+   output_to_terminal_maybe();
+}
+
+void
 logging::log(log_t type_in, const function_name_t &fn, const std::vector<ltw> &v) {
 
    log_item l(type_in, fn);
@@ -215,6 +241,31 @@ logging::log(log_t type_in, const std::string &s1, bool v1, const std::string &s
    l.message += s3;
    history.push_back(l);
    output_to_terminal_maybe();
+}
+
+
+void
+logging::log(log_t type_in, const std::string &s1, const double &d1) {
+
+   log_item l(type_in);
+   timeval current_time;
+   int success = gettimeofday(&current_time, NULL);
+   if (success == 0) // was successful
+      l.t = current_time.tv_sec;
+   l.add_to_message(s1);
+   l.add_to_message(std::to_string(d1));
+}
+
+void
+logging::log(log_t type_in, const std::string &s1, const float &f1) {
+
+   log_item l(type_in);
+   timeval current_time;
+   int success = gettimeofday(&current_time, NULL);
+   if (success == 0) // was successful
+      l.t = current_time.tv_sec;
+   l.add_to_message(s1);
+   l.add_to_message(std::to_string(f1));
 }
 
 void
