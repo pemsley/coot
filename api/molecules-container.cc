@@ -41,6 +41,9 @@
 #include "coords/Bond_lines.h"
 #include "coords/mmdb.hh"
 
+#include "utils/logging.hh"
+extern logging logger;
+
 // statics
 std::atomic<bool> molecules_container_t::restraints_lock(false);
 std::atomic<bool> molecules_container_t::on_going_updating_map_lock(false);
@@ -102,6 +105,21 @@ molecules_container_t::is_valid_map_molecule(int imol) const {
    }
    return status;
 }
+
+//! Control the logging
+//!
+//! @param level is the logging level
+void
+molecules_container_t::set_logging_level(const std::string &level) {
+
+   logging::output_t ot = logging::output_t::TERMINAL;
+   if (level == "LOW")       ot = logging::output_t::INTERNAL;
+   if (level == "HIGH")      ot = logging::output_t::TERMINAL;
+   if (level == "DEBUGGING") ot = logging::output_t::TERMINAL_WITH_DEBUGGING;
+   logger.set_output_type(ot);
+}
+
+
 
 //! @return is this a difference map?
 bool

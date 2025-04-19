@@ -2519,6 +2519,11 @@ public:
    //! @param imol is the model molecule index
    void turn_off_when_close_target_position_restraint(int imol);
 
+   //! Control the logging
+   //!
+   //! @param level is the logging level, level is either "LOW" or "HIGH" or "DEBUGGING"
+   void set_logging_level(const std::string &level);
+
    //! Turn on or off rama restraints
    //!
    //! @param state is True to mean that it is enabled

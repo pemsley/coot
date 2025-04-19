@@ -416,6 +416,7 @@ NB_MODULE(coot_headless_api, m) {
     .def("set_gltf_pbr_roughness_factor",&molecules_container_t::set_gltf_pbr_roughness_factor)
     .def("set_imol_refinement_map",&molecules_container_t::set_imol_refinement_map)
     .def("set_make_backups",&molecules_container_t::set_make_backups)
+    .def("set_logging_level",&molecules_container_t::set_logging_level)
     .def("set_map_sampling_rate",&molecules_container_t::set_map_sampling_rate)
     .def("set_map_weight",&molecules_container_t::set_map_weight)
     .def("set_max_number_of_threads",&molecules_container_t::set_max_number_of_threads)
