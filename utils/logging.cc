@@ -133,11 +133,28 @@ logging::log(log_t type, const std::string &s1, const std::string &s2) {
 
 void
 logging::log(log_t type_in, const function_name_t &fn, const std::string &s1) {
+
    log_item l(type_in, fn, s1);
    timeval current_time;
    int success = gettimeofday(&current_time, NULL);
    if (success == 0) // was successful
       l.t = current_time.tv_sec;
+   history.push_back(l);
+   output_to_terminal_maybe();
+}
+
+void
+logging::log(log_t type_in, const function_name_t &fn, const std::vector<ltw> &v) {
+
+   log_item l(type_in, fn);
+   timeval current_time;
+   int success = gettimeofday(&current_time, NULL);
+   if (success == 0) // was successful
+      l.t = current_time.tv_sec;
+   for (const auto &item : v) {
+      l.add_to_message(item.to_string());
+      l.add_to_message(" ");
+   }
    history.push_back(l);
    output_to_terminal_maybe();
 }
@@ -294,6 +311,24 @@ logging::show() const {
    }
 }
 
+std::string
+logging::log_item::to_string() const {
+
+   std::string type_as_string;
+   if (type == log_t::INFO)        type_as_string = "INFO::";
+   if (type == log_t::DEBUG)       type_as_string = "DEBUG::";
+   if (type == log_t::ERROR)       type_as_string = "ERROR::";
+   if (type == log_t::WARNING)     type_as_string = "WARNING::";
+   if (type == log_t::UNSPECIFIED) type_as_string = "UNSPECIFIED::";
+   std::string ctime_str = ctime(&t);
+   if (! ctime_str.empty()) {
+      ctime_str.pop_back();
+      ctime_str += ":";
+   }
+   std::string o = type_as_string + " " + ctime_str + ": " + message;
+   return o;
+}
+
 void
 logging::show_last() const {
 
@@ -308,19 +343,7 @@ logging::show_last() const {
          do_it = true;
 
       if (do_it) {
-         // make a show function for a log_item!
-         std::string type_as_string;
-         if (h.type == log_t::INFO)        type_as_string = "INFO::";
-         if (h.type == log_t::DEBUG)       type_as_string = "DEBUG::";
-         if (h.type == log_t::ERROR)       type_as_string = "ERROR::";
-         if (h.type == log_t::WARNING)     type_as_string = "WARNING::";
-         if (h.type == log_t::UNSPECIFIED) type_as_string = "UNSPECIFIED::";
-         std::string ctime_str = ctime(&h.t);
-         if (! ctime_str.empty()) {
-            ctime_str.pop_back();
-            ctime_str += ":";
-         }
-         std::cout << type_as_string << " " << ctime_str << " " << h.message << std::endl;
+         std::cout << h.to_string() << std::endl;
       }
    }
 }

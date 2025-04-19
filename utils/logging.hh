@@ -51,7 +51,6 @@ public:
       std::string fn;
    };
 
-
    class ltw { // logging type wrapper
       enum class type_t { STRING_TYPE, BOOL_TYPE, INT_TYPE, FLOAT_TYPE, DOUBLE_TYPE};
       type_t type;
@@ -78,11 +77,13 @@ public:
       log_item() : t(0), type(log_t::UNSPECIFIED) {}
       log_item(log_t type_in) : type(type_in) {}
       log_item(log_t type_in, const std::string &message_in) : t(0), type(type_in), message(message_in) {}
+      log_item(log_t type_in, const function_name_t &fn) : t(0), type(type_in), function_name(fn) {}
       log_item(log_t type_in, const function_name_t &fn, const std::string &message_in) :
          t(0), type(type_in), function_name(fn), message(message_in) {}
       log_item(const std::string &message_in) : t(0), type(log_t::UNSPECIFIED), message(message_in) {}
       log_item(const std::vector<ltw> &ls);
       void add_to_message(const std::string &s) { message += s; }
+      std::string to_string() const;
       friend std::ostream& operator<<(std::ostream &o, const log_item &li);
    };
 
@@ -124,6 +125,8 @@ private:
 
    // 20241211-PE now I want to pass the function name also - let's do those...
    void log(log_t type_in, const function_name_t &fn, const std::string &s1);
+
+   void log(log_t type_in, const function_name_t &fn, const std::vector<ltw> &v);
 
    void show() const;
    void show_last() const;
