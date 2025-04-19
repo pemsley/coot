@@ -58,6 +58,8 @@ typedef const char entry_char_type;
 
 #include "cc-interface.hh" // for read_ccp4_map()
 
+#include "utils/logging.hh"
+extern logging logger;
 
 // Let's put the new refinement and regularization control tools together here
 // (although not strictly main window)
@@ -687,7 +689,7 @@ void on_replace_residue_ok_button_clicked(GtkButton *button,
                const auto &restraints_current_type = rp_current.second;
                int status = coot::util::mutate_by_overlap(residue_p, mol, restraints_current_type, restraints_new_type);
                if (status == 0)
-                  graphics_info_t::log.log(logging::WARNING, "mutate_by_overlap() failed");
+                  logger.log(log_t::WARNING, "mutate_by_overlap() failed");
             }
          }
       }

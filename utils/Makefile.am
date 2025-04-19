@@ -41,7 +41,7 @@ pkgincludedir = $(includedir)/coot/utils
 libcoot_utils_la_SOURCES = coot-utils.cc coot-fasta.cc atomic-numbers.cc setup-syminfo.cc \
 	gdk-keysyms.cc hsv-rgb.cc dodec.cc win-compat.cc threads.cc align-utils.cc base64-encode-decode.cc \
 	pir-alignment.cc split-indices.cc radix.cc logging.cc insertion-sort.cc colour-holder.cc \
-	next-file-version.cc
+	next-file-version.cc static-logging.cc
 
 libcoot_utils_la_LIBADD = \
 	$(CLIPPER_LIBS) \

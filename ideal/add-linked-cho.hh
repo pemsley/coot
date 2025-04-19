@@ -21,7 +21,7 @@ namespace coot {
       //! checks to see if residue_pp is well fitting and doesn't clash or symmetry clash
       bool is_well_fitting(mmdb::Residue *residue_p,
                            mmdb::Manager *mol,
-                           clipper::Xmap<float> &xmap,
+                           const clipper::Xmap<float> &xmap,
                            const protein_geometry &geom);
 
       //! \brief return 1 if this residue clashes with the symmetry-related

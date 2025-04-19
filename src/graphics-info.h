@@ -986,7 +986,6 @@ public:
 
    static bool use_gemmi;
    void set_use_gemmi(bool state) { use_gemmi = state; }
-   static logging log;
 
    static bool coot_is_a_python_module; //turned off in main()
    static bool prefer_python;

@@ -23,7 +23,7 @@
 # Tell autoreconf where to find macros
 ACLOCAL_AMFLAGS=-I macros
 
-# see configure.in for po intl 
+# see configure.in for po intl
 #
 # coot-utils depends on mini-mol.
 # geometry depends on utils

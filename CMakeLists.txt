@@ -255,6 +255,7 @@ add_library(cootapi SHARED
             ${coot_src}/utils/setup-syminfo.cc
             ${coot_src}/utils/split-indices.cc
             ${coot_src}/utils/logging.cc
+            ${coot_src}/utils/static-logging.cc
             ${coot_src}/utils/threads.cc
             ${coot_src}/utils/win-compat.cc
             ${coot_src}/db-main/db-strands.cc

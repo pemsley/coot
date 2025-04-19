@@ -1,5 +1,10 @@
 
 #include <fstream>
+#include <memory>
+#include <variant>
+
+#include "utils/logging.hh"
+
 #include "coot-utils/atom-selection-container.hh"
 #include "extra-restraints.hh"
 #include "geometry/residue-and-atom-specs.hh"
@@ -15,8 +20,7 @@
 #include "add-linked-cho.hh"
 #include "utils/coot-utils.hh"
 
-#include <memory>
-#include <variant>
+extern logging logger;
 
 namespace coot {
    namespace cho {
@@ -35,11 +39,13 @@ namespace coot {
       };
 
       void printNodeInfo(const Node& node) {
-         std::cout << "Handle Node with Info: " << node.res_type << " spec: " << node.spec << std::endl;
+         logger.log(log_t::INFO, {logging::ltw("Handle Node with Info: "), logging::ltw(node.res_type),
+                                  logging::ltw("spec"), logging::ltw(node.spec.format())});
       }
 
       void printEdgeInfo(const Edge& edge) {
          std::cout << "  Edge Info: " << edge.link_type << std::endl;
+         logger.log(log_t::INFO, logging::ltw("    Edge Info: "), logging::ltw(edge.link_type));
       }
 
       void traverseTree(const Node& node) {
@@ -237,7 +243,7 @@ coot::cho::add_named_glyco_tree(const std::string &glycoylation_name, atom_selec
       }
 
       coot::residue_spec_t parent(asn_chain_id, asn_res_no, "");
-      float new_atoms_b_factor = 30.0;
+      float new_atoms_b_factor = 40.0; // calculate this!
 
       // std::pair<std::string, std::string> res_pair("pyr-ASN", "NAG");
       // coot::residue_spec_t new_res_spec =
@@ -277,7 +283,7 @@ coot::cho::clashes_with_symmetry(mmdb::Manager *mol, const coot::residue_spec_t 
 bool
 coot::cho::is_well_fitting(mmdb::Residue *residue_p,
                            mmdb::Manager *mol,
-                           clipper::Xmap<float> &xmap,
+                           const clipper::Xmap<float> &xmap,
                            const coot::protein_geometry &geom) {
 
    float add_linked_residue_tree_correlation_cut_off = 0.50;
@@ -295,6 +301,10 @@ coot::cho::is_well_fitting(mmdb::Residue *residue_p,
    unsigned short int atom_mask_mode = 0; // all atom
 
    float c = util::map_to_model_correlation(mol, residues_for_cc, residues_for_masking, atom_mask_mode, atom_radius, xmap);
+   // std::cout << "debug:: is_well_fitting: " << coot::residue_spec_t(residue_p) << " correllation: " << c << std::endl;
+   logger.log(log_t::DEBUG, std::string("is_well_fitting:"), coot::residue_spec_t(residue_p).format(),
+              std::string("correlation:"), c);
+   logger.show_last();
    if (c > add_linked_residue_tree_correlation_cut_off) {
       int symm_clash = clashes_with_symmetry(mol, res_spec, clash_dist, geom);
       if (symm_clash == 0) {
@@ -303,6 +313,7 @@ coot::cho::is_well_fitting(mmdb::Residue *residue_p,
    }
    return status;
 }
+
 
 
 bool
@@ -407,7 +418,8 @@ coot::cho::copy_and_add_residue_to_chain(mmdb::Manager *mol,
       for (unsigned int i=0; i<close_residues.size(); i++) {
          if (close_residues[i]->isSolvent() && add_model_residue->isSolvent()) {
             add_this = false;
-            std::cout<<"INFO:: not adding water because of overlap\n"<<std::endl;
+            // std::cout << "INFO:: not adding water because of overlap" << std::endl;
+            logger.log(log_t::INFO, std::string("not adding water because of overlap"));
             break;
          }
       }
@@ -500,10 +512,14 @@ coot::cho::make_link(mmdb::Manager *mol, const coot::atom_spec_t &spec_1,
    mmdb::Atom *at_2 = util::get_atom(spec_2, mol);
 
    if (! at_1) {
-      std::cout << "WARNING:: atom " << spec_1 << " not found - abandoning LINK addition " << std::endl;
+      // std::cout << "WARNING:: atom " << spec_1 << " not found - abandoning LINK addition " << std::endl;
+      logger.log(log_t::WARNING, std::string("atom"), spec_1.format(), "not found - abandoning LINK addtion");
+      logger.show_last();
    } else {
       if (! at_2) {
-	 std::cout << "WARNING:: atom " << spec_1 << " not found - abandoning LINK addition " << std::endl;
+	 // std::cout << "WARNING:: atom " << spec_1 << " not found - abandoning LINK addition " << std::endl;
+         logger.log(log_t::WARNING, std::string("atom"), spec_2.format(), "not found - abandoning LINK addtion");
+         logger.show_last();
       } else {
 
 	 mmdb::Model *model_1 = at_1->GetModel();
@@ -603,7 +619,6 @@ coot::cho::add_linked_residue_by_atom_torsions(mmdb::Manager *mol,
                                                protein_geometry &geom,
                                                float new_atoms_b_factor) {
 
-   std::cout << "debug:: ::::::: add_linked_residue_by_atom_torsions() --- start --- " << std::endl;
    coot::residue_spec_t new_residue_spec;
    mmdb::Residue *residue_ref = util::get_residue(parent, mol);
    if (residue_ref) {
@@ -612,8 +627,6 @@ coot::cho::add_linked_residue_by_atom_torsions(mmdb::Manager *mol,
          const std::string &new_res_type  = new_link_types.second;
          link_by_torsion_t l(new_link_type, new_res_type);
          l.set_temperature_factor(new_atoms_b_factor);
-         std::cout << "debug:: ::::::: add_linked_residue_by_atom_torsions() calling make_residue() "
-                   << "using res-ref: " << coot::residue_spec_t(residue_ref) << std::endl;
          mmdb::Residue *result_residue = l.make_residue(residue_ref);
          mol->FinishStructEdit();
          std::pair<bool, mmdb::Residue *> status_pair = add_residue(mol, result_residue, parent.chain_id);
@@ -625,10 +638,10 @@ coot::cho::add_linked_residue_by_atom_torsions(mmdb::Manager *mol,
          }
       }
       catch (const std::runtime_error &rte) {
-         std::cout << "WARNING:: " << rte.what() << std::endl;
+         logger.log(log_t::WARNING, rte.what());
+         logger.show_last();
       }
    }
-   std::cout << "debug:: ::::::: add_linked_residue_by_atom_torsions() done. " << std::endl;
    return new_residue_spec;
 }
 
@@ -651,12 +664,6 @@ coot::cho::replace_coords(mmdb::Manager *fragment_mol, mmdb::Manager *mol) {
                   atom_spec_t spec(at);
                   mmdb::Atom *at_mol = util::get_atom(spec, mol);
                   if (at_mol) {
-                     if (false)
-                        std::cout << "--------------- replacing coords for atom "
-                                  << atom_spec_t(at) << " "
-                                  << at_mol->x << " " << at_mol->y << " " << at_mol->z << " "
-                                  <<     at->x << " " <<     at->y << " " <<     at->z << " "
-                                  << std::endl;
                      at_mol->x = at->x;
                      at_mol->y = at->y;
                      at_mol->z = at->z;
@@ -792,9 +799,6 @@ coot::cho::add_linked_residue(atom_selection_container_t *asc,
                      unsigned int n     = coot::util::string_to_int(parts[4]);
                      double d           = coot::util::string_to_double(parts[5]);
                      // parts 6 is mod-sarle
-                     if (false)
-                        std::cout << "model: " << atom_name_1 << " " << atom_name_2 << " "
-                                  << target_dist << " " << rmsd << std::endl;
                      if (n > 20) {
                         if (d < 0.42) {
                            double s = 0.05;
@@ -886,8 +890,11 @@ coot::cho::add_linked_residue(atom_selection_container_t *asc,
    } else {
       int status = geom.try_dynamic_add(new_res_type, cif_dictionary_read_number);
       if (status == 0) { // fail
-         std::cout << "WARNING:: failed to add dictionary for type \"" << new_res_type << "\"" << std::endl;
-         std::cout << "WARNING:: add_linked_residue() stops here " << std::endl;
+         // std::cout << "WARNING:: failed to add dictionary for type \"" << new_res_type << "\"" << std::endl;
+         // std::cout << "WARNING:: add_linked_residue() stops here " << std::endl;
+         logger.log(log_t::WARNING, "failed to add dictionary for type", new_res_type,
+                    "add_linked_residue() stops here");
+         logger.show_last();
          return residue_spec_t();
       }
    }
@@ -907,6 +914,15 @@ coot::cho::add_linked_residue(atom_selection_container_t *asc,
             mmdb::Residue *parent_residue_p = util::get_residue(parent, mol);
             if (parent_residue_p)
                parent_type = parent_residue_p->GetResName();
+
+            if (false) {
+               std::vector<mmdb::Residue *> rv = residues_near_residue(parent_residue_p, mol, 7.5);
+               for (auto &r : rv) {
+                  bool fs = coot::cho::is_well_fitting(r, mol, *xmap, geom);
+                  std::cout << "debug:: well-fitting: " << coot::residue_spec_t(r) << std::endl;
+               }
+            }
+
             coot::residue_spec_t parent_spec(parent_residue_p);
             mmdb::Manager *moving_mol = util::create_mmdbmanager_from_residue_specs(residue_specs, mol);
 
@@ -938,11 +954,20 @@ coot::cho::add_linked_residue(atom_selection_container_t *asc,
                      std::string file_name = "post-refine-" + std::to_string(ii) + ".pdb";
                      moving_mol->WritePDBASCII(file_name.c_str());
                   }
+
+                  mmdb::Residue *new_residue_p = util::get_residue(new_res_spec, mol);
+                  if (new_residue_p) {
+                     bool well_fitting = is_well_fitting(new_residue_p, mol, *xmap, geom);
+                     std::cout << "INFO:: new residue " << new_res_spec << " is-well-fitting-status: "
+                               << well_fitting << std::endl;
+                  }
+
                   replace_coords(moving_mol, mol);
                }
             }
             // OK, we we want to add the atoms of moving_mol into mol
             replace_coords(moving_mol, mol);
+            delete moving_mol;
          }
       }
    }
