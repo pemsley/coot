@@ -85,21 +85,6 @@ logging::ltw::to_string() const {
 }
 
 void
-logging::log(log_t type, const std::string &s) {
-
-   // use:  add_log_item_to_history(log_time(type, s));
-   log_item l(type, s);
-
-   timeval current_time;
-   int success = gettimeofday(&current_time, NULL);
-   if (success == 0) // was successful
-      l.t = current_time.tv_sec;
-
-   history.push_back(l);
-
-}
-
-void
 logging::log(const std::string &s) {
 
    // extract the type from s:
@@ -114,6 +99,39 @@ logging::log(const std::string &s) {
 }
 
 void
+logging::log(log_t type, const std::string &s) {
+
+   // use:  add_log_item_to_history(log_time(type, s));
+   log_item l(type, s);
+
+   timeval current_time;
+   int success = gettimeofday(&current_time, NULL);
+   if (success == 0) // was successful
+      l.t = current_time.tv_sec;
+   history.push_back(l);
+   output_to_terminal_maybe();
+
+}
+
+void
+logging::log(log_t type, const std::string &s1, const std::string &s2) {
+
+   // use:  add_log_item_to_history(log_time(type, s));
+   log_item l(type);
+
+   timeval current_time;
+   int success = gettimeofday(&current_time, NULL);
+   if (success == 0) // was successful
+      l.t = current_time.tv_sec;
+   l.add_to_message(s1);
+   l.add_to_message(" ");
+   l.add_to_message(s2);
+   history.push_back(l);
+   output_to_terminal_maybe();
+
+}
+
+void
 logging::log(log_t type_in, const function_name_t &fn, const std::string &s1) {
    log_item l(type_in, fn, s1);
    timeval current_time;
@@ -121,6 +139,7 @@ logging::log(log_t type_in, const function_name_t &fn, const std::string &s1) {
    if (success == 0) // was successful
       l.t = current_time.tv_sec;
    history.push_back(l);
+   output_to_terminal_maybe();
 }
 
 
@@ -140,6 +159,7 @@ logging::log(log_t type_in, const std::string &s1, bool v1, const std::string &s
    l.message += " ";
    l.message += s2;
    history.push_back(l);
+   output_to_terminal_maybe();
 
 }
 
@@ -155,6 +175,7 @@ logging::log(log_t type_in, const std::string &s1, const int &i) {
    l.message += " ";
    l.message += std::to_string(i);
    history.push_back(l);
+   output_to_terminal_maybe();
 }
 
 
@@ -176,6 +197,7 @@ logging::log(log_t type_in, const std::string &s1, bool v1, const std::string &s
    l.message += " ";
    l.message += s3;
    history.push_back(l);
+   output_to_terminal_maybe();
 }
 
 void
@@ -191,6 +213,7 @@ logging::log(log_t type_in, ltw l1, ltw l2) {
    l.message += " ";
    l.message += l2.to_string();
    history.push_back(l);
+   output_to_terminal_maybe();
 
 }
 
@@ -209,6 +232,7 @@ logging::log(log_t type_in, ltw l1, ltw l2, ltw l3) {
    l.message += " ";
    l.message += l3.to_string();
    history.push_back(l);
+   output_to_terminal_maybe();
 
 }
 
@@ -229,6 +253,7 @@ logging::log(log_t type_in, const ltw &l1, const ltw &l2, const ltw &l3, const l
    l.message += " ";
    l.message += l4.to_string();
    history.push_back(l);
+   output_to_terminal_maybe();
 
 }
 
@@ -246,6 +271,12 @@ logging::log(log_t type_in, const std::vector<ltw> &ls) {
       l.message += " ";
    }
    history.push_back(l);
+   output_to_terminal_maybe();
+}
+
+void
+logging::output_to_terminal_maybe() {
+   show_last();
 }
 
 void

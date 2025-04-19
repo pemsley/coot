@@ -71,6 +71,9 @@
 #include "c-interface-gui.hh" // for set_transient_for_main_window()
 #include "coot-preferences.h"
 
+#include "utils/logging.hh"
+extern logging logger;
+
 #include "widget-from-builder.hh"
 
 
@@ -671,7 +674,25 @@ void add_status_bar_text(const std::string &s) {
 
    graphics_info_t g;
    g.add_status_bar_text(std::string(s));
-} 
+}
+
+//! set the logging level
+//!
+//! @param level is either "LOW" or "HIGH" or "DEBUGGING"
+void set_logging_level(const std::string &level) {
+   if (level == "LOW")       logger.output_type = logging::output_t::INTERNAL;
+   if (level == "HIGH")      logger.output_type = logging::output_t::TERMINAL;
+   if (level == "DEBUGGING") logger.output_type = logging::output_t::TERMINAL_WITH_DEBUGGING;
+
+   if (level == "LOW" || level == "HIGH" || level == "DEBUGGING") {
+   } else {
+      // let's see the error message!
+      std::cout << "WARNING:: set_logging_level(): bad level name: " << level << std::endl;
+      logger.log(log_t::WARNING, std::string("set_logging_level(): bad level name:"), level);
+   }
+}
+
+
 
 
 
@@ -679,14 +700,14 @@ void add_status_bar_text(const std::string &s) {
 /*                  Other interface preferences                            */
 /*  ----------------------------------------------------------------------- */
 
-void set_model_fit_refine_dialog_stays_on_top(int istate) { 
+void set_model_fit_refine_dialog_stays_on_top(int istate) {
    graphics_info_t::model_fit_refine_dialog_stays_on_top_flag = istate;
 }
 
 int model_fit_refine_dialog_stays_on_top_state() {
 
    return graphics_info_t::model_fit_refine_dialog_stays_on_top_flag;
-} 
+}
 
 void save_accept_reject_dialog_window_position(GtkWidget *acc_rej_dialog) {
    graphics_info_t g;

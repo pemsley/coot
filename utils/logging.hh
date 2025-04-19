@@ -82,12 +82,14 @@ public:
          t(0), type(type_in), function_name(fn), message(message_in) {}
       log_item(const std::string &message_in) : t(0), type(log_t::UNSPECIFIED), message(message_in) {}
       log_item(const std::vector<ltw> &ls);
+      void add_to_message(const std::string &s) { message += s; }
       friend std::ostream& operator<<(std::ostream &o, const log_item &li);
    };
 
 private:
    std::vector<log_item> history;
    void operator<<(const std::string &s);
+   void output_to_terminal_maybe();
  public:
    enum class output_t {TERMINAL, TERMINAL_WITH_DEBUGGING, INTERNAL, BOTH};
    logging() : output_type(output_t::TERMINAL) {}

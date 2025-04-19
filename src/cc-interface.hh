@@ -1329,6 +1329,12 @@ PyObject *water_chain_py(int imol);
   than popup). */
 void add_status_bar_text(const std::string &s);
 
+//! set the logging level
+//!
+//! @param level is either "LOW" or "HIGH" or "DEBUGGING"
+void set_logging_level(const std::string &level);//!
+
+
 //! \}
 
 

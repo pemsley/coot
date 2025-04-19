@@ -3227,7 +3227,6 @@ get_show_aniso() {
 void
 set_show_aniso(int state) {
    logger.log(log_t::WARNING, logging::function_name_t(__FUNCTION__), "don't use this");
-   logger.show_last();
 }
 
 /*! \brief set show aniso atoms */
@@ -3692,7 +3691,6 @@ int n_dots_sets(int imol) {
    } else {
       // std::cout << "WARNING:: Bad molecule number: " << imol << std::endl;
       logger.log(log_t::WARNING, "Bad molecule number:", imol);
-      logger.show_last();
    }
    return r;
 }
@@ -4065,7 +4063,6 @@ float median_temperature_factor(int imol) {
                                                      high_cut_flag);
    } else {
       logger.log(log_t::WARNING, "No such molecule number:", imol);
-      logger.show_last();
    }
    return median;
 }
@@ -4088,11 +4085,9 @@ float average_temperature_factor(int imol) {
       } else {
 	 // std::cout << "WARNING:: molecule " << imol << " has no model\n";
          logger.log(log_t::WARNING, "Molecule:", imol, "has no model");
-         logger.show_last();
       }
    } else {
       logger.log(log_t::WARNING, "No such molecule as:", imol);
-      logger.show_last();
    }
    return av;
 }
@@ -4114,7 +4109,6 @@ float standard_deviation_temperature_factor(int imol) {
    } else {
       // std::cout << "WARNING:: molecule " << imol << " is not a valid model\n";
       logger.log(log_t::WARNING, "Molecule:", imol, "is not a valid model");
-      logger.show_last();
    }
    return av;
 }
