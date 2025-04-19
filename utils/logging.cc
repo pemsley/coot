@@ -136,7 +136,7 @@ logging::log(log_t type_in, const std::string &s1, bool v1, const std::string &s
    if (v1) b = "True";
    l.message = s1;
    l.message += " ";
-   l.message = b;
+   l.message += b;
    l.message += " ";
    l.message += s2;
    history.push_back(l);
@@ -161,6 +161,21 @@ logging::log(log_t type_in, const std::string &s1, const int &i) {
 void
 logging::log(log_t type_in, const std::string &s1, bool v1, const std::string &s2, const std::string &s3) {
 
+   log_item l(type_in);
+   timeval current_time;
+   int success = gettimeofday(&current_time, NULL);
+   if (success == 0) // was successful
+      l.t = current_time.tv_sec;
+   std::string b = "False";
+   if (v1) b = "True";
+   l.message = s1;
+   l.message += " ";
+   l.message += b;
+   l.message += " ";
+   l.message += s2;
+   l.message += " ";
+   l.message += s3;
+   history.push_back(l);
 }
 
 void
