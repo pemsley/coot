@@ -1621,15 +1621,17 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
          // std::cout << "Debug:: after gsl_multimin_test_gradient, status is " << status << std::endl;
 
 	 if (status == GSL_SUCCESS) {
-	    if (verbose_geometry_reporting != QUIET) { 
-	       std::cout << "Minimum found (iteration number " << iter << ") at ";
-	       std::cout << m_s->f << "\n";
+	    if (verbose_geometry_reporting != QUIET) {
+	       // std::cout << "Minimum found (iteration number " << iter << ") at ";
+	       // std::cout << m_s->f << "\n";
+               logger.log(log_t::INFO, "Minimum found at iteration number", iter, "at", m_s->f);
             }
 	    std::string title = "Final Estimated RMS Z Scores:";
 	    std::vector<coot::refinement_lights_info_t> results = chi_squareds(title, m_s->x);
 	    lights_vec = results;
             if (verbose_geometry_reporting != QUIET) {
-               std::cout << "-------- Results ---------" << std::endl; // should this go into analyze_for_bad_restraints()?
+               // std::cout << "-------- Results ---------" << std::endl; // should this go into analyze_for_bad_restraints()?
+               logger.log(log_t::INFO, "-------- Results ---------");
                update_atoms(m_s->x); // needed for simple_refine() (maybe other times too to catch the last round)
                analyze_for_bad_restraints();
             }

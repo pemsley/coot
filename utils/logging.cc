@@ -402,6 +402,30 @@ logging::log(log_t type_in, ltw l1, ltw l2, ltw l3, ltw l4, ltw l5, ltw l6) {
 }
 
 void
+logging::log(log_t type_in, const std::string &s1, const double &d1, const std::string &s2, const double &d2) {
+
+   log_item l;
+   l.type = type_in;
+   timeval current_time;
+   int success = gettimeofday(&current_time, NULL);
+   if (success == 0) // was successful
+      l.t = current_time.tv_sec;
+   l.add_to_message(s1);
+   l.add_to_message(" ");
+   l.add_to_message(std::to_string(d1));
+   l.add_to_message(" ");
+   l.add_to_message(s2);
+   l.add_to_message(" ");
+   l.add_to_message(std::to_string(d2));
+   l.add_to_message(" ");
+   history.push_back(l);
+   output_to_terminal_maybe();
+   notify();
+
+}
+
+
+void
 logging::log(log_t type_in, const std::vector<ltw> &ls) {
 
    log_item l;

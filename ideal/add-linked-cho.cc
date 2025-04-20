@@ -959,8 +959,10 @@ coot::cho::add_linked_residue(atom_selection_container_t *asc,
                   mmdb::Residue *new_residue_p = util::get_residue(new_res_spec, mol);
                   if (new_residue_p) {
                      bool well_fitting = is_well_fitting(new_residue_p, mol, *xmap, geom);
-                     std::cout << "INFO:: new residue " << new_res_spec << " is-well-fitting-status: "
-                               << well_fitting << std::endl;
+                     // std::cout << "INFO:: new residue " << new_res_spec << " is-well-fitting-status: "
+                     //           << well_fitting << std::endl;
+                     logger.log(log_t::INFO, "new residue", new_res_spec.format(),
+                                "is-well_fitting-status:", well_fitting);
                   }
 
                   replace_coords(moving_mol, mol);

@@ -2438,49 +2438,76 @@ coot::restraints_container_t::analyze_for_bad_restraints(restraint_type_t r_type
 
       if (r_type == CHIRAL_VOLUME_RESTRAINT) {
          mmdb::Atom *at_c = atom[rest.atom_index_centre];
-         std::cout << "INFO:: Model: Bad Chiral Volume: "
-                   << atom_spec_t(at_c)
-                   << " delta "      << std::setw(6) << std::get<2>(d)
-                   << " target "     << std::setw(5) <<rest.target_chiral_volume
-                   << " sigma "      << std::setw(4) << rest.sigma
-                   << " distortion " << std::setw(4) << std::right << std::get<3>(d) << "\n";
+         // std::cout << "INFO:: Model: Bad Chiral Volume: "
+         //           << atom_spec_t(at_c)
+         //           << " delta "      << std::setw(6) << std::get<2>(d)
+         //           << " target "     << std::setw(5) <<rest.target_chiral_volume
+         //           << " sigma "      << std::setw(4) << rest.sigma
+         //           << " distortion " << std::setw(4) << std::right << std::get<3>(d) << "\n";
+         logger.log(log_t::INFO, {"Model: Bad Chiral Volume",
+                                  atom_spec_t(at_c).format(), "delta", std::get<2>(d), "target", rest.target_chiral_volume,
+                                  "sigma", rest.sigma, "distortion", std::get<3>(d)});
       }
 
       if (r_type == BOND_RESTRAINT) {
-         std::cout << "INFO:: Model: Bad Bond: " << std::setw(5)
-                   << atom_spec_t(at_1) << " to " << atom_spec_t(at_2)
-                   << " nZ "         << std::right << std::setprecision(2) << std::fixed << std::get<1>(d)
-                   << " delta "      << std::right << std::setprecision(3) << std::fixed << std::setw(6) << std::get<2>(d)
-                   << " target "     << std::right << std::setprecision(3) << std::fixed << rest.target_value
-                   << " sigma "      << std::right << std::setprecision(3) << std::fixed << rest.sigma
-                   << " distortion " << std::setw(6) << std::get<3>(d);
-         if (rest.is_hydrogen_bond) std::cout << " H";
-         std::cout << "\n";
+         // std::cout << "INFO:: Model: Bad Bond: " << std::setw(5)
+         //           << atom_spec_t(at_1) << " to " << atom_spec_t(at_2)
+         //           << " nZ "         << std::right << std::setprecision(2) << std::fixed << std::get<1>(d)
+         //           << " delta "      << std::right << std::setprecision(3) << std::fixed << std::setw(6) << std::get<2>(d)
+         //           << " target "     << std::right << std::setprecision(3) << std::fixed << rest.target_value
+         //           << " sigma "      << std::right << std::setprecision(3) << std::fixed << rest.sigma
+         //           << " distortion " << std::setw(6) << std::get<3>(d);
+         if (rest.is_hydrogen_bond) {
+            logger.log(log_t::INFO, {"Model: Bad Bond:",
+                                     atom_spec_t(at_1).format(), "to", atom_spec_t(at_2).format(),
+                                     "nZ", std::get<1>(d), "delta", std::get<2>(d), "target", rest.target_value,
+                                     "sigma", rest.sigma, "distortion", std::get<3>(d)});
+         } else {
+            logger.log(log_t::INFO, {"Model: Bad Bond:",
+                                     atom_spec_t(at_1).format(), "to", atom_spec_t(at_2).format(),
+                                     "nZ", std::get<1>(d), "delta", std::get<2>(d), "target", rest.target_value,
+                                     "sigma", rest.sigma, "distortion", std::get<3>(d), "H"});
+         }
       }
 
       if (r_type == ANGLE_RESTRAINT) {
-         std::cout << "INFO:: Model: Bad Angle: " << std::setw(5)
-                   << atom_spec_t(at_1) << " to " << atom_spec_t(at_2)
-                   << " nZ "         << std::right << std::setprecision(2) << std::fixed << std::get<1>(d)
-                   << " delta "      << std::right << std::setprecision(3) << std::fixed << std::setw(6) << std::get<2>(d)
-                   << " target "     << std::right << std::setprecision(3) << std::fixed << rest.target_value
-                   << " sigma "      << std::right << std::setprecision(3) << std::fixed << rest.sigma
-                   << " distortion " << std::setw(6) << std::get<3>(d) << "\n";
+         // std::cout << "INFO:: Model: Bad Angle: " << std::setw(5)
+         //           << atom_spec_t(at_1) << " to " << atom_spec_t(at_2)
+         //           << " nZ "         << std::right << std::setprecision(2) << std::fixed << std::get<1>(d)
+         //           << " delta "      << std::right << std::setprecision(3) << std::fixed << std::setw(6) << std::get<2>(d)
+         //           << " target "     << std::right << std::setprecision(3) << std::fixed << rest.target_value
+         //           << " sigma "      << std::right << std::setprecision(3) << std::fixed << rest.sigma
+         //           << " distortion " << std::setw(6) << std::get<3>(d) << "\n";
+         logger.log(log_t::INFO, {"Model: Bad Angle:",
+                                  atom_spec_t(at_1).format(), "to", atom_spec_t(at_2).format(),
+                                  "nZ", std::get<1>(d), "delta", std::get<2>(d), "target", rest.target_value,
+                                  "sigma", rest.sigma, "distortion", std::get<3>(d)});
       }
 
-      if (r_type == NON_BONDED_CONTACT_RESTRAINT)
-         std::cout << "INFO:: Model: Bad Non-Bonded Contact: " << std::setw(5)
-                   << atom_spec_t(at_1) << " " << std::setw(3) << at_1->GetResName()
-                   << " to " << atom_spec_t(at_2) << " " << std::setw(3) << at_2->GetResName()
-                   << " delta "      << std::get<2>(d)
-                   << " target "     << rest.target_value
-                   << " distortion " << std::get<3>(d) << "\n";
+      if (r_type == NON_BONDED_CONTACT_RESTRAINT) {
+         // std::cout << "INFO:: Model: Bad Non-Bonded Contact: " << std::setw(5)
+         //           << atom_spec_t(at_1) << " " << std::setw(3) << at_1->GetResName()
+         //           << " to " << atom_spec_t(at_2) << " " << std::setw(3) << at_2->GetResName()
+         //           << " delta "      << std::get<2>(d)
+         //           << " target "     << rest.target_value
+         //           << " distortion " << std::get<3>(d) << "\n";
+         logger.log(log_t::INFO, {"Model: Bad Non-Bonded Contact:",
+                                  atom_spec_t(at_1).format(), at_1->GetResName(),
+                                  "to", atom_spec_t(at_2).format(), at_2->GetResName(),
+                                  "delta", std::get<2>(d), "target", rest.target_value,
+                                  "distortion", std::get<3>(d)});
+      }
 
-      if (r_type == GEMAN_MCCLURE_DISTANCE_RESTRAINT)
-         std::cout << "INFO:: Model: Bad GM Distance: " << std::setw(5)
-                   << atom_spec_t(at_1) << " to " << atom_spec_t(at_2) << " "
-                   << " delta "      << std::get<2>(d)
-                   << " target "     << rest.target_value
-                   << " distortion " << std::get<3>(d) << "\n";
+      if (r_type == GEMAN_MCCLURE_DISTANCE_RESTRAINT) {
+         // std::cout << "INFO:: Model: Bad GM Distance: " << std::setw(5)
+         //           << atom_spec_t(at_1) << " to " << atom_spec_t(at_2) << " "
+         //           << " delta "      << std::get<2>(d)
+         //           << " target "     << rest.target_value
+         //           << " distortion " << std::get<3>(d) << "\n";
+         logger.log(log_t::INFO, {"Model: Bad GM Distance:",
+                                  atom_spec_t(at_1).format(), "to", atom_spec_t(at_2).format(),
+                                  "delta", std::get<2>(d), "target", rest.target_value,
+                                  "distortion", std::get<3>(d)});
+      }
    }
 }
