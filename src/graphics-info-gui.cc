@@ -4264,6 +4264,9 @@ graphics_info_t::fill_difference_map_peaks_button_box() {
    gtk_widget_set_visible(outer_vbox,   TRUE);
    GtkWidget *button_vbox = widget_from_builder("diff_map_peaks_vbox");
 
+   GtkWidget *vboxes_vbox = widget_from_builder("validation_boxes_vbox");
+   gtk_widget_set_visible(vboxes_vbox,   TRUE);
+
    std::vector<std::pair<clipper::Coord_orth, float> > centres = make_diff_map_peaks(button_vbox);
    std::cout << "make_diff_map_peaks() made " << centres.size() << " centres" << std::endl;
    float map_sigma = 0.5;
