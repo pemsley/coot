@@ -1297,11 +1297,11 @@ coot::restraints_container_t::pre_sanitize_as_needed(std::vector<refinement_ligh
 
 	    if (status == GSL_SUCCESS) {
 	       if (verbose_geometry_reporting != QUIET) {
-		  std::cout << "Pre-Sanitize Minimum found (iteration number " << iter << ") at ";
+		  std::cout << "INFO:: Pre-Sanitize Minimum found (iteration number " << iter << ") at ";
 		  std::cout << m_s->f << "\n";
 	       }
 	    }
-	 
+
 	    if (status == GSL_ENOPROG)
 	       std::cout << "pre-sanitize (No Progress)\n";
 	 }
@@ -1419,7 +1419,7 @@ coot::restraints_container_t::minimize(restraint_usage_Flags usage_flags,
    if (n_times_called == 1 || needs_reset)
       setup_minimize();
 
-   refinement_results_t rr = minimize_inner(usage_flags, nsteps_max, print_initial_chi_sq_flag);
+   refinement_results_t rr = minimize_inner(usage_flags, nsteps_max);
 
    return rr;
 }
@@ -1478,7 +1478,7 @@ coot::restraints_container_t::minimize(int imol, restraint_usage_Flags usage_fla
    }
 #endif
 
-   refinement_results_t rr = minimize_inner(usage_flags, nsteps_max, print_initial_chi_sq_flag);
+   refinement_results_t rr = minimize_inner(usage_flags, nsteps_max);
 
    // std::cout << "debug:: minimize() returns " << rr.progress << std::endl;
 
@@ -1488,9 +1488,8 @@ coot::restraints_container_t::minimize(int imol, restraint_usage_Flags usage_fla
 // return success: GSL_ENOPROG, GSL_CONTINUE, GSL_ENOPROG (no progress)
 //
 coot::refinement_results_t
-coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags, 
-					     int nsteps_max,
-					     short int print_initial_chi_sq_flag) {
+coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
+					     int nsteps_max) {
 
    // Was just checking that minimize() was not being called multiple times concurrently
    // (it wasn't)

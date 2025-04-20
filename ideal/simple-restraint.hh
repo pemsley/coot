@@ -2439,12 +2439,13 @@ namespace coot {
       // We now have access to n_times_called: we want to do pre-sanitization
       // only when n_times_called is 1.
       //
+      // print_chi_sq_flag is not used, so one of these functions is redundant.
       refinement_results_t minimize(restraint_usage_Flags, int n_steps_max = 1000);
       refinement_results_t minimize(restraint_usage_Flags, int nsteps, short int print_chi_sq_flag);
       refinement_results_t minimize(int imol, restraint_usage_Flags usage_flags,
                                     int nsteps_max, short int print_initial_chi_sq_flag,
                                     const protein_geometry &geom);
-      refinement_results_t minimize_inner(restraint_usage_Flags, int nsteps, short int print_chi_sq_flag);
+      refinement_results_t minimize_inner(restraint_usage_Flags, int nsteps);
 
       refinement_results_t get_refinement_results(); // not const because setup_minimize()
 
