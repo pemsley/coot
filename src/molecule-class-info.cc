@@ -114,6 +114,9 @@ const double pi = M_PI;
 
 #include "widget-from-builder.hh"
 
+#include "utils/logging.hh"
+extern logging logger;
+
 
 glm::vec3
 cartesian_to_glm(const coot::Cartesian &c) {
@@ -457,15 +460,16 @@ molecule_class_info_t::handle_read_draw_molecule(int imol_no_in,
 
       // LINK info:
       int n_models = atom_sel.mol->GetNumberOfModels();
-      std::cout << "INFO:: Found " << n_models << " models\n";
+      // std::cout << "INFO:: Found " << n_models << " models\n";
+      logger.log(log_t::INFO, "Found", n_models, " models");
       for (int imod=1; imod<=n_models; imod++) {
          mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
          if (model_p) {
             int n_links = model_p->GetNumberOfLinks();
-            std::cout << "   Model "  << imod << " had " << n_links
-                      << " links\n";}
+            // std::cout << "   Model "  << imod << " had " << n_links << " links\n";}
+            logger.log(log_t::INFO, "Model", imod, "had", n_links, "links");
+         }
       }
-
 
       //
       // and move mol_class_info to indexed molecule[n_molecules];
@@ -8986,13 +8990,17 @@ molecule_class_info_t::store_refmac_params(const std::string &mtz_filename,
    refmac_r_free_col = r_free_col;
    refmac_r_free_flag_sensible = r_free_flag;
 
-   std::cout << "INFO:: Stored refmac parameters: "
-             << refmac_fobs_col << " "
-             << refmac_sigfobs_col;
-   if (r_free_flag)
-      std::cout << " " << refmac_r_free_col << " is sensible." << std::endl;
-   else
-      std::cout << " the r-free-flag is not sensible" << std::endl;
+   if (r_free_flag) {
+      // std::cout << "INFO:: Stored refmac parameters: " << refmac_fobs_col << " "  << refmac_sigfobs_col
+      // << " " << refmac_r_free_col << " is sensible." << std::endl;
+      logger.log(log_t::INFO, "Stored refmac parameters", refmac_fobs_col, refmac_sigfobs_col,
+                 refmac_r_free_col, std::string("is sensible"));
+   } else {
+      // std::cout << "INFO:: Stored refmac parameters: " << refmac_fobs_col << " "  << refmac_sigfobs_col
+      // << " the r-free-flag is not sensible" << std::endl;
+      logger.log(log_t::INFO, "Stored refmac parameters", refmac_fobs_col, refmac_sigfobs_col,
+                 refmac_r_free_col, std::string("is not sensible"));
+   }
 }
 
 void
@@ -9238,7 +9246,7 @@ molecule_class_info_t::append_to_molecule(const coot::minimol::molecule &water_m
             mmdb::Residue *new_residue_p;
 
             new_chain_p = new mmdb::Chain;
-            std::cout << "DEBUG INFO:: chain id of new chain :"
+            std::cout << "DEBUG:: chain id of new chain :"
                       << water_mol[ifrag].fragment_id << ":" << std::endl;
             new_chain_p->SetChainID(water_mol[ifrag].fragment_id.c_str());
             model_p->AddChain(new_chain_p);

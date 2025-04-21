@@ -45,6 +45,8 @@
 
 #include "graphics-info.h" // 20220409-PE now we check use_graphics_interface_flag
 
+#include "utils/logging.hh"
+extern logging logger;
 
 /* This is the signal handler for a color change event created when
    the colorseldialog has had its colour changed. */
@@ -318,7 +320,8 @@ on_display_manager_selections_and_colours_combobox_changed(GtkComboBox     *comb
 
    int imol = GPOINTER_TO_INT(user_data);
    gchar *txt = gtk_combo_box_text_get_active_text(GTK_COMBO_BOX_TEXT(combo_box));
-   std::cout << "DEBUG:: text: \"" << txt << "\" user data (imol) " << imol << std::endl;
+   // std::cout << "DEBUG:: text: \"" << txt << "\" user data (imol) " << imol << std::endl;
+   logger.log(log_t::DEBUG, "text:", txt, "user data (imol)", imol);
 
    if (txt) {
       std::string at(txt);
@@ -465,7 +468,6 @@ GtkWidget *selections_and_colours_combobox(int imol) {
 void display_control_molecule_combo_box(const std::string &name, int imol,
                                         G_GNUC_UNUSED bool show_add_reps_frame_flag) {
 
-   std::cout << "DEBUG:: start display_control_molecule_combo_box() " << std::endl;
    GtkWidget *display_control_molecule_vbox = widget_from_builder("display_molecule_vbox");
    GtkWidget *hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2); // 2 pixels between widgets inside the box
    gtk_widget_set_margin_start(hbox, 2);

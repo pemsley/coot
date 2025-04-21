@@ -89,6 +89,8 @@
 #include "coot-utils/coot-map-heavy.hh"
 #include "ligand/ligand.hh"
 
+#include "utils/logging.hh"
+extern logging logger;
 
 void
 molecule_class_info_t::gtk3_draw() {
@@ -1721,13 +1723,15 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 	 if (is_anomalous_flag) {
 	    fix_anomalous_phases(&fphidata);
 	 }
-         std::cout << "INFO:: finding ASU unique map points with sampling rate "
-                   << map_sampling_rate	<< std::endl;
+         // std::cout << "INFO:: finding ASU unique map points with sampling rate "
+         //           << map_sampling_rate	<< std::endl;
+         logger.log(log_t::INFO, "finding ASU unique map points with sampling rate %f", map_sampling_rate);
          clipper::Grid_sampling gs(fphidata.spacegroup(),
                                    fphidata.cell(),
                                    fft_reso,
                                    map_sampling_rate);
-         std::cout << "INFO:: grid sampling..." << gs.format() << std::endl;
+         // std::cout << "INFO:: grid sampling..." << gs.format() << std::endl;
+         logger.log(log_t::INFO, "grid sampling", gs.format());
          xmap.init(fphidata.spacegroup(), fphidata.cell(), gs);
 
 
@@ -1796,14 +1800,21 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 	 // long T4 = glutGet(GLUT_ELAPSED_TIME);
 	 // std::cout << "INFO:: " << float(T4-T3)/1000.0 << " seconds for statistics\n";
 
-	 std::cout << "      Map extents: ..... "
-		   << xmap.grid_sampling().nu() << " "
-		   << xmap.grid_sampling().nv() << " "
-		   << xmap.grid_sampling().nw() << " " << std::endl;
-	 std::cout << "      Map mean: ........ " << map_mean_ << std::endl;
-	 std::cout << "      Map sigma: ....... " << map_sigma_ << std::endl;
-	 std::cout << "      Map maximum: ..... " << map_max_ << std::endl;
-	 std::cout << "      Map minimum: ..... " << map_min_ << std::endl;
+	 // std::cout << "      Map extents: ..... "
+	 //           << xmap.grid_sampling().nu() << " "
+	 //           << xmap.grid_sampling().nv() << " "
+	 //           << xmap.grid_sampling().nw() << " " << std::endl;
+	 // std::cout << "      Map mean: ........ " << map_mean_ << std::endl;
+	 // std::cout << "      Map sigma: ....... " << map_sigma_ << std::endl;
+	 // std::cout << "      Map maximum: ..... " << map_max_ << std::endl;
+	 // std::cout << "      Map minimum: ..... " << map_min_ << std::endl;
+
+         logger.log(log_t::INFO, "Map extents",
+                    xmap.grid_sampling().nu(), xmap.grid_sampling().nv(), xmap.grid_sampling().nw());
+         logger.log(log_t::INFO, "Map mean:    ", map_mean_);
+         logger.log(log_t::INFO, "Map sigma:   ", map_sigma_);
+         logger.log(log_t::INFO, "Map maximum: ", map_max_);
+         logger.log(log_t::INFO, "Map minimum: ", map_min_);
 
          if (! updating_existing_map_flag)
             set_initial_contour_level();

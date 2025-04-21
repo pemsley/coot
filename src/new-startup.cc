@@ -1056,7 +1056,7 @@ new_startup_application_activate(GtkApplication *application,
                   status = TRUE;
                }
             } else {
-               std::cout << "DEBUG:: text: was null" << std::endl;
+               std::cout << "DEBUG:: on_drop_performed(): text: was null" << std::endl;
             }
          } else {
             std::cout << "not type G_TYPE_STRING! " << std::endl;

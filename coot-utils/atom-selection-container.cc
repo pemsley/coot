@@ -411,8 +411,9 @@ get_atom_selection(std::string pdb_name,
 #endif
              MMDBManager->PDBCleanup(mmdb::PDBCLEAN_ELEMENT);
 
-             if (verbose_mode)
-                std::cout << "INFO:: Reading coordinate file: " << pdb_name.c_str() << "\n";
+             // std::cout << "INFO:: Reading coordinate file: " << pdb_name.c_str() << "\n";
+             logger.log(log_t::INFO, "Reading coordinate file:", pdb_name);
+
              err = MMDBManager->ReadCoorFile(pdb_name.c_str());
 
              if (err) {

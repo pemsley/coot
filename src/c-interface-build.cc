@@ -108,6 +108,9 @@
 
 #include "c-interface-refine.hh"
 
+#include "utils/logging.hh"
+extern logging logger;
+
 
 /*  ------------------------------------------------------------------------ */
 /*                   model/fit/refine functions:                             */
@@ -5204,7 +5207,8 @@ int read_shelx_ins_file(const std::string &filename, short int recentre_flag) {
 	 std::cout << "WARNING:: " << istat << " on read_shelx_ins_file "
 		   << filename << std::endl;
       } else {
-	 std::cout << "Molecule " << imol << " read successfully\n";
+	 // std::cout << "DEBUG:: Molecule " << imol << " read successfully\n";
+         logger.log(log_t::DEBUG, "Molecule", imol, "read successfully");
 	 istat = imol; // for return status
 	 if (g.go_to_atom_window) {
 

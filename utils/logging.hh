@@ -48,6 +48,7 @@ public:
       explicit function_name_t() { fn = "unspecified"; }
       explicit function_name_t(const std::string &s) { fn = s; }
       std::string fn;
+      bool empty() const { return (fn != "unspecified"); }
    };
 
    class ltw { // logging type wrapper

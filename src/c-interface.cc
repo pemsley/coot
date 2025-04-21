@@ -820,7 +820,8 @@ int handle_read_draw_molecule_with_recentre(const std::string &filename,
 							  bw, bonds_box_type, true);
 
       if (istat == 1) {
-	 std::cout << "Molecule " << imol << " read successfully\n";
+	 // std::cout << "Molecule " << imol << " read successfully\n";
+         logger.log(log_t::INFO, "Molecule ", imol, " read successfully");
 
 	 // we do this somewhat awkward in and out thing with the
 	 // molecule, because I don't want to (or am not able to) pass a

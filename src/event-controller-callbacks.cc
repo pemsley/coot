@@ -31,6 +31,10 @@
 #include "graphics-info.h"
 #include "sound.hh"
 
+#include "utils/logging.hh"
+extern logging logger;
+
+
 void play_sound_left_click() {
 
    // play_sound_file("538554_3725923-lq-Sjonas88-success.ogg");
@@ -726,11 +730,11 @@ graphics_info_t::on_glarea_key_controller_key_pressed(GtkEventControllerKey *con
    control_is_pressed = (modifiers & GDK_CONTROL_MASK);
    shift_is_pressed   = (modifiers & GDK_SHIFT_MASK);
 
-   if (true)
-      std::cout << "on_glarea_key_controller_key_pressed() keyval: " << keyval << std::endl;
+   if (false)
+      std::cout << "DEBUG:: on_glarea_key_controller_key_pressed() keyval: " << keyval << std::endl;
 
-   if (true)
-      std::cout << "on_glarea_key_controller_key_pressed() control_is_pressed " << control_is_pressed
+   if (false)
+      std::cout << "DEBUG:: on_glarea_key_controller_key_pressed() control_is_pressed " << control_is_pressed
                 << " shift_is_pressed " << shift_is_pressed << std::endl;
 
    // key-bindings for testing
@@ -748,9 +752,13 @@ graphics_info_t::on_glarea_key_controller_key_pressed(GtkEventControllerKey *con
    std::map<keyboard_key_t, key_bindings_t>::const_iterator it = key_bindings_map.find(kbk);
    if (it != key_bindings_map.end()) {
      const key_bindings_t &kb = it->second;
-     if (true)
-        std::cout << "INFO:: key-binding for key: " << it->first.gdk_key << " : "
-                  << it->first.ctrl_is_pressed << " " << kb.description << std::endl;
+     if (true) {
+        // std::cout << "INFO:: key-binding for key: " << it->first.gdk_key << " : "
+        // << it->first.ctrl_is_pressed << " " << kb.description << std::endl;
+        keyboard_key_t key = it->first;
+        logger.log(log_t::INFO, {std::string("key-binding for key:"), key.gdk_key, it->first.ctrl_is_pressed,
+                                 kb.description});
+     }
      handled = kb.run();
      found = true;
    }

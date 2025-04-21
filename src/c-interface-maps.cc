@@ -61,6 +61,9 @@
 
 #include "read-molecule.hh" // 20230621-PE now with std::string args
 
+#include "utils/logging.hh"
+extern logging logger;
+
 
 /*  ------------------------------------------------------------------------ */
 /*                   Maps -                                                  */
@@ -398,7 +401,8 @@ int make_and_draw_map(const char* mtz_file_name,
          command_strings.push_back(graphics_info_t::int_to_string(is_diff_map));
          add_to_history(command_strings);
 
-         std::cout << "INFO:: making map from mtz filename " << mtz_file_name << std::endl;
+         // std::cout << "INFO:: making map from mtz filename " << mtz_file_name << std::endl;
+         logger.log(log_t::INFO, std::string("Making map from mtz filename"), mtz_file_name);
          imol = g.create_molecule();
          std::string cwd = coot::util::current_working_dir();
          g.molecules[imol].map_fill_from_mtz(std::string(mtz_file_name),

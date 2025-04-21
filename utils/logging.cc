@@ -274,6 +274,7 @@ logging::log(log_t type_in, const std::string &s1, const double &d1) {
    if (success == 0) // was successful
       l.t = current_time.tv_sec;
    l.add_to_message(s1);
+   l.add_to_message(" ");
    l.add_to_message(std::to_string(d1));
    history.push_back(l);
    output_to_terminal_maybe();
@@ -289,6 +290,7 @@ logging::log(log_t type_in, const std::string &s1, const float &f1) {
    if (success == 0) // was successful
       l.t = current_time.tv_sec;
    l.add_to_message(s1);
+   l.add_to_message(" ");
    l.add_to_message(std::to_string(f1));
    history.push_back(l);
    output_to_terminal_maybe();
@@ -459,7 +461,7 @@ logging::show() const {
          ctime_str.pop_back();
          ctime_str += ":";
       }
-      std::cout << ctime_str << " " << h.message << std::endl;
+      std::cout << h.to_string() << std::endl;
    }
 }
 
@@ -478,6 +480,8 @@ logging::log_item::to_string() const {
       ctime_str += ":";
    }
    std::string o = type_as_string + " " + ctime_str + ": " + message;
+   if (! function_name.empty())
+      o = type_as_string + " " + ctime_str + ": " + function_name.fn + ": " + message;
    return o;
 }
 

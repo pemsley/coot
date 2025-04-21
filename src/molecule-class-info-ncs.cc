@@ -50,6 +50,10 @@
 #include "xmap-utils.h"
 #include "graphics-info.h"
 
+#include "utils/logging.hh"
+extern logging logger;
+
+
 // This is called by make_bonds_type_checked(), which is called by
 // update_molecule_after_additions().
 // 
@@ -313,14 +317,14 @@ molecule_class_info_t::fill_ghost_info(short int do_rtops_flag,
    // rtops if we asked for them.
    if (do_rtops_flag)
       ncs_ghosts_have_rtops_flag = 1;
-      
 
-   if (atom_sel.n_selected_atoms > 0) { 
+
+   if (atom_sel.n_selected_atoms > 0) {
 
       int n_models = atom_sel.mol->GetNumberOfModels();
       if (n_models > 0) {
 	 int imod = 1; // otherwise madness
-      
+
 	 mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
 	 mmdb::Chain *chain_p;
 	 // run over chains of the existing mol
@@ -353,24 +357,24 @@ molecule_class_info_t::fill_ghost_info(short int do_rtops_flag,
 // 		  std::cout << "DEBUG:: fill_ghost_info chain_atom_selection_handles[" <<
 // 		     ichain << "] is " << chain_atom_selection_handles[ichain] <<
 // 		     " for chain id :" << chain_p->GetChainID() << ":" << std::endl;
-		  
+
 		  // debugging the atom selection
-		  if (0) { 
+		  if (false) {
 		     mmdb::PPAtom selatoms_1 = NULL;
-		     int n_sel_atoms_1; 
+		     int n_sel_atoms_1;
 		     atom_sel.mol->GetSelIndex(iselhnd, selatoms_1, n_sel_atoms_1);
  		     std::cout << "DEBUG:: fill_ghost_info: first atom of " << n_sel_atoms_1
  			       << " in " << chain_p->GetChainID()
- 			       << "  " << iselhnd 
+ 			       << "  " << iselhnd
  			       << "  selection " << selatoms_1[0] << std::endl;
 		  }
-		  
+
 		  int nres = chain_p->GetNumberOfResidues();
 		  residue_types[ichain].resize(nres);
 // 		  std::cout << "INFO:: residues_types[" << ichain << "] resized to "
 // 			    << residue_types[ichain].size() << std::endl;
 		  mmdb::PResidue residue_p;
-		  for (int ires=0; ires<nres; ires++) { 
+		  for (int ires=0; ires<nres; ires++) {
 		     residue_p = chain_p->GetResidue(ires);
 		     std::string resname(residue_p->name);
 		     residue_types[ichain][ires] =
@@ -382,30 +386,32 @@ molecule_class_info_t::fill_ghost_info(short int do_rtops_flag,
 	 }
       }
 
-      if (0) { 
+      if (false) {
 	 std::cout << "DEBUG:: fill_ghost_info allow_offset_flag: " << allow_offset_flag << std::endl;
 	 std::cout << "DEBUG:: calling add_ncs_ghosts_no_explicit_master() with first_chain_of_this_type ";
-	 for (unsigned int ifc=0; ifc<first_chain_of_this_type.size(); ifc++) { 
+	 for (unsigned int ifc=0; ifc<first_chain_of_this_type.size(); ifc++) {
 	    std::cout << "   " << ifc << ": " << first_chain_of_this_type[ifc] << " ";
 	 }
 	 std::cout << std::endl;
 	 std::cout << "DEBUG:: calling add_ncs_ghosts_no_explicit_master() with chain_ids: ";
-	 for (unsigned int ich=0; ich<chain_ids.size(); ich++) { 
+	 for (unsigned int ich=0; ich<chain_ids.size(); ich++) {
 	    std::cout << chain_ids[ich] << " ";
 	 }
 	 std::cout << std::endl;
       }
-	    
+
       add_ncs_ghosts_no_explicit_master(chain_ids, residue_types, first_chain_of_this_type,
 					chain_atom_selection_handles, do_rtops_flag, homology_lev,
 					allow_offset_flag);
 
-      if (ncs_ghosts.size() > 0) { 
+      if (! ncs_ghosts.empty()) {
 	 update_ghosts();
-	 std::cout << "  INFO:: fill_ghost_info Constructed " << ncs_ghosts.size() << " ghosts\n";
+	 // std::cout << "  INFO:: fill_ghost_info Constructed " << ncs_ghosts.size() << " ghosts\n";
+         int n_ghosts = ncs_ghosts.size();
+         logger.log(log_t::INFO, std::string("Constructed %d ghosts"), n_ghosts);
 	 for (unsigned int ighost=0; ighost<ncs_ghosts.size(); ighost++) {
-	    std::cout << "      Ghost " << ighost << " name: \"" << ncs_ghosts[ighost].name << "\""
-		      << std::endl;
+	    // std::cout << "      Ghost " << ighost << " name: \"" << ncs_ghosts[ighost].name << "\"" << std::endl;
+            logger.log(log_t::INFO, "     Ghost", ighost, "name", ncs_ghosts[ighost].name);
 	 }
       }
    }
