@@ -1,10 +1,11 @@
-  Release Note 1.1.16
+
+  Release Notes for 1.1.16
 
  o FEATURE: Local B-factor display
 
  o BUG-FIX: Fix crash on adding an atom [Clément Bousquet]
 
- o BUG-FIX: Fix the problem of focus when using Tutorial model & Data.
+ o BUG-FIX: Fix the problem of focus when using Tutorial Model & Data.
 
 -----
 

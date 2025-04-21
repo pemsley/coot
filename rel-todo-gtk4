@@ -1,5 +1,7 @@
 ----
 
+The "no map" on double-click dialog should be an overlay.
+
 validation json: sort by "badness" property. Also add "problem-type"
 These are optional.
 Sections added to the format.
@@ -7,6 +9,10 @@ Sections added to the format.
 see the patch show-the-dragged-refinement-problem.patch on the new mac.
 Apply those debugging messages and drag around the MG of the refine_error_mg.pdb.
 Look at the terminal to see what shouldn't be happening.
+
+On high resolution windows laptop,
+Draw > View > Scale Up Graphics
+Mol graphics gets normal size, but the atom labels remain in small font.
 
 Clemens: interesting places json file: when you uget there,
 show the neighbours, ie. action becomes a list of actions,

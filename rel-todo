@@ -3,6 +3,9 @@
 
 o WTA carbohydrate ::: 6
 
+o "Proportional editing" molecule rotation ::: 2
+  Actually "fragment" rotation makes more sense.
+
 o Add anisotropic radius scaling from Claus. Need to check mails or something
   for scaling code. ::: 1
 
