@@ -302,6 +302,7 @@ NB_MODULE(coot_headless_api, m) {
     .def("get_ligand_distortion",&molecules_container_t::get_ligand_distortion)
     .def("get_lsq_matrix",&molecules_container_t::get_lsq_matrix)
     .def("get_map_contours_mesh",&molecules_container_t::get_map_contours_mesh)
+    .def("get_map_contours_mesh_using_other_map_for_colours",&molecules_container_t::get_map_contours_mesh_using_other_map_for_colours)
     .def("get_map_molecule_centre",&molecules_container_t::get_map_molecule_centre)
     .def("get_map_rmsd_approx",&molecules_container_t::get_map_rmsd_approx)
     .def("get_map_weight",&molecules_container_t::get_map_weight)
