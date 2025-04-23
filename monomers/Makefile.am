@@ -1,7 +1,7 @@
 
 cootmonomersdir = $(pkgdatadir)/lib/data/monomers
 
-dist_cootmonomers_DATA = \
+dist_cootmonomers_DATA = ener_lib.cif \
 1/1PE.cif               c/CU.cif                h/HOH.cif               p/PEG.cif \
 5/5MC.cif               c/CYS.cif               i/ILE.cif               p/PG4.cif \
 a/A.cif                 d/DA.cif                i/IMD.cif               p/PGE.cif \
@@ -34,15 +34,16 @@ c/CSO.cif               h/HIS.cif               p/PCA.cif
 install-data-local:
 	if test -d $(srcdir); then \
 	   mkdir $(DESTDIR)/$(pkgdatadir)/lib/data/monomers; \
-	   ls -d $(srcdir)/* ; \
            for cif_dir in $(srcdir)/* ; \
                do \
                l_cif_dir=$$(basename $$cif_dir) ; \
-	       $(MKDIR_P) $(DESTDIR)/$(pkgdatadir)/lib/data/monomers/$$l_cif_dir ; \
-	       for cif_file in $$cif_dir/*.cif ; do \
-                   if test -e $$cif_file ; then \
-		       cp $$cif_file $(DESTDIR)/$(pkgdatadir)/lib/data/monomers/$$l_cif_dir ; \
-		   fi \
-                   done ; \
+               if test -d l_cif_dir ; then \
+	           $(MKDIR_P) $(DESTDIR)/$(pkgdatadir)/lib/data/monomers/$$l_cif_dir ; \
+	           for cif_file in $$cif_dir/*.cif ; do \
+                       if test -e $$cif_file ; then \
+		           cp $$cif_file $(DESTDIR)/$(pkgdatadir)/lib/data/monomers/$$l_cif_dir ; \
+		       fi \
+                       done ; \
+               fi \
                done \
         fi
