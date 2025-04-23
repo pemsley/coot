@@ -11805,3 +11805,40 @@ Add to the code:
                p.print(st);
 #endif
 
+----
+
+Magit:
+
+C-x g
+press [TAB] on the file to see the diffs
+for each @@ that you want to add
+Move the cursor to the @@ and press "s" to stage
+Press c c to commit as usual.
+
+
+
+----
+Wed 23 Apr 2025 06:43:12 -03
+
+       block of validation boxes and panes:
+
+       GtkWidget *frame = widget_from_builder("main_window_validation_graph_frame");
+       gtk_widget_set_visible(frame, TRUE);
+
+       GtkWidget *validation_graph_vbx = widget_from_builder("main_window_validation_graph_vbox");
+       gtk_widget_set_visible(validation_graph_vbx, TRUE);
+
+       GtkWidget *pane_to_show  = widget_from_builder("main_window_ramchandran_and_validation_pane");
+       gtk_widget_set_visible(pane_to_show,  TRUE);
+
+       GtkWidget *pane = widget_from_builder("main_window_graphics_rama_vs_graphics_pane");
+       int pos = gtk_paned_get_position(GTK_PANED(pane));
+       if (pos < 300)
+	  gtk_paned_set_position(GTK_PANED(pane), 380);
+
+       GtkWidget *validation_boxes_vbox = widget_from_builder("validation_boxes_vbox");
+       gtk_widget_set_visible(validation_boxes_vbox, TRUE);
+
+       GtkWidget *outer_vbox = widget_from_builder("dialog-vbox78");
+       gtk_widget_set_visible(outer_vbox,   TRUE);
+
