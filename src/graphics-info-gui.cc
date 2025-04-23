@@ -4260,8 +4260,12 @@ graphics_info_t::fill_difference_map_peaks_button_box() {
    if (pos < 300)
       gtk_paned_set_position(GTK_PANED(pane), 380);
 
-   GtkWidget *outer_vbox = widget_from_builder("dialog-vbox78");
+   GtkWidget *vbox78 = widget_from_builder("dialog-vbox78");
+   gtk_widget_set_visible(vbox78,   TRUE);
+
+   GtkWidget *outer_vbox = widget_from_builder("diff_map_peaks_outer_vbox");
    gtk_widget_set_visible(outer_vbox,   TRUE);
+
    GtkWidget *button_vbox = widget_from_builder("diff_map_peaks_vbox");
 
    GtkWidget *vboxes_vbox = widget_from_builder("validation_boxes_vbox");
@@ -4751,7 +4755,61 @@ graphics_info_t::fill_generic_validation_box_of_buttons(const std::string &dialo
        set_transient_for_main_window(dialog);
        gtk_window_present(GTK_WINDOW(dialog));
     }
- }
+}
+
+void
+graphics_info_t::fill_atoms_with_zero_occupancy_box_of_buttons(const std::vector<labelled_button_info_t> &lbv) {
+
+
+    auto cb = +[] (GtkButton *button, gpointer user_data) {
+       clipper::Coord_orth *co = reinterpret_cast<clipper::Coord_orth *>(user_data);
+       set_rotation_centre(*co);
+    };
+
+    if (! lbv.empty()) {
+
+       GtkWidget *frame = widget_from_builder("main_window_validation_graph_frame");
+       gtk_widget_set_visible(frame, TRUE);
+
+       GtkWidget *validation_graph_vbx = widget_from_builder("main_window_validation_graph_vbox");
+       gtk_widget_set_visible(validation_graph_vbx, TRUE);
+
+       GtkWidget *pane_to_show  = widget_from_builder("main_window_ramchandran_and_validation_pane");
+       gtk_widget_set_visible(pane_to_show,  TRUE);
+
+       GtkWidget *pane = widget_from_builder("main_window_graphics_rama_vs_graphics_pane");
+       int pos = gtk_paned_get_position(GTK_PANED(pane));
+       if (pos < 300)
+	  gtk_paned_set_position(GTK_PANED(pane), 380);
+
+       GtkWidget *validation_boxes_vbox = widget_from_builder("validation_boxes_vbox");
+       gtk_widget_set_visible(validation_boxes_vbox, TRUE);
+
+       GtkWidget *outer_vbox = widget_from_builder("dialog-vbox78");
+       gtk_widget_set_visible(outer_vbox,   TRUE);
+
+       GtkWidget *awzo_outer_vbox = widget_from_builder("atoms_with_zero_occupancy_outer_vbox");
+       gtk_widget_set_visible(awzo_outer_vbox, TRUE);
+
+       GtkWidget *box = widget_from_builder("atoms_with_zero_occupancy_vbox");
+       if (box) {
+	  clear_out_container(box);
+	  for (unsigned int i = 0; i < lbv.size(); i++) {
+	     GtkWidget *box_for_item = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
+	     GtkWidget *button = gtk_button_new_with_label(lbv[i].label.c_str());
+	     gtk_widget_set_hexpand(button, TRUE);
+
+	     clipper::Coord_orth *co = new clipper::Coord_orth(lbv[i].position); // never deleted
+	     void *user_data = reinterpret_cast<void *>(co);
+	     g_signal_connect(G_OBJECT(button), "clicked", G_CALLBACK(cb), user_data);
+	     gtk_box_append(GTK_BOX(box_for_item), button);
+	     gtk_box_append(GTK_BOX(box), box_for_item);
+	  }
+       }
+    }
+}
+
+
 
 
 void

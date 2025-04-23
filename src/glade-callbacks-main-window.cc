@@ -728,7 +728,7 @@ void
 on_diff_map_peaks_close_button_clicked(GtkButton       *button,
                                        gpointer         user_data) {
 
-   GtkWidget *vbox = widget_from_builder("dialog-vbox78"); // change this one day.
+   GtkWidget *vbox = widget_from_builder("diff_map_peaks_outer_vbox");
    clear_diff_map_peaks();
    gtk_widget_set_visible(vbox, FALSE);
    graphics_info_t::hide_vertical_validation_frame_if_appropriate();
@@ -772,6 +772,13 @@ on_dynamic_validation_include_missing_sidechains_checkbutton_toggled(GtkCheckBut
 
 }
 
+extern "C" G_MODULE_EXPORT
+void
+on_atoms_with_zero_occupancy_close_button_clicked(GtkButton *button, gpointer data) {
+   std::cout << "clicked " << button << std::endl;
+   GtkWidget *outer_vbox = widget_from_builder("atoms_with_zero_occupancy_outer_vbox");
+   gtk_widget_set_visible(outer_vbox, FALSE);
+}
 
 
 extern "C" G_MODULE_EXPORT

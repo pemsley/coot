@@ -6870,46 +6870,54 @@ Do you want to continue?
                                   <object class="GtkBox" id="dialog-vbox78"> <!-- change this name one day -->
                                     <property name="visible">False</property>
                                     <property name="orientation">vertical</property>
+
                                     <child>
-                                      <object class="GtkScrolledWindow" id="scrolledwindow18">
-                                        <property name="vexpand">1</property>
-                                        <property name="hexpand">1</property>
-                                        <property name="height-request">180</property>
-                                        <property name="width-request">360</property>
-                                        <child>
-                                          <object class="GtkViewport" id="diff_map_peaks_dialog_peaks_viewport">
+                                      <object class="GtkBox" id="diff_map_peaks_outer_vbox">
+					<property name="visible">False</property>
+					<property name="orientation">vertical</property>
+
+					<child>
+					  <object class="GtkScrolledWindow" id="scrolledwindow18">
+                                            <property name="vexpand">1</property>
+                                            <property name="hexpand">1</property>
+                                            <property name="height-request">180</property>
+                                            <property name="width-request">360</property>
                                             <child>
-                                              <object class="GtkBox" id="diff_map_peaks_vbox">
-                                                <property name="vexpand">1</property>
-                                                <property name="hexpand">1</property>
-                                                <property name="orientation">vertical</property>
+                                              <object class="GtkViewport" id="diff_map_peaks_dialog_peaks_viewport">
+						<child>
+						  <object class="GtkBox" id="diff_map_peaks_vbox">
+                                                    <property name="vexpand">1</property>
+                                                    <property name="hexpand">1</property>
+                                                    <property name="orientation">vertical</property>
+						  </object>
+						</child>
                                               </object>
                                             </child>
-                                          </object>
-                                        </child>
-                                      </object>
-                                    </child>
-                                    <child>
-                                      <object class="GtkButton" id="diff_map_peaks_update_button">
-                                        <property name="label" translatable="yes">Update</property>
-                                        <property name="can-focus">1</property>
-                                        <property name="receives-default">1</property>
-                                        <property name="margin-top">6</property>
-                                        <property name="margin-bottom">6</property>
-                                        <property name="margin-start">6</property>
-                                        <property name="margin-end">6</property>
-                                        <signal name="clicked" handler="on_diff_map_peaks_update_button_clicked" swapped="no"/>
-                                      </object>
-                                    </child>
-                                    <child type="action">
-                                      <object class="GtkButton" id="diff_map_peaks_close_button">
-                                        <property name="label" translatable="yes">Close</property>
-                                        <property name="can-focus">1</property>
-                                        <property name="margin-top">6</property>
-                                        <property name="margin-bottom">6</property>
-                                        <property name="margin-start">6</property>
-                                        <property name="margin-end">6</property>
-                                        <signal name="clicked" handler="on_diff_map_peaks_close_button_clicked" swapped="no"/>
+					  </object>
+					</child>
+					<child>
+					  <object class="GtkButton" id="diff_map_peaks_update_button">
+                                            <property name="label" translatable="yes">Diff Map Peaks Update</property>
+                                            <property name="can-focus">1</property>
+                                            <property name="receives-default">1</property>
+                                            <property name="margin-top">6</property>
+                                            <property name="margin-bottom">6</property>
+                                            <property name="margin-start">6</property>
+                                            <property name="margin-end">6</property>
+                                            <signal name="clicked" handler="on_diff_map_peaks_update_button_clicked" swapped="no"/>
+					  </object>
+					</child>
+					<child type="action">
+					  <object class="GtkButton" id="diff_map_peaks_close_button">
+                                            <property name="label" translatable="yes">Diff Map Peaks Close</property>
+                                            <property name="can-focus">1</property>
+                                            <property name="margin-top">6</property>
+                                            <property name="margin-bottom">6</property>
+                                            <property name="margin-start">6</property>
+                                            <property name="margin-end">6</property>
+                                            <signal name="clicked" handler="on_diff_map_peaks_close_button_clicked" swapped="no"/>
+					  </object>
+					</child>
                                       </object>
                                     </child>
                                   </object>
@@ -6918,6 +6926,7 @@ Do you want to continue?
                                 <child>
                                   <object class="GtkBox" id="interesting_places_outer_vbox">
                                     <property name="orientation">vertical</property>
+                                    <property name="visible">False</property>
                                     <child>
                                       <object class="GtkLabel" id="interesting_places_label">
                                         <property name="label" translatable="yes">Interesting Places</property>
@@ -6938,6 +6947,46 @@ Do you want to continue?
                                   </object>
                                 </child>
 
+                                <child>
+                                  <object class="GtkBox" id="atoms_with_zero_occupancy_outer_vbox">
+                                    <property name="visible">True</property>
+                                    <property name="orientation">vertical</property>
+                                    <property name="margin-bottom">2</property>
+                                    <property name="margin-end">2</property>
+                                    <property name="margin-start">2</property>
+                                    <property name="margin-top">2</property>
+
+                                    <child>
+                                      <object class="GtkScrolledWindow" id="zero_occ_atoms_scrolled_window">
+                                        <property name="vexpand">True</property>
+                                        <child>
+                                          <object class="GtkBox" id="atoms_with_zero_occupancy_vbox">
+					    <property name="visible">True</property>
+                                            <property name="orientation">vertical</property>
+                                          </object>
+                                        </child>
+                                      </object>
+                                    </child>
+
+                                    <child>
+                                      <object class="GtkBox" id="atoms_with_zero_occupancy_close_button_hbox">
+					<property name="orientation">horizontal</property>
+					<child>
+					  <object class="GtkButton" id="atoms_with_zero_occupancy_close_button">
+                                            <property name="label">Close Zero-Occ atoms</property>
+                                            <property name="margin-bottom">6</property>
+                                            <property name="margin-end">6</property>
+                                            <property name="margin-start">4</property>
+                                            <property name="margin-top">4</property>
+                                            <signal name="clicked" handler="on_atoms_with_zero_occupancy_close_button_clicked" swapped="no"/>
+					  </object>
+					</child>
+                                      </object>
+                                    </child>
+				  </object>
+				</child>
+
+				
                                 <child>
                                   <object class="GtkBox" id="dynamic_validation_vbox">
                                     <property name="visible">False</property>

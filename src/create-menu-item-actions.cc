@@ -3686,7 +3686,8 @@ void atoms_with_zero_occupancies_action(G_GNUC_UNUSED GSimpleAction *simple_acti
                label += std::string(at->GetAtomName());
                lbv.push_back(labelled_button_info_t(label, position));
             }
-            g.fill_generic_validation_box_of_buttons("Zero Occupancy Atoms", lbv);
+            // g.fill_generic_validation_box_of_buttons("Zero Occupancy Atoms", lbv);
+	    g.fill_atoms_with_zero_occupancy_box_of_buttons(lbv);
          }
       }
    } else {
@@ -4752,9 +4753,16 @@ create_actions(GtkApplication *application) {
                                     void (*action_function) (GSimpleAction *simple_action,
                                                              GVariant *parameter,
                                                              gpointer user_data)) {
-      GSimpleAction *simple_action = g_simple_action_new(action_name.c_str(), G_VARIANT_TYPE_STRING);
+
+      GSimpleAction *simple_action = g_simple_action_new(action_name.c_str(), g_variant_type_new("s"));
       g_action_map_add_action(G_ACTION_MAP(application), G_ACTION(simple_action));
       g_signal_connect(simple_action, "activate", G_CALLBACK(action_function), NULL);
+      // g_object_unref(simple_action) - test later if I should be doing this.
+
+      // In your application setup:
+      // GSimpleAction *my_action = g_simple_action_new("my-action", g_variant_type_new("s")); // Expects a string parameter
+      // g_action_map_add_action(G_ACTION_MAP(application), "my-action", my_action);
+      // g_object_unref(my_action);
    };
 
 

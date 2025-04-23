@@ -5419,6 +5419,9 @@ string   static std::string sessionid;
    void fill_generic_validation_box_of_buttons(const std::string &dialog_title,
                                                const std::vector<labelled_button_info_t> &v);
 
+   void fill_atoms_with_zero_occupancy_box_of_buttons(const std::vector<labelled_button_info_t> &lbv);
+
+
 
    // 20230419-PE ----- a holder for the OpenGL-based Ramachandran Plots
    // each rama plot is held in a GtkBox - and that box has a "Close" button
