@@ -21,11 +21,20 @@ o Validation json. ::: 2
 
 o Thierry Fischmann mail ::: 2
 
-o depythonize Add Other Solvent dialog
+o depythonize Add Other Solvent dialog ::: 1
 
 o Fix the "Fetch" buttons - new GTK4/glib? ::: 2
 
+o Cross-out "Screenshot" unless we have OpenGL 4.2 or later ::: 0.5
+
+o plug a mouse into the map and do middle-mouse drag for translation (and check ctrl-left-mouse)
+
 --- Other Items ---
+
+o Highlight the chain neighbours in the Rama plot. Bring back the green square.
+
+o how do I make the HUD buttons have rounded edges? Can I make the health bars
+  have rounded edges?
 
 o Rama and Rota graphs validation graphs have terrible scaling - difficult to fix :: 4
 
