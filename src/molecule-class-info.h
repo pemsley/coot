@@ -596,7 +596,7 @@ class molecule_class_info_t {
    // NXmap, not the xmap)
    //
    // bool is_em_map(const clipper::CCP4MAPfile &file) const;
-   bool set_is_em_map(const clipper_map_file_wrapper &file);
+   bool set_is_em_map(const clipper_map_file_wrapper &file, const std::string &file_name);
 
    // for quads/triangle strip for the bond representation (rather
    // than gl_lines).

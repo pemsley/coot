@@ -29,6 +29,11 @@
 namespace coot {
    namespace util {
 
+      std::vector<std::string> get_map_labels(const std::string &file_name);
+
+      // PANDDA::, that is.
+      bool map_labels_contain_PANDDA(const std::string &file_name);
+
       bool is_basic_em_map_file(const std::string &file_name);
 
       // inf check_only is true, then just read the header, check that it is sane

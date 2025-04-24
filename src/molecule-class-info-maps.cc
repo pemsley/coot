@@ -2373,7 +2373,8 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
 
          auto tp_2 = std::chrono::high_resolution_clock::now();
          auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
-         std::cout << "INFO:: map read in " << d21 << " milliseconds" << std::endl;
+         std::cout << "INFO:: map read in " << d21 << " milliseconds with status: "
+		   << done << std::endl;
 
          // Now set is_em_map_cached_flag and set the rotation centres.
          // I think that we only need set the is_em_map_cached_flag.
@@ -2393,7 +2394,7 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
                try {
                   clipper_map_file_wrapper file;
                   file.open_read(filename);
-                  set_is_em_map(file); // sets is_em_map_cached_flag
+                  set_is_em_map(file, filename); // sets is_em_map_cached_flag
                   em = is_em_map_cached_flag;
                   if (imol_no == 0) {
                      clipper::Cell c = file.cell();
@@ -2419,7 +2420,7 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
          try {
             file.open_read(filename);
 
-            em = set_is_em_map(file);
+            em = set_is_em_map(file, filename);
 
             bool use_xmap = true; // not an nxmap
             if (true) {
@@ -2559,7 +2560,8 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
 // NXmap, not the xmap)
 //
 bool
-molecule_class_info_t::set_is_em_map(const clipper_map_file_wrapper &file) {
+molecule_class_info_t::set_is_em_map(const clipper_map_file_wrapper &file,
+				     const std::string &file_name) {
 
    // Even if mapdump says that the spacegroup is 0, file.spacegroup()
    // will be "P1".  So this returns true for maps with spacegroup 0
@@ -2583,6 +2585,13 @@ molecule_class_info_t::set_is_em_map(const clipper_map_file_wrapper &file) {
    } else {
       is_em_map_cached_flag = 0;
    }
+
+   // now we check if we have a PANDDA:: map
+   bool pandda_status = coot::util::map_labels_contain_PANDDA(file_name);
+   if (pandda_status) {
+      is_em_map_cached_flag = false;
+   }
+
    return false; // not a useful return value, because flag can have 3 values
 }
 
