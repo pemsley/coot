@@ -10260,6 +10260,73 @@ Do you want to continue?
     </child>
   </object>
 
+  <object class="GtkDialog" id="add_other_solvent_molecules_dialog">
+    <property name="title">Coot: Add Other Solvent Molecule</property>
+    <property name="hide-on-close">True</property>
+    <child>
+      <object class="GtkBox">
+        <property name="orientation">vertical</property>
+        <property name="margin-top">10</property>
+        <property name="margin-bottom">10</property>
+        <property name="margin-start">10</property>
+        <property name="margin-end">10</property>
+        <property name="spacing">5</property>
+	<child>
+	  <object class="GtkBox">
+	    <property name="orientation">vertical</property>
+	    <child>
+	      <object class="GtkLabel">
+		<property name="label" translatable="yes">Choose Molecule:</property>
+		<property name="justify">start</property>
+	      </object>
+	    </child>
+	  </object>
+	</child>
+
+	<child>
+	  <object class="GtkComboBoxText" id="add_other_solvent_molecules_comboboxtext">
+	    <property name="margin-start">8</property>
+	    <property name="margin-end">8</property>
+	    <property name="margin-top">4</property>
+	    <property name="margin-bottom">4</property>
+	  </object>
+	</child>
+
+	<child>
+	  <object class="GtkBox" id="add_other_solvent_molecules_vbox">
+	    <property name="orientation">vertical</property>
+	  </object>
+	</child>
+
+	<child>
+	  <object class="GtkButton" id="add_other_solvent_molecules_new_residue_type_button">
+	    <property name="label">Add a New Residue Type...</property>
+            <property name="visible">False</property>
+	    <signal name="clicked" handler="on_add_other_solvent_molecules_new_residue_type_button_clicked" swapped="no"/>
+	  </object>
+	</child>
+
+        <child>
+          <object class="GtkSeparator">
+            <property name="margin-top">8</property>
+            <property name="margin-bottom">6</property>
+            <property name="margin-start">2</property>
+            <property name="margin-end">2</property>
+          </object>
+        </child>
+
+	<child>
+	  <object class="GtkButton" id="add_other_solvent_molecules_close_button">
+	    <property name="label">Close</property>
+	    <signal name="clicked" handler="on_add_other_solvent_molecules_close_button_clicked" swapped="no"/>
+	  </object>
+	</child>
+
+      </object>
+    </child>
+  </object>
+
+
 
   <object class="GtkDialog" id="ramachandran_plot_molecule_chooser_dialog">
     <property name="title">Coot: Ramachandran Plot</property>
@@ -10287,7 +10354,7 @@ Do you want to continue?
             </child>
 
             <child>
-              <object class="GtkComboBox" id="ramachandran_plot_molecule_chooser_model_combobox">
+l              <object class="GtkComboBox" id="ramachandran_plot_molecule_chooser_model_combobox">
                 <property name="hexpand">True</property>
                 <layout>
                   <property name="row">0</property>
