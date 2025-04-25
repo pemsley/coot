@@ -3389,7 +3389,7 @@ float model_resolution(int imol) {
 /*                     residue exists?                                       */
 /*  ------------------------------------------------------------------------ */
 
-int does_residue_exist_p(int imol, char *chain_id, int resno, char *inscode) {
+int does_residue_exist_p(int imol, const char *chain_id, int resno, const char *inscode) {
 
    int istate = 0;
    if (is_valid_model_molecule(imol)) {

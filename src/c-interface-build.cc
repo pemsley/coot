@@ -3351,8 +3351,8 @@ void pLDDT_to_b_factor(int imol) {
 // Perhaps this should be a just a call to a graphics_info_t function?
 //
 void
-fit_residue_range_to_map_by_simplex(int res1, int res2, char *altloc,
-				    char *chain_id, int imol, int imol_for_map) {
+fit_residue_range_to_map_by_simplex(int res1, int res2, const char *altloc,
+				    const char *chain_id, int imol, int imol_for_map) {
 
 
    // The molecule_class_info_t updates its bonds.
@@ -3382,8 +3382,8 @@ fit_residue_range_to_map_by_simplex(int res1, int res2, char *altloc,
 // Return a score of the fit to the map.
 //
 float
-score_residue_range_fit_to_map(int res1, int res2, char *altloc,
-			       char *chain_id, int imol, int imol_for_map) {
+score_residue_range_fit_to_map(int res1, int res2, const char *altloc,
+			       const char *chain_id, int imol, int imol_for_map) {
 
    float f = 0.0;
 

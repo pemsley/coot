@@ -2360,7 +2360,7 @@ molecule_class_info_t::is_in_labelled_symm_list(int i) {
 }
 
 
-int molecule_class_info_t::add_atom_label(char *chain_id, int iresno, char *atom_id) {
+int molecule_class_info_t::add_atom_label(const char *chain_id, int iresno, const char *atom_id) {
 
    // int i = atom_index(chain_id, iresno, atom_id);
    int i = atom_spec_to_atom_index(std::string(chain_id),
@@ -2475,7 +2475,7 @@ molecule_class_info_t::local_b_factor_display(bool state,
 
 
 
-int molecule_class_info_t::remove_atom_label(char *chain_id, int iresno, char *atom_id) {
+int molecule_class_info_t::remove_atom_label(const char *chain_id, int iresno, const char *atom_id) {
 
    int i = atom_index(chain_id, iresno, atom_id);
    if (i > 0)

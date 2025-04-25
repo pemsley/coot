@@ -4996,7 +4996,7 @@ short int possible_cell_symm_for_phs_file() {
 
 // return a string to each of the cell parameters in molecule imol.
 //
-gchar *get_text_for_phs_cell_chooser(int imol, char *field) {
+gchar *get_text_for_phs_cell_chooser(int imol, const char *field) {
 
    // we first look in atomseletion
 
@@ -7243,7 +7243,7 @@ void set_found_coot_python_gui() {
 }
 
 // return an atom index
-int atom_spec_to_atom_index(int imol, char *chain, int resno, char *atom_name) {
+int atom_spec_to_atom_index(int imol, const char *chain, int resno, const char *atom_name) {
    graphics_info_t g;
    if (imol < graphics_n_molecules())
       return g.molecules[imol].atom_spec_to_atom_index(chain, resno, atom_name);
@@ -8170,7 +8170,7 @@ void import_all_refmac_cifs() {
 /*  ----------------------------------------------------------------------- */
 /* The guts happens in molecule_class_info_t, here is just the
    exported interface */
-int add_atom_label(int imol, char *chain_id, int iresno, char *atom_id) {
+int add_atom_label(int imol, const char *chain_id, int iresno, const char *atom_id) {
 
    int i = 0;
    if (is_valid_model_molecule(imol)) {
@@ -8180,7 +8180,7 @@ int add_atom_label(int imol, char *chain_id, int iresno, char *atom_id) {
    return i;
 }
 
-int remove_atom_label(int imol, char *chain_id, int iresno, char *atom_id) {
+int remove_atom_label(int imol, const char *chain_id, int iresno, const char *atom_id) {
    graphics_info_t g;
    return g.molecules[imol].remove_atom_label(chain_id, iresno, atom_id);
 }

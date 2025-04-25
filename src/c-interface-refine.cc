@@ -567,7 +567,7 @@ bool get_cryo_em_refinement() {
    return graphics_info_t::cryo_EM_refinement_flag;
 }
 
-void write_interpolated_extra_restraints(int imol_1, int imol_2, int n_steps, char *file_name_stub) {
+void write_interpolated_extra_restraints(int imol_1, int imol_2, int n_steps, const char *file_name_stub) {
 
    if (is_valid_model_molecule(imol_1)) {
       if (is_valid_model_molecule(imol_2)) {
@@ -590,7 +590,7 @@ void write_interpolated_extra_restraints(int imol_1, int imol_2, int n_steps, ch
 
 interpolation_mode is currently dummy - in due course I will addd torion angle interpolation.
 */
-void write_interpolated_models_and_extra_restraints(int imol_1, int imol_2, int n_steps, char *file_name_stub,
+void write_interpolated_models_and_extra_restraints(int imol_1, int imol_2, int n_steps, const char *file_name_stub,
 						    int interpolation_mode) {
 
    if (is_valid_model_molecule(imol_1)) {

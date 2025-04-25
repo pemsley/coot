@@ -2792,7 +2792,7 @@ graphics_store_phs_filename(const gchar *phs_filename);
 short int possible_cell_symm_for_phs_file();
 
 /* MOVE-ME to c-interface-gtk-widgets.h */
-gchar *get_text_for_phs_cell_chooser(int imol, char *field);
+gchar *get_text_for_phs_cell_chooser(int imol, const char *field);
 
 /* \} */
 
@@ -2895,7 +2895,7 @@ void update_go_to_atom_residue_list(int imol);
 
 /*  return an atom index */
 /*! \brief what is the atom index of the given atom? */
-int atom_spec_to_atom_index(int mol, char *chain, int resno, char *atom_name);
+int atom_spec_to_atom_index(int mol, const char *chain, int resno, const char *atom_name);
 
 /*! \brief what is the atom index of the given atom? */
 int full_atom_spec_to_atom_index(int imol, const char *chain, int resno,
@@ -3666,7 +3666,7 @@ int set_imol_refinement_map(int imol);	/* returns imol on success, otherwise -1 
 
    @return 0 on not-exist, 1 on does exist.
 */
-int does_residue_exist_p(int imol, char *chain_id, int resno, char *inscode);
+int does_residue_exist_p(int imol, const char *chain_id, int resno, const char *inscode);
 
 /*! \brief delete the restraints for the given comp_id (i.e. residue name)
 
@@ -3772,13 +3772,13 @@ void generate_local_self_restraints_by_residues_py(int imol, PyObject *residue_s
 
 
 /*! \brief proSMART interpolated restraints for model morphing  */
-void write_interpolated_extra_restraints(int imol_1, int imol_2, int n_steps, char *file_name_stub);
+void write_interpolated_extra_restraints(int imol_1, int imol_2, int n_steps, const char *file_name_stub);
 
 /*! \brief proSMART interpolated restraints for model morphing and write interpolated model
 
 interpolation_mode is currently dummy - in due course I will addd torion angle interpolation.
 */
-void write_interpolated_models_and_extra_restraints(int imol_1, int imol_2, int n_steps, char *file_name_stub,
+void write_interpolated_models_and_extra_restraints(int imol_1, int imol_2, int n_steps, const char *file_name_stub,
 						    int interpolation_mode);
 
 void set_show_parallel_plane_restraints(int imol, int state);
@@ -3840,11 +3840,11 @@ void decrease_proportional_editing_radius();
 
 /*! \brief refine residue range using simplex optimization */
 void
-fit_residue_range_to_map_by_simplex(int res1, int res2, char *altloc, char *chain_id, int imol, int imol_for_map);
+fit_residue_range_to_map_by_simplex(int res1, int res2, const char *altloc, const char *chain_id, int imol, int imol_for_map);
 
 /*! \brief simply score the residue range fit to map */
 float
-score_residue_range_fit_to_map(int res1, int res2, char *altloc, char *chain_id, int imol, int imol_for_map);
+score_residue_range_fit_to_map(int res1, int res2, const char *altloc, const char *chain_id, int imol, int imol_for_map);
 /*! \} */
 
 /*  ----------------------------------------------------------------------- */
@@ -4315,8 +4315,8 @@ void change_peptide_carbonyl_by_current_button_pos(int ix, int iy);
 /*! \name Atom Labelling */
 /* \{ */
 /*  Note we have to search for " CA " etc */
-int    add_atom_label(int imol, char *chain_id, int iresno, char *atom_id);
-int remove_atom_label(int imol, char *chain_id, int iresno, char *atom_id);
+int    add_atom_label(int imol, const char *chain_id, int iresno, const char *atom_id);
+int remove_atom_label(int imol, const char *chain_id, int iresno, const char *atom_id);
 void remove_all_atom_labels();
 
 void set_label_on_recentre_flag(int i); /* 0 for off, 1 or on */
@@ -5531,7 +5531,7 @@ onto what is currently residue 21.  The mainchain numbering and atoms is not cha
 @return 0 for failure to nudge (becauese not all the residues were in the range)
         and 1 for success.
 */
-int nudge_residue_sequence(int imol, char *chain_id, int res_no_range_start, int res_no_range_end, int nudge_by, short int nudge_residue_numbers_also);
+int nudge_residue_sequence(int imol, const char *chain_id, int res_no_range_start, int res_no_range_end, int nudge_by, short int nudge_residue_numbers_also);
 
 /*! \brief Do you want Coot to automatically run a refinement after
   every mutate and autofit?
