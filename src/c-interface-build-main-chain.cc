@@ -754,7 +754,7 @@ protein_db_loop_specs_to_atom_selection_string(const std::vector<coot::residue_s
 /*                      LINKs                                                */
 /* ------------------------------------------------------------------------- */
 void
-make_link(int imol, coot::atom_spec_t &spec_1, coot::atom_spec_t &spec_2,
+make_link(int imol, const coot::atom_spec_t &spec_1, const coot::atom_spec_t &spec_2,
 	  const std::string &link_name, float length) {
 
    if (is_valid_model_molecule(imol)) {

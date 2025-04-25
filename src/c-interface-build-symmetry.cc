@@ -87,6 +87,8 @@
 #include "c-interface-mmdb.hh"
 #include "c-interface-scm.hh"
 #include "c-interface-python.hh"
+#include "new-molecule-by-symmetry-matrix.hh"
+
 
 #ifdef USE_DUNBRACK_ROTAMERS
 #include "ligand/dunbrack.hh"

@@ -105,13 +105,6 @@ std::string pre_directory_file_selection(GtkWidget *sort_button);
 void filelist_into_fileselection_clist(GtkWidget *fileselection, const std::vector<std::string> &v);
 */
 
-// 20220723-PE these functions should not be in this header! - Move them to a widget header
-// MOVE-ME!
-GtkWidget *wrapped_nothing_bad_dialog(const std::string &label);
-
-std::pair<short int, float> float_from_entry(GtkWidget *entry);
-std::pair<short int, int>   int_from_entry(GtkWidget *entry);
-
 // These widget declarations don't belong in this file.
 // void
 // add_validation_mol_menu_item(int imol, const std::string &name, GtkWidget *menu, GtkSignalFunc callback);
@@ -119,11 +112,6 @@ std::pair<short int, int>   int_from_entry(GtkWidget *entry);
 // 						     const std::string &menu_name,
 // 						     const std::string &sub_menu_name);
 
-// To be used to (typically) get the menu item text label from chain
-// option menus (rather than the ugly/broken casting of
-// GtkPositionType data.  A wrapper to a static graphics_info_t
-// function.
-std::string menu_item_label(GtkWidget *menu_item);
 
 // CaBLAM
 std::vector<std::pair<coot::residue_spec_t, double> >
@@ -1360,7 +1348,7 @@ print_glyco_tree(int imol, const std::string &chain_id, int resno, const std::st
 //!
 //!  @return the molecule number of the new map.  Return -1 if unable to
 //!   make a variance map.
-int make_variance_map(std::vector<int> map_molecule_number_vec);
+int make_variance_map(const std::vector<int> &map_molecule_number_vec);
 #ifdef USE_GUILE
 int make_variance_map_scm(SCM map_molecule_number_list);
 #endif
@@ -1424,10 +1412,6 @@ PyObject *CG_spin_search_py(int imol_model, int imol_map);
 /*  ----------------------------------------------------------------------- */
 std::vector<std::pair<std::string, std::string> > monomer_lib_3_letter_codes_matching(const std::string &search_string, short int allow_minimal_descriptions_flag);
 
-// 20220723-PE These functions should not be here. Move this functions to a widget header.
-//             MOVE-ME!
-void on_monomer_lib_search_results_button_press (GtkButton *button, gpointer user_data);
-void on_monomer_lib_sbase_molecule_button_press (GtkButton *button, gpointer user_data);
 
 /*  ----------------------------------------------------------------------- */
 /*                  mutate                                                  */
@@ -1436,7 +1420,7 @@ void on_monomer_lib_sbase_molecule_button_press (GtkButton *button, gpointer use
 int mutate_residue_range(int imol, const std::string &chain_id, int res_no_start, int res_no_end, const std::string &target_sequence);
 
 int mutate_internal(int ires, const char *chain_id,
-                    int imol, std::string &target_res_type);
+                    int imol, const std::string &target_res_type);
 /* a function for multimutate to make a backup and set
    have_unsaved_changes_flag themselves */
 
@@ -1581,18 +1565,6 @@ void set_use_trackpad(short int state);
 //! this is an alias for the above
 void set_use_primary_mouse_button_for_view_rotation(short int state);
 
-/*  ----------------------------------------------------------------------- */
-/*                  Abstraction of New molecule by symmetry functions       */
-/*  ----------------------------------------------------------------------- */
-
-mmdb::Manager *new_molecule_by_symmetry_matrix_from_molecule(mmdb::Manager *mol,
-                                                            double m11, double m12, double m13,
-                                                            double m21, double m22, double m23,
-                                                            double m31, double m32, double m33,
-                                                            double tx, double ty, double tz,
-                                                            int pre_shift_to_origin_na,
-                                                            int pre_shift_to_origin_nb,
-                                                            int pre_shift_to_origin_nc);
 
 
 /*  ----------------------------------------------------------------------- */
@@ -1812,38 +1784,6 @@ void reset_framebuffers();
 
 
 /*  ----------------------------------------------------------------------- */
-/*                  Pisa internal                                           */
-/*  ----------------------------------------------------------------------- */
-clipper::Coord_orth
-make_complementary_dotted_surfaces(int imol_1, int imol_2,
-                                   std::vector<coot::residue_spec_t> &r1,
-                                   std::vector<coot::residue_spec_t> &r2);
-#ifdef USE_GUILE
-std::vector<coot::residue_spec_t>
-residue_records_list_scm_to_residue_specs(SCM mol_1_residue_records,
-                                          const std::string &chain_id);
-SCM symbol_value_from_record(SCM record_1, const std::string &symbol);
-#endif
-#ifdef USE_PYTHON
-std::vector<coot::residue_spec_t>
-residue_records_list_py_to_residue_specs(PyObject *mol_1_residue_records,
-                                         const std::string &chain_id);
-//PyObject *symbol_value_from_record(PyObject *record_1, const std::string &symbol);
-#endif
-
-void
-add_generic_object_bond(int imol1, int imol2,
-                        const coot::atom_spec_t &atom_spec_1,
-                        const coot::atom_spec_t &atom_spec_2,
-                        int generic_object_number,
-                        const std::string &colour);
-
-void
-pisa_interfaces_display_only(int imol_1, int imol_2, clipper::Coord_orth centre_pt);
-std::string untangle_mmdb_chain_id_string(const std::string &mmdb_chain_id_in);
-
-
-/*  ----------------------------------------------------------------------- */
 /*               Return Rotamer score (don't touch the model)               */
 /*  ----------------------------------------------------------------------- */
 
@@ -1942,15 +1882,6 @@ void hole(int imol,
           std::string export_surface_dots_file_name);
 
 
-// GUI stuff - Move these functions to a widget header
-// 20220723-PE MOVE-ME!
-void probe_radius_graph_close_callback( GtkWidget *button, GtkWidget *dialog);
-
-// 20230521-PE restore these when I understand how to make a graph in GTK4.
-// void show_hole_probe_radius_graph(const std::vector<std::pair<clipper::Coord_orth, double> > &hole_path, double path_length);
-// void show_hole_probe_radius_graph_basic(const std::vector<std::pair<clipper::Coord_orth, double> > &hole_path, double path_length);
-// void show_hole_probe_radius_graph_goocanvas(const std::vector<std::pair<clipper::Coord_orth, double> > &hole_path, double path_length);
-
 /* ------------------------------------------------------------------------- */
 /*                      Gaussian Surface                                     */
 /* ------------------------------------------------------------------------- */
@@ -1996,7 +1927,7 @@ void make_acedrg_dictionary_via_CCD_dictionary(int imol, const coot::residue_spe
 
 //! \brief make a link between the specified atoms
 void
-make_link(int imol, coot::atom_spec_t &spec_1, coot::atom_spec_t &spec_2,
+make_link(int imol, const coot::atom_spec_t &spec_1, const coot::atom_spec_t &spec_2,
           const std::string &link_name, float length);
 #ifdef USE_GUILE
 void make_link_scm(int imol, SCM spec_1, SCM spec_2, const std::string&link_name, float length);

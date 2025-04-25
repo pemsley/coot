@@ -2211,7 +2211,7 @@ PyObject *positron_pathway(PyObject *map_molecule_list_py, PyObject *pathway_poi
 //! \{
 //! \brief Make a variance map, based on the grid of the first map.
 //!
-int make_variance_map(std::vector<int> map_molecule_number_vec) {
+int make_variance_map(const std::vector<int> &map_molecule_number_vec) {
 
    int imol_map = -1;
 

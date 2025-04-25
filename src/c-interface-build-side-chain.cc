@@ -707,7 +707,7 @@ int mutate_by_overlap(int imol, const std::string &chain_id, int res_no, const s
 // return success on residue type match
 // success: 1, failure: 0.
 int
-mutate_internal(int ires_serial, const char *chain_id, int imol, std::string &target_res_type) {
+mutate_internal(int ires_serial, const char *chain_id, int imol, const std::string &target_res_type) {
 
    graphics_info_t g;
    int istate = 0;
