@@ -720,10 +720,12 @@ libcootsumo_la_SOURCES = \
 	molecular-mesh-generator.hh \
 	mtz-column-auto-read.hh  \
 	named-rotamer-score.hh   \
+	/new-molecule-by-symmetry-matrix.hh \
 	nsv.hh                   \
 	obj_loader.h obj_loader.cc \
 	pisa-interface.hh	 \
-	pick.hh pick.cc	 \
+	pisa-internal.hh         \
+	pick.hh pick.cc	         \
 	positioned-widgets.h     \
 	positron-plot.cc         \
 	pre-load.hh              \
