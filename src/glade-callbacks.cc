@@ -6934,6 +6934,27 @@ on_download_monomers_ok_button_clicked(GtkButton       *button,
    gtk_widget_set_visible(dialog, FALSE);
 }
 
+
+extern "C" G_MODULE_EXPORT
+void
+on_add_other_solvent_molecules_new_residue_type_button_clicked(GtkButton       *button,
+							       gpointer         user_data) {
+
+   std::cout << "Add other solvent new residue type here " << std::endl;
+}
+
+
+extern "C" G_MODULE_EXPORT
+void
+on_add_other_solvent_molecules_close_button_clicked(GtkButton       *button,
+						    gpointer         user_data) {
+
+   GtkWidget *dialog = widget_from_builder("add_other_solvent_molecules_dialog");
+   if (dialog) {
+      gtk_widget_set_visible(dialog, FALSE);
+   }
+}
+
 extern "C" G_MODULE_EXPORT
 void
 on_button_clicked(GtkButton       *button,

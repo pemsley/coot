@@ -47,6 +47,9 @@
 #include "cc-interface.hh" // for fullscreen()
 #include "rotate-translate-modes.hh"
 
+#include "utils/logging.hh"
+extern logging logger;
+
 // These don't work if they are in graphics-info-statics.cc
 // Possibly because the gui (this file included) is loaded at run-time.
 // 20250221-PE now thay are in graphics-info-statics also.
@@ -2918,6 +2921,8 @@ void add_an_atom_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
 }
 
+#include "get-monomer.hh"
+
 void add_other_solvent_molecules_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                         G_GNUC_UNUSED GVariant *parameter,
                                         G_GNUC_UNUSED gpointer user_data) {
@@ -2925,11 +2930,99 @@ void add_other_solvent_molecules_action(G_GNUC_UNUSED GSimpleAction *simple_acti
    // safe_python_command("import coot_gui");
    // safe_python_command("coot_gui.solvent_ligands_gui()");
 
+   auto get_model_molecule_vector = [] () {
+                                       graphics_info_t g;
+                                       std::vector<int> vec;
+                                       int n_mol = g.n_molecules();
+                                       for (int i=0; i<n_mol; i++)
+                                          if (g.is_valid_model_molecule(i))
+                                             vec.push_back(i);
+                                       return vec;
+                                    };
+
+   auto type_button_callback = +[] (GtkButton *b, gpointer data) {
+
+      graphics_info_t g;
+      std::string *s = static_cast<std::string *>(data);
+      std::string type = *s;
+      int imol_ligand = get_monomer(type);
+      fit_to_map_by_random_jiggle(imol_ligand, "A", 1, "", 100, 2.0);
+      if (g.is_valid_model_molecule(imol_ligand)) {
+	 coot::residue_spec_t rspec("A", 1, "");
+	 mmdb::Residue *residue_p = g.molecules[imol_ligand].get_residue(rspec);
+	 if (residue_p) {
+	    mmdb::Manager *mol = g.molecules[imol_ligand].atom_sel.mol;
+	    std::vector<mmdb::Residue *> v;
+	    std::string alt_conf;
+	    v.push_back(residue_p);
+	    short int save_state = g.refinement_immediate_replacement_flag;
+	    g.refinement_immediate_replacement_flag = 1;
+	    coot::refinement_results_t rr = g.refine_residues_vec(imol_ligand, v, alt_conf, mol);
+	    g.refinement_immediate_replacement_flag = save_state;
+	    c_accept_moving_atoms();
+	    delete_hydrogen_atoms(imol_ligand);
+	    int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(b), "imol"));
+	    std::vector<atom_selection_container_t> add_molecules_at_sels;
+	    add_molecules_at_sels.push_back(g.molecules[imol_ligand].atom_sel);
+	    g.molecules[imol].merge_molecules(add_molecules_at_sels);
+	    close_molecule(imol_ligand);
+	 }
+      }
+   };
+
    GtkWidget *dialog = widget_from_builder("add_other_solvent_molecules_dialog");
    if (dialog) {
       GtkWidget *box = widget_from_builder("add_other_solvent_molecules_vbox");
       if (box) {
+
+	 graphics_info_t g;
+	 int imol_active = -1;
+	 GtkWidget *combobox = widget_from_builder("add_other_solvent_molecules_comboboxtext");
+	 auto model_list = get_model_molecule_vector();
+	 GCallback func = G_CALLBACK(nullptr); // we don't care until this dialog is read
+	 g.fill_combobox_with_molecule_options(combobox, func, imol_active, model_list);
+
+	 GtkWidget *item_widget = gtk_widget_get_first_child(box);
+	 if (item_widget) {
+	    // no need to add buttons, it has been done
+	 } else {
+	    std::vector<std::string> types = {"EDO", "GOL", "DMS", "ACT", "MPD", "CIT", "SO4",
+					      "PO4", "TRS", "TAM", "PEG", "PG4", "PE8",
+					      "EBE", "BTB"};
+	    int imol_enc = coot::protein_geometry::IMOL_ENC_ANY;
+	    int cif_read_number = 50;
+	    bool dict_status = g.Geom_p()->have_dictionary_for_residue_types(types, imol_enc, cif_read_number++);
+	    if (dict_status) {
+	       for (const auto &type : types) {
+		  int new_idx = g.Geom_p()->get_monomer_restraints_index(type, imol_enc, false);
+		  if (new_idx >= 0) {
+		     auto p = g.Geom_p()->get_monomer_name(type, imol_enc);
+		     if (p.first) {
+			GtkWidget *combobox = widget_from_builder("add_other_solvent_molecules_comboboxtext");
+			int imol = my_combobox_get_imol(GTK_COMBO_BOX(combobox));
+			std::string l = type + " " + p.second;
+			GtkWidget *button = gtk_button_new_with_label(l.c_str());
+			gtk_box_append(GTK_BOX(box), button);
+			std::string *t = new std::string(type);
+			g_object_set_data(G_OBJECT(button), "imol", GINT_TO_POINTER(imol));
+			g_signal_connect(G_OBJECT(button), "clicked", G_CALLBACK(type_button_callback), t);
+		     } else {
+			logger.log(log_t::WARNING, logging::function_name_t(__FUNCTION__),
+				   "failed to get name for", type);
+		     }
+		  } else {
+		     logger.log(log_t::WARNING, logging::function_name_t(__FUNCTION__), "bad dict index for",
+				type);
+		  }
+	       }
+	    } else {
+	       logger.log(log_t::WARNING, logging::function_name_t(__FUNCTION__),
+			  "bad dict status for types");
+	    }
+	 }
       }
+      set_transient_for_main_window(dialog);
+      gtk_widget_set_visible(dialog, TRUE);
    }
 
 }

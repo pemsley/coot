@@ -10277,7 +10277,7 @@ Do you want to continue?
 	    <child>
 	      <object class="GtkLabel">
 		<property name="label" translatable="yes">Choose Molecule:</property>
-		<property name="justify">start</property>
+		<property name="justify">left</property>
 	      </object>
 	    </child>
 	  </object>

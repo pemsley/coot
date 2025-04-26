@@ -2768,24 +2768,6 @@ void show_main_toolbar() {
    }
 }
 
-// functions for the main toolbar style
-// should be generic!? FIXME BL
-void set_main_toolbar_style(int istate) {
-
-   // main_toolbar no longer exists - do I still want this function?
-
-   graphics_info_t::main_toolbar_style_state = istate;
-   if (graphics_info_t::use_graphics_interface_flag) {
-      GtkWidget *toolbar = widget_from_builder("main_toolbar");
-      if (!toolbar) {
-	 std::cout << "set_main_toolbar_style(): failed to lookup main toolbar" << std::endl;
-      }
-   }
-}
-
-int main_toolbar_style_state() {
-  return graphics_info_t::main_toolbar_style_state;
-}
 
 /*  ------------------------------------------------------------------------ */
 // other modelling tools
@@ -4284,55 +4266,6 @@ void on_export_map_dialog_ok_button_clicked_cc(GtkButton *button) {
 //
 // }
 
-
-// -----------ancient interface code --------------------------------------
-
-// functions to dock the accept/reject dialog
-void set_accept_reject_dialog_docked(int istate){
-
-   if (graphics_info_t::use_graphics_interface_flag) {
-     // we should destroy/hide the dialog if existing
-     if (graphics_info_t::accept_reject_dialog) {
-       // changing state?
-       if (istate != graphics_info_t::accept_reject_dialog_docked_flag) {
-         if (istate == 0) {
-           gtk_widget_set_visible(graphics_info_t::accept_reject_dialog, FALSE);
-         } else {
-           gtk_widget_set_visible(graphics_info_t::accept_reject_dialog, FALSE);
-           // reset the widget upon change of mode
-           set_accept_reject_dialog(0);
-         }
-       }
-     }
-     // now change the state
-     graphics_info_t::accept_reject_dialog_docked_flag = istate;
-   }
-}
-
-int accept_reject_dialog_docked_state(){
-  return graphics_info_t::accept_reject_dialog_docked_flag;
-}
-
-// functions to show/hide/sensitise docked accept/reject dialog
-void set_accept_reject_dialog_docked_show(int state){
-
-   if (graphics_info_t::use_graphics_interface_flag) {
-      graphics_info_t::accept_reject_dialog_docked_show_flag = state;
-      if (state == 0) {
-         // GtkWidget *dialog = lookup_widget(GTK_WIDGET(graphics_info_t::get_main_window()), "accept_reject_dialog_frame_docked");
-         GtkWidget *dialog = widget_from_builder("accept_reject_dialog_frame_docked");
-         // hide the widget and make sensitive again
-         gtk_widget_set_sensitive(dialog, TRUE);
-         gtk_widget_set_visible(dialog, FALSE);
-         // reset the widget
-         set_accept_reject_dialog(0);
-      }
-   }
-}
-
-int accept_reject_dialog_docked_show_state() {
-  return graphics_info_t::accept_reject_dialog_docked_show_flag;
-}
 
 void store_geometry_dialog(GtkWidget *w) {
 

@@ -650,8 +650,17 @@ std::vector<std::string> dictionary_entries();
 //! debug dictionary information
 void debug_dictionary();
 
-//! this can throw an exception
+#ifdef USE_PYTHON
+#else
+// This function can throw an exception - so don't
+// export it to python.
+//
+// return the SMILES for the given residue type
+//
+// @param comp_id is the residue type
+// @return the SMILES string
 std::string SMILES_for_comp_id(const std::string &comp_id);
+#endif // USE_PYTHON
 
 /*! \brief return a list of all the dictionaries read */
 #ifdef USE_GUILE
@@ -666,7 +675,14 @@ SCM SMILES_for_comp_id_scm(const std::string &comp_id);
 PyObject *dictionaries_read_py();
 PyObject *cif_file_for_comp_id_py(const std::string &comp_id);
 PyObject *dictionary_entries_py();
+
+//! Get the SMILES for the given residue type
+//
+//! @param comp_id is the residue type
+//! @return the SMILES string or False on failure to find the
+//!         residue type or SMILES string        
 PyObject *SMILES_for_comp_id_py(const std::string &comp_id);
+
 #endif // PYTHON
 //! \}
 
@@ -1207,6 +1223,10 @@ bool get_cryo_em_refinement();
 SCM accept_moving_atoms_scm();
 #endif
 #ifdef USE_PYTHON
+//! Accept moving atoms
+//!
+//! This waits for the refinement to finish and then accepts
+//! the moving atoms so that they move into the main molecule.
 PyObject *accept_moving_atoms_py();
 #endif
 
@@ -1385,21 +1405,31 @@ SCM CG_spin_search_scm(int imol_model, int imol_map);
 #endif
 
 #ifdef USE_PYTHON
-//! \brief for the given residue, spin the atoms in moving_atom_list...
+//! for the given residue, spin the atoms in moving_atom_list...
 //!
 //!   around the bond defined by direction_atoms_list looking for the best
 //!   fit to density of imom_map map of the first atom in
 //!   moving_atom_list.  Works (only) with atoms in altconf ""
 void spin_search_py(int imol_map, int imol, const char *chain_id, int resno, const char *ins_code, PyObject *direction_atoms_list, PyObject *moving_atoms_list);
-//! \brief Spin N and CB (and the rest of the side chain if extant)
+
+//! Spin N and CB (and the rest of the side chain if extant)
 //!
 //!  Sometime on N-terminal addition, then N ends up pointing the wrong way.
 //!  The allows us to (more or less) interchange the positions of the CB and the N.
 //!  angle is in degrees.
 //!
+//! @param imol is the index of the model molecule
+//! @param residue_spec is the specifier for the residue
+//! @param angle is the rotation angle, in degrees, typically 120.
 void spin_N_py(int imol, PyObject *residue_spec, float angle);
 
-//! \brief Spin search the density based on possible positions of CG of a side-chain
+//! Spin search the density based on possible positions of CG of a side-chain
+//!
+//! @param imol_model is the index of the model molecule
+//! @param imol_map is the index of the map molecule
+//! @return either False (in the case of a failure) or a list of pairs of
+//!         residue specifers and score - for each spinnable residue
+//!         in the model.
 PyObject *CG_spin_search_py(int imol_model, int imol_map);
 
 #endif

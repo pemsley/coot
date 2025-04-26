@@ -936,22 +936,6 @@ void set_model_fit_refine_dialog_stays_on_top(int istate);
 /*! \brief return the state model-fit-refine dialog stays on top */
 int model_fit_refine_dialog_stays_on_top_state();
 
-/* functions to dock the accept/reject dialog to the toolbar */
-void set_accept_reject_dialog_docked(int state);
-/*! \brief the accept/reject dialog docked state */
-int accept_reject_dialog_docked_state();
-
-/* functions to show/hide i.e. make sensitive the docked accept/reject toolbar */
-/*! \brief set the accept/reject dialog docked show state */
-void set_accept_reject_dialog_docked_show(int state);
-/*! \brief what is the accept/reject dialog docked show state? */
-int accept_reject_dialog_docked_show_state();
-
-
-/* functions for the main toolbar style */
-void set_main_toolbar_style(int state);
-int main_toolbar_style_state();
-
 
 
 /*! \} */
@@ -2852,8 +2836,8 @@ char *go_to_atom_alt_conf();
 
 /*! \brief set the go to atom specification
 
-   It seems important for swig that the char * arguments are const
-   char *, not const gchar * (or else we get wrong type of argument
+   It seems important for swig that the `char *` arguments are `const
+   char *`, not `const gchar *` (or else we get wrong type of argument
    error on (say) "A"
 
 @return the success status of the go to.  0 for fail, 1 for success.
@@ -2863,8 +2847,8 @@ int set_go_to_atom_chain_residue_atom_name(const char *t1_chain_id, int iresno,
 
 /*! \brief set the go to (full) atom specification
 
-   It seems important for swig that the char * arguments are const
-   char *, not const gchar * (or else we get wrong type of argument
+   It seems important for swig that the `char *` arguments are `const
+   char *`, not `const gchar *` (or else we get wrong type of argument
    error on (say) "A"
 
 @return the success status of the go to.  0 for fail, 1 for success.
@@ -3394,12 +3378,21 @@ void set_residue_selection_flash_frames_number(int i);
 /*! \brief accept the new positions of the regularized or refined residues
 
     If you are scripting refinement and/or regularization, this is the
-    function that you need to call after refine-zone or regularize-zone.  */
+    function that you need to call after refine-zone or regularize-zone.
+*/
 void c_accept_moving_atoms();
 
-/*! \brief a hideous alias for the above  */
+/*! \brief a hideously-named alias for `c_accept_moving_atoms()`  */
 void accept_regularizement();
+
+/* \brief clear up moving atoms 
+ */
 void clear_up_moving_atoms();	/* remove the molecule and bonds */
+
+/* \brief remove just the bonds
+
+   A redraw is done.
+ */
 void clear_moving_atoms_object(); /* just get rid of just the bonds (redraw done here). */
 
 #ifdef __cplusplus/* protection from use in callbacks.c, else compilation probs */
@@ -4260,9 +4253,11 @@ int ramachandran_psi_axis_mode();
 
 void set_moving_atoms(double phi, double psi);
 
+/*! \brief this does the same as `accept_moving_atoms()`
+*/
 void accept_phi_psi_moving_atoms();
-void setup_edit_phi_psi(short int state);	/* a button callback */
 
+void setup_edit_phi_psi(short int state);	/* a button callback */
 
 /* no need to export this to scripting interface */
 void setup_dynamic_distances(short int state);
@@ -4589,6 +4584,8 @@ void ligand_expert();
 */
 void do_find_ligands_dialog();
 
+#ifdef __cplusplus
+#ifdef USE_GUILE
 /*! \brief Overlap residue with "template"-based matching.
 
   Overlap the first residue in
@@ -4598,8 +4595,6 @@ void do_find_ligands_dialog();
 @return success status, False = failed to find residue in either
 imol_ligand or imo_ref.  If success, return the RT operator.
 */
-#ifdef __cplusplus
-#ifdef USE_GUILE
 SCM overlap_ligands(int imol_ligand, int imol_ref, const char *chain_id_ref, int resno_ref);
 SCM analyse_ligand_differences(int imol_ligand, int imol_ref, const char *chain_id_ref,
 			       int resno_ref);
@@ -4621,8 +4616,10 @@ PyObject *compare_ligand_atom_types_py(int imol_ligand, int imol_ref, const char
   closely as possible - where there would be an atom name clash, invent
   a new atom name.
  */
-void match_ligand_atom_names(int imol_ligand, const char *chain_id_ligand, int resno_ligand, const char *ins_code_ligand,
-			     int imol_reference, const char *chain_id_reference, int resno_reference, const char *ins_code_reference);
+void match_ligand_atom_names(int imol_ligand,
+			     const char *chain_id_ligand, int resno_ligand, const char *ins_code_ligand,
+			     int imol_reference, const char *chain_id_reference,
+			     int resno_reference, const char *ins_code_reference);
 
 /*! \brief Match ligand atom names to a reference ligand type (comp_id)
 
@@ -5554,17 +5551,22 @@ int rotamer_auto_fit_do_post_refine_state();
 
 /*! \brief an alternate interface to mutation of a singe residue.
 
- @return 1 on success, 0 on failure
+   This  function doesnt make backups, but `mutate()` does - CHECKME
+   Hence `mutate()` is for use as a "one-by-one" type and the following
+   2 by wrappers that muate either a residue range or a whole chain.
 
-  ires-ser is the serial number of the residue, not the seqnum
-  There 2 functions don't make backups, but mutate() does - CHECKME
-   Hence mutate() is for use as a "one-by-one" type and the following
-   2 by wrappers that muate either a residue range or a whole chain
+   @param ires_ser is the serial number of the residue, not the seqnum
+   @param chain_id is the chain-id
+   @param imol is the index of the model molecule
+   @param target_res_type is the single-letter-code for the target residue
 
    Note that the target_res_type is a char, not a string (or a char *).
    So from the scheme interface you'd use (for example) hash
-   backslash A for ALA.  */
+   backslash A for ALA.
 
+   @return 1 on success, 0 on failure
+
+*/
 int mutate_single_residue_by_serial_number(int ires_ser,
 					   const char *chain_id,
 					   int imol, char target_res_type);
@@ -5675,7 +5677,9 @@ void set_pointer_atom_molecule(int imol);
 void set_baton_mode(short int i); /* Mouse movement moves the baton not the view? */
 /*! \brief draw the baton or not */
 int try_set_draw_baton(short int i); /* draw the baton or not */
-/*! \brief accept the baton tip position - a prime candidate for a key binding */
+/*! \brief accept the baton tip position
+
+  a prime candidate for a key binding */
 void accept_baton_position();	/* put an atom at the tip */
 /*! \brief move the baton tip position - another prime candidate for a key binding */
 void baton_tip_try_another();
@@ -7302,6 +7306,8 @@ molecules (chains/domains) that are dispersed throughout the unit cell.
   */
 void globularize(int imol);
 
+#ifdef __cplusplus
+#ifdef USE_GUILE
 /*!
 
     20100616 This doesn't get into the doxygen documentation for some
@@ -7315,8 +7321,6 @@ void globularize(int imol);
       n_clicked atom picks.  func is called with a list of atom
       specifiers - with leading molecule number.
 */
-#ifdef __cplusplus
-#ifdef USE_GUILE
 void user_defined_click_scm(int n_clicks, SCM func);
 #endif
 #ifdef USE_PYTHON
