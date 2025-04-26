@@ -173,7 +173,7 @@ PyObject *active_atom_spec_py();
 //
 #ifdef USE_GUILE
 
-//! \name  More Symmetry Functions
+//! \name More Scheme Symmetry Functions
 //! \{
 
 //! \brief return the symmetry of the imolth molecule
@@ -182,12 +182,26 @@ PyObject *active_atom_spec_py();
 //!   given molecule. If imol is a not a valid molecule, return an empty
 //!   list.*/
 SCM get_symmetry(int imol);
+//! \}
 #endif // USE_GUILE
 
 #ifdef USE_PYTHON
-// return a python object as a list (or some other python container)
+//! \name More Python Symmetry Functions
+//! \{
+
+//! \brief return the symmetry of the imolth molecule
+//!
+//!   Return as a list of strings the symmetry operators of the
+//!   given molecule. If imol is a not a valid molecule, return an empty
+//!   list.*/
+//! @return a python object as a list (or some other python container)
 PyObject *get_symmetry_py(int imol);
+//! \}
+
 #endif // USE_PYTHON
+
+//! \name More Symmetry Functions
+//! \{
 
 //! \brief return 1 if this residue clashes with the symmetry-related
 //!  atoms of the same molecule.
@@ -221,7 +235,6 @@ int add_molecular_symmetry_from_mtrix_from_file(int imol, const std::string &fil
 //! This is a convenience function for the above - where you don't need to
 //! specify the PDB file name.
 int add_molecular_symmetry_from_mtrix_from_self_file(int imol);
-
 
 //! \}
 
@@ -690,9 +703,10 @@ PyObject *SMILES_for_comp_id_py(const std::string &comp_id);
 /*  ----------------------------------------------------------------------- */
 /*                         Restraints                                       */
 /*  ----------------------------------------------------------------------- */
-#ifdef USE_GUILE
 //! \name  Restraints Interface
 /// \{
+
+#ifdef USE_GUILE
 //! \brief return the monomer restraints for the given monomer_type,
 //!       return scheme false on "restraints for monomer not found"
 SCM monomer_restraints(const char *monomer_type);
@@ -717,8 +731,6 @@ void show_restraints_editor_by_index(int menu_item_index);
 
 /*! \brief write cif restraints for monomer */
 void write_restraints_cif_dictionary(std::string monomer_type, std::string file_name);
-
-
 
 //! \}
 
@@ -832,9 +844,10 @@ PyObject *get_residue_by_type_py(int, const std::string &residue_type);
 /*               Atom info                                                  */
 /*  ----------------------------------------------------------------------- */
 
-#ifdef USE_GUILE
 //! \name Atom Information functions
 //! \{
+
+#ifdef USE_GUILE
 //! \brief output atom info in a scheme list for use in scripting
 //!
 //! in this format (list occ temp-factor element x y z).  Return empty
@@ -1480,16 +1493,21 @@ void do_smiles_to_simple_3d_overlay_frame();
 /*                  conformers (part of ligand search)                      */
 /*  ----------------------------------------------------------------------- */
 
-#ifdef USE_GUILE
-/*! \brief make conformers of the ligand search molecules, each in its
-  own molecule.
-
-Don't search the density.
+//! \brief make conformers of the ligand search molecules, each in its
+//!  own molecule.
 
 //! \name Extra Ligand Functions
 //! \{
 
-Return a list of new molecule numbers */
+#ifdef USE_GUILE
+
+//! make conformations
+//!
+//! as if for a ligand search
+//!
+//! Don't search the density.
+//!
+//! @return a list of new molecule numbers
 SCM ligand_search_make_conformers_scm();
 #endif
 
@@ -1512,9 +1530,10 @@ void add_animated_ligand_interaction(int imol, const pli::fle_ligand_bond_t &lb)
 /*  ----------------------------------------------------------------------- */
 int cootaneer_internal(int imol_map, int imol_model, const coot::atom_spec_t &atom_spec);
 
-#ifdef USE_GUILE
 //! \name Dock Sidechains
 //! \{
+
+#ifdef USE_GUILE
 //! \brief cootaneer (i.e. assign sidechains onto mainchain model)
 //!
 //! atom_in_fragment_atom_spec is any atom spec in the fragment that should be
@@ -1525,6 +1544,12 @@ int cootaneer(int imol_map, int imol_model, SCM atom_in_fragment_atom_spec);
 #endif
 
 #ifdef USE_PYTHON
+//! \brief cootaneer (i.e. assign sidechains onto mainchain model)
+//!
+//! atom_in_fragment_atom_spec is any atom spec in the fragment that should be
+//! assigned with sidechains.
+//!
+//! @return the success status (0 is fail).
 int cootaneer_py(int imol_map, int imol_model, PyObject *atom_in_fragment_atom_spec);
 #endif
 
