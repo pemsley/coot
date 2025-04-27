@@ -61,6 +61,10 @@
 
 #include "coot-utils/pae.hh"
 
+#include "utils/logging.hh"
+extern logging logger;
+
+
 // return 0 on success
 #ifdef USE_LIBCURL
 int coot_get_url(const std::string &url, const std::string  &file_name) {
@@ -881,20 +885,23 @@ void get_monomer_dictionary_in_subthread(const std::string &comp_id,
 	       std::filesystem::path cif_file_path = letter_dir_path / cif_file_name;
 	       coot_get_url(url_path.string(), cif_file_path.string());
 	    } else {
-	       std::cout << "INFO:: " << letter_dir_path << " does not exist " << std::endl;
+	       // std::cout << "INFO:: " << letter_dir_path << " does not exist " << std::endl;
+	       logger.log(log_t::INFO, letter_dir_path, "does not exist");
 	    }
 	 } else {
-	    std::cout << "INFO:: " << monomers_path << " does not exist " << std::endl;
+	    //std::cout << "INFO:: " << monomers_path << " does not exist " << std::endl;
+	    logger.log(log_t::INFO, monomers_path, "does not exist");
 	 }
       } else {
-	    std::cout << "INFO:: " << ch << " does not exist " << std::endl;
+	 // std::cout << "INFO:: " << ch << " does not exist " << std::endl;
+	 logger.log(log_t::INFO, ch, "does not exist");
       }
       c->fetch_done = true;
    };
 
    if (! comp_id.empty()) {
-      std::cout << "Get " << comp_id << " in a sub-thread" << std::endl;
-      // get_dict(comp_id);
+      // std::cout << "INFO:: Get " << comp_id << " in a sub-thread" << std::endl;
+      logger.log(log_t::INFO, "Get", comp_id, "in a sub-thread");
 
       struct cif_data *c = new cif_data;
       c->fetch_done = 0;
@@ -917,8 +924,9 @@ void get_monomer_dictionary_in_subthread(const std::string &comp_id,
 	 std::filesystem::path monomers_path = ch / "monomers";
 	 std::filesystem::path letter_dir_path = monomers_path / letter;
 	 std::filesystem::path cif_file_path = letter_dir_path / cif_file_name;
-	 std::cout << "INFO:: call read_cif_dictionary() on this cif "
-		   << cif_file_path << std::endl;
+	 // std::cout << "INFO:: call read_cif_dictionary() on this cif "
+	 // << cif_file_path << std::endl;
+	 logger.log(log_t::INFO, "call read_cif_dictionary() on this cif", cif_file_path);
 	 int read_status = read_cif_dictionary(cif_file_path.string());
 	 if (read_status > 0)
 	    if (cif_data->run_get_monomer_post_fetch_flag)

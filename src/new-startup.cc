@@ -212,8 +212,6 @@ new_startup_realize(GtkWidget *gl_area) {
       std::cout << "ERROR:: new_startup_realize() --end-- err is " << stringify_error_message(err)
                 << std::endl;
 
-   
-
    // Hmm! - causes weird graphics problems
    // setup_python(0, NULL); // needs to called after GTK has started - because it depends on gtk.
                              // 20220629-PE not at the moment though - I removed the gobject parts from the code path

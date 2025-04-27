@@ -35,7 +35,8 @@
 
 #include "get-monomer.hh"
 
-
+#include "utils/logging.hh"
+extern logging logger;
 
 
 // return a new molecule number
@@ -75,15 +76,21 @@ int get_monomer(const std::string &comp_id_in) {
    // fast
    imol = get_monomer_from_dictionary(comp_id, 1); // idealized
 
-   std::cout << "DEBUG:: in get_monomer() get_monomer_from_dictionary() returned imol "
-	     << imol << std::endl;
+   // std::cout << "DEBUG:: in get_monomer() get_monomer_from_dictionary() returned imol "
+   // << imol << std::endl;
+   logger.log(log_t::DEBUG, logging::function_name_t(__FUNCTION__),
+	      "get_monomer_from_dictionary() returned imol", imol);
 
    if (is_valid_model_molecule(imol)) { 
       return imol;
    } else {
-      std::cout << "INFO:: get_monomer(): trying non-idealized: " << comp_id_in << std::endl;
+      // std::cout << "INFO:: get_monomer(): trying non-idealized: " << comp_id_in << std::endl;
+      logger.log(log_t::INFO, logging::function_name_t(__FUNCTION__),
+		 "trying non-idealized", comp_id_in);
       imol = get_monomer_from_dictionary(comp_id, 0); // non-idealized
-      std::cout << "INFO:: get_monomer(): got imol " << imol << std::endl;
+      // std::cout << "INFO:: get_monomer(): got imol " << imol << std::endl;
+      logger.log(log_t::INFO, logging::function_name_t(__FUNCTION__),
+		 "got imol", imol);
       if (is_valid_model_molecule(imol)) { 
 	 return imol;
       } else {
@@ -98,8 +105,8 @@ int get_monomer(const std::string &comp_id_in) {
       mmdb::Residue *std_res = molci.get_standard_residue_instance(comp_id_in);
 
       if (std_res == NULL) {
-	 std::cout << "WARNING:: Can't find standard residue for "
-                   << comp_id_in << "\n";
+	 // std::cout << "WARNING:: Can't find standard residue for " << comp_id_in << "\n";
+	 logger.log(log_t::WARNING, "Can't find standard residue for" comp_id_in);
       } else {
 	 // happy path
 	 graphics_info_t g;
