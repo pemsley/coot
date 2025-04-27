@@ -1,10 +1,11 @@
 
 --- Items ---
 
-o WTA carbohydrate ::: 6
+o Fix the "Fetch" buttons - new GTK4/glib? ::: 2
 
-o "Proportional editing" molecule rotation ::: 2
-  Actually "fragment" rotation makes more sense.
+o Cross-out "Screenshot" unless we have OpenGL 4.2 or later ::: 0.5
+
+o WTA carbohydrate ::: 6
 
 o Add anisotropic radius scaling from Claus. Need to check mails or something
   for scaling code. ::: 1
@@ -14,18 +15,11 @@ o try texture atlas for text - make a new test app from scratch ::: 4
 o have another look at Rama plot ::: 1
 
 o "Proportional editing" molecule rotation ::: 2
+  Actually "fragment" rotation makes more sense.
 
 o What is going wrong with Chemical Features? ::: 1
 
-o Validation json. ::: 2
-
 o Thierry Fischmann mail ::: 2
-
-o depythonize Add Other Solvent dialog ::: 1
-
-o Fix the "Fetch" buttons - new GTK4/glib? ::: 2
-
-o Cross-out "Screenshot" unless we have OpenGL 4.2 or later ::: 0.5
 
 o plug a mouse into the map and do middle-mouse drag for translation (and check ctrl-left-mouse)
 
@@ -48,6 +42,10 @@ o  It was a strange bit of code in get_group().
    Solved now? Am I using the right version?
 
 --- Done Items ---
+
+o Validation json. ::: 2
+
+o depythonize Add Other Solvent dialog ::: 1
 
 o Fix the long "Atom with zero occupancy" bug - acutally, put it in the
   validation boxes ::: 2

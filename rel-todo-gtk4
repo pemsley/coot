@@ -1,5 +1,13 @@
 ----
 
+updates sequence view on add loop
+
+rotamer options needs to be cleaned in the rotamer dialog
+
+People close the Ribbon representation dialog.
+
+Make a nice latex equation for what is being minimized in Coot
+
 The "no map" on double-click dialog should be an overlay.
 
 validation json: sort by "badness" property. Also add "problem-type"

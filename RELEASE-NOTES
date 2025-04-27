@@ -3,9 +3,23 @@
 
  o FEATURE: Local B-factor display
 
+ o CHANGE:  Now a commonly-used fragment of the monomer library
+            is bundled with Coot. Unknow monomers are now downloaded
+	    from GitHub and cached.
+
+ o CHANGE:  Atoms with Zero Occupancy results now moved into the
+            main window
+
  o BUG-FIX: Fix crash on adding an atom [Clément Bousquet]
 
+ o BUG-FIX: "Add Other Solvent Molecules" dialog has been depythonized
+            and now will work on macOS.
+
  o BUG-FIX: Fix the problem of focus when using Tutorial Model & Data.
+
+ o BUG-FIX: if a map has a PANDDA:: label then Coot now properly handles
+            that (turns off "is-EM-map" status).
+
 
 -----
 
