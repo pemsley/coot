@@ -834,12 +834,14 @@ void set_python_draw_function(const std::string &s) {
 }
 #endif // USE_PYTHON
 
+#include "get-monomer.hh"
 
-
-void get_monomer_dictionary_in_subthread(const std::string &comp_id) {
+void get_monomer_dictionary_in_subthread(const std::string &comp_id,
+					 bool run_get_monomer_post_fetch_flag) {
 
    struct cif_data {
       int fetch_done;
+      bool run_get_monomer_post_fetch_flag;
       std::string comp_id;
    };
 
@@ -897,6 +899,7 @@ void get_monomer_dictionary_in_subthread(const std::string &comp_id) {
       struct cif_data *c = new cif_data;
       c->fetch_done = 0;
       c->comp_id = comp_id;
+      c->run_get_monomer_post_fetch_flag = run_get_monomer_post_fetch_flag;
 
       std::thread thread(get_dict, comp_id, c);
       thread.detach();
@@ -914,8 +917,12 @@ void get_monomer_dictionary_in_subthread(const std::string &comp_id) {
 	 std::filesystem::path monomers_path = ch / "monomers";
 	 std::filesystem::path letter_dir_path = monomers_path / letter;
 	 std::filesystem::path cif_file_path = letter_dir_path / cif_file_name;
-	 std::cout << ":::::::: read this cif " << cif_file_path << std::endl;
-	 read_cif_dictionary(cif_file_path.string());
+	 std::cout << "INFO:: call read_cif_dictionary() on this cif "
+		   << cif_file_path << std::endl;
+	 int read_status = read_cif_dictionary(cif_file_path.string());
+	 if (read_status > 0)
+	    if (cif_data->run_get_monomer_post_fetch_flag)
+	       get_monomer(cif_data->comp_id);
 	 return gboolean(s);
       };
       g_timeout_add(500, GSourceFunc(timeout_func), c);

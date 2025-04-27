@@ -75,16 +75,20 @@ int get_monomer(const std::string &comp_id_in) {
    // fast
    imol = get_monomer_from_dictionary(comp_id, 1); // idealized
 
-   std::cout << "DEBUG:: in get_monomer() get_monomer_from_dictionary() returned imol " << imol << std::endl;
+   std::cout << "DEBUG:: in get_monomer() get_monomer_from_dictionary() returned imol "
+	     << imol << std::endl;
 
    if (is_valid_model_molecule(imol)) { 
       return imol;
    } else {
-      std::cout << "get_monomer(): trying non-idealized: " << comp_id_in << std::endl;
+      std::cout << "INFO:: get_monomer(): trying non-idealized: " << comp_id_in << std::endl;
       imol = get_monomer_from_dictionary(comp_id, 0); // non-idealized
-      std::cout << "   got imol " << imol << std::endl;
+      std::cout << "INFO:: get_monomer(): got imol " << imol << std::endl;
       if (is_valid_model_molecule(imol)) { 
 	 return imol;
+      } else {
+	 std::vector<std::string> v = {comp_id_in};
+	 graphics_info_t::show_missing_refinement_residues_dialog(v, true);
       }
    }
 

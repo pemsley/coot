@@ -958,8 +958,8 @@ class graphics_info_t {
 
    std::string adjust_refinement_residue_name(const std::string &resname) const;
    static void info_dialog_missing_refinement_residues(const std::vector<std::string> &res_names);
-   // replaced by
-   static void show_missing_refinement_residues_dialog(const std::vector<std::string> &res_names);
+   // replaced by public
+   // static void show_missing_refinement_residues_dialog(const std::vector<std::string> &res_names);
 
    void info_dialog_alignment(coot::chain_mutation_info_container_t mutation_info) const;
    void info_dialog_refinement_non_matching_atoms(std::vector<std::pair<mmdb::Residue *, std::vector<std::string> > > nma);
@@ -2238,6 +2238,9 @@ public:
      check_dictionary_for_residue_restraints(int imol, mmdb::PResidue *SelResidues, int nSelResidues);
    std::pair<int, std::vector<std::string> >
      check_dictionary_for_residue_restraints(int imol, const std::vector<mmdb::Residue *> &residues);
+
+   static void show_missing_refinement_residues_dialog(const std::vector<std::string> &res_names,
+						       bool run_get_monomer_post_fetch_flag);
 
    // called by copy_mol_and_refine and copy_mol_and_regularize
    //

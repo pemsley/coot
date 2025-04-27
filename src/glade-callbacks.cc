@@ -60,7 +60,7 @@
 #include "gtkglarea-rama-plot.hh"
 #include "cc-interface-scripting.hh"
 
-void get_monomer_dictionary_in_subthread(const std::string &comp_id);
+void get_monomer_dictionary_in_subthread(const std::string &comp_id, bool state);
 
 
 // this from callbacks.h (which I don't want to include here)
@@ -6923,7 +6923,10 @@ on_download_monomers_ok_button_clicked(GtkButton       *button,
       while (item_widget) {
 	 gchar *comp_id = static_cast<gchar *>(g_object_get_data(G_OBJECT(item_widget), "comp_id"));
 	 if (comp_id) {
-	    get_monomer_dictionary_in_subthread(comp_id);
+	    GtkWidget *dialog = widget_from_builder("download_monomers_dialog");
+	    int run_get_monomer_post_fetch_flag =
+	       GPOINTER_TO_INT(g_object_get_data(G_OBJECT(dialog), "run_get_monomer_post_fetch_flag"));
+	    get_monomer_dictionary_in_subthread(comp_id, run_get_monomer_post_fetch_flag);
 	 }
 	 item_widget = gtk_widget_get_next_sibling(item_widget);
       };

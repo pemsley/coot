@@ -212,6 +212,8 @@ new_startup_realize(GtkWidget *gl_area) {
       std::cout << "ERROR:: new_startup_realize() --end-- err is " << stringify_error_message(err)
                 << std::endl;
 
+   
+
    // Hmm! - causes weird graphics problems
    // setup_python(0, NULL); // needs to called after GTK has started - because it depends on gtk.
                              // 20220629-PE not at the moment though - I removed the gobject parts from the code path
@@ -1065,6 +1067,14 @@ new_startup_application_activate(GtkApplication *application,
       };
       g_signal_connect(drop_target, "drop", G_CALLBACK(on_drop_performed), NULL);
 
+      // ------------------ no screenshot for macOS  -----------------------
+
+#ifdef __APPLE__
+      // GtkWidget *menu_item = widget_from_builder("screenshot-menu-item");
+      // if (menu_item)
+      // gtk_label_set_text(GTK_LABEL(menu_item), "Screenshot Not Available");
+#endif
+      
       // ---------------------  -----------------------
 
       gtk_widget_grab_focus(gl_area); // at the start, fixes focus problem
