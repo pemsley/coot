@@ -93,6 +93,9 @@
 #include "widget-from-builder.hh"
 #include "c-interface-gtk-widgets.h"
 
+#include "utils/logging.hh"
+extern logging logger;
+
 void do_accept_reject_dialog(std::string fit_type, const coot::refinement_results_t &rr) {
 
    do_accept_reject_hud_buttons(fit_type, rr); // not that we use the args (yet?)
@@ -2037,7 +2040,7 @@ graphics_info_t::fill_option_menu_with_coordinates_options_internal_3(GtkWidget 
    // int last_imol = 0;
    int last_menu_item_index = 0;
 
-   if (0) {  // debug
+   if (false) {  // debug
       std::cout << "fill_option_menu_with_coordinates_options_internal_3 with these: "
 		<< std::endl;
       for (unsigned int idx=0; idx<fill_with_these_molecules.size(); idx++) {
@@ -4161,8 +4164,6 @@ graphics_info_t::fill_difference_map_peaks_button_box() {
 
    // does nothing if the diff map peaks dialog is not realized.
 
-   std::cout << "fill_difference_map_peaks_button_box() --- start ---" << std::endl;
-
    auto make_label = [] (unsigned int i_peak, const std::vector<std::pair<clipper::Coord_orth, float> > &centres,
                         float map_sigma) {
 
@@ -4188,7 +4189,6 @@ graphics_info_t::fill_difference_map_peaks_button_box() {
                                                              const std::vector<std::pair<clipper::Coord_orth, float> > &centres,
                                                              float map_sigma) {
 
-      std::cout << "------ there are " << centres.size() << " centres" << std::endl;
       clear_out_container(button_vbox);
       // a cutn'paste jobby from fill_rotamer_selection_buttons().
       GtkWidget *group = nullptr; // initially
@@ -4272,7 +4272,9 @@ graphics_info_t::fill_difference_map_peaks_button_box() {
    gtk_widget_set_visible(vboxes_vbox,   TRUE);
 
    std::vector<std::pair<clipper::Coord_orth, float> > centres = make_diff_map_peaks(button_vbox);
-   std::cout << "make_diff_map_peaks() made " << centres.size() << " centres" << std::endl;
+   // std::cout << "make_diff_map_peaks() made " << centres.size() << " centres" << std::endl;
+   logger.log(log_t::INFO, logging::function_name_t("make_diff_map_peaks()"),
+	      {"made", std::to_string(centres.size()), "centres"});
    float map_sigma = 0.5;
    int imol_map = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(button_vbox), "imol_map"));
    if (is_valid_map_molecule(imol_map))

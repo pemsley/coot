@@ -2,6 +2,9 @@
 
 updates sequence view on add loop
 
+while there are intermediate atoms, a shift-click-drag on the trackpad
+should not drag atoms - but it does!
+
 rotamer options needs to be cleaned in the rotamer dialog
 
 People close the Ribbon representation dialog.

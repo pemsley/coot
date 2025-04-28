@@ -58,6 +58,11 @@
 #include "vnc-vertex-to-generic-vertex.hh"
 
 #include "screendump-tga.hh"
+#include "widget-from-builder.hh"
+
+#include "utils/logging.hh"
+extern logging logger;
+
 
 enum {VIEW_CENTRAL_CUBE, ORIGIN_CUBE};
 
@@ -6286,8 +6291,11 @@ graphics_info_t::idle_contour_function(gpointer data) {
 	   continue_status = 0;
            float cl = g.molecules[imol].contour_level;
            float r = cl/map_rmsd;
-           std::cout << "DEBUG:: idle_contour_function() imol: " << imol << " contour level: "
-                     << g.molecules[imol].contour_level << " n-rmsd: " << r << std::endl;
+           // std::cout << "DEBUG:: idle_contour_function() imol: " << imol << " contour level: "
+	   // << g.molecules[imol].contour_level << " n-rmsd: " << r << std::endl;
+	   logger.log(log_t::DEBUG, logging::function_name_t("idle_contour_function()"),
+		      {imol, "contour_level", g.molecules[imol].contour_level, "n-rmsd:",
+		       r});
            g.set_density_level_string(imol, g.molecules[imol].contour_level);
            std::string s = "Map " + std::to_string(imol) + "  contour_level " +
               coot::util::float_to_string_using_dec_pl(cl, 3) + "  n-rmsd: " +
@@ -7028,10 +7036,13 @@ graphics_info_t::contour_level_scroll_scrollable_map(int direction) {
       if (direction ==  1) molecules[imol_scroll].pending_contour_level_change_count--;
       if (direction == -1) molecules[imol_scroll].pending_contour_level_change_count++;
 
-      std::cout << "INFO:: contour level for map " << imol_scroll << " is "
-                << molecules[imol_scroll].contour_level
-                << " pending: " << molecules[imol_scroll].pending_contour_level_change_count
-                << std::endl;
+      // std::cout << "INFO:: contour level for map " << imol_scroll << " is "
+      //           << molecules[imol_scroll].contour_level
+      //           << " pending: " << molecules[imol_scroll].pending_contour_level_change_count
+      //           << std::endl;
+      logger.log(log_t::INFO, "contour level for map", imol_scroll, "is",
+		 molecules[imol_scroll].contour_level, "pending",
+		 molecules[imol_scroll].pending_contour_level_change_count);
 
       set_density_level_string(imol_scroll, molecules[imol_scroll].contour_level);
       display_density_level_this_image = 1;
@@ -7039,8 +7050,6 @@ graphics_info_t::contour_level_scroll_scrollable_map(int direction) {
       graphics_draw(); // queue
    }
 }
-
-#include "widget-from-builder.hh"
 
 //static
 void

@@ -69,6 +69,10 @@
 #include "old-generic-display-object.hh"
 #endif
 
+#include "utils/logging.hh"
+extern logging logger;
+
+
 // this can be outside of Mesh
 std::string stringify_error_message(GLenum err) {
 
@@ -786,8 +790,10 @@ Mesh::setup_buffers() {
 
    GLenum err = glGetError();
    if (err) {
-      std::cout << "GL ERROR:: Mesh::setup_buffers() \"" << name << "\" --- start --- "
-                << stringify_error_message(err) << std::endl;
+      // std::cout << "GL ERROR:: Mesh::setup_buffers() \"" << name << "\" --- start --- "
+      // << stringify_error_message(err) << std::endl;
+      logger.log(log_t::GL_ERROR, logging::function_name_t("Mesh::setup_buffers()"),
+		 stringify_error_message(err));
       err = glGetError();
       if (err != 0)
          std::cout << "GL ERROR:: Mesh::setup_buffers() \"" << name << "\" --- start --- stack-clear "
@@ -818,6 +824,8 @@ Mesh::setup_buffers() {
    if (err) {
       // 20220803-PE did you forget to attach_buffers() beforehand again?
       std::cout << "GL ERROR:: Mesh::setup_buffers() on binding vao " << vao << " error " << _(err) << std::endl;
+      logger.log(log_t::GL_ERROR, logging::function_name_t("Mesh::setup_buffers()"),
+		 {"on binding vao", vao, stringify_error_message(err)});
    }
 
    unsigned int n_vertices = vertices.size();
@@ -865,15 +873,35 @@ Mesh::setup_buffers() {
 
    if (first_time) {
       glGenBuffers(1, &index_buffer_id);
-      err = glGetError(); if (err) std::cout << "GL ERROR:: Mesh::setup_buffers()\n";
+      err = glGetError();
+      if (err) {
+	 std::cout << "GL ERROR:: Mesh::setup_buffers()\n";
+	 logger.log(log_t::GL_ERROR, logging::function_name_t("Mesh::setup_buffers()"),
+		    {"on glGenBuffers()", stringify_error_message(err)});
+      }
       glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer_id);
-      err = glGetError(); if (err) std::cout << "GL ERROR:: Mesh::setup_buffers()\n";
+      err = glGetError();
+      if (err) {
+	 std::cout << "GL ERROR:: Mesh::setup_buffers()\n";
+	 logger.log(log_t::GL_ERROR, logging::function_name_t("Mesh::setup_buffers()"),
+		    {"on glBindBuffer()", stringify_error_message(err)});
+      }
    } else {
       glDeleteBuffers(1, &index_buffer_id);
       glGenBuffers(1, &index_buffer_id);
-      err = glGetError(); if (err) std::cout << "GL ERROR:: Mesh::setup_buffers()\n";
+      err = glGetError();
+      if (err) {
+	 std::cout << "GL ERROR:: Mesh::setup_buffers()\n";
+	 logger.log(log_t::GL_ERROR, logging::function_name_t("Mesh::setup_buffers()"),
+		    {"on delete and gen", stringify_error_message(err)});
+      }
       glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer_id);
-      err = glGetError(); if (err) std::cout << "GL ERROR:: Mesh::setup_buffers()\n";
+      err = glGetError();
+      if (err) {
+	 std::cout << "GL ERROR:: Mesh::setup_buffers()\n";
+	 logger.log(log_t::GL_ERROR, logging::function_name_t("Mesh::setup_buffers()"),
+		    {"on glBindBuffer() - not first time:", stringify_error_message(err)});
+      }
    }
 
    if (false)
@@ -886,10 +914,17 @@ Mesh::setup_buffers() {
       unsigned int n_bytes_for_gl_lines = n_bytes_for_lines;
       // std::cout << "setup_buffers() allocating " << n_bytes_for_gl_lines << " bytes for gl-lines " << std::endl;
       glBufferData(GL_ELEMENT_ARRAY_BUFFER, n_bytes_for_gl_lines, &lines_vertex_indices[0], GL_STATIC_DRAW);
-      err = glGetError(); if (err) std::cout << "GL ERROR:: setup_buffers - setup_buffers_for_gl_lines()\n";
+      err = glGetError();
+      if (err)
+	 std::cout << "GL ERROR:: setup_buffers - setup_buffers_for_gl_lines()\n";
    } else {
       glBufferData(GL_ELEMENT_ARRAY_BUFFER, n_bytes_for_triangles, &triangles[0], GL_STATIC_DRAW);
-      err = glGetError(); if (err) std::cout << "GL ERROR:: Mesh::setup_buffers()\n";
+      err = glGetError();
+      if (err) {
+	 std::cout << "GL ERROR:: Mesh::setup_buffers()\n";
+	 logger.log(log_t::GL_ERROR, logging::function_name_t("Mesh::setup_buffers()"),
+		    {"on glBufferData() ", stringify_error_message(err)});
+      }
    }
 
    glDisableVertexAttribArray(0);
@@ -1053,9 +1088,12 @@ Mesh::setup_vertex_and_instancing_buffers_for_particles(unsigned int n_instances
 
    glBindVertexArray(vao);
    GLenum err = glGetError();
-   if (err) std::cout << "GL error ####"
-                      << " setup_vertex_and_instancing_buffers_for_particles() B "
-                      << err << std::endl;
+   if (err) {
+      std::cout << "GL error ####"
+		<< " setup_vertex_and_instancing_buffers_for_particles() B "
+		<< err << std::endl;
+      logger.log(log_t::GL_ERROR, "setup_vertex_and_instancing_buffers_for_particles() B");
+   }
 
 
    // a Particle has position, velocity and colour. We need position and colour
@@ -1074,9 +1112,12 @@ Mesh::setup_vertex_and_instancing_buffers_for_particles(unsigned int n_instances
    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Particle), 0);
    glVertexAttribDivisor(3, 1);
    err = glGetError();
-   if (err) std::cout << "GL error #####"
-                      << " setup_instancing_buffers_for_particles() B "
-                      << err << std::endl;
+   if (err) {
+      std::cout << "GL error #####"
+		<< " setup_instancing_buffers_for_particles() B "
+		<< err << std::endl;
+      logger.log(log_t::GL_ERROR, "setup_instancing_buffers_for_particles() B");
+   }
 
    // instanced colours - setup another buffer - extravagent.
    glGenBuffers(1, &inst_colour_buffer_id);
@@ -2910,11 +2951,17 @@ Mesh::update_instancing_buffer_data_for_particles(const particle_container_t &pa
                 << " --- start --- " << std::endl;
 
    GLenum err = glGetError();
-   if (err) std::cout << "GL ERROR:: Mesh::update_instancing_buffer_data_for_particles() A0 "
-                      << "--- start --- " << _(err) << std::endl;
+   if (err) {
+      std::cout << "GL ERROR:: Mesh::update_instancing_buffer_data_for_particles() A0 "
+		<< "--- start --- " << _(err) << std::endl;
+      logger.log(log_t::GL_ERROR, "Mesh::update_instancing_buffer_data_for_particles() A0 ",
+		 "--- start --- ", _(err));
+   }
 
-   if (vao == VAO_NOT_SET)
+   if (vao == VAO_NOT_SET) {
       std::cout << "GL ERROR:: You forgot to setup this Mesh " << name << std::endl;
+      logger.log(log_t::GL_ERROR, "You forgot to setup this Mesh ", name);
+   }
 
    glBindVertexArray(vao);
    err = glGetError();

@@ -408,10 +408,13 @@ molecule_class_info_t::fill_ghost_info(short int do_rtops_flag,
 	 update_ghosts();
 	 // std::cout << "  INFO:: fill_ghost_info Constructed " << ncs_ghosts.size() << " ghosts\n";
          int n_ghosts = ncs_ghosts.size();
-         logger.log(log_t::INFO, std::string("Constructed %d ghosts"), n_ghosts);
+         logger.log(log_t::INFO, std::string("Constructed"), std::to_string(n_ghosts),
+		    std::string("ghosts"));
 	 for (unsigned int ighost=0; ighost<ncs_ghosts.size(); ighost++) {
-	    // std::cout << "      Ghost " << ighost << " name: \"" << ncs_ghosts[ighost].name << "\"" << std::endl;
-            logger.log(log_t::INFO, "     Ghost", ighost, "name", ncs_ghosts[ighost].name);
+	    // std::cout << "      Ghost " << ighost << " name: \"" << ncs_ghosts[ighost].name
+	    // << "\"" << std::endl;
+	    std::string name = "\"" + ncs_ghosts[ighost].name + "\"";
+            logger.log(log_t::INFO, "     Ghost index:", std::to_string(ighost), "name", name);
 	 }
       }
    }

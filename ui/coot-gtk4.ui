@@ -6777,6 +6777,15 @@ Do you want to continue?
               </child>
 
               <child>
+                <object class="GtkCheckButton" id="show_logging_menubutton">
+                  <property name="label" translatable="yes">Log</property>
+                  <property name="tooltip-text">Show the logging pane</property>
+                  <property name="halign">end</property>
+                  <signal name="toggled" handler="on_show_logging_menubutton_checkbutton_toggled" swapped="no"/>
+                </object>
+              </child>
+
+              <child>
                 <object class="GtkMenuButton" id="add_module_menubutton">
                   <property name="label" translatable="yes">+</property>
                   <property name="tooltip-text">Load an extension module</property>
@@ -7119,37 +7128,66 @@ Do you want to continue?
                       </object>
                     </child>
 
+		    <child>
+		      <object class="GtkBox" id="main_window_validation_graph_frame_wrapper_vbox">
+			<property name="orientation">vertical</property>
 
-                    <child>
-                      <object class="GtkFrame" id="main_window_validation_graph_frame">
-                        <!-- <property name="halign">fill</property> -->
-                        <!-- <property name="valign">end</property> -->
-                        <property name="hexpand">True</property>
-                        <property name="vexpand">True</property>
-                        <property name="visible">False</property>
-                        <property name="margin-bottom">5</property>
-                        <property name="margin-end">5</property>
-                        <property name="margin-start">5</property>
-                        <property name="margin-top">5</property>
-
-                        <child>
-                          <object class="GtkScrolledWindow">
+			<child>
+			  <object class="GtkFrame" id="main_window_validation_graph_frame">
+                            <!-- <property name="halign">fill</property> -->
+                            <!-- <property name="valign">end</property> -->
                             <property name="hexpand">True</property>
                             <property name="vexpand">True</property>
+                            <property name="visible">False</property>
+                            <property name="margin-bottom">5</property>
+                            <property name="margin-end">5</property>
+                            <property name="margin-start">5</property>
+                            <property name="margin-top">5</property>
+
                             <child>
-                              <object class="GtkBox" id="main_window_validation_graph_box">
-                                <property name="orientation">vertical</property>
-                                <property name="hexpand">True</property>
-                                <property name="vexpand">True</property>
-                                <property name="spacing">5</property>
+                              <object class="GtkScrolledWindow">
+				<property name="hexpand">True</property>
+				<property name="vexpand">True</property>
+				<child>
+				  <object class="GtkBox" id="main_window_validation_graph_box">
+                                    <property name="orientation">vertical</property>
+                                    <property name="hexpand">True</property>
+                                    <property name="vexpand">True</property>
+                                    <property name="spacing">5</property>
+				  </object>
+				</child>
                               </object>
                             </child>
-                          </object>
-                        </child>
 
-                      </object>
-                    </child>
+			  </object>
+			</child>
 
+			<child>
+			  <object class="GtkBox" id="logging_vbox">
+			    <property name="orientation">vertical</property>
+			    <property name="margin-bottom">4</property>
+			    <property name="margin-end">4</property>
+			    <property name="margin-start">4</property>
+			    <property name="margin-top">4</property>
+			    <child>
+			      <object class="GtkScrolledWindow" id="logging_scrolledwindow">
+				<property name="hexpand">1</property>
+				<property name="vexpand">1</property>
+				<child>
+				  <object class="GtkViewport">
+				    <child>
+				      <object class="GtkTextView" id="logging_textview">
+					<property name="height-request">200</property>
+				      </object>
+				    </child>
+				  </object>
+				</child>
+			      </object>
+			    </child>
+			  </object>
+			</child>
+		      </object>
+		    </child>
                   </object>
                 </child>
 

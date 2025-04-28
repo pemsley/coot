@@ -37,7 +37,7 @@ namespace coot {
    class atom_spec_t;
 }
 
-enum class log_t { INFO, WARNING, DEBUG, ERROR, UNSPECIFIED};
+enum class log_t { INFO, WARNING, DEBUG, ERROR, GL_ERROR, UNSPECIFIED};
 
 class logging {
 
@@ -48,7 +48,7 @@ public:
       explicit function_name_t() { fn = "unspecified"; }
       explicit function_name_t(const std::string &s) { fn = s; }
       std::string fn;
-      bool empty() const { return (fn != "unspecified"); }
+      bool empty() const { return (fn == std::string("unspecified")); }
    };
 
    class ltw { // logging type wrapper
@@ -87,6 +87,8 @@ public:
       log_item(const std::vector<ltw> &ls);
       void add_to_message(const std::string &s) { message += s; }
       std::string to_string(bool include_datetime=false, bool use_markup=true) const;
+      std::string type_as_string() const;
+      std::string get_date_string() const;
       friend std::ostream& operator<<(std::ostream &o, const log_item &li);
    };
 

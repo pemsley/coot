@@ -212,7 +212,8 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
    //    commands.push_back(state_command("set-symmetry-whole-chain", symmetry_whole_chain_flag, il));
    commands.push_back(state_command("coot", "set-symmetry-atom-labels-expanded", symmetry_atom_labels_expanded_flag, il));
    commands.push_back(state_command("coot", "set-active-map-drag-flag", active_map_drag_flag, il));
-   commands.push_back(state_command("coot", "set-show-aniso", show_aniso_atoms_flag, il));
+   // 20250428-PE set_show_aniso() says not to use this function
+   // commands.push_back(state_command("coot", "set-show-aniso", show_aniso_atoms_flag, il));
    commands.push_back(state_command("coot", "set-aniso-probability", show_aniso_atoms_probability, il));
    commands.push_back(state_command("coot", "set-smooth-scroll-steps", smooth_scroll_n_steps, il));
    commands.push_back(state_command("coot", "set-smooth-scroll-limit", smooth_scroll_limit, il));

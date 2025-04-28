@@ -98,6 +98,9 @@ std::vector<std::pair<std::string, clipper::Xmap<float> > > graphics_info_t::map
 int graphics_info_t::map_partition_results_state = 0; // inactive
 std::string graphics_info_t::map_partition_results_state_string; // "Done A Chain" etc.
 
+// logging
+unsigned int graphics_info_t::logging_line_index = 0;
+
 
 //WII
 #ifdef WII_INTERFACE_WIIUSE

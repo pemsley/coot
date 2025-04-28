@@ -1813,3 +1813,106 @@ on_hole_set_end_button_clicked(G_GNUC_UNUSED GtkButton       *button,
       std::cout << "WARNING::" << e.what() << std::endl;
    }
 }
+
+void fill_logging_text_view() {
+
+   GtkWidget *textview = widget_from_builder("logging_textview");
+   GtkTextBuffer *buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(textview));
+   GtkTextIter end_iter;
+
+   std::vector<logging::log_item> lv = logger.get_log_history_from(graphics_info_t::logging_line_index);
+   std::cout << "fill textview " << textview << " here" << std::endl;
+   if (! lv.empty()) {
+
+      // Create a text tag for the color
+      //
+      std::string datetime_colour = "#8888aa";
+      GtkTextTag *datetime_color_tag = gtk_text_tag_new("datetime-color");
+      g_object_set(datetime_color_tag, "foreground", datetime_colour.c_str(), NULL);
+      gtk_text_tag_table_add(gtk_text_buffer_get_tag_table(buffer), datetime_color_tag);
+      //
+      std::string info_type_colour = "#00eeee";
+      GtkTextTag *info_color_tag = gtk_text_tag_new("info-type-color");
+      g_object_set(info_color_tag, "foreground", info_type_colour.c_str(), NULL);
+      gtk_text_tag_table_add(gtk_text_buffer_get_tag_table(buffer), info_color_tag);
+      //
+      std::string debug_type_colour = "#999999";
+      GtkTextTag *debug_color_tag = gtk_text_tag_new("debug-type-color");
+      g_object_set(debug_color_tag, "foreground", debug_type_colour.c_str(), NULL);
+      gtk_text_tag_table_add(gtk_text_buffer_get_tag_table(buffer), debug_color_tag);
+      //
+      std::string warning_type_colour = "#ff9900";
+      GtkTextTag *warning_color_tag = gtk_text_tag_new("warning-type-color");
+      g_object_set(warning_color_tag, "foreground", warning_type_colour.c_str(), NULL);
+      gtk_text_tag_table_add(gtk_text_buffer_get_tag_table(buffer), warning_color_tag);
+      //
+      std::string error_type_colour = "#ee2222";
+      GtkTextTag *error_color_tag = gtk_text_tag_new("error-type-color");
+      g_object_set(error_color_tag, "foreground", error_type_colour.c_str(), NULL);
+      gtk_text_tag_table_add(gtk_text_buffer_get_tag_table(buffer), error_color_tag);
+      //
+      std::string gl_error_type_colour = "#ee2222";
+      GtkTextTag *gl_error_color_tag = gtk_text_tag_new("gl_error-type-color");
+      g_object_set(gl_error_color_tag, "foreground", gl_error_type_colour.c_str(), NULL);
+      gtk_text_tag_table_add(gtk_text_buffer_get_tag_table(buffer), gl_error_color_tag);
+      //
+      std::string default_type_colour = "#bbbbbb";
+      GtkTextTag *default_color_tag = gtk_text_tag_new("default-type-color");
+      g_object_set(default_color_tag, "foreground", default_type_colour.c_str(), NULL);
+      gtk_text_tag_table_add(gtk_text_buffer_get_tag_table(buffer), default_color_tag);
+
+      for (const auto &item : lv) {
+
+	 // Insert the colored text
+
+	 gtk_text_buffer_get_end_iter(buffer, &end_iter);
+
+	 std::string log_type_text = item.type_as_string();
+	 std::string color_tag_name = "default-type-color";
+	 if (item.type == log_t::WARNING)  color_tag_name = "warning-type-color";
+	 if (item.type == log_t::DEBUG)    color_tag_name = "debug-type-color";
+	 if (item.type == log_t::INFO)     color_tag_name = "info-type-color";
+	 if (item.type == log_t::ERROR)    color_tag_name = "error-type-color";
+	 if (item.type == log_t::GL_ERROR) color_tag_name = "gl-error-type-color";
+
+	 gtk_text_buffer_insert_with_tags_by_name(buffer, &end_iter, log_type_text.c_str(),
+						  log_type_text.size(), color_tag_name.c_str(),
+						  NULL);
+
+	 // insert the date
+
+	 std::string d = item.get_date_string();
+	 gtk_text_buffer_get_end_iter(buffer, &end_iter);
+	 // gtk_text_buffer_insert(buffer, &end_iter, d.c_str(), d.size());
+	 gtk_text_buffer_insert_with_tags_by_name(buffer, &end_iter, d.c_str(), d.size(),
+						  "datetime-color", NULL);
+
+	 // insert the message
+
+	 std::string t = std::string(" ") + item.message;
+	 gtk_text_buffer_get_end_iter(buffer, &end_iter);
+	 gtk_text_buffer_insert(buffer, &end_iter, t.c_str(), t.size());
+
+	 // insert a new-line
+
+	 gtk_text_buffer_get_end_iter(buffer, &end_iter);
+	 gtk_text_buffer_insert(buffer, &end_iter, "\n", 1); // Add newline character
+
+      }
+   }
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_show_logging_menubutton_checkbutton_toggled(GtkCheckButton *checkbutton,
+					       G_GNUC_UNUSED gpointer user_data) {
+
+   GtkWidget *vbox = widget_from_builder("logging_vbox");
+   if (gtk_check_button_get_active(checkbutton)) {
+      gtk_widget_set_visible(vbox, TRUE);
+      fill_logging_text_view();
+   } else {
+      gtk_widget_set_visible(vbox, FALSE);
+   }
+
+}

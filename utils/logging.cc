@@ -483,14 +483,20 @@ logging::show() const {
 }
 
 std::string
+logging::log_item::type_as_string() const {
+
+   std::string tt;
+   if (type == log_t::INFO)        tt = "INFO::      ";
+   if (type == log_t::DEBUG)       tt = "DEBUG::  ";
+   if (type == log_t::ERROR)       tt = "ERROR::  ";
+   if (type == log_t::WARNING)     tt = "WARNING::";
+   if (type == log_t::UNSPECIFIED) tt = "UNSPECIFIED::";
+   return tt;
+}
+
+std::string
 logging::log_item::to_string(bool include_datetime, bool use_markup) const {
 
-   std::string type_as_string;
-   if (type == log_t::INFO)        type_as_string = "INFO::";
-   if (type == log_t::DEBUG)       type_as_string = "DEBUG::";
-   if (type == log_t::ERROR)       type_as_string = "ERROR::";
-   if (type == log_t::WARNING)     type_as_string = "WARNING::";
-   if (type == log_t::UNSPECIFIED) type_as_string = "UNSPECIFIED::";
    std::string ctime_str;
    if (include_datetime) {
       std::string ctime_str = ctime(&t);
@@ -499,15 +505,27 @@ logging::log_item::to_string(bool include_datetime, bool use_markup) const {
 	 ctime_str += ":";
       }
    }
+   std::string tas = type_as_string();
    std::string o;
    if (ctime_str.empty())
-      o = type_as_string + " ";
+      o = tas + " ";
    else
-      o = type_as_string + " " + ctime_str + " ";
+      o = tas + " " + ctime_str + " ";
    if (! function_name.empty())
       o += function_name.fn + ": ";
    o += message;
    return o;
+}
+
+std::string
+logging::log_item::get_date_string() const {
+
+   std::string ctime_str = ctime(&t);
+   if (! ctime_str.empty()) {
+      ctime_str.pop_back();
+      ctime_str += ":";
+   }
+   return ctime_str;
 }
 
 void

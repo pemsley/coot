@@ -5477,6 +5477,8 @@ string   static std::string sessionid;
    static int map_partition_results_state;
    static std::string map_partition_results_state_string; // "Done A Chain" etc.
 
+   static unsigned int logging_line_index;
+
    // add a pumpkin as a graphics object and draw it.
    void pumpkin();
 
