@@ -86,7 +86,7 @@ public:
       log_item(const std::string &message_in) : t(0), type(log_t::UNSPECIFIED), message(message_in) {}
       log_item(const std::vector<ltw> &ls);
       void add_to_message(const std::string &s) { message += s; }
-      std::string to_string() const;
+      std::string to_string(bool include_datetime=false, bool use_markup=true) const;
       friend std::ostream& operator<<(std::ostream &o, const log_item &li);
    };
 
@@ -135,11 +135,14 @@ public:
 
    void log(log_t type_in, const function_name_t &fn, const std::string &s1, const std::string &s2);
 
+   void log(log_t type_in, const function_name_t &fn, const std::string &s1, int);
+
    void log(log_t type_in, const function_name_t &fn, const std::vector<ltw> &v);
 
    void show() const;
    void show_last() const;
    void set_update_notifier_function(void (*func)()) { update_notifier_function = func; }
+   std::vector<log_item> get_log_history_from(unsigned int idx_start) const;
 
    friend std::ostream& operator<<(std::ostream &o, const log_item &li);
 };

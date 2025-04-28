@@ -106,7 +106,7 @@ int get_monomer(const std::string &comp_id_in) {
 
       if (std_res == NULL) {
 	 // std::cout << "WARNING:: Can't find standard residue for " << comp_id_in << "\n";
-	 logger.log(log_t::WARNING, "Can't find standard residue for" comp_id_in);
+	 logger.log(log_t::WARNING, "Can't find standard residue for", comp_id_in);
       } else {
 	 // happy path
 	 graphics_info_t g;

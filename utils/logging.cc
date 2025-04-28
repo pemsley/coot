@@ -180,7 +180,24 @@ logging::log(log_t type_in, const function_name_t &fn, const std::string &s1, co
    if (success == 0) // was successful
       l.t = current_time.tv_sec;
    l.add_to_message(s1);
+   l.add_to_message(" ");
    l.add_to_message(s2);
+   history.push_back(l);
+   output_to_terminal_maybe();
+   notify();
+}
+
+void
+logging::log(log_t type_in, const function_name_t &fn, const std::string &s1, int i) {
+
+   log_item l(type_in, fn);
+   timeval current_time;
+   int success = gettimeofday(&current_time, NULL);
+   if (success == 0) // was successful
+      l.t = current_time.tv_sec;
+   l.add_to_message(s1);
+   l.add_to_message(" ");
+   l.add_to_message(std::to_string(i));
    history.push_back(l);
    output_to_terminal_maybe();
    notify();
@@ -466,7 +483,7 @@ logging::show() const {
 }
 
 std::string
-logging::log_item::to_string() const {
+logging::log_item::to_string(bool include_datetime, bool use_markup) const {
 
    std::string type_as_string;
    if (type == log_t::INFO)        type_as_string = "INFO::";
@@ -474,14 +491,22 @@ logging::log_item::to_string() const {
    if (type == log_t::ERROR)       type_as_string = "ERROR::";
    if (type == log_t::WARNING)     type_as_string = "WARNING::";
    if (type == log_t::UNSPECIFIED) type_as_string = "UNSPECIFIED::";
-   std::string ctime_str = ctime(&t);
-   if (! ctime_str.empty()) {
-      ctime_str.pop_back();
-      ctime_str += ":";
+   std::string ctime_str;
+   if (include_datetime) {
+      std::string ctime_str = ctime(&t);
+      if (! ctime_str.empty()) {
+	 ctime_str.pop_back();
+	 ctime_str += ":";
+      }
    }
-   std::string o = type_as_string + " " + ctime_str + ": " + message;
+   std::string o;
+   if (ctime_str.empty())
+      o = type_as_string + " ";
+   else
+      o = type_as_string + " " + ctime_str + " ";
    if (! function_name.empty())
-      o = type_as_string + " " + ctime_str + ": " + function_name.fn + ": " + message;
+      o += function_name.fn + ": ";
+   o += message;
    return o;
 }
 
@@ -502,4 +527,16 @@ logging::show_last() const {
          std::cout << h.to_string() << std::endl;
       }
    }
+}
+
+std::vector<logging::log_item>
+logging::get_log_history_from(unsigned int idx_start) const {
+
+   std::vector<log_item> v;
+   if (idx_start < history.size()) {
+      for (unsigned int i=idx_start; i<history.size(); i++) {
+	 v.push_back(history[i]);
+      }
+   }
+   return v;
 }
