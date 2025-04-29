@@ -1860,6 +1860,11 @@ void fill_logging_text_view() {
       GtkTextTag *default_color_tag = gtk_text_tag_new("default-type-color");
       g_object_set(default_color_tag, "foreground", default_type_colour.c_str(), NULL);
       gtk_text_tag_table_add(gtk_text_buffer_get_tag_table(buffer), default_color_tag);
+      //
+      std::string function_name_colour = "#cc99cc";
+      GtkTextTag *function_name_color_tag = gtk_text_tag_new("function-name-color");
+      g_object_set(function_name_color_tag, "foreground", function_name_colour.c_str(), NULL);
+      gtk_text_tag_table_add(gtk_text_buffer_get_tag_table(buffer), function_name_color_tag);
 
       for (const auto &item : lv) {
 
@@ -1886,6 +1891,14 @@ void fill_logging_text_view() {
 	 // gtk_text_buffer_insert(buffer, &end_iter, d.c_str(), d.size());
 	 gtk_text_buffer_insert_with_tags_by_name(buffer, &end_iter, d.c_str(), d.size(),
 						  "datetime-color", NULL);
+
+	 // insert the function
+	 if (! item.function_name.empty()) {
+	    std::string fn = std::string(" ") + item.function_name.get_name();
+	    gtk_text_buffer_get_end_iter(buffer, &end_iter);
+	    gtk_text_buffer_insert_with_tags_by_name(buffer, &end_iter, fn.c_str(), fn.size(),
+						     "function-name-color", NULL);
+	 }
 
 	 // insert the message
 

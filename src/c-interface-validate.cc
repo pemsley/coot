@@ -83,6 +83,10 @@
 
 #include "rama_plot_with_canvas.hh"
 
+#include "utils/logging.hh"
+extern logging logger;
+
+
 /*  ----------------------------------------------------------------------- */
 /*                  check waters interface                                  */
 /*  ----------------------------------------------------------------------- */
@@ -762,8 +766,8 @@ difference_map_peaks(int imol, int imol_coords,
    // searching.
    //
    if (! is_valid_map_molecule(imol)) {
-
-      std::cout << "Molecule number " << imol << " is not a valid map molecule" << std::endl;
+      // std::cout << "Molecule number " << imol << " is not a valid map molecule" << std::endl;
+      logger.log(log_t::WARNING, "Molecule number", imol, "is not a valid molecule");
       return;
    }
 
@@ -782,9 +786,6 @@ difference_map_peaks(int imol, int imol_coords,
             graphics_info_t::molecules[imol_coords].atom_sel.mol,
             n_sigma, do_positive_level_flag, do_negative_levels_flag,
                            around_model_only_flag);
-      for (unsigned int ii=0; ii<centres.size(); ii++)
-         std::cout << centres[ii].second << " " << centres[ii].first.format()
-                     << std::endl;
    } else {
       centres =
          ps.get_peaks(graphics_info_t::molecules[imol].xmap,
@@ -811,14 +812,21 @@ difference_map_peaks(int imol, int imol_coords,
          gtk_widget_set_visible(peaks_vbox, TRUE);
       }
 
-      std::cout << "\n   Found these peak positions:\n";
+      // std::cout << "\nFound these peak positions:\n";
+      logger.log(log_t::INFO, logging::function_name_t("difference_map_peaks"),
+		 "Found these peak positions");
       for (unsigned int i=0; i<centres.size(); i++) {
-         std::cout << "   " << i << " dv: "
-         << centres[i].second << " n-rmsd: "
-         << centres[i].second/map_sigma << " "
-         << centres[i].first.format() << std::endl;
+         // std::cout << "   " << i << " dv: "
+	 // 	   << centres[i].second << " n-rmsd: "
+	 // 	   << centres[i].second/map_sigma << " "
+	 // 	   << centres[i].first.format() << std::endl;
+	 auto dv  = centres[i].second;
+	 auto pos = centres[i].first.format();
+	 auto nrmsd = dv/map_sigma;
+	 logger.log(log_t::INFO, {"      ", i, "dv", dv, "n-rmsd:", nrmsd, "at", pos});
       }
-      std::cout << "\n   Found " << centres.size() << " peak positions:\n";
+      // std::cout << "\n   Found " << centres.size() << " peak positions:\n";
+      logger.log(log_t::INFO, "Found", std::to_string(centres.size()), "peak positions");
    }
    
       

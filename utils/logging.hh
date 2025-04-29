@@ -48,6 +48,7 @@ public:
       explicit function_name_t() { fn = "unspecified"; }
       explicit function_name_t(const std::string &s) { fn = s; }
       std::string fn;
+      std::string get_name() const { return fn + "()"; }
       bool empty() const { return (fn == std::string("unspecified")); }
    };
 
@@ -109,6 +110,10 @@ public:
    void log(const std::string &s);
    void log(log_t type_in, const std::string &s1, bool v1, const std::string &s2);
    void log(log_t type_in, const std::string &s1, bool v1, const std::string &s2, const std::string &s3);
+   void log(log_t type_in, const std::string &s1, int, const std::string &s2);
+   void log(log_t type_in, const std::string &s1, unsigned int, const std::string &s2);
+   void log(log_t type_in, const std::string &s1, std::size_t s, const std::string &s2);
+   void log(log_t type_in, const std::string &s1, double d, const std::string &s2);
    void log(log_t type_in, const std::string &s1);
    void log(log_t type_in, const std::string &s1, const std::string &s2);
    void log(log_t type_in, const std::string &s1, const int &i);
