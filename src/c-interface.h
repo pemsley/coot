@@ -106,6 +106,7 @@ BEGIN_C_DECLS
 void try_load_scheme_extras_dir();
 #endif /* USE_GUILE */
 #ifdef USE_PYTHON
+
 void try_load_python_extras_dir();
 #endif /* USE_PYTHON */
 
@@ -2136,13 +2137,12 @@ void run_state_file_maybe();	/* depending on the above state variables */
 
 #define VT_FLAT 1
 #define VT_SPHERICAL 2
-/*! \brief How should the mouse move the view?
 
-mode=1 for "Flat", mode=2 for "Spherical Surface"  */
+//! @param mode 1 for "Flat", 2 for "Spherical Surface" 
+//!
 void vt_surface(int mode);
-/*! \brief return the mouse view status mode
 
-mode=1 for "Flat", mode=2 for "Spherical Surface"  */
+//! @return the status, mode=1 for "Flat", mode=2 for "Spherical Surface"
 int  vt_surface_status();
 
 /*! \} */
@@ -2155,27 +2155,28 @@ int  vt_surface_status();
 /*! \name  Clipping Functions */
 /*! \{ */
 
-/*! increase the *amount* of clipping, that is (independent of projection matrix)*/
+//! increase the amount of clipping, that is (independent of projection matrix)
 void increase_clipping_front();
 
-/*! increase the *amount* of clipping, that is (independent of projection matrix)*/
+//! increase the amount of clipping, that is (independent of projection matrix)
 void increase_clipping_back();
 
-/*! decrease the *amount* of clipping, that is (independent of projection matrix)*/
+//! decrease the amount of clipping, that is (independent of projection matrix)
 void decrease_clipping_front();
 
-/*! decrease the *amount* of clipping, that is (independent of projection matrix)*/
+//! decrease the amount of clipping, that is (independent of projection matrix)
 void decrease_clipping_back();
 
-/*! \brief set clipping plane back  - this goes in differnent directions for orthographics vs perspective */
-void set_clipping_back( float v);
-/*! \brief set clipping plane front - this goes in differnent directions for orthographics vs perspective  */
+//! set clipping plane back  - this goes in differnent directions for orthographics vs perspective 
+void set_clipping_back(float v);
+
+//! set clipping plane front - this goes in differnent directions for orthographics vs perspective  
 void set_clipping_front(float v);
 
-/*! \brief get clipping plane front */
+//! get clipping plane front 
 float get_clipping_plane_front();
 
-/*! \brief get clipping plane back */
+//! get clipping plane back 
 float get_clipping_plane_back();
 
 /*! \} */
