@@ -1782,6 +1782,8 @@ public:
    //! @param s is the map saturation, e.g. a number between 0 and 1, where 0 is grey and 1 is "lego-like" colour scheme.
    //!        0.5 is a nice middle value
    void set_map_colour_saturation(int imol, float s);
+   void set_colour_map_for_map_colored_by_other_map(std::vector<std::pair<double, std::vector<double> > > colour_table );
+   
 
    //! Get the latest sfcalc stats
    //!
