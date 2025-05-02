@@ -1,6 +1,8 @@
 
 --- Items ---
 
+o depythonize copy molecule
+
 o Fix the "Fetch" buttons - new GTK4/glib? ::: 2
 
 o Cross-out "Screenshot" unless we have OpenGL 4.2 or later ::: 0.5

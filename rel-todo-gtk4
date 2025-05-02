@@ -2,6 +2,11 @@
 
 updates sequence view on add loop
 
+Make a button to run
+set_use_vertex_gradients_for_map_normals(imol, 1);
+on maps.
+In cryo-EM, I suppose.
+
 while there are intermediate atoms, a shift-click-drag on the trackpad
 should not drag atoms - but it does!
 
@@ -9,9 +14,16 @@ rotamer options needs to be cleaned in the rotamer dialog
 
 People close the Ribbon representation dialog.
 
+Did I fix the missing clashes when atom overlaps are displayed
+and the model updates?
+No.
+
 Make a nice latex equation for what is being minimized in Coot
 
 The "no map" on double-click dialog should be an overlay.
+
+how do I show a model with alphafold b-factors? plddt? And on a ribbon?
+It can be done with scripting - but make it trivial.
 
 validation json: sort by "badness" property. Also add "problem-type"
 These are optional.
