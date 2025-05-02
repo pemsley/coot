@@ -1583,8 +1583,8 @@ Mesh::draw_instanced(int pass_type,
 
    if (debug_mode)
       std::cout << "Mesh::draw_instanced() Mesh " << name << " -- start -- with shader " << shader_p->name
-                << " and do_pulse " << do_pulse << " and draw_this_mesh " << draw_this_mesh
-                << std::endl;
+                << "pass_type: " << pass_type << " and do_pulse " << do_pulse
+		<< " and draw_this_mesh " << draw_this_mesh << std::endl;
 
    if (! draw_this_mesh) return;
 

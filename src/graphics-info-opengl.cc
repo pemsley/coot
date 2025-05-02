@@ -689,11 +689,15 @@ graphics_info_t::setup_cylinder_clashes(const coot::atom_overlaps_dots_container
          std::cout << "zero clashes" << std::endl;
       std::string clashes_name = get_clashes_object_name(imol);
       int clashes_obj_index = generic_object_index(clashes_name);
+      // std::cout << "debug:: setup_cylinder_clashes() here with clashes_obj_index " << clashes_obj_index << std::endl;
       if (clashes_obj_index == -1) {
          clashes_obj_index = g.new_generic_object_number_for_molecule(clashes_name, imol); // make static?
-         if (imol == -1)
-            g.generic_display_objects[clashes_obj_index].attach_to_intermediate_atoms();
+         if (imol == -1) {
+	    // std::cout << "........ attaching to intermediate atoms!" << std::endl;
+	    g.generic_display_objects[clashes_obj_index].attach_to_intermediate_atoms();
+	 }
       } else {
+	 std::cout << "clearing clashes..." << std::endl;
          g.generic_display_objects[clashes_obj_index].clear();
          if (imol == -1)
             g.generic_display_objects[clashes_obj_index].attach_to_intermediate_atoms();
@@ -707,6 +711,7 @@ graphics_info_t::setup_cylinder_clashes(const coot::atom_overlaps_dots_container
          if (imol == -1)
             g.generic_display_objects[clashes_obj_index].attach_to_intermediate_atoms();
       } else {
+	 // std::cout << "clearing (2) clashes..." << std::endl;
          g.generic_display_objects[clashes_obj_index].clear();
          if (imol == -1)
             g.generic_display_objects[clashes_obj_index].attach_to_intermediate_atoms();
@@ -726,6 +731,7 @@ graphics_info_t::setup_cylinder_clashes(const coot::atom_overlaps_dots_container
 
       // instancing for capped cylinders
       meshed_generic_display_object &obj = g.generic_display_objects[clashes_obj_index];
+      // std::cout << ":::::::::: in setup_cylinder_clashes() obj.get_imol() " << obj.get_imol() << std::endl;
       float line_radius = 0.062f;
       line_radius = tube_radius;
       const unsigned int n_slices = 16;

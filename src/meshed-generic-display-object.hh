@@ -212,7 +212,7 @@ public:
    void attach_to_molecule(int imol_in) { imol = imol_in; }
    void clear() {
       mesh.clear();
-      imol = UNDEFINED; }
+   }
    void close_yourself() { clear();
       mesh.close();
    }

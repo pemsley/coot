@@ -1694,7 +1694,7 @@ graphics_info_t::accept_moving_atoms() {
       } else {
          if (moving_atoms_asc_type == coot::NEW_COORDS_REPLACE) {
             molecules[imol_moving_atoms].replace_coords(*moving_atoms_asc, 0, mzo);
-            update_validation(imol_moving_atoms);
+            // update_validation(imol_moving_atoms);
          } else {
             if (moving_atoms_asc_type == coot::NEW_COORDS_INSERT) {
                molecules[imol_moving_atoms].insert_coords(*moving_atoms_asc);
@@ -1711,6 +1711,7 @@ graphics_info_t::accept_moving_atoms() {
          }
       }
    }
+
 
    // reset the b-factor?
    if (graphics_info_t::reset_b_factor_moved_atoms_flag) {
