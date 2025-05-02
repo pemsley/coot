@@ -275,6 +275,7 @@ NB_MODULE(coot_headless_api, m) {
     .def("get_acedrg_atom_types",&molecules_container_t::get_acedrg_atom_types)
     .def("get_acedrg_atom_types_for_ligand",&molecules_container_t::get_acedrg_atom_types_for_ligand)
     .def("get_atom",&molecules_container_t::get_atom, nb::rv_policy::reference)
+    .def("get_atom_differences",&molecules_container_t::get_atom_differences)
     .def("get_atom_using_cid",&molecules_container_t::get_atom_using_cid, nb::rv_policy::reference)
     .def("get_bonds_mesh",&molecules_container_t::get_bonds_mesh)
     .def("get_bonds_mesh_for_selection_instanced",&molecules_container_t::get_bonds_mesh_for_selection_instanced)

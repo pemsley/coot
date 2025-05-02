@@ -2268,17 +2268,16 @@ molecules_container_t::set_map_colour(int imol, float r, float g, float b) {
 }
 
 void molecules_container_t::set_colour_map_for_map_colored_by_other_map(std::vector<std::pair<double, std::vector<double> > > colour_table ) {
-std::cout << "in set_colour_map_for_map_colored_by_other_map found " << colour_table.size() << std::endl; 
-for (auto c : colour_table) {
-   double stop= c.first;
-   auto col = c.second;
-   std::cout << stop << " ";
-   for (auto p : col) {
-      std::cout << p << " ";
-
+   std::cout << "in set_colour_map_for_map_colored_by_other_map found " << colour_table.size() << std::endl;
+   for (auto c : colour_table) {
+      double stop= c.first;
+      auto col = c.second;
+      std::cout << stop << " ";
+      for (auto p : col) {
+	 std::cout << p << " ";
+      }
+      std::cout << std::endl;
    }
-   std::cout << std::endl; 
-}
 }
 
 
