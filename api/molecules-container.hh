@@ -37,6 +37,7 @@
 #include "moorhen-h-bonds.hh"
 #include "header-info.hh"
 #include "positioned-atom-spec.hh"
+#include "user-defined-colour-table.hh"
 
 //! the container of molecules. The class for all **libcootapi** functions.
 class molecules_container_t {
@@ -1782,7 +1783,9 @@ public:
    //! @param s is the map saturation, e.g. a number between 0 and 1, where 0 is grey and 1 is "lego-like" colour scheme.
    //!        0.5 is a nice middle value
    void set_map_colour_saturation(int imol, float s);
-   void set_colour_map_for_map_colored_by_other_map(std::vector<std::pair<double, std::vector<double> > > colour_table );
+   void set_colour_map_for_map_coloured_by_other_map(std::vector<std::pair<double, std::vector<double> > > colour_table );
+
+   user_defined_colour_table_t colour_map_by_other_map_user_defined_table;
 
 
    //! Get the latest sfcalc stats

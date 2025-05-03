@@ -551,6 +551,90 @@ coot::molecule_t::get_map_contours_mesh_using_other_map_for_colours(const clippe
    return m;
 }
 
+coot::simple_mesh_t
+coot::molecule_t::get_map_contours_mesh_using_other_map_for_colours(const clipper::Coord_orth &position,
+								    float radius, float contour_level,
+								    const user_defined_colour_table_t &udct,
+								    const clipper::Xmap<float> &other_map) {
+
+   auto coord_orth_to_glm = [] (const clipper::Coord_orth &co) {
+      return glm::vec3(co.x(), co.y(), co.z());
+   };
+
+   auto clipper_to_cartesian = [] (const clipper::Coord_orth &c) {
+      return Cartesian(c.x(), c.y(), c.z()); };
+
+   auto frac_to_col = [] (float f, const user_defined_colour_table_t &udct) {
+      glm::vec4 col(0.1f, 0.1f, 0.1f, 1.0f);
+      for (unsigned int i=0; i<(udct.colour_table.size() -1); i++) {
+	 if (udct.colour_table[i].colour_frac <= f) {
+	    if (f <= udct.colour_table[i+1].colour_frac) {
+	       user_defined_colour_table_t::colour_pair_t lower_point = udct.colour_table[i];
+	       user_defined_colour_table_t::colour_pair_t upper_point = udct.colour_table[i+1];
+	       float fraction = (f - lower_point.colour_frac) / (upper_point.colour_frac - lower_point.colour_frac);
+	       float r = lower_point.colour.r + (upper_point.colour.r - lower_point.colour.r) * fraction;
+	       float g = lower_point.colour.g + (upper_point.colour.g - lower_point.colour.g) * fraction;
+	       float b = lower_point.colour.b + (upper_point.colour.b - lower_point.colour.b) * fraction;
+	       col = glm::vec4(r,g,b,1.0f);
+	    }
+	 }
+      }
+      return col;
+   };
+
+   auto position_to_colour = [frac_to_col] (const clipper::Coord_orth &c,
+					    const clipper::Xmap<float> &other_map,
+					    const user_defined_colour_table_t &udct,
+					    float min_value, float max_value) {
+      float dv = util::density_at_point(other_map, c);
+      float f = 0.0;
+      if (dv < min_value) {
+	 f = 0.0;
+      } else {
+	 if (dv > max_value) {
+	    f = 1.0;
+	 } else {
+	    // in the range
+	    float range = max_value - min_value;
+	    float m = dv - min_value;
+	    f = m/range;
+	 }
+      }
+      return frac_to_col(f, udct);
+   };
+
+   auto cpos = clipper_to_cartesian(position);
+   update_map_triangles(radius, cpos, contour_level);
+
+   coot::simple_mesh_t m; // initially status is good (1).
+   auto &vertices  = m.vertices;
+   auto &triangles = m.triangles;
+   std::vector<coot::density_contour_triangles_container_t>::const_iterator it;
+   const float &min_value = other_map_for_colouring_min_value;
+   const float &max_value = other_map_for_colouring_max_value;
+   for (it=draw_vector_sets.begin(); it!=draw_vector_sets.end(); ++it) {
+      const coot::density_contour_triangles_container_t &tri_con(*it);
+      unsigned int idx_base = vertices.size();
+      for (unsigned int i=0; i<tri_con.points.size(); i++) {
+         glm::vec3 pos    = coord_orth_to_glm(tri_con.points[i]);
+         glm::vec3 normal = coord_orth_to_glm(-tri_con.normals[i]); // reverse normals
+         clipper::Coord_orth clipper_pos(pos.x, pos.y, pos.z);
+         glm::vec4 col = position_to_colour(clipper_pos, other_map, udct, min_value, max_value);
+         api::vnc_vertex vert(pos, normal, col);
+         vertices.push_back(vert);
+      }
+      for (unsigned int i=0; i<tri_con.point_indices.size(); i++) {
+         g_triangle tri(tri_con.point_indices[i].pointID[0],
+                        tri_con.point_indices[i].pointID[1],
+                        tri_con.point_indices[i].pointID[2]);
+         tri.rebase(idx_base);
+         triangles.push_back(tri);
+      }
+   }
+   return m;
+}
+
+
 void
 coot::molecule_t::set_other_map_for_colouring_min_max(float min_v, float max_v) {
    other_map_for_colouring_min_value = min_v;

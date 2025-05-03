@@ -4814,7 +4814,8 @@ molecule_class_info_t::colour_map_using_map(const clipper::Xmap<float> &xmap, fl
                                               // (position_to_colour_using_other_map(co))
       other_map_for_colouring_p = &xmap;
 
-      std::cout << "debug:: in colour_map_using_map() other_map_for_colouring_p is set to " << other_map_for_colouring_p << std::endl;
+      std::cout << "debug:: in colour_map_using_map() other_map_for_colouring_p is set to "
+		<< other_map_for_colouring_p << std::endl;
       other_map_for_colouring_min_value = table_bin_start;
       other_map_for_colouring_max_value = table_bin_start + colours.size() * table_bin_size;
       other_map_for_colouring_colour_table = colours;

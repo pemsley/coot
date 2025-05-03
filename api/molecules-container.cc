@@ -2246,9 +2246,15 @@ molecules_container_t::get_map_contours_mesh_using_other_map_for_colours(int imo
             molecules[imol_ref].set_other_map_for_colouring_min_max(other_map_for_colouring_min_value,
                                                                     other_map_for_colouring_max_value);
             molecules[imol_ref].set_other_map_for_colouring_invert_colour_ramp(invert_colour_ramp);
-            mesh = molecules[imol_ref].get_map_contours_mesh_using_other_map_for_colours(position, radius, contour_level,
-                                                                                         molecules[imol_map_for_colouring].xmap);
-         }
+	    if (colour_map_by_other_map_user_defined_table.is_set()) {
+	       mesh = molecules[imol_ref].get_map_contours_mesh_using_other_map_for_colours(position, radius, contour_level,
+											    colour_map_by_other_map_user_defined_table,
+											    molecules[imol_map_for_colouring].xmap);
+	    } else {
+	       mesh = molecules[imol_ref].get_map_contours_mesh_using_other_map_for_colours(position, radius, contour_level,
+											    molecules[imol_map_for_colouring].xmap);
+	    }
+	 }
       }
    }
    catch (...) {
@@ -2267,16 +2273,28 @@ molecules_container_t::set_map_colour(int imol, float r, float g, float b) {
    }
 }
 
-void molecules_container_t::set_colour_map_for_map_colored_by_other_map(std::vector<std::pair<double, std::vector<double> > > colour_table ) {
-   std::cout << "in set_colour_map_for_map_colored_by_other_map found " << colour_table.size() << std::endl;
-   for (auto c : colour_table) {
-      double stop= c.first;
-      auto col = c.second;
-      std::cout << stop << " ";
-      for (auto p : col) {
-	 std::cout << p << " ";
+void molecules_container_t::set_colour_map_for_map_coloured_by_other_map(std::vector<std::pair<double, std::vector<double> > > colour_table ) {
+
+   bool debug = false;
+   if (debug) {
+      for (const auto &c : colour_table) {
+	 double stop = c.first;
+	 auto col = c.second;
+	 std::cout << stop << " ";
+	 for (auto p : col) {
+	    std::cout << p << " ";
+	 }
+	 std::cout << std::endl;
       }
-      std::cout << std::endl;
+   }
+
+   for (const auto &c : colour_table) {
+      float stop = c.first;
+      auto col = c.second;
+      if (col.size() > 2) {
+	 glm::vec3 c(col[0], col[1], col[2]);
+	 colour_map_by_other_map_user_defined_table.add_stop(stop, c);
+      }
    }
 }
 

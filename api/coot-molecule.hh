@@ -83,6 +83,7 @@
 
 #include "bond-colour.hh"
 #include "blender-mesh.hh"
+#include "user-defined-colour-table.hh"
 
 // 2023-07-04-PE This is a hack. This should be configured - and the
 // various functions that depend on this being true should be
@@ -1380,6 +1381,9 @@ namespace coot {
       simple_mesh_t get_map_contours_mesh(clipper::Coord_orth position, float radius, float contour_level,
                                           bool use_thread_pool, ctpl::thread_pool *thread_pool_p);
       simple_mesh_t get_map_contours_mesh_using_other_map_for_colours(const clipper::Coord_orth &position, float radius, float contour_level,
+                                                                      const clipper::Xmap<float> &xmap);
+      simple_mesh_t get_map_contours_mesh_using_other_map_for_colours(const clipper::Coord_orth &position, float radius, float contour_level,
+								      const user_defined_colour_table_t &udct,
                                                                       const clipper::Xmap<float> &xmap);
 
       //! map histogram class

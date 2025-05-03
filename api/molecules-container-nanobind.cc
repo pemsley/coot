@@ -411,7 +411,7 @@ NB_MODULE(coot_headless_api, m) {
     .def("set_add_waters_variance_limit",&molecules_container_t::set_add_waters_variance_limit)
     .def("set_add_waters_water_to_protein_distance_lim_min",&molecules_container_t::set_add_waters_water_to_protein_distance_lim_min)
     .def("set_add_waters_water_to_protein_distance_lim_max",&molecules_container_t::set_add_waters_water_to_protein_distance_lim_max)
-    .def("set_colour_map_for_map_colored_by_other_map",&molecules_container_t::set_colour_map_for_map_colored_by_other_map)
+    .def("set_colour_map_for_map_coloured_by_other_map",&molecules_container_t::set_colour_map_for_map_coloured_by_other_map)
     .def("set_colour_wheel_rotation_base",&molecules_container_t::set_colour_wheel_rotation_base)
     .def("set_draw_missing_residue_loops",&molecules_container_t::set_draw_missing_residue_loops)
     .def("set_draw_missing_residue_loops",&molecules_container_t::set_draw_missing_residue_loops)
