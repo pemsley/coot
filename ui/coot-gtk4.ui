@@ -7313,6 +7313,67 @@ Do you want to continue?
               </object>
             </child>
 
+            <child type="overlay">
+              <object class="GtkFrame" id="copy-molecule-frame">
+                <property name="halign">center</property>
+                <property name="valign">start</property>
+                <property name="visible">False</property>
+                <property name="margin-bottom">5</property>
+                <property name="margin-end">5</property>
+                <property name="margin-start">5</property>
+                <property name="margin-top">5</property>
+		<child>
+		  <object class="GtkBox" id="copy_molecule_vbox">
+		    <property name="orientation">vertical</property>
+                    <child>
+                      <object class="GtkLabel">
+			<property name="label">Molecule to Copy:</property>
+			<property name="margin-end">6</property>
+			<property name="margin-start">6</property>
+                      </object>
+		    </child>
+
+                    <child>
+                      <object class="GtkComboBoxText" id="copy_molecule_comboboxtext">
+                        <property name="margin-start">4</property>
+                        <property name="margin-end">4</property>
+                        <property name="margin-top">4</property>
+                        <property name="margin-bottom">4</property>
+                      </object>
+                    </child>
+		    <child>
+                      <object class="GtkBox">
+                        <property name="orientation">horizontal</property>
+                        <property name="halign">end</property>
+                        <child>
+                          <object class="GtkButton" id="copy_molecule_cancel_button">
+                            <signal name="clicked" handler="on_copy_molecule_cancel_button_clicked" swapped="no"/>
+                            <property name="label" translatable="yes">Cancel</property>
+                            <property name="margin-start">10</property>
+                            <property name="margin-end">10</property>
+                            <property name="margin-top">4</property>
+                            <property name="margin-bottom">10</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkButton" id="copy_molecule_copy_button">
+                            <signal name="clicked" handler="on_copy_molecule_copy_button_clicked" swapped="no"/>
+                            <property name="label" translatable="yes">Copy</property>
+                            <property name="margin-start">10</property>
+                            <property name="margin-end">10</property>
+                            <property name="margin-top">4</property>
+                            <property name="margin-bottom">10</property>
+                            <style>
+                              <class name="suggested-action"/>
+                            </style>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+		  </object>
+		</child>
+	      </object>
+	    </child>
 
             <child type="overlay">
               <object class="GtkFrame" id="acedrg_running_frame">
@@ -7323,13 +7384,13 @@ Do you want to continue?
                 <property name="margin-end">5</property>
                 <property name="margin-start">5</property>
                 <property name="margin-top">5</property>
-                  <child>
-                    <object class="GtkLabel">
-                           <property name="label">Acedrg is running...</property>
-                           <property name="margin-end">6</property>
-                           <property name="margin-start">6</property>
-                    </object>
-               </child>
+                <child>
+                  <object class="GtkLabel">
+                    <property name="label">Acedrg is running...</property>
+                    <property name="margin-end">6</property>
+                    <property name="margin-start">6</property>
+                  </object>
+		</child>
               </object>
             </child>
 

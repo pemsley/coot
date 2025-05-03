@@ -1509,6 +1509,27 @@ on_copy_map_ok_button_clicked(G_GNUC_UNUSED GtkButton       *button,
 
 extern "C" G_MODULE_EXPORT
 void
+on_copy_molecule_cancel_button_clicked(G_GNUC_UNUSED GtkButton       *button,
+				       G_GNUC_UNUSED gpointer         user_data) {
+
+   GtkWidget *frame = widget_from_builder("copy-molecule-frame");
+   gtk_widget_set_visible(frame, FALSE);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_copy_molecule_copy_button_clicked(G_GNUC_UNUSED GtkButton       *button,
+				     G_GNUC_UNUSED gpointer         user_data) {
+
+   GtkWidget *frame    = widget_from_builder("copy-molecule-frame");
+   GtkWidget *combobox = widget_from_builder("copy_molecule_comboboxtext");
+   int imol = my_combobox_get_imol(GTK_COMBO_BOX(combobox));
+   copy_molecule(imol);
+   gtk_widget_set_visible(frame, FALSE);
+}
+
+extern "C" G_MODULE_EXPORT
+void
 on_make_smooth_map_cancel_button_clicked(G_GNUC_UNUSED GtkButton       *button,
                                          G_GNUC_UNUSED gpointer         user_data) {
 

@@ -1630,8 +1630,28 @@ wrapped_create_fast_ss_search_dialog() {
 /* ------------------------------------------------------------------------ */
 void do_edit_copy_molecule() {
 
-   std::string cmd = "import coot; import coot_gui; coot_gui.molecule_chooser_gui(\"Molecule to Copy...\", lambda imol: coot.copy_molecule(imol))";
-   safe_python_command(cmd);
+   auto get_molecule_vector = [] () {
+
+      graphics_info_t g;
+      std::vector<int> vec;
+      int n_mol = g.n_molecules();
+      for (int i=0; i<n_mol; i++) {
+	 if (g.is_valid_model_molecule(i))
+	    vec.push_back(i);
+	 if (g.is_valid_map_molecule(i))
+	    vec.push_back(i);
+      }
+      return vec;
+   };
+
+   GtkWidget *frame    = widget_from_builder("copy-molecule-frame");
+   GtkWidget *combobox = widget_from_builder("copy_molecule_comboboxtext");
+   gtk_widget_set_visible(frame, TRUE);
+   auto molecule_list = get_molecule_vector();
+   int imol_active = -1;
+   GCallback func = G_CALLBACK(nullptr); // we don't care until this dialog is read
+   graphics_info_t g;
+   g.fill_combobox_with_molecule_options(combobox, func, imol_active, molecule_list);
 
 }
 
