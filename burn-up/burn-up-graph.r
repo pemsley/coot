@@ -1,12 +1,12 @@
 
 # every month or so
-xlim=40
-ylim=16 # reasonable scope
+xlim=60 # was 40
+ylim=20 # was 16 # reasonable scope
 
-prediction_text_x_placement = 15
+prediction_text_x_placement = 30
 prediction_text_y_placement = 0
 
-legend_x = 24
+legend_x = 44
 legend_y = 3
 
 non_converging_x = 22
