@@ -1,15 +1,11 @@
 
 --- Items ---
 
-o Thierry Fischmann mail ::: 2
+o Close button on restraints editor doesn't work. ::: 1
 
-o Close button on restraints editor doesn't work.
-
-o Depythonize Replace Fragment
+o Depythonize Replace Fragment ::: 1
 
 o Fix the "Fetch" buttons - new GTK4/glib? ::: 2
-
-o Cross-out "Screenshot" unless we have OpenGL 4.2 or later ::: 0.5
 
 o WTA carbohydrate ::: 6
 
@@ -25,9 +21,12 @@ o "Proportional editing" molecule rotation ::: 2
 
 o What is going wrong with Chemical Features? ::: 1
 
-o plug a mouse into the map and do middle-mouse drag for translation (and check ctrl-left-mouse)
+o plug a mouse into the map and do middle-mouse drag for translation
+  (and check ctrl-left-mouse) ::: 1
 
 --- Other Items ---
+
+o Cross-out "Screenshot" unless we have OpenGL 4.2 or later :: 0.5
 
 o Highlight the chain neighbours in the Rama plot. Bring back the green square.
 
@@ -46,6 +45,9 @@ o  It was a strange bit of code in get_group().
    Solved now? Am I using the right version?
 
 --- Done Items ---
+
+o Thierry Fischmann mail ::: 3
+* Done.
 
 o depythonize copy molecule ::: 0.3
 * Done
