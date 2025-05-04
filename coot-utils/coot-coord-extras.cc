@@ -1935,6 +1935,8 @@ coot::util::mutate_by_overlap(mmdb::Residue *residue_p, mmdb::Manager *mol,
                std::string at_name = at->GetAtomName();
                if (atom_name != " OXT") { // extra atom in an amino acid
                   if (! (atom_name != " OP3" && is_nucleotide)) {  // extra atom in a nucleic acid
+		     std::string ele = at->element;
+		     if (ele == " H") continue;
                      at_copy->Copy(at);
                      res_mutable->AddAtom(at_copy);
                   }
@@ -1943,6 +1945,7 @@ coot::util::mutate_by_overlap(mmdb::Residue *residue_p, mmdb::Manager *mol,
          }
       }
       mol->FinishStructEdit();
+      mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
 
    };
 
@@ -1994,6 +1997,8 @@ coot::util::mutate_by_overlap(mmdb::Residue *residue_p, mmdb::Manager *mol,
    bool is_nucl = is_nucleotide(residue_p);
    bool is_aa   = residue_p->isAminoacid();
 
+   bool debug = true;
+
    mmdb::Residue *restraints_residue_p = restraints_new_type.GetResidue(false, 10.0f);
    if (restraints_residue_p) {
       mmdb::Manager *mol_from_restraints_residue = create_mmdbmanager_from_residue(restraints_residue_p);
@@ -2022,10 +2027,16 @@ coot::util::mutate_by_overlap(mmdb::Residue *residue_p, mmdb::Manager *mol,
             std::pair<short int, clipper::RTop_orth> rtop_info =
                get_lsq_matrix(mol, mol_from_restraints_residue, lsq_matchers, 1, true);
 
+	    if (debug) {
+	       std::cout << "get_lsq_matrix() returned " << rtop_info.first << std::endl;
+	       std::cout << "get_lsq_matrix() returned\n" << rtop_info.second.format()
+			 << std::endl;
+	    }
+
             if (rtop_info.first)
                transform_atoms(restraints_residue_p, rtop_info.second);
 
-            if (false) { // debugging
+            if (debug) { // debugging
                // where is restraints_residue_p now? What is its orientation?
                mmdb::Manager *mmm = create_mmdbmanager_from_residue(restraints_residue_p);
                mmm->WriteCIFASCII("transformed-restraints-residue.pdb");
@@ -2037,7 +2048,12 @@ coot::util::mutate_by_overlap(mmdb::Residue *residue_p, mmdb::Manager *mol,
             match_torsions mt(restraints_residue_p, residue_p, restraints_new_type);
             int n_torsions_moved = mt.match(tr_ligand, tr_res_ref);
 
-            if (false) { // debugging
+            if (debug) { // debugging
+	       std::cout << "debug:: n_torsions_moved " << n_torsions_moved
+			 << std::endl;
+	    }
+
+            if (debug) { // debugging
                // where is restraints_residue_p now? What is its orientation?
                mmdb::Manager *mmm = create_mmdbmanager_from_residue(restraints_residue_p);
                mmm->WriteCIFASCII("restraints-residue-post-torsion-match.pdb");
@@ -2045,7 +2061,8 @@ coot::util::mutate_by_overlap(mmdb::Residue *residue_p, mmdb::Manager *mol,
 
             // after torsion matching, let's superpose (again)
 
-            mmdb::Manager *mol_from_restraints_residue_2 = create_mmdbmanager_from_residue(restraints_residue_p);
+            mmdb::Manager *mol_from_restraints_residue_2 =
+	       create_mmdbmanager_from_residue(restraints_residue_p);
             rtop_info = get_lsq_matrix(mol, mol_from_restraints_residue_2, lsq_matchers, 1, true);
             if (rtop_info.first)
                transform_atoms(restraints_residue_p, rtop_info.second);
@@ -2061,14 +2078,32 @@ coot::util::mutate_by_overlap(mmdb::Residue *residue_p, mmdb::Manager *mol,
 
             reposition_copy_or_delete_atoms(residue_p, restraints_residue_p, false, false);
 
+	    if (debug) {
+	       mmdb::Atom **residue_atoms = 0;
+	       int n_residue_atoms = 0;
+	       residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+	       for (int iat=0; iat<n_residue_atoms; iat++) {
+		  mmdb::Atom *at = residue_atoms[iat];
+		  if (! at->isTer()) {
+		     std::cout << "residue atom " << iat << " " << at
+			       << " " << atom_spec_t(at) << std::endl;
+		  }
+	       }
+	    }
+
             std::string new_residue_name = restraints_new_type.residue_info.comp_id;
             if (! util::is_standard_amino_acid_name(new_residue_name))
                convert_to_hetatoms(residue_p);
 
             residue_p->SetResName(new_residue_name.c_str());
 
+	    mol->FinishStructEdit(); // needed?
+	    pdbcleanup_serial_residue_numbers(mol);
+
             delete mol_from_restraints_residue;
             delete mol_from_restraints_residue_2;
+
+	    status = 1;
          }
 
          if (is_nucl) {
@@ -2092,6 +2127,8 @@ coot::util::mutate_by_overlap(mmdb::Residue *residue_p, mmdb::Manager *mol,
             // to do the same sort of thing here too?
 
             reposition_copy_or_delete_atoms(residue_p, restraints_residue_p, true, true);
+
+	    status = 1;
          }
       }
    }
