@@ -677,21 +677,10 @@ void on_replace_residue_ok_button_clicked(GtkButton *button,
    if (is_valid_model_molecule(imol)) {
       mmdb::Residue *residue_p = aa.second->residue;
       if (residue_p) {
-         coot::protein_geometry &geom = *graphics_info_t::Geom_p();
-         std::pair<bool, coot::dictionary_residue_restraints_t> rp = geom.get_monomer_restraints(new_residue_type, imol);
-         if (rp.first) {
-            const auto &restraints_new_type = rp.second;
-            mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
-            std::string current_residue_type = residue_p->GetResName();
-            std::pair<bool, coot::dictionary_residue_restraints_t> rp_current =
-               geom.get_monomer_restraints(current_residue_type, imol);
-            if (rp_current.first) {
-               const auto &restraints_current_type = rp_current.second;
-               int status = coot::util::mutate_by_overlap(residue_p, mol, restraints_current_type, restraints_new_type);
-               if (status == 0)
-                  logger.log(log_t::WARNING, "mutate_by_overlap() failed");
-            }
-         }
+	 std::string chain_id = residue_p->GetChainID();
+	 int res_no = residue_p->GetSeqNum();
+	 g.molecules[imol].mutate_by_overlap(chain_id, res_no, new_residue_type);
+	 g.graphics_draw();
       }
    }
    gtk_widget_set_visible(frame, FALSE);

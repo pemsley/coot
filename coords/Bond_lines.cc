@@ -46,6 +46,9 @@
 #include "geometry/protein-donor-acceptors.hh"
 #include "loop-path.hh"
 
+#include "utils/logging.hh"
+extern logging logger;
+
 static std::string b_factor_bonds_scale_handle_name = "B-factor-bonds-scale";
 
 unsigned int
@@ -2363,7 +2366,11 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
       have_udd_atoms = 0;
    } else {
       for (int i=0; i<SelAtom.n_selected_atoms; i++) {
-         SelAtom.atom_selection[i]->PutUDData(udd_found_bond_handle, graphical_bonds_container::NO_BOND);
+	 mmdb::Atom *at = SelAtom.atom_selection[i];
+	 if (at)
+	    at->PutUDData(udd_found_bond_handle, graphical_bonds_container::NO_BOND);
+	 else
+	    logger.log(log_t::ERROR, logging::function_name_t("construct_from_asc"), "Bad atom!", i);
       }
    }
 
@@ -2387,9 +2394,12 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
    std::vector<coot::model_bond_atom_info_t> atom_stuff_vec(n_models+1);
 
    for (int i=0; i<SelAtom.n_selected_atoms; i++) {
-      imodel = SelAtom.atom_selection[i]->GetModelNum();
-      if ((imodel <= n_models) && (imodel > 0)) {
-         atom_stuff_vec[imodel].add_atom(SelAtom.atom_selection[i]);
+      mmdb::Atom *at = SelAtom.atom_selection[i];
+      if (at) {
+	 imodel = at->GetModelNum();
+	 if ((imodel <= n_models) && (imodel > 0)) {
+	    atom_stuff_vec[imodel].add_atom(SelAtom.atom_selection[i]);
+	 }
       }
    }
 

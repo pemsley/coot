@@ -169,7 +169,6 @@ graphics_info_t::stop_refinement_internal() {
    if (continue_threaded_refinement_loop) {
       continue_threaded_refinement_loop = false;
       threaded_refinement_needs_to_clear_up = true;
-      std::cout << "..................................... clear HUD buttons! " << std::endl;
       clear_hud_buttons(); // if a refinement was running and Esc was pressed, here is where we catch it.
    }
    // now wait until refinement stops... (before we call clear_up_moving_atoms (from the
@@ -1495,6 +1494,13 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 					      mmdb::Manager *mol,
 					      bool use_map_flag) {
 
+   if (false) {
+      std::cout << "debug:: ----- start generate_molecule_and_refine() " << std::endl;
+      for (unsigned int i=0; i<residues_in.size(); i++) {
+	 std::cout << "   residue " << i << " of residues_in is " << residues_in[i] << std::endl;
+      }
+   }
+
 
    auto tp_0 = std::chrono::high_resolution_clock::now();
 
@@ -1566,10 +1572,15 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 		  int nres = chain_p->GetNumberOfResidues();
 		  for (int ires=0; ires<nres; ires++) {
 		     mmdb::Residue *residue_p = chain_p->GetResidue(ires);
-		     std::cout << "residues_mol_and_res_vec mol:   residue "
-			       << coot::residue_spec_t(residue_p) << " residue "
-			       << residue_p << " chain " << residue_p->chain << " index "
-			       << residue_p->index << std::endl;
+		     if (residue_p) {
+			std::cout << "residues_mol_and_res_vec mol:   residue "
+				  << coot::residue_spec_t(residue_p) << " residue "
+				  << residue_p << " chain " << residue_p->chain << " index "
+				  << residue_p->index << std::endl;
+		     } else {
+			std::cout << "residues_mol_and_res_vec: residue " << ires << " was null"
+				  << std::endl;
+		     }
 		  }
 	       }
 	    }
@@ -3783,7 +3794,7 @@ graphics_info_t::execute_simple_nucleotide_addition(int imol, const std::string 
 void
 graphics_info_t::execute_rotate_translate_ready() { // manual movement
 
-   std::cout << "execute_rotate_translate_ready() --- start ---" << std::endl;
+   // std::cout << "execute_rotate_translate_ready() --- start ---" << std::endl;
 
    // now we are called by chain and molecule pick (as well as the old
    // zone pick).

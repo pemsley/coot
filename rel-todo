@@ -1,7 +1,11 @@
 
 --- Items ---
 
-o depythonize copy molecule
+o Thierry Fischmann mail ::: 2
+
+o Close button on restraints editor doesn't work.
+
+o Depythonize Replace Fragment
 
 o Fix the "Fetch" buttons - new GTK4/glib? ::: 2
 
@@ -20,8 +24,6 @@ o "Proportional editing" molecule rotation ::: 2
   Actually "fragment" rotation makes more sense.
 
 o What is going wrong with Chemical Features? ::: 1
-
-o Thierry Fischmann mail ::: 2
 
 o plug a mouse into the map and do middle-mouse drag for translation (and check ctrl-left-mouse)
 
@@ -44,6 +46,9 @@ o  It was a strange bit of code in get_group().
    Solved now? Am I using the right version?
 
 --- Done Items ---
+
+o depythonize copy molecule ::: 0.3
+* Done
 
 o Validation json. ::: 2
 

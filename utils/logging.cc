@@ -586,7 +586,7 @@ logging::log_item::to_string(bool include_datetime, bool use_markup) const {
    else
       o = tas + " " + ctime_str + " ";
    if (! function_name.empty())
-      o += function_name.fn + ": ";
+      o += function_name.fn + "(): ";
    o += message;
    return o;
 }

@@ -43,6 +43,9 @@
 #include "geometry/mol-utils.hh"
 #include "geometry/residue-and-atom-specs.hh"
 
+#include "utils/logging.hh"
+extern logging logger;
+
 std::vector<std::string>
 coot::util::residue_types_in_molecule(mmdb::Manager *mol) { 
 
@@ -3775,11 +3778,25 @@ coot::util::create_mmdbmanager_from_residue_vector(const std::vector<mmdb::Resid
    std::vector<chain_id_residue_vec_helper_t> residues_of_chain;
 
    for (unsigned int i=0; i<res_vec.size(); i++) {
-      std::string chain_id = res_vec[i]->GetChainID();
+      mmdb::Residue *residue_p = res_vec[i];
+      if (residue_p == nullptr) {
+	 logger.log(log_t::ERROR, logging::function_name_t(__FUNCTION__),
+		    { "residue A idx:", i, "of", res_vec.size(), "is null"});
+	 continue;
+      } else {
+	 if (false) { // debugging
+	    std::stringstream ss;
+	    ss << residue_p;
+	    std::string s = ss.str();
+	    logger.log(log_t::INFO, logging::function_name_t(__FUNCTION__),
+		       { "residue A idx:", i, "of", res_vec.size(), "is", s });
+	 }
+      }
+      std::string chain_id = residue_p->GetChainID();
 
       // is chain_id already in residues_of_chain?  Do it in line here
       //
-      bool found = 0;
+      bool found = false;
       for (unsigned int ich=0; ich<residues_of_chain.size(); ich++) { 
          if (residues_of_chain[ich].chain_id == chain_id) { 
             found = 1;
@@ -3795,7 +3812,21 @@ coot::util::create_mmdbmanager_from_residue_vector(const std::vector<mmdb::Resid
 
    // now residues_of_chain is full of containers that have the chain_id specified.
    for (unsigned int i=0; i<res_vec.size(); i++) { 
-      std::string chain_id = res_vec[i]->GetChainID();
+      mmdb::Residue *residue_p = res_vec[i];
+      if (residue_p == nullptr) {
+	 logger.log(log_t::ERROR, logging::function_name_t(__FUNCTION__),
+		    { "residue B idx:", i, "of", res_vec.size(), "is null"});
+	 continue;
+      } else {
+	 if (false) { // debugging
+	    std::stringstream ss;
+	    ss << residue_p;
+	    std::string s = ss.str();
+	    logger.log(log_t::ERROR, logging::function_name_t(__FUNCTION__),
+		       { "residue B idx:", i, "of", res_vec.size(), "is", s });
+	 }
+      }
+      std::string chain_id = residue_p->GetChainID();
       for (unsigned int ich=0; ich<residues_of_chain.size(); ich++) { 
          if (residues_of_chain[ich].chain_id == chain_id) { 
             residues_of_chain[ich].residues.push_back(res_vec[i]);
