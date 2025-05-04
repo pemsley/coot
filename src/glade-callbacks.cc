@@ -6193,9 +6193,26 @@ on_copy_fragment_dialog_response(GtkDialog *dialog,
    if (response_id == GTK_RESPONSE_CANCEL) {
       gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
    }
-
 }
 
+extern "C" G_MODULE_EXPORT
+void
+on_replace_fragment_dialog_response(GtkDialog *dialog,
+				    gint response_id,
+				    gpointer user_data) {
+
+   if (response_id == GTK_RESPONSE_OK) {
+      graphics_info_t g;
+      GtkWidget *entry = widget_from_builder("replace_fragment_atom_selection_entry");
+      GtkWidget *combobox_from = widget_from_builder("replace_fragment_from_molecule_combobox");
+      GtkWidget *combobox_to   = widget_from_builder("replace_fragment_to_molecule_combobox");
+      std::string text = gtk_editable_get_text(GTK_EDITABLE(GTK_ENTRY(entry)));
+      int imol_from = g.combobox_get_imol(GTK_COMBO_BOX(combobox_from));
+      int imol_to   = g.combobox_get_imol(GTK_COMBO_BOX(combobox_to));
+      replace_fragment(imol_to, imol_from, text.c_str()); // move this to C++ api one day
+   }
+   gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
+}
 
 extern "C" G_MODULE_EXPORT
 void

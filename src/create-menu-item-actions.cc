@@ -898,7 +898,32 @@ void
 edit_replace_fragment_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                              G_GNUC_UNUSED GVariant *parameter,
                              G_GNUC_UNUSED gpointer user_data) {
-   do_edit_replace_fragment();
+
+   // do_edit_replace_fragment(); // ciao pythonic bella
+
+   auto get_model_molecule_vector = [] () {
+                                       graphics_info_t g;
+                                       std::vector<int> vec;
+                                       int n_mol = g.n_molecules();
+                                       for (int i=0; i<n_mol; i++)
+                                          if (g.is_valid_model_molecule(i))
+                                             vec.push_back(i);
+                                       return vec;
+                                    };
+
+   GtkWidget *dialog = widget_from_builder("replace_fragment_dialog");
+   gtk_widget_set_visible(dialog, TRUE);
+
+   GtkWidget *from_molecule_combobox = widget_from_builder("replace_fragment_from_molecule_combobox");
+   GtkWidget *to_molecule_combobox = widget_from_builder("replace_fragment_to_molecule_combobox");
+
+   graphics_info_t g;
+   int imol_mol_active = -1;
+   GCallback func = G_CALLBACK(nullptr); // we don't care until this dialog is read
+   auto model_list = get_model_molecule_vector();
+   g.fill_combobox_with_molecule_options(from_molecule_combobox, func, imol_mol_active, model_list);
+   g.fill_combobox_with_molecule_options(  to_molecule_combobox, func, imol_mol_active, model_list);
+
 }
 
 void

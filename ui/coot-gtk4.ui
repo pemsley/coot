@@ -4341,6 +4341,88 @@ the Ctrl key when moving the mouse.</property>
     </action-widgets>
   </object>
 
+  <object class="GtkDialog" id="replace_fragment_dialog">
+    <property name="title" translatable="yes">Coot: Replace Fragment</property>
+    <signal name="response" handler="on_replace_fragment_dialog_response" swapped="no"/>
+    <child>
+      <object class="GtkBox">
+        <property name="spacing">6</property>
+        <property name="orientation">vertical</property>
+        <property name="margin-start">6</property>
+        <property name="margin-end">6</property>
+        <property name="margin-bottom">6</property>
+        <property name="margin-top">6</property>
+
+        <child>
+          <object class="GtkLabel">
+            <property name="label" translatable="yes">Copy From Molecule:</property>
+            <property name="halign">start</property>
+          </object>
+        </child>
+
+        <child>
+          <object class="GtkComboBoxText" id="replace_fragment_from_molecule_combobox">
+          </object>
+        </child>
+
+        <child>
+          <object class="GtkBox">
+            <property name="orientation">horizontal</property>
+            <property name="spacing">6</property>
+
+            <child>
+              <object class="GtkLabel">
+                <property name="label" translatable="yes"> Atom Selection for Fragment  </property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkEntry" id="replace_fragment_atom_selection_entry">
+                <property name="placeholder_text" translatable="yes">//A/1-10</property>
+              </object>
+            </child>
+          </object>
+        </child>
+
+	<child>
+	  <object class="GtkLabel">
+	    <property name="label" translatable="yes">Copy Into Molecule:</property>
+            <property name="halign">start</property>
+	  </object>
+	</child>
+
+        <child>
+          <object class="GtkComboBoxText" id="replace_fragment_to_molecule_combobox">
+          </object>
+        </child>
+
+        <child>
+          <object class="GtkBox">
+            <property name="orientation">horizontal</property>
+            <property name="spacing">6</property>
+            <property name="halign">end</property>
+            <child>
+              <object class="GtkButton" id="replace_fragment_cancel_button">
+                <property name="label" translatable="yes"> Cancel </property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="replace_fragment_ok_button">
+                <property name="label" translatable="yes">Copy Fragment</property>
+                <style>
+                  <class name="suggested-action"/>
+                </style>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+    <action-widgets>
+      <action-widget response="-6">replace_fragment_cancel_button</action-widget>
+      <action-widget response="-5">replace_fragment_ok_button</action-widget>
+    </action-widgets>
+  </object>
+
   <object class="GtkDialog" id="delete_item_dialog">
     <property name="title" translatable="yes">Delete item</property>
     <child>

@@ -1725,7 +1725,7 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 	 }
          // std::cout << "INFO:: finding ASU unique map points with sampling rate "
          //           << map_sampling_rate	<< std::endl;
-         logger.log(log_t::INFO, "finding ASU unique map points with sampling rate %f", map_sampling_rate);
+         logger.log(log_t::INFO, "finding ASU unique map points with sampling rate:", map_sampling_rate);
          clipper::Grid_sampling gs(fphidata.spacegroup(),
                                    fphidata.cell(),
                                    fft_reso,
