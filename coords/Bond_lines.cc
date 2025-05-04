@@ -8608,7 +8608,14 @@ Bond_lines_container::add_atom_centres(int imol,
             // because the add_bond function doesn't take a "thin" flag
             // (thinning is only currently done by bond colour)
             //
-            if (std::string(at->residue->GetResName()) == "HOH") gbai.is_water = true;
+	    mmdb::Residue *r = at->residue;
+	    if (r) {
+	       const char *rn = r->GetResName();
+	       if (rn) {
+		  std::string res_name = r->GetResName();
+		  if (res_name == "HOH") gbai.is_water = true;
+	       }
+	    }
             if (is_H_flag) gbai.is_hydrogen_atom = true;
             gbai.atom_p = at;
             if (atom_colour_type == coot::COLOUR_BY_B_FACTOR)
