@@ -304,6 +304,11 @@ coot::util::slurp_parse_xmap_data(char *data,
             return false;
 	 } else {
 	    std::cout << "debug:: " << s << " does not start with PANDDA::" << std::endl;
+	    if (s.length() >= 16) {
+	       if (s.substr(0,16) == "APPLY-SYMMETRY::") {
+		     return false;
+	       }
+	    }
 	 }
       }
    }
