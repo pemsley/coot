@@ -1,11 +1,8 @@
 
 --- Items ---
 
-o Close button on restraints editor doesn't work. ::: 1
-
-o Depythonize Replace Fragment ::: 1
-
 o Fix the "Fetch" buttons - new GTK4/glib? ::: 2
+
 
 o WTA carbohydrate ::: 6
 
@@ -23,6 +20,9 @@ o What is going wrong with Chemical Features? ::: 1
 
 o plug a mouse into the map and do middle-mouse drag for translation
   (and check ctrl-left-mouse) ::: 1
+
+o write a blog-post for "APPLY-SYMMETRY::" label
+  and up date the documentation.
 
 --- Other Items ---
 
@@ -45,6 +45,10 @@ o  It was a strange bit of code in get_group().
    Solved now? Am I using the right version?
 
 --- Done Items ---
+
+o Close button on restraints editor doesn't work. ::: 0.5
+
+o Depythonize Replace Fragment ::: 1
 
 o Thierry Fischmann mail ::: 3
 * Done.
