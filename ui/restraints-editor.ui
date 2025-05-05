@@ -307,7 +307,7 @@
             <child>
               <object class="GtkButton" id="restraints_editor_apply_button">
                 <property name="label" translatable="yes">Apply</property>
-                <property name="visible">True</property>
+                <property name="visible">False</property> <!-- we can't edit restraints yet -->
                 <property name="margin-top">4</property>
                 <property name="margin-bottom">4</property>
                 <property name="margin-start">6</property>

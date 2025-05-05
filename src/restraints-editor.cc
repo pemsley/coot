@@ -1552,15 +1552,10 @@ void
 on_restraints_editor_close_button_clicked(GtkButton       *button,
                                           gpointer         user_data) {
 
-   std::cout << "closebuttonclicked" << std::endl;
+   std::cout << "debug:: restraints editor close button clicked" << std::endl;
+   GtkWidget *dialog = GTK_WIDGET(g_object_get_data(G_OBJECT(button), "restraints_editor_dialog"));
+   gtk_widget_set_visible(dialog, FALSE);
 
-   graphics_info_t g;
-   coot::restraints_editor re = g.get_restraints_editor(GTK_WIDGET(button));
-   if (re.is_valid()) {
-      GtkWidget *dialog = re.get_dialog();
-      if (dialog)
-         gtk_widget_set_visible(dialog, FALSE);
-   }
 }
 
 extern "C" G_MODULE_EXPORT
@@ -1568,9 +1563,11 @@ void
 on_restraints_editor_apply_button_clicked(GtkButton       *button,
                                           gpointer         user_data) {
 
-   std::cout << "applybuttonclicked" << std::endl;
-   GtkWidget *w = widget_from_builder("restraints_editor_dialog");
-   apply_restraint_by_widget(w);
-   gtk_widget_set_visible(w, FALSE);
+   std::cout << "debug:: restraints editor apply button clicked" << std::endl;
+   graphics_info_t g;
+   coot::restraints_editor re = g.get_restraints_editor(GTK_WIDGET(button));
+
+   // apply_restraint_by_widget(w);
+   // gtk_widget_set_visible(w, FALSE);
 
 }
