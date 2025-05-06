@@ -173,7 +173,8 @@ check_PROGRAMS = test-h-bonds testshelxreader test-hole test-elastic \
 		 test-cod-atom-types dictionary-atom-types cod-db-access \
 		 test-5-residue-fragments test-diff-diff-map-peaks \
 		 make-cablam-like-stats test-cod-atom-types-from-sm-cif test-parse-pisa \
-		 test-coot-utils test-pae test-q-score servalcat-tracker test-zd test-grid-balls
+		 test-coot-utils test-pae test-q-score servalcat-tracker test-zd test-grid-balls \
+		 test-dirichlet-process
 
 # wrong build order - delete from make check for now.
 # test-emma test-convolute test-coot-utils test-segmap
@@ -227,6 +228,9 @@ test_parse_pisa_LDADD = \
 test_pae_SOURCES = test-pae.cc
 test_pae_LDADD = \
 	./libcoot-coord-utils.la
+
+test_dirichlet_process_SOURCES = test-dirichlet-process.cc
+test_dirichlet_process_LDADD = $(top_builddir)/utils/libcoot-utils.la
 
 testshelxreader_SOURCES = test-shelx-reader.cc
 testshelxreader_LDADD =  ./libcoot-coord-utils.la    \
