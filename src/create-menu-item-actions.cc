@@ -2987,10 +2987,12 @@ void add_other_solvent_molecules_action(G_GNUC_UNUSED GSimpleAction *simple_acti
 	    c_accept_moving_atoms();
 	    delete_hydrogen_atoms(imol_ligand);
 	    int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(b), "imol"));
-	    std::vector<atom_selection_container_t> add_molecules_at_sels;
-	    add_molecules_at_sels.push_back(g.molecules[imol_ligand].atom_sel);
-	    g.molecules[imol].merge_molecules(add_molecules_at_sels);
-	    close_molecule(imol_ligand);
+	    if (g.is_valid_model_molecule(imol)) {
+	       std::vector<atom_selection_container_t> add_molecules_at_sels;
+	       add_molecules_at_sels.push_back(g.molecules[imol_ligand].atom_sel);
+	       g.molecules[imol].merge_molecules(add_molecules_at_sels);
+	       close_molecule(imol_ligand);
+	    }
 	 }
       }
    };
