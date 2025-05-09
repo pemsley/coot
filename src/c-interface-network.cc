@@ -93,7 +93,7 @@ int coot_curl_progress_callback(void *clientp,
    if(dltotal == 0) {
       dltotal++;
    }
-   g_debug("Inside coot_curl_progress_callback(); dlnow=%li, dltotal=%li", dlnow, dltotal);
+   // g_debug("Inside coot_curl_progress_callback(); dlnow=%li, dltotal=%li", dlnow, dltotal);
    notifier_ptr->update_progress((float)dlnow/(float)dltotal);
    return 0;
 }
