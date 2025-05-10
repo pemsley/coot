@@ -5199,3 +5199,4 @@ coot::molecule_t::set_temperature_factors_using_cid(const std::string &cid, floa
       atom_sel.mol->DeleteSelection(selHnd);
    }
 }
+

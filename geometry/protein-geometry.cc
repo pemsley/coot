@@ -321,7 +321,7 @@ coot::operator<<(std::ostream &s, const dict_atom &at) {
       s << "partial-charge " << at.partial_charge.second << " ";
    else 
       s << "no-partial-charge ";
-   s << "model-pos " << at.model_Cartn.first << " ";
+   s << "\n      model-pos " << at.model_Cartn.first << " ";
    if (at.model_Cartn.first)
       s << at.model_Cartn.second.format() << " ";
    s << "ideal-pos " << at.pdbx_model_Cartn_ideal.first << " ";
@@ -722,7 +722,7 @@ coot::protein_geometry::try_dynamic_add(const std::string &resname, int read_num
 	    const char rs = resname[0];
 	    const char v = tolower(rs); // get the sub directory name
 	    std::string letter(1, v);
-	    std::filesystem::path sub_dir = ch / letter;
+	    std::filesystem::path sub_dir = monomers_path / letter;
 	    if (std::filesystem::exists(sub_dir)) {
 	       std::string cif_file_name = resname + ".cif";
 	       std::filesystem::path cif_file_path = sub_dir / cif_file_name;

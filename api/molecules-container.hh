@@ -888,6 +888,9 @@ public:
    std::map<std::string, std::string>
    dictionary_atom_name_map(const std::string &comp_id_1, int imol_1, const std::string &comp_id_2, int imol_2);
 
+   //! get types
+   std::vector<std::string> get_types_in_molecule(int imol) const;
+
    // 20221030-PE nice to have one day:
    // int get_monomer_molecule_by_network_and_dict_gen(const std::string &text);
 
@@ -1435,7 +1438,8 @@ public:
    //!
    //! @param imol_ref the reference model molecule index
    //! @param imol_mov the moving model molecule index
-   void lsq_superpose(int imol_ref, int imol_mov);
+   //! @return the success status, i.e. whether or not there were enough atoms to superpose
+   bool lsq_superpose(int imol_ref, int imol_mov);
 
    //! Transform a map and create a new map
    //!

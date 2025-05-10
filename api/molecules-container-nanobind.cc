@@ -342,6 +342,7 @@ NB_MODULE(coot_headless_api, m) {
     .def("get_svg_for_residue_type",&molecules_container_t::get_svg_for_residue_type)
     .def("get_symmetry",&molecules_container_t::get_symmetry)
     .def("get_torsion",&molecules_container_t::get_torsion)
+    .def("get_types_in_molecule",&molecules_container_t::get_types_in_molecule)
     .def("get_torsion_restraints_weight",&molecules_container_t::get_torsion_restraints_weight)
     .def("get_triangles_for_blender", &molecules_container_t::get_triangles_for_blender)
     .def("get_use_gemmi",&molecules_container_t::get_use_gemmi)

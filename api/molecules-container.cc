@@ -5632,14 +5632,379 @@ molecules_container_t::mmcif_tests(bool last_test_only) {
 
 }
 
+#include <GraphMol/MolChemicalFeatures/MolChemicalFeature.h>
+#include <GraphMol/MolChemicalFeatures/MolChemicalFeatureFactory.h>
+#include "coot-utils/dirichlet-process.hh"
+#include "coot-utils/json.hpp"
 
 void
 molecules_container_t::test_function(const std::string &s) {
 
-   // test pyrogen here.
+   // test cfc here.
 
+   auto find_residue_near_ligand_site = [] (mmdb::Manager *mol) {
+
+      std::vector<std::string> boring = {"ALA", "ARG", "ASN", "ASP", "CYS", "GLN", "GLU", "GLY",
+					 "HIS", "ILE", "LEU", "LYS", "MET", "PHE", "PRO", "SER",
+					 "THR", "TRP", "TYR", "VAL", "HOH", "GOL", "EDO", "MES", "NA"};
+
+      clipper::Coord_orth pt_ref(15,40,30);
+      double best_close = 5.0; // A = ligand need to be closer than this.
+      mmdb::Residue *r = nullptr;
+      for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+	 mmdb::Model *model_p = mol->GetModel(imod);
+	 if (model_p) {
+	    int n_chains = model_p->GetNumberOfChains();
+	    for (int ichain=0; ichain<n_chains; ichain++) {
+	       mmdb::Chain *chain_p = model_p->GetChain(ichain);
+	       int n_res = chain_p->GetNumberOfResidues();
+	       for (int ires=0; ires<n_res; ires++) {
+		  mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+		  if (residue_p) {
+		     std::string rn = residue_p->GetResName();
+		     if (std::find(boring.begin(), boring.end(), rn) == boring.end()) {
+			auto rc = coot::util::get_residue_centre(residue_p);
+			if (rc.first) {
+			   double dd = (rc.second - pt_ref).lengthsq();
+			   double d = std::sqrt(dd);
+			   if (d < best_close) {
+			      d = best_close;
+			      r = residue_p;
+			   }
+			}
+		     }
+		  }
+	       }
+	    }
+	 }
+      }
+      return r;
+   };
+
+   auto file_to_string = [] (const std::string &file_name) {
+
+      std::string s;
+      std::string line;
+      std::ifstream f(file_name.c_str());
+      if (!f) {
+	 std::cout << "WARNING:: file_to_string(): Failed to open " << file_name << std::endl;
+      } else {
+	 while (std::getline(f, line)) {
+	    s += line;
+	    s += "\n";
+	 }
+      }
+      return s;
+   };
+
+   class feature_info_t {
+   public:
+      std::string family;
+      std::string type;
+      int imol;
+      coot::residue_spec_t residue_spec;
+      RDGeom::Point3D pos;
+      feature_info_t(const std::string &f, const std::string &t, int imol_in,
+		     const coot::residue_spec_t &rs, const RDGeom::Point3D &p) :
+	 family(f), type(t), imol(imol_in), residue_spec(rs), pos(p) {}
+   };
+
+   class typed_cluster_t {
+   public:
+      std::string family;
+      std::string type;
+      int idx;
+      RDGeom::Point3D pos;
+      std::vector<int> imols; // maybe need residue specs too
+      typed_cluster_t(const std::string &f, const std::string &t, int idx) :
+	 family(f), type(t), idx(idx) {}
+      void add_imol(int imol) { imols.push_back(imol); }
+   };
+
+   // pass the feature factory rather than reading the BaseFeatures.fdef file
+   // every time.
+   auto chemical_features = [file_to_string] (mmdb::Residue *residue_p,
+					      int imol,
+					      int imol_enc,
+					      const coot::protein_geometry &geom) {
+
+      std::vector<feature_info_t> feature_infos; // for this residue
+      try {
+
+	 std::cout << "   Chemical features for " << coot::residue_spec_t(residue_p) << std::endl;
+
+	 RDKit::RWMol m =coot::rdkit_mol_sanitized(residue_p, imol_enc, geom);
+	 int n_atoms = m.getNumHeavyAtoms();
+	 std::cout << "   rdkit mol m has " << n_atoms << " (non-hydrogen) atoms" << std::endl;
+	 if (n_atoms > 0) {
+
+	    int n_conf = m.getNumConformers();
+	    if (n_conf > 0) {
+	       int iconf = 0;
+	       RDKit::Conformer &conf = m.getConformer(iconf);
+	       // now interrogate the conformer
+	       if (false) {
+		  std::cout << "   Conformer " << iconf << " has " << conf.getNumAtoms()
+			    << " atoms" << std::endl;
+		  for (int i=0; i<conf.getNumAtoms(); i++) {
+		     RDKit::Atom *at = m.getAtomWithIdx(i);
+		     RDGeom::Point3D pos = conf.getAtomPos(i);
+		     std::cout << "   atom " << i << " " << at->getIdx() << " "
+			       << at->getSymbol() << " " << at->getAtomicNum() << " "
+			       << at->getFormalCharge() << " " << at->getIsotope() << " "
+			       << at->getHybridization() << " " << at->getDegree() << " "
+			       << at->getTotalNumHs() << " " << at->getIsAromatic() << " "
+			       << "pos " << pos << std::endl;
+		  }
+	       }
+	    }
+
+	    std::string feature_data_file_name = "BaseFeatures.fdef"; // from rdkit/Data/BaseFeatures.fdef
+	    std::string feature_data_string = file_to_string(feature_data_file_name);
+	    RDKit::MolChemicalFeatureFactory *factory = RDKit::buildFeatureFactory(feature_data_string);
+
+	    RDKit::FeatSPtrList features = factory->getFeaturesForMol(m);
+	    std::cout << "DEBUG:: Found " << features.size() << " features" << std::endl;
+	    if (features.empty()) {
+	       std::string residue_name = residue_p->GetResName();
+	       std::cout << "INFO:: -- boo! no features found for a " << residue_name
+			 << " (surprising)" << std::endl;
+	    } else {
+	       coot::residue_spec_t res_spec(residue_p);
+	       for (const auto &feature : features) {
+		  std::cout << "Feature: " << feature->getFamily() << " " << feature->getType()
+			    << " at pos " << feature->getPos() << std::endl;
+		  feature_info_t fi(feature->getFamily(), feature->getType(), imol, res_spec, feature->getPos());
+		  feature_infos.push_back(fi);
+	       }
+	    }
+
+	 } else {
+	    mmdb::Atom **residue_atoms = 0;
+	    int n_residue_atoms = 0;
+	    residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+	    for (int iat=0; iat<n_residue_atoms; iat++) {
+	       mmdb::Atom *at = residue_atoms[iat];
+	       if (! at->isTer()) {
+		  std::cout << "   " << iat << " " << coot::atom_spec_t(at) << std::endl;
+	       }
+	    }
+	 }
+      }
+      catch (const std::runtime_error &rte) {
+	 std::cout << "ERROR:: " << rte.what() << std::endl;
+      }
+      return feature_infos;
+   };
+
+   auto make_test_points = [] (const std::vector<feature_info_t> &v) {
+      std::vector<glm::vec3> points;
+      for (const auto &fi : v) {
+	 glm::vec3 p(fi.pos.x, fi.pos.y, fi.pos.z);
+	 points.push_back(p);
+      }
+      return points;
+   };
+
+   auto get_n_clusters = [] (std::vector<unsigned int> &clustered_points) {
+      std::set<int> cluster_indices;
+      for (const auto &c : clustered_points) {
+	 cluster_indices.insert(c);
+      }
+      return cluster_indices.size();
+   };
+
+   auto split_string = [] (const std::string &s, const std::string &delim) {
+      std::pair<std::string, std::string> p;
+      size_t pos = s.find(delim);
+      if (pos != std::string::npos) {
+	 p.first = s.substr(0, pos);
+	 p.second = s.substr(pos + delim.length());
+      }
+      return p;
+   };
+
+   auto cluster_features = [make_test_points, get_n_clusters, split_string]
+      (const std::vector<feature_info_t> &feature_infos) {
+
+      std::vector<typed_cluster_t> typed_clusters;
+      if (false) {
+	 for (const auto &fi : feature_infos) {
+	    std::cout << "fi " <<fi.family << " " << fi.type << " " << fi.imol
+		      << " " << fi.residue_spec << " " << fi.pos << std::endl;
+	 }
+      }
+
+      std::map<std::string, std::vector<feature_info_t> > feature_info_map;
+
+      for (const auto &fi : feature_infos) {
+	 std::string key = fi.family + "_" + fi.type;
+	 feature_info_map[key].push_back(fi);
+      }
+
+      if (true) {
+	 for (const auto &pair : feature_info_map) {
+	    std::string key = pair.first;
+	    std::cout << "for key: " << key << ": imols: ";
+	    const std::vector<feature_info_t> &v = pair.second;
+	    for (const auto &fi : v) {
+	       std::cout << fi.imol << " ";
+	    }
+	    std::cout << std::endl;
+	 }
+      }
+
+      for (const auto &pair : feature_info_map) {
+	 std::string key = pair.first;
+	 const std::vector<feature_info_t> &vv = pair.second;
+	 double alpha = 2.0;
+	 double beta  = 0.01; // 0.03;
+	 std::vector<glm::vec3> v = make_test_points(vv);
+	 DirichletProcessClustering dpc(alpha, beta);
+	 std::vector<unsigned int> clustered_points = dpc.fit(v);
+	 unsigned int n_clusters = get_n_clusters(clustered_points);
+	 std::cout << "   Cluster " << key << " had " << n_clusters << " clusters" << std::endl;
+	 std::pair<std::string, std::string> p = split_string(key, "_");
+	 std::string family = p.first;
+	 std::string type   = p.second;
+	 for (unsigned int iclust=0; iclust<n_clusters; iclust++) {
+	    typed_cluster_t tc(family, type, iclust);
+	    RDGeom::Point3D pos_sum = RDGeom::Point3D(0,0,0);
+	    for (unsigned int i_feat_info=0; i_feat_info<vv.size(); i_feat_info++) {
+	       if (clustered_points[iclust] == i_feat_info) {
+		  const feature_info_t &fi = vv[i_feat_info];
+		  int imol_feat = fi.imol;
+		  if (std::find(tc.imols.begin(), tc.imols.end(), imol_feat) == tc.imols.end()) {
+		     tc.add_imol(imol_feat);
+		     pos_sum += fi.pos;
+		  }
+	       }
+	       unsigned int n_contributors = tc.imols.size();
+	       if (n_contributors > 0) {
+		  pos_sum /= static_cast<double>(n_contributors);
+		  tc.pos = pos_sum;
+	       }
+	    }
+	    typed_clusters.push_back(tc);
+	 }
+      }
+
+      if (true) {
+	 for (const auto &tc : typed_clusters) {
+	    std::cout << "typed_cluster: " << tc.family << " " << tc.type
+		      << " cluster-index: " << tc.idx << " imols: ";
+	    for (const auto &imol : tc.imols) {
+	       std::cout << imol << " ";
+	    }
+	    std::cout << " at " << tc.pos << std::endl;
+	 }
+      }
+      
+      return typed_clusters;
+   };
+
+   auto output_clusters = [] (const std::vector<typed_cluster_t> &typed_clusters) {
+
+      // create a json string using nlohmann::json
+
+      nlohmann::json j;
+      for (const auto &tc : typed_clusters) {
+	 nlohmann::json j_cluster;
+	 j_cluster["family"] = tc.family;
+	 j_cluster["type"]   = tc.type;
+	 j_cluster["idx"]    = tc.idx;
+	 nlohmann::json j_imols = nlohmann::json::array();
+	 for (const auto &imol : tc.imols) {
+	    nlohmann::json j_imol_and_res_spec;
+	    j_imol_and_res_spec["imol"] = imol;
+	    j_imol_and_res_spec["chain_id"] = "A";
+	    j_imol_and_res_spec["res_no"] = 66;
+	    j_imols.push_back(j_imol_and_res_spec);
+	 }
+	 j_cluster["imols"] = j_imols;
+	 j_cluster["pos"] = {tc.pos.x, tc.pos.y, tc.pos.z};
+	 j["clusters"].push_back(j_cluster);
+      }
+      std::string sjson = j.dump(4);
+      // now write sjson to a file
+      std::string fn = "clusters.json";
+      std::ofstream f(fn.c_str());
+      if (!f) {
+	 std::cout << "ERROR:: output_clusters(): Failed to open " << fn << std::endl;
+      } else {
+	 f << sjson;
+	 std::cout << "DEBUG:: output_clusters(): wrote " << fn << std::endl;
+      }
+      
+   };
+
+   std::vector<std::pair<std::string, std::string> > mol_info =
+      { std::pair("brd1/5PB8.pdb", "AC6"),
+	std::pair("brd1/5PB9.pdb", "53C"),
+	std::pair("brd1/5POW.pdb", "8UA"),
+	std::pair("brd1/5PBF.pdb", "8HJ"),
+	std::pair("brd1/5PBD.pdb", "TYZ"),
+	std::pair("brd1/5PBE.pdb", "TYL"),
+	std::pair("brd1/5PBA.pdb", "53B"),
+	std::pair("brd1/5PB7.pdb", "8H4"),
+	std::pair("brd1/5PBB.pdb", "ES1"),
+	std::pair("brd1/5PBC.pdb", "ES3")};
+
+   // mol_info.resize(2); // debugging
+
+   std::vector<std::pair<int, std::string> > imols;
+   for (const auto &m : mol_info) {
+      std::string fn = m.first;
+      int imol = read_coordinates(fn);
+      imols.push_back(std::make_pair(imol, m.second));
+   }
+
+   std::vector<feature_info_t> feature_infos;
+   if (! imols.empty()) {
+
+      add_lsq_superpose_match("A", 1939, 1946, "A", 1939, 1946, 1);
+      add_lsq_superpose_match("A", 1950, 1952, "A", 1950, 1952, 1);
+      add_lsq_superpose_match("A", 1900, 1902, "A", 1900, 1902, 1);
+
+      int imol_ref = imols[0].first;
+      int imol_enc = get_imol_enc_any();
+      for (unsigned int i=0; i<imols.size(); i++) {
+	 if (i == 0) {
+	 } else {
+	    int imol_mov = imols[i].first;
+	    std::cout << "info:: superposing ref: " << imol_ref << " mov: " << imol_mov << std::endl;
+	    bool lsq_status = lsq_superpose(imol_ref, imol_mov);
+
+	    if (lsq_status || i == 0) {
+	       int imol = imols[i].first;
+	       mmdb::Manager *mol = get_mol(imol);
+	       if (mol) {
+		  mmdb::Residue *residue_p = find_residue_near_ligand_site(mol);
+		  if (residue_p) {
+		     std::string rn = residue_p->GetResName();
+		     std::cout << "found " << imol << " " << coot::residue_spec_t(residue_p)
+			       << " " << rn << std::endl;
+		     auto new_chemical_features = chemical_features(residue_p, imol, imol_enc, geom);
+		     for (const auto &fi : new_chemical_features) {
+			feature_infos.push_back(fi);
+		     }
+		  } else {
+		     std::cout << "ERROR:: no residue found near ligand site" << std::endl;
+		  }
+	       } else {
+		  std::cout << "ERROR:: no mol found for imol " << imol << std::endl;
+	       }
+	    }
+	 }
+      }
+   }
+
+   unsigned int n_features = feature_infos.size();
+   std::cout << "DEBUG:: found a total of " << n_features << " features" << std::endl;
+
+   std::vector<typed_cluster_t> typed_clusters = cluster_features(feature_infos);
+   output_clusters(typed_clusters);
 }
-
 
 
 //! @return a vector of string pairs that were part of a gphl_chem_comp_info.
@@ -6484,10 +6849,24 @@ molecules_container_t::get_distances_between_atoms_of_residues(int imol,
 							       float dist_max) const {
   std::vector<coot::atom_distance_t> v;
   if (is_valid_model_molecule(imol)) {
-    v = molecules[imol].get_distances_between_atoms_of_residues(cid_res_1, cid_res_2, dist_max);
+     v = molecules[imol].get_distances_between_atoms_of_residues(cid_res_1, cid_res_2, dist_max);
   } else {
-    std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+     std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
   }
 
   return v;
+}
+
+
+std::vector<std::string>
+molecules_container_t::get_types_in_molecule(int imol) const {
+
+   std::vector<std::string> v;
+   if (is_valid_model_molecule(imol)) {
+      v = molecules[imol].get_types_in_molecule();
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return v;
+
 }
