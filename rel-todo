@@ -1,8 +1,18 @@
 
 --- Items ---
 
+o Fix Add Other Solvent Molecule dialog
+
+o Get Monomer asks to download LZA from github despite
+  having downloaded it yesterday.
+
+o ctrl scroll for zoom
+
 o Fix the "Fetch" buttons - new GTK4/glib? ::: 2
 
+o Moorhen get monomer: needs
+ -  "read dictionary" or "import an enw molecule for this ligand" choice
+ - Also, not clear what is happening when there is no internet when the "OK" button is pressed.
 
 o WTA carbohydrate ::: 6
 
