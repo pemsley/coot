@@ -29,21 +29,22 @@ c/CLR.cif               g/GOL.cif               n/NH2.cif               v/VAL.ci
 c/CME.cif               g/GTP.cif               n/NI.cif                z/ZN.cif  \
 c/CO.cif                h/HEC.cif               n/NO3.cif \
 c/COA.cif               h/HEM.cif               o/OMG.cif \
-c/CSO.cif               h/HIS.cif               p/PCA.cif
+c/CSO.cif               h/HIS.cif               p/PCA.cif \
+b/BTB.cif               e/EBE.cif               p/PE8.cif               t/TAM.cif
 
 install-data-local:
 	if test -d $(srcdir); then \
 	   mkdir $(DESTDIR)/$(pkgdatadir)/lib/data/monomers; \
-           for cif_dir in $(srcdir)/* ; \
-               do \
+           for cif_dir in $(srcdir)/* ; do \
                l_cif_dir=$$(basename $$cif_dir) ; \
-               if test -d l_cif_dir ; then \
-	           $(MKDIR_P) $(DESTDIR)/$(pkgdatadir)/lib/data/monomers/$$l_cif_dir ; \
-	           for cif_file in $$cif_dir/*.cif ; do \
-                       if test -e $$cif_file ; then \
-		           cp $$cif_file $(DESTDIR)/$(pkgdatadir)/lib/data/monomers/$$l_cif_dir ; \
-		       fi \
-                       done ; \
-               fi \
-               done \
+               if test -d $(DESTDIR)/$(pkgdatadir)/lib/data/monomers/$$l_cif_dir ; then \
+                   echo found $(DESTDIR)/$(pkgdatadir)/lib/data/monomers/$$l_cif_dir ; \
+               else \
+                   mkdir $(DESTDIR)/$(pkgdatadir)/lib/data/monomers/$$l_cif_dir ; \
+               fi ; \
+               for cif_file in $$cif_dir/*.cif ; do \
+                   cp $$cif_file $(DESTDIR)/$(pkgdatadir)/lib/data/monomers/$$l_cif_dir ; \
+                   done ; \
+               done ; \
         fi
+
