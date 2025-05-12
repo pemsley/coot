@@ -55,7 +55,7 @@ void chemical_feature_clusters_accept_info_py(unsigned int site_number,
 
 PyObject *chemical_feature_clusters_accept_site_clusters_info_py(PyObject *site_info_py);
 
-namespace cfc {
+namespace pythonic_cfc {
 
    // the water cluster spec
    //

@@ -147,7 +147,7 @@ coot_wrap_guile_pre.cc:      $(top_srcdir)/src/c-interface.h    \
                              $(top_srcdir)/src/c-interface-refine.hh \
                              $(top_srcdir)/src/c-interface-ligands-swig.hh \
                              $(top_srcdir)/src/c-interface-generic-objects.h \
-                             $(top_srcdir)/src/cfc.hh \
+                             $(top_srcdir)/src/pythonic-cfc.hh \
                              $(top_srcdir)/src/curlew.h \
                              $(top_srcdir)/src/curlew.hh \
                              $(top_srcdir)/src/validation.hh \
@@ -176,7 +176,7 @@ coot_wrap_python_pre.cc: $(top_srcdir)/src/c-interface.h      \
                          $(top_srcdir)/src/c-interface-refine.hh \
                          $(top_srcdir)/src/c-interface-ligands-swig.hh \
                          $(top_srcdir)/src/c-interface-generic-objects.h \
-                         $(top_srcdir)/src/cfc.hh \
+                         $(top_srcdir)/src/pythonic-cfc.hh \
                          $(top_srcdir)/src/curlew.h \
                          $(top_srcdir)/src/curlew.hh \
                          $(top_srcdir)/src/validation.hh \
@@ -512,7 +512,7 @@ libcootsumo_la_SOURCES = \
 	cc-interface-user-defined-atom-colours.cc \
 	cc-interface-molecular-representation.hh  \
 	canvas-fixes.hh          \
-	cfc.cc cfc.hh            \
+	pythonic-cfc.cc pythonic-cfc.hh            \
 	cfc-widgets.hh           \
 	cfc-widgets-c-interface.h \
 	change-dir.cc		 \
