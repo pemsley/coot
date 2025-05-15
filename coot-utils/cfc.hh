@@ -13,10 +13,10 @@ namespace cfc {
 
    class input_info_t {
    public:
-      int imol;
       mmdb::Manager *mol;
+      int imol;
       std::string res_name;
-      input_info_t(int mol, std::string res) : imol(mol), res_name(res) {}
+      input_info_t(mmdb::Manager *mol, int imol, const std::string &rn) : mol(mol), imol(imol), res_name(rn) {}
    };
 
    class typed_cluster_t {
@@ -30,6 +30,16 @@ namespace cfc {
 	 family(f), type(t), idx(idx) {}
       void add_imol(int imol, const coot::residue_spec_t &rs) {
 	 imols_with_specs.push_back(std::make_pair(imol, rs)); }
+      bool imol_is_part_of_cluster(int imol_in) const {
+	 bool state = false;
+	 for (const auto &item : imols_with_specs) {
+	    if (item.first == imol_in) {
+	       state = true;
+	       break;
+	    }
+	 }
+	 return state;
+      }
    };
 
    class water_info_t {

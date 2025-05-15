@@ -58,9 +58,9 @@
 //   list mol_no ligand_spec
 // which, with radius will be used to find the waters
 // 
-PyObject *chemical_feature_clusters_py(PyObject *environment_residues_py,
-				       PyObject *solvated_ligand_info_py, // [imol, ligand-specs]s
-				       double radius_1, double radius_2) {
+PyObject *old_chemical_feature_clusters_py(PyObject *environment_residues_py,
+					   PyObject *solvated_ligand_info_py, // [imol, ligand-specs]s
+					   double radius_1, double radius_2) {
 
    std::cout << "debug:: ################ chemical_feature_clusters_py() start" << std::endl;
 

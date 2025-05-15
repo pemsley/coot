@@ -1744,6 +1744,8 @@ public:        //                      public
 							   mmdb::realtype alignment_wspace,
 							   bool is_nucleic_acid_flag = false) const;
 
+   std::vector<std::string> get_types_in_molecule() const;
+
 
    //
    graphical_bonds_container make_environment_bonds_box(int atom_index,

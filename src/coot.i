@@ -65,6 +65,7 @@
 #include "cc-interface-alignment.hh"
 #include "init_coot_as_python_module.hh"
 #include "curl-utils.hh"
+#include "cfc-2025.hh"
 #include "M2T-interface.hh"
 #ifdef USE_MOLECULES_TO_TRIANGLES
 #include "cc-interface-molecular-representation.hh"
@@ -142,6 +143,7 @@ namespace std {
 %include "curl-utils.hh"
 %include "M2T-interface.hh"
 %include "cc-interface-alignment.hh"
+%include "cfc-2025.hh"
 
 // # ignore some functions with c++ objects
 %ignore rigid_body_fit_with_residue_range();

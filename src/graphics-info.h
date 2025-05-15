@@ -177,6 +177,8 @@ enum { N_ATOMS_MEANS_BIG_MOLECULE = 400 };
 
 #include "labelled-button-info.hh"
 
+#include "cfc-gui.hh"
+
 #ifdef USE_BACKWARD
 #include <utils/backward.hpp>
 #endif
@@ -4555,6 +4557,9 @@ string   static std::string sessionid;
    void undisplay_all_model_molecules_except(int imol);
    void undisplay_all_model_molecules_except(const std::vector<int> &keep_these);
    static GtkWidget *cfc_dialog;
+
+   // new CFC - can scrap the above when this works:
+   static cfc_gui_t cfc_gui;
 
    static bool do_intermediate_atoms_rama_markup; // true
    static bool do_intermediate_atoms_rota_markup; // false

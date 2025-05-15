@@ -11842,3 +11842,9 @@ Wed 23 Apr 2025 06:43:12 -03
        GtkWidget *outer_vbox = widget_from_builder("dialog-vbox78");
        gtk_widget_set_visible(outer_vbox,   TRUE);
 
+
+----
+Mon 12 May 2025 09:35:29 CEST
+
+   proteopedia can use chapi?
+   

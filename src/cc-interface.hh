@@ -663,6 +663,8 @@ std::vector<std::string> dictionary_entries();
 //! debug dictionary information
 void debug_dictionary();
 
+std::vector<std::string> get_types_in_molecule(int imol);
+
 #ifdef USE_PYTHON
 #else
 // This function can throw an exception - so don't

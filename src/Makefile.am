@@ -515,6 +515,10 @@ libcootsumo_la_SOURCES = \
 	pythonic-cfc.cc pythonic-cfc.hh            \
 	cfc-widgets.hh           \
 	cfc-widgets-c-interface.h \
+	cfc-2025.cc              \
+	cfc-2025.hh              \
+	cfc-gui.cc               \
+	cfc-gui.hh               \
 	change-dir.cc		 \
 	change-dir.hh		 \
 	cmtz-interface-gui.hh	 \

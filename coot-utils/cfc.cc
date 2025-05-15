@@ -11,9 +11,15 @@
 #include "cfc.hh"
 #include "lidia-core/rdkit-interface.hh"
 
+#include "utils/logging.hh"
+extern logging logger;
+
+
 std::pair<std::vector<cfc::typed_cluster_t>, std::vector<std::vector<cfc::water_info_t> > >
 cfc::chemical_feature_clustering(const std::vector<cfc::input_info_t> &mol_infos,
 				 const coot::protein_geometry &geom) {
+
+   // send pt_ref also
 
    auto find_residue_near_ligand_site = [] (mmdb::Manager *mol,
 					    const clipper::Coord_orth &pt_ref) {
@@ -76,6 +82,7 @@ cfc::chemical_feature_clustering(const std::vector<cfc::input_info_t> &mol_infos
       std::string type;
       int imol;
       coot::residue_spec_t residue_spec;
+      std::string residue_name;
       RDGeom::Point3D pos;
       feature_info_t(const std::string &f, const std::string &t, int imol_in,
 		     const coot::residue_spec_t &rs, const RDGeom::Point3D &p) :
@@ -177,6 +184,7 @@ cfc::chemical_feature_clustering(const std::vector<cfc::input_info_t> &mol_infos
 		  std::cout << "Feature: " << feature->getFamily() << " " << feature->getType()
 			    << " at pos " << feature->getPos() << std::endl;
 		  feature_info_t fi(feature->getFamily(), feature->getType(), imol, res_spec, feature->getPos());
+		  fi.residue_name = residue_p->GetResName();
 		  feature_infos.push_back(fi);
 	       }
 	    }
@@ -250,9 +258,10 @@ cfc::chemical_feature_clustering(const std::vector<cfc::input_info_t> &mol_infos
       (const std::vector<feature_info_t> &feature_infos) {
 
       std::vector<typed_cluster_t> typed_clusters;
-      if (false) {
+      if (true) {
+	 std::cout << "--------- features infos at start of cluster_features" << std::endl;
 	 for (const auto &fi : feature_infos) {
-	    std::cout << "fi " <<fi.family << " " << fi.type << " " << fi.imol
+	    std::cout << "debug:: fi " <<fi.family << " " << fi.type << " " << fi.imol
 		      << " " << fi.residue_spec << " " << fi.pos << std::endl;
 	 }
       }
@@ -267,36 +276,48 @@ cfc::chemical_feature_clustering(const std::vector<cfc::input_info_t> &mol_infos
       if (true) {
 	 for (const auto &pair : feature_info_map) {
 	    std::string key = pair.first;
-	    std::cout << "for key: " << key << ": imols: ";
+	    std::cout << "debug:: for key: " << key << ": imols: ";
 	    const std::vector<feature_info_t> &v = pair.second;
-	    for (const auto &fi : v) {
+	    for (const auto &fi : v)
 	       std::cout << fi.imol << " ";
-	    }
 	    std::cout << std::endl;
+	    for (const auto &fi : v)
+	       std::cout << "    " << fi.pos << std::endl;
 	 }
       }
 
       for (const auto &pair : feature_info_map) {
 	 std::string key = pair.first;
 	 const std::vector<feature_info_t> &vv = pair.second;
-	 double alpha = 2.0;
+	 std::cout << "debug:: feature_info_map key " << key
+		   << " has " << vv.size() << " features " << std::endl;
+	 double alpha = 1.0;
 	 double beta  = 0.01; // 0.03;
 	 std::vector<glm::vec3> v = make_test_points(vv);
 	 DirichletProcessClustering dpc(alpha, beta);
 	 std::vector<unsigned int> clustered_points = dpc.fit(v);
 	 unsigned int n_clusters = get_n_clusters(clustered_points);
-	 std::cout << "   Cluster " << key << " had " << n_clusters << " clusters" << std::endl;
+	 logger.log(log_t::DEBUG, logging::function_name_t("cluster_features"),
+		    {"xCluster", key, "had", n_clusters, "clusters"});
 	 std::pair<std::string, std::string> p = split_string(key, "_");
 	 std::string family = p.first;
 	 std::string type   = p.second;
 	 for (unsigned int iclust=0; iclust<n_clusters; iclust++) {
 	    typed_cluster_t tc(family, type, iclust);
 	    RDGeom::Point3D pos_sum = RDGeom::Point3D(0,0,0);
+	    unsigned int n_contributors = 0;
 	    for (unsigned int i_feat_info=0; i_feat_info<vv.size(); i_feat_info++) {
-	       if (clustered_points[iclust] == i_feat_info) {
+	       // std::cout << "      testing i_feat_info " << i_feat_info << std::endl;
+	       if (clustered_points[i_feat_info] == iclust) {
 		  const feature_info_t &fi = vv[i_feat_info];
-		  coot::residue_spec_t fake_residue_spec("AAA", -999, "");
+		  coot::residue_spec_t residue_spec = fi.residue_spec;
 		  int imol_feat = fi.imol;
+		  n_contributors++;
+		  pos_sum += fi.pos;
+		  if (false)
+		     std::cout << "   iclust: " << iclust << " contributor ifeat "
+			       << i_feat_info << " at " << fi.pos
+			       << std::endl;
 		  bool found = false;
 		  for (unsigned int ii=0; ii<tc.imols_with_specs.size(); ii++) {
 		     if (imol_feat == tc.imols_with_specs[ii].first) {
@@ -305,27 +326,27 @@ cfc::chemical_feature_clustering(const std::vector<cfc::input_info_t> &mol_infos
 			}
 		     }
 		  }
-		  if (! found) {
-		     tc.add_imol(imol_feat, fake_residue_spec);
-		     pos_sum += fi.pos;
-		  }
+		  if (! found)
+		     tc.add_imol(imol_feat, residue_spec);
 	       }
-	       unsigned int n_contributors = tc.imols_with_specs.size();
-	       if (n_contributors > 0) {
-		  pos_sum /= static_cast<double>(n_contributors);
-		  tc.pos = pos_sum;
-	       }
+	    }
+	    if (n_contributors > 0) {
+	       tc.pos = pos_sum / static_cast<double>(n_contributors);
+	       std::cout << "debug:: n_contributors " << n_contributors
+			 << " average pos " << pos_sum << std::endl;
 	    }
 	    typed_clusters.push_back(tc);
 	 }
       }
 
-      if (true) {
+      if (false) {
 	 for (const auto &tc : typed_clusters) {
-	    std::cout << "typed_cluster: " << tc.family << " " << tc.type
-		      << " cluster-index: " << tc.idx << " imols: ";
-	    for (const auto &imol : tc.imols_with_specs) {
-	       std::cout << imol.first << " " << imol.second << " ";
+	    std::cout << "DEBUG:: typed_cluster: " << tc.family << " " << tc.type
+		      << " cluster-index: " << tc.idx << " imols:\n";
+	    for (const auto &imol_with_spec : tc.imols_with_specs) {
+	       int imol                          = imol_with_spec.first;
+	       coot::residue_spec_t residue_spec = imol_with_spec.second;
+	       std::cout << "      " << imol << " " << residue_spec << std::endl;
 	    }
 	    std::cout << " at " << tc.pos << std::endl;
 	 }
@@ -334,7 +355,18 @@ cfc::chemical_feature_clustering(const std::vector<cfc::input_info_t> &mol_infos
       return typed_clusters;
    };
 
-   auto output_clusters = [] (const std::vector<typed_cluster_t> &typed_clusters) {
+   auto get_mol = [] (int imol, const std::vector<cfc::input_info_t> &mol_infos) {
+      mmdb::Manager *mol = nullptr;
+      for (const auto &m : mol_infos) {
+	 if (m.imol == imol) {
+	    mol = m.mol;
+	 }
+      }
+      return mol;
+   };
+
+   auto output_clusters = [get_mol] (const std::vector<typed_cluster_t> &typed_clusters,
+				     const std::vector<cfc::input_info_t> &mol_infos) {
 
       // create a json string using nlohmann::json
 
@@ -346,6 +378,8 @@ cfc::chemical_feature_clustering(const std::vector<cfc::input_info_t> &mol_infos
 	 j_cluster["idx"]    = tc.idx;
 	 nlohmann::json j_imols = nlohmann::json::array();
 	 for (const auto &imol_with_specs : tc.imols_with_specs) {
+	    int imol = imol_with_specs.first;
+	    const auto &spec = imol_with_specs.second;
 	    nlohmann::json j_imol     = imol_with_specs.first;
 	    nlohmann::json j_chain_id = imol_with_specs.second.chain_id;
 	    nlohmann::json j_res_no   = imol_with_specs.second.res_no;
@@ -353,6 +387,14 @@ cfc::chemical_feature_clustering(const std::vector<cfc::input_info_t> &mol_infos
 	    j_imol_and_res_spec["imol"] = j_imol;
 	    j_imol_and_res_spec["chain_id"] = j_chain_id;
 	    j_imol_and_res_spec["res_no"] = j_res_no;
+	    mmdb::Manager *mol = get_mol(imol, mol_infos);
+	    if (mol) {
+	       mmdb::Residue *residue_p = coot::util::get_residue(spec, mol);
+	       if (residue_p) {
+		  std::string rn = residue_p->GetResName();
+		  j_imol_and_res_spec["res_name"] = rn;
+	       }
+	    }
 	    j_imols.push_back(j_imol_and_res_spec);
 	 }
 	 j_cluster["imols"] = j_imols;
@@ -364,10 +406,47 @@ cfc::chemical_feature_clustering(const std::vector<cfc::input_info_t> &mol_infos
       std::string fn = "clusters.json";
       std::ofstream f(fn.c_str());
       if (!f) {
-	 std::cout << "ERROR:: output_clusters(): Failed to open " << fn << std::endl;
+	 // std::cout << "ERROR:: output_clusters(): Failed to open " << fn << std::endl;
+	 logger.log(log_t::ERROR, logging::function_name_t(__FUNCTION__),
+		    "output_clusters() failed to open", fn);
       } else {
 	 f << sjson;
-	 std::cout << "DEBUG:: output_clusters(): wrote " << fn << std::endl;
+	 f.close();
+	 logger.log(log_t::DEBUG, logging::function_name_t(__FUNCTION__), "wrote", fn);
+      }
+   };
+
+   auto output_waters = [] (std::vector<std::vector<water_info_t> > water_clusters) {
+
+      std::cout << "DEBUG:: output_waters() " << water_clusters.size() << std::endl;
+      nlohmann::json j = nlohmann::json::array();
+      for (unsigned int iclust=0; iclust<water_clusters.size(); iclust++) {
+	 std::vector<water_info_t> &v = water_clusters[iclust];
+	 nlohmann::json j_cluster;
+	 j_cluster["cluster_index"] = iclust;
+	 nlohmann::json j_waters = nlohmann::json::array();
+	 for (unsigned int i=0; i<v.size(); i++) {
+	    const water_info_t &wi = v[i];
+	    nlohmann::json j_water;
+	    j_water["imol"] = wi.imol;
+	    j_water["chain_id"] = wi.residue_spec.chain_id;
+	    j_water["res_no"] = wi.residue_spec.res_no;
+	    j_water["pos"] = {wi.pos.x, wi.pos.y, wi.pos.z};
+	    j_waters.push_back(j_water);
+	 }
+	 j_cluster["waters"] = j_waters;
+	 j.push_back(j_cluster);
+      }
+      std::string sjson = j.dump(4);
+      std::string fn = "waters.json";
+      std::ofstream f(fn.c_str());
+      if (!f) {
+	 logger.log(log_t::ERROR, logging::function_name_t(__FUNCTION__),
+		    "output_clusters() failed to open", fn);
+      } else {
+	 f << sjson;
+	 f.close();
+	 logger.log(log_t::DEBUG, logging::function_name_t(__FUNCTION__), "wrote", fn);
       }
    };
 
@@ -388,6 +467,8 @@ cfc::chemical_feature_clustering(const std::vector<cfc::input_info_t> &mol_infos
    std::vector<feature_info_t> feature_infos;
    std::vector<water_info_t> water_infos;
 
+   std::cout << "AAAAAAA mol_infos size " << mol_infos.size() << std::endl;
+
    if (! mol_infos.empty()) {
 
       int imol_enc = coot::protein_geometry::IMOL_ENC_ANY;
@@ -397,7 +478,8 @@ cfc::chemical_feature_clustering(const std::vector<cfc::input_info_t> &mol_infos
       add_lsq_superpose_match("A", 1950, 1952, "A", 1950, 1952, 1, &lsq_matchers);
       add_lsq_superpose_match("A", 1900, 1902, "A", 1900, 1902, 1, &lsq_matchers);
 
-      clipper::Coord_orth pt_ref(15,40,30);
+      // clipper::Coord_orth pt_ref(15,40,30);
+      clipper::Coord_orth pt_ref(27, 8, 1);
       int imol_ref = mol_infos[0].imol;
       for (unsigned int i=0; i<mol_infos.size(); i++) {
 	 bool do_it = false;
@@ -415,6 +497,8 @@ cfc::chemical_feature_clustering(const std::vector<cfc::input_info_t> &mol_infos
 	       do_it = true;
 	 }
 
+	 std::cout << "with i " << i << " do_it " << do_it << std::endl;
+
 	 if (do_it) {
 	    mmdb::Manager *mol = mol_infos[i].mol;
 	    int imol = mol_infos[i].imol;
@@ -430,7 +514,9 @@ cfc::chemical_feature_clustering(const std::vector<cfc::input_info_t> &mol_infos
 		     feature_infos.push_back(fi);
 		  }
 	       } else {
-		  std::cout << "ERROR:: no residue found near ligand site" << std::endl;
+		  // std::cout << "ERROR:: no residue found near ligand site" << std::endl;
+		  logger.log(log_t::ERROR, logging::function_name_t(__FUNCTION__),
+			     "no residue found near ligand site", imol);
 	       }
 
 	       // waters
@@ -439,20 +525,30 @@ cfc::chemical_feature_clustering(const std::vector<cfc::input_info_t> &mol_infos
 	       water_infos.insert(water_infos.end(), waters.begin(), waters.end());
 
 	    } else {
-	       std::cout << "ERROR:: no mol found for imol " << imol << std::endl;
+	       // std::cout << "ERROR:: no mol found for imol " << imol << std::endl;
+	       logger.log(log_t::ERROR, logging::function_name_t(__FUNCTION__),
+			  "no mol found for imol", imol);
 	    }
 	 }
       }
    }
 
    unsigned int n_features = feature_infos.size();
-   std::cout << "DEBUG:: found a total of " << n_features << " features" << std::endl;
+   // std::cout << "DEBUG:: found a total of " << n_features << " features" << std::endl;
+   logger.log(log_t::DEBUG, logging::function_name_t(__FUNCTION__),
+	      "Found a total of", n_features, "features");
 
    std::vector<typed_cluster_t> typed_clusters = cluster_features(feature_infos);
    std::vector<std::vector<water_info_t> > water_clusters = cluster_waters(water_infos);
-   std::cout << "Found " << water_clusters.size() << " water clusters from "
-	     << water_infos.size() << " water" << std::endl;
-   output_clusters(typed_clusters);
+   // std::cout << "Found " << water_clusters.size() << " water clusters from "
+   //           << water_infos.size() << " water" << std::endl;
+   logger.log(log_t::DEBUG, logging::function_name_t(__FUNCTION__),
+	      {"Found", water_clusters.size(), "water clusters from",
+	       water_infos.size(), "waters"});
+
+   output_clusters(typed_clusters, mol_infos);
+
+   output_waters(water_clusters);
 
    return std::make_pair(typed_clusters, water_clusters);
 

@@ -42,9 +42,9 @@
 //   list mol_no ligand_spec
 // which, with radius will be used to find the waters
 // 
-PyObject *chemical_feature_clusters_py(PyObject *environment_residues_py,
-				       PyObject *solvated_ligand_info_py,
-				       double radius_1, double radius_2);
+PyObject *old_chemical_feature_clusters_py(PyObject *environment_residues_py,
+					   PyObject *solvated_ligand_info_py,
+					   double radius_1, double radius_2);
 // scipy has done some clustering
 // we get the cluster info here
 // 

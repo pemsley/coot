@@ -5639,6 +5639,12 @@ molecules_container_t::test_function(const std::string &s) {
 
    // test cfc here.
 
+   // when extracting/reworking this for a real chapi function,
+   // pass the output files names for the features clusters and
+   // the water cluster (and maybe residue clusters later).
+   // the input will be a vector of pair of molecule indices
+   // and ligand residue types - and maybe a centre position.
+
    // --------------------- main line -------------------
 
    std::vector<std::pair<std::string, std::string> > mol_info =
@@ -5655,11 +5661,13 @@ molecules_container_t::test_function(const std::string &s) {
 
    std::vector<cfc::input_info_t> mol_infos;
 
-   std::vector<std::pair<int, std::string> > imols;
    for (const auto &m : mol_info) {
       std::string fn = m.first;
       int imol = read_coordinates(fn);
-      imols.push_back(std::make_pair(imol, m.second));
+      mmdb::Manager *mol = get_mol(imol);
+      std::string res_name = m.second;
+      cfc::input_info_t mi(mol, imol, res_name);
+      mol_infos.push_back(mi);
    }
 
    auto cfc = cfc::chemical_feature_clustering(mol_infos, geom);

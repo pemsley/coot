@@ -422,3 +422,14 @@ void read_interesting_places_json_file(const std::string &file_name) {
       std::cout << "File does not exist " << file_name << std::endl;
    }
 }
+
+// not really a validation function - a new file cc-interface-analysis.cc is needed?
+std::vector<std::string> get_types_in_molecule(int imol) {
+
+   std::vector<std::string> v;
+   graphics_info_t g;
+   if (g.is_valid_model_molecule(imol)) {
+      v = graphics_info_t::molecules[imol].get_types_in_molecule();
+   }
+   return v;
+}
