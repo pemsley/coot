@@ -3769,7 +3769,6 @@ PyObject *cif_file_for_comp_id_py(const std::string &comp_id) {
 }
 #endif // PYTHON
 
-// can throw and std::runtime_error exception
 std::string SMILES_for_comp_id(const std::string &comp_id) {
 
    int imol_enc = coot::protein_geometry::IMOL_ENC_ANY; // pass this?
@@ -3781,6 +3780,9 @@ std::string SMILES_for_comp_id(const std::string &comp_id) {
    }
    catch (const std::runtime_error &e) {
       std::cout << "WARNING::" << e.what() << std::endl;
+   }
+   catch (...) {
+      std::cout << "SMILES_for_comp_id() caught generic throw" << std::endl;
    }
    return s;
 }
