@@ -62,7 +62,7 @@ public:
 	 }
 
 	 // Sample a cluster based on probabilities
-	 int sampled_cluster = sample_from_distribution(probabilities);
+	 unsigned int sampled_cluster = sample_from_distribution(probabilities);
 	 if (sampled_cluster == cluster_means.size()) {
 	    // New cluster
 	    cluster_means.push_back(data[i]);
@@ -95,8 +95,8 @@ private:
       return likelihood(point, zero_mean);
    }
 
-   int sample_from_distribution(const std::vector<double>& probabilities) {
-      std::discrete_distribution<int> distribution(probabilities.begin(), probabilities.end());
+   unsigned int sample_from_distribution(const std::vector<double>& probabilities) {
+      std::discrete_distribution<unsigned int> distribution(probabilities.begin(), probabilities.end());
       return distribution(generator);
    }
 
