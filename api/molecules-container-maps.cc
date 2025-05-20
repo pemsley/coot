@@ -46,16 +46,16 @@ molecules_container_t::read_ccp4_map(const std::string &file_name, bool is_a_dif
       return imol;
    }
 
-   if (false) {
-      if (coot::util::is_basic_em_map_file(file_name)) {
-         std::cout << "::::: read_ccp4_map() returns true for is_basic_em_map_file() " << std::endl;
+   if (true) {
+      if (coot::util::is_basic_em_map_file(file_name) == coot::util::slurp_map_result_t::IS_SLURPABLE_EM_MAP) {
+         std::cout << "::::: read_ccp4_map() is_basic_em_map_file() finds a slurpable map " << std::endl;
       } else {
-         std::cout << "::::: read_ccp4_map() returns false for is_basic_em_map_file() " << std::endl;
+         std::cout << "::::: read_ccp4_map() is_basic_em_map_file() - not a slurpable map " << std::endl;
       }
    }
 
 
-   if (coot::util::is_basic_em_map_file(file_name)) {
+   if (coot::util::is_basic_em_map_file(file_name) == coot::util::slurp_map_result_t::IS_SLURPABLE_EM_MAP) {
 
       std::cout << "DEBUG:: mc::read_ccp4_map() returns true for is_basic_em_map_file() "
                 << file_name << std::endl;
@@ -67,8 +67,8 @@ molecules_container_t::read_ccp4_map(const std::string &file_name, bool is_a_dif
       short int m_em_status = m.is_EM_map();
       std::cout << "m_em_status " << m_em_status << std::endl;
       clipper::Xmap<float> &xmap = m.xmap;
-      done = coot::util::slurp_fill_xmap_from_map_file(file_name, &xmap, check_only);
-      if (done) {
+      coot::util::slurp_map_result_t smr = coot::util::slurp_fill_xmap_from_map_file(file_name, &xmap, check_only);
+      if (smr == coot::util::slurp_map_result_t::OK) {
          molecules.push_back(m);
          imol = imol_in_hope;
       }
@@ -90,7 +90,7 @@ molecules_container_t::read_ccp4_map(const std::string &file_name, bool is_a_dif
       try {
          w_file.open_read(file_name);
 
-         // em = set_is_em_map(file);
+         // em = set_is_em_map(file_name);
 
          if (true) {
             clipper::Cell fcell = w_file.cell();

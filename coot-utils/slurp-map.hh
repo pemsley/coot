@@ -29,22 +29,29 @@
 namespace coot {
    namespace util {
 
+      enum class slurp_map_result_t { OK=1,
+                                      IS_SLURPABLE_EM_MAP=100,
+                                      NOT_AN_EM_MAP=200,
+                                      FAIL=300,
+                                      FILE_NOT_FOUND=400,
+                                      UNRESOLVED=500 };
+
       std::vector<std::string> get_map_labels(const std::string &file_name);
 
       // PANDDA::, that is.
       bool map_labels_contain_PANDDA(const std::string &file_name);
 
-      bool is_basic_em_map_file(const std::string &file_name);
+      slurp_map_result_t is_basic_em_map_file(const std::string &file_name);
 
       // inf check_only is true, then just read the header, check that it is sane
       // and return that status (don't touch the xmap). Otherwise, fill the xmap.
       //
-      bool slurp_fill_xmap_from_map_file(const std::string &file_name,
-                                         clipper::Xmap<float> *xmap_p,
-                                         bool check_only=false);
+      slurp_map_result_t slurp_fill_xmap_from_map_file(const std::string &file_name,
+                                                       clipper::Xmap<float> *xmap_p,
+                                                       bool check_only=false);
 
-      bool slurp_parse_xmap_data(char *data, clipper::Xmap<float> *xmap_p,
-                                 bool check_only=false);
+      slurp_map_result_t slurp_parse_xmap_data(char *data, clipper::Xmap<float> *xmap_p,
+                                               bool check_only=false);
 
    }
 

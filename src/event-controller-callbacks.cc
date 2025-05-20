@@ -788,6 +788,16 @@ graphics_info_t::on_glarea_scrolled(GtkEventControllerScroll *controller,
                                     double                    dy,
                                     gpointer                  user_data) {
 
+   auto do_mouse_zoom = [] (double dy) {
+      int dir = 1;
+      if (dy > 0) dir = -1;
+      // mouse_zoom(zz, 0.0); // 20250519-PE don't call mouse zoom - it uses drag argument
+      // call scroll_zoom
+      scroll_zoom(dir);
+   };
+
+   std::cout << "dy: " << dy << std::endl;
+
    GdkModifierType modifier = gtk_event_controller_get_current_event_state(GTK_EVENT_CONTROLLER(controller));
    control_is_pressed = (modifier & GDK_CONTROL_MASK);
    shift_is_pressed = (modifier & GDK_SHIFT_MASK);
@@ -806,20 +816,33 @@ graphics_info_t::on_glarea_scrolled(GtkEventControllerScroll *controller,
          graphics_draw();
          handled = true;
       } else {
-         // dy is either 1.0 or -1.0
-         // std::cout << "change the proportional editing " << dx << " " << dy << std::endl;
-         bool dir = false;
-         if (dy < 0.0) dir = true;
-         pull_restraint_neighbour_displacement_change_max_radius(dir);
-         graphics_draw();
-         handled = true;
+
+         // 20250519-PE this is how it used to be! Seems esoteric - I am not
+         // sure what it actually does
+         if (false) {
+            // dy is either 1.0 or -1.0
+            // std::cout << "change the proportional editing " << dx << " " << dy << std::endl;
+            bool dir = false;
+            if (dy < 0.0) dir = true;
+            pull_restraint_neighbour_displacement_change_max_radius(dir);
+            graphics_draw();
+            handled = true;
+         }
+
+         // ctrl-scroll zoom, same as shift-scroll zoom
+         if (true) {
+            do_mouse_zoom(dy);
+            handled = true;
+         }
       }
    }
 
    if (! handled) {
       if (shift_is_pressed) {
-         std::cout << "shift scroll_zoom is broken " << dy << std::endl;
-         // graphics_info_t::scroll_zoom(dy);
+
+            do_mouse_zoom(dy);
+            handled = true;
+
       } else {
          // scroll density
 

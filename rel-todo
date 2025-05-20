@@ -1,18 +1,20 @@
 
 --- Items ---
 
-o Fix Add Other Solvent Molecule dialog
+o fix these:
+../../coot/coot-utils/dirichlet-process.hh: In member function 'std::vector<unsigned int> DirichletProcessClustering::fit(const std::vector<glm::vec<3, float, glm::packed_highp> >&)':
+../../coot/coot-utils/dirichlet-process.hh:66:30: warning: comparison of integer expressions of different signedness: 'int' and 'std::vector<glm::vec<3, float, glm::packed_highp> >::size_type' {aka 'long unsigned int'} [-Wsign-compare]
+   66 |          if (sampled_cluster == cluster_means.size()) {
+      |              ~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~
+../../coot/api/molecules-container.cc: In lambda function:
+../../coot/api/molecules-container.cc:5514:34: warning: comparison of integer expressions of different signedness: 'int' and 'unsigned int' [-Wsign-compare]
+ 5514 |                   for (int i=0; i<conf.getNumAtoms(); i++) {
+      |                                 ~^~~~~~~~~~~~~~~~~~~
 
-o Get Monomer asks to download LZA from github despite
-  having downloaded it yesterday.
 
-o ctrl scroll for zoom
+o draw 9c1h with molecular symmetry colouring
 
 o Fix the "Fetch" buttons - new GTK4/glib? ::: 2
-
-o Moorhen get monomer: needs
- -  "read dictionary" or "import an enw molecule for this ligand" choice
- - Also, not clear what is happening when there is no internet when the "OK" button is pressed.
 
 o WTA carbohydrate ::: 6
 
@@ -54,11 +56,28 @@ o  It was a strange bit of code in get_group().
    Now the issue is duplication of the model on writing. mmdb bug.
    Solved now? Am I using the right version?
 
+o Messagee sent:
+ Moorhen get monomer: needs
+ - "read dictionary" or "import an new molecule for this ligand" choice
+ - Also, not clear what is happening when there is no internet when the "OK" button is pressed.
+
 --- Done Items ---
+
+o Ctrl Scroll for zoom ::: 0.5
+  Ah, shift-scroll already exists.
+* Done.
+
+o Fix Add Other Solvent Molecule dialog ::: 3
+* Done.
+
+o Get Monomer asks to download LZA from github despite  ::: 3
+  having downloaded it yesterday.
+* Done.
 
 o Close button on restraints editor doesn't work. ::: 0.5
 
 o Depythonize Replace Fragment ::: 1
+* Done.
 
 o Thierry Fischmann mail ::: 3
 * Done.
@@ -67,8 +86,6 @@ o depythonize copy molecule ::: 0.3
 * Done
 
 o Validation json. ::: 2
-
-o depythonize Add Other Solvent dialog ::: 1
 
 o Fix the long "Atom with zero occupancy" bug - acutally, put it in the
   validation boxes ::: 2
