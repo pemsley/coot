@@ -5511,7 +5511,7 @@ molecules_container_t::test_function(const std::string &s) {
 	       if (false) {
 		  std::cout << "   Conformer " << iconf << " has " << conf.getNumAtoms()
 			    << " atoms" << std::endl;
-		  for (int i=0; i<conf.getNumAtoms(); i++) {
+		  for (unsigned int i=0; i<conf.getNumAtoms(); i++) {
 		     RDKit::Atom *at = m.getAtomWithIdx(i);
 		     RDGeom::Point3D pos = conf.getAtomPos(i);
 		     std::cout << "   atom " << i << " " << at->getIdx() << " "
