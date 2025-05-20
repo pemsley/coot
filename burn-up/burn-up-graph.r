@@ -1,7 +1,7 @@
 
 # every month or so
-xlim=60 # was 40
-ylim=20 # was 16 # reasonable scope
+xlim=80 # was 60 # was 40
+ylim=30 # was 20 # was 16 # reasonable scope
 
 prediction_text_x_placement = 30
 prediction_text_y_placement = 0

@@ -631,6 +631,7 @@ libcootsumo_la_SOURCES = \
 	graphics-info-residues.cc     \
 	graphics-info-refine.cc	 \
 	graphics-info-restraints-editor.cc \
+	graphics-info-scripting.cc	\
 	graphics-info-state.cc	 \
 	graphics-info-statics.cc \
 	graphics-info-superpose.cc	\

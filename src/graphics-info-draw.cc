@@ -388,6 +388,8 @@ graphics_info_t::mouse_zoom_by_scale_factor_inner(double sf) {
       if (sf > 2.0) sf = 2.0;
       graphics_info_t::eye_position.z *= sf;
 
+      std::cout << "mouse_zoom_by_scale_factor_inner() sf " << sf << " eye-position-z " << eye_position.z << std::endl;
+
    }
 }
 

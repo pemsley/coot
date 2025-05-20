@@ -663,19 +663,17 @@ std::vector<std::string> dictionary_entries();
 //! debug dictionary information
 void debug_dictionary();
 
+//! get types in molecule
+//!
+//! @param imol the molecule index
+//! @return a vector of residue types
 std::vector<std::string> get_types_in_molecule(int imol);
 
-#ifdef USE_PYTHON
-#else
-// This function can throw an exception - so don't
-// export it to python.
-//
-// return the SMILES for the given residue type
-//
-// @param comp_id is the residue type
-// @return the SMILES string
+//! Get the SMILES for the given residue type
+//!
+//! @param comp_id is the residue type
+//! @return the SMILES string
 std::string SMILES_for_comp_id(const std::string &comp_id);
-#endif // USE_PYTHON
 
 /*! \brief return a list of all the dictionaries read */
 #ifdef USE_GUILE
