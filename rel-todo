@@ -1,27 +1,12 @@
 
 --- Items ---
 
-o fix these:
-../../coot/coot-utils/dirichlet-process.hh: In member function 'std::vector<unsigned int> DirichletProcessClustering::fit(const std::vector<glm::vec<3, float, glm::packed_highp> >&)':
-../../coot/coot-utils/dirichlet-process.hh:66:30: warning: comparison of integer expressions of different signedness: 'int' and 'std::vector<glm::vec<3, float, glm::packed_highp> >::size_type' {aka 'long unsigned int'} [-Wsign-compare]
-   66 |          if (sampled_cluster == cluster_means.size()) {
-      |              ~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~~
-../../coot/api/molecules-container.cc: In lambda function:
-../../coot/api/molecules-container.cc:5514:34: warning: comparison of integer expressions of different signedness: 'int' and 'unsigned int' [-Wsign-compare]
- 5514 |                   for (int i=0; i<conf.getNumAtoms(); i++) {
-      |                                 ~^~~~~~~~~~~~~~~~~~~
-
-
 o draw 9c1h with molecular symmetry colouring
 
 o Fix the "Fetch" buttons - new GTK4/glib? ::: 2
 
-o WTA carbohydrate ::: 6
-
 o Add anisotropic radius scaling from Claus. Need to check mails or something
   for scaling code. ::: 1
-
-o try texture atlas for text - make a new test app from scratch ::: 4
 
 o have another look at Rama plot ::: 1
 
@@ -37,6 +22,10 @@ o write a blog-post for "APPLY-SYMMETRY::" label
   and up date the documentation.
 
 --- Other Items ---
+
+o try texture atlas for text - make a new test app from scratch :: 4
+
+o WTA carbohydrate :: 6
 
 o Cross-out "Screenshot" unless we have OpenGL 4.2 or later :: 0.5
 
@@ -56,12 +45,17 @@ o  It was a strange bit of code in get_group().
    Now the issue is duplication of the model on writing. mmdb bug.
    Solved now? Am I using the right version?
 
-o Messagee sent:
+o 1geh B-factor colour ramp looks wrong
+
+o Message sent:
  Moorhen get monomer: needs
  - "read dictionary" or "import an new molecule for this ligand" choice
  - Also, not clear what is happening when there is no internet when the "OK" button is pressed.
 
 --- Done Items ---
+
+o Depythonize Replace Fragment ::: 1
+* Done.
 
 o Ctrl Scroll for zoom ::: 0.5
   Ah, shift-scroll already exists.
@@ -75,9 +69,6 @@ o Get Monomer asks to download LZA from github despite  ::: 3
 * Done.
 
 o Close button on restraints editor doesn't work. ::: 0.5
-
-o Depythonize Replace Fragment ::: 1
-* Done.
 
 o Thierry Fischmann mail ::: 3
 * Done.
