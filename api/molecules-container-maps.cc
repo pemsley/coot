@@ -649,3 +649,31 @@ molecules_container_t::scale_map(int imol, float factor) {
       std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
 }
+
+
+//! Get map vertices histogram
+//!
+//! @param imol is the map molecule index
+//! @param n_bins is the number of bins - 200 is a reasonable default.
+//! @param zoom_factor (reduces the range by the given factor)
+//! centred around the median (typically 1.0 but usefully can vary until ~20.0).
+//!
+//! @return the map histogram
+coot::molecule_t::histogram_info_t
+molecules_container_t::get_map_vertices_histogram(int imol, int imol_map_for_sampling,
+						  double position_x, double position_y, double position_z,
+						  float radius, float contour_level,
+						  unsigned int n_bins) {
+   coot::molecule_t::histogram_info_t hi;
+   if (is_valid_map_molecule(imol)) {
+      if (is_valid_map_molecule(imol_map_for_sampling)) {
+	 clipper::Coord_orth p(position_x, position_y, position_z);
+	 const clipper::Xmap<float> &other_xmap = molecules[imol_map_for_sampling].xmap;
+	 hi = molecules[imol].get_map_vertices_histogram(other_xmap, p, radius, contour_level,
+							 map_is_contoured_using_thread_pool_flag, &thread_pool, n_bins);
+      }
+   }
+   return hi;
+
+}
+

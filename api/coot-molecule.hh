@@ -1412,6 +1412,15 @@ namespace coot {
       //! centred around the median (typically 1.0 but usefully can vary until ~20.0).
       histogram_info_t get_map_histogram(unsigned int n_bins, float zoom_factor) const;
 
+      // just look at the vertices of the map - not the whole thing
+      // Sample the points from other_map
+      histogram_info_t
+      get_map_vertices_histogram(const clipper::Xmap<float> &other_xmap,
+				 const clipper::Coord_orth &pt,
+				 float radius, float contour_level,
+				 bool use_thread_pool, ctpl::thread_pool *thread_pool_p,
+				 unsigned int n_bins);
+
       void set_map_colour(colour_holder holder);
       void set_map_colour_saturation(float s) { radial_map_colour_saturation = s; }
 

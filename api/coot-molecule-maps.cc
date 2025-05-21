@@ -1541,6 +1541,71 @@ coot::molecule_t::get_map_histogram(unsigned int n_bins_in, float zoom_factor) c
    return hi;
 }
 
+// just look at the vertices of the map - not the whole thing
+coot::molecule_t::histogram_info_t
+coot::molecule_t::get_map_vertices_histogram(const clipper::Xmap<float> &other_xmap,
+					     const clipper::Coord_orth &pt,
+					     float radius, float contour_level,
+					     bool use_thread_pool, ctpl::thread_pool *thread_pool_p,
+					     unsigned int n_bins) {
+
+
+   coot::molecule_t::histogram_info_t hi;
+   coot::simple_mesh_t mesh = get_map_contours_mesh(pt, radius, contour_level,
+						    use_thread_pool, thread_pool_p);
+   unsigned int n_points = 0;
+   float max_d = -10e6f;
+   float min_d =  10e6f;
+   std::vector<float> d_values;
+   d_values.reserve(40000);
+   std::vector<coot::density_contour_triangles_container_t>::const_iterator it;
+   for (it=draw_vector_sets.begin(); it!=draw_vector_sets.end(); ++it) {
+      const coot::density_contour_triangles_container_t &tri_con(*it);
+      for (unsigned int i=0; i<tri_con.points.size(); i++) {
+	 const clipper::Coord_orth &co = tri_con.points[i];
+	 float d = coot::util::density_at_point(other_xmap, co);
+	 if (d > max_d) max_d = d;
+	 if (d < min_d) min_d = d;
+	 n_points++;
+	 d_values.push_back(d);
+      }
+   }
+   if (n_points > 0) {
+      if (n_bins > 0) {
+	 float range = max_d - min_d;
+	 if (range > 0.0) {
+	    float bin_width = range / static_cast<float>(n_bins);
+	    float inv_range = 1.0f/range;
+	    std::map<int, int> counts;
+	    double sum = 0.0;
+	    double sum_sq = 0.0;
+	    int max_bin = 0;
+	    for (unsigned int i=0; i<d_values.size(); i++) {
+	       const float &d = d_values[i];
+	       float frac = (d - min_d) * inv_range;
+	       int bin = frac * static_cast<float>(n_bins);
+	       if (bin > max_bin) max_bin = bin;
+	       sum += d;
+	       sum_sq += d * d;
+	       counts[bin] += 1;
+	    }
+	    std::vector<int> counts_vec(max_bin + 1);
+	    std::map<int, int>::const_iterator it;
+	    for (it=counts.begin(); it!=counts.end(); ++it)
+	       counts_vec[it->first] = it->second;
+	    double mean = sum / static_cast<double>(n_points);
+	    double var = sum_sq / static_cast<double>(n_points) - mean * mean;
+	    if (var < 0.0) var = 0.0;
+	    hi = histogram_info_t(min_d, bin_width, counts_vec);
+	    hi.mean = mean;
+	    hi.variance = var;
+	 }
+      }
+   }
+   return hi;
+
+}
+
 #include "coot-utils/diff-diff-map-peaks.hh"
 
 std::vector<std::pair<clipper::Coord_orth, float> >

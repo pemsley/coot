@@ -1224,6 +1224,9 @@ molecules_container_t::auto_read_mtz(const std::string &mtz_file_name) {
    return mol_infos;
 }
 
+#include "clipper-ccp4-map-file-wrapper.hh"
+#include "coot-utils/slurp-map.hh"
+
 
 
 //! rotamer validation information

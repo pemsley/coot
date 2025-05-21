@@ -6336,6 +6336,8 @@ int test_scale_map(molecules_container_t &mc) {
       float f = r_2 / r_1;
       if (close_float(f, sf))
          status = 1;
+   } else {
+      std::cout << "ERROR:: failed to read moorhen-tutorial-map-number-1.mtz" << std::endl;
    }
    return status;
 }
@@ -6464,6 +6466,45 @@ int test_delete_all_carbohydrate(molecules_container_t &mc) {
             }
          }
          if (n_nags == 0) status = 1;
+      }
+   }
+   return status;
+}
+
+int test_map_vertices_histogram(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   auto make_n_stars = [] (int counts) {
+      std::string n_stars = "";
+      for (int i=0; i<counts; i+=2000)
+	 n_stars += "*";
+      return n_stars;
+   };
+
+   int imol_map_1 = mc.read_ccp4_map(reference_data("emd_16890.map"), false);
+   int imol_map_2 = mc.read_ccp4_map(reference_data("scale_res_emd_16890.mrc"), false);
+   if (mc.is_valid_map_molecule(imol_map_1)) {
+      if (mc.is_valid_map_molecule(imol_map_2)) {
+	 unsigned int n_bins = 40;
+	 coot::molecule_t::histogram_info_t histo =
+	    mc.get_map_vertices_histogram(imol_map_1, imol_map_2,
+					  160, 160, 160,
+					  100, 0.16, n_bins);
+	 unsigned int n_bins_hist = histo.counts.size();
+	 std::cout << "n_bins_hist " << n_bins_hist << std::endl;
+	 for (unsigned int i=0; i<n_bins_hist; i++) {
+	    int counts = histo.counts[i];
+	    float f_min = histo.base + static_cast<float>(i)   * histo.bin_width;
+	    float f_max = histo.base + static_cast<float>(i+1) * histo.bin_width;
+	    std::string n_stars = make_n_stars(counts);
+	    std::cout << "   " << std::setw(9) << f_min << " " << std::setw(9) << f_max
+		      << " " << std::setw(6) << counts << " " << n_stars << std::endl;
+	    if (n_bins_hist >= 40)
+	       if (counts > 100000)
+		  status = 1;
+	 }
       }
    }
    return status;
@@ -6799,6 +6840,7 @@ int main(int argc, char **argv) {
          status += run_test(test_is_nucleic_acid, "is nucleic acid?", mc);
          status += run_test(test_delete_all_carbohydrate, "delete all carbohydrate", mc);
          status += run_test(test_instanced_goodsell_style_mesh, "instanced goodsell style mesh", mc);
+         status += run_test(test_map_vertices_histogram, "map vertices histogram", mc);
          if (status == n_tests) all_tests_status = 0;
 
          print_results_summary();
