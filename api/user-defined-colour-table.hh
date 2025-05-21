@@ -4,6 +4,7 @@
 
 
 #include <vector>
+#include <algorithm>
 #include <iostream> // needed for testing
 
 #define GLM_ENABLE_EXPERIMENTAL
@@ -46,6 +47,9 @@ public:
 	 std::cout << "   " << item.colour_frac << " " << glm::to_string(item.colour) << std::endl;
 #endif
 
+   }
+   void clear() {
+      colour_table.clear();
    }
 
 };

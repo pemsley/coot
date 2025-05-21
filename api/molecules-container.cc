@@ -2053,6 +2053,8 @@ void molecules_container_t::set_colour_map_for_map_coloured_by_other_map(std::ve
       }
    }
 
+   colour_map_by_other_map_user_defined_table.clear();
+
    for (const auto &c : colour_table) {
       float stop = c.first;
       auto col = c.second;
