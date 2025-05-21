@@ -146,6 +146,8 @@ public:
 
    void log(log_t type_in, const function_name_t &fn, const std::vector<ltw> &v);
 
+   void log(log_t type_in, const function_name_t &fn, const std::string &s1, int i, const std::string &s2);
+
    void show() const;
    void show_last() const;
    void set_update_notifier_function(void (*func)()) { update_notifier_function = func; }

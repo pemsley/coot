@@ -1412,6 +1412,8 @@ std::pair<bool, float> graphics_info_t::model_display_radius = std::pair<bool, f
 // Chemical Feature Clusters, cfc
 GtkWidget *graphics_info_t::cfc_dialog = NULL;
 
+cfc_gui_t graphics_info_t::cfc_gui;
+
 bool graphics_info_t::coot_is_a_python_module = true;
 
 bool graphics_info_t::residue_type_selection_was_user_picked_residue_range = false;

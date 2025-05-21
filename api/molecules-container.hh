@@ -1791,6 +1791,20 @@ public:
 
    user_defined_colour_table_t colour_map_by_other_map_user_defined_table;
 
+   //! Get map vertices histogram
+   //!
+   //! Note not const because get_map_contours_mesh() is not const
+   //!
+   //! @param imol is the map molecule index
+   //! @param n_bins is the number of bins - 40 is a reasonable default.
+   //!
+   //! @return the map vertices histogram
+   coot::molecule_t::histogram_info_t get_map_vertices_histogram(int imol, int imol_map_for_sampling,
+								 double position_x, double position_y, double position_z,
+								 float radius, float contour_level,
+								 unsigned int n_bins);
+
+
 
    //! Get the latest sfcalc stats
    //!

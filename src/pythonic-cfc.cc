@@ -36,7 +36,7 @@
 #include <libguile.h> 
 #endif // USE_GUILE
 
-#include "cfc.hh"
+#include "pythonic-cfc.hh"
 #include "cfc-widgets.hh"
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
@@ -58,9 +58,9 @@
 //   list mol_no ligand_spec
 // which, with radius will be used to find the waters
 // 
-PyObject *chemical_feature_clusters_py(PyObject *environment_residues_py,
-				       PyObject *solvated_ligand_info_py, // [imol, ligand-specs]s
-				       double radius_1, double radius_2) {
+PyObject *old_chemical_feature_clusters_py(PyObject *environment_residues_py,
+					   PyObject *solvated_ligand_info_py, // [imol, ligand-specs]s
+					   double radius_1, double radius_2) {
 
    std::cout << "debug:: ################ chemical_feature_clusters_py() start" << std::endl;
 
@@ -225,7 +225,7 @@ void chemical_feature_clusters_accept_info_py(unsigned int site_number,
              << std::endl;
 
    if (graphics_info_t::use_graphics_interface_flag) {
-      cfc::extracted_cluster_info_from_python eci(cluster_info);
+      pythonic_cfc::extracted_cluster_info_from_python eci(cluster_info);
       std::cout << "::::::::::::::::::::::::::: in chemical_feature_clusters_accept_info_py() "
 		<< site_number << " graphics_info_t::cfc_dialog test " << std::endl;
       if (graphics_info_t::cfc_dialog)
@@ -361,9 +361,9 @@ PyObject *chemical_feature_clusters_accept_site_clusters_info_py(PyObject *site_
 
 
 void
-cfc::cfc_dialog_add_waters(unsigned int site_number,
-			   cfc::extracted_cluster_info_from_python extracted_cluster_info,
-			   GtkWidget *cfc_dialog) {
+pythonic_cfc::cfc_dialog_add_waters(unsigned int site_number,
+				    pythonic_cfc::extracted_cluster_info_from_python extracted_cluster_info,
+				    GtkWidget *cfc_dialog) {
 
    // we want a vector of (water) clusters.  For each cluster we need
    // to know what structures have waters in that cluster
@@ -564,8 +564,8 @@ cfc::cfc_dialog_add_waters(unsigned int site_number,
 
 
 void
-cfc::cfc_dialog_add_pharmacophores(unsigned int site_number,
-				   cfc::extracted_cluster_info_from_python extracted_cluster_info,
+pythonic_cfc::cfc_dialog_add_pharmacophores(unsigned int site_number,
+					    pythonic_cfc::extracted_cluster_info_from_python extracted_cluster_info,
 				   GtkWidget *cfc_dialog) {
 
    // for each cluster, by which structures are they contributed? And what is the
@@ -823,8 +823,8 @@ cfc::cfc_dialog_add_pharmacophores(unsigned int site_number,
 }
 
 void
-cfc::on_cfc_site_button_clicked(GtkButton *button,
-				gpointer user_data) {
+pythonic_cfc::on_cfc_site_button_clicked(GtkButton *button,
+					 gpointer user_data) {
 
    // we also need to look up the vboxes of ligands, residues and
    // waters and display/undisplay the tables
@@ -869,7 +869,7 @@ cfc::on_cfc_site_button_clicked(GtkButton *button,
 
 
 void
-cfc::cfc_table_show_hide(std::string show_this_one_name, GtkWidget *vbox) {
+pythonic_cfc::cfc_table_show_hide(std::string show_this_one_name, GtkWidget *vbox) {
 
    // GList *dlist = gtk_container_get_children(GTK_CONTAINER(vbox));
    // GList *free_list = dlist;
@@ -896,8 +896,8 @@ cfc::cfc_table_show_hide(std::string show_this_one_name, GtkWidget *vbox) {
 
 
 void
-cfc::on_cfc_water_cluster_button_clicked(GtkButton *button,
-					 gpointer user_data) {
+pythonic_cfc::on_cfc_water_cluster_button_clicked(GtkButton *button,
+						  gpointer user_data) {
 
    water_cluster_info_from_python *water_clust_p =
       static_cast<water_cluster_info_from_python *> (user_data);
@@ -913,8 +913,8 @@ cfc::on_cfc_water_cluster_button_clicked(GtkButton *button,
 }
 
 void
-cfc::on_cfc_water_cluster_structure_button_clicked(GtkButton *button,
-						   gpointer user_data) {
+pythonic_cfc::on_cfc_water_cluster_structure_button_clicked(GtkButton *button,
+							    gpointer user_data) {
 
    int imol = GPOINTER_TO_INT(user_data);
 
@@ -933,7 +933,7 @@ cfc::on_cfc_water_cluster_structure_button_clicked(GtkButton *button,
 // We need cluster mean, and the contributors to this cluster.
 //
 void
-cfc::on_cfc_pharmacophore_cluster_button_clicked(GtkButton *button,
+pythonic_cfc::on_cfc_pharmacophore_cluster_button_clicked(GtkButton *button,
 						 gpointer user_data) {
    on_pharmacophore_click_info_t *ci_p =
       static_cast<on_pharmacophore_click_info_t *> (user_data);
@@ -969,8 +969,8 @@ cfc::on_cfc_pharmacophore_cluster_button_clicked(GtkButton *button,
 }
 
 void
-cfc::on_cfc_pharmacophore_cluster_structure_button_clicked(GtkButton *button,
-							   gpointer user_data) {
+pythonic_cfc::on_cfc_pharmacophore_cluster_structure_button_clicked(GtkButton *button,
+								    gpointer user_data) {
 
    on_pharmacophore_structure_click_info_t *ci_p =
       static_cast<on_pharmacophore_structure_click_info_t *> (user_data);
@@ -988,7 +988,7 @@ cfc::on_cfc_pharmacophore_cluster_structure_button_clicked(GtkButton *button,
 }
 
 std::pair<bool, clipper::Coord_orth>
-cfc::extracted_cluster_info_from_python::pharmacophores_centre() const {
+pythonic_cfc::extracted_cluster_info_from_python::pharmacophores_centre() const {
 
    std::pair<bool, clipper::Coord_orth> pos_pair(false, clipper::Coord_orth(0,0,0));
    clipper::Coord_orth sum(0,0,0);
@@ -1017,7 +1017,7 @@ cfc::extracted_cluster_info_from_python::pharmacophores_centre() const {
 
 
 void
-cfc::extracted_cluster_info_from_python::extract_water_info(PyObject *cluster_info_py) {
+pythonic_cfc::extracted_cluster_info_from_python::extract_water_info(PyObject *cluster_info_py) {
 
    std::vector<water_cluster_info_from_python> v;
    std::vector<clustered_feature_info_from_python> v_cw;
@@ -1093,7 +1093,7 @@ cfc::extracted_cluster_info_from_python::extract_water_info(PyObject *cluster_in
 				       double radius = PyFloat_AsDouble(radius_py);
 
 				       clipper::Coord_orth pos(x,y,z);
-				       v.push_back(cfc::water_cluster_info_from_python(pos, weight, radius));
+				       v.push_back(water_cluster_info_from_python(pos, weight, radius));
 				    }
 				 }
 			      }
@@ -1146,7 +1146,7 @@ cfc::extracted_cluster_info_from_python::extract_water_info(PyObject *cluster_in
 }
 
 std::vector<clipper::Coord_orth>
-cfc::extracted_cluster_info_from_python::extract_cluster_means(PyObject *means_py) {
+pythonic_cfc::extracted_cluster_info_from_python::extract_cluster_means(PyObject *means_py) {
 
    std::vector<clipper::Coord_orth> v;
    
@@ -1191,7 +1191,7 @@ cfc::extracted_cluster_info_from_python::extract_cluster_means(PyObject *means_p
 
 
 void
-cfc::extracted_cluster_info_from_python::extract_chemical_feature_info(PyObject *cf_py) {
+pythonic_cfc::extracted_cluster_info_from_python::extract_chemical_feature_info(PyObject *cf_py) {
 
    // cf_py is [type, features-annotated-by-cluster-number, cluster_means]
 
@@ -1293,7 +1293,7 @@ cfc::extracted_cluster_info_from_python::extract_chemical_feature_info(PyObject 
 }
 
 // constructor
-cfc::extracted_cluster_info_from_python::extracted_cluster_info_from_python(PyObject *cluster_info_py) {
+pythonic_cfc::extracted_cluster_info_from_python::extracted_cluster_info_from_python(PyObject *cluster_info_py) {
 
    if (! PyList_Check(cluster_info_py)) {
       std::cout << "ERROR:: not a list in cfc_extract_cluster_info()" << std::endl;
@@ -1319,7 +1319,7 @@ cfc::extracted_cluster_info_from_python::extracted_cluster_info_from_python(PyOb
 }
 
 unsigned int
-cfc::extracted_cluster_info_from_python::n_water_structures() const {
+pythonic_cfc::extracted_cluster_info_from_python::n_water_structures() const {
 
    std::map<int, int> imol_map;
 
@@ -1332,7 +1332,7 @@ cfc::extracted_cluster_info_from_python::n_water_structures() const {
 }
 
 std::vector<int>
-cfc::extracted_cluster_info_from_python::water_structures_vec() const {
+pythonic_cfc::extracted_cluster_info_from_python::water_structures_vec() const {
 
    // I don't like using a list, I'd rather do it the usual way, with
    // a vector and std::find().
@@ -1355,7 +1355,7 @@ cfc::extracted_cluster_info_from_python::water_structures_vec() const {
 
 // how many structures have pharmacophores?
 unsigned int
-cfc::extracted_cluster_info_from_python::n_pharmacophore_structures() const {
+pythonic_cfc::extracted_cluster_info_from_python::n_pharmacophore_structures() const {
 
    return pharmacophore_structures_vec().size();
 }
@@ -1365,7 +1365,7 @@ cfc::extracted_cluster_info_from_python::n_pharmacophore_structures() const {
 // have pharmocophores.  Used for pharmacophe structure buttons.
 // 
 std::vector<int> 
-cfc::extracted_cluster_info_from_python::pharmacophore_structures_vec() const {
+pythonic_cfc::extracted_cluster_info_from_python::pharmacophore_structures_vec() const {
 
    std::vector<int> imols_collection;
 
@@ -1389,7 +1389,7 @@ cfc::extracted_cluster_info_from_python::pharmacophore_structures_vec() const {
 // as above, but we return the spec too
 //
 std::vector<std::pair<int, coot::residue_spec_t> >
-cfc::extracted_cluster_info_from_python::pharmacophore_structures_and_specs_vec() const {
+pythonic_cfc::extracted_cluster_info_from_python::pharmacophore_structures_and_specs_vec() const {
 
    std::vector<std::pair<int, coot::residue_spec_t> > imols_collection;
 
@@ -1414,7 +1414,7 @@ cfc::extracted_cluster_info_from_python::pharmacophore_structures_and_specs_vec(
 
 
 std::vector<std::pair<int, coot::residue_spec_t> >
-cfc::extracted_cluster_info_from_python::water_cluster_imol_residue_spec_vec() const {
+pythonic_cfc::extracted_cluster_info_from_python::water_cluster_imol_residue_spec_vec() const {
 
    // this needs checking (doing a == test on a pair in a vector)
 
@@ -1439,7 +1439,7 @@ cfc::extracted_cluster_info_from_python::water_cluster_imol_residue_spec_vec() c
 // which imol,residue_specs are contributing to the pharmacophore[type][idx] ? 
 // 
 std::vector<std::pair<int, coot::residue_spec_t> >
-cfc::extracted_cluster_info_from_python::pharmacophore_cluster_imol_residue_spec_vec(const std::string &type, unsigned int cluster_idx) {
+pythonic_cfc::extracted_cluster_info_from_python::pharmacophore_cluster_imol_residue_spec_vec(const std::string &type, unsigned int cluster_idx) {
 
    std::vector<std::pair<int, coot::residue_spec_t> > v;
 
@@ -1461,7 +1461,7 @@ cfc::extracted_cluster_info_from_python::pharmacophore_cluster_imol_residue_spec
 
 
 unsigned int
-cfc::extracted_cluster_info_from_python::water_cluster_idx_max() const {
+pythonic_cfc::extracted_cluster_info_from_python::water_cluster_idx_max() const {
 
    unsigned int idx_max = 0;
    for (unsigned int i=0; i<cw.size(); i++) {
@@ -1475,7 +1475,7 @@ cfc::extracted_cluster_info_from_python::water_cluster_idx_max() const {
 
 // return the generic display object index
 int
-cfc::extracted_cluster_info_from_python::show_water_balls(unsigned int site_number) const {
+pythonic_cfc::extracted_cluster_info_from_python::show_water_balls(unsigned int site_number) const {
 
    graphics_info_t g;
    std::string s = "CFC Site " + coot::util::int_to_string(site_number) + " conserved waters";
@@ -1520,8 +1520,8 @@ cfc::extracted_cluster_info_from_python::show_water_balls(unsigned int site_numb
 }
 
 void
-cfc::cfc_dialog_add_site_info(unsigned int site_number,
-			      const extracted_cluster_info_from_python &eci) {
+pythonic_cfc::cfc_dialog_add_site_info(unsigned int site_number,
+				       const extracted_cluster_info_from_python &eci) {
 
    // GtkWidget *sites_table = lookup_widget(graphics_info_t::cfc_dialog, "cfc_sites_table");
    GtkWidget *sites_grid = widget_from_builder("cfc_sites_grid");
@@ -1565,9 +1565,9 @@ cfc::cfc_dialog_add_site_info(unsigned int site_number,
 
 
 void
-cfc::chemical_feature_clusters_add_site_info(unsigned int site_number,
-					     const extracted_cluster_info_from_python &eci,
-					     GtkWidget *cfc_dialog) {
+pythonic_cfc::chemical_feature_clusters_add_site_info(unsigned int site_number,
+						      const extracted_cluster_info_from_python &eci,
+						      GtkWidget *cfc_dialog) {
 
    cfc_dialog = graphics_info_t::cfc_dialog;
    cfc_dialog_add_waters(site_number, eci, cfc_dialog);

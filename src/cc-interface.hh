@@ -663,7 +663,12 @@ std::vector<std::string> dictionary_entries();
 //! debug dictionary information
 void debug_dictionary();
 
-//
+//! get types in molecule
+//!
+//! @param imol the molecule index
+//! @return a vector of residue types
+std::vector<std::string> get_types_in_molecule(int imol);
+
 //! Get the SMILES for the given residue type
 //!
 //! @param comp_id is the residue type

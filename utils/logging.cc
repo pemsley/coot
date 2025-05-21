@@ -204,6 +204,25 @@ logging::log(log_t type_in, const function_name_t &fn, const std::string &s1, in
 }
 
 void
+logging::log(log_t type_in, const function_name_t &fn, const std::string &s1, int i, const std::string &s2) {
+
+   log_item l(type_in, fn);
+   timeval current_time;
+   int success = gettimeofday(&current_time, NULL);
+   if (success == 0) // was successful
+      l.t = current_time.tv_sec;
+   l.add_to_message(s1);
+   l.add_to_message(" ");
+   l.add_to_message(std::to_string(i));
+   l.add_to_message(" ");
+   l.add_to_message(s2);
+   history.push_back(l);
+   output_to_terminal_maybe();
+   notify();
+}
+
+
+void
 logging::log(log_t type_in, const function_name_t &fn, const std::vector<ltw> &v) {
 
    log_item l(type_in, fn);

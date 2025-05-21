@@ -88,8 +88,6 @@ add_library(cootapi SHARED
             ${coot_src}/lidia-core/cod-atom-type-t.cc
             ${coot_src}/lidia-core/rdkit-interface.cc
             ${coot_src}/lidia-core/bond-table-record-t.cc
-            ${coot_src}/src/coot-hydrogens.cc
-            ${coot_src}/src/cfc.cc
             ${coot_src}/MoleculesToTriangles/CXXSurface/CXXBall.cpp
             ${coot_src}/MoleculesToTriangles/CXXSurface/CXXChargeTable.cpp
             ${coot_src}/MoleculesToTriangles/CXXSurface/CXXCircle.cpp
@@ -279,6 +277,7 @@ add_library(cootapi SHARED
             ${coot_src}/pli/pi-stacking.cc
             ${coot_src}/pli/sdf-interface.cc
             ${coot_src}/pli/specs.cc
+            ${coot_src}/coot-utils/cfc.cc
             ${coot_src}/coot-utils/coot-align.cc
             ${coot_src}/coot-utils/dict-link-info.cc
             ${coot_src}/coot-utils/cmtz-interface.cc

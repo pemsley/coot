@@ -101,7 +101,7 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
       return v;
    };
 
-   std::cout << "--------------- starting second rdkit_mol() ----- " << std::endl;
+   // std::cout << "--------------- starting second rdkit_mol() ----- " << std::endl;
 
    bool debug = false;
 

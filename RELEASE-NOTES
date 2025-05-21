@@ -12,14 +12,20 @@
 
  o BUG-FIX: Fix crash on adding an atom [Clément Bousquet]
 
+ o BUG-FIX: Fix the non-drawn clashes post model update
+
  o BUG-FIX: "Add Other Solvent Molecules" dialog has been depythonized
-            and now will work on macOS.
+            and now will work on macOS
 
- o BUG-FIX: Fix the problem of focus when using Tutorial Model & Data.
+ o BUG-FIX: "Copy Molecule" dialog has been depythonized and is now an
+            overlay and now will work on macOS
 
- o BUG-FIX: if a map has a PANDDA:: label then Coot now properly handles
-            that (turns off "is-EM-map" status).
+ o BUG-FIX: Fix the problem of focus-grab when using Tutorial Model & Data.
 
+ o BUG-FIX: if a map has a PANDDA:: or APPLY-SYMMETRY:: label then Coot now
+            properly handles that (turns off "is-EM-map" status)
+
+ o BUG-FIX: Fix the Close button in the Restraints Editor
 
 -----
 
