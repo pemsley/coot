@@ -82,8 +82,7 @@ libcoot_coord_utils_la_SOURCES = coot-coord-utils.cc \
 	3d-texture.cc merge-molecules.cc fragment-container.cc mutate.cc \
 	cylinder.cc cylinder-with-rotation-translation.cc oct.cc prideout-octasphere.cc simple-mesh.cc \
 	shapes.cc cmtz-interface.cc pugixml.cpp parse-pisa.cc gltf-export.cc pae.cc \
-	gl-matrix.cc gl-matrix-eigensystem.cc coot-align.cc grid-balls.cc dict-link-info.cc \
-	cfc.cc
+	gl-matrix.cc gl-matrix-eigensystem.cc coot-align.cc grid-balls.cc dict-link-info.cc
 
 #    $(top_builddir)/mini-mol/libcoot-mini-mol.la
 #    $(top_builddir)/utils/libcoot-utils.la
@@ -114,7 +113,7 @@ libcoot_coord_utils_la_LDFLAGS = $(SHARED_LDFLAGS)
 
 # for non-simple coordinates things
 libcoot_coord_extras_la_SOURCES = coot-coord-extras.cc coot-coord-lsq.cc \
-	coot-tree-extras.cc water-coordination.cc lsq-improve.cc coot-coord-utils-glyco.cc jed-flip.cc
+	coot-tree-extras.cc water-coordination.cc lsq-improve.cc coot-coord-utils-glyco.cc jed-flip.cc cfc.cc
 
 # needs more, mini-mol, geometry
 #     $(top_builddir)/mini-mol/libcoot-mini-mol.la
