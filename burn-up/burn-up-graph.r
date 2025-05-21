@@ -138,8 +138,8 @@ do_plot()
 
 predict(prediction_text_x_placement, prediction_text_y_placement)
 
-# betterArrow(48, 36, 21, 30, 0.2, col='grey30', code=2)
-# text(78, 38., labels="Python Menu\nDump", col='grey30', cex=1.0)
+betterArrow(60, 21, 52, 18, 0.2, col='grey30', code=2)
+text(60, 24., labels="Postone\nCarbohydrate\nand\nTexture Map", col='grey30', cex=1.0)
 
 dev.off()
 
