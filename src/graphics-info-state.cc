@@ -143,14 +143,6 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
       commands.push_back(state_command("coot", "set-rotate-translate-dialog-position",
                                        rotate_translate_x_position,
                                        rotate_translate_y_position, il));
-   if (graphics_info_t::accept_reject_dialog_x_position > -1)
-      commands.push_back(state_command("coot", "set-accept-reject-dialog-position",
-                                       accept_reject_dialog_x_position,
-                                       accept_reject_dialog_y_position, il));
-   if (graphics_info_t::ramachandran_plot_x_position > -1)
-      commands.push_back(state_command("coot", "set-ramachandran-plot-dialog-position",
-                                       ramachandran_plot_x_position,
-                                       ramachandran_plot_y_position, il));
    if (graphics_info_t::edit_chi_angles_dialog_x_position > -1)
       commands.push_back(state_command("coot", "set-edit-chi-angles-dialog-position",
                                        edit_chi_angles_dialog_x_position,

@@ -693,7 +693,7 @@ PyObject *dictionary_entries_py();
 //
 //! @param comp_id is the residue type
 //! @return the SMILES string or False on failure to find the
-//!         residue type or SMILES string        
+//!         residue type or SMILES string
 PyObject *SMILES_for_comp_id_py(const std::string &comp_id);
 
 #endif // PYTHON
