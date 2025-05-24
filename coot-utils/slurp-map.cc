@@ -221,7 +221,7 @@ coot::util::slurp_parse_xmap_data(char *data,
    cell_ga = *reinterpret_cast<float *>(data+60);
 
    if (debug)
-      std::cout << "debug:: cell " << cell_a << " " << cell_b << " " << cell_c << " "
+      std::cout << "DEBUG:: slurp_parse_xmap_data(): cell " << cell_a << " " << cell_b << " " << cell_c << " "
                 << cell_al << " " << cell_be << " " << cell_ga << std::endl;
 
    // axis order
@@ -234,7 +234,8 @@ coot::util::slurp_parse_xmap_data(char *data,
    axis_order_xyz[map_sec-1] = 2;
 
    if (debug)
-      std::cout << "debug:: axis order " << map_row << " " << map_col << " " << map_sec << std::endl;
+      std::cout << "DEBUG:: slurp_parse_xmap_data(): axis order "
+                << map_row << " " << map_col << " " << map_sec << std::endl;
 
    // At the moment this function only works with simple X Y Z map ordering.
    // So escape with fail status if that is not the case
@@ -244,13 +245,6 @@ coot::util::slurp_parse_xmap_data(char *data,
          if (map_sec == 3)
             is_simple_x_y_z_order = true;
 
-   if (! is_simple_x_y_z_order) {
-      if (debug)
-         std::cout << "DEBUG:: Not simple X,Y,Z axis order - returning from slurp_parse_xmap_data() now "
-                   << std::endl;
-      return slurp_map_result_t::UNRESOLVED;
-   }
-
    float dmin = 0.0, dmax = 0.0, dmean = 0.0;
    dmax  = *reinterpret_cast<float *>(data+76);
    dmin  = *reinterpret_cast<float *>(data+80);
@@ -259,11 +253,28 @@ coot::util::slurp_parse_xmap_data(char *data,
    space_group_number = *reinterpret_cast<int *>(data+88);
    if (space_group_number == 0) // EM, maybe chimera maps
       space_group_number = 1;
+
+   if (! is_simple_x_y_z_order) {
+      if (debug)
+         std::cout << "DEBUG:: Not simple X,Y,Z axis order - returning from slurp_parse_xmap_data() now "
+                   << std::endl;
+      status = slurp_map_result_t::UNRESOLVED;
+      if (check_only) {
+         auto is_small = [] (float v) { return (fabs(v) < 0.0001); };
+         if (mx > 0 && my > 0 && mz > 0) {
+            if (space_group_number == 1)
+               if(is_small(cell_al-90.0f) && is_small(cell_be-90.0f) && is_small(cell_ga-90.0f))
+                  status = slurp_map_result_t::IS_NON_SLURPABLE_EM_MAP;
+         }
+      }
+      return status;
+   }
+
    int size_extended_header = 0;
    size_extended_header = *reinterpret_cast<int *>(data+92);
-   char *extra = data+96; // 100 bytes max
+   char *extra    = data+ 96; // 100 bytes max
    char *ext_type = data+104; // 1 byte
-   char *version = data+108;  // 1 byte
+   char *version  = data+108; // 1 byte
 
    float origin_a = -1, origin_b = -1, origin_c = -1;
    origin_a = *reinterpret_cast<float *>(data+196);

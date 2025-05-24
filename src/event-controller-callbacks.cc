@@ -796,7 +796,7 @@ graphics_info_t::on_glarea_scrolled(GtkEventControllerScroll *controller,
       scroll_zoom(dir);
    };
 
-   std::cout << "dy: " << dy << std::endl;
+   std::cout << "debug:: on_glarea_scrolled() --- start --- dy: " << dy << std::endl;
 
    GdkModifierType modifier = gtk_event_controller_get_current_event_state(GTK_EVENT_CONTROLLER(controller));
    control_is_pressed = (modifier & GDK_CONTROL_MASK);
@@ -854,6 +854,7 @@ graphics_info_t::on_glarea_scrolled(GtkEventControllerScroll *controller,
          contour_level_scroll_scrollable_map(dy);
       }
    }
+   std::cout << "debug:: on_glarea_scrolled() done " << std::endl;
 }
 
 

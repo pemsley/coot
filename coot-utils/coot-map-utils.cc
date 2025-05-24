@@ -3811,6 +3811,12 @@ coot::util::map_fragment_info_t::unshift(clipper::Xmap<float> *xmap_p,
 bool
 coot::util::is_EM_map(const clipper::Xmap<float> &xmap) {
 
+   // 20250524-PE this is not a good function - it doesn't check the labels.
+   // The labels are only accessible when the map is read.
+   // So asking is question of an xmap is not a good idea.
+   // The status needs to be decided at map-read time and caried along
+   // beside the map.
+
    bool is_em = false;
    if (xmap.spacegroup().num_symops() == 1) { // P1
       if (((xmap.cell().descr().alpha() - M_PI/2) <  0.0001) &&

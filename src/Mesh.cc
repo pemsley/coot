@@ -773,15 +773,22 @@ Mesh::setup_buffers() {
 
    if (is_headless) return;
 
+   // 20250524-PE this is often not an error with EM maps, say.
+#if 0
    if (vertices.empty())  std::cout << "WARNING:: Mesh::setup_buffers() zero vertices -  probably an error" << std::endl;
    if (triangles.empty()) std::cout << "WARNING:: Mesh::setup_buffers() zero triangles - probably an error" << std::endl;
+#endif
 
    if (vertices.empty()) {
+
+#if 0
+      // from where was this called then?
 #if USE_BACKWARD
                backward::StackTrace st;
                backward::Printer p;
                st.load_here(32);
                p.print(st);
+#endif
 #endif
    }
 

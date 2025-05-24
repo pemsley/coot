@@ -54,7 +54,6 @@ molecules_container_t::read_ccp4_map(const std::string &file_name, bool is_a_dif
       }
    }
 
-
    if (coot::util::is_basic_em_map_file(file_name) == coot::util::slurp_map_result_t::IS_SLURPABLE_EM_MAP) {
 
       std::cout << "DEBUG:: mc::read_ccp4_map() returns true for is_basic_em_map_file() "
@@ -65,7 +64,7 @@ molecules_container_t::read_ccp4_map(const std::string &file_name, bool is_a_dif
       short int is_em_map = 1; // this is the correct type - it can be -1.
       coot::molecule_t m(file_name, imol_in_hope, is_em_map);
       short int m_em_status = m.is_EM_map();
-      std::cout << "m_em_status " << m_em_status << std::endl;
+      std::cout << "::::: read_ccp4_map() m_em_status " << m_em_status << std::endl;
       clipper::Xmap<float> &xmap = m.xmap;
       coot::util::slurp_map_result_t smr = coot::util::slurp_fill_xmap_from_map_file(file_name, &xmap, check_only);
       if (smr == coot::util::slurp_map_result_t::OK) {
@@ -75,11 +74,14 @@ molecules_container_t::read_ccp4_map(const std::string &file_name, bool is_a_dif
    }
 
    if (false) {
+      // this is only true at the moment if the map was slurpable.
       if (is_valid_map_molecule(imol)) {
          short int em_status = molecules[imol].is_EM_map();
          std::cout << "here with imol " << imol << " molecules size " << molecules.size() << std::endl;
          std::cout << "here with imol " << imol << " done " << done << std::endl;
          std::cout << "here with imol " << imol << " is_em_map:  " << em_status << std::endl;
+      } else {
+         std::cout << "here with imol " << imol << " not a valid map molecule" << std::endl;
       }
    }
 
@@ -106,26 +108,33 @@ molecules_container_t::read_ccp4_map(const std::string &file_name, bool is_a_dif
                   clipper::Xmap<float> xmap;
                   file.import_xmap(xmap);
                   if (xmap.is_null()) {
-                     std::cout << "ERROR:: failed to read the map" << file_name << std::endl;
+                     std::cout << "ERROR:: read_ccp4_map(): failed to read the map" << file_name << std::endl;
                   } else {
                      std::string name = file_name;
-                     coot::molecule_t m(name, imol_in_hope);
+                     short int is_em_map = 0;
+                     coot::util::slurp_map_result_t smr = coot::util::is_basic_em_map_file(file_name);
+                     if (smr == coot::util::slurp_map_result_t::IS_NON_SLURPABLE_EM_MAP)
+                        is_em_map = 1;
+                     coot::molecule_t m(name, imol_in_hope, is_em_map);
                      m.xmap = xmap;
                      if (is_a_difference_map)
                         m.set_map_is_difference_map(true);
                      molecules.push_back(m); // oof.
                      imol = imol_in_hope;
+                     bool em_status = molecules[imol].is_EM_map();
+                     std::cout << "DEBUG:: read_ccp4_map(): inner block em_status " << em_status << std::endl;
                   }
                }
                catch (const clipper::Message_generic &exc) {
-                  std::cout << "WARNING:: failed to read " << file_name
+                  std::cout << "WARNING:: read_ccp4_map(): failed to read " << file_name
                             << " Bad ASU (inconsistant gridding?)." << std::endl;
                   // bad_read = true;
                }
             }
          }
-      } catch (const clipper::Message_base &exc) {
-         std::cout << "WARNING:: failed to open " << file_name << std::endl;
+      }
+      catch (const clipper::Message_base &exc) {
+         std::cout << "WARNING:: read_ccp4_map(): failed to open " << file_name << std::endl;
          // bad_read = true;
          imol = -3; // clipper error
       }

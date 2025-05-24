@@ -384,11 +384,9 @@ graphics_info_t::mouse_zoom_by_scale_factor_inner(double sf) {
    } else {
 
       // stabilize the scale factor
-      if (sf < 0.1) sf = 0.1;
+      if (sf < 0.5) sf = 0.5;
       if (sf > 2.0) sf = 2.0;
       graphics_info_t::eye_position.z *= sf;
-
-      std::cout << "mouse_zoom_by_scale_factor_inner() sf " << sf << " eye-position-z " << eye_position.z << std::endl;
 
    }
 }
@@ -6295,7 +6293,7 @@ graphics_info_t::idle_contour_function(gpointer data) {
            float r = cl/map_rmsd;
            // std::cout << "DEBUG:: idle_contour_function() imol: " << imol << " contour level: "
 	   // << g.molecules[imol].contour_level << " n-rmsd: " << r << std::endl;
-	   logger.log(log_t::DEBUG, logging::function_name_t("idle_contour_function()"),
+	   logger.log(log_t::DEBUG, logging::function_name_t("idle_contour_function"),
 		      {imol, "contour_level", g.molecules[imol].contour_level, "n-rmsd:",
 		       r});
            g.set_density_level_string(imol, g.molecules[imol].contour_level);

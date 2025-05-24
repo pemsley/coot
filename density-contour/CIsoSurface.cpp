@@ -1053,6 +1053,10 @@ CIsoSurface<T>::GenerateTriangles_from_Xmap(const clipper::Xmap<T>& crystal_map,
                                         // We need to merge and remove after all the
                                         // sections have been calculated.
 
+   // no triangles means nothing should be returned
+   if (tri_con.point_indices.empty())
+      tri_con.clear();
+
    return tri_con;
 }
 
@@ -1780,6 +1784,8 @@ CIsoSurface<T>::returnTriangles(const clipper::Xmap<T>& xmap,
 				float radius,
 				coot::Cartesian centre,
 				bool is_em_map) const {
+
+   std::cout << "--------------- running returnTriangles() " << std::endl;
 
    coot::CartesianPairInfo result_wrapper;
 

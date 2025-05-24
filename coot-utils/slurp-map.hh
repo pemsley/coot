@@ -31,6 +31,7 @@ namespace coot {
 
       enum class slurp_map_result_t { OK=1,
                                       IS_SLURPABLE_EM_MAP=100,
+                                      IS_NON_SLURPABLE_EM_MAP=600,
                                       NOT_AN_EM_MAP=200,
                                       FAIL=300,
                                       FILE_NOT_FOUND=400,
@@ -38,7 +39,7 @@ namespace coot {
 
       std::vector<std::string> get_map_labels(const std::string &file_name);
 
-      // PANDDA::, that is.
+      // PANDDA::, or that is.
       bool map_labels_contain_PANDDA(const std::string &file_name);
 
       slurp_map_result_t is_basic_em_map_file(const std::string &file_name);

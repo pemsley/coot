@@ -428,6 +428,7 @@ coot::molecule_t::get_map_contours_mesh(clipper::Coord_orth position, float radi
 
    bool show_timings = true;
    auto tp_0 = std::chrono::high_resolution_clock::now();
+
    if (use_thread_pool)
       update_map_triangles_using_thread_pool(radius, p, contour_level, thread_pool_p);
    else
@@ -508,6 +509,31 @@ coot::molecule_t::get_map_contours_mesh(clipper::Coord_orth position, float radi
       m.clear();
       m.status = 0;
    }
+
+
+   const auto &vertices = m.vertices;
+
+   if (false) {
+      // I want to see if the vertices are greater than the cell (219x219x219)
+      for (unsigned int i=0; i<vertices.size(); i++) {
+         if (vertices[i].pos.x > 219.0 || vertices[i].pos.y > 219.0 || vertices[i].pos.z > 219.0) {
+            std::cout << "ERROR:: vertex " << i << " " << vertices[i].pos.x << " "
+                      << vertices[i].pos.y << " " << vertices[i].pos.z << std::endl;
+         }
+         // test for negative values also:
+         if (vertices[i].pos.x < -1.0 || vertices[i].pos.y < -1.0 || vertices[i].pos.z < -1.0) {
+            std::cout << "ERROR:: vertex " << i << " " << vertices[i].pos.x << " "
+                      << vertices[i].pos.y << " " << vertices[i].pos.z << std::endl;
+         }
+
+         // print out everything:
+         std::cout << "INFO::  vertex " << i << " " << vertices[i].pos.x << " "
+                   << vertices[i].pos.y << " " << vertices[i].pos.z << std::endl;
+
+      }
+   }
+
+
    return m;
 }
 
