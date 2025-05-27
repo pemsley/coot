@@ -84,7 +84,35 @@
 		  <object class="GtkFrame">
                     <property name="visible">1</property>
                     <property name="child">
-                      <object class="GtkBox" id="cfc-waters-frame">
+                      <object class="GtkBox" id="cfc-waters-box">
+			<child>
+ 			  <object class="GtkBox" id="cfc-residues-vbox">
+			    <property name="orientation">vertical</property>
+			    <child>
+			      <object class="GtkLabel">
+				<property name="label" translatable="yes">Water Clusters</property>
+				<property name="justify">center</property>
+			      </object>
+			    </child>
+
+			    <child>
+			      <object class="GtkScrolledWindow" id="cfc_waterss_scrolledwindow">
+				<property name="hexpand">1</property>
+				<property name="vexpand">1</property>
+				<child>
+				  <object class="GtkViewport">
+				    <property name="hexpand">1</property>
+				    <property name="vexpand">1</property>
+				    <child>
+				      <object class="GtkGrid" id="cfc-waters-grid">
+				      </object>
+				    </child>
+				  </object>
+				</child>
+			      </object>
+			    </child>
+			  </object>
+			</child>
 		      </object>
 		    </property>
 		  </object>

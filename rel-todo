@@ -1,6 +1,7 @@
 
 --- Items ---
 
+
 ../../coot/lidia-core/rdkit-interface.cc: In function 'RDKit::RWMol coot::rdkit_mol(mmdb::Residue*, const dictionary_residue_restraints_t&, const std::string&, bool)':
 ../../coot/lidia-core/rdkit-interface.cc:877:33: warning: comparison of integer expressions of different signedness: 'int' and 'std::vector<std::__cxx11::basic_string<char> >::size_type' {aka 'long unsigned int'} [-Wsign-compare]
   877 |          for (int iconf=0; iconf<alt_confs_in_residue.size(); iconf++) {
@@ -11,6 +12,12 @@
   158 |                   for (int i=0; i<conf.getNumAtoms(); i++) {
       |                                 ~^~~~~~~~~~~~~~~~~~~
 
+o Get in touch with Kay for the display of h,k,l as atoms (cif)
+* Done. Progress has been made.
+
+o Atom sphere radius depends on B-factor - proportional to cube root maybe?
+  set_atom_radius_by_b_factor_mode(imol, state)
+  atom_radius_by_b_factor_scale_factor(imol, sf)
 
 
 (coot-1:1497796): Gtk-WARNING **: 23:41:10.291: A tag named 'datetime-color' is already in the tag table.

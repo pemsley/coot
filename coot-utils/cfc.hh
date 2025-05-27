@@ -40,6 +40,9 @@ namespace cfc {
 	 }
 	 return state;
       }
+      std::string make_name() const {
+	 return family + " " + type + " " + std::to_string(idx);
+      }
    };
 
    class water_info_t {
@@ -49,6 +52,7 @@ namespace cfc {
       RDGeom::Point3D pos;
       water_info_t(int imol_in, const coot::residue_spec_t &rs, const RDGeom::Point3D &p) :
 	 imol(imol_in), residue_spec(rs), pos(p) {}
+      water_info_t() : imol(-1) {}
    };
 
    std::pair<std::vector<typed_cluster_t>, std::vector<std::vector<water_info_t> > >
