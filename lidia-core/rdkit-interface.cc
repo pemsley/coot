@@ -874,7 +874,7 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 
 	 std::vector<std::string> alt_confs_in_residue = get_alt_confs_in_residue(residue_p);
 
-	 for (int iconf=0; iconf<alt_confs_in_residue.size(); iconf++) {
+	 for (unsigned int iconf=0; iconf<alt_confs_in_residue.size(); iconf++) {
 
 	    std::string alt_conf = alt_confs_in_residue[iconf];
 
