@@ -412,12 +412,52 @@ meshed_generic_display_object::add_dodecahedron(const coot::colour_holder &colou
                                                 double radius, const clipper::Coord_orth &pos) {
 }
 
+#include "make-a-dodec.hh"
+
 void
 meshed_generic_display_object::add_pentakis_dodecahedron(const coot::colour_holder &colour_in,
                                                          const std::string &colour_name,
                                                          double stellation_factor,
                                                          double radius,
-                                                         const clipper::Coord_orth &pos) {
+                                                         const clipper::Coord_orth &pos_c) {
+
+   // these lambdas could/should be in the class
+
+   auto clipper_to_glm = [] (const clipper::Coord_orth &c) {
+      return glm::vec3(c.x(), c.y(), c.z());
+   };
+
+   auto vn_vertex_to_generic_vertex = [] (const vn_vertex &v,
+					  const glm::vec3 &pos,
+					  float radius,
+					  const glm::vec4 &color) {
+      return s_generic_vertex(v.pos * radius + pos, v.normal, color);
+   };
+
+   auto vn_vertex_vector_to_generic_vertex_vector = [vn_vertex_to_generic_vertex]
+      (const std::vector<vn_vertex> &vv,
+       const glm::vec3 &pos,
+       float radius,
+       const glm::vec4 &color) {
+
+      std::vector<s_generic_vertex> vo(vv.size());
+      for (unsigned int i=0; i<vv.size(); i++)
+         vo[i] = vn_vertex_to_generic_vertex(vv[i], pos, radius, color);
+      return vo;
+   };
+
+   int spikey_mode = DODEC_SPIKEY_MODE;
+   std::pair<std::vector<vn_vertex>, std::vector<g_triangle> > dodec =
+      make_pentakis_dodec(spikey_mode);
+   const std::vector<vn_vertex>   &vertices = dodec.first;
+   const std::vector<g_triangle> &triangles = dodec.second;
+
+   glm::vec4 col = colour_holder_to_glm(colour_in);
+   glm::vec3 pos = clipper_to_glm(pos_c);
+
+   std::vector<s_generic_vertex> converted_vertices =
+      vn_vertex_vector_to_generic_vertex_vector(vertices, pos, radius, col);
+   mesh.import(converted_vertices, triangles);
 
 }
 

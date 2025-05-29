@@ -155,7 +155,7 @@ cfc::chemical_feature_clustering(const std::vector<cfc::input_info_t> &mol_infos
 	       if (false) {
 		  std::cout << "   Conformer " << iconf << " has " << conf.getNumAtoms()
 			    << " atoms" << std::endl;
-		  for (int i=0; i<conf.getNumAtoms(); i++) {
+		  for (unsigned int i=0; i<conf.getNumAtoms(); i++) {
 		     RDKit::Atom *at = m.getAtomWithIdx(i);
 		     RDGeom::Point3D pos = conf.getAtomPos(i);
 		     std::cout << "   atom " << i << " " << at->getIdx() << " "
@@ -235,23 +235,67 @@ cfc::chemical_feature_clustering(const std::vector<cfc::input_info_t> &mol_infos
    };
 
    auto cluster_waters = [get_n_clusters] (const std::vector<water_info_t> &water_infos) {
+
+      std::map<int, water_info_t> iwat_to_water_info_index;
       std::vector<glm::vec3> water_positions;
       for (const auto &water : water_infos) {
 	 glm::vec3 p(water.pos.x, water.pos.y, water.pos.z);
+	 int iwat = water_positions.size();
 	 water_positions.push_back(p);
+	 iwat_to_water_info_index[iwat] = water;
       }
-      double alpha = 2.0;
+      double alpha = 9.1;
       double beta  = 0.01;
       DirichletProcessClustering dpc(alpha, beta);
       std::vector<unsigned int> clustered_points = dpc.fit(water_positions);
-      // now make the clusters
-      unsigned int n_clusters = get_n_clusters(clustered_points);
-      std::vector<std::vector<water_info_t> > clusters(n_clusters);
-      for (unsigned int iclust=0; iclust<water_positions.size(); iclust++) {
-	 unsigned int cluster_index = clustered_points[iclust];
-	 clusters[cluster_index].push_back(water_infos[iclust]);
+      if (clustered_points.size() == water_positions.size()) {
+	 unsigned int n_clusters = get_n_clusters(clustered_points);
+	 std::cout << ":::::::::: n_clusters for waters " << n_clusters << std::endl;
+	 std::vector<std::vector<water_info_t> > clusters(n_clusters);
+	 for (unsigned int iwat=0; iwat<water_positions.size(); iwat++) {
+	    unsigned int cluster_index = clustered_points[iwat];
+	    std::cout << "debug:: iwat " << iwat << " cluster_index " << cluster_index
+		      << std::endl;
+	    auto wi = water_infos[iwat];
+	    std::cout << "adding water info with imol " << wi.imol << " to cluster number "
+		      << cluster_index << std::endl;
+	    clusters[cluster_index].push_back(wi);
+	 }
+	 if (true) {
+	    for (unsigned int ic=0; ic<clusters.size(); ic++) {
+	       std::cout << "post: water cluster " << ic << " has " << clusters[ic].size()
+			 << " waters" << std::endl;
+	    }
+	 }
+
+	 if (true) {
+	    std::cout << "------- in chemical_feature_clustering() cluster_waters() end --- "
+		      << std::endl;
+	    for (unsigned int i=0; i<clusters.size(); i++) {
+	       const auto &wi = clusters[i];
+	       std::cout << "cluster " << i << " has " << wi.size() << " contributons"
+			 << std::endl;
+	       std::set<int> imols_in_cluster;
+	       for (unsigned int jj=0; jj<wi.size(); jj++) {
+		  int imol = wi[jj].imol;
+		  imols_in_cluster.insert(imol);
+		  std::cout << "cluster " << i <<  ": adding imol " << imol << std::endl;
+	       }
+	       if (true)
+		  std::cout << "debug:: water_clusters [" << i << "] has "
+			    << imols_in_cluster.size() << " waters"
+			    << std::endl;
+	    }
+	    std::cout << "------------" << std::endl;
+	 }
+
+
+	 return clusters;
+      } else {
+	 logger.log(log_t::INFO, logging::function_name_t(__FUNCTION__), " bad cluster length");
+	 std::vector<std::vector<water_info_t> > dummy;
+	 return dummy;
       }
-      return clusters;
    };
 
    auto cluster_features = [make_test_points, get_n_clusters, split_string]
@@ -467,8 +511,6 @@ cfc::chemical_feature_clustering(const std::vector<cfc::input_info_t> &mol_infos
    std::vector<feature_info_t> feature_infos;
    std::vector<water_info_t> water_infos;
 
-   std::cout << "AAAAAAA mol_infos size " << mol_infos.size() << std::endl;
-
    if (! mol_infos.empty()) {
 
       int imol_enc = coot::protein_geometry::IMOL_ENC_ANY;
@@ -496,8 +538,6 @@ cfc::chemical_feature_clustering(const std::vector<cfc::input_info_t> &mol_infos
 	    if (rtop_info.first)
 	       do_it = true;
 	 }
-
-	 std::cout << "with i " << i << " do_it " << do_it << std::endl;
 
 	 if (do_it) {
 	    mmdb::Manager *mol = mol_infos[i].mol;
@@ -540,6 +580,13 @@ cfc::chemical_feature_clustering(const std::vector<cfc::input_info_t> &mol_infos
 
    std::vector<typed_cluster_t> typed_clusters = cluster_features(feature_infos);
    std::vector<std::vector<water_info_t> > water_clusters = cluster_waters(water_infos);
+
+   auto water_sorter = +[] (const std::vector<water_info_t> &wi1,
+			    const std::vector<water_info_t> &wi2) {
+      return wi2.size() < wi1.size();
+   };
+   std::sort(water_clusters.begin(), water_clusters.end(), water_sorter);
+
    // std::cout << "Found " << water_clusters.size() << " water clusters from "
    //           << water_infos.size() << " water" << std::endl;
    logger.log(log_t::DEBUG, logging::function_name_t(__FUNCTION__),
@@ -549,6 +596,24 @@ cfc::chemical_feature_clustering(const std::vector<cfc::input_info_t> &mol_infos
    output_clusters(typed_clusters, mol_infos);
 
    output_waters(water_clusters);
+
+   if (true) {
+      std::cout << "--------- at end of chemical_feature_clustering() --- "
+		<< std::endl;
+      std::set<int> imols_in_cluster;
+      for (unsigned int i=0; i<water_clusters.size(); i++) {
+	 const auto &wi = water_clusters[i];
+	 for (unsigned int jj=0; jj<wi.size(); jj++) {
+	    int imol = wi[jj].imol;
+	    imols_in_cluster.insert(imol);
+	 }
+	 if (true)
+	    std::cout << "debug:: water_clusters [" << i << "] has "
+		      << imols_in_cluster.size() << " waters"
+		      << std::endl;
+      }
+      std::cout << "------------" << std::endl;
+   }
 
    return std::make_pair(typed_clusters, water_clusters);
 

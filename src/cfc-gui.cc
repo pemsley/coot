@@ -24,6 +24,31 @@ cfc_gui_t::setup() {
    } else {
       std::cout << "ERROR:: cfc bad builder" << std::endl;
    }
+
+   style_css = "button.custom-cfc-button {         \
+			       background: #576060;        /* Green */ \
+			       color: white;       \
+			       padding: 3;         \
+			       margin: 0;          \
+			       min-width: 3px;   /* adjust as needed */ \
+			       border-radius: 3px; \
+			     } \
+			       \
+		button.custom-cfc-blank-button {   \
+			       padding: 3;         \
+			       color: #202020;     \
+			       margin: 0;          \
+			       min-width: 3px;     \
+			       border-radius: 1px; \
+			    } \
+		togglebutton.custom-cfc-blank-button:toggled {   \
+			       padding: 3;         \
+			       color: #20d020;     \
+			       margin: 0;          \
+			       min-width: 3px;     \
+			       border-radius: 1px; \
+			    } \
+			    ";
 }
 
 GtkWidget *
@@ -37,6 +62,107 @@ cfc_gui_t::widget_from_builder(const std::string &widget_name) {
    return w;
 }
 
+
+void
+cfc_gui_t::fill_waters_grid() {
+
+   auto sorter = +[] (const std::vector<cfc::water_info_t> &v1,
+		      const std::vector<cfc::water_info_t> &v2) {
+      return v1.size() > v2.size();
+   };
+
+   auto imol_is_part_of_cluster = [] (int imol, const std::set<int> &imols) {
+      return imols.find(imol) != imols.end();
+   };
+
+   class water_cluster_t {
+   public:
+      water_cluster_t() : imol(-1), pos(0.0, 0.0, 0.0) {}
+      water_cluster_t(int i, const RDGeom::Point3D &p) : imol(i), pos(p) {}
+      int imol;
+      RDGeom::Point3D pos;
+   };
+
+   GtkWidget *grid = widget_from_builder("cfc-waters-grid");
+   if (grid) {
+
+      // std::sort(water_infos.begin(), water_infos.end(), sorter);
+
+      // Load CSS
+      GtkCssProvider *provider = gtk_css_provider_new();
+      gtk_css_provider_load_from_string(provider, style_css.c_str());
+      gtk_style_context_add_provider_for_display(gdk_display_get_default(),
+						 GTK_STYLE_PROVIDER(provider),
+						 GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+
+      std::set<int> all_the_imols;
+      for (unsigned int i=0; i<water_infos.size(); i++) {
+	 const auto &wi = water_infos[i];
+	 for (unsigned int jj=0; jj<wi.size(); jj++) {
+	    int imol = wi[jj].imol;
+	    all_the_imols.insert(imol);
+	 }
+      }
+
+      auto callback = +[] (GtkToggleButton* togglebutton, gpointer data) {
+	 std::cout << "water cluster toggle-button toggled" << std::endl;
+	 water_cluster_t *wc = static_cast<water_cluster_t *>(data);
+	 int state = 0;
+	 if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(togglebutton))) {
+	    state = 1;
+	 } else {
+	    state = 0;
+	 }
+	 clipper::Coord_orth pt(wc->pos.x, wc->pos.y, wc->pos.z);
+	 // don't recentre if we are merely turnning off the representation
+	 if (state == 1)
+	    graphics_info_t::set_rotation_centre(pt);
+      };
+
+      auto tb_callback = +[] (GtkToggleButton *tb, gpointer data) {
+	 int imol = GPOINTER_TO_INT(data);
+	 if (gtk_toggle_button_get_active(tb))
+	    set_mol_displayed(imol, 1);
+	 else
+	    set_mol_displayed(imol, 0);
+      };
+
+      for (unsigned int i=0; i<water_infos.size(); i++) {
+	 const auto &wi = water_infos[i];
+
+	 std::set<int> imols_in_cluster;
+	 for (unsigned int jj=0; jj<wi.size(); jj++) {
+	    int imol = wi[jj].imol;
+	    imols_in_cluster.insert(imol);
+	 }
+
+	 GtkWidget *hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 0);
+	 gtk_grid_attach(GTK_GRID(grid), hbox, 1, i, 1,1);
+
+	 std::string label = "Water Cluster " + std::to_string(i);
+	 GtkWidget *tb = gtk_toggle_button_new_with_label(label.c_str());
+	 gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(tb), TRUE);
+	 water_cluster_t *wc = new water_cluster_t(i, wi[0].pos);
+	 g_signal_connect(G_OBJECT(tb), "toggled", G_CALLBACK(callback), wc);
+	 gtk_grid_attach(GTK_GRID(grid), tb, 0, i, 1, 1);
+
+	 std::set<int>::const_iterator it;
+	 for (it=all_the_imols.begin(); it!=all_the_imols.end(); ++it) {
+	    int imol = *it;
+	    GtkWidget *b = gtk_toggle_button_new_with_label("~");
+	    g_signal_connect(G_OBJECT(b), "toggled", G_CALLBACK(tb_callback),
+			     GINT_TO_POINTER(imol));
+	    GtkStyleContext *context = gtk_widget_get_style_context(b);
+	    if (imol_is_part_of_cluster(imol, imols_in_cluster))
+	       gtk_style_context_add_class(context, "custom-cfc-button");
+	    else
+	       gtk_style_context_add_class(context, "custom-cfc-blank-button");
+	    gtk_box_append(GTK_BOX(hbox), b);
+	 }
+      }
+   }
+}
+
 void
 cfc_gui_t::fill_ligands_grid() {
 
@@ -44,6 +170,7 @@ cfc_gui_t::fill_ligands_grid() {
       return t1.imols_with_specs.size() > t2.imols_with_specs.size();
    };
 
+   // put this in the class
    std::string style_css = "button.custom-cfc-button { \
                                background: #576F50;        /* Green */ \
                                color: white;       \
@@ -62,10 +189,8 @@ cfc_gui_t::fill_ligands_grid() {
                             } \
                             ";
 
-GtkWidget *grid = widget_from_builder("cfc-ligands-grid");
+   GtkWidget *grid = widget_from_builder("cfc-ligands-grid");
    if (grid) {
-      std::cout << "-------- grid " << grid
-		<< " n-clusters: " << cluster_infos.size() << std::endl;
 
       std::set<int> imols_in_cluster;
       for (unsigned int i=0; i<cluster_infos.size(); i++) {
@@ -132,7 +257,8 @@ GtkWidget *grid = widget_from_builder("cfc-ligands-grid");
 	    int imol = *it;
 	    GtkWidget *b = gtk_toggle_button_new_with_label(".");
 
-	    g_signal_connect(G_OBJECT(b), "toggled", G_CALLBACK(toggle_button_toggled_callback),
+	    g_signal_connect(G_OBJECT(b), "toggled",
+			     G_CALLBACK(toggle_button_toggled_callback),
 			     GINT_TO_POINTER(imol));
 
 	    GtkStyleContext *context = gtk_widget_get_style_context(b);
