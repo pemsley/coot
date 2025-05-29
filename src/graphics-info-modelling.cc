@@ -382,6 +382,7 @@ graphics_info_t::show_missing_refinement_residues_dialog(const std::vector<std::
    for (const auto &rn : res_names) {
       GtkWidget *label = gtk_label_new(rn.c_str());
       char* ccx = new char[rn.size() + 1];
+      for (unsigned int ii=0; ii<=rn.size(); ii++) ccx[ii] = 0;
       std::copy(rn.begin(), rn.end(), ccx);
       g_object_set_data(G_OBJECT(label), "comp_id", ccx); // read in on_download_monomers_ok_button_clicked()
       gtk_box_append(GTK_BOX(vbox), label);

@@ -544,6 +544,21 @@ void load_gltf_model(const std::string &gltf_file_name) {
    g.graphics_draw();
 }
 
+//! \brief set the model animation parameters
+void set_model_animation_parameters(unsigned int model_index, float amplitude, float wave_numer, float freq) {
+
+   graphics_info_t g;
+   g.set_model_animation_parameters(model_index, amplitude, wave_numer, freq);
+}
+
+//! \brief enable/disable the model animation (on or off)
+void set_model_animation_state(unsigned int model_index, bool state) {
+
+   graphics_info_t g;
+   g.set_model_animation_state(model_index, state);
+}
+
+
 //! \brief load a gltf model
 void scale_model(unsigned int model_index, float scale_factor) {
 

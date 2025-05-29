@@ -1247,7 +1247,7 @@ graphics_info_t::init_joey_ssao_stuff(int w, int h) {
    err = glGetError();
    if (err)
       std::cout << "ERROR init_joey_ssao_stuff() end err is " << err << std::endl;
-   
+
 }
 
 void
@@ -1456,8 +1456,8 @@ graphics_info_t::load_gltf_model(const std::string &gltf_file_name) {
 
    attach_buffers();
 
-   Mesh e("some name"); // extract/replace this from the gltf data
-   e.load_from_glTF(gltf_file_name);
+   TextureMesh tm("some name"); // extract/replace this from the gltf data
+   tm.load_from_glTF(gltf_file_name);
    // e.invert_normals(); // it is shiny on the inside either way around - hmm.
 
    // why do this?
@@ -1468,11 +1468,18 @@ graphics_info_t::load_gltf_model(const std::string &gltf_file_name) {
       mat.ambient  = glm::vec4(0.7, 0.7, 0.7, 1.0);
       mat.diffuse  = glm::vec4(0.7, 0.7, 0.7, 1.0);
       mat.turn_specularity_on(true);
-      e.set_material(mat); // override the material extracted from the gltf
+      // tm.set_material(mat); // override the material extracted from the gltf
    }
    Model e_model;
-   e_model.add_mesh(e);
+   e_model.add_tmesh(tm);
    add_model(e_model);
+
+   // add continuous updating
+   if (! tick_function_is_active()) {
+      tick_function_id = gtk_widget_add_tick_callback(glareas[0], glarea_tick_func, 0, 0);
+   }
+   do_tick_constant_draw = true;
+
 }
 
 

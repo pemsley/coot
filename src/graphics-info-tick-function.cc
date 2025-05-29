@@ -218,6 +218,7 @@ graphics_info_t::glarea_tick_func(GtkWidget *widget,
 
    if (graphics_info_t::do_tick_constant_draw) {
       // don't change anything - I just want to remind you (well myself, I suppose) that it's here
+      // 20250525-PE I chuckled at this message
    }
 
    if (graphics_info_t::do_tick_hydrogen_bonds_mesh) {

@@ -70,6 +70,8 @@ Shader::Shader(const std::string &vs_file_name, const std::string &fs_file_name)
 
 void Shader::init(const std::string &file_name, Shader::Entity_t e) {
 
+   // std::cout << "shader::init() " << file_name << std::endl;
+
    success_status = true; // initially
    // clear then go
    VertexSource.clear();
@@ -403,7 +405,8 @@ void Shader::parse(const std::string &file_name_in) {
       if (! default_directory.empty())
          file_name = default_directory + "/" + file_name;
 
-   // std::cout << "Shader parse: file_name: " << file_name << std::endl;
+   // std::cout << "Shader parse(): file_name: " << file_name << std::endl;
+
    std::ifstream f(file_name.c_str());
    if (f) {
       VertexSource.clear();
