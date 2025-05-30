@@ -6939,6 +6939,7 @@ on_download_monomers_ok_button_clicked(GtkButton       *button,
       GtkWidget *item_widget = gtk_widget_get_first_child(vbox);
       while (item_widget) {
 	 gchar *comp_id = static_cast<gchar *>(g_object_get_data(G_OBJECT(item_widget), "comp_id"));
+         std::cout << "debug:: on_download_monomers_ok_button_clicked comp_id is " << comp_id << std::endl;
 	 if (comp_id) {
 	    GtkWidget *dialog = widget_from_builder("download_monomers_dialog");
 	    int run_get_monomer_post_fetch_flag =

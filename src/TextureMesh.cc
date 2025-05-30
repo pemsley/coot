@@ -570,8 +570,20 @@ TextureMesh::draw(Shader *shader_p,
 
    // ------------------------ more texture mesh uniforms here ------------------
 
+   shader_p->set_bool_for_uniform("do_animation", do_animation);
+   shader_p->set_float_for_uniform("animation_A", animation_A); // overall
+   shader_p->set_float_for_uniform("animation_k", animation_k); // wave number
+   shader_p->set_float_for_uniform("animation_w", animation_w); // angular freq (per second)
 
-   
+   std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
+   float time = std::chrono::duration_cast<std::chrono::milliseconds>(now - time_constructed).count();
+
+   // std::cout << "sending time " << time << std::endl;
+   shader_p->set_float_for_uniform("time", time); // thousands of milliseconds
+
+
+   // ------------------------ texture mesh uniforms done ------------------
+
    // this lights block can be in it's own function (same as Mesh)
    std::map<unsigned int, lights_info_t>::const_iterator it;
    unsigned int light_idx = 0;
@@ -646,6 +658,17 @@ TextureMesh::draw(Shader *shader_p,
    glUseProgram (0);
 
 }
+
+// Holy Zarquon swimming fish
+void
+TextureMesh::set_animation_paramaters(float amplitide_overall, float wave_number, float freq) {
+
+   animation_A = amplitide_overall;
+   animation_k = wave_number;
+   animation_w = freq;
+
+}
+
 
 
 void

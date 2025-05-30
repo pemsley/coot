@@ -42,6 +42,9 @@ Model::Model(const std::string &obj_file_name) {
    std::cout << "file " << obj_file_name << std::endl;
    assimp_import(obj_file_name);
    draw_this_model = true;
+   time_constructed = std::chrono::system_clock::now();
+   do_animation = false;
+
 }
 #endif
 
@@ -58,6 +61,8 @@ Model::Model(const std::vector<molecular_triangles_mesh_t> &mtm,
       mesh.setup(material);
       meshes.push_back(mesh);
    }
+   time_constructed = std::chrono::system_clock::now();
+   do_animation = false;
 }
 
 
@@ -558,4 +563,23 @@ Model::export_as_obj(const std::string &file_name) const {
    }
 
    return status;
+}
+
+// 20250527-PE Holy Zarquon swimming fish
+void
+Model::set_animation_parameters(float amplitide_overall, float wave_number, float freq) {
+
+   for (unsigned int i=0; i<tmeshes.size(); i++) {
+      tmeshes[i].set_animation_paramaters(amplitide_overall, wave_number, freq);
+   }
+}
+
+void
+Model::set_do_animation(bool state) {
+
+   do_animation = state;
+   for (unsigned int i=0; i<tmeshes.size(); i++) {
+      tmeshes[i].set_do_animation(state);
+   }
+
 }

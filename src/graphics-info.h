@@ -5305,6 +5305,23 @@ string   static std::string sessionid;
 
    void load_gltf_model(const std::string &gltf_file_name);
 
+   //! \brief set the model animation parameters
+   void set_model_animation_parameters(unsigned int model_index, float amplitude, float wave_numer, float freq) {
+      if (model_index < models.size()) {
+         auto &model = models[model_index];
+         model.set_animation_parameters(amplitude, wave_numer, freq);
+      }
+   }
+
+   //! \brief enable/disable the model animation (on or off)
+   void set_model_animation_state(unsigned int model_index, bool state) {
+      if (model_index < models.size()) {
+         auto &model = models[model_index];
+         model.set_do_animation(state);
+      }
+   }
+
+
    static std::string stringify_error_message(GLenum err) {
 
       std::string r = std::to_string(err);
