@@ -2,6 +2,8 @@
 #ifndef COOT_UTILS_CFC_HH
 #define COOT_UTILS_CFC_HH
 
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+
 #include <vector>
 #include <string>
 #include "geometry/protein-geometry.hh"
@@ -61,4 +63,5 @@ namespace cfc {
 
 }
 
+#endif // MAKE_ENHANCED_LIGAND_TOOLS
 #endif // COOT_UTILS_CFC_HH

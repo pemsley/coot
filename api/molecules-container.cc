@@ -5407,6 +5407,8 @@ molecules_container_t::mmcif_tests(bool last_test_only) {
 void
 molecules_container_t::test_function(const std::string &s) {
 
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+
    // test cfc here.
 
    // when extracting/reworking this for a real chapi function,
@@ -5441,6 +5443,8 @@ molecules_container_t::test_function(const std::string &s) {
    }
 
    auto cfc = cfc::chemical_feature_clustering(mol_infos, geom);
+
+#endif // MAKE_ENHANCED_LIGAND_TOOLS
 
 }
 

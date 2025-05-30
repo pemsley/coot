@@ -1,6 +1,6 @@
 
-// restore this before commit                                         
-// #ifdef MAKE_ENHANCED_LIGAND_FEATURES
+
+#ifdef MAKE_ENHANCED_LIGAND_FEATURES
 
 #include <fstream>
 
@@ -619,5 +619,5 @@ cfc::chemical_feature_clustering(const std::vector<cfc::input_info_t> &mol_infos
 
 }
 
-// #endif // MAKE_ENHANCED_LIGAND_FEATURES
+#endif // MAKE_ENHANCED_LIGAND_FEATURES
 
