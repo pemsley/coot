@@ -1,24 +1,19 @@
 
 --- Items ---
 
-
-../../coot/lidia-core/rdkit-interface.cc: In function 'RDKit::RWMol coot::rdkit_mol(mmdb::Residue*, const dictionary_residue_restraints_t&, const std::string&, bool)':
-../../coot/lidia-core/rdkit-interface.cc:877:33: warning: comparison of integer expressions of different signedness: 'int' and 'std::vector<std::__cxx11::basic_string<char> >::size_type' {aka 'long unsigned int'} [-Wsign-compare]
-  877 |          for (int iconf=0; iconf<alt_confs_in_residue.size(); iconf++) {
-      |                            ~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-../../coot/coot-utils/cfc.cc: In lambda function:
-../../coot/coot-utils/cfc.cc:158:34: warning: comparison of integer expressions of different signedness: 'int' and 'unsigned int' [-Wsign-compare]
-  158 |                   for (int i=0; i<conf.getNumAtoms(); i++) {
-      |                                 ~^~~~~~~~~~~~~~~~~~~
+o distance to symmetry related atom e.g. base pairing in 1d8g
 
 o Get in touch with Kay for the display of h,k,l as atoms (cif)
 * Done. Progress has been made.
+
+o Fix up the rdkit-interface.cc warnings ::: 1
 
 o Atom sphere radius depends on B-factor - proportional to cube root maybe?
   set_atom_radius_by_b_factor_mode(imol, state)
   atom_radius_by_b_factor_scale_factor(imol, sf)
 
+
+o clicking on "Go To Atom" button should uniconify the iconified dialog.
 
 (coot-1:1497796): Gtk-WARNING **: 23:41:10.291: A tag named 'datetime-color' is already in the tag table.
 
@@ -27,7 +22,7 @@ o Atom sphere radius depends on B-factor - proportional to cube root maybe?
 (coot-1:1497796): Gtk-WARNING **: 23:41:10.291: A tag named 'debug-type-color' is already in the tag table.
 
 (coot-1:1497796): Gtk-WARNING **: 23:41:10.291: A tag named 'warning-type-color' is already in the tag table.
-
+::: 0.5
 
 o draw 9c1h with molecular symmetry colouring
 
@@ -52,7 +47,7 @@ o plug a mouse into the map and do middle-mouse drag for translation
 o write a blog-post for "APPLY-SYMMETRY::" label
   and up date the documentation.
 
-o add a button for "vertex gradients for maps" in the EM module.
+o add a button for "vertex gradients for maps" in the EM module. ::: 0.5
 
 o boron is grey - it should be #FFA07A or so - pinky beige
 
@@ -92,6 +87,17 @@ o Message sent:
  - Also, not clear what is happening when there is no internet when the "OK" button is pressed.
 
 --- Done Items ---
+
+../../coot/lidia-core/rdkit-interface.cc: In function 'RDKit::RWMol coot::rdkit_mol(mmdb::Residue*, const dictionary_residue_restraints_t&, const std::string&, bool)':
+../../coot/lidia-core/rdkit-interface.cc:877:33: warning: comparison of integer expressions of different signedness: 'int' and 'std::vector<std::__cxx11::basic_string<char> >::size_type' {aka 'long unsigned int'} [-Wsign-compare]
+  877 |          for (int iconf=0; iconf<alt_confs_in_residue.size(); iconf++) {
+      |                            ~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+../../coot/coot-utils/cfc.cc: In lambda function:
+../../coot/coot-utils/cfc.cc:158:34: warning: comparison of integer expressions of different signedness: 'int' and 'unsigned int' [-Wsign-compare]
+  158 |                   for (int i=0; i<conf.getNumAtoms(); i++) {
+      |                                 ~^~~~~~~~~~~~~~~~~~~
+* Done.
 
 o Depythonize Replace Fragment ::: 1
 * Done.
