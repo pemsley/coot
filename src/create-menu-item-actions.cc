@@ -3371,6 +3371,7 @@ go_to_atom_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 				   have coordinates. */
 
    gtk_widget_set_visible(widget, TRUE);
+   gtk_window_present(GTK_WINDOW(widget));
    graphics_info_t::graphics_grab_focus();
 }
 
