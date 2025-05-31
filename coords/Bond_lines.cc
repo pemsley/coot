@@ -5638,14 +5638,18 @@ Bond_lines_container::atom_colour(mmdb::Atom *at, int bond_colour_type,
                                           if (element == " I") {
                                              return DARK_VIOLET;
                                           } else {
-                                             if (element == "MG" || element == "BE" || element == "CA" || element == "SR" || element == "BA") {
-                                                return DARK_GREEN_BOND;
+                                             if (element == " B") {
+                                                return BORON_PINK;
                                              } else {
-                                                if (element == "FE") {
-                                                   return DARK_ORANGE_BOND;
+                                                if (element == "MG" || element == "BE" || element == "CA" || element == "SR" || element == "BA") {
+                                                   return DARK_GREEN_BOND;
                                                 } else {
-                                                   if (element == "LI" || element == "NA" || element == " K" || element == "RB" || element == "CS" || element == "FR") {
-                                                      return VIOLET;
+                                                   if (element == "FE") {
+                                                      return DARK_ORANGE_BOND;
+                                                   } else {
+                                                      if (element == "LI" || element == "NA" || element == " K" || element == "RB" || element == "CS" || element == "FR") {
+                                                         return VIOLET;
+                                                      }
                                                    }
                                                 }
                                              }
@@ -5706,14 +5710,18 @@ Bond_lines_container::atom_colour(mmdb::Atom *at, int bond_colour_type,
                                              if (element == " I") {
                                                 return DARK_VIOLET;
                                              } else {
-                                                if (element == "MG" || element == "BE" || element == "CA" || element == "SR" || element == "BA") {
-                                                   return DARK_GREEN_BOND;
+                                                if (element == " B") {
+                                                   return BORON_PINK;
                                                 } else {
-                                                   if (element == "FE") {
-                                                      return DARK_ORANGE_BOND;
+                                                   if (element == "MG" || element == "BE" || element == "CA" || element == "SR" || element == "BA") {
+                                                      return DARK_GREEN_BOND;
                                                    } else {
-                                                      if (element == "LI" || element == "NA" || element == " K" || element == "RB" || element == "CS" || element == "FR") {
-                                                         return VIOLET;
+                                                      if (element == "FE") {
+                                                         return DARK_ORANGE_BOND;
+                                                      } else {
+                                                         if (element == "LI" || element == "NA" || element == " K" || element == "RB" || element == "CS" || element == "FR") {
+                                                            return VIOLET;
+                                                         }
                                                       }
                                                    }
                                                 }
