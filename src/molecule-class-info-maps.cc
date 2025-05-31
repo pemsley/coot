@@ -2533,7 +2533,8 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
       set_initial_contour_level();
 
       // /std::cout << "INFO:: ------  em " << em << " contour_level " << contour_level << std::endl;
-      logger.log(log_t::INFO, "EM status: ", em, "contour_level", contour_level);
+      logger.log(log_t::INFO, logging::function_name_t(__FUNCTION__),
+                 "EM status: ", em, "contour_level", contour_level);
 
       // std::cout << "      Map extents: ..... "
       //   	<< xmap.grid_sampling().nu() << " "

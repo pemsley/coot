@@ -177,7 +177,7 @@ coot::util::slurp_fill_xmap_from_map_file(const std::string &file_name,
    }
 
    logger.log(log_t::DEBUG, "slurp_fill_xmap_from_map_file() with check-mode: ",
-              check_only, "returning", int(status));
+              check_only, "returning", to_string(status));
 
    return status;
 }

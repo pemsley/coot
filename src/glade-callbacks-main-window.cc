@@ -1831,7 +1831,7 @@ void fill_logging_text_view() {
    GtkTextIter end_iter;
 
    std::vector<logging::log_item> lv = logger.get_log_history_from(graphics_info_t::logging_line_index);
-   std::cout << "fill textview " << textview << " here" << std::endl;
+
    if (! lv.empty()) {
 
       // Create a text tag for the color
@@ -1840,7 +1840,7 @@ void fill_logging_text_view() {
 
       GtkTextTag *datetime_color_tag;
 
-      datetime_color_tag = gtk_text_tag_table_lookup(tag_table, "datetime-colour");
+      datetime_color_tag = gtk_text_tag_table_lookup(tag_table, "datetime-color");
       if (datetime_color_tag == NULL) {
          datetime_color_tag = gtk_text_tag_new("datetime-color");
          std::string datetime_colour = "#8888aa";
@@ -1857,7 +1857,7 @@ void fill_logging_text_view() {
       }
       //
       GtkTextTag *debug_color_tag = gtk_text_tag_table_lookup(tag_table, "debug-type-color");
-      if (debug_color_tag) {
+      if (debug_color_tag == NULL) {
          debug_color_tag = gtk_text_tag_new("debug-type-color");
          std::string debug_type_colour = "#999999";
          g_object_set(debug_color_tag, "foreground", debug_type_colour.c_str(), NULL);
@@ -1882,7 +1882,7 @@ void fill_logging_text_view() {
       //
       GtkTextTag *gl_error_color_tag = gtk_text_tag_table_lookup(tag_table, "gl-error-type-color");
       if (gl_error_color_tag == NULL) {
-         GtkTextTag *gl_error_color_tag = gtk_text_tag_new("gl_error-type-color");
+         GtkTextTag *gl_error_color_tag = gtk_text_tag_new("gl-error-type-color");
          std::string gl_error_type_colour = "#ee2222";
          g_object_set(gl_error_color_tag, "foreground", gl_error_type_colour.c_str(), NULL);
          gtk_text_tag_table_add(gtk_text_buffer_get_tag_table(buffer), gl_error_color_tag);
