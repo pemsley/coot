@@ -76,6 +76,7 @@ if (ENABLE_DWARF_ELF)
 endif()
 
 #  pyrogen, auxil, goograph, src ignored.
+set (PYTHON_PACKAGE ${Python_SITELIB}/coot/)
 
 
 add_library(cootapi SHARED
@@ -467,7 +468,7 @@ nanobind_add_module(coot_headless_api ${coot_src}/api/molecules-container-nanobi
 
 nanobind_add_stub(coot_headless_api_ext_stub
   MODULE coot_headless_api
-  OUTPUT coot_headless_api.pyi
+  OUTPUT ${PYTHON_PACKAGE}/coot_headless_api.pyi
   PYTHON_PATH $<TARGET_FILE_DIR:coot_headless_api>
   DEPENDS coot_headless_api
 )
@@ -570,7 +571,7 @@ install(DIRECTORY data/cho-links     DESTINATION share/coot/data)
 install(DIRECTORY data/pdb-templates DESTINATION share/coot/data)
 
 # Thanks Charles B.
-install(TARGETS coot_headless_api DESTINATION ${Python_SITELIB})
+install(TARGETS coot_headless_api DESTINATION ${PYTHON_PACKAGE})
 
 install(TARGETS coot_headless_api DESTINATION lib)
 
