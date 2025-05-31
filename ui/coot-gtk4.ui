@@ -1229,6 +1229,10 @@
         <attribute name="action">app.cryo_em_make_partitioned_maps_action</attribute>
       </item>
       <item>
+        <attribute name="label" translatable="no">Vertex Gradients for Map Normals</attribute>
+        <attribute name="action">app.vertex_gradients_for_map_normals_action</attribute>
+      </item>
+      <item>
         <attribute name="label" translatable="no">Assign Sequence to Fragment</attribute>
         <attribute name="action">app.cryo_em_assign_sequence_to_active_fragment_action</attribute>
       </item>
@@ -1254,7 +1258,7 @@
         </submenu>
       </section>
       <item>
-        <attribute name="label" translatable="no">Sharpen/Blur Map...</attribute>
+        <attribute name="label" translatable="no">Sharpen/Blur/Resample Map...</attribute>
         <attribute name="action">app.cryo_em_sharpen_blur_map_action</attribute>
       </item>
     </section>

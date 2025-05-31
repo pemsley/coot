@@ -1451,7 +1451,7 @@ graphics_info_t::read_some_test_models() {
    }
 }
 
-void
+int
 graphics_info_t::load_gltf_model(const std::string &gltf_file_name) {
 
    attach_buffers();
@@ -1479,6 +1479,8 @@ graphics_info_t::load_gltf_model(const std::string &gltf_file_name) {
       tick_function_id = gtk_widget_add_tick_callback(glareas[0], glarea_tick_func, 0, 0);
    }
    do_tick_constant_draw = true;
+
+   return models.size() - 1;
 
 }
 

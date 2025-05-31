@@ -1829,7 +1829,13 @@ void set_draw_background_image(bool state);
 void read_test_gltf_models();
 
 //! \brief load a gltf model
-void load_gltf_model(const std::string &gltf_file_name);
+//!
+//! If the gltf
+//! files does not exist, an empty model will be created
+//!
+//! @param gltf_file_name is the name of the gltf file to load
+//! @return the model index of the loaded model.
+int load_gltf_model(const std::string &gltf_file_name);
 
 //! \brief set the model animation parameters
 void set_model_animation_parameters(unsigned int model_index, float amplitude, float wave_numer, float freq);
