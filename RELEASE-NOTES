@@ -3,9 +3,13 @@
 
  o FEATURE: Local B-factor display
 
- o CHANGE:  Now a commonly-used fragment of the monomer library
-            is bundled with Coot. Unknow monomers are now downloaded
-	    from GitHub and cached.
+ o CHANGE:  For packagers: Now a commonly-used fragment of the monomer library
+            is bundled with Coot. Unknown monomers are now downloaded from GitHub
+            and cached using XDG Base Directory Specification
+
+ o CHANGE:  For packagers: Now the reference structures are bundled
+            with the source code (and installed) - no longer do they need
+            to be a separate dependency
 
  o CHANGE:  Atoms with Zero Occupancy results now moved into the
             main window

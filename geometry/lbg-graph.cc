@@ -145,8 +145,15 @@ coot::aromatic_graph_t::print() const {
 
 }
 
+//! What does this function do?
+//! It finds all the rings in the aromatic graph starting at start_vertex.
+//! the results are stored in the rings vector.
 std::vector<int>
 coot::aromatic_graph_t::next_vertex(int start_vertex, const std::vector<int> &path, int depth, int this_vertex) {
+
+   auto is_member = [] (int idx, const std::vector<int> &vec) {
+      return std::find(vec.begin(), vec.end(), idx) != vec.end();
+   };
 
    std::vector<int> v;
    std::vector<int> neighbour_vertices = get_neighbours_of_vertex_excluding_path(this_vertex, path);
@@ -180,17 +187,20 @@ coot::aromatic_graph_t::next_vertex(int start_vertex, const std::vector<int> &pa
             }
 	    circular_path.push_back(this_vertex);
 	    circular_path.insert(circular_path.begin(), start_vertex);
-	    // print_path(circular_path);
+	    // /print_path(circular_path);
 	    add_path_maybe(circular_path);
 	 }
       } else {
 
-	 if (depth < 9 ) {
+	 if (depth < 14) {
 	    std::vector<int> new_path = path;
 	    if (this_vertex != start_vertex)
-	       new_path.push_back(this_vertex);
-	    // auto result = next_vertex(start_vertex, new_path, depth+1, neighbour_vertices[i]);
-            // std::cout << "result size: " << result.size() << std::endl;
+               if (! is_member(this_vertex, new_path))
+                  new_path.push_back(this_vertex);
+	    auto result = next_vertex(start_vertex, new_path, depth+1, neighbour_vertices[i]);
+            if (false)
+               std::cout << "result size: " << result.size() << " new_path size: " << new_path.size()
+                         << std::endl;
 	 }
       }
    }
@@ -283,14 +293,16 @@ coot::operator<<(std::ostream &s, lbg_edge e) {
 
 // add circular_path only if it is not in rings already
 void
-coot::aromatic_graph_t::add_path_maybe(const std::vector<int> circular_path_in) {
+coot::aromatic_graph_t::add_path_maybe(const std::vector<int> &circular_path_in) {
+
+   // std::cout << "add_path_maybe() " << circular_path_in.size() << std::endl;
 
    std::vector<int> circular_path = circular_path_in;
    std::sort(circular_path.begin(), circular_path.end());
 
    bool ifound = false;
    for (unsigned int i=0; i<rings.size(); i++) {
-      std::vector<int> ring = rings[i];
+      const std::vector<int> &ring = rings[i];
       if (circular_path.size() == ring.size()) {
 	 bool jfound = true;
 	 for (unsigned int j=0; j<circular_path.size(); j++) {
