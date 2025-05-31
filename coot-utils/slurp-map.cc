@@ -37,6 +37,26 @@
 #include "utils/logging.hh"
 extern logging logger;
 
+std::string
+coot::util::to_string(slurp_map_result_t r) {
+   std::string s;
+   if (r == slurp_map_result_t::OK)                      s = "OK";
+   if (r == slurp_map_result_t::IS_SLURPABLE_EM_MAP)     s = "IS_SLURPABLE_EM_MAP";
+   if (r == slurp_map_result_t::IS_NON_SLURPABLE_EM_MAP) s = "IS_NON_SLURPABLE_EM_MAP";
+   if (r == slurp_map_result_t::NOT_AN_EM_MAP)           s = "NOT_AN_EM_MAP";
+   if (r == slurp_map_result_t::FAIL)                    s = "FAIL";
+   if (r == slurp_map_result_t::FILE_NOT_FOUND)          s = "FILE_NOT_FOUND";
+   if (r == slurp_map_result_t::UNRESOLVED)              s = "UNRESOLVED";
+   return s;
+}
+
+std::ostream&
+coot::util::operator<<(std::ostream &s, slurp_map_result_t smr) {
+   s << to_string(smr);
+   return s;
+}
+
+
 coot::util::slurp_map_result_t
 coot::util::is_basic_em_map_file(const std::string &file_name) {
 
@@ -156,8 +176,8 @@ coot::util::slurp_fill_xmap_from_map_file(const std::string &file_name,
       std::cout << "WARNING:: file does not exist " << file_name << std::endl;
    }
 
-   if (true)
-      logger.log(log_t::DEBUG, "slurp_fill_xmap_from_map_file() returning", int(status));
+   logger.log(log_t::DEBUG, "slurp_fill_xmap_from_map_file() with check-mode: ",
+              check_only, "returning", int(status));
 
    return status;
 }

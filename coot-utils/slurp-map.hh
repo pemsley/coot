@@ -18,6 +18,8 @@
  * 02110-1301, USA
  */
 
+#ifndef COOT_UTILS_SLURP_MAP_HH
+#define COOT_UTILS_SLURP_MAP_HH
 
 #include <sys/stat.h>
 
@@ -29,6 +31,8 @@
 namespace coot {
    namespace util {
 
+      // 20250531-PE this is how to do enum class variables
+
       enum class slurp_map_result_t { OK=1,
                                       IS_SLURPABLE_EM_MAP=100,
                                       IS_NON_SLURPABLE_EM_MAP=600,
@@ -36,6 +40,8 @@ namespace coot {
                                       FAIL=300,
                                       FILE_NOT_FOUND=400,
                                       UNRESOLVED=500 };
+      std::string to_string(slurp_map_result_t r);
+      std::ostream& operator<<(std::ostream& os, slurp_map_result_t smr);
 
       std::vector<std::string> get_map_labels(const std::string &file_name);
 
@@ -57,3 +63,6 @@ namespace coot {
    }
 
 }
+
+#endif // COOT_UTILS_SLURP_MAP_HH
+

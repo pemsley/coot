@@ -32,6 +32,9 @@
 
 #include "coot-utils/coot-map-utils.hh"
 
+#include "utils/logging.hh"
+extern logging logger;
+
 
 /* ------------------------------------------------------------------------- */
 /*                      Map Display Control                                  */
@@ -81,7 +84,8 @@ handle_read_ccp4_map(const std::string &filename, int is_diff_map_flag) {
 	 g.activate_scroll_radio_button_in_display_manager(imol_new);
       } else {
 	 g.erase_last_molecule();
-	 std::cout << "Read map " << filename << " failed" << std::endl;
+	 // std::cout << "Read map " << filename << " failed" << std::endl;
+         logger.log(log_t::INFO, "Read of map", filename, "failed");
 	 std::string s = "Read map ";
 	 s += filename;
 	 s += " failed.";
