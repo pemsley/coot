@@ -1918,6 +1918,27 @@ void cryo_em_make_partitioned_maps_action(G_GNUC_UNUSED GSimpleAction *simple_ac
    show_map_partition_by_chain_dialog();
 }
 
+void vertex_gradients_for_map_normals_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                             G_GNUC_UNUSED GVariant *parameter,
+                                             G_GNUC_UNUSED gpointer user_data) {
+
+   auto get_map_molecule_vector = [] () {
+                                     graphics_info_t g;
+                                     std::vector<int> vec;
+                                     int n_mol = g.n_molecules();
+                                     for (int i=0; i<n_mol; i++)
+                                        if (g.is_valid_map_molecule(i))
+                                           vec.push_back(i);
+                                     return vec;
+                                  };
+
+   std::vector<int> imols = get_map_molecule_vector();
+   for (const auto &imol : imols) {
+      set_use_vertex_gradients_for_map_normals(imol, 1);
+   }
+
+}
+
 void cryo_em_sharpen_blur_map_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                      G_GNUC_UNUSED GVariant *parameter,
                                      G_GNUC_UNUSED gpointer user_data) {
@@ -5194,6 +5215,8 @@ create_actions(GtkApplication *application) {
    add_action("jiggle_fit_molecule_simple_action",                 jiggle_fit_molecule_simple_action);
    add_action("jiggle_fit_chain_with_fourier_filtering_action",    jiggle_fit_chain_with_fourier_filtering_action);
    add_action("jiggle_fit_molecule_with_fourier_filtering_action", jiggle_fit_molecule_with_fourier_filtering_action);
+
+   add_action("vertex_gradients_for_map_normals_action",           vertex_gradients_for_map_normals_action);
 
    // Ligand menu
    add_action("jiggle_fit_active_residue_action",          jiggle_fit_active_residue_action);

@@ -6683,8 +6683,28 @@ graphics_info_t::setup_key_bindings() {
    };
 
    auto l41 = [] () {
-      box_radius_xray *= (1.0/1.15);
-      box_radius_em *= (1.0/1.15);
+      bool is_all_em   = true;
+      bool is_all_xray = true;
+      for (int ii=0; ii<n_molecules(); ii++) {
+         if (is_valid_map_molecule(ii)) {
+            if (molecules[ii].is_EM_map()) {
+               is_all_xray = false;
+            } else {
+               is_all_em = false;
+            }
+         }
+      }
+      if (is_all_xray)
+         box_radius_xray *= (1.0/1.15);
+      if (is_all_em)
+         box_radius_em   *= (1.0/1.15);
+
+      // 20250531-PE as it used to be:
+      if ((! is_all_em) && (! is_all_em)) {
+         box_radius_xray *= (1.0/1.15);
+         box_radius_em   *= (1.0/1.15);
+      }
+
       // is there an "update maps" function?
       for (int ii=0; ii<n_molecules(); ii++) {
          if (is_valid_map_molecule(ii))

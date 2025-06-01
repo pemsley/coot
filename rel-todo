@@ -1,7 +1,37 @@
 
 --- Items ---
 
+
 o distance to symmetry related atom e.g. base pairing in 1d8g
+
+o load emd_321143.map from the command line - why is the view not in the
+  middle of the map? ::: 0.5
+
+o load emd_321143.map, increase the map radius - [ and ] if the
+  maps are all em or all not em, then the radius change should only apply
+  to that map type ::: 0.5
+
+o undisplay the logging pane/box/widget at startup then resize. ::: 1
+
+o Add anisotropic radius scaling from Claus. Need to check mails or something
+  for scaling code. ::: 1
+
+o plug a mouse into the map and do middle-mouse drag for translation
+  (and check ctrl-left-mouse) ::: 1
+
+o 6yzn - Overlaps etc validation hangs/is slow. ::: 1
+
+o write a blog-post for "APPLY-SYMMETRY::" label
+  and up date the documentation. ::: 0.5
+
+--- Other Items ---
+
+o have another look at Rama plot ::: 1
+
+o Fix the "Fetch" buttons - new GTK4/glib? :: 2
+
+o "Proportional editing" molecule rotation :: 2
+  Actually "fragment" rotation makes more sense.
 
 o Get in touch with Kay for the display of h,k,l as atoms (cif)
 * Done. Progress has been made.
@@ -11,7 +41,6 @@ o Fix up the rdkit-interface.cc warnings ::: 1
 o Atom sphere radius depends on B-factor - proportional to cube root maybe?
   set_atom_radius_by_b_factor_mode(imol, state)
   atom_radius_by_b_factor_scale_factor(imol, sf)
-
 
 o clicking on "Go To Atom" button should uniconify the iconified dialog.
 
@@ -24,7 +53,7 @@ o clicking on "Go To Atom" button should uniconify the iconified dialog.
 (coot-1:1497796): Gtk-WARNING **: 23:41:10.291: A tag named 'warning-type-color' is already in the tag table.
 ::: 0.5
 
-o draw 9c1h with molecular symmetry colouring
+o draw 9c1h with molecular symmetry colouring :: 1
 
 o load_gltf_model() should return the model index (-1 for failure)
 
@@ -79,25 +108,33 @@ o  It was a strange bit of code in get_group().
    Now the issue is duplication of the model on writing. mmdb bug.
    Solved now? Am I using the right version?
 
-o 1geh B-factor colour ramp looks wrong
-
-o Message sent:
- Moorhen get monomer: needs
- - "read dictionary" or "import an new molecule for this ligand" choice
- - Also, not clear what is happening when there is no internet when the "OK" button is pressed.
+o 1geh B-factor colour ramp looks wrong :: 1
 
 --- Done Items ---
 
-../../coot/lidia-core/rdkit-interface.cc: In function 'RDKit::RWMol coot::rdkit_mol(mmdb::Residue*, const dictionary_residue_restraints_t&, const std::string&, bool)':
-../../coot/lidia-core/rdkit-interface.cc:877:33: warning: comparison of integer expressions of different signedness: 'int' and 'std::vector<std::__cxx11::basic_string<char> >::size_type' {aka 'long unsigned int'} [-Wsign-compare]
-  877 |          for (int iconf=0; iconf<alt_confs_in_residue.size(); iconf++) {
-      |                            ~~~~~^~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-../../coot/coot-utils/cfc.cc: In lambda function:
-../../coot/coot-utils/cfc.cc:158:34: warning: comparison of integer expressions of different signedness: 'int' and 'unsigned int' [-Wsign-compare]
-  158 |                   for (int i=0; i<conf.getNumAtoms(); i++) {
-      |                                 ~^~~~~~~~~~~~~~~~~~~
+o boron is grey - it should be #FFA07A or so - pinky beige ::: 0.5
 * Done.
+
+o add a button for "vertex gradients for maps" in the EM module. ::: 0.5
+* Done.
+
+o What is going wrong with Chemical Features? ::: 1
+  wrong colour for hydrogen bond donors
+* Done.
+
+o load_gltf_model() should return the model index  ::: 0.2
+* Done.
+
+
+(coot-1:1497796): Gtk-WARNING **: 23:41:10.291: A tag named 'datetime-color' is already in the tag table.
+
+(coot-1:1497796): Gtk-WARNING **: 23:41:10.291: A tag named 'info-type-color' is already in the tag table.
+
+(coot-1:1497796): Gtk-WARNING **: 23:41:10.291: A tag named 'debug-type-color' is already in the tag table.
+
+(coot-1:1497796): Gtk-WARNING **: 23:41:10.291: A tag named 'warning-type-color' is already in the tag table.
+* Done ::: 0.2
+
 
 o Depythonize Replace Fragment ::: 1
 * Done.

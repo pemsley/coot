@@ -5303,7 +5303,8 @@ string   static std::string sessionid;
 
    void read_test_gltf_models();
 
-   void load_gltf_model(const std::string &gltf_file_name);
+   //! return the model index
+   int load_gltf_model(const std::string &gltf_file_name);
 
    //! \brief set the model animation parameters
    void set_model_animation_parameters(unsigned int model_index, float amplitude, float wave_numer, float freq) {

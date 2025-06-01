@@ -20,6 +20,8 @@
  * 02110-1301, USA
  */
 
+#include <string.h>
+
 #include "mmdb2/mmdb_uddata.h"
 #include <stdlib.h> // needed from abs()
 
@@ -35,6 +37,9 @@
 #include "atom-overlaps.hh"
 #include "coot-coord-utils.hh"
 #include "geometry/main-chain.hh"
+
+#include "utils/logging.hh"
+extern logging logger;
 
 coot::atom_overlaps_container_t::atom_overlaps_container_t(mmdb::Residue *res_central_in,
                                                            const std::vector<mmdb::Residue *> &neighbours_in,
@@ -2669,6 +2674,7 @@ coot::atom_overlaps_container_t::bonded_angle_or_ring_related(mmdb::Manager *mol
          }
       }
       if (ait == CLASHABLE) { // i.e. so far, unset by this block
+         // std::cout << "checking for in-same-ring for " << coot::atom_spec_t(at_1) << " " << coot::atom_spec_t(at_2) << std::endl;
          bool ringed = in_same_ring(at_1, at_2, *ring_list_map); // update ring_list_map
          if (ringed) ait = BONDED;
       }
@@ -2966,6 +2972,8 @@ coot::atom_overlaps_container_t::in_same_ring(mmdb::Atom *at_1, mmdb::Atom *at_2
       }
       catch (const std::out_of_range &ex) {
          std::cout << "OOpps " << ex.what() << std::endl;
+         logger.log(log_t::WARNING, logging::function_name_t(__FUNCTION__),
+                    "Ooops", ex.what());
       }
    }
    return same;

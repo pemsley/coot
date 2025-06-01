@@ -2364,12 +2364,17 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
 
    if (map_file_type == CCP4) {
 
+      int rr = int(coot::util::is_basic_em_map_file(filename));
+
       coot::util::slurp_map_result_t done = coot::util::slurp_map_result_t::UNRESOLVED;
+
       if (coot::util::is_basic_em_map_file(filename) == coot::util::slurp_map_result_t::IS_SLURPABLE_EM_MAP) {
          // fill xmap
          auto tp_1 = std::chrono::high_resolution_clock::now();
          bool check_only = false;
-         done = coot::util::slurp_fill_xmap_from_map_file(filename, &xmap, check_only);
+
+         coot::util::slurp_map_result_t filled =
+            coot::util::slurp_fill_xmap_from_map_file(filename, &xmap, check_only);
 
          auto tp_2 = std::chrono::high_resolution_clock::now();
          auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
@@ -2411,7 +2416,6 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
             }
          }
       }
-
 
       if (done != coot::util::slurp_map_result_t::OK) {
          std::cout << "INFO:: attempting to read CCP4 map: " << filename << std::endl;
@@ -2467,9 +2471,10 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
                coot::Cartesian m(0.5*c.descr().a(), 0.5*c.descr().b(), 0.5*c.descr().c());
                new_centre.first = true;
                new_centre.second = m;
-               std::cout << "INFO:: map appears to be EM map."<< std::endl;
+               // std::cout << "INFO:: map appears to be EM map."<< std::endl;
+               logger.log(log_t::INFO, "map appears to be an EM map");
             }
-            std::cout << "INFO:: closing CCP4 map: " << filename << std::endl;
+            // std::cout << "INFO:: closing CCP4 map file: " << filename << std::endl;
             file.close_read();
 
             if (new_centre.first) {
@@ -2478,6 +2483,7 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
             }
          }
       }
+
 
    } else {
       std::cout << "INFO:: attempting to read CNS map: " << filename << std::endl;
@@ -2504,7 +2510,7 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
       mean_and_variance<float> mv = map_density_distribution(xmap, 20, true, ipz);
       auto tp_1 = std::chrono::high_resolution_clock::now();
       auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
-      std::cout << "INFO:: map_density_distribution() took " << d10 << " milliseconds" << std::endl;
+      std::cout << "DEBUG:: map_density_distribution() took " << d10 << " milliseconds" << std::endl;
 
       float mean = mv.mean;
       float var = mv.variance;
@@ -2526,16 +2532,27 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
 
       set_initial_contour_level();
 
-      std::cout << "INFO:: ------  em " << em << " contour_level " << contour_level << std::endl;
+      // /std::cout << "INFO:: ------  em " << em << " contour_level " << contour_level << std::endl;
+      logger.log(log_t::INFO, logging::function_name_t(__FUNCTION__),
+                 "EM status: ", em, "contour_level", contour_level);
 
-      std::cout << "      Map extents: ..... "
-		<< xmap.grid_sampling().nu() << " "
-		<< xmap.grid_sampling().nv() << " "
-		<< xmap.grid_sampling().nw() << " " << std::endl;
-      std::cout << "      Map mean: ........ " << map_mean_ << std::endl;
-      std::cout << "      Map rmsd: ........ " << map_sigma_ << std::endl;
-      std::cout << "      Map maximum: ..... " << map_max_ << std::endl;
-      std::cout << "      Map minimum: ..... " << map_min_ << std::endl;
+      // std::cout << "      Map extents: ..... "
+      //   	<< xmap.grid_sampling().nu() << " "
+      //   	<< xmap.grid_sampling().nv() << " "
+      //   	<< xmap.grid_sampling().nw() << " " << std::endl;
+      // std::cout << "      Map mean: ........ " << map_mean_ << std::endl;
+      // std::cout << "      Map rmsd: ........ " << map_sigma_ << std::endl;
+      // std::cout << "      Map maximum: ..... " << map_max_ << std::endl;
+      // std::cout << "      Map minimum: ..... " << map_min_ << std::endl;
+
+      logger.log(log_t::INFO, "Map extents: ",
+                 xmap.grid_sampling().nu(),
+                 xmap.grid_sampling().nv(),
+                 xmap.grid_sampling().nw());
+      logger.log(log_t::INFO, "Map mean: ", map_mean_);
+      logger.log(log_t::INFO, "Map rmsd: ", map_sigma_);
+      logger.log(log_t::INFO, "Map maximum: ", map_max_);
+      logger.log(log_t::INFO, "Map minimum: ", map_min_);
 
       // save state strings
       // c.f. std::string sc = state_command("coot", "set-draw-hydrogens", command_args, il);

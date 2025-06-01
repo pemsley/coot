@@ -538,10 +538,11 @@ void read_test_gltf_models() {
 }
 
 //! \brief load a gltf model
-void load_gltf_model(const std::string &gltf_file_name) {
+int load_gltf_model(const std::string &gltf_file_name) {
    graphics_info_t g;
-   g.load_gltf_model(gltf_file_name);
+   int idx = g.load_gltf_model(gltf_file_name);
    g.graphics_draw();
+   return idx;
 }
 
 //! \brief set the model animation parameters

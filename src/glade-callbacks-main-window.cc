@@ -1831,50 +1831,78 @@ void fill_logging_text_view() {
    GtkTextIter end_iter;
 
    std::vector<logging::log_item> lv = logger.get_log_history_from(graphics_info_t::logging_line_index);
-   std::cout << "fill textview " << textview << " here" << std::endl;
+
    if (! lv.empty()) {
 
       // Create a text tag for the color
       //
-      std::string datetime_colour = "#8888aa";
-      GtkTextTag *datetime_color_tag = gtk_text_tag_new("datetime-color");
-      g_object_set(datetime_color_tag, "foreground", datetime_colour.c_str(), NULL);
-      gtk_text_tag_table_add(gtk_text_buffer_get_tag_table(buffer), datetime_color_tag);
+      GtkTextTagTable *tag_table = gtk_text_buffer_get_tag_table(buffer);
+
+      GtkTextTag *datetime_color_tag;
+
+      datetime_color_tag = gtk_text_tag_table_lookup(tag_table, "datetime-color");
+      if (datetime_color_tag == NULL) {
+         datetime_color_tag = gtk_text_tag_new("datetime-color");
+         std::string datetime_colour = "#8888aa";
+         g_object_set(datetime_color_tag, "foreground", datetime_colour.c_str(), NULL);
+         gtk_text_tag_table_add(gtk_text_buffer_get_tag_table(buffer), datetime_color_tag);
+      }
       //
-      std::string info_type_colour = "#00eeee";
-      GtkTextTag *info_color_tag = gtk_text_tag_new("info-type-color");
-      g_object_set(info_color_tag, "foreground", info_type_colour.c_str(), NULL);
-      gtk_text_tag_table_add(gtk_text_buffer_get_tag_table(buffer), info_color_tag);
+      GtkTextTag *info_color_tag = gtk_text_tag_table_lookup(tag_table, "info-type-color");
+      if (info_color_tag == NULL) {
+         info_color_tag = gtk_text_tag_new("info-type-color");
+         std::string info_type_colour = "#00eeee";
+         g_object_set(info_color_tag, "foreground", info_type_colour.c_str(), NULL);
+         gtk_text_tag_table_add(gtk_text_buffer_get_tag_table(buffer), info_color_tag);
+      }
       //
-      std::string debug_type_colour = "#999999";
-      GtkTextTag *debug_color_tag = gtk_text_tag_new("debug-type-color");
-      g_object_set(debug_color_tag, "foreground", debug_type_colour.c_str(), NULL);
-      gtk_text_tag_table_add(gtk_text_buffer_get_tag_table(buffer), debug_color_tag);
+      GtkTextTag *debug_color_tag = gtk_text_tag_table_lookup(tag_table, "debug-type-color");
+      if (debug_color_tag == NULL) {
+         debug_color_tag = gtk_text_tag_new("debug-type-color");
+         std::string debug_type_colour = "#999999";
+         g_object_set(debug_color_tag, "foreground", debug_type_colour.c_str(), NULL);
+         gtk_text_tag_table_add(gtk_text_buffer_get_tag_table(buffer), debug_color_tag);
+      }
       //
-      std::string warning_type_colour = "#ff9900";
-      GtkTextTag *warning_color_tag = gtk_text_tag_new("warning-type-color");
-      g_object_set(warning_color_tag, "foreground", warning_type_colour.c_str(), NULL);
-      gtk_text_tag_table_add(gtk_text_buffer_get_tag_table(buffer), warning_color_tag);
+      GtkTextTag *warning_color_tag = gtk_text_tag_table_lookup(tag_table, "warning-type-color");
+      if (warning_color_tag == NULL) {
+         GtkTextTag *warning_color_tag = gtk_text_tag_new("warning-type-color");
+         std::string warning_type_colour = "#ff9900";
+         g_object_set(warning_color_tag, "foreground", warning_type_colour.c_str(), NULL);
+         gtk_text_tag_table_add(gtk_text_buffer_get_tag_table(buffer), warning_color_tag);
+      }
       //
-      std::string error_type_colour = "#ee2222";
-      GtkTextTag *error_color_tag = gtk_text_tag_new("error-type-color");
-      g_object_set(error_color_tag, "foreground", error_type_colour.c_str(), NULL);
-      gtk_text_tag_table_add(gtk_text_buffer_get_tag_table(buffer), error_color_tag);
+      GtkTextTag *error_color_tag = gtk_text_tag_table_lookup(tag_table, "error-type-color");
+      if (error_color_tag == NULL) {
+         GtkTextTag *error_color_tag = gtk_text_tag_new("error-type-color");
+         std::string error_type_colour = "#ee2222";
+         g_object_set(error_color_tag, "foreground", error_type_colour.c_str(), NULL);
+         gtk_text_tag_table_add(gtk_text_buffer_get_tag_table(buffer), error_color_tag);
+      }
       //
-      std::string gl_error_type_colour = "#ee2222";
-      GtkTextTag *gl_error_color_tag = gtk_text_tag_new("gl_error-type-color");
-      g_object_set(gl_error_color_tag, "foreground", gl_error_type_colour.c_str(), NULL);
-      gtk_text_tag_table_add(gtk_text_buffer_get_tag_table(buffer), gl_error_color_tag);
+      GtkTextTag *gl_error_color_tag = gtk_text_tag_table_lookup(tag_table, "gl-error-type-color");
+      if (gl_error_color_tag == NULL) {
+         GtkTextTag *gl_error_color_tag = gtk_text_tag_new("gl-error-type-color");
+         std::string gl_error_type_colour = "#ee2222";
+         g_object_set(gl_error_color_tag, "foreground", gl_error_type_colour.c_str(), NULL);
+         gtk_text_tag_table_add(gtk_text_buffer_get_tag_table(buffer), gl_error_color_tag);
+      }
       //
-      std::string default_type_colour = "#bbbbbb";
-      GtkTextTag *default_color_tag = gtk_text_tag_new("default-type-color");
-      g_object_set(default_color_tag, "foreground", default_type_colour.c_str(), NULL);
-      gtk_text_tag_table_add(gtk_text_buffer_get_tag_table(buffer), default_color_tag);
+      GtkTextTag *default_color_tag = gtk_text_tag_table_lookup(tag_table, "default-type-color");
+      if (default_color_tag == NULL) {
+         GtkTextTag *default_color_tag = gtk_text_tag_new("default-type-color");
+         std::string default_type_colour = "#bbbbbb";
+         g_object_set(default_color_tag, "foreground", default_type_colour.c_str(), NULL);
+         gtk_text_tag_table_add(gtk_text_buffer_get_tag_table(buffer), default_color_tag);
+      }
       //
-      std::string function_name_colour = "#cc99cc";
-      GtkTextTag *function_name_color_tag = gtk_text_tag_new("function-name-color");
-      g_object_set(function_name_color_tag, "foreground", function_name_colour.c_str(), NULL);
-      gtk_text_tag_table_add(gtk_text_buffer_get_tag_table(buffer), function_name_color_tag);
+      GtkTextTag *function_name_color_tag = gtk_text_tag_table_lookup(tag_table, "function-name-color");
+      if (function_name_color_tag == NULL) {
+         GtkTextTag *function_name_color_tag = gtk_text_tag_new("function-name-color");
+         std::string function_name_colour = "#cc99cc";
+         g_object_set(function_name_color_tag, "foreground", function_name_colour.c_str(), NULL);
+         gtk_text_tag_table_add(gtk_text_buffer_get_tag_table(buffer), function_name_color_tag);
+      }
 
       for (const auto &item : lv) {
 

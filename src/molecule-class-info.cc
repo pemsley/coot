@@ -1109,6 +1109,9 @@ molecule_class_info_t::get_bond_colour_basic(int colour_index, bool against_a_da
       case DARK_VIOLET:
          col = coot::colour_t(0.58, 0.0, 0.83);
          break;
+      case BORON_PINK:
+         col = coot::colour_t(0.98, 0.78, 0.69); // 0.98 0.72 0.63
+         break;
       default:
          col = coot::colour_t (0.7, 0.8, 0.8);
       }
@@ -1231,6 +1234,9 @@ molecule_class_info_t::get_bond_colour_by_mol_no(int colour_index, bool against_
             case DARK_VIOLET:
                rgb[0] = 0.58; rgb[1] = 0.0; rgb[2] = 0.83;
                break;
+            case BORON_PINK:
+               rgb[0] = 0.98; rgb[1] = 0.78; rgb[2] = 0.69;
+               break;
             default:
                rgb[0] = 0.8; rgb[1] =  0.2; rgb[2] =  0.2;
                rgb.rotate(colour_index*26.0/360.0);
@@ -1292,6 +1298,9 @@ molecule_class_info_t::get_bond_colour_by_mol_no(int colour_index, bool against_
                break;
             case DARK_VIOLET:
                rgb[0] = 0.58; rgb[1] = 0.0; rgb[2] = 0.83;
+               break;
+            case BORON_PINK:
+               rgb[0] = 0.98; rgb[1] = 0.78; rgb[2] = 0.69;
                break;
 
             default:
