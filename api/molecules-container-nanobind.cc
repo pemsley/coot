@@ -1,3 +1,5 @@
+#include <unordered_map>
+#include <sstream>
 
 #include <nanobind/nanobind.h>
 #include <nanobind/stl/string.h>
@@ -10,12 +12,12 @@
 #include "clipper/core/ramachandran.h"
 #include "clipper/clipper-ccp4.h"
 
+#include "coot-utils/pugixml.hpp"
 #include "coords/mmdb-crystal.h"
 #include "coot-utils/acedrg-types-for-residue.hh"
 #include "coot-utils/g_triangle.hh"
 #include "mini-mol/mini-mol-utils.hh"
 
-#undef MAKE_ENHANCED_LIGAND_TOOLS
 #include "molecules-container.hh"
 
 namespace nb = nanobind;
@@ -60,6 +62,134 @@ class molecules_container_js : public molecules_container_t {
             return 0;
         }
 };
+
+// Helper to cache and retrieve docstrings from XML
+std::unordered_map<std::string, std::string> docstring_cache;
+
+std::string get_docstring_from_xml(const std::string& func_name) {
+
+   auto convert_type = [] (const std::string &s_in) {
+      std::string s = s_in;
+      if (s_in == "const std::string &") s = "str";
+      if (s_in == "std::string")         s = "str";
+      return s;
+   };
+
+   class arg_info_t {
+   public:
+      arg_info_t(const std::string &n, const std::string &t) : name(n), type(t) {}
+      std::string name;
+      std::string type;
+      std::string description;
+   };
+
+   auto update_arg_in_args = [] (const std::string &arg_name, const std::string &descr,
+                                 std::vector<arg_info_t> &args) {
+
+      for(auto &arg : args) {
+         if (arg.name == arg_name) {
+            arg.description = descr;
+         }
+      }
+   };
+
+   if (docstring_cache.empty()) {
+      pugi::xml_document doc;
+      if (!doc.load_file("../coot/api/doxy-sphinx/xml/classmolecules__container__t.xml")) {
+         return "";
+      }
+      auto compounddef = doc.child("doxygen").child("compounddef");
+      for (auto sectiondef : compounddef.children("sectiondef")) {
+         for (auto member : sectiondef.children("memberdef")) {
+            auto name_elem = member.child("name");
+            if (!name_elem) continue;
+            std::string name = name_elem.child_value();
+            std::ostringstream oss;
+            std::vector<arg_info_t> args;
+
+            // Collect all <para> from <briefdescription>
+            auto brief = member.child("briefdescription");
+            if (brief) {
+               for (auto para : brief.children("para")) {
+                  std::string para_text = para.text().get();
+                  if (!para_text.empty())
+                     oss << para_text << "\n";
+               }
+            }
+
+            auto type = member.child("type");
+            std::string type_string;
+            if (type)
+               type_string = convert_type(type.text().get());
+
+            // can be many params
+            for (auto param : member.children("param")) {
+               auto p_type = param.child("type");
+               auto p_declname = param.child("declname");
+               if (p_type) {
+                  if (p_declname) {
+                     std::string tt = convert_type(p_type.text().get());
+                     arg_info_t ai(p_declname.text().get(), tt);
+                     args.push_back(ai);
+                  }
+               }
+            }
+
+            // Collect all <para> from <detaileddescription>
+            auto detailed = member.child("detaileddescription");
+            if (detailed) {
+               for (auto para : detailed.children("para")) {
+                  std::string para_text = para.text().get();
+                  if (!para_text.empty()) {
+                     oss << para_text << "\n";
+                  }
+                  for (auto parameterlist : para.children("parameterlist")) {
+                     for (auto parameteritem : parameterlist.children("parameteritem")) {
+                        std::string parameter_name_text;
+                        for (auto parameternamelist : parameteritem.children("parameternamelist")) {
+                           for (auto parametername : parameternamelist.children("parametername")) {
+                              parameter_name_text = parametername.text().get();
+                           }
+                        }
+                        for (auto parameterdescription : parameteritem.children("parameterdescription")) {
+                           for (auto d_para : parameterdescription.children("para")) {
+                              std::string t =  d_para.text().get();
+                              if (! parameter_name_text.empty()) {
+                                 if (! t.empty()) {
+                                    update_arg_in_args(parameter_name_text, t, args); // modify an arg in args
+                                 }
+                              }
+                           }
+                        }
+                     }
+                  }
+               }
+               if (! args.empty()) {
+                  oss << "\n";
+                  oss << "    Args:\n";
+                  for (const auto &arg : args) {
+                     oss << "    " << arg.name << " (" << arg.type << ") " << arg.description << "\n";
+                  }
+               }
+               if (! type_string.empty()) {
+                  oss << "\n";
+                  oss << "    Returns:\n";
+                  oss << "    " << type_string << "\n";
+               }
+            }
+            docstring_cache[name] = oss.str();
+         }
+      }
+   }
+   auto it = docstring_cache.find(func_name);
+   if (it != docstring_cache.end()) {
+      return it->second;
+   } else {
+      std::cout << "::function " << func_name << " not found"
+		<< " - out of " << docstring_cache.size() << " docstrings" << std::endl;
+   }
+   return "";
+}
 
 NB_MODULE(coot_headless_api, m) {
     nb::class_<clipper::Coord_orth>(m,"Coord_orth")
@@ -190,268 +320,784 @@ NB_MODULE(coot_headless_api, m) {
     .def("GetNumberOfAtoms_countTers", nb::overload_cast<bool>(&mmdb::Residue::GetNumberOfAtoms))
     ;
     nb::class_<molecules_container_t>(m,"molecules_container_t")
-    .def(nb::init<bool>())
-    .def("M2T_updateFloatParameter",&molecules_container_t::M2T_updateFloatParameter)
-    .def("M2T_updateIntParameter",&molecules_container_t::M2T_updateIntParameter)
-    .def("SSM_superpose",&molecules_container_t::SSM_superpose)
-    .def("add_alternative_conformation",&molecules_container_t::add_alternative_conformation)
-    .def("add_colour_rule",&molecules_container_t::add_colour_rule)
-    .def("add_colour_rules_multi",&molecules_container_t::add_colour_rules_multi)
-    .def("add_hydrogen_atoms",&molecules_container_t::add_hydrogen_atoms)
-    .def("add_lsq_superpose_match",&molecules_container_t::add_lsq_superpose_match)
-    .def("add_lsq_superpose_atom_match",&molecules_container_t::add_lsq_superpose_atom_match)
-    .def("add_named_glyco_tree",&molecules_container_t::add_named_glyco_tree)
-    .def("add_target_position_restraint",&molecules_container_t::add_target_position_restraint)
-    .def("add_target_position_restraint_and_refine",&molecules_container_t::add_target_position_restraint_and_refine)
-    .def("add_terminal_residue_directly",&molecules_container_t::add_terminal_residue_directly)
-    .def("add_terminal_residue_directly_using_cid",&molecules_container_t::add_terminal_residue_directly_using_cid)
-    .def("add_to_non_drawn_bonds",&molecules_container_t::add_to_non_drawn_bonds)
-    .def("add_waters",&molecules_container_t::add_waters)
-    .def("all_molecule_contact_dots",&molecules_container_t::all_molecule_contact_dots)
-    .def("apply_transformation_to_atom_selection",&molecules_container_t::apply_transformation_to_atom_selection)
-    .def("assign_sequence",&molecules_container_t::assign_sequence)
-    .def("associate_data_mtz_file_with_map",&molecules_container_t::associate_data_mtz_file_with_map)
-    .def("associate_sequence",&molecules_container_t::associate_sequence)
-    .def("auto_fit_rotamer",&molecules_container_t::auto_fit_rotamer)
-    .def("auto_read_mtz",&molecules_container_t::auto_read_mtz)
-    .def("average_map",&molecules_container_t::average_map)
-    .def("calculate_new_rail_points",&molecules_container_t::calculate_new_rail_points)
-    .def("change_to_first_rotamer",&molecules_container_t::change_to_first_rotamer)
-    .def("change_to_next_rotamer",&molecules_container_t::change_to_next_rotamer)
-    .def("change_to_previous_rotamer",&molecules_container_t::change_to_previous_rotamer)
-    .def("cis_trans_convert",&molecules_container_t::cis_trans_convert)
-    .def("clear_extra_restraints",&molecules_container_t::clear_extra_restraints)
-    .def("clear_lsq_matches",&molecules_container_t::clear_lsq_matches)
-    .def("clear_non_drawn_bonds",&molecules_container_t::clear_non_drawn_bonds)
-    .def("clear_refinement",&molecules_container_t::clear_refinement)
-    .def("clear_target_position_restraints",&molecules_container_t::clear_target_position_restraints)
-    .def("change_alt_locs",&molecules_container_t::change_alt_locs)
-    .def("close_molecule",&molecules_container_t::close_molecule)
-    .def("connect_updating_maps",&molecules_container_t::connect_updating_maps)
-    .def("contact_dots_for_ligand",&molecules_container_t::contact_dots_for_ligand)
-    .def("copy_fragment_for_refinement_using_cid",&molecules_container_t::copy_fragment_for_refinement_using_cid)
-    .def("copy_fragment_using_cid",&molecules_container_t::copy_fragment_using_cid)
-    .def("copy_fragment_using_residue_range",&molecules_container_t::copy_fragment_using_residue_range)
-    .def("copy_molecule",&molecules_container_t::copy_molecule)
-    .def("delete_all_carbohydrate",&molecules_container_t::delete_all_carbohydrate)
-    .def("delete_atom",&molecules_container_t::delete_atom)
-    .def("delete_atom_using_cid",&molecules_container_t::delete_atom_using_cid)
-    .def("delete_chain_using_cid",&molecules_container_t::delete_chain_using_cid)
-    .def("delete_colour_rules",&molecules_container_t::delete_colour_rules)
-    .def("delete_hydrogen_atoms",&molecules_container_t::delete_hydrogen_atoms)
-    .def("delete_residue",&molecules_container_t::delete_residue)
-    .def("delete_residue_atoms_using_cid",&molecules_container_t::delete_residue_atoms_using_cid)
-    .def("delete_residue_atoms_with_alt_conf",&molecules_container_t::delete_residue_atoms_with_alt_conf)
-    .def("delete_residue_using_cid",&molecules_container_t::delete_residue_using_cid)
-    .def("delete_side_chain",&molecules_container_t::delete_side_chain)
-    .def("delete_using_cid",&molecules_container_t::delete_using_cid)
-    .def("density_correlation_analysis",&molecules_container_t::density_correlation_analysis)
-    .def("density_fit_analysis",&molecules_container_t::density_fit_analysis)
-    .def("dictionary_atom_name_map",&molecules_container_t::dictionary_atom_name_map)
-    .def("difference_map_peaks",&molecules_container_t::difference_map_peaks)
-    .def("eigen_flip_ligand", nb::overload_cast<int, const std::string&>                        (&molecules_container_t::eigen_flip_ligand_using_cid))
-    .def("export_chemical_features_as_gltf",&molecules_container_t::export_chemical_features_as_gltf)
-    .def("export_molecular_representation_as_gltf",&molecules_container_t::export_molecular_representation_as_gltf)
-    .def("export_model_molecule_as_gltf",&molecules_container_t::export_model_molecule_as_gltf)
-    .def("export_map_molecule_as_gltf",&molecules_container_t::export_map_molecule_as_gltf)
-    .def("find_water_baddies",&molecules_container_t::find_water_baddies)
-    .def("file_name_to_string",&molecules_container_t::file_name_to_string)
-    .def("fill_partial_residue",&molecules_container_t::fill_partial_residue)
-    .def("fill_partial_residues",&molecules_container_t::fill_partial_residues)
-    .def("fill_rotamer_probability_tables",&molecules_container_t::fill_rotamer_probability_tables)
-    .def("fit_ligand",&molecules_container_t::fit_ligand)
-    .def("fit_ligand_right_here",&molecules_container_t::fit_ligand_right_here)
-    .def("fit_to_map_by_random_jiggle",&molecules_container_t::fit_to_map_by_random_jiggle)
-    .def("fit_to_map_by_random_jiggle_using_cid",&molecules_container_t::fit_to_map_by_random_jiggle_using_cid)
-    .def("fit_to_map_by_random_jiggle_using_cid",&molecules_container_t::fit_to_map_by_random_jiggle_using_cid)
-    .def("flipPeptide",       nb::overload_cast<int, const coot::atom_spec_t&,const std::string&>(&molecules_container_t::flip_peptide))
-    .def("flipPeptide_cid",   nb::overload_cast<int, const std::string&,      const std::string&>(&molecules_container_t::flip_peptide_using_cid))
-    .def("flip_hand",&molecules_container_t::flip_hand)
-    .def("flood",&molecules_container_t::flood)
-    .def("fourier_shell_correlation",&molecules_container_t::fourier_shell_correlation)
-    .def("generate_self_restraints",&molecules_container_t::generate_self_restraints)
-    .def("geometry_init_standard",&molecules_container_t::geometry_init_standard)
-    .def("get_active_atom",&molecules_container_t::get_active_atom)
-    .def("get_acedrg_atom_types",&molecules_container_t::get_acedrg_atom_types)
-    .def("get_acedrg_atom_types_for_ligand",&molecules_container_t::get_acedrg_atom_types_for_ligand)
-    .def("get_atom",&molecules_container_t::get_atom, nb::rv_policy::reference)
-    .def("get_atom_differences",&molecules_container_t::get_atom_differences)
-    .def("get_atom_using_cid",&molecules_container_t::get_atom_using_cid, nb::rv_policy::reference)
-    .def("get_bonds_mesh",&molecules_container_t::get_bonds_mesh)
-    .def("get_bonds_mesh_for_selection_instanced",&molecules_container_t::get_bonds_mesh_for_selection_instanced)
-    .def("get_bonds_mesh_instanced",&molecules_container_t::get_bonds_mesh_instanced)
-    .def("get_cell",&molecules_container_t::get_cell)
-    .def("get_chains_in_model",&molecules_container_t::get_chains_in_model)
-    .def("get_chemical_features_mesh",&molecules_container_t::get_chemical_features_mesh)
-    .def("get_colour_rules",&molecules_container_t::get_colour_rules)
-    .def("get_colour_table_for_blender", &molecules_container_t::get_colour_table_for_blender)
-    .def("get_density_at_position", &molecules_container_t::get_density_at_position)
-    .def("get_dictionary_conformers", &molecules_container_t::get_dictionary_conformers)
-    .def("get_distances_between_atoms_of_residues", &molecules_container_t::get_distances_between_atoms_of_residues)
-    .def("get_gaussian_surface",&molecules_container_t::get_gaussian_surface)
-    .def("get_goodsell_style_mesh_instanced",&molecules_container_t::get_goodsell_style_mesh_instanced)
-    .def("get_gphl_chem_comp_info",&molecules_container_t::get_gphl_chem_comp_info)
-    .def("get_group_for_monomer",&molecules_container_t::get_group_for_monomer)
-    .def("get_groups_for_monomers",&molecules_container_t::get_groups_for_monomers)
-    .def("get_hb_type",&molecules_container_t::get_hb_type)
-    .def("get_header_info",&molecules_container_t::get_header_info)
+    .def(nb::init<bool>(), "verbose", "molecules container Documentation")
+    .def("M2T_updateFloatParameter",
+         &molecules_container_t::M2T_updateFloatParameter,
+         get_docstring_from_xml("M2T_updateFloatParameter").c_str())
+    .def("M2T_updateIntParameter",
+         &molecules_container_t::M2T_updateIntParameter,
+         get_docstring_from_xml("M2T_updateIntParameter").c_str())
+    .def("SSM_superpose",
+         &molecules_container_t::SSM_superpose,
+         get_docstring_from_xml("SSM_superpose").c_str())
+    .def("add_alternative_conformation",
+         &molecules_container_t::add_alternative_conformation,
+         get_docstring_from_xml("add_alternative_conformation").c_str())
+    .def("add_colour_rule",
+         &molecules_container_t::add_colour_rule,
+         get_docstring_from_xml("add_colour_rule").c_str())
+    .def("add_colour_rules_multi",
+         &molecules_container_t::add_colour_rules_multi,
+         get_docstring_from_xml("add_colour_rules_multi").c_str())
+    .def("add_hydrogen_atoms",
+         &molecules_container_t::add_hydrogen_atoms,
+         get_docstring_from_xml("add_hydrogen_atoms").c_str())
+    .def("add_lsq_superpose_match",
+         &molecules_container_t::add_lsq_superpose_match,
+         get_docstring_from_xml("add_lsq_superpose_match").c_str())
+    .def("add_lsq_superpose_atom_match",
+         &molecules_container_t::add_lsq_superpose_atom_match,
+         get_docstring_from_xml("add_lsq_superpose_atom_match").c_str())
+    .def("add_named_glyco_tree",
+         &molecules_container_t::add_named_glyco_tree,
+         get_docstring_from_xml("add_named_glyco_tree").c_str())
+    .def("add_target_position_restraint",
+         &molecules_container_t::add_target_position_restraint,
+         get_docstring_from_xml("add_target_position_restraint").c_str())
+    .def("add_target_position_restraint_and_refine",
+         &molecules_container_t::add_target_position_restraint_and_refine,
+         get_docstring_from_xml("add_target_position_restraint_and_refine").c_str())
+    .def("add_terminal_residue_directly",
+         &molecules_container_t::add_terminal_residue_directly,
+         get_docstring_from_xml("add_terminal_residue_directly").c_str())
+    .def("add_terminal_residue_directly_using_cid",
+         &molecules_container_t::add_terminal_residue_directly_using_cid,
+         get_docstring_from_xml("add_terminal_residue_directly_using_cid").c_str())
+    .def("add_to_non_drawn_bonds",
+         &molecules_container_t::add_to_non_drawn_bonds,
+         get_docstring_from_xml("add_to_non_drawn_bonds").c_str())
+    .def("add_waters",
+         &molecules_container_t::add_waters,
+         get_docstring_from_xml("add_waters").c_str())
+    .def("all_molecule_contact_dots",
+         &molecules_container_t::all_molecule_contact_dots,
+         get_docstring_from_xml("all_molecule_contact_dots").c_str())
+    .def("apply_transformation_to_atom_selection",
+         &molecules_container_t::apply_transformation_to_atom_selection,
+         get_docstring_from_xml("apply_transformation_to_atom_selection").c_str())
+    .def("assign_sequence",
+         &molecules_container_t::assign_sequence,
+         get_docstring_from_xml("assign_sequence").c_str())
+    .def("associate_data_mtz_file_with_map",
+         &molecules_container_t::associate_data_mtz_file_with_map,
+         get_docstring_from_xml("associate_data_mtz_file_with_map").c_str())
+    .def("associate_sequence",
+         &molecules_container_t::associate_sequence,
+         get_docstring_from_xml("associate_sequence").c_str())
+    .def("auto_fit_rotamer",
+         &molecules_container_t::auto_fit_rotamer,
+         get_docstring_from_xml("auto_fit_rotamer").c_str())
+    .def("auto_read_mtz",
+         &molecules_container_t::auto_read_mtz,
+         get_docstring_from_xml("auto_read_mtz").c_str())
+    .def("average_map",
+         &molecules_container_t::average_map,
+         get_docstring_from_xml("average_map").c_str())
+    .def("calculate_new_rail_points",
+         &molecules_container_t::calculate_new_rail_points,
+         get_docstring_from_xml("calculate_new_rail_points").c_str())
+    .def("change_to_first_rotamer",
+         &molecules_container_t::change_to_first_rotamer,
+         get_docstring_from_xml("change_to_first_rotamer").c_str())
+    .def("change_to_next_rotamer",
+         &molecules_container_t::change_to_next_rotamer,
+         get_docstring_from_xml("change_to_next_rotamer").c_str())
+    .def("change_to_previous_rotamer",
+         &molecules_container_t::change_to_previous_rotamer,
+         get_docstring_from_xml("change_to_previous_rotamer").c_str())
+    .def("cis_trans_convert",
+         &molecules_container_t::cis_trans_convert,
+         get_docstring_from_xml("cis_trans_convert").c_str())
+    .def("clear_extra_restraints",
+         &molecules_container_t::clear_extra_restraints,
+         get_docstring_from_xml("clear_extra_restraints").c_str())
+    .def("clear_lsq_matches",
+         &molecules_container_t::clear_lsq_matches,
+         get_docstring_from_xml("clear_lsq_matches").c_str())
+    .def("clear_non_drawn_bonds",
+         &molecules_container_t::clear_non_drawn_bonds,
+         get_docstring_from_xml("clear_non_drawn_bonds").c_str())
+    .def("clear_refinement",
+         &molecules_container_t::clear_refinement,
+         get_docstring_from_xml("clear_refinement").c_str())
+    .def("clear_target_position_restraints",
+         &molecules_container_t::clear_target_position_restraints,
+         get_docstring_from_xml("clear_target_position_restraints").c_str())
+    .def("change_alt_locs",
+         &molecules_container_t::change_alt_locs,
+         get_docstring_from_xml("change_alt_locs").c_str())
+    .def("close_molecule",
+         &molecules_container_t::close_molecule,
+         get_docstring_from_xml("close_molecule").c_str())
+    .def("connect_updating_maps",
+         &molecules_container_t::connect_updating_maps,
+         get_docstring_from_xml("connect_updating_maps").c_str())
+    .def("contact_dots_for_ligand",
+         &molecules_container_t::contact_dots_for_ligand,
+         get_docstring_from_xml("contact_dots_for_ligand").c_str())
+    .def("copy_fragment_for_refinement_using_cid",
+         &molecules_container_t::copy_fragment_for_refinement_using_cid,
+         get_docstring_from_xml("copy_fragment_for_refinement_using_cid").c_str())
+    .def("copy_fragment_using_cid",
+         &molecules_container_t::copy_fragment_using_cid,
+         get_docstring_from_xml("copy_fragment_using_cid").c_str())
+    .def("copy_fragment_using_residue_range",
+         &molecules_container_t::copy_fragment_using_residue_range,
+         get_docstring_from_xml("copy_fragment_using_residue_range").c_str())
+    .def("copy_molecule",
+         &molecules_container_t::copy_molecule,
+         get_docstring_from_xml("copy_molecule").c_str())
+    .def("delete_all_carbohydrate",
+         &molecules_container_t::delete_all_carbohydrate,
+         get_docstring_from_xml("delete_all_carbohydrate").c_str())
+    .def("delete_atom",
+         &molecules_container_t::delete_atom,
+         get_docstring_from_xml("delete_atom").c_str())
+    .def("delete_atom_using_cid",
+         &molecules_container_t::delete_atom_using_cid,
+         get_docstring_from_xml("delete_atom_using_cid").c_str())
+    .def("delete_chain_using_cid",
+         &molecules_container_t::delete_chain_using_cid,
+         get_docstring_from_xml("delete_chain_using_cid").c_str())
+    .def("delete_colour_rules",
+         &molecules_container_t::delete_colour_rules,
+         get_docstring_from_xml("delete_colour_rules").c_str())
+    .def("delete_hydrogen_atoms",
+         &molecules_container_t::delete_hydrogen_atoms,
+         get_docstring_from_xml("delete_hydrogen_atoms").c_str())
+    .def("delete_residue",
+         &molecules_container_t::delete_residue,
+         get_docstring_from_xml("delete_residue").c_str())
+    .def("delete_residue_atoms_using_cid",
+         &molecules_container_t::delete_residue_atoms_using_cid,
+         get_docstring_from_xml("delete_residue_atoms_using_cid").c_str())
+    .def("delete_residue_atoms_with_alt_conf",
+         &molecules_container_t::delete_residue_atoms_with_alt_conf,
+         get_docstring_from_xml("delete_residue_atoms_with_alt_conf").c_str())
+    .def("delete_residue_using_cid",
+         &molecules_container_t::delete_residue_using_cid,
+         get_docstring_from_xml("delete_residue_using_cid").c_str())
+    .def("delete_side_chain",
+         &molecules_container_t::delete_side_chain,
+         get_docstring_from_xml("delete_side_chain").c_str())
+    .def("delete_using_cid",
+         &molecules_container_t::delete_using_cid,
+         get_docstring_from_xml("delete_using_cid").c_str())
+    .def("density_correlation_analysis",
+         &molecules_container_t::density_correlation_analysis,
+         get_docstring_from_xml("density_correlation_analysis").c_str())
+    .def("density_fit_analysis",
+         &molecules_container_t::density_fit_analysis,
+         get_docstring_from_xml("density_fit_analysis").c_str())
+    .def("dictionary_atom_name_map",
+         &molecules_container_t::dictionary_atom_name_map,
+         get_docstring_from_xml("dictionary_atom_name_map").c_str())
+    .def("difference_map_peaks",
+         &molecules_container_t::difference_map_peaks,
+         get_docstring_from_xml("difference_map_peaks").c_str())
+    .def("eigen_flip_ligand",
+         nb::overload_cast<int, const std::string&>                        (&molecules_container_t::eigen_flip_ligand_using_cid),
+         get_docstring_from_xml("eigen_flip_ligand").c_str())
+    .def("export_chemical_features_as_gltf",
+         &molecules_container_t::export_chemical_features_as_gltf,
+         get_docstring_from_xml("export_chemical_features_as_gltf").c_str())
+    .def("export_molecular_representation_as_gltf",
+         &molecules_container_t::export_molecular_representation_as_gltf,
+         get_docstring_from_xml("export_molecular_representation_as_gltf").c_str())
+    .def("export_model_molecule_as_gltf",
+         &molecules_container_t::export_model_molecule_as_gltf,
+         get_docstring_from_xml("export_model_molecule_as_gltf").c_str())
+    .def("export_map_molecule_as_gltf",
+         &molecules_container_t::export_map_molecule_as_gltf,
+         get_docstring_from_xml("export_map_molecule_as_gltf").c_str())
+    .def("find_water_baddies",
+         &molecules_container_t::find_water_baddies,
+         get_docstring_from_xml("find_water_baddies").c_str())
+    .def("file_name_to_string",
+         &molecules_container_t::file_name_to_string,
+         get_docstring_from_xml("file_name_to_string").c_str())
+    .def("fill_partial_residue",
+         &molecules_container_t::fill_partial_residue,
+         get_docstring_from_xml("fill_partial_residue").c_str())
+    .def("fill_partial_residues",
+         &molecules_container_t::fill_partial_residues,
+         get_docstring_from_xml("fill_partial_residues").c_str())
+    .def("fill_rotamer_probability_tables",
+         &molecules_container_t::fill_rotamer_probability_tables,
+         get_docstring_from_xml("fill_rotamer_probability_tables").c_str())
+    .def("fit_ligand",
+         &molecules_container_t::fit_ligand,
+         get_docstring_from_xml("fit_ligand").c_str())
+    .def("fit_ligand_right_here",
+         &molecules_container_t::fit_ligand_right_here,
+         get_docstring_from_xml("fit_ligand_right_here").c_str())
+    .def("fit_to_map_by_random_jiggle",
+         &molecules_container_t::fit_to_map_by_random_jiggle,
+         get_docstring_from_xml("fit_to_map_by_random_jiggle").c_str())
+    .def("fit_to_map_by_random_jiggle_using_cid",
+         &molecules_container_t::fit_to_map_by_random_jiggle_using_cid,
+         get_docstring_from_xml("fit_to_map_by_random_jiggle_using_cid").c_str())
+    .def("fit_to_map_by_random_jiggle_using_cid",
+         &molecules_container_t::fit_to_map_by_random_jiggle_using_cid,
+         get_docstring_from_xml("fit_to_map_by_random_jiggle_using_cid").c_str())
+    .def("flipPeptide",
+         nb::overload_cast<int, const coot::atom_spec_t&,const std::string&>(&molecules_container_t::flip_peptide),
+         get_docstring_from_xml("flipPeptide").c_str())
+    .def("flipPeptide_cid",
+         nb::overload_cast<int, const std::string&,      const std::string&>(&molecules_container_t::flip_peptide_using_cid),
+         get_docstring_from_xml("flipPeptide_cid").c_str())
+    .def("flip_hand",
+         &molecules_container_t::flip_hand,
+         get_docstring_from_xml("flip_hand").c_str())
+    .def("flood",
+         &molecules_container_t::flood,
+         get_docstring_from_xml("flood").c_str())
+    .def("fourier_shell_correlation",
+         &molecules_container_t::fourier_shell_correlation,
+         get_docstring_from_xml("fourier_shell_correlation").c_str())
+    .def("generate_self_restraints",
+         &molecules_container_t::generate_self_restraints,
+         get_docstring_from_xml("generate_self_restraints").c_str())
+    .def("geometry_init_standard",
+         &molecules_container_t::geometry_init_standard,
+         get_docstring_from_xml("geometry_init_standard").c_str())
+    .def("get_active_atom",
+         &molecules_container_t::get_active_atom,
+         get_docstring_from_xml("get_active_atom").c_str())
+    .def("get_acedrg_atom_types",
+         &molecules_container_t::get_acedrg_atom_types,
+         get_docstring_from_xml("get_acedrg_atom_types").c_str())
+    .def("get_acedrg_atom_types_for_ligand",
+         &molecules_container_t::get_acedrg_atom_types_for_ligand,
+         get_docstring_from_xml("get_acedrg_atom_types_for_ligand").c_str())
+    .def("get_atom",
+         &molecules_container_t::get_atom, nb::rv_policy::reference,
+         get_docstring_from_xml("get_atom").c_str())
+    .def("get_atom_differences",
+         &molecules_container_t::get_atom_differences,
+         get_docstring_from_xml("get_atom_differences").c_str())
+    .def("get_atom_using_cid",
+         &molecules_container_t::get_atom_using_cid, nb::rv_policy::reference,
+         get_docstring_from_xml("get_atom_using_cid").c_str())
+    .def("get_bonds_mesh",
+         &molecules_container_t::get_bonds_mesh,
+         get_docstring_from_xml("get_bonds_mesh").c_str())
+    .def("get_bonds_mesh_for_selection_instanced",
+         &molecules_container_t::get_bonds_mesh_for_selection_instanced,
+         get_docstring_from_xml("get_bonds_mesh_for_selection_instanced").c_str())
+    .def("get_bonds_mesh_instanced",
+         &molecules_container_t::get_bonds_mesh_instanced,
+         get_docstring_from_xml("get_bonds_mesh_instanced").c_str())
+    .def("get_cell",
+         &molecules_container_t::get_cell,
+         get_docstring_from_xml("get_cell").c_str())
+    .def("get_chains_in_model",
+         &molecules_container_t::get_chains_in_model,
+         get_docstring_from_xml("get_chains_in_model").c_str())
+    .def("get_chemical_features_mesh",
+         &molecules_container_t::get_chemical_features_mesh,
+         get_docstring_from_xml("get_chemical_features_mesh").c_str())
+    .def("get_colour_rules",
+         &molecules_container_t::get_colour_rules,
+         get_docstring_from_xml("get_colour_rules").c_str())
+    .def("get_colour_table_for_blender",
+         &molecules_container_t::get_colour_table_for_blender,
+         get_docstring_from_xml("get_colour_table_for_blender").c_str())
+    .def("get_density_at_position",
+         &molecules_container_t::get_density_at_position,
+         get_docstring_from_xml("get_density_at_position").c_str())
+    .def("get_dictionary_conformers",
+         &molecules_container_t::get_dictionary_conformers,
+         get_docstring_from_xml("get_dictionary_conformers").c_str())
+    .def("get_distances_between_atoms_of_residues",
+         &molecules_container_t::get_distances_between_atoms_of_residues,
+         get_docstring_from_xml("get_distances_between_atoms_of_residues").c_str())
+    .def("get_gaussian_surface",
+         &molecules_container_t::get_gaussian_surface,
+         get_docstring_from_xml("get_gaussian_surface").c_str())
+    .def("get_goodsell_style_mesh_instanced",
+         &molecules_container_t::get_goodsell_style_mesh_instanced,
+         get_docstring_from_xml("get_goodsell_style_mesh_instanced").c_str())
+    .def("get_gphl_chem_comp_info",
+         &molecules_container_t::get_gphl_chem_comp_info,
+         get_docstring_from_xml("get_gphl_chem_comp_info").c_str())
+    .def("get_group_for_monomer",
+         &molecules_container_t::get_group_for_monomer,
+         get_docstring_from_xml("get_group_for_monomer").c_str())
+    .def("get_groups_for_monomers",
+         &molecules_container_t::get_groups_for_monomers,
+         get_docstring_from_xml("get_groups_for_monomers").c_str())
+    .def("get_hb_type",
+         &molecules_container_t::get_hb_type,
+         get_docstring_from_xml("get_hb_type").c_str())
+    .def("get_header_info",
+         &molecules_container_t::get_header_info,
+         get_docstring_from_xml("get_header_info").c_str())
     // .def("get_h_bonds",&molecules_container_t::get_h_bonds)
     // .def("get_interesting_places",&molecules_container_t::get_interesting_places)
-    .def("get_HOLE",&molecules_container_t::get_HOLE)
-    .def("get_imol_enc_any",&molecules_container_t::get_imol_enc_any)
-    .def("get_ligand_validation_vs_dictionary",&molecules_container_t::get_ligand_validation_vs_dictionary)
-    .def("get_ligand_distortion",&molecules_container_t::get_ligand_distortion)
-    .def("get_lsq_matrix",&molecules_container_t::get_lsq_matrix)
-    .def("get_map_contours_mesh",&molecules_container_t::get_map_contours_mesh)
-    .def("get_map_contours_mesh_using_other_map_for_colours",&molecules_container_t::get_map_contours_mesh_using_other_map_for_colours)
-    .def("get_map_molecule_centre",&molecules_container_t::get_map_molecule_centre)
-    .def("get_map_rmsd_approx",&molecules_container_t::get_map_rmsd_approx)
-    .def("get_map_weight",&molecules_container_t::get_map_weight)
-    .def("get_median_temperature_factor",&molecules_container_t::get_median_temperature_factor)
-    .def("get_missing_residue_ranges",&molecules_container_t::get_missing_residue_ranges)
-    .def("get_molecular_representation_mesh",&molecules_container_t::get_molecular_representation_mesh)
-    .def("get_molecule_centre",&molecules_container_t::get_molecule_centre)
-    .def("get_molecule_name",&molecules_container_t::get_molecule_name)
-    .def("get_monomer",&molecules_container_t::get_monomer)
-    .def("get_monomer_and_position_at",&molecules_container_t::get_monomer_and_position_at)
-    .def("get_monomer_from_dictionary",&molecules_container_t::get_monomer_from_dictionary)
-    .def("get_number_of_atoms",&molecules_container_t::get_number_of_atoms)
-    .def("get_number_of_hydrogen_atoms",&molecules_container_t::get_number_of_hydrogen_atoms)
-    .def("get_number_of_molecules",&molecules_container_t::get_number_of_molecules)
-    .def("get_number_of_map_sections",&molecules_container_t::get_number_of_map_sections)
-    .def("get_octahemisphere",&molecules_container_t::get_octahemisphere)
-    .def("get_q_score",&molecules_container_t::get_q_score)
-    .def("get_q_score_for_cid",&molecules_container_t::get_q_score_for_cid)
-    .def("get_r_factor_stats",&molecules_container_t::get_r_factor_stats)
-    .def("get_rama_plot_restraints_weight",&molecules_container_t::get_rama_plot_restraints_weight)
-    .def("get_ramachandran_validation_markup_mesh",&molecules_container_t::get_ramachandran_validation_markup_mesh)
+    .def("get_HOLE",
+         &molecules_container_t::get_HOLE,
+         get_docstring_from_xml("get_HOLE").c_str())
+    .def("get_imol_enc_any",
+         &molecules_container_t::get_imol_enc_any,
+         get_docstring_from_xml("get_imol_enc_any").c_str())
+    .def("get_ligand_validation_vs_dictionary",
+         &molecules_container_t::get_ligand_validation_vs_dictionary,
+         get_docstring_from_xml("get_ligand_validation_vs_dictionary").c_str())
+    .def("get_ligand_distortion",
+         &molecules_container_t::get_ligand_distortion,
+         get_docstring_from_xml("get_ligand_distortion").c_str())
+    .def("get_lsq_matrix",
+         &molecules_container_t::get_lsq_matrix,
+         get_docstring_from_xml("get_lsq_matrix").c_str())
+    .def("get_map_contours_mesh",
+         &molecules_container_t::get_map_contours_mesh,
+         get_docstring_from_xml("get_map_contours_mesh").c_str())
+    .def("get_map_contours_mesh_using_other_map_for_colours",
+         &molecules_container_t::get_map_contours_mesh_using_other_map_for_colours,
+         get_docstring_from_xml("get_map_contours_mesh_using_other_map_for_colours").c_str())
+    .def("get_map_molecule_centre",
+         &molecules_container_t::get_map_molecule_centre,
+         get_docstring_from_xml("get_map_molecule_centre").c_str())
+    .def("get_map_rmsd_approx",
+         &molecules_container_t::get_map_rmsd_approx,
+         get_docstring_from_xml("get_map_rmsd_approx").c_str())
+    .def("get_map_weight",
+         &molecules_container_t::get_map_weight,
+         get_docstring_from_xml("get_map_weight").c_str())
+    .def("get_median_temperature_factor",
+         &molecules_container_t::get_median_temperature_factor,
+         get_docstring_from_xml("get_median_temperature_factor").c_str())
+    .def("get_missing_residue_ranges",
+         &molecules_container_t::get_missing_residue_ranges,
+         get_docstring_from_xml("get_missing_residue_ranges").c_str())
+    .def("get_molecular_representation_mesh",
+         &molecules_container_t::get_molecular_representation_mesh,
+         get_docstring_from_xml("get_molecular_representation_mesh").c_str())
+    .def("get_molecule_centre",
+         &molecules_container_t::get_molecule_centre,
+         get_docstring_from_xml("get_molecule_centre").c_str())
+    .def("get_molecule_name",
+         &molecules_container_t::get_molecule_name,
+         get_docstring_from_xml("get_molecule_name").c_str())
+    .def("get_monomer",
+         &molecules_container_t::get_monomer,
+         get_docstring_from_xml("get_monomer").c_str())
+    .def("get_monomer_and_position_at",
+         &molecules_container_t::get_monomer_and_position_at,
+         get_docstring_from_xml("get_monomer_and_position_at").c_str())
+    .def("get_monomer_from_dictionary",
+         &molecules_container_t::get_monomer_from_dictionary,
+         get_docstring_from_xml("get_monomer_from_dictionary").c_str())
+    .def("get_number_of_atoms",
+         &molecules_container_t::get_number_of_atoms,
+         get_docstring_from_xml("get_number_of_atoms").c_str())
+    .def("get_number_of_hydrogen_atoms",
+         &molecules_container_t::get_number_of_hydrogen_atoms,
+         get_docstring_from_xml("get_number_of_hydrogen_atoms").c_str())
+    .def("get_number_of_molecules",
+         &molecules_container_t::get_number_of_molecules,
+         get_docstring_from_xml("get_number_of_molecules").c_str())
+    .def("get_number_of_map_sections",
+         &molecules_container_t::get_number_of_map_sections,
+         get_docstring_from_xml("get_number_of_map_sections").c_str())
+    .def("get_octahemisphere",
+         &molecules_container_t::get_octahemisphere,
+         get_docstring_from_xml("get_octahemisphere").c_str())
+    .def("get_q_score",
+         &molecules_container_t::get_q_score,
+         get_docstring_from_xml("get_q_score").c_str())
+    .def("get_q_score_for_cid",
+         &molecules_container_t::get_q_score_for_cid,
+         get_docstring_from_xml("get_q_score_for_cid").c_str())
+    .def("get_r_factor_stats",
+         &molecules_container_t::get_r_factor_stats,
+         get_docstring_from_xml("get_r_factor_stats").c_str())
+    .def("get_rama_plot_restraints_weight",
+         &molecules_container_t::get_rama_plot_restraints_weight,
+         get_docstring_from_xml("get_rama_plot_restraints_weight").c_str())
+    .def("get_ramachandran_validation_markup_mesh",
+         &molecules_container_t::get_ramachandran_validation_markup_mesh,
+         get_docstring_from_xml("get_ramachandran_validation_markup_mesh").c_str())
     //Using allow_raw_pointers(). Perhaps suggests we need to do something different from exposing mmdb pointers to JS.
-    .def("get_residue",&molecules_container_t::get_residue, nb::rv_policy::reference)
-    .def("get_residue_average_position",&molecules_container_t::get_residue_average_position)
-    .def("get_residue_CA_position",&molecules_container_t::get_residue_CA_position)
-    .def("get_residue_name",&molecules_container_t::get_residue_name)
-    .def("get_residue_names_with_no_dictionary",&molecules_container_t::get_residue_names_with_no_dictionary)
-    .def("get_residue_sidechain_average_position",&molecules_container_t::get_residue_sidechain_average_position)
-    .def("get_residue_using_cid",&molecules_container_t::get_residue_using_cid)
-    .def("get_residues_near_residue",&molecules_container_t::get_residues_near_residue)
-    .def("get_rotamer_dodecs",&molecules_container_t::get_rotamer_dodecs)
-    .def("get_rotamer_dodecs_instanced",&molecules_container_t::get_rotamer_dodecs_instanced)
-    .def("get_single_letter_codes_for_chain",&molecules_container_t::get_single_letter_codes_for_chain)
-    .def("get_sum_density_for_atoms_in_residue",&molecules_container_t::get_sum_density_for_atoms_in_residue)
-    .def("get_svg_for_2d_ligand_environment_view",&molecules_container_t::get_svg_for_2d_ligand_environment_view)
-    .def("get_svg_for_residue_type",&molecules_container_t::get_svg_for_residue_type)
-    .def("get_symmetry",&molecules_container_t::get_symmetry)
-    .def("get_torsion",&molecules_container_t::get_torsion)
-    .def("get_types_in_molecule",&molecules_container_t::get_types_in_molecule)
-    .def("get_torsion_restraints_weight",&molecules_container_t::get_torsion_restraints_weight)
-    .def("get_triangles_for_blender", &molecules_container_t::get_triangles_for_blender)
-    .def("get_use_gemmi",&molecules_container_t::get_use_gemmi)
-    .def("get_use_rama_plot_restraints",&molecules_container_t::get_use_rama_plot_restraints)
-    .def("get_use_torsion_restraints",&molecules_container_t::get_use_torsion_restraints)
-    .def("get_validation_vs_dictionary_for_selection", &molecules_container_t::get_validation_vs_dictionary_for_selection)
-    .def("get_vertices_for_blender", &molecules_container_t::get_vertices_for_blender)
-    .def("go_to_blob",&molecules_container_t::go_to_blob)
-    .def("import_cif_dictionary",&molecules_container_t::import_cif_dictionary)
-    .def("init_refinement_of_molecule_as_fragment_based_on_reference",&molecules_container_t::init_refinement_of_molecule_as_fragment_based_on_reference)
-    .def("is_a_difference_map",&molecules_container_t::is_a_difference_map)
-    .def("is_valid_map_molecule",&molecules_container_t::is_valid_map_molecule)
-    .def("is_valid_model_molecule",&molecules_container_t::is_valid_model_molecule)
-    .def("jed_flip",      nb::overload_cast<int, const std::string&, bool> (&molecules_container_t::jed_flip))
-    .def("lsq_superpose", &molecules_container_t::lsq_superpose)
-    .def("make_mask", &molecules_container_t::make_mask)
-    .def("make_mesh_for_bonds_for_blender", &molecules_container_t::make_mesh_for_bonds_for_blender)
-    .def("make_mesh_for_gaussian_surface_for_blender", &molecules_container_t::make_mesh_for_gaussian_surface_for_blender)
-    .def("make_mesh_for_goodsell_style_for_blender", &molecules_container_t::make_mesh_for_goodsell_style_for_blender)
-    .def("make_mesh_for_map_contours_for_blender", &molecules_container_t::make_mesh_for_map_contours_for_blender)
-    .def("make_mesh_for_molecular_representation_for_blender", &molecules_container_t::make_mesh_for_molecular_representation_for_blender)
-    .def("mask_map_by_atom_selection",&molecules_container_t::mask_map_by_atom_selection)
-    .def("make_power_scaled_map", &molecules_container_t::make_power_scaled_map)
-    .def("merge_molecules", nb::overload_cast<int,const std::string &>(&molecules_container_t::merge_molecules))
-    .def("minimize_energy",&molecules_container_t::minimize_energy)
-    .def("minimize",&molecules_container_t::minimize)
-    .def("mmcif_tests",&molecules_container_t::mmcif_tests)
-    .def("mmrrcc",&molecules_container_t::mmrrcc)
-    .def("move_molecule_to_new_centre",&molecules_container_t::move_molecule_to_new_centre)
-    .def("multiply_residue_temperature_factors",&molecules_container_t::multiply_residue_temperature_factors)
-    .def("mutate",&molecules_container_t::mutate)
-    .def("new_positions_for_atoms_in_residues",&molecules_container_t::new_positions_for_atoms_in_residues)
-    .def("new_positions_for_residue_atoms",&molecules_container_t::new_positions_for_residue_atoms)
-    .def("non_standard_residue_types_in_model",&molecules_container_t::non_standard_residue_types_in_model)
-    .def("package_version",&molecules_container_t::package_version)
-    .def("partition_map_by_chain",&molecules_container_t::partition_map_by_chain)
-    .def("pepflips_using_difference_map",&molecules_container_t::pepflips_using_difference_map)
-    .def("peptide_omega_analysis",&molecules_container_t::peptide_omega_analysis)
-    .def("print_secondary_structure_info",&molecules_container_t::print_secondary_structure_info)
-    .def("rail_points_total",&molecules_container_t::rail_points_total)
-    .def("ramachandran_analysis",&molecules_container_t::ramachandran_analysis)
-    .def("ramachandran_validation",&molecules_container_t::ramachandran_validation)
-    .def("read_coordinates",&molecules_container_t::read_coordinates)
-    .def("read_ccp4_map",&molecules_container_t::read_ccp4_map)
-    .def("read_extra_restraints",&molecules_container_t::read_extra_restraints)
-    .def("read_mtz",&molecules_container_t::read_mtz)
-    .def("read_pdb",&molecules_container_t::read_pdb)
-    .def("read_small_molecule_cif",&molecules_container_t::read_small_molecule_cif)
-    .def("redo",&molecules_container_t::redo)
-    .def("refine",&molecules_container_t::refine)
-    .def("refine_residue_range",&molecules_container_t::refine_residue_range)
-    .def("refine_residues",&molecules_container_t::refine_residues)
-    .def("refine_residues_using_atom_cid",&molecules_container_t::refine_residues_using_atom_cid)
-    .def("regen_map",&molecules_container_t::regen_map)
-    .def("replace_fragment",&molecules_container_t::replace_fragment)
-    .def("replace_map_by_mtz_from_file",&molecules_container_t::replace_map_by_mtz_from_file)
-    .def("replace_molecule_by_model_from_file",&molecules_container_t::replace_molecule_by_model_from_file)
-    .def("replace_residue",&molecules_container_t::replace_residue)
-    .def("residues_with_missing_atoms",&molecules_container_t::residues_with_missing_atoms)
-    .def("rigid_body_fit",&molecules_container_t::rigid_body_fit)
-    .def("rotamer_analysis",&molecules_container_t::rotamer_analysis)
-    .def("rotate_around_bond",&molecules_container_t::rotate_around_bond)
-    .def("scale_map",&molecules_container_t::scale_map)
-    .def("servalcat_refine_xray",&molecules_container_t::servalcat_refine_xray)
-    .def("servalcat_refine_xray_with_keywords",&molecules_container_t::servalcat_refine_xray_with_keywords)
-    .def("set_add_waters_sigma_cutoff",&molecules_container_t::set_add_waters_sigma_cutoff)
-    .def("set_add_waters_variance_limit",&molecules_container_t::set_add_waters_variance_limit)
-    .def("set_add_waters_water_to_protein_distance_lim_min",&molecules_container_t::set_add_waters_water_to_protein_distance_lim_min)
-    .def("set_add_waters_water_to_protein_distance_lim_max",&molecules_container_t::set_add_waters_water_to_protein_distance_lim_max)
-    .def("set_colour_map_for_map_coloured_by_other_map",&molecules_container_t::set_colour_map_for_map_coloured_by_other_map)
-    .def("set_colour_wheel_rotation_base",&molecules_container_t::set_colour_wheel_rotation_base)
-    .def("set_draw_missing_residue_loops",&molecules_container_t::set_draw_missing_residue_loops)
-    .def("set_draw_missing_residue_loops",&molecules_container_t::set_draw_missing_residue_loops)
-    .def("set_gltf_pbr_metalicity_factor",&molecules_container_t::set_gltf_pbr_metalicity_factor)
-    .def("set_gltf_pbr_roughness_factor",&molecules_container_t::set_gltf_pbr_roughness_factor)
-    .def("set_imol_refinement_map",&molecules_container_t::set_imol_refinement_map)
-    .def("set_make_backups",&molecules_container_t::set_make_backups)
-    .def("set_logging_level",&molecules_container_t::set_logging_level)
-    .def("set_map_sampling_rate",&molecules_container_t::set_map_sampling_rate)
-    .def("set_map_weight",&molecules_container_t::set_map_weight)
-    .def("set_max_number_of_threads",&molecules_container_t::set_max_number_of_threads)
-    .def("set_molecule_name",&molecules_container_t::set_molecule_name)
-    .def("set_occupancy",&molecules_container_t::set_occupancy)
-    .def("set_rama_plot_restraints_weight",&molecules_container_t::set_rama_plot_restraints_weight)
-    .def("set_refinement_is_verbose",&molecules_container_t::set_refinement_is_verbose)
-    .def("set_refinement_geman_mcclure_alpha",&molecules_container_t::set_refinement_geman_mcclure_alpha)
-    .def("set_show_timings",&molecules_container_t::set_show_timings)
-    .def("set_temperature_factors_using_cid",&molecules_container_t::set_temperature_factors_using_cid)
-    .def("set_torsion_restraints_weight",&molecules_container_t::set_torsion_restraints_weight)
-    .def("set_use_gemmi",&molecules_container_t::set_use_gemmi)
-    .def("set_use_rama_plot_restraints",&molecules_container_t::set_use_rama_plot_restraints)
-    .def("set_use_torsion_restraints",&molecules_container_t::set_use_torsion_restraints)
-    .def("set_user_defined_atom_colour_by_selection",&molecules_container_t::set_user_defined_atom_colour_by_selection)
-    .def("set_user_defined_bond_colours",&molecules_container_t::set_user_defined_bond_colours)
-    .def("sfcalc_genmap",&molecules_container_t::sfcalc_genmap)
-    .def("sfcalc_genmaps_using_bulk_solvent",&molecules_container_t::sfcalc_genmaps_using_bulk_solvent)
-    .def("sharpen_blur_map",&molecules_container_t::sharpen_blur_map)
-    .def("sharpen_blur_map_with_resample",&molecules_container_t::sharpen_blur_map_with_resample)
-    .def("side_chain_180",    nb::overload_cast<int, const std::string&>                         (&molecules_container_t::side_chain_180))
-    .def("split_multi_model_molecule",&molecules_container_t::split_multi_model_molecule)
-    .def("split_residue_using_map",&molecules_container_t::split_residue_using_map)
-    .def("test_function",&molecules_container_t::test_function)
-    .def("test_origin_cube",&molecules_container_t::test_origin_cube)
-    .def("transform_map_using_lsq_matrix",&molecules_container_t::transform_map_using_lsq_matrix)
-    .def("undo",&molecules_container_t::undo)
-    .def("unmodelled_blobs",&molecules_container_t::unmodelled_blobs)
-    .def("write_coordinates",&molecules_container_t::write_coordinates)
-    .def("write_map",&molecules_container_t::write_map)
-    .def("write_png",&molecules_container_t::write_png)
+    .def("get_residue",
+         &molecules_container_t::get_residue, nb::rv_policy::reference,
+         get_docstring_from_xml("get_residue").c_str())
+    .def("get_residue_average_position",
+         &molecules_container_t::get_residue_average_position,
+         get_docstring_from_xml("get_residue_average_position").c_str())
+    .def("get_residue_CA_position",
+         &molecules_container_t::get_residue_CA_position,
+         get_docstring_from_xml("get_residue_CA_position").c_str())
+    .def("get_residue_name",
+         &molecules_container_t::get_residue_name,
+         get_docstring_from_xml("get_residue_name").c_str())
+    .def("get_residue_names_with_no_dictionary",
+         &molecules_container_t::get_residue_names_with_no_dictionary,
+         get_docstring_from_xml("get_residue_names_with_no_dictionary").c_str())
+    .def("get_residue_sidechain_average_position",
+         &molecules_container_t::get_residue_sidechain_average_position,
+         get_docstring_from_xml("get_residue_sidechain_average_position").c_str())
+    .def("get_residue_using_cid",
+         &molecules_container_t::get_residue_using_cid,
+         get_docstring_from_xml("get_residue_using_cid").c_str())
+    .def("get_residues_near_residue",
+         &molecules_container_t::get_residues_near_residue,
+         get_docstring_from_xml("get_residues_near_residue").c_str())
+    .def("get_rotamer_dodecs",
+         &molecules_container_t::get_rotamer_dodecs,
+         get_docstring_from_xml("get_rotamer_dodecs").c_str())
+    .def("get_rotamer_dodecs_instanced",
+         &molecules_container_t::get_rotamer_dodecs_instanced,
+         get_docstring_from_xml("get_rotamer_dodecs_instanced").c_str())
+    .def("get_single_letter_codes_for_chain",
+         &molecules_container_t::get_single_letter_codes_for_chain,
+         get_docstring_from_xml("get_single_letter_codes_for_chain").c_str())
+    .def("get_sum_density_for_atoms_in_residue",
+         &molecules_container_t::get_sum_density_for_atoms_in_residue,
+         get_docstring_from_xml("get_sum_density_for_atoms_in_residue").c_str())
+    .def("get_svg_for_2d_ligand_environment_view",
+         &molecules_container_t::get_svg_for_2d_ligand_environment_view,
+         get_docstring_from_xml("get_svg_for_2d_ligand_environment_view").c_str())
+    .def("get_svg_for_residue_type",
+         &molecules_container_t::get_svg_for_residue_type,
+         get_docstring_from_xml("get_svg_for_residue_type").c_str())
+    .def("get_symmetry",
+         &molecules_container_t::get_symmetry,
+         get_docstring_from_xml("get_symmetry").c_str())
+    .def("get_torsion",
+         &molecules_container_t::get_torsion,
+         get_docstring_from_xml("get_torsion").c_str())
+    .def("get_types_in_molecule",
+         &molecules_container_t::get_types_in_molecule,
+         get_docstring_from_xml("get_types_in_molecule").c_str())
+    .def("get_torsion_restraints_weight",
+         &molecules_container_t::get_torsion_restraints_weight,
+         get_docstring_from_xml("get_torsion_restraints_weight").c_str())
+    .def("get_triangles_for_blender",
+         &molecules_container_t::get_triangles_for_blender,
+         get_docstring_from_xml("get_triangles_for_blender").c_str())
+    .def("get_use_gemmi",
+         &molecules_container_t::get_use_gemmi,
+         get_docstring_from_xml("get_use_gemmi").c_str())
+    .def("get_use_rama_plot_restraints",
+         &molecules_container_t::get_use_rama_plot_restraints,
+         get_docstring_from_xml("get_use_rama_plot_restraints").c_str())
+    .def("get_use_torsion_restraints",
+         &molecules_container_t::get_use_torsion_restraints,
+         get_docstring_from_xml("get_use_torsion_restraints").c_str())
+    .def("get_validation_vs_dictionary_for_selection",
+         &molecules_container_t::get_validation_vs_dictionary_for_selection,
+         get_docstring_from_xml("get_validation_vs_dictionary_for_selection").c_str())
+    .def("get_vertices_for_blender",
+         &molecules_container_t::get_vertices_for_blender,
+         get_docstring_from_xml("get_vertices_for_blender").c_str())
+    .def("go_to_blob",
+         &molecules_container_t::go_to_blob,
+         get_docstring_from_xml("go_to_blob").c_str())
+    .def("import_cif_dictionary",
+         &molecules_container_t::import_cif_dictionary,
+         get_docstring_from_xml("import_cif_dictionary").c_str())
+    .def("init_refinement_of_molecule_as_fragment_based_on_reference",
+         &molecules_container_t::init_refinement_of_molecule_as_fragment_based_on_reference,
+         get_docstring_from_xml("init_refinement_of_molecule_as_fragment_based_on_reference").c_str())
+    .def("is_a_difference_map",
+         &molecules_container_t::is_a_difference_map,
+         get_docstring_from_xml("is_a_difference_map").c_str())
+    .def("is_valid_map_molecule",
+         &molecules_container_t::is_valid_map_molecule,
+         get_docstring_from_xml("is_valid_map_molecule").c_str())
+    .def("is_valid_model_molecule",
+         &molecules_container_t::is_valid_model_molecule,
+         get_docstring_from_xml("is_valid_model_molecule").c_str())
+    .def("jed_flip",
+         nb::overload_cast<int, const std::string&, bool> (&molecules_container_t::jed_flip),
+         get_docstring_from_xml("jed_flip").c_str())
+    .def("lsq_superpose",
+         &molecules_container_t::lsq_superpose,
+         get_docstring_from_xml("lsq_superpose").c_str())
+    .def("make_mask",
+         &molecules_container_t::make_mask,
+         get_docstring_from_xml("make_mask").c_str())
+    .def("make_mesh_for_bonds_for_blender",
+         &molecules_container_t::make_mesh_for_bonds_for_blender,
+         get_docstring_from_xml("make_mesh_for_bonds_for_blender").c_str())
+    .def("make_mesh_for_gaussian_surface_for_blender",
+         &molecules_container_t::make_mesh_for_gaussian_surface_for_blender,
+         get_docstring_from_xml("make_mesh_for_gaussian_surface_for_blender").c_str())
+    .def("make_mesh_for_goodsell_style_for_blender",
+         &molecules_container_t::make_mesh_for_goodsell_style_for_blender,
+         get_docstring_from_xml("make_mesh_for_goodsell_style_for_blender").c_str())
+    .def("make_mesh_for_map_contours_for_blender",
+         &molecules_container_t::make_mesh_for_map_contours_for_blender,
+         get_docstring_from_xml("make_mesh_for_map_contours_for_blender").c_str())
+    .def("make_mesh_for_molecular_representation_for_blender",
+         &molecules_container_t::make_mesh_for_molecular_representation_for_blender,
+         get_docstring_from_xml("make_mesh_for_molecular_representation_for_blender").c_str())
+    .def("mask_map_by_atom_selection",
+         &molecules_container_t::mask_map_by_atom_selection,
+         get_docstring_from_xml("mask_map_by_atom_selection").c_str())
+    .def("make_power_scaled_map",
+         &molecules_container_t::make_power_scaled_map,
+         get_docstring_from_xml("make_power_scaled_map").c_str())
+    .def("merge_molecules",
+         nb::overload_cast<int,const std::string &>(&molecules_container_t::merge_molecules),
+         get_docstring_from_xml("merge_molecules").c_str())
+    .def("minimize_energy",
+         &molecules_container_t::minimize_energy,
+         get_docstring_from_xml("minimize_energy").c_str())
+    .def("minimize",
+         &molecules_container_t::minimize,
+         get_docstring_from_xml("minimize").c_str())
+    .def("mmcif_tests",
+         &molecules_container_t::mmcif_tests,
+         get_docstring_from_xml("mmcif_tests").c_str())
+    .def("mmrrcc",
+         &molecules_container_t::mmrrcc,
+         get_docstring_from_xml("mmrrcc").c_str())
+    .def("move_molecule_to_new_centre",
+         &molecules_container_t::move_molecule_to_new_centre,
+         get_docstring_from_xml("move_molecule_to_new_centre").c_str())
+    .def("multiply_residue_temperature_factors",
+         &molecules_container_t::multiply_residue_temperature_factors,
+         get_docstring_from_xml("multiply_residue_temperature_factors").c_str())
+    .def("mutate",
+         &molecules_container_t::mutate,
+         get_docstring_from_xml("mutate").c_str())
+    .def("new_positions_for_atoms_in_residues",
+         &molecules_container_t::new_positions_for_atoms_in_residues,
+         get_docstring_from_xml("new_positions_for_atoms_in_residues").c_str())
+    .def("new_positions_for_residue_atoms",
+         &molecules_container_t::new_positions_for_residue_atoms,
+         get_docstring_from_xml("new_positions_for_residue_atoms").c_str())
+    .def("non_standard_residue_types_in_model",
+         &molecules_container_t::non_standard_residue_types_in_model,
+         get_docstring_from_xml("non_standard_residue_types_in_model").c_str())
+    .def("package_version",
+         &molecules_container_t::package_version,
+         get_docstring_from_xml("package_version").c_str())
+    .def("partition_map_by_chain",
+         &molecules_container_t::partition_map_by_chain,
+         get_docstring_from_xml("partition_map_by_chain").c_str())
+    .def("pepflips_using_difference_map",
+         &molecules_container_t::pepflips_using_difference_map,
+         get_docstring_from_xml("pepflips_using_difference_map").c_str())
+    .def("peptide_omega_analysis",
+         &molecules_container_t::peptide_omega_analysis,
+         get_docstring_from_xml("peptide_omega_analysis").c_str())
+    .def("print_secondary_structure_info",
+         &molecules_container_t::print_secondary_structure_info,
+         get_docstring_from_xml("print_secondary_structure_info").c_str())
+    .def("rail_points_total",
+         &molecules_container_t::rail_points_total,
+         get_docstring_from_xml("rail_points_total").c_str())
+    .def("ramachandran_analysis",
+         &molecules_container_t::ramachandran_analysis,
+         get_docstring_from_xml("ramachandran_analysis").c_str())
+    .def("ramachandran_validation",
+         &molecules_container_t::ramachandran_validation,
+         get_docstring_from_xml("ramachandran_validation").c_str())
+    .def("read_coordinates",
+         &molecules_container_t::read_coordinates,
+         get_docstring_from_xml("read_coordinates").c_str())
+    .def("read_ccp4_map",
+         &molecules_container_t::read_ccp4_map,
+         get_docstring_from_xml("read_ccp4_map").c_str())
+    .def("read_extra_restraints",
+         &molecules_container_t::read_extra_restraints,
+         get_docstring_from_xml("read_extra_restraints").c_str())
+    .def("read_mtz",
+         &molecules_container_t::read_mtz,
+         get_docstring_from_xml("read_mtz").c_str())
+    .def("read_pdb",
+         &molecules_container_t::read_pdb,
+         get_docstring_from_xml("read_pdb").c_str())
+    .def("read_small_molecule_cif",
+         &molecules_container_t::read_small_molecule_cif,
+         get_docstring_from_xml("read_small_molecule_cif").c_str())
+    .def("redo",
+         &molecules_container_t::redo,
+         get_docstring_from_xml("redo").c_str())
+    .def("refine",
+         &molecules_container_t::refine,
+         get_docstring_from_xml("refine").c_str())
+    .def("refine_residue_range",
+         &molecules_container_t::refine_residue_range,
+         get_docstring_from_xml("refine_residue_range").c_str())
+    .def("refine_residues",
+         &molecules_container_t::refine_residues,
+         get_docstring_from_xml("refine_residues").c_str())
+    .def("refine_residues_using_atom_cid",
+         &molecules_container_t::refine_residues_using_atom_cid,
+         get_docstring_from_xml("refine_residues_using_atom_cid").c_str())
+    .def("regen_map",
+         &molecules_container_t::regen_map,
+         get_docstring_from_xml("regen_map").c_str())
+    .def("replace_fragment",
+         &molecules_container_t::replace_fragment,
+         get_docstring_from_xml("replace_fragment").c_str())
+    .def("replace_map_by_mtz_from_file",
+         &molecules_container_t::replace_map_by_mtz_from_file,
+         get_docstring_from_xml("replace_map_by_mtz_from_file").c_str())
+    .def("replace_molecule_by_model_from_file",
+         &molecules_container_t::replace_molecule_by_model_from_file,
+         get_docstring_from_xml("replace_molecule_by_model_from_file").c_str())
+    .def("replace_residue",
+         &molecules_container_t::replace_residue,
+         get_docstring_from_xml("replace_residue").c_str())
+    .def("residues_with_missing_atoms",
+         &molecules_container_t::residues_with_missing_atoms,
+         get_docstring_from_xml("residues_with_missing_atoms").c_str())
+    .def("rigid_body_fit",
+         &molecules_container_t::rigid_body_fit,
+         get_docstring_from_xml("rigid_body_fit").c_str())
+    .def("rotamer_analysis",
+         &molecules_container_t::rotamer_analysis,
+         get_docstring_from_xml("rotamer_analysis").c_str())
+    .def("rotate_around_bond",
+         &molecules_container_t::rotate_around_bond,
+         get_docstring_from_xml("rotate_around_bond").c_str())
+    .def("scale_map",
+         &molecules_container_t::scale_map,
+         get_docstring_from_xml("scale_map").c_str())
+    .def("servalcat_refine_xray",
+         &molecules_container_t::servalcat_refine_xray,
+         get_docstring_from_xml("servalcat_refine_xray").c_str())
+    .def("servalcat_refine_xray_with_keywords",
+         &molecules_container_t::servalcat_refine_xray_with_keywords,
+         get_docstring_from_xml("servalcat_refine_xray_with_keywords").c_str())
+    .def("set_add_waters_sigma_cutoff",
+         &molecules_container_t::set_add_waters_sigma_cutoff,
+         get_docstring_from_xml("set_add_waters_sigma_cutoff").c_str())
+    .def("set_add_waters_variance_limit",
+         &molecules_container_t::set_add_waters_variance_limit,
+         get_docstring_from_xml("set_add_waters_variance_limit").c_str())
+    .def("set_add_waters_water_to_protein_distance_lim_min",
+         &molecules_container_t::set_add_waters_water_to_protein_distance_lim_min,
+         get_docstring_from_xml("set_add_waters_water_to_protein_distance_lim_min").c_str())
+    .def("set_add_waters_water_to_protein_distance_lim_max",
+         &molecules_container_t::set_add_waters_water_to_protein_distance_lim_max,
+         get_docstring_from_xml("set_add_waters_water_to_protein_distance_lim_max").c_str())
+    .def("set_colour_map_for_map_coloured_by_other_map",
+         &molecules_container_t::set_colour_map_for_map_coloured_by_other_map,
+         get_docstring_from_xml("set_colour_map_for_map_coloured_by_other_map").c_str())
+    .def("set_colour_wheel_rotation_base",
+         &molecules_container_t::set_colour_wheel_rotation_base,
+         get_docstring_from_xml("set_colour_wheel_rotation_base").c_str())
+    .def("set_draw_missing_residue_loops",
+         &molecules_container_t::set_draw_missing_residue_loops,
+         get_docstring_from_xml("set_draw_missing_residue_loops").c_str())
+    .def("set_draw_missing_residue_loops",
+         &molecules_container_t::set_draw_missing_residue_loops,
+         get_docstring_from_xml("set_draw_missing_residue_loops").c_str())
+    .def("set_gltf_pbr_metalicity_factor",
+         &molecules_container_t::set_gltf_pbr_metalicity_factor,
+         get_docstring_from_xml("set_gltf_pbr_metalicity_factor").c_str())
+    .def("set_gltf_pbr_roughness_factor",
+         &molecules_container_t::set_gltf_pbr_roughness_factor,
+         get_docstring_from_xml("set_gltf_pbr_roughness_factor").c_str())
+    .def("set_imol_refinement_map",
+         &molecules_container_t::set_imol_refinement_map,
+         get_docstring_from_xml("set_imol_refinement_map").c_str())
+    .def("set_make_backups",
+         &molecules_container_t::set_make_backups,
+         get_docstring_from_xml("set_make_backups").c_str())
+    .def("set_logging_level",
+         &molecules_container_t::set_logging_level,
+         get_docstring_from_xml("set_logging_level").c_str())
+    .def("set_map_sampling_rate",
+         &molecules_container_t::set_map_sampling_rate,
+         get_docstring_from_xml("set_map_sampling_rate").c_str())
+    .def("set_map_weight",
+         &molecules_container_t::set_map_weight,
+         get_docstring_from_xml("set_map_weight").c_str())
+    .def("set_max_number_of_threads",
+         &molecules_container_t::set_max_number_of_threads,
+         get_docstring_from_xml("set_max_number_of_threads").c_str())
+    .def("set_molecule_name",
+         &molecules_container_t::set_molecule_name,
+         get_docstring_from_xml("set_molecule_name").c_str())
+    .def("set_occupancy",
+         &molecules_container_t::set_occupancy,
+         get_docstring_from_xml("set_occupancy").c_str())
+    .def("set_rama_plot_restraints_weight",
+         &molecules_container_t::set_rama_plot_restraints_weight,
+         get_docstring_from_xml("set_rama_plot_restraints_weight").c_str())
+    .def("set_refinement_is_verbose",
+         &molecules_container_t::set_refinement_is_verbose,
+         get_docstring_from_xml("set_refinement_is_verbose").c_str())
+    .def("set_refinement_geman_mcclure_alpha",
+         &molecules_container_t::set_refinement_geman_mcclure_alpha,
+         get_docstring_from_xml("set_refinement_geman_mcclure_alpha").c_str())
+    .def("set_show_timings",
+         &molecules_container_t::set_show_timings,
+         get_docstring_from_xml("set_show_timings").c_str())
+    .def("set_temperature_factors_using_cid",
+         &molecules_container_t::set_temperature_factors_using_cid,
+         get_docstring_from_xml("set_temperature_factors_using_cid").c_str())
+    .def("set_torsion_restraints_weight",
+         &molecules_container_t::set_torsion_restraints_weight,
+         get_docstring_from_xml("set_torsion_restraints_weight").c_str())
+    .def("set_use_gemmi",
+         &molecules_container_t::set_use_gemmi,
+         get_docstring_from_xml("set_use_gemmi").c_str())
+    .def("set_use_rama_plot_restraints",
+         &molecules_container_t::set_use_rama_plot_restraints,
+         get_docstring_from_xml("set_use_rama_plot_restraints").c_str())
+    .def("set_use_torsion_restraints",
+         &molecules_container_t::set_use_torsion_restraints,
+         get_docstring_from_xml("set_use_torsion_restraints").c_str())
+    .def("set_user_defined_atom_colour_by_selection",
+         &molecules_container_t::set_user_defined_atom_colour_by_selection,
+         get_docstring_from_xml("set_user_defined_atom_colour_by_selection").c_str())
+    .def("set_user_defined_bond_colours",
+         &molecules_container_t::set_user_defined_bond_colours,
+         get_docstring_from_xml("set_user_defined_bond_colours").c_str())
+    .def("sfcalc_genmap",
+         &molecules_container_t::sfcalc_genmap,
+         get_docstring_from_xml("sfcalc_genmap").c_str())
+    .def("sfcalc_genmaps_using_bulk_solvent",
+         &molecules_container_t::sfcalc_genmaps_using_bulk_solvent,
+         get_docstring_from_xml("sfcalc_genmaps_using_bulk_solvent").c_str())
+    .def("sharpen_blur_map",
+         &molecules_container_t::sharpen_blur_map,
+         get_docstring_from_xml("sharpen_blur_map").c_str())
+    .def("sharpen_blur_map_with_resample",
+         &molecules_container_t::sharpen_blur_map_with_resample,
+         get_docstring_from_xml("sharpen_blur_map_with_resample").c_str())
+    .def("side_chain_180",
+         nb::overload_cast<int, const std::string&>                         (&molecules_container_t::side_chain_180),
+         get_docstring_from_xml("side_chain_180").c_str())
+    .def("split_multi_model_molecule",
+         &molecules_container_t::split_multi_model_molecule,
+         get_docstring_from_xml("split_multi_model_molecule").c_str())
+    .def("split_residue_using_map",
+         &molecules_container_t::split_residue_using_map,
+         get_docstring_from_xml("split_residue_using_map").c_str())
+    .def("test_function",
+         &molecules_container_t::test_function,
+         get_docstring_from_xml("test_function").c_str())
+    .def("test_origin_cube",
+         &molecules_container_t::test_origin_cube,
+         get_docstring_from_xml("test_origin_cube").c_str())
+    .def("transform_map_using_lsq_matrix",
+         &molecules_container_t::transform_map_using_lsq_matrix,
+         get_docstring_from_xml("transform_map_using_lsq_matrix").c_str())
+    .def("undo",
+         &molecules_container_t::undo,
+         get_docstring_from_xml("undo").c_str())
+    .def("unmodelled_blobs",
+         &molecules_container_t::unmodelled_blobs,
+         get_docstring_from_xml("unmodelled_blobs").c_str())
+    .def("write_coordinates",
+         &molecules_container_t::write_coordinates,
+         get_docstring_from_xml("write_coordinates").c_str())
+    .def("write_map",
+         &molecules_container_t::write_map,
+         get_docstring_from_xml("write_map").c_str())
+    .def("write_png",
+         &molecules_container_t::write_png,
+         get_docstring_from_xml("write_png").c_str())
     ;
     nb::class_<coot::chain_mutation_info_container_t>(m,"chain_mutation_info_container_t")
       .def_ro("chain_id",         &coot::chain_mutation_info_container_t::chain_id)
