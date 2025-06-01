@@ -1,6 +1,6 @@
 
 
-#ifdef MAKE_ENHANCED_LIGAND_FEATURES
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
 
 #include <fstream>
 
