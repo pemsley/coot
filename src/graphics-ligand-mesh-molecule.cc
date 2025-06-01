@@ -130,7 +130,8 @@ graphics_ligand_mesh_molecule_t::init_from_molfile_molecule(const lig_build::mol
 
    scale_correction = mol_in.get_scale_correction(); // so that the median bond length is 1.0
    scale_correction.second *= 1.0;
-   std::cout << "debug:: scale_correction " << scale_correction.first << " " << scale_correction.second << std::endl;
+   // std::cout << "debug:: scale_correction " << scale_correction.first
+   // << " " << scale_correction.second << std::endl;
 
    for (unsigned int iat=0; iat<mol_in.atoms.size(); iat++) {
       const lig_build::molfile_atom_t &at_in = mol_in.atoms[iat];
