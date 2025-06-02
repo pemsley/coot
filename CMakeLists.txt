@@ -342,6 +342,7 @@ add_library(cootapi SHARED
             ${coot_src}/coot-utils/positron.cc
             ${coot_src}/coot-utils/maps-spherical.cc
             ${coot_src}/coot-utils/peak-search.cc
+            ${coot_src}/coot-utils/pugixml.cpp
             ${coot_src}/coot-utils/xmap-stats.cc
             ${coot_src}/coot-utils/sfcalc-genmap.cc
             ${coot_src}/coot-utils/reduce.cc
