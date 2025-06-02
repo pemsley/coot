@@ -189,7 +189,6 @@ std::string get_docstring_from_xml(const std::string& func_name) {
 			}
 		     }
 		  }
-		  
                }
                if (! args.empty()) {
                   oss << "\n";
@@ -356,224 +355,297 @@ NB_MODULE(coot_headless_api, m) {
     .def(nb::init<bool>(), nb::arg("be_verbose_when_reading_dictionary"), "molecules container Documentation")
     .def("M2T_updateFloatParameter",
          &molecules_container_t::M2T_updateFloatParameter,
+         nb::arg("imol"), nb::arg("param_name"), nb::arg("value"),
          get_docstring_from_xml("M2T_updateFloatParameter").c_str())
     .def("M2T_updateIntParameter",
          &molecules_container_t::M2T_updateIntParameter,
+         nb::arg("imol"), nb::arg("param_name"), nb::arg("value"),
          get_docstring_from_xml("M2T_updateIntParameter").c_str())
     .def("SSM_superpose",
          &molecules_container_t::SSM_superpose,
-	 nb::arg("imol_ref"), nb::arg("chain_id_ref"),
-	 nb::arg("imol_mov"), nb::arg("chain_id_mov"),
+         nb::arg("imol_ref"), nb::arg("chain_id_ref"),
+         nb::arg("imol_mov"), nb::arg("chain_id_mov"),
          get_docstring_from_xml("SSM_superpose").c_str())
     .def("add_alternative_conformation",
          &molecules_container_t::add_alternative_conformation,
+         nb::arg("imol_model"), nb::arg("cid"),
          get_docstring_from_xml("add_alternative_conformation").c_str())
     .def("add_colour_rule",
          &molecules_container_t::add_colour_rule,
+         nb::arg("imol"), nb::arg("selection_cid"), nb::arg("colour"),
          get_docstring_from_xml("add_colour_rule").c_str())
     .def("add_colour_rules_multi",
          &molecules_container_t::add_colour_rules_multi,
+         nb::arg("imol"), nb::arg("selections_and_colours_combo_string"),
          get_docstring_from_xml("add_colour_rules_multi").c_str())
     .def("add_hydrogen_atoms",
          &molecules_container_t::add_hydrogen_atoms,
+         nb::arg("imol_model"),
          get_docstring_from_xml("add_hydrogen_atoms").c_str())
     .def("add_lsq_superpose_match",
          &molecules_container_t::add_lsq_superpose_match,
+         nb::arg("chain_id_ref"), nb::arg("res_no_ref_start"), nb::arg("res_no_ref_end"), nb::arg("chain_id_mov"), nb::arg("res_no_mov_start"), nb::arg("res_no_mov_end"), nb::arg("match_type"),
          get_docstring_from_xml("add_lsq_superpose_match").c_str())
     .def("add_lsq_superpose_atom_match",
          &molecules_container_t::add_lsq_superpose_atom_match,
+         nb::arg("chain_id_ref"), nb::arg("res_no_ref"), nb::arg("atom_name_ref"), nb::arg("chain_id_mov"), nb::arg("res_no_mov"), nb::arg("atom_name_mov"),
          get_docstring_from_xml("add_lsq_superpose_atom_match").c_str())
     .def("add_named_glyco_tree",
          &molecules_container_t::add_named_glyco_tree,
+         nb::arg("imol_model"), nb::arg("imol_map"), nb::arg("glycosylation_name"), nb::arg("asn_chain_id"), nb::arg("asn_res_no"),
          get_docstring_from_xml("add_named_glyco_tree").c_str())
     .def("add_target_position_restraint",
          &molecules_container_t::add_target_position_restraint,
+         nb::arg("imol"), nb::arg("atom_cid"), nb::arg("pos_x"), nb::arg("pos_y"), nb::arg("pos_z"),
          get_docstring_from_xml("add_target_position_restraint").c_str())
     .def("add_target_position_restraint_and_refine",
          &molecules_container_t::add_target_position_restraint_and_refine,
+         nb::arg("imol"), nb::arg("atom_cid"), nb::arg("pos_x"), nb::arg("pos_y"), nb::arg("pos_z"), nb::arg("n_cycles"),
          get_docstring_from_xml("add_target_position_restraint_and_refine").c_str())
     .def("add_terminal_residue_directly",
          &molecules_container_t::add_terminal_residue_directly,
+         nb::arg("imol"), nb::arg("chain_id"), nb::arg("res_no"), nb::arg("ins_code"),
          get_docstring_from_xml("add_terminal_residue_directly").c_str())
     .def("add_terminal_residue_directly_using_cid",
          &molecules_container_t::add_terminal_residue_directly_using_cid,
+         nb::arg("imol"), nb::arg("cid"),
          get_docstring_from_xml("add_terminal_residue_directly_using_cid").c_str())
     .def("add_to_non_drawn_bonds",
          &molecules_container_t::add_to_non_drawn_bonds,
+         nb::arg("imol"), nb::arg("atom_selection_cid"),
          get_docstring_from_xml("add_to_non_drawn_bonds").c_str())
     .def("add_waters",
          &molecules_container_t::add_waters,
+         nb::arg("imol_model"), nb::arg("imol_map"),
          get_docstring_from_xml("add_waters").c_str())
     .def("all_molecule_contact_dots",
          &molecules_container_t::all_molecule_contact_dots,
+         nb::arg("imol"), nb::arg("smoothness_factor"),
          get_docstring_from_xml("all_molecule_contact_dots").c_str())
     .def("apply_transformation_to_atom_selection",
          &molecules_container_t::apply_transformation_to_atom_selection,
+         nb::arg("imol"), nb::arg("atoms_selection_cid"), nb::arg("n_atoms"), nb::arg("m00"), nb::arg("m01"), nb::arg("m02"), nb::arg("m10"), nb::arg("m11"), nb::arg("m12"), nb::arg("m20"), nb::arg("m21"), nb::arg("m22"), nb::arg("c0"), nb::arg("c1"), nb::arg("c2"), nb::arg("t0"), nb::arg("t1"), nb::arg("t2"),
          get_docstring_from_xml("apply_transformation_to_atom_selection").c_str())
     .def("assign_sequence",
          &molecules_container_t::assign_sequence,
+         nb::arg("imol_model"), nb::arg("imol_map"),
          get_docstring_from_xml("assign_sequence").c_str())
     .def("associate_data_mtz_file_with_map",
          &molecules_container_t::associate_data_mtz_file_with_map,
+         nb::arg("imol"), nb::arg("data_mtz_file_name"), nb::arg("f_col"), nb::arg("sigf_col"), nb::arg("free_r_col"),
          get_docstring_from_xml("associate_data_mtz_file_with_map").c_str())
     .def("associate_sequence",
          &molecules_container_t::associate_sequence,
+         nb::arg("imol"), nb::arg("name_or_chain_id"), nb::arg("sequence"),
          get_docstring_from_xml("associate_sequence").c_str())
     .def("auto_fit_rotamer",
          &molecules_container_t::auto_fit_rotamer,
+         nb::arg("imol"), nb::arg("chain_id"), nb::arg("res_no"), nb::arg("ins_code"), nb::arg("alt_conf"), nb::arg("imol_map"),
          get_docstring_from_xml("auto_fit_rotamer").c_str())
     .def("auto_read_mtz",
          &molecules_container_t::auto_read_mtz,
+         nb::arg("file_name"),
          get_docstring_from_xml("auto_read_mtz").c_str())
     .def("average_map",
          &molecules_container_t::average_map,
+         nb::arg("imol_maps"), nb::arg("scales"),
          get_docstring_from_xml("average_map").c_str())
     .def("calculate_new_rail_points",
          &molecules_container_t::calculate_new_rail_points,
          get_docstring_from_xml("calculate_new_rail_points").c_str())
     .def("change_to_first_rotamer",
          &molecules_container_t::change_to_first_rotamer,
+         nb::arg("imol"), nb::arg("residue_cid"), nb::arg("alt_conf"),
          get_docstring_from_xml("change_to_first_rotamer").c_str())
     .def("change_to_next_rotamer",
          &molecules_container_t::change_to_next_rotamer,
+         nb::arg("imol"), nb::arg("residue_cid"), nb::arg("alt_conf"),
          get_docstring_from_xml("change_to_next_rotamer").c_str())
     .def("change_to_previous_rotamer",
          &molecules_container_t::change_to_previous_rotamer,
+         nb::arg("imol"), nb::arg("residue_cid"), nb::arg("alt_conf"),
          get_docstring_from_xml("change_to_previous_rotamer").c_str())
     .def("cis_trans_convert",
          &molecules_container_t::cis_trans_convert,
+         nb::arg("imol"), nb::arg("atom_cid"),
          get_docstring_from_xml("cis_trans_convert").c_str())
     .def("clear_extra_restraints",
          &molecules_container_t::clear_extra_restraints,
+         nb::arg("imol"),
          get_docstring_from_xml("clear_extra_restraints").c_str())
     .def("clear_lsq_matches",
          &molecules_container_t::clear_lsq_matches,
          get_docstring_from_xml("clear_lsq_matches").c_str())
     .def("clear_non_drawn_bonds",
          &molecules_container_t::clear_non_drawn_bonds,
+         nb::arg("imol"),
          get_docstring_from_xml("clear_non_drawn_bonds").c_str())
     .def("clear_refinement",
          &molecules_container_t::clear_refinement,
+         nb::arg("imol"),
          get_docstring_from_xml("clear_refinement").c_str())
     .def("clear_target_position_restraints",
          &molecules_container_t::clear_target_position_restraints,
+         nb::arg("imol"),
          get_docstring_from_xml("clear_target_position_restraints").c_str())
     .def("change_alt_locs",
          &molecules_container_t::change_alt_locs,
+         nb::arg("imol"), nb::arg("cid"), nb::arg("change_mode"),
          get_docstring_from_xml("change_alt_locs").c_str())
     .def("close_molecule",
          &molecules_container_t::close_molecule,
+         nb::arg("imol"),
          get_docstring_from_xml("close_molecule").c_str())
     .def("connect_updating_maps",
          &molecules_container_t::connect_updating_maps,
+         nb::arg("imol_model"), nb::arg("imol_with_data_info_attached"), nb::arg("imol_map_2fofc"), nb::arg("imol_map_fofc"),
          get_docstring_from_xml("connect_updating_maps").c_str())
     .def("contact_dots_for_ligand",
          &molecules_container_t::contact_dots_for_ligand,
+         nb::arg("imol"), nb::arg("cid"), nb::arg("smoothness_factor"),
          get_docstring_from_xml("contact_dots_for_ligand").c_str())
     .def("copy_fragment_for_refinement_using_cid",
          &molecules_container_t::copy_fragment_for_refinement_using_cid,
+         nb::arg("imol"), nb::arg("multi_cid"),
          get_docstring_from_xml("copy_fragment_for_refinement_using_cid").c_str())
     .def("copy_fragment_using_cid",
          &molecules_container_t::copy_fragment_using_cid,
+         nb::arg("imol"), nb::arg("multi_cid"),
          get_docstring_from_xml("copy_fragment_using_cid").c_str())
     .def("copy_fragment_using_residue_range",
          &molecules_container_t::copy_fragment_using_residue_range,
+         nb::arg("imol"), nb::arg("chain_id"), nb::arg("res_no_start"), nb::arg("res_no_end"),
          get_docstring_from_xml("copy_fragment_using_residue_range").c_str())
     .def("copy_molecule",
          &molecules_container_t::copy_molecule,
+         nb::arg("imol"),
          get_docstring_from_xml("copy_molecule").c_str())
     .def("delete_all_carbohydrate",
          &molecules_container_t::delete_all_carbohydrate,
+         nb::arg("imol"),
          get_docstring_from_xml("delete_all_carbohydrate").c_str())
     .def("delete_atom",
          &molecules_container_t::delete_atom,
+         nb::arg("imol"), nb::arg("chain_id"), nb::arg("res_no"), nb::arg("ins_code"), nb::arg("atom_name"), nb::arg("alt_conf"),
          get_docstring_from_xml("delete_atom").c_str())
     .def("delete_atom_using_cid",
          &molecules_container_t::delete_atom_using_cid,
+         nb::arg("imol"), nb::arg("cid"),
          get_docstring_from_xml("delete_atom_using_cid").c_str())
     .def("delete_chain_using_cid",
          &molecules_container_t::delete_chain_using_cid,
+         nb::arg("imol"), nb::arg("cid"),
          get_docstring_from_xml("delete_chain_using_cid").c_str())
     .def("delete_colour_rules",
          &molecules_container_t::delete_colour_rules,
+         nb::arg("imol"),
          get_docstring_from_xml("delete_colour_rules").c_str())
     .def("delete_hydrogen_atoms",
          &molecules_container_t::delete_hydrogen_atoms,
+         nb::arg("imol_model"),
          get_docstring_from_xml("delete_hydrogen_atoms").c_str())
     .def("delete_residue",
          &molecules_container_t::delete_residue,
+         nb::arg("imol"), nb::arg("chain_id"), nb::arg("res_no"), nb::arg("ins_code"),
          get_docstring_from_xml("delete_residue").c_str())
     .def("delete_residue_atoms_using_cid",
          &molecules_container_t::delete_residue_atoms_using_cid,
+         nb::arg("imol"), nb::arg("cid"),
          get_docstring_from_xml("delete_residue_atoms_using_cid").c_str())
     .def("delete_residue_atoms_with_alt_conf",
          &molecules_container_t::delete_residue_atoms_with_alt_conf,
+         nb::arg("imol"), nb::arg("chain_id"), nb::arg("res_no"), nb::arg("ins_code"), nb::arg("alt_conf"),
          get_docstring_from_xml("delete_residue_atoms_with_alt_conf").c_str())
     .def("delete_residue_using_cid",
          &molecules_container_t::delete_residue_using_cid,
+         nb::arg("imol"), nb::arg("cid"),
          get_docstring_from_xml("delete_residue_using_cid").c_str())
     .def("delete_side_chain",
          &molecules_container_t::delete_side_chain,
+         nb::arg("imol"), nb::arg("chain_id"), nb::arg("res_no"), nb::arg("ins_code"),
          get_docstring_from_xml("delete_side_chain").c_str())
     .def("delete_using_cid",
          &molecules_container_t::delete_using_cid,
+         nb::arg("imol"), nb::arg("cid"), nb::arg("scope"),
          get_docstring_from_xml("delete_using_cid").c_str())
     .def("density_correlation_analysis",
          &molecules_container_t::density_correlation_analysis,
+         nb::arg("imol_model"), nb::arg("imol_map"),
          get_docstring_from_xml("density_correlation_analysis").c_str())
     .def("density_fit_analysis",
          &molecules_container_t::density_fit_analysis,
+         nb::arg("imol_model"), nb::arg("imol_map"),
          get_docstring_from_xml("density_fit_analysis").c_str())
     .def("dictionary_atom_name_map",
          &molecules_container_t::dictionary_atom_name_map,
+         nb::arg("comp_id_1"), nb::arg("imol_1"), nb::arg("comp_id_2"), nb::arg("imol_2"),
          get_docstring_from_xml("dictionary_atom_name_map").c_str())
     .def("difference_map_peaks",
          &molecules_container_t::difference_map_peaks,
+         nb::arg("imol_map"), nb::arg("imol_protein"), nb::arg("n_rmsd"),
          get_docstring_from_xml("difference_map_peaks").c_str())
     .def("eigen_flip_ligand",
-         nb::overload_cast<int, const std::string&> (&molecules_container_t::eigen_flip_ligand_using_cid),
+         &molecules_container_t::eigen_flip_ligand,
+         nb::arg("imol"), nb::arg("chain_id"), nb::arg("res_no"), nb::arg("ins_code"),
          get_docstring_from_xml("eigen_flip_ligand").c_str())
+    .def("eigen_flip_ligand_using_cid",
+         &molecules_container_t::eigen_flip_ligand_using_cid,
+         nb::arg("imol"), nb::arg("residue_id"),
+         get_docstring_from_xml("eigen_flip_ligand_using_cid").c_str())
     .def("export_chemical_features_as_gltf",
          &molecules_container_t::export_chemical_features_as_gltf,
+         nb::arg("imol"), nb::arg("cid"), nb::arg("file_name"),
          get_docstring_from_xml("export_chemical_features_as_gltf").c_str())
     .def("export_molecular_representation_as_gltf",
          &molecules_container_t::export_molecular_representation_as_gltf,
+         nb::arg("imol"), nb::arg("atom_selection_cid"), nb::arg("colour_scheme"), nb::arg("style"), nb::arg("secondary_structure_usage_flag"), nb::arg("file_name"),
          get_docstring_from_xml("export_molecular_representation_as_gltf").c_str())
     .def("export_model_molecule_as_gltf",
          &molecules_container_t::export_model_molecule_as_gltf,
+         nb::arg("imol"), nb::arg("selection_cid"), nb::arg("mode"), nb::arg("against_a_dark_background"), nb::arg("bonds_width"), nb::arg("atom_radius_to_bond_width_ratio"), nb::arg("smoothness_factor"), nb::arg("draw_hydrogen_atoms_flag"), nb::arg("draw_missing_residue_loops"), nb::arg("file_name"),
          get_docstring_from_xml("export_model_molecule_as_gltf").c_str())
     .def("export_map_molecule_as_gltf",
          &molecules_container_t::export_map_molecule_as_gltf,
+         nb::arg("imol"), nb::arg("pos_x"), nb::arg("pos_y"), nb::arg("pos_z"), nb::arg("radius"), nb::arg("contour_level"), nb::arg("file_name"),
          get_docstring_from_xml("export_map_molecule_as_gltf").c_str())
     .def("find_water_baddies",
          &molecules_container_t::find_water_baddies,
+         nb::arg("imol_model"), nb::arg("imol_map"), nb::arg("b_factor_lim"), nb::arg("outlier_sigma_level"), nb::arg("min_dist"), nb::arg("max_dist"), nb::arg("ignore_part_occ_contact_flag"), nb::arg("ignore_zero_occ_flag"),
          get_docstring_from_xml("find_water_baddies").c_str())
     .def("file_name_to_string",
          &molecules_container_t::file_name_to_string,
+         nb::arg("file_name"),
          get_docstring_from_xml("file_name_to_string").c_str())
     .def("fill_partial_residue",
          &molecules_container_t::fill_partial_residue,
+         nb::arg("imol"), nb::arg("chain_id"), nb::arg("res_no"), nb::arg("ins_code"),
          get_docstring_from_xml("fill_partial_residue").c_str())
     .def("fill_partial_residues",
          &molecules_container_t::fill_partial_residues,
+         nb::arg("imol"),
          get_docstring_from_xml("fill_partial_residues").c_str())
     .def("fill_rotamer_probability_tables",
          &molecules_container_t::fill_rotamer_probability_tables,
          get_docstring_from_xml("fill_rotamer_probability_tables").c_str())
     .def("fit_ligand",
          &molecules_container_t::fit_ligand,
+         nb::arg("imol_protein"), nb::arg("imol_map"), nb::arg("imol_ligand"), nb::arg("n_rmsd"), nb::arg("use_conformers"), nb::arg("n_conformers"),
          get_docstring_from_xml("fit_ligand").c_str())
     .def("fit_ligand_right_here",
          &molecules_container_t::fit_ligand_right_here,
+         nb::arg("imol_protein"), nb::arg("imol_map"), nb::arg("imol_ligand"), nb::arg("x"), nb::arg("y"), nb::arg("z"), nb::arg("n_rmsd"), nb::arg("use_conformers"), nb::arg("n_conformers"),
          get_docstring_from_xml("fit_ligand_right_here").c_str())
     .def("fit_to_map_by_random_jiggle",
          &molecules_container_t::fit_to_map_by_random_jiggle,
+         nb::arg("imol"), nb::arg("res_spec"), nb::arg("n_trials"), nb::arg("translation_scale_factor"),
          get_docstring_from_xml("fit_to_map_by_random_jiggle").c_str())
     .def("fit_to_map_by_random_jiggle_using_cid",
          &molecules_container_t::fit_to_map_by_random_jiggle_using_cid,
+         nb::arg("imol"), nb::arg("cid"), nb::arg("n_trials"), nb::arg("translation_scale_factor"),
          get_docstring_from_xml("fit_to_map_by_random_jiggle_using_cid").c_str())
     .def("fit_to_map_by_random_jiggle_using_cid",
          &molecules_container_t::fit_to_map_by_random_jiggle_using_cid,
+         nb::arg("imol"), nb::arg("cid"), nb::arg("n_trials"), nb::arg("translation_scale_factor"),
          get_docstring_from_xml("fit_to_map_by_random_jiggle_using_cid").c_str())
     .def("flipPeptide",
          nb::overload_cast<int, const coot::atom_spec_t&,const std::string&>(&molecules_container_t::flip_peptide),
@@ -583,167 +655,215 @@ NB_MODULE(coot_headless_api, m) {
          get_docstring_from_xml("flipPeptide_cid").c_str())
     .def("flip_hand",
          &molecules_container_t::flip_hand,
+         nb::arg("imol_map"),
          get_docstring_from_xml("flip_hand").c_str())
     .def("flood",
          &molecules_container_t::flood,
+         nb::arg("imol_model"), nb::arg("imol_map"), nb::arg("n_rmsd"),
          get_docstring_from_xml("flood").c_str())
     .def("fourier_shell_correlation",
          &molecules_container_t::fourier_shell_correlation,
+         nb::arg("imol_map_1"), nb::arg("imol_map_2"),
          get_docstring_from_xml("fourier_shell_correlation").c_str())
     .def("generate_self_restraints",
          &molecules_container_t::generate_self_restraints,
+         nb::arg("imol"), nb::arg("local_dist_max"),
          get_docstring_from_xml("generate_self_restraints").c_str())
     .def("geometry_init_standard",
          &molecules_container_t::geometry_init_standard,
          get_docstring_from_xml("geometry_init_standard").c_str())
     .def("get_active_atom",
          &molecules_container_t::get_active_atom,
+         nb::arg("x"), nb::arg("y"), nb::arg("z"), nb::arg("displayed_model_molecules_list"),
          get_docstring_from_xml("get_active_atom").c_str())
     .def("get_acedrg_atom_types",
          &molecules_container_t::get_acedrg_atom_types,
+         nb::arg("compound_id"), nb::arg("imol_enc"),
          get_docstring_from_xml("get_acedrg_atom_types").c_str())
     .def("get_acedrg_atom_types_for_ligand",
          &molecules_container_t::get_acedrg_atom_types_for_ligand,
+         nb::arg("imol"), nb::arg("residue_cid"),
          get_docstring_from_xml("get_acedrg_atom_types_for_ligand").c_str())
     .def("get_atom",
          &molecules_container_t::get_atom, nb::rv_policy::reference,
          get_docstring_from_xml("get_atom").c_str())
     .def("get_atom_differences",
          &molecules_container_t::get_atom_differences,
+         nb::arg("imol1"), nb::arg("imol2"),
          get_docstring_from_xml("get_atom_differences").c_str())
     .def("get_atom_using_cid",
          &molecules_container_t::get_atom_using_cid, nb::rv_policy::reference,
          get_docstring_from_xml("get_atom_using_cid").c_str())
     .def("get_bonds_mesh",
          &molecules_container_t::get_bonds_mesh,
+         nb::arg("imol"), nb::arg("mode"), nb::arg("against_a_dark_background"), nb::arg("bond_width"), nb::arg("atom_radius_to_bond_width_ratio"), nb::arg("smoothness_factor"),
          get_docstring_from_xml("get_bonds_mesh").c_str())
     .def("get_bonds_mesh_for_selection_instanced",
          &molecules_container_t::get_bonds_mesh_for_selection_instanced,
+         nb::arg("imol"), nb::arg("atom_selection_cid"), nb::arg("mode"), nb::arg("against_a_dark_background"), nb::arg("bond_width"), nb::arg("atom_radius_to_bond_width_ratio"), nb::arg("show_atoms_as_aniso_flag"), nb::arg("show_aniso_atoms_as_ortep_flag"), nb::arg("draw_hydrogen_atoms_flag"), nb::arg("smoothness_factor"),
          get_docstring_from_xml("get_bonds_mesh_for_selection_instanced").c_str())
     .def("get_bonds_mesh_instanced",
          &molecules_container_t::get_bonds_mesh_instanced,
+         nb::arg("imol"), nb::arg("mode"), nb::arg("against_a_dark_background"), nb::arg("bond_width"), nb::arg("atom_radius_to_bond_width_ratio"), nb::arg("show_atoms_as_aniso_flag"), nb::arg("show_aniso_atoms_as_ortep_flag"), nb::arg("draw_hydrogen_atoms_flag"), nb::arg("smoothness_factor"),
          get_docstring_from_xml("get_bonds_mesh_instanced").c_str())
     .def("get_cell",
          &molecules_container_t::get_cell,
+         nb::arg("imol"),
          get_docstring_from_xml("get_cell").c_str())
     .def("get_chains_in_model",
          &molecules_container_t::get_chains_in_model,
+         nb::arg("imol"),
          get_docstring_from_xml("get_chains_in_model").c_str())
     .def("get_chemical_features_mesh",
          &molecules_container_t::get_chemical_features_mesh,
+         nb::arg("imol"), nb::arg("cid"),
          get_docstring_from_xml("get_chemical_features_mesh").c_str())
     .def("get_colour_rules",
          &molecules_container_t::get_colour_rules,
+         nb::arg("imol"),
          get_docstring_from_xml("get_colour_rules").c_str())
     .def("get_colour_table_for_blender",
          &molecules_container_t::get_colour_table_for_blender,
+         nb::arg("imol"),
          get_docstring_from_xml("get_colour_table_for_blender").c_str())
     .def("get_density_at_position",
          &molecules_container_t::get_density_at_position,
+         nb::arg("imol_map"), nb::arg("x"), nb::arg("y"), nb::arg("z"),
          get_docstring_from_xml("get_density_at_position").c_str())
     .def("get_dictionary_conformers",
          &molecules_container_t::get_dictionary_conformers,
+         nb::arg("comp_id"), nb::arg("imol_enc"), nb::arg("remove_internal_clash_conformers"),
          get_docstring_from_xml("get_dictionary_conformers").c_str())
     .def("get_distances_between_atoms_of_residues",
          &molecules_container_t::get_distances_between_atoms_of_residues,
+         nb::arg("imol"), nb::arg("cid_res_1"), nb::arg("cid_res_2"), nb::arg("dist_max"),
          get_docstring_from_xml("get_distances_between_atoms_of_residues").c_str())
     .def("get_gaussian_surface",
          &molecules_container_t::get_gaussian_surface,
+         nb::arg("imol"), nb::arg("sigma"), nb::arg("contour_level"), nb::arg("box_radius"), nb::arg("grid_scale"), nb::arg("b_factor"),
          get_docstring_from_xml("get_gaussian_surface").c_str())
     .def("get_goodsell_style_mesh_instanced",
          &molecules_container_t::get_goodsell_style_mesh_instanced,
+         nb::arg("imol"), nb::arg("colour_wheel_rotation_step"), nb::arg("saturation"), nb::arg("goodselliness"),
          get_docstring_from_xml("get_goodsell_style_mesh_instanced").c_str())
     .def("get_gphl_chem_comp_info",
          &molecules_container_t::get_gphl_chem_comp_info,
+         nb::arg("compound_id"), nb::arg("imol_enc"),
          get_docstring_from_xml("get_gphl_chem_comp_info").c_str())
     .def("get_group_for_monomer",
          &molecules_container_t::get_group_for_monomer,
+         nb::arg("residue_name"),
          get_docstring_from_xml("get_group_for_monomer").c_str())
     .def("get_groups_for_monomers",
          &molecules_container_t::get_groups_for_monomers,
+         nb::arg("residue_names"),
          get_docstring_from_xml("get_groups_for_monomers").c_str())
     .def("get_hb_type",
          &molecules_container_t::get_hb_type,
+         nb::arg("compound_id"), nb::arg("imol_enc"), nb::arg("atom_name"),
          get_docstring_from_xml("get_hb_type").c_str())
     .def("get_header_info",
          &molecules_container_t::get_header_info,
+         nb::arg("imol"),
          get_docstring_from_xml("get_header_info").c_str())
-    .def("get_h_bonds",&molecules_container_t::get_h_bonds)
-    // .def("get_interesting_places",&molecules_container_t::get_interesting_places)
+    .def("get_h_bonds",&molecules_container_t::get_h_bonds,
+         nb::arg("imol"), nb::arg("cid_str"), nb::arg("mcdonald_and_thornton_mode"))
     .def("get_HOLE",
          &molecules_container_t::get_HOLE,
+         nb::arg("imol"), nb::arg("start_pos_x"), nb::arg("start_pos_y"), nb::arg("start_pos_z"), nb::arg("end_pos_x"), nb::arg("end_pos_y"), nb::arg("end_pos_z"),
          get_docstring_from_xml("get_HOLE").c_str())
     .def("get_imol_enc_any",
          &molecules_container_t::get_imol_enc_any,
          get_docstring_from_xml("get_imol_enc_any").c_str())
     .def("get_ligand_validation_vs_dictionary",
          &molecules_container_t::get_ligand_validation_vs_dictionary,
+         nb::arg("imol"), nb::arg("ligand_cid"), nb::arg("include_non_bonded_contacts"),
          get_docstring_from_xml("get_ligand_validation_vs_dictionary").c_str())
     .def("get_ligand_distortion",
          &molecules_container_t::get_ligand_distortion,
+         nb::arg("imol"), nb::arg("ligand_cid"), nb::arg("include_non_bonded_contacts"),
          get_docstring_from_xml("get_ligand_distortion").c_str())
     .def("get_lsq_matrix",
          &molecules_container_t::get_lsq_matrix,
+         nb::arg("imol_ref"), nb::arg("imol_mov"), nb::arg("summary_to_screen"),
          get_docstring_from_xml("get_lsq_matrix").c_str())
     .def("get_map_contours_mesh",
          &molecules_container_t::get_map_contours_mesh,
+         nb::arg("imol"), nb::arg("position_x"), nb::arg("position_y"), nb::arg("position_z"), nb::arg("radius"), nb::arg("contour_level"),
          get_docstring_from_xml("get_map_contours_mesh").c_str())
     .def("get_map_contours_mesh_using_other_map_for_colours",
          &molecules_container_t::get_map_contours_mesh_using_other_map_for_colours,
+         nb::arg("imol_ref"), nb::arg("imol_map_for_colouring"), nb::arg("position_x"), nb::arg("position_y"), nb::arg("position_z"), nb::arg("radius"), nb::arg("contour_level"), nb::arg("other_map_for_colouring_min_value"), nb::arg("other_map_for_colouring_max_value"), nb::arg("invert_colour_ramp"),
          get_docstring_from_xml("get_map_contours_mesh_using_other_map_for_colours").c_str())
     .def("get_map_molecule_centre",
          &molecules_container_t::get_map_molecule_centre,
+         nb::arg("imol"),
          get_docstring_from_xml("get_map_molecule_centre").c_str())
     .def("get_map_rmsd_approx",
          &molecules_container_t::get_map_rmsd_approx,
+         nb::arg("imol_map"),
          get_docstring_from_xml("get_map_rmsd_approx").c_str())
     .def("get_map_weight",
          &molecules_container_t::get_map_weight,
          get_docstring_from_xml("get_map_weight").c_str())
     .def("get_median_temperature_factor",
          &molecules_container_t::get_median_temperature_factor,
+         nb::arg("imol"),
          get_docstring_from_xml("get_median_temperature_factor").c_str())
     .def("get_missing_residue_ranges",
          &molecules_container_t::get_missing_residue_ranges,
+         nb::arg("imol"),
          get_docstring_from_xml("get_missing_residue_ranges").c_str())
     .def("get_molecular_representation_mesh",
          &molecules_container_t::get_molecular_representation_mesh,
+         nb::arg("imol"), nb::arg("cid"), nb::arg("colour_scheme"), nb::arg("style"), nb::arg("secondary_structure_usage_flag"),
          get_docstring_from_xml("get_molecular_representation_mesh").c_str())
     .def("get_molecule_centre",
          &molecules_container_t::get_molecule_centre,
+         nb::arg("imol"),
          get_docstring_from_xml("get_molecule_centre").c_str())
     .def("get_molecule_name",
          &molecules_container_t::get_molecule_name,
+         nb::arg("imol"),
          get_docstring_from_xml("get_molecule_name").c_str())
     .def("get_monomer",
          &molecules_container_t::get_monomer,
+         nb::arg("monomer_name"),
          get_docstring_from_xml("get_monomer").c_str())
     .def("get_monomer_and_position_at",
          &molecules_container_t::get_monomer_and_position_at,
+         nb::arg("comp_id"), nb::arg("imol"), nb::arg("x"), nb::arg("y"), nb::arg("z"),
          get_docstring_from_xml("get_monomer_and_position_at").c_str())
     .def("get_monomer_from_dictionary",
          &molecules_container_t::get_monomer_from_dictionary,
+         nb::arg("comp_id"), nb::arg("imol"), nb::arg("idealised_flag"),
          get_docstring_from_xml("get_monomer_from_dictionary").c_str())
     .def("get_number_of_atoms",
          &molecules_container_t::get_number_of_atoms,
+         nb::arg("imol"),
          get_docstring_from_xml("get_number_of_atoms").c_str())
     .def("get_number_of_hydrogen_atoms",
          &molecules_container_t::get_number_of_hydrogen_atoms,
+         nb::arg("imol"),
          get_docstring_from_xml("get_number_of_hydrogen_atoms").c_str())
     .def("get_number_of_molecules",
          &molecules_container_t::get_number_of_molecules,
          get_docstring_from_xml("get_number_of_molecules").c_str())
     .def("get_number_of_map_sections",
          &molecules_container_t::get_number_of_map_sections,
+         nb::arg("imol_map"), nb::arg("axis_id"),
          get_docstring_from_xml("get_number_of_map_sections").c_str())
     .def("get_octahemisphere",
          &molecules_container_t::get_octahemisphere,
+         nb::arg("n_divisions"),
          get_docstring_from_xml("get_octahemisphere").c_str())
     .def("get_q_score",
          &molecules_container_t::get_q_score,
+         nb::arg("imol_model"), nb::arg("imol_map"),
          get_docstring_from_xml("get_q_score").c_str())
     .def("get_q_score_for_cid",
          &molecules_container_t::get_q_score_for_cid,
+         nb::arg("imol_model"), nb::arg("cid"), nb::arg("imol_map"),
          get_docstring_from_xml("get_q_score_for_cid").c_str())
     .def("get_r_factor_stats",
          &molecules_container_t::get_r_factor_stats,
@@ -753,6 +873,7 @@ NB_MODULE(coot_headless_api, m) {
          get_docstring_from_xml("get_rama_plot_restraints_weight").c_str())
     .def("get_ramachandran_validation_markup_mesh",
          &molecules_container_t::get_ramachandran_validation_markup_mesh,
+         nb::arg("imol"),
          get_docstring_from_xml("get_ramachandran_validation_markup_mesh").c_str())
     //Using allow_raw_pointers(). Perhaps suggests we need to do something different from exposing mmdb pointers to JS.
     .def("get_residue",
@@ -760,57 +881,73 @@ NB_MODULE(coot_headless_api, m) {
          get_docstring_from_xml("get_residue").c_str())
     .def("get_residue_average_position",
          &molecules_container_t::get_residue_average_position,
+         nb::arg("imol"), nb::arg("cid"),
          get_docstring_from_xml("get_residue_average_position").c_str())
     .def("get_residue_CA_position",
          &molecules_container_t::get_residue_CA_position,
+         nb::arg("imol"), nb::arg("cid"),
          get_docstring_from_xml("get_residue_CA_position").c_str())
     .def("get_residue_name",
          &molecules_container_t::get_residue_name,
+         nb::arg("imol"), nb::arg("chain_id"), nb::arg("res_no"), nb::arg("ins_code"),
          get_docstring_from_xml("get_residue_name").c_str())
     .def("get_residue_names_with_no_dictionary",
          &molecules_container_t::get_residue_names_with_no_dictionary,
+         nb::arg("imol"),
          get_docstring_from_xml("get_residue_names_with_no_dictionary").c_str())
     .def("get_residue_sidechain_average_position",
          &molecules_container_t::get_residue_sidechain_average_position,
+         nb::arg("imol"), nb::arg("cid"),
          get_docstring_from_xml("get_residue_sidechain_average_position").c_str())
     .def("get_residue_using_cid",
          &molecules_container_t::get_residue_using_cid,
          get_docstring_from_xml("get_residue_using_cid").c_str())
     .def("get_residues_near_residue",
          &molecules_container_t::get_residues_near_residue,
+         nb::arg("imol"), nb::arg("residue_cid"), nb::arg("dist"),
          get_docstring_from_xml("get_residues_near_residue").c_str())
     .def("get_rotamer_dodecs",
          &molecules_container_t::get_rotamer_dodecs,
+         nb::arg("imol"),
          get_docstring_from_xml("get_rotamer_dodecs").c_str())
     .def("get_rotamer_dodecs_instanced",
          &molecules_container_t::get_rotamer_dodecs_instanced,
+         nb::arg("imol"),
          get_docstring_from_xml("get_rotamer_dodecs_instanced").c_str())
     .def("get_single_letter_codes_for_chain",
          &molecules_container_t::get_single_letter_codes_for_chain,
+         nb::arg("imol"), nb::arg("chain_id"),
          get_docstring_from_xml("get_single_letter_codes_for_chain").c_str())
     .def("get_sum_density_for_atoms_in_residue",
          &molecules_container_t::get_sum_density_for_atoms_in_residue,
+         nb::arg("imol"), nb::arg("cid"), nb::arg("atom_names"), nb::arg("imol_map"),
          get_docstring_from_xml("get_sum_density_for_atoms_in_residue").c_str())
     .def("get_svg_for_2d_ligand_environment_view",
          &molecules_container_t::get_svg_for_2d_ligand_environment_view,
+         nb::arg("imol"), nb::arg("residue_cid"), nb::arg("add_key"),
          get_docstring_from_xml("get_svg_for_2d_ligand_environment_view").c_str())
     .def("get_svg_for_residue_type",
          &molecules_container_t::get_svg_for_residue_type,
+         nb::arg("imol"), nb::arg("comp_id"), nb::arg("use_rdkit_svg"), nb::arg("background_type"),
          get_docstring_from_xml("get_svg_for_residue_type").c_str())
     .def("get_symmetry",
          &molecules_container_t::get_symmetry,
+         nb::arg("imol"), nb::arg("symmetry_search_radius"), nb::arg("centre_x"), nb::arg("centre_y"), nb::arg("centre_z"),
          get_docstring_from_xml("get_symmetry").c_str())
     .def("get_torsion",
          &molecules_container_t::get_torsion,
+         nb::arg("imol"), nb::arg("cid"), nb::arg("atom_names"),
          get_docstring_from_xml("get_torsion").c_str())
     .def("get_types_in_molecule",
          &molecules_container_t::get_types_in_molecule,
+         nb::arg("imol"),
          get_docstring_from_xml("get_types_in_molecule").c_str())
     .def("get_torsion_restraints_weight",
          &molecules_container_t::get_torsion_restraints_weight,
          get_docstring_from_xml("get_torsion_restraints_weight").c_str())
     .def("get_triangles_for_blender",
          &molecules_container_t::get_triangles_for_blender,
+         nb::arg("imol"),
          get_docstring_from_xml("get_triangles_for_blender").c_str())
     .def("get_use_gemmi",
          &molecules_container_t::get_use_gemmi,
@@ -823,30 +960,39 @@ NB_MODULE(coot_headless_api, m) {
          get_docstring_from_xml("get_use_torsion_restraints").c_str())
     .def("get_validation_vs_dictionary_for_selection",
          &molecules_container_t::get_validation_vs_dictionary_for_selection,
+         nb::arg("imol"), nb::arg("selection_cid"), nb::arg("include_non_bonded_contacts"),
          get_docstring_from_xml("get_validation_vs_dictionary_for_selection").c_str())
     .def("get_vertices_for_blender",
          &molecules_container_t::get_vertices_for_blender,
+         nb::arg("imol"),
          get_docstring_from_xml("get_vertices_for_blender").c_str())
     .def("go_to_blob",
          &molecules_container_t::go_to_blob,
+         nb::arg("x1"), nb::arg("y1"), nb::arg("z1"), nb::arg("x2"), nb::arg("y2"), nb::arg("z2"), nb::arg("contour_level"),
          get_docstring_from_xml("go_to_blob").c_str())
     .def("import_cif_dictionary",
          &molecules_container_t::import_cif_dictionary,
+         nb::arg("cif_file_name"), nb::arg("imol_enc"),
          get_docstring_from_xml("import_cif_dictionary").c_str())
     .def("init_refinement_of_molecule_as_fragment_based_on_reference",
          &molecules_container_t::init_refinement_of_molecule_as_fragment_based_on_reference,
+         nb::arg("imol_frag"), nb::arg("imol_ref"), nb::arg("imol_map"),
          get_docstring_from_xml("init_refinement_of_molecule_as_fragment_based_on_reference").c_str())
     .def("is_a_difference_map",
          &molecules_container_t::is_a_difference_map,
+         nb::arg("imol_map"),
          get_docstring_from_xml("is_a_difference_map").c_str())
     .def("is_valid_map_molecule",
          &molecules_container_t::is_valid_map_molecule,
+         nb::arg("imol_map"),
          get_docstring_from_xml("is_valid_map_molecule").c_str())
     .def("is_valid_model_molecule",
          &molecules_container_t::is_valid_model_molecule,
+         nb::arg("imol"),
          get_docstring_from_xml("is_valid_model_molecule").c_str())
     .def("jed_flip",
          nb::overload_cast<int, const std::string&, bool> (&molecules_container_t::jed_flip),
+         nb::arg("imol"), nb::arg("atom_cid"), nb::arg("invert_selection"),
          get_docstring_from_xml("jed_flip").c_str())
     .def("lsq_superpose",
          &molecules_container_t::lsq_superpose,
@@ -854,285 +1000,392 @@ NB_MODULE(coot_headless_api, m) {
          get_docstring_from_xml("lsq_superpose").c_str())
     .def("make_mask",
          &molecules_container_t::make_mask,
+         nb::arg("imol_map_ref"), nb::arg("imol_model"), nb::arg("atom_selection_cid"), nb::arg("radius"),
          get_docstring_from_xml("make_mask").c_str())
     .def("make_mesh_for_bonds_for_blender",
          &molecules_container_t::make_mesh_for_bonds_for_blender,
+         nb::arg("imol"), nb::arg("mode"), nb::arg("against_a_dark_background"), nb::arg("bond_width"),
+         nb::arg("atom_radius_to_bond_width_ratio"), nb::arg("smoothness_factor"),
          get_docstring_from_xml("make_mesh_for_bonds_for_blender").c_str())
     .def("make_mesh_for_gaussian_surface_for_blender",
          &molecules_container_t::make_mesh_for_gaussian_surface_for_blender,
+         nb::arg("imol"), nb::arg("sigma"), nb::arg("contour_level"),
+         nb::arg("box_radius"), nb::arg("grid_scale"), nb::arg("b_factor"),
          get_docstring_from_xml("make_mesh_for_gaussian_surface_for_blender").c_str())
     .def("make_mesh_for_goodsell_style_for_blender",
          &molecules_container_t::make_mesh_for_goodsell_style_for_blender,
+         nb::arg("imol"), nb::arg("colour_wheel_rotation_step"),
+         nb::arg("saturation"), nb::arg("goodselliness"),
          get_docstring_from_xml("make_mesh_for_goodsell_style_for_blender").c_str())
     .def("make_mesh_for_map_contours_for_blender",
          &molecules_container_t::make_mesh_for_map_contours_for_blender,
+         nb::arg("imol"), nb::arg("x"), nb::arg("y"), nb::arg("z"), nb::arg("level"), nb::arg("radius"),
          get_docstring_from_xml("make_mesh_for_map_contours_for_blender").c_str())
     .def("make_mesh_for_molecular_representation_for_blender",
          &molecules_container_t::make_mesh_for_molecular_representation_for_blender,
+         nb::arg("imol"), nb::arg("cid"), nb::arg("colour_scheme"), nb::arg("style"),
+         nb::arg("secondary_structure_usage_flag"),
          get_docstring_from_xml("make_mesh_for_molecular_representation_for_blender").c_str())
     .def("mask_map_by_atom_selection",
          &molecules_container_t::mask_map_by_atom_selection,
+         nb::arg("imol_coords"), nb::arg("imol_map"), nb::arg("cid"),
+         nb::arg("atom_radius"), nb::arg("invert_flag"),
          get_docstring_from_xml("mask_map_by_atom_selection").c_str())
     .def("make_power_scaled_map",
          &molecules_container_t::make_power_scaled_map,
+         nb::arg("imol_ref"), nb::arg("imol_map_for_scaling"),
          get_docstring_from_xml("make_power_scaled_map").c_str())
     .def("merge_molecules",
          nb::overload_cast<int,const std::string &>(&molecules_container_t::merge_molecules),
+         nb::arg("imol"), nb::arg("list_of_other_molecules"),
          get_docstring_from_xml("merge_molecules").c_str())
     .def("minimize_energy",
          &molecules_container_t::minimize_energy,
+         nb::arg("imol"), nb::arg("atom_selection_cid"), nb::arg("n_cycles"),
+         nb::arg("do_rama_plot_restraints"), nb::arg("rama_plot_weight"),
+         nb::arg("do_torsion_restraints"), nb::arg("torsion_weight"),
+         nb::arg("refinement_is_quiet"),
          get_docstring_from_xml("minimize_energy").c_str())
     .def("minimize",
          &molecules_container_t::minimize,
+         nb::arg("imol"), nb::arg("atom_selection_cid"), nb::arg("n_cycles"),
+         nb::arg("do_rama_plot_restraints"), nb::arg("rama_plot_weight"),
+         nb::arg("do_torsion_restraints"), nb::arg("torsion_weight"),
+         nb::arg("refinement_is_quiet"),
          get_docstring_from_xml("minimize").c_str())
     .def("mmcif_tests",
          &molecules_container_t::mmcif_tests,
+         nb::arg("last_test_only"),
          get_docstring_from_xml("mmcif_tests").c_str())
     .def("mmrrcc",
          &molecules_container_t::mmrrcc,
          get_docstring_from_xml("mmrrcc").c_str())
     .def("move_molecule_to_new_centre",
          &molecules_container_t::move_molecule_to_new_centre,
+         nb::arg("imol"), nb::arg("x"), nb::arg("y"), nb::arg("z"),
          get_docstring_from_xml("move_molecule_to_new_centre").c_str())
     .def("multiply_residue_temperature_factors",
          &molecules_container_t::multiply_residue_temperature_factors,
+         nb::arg("imol"), nb::arg("cid"), nb::arg("factor"),
          get_docstring_from_xml("multiply_residue_temperature_factors").c_str())
     .def("mutate",
          &molecules_container_t::mutate,
+         nb::arg("imol"), nb::arg("cid"), nb::arg("new_residue_type"),
          get_docstring_from_xml("mutate").c_str())
     .def("new_positions_for_atoms_in_residues",
          &molecules_container_t::new_positions_for_atoms_in_residues,
+         nb::arg("imol"), nb::arg("moved_residues"),
          get_docstring_from_xml("new_positions_for_atoms_in_residues").c_str())
     .def("new_positions_for_residue_atoms",
          &molecules_container_t::new_positions_for_residue_atoms,
+         nb::arg("imol"), nb::arg("residue_cid"), nb::arg("moved_atoms"),
          get_docstring_from_xml("new_positions_for_residue_atoms").c_str())
     .def("non_standard_residue_types_in_model",
          &molecules_container_t::non_standard_residue_types_in_model,
+         nb::arg("imol"),
          get_docstring_from_xml("non_standard_residue_types_in_model").c_str())
     .def("package_version",
          &molecules_container_t::package_version,
          get_docstring_from_xml("package_version").c_str())
     .def("partition_map_by_chain",
          &molecules_container_t::partition_map_by_chain,
+         nb::arg("imol_map"), nb::arg("imol_model"),
          get_docstring_from_xml("partition_map_by_chain").c_str())
     .def("pepflips_using_difference_map",
          &molecules_container_t::pepflips_using_difference_map,
+         nb::arg("imol_coords"), nb::arg("imol_difference_map"), nb::arg("n_sigma"),
          get_docstring_from_xml("pepflips_using_difference_map").c_str())
     .def("peptide_omega_analysis",
          &molecules_container_t::peptide_omega_analysis,
+         nb::arg("imol_model"),
          get_docstring_from_xml("peptide_omega_analysis").c_str())
     .def("print_secondary_structure_info",
          &molecules_container_t::print_secondary_structure_info,
+         nb::arg("imol"),
          get_docstring_from_xml("print_secondary_structure_info").c_str())
     .def("rail_points_total",
          &molecules_container_t::rail_points_total,
          get_docstring_from_xml("rail_points_total").c_str())
     .def("ramachandran_analysis",
          &molecules_container_t::ramachandran_analysis,
+         nb::arg("imol_model"),
          get_docstring_from_xml("ramachandran_analysis").c_str())
     .def("ramachandran_validation",
          &molecules_container_t::ramachandran_validation,
+         nb::arg("imol"),
          get_docstring_from_xml("ramachandran_validation").c_str())
     .def("read_coordinates",
          &molecules_container_t::read_coordinates,
+         nb::arg("file_name"),
          get_docstring_from_xml("read_coordinates").c_str())
     .def("read_ccp4_map",
          &molecules_container_t::read_ccp4_map,
+         nb::arg("file_name"), nb::arg("is_a_difference_map"),
          get_docstring_from_xml("read_ccp4_map").c_str())
     .def("read_extra_restraints",
          &molecules_container_t::read_extra_restraints,
+         nb::arg("imol"), nb::arg("file_name"),
          get_docstring_from_xml("read_extra_restraints").c_str())
     .def("read_mtz",
          &molecules_container_t::read_mtz,
+         nb::arg("file_name"), nb::arg("f"), nb::arg("phi"), nb::arg("weight"),
+         nb::arg("use_weight"), nb::arg("is_a_difference_map"),
          get_docstring_from_xml("read_mtz").c_str())
     .def("read_pdb",
          &molecules_container_t::read_pdb,
+         nb::arg("file_name"),
          get_docstring_from_xml("read_pdb").c_str())
     .def("read_small_molecule_cif",
          &molecules_container_t::read_small_molecule_cif,
+         nb::arg("file_name"),
          get_docstring_from_xml("read_small_molecule_cif").c_str())
     .def("redo",
          &molecules_container_t::redo,
+         nb::arg("imol"),
          get_docstring_from_xml("redo").c_str())
     .def("refine",
          &molecules_container_t::refine,
+         nb::arg("imol"), nb::arg("n_cycles"),
          get_docstring_from_xml("refine").c_str())
     .def("refine_residue_range",
          &molecules_container_t::refine_residue_range,
+         nb::arg("imol"), nb::arg("chain_id"), nb::arg("res_no_start"),
+         nb::arg("res_no_end"), nb::arg("n_cycles"),
          get_docstring_from_xml("refine_residue_range").c_str())
     .def("refine_residues",
          &molecules_container_t::refine_residues,
+         nb::arg("imol"), nb::arg("chain_id"), nb::arg("res_no"), nb::arg("ins_code"),
+         nb::arg("alt_conf"), nb::arg("mode"), nb::arg("n_cycles"),
          get_docstring_from_xml("refine_residues").c_str())
     .def("refine_residues_using_atom_cid",
          &molecules_container_t::refine_residues_using_atom_cid,
+         nb::arg("imol"), nb::arg("cid"), nb::arg("mode"), nb::arg("n_cycles"),
          get_docstring_from_xml("refine_residues_using_atom_cid").c_str())
     .def("regen_map",
          &molecules_container_t::regen_map,
+         nb::arg("imol_map"), nb::arg("imol_maps"), nb::arg("scales"),
          get_docstring_from_xml("regen_map").c_str())
     .def("replace_fragment",
          &molecules_container_t::replace_fragment,
+         nb::arg("imol_base"), nb::arg("imol_reference"), nb::arg("atom_selection"),
          get_docstring_from_xml("replace_fragment").c_str())
     .def("replace_map_by_mtz_from_file",
          &molecules_container_t::replace_map_by_mtz_from_file,
+         nb::arg("imol"), nb::arg("file_name"), nb::arg("f"), nb::arg("phi"),
+         nb::arg("weight"), nb::arg("use_weight"),
          get_docstring_from_xml("replace_map_by_mtz_from_file").c_str())
     .def("replace_molecule_by_model_from_file",
          &molecules_container_t::replace_molecule_by_model_from_file,
+         nb::arg("imol"), nb::arg("pdb_file_name"),
          get_docstring_from_xml("replace_molecule_by_model_from_file").c_str())
     .def("replace_residue",
          &molecules_container_t::replace_residue,
+         nb::arg("imol"), nb::arg("residue_cid"), nb::arg("new_residue_type"), nb::arg("imol_enc"),
          get_docstring_from_xml("replace_residue").c_str())
     .def("residues_with_missing_atoms",
          &molecules_container_t::residues_with_missing_atoms,
+         nb::arg("imol"),
          get_docstring_from_xml("residues_with_missing_atoms").c_str())
     .def("rigid_body_fit",
          &molecules_container_t::rigid_body_fit,
+         nb::arg("imol"), nb::arg("multi_cid"), nb::arg("imol_map"),
          get_docstring_from_xml("rigid_body_fit").c_str())
     .def("rotamer_analysis",
          &molecules_container_t::rotamer_analysis,
+         nb::arg("imol_model"),
          get_docstring_from_xml("rotamer_analysis").c_str())
     .def("rotate_around_bond",
          &molecules_container_t::rotate_around_bond,
+         nb::arg("imol"), nb::arg("residue_cid"),
+         nb::arg("atom_name_1"), nb::arg("atom_name_2"),
+         nb::arg("atom_name_3"), nb::arg("atom_name_4"),
+         nb::arg("torsion_angle"),
          get_docstring_from_xml("rotate_around_bond").c_str())
     .def("scale_map",
          &molecules_container_t::scale_map,
+         nb::arg("imol_map"), nb::arg("scale_factor"),
          get_docstring_from_xml("scale_map").c_str())
     .def("servalcat_refine_xray",
          &molecules_container_t::servalcat_refine_xray,
+         nb::arg("imol"), nb::arg("imol_map"), nb::arg("output_prefix"),
          get_docstring_from_xml("servalcat_refine_xray").c_str())
     .def("servalcat_refine_xray_with_keywords",
          &molecules_container_t::servalcat_refine_xray_with_keywords,
          get_docstring_from_xml("servalcat_refine_xray_with_keywords").c_str())
     .def("set_add_waters_sigma_cutoff",
          &molecules_container_t::set_add_waters_sigma_cutoff,
+         nb::arg("d"),
          get_docstring_from_xml("set_add_waters_sigma_cutoff").c_str())
     .def("set_add_waters_variance_limit",
          &molecules_container_t::set_add_waters_variance_limit,
+         nb::arg("d"),
          get_docstring_from_xml("set_add_waters_variance_limit").c_str())
     .def("set_add_waters_water_to_protein_distance_lim_min",
          &molecules_container_t::set_add_waters_water_to_protein_distance_lim_min,
+         nb::arg("d"),
          get_docstring_from_xml("set_add_waters_water_to_protein_distance_lim_min").c_str())
     .def("set_add_waters_water_to_protein_distance_lim_max",
          &molecules_container_t::set_add_waters_water_to_protein_distance_lim_max,
+         nb::arg("d"),
          get_docstring_from_xml("set_add_waters_water_to_protein_distance_lim_max").c_str())
     .def("set_colour_map_for_map_coloured_by_other_map",
          &molecules_container_t::set_colour_map_for_map_coloured_by_other_map,
+         nb::arg("colour_table"),
          get_docstring_from_xml("set_colour_map_for_map_coloured_by_other_map").c_str())
     .def("set_colour_wheel_rotation_base",
          &molecules_container_t::set_colour_wheel_rotation_base,
+         nb::arg("imol"), nb::arg("r"),
          get_docstring_from_xml("set_colour_wheel_rotation_base").c_str())
     .def("set_draw_missing_residue_loops",
          &molecules_container_t::set_draw_missing_residue_loops,
+         nb::arg("state"),
          get_docstring_from_xml("set_draw_missing_residue_loops").c_str())
     .def("set_draw_missing_residue_loops",
          &molecules_container_t::set_draw_missing_residue_loops,
+         nb::arg("state"),
          get_docstring_from_xml("set_draw_missing_residue_loops").c_str())
     .def("set_gltf_pbr_metalicity_factor",
          &molecules_container_t::set_gltf_pbr_metalicity_factor,
+         nb::arg("imol"), nb::arg("metalicity"),
          get_docstring_from_xml("set_gltf_pbr_metalicity_factor").c_str())
     .def("set_gltf_pbr_roughness_factor",
          &molecules_container_t::set_gltf_pbr_roughness_factor,
+         nb::arg("imol"), nb::arg("roughness_factor"),
          get_docstring_from_xml("set_gltf_pbr_roughness_factor").c_str())
     .def("set_imol_refinement_map",
          &molecules_container_t::set_imol_refinement_map,
+         nb::arg("i"),
          get_docstring_from_xml("set_imol_refinement_map").c_str())
     .def("set_make_backups",
          &molecules_container_t::set_make_backups,
+         nb::arg("state"),
          get_docstring_from_xml("set_make_backups").c_str())
     .def("set_logging_level",
          &molecules_container_t::set_logging_level,
+         nb::arg("level"),
          get_docstring_from_xml("set_logging_level").c_str())
     .def("set_map_sampling_rate",
          &molecules_container_t::set_map_sampling_rate,
+         nb::arg("msr"),
          get_docstring_from_xml("set_map_sampling_rate").c_str())
     .def("set_map_weight",
          &molecules_container_t::set_map_weight,
+         nb::arg("w"),
          get_docstring_from_xml("set_map_weight").c_str())
     .def("set_max_number_of_threads",
          &molecules_container_t::set_max_number_of_threads,
+         nb::arg("n_threads"),
          get_docstring_from_xml("set_max_number_of_threads").c_str())
     .def("set_molecule_name",
          &molecules_container_t::set_molecule_name,
+         nb::arg("imol"), nb::arg("new_name"),
          get_docstring_from_xml("set_molecule_name").c_str())
     .def("set_occupancy",
          &molecules_container_t::set_occupancy,
+         nb::arg("imol"), nb::arg("cid"), nb::arg("occ_new"),
          get_docstring_from_xml("set_occupancy").c_str())
     .def("set_rama_plot_restraints_weight",
          &molecules_container_t::set_rama_plot_restraints_weight,
+         nb::arg("f"),
          get_docstring_from_xml("set_rama_plot_restraints_weight").c_str())
     .def("set_refinement_is_verbose",
          &molecules_container_t::set_refinement_is_verbose,
+         nb::arg("state"),
          get_docstring_from_xml("set_refinement_is_verbose").c_str())
     .def("set_refinement_geman_mcclure_alpha",
          &molecules_container_t::set_refinement_geman_mcclure_alpha,
+         nb::arg("a"),
          get_docstring_from_xml("set_refinement_geman_mcclure_alpha").c_str())
     .def("set_show_timings",
          &molecules_container_t::set_show_timings,
+         nb::arg("s"),
          get_docstring_from_xml("set_show_timings").c_str())
     .def("set_temperature_factors_using_cid",
          &molecules_container_t::set_temperature_factors_using_cid,
+         nb::arg("imol"), nb::arg("cid"), nb::arg("temp_fact"),
          get_docstring_from_xml("set_temperature_factors_using_cid").c_str())
     .def("set_torsion_restraints_weight",
          &molecules_container_t::set_torsion_restraints_weight,
+         nb::arg("f"),
          get_docstring_from_xml("set_torsion_restraints_weight").c_str())
     .def("set_use_gemmi",
          &molecules_container_t::set_use_gemmi,
+         nb::arg("state"),
          get_docstring_from_xml("set_use_gemmi").c_str())
     .def("set_use_rama_plot_restraints",
          &molecules_container_t::set_use_rama_plot_restraints,
+         nb::arg("state"),
          get_docstring_from_xml("set_use_rama_plot_restraints").c_str())
     .def("set_use_torsion_restraints",
          &molecules_container_t::set_use_torsion_restraints,
+         nb::arg("state"),
          get_docstring_from_xml("set_use_torsion_restraints").c_str())
     .def("set_user_defined_atom_colour_by_selection",
          &molecules_container_t::set_user_defined_atom_colour_by_selection,
+         nb::arg("imol"), nb::arg("indexed_residues_cids"), nb::arg("colour_applies_to_non_carbon_atoms_also"),
          get_docstring_from_xml("set_user_defined_atom_colour_by_selection").c_str())
     .def("set_user_defined_bond_colours",
          &molecules_container_t::set_user_defined_bond_colours,
+         nb::arg("imol"), nb::arg("colour_map"),
          get_docstring_from_xml("set_user_defined_bond_colours").c_str())
     .def("sfcalc_genmap",
          &molecules_container_t::sfcalc_genmap,
+         nb::arg("imol_model"), nb::arg("imol_map_with_data_attached"), nb::arg("imol_updating_difference_map"),
          get_docstring_from_xml("sfcalc_genmap").c_str())
     .def("sfcalc_genmaps_using_bulk_solvent",
          &molecules_container_t::sfcalc_genmaps_using_bulk_solvent,
+         nb::arg("imol_model"), nb::arg("imol_2fofc_map"), nb::arg("imol_updating_difference_map"), nb::arg("imol_map_with_data_attached"),
          get_docstring_from_xml("sfcalc_genmaps_using_bulk_solvent").c_str())
     .def("sharpen_blur_map",
          &molecules_container_t::sharpen_blur_map,
+         nb::arg("imol_map"), nb::arg("b_factor"), nb::arg("in_place_flag"),
          get_docstring_from_xml("sharpen_blur_map").c_str())
     .def("sharpen_blur_map_with_resample",
          &molecules_container_t::sharpen_blur_map_with_resample,
+         nb::arg("imol_map"), nb::arg("b_factor"), nb::arg("resample_factor"), nb::arg("in_place_flag"),
          get_docstring_from_xml("sharpen_blur_map_with_resample").c_str())
     .def("side_chain_180",
          nb::overload_cast<int, const std::string&>                         (&molecules_container_t::side_chain_180),
+         nb::arg("imol"), nb::arg("atom_cid"),
          get_docstring_from_xml("side_chain_180").c_str())
     .def("split_multi_model_molecule",
          &molecules_container_t::split_multi_model_molecule,
+         nb::arg("imol"),
          get_docstring_from_xml("split_multi_model_molecule").c_str())
     .def("split_residue_using_map",
          &molecules_container_t::split_residue_using_map,
+         nb::arg("imol"), nb::arg("residue_cid"), nb::arg("imol_diff_map"),
          get_docstring_from_xml("split_residue_using_map").c_str())
     .def("test_function",
          &molecules_container_t::test_function,
+         nb::arg("s"),
          get_docstring_from_xml("test_function").c_str())
     .def("test_origin_cube",
          &molecules_container_t::test_origin_cube,
          get_docstring_from_xml("test_origin_cube").c_str())
     .def("transform_map_using_lsq_matrix",
          &molecules_container_t::transform_map_using_lsq_matrix,
+         nb::arg("imol_map"), nb::arg("lsq_matrix"), nb::arg("x"), nb::arg("y"), nb::arg("z"), nb::arg("radius"),
          get_docstring_from_xml("transform_map_using_lsq_matrix").c_str())
     .def("undo",
          &molecules_container_t::undo,
+         nb::arg("imol"),
          get_docstring_from_xml("undo").c_str())
     .def("unmodelled_blobs",
          &molecules_container_t::unmodelled_blobs,
+         nb::arg("imol_model"), nb::arg("imol_map"), nb::arg("rmsd_cut_off"),
          get_docstring_from_xml("unmodelled_blobs").c_str())
     .def("write_coordinates",
          &molecules_container_t::write_coordinates,
+         nb::arg("imol"), nb::arg("file_name"),
          get_docstring_from_xml("write_coordinates").c_str())
     .def("write_map",
          &molecules_container_t::write_map,
+         nb::arg("imol"), nb::arg("file_name"),
          get_docstring_from_xml("write_map").c_str())
     .def("write_png",
          &molecules_container_t::write_png,
+         nb::arg("compound_id"), nb::arg("imol"), nb::arg("file_name"),
          get_docstring_from_xml("write_png").c_str())
     ;
     nb::class_<coot::chain_mutation_info_container_t>(m,"chain_mutation_info_container_t")
