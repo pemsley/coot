@@ -466,9 +466,10 @@ add_library(cootapi SHARED
 nanobind_add_module(coot_headless_api ${coot_src}/api/molecules-container-nanobind.cc
                                       ${coot_src}/api/molecules-container-nanobind-functions.cc)
 
+# thanks Jordan (install coot_headless_api.pyi in the right place)
 nanobind_add_stub(coot_headless_api_ext_stub
   MODULE coot_headless_api
-  OUTPUT coot_headless_api.pyi
+  OUTPUT ${Python_SITELIB}/coot_headless_api.pyi
   PYTHON_PATH $<TARGET_FILE_DIR:coot_headless_api>
   DEPENDS coot_headless_api
 )
