@@ -68,10 +68,20 @@ std::unordered_map<std::string, std::string> docstring_cache;
 
 std::string get_docstring_from_xml(const std::string& func_name) {
 
+   // this is the relative path for standard out-of-tree build
+   std::string api_doxygen_xml_file_name =
+      "../coot/api/doxy-sphinx/xml/classmolecules__container__t.xml";
+
    auto convert_type = [] (const std::string &s_in) {
       std::string s = s_in;
       if (s_in == "const std::string &") s = "str";
       if (s_in == "std::string")         s = "str";
+      if (s_in == "void")                s = "None";
+      if (s_in == "std::vector<")        s = "list";
+      if (s_in == "std::vector< std::pair< double, double > >") s = "list";
+      if (s_in == "std::vector< std::pair< std::string, std::string > >") s = "list";
+      if (s_in.find("std::vector<") != std::string::npos) s = "list";
+      if (s_in.compare(0,10, "std::pair<") == 0) s= "tuple"; // needs checking. Use starts_with() in C++20
       return s;
    };
 
@@ -95,7 +105,7 @@ std::string get_docstring_from_xml(const std::string& func_name) {
 
    if (docstring_cache.empty()) {
       pugi::xml_document doc;
-      if (!doc.load_file("../coot/api/doxy-sphinx/xml/classmolecules__container__t.xml")) {
+      if (!doc.load_file(api_doxygen_xml_file_name.c_str())) {
          return "";
       }
       auto compounddef = doc.child("doxygen").child("compounddef");
@@ -135,12 +145,20 @@ std::string get_docstring_from_xml(const std::string& func_name) {
                }
             }
 
+	    std::string return_type_docs;
+
             // Collect all <para> from <detaileddescription>
             auto detailed = member.child("detaileddescription");
             if (detailed) {
+	       unsigned int n_para = 0;
                for (auto para : detailed.children("para")) {
+		  n_para++;
                   std::string para_text = para.text().get();
                   if (!para_text.empty()) {
+		     if (n_para > 1)
+			oss << "\n    ";
+		     if (para_text[0] == '\n')
+			para_text.erase(0,1); // remove first char
                      oss << para_text << "\n";
                   }
                   for (auto parameterlist : para.children("parameterlist")) {
@@ -163,18 +181,30 @@ std::string get_docstring_from_xml(const std::string& func_name) {
                         }
                      }
                   }
+                  for (auto simplesect : para.children("simplesect")) {
+		     if (std::string(simplesect.attribute("kind").value()) == "return") {
+			for(auto ss_para : simplesect.children("para")) {
+			   std::string return_type_doc = ss_para.text().get();
+			   return_type_docs += return_type_doc;
+			}
+		     }
+		  }
+		  
                }
                if (! args.empty()) {
                   oss << "\n";
                   oss << "    Args:\n";
                   for (const auto &arg : args) {
-                     oss << "    " << arg.name << " (" << arg.type << ") " << arg.description << "\n";
+                     oss << "        " << arg.name << "` (" << arg.type << ")`: " << arg.description << "\n";
                   }
                }
                if (! type_string.empty()) {
                   oss << "\n";
                   oss << "    Returns:\n";
-                  oss << "    " << type_string << "\n";
+		  if (return_type_docs.empty())
+		     oss << "        `" << type_string << "`\n";
+		  else
+		     oss << "        `" << type_string << "`: " << return_type_docs << "\n";
                }
             }
             docstring_cache[name] = oss.str();
@@ -183,6 +213,9 @@ std::string get_docstring_from_xml(const std::string& func_name) {
    }
    auto it = docstring_cache.find(func_name);
    if (it != docstring_cache.end()) {
+      if (true) // debugging
+	 std::cout << "function:" << func_name << "()" << std::endl;
+      std::cout << it->second << std::endl;
       return it->second;
    } else {
       std::cout << "::function " << func_name << " not found"
@@ -320,7 +353,7 @@ NB_MODULE(coot_headless_api, m) {
     .def("GetNumberOfAtoms_countTers", nb::overload_cast<bool>(&mmdb::Residue::GetNumberOfAtoms))
     ;
     nb::class_<molecules_container_t>(m,"molecules_container_t")
-    .def(nb::init<bool>(), "verbose", "molecules container Documentation")
+    .def(nb::init<bool>(), nb::arg("be_verbose_when_reading_dictionary"), "molecules container Documentation")
     .def("M2T_updateFloatParameter",
          &molecules_container_t::M2T_updateFloatParameter,
          get_docstring_from_xml("M2T_updateFloatParameter").c_str())
@@ -329,6 +362,8 @@ NB_MODULE(coot_headless_api, m) {
          get_docstring_from_xml("M2T_updateIntParameter").c_str())
     .def("SSM_superpose",
          &molecules_container_t::SSM_superpose,
+	 nb::arg("imol_ref"), nb::arg("chain_id_ref"),
+	 nb::arg("imol_mov"), nb::arg("chain_id_mov"),
          get_docstring_from_xml("SSM_superpose").c_str())
     .def("add_alternative_conformation",
          &molecules_container_t::add_alternative_conformation,
@@ -496,7 +531,7 @@ NB_MODULE(coot_headless_api, m) {
          &molecules_container_t::difference_map_peaks,
          get_docstring_from_xml("difference_map_peaks").c_str())
     .def("eigen_flip_ligand",
-         nb::overload_cast<int, const std::string&>                        (&molecules_container_t::eigen_flip_ligand_using_cid),
+         nb::overload_cast<int, const std::string&> (&molecules_container_t::eigen_flip_ligand_using_cid),
          get_docstring_from_xml("eigen_flip_ligand").c_str())
     .def("export_chemical_features_as_gltf",
          &molecules_container_t::export_chemical_features_as_gltf,
@@ -544,7 +579,7 @@ NB_MODULE(coot_headless_api, m) {
          nb::overload_cast<int, const coot::atom_spec_t&,const std::string&>(&molecules_container_t::flip_peptide),
          get_docstring_from_xml("flipPeptide").c_str())
     .def("flipPeptide_cid",
-         nb::overload_cast<int, const std::string&,      const std::string&>(&molecules_container_t::flip_peptide_using_cid),
+         nb::overload_cast<int, const std::string&, const std::string&>(&molecules_container_t::flip_peptide_using_cid),
          get_docstring_from_xml("flipPeptide_cid").c_str())
     .def("flip_hand",
          &molecules_container_t::flip_hand,
@@ -633,7 +668,7 @@ NB_MODULE(coot_headless_api, m) {
     .def("get_header_info",
          &molecules_container_t::get_header_info,
          get_docstring_from_xml("get_header_info").c_str())
-    // .def("get_h_bonds",&molecules_container_t::get_h_bonds)
+    .def("get_h_bonds",&molecules_container_t::get_h_bonds)
     // .def("get_interesting_places",&molecules_container_t::get_interesting_places)
     .def("get_HOLE",
          &molecules_container_t::get_HOLE,
@@ -815,6 +850,7 @@ NB_MODULE(coot_headless_api, m) {
          get_docstring_from_xml("jed_flip").c_str())
     .def("lsq_superpose",
          &molecules_container_t::lsq_superpose,
+	 nb::arg("imol_ref"), nb::arg("imol_mov"),
          get_docstring_from_xml("lsq_superpose").c_str())
     .def("make_mask",
          &molecules_container_t::make_mask,
