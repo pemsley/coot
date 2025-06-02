@@ -2116,7 +2116,7 @@ Copyright 2023, 2024, 2025 Global Phasing Ltd.</property>
   </object>
 
   <object class="GtkWindow" id="aniso_window">
-    <property name="title" translatable="yes">Anisotripic Atoms</property>
+    <property name="title" translatable="yes">Coot:: Anisotropic Atoms</property>
     <property name="deletable">0</property>
     <child>
       <object class="GtkBox" id="vbox16">
@@ -2242,7 +2242,7 @@ Copyright 2023, 2024, 2025 Global Phasing Ltd.</property>
                           <object class="GtkBox" id="hbox12">
                             <property name="homogeneous">1</property>
                             <child>
-                              <object class="GtkScale" id="aniso_probability_hscale">
+                              <object class="GtkScale" id="aniso_probability_hscale_old">
                                 <property name="can-focus">1</property>
                                 <property name="round-digits">3</property>
                               </object>
@@ -2703,8 +2703,36 @@ Calculate a skeleton now?
                     <child>
                       <object class="GtkCheckButton" id="draw_anisotropic_atoms_no_radiobutton">
                         <property name="label" translatable="yes">No</property>
+                        <property name="active">1</property>
                         <property name="group">draw_anisotropic_atoms_yes_radiobutton</property>
                         <signal name="toggled" handler="on_draw_anisotropic_atoms_no_radiobutton_toggled" swapped="no"/>
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="GtkBox">
+                        <property name="orientation">vertical</property>
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="label" translatable="yes">Aniso Probability:</property>
+                            <property name="halign">start</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkScale" id="aniso_probability_hscale">
+                            <signal name="value-changed" handler="aniso_probability_hscale_value_changed"/>
+                            <property name="draw-value">true</property>
+                            <property name="can-focus">1</property>
+                            <property name="round-digits">3</property>
+                            <property name="digits">1</property>
+                            <property name="value-pos">top</property>
+                            <property name="vexpand">1</property>
+                            <!-- <property name="lower">0.0</property> -->
+                            <!-- <property name="upper">1.0</property> -->
+                            <!-- <property name="value">0.5</property> -->
+                            <!-- <property name="step-increment">1</property> -->
+                          </object>
+                        </child>
                       </object>
                     </child>
 

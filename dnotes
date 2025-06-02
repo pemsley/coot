@@ -11847,4 +11847,27 @@ Wed 23 Apr 2025 06:43:12 -03
 Mon 12 May 2025 09:35:29 CEST
 
    proteopedia can use chapi?
-   
+
+
+----
+Mon  2 Jun 17:35:22 BST 2025
+
+How to set an adjustment of a scale (looked up from builder)
+
+      GtkWidget *scale = widget_from_builder("tomo_scale");
+      GtkAdjustment *adjustment = gtk_range_get_adjustment(GTK_RANGE(scale));
+      if (adjustment) {
+         g_object_set_data(G_OBJECT(adjustment), "imol", GINT_TO_POINTER(imol));
+         std::string end_str = std::to_string(n_sections - 1);
+         double dns_1 = static_cast<double>(n_sections-1);
+         gtk_adjustment_set_lower(adjustment, 0);
+         gtk_adjustment_set_upper(adjustment, n_sections-1);
+         gtk_adjustment_set_step_increment(adjustment, 1.0);
+         gtk_adjustment_set_page_increment(adjustment, 5.0);
+         gtk_adjustment_set_page_size(adjustment, 0.0);
+         gtk_adjustment_set_value(adjustment, mid_section);
+         gtk_scale_set_draw_value(GTK_SCALE(scale), TRUE);
+         gtk_scale_set_digits(GTK_SCALE(scale), 0);
+         gtk_scale_add_mark(GTK_SCALE(scale), 0, GTK_POS_BOTTOM, "0");
+         gtk_scale_add_mark(GTK_SCALE(scale), dns_1, GTK_POS_BOTTOM, end_str.c_str());
+      }

@@ -312,6 +312,7 @@ on_symmetry_colour_patch_button_clicked (GtkButton       *button,
 
 
 
+// old code - delete on a rainy day
 extern "C" G_MODULE_EXPORT
 void
 on_show_aniso_ok_button_clicked        (GtkButton       *button,
@@ -3978,6 +3979,29 @@ void
 on_draw_ncs_ghosts_no_radiobutton_toggled(GtkToggleButton *togglebutton,
                                           gpointer         user_data) {
 
+}
+
+extern "C" G_MODULE_EXPORT
+void
+aniso_probability_hscale_value_changed(GtkScale* range,
+                                       gpointer user_data) {
+
+   GtkWidget *bond_parameters_molecule_comboboxtext  = widget_from_builder("bond_parameters_molecule_comboboxtext");
+   GtkWidget *draw_anisotropic_atoms_yes_radiobutton = widget_from_builder("draw_anisotropic_atoms_yes_radiobutton");
+   if (bond_parameters_molecule_comboboxtext) {
+      if (draw_anisotropic_atoms_yes_radiobutton) {
+         GtkAdjustment *adjustment = gtk_range_get_adjustment(GTK_RANGE(range));
+         float fvalue = gtk_adjustment_get_value(adjustment);
+         graphics_info_t g;
+         g.show_aniso_atoms_probability = fvalue;
+         int imol = g.combobox_get_imol(GTK_COMBO_BOX(bond_parameters_molecule_comboboxtext));
+         if (gtk_check_button_get_active(GTK_CHECK_BUTTON(draw_anisotropic_atoms_yes_radiobutton))) {
+            // std::cout << "\ncalling set_show_atoms_as_aniso() with prob " << g.show_aniso_atoms_probability << std::endl;
+            graphics_info_t::molecules[imol].make_bonds_type_checked("aniso_probability_hscale_value_changed");
+            g.graphics_draw();
+         }
+      }
+   }
 }
 
 extern "C" G_MODULE_EXPORT

@@ -4293,8 +4293,11 @@ coot::molecule_t::add_target_position_restraint_and_refine(const std::string &at
    unsigned int smoothness_factor = 1;
    bool show_atoms_as_aniso_flag = false;
    bool show_aniso_atoms_as_ortep_flag = false;
+   float aniso_probability = 0.5f;
    m = get_bonds_mesh_instanced(mode, geom_p, true, 0.1, 1.4,
-                                show_atoms_as_aniso_flag, show_aniso_atoms_as_ortep_flag,
+                                show_atoms_as_aniso_flag,
+                                aniso_probability,
+                                show_aniso_atoms_as_ortep_flag,
                                 smoothness_factor, true, true);
    return m;
 

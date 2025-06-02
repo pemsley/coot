@@ -44,10 +44,12 @@ coot::molecule_t::make_mesh_for_bonds_for_blender(const std::string &mode, prote
 
    bool draw_hydrogen_atoms_flag = true;
    bool draw_missing_loops_flag = true;
+   float aniso_probability = 0.5f;
 
    instanced_mesh_t im = get_bonds_mesh_instanced(mode, geom, against_a_dark_background,
                                                   bond_width, atom_radius_to_bond_width_ratio,
                                                   show_atoms_as_aniso_flag,
+                                                  aniso_probability,
                                                   show_aniso_atoms_as_ortep,
                                                   smoothness_factor, draw_hydrogen_atoms_flag, draw_missing_loops_flag);
 

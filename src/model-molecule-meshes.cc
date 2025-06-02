@@ -166,6 +166,7 @@ void
 model_molecule_meshes_t::make_graphical_bonds(int imol, const graphical_bonds_container &bonds_box,
                                               float atom_radius, float bond_radius,
                                               bool show_atoms_as_aniso_flag,
+                                              float aniso_probability,
                                               bool show_aniso_atoms_as_ortep_flag,
                                               int num_subdivisions, int n_slices, int n_stacks,
                                               const std::vector<glm::vec4> &colour_table) {
@@ -188,7 +189,8 @@ model_molecule_meshes_t::make_graphical_bonds(int imol, const graphical_bonds_co
 
    // these are in api/coot-molecule-bonds-instanced
    make_instanced_graphical_bonds_spherical_atoms(im, bonds_box, dummy_bonds_box_type, atom_radius, bond_radius,
-                                                  show_atoms_as_aniso_flag, show_aniso_atoms_as_ortep_flag,
+                                                  show_atoms_as_aniso_flag, aniso_probability,
+                                                  show_aniso_atoms_as_ortep_flag,
                                                   num_subdivisions, colour_table);
    make_instanced_graphical_bonds_bonds(im, bonds_box, bond_radius, n_slices, n_stacks, colour_table);
    make_graphical_bonds_cis_peptides(im.markup, bonds_box);

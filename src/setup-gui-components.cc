@@ -520,7 +520,24 @@ void setup_preferences() {
       }
 #endif
    }
+}
 
+void setup_aniso_hscale() {
+
+   GtkWidget *scale = widget_from_builder("aniso_probability_hscale");
+   GtkAdjustment *adjustment = gtk_range_get_adjustment(GTK_RANGE(scale));
+   if (adjustment) {
+      gtk_adjustment_set_lower(adjustment, 0.0);
+      gtk_adjustment_set_upper(adjustment, 1.0);
+      gtk_adjustment_set_step_increment(adjustment, 1.0);
+      gtk_adjustment_set_page_increment(adjustment, 5.0);
+      gtk_adjustment_set_page_size(adjustment, 0.0);
+      gtk_adjustment_set_value(adjustment, 0.5f);
+      gtk_scale_set_draw_value(GTK_SCALE(scale), TRUE);
+      gtk_scale_set_digits(GTK_SCALE(scale), 2);
+      gtk_scale_add_mark(GTK_SCALE(scale), 0.0, GTK_POS_BOTTOM, "0.0");
+      gtk_scale_add_mark(GTK_SCALE(scale), 1.0, GTK_POS_BOTTOM, "1.0");
+   }
 }
 
 void setup_gui_components() {
@@ -538,5 +555,6 @@ void setup_gui_components() {
    setup_preferences();
    attach_css_style_class_to_overlays();
    set_vertical_toolbar_internal_alignment();
+   setup_aniso_hscale();
    g_info("Done initializing UI components.");
 }
