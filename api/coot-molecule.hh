@@ -711,6 +711,7 @@ namespace coot {
                                                 bool against_a_dark_background,
                                                 float bonds_width, float atom_radius_to_bond_width_ratio,
                                                 bool render_atoms_as_aniso, // if possible, of course
+                                                float aniso_probability,
                                                 bool render_aniso_atoms_as_ortep,
                                                 int smoothness_factor,
                                                 bool draw_hydrogen_atoms_flag,

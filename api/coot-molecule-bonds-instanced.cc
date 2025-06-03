@@ -38,6 +38,7 @@
 #include "coot-utils/cylinder.hh"
 #include "coot-utils/gl-matrix.h"
 #include "coot-utils/ortep.hh"
+#include "analysis/chi-squared.hh"
 
 // Atom radii are limited to 2.0
 void
@@ -47,6 +48,7 @@ make_instanced_graphical_bonds_spherical_atoms(coot::instanced_mesh_t &m, // add
                                                float base_atom_radius,
                                                float base_bond_radius,
                                                bool render_atoms_as_aniso,
+                                               float aniso_probability, // 0.0 to 1.0
                                                bool render_aniso_atoms_as_ortep,
                                                unsigned int num_subdivisions,
                                                const std::vector<glm::vec4> &colour_table) {
@@ -78,7 +80,8 @@ make_instanced_graphical_bonds_spherical_atoms(coot::instanced_mesh_t &m, // add
    // copied and edited from from src/Mesh-from-graphical-bonds-instanced.cc
 
    if (false) { //20240521-PE debugging transparency
-      std::cout << "::: make_instanced_graphical_bonds_spherical_atoms(): :::" << std::endl;
+      std::cout << "::: make_instanced_graphical_bonds_spherical_atoms(): --- start ---" << std::endl;
+      std::cout << "::: make_instanced_graphical_bonds_spherical_atoms(): with aniso_probability " << aniso_probability << std::endl;
       for (const auto &c : colour_table) {
          std::cout << "colour-table " << glm::to_string(c) << std::endl;
       }
@@ -173,6 +176,10 @@ make_instanced_graphical_bonds_spherical_atoms(coot::instanced_mesh_t &m, // add
 
                // recalculate sar, atom-type rules do not apply
                sar = 1.2;
+               sar = gphl::prob_to_radius(aniso_probability * 100.0f);
+               // float rad = gphl::prob_to_radius(aniso_probability * 100.0f);
+               // std::cout << "debug aniso_probability " << aniso_probability << " rad " << rad << std::endl;
+
                sc = glm::vec3(sar);
 
                GL_matrix mat(at->u11, at->u12, at->u13,
@@ -561,6 +568,7 @@ coot::molecule_t::get_bonds_mesh_instanced(const std::string &mode, coot::protei
                                            bool against_a_dark_background, float bonds_width,
                                            float atom_radius_to_bond_width_ratio,
                                            bool render_atoms_as_aniso,
+                                           float aniso_probability,
                                            bool render_aniso_atoms_as_ortep,
                                            int smoothness_factor,
                                            bool draw_hydrogen_atoms_flag,
@@ -640,7 +648,8 @@ coot::molecule_t::get_bonds_mesh_instanced(const std::string &mode, coot::protei
       const graphical_bonds_container &gbc = bonds_box; // alias because it's named like that in Mesh-from-graphical-bonds
 
       make_instanced_graphical_bonds_spherical_atoms(m, gbc, bonds_box_type, atom_radius, bond_radius,
-                                                     render_atoms_as_aniso, render_aniso_atoms_as_ortep,
+                                                     render_atoms_as_aniso, aniso_probability,
+                                                     render_aniso_atoms_as_ortep,
                                                      num_subdivisions, colour_table);
       make_instanced_graphical_bonds_hemispherical_atoms(m, gbc, bonds_box_type, atom_radius,
                                                          bond_radius, num_subdivisions, colour_table);
@@ -680,6 +689,7 @@ coot::molecule_t::get_bonds_mesh_instanced(const std::string &mode, coot::protei
       std::vector<glm::vec4> colour_table = make_colour_table(against_a_dark_background);
       make_instanced_graphical_bonds_spherical_atoms(m, bonds_box, bonds_box_type, atom_radius, bond_radius,
                                                      render_atoms_as_aniso,
+                                                     aniso_probability,
                                                      render_aniso_atoms_as_ortep,
                                                      num_subdivisions, colour_table);
       make_instanced_graphical_bonds_hemispherical_atoms(m, bonds_box, bonds_box_type,
@@ -802,9 +812,11 @@ coot::molecule_t::get_bonds_mesh_for_selection_instanced(const std::string &mode
       // print_colour_table("from get_bonds_mesh_for_selection_instanced()");
 
       auto gbc = bonds.make_graphical_bonds();
+      float aniso_probability = 0.5f;
 
       make_instanced_graphical_bonds_spherical_atoms(m, gbc, bonds_box_type, atom_radius, bond_radius,
                                                      show_atoms_as_aniso_flag,
+                                                     aniso_probability,
                                                      show_aniso_atoms_as_ortep_flag,
                                                      num_subdivisions, colour_table);
       make_instanced_graphical_bonds_hemispherical_atoms(m, gbc, bonds_box_type, atom_radius, bond_radius,

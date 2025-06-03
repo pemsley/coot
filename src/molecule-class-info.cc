@@ -3711,6 +3711,7 @@ molecule_class_info_t::makebonds(const coot::protein_geometry *geom_p,
    bonds_box_type = coot::NORMAL_BONDS;
    if (! draw_hydrogens_flag)
       bonds_box_type = coot::BONDS_NO_HYDROGENS;
+
    if (false)
       std::cout << "   makebonds() C calls make_glsl_bonds_type_checked() imol "
                 << imol_no << " " << name_
@@ -3928,6 +3929,8 @@ molecule_class_info_t::make_bonds_type_checked(const char *caller) {
    coot::protein_geometry *geom_p = g.Geom_p();
 
    std::set<int> dummy;
+
+   // std::cout << "bonds_box_type " << bonds_box_type << std::endl;
 
    if (bonds_box_type == coot::NORMAL_BONDS) {
       if (debug)
@@ -4304,6 +4307,9 @@ molecule_class_info_t::make_meshes_from_bonds_box_instanced_version() {
       }
    };
 
+   if (false)
+      std::cout << "debug:: make_meshes_from_bonds_box_instanced_version() --- start --- " << std::endl;
+
    GLenum err = glGetError();
    if (err) std::cout << "GL ERROR:: in make_glsl_bonds_type_checked() --- start ---\n";
 
@@ -4355,9 +4361,11 @@ molecule_class_info_t::make_meshes_from_bonds_box_instanced_version() {
 
       err = glGetError();
       if (err) std::cout << "error in make_glsl_bonds_type_checked() pre molecules_as_mesh\n";
+      float aniso_probability = graphics_info_t::show_aniso_atoms_probability;
 
       model_molecule_meshes.make_graphical_bonds(imol_no, bonds_box, atom_radius, bond_radius,
                                                  show_atoms_as_aniso_flag, // class member - user setable
+                                                 aniso_probability,
                                                  show_aniso_atoms_as_ortep_flag, // ditto
                                                  num_subdivisions, n_slices, n_stacks, colour_table);
 
@@ -4725,8 +4733,8 @@ void
 molecule_class_info_t::make_bonds_type_checked(const std::set<int> &no_bonds_to_these_atom_indices,
                                                const char *caller) {
 
-   if (false)
-      std::cout << "debug:: ---- in make_bonds_type_checked() --- start ---" << std::endl;
+   if (true)
+      std::cout << "debug:: ---- in make_bonds_type_checked(2args) --- start ---" << std::endl;
 
    if (false) {
       std::string caller_s = "NULL";

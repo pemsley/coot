@@ -555,7 +555,7 @@ float graphics_info_t::map_sampling_rate = 2.5;
 short int graphics_info_t::show_aniso_atoms_flag = 0; // initially don't show.
 short int graphics_info_t::show_aniso_atoms_radius_flag = 0;
 float     graphics_info_t::show_aniso_atoms_radius = 12.0;
-float     graphics_info_t::show_aniso_atoms_probability = 50.0;
+float     graphics_info_t::show_aniso_atoms_probability = 0.5; // 20250602-PE 0.0 to 1.10 now
 
 // initialise the molecule (scene) rotation axis statics.
 //
