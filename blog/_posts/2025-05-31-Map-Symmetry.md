@@ -1,6 +1,6 @@
 ---
 layout: post
-title:  "x"
+title:  "Map Symmetry Handling Update"
 date: Sat 31 May 18:37:05 BST 2025
 ---
 
