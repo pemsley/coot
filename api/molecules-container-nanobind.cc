@@ -194,16 +194,16 @@ std::string get_docstring_from_xml(const std::string& func_name) {
                   oss << "\n";
                   oss << "    Args:\n";
                   for (const auto &arg : args) {
-                     oss << "        " << arg.name << "` (" << arg.type << ")`: " << arg.description << "\n";
+                     oss << "        " << arg.name << " (" << arg.type << "): " << arg.description << "\n";
                   }
                }
                if (! type_string.empty()) {
                   oss << "\n";
                   oss << "    Returns:\n";
 		  if (return_type_docs.empty())
-		     oss << "        `" << type_string << "`\n";
+		     oss << "        " << type_string << "\n";
 		  else
-		     oss << "        `" << type_string << "`: " << return_type_docs << "\n";
+		     oss << "        " << type_string << ": " << return_type_docs << "\n";
                }
             }
             docstring_cache[name] = oss.str();
