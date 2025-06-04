@@ -894,7 +894,6 @@ graphics_info_t::get_closest_atom() const {
    return std::pair<int, int>(index_close, imol_close);
 }
 
-#ifndef EMSCRIPTEN // 20220724-PE for now (just to get things compiling - should be restored)
 void
 graphics_info_t::setRotationCentre(const symm_atom_info_t &symm_atom_info) {
 
@@ -915,7 +914,6 @@ graphics_info_t::setRotationCentre(const symm_atom_info_t &symm_atom_info) {
       std::cout << "ERROR:: NULL atom in setRotationCentre(symm_atom_info_t)\n";
    }
 }
-#endif
 
 void
 graphics_info_t::setRotationCentre(const coot::clip_hybrid_atom &hybrid_atom) {
