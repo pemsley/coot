@@ -484,7 +484,7 @@ graphics_info_t::on_glarea_click(GtkGestureClick *controller,
 
             } else {
 
-               if (modifier == 17) { // shift
+               if (modifier & GDK_SHIFT_MASK) { // shift
 
                   bool intermediate_atoms_only_flag = false;
                   pick_info naii = atom_pick_gtk3(intermediate_atoms_only_flag);
@@ -495,6 +495,15 @@ graphics_info_t::on_glarea_click(GtkGestureClick *controller,
                      graphics_draw();
                      handled = true;
                   }
+		  if (! handled) {
+		     coot::Symm_Atom_Pick_Info_t sapi = symmetry_atom_pick();
+		     if (sapi.success == GL_TRUE) {
+			int imol = sapi.imol;
+			molecules[imol].add_atom_to_labelled_symm_atom_list(sapi.atom_index, sapi.symm_trans,
+									    sapi.pre_shift_to_origin);
+			graphics_draw();
+		     }
+		  }
 
                } else {
 
