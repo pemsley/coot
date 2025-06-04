@@ -46,6 +46,9 @@
 
 #include "testing.hh" // for test_internal();
 
+#include "utils/logging.hh"
+extern logging logger;
+
 void print_opengl_info();
 
 void init_framebuffers(GtkWidget *glarea) {
@@ -54,7 +57,7 @@ void init_framebuffers(GtkWidget *glarea) {
 
    // std::cout << "DEBUG:: use_framebuffers: " << graphics_info_t::use_framebuffers << std::endl;
 
-   std::cout << "----- start init_framebuffers() ----" << std::endl;
+   // std::cout << "----- start init_framebuffers() ----" << std::endl;
 
    GtkAllocation allocation;
    gtk_widget_get_allocation(GTK_WIDGET(glarea), &allocation);
@@ -91,7 +94,7 @@ void init_framebuffers(GtkWidget *glarea) {
          std::cout << "ERROR:: init_framebuffers() --- done --- err is " << err << std::endl;
    }
 
-   std::cout << "----- done init_framebuffers() ----" << std::endl;
+   // std::cout << "----- done init_framebuffers() ----" << std::endl;
 }
 
 
@@ -673,7 +676,9 @@ handle_start_scripts() {
 #endif
    scripts = xdg.get_python_config_scripts();
    for (const auto &script : scripts) {
-      std::cout << "Load python config script " << script.c_str() << std::endl;
+      // std::cout << "Load python config script " << script.c_str() << std::endl;
+      logger.log(log_t::INFO, logging::function_name_t(__FUNCTION__),
+		 "Load python script", script);
       run_python_script(script.string().c_str());
    }
 #ifdef USE_GUILE
