@@ -52,7 +52,37 @@
   <update_contact>pemsley_AT_mrc-lmb.cam.ac.uk</update_contact>
   <content_rating type="oars-1.1" />
   <releases>
-    <release version="1.1.15" date="2025-03-30">
+    <release version="1.1.16" date="2025-06-04">
+      <description>
+        <ul>
+          <li> o FEATURE: Local B-factor display </li>
+          <li> o FEATURE: Built-in logging (started) - view it by clicking the "Log" button</li>
+          <li> o FEATURE: Full doxygen documentation transfered to chapi nanobind functions</li>
+          <li> o FEATURE: Anisotropic probability radius scaling (thank ClAuS Flensburg)</li>
+          <li> o CHANGE: For packagers: Now a commonly-used fragment of the monomer library
+            is bundled with Coot. Unknown monomers are now downloaded from GitHub
+            and cached using XDG Base Directory Specification</li>
+          <li> o CHANGE:  For packagers: Now the reference structures are bundled
+            with the source code (and installed) - no longer do they need
+            to be a separate dependency</li>
+          <li> o CHANGE:  If a map has a PANDDA:: or APPLY-SYMMETRY:: label then Coot now
+            properly handles that (turns off "is-EM-map" status)</li>
+          <li> o CHANGE:  Atoms with Zero Occupancy results now moved into the
+            main window</li>
+          <li> o CHANGE:  Boron atoms are now pinky-beige - like Jmol</li>
+          <li> o BUG-FIX: Fix crash on adding an atom [Clément Bousquet]</li>
+          <li> o BUG-FIX: Symmetry atoms are now clickable for distances and labels</li>
+          <li> o BUG-FIX: Fix the non-drawn clashes post model update</li>
+          <li> o BUG-FIX: "Add Other Solvent Molecules" dialog has been depythonized
+            and now will work on macOS</li>
+          <li> o BUG-FIX: "Copy Molecule" dialog has been depythonized and is now an
+            overlay and now will work on macOS</li>
+          <li> o BUG-FIX: Fix the problem of focus-grab when using Tutorial Model &amp; Data</li>
+          <li> o BUG-FIX: Fix the "Close" button in the Restraints Editor</li>
+        </ul>
+      </description>
+    </release>
+    <release version="1.1.15" date="2025-06-04">
       <description>
         <ul>
           <li> o FEATURE: Drag and drop (partial - it works from the file browser,</li>

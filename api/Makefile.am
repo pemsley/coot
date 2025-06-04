@@ -51,7 +51,7 @@ symmetry-info.hh         instancing.hh              merge-molecule-results-info-
 coot-molecule-bonds.hh   clipper-ccp4-map-file-wrapper.hh blender-mesh.hh                  \
 ncs-ghosts.hh            moved-atom.hh              moved-residue.hh \
 filo-tests.hh            plain-atom-overlap.hh      test-molecules-container.hh \
-lucrezia-tests.hh
+lucrezia-tests.hh        user-defined-colour-table.hh positioned-atom-spec.hh
 
 lib_LTLIBRARIES=libcoot-api.la
 

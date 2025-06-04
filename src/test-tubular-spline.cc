@@ -23,8 +23,10 @@ int main(int argc, char **argv) {
                                                            Cn_for_coil, accuracy_for_coil,
                                                            n_slices_for_coil,
                                                            secondaryStructureUsageFlag);
+      float roughness = 0.2;
+      float smoothnesss =- 0.8;
       bool use_binary_format = true;
-      mesh.export_to_gltf("pdb9eih-spline.gltf", use_binary_format);
+      mesh.export_to_gltf("pdb9eih-spline.gltf", roughness, smoothnesss, use_binary_format);
 
    } else {
       status = 1;

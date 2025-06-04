@@ -39,10 +39,8 @@ int main(int argc, char **argv) {
    }
 
    if (true) {
-
-     int nfv = next_file_version("test-utils", "o", ".");
-     std::cout << "next file version " << nfv << std::endl;
-
+      int nfv = coot::next_file_version("test-utils", "o", ".");
+      std::cout << "next file version " << nfv << std::endl;
    }
 
    return 0;

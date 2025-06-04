@@ -124,7 +124,7 @@
       <section>
         <item>
           <attribute name="label">Add Header Link...</attribute>
-          <attribute name="action">app.make_link_action</attribute> 
+          <attribute name="action">app.make_link_action</attribute>
         </item>
         <item>
           <attribute name="label">Change Chain IDs...</attribute>

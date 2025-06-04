@@ -49,7 +49,7 @@ int main(int argc, char **argv) {
    double beta  = 0.03;
    std::vector<glm::vec3> v = make_test_points();
    DirichletProcessClustering dpc(alpha, beta);
-   std::vector<int> clustered_points = dpc.fit(v);
+   std::vector<unsigned int> clustered_points = dpc.fit(v);
 
    for (unsigned int i=0; i<clustered_points.size(); i++) {
       const auto &idx = clustered_points[i];

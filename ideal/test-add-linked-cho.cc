@@ -126,7 +126,7 @@ int main(int argc, char **argv) {
          const clipper::Xmap<float> &xmap = xmap_pair.second;
          coot::protein_geometry geom;
          geom.init_standard();
-         coot::cho::add_named_glyco_tree("NAG-NAG-BMA", asc.mol, imol, xmap, &geom, asn_chain_id, asn_res_no);
+         coot::cho::add_named_glyco_tree("NAG-NAG-BMA", &asc, imol, xmap, &geom, asn_chain_id, asn_res_no);
          asc.mol->WritePDBASCII("done.pdb");
       }
    }
