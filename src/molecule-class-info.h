@@ -73,7 +73,7 @@ enum {CONTOUR_UP, CONTOUR_DOWN};
 #include <glm/glm.hpp>
 
 #ifndef __NVCC__
-#ifdef HAVE_BOOST
+#ifdef HAVE_BOOST_THREAD // now consistent with ideal/simple-restraint.hh
 #define HAVE_BOOST_BASED_THREAD_POOL_LIBRARY
 #include "utils/ctpl.h"
 #endif // HAVE_CXX_THREAD
