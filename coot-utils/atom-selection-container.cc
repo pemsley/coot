@@ -35,7 +35,6 @@
 #include "lidia-core-functions.hh"
 #include "analysis/stats.hh"
 
-#undef USE_GEMMI // PaulE hack
 #ifdef USE_GEMMI
 #include "gemmi/mmread.hpp"
 #include "gemmi/mmdb.hpp"
@@ -85,6 +84,22 @@ atom_selection_container_t::get_previous(mmdb::Residue *residue_in) const {
    }
    return r;
 }
+
+//! clear the atom selection of all pointers
+void
+atom_selection_container_t::clear_up() {
+
+   if (read_success)
+      if (SelectionHandle)
+	 if (mol)
+	    mol->DeleteSelection(SelectionHandle);
+   delete mol;
+   atom_selection = 0;
+   mol = 0;
+   read_success = 0;
+}
+
+
 
 // This is used for pick_test  (a function that returns
 // an atom selection from a pdb_file name string is not
