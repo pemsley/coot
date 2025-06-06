@@ -367,48 +367,7 @@ class molecules_container_t {
    // --------------------- init --------------------------
 #ifdef SKIP_FOR_PYTHON_DOXYGEN
 #else
-   //! init (private)
-   void init() {
-
-      use_gemmi = true;
-      imol_refinement_map = -1;
-      imol_difference_map = -1;
-      thread_pool.resize(8);
-      setup_syminfo();
-      mmdb::InitMatType();
-      geometry_init_standard(); // do this by default now
-      refinement_immediate_replacement_flag = true; // 20221018-PE for WebAssembly for the moment
-      imol_moving_atoms = -1;
-      refinement_is_quiet = true;
-      show_timings = true;
-      cif_dictionary_read_number = 40;
-      // refinement
-      continue_threaded_refinement_loop = false;
-      particles_have_been_shown_already_for_this_round_flag = false;
-      map_weight = 50.0;
-      geman_mcclure_alpha = 0.01;
-      map_sampling_rate = 1.8;
-      draw_missing_residue_loops_flag = true;
-      read_standard_residues();
-      interrupt_long_term_job = false;
-      contouring_time = 0;
-      make_backups_flag = true;
-
-      use_rama_plot_restraints = false;
-      rama_plot_restraints_weight = 1.0;
-
-      use_torsion_restraints = false;
-      torsion_restraints_weight = 1.0;
-
-      map_is_contoured_using_thread_pool_flag = false;
-
-      ligand_water_to_protein_distance_lim_max = 3.4;
-      ligand_water_to_protein_distance_lim_min = 2.4;
-      ligand_water_variance_limit = 0.1;
-      ligand_water_sigma_cut_off = 1.75; // max moorhen points for tutorial 1.
-
-      // debug();
-   }
+   void init(); // private
 #endif
 
 #ifdef SKIP_FOR_PYTHON_DOXYGEN
@@ -423,10 +382,13 @@ class molecules_container_t {
 public:
 
    //! the one and only constructor
-   explicit molecules_container_t(bool verbose=true) : ramachandrans_container(ramachandrans_container_t()) {
+   explicit molecules_container_t(bool verbose=true) :
+      ramachandrans_container(ramachandrans_container_t()),
+      thread_pool(8) {
+
       if (! verbose) geom.set_verbose(false);
       init();
-      // std::cout << "in constructor map_sampling_rate: " << map_sampling_rate << std::endl;
+
    }
 
    ~molecules_container_t();

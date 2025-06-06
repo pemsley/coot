@@ -58,6 +58,54 @@ molecules_container_t::~molecules_container_t() {
    standard_residues_asc.clear_up();
 }
 
+//! init (private)
+void
+molecules_container_t::init() {
+
+   use_gemmi = true;
+   imol_refinement_map = -1;
+   imol_difference_map = -1;
+   // setup_syminfo();
+   // mmdb::InitMatType();
+   // geometry_init_standard(); // do this by default now
+   refinement_immediate_replacement_flag = true; // 20221018-PE for WebAssembly for the moment
+   imol_moving_atoms = -1;
+   refinement_is_quiet = true;
+   show_timings = true;
+   cif_dictionary_read_number = 40;
+   // refinement
+   continue_threaded_refinement_loop = false;
+   particles_have_been_shown_already_for_this_round_flag = false;
+   map_weight = 50.0;
+   geman_mcclure_alpha = 0.01;
+
+   map_sampling_rate = 1.8;
+   draw_missing_residue_loops_flag = true;
+
+   // read_standard_residues();
+   interrupt_long_term_job = false;
+   contouring_time = 0;
+   make_backups_flag = true;
+
+   // thread_pool.resize(8);
+
+   use_rama_plot_restraints = false;
+   rama_plot_restraints_weight = 1.0;
+
+   use_torsion_restraints = false;
+   torsion_restraints_weight = 1.0;
+
+   map_is_contoured_using_thread_pool_flag = false;
+
+   ligand_water_to_protein_distance_lim_max = 3.4;
+   ligand_water_to_protein_distance_lim_min = 2.4;
+   ligand_water_variance_limit = 0.1;
+   ligand_water_sigma_cut_off = 1.75; // max moorhen points for tutorial 1.
+
+   // debug();
+}
+
+
 //! Get the package version
 //!
 //! @return the package version, e.g. "1.1.11" - if this is a not yet a release version
@@ -735,8 +783,9 @@ molecules_container_t::read_coordinates(const std::string &file_name) {
       molecules.push_back(m);
       status = imol;
    } else {
-      std::cout << "debug:: in read_pdb() asc.read_success was " << asc.read_success
-                << " for " << file_name << std::endl;
+      logger.log(log_t::DEBUG, logging::function_name_t(__FUNCTION__),
+		 { "asc.read_success was", asc.read_success,
+		      "for", file_name});
    }
    return status;
 }
