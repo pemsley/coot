@@ -1,6 +1,13 @@
 
 --- Items ---
 
+o Add ability to rotate view around z axis ::: 0.5
+
+o auto-scale the make-a-differnce map
+ think about create power-matched option also? ::: 1
+
+o remove GEMMI hack at top of atom-selection-container.cc
+
 --- Other Items ---
 
 o have another look at Rama plot :: 1
@@ -17,21 +24,12 @@ o Atom sphere radius depends on B-factor - proportional to cube root maybe?
   set_atom_radius_by_b_factor_mode(imol, state)
   atom_radius_by_b_factor_scale_factor(imol, sf)
 
-o clicking on "Go To Atom" button should uniconify the iconified dialog.
-
 o draw 9c1h with molecular symmetry colouring :: 1
 
 o load_gltf_model() should return the model index (-1 for failure)
 
 o "Proportional editing" molecule rotation :: 2
   Actually "fragment" rotation makes more sense.
-
-o write a blog-post for "APPLY-SYMMETRY::" label
-  and up date the documentation.
-
-o 6yzn - Overalaps etc validation hangs/is slow.
-
---- Other Items ---
 
 o try texture atlas for text - make a new test app from scratch :: 4
 
@@ -60,6 +58,8 @@ o  It was a strange bit of code in get_group().
 o 1geh B-factor colour ramp looks wrong :: 1
 
 --- Done Items ---
+
+o clicking on "Go To Atom" button should uniconify the iconified dialog.
 
 o plug a mouse into the map and do middle-mouse drag for translation
   (and check ctrl-left-mouse) ::: 0.2
