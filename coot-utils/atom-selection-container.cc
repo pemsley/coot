@@ -1064,6 +1064,8 @@ atom_selection_container_t read_standard_residues() {
 float
 coot::get_molecule_diameter(const atom_selection_container_t &asc) {
 
+   // c.f. radius_of_gyration
+
    float f = -1;
 
    int n_max = asc.n_selected_atoms;

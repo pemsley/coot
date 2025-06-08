@@ -298,9 +298,20 @@ namespace coot {
    //
    bool residues_in_order_p(mmdb::Chain *chain_p);
 
-   // return success status as first element
-   //
+   //! get the centre of the molecule
+   //!
+   //! The mass of the atoms is not used.
+   //!
+   //! @ return success status as first element
    std::pair<bool, clipper::Coord_orth> centre_of_molecule(mmdb::Manager *mol);
+
+   //! get the centre of the molecule, using atom masses
+   //!
+   //! @ return success status as first element
+   std::pair<bool, clipper::Coord_orth> centre_of_molecule_using_masses(mmdb::Manager *mol);
+
+   //! get the radius of gyration - using the centre from above
+   std::pair<bool, double> radius_of_gyration(mmdb::Manager *mol);
 
    std::pair<bool, clipper::Coord_orth> centre_of_residues(const std::vector<mmdb::Residue *> &residues);
 

@@ -6539,6 +6539,28 @@ int test_non_XYZ_EM_map_status(molecules_container_t &mc) {
    return status;
 }
 
+int test_radius_of_gyration(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   if (mc.is_valid_model_molecule(imol)) {
+      double rg = mc.get_radius_of_gyration(imol);
+      std::cout << "Radius of gyration: " << rg << std::endl;
+      // Expect a positive value for a valid molecule
+      if (rg > 0.0 && rg < 100.0)
+         status = 1;
+      else
+         std::cout << "Unexpected radius of gyration value: " << rg << std::endl;
+   } else {
+      std::cout << "Invalid model molecule for radius of gyration test." << std::endl;
+   }
+   mc.close_molecule(imol);
+   return status;
+}
+
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -6870,7 +6892,8 @@ int main(int argc, char **argv) {
          // status += run_test(test_delete_all_carbohydrate, "delete all carbohydrate", mc);
          // status += run_test(test_instanced_goodsell_style_mesh, "instanced goodsell style mesh", mc);
          // status += run_test(test_map_vertices_histogram, "map vertices histogram", mc);
-         status += run_test(test_non_XYZ_EM_map_status, "non-XYZ map status", mc);
+         // status += run_test(test_non_XYZ_EM_map_status, "non-XYZ map status", mc);
+         status += run_test(test_radius_of_gyration, "radius of gyration", mc);
          if (status == n_tests) all_tests_status = 0;
 
          print_results_summary();

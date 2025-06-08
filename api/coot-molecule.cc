@@ -354,11 +354,32 @@ coot::molecule_t::get_number_of_hydrogen_atoms() const {
 float
 coot::molecule_t::get_molecule_diameter() const {
 
+   // sample atom pairs
+
    float f = -1;
    if (atom_sel.mol) {
       f = coot::get_molecule_diameter(atom_sel);
    }
    return f;
+}
+
+//! Get Radius of Gyration
+//!
+//! @param imol is the model molecule index
+//!
+//! @return the molecule centre. If the number is less than zero, there
+//! was a problem finding the molecule or atoms.
+double
+coot::molecule_t::get_radius_of_gyration() const {
+
+   double d = -1.0;
+   if (is_valid_model_molecule()) {
+      std::pair<bool, double> rgp = coot::radius_of_gyration(atom_sel.mol);
+      if (rgp.first) {
+	 d = rgp.second;
+      }
+   }
+   return d;
 }
 
 

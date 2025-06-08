@@ -6360,8 +6360,31 @@ molecules_container_t::get_types_in_molecule(int imol) const {
    if (is_valid_model_molecule(imol)) {
       v = molecules[imol].get_types_in_molecule();
    } else {
-      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+      // std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+      logger.log(log_t::WARNING, logging::function_name_t(__FUNCTION__),
+		 "not a valid model molecule", imol);
    }
    return v;
+}
+
+
+//! Get Radius of Gyration
+//!
+//! @param imol is the model molecule index
+//!
+//! @return the molecule centre. If the number is less than zero, there
+//! was a problem finding the molecule or atoms.
+double
+molecules_container_t::get_radius_of_gyration(int imol) const {
+
+   double d = -1.0; // failure
+   if (is_valid_model_molecule(imol)) {
+      d = molecules[imol].get_radius_of_gyration();
+   } else {
+      // std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+      logger.log(log_t::WARNING, logging::function_name_t(__FUNCTION__),
+		 "not a valid model molecule", imol);
+   }
+   return d;
 
 }

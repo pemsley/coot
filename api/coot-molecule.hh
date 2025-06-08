@@ -601,6 +601,14 @@ namespace coot {
       unsigned int get_number_of_atoms() const;
       int get_number_of_hydrogen_atoms() const;
       float get_molecule_diameter() const;
+      //! Get Radius of Gyration
+      //!
+      //! @param imol is the model molecule index
+      //!
+      //! @return the molecule centre. If the number is less than zero, there
+      //! was a problem finding the molecule or atoms.
+      double get_radius_of_gyration() const;
+
       //! get types
       std::vector<std::string> get_types_in_molecule() const;
       mmdb::Residue *cid_to_residue(const std::string &cid) const;

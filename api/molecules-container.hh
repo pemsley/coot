@@ -2199,6 +2199,14 @@ public:
    //! @return the molecule centre
    coot::Cartesian get_molecule_centre(int imol) const;
 
+   //! Get Radius of Gyration
+   //!
+   //! @param imol is the model molecule index
+   //!
+   //! @return the molecule centre. If the number is less than zero, there
+   //! was a problem finding the molecule or atoms.
+   double get_radius_of_gyration(int imol) const;
+
    //! Copy the molecule
    //!
    //! @param imol the specified molecule
