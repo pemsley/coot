@@ -212,9 +212,10 @@ std::string get_docstring_from_xml(const std::string& func_name) {
    }
    auto it = docstring_cache.find(func_name);
    if (it != docstring_cache.end()) {
-      if (true) // debugging
+      if (false) { // debugging - this can be quiet now
 	 std::cout << "function:" << func_name << "()" << std::endl;
-      std::cout << it->second << std::endl;
+	 std::cout << it->second << std::endl;
+      }
       return it->second;
    } else {
       std::cout << "::function " << func_name << " not found"
