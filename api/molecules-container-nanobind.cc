@@ -869,6 +869,9 @@ NB_MODULE(coot_headless_api, m) {
     .def("get_r_factor_stats",
          &molecules_container_t::get_r_factor_stats,
          get_docstring_from_xml("get_r_factor_stats").c_str())
+    .def("get_radius_of_gyration",
+         &molecules_container_t::get_radius_of_gyration,
+         get_docstring_from_xml("get_radius_of_gyration").c_str())
     .def("get_rama_plot_restraints_weight",
          &molecules_container_t::get_rama_plot_restraints_weight,
          get_docstring_from_xml("get_rama_plot_restraints_weight").c_str())
