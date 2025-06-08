@@ -65,9 +65,9 @@ molecules_container_t::init() {
    use_gemmi = true;
    imol_refinement_map = -1;
    imol_difference_map = -1;
-   // setup_syminfo();
-   // mmdb::InitMatType();
-   // geometry_init_standard(); // do this by default now
+   setup_syminfo();
+   mmdb::InitMatType();
+   geometry_init_standard(); // do this by default now
    refinement_immediate_replacement_flag = true; // 20221018-PE for WebAssembly for the moment
    imol_moving_atoms = -1;
    refinement_is_quiet = true;
