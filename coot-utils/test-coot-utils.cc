@@ -1641,12 +1641,53 @@ void test_make_mask_map(int argc, char **argv) {
    }
 }
 
+#include "cremer-pople.hh"
+
+void
+test_cremer_pople(int argc, char **argv) {
+
+   auto is_member = [] (const std::string &rn, const std::vector<std::string> &res_names) {
+      return std::find(res_names.begin(), res_names.end(), rn) != res_names.end();
+   };
+
+   if (argc > 1) {
+      std::string pdb_file_name(argv[1]);
+      atom_selection_container_t asc = get_atom_selection(pdb_file_name, false);
+      if (asc.read_success) {
+         mmdb::Manager *mol = asc.mol;
+         std::vector<std::string> res_names = {"NAG", "MAN", "BMA", "GAL", "FUC"};
+         for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+            mmdb::Model *model_p = mol->GetModel(imod);
+            if (model_p) {
+               int n_chains = model_p->GetNumberOfChains();
+               for (int ichain=0; ichain<n_chains; ichain++) {
+                  mmdb::Chain *chain_p = model_p->GetChain(ichain);
+                  int n_res = chain_p->GetNumberOfResidues();
+                  for (int ires=0; ires<n_res; ires++) {
+                     mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                     if (residue_p) {
+                        std::string rn = residue_p->GetResName();
+                        if (is_member(rn, res_names)) {
+                           coot::cremer_pople_t cpi(residue_p);
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      }
+   }
+}
+
 
 int main(int argc, char **argv) {
 
    mmdb::InitMatType();
 
    if (true)
+      test_cremer_pople(argc, argv);
+
+   if (false)
       test_make_mask_map(argc, argv);
 
    if (false)
