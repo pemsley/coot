@@ -8,14 +8,15 @@
 ;; "HAVE_GOOCANVAS=1"
 ;;
 ;(setq flycheck-gcc-definitions   (list "HAVE_CXX_THREAD=1" "HAVE_GSL=1" "VERSION=\"0.9.9-pre\"" "PACKAGE=Coot" "PACKAGE_VERSION=1.1.11+" "HAVE_BOOST=1" "PKGDATADIR=11111" "USE_PYTHON=1" "PYTHONDIR=/asdf" "PKGPYTHONDIR=asdf" "USE_LIBCURL=1" "BUILD_CURLEW=1" "COOT_BUILD_INFO_STRING=x" "_OPENMP=1" "MAKE_ENHANCED_LIGAND_TOOLS=1" "WITH_SOUND=1" "USE_GEMMI=1" "HAVE_RSVG=1" "HAVE_SSMLIB=1" "RDKIT_HAS_CAIRO_SUPPORT=1"))
+
 (setq flycheck-clang-definitions (list "HAVE_CXX_THREAD=1" "HAVE_GSL=1" "VERSION=\"0.9.9-pre\"" "PACKAGE=Coot" "PACKAGE_VERSION=1.1.11+" "HAVE_BOOST=1" "HAVE_BOOST_BASED_THREAD_POOL_LIBRARY=1" "PKGDATADIR=11111" "USE_PYTHON=1" "PYTHONDIR=/asdf" "PKGPYTHONDIR=asdf" "USE_LIBCURL=1" "BUILD_CURLEW=1" "COOT_BUILD_INFO_STRING=x" "_OPENMP=1" "MAKE_ENHANCED_LIGAND_TOOLS=1" "WITH_SOUND=1" "USE_GEMMI=1" "HAVE_RSVG=1" "HAVE_SSMLIB=1" "RDKIT_HAS_CAIRO_SUPPORT=1"))
 
 ;; this is configured now, we don't need it on the command line
 ;;  "HAVE_BOOST_BASED_THREAD_POOL_LIBRARY=1"
 
-;(setq flycheck-gcc-args   '("-Wno-unknown-pragmas" "-std=c++17"))
+(setq flycheck-gcc-args   '("-Wno-unknown-pragmas" "-std=c++17"))
 (setq flycheck-clang-args '("-Wno-unknown-pragmas" "-std=c++17"))
-;(setq flycheck-gcc-language-standard   "c++17")
+(setq flycheck-gcc-language-standard   "c++17")
 (setq flycheck-clang-language-standard "c++17")
 
 (setq build-path-list
@@ -34,6 +35,12 @@
    "/home/paule/glm/include"
    "/home/paule/ogg-vorbis/include"
    "/home/paule/assimp/include"
+
+   "/lmb/home/pemsley/autobuild/Linux-hal.lmb.internal-gtk4/include/python3.11"
+   "/usr/include/glib-2.0"
+   "/usr/lib64/glib-2.0/include"
+   "/usr/lib64/graphene-1.0/include"
+   "/lmb/home/pemsley/autobuild/Linux-hal.lmb.internal-gtk4/include"
 
    "/home/paule/python3/include/python3.9"
    "/home/paule/autobuild/build-for-chapi-gtk4/lib/python3.10/site-packages/nanobind/include"
@@ -61,8 +68,7 @@
    ))
 
 
-;(setq flycheck-gcc-include-path build-path-list)
-
+(setq flycheck-gcc-include-path build-path-list)
 (setq flycheck-clang-include-path build-path-list)
 
 ;;; setup-flycheck.el ends here
