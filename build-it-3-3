@@ -2296,6 +2296,13 @@ if [ -e $install_top_dir/bin/$python_version ] ; then
 else
    build_python=1
 fi
+# -----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+# hack!
+# build_python=1
+# -----------------------------------------------------------------------------
+# -----------------------------------------------------------------------------
+
 
 
 # -----------------------------------------------------------------------------
@@ -2670,6 +2677,7 @@ if test "$build_readline" = true ; then
     ${WGET} https://ftp.gnu.org/gnu/readline/readline-$readline_version.tar.gz
     ${WGET} $extras_place/readline-5.1.patch
     (
+    unset LD_LIBRARY_PATH
     date
     pwd
     gzip -dc ${AUTOBUILD_SOURCES}/readline-$readline_version.tar.gz | tar xf -
@@ -2694,8 +2702,10 @@ if test "$build_readline" = true ; then
        sed  -i '125,135 s/SHOBJ_LDFLAGS=.*/&\n        SHLIB_LIBS='"'"'$(TERMCAP_LIB)'"'"'/' support/shobj-conf
        extra_args_for_debian="--with-curses --enable-shared"
     fi
-    echo ./configure $generic_prefix $extra_args_for_debian
-    ./configure $generic_prefix $extra_args_for_debian
+    echo ./configure $generic_prefix --enable-shared --with-curses $extra_args_for_debian
+    ./configure $generic_prefix --enable-shared --with-curses $extra_args_for_debian
+    cp shlib/Makefile shlib/Makefile.orig
+    sed -ibackup -e 's/SHLIB_LIBS = /SHLIB_LIBS = -lcurses/' shlib/Makefile
     # single thread
     if make ; then
        make install
@@ -2714,6 +2724,7 @@ fi
 
 
 test_for_already_installed_dependencies=true
+    unset LD_LIBRARY_PATH
 
 # So that python3 is found when it is installed:
 #
@@ -2947,10 +2958,11 @@ if test -n "$build_python" ; then
        if [ $OS = Darwin ] ; then
            openssl_prefix=$install_top_dir
        fi
+       echo PKG_CONFIG_PATH is $PKG_CONFIG_PATH - does that mean that libffi config is discoverable\?
        echo INFO:: ./configure $generic_prefix --with-ensurepip=install --enable-shared --with-openssl=$openssl_prefix \
-            CFLAGS=-I$install_top_dir/lib/libffi-3.2.1/include $python_libs $python_ldflags $python_spec_flags
+            CXXFLAGS=-I$install_top_dir/lib/libffi-3.2.1/include $python_libs $python_ldflags $python_spec_flags
        if ./configure $generic_prefix --with-ensurepip=install --enable-shared --with-openssl=$openssl_prefix \
-                      CFLAGS=-I$install_top_dir/lib/libffi-3.2.1/include $python_libs $python_ldflags $python_spec_flags ; then
+                      CPPFLAGS=-I$install_top_dir/lib/libffi-3.2.1/include $python_libs $python_ldflags $python_spec_flags ; then
            echo INFO:: make for python
            if $MAKE ; then
               echo INFO:: make install for python
@@ -2961,7 +2973,7 @@ if test -n "$build_python" ; then
    # test it
    echo test cypes in the new python
    # or use this test: if $install_top_dir/bin/python3 -c 'import ctypes' ; then ...
-   $install_top_dir/bin/python3 <<EOF
+   $install_top_dir/bin/$python_version <<EOF
 import ctypes
 print(dir(ctypes))
 print('post ctypes test')
@@ -2975,6 +2987,13 @@ EOF
    # try this:
    # add
    # echo "using python : 3.10 : $install_top_dir/bin/python3 ;" > user-config.jam
+   if test -e $install_top_dir/bin/$python_version ; then
+      if test -e $install_top_dir/bin/python3 ; then
+         rm $install_top_dir/bin/python3
+      fi
+      echo linking python3 to $python_version
+      ln -s $install_top_dir/bin/$python_version $install_top_dir/bin/python3
+   fi
    if [ -e $install_top_dir/bin/python3 ] ; then
       echo linking python to python3
       if [ -e $install_top_dir/bin/python ] ; then
@@ -2988,7 +3007,8 @@ EOF
    echo Upgrading pip
    (
    which pip3
-   pip3 install --upgrade pip
+   $python_version -m pip install --upgrade pip
+   $python_version -m pip install setuptools
    # pip3 install pycairo
    # pip3 install pygobject
    ) >  $HOSTLOGDIR/13-pip-upgrade.txt 2>&1
@@ -3060,6 +3080,7 @@ fi
 if $build_meson = true ; then
    meson_version=1.2.3
    meson_version=1.7.0
+   meson_version=1.8.1
    echo BUILDING: meson $meson_version:
    echo BUILDING: meson $meson_version: >&2
    (
