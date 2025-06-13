@@ -1402,7 +1402,7 @@ molecule_class_info_t::set_bond_colour_by_colour_wheel_position(int i, int bonds
                 << " box_type " << bonds_box_type << " vs " << coot::COLOUR_BY_USER_DEFINED_COLOURS____BONDS
                 << std::endl;
 
-   if (bonds_box_type == coot::CA_BONDS_PLUS_LIGANDS_B_FACTOR_COLOUR) {
+   if (bonds_box_type == coot::CA_BONDS_PLUS_LIGANDS_B_FACTOR_COLOUR || bonds_box_type == coot::COLOUR_BY_B_FACTOR_BONDS) {
       rgb[0] = 0.3f; rgb[1] =  0.3f; rgb[2] =  0.95f;
       const unsigned int n_b_factor_colours = 48; // matches index_for_b_factor() in my_atom_colour_map_t
       float f = static_cast<float>(i)/static_cast<float>(n_b_factor_colours);
@@ -1463,7 +1463,7 @@ molecule_class_info_t::get_bond_colour_by_colour_wheel_position(int icol, int bo
                 << " box_type " << bonds_box_type << " vs " << coot::COLOUR_BY_USER_DEFINED_COLOURS____BONDS
                 << std::endl;
 
-   if (bonds_box_type == coot::CA_BONDS_PLUS_LIGANDS_B_FACTOR_COLOUR) {
+   if (bonds_box_type == coot::CA_BONDS_PLUS_LIGANDS_B_FACTOR_COLOUR || bonds_box_type == coot::COLOUR_BY_B_FACTOR_BONDS) {
       rgb[0] = 0.3f; rgb[1] =  0.3f; rgb[2] =  0.95f;
       const unsigned int n_b_factor_colours = 48; // matches index_for_b_factor() in my_atom_colour_map_t
       float f = static_cast<float>(icol)/static_cast<float>(n_b_factor_colours);
@@ -1489,6 +1489,7 @@ molecule_class_info_t::get_bond_colour_by_colour_wheel_position(int icol, int bo
                       << "  rgb " << std::setw(6) << rgb[0] << " " << std::setw(6) << rgb[1] << " "
                       << std::setw(6) << rgb[2] << std::endl;
       } else {
+	 // std::cout << "this fallback block...." << std::endl;
          float rotation_size = 1.0 - float(icol-offset) * 0.7/max_colour + bonds_colour_map_rotation/360.0;
          rgb = rotate_rgb(rgb, rotation_size);
       }
