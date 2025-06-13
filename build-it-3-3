@@ -1181,7 +1181,6 @@ case $dist_name in
        git
        libtool
        cmake
-       swig
        flex
        bison
        gfortran
@@ -1894,8 +1893,12 @@ fi
 if command -v swig -version ; then
     echo swig found
 else
-    echo swig is needed
-    exit 2
+    if [ "$CHAPI_ONLY" = true ] ; then
+        :
+    else
+        echo swig is needed
+        exit 2
+    fi
 fi
 
 
