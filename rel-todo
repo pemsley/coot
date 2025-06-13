@@ -1,14 +1,18 @@
 
 --- Items ---
 
-o Add ability to rotate view around z axis ::: 0.5
+o Process Stuart's outliers file ::: 1
 
-o auto-scale the make-a-difference map
- think about create power-matched option also? ::: 1
-
-o what is the radius of gyration? Make a function. ::: 1
+o arwen, alejandro, santosh, dorothee
 
 --- Other Items ---
+
+o Add ability to rotate view around z axis :: 0.5
+
+o auto-scale the make-a-difference map
+  think about create power-matched option also? :: 1
+
+o colour stops for b-factor analysis, rather than colour wheel. :: 1
 
 o have another look at Rama plot :: 1
 
@@ -54,9 +58,19 @@ o  It was a strange bit of code in get_group().
    Now the issue is duplication of the model on writing. mmdb bug.
    Solved now? Am I using the right version?
 
-o 1geh B-factor colour ramp looks wrong :: 1
-
 --- Done Items ---
+
+o fix the colour wheel in B-factor analysis ::: 1
+  1geh B-factor colour ramp looks wrong
+
+o Add Metals to Coot startup, Moorhen and chapi ::: 0.2
+* Done.
+
+o Save symmetry coordinates.
+* Done
+
+o what is the radius of gyration? Make a function. ::: 1
+* Done.
 
 o remove GEMMI hack at top of atom-selection-container.cc ::: 0.2
 
