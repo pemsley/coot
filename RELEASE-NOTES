@@ -1,6 +1,13 @@
 
   Release Notes for 1.1.16
 
+ o BUG-FIX: Save symmetry coordinates is fixed
+
+ o BUG-FIX: Colour-by-B-factor colours are fixed
+
+
+  Release Notes for 1.1.16
+
  o FEATURE: Local B-factor display
 
  o FEATURE: Built-in logging (started) - view it by clicking the "Log" button
