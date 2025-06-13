@@ -1189,7 +1189,14 @@ coot::protein_geometry::standard_protein_monomer_files() const {
    s.push_back("d/DT.cif");
 
    s.push_back("h/HOH.cif");
-   s.push_back("n/NA.cif"); // for quiet
+
+   // Metals
+   s.push_back("n/NA.cif");
+   s.push_back("k/K.cif");
+   s.push_back("c/CA.cif");
+   s.push_back("m/MG.cif");
+   s.push_back("n/NI.cif");
+   s.push_back("z/ZN.cif");
 
    return s;
 }
