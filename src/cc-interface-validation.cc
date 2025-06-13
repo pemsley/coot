@@ -102,9 +102,30 @@ void show_interesting_positions_dialog(int imol,
       g.graphics_draw();
    };
 
-   auto make_button = [button_callback] (const std::string &l, const clipper::Coord_orth &co) {
+   auto make_button_label = [] (const std::string &l, float badness) {
+      if (badness < 0) {
+         // unassigned
+         return l;
+      } else {
+         std::string col = "red";
+         if (badness < 0.7) col = "orange";
+         if (badness < 0.6) col = "yellow";
+         if (badness < 0.4) col = "yellowgreen";
+         if (badness < 0.2) col = "greenyellow";
+         std::string ll = l + "   <span foreground='";
+         ll += col;
+         ll +="'>▆</span>";
+         return ll;
+      }
+   };
+
+   auto make_button = [make_button_label, button_callback] (const std::string &l, float badness,
+                                                            const clipper::Coord_orth &co) {
       GtkWidget *button = gtk_button_new();
-      GtkWidget *label = gtk_label_new(l.c_str());
+      std::string ll = make_button_label(l, badness);
+      GtkWidget *label = gtk_label_new(ll.c_str());
+      gtk_label_set_use_markup(GTK_LABEL(label), TRUE);
+      gtk_label_set_markup(GTK_LABEL(label), ll.c_str());
       gtk_widget_set_halign(label, GTK_ALIGN_START);
       gtk_button_set_child(GTK_BUTTON(button), label);
       gtk_widget_set_margin_start (button, 4);
@@ -122,15 +143,17 @@ void show_interesting_positions_dialog(int imol,
       for (unsigned int i=0; i<atom_specs.size(); i++) {
          int idx_button_for_this_atom_spec = atom_specs[i].int_user_data;
          if (idx_button_for_this_atom_spec == button_index) {
-            std::cout << "Button A " << button_index << std::endl;
             const coot::atom_spec_t &atom_spec = atom_specs[i];
             const std::string &l = atom_spec.string_user_data;
             std::pair<bool, clipper::Coord_orth> co = atom_spec_to_position(imol, atom_spec);
             if (co.first) {
-               GtkWidget *button = make_button(l, co.second);
+               float badness =  -1; // unassigned
+               if (atom_spec.int_user_data == 1) {
+                  badness = atom_spec.float_user_data;
+               }
+               GtkWidget *button = make_button(l, badness, co.second);
                button_info_t bi(l, co.second, button);
                buttons.push_back(bi);
-               std::cout << "Button A " << button_index << " pushed back" << std::endl;
             }
          }
       }
@@ -145,12 +168,12 @@ void show_interesting_positions_dialog(int imol,
             std::pair<bool, clipper::Coord_orth> co_2 = atom_spec_to_position(imol, atom_spec_2);
             if (co_1.first) {
                if (co_2.first) {
+                  float badness = -1; // as yet unassigned
                   clipper::Coord_orth combined = co_1.second + co_2.second;
                   clipper::Coord_orth mid_point(combined * 0.5);
-                  GtkWidget *button = make_button(l, mid_point);
+                  GtkWidget *button = make_button(l, badness, mid_point);
                   button_info_t bi(l, mid_point, button);
                   buttons.push_back(bi);
-                  std::cout << "Button B " << button_index << " pushed back" << std::endl;
                }
             }
          }
@@ -158,30 +181,30 @@ void show_interesting_positions_dialog(int imol,
       for (unsigned int i=0; i<residue_specs.size(); i++) {
          int idx_button_for_this_residue_spec = residue_specs[i].int_user_data;
          if (idx_button_for_this_residue_spec == button_index) {
-            std::cout << "Button C  " << button_index << std::endl;
             const coot::residue_spec_t &res_spec = residue_specs[i];
             const std::string &l = res_spec.string_user_data;
-            std::cout << "trying to fetch mid_point of " << res_spec << std::endl;
             std::pair<bool, clipper::Coord_orth> co = coot::util::get_residue_mid_point(mol, res_spec);
             if (co.first) {
-               GtkWidget *button = make_button(l, co.second);
+               float badness = -1; // as yet unassigned
+               if (res_spec.int_user_data == 1) {
+                  badness = res_spec.float_user_data;
+               }
+               GtkWidget *button = make_button(l, badness, co.second);
                button_info_t bi(l, co.second, button);
                buttons.push_back(bi);
-               std::cout << "Button C " << button_index << " pushed back" << std::endl;
             }
          }
       }
       for (unsigned int i=0; i<positions.size(); i++) {
          int idx_button_for_this_position = positions[i].button_index;
          if (idx_button_for_this_position == button_index) {
-            std::cout << "Button D  " << button_index << std::endl;
             const std::string &l = positions[i].label;
             const coot::Cartesian cc = positions[i].position;
             clipper::Coord_orth pos(cc.x(), cc.y(), cc.z());
-            GtkWidget *button = make_button(l, pos);
+            float badness = -1; // as yet unassigned
+            GtkWidget *button = make_button(l, badness, pos);
             button_info_t bi(l, pos, button);
             buttons.push_back(bi);
-            std::cout << "Button D " << button_index << " pushed back" << std::endl;
          }
       }
    }
@@ -254,7 +277,9 @@ void read_interesting_places_json_file(const std::string &file_name) {
          };
 
          auto get_residue_spec = [] (const json &j) {
+            std::cout << "Here in get_residue_spec() --- start ---" << std::endl;
             coot::residue_spec_t spec;
+            std::cout << "Here in get_residue_spec() j.size " << j.size() << std::endl;
             if (j.size() == 3) {
                const json &chain_id_item  = j[0];
                const json &res_no_item    = j[1];
@@ -279,7 +304,7 @@ void read_interesting_places_json_file(const std::string &file_name) {
 	 try {
 	    json j = json::parse(s);
 	    unsigned int n_outer = j.size();
-	    std::cout << "Found " << n_outer << " parts in the json" << std::endl;
+	    // std::cout << "Found " << n_outer << " parts in the json" << std::endl;
 	    json::const_iterator j_title = j.find("title");
 	    if (j_title != j.end()) {
 	       title = j_title.value();
@@ -287,6 +312,7 @@ void read_interesting_places_json_file(const std::string &file_name) {
 	    json j_sections = j["sections"];
 	    unsigned int n_sections = j_sections.size();
 	    if (true) {
+               // std::cout << "here A n_sections " << n_sections << std::endl;
 	       for (std::size_t i=0; i<n_sections; i++) {
 		  const json &j_section = j_sections[i];
 		  std::string section_title;
@@ -297,7 +323,6 @@ void read_interesting_places_json_file(const std::string &file_name) {
 
 		  json j_items = j_section["items"];
 		  unsigned int n_items = j_items.size();
-		  std::cout << "items list has " << n_items << " button/place items" << std::endl;
 
 		  for (std::size_t i=0; i<n_items; i++) {
 		     const json &j_item = j_items[i];
@@ -312,7 +337,6 @@ void read_interesting_places_json_file(const std::string &file_name) {
 			}
 
 			if (position_type == "by-atom-spec") {
-			   std::cout << "--- found a by-atom-spec" << std::endl;
 			   json::const_iterator it_3 = j_item.find(std::string("atom-spec"));
 			   if (it_3 != j_item.end()) {
 			      const json &j_atom_spec = *it_3;
@@ -320,13 +344,19 @@ void read_interesting_places_json_file(const std::string &file_name) {
 			      if (atom_spec.chain_id != "unset") {
 				 atom_spec.string_user_data = label;
 				 atom_spec.int_user_data = i;
+                                 it_3 = j_item.find(std::string("badness")); // optional
+                                 if (it_3 != j_item.end()) {
+                                    float badness = it_3->get<float>();
+                                    atom_spec.float_user_data = badness;
+                                    atom_spec.int_user_data = 1; // float user data was set
+                                 }
 				 atom_specs.push_back(atom_spec);
 			      }
 			   }
 			}
 
 			if (position_type == "by-atom-spec-pair") {
-			   std::cout << "--- found a by-atom-spec-pair" << std::endl;
+			   // std::cout << "--- found a by-atom-spec-pair" << std::endl;
 			   coot::atom_spec_t atom_1_spec;
 			   coot::atom_spec_t atom_2_spec;
 			   std::string label;
@@ -362,8 +392,10 @@ void read_interesting_places_json_file(const std::string &file_name) {
 			   }
 			}
 
+                        std::cout << "Here H with position_type " << position_type << std::endl;
+
 			if (position_type == "by-residue-spec") {
-			   std::cout << "--- found a by-residue-spec" << std::endl;
+			   // std::cout << "Here I --- found a by-residue-spec" << std::endl;
 			   json::const_iterator it_3 = j_item.find(std::string("residue-spec"));
 			   if (it_3 != j_item.end()) {
 			      const json &j_residue_spec = *it_3;
@@ -371,13 +403,19 @@ void read_interesting_places_json_file(const std::string &file_name) {
 			      if (residue_spec.chain_id != "unset") {
 				 residue_spec.string_user_data = label;
 				 residue_spec.int_user_data = i;
+                                 it_3 = j_item.find(std::string("badness")); // optional
+                                 if (it_3 != j_item.end()) {
+                                    float badness = it_3->get<float>();
+                                    residue_spec.float_user_data = badness;
+                                    residue_spec.int_user_data = 1; // float user data was set
+                                 }
 				 residue_specs.push_back(residue_spec);
 			      }
 			   }
 			}
 
 			if (position_type == "by-coordinates") {
-			   std::cout << "--- found a by-coordinates" << std::endl;
+			   // std::cout << "--- found a by-coordinates" << std::endl;
 			   json::const_iterator it_3 = j_item.find(std::string("position"));
 			   if (it_3 != j_item.end()) {
 			      const json &j_pos = *it_3;
@@ -391,6 +429,7 @@ void read_interesting_places_json_file(const std::string &file_name) {
 				 float y = y_item.get<float>();
 				 float z = z_item.get<float>();
 				 coot::Cartesian c(x,y,z);
+                                 // try to find "badness" here?
 				 interesting_position_button_t ipb(c, label, i);
 				 positions.push_back(ipb);
 			      }
@@ -409,7 +448,7 @@ void read_interesting_places_json_file(const std::string &file_name) {
 	 }
 
 
-         std::cout << "debug:: " << std::endl;
+         std::cout << "debug:: ------ " << std::endl;
          std::cout << "debug:: atom_specs " << atom_specs.size() << std::endl;
          std::cout << "debug:: atoms-spec-pairs " << atom_spec_pairs.size() << std::endl;
          std::cout << "debug:: residue_specs " << residue_specs.size() << std::endl;
