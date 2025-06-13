@@ -91,6 +91,10 @@
 #include "utils/coot-utils.hh"
 #include "read-molecule.hh"
 
+#include "utils/logging.hh"
+extern logging logger;
+
+
 void set_show_paths_in_display_manager(int i) {
    std::string cmd = "set-show-paths-in-display-manager";
    std::vector<coot::command_arg_t> args;
@@ -3906,27 +3910,30 @@ void save_symmetry_coords_from_filechooser(GtkWidget *filechooser) {
    coot::Symm_Atom_Pick_Info_t *symm_info = (coot::Symm_Atom_Pick_Info_t *) g_object_get_data(G_OBJECT(filechooser), "symm_info");
 
    // const gchar *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fileselection));
-   GFile *file = gtk_file_chooser_get_file(GTK_FILE_CHOOSER(filechooser));
-   GError *error = NULL;
-   GFileInfo *file_info = g_file_query_info(file, G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE,
-                                            G_FILE_QUERY_INFO_NONE, NULL, &error);
-   const char *filename = g_file_info_get_name(file_info);
 
-   if (symm_info) {
-      // std::cout << "Preshift to origin:  " << symm_info->pre_shift_to_origin << std::endl;
-      save_symmetry_coords(symm_info->imol,
-			   filename,
-			   symm_info->symm_trans.isym(),
-			   symm_info->symm_trans.x(),
-			   symm_info->symm_trans.y(),
-			   symm_info->symm_trans.z(),
-			   symm_info->pre_shift_to_origin.us,
-			   symm_info->pre_shift_to_origin.vs,
-			   symm_info->pre_shift_to_origin.ws);
+   std::cout << "debug:: symm_info: " << symm_info << std::endl;
+   std::cout << "debug:: symm_info->imol: " << symm_info->imol << std::endl;
+
+   GFile *file = gtk_file_chooser_get_file(GTK_FILE_CHOOSER(filechooser));
+   if (file) {
+      const char *file_name = g_file_get_path(file);
+      if (file_name) {
+         if (symm_info) {
+            // std::cout << "Preshift to origin:  " << symm_info->pre_shift_to_origin << std::endl;
+            save_symmetry_coords(symm_info->imol,
+                                 file_name,
+                                 symm_info->symm_trans.isym(),
+                                 symm_info->symm_trans.x(),
+                                 symm_info->symm_trans.y(),
+                                 symm_info->symm_trans.z(),
+                                 symm_info->pre_shift_to_origin.us,
+                                 symm_info->pre_shift_to_origin.vs,
+                                 symm_info->pre_shift_to_origin.ws);
+         }
+      }
    } else {
-      std::cout << "ERROR:: failed to get user data from save symmetry coords fileselection"
-                << std::endl;
-      std::cout << "ERROR:: saving of symmetry coordinates failed" << std::endl;
+      logger.log(log_t::WARNING, logging::function_name_t("save_symmetry_coords_from_filechooser"),
+                 "No file");
    }
 }
 
