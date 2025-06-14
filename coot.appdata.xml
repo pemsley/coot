@@ -52,6 +52,16 @@
   <update_contact>pemsley_AT_mrc-lmb.cam.ac.uk</update_contact>
   <content_rating type="oars-1.1" />
   <releases>
+    <release version="1.1.17" date="2025-06-14">
+      <description>
+        <ul>
+          <li> o BUG-FIX: Save symmetry coordinates is fixed </li>
+          <li> o BUG-FIX: Colour-by-B-factor colours are fixed </li>
+          <li> o BUG-FIX: Place atom at pointer fixed </li>
+          <li> o BUG-FIX: Optional Gemmi usage restored </li>
+        </ul>
+      </description>
+    </release>
     <release version="1.1.16" date="2025-06-04">
       <description>
         <ul>
