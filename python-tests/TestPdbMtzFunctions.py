@@ -2040,6 +2040,7 @@ class TestPdbMtzFunctions(unittest.TestCase):
         """TER on water chain is removed on adding a water by hand"""
 
         imol = coot_testing_utils.unittest_pdb("some-waters-with-ter.pdb")
+        coot.set_display_only_model_mol(imol)
 
         self.assertTrue(coot_utils.valid_model_molecule_qm(imol), "bad read of some-waters-with-ter.pdb")
 
@@ -2170,6 +2171,7 @@ class TestPdbMtzFunctions(unittest.TestCase):
         def create_water_chain(imol, from_chain_id, chain_id, n_waters,
                                offset, prev_offset):
             for n in range(n_waters):
+                coot.set_display_only_model_mol(imol)
                 coot.place_typed_atom_at_pointer("Water")
                 # move the centre of the screen
                 rc = coot_utils.rotation_centre()
