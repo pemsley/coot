@@ -1,9 +1,11 @@
 
 --- Items ---
 
-o Process Stuart's outliers file ::: 1
-
 o arwen, alejandro, santosh, dorothee
+
+o make a function that returns the secondary structure for libcootapi/chapi
+
+o Get monomer "ALA" - I don't want to see a github monomer message
 
 --- Other Items ---
 
@@ -15,6 +17,8 @@ o auto-scale the make-a-difference map
 o colour stops for b-factor analysis, rather than colour wheel. :: 1
 
 o have another look at Rama plot :: 1
+
+o address-sanitizer for coot
 
 o Fix the "Fetch" buttons - new GTK4/glib? :: 2
 
@@ -59,6 +63,12 @@ o  It was a strange bit of code in get_group().
    Solved now? Am I using the right version?
 
 --- Done Items ---
+
+o swig should not be a dependency if building chapi
+* Done.
+
+o Process Stuart's outliers file ::: 1
+* Done
 
 o fix the colour wheel in B-factor analysis ::: 1
   1geh B-factor colour ramp looks wrong
