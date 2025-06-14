@@ -5115,30 +5115,26 @@ graphics_info_t::place_dummy_atom_at_pointer() {
 void
 graphics_info_t::place_typed_atom_at_pointer(const std::string &type) {
 
-   int imol = user_pointer_atom_molecule;
-   if (! is_valid_model_molecule(imol)) {
-      // try to find one
-      // imol = get_latest_model_molecule(); 20230519-PE
-      // 20230519-PE that's not good - let's try something else.
-      imol = get_biggest_model_molecule();
-   }
-
-   if (is_valid_model_molecule(imol)) {
-      if (molecules[imol].is_displayed_p()) {
-         std::pair<bool, std::string > status_mess =
-            molecules[imol].add_typed_pointer_atom(RotationCentre(), type); // update bonds
-         update_environment_distances_by_rotation_centre_maybe(imol);
-         graphics_draw();
-         if (status_mess.first == false) {
-            std::string m = "WARNING:: disallowed ";
-            m += status_mess.second;
-            info_dialog(m);
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      if (is_valid_model_molecule(imol)) {
+         if (molecules[imol].is_displayed_p()) {
+            std::pair<bool, std::string > status_mess =
+               molecules[imol].add_typed_pointer_atom(RotationCentre(), type); // update bonds
+            update_environment_distances_by_rotation_centre_maybe(imol);
+            graphics_draw();
+            if (status_mess.first == false) {
+               std::string m = "WARNING:: disallowed ";
+               m += status_mess.second;
+               info_dialog(m);
+            }
+         } else {
+            std::string message = "WARNING:: disallowed addition of ";
+            message += type;
+            message += "\nas the target molecule is not displayed";
+            info_dialog(message);
          }
-      } else {
-         std::string message = "WARNING:: disallowed addition of ";
-         message += type;
-         message += "\nas the target molecule is not displayed";
-         info_dialog(message);
       }
    }
 }
