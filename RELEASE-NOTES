@@ -1,10 +1,15 @@
 
-  Release Notes for 1.1.16
+  Release Notes for 1.1.17
 
  o BUG-FIX: Save symmetry coordinates is fixed
 
  o BUG-FIX: Colour-by-B-factor colours are fixed
 
+ o BUG-FIX: Place atom at pointer fixed
+
+ o BUG-FIX: Optional Gemmi usage restored
+
+-----
 
   Release Notes for 1.1.16
 
