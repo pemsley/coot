@@ -315,20 +315,24 @@ coot::operator<<(std::ostream &s, const dict_atom &at) {
      << " \"" << at.pdbx_stereo_config.second << "\" ";
    if (at.formal_charge.first)
       s << "formal-charge " << at.formal_charge.second << " ";
-   else 
+   else
       s << "no-formal-charge ";
    if (at.partial_charge.first)
       s << "partial-charge " << at.partial_charge.second << " ";
-   else 
+   else
       s << "no-partial-charge ";
-   s << "\n      model-pos " << at.model_Cartn.first << " ";
+   s << "\n      model-pos-flag: " << at.model_Cartn.first << " ";
    if (at.model_Cartn.first)
       s << at.model_Cartn.second.format() << " ";
-   s << "ideal-pos " << at.pdbx_model_Cartn_ideal.first << " ";
+   else
+      s << "no model_Cartn ";
+   s << "ideal-pos-flag: " << at.pdbx_model_Cartn_ideal.first << " ";
    if (at.pdbx_model_Cartn_ideal.first)
       s << at.pdbx_model_Cartn_ideal.second.format();
+   else
+      s << "no model_Cartn_ideal";
    return s;
-} 
+}
 
 
 std::ostream&
@@ -2456,18 +2460,20 @@ coot::protein_geometry::get_residue(const std::string &comp_id, int imol_enc,
    // If the coordinates for the model are (0,0,0) then this function
    // returns a null.
 
+   bool debug = false;
+
    mmdb::Residue *residue_p = NULL;
 
    // might use try_dynamic_add (if needed).
    bool r = have_dictionary_for_residue_type(comp_id, imol_enc, try_autoload_if_needed);
 
-   if (false)
-      std::cout << "------------------ in get_residue() have_dictionary_for_residue_type() returns  "
+   if (debug)
+      std::cout << "------------------ in pr::get_residue() have_dictionary_for_residue_type() returns  "
                 << r << std::endl;
    if (r) {
       for (unsigned int i=0; i<dict_res_restraints.size(); i++) {
          const dictionary_residue_restraints_t &rest = dict_res_restraints[i].second;
-         if (false)
+         if (debug)
             std::cout << "   testing comp_id " << rest.residue_info.comp_id << std::endl;
          if (rest.residue_info.comp_id == comp_id) {
             int imol_for_dict = dict_res_restraints[i].first;
@@ -2479,6 +2485,9 @@ coot::protein_geometry::get_residue(const std::string &comp_id, int imol_enc,
          }
       }
    }
+   if (debug)
+      std::cout << "------------------ in pr::get_residue() returns " << residue_p << std::endl;
+
    return residue_p;
 }
 
@@ -2518,7 +2527,8 @@ coot::protein_geometry::mol_from_dictionary(const std::string &three_letter_code
 
    mmdb::Manager *mol = NULL;
    mmdb::Residue *residue_p = get_residue(three_letter_code, imol_enc, idealised_flag);
-   if (residue_p) { 
+
+   if (residue_p) {
       mmdb::Chain *chain_p = new mmdb::Chain;
       chain_p->SetChainID("A");
       chain_p->AddResidue(residue_p);
@@ -2527,7 +2537,9 @@ coot::protein_geometry::mol_from_dictionary(const std::string &three_letter_code
       mol = new mmdb::Manager;
       mol->AddModel(model_p);
    } else {
-      std::cout << "WARNING:: Null residue in mol_from_dictionary() for " << three_letter_code << std::endl;
+      std::cout << "WARNING:: protein_geometry::mol_from_dictionary(): "
+                << "Null residue in mol_from_dictionary() for "
+                << three_letter_code << std::endl;
    }
    // debug_mol(mol);
    return mol;
@@ -2547,7 +2559,7 @@ coot::protein_geometry::mol_from_dictionary(int monomer_index,
       if (monomer_index < r_size)
 	 residue_p = dict_res_restraints[monomer_index].second.GetResidue(idealised_flag, b_factor);
 
-   if (residue_p) { 
+   if (residue_p) {
       mmdb::Chain *chain_p = new mmdb::Chain;
       chain_p->SetChainID("A");
       chain_p->AddResidue(residue_p);

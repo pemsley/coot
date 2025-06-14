@@ -1232,19 +1232,19 @@ coot::dictionary_residue_restraints_t::conservatively_replace_with_angles(const 
 void
 coot::dictionary_residue_restraints_t::replace_coordinates(const dictionary_residue_restraints_t &mon_res_in) {
 
-   for (unsigned int iat=0; iat<atom_info.size(); iat++) { 
+   for (unsigned int iat=0; iat<atom_info.size(); iat++) {
       dict_atom &at = atom_info[iat];
-      
-      for (unsigned int iat=0; iat<mon_res_in.atom_info.size(); iat++) { 
+
+      for (unsigned int iat=0; iat<mon_res_in.atom_info.size(); iat++) {
 	 const dict_atom &at_ref = mon_res_in.atom_info[iat];
 
 	 if (at_ref.atom_id_4c == at.atom_id_4c) {
 	    at.pdbx_model_Cartn_ideal = at_ref.pdbx_model_Cartn_ideal;
 	    at.model_Cartn            = at_ref.model_Cartn;
-	 } 
+	 }
       }
    }
-} 
+}
 
 
 
@@ -1252,13 +1252,13 @@ coot::dictionary_residue_restraints_t::replace_coordinates(const dictionary_resi
 mmdb::Residue *
 coot::dictionary_residue_restraints_t::GetResidue(bool idealised_flag, float b_factor) const {
 
-   // std::cout << "in GetResidue() idealised_flag is " << idealised_flag << std::endl;
+   if (false)
+      std::cout << "in GetResidue() idealised_flag is " << idealised_flag << std::endl;
 
    mmdb::Residue *residue_p = NULL;
    std::vector<mmdb::Atom *> atoms;
 
    bool make_hetatoms = ! coot::util::is_standard_residue_name(residue_info.comp_id);
-   int atom_index = 0;
    for (unsigned int iat=0; iat<atom_info.size(); iat++) {
 
       clipper::Coord_orth p(0,0,0);
@@ -1272,14 +1272,18 @@ coot::dictionary_residue_restraints_t::GetResidue(bool idealised_flag, float b_f
       if (! flag_and_have_coords) {
 	 // OK, try model_Cartn (and that is idealised if the dictionary was refmac)
 	 // (better than nothing).
-	 // 
+	 //
 	 if (atom_info[iat].model_Cartn.first) {
 	    p = atom_info[iat].model_Cartn.second;
 	    flag_and_have_coords = true;
 	 }
       }
 
-      if (flag_and_have_coords) { 
+      if (false)
+         std::cout << "here with iat " << iat << " and flag_and_have_coords " << flag_and_have_coords
+                   << std::endl;
+
+      if (flag_and_have_coords) {
 	 mmdb::Atom *atom = new mmdb::Atom;
 	 mmdb::realtype occ = 1.0;
 	 mmdb::realtype b = b_factor;
@@ -1293,12 +1297,11 @@ coot::dictionary_residue_restraints_t::GetResidue(bool idealised_flag, float b_f
 	 // 	       atom->SetAtomName(atom_index, -1,
 	 // 				 atom_info[iat].atom_id_4c.c_str(),
 	 // 				 "", "", ele.c_str());
-	       
+
 	 atom->SetElementName(ele.c_str());
 	 if (make_hetatoms)
 	    atom->Het = 1;
 	 atoms.push_back(atom);
-	 atom_index++; // for next round
       }
    }
 
@@ -1310,7 +1313,7 @@ coot::dictionary_residue_restraints_t::GetResidue(bool idealised_flag, float b_f
          strcpy(residue_p->label_comp_id, residue_info.comp_id.c_str());
       strcpy(residue_p->label_asym_id, "A");
 
-      for (unsigned int iat=0; iat<atoms.size(); iat++) 
+      for (unsigned int iat=0; iat<atoms.size(); iat++)
 	 residue_p->AddAtom(atoms[iat]);
 
       if (false) {  // debug
@@ -1326,9 +1329,9 @@ coot::dictionary_residue_restraints_t::GetResidue(bool idealised_flag, float b_f
          }
 
       }
-   } 
-   return residue_p; 
-} 
+   }
+   return residue_p;
+}
 
 std::vector<std::vector<std::string> >
 coot::dictionary_residue_restraints_t::get_ligand_ring_list() const {
