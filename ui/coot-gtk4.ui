@@ -12933,7 +12933,7 @@ If you need symmetry, setup ccp4 before starting coot
         <property name="orientation">vertical</property>
 	<child>
 	  <object class="GtkLabel">
-	    <property name="label" translatable="yes">Can't locate dictionaries for the folling types:</property>
+	    <property name="label" translatable="yes">Can't locate dictionaries for the following types:</property>
 	    <property name="justify">center</property>
 	    <property name="margin-start">12</property>
 	    <property name="margin-end">12</property>
