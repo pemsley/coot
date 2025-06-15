@@ -1498,7 +1498,7 @@ Copyright 2023, 2024, 2025 Global Phasing Ltd.</property>
     <property name="license-type">lgpl-3-0</property>
     <property name="logo-icon-name">coot</property>
     <property name="program-name">Coot</property>
-    <property name="version">1.1.15</property>
+    <property name="version">1.1.17</property>
     <property name="website">https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot</property>
     <property name="website-label">The Coot Website</property>
     <signal name="close-request" handler="on_about_dialog_close_request"/>
@@ -7073,7 +7073,7 @@ Do you want to continue?
 
                                 <child>
                                   <object class="GtkBox" id="atoms_with_zero_occupancy_outer_vbox">
-                                    <property name="visible">True</property>
+                                    <property name="visible">False</property>
                                     <property name="orientation">vertical</property>
                                     <property name="margin-bottom">2</property>
                                     <property name="margin-end">2</property>
@@ -12933,7 +12933,7 @@ If you need symmetry, setup ccp4 before starting coot
         <property name="orientation">vertical</property>
 	<child>
 	  <object class="GtkLabel">
-	    <property name="label" translatable="yes">Can't locate dictionaries for the folling types:</property>
+	    <property name="label" translatable="yes">Can't locate dictionaries for the following types:</property>
 	    <property name="justify">center</property>
 	    <property name="margin-start">12</property>
 	    <property name="margin-end">12</property>
@@ -15367,7 +15367,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
 
   <object class="GtkFileChooserDialog" id="save_coordinates_filechooser_dialog">
     <property name="use-header-bar">0</property>
-    <property name="title" translatable="yes">Coot: Select Filename for Saving Coordinates</property>
+    <property name="title" translatable="yes">Coot: xxxxxx Select Filename for Saving Coordinates</property>
     <property name="action">save</property>
     <signal name="response" handler="on_save_coordinates_filechooser_dialog_response" swapped="no"/>
     <child>
@@ -15376,7 +15376,7 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
         <property name="spacing">2</property>
          <child type="action">
               <object class="GtkButton" id="button8">
-                <property name="label" translatable="yes">Cancel</property>
+                <property name="label" translatable="yes">Cancell</property>
                 <property name="can-focus">1</property>
                 <property name="receives-default">1</property>
               </object>
@@ -15385,23 +15385,26 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
     </child>
   </object>
 
-  <object class="GtkFileChooserDialog" id="save_symmety_coords_filechooser_dialog">
-    <property name="use-header-bar">0</property>
+  <object class="GtkFileChooserDialog" id="save_symmetry_coords_filechooser_dialog">
+    <property name="use-header-bar">1</property>
+    <property name="action">save</property>
+    <signal name="response" handler="on_save_coordinates_filechooser_dialog_response" swapped="no"/>
     <property name="title" translatable="yes">Coot: Select Filename for Saving Symmetry Coordinates</property>
-    <child>
-      <object class="GtkBox">
-        <property name="orientation">vertical</property>
-        <property name="spacing">2</property>
-         <child type="action">
-              <object class="GtkButton">
-                <property name="label" translatable="yes">button</property>
-                <property name="can-focus">1</property>
-                <property name="receives-default">1</property>
-              </object>
-        </child>
-      </object>
-    </child>
+    <!-- <child> -->
+    <!--   <object class="GtkBox"> -->
+    <!--     <property name="orientation">vertical</property> -->
+    <!--     <property name="spacing">2</property> -->
+    <!--      <child type="action"> -->
+    <!--           <object class="GtkButton"> -->
+    <!--             <property name="label" translatable="yes">button</property> -->
+    <!--             <property name="can-focus">1</property> -->
+    <!--             <property name="receives-default">1</property> -->
+    <!--           </object> -->
+    <!--     </child> -->
+    <!--   </object> -->
+    <!-- </child> -->
   </object>
+
   <object class="GtkFileChooserDialog" id="screendump_filechooser_dialog">
     <property name="use-header-bar">0</property>
     <property name="title" translatable="yes">Coot: Select Filename for Screendump</property>

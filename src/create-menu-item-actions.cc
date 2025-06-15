@@ -637,12 +637,16 @@ save_coordinates_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    }
 }
 
+void save_symmetry_coords_based_on_position(); // 20250612-PE new function - which header to use?
+
 void
 save_symmetry_coordinates_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                  G_GNUC_UNUSED GVariant *parameter,
                                  G_GNUC_UNUSED gpointer user_data) {
 
-   setup_save_symmetry_coords();
+   // setup_save_symmetry_coords(); needs symmetry pick
+
+   save_symmetry_coords_based_on_position();
 
 }
 

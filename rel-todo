@@ -1,16 +1,24 @@
 
 --- Items ---
 
-o Add ability to rotate view around z axis ::: 0.5
+o arwen, alejandro, santosh, dorothee
 
-o auto-scale the make-a-difference map
- think about create power-matched option also? ::: 1
+o make a function that returns the secondary structure for libcootapi/chapi
 
-o what is the radius of gyration? Make a function. ::: 1
+o Get monomer "ALA" - I don't want to see a github monomer message
 
 --- Other Items ---
 
+o Add ability to rotate view around z axis :: 0.5
+
+o auto-scale the make-a-difference map
+  think about create power-matched option also? :: 1
+
+o colour stops for b-factor analysis, rather than colour wheel. :: 1
+
 o have another look at Rama plot :: 1
+
+o address-sanitizer for coot
 
 o Fix the "Fetch" buttons - new GTK4/glib? :: 2
 
@@ -54,9 +62,25 @@ o  It was a strange bit of code in get_group().
    Now the issue is duplication of the model on writing. mmdb bug.
    Solved now? Am I using the right version?
 
-o 1geh B-factor colour ramp looks wrong :: 1
-
 --- Done Items ---
+
+o swig should not be a dependency if building chapi
+* Done.
+
+o Process Stuart's outliers file ::: 1
+* Done
+
+o fix the colour wheel in B-factor analysis ::: 1
+  1geh B-factor colour ramp looks wrong
+
+o Add Metals to Coot startup, Moorhen and chapi ::: 0.2
+* Done.
+
+o Save symmetry coordinates.
+* Done
+
+o what is the radius of gyration? Make a function. ::: 1
+* Done.
 
 o remove GEMMI hack at top of atom-selection-container.cc ::: 0.2
 

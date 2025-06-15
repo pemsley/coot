@@ -63,7 +63,7 @@ int get_monomer_molecule_by_network_and_dict_gen(const std::string &text) {
 
 
 // Return the new molecule number, or else a negative error code.
-// 
+//
 int get_monomer(const std::string &comp_id_in) {
 
    int imol = -1;
@@ -76,12 +76,10 @@ int get_monomer(const std::string &comp_id_in) {
    // fast
    imol = get_monomer_from_dictionary(comp_id, 1); // idealized
 
-   // std::cout << "DEBUG:: in get_monomer() get_monomer_from_dictionary() returned imol "
-   // << imol << std::endl;
    logger.log(log_t::DEBUG, logging::function_name_t(__FUNCTION__),
 	      "get_monomer_from_dictionary() returned imol", imol);
 
-   if (is_valid_model_molecule(imol)) { 
+   if (is_valid_model_molecule(imol)) {
       return imol;
    } else {
       // std::cout << "INFO:: get_monomer(): trying non-idealized: " << comp_id_in << std::endl;
@@ -89,9 +87,8 @@ int get_monomer(const std::string &comp_id_in) {
 		 "trying non-idealized", comp_id_in);
       imol = get_monomer_from_dictionary(comp_id, 0); // non-idealized
       // std::cout << "INFO:: get_monomer(): got imol " << imol << std::endl;
-      logger.log(log_t::INFO, logging::function_name_t(__FUNCTION__),
-		 "got imol", imol);
-      if (is_valid_model_molecule(imol)) { 
+      logger.log(log_t::INFO, logging::function_name_t(__FUNCTION__), "got imol", imol);
+      if (is_valid_model_molecule(imol)) {
 	 return imol;
       } else {
 	 std::vector<std::string> v = {comp_id_in};
@@ -103,6 +100,8 @@ int get_monomer(const std::string &comp_id_in) {
 
       molecule_class_info_t molci;
       mmdb::Residue *std_res = molci.get_standard_residue_instance(comp_id_in);
+
+      // std::cout << "molci.get_standard_residue_instance()  returned " << std_res << std::endl;
 
       if (std_res == NULL) {
 	 // std::cout << "WARNING:: Can't find standard residue for " << comp_id_in << "\n";
@@ -128,7 +127,7 @@ int get_monomer(const std::string &comp_id_in) {
    return imol;
 }
 
-//! get the monomer for the given 
+//! get the monomer for the given
 int get_monomer_for_molecule(const std::string &comp_id, int imol) {
 
    graphics_info_t g;
@@ -188,7 +187,10 @@ int get_monomer_from_dictionary(const std::string &comp_id,
    int imol_enc = coot::protein_geometry::IMOL_ENC_ANY;
    mmdb::Manager *mol = g.Geom_p()->mol_from_dictionary(comp_id, imol_enc, idealised_flag);
 
-   // std::cout << "debug:: in get_monomer_from_dictionary() " << mol << mol << std::endl;
+   if (false)
+      std::cout << "debug:: in get_monomer_from_dictionary() mol: " << mol
+                << " using idealised_flag " << idealised_flag << std::endl;
+
    // debug_mol(mol);
 
    if (mol) {
