@@ -38,6 +38,19 @@ jobs:
     - name: make directory
       run: mkdir ../build
 
+    - name: debug dir structure
+      working-directory: ../build
+      run: |
+        pwd
+        echo ============ AA
+        ls -l
+        echo ============ BB
+        ls -l ../coot
+        echo ============ CC
+        ls -l ../coot/configure
+        echo ============ DD
+        ls -l ..
+
     - name: Set fftw for future use
       run: echo "fftw_prefix=/opt/homebrew/Cellar/clipper4coot/2.1.20180802_3/fftw2" >> $GITHUB_ENV
 
