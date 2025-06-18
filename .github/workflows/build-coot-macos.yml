@@ -42,7 +42,7 @@ jobs:
       run: echo "fftw_prefix=/opt/homebrew/Cellar/clipper4coot/2.1.20180802_3/fftw2" >> $GITHUB_ENV
 
     - name: configure it
-      id: configation
+      id: configation-step
       working-directory: ../build
       run: >
          ../coot/configure
@@ -58,10 +58,9 @@ jobs:
          --with-guile
 
     - name: compile it
-      id: compile step
+      id: compile-step
       working-directory: ../build
-      run: >
-         make -j 4
+      run: make -j 4
 
 
 
