@@ -51,7 +51,7 @@ jobs:
     - name: configure it
       id: configation-step
       run: >
-         ../coot/coot/configure
+         /Users/runner/coot/coot/configure
          SHELL=/bin/bash
          PYTHON=python3
          COOT_BUILD_INFO_STRING="Compiled with a GitHub action"
