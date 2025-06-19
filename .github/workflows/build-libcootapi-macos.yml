@@ -70,31 +70,36 @@ jobs:
       - name: test python3
         run:  which python3 && python3 --version
 
+      - name: look for nanobind
+        run: find /opt/homebrew/lib/python3.13/site-packages/nanobind
+
+      # clipper_prefix=/opt/homebrew/Cellar/clipper4coot/2.1.20180802_3
       - name: run cmake
         run: >
             mkdir build-libcootapi && cd build-libcootapi &&
-            cmake -DCMAKE_INSTALL_PREFIX=/Users/runner/install/chapi-Darwin-macos-gtk4
+            cmake
+            -DCMAKE_INSTALL_PREFIX=/Users/runner/install/chapi-Darwin-macos-gtk4
             -DCMAKE_PREFIX_PATH=/opt/homebrew
             -DENHANCED_LIGAND_TOOLS=TRUE
             -DGEMMI_DIR=/opt/homebrew/lib/cmake/gemmi
             -DRDKit_DIR=/opt/homebrew/lib/cmake/rdkit
             -DSSM_INCLUDE_DIR=/opt/homebrew/include
             -DSSM_LIBRARY=/opt/homebrew/lib/libssm.dylib
-            -DCLIPPER-CORE_LIBRARY=/opt/homebrew/Cellar/clipper4coot/2.1.20180802_2/lib/libclipper-core.dylib
-            -DCLIPPER-MMDB_LIBRARY=/opt/homebrew/Cellar/clipper4coot/2.1.20180802_2/lib/libclipper-mmdb.dylib
-            -DCLIPPER-CCP4_LIBRARY=/opt/homebrew/Cellar/clipper4coot/2.1.20180802_2/lib/libclipper-ccp4.dylib
-            -DCLIPPER-CONTRIB_LIBRARY=/opt/homebrew/Cellar/clipper4coot/2.1.20180802_2/lib/libclipper-contrib.dylib
-            -DCLIPPER-MINIMOL_LIBRARY=/opt/homebrew/Cellar/clipper4coot/2.1.20180802_2/lib/libclipper-minimol.dylib
-            -DCLIPPER-CIF_LIBRARY=/opt/homebrew/Cellar/clipper4coot/2.1.20180802_2/lib/libclipper-cif.dylib
-            -DCLIPPER-CORE_INCLUDE_DIR=/opt/homebrew/Cellar/clipper4coot/2.1.20180802_2/include
-            -DCLIPPER-MMDB_INCLUDE_DIR=/opt/homebrew/Cellar/clipper4coot/2.1.20180802_2/include
-            -DCLIPPER-CCP4_INCLUDE_DIR=/opt/homebrew/Cellar/clipper4coot/2.1.20180802_2/include
+            -DCLIPPER-CORE_LIBRARY=/opt/homebrew/Cellar/clipper4coot/2.1.20180802_3/lib/libclipper-core.dylib
+            -DCLIPPER-MMDB_LIBRARY=/opt/homebrew/Cellar/clipper4coot/2.1.20180802_3/lib/libclipper-mmdb.dylib
+            -DCLIPPER-CCP4_LIBRARY=/opt/homebrew/Cellar/clipper4coot/2.1.20180802_3/lib/libclipper-ccp4.dylib
+            -DCLIPPER-CONTRIB_LIBRARY=/opt/homebrew/Cellar/clipper4coot/2.1.20180802_3/lib/libclipper-contrib.dylib
+            -DCLIPPER-MINIMOL_LIBRARY=/opt/homebrew/Cellar/clipper4coot/2.1.20180802_3/lib/libclipper-minimol.dylib
+            -DCLIPPER-CIF_LIBRARY=/opt/homebrew/Cellar/clipper4coot/2.1.20180802_3/lib/libclipper-cif.dylib
+            -DCLIPPER-CORE_INCLUDE_DIR=/opt/homebrew/Cellar/clipper4coot/2.1.20180802_3/include
+            -DCLIPPER-MMDB_INCLUDE_DIR=/opt/homebrew/Cellar/clipper4coot/2.1.20180802_3/include
+            -DCLIPPER-CCP4_INCLUDE_DIR=/opt/homebrew/Cellar/clipper4coot/2.1.20180802_3/include
             -DMMDB2_LIBRARY=/opt/homebrew/lib/libmmdb2.dylib
             -DMMDB2_INCLUDE_DIR=/opt/homebrew/include
-            -DFFTW2_INCLUDE_DIRS=/opt/homebrew/Cellar/clipper4coot/2.1.20180802_2/fftw2/include
-            -DFFTW2_LIBRARY=/opt/homebrew/Cellar/clipper4coot/2.1.20180802_2/fftw2/lib/libfftw.dylib
-            -DRFFTW2_LIBRARY=/opt/homebrew/Cellar/clipper4coot/2.1.20180802_2/fftw2/lib/librfftw.dylib
-            -Dnanobind_DIR=/Users/runner/install/lib/python3.13/site-packages/nanobind/cmake ..
+            -DFFTW2_INCLUDE_DIRS=/opt/homebrew/Cellar/clipper4coot/2.1.20180802_3/fftw2/include
+            -DFFTW2_LIBRARY=/opt/homebrew/Cellar/clipper4coot/2.1.20180802_3/fftw2/lib/libfftw.dylib
+            -DRFFTW2_LIBRARY=/opt/homebrew/Cellar/clipper4coot/2.1.20180802_3/fftw2/lib/librfftw.dylib
+            -Dnanobind_DIR=/opt/homebrew/lib/python3.13/site-packages/nanobind/cmake ..
 
       # what do we know about RDKit?
       - name: cat CMakeCache.txt
