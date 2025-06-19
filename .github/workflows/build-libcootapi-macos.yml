@@ -71,13 +71,19 @@ jobs:
         run:  which python3 && python3 --version
 
       - name: look for nanobind
-        run: find /opt/homebrew/lib/python3.13/site-packages/nanobind
+        run: ls -l /opt/homebrew/lib/python3.13/site-packages/nanobind
 
-      # clipper_prefix=/opt/homebrew/Cellar/clipper4coot/2.1.20180802_3
+      - name: look again for nanobind
+        run: find /opt/homebrew/Cellar/nanobind
+
+      - name: look 3 for nanobind
+        run: ls -l /opt/homebrew/lib/python3.13/site-packages/nanobind/cmake
+
       - name: run cmake
         run: >
             mkdir build-libcootapi && cd build-libcootapi &&
             cmake
+            -DCMAKE_BUILD_TYPE=Debug
             -DCMAKE_INSTALL_PREFIX=/Users/runner/install/chapi-Darwin-macos-gtk4
             -DCMAKE_PREFIX_PATH=/opt/homebrew
             -DENHANCED_LIGAND_TOOLS=TRUE
@@ -105,19 +111,19 @@ jobs:
       - name: cat CMakeCache.txt
         run:  cd build-libcootapi && cat CMakeCache.txt
 
-      - name: Upload CMakeCache.txt
-        uses: actions/upload-artifact@v4
-        with:
-            name: cmake-macos-homebrew-build-cache-package
-            path: /Users/runner/work/coot/coot/build-libcootapi
-            retention-days: 3
+      - name: more diagnostics 1
+        run: ls CMakeFiles
 
-      - name: make
+      - name: more diagnostics 2
+        run: ls CMakeFiles/nanobind-static.dir
+
+      - name: compile
         run:  cd build-libcootapi && make -j 4 VERBOSE=1
 
-      - name: make install
+      - name: install
         run:  cd build-libcootapi && make install
 
       - name: run the test-molecules-container test
         # run:  cd build-libcootapi && ./test-molecules-container | egrep "^FAIL|^PASS|^UN|^LIGHTS|^, "
         run:  cd build-libcootapi && ./test-molecules-container
+
