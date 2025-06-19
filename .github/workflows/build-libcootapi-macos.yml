@@ -114,6 +114,5 @@ jobs:
         run:  cd build-libcootapi && make install
 
       - name: run the test-molecules-container test
-        env:
         # run:  cd build-libcootapi && ./test-molecules-container | egrep "^FAIL|^PASS|^UN|^LIGHTS|^, "
         run:  cd build-libcootapi && ./test-molecules-container
