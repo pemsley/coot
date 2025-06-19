@@ -58,7 +58,7 @@ jobs:
       # numpy is needed for rdkit
       - name: Install Homebrew dependencies
         run:  >
-         brew install boost boost-python3 brewsci/bio/clipper4coot nanobind
+         brew install boost boost-python3 brewsci/bio/clipper4coot robin-map nanobind
          brewsci/bio/ssm brewsci/bio/gemmi dwarfutils gsl rdkit glm gfortran
 
       # now in /opt/homebrew/opt/rdkit
