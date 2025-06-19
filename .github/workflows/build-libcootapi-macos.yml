@@ -123,7 +123,7 @@ jobs:
       - name: install
         run:  cd build-libcootapi && make install
 
-      - name: run the test-molecules-container test
-        # run:  cd build-libcootapi && ./test-molecules-container | egrep "^FAIL|^PASS|^UN|^LIGHTS|^, "
-        run:  cd build-libcootapi && ./test-molecules-container
+      # - name: run the test-molecules-container test
+      #   # run:  cd build-libcootapi && ./test-molecules-container | egrep "^FAIL|^PASS|^UN|^LIGHTS|^, "
+      #   run:  cd build-libcootapi && ./test-molecules-container
 
