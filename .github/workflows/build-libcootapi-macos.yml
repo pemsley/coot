@@ -58,7 +58,7 @@ jobs:
       # numpy is needed for rdkit
       - name: Install Homebrew dependencies
         run:  >
-         brew install boost boost-python3 brewsci/bio/clipper4coot
+         brew install boost boost-python3 brewsci/bio/clipper4coot nanobind
          brewsci/bio/ssm brewsci/bio/gemmi dwarfutils gsl rdkit glm gfortran
 
       # now in /opt/homebrew/opt/rdkit
@@ -94,7 +94,7 @@ jobs:
             -DFFTW2_INCLUDE_DIRS=/opt/homebrew/Cellar/clipper4coot/2.1.20180802_2/fftw2/include
             -DFFTW2_LIBRARY=/opt/homebrew/Cellar/clipper4coot/2.1.20180802_2/fftw2/lib/libfftw.dylib
             -DRFFTW2_LIBRARY=/opt/homebrew/Cellar/clipper4coot/2.1.20180802_2/fftw2/lib/librfftw.dylib
-            -Dnanobind_DIR=/Users/runner/install/lib/python3.10/site-packages/nanobind/cmake ..
+            -Dnanobind_DIR=/Users/runner/install/lib/python3.13/site-packages/nanobind/cmake ..
 
       # what do we know about RDKit?
       - name: cat CMakeCache.txt
