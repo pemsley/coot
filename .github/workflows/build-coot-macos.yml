@@ -35,23 +35,29 @@ jobs:
 
     - uses: actions/checkout@v4
 
-    - name: debug dir structure
+    - name: debug dir structure 1
       run: |
         pwd
         echo ============ AA
         ls -l ..
+
+    - name: debug dir structure 2
+      run: |
+        pwd
         echo ============ BB
         ls -l
-        echo ============ CC
-        ls -l ../coot*
 
     - name: Set fftw for future use
       run: echo "fftw_prefix=/opt/homebrew/Cellar/clipper4coot/2.1.20180802_3/fftw2" >> $GITHUB_ENV
 
+    - name: autogen
+      id: autogen-step
+      run: bash autogen-mac.sh
+
     - name: configure it
       id: configation-step
       run: >
-         /Users/runner/work/coot/coot/configure
+         ./configure
          SHELL=/bin/bash
          PYTHON=python3
          COOT_BUILD_INFO_STRING="Compiled with a GitHub action"
