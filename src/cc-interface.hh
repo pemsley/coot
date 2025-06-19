@@ -1177,10 +1177,14 @@ PyObject *all_residues_with_serial_numbers_py(int imol);
 #endif
 
 
+#ifdef SWIG
+#else
+
 //! \brief
 //! regularize the given residues
 //!
 void regularize_residues(int imol, const std::vector<coot::residue_spec_t> &residues);
+#endif
 
 //! presumes that imol_Refinement_Map has been set
 std::string mtz_file_name(int imol);
