@@ -36,7 +36,6 @@ jobs:
     - uses: actions/checkout@v4
 
     - name: debug dir structure
-      working-directory: ../build
       run: |
         pwd
         echo ============ AA
