@@ -50,6 +50,7 @@ jobs:
 
     - name: configure it
       id: configation-step
+      working-directory: $HOME/work/coot/coot
       run: >
          ./configure
          SHELL=/bin/bash
@@ -65,7 +66,7 @@ jobs:
 
     - name: compile it
       id: compile-step
-      working-directory: ../build
+      working-directory: $HOME/work/coot/coot
       run: make -j 4
 
 
