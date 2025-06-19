@@ -76,6 +76,10 @@ jobs:
       id: have-a-goosey
       run: ls . src
 
+    - name: install it
+      id: installation-step
+      run: make install
+
     - name: interal tests
       id: internal-tests
       run: ./src/MacCoot --self-test
