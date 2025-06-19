@@ -18,6 +18,16 @@ jobs:
       id:   setup-homebrew
       uses: Homebrew/actions/setup-homebrew@master
 
+    - name: Cache Homebrew Cellar and Cache
+      uses: actions/cache@v4
+      with:
+        path: |
+          /opt/homebrew/Cellar
+          /Users/runner/Library/Caches/Homebrew
+        key: brew-${{ runner.os }}-${{ github.run_id }}
+        restore-keys: |
+          brew-${{ runner.os }}-brew-${{ runner.os }}
+
     - name: turn on brew analytics
       run:  brew analytics on
 
@@ -31,7 +41,7 @@ jobs:
          brew install boost boost-python3 brewsci/bio/clipper4coot
          brewsci/bio/raster3d brewsci/bio/ssm brewsci/bio/gemmi
          dwarfutils gsl rdkit pygobject3 gtk4 glm automake
-         py3cairo pygobject3
+         py3cairo pygobject3 swig
 
     - uses: actions/checkout@v4
 
@@ -73,8 +83,6 @@ jobs:
       id: compile-step
       run: make -j 4
 
-
-
-    #  cd /opt/homebrew/Library/Taps/homebrew/homebrew-core && git stash pop
-
+    - name: what has been made
+      run: ls . src
 
