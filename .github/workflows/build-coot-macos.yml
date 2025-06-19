@@ -45,18 +45,6 @@ jobs:
 
     - uses: actions/checkout@v4
 
-    - name: debug dir structure 1
-      run: |
-        pwd
-        echo ============ AA
-        ls -l ..
-
-    - name: debug dir structure 2
-      run: |
-        pwd
-        echo ============ BB
-        ls -l
-
     - name: Set fftw for future use
       run: echo "fftw_prefix=/opt/homebrew/Cellar/clipper4coot/2.1.20180802_3/fftw2" >> $GITHUB_ENV
 
@@ -85,5 +73,11 @@ jobs:
       run: make -j 4
 
     - name: what has been made
+      id: have-a-goosey
       run: ls . src
+
+    - name: interal tests
+      id: internal-tests
+      run: ./src/MacCoot --self-test
+
 
