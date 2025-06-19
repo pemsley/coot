@@ -112,10 +112,10 @@ jobs:
         run:  cd build-libcootapi && cat CMakeCache.txt
 
       - name: more diagnostics 1
-        run: ls CMakeFiles
+        run: cd build-libcootapi && ls CMakeFiles
 
       - name: more diagnostics 2
-        run: ls CMakeFiles/nanobind-static.dir
+        run: cd build-libcootapi && ls CMakeFiles/nanobind-static.dir
 
       - name: compile
         run:  cd build-libcootapi && make -j 4 VERBOSE=1
