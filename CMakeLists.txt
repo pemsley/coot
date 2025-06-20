@@ -575,6 +575,9 @@ install(DIRECTORY data/cho-links     DESTINATION share/coot/data)
 
 install(DIRECTORY data/pdb-templates DESTINATION share/coot/data)
 
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/monomers DESTINATION share/monomers
+        FILES_MATCHING PATTERN "*" PATTERN "*Makefile.*" EXCLUDE)
+
 # Thanks Charles B.
 install(TARGETS coot_headless_api DESTINATION ${Python_SITELIB})
 
