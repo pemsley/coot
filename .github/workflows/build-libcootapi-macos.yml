@@ -125,5 +125,7 @@ jobs:
 
       - name: run the test-molecules-container test
         # run:  cd build-libcootapi && ./test-molecules-container | egrep "^FAIL|^PASS|^UN|^LIGHTS|^, "
+	env:
+	  MOORHEN_TEST_DATA_DIR: ../test-data
         run:  cd build-libcootapi && ./test-molecules-container
 
