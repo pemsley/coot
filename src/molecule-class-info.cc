@@ -7770,6 +7770,7 @@ molecule_class_info_t::add_typed_pointer_atom(coot::Cartesian pos, const std::st
          std::cout << "WARNING:: Can't find new chain for new atom\n";
       }
    }
+
    // or we could just use update_molecule_after_additions() there.
    return std::make_pair(status, message);
 }

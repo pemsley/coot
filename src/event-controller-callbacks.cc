@@ -363,6 +363,7 @@ graphics_info_t::on_glarea_drag_end_middle(GtkGestureDrag *gesture, double drag_
                               nearest_atom_index_info.imol);
             add_picked_atom_info_to_status_bar(nearest_atom_index_info.imol,
                                                nearest_atom_index_info.atom_index);
+            graphics_grab_focus();
          } else {
             // std::cout << "debug:: on_glarea_drag_end_middle() calling symmetry_atom_pick()" << std::endl;
             coot::Symm_Atom_Pick_Info_t sap = symmetry_atom_pick();
@@ -373,6 +374,7 @@ graphics_info_t::on_glarea_drag_end_middle(GtkGestureDrag *gesture, double drag_
                   setRotationCentre(translate_atom_with_pre_shift(molecules[sap.imol].atom_sel,
                                                                   sap.atom_index, symtransshiftinfo));
                   graphics_draw();
+                  graphics_grab_focus();
                }
             }
          }
@@ -554,6 +556,8 @@ graphics_info_t::on_glarea_click(GtkGestureClick *controller,
          }
       }
    }
+
+   graphics_grab_focus(); // 20250615-PE is this a good idea?
 }
 
 void
