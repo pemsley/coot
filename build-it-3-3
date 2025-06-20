@@ -2114,7 +2114,7 @@ fi
 # 2.5.1 it is python2.5, not python2.5.1
 #
 python_version=python3.13
-pver=3.13.2
+pver=3.13.5
 python_version_extension=3.13 # extract this
 # I think that for python to be compatible with Blender, we don't want the debug version
 # python_abiflags=d # because we use --with-pydebug on the command line for Python configure
@@ -4344,9 +4344,8 @@ if [ -e /usr/include/pygobject-3.0 ] ; then
     skip_build=true
 fi
 
-echo /lmb/home/pemsley/autobuild/Linux-hal.lmb.internal-gtk4/bin/glib-compile-schemas --targetdir tests ../tests
-/lmb/home/pemsley/autobuild/Linux-hal.lmb.internal-gtk4/bin/glib-compile-schemas --targetdir tests ../tests
-
+echo $install_top_dir/bin/glib-compile-schemas --targetdir tests ../tests
+$install_top_dir/bin/glib-compile-schemas --targetdir tests ../tests
 
 if [ $skip_build = false ] ; then
 
