@@ -199,7 +199,7 @@ AM_WITH_SSM
 
 AM_SINGLE_FFTW2
 
-echo PKG-_CONFIG_PATH is $PKG-_CONFIG_PATH
+echo PKG_CONFIG_PATH is $PKG_CONFIG_PATH
 echo debug clipper:
 echo pkg-config --modversion clipper
 pkg-config --modversion clipper
