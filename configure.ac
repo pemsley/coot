@@ -199,6 +199,13 @@ AM_WITH_SSM
 
 AM_SINGLE_FFTW2
 
+echo PKG_CONFIG_PATH is $PKG_CONFIG_PATH
+echo debug clipper:
+echo pkgconfig --modversion clipper
+pkgconfig --modversion clipper
+echo pkgconfig --libs clipper
+pkgconfig --libs clipper
+
 dnl Check for Clipper.  we exit if clipper is not found.
 #
 AM_PATH_CLIPPER(, [echo Error locating Clipper - a CNS-enabled version of Clipper \(2.1-090520-ac or later\) is required now; exit 1],AC_MSG_ERROR([Cannot find Clipper]))
