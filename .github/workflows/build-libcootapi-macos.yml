@@ -46,6 +46,9 @@ jobs:
       - name: get NUT
         run: cd test-data && wget https://raw.githubusercontent.com/MonomerLibrary/monomers/refs/heads/master/n/NUT.cif
 
+      - name: debug the files
+        run: cd test-data && ls -l
+
       - name: Setup homebrew
         id:   setup-homebrew
         uses: Homebrew/actions/setup-homebrew@master
