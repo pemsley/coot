@@ -155,7 +155,7 @@ texture_as_floats_t::texture_as_floats_t(const clipper::Xmap<float> &xmap, int s
          int c_w = 0;
          for ( iw = iv; iw.coord().w() <= grid.max().w(); iw.next_w() ) {
             const float &f = xmap[iw];
-            int idx = c_v + nv * c_u;
+            int idx = c_v + nv * c_u; // Wow. How confusing
             if (idx >= image_data_size) {
                std::cout << "ERROR:: image data index out of range " << idx << " " << image_data_size << std::endl;
             } else {
