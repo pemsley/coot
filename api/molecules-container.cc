@@ -82,12 +82,12 @@ molecules_container_t::init() {
    map_sampling_rate = 1.8;
    draw_missing_residue_loops_flag = true;
 
-   // read_standard_residues();
+   read_standard_residues();
    interrupt_long_term_job = false;
    contouring_time = 0;
    make_backups_flag = true;
 
-   // thread_pool.resize(8);
+   // thread_pool.resize(8); // now in the constructor
 
    use_rama_plot_restraints = false;
    rama_plot_restraints_weight = 1.0;
