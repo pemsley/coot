@@ -11871,3 +11871,11 @@ How to set an adjustment of a scale (looked up from builder)
          gtk_scale_add_mark(GTK_SCALE(scale), 0, GTK_POS_BOTTOM, "0");
          gtk_scale_add_mark(GTK_SCALE(scale), dns_1, GTK_POS_BOTTOM, end_str.c_str());
       }
+
+---
+Mon 16 Jun 18:42:05 BST 2025
+
+2 rows in a R plot:
+
+   par(mfrow=c(2,1))
+
