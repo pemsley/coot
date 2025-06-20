@@ -25,12 +25,13 @@ jobs:
          path: src/greg-data
          key:  coot-test-data
 
-    - name: Cache coot dependencies
-      id: cache-coot-dependencies-ubuntu
-      uses: actions/cache@v4
-      with:
-         path: /home/runner/install/coot-Linux-ubuntu
-         key:  coot-deps-ubuntu
+    # remove this for now so that ccp4c gets built
+    # - name: Cache coot dependencies
+    #   id: cache-coot-dependencies-ubuntu
+    #   uses: actions/cache@v4
+    #   with:
+    #      path: /home/runner/install/coot-Linux-ubuntu
+    #      key:  coot-deps-ubuntu
 
     - name: Cache gemmi source
       id:   Cache-gemmi-source
