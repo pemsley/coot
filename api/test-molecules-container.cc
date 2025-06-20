@@ -3954,6 +3954,9 @@ int test_bespoke_carbon_colour(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
 
+   int import_status = mc.import_cif_dictionary(reference_data("LZA.cif"), -999999);
+   if (import_status == 0)
+      return status;
    int imol = mc.get_monomer("LZA");
 
    if (mc.is_valid_model_molecule(imol)) {
@@ -3995,6 +3998,9 @@ int test_dark_mode_colours(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
 
+   int import_status = mc.import_cif_dictionary(reference_data("LZA.cif"), -999999);
+   if (import_status == 0)
+      return status;
    int imol = mc.get_monomer("LZA");
    if (mc.is_valid_model_molecule(imol)) {
       std::string mode = "COLOUR-BY-CHAIN-AND-DICTIONARY";
@@ -4989,6 +4995,9 @@ int test_gltf_export(molecules_container_t &mc) {
    std::cout << "-------------------------------------------------- ligand mesh " << std::endl;
 
    std::string mode("COLOUR-BY-CHAIN-AND-DICTIONARY");
+   int import_status = mc.import_cif_dictionary(reference_data("LZA.cif"), -999999);
+   if (import_status == 0)
+      return status;
    int imol_lig = mc.get_monomer("LZA");
    int imol_frag = mc.copy_fragment_using_cid(imol, "//A/1299");
    std::cout << "test_gltf_export() imol_frag " << imol_frag << std::endl;
