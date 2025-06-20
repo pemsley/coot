@@ -4893,7 +4893,7 @@ int test_ligand_merge(molecules_container_t &mc) {
       // int imol_2 = mc.read_pdb(reference_data("2vtq.cif"));
       // mc.write_coordinates(imol_2, "2vtq-just-input-output.cif");
       mmdb::Manager *mol = new mmdb::Manager;
-      mol->ReadCoorFile(reference_data("2vtq.cif"));
+      mol->ReadCoorFile(reference_data("2vtq.cif").c_str());
       mol->WriteCIFASCII("2vtq-input-output-pure-mmdb.cif");
       delete mol;
    };
