@@ -1215,6 +1215,7 @@ coot::protein_geometry::have_dictionary_for_residue_type(const std::string &mono
 
    bool ifound = false;
    int ndict = dict_res_restraints.size();
+   std::string path = "--start--";
    read_number = read_number_in;
 
    // ---------------- FIXME ----------------------------------------------------
@@ -1224,6 +1225,9 @@ coot::protein_geometry::have_dictionary_for_residue_type(const std::string &mono
    if (idr >= 0) {
       ifound = true;
    }
+
+   if (true)
+      std::cout << "INFO:: have_dictionary_for_residue_type() idr here is " << idr << std::endl;
 
    // check synonyms before checking three-letter-codes
 
@@ -1238,8 +1242,10 @@ coot::protein_geometry::have_dictionary_for_residue_type(const std::string &mono
 	       }
 	    }
 	 }
-	 if (ifound)
+	 if (ifound) {
+            path = "path-1";
 	    break;
+         }
       }
    }
 
@@ -1252,6 +1258,7 @@ coot::protein_geometry::have_dictionary_for_residue_type(const std::string &mono
 	 if (dict_res_restraints[i].second.residue_info.three_letter_code == monomer_type) {
 	    if (! dict_res_restraints[i].second.is_bond_order_data_only()) {
 	       ifound = 1;
+               path = "path-2";
 	       break;
 	    }
 	 }
@@ -1261,14 +1268,15 @@ coot::protein_geometry::have_dictionary_for_residue_type(const std::string &mono
    if (! ifound) {
       if (try_autoload_if_needed) {
 	 ifound = try_dynamic_add(monomer_type, read_number);
+         path = "path-3";
 	 // std::cout << "DEBUG:: here in have_dictionary_for_residue_type() try_dynamic_add returned "
          // << ifound << std::endl;
       }
    }
 
-   if (false)
-      std::cout << ".......................have_dictionary_for_residue_type() " << monomer_type
-                << " " << imol_enc << " returns " << ifound << std::endl;
+   if (true)
+      std::cout << "INFO:: .............have_dictionary_for_residue_type() " << monomer_type
+                << " " << imol_enc << " path " << path << " returns " << ifound << std::endl;
 
    return ifound;
 }
@@ -2460,7 +2468,7 @@ coot::protein_geometry::get_residue(const std::string &comp_id, int imol_enc,
    // If the coordinates for the model are (0,0,0) then this function
    // returns a null.
 
-   bool debug = false;
+   bool debug = true;
 
    mmdb::Residue *residue_p = NULL;
 
