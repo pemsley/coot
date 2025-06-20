@@ -6911,6 +6911,16 @@ graphics_info_t::setup_key_bindings() {
    std::pair<keyboard_key_t, key_bindings_t> pdel(keyboard_key_t(GDK_KEY_d, true), delete_residue_key_binding);
    kb_vec.push_back(pdel);
 
+   auto law = [] () {
+      std::cout << "-------------------- add water" << std::endl;
+      graphics_info_t g;
+      g.place_typed_atom_at_pointer("Water");
+      return gboolean(TRUE);
+   };
+   key_bindings_t add_water_key_binding(law, "Add Water");
+   std::pair<keyboard_key_t, key_bindings_t> paw(keyboard_key_t(GDK_KEY_w, true), add_water_key_binding);
+   kb_vec.push_back(paw);
+
    // Direction is either +1 or -1 (in or out)
    //
 

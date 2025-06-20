@@ -7,6 +7,14 @@ o add-water should have a key-binding
 
 o make a function that returns the secondary structure for libcootapi/chapi
 
+o "Flood the blob with dummy atoms" - useful of pomgnt2
+
+o print the key bindings
+
+o install latest chapi, python3 import coot_headless_api
+  then the molecules_container_t gives an error message
+  about COOT_PREFIX
+
 --- Other Items ---
 
 o Add ability to rotate view around z axis :: 0.5

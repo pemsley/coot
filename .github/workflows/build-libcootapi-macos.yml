@@ -40,6 +40,15 @@ jobs:
       - name: untar test data
         run:  mkdir test-data && cd test-data && tar xvf ../test-molecule-container-test-data.tar.gz
 
+      - name: get LZA
+        run: cd test-data && wget https://raw.githubusercontent.com/MonomerLibrary/monomers/refs/heads/master/l/LZA.cif
+
+      - name: get NUT
+        run: cd test-data && wget https://raw.githubusercontent.com/MonomerLibrary/monomers/refs/heads/master/n/NUT.cif
+
+      - name: debug the files
+        run: cd test-data && ls -l
+
       - name: Setup homebrew
         id:   setup-homebrew
         uses: Homebrew/actions/setup-homebrew@master
@@ -125,5 +134,7 @@ jobs:
 
       - name: run the test-molecules-container test
         # run:  cd build-libcootapi && ./test-molecules-container | egrep "^FAIL|^PASS|^UN|^LIGHTS|^, "
+        env:
+          MOORHEN_TEST_DATA_DIR: ../test-data
         run:  cd build-libcootapi && ./test-molecules-container
 
