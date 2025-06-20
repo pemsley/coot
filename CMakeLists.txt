@@ -575,7 +575,7 @@ install(DIRECTORY data/cho-links     DESTINATION share/coot/data)
 
 install(DIRECTORY data/pdb-templates DESTINATION share/coot/data)
 
-install(DIRECTORY ${CMAKE_SOURCE_DIR}/monomers DESTINATION share/monomers
+install(DIRECTORY ${CMAKE_SOURCE_DIR}/monomers DESTINATION share/coot/lib/data/monomers
         FILES_MATCHING PATTERN "*" PATTERN "*Makefile.*" EXCLUDE)
 
 # Thanks Charles B.
