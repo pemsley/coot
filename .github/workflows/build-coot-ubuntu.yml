@@ -29,7 +29,7 @@ jobs:
       id: cache-coot-dependencies-ubuntu
       uses: actions/cache@v4
       with:
-         path: /home/runner/install/coot-Linux-ubuntu-gtk4
+         path: /home/runner/install/coot-Linux-ubuntu
          key:  coot-deps-ubuntu
 
     - name: Cache gemmi source
@@ -48,10 +48,10 @@ jobs:
 
     # this doesn't work if there is no cache
     # - name: List any installed Coot libs
-    #   run:  ls -l /home/runner/install/coot-Linux-ubuntu-gtk4/lib/libcoot* /home/runner/install/coot-Linux-ubuntu-gtk4/lib/libMoleculesToTrianglesCXXClasses*
+    #   run:  ls -l /home/runner/install/coot-Linux-ubuntu/lib/libcoot* /home/runner/install/coot-Linux-ubuntu/lib/libMoleculesToTrianglesCXXClasses*
 
     - name: Delete any installed Coot libs
-      run:  if test -e /home/runner/install/coot-Linux-ubuntu-gtk4/lib/libcoot-analysis.so ; then rm /home/runner/install/coot-Linux-ubuntu-gtk4/lib/libcoot* /home/runner/install/coot-Linux-ubuntu-gtk4/lib/libMoleculesToTrianglesCXXClasses* ; fi
+      run:  if test -e /home/runner/install/coot-Linux-ubuntu/lib/libcoot-analysis.so ; then rm /home/runner/install/coot-Linux-ubuntu/lib/libcoot* /home/runner/install/coot-Linux-ubuntu/lib/libMoleculesToTrianglesCXXClasses* ; fi
 
     - name: Update apt-get
       run:  sudo apt-get update
@@ -74,22 +74,22 @@ jobs:
 
     - name: Set the PATH
       # the install dir is set specifically in build-it-3-3 when we in github actions
-      run:  echo /home/runner/install/coot-Linux-ubuntu-gtk4/bin >> $GITHUB_PATH
+      run:  echo /home/runner/install/coot-Linux-ubuntu/bin >> $GITHUB_PATH
 
     - name: Run configure
       # we echo done so that this returns a success status so that the logs are always uploaded
       run: >
-        ./configure --prefix=/home/runner/install/coot-Linux-ubuntu-gtk4
+        ./configure --prefix=/home/runner/install/coot-Linux-ubuntu
         --enable-silent-rules
         --with-enhanced-ligand-tools
-        --with-fftw-prefix=/home/runner/install/coot-Linux-ubuntu-gtk4
-        --with-boost=/home/runner/install/coot-Linux-ubuntu-gtk4
-        --with-gemmi=/home/runner/install/coot-Linux-ubuntu-gtk4
-        --with-boost-libdir=/home/runner/install/coot-Linux-ubuntu-gtk4/lib
+        --with-fftw-prefix=/home/runner/install/coot-Linux-ubuntu
+        --with-boost=/home/runner/install/coot-Linux-ubuntu
+        --with-gemmi=/home/runner/install/coot-Linux-ubuntu
+        --with-boost-libdir=/home/runner/install/coot-Linux-ubuntu/lib
         --with-backward --with-libdw --with-sound --disable-static
         SHELL=/bin/bash
-        PYTHON=/home/runner/install/coot-Linux-ubuntu-gtk4/bin/python3
-        PKG_CONFIG_PATH=/home/runner/install/coot-Linux-ubuntu-gtk4/lib64/pkgconfig:/home/runner/install/coot-Linux-ubuntu-gtk4/lib/pkgconfig:/home/runner/install/coot-Linux-ubuntu-gtk4/lib/x86_64-linux-gnu/pkgconfig
+        PYTHON=/home/runner/install/coot-Linux-ubuntu/bin/python3
+        PKG_CONFIG_PATH=/home/runner/install/coot-Linux-ubuntu/lib64/pkgconfig:/home/runner/install/coot-Linux-ubuntu/lib/pkgconfig:/home/runner/install/coot-Linux-ubuntu/lib/x86_64-linux-gnu/pkgconfig
         || echo done
 
     - name: Compile with make
