@@ -2335,7 +2335,11 @@ if test -n "$build_ccp4c" ; then
     cd libccp4-$libccp4_version
     if ./configure $generic_prefix --enable-shared --disable-static --disable-fortran ; then
        if $MAKE ; then
-          $MAKE install
+           $MAKE install
+           # 20250621-PE
+           # libccp4 installs $install_top_dir/lib/pkgconfig/ccp4c.pc
+           # lib libclipper needs libccp4c! How have I not run into this before!?
+           cp $install_top_dir/lib/pkgconfig/ccp4c.pc $install_top_dir/lib/pkgconfig/libccp4c.pc
        fi
     fi
     ) > $HOSTLOGDIR/01-libccp4.txt 2>&1
