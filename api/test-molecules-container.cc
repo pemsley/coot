@@ -1517,6 +1517,7 @@ int test_jed_flip(molecules_container_t &mc) {
       mc.write_coordinates(imol, "jed-flip.pdb");
       if (d > 0.9) {
 
+	 mc.import_cif_dictionary(reference_data("NUT.cif"), coot::protein_geometry::IMOL_ENC_ANY);
          // now test an altconf ligand
          int imol_lig = mc.get_monomer("NUT");
          mc.delete_hydrogen_atoms(imol_lig);
@@ -1616,12 +1617,12 @@ int test_no_dictionary_residues(molecules_container_t &mc) {
    int status = 0;
 
    int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
-   std::vector<std::string> nst = mc.get_residue_names_with_no_dictionary(imol);
-
-   // weak test
-   if (nst.empty())
-      status = 1;
-
+   if (mc.is_valid_model_molecule(imol)) {
+      std::vector<std::string> nst = mc.get_residue_names_with_no_dictionary(imol);
+      // weak test
+      if (nst.empty())
+	 status = 1;
+   }
    return status;
 }
 
@@ -1724,29 +1725,34 @@ int test_dictionary_bonds(molecules_container_t &mc) {
    int status = 0;
 
    int imol_1 = mc.read_pdb(reference_data("pdb2sar-part.ent"));
-   mc.import_cif_dictionary("ATP.cif", coot::protein_geometry::IMOL_ENC_ANY);
-   mc.import_cif_dictionary("3GP.cif", imol_1);
+   mc.import_cif_dictionary(reference_data("ATP.cif"), coot::protein_geometry::IMOL_ENC_ANY);
+   mc.import_cif_dictionary(reference_data("3GP.cif"), imol_1);
    int imol_2 = mc.get_monomer("ATP");
    int imol_3 = mc.read_pdb(reference_data("pdb2sar-part.ent"));
 
-   std::cout << ":::: test_dictionary_bonds() imol_2: " << imol_2 << std::endl;
-   std::string mode("COLOUR-BY-CHAIN-AND-DICTIONARY");
+   if (mc.is_valid_model_molecule(imol_2)) {
+      if (mc.is_valid_model_molecule(imol_3)) {
 
-   glm::vec3 atom_ligand_C4_position(53.4, 9.7, 20.3);
+	 std::cout << ":::: test_dictionary_bonds() imol_2: " << imol_2 << std::endl;
+	 std::string mode("COLOUR-BY-CHAIN-AND-DICTIONARY");
 
-   coot::simple_mesh_t mesh = mc.get_bonds_mesh(imol_3, mode, true, 0.1, 1.0, 1);
+	 glm::vec3 atom_ligand_C4_position(53.4, 9.7, 20.3);
 
-   // there is no dictionary, but we should see vertices for the atoms
-   //
-   unsigned int n_ligand_vertices = 0;
-   for (const auto &vert : mesh.vertices) {
-      double d = glm::distance(vert.pos, atom_ligand_C4_position);
-      if (d < 1.0)
-         n_ligand_vertices++;
+	 coot::simple_mesh_t mesh = mc.get_bonds_mesh(imol_3, mode, true, 0.1, 1.0, 1);
+
+	 // there is no dictionary, but we should see vertices for the atoms
+	 //
+	 unsigned int n_ligand_vertices = 0;
+	 for (const auto &vert : mesh.vertices) {
+	    double d = glm::distance(vert.pos, atom_ligand_C4_position);
+	    if (d < 1.0)
+	       n_ligand_vertices++;
+	 }
+	 std::cout << "debug:: test_dictionary_bonds n_ligand_vertices: " << n_ligand_vertices << std::endl;
+	 if (n_ligand_vertices > 0)
+	    status = 1;
+      }
    }
-   std::cout << "debug:: test_dictionary_bonds n_ligand_vertices: " << n_ligand_vertices << std::endl;
-   if (n_ligand_vertices > 0)
-      status = 1;
 
    return status;
 }
@@ -1867,9 +1873,9 @@ int test_merge_molecules(molecules_container_t &mc) {
    int status = 0;
 
    int imol_1 = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-4.pdb"));
-   mc.import_cif_dictionary("ATP.cif", coot::protein_geometry::IMOL_ENC_ANY);
-   mc.import_cif_dictionary("3GP.cif", coot::protein_geometry::IMOL_ENC_ANY);
-   mc.import_cif_dictionary("NUT.cif", coot::protein_geometry::IMOL_ENC_ANY);
+   mc.import_cif_dictionary(reference_data("ATP.cif"), coot::protein_geometry::IMOL_ENC_ANY);
+   mc.import_cif_dictionary(reference_data("3GP.cif"), coot::protein_geometry::IMOL_ENC_ANY);
+   mc.import_cif_dictionary(reference_data("NUT.cif"), coot::protein_geometry::IMOL_ENC_ANY);
 
    int imol_2 = mc.get_monomer_and_position_at("ATP", coot::protein_geometry::IMOL_ENC_ANY, 60, 50, 30);
    int imol_3 = mc.get_monomer_and_position_at("3GP", coot::protein_geometry::IMOL_ENC_ANY, 80, 55, 20);
@@ -3471,8 +3477,8 @@ int test_svg(molecules_container_t &mc) {
    int imol_1 = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
    int imol_2 = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-4.pdb"));
 
-   mc.import_cif_dictionary("ATP.cif", imol_1);
-   mc.import_cif_dictionary("ATP.cif", imol_2);
+   mc.import_cif_dictionary(reference_data("ATP.cif"), imol_1);
+   mc.import_cif_dictionary(reference_data("ATP.cif"), imol_2);
    bool use_rdkit_svg = false;
    std::string bg = "dark-bonds/opaque-bg";
    std::string s = mc.get_svg_for_residue_type(imol_1, "ATP", use_rdkit_svg, bg);
@@ -4684,7 +4690,7 @@ int test_mmcif_atom_selection(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
 
-   std::string fn = "1ej6-assembly1.cif";
+   std::string fn = reference_data("1ej6-assembly1.cif");
    std::cout << "reading " << fn << std::endl;
    int imol = mc.read_pdb(reference_data(fn));
    mmdb::Manager *mol = mc.get_mol(imol); // testing get_mol()
@@ -4887,7 +4893,7 @@ int test_ligand_merge(molecules_container_t &mc) {
       // int imol_2 = mc.read_pdb(reference_data("2vtq.cif"));
       // mc.write_coordinates(imol_2, "2vtq-just-input-output.cif");
       mmdb::Manager *mol = new mmdb::Manager;
-      mol->ReadCoorFile("2vtq.cif");
+      mol->ReadCoorFile(reference_data("2vtq.cif"));
       mol->WriteCIFASCII("2vtq-input-output-pure-mmdb.cif");
       delete mol;
    };
@@ -5926,9 +5932,9 @@ int test_import_LIG_dictionary(molecules_container_t &mc) {
 
    int status = 0;
    starting_test(__FUNCTION__);
-   mc.import_cif_dictionary("LIG.cif", coot::protein_geometry::IMOL_ENC_ANY);
+   mc.import_cif_dictionary(reference_data("LIG.cif"), coot::protein_geometry::IMOL_ENC_ANY);
    int imol_pdb = mc.read_pdb("7vvl.pdb");
-   status = mc.import_cif_dictionary("LIG.cif", imol_pdb);
+   status = mc.import_cif_dictionary(reference_data("LIG.cif"), imol_pdb);
    return status;
 }
 
@@ -5958,7 +5964,7 @@ int test_dictionary_acedrg_atom_types(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
 
-   mc.import_cif_dictionary("YXG-as-LIG.cif", coot::protein_geometry::IMOL_ENC_ANY);
+   mc.import_cif_dictionary(reference_data("YXG-as-LIG.cif"), coot::protein_geometry::IMOL_ENC_ANY);
    std::vector<std::pair<std::string, std::string> > v = mc.get_acedrg_atom_types("LIG", coot::protein_geometry::IMOL_ENC_ANY);
 
    if (v.size() > 10) {
@@ -5978,7 +5984,7 @@ int test_dictionary_acedrg_atom_types_for_ligand(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
 
-   mc.import_cif_dictionary("YXG-as-LIG.cif", coot::protein_geometry::IMOL_ENC_ANY);
+   mc.import_cif_dictionary(reference_data("YXG-as-LIG.cif"), coot::protein_geometry::IMOL_ENC_ANY);
    int imol = mc.get_monomer_from_dictionary("LIG", coot::protein_geometry::IMOL_ENC_ANY, false);
    coot::acedrg_types_for_residue_t types = mc.get_acedrg_atom_types_for_ligand(imol, "//A/1");
 
