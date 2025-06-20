@@ -2328,7 +2328,9 @@ if test -n "$build_ccp4c" ; then
     ${WGET} $extras_place/libccp4-$libccp4_version.tar.gz
     echo BUILDING libccp4 $libccp4_version >&2
     (
+    unset LD_LIBRARY_PATH
     date
+    echo gunzip/untar ${AUTOBUILD_SOURCES}/libccp4-$libccp4_version.tar.gz
     gzip -dc ${AUTOBUILD_SOURCES}/libccp4-$libccp4_version.tar.gz | tar xf -
     cd libccp4-$libccp4_version
     if ./configure $generic_prefix --enable-shared --disable-static --disable-fortran ; then
