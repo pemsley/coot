@@ -199,12 +199,12 @@ AM_WITH_SSM
 
 AM_SINGLE_FFTW2
 
-echo PKG_CONFIG_PATH is $PKG_CONFIG_PATH
+echo PKG-_CONFIG_PATH is $PKG-_CONFIG_PATH
 echo debug clipper:
-echo pkgconfig --modversion clipper
-pkgconfig --modversion clipper
-echo pkgconfig --libs clipper
-pkgconfig --libs clipper
+echo pkg-config --modversion clipper
+pkg-config --modversion clipper
+echo pkg-config --libs clipper
+pkg-config --libs clipper
 
 dnl Check for Clipper.  we exit if clipper is not found.
 #
