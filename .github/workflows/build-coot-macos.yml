@@ -70,10 +70,32 @@ jobs:
 
     - name: compile it 1
       id: compile-step-1
-      run: >
-        make -j 4 auxil compat utils protein_db mini-mol geometry
-        lidia-core coot-utils angles ccp4mg-utils db-main analysis cootaneer ideal ligand coords
-        density-contour skeleton high-res build MoleculesToTriangles pli greg-tests cootilus pyrogen
+      run: |
+        make -j 4 -C auxil
+        make -j 4 -C compat
+        make -j 4 -C utils
+        make -j 4 -C protein_db
+        make -j 4 -C mini-mol
+        make -j 4 -C geometry
+        make -j 4 -C lidia-core
+        make -j 4 -C coot-utils
+        make -j 4 -C angles
+        make -j 4 -C ccp4mg-utils
+        make -j 4 -C db-main
+        make -j 4 -C analysis
+        make -j 4 -C cootaneer
+        make -j 4 -C ideal
+        make -j 4 -C ligand
+        make -j 4 -C coords
+        make -j 4 -C density-contour
+        make -j 4 -C skeleton
+        make -j 4 -C high-res
+        make -j 4 -C build
+        make -j 4 -C MoleculesToTriangles
+        make -j 4 -C pli
+        make -j 4 -C greg-tests
+        make -j 4 -C cootilus
+        make -j 4 -C pyrogen
 
     - name: compile it 2
       id: compile-step-2
