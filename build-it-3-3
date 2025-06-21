@@ -4370,7 +4370,7 @@ if [ $skip_build = false ] ; then
       echo glib-compile-schemas --targetdir tests ../tests
       glib-compile-schemas --targetdir tests ../tests
       # ${WGET} $extras_place/PyGObject-$pygobject_version.tar.gz
-      $(WGET) https://download.gnome.org/sources/pygobject/$pygobject_major_minor_version/pygobject-$pygobject_version.tar.gz
+      ${WGET} https://download.gnome.org/sources/pygobject/$pygobject_major_minor_version/pygobject-$pygobject_version.tar.gz
       # echo ::: trying to untar ${AUTOBUILD_SOURCES}/PyGObject-$pygobject_version.tar.gz
       echo ::: trying to untar ${AUTOBUILD_SOURCES}/pygobject-$pygobject_version.tar.gz
       if [ -e ${AUTOBUILD_SOURCES}/pygobject-$pygobject_version.tar.gz ] ; then
@@ -4402,7 +4402,7 @@ if [ $skip_build = false ] ; then
          fi
          export LD_LIBRARY_PATH=$x
       else
-         echo ERROR:: ${AUTOBUILD_SOURCES}/PyGObject-$pygobject_version.tar.gz file not found.
+         echo ERROR:: ${AUTOBUILD_SOURCES}/pygobject-$pygobject_version.tar.gz file not found.
       fi ) > $HOSTLOGDIR/31-pygobject.txt 2>&1
       echo BUILDING: "done" pygobject $pygobject_version: >&2
 else
