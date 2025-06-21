@@ -93,7 +93,7 @@ jobs:
             mkdir build-libcootapi && cd build-libcootapi &&
             cmake
             -DCMAKE_BUILD_TYPE=Debug
-            -DCMAKE_INSTALL_PREFIX=/Users/runner/install/chapi-Darwin-macos-gtk4
+            -DCMAKE_INSTALL_PREFIX=/Users/runner/install/chapi-Darwin-macos
             -DCMAKE_PREFIX_PATH=/opt/homebrew
             -DENHANCED_LIGAND_TOOLS=TRUE
             -DGEMMI_DIR=/opt/homebrew/lib/cmake/gemmi
