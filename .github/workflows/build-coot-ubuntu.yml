@@ -105,8 +105,9 @@ jobs:
     - name: Compile with make
       run:  make -j 4 || echo "make done"
 
-    # - name: Install with make install
-    #   run:  make install || echo done
+    # Yay. make not works! Let's install
+    - name: Install with make install
+      run:  make install || echo "done install"
 
     - name: diagnostics 1
       run:  find /home/runner/install/coot-Linux-ubuntu/lib > installed-files.log
