@@ -4607,10 +4607,11 @@ if [ "$build_guile" = true ] ; then
       fi
       cd -
       ) > $HOSTLOGDIR/39-guile.txt 2>&1
-      echo done guile:
+      echo "done guile:"
    fi
 else
    echo not building guile:
+   echo not building guile: >&2
 fi
 
 # ------------------------------------  template -------------------------------------
@@ -4660,7 +4661,7 @@ if [ "$build_g_wrap" = true ] ; then
    # echo g-wrap skip_this $skip_this
 
    if [ $skip_this = false ] ; then
-      echo BUILDING: g-wrap:
+      echo BUILDING: g-wrap $g_wrap_version
       echo BUILDING: g-wrap $g_wrap_version >&2
       (
       unset LD_LIBRARY_PATH
@@ -4725,10 +4726,11 @@ if [ "$build_guile_cairo" = true ] ; then
       fi
       cd -
       ) > $HOSTLOGDIR/41-guile-cairo.txt 2>&1
-      echo BUILDING: guile-cairo done >&2
+      echo BUILDING: "guile-cairo done" >&2
    fi
 else
    echo not building guile-cairo:
+   echo not building guile-cairo: >&2
 fi
 
 # guile-lib
