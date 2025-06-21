@@ -4336,11 +4336,14 @@ pygobject_major_minor_version=3.29
 pygobject_major_minor_version=3.30
 pygobject_major_minor_version=3.36
 pygobject_major_minor_version=3.42
+pygobject_major_minor_version=3.52 # 20250621-PE
 pygobject_version=3.29.1
 pygobject_version=3.30.5
 pygobject_version=3.42.1
+pygobject_version=3.52.3
 # pygobject_version=3.42.2 add me to the extras place!
 # https://download.gnome.org/sources/pygobject/3.42/pygobject-3.42.2.tar.xz
+# https://download.gnome.org/sources/pygobject/3.52/pygobject-3.52.3.tar.gz
 
 date
 pwd
@@ -4364,13 +4367,15 @@ if [ $skip_build = false ] ; then
       (
       echo :::: PKG_CONFIG_PATH is $PKG_CONFIG_PATH
       unset LD_LIBRARY_PATH
-      echo /lmb/home/pemsley/autobuild/Linux-hal.lmb.internal-gtk4/bin/glib-compile-schemas --targetdir tests ../tests
-      /lmb/home/pemsley/autobuild/Linux-hal.lmb.internal-gtk4/bin/glib-compile-schemas --targetdir tests ../tests
-      ${WGET} $extras_place/PyGObject-$pygobject_version.tar.gz
-      echo ::: trying to untar ${AUTOBUILD_SOURCES}/PyGObject-$pygobject_version.tar.gz
-      if [ -e ${AUTOBUILD_SOURCES}/PyGObject-$pygobject_version.tar.gz ] ; then
-         gzip -dc ${AUTOBUILD_SOURCES}/PyGObject-$pygobject_version.tar.gz | tar xf -
-         cd PyGObject-$pygobject_version
+      echo glib-compile-schemas --targetdir tests ../tests
+      glib-compile-schemas --targetdir tests ../tests
+      # ${WGET} $extras_place/PyGObject-$pygobject_version.tar.gz
+      $(WGET) https://download.gnome.org/sources/pygobject/$pygobject_major_minor_version/pygobject-$pygobject_version.tar.gz
+      # echo ::: trying to untar ${AUTOBUILD_SOURCES}/PyGObject-$pygobject_version.tar.gz
+      echo ::: trying to untar ${AUTOBUILD_SOURCES}/pygobject-$pygobject_version.tar.gz
+      if [ -e ${AUTOBUILD_SOURCES}/pygobject-$pygobject_version.tar.gz ] ; then
+         gzip -dc ${AUTOBUILD_SOURCES}/pygobject-$pygobject_version.tar.gz | tar xf -
+         cd pygobject-$pygobject_version
          ### python setup.py build
          ### python setup.py install
          echo ::: which python3
@@ -4378,7 +4383,8 @@ if [ $skip_build = false ] ; then
          echo ld_library_path $LD_LIBRARY_PATH
          x=$LD_LIBRARY_PATH
          # unset LD_LIBRARY_PATH # I want LD_LIBRARY_PATH so that libffi.so is found
-         echo :::: in directory $(pwd)
+         unset LD_LIBRARY_PATH # 20250621-PE just a guess
+         echo :::: in directory "$(pwd)"
          echo :::: building using meson -Dprefix=$install_top_dir build
          if meson setup -Dprefix=$install_top_dir build ; then
             echo :::: meson passed
@@ -4390,6 +4396,7 @@ if [ $skip_build = false ] ; then
             else
                 echo ninja failed
             fi
+            cd -
          else
             echo :::: meson failed
          fi
@@ -4397,7 +4404,7 @@ if [ $skip_build = false ] ; then
       else
          echo ERROR:: ${AUTOBUILD_SOURCES}/PyGObject-$pygobject_version.tar.gz file not found.
       fi ) > $HOSTLOGDIR/31-pygobject.txt 2>&1
-      echo BUILDING: done pygobject $pygobject_version: >&2
+      echo BUILDING: "done" pygobject $pygobject_version: >&2
 else
    echo not building pygobject:
    echo not building pygobject: 2>&1
@@ -4424,7 +4431,7 @@ else
     pip3 install wheel
     pip3 install pygobject
     ) > $HOSTLOGDIR/34-pip-wheel-pygobject.txt 2>&1
-    echo BUILDING: done install pygobject with pip3 >&2
+    echo BUILDING: "done" install pygobject with pip3 >&2
 fi
 
 # silicos-it's biscu-it (QED) is now part of RDKit main.
