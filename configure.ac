@@ -445,10 +445,10 @@ if test "x$with_gemmi" = xfalse ; then
     AC_MSG_RESULT(no)
 else
     AC_LANG_PUSH(C++)
-    GEMMI_CXXFLAGS="-I$withval/include -DUSE_GEMMI=1"
+    GEMMI_CXXFLAGS="-I$with_gemmi/include -DUSE_GEMMI=1"
     save_CPPFLAGS="$CPPFLAGS"
     CPPFLAGS="$CPPFLAGS $GEMMI_CXXFLAGS"
-    AC_CHECK_HEADER([gemmi/to_json.hpp], AC_MSG_NOTICE(GEMMI headers were found), AC_MSG_NOTICE(GEMMI headers were not found),)
+    AC_CHECK_HEADER([gemmi/to_json.hpp], AC_MSG_NOTICE(GEMMI headers were found), AC_MSG_FAILURE(GEMMI headers were not found),)
     CPPFLAGS="$save_CPPFLAGS"
     AC_LANG_POP
     AC_MSG_RESULT(yes)
