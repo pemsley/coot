@@ -3045,6 +3045,10 @@ fi
 # we should have meson for pygobject, need version 0.46 or later
 # however, is this the way to install pygobject? Or is done with pip3?
 #
+
+# we need python3 to have setuptools for meson - sigh
+python3 -m pip install setuptools
+
 build_meson=true
 if command -v meson --version ; then
 
