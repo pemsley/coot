@@ -2639,6 +2639,7 @@ if true ; then
           # cp -a -r gemmi $install_top_dir/include
           # cd -
           # cd $save_dir
+          needs_rebuild=true; # hack to see what happens
           echo gemmi needs rebuild: $needs_rebuild
           echo gemmi needs rebuild: $needs_rebuild > $start_dir/gemmi-rebuild.txt
           if test "$needs_rebuild" = true ; then
@@ -3733,8 +3734,10 @@ if [ "$build_boost" = true ] ; then
            ./b2 address-model=$address_model --debug-configuration cflags=-fPIC -j$np cxxflags="-fPIC -I$install_top_dir/include/python$python_version_extension$python_abiflags -Wno-maybe-uninitialized -Wno-deprecated-declarations" install
       cd -
       ) > $HOSTLOGDIR/23-boost.txt
-      echo done boost $boost_version >&2
+      echo BUILDING: "done boost" $boost_version >&2
    fi
+else
+    echo boost $boost_version was installed >&2
 fi
 
 
@@ -3742,6 +3745,7 @@ fi
 
 if [ -e $install_top_dir/lib/libboost_python$python_version_squish.a ] ; then
    echo libboost_python $install_top_dir/lib/libboost_python$python_version_squish.a was installed
+   echo libboost_python $install_top_dir/lib/libboost_python$python_version_squish.a was installed >&2
 else
    echo libboost_python $install_top_dir/lib/libboost_python$python_version_squish.a was not installed
    echo libboost_python $install_top_dir/lib/libboost_python$python_version_squish.a was not installed >&2
