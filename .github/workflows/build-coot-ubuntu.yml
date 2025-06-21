@@ -132,13 +132,14 @@ jobs:
         make -j 4 -C pyrogen
 
     - name: compile it 2
-      id: compile-step-1
+      id: compile-step-2
       run: |
         make -j 4 -C api
         make -j 4 -C layla
         make -j 4 -C validation-graphs
 
     - name: Compile it 3
+      id: compile-step-3
       run:  make -j 4
 
     # Yay. make not works! Let's install
