@@ -53,7 +53,7 @@ jobs:
       - name: Run build-with-build-it-3-3
         env:
           CHAPI_ONLY: true
-        run:  bash build-it-3-3 || echo done
+        run:  bash build-it-3-3 || echo "build-it-3-3 done"
 
       - name: Upload build-logs
         uses: actions/upload-artifact@v4
@@ -61,6 +61,15 @@ jobs:
           name: ubuntu-libcootapi-chapi-dependency-logs
           path: /home/runner/public_html/build-logs
           retention-days: 3
+
+      - name: check the installed libs
+        run:  find /home/runner/install/coot-Linux-ubuntu/lib
+
+      - name: check the installed share
+        run:  find /home/runner/install/coot-Linux-ubuntu/share
+
+      - name: check the installed include
+        run:  find /home/runner/install/coot-Linux-ubuntu/include
 
       - name: create-build-directory-for-libcootapi
         run:  mkdir build-libcootapi
@@ -81,20 +90,20 @@ jobs:
             -DRDKit_DIR=/home/runner/install/chapi-Linux-ubuntu/lib/cmake/rdkit
             -DSSM_INCLUDE_DIR=/home/runner/install/chapi-Linux-ubuntu/include
             -DSSM_LIBRARY=/home/runner/install/chapi-Linux-ubuntu/lib/libssm.so
-            -DCLIPPER-CORE_LIBRARY=/home/runner/install/chapi-Linux-ubuntu/Cellar/clipper4coot/2.1.20180802_3/lib/libclipper-core.so
-            -DCLIPPER-MMDB_LIBRARY=/home/runner/install/chapi-Linux-ubuntu/Cellar/clipper4coot/2.1.20180802_3/lib/libclipper-mmdb.so
-            -DCLIPPER-CCP4_LIBRARY=/home/runner/install/chapi-Linux-ubuntu/Cellar/clipper4coot/2.1.20180802_3/lib/libclipper-ccp4.so
-            -DCLIPPER-CONTRIB_LIBRARY=/home/runner/install/chapi-Linux-ubuntu/Cellar/clipper4coot/2.1.20180802_3/lib/libclipper-contrib.so
-            -DCLIPPER-MINIMOL_LIBRARY=/home/runner/install/chapi-Linux-ubuntu/Cellar/clipper4coot/2.1.20180802_3/lib/libclipper-minimol.so
-            -DCLIPPER-CIF_LIBRARY=/home/runner/install/chapi-Linux-ubuntu/Cellar/clipper4coot/2.1.20180802_3/lib/libclipper-cif.so
-            -DCLIPPER-CORE_INCLUDE_DIR=/home/runner/install/chapi-Linux-ubuntu/Cellar/clipper4coot/2.1.20180802_3/include
-            -DCLIPPER-MMDB_INCLUDE_DIR=/home/runner/install/chapi-Linux-ubuntu/Cellar/clipper4coot/2.1.20180802_3/include
-            -DCLIPPER-CCP4_INCLUDE_DIR=/home/runner/install/chapi-Linux-ubuntu/Cellar/clipper4coot/2.1.20180802_3/include
+            -DCLIPPER-CORE_LIBRARY=/home/runner/install/chapi-Linux-ubuntu/lib/libclipper-core.so
+            -DCLIPPER-MMDB_LIBRARY=/home/runner/install/chapi-Linux-ubuntu/lib/libclipper-mmdb.so
+            -DCLIPPER-CCP4_LIBRARY=/home/runner/install/chapi-Linux-ubuntu/lib/libclipper-ccp4.so
+            -DCLIPPER-CONTRIB_LIBRARY=/home/runner/install/chapi-Linux-ubuntu/lib/libclipper-contrib.so
+            -DCLIPPER-MINIMOL_LIBRARY=/home/runner/install/chapi-Linux-ubuntu/lib/libclipper-minimol.so
+            -DCLIPPER-CIF_LIBRARY=/home/runner/install/chapi-Linux-ubuntu/lib/libclipper-cif.so
+            -DCLIPPER-CORE_INCLUDE_DIR=/home/runner/install/chapi-Linux-ubuntu/include
+            -DCLIPPER-MMDB_INCLUDE_DIR=/home/runner/install/chapi-Linux-ubuntu/include
+            -DCLIPPER-CCP4_INCLUDE_DIR=/home/runner/install/chapi-Linux-ubuntu/include
             -DMMDB2_LIBRARY=/home/runner/install/chapi-Linux-ubuntu/lib/libmmdb2.so
             -DMMDB2_INCLUDE_DIR=/home/runner/install/chapi-Linux-ubuntu/include
-            -DFFTW2_INCLUDE_DIRS=/home/runner/install/chapi-Linux-ubuntu/Cellar/clipper4coot/2.1.20180802_3/fftw2/include
-            -DFFTW2_LIBRARY=/home/runner/install/chapi-Linux-ubuntu/Cellar/clipper4coot/2.1.20180802_3/fftw2/lib/libfftw.so
-            -DRFFTW2_LIBRARY=/home/runner/install/chapi-Linux-ubuntu/Cellar/clipper4coot/2.1.20180802_3/fftw2/lib/librfftw.so
+            -DFFTW2_INCLUDE_DIRS=/home/runner/install/chapi-Linux-ubuntu/include
+            -DFFTW2_LIBRARY=/home/runner/install/chapi-Linux-ubuntu/lib/libfftw.so
+            -DRFFTW2_LIBRARY=/home/runner/install/chapi-Linux-ubuntu/lib/librfftw.so
             -Dnanobind_DIR=/home/runner/install/chapi-Linux-ubuntu/lib/python3.13/site-packages/nanobind/cmake ..
 
       - name: make
