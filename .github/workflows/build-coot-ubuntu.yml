@@ -57,7 +57,7 @@ jobs:
       run:  sudo apt-get update
 
     - name: Install system dependencies
-      run: sudo apt-get install cmake libdw-dev libncurses5-dev libgtk-4-dev libvorbis-dev libasound2-dev
+      run: sudo apt-get install cmake libdw-dev libncurses5-dev libgtk-4-dev libvorbis-dev libasound2-dev gobject-introspection libgirepository1.0-dev
 
     # is this needed?
     - name: Install linear algebra libraries
@@ -97,6 +97,16 @@ jobs:
 
     - name: Install with make install
       run:  make install || echo done
+
+    - name: diagnostics 1
+      run find /home/runner/install/coot-Linux-ubuntu/lib > installed-files.log
+
+    - name: upload installed-files.log
+      uses: actions/upload-artifact@v4
+      with:
+        name: upload-installed-files-log-package
+        path: ./installed-files.log
+        retention-days: 3
 
     - name: Upload config.log
       uses: actions/upload-artifact@v4
