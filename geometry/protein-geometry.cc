@@ -2468,7 +2468,7 @@ coot::protein_geometry::get_residue(const std::string &comp_id, int imol_enc,
    // If the coordinates for the model are (0,0,0) then this function
    // returns a null.
 
-   bool debug = true;
+   bool debug = false;
 
    mmdb::Residue *residue_p = NULL;
 
