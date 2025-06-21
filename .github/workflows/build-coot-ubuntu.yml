@@ -101,8 +101,9 @@ jobs:
         PKG_CONFIG_PATH=/home/runner/install/coot-Linux-ubuntu/lib64/pkgconfig:/home/runner/install/coot-Linux-ubuntu/lib/pkgconfig:/home/runner/install/coot-Linux-ubuntu/lib/x86_64-linux-gnu/pkgconfig
         || echo done
 
-    # - name: Compile with make
-    #   run:  make -j 4 || echo done
+    # great. configure now terminates correctly
+    - name: Compile with make
+      run:  make -j 4 || echo "make done"
 
     # - name: Install with make install
     #   run:  make install || echo done
