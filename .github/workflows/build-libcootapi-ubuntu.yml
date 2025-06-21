@@ -45,7 +45,10 @@ jobs:
         run:  sudo apt-get update
 
       - name: Install system dependencies
-        run:  sudo apt-get install cmake libdw-dev libncurses5-dev robin-map-dev
+        run:  sudo apt-get install cmake libdw-dev libncurses5-dev robin-map-dev libjpeg-dev
+
+    - name: Install linear algebra libraries
+      run: sudo apt-get install libblas-dev liblapack-dev
 
       - name: Where are we?
         run:  pwd
@@ -59,7 +62,7 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: ubuntu-libcootapi-chapi-dependency-logs
-          path: /home/runner/public_html/build-logs
+          path: /home/runner/public_html
           retention-days: 3
 
       - name: check the installed libs
