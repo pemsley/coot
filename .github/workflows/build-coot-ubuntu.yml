@@ -102,21 +102,67 @@ jobs:
         || echo done
 
     # great. configure now terminates correctly
-    - name: Compile with make
-      run:  make -j 4 || echo "make done"
+    - name: compile it 1
+      id: compile-step-1
+      run: |
+        make -j 4 -C auxil
+        make -j 4 -C compat
+        make -j 4 -C utils
+        make -j 4 -C protein_db
+        make -j 4 -C mini-mol
+        make -j 4 -C geometry
+        make -j 4 -C lidia-core
+        make -j 4 -C coot-utils
+        make -j 4 -C angles
+        make -j 4 -C ccp4mg-utils
+        make -j 4 -C db-main
+        make -j 4 -C analysis
+        make -j 4 -C cootaneer
+        make -j 4 -C ideal
+        make -j 4 -C ligand
+        make -j 4 -C coords
+        make -j 4 -C density-contour
+        make -j 4 -C skeleton
+        make -j 4 -C high-res
+        make -j 4 -C build
+        make -j 4 -C MoleculesToTriangles
+        make -j 4 -C pli
+        make -j 4 -C greg-tests
+        make -j 4 -C cootilus
+        make -j 4 -C pyrogen
+
+    - name: compile it 2
+      id: compile-step-1
+      run: |
+        make -j 4 -C api
+        make -j 4 -C layla
+        make -j 4 -C validation-graphs
+
+    - name: Compile it 3
+      run:  make -j 4
 
     # Yay. make not works! Let's install
     - name: Install with make install
-      run:  make install || echo "done install"
+      run:  make install
 
     - name: diagnostics 1
-      run:  find /home/runner/install/coot-Linux-ubuntu/lib > installed-files.log
+      run:  find /home/runner/install/coot-Linux-ubuntu/lib > installed-lib-files.log
 
-    - name: upload installed-files.log
+    - name: upload installed-lib-files.log
       uses: actions/upload-artifact@v4
       with:
-        name: upload-installed-files-log-package
-        path: ./installed-files.log
+        name: upload-installed-lib-files-log-package
+        path: ./installed-lib-files.log
+        retention-days: 3
+
+    - name: diagnostics 2
+      run:  find /home/runner/install/coot-Linux-ubuntu/include > installed-include-files.log
+
+    - name: upload installed-include-files.log
+      uses: actions/upload-artifact@v4
+      with:
+        name: upload-installed-include-files-log-package
+        path: ./installed-include-files.log
         retention-days: 3
 
     - name: Upload config.log
