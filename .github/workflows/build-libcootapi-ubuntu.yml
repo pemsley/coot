@@ -73,6 +73,28 @@ jobs:
         run: >
             cd build-libcootapi &&
             cmake -DCMAKE_INSTALL_PREFIX=/home/runner/install/chapi-Linux-ubuntu
+            -DCMAKE_BUILD_TYPE=Debug
+            -DCMAKE_INSTALL_PREFIX=/home/runner/install/chapi-Linux-ubuntu
+            -DCMAKE_PREFIX_PATH=/home/runner/install/chapi-Linux-ubuntu
+            -DENHANCED_LIGAND_TOOLS=TRUE
+            -DGEMMI_DIR=/home/runner/install/chapi-Linux-ubuntu/lib/cmake/gemmi
+            -DRDKit_DIR=/home/runner/install/chapi-Linux-ubuntu/lib/cmake/rdkit
+            -DSSM_INCLUDE_DIR=/home/runner/install/chapi-Linux-ubuntu/include
+            -DSSM_LIBRARY=/home/runner/install/chapi-Linux-ubuntu/lib/libssm.so
+            -DCLIPPER-CORE_LIBRARY=/home/runner/install/chapi-Linux-ubuntu/Cellar/clipper4coot/2.1.20180802_3/lib/libclipper-core.so
+            -DCLIPPER-MMDB_LIBRARY=/home/runner/install/chapi-Linux-ubuntu/Cellar/clipper4coot/2.1.20180802_3/lib/libclipper-mmdb.so
+            -DCLIPPER-CCP4_LIBRARY=/home/runner/install/chapi-Linux-ubuntu/Cellar/clipper4coot/2.1.20180802_3/lib/libclipper-ccp4.so
+            -DCLIPPER-CONTRIB_LIBRARY=/home/runner/install/chapi-Linux-ubuntu/Cellar/clipper4coot/2.1.20180802_3/lib/libclipper-contrib.so
+            -DCLIPPER-MINIMOL_LIBRARY=/home/runner/install/chapi-Linux-ubuntu/Cellar/clipper4coot/2.1.20180802_3/lib/libclipper-minimol.so
+            -DCLIPPER-CIF_LIBRARY=/home/runner/install/chapi-Linux-ubuntu/Cellar/clipper4coot/2.1.20180802_3/lib/libclipper-cif.so
+            -DCLIPPER-CORE_INCLUDE_DIR=/home/runner/install/chapi-Linux-ubuntu/Cellar/clipper4coot/2.1.20180802_3/include
+            -DCLIPPER-MMDB_INCLUDE_DIR=/home/runner/install/chapi-Linux-ubuntu/Cellar/clipper4coot/2.1.20180802_3/include
+            -DCLIPPER-CCP4_INCLUDE_DIR=/home/runner/install/chapi-Linux-ubuntu/Cellar/clipper4coot/2.1.20180802_3/include
+            -DMMDB2_LIBRARY=/home/runner/install/chapi-Linux-ubuntu/lib/libmmdb2.so
+            -DMMDB2_INCLUDE_DIR=/home/runner/install/chapi-Linux-ubuntu/include
+            -DFFTW2_INCLUDE_DIRS=/home/runner/install/chapi-Linux-ubuntu/Cellar/clipper4coot/2.1.20180802_3/fftw2/include
+            -DFFTW2_LIBRARY=/home/runner/install/chapi-Linux-ubuntu/Cellar/clipper4coot/2.1.20180802_3/fftw2/lib/libfftw.so
+            -DRFFTW2_LIBRARY=/home/runner/install/chapi-Linux-ubuntu/Cellar/clipper4coot/2.1.20180802_3/fftw2/lib/librfftw.so
             -Dnanobind_DIR=/home/runner/install/chapi-Linux-ubuntu/lib/python3.13/site-packages/nanobind/cmake ..
 
       - name: make
