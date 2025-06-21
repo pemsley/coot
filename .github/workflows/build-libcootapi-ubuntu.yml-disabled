@@ -14,18 +14,11 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Cache chapi dependencies
-        id:   Cache-chapi-dependencies-using-python-3-10
+        id:   cache-chapi-dependencies
         uses: actions/cache@v4
         with:
-          path: /home/runner/install/chapi-Linux-ubuntu-gtk4
-          key:  chapi-deps-ubuntu-using-python-3-10
-
-      - name: download the monomer library
-        run:  wget -nv https://github.com/MonomerLibrary/monomers/archive/refs/tags/ccp4-8.0.016.tar.gz
-
-      # note that the data directory exists in the coot repo (which is where we are)
-      - name: untar the monomer library
-        run:  pwd && cd data && tar xf ../ccp4-8.0.016.tar.gz && ln -s monomers-ccp4-8.0.016 monomers
+          path: /home/runner/install/chapi-Linux-ubuntu
+          key:  chapi-deps-ubuntu
 
       - name: Cache test data tar
         id: test-data-cache
@@ -52,8 +45,7 @@ jobs:
         run:  sudo apt-get update
 
       - name: Install system dependencies
-        # run:  sudo apt-get install cmake libdw-dev libncurses5-dev libgtk-4-dev
-        run:  sudo apt-get install cmake libdw-dev libncurses5-dev libgtk-4-dev
+        run:  sudo apt-get install cmake libdw-dev libncurses5-dev robin-map-dev
 
       - name: Where are we?
         run:  pwd
@@ -74,13 +66,14 @@ jobs:
         run:  mkdir build-libcootapi
 
       - name: set the path
-        run:  echo /home/runner/install/chapi-Linux-ubuntu-gtk4/bin >> $GITHUB_PATH
+        run:  echo /home/runner/install/chapi-Linux-ubuntu/bin >> $GITHUB_PATH
 
       - name: run cmake
+        # I am not sure that defing nanobind_DIR here is useful
         run: >
             cd build-libcootapi &&
-            cmake -DCMAKE_INSTALL_PREFIX=/home/runner/install/chapi-Linux-ubuntu-gtk4
-            -Dnanobind_DIR=/home/runner/install/chapi-Linux-ubuntu-gtk4/lib/python3.10/site-packages/nanobind/cmake ..
+            cmake -DCMAKE_INSTALL_PREFIX=/home/runner/install/chapi-Linux-ubuntu
+            -Dnanobind_DIR=/home/runner/install/chapi-Linux-ubuntu/lib/python3.13/site-packages/nanobind/cmake ..
 
       - name: make
         run:  cd build-libcootapi && make -j 4
@@ -91,7 +84,6 @@ jobs:
       - name: test with chapi-using script
         env:
           MOORHEN_TEST_DATA_DIR: test-data
-          COOT_REFMAC_LIB_DIR: /home/runner/work/coot/coot # "data/monomers" is added before "a/ATP.cif" (say)
         run:  which python3 && cat python-tests/test_chapi2.py && python3 python-tests/test_chapi2.py
 
       - name: where are we?
@@ -101,10 +93,8 @@ jobs:
         run:  cd build-libcootapi && make test-molecules-container
 
       - name: run the test-molecules-container test
-        # this needs the monomer library
         env:
           MOORHEN_TEST_DATA_DIR: ../test-data
-          COOT_REFMAC_LIB_DIR: /home/runner/work/coot/coot # "data/monomers" is added before "a/ATP.cif" (say)
         # run:  cd build-libcootapi && ./test-molecules-container | egrep "^FAIL|^PASS|^UN|^LIGHTS|^, "
         run:  cd build-libcootapi && ./test-molecules-container
 
