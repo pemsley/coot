@@ -25,7 +25,7 @@ jobs:
          path: src/greg-data
          key:  coot-test-data
 
-    # remove this for now so that ccp4c gets built
+    # remove this for now
     # - name: Cache coot dependencies
     #   id: cache-coot-dependencies-ubuntu
     #   uses: actions/cache@v4
@@ -47,10 +47,6 @@ jobs:
          path: build-gemmi
          key:  coot-build-ubuntu-gemmi-cache-build
 
-    # this doesn't work if there is no cache
-    # - name: List any installed Coot libs
-    #   run:  ls -l /home/runner/install/coot-Linux-ubuntu/lib/libcoot* /home/runner/install/coot-Linux-ubuntu/lib/libMoleculesToTrianglesCXXClasses*
-
     - name: Delete any installed Coot libs
       run:  if test -e /home/runner/install/coot-Linux-ubuntu/lib/libcoot-analysis.so ; then rm /home/runner/install/coot-Linux-ubuntu/lib/libcoot* /home/runner/install/coot-Linux-ubuntu/lib/libMoleculesToTrianglesCXXClasses* ; fi
 
@@ -58,7 +54,7 @@ jobs:
       run:  sudo apt-get update
 
     - name: Install system dependencies
-      run: sudo apt-get install cmake libdw-dev libncurses5-dev libgtk-4-dev libvorbis-dev libasound2-dev
+      run: sudo apt-get install cmake libdw-dev libncurses5-dev libgtk-4-dev libvorbis-dev libasound2-dev gobject-introspection libgirepository1.0-dev
 
     # is this needed?
     - name: Install linear algebra libraries
@@ -77,11 +73,11 @@ jobs:
         path: /home/runner/public_html
         retention-days: 3
 
-    - name: check the clipper
-      run:  find /home/runner/install/coot-Linux-ubuntu
+    # - name: check the clipper
+    #   run:  find /home/runner/install/coot-Linux-ubuntu
 
-    - name: check the clipper libs
-      run:  find /home/runner/install/coot-Linux-ubuntu/lib
+    # - name: check the clipper libs
+    #   run:  find /home/runner/install/coot-Linux-ubuntu/lib
 
     - name: Run autogen.sh
       run:  bash autogen.sh
@@ -112,12 +108,22 @@ jobs:
     # - name: Install with make install
     #   run:  make install || echo done
 
-    # - name: Upload config.log
-    #   uses: actions/upload-artifact@v4
-    #   with:
-    #     name: upload-config-log-package
-    #     path: ./config.log
-    #     retention-days: 3
+    - name: diagnostics 1
+      run:  find /home/runner/install/coot-Linux-ubuntu/lib > installed-files.log
+
+    - name: upload installed-files.log
+      uses: actions/upload-artifact@v4
+      with:
+        name: upload-installed-files-log-package
+        path: ./installed-files.log
+        retention-days: 3
+
+    - name: Upload config.log
+      uses: actions/upload-artifact@v4
+      with:
+        name: upload-config-log-package
+        path: ./config.log
+        retention-days: 3
 
     # - name: Does it run?
     #   run:  cd src && ./coot-1 --no-graphics < /dev/null && cd -
@@ -134,3 +140,4 @@ jobs:
         name: ubuntu-binaries-package
         path: /home/runner/install
         retention-days: 3
+
