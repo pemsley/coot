@@ -2328,12 +2328,18 @@ if test -n "$build_ccp4c" ; then
     ${WGET} $extras_place/libccp4-$libccp4_version.tar.gz
     echo BUILDING libccp4 $libccp4_version >&2
     (
+    unset LD_LIBRARY_PATH
     date
+    echo gunzip/untar ${AUTOBUILD_SOURCES}/libccp4-$libccp4_version.tar.gz
     gzip -dc ${AUTOBUILD_SOURCES}/libccp4-$libccp4_version.tar.gz | tar xf -
     cd libccp4-$libccp4_version
     if ./configure $generic_prefix --enable-shared --disable-static --disable-fortran ; then
        if $MAKE ; then
-          $MAKE install
+           $MAKE install
+           # 20250621-PE
+           # libccp4 installs $install_top_dir/lib/pkgconfig/ccp4c.pc
+           # lib libclipper needs libccp4c! How have I not run into this before!?
+           cp $install_top_dir/lib/pkgconfig/ccp4c.pc $install_top_dir/lib/pkgconfig/libccp4c.pc
        fi
     fi
     ) > $HOSTLOGDIR/01-libccp4.txt 2>&1
@@ -3039,6 +3045,10 @@ fi
 # we should have meson for pygobject, need version 0.46 or later
 # however, is this the way to install pygobject? Or is done with pip3?
 #
+
+# we need python3 to have setuptools for meson - sigh
+python3 -m pip install setuptools
+
 build_meson=true
 if command -v meson --version ; then
 

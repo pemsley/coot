@@ -25,12 +25,13 @@ jobs:
          path: src/greg-data
          key:  coot-test-data
 
-    - name: Cache coot dependencies
-      id: cache-coot-dependencies-ubuntu
-      uses: actions/cache@v4
-      with:
-         path: /home/runner/install/coot-Linux-ubuntu
-         key:  coot-deps-ubuntu
+    # remove this for now
+    # - name: Cache coot dependencies
+    #   id: cache-coot-dependencies-ubuntu
+    #   uses: actions/cache@v4
+    #   with:
+    #      path: /home/runner/install/coot-Linux-ubuntu
+    #      key:  coot-deps-ubuntu
 
     - name: Cache gemmi source
       id:   Cache-gemmi-source
@@ -45,10 +46,6 @@ jobs:
       with:
          path: build-gemmi
          key:  coot-build-ubuntu-gemmi-cache-build
-
-    # this doesn't work if there is no cache
-    # - name: List any installed Coot libs
-    #   run:  ls -l /home/runner/install/coot-Linux-ubuntu/lib/libcoot* /home/runner/install/coot-Linux-ubuntu/lib/libMoleculesToTrianglesCXXClasses*
 
     - name: Delete any installed Coot libs
       run:  if test -e /home/runner/install/coot-Linux-ubuntu/lib/libcoot-analysis.so ; then rm /home/runner/install/coot-Linux-ubuntu/lib/libcoot* /home/runner/install/coot-Linux-ubuntu/lib/libMoleculesToTrianglesCXXClasses* ; fi
@@ -68,6 +65,19 @@ jobs:
 
     - name: Run build-with-build-it-3-3
       run:  bash build-it-3-3 || echo done
+
+    - name: Upload build logs
+      uses: actions/upload-artifact@v4
+      with:
+        name: build-logs-public-html-package
+        path: /home/runner/public_html
+        retention-days: 3
+
+    # - name: check the clipper
+    #   run:  find /home/runner/install/coot-Linux-ubuntu
+
+    # - name: check the clipper libs
+    #   run:  find /home/runner/install/coot-Linux-ubuntu/lib
 
     - name: Run autogen.sh
       run:  bash autogen.sh
@@ -92,11 +102,11 @@ jobs:
         PKG_CONFIG_PATH=/home/runner/install/coot-Linux-ubuntu/lib64/pkgconfig:/home/runner/install/coot-Linux-ubuntu/lib/pkgconfig:/home/runner/install/coot-Linux-ubuntu/lib/x86_64-linux-gnu/pkgconfig
         || echo done
 
-    - name: Compile with make
-      run:  make -j 4 || echo done
+    # - name: Compile with make
+    #   run:  make -j 4 || echo done
 
-    - name: Install with make install
-      run:  make install || echo done
+    # - name: Install with make install
+    #   run:  make install || echo done
 
     - name: diagnostics 1
       run find /home/runner/install/coot-Linux-ubuntu/lib > installed-files.log
@@ -115,15 +125,8 @@ jobs:
         path: ./config.log
         retention-days: 3
 
-    - name: Upload build logs
-      uses: actions/upload-artifact@v4
-      with:
-        name: build-logs-public-html-package
-        path: /home/runner/public_html
-        retention-days: 3
-
-    - name: Does it run?
-      run:  cd src && ./coot-1 --no-graphics < /dev/null && cd -
+    # - name: Does it run?
+    #   run:  cd src && ./coot-1 --no-graphics < /dev/null && cd -
 
     # - name: Run the Unit Python Tests
     #   env:
@@ -137,3 +140,4 @@ jobs:
         name: ubuntu-binaries-package
         path: /home/runner/install
         retention-days: 3
+
