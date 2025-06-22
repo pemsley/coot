@@ -1194,6 +1194,26 @@ case $dist_name in
        libjpeg-dev
        libgtk-4-dev'
        # gfortran is for numpy
+      if test "$CHAPI_ONLY" = true ; then
+          dep_list='
+          patch
+          m4
+          g++
+          git
+          libtool
+          cmake
+          flex
+          bison
+          gfortran
+          autoconf
+          automake
+          libssl-dev
+          libblas-dev
+          liblapack-dev
+          libc6-dev
+          libncurses-dev
+          libjpeg-dev'
+      fi
 
       for dep in $dep_list
       do
