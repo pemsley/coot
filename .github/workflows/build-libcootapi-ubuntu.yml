@@ -108,7 +108,7 @@ jobs:
             -DFFTW2_INCLUDE_DIRS=/home/runner/install/chapi-Linux-ubuntu/include
             -DFFTW2_LIBRARY=/home/runner/install/chapi-Linux-ubuntu/lib/libfftw.so
             -DRFFTW2_LIBRARY=/home/runner/install/chapi-Linux-ubuntu/lib/librfftw.so
-            -Dnanobind_DIR=/home/runner/install/chapi-Linux-ubuntu/lib/python3.13/site-packages/nanobind/cmake ..
+            -Dnanobind_DIR=/home/runner/install/chapi-Linux-ubuntu/lib/python3.12/site-packages/nanobind/cmake ..
 
       # - name: make
       #   run:  cd build-libcootapi && make -j 4
