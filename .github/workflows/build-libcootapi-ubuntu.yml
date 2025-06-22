@@ -82,7 +82,8 @@ jobs:
         run:  echo /home/runner/install/chapi-Linux-ubuntu/bin >> $GITHUB_PATH
 
       - name: run cmake
-        # I am not sure that defing nanobind_DIR here is useful
+        # I am not sure that defing nanobind_DIR here is useful.
+        # This does not create coot_headless_api.pyi because timing issues
         run: >
             cd build-libcootapi &&
             cmake -DCMAKE_INSTALL_PREFIX=/home/runner/install/chapi-Linux-ubuntu
@@ -116,8 +117,8 @@ jobs:
       - name: make part 2
         run:  cd build-libcootapi && make VERBOSE=1
 
-      # - name: make install
-      #   run:  cd build-libcootapi && make install
+      - name: make install
+        run:  cd build-libcootapi && make install
 
       # - name: test with chapi-using script
       #   env:
