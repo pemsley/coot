@@ -66,13 +66,13 @@ jobs:
           retention-days: 3
 
       - name: check the installed libs
-        run:  find /home/runner/install/coot-Linux-ubuntu/lib
+        run:  find /home/runner/install/chapi-Linux-ubuntu/lib
 
       - name: check the installed share
-        run:  find /home/runner/install/coot-Linux-ubuntu/share
+        run:  find /home/runner/install/chapi-Linux-ubuntu/share
 
       - name: check the installed include
-        run:  find /home/runner/install/coot-Linux-ubuntu/include
+        run:  find /home/runner/install/chapi-Linux-ubuntu/include
 
       - name: create-build-directory-for-libcootapi
         run:  mkdir build-libcootapi
