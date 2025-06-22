@@ -83,7 +83,7 @@ jobs:
 
       - name: run cmake
         # I am not sure that defing nanobind_DIR here is useful
-       run: >
+        run: >
             cd build-libcootapi &&
             cmake -DCMAKE_INSTALL_PREFIX=/home/runner/install/chapi-Linux-ubuntu
             -DCMAKE_BUILD_TYPE=Debug
