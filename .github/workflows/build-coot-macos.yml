@@ -18,15 +18,12 @@ jobs:
       id:   setup-homebrew
       uses: Homebrew/actions/setup-homebrew@master
 
-    - name: Cache Homebrew Cellar and Cache
+    - name: cache macos libcootapi build homebrew
+      id: coot-macos-homebrew
       uses: actions/cache@v4
       with:
-        path: |
-          /opt/homebrew/Cellar
-          /Users/runner/Library/Caches/Homebrew
-        key: brew-${{ runner.os }}-${{ github.run_id }}
-        restore-keys: |
-          brew-${{ runner.os }}-brew-${{ runner.os }}
+        path: /opt/homebrew
+        key:  coot-macos-build-homebrew-cache
 
     - name: turn on brew analytics
       run:  brew analytics on
