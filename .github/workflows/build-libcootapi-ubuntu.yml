@@ -46,6 +46,14 @@ jobs:
       - name: Where are we?
         run:  pwd
 
+      # cache restore goes before the build step
+      - name: Cache chapi dependencies
+        id:   cache-chapi-dependencies
+        uses: actions/cache@v4
+        with:
+          path: /home/runner/install/chapi-Linux-ubuntu
+          key:  chapi-deps-ubuntu
+
       - name: Run build-with-build-it-3-3
         env:
           CHAPI_ONLY: true
@@ -57,13 +65,6 @@ jobs:
           name: ubuntu-libcootapi-chapi-dependency-logs
           path: /home/runner/public_html
           retention-days: 3
-
-      - name: Cache chapi dependencies
-        id:   cache-chapi-dependencies
-        uses: actions/cache@v4
-        with:
-          path: /home/runner/install/chapi-Linux-ubuntu
-          key:  chapi-deps-ubuntu
 
       - name: check the installed libs
         run:  find /home/runner/install/chapi-Linux-ubuntu/lib
@@ -80,34 +81,34 @@ jobs:
       - name: set the path
         run:  echo /home/runner/install/chapi-Linux-ubuntu/bin >> $GITHUB_PATH
 
-      # - name: run cmake
-      #   # I am not sure that defing nanobind_DIR here is useful
-      #   run: >
-      #       cd build-libcootapi &&
-      #       cmake -DCMAKE_INSTALL_PREFIX=/home/runner/install/chapi-Linux-ubuntu
-      #       -DCMAKE_BUILD_TYPE=Debug
-      #       -DCMAKE_INSTALL_PREFIX=/home/runner/install/chapi-Linux-ubuntu
-      #       -DCMAKE_PREFIX_PATH=/home/runner/install/chapi-Linux-ubuntu
-      #       -DENHANCED_LIGAND_TOOLS=TRUE
-      #       -DGEMMI_DIR=/home/runner/install/chapi-Linux-ubuntu/lib/cmake/gemmi
-      #       -DRDKit_DIR=/home/runner/install/chapi-Linux-ubuntu/lib/cmake/rdkit
-      #       -DSSM_INCLUDE_DIR=/home/runner/install/chapi-Linux-ubuntu/include
-      #       -DSSM_LIBRARY=/home/runner/install/chapi-Linux-ubuntu/lib/libssm.so
-      #       -DCLIPPER-CORE_LIBRARY=/home/runner/install/chapi-Linux-ubuntu/lib/libclipper-core.so
-      #       -DCLIPPER-MMDB_LIBRARY=/home/runner/install/chapi-Linux-ubuntu/lib/libclipper-mmdb.so
-      #       -DCLIPPER-CCP4_LIBRARY=/home/runner/install/chapi-Linux-ubuntu/lib/libclipper-ccp4.so
-      #       -DCLIPPER-CONTRIB_LIBRARY=/home/runner/install/chapi-Linux-ubuntu/lib/libclipper-contrib.so
-      #       -DCLIPPER-MINIMOL_LIBRARY=/home/runner/install/chapi-Linux-ubuntu/lib/libclipper-minimol.so
-      #       -DCLIPPER-CIF_LIBRARY=/home/runner/install/chapi-Linux-ubuntu/lib/libclipper-cif.so
-      #       -DCLIPPER-CORE_INCLUDE_DIR=/home/runner/install/chapi-Linux-ubuntu/include
-      #       -DCLIPPER-MMDB_INCLUDE_DIR=/home/runner/install/chapi-Linux-ubuntu/include
-      #       -DCLIPPER-CCP4_INCLUDE_DIR=/home/runner/install/chapi-Linux-ubuntu/include
-      #       -DMMDB2_LIBRARY=/home/runner/install/chapi-Linux-ubuntu/lib/libmmdb2.so
-      #       -DMMDB2_INCLUDE_DIR=/home/runner/install/chapi-Linux-ubuntu/include
-      #       -DFFTW2_INCLUDE_DIRS=/home/runner/install/chapi-Linux-ubuntu/include
-      #       -DFFTW2_LIBRARY=/home/runner/install/chapi-Linux-ubuntu/lib/libfftw.so
-      #       -DRFFTW2_LIBRARY=/home/runner/install/chapi-Linux-ubuntu/lib/librfftw.so
-      #       -Dnanobind_DIR=/home/runner/install/chapi-Linux-ubuntu/lib/python3.13/site-packages/nanobind/cmake ..
+      - name: run cmake
+        # I am not sure that defing nanobind_DIR here is useful
+       run: >
+            cd build-libcootapi &&
+            cmake -DCMAKE_INSTALL_PREFIX=/home/runner/install/chapi-Linux-ubuntu
+            -DCMAKE_BUILD_TYPE=Debug
+            -DCMAKE_INSTALL_PREFIX=/home/runner/install/chapi-Linux-ubuntu
+            -DCMAKE_PREFIX_PATH=/home/runner/install/chapi-Linux-ubuntu
+            -DENHANCED_LIGAND_TOOLS=TRUE
+            -DGEMMI_DIR=/home/runner/install/chapi-Linux-ubuntu/lib/cmake/gemmi
+            -DRDKit_DIR=/home/runner/install/chapi-Linux-ubuntu/lib/cmake/rdkit
+            -DSSM_INCLUDE_DIR=/home/runner/install/chapi-Linux-ubuntu/include
+            -DSSM_LIBRARY=/home/runner/install/chapi-Linux-ubuntu/lib/libssm.so
+            -DCLIPPER-CORE_LIBRARY=/home/runner/install/chapi-Linux-ubuntu/lib/libclipper-core.so
+            -DCLIPPER-MMDB_LIBRARY=/home/runner/install/chapi-Linux-ubuntu/lib/libclipper-mmdb.so
+            -DCLIPPER-CCP4_LIBRARY=/home/runner/install/chapi-Linux-ubuntu/lib/libclipper-ccp4.so
+            -DCLIPPER-CONTRIB_LIBRARY=/home/runner/install/chapi-Linux-ubuntu/lib/libclipper-contrib.so
+            -DCLIPPER-MINIMOL_LIBRARY=/home/runner/install/chapi-Linux-ubuntu/lib/libclipper-minimol.so
+            -DCLIPPER-CIF_LIBRARY=/home/runner/install/chapi-Linux-ubuntu/lib/libclipper-cif.so
+            -DCLIPPER-CORE_INCLUDE_DIR=/home/runner/install/chapi-Linux-ubuntu/include
+            -DCLIPPER-MMDB_INCLUDE_DIR=/home/runner/install/chapi-Linux-ubuntu/include
+            -DCLIPPER-CCP4_INCLUDE_DIR=/home/runner/install/chapi-Linux-ubuntu/include
+            -DMMDB2_LIBRARY=/home/runner/install/chapi-Linux-ubuntu/lib/libmmdb2.so
+            -DMMDB2_INCLUDE_DIR=/home/runner/install/chapi-Linux-ubuntu/include
+            -DFFTW2_INCLUDE_DIRS=/home/runner/install/chapi-Linux-ubuntu/include
+            -DFFTW2_LIBRARY=/home/runner/install/chapi-Linux-ubuntu/lib/libfftw.so
+            -DRFFTW2_LIBRARY=/home/runner/install/chapi-Linux-ubuntu/lib/librfftw.so
+            -Dnanobind_DIR=/home/runner/install/chapi-Linux-ubuntu/lib/python3.13/site-packages/nanobind/cmake ..
 
       # - name: make
       #   run:  cd build-libcootapi && make -j 4
