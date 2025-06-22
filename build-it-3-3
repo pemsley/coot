@@ -2141,12 +2141,21 @@ python_version_extension=3.13 # extract this
 python_version_squish=313
 
 # for Blender 4 in 2024, we want Python 3.10.13, so uncomment the 3 lines below:
+# for Blender 4.1 in June 2025, we want Python 3.11.x
+# But the CMakeLists file here rqures 3.12.4 - so let's use that
 if [ "$CHAPI_ONLY" = true ] ; then
 
+    # blender
     python_version=python3.11
     pver=3.11.11
     python_version_extension=3.11
     python_version_squish=311
+
+    # chapi
+    python_version=python3.12
+    pver=3.12.11
+    python_version_extension=3.12
+    python_version_squish=312
 
 fi
 
