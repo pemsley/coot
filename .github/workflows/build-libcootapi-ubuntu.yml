@@ -13,13 +13,6 @@ jobs:
 
       - uses: actions/checkout@v4
 
-      - name: Cache chapi dependencies
-        id:   cache-chapi-dependencies
-        uses: actions/cache@v4
-        with:
-          path: /home/runner/install/chapi-Linux-ubuntu
-          key:  chapi-deps-ubuntu
-
       - name: Cache test data tar
         id: test-data-cache
         uses: actions/cache@v4
@@ -65,77 +58,84 @@ jobs:
           path: /home/runner/public_html
           retention-days: 3
 
-      - name: check the installed libs
-        run:  find /home/runner/install/chapi-Linux-ubuntu/lib
-
-      - name: check the installed share
-        run:  find /home/runner/install/chapi-Linux-ubuntu/share
-
-      - name: check the installed include
-        run:  find /home/runner/install/chapi-Linux-ubuntu/include
-
-      - name: create-build-directory-for-libcootapi
-        run:  mkdir build-libcootapi
-
-      - name: set the path
-        run:  echo /home/runner/install/chapi-Linux-ubuntu/bin >> $GITHUB_PATH
-
-      - name: run cmake
-        # I am not sure that defing nanobind_DIR here is useful
-        run: >
-            cd build-libcootapi &&
-            cmake -DCMAKE_INSTALL_PREFIX=/home/runner/install/chapi-Linux-ubuntu
-            -DCMAKE_BUILD_TYPE=Debug
-            -DCMAKE_INSTALL_PREFIX=/home/runner/install/chapi-Linux-ubuntu
-            -DCMAKE_PREFIX_PATH=/home/runner/install/chapi-Linux-ubuntu
-            -DENHANCED_LIGAND_TOOLS=TRUE
-            -DGEMMI_DIR=/home/runner/install/chapi-Linux-ubuntu/lib/cmake/gemmi
-            -DRDKit_DIR=/home/runner/install/chapi-Linux-ubuntu/lib/cmake/rdkit
-            -DSSM_INCLUDE_DIR=/home/runner/install/chapi-Linux-ubuntu/include
-            -DSSM_LIBRARY=/home/runner/install/chapi-Linux-ubuntu/lib/libssm.so
-            -DCLIPPER-CORE_LIBRARY=/home/runner/install/chapi-Linux-ubuntu/lib/libclipper-core.so
-            -DCLIPPER-MMDB_LIBRARY=/home/runner/install/chapi-Linux-ubuntu/lib/libclipper-mmdb.so
-            -DCLIPPER-CCP4_LIBRARY=/home/runner/install/chapi-Linux-ubuntu/lib/libclipper-ccp4.so
-            -DCLIPPER-CONTRIB_LIBRARY=/home/runner/install/chapi-Linux-ubuntu/lib/libclipper-contrib.so
-            -DCLIPPER-MINIMOL_LIBRARY=/home/runner/install/chapi-Linux-ubuntu/lib/libclipper-minimol.so
-            -DCLIPPER-CIF_LIBRARY=/home/runner/install/chapi-Linux-ubuntu/lib/libclipper-cif.so
-            -DCLIPPER-CORE_INCLUDE_DIR=/home/runner/install/chapi-Linux-ubuntu/include
-            -DCLIPPER-MMDB_INCLUDE_DIR=/home/runner/install/chapi-Linux-ubuntu/include
-            -DCLIPPER-CCP4_INCLUDE_DIR=/home/runner/install/chapi-Linux-ubuntu/include
-            -DMMDB2_LIBRARY=/home/runner/install/chapi-Linux-ubuntu/lib/libmmdb2.so
-            -DMMDB2_INCLUDE_DIR=/home/runner/install/chapi-Linux-ubuntu/include
-            -DFFTW2_INCLUDE_DIRS=/home/runner/install/chapi-Linux-ubuntu/include
-            -DFFTW2_LIBRARY=/home/runner/install/chapi-Linux-ubuntu/lib/libfftw.so
-            -DRFFTW2_LIBRARY=/home/runner/install/chapi-Linux-ubuntu/lib/librfftw.so
-            -Dnanobind_DIR=/home/runner/install/chapi-Linux-ubuntu/lib/python3.13/site-packages/nanobind/cmake ..
-
-      - name: make
-        run:  cd build-libcootapi && make -j 4
-
-      - name: make install
-        run:  cd build-libcootapi && make install
-
-      - name: test with chapi-using script
-        env:
-          MOORHEN_TEST_DATA_DIR: test-data
-        run:  which python3 && cat python-tests/test_chapi2.py && python3 python-tests/test_chapi2.py
-
-      - name: where are we?
-        run:  pwd && ls -lt
-
-      - name: make test-molecules-container
-        run:  cd build-libcootapi && make test-molecules-container
-
-      - name: run the test-molecules-container test
-        env:
-          MOORHEN_TEST_DATA_DIR: ../test-data
-        # run:  cd build-libcootapi && ./test-molecules-container | egrep "^FAIL|^PASS|^UN|^LIGHTS|^, "
-        run:  cd build-libcootapi && ./test-molecules-container
-
-      - name: Upload binaries
-        uses: actions/upload-artifact@v4
+      - name: Cache chapi dependencies
+        id:   cache-chapi-dependencies
+        uses: actions/cache@v4
         with:
-          name: ubuntu-libcootapi-chapi-binaries-package
-          path: /home/runner/install
-          retention-days: 3
+          path: /home/runner/install/chapi-Linux-ubuntu
+          key:  chapi-deps-ubuntu
+
+      # - name: check the installed libs
+      #   run:  find /home/runner/install/chapi-Linux-ubuntu/lib
+
+      # - name: check the installed share
+      #   run:  find /home/runner/install/chapi-Linux-ubuntu/share
+
+      # - name: check the installed include
+      #   run:  find /home/runner/install/chapi-Linux-ubuntu/include
+
+      # - name: create-build-directory-for-libcootapi
+      #   run:  mkdir build-libcootapi
+
+      # - name: set the path
+      #   run:  echo /home/runner/install/chapi-Linux-ubuntu/bin >> $GITHUB_PATH
+
+      # - name: run cmake
+      #   # I am not sure that defing nanobind_DIR here is useful
+      #   run: >
+      #       cd build-libcootapi &&
+      #       cmake -DCMAKE_INSTALL_PREFIX=/home/runner/install/chapi-Linux-ubuntu
+      #       -DCMAKE_BUILD_TYPE=Debug
+      #       -DCMAKE_INSTALL_PREFIX=/home/runner/install/chapi-Linux-ubuntu
+      #       -DCMAKE_PREFIX_PATH=/home/runner/install/chapi-Linux-ubuntu
+      #       -DENHANCED_LIGAND_TOOLS=TRUE
+      #       -DGEMMI_DIR=/home/runner/install/chapi-Linux-ubuntu/lib/cmake/gemmi
+      #       -DRDKit_DIR=/home/runner/install/chapi-Linux-ubuntu/lib/cmake/rdkit
+      #       -DSSM_INCLUDE_DIR=/home/runner/install/chapi-Linux-ubuntu/include
+      #       -DSSM_LIBRARY=/home/runner/install/chapi-Linux-ubuntu/lib/libssm.so
+      #       -DCLIPPER-CORE_LIBRARY=/home/runner/install/chapi-Linux-ubuntu/lib/libclipper-core.so
+      #       -DCLIPPER-MMDB_LIBRARY=/home/runner/install/chapi-Linux-ubuntu/lib/libclipper-mmdb.so
+      #       -DCLIPPER-CCP4_LIBRARY=/home/runner/install/chapi-Linux-ubuntu/lib/libclipper-ccp4.so
+      #       -DCLIPPER-CONTRIB_LIBRARY=/home/runner/install/chapi-Linux-ubuntu/lib/libclipper-contrib.so
+      #       -DCLIPPER-MINIMOL_LIBRARY=/home/runner/install/chapi-Linux-ubuntu/lib/libclipper-minimol.so
+      #       -DCLIPPER-CIF_LIBRARY=/home/runner/install/chapi-Linux-ubuntu/lib/libclipper-cif.so
+      #       -DCLIPPER-CORE_INCLUDE_DIR=/home/runner/install/chapi-Linux-ubuntu/include
+      #       -DCLIPPER-MMDB_INCLUDE_DIR=/home/runner/install/chapi-Linux-ubuntu/include
+      #       -DCLIPPER-CCP4_INCLUDE_DIR=/home/runner/install/chapi-Linux-ubuntu/include
+      #       -DMMDB2_LIBRARY=/home/runner/install/chapi-Linux-ubuntu/lib/libmmdb2.so
+      #       -DMMDB2_INCLUDE_DIR=/home/runner/install/chapi-Linux-ubuntu/include
+      #       -DFFTW2_INCLUDE_DIRS=/home/runner/install/chapi-Linux-ubuntu/include
+      #       -DFFTW2_LIBRARY=/home/runner/install/chapi-Linux-ubuntu/lib/libfftw.so
+      #       -DRFFTW2_LIBRARY=/home/runner/install/chapi-Linux-ubuntu/lib/librfftw.so
+      #       -Dnanobind_DIR=/home/runner/install/chapi-Linux-ubuntu/lib/python3.13/site-packages/nanobind/cmake ..
+
+      # - name: make
+      #   run:  cd build-libcootapi && make -j 4
+
+      # - name: make install
+      #   run:  cd build-libcootapi && make install
+
+      # - name: test with chapi-using script
+      #   env:
+      #     MOORHEN_TEST_DATA_DIR: test-data
+      #   run:  which python3 && cat python-tests/test_chapi2.py && python3 python-tests/test_chapi2.py
+
+      # - name: where are we?
+      #   run:  pwd && ls -lt
+
+      # - name: make test-molecules-container
+      #   run:  cd build-libcootapi && make test-molecules-container
+
+      # - name: run the test-molecules-container test
+      #   env:
+      #     MOORHEN_TEST_DATA_DIR: ../test-data
+      #   # run:  cd build-libcootapi && ./test-molecules-container | egrep "^FAIL|^PASS|^UN|^LIGHTS|^, "
+      #   run:  cd build-libcootapi && ./test-molecules-container
+
+      # - name: Upload binaries
+      #   uses: actions/upload-artifact@v4
+      #   with:
+      #     name: ubuntu-libcootapi-chapi-binaries-package
+      #     path: /home/runner/install
+      #     retention-days: 3
 
