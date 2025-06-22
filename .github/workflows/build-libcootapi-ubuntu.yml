@@ -120,6 +120,15 @@ jobs:
       - name: make install
         run:  cd build-libcootapi && make install
 
+      - name: make test-molecules-container
+        run:  cd build-libcootapi && make test-molecules-container
+
+      - name: run the test-molecules-container test
+        env:
+          MOORHEN_TEST_DATA_DIR: ../test-data
+        # run:  cd build-libcootapi && ./test-molecules-container | egrep "^FAIL|^PASS|^UN|^LIGHTS|^, "
+        run:  cd build-libcootapi && ./test-molecules-container
+
       # - name: test with chapi-using script
       #   env:
       #     MOORHEN_TEST_DATA_DIR: test-data
@@ -130,12 +139,6 @@ jobs:
 
       # - name: make test-molecules-container
       #   run:  cd build-libcootapi && make test-molecules-container
-
-      # - name: run the test-molecules-container test
-      #   env:
-      #     MOORHEN_TEST_DATA_DIR: ../test-data
-      #   # run:  cd build-libcootapi && ./test-molecules-container | egrep "^FAIL|^PASS|^UN|^LIGHTS|^, "
-      #   run:  cd build-libcootapi && ./test-molecules-container
 
       # - name: Upload binaries
       #   uses: actions/upload-artifact@v4
