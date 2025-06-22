@@ -470,14 +470,16 @@ nanobind_add_module(coot_headless_api ${coot_src}/api/molecules-container-nanobi
 # target_compile_options(cootapi PRIVATE -fsanitize=address -fno-omit-frame-pointer)
 # target_link_libraries(cootapi PRIVATE -fsanitize=address) # Linker flags
 
-# thanks Jordan (install coot_headless_api.pyi in the right place)
-nanobind_add_stub(coot_headless_api_ext_stub
-  MODULE coot_headless_api
-  OUTPUT ${Python_SITELIB}/coot_headless_api.pyi
-  PYTHON_PATH $<TARGET_FILE_DIR:coot_headless_api>
-  DEPENDS coot_headless_api
-)
-# MARKER_FILE py.typed
+if (MAKE_COOT_HEADLESS_API_PYI)
+  # thanks Jordan (install coot_headless_api.pyi in the right place)
+  nanobind_add_stub(coot_headless_api_ext_stub
+    MODULE coot_headless_api
+    OUTPUT ${Python_SITELIB}/coot_headless_api.pyi
+    PYTHON_PATH $<TARGET_FILE_DIR:coot_headless_api>
+    DEPENDS coot_headless_api
+  )
+  # MARKER_FILE py.typed
+endif()
 
 # use MMDB2_INCLUDE_DIR to find the RDKIT for now.
 target_include_directories(cootapi PRIVATE ${coot_src} ${coot_src}/coords ${coot_src}/utils ${coot_src}/ccp4mg-utils ${coot_src}/ccp4mg-utils/util ${coot_src}/ccp4mg-utils/pygl ${MMDB2_INCLUDE_DIR} ${SSM_INCLUDE_DIR} ${CLIPPER-CORE_INCLUDE_DIR} ${CLIPPER-MMDB_INCLUDE_DIR} ${CLIPPER-CCP4_INCLUDE_DIR} ${FFTW2_INCLUDE_DIRS} ${RDKit_INCLUDE_DIRS} ${GLM_INCLUDE_DIRS} ${GSL_INCLUDE_DIRS} ${PNG_PNG_INCLUDE_DIR} ${RDKit_INCLUDE_DIR})
