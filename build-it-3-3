@@ -1212,6 +1212,7 @@ case $dist_name in
           liblapack-dev
           libc6-dev
           libncurses-dev
+          libcairo2-dev
           libjpeg-dev'
       fi
 
