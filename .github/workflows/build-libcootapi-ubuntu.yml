@@ -123,6 +123,12 @@ jobs:
       - name: make test-molecules-container
         run:  cd build-libcootapi && make test-molecules-container
 
+      - name: ldd the library
+        run:  ldd ./libcootapi.so
+
+      - name: ldd the binary
+        run:  ldd ./test-molecules-container
+
       - name: run the test-molecules-container test
         env:
           MOORHEN_TEST_DATA_DIR: ../test-data
