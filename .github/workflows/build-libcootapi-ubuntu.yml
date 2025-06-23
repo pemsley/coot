@@ -27,6 +27,12 @@ jobs:
       - name: untar test data
         run:  mkdir test-data && cd test-data && tar xvf ../test-molecule-container-test-data-20240316.tar.gz
 
+      - name: get LZA
+        run: cd test-data && wget https://raw.githubusercontent.com/MonomerLibrary/monomers/refs/heads/master/l/LZA.cif
+
+      - name: get NUT
+        run: cd test-data && wget https://raw.githubusercontent.com/MonomerLibrary/monomers/refs/heads/master/n/NUT.cif
+
       - name: Cache gemmi build
         id:   Cache-gemmi-build
         uses: actions/cache@v4
