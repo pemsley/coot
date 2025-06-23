@@ -124,10 +124,10 @@ jobs:
         run:  cd build-libcootapi && make test-molecules-container
 
       - name: ldd the library
-        run:  ldd ./libcootapi.so
+        run:  cd build-libcootapi && ldd ./libcootapi.so
 
       - name: ldd the binary
-        run:  ldd ./test-molecules-container
+        run:  cd build-libcootapi && ldd ./test-molecules-container
 
       - name: run the test-molecules-container test
         env:
