@@ -132,9 +132,16 @@ jobs:
       - name: install
         run:  cd build-libcootapi && make install
 
-      - name: run the test-molecules-container test
-        # run:  cd build-libcootapi && ./test-molecules-container | egrep "^FAIL|^PASS|^UN|^LIGHTS|^, "
+      # - name: run the test-molecules-container test
+      #   # run:  cd build-libcootapi && ./test-molecules-container | egrep "^FAIL|^PASS|^UN|^LIGHTS|^, "
+      #   env:
+      #     MOORHEN_TEST_DATA_DIR: ../test-data
+      #   run:  cd build-libcootapi && ./test-molecules-container
+
+      - name: Run test-molecules-container under lldb
         env:
           MOORHEN_TEST_DATA_DIR: ../test-data
-        run:  cd build-libcootapi && ./test-molecules-container
+        run: |
+            lldb --batch -o "run" -o "bt all" -o "quit" -- ./test-molecules-container || true
+
 
