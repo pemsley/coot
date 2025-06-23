@@ -1780,6 +1780,21 @@ molecules_container_t::get_header_info(int imol) const {
                   std::cout << "ERROR: no helix!?" << std::endl;
                }
             }
+
+            for (int isheet=0; isheet<nsheet; isheet++) {
+               mmdb::Sheet *sheet_p = model_p->GetSheet(isheet);
+                 if (sheet_p) {
+                    int n_strand = sheet_p->nStrands;
+                    for (int istrand=0; istrand<n_strand; istrand++) {
+                       mmdb::Strand *strand_p = sheet_p->strand[istrand];
+                       moorhen::strand_t strand(strand_p->strandNo,
+                                                strand_p->initResName, strand_p->initChainID, strand_p->initSeqNum, strand_p->initICode,
+                                                strand_p->endResName,  strand_p->endChainID,  strand_p->endSeqNum,  strand_p->endICode,
+                                                strand_p->sense);
+                       header.strand_info.push_back(strand);
+                    }
+                 }
+            }
          }
       }
    }
