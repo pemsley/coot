@@ -142,6 +142,6 @@ jobs:
         env:
           MOORHEN_TEST_DATA_DIR: ../test-data
         run: |
-            lldb --batch -o "run" -o "bt all" -o "quit" -- ./test-molecules-container || true
+            cd  build-libcootapi && lldb --batch -o "run" -o "bt all" -o "quit" -- ./test-molecules-container || true
 
 
