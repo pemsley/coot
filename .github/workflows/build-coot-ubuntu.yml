@@ -173,8 +173,14 @@ jobs:
         path: ./config.log
         retention-days: 3
 
-    # - name: Does it run?
-    #   run:  cd src && ./coot-1 --no-graphics < /dev/null && cd -
+    - name: Does it run?
+      run:  cd src && ./coot-1 --self-test < /dev/null && cd -
+
+    - name: Run make check
+      run:  make check
+
+    - name: Run make dist
+      run:  make dist
 
     # - name: Run the Unit Python Tests
     #   env:
