@@ -67,7 +67,8 @@ find_package(RDKit CONFIG COMPONENTS RDGeneral REQUIRED)
 set(RDKit_libs_for_libcootapi RDKit::rdkit_base RDKit::Descriptors RDKit::ForceFieldHelpers RDKit::ForceField RDKit::Optimizer RDKit::MolDraw2D  RDKit::MolChemicalFeatures)
 
 # we can be on Apple, and also have access to homebrew dwarf and elf - but this typically not the case
-# should this actually be ENABLE_BACKWARD? (util/backward.cpp is not conditionally compiled)
+# should this actually be ENABLE_BACKWARD? (util/backward.cpp is not conditionally compiled).
+# This doesn't seem to wort at the moment though - maybe a  problem with libdwarf.
 if (ENABLE_DWARF_ELF)
    find_library(libelf elf)
    find_library(libdwarf dw)
@@ -480,6 +481,19 @@ if (MAKE_COOT_HEADLESS_API_PYI)
   )
   # MARKER_FILE py.typed
 endif()
+
+# macOS doesn't have libelf
+if (ENABLE_DWARF)
+  # find_library(libdwarf dw)
+  #  add_definitions(-DBACKWARD_HAS_DW)
+  #  message("-- Enabled dwarf (macOS)")
+  find_library(LIBDWARF dwarf PATHS /opt/homebrew/lib)
+     if (NOT LIBDWARF)
+        message(FATAL_ERROR "libdwarf not found. Please install with 'brew install libdwarf'")
+     endif()
+  target_link_libraries(cootapi PRIVATE ${LIBDWARF})
+endif()
+
 
 # use MMDB2_INCLUDE_DIR to find the RDKIT for now.
 target_include_directories(cootapi PRIVATE ${coot_src} ${coot_src}/coords ${coot_src}/utils ${coot_src}/ccp4mg-utils ${coot_src}/ccp4mg-utils/util ${coot_src}/ccp4mg-utils/pygl ${MMDB2_INCLUDE_DIR} ${SSM_INCLUDE_DIR} ${CLIPPER-CORE_INCLUDE_DIR} ${CLIPPER-MMDB_INCLUDE_DIR} ${CLIPPER-CCP4_INCLUDE_DIR} ${FFTW2_INCLUDE_DIRS} ${RDKit_INCLUDE_DIRS} ${GLM_INCLUDE_DIRS} ${GSL_INCLUDE_DIRS} ${PNG_PNG_INCLUDE_DIR} ${RDKit_INCLUDE_DIR})
