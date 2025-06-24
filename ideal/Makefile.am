@@ -121,7 +121,8 @@ test_rama_plot_LDADD = ./libcoot-ideal.la \
 
 test_add_linked_cho_SOURCES = test-add-linked-cho.cc
 
-test_add_linked_cho_LDADD = libcoot-ideal.la
+test_add_linked_cho_LDADD = ./libcoot-ideal.la
+	$(top_builddir)/geometry/libcoot-geometry.la
 
 coot_ligand_validation_bin_SOURCES = lv.cc
 
@@ -130,11 +131,11 @@ coot_ligand_validation_bin_LDADD = ./libcoot-ideal.la      \
 	$(top_builddir)/coot-utils/libcoot-map-utils.la    \
 	$(top_builddir)/coot-utils/libcoot-coord-extras.la \
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la  \
-        $(top_builddir)/lidia-core/libcoot-lidia-core.la   \
+	$(top_builddir)/lidia-core/libcoot-lidia-core.la   \
 	$(top_builddir)/geometry/libcoot-geometry.la       \
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la       \
 	$(top_builddir)/utils/libcoot-utils.la             \
-        $(top_builddir)/compat/libcoot-compat.la -lpthread
+	$(top_builddir)/compat/libcoot-compat.la -lpthread
 
 # test_indexing_SOURCES = test-indexing.cc
 
