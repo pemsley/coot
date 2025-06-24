@@ -122,7 +122,9 @@ test_rama_plot_LDADD = ./libcoot-ideal.la \
 test_add_linked_cho_SOURCES = test-add-linked-cho.cc
 
 test_add_linked_cho_LDADD = ./libcoot-ideal.la \
-	$(top_builddir)/geometry/libcoot-geometry.la
+	$(top_builddir)/coot-utils/libcoot-coord-utils.la  \
+	$(top_builddir)/geometry/libcoot-geometry.la \
+	$(CLIPPER_LIBS)
 
 coot_ligand_validation_bin_SOURCES = lv.cc
 
