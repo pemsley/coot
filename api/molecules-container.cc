@@ -2820,6 +2820,9 @@ molecules_container_t::refine_direct(int imol, std::vector<mmdb::Residue *> rv, 
                                        use_torsion_restraints, torsion_restraints_weight,
                                        refinement_is_quiet);
          set_updating_maps_need_an_update(imol);
+      } else {
+	 logger.log(log_t::WARNING, logging::function_name_t(__FUNCTION__),
+		    "not a valid map molecule, imol_refinement_map:", imol_refinement_map);
       }
    }
    return status;

@@ -2521,7 +2521,7 @@ public:
    //! @param level is the logging level, level is either "LOW" or "HIGH" or "DEBUGGING"
    void set_logging_level(const std::string &level);
 
-   //! Turn on or off rama restraints
+   //! Turn on or off ramachandran restraints
    //!
    //! @param state is True to mean that it is enabled
    void set_use_rama_plot_restraints(bool state) { use_rama_plot_restraints = state; }
