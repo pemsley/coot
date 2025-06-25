@@ -33,6 +33,7 @@ int main(int argc, char **argv) {
 
    mmdb::mat44 my_matt;
    mmdb::Atom *at = NULL;
-   at->Transform(my_matt);
+   if (at)
+      at->Transform(my_matt);
    return 0;
 }
