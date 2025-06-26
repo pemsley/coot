@@ -15,6 +15,10 @@ o install latest chapi, python3 import coot_headless_api
   then the molecules_container_t gives an error message
   about COOT_PREFIX
 
+o Add curl fetch stuff to chapi api. Use modern accession codes.
+
+o refine_resiude_using_cid CHAIN too much debugging information
+
 --- Other Items ---
 
 o Add ability to rotate view around z axis :: 0.5
