@@ -27,6 +27,7 @@
 #endif
 
 #include <iostream>
+#include <filesystem>
 #include "logging.hh"
 
 #if defined(_MSC_VER)
