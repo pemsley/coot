@@ -26,6 +26,7 @@
 #include <ctime>
 #include <string>
 #include <vector>
+#include <fstream>
 
 #ifdef _MSC_VER
 #undef WARNING
@@ -99,6 +100,7 @@ private:
    void output_to_terminal_maybe();
    void (*update_notifier_function)();
    void notify();
+   std::ofstream output_file;
 
 public:
    enum class output_t {TERMINAL, TERMINAL_WITH_DEBUGGING, INTERNAL, BOTH};
@@ -107,6 +109,7 @@ public:
    //! if output_type is TERMINAL, show_last() writes to the terminal. Else
    //! show_last() does nothing.
    void set_output_type(output_t ot) {output_type = ot; }
+   void set_log_file(const std::string &file_name);
    void log(const std::string &s);
    void log(log_t type_in, const std::string &s1, bool v1, const std::string &s2);
    void log(log_t type_in, const std::string &s1, bool v1, const std::string &s2, const std::string &s3);

@@ -154,6 +154,17 @@ molecules_container_t::is_valid_map_molecule(int imol) const {
    return status;
 }
 
+//! make the logging output go to a file
+//!
+//! @param file_name the looging file name
+void
+molecules_container_t::set_logging_file(const std::string &file_name) {
+
+   logger.set_log_file(file_name);
+
+}
+
+
 //! Control the logging
 //!
 //! @param level is the logging level

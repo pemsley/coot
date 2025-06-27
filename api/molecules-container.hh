@@ -2521,6 +2521,11 @@ public:
    //! @param level is the logging level, level is either "LOW" or "HIGH" or "DEBUGGING"
    void set_logging_level(const std::string &level);
 
+   //! make the logging output go to a file
+   //!
+   //! @param file_name the looging file name
+   void set_logging_file(const std::string &file_name);
+
    //! Turn on or off ramachandran restraints
    //!
    //! @param state is True to mean that it is enabled

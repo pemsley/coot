@@ -1264,6 +1264,10 @@ NB_MODULE(coot_headless_api, m) {
          &molecules_container_t::set_make_backups,
          nb::arg("state"),
          get_docstring_from_xml("set_make_backups").c_str())
+    .def("set_logging_file",
+         &molecules_container_t::set_logging_file,
+         nb::arg("file_name"),
+         get_docstring_from_xml("set_logging_level").c_str())
     .def("set_logging_level",
          &molecules_container_t::set_logging_level,
          nb::arg("level"),

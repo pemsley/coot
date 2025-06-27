@@ -46,6 +46,16 @@ gettimeofday (struct timeval *tv, void *tz) {
 }
 #endif /* _MSC_VER */
 
+void
+logging::set_log_file(const std::string &file_name) {
+
+   std::filesystem::path fp(file_name);
+   std::filesystem::file_status status = std::filesystem::status(fp);
+   output_file.open(file_name);
+
+}
+
+
 logging::ltw::ltw(const std::string &s_in) {
    type = type_t::STRING_TYPE;
    s = s_in;
@@ -106,8 +116,18 @@ logging::ltw::to_string() const {
 
 void
 logging::notify() {
+
    if (update_notifier_function)
       update_notifier_function();
+
+   if (output_file) {
+      if (! history.empty()) {
+	 const auto &last_item = history.back();
+	 std::string s = last_item.to_string();
+	 output_file << s << "\n";
+	 output_file.flush();
+      }
+   }
 }
 
 void
