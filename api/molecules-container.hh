@@ -687,22 +687,24 @@ public:
    //! @return a vector/list of non-standard residues
    std::vector<std::string> non_standard_residue_types_in_model(int imol) const;
 
-#ifdef SWIG
-#else
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
-   //! Result to be eaten by C++ only.
    //! Extract ligand restraints from the dictionary store and make an rdkit molecule
-   //! @return a null pointer on failure.
+   //! Result to be eaten by C++ only.
+   //!
+   //! @param residue_name the residue name
+   //! @param imol_enc the molecule for the ligand (typically is imol_enc_any)
+   //! @return an RDKit RDMol.
    RDKit::RWMol get_rdkit_mol(const std::string &residue_name, int imol_enc);
    //! get the 64base-encoded pickled string that represents the given residue/ligand name
    //!
-   //! @return a string, return a null string on failure.
+   //! @param residue_name the residue name
+   //! @param imol_enc the molecule for the ligand (typically is imol_enc_any)
+   //! @return a pickle string, return an empty string on failure.
    std::string get_rdkit_mol_pickle_base64(const std::string &residue_name, int imol_enc);
-#endif
 #endif
 
    // -------------------------------- coordinates utils -----------------------------------
-   //!  \name Coordinates Utils
+   //! \name Coordinates Utils
 
    //! Read a coordinates file (mmcif or PDB)
    //!
@@ -2117,6 +2119,8 @@ public:
    void add_named_glyco_tree(int imol_model, int imol_map, const std::string &glycosylation_name,
                              const std::string &asn_chain_id, int asn_res_no);
 
+#if NB_VERSION_MAJOR
+#else
    //! Flip peptide
    //!
    //! @param imol is the model molecule index
@@ -2125,6 +2129,7 @@ public:
    //!
    //! @return 1 on a successful flip
    int flip_peptide(int imol, const coot::atom_spec_t &atom_spec, const std::string &alt_conf);
+#endif
 
    //! Flip peptide using cid
    //!
@@ -3012,7 +3017,7 @@ public:
                       bool ignore_zero_occ_flag);
 
    //! Get HOLE
-   //! 
+   //!
    //! HOLE is a program for the analysis of the pore dimesions of ion channels. See Smart et al., 1996.
    //!
    //! @return a list of spheres on the surface of the pore
@@ -3045,7 +3050,8 @@ public:
    //! @param imol_map_1 is the first map molecule index
    //! @param imol_map_2 is the second map molecule index
    //!
-   //! @return a vector/list or pairs of graph points (resolution, correlation). The resolution is in inverse Angstroms squared.
+   //! @return a vector/list or pairs of graph points (resolution, correlation). The resolution is in
+   //! inverse Angstroms squared.
    //! An empty list is returned on failure
    std::vector<std::pair<double, double> > fourier_shell_correlation(int imol_map_1, int imol_map_2) const;
 
@@ -3585,7 +3591,6 @@ public:
 
    void test_function(const std::string &s);
 
-#ifdef SWIG
 #if NB_VERSION_MAJOR
    // skip this (old) block for nanobinds
 #else
@@ -3629,7 +3634,6 @@ public:
    //! make a "proper" simple  molecule python class one day.
    PyObject *get_pythonic_simple_molecule(int imol, const std::string &cid, bool include_hydrogen_atoms_flag);
 
-#endif
 #endif
 #endif
 
