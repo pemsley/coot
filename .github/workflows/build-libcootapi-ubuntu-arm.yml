@@ -1,11 +1,11 @@
-name: libcootapi CI Ubuntu
+name: libcootapi CI Ubuntu ARM
 
 on:
   push:
 
 jobs:
 
-  build-libcootapi-for-ubuntu:
+  build-libcootapi-for-ubuntu-arm:
 
     runs-on: ubuntu-24.04-arm
 
