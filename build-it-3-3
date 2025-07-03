@@ -1176,7 +1176,7 @@ case $dist_name in
 
       dep_list='
        patch
-       pkgconfig
+       pkg-config
        m4
        g++
        git
@@ -1198,7 +1198,7 @@ case $dist_name in
       if test "$CHAPI_ONLY" = true ; then
           dep_list='
           patch
-          pkgconfig
+          pkg-config
           m4
           g++
           git
