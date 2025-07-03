@@ -12,6 +12,10 @@
 #include <ssm/ssm_align.h>
 #endif
 
+#if NB_VERSION_MAJOR // for flychecking
+#include <nanobind/nanobind.h>
+#endif
+
 #include "compat/coot-sysdep.h"
 
 #include "coords/Cartesian.h"
@@ -3595,7 +3599,7 @@ public:
    // skip this (old) block for nanobinds
 #else
 #ifdef DOXYGEN_SHOULD_PARSE_THIS
-#else
+
    //! \name Old Python functions
 
    //! old mesh mode: do not use with nanobind

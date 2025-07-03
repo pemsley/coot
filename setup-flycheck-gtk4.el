@@ -35,7 +35,7 @@
    "/home/paule/glm/include"
    "/home/paule/ogg-vorbis/include"
    "/home/paule/assimp/include"
-
+   "/home/paule/autobuild/build-for-chapi-arch-gtk4/lib/python3.12/site-packages/nanobind/include" ; nanobind.h
    "/lmb/home/pemsley/autobuild/Linux-hal.lmb.internal-gtk4/include/python3.11"
    "/usr/include/glib-2.0"
    "/usr/lib64/glib-2.0/include"
