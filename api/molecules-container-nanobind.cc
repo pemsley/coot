@@ -648,12 +648,9 @@ NB_MODULE(coot_headless_api, m) {
          &molecules_container_t::fit_to_map_by_random_jiggle_using_cid,
          nb::arg("imol"), nb::arg("cid"), nb::arg("n_trials"), nb::arg("translation_scale_factor"),
          get_docstring_from_xml("fit_to_map_by_random_jiggle_using_cid").c_str())
-    .def("flipPeptide",
-         nb::overload_cast<int, const coot::atom_spec_t&,const std::string&>(&molecules_container_t::flip_peptide),
-         get_docstring_from_xml("flipPeptide").c_str())
-    .def("flipPeptide_cid",
+    .def("flip_peptide_using_cid",
          nb::overload_cast<int, const std::string&, const std::string&>(&molecules_container_t::flip_peptide_using_cid),
-         get_docstring_from_xml("flipPeptide_cid").c_str())
+         get_docstring_from_xml("flip_peptide_using_cid").c_str())
     .def("flip_hand",
          &molecules_container_t::flip_hand,
          nb::arg("imol_map"),
@@ -1264,6 +1261,10 @@ NB_MODULE(coot_headless_api, m) {
          &molecules_container_t::set_make_backups,
          nb::arg("state"),
          get_docstring_from_xml("set_make_backups").c_str())
+    .def("set_logging_file",
+         &molecules_container_t::set_logging_file,
+         nb::arg("file_name"),
+         get_docstring_from_xml("set_logging_level").c_str())
     .def("set_logging_level",
          &molecules_container_t::set_logging_level,
          nb::arg("level"),

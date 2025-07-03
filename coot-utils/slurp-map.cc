@@ -190,7 +190,7 @@ coot::util::slurp_parse_xmap_data(char *data,
                                   clipper::Xmap<float> *xmap_p,
                                   bool check_only) {
 
-   bool debug = true;
+   bool debug = false;
    bool print_labels = true;
 
    slurp_map_result_t status = slurp_map_result_t::UNRESOLVED;

@@ -7219,15 +7219,21 @@ coot::util::cis_trans_conversion(mmdb::Atom *at, bool is_N_flag, mmdb::Manager *
             }
             standard_residues_mol->DeleteSelection(selHnd_cis);
          } else {
-            std::cout << "ERROR:: failed to get trans residues in cis_trans_convert "
-                      << ntrans_residues << std::endl;
+            // std::cout << "ERROR:: failed to get trans residues in cis_trans_convert "
+            // << ntrans_residues << std::endl;
+            logger.log(log_t::ERROR, logging::function_name_t("cis_trans_conversion"),
+                       "failed to get trans residues");
          }
          standard_residues_mol->DeleteSelection(selHnd_trans);
       } else {
-         std::cout << "ERROR:: NULL standard residues molecule" << std::endl;
+         // std::cout << "ERROR:: NULL standard residues molecule" << std::endl;
+         logger.log(log_t::ERROR, logging::function_name_t("cis_trans_conversion"),
+                    "NULL standard residues molecule");
       }
    } else {
-      std::cout << "ERROR:: failed to get mol residues in cis_trans_convert" << std::endl;
+      // std::cout << "ERROR:: failed to get mol residues in cis_trans_convert" << std::endl;
+      logger.log(log_t::ERROR, logging::function_name_t("cis_trans_conversion"),
+                 "failed to get mol residues in cis_trans_convert");
    }
    mol->DeleteSelection(selHnd);
 

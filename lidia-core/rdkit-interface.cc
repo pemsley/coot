@@ -1260,7 +1260,7 @@ coot::rdkit_mol(const coot::dictionary_residue_restraints_t &r) {
    RDKit::Conformer *conf = new RDKit::Conformer(m.getNumAtoms());
    conf->set3D(true);
    for (unsigned int iat=0; iat<r.atom_info.size(); iat++) {
-      if (true)
+      if (false)
          std::cout << "rdkit_mol(): atom info loop iat " << iat << " "
 		   << r.atom_info[iat].pdbx_model_Cartn_ideal.first
                    << " " << r.atom_info[iat].model_Cartn.first << std::endl;
@@ -1288,7 +1288,7 @@ coot::rdkit_mol(const coot::dictionary_residue_restraints_t &r) {
    
    // ------------------------------------ Bonds -----------------------------
 
-   if (true) { // for checking spaces in atom names
+   if (false) { // for checking spaces in atom names
       // the check in the below loop uses atom names with whitespace stripped.
       for (const auto &item : added_atoms) {
          std::cout << "debug added_atom \"" << item.first << "\" " << item.second << std::endl;

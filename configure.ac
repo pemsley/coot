@@ -26,7 +26,7 @@ dnl
 dnl Process this file with autoconf to produce a configure script.
 
 
-AC_INIT([coot],[1.1.17])
+AC_INIT([coot],[1.1.x-pre])
 AC_CONFIG_SRCDIR(src/main.cc)
 AM_INIT_AUTOMAKE
 
@@ -198,6 +198,13 @@ AM_WITH_SSM
 # AM_WITH_CCP4SRS
 
 AM_SINGLE_FFTW2
+
+echo PKG_CONFIG_PATH is $PKG_CONFIG_PATH
+echo debug clipper:
+echo pkg-config --modversion clipper
+pkg-config --modversion clipper
+echo pkg-config --libs clipper
+pkg-config --libs clipper
 
 dnl Check for Clipper.  we exit if clipper is not found.
 #
@@ -435,24 +442,19 @@ AC_ARG_WITH([gemmi], AS_HELP_STRING([--with-gemmi location of the GEMMI package]
 # is this the wrong logic actually, should the checking message only be seen if with_gemmi is not false?
 AC_MSG_CHECKING([for GEMMI])
 if test "x$with_gemmi" = xfalse ; then
-   :
-   AC_MSG_RESULT(no)
+    AC_MSG_RESULT(no)
 else
-   AC_MSG_RESULT(yes)
-   AC_SUBST(GEMMI_CXXFLAGS, "-I$withval/include -DUSE_GEMMI=1")
-   AC_SUBST(GEMMI_LIBS, "-L$withval/lib -lgemmi_cpp")
+    AC_LANG_PUSH(C++)
+    GEMMI_CXXFLAGS="-I$with_gemmi/include -DUSE_GEMMI=1"
+    save_CPPFLAGS="$CPPFLAGS"
+    CPPFLAGS="$CPPFLAGS $GEMMI_CXXFLAGS"
+    AC_CHECK_HEADER([gemmi/to_json.hpp], AC_MSG_NOTICE(GEMMI headers were found), AC_MSG_FAILURE(GEMMI headers were not found),)
+    CPPFLAGS="$save_CPPFLAGS"
+    AC_LANG_POP
+    AC_MSG_RESULT(yes)
+    AC_SUBST(GEMMI_CXXFLAGS)
+    AC_SUBST(GEMMI_LIBS, "-L$withval/lib -lgemmi_cpp")
 fi
-
-dnl put this test in the above block. We need to know (and stop) if GEMMI was requested but not found.
-dnl #GEMMI
-dnl AC_LANG_PUSH(C++)
-dnl AC_CHECK_HEADER([gemmi/to_json.hpp], AC_MSG_NOTICE(GEMMI headers were found), AC_MSG_NOTICE(GEMMI headers were not found),)
-dnl if test "$ac_cv_header_gemmi_to_json_hpp" = yes ; then
-dnl    GEMMI_CXXFLAGS=-DUSE_GEMMI
-dnl fi
-dnl AC_SUBST(GEMMI_CXXFLAGS)
-dnl AC_LANG_POP
-
 
 # 20090613 We need to be able to determine the build type, and embed
 # that value in to coot binary.  We need to do that for the updating

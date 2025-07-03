@@ -3,6 +3,10 @@
 #include "coot-utils/atom-selection-container.hh"
 #include "molecules-container.hh"
 
+#include "utils/logging.hh"
+extern logging logger;
+
+
 //! Copy the molecule
 //!
 //! @param imol the specified molecule
@@ -236,11 +240,16 @@ molecules_container_t::cis_trans_convert(int imol, const std::string &atom_cid) 
 
    int status = 0;
    mmdb::Manager *standard_residues_mol = standard_residues_asc.mol;
-   if (is_valid_model_molecule(imol)) {
-      status = molecules[imol].cis_trans_conversion(atom_cid, standard_residues_mol);
-      set_updating_maps_need_an_update(imol);
+   if (standard_residues_mol) {
+      if (is_valid_model_molecule(imol)) {
+         status = molecules[imol].cis_trans_conversion(atom_cid, standard_residues_mol);
+         set_updating_maps_need_an_update(imol);
+      } else {
+         std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+      }
    } else {
-      std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+      logger.log(log_t::ERROR, logging::function_name_t("mc::cis_trans_convert"),
+                 "Null standard_residues_asc.mol");
    }
    return status;
 

@@ -4893,6 +4893,8 @@ graphics_info_t::set_tomo_section_view_section(int imol, int section_index) {
       float data_value_for_top    = mean + 3.5f * std_dev; // was  2.5
       float data_value_for_bottom = mean - 2.0f * std_dev; // was -1.5
 
+      // data_value_for_bottom -= 3.0 * std_dev;
+
       if (false) {
          std::cout << "-------- current texture-meshes: " << std::endl;
          for (const auto &tm : texture_meshes)

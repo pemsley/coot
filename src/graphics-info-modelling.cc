@@ -5137,6 +5137,7 @@ graphics_info_t::place_typed_atom_at_pointer(const std::string &type) {
          }
       }
    }
+   graphics_grab_focus(); // 20250615-PE maybe a good idea
 }
 
 // Tinker with the atom positions of residue

@@ -24,7 +24,7 @@ AC_DEFUN([AM_WITH_CCP4SRS],
 [AC_PROVIDE([AM_USE_CCP4SRS])
 
 
-AC_ARG_WITH(ccp4srs-prefix, 
+AC_ARG_WITH(ccp4srs-prefix,
 	AS_HELP_STRING([--with-ccp4srs-prefix=PFX],[Prefix where CCP4SRS has been installed ]),
 	[ with_ccp4srs_prefix="$withval" ],
           with_ccp4srs_prefix="")

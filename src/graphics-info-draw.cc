@@ -5640,8 +5640,8 @@ graphics_info_t::setup_draw_for_boids() {
 
       meshed_generic_display_object m;
       coot::colour_holder col(0.4, 0.5, 0.6);
-      std::pair<glm::vec3, glm::vec3> start_end(glm::vec3(0.95,0,0), glm::vec3(-0.95,0,0));
-      m.add_cone(start_end, col, 1.0, 0.0, 12, false, true,
+      std::pair<glm::vec3, glm::vec3> start_end(glm::vec3(1.95,0,0), glm::vec3(-1.95,0,0));
+      m.add_cone(start_end, col, 3.0, 0.0, 24, false, true,
                  meshed_generic_display_object::FLAT_CAP,
                  meshed_generic_display_object::FLAT_CAP);
       mesh_for_boids = m.mesh;
@@ -5649,7 +5649,6 @@ graphics_info_t::setup_draw_for_boids() {
       std::vector<glm::mat4>    mats(n_boids);
       std::vector<glm::vec4> colours(n_boids);
       for (unsigned int i=0; i<n_boids; i++) {
-         const fun::boid boid = boids[i];
          mats[i] = glm::mat4(1.0f);
          colours[i] = glm::vec4(0.2, 0.6, 0.4, 1.0);
       }
@@ -6480,15 +6479,22 @@ graphics_info_t::setup_key_bindings() {
    auto l23 = [] () {
       graphics_info_t g;
 
-      if (false) {
+      if (true) {
          if (! graphics_info_t::do_tick_boids)
             graphics_info_t::do_tick_boids = true;
          else
             graphics_info_t::do_tick_boids = false;
+
+	 // add_a_tick();
+
          g.setup_draw_for_boids();
-         if (! graphics_info_t::do_tick_boids)
-            std::cout << "--------- key press ----------- do_tick_boids "
-                      << graphics_info_t::do_tick_boids << std::endl;
+
+	 std::cout << "----- key press ------ do_tick_boids "
+		   << graphics_info_t::do_tick_boids << std::endl;
+	 bool state = tick_function_is_active();
+	 std::cout << "l23: tick_function_is_active() returns " << state << std::endl;
+	 if (true) // use state in future?
+	    gtk_widget_add_tick_callback(glareas[0], glarea_tick_func, 0, 0);
       }
       return gboolean(TRUE);
    };
@@ -6821,7 +6827,7 @@ graphics_info_t::setup_key_bindings() {
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_Return, key_bindings_t(l18, "Accept Moving Atoms")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_Escape, key_bindings_t(l19, "Reject Moving Atoms")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_l,      key_bindings_t(l21, "Label/Unlabel Active Atom")));
-   // kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_b,      key_bindings_t(l23, "Murmuration")));
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_b,      key_bindings_t(l23, "Murmuration")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_y,      key_bindings_t(l24, "Add Terminal Residue")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_k,      key_bindings_t(l25, "Fill Partial Residue")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_K,      key_bindings_t(l26, "Delete Sidechain")));
@@ -6910,6 +6916,16 @@ graphics_info_t::setup_key_bindings() {
    key_bindings_t delete_residue_key_binding(ldr, "Delete Residue");
    std::pair<keyboard_key_t, key_bindings_t> pdel(keyboard_key_t(GDK_KEY_d, true), delete_residue_key_binding);
    kb_vec.push_back(pdel);
+
+   auto law = [] () {
+      std::cout << "-------------------- add water" << std::endl;
+      graphics_info_t g;
+      g.place_typed_atom_at_pointer("Water");
+      return gboolean(TRUE);
+   };
+   key_bindings_t add_water_key_binding(law, "Add Water");
+   std::pair<keyboard_key_t, key_bindings_t> paw(keyboard_key_t(GDK_KEY_w, true), add_water_key_binding);
+   kb_vec.push_back(paw);
 
    // Direction is either +1 or -1 (in or out)
    //

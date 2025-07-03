@@ -2373,8 +2373,7 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
          auto tp_1 = std::chrono::high_resolution_clock::now();
          bool check_only = false;
 
-         coot::util::slurp_map_result_t filled =
-            coot::util::slurp_fill_xmap_from_map_file(filename, &xmap, check_only);
+         done = coot::util::slurp_fill_xmap_from_map_file(filename, &xmap, check_only);
 
          auto tp_2 = std::chrono::high_resolution_clock::now();
          auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();

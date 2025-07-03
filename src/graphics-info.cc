@@ -145,6 +145,14 @@ graphics_info_t::valid_map_molecules() const {
    return v;
 }
 
+// static
+GtkAllocation graphics_info_t::get_glarea_allocation() {
+   GtkAllocation allocation;
+   if (!glareas.empty())
+      gtk_widget_get_allocation(glareas[0], &allocation);
+   return allocation;
+}
+
 
 // return the new molecule number
 // static

@@ -1108,12 +1108,7 @@ public:
    std::chrono::time_point<std::chrono::system_clock> tp_now;
 
    static std::vector<GtkWidget *> glareas;
-   static GtkAllocation get_glarea_allocation() {
-      GtkAllocation allocation;
-      if (!glareas.empty())
-         gtk_widget_get_allocation(glareas[0], &allocation);
-      return allocation;
-   }
+   static GtkAllocation get_glarea_allocation();
    static gl_context_info_t get_gl_context_info() {
       gl_context_info_t glc; // null default
       if (glareas.size() > 0) glc.widget_1 = glareas[0];

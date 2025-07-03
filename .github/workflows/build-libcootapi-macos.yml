@@ -40,6 +40,15 @@ jobs:
       - name: untar test data
         run:  mkdir test-data && cd test-data && tar xvf ../test-molecule-container-test-data.tar.gz
 
+      - name: get LZA
+        run: cd test-data && wget https://raw.githubusercontent.com/MonomerLibrary/monomers/refs/heads/master/l/LZA.cif
+
+      - name: get NUT
+        run: cd test-data && wget https://raw.githubusercontent.com/MonomerLibrary/monomers/refs/heads/master/n/NUT.cif
+
+      - name: debug the files
+        run: cd test-data && ls -l
+
       - name: Setup homebrew
         id:   setup-homebrew
         uses: Homebrew/actions/setup-homebrew@master
@@ -84,7 +93,7 @@ jobs:
             mkdir build-libcootapi && cd build-libcootapi &&
             cmake
             -DCMAKE_BUILD_TYPE=Debug
-            -DCMAKE_INSTALL_PREFIX=/Users/runner/install/chapi-Darwin-macos-gtk4
+            -DCMAKE_INSTALL_PREFIX=/Users/runner/install/chapi-Darwin-macos
             -DCMAKE_PREFIX_PATH=/opt/homebrew
             -DENHANCED_LIGAND_TOOLS=TRUE
             -DGEMMI_DIR=/opt/homebrew/lib/cmake/gemmi
@@ -125,5 +134,14 @@ jobs:
 
       # - name: run the test-molecules-container test
       #   # run:  cd build-libcootapi && ./test-molecules-container | egrep "^FAIL|^PASS|^UN|^LIGHTS|^, "
+      #   env:
+      #     MOORHEN_TEST_DATA_DIR: ../test-data
       #   run:  cd build-libcootapi && ./test-molecules-container
+
+      - name: Run test-molecules-container under lldb
+        env:
+          MOORHEN_TEST_DATA_DIR: ../test-data
+        run: |
+            cd  build-libcootapi && lldb --batch -o "run" -o "bt all" -o "quit" -- ./test-molecules-container || true
+
 

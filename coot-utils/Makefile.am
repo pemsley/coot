@@ -138,7 +138,7 @@ libcoot_coord_extras_la_LDFLAGS = $(SHARED_LDFLAGS)
 libcoot_map_utils_la_SOURCES = coot-map-utils.cc peak-search.cc peak-search-from-list.cc trim.cc \
 	xmap-stats.cc maps-spherical.cc pepflip-using-difference-map.cc exp-fit.cc blob-line.cc \
         slurp-map.cc find-water-baddies.cc diff-diff-map-peaks.cc mini-texture.cc positron.cc \
-        texture-as-floats.cc merge-C-and-N-terminii.cc
+        texture-as-floats.cc merge-C-and-N-terminii.cc born.cc
 
 
 # should libcoot-coord-utils link $CLIPPER_LIBS directly? (Hence CLIPPER_LIBS is not needed here)
@@ -177,7 +177,7 @@ check_PROGRAMS = test-h-bonds testshelxreader test-hole test-elastic \
 		 test-5-residue-fragments test-diff-diff-map-peaks \
 		 make-cablam-like-stats test-cod-atom-types-from-sm-cif test-parse-pisa \
 		 test-coot-utils test-pae test-q-score servalcat-tracker test-zd test-grid-balls \
-		 test-dirichlet-process
+		 test-dirichlet-process test-born
 
 # wrong build order - delete from make check for now.
 # test-emma test-convolute test-coot-utils test-segmap
@@ -231,6 +231,11 @@ test_parse_pisa_LDADD = \
 test_pae_SOURCES = test-pae.cc
 test_pae_LDADD = \
 	./libcoot-coord-utils.la
+
+test_born_SOURCES = test-born.cc
+test_born_LDADD = \
+	./libcoot-map-utils.la \
+	$(CLIPPER_LIBS)
 
 test_dirichlet_process_SOURCES = test-dirichlet-process.cc
 test_dirichlet_process_LDADD = $(top_builddir)/utils/libcoot-utils.la
