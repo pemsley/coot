@@ -15,6 +15,9 @@ o Add curl fetch stuff to chapi api. Use modern accession codes.
 
 o refine_resiude_using_cid CHAIN too much debugging information
 
+o move make_directory_maybe() and get_directory() take std::string arg.
+  Will need a change the header. Maybe a new header?
+
 --- Other Items ---
 
 o "Flood the blob with dummy atoms" - useful of pomgnt2

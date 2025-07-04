@@ -11879,3 +11879,15 @@ Mon 16 Jun 18:42:05 BST 2025
 
    par(mfrow=c(2,1))
 
+---
+Fri  4 Jul 16:35:20 BST 2025
+
+  converting coot-download
+
+   std::string download_dir = "coot-download";
+
+   becomes
+
+   xdg_t xdg;
+   std::string download_dir = join(xdg.get_cache_home().string(), "coot-download");
+
