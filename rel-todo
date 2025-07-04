@@ -3,11 +3,7 @@
 
 o arwen, alejandro, santosh, dorothee
 
-o add-water should have a key-binding
-
 o make a function that returns the secondary structure for libcootapi/chapi
-
-o "Flood the blob with dummy atoms" - useful of pomgnt2
 
 o print the key bindings
 
@@ -20,6 +16,8 @@ o Add curl fetch stuff to chapi api. Use modern accession codes.
 o refine_resiude_using_cid CHAIN too much debugging information
 
 --- Other Items ---
+
+o "Flood the blob with dummy atoms" - useful of pomgnt2
 
 o Add ability to rotate view around z axis :: 0.5
 
@@ -76,8 +74,11 @@ o  It was a strange bit of code in get_group().
 
 --- Done Items ---
 
-o swig should not be a dependency if building chapi
+o add-water should have a key-binding
 * Done.
+
+o swig should not be a dependency if building chapi
+* Done. And done.
 
 o Process Stuart's outliers file ::: 1
 * Done
