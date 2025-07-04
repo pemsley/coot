@@ -218,6 +218,12 @@ public:
       auto d = p / file_name;
       return d;
    }
+   // utility function for coot
+   std::string get_download_dir() const {
+      std::filesystem::path c = get_cache_home();
+      auto d = c / "coot-download";
+      return d;
+   }
 };
 
 #endif // UTILS_XDG_BASE_HH

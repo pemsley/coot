@@ -104,8 +104,8 @@ int coot_get_url_and_activate_curl_hook(const std::string &url,
 					short int activate_curl_hook_flag,
                                         std::optional<ProgressNotifier> notifier) {
 
-   std::cout << "DEBUG:: in coot_get_url_and_activate_curl_hook "
-	     << url << " " << file_name << std::endl;
+   std::cout << "DEBUG:: in coot_get_url_and_activate_curl_hook():\n url:       "
+	     << url << "\n file-name: " << file_name << std::endl;
 
    // This can take a while to download files - i.e. can block.  If
    // this is called in a guile thread, then that is bad because it
@@ -157,9 +157,29 @@ int coot_get_url_and_activate_curl_hook(const std::string &url,
       std::filesystem::path p(file_name);
       std::uintmax_t file_size = std::filesystem::file_size(p);
       if (file_size < 10)
-         status = true;
+         if (file_size < 0)
+            status = true;
       return status;
 
+   };
+
+
+   auto file_to_string = [] (const std::string &file_name) {
+      std::string s;
+      std::string line;
+      std::ifstream f(file_name);
+      if (!f) {
+         std::cout << "Failed to open " << file_name << std::endl;
+      } else {
+         std::cout << "file_to_string() A " << std::endl;
+         while (std::getline(f, line)) {
+            std::cout << "file_to_string() B " << line << std::endl;
+            s += line;
+            s += "\n";
+         }
+         std::cout << "file_to_string() C (while terminated) " << std::endl;
+      }
+      return s;
    };
 
    // write binary
@@ -180,6 +200,7 @@ int coot_get_url_and_activate_curl_hook(const std::string &url,
             to = 6; // bored of a waiting for slow EBI server
       }
 
+      bool debug = false;
       std::pair<FILE *, CURL *> p_for_write(f,c);
       curl_easy_setopt(c, CURLOPT_URL, url.c_str());
       curl_easy_setopt(c, CURLOPT_NOSIGNAL, no_signal);
@@ -202,8 +223,10 @@ int coot_get_url_and_activate_curl_hook(const std::string &url,
       std::pair <CURL *, std::string> p(c,file_name);
       CURLcode success = CURLcode(-1);
 
-      std::cout << "debug:: here in coot_get_url_and_activate_curl_hook() with activate_curl_hook_flag "
-                << activate_curl_hook_flag << std::endl;
+      if (debug)
+         std::cout << "debug:: here in coot_get_url_and_activate_curl_hook() with activate_curl_hook_flag "
+                   << activate_curl_hook_flag << std::endl;
+
       if (activate_curl_hook_flag) {
 	 graphics_info_t g;
 	 g.add_curl_handle_and_file_name(p);
@@ -223,20 +246,33 @@ int coot_get_url_and_activate_curl_hook(const std::string &url,
          // 20250526-PE unfortunately curl_easy_perform() is returning 0 even
          // if the file was not on the server.
 	 success = curl_easy_perform(c);
+
          if (coot::file_exists(file_name)) {
+            std::cout << "::::::::::::::: file_exists " << file_name << std::endl;
+            std::filesystem::path fp(file_name);
+            std::uintmax_t size = std::filesystem::file_size(fp);
+            std::cout << "::::::::::::::: file_size " << size << std::endl;
             if (is_html(file_name)) {
+               std::cout << "::::::::::::::: file is html " << file_name << std::endl;
                success = CURLcode(23); // CURL write error (say)
                int rm_status = remove(file_name.c_str()); // Ciao Bella
                if (rm_status == 0)
                   logger.log(log_t::INFO, logging::function_name_t("coot_get_url_and_activate_curl_hook"),
                              file_name, "removed (failed download)");
             } else {
+               if (debug)
+                  std::cout << "::::::::::::::: file is not html " << file_name << std::endl;
                if (is_error_message(file_name)) {
+                  if (debug)
+                     std::cout << "::::::::::::::: file is error message " << file_name << std::endl;
                   success = CURLcode(23); // CURL write error (say)
                   int rm_status = remove(file_name.c_str()); // Ciao Bella
                   if (rm_status == 0)
                      logger.log(log_t::INFO, logging::function_name_t("coot_get_url_and_activate_curl_hook"),
                                 file_name, "removed (failed download)");
+               } else {
+                  if (debug)
+                     std::cout << "::::::::::::::: file is not error message " << file_name << std::endl;
                }
             }
          } else {
