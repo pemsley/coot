@@ -3,10 +3,6 @@
 
 o arwen, alejandro, santosh, dorothee
 
-o make a function that returns the secondary structure for libcootapi/chapi
-
-o print the key bindings
-
 o install latest chapi, python3 import coot_headless_api
   then the molecules_container_t gives an error message
   about COOT_PREFIX
@@ -17,6 +13,13 @@ o refine_resiude_using_cid CHAIN too much debugging information
 
 o move make_directory_maybe() and get_directory() take std::string arg.
   Will need a change the header. Maybe a new header?
+
+o Talk to Stuart:
+::function get_atom not found - out of 386 docstrings
+::function get_atom_using_cid not found - out of 386 docstrings
+::function get_residue not found - out of 386 docstrings
+::function get_residue_using_cid not found - out of 386 docstrings
+
 
 --- Other Items ---
 
@@ -76,6 +79,11 @@ o  It was a strange bit of code in get_group().
    Solved now? Am I using the right version?
 
 --- Done Items ---
+
+o make a function that returns the secondary structure for libcootapi/chapi
+* Done.
+
+o print the key bindings
 
 o add-water should have a key-binding
 * Done.
