@@ -2499,7 +2499,7 @@ ${WGET} $extras_place/fftw-2.1.5.tar.gz
        fi
     fi
     )  > $HOSTLOGDIR/03-fftw.txt 2>&1
-    echo done fftw >&2
+    echo "done fftw" >&2
 else
     echo not building fftw:
 fi
