@@ -4436,13 +4436,6 @@ void test_fragment() {
    g.rotamer_graphs(0);
 }
 
-// we redefine TRUE here somewhere...
-// #include <gdk/gdkglconfig.h>
-// #include <gtk/gtkgl.h>
-// #include <gdk/x11/gdkglx.h>
-// #include <gdk/x11/gdkglglxext.h>
-
-
 int write_connectivity(const char *monomer_name, const char *filename) {
 
    graphics_info_t g;

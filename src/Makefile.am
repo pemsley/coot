@@ -491,6 +491,7 @@ libcootsumo_la_SOURCES = \
 	c-interface.cc		 \
 	c-interface-test.cc      \
 	cc-interface.hh		 \
+	cc-interface-utils.cc    \
 	cc-interface-alignment.cc \
 	cc-interface-graphics.cc \
 	cc-interface-graphics.hh \
