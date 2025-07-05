@@ -6,8 +6,7 @@ o arwen, alejandro, santosh, dorothee
 o install latest chapi, python3 import coot_headless_api
   then the molecules_container_t gives an error message
   about COOT_PREFIX
-
-o Add curl fetch stuff to chapi api. Use modern accession codes.
+* Not for me.
 
 o refine_resiude_using_cid CHAIN too much debugging information
 
@@ -33,6 +32,8 @@ o auto-scale the make-a-difference map
 o colour stops for b-factor analysis, rather than colour wheel. :: 1
 
 o have another look at Rama plot :: 1
+
+o Add curl fetch stuff to chapi api. Use modern accession codes.
 
 o address-sanitizer for coot
 
