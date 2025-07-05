@@ -851,7 +851,7 @@ molecules_container_t::import_cif_dictionary(const std::string &cif_file_name, i
                                                                  cif_dictionary_read_number, imol_enc);
    cif_dictionary_read_number++;
 
-   if (true)
+   if (false)
       std::cout << "debug:: import_cif_dictionary() cif_file_name: " << cif_file_name
                 << " for imol_enc " << imol_enc << " success " << r.success << " with "
                 << r.n_atoms << " atoms " << r.n_bonds << " bonds " << r.n_links << " links"
@@ -2862,7 +2862,7 @@ molecules_container_t::refine_residues_using_atom_cid(int imol, const std::strin
          // status = refine_residues(imol, spec.chain_id, spec.res_no, spec.ins_code, spec.alt_conf, mode, n_cycles);
          std::vector<mmdb::Residue *> rv = molecules[imol].select_residues(cid, mode);
 
-         debug_selected_residues(rv);
+         // debug_selected_residues(rv);
          std::string alt_conf = "";
          status = refine_direct(imol, rv, alt_conf, n_cycles);
          set_updating_maps_need_an_update(imol);

@@ -1213,6 +1213,7 @@ coot::protein_geometry::have_dictionary_for_residue_type(const std::string &mono
 							 int read_number_in,
 							 bool try_autoload_if_needed) {
 
+   bool debug = false;
    bool ifound = false;
    int ndict = dict_res_restraints.size();
    std::string path = "--start--";
@@ -1226,7 +1227,7 @@ coot::protein_geometry::have_dictionary_for_residue_type(const std::string &mono
       ifound = true;
    }
 
-   if (true)
+   if (debug)
       std::cout << "INFO:: have_dictionary_for_residue_type() idr here is " << idr << std::endl;
 
    // check synonyms before checking three-letter-codes
@@ -1274,7 +1275,7 @@ coot::protein_geometry::have_dictionary_for_residue_type(const std::string &mono
       }
    }
 
-   if (true)
+   if (debug)
       std::cout << "INFO:: .............have_dictionary_for_residue_type() " << monomer_type
                 << " " << imol_enc << " path " << path << " returns " << ifound << std::endl;
 
