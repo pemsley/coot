@@ -3,13 +3,9 @@
 
 o arwen, alejandro, santosh, dorothee
 
-o add-water should have a key-binding
+o Fix curlew (download to wrong directory)
 
-o make a function that returns the secondary structure for libcootapi/chapi
-
-o "Flood the blob with dummy atoms" - useful of pomgnt2
-
-o print the key bindings
+o bernie comments
 
 o install latest chapi, python3 import coot_headless_api
   then the molecules_container_t gives an error message
@@ -17,9 +13,36 @@ o install latest chapi, python3 import coot_headless_api
 
 o Add curl fetch stuff to chapi api. Use modern accession codes.
 
-o refine_resiude_using_cid CHAIN too much debugging information
+o refine_residue_using_cid "CHAIN": too much debugging information
+
+o 2vf7: alphafold model tutorial? Or is it too close to the actual model?
+
+o filename filter for coords file open
+  https://docs.gtk.org/gtk4/class.FileFilter.html
+
+o multi-select for maps
+
+o Take a cif molecule, copy it, move the copy to symmetry-related position
+  merge with first and write out the cif. Is the header (secondary structure)
+  preserved in the outpute cif?
+
+o std::bad_alloc when fitting waters in chapi - maybe.
+  Put some protection in.
+
+o 3pdt is Mg and should be K. A2.
+
+o Add split water to new coot
+
+o moorhen (and coot) ribbon diagram coloured by b-factor
+
+o read in a moelcule, make a moelcule with DNA models. Refine DNA, then
+  try to undo refinement of DNA. Fails. 8v1w.
 
 --- Other Items ---
+
+o "Flood the blob with dummy atoms" - useful of pomgnt2
+
+o print the key bindings
 
 o Add ability to rotate view around z axis :: 0.5
 
@@ -95,4 +118,7 @@ o what is the radius of gyration? Make a function. ::: 1
 * Done.
 
 o remove GEMMI hack at top of atom-selection-container.cc ::: 0.2
+
+o make a function that returns the secondary structure for libcootapi/chapi
+* Done
 

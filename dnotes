@@ -11879,3 +11879,9 @@ Mon 16 Jun 18:42:05 BST 2025
 
    par(mfrow=c(2,1))
 
+---
+Sat 28 Jun 2025 09:13:57 CDT
+
+  getting a screenshot:
+
+  https://stackoverflow.com/questions/78771600/how-to-take-screenshot-in-gtk4
