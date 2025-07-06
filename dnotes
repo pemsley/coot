@@ -11885,3 +11885,16 @@ Sat 28 Jun 2025 09:13:57 CDT
   getting a screenshot:
 
   https://stackoverflow.com/questions/78771600/how-to-take-screenshot-in-gtk4
+
+---
+Fri  4 Jul 16:35:20 BST 2025
+
+  converting coot-download
+
+   std::string download_dir = "coot-download";
+
+   becomes
+
+   xdg_t xdg;
+   std::string download_dir = join(xdg.get_cache_home().string(), "coot-download");
+

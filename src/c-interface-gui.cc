@@ -2060,7 +2060,7 @@ void network_get_accession_code_entity(const std::string &text, int mode) {
 
    // 20240630-PE need to check that the file already exists before downloading it
    xdg_t xdg;
-   std::string download_dir = join(xdg.get_cache_home().string(), "coot-download");
+   std::string download_dir = xdg.get_download_dir();
    make_directory_maybe(download_dir.c_str());
    std::string dld = coot::get_directory(download_dir);
    if (! dld.empty()) {

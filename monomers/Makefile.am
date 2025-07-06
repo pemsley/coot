@@ -34,16 +34,16 @@ b/BTB.cif               e/EBE.cif               p/PE8.cif               t/TAM.ci
 
 install-data-local:
 	if test -d $(srcdir); then \
-	   mkdir $(DESTDIR)/$(pkgdatadir)/lib/data/monomers; \
+	   mkdir $(DESTDIR)$(pkgdatadir)/lib/data/monomers; \
            for cif_dir in $(srcdir)/* ; do \
                l_cif_dir=$$(basename $$cif_dir) ; \
-               if test -d $(DESTDIR)/$(pkgdatadir)/lib/data/monomers/$$l_cif_dir ; then \
-                   echo found $(DESTDIR)/$(pkgdatadir)/lib/data/monomers/$$l_cif_dir ; \
+               if test -d $(DESTDIR)$(pkgdatadir)/lib/data/monomers/$$l_cif_dir ; then \
+                   echo found $(DESTDIR)$(pkgdatadir)/lib/data/monomers/$$l_cif_dir ; \
                else \
-                   mkdir $(DESTDIR)/$(pkgdatadir)/lib/data/monomers/$$l_cif_dir ; \
+                   mkdir $(DESTDIR)$(pkgdatadir)/lib/data/monomers/$$l_cif_dir ; \
                fi ; \
                for cif_file in $$cif_dir/*.cif ; do \
-                   cp $$cif_file $(DESTDIR)/$(pkgdatadir)/lib/data/monomers/$$l_cif_dir ; \
+                   cp $$cif_file $(DESTDIR)$(pkgdatadir)/lib/data/monomers/$$l_cif_dir ; \
                    done ; \
                done ; \
         fi

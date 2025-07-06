@@ -1037,7 +1037,7 @@ if test "$OS" = "Linux" ; then
    # arch=`uname -a | awk '{print $(NF-1)}'`
    arch=$(uname -a | awk '{print $(NF-1)}')
    echo currently architecture is $architecture
-   if test "$architecture" = x86_64 -o "$architecture" = ia64 ; then
+   if test "$architecture" = x86_64 -o "$architecture" = ia64 -o "$architecture" = aarch64 ; then
       update_libtool=1
       update_config_guess_sub=1
    else
@@ -1176,7 +1176,7 @@ case $dist_name in
 
       dep_list='
        patch
-       pkgconfig
+       pkg-config
        m4
        g++
        git
@@ -1198,7 +1198,7 @@ case $dist_name in
       if test "$CHAPI_ONLY" = true ; then
           dep_list='
           patch
-          pkgconfig
+          pkg-config
           m4
           g++
           git
@@ -2489,13 +2489,17 @@ ${WGET} $extras_place/fftw-2.1.5.tar.gz
     gzip -dc ${AUTOBUILD_SOURCES}/fftw-2.1.5.tar.gz | tar xf -
     # gzip -dc ${AUTOBUILD_SOURCES}/fftw-configure-stuff.tar.gz | tar xf - # don't need.
     cd fftw-2.1.5
-    if ./configure $generic_prefix --enable-shared --enable-float ; then
+    fftw_configure_extras=
+    if test $architecture = aarch64 ; then
+        fftw_configure_extras=--build=aarch64-unknown-linux-gnu
+    fi
+    if ./configure $generic_prefix $fftw_configure_extras --enable-shared --enable-float ; then
        if $MAKE ; then
           $MAKE install
        fi
     fi
     )  > $HOSTLOGDIR/03-fftw.txt 2>&1
-    echo done fftw >&2
+    echo "done fftw" >&2
 else
     echo not building fftw:
 fi

@@ -110,30 +110,4 @@ test_molecules_container_LDFLAGS = ./libcoot-api.la \
    $(top_builddir)/utils/libcoot-utils.la            \
    $(CLIPPER_LIBS) $(GEMMI_LIBS) $(MMDB_LIBS) $(RDKIT_LIBS)
 
-# ---------- pythonic ------------------
-
-EXTRA_DIST = coot-headless-api.i
-
-dist_python_PYTHON = coot_headless_api.py
-
-pyexec_LTLIBRARIES = _coot_headless_api.la
-
-wrap-coot-api.cc: coot-headless-api.i molecules-container.hh
-	swig -o $@ -python -c++ $<
-
-_coot_headless_api_la_SOURCES = wrap-coot-api.cc molecules-container-swig.cc
-
-_coot_headless_api_la_CXXFLAGS = -DUSE_PYTHON -DSWIG
-
-_coot_headless_api_la_LIBADD = libcoot-api.la
-
-_coot_headless_api_la_LDFLAGS = -module $(SHARED_LDFLAGS) --no-undefined
-
-if OS_WIN32
-# Python .pyd modules are simply DLLs, but they have to be called .pyd for
-# python to find them, and libtool only creates .dll.
-install-exec-hook:
-	cp $(pyexecdir)/_coot_headless_api-0.dll $(pyexecdir)/_coot_headless_api.pyd
-endif
-
-
+# 2025-07-03-PE swig stuff was here.

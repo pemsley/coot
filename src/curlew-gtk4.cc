@@ -33,6 +33,9 @@
 
 #include "utils/win-compat.hh"
 
+#include "utils/logging.hh"
+extern logging logger;
+
 #include "json.hpp" // clever stuff from Niels Lohmann
 using json = nlohmann::json;
 
@@ -41,36 +44,33 @@ int coot_get_url(const std::string &url, const std::string &file_name);
 // in c-interface.h
 void run_script(const char *filename);
 
+// Note taht this runs/loads the extension also.
 // return a status and a failure message.
 // return bool true on success.
 std::pair<bool, std::string>
-curlew_install_extension_file_gtk4(const std::string &script_here_file_name) {
+curlew_install_extension_file_gtk4(const std::string &downloaded_script_file_name) {
 
    bool success = false;
    std::string failure_message;
-   if (coot::file_exists_and_non_empty(script_here_file_name)) {
-      std::string home_directory = coot::get_home_dir();
-      if (!home_directory.empty()) {
-         std::string file_name = coot::util::file_name_non_directory(script_here_file_name);
-         std::string preferences_dir = coot::util::append_dir_dir(home_directory, ".coot");
-         std::string preferences_file_name = coot::util::append_dir_file(preferences_dir, file_name);
-         // std::cout << "debug:: attempting to copy \"" << script_here_file_name << "\" as \"" << preferences_file_name
-         // << "\"" << std::endl;
-         int status = coot::copy_file(script_here_file_name, preferences_file_name); // it returns a bool actually
-         if (status == false) {
-            // std::cout << "WARNING:: Copy file script failed: " << script_here_file_name << std::endl;
-            FILE *fp = fopen(script_here_file_name.c_str(), "r");
-            PyRun_SimpleFile(fp, script_here_file_name.c_str());
-            fclose(fp);
-            failure_message = "WARNING:: Copy file script failed: " + script_here_file_name;
-         } else {
-            // cool.
-            // std::cout << "debug:: run_script() called on " << preferences_file_name << std::endl;
-            FILE *fp = fopen(script_here_file_name.c_str(), "r");
-            PyRun_SimpleFile(fp, preferences_file_name.c_str());
-            fclose(fp);
-            success = true;
-         }
+   if (coot::file_exists_and_non_empty(downloaded_script_file_name)) {
+      xdg_t xdg;
+      std::filesystem::path state_home_dir = xdg.get_state_home();
+      std::string fn = coot::util::file_name_non_directory(downloaded_script_file_name);
+      std::filesystem::path installed_file_path = state_home_dir / fn;
+      std::string installed_file_name = installed_file_path.string();
+      bool status = coot::copy_file(downloaded_script_file_name, installed_file_name);
+      if (status == false) {
+         FILE *fp = fopen(downloaded_script_file_name.c_str(), "r");
+         PyRun_SimpleFile(fp, downloaded_script_file_name.c_str());
+         fclose(fp);
+         logger.log(log_t::WARNING, "Copy file script failed", downloaded_script_file_name);
+      } else {
+         // cool.
+         // std::cout << "debug:: run_script() called on " << preferences_file_name << std::endl;
+         FILE *fp = fopen(installed_file_name.c_str(), "r");
+         PyRun_SimpleFile(fp, installed_file_name.c_str());
+         fclose(fp);
+         success = true;
       }
    }
    return std::make_pair(success, failure_message);
@@ -94,11 +94,13 @@ int coot_rename(const std::string &f1, const std::string &f2) {
 int
 curlew_uninstall_extension_file_gtk4(const std::string &script_file_name) {
 
-   std::string home_directory = coot::get_home_dir();
-   std::string preferences_dir = coot::util::append_dir_dir(home_directory, ".coot");
-   std::string preferences_file_name = coot::util::append_dir_file(preferences_dir, script_file_name);
-   std::string renamed_file = preferences_file_name + "_uninstalled";
-   int status = coot_rename(preferences_file_name, renamed_file);
+   xdg_t xdg;
+   std::filesystem::path state_home_dir = xdg.get_state_home();
+   std::string fn = coot::util::file_name_non_directory(script_file_name);
+   std::filesystem::path installed_file_path = state_home_dir / fn;
+   std::string installed_file_name = installed_file_path.string();
+   std::string renamed_file = installed_file_name + "_uninstalled";
+   int status = coot_rename(installed_file_name, renamed_file);
    return status;
 }
 
@@ -112,7 +114,7 @@ curlew_dialog() {
       // put this in utils somewhere
       std::string url_prefix;
 #ifndef WINDOWS_MINGW
-      url_prefix += "https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/";
+      url_prefix += "https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot";
 #else
       url_prefix += "https://bernhardcl.github.io/coot/";
 #endif
@@ -172,10 +174,14 @@ curlew_dialog() {
    };
 
    std::string url_prefix = get_curlew_url_prefix();
-   std::cout << "url_prefix: " << url_prefix << std::endl;
+   std::cout << ":::::::::::::: url_prefix: " << url_prefix << std::endl;
    std::string scripts_dir = coot::util::append_dir_file(url_prefix, "scripts");
 
-   std::string download_dir = "coot-download";
+   std::cout << ":::::::::::::: scripts_dir " << scripts_dir << std::endl;
+
+   // std::string download_dir = "coot-download";
+   xdg_t xdg;
+   std::string download_dir = xdg.get_download_dir();
    download_dir = coot::get_directory(download_dir.c_str());
 
    auto add_extension_to_grid = [download_dir, url_prefix, scripts_dir] (const extension_info_t &extension, GtkWidget *grid, int row) {
@@ -263,10 +269,18 @@ curlew_dialog() {
          std::string *scripts_dir_p = static_cast<std::string *>(user_data);
          std::string scripts_dir = *scripts_dir_p;
          std::string url = coot::util::append_dir_file(scripts_dir, file_name);
+
+         std::cout << ":::::: file_name_here " << file_name_here << std::endl;
+
+         // here scripts_dir is
+         // https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/curlew-extensions/gtk4/Coot-1/scripts
+         // here file_name_here is
+         // $HOME/.cache/Coot/coot-download/coot_goodsell_menu.py
+
          coot_get_url(url, file_name_here);
          if (coot::file_exists_and_non_empty(file_name_here)) {
             std::pair<bool, std::string> checksum_result = checksums_match(file_name_here, checksum);
-            if (checksum_result.first) { 
+            if (checksum_result.first) {
                std::pair<bool, std::string> result = curlew_install_extension_file_gtk4(file_name_here);
                if (result.first) {
                   // hide the "Install" button

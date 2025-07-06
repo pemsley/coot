@@ -4988,6 +4988,8 @@ string   static std::string sessionid;
       key_bindings_map[k] = kb;
    }
 
+   static void print_key_bindings();
+
    // GL IDs go here
 
    // intermediate atom pull restraints (note to self: intermediate atoms have

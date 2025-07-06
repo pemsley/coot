@@ -963,7 +963,7 @@ coot::package_data_dir() {
    // For binary installers, they use the environment variable:
 
    // std::cout << "debug:: in coot::package_data_dir() xdatadir: :" << xdatadir << ":" << std::endl;
-   std::cout << "debug:: in coot::package_data_dir() pkgdatadir: :" << pkgdatadir << ":" << std::endl;
+   // std::cout << "debug:: in coot::package_data_dir() pkgdatadir: :" << pkgdatadir << ":" << std::endl;
 
    char *env = getenv("COOT_DATA_DIR");
    if (env) {

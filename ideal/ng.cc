@@ -363,7 +363,7 @@ coot::restraints_container_t::make_base_pairing_and_stacking_restraints_ng(int i
 
    // std::cout << "INFO:: Made " << n_base_pairing_bonds << " base pairing Hydrogen bonds"
    //           << std::endl;
-   logger.log(log_t::INFO, "Made", n_base_pairing_bonds, "base paring hydrogen bonds");
+   logger.log(log_t::DEBUG, "Made", n_base_pairing_bonds, "base pairing hydrogen bonds");
 
    auto tp_9 = std::chrono::high_resolution_clock::now();
 

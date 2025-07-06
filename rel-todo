@@ -3,15 +3,12 @@
 
 o arwen, alejandro, santosh, dorothee
 
-o Fix curlew (download to wrong directory)
-
 o bernie comments
 
 o install latest chapi, python3 import coot_headless_api
   then the molecules_container_t gives an error message
   about COOT_PREFIX
-
-o Add curl fetch stuff to chapi api. Use modern accession codes.
+* Not for me.
 
 o refine_residue_using_cid "CHAIN": too much debugging information
 
@@ -38,11 +35,19 @@ o moorhen (and coot) ribbon diagram coloured by b-factor
 o read in a moelcule, make a moelcule with DNA models. Refine DNA, then
   try to undo refinement of DNA. Fails. 8v1w.
 
+o move make_directory_maybe() and get_directory() take std::string arg.
+  Will need a change the header. Maybe a new header?
+
+o Talk to Stuart:
+::function get_atom not found - out of 386 docstrings
+::function get_atom_using_cid not found - out of 386 docstrings
+::function get_residue not found - out of 386 docstrings
+::function get_residue_using_cid not found - out of 386 docstrings
+
+
 --- Other Items ---
 
 o "Flood the blob with dummy atoms" - useful of pomgnt2
-
-o print the key bindings
 
 o Add ability to rotate view around z axis :: 0.5
 
@@ -52,6 +57,8 @@ o auto-scale the make-a-difference map
 o colour stops for b-factor analysis, rather than colour wheel. :: 1
 
 o have another look at Rama plot :: 1
+
+o Add curl fetch stuff to chapi api. Use modern accession codes.
 
 o address-sanitizer for coot
 
@@ -99,8 +106,20 @@ o  It was a strange bit of code in get_group().
 
 --- Done Items ---
 
-o swig should not be a dependency if building chapi
+o Fix curlew (download to wrong directory)
 * Done.
+
+o make a function that returns the secondary structure for libcootapi/chapi
+* Done.
+
+o print the key bindings
+* Done.
+
+o add-water should have a key-binding
+* Done.
+
+o swig should not be a dependency if building chapi
+* Done. And done.
 
 o Process Stuart's outliers file ::: 1
 * Done
