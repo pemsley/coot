@@ -1,7 +1,7 @@
 
 cootmonomersdir = $(pkgdatadir)/lib/data/monomers
 
-dist_cootmonomers_DATA = ener_lib.cif \
+cootmonomers_files = ener_lib.cif \
 1/1PE.cif               c/CU.cif                h/HOH.cif               p/PEG.cif \
 5/5MC.cif               c/CYS.cif               i/ILE.cif               p/PG4.cif \
 a/A.cif                 d/DA.cif                i/IMD.cif               p/PGE.cif \
@@ -32,19 +32,11 @@ c/COA.cif               h/HEM.cif               o/OMG.cif \
 c/CSO.cif               h/HIS.cif               p/PCA.cif \
 b/BTB.cif               e/EBE.cif               p/PE8.cif               t/TAM.cif
 
-install-data-local:
-	if test -d $(srcdir); then \
-	   mkdir $(DESTDIR)$(pkgdatadir)/lib/data/monomers; \
-           for cif_dir in $(srcdir)/* ; do \
-               l_cif_dir=$$(basename $$cif_dir) ; \
-               if test -d $(DESTDIR)$(pkgdatadir)/lib/data/monomers/$$l_cif_dir ; then \
-                   echo found $(DESTDIR)$(pkgdatadir)/lib/data/monomers/$$l_cif_dir ; \
-               else \
-                   mkdir $(DESTDIR)$(pkgdatadir)/lib/data/monomers/$$l_cif_dir ; \
-               fi ; \
-               for cif_file in $$cif_dir/*.cif ; do \
-                   cp $$cif_file $(DESTDIR)$(pkgdatadir)/lib/data/monomers/$$l_cif_dir ; \
-                   done ; \
-               done ; \
-        fi
+EXTRA_DIST = $(cootmonomers_files)
 
+install-data-local:
+	@for file in $(cootmonomers_files); do \
+        cif_dir=$$(dirname $$file) ; \
+	mkdir -p "$(DESTDIR)$(cootmonomersdir)/$$cif_dir" ; \
+	install -m 644 "$(srcdir)/$$file" "$(DESTDIR)$(cootmonomersdir)/$$file"; \
+	done
