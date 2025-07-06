@@ -950,8 +950,10 @@ void get_monomer_dictionary_in_subthread(const std::string &comp_id,
       const char v = tolower(rs); // get the sub directory name
       std::string letter(1, v);
       std::string cif_file_name = comp_id + ".cif";
-      std::filesystem::path github = "https://raw.githubusercontent.com/MonomerLibrary/monomers/refs/heads/master";
-      std::filesystem::path url_path = github / letter / cif_file_name;
+
+      // Bernhard says not to use std::filesystem for URLs - OK.
+      std::string github = "https://raw.githubusercontent.com/MonomerLibrary/monomers/refs/heads/master";
+      std::string url_string = github + "/" +  letter + "/" + cif_file_name;
 
       xdg_t xdg;
 
@@ -976,25 +978,26 @@ void get_monomer_dictionary_in_subthread(const std::string &comp_id,
 	    if (std::filesystem::exists(letter_dir_path)) {
 	       std::filesystem::path cif_file_path = letter_dir_path / cif_file_name;
                // return 0 on success
-	       int status = coot_get_url(url_path.string(), cif_file_path.string());
+	       int status = coot_get_url(url_string, cif_file_path.string());
                logger.log(log_t::DEBUG, logging::function_name_t("get_monomer_dictionary_in_subthread()"),
                           "coot_get_url() returned status ", status);
                if (status != 0)
                   delete_cif_file_if_exists(cif_file_path);
 	    } else {
 	       // std::cout << "INFO:: " << letter_dir_path << " does not exist " << std::endl;
-	       logger.log(log_t::INFO, letter_dir_path, "does not exist");
+	       logger.log(log_t::INFO, letter_dir_path.u8string(), "does not exist");
 	    }
 	 } else {
 	    //std::cout << "INFO:: " << monomers_path << " does not exist " << std::endl;
-	    logger.log(log_t::INFO, monomers_path, "does not exist");
+	    logger.log(log_t::INFO, monomers_path.u8string(), "does not exist");
 	 }
       } else {
 	 // std::cout << "INFO:: " << ch << " does not exist " << std::endl;
-	 logger.log(log_t::INFO, ch, "does not exist");
+	 logger.log(log_t::INFO, ch.u8string(), "does not exist");
       }
       c->fetch_done = 1;
    };
+
 
    if (! comp_id.empty()) {
       // std::cout << "INFO:: Get " << comp_id << " in a sub-thread" << std::endl;
@@ -1025,7 +1028,7 @@ void get_monomer_dictionary_in_subthread(const std::string &comp_id,
             // std::cout << "INFO:: call read_cif_dictionary() on this cif "
             // << cif_file_path << std::endl;
             if (std::filesystem::exists(cif_file_path)) {
-               logger.log(log_t::INFO, "call read_cif_dictionary() on this cif", cif_file_path);
+               logger.log(log_t::INFO, "call read_cif_dictionary() on this cif", cif_file_path.string());
                int read_status = read_cif_dictionary(cif_file_path.string());
                if (read_status > 0) {
                   if (cif_data->run_get_monomer_post_fetch_flag)
