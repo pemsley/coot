@@ -4092,7 +4092,7 @@ public:
 
    void update_molecular_representation_widgets();
    static void molecular_representation_meshes_checkbutton_toggled(GtkCheckButton *button, gpointer *user_data);
-
+   static void undisplay_all_molecule_meshes(int imol); // for imol, of course
 
    int add_molecular_representation(int imol,
                                     const std::string &atom_selection,

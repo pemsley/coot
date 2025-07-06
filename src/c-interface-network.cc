@@ -627,6 +627,11 @@ fetch_alphafold_model_for_uniprot_id(const std::string &uniprot_id) {
          }
       }
 
+      // display_pae_from_file_in_a_dialog() needs the model to exist
+      // (so that it knows which model to manipulate)
+      imol = handle_read_draw_molecule_and_move_molecule_here(fn_pdb);
+      graphics_draw();
+
       // now let's do the PAE file
       std::string fn_pae = coot::util::append_dir_file(download_dir, fn_tail_pae);
       url = std::string("https://alphafold.ebi.ac.uk/files/") + fn_tail_pae;
@@ -635,14 +640,12 @@ fetch_alphafold_model_for_uniprot_id(const std::string &uniprot_id) {
       if (needs_downloading) {
          coot_get_url(url.c_str(), fn_pae.c_str());
          if (coot::file_exists_and_non_tiny(fn_pae, 500)) {
-            display_pae_from_file_in_a_dialog(fn_pae);
+            display_pae_from_file_in_a_dialog(imol, fn_pae);
          }
       } else {
-         display_pae_from_file_in_a_dialog(fn_pae);
+         display_pae_from_file_in_a_dialog(imol, fn_pae);
       }
 
-      imol = handle_read_draw_molecule_and_move_molecule_here(fn_pdb);
-      graphics_draw();
    }
    return imol;
 }

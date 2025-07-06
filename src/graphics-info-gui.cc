@@ -4622,6 +4622,19 @@ graphics_info_t::set_show_molecular_representation(int imol, unsigned int mesh_i
 
 // static
 void
+graphics_info_t::undisplay_all_molecule_meshes(int imol) {
+
+   if (is_valid_model_molecule(imol)) {
+      auto &m = molecules[imol];
+      for (unsigned int mesh_idx=0; mesh_idx<m.meshes.size(); mesh_idx++) {
+	 auto &mesh = m.meshes[mesh_idx];
+	 mesh.set_draw_mesh_state(false);
+      }
+   }
+}
+
+// static
+void
 graphics_info_t::molecular_representation_meshes_checkbutton_toggled(GtkCheckButton *button, gpointer *user_data) {
 
    const char *n = static_cast<const char *>(g_object_get_data(G_OBJECT(button), "name"));
@@ -4672,6 +4685,8 @@ graphics_info_t::update_molecular_representation_widgets() {
 
    GtkWidget *frame = widget_from_builder("molecular_representations_frame");
    GtkWidget *vbox  = widget_from_builder("molecular_representations_vbox");
+
+   std::cout << "in update_molecular_representation_widgets(): vbox " << vbox << std::endl;
 
    unsigned int n_mesh = 0;
    for (unsigned int i=0; i<molecules.size(); i++)

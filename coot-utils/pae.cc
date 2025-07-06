@@ -60,7 +60,6 @@ pae_t::pae_t(const std::string &file_name, int n_pixels_in) {
          if (is_square) {
             image = make_image(pae_vecs);
          }
-
       }
       catch (const nlohmann::detail::type_error &e) {
          std::cout << "ERROR:: " << e.what() << std::endl;
@@ -109,6 +108,8 @@ pae_t::make_image(const std::vector<std::vector<int> > &pae_vecs) const {
       return CAIRO_STATUS_SUCCESS;
    };
 
+   // the caller decides on the dialog size (n_pixels)
+   // and we make things fit here:
    int n_pixels_for_pae_image = n_pixels - 100;
 
    std::string s;
@@ -124,6 +125,8 @@ pae_t::make_image(const std::vector<std::vector<int> > &pae_vecs) const {
    }
 
    unsigned int n_residues = pae_vecs.size();
+
+   std::cout << "debug:: in pae::make_image() n_residues: " << n_residues << std::endl;
 
    float max_value = get_max_value(pae_vecs);
    for (int i=0; i<n_pixels_for_pae_image; i++) {
