@@ -1,11 +1,6 @@
 
 --- Items ---
 
-o filename filter for coords file open
-  https://docs.gtk.org/gtk4/class.FileFilter.html
-
-o multi-select for maps
-
 o arwen, alejandro, santosh, dorothee
 
 o Add split water to new coot
@@ -14,8 +9,6 @@ o install latest chapi, python3 import coot_headless_api
   then the molecules_container_t gives an error message
   about COOT_PREFIX
 * Not for me.
-
-o 2vf7: alphafold model tutorial? Or is it too close to the actual model?
 
 o Take a cif molecule, copy it, move the copy to symmetry-related position
   merge with first and write out the cif. Is the header (secondary structure)
@@ -101,6 +94,18 @@ o  It was a strange bit of code in get_group().
    Solved now? Am I using the right version?
 
 --- Done Items ---
+
+o filename filter for coords file open
+  https://docs.gtk.org/gtk4/class.FileFilter.html
+  Done. But now I think that this is not what Oli wanted.
+  There should be a user-defined globbing string.
+  Add a GtkFileDialog to a dialog. See google docs notes.
+
+o multi-select for maps
+* Done
+
+o 2vf7: alphafold model tutorial? Or is it too close to the actual model?
+  *It's too close.  Good idea though.
 
 o bernie comments
 * Done.
