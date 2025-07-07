@@ -3293,6 +3293,23 @@ void superpose_ligands_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    safe_python_command("coot_gui.superpose_ligand_gui()");
 }
 
+void split_water_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+			G_GNUC_UNUSED GVariant *parameter,
+			G_GNUC_UNUSED gpointer user_data) {
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      std::string chain_id = pp.second.second.chain_id;
+      int res_no = pp.second.second.res_no;
+      std::string ins_code = pp.second.second.ins_code;
+      split_water(imol, chain_id.c_str(), res_no, ins_code.c_str());
+   } else {
+      add_status_bar_text("No active atom found");
+   }
+
+}
+
 void symm_shift_reference_chain_here_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                             G_GNUC_UNUSED GVariant *parameter,
                                             G_GNUC_UNUSED gpointer user_data) {
@@ -5049,6 +5066,7 @@ create_actions(GtkApplication *application) {
    add_action(  "rigid_body_fit_residue_ranges_action",   rigid_body_fit_residue_ranges_action);
    add_action(        "rigid_body_fit_molecule_action",         rigid_body_fit_molecule_action);
    add_action(              "superpose_ligands_action",               superpose_ligands_action);
+   add_action(                    "split_water_action",                     split_water_action);
    add_action("symm_shift_reference_chain_here_action", symm_shift_reference_chain_here_action);
    add_action(          "other_modelling_tools_action",           other_modelling_tools_action);
    add_action(                     "whats_this_action",                      whats_this_action);

@@ -515,6 +515,10 @@
           <attribute name="action">app.superpose_ligands_action</attribute>
         </item>
         <item>
+          <attribute name="label">Split Water</attribute>
+          <attribute name="action">app.split_water_action</attribute>
+        </item>
+        <item>
           <attribute name="label">Symm Shift Reference Chain Here</attribute>
           <attribute name="action">app.symm_shift_reference_chain_here_action</attribute>
         </item>
