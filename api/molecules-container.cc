@@ -3868,30 +3868,36 @@ molecules_container_t::add_waters(int imol_model, int imol_map) {
          coot::ligand lig;
          int n_cycles = ligand_water_n_cycles; // 3 by default
 
-         // n_cycles = 1; // for debugging.
+         try {
+            // n_cycles = 1; // for debugging.
+            short int mask_waters_flag; // treat waters like other atoms?
+            // mask_waters_flag = g.find_ligand_mask_waters_flag;
+            mask_waters_flag = 1; // when looking for waters we should not
+            // ignore the waters that already exist.
+            // short int do_flood_flag = 0;    // don't flood fill the map with waters for now.
 
-         short int mask_waters_flag; // treat waters like other atoms?
-         // mask_waters_flag = g.find_ligand_mask_waters_flag;
-         mask_waters_flag = 1; // when looking for waters we should not
-         // ignore the waters that already exist.
-         // short int do_flood_flag = 0;    // don't flood fill the map with waters for now.
+            lig.import_map_from(molecules[imol_map].xmap, molecules[imol_map].get_map_rmsd_approx());
+            // lig.set_masked_map_value(-2.0); // sigma level of masked map gets distorted
+            lig.set_map_atom_mask_radius(1.9); // Angstroms
+            lig.set_water_to_protein_distance_limits(ligand_water_to_protein_distance_lim_max,
+                                                     ligand_water_to_protein_distance_lim_min);
+            lig.set_variance_limit(ligand_water_variance_limit);
+            lig.mask_map(molecules[imol_model].atom_sel.mol, mask_waters_flag);
+            // lig.output_map("masked-for-waters.map");
+            // std::cout << "debug:: add_waters(): using n-sigma cut off " << ligand_water_sigma_cut_off << std::endl;
+            logger.log(log_t::DEBUG, logging::function_name_t("add_waters"),
+                       "using n-sigma cut-ff ", ligand_water_sigma_cut_off);
 
-         lig.import_map_from(molecules[imol_map].xmap, molecules[imol_map].get_map_rmsd_approx());
-         // lig.set_masked_map_value(-2.0); // sigma level of masked map gets distorted
-         lig.set_map_atom_mask_radius(1.9); // Angstroms
-         lig.set_water_to_protein_distance_limits(ligand_water_to_protein_distance_lim_max,
-                                                  ligand_water_to_protein_distance_lim_min);
-         lig.set_variance_limit(ligand_water_variance_limit);
-         lig.mask_map(molecules[imol_model].atom_sel.mol, mask_waters_flag);
-         // lig.output_map("masked-for-waters.map");
-         std::cout << "debug:: add_waters(): using n-sigma cut off " << ligand_water_sigma_cut_off << std::endl;
+            lig.water_fit(ligand_water_sigma_cut_off, n_cycles);
 
-         lig.water_fit(ligand_water_sigma_cut_off, n_cycles);
-
-         coot::minimol::molecule water_mol = lig.water_mol();
-         molecules[imol_model].insert_waters_into_molecule(water_mol, "HOH");
-         n_waters_added = water_mol.count_atoms();
-         set_updating_maps_need_an_update(imol_model);
+            coot::minimol::molecule water_mol = lig.water_mol();
+            molecules[imol_model].insert_waters_into_molecule(water_mol, "HOH");
+            n_waters_added = water_mol.count_atoms();
+            set_updating_maps_need_an_update(imol_model);
+         }
+         catch (const std::bad_alloc &e) {
+            std::cout << "WARNING::" << e.what() << std::endl;
+         }
       }
    }
    return n_waters_added;
