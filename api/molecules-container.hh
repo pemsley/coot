@@ -2876,7 +2876,7 @@ public:
    //! @param cid_ligand is the ligand selection CID e.g "//A/15" (ligand 15 of chain A)
    coot::atom_overlaps_dots_container_t get_overlap_dots_for_ligand(int imol, const std::string &cid_ligand);
 
-   //! Gat Atom Overlaps
+   //! Get Atom Overlaps
    // not const because it can dynamically add dictionaries
    //! @param imol is the model molecule index
    //! @return a vector of atom overlap objects

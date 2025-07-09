@@ -855,6 +855,10 @@ NB_MODULE(coot_headless_api, m) {
          &molecules_container_t::get_octahemisphere,
          nb::arg("n_divisions"),
          get_docstring_from_xml("get_octahemisphere").c_str())
+    .def("get_overlaps",
+         &molecules_container_t::get_overlaps,
+         nb::arg("imol"),
+         get_docstring_from_xml("get_overlaps").c_str())
     .def("get_q_score",
          &molecules_container_t::get_q_score,
          nb::arg("imol_model"), nb::arg("imol_map"),
@@ -1501,6 +1505,16 @@ NB_MODULE(coot_headless_api, m) {
     .def_rw("float_user_data",&coot::atom_spec_t::float_user_data)
     .def_rw("string_user_data",&coot::atom_spec_t::string_user_data)
     .def_rw("model_number",&coot::atom_spec_t::model_number)
+    ;
+    nb::class_<coot::plain_atom_overlap_t>(m,"plain_atom_overlap_t")
+    .def(nb::init<>())
+       .def_rw("ligand_atom_index", &coot::plain_atom_overlap_t::ligand_atom_index)
+       .def_rw("atom_spec_1", &coot::plain_atom_overlap_t::atom_spec_1)
+       .def_rw("atom_spec_2", &coot::plain_atom_overlap_t::atom_spec_2)
+       .def_rw("overlap_volume", &coot::plain_atom_overlap_t::overlap_volume)
+       .def_rw("r_1", &coot::plain_atom_overlap_t::r_1)
+       .def_rw("r_2", &coot::plain_atom_overlap_t::r_2)
+       .def_rw("is_h_bond", &coot::plain_atom_overlap_t::is_h_bond)
     ;
     nb::class_<positioned_atom_spec_t>(m,"positioned_atom_spec_t")
     .def(nb::init<>())
