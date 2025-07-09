@@ -38,7 +38,8 @@ test_flev_SOURCES = test-flev.cc
 test_flev_LDADD = \
    ./libcoot-pli.la \
    $(top_builddir)/coot-utils/libcoot-coord-utils.la \
-   $(top_builddir)/geometry/libcoot-geometry.la
+   $(top_builddir)/geometry/libcoot-geometry.la \
+	$(MMDB_LIBS)
 
 # put specs into a python-loving environment when we need access to coot-pli from python
 

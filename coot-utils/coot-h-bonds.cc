@@ -338,6 +338,7 @@ coot::h_bonds::get_mcdonald_and_thornton(int selHnd_1, int selHnd_2, mmdb::Manag
                                          mmdb::realtype max_dist) {
    std::vector<coot::h_bond> v;
    // (and mark HB hydrogens too)
+
    int hb_type_udd_handle = mark_donors_and_acceptors(selHnd_1, selHnd_2, mol, geom, imol); // using UDD data
 
    // These distance are from the acceptor to the H - not the donor
@@ -395,7 +396,7 @@ coot::h_bonds::get_mcdonald_and_thornton(int selHnd_1, int selHnd_2, mmdb::Manag
                at_1->GetUDData(hb_type_udd_handle, hb_type_1);
                at_2->GetUDData(hb_type_udd_handle, hb_type_2);
 
-               if (true) // checking this? Are the types HB_UNASSIGNED?
+               if (false) // checking this? Are the types HB_UNASSIGNED?
                   std::cout << "DEBUG:: in get_mcdonald_and_thornton() "
                             << coot::atom_spec_t(at_1) << " "
                             << coot::atom_spec_t(at_2) << "   "
@@ -883,10 +884,11 @@ coot::h_bonds::check_hb_status(int selhnd, mmdb::Manager *mol, const protein_geo
    int n_residue_atoms;
 
    int hb_type = HB_UNASSIGNED;
+
    int hb_type_udd_handle = mark_donors_and_acceptors(selhnd, -1, mol, geom, imol); // using UDD data
 
    mol->GetSelIndex(selhnd, residue_atoms, n_residue_atoms);
-   for (int iat=0; iat<n_residue_atoms; iat++) { 
+   for (int iat=0; iat<n_residue_atoms; iat++) {
       mmdb::Atom *at = residue_atoms[iat];
       at->GetUDData(hb_type_udd_handle, hb_type);
       if (0)

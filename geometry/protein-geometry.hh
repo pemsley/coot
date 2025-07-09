@@ -651,7 +651,7 @@ namespace coot {
    //
 
    class dictionary_match_info_t; // yes.
-   
+
    // ------------------------------------------------------------------------
    // class dictionary_residue_restraints_t
    // ------------------------------------------------------------------------
@@ -874,6 +874,10 @@ namespace coot {
       bool in_same_ring(const std::string &atom_name_1, const std::string &atom_name_2,
                         const std::vector<std::vector<std::string> > &ring_list) const;
 
+      void add_pyranose_pseudo_ring_plane_restraints(const std::string &plane_id,
+                                                     std::vector<std::string> &atom_name_vec,
+                                                     double esd);
+
       bool ligand_has_aromatic_bonds_p() const;
 
       std::vector<std::vector<std::string> > get_ligand_aromatic_ring_list() const;
@@ -943,12 +947,12 @@ namespace coot {
       //
       // Caller disposes of the memory with a delete().
       mmdb::math::Graph *make_graph(bool use_hydrogen) const;
-      
+
       // Are the atoms only of elements C,N.O,H,F,Cl,I,Br,P,S?
       bool comprised_of_organic_set() const;
 
       // are the number of atoms of each element the same ie. they have the same chemical formula?
-      // 
+      //
       bool composition_matches(const dictionary_residue_restraints_t &other) const;
 
       // for hydrogens
@@ -2279,6 +2283,14 @@ namespace coot {
                                                 const std::vector<atom_name_torsion_quad> &tors_info_vec,
                                                 int mmcif_read_number);
 
+      // (list "pseudo-ring-1" (list " C1 " " C2 " " C4 " " C5 ") 0.01)
+      // (list "pseudo-ring-2" (list " C2 " " C3 " " C5 " " O5 ") 0.01)
+      // (list "pseudo-ring-3" (list " C3 " " C4 " " O5 " " C1 ") 0.01)
+      void add_pyranose_pseudo_ring_plane_restraints(const std::string &comp_id, int imol_enc,
+                                                     const std::string &plane_id,
+                                                     std::vector<std::string> &atom_name_vec,
+                                                     double esd);
+
       // to use improper dihedrals rather than plane restraints, call this
       // after reading restraints. Fills the improper dihedral restraints
       // If you read new restraints, you will need to call this function again
@@ -2304,7 +2316,7 @@ namespace coot {
       std::vector<std::string> get_available_ligand_comp_id(const std::string &hoped_for_head,
                                                             unsigned int n_top=10) const;
 
-#endif // HAVE_CCP4SRS      
+#endif // HAVE_CCP4SRS
 
    };
 

@@ -46,6 +46,9 @@
 #include "geometry/protein-donor-acceptors.hh"
 #include "loop-path.hh"
 
+#include "utils/logging.hh"
+extern logging logger;
+
 static std::string b_factor_bonds_scale_handle_name = "B-factor-bonds-scale";
 
 unsigned int
@@ -2363,7 +2366,11 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
       have_udd_atoms = 0;
    } else {
       for (int i=0; i<SelAtom.n_selected_atoms; i++) {
-         SelAtom.atom_selection[i]->PutUDData(udd_found_bond_handle, graphical_bonds_container::NO_BOND);
+	 mmdb::Atom *at = SelAtom.atom_selection[i];
+	 if (at)
+	    at->PutUDData(udd_found_bond_handle, graphical_bonds_container::NO_BOND);
+	 else
+	    logger.log(log_t::ERROR, logging::function_name_t("construct_from_asc"), "Bad atom!", i);
       }
    }
 
@@ -2387,9 +2394,12 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
    std::vector<coot::model_bond_atom_info_t> atom_stuff_vec(n_models+1);
 
    for (int i=0; i<SelAtom.n_selected_atoms; i++) {
-      imodel = SelAtom.atom_selection[i]->GetModelNum();
-      if ((imodel <= n_models) && (imodel > 0)) {
-         atom_stuff_vec[imodel].add_atom(SelAtom.atom_selection[i]);
+      mmdb::Atom *at = SelAtom.atom_selection[i];
+      if (at) {
+	 imodel = at->GetModelNum();
+	 if ((imodel <= n_models) && (imodel > 0)) {
+	    atom_stuff_vec[imodel].add_atom(SelAtom.atom_selection[i]);
+	 }
       }
    }
 
@@ -5628,14 +5638,18 @@ Bond_lines_container::atom_colour(mmdb::Atom *at, int bond_colour_type,
                                           if (element == " I") {
                                              return DARK_VIOLET;
                                           } else {
-                                             if (element == "MG" || element == "BE" || element == "CA" || element == "SR" || element == "BA") {
-                                                return DARK_GREEN_BOND;
+                                             if (element == " B") {
+                                                return BORON_PINK;
                                              } else {
-                                                if (element == "FE") {
-                                                   return DARK_ORANGE_BOND;
+                                                if (element == "MG" || element == "BE" || element == "CA" || element == "SR" || element == "BA") {
+                                                   return DARK_GREEN_BOND;
                                                 } else {
-                                                   if (element == "LI" || element == "NA" || element == " K" || element == "RB" || element == "CS" || element == "FR") {
-                                                      return VIOLET;
+                                                   if (element == "FE") {
+                                                      return DARK_ORANGE_BOND;
+                                                   } else {
+                                                      if (element == "LI" || element == "NA" || element == " K" || element == "RB" || element == "CS" || element == "FR") {
+                                                         return VIOLET;
+                                                      }
                                                    }
                                                 }
                                              }
@@ -5696,14 +5710,18 @@ Bond_lines_container::atom_colour(mmdb::Atom *at, int bond_colour_type,
                                              if (element == " I") {
                                                 return DARK_VIOLET;
                                              } else {
-                                                if (element == "MG" || element == "BE" || element == "CA" || element == "SR" || element == "BA") {
-                                                   return DARK_GREEN_BOND;
+                                                if (element == " B") {
+                                                   return BORON_PINK;
                                                 } else {
-                                                   if (element == "FE") {
-                                                      return DARK_ORANGE_BOND;
+                                                   if (element == "MG" || element == "BE" || element == "CA" || element == "SR" || element == "BA") {
+                                                      return DARK_GREEN_BOND;
                                                    } else {
-                                                      if (element == "LI" || element == "NA" || element == " K" || element == "RB" || element == "CS" || element == "FR") {
-                                                         return VIOLET;
+                                                      if (element == "FE") {
+                                                         return DARK_ORANGE_BOND;
+                                                      } else {
+                                                         if (element == "LI" || element == "NA" || element == " K" || element == "RB" || element == "CS" || element == "FR") {
+                                                            return VIOLET;
+                                                         }
                                                       }
                                                    }
                                                 }
@@ -8608,7 +8626,14 @@ Bond_lines_container::add_atom_centres(int imol,
             // because the add_bond function doesn't take a "thin" flag
             // (thinning is only currently done by bond colour)
             //
-            if (std::string(at->residue->GetResName()) == "HOH") gbai.is_water = true;
+	    mmdb::Residue *r = at->residue;
+	    if (r) {
+	       const char *rn = r->GetResName();
+	       if (rn) {
+		  std::string res_name = r->GetResName();
+		  if (res_name == "HOH") gbai.is_water = true;
+	       }
+	    }
             if (is_H_flag) gbai.is_hydrogen_atom = true;
             gbai.atom_p = at;
             if (atom_colour_type == coot::COLOUR_BY_B_FACTOR)

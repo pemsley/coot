@@ -118,7 +118,6 @@ void clear_user_defined_atom_colours(int imol) {
 
    if (is_valid_model_molecule(imol))
       graphics_info_t::molecules[imol].clear_user_defined_atom_colours();
-      
 
 }
 

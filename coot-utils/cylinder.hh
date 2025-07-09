@@ -70,6 +70,14 @@ public:
    void z_translate(float zt);
    void add_sad_face(); // to move the eyesballs. the eyes would have to be in a different mesh.
    void crenulations();
+
+   // static function - not only for cylinders - but all things using glm
+   // angle in radians.
+   static glm::vec3 rotate_around_vector(const glm::vec3 &direction,
+                                         const glm::vec3 &position,
+                                         const glm::vec3 &origin_shift,
+                                         double angle);
+
 };
 
 #endif

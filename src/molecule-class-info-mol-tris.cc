@@ -86,9 +86,13 @@ molecule_class_info_t::add_molecular_representation(const std::string &atom_sele
                                                     int secondary_structure_usage_flag) {
    int status = 0;
 
+   if (false)
+      std::cout << "DEBUG:: in mcit::add_molecular_representation() atom_selection: \"" << atom_selection << "\""
+                << " colour_scheme: \"" << colour_scheme << "\" style: \"" << style << "\"" << std::endl;
 
-   std::cout << "DEBUG:: in mcit::add_molecular_representation() atom_selection: \"" << atom_selection << "\""
-             << " colour_scheme: \"" << colour_scheme << "\" style: \"" << style << "\"" << std::endl;
+   GLenum err = glGetError();
+   if (err)
+      std::cout << "GL ERROR:: add_molecular_representation() --- start --- " << err << std::endl;
 
    if (! atom_sel.mol)  return 0;
    if (atom_sel.n_selected_atoms == 0)  return 0;
@@ -99,6 +103,10 @@ molecule_class_info_t::add_molecular_representation(const std::string &atom_sele
    std::string name = atom_selection + " " + colour_scheme + " " + style;
    Material material;
 
+   err = glGetError();
+   if (err)
+      std::cout << "GL ERROR:: add_molecular_representation() pos-B " << err << std::endl;
+
    material.do_specularity = true;        // 20210905-PE make these user settable. Perhaps they are? I should check.
    material.shininess = 256.0;
    material.specular_strength = 0.56;
@@ -106,7 +114,7 @@ molecule_class_info_t::add_molecular_representation(const std::string &atom_sele
    // if (colour_scheme == "Rainbow") {
    if (colour_scheme == "colorRampChainsScheme") {
 
-      std::cout << "------------------------------------------------------------------  Rainbow -------------------------------------" << std::endl;
+      std::cout << "---------------------------------------  Rainbow ----------------------" << std::endl;
       int imod = 1;
       mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
       if (model_p) {
@@ -130,8 +138,18 @@ molecule_class_info_t::add_molecular_representation(const std::string &atom_sele
 
    } else {
 
+      if (false)
+         std::cout << "DEBUG:: in mcit::add_molecular_representation() atom_selection: \"" << atom_selection << "\""
+                   << " colour_scheme: \"" << colour_scheme << "\" style: \"" << style << "\""
+                   << " non-colour-ramp path " << std::endl;
+
+      err = glGetError();
+      if (err)
+         std::cout << "GL ERROR:: add_molecular_representation() non-colour-ramp-path " << err << std::endl;
+
       std::vector<molecular_triangles_mesh_t> mtm =
-         mmg.get_molecular_triangles_mesh(atom_sel.mol, atom_selection, colour_scheme, style, secondary_structure_usage_flag,
+         mmg.get_molecular_triangles_mesh(atom_sel.mol, atom_selection, colour_scheme, style,
+                                          secondary_structure_usage_flag,
                                           M2T_float_params, M2T_int_params);
 
       // Mesh mesh(mtm);
@@ -143,6 +161,8 @@ molecule_class_info_t::add_molecular_representation(const std::string &atom_sele
          // moving to the Model method
          molecular_triangles_mesh_t meshes_together;
          for (unsigned int i=0; i<mtm.size(); i++) {
+            if (false)
+               std::cout << "meshes_together " << i << " " << mtm[i].vertices.size() << " " << mtm[i].triangles.size() << std::endl;
             meshes_together.add_to_mesh(mtm[i].vertices, mtm[i].triangles);
          }
          std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> >
@@ -156,8 +176,9 @@ molecule_class_info_t::add_molecular_representation(const std::string &atom_sele
       }
    }
 
-   std::cout << "DEBUG:: mcit::add_molecular_representation() ... for molecule " << imol_no << " we have "
-             << meshes.size() << " meshes " << std::endl;
+   err = glGetError();
+   if (err)
+      std::cout << "GL ERROR:: add_molecular_representation() --- end --- " << err << std::endl;
 
    return status;
 }

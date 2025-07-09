@@ -314,7 +314,7 @@ else
     . ${HOME}/wincoot-installer-variables
     coot_test_status=0
     echo '!define WinCootVersion "'${wincoot_version}'"' >$install_top_dir/coot-version
-    echo '!define cif_dict_filename "monomers_050924.tar.gz"' >>$install_top_dir/coot-version
+    echo '!define cif_dict_filename "monomers_180325.tar.gz"' >>$install_top_dir/coot-version
 fi
 
 # flag for makensis, i.e. overwrite binary dir when stable release

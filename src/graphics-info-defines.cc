@@ -261,7 +261,7 @@ graphics_info_t::check_if_in_range_defines(GdkEventButton *event,
    check_if_in_terminal_residue_define(event);
    check_if_in_delete_item_define(event, state);
    check_if_in_rotamer_define(event);
-   check_if_in_mutate_define(event); 
+   check_if_in_mutate_define(event);
    check_if_in_mutate_auto_fit_define(event);
    check_if_in_auto_fit_define(event);
    check_if_in_add_alt_conf_define(event);

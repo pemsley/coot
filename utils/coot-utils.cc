@@ -958,8 +958,13 @@ coot::get_home_dir() {
 std::string
 coot::package_data_dir() {
 
-   std::string pkgdatadir = PKGDATADIR;
+   // std::string xdatadir = XDATADIR; CMake
+   std::string pkgdatadir = PKGDATADIR; // CMake does this too, it seems.
    // For binary installers, they use the environment variable:
+
+   // std::cout << "debug:: in coot::package_data_dir() xdatadir: :" << xdatadir << ":" << std::endl;
+   // std::cout << "debug:: in coot::package_data_dir() pkgdatadir: :" << pkgdatadir << ":" << std::endl;
+
    char *env = getenv("COOT_DATA_DIR");
    if (env) {
       pkgdatadir = std::string(env);

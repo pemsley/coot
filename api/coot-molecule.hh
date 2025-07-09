@@ -83,6 +83,7 @@
 
 #include "bond-colour.hh"
 #include "blender-mesh.hh"
+#include "user-defined-colour-table.hh"
 
 // 2023-07-04-PE This is a hack. This should be configured - and the
 // various functions that depend on this being true should be
@@ -106,6 +107,16 @@ namespace coot {
       std::string chain_id;
       int res_no_start;
       int res_no_end;
+   };
+
+   class atom_distance_t {
+   public:
+     atom_distance_t(const atom_spec_t &a1, const atom_spec_t &a2,
+		    float d) : atom_1(a1), atom_2(a2), distance(d) {}
+     atom_distance_t() : distance(-1) {}
+     atom_spec_t atom_1;
+     atom_spec_t atom_2;
+     float distance;
    };
 
    class molecule_t {
@@ -283,6 +294,9 @@ namespace coot {
       std::vector<density_contour_triangles_container_t> draw_diff_map_vector_sets;
       std::vector<std::pair<int, TRIANGLE> > map_triangle_centres; // with associated mid-points and indices
 
+      // insert coords - c.f function in molecule-class-info_t
+      void insert_coords_internal(const atom_selection_container_t &asc);
+
       // This function no longer does a backup or updates the save_info!
       // The calling function should do that.
       void replace_coords(const atom_selection_container_t &asc,
@@ -447,6 +461,10 @@ namespace coot {
          }
 
          indexed_user_defined_colour_selection_cids_apply_to_non_carbon_atoms_also = true;
+
+         gltf_pbr_roughness = 0.2;
+         gltf_pbr_metalicity = 0.0;
+
       }
 
       // chain-id (maybe) and plain sequence.
@@ -583,6 +601,16 @@ namespace coot {
       unsigned int get_number_of_atoms() const;
       int get_number_of_hydrogen_atoms() const;
       float get_molecule_diameter() const;
+      //! Get Radius of Gyration
+      //!
+      //! @param imol is the model molecule index
+      //!
+      //! @return the molecule centre. If the number is less than zero, there
+      //! was a problem finding the molecule or atoms.
+      double get_radius_of_gyration() const;
+
+      //! get types
+      std::vector<std::string> get_types_in_molecule() const;
       mmdb::Residue *cid_to_residue(const std::string &cid) const;
       std::vector<mmdb::Residue *> cid_to_residues(const std::string &cid) const;
       mmdb::Atom *cid_to_atom(const std::string &cid) const;
@@ -691,6 +719,7 @@ namespace coot {
                                                 bool against_a_dark_background,
                                                 float bonds_width, float atom_radius_to_bond_width_ratio,
                                                 bool render_atoms_as_aniso, // if possible, of course
+                                                float aniso_probability,
                                                 bool render_aniso_atoms_as_ortep,
                                                 int smoothness_factor,
                                                 bool draw_hydrogen_atoms_flag,
@@ -834,6 +863,9 @@ namespace coot {
                                             const protein_geometry &geom,
                                             const std::string &file_name) const;
 
+      float gltf_pbr_roughness;
+      float gltf_pbr_metalicity;
+
       void set_show_symmetry(bool f) { show_symmetry = f;}
       bool get_show_symmetry() { return show_symmetry;}
       void transform_by(mmdb::mat44 SSMAlign_TMatrix);
@@ -919,6 +951,13 @@ namespace coot {
       //! @return a list of residues specs that have atoms within dist of the atoms of the specified residue
       std::vector<coot::residue_spec_t> residues_near_residue(const std::string &residue_cid, float dist) const;
 
+     //! get atom distances
+     //! other stuff here
+     std::vector<coot::atom_distance_t>
+     get_distances_between_atoms_of_residues(const std::string &cid_res_1,
+					     const std::string &cid_res_2,
+					     float dist_max) const;
+
       //! not const because it can dynamically add dictionaries
       std::vector<plain_atom_overlap_t> get_overlaps(protein_geometry *geom_p);
 
@@ -932,6 +971,22 @@ namespace coot {
       //! not const because it can dynamically add dictionaries
       coot::atom_overlaps_dots_container_t get_overlap_dots_for_ligand(const std::string &cid_ligand,
                                                                        protein_geometry *geom_p);
+
+      instanced_mesh_t get_HOLE(const clipper::Coord_orth &start_pos,
+                                const clipper::Coord_orth &end_pos,
+                                const protein_geometry &geom) const;
+
+      //! Get SVG for 2d ligand environment view (FLEV)
+      //!
+      //! The caller should make sure that the dictionary for the ligand has been loaded - this
+      //! function won't do that. It will add hydrogen atoms if needed.
+      //! The can modify the protein_geometry
+      //!
+      //! @param residue_cid is the cid for the residue
+      std::string get_svg_for_2d_ligand_environment_view(const std::string &residue_cid,
+                                                         protein_geometry *geom,
+                                                         bool add_key) const;
+
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
       //! if the ligand cid specifies more than one residue, only the first is returned.
@@ -972,7 +1027,16 @@ namespace coot {
                                                                 const std::string &new_res_type,
                                                                 const protein_geometry &geom,
                                                                 const clipper::Xmap<float> &xmap,
+                                                                mmdb::Manager *standard_residues_asc_mol, // for RNA
                                                                 ctpl::thread_pool &static_thread_pool);
+
+      void execute_simple_nucleotide_addition(const std::string &term_type,
+                                              mmdb::Residue *res_p, const std::string &chain_id,
+                                              mmdb::Manager *standard_residues_asc_mol);
+      void execute_simple_nucleotide_addition(mmdb::Residue *residue_p,
+                                              mmdb::Manager *standard_residues_asc_mol);
+      void execute_simple_nucleotide_addition(const std::string &cid,
+                                              mmdb::Manager *standard_residues_asc_mol);
 
       int add_compound(const dictionary_residue_restraints_t &monomer_restraints, const Cartesian &position,
                        const clipper::Xmap<float> &xmap, float map_rmsd);
@@ -989,6 +1053,9 @@ namespace coot {
       int fill_partial_residues(const clipper::Xmap<float> &xmap, protein_geometry *geom);
 
       int mutate(const residue_spec_t &spec, const std::string &new_res_type);
+
+      void add_named_glyco_tree(const std::string &glycosylation_name, const std::string &chain_id, int res_no,
+                                const clipper::Xmap<float> &xmap, protein_geometry *geom);
 
       int side_chain_180(const residue_spec_t &residue_spec, const std::string &alt_conf,
                          coot::protein_geometry *geom_p); // sub functions are non-const
@@ -1035,6 +1102,21 @@ namespace coot {
 
       //! @return 1 on a successful additions, 0 on failure.
       int delete_hydrogen_atoms();
+
+      //! delete all carbohydrate
+      //!
+      //! @return true on successful deletion, return false on no deletion.
+      bool delete_all_carbohydrate();
+
+      //! Residue is nucleic acid?
+      //!
+      //! Every residue in the selection is checked
+      //!
+      //! @param imol is the model molecule index
+      //! @param cid is the selection CID e.g "//A/15" (residue 15 of chain A)
+      //!
+      //! @return a bool
+      bool residue_is_nucleic_acid(const std::string &cid) const;
 
       // change the chain id
       // return -1 on a conflict
@@ -1175,6 +1257,10 @@ namespace coot {
       std::pair<int, double>
       get_torsion(const std::string &cid, const std::vector<std::string> &atom_names) const;
 
+
+      void
+      set_temperature_factors_using_cid(const std::string &cid, float temp_fact);
+
       // ----------------------- refinement
 
       coot::extra_restraints_t extra_restraints;
@@ -1276,6 +1362,8 @@ namespace coot {
 
       // ----------------------- map functions
 
+      void scale_map(float scale_factor);
+
       bool is_EM_map() const;
 
       float get_density_at_position(const clipper::Coord_orth &pos) const;
@@ -1305,6 +1393,9 @@ namespace coot {
                                           bool use_thread_pool, ctpl::thread_pool *thread_pool_p);
       simple_mesh_t get_map_contours_mesh_using_other_map_for_colours(const clipper::Coord_orth &position, float radius, float contour_level,
                                                                       const clipper::Xmap<float> &xmap);
+      simple_mesh_t get_map_contours_mesh_using_other_map_for_colours(const clipper::Coord_orth &position, float radius, float contour_level,
+								      const user_defined_colour_table_t &udct,
+                                                                      const clipper::Xmap<float> &xmap);
 
       //! map histogram class
       class histogram_info_t {
@@ -1329,6 +1420,15 @@ namespace coot {
       //! The caller should also set the zoom factor (which reduces the range by the given factor)
       //! centred around the median (typically 1.0 but usefully can vary until ~20.0).
       histogram_info_t get_map_histogram(unsigned int n_bins, float zoom_factor) const;
+
+      // just look at the vertices of the map - not the whole thing
+      // Sample the points from other_map
+      histogram_info_t
+      get_map_vertices_histogram(const clipper::Xmap<float> &other_xmap,
+				 const clipper::Coord_orth &pt,
+				 float radius, float contour_level,
+				 bool use_thread_pool, ctpl::thread_pool *thread_pool_p,
+				 unsigned int n_bins);
 
       void set_map_colour(colour_holder holder);
       void set_map_colour_saturation(float s) { radial_map_colour_saturation = s; }

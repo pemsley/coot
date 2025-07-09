@@ -14,10 +14,11 @@ namespace coot {
       std::string atom_type_1;
       std::string atom_type_2;
       double bond_length;
+      bool bond_is_between_atoms_in_the_same_ring;
       acedrg_types_for_bond_t() : bond_length(-1) {}
       acedrg_types_for_bond_t(const std::string &a11, const std::string &a12, const std::string &a21, const std::string &a22,
-                              double bl) : atom_id_1(a11), atom_id_2(a12), atom_type_1(a21), atom_type_2(a22),
-                                           bond_length(bl) {}
+                              double bl, bool in_ring) : atom_id_1(a11), atom_id_2(a12), atom_type_1(a21), atom_type_2(a22),
+                                                         bond_length(bl), bond_is_between_atoms_in_the_same_ring(in_ring) {}
    };
 
    class acedrg_types_for_angle_t {

@@ -1,0 +1,261 @@
+# /home/mihaela/Downloads/acedrg243/NAG_unimodal.cif
+# modified by Privateer
+data_comp_list
+loop_
+_chem_comp.id
+_chem_comp.three_letter_code
+_chem_comp.name
+_chem_comp.group
+_chem_comp.number_atoms_all
+_chem_comp.number_atoms_nh
+_chem_comp.desc_level
+NAG      NAG 'N-ACETYL-D-GLUCOSAMINE              ' pyranose           30  15 .
+
+data_comp_NAG
+loop_
+_chem_comp_atom.comp_id
+_chem_comp_atom.atom_id
+_chem_comp_atom.type_symbol
+_chem_comp_atom.type_energy
+_chem_comp_atom.charge
+_chem_comp_atom.x
+_chem_comp_atom.y
+_chem_comp_atom.z
+NAG C1 C CH1 0 7.444 28.102 26.638
+NAG C2 C CH1 0 6.937 29.190 27.588
+NAG C3 C CH1 0 7.568 29.017 28.968
+NAG C4 C CH1 0 7.383 27.593 29.481
+NAG C5 C CH1 0 7.918 26.601 28.449
+NAG C6 C CH2 0 7.696 25.154 28.833
+NAG C7 C C 0 6.278 31.392 26.637
+NAG C8 C CH3 0 6.775 32.729 26.170
+NAG N2 N NH1 0 7.202 30.526 27.086
+NAG O1 O OH1 0 6.767 28.201 25.423
+NAG O3 O OH1 0 6.996 29.956 29.868
+NAG O4 O OH1 0 8.089 27.436 30.710
+NAG O5 O O2 0 7.247 26.807 27.188
+NAG O6 O OH1 0 6.309 24.848 28.971
+NAG O7 O O 0 5.081 31.118 26.604
+NAG H1 H H 0 8.406 28.243 26.479
+NAG H2 H H 0 5.965 29.058 27.696
+NAG H3 H H 0 8.539 29.201 28.886
+NAG H4 H H 0 6.420 27.420 29.634
+NAG H5 H H 0 8.886 26.758 28.327
+NAG H61 H H 0 8.153 24.968 29.680
+NAG H62 H H 0 8.086 24.574 28.146
+NAG H81 H H 0 7.739 32.708 26.057
+NAG H82 H H 0 6.543 33.407 26.825
+NAG H83 H H 0 6.359 32.949 25.321
+NAG HN2 H H 0 8.038 30.787 27.080
+NAG HO1 H H 0 7.193 27.768 24.833
+NAG HO3 H H 0 7.458 29.959 30.570
+NAG HO4 H H 0 8.913 27.566 30.596
+NAG HO6 H H 0 5.920 24.953 28.225
+
+loop_
+_chem_comp_bond.comp_id
+_chem_comp_bond.atom_id_1
+_chem_comp_bond.atom_id_2
+_chem_comp_bond.type
+_chem_comp_bond.aromatic
+_chem_comp_bond.value_dist_nucleus
+_chem_comp_bond.value_dist_nucleus_esd
+_chem_comp_bond.value_dist
+_chem_comp_bond.value_dist_esd
+NAG C1 C2 SINGLE n 1.530 0.0100 1.530 0.0100
+NAG C1 O1 SINGLE n 1.394 0.0100 1.394 0.0100
+NAG C1 O5 SINGLE n 1.419 0.0100 1.419 0.0100
+NAG C2 C3 SINGLE n 1.526 0.0102 1.526 0.0102
+NAG C2 N2 SINGLE n 1.448 0.0100 1.448 0.0100
+NAG C3 C4 SINGLE n 1.523 0.0100 1.523 0.0100
+NAG C3 O3 SINGLE n 1.421 0.0106 1.421 0.0106
+NAG C4 C5 SINGLE n 1.525 0.0100 1.525 0.0100
+NAG C4 O4 SINGLE n 1.425 0.0100 1.425 0.0100
+NAG C5 C6 SINGLE n 1.511 0.0142 1.511 0.0142
+NAG C5 O5 SINGLE n 1.441 0.0100 1.441 0.0100
+NAG C6 O6 SINGLE n 1.426 0.0200 1.426 0.0200
+NAG C7 C8 SINGLE n 1.498 0.0100 1.498 0.0100
+NAG C7 N2 SINGLE n 1.334 0.0119 1.334 0.0119
+NAG C7 O7 DOUBLE n 1.227 0.0100 1.227 0.0100
+NAG C1 H1 SINGLE n 1.089 0.0100 0.985 0.0100
+NAG C2 H2 SINGLE n 1.089 0.0100 0.987 0.0166
+NAG C3 H3 SINGLE n 1.089 0.0100 0.992 0.0104
+NAG C4 H4 SINGLE n 1.089 0.0100 0.991 0.0105
+NAG C5 H5 SINGLE n 1.089 0.0100 0.988 0.0182
+NAG C6 H61 SINGLE n 1.089 0.0100 0.980 0.0184
+NAG C6 H62 SINGLE n 1.089 0.0100 0.980 0.0184
+NAG C8 H81 SINGLE n 1.089 0.0100 0.971 0.0140
+NAG C8 H82 SINGLE n 1.089 0.0100 0.971 0.0140
+NAG C8 H83 SINGLE n 1.089 0.0100 0.971 0.0140
+NAG N2 HN2 SINGLE n 1.016 0.0100 0.876 0.0200
+NAG O1 HO1 SINGLE n 0.970 0.0120 0.846 0.0200
+NAG O3 HO3 SINGLE n 0.970 0.0120 0.841 0.0200
+NAG O4 HO4 SINGLE n 0.970 0.0120 0.841 0.0200
+NAG O6 HO6 SINGLE n 0.970 0.0120 0.848 0.0200
+
+loop_
+_chem_comp_angle.comp_id
+_chem_comp_angle.atom_id_1
+_chem_comp_angle.atom_id_2
+_chem_comp_angle.atom_id_3
+_chem_comp_angle.value_angle
+_chem_comp_angle.value_angle_esd
+NAG C2 C1 O1 109.247 2.43
+NAG C2 C1 O5 111.350 3.00
+NAG C2 C1 H1 108.848 1.50
+NAG O1 C1 O5 109.600 2.81
+NAG O1 C1 H1 108.913 1.50
+NAG O5 C1 H1 109.272 1.61
+NAG C1 C2 C3 110.235 1.50
+NAG C1 C2 N2 111.780 3.00
+NAG C1 C2 H2 107.511 1.55
+NAG C3 C2 N2 110.454 2.38
+NAG C3 C2 H2 107.579 2.24
+NAG N2 C2 H2 107.121 2.62
+NAG C2 C3 C4 110.882 1.54
+NAG C2 C3 O3 109.400 2.63
+NAG C2 C3 H3 108.177 2.01
+NAG C4 C3 O3 110.984 1.55
+NAG C4 C3 H3 108.714 1.50
+NAG O3 C3 H3 108.954 1.50
+NAG C3 C4 C5 109.454 1.50
+NAG C3 C4 O4 109.301 2.14
+NAG C3 C4 H4 109.514 1.50
+NAG C5 C4 O4 109.072 2.07
+NAG C5 C4 H4 109.223 1.50
+NAG O4 C4 H4 109.194 1.50
+NAG C4 C5 C6 112.996 1.59
+NAG C4 C5 O5 109.140 1.86
+NAG C4 C5 H5 108.960 1.50
+NAG C6 C5 O5 106.879 1.50
+NAG C6 C5 H5 109.269 1.50
+NAG O5 C5 H5 109.134 1.50
+NAG C5 C6 O6 111.299 2.09
+NAG C5 C6 H61 109.363 1.50
+NAG C5 C6 H62 109.363 1.50
+NAG O6 C6 H61 109.265 1.50
+NAG O6 C6 H62 109.265 1.50
+NAG H61 C6 H62 108.155 1.50
+NAG C8 C7 N2 115.988 1.50
+NAG C8 C7 O7 122.067 1.50
+NAG N2 C7 O7 121.945 1.50
+NAG C7 C8 H81 109.527 1.50
+NAG C7 C8 H82 109.527 1.50
+NAG C7 C8 H83 109.527 1.50
+NAG H81 C8 H82 109.365 1.50
+NAG H81 C8 H83 109.365 1.50
+NAG H82 C8 H83 109.365 1.50
+NAG C2 N2 C7 123.083 2.48
+NAG C2 N2 HN2 118.300 1.53
+NAG C7 N2 HN2 118.617 2.66
+NAG C1 O1 HO1 109.112 2.54
+NAG C3 O3 HO3 108.064 2.53
+NAG C4 O4 HO4 109.564 3.00
+NAG C1 O5 C5 113.152 1.70
+NAG C6 O6 HO6 109.472 2.41
+
+loop_
+_chem_comp_tor.comp_id
+_chem_comp_tor.id
+_chem_comp_tor.atom_id_1
+_chem_comp_tor.atom_id_2
+_chem_comp_tor.atom_id_3
+_chem_comp_tor.atom_id_4
+_chem_comp_tor.value_angle
+_chem_comp_tor.value_angle_esd
+_chem_comp_tor.period
+NAG tors_37 C2 C1 O1 HO1 163.320923 10.0 3
+NAG tors_36 O5 C1 O1 HO1 -74.640495 10.0 3
+NAG tors_35 H1 C1 O1 HO1 44.671757 10.0 3
+NAG tors_34 C7 N2 C2 C1 110.024467 10.0 6
+NAG tors_33 C7 N2 C2 C3 -127.048935 10.0 6
+NAG tors_32 C7 N2 C2 H2 -9.463453 10.0 6
+NAG tors_31 HN2 N2 C2 C1 -70.219978 10.0 6
+NAG tors_30 HN2 N2 C2 C3 52.706615 10.0 6
+NAG tors_29 HN2 N2 C2 H2 170.292099 10.0 6
+NAG tors_28 C2 C3 O3 HO3 -168.426712 10.0 3
+NAG tors_27 C4 C3 O3 HO3 68.814270 10.0 3
+NAG tors_26 H3 C3 O3 HO3 -50.645489 10.0 3
+NAG tors_25 C3 C4 O4 HO4 -61.216846 10.0 3
+NAG tors_24 C5 C4 O4 HO4 59.143990 10.0 3
+NAG tors_23 H4 C4 O4 HO4 178.982925 10.0 3
+NAG tors_22 C4 C5 C6 O6 60.874496 10.0 3
+NAG tors_21 C4 C5 C6 H61 -60.250813 10.0 3
+NAG tors_20 C4 C5 C6 H62 -178.203568 10.0 3
+NAG tors_19 O5 C5 C6 O6 -59.959736 10.0 3
+NAG tors_18 O5 C5 C6 H61 178.914948 10.0 3
+NAG tors_17 O5 C5 C6 H62 60.962193 10.0 3
+NAG tors_16 H5 C5 C6 O6 -177.606018 10.0 3
+NAG tors_15 H5 C5 C6 H61 61.268669 10.0 3
+NAG tors_14 H5 C5 C6 H62 -56.684093 10.0 3
+NAG tors_13 C5 C6 O6 HO6 62.882580 10.0 3
+NAG tors_12 H61 C6 O6 HO6 -175.873230 10.0 3
+NAG tors_11 H62 C6 O6 HO6 -58.107323 10.0 3
+NAG tors_10 N2 C7 C8 H81 13.785210 10.0 6
+NAG tors_9 N2 C7 C8 H82 -106.491890 10.0 6
+NAG tors_8 N2 C7 C8 H83 133.855774 10.0 6
+NAG tors_7 O7 C7 C8 H81 -166.218933 10.0 6
+NAG tors_6 O7 C7 C8 H82 73.503967 10.0 6
+NAG tors_5 O7 C7 C8 H83 -46.148369 10.0 6
+NAG tors_4 C8 C7 N2 C2 179.635376 5.0 2
+NAG tors_3 C8 C7 N2 HN2 -0.118592 5.0 2
+NAG tors_2 O7 C7 N2 C2 -0.360416 5.0 2
+NAG tors_1 O7 C7 N2 HN2 179.885620 5.0 2
+NAG ring_1 C5 O5 C1 C2 -59.497253 3.0 1
+NAG ring_2 O5 C1 C2 C3 53.568623 3.0 1
+NAG ring_3 C1 C2 C3 C4 -52.103630 3.0 1
+NAG ring_4 C2 C3 C4 C5 54.273392 3.0 1
+NAG ring_5 C3 C4 C5 O5 -56.987598 3.0 1
+NAG ring_6 C4 C5 O5 C1 61.079514 3.0 1
+
+loop_
+_chem_comp_chir.comp_id
+_chem_comp_chir.id
+_chem_comp_chir.atom_id_centre
+_chem_comp_chir.atom_id_1
+_chem_comp_chir.atom_id_2
+_chem_comp_chir.atom_id_3
+_chem_comp_chir.volume_sign
+NAG chir_1 C1 O5 O1 C2 negative
+NAG chir_2 C2 N2 C1 C3 negative
+NAG chir_3 C3 O3 C4 C2 negative
+NAG chir_4 C4 O4 C5 C3 positive
+NAG chir_5 C5 O5 C4 C6 negative
+
+loop_
+_chem_comp_plane_atom.comp_id
+_chem_comp_plane_atom.plane_id
+_chem_comp_plane_atom.atom_id
+_chem_comp_plane_atom.dist_esd
+NAG plan-1 C7 0.020
+NAG plan-1 C8 0.020
+NAG plan-1 N2 0.020
+NAG plan-1 O7 0.020
+NAG plan-2 C2 0.020
+NAG plan-2 C7 0.020
+NAG plan-2 HN2 0.020
+NAG plan-2 N2 0.020
+
+loop_
+_pdbx_chem_comp_descriptor.comp_id
+_pdbx_chem_comp_descriptor.type
+_pdbx_chem_comp_descriptor.program
+_pdbx_chem_comp_descriptor.program_version
+_pdbx_chem_comp_descriptor.descriptor
+NAG SMILES ACDLabs 12.01 O=C(NC1C(O)C(O)C(OC1O)CO)C
+NAG InChI InChI 1.03 InChI=1S/C8H15NO6/c1-3(11)9-5-7(13)6(12)4(2-10)15-8(5)14/h4-8,10,12-14H,2H2,1H3,(H,9,11)/t4-,5-,6-,7-,8-/m1/s1
+NAG InChIKey InChI 1.03 OVRNDRQMDRJTHS-FMDGEEDCSA-N
+NAG SMILES_CANONICAL CACTVS 3.370 CC(=O)N[C@H]1[C@H](O)O[C@H](CO)[C@@H](O)[C@@H]1O
+NAG SMILES CACTVS 3.370 CC(=O)N[CH]1[CH](O)O[CH](CO)[CH](O)[CH]1O
+NAG SMILES_CANONICAL "OpenEye OEToolkits" 1.7.6 CC(=O)N[C@@H]1[C@H]([C@@H]([C@H](O[C@H]1O)CO)O)O
+NAG SMILES "OpenEye OEToolkits" 1.7.6 CC(=O)NC1C(C(C(OC1O)CO)O)O
+
+loop_
+_pdbx_chem_comp_description_generator.comp_id
+_pdbx_chem_comp_description_generator.program_name
+_pdbx_chem_comp_description_generator.program_version
+_pdbx_chem_comp_description_generator.descriptor
+NAG acedrg 243 "dictionary generator"
+NAG acedrg_database 11 "data source"
+NAG rdkit 2017.03.2 "Chemoinformatics tool"
+NAG refmac5 5.8.0238 "optimization tool"

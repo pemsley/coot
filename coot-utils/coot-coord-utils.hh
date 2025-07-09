@@ -298,9 +298,20 @@ namespace coot {
    //
    bool residues_in_order_p(mmdb::Chain *chain_p);
 
-   // return success status as first element
-   //
+   //! get the centre of the molecule
+   //!
+   //! The mass of the atoms is not used.
+   //!
+   //! @ return success status as first element
    std::pair<bool, clipper::Coord_orth> centre_of_molecule(mmdb::Manager *mol);
+
+   //! get the centre of the molecule, using atom masses
+   //!
+   //! @ return success status as first element
+   std::pair<bool, clipper::Coord_orth> centre_of_molecule_using_masses(mmdb::Manager *mol);
+
+   //! get the radius of gyration - using the centre from above
+   std::pair<bool, double> radius_of_gyration(mmdb::Manager *mol);
 
    std::pair<bool, clipper::Coord_orth> centre_of_residues(const std::vector<mmdb::Residue *> &residues);
 
@@ -712,6 +723,9 @@ namespace coot {
 
       // convenience interface to above
       mmdb::Residue *get_residue(const residue_spec_t &rs, mmdb::Manager *mol);
+
+      // return first false on failure to find residue
+      std::pair<bool, clipper::Coord_orth> get_residue_mid_point(mmdb::Manager *mol, const coot::residue_spec_t &rs);
 
       // get this and next residue - either can be null - both need testing
       std::pair<mmdb::Residue *, mmdb::Residue *> get_this_and_next_residues(const residue_spec_t &rs, mmdb::Manager *mol);
@@ -1174,8 +1188,11 @@ namespace coot {
       std::vector<std::pair<int, int> > pair_residue_atoms(mmdb::Residue *a_residue_p,
 							   mmdb::Residue *b_residue_p);
 
-      // CBs in GLY etc
+      //! CBs in GLY etc
       void delete_anomalous_atoms(mmdb::Manager *mol);
+
+      //! delete all carbohydrate
+      bool delete_all_carbohydrate(mmdb::Manager *mol);
 
       // A useful function that was (is) in molecule_class_info_t
       //

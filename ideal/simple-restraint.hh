@@ -1146,15 +1146,7 @@ namespace coot {
             n_torsion_restr += r.n_torsion_restr;
             n_improper_dihedral_restr += r.n_improper_dihedral_restr;
          }
-         void report(bool do_residue_internal_torsions) {
-            std::cout << "created " << n_bond_restraints   << " bond       restraints " << std::endl;
-            std::cout << "created " << n_angle_restraints  << " angle      restraints " << std::endl;
-            std::cout << "created " << n_plane_restraints  << " plane      restraints " << std::endl;
-            std::cout << "created " << n_chiral_restr      << " chiral vol restraints " << std::endl;
-            std::cout << "created " << n_improper_dihedral_restr << " improper dihedral restraints " << std::endl;
-            if (do_residue_internal_torsions)
-               std::cout << "created " << n_torsion_restr << " torsion restraints " << std::endl;
-         }
+         void report(bool do_residue_internal_torsions) const;
       };
 
    private:
@@ -1893,12 +1885,7 @@ namespace coot {
             n_link_torsion_restr += lrc.n_link_torsion_restr;
             n_link_improper_dihedral_restr += lrc.n_link_improper_dihedral_restr;
          }
-         void report() const {
-            std::cout << "   Made " << n_link_bond_restr    << " " << link_type << " bond restraints\n";
-            std::cout << "   Made " << n_link_angle_restr   << " " << link_type << " angle restraints\n";
-            std::cout << "   Made " << n_link_plane_restr   << " " << link_type << " plane restraints\n";
-            std::cout << "   Made " << n_link_trans_peptide << " " << link_type << " trans-peptide restraints\n";
-         }
+         void report() const;
       };
 
       class reduced_angle_info_container_t {
@@ -2452,12 +2439,13 @@ namespace coot {
       // We now have access to n_times_called: we want to do pre-sanitization
       // only when n_times_called is 1.
       //
+      // print_chi_sq_flag is not used, so one of these functions is redundant.
       refinement_results_t minimize(restraint_usage_Flags, int n_steps_max = 1000);
       refinement_results_t minimize(restraint_usage_Flags, int nsteps, short int print_chi_sq_flag);
       refinement_results_t minimize(int imol, restraint_usage_Flags usage_flags,
                                     int nsteps_max, short int print_initial_chi_sq_flag,
                                     const protein_geometry &geom);
-      refinement_results_t minimize_inner(restraint_usage_Flags, int nsteps, short int print_chi_sq_flag);
+      refinement_results_t minimize_inner(restraint_usage_Flags, int nsteps);
 
       refinement_results_t get_refinement_results(); // not const because setup_minimize()
 

@@ -3975,12 +3975,13 @@ INFO::
    o Up to date with Bernie's commits?
    o Run the damn tests - don't be lazy
    o make check
-   o before the release commit, make sure it builds and passes tests on charybdis
-   o try the build on the virtual machines - ubuntu at work, debian at home.
+   o before the release commit, make sure it builds and passes tests on cluster
    o New entry in ChangeLog
    o Make sure RELEASE-NOTES are up to date and add a ----- marker at the top
      Make sure the release is called Release, not pre-release
+   o change the version in coot.appdata.xml - add release notes
    o change the version in configure.ac
+   o change the version (image file name) in src/new-startup.cc
    o change the PACKAGE_VERSION in CMakeLists.txt
    o Correct the version in the about_dialog in the coot-gtk4.ui file
    o Artists acknowledged in glade/aboutdialog?
@@ -3996,40 +3997,22 @@ INFO::
    o make dist to make a tar-ball
         Use this to untar and make a build - this will test that the tarball has
         all the files before commit:
-        cd ../build-test-dist
+        cd ../build-coot-1.1
         and untar it there
         copy into the new directory the script configure-it.
         configure and make check
    o git status # what did you forget to add?
    o are the shaders up to date?
+   o Transfer the dist tar to hal and build it there
    o git commit -a
    o git tag Release-0.x.y
    o git push origin Release-0.x.y  # publish the tag
    o git push # push the actual release commit
-   o Passes build (build-latest) on pc?
-     cd build-for-release, configure it, make and make dist.
-     So that works? Now use md...
-   o on charybdis: md: check that it builds, the build will put the release in the
-                   pre-release directory. So move it to release (and remove the
-                   revision tag)
-                   cd ~/fuse/ftp/coot/source/pre-releases/
-                   mv coot-0.9.4.1-revision-10273.tar.gz coot-0.9.4.1.tar.gz
-                   mv coot-0.9.4.1.tar.gz ../releases/
-                   give-read-permission coot-0.9.4.1.tar.gz
-   o on charybdis: disable the build-latest cron-job
-   o on charybdis: clear out coot/source/pre-releases
-   o on charybdis: cd /home/emsley/Projects/coot/git/coot-refinement/build-from-build-it
-                   unfortunately the 1.0 release complicated the extraction of the latest release for this.
-                   So the version is hard coded now! You will need to change it, line 1617
-   o on charybdis: bash wrap-build-it-for-release.sh
-                   that doesn't do the transfer to web server at the moment, so:
-                   cp ~/public_html/software/binaries/stable/coot-0.9.4.1-*  ~/fuse/ftp/coot/binaries/release/
-                   cd ~/fuse/ftp/coot/binaries/release/
-                   give-read-permission to the new files
-   o Build binaries on some hosts: ubuntu1604, gough (clear out the autobuild/building directory)
-   o on charybdis: Update latest version info on coot web page:
-                   cd Projects/coot/web/index.html
-                   bash transfer-the-file.sh
+   o Update latest version info on coot web page:
+     cd Projects/coot/web/index.html
+   o Release on Github
+   o update libcootapi documentation
+   o update coot python documentation
    o Blog post
    o Mail mailing list
 
@@ -10421,12 +10404,7 @@ Fri 25 Feb 2022 07:14:47 GMT
 
 setenv XDG_DATA_DIRS ~/gtk/inst/share
 
-Thu  9 Sep 22:15:06 BST 2021
-
-   Re: alphafold: 4lnz example from Tristan's presentation
-
-   There were a few snapshots from Janes' presentation that are worth more thought.
-
+----
 Tue 17 Oct 22:32:02 BST 2023
 
   Gtk4 is installed in a different directory to the one in which Coot is installed:
@@ -10437,6 +10415,13 @@ Tue 17 Oct 22:32:02 BST 2023
   /home/paule/gtk4/share/glib-2.0/schemas
   > cp $XDG_DATA_DIR/gschemas.compiled $prfx/share/glib-2.0/schemas
 
+
+----
+Thu  9 Sep 22:15:06 BST 2021
+
+   Re: alphafold: 4lnz example from Tristan's presentation
+
+   There were a few snapshots from James' presentation that are worth more thought.
 
 ----
 Fri 10 Sep 15:20:23 BST 2021
@@ -10460,21 +10445,17 @@ Mon 20 Sep 2021 17:16:29 BST
 
    Rising pitch feed-back - I like the sound of a marimba
 
+
 ---
-Mon 20 Sep 2021 17:43:55 BST
-
-
 Sat 23 Oct 08:02:34 BST 2021
 
     implement this: (density contouring)
     http://www.sci.utah.edu/~csilva/papers/noskinny.pdf
 
-
 ----
 Wed  5 Jan 18:57:11 GMT 2022
 
-5rdh rupp presentation
-
+   5rdh rupp presentation
 
 ---
 Tue 18 Jan 17:29:37 GMT 2022
@@ -11647,4 +11628,271 @@ Wed Feb  5 13:18:33 GMT 2025
 getting python to start up correctly:
 
 https://stackoverflow.com/questions/47885615/python-systemerror-when-using-the-c-api-pyrun-string
+
+
+---
+Sun 23 Feb 03:20:25 GMT 2025
+
+c-interface-superpose.cc - make fill-combobox-with-molecule-options.hh
+
+// make this available
+void
+fill_combobox_with_molecule_options_simple(GtkWidget *combobox) {
+
+  auto get_model_molecule_vector = [] () {
+                                       graphics_info_t g;
+                                       std::vector<int> vec;
+                                       int n_mol = g.n_molecules();
+                                       for (int i=0; i<n_mol; i++)
+                                          if (g.is_valid_model_molecule(i))
+                                             vec.push_back(i);
+                                       return vec;
+                                    };
+   int imol_active = -1;
+   auto mol_vec = get_model_molecule_vector();
+   if (! mol_vec.empty()) imol_active = mol_vec[0];
+   graphics_info_t g;
+   g.fill_combobox_with_molecule_options(combobox, G_CALLBACK(nullptr), imol_active, mol_vec);
+}
+
+----
+Sun  2 Mar 15:22:53 GMT 2025
+
+  don't use
+  gtk_widget_set_size_request(drawing_area, 800, 600);
+  because it sets the minimum size
+
+  consider use
+  gtk_window_set_default_size(window, w, h);
+
+----
+Mon  3 Mar 16:23:38 GMT 2025
+    Key Atom Pair Distances:
+
+    Adenine-Thymine (A-T) Base Pairs:
+        N1 of Adenine to N3 of Thymine: Approximately 2.86 Å
+        N6 of Adenine to O4 of Thymine: Approximately 2.90 Å
+    Guanine-Cytosine (G-C) Base Pairs:
+        N1 of Guanine to N3 of Cytosine: Approximately 2.91 Å
+        N2 of Guanine to O2 of Cytosine: Approximately 2.89 Å
+        O6 of Guanine to N4 of Cytosine: Approximately 2.93 Å
+
+----
+Sat  8 Mar 19:53:59 GMT 2025
+
+   have a look at 3decision videos on YouTube.
+
+   https://www.discngine.com/discngine-labs-live-in-cambridge
+
+----
+Wed 12 Mar 13:49:49 GMT 2025
+
+put this somewhere perhaps
+
+   auto debug_instancing_meshes = [] (const coot::instanced_mesh_t &im) {
+      std::cout << "im has " << im.geom.size() << " geoms" << std::endl;
+      for (unsigned int ig=0; ig<im.geom.size(); ig++) {
+         unsigned int n_A = im.geom[ig].instancing_data_A.size();
+         unsigned int n_B = im.geom[ig].instancing_data_B.size();
+         std::cout << "   geom " << ig << " has " << im.geom[ig].vertices.size() << " vertices and "
+                   << im.geom[ig].triangles.size() << " triangles "
+                   << n_A << " type A instances and " << n_B << " type B instances" << std::endl;
+      }
+   };
+
+
+---
+
+Thu 13 Mar 2025 18:49:24 GMT
+
+   new ligand search:
+
+   pdbe ligands latest release
+
+---
+Sat 15 Mar 14:21:29 GMT 2025
+
+   gdb flatpak coot
+
+   $ flatpak run --command=sh --devel --filesystem=`pwd` io.github.pemsley.coot/x86_64/test
+   $ gdb /app/libexec/coot-1 core.3
+
+
+----
+Wed 19 Mar 01:36:23 GMT 2025
+
+from gtk4 demos:
+
+/* So we can make a good guess whether the current theme is dark by checking for
+ * either: it is suffixed `[:-]dark`, or Settings:…prefer-dark-theme is TRUE. */
+static gboolean
+theme_is_dark (void)
+{
+  const char *env_theme;
+  GtkSettings *settings;
+  char *theme;
+  gboolean prefer_dark;
+  gboolean dark;
+
+  /* Like GtkSettings, 1st see if theme is overridden by environment variable */
+  env_theme = g_getenv ("GTK_THEME");
+  if (env_theme != NULL)
+    return has_dark_suffix (env_theme);
+
+  /* If not, test Settings:…theme-name in the same way OR :…prefer-dark-theme */
+  settings = gtk_settings_get_default ();
+  g_object_get (settings,
+                "gtk-theme-name", &theme,
+                "gtk-application-prefer-dark-theme", &prefer_dark,
+                NULL);
+  dark = prefer_dark || has_dark_suffix (theme);
+  g_free (theme);
+  return dark;
+}
+
+----
+Sun 30 Mar 00:18:52 GMT 2025
+
+Here is how to show a validation vbox:
+
+   graphics_info_t g;
+
+   GtkWidget *mwravp  = widget_from_builder("main_window_ramchandran_and_validation_pane");
+   GtkWidget *mwgrvgp = widget_from_builder("main_window_graphics_rama_vs_graphics_pane");
+   GtkWidget* vbox_vbox = widget_from_builder("validation_boxes_vbox");
+   GtkWidget* vvf = widget_from_builder("main_window_vertical_validation_frame");
+   gtk_widget_set_visible(vbox_vbox, TRUE);
+
+   GtkWidget *vbox_outer  = widget_from_builder("interesting_places_outer_vbox");
+   GtkWidget *vbox  = widget_from_builder("interesting_places_vbox");
+   GtkWidget *label = widget_from_builder("interesting_places_label");
+
+   int pos = gtk_paned_get_position(GTK_PANED(mwgrvgp));
+   if (pos < 200)
+      gtk_paned_set_position(GTK_PANED(mwgrvgp), 200);
+
+   gtk_label_set_text(GTK_LABEL(label), title.c_str());
+   gtk_widget_set_visible(mwravp,     TRUE);
+   gtk_widget_set_visible(mwgrvgp,    TRUE);
+   gtk_widget_set_visible(vvf,        TRUE);
+   gtk_widget_set_visible(vbox_outer, TRUE);
+   gtk_widget_set_visible(vbox,       TRUE);
+   gtk_widget_set_visible(label,      TRUE);
+
+----
+Wed  2 Apr 04:32:06 BST 2025
+
+   Here is how to add a stack trace:
+
+Add to the Makefile.am:
+
+if USE_BACKWARD
+   BACKWARD_FLAGS=-DUSE_BACKWARD
+endif
+
+Add to the AM_CPPFLAGS:
+	$(BACKWARD_FLAGS)
+
+
+Add to the code:
+
+#ifdef USE_BACKWARD
+               backward::StackTrace st;
+               backward::Printer p;
+               st.load_here(32);
+               p.print(st);
+#endif
+
+----
+
+Magit:
+
+C-x g
+press [TAB] on the file to see the diffs
+for each @@ that you want to add
+Move the cursor to the @@ and press "s" to stage
+Press c c to commit as usual.
+
+
+
+----
+Wed 23 Apr 2025 06:43:12 -03
+
+       block of validation boxes and panes:
+
+       GtkWidget *frame = widget_from_builder("main_window_validation_graph_frame");
+       gtk_widget_set_visible(frame, TRUE);
+
+       GtkWidget *validation_graph_vbx = widget_from_builder("main_window_validation_graph_vbox");
+       gtk_widget_set_visible(validation_graph_vbx, TRUE);
+
+       GtkWidget *pane_to_show  = widget_from_builder("main_window_ramchandran_and_validation_pane");
+       gtk_widget_set_visible(pane_to_show,  TRUE);
+
+       GtkWidget *pane = widget_from_builder("main_window_graphics_rama_vs_graphics_pane");
+       int pos = gtk_paned_get_position(GTK_PANED(pane));
+       if (pos < 300)
+	  gtk_paned_set_position(GTK_PANED(pane), 380);
+
+       GtkWidget *validation_boxes_vbox = widget_from_builder("validation_boxes_vbox");
+       gtk_widget_set_visible(validation_boxes_vbox, TRUE);
+
+       GtkWidget *outer_vbox = widget_from_builder("dialog-vbox78");
+       gtk_widget_set_visible(outer_vbox,   TRUE);
+
+
+----
+Mon 12 May 2025 09:35:29 CEST
+
+   proteopedia can use chapi?
+
+
+----
+Mon  2 Jun 17:35:22 BST 2025
+
+How to set an adjustment of a scale (looked up from builder)
+
+      GtkWidget *scale = widget_from_builder("tomo_scale");
+      GtkAdjustment *adjustment = gtk_range_get_adjustment(GTK_RANGE(scale));
+      if (adjustment) {
+         g_object_set_data(G_OBJECT(adjustment), "imol", GINT_TO_POINTER(imol));
+         std::string end_str = std::to_string(n_sections - 1);
+         double dns_1 = static_cast<double>(n_sections-1);
+         gtk_adjustment_set_lower(adjustment, 0);
+         gtk_adjustment_set_upper(adjustment, n_sections-1);
+         gtk_adjustment_set_step_increment(adjustment, 1.0);
+         gtk_adjustment_set_page_increment(adjustment, 5.0);
+         gtk_adjustment_set_page_size(adjustment, 0.0);
+         gtk_adjustment_set_value(adjustment, mid_section);
+         gtk_scale_set_draw_value(GTK_SCALE(scale), TRUE);
+         gtk_scale_set_digits(GTK_SCALE(scale), 0);
+         gtk_scale_add_mark(GTK_SCALE(scale), 0, GTK_POS_BOTTOM, "0");
+         gtk_scale_add_mark(GTK_SCALE(scale), dns_1, GTK_POS_BOTTOM, end_str.c_str());
+      }
+
+---
+Mon 16 Jun 18:42:05 BST 2025
+
+2 rows in a R plot:
+
+   par(mfrow=c(2,1))
+
+---
+Sat 28 Jun 2025 09:13:57 CDT
+
+  getting a screenshot:
+
+  https://stackoverflow.com/questions/78771600/how-to-take-screenshot-in-gtk4
+
+---
+Fri  4 Jul 16:35:20 BST 2025
+
+  converting coot-download
+
+   std::string download_dir = "coot-download";
+
+   becomes
+
+   xdg_t xdg;
+   std::string download_dir = join(xdg.get_cache_home().string(), "coot-download");
 

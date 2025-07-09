@@ -165,6 +165,26 @@ coot::protein_geometry::use_unimodal_ring_torsion_restraints(int imol, const std
    }
 }
 
+void
+coot::protein_geometry::add_pyranose_pseudo_ring_plane_restraints(const std::string &comp_id, int imol_enc,
+                                                                  const std::string &plane_id,
+                                                                  std::vector<std::string> &atom_name_vec,
+                                                                  double esd) {
+   bool minimal = false;
+   int idx = get_monomer_restraints_index(comp_id, imol_enc, minimal);
+   if (idx == -1) {
+      int mmcif_read_number = 66;
+      try_dynamic_add(comp_id, mmcif_read_number);
+      idx = get_monomer_restraints_index(comp_id, imol_enc, minimal);
+   }
+
+   if (idx != -1) {
+      dict_res_restraints[idx].second.add_pyranose_pseudo_ring_plane_restraints(plane_id, atom_name_vec, esd);
+   }
+
+}
+
+
 
 std::vector<coot::atom_name_torsion_quad>
 coot::protein_geometry::get_reference_monomodal_torsion_quads(const std::string &res_name) const {

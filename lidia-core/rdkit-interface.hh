@@ -55,7 +55,9 @@ namespace coot {
    // this can return a molecule with 0 atoms (e.g. atom is a ZN and there is 1 atom in the dictionary -
    // so no bonded atoms - hence empty molecule is returned).
    //
-   RDKit::RWMol rdkit_mol(mmdb::Residue *residue_p,
+   // If non-empty, the `alt_conf` means "only select conformers with alt-confs that match `alt_conf`."
+   //
+    RDKit::RWMol rdkit_mol(mmdb::Residue *residue_p,
 			  const dictionary_residue_restraints_t &restraints,
 			  const std::string &alt_conf="",
 			  bool undelocalise=true);

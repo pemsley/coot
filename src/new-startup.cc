@@ -46,6 +46,9 @@
 
 #include "testing.hh" // for test_internal();
 
+#include "utils/logging.hh"
+extern logging logger;
+
 void print_opengl_info();
 
 void init_framebuffers(GtkWidget *glarea) {
@@ -54,7 +57,7 @@ void init_framebuffers(GtkWidget *glarea) {
 
    // std::cout << "DEBUG:: use_framebuffers: " << graphics_info_t::use_framebuffers << std::endl;
 
-   std::cout << "----- start init_framebuffers() ----" << std::endl;
+   // std::cout << "----- start init_framebuffers() ----" << std::endl;
 
    GtkAllocation allocation;
    gtk_widget_get_allocation(GTK_WIDGET(glarea), &allocation);
@@ -91,11 +94,12 @@ void init_framebuffers(GtkWidget *glarea) {
          std::cout << "ERROR:: init_framebuffers() --- done --- err is " << err << std::endl;
    }
 
-   std::cout << "----- done init_framebuffers() ----" << std::endl;
+   // std::cout << "----- done init_framebuffers() ----" << std::endl;
 }
 
 
 #include "text-rendering-utils.hh"
+std::string stringify_error_message(GLenum err);
 
 void
 new_startup_realize(GtkWidget *gl_area) {
@@ -192,15 +196,24 @@ new_startup_realize(GtkWidget *gl_area) {
 
    g.tmesh_for_shadow_map.setup_quad();
 
-   g.attach_buffers();
    Material material;
+   GLenum err = glGetError();
+   if (err)
+      std::cout << "ERROR:: new_startup_realize() pos-D err is " << stringify_error_message(err)
+                << std::endl;
+   // g.attach_buffers();
+   err = glGetError();
+   if (err)
+      std::cout << "ERROR:: new_startup_realize() pos-E post attach_buffers() err is "
+                << stringify_error_message(err) << std::endl;
    g.mesh_for_extra_distance_restraints.setup_extra_distance_restraint_cylinder(material); // init
 
    g.setup_key_bindings();
 
-   GLenum err = glGetError();
+   err = glGetError();
    if (err)
-      std::cout << "ERROR:: new_startup_realize() --start-- err is " << err << std::endl;
+      std::cout << "ERROR:: new_startup_realize() --end-- err is " << stringify_error_message(err)
+                << std::endl;
 
    // Hmm! - causes weird graphics problems
    // setup_python(0, NULL); // needs to called after GTK has started - because it depends on gtk.
@@ -232,9 +245,6 @@ new_startup_on_glarea_render(GtkGLArea *glarea) {
 #include "c-interface.h" // for run_script()
 void
 new_startup_on_glarea_resize(GtkGLArea *glarea, gint width, gint height) {
-
-   if (true)
-      std::cout << "DEBUG:: --- new_startup_on_glarea_resize() " <<  width << " " << height << std::endl;
 
    graphics_info_t g;
    // for the GL widget, not the window.
@@ -314,10 +324,13 @@ void on_glarea_drag_begin_primary(GtkGestureDrag *gesture,
 
    graphics_info_t g;
 
-   if (g.using_trackpad)
-      g.on_glarea_drag_begin_secondary(gesture, x, y, area);
-   else
-      g.on_glarea_drag_begin_primary(gesture, x, y, area);
+   // if (g.using_trackpad)
+   //    g.on_glarea_drag_begin_secondary(gesture, x, y, area);
+   // else
+   //    g.on_glarea_drag_begin_primary(gesture, x, y, area);
+
+   g.on_glarea_drag_begin_primary(gesture, x, y, area);
+
 }
 
 void on_glarea_drag_update_primary(GtkGestureDrag *gesture,
@@ -327,11 +340,13 @@ void on_glarea_drag_update_primary(GtkGestureDrag *gesture,
 
    graphics_info_t g;
 
-   if (g.using_trackpad)
-      // Hack for mac. Needs more thought.
-      g.on_glarea_drag_update_secondary(gesture, delta_x, delta_y, area);
-   else
-      g.on_glarea_drag_update_primary(gesture, delta_x, delta_y, area);
+   // if (g.using_trackpad)
+   //    // Hack for mac. Needs more thought.
+   //    g.on_glarea_drag_update_secondary(gesture, delta_x, delta_y, area);
+   // else
+   //    g.on_glarea_drag_update_primary(gesture, delta_x, delta_y, area);
+
+   g.on_glarea_drag_update_primary(gesture, delta_x, delta_y, area);
 
 }
 
@@ -661,7 +676,9 @@ handle_start_scripts() {
 #endif
    scripts = xdg.get_python_config_scripts();
    for (const auto &script : scripts) {
-      std::cout << "Load python config script " << script.c_str() << std::endl;
+      // std::cout << "Load python config script " << script.c_str() << std::endl;
+      logger.log(log_t::INFO, logging::function_name_t(__FUNCTION__),
+		 "Load python script", script);
       run_python_script(script.string().c_str());
    }
 #ifdef USE_GUILE
@@ -728,7 +745,7 @@ new_startup_create_splash_screen_window() {
    GtkWidget *splash_screen_window = gtk_window_new();
    gtk_window_set_title(GTK_WINDOW(splash_screen_window), "Coot-Splash");
    gtk_window_set_decorated(GTK_WINDOW(splash_screen_window), FALSE);
-   GtkWidget *picture = create_local_picture("coot-1.png");
+   GtkWidget *picture = create_local_picture("coot-1.1.17.png");
 
    gtk_widget_set_hexpand(GTK_WIDGET(picture),TRUE);
    gtk_widget_set_vexpand(GTK_WIDGET(picture),TRUE);
@@ -783,6 +800,8 @@ add_key_bindings_for_application_window(GtkWidget *app_window) {
    gtk_widget_add_controller(app_window, key_controller);
 }
 
+// drag and drop code needs to be reworked. Add this here for now.
+int handle_drag_and_drop_string(const std::string &file_name);
 
 void
 new_startup_application_activate(GtkApplication *application,
@@ -792,11 +811,12 @@ new_startup_application_activate(GtkApplication *application,
 
    activate_data->application = application;
 
-#ifdef WINDOWS_MINGW
-   std::string window_name = "WinCoot-" + std::string(VERSION);
-#else
    std::string window_name = "Coot-" + std::string(VERSION);
+
+#ifdef WINDOWS_MINGW
+   window_name = "WinCoot-" + std::string(VERSION);
 #endif
+
    GtkWidget *app_window = gtk_application_window_new(application);
    gtk_window_set_application(GTK_WINDOW(app_window), application);
    gtk_window_set_title(GTK_WINDOW(app_window), window_name.c_str());
@@ -958,6 +978,108 @@ new_startup_application_activate(GtkApplication *application,
       gtk_widget_set_visible(app_window, TRUE);
       gtk_window_set_focus_visible(GTK_WINDOW(app_window), TRUE);
 #endif
+
+      // ---------------------  -----------------------
+
+      // drag and drop: well, just drop for the moment:
+      //
+      // Set up drop target.
+      // GType types[2] = { GDK_TYPE_RGBA, G_TYPE_STRING };
+      GType types[7] = { GDK_TYPE_RGBA, G_TYPE_STRING, G_TYPE_PARAM,
+                         G_TYPE_OBJECT, G_TYPE_VARIANT, G_TYPE_FILE, G_TYPE_STRV};
+
+      GtkDropTarget *drop_target = gtk_drop_target_new(G_TYPE_STRING, GDK_ACTION_COPY);
+      gtk_drop_target_set_gtypes (drop_target, types, G_N_ELEMENTS (types));
+      gtk_widget_add_controller(GTK_WIDGET(gl_area), GTK_EVENT_CONTROLLER(drop_target));
+
+      auto on_drop_performed = +[] (GtkDropTarget *drop_target, const GValue *value, double x, double y) {
+
+         // return a gboolean
+         gboolean status = FALSE;
+
+         g_print("DEBUG:: Drop performed!\n");
+         GType type = G_VALUE_TYPE(value);
+         std::cout << "DEBUG:: type is of type " << type << std::endl;
+
+         if (G_VALUE_HOLDS(value, G_TYPE_FILE)) {
+            std::cout << "!!!!!!!!!!!!! holds a file!" << std::endl;
+            GFile *file = (GFile *)g_value_get_object(value);
+            if (file) {
+               std::cout << "got file " << file << std::endl;
+               const gchar *filename = g_file_get_path(file);
+               std::cout << "got filename " << filename << std::endl;
+               handle_drag_and_drop_string(filename);
+               status = TRUE;
+            } else {
+               std::cout << "got null file " << std::endl;
+            }
+         }
+
+         if (type == G_TYPE_OBJECT) {
+            std::cout << "G_TYPE_OBJECT! " << std::endl;
+         } else {
+            std::cout << "not type G_TYPE_OBJECT! " << std::endl;
+         }
+
+         if (type == G_TYPE_STRV) {
+            std::cout << "G_TYPE_STRV! " << std::endl;
+         } else {
+            std::cout << "not type G_TYPE_STRV! " << std::endl;
+         }
+
+         if (type == G_TYPE_FILE) {
+            std::cout << "G_TYPE_FILE! " << std::endl;
+         } else {
+            std::cout << "not type G_TYPE_FILE! " << std::endl;
+         }
+
+         if (type == G_TYPE_PARAM) {
+            std::cout << "G_TYPE_PARAM! " << std::endl;
+         } else {
+            std::cout << "not type G_TYPE_PARAM! " << std::endl;
+         }
+
+         if (type == G_TYPE_VARIANT) {
+            std::cout << "G_TYPE_VARIANT! " << std::endl;
+         } else {
+            std::cout << "not type G_TYPE_VARIANT! " << std::endl;
+         }
+
+         if (type == G_TYPE_POINTER) {
+            std::cout << "G_TYPE_POINTER! " << std::endl;
+         } else {
+            std::cout << "not type G_TYPE_POINTER! " << std::endl;
+         }
+
+         if (type == G_TYPE_STRING) {
+            std::cout << "G_TYPE_STRING! " << std::endl;
+            const char *text = g_value_get_string(value);
+            if (text) {
+               unsigned long ll = strlen(text);
+               std::cout << "DEBUG:: text has length " << ll << std::endl;
+               if (ll > 0) {
+                  handle_drag_and_drop_string(text);
+                  status = TRUE;
+               }
+            } else {
+               std::cout << "DEBUG:: on_drop_performed(): text: was null" << std::endl;
+            }
+         } else {
+            std::cout << "not type G_TYPE_STRING! " << std::endl;
+         }
+         return status;
+      };
+      g_signal_connect(drop_target, "drop", G_CALLBACK(on_drop_performed), NULL);
+
+      // ------------------ no screenshot for macOS  -----------------------
+
+#ifdef __APPLE__
+      // GtkWidget *menu_item = widget_from_builder("screenshot-menu-item");
+      // if (menu_item)
+      // gtk_label_set_text(GTK_LABEL(menu_item), "Screenshot Not Available");
+#endif
+      
+      // ---------------------  -----------------------
 
       gtk_widget_grab_focus(gl_area); // at the start, fixes focus problem
       setup_gestures_for_opengl_widget_in_main_window(gl_area);

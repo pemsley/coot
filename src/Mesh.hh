@@ -130,11 +130,14 @@ public:
       is_instanced = false;
       is_instanced_colours = false;
       is_instanced_with_rts_matrix = false;
+      n_instances = 0;
+      n_instances_allocated = 0;
       vertices.clear();
       triangles.clear();
       lines_vertex_indices.clear();
       use_blending = false;
       normals_are_setup = false;
+      // vao = VAO_NOT_SET;
    }
    bool empty() const { return (vertices.size() == 0); }
    void close();

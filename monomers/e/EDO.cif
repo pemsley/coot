@@ -1,0 +1,108 @@
+#
+data_comp_list
+loop_
+_chem_comp.id
+_chem_comp.three_letter_code
+_chem_comp.name
+_chem_comp.group
+_chem_comp.number_atoms_all
+_chem_comp.number_atoms_nh
+_chem_comp.desc_level
+EDO     EDO      1,2-ETHANEDIOL     NON-POLYMER     10     4     .     
+#
+data_comp_EDO
+#
+loop_
+_chem_comp_atom.comp_id
+_chem_comp_atom.atom_id
+_chem_comp_atom.type_symbol
+_chem_comp_atom.type_energy
+_chem_comp_atom.charge
+_chem_comp_atom.x
+_chem_comp_atom.y
+_chem_comp_atom.z
+EDO     C1      C       CH2     0       5.160       28.149      5.379       
+EDO     O1      O       OH1     0       6.106       28.471      4.378       
+EDO     C2      C       CH2     0       3.762       28.430      4.968       
+EDO     O2      O       OH1     0       3.416       27.839      3.730       
+EDO     H11     H       H       0       5.362       28.666      6.186       
+EDO     H12     H       H       0       5.240       27.198      5.599       
+EDO     HO1     H       H       0       6.871       28.201      4.619       
+EDO     H21     H       H       0       3.642       29.401      4.901       
+EDO     H22     H       H       0       3.156       28.097      5.661       
+EDO     HO2     H       H       0       3.485       26.998      3.790       
+loop_
+_chem_comp_bond.comp_id
+_chem_comp_bond.atom_id_1
+_chem_comp_bond.atom_id_2
+_chem_comp_bond.type
+_chem_comp_bond.aromatic
+_chem_comp_bond.value_dist_nucleus
+_chem_comp_bond.value_dist_nucleus_esd
+_chem_comp_bond.value_dist
+_chem_comp_bond.value_dist_esd
+EDO          C1          O1      SINGLE       n     1.414  0.0200     1.414  0.0200
+EDO          C1          C2      SINGLE       n     1.483  0.0200     1.483  0.0200
+EDO          C2          O2      SINGLE       n     1.414  0.0200     1.414  0.0200
+EDO          C1         H11      SINGLE       n     1.089  0.0100     0.980  0.0144
+EDO          C1         H12      SINGLE       n     1.089  0.0100     0.980  0.0144
+EDO          O1         HO1      SINGLE       n     0.970  0.0120     0.846  0.0200
+EDO          C2         H21      SINGLE       n     1.089  0.0100     0.980  0.0144
+EDO          C2         H22      SINGLE       n     1.089  0.0100     0.980  0.0144
+EDO          O2         HO2      SINGLE       n     0.970  0.0120     0.846  0.0200
+loop_
+_chem_comp_angle.comp_id
+_chem_comp_angle.atom_id_1
+_chem_comp_angle.atom_id_2
+_chem_comp_angle.atom_id_3
+_chem_comp_angle.value_angle
+_chem_comp_angle.value_angle_esd
+EDO          O1          C1          C2     113.236    3.00
+EDO          O1          C1         H11     109.012    1.50
+EDO          O1          C1         H12     109.012    1.50
+EDO          C2          C1         H11     108.881    1.50
+EDO          C2          C1         H12     108.881    1.50
+EDO         H11          C1         H12     108.093    1.50
+EDO          C1          O1         HO1     109.347    1.86
+EDO          C1          C2          O2     113.236    3.00
+EDO          C1          C2         H21     108.881    1.50
+EDO          C1          C2         H22     108.881    1.50
+EDO          O2          C2         H21     109.012    1.50
+EDO          O2          C2         H22     109.012    1.50
+EDO         H21          C2         H22     108.093    1.50
+EDO          C2          O2         HO2     109.347    1.86
+loop_
+_chem_comp_tor.comp_id
+_chem_comp_tor.id
+_chem_comp_tor.atom_id_1
+_chem_comp_tor.atom_id_2
+_chem_comp_tor.atom_id_3
+_chem_comp_tor.atom_id_4
+_chem_comp_tor.value_angle
+_chem_comp_tor.value_angle_esd
+_chem_comp_tor.period
+EDO             sp3_sp3_1          C2          C1          O1         HO1     180.000    10.0     3
+EDO             sp3_sp3_4          O1          C1          C2          O2     180.000    10.0     3
+EDO            sp3_sp3_13          C1          C2          O2         HO2     180.000    10.0     3
+loop_
+_pdbx_chem_comp_descriptor.comp_id
+_pdbx_chem_comp_descriptor.type
+_pdbx_chem_comp_descriptor.program
+_pdbx_chem_comp_descriptor.program_version
+_pdbx_chem_comp_descriptor.descriptor
+EDO           SMILES              ACDLabs 10.04                                 OCCO
+EDO SMILES_CANONICAL               CACTVS 3.341                                 OCCO
+EDO           SMILES               CACTVS 3.341                                 OCCO
+EDO SMILES_CANONICAL "OpenEye OEToolkits" 1.5.0                               C(CO)O
+EDO           SMILES "OpenEye OEToolkits" 1.5.0                               C(CO)O
+EDO            InChI                InChI  1.03 InChI=1S/C2H6O2/c3-1-2-4/h3-4H,1-2H2
+EDO         InChIKey                InChI  1.03          LYCAIKOWRPUZTN-UHFFFAOYSA-N
+loop_
+_pdbx_chem_comp_description_generator.comp_id
+_pdbx_chem_comp_description_generator.program_name
+_pdbx_chem_comp_description_generator.program_version
+_pdbx_chem_comp_description_generator.descriptor
+EDO acedrg               243         "dictionary generator"                  
+EDO acedrg_database      11          "data source"                           
+EDO rdkit                2017.03.2   "Chemoinformatics tool"
+EDO refmac5              5.8.0238    "optimization tool"                     

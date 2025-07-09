@@ -54,7 +54,7 @@ bool is_valid_generic_display_object_number(int obj);
 int new_generic_object_number_for_molecule(const std::string &obj_name, int imol);
 
 /*! \brief add line to generic object object_number */
-void to_generic_object_add_line(int object_number, 
+void to_generic_object_add_line(int object_number,
                                 const char *colour,
                                 int line_width,
                                 float to_x1,
@@ -67,7 +67,8 @@ void to_generic_object_add_line(int object_number,
 #ifdef USE_PYTHON
 /*! \brief add multiple lines to generic object object_number
 
-c.f. to_generic_object_add_points() */
+c.f. to_generic_object_add_points()
+each list item is a [colour, width, x1, y1, z1, x2, y2, z2] */
 void to_generic_object_add_lines(int object_number, PyObject *line_info_list_py);
 #endif
 

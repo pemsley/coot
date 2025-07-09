@@ -93,6 +93,9 @@
 #include "widget-from-builder.hh"
 #include "c-interface-gtk-widgets.h"
 
+#include "utils/logging.hh"
+extern logging logger;
+
 void do_accept_reject_dialog(std::string fit_type, const coot::refinement_results_t &rr) {
 
    do_accept_reject_hud_buttons(fit_type, rr); // not that we use the args (yet?)
@@ -590,18 +593,19 @@ graphics_info_t::select_refinement_map_combobox_changed(GtkWidget *combobox, gpo
 }
 
 void
-graphics_info_t::show_select_map_dialog() {
+graphics_info_t::show_select_map_frame() {
 
-   show_select_map_dialog_gtkbuilder();
+   show_select_map_frame_gtkbuilder();
 
 }
 
 void
-graphics_info_t::show_select_map_dialog_gtkbuilder() {
+graphics_info_t::show_select_map_frame_gtkbuilder() {
+   std::cout << "here in show_select_map_dialog_gtkbuilder() " << std::endl;
 
    if (use_graphics_interface_flag) {
 
-      GtkWidget *dialog = get_widget_from_builder("select_fitting_map_dialog");
+      GtkWidget *frame = get_widget_from_builder("select_map_for_fitting_frame");
 
       int imol_map = Imol_Refinement_Map();
 
@@ -639,8 +643,8 @@ graphics_info_t::show_select_map_dialog_gtkbuilder() {
          std::cout << "ERROR:: show_select_map_dialog_gtkbuilder() failed to get estimate button" << std::endl;
       }
 
-      set_transient_for_main_window(dialog);
-      gtk_widget_set_visible(dialog, TRUE);
+      // set_transient_for_main_window(dialog);
+      gtk_widget_set_visible(frame, TRUE);
 
 
    }
@@ -2036,7 +2040,7 @@ graphics_info_t::fill_option_menu_with_coordinates_options_internal_3(GtkWidget 
    // int last_imol = 0;
    int last_menu_item_index = 0;
 
-   if (0) {  // debug
+   if (false) {  // debug
       std::cout << "fill_option_menu_with_coordinates_options_internal_3 with these: "
 		<< std::endl;
       for (unsigned int idx=0; idx<fill_with_these_molecules.size(); idx++) {
@@ -4160,8 +4164,6 @@ graphics_info_t::fill_difference_map_peaks_button_box() {
 
    // does nothing if the diff map peaks dialog is not realized.
 
-   std::cout << "fill_difference_map_peaks_button_box() --- start ---" << std::endl;
-
    auto make_label = [] (unsigned int i_peak, const std::vector<std::pair<clipper::Coord_orth, float> > &centres,
                         float map_sigma) {
 
@@ -4187,7 +4189,6 @@ graphics_info_t::fill_difference_map_peaks_button_box() {
                                                              const std::vector<std::pair<clipper::Coord_orth, float> > &centres,
                                                              float map_sigma) {
 
-      std::cout << "------ there are " << centres.size() << " centres" << std::endl;
       clear_out_container(button_vbox);
       // a cutn'paste jobby from fill_rotamer_selection_buttons().
       GtkWidget *group = nullptr; // initially
@@ -4259,12 +4260,21 @@ graphics_info_t::fill_difference_map_peaks_button_box() {
    if (pos < 300)
       gtk_paned_set_position(GTK_PANED(pane), 380);
 
-   GtkWidget *outer_vbox = widget_from_builder("dialog-vbox78");
+   GtkWidget *vbox78 = widget_from_builder("dialog-vbox78");
+   gtk_widget_set_visible(vbox78,   TRUE);
+
+   GtkWidget *outer_vbox = widget_from_builder("diff_map_peaks_outer_vbox");
    gtk_widget_set_visible(outer_vbox,   TRUE);
+
    GtkWidget *button_vbox = widget_from_builder("diff_map_peaks_vbox");
 
+   GtkWidget *vboxes_vbox = widget_from_builder("validation_boxes_vbox");
+   gtk_widget_set_visible(vboxes_vbox,   TRUE);
+
    std::vector<std::pair<clipper::Coord_orth, float> > centres = make_diff_map_peaks(button_vbox);
-   std::cout << "make_diff_map_peaks() made " << centres.size() << " centres" << std::endl;
+   // std::cout << "make_diff_map_peaks() made " << centres.size() << " centres" << std::endl;
+   logger.log(log_t::INFO, logging::function_name_t("make_diff_map_peaks()"),
+	      {"made", std::to_string(centres.size()), "centres"});
    float map_sigma = 0.5;
    int imol_map = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(button_vbox), "imol_map"));
    if (is_valid_map_molecule(imol_map))
@@ -4612,6 +4622,19 @@ graphics_info_t::set_show_molecular_representation(int imol, unsigned int mesh_i
 
 // static
 void
+graphics_info_t::undisplay_all_molecule_meshes(int imol) {
+
+   if (is_valid_model_molecule(imol)) {
+      auto &m = molecules[imol];
+      for (unsigned int mesh_idx=0; mesh_idx<m.meshes.size(); mesh_idx++) {
+	 auto &mesh = m.meshes[mesh_idx];
+	 mesh.set_draw_mesh_state(false);
+      }
+   }
+}
+
+// static
+void
 graphics_info_t::molecular_representation_meshes_checkbutton_toggled(GtkCheckButton *button, gpointer *user_data) {
 
    const char *n = static_cast<const char *>(g_object_get_data(G_OBJECT(button), "name"));
@@ -4663,6 +4686,8 @@ graphics_info_t::update_molecular_representation_widgets() {
    GtkWidget *frame = widget_from_builder("molecular_representations_frame");
    GtkWidget *vbox  = widget_from_builder("molecular_representations_vbox");
 
+   std::cout << "in update_molecular_representation_widgets(): vbox " << vbox << std::endl;
+
    unsigned int n_mesh = 0;
    for (unsigned int i=0; i<molecules.size(); i++)
       n_mesh += molecules[i].meshes.size();
@@ -4711,10 +4736,9 @@ graphics_info_t::update_molecular_representation_widgets() {
    }
 }
 
-// "Coot: " will be prepended to the dialog label before use
- void
-    graphics_info_t::fill_generic_validation_box_of_buttons(const std::string &dialog_label,
-                                                            const std::vector<labelled_button_info_t> &v) {
+void
+graphics_info_t::fill_generic_validation_box_of_buttons(const std::string &dialog_label,
+                                                        const std::vector<labelled_button_info_t> &v) {
 
     auto cb = +[] (GtkButton *button, gpointer user_data) {
        clipper::Coord_orth *co = reinterpret_cast<clipper::Coord_orth *>(user_data);
@@ -4748,7 +4772,61 @@ graphics_info_t::update_molecular_representation_widgets() {
        set_transient_for_main_window(dialog);
        gtk_window_present(GTK_WINDOW(dialog));
     }
- }
+}
+
+void
+graphics_info_t::fill_atoms_with_zero_occupancy_box_of_buttons(const std::vector<labelled_button_info_t> &lbv) {
+
+
+    auto cb = +[] (GtkButton *button, gpointer user_data) {
+       clipper::Coord_orth *co = reinterpret_cast<clipper::Coord_orth *>(user_data);
+       set_rotation_centre(*co);
+    };
+
+    if (! lbv.empty()) {
+
+       GtkWidget *frame = widget_from_builder("main_window_validation_graph_frame");
+       gtk_widget_set_visible(frame, TRUE);
+
+       GtkWidget *validation_graph_vbx = widget_from_builder("main_window_validation_graph_vbox");
+       gtk_widget_set_visible(validation_graph_vbx, TRUE);
+
+       GtkWidget *pane_to_show  = widget_from_builder("main_window_ramchandran_and_validation_pane");
+       gtk_widget_set_visible(pane_to_show,  TRUE);
+
+       GtkWidget *pane = widget_from_builder("main_window_graphics_rama_vs_graphics_pane");
+       int pos = gtk_paned_get_position(GTK_PANED(pane));
+       if (pos < 300)
+	  gtk_paned_set_position(GTK_PANED(pane), 380);
+
+       GtkWidget *validation_boxes_vbox = widget_from_builder("validation_boxes_vbox");
+       gtk_widget_set_visible(validation_boxes_vbox, TRUE);
+
+       GtkWidget *outer_vbox = widget_from_builder("dialog-vbox78");
+       gtk_widget_set_visible(outer_vbox,   TRUE);
+
+       GtkWidget *awzo_outer_vbox = widget_from_builder("atoms_with_zero_occupancy_outer_vbox");
+       gtk_widget_set_visible(awzo_outer_vbox, TRUE);
+
+       GtkWidget *box = widget_from_builder("atoms_with_zero_occupancy_vbox");
+       if (box) {
+	  clear_out_container(box);
+	  for (unsigned int i = 0; i < lbv.size(); i++) {
+	     GtkWidget *box_for_item = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 4);
+	     GtkWidget *button = gtk_button_new_with_label(lbv[i].label.c_str());
+	     gtk_widget_set_hexpand(button, TRUE);
+
+	     clipper::Coord_orth *co = new clipper::Coord_orth(lbv[i].position); // never deleted
+	     void *user_data = reinterpret_cast<void *>(co);
+	     g_signal_connect(G_OBJECT(button), "clicked", G_CALLBACK(cb), user_data);
+	     gtk_box_append(GTK_BOX(box_for_item), button);
+	     gtk_box_append(GTK_BOX(box), box_for_item);
+	  }
+       }
+    }
+}
+
+
 
 
 void
@@ -4829,6 +4907,8 @@ graphics_info_t::set_tomo_section_view_section(int imol, int section_index) {
       float std_dev = molecules[imol].map_sigma();
       float data_value_for_top    = mean + 3.5f * std_dev; // was  2.5
       float data_value_for_bottom = mean - 2.0f * std_dev; // was -1.5
+
+      // data_value_for_bottom -= 3.0 * std_dev;
 
       if (false) {
          std::cout << "-------- current texture-meshes: " << std::endl;

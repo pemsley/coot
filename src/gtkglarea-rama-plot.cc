@@ -69,15 +69,20 @@ gtkgl_rama_realize(GtkWidget *gtk_gl_area) {
 
          // Dangerous for main window code
          // GdkGLContext *context = gtk_gl_area_get_context(GTK_GL_AREA(gtk_gl_area)); // needed?
-         gtk_gl_area_make_current(GTK_GL_AREA (gtk_gl_area));
 
-         rama_box.rama.setup_buffers(0.9);
-         int imol = g.rama_plot_boxes[i].imol;
-         const std::string residue_selection = rama_box.residue_selection;
-         auto &m = graphics_info_t::molecules[imol];
-         gl_rama_plot_t::draw_mode_t draw_mode = gl_rama_plot_t::draw_mode_t::DRAW_MODE;
-         g.rama_plot_boxes[i].rama.setup_from(imol, m.atom_sel.mol, residue_selection, draw_mode);
-         done = true;
+         gtk_gl_area_make_current(GTK_GL_AREA (gtk_gl_area));
+         if (gtk_gl_area_get_error(GTK_GL_AREA(gtk_gl_area))) {
+            auto mess = gtk_gl_area_get_error(GTK_GL_AREA(gtk_gl_area))->message;
+            std::cout << "ERROR:: gtkgl_rama_realize(): error making current GL context: " << mess << std::endl;
+         } else {
+            rama_box.rama.setup_buffers(0.9);
+            int imol = g.rama_plot_boxes[i].imol;
+            const std::string residue_selection = rama_box.residue_selection;
+            auto &m = graphics_info_t::molecules[imol];
+            gl_rama_plot_t::draw_mode_t draw_mode = gl_rama_plot_t::draw_mode_t::DRAW_MODE;
+            g.rama_plot_boxes[i].rama.setup_from(imol, m.atom_sel.mol, residue_selection, draw_mode);
+            done = true;
+         }
       }
    }
 
@@ -103,17 +108,22 @@ gtkgl_rama_on_glarea_render(GtkWidget *gtk_gl_area) {
          // Dangerous for main window code
          GdkGLContext *context = gtk_gl_area_get_context(GTK_GL_AREA(gtk_gl_area)); // needed?
          gtk_gl_area_make_current(GTK_GL_AREA (gtk_gl_area));
-         bool need_clear = true; // this is a "validation" Rama plot and has its own context
+         if (gtk_gl_area_get_error(GTK_GL_AREA(gtk_gl_area))) {
+            auto mess = gtk_gl_area_get_error(GTK_GL_AREA(gtk_gl_area))->message;
+            std::cout << "ERROR:: gtkgl_rama_on_glarea_render(): error making current GL context: " << mess << std::endl;
+         } else {
+            bool need_clear = true; // this is a "validation" Rama plot and has its own context
 
-         GtkAllocation allocation;
-         gtk_widget_get_allocation(GTK_WIDGET(gtk_gl_area), &allocation);
-         int w = allocation.width;
-         int h = allocation.height;
+            GtkAllocation allocation;
+            gtk_widget_get_allocation(GTK_WIDGET(gtk_gl_area), &allocation);
+            int w = allocation.width;
+            int h = allocation.height;
 
-         g.rama_plot_boxes[i].rama.draw(&g.shader_for_rama_plot_axes_and_ticks,
-                                        &g.shader_for_rama_plot_phi_phis_markers, // instanced
-                                        &g.shader_for_hud_image_texture,
-                                        w, h, w, h, need_clear); // background texture (not text!), uses window_resize_position_correc
+            g.rama_plot_boxes[i].rama.draw(&g.shader_for_rama_plot_axes_and_ticks,
+                                           &g.shader_for_rama_plot_phi_phis_markers, // instanced
+                                           &g.shader_for_hud_image_texture,
+                                           w, h, w, h, need_clear); // background texture (not text!), uses window_resize_position_correc
+         }
       }
    }
 }

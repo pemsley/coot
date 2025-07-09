@@ -3,6 +3,10 @@
 #include "coot-utils/atom-selection-container.hh"
 #include "molecules-container.hh"
 
+#include "utils/logging.hh"
+extern logging logger;
+
+
 //! Copy the molecule
 //!
 //! @param imol the specified molecule
@@ -236,11 +240,16 @@ molecules_container_t::cis_trans_convert(int imol, const std::string &atom_cid) 
 
    int status = 0;
    mmdb::Manager *standard_residues_mol = standard_residues_asc.mol;
-   if (is_valid_model_molecule(imol)) {
-      status = molecules[imol].cis_trans_conversion(atom_cid, standard_residues_mol);
-      set_updating_maps_need_an_update(imol);
+   if (standard_residues_mol) {
+      if (is_valid_model_molecule(imol)) {
+         status = molecules[imol].cis_trans_conversion(atom_cid, standard_residues_mol);
+         set_updating_maps_need_an_update(imol);
+      } else {
+         std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+      }
    } else {
-      std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+      logger.log(log_t::ERROR, logging::function_name_t("mc::cis_trans_convert"),
+                 "Null standard_residues_asc.mol");
    }
    return status;
 
@@ -456,8 +465,10 @@ molecules_container_t::minimize_energy(int imol, const std::string &atom_selecti
       unsigned int smoothness_factor = 1;
       bool show_atoms_as_aniso_flag = false;
       bool show_aniso_atoms_as_ortep = false;
+      float aniso_probability = 0.5f;
       im = molecules[imol].get_bonds_mesh_instanced(mode, &geom, true, 0.12, 1.4,
                                                     show_atoms_as_aniso_flag,
+                                                    aniso_probability,
                                                     show_aniso_atoms_as_ortep,
                                                     smoothness_factor,
                                                     draw_hydrogen_atoms_flag, draw_missing_residue_loops_flag);
@@ -798,6 +809,64 @@ molecules_container_t::change_alt_locs(int imol, const std::string &cid, const s
    int status = 0;
    if (is_valid_model_molecule(imol)) {
       status = molecules[imol].change_alt_locs(cid, change_mode);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return status;
+}
+
+
+coot::instanced_mesh_t
+molecules_container_t::get_HOLE(int imol,
+                                float start_pos_x, float start_pos_y, float start_pos_z,
+                                float end_pos_x, float end_pos_y, float end_pos_z) const {
+
+   coot::instanced_mesh_t m;
+   if (is_valid_model_molecule(imol)) {
+      clipper::Coord_orth start_pos(start_pos_x, start_pos_y, start_pos_z);
+      clipper::Coord_orth end_pos(end_pos_x, end_pos_y, end_pos_z);
+      m = molecules[imol].get_HOLE(start_pos, end_pos, geom);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return m;
+
+}
+
+//! Get SVG for 2d ligand environment view (FLEV)
+//!
+//! The caller should make sure that the dictionary for the ligand has been loaded - this
+//! function won't do that. It will add hydrogen atoms if needed.
+//!
+//! @param imol is the model molecule index
+//! @param residue_cid is the cid for the residue
+std::string
+molecules_container_t::get_svg_for_2d_ligand_environment_view(int imol,
+                                                              const std::string &residue_cid,
+                                                              bool add_key) {
+   float radius = 4.2; // pass this
+   std::string s;
+   if (is_valid_model_molecule(imol)) {
+      s = molecules[imol].get_svg_for_2d_ligand_environment_view(residue_cid, &geom, add_key);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return s;
+}
+
+
+
+//! delete all carbohydrate
+//!
+//! @param imol is the model molecule index
+//!
+//! @return true on successful deletion, return false on no deletion.
+bool
+molecules_container_t::delete_all_carbohydrate(int imol) {
+
+   bool status = false;
+   if (is_valid_model_molecule(imol)) {
+      status = molecules[imol].delete_all_carbohydrate();
    } else {
       std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }

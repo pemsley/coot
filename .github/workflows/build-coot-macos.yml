@@ -18,6 +18,13 @@ jobs:
       id:   setup-homebrew
       uses: Homebrew/actions/setup-homebrew@master
 
+    - name: cache macos libcootapi build homebrew
+      id: coot-macos-homebrew
+      uses: actions/cache@v4
+      with:
+        path: /opt/homebrew
+        key:  coot-macos-build-homebrew-cache
+
     - name: turn on brew analytics
       run:  brew analytics on
 
@@ -26,41 +33,81 @@ jobs:
         brew update
         brew upgrade
 
-    # I don't think that glfw is needed now (it is in the coot.rb file though)
     - name: Install Coot dependencies in Homebrew
       run:  >
          brew install boost boost-python3 brewsci/bio/clipper4coot
          brewsci/bio/raster3d brewsci/bio/ssm brewsci/bio/gemmi
-         dwarfutils gsl rdkit pygobject3 gtk4 glm automake glfw
-         py3cairo pygobject3
+         dwarfutils gsl rdkit pygobject3 gtk4 glm automake
+         py3cairo pygobject3 swig
 
-    - name: Get coot.rb file
-      # try this modified version for now:
-      # run:  wget https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/files/coot.rb
-      # back to Yoshitaka Moriwaki version
-      # run:  wget https://raw.githubusercontent.com/YoshitakaMo/homebrew-bio/coot/Formula/coot.rb
-      # use the version on github:
-      run: wget https://raw.githubusercontent.com/brewsci/homebrew-bio/refs/heads/develop/Formula/coot.rb
+    - uses: actions/checkout@v4
 
-    - name: Compile Homebrew coot HEAD
-      # don't stall waiting for user input to resolve the failed patch
-      run:  NONINTERACTIVE=1 brew install ./coot.rb --HEAD || true > $HOME/brew.log >&2
+    - name: Set fftw for future use
+      run: echo "fftw_prefix=/opt/homebrew/Cellar/clipper4coot/2.1.20180802_3/fftw2" >> $GITHUB_ENV
 
-    - name: Upload brew log
-      uses: actions/upload-artifact@v4
-      with:
-        name: brew-log-package
-        path: /Users/runner/Library/Logs/Homebrew/coot
-        retention-days: 3
+    - name: autogen
+      id: autogen-step
+      run: bash autogen-mac.sh
 
-    - name: ls the executable in /opt/homebrew/bin
-      run: ls -lt /opt/homebrew/bin
+    - name: configure it
+      id: configation-step
+      run: >
+         ./configure
+         SHELL=/bin/bash
+         PYTHON=python3
+         COOT_BUILD_INFO_STRING="Compiled with a GitHub action"
+         --prefix="$HOME/coot"
+         --enable-silent-rules
+         --with-fftw-prefix=$fftw_prefix
+         --with-glm=/opt/homebrew
+         --with-boost=/opt/homebrew
+         --with-boost-libdir=/opt/homebrew/lib
+         --with-rdkit-prefix=/opt/homebrew
+         --with-guile
 
-    # 20240911 this has stopped working.
-    # - name: ls the install bin
-    #   run: ls -lt /opt/homebrew/Cellar/coot/HEAD*/bin
+    - name: compile it 1
+      id: compile-step-1
+      run: |
+        make -j 4 -C auxil
+        make -j 4 -C compat
+        make -j 4 -C utils
+        make -j 4 -C protein_db
+        make -j 4 -C mini-mol
+        make -j 4 -C geometry
+        make -j 4 -C lidia-core
+        make -j 4 -C coot-utils
+        make -j 4 -C angles
+        make -j 4 -C ccp4mg-utils
+        make -j 4 -C db-main
+        make -j 4 -C analysis
+        make -j 4 -C cootaneer
+        make -j 4 -C ideal
+        make -j 4 -C ligand
+        make -j 4 -C coords
+        make -j 4 -C density-contour
+        make -j 4 -C skeleton
+        make -j 4 -C high-res
+        make -j 4 -C build
+        make -j 4 -C MoleculesToTriangles
+        make -j 4 -C pli
+        make -j 4 -C greg-tests
+        make -j 4 -C cootilus
+        make -j 4 -C pyrogen
 
-    # the homebrew build is still broken
-    # - name: Does it run?
-    #   run: /opt/homebrew/bin/coot --no-graphics < /dev/null
+    - name: compile it 2
+      id: compile-step-2
+      run: make -j 4
+
+    - name: what has been made
+      id: have-a-goosey
+      run: ls . src
+
+    - name: install it
+      id: installation-step
+      run: make install
+
+    - name: interal tests
+      id: internal-tests
+      run: ./src/MacCoot --self-test
+
 

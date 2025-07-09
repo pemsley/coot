@@ -40,6 +40,7 @@
 #include "guile-fixups.h"
 
 #include "pisa-interface.hh"
+#include "pisa-internal.hh"
 
 /*  ----------------------------------------------------------------------- */
 /*                  PISA Interface                                      */

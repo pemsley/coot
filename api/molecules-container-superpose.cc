@@ -834,18 +834,22 @@ void molecules_container_t::clear_lsq_matches() {
 }
 
 //! superpose using LSQ - generate the transformation matrix
-void
+bool
 molecules_container_t::lsq_superpose(int imol_ref, int imol_mov) {
 
+   bool success = false;
    bool summary_to_screen = false;
    if (is_valid_model_molecule(imol_ref)) {
       if (is_valid_model_molecule(imol_mov)) {
          std::pair<short int, clipper::RTop_orth> rtop_info = get_lsq_matrix_internal(imol_ref, imol_mov, summary_to_screen);
          if (rtop_info.first) {
             molecules[imol_mov].transform_by(rtop_info.second);
+	    success = true;
          }
       }
    }
+
+   return success;
 
 }
 

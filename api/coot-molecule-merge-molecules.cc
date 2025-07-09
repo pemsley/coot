@@ -332,6 +332,7 @@ coot::molecule_t::merge_molecules_just_one_residue_at_given_spec(atom_selection_
 }
 
 // This doesn't do a backup or finalise model.
+// new_resno_by_hundreds_flag is an optional argument.
 mmdb::Residue *
 coot::molecule_t::copy_and_add_residue_to_chain(mmdb::Chain *this_model_chain,
                                                 mmdb::Residue *add_model_residue,

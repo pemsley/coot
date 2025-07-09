@@ -177,6 +177,8 @@ enum { N_ATOMS_MEANS_BIG_MOLECULE = 400 };
 
 #include "labelled-button-info.hh"
 
+#include "cfc-gui.hh"
+
 #ifdef USE_BACKWARD
 #include <utils/backward.hpp>
 #endif
@@ -525,6 +527,7 @@ class graphics_info_t {
    static coot::Cartesian get_old_rotation_centre() {
      return old_rotation_centre;
    }
+
    // delete these when working
    // static float old_rotation_centre_x;
    // static float old_rotation_centre_y;
@@ -957,6 +960,9 @@ class graphics_info_t {
 
    std::string adjust_refinement_residue_name(const std::string &resname) const;
    static void info_dialog_missing_refinement_residues(const std::vector<std::string> &res_names);
+   // replaced by public
+   // static void show_missing_refinement_residues_dialog(const std::vector<std::string> &res_names);
+
    void info_dialog_alignment(coot::chain_mutation_info_container_t mutation_info) const;
    void info_dialog_refinement_non_matching_atoms(std::vector<std::pair<mmdb::Residue *, std::vector<std::string> > > nma);
 
@@ -982,7 +988,6 @@ public:
 
    static bool use_gemmi;
    void set_use_gemmi(bool state) { use_gemmi = state; }
-   static logging log;
 
    static bool coot_is_a_python_module; //turned off in main()
    static bool prefer_python;
@@ -1103,12 +1108,7 @@ public:
    std::chrono::time_point<std::chrono::system_clock> tp_now;
 
    static std::vector<GtkWidget *> glareas;
-   static GtkAllocation get_glarea_allocation() {
-      GtkAllocation allocation;
-      if (!glareas.empty())
-         gtk_widget_get_allocation(glareas[0], &allocation);
-      return allocation;
-   }
+   static GtkAllocation get_glarea_allocation();
    static gl_context_info_t get_gl_context_info() {
       gl_context_info_t glc; // null default
       if (glareas.size() > 0) glc.widget_1 = glareas[0];
@@ -1976,8 +1976,8 @@ public:
    void stop_refinement_internal();
 
    void show_refine_params_dialog(); // not used for map selection now.
-   void show_select_map_dialog();
-   void show_select_map_dialog_gtkbuilder();
+   void show_select_map_frame(); // it's an overlay now
+   void show_select_map_frame_gtkbuilder();
    void show_select_map_dialog_old_style();
 
    // Map and molecule display.  We need this so that we can look up
@@ -2235,6 +2235,9 @@ public:
      check_dictionary_for_residue_restraints(int imol, mmdb::PResidue *SelResidues, int nSelResidues);
    std::pair<int, std::vector<std::string> >
      check_dictionary_for_residue_restraints(int imol, const std::vector<mmdb::Residue *> &residues);
+
+   static void show_missing_refinement_residues_dialog(const std::vector<std::string> &res_names,
+						       bool run_get_monomer_post_fetch_flag);
 
    // called by copy_mol_and_refine and copy_mol_and_regularize
    //
@@ -3519,6 +3522,7 @@ public:
    void move_single_atom_of_moving_atoms(int screenx, int screeny);
    // if control_is_pressed is true, then we only want to move the dragged atom
    void move_atom_pull_target_position(double screenx, double screeny, bool control_is_pressed);
+   void move_dragged_anchored_atom(double screen_x, double screen_y);
    void add_target_position_restraint_for_intermediate_atom(const coot::atom_spec_t &spec,
 							    const clipper::Coord_orth &target_pos);
    void add_target_position_restraints_for_intermediate_atoms(const std::vector<std::pair<coot::atom_spec_t, clipper::Coord_orth> > &atom_spec_position_vec); // refines after added
@@ -3531,6 +3535,8 @@ public:
 
    static void drag_intermediate_atom(const coot::atom_spec_t &atom_spec, const clipper::Coord_orth &pt);
    static void mark_atom_as_fixed(int imol, const coot::atom_spec_t &atom_spec, bool state);
+   // this used to be called mark_atom_as_fixed() - I don't know why one would want to use it.
+   static void while_moving_atoms_active_mark_atom_as_fixed(int imol, const coot::atom_spec_t &atom_spec, bool state);
    // static std::vector<mmdb::Atom *> fixed_intermediate_atoms;
    static bool fixed_atom_for_refinement_p(mmdb::Atom *); // examines the imol_moving_atoms molecule
                                                           // for correspondence
@@ -3657,8 +3663,8 @@ public:
 
    static void superpose_combobox_changed_mol1(GtkWidget *c, gpointer data);
    static void superpose_combobox_changed_mol2(GtkWidget *c, gpointer data);
-   static void fill_superpose_combobox_with_chain_options(GtkWidget *combobox,
-							  int is_reference_structure_flag);
+   static void fill_superpose_combobox_with_chain_options(int imol_active,
+							  bool is_reference_structure_flag);
    static int         ramachandran_plot_differences_imol1;
    static int         ramachandran_plot_differences_imol2;
    static std::string ramachandran_plot_differences_imol1_chain;
@@ -4086,7 +4092,7 @@ public:
 
    void update_molecular_representation_widgets();
    static void molecular_representation_meshes_checkbutton_toggled(GtkCheckButton *button, gpointer *user_data);
-
+   static void undisplay_all_molecule_meshes(int imol); // for imol, of course
 
    int add_molecular_representation(int imol,
                                     const std::string &atom_selection,
@@ -4270,7 +4276,8 @@ public:
    static float probe_dots_on_chis_molprobity_radius;
 
    // a text string and a handle (so that it can be removed)
-   static std::vector<coot::old_generic_text_object_t> *generic_texts_p;
+   static std::vector<coot::generic_text_object_t> generic_texts;
+   // not that draw_generic_texts() is part of draw_molecule_atom_labels().
 
    // -- move molecule here
    static int move_molecule_here_molecule_number;
@@ -4405,47 +4412,8 @@ string   static std::string sessionid;
    // ------------------------- restraints editor ----------------------------
    //
    static std::vector<coot::restraints_editor> restraints_editors;
-   coot::restraints_editor get_restraints_editor(GtkWidget *w) {
-     coot::restraints_editor r; // a null/unset restraints editor
-     int found_index = -1;
-
-     if (0) // debug
-       for (unsigned int i=0; i<restraints_editors.size(); i++) {
-	 if (restraints_editors[i].is_valid())
-	   std::cout << " debug:: in get_restraints_editor() a stored restraints editor number "
-		     << i << " of " << restraints_editors.size() << ": "
-		     << restraints_editors[i].get_dialog()
-		     << " (c.f. " << w << ")" << std::endl;
-	 else
-	   std::cout << " debug:: in get_restraints_editor() a stored restraints editor number "
-		     << i << " of " << restraints_editors.size() << ": "
-		     << "NULL" << std::endl;
-       }
-
-
-     for (unsigned int i=0; i<restraints_editors.size(); i++) {
-       if (restraints_editors[i].is_valid()) {
-         if (restraints_editors[i].matches_dialog(w)) {
-           found_index = i;
-           break;
-         }
-       }
-     }
-     if (found_index != -1)
-       r = restraints_editors[found_index];
-     return r;
-   }
-   void clear_restraints_editor_by_dialog(GtkWidget *dialog) {
-     for (unsigned int i=0; i<restraints_editors.size(); i++) {
-       if (restraints_editors[i].is_valid()) {
-         if (restraints_editors[i].matches_dialog(dialog)) {
-	   coot::restraints_editor null_restraints;
- 	   restraints_editors[i] = null_restraints;
-	 }
-       }
-     }
-   }
-
+   coot::restraints_editor get_restraints_editor(GtkWidget *w);
+   void clear_restraints_editor_by_dialog(GtkWidget *dialog);
 
    // Kevin Keating (for example) wants to be able set torsion
    // restraints but not have those "fight" the built-in torsion
@@ -4585,6 +4553,9 @@ string   static std::string sessionid;
    void undisplay_all_model_molecules_except(const std::vector<int> &keep_these);
    static GtkWidget *cfc_dialog;
 
+   // new CFC - can scrap the above when this works:
+   static cfc_gui_t cfc_gui;
+
    static bool do_intermediate_atoms_rama_markup; // true
    static bool do_intermediate_atoms_rota_markup; // false
 
@@ -4665,6 +4636,10 @@ string   static std::string sessionid;
 
    // ---------------------------------------------
 
+   static float view_rotation_per_pixel_scale_factor;
+
+   // ---------------------------------------------
+
    /* model-view-projection matrix */
    static float *mvp; // needed?
    static int mvp_location;            // GLSL
@@ -4683,7 +4658,8 @@ string   static std::string sessionid;
      rotation_centre_z += offset.z;
    }
 
-   static bool using_trackpad;
+   // static bool using_trackpad;
+   static bool use_primary_mouse_for_view_rotation_flag;
    static double mouse_x;
    static double mouse_y;
    static double drag_begin_x; // gtk pixels
@@ -5012,6 +4988,8 @@ string   static std::string sessionid;
       key_bindings_map[k] = kb;
    }
 
+   static void print_key_bindings();
+
    // GL IDs go here
 
    // intermediate atom pull restraints (note to self: intermediate atoms have
@@ -5084,6 +5062,9 @@ string   static std::string sessionid;
    static gboolean invalid_residue_pulse_function(GtkWidget *widget,  // return the continue-status
                                                   GdkFrameClock *frame_clock,
                                                   gpointer data);
+   static gboolean generic_pulse_function(GtkWidget *widget,
+                                          GdkFrameClock *frame_clock,
+                                          gpointer data);
    static gboolean wait_for_hooray_refinement_tick_func(GtkWidget *widget,
                                                         GdkFrameClock *frame_clock,
                                                         gpointer data);
@@ -5319,7 +5300,34 @@ string   static std::string sessionid;
 
    void read_test_gltf_models();
 
-   void load_gltf_model(const std::string &gltf_file_name);
+   //! return the model index
+   int load_gltf_model(const std::string &gltf_file_name);
+
+   //! \brief set the model animation parameters
+   void set_model_animation_parameters(unsigned int model_index, float amplitude, float wave_numer, float freq) {
+      if (model_index < models.size()) {
+         auto &model = models[model_index];
+         model.set_animation_parameters(amplitude, wave_numer, freq);
+      }
+   }
+
+   //! \brief enable/disable the model animation (on or off)
+   void set_model_animation_state(unsigned int model_index, bool state) {
+      if (model_index < models.size()) {
+         auto &model = models[model_index];
+         model.set_do_animation(state);
+      }
+   }
+
+
+   static std::string stringify_error_message(GLenum err) {
+
+      std::string r = std::to_string(err);
+      if (err == GL_INVALID_ENUM)      r = "GL_INVALID_ENUM";
+      if (err == GL_INVALID_VALUE)     r = "GL_INVALID_VALUE";
+      if (err == GL_INVALID_OPERATION) r = "GL_INVALID_OPERATION";
+      return r;
+   };
 
    static void attach_buffers(const char *s = __builtin_FUNCTION()) {
 
@@ -5328,7 +5336,8 @@ string   static std::string sessionid;
          if (print_errors) {
             GLenum err = glGetError();
             if (err) {
-               std::cout << "GL ERROR:: attach_buffers --- start ---\n";
+               std::cout << "GL ERROR:: attach_buffers --- start --- "
+                         << stringify_error_message(err) <<  " \n";
 #ifdef USE_BACKWARD
                backward::StackTrace st;
                backward::Printer p;
@@ -5341,8 +5350,8 @@ string   static std::string sessionid;
             err = glGetError();
             if (err) {
                std::cout << "GL ERROR:: attach_buffers() --- post gtk_gl_area_attach_buffers() "
-                         << " with gl_area " << gl_area << " calling function: "
-                         << s << "()\n";
+                         << stringify_error_message(err) << " with gl_area " << gl_area
+                         << " calling function: " << s << "()\n";
 #ifdef USE_BACKWARD
                backward::StackTrace st;
                backward::Printer p;
@@ -5393,6 +5402,9 @@ string   static std::string sessionid;
    // "Coot: " will be prepended to the dialog title before use
    void fill_generic_validation_box_of_buttons(const std::string &dialog_title,
                                                const std::vector<labelled_button_info_t> &v);
+
+   void fill_atoms_with_zero_occupancy_box_of_buttons(const std::vector<labelled_button_info_t> &lbv);
+
 
 
    // 20230419-PE ----- a holder for the OpenGL-based Ramachandran Plots
@@ -5445,6 +5457,8 @@ string   static std::string sessionid;
    static std::vector<std::pair<std::string, clipper::Xmap<float> > > map_partition_results;
    static int map_partition_results_state;
    static std::string map_partition_results_state_string; // "Done A Chain" etc.
+
+   static unsigned int logging_line_index;
 
    // add a pumpkin as a graphics object and draw it.
    void pumpkin();

@@ -117,14 +117,49 @@ graphics_info_t::draw_models(Shader *shader_for_tmeshes_p,
 
    // std::cout << "------ draw_models() with draw_shadows " << draw_shadows << std::endl;
 
-   // crow convertion vars
-   auto get_mvp = [] (int x, int y) {
-                     return get_molecule_mvp(); // no args passed.... Hmm.
-                   };
+   auto get_Model_rotation_and_translation = [] (const Model &model, unsigned int model_index) {
+      glm::mat4 mr(1.0f);
+      glm::mat4 mt(1.0f);
+      if (model.do_animation) {
+         float time_ms = model.duration();
+         float time_s = time_ms * 0.001f;
+         float sf = 0.3f;
+         float fidx = static_cast<float>(model_index);
+         float x = -5.0 * sinf(2.0f * fidx + sf * time_s);
+         float y =  5.0 * cosf(2.0f * fidx + sf * time_s);
+         glm::vec3 t(x,y,0.0f);
+         mr = glm::translate(mr, t);
+         float theta = sf * time_s + 2.0f * fidx + 0.05; // head toward to inside of the circle a small bit
+         glm::vec3 up(0.0f, 0.0f, 1.0f);
+         mr = glm::rotate(mr, theta, up);
+      }
+      return std::make_pair(mr, mt);
+   };
+
+   auto get_mvp = [get_Model_rotation_and_translation] (const Model &model, unsigned int model_index, int w, int h) {
+      bool do_orthographic_projection = ! perspective_projection_flag; // weird
+      glm::mat4 view_matrix = get_view_matrix();
+
+      glm::mat4 m(1.0f);
+      glm::vec3 rc = get_rotation_centre();
+      rc = glm::vec3(0,0,0);
+      // we have to do the translations before the view rotation (not view_matrix - that's a different thing)
+      // c.f. get_model_matrix()
+      glm::mat4 translation_matrix = glm::translate(m, rc);
+      std::pair<glm::mat4, glm::mat4> p = get_Model_rotation_and_translation(model, model_index);
+      glm::mat4 Model_translation_matrix = p.second;
+      glm::mat4 Model_rotation_matrix = p.first;
+      glm::mat4 rotation_matrix = get_model_rotation();
+      glm::mat4 model_at_screen_centre = rotation_matrix * Model_rotation_matrix * Model_translation_matrix * translation_matrix;
+
+      glm::mat4  proj_matrix = get_projection_matrix(do_orthographic_projection, w, h);
+      glm::mat4 mvp = proj_matrix * view_matrix * model_at_screen_centre;
+      return mvp;
+   };
+
    glm::vec3 bg_col = background_colour;
    bool do_depth_fog = shader_do_depth_fog_flag;
 
-   glm::mat4 mvp = get_mvp(graphics_x_size, graphics_y_size);
    glm::mat4 model_rotation = get_model_rotation();
    glm::vec4 bg_col_v4(bg_col, 1.0f);
    auto ccrc = RotationCentre();
@@ -135,10 +170,14 @@ graphics_info_t::draw_models(Shader *shader_for_tmeshes_p,
    } else {
       for (unsigned int ii=0; ii<models.size(); ii++) {
          auto &model = models[ii];
+         glm::mat4 mvp = get_mvp(model, ii, graphics_x_size, graphics_y_size);
 	 if (shader_for_tmeshes_p) {
+            if (false)
+               std::cout << "DEBUG:: draw_models(): drawing texture mesh model " << ii << " "
+                         << shader_for_tmeshes_p->name << std::endl;
 	    shader_for_tmeshes_p->Use();
-	    model.draw_tmeshes(shader_for_tmeshes_p, mvp, model_rotation, lights, eye_position, bg_col_v4,
-			       do_depth_fog);
+	    model.draw_tmeshes(shader_for_tmeshes_p, mvp, model_rotation, lights, eye_position,
+                               bg_col_v4, do_depth_fog);
          }
 
          // now the coloured vertices mesh (for molecule things, not textured things)

@@ -628,7 +628,7 @@ coot::dictionary_residue_restraints_t::element(const std::string &atom_name) con
    }
    if (r.length() == 1)
       r = " " + r;
-   
+
    // std::cout << " dictionary_residue_restraints_t::element()"
    // 	     << " on atom name :" << atom_name << ": returns :" << r << ":" << std::endl;
    return r;
@@ -636,7 +636,7 @@ coot::dictionary_residue_restraints_t::element(const std::string &atom_name) con
 
 // likewise look up the energy type.  Return "" on no atom found
 // with that atom_name.
-// 
+//
 std::string
 coot::dictionary_residue_restraints_t::type_energy(const std::string &atom_name) const {
 
@@ -644,9 +644,9 @@ coot::dictionary_residue_restraints_t::type_energy(const std::string &atom_name)
 
    // If you are reading this, then you are looking in a dictionary looked up from an index
    // that is out of bounds.
-   // 
-   // std::cout << "dictionary_has " << atom_info.size() << " atoms" << std::endl;
-   
+   //
+   // std::cout << "debug:: in type_energy(): dictionary_has " << atom_info.size() << " atoms" << std::endl;
+
    for (unsigned int iat=0; iat<atom_info.size(); iat++) {
       if (false)
 	 std::cout << "comparing :" << atom_name << ": with :" << atom_info[iat].atom_id_4c
@@ -877,7 +877,7 @@ coot::dictionary_residue_restraints_t::is_hydrogen(unsigned int idx) const {
       const std::string &ele = atom_info[idx].type_symbol;
       if (ele == " H" || ele == "H" || ele == "D")
 	 r = true;
-   } 
+   }
    return r;
 }
 
@@ -906,6 +906,15 @@ coot::dictionary_residue_restraints_t::get_bonded_atom(const std::string &H_atom
       r = bond_restraint[i].atom_id_1_4c();
       break;
     }
+  }
+
+  // 20250225-PE rescue poor H1 - which is not in the monomer library for amino acids
+  if (r.empty() && (H_atom_name == " H1 ")) {
+     for (unsigned int i=0; i<bond_restraint.size(); i++) {
+        if (bond_restraint[i].atom_id_1_4c() == " N  ") {
+           r = " N  ";
+        }
+     }
   }
   return r;
 }
@@ -1223,19 +1232,19 @@ coot::dictionary_residue_restraints_t::conservatively_replace_with_angles(const 
 void
 coot::dictionary_residue_restraints_t::replace_coordinates(const dictionary_residue_restraints_t &mon_res_in) {
 
-   for (unsigned int iat=0; iat<atom_info.size(); iat++) { 
+   for (unsigned int iat=0; iat<atom_info.size(); iat++) {
       dict_atom &at = atom_info[iat];
-      
-      for (unsigned int iat=0; iat<mon_res_in.atom_info.size(); iat++) { 
+
+      for (unsigned int iat=0; iat<mon_res_in.atom_info.size(); iat++) {
 	 const dict_atom &at_ref = mon_res_in.atom_info[iat];
 
 	 if (at_ref.atom_id_4c == at.atom_id_4c) {
 	    at.pdbx_model_Cartn_ideal = at_ref.pdbx_model_Cartn_ideal;
 	    at.model_Cartn            = at_ref.model_Cartn;
-	 } 
+	 }
       }
    }
-} 
+}
 
 
 
@@ -1243,13 +1252,13 @@ coot::dictionary_residue_restraints_t::replace_coordinates(const dictionary_resi
 mmdb::Residue *
 coot::dictionary_residue_restraints_t::GetResidue(bool idealised_flag, float b_factor) const {
 
-   // std::cout << "in GetResidue() idealised_flag is " << idealised_flag << std::endl;
+   if (false)
+      std::cout << "in GetResidue() idealised_flag is " << idealised_flag << std::endl;
 
    mmdb::Residue *residue_p = NULL;
    std::vector<mmdb::Atom *> atoms;
 
    bool make_hetatoms = ! coot::util::is_standard_residue_name(residue_info.comp_id);
-   int atom_index = 0;
    for (unsigned int iat=0; iat<atom_info.size(); iat++) {
 
       clipper::Coord_orth p(0,0,0);
@@ -1263,14 +1272,18 @@ coot::dictionary_residue_restraints_t::GetResidue(bool idealised_flag, float b_f
       if (! flag_and_have_coords) {
 	 // OK, try model_Cartn (and that is idealised if the dictionary was refmac)
 	 // (better than nothing).
-	 // 
+	 //
 	 if (atom_info[iat].model_Cartn.first) {
 	    p = atom_info[iat].model_Cartn.second;
 	    flag_and_have_coords = true;
 	 }
       }
 
-      if (flag_and_have_coords) { 
+      if (false)
+         std::cout << "here with iat " << iat << " and flag_and_have_coords " << flag_and_have_coords
+                   << std::endl;
+
+      if (flag_and_have_coords) {
 	 mmdb::Atom *atom = new mmdb::Atom;
 	 mmdb::realtype occ = 1.0;
 	 mmdb::realtype b = b_factor;
@@ -1284,12 +1297,11 @@ coot::dictionary_residue_restraints_t::GetResidue(bool idealised_flag, float b_f
 	 // 	       atom->SetAtomName(atom_index, -1,
 	 // 				 atom_info[iat].atom_id_4c.c_str(),
 	 // 				 "", "", ele.c_str());
-	       
+
 	 atom->SetElementName(ele.c_str());
 	 if (make_hetatoms)
 	    atom->Het = 1;
 	 atoms.push_back(atom);
-	 atom_index++; // for next round
       }
    }
 
@@ -1301,7 +1313,7 @@ coot::dictionary_residue_restraints_t::GetResidue(bool idealised_flag, float b_f
          strcpy(residue_p->label_comp_id, residue_info.comp_id.c_str());
       strcpy(residue_p->label_asym_id, "A");
 
-      for (unsigned int iat=0; iat<atoms.size(); iat++) 
+      for (unsigned int iat=0; iat<atoms.size(); iat++)
 	 residue_p->AddAtom(atoms[iat]);
 
       if (false) {  // debug
@@ -1317,9 +1329,9 @@ coot::dictionary_residue_restraints_t::GetResidue(bool idealised_flag, float b_f
          }
 
       }
-   } 
-   return residue_p; 
-} 
+   }
+   return residue_p;
+}
 
 std::vector<std::vector<std::string> >
 coot::dictionary_residue_restraints_t::get_ligand_ring_list() const {
@@ -1393,6 +1405,19 @@ coot::dictionary_residue_restraints_t::in_same_ring(const std::string &atom_name
    }
    return match;
 }
+
+void
+coot::dictionary_residue_restraints_t::add_pyranose_pseudo_ring_plane_restraints(const std::string &plane_id,
+                                                                                 std::vector<std::string> &atom_name_vec,
+                                                                                 double esd) {
+
+   if (atom_name_vec.size() > 2) { // there are 4 of course
+      dict_plane_restraint_t pr(plane_id, atom_name_vec, esd);
+      plane_restraint.push_back(pr);
+   }
+
+}
+
 
 
 

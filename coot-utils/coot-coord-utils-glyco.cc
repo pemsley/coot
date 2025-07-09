@@ -832,8 +832,8 @@ coot::glyco_tree_t::find_rooted_tree(mmdb::Residue *residue_p,
       }
    }
    if (glyco_tree.size() > 1) {
-      if (true) {
-         std::cout << "find_rooted_tree returns tree:" << std::endl;
+      if (false) {
+         std::cout << "INFO:: find_rooted_tree returns tree:" << std::endl;
          print(glyco_tree);
       }
    }
@@ -845,17 +845,17 @@ coot::glyco_tree_t::find_stand_alone_tree(const std::vector<mmdb::Residue *> &re
 
    // The task is the find the root of the tree, then we simply call
    // find_rooted_tree with that residue.
-   
+
    tree<linked_residue_t> tr;
    if (!residues.size())
       return tr;
-   
+
    std::vector<std::pair<bool, mmdb::Residue *> > done_residues(residues.size());
    for (unsigned int i=0; i<residues.size(); i++)
       done_residues[i] = std::pair<bool, mmdb::Residue *>(0, residues[i]);
 
    mmdb::Residue *current_head = residues[0];
-   bool something_added = true; 
+   bool something_added = true;
    while (something_added) {
       something_added = false;
       for (unsigned int ires=0; ires<residues.size(); ires++) {
@@ -866,7 +866,7 @@ coot::glyco_tree_t::find_stand_alone_tree(const std::vector<mmdb::Residue *> &re
             std::cout << "find_stand_alone_tree(): glyco_link test on " << coot::residue_spec_t(current_head)
                       << " and " << coot::residue_spec_t(residues[ires]) << " returns "
                       << "\"" << link.first << "\" " << link.second << std::endl;
-            if (link.first != "") { 
+            if (link.first != "") {
                if (link.second) {
                   std::cout << ".... resetting current_head to " << coot::residue_spec_t(residues[ires])
                             << std::endl;
@@ -879,13 +879,13 @@ coot::glyco_tree_t::find_stand_alone_tree(const std::vector<mmdb::Residue *> &re
       }
    }
 
-   std::cout << "----------- find_stand_alone_tree() calling find_rooted_tree with current_head "
+   std::cout << "INFO:: find_stand_alone_tree() calling find_rooted_tree with current_head "
              << coot::residue_spec_t(current_head) << std::endl;
    std::cout << "and residues: " << std::endl;
-   for (unsigned int i=0; i<residues.size(); i++) { 
+   for (unsigned int i=0; i<residues.size(); i++) {
       std::cout << "   " << coot::residue_spec_t(residues[i]) << std::endl;
    }
-    
+
    tr = find_rooted_tree(current_head, residues);
 
    return tr;
@@ -900,10 +900,10 @@ coot::glyco_tree_t::print(const tree<linked_residue_t> &glyco_tree) const {
       int n_space = 36;
       this_one = it;
       bool has_parent = true;
-      while (has_parent) { 
-         if (! this_one.node->parent) { 
+      while (has_parent) {
+         if (! this_one.node->parent) {
             has_parent = false;
-         } else { 
+         } else {
             n_space -= 4;
             this_one = this_one.node->parent;
          }

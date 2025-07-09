@@ -42,10 +42,12 @@ pkginclude_HEADERS = peak-search.hh coot-trim.hh \
 	pepflip-using-difference-map.hh blob-line.hh shape-types.hh shapes.hh \
         polar-atoms.hh 3d-texture.hh fragment-container.hh map-index.hh \
         atom-tree.hh jed-flip.hh atom-vertex.hh merge-C-and-N-terminii.hh simple-mesh.hh vertex.hh g_triangle.hh \
-	cylinder.hh cylinder-with-rotation-translation.hh oct.hh prideout-octasphere.hh cmtz-interface.hh mtz-column-auto-read.hh \
-	pugixml.hpp pugiconfig.hpp find-water-baddies.hh voidp-buffer.hh parse-pisa.hh diff-diff-map-peaks.hh tiny_gltf.h json.hpp \
+	cylinder.hh cylinder-with-rotation-translation.hh oct.hh prideout-octasphere.hh cmtz-interface.hh \
+        mtz-column-auto-read.hh pugixml.hpp pugiconfig.hpp find-water-baddies.hh voidp-buffer.hh parse-pisa.hh \
+        diff-diff-map-peaks.hh tiny_gltf.h json.hpp \
 	stb_image.h stb_image_write.h glyco-tree.hh positron.hh mini-texture.hh texture-as-floats.hh pae.hh q-score.hh \
-	acedrg-types-for-residue.hh gl-matrix.h ortep.hh coot-align.hh
+	acedrg-types-for-residue.hh gl-matrix.h ortep.hh coot-align.hh grid-balls.hh dict-link-info.hh \
+        dirichlet-process.hh cfc.hh cremer-pople.hh
 
 
 pkgincludedir = $(includedir)/coot/coot-utils
@@ -53,14 +55,15 @@ pkgincludedir = $(includedir)/coot/coot-utils
 AM_CPPFLAGS = \
 	-I$(top_srcdir)	\
 	$(ENHANCED_LIGAND_TOOLS_CPPFLAGS) \
-	$(CLIPPER_CXXFLAGS) 		\
-	$(GEMMI_CXXFLAGS)               \
-	$(MMDB_CXXFLAGS) 		\
-        $(CAIRO_CFLAGS)                 \
-	$(gsl_CFLAGS)			\
-	$(WITH_GUILE_CFLAGS)		\
-	$(RDKIT_CXXFLAGS) 		\
-	$(BOOST_CPPFLAGS) 		\
+	$(CLIPPER_CXXFLAGS)  \
+	$(GEMMI_CXXFLAGS)    \
+	$(MMDB_CXXFLAGS)     \
+        $(CAIRO_CFLAGS)      \
+	$(gsl_CFLAGS)	     \
+	$(GLM_CXXFLAGS)	     \
+	$(WITH_GUILE_CFLAGS) \
+	$(RDKIT_CXXFLAGS)    \
+	$(BOOST_CPPFLAGS)    \
 	$(WITH_PYTHON_CFLAGS)
 
 AM_CXXFLAGS = $(COOT_WINDOWS_CFLAGS) \
@@ -81,7 +84,8 @@ libcoot_coord_utils_la_SOURCES = coot-coord-utils.cc \
 	3d-texture.cc merge-molecules.cc fragment-container.cc mutate.cc \
 	cylinder.cc cylinder-with-rotation-translation.cc oct.cc prideout-octasphere.cc simple-mesh.cc \
 	shapes.cc cmtz-interface.cc pugixml.cpp parse-pisa.cc gltf-export.cc pae.cc \
-	gl-matrix.cc gl-matrix-eigensystem.cc coot-align.cc
+	gl-matrix.cc gl-matrix-eigensystem.cc coot-align.cc grid-balls.cc dict-link-info.cc \
+	cremer-pople.cc
 
 #    $(top_builddir)/mini-mol/libcoot-mini-mol.la
 #    $(top_builddir)/utils/libcoot-utils.la
@@ -112,7 +116,7 @@ libcoot_coord_utils_la_LDFLAGS = $(SHARED_LDFLAGS)
 
 # for non-simple coordinates things
 libcoot_coord_extras_la_SOURCES = coot-coord-extras.cc coot-coord-lsq.cc \
-	coot-tree-extras.cc water-coordination.cc lsq-improve.cc coot-coord-utils-glyco.cc jed-flip.cc
+	coot-tree-extras.cc water-coordination.cc lsq-improve.cc coot-coord-utils-glyco.cc jed-flip.cc cfc.cc
 
 # needs more, mini-mol, geometry
 #     $(top_builddir)/mini-mol/libcoot-mini-mol.la
@@ -134,7 +138,7 @@ libcoot_coord_extras_la_LDFLAGS = $(SHARED_LDFLAGS)
 libcoot_map_utils_la_SOURCES = coot-map-utils.cc peak-search.cc peak-search-from-list.cc trim.cc \
 	xmap-stats.cc maps-spherical.cc pepflip-using-difference-map.cc exp-fit.cc blob-line.cc \
         slurp-map.cc find-water-baddies.cc diff-diff-map-peaks.cc mini-texture.cc positron.cc \
-        texture-as-floats.cc merge-C-and-N-terminii.cc
+        texture-as-floats.cc merge-C-and-N-terminii.cc born.cc
 
 
 # should libcoot-coord-utils link $CLIPPER_LIBS directly? (Hence CLIPPER_LIBS is not needed here)
@@ -172,7 +176,8 @@ check_PROGRAMS = test-h-bonds testshelxreader test-hole test-elastic \
 		 test-cod-atom-types dictionary-atom-types cod-db-access \
 		 test-5-residue-fragments test-diff-diff-map-peaks \
 		 make-cablam-like-stats test-cod-atom-types-from-sm-cif test-parse-pisa \
-		 test-coot-utils test-pae test-q-score servalcat-tracker test-zd
+		 test-coot-utils test-pae test-q-score servalcat-tracker test-zd test-grid-balls \
+		 test-dirichlet-process test-born
 
 # wrong build order - delete from make check for now.
 # test-emma test-convolute test-coot-utils test-segmap
@@ -226,6 +231,14 @@ test_parse_pisa_LDADD = \
 test_pae_SOURCES = test-pae.cc
 test_pae_LDADD = \
 	./libcoot-coord-utils.la
+
+test_born_SOURCES = test-born.cc
+test_born_LDADD = \
+	./libcoot-map-utils.la \
+	$(CLIPPER_LIBS)
+
+test_dirichlet_process_SOURCES = test-dirichlet-process.cc
+test_dirichlet_process_LDADD = $(top_builddir)/utils/libcoot-utils.la
 
 testshelxreader_SOURCES = test-shelx-reader.cc
 testshelxreader_LDADD =  ./libcoot-coord-utils.la    \
@@ -299,6 +312,10 @@ glyco_torsions_LDADD   = ./libcoot-coord-utils.la    \
 	$(top_builddir)/geometry/libcoot-geometry.la \
 	$(top_builddir)/utils/libcoot-utils.la       \
 	$(MMDB_LIBS)
+
+test_grid_balls_SOURCES = test-grid-balls.cc
+test_grid_balls_LDADD   = ./libcoot-coord-utils.la    \
+	$(CLIPPER_LIBS) $(MMDB_LIBS)
 
 
 test_chem_feat_SOURCES = test-chem-feat.cc

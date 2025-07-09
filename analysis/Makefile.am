@@ -30,6 +30,7 @@ AM_CPPFLAGS = \
 	-I$(top_srcdir) \
 	$(CLIPPER_CXXFLAGS) \
 	$(gsl_CFLAGS)	\
+	$(GLM_CXXFLAGS)	\
 	$(MMDB_CXXFLAGS) $(COOT_WINDOWS_CFLAGS)
 
 libcoot_analysis_la_SOURCES = bfkurt.cc mogul.cc kolmogorov.hh kolmogorov.cc stats.cc \

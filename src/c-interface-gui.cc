@@ -91,6 +91,10 @@
 #include "utils/coot-utils.hh"
 #include "read-molecule.hh"
 
+#include "utils/logging.hh"
+extern logging logger;
+
+
 void set_show_paths_in_display_manager(int i) {
    std::string cmd = "set-show-paths-in-display-manager";
    std::vector<coot::command_arg_t> args;
@@ -1165,6 +1169,10 @@ void fill_references_notebook(GtkButton *toolbutton, int reference_id) {
 }
 
 void set_graphics_window_size(int x_size, int y_size) {
+   set_graphics_window_size_internal(x_size, y_size, 0);
+}
+
+void set_graphics_window_size_internal(int x_size, int y_size, int as_widget_flag) {
 
    if (graphics_info_t::use_graphics_interface_flag) {
       graphics_info_t g;
@@ -1175,7 +1183,13 @@ void set_graphics_window_size(int x_size, int y_size) {
 	 GtkWindow *window = GTK_WINDOW(win);
 
 #if (GTK_MAJOR_VERSION >= 4)
-         gtk_widget_set_size_request(GTK_WIDGET(window), x_size, y_size);
+	 if (!as_widget_flag) {
+	    // this is the default, gtk_window should be resized this way
+            gtk_window_set_default_size(GTK_WINDOW(window), x_size, y_size);
+	 } else {
+	    // resize using this function at your own risk. It may do and/or result in unexpected things
+            gtk_widget_set_size_request(GTK_WIDGET(window), x_size, y_size);
+	 }
 #else
          gtk_window_resize(window, x_size, y_size);
 	 while (gtk_events_pending())
@@ -2046,7 +2060,7 @@ void network_get_accession_code_entity(const std::string &text, int mode) {
 
    // 20240630-PE need to check that the file already exists before downloading it
    xdg_t xdg;
-   std::string download_dir = join(xdg.get_cache_home().string(), "coot-download");
+   std::string download_dir = xdg.get_download_dir();
    make_directory_maybe(download_dir.c_str());
    std::string dld = coot::get_directory(download_dir);
    if (! dld.empty()) {
@@ -2099,7 +2113,7 @@ void network_get_accession_code_entity(const std::string &text, int mode) {
          }
       }
    }
- }
+}
 
 
 
@@ -2450,9 +2464,9 @@ void toggle_environment_show_distances(GtkCheckButton *button) {
       // std::cout << "toggled evironment distances off" << std::endl;
       g.environment_show_distances = 0;
       gtk_widget_set_sensitive(hbox, FALSE);
-      gtk_widget_set_sensitive(label_atom_check_button, FALSE);
       gtk_widget_set_sensitive(distance_type_frame, FALSE);
       graphics_draw();
+      // gtk_widget_set_sensitive(label_atom_check_button, FALSE); // keep it always active
    }
 }
 
@@ -2758,24 +2772,6 @@ void show_main_toolbar() {
    }
 }
 
-// functions for the main toolbar style
-// should be generic!? FIXME BL
-void set_main_toolbar_style(int istate) {
-
-   // main_toolbar no longer exists - do I still want this function?
-
-   graphics_info_t::main_toolbar_style_state = istate;
-   if (graphics_info_t::use_graphics_interface_flag) {
-      GtkWidget *toolbar = widget_from_builder("main_toolbar");
-      if (!toolbar) {
-	 std::cout << "set_main_toolbar_style(): failed to lookup main toolbar" << std::endl;
-      }
-   }
-}
-
-int main_toolbar_style_state() {
-  return graphics_info_t::main_toolbar_style_state;
-}
 
 /*  ------------------------------------------------------------------------ */
 // other modelling tools
@@ -3453,7 +3449,7 @@ GtkWidget *wrapped_create_show_symmetry_window() {
        GtkWidget *switch_button = widget_from_builder("show_unit_cell_switch");
        if (get_show_unit_cell(imol) == 1)
           gtk_switch_set_active(GTK_SWITCH(switch_button), TRUE);
-       else 
+       else
           gtk_switch_set_active(GTK_SWITCH(switch_button), FALSE);
     }
 
@@ -3504,7 +3500,8 @@ GtkWidget *wrapped_create_show_symmetry_window() {
           };
 
           GdkRGBA rgba = graphics_info_t::symmetry_colour_to_rgba();
-          std::cout << " colours " << rgba.red << " " << rgba.green << " " << rgba.blue << std::endl;
+          if (false)
+             std::cout << " colours " << rgba.red << " " << rgba.green << " " << rgba.blue << std::endl;
           GtkWidget *colour_button = gtk_color_button_new_with_rgba(&rgba);
           gtk_box_append(GTK_BOX(box_for_colour_button), colour_button);
           g_signal_connect(G_OBJECT(colour_button), "color-set", G_CALLBACK(on_color_set_func), nullptr);
@@ -3913,27 +3910,30 @@ void save_symmetry_coords_from_filechooser(GtkWidget *filechooser) {
    coot::Symm_Atom_Pick_Info_t *symm_info = (coot::Symm_Atom_Pick_Info_t *) g_object_get_data(G_OBJECT(filechooser), "symm_info");
 
    // const gchar *filename = gtk_file_chooser_get_filename(GTK_FILE_CHOOSER(fileselection));
-   GFile *file = gtk_file_chooser_get_file(GTK_FILE_CHOOSER(filechooser));
-   GError *error = NULL;
-   GFileInfo *file_info = g_file_query_info(file, G_FILE_ATTRIBUTE_STANDARD_CONTENT_TYPE,
-                                            G_FILE_QUERY_INFO_NONE, NULL, &error);
-   const char *filename = g_file_info_get_name(file_info);
 
-   if (symm_info) {
-      // std::cout << "Preshift to origin:  " << symm_info->pre_shift_to_origin << std::endl;
-      save_symmetry_coords(symm_info->imol,
-			   filename,
-			   symm_info->symm_trans.isym(),
-			   symm_info->symm_trans.x(),
-			   symm_info->symm_trans.y(),
-			   symm_info->symm_trans.z(),
-			   symm_info->pre_shift_to_origin.us,
-			   symm_info->pre_shift_to_origin.vs,
-			   symm_info->pre_shift_to_origin.ws);
+   std::cout << "debug:: symm_info: " << symm_info << std::endl;
+   std::cout << "debug:: symm_info->imol: " << symm_info->imol << std::endl;
+
+   GFile *file = gtk_file_chooser_get_file(GTK_FILE_CHOOSER(filechooser));
+   if (file) {
+      const char *file_name = g_file_get_path(file);
+      if (file_name) {
+         if (symm_info) {
+            // std::cout << "Preshift to origin:  " << symm_info->pre_shift_to_origin << std::endl;
+            save_symmetry_coords(symm_info->imol,
+                                 file_name,
+                                 symm_info->symm_trans.isym(),
+                                 symm_info->symm_trans.x(),
+                                 symm_info->symm_trans.y(),
+                                 symm_info->symm_trans.z(),
+                                 symm_info->pre_shift_to_origin.us,
+                                 symm_info->pre_shift_to_origin.vs,
+                                 symm_info->pre_shift_to_origin.ws);
+         }
+      }
    } else {
-      std::cout << "ERROR:: failed to get user data from save symmetry coords fileselection"
-                << std::endl;
-      std::cout << "ERROR:: saving of symmetry coordinates failed" << std::endl;
+      logger.log(log_t::WARNING, logging::function_name_t("save_symmetry_coords_from_filechooser"),
+                 "No file");
    }
 }
 
@@ -4273,55 +4273,6 @@ void on_export_map_dialog_ok_button_clicked_cc(GtkButton *button) {
 //
 // }
 
-
-// -----------ancient interface code --------------------------------------
-
-// functions to dock the accept/reject dialog
-void set_accept_reject_dialog_docked(int istate){
-
-   if (graphics_info_t::use_graphics_interface_flag) {
-     // we should destroy/hide the dialog if existing
-     if (graphics_info_t::accept_reject_dialog) {
-       // changing state?
-       if (istate != graphics_info_t::accept_reject_dialog_docked_flag) {
-         if (istate == 0) {
-           gtk_widget_set_visible(graphics_info_t::accept_reject_dialog, FALSE);
-         } else {
-           gtk_widget_set_visible(graphics_info_t::accept_reject_dialog, FALSE);
-           // reset the widget upon change of mode
-           set_accept_reject_dialog(0);
-         }
-       }
-     }
-     // now change the state
-     graphics_info_t::accept_reject_dialog_docked_flag = istate;
-   }
-}
-
-int accept_reject_dialog_docked_state(){
-  return graphics_info_t::accept_reject_dialog_docked_flag;
-}
-
-// functions to show/hide/sensitise docked accept/reject dialog
-void set_accept_reject_dialog_docked_show(int state){
-
-   if (graphics_info_t::use_graphics_interface_flag) {
-      graphics_info_t::accept_reject_dialog_docked_show_flag = state;
-      if (state == 0) {
-         // GtkWidget *dialog = lookup_widget(GTK_WIDGET(graphics_info_t::get_main_window()), "accept_reject_dialog_frame_docked");
-         GtkWidget *dialog = widget_from_builder("accept_reject_dialog_frame_docked");
-         // hide the widget and make sensitive again
-         gtk_widget_set_sensitive(dialog, TRUE);
-         gtk_widget_set_visible(dialog, FALSE);
-         // reset the widget
-         set_accept_reject_dialog(0);
-      }
-   }
-}
-
-int accept_reject_dialog_docked_show_state() {
-  return graphics_info_t::accept_reject_dialog_docked_show_flag;
-}
 
 void store_geometry_dialog(GtkWidget *w) {
 
@@ -5566,5 +5517,4 @@ void curlew_dialog_install_extensions(GtkWidget *curlew_dialog, int n_extensions
       }
    }
 }
-
 

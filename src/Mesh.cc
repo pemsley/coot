@@ -30,6 +30,9 @@
 #include <set>
 #include <chrono>
 
+#ifdef USE_BACKWARD
+#include <utils/backward.hpp>
+#endif
 
 
 // Having this up here...
@@ -65,6 +68,20 @@
 #else
 #include "old-generic-display-object.hh"
 #endif
+
+#include "utils/logging.hh"
+extern logging logger;
+
+
+// this can be outside of Mesh
+std::string stringify_error_message(GLenum err) {
+
+   std::string r = std::to_string(err);
+   if (err == GL_INVALID_ENUM)  r = "GL_INVALID_ENUM";
+   if (err == GL_INVALID_VALUE) r = "GL_INVALID_VALUE";
+   if (err == GL_INVALID_OPERATION) r = "GL_INVALID_OPERATION";
+   return r;
+}
 
 void
 Mesh::init() {
@@ -133,6 +150,9 @@ Mesh::Mesh(const std::string &name_in, const coot::simple_mesh_t &mesh) {
 }
 
 Mesh::~Mesh() {
+
+   if (false)
+      std::cout << "DEBUG:: Mesh destructor " << name << " with vao " << vao << std::endl;
 
    bool gl_buffers_flag = false;
    clear(gl_buffers_flag);
@@ -343,6 +363,10 @@ Mesh::debug() const {
 // 20210910-PE remove the Shader argument, surely not needed.
 void
 Mesh::setup(const Material &material_in) {
+
+   // 20250224-PE I don't like the idea of mixing up material
+   // and buffers. Rename this to set_material()0
+   // and don't setup_buffers().
 
    // Generic objects need a lot of reworking
    // because I want to "setup" only after all objects have been added - not
@@ -714,8 +738,14 @@ Mesh::delete_gl_buffers() {
    // once causes as crash.
    // So let's not delete it at all (Hmm)
 
+
+   if (false)
+      std::cout << "INFO:: Mesh::delete_gl_buffers() called for mesh \"" << name << "\""
+                << " with vao " << vao << std::endl;
+
    if (vao == VAO_NOT_SET) {
-      std::cout << "ERROR:: Mesh::delete_gl_buffers() called without the VAO set for mesh \"" << name << "\"" << std::endl;
+      std::cout << "ERROR:: Mesh::delete_gl_buffers() called without the VAO set for mesh \""
+                << name << "\"" << std::endl;
    } else {
       glBindVertexArray(vao);
       if (buffer_id != 0) { // 0 is not valid
@@ -736,7 +766,6 @@ Mesh::delete_gl_buffers() {
       glDeleteVertexArrays(1, &vao);
       vao = VAO_NOT_SET;
    }
-
 }
 
 void
@@ -744,15 +773,43 @@ Mesh::setup_buffers() {
 
    if (is_headless) return;
 
+   // 20250524-PE this is often not an error with EM maps, say.
+#if 0
    if (vertices.empty())  std::cout << "WARNING:: Mesh::setup_buffers() zero vertices -  probably an error" << std::endl;
    if (triangles.empty()) std::cout << "WARNING:: Mesh::setup_buffers() zero triangles - probably an error" << std::endl;
+#endif
+
+   if (vertices.empty()) {
+
+#if 0
+      // from where was this called then?
+#if USE_BACKWARD
+               backward::StackTrace st;
+               backward::Printer p;
+               st.load_here(32);
+               p.print(st);
+#endif
+#endif
+   }
 
    if (vertices.empty()) return;
    if (triangles.empty() && lines_vertex_indices.empty()) return;
 
    GLenum err = glGetError();
-   if (err)
-      std::cout << "GL ERROR:: Mesh::setup_buffers() \"" << name << "\" --- start --- " << std::endl;
+   if (err) {
+      // std::cout << "GL ERROR:: Mesh::setup_buffers() \"" << name << "\" --- start --- "
+      // << stringify_error_message(err) << std::endl;
+      logger.log(log_t::GL_ERROR, logging::function_name_t("Mesh::setup_buffers()"),
+		 stringify_error_message(err));
+      err = glGetError();
+      if (err != 0)
+         std::cout << "GL ERROR:: Mesh::setup_buffers() \"" << name << "\" --- start --- stack-clear "
+                   << stringify_error_message(err) << std::endl;
+      err = glGetError();
+      if (err != 0)
+         std::cout << "GL ERROR:: Mesh::setup_buffers() \"" << name << "\" --- start --- stack-clear "
+                   << stringify_error_message(err) << std::endl;
+   }
 
    bool setup_buffers_for_gl_lines = false;
    if (! lines_vertex_indices.empty())
@@ -760,8 +817,8 @@ Mesh::setup_buffers() {
 
    if (first_time) {
       glGenVertexArrays(1, &vao);
-      // std::cout << "DEBUG:: Mesh::setup_buffers() ######### \"" << name << "\" first time: generated VAO " << vao << std::endl;
-      //   don't return before we set first_time = false at the end
+      // std::cout << "DEBUG:: Mesh::setup_buffers() \"" << name << "\" first time: generated VAO " << vao << std::endl;
+      // note: don't return before we set first_time = false at the end
    } else {
       // std::cout << "DEBUG:: Mesh::setup_buffers() ######### not first time \"" << name << "\" using VAO " << vao << std::endl;
    }
@@ -774,6 +831,8 @@ Mesh::setup_buffers() {
    if (err) {
       // 20220803-PE did you forget to attach_buffers() beforehand again?
       std::cout << "GL ERROR:: Mesh::setup_buffers() on binding vao " << vao << " error " << _(err) << std::endl;
+      logger.log(log_t::GL_ERROR, logging::function_name_t("Mesh::setup_buffers()"),
+		 {"on binding vao", vao, stringify_error_message(err)});
    }
 
    unsigned int n_vertices = vertices.size();
@@ -821,15 +880,35 @@ Mesh::setup_buffers() {
 
    if (first_time) {
       glGenBuffers(1, &index_buffer_id);
-      err = glGetError(); if (err) std::cout << "GL ERROR:: Mesh::setup_buffers()\n";
+      err = glGetError();
+      if (err) {
+	 std::cout << "GL ERROR:: Mesh::setup_buffers()\n";
+	 logger.log(log_t::GL_ERROR, logging::function_name_t("Mesh::setup_buffers()"),
+		    {"on glGenBuffers()", stringify_error_message(err)});
+      }
       glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer_id);
-      err = glGetError(); if (err) std::cout << "GL ERROR:: Mesh::setup_buffers()\n";
+      err = glGetError();
+      if (err) {
+	 std::cout << "GL ERROR:: Mesh::setup_buffers()\n";
+	 logger.log(log_t::GL_ERROR, logging::function_name_t("Mesh::setup_buffers()"),
+		    {"on glBindBuffer()", stringify_error_message(err)});
+      }
    } else {
       glDeleteBuffers(1, &index_buffer_id);
       glGenBuffers(1, &index_buffer_id);
-      err = glGetError(); if (err) std::cout << "GL ERROR:: Mesh::setup_buffers()\n";
+      err = glGetError();
+      if (err) {
+	 std::cout << "GL ERROR:: Mesh::setup_buffers()\n";
+	 logger.log(log_t::GL_ERROR, logging::function_name_t("Mesh::setup_buffers()"),
+		    {"on delete and gen", stringify_error_message(err)});
+      }
       glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer_id);
-      err = glGetError(); if (err) std::cout << "GL ERROR:: Mesh::setup_buffers()\n";
+      err = glGetError();
+      if (err) {
+	 std::cout << "GL ERROR:: Mesh::setup_buffers()\n";
+	 logger.log(log_t::GL_ERROR, logging::function_name_t("Mesh::setup_buffers()"),
+		    {"on glBindBuffer() - not first time:", stringify_error_message(err)});
+      }
    }
 
    if (false)
@@ -842,10 +921,17 @@ Mesh::setup_buffers() {
       unsigned int n_bytes_for_gl_lines = n_bytes_for_lines;
       // std::cout << "setup_buffers() allocating " << n_bytes_for_gl_lines << " bytes for gl-lines " << std::endl;
       glBufferData(GL_ELEMENT_ARRAY_BUFFER, n_bytes_for_gl_lines, &lines_vertex_indices[0], GL_STATIC_DRAW);
-      err = glGetError(); if (err) std::cout << "GL ERROR:: setup_buffers - setup_buffers_for_gl_lines()\n";
+      err = glGetError();
+      if (err)
+	 std::cout << "GL ERROR:: setup_buffers - setup_buffers_for_gl_lines()\n";
    } else {
       glBufferData(GL_ELEMENT_ARRAY_BUFFER, n_bytes_for_triangles, &triangles[0], GL_STATIC_DRAW);
-      err = glGetError(); if (err) std::cout << "GL ERROR:: Mesh::setup_buffers()\n";
+      err = glGetError();
+      if (err) {
+	 std::cout << "GL ERROR:: Mesh::setup_buffers()\n";
+	 logger.log(log_t::GL_ERROR, logging::function_name_t("Mesh::setup_buffers()"),
+		    {"on glBufferData() ", stringify_error_message(err)});
+      }
    }
 
    glDisableVertexAttribArray(0);
@@ -1009,9 +1095,12 @@ Mesh::setup_vertex_and_instancing_buffers_for_particles(unsigned int n_instances
 
    glBindVertexArray(vao);
    GLenum err = glGetError();
-   if (err) std::cout << "GL error ####"
-                      << " setup_vertex_and_instancing_buffers_for_particles() B "
-                      << err << std::endl;
+   if (err) {
+      std::cout << "GL error ####"
+		<< " setup_vertex_and_instancing_buffers_for_particles() B "
+		<< err << std::endl;
+      logger.log(log_t::GL_ERROR, "setup_vertex_and_instancing_buffers_for_particles() B");
+   }
 
 
    // a Particle has position, velocity and colour. We need position and colour
@@ -1030,9 +1119,12 @@ Mesh::setup_vertex_and_instancing_buffers_for_particles(unsigned int n_instances
    glVertexAttribPointer(3, 3, GL_FLOAT, GL_FALSE, sizeof(Particle), 0);
    glVertexAttribDivisor(3, 1);
    err = glGetError();
-   if (err) std::cout << "GL error #####"
-                      << " setup_instancing_buffers_for_particles() B "
-                      << err << std::endl;
+   if (err) {
+      std::cout << "GL error #####"
+		<< " setup_instancing_buffers_for_particles() B "
+		<< err << std::endl;
+      logger.log(log_t::GL_ERROR, "setup_instancing_buffers_for_particles() B");
+   }
 
    // instanced colours - setup another buffer - extravagent.
    glGenBuffers(1, &inst_colour_buffer_id);
@@ -1498,8 +1590,8 @@ Mesh::draw_instanced(int pass_type,
 
    if (debug_mode)
       std::cout << "Mesh::draw_instanced() Mesh " << name << " -- start -- with shader " << shader_p->name
-                << " and do_pulse " << do_pulse << " and draw_this_mesh " << draw_this_mesh
-                << std::endl;
+                << "pass_type: " << pass_type << " and do_pulse " << do_pulse
+		<< " and draw_this_mesh " << draw_this_mesh << std::endl;
 
    if (! draw_this_mesh) return;
 
@@ -2131,12 +2223,12 @@ Mesh::draw_with_shadows(Shader *shader_p,
    glUniformMatrix4fv(shader_p->view_rotation_uniform_location, 1, GL_FALSE, &view_rotation_matrix[0][0]);
    err = glGetError();
    if (err) std::cout << "GL ERROR:: Mesh::draw_with_shadows() " << name << " " << shader_p->name
-                      << " draw() post view rotation uniform " << err << std::endl;
+                      << " draw() post view rotation uniform err " << _(err) << std::endl;
 
    shader_p->set_mat4_for_uniform("light_space_mvp", light_view_mvp);
    err = glGetError();
    if (err) std::cout << "GL ERROR: TextureMesh::draw_with_shadows(): "
-                      << shader_p->name << " post light-space-mvp " << err << std::endl;
+                      << shader_p->name << " post light-space-mvp err " << _(err) << std::endl;
 
    std::map<unsigned int, lights_info_t>::const_iterator it;
    unsigned int light_idx = 0;
@@ -2149,10 +2241,10 @@ Mesh::draw_with_shadows(Shader *shader_p,
       shader_p->setup_light(light_idx, it->second, view_rotation_matrix);
 
    glActiveTexture(GL_TEXTURE0);
-   err = glGetError(); if (err) std::cout << "GL ERROR:: Mesh::draw_with_shadows() A4 " << err << std::endl;
+   err = glGetError(); if (err) std::cout << "GL ERROR:: Mesh::draw_with_shadows() A4 err " << _(err) << std::endl;
    glBindTexture(GL_TEXTURE_2D, shadow_depthMap);
    shader_p->set_int_for_uniform("shadow_map", 0); // there is only one sampler2D
-   err = glGetError(); if (err) std::cout << "GL ERROR:: Mesh::draw_with_shadows() A5 " << err << std::endl;
+   err = glGetError(); if (err) std::cout << "GL ERROR:: Mesh::draw_with_shadows() A5 err " << _(err) << std::endl;
 
    shader_p->set_float_for_uniform("opacity", opacity);
 
@@ -2759,7 +2851,7 @@ Mesh::setup_instancing_buffer_data_for_extra_distance_restraints(unsigned int n_
    // 3 float width
    // 4 float length
    // 5 vec3 position
-   // 6 mat3 ori 0 
+   // 6 mat3 ori 0
    // 7 mat3 ori 1
    // 8 mat3 ori 2
    // 9 vec4 colour inst
@@ -2773,7 +2865,6 @@ Mesh::setup_instancing_buffer_data_for_extra_distance_restraints(unsigned int n_
    glVertexAttribDivisor(4, 1);
    err = glGetError(); if (err) std::cout << "   error setup_instancing_buffer_data_for_extra_distance_restraints() C4 " << err << std::endl;
 
-   
    glEnableVertexAttribArray(5);
    glVertexAttribPointer(5, 3, GL_FLOAT, GL_FALSE, size_of_edrmidt, reinterpret_cast<void *>(2 * sizeof(float)));
    glVertexAttribDivisor(5, 1);
@@ -2862,12 +2953,22 @@ Mesh::update_instancing_buffer_data_for_particles(const particle_container_t &pa
    is_instanced = true;
    is_instanced_colours = true;
 
-   GLenum err = glGetError();
-   if (err) std::cout << "GL ERROR:: Mesh::update_instancing_buffer_data_for_particles() A0 "
-                      << "binding vao " << vao << " error " << _(err) << std::endl;
+   if (false) // debugging
+      std::cout << "DEBUG:: Mesh::update_instancing_buffer_data_for_particles() " << name
+                << " --- start --- " << std::endl;
 
-   if (vao == VAO_NOT_SET)
+   GLenum err = glGetError();
+   if (err) {
+      std::cout << "GL ERROR:: Mesh::update_instancing_buffer_data_for_particles() A0 "
+		<< "--- start --- " << _(err) << std::endl;
+      logger.log(log_t::GL_ERROR, "Mesh::update_instancing_buffer_data_for_particles() A0 ",
+		 "--- start --- ", _(err));
+   }
+
+   if (vao == VAO_NOT_SET) {
       std::cout << "GL ERROR:: You forgot to setup this Mesh " << name << std::endl;
+      logger.log(log_t::GL_ERROR, "You forgot to setup this Mesh ", name);
+   }
 
    glBindVertexArray(vao);
    err = glGetError();
@@ -2880,27 +2981,32 @@ Mesh::update_instancing_buffer_data_for_particles(const particle_container_t &pa
       n_instances = n_instances_allocated;
    }
 
-   if (false)
-      std::cout << "DEBUG:: update_instancing_buffer_data_for_particles() transfering " << n_instances
-                << " particle/instances " << std::endl;
+   if (n_instances > 0) {
 
-   // std::cout << " particle 0 position " << glm::to_string(particles.particles[0].position)
-   //           << std::endl;
-   glBindBuffer(GL_ARRAY_BUFFER, inst_model_translation_buffer_id);
-   err = glGetError();
-   if (err) std::cout << "GL ERROR:: Mesh::update_instancing_buffer_data_for_particles() A3 "
-                      << " vao " << vao
-                      << " inst_model_translation_buffer_id " << inst_model_translation_buffer_id
-                      << "\n";
-   glBufferSubData(GL_ARRAY_BUFFER, 0, n_instances * sizeof(Particle), &(particles.particles[0]));
-   err = glGetError();
-   if (err) std::cout << "GL ERROR:: Mesh::update_instancing_buffer_data_for_particles() B " << _(err) << "\n";
-   glBindBuffer(GL_ARRAY_BUFFER, inst_colour_buffer_id);
-   err = glGetError();
-   if (err) std::cout << "GL ERROR:: Mesh::update_instancing_buffer_data_for_particles() C\n";
-   glBufferSubData(GL_ARRAY_BUFFER, 0, n_instances * sizeof(Particle), &(particles.particles[0]));
-   err = glGetError();
-   if (err) std::cout << "GL ERROR:: Mesh::update_instancing_buffer_data_for_particles() D " << _(err) << "\n";
+      if (false)
+         std::cout << "DEBUG:: update_instancing_buffer_data_for_particles() transfering " << n_instances
+                   << " particle/instances " << std::endl;
+
+      glBindBuffer(GL_ARRAY_BUFFER, inst_model_translation_buffer_id);
+      err = glGetError();
+      if (err) std::cout << "GL ERROR:: Mesh::update_instancing_buffer_data_for_particles() A3 "
+                         << " vao " << vao
+                         << " inst_model_translation_buffer_id " << inst_model_translation_buffer_id
+                         << "\n";
+      glBufferSubData(GL_ARRAY_BUFFER, 0, n_instances * sizeof(Particle), &(particles.particles[0]));
+      err = glGetError();
+      if (err) std::cout << "GL ERROR:: Mesh::update_instancing_buffer_data_for_particles() B " << _(err) << "\n";
+      glBindBuffer(GL_ARRAY_BUFFER, inst_colour_buffer_id);
+      err = glGetError();
+      if (err) std::cout << "GL ERROR:: Mesh::update_instancing_buffer_data_for_particles() C\n";
+      glBufferSubData(GL_ARRAY_BUFFER, 0, n_instances * sizeof(Particle), &(particles.particles[0]));
+      err = glGetError();
+      if (err) std::cout << "GL ERROR:: Mesh::update_instancing_buffer_data_for_particles() D " << _(err) << "\n";
+   }
+
+   if (false)
+      std::cout << "DEBUG:: Mesh::update_instancing_buffer_data_for_particles() " << name
+                << " --- returning --- " << std::endl;
 
 }
 
@@ -3227,6 +3333,18 @@ Mesh::setup_hydrogen_bond_cyclinders(Shader *shader_p, const Material &material_
 
 void
 Mesh::setup_extra_distance_restraint_cylinder(const Material &material_in) { // make a cylinder for instancing
+
+   GLenum err = glGetError();
+   if (err) {
+      std::cout << "GL ERROR:: Mesh::setup_extra_distance_restraint_cylinder() \""
+                << name << "\" --- start --- "
+                << stringify_error_message(err) << std::endl;
+      err = glGetError();
+      if (err != 0)
+         std::cout << "GL ERROR:: Mesh::setup_extra_distance_restraint_cylinder() \""
+                   << name << "\" --- start --- stack-clear "
+                   << stringify_error_message(err) << std::endl;
+   }
 
    auto vnc_vertex_to_generic_vertex = [] (const coot::api::vnc_vertex &v) {
       return s_generic_vertex(v.pos, v.normal, v.color);

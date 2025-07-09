@@ -38,6 +38,7 @@
 #include "coot-utils/cylinder.hh"
 #include "coot-utils/gl-matrix.h"
 #include "coot-utils/ortep.hh"
+#include "analysis/chi-squared.hh"
 
 // Atom radii are limited to 2.0
 void
@@ -47,6 +48,7 @@ make_instanced_graphical_bonds_spherical_atoms(coot::instanced_mesh_t &m, // add
                                                float base_atom_radius,
                                                float base_bond_radius,
                                                bool render_atoms_as_aniso,
+                                               float aniso_probability, // 0.0 to 1.0
                                                bool render_aniso_atoms_as_ortep,
                                                unsigned int num_subdivisions,
                                                const std::vector<glm::vec4> &colour_table) {
@@ -78,16 +80,17 @@ make_instanced_graphical_bonds_spherical_atoms(coot::instanced_mesh_t &m, // add
    // copied and edited from from src/Mesh-from-graphical-bonds-instanced.cc
 
    if (false) { //20240521-PE debugging transparency
-      std::cout << "::: make_instanced_graphical_bonds_spherical_atoms(): :::" << std::endl;
+      std::cout << "::: make_instanced_graphical_bonds_spherical_atoms(): --- start ---" << std::endl;
+      std::cout << "::: make_instanced_graphical_bonds_spherical_atoms(): with aniso_probability " << aniso_probability << std::endl;
       for (const auto &c : colour_table) {
          std::cout << "colour-table " << glm::to_string(c) << std::endl;
       }
    }
 
-   coot::instanced_geometry_t ig_sphere("anisotropic-atoms");
+   coot::instanced_geometry_t ig_sphere("atoms");
 
-   bool atoms_have_bigger_radius_than_bonds = false;
-   if (base_atom_radius > base_bond_radius) atoms_have_bigger_radius_than_bonds = true;
+   // bool atoms_have_bigger_radius_than_bonds = false;
+   // if (base_atom_radius > base_bond_radius) atoms_have_bigger_radius_than_bonds = true;
 
    std::pair<std::vector<glm::vec3>, std::vector<g_triangle> > octosphere_geom =
       tessellate_octasphere(num_subdivisions);
@@ -173,6 +176,10 @@ make_instanced_graphical_bonds_spherical_atoms(coot::instanced_mesh_t &m, // add
 
                // recalculate sar, atom-type rules do not apply
                sar = 1.2;
+               sar = gphl::prob_to_radius(aniso_probability * 100.0f);
+               // float rad = gphl::prob_to_radius(aniso_probability * 100.0f);
+               // std::cout << "debug aniso_probability " << aniso_probability << " rad " << rad << std::endl;
+
                sc = glm::vec3(sar);
 
                GL_matrix mat(at->u11, at->u12, at->u13,
@@ -346,6 +353,33 @@ void make_graphical_bonds_spherical_atoms_with_vdw_radii_instanced(coot::instanc
    m.add(ig);
 }
 
+glm::mat4
+get_bond_matrix(const glm::vec3 &pos_1, const glm::vec3 &pos_2, float radius) {
+   glm::vec3 delta = pos_2 - pos_1;
+   float l_delta = glm::distance(pos_2, pos_1);
+   glm::mat4 u(1.0f);
+   glm::mat4 sc = glm::scale(u, glm::vec3(radius, radius, l_delta));
+   // orient
+   glm::vec3 normalized_bond_orientation(glm::normalize(delta));
+   glm::mat4 ori = glm::orientation(normalized_bond_orientation, glm::vec3(0.0, 0.0, 1.0)); // nice
+   // translate
+   // 20230116-PE no scaling and translation of the orientation matrix.
+   // we need a rotation matrix because that is used for the normals.
+   // glm::mat4 t = glm::translate(u, pos_1);
+   // glm::mat4 m = t * ori * sc;
+   return ori;
+}
+
+std::vector<coot::api::vn_vertex>
+convert_vertices(const std::vector<coot::api::vnc_vertex> &v_in) {
+   std::vector<coot::api::vn_vertex> v_out(v_in.size());
+   for (unsigned int i=0; i<v_in.size(); i++) {
+      const auto &v = v_in[i];
+      v_out[i] = coot::api::vn_vertex(v.pos, v.normal);
+   }
+   return v_out;
+}
+
 
 void
 make_instanced_graphical_bonds_bonds(coot::instanced_mesh_t &m,
@@ -354,31 +388,6 @@ make_instanced_graphical_bonds_bonds(coot::instanced_mesh_t &m,
                                      unsigned int n_slices,
                                      unsigned int n_stacks,
                                      const std::vector<glm::vec4> &colour_table) {
-
-   auto get_bond_matrix = [] (const glm::vec3 &pos_1, const glm::vec3 &pos_2, float radius) {
-                             glm::vec3 delta = pos_2 - pos_1;
-                             float l_delta = glm::distance(pos_2, pos_1);
-                             glm::mat4 u(1.0f);
-                             glm::mat4 sc = glm::scale(u, glm::vec3(radius, radius, l_delta));
-                             // orient
-                             glm::vec3 normalized_bond_orientation(glm::normalize(delta));
-                             glm::mat4 ori = glm::orientation(normalized_bond_orientation, glm::vec3(0.0, 0.0, 1.0)); // nice
-                             // translate
-                             // 20230116-PE no scaling and translation of the orientation matrix.
-                             // we need a rotation matrix because that is used for the normals.
-                             // glm::mat4 t = glm::translate(u, pos_1);
-                             // glm::mat4 m = t * ori * sc;
-                             return ori;
-                          };
-
-   auto convert_vertices = [] (const std::vector<coot::api::vnc_vertex> &v_in) {
-      std::vector<coot::api::vn_vertex> v_out(v_in.size());
-      for (unsigned int i=0; i<v_in.size(); i++) {
-         const auto &v = v_in[i];
-         v_out[i] = coot::api::vn_vertex(v.pos, v.normal);
-      }
-      return v_out;
-   };
 
    // 20230114-PE
    // copied and edited from src/Mesh::Mesh-from-graphical-bonds-instanced.cc
@@ -464,11 +473,102 @@ make_instanced_graphical_bonds_bonds(coot::instanced_mesh_t &m,
 
 
 
+void
+make_instanced_graphical_symmetry_bonds_bonds(coot::instanced_mesh_t &m,
+                                     std::pair<graphical_bonds_container, std::pair<symm_trans_t, Cell_Translation> > symmetry_bonds_box,
+                                     float bond_radius,
+                                     unsigned int n_slices,
+                                     unsigned int n_stacks,
+                                     const std::vector<glm::vec4> &colour_table) {
+
+   // 20230114-PE
+   // copied from make_instanced_graphical_bonds_bonds()
+
+   coot::instanced_geometry_t ig_00("cylinder-00");
+   coot::instanced_geometry_t ig_01("cylinder-01");
+   coot::instanced_geometry_t ig_10("cylinder-10");
+   coot::instanced_geometry_t ig_11("cylinder-11");
+
+   // ----------------------- setup the vertices and triangles ----------------------
+
+   std::pair<glm::vec3, glm::vec3> pp(glm::vec3(0,0,0), glm::vec3(0,0,1));
+   cylinder c_00(pp, 1.0, 1.0, 1.0, n_slices, n_stacks);
+   cylinder c_01(pp, 1.0, 1.0, 1.0, n_slices, n_stacks);
+   cylinder c_10(pp, 1.0, 1.0, 1.0, n_slices, n_stacks); // possibly none of these actually
+   cylinder c_11(pp, 1.0, 1.0, 1.0, n_slices, n_stacks);
+   c_01.add_flat_start_cap();
+   c_10.add_flat_end_cap();   // 20230122-PE these orientations have now been checked.
+   c_11.add_flat_start_cap();
+   c_11.add_flat_end_cap();
+
+   ig_00.vertices = convert_vertices(c_00.vertices);
+   ig_01.vertices = convert_vertices(c_01.vertices);
+   ig_10.vertices = convert_vertices(c_10.vertices);
+   ig_11.vertices = convert_vertices(c_11.vertices);
+
+   ig_00.triangles = c_00.triangles;
+   ig_01.triangles = c_01.triangles;
+   ig_10.triangles = c_10.triangles;
+   ig_11.triangles = c_11.triangles;
+
+   int cts = colour_table.size(); // changing type
+   const graphical_bonds_container gbc = symmetry_bonds_box.first;
+   const std::pair<symm_trans_t, Cell_Translation> &symm_trans =  symmetry_bonds_box.second;
+   // std::cout << "gbc.symmetry_bonds_ " << gbc.symmetry_bonds_ << std::endl;
+   if (gbc.symmetry_bonds_) {
+
+      for (int icol=0; icol<gbc.num_colours; icol++) {
+         // std::cout << "icol " << icol << " num_colours: " << gbc.num_colours << std::endl;
+
+         glm::vec4 col(0.4, 0.4, 0.4, 1.0);
+         if (icol<cts) // it will be of course!
+            col = colour_table[icol];
+         graphical_bonds_lines_list<graphics_line_t> &ll = gbc.symmetry_bonds_[icol];
+         int isymop = symm_trans.first.isym();
+
+         // add this at some stage
+         // glm::vec4 col = get_colour(icol, isymop, symmetry_colour, symmetry_colour_weight);
+
+         for (int j=0; j<ll.num_lines; j++) {
+            const coot::Cartesian &start  = ll.pair_list[j].positions.getStart();
+            const coot::Cartesian &finish = ll.pair_list[j].positions.getFinish();
+            float bl = ll.pair_list[j].positions.amplitude();
+            glm::vec3 pos_1(start.x(),   start.y(),  start.z());
+            glm::vec3 pos_2(finish.x(), finish.y(), finish.z());
+            glm::mat4 ori = get_bond_matrix(pos_2, pos_1, bond_radius);
+            float scale = 1.0;
+            if (ll.thin_lines_flag) scale *= 0.5;
+            if (ll.pair_list[j].cylinder_class == graphics_line_t::KEK_DOUBLE_BOND_INNER_BOND)
+               scale *= 0.7;
+            float sar = scale * bond_radius;
+            glm::vec3 sc(sar, sar, bl);
+            coot::instancing_data_type_B_t id(pos_1, col, sc, ori); // perhaps use pos_1?
+            int cappiness = 0;
+            if (ll.pair_list[j].has_begin_cap) cappiness += 1;
+            if (ll.pair_list[j].has_end_cap)   cappiness += 2;
+
+            if (cappiness == 0) ig_00.instancing_data_B.push_back(id);
+            if (cappiness == 1) ig_01.instancing_data_B.push_back(id);
+            if (cappiness == 2) ig_10.instancing_data_B.push_back(id);
+            if (cappiness == 3) ig_11.instancing_data_B.push_back(id);
+         }
+      }
+   } else {
+      std::cout << "ERROR:: oops - in make_instanced_graphical_symmetry_bonds_bonds() null gbc.symmetry_bonds_!" << std::endl;
+   }
+   if (! ig_00.instancing_data_B.empty()) m.add(ig_00);
+   if (! ig_01.instancing_data_B.empty()) m.add(ig_01);
+   if (! ig_10.instancing_data_B.empty()) m.add(ig_10);
+   if (! ig_11.instancing_data_B.empty()) m.add(ig_11);
+}
+
+
 coot::instanced_mesh_t
 coot::molecule_t::get_bonds_mesh_instanced(const std::string &mode, coot::protein_geometry *geom,
                                            bool against_a_dark_background, float bonds_width,
                                            float atom_radius_to_bond_width_ratio,
                                            bool render_atoms_as_aniso,
+                                           float aniso_probability,
                                            bool render_aniso_atoms_as_ortep,
                                            int smoothness_factor,
                                            bool draw_hydrogen_atoms_flag,
@@ -548,7 +648,8 @@ coot::molecule_t::get_bonds_mesh_instanced(const std::string &mode, coot::protei
       const graphical_bonds_container &gbc = bonds_box; // alias because it's named like that in Mesh-from-graphical-bonds
 
       make_instanced_graphical_bonds_spherical_atoms(m, gbc, bonds_box_type, atom_radius, bond_radius,
-                                                     render_atoms_as_aniso, render_aniso_atoms_as_ortep,
+                                                     render_atoms_as_aniso, aniso_probability,
+                                                     render_aniso_atoms_as_ortep,
                                                      num_subdivisions, colour_table);
       make_instanced_graphical_bonds_hemispherical_atoms(m, gbc, bonds_box_type, atom_radius,
                                                          bond_radius, num_subdivisions, colour_table);
@@ -588,6 +689,7 @@ coot::molecule_t::get_bonds_mesh_instanced(const std::string &mode, coot::protei
       std::vector<glm::vec4> colour_table = make_colour_table(against_a_dark_background);
       make_instanced_graphical_bonds_spherical_atoms(m, bonds_box, bonds_box_type, atom_radius, bond_radius,
                                                      render_atoms_as_aniso,
+                                                     aniso_probability,
                                                      render_aniso_atoms_as_ortep,
                                                      num_subdivisions, colour_table);
       make_instanced_graphical_bonds_hemispherical_atoms(m, bonds_box, bonds_box_type,
@@ -710,9 +812,11 @@ coot::molecule_t::get_bonds_mesh_for_selection_instanced(const std::string &mode
       // print_colour_table("from get_bonds_mesh_for_selection_instanced()");
 
       auto gbc = bonds.make_graphical_bonds();
+      float aniso_probability = 0.5f;
 
       make_instanced_graphical_bonds_spherical_atoms(m, gbc, bonds_box_type, atom_radius, bond_radius,
                                                      show_atoms_as_aniso_flag,
+                                                     aniso_probability,
                                                      show_aniso_atoms_as_ortep_flag,
                                                      num_subdivisions, colour_table);
       make_instanced_graphical_bonds_hemispherical_atoms(m, gbc, bonds_box_type, atom_radius, bond_radius,

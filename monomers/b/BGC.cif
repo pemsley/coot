@@ -1,0 +1,211 @@
+# /home/mihaela/Downloads/acedrg243/BGC_unimodal.cif
+# modified by Privateer
+data_comp_list
+loop_
+_chem_comp.id
+_chem_comp.three_letter_code
+_chem_comp.name
+_chem_comp.group
+_chem_comp.number_atoms_all
+_chem_comp.number_atoms_nh
+_chem_comp.desc_level
+BGC      BGC 'BETA-D-GLUCOSE                      ' pyranose           24  12 .
+
+data_comp_BGC
+loop_
+_chem_comp_atom.comp_id
+_chem_comp_atom.atom_id
+_chem_comp_atom.type_symbol
+_chem_comp_atom.type_energy
+_chem_comp_atom.charge
+_chem_comp_atom.x
+_chem_comp_atom.y
+_chem_comp_atom.z
+BGC C2 C CH1 0 -11.068 33.308 27.148
+BGC C3 C CH1 0 -11.962 32.616 26.125
+BGC C4 C CH1 0 -11.314 31.339 25.601
+BGC C5 C CH1 0 -10.888 30.437 26.766
+BGC C6 C CH2 0 -10.130 29.206 26.321
+BGC C1 C CH1 0 -10.606 32.343 28.232
+BGC O1 O OH1 0 -9.696 32.984 29.072
+BGC O2 O OH1 0 -11.738 34.418 27.739
+BGC O3 O OH1 0 -12.229 33.510 25.045
+BGC O4 O OH1 0 -12.233 30.636 24.766
+BGC O5 O O2 0 -10.008 31.176 27.647
+BGC O6 O OH1 0 -9.761 28.391 27.433
+BGC H2 H H 0 -10.262 33.639 26.686
+BGC H3 H H 0 -12.819 32.380 26.562
+BGC H4 H H 0 -10.518 31.579 25.072
+BGC H5 H H 0 -11.692 30.161 27.269
+BGC H61 H H 0 -9.322 29.480 25.839
+BGC H62 H H 0 -10.688 28.682 25.710
+BGC H1 H H 0 -11.389 32.060 28.768
+BGC HO1 H H 0 -8.982 33.137 28.644
+BGC HO2 H H 0 -11.182 34.877 28.172
+BGC HO3 H H 0 -12.828 33.177 24.558
+BGC HO4 H H 0 -12.917 30.414 25.204
+BGC HO6 H H 0 -9.220 28.817 27.928
+
+loop_
+_chem_comp_bond.comp_id
+_chem_comp_bond.atom_id_1
+_chem_comp_bond.atom_id_2
+_chem_comp_bond.type
+_chem_comp_bond.aromatic
+_chem_comp_bond.value_dist_nucleus
+_chem_comp_bond.value_dist_nucleus_esd
+_chem_comp_bond.value_dist
+_chem_comp_bond.value_dist_esd
+BGC C2 C3 SINGLE n 1.519 0.0200 1.519 0.0200
+BGC C2 C1 SINGLE n 1.516 0.0200 1.516 0.0200
+BGC C2 O2 SINGLE n 1.425 0.0112 1.425 0.0112
+BGC C3 C4 SINGLE n 1.520 0.0158 1.520 0.0158
+BGC C3 O3 SINGLE n 1.427 0.0138 1.427 0.0138
+BGC C4 C5 SINGLE n 1.524 0.0200 1.524 0.0200
+BGC C4 O4 SINGLE n 1.425 0.0176 1.425 0.0176
+BGC C5 C6 SINGLE n 1.511 0.0142 1.511 0.0142
+BGC C5 O5 SINGLE n 1.440 0.0195 1.440 0.0195
+BGC C6 O6 SINGLE n 1.426 0.0200 1.426 0.0200
+BGC C1 O1 SINGLE n 1.392 0.0200 1.392 0.0200
+BGC C1 O5 SINGLE n 1.431 0.0165 1.431 0.0165
+BGC C2 H2 SINGLE n 1.089 0.0100 0.987 0.0140
+BGC C3 H3 SINGLE n 1.089 0.0100 0.991 0.0121
+BGC C4 H4 SINGLE n 1.089 0.0100 0.986 0.0131
+BGC C5 H5 SINGLE n 1.089 0.0100 0.988 0.0182
+BGC C6 H61 SINGLE n 1.089 0.0100 0.980 0.0184
+BGC C6 H62 SINGLE n 1.089 0.0100 0.980 0.0184
+BGC C1 H1 SINGLE n 1.089 0.0100 0.990 0.0200
+BGC O1 HO1 SINGLE n 0.970 0.0120 0.846 0.0200
+BGC O2 HO2 SINGLE n 0.970 0.0120 0.841 0.0200
+BGC O3 HO3 SINGLE n 0.970 0.0120 0.841 0.0200
+BGC O4 HO4 SINGLE n 0.970 0.0120 0.841 0.0200
+BGC O6 HO6 SINGLE n 0.970 0.0120 0.848 0.0200
+
+loop_
+_chem_comp_angle.comp_id
+_chem_comp_angle.atom_id_1
+_chem_comp_angle.atom_id_2
+_chem_comp_angle.atom_id_3
+_chem_comp_angle.value_angle
+_chem_comp_angle.value_angle_esd
+BGC C3 C2 C1 111.543 1.84
+BGC C3 C2 O2 111.053 2.62
+BGC C3 C2 H2 108.505 1.50
+BGC C1 C2 O2 109.956 1.70
+BGC C1 C2 H2 107.431 2.02
+BGC O2 C2 H2 108.551 1.50
+BGC C2 C3 C4 110.687 1.67
+BGC C2 C3 O3 109.587 2.09
+BGC C2 C3 H3 108.712 1.50
+BGC C4 C3 O3 110.243 1.88
+BGC C4 C3 H3 108.653 1.50
+BGC O3 C3 H3 108.767 1.50
+BGC C3 C4 C5 110.272 1.76
+BGC C3 C4 O4 110.101 1.97
+BGC C3 C4 H4 109.032 1.50
+BGC C5 C4 O4 109.072 2.07
+BGC C5 C4 H4 109.223 1.50
+BGC O4 C4 H4 109.194 1.50
+BGC C4 C5 C6 112.996 1.59
+BGC C4 C5 O5 109.140 1.86
+BGC C4 C5 H5 108.960 1.50
+BGC C6 C5 O5 106.879 1.50
+BGC C6 C5 H5 109.269 1.50
+BGC O5 C5 H5 109.134 1.50
+BGC C5 C6 O6 111.299 2.09
+BGC C5 C6 H61 109.363 1.50
+BGC C5 C6 H62 109.363 1.50
+BGC O6 C6 H61 109.265 1.50
+BGC O6 C6 H62 109.265 1.50
+BGC H61 C6 H62 108.155 1.50
+BGC C2 C1 O1 109.304 2.75
+BGC C2 C1 O5 110.495 2.07
+BGC C2 C1 H1 109.287 1.97
+BGC O1 C1 O5 110.093 3.00
+BGC O1 C1 H1 108.897 1.73
+BGC O5 C1 H1 108.645 1.60
+BGC C1 O1 HO1 108.606 2.51
+BGC C2 O2 HO2 109.126 2.06
+BGC C3 O3 HO3 108.895 2.41
+BGC C4 O4 HO4 109.564 3.00
+BGC C5 O5 C1 113.507 1.73
+BGC C6 O6 HO6 109.472 2.41
+
+loop_
+_chem_comp_tor.comp_id
+_chem_comp_tor.id
+_chem_comp_tor.atom_id_1
+_chem_comp_tor.atom_id_2
+_chem_comp_tor.atom_id_3
+_chem_comp_tor.atom_id_4
+_chem_comp_tor.value_angle
+_chem_comp_tor.value_angle_esd
+_chem_comp_tor.period
+BGC tors_24 C3 C2 O2 HO2 -168.170609 10.0 3
+BGC tors_23 C1 C2 O2 HO2 67.980186 10.0 3
+BGC tors_22 H2 C2 O2 HO2 -49.131577 10.0 3
+BGC tors_21 C2 C3 O3 HO3 -169.918488 10.0 3
+BGC tors_20 C4 C3 O3 HO3 67.550095 10.0 3
+BGC tors_19 H3 C3 O3 HO3 -51.389740 10.0 3
+BGC tors_18 C3 C4 O4 HO4 -61.415123 10.0 3
+BGC tors_17 C5 C4 O4 HO4 60.065701 10.0 3
+BGC tors_16 H4 C4 O4 HO4 179.315552 10.0 3
+BGC tors_15 C4 C5 C6 O6 -179.600601 10.0 3
+BGC tors_14 C4 C5 C6 H61 59.569904 10.0 3
+BGC tors_13 C4 C5 C6 H62 -58.788723 10.0 3
+BGC tors_12 O5 C5 C6 O6 59.998142 10.0 3
+BGC tors_11 O5 C5 C6 H61 -60.831352 10.0 3
+BGC tors_10 O5 C5 C6 H62 -179.189972 10.0 3
+BGC tors_9 H5 C5 C6 O6 -57.936081 10.0 3
+BGC tors_8 H5 C5 C6 H61 -178.765564 10.0 3
+BGC tors_7 H5 C5 C6 H62 62.875797 10.0 3
+BGC tors_6 C5 C6 O6 HO6 -64.179337 10.0 3
+BGC tors_5 H61 C6 O6 HO6 56.672462 10.0 3
+BGC tors_4 H62 C6 O6 HO6 174.810135 10.0 3
+BGC tors_3 C2 C1 O1 HO1 -68.302940 10.0 3
+BGC tors_2 O5 C1 O1 HO1 53.668610 10.0 3
+BGC tors_1 H1 C1 O1 HO1 172.567673 10.0 3
+BGC ring_1 C5 O5 C1 C2 -59.156364 3.0 1
+BGC ring_2 O5 C1 C2 C3 52.726219 3.0 1
+BGC ring_3 C1 C2 C3 C4 -50.806454 3.0 1
+BGC ring_4 C2 C3 C4 C5 52.487644 3.0 1
+BGC ring_5 C3 C4 C5 O5 -56.045155 3.0 1
+BGC ring_6 C4 C5 O5 C1 60.824528 3.0 1
+
+loop_
+_chem_comp_chir.comp_id
+_chem_comp_chir.id
+_chem_comp_chir.atom_id_centre
+_chem_comp_chir.atom_id_1
+_chem_comp_chir.atom_id_2
+_chem_comp_chir.atom_id_3
+_chem_comp_chir.volume_sign
+BGC chir_1 C2 O2 C1 C3 negative
+BGC chir_2 C3 O3 C2 C4 positive
+BGC chir_3 C4 O4 C5 C3 positive
+BGC chir_4 C5 O5 C4 C6 negative
+BGC chir_5 C1 O5 O1 C2 negative
+
+loop_
+_pdbx_chem_comp_descriptor.comp_id
+_pdbx_chem_comp_descriptor.type
+_pdbx_chem_comp_descriptor.program
+_pdbx_chem_comp_descriptor.program_version
+_pdbx_chem_comp_descriptor.descriptor
+BGC SMILES ACDLabs 12.01 OC1C(O)C(OC(O)C1O)CO
+BGC InChI InChI 1.03 InChI=1S/C6H12O6/c7-1-2-3(8)4(9)5(10)6(11)12-2/h2-11H,1H2/t2-,3-,4+,5-,6-/m1/s1
+BGC InChIKey InChI 1.03 WQZGKKKJIJFFOK-VFUOTHLCSA-N
+BGC SMILES_CANONICAL CACTVS 3.370 OC[C@H]1O[C@@H](O)[C@H](O)[C@@H](O)[C@@H]1O
+BGC SMILES CACTVS 3.370 OC[CH]1O[CH](O)[CH](O)[CH](O)[CH]1O
+BGC SMILES_CANONICAL "OpenEye OEToolkits" 1.7.6 C([C@@H]1[C@H]([C@@H]([C@H]([C@@H](O1)O)O)O)O)O
+BGC SMILES "OpenEye OEToolkits" 1.7.6 C(C1C(C(C(C(O1)O)O)O)O)O
+
+loop_
+_pdbx_chem_comp_description_generator.comp_id
+_pdbx_chem_comp_description_generator.program_name
+_pdbx_chem_comp_description_generator.program_version
+_pdbx_chem_comp_description_generator.descriptor
+BGC acedrg 243 "dictionary generator"
+BGC acedrg_database 11 "data source"
+BGC rdkit 2017.03.2 "Chemoinformatics tool"
+BGC refmac5 5.8.0238 "optimization tool"

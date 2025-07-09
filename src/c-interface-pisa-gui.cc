@@ -36,6 +36,7 @@
 #include "c-interface-scm.hh"
 
 #include "pisa-interface.hh"
+#include "pisa-internal.hh"
 #include "widget-from-builder.hh"
 
 void

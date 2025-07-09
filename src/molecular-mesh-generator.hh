@@ -89,6 +89,17 @@ public:
       fill_atom_positions();
       update_mats_and_colours();
    }
+
+   // This exists so that we can send over the information about the use-picked range-pair (for highlighting)
+   class range_t {
+   public:
+      range_t() : is_valid(false) {};
+      range_t(const std::string &c, int r1, int r2) : is_valid(true), chain_id(c), resno_start(r1), resno_end(r2) {};
+      bool is_valid;
+      std::string chain_id;
+      int resno_start;
+      int resno_end;
+   };
    std::chrono::time_point<std::chrono::high_resolution_clock> t_previous;
    std::chrono::time_point<std::chrono::high_resolution_clock> t_start;
    std::vector<glm::vec3> atom_positions;
@@ -149,6 +160,7 @@ public:
                                                    mmdb::Residue *residue_p,
                                                    const coot::protein_geometry *geom_in,
                                                    int bond_width,
+                                                   range_t range,
                                                    int selection_mode);
 
 

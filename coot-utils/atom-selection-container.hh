@@ -96,8 +96,7 @@ public:
    }
 
    //! constructor
-   atom_selection_container_t() : mol(0), n_selected_atoms(0), atom_selection(0) {
-      mol = NULL;
+   atom_selection_container_t() : mol(NULL), n_selected_atoms(0), atom_selection(0) {
       SelectionHandle = -1;
       UDDAtomIndexHandle = -1;
       UDDOldAtomIndexHandle = -1;
@@ -117,16 +116,7 @@ public:
    }
 
    //! clear the atom selection of all pointers
-   void clear_up() {
-      if (read_success)
-         if (SelectionHandle)
-            if (mol)
-               mol->DeleteSelection(SelectionHandle);
-      delete mol;
-      atom_selection = 0;
-      mol = 0;
-      read_success = 0;
-   }
+   void clear_up();
 
    //! Delete atom selection - do this before modifying the internal mol
    void delete_atom_selection() {

@@ -56,66 +56,77 @@ coot::atom_index_ranges(unsigned int n_atoms, unsigned int n_threads) {
 
    unsigned int npt = n_atoms/n_threads;
 
-   if ((n_atoms % n_threads) == 0) {
+   if (n_threads > n_atoms) {
 
-      // divides exactly
-
-      for (std::size_t i=0; i<n_threads; i++) {
-	 unsigned int v1 = i*npt;
-	 unsigned int v2 = (i+1)*npt;
-	 std::pair<unsigned int, unsigned int> p(v1, v2);
-	 v.push_back(p);
+      // 2224 processors and 98 sections... say.
+      for (unsigned int i=0; i<n_atoms; i++) {
+         std::pair p(i, i+1);
+         v.push_back(p);
       }
 
    } else {
 
-      if (n_threads == 1) {
+      if ((n_atoms % n_threads) == 0) {
 
-	 unsigned int v1 = 0;
-	 unsigned int v2 = n_atoms;
-	 std::pair<unsigned int, unsigned int> p(v1, v2);
-	 v.push_back(p);
+         // divides exactly
+
+         for (std::size_t i=0; i<n_threads; i++) {
+	    unsigned int v1 = i*npt;
+	    unsigned int v2 = (i+1)*npt;
+	    std::pair<unsigned int, unsigned int> p(v1, v2);
+	    v.push_back(p);
+         }
 
       } else {
 
-	 if (n_threads == 2) {
-
-	    // we know that it doesn't divide exactly
+         if (n_threads == 1) {
 
 	    unsigned int v1 = 0;
-	    unsigned int v2 = n_atoms/2;
-	    std::pair<unsigned int, unsigned int> p0(v1, v2);
-	    v.push_back(p0);
-	    v1 = n_atoms/2;
-	    v2 = n_atoms;
-	    std::pair<unsigned int, unsigned int> p1(v1, v2);
-	    v.push_back(p1);
+	    unsigned int v2 = n_atoms;
+	    std::pair<unsigned int, unsigned int> p(v1, v2);
+	    v.push_back(p);
 
-	 } else {
+         } else {
+
+	    if (n_threads == 2) {
+
+	       // we know that it doesn't divide exactly
+
+	       unsigned int v1 = 0;
+	       unsigned int v2 = n_atoms/2;
+	       std::pair<unsigned int, unsigned int> p0(v1, v2);
+	       v.push_back(p0);
+	       v1 = n_atoms/2;
+	       v2 = n_atoms;
+	       std::pair<unsigned int, unsigned int> p1(v1, v2);
+	       v.push_back(p1);
+
+	    } else {
 
 	    // the final thread picks up the scraps (if any) (consider 25 atoms, 6 threads)
             // 20210812-PE  also consider 10 atoms 8 threads
             // Also  what about 4 atoms and 10 threds?
             // I need a test function for this.
 
-	    npt = n_atoms/(n_threads-1);
+	       npt = n_atoms/(n_threads-1);
 
-	    if (false)
-	       std::cout << "debug:: atom_index_ranges() n_atoms " << n_atoms
-			 << " n_threads " << n_threads << " n_per_thread " << npt << std::endl;
+	       if (false)
+	          std::cout << "debug:: atom_index_ranges() n_atoms " << n_atoms
+			    << " n_threads " << n_threads << " n_per_thread " << npt << std::endl;
 
-	    for (std::size_t i=0; i<(n_threads-1); i++) {
-	       unsigned int v1 = i*npt;
-	       unsigned int v2 = (i+1)*npt;
-	       std::pair<unsigned int, unsigned int> p(v1, v2);
-	       v.push_back(p);
-	    }
-	    // scraps for the last thread
-	    unsigned int v1 = (n_threads-1)*npt;
-	    unsigned int v2 = n_atoms;
-	    if (v2 > v1) {
-	       std::pair<unsigned int, unsigned int> p(v1, v2);
-	       v.push_back(p);
+	       for (std::size_t i=0; i<(n_threads-1); i++) {
+	          unsigned int v1 = i*npt;
+	          unsigned int v2 = (i+1)*npt;
+	          std::pair<unsigned int, unsigned int> p(v1, v2);
+	          v.push_back(p);
+	       }
+	       // scraps for the last thread
+	       unsigned int v1 = (n_threads-1)*npt;
+	       unsigned int v2 = n_atoms;
+	       if (v2 > v1) {
+	          std::pair<unsigned int, unsigned int> p(v1, v2);
+	          v.push_back(p);
+	       }
 	    }
 	 }
       }

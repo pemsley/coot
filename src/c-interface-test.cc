@@ -1527,7 +1527,7 @@ PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
 
       if (is_valid_model_molecule(i)) {
 
-         std::vector<coot::ghost_molecule_display_t> gi = g.molecules[i].NCS_ghosts();
+         std::vector<drawn_ghost_molecule_display_t> gi = g.molecules[i].NCS_ghosts();
 
          mmdb::Manager *mol = g.molecules[i].atom_sel.mol;
          std::vector<std::string> chain_ids = g.molecules[i].get_chain_ids();
@@ -1550,7 +1550,8 @@ PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
             auto chain_id = chain_ids[i_ch];
             // gi is used if colour_by_ncs_ghost is true
             bool colour_by_ncs_ghost = false;
-            make_a_surface(i, mol, i_ch, chain_id, gi, colour_by_ncs_ghost, chain_id_map);
+            // this doesn't compile
+            // make_a_surface(i, mol, i_ch, chain_id, gi, colour_by_ncs_ghost, chain_id_map);
          }
 
       }

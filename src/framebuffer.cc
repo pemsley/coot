@@ -139,7 +139,7 @@ framebuffer::tear_down() {
 
    if (filled) {
       // std::cout << "framebuffer::tear_down()" << std::endl;
-      glDeleteFramebuffers(1, &fbo);
+      glDeleteFramebuffers(1, &fbo); // 20250615-PE crash.
       glDeleteTextures(1, &colour_texture);
       glDeleteTextures(1, &depth_texture);
       drawbuffer.clear();

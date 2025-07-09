@@ -1,0 +1,441 @@
+#
+data_comp_list
+loop_
+_chem_comp.id
+_chem_comp.three_letter_code
+_chem_comp.name
+_chem_comp.group
+_chem_comp.number_atoms_all
+_chem_comp.number_atoms_nh
+_chem_comp.desc_level
+CLR     CLR      CHOLESTEROL     NON-POLYMER     74     28     .     
+#
+data_comp_CLR
+#
+loop_
+_chem_comp_atom.comp_id
+_chem_comp_atom.atom_id
+_chem_comp_atom.type_symbol
+_chem_comp_atom.type_energy
+_chem_comp_atom.charge
+_chem_comp_atom.x
+_chem_comp_atom.y
+_chem_comp_atom.z
+CLR     C1      C       CH2     0       7.407       11.581      2.585       
+CLR     C2      C       CH2     0       7.731       12.114      1.187       
+CLR     C3      C       CH1     0       6.664       11.727      0.193       
+CLR     C4      C       CH2     0       5.311       12.233      0.658       
+CLR     C5      C       CR66    0       4.967       11.804      2.075       
+CLR     C6      C       CR16    0       3.782       11.263      2.343       
+CLR     C7      C       CH2     0       3.334       10.779      3.688       
+CLR     C8      C       CH1     0       4.212       11.298      4.824       
+CLR     C9      C       CH1     0       5.700       11.190      4.419       
+CLR     C10     C       CT      0       6.038       12.042      3.150       
+CLR     C11     C       CH2     0       6.661       11.415      5.607       
+CLR     C12     C       CH2     0       6.276       10.667      6.894       
+CLR     C13     C       CT      0       4.823       10.921      7.320       
+CLR     C14     C       CH1     0       3.952       10.518      6.109       
+CLR     C15     C       CH2     0       2.533       10.463      6.663       
+CLR     C16     C       CH2     0       2.722       9.928       8.095       
+CLR     C17     C       CH1     0       4.243       9.973       8.420       
+CLR     C18     C       CH3     0       4.644       12.394      7.748       
+CLR     C19     C       CH3     0       6.087       13.555      3.467       
+CLR     C20     C       CH1     0       4.526       10.262      9.912       
+CLR     C21     C       CH3     0       6.019       10.362      10.221      
+CLR     C22     C       CH2     0       3.868       9.229       10.846      
+CLR     C23     C       CH2     0       3.533       9.756       12.224      
+CLR     C24     C       CH2     0       2.947       8.716       13.148      
+CLR     C25     C       CH1     0       2.469       9.240       14.504      
+CLR     C26     C       CH3     0       3.641       9.647       15.386      
+CLR     C27     C       CH3     0       1.599       8.218       15.219      
+CLR     O1      O       OH1     0       6.976       12.274      -1.095      
+CLR     H11     H       H       0       7.421       10.602      2.551       
+CLR     H12     H       H       0       8.118       11.865      3.197       
+CLR     H21     H       H       0       7.806       13.091      1.219       
+CLR     H22     H       H       0       8.594       11.753      0.893       
+CLR     H3      H       H       0       6.629       10.738      0.126       
+CLR     H41     H       H       0       4.625       11.901      0.041       
+CLR     H42     H       H       0       5.305       13.211      0.608       
+CLR     H6      H       H       0       3.171       11.180      1.632       
+CLR     H71     H       H       0       3.347       9.799       3.694       
+CLR     H72     H       H       0       2.410       11.068      3.839       
+CLR     H8      H       H       0       3.989       12.248      4.978       
+CLR     H9      H       H       0       5.828       10.249      4.152       
+CLR     H111    H       H       0       6.709       12.369      5.806       
+CLR     H112    H       H       0       7.555       11.127      5.345       
+CLR     H121    H       H       0       6.874       10.949      7.613       
+CLR     H122    H       H       0       6.406       9.706       6.757       
+CLR     H14     H       H       0       4.194       9.584       5.903       
+CLR     H151    H       H       0       1.976       9.863       6.136       
+CLR     H152    H       H       0       2.127       11.347      6.671       
+CLR     H161    H       H       0       2.392       9.009       8.158       
+CLR     H162    H       H       0       2.225       10.479      8.732       
+CLR     H17     H       H       0       4.602       9.074       8.232       
+CLR     H181    H       H       0       3.759       12.524      8.131       
+CLR     H182    H       H       0       4.751       12.982      6.985       
+CLR     H183    H       H       0       5.315       12.619      8.416       
+CLR     H191    H       H       0       5.749       14.067      2.718       
+CLR     H192    H       H       0       7.002       13.823      3.644       
+CLR     H193    H       H       0       5.548       13.745      4.248       
+CLR     H20     H       H       0       4.123       11.136      10.125      
+CLR     H211    H       H       0       6.511       9.747       9.650       
+CLR     H212    H       H       0       6.183       10.135      11.153      
+CLR     H213    H       H       0       6.327       11.269      10.055      
+CLR     H221    H       H       0       4.477       8.466       10.947      
+CLR     H222    H       H       0       3.043       8.899       10.439      
+CLR     H231    H       H       0       2.892       10.494      12.135      
+CLR     H232    H       H       0       4.347       10.118      12.634      
+CLR     H241    H       H       0       3.625       8.024       13.305      
+CLR     H242    H       H       0       2.188       8.291       12.695      
+CLR     H25     H       H       0       1.919       10.045      14.340      
+CLR     H261    H       H       0       3.315       9.881       16.272      
+CLR     H262    H       H       0       4.092       10.414      14.993      
+CLR     H263    H       H       0       4.266       8.905       15.457      
+CLR     H271    H       H       0       2.109       7.402       15.365      
+CLR     H272    H       H       0       0.818       8.018       14.674      
+CLR     H273    H       H       0       1.312       8.578       16.076      
+CLR     H1      H       H       0       6.436       11.984      -1.672      
+loop_
+_chem_comp_bond.comp_id
+_chem_comp_bond.atom_id_1
+_chem_comp_bond.atom_id_2
+_chem_comp_bond.type
+_chem_comp_bond.aromatic
+_chem_comp_bond.value_dist_nucleus
+_chem_comp_bond.value_dist_nucleus_esd
+_chem_comp_bond.value_dist
+_chem_comp_bond.value_dist_esd
+CLR          C1          C2      SINGLE       n     1.530  0.0100     1.530  0.0100
+CLR          C1         C10      SINGLE       n     1.547  0.0100     1.547  0.0100
+CLR          C2          C3      SINGLE       n     1.508  0.0101     1.508  0.0101
+CLR          C3          C4      SINGLE       n     1.516  0.0100     1.516  0.0100
+CLR          C3          O1      SINGLE       n     1.434  0.0100     1.434  0.0100
+CLR          C4          C5      SINGLE       n     1.514  0.0100     1.514  0.0100
+CLR          C5          C6      DOUBLE       n     1.325  0.0100     1.325  0.0100
+CLR          C5         C10      SINGLE       n     1.526  0.0100     1.526  0.0100
+CLR          C6          C7      SINGLE       n     1.496  0.0100     1.496  0.0100
+CLR          C7          C8      SINGLE       n     1.526  0.0100     1.526  0.0100
+CLR          C8          C9      SINGLE       n     1.540  0.0100     1.540  0.0100
+CLR          C8         C14      SINGLE       n     1.522  0.0100     1.522  0.0100
+CLR          C9         C10      SINGLE       n     1.555  0.0100     1.555  0.0100
+CLR          C9         C11      SINGLE       n     1.538  0.0100     1.538  0.0100
+CLR         C10         C19      SINGLE       n     1.540  0.0100     1.540  0.0100
+CLR         C11         C12      SINGLE       n     1.534  0.0100     1.534  0.0100
+CLR         C12         C13      SINGLE       n     1.532  0.0100     1.532  0.0100
+CLR         C13         C14      SINGLE       n     1.541  0.0100     1.541  0.0100
+CLR         C13         C17      SINGLE       n     1.557  0.0100     1.557  0.0100
+CLR         C13         C18      SINGLE       n     1.538  0.0111     1.538  0.0111
+CLR         C14         C15      SINGLE       n     1.526  0.0100     1.526  0.0100
+CLR         C15         C16      SINGLE       n     1.542  0.0121     1.542  0.0121
+CLR         C16         C17      SINGLE       n     1.553  0.0100     1.553  0.0100
+CLR         C17         C20      SINGLE       n     1.539  0.0100     1.539  0.0100
+CLR         C20         C21      SINGLE       n     1.526  0.0100     1.526  0.0100
+CLR         C20         C22      SINGLE       n     1.536  0.0100     1.536  0.0100
+CLR         C22         C23      SINGLE       n     1.509  0.0200     1.509  0.0200
+CLR         C23         C24      SINGLE       n     1.509  0.0200     1.509  0.0200
+CLR         C24         C25      SINGLE       n     1.529  0.0177     1.529  0.0177
+CLR         C25         C26      SINGLE       n     1.521  0.0151     1.521  0.0151
+CLR         C25         C27      SINGLE       n     1.521  0.0151     1.521  0.0151
+CLR          C1         H11      SINGLE       n     1.089  0.0100     0.980  0.0107
+CLR          C1         H12      SINGLE       n     1.089  0.0100     0.980  0.0107
+CLR          C2         H21      SINGLE       n     1.089  0.0100     0.980  0.0107
+CLR          C2         H22      SINGLE       n     1.089  0.0100     0.980  0.0107
+CLR          C3          H3      SINGLE       n     1.089  0.0100     0.992  0.0113
+CLR          C4         H41      SINGLE       n     1.089  0.0100     0.980  0.0108
+CLR          C4         H42      SINGLE       n     1.089  0.0100     0.980  0.0108
+CLR          C6          H6      SINGLE       n     1.082  0.0130     0.942  0.0144
+CLR          C7         H71      SINGLE       n     1.089  0.0100     0.980  0.0108
+CLR          C7         H72      SINGLE       n     1.089  0.0100     0.980  0.0108
+CLR          C8          H8      SINGLE       n     1.089  0.0100     0.990  0.0147
+CLR          C9          H9      SINGLE       n     1.089  0.0100     0.987  0.0121
+CLR         C11        H111      SINGLE       n     1.089  0.0100     0.976  0.0117
+CLR         C11        H112      SINGLE       n     1.089  0.0100     0.976  0.0117
+CLR         C12        H121      SINGLE       n     1.089  0.0100     0.979  0.0200
+CLR         C12        H122      SINGLE       n     1.089  0.0100     0.979  0.0200
+CLR         C14         H14      SINGLE       n     1.089  0.0100     0.985  0.0200
+CLR         C15        H151      SINGLE       n     1.089  0.0100     0.973  0.0193
+CLR         C15        H152      SINGLE       n     1.089  0.0100     0.973  0.0193
+CLR         C16        H161      SINGLE       n     1.089  0.0100     0.978  0.0141
+CLR         C16        H162      SINGLE       n     1.089  0.0100     0.978  0.0141
+CLR         C17         H17      SINGLE       n     1.089  0.0100     0.986  0.0165
+CLR         C18        H181      SINGLE       n     1.089  0.0100     0.974  0.0200
+CLR         C18        H182      SINGLE       n     1.089  0.0100     0.974  0.0200
+CLR         C18        H183      SINGLE       n     1.089  0.0100     0.974  0.0200
+CLR         C19        H191      SINGLE       n     1.089  0.0100     0.969  0.0135
+CLR         C19        H192      SINGLE       n     1.089  0.0100     0.969  0.0135
+CLR         C19        H193      SINGLE       n     1.089  0.0100     0.969  0.0135
+CLR         C20         H20      SINGLE       n     1.089  0.0100     0.986  0.0200
+CLR         C21        H211      SINGLE       n     1.089  0.0100     0.973  0.0146
+CLR         C21        H212      SINGLE       n     1.089  0.0100     0.973  0.0146
+CLR         C21        H213      SINGLE       n     1.089  0.0100     0.973  0.0146
+CLR         C22        H221      SINGLE       n     1.089  0.0100     0.981  0.0160
+CLR         C22        H222      SINGLE       n     1.089  0.0100     0.981  0.0160
+CLR         C23        H231      SINGLE       n     1.089  0.0100     0.981  0.0163
+CLR         C23        H232      SINGLE       n     1.089  0.0100     0.981  0.0163
+CLR         C24        H241      SINGLE       n     1.089  0.0100     0.981  0.0160
+CLR         C24        H242      SINGLE       n     1.089  0.0100     0.981  0.0160
+CLR         C25         H25      SINGLE       n     1.089  0.0100     0.989  0.0162
+CLR         C26        H261      SINGLE       n     1.089  0.0100     0.973  0.0146
+CLR         C26        H262      SINGLE       n     1.089  0.0100     0.973  0.0146
+CLR         C26        H263      SINGLE       n     1.089  0.0100     0.973  0.0146
+CLR         C27        H271      SINGLE       n     1.089  0.0100     0.973  0.0146
+CLR         C27        H272      SINGLE       n     1.089  0.0100     0.973  0.0146
+CLR         C27        H273      SINGLE       n     1.089  0.0100     0.973  0.0146
+CLR          O1          H1      SINGLE       n     0.970  0.0120     0.841  0.0200
+loop_
+_chem_comp_angle.comp_id
+_chem_comp_angle.atom_id_1
+_chem_comp_angle.atom_id_2
+_chem_comp_angle.atom_id_3
+_chem_comp_angle.value_angle
+_chem_comp_angle.value_angle_esd
+CLR          C2          C1         C10     114.384    1.50
+CLR          C2          C1         H11     108.701    1.50
+CLR          C2          C1         H12     108.701    1.50
+CLR         C10          C1         H11     108.726    1.50
+CLR         C10          C1         H12     108.726    1.50
+CLR         H11          C1         H12     107.765    1.50
+CLR          C1          C2          C3     111.605    1.50
+CLR          C1          C2         H21     109.494    1.50
+CLR          C1          C2         H22     109.494    1.50
+CLR          C3          C2         H21     109.474    1.50
+CLR          C3          C2         H22     109.474    1.50
+CLR         H21          C2         H22     108.255    1.50
+CLR          C2          C3          C4     109.730    1.50
+CLR          C2          C3          O1     109.819    1.90
+CLR          C2          C3          H3     108.913    1.50
+CLR          C4          C3          O1     109.886    2.13
+CLR          C4          C3          H3     108.689    1.50
+CLR          O1          C3          H3     109.074    1.50
+CLR          C3          C4          C5     112.287    1.50
+CLR          C3          C4         H41     109.117    1.50
+CLR          C3          C4         H42     109.117    1.50
+CLR          C5          C4         H41     109.232    1.50
+CLR          C5          C4         H42     109.232    1.50
+CLR         H41          C4         H42     107.964    1.50
+CLR          C4          C5          C6     120.649    1.50
+CLR          C4          C5         C10     116.409    1.50
+CLR          C6          C5         C10     122.942    1.50
+CLR          C5          C6          C7     125.173    1.50
+CLR          C5          C6          H6     117.389    1.50
+CLR          C7          C6          H6     117.442    1.50
+CLR          C6          C7          C8     112.898    1.50
+CLR          C6          C7         H71     109.009    1.50
+CLR          C6          C7         H72     109.009    1.50
+CLR          C8          C7         H71     108.999    1.50
+CLR          C8          C7         H72     108.999    1.50
+CLR         H71          C7         H72     107.855    1.50
+CLR          C7          C8          C9     109.980    1.50
+CLR          C7          C8         C14     110.769    1.50
+CLR          C7          C8          H8     108.855    1.50
+CLR          C9          C8         C14     108.824    1.50
+CLR          C9          C8          H8     108.691    1.50
+CLR         C14          C8          H8     108.729    1.50
+CLR          C8          C9         C10     112.733    1.50
+CLR          C8          C9         C11     111.905    1.50
+CLR          C8          C9          H9     106.087    1.50
+CLR         C10          C9         C11     113.050    1.50
+CLR         C10          C9          H9     106.117    1.50
+CLR         C11          C9          H9     106.099    1.50
+CLR          C1         C10          C5     108.894    1.50
+CLR          C1         C10          C9     108.655    1.50
+CLR          C1         C10         C19     109.811    1.50
+CLR          C5         C10          C9     109.534    1.50
+CLR          C5         C10         C19     108.312    1.50
+CLR          C9         C10         C19     111.675    1.50
+CLR          C9         C11         C12     113.533    1.50
+CLR          C9         C11        H111     108.840    1.50
+CLR          C9         C11        H112     108.840    1.50
+CLR         C12         C11        H111     108.860    1.50
+CLR         C12         C11        H112     108.860    1.50
+CLR        H111         C11        H112     107.720    1.50
+CLR         C11         C12         C13     111.787    1.50
+CLR         C11         C12        H121     109.340    1.50
+CLR         C11         C12        H122     109.340    1.50
+CLR         C13         C12        H121     109.275    1.50
+CLR         C13         C12        H122     109.275    1.50
+CLR        H121         C12        H122     107.979    1.50
+CLR         C12         C13         C14     106.792    1.50
+CLR         C12         C13         C17     116.709    1.50
+CLR         C12         C13         C18     110.660    1.50
+CLR         C14         C13         C17     100.145    1.50
+CLR         C14         C13         C18     112.380    1.50
+CLR         C17         C13         C18     110.140    1.50
+CLR          C8         C14         C13     114.635    1.50
+CLR          C8         C14         C15     119.365    1.50
+CLR          C8         C14         H14     106.057    1.50
+CLR         C13         C14         C15     104.315    1.50
+CLR         C13         C14         H14     105.965    1.50
+CLR         C15         C14         H14     106.241    1.50
+CLR         C14         C15         C16     103.874    1.50
+CLR         C14         C15        H151     110.972    1.50
+CLR         C14         C15        H152     110.972    1.50
+CLR         C16         C15        H151     111.013    1.50
+CLR         C16         C15        H152     111.013    1.50
+CLR        H151         C15        H152     109.060    1.50
+CLR         C15         C16         C17     107.090    1.50
+CLR         C15         C16        H161     110.428    1.50
+CLR         C15         C16        H162     110.428    1.50
+CLR         C17         C16        H161     110.194    1.50
+CLR         C17         C16        H162     110.194    1.50
+CLR        H161         C16        H162     108.534    1.50
+CLR         C13         C17         C16     103.364    1.50
+CLR         C13         C17         C20     119.548    1.50
+CLR         C13         C17         H17     106.834    1.50
+CLR         C16         C17         C20     112.192    1.50
+CLR         C16         C17         H17     107.200    1.50
+CLR         C20         C17         H17     107.114    1.50
+CLR         C13         C18        H181     109.564    1.50
+CLR         C13         C18        H182     109.564    1.50
+CLR         C13         C18        H183     109.564    1.50
+CLR        H181         C18        H182     109.337    1.50
+CLR        H181         C18        H183     109.337    1.50
+CLR        H182         C18        H183     109.337    1.50
+CLR         C10         C19        H191     109.491    1.50
+CLR         C10         C19        H192     109.491    1.50
+CLR         C10         C19        H193     109.491    1.50
+CLR        H191         C19        H192     109.398    1.50
+CLR        H191         C19        H193     109.398    1.50
+CLR        H192         C19        H193     109.398    1.50
+CLR         C17         C20         C21     112.864    1.50
+CLR         C17         C20         C22     110.222    1.50
+CLR         C17         C20         H20     107.632    1.50
+CLR         C21         C20         C22     110.535    1.50
+CLR         C21         C20         H20     107.737    1.50
+CLR         C22         C20         H20     107.621    1.50
+CLR         C20         C21        H211     109.640    1.50
+CLR         C20         C21        H212     109.640    1.50
+CLR         C20         C21        H213     109.640    1.50
+CLR        H211         C21        H212     109.345    1.50
+CLR        H211         C21        H213     109.345    1.50
+CLR        H212         C21        H213     109.345    1.50
+CLR         C20         C22         C23     115.300    1.50
+CLR         C20         C22        H221     108.444    1.50
+CLR         C20         C22        H222     108.444    1.50
+CLR         C23         C22        H221     108.377    1.50
+CLR         C23         C22        H222     108.377    1.50
+CLR        H221         C22        H222     107.884    1.50
+CLR         C22         C23         C24     113.095    1.50
+CLR         C22         C23        H231     108.937    1.50
+CLR         C22         C23        H232     108.937    1.50
+CLR         C24         C23        H231     108.762    1.50
+CLR         C24         C23        H232     108.762    1.50
+CLR        H231         C23        H232     107.646    1.50
+CLR         C23         C24         C25     115.585    1.50
+CLR         C23         C24        H241     108.469    1.50
+CLR         C23         C24        H242     108.469    1.50
+CLR         C25         C24        H241     108.407    1.50
+CLR         C25         C24        H242     108.407    1.50
+CLR        H241         C24        H242     107.657    1.50
+CLR         C24         C25         C26     111.368    1.50
+CLR         C24         C25         C27     111.368    1.50
+CLR         C24         C25         H25     107.933    1.50
+CLR         C26         C25         C27     110.507    1.50
+CLR         C26         C25         H25     108.052    1.50
+CLR         C27         C25         H25     108.052    1.50
+CLR         C25         C26        H261     109.488    1.50
+CLR         C25         C26        H262     109.488    1.50
+CLR         C25         C26        H263     109.488    1.50
+CLR        H261         C26        H262     109.411    1.50
+CLR        H261         C26        H263     109.411    1.50
+CLR        H262         C26        H263     109.411    1.50
+CLR         C25         C27        H271     109.488    1.50
+CLR         C25         C27        H272     109.488    1.50
+CLR         C25         C27        H273     109.488    1.50
+CLR        H271         C27        H272     109.411    1.50
+CLR        H271         C27        H273     109.411    1.50
+CLR        H272         C27        H273     109.411    1.50
+CLR          C3          O1          H1     110.153    3.00
+loop_
+_chem_comp_tor.comp_id
+_chem_comp_tor.id
+_chem_comp_tor.atom_id_1
+_chem_comp_tor.atom_id_2
+_chem_comp_tor.atom_id_3
+_chem_comp_tor.atom_id_4
+_chem_comp_tor.value_angle
+_chem_comp_tor.value_angle_esd
+_chem_comp_tor.period
+CLR             sp3_sp3_1         C10          C1          C2          C3      60.000    10.0     3
+CLR           sp3_sp3_120          C2          C1         C10         C19      60.000    10.0     3
+CLR            sp3_sp3_64          C9         C11         C12         C13      60.000    10.0     3
+CLR            sp3_sp3_75         C11         C12         C13         C18     180.000    10.0     3
+CLR            sp3_sp3_88         C18         C13         C14          C8     180.000    10.0     3
+CLR           sp3_sp3_155         C18         C13         C17         C20      60.000    10.0     3
+CLR           sp3_sp3_157         C12         C13         C18        H181     180.000    10.0     3
+CLR            sp3_sp3_94          C8         C14         C15         C16     180.000    10.0     3
+CLR           sp3_sp3_100         C14         C15         C16         C17      60.000    10.0     3
+CLR           sp3_sp3_110         C15         C16         C17         C20      60.000    10.0     3
+CLR           sp3_sp3_166         C13         C17         C20         C21     180.000    10.0     3
+CLR           sp3_sp3_178         C22         C20         C21        H211      60.000    10.0     3
+CLR           sp3_sp3_187         C21         C20         C22         C23      60.000    10.0     3
+CLR            sp3_sp3_11          C1          C2          C3          O1      60.000    10.0     3
+CLR           sp3_sp3_193         C20         C22         C23         C24     180.000    10.0     3
+CLR           sp3_sp3_202         C22         C23         C24         C25     180.000    10.0     3
+CLR           sp3_sp3_212         C23         C24         C25         C26     -60.000    10.0     3
+CLR           sp3_sp3_220         C24         C25         C26        H261     180.000    10.0     3
+CLR           sp3_sp3_232         C24         C25         C27        H271      60.000    10.0     3
+CLR           sp3_sp3_127          C2          C3          O1          H1     180.000    10.0     3
+CLR            sp3_sp3_22          O1          C3          C4          C5     -60.000    10.0     3
+CLR             sp2_sp3_4          C6          C5          C4          C3     180.000    10.0     6
+CLR             sp2_sp2_3          C4          C5          C6          C7     180.000     5.0     2
+CLR             sp2_sp3_9          C4          C5         C10         C19    -120.000    10.0     6
+CLR            sp2_sp3_13          C5          C6          C7          C8       0.000    10.0     6
+CLR            sp3_sp3_28          C6          C7          C8          C9      60.000    10.0     3
+CLR           sp3_sp3_131         C13         C14          C8          C7     -60.000    10.0     3
+CLR            sp3_sp3_37          C7          C8          C9         C10     -60.000    10.0     3
+CLR            sp3_sp3_55         C12         C11          C9          C8     -60.000    10.0     3
+CLR            sp3_sp3_52         C19         C10          C9          C8     180.000    10.0     3
+CLR           sp3_sp3_139          C1         C10         C19        H191     180.000    10.0     3
+loop_
+_chem_comp_chir.comp_id
+_chem_comp_chir.id
+_chem_comp_chir.atom_id_centre
+_chem_comp_chir.atom_id_1
+_chem_comp_chir.atom_id_2
+_chem_comp_chir.atom_id_3
+_chem_comp_chir.volume_sign
+CLR    chir_1    C3    O1    C4    C2    positive
+CLR    chir_2    C8    C9    C14    C7    positive
+CLR    chir_3    C9    C10    C8    C11    positive
+CLR    chir_4    C10    C5    C9    C1    negative
+CLR    chir_5    C13    C14    C17    C12    negative
+CLR    chir_6    C14    C13    C8    C15    positive
+CLR    chir_7    C17    C13    C20    C16    negative
+CLR    chir_8    C20    C17    C22    C21    negative
+CLR    chir_9    C25    C24    C26    C27    both
+loop_
+_chem_comp_plane_atom.comp_id
+_chem_comp_plane_atom.plane_id
+_chem_comp_plane_atom.atom_id
+_chem_comp_plane_atom.dist_esd
+CLR    plan-1         C10   0.020
+CLR    plan-1          C4   0.020
+CLR    plan-1          C5   0.020
+CLR    plan-1          C6   0.020
+CLR    plan-2          C5   0.020
+CLR    plan-2          C6   0.020
+CLR    plan-2          C7   0.020
+CLR    plan-2          H6   0.020
+loop_
+_pdbx_chem_comp_descriptor.comp_id
+_pdbx_chem_comp_descriptor.type
+_pdbx_chem_comp_descriptor.program
+_pdbx_chem_comp_descriptor.program_version
+_pdbx_chem_comp_descriptor.descriptor
+CLR           SMILES              ACDLabs 10.04                                                                                                                                  OC4CCC3(C(=CCC2C1C(C(C(C)CCCC(C)C)CC1)(C)CCC23)C4)C
+CLR SMILES_CANONICAL               CACTVS 3.341                                                                                                       CC(C)CCC[C@@H](C)[C@H]1CC[C@H]2[C@@H]3CC=C4C[C@@H](O)CC[C@]4(C)[C@H]3CC[C@]12C
+CLR           SMILES               CACTVS 3.341                                                                                                                  CC(C)CCC[CH](C)[CH]1CC[CH]2[CH]3CC=C4C[CH](O)CC[C]4(C)[CH]3CC[C]12C
+CLR SMILES_CANONICAL "OpenEye OEToolkits" 1.5.0                                                                                                   CC(C)CCC[C@@H](C)[C@H]1CC[C@@H]2[C@@]1(CC[C@H]3[C@H]2CC=C4[C@@]3(CC[C@@H](C4)O)C)C
+CLR           SMILES "OpenEye OEToolkits" 1.5.0                                                                                                                                      CC(C)CCCC(C)C1CCC2C1(CCC3C2CC=C4C3(CCC(C4)O)C)C
+CLR            InChI                InChI  1.03 InChI=1S/C27H46O/c1-18(2)7-6-8-19(3)23-11-12-24-22-10-9-20-17-21(28)13-15-26(20,4)25(22)14-16-27(23,24)5/h9,18-19,21-25,28H,6-8,10-17H2,1-5H3/t19-,21+,22+,23-,24+,25+,26+,27-/m1/s1
+CLR         InChIKey                InChI  1.03                                                                                                                                                          HVYWMOMLDIMFJA-DPAQBDIFSA-N
+loop_
+_pdbx_chem_comp_description_generator.comp_id
+_pdbx_chem_comp_description_generator.program_name
+_pdbx_chem_comp_description_generator.program_version
+_pdbx_chem_comp_description_generator.descriptor
+CLR acedrg               243         "dictionary generator"                  
+CLR acedrg_database      11          "data source"                           
+CLR rdkit                2017.03.2   "Chemoinformatics tool"
+CLR refmac5              5.8.0238    "optimization tool"                     

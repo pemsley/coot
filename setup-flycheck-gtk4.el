@@ -7,8 +7,9 @@
 ;; "USE_MOLECULES_TO_TRIANGLES=1"
 ;; "HAVE_GOOCANVAS=1"
 ;;
-(setq flycheck-gcc-definitions   (list "HAVE_CXX_THREAD=1" "HAVE_GSL=1" "VERSION=\"0.9.9-pre\"" "PACKAGE=Coot" "PACKAGE_VERSION=1.1.11+" "HAVE_BOOST=1" "PKGDATADIR=11111" "USE_PYTHON=1" "PYTHONDIR=/asdf" "PKGPYTHONDIR=asdf" "USE_LIBCURL=1" "BUILD_CURLEW=1" "COOT_BUILD_INFO_STRING=x" "_OPENMP=1" "MAKE_ENHANCED_LIGAND_TOOLS=1" "WITH_SOUND=1" "USE_GEMMI=1"))
-(setq flycheck-clang-definitions (list "HAVE_CXX_THREAD=1" "HAVE_GSL=1" "VERSION=\"0.9.9-pre\"" "PACKAGE=Coot" "PACKAGE_VERSION=1.1.11+" "HAVE_BOOST=1" "PKGDATADIR=11111" "USE_PYTHON=1" "PYTHONDIR=/asdf" "PKGPYTHONDIR=asdf" "USE_LIBCURL=1" "BUILD_CURLEW=1" "COOT_BUILD_INFO_STRING=x" "_OPENMP=1" "MAKE_ENHANCED_LIGAND_TOOLS=1" "WITH_SOUND=1" "USE_GEMMI=1"))
+;(setq flycheck-gcc-definitions   (list "HAVE_CXX_THREAD=1" "HAVE_GSL=1" "VERSION=\"0.9.9-pre\"" "PACKAGE=Coot" "PACKAGE_VERSION=1.1.11+" "HAVE_BOOST=1" "PKGDATADIR=11111" "USE_PYTHON=1" "PYTHONDIR=/asdf" "PKGPYTHONDIR=asdf" "USE_LIBCURL=1" "BUILD_CURLEW=1" "COOT_BUILD_INFO_STRING=x" "_OPENMP=1" "MAKE_ENHANCED_LIGAND_TOOLS=1" "WITH_SOUND=1" "USE_GEMMI=1" "HAVE_RSVG=1" "HAVE_SSMLIB=1" "RDKIT_HAS_CAIRO_SUPPORT=1"))
+
+(setq flycheck-clang-definitions (list "HAVE_CXX_THREAD=1" "HAVE_GSL=1" "VERSION=\"0.9.9-pre\"" "PACKAGE=Coot" "PACKAGE_VERSION=1.1.11+" "HAVE_BOOST=1" "HAVE_BOOST_BASED_THREAD_POOL_LIBRARY=1" "PKGDATADIR=11111" "USE_PYTHON=1" "PYTHONDIR=/asdf" "PKGPYTHONDIR=asdf" "USE_LIBCURL=1" "BUILD_CURLEW=1" "COOT_BUILD_INFO_STRING=x" "_OPENMP=1" "MAKE_ENHANCED_LIGAND_TOOLS=1" "WITH_SOUND=1" "USE_GEMMI=1" "HAVE_RSVG=1" "HAVE_SSMLIB=1" "RDKIT_HAS_CAIRO_SUPPORT=1" "NB_VERSION_MAJOR=1"))
 
 ;; this is configured now, we don't need it on the command line
 ;;  "HAVE_BOOST_BASED_THREAD_POOL_LIBRARY=1"
@@ -34,6 +35,12 @@
    "/home/paule/glm/include"
    "/home/paule/ogg-vorbis/include"
    "/home/paule/assimp/include"
+   "/home/paule/autobuild/build-for-chapi-arch-gtk4/lib/python3.12/site-packages/nanobind/include" ; nanobind.h
+   "/lmb/home/pemsley/autobuild/Linux-hal.lmb.internal-gtk4/include/python3.11"
+   "/usr/include/glib-2.0"
+   "/usr/lib64/glib-2.0/include"
+   "/usr/lib64/graphene-1.0/include"
+   "/lmb/home/pemsley/autobuild/Linux-hal.lmb.internal-gtk4/include"
 
    "/home/paule/python3/include/python3.9"
    "/home/paule/autobuild/build-for-chapi-gtk4/lib/python3.10/site-packages/nanobind/include"
@@ -41,12 +48,15 @@
    "/home/paule/autobuild/Linux-penelope-gtk4-python/include"
 
    ;; from https://github.com/Wilfred/flycheck-pkg-config/issues/2
+   "/usr/include/gtk-4.0"
    "/home/paule/gtk4/include/gtk-4.0"
-   ;; "/usr/include/gtk-4.0"
    "/usr/include/graphene-1.0"
+   "/usr/lib/graphene-1.0/include"
+   "/usr/include/sysprof-6"
    "/home/paule/gtk/lib/x86_64-linux-gnu/graphene-1.0/include" ;; for graphene-config.h
    "/usr/include/libpng16" "/usr/include/gdk-pixbuf-2.0"
    "/usr/include/libdrm"
+   "/usr/include/librsvg-2.0"
    "/usr/include/harfbuzz" "/usr/include/freetype2"
    "/usr/lib/glib-2.0/include" "/usr/include/glib-2.0"
    "/usr/include/libpng16" "/usr/include/pixman-1"
@@ -59,7 +69,6 @@
 
 
 (setq flycheck-gcc-include-path build-path-list)
-
 (setq flycheck-clang-include-path build-path-list)
 
 ;;; setup-flycheck.el ends here

@@ -108,6 +108,9 @@
 
 #include "c-interface-refine.hh"
 
+#include "utils/logging.hh"
+extern logging logger;
+
 
 /*  ------------------------------------------------------------------------ */
 /*                   model/fit/refine functions:                             */
@@ -3348,8 +3351,8 @@ void pLDDT_to_b_factor(int imol) {
 // Perhaps this should be a just a call to a graphics_info_t function?
 //
 void
-fit_residue_range_to_map_by_simplex(int res1, int res2, char *altloc,
-				    char *chain_id, int imol, int imol_for_map) {
+fit_residue_range_to_map_by_simplex(int res1, int res2, const char *altloc,
+				    const char *chain_id, int imol, int imol_for_map) {
 
 
    // The molecule_class_info_t updates its bonds.
@@ -3379,8 +3382,8 @@ fit_residue_range_to_map_by_simplex(int res1, int res2, char *altloc,
 // Return a score of the fit to the map.
 //
 float
-score_residue_range_fit_to_map(int res1, int res2, char *altloc,
-			       char *chain_id, int imol, int imol_for_map) {
+score_residue_range_fit_to_map(int res1, int res2, const char *altloc,
+			       const char *chain_id, int imol, int imol_for_map) {
 
    float f = 0.0;
 
@@ -4188,7 +4191,7 @@ int place_helix_here() {
    } else {
       std::cout << " You need to set the map to fit against\n";
       g.add_status_bar_text("You need to set the map to fit against");
-      g.show_select_map_dialog();
+      g.show_select_map_frame();
       return -1;
    }
 }
@@ -4267,7 +4270,7 @@ int place_strand_here(int n_residues, int n_sample_strands) {
    } else {
       std::cout << " You need to set the map to fit against\n";
       g.add_status_bar_text("You need to set the map to fit against");
-      g.show_select_map_dialog();
+      g.show_select_map_frame();
       return -1;
    }
 }
@@ -4368,7 +4371,7 @@ int find_secondary_structure_local(
    } else {
       std::cout << " You need to set the map to fit against\n";
       g.add_status_bar_text("You need to set the map to fit against");
-      g.show_select_map_dialog();
+      g.show_select_map_frame();
       return -1;
    }
 }
@@ -4400,7 +4403,7 @@ int find_nucleic_acids_local(float radius) {
    if (imol_map == -1) {
       std::cout << " You need to set the map to fit against\n";
       g.add_status_bar_text("You need to set the map to fit against");
-      g.show_select_map_dialog();
+      g.show_select_map_frame();
       return -1;
    }
 
@@ -5204,7 +5207,8 @@ int read_shelx_ins_file(const std::string &filename, short int recentre_flag) {
 	 std::cout << "WARNING:: " << istat << " on read_shelx_ins_file "
 		   << filename << std::endl;
       } else {
-	 std::cout << "Molecule " << imol << " read successfully\n";
+	 // std::cout << "DEBUG:: Molecule " << imol << " read successfully\n";
+         logger.log(log_t::DEBUG, "Molecule", imol, "read successfully");
 	 istat = imol; // for return status
 	 if (g.go_to_atom_window) {
 

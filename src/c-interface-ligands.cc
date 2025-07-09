@@ -1356,7 +1356,8 @@ mask_map_by_atom_selection(int map_mol_no, int coords_mol_no, const char *mmdb_a
 	 std::string name = g.molecules[map_mol_no].name_;
 	 std::string new_name = name + " Masked Map";
 	 bool is_em_map_flag = g.molecules[map_mol_no].is_EM_map();
-	 g.molecules[imol_new_map].install_new_map(lig.masked_map(), new_name, is_em_map_flag);
+         float contour_level = 0.99f * g.molecules[map_mol_no].get_contour_level();
+         g.molecules[imol_new_map].install_new_map_with_contour_level(lig.masked_map(), new_name, contour_level, is_em_map_flag);
 	 graphics_draw();
       } else {
 	 std::cout << "No model molecule in " << coords_mol_no << std::endl;
@@ -3725,6 +3726,10 @@ void coot_add_hydrogen_atoms(int imol) {
       g.molecules[imol].reduce(g.Geom_p());
       graphics_draw();
    }
+}
+
+void add_hydrogen_atoms(int imol) {
+   coot_add_hydrogen_atoms(imol);
 }
 
 void coot_reduce(int imol) {

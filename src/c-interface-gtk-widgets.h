@@ -789,7 +789,7 @@ void execute_superpose(GtkWidget *w);
 GtkWidget *wrapped_create_superpose_dialog(); /* used by callback */
 /*void fill_superpose_option_menu_with_chain_options(GtkWidget *chain_optionmenu,
   int is_reference_structure_flag); */
-void fill_superpose_combobox_with_chain_options(GtkWidget *combobox, int is_ref_flag);
+void fill_superpose_combobox_with_chain_options(int imol_active, int is_ref_flag);
 void update_lsq_dialog_store_values(GtkWidget *w);
 
 

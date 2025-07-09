@@ -31,7 +31,7 @@
 #include "coords/mmdb-extras.h"
 #include "coords/mmdb.hh"
 #include "utils/coot-utils.hh"
-#include "coot-align.hh"
+#include "coot-utils/coot-align.hh"
 
 void do_alignment(atom_selection_container_t asc);
 coot::chain_mutation_info_container_t align_on_chain(mmdb::Chain *chain_p, mmdb::PResidue *SelResidues, int nSelResidues, const std::string &target);

@@ -48,7 +48,7 @@
 #define S_ISREG(m) (((m) & S_IFMT) == S_IFREG)
 #include <windows.h>
 #endif
- 
+
 
 #include <mmdb2/mmdb_manager.h>
 #include "coords/mmdb-extras.h"
@@ -87,6 +87,8 @@
 #include "c-interface-mmdb.hh"
 #include "c-interface-scm.hh"
 #include "c-interface-python.hh"
+#include "new-molecule-by-symmetry-matrix.hh"
+
 
 #ifdef USE_DUNBRACK_ROTAMERS
 #include "ligand/dunbrack.hh"
@@ -103,7 +105,10 @@
 #include "cootilus/cootilus-build.h"
 
 #include "c-interface-refine.hh"
-									 
+
+#include "utils/logging.hh"
+extern logging logger;
+
 
 
 
@@ -168,7 +173,7 @@ int set_unit_cell_and_space_group_using_molecule(int imol, int imol_from) {
 
 
 
-// 
+// 20250612-PE old-style
 void setup_save_symmetry_coords() {
 
    graphics_info_t::in_save_symmetry_define = 1;
@@ -179,12 +184,65 @@ void setup_save_symmetry_coords() {
 
 }
 
+void
+on_save_symm_coords_filechooser_dialog_response(GtkDialog *dialog, int response) {
 
-void save_symmetry_coords(int imol, 
+   if (response == GTK_RESPONSE_YES) {
+      // zooop off to c-interface-gui.cc, which  then calls save_symmetry_coords() below
+      save_symmetry_coords_from_filechooser(GTK_WIDGET(dialog)); // not ideal casting
+   }
+   gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
+}
+
+#include "coot-fileselections.h"
+
+void save_symmetry_coords_based_on_position() {
+
+   graphics_info_t g;
+   coot::Symm_Atom_Pick_Info_t sap = g.symmetry_atom_close_to_screen_centre();
+   if (sap.success == GL_TRUE) {
+      if (is_valid_model_molecule(sap.imol)) {
+         // 20250612-PE We don't use the save_symmetry_coords_filechooser_dialog
+         // because it doesn't have buttons (I don't known why).
+         // so, do instead like on_save_coords_save_button_clicked() (overlay button callback)
+
+         GtkWindow *parent_window = GTK_WINDOW(graphics_info_t::get_main_window());
+         GtkFileChooserAction action = GTK_FILE_CHOOSER_ACTION_SAVE;
+         GtkWidget *file_chooser_dialog =
+            gtk_file_chooser_dialog_new("Save Symm Coordinates",
+                                        parent_window,
+                                        action,
+                                        ("_Cancel"),
+                                        GTK_RESPONSE_CANCEL,
+                                        ("_Save"),
+                                        GTK_RESPONSE_YES,
+                                        NULL);
+
+            // used like this coot::Symm_Atom_Pick_Info_t *symm_info =
+            // (coot::Symm_Atom_Pick_Info_t *) g_object_get_data(G_OBJECT(filechooser), "symm_info");
+
+            coot::Symm_Atom_Pick_Info_t *sap_p = new coot::Symm_Atom_Pick_Info_t(sap);
+            g_object_set_data(G_OBJECT(file_chooser_dialog), "symm_info", sap_p);
+            g_signal_connect(file_chooser_dialog, "response",
+                             G_CALLBACK(on_save_symm_coords_filechooser_dialog_response), NULL);
+            gtk_widget_set_visible(file_chooser_dialog, TRUE);
+            set_file_for_save_filechooser(file_chooser_dialog);
+            add_filename_filter_button(file_chooser_dialog, COOT_SAVE_COORDS_FILE_SELECTION);
+
+      }
+   } else {
+      std::string mess = "Not centred on symmetry atom";
+      add_status_bar_text(mess);
+      logger.log(log_t::WARNING, logging::function_name_t("save_symmetry_coords_based_on_position"), mess);
+   }
+}
+
+
+void save_symmetry_coords(int imol,
 			  const char *filename,
-			  int symop_no, 
-			  int shift_a, 
-			  int shift_b, 
+			  int symop_no,
+			  int shift_a,
+			  int shift_b,
 			  int shift_c,
 			  int pre_shift_to_origin_na,
 			  int pre_shift_to_origin_nb,
@@ -194,12 +252,12 @@ void save_symmetry_coords(int imol,
    // Transform them
    // write them out
 
-   if (imol >= 0) { 
-      if (imol < graphics_info_t::n_molecules()) { 
-	 if (graphics_info_t::molecules[imol].has_model()) { 
+   if (imol >= 0) {
+      if (imol < graphics_info_t::n_molecules()) {
+	 if (graphics_info_t::molecules[imol].has_model()) {
 	    mmdb::Manager *mol2 = new mmdb::Manager;
 	    mol2->Copy(graphics_info_t::molecules[imol].atom_sel.mol, mmdb::MMDBFCM_All);
-	    
+
 	    atom_selection_container_t asc = make_asc(mol2);
 	    mmdb::mat44 mat;
 	    mmdb::mat44 mat_origin_shift;
@@ -555,7 +613,7 @@ PyObject *origin_pre_shift_py(int imol) {
      Py_INCREF(r);
    }
    return r;
-} 
+}
 #endif  /* USE_PYTHON */
 
 
@@ -573,10 +631,10 @@ void do_cis_trans_conversion_setup(int istate) {
       graphics_info_t::in_cis_trans_convert_define = 0;
       normal_cursor(); // depends on ctrl key for rotate
    }
-} 
+}
 
 // scriptable interface:
-// 
+//
 void
 cis_trans_convert(int imol, const char *chain_id, int resno, const char *inscode) {
 

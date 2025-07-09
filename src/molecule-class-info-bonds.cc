@@ -61,7 +61,7 @@ molecule_class_info_t::set_user_defined_colour_indices(const std::vector<std::pa
 
 void
 molecule_class_info_t::user_defined_colours_representation(coot::protein_geometry *geom_p,
-							   bool all_atoms_mode,
+                                                           bool all_atoms_mode,
                                                            bool draw_missing_loops_flag) {
 
    bonds_box.clear_up();
@@ -93,12 +93,61 @@ molecule_class_info_t::user_defined_colours_representation(coot::protein_geometr
 
 
 void
+molecule_class_info_t::add_to_non_drawn_bonds(const std::string &atom_selection_cid) {
+
+   // I have used an *atom* selection here, but see notes in add_to_non_drawn_bonds()
+   // in coot-molecule-bonds.cc
+  //
+   if (atom_sel.mol) {
+      int atom_index_udd_handle = atom_sel.UDDAtomIndexHandle;
+      int handle = atom_sel.mol->NewSelection();
+      int n_atoms = 0;
+      mmdb::Atom **atom_selection = nullptr;
+      std::vector<std::string> v = coot::util::split_string(atom_selection_cid, "||");
+      if (! v.empty()) {
+         for (const auto &cid : v) {
+            atom_sel.mol->Select(handle, mmdb::STYPE_ATOM, cid.c_str(), mmdb::SKEY_NEW);
+            atom_sel.mol->GetSelIndex(handle, atom_selection, n_atoms);
+            if (n_atoms > 0) {
+               for (int i = 0; i < n_atoms; i++) {
+                  mmdb::Atom *at = atom_selection[i];
+                  int idx;
+                  at->GetUDData(atom_index_udd_handle, idx);
+                  no_bonds_to_these_atom_indices.insert(idx);
+               }
+            }
+         }
+      }
+      // we are passing a class variable to this function - that's not a great idea
+      make_bonds_type_checked(no_bonds_to_these_atom_indices, __FUNCTION__);
+   }
+}
+
+
+// this clears the old no_bonds_to_these_atom_indices set and replaces it with a new one - and regens bonds.
+void
+molecule_class_info_t::set_new_non_drawn_bonds(const std::string &cid) {
+
+   no_bonds_to_these_atom_indices.clear();
+   add_to_non_drawn_bonds(cid);
+}
+
+void
+molecule_class_info_t::clear_non_drawn_bonds(bool regen_bonds) {
+
+  no_bonds_to_these_atom_indices.clear();
+  if (regen_bonds)
+     make_bonds_type_checked(no_bonds_to_these_atom_indices, __FUNCTION__);
+
+}
+
+void
 molecule_class_info_t::clear_user_defined_atom_colours() {
 
    if (atom_sel.mol) {
       int udd_handle = atom_sel.mol->GetUDDHandle(mmdb::UDR_ATOM, "user-defined-atom-colour-index");
       if (udd_handle != 0) {
-	 udd_handle = 0; // reset
+	       udd_handle = 0; // reset
       }
    }
 }

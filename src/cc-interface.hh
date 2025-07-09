@@ -105,13 +105,6 @@ std::string pre_directory_file_selection(GtkWidget *sort_button);
 void filelist_into_fileselection_clist(GtkWidget *fileselection, const std::vector<std::string> &v);
 */
 
-// 20220723-PE these functions should not be in this header! - Move them to a widget header
-// MOVE-ME!
-GtkWidget *wrapped_nothing_bad_dialog(const std::string &label);
-
-std::pair<short int, float> float_from_entry(GtkWidget *entry);
-std::pair<short int, int>   int_from_entry(GtkWidget *entry);
-
 // These widget declarations don't belong in this file.
 // void
 // add_validation_mol_menu_item(int imol, const std::string &name, GtkWidget *menu, GtkSignalFunc callback);
@@ -119,11 +112,6 @@ std::pair<short int, int>   int_from_entry(GtkWidget *entry);
 // 						     const std::string &menu_name,
 // 						     const std::string &sub_menu_name);
 
-// To be used to (typically) get the menu item text label from chain
-// option menus (rather than the ugly/broken casting of
-// GtkPositionType data.  A wrapper to a static graphics_info_t
-// function.
-std::string menu_item_label(GtkWidget *menu_item);
 
 // CaBLAM
 std::vector<std::pair<coot::residue_spec_t, double> >
@@ -134,6 +122,15 @@ SCM add_cablam_markup_scm(int imol, const std::string &cablam_log_file_name);
 #ifdef USE_PYTHON
 PyObject *add_cablam_markup_py(int imol, const std::string &cablam_log_file_name);
 #endif
+
+/*  ---------------------------------------------------------------------- */
+/*                       key bindings :                                    */
+/*  ---------------------------------------------------------------------- */
+//! \name Key Bindings
+//! \{
+void print_key_bindings();
+//! \}
+
 
 /*  ---------------------------------------------------------------------- */
 /*                       go to atom   :                                    */
@@ -185,7 +182,7 @@ PyObject *active_atom_spec_py();
 //
 #ifdef USE_GUILE
 
-//! \name  More Symmetry Functions
+//! \name More Scheme Symmetry Functions
 //! \{
 
 //! \brief return the symmetry of the imolth molecule
@@ -194,12 +191,26 @@ PyObject *active_atom_spec_py();
 //!   given molecule. If imol is a not a valid molecule, return an empty
 //!   list.*/
 SCM get_symmetry(int imol);
+//! \}
 #endif // USE_GUILE
 
 #ifdef USE_PYTHON
-// return a python object as a list (or some other python container)
+//! \name More Python Symmetry Functions
+//! \{
+
+//! \brief return the symmetry of the imolth molecule
+//!
+//!   Return as a list of strings the symmetry operators of the
+//!   given molecule. If imol is a not a valid molecule, return an empty
+//!   list.*/
+//! @return a python object as a list (or some other python container)
 PyObject *get_symmetry_py(int imol);
+//! \}
+
 #endif // USE_PYTHON
+
+//! \name More Symmetry Functions
+//! \{
 
 //! \brief return 1 if this residue clashes with the symmetry-related
 //!  atoms of the same molecule.
@@ -210,6 +221,10 @@ PyObject *get_symmetry_py(int imol);
 int clashes_with_symmetry(int imol, const char *chain_id, int res_no, const char *ins_code,
                           float clash_dist);
 
+//! Add molecular symmetry
+//!
+//! You will need to know how to expand your point group molecular symmetry
+//! to a set of 3x3 matrices. Call this function for every matrix.
 void add_molecular_symmetry(int imol,
                             double r_00, double r_01, double r_02,
                             double r_10, double r_11, double r_12,
@@ -218,10 +233,17 @@ void add_molecular_symmetry(int imol,
                             double about_origin_y,
                             double about_origin_z);
 
+//! Add molecular symmetry.
+//!
+//! Often molecular symmetry is descibed using MTRIX card in a PDB file header.
+//! Use this function to extract and apply such molecular symmmetry
 int add_molecular_symmetry_from_mtrix_from_file(int imol, const std::string &file_name);
 
+//! Add molecular symmetry
+//!
+//! This is a convenience function for the above - where you don't need to
+//! specify the PDB file name.
 int add_molecular_symmetry_from_mtrix_from_self_file(int imol);
-
 
 //! \}
 
@@ -367,8 +389,14 @@ std::vector<int> map_partition_by_chain(int imol_map, int imol_model);
 //! Use the function for use in the GUI (non-blocking, no results returned)
 void map_partition_by_chain_threaded(int imol_map, int imol_model);
 
+// use (or not) vertex gradients for the specified map
+void set_use_vertex_gradients_for_map_normals(int imol, int state);
+
 //! the map should be displayed and not a difference map
 void use_vertex_gradients_for_map_normals_for_latest_map();
+
+//! alias for the above (more canonical naming)
+void set_use_vertex_gradients_for_map_normals_for_latest_map();
 
 
 //! \}
@@ -462,6 +490,15 @@ void servalcat_refine(int imol_model,
 //! run acedrg link
 void
 run_acedrg_link_generation(const std::string &acedrg_link_command);
+
+//! run generic process - doesn't work at the moment - on_completion_args
+//! is wrongly interpretted.
+void add_toolbar_subprocess_button(const std::string &button_label,
+                                   const std::string &subprocess_command,
+                                   PyObject *arg_list,
+                                   PyObject *on_completion_function,
+                                   PyObject *on_completion_args);
+
 
 /*  ------------------------------------------------------------------------ */
 /*                             Add an Atom                                   */
@@ -635,7 +672,16 @@ std::vector<std::string> dictionary_entries();
 //! debug dictionary information
 void debug_dictionary();
 
-//! this can throw an exception
+//! get types in molecule
+//!
+//! @param imol the molecule index
+//! @return a vector of residue types
+std::vector<std::string> get_types_in_molecule(int imol);
+
+//! Get the SMILES for the given residue type
+//!
+//! @param comp_id is the residue type
+//! @return the SMILES string
 std::string SMILES_for_comp_id(const std::string &comp_id);
 
 /*! \brief return a list of all the dictionaries read */
@@ -651,7 +697,14 @@ SCM SMILES_for_comp_id_scm(const std::string &comp_id);
 PyObject *dictionaries_read_py();
 PyObject *cif_file_for_comp_id_py(const std::string &comp_id);
 PyObject *dictionary_entries_py();
+
+//! Get the SMILES for the given residue type
+//
+//! @param comp_id is the residue type
+//! @return the SMILES string or False on failure to find the
+//!         residue type or SMILES string
 PyObject *SMILES_for_comp_id_py(const std::string &comp_id);
+
 #endif // PYTHON
 //! \}
 
@@ -659,9 +712,10 @@ PyObject *SMILES_for_comp_id_py(const std::string &comp_id);
 /*  ----------------------------------------------------------------------- */
 /*                         Restraints                                       */
 /*  ----------------------------------------------------------------------- */
-#ifdef USE_GUILE
 //! \name  Restraints Interface
 /// \{
+
+#ifdef USE_GUILE
 //! \brief return the monomer restraints for the given monomer_type,
 //!       return scheme false on "restraints for monomer not found"
 SCM monomer_restraints(const char *monomer_type);
@@ -686,8 +740,6 @@ void show_restraints_editor_by_index(int menu_item_index);
 
 /*! \brief write cif restraints for monomer */
 void write_restraints_cif_dictionary(std::string monomer_type, std::string file_name);
-
-
 
 //! \}
 
@@ -801,9 +853,10 @@ PyObject *get_residue_by_type_py(int, const std::string &residue_type);
 /*               Atom info                                                  */
 /*  ----------------------------------------------------------------------- */
 
-#ifdef USE_GUILE
 //! \name Atom Information functions
 //! \{
+
+#ifdef USE_GUILE
 //! \brief output atom info in a scheme list for use in scripting
 //!
 //! in this format (list occ temp-factor element x y z).  Return empty
@@ -1074,11 +1127,20 @@ void label_closest_atoms_in_neighbour_residues_py(int imol, PyObject *residue_sp
 //
 PyObject *get_bonds_representation(int imol);
 
+//! \brief replace any current non-drawn bonds with these - and regen bonds
+void set_new_non_drawn_bonds(int imol, const std::string &cid);
+
+//! \brief add to non-drawn bonds - and regen bonds
+void add_to_non_drawn_bonds(int imol, const std::string &cid);
+
+//! \brief clear the non-drawn bonds - force regen bonds to restore all
+void clear_non_drawn_bonds(int imol);
+
 //! \brief return a Python object for the radii of the atoms in the dictionary
 //
 PyObject *get_dictionary_radii();
 
-//! \brief return a Python object for the representation of bump and hydrogen bonds of
+//! \brief return a Python object for the representation of bump and hydrogen bonds oft
 //          the specified residue
 PyObject *get_environment_distances_representation_py(int imol, PyObject *residue_spec_py);
 
@@ -1124,10 +1186,14 @@ PyObject *all_residues_with_serial_numbers_py(int imol);
 #endif
 
 
+#ifdef SWIG
+#else
+
 //! \brief
 //! regularize the given residues
 //!
 void regularize_residues(int imol, const std::vector<coot::residue_spec_t> &residues);
+#endif
 
 //! presumes that imol_Refinement_Map has been set
 std::string mtz_file_name(int imol);
@@ -1183,6 +1249,10 @@ bool get_cryo_em_refinement();
 SCM accept_moving_atoms_scm();
 #endif
 #ifdef USE_PYTHON
+//! Accept moving atoms
+//!
+//! This waits for the refinement to finish and then accepts
+//! the moving atoms so that they move into the main molecule.
 PyObject *accept_moving_atoms_py();
 #endif
 
@@ -1293,6 +1363,12 @@ PyObject *water_chain_py(int imol);
   than popup). */
 void add_status_bar_text(const std::string &s);
 
+//! set the logging level
+//!
+//! @param level is either "LOW" or "HIGH" or "DEBUGGING"
+void set_logging_level(const std::string &level);//!
+
+
 //! \}
 
 
@@ -1318,7 +1394,7 @@ print_glyco_tree(int imol, const std::string &chain_id, int resno, const std::st
 //!
 //!  @return the molecule number of the new map.  Return -1 if unable to
 //!   make a variance map.
-int make_variance_map(std::vector<int> map_molecule_number_vec);
+int make_variance_map(const std::vector<int> &map_molecule_number_vec);
 #ifdef USE_GUILE
 int make_variance_map_scm(SCM map_molecule_number_list);
 #endif
@@ -1355,21 +1431,31 @@ SCM CG_spin_search_scm(int imol_model, int imol_map);
 #endif
 
 #ifdef USE_PYTHON
-//! \brief for the given residue, spin the atoms in moving_atom_list...
+//! for the given residue, spin the atoms in moving_atom_list...
 //!
 //!   around the bond defined by direction_atoms_list looking for the best
 //!   fit to density of imom_map map of the first atom in
 //!   moving_atom_list.  Works (only) with atoms in altconf ""
 void spin_search_py(int imol_map, int imol, const char *chain_id, int resno, const char *ins_code, PyObject *direction_atoms_list, PyObject *moving_atoms_list);
-//! \brief Spin N and CB (and the rest of the side chain if extant)
+
+//! Spin N and CB (and the rest of the side chain if extant)
 //!
 //!  Sometime on N-terminal addition, then N ends up pointing the wrong way.
 //!  The allows us to (more or less) interchange the positions of the CB and the N.
 //!  angle is in degrees.
 //!
+//! @param imol is the index of the model molecule
+//! @param residue_spec is the specifier for the residue
+//! @param angle is the rotation angle, in degrees, typically 120.
 void spin_N_py(int imol, PyObject *residue_spec, float angle);
 
-//! \brief Spin search the density based on possible positions of CG of a side-chain
+//! Spin search the density based on possible positions of CG of a side-chain
+//!
+//! @param imol_model is the index of the model molecule
+//! @param imol_map is the index of the map molecule
+//! @return either False (in the case of a failure) or a list of pairs of
+//!         residue specifers and score - for each spinnable residue
+//!         in the model.
 PyObject *CG_spin_search_py(int imol_model, int imol_map);
 
 #endif
@@ -1382,10 +1468,6 @@ PyObject *CG_spin_search_py(int imol_model, int imol_map);
 /*  ----------------------------------------------------------------------- */
 std::vector<std::pair<std::string, std::string> > monomer_lib_3_letter_codes_matching(const std::string &search_string, short int allow_minimal_descriptions_flag);
 
-// 20220723-PE These functions should not be here. Move this functions to a widget header.
-//             MOVE-ME!
-void on_monomer_lib_search_results_button_press (GtkButton *button, gpointer user_data);
-void on_monomer_lib_sbase_molecule_button_press (GtkButton *button, gpointer user_data);
 
 /*  ----------------------------------------------------------------------- */
 /*                  mutate                                                  */
@@ -1394,7 +1476,7 @@ void on_monomer_lib_sbase_molecule_button_press (GtkButton *button, gpointer use
 int mutate_residue_range(int imol, const std::string &chain_id, int res_no_start, int res_no_end, const std::string &target_sequence);
 
 int mutate_internal(int ires, const char *chain_id,
-                    int imol, std::string &target_res_type);
+                    int imol, const std::string &target_res_type);
 /* a function for multimutate to make a backup and set
    have_unsaved_changes_flag themselves */
 
@@ -1424,16 +1506,21 @@ void do_smiles_to_simple_3d_overlay_frame();
 /*                  conformers (part of ligand search)                      */
 /*  ----------------------------------------------------------------------- */
 
-#ifdef USE_GUILE
-/*! \brief make conformers of the ligand search molecules, each in its
-  own molecule.
-
-Don't search the density.
+//! \brief make conformers of the ligand search molecules, each in its
+//!  own molecule.
 
 //! \name Extra Ligand Functions
 //! \{
 
-Return a list of new molecule numbers */
+#ifdef USE_GUILE
+
+//! make conformations
+//!
+//! as if for a ligand search
+//!
+//! Don't search the density.
+//!
+//! @return a list of new molecule numbers
 SCM ligand_search_make_conformers_scm();
 #endif
 
@@ -1456,9 +1543,10 @@ void add_animated_ligand_interaction(int imol, const pli::fle_ligand_bond_t &lb)
 /*  ----------------------------------------------------------------------- */
 int cootaneer_internal(int imol_map, int imol_model, const coot::atom_spec_t &atom_spec);
 
-#ifdef USE_GUILE
 //! \name Dock Sidechains
 //! \{
+
+#ifdef USE_GUILE
 //! \brief cootaneer (i.e. assign sidechains onto mainchain model)
 //!
 //! atom_in_fragment_atom_spec is any atom spec in the fragment that should be
@@ -1469,6 +1557,12 @@ int cootaneer(int imol_map, int imol_model, SCM atom_in_fragment_atom_spec);
 #endif
 
 #ifdef USE_PYTHON
+//! \brief cootaneer (i.e. assign sidechains onto mainchain model)
+//!
+//! atom_in_fragment_atom_spec is any atom spec in the fragment that should be
+//! assigned with sidechains.
+//!
+//! @return the success status (0 is fail).
 int cootaneer_py(int imol_map, int imol_model, PyObject *atom_in_fragment_atom_spec);
 #endif
 
@@ -1533,24 +1627,12 @@ void set_display_control_button_state(int imol, const std::string &button_type, 
 void fullscreen();
 void unfullscreen();
 
-//! set the flag for use of trackpad - this moves around the mouse bindings internally.
+//! Use left-mouse for view rotation
 void set_use_trackpad(short int state);
 
-//! this is an alias for the above (at the moment).
-void set_use_primary_mouse_button_for_rotation(short int state);
+//! this is an alias for the above
+void set_use_primary_mouse_button_for_view_rotation(short int state);
 
-/*  ----------------------------------------------------------------------- */
-/*                  Abstraction of New molecule by symmetry functions       */
-/*  ----------------------------------------------------------------------- */
-
-mmdb::Manager *new_molecule_by_symmetry_matrix_from_molecule(mmdb::Manager *mol,
-                                                            double m11, double m12, double m13,
-                                                            double m21, double m22, double m23,
-                                                            double m31, double m32, double m33,
-                                                            double tx, double ty, double tz,
-                                                            int pre_shift_to_origin_na,
-                                                            int pre_shift_to_origin_nb,
-                                                            int pre_shift_to_origin_nc);
 
 
 /*  ----------------------------------------------------------------------- */
@@ -1760,45 +1842,25 @@ void set_draw_background_image(bool state);
 void read_test_gltf_models();
 
 //! \brief load a gltf model
-void load_gltf_model(const std::string &gltf_file_name);
+//!
+//! If the gltf
+//! files does not exist, an empty model will be created
+//!
+//! @param gltf_file_name is the name of the gltf file to load
+//! @return the model index of the loaded model.
+int load_gltf_model(const std::string &gltf_file_name);
+
+//! \brief set the model animation parameters
+void set_model_animation_parameters(unsigned int model_index, float amplitude, float wave_numer, float freq);
+
+//! \brief enable/disable the model animation (on or off)
+void set_model_animation_state(unsigned int model_index, bool state);
 
 //! \brief load a gltf model
 void scale_model(unsigned int model_index, float scale_factor);
 
 //! \brief reset the frame buffers
 void reset_framebuffers();
-
-
-/*  ----------------------------------------------------------------------- */
-/*                  Pisa internal                                           */
-/*  ----------------------------------------------------------------------- */
-clipper::Coord_orth
-make_complementary_dotted_surfaces(int imol_1, int imol_2,
-                                   std::vector<coot::residue_spec_t> &r1,
-                                   std::vector<coot::residue_spec_t> &r2);
-#ifdef USE_GUILE
-std::vector<coot::residue_spec_t>
-residue_records_list_scm_to_residue_specs(SCM mol_1_residue_records,
-                                          const std::string &chain_id);
-SCM symbol_value_from_record(SCM record_1, const std::string &symbol);
-#endif
-#ifdef USE_PYTHON
-std::vector<coot::residue_spec_t>
-residue_records_list_py_to_residue_specs(PyObject *mol_1_residue_records,
-                                         const std::string &chain_id);
-//PyObject *symbol_value_from_record(PyObject *record_1, const std::string &symbol);
-#endif
-
-void
-add_generic_object_bond(int imol1, int imol2,
-                        const coot::atom_spec_t &atom_spec_1,
-                        const coot::atom_spec_t &atom_spec_2,
-                        int generic_object_number,
-                        const std::string &colour);
-
-void
-pisa_interfaces_display_only(int imol_1, int imol_2, clipper::Coord_orth centre_pt);
-std::string untangle_mmdb_chain_id_string(const std::string &mmdb_chain_id_in);
 
 
 /*  ----------------------------------------------------------------------- */
@@ -1900,15 +1962,6 @@ void hole(int imol,
           std::string export_surface_dots_file_name);
 
 
-// GUI stuff - Move these functions to a widget header
-// 20220723-PE MOVE-ME!
-void probe_radius_graph_close_callback( GtkWidget *button, GtkWidget *dialog);
-
-// 20230521-PE restore these when I understand how to make a graph in GTK4.
-// void show_hole_probe_radius_graph(const std::vector<std::pair<clipper::Coord_orth, double> > &hole_path, double path_length);
-// void show_hole_probe_radius_graph_basic(const std::vector<std::pair<clipper::Coord_orth, double> > &hole_path, double path_length);
-// void show_hole_probe_radius_graph_goocanvas(const std::vector<std::pair<clipper::Coord_orth, double> > &hole_path, double path_length);
-
 /* ------------------------------------------------------------------------- */
 /*                      Gaussian Surface                                     */
 /* ------------------------------------------------------------------------- */
@@ -1954,7 +2007,7 @@ void make_acedrg_dictionary_via_CCD_dictionary(int imol, const coot::residue_spe
 
 //! \brief make a link between the specified atoms
 void
-make_link(int imol, coot::atom_spec_t &spec_1, coot::atom_spec_t &spec_2,
+make_link(int imol, const coot::atom_spec_t &spec_1, const coot::atom_spec_t &spec_2,
           const std::string &link_name, float length);
 #ifdef USE_GUILE
 void make_link_scm(int imol, SCM spec_1, SCM spec_2, const std::string&link_name, float length);
@@ -2422,16 +2475,26 @@ clipper::Spacegroup py_symop_strings_to_space_group(PyObject *symop_string_list)
 //! \brief enable or diable sounds (coot needs to have been compiled with sounds of course)
 void set_use_sounds(bool state);
 
-//! no sounds
+//! \brief no sounds
 void curmudgeon_mode();
 
+//! easter egg 2023
 void halloween();
+
+void display_svg_from_file_in_a_dialog(const std::string &file_name);
+
+void display_svg_from_string_in_a_dialog(const std::string &string, const std::string &title);
+
+void display_pae_from_file_in_a_dialog(int imol, const std::string &file_name);
+
+void read_interesting_places_json_file(const std::string &file_name);
 
 //! return the section index (the middle section currently)
 int setup_tomo_slider(int imol);
 void tomo_section_view(int imol, int axis_id);
 void set_tomo_section_view_section(int imol, int section_index);
 
+//! set tomo picker is active
 void set_tomo_picker_mode_is_active(short int state);
 
 #ifdef USE_PYTHON

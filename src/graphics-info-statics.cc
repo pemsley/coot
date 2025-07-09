@@ -35,6 +35,9 @@
 
 #if !defined WINDOWS_MINGW
 
+int graphics_info_t::scale_down_graphics = 1;
+int graphics_info_t::scale_up_graphics = 1;
+
 #ifdef USE_GUILE
 #ifdef USE_GUILE_GTK
 bool graphics_info_t::prefer_python = 0; // prefer python scripts when
@@ -68,9 +71,8 @@ bool graphics_info_t::prefer_python = 1; // Default: yes in Windows
 
 bool graphics_info_t::graphics_is_gl_es = false;
 
-bool graphics_info_t::using_trackpad = false;
-
-logging graphics_info_t::log;
+// bool graphics_info_t::using_trackpad = false;
+bool graphics_info_t::use_primary_mouse_for_view_rotation_flag = false;
 
 bool graphics_info_t::use_gemmi = false;
 short int graphics_info_t::python_at_prompt_flag = 0;
@@ -83,7 +85,7 @@ coot::command_line_commands_t graphics_info_t::command_line_commands;
 std::vector<std::string> graphics_info_t::command_line_accession_codes;
 
 std::vector<coot::lsq_range_match_info_t> *graphics_info_t::lsq_matchers;
-std::vector<coot::old_generic_text_object_t> *graphics_info_t::generic_texts_p = 0;
+std::vector<coot::generic_text_object_t> graphics_info_t::generic_texts;
 std::vector<coot::view_info_t> graphics_info_t::views;
 bool graphics_info_t::do_expose_swap_buffers_flag = 1;
 
@@ -96,11 +98,16 @@ std::vector<std::pair<std::string, clipper::Xmap<float> > > graphics_info_t::map
 int graphics_info_t::map_partition_results_state = 0; // inactive
 std::string graphics_info_t::map_partition_results_state_string; // "Done A Chain" etc.
 
+// logging
+unsigned int graphics_info_t::logging_line_index = 0;
+
 
 //WII
 #ifdef WII_INTERFACE_WIIUSE
 wiimote** graphics_info_t::wiimotes = NULL;
 #endif
+
+float graphics_info_t::view_rotation_per_pixel_scale_factor = 1.0;
 
 // Views
 float graphics_info_t::views_play_speed = 10.0;
@@ -548,7 +555,7 @@ float graphics_info_t::map_sampling_rate = 2.5;
 short int graphics_info_t::show_aniso_atoms_flag = 0; // initially don't show.
 short int graphics_info_t::show_aniso_atoms_radius_flag = 0;
 float     graphics_info_t::show_aniso_atoms_radius = 12.0;
-float     graphics_info_t::show_aniso_atoms_probability = 50.0;
+float     graphics_info_t::show_aniso_atoms_probability = 0.5; // 20250602-PE 0.0 to 1.10 now
 
 // initialise the molecule (scene) rotation axis statics.
 //
@@ -1404,6 +1411,8 @@ std::pair<bool, float> graphics_info_t::model_display_radius = std::pair<bool, f
 
 // Chemical Feature Clusters, cfc
 GtkWidget *graphics_info_t::cfc_dialog = NULL;
+
+cfc_gui_t graphics_info_t::cfc_gui;
 
 bool graphics_info_t::coot_is_a_python_module = true;
 

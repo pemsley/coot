@@ -127,7 +127,7 @@ graphics_info_t::save_preference_file(const std::string &filename, short int il)
          break;
 
       case PREFERENCES_VIEW_ROTATION_MOUSE_BUTTON:
-         commands.push_back(state_command("coot", "set-use-primary-mouse-button-for-rotation",
+         commands.push_back(state_command("coot", "set-use-primary-mouse-button-for-view-rotation",
                                           g.preferences_internal[i].ivalue1, il));
          break;
 
@@ -327,17 +327,6 @@ graphics_info_t::make_preferences_internal() {
   p.ivalue1 = on;
   ret.push_back(p);
  
-  // dialogs
-  on = accept_reject_dialog_docked_state();
-  p.preference_type = PREFERENCES_ACCEPT_DIALOG_DOCKED;
-  p.ivalue1 = on;
-  ret.push_back(p);
-
-  on = accept_reject_dialog_docked_show_state();
-  p.preference_type = PREFERENCES_ACCEPT_DIALOG_DOCKED_SHOW;
-  p.ivalue1 = on;
-  ret.push_back(p);
-
   on = refinement_immediate_replacement_state();
   p.preference_type = PREFERENCES_IMMEDIATE_REPLACEMENT;
   p.ivalue1 = on;

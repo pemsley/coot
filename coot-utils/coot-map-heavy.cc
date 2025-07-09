@@ -336,6 +336,26 @@ coot::util::z_weighted_density_score_new(const std::vector<std::pair<mmdb::Atom 
 }
 
 
+void
+coot::util::debug_z_weighted_density_score_new(const std::vector<std::pair<mmdb::Atom *, float> > &atom_atom_number_pairs,
+                                               const clipper::Xmap<float> &map) {
+
+   float sum_d = 0;
+   for (unsigned int iat=0; iat<atom_atom_number_pairs.size(); iat++) {
+      const mmdb::Atom *atc = atom_atom_number_pairs[iat].first;
+      mmdb::Atom *at = const_cast<mmdb::Atom *>(atc);
+      clipper::Coord_orth co(at->x, at->y, at->z);
+      float d = coot::util::density_at_point(map, co);
+      float w = atom_atom_number_pairs[iat].second;
+      sum_d += d * w;
+      std::cout << "debug score " << iat << " " << atom_spec_t(at)
+                << " pos " << at->x << " " << at->y << " " << at->z
+                << " weight: " << w << " density:" << d << " running sum " << sum_d << std::endl;
+   }
+   std::cout << "debug:: debug_z_weighted_density_score_new(): total: " << sum_d << std::endl;
+}
+
+
 
 // High density fitting is down-weighted and negative density fitting
 // is upweighted.

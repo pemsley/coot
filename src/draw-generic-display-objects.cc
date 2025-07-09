@@ -170,20 +170,22 @@ graphics_info_t::draw_generic_objects(unsigned int pass_type) {
                   // the meshed_generic_display_object &obj = g.generic_display_objects[obj_mesh];
                   //
                   draw_it = false;
+
                }
             }
 
             if (pass_type == PASS_TYPE_STANDARD) {
                if (draw_it) {
                   if (false)
-                     std::cout << "draw_generic_objects() " << obj.mesh.name << " is_instanced: " << obj.mesh.is_instanced
-                               << std::endl;
+                     std::cout << "draw_generic_objects() " << obj.mesh.name
+			       << " is_instanced: " << obj.mesh.is_instanced << std::endl;
                   if (obj.mesh.is_instanced) {
                      if (false)
-                        std::cout << "   draw_generic_objects() draw_instanced() " << obj.mesh.name
+                        std::cout << "draw_generic_objects() draw_instanced() " << obj.mesh.name
                                   << " with shader " << shader_for_instanced_objects.name
                                   << " and pulsing should be on" << std::endl;
                      int pass_type = PASS_TYPE_STANDARD;
+		     // obj.mesh.debug_mode = true;
                      obj.mesh.draw_instanced(pass_type, &shader_for_instanced_objects, mvp, model_rotation,
                                              lights, eye_position, bg_col,
                                              do_depth_fog, true, true, false, 0.25f, 3.0f, 0.2f, 0.0f);

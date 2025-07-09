@@ -61,6 +61,7 @@ void regularize_tandem_3() {
       auto atom_spec = active_atom.second.second;
       mmdb::Atom *at = g.molecules[imol].get_atom(atom_spec);
       if (at) {
+	 if (! at->residue) return;
          std::string alt_conf = at->altLoc;
          coot::residue_spec_t rspec(atom_spec);
          std::vector<mmdb::Residue *> rv;
@@ -71,13 +72,13 @@ void regularize_tandem_3() {
          mmdb::Residue *r_m_1 = coot::util::get_previous_residue(rspec, mol);
          mmdb::Residue *r_m_2 = coot::util::get_previous_residue(coot::residue_spec_t(r_m_1), mol);
          mmdb::Residue *r_m_3 = coot::util::get_previous_residue(coot::residue_spec_t(r_m_2), mol);
-         rv.push_back(r_m_3);
-         rv.push_back(r_m_2);
-         rv.push_back(r_m_1);
+         if (r_m_3) rv.push_back(r_m_3);
+         if (r_m_2) rv.push_back(r_m_2);
+         if (r_m_1) rv.push_back(r_m_1);
          rv.push_back(at->residue);
-         rv.push_back(r_p_1);
-         rv.push_back(r_p_2);
-         rv.push_back(r_p_3);
+         if (r_p_1) rv.push_back(r_p_1);
+         if (r_p_2) rv.push_back(r_p_2);
+         if (r_p_3) rv.push_back(r_p_3);
          g.residue_type_selection_was_user_picked_residue_range = false;
          coot::refinement_results_t rr = g.regularize_residues_vec(imol, rv, alt_conf, mol);
       }
@@ -194,17 +195,17 @@ void rsr_refine_tandem_5() {
          mmdb::Residue *r_m_3 = coot::util::get_previous_residue(coot::residue_spec_t(r_m_2), mol);
          mmdb::Residue *r_m_4 = coot::util::get_previous_residue(coot::residue_spec_t(r_m_3), mol);
          mmdb::Residue *r_m_5 = coot::util::get_previous_residue(coot::residue_spec_t(r_m_4), mol);
-         v.push_back(coot::residue_spec_t(r_m_5));
-         v.push_back(coot::residue_spec_t(r_m_4));
-         v.push_back(coot::residue_spec_t(r_m_3));
-         v.push_back(coot::residue_spec_t(r_m_2));
-         v.push_back(coot::residue_spec_t(r_m_1));
+         if (r_m_5) v.push_back(coot::residue_spec_t(r_m_5));
+         if (r_m_4) v.push_back(coot::residue_spec_t(r_m_4));
+	 if (r_m_3) v.push_back(coot::residue_spec_t(r_m_3));
+         if (r_m_2) v.push_back(coot::residue_spec_t(r_m_2));
+         if (r_m_1) v.push_back(coot::residue_spec_t(r_m_1));
          v.push_back(rspec);
-         v.push_back(coot::residue_spec_t(r_p_1));
-         v.push_back(coot::residue_spec_t(r_p_2));
-         v.push_back(coot::residue_spec_t(r_p_3));
-         v.push_back(coot::residue_spec_t(r_p_4));
-         v.push_back(coot::residue_spec_t(r_p_5));
+         if (r_p_1) v.push_back(coot::residue_spec_t(r_p_1));
+         if (r_p_2) v.push_back(coot::residue_spec_t(r_p_2));
+         if (r_p_3) v.push_back(coot::residue_spec_t(r_p_3));
+         if (r_p_4) v.push_back(coot::residue_spec_t(r_p_4));
+         if (r_p_5) v.push_back(coot::residue_spec_t(r_p_5));
          g.residue_type_selection_was_user_picked_residue_range = false;
          coot::refinement_results_t rr = refine_residues_with_alt_conf(imol, v, alt_conf);
       }
@@ -230,13 +231,13 @@ void rsr_refine_tandem_3() {
          mmdb::Residue *r_m_1 = coot::util::get_previous_residue(rspec, mol);
          mmdb::Residue *r_m_2 = coot::util::get_previous_residue(coot::residue_spec_t(r_m_1), mol);
          mmdb::Residue *r_m_3 = coot::util::get_previous_residue(coot::residue_spec_t(r_m_2), mol);
-         v.push_back(coot::residue_spec_t(r_m_3));
-         v.push_back(coot::residue_spec_t(r_m_2));
-         v.push_back(coot::residue_spec_t(r_m_1));
+	 if (r_m_3) v.push_back(coot::residue_spec_t(r_m_3));
+         if (r_m_2) v.push_back(coot::residue_spec_t(r_m_2));
+         if (r_m_1) v.push_back(coot::residue_spec_t(r_m_1));
          v.push_back(rspec);
-         v.push_back(coot::residue_spec_t(r_p_1));
-         v.push_back(coot::residue_spec_t(r_p_2));
-         v.push_back(coot::residue_spec_t(r_p_3));
+         if (r_p_1) v.push_back(coot::residue_spec_t(r_p_1));
+         if (r_p_2) v.push_back(coot::residue_spec_t(r_p_2));
+         if (r_p_3) v.push_back(coot::residue_spec_t(r_p_3));
          g.residue_type_selection_was_user_picked_residue_range = false;
          coot::refinement_results_t rr = refine_residues_with_alt_conf(imol, v, alt_conf);
       }

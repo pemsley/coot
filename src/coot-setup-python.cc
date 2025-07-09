@@ -199,16 +199,13 @@ void setup_python_with_coot_modules(int argc, char **argv) {
    std::string pkgpydirectory = get_pkgpythondir();
    std::string    pydirectory = get_pythondir();
 
-   g_debug("in setup_python_with_coot_modules()    pydirectory is %s ",pydirectory.c_str());
-   g_debug("in setup_python_with_coot_modules() pkgpydirectory is %s ",pkgpydirectory.c_str());
+   std::cout << "DEBUG:: in setup_python_with_coot_modules() pkgpydirectory: " << pkgpydirectory << std::endl;
+   std::cout << "DEBUG:: in setup_python_with_coot_modules()    pydirectory: " <<    pydirectory << std::endl;
 
-   std::cout << "in setup_python_with_coot_modules() pkgpydirectory: " << pkgpydirectory << std::endl;
-   std::cout << "in setup_python_with_coot_modules()    pydirectory: " <<    pydirectory << std::endl;
-
-   std::cout << "in setup_python_with_coot_modules() appending to sys path: " << pydirectory << std::endl;
+   std::cout << "DEBUG:: in setup_python_with_coot_modules() appending to sys path: " << pydirectory << std::endl;
    PyObject *sys_path = PySys_GetObject("path");
    PyList_Append(sys_path, PyUnicode_FromString(pydirectory.c_str()));
-   std::cout << "in setup_python_with_coot_modules() appending to sys path: " << pkgpydirectory << std::endl;
+   std::cout << "DEBUG:: in setup_python_with_coot_modules() appending to sys path: " << pkgpydirectory << std::endl;
    PyList_Append(sys_path, PyUnicode_FromString(pkgpydirectory.c_str()));
 
    // int err = PyRun_SimpleString("import coot");
@@ -216,9 +213,9 @@ void setup_python_with_coot_modules(int argc, char **argv) {
 
    PyObject *sys = PyImport_ImportModule("sys");
    if (! sys) {
-      std::cout << "ERROR:: in setup_python_with_coot_modules(): Null sys" << std::endl;
+      std::cout << "ERROR:: in setup_python_with_coot_modules() Null sys" << std::endl;
    } else {
-      std::cout << "DEBUG:: in setup_python_with_coot_modules(): sys imported" << std::endl;
+      std::cout << "DEBUG:: in setup_python_with_coot_modules() sys imported" << std::endl;
    }
 
    PyObject *coot = PyImport_ImportModule("coot");
@@ -233,7 +230,8 @@ void setup_python_with_coot_modules(int argc, char **argv) {
                                  // the status-bar, menu-bar etc. i.e. coot_gui_python_api
 
       PyObject *coot_utils = PyImport_ImportModule("coot_utils");
-      std::cout << "DEBUG:: setup_python_with_coot_modules() PyImport_ImportModule() coot_utils: " << coot_utils << std::endl;
+      std::cout << "DEBUG:: in setup_python_with_coot_modules() PyImport_ImportModule() coot_utils: "
+                << coot_utils << std::endl;
 
       // This has do be done carefully - bit by bit. extension.py has many Python2/Python3
       // idioms.
@@ -247,7 +245,8 @@ void setup_python_with_coot_modules(int argc, char **argv) {
       PyObject *gui_module = PyImport_ImportModule("coot_gui");
       PyErr_Print();
 
-      std::cout << "DEBUG:: setup_python_with_coot_modules() PyImport_ImportModule() for gui_module: " << gui_module << std::endl;
+      std::cout << "DEBUG:: in setup_python_with_coot_modules() PyImport_ImportModule() for gui_module: "
+                << gui_module << std::endl;
 
    }
 

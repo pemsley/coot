@@ -1913,7 +1913,7 @@ namespace lig_build {
 
 	 return v;
       }
-      
+
       std::pair<bool, bool> shorten_flags(unsigned int bond_idx) const {
 	 bool shorten_first  = false;
 	 bool shorten_second = false;
@@ -1940,7 +1940,7 @@ namespace lig_build {
       }
 
       // using bonds and charge
-      // 
+      //
       atom_id_info_t
       make_atom_id_by_using_bonds(unsigned int atom_index,
 				  const std::string &ele,
@@ -1952,10 +1952,10 @@ namespace lig_build {
 	 //
 	 // So, for example, whereas before "OH" needed an x-tweak
 	 // with simple_gl_render, it does not.
-	 
+
 	 std::string atom_id = ele;
 	 int charge = atoms[atom_index].charge;
-   
+
 	 // Have we added an NH2, an NH or an N (for example)
 	 //
 	 int sum_neigb_bond_order = 0;
@@ -1969,7 +1969,7 @@ namespace lig_build {
 	 //           sum_neigb_bond_order == 1 and
 	 //           N+H3 for sum_neigb_bond_order == 2.
 	 // sum_neigb_bond_order += charge;
-	 
+
 	 for (unsigned int ib=0; ib<bond_indices.size(); ib++) {
 	    if (bonds[bond_indices[ib]].get_bond_type() == bond_t::SINGLE_BOND)
 	       sum_neigb_bond_order += 1;
