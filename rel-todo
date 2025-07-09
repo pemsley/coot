@@ -1,6 +1,15 @@
 
 --- Items ---
 
+o make a file that maps CCD-id to RDKit Canonical SMILES.
+  (is the SMILES in Acedrg output the canonical SMILES?)
+
+o what are the chi angles for ASN? In sequons? With link
+  to NAG?
+
+o Bonds and angles validation on 2d diagram from chapi
+  as svg.
+
 o filename filter for coords file open
   https://docs.gtk.org/gtk4/class.FileFilter.html
 
