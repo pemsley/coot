@@ -247,29 +247,29 @@ void do_regularize(short int state) {
    }
 }
 
-void do_refine(short int state) { 
+void do_refine(short int state) {
 
    //
-   graphics_info_t g; 
+   graphics_info_t g;
 
    g.set_in_range_define_for_refine(state);  // TRUE or Not...
 
    // std::cout << "DEBUG:: in do_refine" << std::endl;
-   
-   if (state) { 
+
+   if (state) {
       // g.untoggle_model_fit_refine_buttons_except("model_refine_dialog_refine_togglebutton");
       // and kill the delete dialog if it is there
       // do_regularize_kill_delete_dialog(); // 20220602-PE no longer
-      
+
       int imol_map = g.Imol_Refinement_Map();
       // std::cout << "DEBUG:: in do_refine, imol_map: " << imol_map << std::endl;
       if (imol_map < 0) {
-          g.show_select_map_dialog();
+          g.show_select_map_frame();
           imol_map = g.Imol_Refinement_Map();
       }
       if (imol_map >= 0) {
-	 if (g.molecules[imol_map].has_xmap()) { 
-	    std::cout << "click on 2 atoms (in the same molecule)" << std::endl; 
+	 if (g.molecules[imol_map].has_xmap()) {
+	    std::cout << "click on 2 atoms (in the same molecule)" << std::endl;
 	    g.pick_cursor_maybe();
 	    g.pick_pending_flag = 1;
 	    std::string s = "Pick 2 atoms or Autozone (pick 1 atom then press the A key)";
@@ -277,7 +277,7 @@ void do_refine(short int state) {
 	    s += "...";
 	    g.add_status_bar_text(s);
 	 } else {
-	    g.show_select_map_dialog();
+	    g.show_select_map_frame();
 	    g.in_range_define_for_refine = 0;
 	    g.model_fit_refine_unactive_togglebutton("model_refine_dialog_refine_togglebutton");
 	 }
@@ -289,7 +289,7 @@ void do_refine(short int state) {
           g.model_fit_refine_unactive_togglebutton("model_refine_dialog_refine_togglebutton");
           info_dialog("WARNING:: Still, no refinement map has been set!");
       }
-   } else { 
+   } else {
       g.normal_cursor();
       g.in_range_define_for_refine = 0;
       // g.pick_pending_flag = 0;
@@ -567,7 +567,7 @@ bool get_cryo_em_refinement() {
    return graphics_info_t::cryo_EM_refinement_flag;
 }
 
-void write_interpolated_extra_restraints(int imol_1, int imol_2, int n_steps, char *file_name_stub) {
+void write_interpolated_extra_restraints(int imol_1, int imol_2, int n_steps, const char *file_name_stub) {
 
    if (is_valid_model_molecule(imol_1)) {
       if (is_valid_model_molecule(imol_2)) {
@@ -590,7 +590,7 @@ void write_interpolated_extra_restraints(int imol_1, int imol_2, int n_steps, ch
 
 interpolation_mode is currently dummy - in due course I will addd torion angle interpolation.
 */
-void write_interpolated_models_and_extra_restraints(int imol_1, int imol_2, int n_steps, char *file_name_stub,
+void write_interpolated_models_and_extra_restraints(int imol_1, int imol_2, int n_steps, const char *file_name_stub,
 						    int interpolation_mode) {
 
    if (is_valid_model_molecule(imol_1)) {

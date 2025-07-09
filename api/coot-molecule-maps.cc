@@ -95,6 +95,19 @@ coot::molecule_t::is_em_map_cached_state() {
 }
 
 void
+coot::molecule_t::scale_map(float scale_factor) {
+
+   // can be multi-threaded?
+
+   if (has_xmap()) {
+      clipper::Xmap_base::Map_reference_index ix;
+      for (ix = xmap.first(); !ix.last(); ix.next() )
+	 xmap[ix] *= scale_factor;
+   }
+}
+
+
+void
 coot::molecule_t::set_map_is_difference_map(bool state) {
    xmap_is_diff_map = state;
 }
@@ -415,6 +428,7 @@ coot::molecule_t::get_map_contours_mesh(clipper::Coord_orth position, float radi
 
    bool show_timings = true;
    auto tp_0 = std::chrono::high_resolution_clock::now();
+
    if (use_thread_pool)
       update_map_triangles_using_thread_pool(radius, p, contour_level, thread_pool_p);
    else
@@ -495,6 +509,31 @@ coot::molecule_t::get_map_contours_mesh(clipper::Coord_orth position, float radi
       m.clear();
       m.status = 0;
    }
+
+
+   const auto &vertices = m.vertices;
+
+   if (false) {
+      // I want to see if the vertices are greater than the cell (219x219x219)
+      for (unsigned int i=0; i<vertices.size(); i++) {
+         if (vertices[i].pos.x > 219.0 || vertices[i].pos.y > 219.0 || vertices[i].pos.z > 219.0) {
+            std::cout << "ERROR:: vertex " << i << " " << vertices[i].pos.x << " "
+                      << vertices[i].pos.y << " " << vertices[i].pos.z << std::endl;
+         }
+         // test for negative values also:
+         if (vertices[i].pos.x < -1.0 || vertices[i].pos.y < -1.0 || vertices[i].pos.z < -1.0) {
+            std::cout << "ERROR:: vertex " << i << " " << vertices[i].pos.x << " "
+                      << vertices[i].pos.y << " " << vertices[i].pos.z << std::endl;
+         }
+
+         // print out everything:
+         std::cout << "INFO::  vertex " << i << " " << vertices[i].pos.x << " "
+                   << vertices[i].pos.y << " " << vertices[i].pos.z << std::endl;
+
+      }
+   }
+
+
    return m;
 }
 
@@ -537,6 +576,90 @@ coot::molecule_t::get_map_contours_mesh_using_other_map_for_colours(const clippe
    }
    return m;
 }
+
+coot::simple_mesh_t
+coot::molecule_t::get_map_contours_mesh_using_other_map_for_colours(const clipper::Coord_orth &position,
+								    float radius, float contour_level,
+								    const user_defined_colour_table_t &udct,
+								    const clipper::Xmap<float> &other_map) {
+
+   auto coord_orth_to_glm = [] (const clipper::Coord_orth &co) {
+      return glm::vec3(co.x(), co.y(), co.z());
+   };
+
+   auto clipper_to_cartesian = [] (const clipper::Coord_orth &c) {
+      return Cartesian(c.x(), c.y(), c.z()); };
+
+   auto frac_to_col = [] (float f, const user_defined_colour_table_t &udct) {
+      glm::vec4 col(0.1f, 0.1f, 0.1f, 1.0f);
+      for (unsigned int i=0; i<(udct.colour_table.size() -1); i++) {
+	 if (udct.colour_table[i].colour_frac <= f) {
+	    if (f <= udct.colour_table[i+1].colour_frac) {
+	       user_defined_colour_table_t::colour_pair_t lower_point = udct.colour_table[i];
+	       user_defined_colour_table_t::colour_pair_t upper_point = udct.colour_table[i+1];
+	       float fraction = (f - lower_point.colour_frac) / (upper_point.colour_frac - lower_point.colour_frac);
+	       float r = lower_point.colour.r + (upper_point.colour.r - lower_point.colour.r) * fraction;
+	       float g = lower_point.colour.g + (upper_point.colour.g - lower_point.colour.g) * fraction;
+	       float b = lower_point.colour.b + (upper_point.colour.b - lower_point.colour.b) * fraction;
+	       col = glm::vec4(r,g,b,1.0f);
+	    }
+	 }
+      }
+      return col;
+   };
+
+   auto position_to_colour = [frac_to_col] (const clipper::Coord_orth &c,
+					    const clipper::Xmap<float> &other_map,
+					    const user_defined_colour_table_t &udct,
+					    float min_value, float max_value) {
+      float dv = util::density_at_point(other_map, c);
+      float f = 0.0;
+      if (dv < min_value) {
+	 f = 0.0;
+      } else {
+	 if (dv > max_value) {
+	    f = 1.0;
+	 } else {
+	    // in the range
+	    float range = max_value - min_value;
+	    float m = dv - min_value;
+	    f = m/range;
+	 }
+      }
+      return frac_to_col(f, udct);
+   };
+
+   auto cpos = clipper_to_cartesian(position);
+   update_map_triangles(radius, cpos, contour_level);
+
+   coot::simple_mesh_t m; // initially status is good (1).
+   auto &vertices  = m.vertices;
+   auto &triangles = m.triangles;
+   std::vector<coot::density_contour_triangles_container_t>::const_iterator it;
+   const float &min_value = other_map_for_colouring_min_value;
+   const float &max_value = other_map_for_colouring_max_value;
+   for (it=draw_vector_sets.begin(); it!=draw_vector_sets.end(); ++it) {
+      const coot::density_contour_triangles_container_t &tri_con(*it);
+      unsigned int idx_base = vertices.size();
+      for (unsigned int i=0; i<tri_con.points.size(); i++) {
+         glm::vec3 pos    = coord_orth_to_glm(tri_con.points[i]);
+         glm::vec3 normal = coord_orth_to_glm(-tri_con.normals[i]); // reverse normals
+         clipper::Coord_orth clipper_pos(pos.x, pos.y, pos.z);
+         glm::vec4 col = position_to_colour(clipper_pos, other_map, udct, min_value, max_value);
+         api::vnc_vertex vert(pos, normal, col);
+         vertices.push_back(vert);
+      }
+      for (unsigned int i=0; i<tri_con.point_indices.size(); i++) {
+         g_triangle tri(tri_con.point_indices[i].pointID[0],
+                        tri_con.point_indices[i].pointID[1],
+                        tri_con.point_indices[i].pointID[2]);
+         tri.rebase(idx_base);
+         triangles.push_back(tri);
+      }
+   }
+   return m;
+}
+
 
 void
 coot::molecule_t::set_other_map_for_colouring_min_max(float min_v, float max_v) {
@@ -1442,6 +1565,71 @@ coot::molecule_t::get_map_histogram(unsigned int n_bins_in, float zoom_factor) c
    hi.mean = mean;
    hi.variance = mv.variance;
    return hi;
+}
+
+// just look at the vertices of the map - not the whole thing
+coot::molecule_t::histogram_info_t
+coot::molecule_t::get_map_vertices_histogram(const clipper::Xmap<float> &other_xmap,
+					     const clipper::Coord_orth &pt,
+					     float radius, float contour_level,
+					     bool use_thread_pool, ctpl::thread_pool *thread_pool_p,
+					     unsigned int n_bins) {
+
+
+   coot::molecule_t::histogram_info_t hi;
+   coot::simple_mesh_t mesh = get_map_contours_mesh(pt, radius, contour_level,
+						    use_thread_pool, thread_pool_p);
+   unsigned int n_points = 0;
+   float max_d = -10e6f;
+   float min_d =  10e6f;
+   std::vector<float> d_values;
+   d_values.reserve(40000);
+   std::vector<coot::density_contour_triangles_container_t>::const_iterator it;
+   for (it=draw_vector_sets.begin(); it!=draw_vector_sets.end(); ++it) {
+      const coot::density_contour_triangles_container_t &tri_con(*it);
+      for (unsigned int i=0; i<tri_con.points.size(); i++) {
+	 const clipper::Coord_orth &co = tri_con.points[i];
+	 float d = coot::util::density_at_point(other_xmap, co);
+	 if (d > max_d) max_d = d;
+	 if (d < min_d) min_d = d;
+	 n_points++;
+	 d_values.push_back(d);
+      }
+   }
+   if (n_points > 0) {
+      if (n_bins > 0) {
+	 float range = max_d - min_d;
+	 if (range > 0.0) {
+	    float bin_width = range / static_cast<float>(n_bins);
+	    float inv_range = 1.0f/range;
+	    std::map<int, int> counts;
+	    double sum = 0.0;
+	    double sum_sq = 0.0;
+	    int max_bin = 0;
+	    for (unsigned int i=0; i<d_values.size(); i++) {
+	       const float &d = d_values[i];
+	       float frac = (d - min_d) * inv_range;
+	       int bin = frac * static_cast<float>(n_bins);
+	       if (bin > max_bin) max_bin = bin;
+	       sum += d;
+	       sum_sq += d * d;
+	       counts[bin] += 1;
+	    }
+	    std::vector<int> counts_vec(max_bin + 1);
+	    std::map<int, int>::const_iterator it;
+	    for (it=counts.begin(); it!=counts.end(); ++it)
+	       counts_vec[it->first] = it->second;
+	    double mean = sum / static_cast<double>(n_points);
+	    double var = sum_sq / static_cast<double>(n_points) - mean * mean;
+	    if (var < 0.0) var = 0.0;
+	    hi = histogram_info_t(min_d, bin_width, counts_vec);
+	    hi.mean = mean;
+	    hi.variance = var;
+	 }
+      }
+   }
+   return hi;
+
 }
 
 #include "coot-utils/diff-diff-map-peaks.hh"

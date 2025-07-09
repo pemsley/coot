@@ -45,9 +45,28 @@ out vec4 colour_transfer;
 out vec3 normal_transfer;
 out vec2 texCoord_transfer;
 
+// The clownfish is drawn along the x-axis with 0,0,0 in the middle of the fish.
+//
+// offset = A * sin(k * p + ω * t)
+uniform bool do_animation;
+uniform float animation_A; // Amplitude overall
+uniform float animation_k; // wave number
+uniform float animation_w; // angular frequency
+uniform float time; // milliseconds
+
 void main() {
 
-   gl_Position = mvp * vec4(position, 1.0);
+   vec3 pos = position;
+   if (do_animation) {
+      float ff = (pos.x + 1.3);
+      float A = animation_A * ff * ff;
+      float tt = time * 0.002;
+      float offset_y = A * sin(animation_k * pos.x + 1.1 * animation_w * tt);
+      float offset_x = -0.0f; // the fish lengthens for some values of tt (well, it's sinusoidal).
+      pos.y += offset_y;
+      pos.x += offset_x;
+   }
+   gl_Position = mvp * vec4(pos, 1.0);
 
    // gl_Position = vec4(2 * position - vec3(1.0, 1.0, 0.0), 1.0);
 

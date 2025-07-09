@@ -40,6 +40,10 @@
 #include "geometry/main-chain.hh"
 #include "simple-restraint.hh"
 
+#include "utils/logging.hh"
+extern logging logger;
+
+
 //
 #include "coot-utils/coot-coord-extras.hh"  // is_nucleotide_by_dict
 
@@ -49,14 +53,15 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
    bool print_summary = print_table_flag;
 
    if (!v) {
-      std::cout << "ERROR:: oops null v in chi_squareds()" << std::endl;
+      // std::cout << "ERROR:: oops null v in chi_squareds()" << std::endl;
+      logger.log(log_t::ERROR, "chi_squareds(): null v");
    }
    if (verbose_geometry_reporting == QUIET) print_summary = false;
-   
+
    std::vector<refinement_lights_info_t> lights_vec;
-   int n_bond_restraints = 0; 
-   int n_angle_restraints = 0; 
-   int n_torsion_restraints = 0; 
+   int n_bond_restraints = 0;
+   int n_angle_restraints = 0;
+   int n_torsion_restraints = 0;
    int n_plane_restraints = 0;
    int n_parallel_plane_restraints = 0;
    int n_improper_dihedral_restraints = 0;
@@ -180,7 +185,7 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
 	       }
 	       baddies["Planes"].update_if_worse(dist, i);
 	       if (false) {  // debugging plane restraints.
-		  std::cout << " plane distortion " << i << " " 
+		  std::cout << "DEBUG:: plane distortion " << i << " " 
 			    << coot::distortion_score_plane(restraint, v) << " " 
 			    << restraint;
 		  for (unsigned int jj = 0; jj<restraint.plane_atom_index.size(); jj+=3) { 
@@ -208,7 +213,7 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
                parallel_planes_distortion += dist;
                baddies["Parallel Planes"].update_if_worse(dist, i);
                if (false) {
-                  std::cout << "parallel plane " << i << " " << restraint << " " << dist << std::endl;
+                  std::cout << "DEBUG:: parallel plane " << i << " " << restraint << " " << dist << std::endl;
                }
             }
          }
@@ -243,7 +248,7 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
 		  rama_distortion += dd;
 		  baddies["Rama"].update_if_worse(dd, i);
 
-#if 0	// needs indexing fixup	  
+#if 0	// needs indexing fixup
 		  if (false) { // debugging rama baddie update
 		     baddies_iterator = baddies.find("Rama");
 		     if (baddies_iterator != baddies.end()) {
@@ -255,7 +260,7 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
 				  << std::endl;
 		     }
 		  }
-#endif		  
+#endif
 
 	       } else {
 
@@ -270,7 +275,7 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
                   double w = get_rama_plot_weight();
 		  double d1 = distortion_score_rama(restraint, v, LogRama(), w);
 		  double d2 = coot::distortion_score_rama(restraint, v, ZO_Rama(), get_rama_plot_weight());
-		  std::cout << "distortion-comparision logramas " << d1 << " zo " << d2 << std::endl;
+		  std::cout << "DEBUG:: distortion-comparision logramas " << d1 << " zo " << d2 << std::endl;
 	       }
 	    }
 	 }
@@ -296,18 +301,24 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
    r += title;
    r += "\n";
    std::setprecision(3);
-   if (print_summary)
-      std::cout << "    " << title << std::endl;
+   if (print_summary) {
+      // std::cout << "    " << title << std::endl;
+      logger.log(log_t::INFO, "    ",title);
+   }
    if (n_bond_restraints == 0) {
-      if (print_summary)
-	 std::cout << "bonds:      N/A " << std::endl;
+      if (print_summary) {
+	 // std::cout << "bonds:      N/A " << std::endl;
+         logger.log(log_t::INFO, "bonds:      N/A");
+      }
    } else {
       double bd = bond_distortion/double(n_bond_restraints);
       double sbd = 0.0;
       if (bd > 0)
 	 sbd = sqrt(bd);
-      if (print_summary)
-	 std::cout << "bonds:      " << sbd << std::endl;
+      if (print_summary) {
+	 // std::cout << "bonds:      " << sbd << std::endl;
+         logger.log(log_t::INFO, "bonds:      ", sbd);
+      }
       r += "   bonds:  ";
       r += coot::util::float_to_string_using_dec_pl(sbd, 3);
       r += "\n";
@@ -320,15 +331,19 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
       lights_vec.push_back(rl);
    }
    if (n_angle_restraints == 0) {
-      if (print_summary)
-	 std::cout << "angles:     N/A " << std::endl;
+      if (print_summary) {
+	 // std::cout << "angles:     N/A " << std::endl;
+         logger.log(log_t::INFO, "angles:     N/A ");
+      }
    } else {
       double ad = angle_distortion/double(n_angle_restraints);
       double sad = 0.0;
       if (ad > 0.0)
 	 sad = sqrt(ad);
-      if (print_summary)
-	 std::cout << "angles:     " << sad << std::endl;
+      if (print_summary) {
+	 // std::cout << "angles:     " << sad << std::endl;
+         logger.log(log_t::INFO, "angles:     ", sad);
+      }
       r += "   angles: ";
       r += coot::util::float_to_string_using_dec_pl(sad, 3);
       r += "\n";
@@ -341,29 +356,37 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
       lights_vec.push_back(rl);
    }
    if (n_improper_dihedral_restraints == 0) {
-      if (print_summary)
-	 std::cout << "improper-dihedrals: N/A " << std::endl;
+      if (print_summary) {
+	 // std::cout << "improper-dihedrals: N/A " << std::endl;
+         logger.log(log_t::INFO, "improper-dihedrals: N/A");
+      }
    } else {
       double idd = improper_dihedral_distortion/static_cast<double>(n_improper_dihedral_restraints);
-      if (print_summary)
-         std::cout << "improper-dihedrals: " << idd << std::endl;
+      if (print_summary) {
+         // std::cout << "improper-dihedrals: " << idd << std::endl;
+         logger.log(log_t::INFO,"improper-dihedrals:", idd);
+      }
       r += "   improper-dihedrals: ";
       r += util::float_to_string_using_dec_pl(idd, 3);
       r += " ";
       r += util::int_to_string(n_improper_dihedral_restraints);
       r += "\n";
-      // add worst baddie handling here
+      // add worst baddie handling here -- FIXME
    }
    if (n_torsion_restraints == 0) {
-      if (print_summary)
-	 std::cout << "torsions:   N/A " << std::endl;
+      if (print_summary) {
+	 // std::cout << "torsions:   N/A " << std::endl;
+         logger.log(log_t::INFO,"torsions:   N/A");
+      }
    } else {
       double td = torsion_distortion/double(n_torsion_restraints);
       double std = 0.0;
       if (td > 0.0)
 	 std = sqrt(td);
-      if (print_summary)
-	 std::cout << "torsions:   " << std << std::endl;
+      if (print_summary) {
+	 // std::cout << "torsions:   " << std << std::endl;
+         logger.log(log_t::INFO,"torsions:   ", std);
+      }
       r += "   torsions: ";
       r += coot::util::float_to_string_using_dec_pl(std, 3);
       r += "\n";
@@ -376,12 +399,16 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
       lights_vec.push_back(rl);
    }
    if (n_trans_peptide_restraints == 0) {
-      if (print_summary)
-	 std::cout << "trans-peptide: N/A" << std::endl;
+      if (print_summary) {
+	 // std::cout << "trans-peptide: N/A" << std::endl;
+         logger.log(log_t::INFO, "trans-peptide: N/A");
+      }
    } else {
       double td = trans_peptide_distortion/double(n_trans_peptide_restraints);
-      if (print_summary)
-	 std::cout << "trans-peptide: " << td << " (non-sqrt)" << std::endl;
+      if (print_summary) {
+	 // std::cout << "trans-peptide: " << td << " (non-sqrt)" << std::endl;
+         logger.log(log_t::INFO, "trans-peptide: ", td, " (non-sqrt)");
+      }
       r += "   trans-peptide: ";
       r += coot::util::float_to_string_using_dec_pl(td, 3);
       r += "\n";
@@ -392,18 +419,21 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
       if (baddies_iterator != baddies.end())
 	 rl.worst_baddie = baddies_iterator->second;
       lights_vec.push_back(rl);
-	 
    }
    if (n_plane_restraints == 0) {
-      if (print_summary)
-	 std::cout << "planes:     N/A " << std::endl;
+      if (print_summary) {
+	 // std::cout << "planes:     N/A " << std::endl;
+         logger.log(log_t::INFO, "planes:     N/A ");
+      }
    } else {
       double pd = plane_distortion/static_cast<double>(n_plane_restraints);
       double spd = 0.0;
       if (pd > 0.0)
 	 spd = sqrt(pd);
-      if (print_summary)
-	 std::cout << "planes:     " << spd << " from " << n_plane_restraints << " restraints " << std::endl;
+      if (print_summary) {
+	 // std::cout << "planes:     " << spd << " from " << n_plane_restraints << " restraints " << std::endl;
+         logger.log(log_t::INFO, "planes:     ", spd, " from ", n_plane_restraints, " restraints");
+      }
       r += "   planes: ";
       r += coot::util::float_to_string_using_dec_pl(spd, 3);
       r += "\n";
@@ -416,16 +446,20 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
       lights_vec.push_back(rl);
    }
    if (n_parallel_plane_restraints == 0) {
-      if (print_summary)
-	 std::cout << "parallel planes:     N/A " << std::endl;
+      if (print_summary) {
+	 // std::cout << "parallel planes:     N/A " << std::endl;
+         logger.log(log_t::INFO, "parallel planes:     N/A ");
+      }
    } else {
       double ppd = parallel_planes_distortion/static_cast<double>(n_parallel_plane_restraints);
       double sppd = 0.0;
       if (ppd > 0.0)
 	 sppd = sqrt(ppd);
-      if (print_summary)
-	 std::cout << "parallel planes: " << sppd << " from " << n_parallel_plane_restraints
-                   << " restraints " << std::endl;
+      if (print_summary) {
+	 // std::cout << "parallel planes: " << sppd << " from " << n_parallel_plane_restraints
+         // << " restraints " << std::endl;
+         logger.log(log_t::INFO, "parallel planes: ", sppd, " from ", n_parallel_plane_restraints, " restraints");
+      }
       r += "   parallel planes: ";
       r += coot::util::float_to_string_using_dec_pl(sppd, 3);
       r += "\n";
@@ -438,15 +472,19 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
       lights_vec.push_back(rl);
    }
    if (n_non_bonded_restraints == 0) {
-      if (print_summary)
-	 std::cout << "non-bonded: N/A " << std::endl;
+      if (print_summary) {
+	 // std::cout << "non-bonded: N/A " << std::endl;
+         logger.log(log_t::INFO, "non-bonded: N/A ");
+      }
    } else {
       double nbd = non_bonded_distortion/double(n_non_bonded_restraints);
       double snbd = 0.0;
       if (nbd > 0.0)
 	 snbd = sqrt(nbd);
-      if (print_summary)
-	 std::cout << "non-bonded: " << nbd << std::endl;
+      if (print_summary) {
+	 // std::cout << "non-bonded: " << nbd << std::endl;
+         logger.log(log_t::INFO, "non-bonded: ", snbd);
+      }
       r += "   non-bonded: ";
       r += coot::util::float_to_string_using_dec_pl(snbd, 3);
       r += "\n";
@@ -458,16 +496,20 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
 	 rl.worst_baddie = baddies_iterator->second;
       lights_vec.push_back(rl);
    }
-   if (n_chiral_volumes == 0) { 
-      if (print_summary)
-	 std::cout << "chiral vol: N/A " << std::endl;
+   if (n_chiral_volumes == 0) {
+      if (print_summary) {
+	 // std::cout << "chiral vol: N/A " << std::endl;
+         logger.log(log_t::INFO, "chiral vol: N/A ");
+      }
    } else {
       double cd = chiral_vol_distortion/double(n_chiral_volumes);
       double scd = 0.0;
       if (cd > 0.0)
 	 scd = sqrt(cd);
-      if (print_summary)
-	 std::cout << "chiral vol: " << scd << std::endl;
+      if (print_summary) {
+	 // std::cout << "chiral vol: " << scd << std::endl;
+         logger.log(log_t::INFO, "chiral vol: ", scd);
+      }
       r += "   chirals: ";
       r += coot::util::float_to_string_using_dec_pl(scd, 3);
       std::string s = "Chirals: ";
@@ -478,14 +520,18 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
 	 rl.worst_baddie = baddies_iterator->second;
       lights_vec.push_back(rl);
    }
-   if (n_rama_restraints == 0) { 
-      if (print_summary)
-	 std::cout << "rama plot:  N/A " << std::endl;
+   if (n_rama_restraints == 0) {
+      if (print_summary) {
+	 // std::cout << "rama plot:  N/A " << std::endl;
+         logger.log(log_t::INFO, "rama plot:  N/A ");
+      }
    } else {
       double rd = rama_distortion/double(n_rama_restraints);
 
-      if (print_summary)
-	 std::cout << "rama plot:  " << rd << " " << n_rama_restraints << std::endl;
+      if (print_summary) {
+	 // std::cout << "rama plot:  " << rd << " " << n_rama_restraints << std::endl;
+         logger.log(log_t::INFO, "rama plot:  ", rd, " ", n_rama_restraints);
+      }
 
       r += "   rama plot: ";
       r += util::float_to_string_using_dec_pl(rd, 3);
@@ -496,26 +542,33 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
       if (baddies_iterator != baddies.end()) {
 	 rli.worst_baddie = baddies_iterator->second;
 	 const simple_restraint &baddie_restraint = restraints_vec[rli.worst_baddie.restraints_index];
-	 if (print_summary)
-	    std::cout << "rama worst baddie: index " << rli.worst_baddie.restraints_index
-		      << " distortion " << baddie_restraint.format(atom, rli.worst_baddie.value)
-		      << std::endl;
+	 if (print_summary) {
+	    // std::cout << "rama worst baddie: index " << rli.worst_baddie.restraints_index
+	    //           << " distortion " << baddie_restraint.format(atom, rli.worst_baddie.value)
+	    //           << std::endl;
+            logger.log(log_t::INFO, "rama worst baddie: index ", rli.worst_baddie.restraints_index,
+                       " distortion ", baddie_restraint.format(atom, rli.worst_baddie.value));
+         }
       }
       if (rama_type == RAMA_TYPE_ZO)
 	 rli.rama_type = RAMA_TYPE_ZO;
-      
+
       lights_vec.push_back(rli);
    }
    if (n_start_pos_restraints == 0) {
-      if (print_summary)
-	 std::cout << "start_pos:  N/A " << std::endl;
+      if (print_summary) {
+	 // std::cout << "start_pos:  N/A " << std::endl;
+         logger.log(log_t::INFO, "start_pos:  N/A ");
+      }
    } else {
       double spd = start_pos_distortion/double(n_start_pos_restraints);
       double sspd = 0.0;
       if (spd > 0.0)
 	 sspd = sqrt(spd);
-      if (print_summary)
-	 std::cout << "start_pos:  " << sspd << std::endl;
+      if (print_summary) {
+	 // std::cout << "start_pos:  " << sspd << std::endl;
+         logger.log(log_t::INFO, "start_pos:  ", sspd);
+      }
       r += "startpos:  ";
       r += util::float_to_string_using_dec_pl(sspd, 3);
       r += "\n";
@@ -525,12 +578,16 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
    }
 
    if (n_target_pos_restraints == 0) {
-      if (print_summary)
-	 std::cout << "TargetPos:  N/A " << std::endl;
+      if (print_summary) {
+	 // std::cout << "TargetPos:  N/A " << std::endl;
+         logger.log(log_t::INFO, "TargetPos:  N/A ");
+      }
    } else {
       double tpd = target_pos_distortion/double(n_target_pos_restraints);
-      if (print_summary) 
-	 std::cout << "target_pos: " << tpd  << " (non-sqrt)" << std::endl;
+      if (print_summary) {
+	 // std::cout << "target_pos: " << tpd  << " (non-sqrt)" << std::endl;
+         logger.log(log_t::INFO, "target_pos: ", tpd, " (non-sqrt)");
+      }
       r += "targetpos: ";
       r += util::float_to_string_using_dec_pl(tpd, 3);
       r += "\n";
@@ -543,16 +600,19 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
       lights_vec.push_back(rl);
    }
    if (n_geman_mcclure_distance == 0) {
-      if (print_summary)
-	 std::cout << "GemanMcCl:  N/A " << std::endl;
+      if (print_summary) {
+	 // std::cout << "GemanMcCl:  N/A " << std::endl;
+         logger.log(log_t::INFO, "GemanMcCl:  N/A ");
+      }
    } else {
       double spd = gm_distortion/double(n_geman_mcclure_distance);
       double sspd = 0.0;
       if (spd > 0.0)
 	 sspd = sqrt(spd);
-      if (print_summary)
-	 std::cout << "GemanMcCl:  " << sspd << " from " << n_geman_mcclure_distance << " distances"
-		   << std::endl;
+      if (print_summary) {
+	 // std::cout << "GemanMcCl:  " << sspd << " from " << n_geman_mcclure_distance << " distances" << std::endl;
+         logger.log(log_t::INFO, "GemanMcCl:  ", sspd, " from ", n_geman_mcclure_distance, " distances");
+      }
       r += "GemanMcCl:  ";
       r += util::float_to_string_using_dec_pl(sspd, 3);
       r += "\n";
@@ -572,16 +632,16 @@ coot::restraints_container_t::chi_squareds(std::string title, const gsl_vector *
 	 const refinement_lights_info_t &rl = lights_vec[i];
 	 if (rl.worst_baddie.is_set) {
 	    const simple_restraint &baddie_restraint = restraints_vec[rl.worst_baddie.restraints_index];
-	    std::cout << " worst baddie of type " << std::setw(13) << rl.name << " "
+	    std::cout << "DEBUG:: worst baddie of type " << std::setw(13) << rl.name << " "
 		      << rl.worst_baddie.value << " "
 		      << std::setw(4) << rl.worst_baddie.restraints_index << " "
 		      << std::setprecision(8)
 		      << baddie_restraint.format(atom, rl.worst_baddie.value) << std::endl;
 	 } else {
-	    std::cout << "worst baddie not set " << rl.name << std::endl;
+	    std::cout << "DEBUG:: worst baddie not set " << rl.name << std::endl;
 	 }
       }
    }
    return lights_vec;
-} 
+}
 

@@ -17,7 +17,7 @@
 
 cootdatadir = $(pkgdatadir)/data
 
-SUBDIRS = rama-coeffs cho-models cho-acedrg metal
+SUBDIRS = rama-coeffs cho-models cho-acedrg cho-links metal pdb-templates
 
 # putting syminfo.lib into the data subdirectory matches the installation from CMakeLists.txt
 # and where the code expects it to be

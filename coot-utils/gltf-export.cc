@@ -38,7 +38,9 @@
 // pass the name (that should be visible in blender?)
 // pass one of "SHINY_PLASTIC, CLAY or METALLIC" as a hint for how to consstruct the glTF material.
 void
-coot::simple_mesh_t::export_to_gltf(const std::string &file_name, bool use_binary_format) const {
+coot::simple_mesh_t::export_to_gltf(const std::string &file_name,
+                                    float roughness, float metalicity,
+                                    bool use_binary_format) const {
 
    std::string name = "Test Export";
 
@@ -77,7 +79,7 @@ coot::simple_mesh_t::export_to_gltf(const std::string &file_name, bool use_binar
    fill_buffer_info(ebi, vertices, triangles); // fills ebi
 
    tinygltf::Model model;
-   model.asset.generator = "Coot 1.0-pre 20220205";
+   model.asset.generator = "Coot 1.1.16 20250405";
    model.defaultScene = 0;
 
    // --- Materials ---
@@ -95,8 +97,8 @@ coot::simple_mesh_t::export_to_gltf(const std::string &file_name, bool use_binar
    mat.normalTexture        = tinygltf::NormalTextureInfo();
    mat.occlusionTexture     = tinygltf::OcclusionTextureInfo();
    mat.emissiveTexture      = tinygltf::TextureInfo();
-   mat.pbrMetallicRoughness.metallicFactor = 0.0;  // shiny plastic
-   mat.pbrMetallicRoughness.roughnessFactor = 0.2;
+   mat.pbrMetallicRoughness.metallicFactor = metalicity;
+   mat.pbrMetallicRoughness.roughnessFactor = roughness;
 
    model.materials.push_back(mat); // index 0
    int material_index = 0;
@@ -173,7 +175,7 @@ coot::simple_mesh_t::export_to_gltf(const std::string &file_name, bool use_binar
       model.accessors.push_back(accessor_for_positions);
 
    }
-   std::cout << "debug:: buffer.data.size() is now " << buffer.data.size() << std::endl;
+   std::cout << "debug:: export_to_gltf(): buffer.data.size() is now " << buffer.data.size() << std::endl;
 
    {  // ---- normals ----
 

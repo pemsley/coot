@@ -24,13 +24,13 @@
  *
  */
 
-#include "glm/matrix.hpp"
 #ifdef USE_PYTHON
 #include <Python.h>
 #endif // USE_PYTHON
 
 #include "compat/coot-sysdep.h"
 
+#include "glm/matrix.hpp"
 #define GLM_ENABLE_EXPERIMENTAL // # for norm things
 // #include <glm/ext.hpp>
 #include <glm/gtx/string_cast.hpp>  // to_string()
@@ -58,6 +58,11 @@
 #include "vnc-vertex-to-generic-vertex.hh"
 
 #include "screendump-tga.hh"
+#include "widget-from-builder.hh"
+
+#include "utils/logging.hh"
+extern logging logger;
+
 
 enum {VIEW_CENTRAL_CUBE, ORIGIN_CUBE};
 
@@ -379,7 +384,7 @@ graphics_info_t::mouse_zoom_by_scale_factor_inner(double sf) {
    } else {
 
       // stabilize the scale factor
-      if (sf < 0.1) sf = 0.1;
+      if (sf < 0.5) sf = 0.5;
       if (sf > 2.0) sf = 2.0;
       graphics_info_t::eye_position.z *= sf;
 
@@ -947,6 +952,8 @@ graphics_info_t::draw_model_molecules() {
       m.draw_dots(&shader_for_rama_balls, mvp, model_rotation, lights, eye_position,
                      bgc, shader_do_depth_fog_flag);
 
+      m.draw_ncs_ghosts(&shader_for_meshes, mvp, model_rotation, lights, eye_position, bgc);
+
       glEnable(GL_BLEND);
       draw_molecule_atom_labels(m, mvp, model_rotation);
 
@@ -1013,10 +1020,29 @@ graphics_info_t::draw_molecule_atom_labels(molecule_class_info_t &m,
    int n_symm_atoms_to_label = m.labelled_symm_atom_index_list.size();
 
    // std::cout << "draw_molecule_atom_labels " << n_atoms_to_label << " " << n_symm_atoms_to_label << std::endl;
-   if (n_atoms_to_label == 0 && n_symm_atoms_to_label == 0) return;
 
-   m.draw_atom_labels(brief_atom_labels_flag, seg_ids_in_atom_labels_flag,
-                      label_colour, mvp, view_rotation);
+   if (n_atoms_to_label == 0 && n_symm_atoms_to_label == 0) {
+   } else {
+      m.draw_atom_labels(brief_atom_labels_flag, seg_ids_in_atom_labels_flag,
+                         label_colour, mvp, view_rotation);
+   }
+
+   // this is draw_generic_texts() - but not in its own function
+
+   if (! generic_texts.empty()) {
+      auto atom_label_colour = label_colour;
+      for (unsigned int i=0; i<generic_texts.size(); i++) {
+         const coot::generic_text_object_t gto = generic_texts[i];
+         const std::string &label = gto.s;
+         glm::vec3 position(gto.x, gto.y, gto.z);
+         tmesh_for_labels.draw_atom_label(label, position, atom_label_colour,
+                                          &shader_for_atom_labels, mvp, view_rotation,
+                                          glm::vec4(background_colour, 1.0),
+                                          shader_do_depth_fog_flag,
+                                          perspective_projection_flag);
+      }
+   }
+
 
    glDisable(GL_BLEND);
 
@@ -2064,8 +2090,6 @@ graphics_info_t::draw_molecules_atom_labels() {
          }
       }
    }
-
-
 }
 
 
@@ -2136,9 +2160,24 @@ graphics_info_t::draw_environment_graphics_object() {
 }
 
 #include "molecular-mesh-generator.hh"
+#include "pulse-data.hh"
 
 void
 graphics_info_t::update_mesh_for_outline_of_active_residue(int imol, const coot::atom_spec_t &spec, int n_press) {
+
+   // if the range was not valid, but n_press was 5, we want some visual feedback - use
+   // the invalid residue pulse (maybe it needs a new name then?). It uses delete_item_pulse_centres
+   // for the centres of the pulses.
+   auto setup_invalid_residue_pulse_for_invalid_range_outine = [] () {
+      std::cout << "debug:: update_mesh_for_outline_of_active_residue: lambda start " << std::endl;
+      bool broken_line_mode = false;
+      lines_mesh_for_identification_pulse.setup_red_pulse(broken_line_mode);
+      pulse_data_t *pulse_data = new pulse_data_t(0, 12);
+      gpointer user_data = reinterpret_cast<void *>(pulse_data);
+      std::vector<glm::vec3> positions = { get_rotation_centre() };
+      delete_item_pulse_centres = positions;
+      gtk_widget_add_tick_callback(glareas[0], generic_pulse_function, user_data, NULL);
+   };
 
 
    if (is_valid_model_molecule(imol)) {
@@ -2151,13 +2190,43 @@ graphics_info_t::update_mesh_for_outline_of_active_residue(int imol, const coot:
             int bond_width = 9;
             int model_number = residue_p->GetModelNum();
             molecular_mesh_generator_t mmg;
+
+            // setup the range, if the user had defined one in this molecule
+            molecular_mesh_generator_t::range_t range;
+            int imol_1 = in_range_first_picked_atom.int_user_data;
+            int imol_2 = in_range_second_picked_atom.int_user_data;
+            if (imol_1 == imol_2) {
+               if (imol_1 == imol) {
+                  coot::atom_spec_t spec_1 = in_range_first_picked_atom;
+                  coot::atom_spec_t spec_2 = in_range_second_picked_atom;
+                  if (spec_1.chain_id == spec_2.chain_id) {
+                     int rn1 = spec_1.res_no;
+                     int rn2 = spec_2.res_no;
+                     if (rn2 < rn1) std::swap(rn1, rn2);
+                     range = molecular_mesh_generator_t::range_t(spec_1.chain_id, rn1, rn2);
+                  }
+               }
+            }
+
             std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > p =
                mmg.get_molecular_triangles_mesh_for_active_residue(imol, mol, model_number, residue_p, Geom_p(),
-                                                                   bond_width, n_press);
+                                                                   bond_width, range, n_press);
+
+            // if the range was not valid, but n_press was 5, we want some visual feedback - use
+            // the invalid residue pulse (maybe it needs a new name then?) It uses delete_item_pulse_centres
+            // for the centres of the pulses
+            if (n_press == 5) {
+               if (! range.is_valid) {
+                  setup_invalid_residue_pulse_for_invalid_range_outine();
+               }
+            }
+
             mesh_for_outline_of_active_residue.clear();
-            mesh_for_outline_of_active_residue.import(p);
-            Material mat;
-            mesh_for_outline_of_active_residue.setup(mat);
+            if (!p.first.empty()) {
+               mesh_for_outline_of_active_residue.import(p);
+               Material mat;
+               mesh_for_outline_of_active_residue.setup(mat);
+            }
          }
       }
    }
@@ -2318,8 +2387,6 @@ graphics_info_t::draw_molecules_other_meshes(unsigned int pass_type) {
    // graphics_info_t::draw_instanced_meshes() A Molecule 2: Ligand Contact Dots vdw-surface
    // graphics_info_t::draw_instanced_meshes() A Molecule 2: Ligand Contact Dots big-overlap
 
-   // std::cout << "------------- draw_molecules_other_meshes() " << std::endl;
-
    bool draw_meshes = true;
    bool draw_mesh_normals = false;
 
@@ -2366,7 +2433,7 @@ graphics_info_t::draw_molecules_other_meshes(unsigned int pass_type) {
          // std::cout << "   Here A in draw_meshed_generic_display_object_meshes() " << std::endl;
          glDisable(GL_BLEND);
          for (int ii=n_molecules()-1; ii>=0; ii--) {
-            // std::cout << "Here B in draw_meshed_generic_display_object_meshes() " << ii  << std::endl;
+
             molecule_class_info_t &m = molecules[ii]; // not const because the shader changes
             if (! is_valid_model_molecule(ii)) continue;
             for (unsigned int jj=0; jj<m.meshes.size(); jj++) {
@@ -2374,7 +2441,7 @@ graphics_info_t::draw_molecules_other_meshes(unsigned int pass_type) {
                Mesh &mesh = m.meshes[jj];
 
                if (false)
-                  std::cout << "mesh jj " << jj << " of " << m.meshes.size()
+                  std::cout << "debug:: mesh jj " << jj << " of " << m.meshes.size()
                             << " instanced: " << m.meshes[jj].is_instanced << std::endl;
 
                if (mesh.is_instanced) {
@@ -2385,13 +2452,15 @@ graphics_info_t::draw_molecules_other_meshes(unsigned int pass_type) {
                                       model_rotation, lights, eye_position,
                                       bg_col, do_depth_fog, transferred_colour_is_instanced);
                } else {
+
                   if (pass_type == PASS_TYPE_STANDARD) {
                      bool show_just_shadows = false;
                      bool wireframe_mode = false;
                      float opacity = 1.0f;
-                     m.meshes[jj].draw(&shader_for_meshes_with_shadows, mvp,
+                     m.meshes[jj].draw(&shader_for_moleculestotriangles, mvp,
                                        model_rotation, lights, eye_position, rc, opacity, bg_col,
                                        wireframe_mode, do_depth_fog, show_just_shadows);
+
                   }
                   if (pass_type == PASS_TYPE_SSAO) {
                      bool do_orthographic_projection = ! perspective_projection_flag;
@@ -2935,6 +3004,7 @@ graphics_info_t::setup_hud_buttons() {
 void
 graphics_info_t::clear_hud_buttons() {
 
+   attach_buffers();
    hud_button_info.clear();
    mesh_for_hud_buttons.update_instancing_buffer_data(hud_button_info); // empty
 }
@@ -3294,6 +3364,7 @@ graphics_info_t::draw_hud_fps() {
 void
 graphics_info_t::show_atom_pull_toolbar_buttons() {
 
+#if 0 // this is old-school graphics/gui, isn't it?
    if (use_graphics_interface_flag) {
       GtkWidget *button_1 = get_widget_from_builder("clear_atom_pull_restraints_toolbutton");
       GtkWidget *button_2 = get_widget_from_builder("auto_clear_atom_pull_restraints_togglebutton");
@@ -3307,6 +3378,7 @@ graphics_info_t::show_atom_pull_toolbar_buttons() {
       else
          std::cout << "in show_atom_pull_toolbar_buttons() missing button2" << std::endl;
    }
+#endif
 }
 
 
@@ -3328,7 +3400,8 @@ void
 graphics_info_t::show_accept_reject_hud_buttons() {
 
 
-   std::cout << "--------------------- show_accept_reject_hud_buttons() " << std::endl;
+   if (false)
+      std::cout << "--------------------- show_accept_reject_hud_buttons() " << std::endl;
 
    // add some HUD buttons
 
@@ -3364,7 +3437,7 @@ graphics_info_t::show_accept_reject_hud_buttons() {
                            graphics_info_t g;
                            g.stop_refinement_internal();
                            g.accept_moving_atoms();
-                           g.hud_button_info.clear();
+                           // g.hud_button_info.clear();
                            g.hide_atom_pull_toolbar_buttons();
                            // g.draw_bad_nbc_atom_pair_markers = false;
                            g.clear_gl_rama_plot();
@@ -3376,7 +3449,7 @@ graphics_info_t::show_accept_reject_hud_buttons() {
                            graphics_info_t g;
                            g.stop_refinement_internal();
                            g.clear_up_moving_atoms();
-                           g.hud_button_info.clear();
+                           // g.hud_button_info.clear();
                            // g.draw_bad_nbc_atom_pair_markers = false;
                            g.rebond_molecule_corresponding_to_moving_atoms();
                            g.graphics_draw();
@@ -4142,7 +4215,16 @@ graphics_info_t::check_if_hud_button_moused_over_or_act_on_hit(double x, double 
                                                     button.set_button_colour_for_mode(HUD_button_info_t::BASIC);
                                                  }
                                               }
+                                              GLenum err = glGetError();
+                                              if (err) std::cout << "GL ERROR:: highlight_just_button_with_index pos-B "
+                                                                 << err << std::endl;
+                                              attach_buffers();
+                                              err = glGetError();
+                                              if (err) std::cout << "GL ERROR:: highlight_just_button_with_index pos-C "
+                                                                 << err << std::endl;
                                               mesh_for_hud_buttons.update_instancing_buffer_data(hud_button_info);
+                                              if (err) std::cout << "GL ERROR:: highlight_just_button_with_index pos-D "
+                                                                 << err << std::endl;
                                               graphics_draw(); // let's see the changes then
                                            };
    auto unhighlight_all_buttons = [] () {
@@ -4150,10 +4232,21 @@ graphics_info_t::check_if_hud_button_moused_over_or_act_on_hit(double x, double 
                                                  auto &button = hud_button_info[i];
                                                  button.set_button_colour_for_mode(HUD_button_info_t::BASIC);
                                               }
+                                              GLenum err = glGetError();
+                                              if (err) std::cout << "GL ERROR:: unhighlight_all_buttons pos-B "
+                                                                 << err << std::endl;
+                                              attach_buffers();
+                                              err = glGetError();
+                                              if (err) std::cout << "GL ERROR:: unhighlight_all_buttons pos-C "
+                                                                 << err << std::endl;
                                               mesh_for_hud_buttons.update_instancing_buffer_data(hud_button_info);
+                                              err = glGetError();
+                                              if (err) std::cout << "GL ERROR:: unhighlight_all_buttons pos-D "
+                                                                 << err << std::endl;
                                   };
 
    bool status = false;
+   bool clear_HUD_buttons_flag = false;
    if (! hud_button_info.empty()) {
       GtkGLArea *gl_area = GTK_GL_AREA(glareas[0]);
       GtkAllocation allocation;
@@ -4174,6 +4267,9 @@ graphics_info_t::check_if_hud_button_moused_over_or_act_on_hit(double x, double 
                if (button.callback_function) {
                   button.callback_function();
                }
+               // don't clear the hud buttons in the callback.
+               if (button.button_label == "Accept") clear_HUD_buttons_flag = true;
+               if (button.button_label == "Reject") clear_HUD_buttons_flag = true;
             }
             status = true;
             highlight_just_button_with_index(i);
@@ -4183,6 +4279,7 @@ graphics_info_t::check_if_hud_button_moused_over_or_act_on_hit(double x, double 
          unhighlight_all_buttons();
       }
    }
+   if (clear_HUD_buttons_flag) clear_hud_buttons();
 
    return status;
 }
@@ -4438,7 +4535,7 @@ graphics_info_t::render_3d_scene_for_ssao() {
 }
 
 
-
+// these are both optional arguments.
 gboolean
 graphics_info_t::render(bool to_screendump_framebuffer_flag, const std::string &output_file_name) {
 
@@ -4759,6 +4856,7 @@ graphics_info_t::try_label_unlabel_active_atom() {
          int ierr = at->GetUDData(molecules[im].atom_sel.UDDAtomIndexHandle, atom_index);
 	 if (ierr == mmdb::UDDATA_Ok) {
             molecules[im].add_to_labelled_atom_list(atom_index);
+	    add_picked_atom_info_to_status_bar(im, atom_index);
             graphics_draw();
          } else {
             std::cout << "WARNING:: Bad UDData for atom_index for atom " << std::endl;
@@ -5223,9 +5321,21 @@ graphics_info_t::update_bad_nbc_atom_pair_marker_positions() {
             bad_nbc_atom_pair_marker_positions.push_back(coord_orth_to_glm(baddies[i].mid_point));
          }
 
+         GLenum err = glGetError();
+         if (err)
+            std::cout << "GL ERROR:: update_bad_nbc_atom_pair_marker_positions() pos-B " << stringify_error_message(err) << std::endl;
+
          attach_buffers();
+         err = glGetError();
+         if (err)
+            std::cout << "GL ERROR:: update_bad_nbc_atom_pair_marker_positions() pos-C - post attach_buffers "
+                      << stringify_error_message(err) << std::endl;
          tmesh_for_bad_nbc_atom_pair_markers.draw_this_mesh = true;
          tmesh_for_bad_nbc_atom_pair_markers.update_instancing_buffer_data(bad_nbc_atom_pair_marker_positions);
+         err = glGetError();
+         if (err)
+            std::cout << "GL ERROR:: update_bad_nbc_atom_pair_marker_positions() pos-C - post update_instancing_buffer_data "
+                      << stringify_error_message(err) << std::endl;
          if (! bad_nbc_atom_pair_marker_positions.empty())
             draw_bad_nbc_atom_pair_markers_flag = true;
 
@@ -5530,8 +5640,8 @@ graphics_info_t::setup_draw_for_boids() {
 
       meshed_generic_display_object m;
       coot::colour_holder col(0.4, 0.5, 0.6);
-      std::pair<glm::vec3, glm::vec3> start_end(glm::vec3(0.95,0,0), glm::vec3(-0.95,0,0));
-      m.add_cone(start_end, col, 1.0, 0.0, 12, false, true,
+      std::pair<glm::vec3, glm::vec3> start_end(glm::vec3(1.95,0,0), glm::vec3(-1.95,0,0));
+      m.add_cone(start_end, col, 3.0, 0.0, 24, false, true,
                  meshed_generic_display_object::FLAT_CAP,
                  meshed_generic_display_object::FLAT_CAP);
       mesh_for_boids = m.mesh;
@@ -5539,7 +5649,6 @@ graphics_info_t::setup_draw_for_boids() {
       std::vector<glm::mat4>    mats(n_boids);
       std::vector<glm::vec4> colours(n_boids);
       for (unsigned int i=0; i<n_boids; i++) {
-         const fun::boid boid = boids[i];
          mats[i] = glm::mat4(1.0f);
          colours[i] = glm::vec4(0.2, 0.6, 0.4, 1.0);
       }
@@ -5760,7 +5869,7 @@ graphics_info_t::setup_delete_item_pulse(mmdb::Residue *residue_p) {
    delete_item_pulse_centres = positions;
    gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0]));
    bool broken_line_mode = true;
-   lines_mesh_for_delete_item_pulse.setup_pulse(broken_line_mode);
+   lines_mesh_for_delete_item_pulse.setup_red_pulse(broken_line_mode);
    gtk_widget_add_tick_callback(glareas[0], delete_item_pulse_func, user_data, NULL);
 
 };
@@ -5768,11 +5877,11 @@ graphics_info_t::setup_delete_item_pulse(mmdb::Residue *residue_p) {
 void
 graphics_info_t::setup_delete_residues_pulse(const std::vector<mmdb::Residue *> &residues) {
 
-   // next you use this functionn make it a member of graphics_info_t
+   // next you use this function make it a member of graphics_info_t
    // gboolean delete_item_pulse_func(GtkWidget *widget,
    //                                 GdkFrameClock *frame_clock,
    //                                 gpointer data)
-   // 
+   //
    auto delete_item_pulse_func = [] (GtkWidget *widget,
                                      GdkFrameClock *frame_clock,
                                      gpointer data) {
@@ -5803,15 +5912,12 @@ graphics_info_t::setup_delete_residues_pulse(const std::vector<mmdb::Residue *> 
    delete_item_pulse_centres = all_positions;
    gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0]));
    bool broken_line_mode = true;
-   lines_mesh_for_delete_item_pulse.setup_pulse(broken_line_mode);
+   lines_mesh_for_delete_item_pulse.setup_red_pulse(broken_line_mode);
    gtk_widget_add_tick_callback(glareas[0], delete_item_pulse_func, user_data, NULL);
 
 };
 
 
-// I think that this function should be part of glarea_tick_func().
-// (bring glarea_tick_func() into graphics_info_t.)
-//
 // static
 gboolean
 graphics_info_t::invalid_residue_pulse_function(GtkWidget *widget,
@@ -5833,6 +5939,28 @@ graphics_info_t::invalid_residue_pulse_function(GtkWidget *widget,
    return gboolean(continue_status);
 }
 
+// static
+gboolean
+graphics_info_t::generic_pulse_function(GtkWidget *widget,
+                                        GdkFrameClock *frame_clock,
+                                        gpointer data) {
+
+   gboolean continue_status = 1;
+   pulse_data_t *pulse_data = reinterpret_cast<pulse_data_t *>(data);
+   pulse_data->n_pulse_steps += 1;
+   if (pulse_data->n_pulse_steps > pulse_data->n_pulse_steps_max) {
+      continue_status = 0;
+      lines_mesh_for_identification_pulse.clear();
+      delete_item_pulse_centres.clear();
+   } else {
+      float f = 1.03f;
+      lines_mesh_for_identification_pulse.update_buffers_by_resize(f);
+   }
+   graphics_draw();
+   return gboolean(continue_status);
+}
+
+
 void
 graphics_info_t::setup_invalid_residue_pulse(mmdb::Residue *residue_p) {
 
@@ -5842,7 +5970,7 @@ graphics_info_t::setup_invalid_residue_pulse(mmdb::Residue *residue_p) {
    delete_item_pulse_centres = residue_positions; // sneakily use a wrongly named function
    gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0]));
    bool broken_line_mode = false;
-   lines_mesh_for_identification_pulse.setup_pulse(broken_line_mode);
+   lines_mesh_for_identification_pulse.setup_red_pulse(broken_line_mode);
    gtk_widget_add_tick_callback(glareas[0], invalid_residue_pulse_function, user_data, NULL);
 
 }
@@ -6162,8 +6290,11 @@ graphics_info_t::idle_contour_function(gpointer data) {
 	   continue_status = 0;
            float cl = g.molecules[imol].contour_level;
            float r = cl/map_rmsd;
-           std::cout << "DEBUG:: idle_contour_function() imol: " << imol << " contour level: "
-                     << g.molecules[imol].contour_level << " n-rmsd: " << r << std::endl;
+           // std::cout << "DEBUG:: idle_contour_function() imol: " << imol << " contour level: "
+	   // << g.molecules[imol].contour_level << " n-rmsd: " << r << std::endl;
+	   logger.log(log_t::DEBUG, logging::function_name_t("idle_contour_function"),
+		      {imol, "contour_level", g.molecules[imol].contour_level, "n-rmsd:",
+		       r});
            g.set_density_level_string(imol, g.molecules[imol].contour_level);
            std::string s = "Map " + std::to_string(imol) + "  contour_level " +
               coot::util::float_to_string_using_dec_pl(cl, 3) + "  n-rmsd: " +
@@ -6216,6 +6347,141 @@ void keypad_translate_xyz(short int axis, short int direction) {
 
 #include "rsr-functions.hh"
 
+// static
+void
+graphics_info_t::print_key_bindings() {
+
+   std::vector<std::pair<std::string, int>> v = {
+      std::make_pair("0", 0x030),
+      std::make_pair("1", 0x031),
+      std::make_pair("2", 0x032),
+      std::make_pair("3", 0x033),
+      std::make_pair("4", 0x034),
+      std::make_pair("5", 0x035),
+      std::make_pair("6", 0x036),
+      std::make_pair("7", 0x037),
+      std::make_pair("8", 0x038),
+      std::make_pair("9", 0x039),
+      std::make_pair("colon",     0x03a),
+      std::make_pair("semicolon", 0x03b),
+      std::make_pair("less",      0x03c),
+      std::make_pair("equal",     0x03d),
+      std::make_pair("greater",   0x03e),
+      std::make_pair("question",  0x03f),
+      std::make_pair("minus",    GDK_KEY_minus),
+      std::make_pair("plus",    GDK_KEY_plus),
+      std::make_pair("at", 0x040),
+      std::make_pair("A", 0x041),
+      std::make_pair("B", 0x042),
+      std::make_pair("C", 0x043),
+      std::make_pair("D", 0x044),
+      std::make_pair("E", 0x045),
+      std::make_pair("F", 0x046),
+      std::make_pair("G", 0x047),
+      std::make_pair("H", 0x048),
+      std::make_pair("I", 0x049),
+      std::make_pair("J", 0x04a),
+      std::make_pair("K", 0x04b),
+      std::make_pair("L", 0x04c),
+      std::make_pair("M", 0x04d),
+      std::make_pair("N", 0x04e),
+      std::make_pair("O", 0x04f),
+      std::make_pair("P", 0x050),
+      std::make_pair("Q", 0x051),
+      std::make_pair("R", 0x052),
+      std::make_pair("S", 0x053),
+      std::make_pair("T", 0x054),
+      std::make_pair("U", 0x055),
+      std::make_pair("V", 0x056),
+      std::make_pair("W", 0x057),
+      std::make_pair("X", 0x058),
+      std::make_pair("Y", 0x059),
+      std::make_pair("Z", 0x05a),
+      std::make_pair("bracketleft",  0x05b),
+      std::make_pair("backslash",    0x05c),
+      std::make_pair("bracketright", 0x05d),
+      std::make_pair("asciicircum",  0x05e),
+      std::make_pair("underscore",   0x05f),
+      std::make_pair("grave",        0x060),
+      std::make_pair("quoteleft",    0x060),
+      std::make_pair("a", 0x061),
+      std::make_pair("b", 0x062),
+      std::make_pair("c", 0x063),
+      std::make_pair("d", 0x064),
+      std::make_pair("e", 0x065),
+      std::make_pair("f", 0x066),
+      std::make_pair("g", 0x067),
+      std::make_pair("h", 0x068),
+      std::make_pair("i", 0x069),
+      std::make_pair("j", 0x06a),
+      std::make_pair("k", 0x06b),
+      std::make_pair("l", 0x06c),
+      std::make_pair("m", 0x06d),
+      std::make_pair("n", 0x06e),
+      std::make_pair("o", 0x06f),
+      std::make_pair("p", 0x070),
+      std::make_pair("q", 0x071),
+      std::make_pair("r", 0x072),
+      std::make_pair("s", 0x073),
+      std::make_pair("t", 0x074),
+      std::make_pair("u", 0x075),
+      std::make_pair("v", 0x076),
+      std::make_pair("w", 0x077),
+      std::make_pair("x", 0x078),
+      std::make_pair("y", 0x079),
+      std::make_pair("z", 0x07a),
+      std::make_pair("KP_0", 0xffb0),
+      std::make_pair("KP_1", 0xffb1),
+      std::make_pair("KP_2", 0xffb2),
+      std::make_pair("KP_3", 0xffb3),
+      std::make_pair("KP_4", 0xffb4),
+      std::make_pair("KP_5", 0xffb5),
+      std::make_pair("KP_6", 0xffb6),
+      std::make_pair("KP_7", 0xffb7),
+      std::make_pair("KP_8", 0xffb8),
+      std::make_pair("KP_9", 0xffb9),
+      std::make_pair("F1",  0xffbe),
+      std::make_pair("F2",  0xffbf),
+      std::make_pair("F3",  0xffc0),
+      std::make_pair("F4",  0xffc1),
+      std::make_pair("F5",  0xffc2),
+      std::make_pair("F6",  0xffc3),
+      std::make_pair("F7" , 0xffc4),
+      std::make_pair("F8",  0xffc5),
+      std::make_pair("F9",  0xffc6),
+      std::make_pair("F10", 0xffc7),
+      std::make_pair("F11", 0xffc8),
+      std::make_pair("L1",  0xffc8),
+      std::make_pair("F12", 0xffc9),
+      std::make_pair("L2",  0xffc9),
+      std::make_pair("Escape",  GDK_KEY_Escape),
+      std::make_pair("Return",  GDK_KEY_Return),
+      std::make_pair("Left",    GDK_KEY_Left),
+      std::make_pair("Right",   GDK_KEY_Right),
+      std::make_pair("Up",      GDK_KEY_Up),
+      std::make_pair("Down",    GDK_KEY_Down),
+};
+
+   // std::map<keyboard_key_t, key_bindings_t> key_bindings_map;
+
+   for (const auto &kb : key_bindings_map) {
+      std::string key_string = "gdk-symbol-" + std::to_string(kb.first.gdk_key);
+      for (unsigned int ii=0; ii<v.size(); ii++) {
+         if (v[ii].second == kb.first.gdk_key) {
+            key_string = v[ii].first;
+            break;
+         }
+      }
+      std::string ctrl_string = "    ";
+      if (kb.first.ctrl_is_pressed) ctrl_string = "Ctrl";
+      std::cout << "binding: "
+                << ctrl_string << " " << std::setw(5) << key_string
+                << "  ->  " << std::setw(16) << std::left << kb.second.description
+                << " " << key_bindings_t::type_to_string(kb.second.type)
+                << std::endl;
+   }
+}
+
 void
 graphics_info_t::setup_key_bindings() {
 
@@ -6231,7 +6497,7 @@ graphics_info_t::setup_key_bindings() {
    auto l6 = []() {
 
                 if (do_tick_spin) {
-                  std::cout << "removing tick spin flag" << std::endl;
+                   std::cout << "removing tick spin flag" << std::endl;
                    do_tick_spin = false;
                 } else {
                    std::cout << "adding tick spin flag A" << std::endl;
@@ -6348,15 +6614,22 @@ graphics_info_t::setup_key_bindings() {
    auto l23 = [] () {
       graphics_info_t g;
 
-      if (false) {
+      if (true) {
          if (! graphics_info_t::do_tick_boids)
             graphics_info_t::do_tick_boids = true;
          else
             graphics_info_t::do_tick_boids = false;
+
+	 // add_a_tick();
+
          g.setup_draw_for_boids();
-         if (! graphics_info_t::do_tick_boids)
-            std::cout << "--------- key press ----------- do_tick_boids "
-                      << graphics_info_t::do_tick_boids << std::endl;
+
+	 std::cout << "----- key press ------ do_tick_boids "
+		   << graphics_info_t::do_tick_boids << std::endl;
+	 bool state = tick_function_is_active();
+	 std::cout << "l23: tick_function_is_active() returns " << state << std::endl;
+	 if (true) // use state in future?
+	    gtk_widget_add_tick_callback(glareas[0], glarea_tick_func, 0, 0);
       }
       return gboolean(TRUE);
    };
@@ -6457,17 +6730,7 @@ graphics_info_t::setup_key_bindings() {
                                 clipper::Coord_orth t(new_ori.second.trn());
                                 set_rotation_centre(t);
 
-                                coot::util::quaternion q(new_ori.second.rot());
-                                glm::quat q_ncs = coot_quaternion_to_glm(q);
-
-                                // view_quaternion = glm::inverse(q_ncs) * view_quaternion; no
-                                // view_quaternion = q_ncs * view_quaternion; // no
-                                // view_quaternion = view_quaternion * q_ncs; // no
-                                // view_quaternion = view_quaternion * glm::inverse(q_ncs); // no
-                                // view_quaternion = view_quaternion * glm::conjugate(q_ncs); no
-                                // view_quaternion = glm::conjugate(q_ncs) * view_quaternion; // no
-
-                                // I don't get it - annoying.
+				view_quaternion = matrix_to_quaternion(new_ori.second.rot());
 
                                 graphics_info_t g;
                                 g.update_things_on_move(); // not static
@@ -6496,7 +6759,7 @@ graphics_info_t::setup_key_bindings() {
          if (! tick_function_is_active()) {
             int new_tick_id = gtk_widget_add_tick_callback(glareas[0], glarea_tick_func, 0, 0);
          }
-         outline_for_active_residue_frame_count = 30;
+         outline_for_active_residue_frame_count = 40;
          do_tick_outline_for_active_residue = true;
       }
       return gboolean(TRUE);
@@ -6561,8 +6824,28 @@ graphics_info_t::setup_key_bindings() {
    };
 
    auto l41 = [] () {
-      box_radius_xray *= (1.0/1.15);
-      box_radius_em *= (1.0/1.15);
+      bool is_all_em   = true;
+      bool is_all_xray = true;
+      for (int ii=0; ii<n_molecules(); ii++) {
+         if (is_valid_map_molecule(ii)) {
+            if (molecules[ii].is_EM_map()) {
+               is_all_xray = false;
+            } else {
+               is_all_em = false;
+            }
+         }
+      }
+      if (is_all_xray)
+         box_radius_xray *= (1.0/1.15);
+      if (is_all_em)
+         box_radius_em   *= (1.0/1.15);
+
+      // 20250531-PE as it used to be:
+      if ((! is_all_em) && (! is_all_em)) {
+         box_radius_xray *= (1.0/1.15);
+         box_radius_em   *= (1.0/1.15);
+      }
+
       // is there an "update maps" function?
       for (int ii=0; ii<n_molecules(); ii++) {
          if (is_valid_map_molecule(ii))
@@ -6679,7 +6962,7 @@ graphics_info_t::setup_key_bindings() {
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_Return, key_bindings_t(l18, "Accept Moving Atoms")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_Escape, key_bindings_t(l19, "Reject Moving Atoms")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_l,      key_bindings_t(l21, "Label/Unlabel Active Atom")));
-   // kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_b,      key_bindings_t(l23, "Murmuration")));
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_b,      key_bindings_t(l23, "Murmuration")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_y,      key_bindings_t(l24, "Add Terminal Residue")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_k,      key_bindings_t(l25, "Fill Partial Residue")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_K,      key_bindings_t(l26, "Delete Sidechain")));
@@ -6769,6 +7052,16 @@ graphics_info_t::setup_key_bindings() {
    std::pair<keyboard_key_t, key_bindings_t> pdel(keyboard_key_t(GDK_KEY_d, true), delete_residue_key_binding);
    kb_vec.push_back(pdel);
 
+   auto law = [] () {
+      std::cout << "-------------------- add water" << std::endl;
+      graphics_info_t g;
+      g.place_typed_atom_at_pointer("Water");
+      return gboolean(TRUE);
+   };
+   key_bindings_t add_water_key_binding(law, "Add Water");
+   std::pair<keyboard_key_t, key_bindings_t> paw(keyboard_key_t(GDK_KEY_w, true), add_water_key_binding);
+   kb_vec.push_back(paw);
+
    // Direction is either +1 or -1 (in or out)
    //
 
@@ -6826,6 +7119,7 @@ graphics_info_t::setup_key_bindings() {
    auto lc_qsa = [] () {
                     graphics_info_t g;
                     g.quick_save();
+                    g.graphics_grab_focus();
                     return gboolean(TRUE);
                  };
 
@@ -6913,10 +7207,13 @@ graphics_info_t::contour_level_scroll_scrollable_map(int direction) {
       if (direction ==  1) molecules[imol_scroll].pending_contour_level_change_count--;
       if (direction == -1) molecules[imol_scroll].pending_contour_level_change_count++;
 
-      std::cout << "INFO:: contour level for map " << imol_scroll << " is "
-                << molecules[imol_scroll].contour_level
-                << " pending: " << molecules[imol_scroll].pending_contour_level_change_count
-                << std::endl;
+      // std::cout << "INFO:: contour level for map " << imol_scroll << " is "
+      //           << molecules[imol_scroll].contour_level
+      //           << " pending: " << molecules[imol_scroll].pending_contour_level_change_count
+      //           << std::endl;
+      logger.log(log_t::INFO, "contour level for map", imol_scroll, "is",
+		 molecules[imol_scroll].contour_level, "pending",
+		 molecules[imol_scroll].pending_contour_level_change_count);
 
       set_density_level_string(imol_scroll, molecules[imol_scroll].contour_level);
       display_density_level_this_image = 1;
@@ -6924,8 +7221,6 @@ graphics_info_t::contour_level_scroll_scrollable_map(int direction) {
       graphics_draw(); // queue
    }
 }
-
-#include "widget-from-builder.hh"
 
 //static
 void

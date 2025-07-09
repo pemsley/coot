@@ -1,0 +1,190 @@
+#
+data_comp_list
+loop_
+_chem_comp.id
+_chem_comp.three_letter_code
+_chem_comp.name
+_chem_comp.group
+_chem_comp.number_atoms_all
+_chem_comp.number_atoms_nh
+_chem_comp.desc_level
+MES     MES      "2-(N-MORPHOLINO)-ETHANESULFONIC ACID"     NON-POLYMER     25     12     .     
+#
+data_comp_MES
+#
+loop_
+_chem_comp_atom.comp_id
+_chem_comp_atom.atom_id
+_chem_comp_atom.type_symbol
+_chem_comp_atom.type_energy
+_chem_comp_atom.charge
+_chem_comp_atom.x
+_chem_comp_atom.y
+_chem_comp_atom.z
+MES     O1      O       O2      0       9.010       45.383      48.085      
+MES     C2      C       CH2     0       7.687       45.447      48.603      
+MES     C3      C       CH2     0       6.968       46.687      48.130      
+MES     N4      N       NT1     1       7.739       47.914      48.509      
+MES     C5      C       CH2     0       9.148       47.801      48.008      
+MES     C6      C       CH2     0       9.772       46.513      48.489      
+MES     C7      C       CH2     0       7.069       49.165      48.011      
+MES     C8      C       CH2     0       7.561       50.428      48.692      
+MES     S       S       S3      0       6.597       51.856      48.250      
+MES     O1S     O       O       0       6.652       51.947      46.818      
+MES     O2S     O       O       0       7.222       52.975      48.899      
+MES     O3S     O       OS      -1      5.269       51.607      48.736      
+MES     H21     H       H       0       7.193       44.658      48.313      
+MES     H22     H       H       0       7.720       45.443      49.577      
+MES     H31     H       H       0       6.083       46.731      48.535      
+MES     H32     H       H       0       6.866       46.664      47.162      
+MES     HN4     H       H       0       7.768       47.958      49.421      
+MES     H51     H       H       0       9.664       48.559      48.334      
+MES     H52     H       H       0       9.141       47.823      47.035      
+MES     H61     H       H       0       10.673      46.437      48.126      
+MES     H62     H       H       0       9.838       46.529      49.462      
+MES     H71     H       H       0       6.064       49.055      48.161      
+MES     H72     H       H       0       7.230       49.217      47.005      
+MES     H81     H       H       0       8.486       50.616      48.450      
+MES     H82     H       H       0       7.522       50.338      49.662      
+loop_
+_chem_comp_bond.comp_id
+_chem_comp_bond.atom_id_1
+_chem_comp_bond.atom_id_2
+_chem_comp_bond.type
+_chem_comp_bond.aromatic
+_chem_comp_bond.value_dist_nucleus
+_chem_comp_bond.value_dist_nucleus_esd
+_chem_comp_bond.value_dist
+_chem_comp_bond.value_dist_esd
+MES          O1          C2      SINGLE       n     1.419  0.0100     1.419  0.0100
+MES          O1          C6      SINGLE       n     1.419  0.0100     1.419  0.0100
+MES          C2          C3      SINGLE       n     1.508  0.0105     1.508  0.0105
+MES          C3          N4      SINGLE       n     1.496  0.0100     1.496  0.0100
+MES          N4          C5      SINGLE       n     1.496  0.0100     1.496  0.0100
+MES          N4          C7      SINGLE       n     1.501  0.0100     1.501  0.0100
+MES          C5          C6      SINGLE       n     1.508  0.0105     1.508  0.0105
+MES          C7          C8      SINGLE       n     1.516  0.0119     1.516  0.0119
+MES          C8           S      SINGLE       n     1.779  0.0132     1.779  0.0132
+MES           S         O1S      DOUBLE       n     1.436  0.0134     1.436  0.0134
+MES           S         O2S      DOUBLE       n     1.436  0.0134     1.436  0.0134
+MES           S         O3S      SINGLE       n     1.436  0.0134     1.436  0.0134
+MES          C2         H21      SINGLE       n     1.089  0.0100     0.975  0.0141
+MES          C2         H22      SINGLE       n     1.089  0.0100     0.975  0.0141
+MES          C3         H31      SINGLE       n     1.089  0.0100     0.974  0.0137
+MES          C3         H32      SINGLE       n     1.089  0.0100     0.974  0.0137
+MES          N4         HN4      SINGLE       n     1.036  0.0160     0.913  0.0200
+MES          C5         H51      SINGLE       n     1.089  0.0100     0.974  0.0137
+MES          C5         H52      SINGLE       n     1.089  0.0100     0.974  0.0137
+MES          C6         H61      SINGLE       n     1.089  0.0100     0.975  0.0141
+MES          C6         H62      SINGLE       n     1.089  0.0100     0.975  0.0141
+MES          C7         H71      SINGLE       n     1.089  0.0100     1.021  0.0200
+MES          C7         H72      SINGLE       n     1.089  0.0100     1.021  0.0200
+MES          C8         H81      SINGLE       n     1.089  0.0100     0.975  0.0200
+MES          C8         H82      SINGLE       n     1.089  0.0100     0.975  0.0200
+loop_
+_chem_comp_angle.comp_id
+_chem_comp_angle.atom_id_1
+_chem_comp_angle.atom_id_2
+_chem_comp_angle.atom_id_3
+_chem_comp_angle.value_angle
+_chem_comp_angle.value_angle_esd
+MES          C2          O1          C6     109.829    1.50
+MES          O1          C2          C3     111.270    1.50
+MES          O1          C2         H21     109.195    1.50
+MES          O1          C2         H22     109.195    1.50
+MES          C3          C2         H21     109.332    1.50
+MES          C3          C2         H22     109.332    1.50
+MES         H21          C2         H22     108.175    1.50
+MES          C2          C3          N4     110.046    1.50
+MES          C2          C3         H31     109.880    1.50
+MES          C2          C3         H32     109.880    1.50
+MES          N4          C3         H31     108.816    1.51
+MES          N4          C3         H32     108.816    1.51
+MES         H31          C3         H32     108.544    1.50
+MES          C3          N4          C5     109.313    1.50
+MES          C3          N4          C7     111.544    1.69
+MES          C3          N4         HN4     108.109    1.59
+MES          C5          N4          C7     111.544    1.69
+MES          C5          N4         HN4     108.109    1.59
+MES          C7          N4         HN4     107.918    2.22
+MES          N4          C5          C6     110.046    1.50
+MES          N4          C5         H51     108.816    1.51
+MES          N4          C5         H52     108.816    1.51
+MES          C6          C5         H51     109.880    1.50
+MES          C6          C5         H52     109.880    1.50
+MES         H51          C5         H52     108.544    1.50
+MES          O1          C6          C5     111.270    1.50
+MES          O1          C6         H61     109.195    1.50
+MES          O1          C6         H62     109.195    1.50
+MES          C5          C6         H61     109.332    1.50
+MES          C5          C6         H62     109.332    1.50
+MES         H61          C6         H62     108.175    1.50
+MES          N4          C7          C8     113.341    1.65
+MES          N4          C7         H71     107.510    1.54
+MES          N4          C7         H72     107.510    1.54
+MES          C8          C7         H71     110.678    1.68
+MES          C8          C7         H72     110.678    1.68
+MES         H71          C7         H72     108.089    1.50
+MES          C7          C8           S     112.867    1.50
+MES          C7          C8         H81     111.477    1.93
+MES          C7          C8         H82     111.477    1.93
+MES           S          C8         H81     107.770    1.50
+MES           S          C8         H82     107.770    1.50
+MES         H81          C8         H82     107.925    1.50
+MES          C8           S         O1S     106.022    1.50
+MES          C8           S         O2S     106.022    1.50
+MES          C8           S         O3S     106.022    1.50
+MES         O1S           S         O2S     112.552    1.50
+MES         O1S           S         O3S     112.552    1.50
+MES         O2S           S         O3S     112.552    1.50
+loop_
+_chem_comp_tor.comp_id
+_chem_comp_tor.id
+_chem_comp_tor.atom_id_1
+_chem_comp_tor.atom_id_2
+_chem_comp_tor.atom_id_3
+_chem_comp_tor.atom_id_4
+_chem_comp_tor.value_angle
+_chem_comp_tor.value_angle_esd
+_chem_comp_tor.period
+MES             sp3_sp3_1          C3          C2          O1          C6      60.000    10.0     3
+MES            sp3_sp3_40          C5          C6          O1          C2     180.000    10.0     3
+MES             sp3_sp3_4          O1          C2          C3          N4     -60.000    10.0     3
+MES            sp3_sp3_15          C2          C3          N4          C7     -60.000    10.0     3
+MES            sp3_sp3_23          C6          C5          N4          C7      60.000    10.0     3
+MES            sp3_sp3_44          C8          C7          N4          C3     -60.000    10.0     3
+MES            sp3_sp3_31          N4          C5          C6          O1      60.000    10.0     3
+MES            sp3_sp3_52          N4          C7          C8           S     180.000    10.0     3
+MES            sp3_sp3_61          C7          C8           S         O1S     180.000    10.0     3
+loop_
+_chem_comp_chir.comp_id
+_chem_comp_chir.id
+_chem_comp_chir.atom_id_centre
+_chem_comp_chir.atom_id_1
+_chem_comp_chir.atom_id_2
+_chem_comp_chir.atom_id_3
+_chem_comp_chir.volume_sign
+MES    chir_1    N4    C7    C3    C5    both
+MES    chir_2    S    O1S    O2S    O3S    both
+loop_
+_pdbx_chem_comp_descriptor.comp_id
+_pdbx_chem_comp_descriptor.type
+_pdbx_chem_comp_descriptor.program
+_pdbx_chem_comp_descriptor.program_version
+_pdbx_chem_comp_descriptor.descriptor
+MES           SMILES              ACDLabs 10.04                                      "[O-]S(=O)(=O)CC[NH+]1CCOCC1"
+MES SMILES_CANONICAL               CACTVS 3.341                                    "[O-][S](=O)(=O)CC[NH+]1CCOCC1"
+MES           SMILES               CACTVS 3.341                                    "[O-][S](=O)(=O)CC[NH+]1CCOCC1"
+MES SMILES_CANONICAL "OpenEye OEToolkits" 1.5.0                                        C1COCC[NH+]1CCS(=O)(=O)[O-]
+MES           SMILES "OpenEye OEToolkits" 1.5.0                                        C1COCC[NH+]1CCS(=O)(=O)[O-]
+MES            InChI                InChI  1.03 InChI=1S/C6H13NO4S/c8-12(9,10)6-3-7-1-4-11-5-2-7/h1-6H2,(H,8,9,10)
+MES         InChIKey                InChI  1.03                                        SXGZJKUKBWWHRA-UHFFFAOYSA-N
+loop_
+_pdbx_chem_comp_description_generator.comp_id
+_pdbx_chem_comp_description_generator.program_name
+_pdbx_chem_comp_description_generator.program_version
+_pdbx_chem_comp_description_generator.descriptor
+MES acedrg               243         "dictionary generator"                  
+MES acedrg_database      11          "data source"                           
+MES rdkit                2017.03.2   "Chemoinformatics tool"
+MES refmac5              5.8.0238    "optimization tool"                     

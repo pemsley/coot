@@ -69,7 +69,9 @@ namespace coot {
       void fill_colour_map();
 
       //! export to glTF
-      void export_to_gltf(const std::string &file_name, bool use_binary_format) const;
+      void export_to_gltf(const std::string &file_name,
+                          float roughness_factor, float smoothness_factor,
+                          bool use_binary_format) const;
 
       void set_name(const std::string &n) { name = n; }
 

@@ -4846,13 +4846,34 @@ def make_specs_list(file_name):
                         specs_list.append((spec, ci))
     return specs_list
 
+def make_selections(file_name):
+    specs_list = []
+    if os.path.exists(file_name):
+        with open(file_name) as f:
+            lines = f.readlines()
+            for line in lines:
+                if line[:4] == "ATOM":
+                    if line[12:16] == " CA ":
+                        pae_string = line[60:66]
+                        pae = float(pae_string)
+                        chain_id = line[21:22]
+                        res_no_string = line[22:26]
+                        res_no = int(res_no_string)
+                        ins_code = "" # :-)
+                        # spec = [chain_id, res_no, ins_code]
+                        cid = "//" + chain_id + "/" + str(res_no)
+                        ci = alphafold_pae_to_colour_index(pae)
+                        specs_list.append((cid, ci))
+    return specs_list
 
 def alphafold_pLDDT_colours(imol):
     file_name = coot.molecule_name(imol)
     colours = make_alphafold_colours()
     coot.set_user_defined_colours_py(colours)
-    specs_list = make_specs_list(file_name)
-    coot.set_user_defined_atom_colour_by_residue_py(imol, specs_list)
+    # specs_list = make_specs_list(file_name)
+    selections = make_selections(file_name)
+    # coot.set_user_defined_atom_colour_by_residue_py(imol, specs_list)
+    coot.set_user_defined_atom_colour_by_selection_py(imol, selections)
     coot.graphics_to_user_defined_atom_colours_representation(imol)
 
 

@@ -51,6 +51,7 @@
 #include "compat/coot-sysdep.h"
 
 #include "lbg-graph.hh"
+#include "utils/xdg-base.hh"
 
 // std::string 
 // coot::basic_dict_restraint_t::atom_id_1_4c() const {
@@ -314,20 +315,24 @@ coot::operator<<(std::ostream &s, const dict_atom &at) {
      << " \"" << at.pdbx_stereo_config.second << "\" ";
    if (at.formal_charge.first)
       s << "formal-charge " << at.formal_charge.second << " ";
-   else 
+   else
       s << "no-formal-charge ";
    if (at.partial_charge.first)
       s << "partial-charge " << at.partial_charge.second << " ";
-   else 
+   else
       s << "no-partial-charge ";
-   s << "model-pos " << at.model_Cartn.first << " ";
+   s << "\n      model-pos-flag: " << at.model_Cartn.first << " ";
    if (at.model_Cartn.first)
       s << at.model_Cartn.second.format() << " ";
-   s << "ideal-pos " << at.pdbx_model_Cartn_ideal.first << " ";
+   else
+      s << "no model_Cartn ";
+   s << "ideal-pos-flag: " << at.pdbx_model_Cartn_ideal.first << " ";
    if (at.pdbx_model_Cartn_ideal.first)
       s << at.pdbx_model_Cartn_ideal.second.format();
+   else
+      s << "no model_Cartn_ideal";
    return s;
-} 
+}
 
 
 std::ostream&
@@ -566,7 +571,7 @@ coot::protein_geometry::try_dynamic_add(const std::string &resname, int read_num
    // $prefix/share/coot onto which we tag a "lib" dir.
    // 
 
-   char *s  = getenv("COOT_REFMAC_LIB_DIR");
+   char *s    = getenv("COOT_REFMAC_LIB_DIR");
    char *cmld = getenv("COOT_MONOMER_LIB_DIR");
 
    if (s) {
@@ -708,6 +713,40 @@ coot::protein_geometry::try_dynamic_add(const std::string &resname, int read_num
 	       }
 	    }
 	 }
+      }
+   }
+
+   if (!success) {
+      // try the XDG Base Directory Protocol cache
+      xdg_t xdg;
+      std::filesystem::path ch = xdg.get_cache_home();
+      if (std::filesystem::exists(ch)) {
+	 std::filesystem::path monomers_path = ch / "monomers";
+	 if (std::filesystem::exists(monomers_path)) {
+	    const char rs = resname[0];
+	    const char v = tolower(rs); // get the sub directory name
+	    std::string letter(1, v);
+	    std::filesystem::path sub_dir = monomers_path / letter;
+	    if (std::filesystem::exists(sub_dir)) {
+	       std::string cif_file_name = resname + ".cif";
+	       std::filesystem::path cif_file_path = sub_dir / cif_file_name;
+	       if (std::filesystem::exists(cif_file_path)) {
+		  // read it
+		  read_refmac_mon_lib_info_t rmit = init_refmac_mon_lib(cif_file_path.string(), read_number);
+		  success = rmit.success;
+	       } else {
+		  // we will need to download it then
+		  // and put it in the above directory)
+		  std::cout << "DEBUG:: try_dynamic_add(): " << cif_file_path.string() << " does not exist" << std::endl;
+	       }
+	    } else {
+	       std::cout << "DEBUG:: try_dynamic_add(): " << sub_dir.string() << " does not exist" << std::endl;
+	    }
+	 } else {
+	    std::cout << "DEBUG:: try_dynamic_add(): " << monomers_path.string() << " does not exist" << std::endl;
+	 }
+      } else {
+	 std::cout << "DEBUG:: try_dynamic_add(): " << ch.string() << " does not exist" << std::endl;
       }
    }
 
@@ -1154,7 +1193,14 @@ coot::protein_geometry::standard_protein_monomer_files() const {
    s.push_back("d/DT.cif");
 
    s.push_back("h/HOH.cif");
-   s.push_back("n/NA.cif"); // for quiet
+
+   // Metals
+   s.push_back("n/NA.cif");
+   s.push_back("k/K.cif");
+   s.push_back("c/CA.cif");
+   s.push_back("m/MG.cif");
+   s.push_back("n/NI.cif");
+   s.push_back("z/ZN.cif");
 
    return s;
 }
@@ -1167,8 +1213,10 @@ coot::protein_geometry::have_dictionary_for_residue_type(const std::string &mono
 							 int read_number_in,
 							 bool try_autoload_if_needed) {
 
+   bool debug = false;
    bool ifound = false;
    int ndict = dict_res_restraints.size();
+   std::string path = "--start--";
    read_number = read_number_in;
 
    // ---------------- FIXME ----------------------------------------------------
@@ -1178,6 +1226,9 @@ coot::protein_geometry::have_dictionary_for_residue_type(const std::string &mono
    if (idr >= 0) {
       ifound = true;
    }
+
+   if (debug)
+      std::cout << "INFO:: have_dictionary_for_residue_type() idr here is " << idr << std::endl;
 
    // check synonyms before checking three-letter-codes
 
@@ -1192,8 +1243,10 @@ coot::protein_geometry::have_dictionary_for_residue_type(const std::string &mono
 	       }
 	    }
 	 }
-	 if (ifound)
+	 if (ifound) {
+            path = "path-1";
 	    break;
+         }
       }
    }
 
@@ -1206,6 +1259,7 @@ coot::protein_geometry::have_dictionary_for_residue_type(const std::string &mono
 	 if (dict_res_restraints[i].second.residue_info.three_letter_code == monomer_type) {
 	    if (! dict_res_restraints[i].second.is_bond_order_data_only()) {
 	       ifound = 1;
+               path = "path-2";
 	       break;
 	    }
 	 }
@@ -1215,14 +1269,15 @@ coot::protein_geometry::have_dictionary_for_residue_type(const std::string &mono
    if (! ifound) {
       if (try_autoload_if_needed) {
 	 ifound = try_dynamic_add(monomer_type, read_number);
+         path = "path-3";
 	 // std::cout << "DEBUG:: here in have_dictionary_for_residue_type() try_dynamic_add returned "
          // << ifound << std::endl;
       }
    }
 
-   if (false)
-      std::cout << ".......................have_dictionary_for_residue_type() " << monomer_type
-                << " " << imol_enc << " returns " << ifound << std::endl;
+   if (debug)
+      std::cout << "INFO:: .............have_dictionary_for_residue_type() " << monomer_type
+                << " " << imol_enc << " path " << path << " returns " << ifound << std::endl;
 
    return ifound;
 }
@@ -1271,6 +1326,12 @@ coot::protein_geometry::have_restraints_dictionary_for_residue_types(const std::
                                                                      int imol_enc,
                                                                      int read_number) {
 
+   if (false) {
+      std::cout << "debug:: in have_restraints_dictionary_for_residue_types() --- start --- " << std::endl;
+      for (const auto &r : residue_types)
+	 std::cout << "debug:: in have_restraints_dictionary_for_residue_types() type :" << r << ":" << std::endl;
+   }
+
    bool have_all = true;
    for (unsigned int i=0; i<residue_types.size(); i++) {
       if (! have_all) continue;
@@ -1278,7 +1339,11 @@ coot::protein_geometry::have_restraints_dictionary_for_residue_types(const std::
       int idx = get_monomer_restraints_index(rt, imol_enc, false);
       if (idx != -1) {
          const coot::dictionary_residue_restraints_t &restraints = dict_res_restraints[idx].second;
-         if (restraints.bond_restraint.empty()) {
+	 // this test does not make sense for MG, or other single atoms
+         // if (restraints.bond_restraint.empty()) {
+	 bool has_bonds = false;
+	 if (restraints.atom_info.size() > 1) has_bonds = true;
+         if (has_bonds && restraints.bond_restraint.empty()) {
             have_all = false;
             break;
          } else {
@@ -1694,15 +1759,17 @@ coot::protein_geometry::get_monomer_restraints_index(const std::string &monomer_
 						     bool allow_minimal_flag) const {
 
    int r = -1;
-   bool debug = false;
+   bool debug = false; // hello again
 
    unsigned int nrest = dict_res_restraints.size();
    for (unsigned int i=0; i<nrest; i++) {
+
       if (debug)
 	 std::cout << "in get_monomer_restraints_index() comparing dict: \""
 		   << dict_res_restraints[i].second.residue_info.comp_id << "\" vs mine: \"" << monomer_type
 		   << "\" and dict: " << dict_res_restraints[i].first << " vs mine: " <<  imol_enc
 		   << "     with allow_minimal_flag " << allow_minimal_flag << std::endl;
+
       if (dict_res_restraints[i].second.residue_info.comp_id == monomer_type) {
 	 if (matches_imol(dict_res_restraints[i].first, imol_enc)) {
 	    // if (dict_res_restraints[i].first == imol_enc) {
@@ -1758,6 +1825,8 @@ coot::protein_geometry::get_monomer_restraints_index(const std::string &monomer_
 	 }
       }
    }
+
+   // std::cout << "get_monomer_restraints_index() for " << monomer_type << " returns r " << r << std::endl;
 
    return r;
 }
@@ -2280,12 +2349,16 @@ coot::protein_geometry::get_group(mmdb::Residue *r) const {
 
 std::string
 coot::protein_geometry::get_group(const std::string &res_name_in) const {
-   
+
    bool found = false;
    std::string group;
    std::string res_name = res_name_in;
-   if (res_name.length() > 3)
-      res_name = res_name.substr(0,2);
+
+   // 20250331-PE Why would I do this?
+   //             Comment it out.
+   // if (res_name.length() > 3)
+   //    res_name = res_name.substr(0,2);
+
    unsigned int s = size(); // fails if the protein_geometry pointer was not valid
    for (unsigned int i=0; i<s; i++) {
       if (three_letter_code(i) == res_name) {
@@ -2304,7 +2377,7 @@ coot::protein_geometry::get_group(const std::string &res_name_in) const {
    }
 
    if (! found) {
-      std::string s = "No dictionary group found for residue type :";
+      std::string s = "WARNING:: get_group(): No dictionary group found for residue type :";
       s += res_name;
       s += ":";
       throw std::runtime_error(s);
@@ -2396,18 +2469,20 @@ coot::protein_geometry::get_residue(const std::string &comp_id, int imol_enc,
    // If the coordinates for the model are (0,0,0) then this function
    // returns a null.
 
+   bool debug = false;
+
    mmdb::Residue *residue_p = NULL;
 
    // might use try_dynamic_add (if needed).
    bool r = have_dictionary_for_residue_type(comp_id, imol_enc, try_autoload_if_needed);
 
-   if (false)
-      std::cout << "------------------ in get_residue() have_dictionary_for_residue_type() returns  "
+   if (debug)
+      std::cout << "------------------ in pr::get_residue() have_dictionary_for_residue_type() returns  "
                 << r << std::endl;
    if (r) {
       for (unsigned int i=0; i<dict_res_restraints.size(); i++) {
          const dictionary_residue_restraints_t &rest = dict_res_restraints[i].second;
-         if (false)
+         if (debug)
             std::cout << "   testing comp_id " << rest.residue_info.comp_id << std::endl;
          if (rest.residue_info.comp_id == comp_id) {
             int imol_for_dict = dict_res_restraints[i].first;
@@ -2419,6 +2494,9 @@ coot::protein_geometry::get_residue(const std::string &comp_id, int imol_enc,
          }
       }
    }
+   if (debug)
+      std::cout << "------------------ in pr::get_residue() returns " << residue_p << std::endl;
+
    return residue_p;
 }
 
@@ -2458,7 +2536,8 @@ coot::protein_geometry::mol_from_dictionary(const std::string &three_letter_code
 
    mmdb::Manager *mol = NULL;
    mmdb::Residue *residue_p = get_residue(three_letter_code, imol_enc, idealised_flag);
-   if (residue_p) { 
+
+   if (residue_p) {
       mmdb::Chain *chain_p = new mmdb::Chain;
       chain_p->SetChainID("A");
       chain_p->AddResidue(residue_p);
@@ -2467,7 +2546,9 @@ coot::protein_geometry::mol_from_dictionary(const std::string &three_letter_code
       mol = new mmdb::Manager;
       mol->AddModel(model_p);
    } else {
-      std::cout << "WARNING:: Null residue in mol_from_dictionary() for " << three_letter_code << std::endl;
+      std::cout << "WARNING:: protein_geometry::mol_from_dictionary(): "
+                << "Null residue in mol_from_dictionary() for "
+                << three_letter_code << std::endl;
    }
    // debug_mol(mol);
    return mol;
@@ -2487,7 +2568,7 @@ coot::protein_geometry::mol_from_dictionary(int monomer_index,
       if (monomer_index < r_size)
 	 residue_p = dict_res_restraints[monomer_index].second.GetResidue(idealised_flag, b_factor);
 
-   if (residue_p) { 
+   if (residue_p) {
       mmdb::Chain *chain_p = new mmdb::Chain;
       chain_p->SetChainID("A");
       chain_p->AddResidue(residue_p);

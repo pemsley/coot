@@ -53,6 +53,7 @@ void hole(int imol, float start_x, float start_y, float start_z,
 	  std::string export_dots_file_name ) {
 
    if (is_valid_model_molecule(imol)) {
+      float point_radius = 3;
       graphics_info_t g;
       mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
       clipper::Coord_orth p_1(start_x, start_y, start_z);
@@ -87,7 +88,6 @@ void hole(int imol, float start_x, float start_y, float start_z,
          coot::colour_holder colour =
             coot::old_generic_display_object_t::colour_values_from_colour_name(colour_name);
          const clipper::Coord_orth &pt = hole_path_and_surface.second[i].position;
-         float point_radius = 12;
          surface_obj.add_point(colour, colour_name, point_radius, pt, num_subdivisions);
       }
       Material material;

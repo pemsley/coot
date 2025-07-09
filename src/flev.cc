@@ -450,6 +450,8 @@ void fle_view_with_rdkit_internal(int imol, const char *chain_id, int res_no, co
 
 # else
 
+   std::cout << "here in fle_view_with_rdkit_internal() AAAAAAAAAAAA " << std::endl;
+
    double weight_for_3d_distances = 0.4; // for 3d distances
    double water_dist_max = 3.25;
    
@@ -1165,6 +1167,8 @@ coot::get_prodrg_hybridizations(const std::string &prodrg_log_file_name) {
    return v;
 }
 
+#include "pli/flev.hh"
+
 std::vector<std::pair<mmdb::Atom *, std::vector<clipper::Coord_orth> > >
 coot::get_cannonball_vectors(mmdb::Residue *ligand_res_3d,
 			     const coot::dictionary_residue_restraints_t &monomer_restraints) {
@@ -1174,3 +1178,31 @@ coot::get_cannonball_vectors(mmdb::Residue *ligand_res_3d,
    return v;
 }
 
+// put fle_view into a C++ header.
+void fle_view(int imol, const char *chain_id, int res_no, const char *ins_code, float dist_max) {
+
+   bool add_key = true;
+   if (is_valid_model_molecule(imol)) {
+      mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+      if (mol) {
+         mmdb::Residue *residue_p = graphics_info_t::molecules[imol].get_residue(chain_id, res_no, ins_code);
+         if (residue_p) {
+            svg_container_t svgc = pli::fle_view_with_rdkit_internal(mol, imol, graphics_info_t::Geom_p(),
+                                                                     chain_id, res_no, ins_code, dist_max, add_key);
+            std::string s = svgc.compose(true);
+            if (! s.empty()) {
+               std::string rn = residue_p->GetResName();
+               std::string title = "Coot: 2D Ligand Environment View for ";
+               title += std::string(chain_id);
+               title += std::string(" ");
+               title += std::to_string(res_no);
+               title += std::string(" ");
+               title += rn;
+               display_svg_from_string_in_a_dialog(s, title);
+            } else {
+               std::cout << "ERROR:: failed to make depiction - empty svg" << std::endl;
+            }
+         }
+      }
+   }
+}

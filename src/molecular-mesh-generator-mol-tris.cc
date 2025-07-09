@@ -212,6 +212,7 @@ molecular_mesh_generator_t::get_molecular_triangles_mesh(mmdb::Manager *mol,
             apcrr.setStartValue(min_resno);
             apcrr.setEndValue(max_resno);
             auto apcrr_p = std::make_shared<AtomPropertyRampColorRule> (apcrr);
+            std::cout << "DEBUG:: get_molecular_triangles_mesh() A calls addRule" << std::endl;
             ribbon_ramp_cs->addRule(apcrr_p);
             std::cout << "this_cs " << this_cs << std::endl;
             std::shared_ptr<MolecularRepresentationInstance> molrepinst =
@@ -268,6 +269,7 @@ molecular_mesh_generator_t::get_molecular_triangles_mesh(mmdb::Manager *mol,
          for (unsigned int i=0; i<selection_colours.size(); i++) {
             const std::string ss = selection_colours[i].first;
             const std::string cs = selection_colours[i].second;
+            std::cout << "DEBUG:: get_molecular_triangles_mesh() B calls addRule" << std::endl;
             this_cs->addRule(SolidColorRule::colorRuleForSelectionAndName(std::shared_ptr<CompoundSelection>(new CompoundSelection(ss,ss)), cs));
          }
       }
@@ -292,6 +294,7 @@ molecular_mesh_generator_t::get_molecular_triangles_mesh(mmdb::Manager *mol,
                      apcrr.setStartValue(min_resno);
                      apcrr.setEndValue(max_resno);
                      auto apcrr_p = std::make_shared<AtomPropertyRampColorRule> (apcrr);
+                     std::cout << "DEBUG:: get_molecular_triangles_mesh() C calls addRule" << std::endl;
                      ribbon_ramp_cs->addRule(apcrr_p);
                   }
                }
@@ -416,7 +419,7 @@ molecular_mesh_generator_t::get_molecular_triangles_mesh(mmdb::Manager *mol,
 
    } // valid model_p test
 
-   std::cout << "INFO:: " << __FUNCTION__  << "() n_primitives: " << mtm.size() << std::endl;
+   // std::cout << "INFO:: " << __FUNCTION__  << "() n_primitives: " << mtm.size() << std::endl;
    return mtm;
 
 }
@@ -470,6 +473,7 @@ molecular_mesh_generator_t::get_molecular_triangles_mesh_for_ribbon_with_user_de
    std::shared_ptr<CompoundSelection> comp_sel = std::make_shared<CompoundSelection>(atom_selection_str);
    cr.setCompoundSelection(comp_sel);
    auto udcr_p = std::make_shared<ud_colour_rule>(cr);
+   std::cout << "DEBUG:: get_molecular_triangles_mesh_for_ribbon_with_user_defined_residue_colours() calls addRule" << std::endl;
    ribbon_ramp_cs->addRule(udcr_p);
 
    if (false)

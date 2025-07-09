@@ -489,7 +489,7 @@ int fill_ligands_dialog_ligands_bits(GtkWidget *find_ligand_dialog) {
 }
 
 
-
+// return 0
 int execute_get_mols_ligand_search(GtkWidget *button) {
 
    // 20220313-PE new version - in this version, instead
@@ -607,7 +607,7 @@ int execute_get_mols_ligand_search(GtkWidget *button) {
 
          // OK, let's go
 
-	      execute_ligand_search();
+         execute_ligand_search();
 
       } else {
 

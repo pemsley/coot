@@ -103,3 +103,71 @@ texture_as_floats_t::texture_as_floats_t(const clipper::Xmap<float> &xmap, int s
    width  = gs.nv();
    height = gs.nu();
 }
+
+texture_as_floats_t::texture_as_floats_t(const clipper::Xmap<float> &xmap, int section_index, int axis) {
+
+   // Things we need to fill:
+   // int width;
+   // int height;
+   // float x_size;
+   // float y_size;
+   // float z_position;
+   // std::vector<float> image_data;
+
+   // std::pair<float, float> mv = coot::util::mean_and_variance(xmap);
+   // float mean = mv.first;
+   // float std_dev = std::sqrt(mv.second);
+
+   // colour map info needs to be passed
+   // for now we will do grey-scale
+   // float data_value_for_top    =  4.0;  // full white
+   // float data_value_for_bottom = -1.0;  // full black
+
+   clipper::Cell cell = xmap.cell();
+   clipper::Grid_sampling gs = xmap.grid_sampling();
+   int new_size = gs.nu() * gs.nv();
+   std::cout << "texture_as_floats_t constructor: "  << gs.format()
+             << " image data new size " << new_size << std::endl;
+   image_data.resize(new_size);
+   int image_data_size = image_data.size();
+
+   x_size = cell.a();
+   y_size = cell.b();
+   if (section_index >= gs.nw()) section_index = gs.nw() -1;
+   if (section_index < 0) section_index = 0;
+   float z_frac = static_cast<float>(section_index) / static_cast<float>(gs.nw());
+   z_position = z_frac * cell.c();
+
+   clipper::Coord_grid cg_0(0,0,section_index);
+   clipper::Coord_grid cg_1(gs.nu()-1, gs.nv()-1, section_index);
+
+   if (axis == 0) cg_1 = clipper::Coord_grid(section_index, gs.nv()-1, gs.nw()-1); // X
+   if (axis == 1) cg_1 = clipper::Coord_grid(gs.nu()-1, section_index, gs.nw()-1); // Y
+
+   clipper::Grid_map grid(cg_0, cg_1);
+   clipper::Xmap_base::Map_reference_coord ix( xmap, grid.min()), iu, iv, iw;
+   int nv = gs.nv();
+
+   int c_u = 0;
+   for ( iu = ix; iu.coord().u() <= grid.max().u(); iu.next_u() ) {
+      int c_v = 0;
+      for ( iv = iu; iv.coord().v() <= grid.max().v(); iv.next_v() ) {
+         int c_w = 0;
+         for ( iw = iv; iw.coord().w() <= grid.max().w(); iw.next_w() ) {
+            const float &f = xmap[iw];
+            int idx = c_v + nv * c_u; // Wow. How confusing
+            if (idx >= image_data_size) {
+               std::cout << "ERROR:: image data index out of range " << idx << " " << image_data_size << std::endl;
+            } else {
+               image_data[idx] = f;
+            }
+            c_w++;
+         }
+         c_v++;
+      }
+      c_u++;
+   }
+
+   width  = gs.nv();
+   height = gs.nu();
+}

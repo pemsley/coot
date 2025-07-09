@@ -131,6 +131,9 @@
 
 #include "validation-graphs/sequence-view-widget.hh"
 
+#include "utils/logging.hh"
+extern logging logger;
+
 // This is (already) in git-revision-count.cc
 //
 int svn_revision() {
@@ -817,7 +820,8 @@ int handle_read_draw_molecule_with_recentre(const std::string &filename,
 							  bw, bonds_box_type, true);
 
       if (istat == 1) {
-	 std::cout << "Molecule " << imol << " read successfully\n";
+	 // std::cout << "Molecule " << imol << " read successfully\n";
+         logger.log(log_t::INFO, "Molecule ", imol, " read successfully");
 
 	 // we do this somewhat awkward in and out thing with the
 	 // molecule, because I don't want to (or am not able to) pass a
@@ -3223,8 +3227,7 @@ get_show_aniso() {
 
 void
 set_show_aniso(int state) {
-   graphics_info_t::log.log(logging::WARNING, logging::function_name_t(__FUNCTION__),
-                            "don't use this");
+   logger.log(log_t::WARNING, logging::function_name_t(__FUNCTION__), "don't use this");
 }
 
 /*! \brief set show aniso atoms */
@@ -3628,10 +3631,10 @@ int dots(int imol,
    int idots = -1;
    if (is_valid_model_molecule(imol)) {
       if (atom_selection_str) {
-	 // the colour is handled internally to make_dots - there the
-	 // state of molecule dots colour (see set_dots_colour()
-	 // below) is checked.
-	 idots = graphics_info_t::molecules[imol].make_dots(std::string(atom_selection_str),
+         // the colour is handled internally to make_dots - there the
+         // state of molecule dots colour (see set_dots_colour()
+         // below) is checked.
+         idots = graphics_info_t::molecules[imol].make_dots(std::string(atom_selection_str),
 							    dots_name,
 							    dot_density,
 							    sphere_size_scale);
@@ -3687,7 +3690,8 @@ int n_dots_sets(int imol) {
    if ((imol >= 0) && (imol < graphics_info_t::n_molecules())) {
       r = graphics_info_t::molecules[imol].n_dots_sets();
    } else {
-      std::cout << "WARNING:: Bad molecule number: " << imol << std::endl;
+      // std::cout << "WARNING:: Bad molecule number: " << imol << std::endl;
+      logger.log(log_t::WARNING, "Bad molecule number:", imol);
    }
    return r;
 }
@@ -4059,7 +4063,7 @@ float median_temperature_factor(int imol) {
                                                      low_cut_flag,
                                                      high_cut_flag);
    } else {
-      std::cout << "WARNING:: no such molecule as " << imol << "\n";
+      logger.log(log_t::WARNING, "No such molecule number:", imol);
    }
    return median;
 }
@@ -4080,10 +4084,11 @@ float average_temperature_factor(int imol) {
 						     low_cut_flag,
 						     high_cut_flag);
       } else {
-	 std::cout << "WARNING:: molecule " << imol << " has no model\n";
+	 // std::cout << "WARNING:: molecule " << imol << " has no model\n";
+         logger.log(log_t::WARNING, "Molecule:", imol, "has no model");
       }
    } else {
-      std::cout << "WARNING:: no such molecule as " << imol << "\n";
+      logger.log(log_t::WARNING, "No such molecule as:", imol);
    }
    return av;
 }
@@ -4103,7 +4108,8 @@ float standard_deviation_temperature_factor(int imol) {
 							     low_cut_flag,
 							     high_cut_flag);
    } else {
-      std::cout << "WARNING:: molecule " << imol << " is not a valid model\n";
+      // std::cout << "WARNING:: molecule " << imol << " is not a valid model\n";
+      logger.log(log_t::WARNING, "Molecule:", imol, "is not a valid model");
    }
    return av;
 }
@@ -4343,6 +4349,18 @@ int reset_view() {
 }
 
 
+/*! \brief set the view rotation scale factor
+
+ Useful/necessary for high resolution displayed, where, without this factor
+ the view doesn't rotate enough */
+void set_view_rotation_scale_factor(float f) {
+
+   graphics_info_t::view_rotation_per_pixel_scale_factor = f;
+
+}
+
+
+
 
 // ------------------------------------------------------
 //                   Skeleton
@@ -4417,13 +4435,6 @@ void test_fragment() {
    graphics_info_t g;
    g.rotamer_graphs(0);
 }
-
-// we redefine TRUE here somewhere...
-// #include <gdk/gdkglconfig.h>
-// #include <gtk/gtkgl.h>
-// #include <gdk/x11/gdkglx.h>
-// #include <gdk/x11/gdkglglxext.h>
-
 
 int write_connectivity(const char *monomer_name, const char *filename) {
 
@@ -4978,7 +4989,7 @@ short int possible_cell_symm_for_phs_file() {
 
 // return a string to each of the cell parameters in molecule imol.
 //
-gchar *get_text_for_phs_cell_chooser(int imol, char *field) {
+gchar *get_text_for_phs_cell_chooser(int imol, const char *field) {
 
    // we first look in atomseletion
 
@@ -7225,7 +7236,7 @@ void set_found_coot_python_gui() {
 }
 
 // return an atom index
-int atom_spec_to_atom_index(int imol, char *chain, int resno, char *atom_name) {
+int atom_spec_to_atom_index(int imol, const char *chain, int resno, const char *atom_name) {
    graphics_info_t g;
    if (imol < graphics_n_molecules())
       return g.molecules[imol].atom_spec_to_atom_index(chain, resno, atom_name);
@@ -7671,6 +7682,8 @@ void sequence_view(int imol) {
          auto click_function = +[] (CootSequenceView* self, int imol, const coot::residue_spec_t &spec, gpointer userdata) {
             graphics_info_t g;
             g.go_to_residue(imol, spec);
+            update_go_to_atom_from_current_position();
+            g.graphics_grab_focus();
          };
          g_signal_connect(sv, "residue-clicked", G_CALLBACK(click_function), nullptr);
       }
@@ -8150,7 +8163,7 @@ void import_all_refmac_cifs() {
 /*  ----------------------------------------------------------------------- */
 /* The guts happens in molecule_class_info_t, here is just the
    exported interface */
-int add_atom_label(int imol, char *chain_id, int iresno, char *atom_id) {
+int add_atom_label(int imol, const char *chain_id, int iresno, const char *atom_id) {
 
    int i = 0;
    if (is_valid_model_molecule(imol)) {
@@ -8160,7 +8173,7 @@ int add_atom_label(int imol, char *chain_id, int iresno, char *atom_id) {
    return i;
 }
 
-int remove_atom_label(int imol, char *chain_id, int iresno, char *atom_id) {
+int remove_atom_label(int imol, const char *chain_id, int iresno, const char *atom_id) {
    graphics_info_t g;
    return g.molecules[imol].remove_atom_label(chain_id, iresno, atom_id);
 }
@@ -9544,8 +9557,14 @@ void load_tutorial_model_and_data() {
       std::cout << "--------- imol_diff_map: " << imol_diff_map << std::endl;
    }
 
-   graphics_info_t g;
-   g.graphics_grab_focus();
+   // 2025-03-26-PE not all GLibs have g_idle_add_once() at the moment
+   // gint idle = g_idle_add_once((GSourceOnceFunc)g.graphics_grab_focus, NULL);
+   auto callback = +[] (gpointer data) {
+     graphics_info_t g;
+     g.graphics_grab_focus();
+     return gboolean(FALSE);
+   };
+   gint idle = g_idle_add(callback, NULL);
 
 }
 

@@ -71,6 +71,9 @@
 #include "c-interface-gui.hh" // for set_transient_for_main_window()
 #include "coot-preferences.h"
 
+#include "utils/logging.hh"
+extern logging logger;
+
 #include "widget-from-builder.hh"
 
 
@@ -218,11 +221,18 @@ void update_preference_gui() {
   if (debug)
      std::cout << "--------------------------- update_preference_gui() " << std::endl;
 
-  GtkWidget *dialog = widget_from_preferences_builder("preferences");
-
   if (debug)
      std::cout << "--------------------------- update_preference_gui() preferences internal size "
                << g.preferences_internal.size() << std::endl;
+
+  // this might be done wrongly
+  if (graphics_info_t::use_primary_mouse_for_view_rotation_flag) {
+     GtkWidget *button = widget_from_preferences_builder("preferences_view_rotation_left_mouse_checkbutton");
+     gtk_check_button_set_active(GTK_CHECK_BUTTON(button), TRUE);
+  } else {
+     GtkWidget *button = widget_from_preferences_builder("preferences_view_rotation_left_mouse_checkbutton");
+     gtk_check_button_set_active(GTK_CHECK_BUTTON(button), FALSE);
+  }
 
   for (unsigned int i=0; i<g.preferences_internal.size(); i++) {
      auto preference_type = g.preferences_internal[i].preference_type;
@@ -241,7 +251,7 @@ void update_preference_gui() {
                   << g.preferences_internal[i].fvalue1 << std::endl;
 
      switch (preference_type) {
-      
+
      case PREFERENCES_VT_SURFACE:
         w = widget_from_preferences_builder("preferences_hid_spherical_radiobutton");
         ivalue = g.preferences_internal[i].ivalue1;
@@ -664,7 +674,25 @@ void add_status_bar_text(const std::string &s) {
 
    graphics_info_t g;
    g.add_status_bar_text(std::string(s));
-} 
+}
+
+//! set the logging level
+//!
+//! @param level is either "LOW" or "HIGH" or "DEBUGGING"
+void set_logging_level(const std::string &level) {
+   if (level == "LOW")       logger.output_type = logging::output_t::INTERNAL;
+   if (level == "HIGH")      logger.output_type = logging::output_t::TERMINAL;
+   if (level == "DEBUGGING") logger.output_type = logging::output_t::TERMINAL_WITH_DEBUGGING;
+
+   if (level == "LOW" || level == "HIGH" || level == "DEBUGGING") {
+   } else {
+      // let's see the error message!
+      std::cout << "WARNING:: set_logging_level(): bad level name: " << level << std::endl;
+      logger.log(log_t::WARNING, std::string("set_logging_level(): bad level name:"), level);
+   }
+}
+
+
 
 
 
@@ -672,14 +700,14 @@ void add_status_bar_text(const std::string &s) {
 /*                  Other interface preferences                            */
 /*  ----------------------------------------------------------------------- */
 
-void set_model_fit_refine_dialog_stays_on_top(int istate) { 
+void set_model_fit_refine_dialog_stays_on_top(int istate) {
    graphics_info_t::model_fit_refine_dialog_stays_on_top_flag = istate;
 }
 
 int model_fit_refine_dialog_stays_on_top_state() {
 
    return graphics_info_t::model_fit_refine_dialog_stays_on_top_flag;
-} 
+}
 
 void save_accept_reject_dialog_window_position(GtkWidget *acc_rej_dialog) {
    graphics_info_t g;

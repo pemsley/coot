@@ -213,7 +213,7 @@ int MyMolecule::processCoords(int secondaryStructureUsageFlag){
         model->CalcSecStructure(true);
       }
    }
-    
+
    if (transfer_secondary_structure)
       secondary_structure_header_to_residue_sse(mmdb);
 
@@ -224,7 +224,7 @@ int MyMolecule::loadFromPDB(const char *filePath, int secondaryStructureUsageFla
     int RC;
     mmdb::InitMatType();
     mmdb = new mmdb::Manager();
-    
+
     //Now read the MMDB for purpose of calculating surface
     mmdb->SetFlag( mmdb::MMDBF_PrintCIFWarnings );
     RC = mmdb->ReadCoorFile (filePath);
@@ -455,6 +455,11 @@ int MyMolecule::identifyDishyBases(std::map<mmdb::Chain *, DishyBaseContainer_t>
                             residue_p->GetAtomTable(residue_atoms, nAtoms);
                             std::string res_name = residue_p->GetResName();
                             
+                            if(nAtoms>0){
+                               if(!residue_atoms[0]->isInSelection(selHnd)) {
+                                   continue;
+                               }
+                            }
                             // setup the alt confs for this residue
                             //
                             std::set<std::string> residue_alt_confs_set;

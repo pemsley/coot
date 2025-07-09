@@ -496,10 +496,9 @@ molecules_container_t::get_eigenvalues(int imol, const std::string &chain_id, in
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 #include "lidia-core/rdkit-interface.hh"
 #include <GraphMol/MolDraw2D/MolDraw2DSVG.h>
-#endif
-
 #include "lidia-core/svg-molecule.hh"
 #include "svg-store-key.hh"
+#endif
 
 //! This is a ligand function, not really a ligand-fitting function.
 //!

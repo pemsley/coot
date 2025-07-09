@@ -953,3 +953,149 @@ coot::molecule_t::get_missing_residue_ranges() const {
    }
    return v;
 }
+
+#include "coot-utils/coot-hole.hh"
+//
+// Put this in coot-molecule-analysis one day
+//
+coot::instanced_mesh_t
+coot::molecule_t::get_HOLE(const clipper::Coord_orth &start_pos, const clipper::Coord_orth &end_pos,
+                           const coot::protein_geometry &geom) const {
+
+   auto coord_orth_to_glm = [] (const clipper::Coord_orth &co) {
+      return glm::vec3(co.x(), co.y(), co.z());
+   };
+
+   coot::instanced_mesh_t m;
+   coot::hole hole(atom_sel.mol, start_pos, end_pos, geom);
+   std::pair<std::vector<std::pair<clipper::Coord_orth, double> >, std::vector<hole_surface_point_t> >
+      hole_path_and_surface = hole.generate();
+
+   const auto &path    = hole_path_and_surface.first;
+   const auto &surface = hole_path_and_surface.second;
+
+   std::cout << "in get_HOLE() path: " << path.size() << " surface " << surface.size() << std::endl;
+
+   coot::instanced_geometry_t ig;
+   glm::vec3 size(0.1f, 0.1f, 0.1f); // needs testing.
+   ig.instancing_data_A.resize(surface.size());
+   for (unsigned int i=0; i<surface.size(); i++) {
+      const auto &s_p = surface[i].position;
+      const coot::colour_holder &s_c = surface[i].colour;
+      glm::vec3 pos = coord_orth_to_glm(s_p);
+      glm::vec4 col = colour_holder_to_glm(s_c);
+      coot::instancing_data_type_A_t id(pos, col, size);
+      ig.instancing_data_A[i] = id;
+   }
+   m.geom.push_back(ig);
+   return m;
+}
+
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+#include "pli/flev.hh"
+#endif
+
+// Put this in coot-molecule-analysis one day
+//
+//! Get SVG for 2d ligand environment view (FLEV)
+//!
+//! The caller should make sure that the dictionary for the ligand has been loaded - this
+//! function won't do that. It will add hydrogen atoms if needed.
+//!
+//! @param residue_cid is the cid for the residue
+std::string
+coot::molecule_t::get_svg_for_2d_ligand_environment_view(const std::string &residue_cid,
+                                                         coot::protein_geometry *geom,
+                                                         bool add_key) const {
+
+   std::string s;
+
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+
+   float radius = 4.2; // pass this, I think.
+
+   mmdb::Residue *residue_p = get_residue(residue_cid);
+   if (residue_p) {
+      std::string chain_id = residue_p->GetChainID();
+      int res_no = residue_p->GetSeqNum();
+      std::string ins_code = residue_p->GetInsCode();
+      svg_container_t svgc = pli::fle_view_with_rdkit_internal(atom_sel.mol, imol_no, geom,
+                                                               chain_id, res_no, ins_code, radius, add_key);
+      s = svgc.compose(true);
+   }
+#endif
+   return s;
+}
+
+// this is analysis really
+//
+//! get atom distances
+//! other stuff here
+std::vector<coot::atom_distance_t>
+coot::molecule_t::get_distances_between_atoms_of_residues(const std::string &cid_res_1,
+							  const std::string &cid_res_2,
+							  float dist_max) const {
+  std::vector<atom_distance_t> v;
+  mmdb::Residue *residue_1 = cid_to_residue(cid_res_1);
+  mmdb::Residue *residue_2 = cid_to_residue(cid_res_2);
+  if (residue_1) {
+     if (residue_2) {
+        int nResidueAtoms_1 = 0;
+        mmdb::PPAtom ResidueAtoms_1 = nullptr;
+        residue_1->GetAtomTable(ResidueAtoms_1, nResidueAtoms_1);
+        int nResidueAtoms_2 = 0;
+        mmdb::PPAtom ResidueAtoms_2 = nullptr;
+        residue_2->GetAtomTable(ResidueAtoms_2, nResidueAtoms_2);
+        for (int ii=0; ii<nResidueAtoms_1; ii++) {
+	        mmdb::Atom *at_1 = ResidueAtoms_1[ii];
+	        for (int jj=0; jj<nResidueAtoms_2; jj++) {
+	           mmdb::Atom *at_2 = ResidueAtoms_2[jj];
+	           double dd =
+	      (at_2->x - at_1->x) * (at_2->x - at_1->x) +
+	      (at_2->y - at_1->y) * (at_2->y - at_1->y) +
+	      (at_2->z - at_1->z) * (at_2->z - at_1->z);
+	           double d = std::sqrt(dd);
+	           if (d < dist_max) {
+	              atom_spec_t spec_1(at_1);
+	              atom_spec_t spec_2(at_2);
+	              atom_distance_t ad(spec_1, spec_2, d);
+	              v.push_back(ad);
+	           }
+	        }
+        }
+     }
+  }
+  return v;
+}
+
+
+std::vector<std::string>
+coot::molecule_t::get_types_in_molecule() const {
+
+   std::vector<std::string> v;
+   std::set<std::string> s;
+   mmdb::Manager *mol = atom_sel.mol;
+   if (mol) {
+      for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+	 mmdb::Model *model_p = mol->GetModel(imod);
+	 if (model_p) {
+	    int n_chains = model_p->GetNumberOfChains();
+	    for (int ichain=0; ichain<n_chains; ichain++) {
+	       mmdb::Chain *chain_p = model_p->GetChain(ichain);
+	       int n_res = chain_p->GetNumberOfResidues();
+	       for (int ires=0; ires<n_res; ires++) {
+		  mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+		  if (residue_p) {
+		     std::string type = residue_p->GetResName();
+		     s.insert(type);
+		  }
+	       }
+	    }
+	 }
+      }
+   }
+   for (const auto &item : s) {
+      v.push_back(item);
+   }
+   return v;
+}

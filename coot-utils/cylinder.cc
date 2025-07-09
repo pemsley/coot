@@ -663,3 +663,44 @@ cylinder::crenulations() {
       triangles.push_back(g_triangle(idx_offset_origin, idx_this, idx_next));
    }
 }
+
+//
+// angle in radians.
+glm::vec3
+cylinder::rotate_around_vector(const glm::vec3 &direction,
+                     const glm::vec3 &position,
+                     const glm::vec3 &origin_shift,
+                     double angle) {
+
+   glm::vec3 unit_vec = glm::normalize(direction);
+
+   double l = unit_vec[0];
+   double m = unit_vec[1];
+   double n = unit_vec[2];
+
+   double ll = l*l;
+   double mm = m*m;
+   double nn = n*n;
+   double cosk = cos(angle);
+   double sink = sin(angle);
+   double I_cosk = 1.0 - cosk;
+
+   // The Rotation matrix angle w about vector with direction cosines l,m,n.
+   //
+   // ( l**2+(m**2+n**2)cos k     lm(1-cos k)-nsin k        nl(1-cos k)+msin k   )
+   // ( lm(1-cos k)+nsin k        m**2+(l**2+n**2)cos k     mn(1-cos k)-lsin k   )
+   // ( nl(1-cos k)-msin k        mn(1-cos k)+lsin k        n*2+(l**2+m**2)cos k )
+   //
+   // (Amore documentation) Thanks for that pointer EJD :).
+
+   glm::mat3 r(ll+(mm+nn)*cosk,    l*m*I_cosk-n*sink,  n*l*I_cosk+m*sink,
+               l*m*I_cosk+n*sink,  mm+(ll+nn)*cosk,    m*n*I_cosk-l*sink,
+               n*l*I_cosk-m*sink,  m*n*I_cosk+l*sink,  nn+(ll+mm)*cosk );
+
+   glm::vec3 p1 = position - origin_shift;
+   glm::vec3 p2 = r * p1;
+   glm::vec3 p3 = p2 + origin_shift;
+   return p3;
+
+}
+

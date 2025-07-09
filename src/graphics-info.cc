@@ -145,6 +145,14 @@ graphics_info_t::valid_map_molecules() const {
    return v;
 }
 
+// static
+GtkAllocation graphics_info_t::get_glarea_allocation() {
+   GtkAllocation allocation;
+   if (!glareas.empty())
+      gtk_widget_get_allocation(glareas[0], &allocation);
+   return allocation;
+}
+
 
 // return the new molecule number
 // static
@@ -315,7 +323,7 @@ graphics_info_t::get_biggest_model_molecule() {
    int n = n_molecules();
    for(int ii=0; ii<n; ii++) {
       if (is_valid_model_molecule(ii)) {
-         int n_atoms_mol = molecules[imol].atom_sel.n_selected_atoms;
+         int n_atoms_mol = molecules[ii].atom_sel.n_selected_atoms;
          if (n_atoms_mol > n_atoms_max) {
             imol = ii;
             n_atoms_max = n_atoms_mol;
@@ -793,12 +801,18 @@ graphics_info_t::set_rotation_centre(const clipper::Coord_orth &pt) {
 
 void
 graphics_info_t::setRotationCentre(int index, int imol) {
+
    mmdb::Atom *atom = molecules[imol].atom_sel.atom_selection[index];
    float x = atom->x;
    float y = atom->y;
    float z = atom->z;
    clipper::Coord_orth pt(x,y,z);
    set_rotation_centre(pt);
+
+   if (environment_distance_label_atom) {
+      molecules[imol].unlabel_last_atom();
+      molecules[imol].add_to_labelled_atom_list(index);
+   }
 
 }
 
@@ -888,7 +902,6 @@ graphics_info_t::get_closest_atom() const {
    return std::pair<int, int>(index_close, imol_close);
 }
 
-#ifndef EMSCRIPTEN // 20220724-PE for now (just to get things compiling - should be restored)
 void
 graphics_info_t::setRotationCentre(const symm_atom_info_t &symm_atom_info) {
 
@@ -909,7 +922,6 @@ graphics_info_t::setRotationCentre(const symm_atom_info_t &symm_atom_info) {
       std::cout << "ERROR:: NULL atom in setRotationCentre(symm_atom_info_t)\n";
    }
 }
-#endif
 
 void
 graphics_info_t::setRotationCentre(const coot::clip_hybrid_atom &hybrid_atom) {
@@ -1257,7 +1269,7 @@ graphics_info_t::setRotationCentre(coot::Cartesian new_centre, bool force_jump) 
          identification_pulse_centre = cartesian_to_glm(current_centre);
          gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0]));
          bool broken_line_mode = true;
-         lines_mesh_for_identification_pulse.setup_pulse(broken_line_mode);
+         lines_mesh_for_identification_pulse.setup_green_pulse(broken_line_mode);
          gtk_widget_add_tick_callback(glareas[0], identification_pulse_func, user_data, NULL);
 
       }
@@ -1292,13 +1304,12 @@ graphics_info_t::setRotationCentre(coot::Cartesian new_centre, bool force_jump) 
 
 void
 graphics_info_t::setRotationCentreAndZoom(coot::Cartesian centre,
-     float target_zoom) {
+                                          float target_zoom) {
 
    set_old_rotation_centre(RotationCentre());
 
    if (graphics_info_t::smooth_scroll == 1)
-      smooth_scroll_maybe(centre.x(), centre.y(), centre.z(),
-     1, target_zoom);
+      smooth_scroll_maybe(centre.x(), centre.y(), centre.z(), 1, target_zoom);
 
    rotation_centre_x = centre.get_x();
    rotation_centre_y = centre.get_y();
@@ -1689,7 +1700,7 @@ graphics_info_t::accept_moving_atoms() {
       } else {
          if (moving_atoms_asc_type == coot::NEW_COORDS_REPLACE) {
             molecules[imol_moving_atoms].replace_coords(*moving_atoms_asc, 0, mzo);
-            update_validation(imol_moving_atoms);
+            // update_validation(imol_moving_atoms);
          } else {
             if (moving_atoms_asc_type == coot::NEW_COORDS_INSERT) {
                molecules[imol_moving_atoms].insert_coords(*moving_atoms_asc);
@@ -1707,6 +1718,7 @@ graphics_info_t::accept_moving_atoms() {
       }
    }
 
+
    // reset the b-factor?
    if (graphics_info_t::reset_b_factor_moved_atoms_flag) {
      molecules[imol_moving_atoms].set_b_factor_atom_selection(*moving_atoms_asc, graphics_info_t::default_new_atoms_b_factor, 1);
@@ -1716,7 +1728,7 @@ graphics_info_t::accept_moving_atoms() {
       setup_for_probe_dots_on_chis_molprobity(imol_moving_atoms);
    }
 
-   std::cout << "debug:: accept_moving_atoms:: GTK4 update: update rama plot for " << imol_moving_atoms << std::endl;
+   std::cout << "DEBUG:: accept_moving_atoms() GTK4 update: update rama plot for " << imol_moving_atoms << std::endl;
 
    clear_all_atom_pull_restraints(false); // no re-refine
    clear_up_moving_atoms();
@@ -3839,7 +3851,6 @@ graphics_info_t::start_baton_here() {
          GtkWidget *w = wrapped_create_skeleton_dialog(1);
          gtk_widget_set_visible(w, TRUE);
          return 0;
-         
 
       } else {
 
@@ -6881,7 +6892,7 @@ int
 graphics_info_t::get_n_pressed_for_leftquote_tap(std::chrono::time_point<std::chrono::high_resolution_clock> tp) {
 
    unsigned int s = leftquote_press_times.size();
-   unsigned int r = s % 4 + 1;
+   unsigned int r = s % 5 + 1;
    if (s != 0) {
       auto tpl = leftquote_press_times.back();
       auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp - tpl).count();

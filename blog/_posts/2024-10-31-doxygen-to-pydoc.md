@@ -11,7 +11,7 @@ I wanted this functionality to be available via Python and I chose
 [nanobind](https://nanobind.readthedocs.io/en/latest/) as the means to do that.
 
 Nanobind provides access to practically all of the many hundreds of
-functions in the C++ class and it would be useful is the Python API
+functions in the C++ class and it would be useful if the Python API
 was as well documented as was the C++ api.  Transfering the
 documentation from C++ to Python "by hand" would be tedious. So
 Lucrezia (@lulu_catapano) and I wrote a [Python

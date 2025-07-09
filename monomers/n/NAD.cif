@@ -1,0 +1,447 @@
+#
+data_comp_list
+loop_
+_chem_comp.id
+_chem_comp.three_letter_code
+_chem_comp.name
+_chem_comp.group
+_chem_comp.number_atoms_all
+_chem_comp.number_atoms_nh
+_chem_comp.desc_level
+NAD     NAD      NICOTINAMIDE-ADENINE-DINUCLEOTIDE     NON-POLYMER     70     44     .     
+#
+data_comp_NAD
+#
+loop_
+_chem_comp_atom.comp_id
+_chem_comp_atom.atom_id
+_chem_comp_atom.type_symbol
+_chem_comp_atom.type_energy
+_chem_comp_atom.charge
+_chem_comp_atom.x
+_chem_comp_atom.y
+_chem_comp_atom.z
+NAD     PA      P       P       0       18.626      51.830      -19.907     
+NAD     O1A     O       O       0       18.239      51.977      -21.341     
+NAD     O2A     O       OP      -1      17.725      52.411      -18.868     
+NAD     O5B     O       O2      0       20.113      52.394      -19.696     
+NAD     C5B     C       CH2     0       21.139      52.018      -20.649     
+NAD     C4B     C       CH1     0       22.468      52.578      -20.205     
+NAD     O4B     O       O2      0       23.527      51.931      -20.956     
+NAD     C3B     C       CH1     0       22.679      54.079      -20.440     
+NAD     O3B     O       OH1     0       23.576      54.623      -19.479     
+NAD     C2B     C       CH1     0       23.256      54.094      -21.858     
+NAD     O2B     O       OH1     0       24.009      55.255      -22.137     
+NAD     C1B     C       CH1     0       24.142      52.850      -21.831     
+NAD     N9A     N       NR5     0       24.299      52.206      -23.131     
+NAD     C8A     C       CR15    0       23.301      51.647      -23.891     
+NAD     N7A     N       NRD5    0       23.726      51.133      -25.017     
+NAD     C5A     C       CR56    0       25.095      51.358      -25.002     
+NAD     C6A     C       CR6     0       26.120      51.044      -25.921     
+NAD     N6A     N       NH2     0       25.907      50.413      -27.073     
+NAD     N1A     N       NRD6    0       27.387      51.412      -25.601     
+NAD     C2A     C       CR16    0       27.594      52.049      -24.438     
+NAD     N3A     N       NRD6    0       26.710      52.394      -23.501     
+NAD     C4A     C       CR56    0       25.462      52.019      -23.841     
+NAD     O3      O       O2      0       18.840      50.272      -19.588     
+NAD     PN      P       P       0       18.864      49.438      -18.218     
+NAD     O1N     O       O       0       17.461      49.265      -17.740     
+NAD     O2N     O       OP      -1      19.853      50.066      -17.293     
+NAD     O5D     O       O2      0       19.431      48.023      -18.723     
+NAD     C5D     C       CH2     0       20.701      47.984      -19.424     
+NAD     C4D     C       CH1     0       21.194      46.559      -19.494     
+NAD     O4D     O       O2      0       21.428      46.064      -18.157     
+NAD     C3D     C       CH1     0       20.242      45.551      -20.164     
+NAD     O3D     O       OH1     0       20.944      44.677      -21.042     
+NAD     C2D     C       CH1     0       19.601      44.823      -18.973     
+NAD     O2D     O       OH1     0       19.219      43.486      -19.258     
+NAD     C1D     C       CH1     0       20.764      44.819      -17.978     
+NAD     N1N     N       NR6     1       20.354      44.692      -16.557     
+NAD     C2N     C       CR16    0       19.658      45.714      -15.942     
+NAD     C3N     C       CR6     0       19.271      45.586      -14.608     
+NAD     C7N     C       C       0       18.519      46.700      -13.946     
+NAD     O7N     O       O       0       18.970      47.210      -12.908     
+NAD     N7N     N       NH2     0       17.384      47.110      -14.499     
+NAD     C4N     C       CR16    0       19.587      44.433      -13.901     
+NAD     C5N     C       CR16    0       20.283      43.414      -14.527     
+NAD     C6N     C       CR16    0       20.661      43.549      -15.851     
+NAD     H51A    H       H       0       20.912      52.372      -21.544     
+NAD     H52A    H       H       0       21.197      51.032      -20.708     
+NAD     H4B     H       H       0       22.584      52.377      -19.252     
+NAD     H3B     H       H       0       21.811      54.559      -20.413     
+NAD     HO3A    H       H       0       23.564      55.469      -19.544     
+NAD     H2B     H       H       0       22.529      53.992      -22.526     
+NAD     HO2A    H       H       0       24.306      55.209      -22.931     
+NAD     H1B     H       H       0       25.026      53.099      -21.478     
+NAD     H8A     H       H       0       22.396      51.641      -23.629     
+NAD     H61A    H       H       0       26.528      49.888      -27.403     
+NAD     H62A    H       H       0       25.147      50.524      -27.495     
+NAD     H2A     H       H       0       28.491      52.285      -24.258     
+NAD     H51N    H       H       0       21.366      48.541      -18.948     
+NAD     H52N    H       H       0       20.590      48.342      -20.339     
+NAD     H4D     H       H       0       22.048      46.560      -19.977     
+NAD     H3D     H       H       0       19.542      46.042      -20.668     
+NAD     HO3N    H       H       0       21.584      44.301      -20.630     
+NAD     H2D     H       H       0       18.837      45.341      -18.621     
+NAD     HO2N    H       H       0       18.872      43.138      -18.566     
+NAD     H1D     H       H       0       21.389      44.085      -18.205     
+NAD     H2N     H       H       0       19.441      46.498      -16.419     
+NAD     H71N    H       H       0       16.923      47.775      -14.126     
+NAD     H72N    H       H       0       17.069      46.727      -15.240     
+NAD     H4N     H       H       0       19.329      44.343      -13.000     
+NAD     H5N     H       H       0       20.502      42.627      -14.056     
+NAD     H6N     H       H       0       21.135      42.856      -16.280     
+loop_
+_chem_comp_bond.comp_id
+_chem_comp_bond.atom_id_1
+_chem_comp_bond.atom_id_2
+_chem_comp_bond.type
+_chem_comp_bond.aromatic
+_chem_comp_bond.value_dist_nucleus
+_chem_comp_bond.value_dist_nucleus_esd
+_chem_comp_bond.value_dist
+_chem_comp_bond.value_dist_esd
+NAD          PA         O1A      DOUBLE       n     1.493  0.0122     1.493  0.0122
+NAD          PA         O2A      SINGLE       n     1.493  0.0122     1.493  0.0122
+NAD          PA         O5B      SINGLE       n     1.604  0.0133     1.604  0.0133
+NAD          PA          O3      SINGLE       n     1.604  0.0133     1.604  0.0133
+NAD         O5B         C5B      SINGLE       n     1.450  0.0166     1.450  0.0166
+NAD         C5B         C4B      SINGLE       n     1.509  0.0100     1.509  0.0100
+NAD         C4B         O4B      SINGLE       n     1.451  0.0100     1.451  0.0100
+NAD         C4B         C3B      SINGLE       n     1.535  0.0100     1.535  0.0100
+NAD         O4B         C1B      SINGLE       n     1.409  0.0100     1.409  0.0100
+NAD         C3B         O3B      SINGLE       n     1.422  0.0100     1.422  0.0100
+NAD         C3B         C2B      SINGLE       n     1.531  0.0100     1.531  0.0100
+NAD         C2B         O2B      SINGLE       n     1.411  0.0100     1.411  0.0100
+NAD         C2B         C1B      SINGLE       n     1.525  0.0100     1.525  0.0100
+NAD         C1B         N9A      SINGLE       n     1.458  0.0100     1.458  0.0100
+NAD         N9A         C8A      SINGLE       y     1.372  0.0100     1.372  0.0100
+NAD         N9A         C4A      SINGLE       y     1.374  0.0101     1.374  0.0101
+NAD         C8A         N7A      DOUBLE       y     1.310  0.0100     1.310  0.0100
+NAD         N7A         C5A      SINGLE       y     1.388  0.0100     1.388  0.0100
+NAD         C5A         C6A      SINGLE       y     1.408  0.0100     1.408  0.0100
+NAD         C5A         C4A      DOUBLE       y     1.381  0.0100     1.381  0.0100
+NAD         C6A         N6A      SINGLE       n     1.330  0.0100     1.330  0.0100
+NAD         C6A         N1A      DOUBLE       y     1.354  0.0100     1.354  0.0100
+NAD         N1A         C2A      SINGLE       y     1.339  0.0100     1.339  0.0100
+NAD         C2A         N3A      DOUBLE       y     1.330  0.0100     1.330  0.0100
+NAD         N3A         C4A      SINGLE       y     1.343  0.0100     1.343  0.0100
+NAD          O3          PN      SINGLE       n     1.604  0.0133     1.604  0.0133
+NAD          PN         O1N      DOUBLE       n     1.493  0.0122     1.493  0.0122
+NAD          PN         O2N      SINGLE       n     1.493  0.0122     1.493  0.0122
+NAD          PN         O5D      SINGLE       n     1.604  0.0133     1.604  0.0133
+NAD         O5D         C5D      SINGLE       n     1.450  0.0166     1.450  0.0166
+NAD         C5D         C4D      SINGLE       n     1.509  0.0100     1.509  0.0100
+NAD         C4D         O4D      SINGLE       n     1.443  0.0107     1.443  0.0107
+NAD         C4D         C3D      SINGLE       n     1.535  0.0100     1.535  0.0100
+NAD         O4D         C1D      SINGLE       n     1.425  0.0141     1.425  0.0141
+NAD         C3D         O3D      SINGLE       n     1.422  0.0100     1.422  0.0100
+NAD         C3D         C2D      SINGLE       n     1.533  0.0100     1.533  0.0100
+NAD         C2D         O2D      SINGLE       n     1.419  0.0101     1.419  0.0101
+NAD         C2D         C1D      SINGLE       n     1.533  0.0100     1.533  0.0100
+NAD         C1D         N1N      SINGLE       n     1.477  0.0138     1.477  0.0138
+NAD         N1N         C2N      DOUBLE       y     1.377  0.0105     1.377  0.0105
+NAD         N1N         C6N      SINGLE       y     1.375  0.0105     1.375  0.0105
+NAD         C2N         C3N      SINGLE       y     1.390  0.0105     1.390  0.0105
+NAD         C3N         C7N      SINGLE       n     1.497  0.0100     1.497  0.0100
+NAD         C3N         C4N      DOUBLE       y     1.385  0.0100     1.385  0.0100
+NAD         C7N         O7N      DOUBLE       n     1.241  0.0105     1.241  0.0105
+NAD         C7N         N7N      SINGLE       n     1.326  0.0100     1.326  0.0100
+NAD         C4N         C5N      SINGLE       y     1.380  0.0100     1.380  0.0100
+NAD         C5N         C6N      DOUBLE       y     1.380  0.0128     1.380  0.0128
+NAD         C5B        H51A      SINGLE       n     1.089  0.0100     0.989  0.0200
+NAD         C5B        H52A      SINGLE       n     1.089  0.0100     0.989  0.0200
+NAD         C4B         H4B      SINGLE       n     1.089  0.0100     0.981  0.0200
+NAD         C3B         H3B      SINGLE       n     1.089  0.0100     0.992  0.0200
+NAD         O3B        HO3A      SINGLE       n     0.970  0.0120     0.849  0.0200
+NAD         C2B         H2B      SINGLE       n     1.089  0.0100     0.994  0.0200
+NAD         O2B        HO2A      SINGLE       n     0.970  0.0120     0.849  0.0200
+NAD         C1B         H1B      SINGLE       n     1.089  0.0100     0.984  0.0200
+NAD         C8A         H8A      SINGLE       n     1.082  0.0130     0.942  0.0170
+NAD         N6A        H61A      SINGLE       n     1.016  0.0100     0.877  0.0200
+NAD         N6A        H62A      SINGLE       n     1.016  0.0100     0.877  0.0200
+NAD         C2A         H2A      SINGLE       n     1.082  0.0130     0.945  0.0200
+NAD         C5D        H51N      SINGLE       n     1.089  0.0100     0.989  0.0200
+NAD         C5D        H52N      SINGLE       n     1.089  0.0100     0.989  0.0200
+NAD         C4D         H4D      SINGLE       n     1.089  0.0100     0.981  0.0200
+NAD         C3D         H3D      SINGLE       n     1.089  0.0100     0.992  0.0200
+NAD         O3D        HO3N      SINGLE       n     0.970  0.0120     0.849  0.0200
+NAD         C2D         H2D      SINGLE       n     1.089  0.0100     0.989  0.0200
+NAD         O2D        HO2N      SINGLE       n     0.970  0.0120     0.849  0.0200
+NAD         C1D         H1D      SINGLE       n     1.089  0.0100     0.990  0.0173
+NAD         C2N         H2N      SINGLE       n     1.082  0.0130     0.943  0.0170
+NAD         N7N        H71N      SINGLE       n     1.016  0.0100     0.891  0.0200
+NAD         N7N        H72N      SINGLE       n     1.016  0.0100     0.891  0.0200
+NAD         C4N         H4N      SINGLE       n     1.082  0.0130     0.941  0.0168
+NAD         C5N         H5N      SINGLE       n     1.082  0.0130     0.943  0.0190
+NAD         C6N         H6N      SINGLE       n     1.082  0.0130     0.943  0.0169
+loop_
+_chem_comp_angle.comp_id
+_chem_comp_angle.atom_id_1
+_chem_comp_angle.atom_id_2
+_chem_comp_angle.atom_id_3
+_chem_comp_angle.value_angle
+_chem_comp_angle.value_angle_esd
+NAD         O1A          PA         O2A     118.411    2.35
+NAD         O1A          PA         O5B     109.410    1.50
+NAD         O1A          PA          O3     108.816    2.14
+NAD         O2A          PA         O5B     109.410    1.50
+NAD         O2A          PA          O3     108.816    2.14
+NAD         O5B          PA          O3     101.065    1.97
+NAD          PA         O5B         C5B     118.553    2.41
+NAD         O5B         C5B         C4B     109.342    1.50
+NAD         O5B         C5B        H51A     109.845    1.50
+NAD         O5B         C5B        H52A     109.845    1.50
+NAD         C4B         C5B        H51A     109.624    1.50
+NAD         C4B         C5B        H52A     109.624    1.50
+NAD        H51A         C5B        H52A     108.472    1.50
+NAD         C5B         C4B         O4B     109.123    1.50
+NAD         C5B         C4B         C3B     116.008    1.52
+NAD         C5B         C4B         H4B     108.268    1.50
+NAD         O4B         C4B         C3B     105.388    1.50
+NAD         O4B         C4B         H4B     108.947    1.50
+NAD         C3B         C4B         H4B     109.363    1.86
+NAD         C4B         O4B         C1B     109.903    1.50
+NAD         C4B         C3B         O3B     111.281    2.46
+NAD         C4B         C3B         C2B     102.602    1.50
+NAD         C4B         C3B         H3B     110.452    2.54
+NAD         O3B         C3B         C2B     111.581    2.83
+NAD         O3B         C3B         H3B     110.380    1.67
+NAD         C2B         C3B         H3B     110.504    1.75
+NAD         C3B         O3B        HO3A     108.744    3.00
+NAD         C3B         C2B         O2B     112.782    2.45
+NAD         C3B         C2B         C1B     101.239    1.50
+NAD         C3B         C2B         H2B     110.596    1.51
+NAD         O2B         C2B         C1B     111.715    2.69
+NAD         O2B         C2B         H2B     110.448    1.97
+NAD         C1B         C2B         H2B     110.636    1.70
+NAD         C2B         O2B        HO2A     109.103    2.13
+NAD         O4B         C1B         C2B     106.047    1.50
+NAD         O4B         C1B         N9A     108.477    1.50
+NAD         O4B         C1B         H1B     109.807    1.50
+NAD         C2B         C1B         N9A     113.824    1.50
+NAD         C2B         C1B         H1B     109.015    1.50
+NAD         N9A         C1B         H1B     109.561    1.50
+NAD         C1B         N9A         C8A     126.848    1.91
+NAD         C1B         N9A         C4A     127.459    1.80
+NAD         C8A         N9A         C4A     105.693    1.50
+NAD         N9A         C8A         N7A     113.469    1.50
+NAD         N9A         C8A         H8A     123.206    1.50
+NAD         N7A         C8A         H8A     123.326    1.50
+NAD         C8A         N7A         C5A     104.739    1.50
+NAD         N7A         C5A         C6A     132.250    1.50
+NAD         N7A         C5A         C4A     110.483    1.50
+NAD         C6A         C5A         C4A     117.267    1.50
+NAD         C5A         C6A         N6A     123.792    1.50
+NAD         C5A         C6A         N1A     117.409    1.50
+NAD         N6A         C6A         N1A     118.799    1.50
+NAD         C6A         N6A        H61A     119.723    1.50
+NAD         C6A         N6A        H62A     119.723    1.50
+NAD        H61A         N6A        H62A     120.554    1.88
+NAD         C6A         N1A         C2A     118.521    1.50
+NAD         N1A         C2A         N3A     129.332    1.50
+NAD         N1A         C2A         H2A     115.313    1.50
+NAD         N3A         C2A         H2A     115.355    1.50
+NAD         C2A         N3A         C4A     110.982    1.50
+NAD         N9A         C4A         C5A     105.616    1.50
+NAD         N9A         C4A         N3A     127.895    1.50
+NAD         C5A         C4A         N3A     126.489    1.50
+NAD          PA          O3          PN     132.542    3.00
+NAD          O3          PN         O1N     108.816    2.14
+NAD          O3          PN         O2N     108.816    2.14
+NAD          O3          PN         O5D     101.065    1.97
+NAD         O1N          PN         O2N     118.411    2.35
+NAD         O1N          PN         O5D     109.410    1.50
+NAD         O2N          PN         O5D     109.410    1.50
+NAD          PN         O5D         C5D     118.553    2.41
+NAD         O5D         C5D         C4D     109.342    1.50
+NAD         O5D         C5D        H51N     109.845    1.50
+NAD         O5D         C5D        H52N     109.845    1.50
+NAD         C4D         C5D        H51N     109.624    1.50
+NAD         C4D         C5D        H52N     109.624    1.50
+NAD        H51N         C5D        H52N     108.472    1.50
+NAD         C5D         C4D         O4D     109.615    1.50
+NAD         C5D         C4D         C3D     116.008    1.52
+NAD         C5D         C4D         H4D     108.268    1.50
+NAD         O4D         C4D         C3D     104.439    1.50
+NAD         O4D         C4D         H4D     108.698    1.50
+NAD         C3D         C4D         H4D     109.363    1.86
+NAD         C4D         O4D         C1D     109.578    1.50
+NAD         C4D         C3D         O3D     111.281    2.46
+NAD         C4D         C3D         C2D     102.071    1.50
+NAD         C4D         C3D         H3D     110.452    2.54
+NAD         O3D         C3D         C2D     111.993    3.00
+NAD         O3D         C3D         H3D     110.380    1.67
+NAD         C2D         C3D         H3D     110.108    1.66
+NAD         C3D         O3D        HO3N     108.744    3.00
+NAD         C3D         C2D         O2D     112.861    2.52
+NAD         C3D         C2D         C1D     101.269    1.50
+NAD         C3D         C2D         H2D     110.799    1.82
+NAD         O2D         C2D         C1D     109.476    3.00
+NAD         O2D         C2D         H2D     111.022    1.77
+NAD         C1D         C2D         H2D     110.760    1.63
+NAD         C2D         O2D        HO2N     109.449    1.85
+NAD         O4D         C1D         C2D     106.825    1.50
+NAD         O4D         C1D         N1N     108.092    1.50
+NAD         O4D         C1D         H1D     109.327    1.50
+NAD         C2D         C1D         N1N     113.620    1.99
+NAD         C2D         C1D         H1D     109.776    1.83
+NAD         N1N         C1D         H1D     108.901    1.50
+NAD         C1D         N1N         C2N     119.705    1.50
+NAD         C1D         N1N         C6N     119.705    1.50
+NAD         C2N         N1N         C6N     120.590    1.50
+NAD         N1N         C2N         C3N     119.549    3.00
+NAD         N1N         C2N         H2N     120.430    1.53
+NAD         C3N         C2N         H2N     120.021    1.50
+NAD         C2N         C3N         C7N     119.660    2.75
+NAD         C2N         C3N         C4N     119.402    1.64
+NAD         C7N         C3N         C4N     120.938    2.50
+NAD         C3N         C7N         O7N     119.730    1.50
+NAD         C3N         C7N         N7N     118.032    1.50
+NAD         O7N         C7N         N7N     122.238    1.50
+NAD         C7N         N7N        H71N     120.236    2.75
+NAD         C7N         N7N        H72N     120.236    2.75
+NAD        H71N         N7N        H72N     119.529    2.83
+NAD         C3N         C4N         C5N     119.166    1.50
+NAD         C3N         C4N         H4N     120.513    1.50
+NAD         C5N         C4N         H4N     120.320    1.50
+NAD         C4N         C5N         C6N     120.016    1.50
+NAD         C4N         C5N         H5N     120.300    1.50
+NAD         C6N         C5N         H5N     119.683    1.50
+NAD         N1N         C6N         C5N     121.277    1.50
+NAD         N1N         C6N         H6N     118.693    1.53
+NAD         C5N         C6N         H6N     120.031    1.59
+loop_
+_chem_comp_tor.comp_id
+_chem_comp_tor.id
+_chem_comp_tor.atom_id_1
+_chem_comp_tor.atom_id_2
+_chem_comp_tor.atom_id_3
+_chem_comp_tor.atom_id_4
+_chem_comp_tor.value_angle
+_chem_comp_tor.value_angle_esd
+_chem_comp_tor.period
+NAD            sp3_sp3_54          PN          O3          PA         O1A      60.000    10.0     3
+NAD            sp3_sp3_51         C5B         O5B          PA         O1A      60.000    10.0     3
+NAD             sp2_sp3_1         C8A         N9A         C1B         O4B     150.000    10.0     6
+NAD              const_34         N7A         C8A         N9A         C1B     180.000    10.0     2
+NAD              const_46         C5A         C4A         N9A         C1B     180.000    10.0     2
+NAD              const_37         N9A         C8A         N7A         C5A       0.000    10.0     2
+NAD              const_40         C6A         C5A         N7A         C8A     180.000    10.0     2
+NAD       const_sp2_sp2_4         N7A         C5A         C6A         N6A       0.000     5.0     2
+NAD              const_41         N9A         C4A         C5A         N7A       0.000    10.0     2
+NAD             sp2_sp2_1         C5A         C6A         N6A        H61A     180.000     5.0     2
+NAD       const_sp2_sp2_6         N6A         C6A         N1A         C2A     180.000     5.0     2
+NAD       const_sp2_sp2_7         N3A         C2A         N1A         C6A       0.000     5.0     2
+NAD       const_sp2_sp2_9         N1A         C2A         N3A         C4A       0.000     5.0     2
+NAD              const_12         N9A         C4A         N3A         C2A     180.000    10.0     2
+NAD            sp3_sp3_84          PA          O3          PN         O1N      60.000    10.0     3
+NAD            sp3_sp3_85         C5D         O5D          PN          O3     180.000    10.0     3
+NAD            sp3_sp3_88         C4D         C5D         O5D          PN     180.000    10.0     3
+NAD            sp3_sp3_91         O4D         C4D         C5D         O5D     180.000    10.0     3
+NAD            sp3_sp3_26         C5D         C4D         O4D         C1D     -60.000    10.0     3
+NAD           sp3_sp3_104         O3D         C3D         C4D         C5D     180.000    10.0     3
+NAD            sp3_sp3_28         C2D         C1D         O4D         C4D     -60.000    10.0     3
+NAD           sp3_sp3_109         C4D         C3D         O3D        HO3N     180.000    10.0     3
+NAD            sp3_sp3_44         O2D         C2D         C3D         O3D     -60.000    10.0     3
+NAD           sp3_sp3_112         C3D         C2D         O2D        HO2N     180.000    10.0     3
+NAD            sp3_sp3_32         O4D         C1D         C2D         O2D     180.000    10.0     3
+NAD             sp2_sp3_7         C2N         N1N         C1D         O4D     150.000    10.0     6
+NAD              const_14         C3N         C2N         N1N         C1D     180.000    10.0     2
+NAD              const_50         C5N         C6N         N1N         C1D     180.000    10.0     2
+NAD              const_18         N1N         C2N         C3N         C7N     180.000    10.0     2
+NAD             sp2_sp2_6         C2N         C3N         C7N         O7N       0.000     5.0     2
+NAD              const_23         C7N         C3N         C4N         C5N     180.000    10.0     2
+NAD            sp2_sp2_11         O7N         C7N         N7N        H71N       0.000     5.0     2
+NAD            sp3_sp3_55         C4B         C5B         O5B          PA     180.000    10.0     3
+NAD              const_25         C3N         C4N         C5N         C6N       0.000    10.0     2
+NAD              const_29         C4N         C5N         C6N         N1N       0.000    10.0     2
+NAD            sp3_sp3_58         O4B         C4B         C5B         O5B     180.000    10.0     3
+NAD             sp3_sp3_2         C5B         C4B         O4B         C1B     -60.000    10.0     3
+NAD            sp3_sp3_71         O3B         C3B         C4B         C5B     180.000    10.0     3
+NAD             sp3_sp3_4         C2B         C1B         O4B         C4B     -60.000    10.0     3
+NAD            sp3_sp3_76         C4B         C3B         O3B        HO3A     180.000    10.0     3
+NAD            sp3_sp3_20         O2B         C2B         C3B         O3B     -60.000    10.0     3
+NAD            sp3_sp3_79         C3B         C2B         O2B        HO2A     180.000    10.0     3
+NAD             sp3_sp3_8         O4B         C1B         C2B         O2B     180.000    10.0     3
+loop_
+_chem_comp_chir.comp_id
+_chem_comp_chir.id
+_chem_comp_chir.atom_id_centre
+_chem_comp_chir.atom_id_1
+_chem_comp_chir.atom_id_2
+_chem_comp_chir.atom_id_3
+_chem_comp_chir.volume_sign
+NAD    chir_1    PA    O3    O5B    O2A    both
+NAD    chir_2    C4B    O4B    C3B    C5B    negative
+NAD    chir_3    C3B    O3B    C4B    C2B    positive
+NAD    chir_4    C2B    O2B    C1B    C3B    negative
+NAD    chir_5    C1B    O4B    N9A    C2B    negative
+NAD    chir_6    PN    O3    O5D    O2N    both
+NAD    chir_7    C4D    O4D    C3D    C5D    negative
+NAD    chir_8    C3D    O3D    C4D    C2D    positive
+NAD    chir_9    C2D    O2D    C1D    C3D    negative
+NAD    chir_10    C1D    O4D    N1N    C2D    negative
+loop_
+_chem_comp_plane_atom.comp_id
+_chem_comp_plane_atom.plane_id
+_chem_comp_plane_atom.atom_id
+_chem_comp_plane_atom.dist_esd
+NAD    plan-1         C1B   0.020
+NAD    plan-1         C2A   0.020
+NAD    plan-1         C4A   0.020
+NAD    plan-1         C5A   0.020
+NAD    plan-1         C6A   0.020
+NAD    plan-1         C8A   0.020
+NAD    plan-1         H2A   0.020
+NAD    plan-1         H8A   0.020
+NAD    plan-1         N1A   0.020
+NAD    plan-1         N3A   0.020
+NAD    plan-1         N6A   0.020
+NAD    plan-1         N7A   0.020
+NAD    plan-1         N9A   0.020
+NAD    plan-2         C1D   0.020
+NAD    plan-2         C2N   0.020
+NAD    plan-2         C3N   0.020
+NAD    plan-2         C4N   0.020
+NAD    plan-2         C5N   0.020
+NAD    plan-2         C6N   0.020
+NAD    plan-2         C7N   0.020
+NAD    plan-2         H2N   0.020
+NAD    plan-2         H4N   0.020
+NAD    plan-2         H5N   0.020
+NAD    plan-2         H6N   0.020
+NAD    plan-2         N1N   0.020
+NAD    plan-3         C6A   0.020
+NAD    plan-3        H61A   0.020
+NAD    plan-3        H62A   0.020
+NAD    plan-3         N6A   0.020
+NAD    plan-4         C3N   0.020
+NAD    plan-4         C7N   0.020
+NAD    plan-4         N7N   0.020
+NAD    plan-4         O7N   0.020
+NAD    plan-5         C7N   0.020
+NAD    plan-5        H71N   0.020
+NAD    plan-5        H72N   0.020
+NAD    plan-5         N7N   0.020
+loop_
+_pdbx_chem_comp_descriptor.comp_id
+_pdbx_chem_comp_descriptor.type
+_pdbx_chem_comp_descriptor.program
+_pdbx_chem_comp_descriptor.program_version
+_pdbx_chem_comp_descriptor.descriptor
+NAD SMILES_CANONICAL               CACTVS 3.341                                                                                                                                                     NC(=O)c1ccc[n+](c1)[C@@H]2O[C@H](CO[P]([O-])(=O)O[P@](O)(=O)OC[C@H]3O[C@H]([C@H](O)[C@@H]3O)n4cnc5c(N)ncnc45)[C@@H](O)[C@H]2O
+NAD           SMILES               CACTVS 3.341                                                                                                                                                                 NC(=O)c1ccc[n+](c1)[CH]2O[CH](CO[P]([O-])(=O)O[P](O)(=O)OC[CH]3O[CH]([CH](O)[CH]3O)n4cnc5c(N)ncnc45)[CH](O)[CH]2O
+NAD SMILES_CANONICAL "OpenEye OEToolkits" 1.5.0                                                                                                                                             c1cc(c[n+](c1)[C@H]2[C@@H]([C@@H]([C@H](O2)CO[P@@](=O)([O-])O[P@@](=O)(O)OC[C@@H]3[C@H]([C@H]([C@@H](O3)n4cnc5c4ncnc5N)O)O)O)O)C(=O)N
+NAD           SMILES "OpenEye OEToolkits" 1.5.0                                                                                                                                                                                         c1cc(c[n+](c1)C2C(C(C(O2)COP(=O)([O-])OP(=O)(O)OCC3C(C(C(O3)n4cnc5c4ncnc5N)O)O)O)O)C(=O)N
+NAD            InChI                InChI  1.03 InChI=1S/C21H27N7O14P2/c22-17-12-19(25-7-24-17)28(8-26-12)21-16(32)14(30)11(41-21)6-39-44(36,37)42-43(34,35)38-5-10-13(29)15(31)20(40-10)27-3-1-2-9(4-27)18(23)33/h1-4,7-8,10-11,13-16,20-21,29-32H,5-6H2,(H5-,22,23,24,25,33,34,35,36,37)/t10-,11-,13-,14-,15-,16-,20-,21-/m1/s1
+NAD         InChIKey                InChI  1.03                                                                                                                                                                                                                                                       BAWFJGJZGIEFAR-NNYOXOHSSA-N
+loop_
+_pdbx_chem_comp_description_generator.comp_id
+_pdbx_chem_comp_description_generator.program_name
+_pdbx_chem_comp_description_generator.program_version
+_pdbx_chem_comp_description_generator.descriptor
+NAD acedrg               243         "dictionary generator"                  
+NAD acedrg_database      11          "data source"                           
+NAD rdkit                2017.03.2   "Chemoinformatics tool"
+NAD refmac5              5.8.0238    "optimization tool"                     

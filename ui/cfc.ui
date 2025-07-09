@@ -1,0 +1,128 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <requires lib="gtk" version="4.0"/>
+
+  <object class="GtkDialog" id="cfc-dialog">
+    <property name="title" translatable="yes">Coot: CFC</property>
+    <property name="default-width">400</property>
+    <property name="default-height">500</property>
+    <!-- <signal name="close" handler="cfc_dialog_close" swapped="no"/> -->
+    <!-- <signal name="response" handler="on_cfc_dialog_response" swapped="no"/> -->
+
+    <child>
+      <object class="GtkBox" id="cfc_vbox">
+	<property name="orientation">vertical</property>
+	
+	<child>
+	  <object class="GtkNotebook" id="cfc_notebook">
+            <property name="hexpand">1</property>
+            <property name="visible">1</property>
+            <property name="focusable">1</property>
+            <property name="scrollable">1</property>
+
+
+            <child>
+              <object class="GtkNotebookPage">
+		<property name="position">1</property>
+		<property name="tab">
+		  <object class="GtkLabel">
+                    <property name="visible">1</property>
+                    <property name="label" translatable="yes">Ligands</property>
+		  </object>
+		</property>
+		<property name="child">
+		  <object class="GtkFrame">
+                    <property name="visible">1</property>
+                    <property name="child">
+                      <object class="GtkBox" id="cfc-ligands-frame">
+			<child>
+			  <object class="GtkBox" id="cfc-ligands-vbox">
+			    <property name="orientation">vertical</property>
+			    <child>
+			      <object class="GtkLabel">
+				<property name="label" translatable="yes">Chemical Features</property>
+				<property name="justify">center</property>
+			      </object>
+			    </child>
+
+			    <child>
+			      <object class="GtkScrolledWindow" id="cfc_ligands_scrolledwindow">
+				<property name="hexpand">1</property>
+				<property name="vexpand">1</property>
+				<child>
+				  <object class="GtkViewport">
+				    <property name="hexpand">1</property>
+				    <property name="vexpand">1</property>
+				    <child>
+				      <object class="GtkGrid" id="cfc-ligands-grid">
+				      </object>
+				    </child>
+				  </object>
+				</child>
+			      </object>
+			    </child>
+			  </object>
+			</child>
+
+		      </object>
+		    </property>
+		  </object>
+		</property>
+	      </object>
+	    </child>
+
+            <child>
+              <object class="GtkNotebookPage">
+		<property name="position">2</property>
+		<property name="tab">
+		  <object class="GtkLabel">
+                    <property name="visible">1</property>
+                    <property name="label" translatable="yes">Waters</property>
+		  </object>
+		</property>
+		<property name="child">
+		  <object class="GtkFrame">
+                    <property name="visible">1</property>
+                    <property name="child">
+                      <object class="GtkBox" id="cfc-waters-box">
+			<child>
+ 			  <object class="GtkBox" id="cfc-residues-vbox">
+			    <property name="orientation">vertical</property>
+			    <child>
+			      <object class="GtkLabel">
+				<property name="label" translatable="yes">Water Clusters</property>
+				<property name="justify">center</property>
+			      </object>
+			    </child>
+
+			    <child>
+			      <object class="GtkScrolledWindow" id="cfc_waterss_scrolledwindow">
+				<property name="hexpand">1</property>
+				<property name="vexpand">1</property>
+				<child>
+				  <object class="GtkViewport">
+				    <property name="hexpand">1</property>
+				    <property name="vexpand">1</property>
+				    <child>
+				      <object class="GtkGrid" id="cfc-waters-grid">
+				      </object>
+				    </child>
+				  </object>
+				</child>
+			      </object>
+			    </child>
+			  </object>
+			</child>
+		      </object>
+		    </property>
+		  </object>
+		</property>
+	      </object>
+	    </child>
+	  </object>
+	</child>
+      </object>
+    </child>
+  </object>
+
+</interface>

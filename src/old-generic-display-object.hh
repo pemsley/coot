@@ -232,18 +232,14 @@ namespace coot {
       void attach_to_intermediate_atoms() { imol = INTERMEDIATE_ATOMS; }
    };
 
-   class old_generic_text_object_t {
+   class generic_text_object_t {
    public:
-      int handle;
+      int handle; // is this used now?
       std::string s;
       float x, y, z;
-      old_generic_text_object_t(const std::string &s_in, int handle_in,
-                                float x_in, float y_in, float z_in) : s(s_in) {
-         handle = handle_in;
-         x = x_in;
-         y = y_in;
-         z = z_in;
-      }
+      generic_text_object_t(const std::string &s_in, int handle_in,
+                            float x_in, float y_in, float z_in) :
+         handle(handle_in), s(s_in), x(x_in), y(y_in), z(z_in) {}
    };
 
 }

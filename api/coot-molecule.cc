@@ -354,11 +354,32 @@ coot::molecule_t::get_number_of_hydrogen_atoms() const {
 float
 coot::molecule_t::get_molecule_diameter() const {
 
+   // sample atom pairs
+
    float f = -1;
    if (atom_sel.mol) {
       f = coot::get_molecule_diameter(atom_sel);
    }
    return f;
+}
+
+//! Get Radius of Gyration
+//!
+//! @param imol is the model molecule index
+//!
+//! @return the molecule centre. If the number is less than zero, there
+//! was a problem finding the molecule or atoms.
+double
+coot::molecule_t::get_radius_of_gyration() const {
+
+   double d = -1.0;
+   if (is_valid_model_molecule()) {
+      std::pair<bool, double> rgp = coot::radius_of_gyration(atom_sel.mol);
+      if (rgp.first) {
+	 d = rgp.second;
+      }
+   }
+   return d;
 }
 
 
@@ -2656,23 +2677,28 @@ std::pair<int, std::string>
 coot::molecule_t::add_terminal_residue_directly(const residue_spec_t &spec, const std::string &new_res_type,
                                                 const coot::protein_geometry &geom,
                                                 const clipper::Xmap<float> &xmap,
+                                                mmdb::Manager *standard_residues_asc_mol, // for RNA
                                                 ctpl::thread_pool &static_thread_pool) {
 
    std::pair<int, std::string> r;
    mmdb::Residue *residue_p = util::get_residue(spec, atom_sel.mol);
    if (residue_p) {
-      std::string terminus_type = get_term_type(residue_p, atom_sel.mol);
-      float bf_new = default_temperature_factor_for_new_atoms;
-      make_backup("add_terminal_residue_directly");
-      r = add_terminal_residue(imol_no, terminus_type, residue_p,
-                               atom_sel.mol, atom_sel.UDDAtomIndexHandle,
-                               spec.chain_id, new_res_type,
-                               bf_new, xmap, geom, static_thread_pool);
-      atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
-      atom_sel.mol->FinishStructEdit();
-      util::pdbcleanup_serial_residue_numbers(atom_sel.mol);
-      atom_sel = make_asc(atom_sel.mol);
-      // save_info.new_modification("add-terminal-residue");
+      if (util::is_nucleotide_by_dict(residue_p, geom)) {
+         execute_simple_nucleotide_addition(residue_p, standard_residues_asc_mol);
+      } else {
+         std::string terminus_type = get_term_type(residue_p, atom_sel.mol);
+         float bf_new = default_temperature_factor_for_new_atoms;
+         make_backup("add_terminal_residue_directly");
+         r = add_terminal_residue(imol_no, terminus_type, residue_p,
+                                  atom_sel.mol, atom_sel.UDDAtomIndexHandle,
+                                  spec.chain_id, new_res_type,
+                                  bf_new, xmap, geom, static_thread_pool);
+         atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
+         atom_sel.mol->FinishStructEdit();
+         util::pdbcleanup_serial_residue_numbers(atom_sel.mol);
+         atom_sel = make_asc(atom_sel.mol);
+         // save_info.new_modification("add-terminal-residue");
+      }
    } else {
       std::cout << "WARNING:: in add_terminal_residue_directly() null residue_p " << std::endl;
    }
@@ -4007,6 +4033,21 @@ coot::molecule_t::fill_partial_residues(const clipper::Xmap<float> &xmap, protei
    return status;
 }
 
+
+#include "ideal/add-linked-cho.hh"
+void
+coot::molecule_t::add_named_glyco_tree(const std::string &glycosylation_name, const std::string &chain_id, int res_no,
+                                       const clipper::Xmap<float> &xmap,
+                                       coot::protein_geometry *geom) {
+
+   // the atom selection gets updated.
+   coot::cho::add_named_glyco_tree(glycosylation_name, &atom_sel, imol_no,
+                                   xmap, geom, chain_id, res_no);
+
+}
+
+
+
 // --------------- rigid body fit
 #include "rigid-body-fit.hh"
 int
@@ -4273,8 +4314,11 @@ coot::molecule_t::add_target_position_restraint_and_refine(const std::string &at
    unsigned int smoothness_factor = 1;
    bool show_atoms_as_aniso_flag = false;
    bool show_aniso_atoms_as_ortep_flag = false;
+   float aniso_probability = 0.5f;
    m = get_bonds_mesh_instanced(mode, geom_p, true, 0.1, 1.4,
-                                show_atoms_as_aniso_flag, show_aniso_atoms_as_ortep_flag,
+                                show_atoms_as_aniso_flag,
+                                aniso_probability,
+                                show_aniso_atoms_as_ortep_flag,
                                 smoothness_factor, true, true);
    return m;
 
@@ -4561,7 +4605,7 @@ coot::molecule_t::export_map_molecule_as_gltf(clipper::Coord_orth &p, float radi
 
    coot::simple_mesh_t map_mesh = get_map_contours_mesh(p, radius, contour_level, false, nullptr);
    bool as_binary = true; // test the extension of file_name
-   map_mesh.export_to_gltf(file_name, as_binary);
+   map_mesh.export_to_gltf(file_name, gltf_pbr_roughness, gltf_pbr_metalicity, as_binary);
 
 }
 
@@ -4587,7 +4631,7 @@ coot::molecule_t::export_model_molecule_as_gltf(const std::string &mode,
 
    coot::simple_mesh_t sm = coot::instanced_mesh_to_simple_mesh(im);
    bool as_binary = true; // test the extension of file_name
-   sm.export_to_gltf(file_name, as_binary);
+   sm.export_to_gltf(file_name, gltf_pbr_roughness, gltf_pbr_metalicity, as_binary);
 
 }
 
@@ -4599,7 +4643,7 @@ coot::molecule_t::export_molecular_representation_as_gltf(const std::string &ato
 
    coot::simple_mesh_t sm = get_molecular_representation_mesh(atom_selection_cid, colour_scheme, style, secondary_structure_usage_flag);
    bool as_binary = true; // test the extension of file_name
-   sm.export_to_gltf(file_name, as_binary);
+   sm.export_to_gltf(file_name, gltf_pbr_roughness, gltf_pbr_metalicity, as_binary);
 }
 
 void
@@ -4609,7 +4653,7 @@ coot::molecule_t::export_chemical_features_as_gltf(const std::string &cid,
 
    coot::simple_mesh_t sm = get_chemical_features_mesh(cid, geom);
    bool as_binary = true; // test the extension of file_name
-   sm.export_to_gltf(file_name, as_binary);
+   sm.export_to_gltf(file_name, gltf_pbr_roughness, gltf_pbr_metalicity, as_binary);
 }
 
 
@@ -5161,3 +5205,22 @@ coot::molecule_t::get_mutation_info() const {
 
    return ch_info;
 }
+
+void
+coot::molecule_t::set_temperature_factors_using_cid(const std::string &cid, float temp_fact) {
+   if (atom_sel.mol) {
+      int selHnd = atom_sel.mol->NewSelection(); // d
+      mmdb::Atom **SelAtoms = nullptr;
+      int nSelAtoms = 0;
+      atom_sel.mol->Select(selHnd, mmdb::STYPE_ATOM, cid.c_str(), mmdb::SKEY_NEW);
+      atom_sel.mol->GetSelIndex(selHnd, SelAtoms, nSelAtoms);
+      if (nSelAtoms > 0) {
+         for (int i=0; i<nSelAtoms; i++) {
+            mmdb::Atom *atom = SelAtoms[i];
+            atom->tempFactor = temp_fact;
+         }
+      }
+      atom_sel.mol->DeleteSelection(selHnd);
+   }
+}
+

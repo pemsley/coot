@@ -1,0 +1,194 @@
+#
+data_comp_list
+loop_
+_chem_comp.id
+_chem_comp.three_letter_code
+_chem_comp.name
+_chem_comp.group
+_chem_comp.number_atoms_all
+_chem_comp.number_atoms_nh
+_chem_comp.desc_level
+TAM     TAM      TRIS(HYDROXYETHYL)AMINOMETHANE     NON-POLYMER     28     11     .     
+#
+data_comp_TAM
+#
+loop_
+_chem_comp_atom.comp_id
+_chem_comp_atom.atom_id
+_chem_comp_atom.type_symbol
+_chem_comp_atom.type_energy
+_chem_comp_atom.charge
+_chem_comp_atom.x
+_chem_comp_atom.y
+_chem_comp_atom.z
+TAM     C       C       CT      0       1.778       -0.157      -1.164      
+TAM     C1      C       CH2     0       0.952       0.341       0.055       
+TAM     C2      C       CH2     0       1.494       -1.676      -1.334      
+TAM     C3      C       CH2     0       1.433       0.644       -2.458      
+TAM     C4      C       CH2     0       1.080       1.801       0.398       
+TAM     C5      C       CH2     0       2.171       -2.355      -2.494      
+TAM     C6      C       CH2     0       0.001       0.599       -2.923      
+TAM     N       N       NT2     0       3.219       0.018       -0.893      
+TAM     O4      O       OH1     0       0.468       2.075       1.646       
+TAM     O5      O       OH1     0       2.058       -3.763      -2.386      
+TAM     O6      O       OH1     0       -0.148      1.315       -4.136      
+TAM     H11     H       H       0       1.229       -0.187      0.834       
+TAM     H12     H       H       0       0.009       0.139       -0.117      
+TAM     H21     H       H       0       0.524       -1.793      -1.422      
+TAM     H22     H       H       0       1.771       -2.123      -0.506      
+TAM     H31     H       H       0       2.006       0.309       -3.180      
+TAM     H32     H       H       0       1.680       1.581       -2.305      
+TAM     H41     H       H       0       0.651       2.345       -0.297      
+TAM     H42     H       H       0       2.026       2.053       0.442       
+TAM     H51     H       H       0       3.121       -2.110      -2.518      
+TAM     H52     H       H       0       1.760       -2.063      -3.336      
+TAM     H61     H       H       0       -0.584      0.996       -2.243      
+TAM     H62     H       H       0       -0.279      -0.329      -3.063      
+TAM     HN1     H       H       0       3.489       0.862       -0.956      
+TAM     HN2     H       H       0       3.449       -0.284      -0.090      
+TAM     HO4     H       H       0       0.479       2.911       1.773       
+TAM     HO5     H       H       0       2.210       -4.105      -3.145      
+TAM     HO6     H       H       0       -0.054      2.140       -3.976      
+loop_
+_chem_comp_bond.comp_id
+_chem_comp_bond.atom_id_1
+_chem_comp_bond.atom_id_2
+_chem_comp_bond.type
+_chem_comp_bond.aromatic
+_chem_comp_bond.value_dist_nucleus
+_chem_comp_bond.value_dist_nucleus_esd
+_chem_comp_bond.value_dist
+_chem_comp_bond.value_dist_esd
+TAM           C          C1      SINGLE       n     1.551  0.0131     1.551  0.0131
+TAM           C          C2      SINGLE       n     1.551  0.0131     1.551  0.0131
+TAM           C          C3      SINGLE       n     1.551  0.0131     1.551  0.0131
+TAM           C           N      SINGLE       n     1.478  0.0200     1.478  0.0200
+TAM          C1          C4      SINGLE       n     1.499  0.0200     1.499  0.0200
+TAM          C2          C5      SINGLE       n     1.499  0.0200     1.499  0.0200
+TAM          C3          C6      SINGLE       n     1.499  0.0200     1.499  0.0200
+TAM          C4          O4      SINGLE       n     1.417  0.0200     1.417  0.0200
+TAM          C5          O5      SINGLE       n     1.417  0.0200     1.417  0.0200
+TAM          C6          O6      SINGLE       n     1.417  0.0200     1.417  0.0200
+TAM          C1         H11      SINGLE       n     1.089  0.0100     0.981  0.0160
+TAM          C1         H12      SINGLE       n     1.089  0.0100     0.981  0.0160
+TAM          C2         H21      SINGLE       n     1.089  0.0100     0.981  0.0160
+TAM          C2         H22      SINGLE       n     1.089  0.0100     0.981  0.0160
+TAM          C3         H31      SINGLE       n     1.089  0.0100     0.981  0.0160
+TAM          C3         H32      SINGLE       n     1.089  0.0100     0.981  0.0160
+TAM          C4         H41      SINGLE       n     1.089  0.0100     0.981  0.0174
+TAM          C4         H42      SINGLE       n     1.089  0.0100     0.981  0.0174
+TAM          C5         H51      SINGLE       n     1.089  0.0100     0.981  0.0174
+TAM          C5         H52      SINGLE       n     1.089  0.0100     0.981  0.0174
+TAM          C6         H61      SINGLE       n     1.089  0.0100     0.981  0.0174
+TAM          C6         H62      SINGLE       n     1.089  0.0100     0.981  0.0174
+TAM           N         HN1      SINGLE       n     1.036  0.0160     0.888  0.0200
+TAM           N         HN2      SINGLE       n     1.036  0.0160     0.888  0.0200
+TAM          O4         HO4      SINGLE       n     0.970  0.0120     0.846  0.0200
+TAM          O5         HO5      SINGLE       n     0.970  0.0120     0.846  0.0200
+TAM          O6         HO6      SINGLE       n     0.970  0.0120     0.846  0.0200
+loop_
+_chem_comp_angle.comp_id
+_chem_comp_angle.atom_id_1
+_chem_comp_angle.atom_id_2
+_chem_comp_angle.atom_id_3
+_chem_comp_angle.value_angle
+_chem_comp_angle.value_angle_esd
+TAM          C1           C          C2     111.558    2.40
+TAM          C1           C          C3     111.558    2.40
+TAM          C1           C           N     111.883    2.59
+TAM          C2           C          C3     111.558    2.40
+TAM          C2           C           N     111.883    2.59
+TAM          C3           C           N     111.883    2.59
+TAM           C          C1          C4     111.094    2.85
+TAM           C          C1         H11     107.739    1.50
+TAM           C          C1         H12     107.739    1.50
+TAM          C4          C1         H11     108.802    1.50
+TAM          C4          C1         H12     108.802    1.50
+TAM         H11          C1         H12     107.715    1.50
+TAM           C          C2          C5     111.094    2.85
+TAM           C          C2         H21     107.739    1.50
+TAM           C          C2         H22     107.739    1.50
+TAM          C5          C2         H21     108.802    1.50
+TAM          C5          C2         H22     108.802    1.50
+TAM         H21          C2         H22     107.715    1.50
+TAM           C          C3          C6     111.094    2.85
+TAM           C          C3         H31     107.739    1.50
+TAM           C          C3         H32     107.739    1.50
+TAM          C6          C3         H31     108.802    1.50
+TAM          C6          C3         H32     108.802    1.50
+TAM         H31          C3         H32     107.715    1.50
+TAM          C1          C4          O4     111.314    3.00
+TAM          C1          C4         H41     109.787    1.50
+TAM          C1          C4         H42     109.787    1.50
+TAM          O4          C4         H41     109.258    1.50
+TAM          O4          C4         H42     109.258    1.50
+TAM         H41          C4         H42     108.120    1.50
+TAM          C2          C5          O5     111.314    3.00
+TAM          C2          C5         H51     109.787    1.50
+TAM          C2          C5         H52     109.787    1.50
+TAM          O5          C5         H51     109.258    1.50
+TAM          O5          C5         H52     109.258    1.50
+TAM         H51          C5         H52     108.120    1.50
+TAM          C3          C6          O6     111.314    3.00
+TAM          C3          C6         H61     109.787    1.50
+TAM          C3          C6         H62     109.787    1.50
+TAM          O6          C6         H61     109.258    1.50
+TAM          O6          C6         H62     109.258    1.50
+TAM         H61          C6         H62     108.120    1.50
+TAM           C           N         HN1     111.861    3.00
+TAM           C           N         HN2     111.861    3.00
+TAM         HN1           N         HN2     107.805    3.00
+TAM          C4          O4         HO4     108.576    2.78
+TAM          C5          O5         HO5     108.576    2.78
+TAM          C6          O6         HO6     108.576    2.78
+loop_
+_chem_comp_tor.comp_id
+_chem_comp_tor.id
+_chem_comp_tor.atom_id_1
+_chem_comp_tor.atom_id_2
+_chem_comp_tor.atom_id_3
+_chem_comp_tor.atom_id_4
+_chem_comp_tor.value_angle
+_chem_comp_tor.value_angle_esd
+_chem_comp_tor.period
+TAM             sp3_sp3_4          C2           C          C1          C4      60.000    10.0     3
+TAM            sp3_sp3_10          C1           C          C2          C5     180.000    10.0     3
+TAM            sp3_sp3_22          C1           C          C3          C6      60.000    10.0     3
+TAM            sp3_sp3_30          C1           C           N         HN1      60.000    10.0     3
+TAM            sp3_sp3_34           C          C1          C4          O4     180.000    10.0     3
+TAM            sp3_sp3_43           C          C2          C5          O5     180.000    10.0     3
+TAM            sp3_sp3_52           C          C3          C6          O6     180.000    10.0     3
+TAM            sp3_sp3_61          C1          C4          O4         HO4     180.000    10.0     3
+TAM            sp3_sp3_64          C2          C5          O5         HO5     180.000    10.0     3
+TAM            sp3_sp3_67          C3          C6          O6         HO6     180.000    10.0     3
+loop_
+_chem_comp_chir.comp_id
+_chem_comp_chir.id
+_chem_comp_chir.atom_id_centre
+_chem_comp_chir.atom_id_1
+_chem_comp_chir.atom_id_2
+_chem_comp_chir.atom_id_3
+_chem_comp_chir.volume_sign
+TAM    chir_1    C    N    C1    C2    both
+loop_
+_pdbx_chem_comp_descriptor.comp_id
+_pdbx_chem_comp_descriptor.type
+_pdbx_chem_comp_descriptor.program
+_pdbx_chem_comp_descriptor.program_version
+_pdbx_chem_comp_descriptor.descriptor
+TAM           SMILES              ACDLabs 10.04                                           OCCC(N)(CCO)CCO
+TAM SMILES_CANONICAL               CACTVS 3.341                                           NC(CCO)(CCO)CCO
+TAM           SMILES               CACTVS 3.341                                           NC(CCO)(CCO)CCO
+TAM SMILES_CANONICAL "OpenEye OEToolkits" 1.5.0                                         C(CO)C(CCO)(CCO)N
+TAM           SMILES "OpenEye OEToolkits" 1.5.0                                         C(CO)C(CCO)(CCO)N
+TAM            InChI                InChI  1.03 InChI=1S/C7H17NO3/c8-7(1-4-9,2-5-10)3-6-11/h9-11H,1-6,8H2
+TAM         InChIKey                InChI  1.03                               GKODZWOPPOTFGA-UHFFFAOYSA-N
+loop_
+_pdbx_chem_comp_description_generator.comp_id
+_pdbx_chem_comp_description_generator.program_name
+_pdbx_chem_comp_description_generator.program_version
+_pdbx_chem_comp_description_generator.descriptor
+TAM acedrg               243         "dictionary generator"                  
+TAM acedrg_database      11          "data source"                           
+TAM rdkit                2017.03.2   "Chemoinformatics tool"
+TAM refmac5              5.8.0238    "optimization tool"                     

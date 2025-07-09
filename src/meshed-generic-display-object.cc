@@ -168,7 +168,7 @@ meshed_generic_display_object::add_arrow(const arrow_t &arrow) {
    //                                            coord_orth_to_glm(arrow.end_point));
    // add_cylinder(start_end, arrow.col, arrow.radius, n_slices, true, true, FLAT_CAP, FLAT_CAP);
 
-   coot::colour_holder col(0.8, 0.2, 0.8);
+   coot::colour_holder col = arrow.col;
 
    float h = glm::distance(coord_orth_to_glm(arrow.start_point), coord_orth_to_glm(arrow.end_point));
    glm::vec4 base_colour(arrow.col.red, arrow.col.green, arrow.col.blue, 1.0f);
@@ -177,7 +177,6 @@ meshed_generic_display_object::add_arrow(const arrow_t &arrow) {
    cylinder c(start_end, arrow.radius, arrow.radius, h, base_colour, n_slices, 2);
    c.add_flat_start_cap();
    add_cylinder(start_end, col, arrow.radius, n_slices, true, false, FLAT_CAP, FLAT_CAP);
-   
 
    clipper::Coord_orth delta_uv((arrow.end_point - arrow.start_point).unit());
    clipper::Coord_orth cone_start = arrow.end_point + 1.3 * delta_uv;
@@ -412,12 +411,52 @@ meshed_generic_display_object::add_dodecahedron(const coot::colour_holder &colou
                                                 double radius, const clipper::Coord_orth &pos) {
 }
 
+#include "make-a-dodec.hh"
+
 void
 meshed_generic_display_object::add_pentakis_dodecahedron(const coot::colour_holder &colour_in,
                                                          const std::string &colour_name,
                                                          double stellation_factor,
                                                          double radius,
-                                                         const clipper::Coord_orth &pos) {
+                                                         const clipper::Coord_orth &pos_c) {
+
+   // these lambdas could/should be in the class
+
+   auto clipper_to_glm = [] (const clipper::Coord_orth &c) {
+      return glm::vec3(c.x(), c.y(), c.z());
+   };
+
+   auto vn_vertex_to_generic_vertex = [] (const vn_vertex &v,
+					  const glm::vec3 &pos,
+					  float radius,
+					  const glm::vec4 &color) {
+      return s_generic_vertex(v.pos * radius + pos, v.normal, color);
+   };
+
+   auto vn_vertex_vector_to_generic_vertex_vector = [vn_vertex_to_generic_vertex]
+      (const std::vector<vn_vertex> &vv,
+       const glm::vec3 &pos,
+       float radius,
+       const glm::vec4 &color) {
+
+      std::vector<s_generic_vertex> vo(vv.size());
+      for (unsigned int i=0; i<vv.size(); i++)
+         vo[i] = vn_vertex_to_generic_vertex(vv[i], pos, radius, color);
+      return vo;
+   };
+
+   int spikey_mode = DODEC_SPIKEY_MODE;
+   std::pair<std::vector<vn_vertex>, std::vector<g_triangle> > dodec =
+      make_pentakis_dodec(spikey_mode);
+   const std::vector<vn_vertex>   &vertices = dodec.first;
+   const std::vector<g_triangle> &triangles = dodec.second;
+
+   glm::vec4 col = colour_holder_to_glm(colour_in);
+   glm::vec3 pos = clipper_to_glm(pos_c);
+
+   std::vector<s_generic_vertex> converted_vertices =
+      vn_vertex_vector_to_generic_vertex_vector(vertices, pos, radius, col);
+   mesh.import(converted_vertices, triangles);
 
 }
 
@@ -556,8 +595,8 @@ void meshed_generic_display_object::add_torus(const meshed_generic_display_objec
    glm::vec3 ring_normal(glm::normalize(glm::vec3(torus.normal.x(), torus.normal.y(), torus.normal.z())));
    glm::mat4 ori = glm::orientation(ring_normal, glm::vec3(0.0, 0.0, 1.0));
 
-   std::cout << "ring_normal " << glm::to_string(ring_normal) << std::endl;
-   std::cout << "ori " << glm::to_string(ori) << std::endl;
+   // std::cout << "ring_normal " << glm::to_string(ring_normal) << std::endl;
+   // std::cout << "ori " << glm::to_string(ori) << std::endl;
 
    for (unsigned int ip=0; ip<n_phi_steps; ip++) {
       float phi = 2.0f * pi * static_cast<float>(ip)/static_cast<float>(n_phi_steps);

@@ -1,0 +1,329 @@
+data_comp_list
+loop_
+_chem_comp.id
+_chem_comp.three_letter_code
+_chem_comp.name
+_chem_comp.group
+_chem_comp.number_atoms_all
+_chem_comp.number_atoms_nh
+_chem_comp.desc_level
+SAH SAH S-ADENOSYL-L-HOMOCYSTEINE NON-POLYMER 46 26 .
+
+data_comp_SAH
+loop_
+_chem_comp_atom.comp_id
+_chem_comp_atom.atom_id
+_chem_comp_atom.type_symbol
+_chem_comp_atom.type_energy
+_chem_comp_atom.charge
+_chem_comp_atom.x
+_chem_comp_atom.y
+_chem_comp_atom.z
+SAH N      N NT3  1  -2.642 13.710 24.335
+SAH CA     C CH1  0  -3.261 12.686 25.223
+SAH CB     C CH2  0  -2.531 11.342 25.110
+SAH CG     C CH2  0  -2.701 10.665 23.762
+SAH SD     S S2   0  -1.875 9.057  23.667
+SAH C      C C    0  -3.207 13.172 26.677
+SAH O      O O    0  -4.296 13.351 27.259
+SAH OXT    O OC   -1 -2.078 13.355 27.173
+SAH "C5'"  C CH2  0  -2.426 8.439  22.058
+SAH "C4'"  C CH1  0  -3.830 7.882  22.065
+SAH "O4'"  O O2   0  -4.295 7.751  20.701
+SAH "C3'"  C CH1  0  -3.966 6.491  22.682
+SAH "O3'"  O OH1  0  -5.239 6.333  23.297
+SAH "C2'"  C CH1  0  -3.790 5.584  21.462
+SAH "O2'"  O OH1  0  -4.370 4.309  21.628
+SAH "C1'"  C CH1  0  -4.519 6.393  20.394
+SAH N9     N NR5  0  -4.045 6.148  19.035
+SAH C8     C CR15 0  -2.777 6.375  18.561
+SAH N7     N NRD5 0  -2.628 6.068  17.297
+SAH C5     C CR56 0  -3.878 5.613  16.905
+SAH C6     C CR6  0  -4.372 5.137  15.671
+SAH N6     N NH2  0  -3.632 5.040  14.570
+SAH N1     N NRD6 0  -5.675 4.759  15.617
+SAH C2     C CR16 0  -6.417 4.859  16.731
+SAH N3     N NRD6 0  -6.060 5.290  17.942
+SAH C4     C CR56 0  -4.764 5.658  17.969
+SAH HN1    H H    0  -2.972 14.538 24.529
+SAH HN2    H H    0  -2.828 13.522 23.464
+SAH H3     H H    0  -1.739 13.719 24.450
+SAH HA     H H    0  -4.203 12.573 24.958
+SAH HB1    H H    0  -2.865 10.744 25.808
+SAH HB2    H H    0  -1.578 11.488 25.274
+SAH HG1    H H    0  -2.337 11.245 23.060
+SAH HG2    H H    0  -3.657 10.538 23.583
+SAH "H5'1" H H    0  -1.829 7.752  21.772
+SAH "H5'2" H H    0  -2.386 9.152  21.425
+SAH "H4'"  H H    0  -4.421 8.511  22.548
+SAH "H3'"  H H    0  -3.243 6.329  23.342
+SAH "HO3'" H H    0  -5.240 5.609  23.740
+SAH "H2'"  H H    0  -2.826 5.493  21.237
+SAH "HO2'" H H    0  -4.231 3.847  20.929
+SAH "H1'"  H H    0  -5.481 6.197  20.448
+SAH H8     H H    0  -2.079 6.715  19.096
+SAH HN61   H H    0  -3.998 5.178  13.785
+SAH HN62   H H    0  -2.780 4.840  14.635
+SAH H2     H H    0  -7.317 4.585  16.646
+
+loop_
+_chem_comp_bond.comp_id
+_chem_comp_bond.atom_id_1
+_chem_comp_bond.atom_id_2
+_chem_comp_bond.type
+_chem_comp_bond.aromatic
+_chem_comp_bond.value_dist_nucleus
+_chem_comp_bond.value_dist_nucleus_esd
+_chem_comp_bond.value_dist
+_chem_comp_bond.value_dist_esd
+SAH N     CA     SINGLE n 1.488 0.0100 1.488 0.0100
+SAH CA    CB     SINGLE n 1.532 0.0100 1.532 0.0100
+SAH CA    C      SINGLE n 1.533 0.0100 1.533 0.0100
+SAH CB    CG     SINGLE n 1.517 0.0200 1.517 0.0200
+SAH CG    SD     SINGLE n 1.810 0.0200 1.810 0.0200
+SAH SD    "C5'"  SINGLE n 1.810 0.0169 1.810 0.0169
+SAH C     O      DOUBLE n 1.247 0.0187 1.247 0.0187
+SAH C     OXT    SINGLE n 1.247 0.0187 1.247 0.0187
+SAH "C5'" "C4'"  SINGLE n 1.510 0.0135 1.510 0.0135
+SAH "C4'" "O4'"  SINGLE n 1.446 0.0100 1.446 0.0100
+SAH "C4'" "C3'"  SINGLE n 1.528 0.0117 1.528 0.0117
+SAH "O4'" "C1'"  SINGLE n 1.409 0.0100 1.409 0.0100
+SAH "C3'" "O3'"  SINGLE n 1.422 0.0100 1.422 0.0100
+SAH "C3'" "C2'"  SINGLE n 1.531 0.0100 1.531 0.0100
+SAH "C2'" "O2'"  SINGLE n 1.411 0.0100 1.411 0.0100
+SAH "C2'" "C1'"  SINGLE n 1.525 0.0100 1.525 0.0100
+SAH "C1'" N9     SINGLE n 1.458 0.0100 1.458 0.0100
+SAH N9    C8     SINGLE y 1.372 0.0100 1.372 0.0100
+SAH N9    C4     SINGLE y 1.374 0.0101 1.374 0.0101
+SAH C8    N7     DOUBLE y 1.310 0.0100 1.310 0.0100
+SAH N7    C5     SINGLE y 1.388 0.0100 1.388 0.0100
+SAH C5    C6     SINGLE y 1.408 0.0100 1.408 0.0100
+SAH C5    C4     DOUBLE y 1.381 0.0100 1.381 0.0100
+SAH C6    N6     SINGLE n 1.330 0.0100 1.330 0.0100
+SAH C6    N1     DOUBLE y 1.354 0.0100 1.354 0.0100
+SAH N1    C2     SINGLE y 1.339 0.0100 1.339 0.0100
+SAH C2    N3     DOUBLE y 1.330 0.0100 1.330 0.0100
+SAH N3    C4     SINGLE y 1.343 0.0100 1.343 0.0100
+SAH N     HN1    SINGLE n 1.036 0.0160 0.911 0.0200
+SAH N     HN2    SINGLE n 1.036 0.0160 0.911 0.0200
+SAH N     H3     SINGLE n 1.036 0.0160 0.911 0.0200
+SAH CA    HA     SINGLE n 1.089 0.0100 0.985 0.0200
+SAH CB    HB1    SINGLE n 1.089 0.0100 0.978 0.0200
+SAH CB    HB2    SINGLE n 1.089 0.0100 0.978 0.0200
+SAH CG    HG1    SINGLE n 1.089 0.0100 0.981 0.0122
+SAH CG    HG2    SINGLE n 1.089 0.0100 0.981 0.0122
+SAH "C5'" "H5'1" SINGLE n 1.089 0.0100 0.954 0.0200
+SAH "C5'" "H5'2" SINGLE n 1.089 0.0100 0.954 0.0200
+SAH "C4'" "H4'"  SINGLE n 1.089 0.0100 0.989 0.0197
+SAH "C3'" "H3'"  SINGLE n 1.089 0.0100 0.992 0.0200
+SAH "O3'" "HO3'" SINGLE n 0.970 0.0120 0.849 0.0200
+SAH "C2'" "H2'"  SINGLE n 1.089 0.0100 0.994 0.0200
+SAH "O2'" "HO2'" SINGLE n 0.970 0.0120 0.849 0.0200
+SAH "C1'" "H1'"  SINGLE n 1.089 0.0100 0.984 0.0200
+SAH C8    H8     SINGLE n 1.082 0.0130 0.942 0.0170
+SAH N6    HN61   SINGLE n 1.016 0.0100 0.877 0.0200
+SAH N6    HN62   SINGLE n 1.016 0.0100 0.877 0.0200
+SAH C2    H2     SINGLE n 1.082 0.0130 0.945 0.0200
+
+loop_
+_chem_comp_angle.comp_id
+_chem_comp_angle.atom_id_1
+_chem_comp_angle.atom_id_2
+_chem_comp_angle.atom_id_3
+_chem_comp_angle.value_angle
+_chem_comp_angle.value_angle_esd
+SAH CA     N     HN1    110.062 1.93
+SAH CA     N     HN2    110.062 1.93
+SAH CA     N     H3     110.062 1.93
+SAH HN1    N     HN2    109.028 2.41
+SAH HN1    N     H3     109.028 2.41
+SAH HN2    N     H3     109.028 2.41
+SAH N      CA    CB     110.906 1.50
+SAH N      CA    C      109.241 1.50
+SAH N      CA    HA     108.487 1.50
+SAH CB     CA    C      109.344 1.50
+SAH CB     CA    HA     109.670 1.50
+SAH C      CA    HA     108.824 1.50
+SAH CA     CB    CG     113.476 1.50
+SAH CA     CB    HB1    108.666 1.50
+SAH CA     CB    HB2    108.666 1.50
+SAH CG     CB    HB1    108.955 1.50
+SAH CG     CB    HB2    108.955 1.50
+SAH HB1    CB    HB2    107.698 1.50
+SAH CB     CG    SD     113.263 2.33
+SAH CB     CG    HG1    109.206 1.50
+SAH CB     CG    HG2    109.206 1.50
+SAH SD     CG    HG1    108.654 1.50
+SAH SD     CG    HG2    108.654 1.50
+SAH HG1    CG    HG2    107.939 1.50
+SAH CG     SD    "C5'"  102.171 1.96
+SAH CA     C     O      117.124 1.50
+SAH CA     C     OXT    117.124 1.50
+SAH O      C     OXT    125.752 1.50
+SAH SD     "C5'" "C4'"  113.180 3.00
+SAH SD     "C5'" "H5'1" 108.574 1.50
+SAH SD     "C5'" "H5'2" 108.574 1.50
+SAH "C4'"  "C5'" "H5'1" 108.376 1.50
+SAH "C4'"  "C5'" "H5'2" 108.376 1.50
+SAH "H5'1" "C5'" "H5'2" 108.127 1.50
+SAH "C5'"  "C4'" "O4'"  109.275 1.50
+SAH "C5'"  "C4'" "C3'"  114.880 1.64
+SAH "C5'"  "C4'" "H4'"  109.000 1.62
+SAH "O4'"  "C4'" "C3'"  105.508 1.50
+SAH "O4'"  "C4'" "H4'"  109.115 1.50
+SAH "C3'"  "C4'" "H4'"  109.143 1.50
+SAH "C4'"  "O4'" "C1'"  109.426 1.50
+SAH "C4'"  "C3'" "O3'"  110.985 2.41
+SAH "C4'"  "C3'" "C2'"  102.352 1.50
+SAH "C4'"  "C3'" "H3'"  110.624 1.81
+SAH "O3'"  "C3'" "C2'"  111.581 2.83
+SAH "O3'"  "C3'" "H3'"  110.380 1.67
+SAH "C2'"  "C3'" "H3'"  110.504 1.75
+SAH "C3'"  "O3'" "HO3'" 108.744 3.00
+SAH "C3'"  "C2'" "O2'"  112.782 2.45
+SAH "C3'"  "C2'" "C1'"  101.239 1.50
+SAH "C3'"  "C2'" "H2'"  110.596 1.51
+SAH "O2'"  "C2'" "C1'"  111.715 2.69
+SAH "O2'"  "C2'" "H2'"  110.448 1.97
+SAH "C1'"  "C2'" "H2'"  110.636 1.70
+SAH "C2'"  "O2'" "HO2'" 109.103 2.13
+SAH "O4'"  "C1'" "C2'"  106.047 1.50
+SAH "O4'"  "C1'" N9     108.477 1.50
+SAH "O4'"  "C1'" "H1'"  109.807 1.50
+SAH "C2'"  "C1'" N9     113.824 1.50
+SAH "C2'"  "C1'" "H1'"  109.015 1.50
+SAH N9     "C1'" "H1'"  109.561 1.50
+SAH "C1'"  N9    C8     126.848 1.91
+SAH "C1'"  N9    C4     127.459 1.80
+SAH C8     N9    C4     105.693 1.50
+SAH N9     C8    N7     113.469 1.50
+SAH N9     C8    H8     123.206 1.50
+SAH N7     C8    H8     123.326 1.50
+SAH C8     N7    C5     104.739 1.50
+SAH N7     C5    C6     132.250 1.50
+SAH N7     C5    C4     110.483 1.50
+SAH C6     C5    C4     117.267 1.50
+SAH C5     C6    N6     123.792 1.50
+SAH C5     C6    N1     117.409 1.50
+SAH N6     C6    N1     118.799 1.50
+SAH C6     N6    HN61   119.723 1.50
+SAH C6     N6    HN62   119.723 1.50
+SAH HN61   N6    HN62   120.554 1.88
+SAH C6     N1    C2     118.521 1.50
+SAH N1     C2    N3     129.332 1.50
+SAH N1     C2    H2     115.313 1.50
+SAH N3     C2    H2     115.355 1.50
+SAH C2     N3    C4     110.982 1.50
+SAH N9     C4    C5     105.616 1.50
+SAH N9     C4    N3     127.895 1.50
+SAH C5     C4    N3     126.489 1.50
+
+loop_
+_chem_comp_tor.comp_id
+_chem_comp_tor.id
+_chem_comp_tor.atom_id_1
+_chem_comp_tor.atom_id_2
+_chem_comp_tor.atom_id_3
+_chem_comp_tor.atom_id_4
+_chem_comp_tor.value_angle
+_chem_comp_tor.value_angle_esd
+_chem_comp_tor.period
+SAH sp3_sp3_25      CB    CA    N     HN1    180.000 10.0 3
+SAH sp3_sp3_4       "C2'" "C1'" "O4'" "C4'"  -60.000 10.0 3
+SAH sp3_sp3_76      "C4'" "C3'" "O3'" "HO3'" 180.000 10.0 3
+SAH sp3_sp3_20      "O2'" "C2'" "C3'" "O3'"  -60.000 10.0 3
+SAH sp3_sp3_79      "C3'" "C2'" "O2'" "HO2'" 180.000 10.0 3
+SAH sp3_sp3_8       "O4'" "C1'" "C2'" "O2'"  180.000 10.0 3
+SAH sp2_sp3_7       C8    N9    "C1'" "O4'"  150.000 10.0 6
+SAH const_14        N7    C8    N9    "C1'"  180.000 10.0 2
+SAH const_26        C5    C4    N9    "C1'"  180.000 10.0 2
+SAH const_17        N9    C8    N7    C5     0.000   10.0 2
+SAH const_20        C6    C5    N7    C8     180.000 10.0 2
+SAH const_sp2_sp2_4 N7    C5    C6    N6     0.000   5.0  2
+SAH const_21        N9    C4    C5    N7     0.000   10.0 2
+SAH sp3_sp3_34      N     CA    CB    CG     180.000 10.0 3
+SAH sp2_sp3_1       O     C     CA    N      0.000   10.0 6
+SAH sp2_sp2_1       C5    C6    N6    HN61   180.000 5.0  2
+SAH const_sp2_sp2_6 N6    C6    N1    C2     180.000 5.0  2
+SAH const_sp2_sp2_7 N3    C2    N1    C6     0.000   5.0  2
+SAH const_sp2_sp2_9 N1    C2    N3    C4     0.000   5.0  2
+SAH const_12        N9    C4    N3    C2     180.000 10.0 2
+SAH sp3_sp3_43      CA    CB    CG    SD     180.000 10.0 3
+SAH sp3_sp3_52      CB    CG    SD    "C5'"  180.000 10.0 3
+SAH sp3_sp3_55      "C4'" "C5'" SD    CG     180.000 10.0 3
+SAH sp3_sp3_58      "O4'" "C4'" "C5'" SD     180.000 10.0 3
+SAH sp3_sp3_2       "C5'" "C4'" "O4'" "C1'"  -60.000 10.0 3
+SAH sp3_sp3_71      "O3'" "C3'" "C4'" "C5'"  180.000 10.0 3
+
+loop_
+_chem_comp_chir.comp_id
+_chem_comp_chir.id
+_chem_comp_chir.atom_id_centre
+_chem_comp_chir.atom_id_1
+_chem_comp_chir.atom_id_2
+_chem_comp_chir.atom_id_3
+_chem_comp_chir.volume_sign
+SAH chir_1 CA    N     C     CB    positive
+SAH chir_2 "C4'" "O4'" "C5'" "C3'" positive
+SAH chir_3 "C3'" "O3'" "C4'" "C2'" positive
+SAH chir_4 "C2'" "O2'" "C1'" "C3'" negative
+SAH chir_5 "C1'" "O4'" N9    "C2'" negative
+
+loop_
+_chem_comp_plane_atom.comp_id
+_chem_comp_plane_atom.plane_id
+_chem_comp_plane_atom.atom_id
+_chem_comp_plane_atom.dist_esd
+SAH plan-1 "C1'" 0.020
+SAH plan-1 C2    0.020
+SAH plan-1 C4    0.020
+SAH plan-1 C5    0.020
+SAH plan-1 C6    0.020
+SAH plan-1 C8    0.020
+SAH plan-1 H2    0.020
+SAH plan-1 H8    0.020
+SAH plan-1 N1    0.020
+SAH plan-1 N3    0.020
+SAH plan-1 N6    0.020
+SAH plan-1 N7    0.020
+SAH plan-1 N9    0.020
+SAH plan-2 C     0.020
+SAH plan-2 CA    0.020
+SAH plan-2 O     0.020
+SAH plan-2 OXT   0.020
+SAH plan-3 C6    0.020
+SAH plan-3 HN61  0.020
+SAH plan-3 HN62  0.020
+SAH plan-3 N6    0.020
+
+loop_
+_pdbx_chem_comp_descriptor.comp_id
+_pdbx_chem_comp_descriptor.type
+_pdbx_chem_comp_descriptor.program
+_pdbx_chem_comp_descriptor.program_version
+_pdbx_chem_comp_descriptor.descriptor
+SAH SMILES           ACDLabs              10.04 O=C(O)C(N)CCSCC3OC(n2cnc1c(ncnc12)N)C(O)C3O
+SAH SMILES_CANONICAL CACTVS               3.341 N[C@@H](CCSC[C@H]1O[C@H]([C@H](O)[C@@H]1O)n2cnc3c(N)ncnc23)C(O)=O
+SAH SMILES           CACTVS               3.341 N[CH](CCSC[CH]1O[CH]([CH](O)[CH]1O)n2cnc3c(N)ncnc23)C(O)=O
+SAH SMILES_CANONICAL "OpenEye OEToolkits" 1.5.0 c1nc(c2c(n1)n(cn2)[C@H]3[C@@H]([C@@H]([C@H](O3)CSCC[C@@H](C(=O)O)N)O)O)N
+SAH SMILES           "OpenEye OEToolkits" 1.5.0 c1nc(c2c(n1)n(cn2)C3C(C(C(O3)CSCCC(C(=O)O)N)O)O)N
+SAH InChI            InChI                1.03  InChI=1S/C14H20N6O5S/c15-6(14(23)24)1-2-26-3-7-9(21)10(22)13(25-7)20-5-19-8-11(16)17-4-18-12(8)20/h4-7,9-10,13,21-22H,1-3,15H2,(H,23,24)(H2,16,17,18)/t6-,7+,9+,10+,13+/m0/s1
+SAH InChIKey         InChI                1.03  ZJUKTBDSGOFHSH-WFMPWKQPSA-N
+
+loop_
+_pdbx_chem_comp_description_generator.comp_id
+_pdbx_chem_comp_description_generator.program_name
+_pdbx_chem_comp_description_generator.program_version
+_pdbx_chem_comp_description_generator.descriptor
+SAH acedrg          243       "dictionary generator"
+SAH acedrg_database 11        "data source"
+SAH rdkit           2017.03.2 "Chemoinformatics tool"
+SAH refmac5         5.8.0238  "optimization tool"
+
+loop_
+_chem_comp_alias.comp_id
+_chem_comp_alias.group
+_chem_comp_alias.atom_id
+_chem_comp_alias.atom_id_standard
+SAH peptide HN1 H
+SAH peptide HN2 H2

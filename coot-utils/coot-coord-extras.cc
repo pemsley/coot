@@ -40,6 +40,9 @@
 #include "atom-tree.hh"
 #include "contact-info.hh"
 
+#include "utils/logging.hh"
+extern logging logger;
+
 
 // Return 0 if any of the residues don't have a dictionary entry
 // geom_p gets updated to include the residue restraints if necessary
@@ -430,7 +433,8 @@ coot::match_torsions::match(const std::vector <coot::dict_torsion_restraint_t>  
    coot::graph_match_info_t match_info = coot::graph_match(res_moving, res_ref, 0, 0);
 
    if (! match_info.success) {
-      std::cout << "WARNING:: Failed to match graphs " << std::endl;
+      // std::cout << "WARNING:: Failed to match graphs " << std::endl;
+      logger.log(log_t::WARNING, logging::function_name_t("match"), "Failed to match graphs");
    } else {
       std::string alt_conf = ""; // kludge it in
 
@@ -444,7 +448,7 @@ coot::match_torsions::match(const std::vector <coot::dict_torsion_restraint_t>  
       for (unsigned int i=0; i<match_info.matching_atom_names.size(); i++) {
          atom_name_map[match_info.matching_atom_names[i].second.first] =
             match_info.matching_atom_names[i].first.first;
-         if (0)
+         if (false)
             std::cout << "      name map construction  :"
                       << match_info.matching_atom_names[i].second.first
                       << ": -> :"
@@ -483,7 +487,7 @@ coot::match_torsions::match(const std::vector <coot::dict_torsion_restraint_t>  
             if (quad_ref.all_non_blank()) {
                if (quad_moving.all_non_blank()) {
 
-                  if (0)
+                  if (false)
                      std::cout << "  Reference torsion: "
                                << ":" << tr_ref[itr].format() << " maps to "
                                << quad_moving << std::endl;
@@ -503,31 +507,59 @@ coot::match_torsions::match(const std::vector <coot::dict_torsion_restraint_t>  
                      starting_quad_torsions.push_back(starting_quad_tor);
                   }
                } else {
-                  std::cout << "WARNING:: in torsion match() quad moving not all non-blank" << std::endl;
+		  logger.log(log_t::WARNING, logging::function_name_t("match_torsions::match"),
+			     "quad_moving not all non-blank");
+		  // let's diagnose that:
+		  std::cout << "quad-ref:" << std::endl;
+		  std::cout << "   " << tr_ref[itr].atom_id_1_4c() << std::endl;
+		  std::cout << "   " << tr_ref[itr].atom_id_2_4c() << std::endl;
+		  std::cout << "   " << tr_ref[itr].atom_id_3_4c() << std::endl;
+		  std::cout << "   " << tr_ref[itr].atom_id_4_4c() << std::endl;
+		  std::cout << "quad-moving:" << std::endl;
+		  std::cout << "   " << atom_name_map[tr_ref[itr].atom_id_1_4c()] << std::endl;
+		  std::cout << "   " << atom_name_map[tr_ref[itr].atom_id_2_4c()] << std::endl;
+		  std::cout << "   " << atom_name_map[tr_ref[itr].atom_id_3_4c()] << std::endl;
+		  std::cout << "   " << atom_name_map[tr_ref[itr].atom_id_4_4c()] << std::endl;
                }
             } else {
                std::cout << "WARNING:: in torsion match() quad ref not all non-blank" << std::endl;
+	       // let's diagnose that:
+	       std::cout << "quad-ref:" << std::endl;
+	       std::cout << "   " << tr_ref[itr].atom_id_1_4c() << std::endl;
+	       std::cout << "   " << tr_ref[itr].atom_id_2_4c() << std::endl;
+	       std::cout << "   " << tr_ref[itr].atom_id_3_4c() << std::endl;
+	       std::cout << "   " << tr_ref[itr].atom_id_4_4c() << std::endl;
             }
          }
       }
 
-      std::cout << "------ after matching, check the torsions " << std::endl;
+      // std::cout << "------ after matching, check the torsions " << std::endl;
+      logger.log(log_t::INFO, "---- after matching, check the torsions");
       // after matching, check the torsions:
       for (unsigned int iquad=0; iquad<check_quads.size(); iquad++) {
          std::pair<bool, double> mtr = get_torsion(coot::match_torsions::MOVING_TORSION,
                                                    check_quads[iquad].first);
          if (mtr.first) {
-            std::cout << "   torsion check:  "
-                      << check_quads[iquad].first << "  was "
-                      << std::fixed << std::setw(7) << std::setprecision(2)
-                      << starting_quad_torsions[iquad] << " "
-                      << " should be " << std::fixed << std::setw(7) << std::setprecision(2)
-                      << check_quads[iquad].second * 180/M_PI
-                      << " and is "  << std::fixed << std::setw(7) << std::setprecision(2)
-                      << mtr.second * 180/M_PI;
-            if (fabs(check_quads[iquad].second - mtr.second) > M_PI/180)
-               std::cout << "  ----- WRONG!!!! ";
-            std::cout << "\n";
+            // std::cout << "   torsion check:  "
+            //           << check_quads[iquad].first << "  was "
+            //           << std::fixed << std::setw(7) << std::setprecision(2)
+            //           << starting_quad_torsions[iquad] << " "
+            //           << " should be " << std::fixed << std::setw(7) << std::setprecision(2)
+            //           << check_quads[iquad].second * 180/M_PI
+            //           << " and is "  << std::fixed << std::setw(7) << std::setprecision(2)
+            //           << mtr.second * 180/M_PI;
+
+	    std::vector<logging::ltw> args = {"torsion check:",
+					      check_quads[iquad].first.format(),
+					      "was",
+					      starting_quad_torsions[iquad],
+					      "should be",
+					      check_quads[iquad].second * 180.0/M_PI,
+					      "and is",
+					      mtr.second * 180.0/M_PI};
+            if (fabs(check_quads[iquad].second - mtr.second) > M_PI/180.0)
+               args.push_back("  ----- WRONG!!!! ");
+	    logger.log(log_t::INFO, logging::function_name_t("match_torsions::match"), args);
          }
       }
    }
@@ -1866,7 +1898,7 @@ coot::util::mutate_by_overlap(mmdb::Residue *residue_p, mmdb::Manager *mol,
                                                                 bool is_nucleotide) {
       // first, delete the atoms of res_mutable that are not in residue_ref;
       std::vector<std::string> keep_atoms;
-      std::vector<mmdb::Atom *> delete_atoms;
+      std::set<mmdb::Atom *> delete_atoms;
 
       mmdb::Atom **residue_atoms = 0;
       int n_residue_atoms = 0;
@@ -1888,15 +1920,36 @@ coot::util::mutate_by_overlap(mmdb::Residue *residue_p, mmdb::Manager *mol,
             std::string atom_name(at->GetAtomName());
             if (std::find(keep_atoms.begin(), keep_atoms.end(), atom_name) == keep_atoms.end()) {
                // not found
-               delete_atoms.push_back(at);
+               delete_atoms.insert(at);
             }
          }
       }
 
-      for (auto atom : delete_atoms)
+      // delete_atoms.clear();
+
+      for (auto atom : delete_atoms) {
          delete atom;
+	 atom = NULL;
+	 res_mutable->TrimAtomTable();
+      }
+
+      if (! delete_atoms.empty())
+	 res_mutable->TrimAtomTable();
 
       mol->FinishStructEdit();
+
+      if (false) {
+	 mmdb::Atom **residue_atoms_mutable = 0;
+	 int n_residue_atoms_mutable = 0;
+	 res_mutable->GetAtomTable(residue_atoms_mutable, n_residue_atoms_mutable);
+	 for (int iat=0; iat<n_residue_atoms_mutable; iat++) {
+	    mmdb::Atom *at = residue_atoms_mutable[iat];
+	    if (! at->isTer()) {
+	       std::cout << "debug atom " << iat << " of " << n_residue_atoms_mutable
+			 << " " << at << std::endl;
+	    }
+	 }
+      }
 
       for (int iat=0; iat<n_residue_atoms; iat++) {
          mmdb::Atom *at = residue_atoms[iat];
@@ -1935,6 +1988,8 @@ coot::util::mutate_by_overlap(mmdb::Residue *residue_p, mmdb::Manager *mol,
                std::string at_name = at->GetAtomName();
                if (atom_name != " OXT") { // extra atom in an amino acid
                   if (! (atom_name != " OP3" && is_nucleotide)) {  // extra atom in a nucleic acid
+		     std::string ele = at->element;
+		     if (ele == " H") continue;
                      at_copy->Copy(at);
                      res_mutable->AddAtom(at_copy);
                   }
@@ -1943,6 +1998,7 @@ coot::util::mutate_by_overlap(mmdb::Residue *residue_p, mmdb::Manager *mol,
          }
       }
       mol->FinishStructEdit();
+      mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
 
    };
 
@@ -1994,6 +2050,8 @@ coot::util::mutate_by_overlap(mmdb::Residue *residue_p, mmdb::Manager *mol,
    bool is_nucl = is_nucleotide(residue_p);
    bool is_aa   = residue_p->isAminoacid();
 
+   bool debug = false;
+
    mmdb::Residue *restraints_residue_p = restraints_new_type.GetResidue(false, 10.0f);
    if (restraints_residue_p) {
       mmdb::Manager *mol_from_restraints_residue = create_mmdbmanager_from_residue(restraints_residue_p);
@@ -2022,10 +2080,16 @@ coot::util::mutate_by_overlap(mmdb::Residue *residue_p, mmdb::Manager *mol,
             std::pair<short int, clipper::RTop_orth> rtop_info =
                get_lsq_matrix(mol, mol_from_restraints_residue, lsq_matchers, 1, true);
 
+	    if (debug) {
+	       std::cout << "get_lsq_matrix() returned " << rtop_info.first << std::endl;
+	       std::cout << "get_lsq_matrix() returned\n" << rtop_info.second.format()
+			 << std::endl;
+	    }
+
             if (rtop_info.first)
                transform_atoms(restraints_residue_p, rtop_info.second);
 
-            if (false) { // debugging
+            if (debug) { // debugging
                // where is restraints_residue_p now? What is its orientation?
                mmdb::Manager *mmm = create_mmdbmanager_from_residue(restraints_residue_p);
                mmm->WriteCIFASCII("transformed-restraints-residue.pdb");
@@ -2037,7 +2101,12 @@ coot::util::mutate_by_overlap(mmdb::Residue *residue_p, mmdb::Manager *mol,
             match_torsions mt(restraints_residue_p, residue_p, restraints_new_type);
             int n_torsions_moved = mt.match(tr_ligand, tr_res_ref);
 
-            if (false) { // debugging
+            if (debug) { // debugging
+	       std::cout << "debug:: n_torsions_moved " << n_torsions_moved
+			 << std::endl;
+	    }
+
+            if (debug) { // debugging
                // where is restraints_residue_p now? What is its orientation?
                mmdb::Manager *mmm = create_mmdbmanager_from_residue(restraints_residue_p);
                mmm->WriteCIFASCII("restraints-residue-post-torsion-match.pdb");
@@ -2045,7 +2114,8 @@ coot::util::mutate_by_overlap(mmdb::Residue *residue_p, mmdb::Manager *mol,
 
             // after torsion matching, let's superpose (again)
 
-            mmdb::Manager *mol_from_restraints_residue_2 = create_mmdbmanager_from_residue(restraints_residue_p);
+            mmdb::Manager *mol_from_restraints_residue_2 =
+	       create_mmdbmanager_from_residue(restraints_residue_p);
             rtop_info = get_lsq_matrix(mol, mol_from_restraints_residue_2, lsq_matchers, 1, true);
             if (rtop_info.first)
                transform_atoms(restraints_residue_p, rtop_info.second);
@@ -2061,14 +2131,32 @@ coot::util::mutate_by_overlap(mmdb::Residue *residue_p, mmdb::Manager *mol,
 
             reposition_copy_or_delete_atoms(residue_p, restraints_residue_p, false, false);
 
+	    if (debug) {
+	       mmdb::Atom **residue_atoms = 0;
+	       int n_residue_atoms = 0;
+	       residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+	       for (int iat=0; iat<n_residue_atoms; iat++) {
+		  mmdb::Atom *at = residue_atoms[iat];
+		  if (! at->isTer()) {
+		     std::cout << "residue atom " << iat << " " << at
+			       << " " << atom_spec_t(at) << std::endl;
+		  }
+	       }
+	    }
+
             std::string new_residue_name = restraints_new_type.residue_info.comp_id;
             if (! util::is_standard_amino_acid_name(new_residue_name))
                convert_to_hetatoms(residue_p);
 
             residue_p->SetResName(new_residue_name.c_str());
 
+	    mol->FinishStructEdit(); // needed?
+	    pdbcleanup_serial_residue_numbers(mol);
+
             delete mol_from_restraints_residue;
             delete mol_from_restraints_residue_2;
+
+	    status = 1;
          }
 
          if (is_nucl) {
@@ -2092,6 +2180,8 @@ coot::util::mutate_by_overlap(mmdb::Residue *residue_p, mmdb::Manager *mol,
             // to do the same sort of thing here too?
 
             reposition_copy_or_delete_atoms(residue_p, restraints_residue_p, true, true);
+
+	    status = 1;
          }
       }
    }
@@ -2143,7 +2233,8 @@ coot::get_acedrg_types_for_residue(mmdb::Residue *residue_p, int imol_enc,
 
                if (! type_1.empty()) {
                   if (! type_2.empty()) {
-                     acedrg_types_for_bond_t bt(atom_name_1, atom_name_2, type_1, type_2, bond_length);
+                     bool in_same_ring_flag = restraints.in_same_ring(atom_name_1, atom_name_2);
+                     acedrg_types_for_bond_t bt(atom_name_1, atom_name_2, type_1, type_2, bond_length, in_same_ring_flag);
                      types.bond_types.push_back(bt);
                   }
                }

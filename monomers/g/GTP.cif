@@ -1,0 +1,312 @@
+#
+data_comp_list
+loop_
+_chem_comp.id
+_chem_comp.three_letter_code
+_chem_comp.name
+_chem_comp.group
+_chem_comp.number_atoms_all
+_chem_comp.number_atoms_nh
+_chem_comp.desc_level
+GTP     GTP      "GUANOSINE-5'-TRIPHOSPHATE"     NON-POLYMER     44     32     .     
+#
+data_comp_GTP
+#
+loop_
+_chem_comp_atom.comp_id
+_chem_comp_atom.atom_id
+_chem_comp_atom.type_symbol
+_chem_comp_atom.type_energy
+_chem_comp_atom.charge
+_chem_comp_atom.x
+_chem_comp_atom.y
+_chem_comp_atom.z
+GTP     PG      P       P       0       4.560       31.688      21.477      
+GTP     O1G     O       O       0       4.404       32.256      22.874      
+GTP     O2G     O       OP      -1      4.031       32.621      20.405      
+GTP     O3G     O       OP      -1      4.007       30.282      21.352      
+GTP     O3B     O       O2      0       6.154       31.567      21.217      
+GTP     PB      P       P       0       7.014       30.840      20.078      
+GTP     O1B     O       O       0       7.367       29.484      20.548      
+GTP     O2B     O       OP      -1      6.320       31.011      18.784      
+GTP     O3A     O       O2      0       8.339       31.740      20.070      
+GTP     PA      P       P       0       8.640       33.246      19.616      
+GTP     O1A     O       O       0       8.465       33.336      18.144      
+GTP     O2A     O       OP      -1      7.853       34.171      20.471      
+GTP     "O5'"   O       O2      0       10.195      33.377      19.964      
+GTP     "C5'"   C       CH2     0       10.583      33.182      21.348      
+GTP     "C4'"   C       CH1     0       12.036      33.553      21.524      
+GTP     "O4'"   O       O2      0       12.846      32.727      20.657      
+GTP     "C3'"   C       CH1     0       12.389      35.007      21.180      
+GTP     "O3'"   O       OH1     0       13.296      35.538      22.138      
+GTP     "C2'"   C       CH1     0       13.016      34.892      19.786      
+GTP     "O2'"   O       OH1     0       13.937      35.921      19.490      
+GTP     "C1'"   C       CH1     0       13.732      33.549      19.908      
+GTP     N9      N       NR5     0       14.014      32.895      18.629      
+GTP     C8      C       CR15    0       13.089      32.464      17.714      
+GTP     N7      N       NRD5    0       13.617      31.910      16.650      
+GTP     C5      C       CR56    0       14.986      31.978      16.880      
+GTP     C6      C       CR6     0       16.070      31.533      16.074      
+GTP     O6      O       O       0       16.021      30.976      14.968      
+GTP     N1      N       NR16    0       17.307      31.793      16.676      
+GTP     C2      C       CR6     0       17.480      32.406      17.902      
+GTP     N2      N       NH2     0       18.744      32.578      18.332      
+GTP     N3      N       NRD6    0       16.461      32.825      18.660      
+GTP     C4      C       CR56    0       15.250      32.581      18.093      
+GTP     "H5'"   H       H       0       10.452      32.234      21.605      
+GTP     "H5''"  H       H       0       10.026      33.747      21.941      
+GTP     "H4'"   H       H       0       12.287      33.371      22.464      
+GTP     "H3'"   H       H       0       11.567      35.560      21.142      
+GTP     "HO3'"  H       H       0       14.015      35.710      21.778      
+GTP     "H2'"   H       H       0       12.311      34.844      19.092      
+GTP     "HO2'"  H       H       0       14.731      35.591      19.468      
+GTP     "H1'"   H       H       0       14.596      33.678      20.425      
+GTP     H8      H       H       0       12.160      32.561      17.840      
+GTP     HN1     H       H       0       18.034      31.538      16.221      
+GTP     HN21    H       H       0       18.891      32.964      19.107      
+GTP     HN22    H       H       0       19.424      32.310      17.847      
+loop_
+_chem_comp_bond.comp_id
+_chem_comp_bond.atom_id_1
+_chem_comp_bond.atom_id_2
+_chem_comp_bond.type
+_chem_comp_bond.aromatic
+_chem_comp_bond.value_dist_nucleus
+_chem_comp_bond.value_dist_nucleus_esd
+_chem_comp_bond.value_dist
+_chem_comp_bond.value_dist_esd
+GTP          PG         O1G      DOUBLE       n     1.516  0.0200     1.516  0.0200
+GTP          PG         O2G      SINGLE       n     1.516  0.0200     1.516  0.0200
+GTP          PG         O3G      SINGLE       n     1.516  0.0200     1.516  0.0200
+GTP          PG         O3B      SINGLE       n     1.620  0.0143     1.620  0.0143
+GTP         O3B          PB      SINGLE       n     1.601  0.0108     1.601  0.0108
+GTP          PB         O1B      DOUBLE       n     1.478  0.0100     1.478  0.0100
+GTP          PB         O2B      SINGLE       n     1.478  0.0100     1.478  0.0100
+GTP          PB         O3A      SINGLE       n     1.602  0.0126     1.602  0.0126
+GTP         O3A          PA      SINGLE       n     1.600  0.0185     1.600  0.0185
+GTP          PA         O1A      DOUBLE       n     1.485  0.0100     1.485  0.0100
+GTP          PA         O2A      SINGLE       n     1.485  0.0100     1.485  0.0100
+GTP          PA       "O5'"      SINGLE       n     1.598  0.0100     1.598  0.0100
+GTP       "O5'"       "C5'"      SINGLE       n     1.445  0.0200     1.445  0.0200
+GTP       "C5'"       "C4'"      SINGLE       n     1.509  0.0100     1.509  0.0100
+GTP       "C4'"       "O4'"      SINGLE       n     1.444  0.0100     1.444  0.0100
+GTP       "C4'"       "C3'"      SINGLE       n     1.532  0.0100     1.532  0.0100
+GTP       "O4'"       "C1'"      SINGLE       n     1.423  0.0100     1.423  0.0100
+GTP       "C3'"       "O3'"      SINGLE       n     1.422  0.0100     1.422  0.0100
+GTP       "C3'"       "C2'"      SINGLE       n     1.532  0.0103     1.532  0.0103
+GTP       "C2'"       "O2'"      SINGLE       n     1.412  0.0100     1.412  0.0100
+GTP       "C2'"       "C1'"      SINGLE       n     1.528  0.0100     1.528  0.0100
+GTP       "C1'"          N9      SINGLE       n     1.462  0.0102     1.462  0.0102
+GTP          N9          C8      SINGLE       y     1.371  0.0100     1.371  0.0100
+GTP          N9          C4      SINGLE       y     1.383  0.0114     1.383  0.0114
+GTP          C8          N7      DOUBLE       y     1.311  0.0104     1.311  0.0104
+GTP          N7          C5      SINGLE       y     1.390  0.0100     1.390  0.0100
+GTP          C5          C6      SINGLE       y     1.418  0.0111     1.418  0.0111
+GTP          C5          C4      DOUBLE       y     1.377  0.0100     1.377  0.0100
+GTP          C6          O6      DOUBLE       n     1.240  0.0104     1.240  0.0104
+GTP          C6          N1      SINGLE       y     1.394  0.0120     1.394  0.0120
+GTP          N1          C2      SINGLE       y     1.374  0.0124     1.374  0.0124
+GTP          C2          N2      SINGLE       n     1.341  0.0143     1.341  0.0143
+GTP          C2          N3      DOUBLE       y     1.331  0.0119     1.331  0.0119
+GTP          N3          C4      SINGLE       y     1.355  0.0100     1.355  0.0100
+GTP       "C5'"       "H5'"      SINGLE       n     1.089  0.0100     0.991  0.0200
+GTP       "C5'"      "H5''"      SINGLE       n     1.089  0.0100     0.991  0.0200
+GTP       "C4'"       "H4'"      SINGLE       n     1.089  0.0100     0.990  0.0200
+GTP       "C3'"       "H3'"      SINGLE       n     1.089  0.0100     0.991  0.0200
+GTP       "O3'"      "HO3'"      SINGLE       n     0.970  0.0120     0.839  0.0200
+GTP       "C2'"       "H2'"      SINGLE       n     1.089  0.0100     0.991  0.0200
+GTP       "O2'"      "HO2'"      SINGLE       n     0.970  0.0120     0.839  0.0200
+GTP       "C1'"       "H1'"      SINGLE       n     1.089  0.0100     1.016  0.0200
+GTP          C8          H8      SINGLE       n     1.082  0.0130     0.942  0.0168
+GTP          N1         HN1      SINGLE       n     1.016  0.0100     0.894  0.0200
+GTP          N2        HN21      SINGLE       n     1.016  0.0100     0.877  0.0200
+GTP          N2        HN22      SINGLE       n     1.016  0.0100     0.877  0.0200
+loop_
+_chem_comp_angle.comp_id
+_chem_comp_angle.atom_id_1
+_chem_comp_angle.atom_id_2
+_chem_comp_angle.atom_id_3
+_chem_comp_angle.value_angle
+_chem_comp_angle.value_angle_esd
+GTP         O1G          PG         O2G     112.609    3.00
+GTP         O1G          PG         O3G     112.609    3.00
+GTP         O1G          PG         O3B     106.004    3.00
+GTP         O2G          PG         O3G     112.609    3.00
+GTP         O2G          PG         O3B     106.004    3.00
+GTP         O3G          PG         O3B     106.004    3.00
+GTP          PG         O3B          PB     132.613    3.00
+GTP         O3B          PB         O1B     108.634    3.00
+GTP         O3B          PB         O2B     108.634    3.00
+GTP         O3B          PB         O3A     100.990    3.00
+GTP         O1B          PB         O2B     119.776    1.50
+GTP         O1B          PB         O3A     108.634    3.00
+GTP         O2B          PB         O3A     108.634    3.00
+GTP          PB         O3A          PA     133.108    3.00
+GTP         O3A          PA         O1A     109.053    3.00
+GTP         O3A          PA         O2A     109.053    3.00
+GTP         O3A          PA       "O5'"     100.137    3.00
+GTP         O1A          PA         O2A     118.805    3.00
+GTP         O1A          PA       "O5'"     109.340    2.31
+GTP         O2A          PA       "O5'"     109.340    2.31
+GTP          PA       "O5'"       "C5'"     116.362    1.50
+GTP       "O5'"       "C5'"       "C4'"     109.454    1.61
+GTP       "O5'"       "C5'"       "H5'"     109.882    1.50
+GTP       "O5'"       "C5'"      "H5''"     109.882    1.50
+GTP       "C4'"       "C5'"       "H5'"     109.589    1.50
+GTP       "C4'"       "C5'"      "H5''"     109.589    1.50
+GTP       "H5'"       "C5'"      "H5''"     108.471    1.50
+GTP       "C5'"       "C4'"       "O4'"     109.154    1.50
+GTP       "C5'"       "C4'"       "C3'"     115.288    1.50
+GTP       "C5'"       "C4'"       "H4'"     108.351    1.59
+GTP       "O4'"       "C4'"       "C3'"     105.318    1.50
+GTP       "O4'"       "C4'"       "H4'"     109.120    1.50
+GTP       "C3'"       "C4'"       "H4'"     109.322    2.54
+GTP       "C4'"       "O4'"       "C1'"     109.502    2.85
+GTP       "C4'"       "C3'"       "O3'"     110.713    3.00
+GTP       "C4'"       "C3'"       "C2'"     102.593    1.50
+GTP       "C4'"       "C3'"       "H3'"     110.577    3.00
+GTP       "O3'"       "C3'"       "C2'"     111.671    3.00
+GTP       "O3'"       "C3'"       "H3'"     110.541    2.08
+GTP       "C2'"       "C3'"       "H3'"     110.454    1.85
+GTP       "C3'"       "O3'"      "HO3'"     109.389    3.00
+GTP       "C3'"       "C2'"       "O2'"     112.677    3.00
+GTP       "C3'"       "C2'"       "C1'"     101.406    1.50
+GTP       "C3'"       "C2'"       "H2'"     110.788    1.91
+GTP       "O2'"       "C2'"       "C1'"     110.814    3.00
+GTP       "O2'"       "C2'"       "H2'"     110.904    1.50
+GTP       "C1'"       "C2'"       "H2'"     110.342    1.91
+GTP       "C2'"       "O2'"      "HO2'"     109.217    3.00
+GTP       "O4'"       "C1'"       "C2'"     106.114    1.65
+GTP       "O4'"       "C1'"          N9     108.577    1.50
+GTP       "O4'"       "C1'"       "H1'"     109.833    2.53
+GTP       "C2'"       "C1'"          N9     113.380    2.77
+GTP       "C2'"       "C1'"       "H1'"     109.222    1.50
+GTP          N9       "C1'"       "H1'"     109.411    1.50
+GTP       "C1'"          N9          C8     127.058    3.00
+GTP       "C1'"          N9          C4     126.955    2.94
+GTP          C8          N9          C4     105.987    1.50
+GTP          N9          C8          N7     113.721    1.50
+GTP          N9          C8          H8     122.935    1.50
+GTP          N7          C8          H8     123.345    1.50
+GTP          C8          N7          C5     103.926    1.50
+GTP          N7          C5          C6     129.926    1.50
+GTP          N7          C5          C4     110.770    1.50
+GTP          C6          C5          C4     119.304    1.50
+GTP          C5          C6          O6     128.237    1.50
+GTP          C5          C6          N1     111.514    1.50
+GTP          O6          C6          N1     120.248    1.50
+GTP          C6          N1          C2     125.452    1.50
+GTP          C6          N1         HN1     117.160    2.45
+GTP          C2          N1         HN1     117.387    2.97
+GTP          N1          C2          N2     116.657    1.50
+GTP          N1          C2          N3     123.538    1.50
+GTP          N2          C2          N3     119.805    1.50
+GTP          C2          N2        HN21     119.712    3.00
+GTP          C2          N2        HN22     119.712    3.00
+GTP        HN21          N2        HN22     120.576    3.00
+GTP          C2          N3          C4     111.926    1.50
+GTP          N9          C4          C5     105.596    1.50
+GTP          N9          C4          N3     126.138    1.50
+GTP          C5          C4          N3     128.265    1.50
+loop_
+_chem_comp_tor.comp_id
+_chem_comp_tor.id
+_chem_comp_tor.atom_id_1
+_chem_comp_tor.atom_id_2
+_chem_comp_tor.atom_id_3
+_chem_comp_tor.atom_id_4
+_chem_comp_tor.value_angle
+_chem_comp_tor.value_angle_esd
+_chem_comp_tor.period
+GTP            sp3_sp3_27          PB         O3B          PG         O1G      60.000    10.0     3
+GTP            sp3_sp3_40       "C4'"       "C5'"       "O5'"          PA     180.000    10.0     3
+GTP            sp3_sp3_43       "O4'"       "C4'"       "C5'"       "O5'"     180.000    10.0     3
+GTP             sp3_sp3_2       "C5'"       "C4'"       "O4'"       "C1'"     -60.000    10.0     3
+GTP            sp3_sp3_56       "O3'"       "C3'"       "C4'"       "C5'"     180.000    10.0     3
+GTP             sp3_sp3_4       "C2'"       "C1'"       "O4'"       "C4'"     -60.000    10.0     3
+GTP            sp3_sp3_61       "C4'"       "C3'"       "O3'"      "HO3'"     180.000    10.0     3
+GTP            sp3_sp3_20       "O2'"       "C2'"       "C3'"       "O3'"     -60.000    10.0     3
+GTP            sp3_sp3_64       "C3'"       "C2'"       "O2'"      "HO2'"     180.000    10.0     3
+GTP             sp3_sp3_8       "O4'"       "C1'"       "C2'"       "O2'"     180.000    10.0     3
+GTP             sp2_sp3_1          C8          N9       "C1'"       "O4'"     150.000    10.0     6
+GTP              const_18          N7          C8          N9       "C1'"     180.000     0.0     2
+GTP              const_30          C5          C4          N9       "C1'"     180.000     0.0     2
+GTP              const_21          N9          C8          N7          C5       0.000     0.0     2
+GTP              const_24          C6          C5          N7          C8     180.000     0.0     2
+GTP       const_sp2_sp2_4          N7          C5          C6          O6       0.000     0.0     2
+GTP              const_25          N9          C4          C5          N7       0.000     0.0     2
+GTP       const_sp2_sp2_7          O6          C6          N1          C2     180.000     0.0     2
+GTP              const_11          N2          C2          N1          C6     180.000     0.0     2
+GTP            sp2_sp2_33          N1          C2          N2        HN21     180.000     5.0     2
+GTP              const_14          N2          C2          N3          C4     180.000     0.0     2
+GTP              const_16          N9          C4          N3          C2     180.000     0.0     2
+GTP            sp3_sp3_30          PG         O3B          PB         O1B      60.000    10.0     3
+GTP            sp3_sp3_32          PA         O3A          PB         O3B     -60.000    10.0     3
+GTP            sp3_sp3_36          PB         O3A          PA         O1A      60.000    10.0     3
+GTP            sp3_sp3_37       "C5'"       "O5'"          PA         O3A     180.000    10.0     3
+loop_
+_chem_comp_chir.comp_id
+_chem_comp_chir.id
+_chem_comp_chir.atom_id_centre
+_chem_comp_chir.atom_id_1
+_chem_comp_chir.atom_id_2
+_chem_comp_chir.atom_id_3
+_chem_comp_chir.volume_sign
+GTP    chir_1    PB    O3A    O3B    O2B    both
+GTP    chir_2    PA    O3A    "O5'"    O2A    both
+GTP    chir_3    "C4'"    "O4'"    "C3'"    "C5'"    negative
+GTP    chir_4    "C3'"    "O3'"    "C4'"    "C2'"    positive
+GTP    chir_5    "C2'"    "O2'"    "C1'"    "C3'"    negative
+GTP    chir_6    "C1'"    "O4'"    N9    "C2'"    negative
+GTP    chir_7    PG    O3B    O2G    O3G    both
+loop_
+_chem_comp_plane_atom.comp_id
+_chem_comp_plane_atom.plane_id
+_chem_comp_plane_atom.atom_id
+_chem_comp_plane_atom.dist_esd
+GTP    plan-1       "C1'"   0.020
+GTP    plan-1          C4   0.020
+GTP    plan-1          C5   0.020
+GTP    plan-1          C6   0.020
+GTP    plan-1          C8   0.020
+GTP    plan-1          H8   0.020
+GTP    plan-1          N3   0.020
+GTP    plan-1          N7   0.020
+GTP    plan-1          N9   0.020
+GTP    plan-2          C2   0.020
+GTP    plan-2          C4   0.020
+GTP    plan-2          C5   0.020
+GTP    plan-2          C6   0.020
+GTP    plan-2         HN1   0.020
+GTP    plan-2          N1   0.020
+GTP    plan-2          N2   0.020
+GTP    plan-2          N3   0.020
+GTP    plan-2          N7   0.020
+GTP    plan-2          N9   0.020
+GTP    plan-2          O6   0.020
+GTP    plan-3          C2   0.020
+GTP    plan-3        HN21   0.020
+GTP    plan-3        HN22   0.020
+GTP    plan-3          N2   0.020
+loop_
+_pdbx_chem_comp_descriptor.comp_id
+_pdbx_chem_comp_descriptor.type
+_pdbx_chem_comp_descriptor.program
+_pdbx_chem_comp_descriptor.program_version
+_pdbx_chem_comp_descriptor.descriptor
+GTP  SMILES            ACDLabs               12.01  "O=P(O)(O)OP(=O)(O)OP(=O)(O)OCC3OC(n2cnc1c2N=C(N)NC1=O)C(O)C3O"
+GTP  InChI             InChI                 1.03   "InChI=1S/C10H16N5O14P3/c11-10-13-7-4(8(18)14-10)12-2-15(7)9-6(17)5(16)3(27-9)1-26-31(22,23)29-32(24,25)28-30(19,20)21/h2-3,5-6,9,16-17H,1H2,(H,22,23)(H,24,25)(H2,19,20,21)(H3,11,13,14,18)/t3-,5-,6-,9-/m1/s1"
+GTP  InChIKey          InChI                 1.03   XKMLYUALXHKNFT-UUOKFMHZSA-N
+GTP  SMILES_CANONICAL  CACTVS                3.370  "NC1=Nc2n(cnc2C(=O)N1)[C@@H]3O[C@H](CO[P](O)(=O)O[P](O)(=O)O[P](O)(O)=O)[C@@H](O)[C@H]3O"
+GTP  SMILES            CACTVS                3.370  "NC1=Nc2n(cnc2C(=O)N1)[CH]3O[CH](CO[P](O)(=O)O[P](O)(=O)O[P](O)(O)=O)[CH](O)[CH]3O"
+GTP  SMILES_CANONICAL  "OpenEye OEToolkits"  1.7.6  "c1nc2c(n1[C@H]3[C@@H]([C@@H]([C@H](O3)CO[P@](=O)(O)O[P@](=O)(O)OP(=O)(O)O)O)O)N=C(NC2=O)N"
+GTP  SMILES            "OpenEye OEToolkits"  1.7.6  "c1nc2c(n1C3C(C(C(O3)COP(=O)(O)OP(=O)(O)OP(=O)(O)O)O)O)N=C(NC2=O)N"
+loop_
+_pdbx_chem_comp_description_generator.comp_id
+_pdbx_chem_comp_description_generator.program_name
+_pdbx_chem_comp_description_generator.program_version
+_pdbx_chem_comp_description_generator.descriptor
+GTP acedrg               271         "dictionary generator"                  
+GTP acedrg_database      12          "data source"                           
+GTP rdkit                2019.09.1   "Chemoinformatics tool"
+GTP refmac5              5.8.0405    "optimization tool"                     

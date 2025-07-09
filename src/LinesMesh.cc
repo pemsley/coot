@@ -337,6 +337,13 @@ LinesMesh::make_vertices_for_pulse(const glm::vec4 &colour, float radius_overall
 
    // we don't need to regenerate the indices if they have already been generated
 
+#if 0 // quick fix for glm compilation problems
+   std::cout << "debug::  make_vertices_for_pulse() --- start --- "
+             << glm::to_string(colour) << " r: "
+             << radius_overall << " n-rings: " << n_rings << " "
+             << std::endl;
+#endif
+
    vertices.clear();
    indices.clear();
 
@@ -344,18 +351,19 @@ LinesMesh::make_vertices_for_pulse(const glm::vec4 &colour, float radius_overall
    const unsigned int n_line_segments = 30;
    for (unsigned int j=0; j<n_rings; j++) {
       unsigned int idx_base = vertices.size();
-      float r = 0.06 * radius_overall * static_cast<float>(j+1);
+      float r = 0.06f * radius_overall * static_cast<float>(j+1);
       for (unsigned int i=0; i<n_line_segments; i++) {
          float theta = 2.0 * M_PI * static_cast<float>(i) / static_cast<float>(n_line_segments);
          theta += theta_offset;
          glm::vec3 p(r * sinf(theta), r * cosf(theta), 0.0);
          s_generic_vertex v(p, normal, colour);
-         // std::cout << "vertex position " << glm::to_string(v.pos) << std::endl;
+         // std::cout << "vertex position " << glm::to_string(v.pos) << " " << glm::to_string(colour) << std::endl;
          vertices.push_back(v);
       }
       for (unsigned int i=0; i<n_line_segments; i++) {
          if (broken_mode)
-            if ((j+i) %2 == 0) continue;
+            if ((j+i) %2 == 0)
+               continue;
          unsigned int i_this = i;
          unsigned int i_next = i+1;
          if (i_next == n_line_segments)
@@ -367,15 +375,29 @@ LinesMesh::make_vertices_for_pulse(const glm::vec4 &colour, float radius_overall
 }
 
 void
-LinesMesh::setup_pulse(bool broken_line_mode) {
+LinesMesh::setup_green_pulse(bool broken_line_mode) {
 
-   glm::vec4 colour(0.2, 0.8, 0.2, 1.0);
-   unsigned int n_rings = 3;
-   make_vertices_for_pulse(colour, 2.0, n_rings, 0.0, broken_line_mode);
+   glm::vec4 colour(0.2, 0.8, 0.2, 1.0); // green(!?)
+   unsigned int n_rings = 13;
+
+#if 0 // quick fix for glm compilation problems
+   std::cout << "DEBUG:: calling make_vertices_for_pulse() with colour " << glm::to_string(colour) << std::endl;
+#endif
+   make_vertices_for_pulse(colour, 13.0, n_rings, 0.0, broken_line_mode);
+#if 0 // quick fix for glm compilation problems
+   std::cout << "DEBUG:: done make_vertices_for_pulse() " << vertices.size() << " " << indices.size() << std::endl;
+#endif
    setup();
 }
 
+void
+LinesMesh::setup_red_pulse(bool broken_line_mode) {
 
+   glm::vec4 colour(0.8, 0.2, 0.2, 1.0);
+   unsigned int n_rings = 3;
+   make_vertices_for_pulse(colour, 6.0, n_rings, 0.0, broken_line_mode);
+   setup();
+}
 
 
 void
@@ -402,6 +424,18 @@ LinesMesh::update_buffers_for_pulse(float n_steps, int direction) { // delta tim
    glBindBuffer(GL_ARRAY_BUFFER, buffer_id);
    glBufferSubData(GL_ARRAY_BUFFER, 0, n_vertices * sizeof(s_generic_vertex), &(vertices[0]));
 }
+
+void
+LinesMesh::update_buffers_by_resize(float resize_factor) { // say 1.1 for growing rings
+
+   unsigned int n_vertices = vertices.size();
+   glBindVertexArray(vao);
+   for (auto &v : vertices)
+      v.pos *= resize_factor;
+   glBindBuffer(GL_ARRAY_BUFFER, buffer_id);
+   glBufferSubData(GL_ARRAY_BUFFER, 0, n_vertices * sizeof(s_generic_vertex), &(vertices[0]));
+}
+
 
 
 void

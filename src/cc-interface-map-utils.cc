@@ -32,6 +32,9 @@
 
 #include "coot-utils/coot-map-utils.hh"
 
+#include "utils/logging.hh"
+extern logging logger;
+
 
 /* ------------------------------------------------------------------------- */
 /*                      Map Display Control                                  */
@@ -81,7 +84,8 @@ handle_read_ccp4_map(const std::string &filename, int is_diff_map_flag) {
 	 g.activate_scroll_radio_button_in_display_manager(imol_new);
       } else {
 	 g.erase_last_molecule();
-	 std::cout << "Read map " << filename << " failed" << std::endl;
+	 // std::cout << "Read map " << filename << " failed" << std::endl;
+         logger.log(log_t::INFO, "Read of map", filename, "failed");
 	 std::string s = "Read map ";
 	 s += filename;
 	 s += " failed.";
@@ -344,7 +348,7 @@ void servalcat_refine(int imol_model,
    auto check_it = +[] (gpointer data) {
 
       graphics_info_t g;
-      std::cout << "............... running servalcat_refine() check_it() " << g.servalcat_fofc.first << std::endl;
+      std::cout << "debug:: running servalcat_refine() check_it() " << g.servalcat_fofc.first << std::endl;
 
       if (g.servalcat_refine.first) {
          const std::string &pdb_file_name = g.servalcat_refine.second;
@@ -385,6 +389,177 @@ void servalcat_refine(int imol_model,
       g.servalcat_refine.first = false;
       GSourceFunc f = GSourceFunc(check_it);
       g_timeout_add(400, f, nullptr);
+   }
+
+}
+
+#include "c-interface-python.hh" // because we use display_python().
+#include "python-3-interface.hh"
+
+void add_toolbar_subprocess_button(const std::string &button_label,
+                                   const std::string &subprocess_command,
+                                   PyObject *arg_list,
+                                   PyObject *on_completion_function, // should these be strings?
+                                   PyObject *on_completion_args) {
+
+   auto type_check = [] (PyObject *obj) {
+
+      if (obj == nullptr) {
+         return "NULL";
+      }
+
+      PyTypeObject* type = obj->ob_type;
+      if (type == &PyLong_Type) {
+         return "int"; // Python 3 integers are longs
+      } else if (type == &PyFloat_Type) {
+         return "float";
+      } else if (type == &PyUnicode_Type) {
+         return "str"; // Python 3 strings are unicode
+      } else if (type == &PyBool_Type) {
+         return "bool";
+      } else if (type == &PyList_Type) {
+         return "list";
+      } else if (type == &PyTuple_Type) {
+         return "tuple";
+      } else if (type == &PyDict_Type) {
+         return "dict";
+      // I don't know what to do about Py_None
+      // } else if (type == &PyNone_Type) {
+      //    return "NoneType";
+      } else if (type == &PyBytes_Type) {
+         return "bytes";
+      } else if (type == &PyByteArray_Type) {
+         return "bytearray";
+      } else {
+         return type->tp_name; // Fallback to the type's name
+      }
+   };
+
+   struct py_transfer_t {
+      PyObject *on_completion_function;
+      PyObject *on_completion_args;
+      std::vector<std::string> cmd_list;
+      bool termination_condtion;
+   };
+
+   if (PyList_Check(arg_list)) {
+      unsigned int l1 = PyObject_Length(arg_list);
+      std::vector<std::string> args;
+      for (unsigned int i=0; i<l1; i++) {
+         PyObject *o = PyList_GetItem(arg_list, i);
+         if (PyUnicode_Check(o)) {
+            std::string s = PyBytes_AS_STRING(PyUnicode_AsUTF8String(o));
+            args.push_back(s);
+         }
+      }
+
+      auto on_button_clicked = +[] (GtkButton *button, gpointer data) {
+
+         auto my_subproc = [] (const std::vector<std::string> &cmd_list, py_transfer_t *pt) {
+            try {
+               subprocess::OutBuffer obuf = subprocess::check_output(cmd_list);
+               if (true) {
+                  std::cout << "Data : " << obuf.buf.data() << std::endl;
+                  std::cout << "Data len: " << obuf.length << std::endl;
+                  pt->termination_condtion = true;
+               }
+            }
+            catch (...) {
+               std::cout << "WARNING:: add_toolbar_subprocess_button() my_subproc() caught some error" << std::endl;
+            }
+         };
+
+         auto check_it = +[] (gpointer data) {
+
+            py_transfer_t *pt = reinterpret_cast<py_transfer_t *>(data);
+            // std::cout << "check_it: " << pt->termination_condtion << std::endl;
+            if (pt->termination_condtion) {
+               PyObject *return_val = nullptr;
+#if 0 // check version of python here - less than 3.13 is my guess
+               return_val = PyEval_CallObject(pt->on_completion_function, pt->on_completion_args);
+#endif
+               std::cout << "DEBUG:: return_val " << return_val << std::endl;
+               PyObject *error_thing = PyErr_Occurred();
+               if (! error_thing) {
+                  std::cout << "INFO:: check_it() No Python error on callable check" << std::endl;
+               } else {
+                  std::cout << "ERROR:: while executing check_it() a python error occured " << std::endl;
+                  PyObject *type, *value, *traceback;
+                  PyErr_Fetch(&type, &value, &traceback);
+                  PyErr_NormalizeException(&type, &value, &traceback);
+                  PyObject *exception_string = PyObject_Repr(value);
+                  const char *em = myPyString_AsString(exception_string);
+                  std::cout << "ERROR:: " << em << std::endl;
+                  Py_XDECREF(value);
+                  Py_XDECREF(traceback);
+                  Py_XDECREF(type);
+               }
+
+               if (return_val) {
+                  PyObject *dp = display_python(return_val);
+                  std::cout << "DEBUG:: return val as string: " << PyBytes_AS_STRING(PyUnicode_AsUTF8String(dp)) << std::endl;
+               }
+               graphics_info_t g;
+               g.graphics_draw();
+               return gboolean(FALSE);
+            } else {
+               return gboolean(TRUE);
+            }
+         };
+
+         py_transfer_t *pt = reinterpret_cast<py_transfer_t *>(data);
+         std::vector<std::string> command_list = pt->cmd_list;
+         std::thread thread(my_subproc, command_list, pt);
+         thread.detach();
+         GSourceFunc f = GSourceFunc(check_it);
+         g_timeout_add(400, f, pt);
+
+      };
+
+      int tuple_state = PyTuple_Check(on_completion_args);
+      int unicode_state = PyUnicode_Check(on_completion_args);
+      std::cout << "debug:: on_completion_args tuple-state: " << tuple_state << std::endl;
+      std::cout << "debug:: on_completion_args unicode-state: " << unicode_state << std::endl;
+
+      if (on_completion_args) {
+         PyObject *dp = display_python(on_completion_args);
+         if (dp)
+            std::cout << "DEBUG:: on_completion_args: " << PyUnicode_AsUTF8String(dp) << std::endl;
+         else
+            std::cout << "DEBUG:: on_completion_args display_python null " << std::endl;
+         PyObject *error_thing = PyErr_Occurred();
+         if (! error_thing) {
+            std::cout << "INFO:: check_it() No Python error on printing on_completion_args" << std::endl;
+         } else {
+            std::cout << "ERROR:: while pringing on_completion_args a python error occured " << std::endl;
+            PyObject *type, *value, *traceback;
+            PyErr_Fetch(&type, &value, &traceback);
+            PyErr_NormalizeException(&type, &value, &traceback);
+            PyObject *exception_string = PyObject_Repr(value);
+            const char *em = myPyString_AsString(exception_string);
+            std::cout << "ERROR:: " << em << std::endl;
+            Py_XDECREF(value);
+            Py_XDECREF(traceback);
+            Py_XDECREF(type);
+         }
+      }
+
+      std::string oca_type = type_check(on_completion_args);
+      std::cout << "oca_type " << oca_type << std::endl;
+
+      py_transfer_t *py_transfer_p = new py_transfer_t;
+      py_transfer_p->on_completion_function = on_completion_function;
+      py_transfer_p->on_completion_args     = on_completion_args;
+      py_transfer_p->cmd_list = args;
+      py_transfer_p->cmd_list.insert(py_transfer_p->cmd_list.begin(), subprocess_command);
+      py_transfer_p->termination_condtion = false;
+
+      GtkWidget *button = gtk_button_new_with_label(button_label.c_str());
+      g_signal_connect(G_OBJECT(button), "clicked", G_CALLBACK(on_button_clicked), py_transfer_p);
+      GtkWidget *toolbar = widget_from_builder("main_toolbar");
+      GtkWidget *toolbar_hbox = widget_from_builder("main_window_toolbar_hbox");
+      gtk_box_append(GTK_BOX(toolbar_hbox), button);
+
    }
 
 }

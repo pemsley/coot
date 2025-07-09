@@ -38,9 +38,11 @@ libMoleculesToTrianglesCXXClasses_la_CPPFLAGS=$(AM_CPPFLAGS) \
 # -lclipper-ccp4 -lclipper-core  -lrfftw -lfftw -lccp4c -lmmdb2 \
 # $(GL_LIBS) $(GLU_LIBS)
 
-libMoleculesToTrianglesCXXClasses_la_LIBADD=$(MoleculesToTrianglesCXXSurface_LIBS) \
-				            $(top_builddir)/MoleculesToTriangles/CXXSurface/libMoleculesToTrianglesCXXSurface.la                        \
-   $(CLIPPER_LIBS) $(MMDB_LIBS) $(GL_LIBS)
+libMoleculesToTrianglesCXXClasses_la_LIBADD = \
+	$(MoleculesToTrianglesCXXSurface_LIBS) \
+	$(top_builddir)/MoleculesToTriangles/CXXSurface/libMoleculesToTrianglesCXXSurface.la \
+	$(top_builddir)/coot-utils/libcoot-coord-utils.la  \
+	$(CLIPPER_LIBS) $(MMDB_LIBS) $(GL_LIBS)
 
 # otherincludedir = $(includedir)/MoleculesToTriangles/CXXClasses
 # otherincludedir = $(top_srcdir)/MoleculesToTriangles/CXXClasses

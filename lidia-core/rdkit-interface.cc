@@ -45,6 +45,8 @@
 RDKit::RWMol
 coot::rdkit_mol(mmdb::Residue *residue_p, int imol_enc, const coot::protein_geometry &geom) {
 
+   // std::cout << "--------------- starting rdkit_mol() ----- " << std::endl;
+
    if (! residue_p) {
       throw std::runtime_error("Null residue in coot::rdkit_mol()");
    } else {
@@ -73,13 +75,33 @@ coot::rdkit_mol(mmdb::Residue *residue_p, int imol_enc, const coot::protein_geom
    }
 }
 
-// alt_conf is an optional argument, default "".
+// alt_conf is an optional argument, default "". If non-empty, it means "only select
+// conformers with alt-confs that match `alt_conf`.
 // undelocalize is an optional argument, default false
 RDKit::RWMol
 coot::rdkit_mol(mmdb::Residue *residue_p,
 		const coot::dictionary_residue_restraints_t &restraints,
 		const std::string &alt_conf,
 		bool do_undelocalize) {
+
+   auto get_alt_confs_in_residue = [] (mmdb::Residue *residue_p) {
+      std::vector<std::string> v;
+      mmdb::Atom **residue_atoms = 0;
+      int n_residue_atoms = 0;
+      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (int iat=0; iat<n_residue_atoms; iat++) {
+	 mmdb::Atom *at = residue_atoms[iat];
+	 if (! at->isTer()) {
+	    std::string alt_conf = at->altLoc;
+	    if (std::find(v.begin(), v.end(), alt_conf) == v.end()) {
+	       v.push_back(alt_conf);
+	    }
+	 }
+      }
+      return v;
+   };
+
+   // std::cout << "--------------- starting second rdkit_mol() ----- " << std::endl;
 
    bool debug = false;
 
@@ -137,7 +159,7 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 	    std::cout << "rdkit_mol() handling atom " << iat_1 << " of " << n_residue_atoms
 		      << " with mmdb::Residue atom name " << atom_name_1
 		      << " alt-conf \"" << atom_alt_conf << "\""<< std::endl;
-	 if (atom_alt_conf == alt_conf) {
+	 if (true) {
 	    bool found_a_bonded_atom = false;
 	    for (unsigned int ib=0; ib<restraints.bond_restraint.size(); ib++) {
 	       if (restraints.bond_restraint[ib].atom_id_1_4c() == atom_name_1) {
@@ -179,7 +201,18 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 	    if (found_a_bonded_atom) {
 	       if (ai_idx > -1) {
 		  std::pair<int, int> p(iat_1, ai_idx);
-		  bonded_atoms.push_back(p);
+		  bool already_there = false;
+		  for (unsigned int iba=0; iba<bonded_atoms.size(); iba++) {
+		     if (bonded_atoms[iba].second == ai_idx) {
+			already_there = true;
+			break;
+		     }
+		  }
+		  if (! already_there) {
+		     bonded_atoms.push_back(p);
+		  } else {
+		     std::cout << "WARNING:: rdkit_mol() atom index already there " << ai_idx << std::endl;
+		  }
 	       }
 	    }
 	 }
@@ -832,46 +865,55 @@ coot::rdkit_mol(mmdb::Residue *residue_p,
 	    }
 	 }
 
-	 if (false)
-	    std::cout << "DEBUG:: in constructing rdkit molecule, now adding a conf " 
+	 if (debug)
+	    std::cout << "DEBUG:: ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^ "
+		      << "in constructing rdkit molecule, now adding a conf " 
 		      << "number of atoms comparison added_atom names size: " 
 		      << added_atom_names.size() << " vs m.getNumAtoms() " 
 		      << m.getNumAtoms() << std::endl;
 
-	 RDKit::Conformer *conf = new RDKit::Conformer(m.getNumAtoms());
-	 conf->set3D(true);
-      
-	 // Add positions to the conformer (only the first instance of an
-	 // atom with a particular atom name).
-	 // 
-	 for (int iat=0; iat<n_residue_atoms; iat++) {
-	    std::string atom_name(residue_atoms[iat]->name);
-	    std::string atom_alt_conf(residue_atoms[iat]->altLoc);
-	    if (atom_alt_conf == alt_conf) { 
-	       std::map<std::string, int>::const_iterator it = atom_index.find(atom_name);
-	       if (it != atom_index.end()) {
-		  RDGeom::Point3D pos(residue_atoms[iat]->x,
-				      residue_atoms[iat]->y,
-				      residue_atoms[iat]->z);
-		  conf->setAtomPos(it->second, pos);
-		  if (debug) 
-		     std::cout << "in construction of rdkit mol: making a conformer atom "
-			       << iat << " " << it->second << " " << atom_name << " at pos "
-			       << pos << std::endl;
+	 std::vector<std::string> alt_confs_in_residue = get_alt_confs_in_residue(residue_p);
+
+	 for (unsigned int iconf=0; iconf<alt_confs_in_residue.size(); iconf++) {
+
+	    std::string alt_conf = alt_confs_in_residue[iconf];
+
+	    RDKit::Conformer *conf = new RDKit::Conformer(m.getNumAtoms());
+	    conf->set3D(true);
+
+	    // Add positions to the conformer (only the first instance of an
+	    // atom with a particular atom name).
+	    //
+	    for (int iat=0; iat<n_residue_atoms; iat++) {
+	       std::string atom_name(residue_atoms[iat]->name);
+	       std::string atom_alt_conf(residue_atoms[iat]->altLoc);
+	       if (true) { // was alt-conf test
+		  std::map<std::string, int>::const_iterator it = atom_index.find(atom_name);
+		  if (it != atom_index.end()) {
+		     RDGeom::Point3D pos(residue_atoms[iat]->x,
+					 residue_atoms[iat]->y,
+					 residue_atoms[iat]->z);
+		     conf->setAtomPos(it->second, pos);
+		     if (debug)
+			std::cout << "in construction of rdkit mol: making a conformer atom "
+				  << iat << " " << it->second << " " << atom_name << " at pos "
+				  << pos << std::endl;
+		  }
 	       }
 	    }
-	 }
 
-	 int conf_id = m.addConformer(conf);
+	    int conf_id = m.addConformer(conf);
 
-	 // RDKit::MolOps::assignStereochemistry(m, false, true, true); // this does not assign 
-	                                                                // stereochemistry on m
+	    // RDKit::MolOps::assignStereochemistry(m, false, true, true); // this does not assign 
+	    // stereochemistry on m
    
 
-	 // 20161013 do we need to this these days?  It adds chirality to the SD in 2ZC
-	 // Needs more consideration.
-	 //
-	 RDKit::MolOps::assignChiralTypesFrom3D(m, conf_id, true);
+	    // 20161013 do we need to this these days?  It adds chirality to the SD in 2ZC
+	    // Needs more consideration.
+	    //
+	    RDKit::MolOps::assignChiralTypesFrom3D(m, conf_id, true);
+
+	 }
    
 	 if (debug) 
 	    std::cout << "ending construction of rdkit mol: n_atoms " << m.getNumAtoms()
@@ -1219,7 +1261,8 @@ coot::rdkit_mol(const coot::dictionary_residue_restraints_t &r) {
    conf->set3D(true);
    for (unsigned int iat=0; iat<r.atom_info.size(); iat++) {
       if (false)
-         std::cout << "atom info loop iat " << iat << " " << r.atom_info[iat].pdbx_model_Cartn_ideal.first
+         std::cout << "rdkit_mol(): atom info loop iat " << iat << " "
+		   << r.atom_info[iat].pdbx_model_Cartn_ideal.first
                    << " " << r.atom_info[iat].model_Cartn.first << std::endl;
       try {
 	 if (r.atom_info[iat].pdbx_model_Cartn_ideal.first) {
@@ -1307,11 +1350,11 @@ coot::rdkit_mol(const coot::dictionary_residue_restraints_t &r) {
       }
    }
 
-   // std::cout << "debug:: ##### in rdkit_mol(): numbonds " << m.getNumBonds() << std::endl;
+   std::cout << "debug:: ##### in rdkit_mol(): numbonds " << m.getNumBonds() << std::endl;
 
    set_3d_conformer_state(&m);
 
-   bool debug = false;
+   bool debug = true;
    if (debug)
       std::cout << "---------------------- calling assign_formal_charges() -----------"
 		<< std::endl;
@@ -1357,7 +1400,7 @@ coot::rdkit_mol(const coot::dictionary_residue_restraints_t &r) {
 RDKit::RWMol
 coot::rdkit_mol_sanitized(mmdb::Residue *residue_p, int imol_enc, const protein_geometry &geom) {
 
-   RDKit::RWMol mol = coot::rdkit_mol(residue_p, imol_enc, geom);
+   RDKit::RWMol mol = rdkit_mol(residue_p, imol_enc, geom);
    rdkit_mol_sanitize(mol);
    return mol;
 }

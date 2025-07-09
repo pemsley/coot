@@ -62,6 +62,9 @@
 #include <mmdb2/mmdb_math_align.h>
 #include <mmdb2/mmdb_tables.h>
 
+#include "utils/logging.hh"
+extern logging logger;
+
 int
 molecule_class_info_t::mutate(int resno, const std::string &insertion_code,
 			      const std::string &chain_id,
@@ -1122,14 +1125,14 @@ molecule_class_info_t::mutate_by_overlap(const std::string &chain_id, int res_no
                make_bonds_type_checked();
 
                if (status == 0)
-                  graphics_info_t::log.log(logging::WARNING, "mutate_by_overlap() failed");
+                  logger.log(log_t::WARNING, "mutate_by_overlap() failed");
             } else {
                std::string m = "mutate_by_overlap() restraints_new_type_residue_p was null";
-               graphics_info_t::log.log(logging::WARNING, m);
+               logger.log(log_t::WARNING, m);
             }
          } else {
             std::string m = "failed to get restraints for " + new_type;
-            graphics_info_t::log.log(logging::WARNING, logging::function_name_t(__FUNCTION__), m);
+            logger.log(log_t::WARNING, logging::function_name_t(__FUNCTION__), m);
          }
       }
    }

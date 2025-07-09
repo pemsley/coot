@@ -199,6 +199,13 @@ AM_WITH_SSM
 
 AM_SINGLE_FFTW2
 
+echo PKG_CONFIG_PATH is $PKG_CONFIG_PATH
+echo debug clipper:
+echo pkg-config --modversion clipper
+pkg-config --modversion clipper
+echo pkg-config --libs clipper
+pkg-config --libs clipper
+
 dnl Check for Clipper.  we exit if clipper is not found.
 #
 AM_PATH_CLIPPER(, [echo Error locating Clipper - a CNS-enabled version of Clipper \(2.1-090520-ac or later\) is required now; exit 1],AC_MSG_ERROR([Cannot find Clipper]))
@@ -435,24 +442,19 @@ AC_ARG_WITH([gemmi], AS_HELP_STRING([--with-gemmi location of the GEMMI package]
 # is this the wrong logic actually, should the checking message only be seen if with_gemmi is not false?
 AC_MSG_CHECKING([for GEMMI])
 if test "x$with_gemmi" = xfalse ; then
-   :
-   AC_MSG_RESULT(no)
+    AC_MSG_RESULT(no)
 else
-   AC_MSG_RESULT(yes)
-   AC_SUBST(GEMMI_CXXFLAGS, "-I$withval/include -DUSE_GEMMI=1")
-   AC_SUBST(GEMMI_LIBS, "-L$withval/lib -lgemmi_cpp")
+    AC_LANG_PUSH(C++)
+    GEMMI_CXXFLAGS="-I$with_gemmi/include -DUSE_GEMMI=1"
+    save_CPPFLAGS="$CPPFLAGS"
+    CPPFLAGS="$CPPFLAGS $GEMMI_CXXFLAGS"
+    AC_CHECK_HEADER([gemmi/to_json.hpp], AC_MSG_NOTICE(GEMMI headers were found), AC_MSG_FAILURE(GEMMI headers were not found),)
+    CPPFLAGS="$save_CPPFLAGS"
+    AC_LANG_POP
+    AC_MSG_RESULT(yes)
+    AC_SUBST(GEMMI_CXXFLAGS)
+    AC_SUBST(GEMMI_LIBS, "-L$withval/lib -lgemmi_cpp")
 fi
-
-dnl put this test in the above block. We need to know (and stop) if GEMMI was requested but not found.
-dnl #GEMMI
-dnl AC_LANG_PUSH(C++)
-dnl AC_CHECK_HEADER([gemmi/to_json.hpp], AC_MSG_NOTICE(GEMMI headers were found), AC_MSG_NOTICE(GEMMI headers were not found),)
-dnl if test "$ac_cv_header_gemmi_to_json_hpp" = yes ; then
-dnl    GEMMI_CXXFLAGS=-DUSE_GEMMI
-dnl fi
-dnl AC_SUBST(GEMMI_CXXFLAGS)
-dnl AC_LANG_POP
-
 
 # 20090613 We need to be able to determine the build type, and embed
 # that value in to coot binary.  We need to do that for the updating
@@ -480,6 +482,18 @@ else
    # Use Core Audio on macOS. Consider PortAudio instead of using alsa directly.
    AC_SUBST(SOUND_FLAGS, -DWITH_SOUND)
 fi
+
+
+PKG_CHECK_MODULES([RSVG], [librsvg-2.0 >= 2.40], [
+                            AC_DEFINE(HAVE_RSVG, 1, [Define if librsvg is available])
+], [
+])
+
+# Add the compiler and linker flags from pkg-config
+AC_SUBST(RSVG_CFLAGS)
+AC_SUBST(RSVG_LIBS)
+
+
 
 AM_WITH_MYSQL_DATABASE
 
@@ -512,7 +526,6 @@ dnl Set PACKAGE_LOCALE_DIR in config.h.
 AC_CONFIG_FILES([
 Makefile
 macros/Makefile
-pdb-templates/Makefile
 scheme/Makefile
 python/Makefile
 compat/Makefile
@@ -541,10 +554,13 @@ doc/Makefile
 validation-graphs/Makefile
 python/coot_load_modules.py
 data/Makefile
-data/rama-coeffs/Makefile
-data/metal/Makefile
 data/cho-models/Makefile
 data/cho-acedrg/Makefile
+data/cho-links/Makefile
+data/pdb-templates/Makefile
+data/rama-coeffs/Makefile
+data/metal/Makefile
+monomers/Makefile
 glTF/Makefile
 pixmaps/Makefile
 pixmaps/icons/Makefile
@@ -552,6 +568,7 @@ textures/Makefile
 sounds/Makefile
 rama-data/Makefile
 man/Makefile
+reference-structures/Makefile
 api/Makefile
 pli/Makefile
 fonts/Makefile

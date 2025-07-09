@@ -25,17 +25,16 @@
   <screenshots>
     <screenshot type="default">
       <image type="source">
-        https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/web/screenshots/other/coot-viagra-1.png</image>
+        https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/web/screenshots/coot1/coot1_1.PNG</image>
       <caption>Coot is typically used to view protein models and electron density</caption>
     </screenshot>
     <screenshot>
       <image type="source">
-        https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/web/screenshots/other/coot-ligand-builder.png</image>
-      <caption>Coot can be used to convert from 2D ligands to 3D and from 3D to 2D</caption>
+        https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/web/screenshots/coot1/coot1_2.png</image>
     </screenshot>
     <screenshot>
       <image type="source">
-        https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/web/screenshots/apoferritin/sapphires-and-emeralds.png</image>
+        https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/web/screenshots/coot1/coot1_12.png</image>
     </screenshot>
   </screenshots>
   <branding>
@@ -53,6 +52,143 @@
   <update_contact>pemsley_AT_mrc-lmb.cam.ac.uk</update_contact>
   <content_rating type="oars-1.1" />
   <releases>
+    <release version="1.1.17" date="2025-06-14">
+      <description>
+        <ul>
+          <li> o BUG-FIX: Save symmetry coordinates is fixed </li>
+          <li> o BUG-FIX: Colour-by-B-factor colours are fixed </li>
+          <li> o BUG-FIX: Place atom at pointer fixed </li>
+          <li> o BUG-FIX: Optional Gemmi usage restored </li>
+        </ul>
+      </description>
+    </release>
+    <release version="1.1.16" date="2025-06-04">
+      <description>
+        <ul>
+          <li> o FEATURE: Local B-factor display </li>
+          <li> o FEATURE: Built-in logging (started) - view it by clicking the "Log" button</li>
+          <li> o FEATURE: Full doxygen documentation transfered to chapi nanobind functions</li>
+          <li> o FEATURE: Anisotropic probability radius scaling (thank ClAuS Flensburg)</li>
+          <li> o CHANGE: For packagers: Now a commonly-used fragment of the monomer library
+            is bundled with Coot. Unknown monomers are now downloaded from GitHub
+            and cached using XDG Base Directory Specification</li>
+          <li> o CHANGE:  For packagers: Now the reference structures are bundled
+            with the source code (and installed) - no longer do they need
+            to be a separate dependency</li>
+          <li> o CHANGE:  If a map has a PANDDA:: or APPLY-SYMMETRY:: label then Coot now
+            properly handles that (turns off "is-EM-map" status)</li>
+          <li> o CHANGE:  Atoms with Zero Occupancy results now moved into the
+            main window</li>
+          <li> o CHANGE:  Boron atoms are now pinky-beige - like Jmol</li>
+          <li> o BUG-FIX: Fix crash on adding an atom [Clément Bousquet]</li>
+          <li> o BUG-FIX: Symmetry atoms are now clickable for distances and labels</li>
+          <li> o BUG-FIX: Fix the non-drawn clashes post model update</li>
+          <li> o BUG-FIX: "Add Other Solvent Molecules" dialog has been depythonized
+            and now will work on macOS</li>
+          <li> o BUG-FIX: "Copy Molecule" dialog has been depythonized and is now an
+            overlay and now will work on macOS</li>
+          <li> o BUG-FIX: Fix the problem of focus-grab when using Tutorial Model &amp; Data</li>
+          <li> o BUG-FIX: Fix the "Close" button in the Restraints Editor</li>
+        </ul>
+      </description>
+    </release>
+    <release version="1.1.15" date="2025-06-04">
+      <description>
+        <ul>
+          <li> o FEATURE: Drag and drop (partial - it works from the file browser,</li>
+            but not from CCP4i2)
+          <li> o FEATURE: set_use_vertex_gradients_for_map_normals() added to the Coot API</li>
+          <li> o CHANGE:  Fixed atoms are now draggable</li>
+          <li> o CHANGE:  max-closeness is no longer used to filter peaks in map_peaks_py()</li>
+          <li> o CHANGE:  Backtick for selection now also shows the residue range
+            (if set)</li>
+          <li> o BUG-FIX: Track-pad zooming fixed</li>
+          <li> o BUG-FIX: Residue Info dialog buttons now on the right hand side</li>
+          <li> o BUG-FIX: Fix and Unfix atom now work as expected</li>
+          <li> o BUG-FIX: Remove erroneous "No ligands Found" dialog when ligand fitting</li>
+          <li> o BUG-FIX: Select Map for Fitting dialog now behaves has expected
+            on reopen</li>
+          <li> o BUG-FIX: Merge Molecules dialog now behaves has expected on reopen</li>
+          <li> o BUG-FIX: Choose a better contour level for masked maps</li>
+        </ul>
+      </description>
+    </release>
+    <release version="1.1.14" date="2025-03-16">
+      <description>
+        <ul>
+          <li>FEATURE: Clark and Labute-like 2D-ligand environment view in Coot,
+             Moorhen and chapi.</li>
+          <li>FEATURE: Symmetry represented as solid model (no longer just lines)</li>
+          <li>FEATURE: new chapi functions: `is_nucleic_acid()` and `delete_all_carbohydrate()`</li>
+          <li>FEATURE: PAE Plots on downloading Alphafold models.</li>
+          <li>FEATURE: 3D symmetry.</li>
+          <li>CHANGE: Setting the primary mouse button for view rotation enables
+             secondary mouse button for zoom (like Old Coot).</li>
+          <li>CHANGE: chapi modules name now changed to coot_headless_api
+          so that the molecules_container object can be called
+          chapi.</li>
+          <li>CHANGE: Alphafold downloads are now XDG Base Directory compliant.</li>
+          <li>BUG-FIX: NCS Jumping has been fixed -  Bernhard Lohkamp.</li>
+          <li>BUG-FIX: unwritable XDG cache dir now longer causes a crash
+             [Jordan Dialpuri].</li>
+          <li>BUG-FIX: Shader for drawing ribbons.</li>
+          <li>BUG-FIX: About and Preferences dialogs can now be properly closed.</li>
+          <li>BUG-FIX: Texture handling for bad NBC markers updated [Fixes crash].</li>
+        </ul>
+      </description>
+    </release>
+    <release version="1.1.13" date="2025-02-24">
+      <description>
+        <ul>
+          <li>FEATURE: New chapi functions added: `get_svg_for_2d_ligand_environment_view()`, `get_HOLE()`, and `scale_map()`. Additionally, nucleic acids now work with `add_terminal_residue()` and sticks and dishy bases are not drawn for atoms not in selection.</li>
+          <li>FEATURE: Non-drawn maps are not recontoured on view translation; they now wait until the map is displayed. [Elegant-Land-8008]</li>
+          <li>FUNCTION-RESTORED: When "Spacing" along a chain, the CA label follows.</li>
+          <li>FUNCTION-RESTORED: SSM dialog now works.</li>
+          <li>FUNCTION-RESTORED: NCS Ghosts dialog now works.</li>
+          <li>BUG-FIX: Missing shader for instanced geometry for SSAO added back.</li>
+          <li>COMPILATION: Issue for `graphics_info_t::scale_up_graphics` has been resolved.</li>
+        </ul>
+      </description>
+    </release>
+    <release version="1.1.12" date="2025-02-11">
+      <description>
+        <ul>
+          <li>TERMINAL OUTPUT: Increased diagnostic output on startup to help troubleshoot graphics
+            and Python issues across diverse operating systems, drivers, and Python versions.</li>
+          <li>FEATURE: New chapi functions added: `add_terminal_residue_directly()`,
+            `copy_molecule()`, `flood()`, `get_validation_vs_dictionary_for_selection()`,
+            `servalcat_refine_xray()`, `get_torsion()`, `change_alt_locs()`,
+            `split_residue_using_map()`, `get_missing_residue_ranges()`, `get_mutation_info()`, and
+            `set_temperature_factor_using_cid()` (see Pythonic and C++ API documentation).</li>
+          <li>FEATURE: New Coot API functions added: `set_new_non_drawn_bonds()` and
+            `add_new_non_draw_bonds()`.</li>
+          <li>FEATURE: Graphics viewport scaling added.</li>
+          <li>FEATURE: Acedrg link interface added.</li>
+          <li>FEATURE: HOLE interface restored.</li>
+          <li>FEATURE: Transform map by LSQ model fit restored.</li>
+          <li>BUG-FIX: '--code &lt;accession-code&gt;' now functions correctly following the XDG
+            Directory Protocol update.</li>
+          <li>BUG-FIX: Resolved the no-recentre-view issue in the coordinate file open dialog.</li>
+          <li>BUG-FIX: Contact dots for ligands now correctly display ligand donor to water hydrogen
+            bonds.</li>
+          <li>BUG-FIX: Disabled refinement using a CCD dictionary (thanks to Lorenzo Masso).</li>
+          <li>BUG-FIX: Correct shader usage implemented for surfaces in "Plain" mode.</li>
+          <li>BUG-FIX: LSQ Fit dialog functionality restored.</li>
+          <li>BUG-FIX: Prevented CYS with hydrogen atoms from forming spurious disulfide bonds
+            (thanks to Jordan Dialpuri).</li>
+          <li>BUG-FIX: End-of-chain TER atom removal on adding a new terminal residue fixed.</li>
+          <li>BUG-FIX: Dark mode icons now display correctly in Layla.</li>
+          <li>BUG-FIX: Startup window width increased on macOS for better usability.</li>
+          <li>BUG-FIX: Global Phasing column labels (F_early-late) now auto-read.</li>
+          <li>BUG-FIX: Hydrogen atom deletion in Layla now works properly.</li>
+          <li>CHANGE: Framebuffer usage reduced/removed in --opengl-es mode.</li>
+          <li>CHANGE: Module menus now depthonized.</li>
+          <li>CHANGE: Overlay added for the Cryo-EM "Flip Hand" tool.</li>
+          <li>CHANGE: Pythonic startup process updated for improved performance.</li>
+          <li>KNOWN BUG: Ramachandran Plot display issues persist on some macOS systems.</li>
+        </ul>
+      </description>
+    </release>
     <release version="1.1.11" date="2024-12-12">
       <description>
         <ul>
@@ -69,7 +205,9 @@
     <release version="1.1.10" date="2024-07-21">
       <description>
         <ul>
-          <li>FEATURE: Noughties-physics - add a refinement/atom manipulation mode so that Coot behaves like it used to up to (and including) version 0.8.x: `coot.set_refine_use_noughties_physics()`.</li>
+          <li>FEATURE: Noughties-physics - add a refinement/atom manipulation mode so that Coot
+            behaves like it used to up to (and including) version 0.8.x:
+            `coot.set_refine_use_noughties_physics()`.</li>
           <li>FEATURE: Layla now displays QED Scores for molecules.</li>
           <li>FEATURE: `read_coordinates()` added to the Coot.</li>
           <li>FEATURE: Cryo-EM servalcat use added to the Coot API.</li>
@@ -77,10 +215,13 @@
           <li>CHANGE: HUD Ramachandran Plot is now pickable.</li>
           <li>CHANGE: Ligands with no dictionary are drawn with bonds in "Colour by Chain" mode.</li>
           <li>CHANGE: Python requests is no longer a dependency.</li>
-          <li>BUG-FIX: Scroll wheel indicator in the Display Manager now correctly updates on use of a key-binding to change the scrollable map.</li>
+          <li>BUG-FIX: Scroll wheel indicator in the Display Manager now correctly updates on use of
+            a key-binding to change the scrollable map.</li>
           <li>BUG-FIX: Ugly least-squares fit dialog has been modernized.</li>
-          <li>BUG-FIX: Fix the callback actions for the "Display Hydrogen Atoms" in the Bonds control dialog.</li>
-          <li>BUG-FIX: Rework the calculation of `pkg_data_dir()` - particularly in the case of relocatable binaries.</li>
+          <li>BUG-FIX: Fix the callback actions for the "Display Hydrogen Atoms" in the Bonds
+            control dialog.</li>
+          <li>BUG-FIX: Rework the calculation of `pkg_data_dir()` - particularly in the case of
+            relocatable binaries.</li>
         </ul>
       </description>
     </release>

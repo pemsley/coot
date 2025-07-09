@@ -31,6 +31,10 @@
 #include "graphics-info.h"
 #include "sound.hh"
 
+#include "utils/logging.hh"
+extern logging logger;
+
+
 void play_sound_left_click() {
 
    // play_sound_file("538554_3725923-lq-Sjonas88-success.ogg");
@@ -77,30 +81,92 @@ graphics_info_t::on_glarea_drag_begin_primary(GtkGestureDrag *gesture, double x,
 
 // drag_delta_x and drag_delta_y are the delta coordinates relative to where the drag began.
 void
-graphics_info_t::on_glarea_drag_update_primary(GtkGestureDrag *gesture, double drag_delta_x, double drag_delta_y, GtkWidget *gl_area) {
+graphics_info_t::on_glarea_drag_update_primary(GtkGestureDrag *gesture,
+                                               double drag_delta_x, double drag_delta_y,
+                                               GtkWidget *gl_area) {
+
+   auto do_view_rotation = [gl_area] (double delta_x, double delta_y) {
+      GtkAllocation allocation;
+      gtk_widget_get_allocation(gl_area, &allocation);
+      int w = allocation.width;
+      int h = allocation.height;
+      update_view_quaternion(w, h, delta_x, delta_y);
+   };
+
+   auto do_view_zoom = [] (double drag_delta_x, double drag_delta_y) {
+      mouse_zoom(drag_delta_x, drag_delta_y);
+   };
+
+   if (false)
+      std::cout << "debug:: use_primary_mouse_for_view_rotation_flag "
+                << use_primary_mouse_for_view_rotation_flag << std::endl;
 
    // Ctrl left-mouse means pan
    GdkModifierType modifier = gtk_event_controller_get_current_event_state(GTK_EVENT_CONTROLLER(gesture));
    bool control_is_pressed = (modifier & GDK_CONTROL_MASK);
+   bool   shift_is_pressed = (modifier & GDK_SHIFT_MASK);
    double x = drag_begin_x + drag_delta_x;
    double y = drag_begin_y + drag_delta_y;
    double delta_delta_x = x - get_mouse_previous_position_x();
    double delta_delta_y = y - get_mouse_previous_position_y();
-   set_mouse_previous_position(x, y);
 
+   bool handled = false;
    if (in_moving_atoms_drag_atom_mode_flag) {
       if (last_restraints_size() > 0) {
          // move an already picked atom
-         move_atom_pull_target_position(x, y, control_is_pressed);
+         bool this_atom_is_anchored = false;
+         mmdb::Atom *dragged_anchored_atom = nullptr;
+         // use molecule-class-info's fixed atom specs to see if this is a fixed atom.
+
+         if (moving_atoms_asc) {
+            mmdb::Atom *at = moving_atoms_asc->atom_selection[moving_atoms_currently_dragged_atom_index];
+            coot::atom_spec_t at_spec(at);
+            for (unsigned int ispec=0; ispec<molecules[imol_moving_atoms].fixed_atom_specs.size(); ispec++) {
+               if (at_spec == molecules[imol_moving_atoms].fixed_atom_specs[ispec]) {
+                  this_atom_is_anchored = true;
+                  dragged_anchored_atom =  at;
+                  break;
+               }
+            }
+         }
+
+         if (this_atom_is_anchored) {
+            std::cout << "debug:: update primary: this atom is anchored! "
+                      << coot::atom_spec_t(dragged_anchored_atom) << std::endl;
+            // move_dragged_anchored_atom(dragged_anchored_atom)
+         } else {
+            move_atom_pull_target_position(x, y, control_is_pressed);
+         }
+         handled = true;
+      } else {
       }
    } else {
       if (control_is_pressed) {
          do_drag_pan_gtk3(gl_area, drag_delta_x, drag_delta_y); // 20220613-PE no redraw here currently
+         handled = true;
          graphics_draw();
+      } else {
+         if (shift_is_pressed) {
+            do_view_zoom(drag_delta_x, drag_delta_y);
+         } else {
+            if (use_primary_mouse_for_view_rotation_flag) {
+               do_view_rotation(drag_delta_x, drag_delta_y);
+               graphics_draw();
+            } else {
+               // is this logic correct?
+               rotate_chi(delta_delta_x, delta_delta_y); // does its own graphics_draw()
+            }
+         }
       }
-      // is this logic correct?
-      rotate_chi(delta_delta_x, delta_delta_y);
    }
+
+   graphics_draw();
+   mouse_current_x = mouse_clicked_begin.first  + drag_delta_x;
+   mouse_current_y = mouse_clicked_begin.second + drag_delta_y;
+
+   // we do this in the update of the secondary. Let's do it here too.
+   SetMouseBegin(mouse_current_x, mouse_current_y); // not really "begin", but "previous position"
+   set_mouse_previous_position(x, y);
 }
 
 
@@ -140,11 +206,13 @@ graphics_info_t::on_glarea_drag_begin_secondary(G_GNUC_UNUSED GtkGestureDrag *ge
    set_mouse_previous_position(x,y);
 
    bool trackpad_drag = false;
+#if 0 // try to use "click" event for this
    if (using_trackpad) {
       trackpad_drag = true;
-      check_if_in_range_defines();
+      check_if_in_range_defines(); // this does a pick and looks for distances and angle defines.
    }
-   if (trackpad_drag) {
+#endif
+   if (use_primary_mouse_for_view_rotation_flag) {
       bool was_a_double_click = false; // maybe set this correctly?
       bool handled = check_if_moving_atom_pull(was_a_double_click);
    }
@@ -204,35 +272,18 @@ graphics_info_t::on_glarea_drag_update_secondary(GtkGestureDrag *gesture,
             do_view_zoom(drag_delta_x, drag_delta_y);
          } else {
 
-            bool trackpad_drag = false;
-            if (using_trackpad)
-               trackpad_drag = true;
+            bool old_style_mouse = false;
+            if (use_primary_mouse_for_view_rotation_flag)
+               old_style_mouse = true;
             bool handled = false;
-            if (trackpad_drag) {
-               if (in_moving_atoms_drag_atom_mode_flag) {
-                  if (last_restraints_size() > 0) {
-                     // move an already picked atom
-                     move_atom_pull_target_position(x, y, control_is_pressed);
-                     handled = true;
-                  }
-               } else {
-                  int x_as_int = static_cast<int>(x);
-                  int y_as_int = static_cast<int>(y);
-                  if (moving_atoms_asc) {
-                     if (moving_atoms_asc->n_selected_atoms > 0) {
-                        if (last_restraints_size() > 0) {
-                           // here we are refining atoms, but are trying to rotate
-                           // the view, and not dragging on an atom
-                        } else {
-                           rotate_chi(x_as_int, y_as_int);
-                           handled = true;
-                        }
-                     }
-                  }
-               }
+            if (old_style_mouse) {
+               do_view_zoom(drag_delta_x, drag_delta_y);
+               handled = true;
             }
+
             if (! handled) {
-               do_view_rotation(drag_delta_x, drag_delta_y);
+               do_view_rotation(view_rotation_per_pixel_scale_factor * drag_delta_x,
+                                view_rotation_per_pixel_scale_factor * drag_delta_y);
             }
          }
       }
@@ -312,6 +363,7 @@ graphics_info_t::on_glarea_drag_end_middle(GtkGestureDrag *gesture, double drag_
                               nearest_atom_index_info.imol);
             add_picked_atom_info_to_status_bar(nearest_atom_index_info.imol,
                                                nearest_atom_index_info.atom_index);
+            graphics_grab_focus();
          } else {
             // std::cout << "debug:: on_glarea_drag_end_middle() calling symmetry_atom_pick()" << std::endl;
             coot::Symm_Atom_Pick_Info_t sap = symmetry_atom_pick();
@@ -322,6 +374,7 @@ graphics_info_t::on_glarea_drag_end_middle(GtkGestureDrag *gesture, double drag_
                   setRotationCentre(translate_atom_with_pre_shift(molecules[sap.imol].atom_sel,
                                                                   sap.atom_index, symtransshiftinfo));
                   graphics_draw();
+                  graphics_grab_focus();
                }
             }
          }
@@ -334,8 +387,8 @@ graphics_info_t::on_glarea_drag_end_middle(GtkGestureDrag *gesture, double drag_
 void
 graphics_info_t::on_glarea_click(GtkGestureClick *controller,
                                  gint n_press,
-                                 G_GNUC_UNUSED gdouble x,
-                                 G_GNUC_UNUSED gdouble y,
+                                 gdouble x,
+                                 gdouble y,
                                  G_GNUC_UNUSED gpointer user_data) {
 
    auto check_if_refinement_dialog_arrow_tab_was_clicked = [] () {
@@ -351,6 +404,9 @@ graphics_info_t::on_glarea_click(GtkGestureClick *controller,
          std::cout << "debug:: check_if_refinement_dialog_arrow_tab_was_clicked() returns " << handled << std::endl;
       return gboolean(handled);
    };
+
+   // no longer useful
+   // std::cout << "(mouse) click!" << std::endl;
 
    SetMouseBegin(x,y);
 
@@ -396,7 +452,9 @@ graphics_info_t::on_glarea_click(GtkGestureClick *controller,
          }
 
          if (! handled) {
-            blob_under_pointer_to_screen_centre();
+            bool was_on_a_hud_button = check_if_hud_button_moused_over_or_act_on_hit(x, y, false, true);
+            if (! was_on_a_hud_button)
+               blob_under_pointer_to_screen_centre();
          }
       }
 
@@ -428,7 +486,7 @@ graphics_info_t::on_glarea_click(GtkGestureClick *controller,
 
             } else {
 
-               if (modifier == 17) { // shift
+               if (modifier & GDK_SHIFT_MASK) { // shift
 
                   bool intermediate_atoms_only_flag = false;
                   pick_info naii = atom_pick_gtk3(intermediate_atoms_only_flag);
@@ -439,6 +497,15 @@ graphics_info_t::on_glarea_click(GtkGestureClick *controller,
                      graphics_draw();
                      handled = true;
                   }
+		  if (! handled) {
+		     coot::Symm_Atom_Pick_Info_t sapi = symmetry_atom_pick();
+		     if (sapi.success == GL_TRUE) {
+			int imol = sapi.imol;
+			molecules[imol].add_atom_to_labelled_symm_atom_list(sapi.atom_index, sapi.symm_trans,
+									    sapi.pre_shift_to_origin);
+			graphics_draw();
+		     }
+		  }
 
                } else {
 
@@ -489,6 +556,8 @@ graphics_info_t::on_glarea_click(GtkGestureClick *controller,
          }
       }
    }
+
+   graphics_grab_focus(); // 20250615-PE is this a good idea?
 }
 
 void
@@ -674,11 +743,11 @@ graphics_info_t::on_glarea_key_controller_key_pressed(GtkEventControllerKey *con
    control_is_pressed = (modifiers & GDK_CONTROL_MASK);
    shift_is_pressed   = (modifiers & GDK_SHIFT_MASK);
 
-   if (true)
-      std::cout << "on_glarea_key_controller_key_pressed() keyval: " << keyval << std::endl;
+   if (false)
+      std::cout << "DEBUG:: on_glarea_key_controller_key_pressed() keyval: " << keyval << std::endl;
 
-   if (true)
-      std::cout << "on_glarea_key_controller_key_pressed() control_is_pressed " << control_is_pressed
+   if (false)
+      std::cout << "DEBUG:: on_glarea_key_controller_key_pressed() control_is_pressed " << control_is_pressed
                 << " shift_is_pressed " << shift_is_pressed << std::endl;
 
    // key-bindings for testing
@@ -696,9 +765,13 @@ graphics_info_t::on_glarea_key_controller_key_pressed(GtkEventControllerKey *con
    std::map<keyboard_key_t, key_bindings_t>::const_iterator it = key_bindings_map.find(kbk);
    if (it != key_bindings_map.end()) {
      const key_bindings_t &kb = it->second;
-     if (true)
-        std::cout << "INFO:: key-binding for key: " << it->first.gdk_key << " : "
-                  << it->first.ctrl_is_pressed << " " << kb.description << std::endl;
+     if (true) {
+        // std::cout << "INFO:: key-binding for key: " << it->first.gdk_key << " : "
+        // << it->first.ctrl_is_pressed << " " << kb.description << std::endl;
+        keyboard_key_t key = it->first;
+        logger.log(log_t::INFO, {std::string("key-binding for key:"), key.gdk_key, it->first.ctrl_is_pressed,
+                                 kb.description});
+     }
      handled = kb.run();
      found = true;
    }
@@ -728,6 +801,16 @@ graphics_info_t::on_glarea_scrolled(GtkEventControllerScroll *controller,
                                     double                    dy,
                                     gpointer                  user_data) {
 
+   auto do_mouse_zoom = [] (double dy) {
+      int dir = 1;
+      if (dy > 0) dir = -1;
+      // mouse_zoom(zz, 0.0); // 20250519-PE don't call mouse zoom - it uses drag argument
+      // call scroll_zoom
+      scroll_zoom(dir);
+   };
+
+   // std::cout << "debug:: on_glarea_scrolled() --- start --- dy: " << dy << std::endl;
+
    GdkModifierType modifier = gtk_event_controller_get_current_event_state(GTK_EVENT_CONTROLLER(controller));
    control_is_pressed = (modifier & GDK_CONTROL_MASK);
    shift_is_pressed = (modifier & GDK_SHIFT_MASK);
@@ -746,20 +829,33 @@ graphics_info_t::on_glarea_scrolled(GtkEventControllerScroll *controller,
          graphics_draw();
          handled = true;
       } else {
-         // dy is either 1.0 or -1.0
-         // std::cout << "change the proportional editing " << dx << " " << dy << std::endl;
-         bool dir = false;
-         if (dy < 0.0) dir = true;
-         pull_restraint_neighbour_displacement_change_max_radius(dir);
-         graphics_draw();
-         handled = true;
+
+         // 20250519-PE this is how it used to be! Seems esoteric - I am not
+         // sure what it actually does
+         if (false) {
+            // dy is either 1.0 or -1.0
+            // std::cout << "change the proportional editing " << dx << " " << dy << std::endl;
+            bool dir = false;
+            if (dy < 0.0) dir = true;
+            pull_restraint_neighbour_displacement_change_max_radius(dir);
+            graphics_draw();
+            handled = true;
+         }
+
+         // ctrl-scroll zoom, same as shift-scroll zoom
+         if (true) {
+            do_mouse_zoom(dy);
+            handled = true;
+         }
       }
    }
 
    if (! handled) {
       if (shift_is_pressed) {
-         std::cout << "shift scroll_zoom is broken " << dy << std::endl;
-         // graphics_info_t::scroll_zoom(dy);
+
+            do_mouse_zoom(dy);
+            handled = true;
+
       } else {
          // scroll density
 
@@ -771,6 +867,7 @@ graphics_info_t::on_glarea_scrolled(GtkEventControllerScroll *controller,
          contour_level_scroll_scrollable_map(dy);
       }
    }
+   // std::cout << "debug:: on_glarea_scrolled() done " << std::endl;
 }
 
 

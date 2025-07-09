@@ -27,6 +27,7 @@
 #ifndef TEXTURE_MESH_HH
 #define TEXTURE_MESH_HH
 
+#include <chrono>
 #include <vector>
 #include <string>
 #include <epoxy/gl.h>
@@ -90,6 +91,11 @@ class TextureMesh {
    unsigned int draw_count; // so that I can animate the happy faces depending on the draw_count
    unsigned int inst_positions_id;
    static std::string _(int err);
+   std::chrono::time_point<std::chrono::system_clock>  time_constructed;
+   bool do_animation;
+   float animation_A; // amplitude
+   float animation_k; // wave number (scaled by position along the spine)
+   float animation_w; // frequency
 
 public:
    TextureMesh() : vao(VAO_NOT_SET), index_buffer_id(VAO_NOT_SET), draw_this_mesh(true) {
@@ -98,6 +104,10 @@ public:
       is_instanced = false;
       inst_positions_id = -1;
       draw_count = 0;
+      std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
+      time_constructed = now;
+      do_animation = false;
+      set_animation_paramaters(0.05, 1.0, 1.0);
    }
    explicit TextureMesh(const std::string &n):
       vao(VAO_NOT_SET), index_buffer_id(VAO_NOT_SET), name(n), draw_this_mesh(true) {
@@ -106,6 +116,10 @@ public:
       is_instanced = false;
       inst_positions_id = -1;
       draw_count = 0;
+      std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
+      time_constructed = now;
+      do_animation = false;
+      set_animation_paramaters(0.05, 1.0, 1.0);
    }
    bool draw_this_mesh;
    std::vector<TextureInfoType> textures;
@@ -177,6 +191,18 @@ public:
                               unsigned int draw_count, unsigned int draw_count_max);
 
    bool load_from_glTF(const std::string &file_name, bool include_call_to_setup_buffers=true);
+
+   // Holy Zarquon swimming fish
+   void set_animation_paramaters(float amplitide_overall, float wave_number, float freq);
+
+   //! return the time in milliseconds since this Model was constructed
+   float duration() const {
+      std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
+      float time = std::chrono::duration_cast<std::chrono::milliseconds>(now - time_constructed).count();
+      return time;
+   }
+
+   void set_do_animation(bool state) { do_animation = state; }
 };
 
 #endif // TEXTURE_MESH_HH

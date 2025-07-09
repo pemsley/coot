@@ -1,0 +1,476 @@
+#
+data_comp_list
+loop_
+_chem_comp.id
+_chem_comp.three_letter_code
+_chem_comp.name
+_chem_comp.group
+_chem_comp.number_atoms_all
+_chem_comp.number_atoms_nh
+_chem_comp.desc_level
+COA     COA      "COENZYME A"     NON-POLYMER     80     48     .     
+#
+data_comp_COA
+#
+loop_
+_chem_comp_atom.comp_id
+_chem_comp_atom.atom_id
+_chem_comp_atom.type_symbol
+_chem_comp_atom.type_energy
+_chem_comp_atom.charge
+_chem_comp_atom.x
+_chem_comp_atom.y
+_chem_comp_atom.z
+COA     N1A     N       NRD6    0       83.420      -84.477     -16.459     
+COA     C2A     C       CR16    0       83.493      -84.923     -17.722     
+COA     N3A     N       NRD6    0       84.370      -84.606     -18.675     
+COA     C4A     C       CR56    0       85.273      -83.712     -18.230     
+COA     C5A     C       CR56    0       85.326      -83.162     -16.963     
+COA     C6A     C       CR6     0       84.343      -83.574     -16.037     
+COA     N6A     N       NH2     0       84.275      -83.128     -14.785     
+COA     N7A     N       NRD5    0       86.392      -82.275     -16.869     
+COA     C8A     C       CR15    0       86.954      -82.302     -18.055     
+COA     N9A     N       NT      0       86.313      -83.149     -18.928     
+COA     C1B     C       CH1     0       86.715      -83.408     -20.325     
+COA     C2B     C       CH1     0       87.679      -84.584     -20.453     
+COA     O2B     O       OH1     0       89.018      -84.169     -20.289     
+COA     C3B     C       CH1     0       87.371      -85.083     -21.866     
+COA     O3B     O       O2      0       88.053      -84.319     -22.866     
+COA     P3B     P       P       0       88.541      -85.182     -24.148     
+COA     O7A     O       O       0       89.670      -86.074     -23.667     
+COA     O8A     O       OP      -1      89.010      -84.179     -25.186     
+COA     O9A     O       OP      -1      87.345      -85.982     -24.628     
+COA     C4B     C       CH1     0       85.864      -84.873     -21.952     
+COA     O4B     O       O2      0       85.586      -83.723     -21.109     
+COA     C5B     C       CH2     0       85.028      -86.041     -21.486     
+COA     O5B     O       O2      0       85.219      -87.171     -22.375     
+COA     P1A     P       P       0       84.547      -88.574     -21.978     
+COA     O1A     O       O       0       84.899      -89.598     -23.006     
+COA     O2A     O       OP      -1      83.103      -88.358     -21.664     
+COA     O3A     O       O2      0       85.321      -88.926     -20.617     
+COA     P2A     P       P       0       86.853      -89.283     -20.301     
+COA     O4A     O       O       0       86.965      -90.745     -20.021     
+COA     O5A     O       OP      -1      87.713      -88.698     -21.372     
+COA     O6A     O       O2      0       87.112      -88.450     -18.951     
+COA     CBP     C       CT      0       87.183      -88.100     -16.523     
+COA     CCP     C       CH2     0       86.658      -88.974     -17.666     
+COA     CDP     C       CH3     0       88.718      -88.144     -16.518     
+COA     CEP     C       CH3     0       86.739      -86.647     -16.747     
+COA     CAP     C       CH1     0       86.668      -88.610     -15.162     
+COA     OAP     O       OH1     0       87.304      -87.916     -14.092     
+COA     C9P     C       C       0       85.158      -88.550     -14.967     
+COA     O9P     O       O       0       84.477      -89.514     -15.314     
+COA     N8P     N       NH1     0       84.648      -87.454     -14.409     
+COA     C7P     C       CH2     0       83.234      -87.258     -14.099     
+COA     C6P     C       CH2     0       82.902      -87.545     -12.644     
+COA     C5P     C       C       0       83.302      -88.937     -12.193     
+COA     O5P     O       O       0       82.538      -89.886     -12.355     
+COA     N4P     N       NH1     0       84.510      -89.081     -11.626     
+COA     C3P     C       CH2     0       85.064      -90.357     -11.192     
+COA     C2P     C       CH2     0       84.410      -90.875     -9.933      
+COA     S1P     S       SH1     0       85.118      -92.446     -9.376      
+COA     H2A     H       H       0       82.831      -85.550     -17.971     
+COA     H61A    H       H       0       84.583      -82.330     -14.590     
+COA     H62A    H       H       0       83.925      -83.635     -14.160     
+COA     H8A     H       H       0       87.711      -81.787     -18.275     
+COA     H1B     H       H       0       87.151      -82.603     -20.685     
+COA     H2B     H       H       0       87.456      -85.289     -19.789     
+COA     HO2A    H       H       0       89.534      -84.823     -20.452     
+COA     H3B     H       H       0       87.595      -86.040     -21.934     
+COA     H4B     H       H       0       85.616      -84.662     -22.877     
+COA     H51A    H       H       0       84.074      -85.782     -21.474     
+COA     H52A    H       H       0       85.296      -86.290     -20.570     
+COA     H121    H       H       0       86.980      -89.890     -17.546     
+COA     H122    H       H       0       85.681      -88.991     -17.651     
+COA     H131    H       H       0       89.018      -88.991     -16.144     
+COA     H132    H       H       0       89.065      -87.413     -15.976     
+COA     H133    H       H       0       89.058      -88.055     -17.423     
+COA     H141    H       H       0       86.829      -86.142     -15.921     
+COA     H142    H       H       0       85.810      -86.629     -17.036     
+COA     H143    H       H       0       87.295      -86.238     -17.434     
+COA     H10     H       H       0       86.931      -89.561     -15.099     
+COA     HO1     H       H       0       87.278      -88.399     -13.395     
+COA     HN8     H       H       0       85.195      -86.803     -14.212     
+COA     H71     H       H       0       82.686      -87.834     -14.672     
+COA     H72     H       H       0       82.995      -86.329     -14.298     
+COA     H61     H       H       0       81.944      -87.440     -12.510     
+COA     H62     H       H       0       83.343      -86.888     -12.078     
+COA     HN4     H       H       0       84.997      -88.366     -11.513     
+COA     H31     H       H       0       86.025      -90.251     -11.030     
+COA     H32     H       H       0       84.948      -91.019     -11.907     
+COA     H21     H       H       0       83.460      -91.001     -10.096     
+COA     H22     H       H       0       84.515      -90.216     -9.227      
+COA     HS1     H       HSH1    0       84.244      -92.738     -8.603      
+loop_
+_chem_comp_bond.comp_id
+_chem_comp_bond.atom_id_1
+_chem_comp_bond.atom_id_2
+_chem_comp_bond.type
+_chem_comp_bond.aromatic
+_chem_comp_bond.value_dist_nucleus
+_chem_comp_bond.value_dist_nucleus_esd
+_chem_comp_bond.value_dist
+_chem_comp_bond.value_dist_esd
+COA         N1A         C2A      DOUBLE       y     1.339  0.0100     1.339  0.0100
+COA         N1A         C6A      SINGLE       y     1.354  0.0100     1.354  0.0100
+COA         C2A         N3A      SINGLE       y     1.330  0.0100     1.330  0.0100
+COA         N3A         C4A      DOUBLE       y     1.343  0.0100     1.343  0.0100
+COA         C4A         C5A      SINGLE       y     1.381  0.0100     1.381  0.0100
+COA         C4A         N9A      SINGLE       y     1.372  0.0100     1.372  0.0100
+COA         C5A         C6A      DOUBLE       y     1.408  0.0100     1.408  0.0100
+COA         C5A         N7A      SINGLE       y     1.388  0.0100     1.388  0.0100
+COA         C6A         N6A      SINGLE       n     1.330  0.0100     1.330  0.0100
+COA         N7A         C8A      DOUBLE       y     1.310  0.0100     1.310  0.0100
+COA         C8A         N9A      SINGLE       y     1.372  0.0200     1.372  0.0200
+COA         N9A         C1B      SINGLE       n     1.458  0.0200     1.458  0.0200
+COA         C1B         C2B      SINGLE       n     1.525  0.0100     1.525  0.0100
+COA         C1B         O4B      SINGLE       n     1.409  0.0100     1.409  0.0100
+COA         C2B         O2B      SINGLE       n     1.411  0.0100     1.411  0.0100
+COA         C2B         C3B      SINGLE       n     1.529  0.0125     1.529  0.0125
+COA         C3B         O3B      SINGLE       n     1.425  0.0152     1.425  0.0152
+COA         C3B         C4B      SINGLE       n     1.525  0.0133     1.525  0.0133
+COA         O3B         P3B      SINGLE       n     1.614  0.0178     1.614  0.0178
+COA         P3B         O7A      DOUBLE       n     1.517  0.0192     1.517  0.0192
+COA         P3B         O8A      SINGLE       n     1.517  0.0192     1.517  0.0192
+COA         P3B         O9A      SINGLE       n     1.517  0.0192     1.517  0.0192
+COA         C4B         O4B      SINGLE       n     1.451  0.0100     1.451  0.0100
+COA         C4B         C5B      SINGLE       n     1.509  0.0100     1.509  0.0100
+COA         C5B         O5B      SINGLE       n     1.450  0.0166     1.450  0.0166
+COA         O5B         P1A      SINGLE       n     1.604  0.0133     1.604  0.0133
+COA         P1A         O1A      DOUBLE       n     1.493  0.0122     1.493  0.0122
+COA         P1A         O2A      SINGLE       n     1.493  0.0122     1.493  0.0122
+COA         P1A         O3A      SINGLE       n     1.604  0.0133     1.604  0.0133
+COA         O3A         P2A      SINGLE       n     1.604  0.0133     1.604  0.0133
+COA         P2A         O4A      DOUBLE       n     1.493  0.0122     1.493  0.0122
+COA         P2A         O5A      SINGLE       n     1.493  0.0122     1.493  0.0122
+COA         P2A         O6A      SINGLE       n     1.604  0.0133     1.604  0.0133
+COA         O6A         CCP      SINGLE       n     1.454  0.0165     1.454  0.0165
+COA         CBP         CCP      SINGLE       n     1.526  0.0108     1.526  0.0108
+COA         CBP         CDP      SINGLE       n     1.531  0.0109     1.531  0.0109
+COA         CBP         CEP      SINGLE       n     1.531  0.0109     1.531  0.0109
+COA         CBP         CAP      SINGLE       n     1.532  0.0112     1.532  0.0112
+COA         CAP         OAP      SINGLE       n     1.419  0.0162     1.419  0.0162
+COA         CAP         C9P      SINGLE       n     1.519  0.0108     1.519  0.0108
+COA         C9P         O9P      DOUBLE       n     1.229  0.0102     1.229  0.0102
+COA         C9P         N8P      SINGLE       n     1.326  0.0100     1.326  0.0100
+COA         N8P         C7P      SINGLE       n     1.457  0.0100     1.457  0.0100
+COA         C7P         C6P      SINGLE       n     1.513  0.0195     1.513  0.0195
+COA         C6P         C5P      SINGLE       n     1.514  0.0100     1.514  0.0100
+COA         C5P         O5P      DOUBLE       n     1.229  0.0102     1.229  0.0102
+COA         C5P         N4P      SINGLE       n     1.337  0.0118     1.337  0.0118
+COA         N4P         C3P      SINGLE       n     1.455  0.0100     1.455  0.0100
+COA         C3P         C2P      SINGLE       n     1.509  0.0190     1.509  0.0190
+COA         C2P         S1P      SINGLE       n     1.811  0.0100     1.811  0.0100
+COA         C2A         H2A      SINGLE       n     1.082  0.0130     0.945  0.0200
+COA         N6A        H61A      SINGLE       n     1.016  0.0100     0.877  0.0200
+COA         N6A        H62A      SINGLE       n     1.016  0.0100     0.877  0.0200
+COA         C8A         H8A      SINGLE       n     1.082  0.0130     0.942  0.0170
+COA         C1B         H1B      SINGLE       n     1.089  0.0100     0.984  0.0200
+COA         C2B         H2B      SINGLE       n     1.089  0.0100     0.994  0.0200
+COA         O2B        HO2A      SINGLE       n     0.970  0.0120     0.849  0.0200
+COA         C3B         H3B      SINGLE       n     1.089  0.0100     0.985  0.0119
+COA         C4B         H4B      SINGLE       n     1.089  0.0100     0.981  0.0200
+COA         C5B        H51A      SINGLE       n     1.089  0.0100     0.989  0.0200
+COA         C5B        H52A      SINGLE       n     1.089  0.0100     0.989  0.0200
+COA         CCP        H121      SINGLE       n     1.089  0.0100     0.978  0.0102
+COA         CCP        H122      SINGLE       n     1.089  0.0100     0.978  0.0102
+COA         CDP        H131      SINGLE       n     1.089  0.0100     0.973  0.0146
+COA         CDP        H132      SINGLE       n     1.089  0.0100     0.973  0.0146
+COA         CDP        H133      SINGLE       n     1.089  0.0100     0.973  0.0146
+COA         CEP        H141      SINGLE       n     1.089  0.0100     0.973  0.0146
+COA         CEP        H142      SINGLE       n     1.089  0.0100     0.973  0.0146
+COA         CEP        H143      SINGLE       n     1.089  0.0100     0.973  0.0146
+COA         CAP         H10      SINGLE       n     1.089  0.0100     0.988  0.0129
+COA         OAP         HO1      SINGLE       n     0.970  0.0120     0.848  0.0200
+COA         N8P         HN8      SINGLE       n     1.016  0.0100     0.872  0.0200
+COA         C7P         H71      SINGLE       n     1.089  0.0100     0.980  0.0159
+COA         C7P         H72      SINGLE       n     1.089  0.0100     0.980  0.0159
+COA         C6P         H61      SINGLE       n     1.089  0.0100     0.973  0.0156
+COA         C6P         H62      SINGLE       n     1.089  0.0100     0.973  0.0156
+COA         N4P         HN4      SINGLE       n     1.016  0.0100     0.872  0.0200
+COA         C3P         H31      SINGLE       n     1.089  0.0100     0.981  0.0127
+COA         C3P         H32      SINGLE       n     1.089  0.0100     0.981  0.0127
+COA         C2P         H21      SINGLE       n     1.089  0.0100     0.972  0.0107
+COA         C2P         H22      SINGLE       n     1.089  0.0100     0.972  0.0107
+COA         S1P         HS1      SINGLE       n     1.338  0.0100     1.203  0.0200
+loop_
+_chem_comp_angle.comp_id
+_chem_comp_angle.atom_id_1
+_chem_comp_angle.atom_id_2
+_chem_comp_angle.atom_id_3
+_chem_comp_angle.value_angle
+_chem_comp_angle.value_angle_esd
+COA         C2A         N1A         C6A     118.521    1.50
+COA         N1A         C2A         N3A     129.332    1.50
+COA         N1A         C2A         H2A     115.313    1.50
+COA         N3A         C2A         H2A     115.355    1.50
+COA         C2A         N3A         C4A     110.982    1.50
+COA         N3A         C4A         C5A     126.489    1.50
+COA         N3A         C4A         N9A     125.845    1.50
+COA         C5A         C4A         N9A     107.666    1.69
+COA         C4A         C5A         C6A     117.267    1.50
+COA         C4A         C5A         N7A     110.588    1.50
+COA         C6A         C5A         N7A     132.145    1.50
+COA         N1A         C6A         C5A     117.409    1.50
+COA         N1A         C6A         N6A     118.799    1.50
+COA         C5A         C6A         N6A     123.792    1.50
+COA         C6A         N6A        H61A     119.723    1.50
+COA         C6A         N6A        H62A     119.723    1.50
+COA        H61A         N6A        H62A     120.554    1.88
+COA         C5A         N7A         C8A     103.927    1.50
+COA         N7A         C8A         N9A     112.130    1.94
+COA         N7A         C8A         H8A     123.170    1.50
+COA         N9A         C8A         H8A     124.701    2.19
+COA         C4A         N9A         C8A     107.594    1.50
+COA         C4A         N9A         C1B     125.158    1.54
+COA         C8A         N9A         C1B     126.078    2.46
+COA         N9A         C1B         C2B     113.752    2.20
+COA         N9A         C1B         O4B     108.167    1.51
+COA         N9A         C1B         H1B     109.246    1.50
+COA         C2B         C1B         O4B     106.047    1.50
+COA         C2B         C1B         H1B     109.015    1.50
+COA         O4B         C1B         H1B     109.807    1.50
+COA         C1B         C2B         O2B     111.715    2.69
+COA         C1B         C2B         C3B     101.388    1.50
+COA         C1B         C2B         H2B     110.636    1.70
+COA         O2B         C2B         C3B     112.463    2.73
+COA         O2B         C2B         H2B     110.448    1.97
+COA         C3B         C2B         H2B     110.255    2.04
+COA         C2B         O2B        HO2A     109.103    2.13
+COA         C2B         C3B         O3B     110.766    3.00
+COA         C2B         C3B         C4B     102.352    1.50
+COA         C2B         C3B         H3B     110.255    2.04
+COA         O3B         C3B         C4B     110.864    2.31
+COA         O3B         C3B         H3B     110.343    1.64
+COA         C4B         C3B         H3B     110.624    1.81
+COA         C3B         O3B         P3B     109.471    3.00
+COA         O3B         P3B         O7A     106.518    3.00
+COA         O3B         P3B         O8A     106.518    3.00
+COA         O3B         P3B         O9A     106.518    3.00
+COA         O7A         P3B         O8A     112.139    1.52
+COA         O7A         P3B         O9A     112.139    1.52
+COA         O8A         P3B         O9A     112.139    1.52
+COA         C3B         C4B         O4B     105.508    1.50
+COA         C3B         C4B         C5B     114.866    1.63
+COA         C3B         C4B         H4B     109.143    1.50
+COA         O4B         C4B         C5B     109.123    1.50
+COA         O4B         C4B         H4B     108.947    1.50
+COA         C5B         C4B         H4B     108.268    1.50
+COA         C1B         O4B         C4B     109.903    1.50
+COA         C4B         C5B         O5B     109.342    1.50
+COA         C4B         C5B        H51A     109.624    1.50
+COA         C4B         C5B        H52A     109.624    1.50
+COA         O5B         C5B        H51A     109.845    1.50
+COA         O5B         C5B        H52A     109.845    1.50
+COA        H51A         C5B        H52A     108.472    1.50
+COA         C5B         O5B         P1A     118.553    2.41
+COA         O5B         P1A         O1A     109.410    1.50
+COA         O5B         P1A         O2A     109.410    1.50
+COA         O5B         P1A         O3A     101.065    1.97
+COA         O1A         P1A         O2A     118.411    2.35
+COA         O1A         P1A         O3A     108.816    2.14
+COA         O2A         P1A         O3A     108.816    2.14
+COA         P1A         O3A         P2A     132.542    3.00
+COA         O3A         P2A         O4A     108.816    2.14
+COA         O3A         P2A         O5A     108.816    2.14
+COA         O3A         P2A         O6A     101.065    1.97
+COA         O4A         P2A         O5A     118.411    2.35
+COA         O4A         P2A         O6A     107.912    2.57
+COA         O5A         P2A         O6A     107.912    2.57
+COA         P2A         O6A         CCP     119.251    1.51
+COA         CCP         CBP         CDP     109.385    1.50
+COA         CCP         CBP         CEP     109.385    1.50
+COA         CCP         CBP         CAP     111.094    2.85
+COA         CDP         CBP         CEP     108.765    1.50
+COA         CDP         CBP         CAP     109.534    1.52
+COA         CEP         CBP         CAP     109.534    1.52
+COA         O6A         CCP         CBP     108.435    1.69
+COA         O6A         CCP        H121     109.739    1.50
+COA         O6A         CCP        H122     109.739    1.50
+COA         CBP         CCP        H121     109.473    1.50
+COA         CBP         CCP        H122     109.473    1.50
+COA        H121         CCP        H122     108.108    1.50
+COA         CBP         CDP        H131     109.575    1.50
+COA         CBP         CDP        H132     109.575    1.50
+COA         CBP         CDP        H133     109.575    1.50
+COA        H131         CDP        H132     109.377    1.50
+COA        H131         CDP        H133     109.377    1.50
+COA        H132         CDP        H133     109.377    1.50
+COA         CBP         CEP        H141     109.575    1.50
+COA         CBP         CEP        H142     109.575    1.50
+COA         CBP         CEP        H143     109.575    1.50
+COA        H141         CEP        H142     109.377    1.50
+COA        H141         CEP        H143     109.377    1.50
+COA        H142         CEP        H143     109.377    1.50
+COA         CBP         CAP         OAP     109.482    3.00
+COA         CBP         CAP         C9P     111.511    2.91
+COA         CBP         CAP         H10     107.825    1.50
+COA         OAP         CAP         C9P     109.850    1.55
+COA         OAP         CAP         H10     108.675    1.50
+COA         C9P         CAP         H10     108.529    1.70
+COA         CAP         OAP         HO1     108.894    3.00
+COA         CAP         C9P         O9P     119.859    1.78
+COA         CAP         C9P         N8P     117.147    1.50
+COA         O9P         C9P         N8P     122.977    1.50
+COA         C9P         N8P         C7P     122.964    1.80
+COA         C9P         N8P         HN8     118.685    1.94
+COA         C7P         N8P         HN8     118.351    1.90
+COA         N8P         C7P         C6P     112.257    1.50
+COA         N8P         C7P         H71     108.979    1.50
+COA         N8P         C7P         H72     108.979    1.50
+COA         C6P         C7P         H71     108.971    1.50
+COA         C6P         C7P         H72     108.971    1.50
+COA         H71         C7P         H72     107.877    1.50
+COA         C7P         C6P         C5P     112.120    2.79
+COA         C7P         C6P         H61     109.432    1.50
+COA         C7P         C6P         H62     109.432    1.50
+COA         C5P         C6P         H61     108.945    1.50
+COA         C5P         C6P         H62     108.945    1.50
+COA         H61         C6P         H62     107.745    2.07
+COA         C6P         C5P         O5P     120.987    1.50
+COA         C6P         C5P         N4P     117.070    1.96
+COA         O5P         C5P         N4P     121.943    1.50
+COA         C5P         N4P         C3P     123.437    1.80
+COA         C5P         N4P         HN4     117.862    2.10
+COA         C3P         N4P         HN4     118.700    1.83
+COA         N4P         C3P         C2P     112.117    1.54
+COA         N4P         C3P         H31     109.102    1.50
+COA         N4P         C3P         H32     109.102    1.50
+COA         C2P         C3P         H31     108.883    1.50
+COA         C2P         C3P         H32     108.883    1.50
+COA         H31         C3P         H32     107.995    1.50
+COA         C3P         C2P         S1P     112.239    3.00
+COA         C3P         C2P         H21     108.864    1.50
+COA         C3P         C2P         H22     108.864    1.50
+COA         S1P         C2P         H21     108.594    1.76
+COA         S1P         C2P         H22     108.594    1.76
+COA         H21         C2P         H22     108.165    1.50
+COA         C2P         S1P         HS1      97.089    1.52
+loop_
+_chem_comp_tor.comp_id
+_chem_comp_tor.id
+_chem_comp_tor.atom_id_1
+_chem_comp_tor.atom_id_2
+_chem_comp_tor.atom_id_3
+_chem_comp_tor.atom_id_4
+_chem_comp_tor.value_angle
+_chem_comp_tor.value_angle_esd
+_chem_comp_tor.period
+COA       const_sp2_sp2_1         N3A         C2A         N1A         C6A       0.000     5.0     2
+COA              const_24         N6A         C6A         N1A         C2A     180.000    10.0     2
+COA             sp3_sp3_5         N9A         C1B         C2B         O2B      60.000    10.0     3
+COA            sp3_sp3_32         N9A         C1B         O4B         C4B      60.000    10.0     3
+COA            sp3_sp3_34         C1B         C2B         O2B        HO2A     180.000    10.0     3
+COA            sp3_sp3_14         O2B         C2B         C3B         O3B     -60.000    10.0     3
+COA            sp3_sp3_37         C2B         C3B         O3B         P3B     180.000    10.0     3
+COA            sp3_sp3_23         O3B         C3B         C4B         C5B      60.000    10.0     3
+COA            sp3_sp3_42         C3B         O3B         P3B         O7A      60.000    10.0     3
+COA            sp3_sp3_29         C5B         C4B         O4B         C1B     180.000    10.0     3
+COA            sp3_sp3_43         C3B         C4B         C5B         O5B     180.000    10.0     3
+COA       const_sp2_sp2_3         N1A         C2A         N3A         C4A       0.000     5.0     2
+COA            sp3_sp3_52         C4B         C5B         O5B         P1A     180.000    10.0     3
+COA            sp3_sp3_57         C5B         O5B         P1A         O1A      60.000    10.0     3
+COA            sp3_sp3_59         P2A         O3A         P1A         O5B     -60.000    10.0     3
+COA            sp3_sp3_63         P1A         O3A         P2A         O4A      60.000    10.0     3
+COA            sp3_sp3_64         CCP         O6A         P2A         O3A     180.000    10.0     3
+COA       const_sp2_sp2_5         C5A         C4A         N3A         C2A       0.000     5.0     2
+COA            sp3_sp3_67         CBP         CCP         O6A         P2A     180.000    10.0     3
+COA            sp3_sp3_73         CDP         CBP         CCP         O6A      60.000    10.0     3
+COA            sp3_sp3_79         CCP         CBP         CDP        H131     180.000    10.0     3
+COA            sp3_sp3_91         CCP         CBP         CEP        H141      60.000    10.0     3
+COA            sp3_sp3_98         OAP         CAP         CBP         CCP     -60.000    10.0     3
+COA           sp3_sp3_106         CBP         CAP         OAP         HO1     180.000    10.0     3
+COA             sp2_sp3_7         O9P         C9P         CAP         CBP       0.000    10.0     6
+COA             sp2_sp2_5         CAP         C9P         N8P         C7P     180.000     5.0     2
+COA            sp2_sp3_14         C9P         N8P         C7P         C6P     120.000    10.0     6
+COA       const_sp2_sp2_7         N3A         C4A         C5A         C6A       0.000     5.0     2
+COA              const_27         N3A         C4A         N9A         C8A     180.000    10.0     2
+COA           sp3_sp3_109         C5P         C6P         C7P         N8P     180.000    10.0     3
+COA            sp2_sp3_20         O5P         C5P         C6P         C7P     120.000    10.0     6
+COA             sp2_sp2_9         C6P         C5P         N4P         C3P     180.000     5.0     2
+COA            sp2_sp3_26         C5P         N4P         C3P         C2P     120.000    10.0     6
+COA           sp3_sp3_118         S1P         C2P         C3P         N4P     180.000    10.0     3
+COA           sp3_sp3_127         C3P         C2P         S1P         HS1     180.000    10.0     3
+COA              const_12         C4A         C5A         C6A         N6A     180.000    10.0     2
+COA              const_15         C4A         C5A         N7A         C8A       0.000    10.0     2
+COA             sp2_sp2_3         N1A         C6A         N6A        H61A       0.000     5.0     2
+COA              const_17         N9A         C8A         N7A         C5A       0.000    10.0     2
+COA              const_19         N7A         C8A         N9A         C4A       0.000    10.0     2
+COA             sp2_sp3_1         C4A         N9A         C1B         C2B     150.000    10.0     6
+loop_
+_chem_comp_chir.comp_id
+_chem_comp_chir.id
+_chem_comp_chir.atom_id_centre
+_chem_comp_chir.atom_id_1
+_chem_comp_chir.atom_id_2
+_chem_comp_chir.atom_id_3
+_chem_comp_chir.volume_sign
+COA    chir_1    C1B    O4B    N9A    C2B    negative
+COA    chir_2    C2B    O2B    C1B    C3B    negative
+COA    chir_3    C3B    O3B    C4B    C2B    positive
+COA    chir_4    P3B    O3B    O8A    O9A    both
+COA    chir_5    C4B    O4B    C3B    C5B    negative
+COA    chir_6    P1A    O3A    O5B    O2A    both
+COA    chir_7    P2A    O3A    O6A    O5A    both
+COA    chir_8    CBP    CAP    CCP    CDP    both
+COA    chir_9    CAP    OAP    C9P    CBP    negative
+loop_
+_chem_comp_plane_atom.comp_id
+_chem_comp_plane_atom.plane_id
+_chem_comp_plane_atom.atom_id
+_chem_comp_plane_atom.dist_esd
+COA    plan-1         C1B   0.020
+COA    plan-1         C2A   0.020
+COA    plan-1         C4A   0.020
+COA    plan-1         C5A   0.020
+COA    plan-1         C6A   0.020
+COA    plan-1         C8A   0.020
+COA    plan-1         H2A   0.020
+COA    plan-1         H8A   0.020
+COA    plan-1         N1A   0.020
+COA    plan-1         N3A   0.020
+COA    plan-1         N6A   0.020
+COA    plan-1         N7A   0.020
+COA    plan-1         N9A   0.020
+COA    plan-2         C6A   0.020
+COA    plan-2        H61A   0.020
+COA    plan-2        H62A   0.020
+COA    plan-2         N6A   0.020
+COA    plan-3         C9P   0.020
+COA    plan-3         CAP   0.020
+COA    plan-3         N8P   0.020
+COA    plan-3         O9P   0.020
+COA    plan-4         C7P   0.020
+COA    plan-4         C9P   0.020
+COA    plan-4         HN8   0.020
+COA    plan-4         N8P   0.020
+COA    plan-5         C5P   0.020
+COA    plan-5         C6P   0.020
+COA    plan-5         N4P   0.020
+COA    plan-5         O5P   0.020
+COA    plan-6         C3P   0.020
+COA    plan-6         C5P   0.020
+COA    plan-6         HN4   0.020
+COA    plan-6         N4P   0.020
+loop_
+_pdbx_chem_comp_descriptor.comp_id
+_pdbx_chem_comp_descriptor.type
+_pdbx_chem_comp_descriptor.program
+_pdbx_chem_comp_descriptor.program_version
+_pdbx_chem_comp_descriptor.descriptor
+COA           SMILES              ACDLabs 10.04                                                                                                                                                                                                                 O=C(NCCS)CCNC(=O)C(O)C(C)(C)COP(=O)(O)OP(=O)(O)OCC3OC(n2cnc1c(ncnc12)N)C(O)C3OP(=O)(O)O
+COA SMILES_CANONICAL               CACTVS 3.341                                                                                                                                                                                  CC(C)(CO[P@@](O)(=O)O[P@](O)(=O)OC[C@H]1O[C@H]([C@H](O)[C@@H]1O[P](O)(O)=O)n2cnc3c(N)ncnc23)[C@@H](O)C(=O)NCCC(=O)NCCS
+COA           SMILES               CACTVS 3.341                                                                                                                                                                                            CC(C)(CO[P](O)(=O)O[P](O)(=O)OC[CH]1O[CH]([CH](O)[CH]1O[P](O)(O)=O)n2cnc3c(N)ncnc23)[CH](O)C(=O)NCCC(=O)NCCS
+COA SMILES_CANONICAL "OpenEye OEToolkits" 1.5.0                                                                                                                                                                                    CC(C)(CO[P@](=O)(O)O[P@@](=O)(O)OC[C@@H]1[C@H]([C@H]([C@@H](O1)n2cnc3c2ncnc3N)O)OP(=O)(O)O)[C@H](C(=O)NCCC(=O)NCCS)O
+COA           SMILES "OpenEye OEToolkits" 1.5.0                                                                                                                                                                                                                 CC(C)(COP(=O)(O)OP(=O)(O)OCC1C(C(C(O1)n2cnc3c2ncnc3N)O)OP(=O)(O)O)C(C(=O)NCCC(=O)NCCS)O
+COA            InChI                InChI  1.03 InChI=1S/C21H36N7O16P3S/c1-21(2,16(31)19(32)24-4-3-12(29)23-5-6-48)8-41-47(38,39)44-46(36,37)40-7-11-15(43-45(33,34)35)14(30)20(42-11)28-10-27-13-17(22)25-9-26-18(13)28/h9-11,14-16,20,30-31,48H,3-8H2,1-2H3,(H,23,29)(H,24,32)(H,36,37)(H,38,39)(H2,22,25,26)(H2,33,34,35)/t11-,14-,15-,16+,20-/m1/s1
+COA         InChIKey                InChI  1.03                                                                                                                                                                                                                                                                             RGJOEKWQDUBAIZ-IBOSZNHHSA-N
+loop_
+_pdbx_chem_comp_description_generator.comp_id
+_pdbx_chem_comp_description_generator.program_name
+_pdbx_chem_comp_description_generator.program_version
+_pdbx_chem_comp_description_generator.descriptor
+COA acedrg               243         "dictionary generator"                  
+COA acedrg_database      11          "data source"                           
+COA rdkit                2017.03.2   "Chemoinformatics tool"
+COA refmac5              5.8.0238    "optimization tool"                     

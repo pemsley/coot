@@ -1,0 +1,216 @@
+#
+data_comp_list
+loop_
+_chem_comp.id
+_chem_comp.three_letter_code
+_chem_comp.name
+_chem_comp.group
+_chem_comp.number_atoms_all
+_chem_comp.number_atoms_nh
+_chem_comp.desc_level
+BTB     BTB      2-[BIS-(2-HYDROXY-ETHYL)-AMINO]-2-HYDROXYMETHYL-PROPANE-1,3-DIOL     NON-POLYMER     33     14     .     
+#
+data_comp_BTB
+#
+loop_
+_chem_comp_atom.comp_id
+_chem_comp_atom.atom_id
+_chem_comp_atom.type_symbol
+_chem_comp_atom.type_energy
+_chem_comp_atom.charge
+_chem_comp_atom.x
+_chem_comp_atom.y
+_chem_comp_atom.z
+BTB     C1      C       CH2     0       -25.080     53.172      2.582       
+BTB     O1      O       OH1     0       -25.585     54.380      2.033       
+BTB     C2      C       CT      0       -25.930     52.660      3.757       
+BTB     C3      C       CH2     0       -25.939     53.712      4.879       
+BTB     O3      O       OH1     0       -26.669     53.263      6.011       
+BTB     C4      C       CH2     0       -27.386     52.499      3.280       
+BTB     O4      O       OH1     0       -28.150     51.692      4.164       
+BTB     N       N       NT      0       -25.367     51.304      4.269       
+BTB     C5      C       CH2     0       -24.045     51.346      5.004       
+BTB     C6      C       CH2     0       -24.191     51.253      6.506       
+BTB     O6      O       OH1     0       -25.140     50.267      6.877       
+BTB     C7      C       CH2     0       -25.418     50.142      3.306       
+BTB     C8      C       CH2     0       -25.589     48.815      4.009       
+BTB     O8      O       OH1     0       -26.738     48.822      4.839       
+BTB     H11     H       H       0       -24.162     53.321      2.887       
+BTB     H12     H       H       0       -25.055     52.492      1.878       
+BTB     HO1     H       H       0       -25.113     54.591      1.363       
+BTB     H31     H       H       0       -26.345     54.539      4.548       
+BTB     H32     H       H       0       -25.021     53.920      5.147       
+BTB     HO3     H       H       0       -26.676     53.880      6.591       
+BTB     H41     H       H       0       -27.396     52.097      2.388       
+BTB     H42     H       H       0       -27.807     53.381      3.211       
+BTB     HO4     H       H       0       -28.934     51.618      3.853       
+BTB     H51     H       H       0       -23.565     52.172      4.790       
+BTB     H52     H       H       0       -23.477     50.604      4.709       
+BTB     H61     H       H       0       -24.466     52.120      6.860       
+BTB     H62     H       H       0       -23.325     51.031      6.899       
+BTB     HO6     H       H       0       -25.081     50.126      7.709       
+BTB     H71     H       H       0       -24.591     50.115      2.781       
+BTB     H72     H       H       0       -26.157     50.249      2.676       
+BTB     H81     H       H       0       -24.797     48.628      4.550       
+BTB     H82     H       H       0       -25.675     48.105      3.343       
+BTB     HO8     H       H       0       -27.430     48.831      4.353       
+loop_
+_chem_comp_bond.comp_id
+_chem_comp_bond.atom_id_1
+_chem_comp_bond.atom_id_2
+_chem_comp_bond.type
+_chem_comp_bond.aromatic
+_chem_comp_bond.value_dist_nucleus
+_chem_comp_bond.value_dist_nucleus_esd
+_chem_comp_bond.value_dist
+_chem_comp_bond.value_dist_esd
+BTB          C1          O1      SINGLE       n     1.419  0.0107     1.419  0.0107
+BTB          C1          C2      SINGLE       n     1.535  0.0100     1.535  0.0100
+BTB          C2          C3      SINGLE       n     1.535  0.0100     1.535  0.0100
+BTB          C2          C4      SINGLE       n     1.535  0.0100     1.535  0.0100
+BTB          C2           N      SINGLE       n     1.509  0.0191     1.509  0.0191
+BTB          C3          O3      SINGLE       n     1.419  0.0107     1.419  0.0107
+BTB          C4          O4      SINGLE       n     1.419  0.0107     1.419  0.0107
+BTB           N          C5      SINGLE       n     1.495  0.0143     1.495  0.0143
+BTB           N          C7      SINGLE       n     1.495  0.0143     1.495  0.0143
+BTB          C5          C6      SINGLE       n     1.509  0.0138     1.509  0.0138
+BTB          C6          O6      SINGLE       n     1.417  0.0159     1.417  0.0159
+BTB          C7          C8      SINGLE       n     1.509  0.0138     1.509  0.0138
+BTB          C8          O8      SINGLE       n     1.417  0.0159     1.417  0.0159
+BTB          C1         H11      SINGLE       n     1.089  0.0100     0.979  0.0118
+BTB          C1         H12      SINGLE       n     1.089  0.0100     0.979  0.0118
+BTB          O1         HO1      SINGLE       n     0.970  0.0120     0.846  0.0200
+BTB          C3         H31      SINGLE       n     1.089  0.0100     0.979  0.0118
+BTB          C3         H32      SINGLE       n     1.089  0.0100     0.979  0.0118
+BTB          O3         HO3      SINGLE       n     0.970  0.0120     0.846  0.0200
+BTB          C4         H41      SINGLE       n     1.089  0.0100     0.979  0.0118
+BTB          C4         H42      SINGLE       n     1.089  0.0100     0.979  0.0118
+BTB          O4         HO4      SINGLE       n     0.970  0.0120     0.846  0.0200
+BTB          C5         H51      SINGLE       n     1.089  0.0100     0.980  0.0143
+BTB          C5         H52      SINGLE       n     1.089  0.0100     0.980  0.0143
+BTB          C6         H61      SINGLE       n     1.089  0.0100     0.977  0.0146
+BTB          C6         H62      SINGLE       n     1.089  0.0100     0.977  0.0146
+BTB          O6         HO6      SINGLE       n     0.970  0.0120     0.846  0.0200
+BTB          C7         H71      SINGLE       n     1.089  0.0100     0.980  0.0143
+BTB          C7         H72      SINGLE       n     1.089  0.0100     0.980  0.0143
+BTB          C8         H81      SINGLE       n     1.089  0.0100     0.977  0.0146
+BTB          C8         H82      SINGLE       n     1.089  0.0100     0.977  0.0146
+BTB          O8         HO8      SINGLE       n     0.970  0.0120     0.846  0.0200
+loop_
+_chem_comp_angle.comp_id
+_chem_comp_angle.atom_id_1
+_chem_comp_angle.atom_id_2
+_chem_comp_angle.atom_id_3
+_chem_comp_angle.value_angle
+_chem_comp_angle.value_angle_esd
+BTB          O1          C1          C2     111.597    2.10
+BTB          O1          C1         H11     109.336    1.50
+BTB          O1          C1         H12     109.336    1.50
+BTB          C2          C1         H11     109.368    1.50
+BTB          C2          C1         H12     109.368    1.50
+BTB         H11          C1         H12     108.117    1.50
+BTB          C1          O1         HO1     108.659    2.30
+BTB          C1          C2          C3     110.233    1.90
+BTB          C1          C2          C4     110.233    1.90
+BTB          C1          C2           N     110.392    2.79
+BTB          C3          C2          C4     110.233    1.90
+BTB          C3          C2           N     110.392    2.79
+BTB          C4          C2           N     110.392    2.79
+BTB          C2          C3          O3     111.597    2.10
+BTB          C2          C3         H31     109.368    1.50
+BTB          C2          C3         H32     109.368    1.50
+BTB          O3          C3         H31     109.336    1.50
+BTB          O3          C3         H32     109.336    1.50
+BTB         H31          C3         H32     108.117    1.50
+BTB          C3          O3         HO3     108.659    2.30
+BTB          C2          C4          O4     111.597    2.10
+BTB          C2          C4         H41     109.368    1.50
+BTB          C2          C4         H42     109.368    1.50
+BTB          O4          C4         H41     109.336    1.50
+BTB          O4          C4         H42     109.336    1.50
+BTB         H41          C4         H42     108.117    1.50
+BTB          C4          O4         HO4     108.659    2.30
+BTB          C2           N          C5     112.753    2.21
+BTB          C2           N          C7     112.753    2.21
+BTB          C5           N          C7     112.216    2.51
+BTB           N          C5          C6     112.810    2.41
+BTB           N          C5         H51     109.672    1.50
+BTB           N          C5         H52     109.672    1.50
+BTB          C6          C5         H51     109.060    1.50
+BTB          C6          C5         H52     109.060    1.50
+BTB         H51          C5         H52     107.851    1.50
+BTB          C5          C6          O6     111.016    1.85
+BTB          C5          C6         H61     109.434    1.50
+BTB          C5          C6         H62     109.434    1.50
+BTB          O6          C6         H61     109.500    1.50
+BTB          O6          C6         H62     109.500    1.50
+BTB         H61          C6         H62     108.121    1.50
+BTB          C6          O6         HO6     109.054    3.00
+BTB           N          C7          C8     112.810    2.41
+BTB           N          C7         H71     109.672    1.50
+BTB           N          C7         H72     109.672    1.50
+BTB          C8          C7         H71     109.060    1.50
+BTB          C8          C7         H72     109.060    1.50
+BTB         H71          C7         H72     107.851    1.50
+BTB          C7          C8          O8     111.016    1.85
+BTB          C7          C8         H81     109.434    1.50
+BTB          C7          C8         H82     109.434    1.50
+BTB          O8          C8         H81     109.500    1.50
+BTB          O8          C8         H82     109.500    1.50
+BTB         H81          C8         H82     108.121    1.50
+BTB          C8          O8         HO8     109.054    3.00
+loop_
+_chem_comp_tor.comp_id
+_chem_comp_tor.id
+_chem_comp_tor.atom_id_1
+_chem_comp_tor.atom_id_2
+_chem_comp_tor.atom_id_3
+_chem_comp_tor.atom_id_4
+_chem_comp_tor.value_angle
+_chem_comp_tor.value_angle_esd
+_chem_comp_tor.period
+BTB             sp3_sp3_1          C2          C1          O1         HO1     180.000    10.0     3
+BTB             sp3_sp3_5          O1          C1          C2          C3     -60.000    10.0     3
+BTB            sp3_sp3_67           N          C7          C8          O8     180.000    10.0     3
+BTB            sp3_sp3_76          C7          C8          O8         HO8     180.000    10.0     3
+BTB            sp3_sp3_13          C1          C2          C3          O3     180.000    10.0     3
+BTB            sp3_sp3_25          C1          C2          C4          O4      60.000    10.0     3
+BTB            sp3_sp3_34          C1          C2           N          C5     180.000    10.0     3
+BTB            sp3_sp3_37          C2          C3          O3         HO3     180.000    10.0     3
+BTB            sp3_sp3_40          C2          C4          O4         HO4     180.000    10.0     3
+BTB            sp3_sp3_50          C8          C7           N          C2     -60.000    10.0     3
+BTB            sp3_sp3_43          C6          C5           N          C2     180.000    10.0     3
+BTB            sp3_sp3_55           N          C5          C6          O6     180.000    10.0     3
+BTB            sp3_sp3_64          C5          C6          O6         HO6     180.000    10.0     3
+loop_
+_chem_comp_chir.comp_id
+_chem_comp_chir.id
+_chem_comp_chir.atom_id_centre
+_chem_comp_chir.atom_id_1
+_chem_comp_chir.atom_id_2
+_chem_comp_chir.atom_id_3
+_chem_comp_chir.volume_sign
+BTB    chir_1    C2    N    C1    C3    both
+BTB    chir_2    N    C2    C5    C7    both
+loop_
+_pdbx_chem_comp_descriptor.comp_id
+_pdbx_chem_comp_descriptor.type
+_pdbx_chem_comp_descriptor.program
+_pdbx_chem_comp_descriptor.program_version
+_pdbx_chem_comp_descriptor.descriptor
+BTB           SMILES              ACDLabs 10.04                                              OCCN(C(CO)(CO)CO)CCO
+BTB SMILES_CANONICAL               CACTVS 3.341                                              OCCN(CCO)C(CO)(CO)CO
+BTB           SMILES               CACTVS 3.341                                              OCCN(CCO)C(CO)(CO)CO
+BTB SMILES_CANONICAL "OpenEye OEToolkits" 1.5.0                                            C(CO)N(CCO)C(CO)(CO)CO
+BTB           SMILES "OpenEye OEToolkits" 1.5.0                                            C(CO)N(CCO)C(CO)(CO)CO
+BTB            InChI                InChI  1.03 InChI=1S/C8H19NO5/c10-3-1-9(2-4-11)8(5-12,6-13)7-14/h10-14H,1-7H2
+BTB         InChIKey                InChI  1.03                                       OWMVSZAMULFTJU-UHFFFAOYSA-N
+loop_
+_pdbx_chem_comp_description_generator.comp_id
+_pdbx_chem_comp_description_generator.program_name
+_pdbx_chem_comp_description_generator.program_version
+_pdbx_chem_comp_description_generator.descriptor
+BTB acedrg               243         "dictionary generator"                  
+BTB acedrg_database      11          "data source"                           
+BTB rdkit                2017.03.2   "Chemoinformatics tool"
+BTB refmac5              5.8.0238    "optimization tool"                     

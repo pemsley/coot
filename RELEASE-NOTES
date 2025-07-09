@@ -1,5 +1,170 @@
 
+  Release Notes for 1.1.17
+
+ o BUG-FIX: Save symmetry coordinates is fixed
+
+ o BUG-FIX: Colour-by-B-factor colours are fixed
+
+ o BUG-FIX: Place atom at pointer fixed
+
+ o BUG-FIX: Optional Gemmi usage restored
+
+-----
+
+  Release Notes for 1.1.16
+
+ o FEATURE: Local B-factor display
+
+ o FEATURE: Built-in logging (started) - view it by clicking the "Log" button
+
+ o FEATURE: Full doxygen documentation transferred to chapi nanobind functions
+
+ o FEATURE: Anisotropic probability radius scaling (thanks ClAuS Flensburg)
+
+ o CHANGE:  For packagers: Now a commonly-used fragment of the monomer library
+            is bundled with Coot. Unknown monomers are now downloaded from GitHub
+            and cached using XDG Base Directory Specification
+
+ o CHANGE:  For packagers: Now the reference structures are bundled
+            with the source code (and installed) - no longer do they need
+            to be a separate dependency
+
+ o CHANGE:  If a map has a PANDDA:: or APPLY-SYMMETRY:: label then Coot now
+            properly handles that (turns off "is-EM-map" status)
+
+ o CHANGE:  Atoms with Zero Occupancy results now moved into the
+            main window
+
+ o CHANGE:  Boron atoms are now pinky-beige - like Jmol
+
+ o BUG-FIX: Fix crash on adding an atom [Clément Bousquet]
+
+ o BUG-FIX: Symmetry atoms are now clickable for distances and labels
+
+ o BUG-FIX: Fix the non-drawn clashes post model update
+
+ o BUG-FIX: "Add Other Solvent Molecules" dialog has been depythonized
+            and now will work on macOS
+
+ o BUG-FIX: "Copy Molecule" dialog has been depythonized and is now an
+            overlay and now will work on macOS
+
+ o BUG-FIX: Fix the problem of focus-grab when using Tutorial Model & Data
+
+ o BUG-FIX: Fix the "Close" button in the Restraints Editor
+
+ o KNOWN-BUGS: (that I looked at at but don't know how to resolve):
+      - Ramachandran plot on macOS
+      - Menu items that use targets on macOS
+      (I suspect OpenGL driver bugs and GLib problems on macOS)
+
+-----
+
+  Release 1.1.15
+
+ o FEATURE: Drag and drop (partial - it works from the file browser,
+            but not from CCP4i2)
+
+ o FEATURE: set_use_vertex_gradients_for_map_normals() added to the Coot API
+
+ o CHANGE:  Fixed atoms are now draggable
+
+ o CHANGE:  max-closeness is no longer used to filter peaks in map_peaks_py()
+
+ o CHANGE:  Backtick for selection now also shows the residue range
+            (if set)
+
+ o BUG-FIX: Track-pad zooming fixed
+
+ o BUG-FIX: Residue Info dialog buttons now on the right hand side
+
+ o BUG-FIX: Fix and Unfix atom now work as expected
+
+ o BUG-FIX: Remove erroneous "No ligands Found" dialog when ligand fitting
+
+ o BUG-FIX: Select Map for Fitting dialog now behaves has expected
+            on reopen
+
+ o BUG-FIX: Merge Molecules dialog now behaves has expected on reopen
+
+ o BUG-FIX: Choose a better contour level for masked maps
+
+-----
+
+  Release 1.1.14
+
+  o FEATURE: Clark&Labute-like 2D-ligand environment view in Coot,
+             Moorhen and chapi
+
+  o FEATURE: Symmetry represented as solid model (no longer just lines)
+
+  o FEATURE: PAE Plots on downloading Alphafold models
+
+  o FEATURE: new chapi functions:
+
+    is_nucleic_acid()
+    delete_all_carbohydrate()
+
+  o FEATURE: Setting the primary mouse button for view rotation enables
+             secondary mouse button for zoom (like Old Coot)
+
+  o CHANGE:  chapi modules name now changed to coot_headless_api
+             so that the molecules_container object can be called
+             chapi
+
+  o CHANGE:  Alphafold downloads are now XDG Base Directory compliant
+
+  o BUG-FIX: NCS-jumping has been fixed - Bernhard Lohkamp
+
+  o BUG-FIX: unwritable XDG cache dir now longer causes a crash
+             [Jordan Dialpuri]
+
+  o BUG-FIX: Shader for drawing ribbons
+
+  o BUG-FIX: About and Preferences dialogs can now be properly closed.
+
+  o BUG-FIX: Texture handling for bad NBC markers updated [Fixes crash]
+
+-----
+
+  Release 1.1.13
+
+  o FEATURE: new chapi functions:
+
+     get_svg_for_2d_ligand_environment_view()
+     get_HOLE()
+     scale_map()
+     nucleic acids now work with add_terminal_residue()
+     Sticks and dishy bases are not drawn for atoms not in selection
+
+  o FEATURE: Non-drawn maps are not recontoured on view translation, they
+             now wait until the map is displayed.
+             [Elegant-Land-8008]
+
+  o FUNCTION-RESTORED: When "Spacing" along a chain, the CA label follows
+
+  o FUNCTION-RESTORED: SSM dialog now works
+
+  o FUNCTION-RESTORED: NCS Ghosts dialog now works
+
+  o BUG-FIX: missing shader for instanced geometry for SSAO added back
+
+  o COMPILATION: the issue for graphics_info_t::scale_up_graphics has
+                 been resolved
+
+-----
+
   Release 1.1.12
+
+  o TERMINAL OUTPUT: Coot's startup, in particular the graphics and Python, have
+    lately been problematic (i.e. flaky/broken).  Different operating systems,
+    different drivers, and different versions of Python add to the complexity.
+    We have spent quite some time refactoring this - and especially so in the
+    last few weeks. To help understand what is going wrong on startup I have
+    increased the amount of diagnostic information on the terminal - so it's a
+    bit ugly at the moment.
+    When issues have been resolved and the startup is stable, I will reduce/remove
+    the diagnostics.
 
   o FEATURE: new chapi functions:
 
@@ -13,6 +178,16 @@
     split_residue_using_map()
     get_missing_residue_ranges()
     get_mutation_info()
+    set_temperature_factor_using_cid()
+    Pythonic API:
+       https://www.mrc-lmb.cam.ac.uk/lucrezia/libcootapi-documentation/api.html
+    C++ API:
+       https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/docs/api/html/
+
+  o FEATURE: New Coot API functions:
+
+    set_new_non_drawn_bonds()
+    add_new_non_draw_bonds()
 
   o FEATURE: Added graphics viewport scaling
 
@@ -22,7 +197,8 @@
 
   o FEATURE: Transform map by LSQ model fit has been restored
 
-  o BUG-FIX: --code <accession-code> now works again after XDG Directory Protocol update
+  o BUG-FIX: --code <accession-code> now works again after XDG Directory Protocol
+             update
 
   o BUG-FIX: Fix the use of the no-recentre-view in coordinate file open dialog
 
@@ -34,7 +210,8 @@
 
   o BUG-FIX: LSQ Fit dialog now works
 
-  o BUG-FIX: CYS with hydrogen atoms no longer try to make SS bonds [Jordan Dialpuri]
+  o BUG-FIX: CYS with hydrogen atoms no longer try to make SS bonds
+             [Jordan Dialpuri]
 
   o BUG-FIX: End-of-chain TER atom now removed on adding a new terminal residue
 
@@ -376,6 +553,7 @@ Future:
 [6] moorhen.org
 
 ----
+
   Release 0.9.8.94
 
   o CHANGE: Add a more informative message on failure to generate rtop in

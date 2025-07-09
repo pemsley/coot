@@ -978,6 +978,20 @@ void label_atoms_in_residue() {
    }
 }
 
+/*! \brief Label the atoms with their B-factors */
+void set_show_local_b_factors(short int state) {
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      graphics_info_t g;
+      coot::Cartesian screen_centre = g.RotationCentre();
+      g.molecules[imol].local_b_factor_display(state, screen_centre);
+      graphics_draw();
+   }
+}
+
+
 
 #include "c-interface-scm.hh"
 #include "c-interface-python.hh"
@@ -3375,7 +3389,7 @@ float model_resolution(int imol) {
 /*                     residue exists?                                       */
 /*  ------------------------------------------------------------------------ */
 
-int does_residue_exist_p(int imol, char *chain_id, int resno, char *inscode) {
+int does_residue_exist_p(int imol, const char *chain_id, int resno, const char *inscode) {
 
    int istate = 0;
    if (is_valid_model_molecule(imol)) {
@@ -3596,13 +3610,14 @@ PyObject *cell_py(int imol) {
 // use should be given access to colour and size.
 int place_text(const char *text, float x, float y, float z, int size) {
 
-   int handle = graphics_info_t::generic_texts_p->size();
+   int handle = graphics_info_t::generic_texts.size();
    std::string s(text);
-   coot::old_generic_text_object_t o(s, handle, x, y, z);
-   graphics_info_t::generic_texts_p->push_back(o);
+   coot::generic_text_object_t o(s, handle, x, y, z);
+   graphics_info_t::generic_texts.push_back(o);
+
    //   return graphics_info_t::generic_text->size() -1; // the index of the
-                                                      // thing we just
-                                                    // pushed.
+                                                         // thing we just
+                                                         // pushed.
    std::string cmd = "place-text";
    std::vector<coot::command_arg_t> args;
    args.push_back(text);
@@ -3618,12 +3633,12 @@ int place_text(const char *text, float x, float y, float z, int size) {
 
 void remove_text(int text_handle) {
 
-   std::vector<coot::old_generic_text_object_t>::iterator it;
-   for (it = graphics_info_t::generic_texts_p->begin();
-        it != graphics_info_t::generic_texts_p->end();
+   std::vector<coot::generic_text_object_t>::iterator it;
+   for (it = graphics_info_t::generic_texts.begin();
+        it != graphics_info_t::generic_texts.end();
         it++) {
       if (it->handle == text_handle) {
-         graphics_info_t::generic_texts_p->erase(it);
+         graphics_info_t::generic_texts.erase(it);
          break;
       }
    }
@@ -3641,8 +3656,8 @@ void edit_text(int text_handle, const char *str) {
    if (str) {
       if (text_handle >= 0) {
          unsigned int ui_text_handle = text_handle;
-         if (ui_text_handle < g.generic_texts_p->size()) {
-            (*g.generic_texts_p)[ui_text_handle].s = str;
+         if (ui_text_handle < g.generic_texts.size()) {
+            g.generic_texts[ui_text_handle].s = str;
          }
       }
    }
@@ -3662,14 +3677,14 @@ int text_index_near_position(float x, float y, float z, float rad) {
    graphics_info_t g;
    double best_dist = 999999999.9; // not (long) integer, conversion to double problems in GCC 4.1.2
 
-   std::cout << "size: " << g.generic_texts_p->size() << std::endl;
+   std::cout << "size: " << g.generic_texts.size() << std::endl;
 
-   for (unsigned int i=0; i<g.generic_texts_p->size(); i++) {
+   for (unsigned int i=0; i<g.generic_texts.size(); i++) {
       std::cout << "i " << i << std::endl;
       clipper::Coord_orth p1(x,y,z);
-      clipper::Coord_orth p2((*g.generic_texts_p)[i].x,
-                             (*g.generic_texts_p)[i].y,
-                             (*g.generic_texts_p)[i].z);
+      clipper::Coord_orth p2(g.generic_texts[i].x,
+                             g.generic_texts[i].y,
+                             g.generic_texts[i].z);
       double d = (p1-p2).lengthsq();
       std::cout << "   d " << d  << std::endl;
       if (d < rad*rad) {
@@ -3754,7 +3769,6 @@ PyObject *cif_file_for_comp_id_py(const std::string &comp_id) {
 }
 #endif // PYTHON
 
-// can throw and std::runtime_error exception
 std::string SMILES_for_comp_id(const std::string &comp_id) {
 
    int imol_enc = coot::protein_geometry::IMOL_ENC_ANY; // pass this?
@@ -3766,6 +3780,9 @@ std::string SMILES_for_comp_id(const std::string &comp_id) {
    }
    catch (const std::runtime_error &e) {
       std::cout << "WARNING::" << e.what() << std::endl;
+   }
+   catch (...) {
+      std::cout << "SMILES_for_comp_id() caught generic throw" << std::endl;
    }
    return s;
 }

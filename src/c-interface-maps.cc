@@ -61,6 +61,9 @@
 
 #include "read-molecule.hh" // 20230621-PE now with std::string args
 
+#include "utils/logging.hh"
+extern logging logger;
+
 
 /*  ------------------------------------------------------------------------ */
 /*                   Maps -                                                  */
@@ -336,10 +339,10 @@ int keep_map_colour_after_refmac_state() {
 }
 
 
-void show_select_map_dialog() {
+void show_select_map_frame() {
    graphics_info_t g;
-   g.show_select_map_dialog();
-   add_to_history_simple("show-select-map-dialog");
+   g.show_select_map_frame();
+   add_to_history_simple("show-select-map-frame");
 }
 
 int read_mtz(const char *mtz_file_name,
@@ -398,7 +401,8 @@ int make_and_draw_map(const char* mtz_file_name,
          command_strings.push_back(graphics_info_t::int_to_string(is_diff_map));
          add_to_history(command_strings);
 
-         std::cout << "INFO:: making map from mtz filename " << mtz_file_name << std::endl;
+         // std::cout << "INFO:: making map from mtz filename " << mtz_file_name << std::endl;
+         logger.log(log_t::INFO, std::string("Making map from mtz filename"), mtz_file_name);
          imol = g.create_molecule();
          std::string cwd = coot::util::current_working_dir();
          g.molecules[imol].map_fill_from_mtz(std::string(mtz_file_name),
@@ -2207,7 +2211,7 @@ PyObject *positron_pathway(PyObject *map_molecule_list_py, PyObject *pathway_poi
 //! \{
 //! \brief Make a variance map, based on the grid of the first map.
 //!
-int make_variance_map(std::vector<int> map_molecule_number_vec) {
+int make_variance_map(const std::vector<int> &map_molecule_number_vec) {
 
    int imol_map = -1;
 
@@ -3299,6 +3303,20 @@ int analyse_map_point_density_change_py(PyObject *map_number_list_py, int imol_m
    }
 }
 #endif
+
+// use (or not) vertex gradients for the specified map
+void set_use_vertex_gradients_for_map_normals(int imol, int state) {
+
+   if (is_valid_map_molecule(imol)) {
+      graphics_info_t::molecules[imol].set_use_vertex_gradients_for_map_normals(state);
+      graphics_info_t::graphics_draw();
+   }
+}
+
+//! the map should be displayed and not a difference map
+void set_use_vertex_gradients_for_map_normals_for_latest_map() {
+   use_vertex_gradients_for_map_normals_for_latest_map();
+}
 
 //! the map should be displayed and not a difference map
 void use_vertex_gradients_for_map_normals_for_latest_map() {

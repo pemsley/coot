@@ -1,0 +1,160 @@
+#
+data_comp_list
+loop_
+_chem_comp.id
+_chem_comp.three_letter_code
+_chem_comp.name
+_chem_comp.group
+_chem_comp.number_atoms_all
+_chem_comp.number_atoms_nh
+_chem_comp.desc_level
+TRS     TRS      2-AMINO-2-HYDROXYMETHYL-PROPANE-1,3-DIOL     NON-POLYMER     20     8     .     
+#
+data_comp_TRS
+#
+loop_
+_chem_comp_atom.comp_id
+_chem_comp_atom.atom_id
+_chem_comp_atom.type_symbol
+_chem_comp_atom.type_energy
+_chem_comp_atom.charge
+_chem_comp_atom.x
+_chem_comp_atom.y
+_chem_comp_atom.z
+TRS     C       C       CT      0       63.253      58.852      3.033       
+TRS     C1      C       CH2     0       62.670      60.237      3.313       
+TRS     C2      C       CH2     0       62.630      58.237      1.781       
+TRS     C3      C       CH2     0       63.065      57.922      4.231       
+TRS     N       N       NT3     1       64.727      59.008      2.792       
+TRS     O1      O       OH1     0       61.279      60.192      3.594       
+TRS     O2      O       OH1     0       62.947      58.975      0.611       
+TRS     O3      O       OH1     0       63.719      58.407      5.393       
+TRS     H11     H       H       0       62.821      60.811      2.535       
+TRS     H12     H       H       0       63.138      60.635      4.074       
+TRS     H21     H       H       0       61.658      58.201      1.887       
+TRS     H22     H       H       0       62.957      57.320      1.680       
+TRS     H31     H       H       0       63.421      57.038      4.007       
+TRS     H32     H       H       0       62.109      57.822      4.416       
+TRS     HN1     H       H       0       65.118      58.198      2.671       
+TRS     HN2     H       H       0       65.125      59.415      3.497       
+TRS     HN3     H       H       0       64.877      59.510      2.051       
+TRS     HO1     H       H       0       61.029      60.961      3.845       
+TRS     HO2     H       H       0       62.391      58.775      0.006       
+TRS     HO3     H       H       0       64.511      58.109      5.406       
+loop_
+_chem_comp_bond.comp_id
+_chem_comp_bond.atom_id_1
+_chem_comp_bond.atom_id_2
+_chem_comp_bond.type
+_chem_comp_bond.aromatic
+_chem_comp_bond.value_dist_nucleus
+_chem_comp_bond.value_dist_nucleus_esd
+_chem_comp_bond.value_dist
+_chem_comp_bond.value_dist_esd
+TRS           C          C1      SINGLE       n     1.526  0.0100     1.526  0.0100
+TRS           C          C2      SINGLE       n     1.526  0.0100     1.526  0.0100
+TRS           C          C3      SINGLE       n     1.526  0.0100     1.526  0.0100
+TRS           C           N      SINGLE       n     1.502  0.0117     1.502  0.0117
+TRS          C1          O1      SINGLE       n     1.419  0.0107     1.419  0.0107
+TRS          C2          O2      SINGLE       n     1.419  0.0107     1.419  0.0107
+TRS          C3          O3      SINGLE       n     1.419  0.0107     1.419  0.0107
+TRS          C1         H11      SINGLE       n     1.089  0.0100     0.979  0.0118
+TRS          C1         H12      SINGLE       n     1.089  0.0100     0.979  0.0118
+TRS          C2         H21      SINGLE       n     1.089  0.0100     0.979  0.0118
+TRS          C2         H22      SINGLE       n     1.089  0.0100     0.979  0.0118
+TRS          C3         H31      SINGLE       n     1.089  0.0100     0.979  0.0118
+TRS          C3         H32      SINGLE       n     1.089  0.0100     0.979  0.0118
+TRS           N         HN1      SINGLE       n     1.036  0.0160     0.907  0.0200
+TRS           N         HN2      SINGLE       n     1.036  0.0160     0.907  0.0200
+TRS           N         HN3      SINGLE       n     1.036  0.0160     0.907  0.0200
+TRS          O1         HO1      SINGLE       n     0.970  0.0120     0.846  0.0200
+TRS          O2         HO2      SINGLE       n     0.970  0.0120     0.846  0.0200
+TRS          O3         HO3      SINGLE       n     0.970  0.0120     0.846  0.0200
+loop_
+_chem_comp_angle.comp_id
+_chem_comp_angle.atom_id_1
+_chem_comp_angle.atom_id_2
+_chem_comp_angle.atom_id_3
+_chem_comp_angle.value_angle
+_chem_comp_angle.value_angle_esd
+TRS          C1           C          C2     110.596    1.50
+TRS          C1           C          C3     110.596    1.50
+TRS          C1           C           N     108.347    1.50
+TRS          C2           C          C3     110.596    1.50
+TRS          C2           C           N     108.347    1.50
+TRS          C3           C           N     108.347    1.50
+TRS           C          C1          O1     111.937    1.50
+TRS           C          C1         H11     109.221    1.50
+TRS           C          C1         H12     109.221    1.50
+TRS          O1          C1         H11     109.336    1.50
+TRS          O1          C1         H12     109.336    1.50
+TRS         H11          C1         H12     108.117    1.50
+TRS           C          C2          O2     111.937    1.50
+TRS           C          C2         H21     109.221    1.50
+TRS           C          C2         H22     109.221    1.50
+TRS          O2          C2         H21     109.336    1.50
+TRS          O2          C2         H22     109.336    1.50
+TRS         H21          C2         H22     108.117    1.50
+TRS           C          C3          O3     111.937    1.50
+TRS           C          C3         H31     109.221    1.50
+TRS           C          C3         H32     109.221    1.50
+TRS          O3          C3         H31     109.336    1.50
+TRS          O3          C3         H32     109.336    1.50
+TRS         H31          C3         H32     108.117    1.50
+TRS           C           N         HN1     111.194    2.64
+TRS           C           N         HN2     111.194    2.64
+TRS           C           N         HN3     111.194    2.64
+TRS         HN1           N         HN2     108.826    2.42
+TRS         HN1           N         HN3     108.826    2.42
+TRS         HN2           N         HN3     108.826    2.42
+TRS          C1          O1         HO1     108.659    2.30
+TRS          C2          O2         HO2     108.659    2.30
+TRS          C3          O3         HO3     108.659    2.30
+loop_
+_chem_comp_tor.comp_id
+_chem_comp_tor.id
+_chem_comp_tor.atom_id_1
+_chem_comp_tor.atom_id_2
+_chem_comp_tor.atom_id_3
+_chem_comp_tor.atom_id_4
+_chem_comp_tor.value_angle
+_chem_comp_tor.value_angle_esd
+_chem_comp_tor.period
+TRS             sp3_sp3_4          C2           C          C1          O1      60.000    10.0     3
+TRS            sp3_sp3_10          C1           C          C2          O2     180.000    10.0     3
+TRS            sp3_sp3_22          C1           C          C3          O3      60.000    10.0     3
+TRS            sp3_sp3_31          C1           C           N         HN1      60.000    10.0     3
+TRS            sp3_sp3_37           C          C1          O1         HO1     180.000    10.0     3
+TRS            sp3_sp3_40           C          C2          O2         HO2     180.000    10.0     3
+TRS            sp3_sp3_43           C          C3          O3         HO3     180.000    10.0     3
+loop_
+_chem_comp_chir.comp_id
+_chem_comp_chir.id
+_chem_comp_chir.atom_id_centre
+_chem_comp_chir.atom_id_1
+_chem_comp_chir.atom_id_2
+_chem_comp_chir.atom_id_3
+_chem_comp_chir.volume_sign
+TRS    chir_1    C    N    C1    C2    both
+loop_
+_pdbx_chem_comp_descriptor.comp_id
+_pdbx_chem_comp_descriptor.type
+_pdbx_chem_comp_descriptor.program
+_pdbx_chem_comp_descriptor.program_version
+_pdbx_chem_comp_descriptor.descriptor
+TRS           SMILES              ACDLabs 10.04                                    OCC([NH3+])(CO)CO
+TRS SMILES_CANONICAL               CACTVS 3.341                                  "[NH3+]C(CO)(CO)CO"
+TRS           SMILES               CACTVS 3.341                                  "[NH3+]C(CO)(CO)CO"
+TRS SMILES_CANONICAL "OpenEye OEToolkits" 1.5.0                                  C(C(CO)(CO)[NH3+])O
+TRS           SMILES "OpenEye OEToolkits" 1.5.0                                  C(C(CO)(CO)[NH3+])O
+TRS            InChI                InChI  1.03 InChI=1S/C4H11NO3/c5-4(1-6,2-7)3-8/h6-8H,1-3,5H2/p+1
+TRS         InChIKey                InChI  1.03                          LENZDBCJOHFCAS-UHFFFAOYSA-O
+loop_
+_pdbx_chem_comp_description_generator.comp_id
+_pdbx_chem_comp_description_generator.program_name
+_pdbx_chem_comp_description_generator.program_version
+_pdbx_chem_comp_description_generator.descriptor
+TRS acedrg               243         "dictionary generator"                  
+TRS acedrg_database      11          "data source"                           
+TRS rdkit                2017.03.2   "Chemoinformatics tool"
+TRS refmac5              5.8.0238    "optimization tool"                     

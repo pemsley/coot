@@ -570,8 +570,20 @@ TextureMesh::draw(Shader *shader_p,
 
    // ------------------------ more texture mesh uniforms here ------------------
 
+   shader_p->set_bool_for_uniform("do_animation", do_animation);
+   shader_p->set_float_for_uniform("animation_A", animation_A); // overall
+   shader_p->set_float_for_uniform("animation_k", animation_k); // wave number
+   shader_p->set_float_for_uniform("animation_w", animation_w); // angular freq (per second)
 
-   
+   std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
+   float time = std::chrono::duration_cast<std::chrono::milliseconds>(now - time_constructed).count();
+
+   // std::cout << "sending time " << time << std::endl;
+   shader_p->set_float_for_uniform("time", time); // thousands of milliseconds
+
+
+   // ------------------------ texture mesh uniforms done ------------------
+
    // this lights block can be in it's own function (same as Mesh)
    std::map<unsigned int, lights_info_t>::const_iterator it;
    unsigned int light_idx = 0;
@@ -646,6 +658,17 @@ TextureMesh::draw(Shader *shader_p,
    glUseProgram (0);
 
 }
+
+// Holy Zarquon swimming fish
+void
+TextureMesh::set_animation_paramaters(float amplitide_overall, float wave_number, float freq) {
+
+   animation_A = amplitide_overall;
+   animation_k = wave_number;
+   animation_w = freq;
+
+}
+
 
 
 void
@@ -954,19 +977,39 @@ TextureMesh::import(const IndexedModel &ind_model, float scale) {
 
 
 // 20220129-PE why did I delete this for crows?
+// 20250310-PE Ah, possibly because it used glBufferData and instancing should
+// update using glBufferSubData() - which this function now does.
 void
 TextureMesh::update_instancing_buffer_data(const std::vector<glm::vec3> &positions) {
 
    if (vao == VAO_NOT_SET)
-      std::cout << "You forget to setup this TextureMesh in update_instancing_buffer_data() "
+      std::cout << "ERROR:: in update_instancing_buffer_data(): You forgot to setup this TextureMesh "
                 << name << std::endl;
+
+   GLenum err = glGetError();
+   if (err)
+      std::cout << "GL ERROR:: TextureMesh::update_instancing_buffers() --- start --- " << _(err) << std::endl;
    glBindVertexArray(vao);
-   glBindBuffer(GL_ARRAY_BUFFER, inst_positions_id);
+   err = glGetError();
+   if (err)
+      std::cout << "GL ERROR:: TextureMesh::setup_instancing_buffers() post binding vao " << _(err) << std::endl;
+
+   // glBindBuffer(GL_ARRAY_BUFFER, inst_positions_id);
+   // err = glGetError();
+   // if (err)
+   //    std::cout << "GL ERROR:: TextureMesh::setup_instancing_buffers() post bind buffer " << _(err) << std::endl;
+
    int n_positions = positions.size();
    n_instances = n_positions;
    if (n_positions > n_instances_allocated)
       n_positions = n_instances_allocated;
-  glBufferData(GL_ARRAY_BUFFER, n_positions * sizeof(glm::vec3), &(positions[0]), GL_STATIC_DRAW);
+
+   if (positions.empty()) return;
+
+   // glBufferData(GL_ARRAY_BUFFER, n_positions * sizeof(glm::vec3), &(positions[0]), GL_STATIC_DRAW);
+
+   glBindBuffer(GL_ARRAY_BUFFER, inst_positions_id); // 20250312-PE needed.
+   glBufferSubData(GL_ARRAY_BUFFER, 0, n_positions * sizeof(glm::vec3), &(positions[0]));
 
 }
 
@@ -978,6 +1021,13 @@ TextureMesh::update_instancing_buffer_data_for_happy_faces(const std::vector<glm
                                            unsigned int draw_count_max,
                                            const glm::vec3 &screen_y_uv) {
 
+   if (vao == VAO_NOT_SET)
+      std::cout << "ERROR:: in update_instancing_buffer_data_for_happy_faces(): You forgot to setup this TextureMesh "
+                << name << std::endl;
+
+   GLenum err = glGetError();
+   if (err)
+      std::cout << "GL ERROR:: TextureMesh::update_instancing_buffer_data_for_happy_faces() --- start --- " << _(err) << std::endl;
    glBindVertexArray(vao);
    draw_count = draw_count_in; // do I need this to be a class data item?
    std::vector<glm::vec3> positions(positions_in);

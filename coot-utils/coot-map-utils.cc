@@ -44,6 +44,8 @@
 #include "geometry/main-chain.hh"
 #include "exp-fit.hh"
 
+#include "utils/logging.hh"
+extern logging logger;
 
 bool
 coot::util::map_fill_from_mtz(clipper::Xmap<float> *xmap,
@@ -159,12 +161,17 @@ coot::util::map_fill_from_mtz(clipper::Xmap<float> *xmap,
       fft_reso = clipper::Resolution(1.0/sqrt(fphidata.invresolsq_range().max()));
    }
 
-   std::cout << "FFT Reso..." << fft_reso.invresolsq_limit() << "\n";
-   std::cout << "Sampling rate..." << sampling_rate << "\n";
+   // std::cout << "FFT Reso..." << fft_reso.invresolsq_limit() << "\n";
+   // std::cout << "Sampling rate..." << sampling_rate << "\n";
+   logger.log(log_t::INFO, "FFT Resolution:", fft_reso.invresolsq_limit());
+   logger.log(log_t::INFO, "Map Sampling Rate:", sampling_rate);
    clipper::Grid_sampling gs(myhkl.spacegroup(), myhkl.cell(), fft_reso, sampling_rate);
-   std::cout << "Grid..." << gs.format() << "\n";
-   std::cout << "Cell..." << myhkl.cell().format() << "\n";
-   std::cout << "Spacegroup..." << myhkl.spacegroup().symbol_hm() << "\n";
+   // std::cout << "Grid..." << gs.format() << "\n";
+   // std::cout << "Cell..." << myhkl.cell().format() << "\n";
+   // std::cout << "Spacegroup..." << myhkl.spacegroup().symbol_hm() << "\n";
+   logger.log(log_t::INFO, "Grid:", gs.format());
+   logger.log(log_t::INFO, "Cell:", myhkl.cell().format());
+   logger.log(log_t::INFO, "Spacegroup:", myhkl.spacegroup().symbol_hm());
    if (gs.nu() == 0) { std::cout << "Bad Grid\n"; return false; }
    if (gs.nv() == 0) { std::cout << "Bad Grid\n"; return false; }
    if (gs.nw() == 0) { std::cout << "Bad Grid\n"; return false; }
@@ -3803,6 +3810,12 @@ coot::util::map_fragment_info_t::unshift(clipper::Xmap<float> *xmap_p,
 
 bool
 coot::util::is_EM_map(const clipper::Xmap<float> &xmap) {
+
+   // 20250524-PE this is not a good function - it doesn't check the labels.
+   // The labels are only accessible when the map is read.
+   // So asking is question of an xmap is not a good idea.
+   // The status needs to be decided at map-read time and caried along
+   // beside the map.
 
    bool is_em = false;
    if (xmap.spacegroup().num_symops() == 1) { // P1

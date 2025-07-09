@@ -791,6 +791,7 @@ graphics_info_t::apply_go_to_atom_from_widget(GtkWidget *widget) {
                                              inscode.c_str(),
                                              atom_name_str,
                                              p.second.c_str());
+      graphics_grab_focus();
 
       int success = try_centre_from_new_go_to_atom();
    }

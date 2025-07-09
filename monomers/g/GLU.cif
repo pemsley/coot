@@ -1,0 +1,217 @@
+data_comp_list
+loop_
+_chem_comp.id
+_chem_comp.three_letter_code
+_chem_comp.name
+_chem_comp.group
+_chem_comp.number_atoms_all
+_chem_comp.number_atoms_nh
+_chem_comp.desc_level
+GLU GLU "GLUTAMIC        ACID" peptide 18 10 .
+
+data_comp_GLU
+loop_
+_chem_comp_atom.comp_id
+_chem_comp_atom.atom_id
+_chem_comp_atom.type_symbol
+_chem_comp_atom.type_energy
+_chem_comp_atom.charge
+_chem_comp_atom.x
+_chem_comp_atom.y
+_chem_comp_atom.z
+GLU N N NT3 1 88.319 -7.751 -10.089
+GLU CA C CH1 0 87.677 -7.162 -11.296
+GLU C C C 0 88.359 -5.826 -11.640
+GLU O O O 0 88.389 -4.954 -10.744
+GLU CB C CH2 0 86.177 -6.950 -11.080
+GLU CG C CH2 0 85.390 -8.247 -10.908
+GLU CD C C 0 83.891 -8.048 -10.773
+GLU OE1 O O 0 83.281 -7.495 -11.711
+GLU OE2 O OC -1 83.334 -8.447 -9.728
+GLU OXT O OC -1 88.836 -5.708 -12.790
+GLU H H H 0 88.066 -7.298 -9.352
+GLU H2 H H 0 89.218 -7.717 -10.158
+GLU H3 H H 0 88.077 -8.615 -9.999
+GLU HA H H 0 87.806 -7.788 -12.054
+GLU HB3 H H 0 85.814 -6.460 -11.847
+GLU HB2 H H 0 86.049 -6.394 -10.284
+GLU HG3 H H 0 85.714 -8.714 -10.110
+GLU HG2 H H 0 85.559 -8.827 -11.681
+
+loop_
+_chem_comp_tree.comp_id
+_chem_comp_tree.atom_id
+_chem_comp_tree.atom_back
+_chem_comp_tree.atom_forward
+_chem_comp_tree.connect_type
+GLU N n/a CA START
+GLU H N . .
+GLU H2 N . .
+GLU H3 N . .
+GLU CA N C .
+GLU HA CA . .
+GLU CB CA CG .
+GLU HB3 CB . .
+GLU HB2 CB . .
+GLU CG CB CD .
+GLU HG3 CG . .
+GLU HG2 CG . .
+GLU CD CG OE2 .
+GLU OE1 CD . .
+GLU OE2 CD . .
+GLU C CA . END
+GLU O C . .
+GLU OXT C . .
+
+loop_
+_chem_comp_acedrg.comp_id
+_chem_comp_acedrg.atom_id
+_chem_comp_acedrg.atom_type
+GLU N N(CCCH)(H)3
+GLU CA C(CCHH)(NH3)(COO)(H)
+GLU C C(CCHN)(O)2
+GLU O O(CCO)
+GLU CB C(CCHH)(CCHN)(H)2
+GLU CG C(CCHH)(COO)(H)2
+GLU CD C(CCHH)(O)2
+GLU OE1 O(CCO)
+GLU OE2 O(CCO)
+GLU OXT O(CCO)
+GLU H H(NCHH)
+GLU H2 H(NCHH)
+GLU H3 H(NCHH)
+GLU HA H(CCCN)
+GLU HB3 H(CCCH)
+GLU HB2 H(CCCH)
+GLU HG3 H(CCCH)
+GLU HG2 H(CCCH)
+
+loop_
+_chem_comp_bond.comp_id
+_chem_comp_bond.atom_id_1
+_chem_comp_bond.atom_id_2
+_chem_comp_bond.type
+_chem_comp_bond.aromatic
+_chem_comp_bond.value_dist_nucleus
+_chem_comp_bond.value_dist_nucleus_esd
+_chem_comp_bond.value_dist
+_chem_comp_bond.value_dist_esd
+GLU N CA SINGLE n 1.487 0.0100 1.487 0.0100
+GLU CA C SINGLE n 1.538 0.0113 1.538 0.0113
+GLU CA CB SINGLE n 1.529 0.0100 1.529 0.0100
+GLU C O DOUBLE n 1.251 0.0183 1.251 0.0183
+GLU C OXT SINGLE n 1.251 0.0183 1.251 0.0183
+GLU CB CG SINGLE n 1.526 0.0100 1.526 0.0100
+GLU CG CD SINGLE n 1.518 0.0135 1.518 0.0135
+GLU CD OE1 DOUBLE n 1.249 0.0161 1.249 0.0161
+GLU CD OE2 SINGLE n 1.249 0.0161 1.249 0.0161
+GLU N H SINGLE n 1.018 0.0520 0.902 0.0102
+GLU N H2 SINGLE n 1.018 0.0520 0.902 0.0102
+GLU N H3 SINGLE n 1.018 0.0520 0.902 0.0102
+GLU CA HA SINGLE n 1.092 0.0100 0.991 0.0200
+GLU CB HB3 SINGLE n 1.092 0.0100 0.980 0.0168
+GLU CB HB2 SINGLE n 1.092 0.0100 0.980 0.0168
+GLU CG HG3 SINGLE n 1.092 0.0100 0.981 0.0172
+GLU CG HG2 SINGLE n 1.092 0.0100 0.981 0.0172
+
+loop_
+_chem_comp_angle.comp_id
+_chem_comp_angle.atom_id_1
+_chem_comp_angle.atom_id_2
+_chem_comp_angle.atom_id_3
+_chem_comp_angle.value_angle
+_chem_comp_angle.value_angle_esd
+GLU CA N H 109.990 3.00
+GLU CA N H2 109.990 3.00
+GLU CA N H3 109.990 3.00
+GLU H N H2 109.032 3.00
+GLU H N H3 109.032 3.00
+GLU H2 N H3 109.032 3.00
+GLU N CA C 109.258 1.50
+GLU N CA CB 110.440 2.46
+GLU N CA HA 108.387 1.58
+GLU C CA CB 111.059 3.00
+GLU C CA HA 108.774 1.79
+GLU CB CA HA 109.080 2.33
+GLU CA C O 117.148 1.60
+GLU CA C OXT 117.148 1.60
+GLU O C OXT 125.704 1.50
+GLU CA CB CG 113.294 1.61
+GLU CA CB HB3 108.677 1.74
+GLU CA CB HB2 108.677 1.74
+GLU CG CB HB3 108.696 2.80
+GLU CG CB HB2 108.696 2.80
+GLU HB3 CB HB2 107.655 1.50
+GLU CB CG CD 114.140 3.00
+GLU CB CG HG3 108.968 1.50
+GLU CB CG HG2 108.968 1.50
+GLU CD CG HG3 108.472 1.50
+GLU CD CG HG2 108.472 1.50
+GLU HG3 CG HG2 107.541 1.92
+GLU CG CD OE1 118.251 3.00
+GLU CG CD OE2 118.251 3.00
+GLU OE1 CD OE2 123.498 1.82
+
+loop_
+_chem_comp_tor.comp_id
+_chem_comp_tor.id
+_chem_comp_tor.atom_id_1
+_chem_comp_tor.atom_id_2
+_chem_comp_tor.atom_id_3
+_chem_comp_tor.atom_id_4
+_chem_comp_tor.value_angle
+_chem_comp_tor.value_angle_esd
+_chem_comp_tor.period
+GLU chi1 N CA CB CG -60.000 10.0 3
+GLU chi2 CA CB CG CD 180.000 10.0 3
+GLU chi3 CB CG CD OE1 180.000 10.0 6
+GLU sp3_sp3_1 C CA N H 180.000 10.0 3
+GLU sp2_sp3_1 O C CA N 0.000 10.0 6
+
+loop_
+_chem_comp_chir.comp_id
+_chem_comp_chir.id
+_chem_comp_chir.atom_id_centre
+_chem_comp_chir.atom_id_1
+_chem_comp_chir.atom_id_2
+_chem_comp_chir.atom_id_3
+_chem_comp_chir.volume_sign
+GLU chir_1 CA N C CB positive
+
+loop_
+_chem_comp_plane_atom.comp_id
+_chem_comp_plane_atom.plane_id
+_chem_comp_plane_atom.atom_id
+_chem_comp_plane_atom.dist_esd
+GLU plan-1 C 0.020
+GLU plan-1 CA 0.020
+GLU plan-1 O 0.020
+GLU plan-1 OXT 0.020
+GLU plan-2 CD 0.020
+GLU plan-2 CG 0.020
+GLU plan-2 OE1 0.020
+GLU plan-2 OE2 0.020
+
+loop_
+_pdbx_chem_comp_descriptor.comp_id
+_pdbx_chem_comp_descriptor.type
+_pdbx_chem_comp_descriptor.program
+_pdbx_chem_comp_descriptor.program_version
+_pdbx_chem_comp_descriptor.descriptor
+GLU SMILES ACDLabs 12.01 O=C(O)C(N)CCC(=O)O
+GLU SMILES_CANONICAL CACTVS 3.370 N[C@@H](CCC(O)=O)C(O)=O
+GLU SMILES CACTVS 3.370 N[CH](CCC(O)=O)C(O)=O
+GLU SMILES_CANONICAL "OpenEye OEToolkits" 1.7.0 C(CC(=O)O)[C@@H](C(=O)O)N
+GLU SMILES "OpenEye OEToolkits" 1.7.0 C(CC(=O)O)C(C(=O)O)N
+GLU InChI InChI 1.03 InChI=1S/C5H9NO4/c6-3(5(9)10)1-2-4(7)8/h3H,1-2,6H2,(H,7,8)(H,9,10)/t3-/m0/s1
+GLU InChIKey InChI 1.03 WHUUTDBJXJRKMK-VKHMYHEASA-N
+
+loop_
+_pdbx_chem_comp_description_generator.comp_id
+_pdbx_chem_comp_description_generator.program_name
+_pdbx_chem_comp_description_generator.program_version
+_pdbx_chem_comp_description_generator.descriptor
+GLU acedrg 278 "dictionary generator"
+GLU acedrg_database 12 "data source"
+GLU rdkit 2019.09.1 "Chemoinformatics tool"
+GLU refmac5 5.8.0419 "optimization tool"

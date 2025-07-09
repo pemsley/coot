@@ -151,7 +151,7 @@ namespace coot {
       void add_peak_vectors(std::vector<clipper::Coord_orth> *in,
 			    const std::vector<clipper::Coord_orth> &extras) const;
 
-      void set_max_closeness(float d) { max_closeness = d; } 
+      void set_max_closeness(float d) { max_closeness = d; }
 
    };
 }

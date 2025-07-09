@@ -143,14 +143,6 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
       commands.push_back(state_command("coot", "set-rotate-translate-dialog-position",
                                        rotate_translate_x_position,
                                        rotate_translate_y_position, il));
-   if (graphics_info_t::accept_reject_dialog_x_position > -1)
-      commands.push_back(state_command("coot", "set-accept-reject-dialog-position",
-                                       accept_reject_dialog_x_position,
-                                       accept_reject_dialog_y_position, il));
-   if (graphics_info_t::ramachandran_plot_x_position > -1)
-      commands.push_back(state_command("coot", "set-ramachandran-plot-dialog-position",
-                                       ramachandran_plot_x_position,
-                                       ramachandran_plot_y_position, il));
    if (graphics_info_t::edit_chi_angles_dialog_x_position > -1)
       commands.push_back(state_command("coot", "set-edit-chi-angles-dialog-position",
                                        edit_chi_angles_dialog_x_position,
@@ -212,7 +204,8 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
    //    commands.push_back(state_command("set-symmetry-whole-chain", symmetry_whole_chain_flag, il));
    commands.push_back(state_command("coot", "set-symmetry-atom-labels-expanded", symmetry_atom_labels_expanded_flag, il));
    commands.push_back(state_command("coot", "set-active-map-drag-flag", active_map_drag_flag, il));
-   commands.push_back(state_command("coot", "set-show-aniso", show_aniso_atoms_flag, il));
+   // 20250428-PE set_show_aniso() says not to use this function
+   // commands.push_back(state_command("coot", "set-show-aniso", show_aniso_atoms_flag, il));
    commands.push_back(state_command("coot", "set-aniso-probability", show_aniso_atoms_probability, il));
    commands.push_back(state_command("coot", "set-smooth-scroll-steps", smooth_scroll_n_steps, il));
    commands.push_back(state_command("coot", "set-smooth-scroll-limit", smooth_scroll_limit, il));
@@ -628,17 +621,19 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
       const coot::simple_distance_object_t &sdo = measure_distance_object_vec[idist];
       if (is_valid_model_molecule(sdo.imol_start)) {
          if (is_valid_model_molecule(sdo.imol_end)) {
-            std::vector<std::string> s(9);
-            s[0] = "add-geometry-distance";
-            s[1] = coot::util::int_to_string(sdo.imol_start);
-            s[2] = coot::util::float_to_string(sdo.start_pos.x());
-            s[3] = coot::util::float_to_string(sdo.start_pos.y());
-            s[4] = coot::util::float_to_string(sdo.start_pos.z());
-            s[5] = coot::util::int_to_string(sdo.imol_end);
-            s[6] = coot::util::float_to_string(sdo.end_pos.x());
-            s[7] = coot::util::float_to_string(sdo.end_pos.y());
-            s[8] = coot::util::float_to_string(sdo.end_pos.z());
-            commands.push_back(state_command(s,il));
+            std::vector<std::string> s(10);
+            s[0] = "coot";
+            s[1] = "add-geometry-distance";
+            s[2] = coot::util::int_to_string(sdo.imol_start);
+            s[3] = coot::util::float_to_string(sdo.start_pos.x());
+            s[4] = coot::util::float_to_string(sdo.start_pos.y());
+            s[5] = coot::util::float_to_string(sdo.start_pos.z());
+            s[6] = coot::util::int_to_string(sdo.imol_end);
+            s[7] = coot::util::float_to_string(sdo.end_pos.x());
+            s[8] = coot::util::float_to_string(sdo.end_pos.y());
+            s[9] = coot::util::float_to_string(sdo.end_pos.z());
+            std::string sc = state_command(s, il);
+            commands.push_back(sc);
          }
       }
    }
@@ -939,11 +934,11 @@ graphics_info_t::state_command(const std::vector<std::string> &strs,
       }
 
       if (state_lang == coot::STATE_PYTHON) {
-	      if (strs.size() > 0) {
+         if (strs.size() > 0) {
             if (strs[0] == "coot") {
                command = "coot.";
                command += pythonize_command_name(strs[1]);
-	            command += "(";
+               command += "(";
                if (strs.size() > 2) {
                   // add args with commas after them
                   int n_strs_max = strs.size() -1;
@@ -953,8 +948,8 @@ graphics_info_t::state_command(const std::vector<std::string> &strs,
                   }
                }
             } else {
-   	         command = pythonize_command_name(strs[0]);
-	            command += "(";
+               command = pythonize_command_name(strs[0]);
+               command += "(";
                if (strs.size() > 2) {
                   // add args with commas after them
                   int n_strs_max = strs.size() -1;
@@ -967,7 +962,7 @@ graphics_info_t::state_command(const std::vector<std::string> &strs,
             if (strs.size() > 1)
                command += strs.back();
             command +=  ")";
-	      }
+         }
       }
    }
    return command;

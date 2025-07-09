@@ -1,0 +1,284 @@
+data_comp_list
+loop_
+_chem_comp.id
+_chem_comp.three_letter_code
+_chem_comp.name
+_chem_comp.group
+_chem_comp.number_atoms_all
+_chem_comp.number_atoms_nh
+_chem_comp.desc_level
+ARG ARG ARGININE peptide 27 12 .
+
+data_comp_ARG
+loop_
+_chem_comp_atom.comp_id
+_chem_comp_atom.atom_id
+_chem_comp_atom.type_symbol
+_chem_comp_atom.type_energy
+_chem_comp_atom.charge
+_chem_comp_atom.x
+_chem_comp_atom.y
+_chem_comp_atom.z
+ARG N N NT3 1 70.130 14.992 90.045
+ARG CA C CH1 0 70.443 14.368 91.360
+ARG C C C 0 71.906 13.892 91.367
+ARG O O O 0 72.245 13.075 90.483
+ARG CB C CH2 0 69.504 13.191 91.652
+ARG CG C CH2 0 68.033 13.562 91.785
+ARG CD C CH2 0 67.166 12.373 92.178
+ARG NE N NC1 0 67.123 11.321 91.154
+ARG CZ C C 0 66.488 10.157 91.270
+ARG NH1 N NC2 0 65.818 9.861 92.371
+ARG NH2 N NC2 1 66.525 9.285 90.278
+ARG OXT O OC -1 72.653 14.357 92.256
+ARG H H H 0 70.064 14.355 89.409
+ARG H2 H H 0 70.776 15.575 89.808
+ARG H3 H H 0 69.349 15.441 90.092
+ARG HA H H 0 70.328 15.054 92.065
+ARG HB3 H H 0 69.794 12.761 92.485
+ARG HB2 H H 0 69.597 12.533 90.931
+ARG HG3 H H 0 67.712 13.922 90.930
+ARG HG2 H H 0 67.938 14.265 92.464
+ARG HD3 H H 0 66.255 12.690 92.348
+ARG HD2 H H 0 67.510 11.993 93.012
+ARG HE H H 0 67.542 11.468 90.404
+ARG HH11 H H 0 66.247 9.797 93.142
+ARG HH12 H H 0 64.945 9.729 92.332
+ARG HH21 H H 0 66.438 9.566 89.444
+ARG HH22 H H 0 66.637 8.426 90.452
+
+loop_
+_chem_comp_tree.comp_id
+_chem_comp_tree.atom_id
+_chem_comp_tree.atom_back
+_chem_comp_tree.atom_forward
+_chem_comp_tree.connect_type
+ARG N n/a CA START
+ARG H N . .
+ARG H2 N . .
+ARG H3 N . .
+ARG CA N C .
+ARG HA CA . .
+ARG CB CA CG .
+ARG HB3 CB . .
+ARG HB2 CB . .
+ARG CG CB CD .
+ARG HG3 CG . .
+ARG HG2 CG . .
+ARG CD CG NE .
+ARG HD3 CD . .
+ARG HD2 CD . .
+ARG NE CD CZ .
+ARG HE NE . .
+ARG CZ NE NH2 .
+ARG NH1 CZ HH12 .
+ARG HH11 NH1 . .
+ARG HH12 NH1 . .
+ARG NH2 CZ HH22 .
+ARG HH21 NH2 . .
+ARG HH22 NH2 . .
+ARG C CA . END
+ARG O C . .
+ARG OXT C . .
+
+loop_
+_chem_comp_acedrg.comp_id
+_chem_comp_acedrg.atom_id
+_chem_comp_acedrg.atom_type
+ARG N N(CCCH)(H)3
+ARG CA C(CCHH)(NH3)(COO)(H)
+ARG C C(CCHN)(O)2
+ARG O O(CCO)
+ARG CB C(CCHH)(CCHN)(H)2
+ARG CG C(CCHH)(CHHN)(H)2
+ARG CD C(CCHH)(NCH)(H)2
+ARG NE N(CCHH)(CNN)(H)
+ARG CZ C(NCH)(NHH)2
+ARG NH1 N(CNN)(H)2
+ARG NH2 N(CNN)(H)2
+ARG OXT O(CCO)
+ARG H H(NCHH)
+ARG H2 H(NCHH)
+ARG H3 H(NCHH)
+ARG HA H(CCCN)
+ARG HB3 H(CCCH)
+ARG HB2 H(CCCH)
+ARG HG3 H(CCCH)
+ARG HG2 H(CCCH)
+ARG HD3 H(CCHN)
+ARG HD2 H(CCHN)
+ARG HE H(NCC)
+ARG HH11 H(NCH)
+ARG HH12 H(NCH)
+ARG HH21 H(NCH)
+ARG HH22 H(NCH)
+
+loop_
+_chem_comp_bond.comp_id
+_chem_comp_bond.atom_id_1
+_chem_comp_bond.atom_id_2
+_chem_comp_bond.type
+_chem_comp_bond.aromatic
+_chem_comp_bond.value_dist_nucleus
+_chem_comp_bond.value_dist_nucleus_esd
+_chem_comp_bond.value_dist
+_chem_comp_bond.value_dist_esd
+ARG N CA SINGLE n 1.487 0.0100 1.487 0.0100
+ARG CA C SINGLE n 1.538 0.0113 1.538 0.0113
+ARG CA CB SINGLE n 1.533 0.0100 1.533 0.0100
+ARG C O DOUBLE n 1.251 0.0183 1.251 0.0183
+ARG C OXT SINGLE n 1.251 0.0183 1.251 0.0183
+ARG CB CG SINGLE n 1.522 0.0100 1.522 0.0100
+ARG CG CD SINGLE n 1.521 0.0200 1.521 0.0200
+ARG CD NE SINGLE n 1.467 0.0100 1.467 0.0100
+ARG NE CZ SINGLE n 1.327 0.0153 1.327 0.0153
+ARG CZ NH1 SINGLE n 1.321 0.0134 1.321 0.0134
+ARG CZ NH2 DOUBLE n 1.321 0.0134 1.321 0.0134
+ARG N H SINGLE n 1.018 0.0520 0.902 0.0102
+ARG N H2 SINGLE n 1.018 0.0520 0.902 0.0102
+ARG N H3 SINGLE n 1.018 0.0520 0.902 0.0102
+ARG CA HA SINGLE n 1.092 0.0100 0.991 0.0200
+ARG CB HB3 SINGLE n 1.092 0.0100 0.981 0.0141
+ARG CB HB2 SINGLE n 1.092 0.0100 0.981 0.0141
+ARG CG HG3 SINGLE n 1.092 0.0100 0.982 0.0161
+ARG CG HG2 SINGLE n 1.092 0.0100 0.982 0.0161
+ARG CD HD3 SINGLE n 1.092 0.0100 0.979 0.0175
+ARG CD HD2 SINGLE n 1.092 0.0100 0.979 0.0175
+ARG NE HE SINGLE n 1.013 0.0120 0.871 0.0200
+ARG NH1 HH11 SINGLE n 1.013 0.0120 0.884 0.0200
+ARG NH1 HH12 SINGLE n 1.013 0.0120 0.884 0.0200
+ARG NH2 HH21 SINGLE n 1.013 0.0120 0.884 0.0200
+ARG NH2 HH22 SINGLE n 1.013 0.0120 0.884 0.0200
+
+loop_
+_chem_comp_angle.comp_id
+_chem_comp_angle.atom_id_1
+_chem_comp_angle.atom_id_2
+_chem_comp_angle.atom_id_3
+_chem_comp_angle.value_angle
+_chem_comp_angle.value_angle_esd
+ARG CA N H 109.990 3.00
+ARG CA N H2 109.990 3.00
+ARG CA N H3 109.990 3.00
+ARG H N H2 109.032 3.00
+ARG H N H3 109.032 3.00
+ARG H2 N H3 109.032 3.00
+ARG N CA C 109.258 1.50
+ARG N CA CB 110.440 2.46
+ARG N CA HA 108.387 1.58
+ARG C CA CB 111.059 3.00
+ARG C CA HA 108.774 1.79
+ARG CB CA HA 109.080 2.33
+ARG CA C O 117.148 1.60
+ARG CA C OXT 117.148 1.60
+ARG O C OXT 125.704 1.50
+ARG CA CB CG 114.160 3.00
+ARG CA CB HB3 108.677 1.74
+ARG CA CB HB2 108.677 1.74
+ARG CG CB HB3 108.721 1.50
+ARG CG CB HB2 108.721 1.50
+ARG HB3 CB HB2 107.655 1.50
+ARG CB CG CD 112.025 3.00
+ARG CB CG HG3 109.216 1.64
+ARG CB CG HG2 109.216 1.64
+ARG CD CG HG3 108.991 1.50
+ARG CD CG HG2 108.991 1.50
+ARG HG3 CG HG2 107.958 2.23
+ARG CG CD NE 112.275 3.00
+ARG CG CD HD3 109.172 2.35
+ARG CG CD HD2 109.172 2.35
+ARG NE CD HD3 109.193 1.50
+ARG NE CD HD2 109.193 1.50
+ARG HD3 CD HD2 107.932 1.94
+ARG CD NE CZ 124.614 2.32
+ARG CD NE HE 117.935 2.37
+ARG CZ NE HE 117.451 2.77
+ARG NE CZ NH1 120.032 1.90
+ARG NE CZ NH2 120.032 1.90
+ARG NH1 CZ NH2 119.937 1.95
+ARG CZ NH1 HH11 119.775 3.00
+ARG CZ NH1 HH12 119.775 3.00
+ARG HH11 NH1 HH12 120.450 3.00
+ARG CZ NH2 HH21 119.775 3.00
+ARG CZ NH2 HH22 119.775 3.00
+ARG HH21 NH2 HH22 120.450 3.00
+
+loop_
+_chem_comp_tor.comp_id
+_chem_comp_tor.id
+_chem_comp_tor.atom_id_1
+_chem_comp_tor.atom_id_2
+_chem_comp_tor.atom_id_3
+_chem_comp_tor.atom_id_4
+_chem_comp_tor.value_angle
+_chem_comp_tor.value_angle_esd
+_chem_comp_tor.period
+ARG chi1 N CA CB CG -60.000 10.0 3
+ARG chi2 CA CB CG CD 180.000 10.0 3
+ARG chi3 CB CG CD NE 60.000 10.0 3
+ARG chi4 CG CD NE CZ 180.000 10.0 6
+ARG chi5 CD NE CZ NH2 0.000 5.0 2
+ARG hh1 NE CZ NH1 HH12 0.000 5.0 2
+ARG hh2 NE CZ NH2 HH22 0.000 5.0 2
+ARG sp3_sp3_1 C CA N H 180.000 10.0 3
+ARG sp2_sp3_1 O C CA N 0.000 10.0 6
+
+loop_
+_chem_comp_chir.comp_id
+_chem_comp_chir.id
+_chem_comp_chir.atom_id_centre
+_chem_comp_chir.atom_id_1
+_chem_comp_chir.atom_id_2
+_chem_comp_chir.atom_id_3
+_chem_comp_chir.volume_sign
+ARG chir_1 CA N C CB positive
+
+loop_
+_chem_comp_plane_atom.comp_id
+_chem_comp_plane_atom.plane_id
+_chem_comp_plane_atom.atom_id
+_chem_comp_plane_atom.dist_esd
+ARG plan-1 C 0.020
+ARG plan-1 CA 0.020
+ARG plan-1 O 0.020
+ARG plan-1 OXT 0.020
+ARG plan-2 CD 0.020
+ARG plan-2 CZ 0.020
+ARG plan-2 HE 0.020
+ARG plan-2 NE 0.020
+ARG plan-3 CZ 0.020
+ARG plan-3 NE 0.020
+ARG plan-3 NH1 0.020
+ARG plan-3 NH2 0.020
+ARG plan-4 CZ 0.020
+ARG plan-4 HH11 0.020
+ARG plan-4 HH12 0.020
+ARG plan-4 NH1 0.020
+ARG plan-5 CZ 0.020
+ARG plan-5 HH21 0.020
+ARG plan-5 HH22 0.020
+ARG plan-5 NH2 0.020
+
+loop_
+_pdbx_chem_comp_descriptor.comp_id
+_pdbx_chem_comp_descriptor.type
+_pdbx_chem_comp_descriptor.program
+_pdbx_chem_comp_descriptor.program_version
+_pdbx_chem_comp_descriptor.descriptor
+ARG SMILES ACDLabs 10.04 O=C(O)C(N)CCCN\C(=[NH2+])N
+ARG SMILES_CANONICAL CACTVS 3.341 N[C@@H](CCCNC(N)=[NH2+])C(O)=O
+ARG SMILES CACTVS 3.341 N[CH](CCCNC(N)=[NH2+])C(O)=O
+ARG SMILES_CANONICAL "OpenEye OEToolkits" 1.5.0 C(C[C@@H](C(=O)O)N)CNC(=[NH2+])N
+ARG SMILES "OpenEye OEToolkits" 1.5.0 C(CC(C(=O)O)N)CNC(=[NH2+])N
+ARG InChI InChI 1.03 InChI=1S/C6H14N4O2/c7-4(5(11)12)2-1-3-10-6(8)9/h4H,1-3,7H2,(H,11,12)(H4,8,9,10)/p+1/t4-/m0/s1
+ARG InChIKey InChI 1.03 ODKSFYDXXFIFQN-BYPYZUCNSA-O
+
+loop_
+_pdbx_chem_comp_description_generator.comp_id
+_pdbx_chem_comp_description_generator.program_name
+_pdbx_chem_comp_description_generator.program_version
+_pdbx_chem_comp_description_generator.descriptor
+ARG acedrg 278 "dictionary generator"
+ARG acedrg_database 12 "data source"
+ARG rdkit 2019.09.1 "Chemoinformatics tool"
+ARG refmac5 5.8.0419 "optimization tool"

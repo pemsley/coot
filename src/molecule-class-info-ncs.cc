@@ -50,6 +50,10 @@
 #include "xmap-utils.h"
 #include "graphics-info.h"
 
+#include "utils/logging.hh"
+extern logging logger;
+
+
 // This is called by make_bonds_type_checked(), which is called by
 // update_molecule_after_additions().
 // 
@@ -61,7 +65,7 @@ molecule_class_info_t::update_ghosts() {
       if (ncs_ghosts.size() > 0) {
          for (unsigned int ighost=0; ighost<ncs_ghosts.size(); ighost++) {
 
-            if (ncs_ghosts[ighost].display_it_flag) 
+            if (ncs_ghosts[ighost].display_it_flag)
                ncs_ghosts[ighost].update_bonds(atom_sel.mol);
          }
       }
@@ -119,9 +123,9 @@ molecule_class_info_t::delete_ghost_selections() {
 
 // This is a ghost_molecule_display_t member function
 void
-coot::ghost_molecule_display_t::update_bonds(mmdb::Manager *mol) {
+drawn_ghost_molecule_display_t::update_bonds(mmdb::Manager *mol) {
 
-   if (false) {
+   if (true) {
       std::cout << "ghost_molecule_display_t::update_bonds() " << std::endl;
       std::cout << "ghost_molecule_display_t::update_bonds() rtop " << std::endl;
       std::cout << rtop.format() << std::endl;
@@ -208,19 +212,19 @@ coot::ghost_molecule_display_t::update_bonds(mmdb::Manager *mol) {
                       << "ghost-bond-at " << at.format() << " ghost-bond-bt" << bt.format() << " "
                       << std::endl;
 
-	 coot::CartesianPair p(Cartesian(at.x(), at.y(), at.z()),
-			       Cartesian(bt.x(), bt.y(), bt.z()));
+	 coot::CartesianPair p(coot::Cartesian(at.x(), at.y(), at.z()),
+			       coot::Cartesian(bt.x(), bt.y(), bt.z()));
 	 bonds_box.bonds_[i].pair_list[j] = graphics_line_t(p, cc, false, false, -1, -1, -1);
       }
    }
 
-   auto cartesian_to_clipper = [] (const Cartesian &p) {
-                                  return clipper::Coord_orth(p.x(), p.y(), p.z());
-                               };
-   auto clipper_to_cartesian = [] (const clipper::Coord_orth &co) {
-                                  return Cartesian(co.x(), co.y(), co.z());
-                               };
-   
+   auto cartesian_to_clipper = +[] (const coot::Cartesian &p) {
+      return clipper::Coord_orth(p.get_x(), p.get_y(), p.get_z());
+   };
+   auto clipper_to_cartesian = +[] (const clipper::Coord_orth &co) {
+      return coot::Cartesian(co.x(), co.y(), co.z());
+   };
+
    for (int icol=0; icol<bonds_box.n_consolidated_atom_centres; icol++) {
       for (unsigned int i=0; i<bonds_box.consolidated_atom_centres[icol].num_points; i++) {
          graphical_bonds_atom_info_t &ai = bonds_box.consolidated_atom_centres[icol].points[i];
@@ -237,12 +241,13 @@ coot::ghost_molecule_display_t::update_bonds(mmdb::Manager *mol) {
 
    std::cout << "ghost code needs reworking: update_bonds() for ghosts " << std::endl;
 
-#if 0
-   mesh.make_graphical_bonds(bonds_box, bbt, Mesh::BALL_AND_STICK, -1, false, 0.1, 0.08, 1, 8, 2, colour_table, *graphics_info_t::Geom_p());
+   mesh.make_graphical_bonds(bonds_box, bbt, Mesh::representation_mode_t::BALL_AND_STICK,
+                             -1, false, 0.1, 0.08, 1, 8, 2, colour_table, *graphics_info_t::Geom_p());
    if (false)
-      std::cout << "########################## ghost mesh v and ts: " << mesh.vertices.size() << " " << mesh.triangles.size()
-                << " with representation_type " << Mesh::BALL_AND_STICK << std::endl;
-#endif
+      std::cout << "########### ghost mesh v and ts: " << mesh.vertices.size()
+                << " " << mesh.triangles.size() << " with representation_type ball-and-stick"
+                << std::endl;
+
 }
 
 void
@@ -253,30 +258,29 @@ molecule_class_info_t::draw_ncs_ghosts(Shader *shader_for_meshes,
                                        const glm::vec3 &eye_position,
                                        const glm::vec4 &background_colour) {
 
-   // std::cout << "draw_ncs_ghosts() " << std::endl;
    if (show_ghosts_flag) {
       for (auto &ghost : ncs_ghosts) {
-         // ghost.draw(shader_for_meshes, mvp, model_rotation_matrix, lights, eye_position, background_colour);
-         std::cout << "draw_ncs_ghosts() missing draw() function - FIXME" << std::endl;
+         ghost.draw(shader_for_meshes, mvp, model_rotation_matrix, lights, eye_position, background_colour);
       }
    }
 
 }
 
-#if 0 // 20230826-PE needs to derive from the api ghost_molecule_display_t class - which doesn't have a draw()
-      // function.
 void
-coot::ghost_molecule_display_t::draw(Shader *shader_p,
+drawn_ghost_molecule_display_t::draw(Shader *shader_p,
                                      const glm::mat4 &mvp,
                                      const glm::mat4 &view_rotation_matrix,
                                      const std::map<unsigned int, lights_info_t> &lights,
                                      const glm::vec3 &eye_position, // eye position in view space (not molecule space)
                                      const glm::vec4 &background_colour) {
 
-   // std::cout << "ncs_ghosts::draw() " << mesh.vertices.size() << " " << mesh.triangles.size() << std::endl;
-   mesh.draw(shader_p, mvp, view_rotation_matrix, lights, eye_position, 1.0f, background_colour, false, true, false);
+   if (false)
+      std::cout << "ncs_ghosts::draw() n-verts: " << mesh.vertices.size()
+                << " n-tris: " << mesh.triangles.size() << std::endl;
+   glm::vec3 rc = graphics_info_t::get_rotation_centre();
+   mesh.draw(shader_p, mvp, view_rotation_matrix, lights, eye_position, rc, 1.0, background_colour, false, true, false);
 }
-#endif
+
 
 // public interface
 int
@@ -287,7 +291,7 @@ molecule_class_info_t::update_ncs_ghosts() {
 }
 
 // Called on read pdb:
-// 
+//
 // fill ncs ghosts:  detect exact ncs automatically.
 int
 molecule_class_info_t::fill_ghost_info(short int do_rtops_flag,
@@ -305,7 +309,7 @@ molecule_class_info_t::fill_ghost_info(short int do_rtops_flag,
    bool allow_offset_flag = 0;
    if (is_from_shelx_ins_flag)
       allow_offset_flag = 1;
-   
+
    // start from a blank slate:
    ncs_ghosts.clear();
 
@@ -313,14 +317,14 @@ molecule_class_info_t::fill_ghost_info(short int do_rtops_flag,
    // rtops if we asked for them.
    if (do_rtops_flag)
       ncs_ghosts_have_rtops_flag = 1;
-      
 
-   if (atom_sel.n_selected_atoms > 0) { 
+
+   if (atom_sel.n_selected_atoms > 0) {
 
       int n_models = atom_sel.mol->GetNumberOfModels();
       if (n_models > 0) {
 	 int imod = 1; // otherwise madness
-      
+
 	 mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
 	 mmdb::Chain *chain_p;
 	 // run over chains of the existing mol
@@ -353,24 +357,24 @@ molecule_class_info_t::fill_ghost_info(short int do_rtops_flag,
 // 		  std::cout << "DEBUG:: fill_ghost_info chain_atom_selection_handles[" <<
 // 		     ichain << "] is " << chain_atom_selection_handles[ichain] <<
 // 		     " for chain id :" << chain_p->GetChainID() << ":" << std::endl;
-		  
+
 		  // debugging the atom selection
-		  if (0) { 
+		  if (false) {
 		     mmdb::PPAtom selatoms_1 = NULL;
-		     int n_sel_atoms_1; 
+		     int n_sel_atoms_1;
 		     atom_sel.mol->GetSelIndex(iselhnd, selatoms_1, n_sel_atoms_1);
  		     std::cout << "DEBUG:: fill_ghost_info: first atom of " << n_sel_atoms_1
  			       << " in " << chain_p->GetChainID()
- 			       << "  " << iselhnd 
+ 			       << "  " << iselhnd
  			       << "  selection " << selatoms_1[0] << std::endl;
 		  }
-		  
+
 		  int nres = chain_p->GetNumberOfResidues();
 		  residue_types[ichain].resize(nres);
 // 		  std::cout << "INFO:: residues_types[" << ichain << "] resized to "
 // 			    << residue_types[ichain].size() << std::endl;
 		  mmdb::PResidue residue_p;
-		  for (int ires=0; ires<nres; ires++) { 
+		  for (int ires=0; ires<nres; ires++) {
 		     residue_p = chain_p->GetResidue(ires);
 		     std::string resname(residue_p->name);
 		     residue_types[ichain][ires] =
@@ -382,30 +386,35 @@ molecule_class_info_t::fill_ghost_info(short int do_rtops_flag,
 	 }
       }
 
-      if (0) { 
+      if (false) {
 	 std::cout << "DEBUG:: fill_ghost_info allow_offset_flag: " << allow_offset_flag << std::endl;
 	 std::cout << "DEBUG:: calling add_ncs_ghosts_no_explicit_master() with first_chain_of_this_type ";
-	 for (unsigned int ifc=0; ifc<first_chain_of_this_type.size(); ifc++) { 
+	 for (unsigned int ifc=0; ifc<first_chain_of_this_type.size(); ifc++) {
 	    std::cout << "   " << ifc << ": " << first_chain_of_this_type[ifc] << " ";
 	 }
 	 std::cout << std::endl;
 	 std::cout << "DEBUG:: calling add_ncs_ghosts_no_explicit_master() with chain_ids: ";
-	 for (unsigned int ich=0; ich<chain_ids.size(); ich++) { 
+	 for (unsigned int ich=0; ich<chain_ids.size(); ich++) {
 	    std::cout << chain_ids[ich] << " ";
 	 }
 	 std::cout << std::endl;
       }
-	    
+
       add_ncs_ghosts_no_explicit_master(chain_ids, residue_types, first_chain_of_this_type,
 					chain_atom_selection_handles, do_rtops_flag, homology_lev,
 					allow_offset_flag);
 
-      if (ncs_ghosts.size() > 0) { 
+      if (! ncs_ghosts.empty()) {
 	 update_ghosts();
-	 std::cout << "  INFO:: fill_ghost_info Constructed " << ncs_ghosts.size() << " ghosts\n";
+	 // std::cout << "  INFO:: fill_ghost_info Constructed " << ncs_ghosts.size() << " ghosts\n";
+         int n_ghosts = ncs_ghosts.size();
+         logger.log(log_t::INFO, std::string("Constructed"), std::to_string(n_ghosts),
+		    std::string("ghosts"));
 	 for (unsigned int ighost=0; ighost<ncs_ghosts.size(); ighost++) {
-	    std::cout << "      Ghost " << ighost << " name: \"" << ncs_ghosts[ighost].name << "\""
-		      << std::endl;
+	    // std::cout << "      Ghost " << ighost << " name: \"" << ncs_ghosts[ighost].name
+	    // << "\"" << std::endl;
+	    std::string name = "\"" + ncs_ghosts[ighost].name + "\"";
+            logger.log(log_t::INFO, "     Ghost index:", std::to_string(ighost), "name", name);
 	 }
       }
    }
@@ -452,10 +461,10 @@ molecule_class_info_t::add_ncs_ghosts_no_explicit_master(const std::vector<std::
    // std::cout << "DEBUG:: Checking chains for NCS.. (no explicit master)" << std::endl;
    // So now let's check the chains against each other:
    for (unsigned int ifirst=0; ifirst<(chain_ids.size()-1); ifirst++) {
-      try { 
+      try {
 	 if (first_chain_of_this_type[ifirst]) { // trickiness
 	    for (unsigned int isec=(ifirst+1); isec<chain_ids.size(); isec++) {
-	       if (0) 
+	       if (false)
 		  std::cout << "DEBUG:: checking chains numbers "
 			    << ifirst << " (" << chain_ids[ifirst] << ") and "
 			    << isec << " (" << chain_ids[isec] << ") with homology_level "
@@ -465,30 +474,30 @@ molecule_class_info_t::add_ncs_ghosts_no_explicit_master(const std::vector<std::
 				      homology_level,
 				      allow_offset_flag)) {
 
-		  if (0) 
+		  if (false)
 		     std::cout << "DEBUG:: ncs_chains match! =================  "
 			       << ifirst << " (" << chain_ids[ifirst] << ") and "
 			       << isec << " (" << chain_ids[isec] << ")" << std::endl;
-	    
+
 		  first_chain_of_this_type[isec] = 0; // trickiness
-		  coot::ghost_molecule_display_t ghost;
+		  drawn_ghost_molecule_display_t ghost;
 		  // slow...
 		  if (do_rtops_flag) {
-		     if (0) 
+		     if (false)
 			std::cout << "DEBUG:: add_ncs_ghosts_no_explicit_master: first: "
 				  << ifirst << " " << chain_atom_selection_handles[ifirst]
 				  << " and isec: " << isec << " " << chain_atom_selection_handles[isec]
 				  << std::endl;
 
-		     coot::ncs_matrix_info_t ghost_info = 
+		     coot::ncs_matrix_info_t ghost_info =
 			find_ncs_matrix(chain_atom_selection_handles[ifirst],
 					chain_atom_selection_handles[isec]);
-		     if (ghost_info.state) { 
+		     if (ghost_info.state) {
 			ghost.rtop = ghost_info.rtop;
 			ghost.display_it_flag = 1;
 			ghost.residue_matches = ghost_info.residue_matches;
 		     }
-		  } 
+		  }
 		  ghost.SelectionHandle = chain_atom_selection_handles[isec];
 		  ghost.target_chain_id = chain_ids[ifirst];
 		  ghost.chain_id = chain_ids[isec];
@@ -500,11 +509,11 @@ molecule_class_info_t::add_ncs_ghosts_no_explicit_master(const std::vector<std::
 		  // ghost.bonds_box filled by update_ghosts().
 		  ncs_ghosts.push_back(ghost);
 	       } else {
-		  if (0)
+		  if (false)
 		     std::cout << "DEBUG:: ncs_chains NO MATCH =================  "
 			       << ifirst << " (" << chain_ids[ifirst] << ") and "
 			       << isec << " (" << chain_ids[isec] << ")" << std::endl;
-	       } 
+	       }
 	    }
 	 }
       }
@@ -580,7 +589,7 @@ molecule_class_info_t::add_ncs_ghosts_using_ncs_master(const std::string &master
 void
 molecule_class_info_t::set_show_ghosts(short int state) {
 
-   show_ghosts_flag = state;
+   show_ghosts_flag = state; // bool
    // caller redraws
 }
 
@@ -776,6 +785,7 @@ molecule_class_info_t::set_ghost_bond_thickness(float f) {
 
 int
 molecule_class_info_t::test_function() {
+#if 0
    int imol;
    graphics_info_t g;
 
@@ -796,7 +806,7 @@ molecule_class_info_t::test_function() {
       std::cout << "DEBUG:: This is imol=" << imol_no << std::endl;
       imol = graphics_info_t::create_molecule();
    }
-   
+
    imol = imol_base;
    std::cout << "DEBUG:: pre-second-loop: This is imol=" << imol_no << std::endl;
    for(unsigned int ighost=0; ighost<local_ncs_ghosts.size(); ighost++) {
@@ -805,7 +815,7 @@ molecule_class_info_t::test_function() {
       for (int itmp=0; itmp<=imol; itmp++)
 	 std::cout << "DEBUG:: molecule names: " << itmp << " :"
 		   << graphics_info_t::molecules[itmp].name_ << ":" << std::endl;
-      
+
       std::cout << "DEBUG:: NCS Copy to map number " << imol << std::endl;
       std::cout << "DEBUG:: pre-install of ghost map " << ighost << "/"
 		<< local_ncs_ghosts.size() << std::endl;
@@ -814,10 +824,12 @@ molecule_class_info_t::test_function() {
    }
 
    return imol;
+#endif
+   return 0;
 }
 
 
-std::vector<coot::ghost_molecule_display_t>
+std::vector<drawn_ghost_molecule_display_t>
 molecule_class_info_t::NCS_ghosts() const {
 
    return ncs_ghosts;
@@ -836,7 +848,7 @@ molecule_class_info_t::ncs_averaged_maps(const clipper::Xmap<float> &xmap_in,
    std::vector<std::pair<clipper::Xmap<float>, std::string> > annotated_xmaps;
 
    // First, let's make the ncs operators if they need to be made:
-   if (ncs_ghosts.size() > 0) { 
+   if (ncs_ghosts.size() > 0) {
       if (ncs_ghosts_have_rtops_flag == 0) {
 // 	 std::cout << "   %%%%%%%%% calling fill_ghost_info from ncs_averaged_maps "
 // 		   << std::endl;
@@ -846,12 +858,12 @@ molecule_class_info_t::ncs_averaged_maps(const clipper::Xmap<float> &xmap_in,
       // Sort the targets into those that match to molecule A,
       // those that match to molecule B ... etc
       //
-      // index      0         1 
+      // index      0         1
       // match to   A         D
       // chainid    B C       E F
-      // 
+      //
       std::vector<std::string> reference_ids;
-      
+
       for (unsigned int ighost=0; ighost<ncs_ghosts.size(); ighost++) {
 	 short int ifound = 0;
 	 for (unsigned int ir=0; ir<reference_ids.size(); ir++) {
@@ -871,9 +883,9 @@ molecule_class_info_t::ncs_averaged_maps(const clipper::Xmap<float> &xmap_in,
       // So reference_matchers will contain vectors of ghost indexes
       // of molecules that match the reference id (but not the
       // reference molecule).
-      // 
+      //
       std::vector<std::vector<int> > reference_matchers(n_references);
-      
+
       for (unsigned int ighost=0; ighost<ncs_ghosts.size(); ighost++) {
 	 for (unsigned int ir=0; ir<reference_ids.size(); ir++) {
 	    if (ncs_ghosts[ighost].target_chain_id == reference_ids[ir]) {
@@ -1881,17 +1893,17 @@ molecule_class_info_t::set_ncs_master_chain(const std::string &new_master_chain_
    ncs_ghosts.resize(0);
    ncs_ghosts_have_rtops_flag = 0;
 
-   if (atom_sel.n_selected_atoms > 0) { 
+   if (atom_sel.n_selected_atoms > 0) {
 
       int n_models = atom_sel.mol->GetNumberOfModels();
       if (n_models > 0) {
 	 int imod = 1; // otherwise madness
-      
+
 	 mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
 	 mmdb::Chain *chain_p;
 	 // run over chains of the existing mol
 	 int nchains = model_p->GetNumberOfChains();
-	 if (nchains <= 0) { 
+	 if (nchains <= 0) {
 	    std::cout << "bad nchains in molecule " << nchains
 		      << std::endl;
 	 } else {
@@ -1901,7 +1913,7 @@ molecule_class_info_t::set_ncs_master_chain(const std::string &new_master_chain_
 	    first_chain_of_this_type.resize(nchains, 1);
 	    for (int ichain=0; ichain<nchains; ichain++) {
 	       chain_p = model_p->GetChain(ichain);
-	       if (! chain_p->isSolventChain()) { 
+	       if (! chain_p->isSolventChain()) {
 		  chain_ids[ichain] = chain_p->GetChainID();
 		  int iselhnd = atom_sel.mol->NewSelection();
 		  mmdb::PAtom *atom_selection = NULL;
@@ -1913,7 +1925,7 @@ molecule_class_info_t::set_ncs_master_chain(const std::string &new_master_chain_
 					    "*", "*", "*", "*");
 		  atom_sel.mol->GetSelIndex(iselhnd, atom_selection, nSelAtoms);
 		  chain_atom_selection_handles[ichain] = iselhnd;
-		  
+
 		  int nres = chain_p->GetNumberOfResidues();
 		  residue_types[ichain].resize(nres);
 // 		  std::cout << "INFO:: residues_types[" << ichain << "] resized to "
@@ -1932,7 +1944,7 @@ molecule_class_info_t::set_ncs_master_chain(const std::string &new_master_chain_
       add_ncs_ghosts_using_ncs_master(new_master_chain_id, chain_ids, residue_types,
 				      chain_atom_selection_handles, homology_lev);
 
-      if (ncs_ghosts.size() > 0) { 
+      if (! ncs_ghosts.empty()) {
 	 update_ghosts();
 	 std::cout << "INFO:: set_ncs_master_chain Constructed " << ncs_ghosts.size() << " ghosts\n";
 	 for (unsigned int ighost=0; ighost<ncs_ghosts.size(); ighost++) {
@@ -1948,10 +1960,14 @@ molecule_class_info_t::set_display_ncs_ghost_chain(int ichain, int state) {
 
    float ncs_ghost_similarity_score = 0.7; // make a class member datum
 
-   
+   set_show_ghosts(state);
+
+   if (state)
+      update_ncs_ghosts();
+
    // The ichain that is passed is the index number of the chains in
    // the atom_selection.
-   // 
+   //
    // So we need to convert that to the index of ncs_ghosts which has
    // the same chain_id
 
@@ -1970,15 +1986,17 @@ molecule_class_info_t::set_display_ncs_ghost_chain(int ichain, int state) {
 // 		<< "         target chain id: " << ncs_ghosts[ighost].target_chain_id<< "\n"
 // 		<< "         display_it_flag "  << ncs_ghosts[ighost].display_it_flag << std::endl;
 //    }
-   
+
    int ghost_index = -1;
    if (atom_sel.n_selected_atoms > 0) {
-      if (show_ghosts_flag) { 
+      if (show_ghosts_flag) {
 	 if (ncs_ghosts.size() > 0) {
 	    if (ncs_ghosts[0].is_empty() || ncs_ghosts_have_rtops_flag == 0) {
-	       // std::cout << "        --  set_display_ncs_ghost_chain calls fill ghost info, 1"
-	       // << " with ncs_ghosts_have_rtops_flag " << ncs_ghosts_have_rtops_flag 
-	       // << std::endl;
+
+	       std::cout << "        --  set_display_ncs_ghost_chain calls fill ghost info, 1"
+                         << " with ncs_ghosts_have_rtops_flag " << ncs_ghosts_have_rtops_flag
+                         << std::endl;
+
 	       fill_ghost_info(1, ncs_ghost_similarity_score); // 0.7?
 	    }
 	 }
@@ -1997,9 +2015,9 @@ molecule_class_info_t::set_display_ncs_ghost_chain(int ichain, int state) {
 	       break;
 	    }
 	 }
-	 
+
 	 // 	 std::cout << "   Here ghost_index is " << ghost_index << std::endl;
-	 if (ghost_index > -1 ) { 
+	 if (ghost_index > -1 ) {
 	    if (int(ncs_ghosts.size()) > ghost_index) {
 	       ncs_ghosts[ghost_index].display_it_flag = state;
 	    }
@@ -2011,7 +2029,7 @@ molecule_class_info_t::set_display_ncs_ghost_chain(int ichain, int state) {
    }
 
    //    std::cout << "   DEBUG:: end of set_display_ncs_ghost_chain: " << std::endl;
-   std::cout << "        There are " << ncs_ghosts.size() << " ghosts" << std::endl;
+   std::cout << "INFO:: There are " << ncs_ghosts.size() << " ghosts" << std::endl;
    for (unsigned int ighost=0; ighost<ncs_ghosts.size(); ighost++) {
       std::cout << "         ighost: " << ighost<< "\n"
 		<<  "        name: \""           << ncs_ghosts[ighost].name << "\"" << "\n"
@@ -2069,7 +2087,7 @@ molecule_class_info_t::apply_ncs_to_view_orientation_forward(const clipper::Mat3
       //    the target_chain_id then {
       //       Then look for a ghost that that chain_id next_ncs_chain
       //       Note its target_chain_id.
-      //       if target_chain_ids match 
+      //       if target_chain_ids match
       //          we can find the matrix
       //    } else { next_ncs_chain *was* target_chain_id }
       //          the ncs matrix is the ghost matrix
@@ -2081,8 +2099,7 @@ molecule_class_info_t::apply_ncs_to_view_orientation_forward(const clipper::Mat3
       //     if the target chain for that is current_chain
       //     then we want the inverse matrix of that next
       //     ghost
-      
-      
+
       if (! ncs_ghost_chain_is_a_target_chain_p(current_chain)) {
 
 	 //    Is there a ghost that has chain_id current_chain?
@@ -2096,15 +2113,15 @@ molecule_class_info_t::apply_ncs_to_view_orientation_forward(const clipper::Mat3
 	       break;
 	    }
 	 }
-	 
+
 	 if (i_ghost_chain_match != -1) {
 	    // should always happen
 
 	    // were we on the last ghost that has the same
 	    // target_chain_id as this ghost has?
-	    
-	    if (last_ghost_matching_target_chain_id_p(i_ghost_chain_match, ncs_ghosts)) { 
-	       
+
+	    if (last_ghost_matching_target_chain_id_p(i_ghost_chain_match, ncs_ghosts)) {
+
 	       // we need to go to the target_chain
 	       clipper::RTop_orth ncs_mat = ncs_ghosts[i_ghost_chain_match].rtop;
  	       // std::cout << "DEBUG:: Last ghost from " << current_chain << " to target chain "
@@ -2127,9 +2144,8 @@ molecule_class_info_t::apply_ncs_to_view_orientation_forward(const clipper::Mat3
 		      << std::endl;
 	 }
 
-	 
       } else {
-	 if (ncs_ghosts_have_rtops_flag) { 
+	 if (ncs_ghosts_have_rtops_flag) {
 	    // we were sitting on an NCS master
 
 	    // find a ghost that has this current_chain_id as a target_chain_id
@@ -2301,7 +2317,7 @@ molecule_class_info_t::ncs_ghost_chain_is_a_target_chain_p(const std::string &ch
 // 
 bool
 molecule_class_info_t::last_ghost_matching_target_chain_id_p(int i_ghost_chain_match, 
-							     const std::vector<coot::ghost_molecule_display_t> &ncs_ghosts) const {
+							     const std::vector<drawn_ghost_molecule_display_t> &ncs_ghosts) const {
 
    bool is_last = 0;
 

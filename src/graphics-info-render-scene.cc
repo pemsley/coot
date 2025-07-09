@@ -799,7 +799,7 @@ graphics_info_t::render_scene() {
          texture_for_background_image.Bind(0);
          tmesh_for_background_image.draw(&shader_for_background_image, HUDTextureMesh::TOP_LEFT);
       }
-      
+
       graphics_info_t g;// needed? Yes.
       err = glGetError();
       if (err)
@@ -821,6 +821,17 @@ graphics_info_t::render_scene() {
       }
    };
 
+   // 20250422-PE - if we switch contexts when rendering the Rama plot, we needd
+   // to switch back. It seems that here is the place to do it (I might be wrong).
+   //
+   GtkWidget *gl_area = glareas[0];
+   gtk_gl_area_make_current(GTK_GL_AREA(gl_area));
+   if (gtk_gl_area_get_error(GTK_GL_AREA(gl_area))) {
+      auto mess = gtk_gl_area_get_error(GTK_GL_AREA(gl_area))->message;
+      std::cout << "ERROR:: graphics_info_t::render_scene(): error making current GL context: "
+                << mess << std::endl;
+   };
+   // it is disasterous to carry on here if we get the above error
 
    // crow variable conversion
    Shader *shader_for_tmeshes_p = &shader_for_texture_meshes;
