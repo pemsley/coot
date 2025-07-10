@@ -84,7 +84,7 @@ AX_CXX_HAVE_THREAD
 
 # AX_CXX_COMPILE_STDCXX_11 sets HAVE_CXX11=1 (hopefully)
 if test $HAVE_CXX11 = 1 ; then
-   CXXFLAGS="$CXXFLAGS -std=c++23"
+   CXXFLAGS="$CXXFLAGS -std=c++20"
 else
    echo we can\'t compile coot then
 fi
