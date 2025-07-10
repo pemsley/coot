@@ -692,6 +692,10 @@ NB_MODULE(coot_headless_api, m) {
     .def("get_atom_using_cid",
          &molecules_container_t::get_atom_using_cid, nb::rv_policy::reference,
          get_docstring_from_xml("get_atom_using_cid").c_str())
+    .def("get_atom_overlap_score",
+         &molecules_container_t::get_atom_overlap_score,
+	 nb::arg("imol"),
+         get_docstring_from_xml("get_atom_overlap_score").c_str())
     .def("get_bonds_mesh",
          &molecules_container_t::get_bonds_mesh,
          nb::arg("imol"), nb::arg("mode"), nb::arg("against_a_dark_background"), nb::arg("bond_width"), nb::arg("atom_radius_to_bond_width_ratio"), nb::arg("smoothness_factor"),
@@ -859,6 +863,10 @@ NB_MODULE(coot_headless_api, m) {
          &molecules_container_t::get_overlaps,
          nb::arg("imol"),
          get_docstring_from_xml("get_overlaps").c_str())
+    .def("get_overlaps_for_ligand",
+         &molecules_container_t::get_overlaps_for_ligand,
+         nb::arg("imol"), nb::arg("ligand_cid"),
+         get_docstring_from_xml("get_overlaps_for_ligand").c_str())
     .def("get_q_score",
          &molecules_container_t::get_q_score,
          nb::arg("imol_model"), nb::arg("imol_map"),

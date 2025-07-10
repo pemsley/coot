@@ -103,6 +103,9 @@ molecules_container_t::init() {
    ligand_water_sigma_cut_off = 1.75; // max moorhen points for tutorial 1.
 
    // debug();
+   //
+   size_t sss = sizeof(molecules_container_t);
+   std::cout << "::::::::::::::::: sizeof molecules_container_t " << sss << std::endl;
 }
 
 
@@ -5951,6 +5954,26 @@ molecules_container_t::get_overlaps(int imol) {
    }
    return v;
 }
+
+//! Get the atom overlap score
+//!
+//! @param imol the model molecule index
+//! @return the overlap score - a negative number indicates failure
+float
+molecules_container_t::get_atom_overlap_score(int imol) {
+
+   float v = -1.0;
+   if (is_valid_model_molecule(imol)) {
+      v = molecules[imol].get_atom_overlap_score(&geom);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+
+   return v;
+
+}
+
+
 
 //! not const because it can dynamically add dictionaries
 std::vector<coot::plain_atom_overlap_t>
