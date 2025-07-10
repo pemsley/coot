@@ -36,6 +36,9 @@ find_package(Python 3.12.4
   REQUIRED COMPONENTS Interpreter Development.Module
   OPTIONAL_COMPONENTS Development.SABIModule)
 
+# This is flaky.
+# If it doesn't work, first try setting nanobind_DIR to wherever_your_python_is/lib/python3.$your_python_version/site-packages/nanobind/cmake
+# If that doesn't work, make sure that CMAKE_INSTALL_PREFIX is set
 find_package(nanobind CONFIG REQUIRED)
 
 # only via homebrew on macOS (not tried to compile them myself) - see below also though.
