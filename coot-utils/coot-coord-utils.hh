@@ -71,7 +71,7 @@ namespace coot {
    int write_coords_cif(mmdb::Manager *mol, const std::string &file_name);
 
    std::string pad_atom_name(const std::string &atom_name_in,
-			     const std::string &element);
+                             const std::string &element);
 
 
    class torsion {
@@ -82,22 +82,22 @@ namespace coot {
       std::pair<int, atom_spec_t> atom_3;
       std::pair<int, atom_spec_t> atom_4;
       torsion(const std::pair<int, atom_spec_t> &atom_1_in,
-	      const std::pair<int, atom_spec_t> &atom_2_in,
-	      const std::pair<int, atom_spec_t> &atom_3_in,
-	      const std::pair<int, atom_spec_t> &atom_4_in) :
+              const std::pair<int, atom_spec_t> &atom_2_in,
+              const std::pair<int, atom_spec_t> &atom_3_in,
+              const std::pair<int, atom_spec_t> &atom_4_in) :
          atom_1(atom_1_in),
          atom_2(atom_2_in),
          atom_3(atom_3_in),
          atom_4(atom_4_in) {}
       torsion(int imol,
-	      const atom_spec_t &atom_1_in,
-	      const atom_spec_t &atom_2_in,
-	      const atom_spec_t &atom_3_in,
-	      const atom_spec_t &atom_4_in) :
-	 atom_1(std::pair<int, atom_spec_t> (imol, atom_1_in)),
-	 atom_2(std::pair<int, atom_spec_t> (imol, atom_2_in)),
-	 atom_3(std::pair<int, atom_spec_t> (imol, atom_3_in)),
-	 atom_4(std::pair<int, atom_spec_t> (imol, atom_4_in)) {}
+              const atom_spec_t &atom_1_in,
+              const atom_spec_t &atom_2_in,
+              const atom_spec_t &atom_3_in,
+              const atom_spec_t &atom_4_in) :
+         atom_1(std::pair<int, atom_spec_t> (imol, atom_1_in)),
+         atom_2(std::pair<int, atom_spec_t> (imol, atom_2_in)),
+         atom_3(std::pair<int, atom_spec_t> (imol, atom_3_in)),
+         atom_4(std::pair<int, atom_spec_t> (imol, atom_4_in)) {}
 
       // Find 4 atoms in residue that match the torsion spec.  If the
       // returning vector is not of size 4, then this function has
@@ -153,33 +153,33 @@ namespace coot {
          model_number_matcher = -1;
       };
       lsq_range_match_info_t(int to_reference_start_resno_in,
-			     int to_reference_end_resno_in,
-			     const std::string &reference_chain_id_in,
-			     int from_matcher_start_resno_in,
-			     int from_matcher_end_resno_in,
-			     const std::string &matcher_chain_id_in,
-			     short int match_type_flag_in) :
+                             int to_reference_end_resno_in,
+                             const std::string &reference_chain_id_in,
+                             int from_matcher_start_resno_in,
+                             int from_matcher_end_resno_in,
+                             const std::string &matcher_chain_id_in,
+                             short int match_type_flag_in) :
          reference_chain_id(reference_chain_id_in), matcher_chain_id(matcher_chain_id_in) {
-	 is_single_atom_match = 0;
-	 match_type_flag = match_type_flag_in;
-	 to_reference_start_resno = to_reference_start_resno_in;
-	 to_reference_end_resno = to_reference_end_resno_in;
-	 from_matcher_start_resno = from_matcher_start_resno_in;
-	 from_matcher_end_resno = from_matcher_end_resno_in;
-	 model_number_matcher = 0;
-	 model_number_reference = 0;
+         is_single_atom_match = 0;
+         match_type_flag = match_type_flag_in;
+         to_reference_start_resno = to_reference_start_resno_in;
+         to_reference_end_resno = to_reference_end_resno_in;
+         from_matcher_start_resno = from_matcher_start_resno_in;
+         from_matcher_end_resno = from_matcher_end_resno_in;
+         model_number_matcher = 0;
+         model_number_reference = 0;
       }
 
       lsq_range_match_info_t(const std::string &reference_chain_id_in,
-			     int reference_resno_in,
-			     const std::string &reference_insertion_code_in,
-			     const std::string &reference_atom_name_in,
-			     const std::string &reference_alt_conf_in,
-			     const std::string &matcher_chain_id_in,
-			     int matcher_resno_in,
-			     const std::string &matcher_insertion_code_in,
-			     const std::string &matcher_atom_name_in,
-			     const std::string &matcher_alt_conf_in) :
+                             int reference_resno_in,
+                             const std::string &reference_insertion_code_in,
+                             const std::string &reference_atom_name_in,
+                             const std::string &reference_alt_conf_in,
+                             const std::string &matcher_chain_id_in,
+                             int matcher_resno_in,
+                             const std::string &matcher_insertion_code_in,
+                             const std::string &matcher_atom_name_in,
+                             const std::string &matcher_alt_conf_in) :
          reference_chain_id(reference_chain_id_in),
          matcher_chain_id(matcher_chain_id_in),
          reference_atom_name(reference_atom_name_in),
@@ -187,22 +187,22 @@ namespace coot {
          matcher_atom_name(matcher_atom_name_in),
          matcher_alt_conf(matcher_alt_conf_in)
       {
-	 is_single_atom_match = 1;
-	 match_type_flag = lsq_t::ALL; // COOT_LSQ_ALL;
-	 to_reference_start_resno = reference_resno_in;
-	 to_reference_end_resno   = reference_resno_in;
-	 from_matcher_start_resno = matcher_resno_in;
-	 from_matcher_end_resno   = matcher_resno_in;
-	 model_number_matcher = 0;
-	 model_number_reference = 0;
+         is_single_atom_match = 1;
+         match_type_flag = lsq_t::ALL; // COOT_LSQ_ALL;
+         to_reference_start_resno = reference_resno_in;
+         to_reference_end_resno   = reference_resno_in;
+         from_matcher_start_resno = matcher_resno_in;
+         from_matcher_end_resno   = matcher_resno_in;
+         model_number_matcher = 0;
+         model_number_reference = 0;
          std::string somethinga = reference_insertion_code_in; // make orange lines above be
          std::string somethingb = matcher_insertion_code_in;   // green lines here
       }
       void set_model_number_reference(int ino) {
-	 model_number_reference = ino;
+         model_number_reference = ino;
       }
       void set_model_number_matcher(int ino) {
-	 model_number_matcher = ino;
+         model_number_matcher = ino;
       }
       friend std::ostream&  operator<<(std::ostream&  s, const lsq_range_match_info_t &q);
    };
@@ -211,7 +211,7 @@ namespace coot {
    float get_position_hash(mmdb::Manager *mol);
 
    bool sort_chains_util(const std::pair<mmdb::Chain *, std::string> &a,
-			 const std::pair<mmdb::Chain *, std::string> &b);
+                         const std::pair<mmdb::Chain *, std::string> &b);
 
    // return -1 on badness
    int get_selection_handle(mmdb::Manager *mol, const atom_spec_t &at);
@@ -226,8 +226,8 @@ namespace coot {
    // caller deletes the selection.
    int
    specs_to_atom_selection(const std::vector<coot::residue_spec_t> &specs,
-			   mmdb::Manager *mol,
-			   int atom_mask_mode);
+                           mmdb::Manager *mol,
+                           int atom_mask_mode);
 
    // Return the lsq deviation of the pt atom and (in second) the rms
    // deviation of the atoms in the plane (not the including pt of
@@ -243,27 +243,27 @@ namespace coot {
       explicit lsq_plane_info_t(const std::vector<clipper::Coord_orth> &v);
       // can throw an exception
       double plane_deviation(const clipper::Coord_orth &pt) const {
-	 if (abcd.size() == 4)
-	    return abcd[0]*pt.x() + abcd[1]*pt.y() + abcd[2]*pt.z() - abcd[3];
-	 else
-	    throw std::runtime_error("no plane defined");
+         if (abcd.size() == 4)
+            return abcd[0]*pt.x() + abcd[1]*pt.y() + abcd[2]*pt.z() - abcd[3];
+         else
+            throw std::runtime_error("no plane defined");
       }
       double plane_atoms_rms() const {
-	 return rms;
+         return rms;
       }
       clipper::Coord_orth normal() const {
-	 return clipper::Coord_orth(abcd[0], abcd[1], abcd[2]);
+         return clipper::Coord_orth(abcd[0], abcd[1], abcd[2]);
       }
       clipper::Coord_orth centre() const {
-	 return centre_;
+         return centre_;
       }
       double angle(const clipper::Coord_orth &vect) const {
-	 clipper::Coord_orth uv(vect.unit());
-	 clipper::Coord_orth abc(abcd[0], abcd[1], abcd[2]);
-	 clipper::Coord_orth abc_uv(abc.unit());
-	 double cos_theta = clipper::Coord_orth::dot(uv, abc_uv);
-	 double theta = acos(cos_theta) * 2 * M_PI;
-	 return theta;
+         clipper::Coord_orth uv(vect.unit());
+         clipper::Coord_orth abc(abcd[0], abcd[1], abcd[2]);
+         clipper::Coord_orth abc_uv(abc.unit());
+         double cos_theta = clipper::Coord_orth::dot(uv, abc_uv);
+         double theta = acos(cos_theta) * 2 * M_PI;
+         return theta;
       }
       double a() const { return abcd[0]; }
       double b() const { return abcd[1]; }
@@ -274,7 +274,7 @@ namespace coot {
 
    std::pair<double, double>
    lsq_plane_deviation(const std::vector<clipper::Coord_orth> &v,
-		       const clipper::Coord_orth &pt);
+                       const clipper::Coord_orth &pt);
 
    bool is_member_p(const std::vector<mmdb::Residue *> &v, mmdb::Residue *a);
 
@@ -334,18 +334,18 @@ namespace coot {
    // specified by res_in.
    //
    std::vector<residue_spec_t> residues_near_residue(const residue_spec_t &res_in,
-						     mmdb::Manager *mol,
-						     float radius);
+                                                     mmdb::Manager *mol,
+                                                     float radius);
 
    std::vector<mmdb::Residue *> residues_near_residue(mmdb::Residue *res_ref, mmdb::Manager *mol,
-						 float radius);
+                                                 float radius);
 
    // calling residues_near_residue for every residue in a chain is slow.
    // Let's make a map to store the results of just one selection
    //
    std::map<mmdb::Residue *, std::set<mmdb::Residue *> > residues_near_residues(const std::vector<std::pair<bool,mmdb::Residue *> > &residues_vec,
-										mmdb::Manager *mol,
-										float dist_crit);
+                                                                                mmdb::Manager *mol,
+                                                                                float dist_crit);
 
    std::map<mmdb::Residue *, std::set<mmdb::Residue *> > residues_near_residues(mmdb::Manager *mol, float dist_crit);
 
@@ -358,8 +358,8 @@ namespace coot {
                                                                                        float min_dist);
 
    std::vector<mmdb::Residue *> residues_near_position(const clipper::Coord_orth &pt,
-						  mmdb::Manager *mol,
-						  double radius);
+                                                  mmdb::Manager *mol,
+                                                  double radius);
 
 
    // Don't include residues that are HOH residues that are not bonded to
@@ -368,9 +368,9 @@ namespace coot {
    // res_ref.
    //
    std::vector<mmdb::Residue *> filter_residues_by_solvent_contact(mmdb::Residue *res_ref,
-							      mmdb::Manager *mol,
-							      const std::vector<mmdb::Residue *> &residues,
-							      const double &water_dist_max);
+                                                              mmdb::Manager *mol,
+                                                              const std::vector<mmdb::Residue *> &residues,
+                                                              const double &water_dist_max);
 
    // filter out residues that are HOH and are not in contact with
    // res_ref (i.e. have an atom closer than water_dist_max)
@@ -388,18 +388,18 @@ namespace coot {
    // Return a pair, the bool of which is set if the float is sensible.
    //
    std::pair<bool,float> closest_approach(mmdb::Manager *mol,
-					  mmdb::Residue *r1, mmdb::Residue *r2);
+                                          mmdb::Residue *r1, mmdb::Residue *r2);
 
    mmdb::Residue *nearest_residue_by_sequence(mmdb::Manager *mol,
-					 const residue_spec_t &spec);
+                                         const residue_spec_t &spec);
 
   // create a new molecule.  rtop_frac comes from the symmetry
   // operator.  If pre_shift_abc is not of size 3 then don't apply it
   // (if it is, do so, of course).
   mmdb::Manager *mol_by_symmetry(mmdb::Manager *mol,
-				clipper::Cell cell,
-				clipper::RTop_frac rtop_frac,
-				std::vector<int> pre_shift_abc);
+                                clipper::Cell cell,
+                                clipper::RTop_frac rtop_frac,
+                                std::vector<int> pre_shift_abc);
 
    std::vector<std::vector<mmdb::Chain *> > ncs_related_chains(mmdb::Manager *mol, int model_number);
 
@@ -411,7 +411,7 @@ namespace coot {
    public:
       close_residues_from_different_molecules_t() { combined_mol = 0; };
       std::pair<std::vector<mmdb::Residue *>, std::vector<mmdb::Residue *> >
-	 close_residues(mmdb::Manager *mol1, mmdb::Manager *mol2, float dist);
+         close_residues(mmdb::Manager *mol1, mmdb::Manager *mol2, float dist);
       void clean_up() { delete combined_mol; }
    };
 
@@ -438,13 +438,13 @@ namespace coot {
    // pretty tricky - not implemented yet
    // (ints because using mmdb atom selection)
    std::vector<std::vector<int> > molecule_to_bricks(mmdb::Manager *mol, int SelectionHandle,
-						     float max_radius);
+                                                     float max_radius);
    int get_brick_id(const clipper::Coord_orth &pt, const clipper::Coord_orth &pt_minimums,
-		    int nx_grid, int ny_grid, int nz_grid,
-		    float brick_length);
+                    int nx_grid, int ny_grid, int nz_grid,
+                    float brick_length);
 
    int get_brick_id_inner(int x_idx, int y_idx, int z_idx,
-			  int nx_grid, int ny_grid, int nz_grid);
+                          int nx_grid, int ny_grid, int nz_grid);
 
    // Pukka puckers?
    //
@@ -489,9 +489,9 @@ namespace coot {
       int n_match;
       double dist_score;
       graph_match_info_t() {
-	 n_match = 0;
-	 success = 0;
-	 dist_score = 0;
+         n_match = 0;
+         success = 0;
+         dist_score = 0;
       }
       // Change the names in res_moving_names to match those in
       // res_reference as much as possible.  When there is a name
@@ -504,8 +504,8 @@ namespace coot {
       // Find a new name for name_in that is not already in the residue
       //
       std::string invent_new_name(const std::string &name_in,
-				  const std::string &ele,
-				  const std::vector<std::string> &residue_atom_name) const;
+                                  const std::string &ele,
+                                  const std::vector<std::string> &residue_atom_name) const;
    };
 
    // Match on graph
@@ -523,7 +523,7 @@ namespace coot {
    // Usually though apply_rtop_flag will be 1.
    //
    graph_match_info_t graph_match(mmdb::Residue *res_moving, mmdb::Residue *res_reference, bool apply_rtop_flag,
-				  bool match_hydrogens_also);
+                                  bool match_hydrogens_also);
 
 
    //
@@ -542,10 +542,10 @@ namespace coot {
       mmdb::Atom *get_atom(mmdb::Residue *res_1, mmdb::Residue *res_2, const atom_name_quad &quad, int atom_index);
    public:
       position_residue_by_internal_coordinates(mmdb::Residue *residue_ref, mmdb::Residue *residue_moving,
-					       const atom_name_quad &quad,
-					       const double &bond_length,
-					       const double &bond_angle,
-					       const double &bond_torsion); // degrees
+                                               const atom_name_quad &quad,
+                                               const double &bond_length,
+                                               const double &bond_angle,
+                                               const double &bond_torsion); // degrees
       // return success status (0 = fail)
       bool move_moving_residue();
    };
@@ -556,50 +556,50 @@ namespace coot {
    // Can return null if no close atoms.
    //
    mmdb::Atom *chiral_4th_atom(mmdb::Residue *residue_p, mmdb::Atom *at_centre,
-			  mmdb::Atom *at_1, mmdb::Atom *at_2, mmdb::Atom *at_3);
+                          mmdb::Atom *at_1, mmdb::Atom *at_2, mmdb::Atom *at_3);
 
    namespace util {
 
       class stats_data {
       public:
-	 explicit stats_data(const std::vector<float> &d);
-	 explicit stats_data(const std::vector<double> &d);
-	 float mean;
-	 float sd;
-	 float iqr;
+         explicit stats_data(const std::vector<float> &d);
+         explicit stats_data(const std::vector<double> &d);
+         float mean;
+         float sd;
+         float iqr;
       };
 
       class qq_plot_t {
-	 std::vector<double> data;
-	 int n_bins;
-	 double gaussian(const double &mean, const double &sd, const double &v);
+         std::vector<double> data;
+         int n_bins;
+         double gaussian(const double &mean, const double &sd, const double &v);
       public:
-	 explicit qq_plot_t(const std::vector<double> &d) : data(d) {
-	    n_bins = 50;
-	 }
-	 std::vector<std::pair<double, double> > qq_norm(); // sorts data.
+         explicit qq_plot_t(const std::vector<double> &d) : data(d) {
+            n_bins = 50;
+         }
+         std::vector<std::pair<double, double> > qq_norm(); // sorts data.
       };
 
       float interquartile_range(const std::vector<float> &v);
 
       class peptide_torsion_angles_info_t {
       public:
-	 short int status;
-	 // angles in radians from clipper::Coord_orth::torsion
-	 double omega;
-	 double phi;
-	 double psi;
-	 std::string altconf;
+         short int status;
+         // angles in radians from clipper::Coord_orth::torsion
+         double omega;
+         double phi;
+         double psi;
+         std::string altconf;
       };
 
       class atom_spec_and_button_info_t {
       public:
-	 atom_spec_t as;
-	 std::string button_label;
-	 std::string callback_func;
-	 atom_spec_and_button_info_t(atom_spec_t as_in,
-				     const std::string &button_label_in,
-				     const std::string &callback_func_in) :
+         atom_spec_t as;
+         std::string button_label;
+         std::string callback_func;
+         atom_spec_and_button_info_t(atom_spec_t as_in,
+                                     const std::string &button_label_in,
+                                     const std::string &callback_func_in) :
             as(as_in), button_label(button_label_in), callback_func(callback_func_in) {}
       };
 
@@ -607,58 +607,58 @@ namespace coot {
       // weighted RTop_orth with deviance
       class w_rtop_orth : public clipper::RTop_orth {
       public:
-	 w_rtop_orth() : clipper::RTop_orth() {
-	    deviance = 0;
-	    weight = 0;
-	 }
-	 clipper::RTop_orth rtop;
-	 double deviance;
-	 double weight;
+         w_rtop_orth() : clipper::RTop_orth() {
+            deviance = 0;
+            weight = 0;
+         }
+         clipper::RTop_orth rtop;
+         double deviance;
+         double weight;
       };
 
       class quaternion {
       public:
-	 float q0, q1, q2, q3;
-	 quaternion(const float &q0in, const float &q1in,
-		    const float &q2in, const float &q3in) {
-	    q0 = q0in;
-	    q1 = q1in;
-	    q2 = q2in;
-	    q3 = q3in;
-	 }
-	 explicit quaternion(const clipper::Mat33<double> &mat_in);
-	 clipper::Mat33<double> matrix() const;
-	 float convert_sign(const float &x, const float &y) const;
-	 friend std::ostream&  operator<<(std::ostream&  s, const quaternion &q);
-	 friend std::ofstream& operator<<(std::ofstream& s, const quaternion &q);
+         float q0, q1, q2, q3;
+         quaternion(const float &q0in, const float &q1in,
+                    const float &q2in, const float &q3in) {
+            q0 = q0in;
+            q1 = q1in;
+            q2 = q2in;
+            q3 = q3in;
+         }
+         explicit quaternion(const clipper::Mat33<double> &mat_in);
+         clipper::Mat33<double> matrix() const;
+         float convert_sign(const float &x, const float &y) const;
+         friend std::ostream&  operator<<(std::ostream&  s, const quaternion &q);
+         friend std::ofstream& operator<<(std::ofstream& s, const quaternion &q);
 
-	 void normalize();
-	 static bool close_float_p (const float &f1, const float &f2) { //testing func
-	    float d = fabsf(f1-f2);
-	    if (d < 0.001)
-	       return 1;
-	    else
-	       return 0;
-	 }
+         void normalize();
+         static bool close_float_p (const float &f1, const float &f2) { //testing func
+            float d = fabsf(f1-f2);
+            if (d < 0.001)
+               return 1;
+            else
+               return 0;
+         }
          // angle in radians
          quaternion rotate(double angle, const clipper::Coord_orth &vec) const;
          quaternion inverse() const;
-	 bool is_similar_p(const quaternion &q) {
-	    bool r = 0;
-	    if (close_float_p(q.q0, q0) &&
-		close_float_p(q.q1, q1) &&
-		close_float_p(q.q2, q2) &&
-		close_float_p(q.q3, q3)) {
-	       r = 1;
-	    }
-	    return r;
-	 }
-	 static void test_quaternion(); // test yourself
+         bool is_similar_p(const quaternion &q) {
+            bool r = 0;
+            if (close_float_p(q.q0, q0) &&
+                close_float_p(q.q1, q1) &&
+                close_float_p(q.q2, q2) &&
+                close_float_p(q.q3, q3)) {
+               r = 1;
+            }
+            return r;
+         }
+         static void test_quaternion(); // test yourself
 
-	 clipper::RTop_orth centroid_rtop(const std::vector<std::pair<clipper::RTop_orth,float> > &rtops);
-	 clipper::RTop_orth centroid_rtop(const std::vector<std::pair<clipper::RTop_orth,float> > &rtops,
-					  bool robust_filter);
-	 static bool deviance_sorter(const w_rtop_orth &a, const w_rtop_orth &b);
+         clipper::RTop_orth centroid_rtop(const std::vector<std::pair<clipper::RTop_orth,float> > &rtops);
+         clipper::RTop_orth centroid_rtop(const std::vector<std::pair<clipper::RTop_orth,float> > &rtops,
+                                          bool robust_filter);
+         static bool deviance_sorter(const w_rtop_orth &a, const w_rtop_orth &b);
       };
       std::ostream&  operator<<(std::ostream&  s, const quaternion &q);
       std::ofstream& operator<<(std::ofstream& s, const quaternion &q);
@@ -668,11 +668,11 @@ namespace coot {
 
       class chain_id_residue_vec_helper_t {
       public:
-	 std::vector<mmdb::Residue *> residues;
-	 std::string chain_id;
-	 void sort_residues();
-	 static bool residues_sort_func(mmdb::Residue *first, mmdb::Residue *second);
-	 bool operator<(const chain_id_residue_vec_helper_t &c) const;
+         std::vector<mmdb::Residue *> residues;
+         std::string chain_id;
+         void sort_residues();
+         static bool residues_sort_func(mmdb::Residue *first, mmdb::Residue *second);
+         bool operator<(const chain_id_residue_vec_helper_t &c) const;
       };
 
 
@@ -695,12 +695,12 @@ namespace coot {
       // Return NULL on residue not found in this molecule.
       //
       mmdb::Residue *get_residue(const std::string &chain_id, int res_no,
-				 const std::string &insertion_code,
-				 mmdb::Manager *mol);
+                                 const std::string &insertion_code,
+                                 mmdb::Manager *mol);
 
       mmdb::Residue *get_residue_by_binary_search(const std::string &chain_id, int res_no,
-						  const std::string &insertion_code,
-						  mmdb::Manager *mol);
+                                                  const std::string &insertion_code,
+                                                  mmdb::Manager *mol);
 
       mmdb::Residue *get_first_residue(mmdb::Manager *mol);
 
@@ -744,12 +744,12 @@ namespace coot {
       // Return NULL on residue not found in this molecule.
       //
       mmdb::Residue *get_following_residue(const residue_spec_t &rs,
-				      mmdb::Manager *mol);
+                                      mmdb::Manager *mol);
 
       // Return NULL on residue not found in this molecule.
       //
       mmdb::Residue *get_previous_residue(const residue_spec_t &rs,
-					  mmdb::Manager *mol);
+                                          mmdb::Manager *mol);
 
 
       std::pair<bool, clipper::Coord_orth> get_residue_centre(mmdb::Residue *res);
@@ -831,105 +831,105 @@ namespace coot {
       float occupancy_sum(mmdb::PAtom *atoms, int n_atoms);
 
       float median_temperature_factor(mmdb::PPAtom atom_selection,
-				      int n_atoms,
-				      float low_cutoff,
-				      float high_cutoff,
-				      bool apply_low_cutoff,
-				      bool apply_high_cuttoff);
+                                      int n_atoms,
+                                      float low_cutoff,
+                                      float high_cutoff,
+                                      bool apply_low_cutoff,
+                                      bool apply_high_cuttoff);
       float average_temperature_factor(mmdb::PPAtom atom_selection,
-				       int n_atoms,
-				       float low_cutoff,
-				       float high_cutoff,
-				       short int apply_low_cutoff,
-				       short int apply_high_cuttoff);
+                                       int n_atoms,
+                                       float low_cutoff,
+                                       float high_cutoff,
+                                       short int apply_low_cutoff,
+                                       short int apply_high_cuttoff);
       float standard_deviation_temperature_factor(mmdb::PPAtom atom_selection,
-						  int n_atoms,
-						  float low_cutoff,
-						  float high_cutoff,
-						  short int apply_low_cutoff,
-						  short int apply_high_cuttoff);
+                                                  int n_atoms,
+                                                  float low_cutoff,
+                                                  float high_cutoff,
+                                                  short int apply_low_cutoff,
+                                                  short int apply_high_cuttoff);
 
       class contact_atoms_info_t {
       public:
-	 enum ele_index_t { ELE_UNASSIGNED, ELE_NA, ELE_K, ELE_MG2, ELE_LI, ELE_CA2 };
-	 class contact_atom_t {
-	 public:
-	    double dist;
-	    mmdb::Atom *at;
-	    mmdb::mat44 mat;
-	    contact_atom_t(mmdb::Atom *contactor, mmdb::Atom *central_atom);
-	    contact_atom_t(mmdb::Atom *contactor, mmdb::Atom *central_atom, const mmdb::mat44 &m);
-	 };
+         enum ele_index_t { ELE_UNASSIGNED, ELE_NA, ELE_K, ELE_MG2, ELE_LI, ELE_CA2 };
+         class contact_atom_t {
+         public:
+            double dist;
+            mmdb::Atom *at;
+            mmdb::mat44 mat;
+            contact_atom_t(mmdb::Atom *contactor, mmdb::Atom *central_atom);
+            contact_atom_t(mmdb::Atom *contactor, mmdb::Atom *central_atom, const mmdb::mat44 &m);
+         };
       private:
-	 std::vector<contact_atom_t> contact_atoms;
-	 mmdb::Atom *at;
-	 ele_index_t metal_type;
+         std::vector<contact_atom_t> contact_atoms;
+         mmdb::Atom *at;
+         ele_index_t metal_type;
       public:
-	 contact_atoms_info_t() {
-	    at = NULL;
-	    metal_type = ELE_UNASSIGNED;
-	 }
-	 contact_atoms_info_t(mmdb::Atom *at_central_in,
-			      const contact_atom_t &con_at) :
-            at(at_central_in) {
-	    contact_atoms.push_back(con_at);
+         contact_atoms_info_t() {
+            at = NULL;
             metal_type = ELE_UNASSIGNED;
-	 }
-	 unsigned int size() const {
-	    return contact_atoms.size();
-	 }
-	 contact_atom_t &operator[](int i) {
-	    return contact_atoms[i];
-	 }
-	 bool matches_atom(mmdb::Atom *at_in) {
-	    return at_in == at;
-	 }
-	 void add(const contact_atom_t &con_at) {
-	    contact_atoms.push_back(con_at);
-	 }
-	 bool has_contacts(unsigned int n_contacts, double dist_max) const {
-	    bool r = 0;
-	    if (size() >= n_contacts) {
-	       unsigned int n_local = 0;
-	       for (unsigned int i=0; i<contact_atoms.size(); i++) {
-		  if (contact_atoms[i].dist <= dist_max) {
-		     n_local++;
-		  }
-	       }
-	       if (n_local >= n_contacts)
-		  r = 1;
-	    }
-	    return r;
-	 }
-	 mmdb::Atom *central_atom() const { return at; }
-	 double smallest_contact_dist() const {
-	    if (contact_atoms.size() == 0)
-	       throw std::runtime_error("zero contacts");
-	    double d = 999999999999.9;
-	    for (unsigned int i=0; i<contact_atoms.size(); i++) {
-	       if (contact_atoms[i].dist < d)
-		  d = contact_atoms[i].dist;
-	    }
-	    return d;
-	 }
-	 bool test_for_na() const;
-	 bool test_for_ele(ele_index_t ele_index) const;
-	 static std::string ele_to_string(ele_index_t ele) {
-	    std::string r = "Unknown";
-	    if (ele == ELE_UNASSIGNED)
-	       r = "Unassigned";
-	    if (ele == ELE_NA)
-	       r = "Sodium (Na+)";
-	    if (ele == ELE_K)
-	       r = "Potassium (K+)";
-	    if (ele == ELE_LI)
-	       r = "Lithium (Li+)";
-	    if (ele == ELE_MG2)
-	       r = "Magnesium (Mg+2)";
-	    if (ele == ELE_CA2)
-	       r = "Calcium (Ca+2)";
-	    return r;
-	 }
+         }
+         contact_atoms_info_t(mmdb::Atom *at_central_in,
+                              const contact_atom_t &con_at) :
+            at(at_central_in) {
+            contact_atoms.push_back(con_at);
+            metal_type = ELE_UNASSIGNED;
+         }
+         unsigned int size() const {
+            return contact_atoms.size();
+         }
+         contact_atom_t &operator[](int i) {
+            return contact_atoms[i];
+         }
+         bool matches_atom(mmdb::Atom *at_in) {
+            return at_in == at;
+         }
+         void add(const contact_atom_t &con_at) {
+            contact_atoms.push_back(con_at);
+         }
+         bool has_contacts(unsigned int n_contacts, double dist_max) const {
+            bool r = 0;
+            if (size() >= n_contacts) {
+               unsigned int n_local = 0;
+               for (unsigned int i=0; i<contact_atoms.size(); i++) {
+                  if (contact_atoms[i].dist <= dist_max) {
+                     n_local++;
+                  }
+               }
+               if (n_local >= n_contacts)
+                  r = 1;
+            }
+            return r;
+         }
+         mmdb::Atom *central_atom() const { return at; }
+         double smallest_contact_dist() const {
+            if (contact_atoms.size() == 0)
+               throw std::runtime_error("zero contacts");
+            double d = 999999999999.9;
+            for (unsigned int i=0; i<contact_atoms.size(); i++) {
+               if (contact_atoms[i].dist < d)
+                  d = contact_atoms[i].dist;
+            }
+            return d;
+         }
+         bool test_for_na() const;
+         bool test_for_ele(ele_index_t ele_index) const;
+         static std::string ele_to_string(ele_index_t ele) {
+            std::string r = "Unknown";
+            if (ele == ELE_UNASSIGNED)
+               r = "Unassigned";
+            if (ele == ELE_NA)
+               r = "Sodium (Na+)";
+            if (ele == ELE_K)
+               r = "Potassium (K+)";
+            if (ele == ELE_LI)
+               r = "Lithium (Li+)";
+            if (ele == ELE_MG2)
+               r = "Magnesium (Mg+2)";
+            if (ele == ELE_CA2)
+               r = "Calcium (Ca+2)";
+            return r;
+         }
       };
 
       // This does naive symmetry expansion, if the mol has symmetry
@@ -938,42 +938,42 @@ namespace coot {
       // origin.
       //
       class water_coordination_t {
-	 std::vector<contact_atoms_info_t> atom_contacts;
-	 void add_contact(mmdb::Atom *atom_contactor,
-			  mmdb::Atom *atom_central,
-			  const mmdb::mat44 &m);
+         std::vector<contact_atoms_info_t> atom_contacts;
+         void add_contact(mmdb::Atom *atom_contactor,
+                          mmdb::Atom *atom_central,
+                          const mmdb::mat44 &m);
 
-	 void add_contacts(mmdb::Manager *mol,
-			   mmdb::PAtom *water_selection, int n_water_atoms,
-			   mmdb::PAtom *atom_selection, int n_selected_atoms,
-			   mmdb::realtype min_dist, mmdb::realtype max_dist,
-			   const mmdb::mat44 &my_mat);
-	 void sort_contacts(std::vector<contact_atoms_info_t> *v) const;
-	 static bool sort_contacts_func(const contact_atoms_info_t &first,
-					const contact_atoms_info_t &second);
-	 void init_internal(mmdb::Manager *mol,
-			    mmdb::realtype radius_limit,
-			    bool do_metals_only_flag);
+         void add_contacts(mmdb::Manager *mol,
+                           mmdb::PAtom *water_selection, int n_water_atoms,
+                           mmdb::PAtom *atom_selection, int n_selected_atoms,
+                           mmdb::realtype min_dist, mmdb::realtype max_dist,
+                           const mmdb::mat44 &my_mat);
+         void sort_contacts(std::vector<contact_atoms_info_t> *v) const;
+         static bool sort_contacts_func(const contact_atoms_info_t &first,
+                                        const contact_atoms_info_t &second);
+         void init_internal(mmdb::Manager *mol,
+                            mmdb::realtype radius_limit,
+                            bool do_metals_only_flag);
       public:
-	 water_coordination_t(mmdb::Manager *mol, mmdb::realtype radius_limit, bool do_metals_only_flag);
-	 water_coordination_t(mmdb::Manager *mol, mmdb::realtype radius_limit);
-	 water_coordination_t() {};
+         water_coordination_t(mmdb::Manager *mol, mmdb::realtype radius_limit, bool do_metals_only_flag);
+         water_coordination_t(mmdb::Manager *mol, mmdb::realtype radius_limit);
+         water_coordination_t() {};
 
-	 // I don't know what the "get" interface to
-	 // water_coordination_t should be. So I'll make one up:
-	 //
-	 std::vector<contact_atoms_info_t>
-	 get_highly_coordinated_waters(int n_contacts,  // at least n_contacts
-				       double dist_max) const; // within dist_max
+         // I don't know what the "get" interface to
+         // water_coordination_t should be. So I'll make one up:
+         //
+         std::vector<contact_atoms_info_t>
+         get_highly_coordinated_waters(int n_contacts,  // at least n_contacts
+                                       double dist_max) const; // within dist_max
 
-	 // This checks against built-in values from the literature
-	 //
-	 std::vector<std::pair<util::contact_atoms_info_t,
-			       util::contact_atoms_info_t::ele_index_t> > metals() const;
+         // This checks against built-in values from the literature
+         //
+         std::vector<std::pair<util::contact_atoms_info_t,
+                               util::contact_atoms_info_t::ele_index_t> > metals() const;
 
-	 std::vector<contact_atoms_info_t> get_contacts() const { return atom_contacts; }
+         std::vector<contact_atoms_info_t> get_contacts() const { return atom_contacts; }
 
-	 void transform_atom(int i, int j);
+         void transform_atom(int i, int j);
 
       };
 
@@ -1006,13 +1006,13 @@ namespace coot {
       //
       std::pair<mmdb::Manager *, int>
       create_mmdbmanager_from_res_selection(mmdb::Manager *orig_mol,
-					    mmdb::PResidue *SelResidues,
-					    int nSelResidues,
-					    int have_flanking_residue_at_start,
-					    int have_flanking_residue_at_end,
-					    const std::string &altconf,
-					    const std::string &chain_id_1,
-					    short int residue_from_alt_conf_split_flag);
+                                            mmdb::PResidue *SelResidues,
+                                            int nSelResidues,
+                                            int have_flanking_residue_at_start,
+                                            int have_flanking_residue_at_end,
+                                            const std::string &altconf,
+                                            const std::string &chain_id_1,
+                                            short int residue_from_alt_conf_split_flag);
 
       // We don't mess with the chain ids (give as we get), but also
       // return the handle for the atom index transfer.
@@ -1032,8 +1032,8 @@ namespace coot {
       //
       std::pair<bool, mmdb::Manager *>
       create_mmdbmanager_from_residue_vector(const std::vector<mmdb::Residue *> &res_vec,
-					     mmdb::Manager *mol_old,
-					     const std::pair<bool,std::string> &use_alt_conf = std::pair<bool, std::string>(false, ""));
+                                             mmdb::Manager *mol_old,
+                                             const std::pair<bool,std::string> &use_alt_conf = std::pair<bool, std::string>(false, ""));
 
       // ignore atom index transfer, return NULL on error.
       //
@@ -1043,14 +1043,14 @@ namespace coot {
       mmdb::Manager *create_mmdbmanager_from_residue(mmdb::Residue *res);
 
       mmdb::Manager *create_mmdbmanager_from_atom_selection(mmdb::Manager *orig_mol,
-							   int SelectionHandle,
-							   bool invert_selection_flag=0);
+                                                           int SelectionHandle,
+                                                           bool invert_selection_flag=0);
       // uses the following:
       mmdb::Manager *create_mmdbmanager_from_atom_selection_straight(mmdb::Manager *orig_mol,
-								    int SelectionHandle);
+                                                                    int SelectionHandle);
       // Beware: This destroys (inverts) the atom selection as passed.
       mmdb::Manager *create_mmdbmanager_from_inverted_atom_selection(mmdb::Manager *orig_mol,
-								    int SelectionHandle);
+                                                                    int SelectionHandle);
 
       mmdb::Manager *create_mmdbmanager_from_atom(mmdb::Atom *at);
 
@@ -1061,7 +1061,7 @@ namespace coot {
       // calling function deletes
       //
       mmdb::Manager *create_mmdbmanager_from_residue_specs(const std::vector<residue_spec_t> &r1,
-							  mmdb::Manager *mol);
+                                                          mmdb::Manager *mol);
 
       // split a NRM model into multiple models all with MODEL 1. 
       std::vector<mmdb::Manager *> split_multi_model_molecule(mmdb::Manager *mol);
@@ -1075,17 +1075,17 @@ namespace coot {
       // return success status, 1 is good, 0 is fail.  Use clipper::Coord_orth constructor
       //
       bool add_atom(mmdb::Residue *res,
-		    const std::string &atom_name_1,
-		    const std::string &atom_name_2,
-		    const std::string &atom_name_3,
-		    const std::string &alt_conf,
-		    double length,
-		    double angle, // degrees
-		    double torsion,
-		    const std::string &new_atom_name,
-		    const std::string &new_atom_ele,
-		    float new_atom_occ,
-		    float new_atom_b_factor); // degrees
+                    const std::string &atom_name_1,
+                    const std::string &atom_name_2,
+                    const std::string &atom_name_3,
+                    const std::string &alt_conf,
+                    double length,
+                    double angle, // degrees
+                    double torsion,
+                    const std::string &new_atom_name,
+                    const std::string &new_atom_ele,
+                    float new_atom_occ,
+                    float new_atom_b_factor); // degrees
 
       // copy the chain and add it to a new molecule hierarchy
       std::pair<mmdb::Chain *, mmdb::Manager *> copy_chain(mmdb::Chain *chain_p);
@@ -1098,9 +1098,9 @@ namespace coot {
 
       // utility function for above:
       mmdb::Residue* deep_copy_this_residue_add_chain(mmdb::Residue *residue,
-						 const std::string &altconf,
-						 bool whole_residue_flag,
-						 bool attach_to_new_chain_flag);
+                                                 const std::string &altconf,
+                                                 bool whole_residue_flag,
+                                                 bool attach_to_new_chain_flag);
 
       // This doesn't add the new (returned) residue to the chain of
       // passed residue.  Simple copy of residue and atoms.
@@ -1115,24 +1115,24 @@ namespace coot {
       // then copy atoms that have blank alt conf and those
       // with altconfs that match use_alt_conf.second.
       mmdb::Residue *deep_copy_this_residue(mmdb::Residue *residue,
-					    const std::pair<bool,std::string> &use_alt_conf);
+                                            const std::pair<bool,std::string> &use_alt_conf);
 
       mmdb::Residue *copy_and_delete_hydrogens(mmdb::Residue *residue_in);
 
       // utility function for above:
       mmdb::Residue* deep_copy_this_residue_with_atom_index_and_afix_transfer(mmdb::Manager *std_mol,
-									 const mmdb::Residue *residue,
-									 const std::string &altconf,
-									 short int whole_residue_flag,
-									 int new_atom_index_udd_handle,
-									 int new_afix_handle);
+                                                                         const mmdb::Residue *residue,
+                                                                         const std::string &altconf,
+                                                                         short int whole_residue_flag,
+                                                                         int new_atom_index_udd_handle,
+                                                                         int new_afix_handle);
 
       // return a vector of residue that are in this fragment.
       // Fragments are marked by consecutively numbered residues.  A
       // gap in the sequence numbers marks the end/beginning of a
       // fragment.
       std::vector<mmdb::PResidue> get_residues_in_fragment(mmdb::Chain *clicked_residue_chain_p,
-						      residue_spec_t clicked_residue);
+                                                      residue_spec_t clicked_residue);
 
       // this can return an empty list if the residues for resno_start or resnoend  are not found
       std::vector<mmdb::Residue *> get_residues_in_range(mmdb::Manager *mol, const std::string &chain_id, int resno_start, int resno_end);
@@ -1149,7 +1149,7 @@ namespace coot {
       // argument or else clang complains
       //
       void transform_chain(mmdb::Manager *mol, mmdb::Chain *moving_chain,
-			   int n_atoms, mmdb::PAtom *atoms, mmdb::mat44 &my_matt);
+                           int n_atoms, mmdb::PAtom *atoms, mmdb::mat44 &my_matt);
 
       void transform_chain(mmdb::Chain *moving_chain, const clipper::RTop_orth &rtop);
 
@@ -1168,25 +1168,25 @@ namespace coot {
       // Note that angle is in radians.
       //
       clipper::Coord_orth rotate_around_vector(const clipper::Coord_orth &direction,
-					       const clipper::Coord_orth &position,
-					       const clipper::Coord_orth &origin_shift,
-					       double angle);
+                                               const clipper::Coord_orth &position,
+                                               const clipper::Coord_orth &origin_shift,
+                                               double angle);
       // angle in radians
       //
       void rotate_residue(mmdb::Residue *residue_p,
-			  const clipper::Coord_orth &direction,
-			  const clipper::Coord_orth &origin_shift,
-			  double angle);
+                          const clipper::Coord_orth &direction,
+                          const clipper::Coord_orth &origin_shift,
+                          double angle);
 
       // move the coordinates of at:
       // angle in radians
       void rotate_atom_about(const clipper::Coord_orth &direction,
-			     const clipper::Coord_orth &origin_shift,
-			     double angle, mmdb::Atom *at);
+                             const clipper::Coord_orth &origin_shift,
+                             double angle, mmdb::Atom *at);
 
       // This presumes that a_residue_p and b_residue_p are valid.
       std::vector<std::pair<int, int> > pair_residue_atoms(mmdb::Residue *a_residue_p,
-							   mmdb::Residue *b_residue_p);
+                                                           mmdb::Residue *b_residue_p);
 
       //! CBs in GLY etc
       void delete_anomalous_atoms(mmdb::Manager *mol);
@@ -1222,20 +1222,20 @@ namespace coot {
       //
       // Take into account the insertion code too:
       std::vector<std::pair<mmdb::Residue *, int> > sort_residues_by_seqno(mmdb::PResidue *residues,
-								      int nResidues);
+                                                                      int nResidues);
 
       // Use the results of the above to give us a sequence string:
       std::string model_sequence(const std::vector<std::pair<mmdb::Residue *, int> > &sa,
                                  bool allow_ligands = true);
       bool compare_residues(const std::pair<mmdb::Residue *, int> &a,
-			    const std::pair<mmdb::Residue *, int> &b);
+                            const std::pair<mmdb::Residue *, int> &b);
 
       // extents
       std::pair<clipper::Coord_orth, clipper::Coord_orth> extents(mmdb::Manager *mol);
       std::pair<clipper::Coord_orth, clipper::Coord_orth> extents(mmdb::Manager *mol,
-								  int SelectionHandle);
+                                                                  int SelectionHandle);
       std::pair<clipper::Coord_orth, clipper::Coord_orth> extents(mmdb::Manager *mol,
-								  const std::vector<residue_spec_t> &specs);
+                                                                  const std::vector<residue_spec_t> &specs);
 
       // pair.second = 0 for failure
       // pair.first  = 1 for success
@@ -1254,18 +1254,18 @@ namespace coot {
       //
       std::pair<short int, clipper::RTop_orth>
       get_lsq_matrix(mmdb::Manager *mol1,
-		     mmdb::Manager *mol2,
-		     const std::vector<lsq_range_match_info_t> &matches,
-		     int every_nth,
-		     bool summary_to_screen=1);
+                     mmdb::Manager *mol2,
+                     const std::vector<lsq_range_match_info_t> &matches,
+                     int every_nth,
+                     bool summary_to_screen=1);
       // used by above
       // On useful return, first.length == second.length and first.length > 0.
       //
       std::pair<std::vector<clipper::Coord_orth>, std::vector<clipper::Coord_orth> >
       get_matching_indices(mmdb::Manager *mol1,
-			   mmdb::Manager *mol2,
-			   const lsq_range_match_info_t &match,
-			   int every_nth);
+                           mmdb::Manager *mol2,
+                           const lsq_range_match_info_t &match,
+                           int every_nth);
 
       // Return the status in the first position
       // Return the angle in radians.
@@ -1275,7 +1275,7 @@ namespace coot {
       // and along the same lines:
       // Return the angles in radians.
       peptide_torsion_angles_info_t peptide_torsions(mmdb::Residue *C_residue, mmdb::Residue *N_residue,
-						     const std::string &altconf);
+                                                     const std::string &altconf);
 
       // return "" on no canonical name found
       std::string canonical_base_name(const std::string &res_name_in, base_t rna_or_dna);
@@ -1283,13 +1283,13 @@ namespace coot {
       // Return the RTop that matches moving to reference.  Don't move
       // moving though.
       std::pair<bool,clipper::RTop_orth> base_to_base(mmdb::Residue *reference,
-						      mmdb::Residue *moving);
+                                                      mmdb::Residue *moving);
 
       // Return the RTop that matches moving to reference.  Don't move
       // moving.  Lite above, but add phosphate and furanose atoms.
       std::pair<bool,clipper::RTop_orth> nucleotide_to_nucleotide(mmdb::Residue *reference,
-								  mmdb::Residue *moving,
-								  bool use_old_style_naming); // Cd, Ar
+                                                                  mmdb::Residue *moving,
+                                                                  bool use_old_style_naming); // Cd, Ar
                                                                                 // (modern is C and DA).
 
       // mutate the atoms of the residue with altLoc alt_conf (this
@@ -1297,7 +1297,7 @@ namespace coot {
       // Return mutated state.
       //
       int mutate(mmdb::Residue *residue_p, mmdb::Residue *std_res_unoriented, const std::string &alt_conf,
-		 short int shelx_flag, float b_factor=20.0);
+                 short int shelx_flag, float b_factor=20.0);
 
       int mutate(mmdb::Residue *residue_p, const std::string &new_res_name);
 
@@ -1308,15 +1308,15 @@ namespace coot {
       // given a std residue oriented over residue, make the mutation
       // to std_residue
       void mutate_internal(mmdb::Residue *residue,
-			   mmdb::Residue * std_residue_oriented,
-			   const std::string &alt_conf,
-			   short int is_from_shelx_ins_flag,
-			   float b_factor=20.);
+                           mmdb::Residue * std_residue_oriented,
+                           const std::string &alt_conf,
+                           short int is_from_shelx_ins_flag,
+                           float b_factor=20.);
 
       void mutate_base(mmdb::Residue *residue, mmdb::Residue *std_base,
-		       bool use_old_style_naming,
-		       bool print_match_stats=false,
-		       float b_factor=20.0);
+                       bool use_old_style_naming,
+                       bool print_match_stats=false,
+                       float b_factor=20.0);
       // which calls
       std::string convert_base_name(const std::string &std_base_name, bool use_old_style_naming);
 
@@ -1332,10 +1332,10 @@ namespace coot {
       // error_type is e.g. "Z score", "Clash gap"
       std::string
       interesting_things_list_with_fix(const std::vector<atom_spec_and_button_info_t> &v,
-				       const std::string &error_type);
+                                       const std::string &error_type);
       std::string
       interesting_things_list_with_fix_py(const std::vector<atom_spec_and_button_info_t> &v,
-				          const std::string &error_type);
+                                          const std::string &error_type);
 
 
       // return a set of residue specifiers and a string to put on the
@@ -1379,8 +1379,8 @@ namespace coot {
 
       // return the number of changed links
       unsigned int change_chain_in_links(mmdb::Model *model_p,
-					 const std::string &from_chain_id,
-					 const std::string &to_chain_id);
+                                         const std::string &from_chain_id,
+                                         const std::string &to_chain_id);
 
       // move hetgroups round protein.  Find the centres of each
       // hetgroup and move it to the protein.  Waters are handled individually.
@@ -1395,9 +1395,9 @@ namespace coot {
       //
       std::vector<std::pair<mmdb::Atom *, clipper::Coord_orth> >
       symmetry_move_atoms(const std::vector<clipper::Coord_orth> &protein_coords,
-			  const std::vector<std::pair<mmdb::Atom*, clipper::Coord_orth> > &water_atoms,
-			  clipper::Cell cell,
-			  clipper::Spacegroup spacegroup);
+                          const std::vector<std::pair<mmdb::Atom*, clipper::Coord_orth> > &water_atoms,
+                          clipper::Cell cell,
+                          clipper::Spacegroup spacegroup);
 
 
       // Throw an std::runtime_error exception on
@@ -1413,7 +1413,7 @@ namespace coot {
       // caller must check that others has some points in it.
       //
       double min_dist_to_points(const clipper::Coord_orth &pt,
-				const std::vector<clipper::Coord_orth> &others);
+                                const std::vector<clipper::Coord_orth> &others);
 
       // Return the fractional shift needed to translate the protein
       // as close as possible to the origin (do not apply the shift).
@@ -1422,13 +1422,13 @@ namespace coot {
       //
       clipper::Coord_frac shift_to_origin(mmdb::Manager *mol);
       clipper::Coord_frac shift_to_origin(const std::vector<clipper::Coord_orth> &protein_coords,
-					  clipper::Cell cell,
-					  clipper::Spacegroup spacegroup);
+                                          clipper::Cell cell,
+                                          clipper::Spacegroup spacegroup);
       bool is_000_shift(const clipper::Coord_frac &cf_shift);
 
       //
       clipper::Mat33<double> residue_orientation(mmdb::Residue *residue_p,
-						 const clipper::Mat33<double> &orientation_in);
+                                                 const clipper::Mat33<double> &orientation_in);
 
       clipper::Coord_orth average_position(std::vector<clipper::Coord_orth> &pts);
 
@@ -1445,7 +1445,7 @@ namespace coot {
       //
       clipper::Coord_orth
       translate_close_to_origin(const clipper::Coord_orth water_pos_pre,
-				const clipper::Cell &cell);
+                                const clipper::Cell &cell);
 
       void translate_close_to_origin(mmdb::Manager *mol);
 

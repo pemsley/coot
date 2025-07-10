@@ -38,8 +38,8 @@ namespace coot {
       std::vector<int> backward;
       std::pair<bool,atom_index_quad> torsion_quad;
       atom_vertex() {
-	 connection_type = NONE;
-	 torsion_quad.first = 0;
+         connection_type = NONE;
+         torsion_quad.first = 0;
       }
    };
 }

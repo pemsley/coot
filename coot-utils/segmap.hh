@@ -41,7 +41,7 @@ namespace coot {
    class segmap {
       std::vector<std::pair<clipper::Xmap_base::Map_reference_index, float > > find_peaks(float c) const;
       clipper::Xmap<float> flood_from_peaks(const std::vector<std::pair<clipper::Xmap_base::Map_reference_index, float > > &peaks,
-					    float cut_off_for_flooding);
+                                            float cut_off_for_flooding);
    public:
       segmap(const clipper::Xmap<float> &xmap_in) : xmap(xmap_in) {}
       const clipper::Xmap<float> &xmap;

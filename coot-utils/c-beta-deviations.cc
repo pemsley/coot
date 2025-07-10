@@ -44,22 +44,22 @@ coot::get_c_beta_deviations(mmdb::Manager *mol) {
    if (model_p) {
       int n_chains = model_p->GetNumberOfChains();
       for (int ichain=0; ichain<n_chains; ichain++) {
-	 // std::cout << "ichain " << ichain << std::endl;
-	 mmdb::Chain *chain_p = model_p->GetChain(ichain);
-	 int nres = chain_p->GetNumberOfResidues();
-	 for (int ires=0; ires<nres; ires++) {
-	    mmdb::Residue *residue_p = chain_p->GetResidue(ires);
-	    int n_atoms = residue_p->GetNumberOfAtoms();
-	    std::map<std::string, c_beta_deviation_t> cbdm = get_c_beta_deviations(residue_p);
-	    if (cbdm.size()) {
-	       m[residue_p] = cbdm;
-	       if (false) { // debug
-		  std::map<std::string, c_beta_deviation_t>::const_iterator it;
-		  it = cbdm.begin();
-		  std::cout << " " << residue_spec_t(residue_p) << " " << it->second.dist << std::endl;
-	       }
-	    }
-	 }
+         // std::cout << "ichain " << ichain << std::endl;
+         mmdb::Chain *chain_p = model_p->GetChain(ichain);
+         int nres = chain_p->GetNumberOfResidues();
+         for (int ires=0; ires<nres; ires++) {
+            mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+            int n_atoms = residue_p->GetNumberOfAtoms();
+            std::map<std::string, c_beta_deviation_t> cbdm = get_c_beta_deviations(residue_p);
+            if (cbdm.size()) {
+               m[residue_p] = cbdm;
+               if (false) { // debug
+                  std::map<std::string, c_beta_deviation_t>::const_iterator it;
+                  it = cbdm.begin();
+                  std::cout << " " << residue_spec_t(residue_p) << " " << it->second.dist << std::endl;
+               }
+            }
+         }
       }
    }
    return m;
@@ -95,13 +95,13 @@ coot::get_c_beta_deviations(mmdb::Residue *residue_p) {
    for(it=alt_conf_map.begin(); it!=alt_conf_map.end(); it++) {
       const atom_quad &q = it->second;
       if (q.filled_p()) {
-	 clipper::Coord_orth CB_real_pos(q.atom_4->x, q.atom_4->y, q.atom_4->z); // no coot-utils.h included
-	 clipper::Coord_orth CB_ideal_pos = make_CB_ideal_pos(q, res_name);
-	 double dsqrd = (CB_ideal_pos-CB_real_pos).lengthsq();
-	 double d = sqrt(dsqrd);
-	 c_beta_deviation_t cbd(q.atom_4, CB_ideal_pos, d);
-	 const std::string &key = it->first;
-	 m[key] = cbd;
+         clipper::Coord_orth CB_real_pos(q.atom_4->x, q.atom_4->y, q.atom_4->z); // no coot-utils.h included
+         clipper::Coord_orth CB_ideal_pos = make_CB_ideal_pos(q, res_name);
+         double dsqrd = (CB_ideal_pos-CB_real_pos).lengthsq();
+         double d = sqrt(dsqrd);
+         c_beta_deviation_t cbd(q.atom_4, CB_ideal_pos, d);
+         const std::string &key = it->first;
+         m[key] = cbd;
       }
    }
 

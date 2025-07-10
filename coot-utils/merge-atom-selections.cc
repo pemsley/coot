@@ -744,7 +744,7 @@ coot::match_container_for_residues_t::meld(mmdb::Manager *mol, std::pair<bool, b
 
 void
 coot::match_container_for_residues_t::meld_residues(std::vector<mmdb::Residue *> res_vec, mmdb::Residue *residue_2,
-                              						    int res_no_delta, mmdb::Chain *to_chain_p, mmdb::Manager *mol) {
+                                                                                  int res_no_delta, mmdb::Chain *to_chain_p, mmdb::Manager *mol) {
 
    for (unsigned int i=0; i<res_vec.size(); i++) {
       mmdb::Residue *residue_p = res_vec[i];

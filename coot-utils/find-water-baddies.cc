@@ -103,12 +103,12 @@ coot::find_water_baddies_OR(atom_selection_container_t atom_sel,
 
                         for (int iat=0; iat<n_atoms; iat++) {
                            at = residue_p->GetAtom(iat);
-			   bool water_atom_is_hydrogen_atom = false;
-			   // PDBv3 FIXME
-			   if (! strncmp(at->name, " H", 2)) water_atom_is_hydrogen_atom = true;
-			   if (! strncmp(at->name, " D", 2)) water_atom_is_hydrogen_atom = true;
+                           bool water_atom_is_hydrogen_atom = false;
+                           // PDBv3 FIXME
+                           if (! strncmp(at->name, " H", 2)) water_atom_is_hydrogen_atom = true;
+                           if (! strncmp(at->name, " D", 2)) water_atom_is_hydrogen_atom = true;
 
-			   if (water_atom_is_hydrogen_atom) continue;
+                           if (water_atom_is_hydrogen_atom) continue;
 
                            this_is_marked = false;
 
@@ -138,7 +138,7 @@ coot::find_water_baddies_OR(atom_selection_container_t atom_sel,
                               if (! this_is_marked) {
                                  if (at->tempFactor > b_factor_lim && use_b_factor_limit_test) {
                                     marked_for_display.push_back(std::pair<mmdb::Atom *, float>(at, den));
-				 }
+                                 }
                               }
 
 

@@ -38,7 +38,7 @@ GL_matrix::GL_matrix() {
    for (int i=0; i<4; i++) {
       for (int j=0; j<4; j++) {
 
-	 mat[i*4+j] = 0.0;
+         mat[i*4+j] = 0.0;
       }
    }
       
@@ -80,14 +80,14 @@ GL_matrix::GL_matrix(const clipper::Coord_orth &normal) {
       arb = clipper::Coord_orth(0.0, 0.9, 0.1);
    if (d_unit.x() < d_unit.y())
       arb = clipper::Coord_orth(0.9, 0.0, 0.1);
-	    
+            
    clipper::Coord_orth p1(clipper::Coord_orth::cross(arb, d_unit).unit());
    clipper::Coord_orth p2(clipper::Coord_orth::cross( p1, d_unit).unit());
    clipper::Coord_orth p3 = d_unit;
-	    
+            
    GL_matrix m(p1.x(), p1.y(), p1.z(),
-	       p2.x(), p2.y(), p2.z(),
-	       p3.x(), p3.y(), p3.z());
+               p2.x(), p2.y(), p2.z(),
+               p3.x(), p3.y(), p3.z());
 
    mat[0] = p1.x(); mat[1] = p1.y(); mat[ 2] = p1.z();
    mat[4] = p2.x(); mat[5] = p2.y(); mat[ 6] = p2.z();
@@ -101,8 +101,8 @@ GL_matrix::GL_matrix(const clipper::Coord_orth &normal) {
 
 
 GL_matrix::GL_matrix(float m11, float m12, float m13,
-		     float m21, float m22, float m23,
-		     float m31, float m32, float m33){
+                     float m21, float m22, float m23,
+                     float m31, float m32, float m33){
 
    //
    mat[0] = m11; mat[1] = m12; mat[ 2] = m13;
@@ -254,8 +254,8 @@ std::pair<bool,GL_matrix>
 GL_matrix::cholesky() const {
 
    double a_data[] = { mat[0], mat[1], mat[ 2],
-		       mat[4], mat[5], mat[ 6],
-		       mat[8], mat[9], mat[10] };
+                       mat[4], mat[5], mat[ 6],
+                       mat[8], mat[9], mat[10] };
 
    gsl_matrix_view m = gsl_matrix_view_array (a_data, 3, 3);
 
@@ -273,14 +273,14 @@ GL_matrix::cholesky() const {
       // std::cout << "Ooops - negative principal minors!" << std::endl;
 
       return std::pair<bool, GL_matrix> (0, GL_matrix(gsl_matrix_get(&m.matrix, 0, 0),
-						      gsl_matrix_get(&m.matrix, 0, 1),
-						      gsl_matrix_get(&m.matrix, 0, 2),
-						      gsl_matrix_get(&m.matrix, 1, 0),
-						      gsl_matrix_get(&m.matrix, 1, 1),
-						      gsl_matrix_get(&m.matrix, 1, 2),
-						      gsl_matrix_get(&m.matrix, 2, 0),
-						      gsl_matrix_get(&m.matrix, 2, 1),
-						      gsl_matrix_get(&m.matrix, 2, 2)));
+                                                      gsl_matrix_get(&m.matrix, 0, 1),
+                                                      gsl_matrix_get(&m.matrix, 0, 2),
+                                                      gsl_matrix_get(&m.matrix, 1, 0),
+                                                      gsl_matrix_get(&m.matrix, 1, 1),
+                                                      gsl_matrix_get(&m.matrix, 1, 2),
+                                                      gsl_matrix_get(&m.matrix, 2, 0),
+                                                      gsl_matrix_get(&m.matrix, 2, 1),
+                                                      gsl_matrix_get(&m.matrix, 2, 2)));
 
    } else {
       gsl_error_handler_t *old_handler;
@@ -289,22 +289,22 @@ GL_matrix::cholesky() const {
       gsl_set_error_handler(old_handler);
 
       return std::pair<bool, GL_matrix> (1, GL_matrix(gsl_matrix_get(&m.matrix, 0, 0),
-						      gsl_matrix_get(&m.matrix, 0, 1),
-						      gsl_matrix_get(&m.matrix, 0, 2),
-						      gsl_matrix_get(&m.matrix, 1, 0),
-						      gsl_matrix_get(&m.matrix, 1, 1),
-						      gsl_matrix_get(&m.matrix, 1, 2),
-						      gsl_matrix_get(&m.matrix, 2, 0),
-						      gsl_matrix_get(&m.matrix, 2, 1),
-						      gsl_matrix_get(&m.matrix, 2, 2)));
+                                                      gsl_matrix_get(&m.matrix, 0, 1),
+                                                      gsl_matrix_get(&m.matrix, 0, 2),
+                                                      gsl_matrix_get(&m.matrix, 1, 0),
+                                                      gsl_matrix_get(&m.matrix, 1, 1),
+                                                      gsl_matrix_get(&m.matrix, 1, 2),
+                                                      gsl_matrix_get(&m.matrix, 2, 0),
+                                                      gsl_matrix_get(&m.matrix, 2, 1),
+                                                      gsl_matrix_get(&m.matrix, 2, 2)));
    }
 }
 
 
 void my_aniso_error_handler (const char * reason,
-			     const char * file,
-			     int line,
-			     int gsl_errno) {
+                             const char * file,
+                             int line,
+                             int gsl_errno) {
    std::cout << "Non-positive definite anisotropic atom!" << std::endl;
 }
 
@@ -357,7 +357,7 @@ GL_matrix::cholesky_non_diag(const GL_matrix &l, int j, int i) const {
 
    if ( (a_ji - sum) < 0) {
       std::cout << "WARNING negative numerator in cholesky_diag("
-	   << i << "," << j << ")" << std::endl;
+           << i << "," << j << ")" << std::endl;
       std::cout << "a_ji: " << a_ji << ", sum: " << sum << std::endl;
    } 
    return (a_ji - sum)/l_ii; 
@@ -432,8 +432,8 @@ coot::Cartesian
 GL_matrix::mult(const coot::Cartesian &in) const {
 
    return coot::Cartesian(mat[0]*in.x() + mat[1]*in.y() + mat[ 2]*in.z(),
-			  mat[4]*in.x() + mat[5]*in.y() + mat[ 6]*in.z(),
-			  mat[8]*in.x() + mat[9]*in.y() + mat[10]*in.z());
+                          mat[4]*in.x() + mat[5]*in.y() + mat[ 6]*in.z(),
+                          mat[8]*in.x() + mat[9]*in.y() + mat[10]*in.z());
 }
 
 
@@ -441,8 +441,8 @@ void
 GL_matrix::print_matrix() const { 
 
    std::cout << mat[0] << "  " << mat[1] << "  " << mat[2] << "  \n"
-	     << mat[4] << "  " << mat[5] << "  " << mat[6] << "  \n"
-	     << mat[8] << "  " << mat[9] << "  " << mat[10] << "\n";
+             << mat[4] << "  " << mat[5] << "  " << mat[6] << "  \n"
+             << mat[8] << "  " << mat[9] << "  " << mat[10] << "\n";
 
 }
 

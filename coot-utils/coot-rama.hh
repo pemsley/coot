@@ -85,26 +85,26 @@ namespace coot {
             is_allowed_ = false;
          }
 
-	 phi_psi_t() {
-	    is_filled_  = false;
-	    is_pre_pro_ = false;
-	 };
-	 // this can throw an exception (e.g. bonding atoms too far
-	 // apart).  Uses get_phi_psi() below
-	 phi_psi_t(mmdb::Residue *prev, mmdb::Residue *this_res, mmdb::Residue *next);
+         phi_psi_t() {
+            is_filled_  = false;
+            is_pre_pro_ = false;
+         };
+         // this can throw an exception (e.g. bonding atoms too far
+         // apart).  Uses get_phi_psi() below
+         phi_psi_t(mmdb::Residue *prev, mmdb::Residue *this_res, mmdb::Residue *next);
 
-	 double phi() const {return phi_;}
-	 double psi() const {return psi_;}
-	 std::string label() const {return lab;}
-	 std::string residue_name() const { return residue_name_; }
-	 std::string chain_id;
-	 int residue_number;
+         double phi() const {return phi_;}
+         double psi() const {return psi_;}
+         std::string label() const {return lab;}
+         std::string residue_name() const { return residue_name_; }
+         std::string chain_id;
+         int residue_number;
          std::string ins_code;
-	 bool is_filled() const {
-	    return is_filled_;
-	 }
-	 bool is_pre_pro() const { return is_pre_pro_; }
-	 friend std::ostream& operator<<(std::ostream &a, phi_psi_t v);
+         bool is_filled() const {
+            return is_filled_;
+         }
+         bool is_pre_pro() const { return is_pre_pro_; }
+         friend std::ostream& operator<<(std::ostream &a, phi_psi_t v);
       };
 
       std::ostream& operator<<(std::ostream &s, phi_psi_t v);
@@ -144,15 +144,15 @@ namespace coot {
 
       class phi_psi_pair_helper_t {
       public:
-	 phi_psi_t first;
-	 phi_psi_t second;
-	 bool is_valid_pair_flag;
-	 phi_psi_pair_helper_t(const phi_psi_t &f, const phi_psi_t &s, bool valid_flag) : first(f), second(s) {
-	    is_valid_pair_flag = valid_flag;
-	 }
-	 phi_psi_pair_helper_t() {
-	    is_valid_pair_flag = 0;
-	 }
+         phi_psi_t first;
+         phi_psi_t second;
+         bool is_valid_pair_flag;
+         phi_psi_pair_helper_t(const phi_psi_t &f, const phi_psi_t &s, bool valid_flag) : first(f), second(s) {
+            is_valid_pair_flag = valid_flag;
+         }
+         phi_psi_pair_helper_t() {
+            is_valid_pair_flag = 0;
+         }
       };
    }
 }

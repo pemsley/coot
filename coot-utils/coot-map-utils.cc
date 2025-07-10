@@ -76,35 +76,35 @@ coot::util::map_fill_from_mtz(clipper::Xmap<float> *xmap,
 
    auto path_to_file = [] (const std::string &p_col_in) {
 
-			 std::filesystem::path p(p_col_in);
-			 std::filesystem::path p_col_path = p.filename();
-			 std::string p_col = p_col_path.string();
-			 return p_col;
-		       };
+                         std::filesystem::path p(p_col_in);
+                         std::filesystem::path p_col_path = p.filename();
+                         std::string p_col = p_col_path.string();
+                         return p_col;
+                       };
 
 
    // I am not sure that stripping the dataset info is a good thing.
    //
    auto make_import_datanames = [path_to_file] (const std::string &f_col_in,
-						const std::string &phi_col_in,
-						const std::string &weight_col_in,
-						bool use_weights) {
+                                                const std::string &phi_col_in,
+                                                const std::string &weight_col_in,
+                                                bool use_weights) {
 
-				  std::pair<std::string, std::string> p("", ""); // return this
+                                  std::pair<std::string, std::string> p("", ""); // return this
 
-				  std::string      f_col = path_to_file(f_col_in);
-				  std::string    phi_col = path_to_file(phi_col_in);
-				  std::string weight_col = path_to_file(weight_col_in);
+                                  std::string      f_col = path_to_file(f_col_in);
+                                  std::string    phi_col = path_to_file(phi_col_in);
+                                  std::string weight_col = path_to_file(weight_col_in);
 
-				  std::string no_xtal_dataset_prefix= "/*/*/";
-				  if (use_weights) {
-				    p.first  = no_xtal_dataset_prefix + "[" +   f_col + " " +      f_col + "]";
-				    p.second = no_xtal_dataset_prefix + "[" + phi_col + " " + weight_col + "]";
-				  } else {
-				    p.first  = no_xtal_dataset_prefix + "[" +   f_col + " " + phi_col + "]";
-				  }
-				  return p;
-				};
+                                  std::string no_xtal_dataset_prefix= "/*/*/";
+                                  if (use_weights) {
+                                    p.first  = no_xtal_dataset_prefix + "[" +   f_col + " " +      f_col + "]";
+                                    p.second = no_xtal_dataset_prefix + "[" + phi_col + " " + weight_col + "]";
+                                  } else {
+                                    p.first  = no_xtal_dataset_prefix + "[" +   f_col + " " + phi_col + "]";
+                                  }
+                                  return p;
+                                };
    
 
    if (!file_exists(mtz_file_name))
@@ -3663,10 +3663,10 @@ coot::util::map_fragment_info_t::simple_origin_shift(const clipper::Xmap<float> 
          for (int w = grid.min().w(); w < grid.max().w(); w++) {
             ix.set_coord(clipper::Coord_grid(u, v, w)); // don't copy this. using set_coord() is slow
             float f = input_xmap[ix];
-	    clipper::Coord_grid cg = ix.coord() - offset;
-	    xmap.set_data(cg, f);
-	    if (false)
-	      std::cout << "set xmap: from " << ix.coord().format() << " " << cg.format() << " " << f << std::endl;
+            clipper::Coord_grid cg = ix.coord() - offset;
+            xmap.set_data(cg, f);
+            if (false)
+              std::cout << "set xmap: from " << ix.coord().format() << " " << cg.format() << " " << f << std::endl;
          }
       }
    }
@@ -5283,10 +5283,10 @@ coot::util::split_residue_using_map(mmdb::Residue *residue_p,
       }
 
       if (false)
-	 std::cout << ":::::::: debug:: split_residue_using_map() here with residue "
-		  << coot::residue_spec_t(residue_p)
-		  << " " << residue_p->GetResName() <<  " with atom_name_map size "
-		   << atom_name_map.size() << std::endl;
+         std::cout << ":::::::: debug:: split_residue_using_map() here with residue "
+                  << coot::residue_spec_t(residue_p)
+                  << " " << residue_p->GetResName() <<  " with atom_name_map size "
+                   << atom_name_map.size() << std::endl;
 
       bool status = false;
       clipper::Coord_orth a_b_uv(0,0,0);
@@ -5327,10 +5327,10 @@ coot::util::split_residue_using_map(mmdb::Residue *residue_p,
          strncpy(at_copy->altLoc, "B", 2);
          at->x      += h.x();      at->y += h.y();      at->z += h.z();
          at_copy->x -= h.x(); at_copy->y -= h.y(); at_copy->z -= h.z();
-	 atoms_to_be_added.push_back(at_copy);
+         atoms_to_be_added.push_back(at_copy);
       }
       for(mmdb::Atom *at_copy : atoms_to_be_added)
-	residue_p->AddAtom(at_copy);
+        residue_p->AddAtom(at_copy);
    };
 
    int status = 0;
