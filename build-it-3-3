@@ -957,8 +957,11 @@ echo GITHUB_WORKSPACE $GITHUB_WORKSPACE
 # now make the build logs directory
 mkdir -p $LOGS
 
-shared_static_flag="--disable-shared" # huh?
+
+# Build shared libs, disable static
 shared_static_flag="--disable-static"
+# shared_static_flag="--disable-shared"  # uncomment to do the opposite
+
 shared_lib_ext=so
 systype=unknown
 
@@ -1750,7 +1753,6 @@ echo INFO:: coot_version is $coot_version
 echo INFO:: build_type is $build_type
 
 
-
 # set the build prefix for installed stuff.  Put everything in the
 # pre-release directory if we are building a pre-release.
 # (Perhaps this bit of code should go down lower, where we test
@@ -1767,55 +1769,36 @@ echo INFO:: build_type is $build_type
 # For ubuntu, you need system OpenSSL:
 # sudo apt-get install openssl-dev
 #
-if [ "$build_coot_prerelease" = 1 ] ; then
-    if [ "$coot_prerelease_exists" = 1 ] ; then
-      generic_prefix="--prefix=${AUTOBUILD_INSTALLED}-pre-release ${config_extras:-}"
-      coot_prefix="$generic_prefix"
-      install_top_dir=${AUTOBUILD_INSTALLED}-pre-release
-      # python seems to link OK on Darwin, so no need for this jiggery pokery
-      if [ $(uname) != Darwin ] ; then
-         # 20220228-PE also -L$install_top_dir/lib64
-         python_lib_flags=LDFLAGS="-L$install_top_dir/lib64 -Wl,--rpath=${AUTOBUILD_INSTALLED}-pre-release/lib"
-         python_ldflags="LDFLAGS=-Wl,--rpath=${AUTOBUILD_INSTALLED}-pre-release/lib"
-         python_libs="LIBS=\"-L$install_top_dir/lib64 -lffi\""
-         python_libs="LIBS='""-L$install_top_dir/lib64 -lffi""'"
-         python_libs="LIBS=-L$install_top_dir/lib64"  # finds libffi
-         python_rpath="LDFLAGS=-Wl,--rpath=${AUTOBUILD_INSTALLED}-pre-release/lib"
-      else
-         pv=$(sw_vers -productVersion)
-         # e.g. 10.10
-         os_minor_version="${pv%.*}"
-         python_spec_flags="MACOSX_DEPLOYMENT_TARGET=$os_minor_version"
-      fi
-    else
-      # don't use pre-release
-      generic_prefix="--prefix=$AUTOBUILD_INSTALLED ${config_extras:-}"
-      coot_prefix="$generic_prefix"
-      install_top_dir=${AUTOBUILD_INSTALLED}
-      if [ $(uname) != Darwin ] ; then
-         python_lib_flags=LDFLAGS="-L$install_top_dir/lib64 -Wl,--rpath=${AUTOBUILD_INSTALLED}-pre-release/lib"
-      fi
-    fi
-else
-   # not pre-release
-   generic_prefix="--prefix=$AUTOBUILD_INSTALLED ${config_extras:-}"
-   install_top_dir=${AUTOBUILD_INSTALLED}
-   coot_prefix="$generic_prefix"
-   if [ $(uname) != Darwin ] ; then
-      python_lib_flags=LDFLAGS="-L$install_top_dir/lib64 -Wl,--rpath=${AUTOBUILD_INSTALLED}/lib"
-      python_ldflags="LDFLAGS=-Wl,--rpath=${AUTOBUILD_INSTALLED}/lib"
-      python_libs="LIBS=\"-L$install_top_dir/lib64 -lffi\""
-      python_libs="LIBS='""-L$install_top_dir/lib64 -lffi""'"
-      python_libs="LIBS=-L$install_top_dir/lib64"  # finds libffi
-      python_rpath="LDFLAGS=-Wl,--rpath=${AUTOBUILD_INSTALLED}/lib"
-      echo python_libs is $python_libs
 
-   else
-      pv=$(sw_vers -productVersion)
-      # e.g. 10.10
-      os_minor_version="${pv%.*}"
-      python_spec_flags="MACOSX_DEPLOYMENT_TARGET=$os_minor_version"
-   fi
+# The local library directory for Python was previously hardcoded as $install_top_dir/lib64,
+# but this caused issues on some systems.
+# For example, on Ubuntu 24.04 during the Coot build, Python was compiled and installed into $install_top_dir/lib.
+# To make this configurable, the `libdir` variable was introduced and set it to "lib" by default.
+# If your system installs libraries to lib64 instead, change the value below:
+# libdir="lib64"
+libdir="lib"
+
+install_top_dir=${AUTOBUILD_INSTALLED}
+
+if [ "$build_coot_prerelease" = 1 ] && [ "$coot_prerelease_exists" = 1 ]; then
+    install_top_dir="${AUTOBUILD_INSTALLED}-pre-release"
+fi
+
+coot_prefix="--prefix=$install_top_dir ${config_extras:-}"
+generic_prefix="$coot_prefix"
+
+if [ "$(uname)" != Darwin ]; then
+    python_lib_flags="LDFLAGS=-L$install_top_dir/$libdir -Wl,--rpath=$install_top_dir/$libdir"
+    python_ldflags="LDFLAGS=-Wl,--rpath=$install_top_dir/$libdir"
+    # two lines below are overwritten by third line, not sure why ?
+    python_libs="LIBS=\"-L$install_top_dir/$libdir -lffi\""
+    python_libs="LIBS='""-L$install_top_dir/$libdir -lffi""'"
+    python_libs="LIBS=-L$install_top_dir/$libdir"  # finds libffi
+    python_rpath="LDFLAGS=-Wl,--rpath=$install_top_dir/$libdir"
+else
+    pv=$(sw_vers -productVersion)
+    os_minor_version="${pv%.*}"
+    python_spec_flags="MACOSX_DEPLOYMENT_TARGET=$os_minor_version"
 fi
 
 echo install_top_dir $install_top_dir
@@ -1924,34 +1907,7 @@ else
 fi
 
 
-# we need to export this for net-http, because it doesn't set
-# variables from configure, we rely on a shell (environment) variable.
-export install_top_dir
 
-echo testing for install_top_dir: "$install_top_dir"
-if [ ! -e "$install_top_dir" ] ; then
-	echo $install_top_dir does not exist
-	echo making directory $install_top_dir
-	mkdir -p $install_top_dir
-	if [ $? -ne 0 ] ; then
-		echo DISASTER: $install_top_dir does not exist and no way
-		echo to make it.
-	        my_exit 2
-	fi
-else
-	echo INFO:: $install_top_dir exists already.
-fi
-echo done testing for $install_top_dir
-
-if [ ! -e "$install_top_dir/lib" ] ; then
-	echo making "$install_top_dir/lib"
-	mkdir -p "$install_top_dir/lib"
-        if [ $? -ne 0 ] ; then
-                echo DISASTER: $install_top_dir/lib cannot be created
-                echo to make it.
-                my_exit 2
-        fi
-fi
 #
 # append or set LD_LIBRARY_PATH.
 #
@@ -1960,10 +1916,10 @@ fi
 #
 #
 if [ -z "$LD_LIBRARY_PATH" ] ; then
-    LD_LIBRARY_PATH=$install_top_dir/lib
+    LD_LIBRARY_PATH=$install_top_dir/$libdir
     export LD_LIBRARY_PATH
 else
-    LD_LIBRARY_PATH=$install_top_dir/lib:$LD_LIBRARY_PATH
+    LD_LIBRARY_PATH=$install_top_dir/$libdir:$LD_LIBRARY_PATH
     export LD_LIBRARY_PATH
 fi
 
