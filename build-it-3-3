@@ -1907,7 +1907,34 @@ else
 fi
 
 
+# we need to export this for net-http, because it doesn't set
+# variables from configure, we rely on a shell (environment) variable.
+export install_top_dir
 
+echo testing for install_top_dir: "$install_top_dir"
+if [ ! -e "$install_top_dir" ] ; then
+	echo $install_top_dir does not exist
+	echo making directory $install_top_dir
+	mkdir -p $install_top_dir
+	if [ $? -ne 0 ] ; then
+		echo DISASTER: $install_top_dir does not exist and no way
+		echo to make it.
+	        my_exit 2
+	fi
+else
+	echo INFO:: $install_top_dir exists already.
+fi
+echo done testing for $install_top_dir
+
+if [ ! -e "$install_top_dir/lib" ] ; then
+	echo making "$install_top_dir/lib"
+	mkdir -p "$install_top_dir/lib"
+        if [ $? -ne 0 ] ; then
+                echo DISASTER: $install_top_dir/lib cannot be created
+                echo to make it.
+                my_exit 2
+        fi
+fi
 #
 # append or set LD_LIBRARY_PATH.
 #
