@@ -171,7 +171,7 @@ namespace coot {
       std::vector<extra_target_position_restraint_t> target_position_restraints;
       std::vector<parallel_planes_t> parallel_plane_restraints;
 
-      void read_refmac_extra_restraints(const std::string &file_name);
+      int read_refmac_extra_restraints(const std::string &file_name);
 
       bool has_restraints() const {
 	 if (bond_restraints.size() > 0)

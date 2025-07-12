@@ -2679,7 +2679,7 @@ public:
    //! Read extra restraints (e.g. from ProSMART)
    //!
    //! @param imol is the model molecule index
-   void read_extra_restraints(int imol, const std::string &file_name);
+   int read_extra_restraints(int imol, const std::string &file_name);
 
    //! Clear the extra restraints
    //!

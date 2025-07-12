@@ -5219,14 +5219,16 @@ molecules_container_t::get_map_histogram(int imol, unsigned int n_bins, float zo
 
 
 //! read extra restraints (e.g. from ProSMART)
-void
+int
 molecules_container_t::read_extra_restraints(int imol, const std::string &file_name) {
 
+   int n = -1;
    if (is_valid_model_molecule(imol)) {
-      molecules[imol].read_extra_restraints(file_name);
+      n = molecules[imol].read_extra_restraints(file_name);
    } else {
       std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
-  }
+   }
+   return n;
 }
 
 
