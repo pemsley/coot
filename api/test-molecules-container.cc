@@ -4498,15 +4498,20 @@ int test_read_extra_restraints(molecules_container_t &mc) {
    if (mc.is_valid_model_molecule(imol_1)) {
       if (mc.is_valid_model_molecule(imol_2)) {
          // it's actually for moleecule 4 (1 was renamed to 4)
-         mc.read_extra_restraints(imol_1, reference_data("moorhen-tutorial-structure-number-1-prosmart.txt"));
-         coot::instanced_mesh_t im = mc.get_extra_restraints_mesh(imol_1, 0);
-         if (! im.geom.empty()) {
-            std::cout << "instancing_data_B size " << im.geom[0].instancing_data_B.size() << std::endl;
-            if (im.geom[0].instancing_data_B.size() > 10)
-               status = 1;
-         } else {
-            std::cout << "ERROR:: im geom is empty" << std::endl;
-         }
+         int n_extra =
+	    mc.read_extra_restraints(imol_1,
+				     reference_data("moorhen-tutorial-structure-number-1-prosmart.txt"));
+	 std::cout << "test_read_extra_restraints made " << n_extra << " extra restraints" << std::endl;
+	 if (n_extra > 0) {
+	    coot::instanced_mesh_t im = mc.get_extra_restraints_mesh(imol_1, 0);
+	    if (! im.geom.empty()) {
+	       std::cout << "instancing_data_B size " << im.geom[0].instancing_data_B.size() << std::endl;
+	       if (im.geom[0].instancing_data_B.size() > 10)
+		  status = 1;
+	    } else {
+	       std::cout << "ERROR:: im geom is empty" << std::endl;
+	    }
+	 }
       }
    }
    return status;

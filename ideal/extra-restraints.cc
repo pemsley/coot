@@ -624,6 +624,22 @@ coot::extra_restraints_t::read_refmac_extra_restraints(const std::string &file_n
       return {};
    };
 
+      // std::vector<extra_bond_restraint_t> bond_restraints;
+      // std::vector<extra_angle_restraint_t> angle_restraints;
+      // std::vector<extra_torsion_restraint_t> torsion_restraints;
+      // std::vector<extra_geman_mcclure_restraint_t> geman_mcclure_restraints;
+      // std::vector<extra_start_pos_restraint_t> start_pos_restraints;
+      // std::vector<extra_target_position_restraint_t> target_position_restraints;
+      // std::vector<parallel_planes_t> parallel_plane_restraints;
+
+   std::map<std::string, int> restraints_counts_map_pre;
+   restraints_counts_map_pre["bond"]    =    bond_restraints.size();
+   restraints_counts_map_pre["angle"]   =   angle_restraints.size();
+   restraints_counts_map_pre["torsion"] = torsion_restraints.size();
+   restraints_counts_map_pre["geman_mcclure"]   =   geman_mcclure_restraints.size();
+   restraints_counts_map_pre["start_pos"]       =       start_pos_restraints.size();
+   restraints_counts_map_pre["target_position"] = target_position_restraints.size();
+   restraints_counts_map_pre["parallel_plane"]  =  parallel_plane_restraints.size();
 
    if (file_exists(file_name)) {
       std::string line;
@@ -802,6 +818,20 @@ coot::extra_restraints_t::read_refmac_extra_restraints(const std::string &file_n
          }
       }
    }
+   std::map<std::string, int> restraints_counts_map_post;
+   restraints_counts_map_post["bond"]    =    bond_restraints.size();
+   restraints_counts_map_post["angle"]   =   angle_restraints.size();
+   restraints_counts_map_post["torsion"] = torsion_restraints.size();
+   restraints_counts_map_post["geman_mcclure"]   =   geman_mcclure_restraints.size();
+   restraints_counts_map_post["start_pos"]       =       start_pos_restraints.size();
+   restraints_counts_map_post["target_position"] = target_position_restraints.size();
+   restraints_counts_map_post["parallel_plane"]  =  parallel_plane_restraints.size();
+
+   int n_delta = 0;
+   for (auto t : std::vector{"bond", "angle", "torsion", "geman_mcclure", "start_pos", "target_position", "parallel_plane"}) {
+      n_delta += restraints_counts_map_post[t] - restraints_counts_map_pre[t];
+   }
+   return n_delta;
 }
 
 void
