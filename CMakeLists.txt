@@ -10,6 +10,8 @@ if (NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
 endif()
 
+# C++20 is only used because newest versions of RDKit (March 2025 and newer) seems to require it
+# Without RDKit, Coot currently needs C++17
 set(CMAKE_CXX_STANDARD 20)
 
 if (APPLE)
