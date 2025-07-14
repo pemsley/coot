@@ -37,28 +37,28 @@ coot::util::trim_molecule_by_map(mmdb::Manager *mol,
    // looping to coordinate hierachy looping.
    //
 
-   if (1) { 
+   if (true) {
 
       mmdb::Model *model_p = mol->GetModel(1);
-   
+
       mmdb::Chain *chain;
       // run over chains of the existing mol
       int nchains = model_p->GetNumberOfChains();
-      if (nchains <= 0) { 
+      if (nchains <= 0) {
          std::cout << "bad nchains in trim molecule " << nchains
                    << std::endl;
-      } else { 
+      } else {
          for (int ichain=0; ichain<nchains; ichain++) {
             chain = model_p->GetChain(ichain);
-            if (chain == NULL) {  
+            if (chain == NULL) {
                // This should not be necessary. It seem to be a
                // result of mmdb corruption elsewhere - possibly
                // DeleteChain in update_molecule_to().
                std::cout << "NULL chain in model_view_residue_button_info_t: "
                          << std::endl;
-            } else { 
+            } else {
                int nres = chain->GetNumberOfResidues();
-               for (int ires=0; ires<nres; ires++) { 
+               for (int ires=0; ires<nres; ires++) {
                   mmdb::PResidue residue_p = chain->GetResidue(ires);
                   std::string resname = residue_p->name;
                   if (((resname == "WAT" || resname == "HOH") && waters_only_flag)
@@ -70,7 +70,7 @@ coot::util::trim_molecule_by_map(mmdb::Manager *mol,
                         mmdb::Atom *at = residue_p->GetAtom(iat);
                         clipper::Coord_orth co(at->x, at->y, at->z);
                         if (density_at_point(xmap, co) < map_level) {
-                        
+
                            // A baddie.  What do we do with it?  Set its
                            // occupancy to zero or delete it?
 
@@ -78,7 +78,7 @@ coot::util::trim_molecule_by_map(mmdb::Manager *mol,
                               residue_p->DeleteAtom(iat);
                               n_changed++;
                            }
-                        
+
                            if (remove_or_zero_occ_flag == coot::util::TRIM_BY_MAP_ZERO_OCC) {
                               at->occupancy = 0.0;
                               n_changed++;
@@ -97,6 +97,6 @@ coot::util::trim_molecule_by_map(mmdb::Manager *mol,
    }
    return n_changed;
 }
-            
+
 
 
