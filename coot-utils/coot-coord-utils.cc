@@ -3780,17 +3780,17 @@ coot::util::create_mmdbmanager_from_residue_vector(const std::vector<mmdb::Resid
    for (unsigned int i=0; i<res_vec.size(); i++) {
       mmdb::Residue *residue_p = res_vec[i];
       if (residue_p == nullptr) {
-	 logger.log(log_t::ERROR, logging::function_name_t(__FUNCTION__),
-		    { "residue A idx:", i, "of", res_vec.size(), "is null"});
-	 continue;
+         logger.log(log_t::ERROR, logging::function_name_t(__FUNCTION__),
+                    { "residue A idx:", i, "of", res_vec.size(), "is null"});
+         continue;
       } else {
-	 if (false) { // debugging
-	    std::stringstream ss;
-	    ss << residue_p;
-	    std::string s = ss.str();
-	    logger.log(log_t::INFO, logging::function_name_t(__FUNCTION__),
-		       { "residue A idx:", i, "of", res_vec.size(), "is", s });
-	 }
+         if (false) { // debugging
+            std::stringstream ss;
+            ss << residue_p;
+            std::string s = ss.str();
+            logger.log(log_t::INFO, logging::function_name_t(__FUNCTION__),
+                       { "residue A idx:", i, "of", res_vec.size(), "is", s });
+         }
       }
       std::string chain_id = residue_p->GetChainID();
 
@@ -3814,17 +3814,17 @@ coot::util::create_mmdbmanager_from_residue_vector(const std::vector<mmdb::Resid
    for (unsigned int i=0; i<res_vec.size(); i++) { 
       mmdb::Residue *residue_p = res_vec[i];
       if (residue_p == nullptr) {
-	 logger.log(log_t::ERROR, logging::function_name_t(__FUNCTION__),
-		    { "residue B idx:", i, "of", res_vec.size(), "is null"});
-	 continue;
+         logger.log(log_t::ERROR, logging::function_name_t(__FUNCTION__),
+                    { "residue B idx:", i, "of", res_vec.size(), "is null"});
+         continue;
       } else {
-	 if (false) { // debugging
-	    std::stringstream ss;
-	    ss << residue_p;
-	    std::string s = ss.str();
-	    logger.log(log_t::ERROR, logging::function_name_t(__FUNCTION__),
-		       { "residue B idx:", i, "of", res_vec.size(), "is", s });
-	 }
+         if (false) { // debugging
+            std::stringstream ss;
+            ss << residue_p;
+            std::string s = ss.str();
+            logger.log(log_t::ERROR, logging::function_name_t(__FUNCTION__),
+                       { "residue B idx:", i, "of", res_vec.size(), "is", s });
+         }
       }
       std::string chain_id = residue_p->GetChainID();
       for (unsigned int ich=0; ich<residues_of_chain.size(); ich++) { 
@@ -8853,25 +8853,25 @@ coot::centre_of_molecule_using_masses(mmdb::Manager *mol) {
       if (! model_p) continue;
       int nchains = model_p->GetNumberOfChains();
       for (int ichain=0; ichain<nchains; ichain++) {
-	 mmdb::Chain *chain_p = model_p->GetChain(ichain);
-	 int nres = chain_p->GetNumberOfResidues();
-	 for (int ires=0; ires<nres; ires++) { 
-	 mmdb::Residue *residue_p = chain_p->GetResidue(ires);
-	    int n_residue_atoms = residue_p->GetNumberOfAtoms();
-	    for (int iat=0; iat<n_residue_atoms; iat++) {
-	       mmdb::Atom *at = residue_p->GetAtom(iat);
-	       if (! at->isTer()) {
-		  std::string ele = at->element;
-		  double w = 6.0;
-		  std::map<std::string, double>::const_iterator it;
-		  it = pdb_element_weights.find(ele);
-		  if (it != pdb_element_weights.end()) w = it->second;
-		  xs += w * at->x; ys += w * at->y; zs += w * at->z;
-		  sum_weight += w;
-		  n_atoms++;
-	       }
-	    }
-	 }
+         mmdb::Chain *chain_p = model_p->GetChain(ichain);
+         int nres = chain_p->GetNumberOfResidues();
+         for (int ires=0; ires<nres; ires++) { 
+         mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+            int n_residue_atoms = residue_p->GetNumberOfAtoms();
+            for (int iat=0; iat<n_residue_atoms; iat++) {
+               mmdb::Atom *at = residue_p->GetAtom(iat);
+               if (! at->isTer()) {
+                  std::string ele = at->element;
+                  double w = 6.0;
+                  std::map<std::string, double>::const_iterator it;
+                  it = pdb_element_weights.find(ele);
+                  if (it != pdb_element_weights.end()) w = it->second;
+                  xs += w * at->x; ys += w * at->y; zs += w * at->z;
+                  sum_weight += w;
+                  n_atoms++;
+               }
+            }
+         }
       }
    }
    if (n_atoms > 0) {
@@ -8918,32 +8918,32 @@ coot::radius_of_gyration(mmdb::Manager *mol) {
    if (centre_pair.first) {
       clipper::Coord_orth centre = centre_pair.second;
       for(int imod=1; imod<=mol->GetNumberOfModels(); imod++) {
-	 mmdb::Model *model_p = mol->GetModel(imod);
-	 if (! model_p) continue;
-	 int nchains = model_p->GetNumberOfChains();
-	 for (int ichain=0; ichain<nchains; ichain++) {
-	    mmdb::Chain *chain_p = model_p->GetChain(ichain);
-	    int nres = chain_p->GetNumberOfResidues();
-	    for (int ires=0; ires<nres; ires++) { 
-	       mmdb::Residue *residue_p = chain_p->GetResidue(ires);
-	       int n_residue_atoms = residue_p->GetNumberOfAtoms();
-	       for (int iat=0; iat<n_residue_atoms; iat++) {
-		  mmdb::Atom *at = residue_p->GetAtom(iat);
-		  if (! at->isTer()) {
-		     std::string ele = at->element;
-		     double w = 14.0;
-		     std::map<std::string, double>::const_iterator it;
-		     it = pdb_element_weights.find(ele);
-		     if (it != pdb_element_weights.end()) w = it->second;
-		     clipper::Coord_orth pt(at->x, at->y, at->z);
-		     clipper::Coord_orth delta = pt - centre;
-		     double dd = delta.lengthsq();
-		     sum_dd += dd * w;
-		     sum_weight += w;
-		  }
-	       }
-	    }
-	 }
+         mmdb::Model *model_p = mol->GetModel(imod);
+         if (! model_p) continue;
+         int nchains = model_p->GetNumberOfChains();
+         for (int ichain=0; ichain<nchains; ichain++) {
+            mmdb::Chain *chain_p = model_p->GetChain(ichain);
+            int nres = chain_p->GetNumberOfResidues();
+            for (int ires=0; ires<nres; ires++) { 
+               mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+               int n_residue_atoms = residue_p->GetNumberOfAtoms();
+               for (int iat=0; iat<n_residue_atoms; iat++) {
+                  mmdb::Atom *at = residue_p->GetAtom(iat);
+                  if (! at->isTer()) {
+                     std::string ele = at->element;
+                     double w = 14.0;
+                     std::map<std::string, double>::const_iterator it;
+                     it = pdb_element_weights.find(ele);
+                     if (it != pdb_element_weights.end()) w = it->second;
+                     clipper::Coord_orth pt(at->x, at->y, at->z);
+                     clipper::Coord_orth delta = pt - centre;
+                     double dd = delta.lengthsq();
+                     sum_dd += dd * w;
+                     sum_weight += w;
+                  }
+               }
+            }
+         }
       }
       double rr = sum_dd / sum_weight;
       double radius_of_gyration = std::sqrt(rr);

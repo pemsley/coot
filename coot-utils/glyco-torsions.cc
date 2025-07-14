@@ -82,9 +82,9 @@ coot::atom_by_torsion_t::pos(mmdb::Residue *base_residue_p, mmdb::Residue *ext_r
    if (false) {
       std::cout << "debug:: atom_by_torsion_t::pos() positioning atom " << atom_name << std::endl;
       for (int iat=0; iat<n_residue_atoms; iat++) {
-	 mmdb::Atom *at = residue_atoms[iat];
-	 std::cout << "   " << coot::atom_spec_t(at) << " vs "
-		   << prior_atom_1.first << " " << prior_atom_1.second << std::endl;
+         mmdb::Atom *at = residue_atoms[iat];
+         std::cout << "   " << coot::atom_spec_t(at) << " vs "
+                   << prior_atom_1.first << " " << prior_atom_1.second << std::endl;
       }
    }
 
@@ -106,9 +106,9 @@ coot::atom_by_torsion_t::pos(mmdb::Residue *base_residue_p, mmdb::Residue *ext_r
       clipper::Coord_orth p2 = coot::co(at_2);
       clipper::Coord_orth p3 = coot::co(at_3);
       clipper::Coord_orth new_pos = clipper::Coord_orth(p3,p2,p1,
-							bond_length,
-							clipper::Util::d2rad(angle),
-							clipper::Util::d2rad(torsion));
+                                                        bond_length,
+                                                        clipper::Util::d2rad(angle),
+                                                        clipper::Util::d2rad(torsion));
       return new_pos;
    } else {
       unsigned int n_missing = 0;
@@ -117,7 +117,7 @@ coot::atom_by_torsion_t::pos(mmdb::Residue *base_residue_p, mmdb::Residue *ext_r
       if (! at_3) n_missing++;
       std::string m = "missing atom";
       if (n_missing>1)
-	 m += "s";
+         m += "s";
       m += " in atom_by_torsion_t::pos() when positioning ";
       m += atom_name;
       m += " : ";
@@ -132,7 +132,7 @@ coot::atom_by_torsion_t::pos(mmdb::Residue *base_residue_p, mmdb::Residue *ext_r
 }
 
 coot::link_by_torsion_t::link_by_torsion_t(const std::string &link_type,
-					   const std::string &new_residue_comp_id_in) {
+                                           const std::string &new_residue_comp_id_in) {
 
    new_residue_type = new_residue_comp_id_in;
    new_res_no = 1; // FIXME
@@ -148,10 +148,10 @@ coot::link_by_torsion_t::link_by_torsion_t(const std::string &link_type,
    } else {
       coot::link_by_torsion_t decor(decor_file_name);
       if (! decor.filled()) {
-	 std::cout << "Decorations not filled from " << decor_file_name
-		   << std::endl;
+         std::cout << "Decorations not filled from " << decor_file_name
+                   << std::endl;
       } else {
-	 add(decor);
+         add(decor);
       }
    }
 }
@@ -160,7 +160,7 @@ coot::link_by_torsion_t::link_by_torsion_t(const std::string &link_type,
 
 std::string
 coot::link_by_torsion_t::link_type_to_file_name(const std::string &link_type,
-						const std::string &new_res_comp_id) const {
+                                                const std::string &new_res_comp_id) const {
 
    // try to get new_res_comp_id-specific template, if not, fall back to generic
    //
@@ -217,17 +217,17 @@ coot::link_by_torsion_t::make_residue(mmdb::Residue *base_residue_p) const {
       r->SetResName(new_residue_type.c_str());
       r->seqNum = new_res_no;
       for (unsigned int i=0; i<geom_atom_torsions.size(); i++) {
-	 const atom_by_torsion_t &gat = geom_atom_torsions[i];
-	 // std::cout << "in make_residue() i: " << i << " " << gat << std::endl;
-	 std::string f = gat.filled_atom_name(); // FIXME PDBv3 the function call is not needed
-	 clipper::Coord_orth p = gat.pos(base_residue_p, r);
-	 mmdb::Atom *atom = new mmdb::Atom(r); // does an add atom
-	 atom->SetAtomName(f.c_str());
-	 atom->SetElementName(gat.element.c_str());
-	 atom->SetCoordinates(p.x(), p.y(), p.z(), 1.0, b_factor);
-	 atom->Het = 1;
-	 if (false)
-	    std::cout << "   " << gat.atom_name << " " << p.format()  << std::endl;
+         const atom_by_torsion_t &gat = geom_atom_torsions[i];
+         // std::cout << "in make_residue() i: " << i << " " << gat << std::endl;
+         std::string f = gat.filled_atom_name(); // FIXME PDBv3 the function call is not needed
+         clipper::Coord_orth p = gat.pos(base_residue_p, r);
+         mmdb::Atom *atom = new mmdb::Atom(r); // does an add atom
+         atom->SetAtomName(f.c_str());
+         atom->SetElementName(gat.element.c_str());
+         atom->SetCoordinates(p.x(), p.y(), p.z(), 1.0, b_factor);
+         atom->Het = 1;
+         if (false)
+            std::cout << "   " << gat.atom_name << " " << p.format()  << std::endl;
       }
    }
    return r;
@@ -235,16 +235,16 @@ coot::link_by_torsion_t::make_residue(mmdb::Residue *base_residue_p) const {
 
 
 coot::atom_by_torsion_t::atom_by_torsion_t(const atom_by_torsion_base_t &names,
-					   mmdb::Residue *residue_1_p,  // reference/lower
-					   mmdb::Residue *residue_2_p   // extension residue
-					   ) {
+                                           mmdb::Residue *residue_1_p,  // reference/lower
+                                           mmdb::Residue *residue_2_p   // extension residue
+                                           ) {
 
    if (false)
       std::cout << "get "
-		<< names.prior_atom_1.first << " " << names.prior_atom_1.second << " "
-		<< names.prior_atom_2.first << " " << names.prior_atom_2.second << " "
-		<< names.prior_atom_3.first << " " << names.prior_atom_3.second << " "
-		<< std::endl;
+                << names.prior_atom_1.first << " " << names.prior_atom_1.second << " "
+                << names.prior_atom_2.first << " " << names.prior_atom_2.second << " "
+                << names.prior_atom_3.first << " " << names.prior_atom_3.second << " "
+                << std::endl;
 
    mmdb::PPAtom residue_atoms_1 = 0;
    mmdb::PPAtom residue_atoms_2 = 0;
@@ -261,57 +261,57 @@ coot::atom_by_torsion_t::atom_by_torsion_t(const atom_by_torsion_base_t &names,
 
       // I could just GetAtom() here.
       for (int iat=0; iat<n_residue_atoms_1; iat++) {
-	 mmdb::Atom *at = residue_atoms_1[iat];
-	 std::string nb_name = coot::util::remove_whitespace(at->name);
-	 if (names.prior_atom_1.first)
-	    if (names.prior_atom_1.second == nb_name)
-	       p_1 = at;
-	 if (names.prior_atom_2.first)
-	    if (names.prior_atom_2.second == nb_name)
-	       p_2 = at;
-	 if (names.prior_atom_3.first)
-	    if (names.prior_atom_3.second == nb_name)
-	       p_3 = at;
+         mmdb::Atom *at = residue_atoms_1[iat];
+         std::string nb_name = coot::util::remove_whitespace(at->name);
+         if (names.prior_atom_1.first)
+            if (names.prior_atom_1.second == nb_name)
+               p_1 = at;
+         if (names.prior_atom_2.first)
+            if (names.prior_atom_2.second == nb_name)
+               p_2 = at;
+         if (names.prior_atom_3.first)
+            if (names.prior_atom_3.second == nb_name)
+               p_3 = at;
       }
       for (int iat=0; iat<n_residue_atoms_2; iat++) {
-	 mmdb::Atom *at = residue_atoms_2[iat];
-	 std::string nb_name = coot::util::remove_whitespace(at->name);
-	 if (! names.prior_atom_1.first)
-	    if (names.prior_atom_1.second == nb_name)
-	       p_1 = at;
-	 if (! names.prior_atom_2.first)
-	    if (names.prior_atom_2.second == nb_name)
-	       p_2 = at;
-	 if (! names.prior_atom_3.first)
-	    if (names.prior_atom_3.second == nb_name)
-	       p_3 = at;
+         mmdb::Atom *at = residue_atoms_2[iat];
+         std::string nb_name = coot::util::remove_whitespace(at->name);
+         if (! names.prior_atom_1.first)
+            if (names.prior_atom_1.second == nb_name)
+               p_1 = at;
+         if (! names.prior_atom_2.first)
+            if (names.prior_atom_2.second == nb_name)
+               p_2 = at;
+         if (! names.prior_atom_3.first)
+            if (names.prior_atom_3.second == nb_name)
+               p_3 = at;
       }
 
       if (p_1 && p_2 && p_3) {
-	 coot::atom_quad q(p_new, p_1, p_2, p_3);
-	 if (false) {
-	    std::cout << "check quad: " << q << " " << q.get_atom_name_quad() << std::endl;
-	    std::cout << "   check quad "
-		      << coot::atom_spec_t(q.atom_1) << " "
-		      << coot::atom_spec_t(q.atom_2) << " "
-		      << coot::atom_spec_t(q.atom_3) << " "
-		      << coot::atom_spec_t(q.atom_4) << std::endl;
-	    }
-	 clipper::Coord_orth pos_n = coot::co(p_new);
-	 clipper::Coord_orth pos_1 = coot::co(p_1);
-	 clipper::Coord_orth pos_2 = coot::co(p_2);
-	 clipper::Coord_orth pos_3 = coot::co(p_3);
-	 if (false) {
-	    std::cout << "... " << coot::atom_spec_t(p_new) << " has pos " << pos_n.format()
-		      << std::endl;
-	    std::cout << "... " << coot::atom_spec_t(p_1)   << " has pos " << pos_1.format()
-		      << std::endl;
-	 }
-	 double bl = sqrt((pos_n - pos_1).lengthsq());
-	 double a = q.angle_2();
-	 double t = q.torsion();
-	 // bleugh, FIXME with an init() function.
-	 *this = atom_by_torsion_t(names, bl, a, t);
+         coot::atom_quad q(p_new, p_1, p_2, p_3);
+         if (false) {
+            std::cout << "check quad: " << q << " " << q.get_atom_name_quad() << std::endl;
+            std::cout << "   check quad "
+                      << coot::atom_spec_t(q.atom_1) << " "
+                      << coot::atom_spec_t(q.atom_2) << " "
+                      << coot::atom_spec_t(q.atom_3) << " "
+                      << coot::atom_spec_t(q.atom_4) << std::endl;
+            }
+         clipper::Coord_orth pos_n = coot::co(p_new);
+         clipper::Coord_orth pos_1 = coot::co(p_1);
+         clipper::Coord_orth pos_2 = coot::co(p_2);
+         clipper::Coord_orth pos_3 = coot::co(p_3);
+         if (false) {
+            std::cout << "... " << coot::atom_spec_t(p_new) << " has pos " << pos_n.format()
+                      << std::endl;
+            std::cout << "... " << coot::atom_spec_t(p_1)   << " has pos " << pos_1.format()
+                      << std::endl;
+         }
+         double bl = sqrt((pos_n - pos_1).lengthsq());
+         double a = q.angle_2();
+         double t = q.torsion();
+         // bleugh, FIXME with an init() function.
+         *this = atom_by_torsion_t(names, bl, a, t);
       }
    }
 }
@@ -512,7 +512,7 @@ coot::get_decorations(const std::string &new_comp_id) {
 //   one.
 // 
 // coot::link_by_torsion_base_t coot::add_link_by_torsions(const coot::link_by_torsion_base_t &v1,
-// 							const coot::link_by_torsion_base_t &v2) {
+//                                                         const coot::link_by_torsion_base_t &v2) {
 
 //    link_by_torsion_base_t r = v1;
 //    for (unsigned int i=0; i<v2.atom_torsions.size(); i++)
@@ -553,16 +553,16 @@ coot::link_by_torsion_t::get_residue_pair(mmdb::Manager *mol) {
       int nres = chain_p->GetNumberOfResidues();
       mmdb::Residue *residue_p;
       for (int ires=0; ires<nres; ires++) { 
-	 residue_p = chain_p->GetResidue(ires);
-	 if (r.first) { 
-	    r.second = residue_p;
-	    break;
-	 } else {
-	    r.first = residue_p;
-	 } 
+         residue_p = chain_p->GetResidue(ires);
+         if (r.first) { 
+            r.second = residue_p;
+            break;
+         } else {
+            r.first = residue_p;
+         } 
       }
       if (r.first && r.second)
-	 break;
+         break;
    }
    return r;
 }
@@ -576,7 +576,7 @@ coot::link_by_torsion_t::get_residue_pair(mmdb::Manager *mol) {
 //    for (unsigned int i=0; i<a16.atom_torsions.size(); i++) {
 //       atom_by_torsion_t abt = get_atom_by_torsion(a16.atom_torsions[i], ref_res_p, ext_res_p);
 //       if (abt.filled()) {
-// 	 std::cout << abt << std::endl;
+//          std::cout << abt << std::endl;
 //       }
 //    }
 // } 
@@ -587,13 +587,13 @@ coot::link_by_torsion_t::init(mmdb::Residue *ref_res_p, mmdb::Residue *ext_res_p
    b_factor = 31; // default
    if (0) 
       std::cout << "in link_by_torsion_t::init() have " << atom_torsions.size()
-		<< "  atom torsions" << std::endl;
+                << "  atom torsions" << std::endl;
    for (unsigned int i=0; i<atom_torsions.size(); i++) {
       atom_by_torsion_t abt(atom_torsions[i], ref_res_p, ext_res_p);
       if (! abt.filled()) {
-	 std::cout << "Missing atom! " << abt << std::endl;
+         std::cout << "Missing atom! " << abt << std::endl;
       } else {
-	 add(abt);
+         add(abt);
       } 
    }
 }
@@ -617,7 +617,7 @@ coot::link_by_torsion_t::write(const std::string &file_name) const {
    std::ofstream f(file_name.c_str());
    if (f)
       for (unsigned int i=0; i<geom_atom_torsions.size(); i++)
-	 f << "  "  << " " << geom_atom_torsions[i] << "\n";
+         f << "  "  << " " << geom_atom_torsions[i] << "\n";
 }
 
 // read what is written by write() function
@@ -639,41 +639,41 @@ coot::link_by_torsion_t::read(const std::string &file_name) {
       std::vector<std::string> lines;
       std::string line;
       while (std::getline(f, line)) {
-	 lines.push_back(line);
+         lines.push_back(line);
       }
 
       if (lines.size()) {
-	 for (unsigned int i=0; i<lines.size(); i++) {
-	    std::vector<std::string> bits = coot::util::split_string_no_blanks(lines[i]);
-	    if (bits.size() == 16) {
-	       if (bits[0] == "atom") {
-		  // std::cout << "parse line " << lines[i] << std::endl;
-		  try {
-		     std::vector<std::pair<bool, std::string> > a(4);
-		     std::string new_atom_name = bits[1];
-		     std::string new_atom_ele  = bits[2];
-		     a[1].first  = coot::util::string_to_int(bits[4]);
-		     a[1].second = bits[5];
-		     a[2].first  = coot::util::string_to_int(bits[6]);
-		     a[2].second = bits[7];
-		     a[3].first  = coot::util::string_to_int(bits[8]);
-		     a[3].second = bits[9];
-		     double bl_fs      = coot::util::string_to_float(bits[11]);
-		     double angle_fs   = coot::util::string_to_float(bits[13]);
-		     double torsion_fs = coot::util::string_to_float(bits[15]);
+         for (unsigned int i=0; i<lines.size(); i++) {
+            std::vector<std::string> bits = coot::util::split_string_no_blanks(lines[i]);
+            if (bits.size() == 16) {
+               if (bits[0] == "atom") {
+                  // std::cout << "parse line " << lines[i] << std::endl;
+                  try {
+                     std::vector<std::pair<bool, std::string> > a(4);
+                     std::string new_atom_name = bits[1];
+                     std::string new_atom_ele  = bits[2];
+                     a[1].first  = coot::util::string_to_int(bits[4]);
+                     a[1].second = bits[5];
+                     a[2].first  = coot::util::string_to_int(bits[6]);
+                     a[2].second = bits[7];
+                     a[3].first  = coot::util::string_to_int(bits[8]);
+                     a[3].second = bits[9];
+                     double bl_fs      = coot::util::string_to_float(bits[11]);
+                     double angle_fs   = coot::util::string_to_float(bits[13]);
+                     double torsion_fs = coot::util::string_to_float(bits[15]);
 
-		     atom_by_torsion_base_t ba(new_atom_name, new_atom_ele,
-					       a[1], a[2], a[3]);
-		     atom_by_torsion_t abt(ba, bl_fs, angle_fs, torsion_fs);
-		     add(abt);
-		  }
-		  catch (const std::runtime_error &rte) {
-		     std::cout << "ERROR:: Failed to parse: " << line << std::endl;
+                     atom_by_torsion_base_t ba(new_atom_name, new_atom_ele,
+                                               a[1], a[2], a[3]);
+                     atom_by_torsion_t abt(ba, bl_fs, angle_fs, torsion_fs);
+                     add(abt);
+                  }
+                  catch (const std::runtime_error &rte) {
+                     std::cout << "ERROR:: Failed to parse: " << line << std::endl;
                      logger.log(log_t::ERROR, "Failed to parse", line);
-		  }
-	       }
-	    }
-	 }
+                  }
+               }
+            }
+         }
       }
    }
    // std::cout << "finished read() with " << geom_atom_torsions.size() << " torsions" << std::endl;

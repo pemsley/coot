@@ -43,9 +43,9 @@ namespace coot {
       bool is_beta_bulge_like;
       float sum_delta;
       helical_results_t() {
-	 is_beta_bulge_like  = false;
-	 is_beta_strand_like = false;
-	 sum_delta = 0;
+         is_beta_bulge_like  = false;
+         is_beta_strand_like = false;
+         sum_delta = 0;
       }
    };
 

@@ -29,21 +29,21 @@ namespace cfc {
       RDGeom::Point3D pos;
       std::vector<std::pair<int, coot::residue_spec_t> > imols_with_specs;
       typed_cluster_t(const std::string &f, const std::string &t, int idx) :
-	 family(f), type(t), idx(idx) {}
+         family(f), type(t), idx(idx) {}
       void add_imol(int imol, const coot::residue_spec_t &rs) {
-	 imols_with_specs.push_back(std::make_pair(imol, rs)); }
+         imols_with_specs.push_back(std::make_pair(imol, rs)); }
       bool imol_is_part_of_cluster(int imol_in) const {
-	 bool state = false;
-	 for (const auto &item : imols_with_specs) {
-	    if (item.first == imol_in) {
-	       state = true;
-	       break;
-	    }
-	 }
-	 return state;
+         bool state = false;
+         for (const auto &item : imols_with_specs) {
+            if (item.first == imol_in) {
+               state = true;
+               break;
+            }
+         }
+         return state;
       }
       std::string make_name() const {
-	 return family + " " + type + " " + std::to_string(idx);
+         return family + " " + type + " " + std::to_string(idx);
       }
    };
 
@@ -53,13 +53,13 @@ namespace cfc {
       coot::residue_spec_t residue_spec;
       RDGeom::Point3D pos;
       water_info_t(int imol_in, const coot::residue_spec_t &rs, const RDGeom::Point3D &p) :
-	 imol(imol_in), residue_spec(rs), pos(p) {}
+         imol(imol_in), residue_spec(rs), pos(p) {}
       water_info_t() : imol(-1) {}
    };
 
    std::pair<std::vector<typed_cluster_t>, std::vector<std::vector<water_info_t> > >
    chemical_feature_clustering(const std::vector<input_info_t> &mol_infos,
-			       const coot::protein_geometry &geom);
+                               const coot::protein_geometry &geom);
 
 }
 

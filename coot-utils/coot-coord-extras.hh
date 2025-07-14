@@ -44,7 +44,7 @@ namespace coot {
       //
       std::pair<int, std::vector<std::string> >
       check_dictionary_for_residues(mmdb::PResidue *SelResidues, int nSelResidues,
-				    protein_geometry *geom_p, int read_number);
+                                    protein_geometry *geom_p, int read_number);
 
       // We also now pass regular_residue_flag so that the indexing of the
       // contacts is inverted in the case of not regular residue.  I don't
@@ -56,21 +56,21 @@ namespace coot {
       //
       std::vector<std::vector<int> >
       get_contact_indices_from_restraints(mmdb::Residue *residue,
-					  protein_geometry *geom_p,
-					  bool regular_residue_flag,
-					  bool add_reverse_contacts);
+                                          protein_geometry *geom_p,
+                                          bool regular_residue_flag,
+                                          bool add_reverse_contacts);
 
       std::vector<std::vector<int> >
       get_contact_indices_from_restraints(mmdb::Residue *residue,
-					  const dictionary_residue_restraints_t &restraints,
-					  bool regular_residue_flag,
-					  bool add_reverse_contacts);
+                                          const dictionary_residue_restraints_t &restraints,
+                                          bool regular_residue_flag,
+                                          bool add_reverse_contacts);
 
 
       std::vector<std::vector<int> >
       get_contact_indices_for_PRO_residue(mmdb::PPAtom residue_atom,
-					  int nResidueAtoms, 
-					  protein_geometry *geom_p);
+                                          int nResidueAtoms, 
+                                          protein_geometry *geom_p);
 
       std::vector<mmdb::Residue *>
       get_dictionary_conformers(const dictionary_residue_restraints_t &restraints,
@@ -84,14 +84,14 @@ namespace coot {
       // class definition is here but functionality is in molecule-class-info-other
       class missing_atom_info {
       public:
-	 std::vector<std::string> residues_with_no_dictionary;
-	 std::vector<mmdb::Residue *> residues_with_missing_atoms;
+         std::vector<std::string> residues_with_no_dictionary;
+         std::vector<mmdb::Residue *> residues_with_missing_atoms;
          std::map<mmdb::Residue *, std::vector<std::string> > residue_missing_atom_names_map;
-	 std::vector<std::pair<mmdb::Residue *, std::vector<mmdb::Atom *> > > atoms_in_coords_but_not_in_dict;
-	 missing_atom_info() {}
-	 missing_atom_info(const std::vector<std::string> &residues_with_no_dictionary_in,
-			   const std::vector<mmdb::Residue *>  &residues_with_missing_atoms_in,
-			   const std::vector<std::pair<mmdb::Residue *, std::vector<mmdb::Atom *> > > &atoms_in_coords_but_not_in_dict_in) :
+         std::vector<std::pair<mmdb::Residue *, std::vector<mmdb::Atom *> > > atoms_in_coords_but_not_in_dict;
+         missing_atom_info() {}
+         missing_atom_info(const std::vector<std::string> &residues_with_no_dictionary_in,
+                           const std::vector<mmdb::Residue *>  &residues_with_missing_atoms_in,
+                           const std::vector<std::pair<mmdb::Residue *, std::vector<mmdb::Atom *> > > &atoms_in_coords_but_not_in_dict_in) :
             residues_with_no_dictionary(residues_with_no_dictionary_in),
             residues_with_missing_atoms(residues_with_missing_atoms_in),
             atoms_in_coords_but_not_in_dict(atoms_in_coords_but_not_in_dict_in) {}
@@ -103,29 +103,29 @@ namespace coot {
 
       class dict_atom_info_t {
       public:
-	 std::string name;
-	 bool is_Hydrogen_flag;
-	 dict_atom_info_t(const std::string &name_in, bool is_Hydrogen_flag_in) : name(name_in) {
-	    is_Hydrogen_flag = is_Hydrogen_flag_in;
-	 }
+         std::string name;
+         bool is_Hydrogen_flag;
+         dict_atom_info_t(const std::string &name_in, bool is_Hydrogen_flag_in) : name(name_in) {
+            is_Hydrogen_flag = is_Hydrogen_flag_in;
+         }
       };
 
       // a trivial helper class
       class dict_residue_atom_info_t {
       public:
-	 std::string residue_name;
-	 std::vector<dict_atom_info_t> atom_info;
-	 dict_residue_atom_info_t(const std::string &residue_name_in,
-				  const std::vector<dict_atom_info_t> &atom_info_in) :
+         std::string residue_name;
+         std::vector<dict_atom_info_t> atom_info;
+         dict_residue_atom_info_t(const std::string &residue_name_in,
+                                  const std::vector<dict_atom_info_t> &atom_info_in) :
             residue_name(residue_name_in), atom_info(atom_info_in)  {
-	 }
-	 // Here is the clever stuff, get the restraints info for a
-	 // particular residue and from that set the atom_info.
-	 dict_residue_atom_info_t(const std::string &residue_name,
-				  protein_geometry *geom_p);
-	 bool is_empty_p() const {
-	    return (atom_info.size() == 0);
-	 }
+         }
+         // Here is the clever stuff, get the restraints info for a
+         // particular residue and from that set the atom_info.
+         dict_residue_atom_info_t(const std::string &residue_name,
+                                  protein_geometry *geom_p);
+         bool is_empty_p() const {
+            return (atom_info.size() == 0);
+         }
       };
 
       // do we need to pass read number to this function too?
@@ -134,10 +134,10 @@ namespace coot {
    }
 
    mmdb::Residue *GetResidue(const minimol::residue &r); // For use with wiggly
-					   // ligands, constructed from
-					   // a minimol residue, the
-					   // get_contact_indices_from_restraints()
-					   // needs a mmdb::Residue *.  Caller disposes.
+                                           // ligands, constructed from
+                                           // a minimol residue, the
+                                           // get_contact_indices_from_restraints()
+                                           // needs a mmdb::Residue *.  Caller disposes.
 
 
    class recursive_forwards_container_t {
@@ -145,10 +145,10 @@ namespace coot {
       bool done;
       std::vector<int> forwards;
       recursive_forwards_container_t(bool done_in, const std::vector<int> &forwards_in) : forwards(forwards_in) {
-	 done = done_in;
+         done = done_in;
       }
       recursive_forwards_container_t() {
-	 done = 0;
+         done = 0;
       }
    };
 
@@ -162,11 +162,11 @@ namespace coot {
       mmdb::Residue *res_ref;
       dictionary_residue_restraints_t moving_residue_restraints;
       std::pair<bool, double> apply_torsion(const atom_name_quad &quad_moving,
-					    const atom_name_quad &reference,
-					    const std::string &alt_conf);
+                                            const atom_name_quad &reference,
+                                            const std::string &alt_conf);
       std::pair<bool, double> apply_torsion_by_contacts(const atom_name_quad &quad_moving,
-							const atom_name_quad &reference,
-							const std::string &alt_conf);
+                                                        const atom_name_quad &reference,
+                                                        const std::string &alt_conf);
       // return in radians
       std::pair<bool, double> get_torsion(int torsion_type, const atom_name_quad &quad) const;
       // return in radians
@@ -174,9 +174,9 @@ namespace coot {
 
    public:
       match_torsions(mmdb::Residue *res_moving, mmdb::Residue *res_ref,
-		     const dictionary_residue_restraints_t &moving_residue_restraints_in);
+                     const dictionary_residue_restraints_t &moving_residue_restraints_in);
       int match (const std::vector<dict_torsion_restraint_t>  &tr_moving,
-		 const std::vector<dict_torsion_restraint_t>  &tr_ref);
+                 const std::vector<dict_torsion_restraint_t>  &tr_ref);
 
    };
 
@@ -193,23 +193,23 @@ namespace coot {
    // 
    std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> >
    torsionable_bonds_monomer_internal(mmdb::Residue *residue_p,
-				      mmdb::PPAtom atom_selection, int n_selected_atoms,
-				      bool include_pyranose_ring_torsions_flag,
-				      protein_geometry *geom_p);
+                                      mmdb::PPAtom atom_selection, int n_selected_atoms,
+                                      bool include_pyranose_ring_torsions_flag,
+                                      protein_geometry *geom_p);
 
    // The quad version of this (for actually setting torsions)
    // 
    std::vector<torsion_atom_quad>
    torsionable_bonds_monomer_internal_quads(mmdb::Residue *residue_p,
-				      mmdb::PPAtom atom_selection, int n_selected_atoms,
-				      bool include_pyranose_ring_torsions_flag,
-				      protein_geometry *geom_p);
+                                      mmdb::PPAtom atom_selection, int n_selected_atoms,
+                                      bool include_pyranose_ring_torsions_flag,
+                                      protein_geometry *geom_p);
 
    // only uses the LINKR records in the first model.
    //
    bonded_pair_container_t    
    linkrs_in_atom_selection(mmdb::Manager *mol, mmdb::PPAtom atom_selection, int n_selected_atoms,
-			    protein_geometry *geom_p);
+                            protein_geometry *geom_p);
 
    
 
@@ -259,25 +259,25 @@ namespace coot {
       // get the given residue from the template coordinates
       mmdb::Residue *get_residue(const std::string &comp_id, mmdb::Manager*mol) const;
       std::vector<mmdb::Atom *> get_atoms(mmdb::Residue *residue_p,
-				     const std::vector<std::string> &names) const;
+                                     const std::vector<std::string> &names) const;
       bool setup_by_comp_id(const std::string &comp_id_ref,
-			    const std::string &new_res_type);
+                            const std::string &new_res_type);
       bool setup_by_comp_id_group(const std::string &comp_id_ref,
-				  const std::string &group_new);
+                                  const std::string &group_new);
       bool setup_by_group_group(const std::string &group_ref,
-				const std::string &group_new);
+                                const std::string &group_new);
       // move the residues of mov_res, don't change object variables.
       bool lsq_fit(mmdb::Residue *ref_res,
-		   mmdb::Residue *matcher_res,
-		   mmdb::Residue *mov_res,
-		   const std::vector<std::string> &lsq_atom_names_ref,
-		   const std::vector<std::string> &lsq_atom_names_match) const;
+                   mmdb::Residue *matcher_res,
+                   mmdb::Residue *mov_res,
+                   const std::vector<std::string> &lsq_atom_names_ref,
+                   const std::vector<std::string> &lsq_atom_names_match) const;
       // apply the chem mod (specifically, the CHEM_MOD_FUNCTION_DELETE
       // (delete all atoms with the given name)
       void delete_atom(mmdb::Residue *res, const std::string &atom_name) const;
       std::string atom_id_mmdb_expand(const std::string &atom_id,
-				      const std::string &res_name,
-				      int imol) const;
+                                      const std::string &res_name,
+                                      int imol) const;
 
       // If the link is a BETA1-6 or an ALPHA1-6 then the linked
       // residue (and the O6 of the residue to which we are adding)
@@ -291,9 +291,9 @@ namespace coot {
 
    public:
       beam_in_linked_residue(mmdb::Residue *residue_ref,
-			     const std::string &link_type_in,
-			     const std::string &new_residue_type,
-			     protein_geometry *geom_p);
+                             const std::string &link_type_in,
+                             const std::string &new_residue_type,
+                             protein_geometry *geom_p);
       // This can return NULL if we were unable to make the residue to be attached.
       mmdb::Residue *get_residue() const;
    };
@@ -307,44 +307,44 @@ namespace coot {
       std::string link_type; // to parent (root node has this as "")
       bool order_switch; // should be false most of the time
       linked_residue_t(mmdb::Residue *residue_in, const std::string &link_in) {
-	 residue = residue_in;
-	 if (residue)
-	    residue_name = residue->GetResName();
-	 link_type = link_in;
-	 order_switch = false;
+         residue = residue_in;
+         if (residue)
+            residue_name = residue->GetResName();
+         link_type = link_in;
+         order_switch = false;
       }
       linked_residue_t() {
-	 residue = NULL;
-	 order_switch = false;
+         residue = NULL;
+         order_switch = false;
       }
       linked_residue_t(const std::string &res_name_in, const std::string &link_in) {
-	 residue = NULL;
-	 residue_name = res_name_in;
-	 link_type = link_in;
-	 order_switch = false;
+         residue = NULL;
+         residue_name = res_name_in;
+         link_type = link_in;
+         order_switch = false;
       }
       std::string res_name() const {
-	 if (residue)
-	    return std::string(residue->GetResName());
-	 else
-	    return residue_name;
+         if (residue)
+            return std::string(residue->GetResName());
+         else
+            return residue_name;
       } 
       bool operator==(const linked_residue_t &test_lr) const {
 
-	 // should we test order switch here too?
+         // should we test order switch here too?
 
-	 if (test_lr.link_type == link_type)
-	    if (test_lr.res_name() == res_name())
-	       return true;
-	    else
-	       return false;
-	 else
-	    return false;
+         if (test_lr.link_type == link_type)
+            if (test_lr.res_name() == res_name())
+               return true;
+            else
+               return false;
+         else
+            return false;
       }
 #ifndef SWIG
       // needs testing
       bool operator<(const linked_residue_t &test_lr) const {
-	 return (residue_spec_t(residue) < residue_spec_t(test_lr.residue));
+         return (residue_spec_t(residue) < residue_spec_t(test_lr.residue));
       }
 #endif
       friend std::ostream& operator<<(std::ostream &o, const linked_residue_t &lr);

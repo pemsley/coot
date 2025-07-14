@@ -56,23 +56,23 @@ namespace coot {
       std::vector<std::set<unsigned int> > atoms_in_bricks;
       std::vector<std::vector<unsigned int> > thread_index_sets;
       void find_the_contacts_in_bricks(std::vector<std::set<unsigned int> > *vec,
-				       bool only_between_different_residues_flag) const; // fill vec
+                                       bool only_between_different_residues_flag) const; // fill vec
       void find_the_contacts_between_bricks(std::vector<std::set<unsigned int> > *vec,
-					    bool only_between_different_residues_flag) const; // fill vec
+                                            bool only_between_different_residues_flag) const; // fill vec
       void find_the_contacts_between_bricks_simple(std::vector<std::set<unsigned int> > *vec,
-						   bool only_between_different_residues_flag) const; // fill vec
+                                                   bool only_between_different_residues_flag) const; // fill vec
       void find_the_contacts_between_bricks_multi_thread(std::vector<std::set<unsigned int> > *vec,
-							 bool only_between_different_residues_flag) const; // fill vec
+                                                         bool only_between_different_residues_flag) const; // fill vec
       // the function for the thread:
       static void find_the_contacts_between_bricks_multi_thread_workpackage(std::vector<std::set<unsigned int> > *vec,
-									    const std::vector<unsigned int> &index_set,
-									    const std::vector<std::set<unsigned int> > &atoms_in_bricks,
-									    const std::vector<bool> &fixed_flags,
-									    const int brick_range[3],
-									    mmdb::PAtom *atoms,
-									    int brick_index_max,
-									    float dist_max,
-									    bool only_between_different_residues_flag);
+                                                                            const std::vector<unsigned int> &index_set,
+                                                                            const std::vector<std::set<unsigned int> > &atoms_in_bricks,
+                                                                            const std::vector<bool> &fixed_flags,
+                                                                            const int brick_range[3],
+                                                                            mmdb::PAtom *atoms,
+                                                                            int brick_index_max,
+                                                                            float dist_max,
+                                                                            bool only_between_different_residues_flag);
       void fill_the_bricks();
 
    public:
@@ -82,7 +82,7 @@ namespace coot {
       contacts_by_bricks(mmdb::PAtom *, int n_atoms, const std::set<unsigned int> &fixed_atom_indices);
       void set_dist_max(float dist_max_in);
       void find_the_contacts(std::vector<std::set<unsigned int> > *vec,
-			     bool only_between_different_residues_flag=false);
+                             bool only_between_different_residues_flag=false);
    };
 
 }

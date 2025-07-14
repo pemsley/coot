@@ -58,7 +58,7 @@ namespace coot {
 
    class match_container_for_residues_t {
       void meld_residues(std::vector<mmdb::Residue *> res_vec, mmdb::Residue *residue_2,
-			                int res_no_delta, mmdb::Chain *to_chain_p, mmdb::Manager *mol);
+                                        int res_no_delta, mmdb::Chain *to_chain_p, mmdb::Manager *mol);
    public:
       mmdb::Residue *residue_1;
       mmdb::Residue *residue_2;

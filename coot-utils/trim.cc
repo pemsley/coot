@@ -24,10 +24,10 @@
 // return the number of trimmed atoms
 int
 coot::util::trim_molecule_by_map(mmdb::Manager *mol,
-				 const clipper::Xmap<float> &xmap,
-				 float map_level,
-				 short int remove_or_zero_occ_flag,
-				 short int waters_only_flag) {
+                                 const clipper::Xmap<float> &xmap,
+                                 float map_level,
+                                 short int remove_or_zero_occ_flag,
+                                 short int waters_only_flag) {
 
    int n_changed = 0;
 
@@ -45,50 +45,50 @@ coot::util::trim_molecule_by_map(mmdb::Manager *mol,
       // run over chains of the existing mol
       int nchains = model_p->GetNumberOfChains();
       if (nchains <= 0) { 
-	 std::cout << "bad nchains in trim molecule " << nchains
-		   << std::endl;
+         std::cout << "bad nchains in trim molecule " << nchains
+                   << std::endl;
       } else { 
-	 for (int ichain=0; ichain<nchains; ichain++) {
-	    chain = model_p->GetChain(ichain);
-	    if (chain == NULL) {  
-	       // This should not be necessary. It seem to be a
-	       // result of mmdb corruption elsewhere - possibly
-	       // DeleteChain in update_molecule_to().
-	       std::cout << "NULL chain in model_view_residue_button_info_t: "
-			 << std::endl;
-	    } else { 
-	       int nres = chain->GetNumberOfResidues();
-	       for (int ires=0; ires<nres; ires++) { 
-		  mmdb::PResidue residue_p = chain->GetResidue(ires);
-		  std::string resname = residue_p->name;
-		  if (((resname == "WAT" || resname == "HOH") && waters_only_flag)
-		      || !waters_only_flag) {
+         for (int ichain=0; ichain<nchains; ichain++) {
+            chain = model_p->GetChain(ichain);
+            if (chain == NULL) {  
+               // This should not be necessary. It seem to be a
+               // result of mmdb corruption elsewhere - possibly
+               // DeleteChain in update_molecule_to().
+               std::cout << "NULL chain in model_view_residue_button_info_t: "
+                         << std::endl;
+            } else { 
+               int nres = chain->GetNumberOfResidues();
+               for (int ires=0; ires<nres; ires++) { 
+                  mmdb::PResidue residue_p = chain->GetResidue(ires);
+                  std::string resname = residue_p->name;
+                  if (((resname == "WAT" || resname == "HOH") && waters_only_flag)
+                      || !waters_only_flag) {
 
-		     int n_atoms = residue_p->GetNumberOfAtoms();
-		     for (int iat=0; iat<n_atoms; iat++) {
+                     int n_atoms = residue_p->GetNumberOfAtoms();
+                     for (int iat=0; iat<n_atoms; iat++) {
 
-			mmdb::Atom *at = residue_p->GetAtom(iat);
-			clipper::Coord_orth co(at->x, at->y, at->z);
-			if (density_at_point(xmap, co) < map_level) {
-			
-			   // A baddie.  What do we do with it?  Set its
-			   // occupancy to zero or delete it?
+                        mmdb::Atom *at = residue_p->GetAtom(iat);
+                        clipper::Coord_orth co(at->x, at->y, at->z);
+                        if (density_at_point(xmap, co) < map_level) {
+                        
+                           // A baddie.  What do we do with it?  Set its
+                           // occupancy to zero or delete it?
 
-			   if (remove_or_zero_occ_flag == coot::util::TRIM_BY_MAP_DELETE) {
-			      residue_p->DeleteAtom(iat);
-			      n_changed++;
-			   }
-			
-			   if (remove_or_zero_occ_flag == coot::util::TRIM_BY_MAP_ZERO_OCC) {
-			      at->occupancy = 0.0;
-			      n_changed++;
-			   }
-			}
-		     }
-		  }
-	       }
-	    }
-	 }
+                           if (remove_or_zero_occ_flag == coot::util::TRIM_BY_MAP_DELETE) {
+                              residue_p->DeleteAtom(iat);
+                              n_changed++;
+                           }
+                        
+                           if (remove_or_zero_occ_flag == coot::util::TRIM_BY_MAP_ZERO_OCC) {
+                              at->occupancy = 0.0;
+                              n_changed++;
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+         }
       }
    }
    if ((n_changed > 0) && (remove_or_zero_occ_flag == coot::util::TRIM_BY_MAP_DELETE)) {
@@ -97,6 +97,6 @@ coot::util::trim_molecule_by_map(mmdb::Manager *mol,
    }
    return n_changed;
 }
-	    
+            
 
 

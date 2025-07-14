@@ -10,7 +10,9 @@ if (NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
   set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
 endif()
 
-set(CMAKE_CXX_STANDARD 17)
+# C++20 is only used because newest versions of RDKit (March 2025 and newer) seems to require it
+# Without RDKit, Coot currently needs C++17
+set(CMAKE_CXX_STANDARD 20)
 
 if (APPLE)
 else()
@@ -33,6 +35,9 @@ find_package(Python 3
   REQUIRED COMPONENTS Interpreter Development.Module
   OPTIONAL_COMPONENTS Development.SABIModule)
 
+# This is flaky.
+# If it doesn't work, first try setting nanobind_DIR to wherever_your_python_is/lib/python3.$your_python_version/site-packages/nanobind/cmake
+# If that doesn't work, make sure that CMAKE_INSTALL_PREFIX is set
 find_package(nanobind CONFIG REQUIRED)
 
 # only via homebrew on macOS (not tried to compile them myself) - see below also though.

@@ -75,47 +75,47 @@ coot::get_mtz_columns(const std::string &filename) {
       std::vector<clipper::String> v = f.column_labels();
       // std::cout << "INFO:: found " << v.size() << " column labels in " << filename << "\n";
       if (v.size() > 1) {
-	 a.read_success = 1;
-	 a.mtz_filename = filename;
-	 for (unsigned int i=0; i<v.size(); i++) {
-	    // std::cout << i << " " << v[i] << "\n";
-	    std::string label;
-	    std::string type;
-	    std::string::size_type ispace = v[i].find_last_of(" ");
-	    if (ispace == std::string::npos) {
-	       std::cout <<  "WARNING:: uninterprettable label \"" << v[i] << "\" of "
-			 << filename << "\n";
-	    } else {
-	       label = v[i].substr(0, ispace);
-	       type  = v[i].substr(ispace+1);
-	       //std::cout << "Got label :" << label << ": and type :" << type << ":\n";
-	       if (type == "F")
-		 a.f_cols.push_back(coot::mtz_type_label(label, 'F', i));
-	       if (type == "G")
-		 a.fpm_cols.push_back(coot::mtz_type_label(label, 'G', i));
-	       if (type == "L")
-		 a.sigfpm_cols.push_back(coot::mtz_type_label(label, 'L', i));
-	       if (type == "Q")
-		 a.sigf_cols.push_back(coot::mtz_type_label(label, 'Q', i));
-	       if (type == "P")
-		 a.phi_cols.push_back(coot::mtz_type_label(label, 'P', i));
-	       if (type == "D")
-		 a.d_cols.push_back(coot::mtz_type_label(label, 'D', i));
-	       if (type == "W")
-		 a.weight_cols.push_back(coot::mtz_type_label(label, 'W', i));
-	       if (type == "I")
-		 a.r_free_cols.push_back(coot::mtz_type_label(label, 'I', i));
-	       if (type == "A")
-		 a.hl_cols.push_back(coot::mtz_type_label(label, 'A', i));
-	       if (type == "J")
-		 a.i_cols.push_back(coot::mtz_type_label(label, 'J', i));
-	       // for completeness; not used yet
-	       if (type == "K")
-		 a.ipm_cols.push_back(coot::mtz_type_label(label, 'K', i));
-	       if (type == "M")
-		 a.sigipm_cols.push_back(coot::mtz_type_label(label, 'M', i));
-	    }
-	 }
+         a.read_success = 1;
+         a.mtz_filename = filename;
+         for (unsigned int i=0; i<v.size(); i++) {
+            // std::cout << i << " " << v[i] << "\n";
+            std::string label;
+            std::string type;
+            std::string::size_type ispace = v[i].find_last_of(" ");
+            if (ispace == std::string::npos) {
+               std::cout <<  "WARNING:: uninterprettable label \"" << v[i] << "\" of "
+                         << filename << "\n";
+            } else {
+               label = v[i].substr(0, ispace);
+               type  = v[i].substr(ispace+1);
+               //std::cout << "Got label :" << label << ": and type :" << type << ":\n";
+               if (type == "F")
+                 a.f_cols.push_back(coot::mtz_type_label(label, 'F', i));
+               if (type == "G")
+                 a.fpm_cols.push_back(coot::mtz_type_label(label, 'G', i));
+               if (type == "L")
+                 a.sigfpm_cols.push_back(coot::mtz_type_label(label, 'L', i));
+               if (type == "Q")
+                 a.sigf_cols.push_back(coot::mtz_type_label(label, 'Q', i));
+               if (type == "P")
+                 a.phi_cols.push_back(coot::mtz_type_label(label, 'P', i));
+               if (type == "D")
+                 a.d_cols.push_back(coot::mtz_type_label(label, 'D', i));
+               if (type == "W")
+                 a.weight_cols.push_back(coot::mtz_type_label(label, 'W', i));
+               if (type == "I")
+                 a.r_free_cols.push_back(coot::mtz_type_label(label, 'I', i));
+               if (type == "A")
+                 a.hl_cols.push_back(coot::mtz_type_label(label, 'A', i));
+               if (type == "J")
+                 a.i_cols.push_back(coot::mtz_type_label(label, 'J', i));
+               // for completeness; not used yet
+               if (type == "K")
+                 a.ipm_cols.push_back(coot::mtz_type_label(label, 'K', i));
+               if (type == "M")
+                 a.sigipm_cols.push_back(coot::mtz_type_label(label, 'M', i));
+            }
+         }
       }
    }
    return a;

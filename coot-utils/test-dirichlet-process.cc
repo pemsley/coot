@@ -54,7 +54,7 @@ int main(int argc, char **argv) {
    for (unsigned int i=0; i<clustered_points.size(); i++) {
       const auto &idx = clustered_points[i];
       std::cout << " " << idx << " at "
-		<< v[i].x << " " << v[i].y << " " << v[i].z << std::endl;
+                << v[i].x << " " << v[i].y << " " << v[i].z << std::endl;
    }
 
    return status;
