@@ -579,6 +579,8 @@ libcootsumo_la_SOURCES = \
 	eyes.cc eyes.hh		 \
 	event-controller-callbacks.hh \
 	event-controller-callbacks.cc \
+	file-system-utils.cc     \
+	file-system-utils.hh     \
 	fit-loop-gui.cc          \
 	fit-loop-gui.hh          \
 	flev.hh			 \

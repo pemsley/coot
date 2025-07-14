@@ -41,6 +41,7 @@
 #include "c-interface-sequence.hh"
 #include "c-interface-refine.h"
 #include "read-molecule.hh"
+#include "file-system-utils.hh"
 #include "cc-interface.hh"
 #include "cc-interface-image.hh"
 #include "cc-interface-scripting.hh"
@@ -108,11 +109,10 @@ namespace std {
 %include "c-interface-preferences.h"
 %include "c-interface-refine.hh"
 %include "cc-interface-ncs.hh"
-#ifdef USE_MOLECULES_TO_TRIANGLES
 %include "cc-interface-molecular-representation.hh"
-#endif // USE_MOLECULES_TO_TRIANGLES
 %include "cc-interface.hh"
 %include "read-molecule.hh"
+%include "file-system-utils.hh"
 %include "cc-interface-image.hh"
 %include "cc-interface-scripting.hh"
 %include "c-interface-database.hh"

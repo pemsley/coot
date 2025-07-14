@@ -8377,11 +8377,6 @@ int background_is_black_p() {
 //
 // if it already exists as a dir, return 0 of course.
 //
-int
-make_directory_maybe(const char *dir) {
-   return coot::util::create_directory(std::string(dir));
-}
-
 
 void add_coordinates_glob_extension(const char *ext) {
 
