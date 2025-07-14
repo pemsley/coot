@@ -1,17 +1,13 @@
 
 --- Items ---
 
-o make a file that maps CCD-id to RDKit Canonical SMILES.
-  (is the SMILES in Acedrg output the canonical SMILES?)
-
 o what are the chi angles for ASN? In sequons? With link
   to NAG?
+* for Lucrezia. Use top 3000 filtering on modern structures to
+  get new reference set.
 
 o Bonds and angles validation on 2d diagram from chapi
   as svg.
-
-o filename filter for coords file open
-  https://docs.gtk.org/gtk4/class.FileFilter.html
 
 o arwen, alejandro, santosh, dorothee
 
@@ -19,14 +15,14 @@ o Take a cif molecule, copy it, move the copy to symmetry-related position
   merge with first and write out the cif. Is the header (secondary structure)
   preserved in the outpute cif?
 
-o 3pdt is Mg and should be K. A2.
+o Robbie: 3pdt is Mg and should be K. A2.
 
 o moorhen (and coot) ribbon diagram coloured by b-factor
 
 o read in a molecule, make a molecule with DNA models. Refine DNA, then
   try to undo refinement of DNA. Fails. 8v1w.
 
-o move make_directory_maybe() and get_directory() take std::string arg.
+o move make_directory_maybe() to take std::string arg.
   Will need to change the header. Maybe a new header?
 
 o Talk to Stuart:
@@ -96,6 +92,14 @@ o  It was a strange bit of code in get_group().
    Solved now? Am I using the right version?
 
 --- Done Items ---
+
+o User-defined filename filter for coords file open
+  https://docs.gtk.org/gtk4/class.FileFilter.html
+* Assigned to Jakub
+
+o make a file that maps CCD-id to RDKit Canonical SMILES.
+  (is the SMILES in Acedrg output the canonical SMILES?)
+* Looks good. Jakub to continue this
 
 o Add split water to new coot
 * Done.
