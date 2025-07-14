@@ -985,15 +985,15 @@ void get_monomer_dictionary_in_subthread(const std::string &comp_id,
                   delete_cif_file_if_exists(cif_file_path);
 	    } else {
 	       // std::cout << "INFO:: " << letter_dir_path << " does not exist " << std::endl;
-	       logger.log(log_t::INFO, letter_dir_path.u8string(), "does not exist");
+	       logger.log(log_t::INFO, letter_dir_path.string(), "does not exist");
 	    }
 	 } else {
 	    //std::cout << "INFO:: " << monomers_path << " does not exist " << std::endl;
-	    logger.log(log_t::INFO, monomers_path.u8string(), "does not exist");
+	    logger.log(log_t::INFO, monomers_path.string(), "does not exist");
 	 }
       } else {
 	 // std::cout << "INFO:: " << ch << " does not exist " << std::endl;
-	 logger.log(log_t::INFO, ch.u8string(), "does not exist");
+	 logger.log(log_t::INFO, ch.string(), "does not exist");
       }
       c->fetch_done = 1;
    };

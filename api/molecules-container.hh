@@ -2679,7 +2679,7 @@ public:
    //! Read extra restraints (e.g. from ProSMART)
    //!
    //! @param imol is the model molecule index
-   void read_extra_restraints(int imol, const std::string &file_name);
+   int read_extra_restraints(int imol, const std::string &file_name);
 
    //! Clear the extra restraints
    //!
@@ -2881,6 +2881,12 @@ public:
    //! @param imol is the model molecule index
    //! @return a vector of atom overlap objects
    std::vector<coot::plain_atom_overlap_t> get_overlaps(int imol);
+
+   //! Get the atom overlap score
+   //!
+   //! @param imol the model molecule index
+   //! @return the overlap score - a negative number indicates failure
+   float get_atom_overlap_score(int imol);
 
    //! Gat Atom Overlaps for a ligand or residue
    // not const because it can dynamically add dictionaries

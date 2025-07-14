@@ -961,6 +961,9 @@ namespace coot {
       //! not const because it can dynamically add dictionaries
       std::vector<plain_atom_overlap_t> get_overlaps(protein_geometry *geom_p);
 
+      //! get the atom overlap
+      float get_atom_overlap_score(protein_geometry *geom_p) const;
+
       //! not const because it can dynamically add dictionaries
       std::vector<plain_atom_overlap_t> get_overlaps_for_ligand(const std::string &cid_ligand,
                                                                 protein_geometry *geom_p);
@@ -1266,7 +1269,7 @@ namespace coot {
       coot::extra_restraints_t extra_restraints;
 
       //! read extra restraints (e.g. from ProSMART)
-      void read_extra_restraints(const std::string &file_name);
+      int read_extra_restraints(const std::string &file_name);
       //! refinement tool
       std::vector<mmdb::Residue *> select_residues(const residue_spec_t &spec, const std::string &mode) const;
       //! resno_start and resno_end are inclusive

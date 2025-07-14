@@ -31,10 +31,7 @@ find_package(glm REQUIRED)
 
 set(THREADS_PREFER_PTHREAD_FLAG ON)
 
-# Charles wants 3.9 here, but if I change to 3.9 then it will not build for me
-# Hmm...
-# What do I need to do here so that Charles can specify on the command line what the version of Python should be?
-find_package(Python 3.12.4
+find_package(Python 3
   REQUIRED COMPONENTS Interpreter Development.Module
   OPTIONAL_COMPONENTS Development.SABIModule)
 
@@ -595,6 +592,32 @@ install(DIRECTORY data/cho-models    DESTINATION share/coot/data)
 install(DIRECTORY data/cho-links     DESTINATION share/coot/data)
 
 install(DIRECTORY data/pdb-templates DESTINATION share/coot/data)
+
+install(DIRECTORY ${coot_src}/analysis     DESTINATION include/coot/analysis     FILES_MATCHING PATTERN "*.hh" PATTERN "*.h")
+install(DIRECTORY ${coot_src}/angles       DESTINATION include/coot/angles       FILES_MATCHING PATTERN "*.hh" PATTERN "*.h")
+install(DIRECTORY ${coot_src}/api          DESTINATION include/coot/api          FILES_MATCHING PATTERN "*.hh" PATTERN "*.h")
+install(DIRECTORY ${coot_src}/auxil        DESTINATION include/coot/auxil        FILES_MATCHING PATTERN "*.hh" PATTERN "*.h")
+install(DIRECTORY ${coot_src}/build        DESTINATION include/coot/build        FILES_MATCHING PATTERN "*.hh" PATTERN "*.h")
+install(DIRECTORY ${coot_src}/ccp4mg-utils DESTINATION include/coot/ccp4mg-utils FILES_MATCHING PATTERN "*.hh" PATTERN "*.h")
+install(DIRECTORY ${coot_src}/compat       DESTINATION include/coot/compat       FILES_MATCHING PATTERN "*.hh" PATTERN "*.h")
+install(DIRECTORY ${coot_src}/coot-utils   DESTINATION include/coot/coot-utils   FILES_MATCHING PATTERN "*.hh" PATTERN "*.h")
+install(DIRECTORY ${coot_src}/cootaneer    DESTINATION include/coot/cootaneer    FILES_MATCHING PATTERN "*.hh" PATTERN "*.h")
+install(DIRECTORY ${coot_src}/cootilus     DESTINATION include/coot/cootilus     FILES_MATCHING PATTERN "*.hh" PATTERN "*.h")
+install(DIRECTORY ${coot_src}/coords       DESTINATION include/coot/coords       FILES_MATCHING PATTERN "*.hh" PATTERN "*.h")
+install(DIRECTORY ${coot_src}/db-main      DESTINATION include/coot/db-main      FILES_MATCHING PATTERN "*.hh" PATTERN "*.h")
+install(DIRECTORY ${coot_src}/geometry     DESTINATION include/coot/geometry     FILES_MATCHING PATTERN "*.hh" PATTERN "*.h")
+install(DIRECTORY ${coot_src}/high-res     DESTINATION include/coot/high-res     FILES_MATCHING PATTERN "*.hh" PATTERN "*.h")
+install(DIRECTORY ${coot_src}/ideal        DESTINATION include/coot/ideal        FILES_MATCHING PATTERN "*.hh" PATTERN "*.h")
+install(DIRECTORY ${coot_src}/lidia-core   DESTINATION include/coot/lidia-core   FILES_MATCHING PATTERN "*.hh" PATTERN "*.h")
+install(DIRECTORY ${coot_src}/ligand       DESTINATION include/coot/ligand       FILES_MATCHING PATTERN "*.hh" PATTERN "*.h")
+install(DIRECTORY ${coot_src}/mini-mol     DESTINATION include/coot/mini-mol     FILES_MATCHING PATTERN "*.hh" PATTERN "*.h")
+install(DIRECTORY ${coot_src}/pli          DESTINATION include/coot/pli          FILES_MATCHING PATTERN "*.hh" PATTERN "*.h")
+install(DIRECTORY ${coot_src}/protein_db   DESTINATION include/coot/protein_db   FILES_MATCHING PATTERN "*.hh" PATTERN "*.h")
+install(DIRECTORY ${coot_src}/pyrogen      DESTINATION include/coot/pyrogen      FILES_MATCHING PATTERN "*.hh" PATTERN "*.h")
+install(DIRECTORY ${coot_src}/skeleton     DESTINATION include/coot/skeleton     FILES_MATCHING PATTERN "*.hh" PATTERN "*.h")
+install(DIRECTORY ${coot_src}/utils        DESTINATION include/coot/utils        FILES_MATCHING PATTERN "*.hh" PATTERN "*.h")
+install(DIRECTORY ${coot_src}/density-contour      DESTINATION include/coot/density-contour      FILES_MATCHING PATTERN "*.hh" PATTERN "*.h")
+install(DIRECTORY ${coot_src}/MoleculesToTriangles DESTINATION include/coot/MoleculesToTriangles FILES_MATCHING PATTERN "*.hh" PATTERN "*.h")
 
 install(DIRECTORY ${CMAKE_SOURCE_DIR}/monomers DESTINATION share/coot/lib/data
         FILES_MATCHING PATTERN "*" PATTERN "*Makefile.*" EXCLUDE)
