@@ -569,15 +569,17 @@ coot::protein_geometry::try_dynamic_add(const std::string &resname, int read_num
    // If COOT_REFMAC_LIB_DIR is then try CLIB (a CCP4 setting).
    // If that is not set, then we fall back to the default directory:
    // $prefix/share/coot onto which we tag a "lib" dir.
-   // 
+   //
 
-   char *s    = getenv("COOT_REFMAC_LIB_DIR");
-   char *cmld = getenv("COOT_MONOMER_LIB_DIR");
+   char *s         = getenv("COOT_REFMAC_LIB_DIR");
+   char *cmld      = getenv("COOT_MONOMER_LIB_DIR");
+   char *clibd     = getenv("CLIBD");     // a CCP4 setting
+   char *clibd_mon = getenv("CLIBD_MON"); // a CCP4 setting
 
    if (s) {
 
    } else {
-      s  = getenv("CLIB");
+      s = clibd;
 
       if (! s) {
          if (false)
@@ -590,13 +592,13 @@ coot::protein_geometry::try_dynamic_add(const std::string &resname, int read_num
       } else {
 	 if (verbose_mode)
 	    std::cout << "INFO:: using standard CCP4 Refmac dictionary"
-		      << " to search for \"" << resname << "\"" << std::endl; 
+		      << " to search for \"" << resname << "\"" << std::endl;
       }
    }
 
    if (!s) {
 
-      std::string pref_dir = coot::prefix_dir();
+      std::string pref_dir = coot::prefix_dir(); // checks COOT_PREFIX env var
       std::string ss = pref_dir + "/share/coot/lib/data";
       if (ss.length() < 2048)
          strcpy(cmld, ss.c_str());
@@ -644,7 +646,7 @@ coot::protein_geometry::try_dynamic_add(const std::string &resname, int read_num
 	    }
 	 } else {
 	    filename += resname;
-	    upcased_resname_filename += coot::util::upcase(resname);	    
+	    upcased_resname_filename += coot::util::upcase(resname);
 	 }
 	 beta_anomer_name = filename;
 	 beta_anomer_name += "-b-D.cif";
@@ -656,7 +658,7 @@ coot::protein_geometry::try_dynamic_add(const std::string &resname, int read_num
 	 alt_alpha_anomer_name += "-A-L.cif";
 	 filename += ".cif";
 	 upcased_resname_filename += ".cif";
-	 
+
 	 struct stat buf;
 	 int istat = stat(filename.c_str(), &buf);
 	 if (istat == 0) {
@@ -1214,6 +1216,7 @@ coot::protein_geometry::have_dictionary_for_residue_type(const std::string &mono
 							 bool try_autoload_if_needed) {
 
    bool debug = false;
+
    bool ifound = false;
    int ndict = dict_res_restraints.size();
    std::string path = "--start--";
@@ -1228,7 +1231,7 @@ coot::protein_geometry::have_dictionary_for_residue_type(const std::string &mono
    }
 
    if (debug)
-      std::cout << "INFO:: have_dictionary_for_residue_type() idr here is " << idr << std::endl;
+      std::cout << "INFO:: pg::have_dictionary_for_residue_type() idr here is " << idr << std::endl;
 
    // check synonyms before checking three-letter-codes
 
@@ -1276,7 +1279,7 @@ coot::protein_geometry::have_dictionary_for_residue_type(const std::string &mono
    }
 
    if (debug)
-      std::cout << "INFO:: .............have_dictionary_for_residue_type() " << monomer_type
+      std::cout << "INFO:: pg::have_dictionary_for_residue_type() " << monomer_type
                 << " " << imol_enc << " path " << path << " returns " << ifound << std::endl;
 
    return ifound;
@@ -1336,7 +1339,7 @@ coot::protein_geometry::have_restraints_dictionary_for_residue_types(const std::
    for (unsigned int i=0; i<residue_types.size(); i++) {
       if (! have_all) continue;
       const std::string &rt = residue_types[i];
-      int idx = get_monomer_restraints_index(rt, imol_enc, false);
+      int idx = get_monomer_restraints_index(rt, imol_enc, false);  // const function
       if (idx != -1) {
          const coot::dictionary_residue_restraints_t &restraints = dict_res_restraints[idx].second;
 	 // this test does not make sense for MG, or other single atoms
@@ -1815,7 +1818,7 @@ coot::protein_geometry::get_monomer_restraints_index(const std::string &monomer_
 
    if (r == -1) {
       for (unsigned int i=0; i<nrest; i++) {
-	 if (dict_res_restraints[i].second.residue_info.three_letter_code  == monomer_type) {
+	 if (dict_res_restraints[i].second.residue_info.three_letter_code == monomer_type) {
 	    if (matches_imol(dict_res_restraints[i].first, imol_enc)) {
 	       if ((allow_minimal_flag == 1) || (! dict_res_restraints[i].second.is_bond_order_data_only())) {
 		  r = i;
