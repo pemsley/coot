@@ -1884,7 +1884,7 @@ namespace coot {
       //
       // This relies on ccp4srs being setup before we get to make this
       // call (init_ccp4srs()).
-      // 
+      //
       std::pair<bool, dictionary_residue_restraints_t>
       get_bond_orders(const std::string &monomer_type);
 
@@ -1898,7 +1898,7 @@ namespace coot {
       // If monomer_type is not in dict_res_restraints, then add a new
       // item to the dict_res_restraints and add mon_res_in.  Return 1
       // for replaced 0 for added.
-      // 
+      //
       bool replace_monomer_restraints(std::string monomer_type,
                                       int imol_enc,
                                       const dictionary_residue_restraints_t &mon_res_in);
@@ -1911,7 +1911,7 @@ namespace coot {
       // Used to update bond and angle restraints from Mogul.
       //
       // status returned was if there was something already there.
-      // 
+      //
       bool replace_monomer_restraints_conservatively(std::string monomer_type,
                                                      const dictionary_residue_restraints_t &mon_res_in);
       void replace_monomer_restraints_conservatively_bonds(int irest,
@@ -1974,7 +1974,7 @@ namespace coot {
 
       // return a pair: a status, yes/no atoms match and a vector of
       // atoms whose names do not match.
-      // 
+      //
       std::pair<bool, std::vector<std::string> >
       atoms_match_dictionary(mmdb::Residue *res,
                              bool check_hydrogens_too_flag,

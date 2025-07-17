@@ -1384,6 +1384,10 @@ NB_MODULE(coot_headless_api, m) {
          &molecules_container_t::transform_map_using_lsq_matrix,
          nb::arg("imol_map"), nb::arg("lsq_matrix"), nb::arg("x"), nb::arg("y"), nb::arg("z"), nb::arg("radius"),
          get_docstring_from_xml("transform_map_using_lsq_matrix").c_str())
+    .def("try_read_dictionaries_for_new_residue_types",
+         &molecules_container_t::try_read_dictionaries_for_new_residue_types,
+         nb::arg("imol"),
+         get_docstring_from_xml("try_read_dictionaries_for_new_residue_types").c_str())
     .def("undo",
          &molecules_container_t::undo,
          nb::arg("imol"),

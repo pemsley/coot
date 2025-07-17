@@ -3780,6 +3780,35 @@ coot::molecule_t::get_non_standard_residues_in_molecule() const {
 }
 
 std::vector<std::string>
+coot::molecule_t::get_residue_types_without_dictionaries(const protein_geometry &geom) const {
+
+   std::vector<std::string> v;
+   int imod = 1;
+   mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+   if (model_p) {
+      int n_chains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<n_chains; ichain++) {
+         mmdb::Chain *chain_p = model_p->GetChain(ichain);
+         int n_res = chain_p->GetNumberOfResidues();
+         for (int ires=0; ires<n_res; ires++) {
+            mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+            if (residue_p) {
+               std::string rn(residue_p->GetResName());
+               if (geom.have_dictionary_for_residue_type_no_dynamic_add(rn, imol_no)) {
+                  // don't add
+               } else {
+                  v.push_back(rn);
+               }
+            }
+         }
+      }
+   }
+   return v;
+}
+
+
+
+std::vector<std::string>
 coot::molecule_t::get_chain_ids() const {
 
    std::vector<std::string> chain_ids;

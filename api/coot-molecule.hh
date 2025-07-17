@@ -889,6 +889,8 @@ namespace coot {
 
       std::vector<residue_spec_t> get_non_standard_residues_in_molecule() const;
 
+      std::vector<std::string> get_residue_types_without_dictionaries(const protein_geometry &geom) const;
+
       //! @return the instanced mesh for the specified ligand
       instanced_mesh_t contact_dots_for_ligand(const std::string &cid, const protein_geometry &geom,
                                                unsigned int num_subdivisions) const;
