@@ -598,7 +598,7 @@
             </submenu>
           </section>
           <item>
-            <attribute name="label">Screenshot</attribute>
+            <attribute name="label">̶S̶c̶r̶e̶e̶n̶s̶h̶o̶t̶</attribute>
             <attribute name="action">app.screenshot_action</attribute>
           </item>
           <item>
