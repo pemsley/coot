@@ -1861,7 +1861,7 @@ graphics_info_t::draw_molecules() {
 
    draw_atom_pull_restraints();
 
-   draw_meshed_generic_display_object_meshes(PASS_TYPE_STANDARD);
+   // return; // no draw
 
    draw_molecules_other_meshes(PASS_TYPE_STANDARD);
 
@@ -1872,8 +1872,6 @@ graphics_info_t::draw_molecules() {
    draw_unit_cells();
 
    draw_environment_graphics_object();
-
-   draw_generic_objects(PASS_TYPE_STANDARD);
 
    draw_hydrogen_bonds_mesh(); // like boids
 
@@ -1898,6 +1896,11 @@ graphics_info_t::draw_molecules() {
    // transparent things...
 
    draw_map_molecules(true); // transparent
+
+   draw_generic_objects(PASS_TYPE_STANDARD);
+
+   // moved down
+   draw_meshed_generic_display_object_meshes(PASS_TYPE_STANDARD);
 
 }
 
@@ -2268,6 +2271,8 @@ graphics_info_t::draw_unit_cells() {
 void
 graphics_info_t::draw_meshed_generic_display_object_meshes(unsigned int pass_type) {
 
+   // non-instanced.
+
    // std::cout << "draw_meshed_generic_display_object_meshes() with pass_type " << pass_type << std::endl;
 
    auto have_generic_display_objects_to_draw = [] () {
@@ -2284,15 +2289,19 @@ graphics_info_t::draw_meshed_generic_display_object_meshes(unsigned int pass_typ
    };
 
    if (pass_type == PASS_TYPE_STANDARD) {
+
+      glEnable(GL_BLEND); // 20250714-PE
       if (have_generic_display_objects_to_draw()) {
          glm::mat4 model_rotation = get_model_rotation();
          glm::mat4 mvp = get_molecule_mvp();
          glm::vec4 bg_col(background_colour, 1.0);
          bool wireframe_mode = false;
-         float opacity = 1.0f;
+         float opacity = 0.5;
          auto ccrc = RotationCentre();
          glm::vec3 rc(ccrc.x(), ccrc.y(), ccrc.z());
          for (unsigned int i=0; i<generic_display_objects.size(); i++) {
+            if (false)
+               std::cout << "drawing i " << i << std::endl;
             generic_display_objects[i].mesh.draw(&shader_for_moleculestotriangles,
                                                  mvp, model_rotation, lights, eye_position, rc, opacity,
                                                  bg_col, wireframe_mode, false, show_just_shadows);

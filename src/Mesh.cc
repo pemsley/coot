@@ -2016,10 +2016,12 @@ Mesh::draw(Shader *shader_p,
    }
 
    shader_p->set_float_for_uniform("opacity", opacity);
+   if (false)
+      std::cout << "sending opacity " << opacity << std::endl;
 
    err = glGetError();
-   if (err) std::cout << "GL ERROR:: draw() " << shader_name << " pre-set eye position "
-                      << " with GL err " << err << std::endl;
+   if (err) std::cout << "GL ERROR:: draw() " << shader_name << " set float for uniform opacity "
+                      << " with GL err " << stringify_error_message(err) << std::endl;
 
    // this is not useful - eye_position_in_molecule_coordinates_space is what is needed
    // for correct specular reflections.
