@@ -1,5 +1,6 @@
 
-IncludePaths:
-  Add:
-    - "."
-    - ".."
+CompileFlags:
+  Add: [-I/usr/lib/graphene-1.0/include]
+
+
+
