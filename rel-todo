@@ -31,6 +31,12 @@ o Talk to Stuart:
 ::function get_residue not found - out of 386 docstrings
 ::function get_residue_using_cid not found - out of 386 docstrings
 
+o check that hydrogen bonds are displayed correctly.
+  See update_hydrogen_bond_mesh()
+
+o change stringify_error_message to stringify_error_code
+
+o rename Cartesian.h to Cartesian.hh
 
 --- Other Items ---
 
