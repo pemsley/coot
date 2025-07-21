@@ -1686,14 +1686,17 @@ molecules_container_t::get_residue(int imol, const coot::residue_spec_t &residue
 }
 
 // returns either the specified atom or null if not found
-mmdb::Atom *
+std::optional<mmdb::Atom>
 molecules_container_t::get_atom_using_cid(int imol, const std::string &cid) const {
 
-   mmdb::Atom *at = nullptr;
+   std::optional<mmdb::Atom> at = std::nullopt;
    if (is_valid_model_molecule(imol)) {
       std::pair<bool, coot::atom_spec_t> p = molecules[imol].cid_to_atom_spec(cid);
-      if (p.first)
-         at = molecules[imol].get_atom(p.second);
+      if (p.first) {
+         mmdb::Atom *at_m = molecules[imol].get_atom(p.second);
+         if (at_m)
+            at = *at_m;
+      }
    }
    return at;
 }

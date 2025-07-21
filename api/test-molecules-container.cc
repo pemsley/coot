@@ -723,10 +723,10 @@ int test_delete_atom(molecules_container_t &mc) {
    int status = 0;
    int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
    std::string atom_cid = "//A/14/O";
-   mmdb::Atom *at_1 = mc.get_atom_using_cid(imol, atom_cid);
+   std::optional<mmdb::Atom> at_1 = mc.get_atom_using_cid(imol, atom_cid);
    if (at_1) {
       mc.delete_atom(imol, "A", 14, "", " O  ", "");
-      mmdb::Atom *at_2 = mc.get_atom_using_cid(imol, atom_cid);
+      std::optional<mmdb::Atom> at_2 = mc.get_atom_using_cid(imol, atom_cid);
       if (at_2) {
          // bad, it was not deleted
       } else {
@@ -2993,8 +2993,8 @@ int test_fill_partial(molecules_container_t &mc) {
       // there are more things to be filled than just these 2 residues
       mc.delete_atom_using_cid(imol, "//A/43/CG");
       mc.delete_atom_using_cid(imol, "//A/44/CG1");
-      mmdb::Atom *at_1 = mc.get_atom_using_cid(imol, "//A/43/CG");
-      mmdb::Atom *at_2 = mc.get_atom_using_cid(imol, "//A/44/CG1");
+      std::optional<mmdb::Atom> at_1 = mc.get_atom_using_cid(imol, "//A/43/CG");
+      std::optional<mmdb::Atom> at_2 = mc.get_atom_using_cid(imol, "//A/44/CG1");
       if (at_1) {
          std::cout << "fail to delete 1" << std::endl;
       } else {

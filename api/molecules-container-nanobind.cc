@@ -682,16 +682,14 @@ NB_MODULE(coot_headless_api, m) {
          &molecules_container_t::get_acedrg_atom_types_for_ligand,
          nb::arg("imol"), nb::arg("residue_cid"),
          get_docstring_from_xml("get_acedrg_atom_types_for_ligand").c_str())
-    .def("get_atom",
-         &molecules_container_t::get_atom, nb::rv_policy::reference,
-         get_docstring_from_xml("get_atom").c_str())
     .def("get_atom_differences",
          &molecules_container_t::get_atom_differences,
          nb::arg("imol1"), nb::arg("imol2"),
          get_docstring_from_xml("get_atom_differences").c_str())
     .def("get_atom_using_cid",
-         &molecules_container_t::get_atom_using_cid, nb::rv_policy::reference,
-         get_docstring_from_xml("get_atom_using_cid").c_str())
+         &molecules_container_t::get_atom_using_cid,
+         nb::arg("imol"), nb::arg("atom_cid"),
+         get_docstring_from_xml("get_atom").c_str())
     .def("get_atom_overlap_score",
          &molecules_container_t::get_atom_overlap_score,
 	 nb::arg("imol"),
