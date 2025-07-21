@@ -40,13 +40,15 @@
 
 
 #include <mmdb2/mmdb_manager.h>
+
 #include "coords/Cartesian.hh"
-#include "coords/mmdb-extras.h"
+#include "coords/mmdb-extras.hh"
 #include "coords/mmdb.hh"
-#include "coords/mmdb-crystal.h"
+#include "coords/mmdb-crystal.hh"
+#include "coot-utils/coot-map-utils.hh"
+
 #include "molecule-class-info.h"
 
-#include "coot-utils/coot-map-utils.hh"
 #include "xmap-utils.h"
 #include "graphics-info.h"
 

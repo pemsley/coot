@@ -3,7 +3,7 @@
 
 #include <vector>
 
-#include "coords/mmdb-crystal.h"
+#include "coords/mmdb-crystal.hh"
 #include "cell.hh"
 
 namespace coot {

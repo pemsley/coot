@@ -38,8 +38,9 @@
 #include "coot-utils/oct.hh"
 #include "coot-utils/read-sm-cif.hh"
 
-#include "coords/Bond_lines.h"
+#include "coords/Bond_lines.hh"
 #include "coords/mmdb.hh"
+#include "coords/mmdb-extras.hh"
 
 #include "utils/logging.hh"
 extern logging logger;
@@ -2997,7 +2998,6 @@ molecules_container_t::find_serial_number_for_insert(int seqnum_new,
 }
 
 
-#include "coords/mmdb-extras.h"
 
 std::pair<mmdb::Manager *, std::vector<mmdb::Residue *> >
 molecules_container_t::create_mmdbmanager_from_res_vector(const std::vector<mmdb::Residue *> &residues,

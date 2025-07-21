@@ -27,8 +27,8 @@
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #endif
 
-
 #include "compat/coot-sysdep.h"
+
 
 // Having to set up the include files like this so that
 // molecule-class-info.h can be parsed, is silly.
@@ -39,9 +39,11 @@
 
 #include <string>
 #include <mmdb2/mmdb_manager.h>
-#include "coords/mmdb-extras.h"
+
+#include "coords/mmdb-extras.hh"
 #include "coords/Cartesian.hh"
-#include "coords/mmdb-crystal.h"
+#include "coords/mmdb-crystal.hh"
+
 #include "molecule-class-info.h"
 #include "coot-utils/coot-coord-utils.hh"
 #include "density-contour/CIsoSurface.h"

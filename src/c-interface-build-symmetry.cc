@@ -51,15 +51,16 @@
 
 
 #include <mmdb2/mmdb_manager.h>
-#include "coords/mmdb-extras.h"
+
+#include "coords/mmdb-extras.hh"
 #include "coords/mmdb.hh"
+#include "coords/mmdb-crystal.hh"
+#include "coords/Cartesian.hh"
+#include "coords/Bond_lines.hh"
 
 #include "globjects.h" //includes gtk/gtk.h
 
-#include "coords/mmdb-crystal.h"
 
-#include "coords/Cartesian.hh"
-#include "coords/Bond_lines.h"
 
 #include "graphics-info.h"
 

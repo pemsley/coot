@@ -44,9 +44,9 @@
 #include "Cartesian.hh"
 
 #include <mmdb2/mmdb_manager.h>
-#include "mmdb-extras.h"
+#include "mmdb-extras.hh"
 #include "mmdb.hh"
-#include "mmdb-crystal.h"
+#include "mmdb-crystal.hh"
 #include "utils/coot-utils.hh" // for Upper
 
 #include "mini-mol/mini-mol.hh"

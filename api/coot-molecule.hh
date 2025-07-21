@@ -46,7 +46,7 @@
 #include "coot-utils/coot-align.hh"
 #include "geometry/residue-and-atom-specs.hh"
 #include "coords/Cartesian.hh"
-#include "coords/Bond_lines.h"
+#include "coords/Bond_lines.hh"
 #include "ideal/simple-restraint.hh"
 #include "ideal/extra-restraints.hh"
 #include "coot-utils/simple-mesh.hh"
@@ -62,7 +62,7 @@
 
 #include "coot-colour.hh" // put this in utils
 
-#include "coords/mmdb-extras.h"
+#include "coords/mmdb-extras.hh"
 #include "merge-molecule-results-info-t.hh"
 #include "phi-psi-prob.hh"
 

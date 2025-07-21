@@ -65,7 +65,7 @@
 #include "utils/win-compat.hh"
 #include "utils/coot-utils.hh"
 
-#include "coords/mmdb-extras.h"   // 220403
+#include "coords/mmdb-extras.hh"   // 220403
 #include "coords/mmdb.hh"
 
 #include "coot-utils/coot-coord-utils.hh"

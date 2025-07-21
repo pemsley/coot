@@ -52,33 +52,30 @@
 
 
 #include <mmdb2/mmdb_manager.h>
-#include "coords/mmdb-extras.h"
+
+#include "utils/coot-fasta.hh"
+#include "utils/coot-utils.hh"  // for is_member_p
+#include "coords/mmdb-extras.hh"
 #include "coords/mmdb.hh"
+#include "coords/mmdb-crystal.hh"
+#include "coords/Cartesian.hh"
+#include "coords/Bond_lines.hh"
+#include "coot-utils/coot-map-heavy.hh"  // for fffear
+#include "coot-utils/coot-coord-utils.hh"
 
 // 20220723-PE perhaps delete (the use of) this include file completely?
 #include "globjects.h" //includes gtk/gtk.h
 
-#include "coords/mmdb-crystal.h"
-
-#include "coords/Cartesian.hh"
-#include "coords/Bond_lines.h"
 
 #include "graphics-info.h"
 
 #include "widget-headers.hh"
 
-#include "coot-utils/coot-coord-utils.hh"
-#include "utils/coot-fasta.hh"
-
 #include "skeleton/BuildCas.h"
 #include "ligand/helix-placement.hh"
 #include "ligand/fast-ss-search.hh"
 
-#include "utils/coot-utils.hh"  // for is_member_p
-#include "coot-utils/coot-map-heavy.hh"  // for fffear
-
 #include "guile-fixups.h"
-
 
 #include "c-interface.h"
 #include "c-interface-gtk-widgets.h"

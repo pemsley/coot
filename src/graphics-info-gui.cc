@@ -58,13 +58,15 @@
 #include <unistd.h>
 #endif
 
+#include <clipper/core/map_utils.h> // Map_stats
 #include <mmdb2/mmdb_manager.h>
-#include "coords/mmdb-extras.h"
-#include "coords/mmdb.hh"
-#include "coords/mmdb-crystal.h"
-#include "coords/Bond_lines.h"
 
-#include "clipper/core/map_utils.h" // Map_stats
+#include "coords/mmdb-extras.hh"
+
+#include "coords/mmdb.hh"
+#include "coords/mmdb-crystal.hh"
+#include "coords/Bond_lines.hh"
+
 #include "skeleton/graphical_skel.h"
 
 #include "graphics-info.h"

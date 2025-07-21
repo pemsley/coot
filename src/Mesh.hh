@@ -52,7 +52,7 @@
 #ifdef THIS_IS_HMT
 #else
 #include "coords/graphical-bonds-container.hh"
-#include "coords/mmdb-crystal.h"
+#include "coords/mmdb-crystal.hh"
 #endif
 
 class Mesh {

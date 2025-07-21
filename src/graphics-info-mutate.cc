@@ -49,11 +49,11 @@
 #include <iostream>
 
 #include <mmdb2/mmdb_manager.h>
-#include "coords/mmdb-extras.h"
+#include "coords/mmdb-extras.hh"
 #include "coords/mmdb.hh"
-#include "coords/mmdb-crystal.h"
+#include "coords/mmdb-crystal.hh"
 #include "coords/Cartesian.hh"
-#include "coords/Bond_lines.h"
+#include "coords/Bond_lines.hh"
 
 #include <gtk/gtk.h>  // must come after mmdb_manager on MacOS X Darwin
 // #include <GL/glut.h>  // for some reason...  // Eh?

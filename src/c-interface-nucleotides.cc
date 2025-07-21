@@ -34,7 +34,8 @@
 #include <stdexcept>
 
 #include <mmdb2/mmdb_manager.h>
-#include "coords/mmdb-extras.h"
+
+#include "coords/mmdb-extras.hh"
 
 #include "graphics-info.h"
 

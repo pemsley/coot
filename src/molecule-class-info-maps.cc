@@ -50,12 +50,15 @@
 #include <glm/gtc/type_ptr.hpp>  // for value_ptr() 20240326-PE
 
 #include <mmdb2/mmdb_manager.h>
-#include "coords/mmdb-extras.h"
+
+#include "coords/mmdb-extras.hh"
 #include "coords/Cartesian.hh"
-#include "coords/mmdb-crystal.h"
-#include "molecule-class-info.h"
+#include "coords/mmdb-crystal.hh"
 #include "coot-utils/coot-coord-utils.hh"
+#include "coot-utils/xmap-stats.hh"
 #include "density-contour/CIsoSurface.h"
+
+#include "molecule-class-info.h"
 
 #include "clipper/ccp4/ccp4_mtz_io.h"
 #include "clipper/cns/cns_hkl_io.h"
@@ -74,7 +77,6 @@
 #include "clipper/contrib/sfcalc.h"
 
 #include "xmap-utils.h"
-#include "coot-utils/xmap-stats.hh"
 
 #include "graphics-info.h"
 // #include <GL/glut.h> // needed (only?) for wirecube

@@ -29,13 +29,10 @@
 
 #include <mmdb2/mmdb_manager.h>
 
-#include "mmdb-extras.h"
-#include "mmdb-crystal.h"
-
-#include "Bond_lines.h"
-
-#include "Bond_lines_ext.h"
-
+#include "mmdb-extras.hh"
+#include "mmdb-crystal.hh"
+#include "Bond_lines.hh"
+#include "Bond_lines_ext.hh"
 
 // This is like construct_from_atom_sel, except we don't care about
 // dual conformations and atom types.

@@ -60,14 +60,15 @@
 #include <string>
 
 #include <mmdb2/mmdb_manager.h>
-#include "coords/mmdb-extras.h"
+
+#include "coords/mmdb-extras.hh"
 #include "coords/mmdb.hh"
-#include "coords/mmdb-crystal.h"
+#include "coords/mmdb-crystal.hh"
 
 #include "coot-utils/coot-map-utils.hh" // for make_rtop_orth_from()
 
 #include "coords/Cartesian.hh"
-#include "coords/Bond_lines.h"
+#include "coords/Bond_lines.hh"
 
 #include "graphics-info.h"
 

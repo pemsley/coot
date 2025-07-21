@@ -50,10 +50,10 @@
 #include "rotamer-container.hh"
 #include "ligand/rotamer.hh"
 #include "coot-utils/coot-coord-utils.hh" // is this needed?
-#include "mmdb-crystal.h"
+#include "mmdb-crystal.hh"
 
 #include "geometry/bonded-quad.hh"
-#include "mmdb-crystal.h"
+#include "mmdb-crystal.hh"
 
 namespace coot {
 

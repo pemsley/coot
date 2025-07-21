@@ -51,6 +51,10 @@
 #include <MoleculesToTriangles/CXXClasses/VertexColorNormalPrimitive.h>
 #endif
 
+#include "coords/Bond_lines.hh"
+#include "coot-utils/oct.hh"
+#include "coot-utils/cylinder.hh"
+
 #include "molecular-mesh-generator.hh"
 
 // std::pair<std::vector<glm::mat4>, std::vector<glm::vec4> >make_some_mats_and_colours() {
@@ -1193,9 +1197,6 @@ molecular_mesh_generator_t::get_test_molecular_triangles_mesh(mmdb::Manager *mol
 }
 
 
-#include "coords/Bond_lines.h"
-#include "coot-utils/oct.hh"
-#include "coot-utils/cylinder.hh"
 
 // Maybe this should just be part of Mesh (20211004-PE but that doesn't as yet use mmdb)
 //
