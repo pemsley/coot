@@ -1686,34 +1686,55 @@ molecules_container_t::get_residue(int imol, const coot::residue_spec_t &residue
 }
 
 // returns either the specified atom or null if not found
-std::optional<mmdb::Atom>
+mmdb::Atom *
 molecules_container_t::get_atom_using_cid(int imol, const std::string &cid) const {
 
-   std::optional<mmdb::Atom> at_opt = std::nullopt;
+   mmdb::Atom *at_p = nullptr;
    if (is_valid_model_molecule(imol)) {
       std::pair<bool, coot::atom_spec_t> p = molecules[imol].cid_to_atom_spec(cid);
       if (p.first) {
          mmdb::Atom *at_m = molecules[imol].get_atom(p.second);
-         if (at_m)
-            at_opt = *at_m;
+         if (at_m) {
+            at_p = new mmdb::Atom;
+            at_p->Copy(at_m);
+         }
       }
    }
-   return at_opt;
+   return at_p; // maybe a memory leak?
 }
 
 // returns either the specified residue or null if not found
-std::optional<mmdb::Residue>
+mmdb::Residue *
 molecules_container_t::get_residue_using_cid(int imol, const std::string &cid) const {
-   std::optional<mmdb::Residue> residue_opt = std::nullopt;
+
+   auto deep_copy_residue_local = [] (mmdb::Residue *residue) {
+
+      mmdb::Residue *rres = new mmdb::Residue;
+      rres->SetResID(residue->GetResName(), residue->GetSeqNum(), residue->GetInsCode());
+
+      mmdb::PPAtom residue_atoms;
+      int nResidueAtoms;
+      residue->GetAtomTable(residue_atoms, nResidueAtoms);
+      for(int iat=0; iat<nResidueAtoms; iat++) {
+         mmdb::Atom *atom_p = new mmdb::Atom;
+         atom_p->Copy(residue_atoms[iat]);
+         rres->AddAtom(atom_p);
+      }
+      return rres;
+   };
+
+   mmdb::Residue *residue_p = nullptr;
+
    if (is_valid_model_molecule(imol)) {
       std::pair<bool, coot::residue_spec_t> p = molecules[imol].cid_to_residue_spec(cid);
       if (p.first) {
-         mmdb::Residue *residue_p = molecules[imol].get_residue(p.second);
-         if (residue_p)
-            residue_opt = *residue_p;
+         mmdb::Residue *rr = molecules[imol].get_residue(p.second);
+         if (rr) {
+            residue_p = deep_copy_residue_local(rr);
+         }
       }
    }
-   return residue_opt;
+   return residue_p;
 }
 
 

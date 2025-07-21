@@ -1209,7 +1209,7 @@ public:
    //! @param imol is the model molecule index
    //! @param cid is the coordinate-id for the atom.
    //! @returns either the specified atom or nullopt (None) if not found
-   std::optional<mmdb::Atom> get_atom_using_cid(int imol, const std::string &cid) const;
+   mmdb::Atom *get_atom_using_cid(int imol, const std::string &cid) const;
 
    //! get an (mmdb-style) residue
    //!
@@ -1221,7 +1221,7 @@ public:
    //! @param imol is the model molecule index
    //! @param cid is the coordinate-id for the residue
    //! @returns either the specified residue or nullopt (None) if not found
-   std::optional<mmdb::Residue> get_residue_using_cid(int imol, const std::string &cid) const;
+   mmdb::Residue *get_residue_using_cid(int imol, const std::string &cid) const;
 
 #ifdef DOXYGEN_SHOULD_PARSE_THIS
 #else
