@@ -57,7 +57,7 @@
 
 #include "clipper/core/xmap.h"
 
-#include "coords/Cartesian.h"
+#include "coords/Cartesian.hh"
 #include "ccp4mg-utils/mgtree.h"
 
 #include "pick.hh" // 20220723-PE no picking for WebAssembly build

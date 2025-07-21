@@ -39,7 +39,7 @@
 
 #include <mmdb2/mmdb_manager.h>
 #include "mmdb-extras.h"
-#include "Cartesian.h"
+#include "Cartesian.hh"
 #include "mmdb.hh"
 #include "coot-utils/lidia-core-functions.hh"
 

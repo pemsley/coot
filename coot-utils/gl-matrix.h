@@ -30,7 +30,7 @@ enum { TRANSPOSE };
 #include <gsl/gsl_eigen.h>
 
 #include <clipper/core/coords.h>
-#include "coords/Cartesian.h"
+#include "coords/Cartesian.hh"
 
 class GL_matrix {
 

@@ -20,7 +20,7 @@
 
 lib_LTLIBRARIES=libcoot-coords.la
 
-pkginclude_HEADERS =  Bond_lines.h Cartesian.h cos-sin.h \
+pkginclude_HEADERS =  Bond_lines.h Cartesian.hh cos-sin.h \
 	mmdb.hh mmdb-extras.h utils.h mmdb-crystal.h Bond_lines_ext.h \
 	coot-close.hh phenix-geo.hh ramachandran-container.hh \
 	loop-path.hh rotamer-container.hh graphical-bonds-container.hh \

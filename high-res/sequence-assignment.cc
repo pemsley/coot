@@ -23,7 +23,7 @@
 #include <stdio.h>
 #include <math.h>
 
-#include "coords/Cartesian.h"
+#include "coords/Cartesian.hh"
 #include "coords/mmdb-extras.h"
 #include "coords/mmdb-crystal.h" // for atom_selection_container_t usage
 

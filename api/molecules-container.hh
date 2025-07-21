@@ -18,7 +18,7 @@
 
 #include "compat/coot-sysdep.h"
 
-#include "coords/Cartesian.h"
+#include "coords/Cartesian.hh"
 #include "coords/ramachandran-container.hh"
 #include "coot-molecule.hh"
 #include "coot-utils/coot-rama.hh"

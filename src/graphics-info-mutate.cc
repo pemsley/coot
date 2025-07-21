@@ -52,7 +52,7 @@
 #include "coords/mmdb-extras.h"
 #include "coords/mmdb.hh"
 #include "coords/mmdb-crystal.h"
-#include "coords/Cartesian.h"
+#include "coords/Cartesian.hh"
 #include "coords/Bond_lines.h"
 
 #include <gtk/gtk.h>  // must come after mmdb_manager on MacOS X Darwin

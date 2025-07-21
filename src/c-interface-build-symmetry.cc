@@ -58,7 +58,7 @@
 
 #include "coords/mmdb-crystal.h"
 
-#include "coords/Cartesian.h"
+#include "coords/Cartesian.hh"
 #include "coords/Bond_lines.h"
 
 #include "graphics-info.h"

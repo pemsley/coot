@@ -45,7 +45,7 @@
 #include "coot-utils/texture-as-floats.hh"
 #include "coot-utils/coot-align.hh"
 #include "geometry/residue-and-atom-specs.hh"
-#include "coords/Cartesian.h"
+#include "coords/Cartesian.hh"
 #include "coords/Bond_lines.h"
 #include "ideal/simple-restraint.hh"
 #include "ideal/extra-restraints.hh"

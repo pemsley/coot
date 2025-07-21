@@ -51,7 +51,7 @@
 
 #include <mmdb2/mmdb_manager.h>
 #include "coords/mmdb-extras.h"
-#include "coords/Cartesian.h"
+#include "coords/Cartesian.hh"
 #include "coords/mmdb-crystal.h"
 #include "molecule-class-info.h"
 #include "coot-utils/coot-coord-utils.hh"

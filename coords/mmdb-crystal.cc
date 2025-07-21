@@ -41,7 +41,7 @@
 #define snprintf _snprintf
 #endif // _MSC_VER
 
-#include "Cartesian.h"
+#include "Cartesian.hh"
 
 #include <mmdb2/mmdb_manager.h>
 #include "mmdb-extras.h"

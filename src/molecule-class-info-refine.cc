@@ -27,7 +27,7 @@
 
 // these are needed to compile molecule-compile-info.h:
 //
-#include "coords/Cartesian.h"
+#include "coords/Cartesian.hh"
 #include "coords/mmdb-extras.h"
 #include "coords/mmdb-crystal.h"
 

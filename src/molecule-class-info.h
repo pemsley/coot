@@ -94,7 +94,7 @@ enum {CONTOUR_UP, CONTOUR_DOWN};
 
 #include <clipper/ccp4/ccp4_map_io.h>
 
-#include "coords/Cartesian.h"
+#include "coords/Cartesian.hh"
 #include "coords/mmdb-extras.h"
 #include "coords/mmdb-crystal.h"
 #include "coords/Bond_lines.h"

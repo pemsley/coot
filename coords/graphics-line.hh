@@ -26,7 +26,7 @@
 #ifndef GRAPHICS_LINE_HH
 #define GRAPHICS_LINE_HH
 
-#include "Cartesian.h"
+#include "Cartesian.hh"
 
 class graphics_line_t {
 public:

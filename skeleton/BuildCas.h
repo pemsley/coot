@@ -33,7 +33,7 @@
 #include "clipper/contrib/skeleton.h"
 
 #include "coords/mmdb-extras.h"
-#include "coords/Cartesian.h"
+#include "coords/Cartesian.hh"
 
 #include "angles/AngleInfo.h"
 

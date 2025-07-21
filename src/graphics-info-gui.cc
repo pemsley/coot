@@ -62,7 +62,6 @@
 #include "coords/mmdb-extras.h"
 #include "coords/mmdb.hh"
 #include "coords/mmdb-crystal.h"
-#include "coords/Cartesian.h"
 #include "coords/Bond_lines.h"
 
 #include "clipper/core/map_utils.h" // Map_stats

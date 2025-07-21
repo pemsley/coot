@@ -66,7 +66,7 @@
 
 #include "coot-utils/coot-map-utils.hh" // for make_rtop_orth_from()
 
-#include "coords/Cartesian.h"
+#include "coords/Cartesian.hh"
 #include "coords/Bond_lines.h"
 
 #include "graphics-info.h"

@@ -1,6 +1,6 @@
 
 #include "coot-utils/simple-mesh.hh"
-#include "coords/Cartesian.h"
+#include "coords/Cartesian.hh"
 
 class translation_gizmo_t {
    void init(); // just make the mesh - don't do OpenGL things

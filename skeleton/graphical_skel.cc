@@ -31,7 +31,7 @@
 
 #include <mmdb2/mmdb_manager.h>
 
-#include "coords/Cartesian.h"
+#include "coords/Cartesian.hh"
 #include "coords/mmdb-extras.h"
 
 #include "graphical_skel.h"

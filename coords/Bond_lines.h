@@ -42,7 +42,7 @@
 #include <string>
 
 #include "geometry/protein-geometry.hh"
-#include "Cartesian.h"
+#include "Cartesian.hh"
 #include "phenix-geo.hh"
 
 #include "coot-utils/coot-rama.hh" // for ramachandran scoring of intermediate atoms
