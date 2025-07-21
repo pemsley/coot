@@ -31,12 +31,20 @@ o Talk to Stuart:
 ::function get_residue not found - out of 386 docstrings
 ::function get_residue_using_cid not found - out of 386 docstrings
 
+o Move Molecule Here should be an overlay
+
 o check that hydrogen bonds are displayed correctly.
   See update_hydrogen_bond_mesh()
 
 o change stringify_error_message to stringify_error_code
 
+o add header guard to gizmo and gensurf headers
+
 o rename Cartesian.h to Cartesian.hh
+
+o get rid of generic object functions from graphics-info.h
+  Put them in aa new file along with
+  bool is_valid_generic_display_object_number(int obj_no) const;
 
 --- Other Items ---
 
