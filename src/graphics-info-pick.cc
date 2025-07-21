@@ -859,11 +859,11 @@ graphics_info_t::move_atom_pull_target_position(double screen_x, double screen_y
 
    // outut in the range -1 to +1
    auto mouse_coords_to_clip_space = [] (int screen_coord, int dimension) {
-                                        double fsc = static_cast<double>(screen_coord);
-                                        double fd = static_cast<double>(dimension);
-                                        double f = fsc/fd;
-                                        return 2.0 * f - 1.0;
-                                     };
+      double fsc = static_cast<double>(screen_coord);
+      double fd = static_cast<double>(dimension);
+      double f = fsc/fd;
+      return 2.0 * f - 1.0;
+   };
 
    if (false)
       std::cout << "in move_atom_pull_target_postion() "

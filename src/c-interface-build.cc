@@ -6236,6 +6236,42 @@ void to_generic_object_add_mesh(int object_number, PyObject *mesh_py) {
 }
 
 
+// move this function
+void to_generic_object_attach_translation_gizmo(int object_number) {
+
+   if (object_number >= 0) {
+      graphics_info_t g;
+      int ss = g.generic_display_objects.size(); // type conversion
+      if (object_number < ss) {
+         g.translation_gizmo.attached_to_generic_display_object_number = object_number;
+         // now move the gizmo to the middle of the object
+         const meshed_generic_display_object &gdo = g.generic_display_objects[object_number];
+         std::optional<glm::vec3> centre = gdo.mesh.get_centre_of_mesh();
+         std::optional<float> r = gdo.mesh.get_radius_of_gyration();
+         if (centre) {
+            if (r) {
+               std::cout << "debug:: got radius of gyration r " << r.value() << std::endl;
+               const glm::vec3 p(centre.value());
+               coot::Cartesian pc(p.x, p.y, p.z);
+               g.translation_gizmo.set_scale_absolute(r.value());
+               g.translation_gizmo.set_position(pc);
+               g.attach_buffers();
+               g.setup_draw_for_translation_gizmo();
+            }
+         }
+         // should we draw it?
+         g.translation_gizmo.attached_to_molecule_number = translation_gizmo_t::UNATTACHED;
+         if (g.generic_display_objects[object_number].mesh.get_draw_this_mesh()) {
+            g.translation_gizmo_mesh.set_draw_mesh_state(true);
+         }
+      }
+      g.graphics_draw();
+   }
+}
+
+
+
+// move this function
 void generic_object_mesh_calculate_normals(int object_number) {
 
    graphics_info_t g;

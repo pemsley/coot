@@ -810,6 +810,14 @@ colour_values_from_colour_name(const std::string &c) {
    return colour;
 }
 
+void
+meshed_generic_display_object::translate(const coot::Cartesian &t) {
+
+   glm::vec3 tt(t.x(), t.y(), t.z());
+   mesh.translate_by(tt);
+}
+
+
 // remove from info vector and remove 182 triangles from the mesh (that's a bit of a hack)
 void
 meshed_generic_display_object::remove_last_object() {

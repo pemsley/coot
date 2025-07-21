@@ -3186,6 +3186,26 @@ graphics_info_t::draw_hud_buttons() {
 }
 
 void
+graphics_info_t::setup_draw_for_translation_gizmo() {
+
+   attach_buffers();
+
+   size_t s = translation_gizmo.mesh.vertices.size();
+   std::vector<s_generic_vertex> cv(s); //  conveted vertices
+   for (unsigned int i=0; i<cv.size(); i++) {
+      cv[i].pos    = translation_gizmo.mesh.vertices[i].pos;
+      cv[i].normal = translation_gizmo.mesh.vertices[i].normal;
+      cv[i].color  = translation_gizmo.mesh.vertices[i].color;
+   }
+   translation_gizmo_mesh.clear(); // so that we don't add to the mesh!
+   translation_gizmo_mesh.import(cv, translation_gizmo.mesh.triangles);
+   translation_gizmo_mesh.setup_buffers();
+   translation_gizmo_mesh.set_draw_this_mesh(true); // for debugging
+
+}
+
+
+void
 graphics_info_t::clear_gl_rama_plot() {
 
    gl_rama_plot.clear();
@@ -4488,6 +4508,8 @@ graphics_info_t::render_3d_scene(GtkGLArea *gl_area) {
    draw_extra_distance_restraints(PASS_TYPE_STANDARD); // GM_restraints
 
    draw_pointer_distances_objects();
+
+   draw_translation_gizmo(); // maybe rotation gizmo too, later.
 
    draw_texture_meshes();
 
@@ -6063,6 +6085,43 @@ graphics_info_t::draw_pointer_distances_objects() {
       }
    }
 }
+
+void
+graphics_info_t::draw_translation_gizmo() { // maybe rotation gizmo too, later.
+
+   if (translation_gizmo_mesh.get_draw_this_mesh()) {
+      bool do_it = false;
+      int tgagdo_num = translation_gizmo.attached_to_generic_display_object_number;
+      int tgam_num   = translation_gizmo.attached_to_molecule_number;
+      if (tgagdo_num != translation_gizmo_t::UNATTACHED)
+         if (tgagdo_num >= 0)
+            if (tgagdo_num < int(generic_display_objects.size()))
+               if (generic_display_objects[tgagdo_num].mesh.get_draw_this_mesh())
+                  do_it = true;
+      if (is_valid_model_molecule(tgam_num))
+         if (molecules[tgagdo_num].get_mol_is_displayed())
+            do_it = true;
+      if (is_valid_map_molecule(tgam_num))
+         if (molecules[tgagdo_num].is_displayed_p())
+            do_it = true;
+      if (do_it) {
+         Shader &shader = shader_for_moleculestotriangles;
+         glm::mat4 mvp = get_molecule_mvp();
+         glm::mat4 model_rotation_matrix = get_model_rotation();
+         glm::vec4 bg_col(background_colour, 1.0);
+         bool show_just_shadows = false;
+         bool wireframe_mode = false;
+         float opacity = 1.0f;
+         auto ccrc = RotationCentre();
+         glm::vec3 rc(ccrc.x(), ccrc.y(), ccrc.z());
+         translation_gizmo_mesh.draw(&shader, mvp, model_rotation_matrix, lights, eye_position, rc, opacity,
+                                     bg_col, wireframe_mode, shader_do_depth_fog_flag, show_just_shadows);
+      }
+   }
+
+}
+
+
 
 void
 graphics_info_t::make_extra_distance_restraints_objects() {

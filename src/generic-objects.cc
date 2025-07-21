@@ -542,6 +542,14 @@ void set_display_generic_object_simple(int object_number, short int istate) {
    graphics_info_t g;
    if (object_number >=0  && object_number < int(g.generic_display_objects.size())) {
       g.generic_display_objects[object_number].mesh.set_draw_this_mesh(istate);
+      if (istate == 0) {
+         if (g.translation_gizmo_mesh.get_draw_this_mesh())
+            g.translation_gizmo_mesh.set_draw_this_mesh(false);
+      } else {
+         // display the gizmo if it has been attached
+         if (g.translation_gizmo.attached_to_generic_display_object_number == object_number)
+            g.translation_gizmo_mesh.set_draw_this_mesh(true);
+      }
    } else {
       std::cout << "ERROR:: BAD object_number in to_generic_object_add_point: "
                 << object_number << std::endl;

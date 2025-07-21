@@ -85,7 +85,7 @@ void to_generic_object_add_cylinder(int object_number,
                                     bool cap_start,
                                     bool cap_end);
 
-/*! \brief add a dashed line to generic object object_number 
+/*! \brief add a dashed line to generic object object_number
 
 dash_density is number of dashes per Angstrom.*/
 void to_generic_object_add_dashed_line(int object_number,
@@ -97,7 +97,7 @@ void to_generic_object_add_dashed_line(int object_number,
 				       float from_z1,
 				       float to_x2,
 				       float to_y2,
-				       float to_z2); 
+				       float to_z2);
 
 /*! \brief add point to generic object object_number */
 void to_generic_object_add_point(int object_number,
@@ -124,7 +124,7 @@ void to_generic_object_add_point_internal(int object_number,
 void from_generic_object_remove_last_item(int object_number);
 
 /*! \brief add point to generic object object_number */
-void to_generic_object_add_arc(int object_number, 
+void to_generic_object_add_arc(int object_number,
 			       const char *colour,
 			       float radius,
 			       float radius_inner,
@@ -135,8 +135,8 @@ void to_generic_object_add_arc(int object_number,
 			       float start_dir_x,
 			       float start_dir_y,
 			       float start_dir_z,
-			       float normal_x1, 
-			       float normal_y1, 
+			       float normal_x1,
+			       float normal_y1,
 			       float normal_z1);
 
 void to_generic_object_add_torus(int object_number,
@@ -179,6 +179,8 @@ void to_generic_object_add_pentakis_dodecahedron(int object_number,
 #ifdef USE_PYTHON
 void to_generic_object_add_mesh(int object_number, PyObject *mesh_py);
 #endif
+
+void to_generic_object_attach_translation_gizmo(int object_number);
 
 void generic_object_mesh_calculate_normals(int object_number);
 
