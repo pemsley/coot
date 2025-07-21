@@ -547,6 +547,9 @@ coot::protein_geometry::check_and_try_dynamic_add(const std::string &resname, in
 int
 coot::protein_geometry::try_dynamic_add(const std::string &resname, int read_number) {
 
+   bool debug = false;
+   if (verbose_mode) debug = true;
+
    int success = 0;  // fail initially and is set to the number of
                      // atoms read from the mmcif dictionary file in
                      // init_refmac_mon_lib().
@@ -577,17 +580,24 @@ coot::protein_geometry::try_dynamic_add(const std::string &resname, int read_num
 
    if (s) {
 
+      std::cout << "PATH p-A" << std::endl;
+
    } else {
+
+      std::cout << "PATH p-B" << std::endl;
+
       s = clibd;
 
       if (! s) {
-         if (false)
+         std::cout << "PATH p-C" << std::endl;
+         if (debug)
             std::cout << "DEBUG:: try_dynamic_add() using package_data_dir(): " << package_data_dir()
                       << std::endl;
-         std::string tmp_string = package_data_dir();
-         tmp_string = util::append_dir_dir(tmp_string, "lib");
-         s = new char[tmp_string.length() + 1];
-         strcpy(s, tmp_string.c_str());
+         std::string dir_1 = package_data_dir();
+         std::string dir_2 = util::append_dir_dir(dir_1, "lib");
+         std::string dir_3 = util::append_dir_dir(dir_2, "data");
+         s = new char[dir_3.length() + 1];
+         strcpy(s, dir_3.c_str());
       } else {
          if (verbose_mode)
             std::cout << "INFO:: using standard CCP4 Refmac dictionary"
@@ -601,6 +611,14 @@ coot::protein_geometry::try_dynamic_add(const std::string &resname, int read_num
       std::string ss = pref_dir + "/share/coot/lib/data";
       if (ss.length() < 2048)
          strcpy(cmld, ss.c_str());
+   }
+
+   if (debug) {
+      std::cout << ":::::::::::::::: debug in try_dynamic_add() here A with s " << s << std::endl;
+      if (cmld)
+         std::cout << ":::::::::::::::: debug in try_dynamic_add() here A with cmld " << cmld << std::endl;
+      else
+         std::cout << ":::::::::::::::: debug in try_dynamic_add() here A with null cmld " << std::endl;
    }
 
    // 20241001-PE hostage to fortune...
@@ -617,13 +635,13 @@ coot::protein_geometry::try_dynamic_add(const std::string &resname, int read_num
          filename = cmld;
          filename += "/";
       } else {
-         filename += "/data/monomers/";
+         filename += "/monomers/";
       }
 
       filename = coot::util::intelligent_debackslash(filename);
 
-      if (false)
-         std::cout << "debug:: try_dynamic_add(): filename " << filename << std::endl;
+      if (debug)
+         std::cout << "debug:: try_dynamic_add(): here C filename " << filename << std::endl;
 
       if (resname.length() > 0) {
          const char rs = resname[0];
