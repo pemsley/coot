@@ -744,10 +744,10 @@ int test_delete_residue(molecules_container_t &mc) {
 
    int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
    std::string residue_cid = "//A/14";
-   mmdb::Residue *r_1 = mc.get_residue_using_cid(imol, residue_cid);
+   std::optional<mmdb::Residue> r_1 = mc.get_residue_using_cid(imol, residue_cid);
    if (r_1) {
       mc.delete_residue(imol, "A", 14, "");
-      mmdb::Residue *r_2 = mc.get_residue_using_cid(imol, residue_cid);
+      std::optional<mmdb::Residue> r_2 = mc.get_residue_using_cid(imol, residue_cid);
       if (r_2) {
          // bad, it was not deleted
       } else {
@@ -6369,8 +6369,8 @@ int test_add_RNA_residue(molecules_container_t &mc) {
    int imol = mc.read_coordinates(reference_data("5bjo-needs-E6.pdb"));
    if (mc.is_valid_model_molecule(imol)) {
       mc.add_terminal_residue_directly_using_cid(imol, "//E/5");
-      mmdb::Residue *residue_p = mc.get_residue_using_cid(imol, "//E/6");
-      if (residue_p) {
+      std::optional<mmdb::Residue> residue_opt = mc.get_residue_using_cid(imol, "//E/6");
+      if (residue_opt) {
          status = true;
       }
    } else {
@@ -6422,25 +6422,25 @@ int test_is_nucleic_acid(molecules_container_t &mc) {
       std::string cid = "//A/" + std::to_string(res_no);
       bool r = mc.residue_is_nucleic_acid(imol_1, cid);
       std::string rn = "--unset--";
-      mmdb::Residue *residue_p = mc.get_residue_using_cid(imol_1, cid);
-      if (residue_p)
-         rn = residue_p->GetResName();
+      std::optional<mmdb::Residue> residue_opt = mc.get_residue_using_cid(imol_1, cid);
+      if (residue_opt)
+         rn = residue_opt->GetResName();
       if (r) {
          std::cout << "fail for imol_1 " << cid << " type " << rn << std::endl;
          fail = true;
          break;
       }
    }
-   std::cout << "here A with fail " << fail << std::endl;
+
    for (unsigned int res_no=1; res_no<=16; res_no++) {
       if (res_no == 6) continue;
       if (res_no == 7) continue;
       std::string cid = "//E/" + std::to_string(res_no);
       bool r = mc.residue_is_nucleic_acid(imol_2, cid);
-      mmdb::Residue *residue_p = mc.get_residue_using_cid(imol_2, cid);
+      std::optional<mmdb::Residue> residue_opt = mc.get_residue_using_cid(imol_2, cid);
       std::string rn = "--unset--";
-      if (residue_p)
-         rn = residue_p->GetResName();
+      if (residue_opt)
+         rn = residue_opt->GetResName();
       if (! r) {
          std::cout << "fail for imol_2 " << cid << " type " << rn << std::endl;
          fail = true;

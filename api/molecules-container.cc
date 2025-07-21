@@ -1689,28 +1689,31 @@ molecules_container_t::get_residue(int imol, const coot::residue_spec_t &residue
 std::optional<mmdb::Atom>
 molecules_container_t::get_atom_using_cid(int imol, const std::string &cid) const {
 
-   std::optional<mmdb::Atom> at = std::nullopt;
+   std::optional<mmdb::Atom> at_opt = std::nullopt;
    if (is_valid_model_molecule(imol)) {
       std::pair<bool, coot::atom_spec_t> p = molecules[imol].cid_to_atom_spec(cid);
       if (p.first) {
          mmdb::Atom *at_m = molecules[imol].get_atom(p.second);
          if (at_m)
-            at = *at_m;
+            at_opt = *at_m;
       }
    }
-   return at;
+   return at_opt;
 }
 
 // returns either the specified residue or null if not found
-mmdb::Residue *
+std::optional<mmdb::Residue>
 molecules_container_t::get_residue_using_cid(int imol, const std::string &cid) const {
-   mmdb::Residue *residue_p = nullptr;
+   std::optional<mmdb::Residue> residue_opt = std::nullopt;
    if (is_valid_model_molecule(imol)) {
       std::pair<bool, coot::residue_spec_t> p = molecules[imol].cid_to_residue_spec(cid);
-      if (p.first)
-         residue_p = molecules[imol].get_residue(p.second);
+      if (p.first) {
+         mmdb::Residue *residue_p = molecules[imol].get_residue(p.second);
+         if (residue_p)
+            residue_opt = *residue_p;
+      }
    }
-   return residue_p;
+   return residue_opt;
 }
 
 

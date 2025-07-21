@@ -887,9 +887,6 @@ NB_MODULE(coot_headless_api, m) {
          nb::arg("imol"),
          get_docstring_from_xml("get_ramachandran_validation_markup_mesh").c_str())
     //Using allow_raw_pointers(). Perhaps suggests we need to do something different from exposing mmdb pointers to JS.
-    .def("get_residue",
-         &molecules_container_t::get_residue, nb::rv_policy::reference,
-         get_docstring_from_xml("get_residue").c_str())
     .def("get_residue_average_position",
          &molecules_container_t::get_residue_average_position,
          nb::arg("imol"), nb::arg("cid"),
@@ -912,6 +909,7 @@ NB_MODULE(coot_headless_api, m) {
          get_docstring_from_xml("get_residue_sidechain_average_position").c_str())
     .def("get_residue_using_cid",
          &molecules_container_t::get_residue_using_cid,
+         nb::arg("imol"), nb::arg("cid"),
          get_docstring_from_xml("get_residue_using_cid").c_str())
     .def("get_residues_near_residue",
          &molecules_container_t::get_residues_near_residue,
