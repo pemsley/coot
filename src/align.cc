@@ -28,10 +28,9 @@
 #include <mmdb2/mmdb_math_align.h>
 #include <mmdb2/mmdb_tables.h>
 
-#include "coords/mmdb-extras.h"
-#include "coords/mmdb.hh"
 #include "utils/coot-utils.hh"
 #include "coot-utils/coot-align.hh"
+#include "coot-utils/atom-selection-container.hh"
 
 void do_alignment(atom_selection_container_t asc);
 coot::chain_mutation_info_container_t align_on_chain(mmdb::Chain *chain_p, mmdb::PResidue *SelResidues, int nSelResidues, const std::string &target);
