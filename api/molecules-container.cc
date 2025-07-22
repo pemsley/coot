@@ -38,8 +38,9 @@
 #include "coot-utils/oct.hh"
 #include "coot-utils/read-sm-cif.hh"
 
-#include "coords/Bond_lines.h"
+#include "coords/Bond_lines.hh"
 #include "coords/mmdb.hh"
+#include "coords/mmdb-extras.hh"
 
 #include "utils/logging.hh"
 extern logging logger;
@@ -1689,23 +1690,50 @@ molecules_container_t::get_residue(int imol, const coot::residue_spec_t &residue
 mmdb::Atom *
 molecules_container_t::get_atom_using_cid(int imol, const std::string &cid) const {
 
-   mmdb::Atom *at = nullptr;
+   mmdb::Atom *at_p = nullptr;
    if (is_valid_model_molecule(imol)) {
       std::pair<bool, coot::atom_spec_t> p = molecules[imol].cid_to_atom_spec(cid);
-      if (p.first)
-         at = molecules[imol].get_atom(p.second);
+      if (p.first) {
+         mmdb::Atom *at_m = molecules[imol].get_atom(p.second);
+         if (at_m) {
+            at_p = new mmdb::Atom;
+            at_p->Copy(at_m);
+         }
+      }
    }
-   return at;
+   return at_p; // maybe a memory leak?
 }
 
 // returns either the specified residue or null if not found
 mmdb::Residue *
 molecules_container_t::get_residue_using_cid(int imol, const std::string &cid) const {
+
+   auto deep_copy_residue_local = [] (mmdb::Residue *residue) {
+
+      mmdb::Residue *rres = new mmdb::Residue;
+      rres->SetResID(residue->GetResName(), residue->GetSeqNum(), residue->GetInsCode());
+
+      mmdb::PPAtom residue_atoms;
+      int nResidueAtoms;
+      residue->GetAtomTable(residue_atoms, nResidueAtoms);
+      for(int iat=0; iat<nResidueAtoms; iat++) {
+         mmdb::Atom *atom_p = new mmdb::Atom;
+         atom_p->Copy(residue_atoms[iat]);
+         rres->AddAtom(atom_p);
+      }
+      return rres;
+   };
+
    mmdb::Residue *residue_p = nullptr;
+
    if (is_valid_model_molecule(imol)) {
       std::pair<bool, coot::residue_spec_t> p = molecules[imol].cid_to_residue_spec(cid);
-      if (p.first)
-         residue_p = molecules[imol].get_residue(p.second);
+      if (p.first) {
+         mmdb::Residue *rr = molecules[imol].get_residue(p.second);
+         if (rr) {
+            residue_p = deep_copy_residue_local(rr);
+         }
+      }
    }
    return residue_p;
 }
@@ -2970,7 +2998,6 @@ molecules_container_t::find_serial_number_for_insert(int seqnum_new,
 }
 
 
-#include "coords/mmdb-extras.h"
 
 std::pair<mmdb::Manager *, std::vector<mmdb::Residue *> >
 molecules_container_t::create_mmdbmanager_from_res_vector(const std::vector<mmdb::Residue *> &residues,

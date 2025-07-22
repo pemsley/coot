@@ -21,13 +21,13 @@
  *
  */
 
-#include "mmdb-extras.h"
+#include "mmdb-extras.hh"
 #include "mmdb.hh"
-#include "mmdb-crystal.h"  // should be merged with extras
+#include "mmdb-crystal.hh"  // should be merged with extras
 
 #include "coot-utils/coot-coord-utils.hh"
 
-#include "Bond_lines.h"
+#include "Bond_lines.hh"
 
 // Phenix Geo
 // 

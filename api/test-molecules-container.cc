@@ -6431,7 +6431,7 @@ int test_is_nucleic_acid(molecules_container_t &mc) {
          break;
       }
    }
-   std::cout << "here A with fail " << fail << std::endl;
+
    for (unsigned int res_no=1; res_no<=16; res_no++) {
       if (res_no == 6) continue;
       if (res_no == 7) continue;

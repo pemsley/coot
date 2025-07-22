@@ -46,6 +46,10 @@
 #include <vector>
 #include <stdexcept>
 
+// For stat, mkdir:
+#include <sys/types.h>
+#include <sys/stat.h>
+
 #define _USE_MATH_DEFINES
 #include <cmath>
 const double pi = M_PI;
@@ -73,21 +77,17 @@ const double pi = M_PI;
 #include <clipper/contrib/sfscale.h>
 #include <clipper/contrib/sfweight.h>
 
-#include "coords/mmdb-extras.h"
+#include "coords/mmdb-extras.hh"
 #include "coords/mmdb.hh"
-#include "coords/mmdb-crystal.h"
+#include "coords/mmdb-crystal.hh"
 #include "gtk-manual.hh"
 
-// For stat, mkdir:
-#include <sys/types.h>
-#include <sys/stat.h>
-
-#include "coords/Bond_lines.h"
+#include "coords/Bond_lines.hh"
 
 #include "coot-utils/gl-matrix.h"
 #include "graphics-info.h"
 
-#include "coords/Bond_lines_ext.h"
+#include "coords/Bond_lines_ext.hh"
 
 #include "coot-utils/coot-coord-utils.hh"
 #include "utils/coot-utils.hh"

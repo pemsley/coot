@@ -787,9 +787,11 @@ libcootsumo_la_SOURCES = \
 	testing.hh               \
 	Texture.cc Texture.hh    \
 	TextureMesh.cc TextureMesh.hh \
-	tomo-tools.cc \
+	tomo-tools.cc            \
+	translation-gizmo.cc     \
+	translation-gizmo.hh     \
 	triangle-extras.h        \
-	user-mods.hh user-mods.cc\
+	user-mods.hh user-mods.cc \
 	xmap-utils.cc 		 \
 	xmap-utils.h             \
 	remarks-browser-gtk-widgets.hh \

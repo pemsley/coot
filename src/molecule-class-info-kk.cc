@@ -18,9 +18,9 @@
  * Fifth Floor, Boston, MA, 02110-1301, USA.
  */
 
-#include "coords/Cartesian.h"
-#include "coords/mmdb-extras.h"
-#include "coords/mmdb-crystal.h"
+#include "coords/Cartesian.hh"
+#include "coords/mmdb-extras.hh"
+#include "coords/mmdb-crystal.hh"
 
 #include "molecule-class-info.h"
 

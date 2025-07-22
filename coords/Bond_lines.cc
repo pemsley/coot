@@ -30,17 +30,17 @@
 #include <set>
 #include <iterator>
 
-#include "Cartesian.h"
+#include "Cartesian.hh"
 #include <mmdb2/mmdb_manager.h>
-#include "mmdb-extras.h"
+#include "mmdb-extras.hh"
 #include "mmdb.hh"
-#include "mmdb-crystal.h"  // should be merged with extras
+#include "mmdb-crystal.hh"  // should be merged with extras
 
 #include "geometry/lbg-graph.hh"  // aromatic ring systems
 #include "geometry/mol-utils.hh"
 #include "utils/coot-utils.hh" // for int_to_string
 
-#include "Bond_lines.h"
+#include "Bond_lines.hh"
 #include "coot-utils/coot-coord-utils.hh"
 
 #include "geometry/protein-donor-acceptors.hh"

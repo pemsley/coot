@@ -41,8 +41,8 @@
 #include "ligand/dipole.hh"
 #include "high-res/sequence-assignment.hh" // for residue_range_t
 
-#include "coords/mmdb-extras.h"
-#include "coords/mmdb-crystal.h"
+#include "coords/mmdb-extras.hh"
+#include "coords/mmdb-crystal.hh"
 
 #include "pli/flev-annotations.hh" // animated ligand interactions
 #include "named-rotamer-score.hh"

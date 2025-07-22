@@ -23,9 +23,9 @@
 #include <stdio.h>
 #include <math.h>
 
-#include "coords/Cartesian.h"
-#include "coords/mmdb-extras.h"
-#include "coords/mmdb-crystal.h" // for atom_selection_container_t usage
+#include "coords/Cartesian.hh"
+#include "coords/mmdb-extras.hh"
+#include "coords/mmdb-crystal.hh" // for atom_selection_container_t usage
 
 #include "utils/coot-utils.hh"
 #include "coot-utils/coot-coord-utils.hh"

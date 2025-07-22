@@ -26,8 +26,8 @@
 #ifndef CLIP_HYBRID_ATOM_HH
 #define CLIP_HYBRID_ATOM_HH
 
-#include "coords/mmdb-crystal.h"
 #include <mmdb2/mmdb_manager.h>
+#include "coords/mmdb-crystal.hh"
 
 namespace coot {
    class clip_hybrid_atom {

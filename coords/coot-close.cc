@@ -24,7 +24,7 @@
 
 
 #include <vector>
-#include "mmdb-extras.h"
+#include "mmdb-extras.hh"
 #include "coot-close.hh"
 
 // clipper::Coord_orth

@@ -18,7 +18,7 @@
 
 #include "compat/coot-sysdep.h"
 
-#include "coords/Cartesian.h"
+#include "coords/Cartesian.hh"
 #include "coords/ramachandran-container.hh"
 #include "coot-molecule.hh"
 #include "coot-utils/coot-rama.hh"
@@ -1199,16 +1199,40 @@ public:
    //! @return a `simple_mesh_t`
    coot::simple_mesh_t get_chemical_features_mesh(int imol, const std::string &cid) const;
 
+   //! get an (mmdb-style) atom
+   //!
+   //! If more than one atom is selected by the selection cid, then the first
+   //! atom is returned.
+   //!
+   //! Don't use this in emscript.
+   //!
+   //! @param imol is the model molecule index
+   //! @param cid is the coordinate-id for the atom.
+   //! @returns either the specified atom or nullopt (None) if not found
+   mmdb::Atom *get_atom_using_cid(int imol, const std::string &cid) const;
+
+   //! get an (mmdb-style) residue
+   //!
+   //! If more than one residue is selected by the selection cid, then the first
+   //! residue is returned.
+   //!
+   //! Don't use this in emscript.
+   //!
+   //! @param imol is the model molecule index
+   //! @param cid is the coordinate-id for the residue
+   //! @returns either the specified residue or nullopt (None) if not found
+   mmdb::Residue *get_residue_using_cid(int imol, const std::string &cid) const;
+
 #ifdef DOXYGEN_SHOULD_PARSE_THIS
 #else
+   //! get atom - internal (C++) usage only
+   //!
    //! @returns either the specified atom or null if not found - don't use this in emscript
    mmdb::Atom *get_atom(int imol, const coot::atom_spec_t &atom_spec) const;
+   //! get residue - internal (C++) usage only
+   //!
    //! @returns either the specified residue or null if not found - don't use this in emscript
    mmdb::Residue *get_residue(int imol, const coot::residue_spec_t &residue_spec) const;
-   //! @returns either the specified atom or null if not found - don't use this in emscript
-   mmdb::Atom *get_atom_using_cid(int imol, const std::string &cid) const;
-   //! @returns either the specified residue or null if not found - don't use this in emscript
-   mmdb::Residue *get_residue_using_cid(int imol, const std::string &cid) const;
    //! get the atom position - don't use this in emscript
    std::pair<bool, coot::Cartesian> get_atom_position(int imol, coot::atom_spec_t &atom_spec);
 #endif

@@ -33,7 +33,7 @@
 #endif // HAVE_VECTOR
 
 
-#include "coords/Cartesian.h"
+#include "coords/Cartesian.hh"
 #include "coot-utils/gl-matrix.h"
 
 #include "old-generic-display-object.hh"

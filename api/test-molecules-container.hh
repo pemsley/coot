@@ -3,7 +3,7 @@
 
 #include <string>
 #include <mmdb2/mmdb_manager.h>
-#include "coords/Cartesian.h"
+#include "coords/Cartesian.hh"
 
 void starting_test(const char *func);
 std::string reference_data(const std::string &file);

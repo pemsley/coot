@@ -29,6 +29,7 @@
 
 // #define THIS_IS_HMT
 
+#include <optional>
 #include <chrono>
 
 #include "generic-vertex.hh"
@@ -51,7 +52,7 @@
 #ifdef THIS_IS_HMT
 #else
 #include "coords/graphical-bonds-container.hh"
-#include "coords/mmdb-crystal.h"
+#include "coords/mmdb-crystal.hh"
 #endif
 
 class Mesh {
@@ -457,6 +458,8 @@ public:
    void apply_transformation(const glm::mat4 &m);  // transform the positions in the vertices
    void invert_normals(); // flip normals
    void calculate_normals(); // and set the GL buffers
+   std::optional<glm::vec3> get_centre_of_mesh() const;
+   std::optional<float> get_radius_of_gyration() const;
    std::vector<std::pair<int, map_triangle_t> >  map_triangle_centres;
    glm::vec3 previous_eye_position; // for testing if we need to sort the triangles
    void sort_map_triangles(const glm::vec3 &eye_position);

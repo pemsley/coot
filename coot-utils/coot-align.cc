@@ -31,7 +31,7 @@
 
 #include <mmdb2/mmdb_math_align.h>
 #include <mmdb2/mmdb_tables.h>
-#include "coords/mmdb-extras.h"
+#include "coords/mmdb-extras.hh"
 #include "coords/mmdb.hh"
 #include "coot-align.hh"
 

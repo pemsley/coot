@@ -9,11 +9,11 @@
 #include <nanobind/ndarray.h>
 #include <nanobind/operators.h>
 
-#include "clipper/core/ramachandran.h"
-#include "clipper/clipper-ccp4.h"
+#include <clipper/core/ramachandran.h>
+#include <clipper/clipper-ccp4.h>
 
 #include "coot-utils/pugixml.hpp"
-#include "coords/mmdb-crystal.h"
+#include "coords/mmdb-crystal.hh"
 #include "coot-utils/acedrg-types-for-residue.hh"
 #include "coot-utils/g_triangle.hh"
 #include "mini-mol/mini-mol-utils.hh"
@@ -682,16 +682,14 @@ NB_MODULE(coot_headless_api, m) {
          &molecules_container_t::get_acedrg_atom_types_for_ligand,
          nb::arg("imol"), nb::arg("residue_cid"),
          get_docstring_from_xml("get_acedrg_atom_types_for_ligand").c_str())
-    .def("get_atom",
-         &molecules_container_t::get_atom, nb::rv_policy::reference,
-         get_docstring_from_xml("get_atom").c_str())
     .def("get_atom_differences",
          &molecules_container_t::get_atom_differences,
          nb::arg("imol1"), nb::arg("imol2"),
          get_docstring_from_xml("get_atom_differences").c_str())
     .def("get_atom_using_cid",
-         &molecules_container_t::get_atom_using_cid, nb::rv_policy::reference,
-         get_docstring_from_xml("get_atom_using_cid").c_str())
+         &molecules_container_t::get_atom_using_cid,
+         nb::arg("imol"), nb::arg("atom_cid"),
+         get_docstring_from_xml("get_atom").c_str())
     .def("get_atom_overlap_score",
          &molecules_container_t::get_atom_overlap_score,
 	 nb::arg("imol"),
@@ -889,9 +887,6 @@ NB_MODULE(coot_headless_api, m) {
          nb::arg("imol"),
          get_docstring_from_xml("get_ramachandran_validation_markup_mesh").c_str())
     //Using allow_raw_pointers(). Perhaps suggests we need to do something different from exposing mmdb pointers to JS.
-    .def("get_residue",
-         &molecules_container_t::get_residue, nb::rv_policy::reference,
-         get_docstring_from_xml("get_residue").c_str())
     .def("get_residue_average_position",
          &molecules_container_t::get_residue_average_position,
          nb::arg("imol"), nb::arg("cid"),
@@ -914,6 +909,7 @@ NB_MODULE(coot_headless_api, m) {
          get_docstring_from_xml("get_residue_sidechain_average_position").c_str())
     .def("get_residue_using_cid",
          &molecules_container_t::get_residue_using_cid,
+         nb::arg("imol"), nb::arg("cid"),
          get_docstring_from_xml("get_residue_using_cid").c_str())
     .def("get_residues_near_residue",
          &molecules_container_t::get_residues_near_residue,

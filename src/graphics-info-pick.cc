@@ -34,11 +34,12 @@
 #include <string.h> // strncmp
 
 #include <mmdb2/mmdb_manager.h>
-#include "coords/mmdb-extras.h"
+
+#include "coords/mmdb-extras.hh"
 #include "coords/mmdb.hh"
-#include "coords/mmdb-crystal.h" //need for Bond_lines now
-#include "coords/Cartesian.h"
-#include "coords/Bond_lines.h"
+#include "coords/mmdb-crystal.hh" //need for Bond_lines now
+#include "coords/Cartesian.hh"
+#include "coords/Bond_lines.hh"
 
 #include "graphics-info.h"
 
@@ -859,11 +860,11 @@ graphics_info_t::move_atom_pull_target_position(double screen_x, double screen_y
 
    // outut in the range -1 to +1
    auto mouse_coords_to_clip_space = [] (int screen_coord, int dimension) {
-                                        double fsc = static_cast<double>(screen_coord);
-                                        double fd = static_cast<double>(dimension);
-                                        double f = fsc/fd;
-                                        return 2.0 * f - 1.0;
-                                     };
+      double fsc = static_cast<double>(screen_coord);
+      double fd = static_cast<double>(dimension);
+      double f = fsc/fd;
+      return 2.0 * f - 1.0;
+   };
 
    if (false)
       std::cout << "in move_atom_pull_target_postion() "

@@ -752,6 +752,12 @@ std::vector<atom_label_info_t> graphics_info_t::labels_for_pointer_distances;
 
 int graphics_info_t::show_origin_marker_flag = 1;
 
+translation_gizmo_t graphics_info_t::translation_gizmo; // axes with cones at the centre of an object.
+                                                        // This thing should be clickable
+Mesh graphics_info_t::translation_gizmo_mesh = Mesh("translation gizmo");
+bool graphics_info_t::translation_gizmo_is_being_dragged = false;
+translation_gizmo_t::pick_info_t graphics_info_t::translation_gizmo_axis_dragged = translation_gizmo_t::pick_info_t::NONE;
+
 //
 float graphics_info_t::geometry_vs_map_weight = 60.0;
 

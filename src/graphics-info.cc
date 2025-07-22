@@ -60,11 +60,10 @@
 #endif
 
 #include <mmdb2/mmdb_manager.h>
-#include "coords/mmdb-extras.h"
+#include "coords/mmdb-extras.hh"
 #include "coords/mmdb.hh"
-#include "coords/mmdb-crystal.h"
-#include "coords/Cartesian.h"
-#include "coords/Bond_lines.h"
+#include "coords/mmdb-crystal.hh"
+#include "coords/Bond_lines.hh"
 
 #include "clipper/core/map_utils.h" // Map_stats
 #include "skeleton/graphical_skel.h"
@@ -1182,12 +1181,10 @@ graphics_info_t::undisplay_all_model_molecules_except(const std::vector<int> &ke
       if (is_valid_model_molecule(i)) {
          molecules[i].set_mol_is_displayed(state);
          molecules[i].set_mol_is_active(state);
-#ifndef EMSCRIPTEN
          if (display_control_window())
             set_display_control_button_state(i, "Displayed", state);
          if (display_control_window())
             set_display_control_button_state(i, "Active", state);
-#endif
       }
    }
 }
@@ -1226,8 +1223,6 @@ graphics_info_t::setRotationCentre(coot::Cartesian new_centre, bool force_jump) 
       setRotationCentreSimple(new_centre);
       return true;
    }
-
-#ifndef EMSCRIPTEN
 
    // smooth_scroll_maybe
 
@@ -1295,9 +1290,6 @@ graphics_info_t::setRotationCentre(coot::Cartesian new_centre, bool force_jump) 
          }
       }
    }
-#else
-   std::cout << "Force rotation centre jump here " << std::endl;
-#endif
 
    return needs_centre_jump;
 }
@@ -3220,6 +3212,18 @@ graphics_info_t::from_generic_object_remove_last_item(int object_number) {
    graphics_draw();
 }
 
+// static
+bool
+graphics_info_t::is_valid_generic_display_object_number(int obj_no) {
+
+   bool status = false;
+   if (obj_no >= 0) {
+      int ss = generic_display_objects.size();
+      if (obj_no < ss)
+         status = true;
+   }
+   return status;
+}
 
 
 void

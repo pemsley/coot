@@ -34,11 +34,11 @@
 #include <mmdb2/mmdb_manager.h>
 
 #include "coords/cos-sin.h"
-#include "coords/mmdb-extras.h"
+#include "coords/mmdb-extras.hh"
 #include "coords/mmdb.hh"
-#include "coords/mmdb-crystal.h" //need for Bond_lines now
-#include "coords/Cartesian.h"
-#include "coords/Bond_lines.h"
+#include "coords/mmdb-crystal.hh" //need for Bond_lines now
+#include "coords/Cartesian.hh"
+#include "coords/Bond_lines.hh"
 
 #include "graphics-info.h"
 

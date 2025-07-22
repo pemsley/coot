@@ -24,10 +24,7 @@
  */
 
 
-#include "mmdb-extras.h"
-#include "mmdb.hh"
-#include "mmdb-crystal.h" 
-
+#include <mmdb2/mmdb_manager.h>
 
 int main(int argc, char **argv) {
 

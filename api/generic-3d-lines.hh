@@ -1,7 +1,7 @@
 #ifndef GENERIC_3D_LINES_HH
 #define GENERIC_3D_LINES_HH
 
-#include "coords/Cartesian.h"
+#include "coords/Cartesian.hh"
 #include "coords/graphical-bonds-container.hh"
 
 //! This class is for generic line set information.
