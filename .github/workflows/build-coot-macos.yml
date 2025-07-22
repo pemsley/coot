@@ -33,6 +33,11 @@ jobs:
         brew update
         brew upgrade
 
+    - name: Fix Homebrew symlinks
+      run:  |
+        brew unlink gettext || true
+        brew link --overwrite gettext || true
+
     - name: Install Coot dependencies in Homebrew
       run:  >
          brew install boost boost-python3 brewsci/bio/clipper4coot
