@@ -41,12 +41,12 @@ coot::util::emma::sfs_from_boxed_molecule(mmdb::Manager *mol_orig, float border)
    // now do selection
    int SelHnd = mol->NewSelection(); // d
    mol->SelectAtoms(SelHnd, 1, "*",
-		    mmdb::ANY_RES, "*",
-		    mmdb::ANY_RES, "*",
-		    "*", "*", 
-		    "*", // elements
-		    "*", // alt loc.
-		    mmdb::SKEY_NEW);
+                    mmdb::ANY_RES, "*",
+                    mmdb::ANY_RES, "*",
+                    "*", "*", 
+                    "*", // elements
+                    "*", // alt loc.
+                    mmdb::SKEY_NEW);
    mol->GetSelIndex(SelHnd, atom_selection, n_selected_atoms);
 
    std::pair<bool, clipper::Coord_orth> centre = centre_of_molecule(mol);
@@ -60,12 +60,12 @@ coot::util::emma::sfs_from_boxed_molecule(mmdb::Manager *mol_orig, float border)
       double z_range = e.second.z() - e.first.z();
 
       std::cout << "DEBUG:: molecule  centre after recentering: "
-		<< centre.first << " " << centre.second.format() << std::endl;
+                << centre.first << " " << centre.second.format() << std::endl;
 
       double nr = clipper::Util::d2rad(90);
       clipper::Cell_descr cell_descr(x_range + 2*border,
-				     y_range + 2*border,
-				     z_range + 2*border, nr, nr, nr);
+                                     y_range + 2*border,
+                                     z_range + 2*border, nr, nr, nr);
       cell = clipper::Cell(cell_descr);
       spacegroup = clipper::Spacegroup::p1();
       reso = clipper::Resolution(3.0);
@@ -96,12 +96,12 @@ coot::util::emma::sfs_from_boxed_molecule(mmdb::Manager *mol_orig, float border)
       std::cout << "DEBUG:: P1-sfs: done sfs calculation " << std::endl;
 
       if (0) { // debug
-	 clipper::HKL_info::HKL_reference_index hri;
-	 for (hri = fc_from_model.first(); !hri.last(); hri.next()) {
-	    std::cout << "DEBUG:: fc " << hri.hkl().format() << " "
-		      << fc_from_model[hri].f()   << " "
-		      << fc_from_model[hri].phi() << "\n";
-	 }
+         clipper::HKL_info::HKL_reference_index hri;
+         for (hri = fc_from_model.first(); !hri.last(); hri.next()) {
+            std::cout << "DEBUG:: fc " << hri.hkl().format() << " "
+                      << fc_from_model[hri].f()   << " "
+                      << fc_from_model[hri].phi() << "\n";
+         }
       }
    }
 
@@ -139,10 +139,10 @@ coot::util::emma::overlap(const clipper::Xmap<float> &xmap) const {
    clipper::Range<double> map_f_range = map_fphidata.invresolsq_range();
    std::cout << "DEBUG:: fc from model resolution ranges " << fc_range.min() << " " << fc_range.max() << std::endl;
    std::cout << "DEBUG:: fc from model resolution ranges " << 1/sqrt(fc_range.min()) << " " << 1/sqrt(fc_range.max())
-	     << std::endl;
+             << std::endl;
    std::cout << "DEBUG:: SFs from map  resolution ranges " << map_f_range.min() << " " << map_f_range.max() << std::endl;
    std::cout << "DEBUG:: SFs from map  resolution ranges " << 1/sqrt(map_f_range.min()) << " " << 1/sqrt(map_f_range.max())
-	     << std::endl;
+             << std::endl;
 
 
    // N is number of points for Gauss-Legendre Integration.
@@ -165,26 +165,26 @@ coot::util::emma::overlap(const clipper::Xmap<float> &xmap) const {
       
       clipper::HKL_info::HKL_reference_index hri;
       for (hri = fc_from_model.first(); !hri.last(); hri.next()) {
-	 
-	 // r and x_gl are in inversely-related spaces: when
-	 // fc_range.max() is 0.0623598, the max value of r is
-	 // 0.0623598 (=1/(4*4))
-	 // clipper::data32::F_phi friedel = fc_from_model[hri];
-	 // friedel.friedel();
-	 float r = sqrt(hri.invresolsq());
-	 float x = 2*M_PI*x_gl*r_k; // was r - hmm!
-	 float y = gsl_sf_bessel_J0(x);
-	 if (false)
-	    std::cout << "DEBUG:: " << r_k_i <<  " for " << hri.hkl().format() << " y: " << y << std::endl;
+         
+         // r and x_gl are in inversely-related spaces: when
+         // fc_range.max() is 0.0623598, the max value of r is
+         // 0.0623598 (=1/(4*4))
+         // clipper::data32::F_phi friedel = fc_from_model[hri];
+         // friedel.friedel();
+         float r = sqrt(hri.invresolsq());
+         float x = 2*M_PI*x_gl*r_k; // was r - hmm!
+         float y = gsl_sf_bessel_J0(x);
+         if (false)
+            std::cout << "DEBUG:: " << r_k_i <<  " for " << hri.hkl().format() << " y: " << y << std::endl;
 
-	 std::complex<float> t = fc_from_model[hri];
-	 std::complex<double> yt(y*t.real(), y*t.imag());
-	 std::complex<double> yt_friedel(y*t.real(), -y*t.imag());
-	 if (false)
-	    std::cout << "DEBUG:: " << r_k_i <<  " for " << hri.hkl().format() << " x: " << x << " r: " << r
-		      << " adding " << yt << std::endl;
-	 T[r_k_i] += yt;          // sum now (then multiply after looping over reflection list)
-	 T[r_k_i] += yt_friedel; 
+         std::complex<float> t = fc_from_model[hri];
+         std::complex<double> yt(y*t.real(), y*t.imag());
+         std::complex<double> yt_friedel(y*t.real(), -y*t.imag());
+         if (false)
+            std::cout << "DEBUG:: " << r_k_i <<  " for " << hri.hkl().format() << " x: " << x << " r: " << r
+                      << " adding " << yt << std::endl;
+         T[r_k_i] += yt;          // sum now (then multiply after looping over reflection list)
+         T[r_k_i] += yt_friedel; 
       }
       float func_r_k = 1.0f;
       T[r_k_i] *= w_k * func_r_k * r_k *r_k;
@@ -204,19 +204,19 @@ coot::util::emma::overlap(const clipper::Xmap<float> &xmap) const {
       std::complex<double> sum(0,0);
       for (float r_k_i=1; r_k_i<=N; r_k_i++) {
 
-	 float x_gl = radius_range*gl.abscissa(r_k_i)*0.5 + radius_mid;
-	 float r = sqrt(hri.invresolsq());
-	 float x = 2*M_PI*x_gl*r;
-	 float y = gsl_sf_bessel_J0(x);
-	 std::complex<double> prod(T[r_k_i].real() * y, T[r_k_i].imag() * y);
-	 sum += prod;
+         float x_gl = radius_range*gl.abscissa(r_k_i)*0.5 + radius_mid;
+         float r = sqrt(hri.invresolsq());
+         float x = 2*M_PI*x_gl*r;
+         float y = gsl_sf_bessel_J0(x);
+         std::complex<double> prod(T[r_k_i].real() * y, T[r_k_i].imag() * y);
+         sum += prod;
       }
       A_data[hri] = std::complex<double>(map_fphidata[hri]) * sum;
       if (false)
-	 std::cout << "DEBUG:: " << "   A_data: " << hri.hkl().format()
-		   << " f: " << A_data[hri].f() << " phi: " << A_data[hri].phi()
-		   << " sum_abs: " << std::abs(sum) << " sum_arg: " << std::arg(sum)
-		   << "\n";
+         std::cout << "DEBUG:: " << "   A_data: " << hri.hkl().format()
+                   << " f: " << A_data[hri].f() << " phi: " << A_data[hri].phi()
+                   << " sum_abs: " << std::abs(sum) << " sum_arg: " << std::arg(sum)
+                   << "\n";
    }
 
    // scale down A_data to "sensible" numbers:
@@ -226,9 +226,9 @@ coot::util::emma::overlap(const clipper::Xmap<float> &xmap) const {
    // compare phases:
    if (false)
       for (hri = map_fphidata.first(); !hri.last(); hri.next())
-	 std::cout << "DEBUG:: " << "  A_phase vs map phase " << hri.hkl().format() << " "
-		   << clipper::Util::rad2d(map_fphidata[hri].phi()) << " "
-		   << clipper::Util::rad2d(      A_data[hri].phi()) << std::endl;
+         std::cout << "DEBUG:: " << "  A_phase vs map phase " << hri.hkl().format() << " "
+                   << clipper::Util::rad2d(map_fphidata[hri].phi()) << " "
+                   << clipper::Util::rad2d(      A_data[hri].phi()) << std::endl;
    
 
 
@@ -258,10 +258,10 @@ coot::util::emma::overlap(const clipper::Xmap<float> &xmap) const {
    for (unsigned int ipeak=0; ipeak<peaks.size(); ipeak++)
       std::cout << "DEBUG:: "
                 << ipeak << " "
-		<< peaks[ipeak].second << " "
-		<< peaks[ipeak].first.format() << "  "
-		<< peaks[ipeak].second/rmsd
-		<< std::endl;
+                << peaks[ipeak].second << " "
+                << peaks[ipeak].first.format() << "  "
+                << peaks[ipeak].second/rmsd
+                << std::endl;
 
    std::vector<clipper::Coord_orth> vp;
    for (unsigned int ipeak=0; ipeak<peaks.size(); ipeak++)
@@ -293,10 +293,10 @@ coot::util::emma::overlap_simple(const clipper::Xmap<float> &xmap) const {
    clipper::Range<double> map_f_range = map_fphidata.invresolsq_range();
    std::cout << "DEBUG:: fc from model resolution ranges " << fc_range.min() << " " << fc_range.max() << std::endl;
    std::cout << "DEBUG:: fc from model resolution ranges " << 1/sqrt(fc_range.min()) << " " << 1/sqrt(fc_range.max())
-	     << std::endl;
+             << std::endl;
    std::cout << "DEBUG:: SFs from map  resolution ranges " << map_f_range.min() << " " << map_f_range.max() << std::endl;
    std::cout << "DEBUG:: SFs from map  resolution ranges " << 1/sqrt(map_f_range.min()) << " " << 1/sqrt(map_f_range.max())
-	     << std::endl;
+             << std::endl;
 
    clipper::HKL_data< clipper::datatypes::F_phi<double> > A_data = map_fphidata; 
    
@@ -308,17 +308,17 @@ coot::util::emma::overlap_simple(const clipper::Xmap<float> &xmap) const {
       std::complex<double> sum_F_Sii(0,0);
       
       for (hri_model = fc_from_model.first(); !hri_model.last(); hri_model.next()) {
-	 // integrate function from 0 to a in a_step
-	 double a_step = 1;
-	 double Sii = 0.0; // inner_integration_sum
-	 for (double va=0.5; va<=radius_of_integration;va+=a_step) {
-	    Sii += f(hri_model, hri_map, va) * a_step; // a_step is strip width (for strip area)
-	 }
-	 std::complex<float> tf = fc_from_model[hri_model];  // transfer
-	 std::complex<double> f_model(tf.real(), tf.imag()); // transfer
-	 std::complex<double> f_model_fridel(tf.real(), -tf.imag());
-	 sum_F_Sii += f_model        * std::complex<double>(Sii, 0);
-	 sum_F_Sii += f_model_fridel * std::complex<double>(Sii, 0);
+         // integrate function from 0 to a in a_step
+         double a_step = 1;
+         double Sii = 0.0; // inner_integration_sum
+         for (double va=0.5; va<=radius_of_integration;va+=a_step) {
+            Sii += f(hri_model, hri_map, va) * a_step; // a_step is strip width (for strip area)
+         }
+         std::complex<float> tf = fc_from_model[hri_model];  // transfer
+         std::complex<double> f_model(tf.real(), tf.imag()); // transfer
+         std::complex<double> f_model_fridel(tf.real(), -tf.imag());
+         sum_F_Sii += f_model        * std::complex<double>(Sii, 0);
+         sum_F_Sii += f_model_fridel * std::complex<double>(Sii, 0);
       }
       std::complex<double> t = std::complex<double>(A_data[hri_map]) * sum_F_Sii;
       A_data[hri_map] = t;
@@ -338,10 +338,10 @@ coot::util::emma::overlap_simple(const clipper::Xmap<float> &xmap) const {
    std::cout << "DEBUG:: ==== peaks ==== " << std::endl;
    for (unsigned int ipeak=0; ipeak<peaks.size(); ipeak++)
       std::cout << "DEBUG:: " << ipeak << " "
-		<< peaks[ipeak].second << " "
-		<< peaks[ipeak].first.format() << "  "
-		<< peaks[ipeak].second/rmsd
-		<< std::endl;
+                << peaks[ipeak].second << " "
+                << peaks[ipeak].first.format() << "  "
+                << peaks[ipeak].second/rmsd
+                << std::endl;
 
    std::vector<clipper::Coord_orth> vp;
    for (unsigned int ipeak=0; ipeak<peaks.size(); ipeak++)
@@ -358,8 +358,8 @@ coot::util::emma::overlap_simple(const clipper::Xmap<float> &xmap) const {
 
 double
 coot::util::emma::f(const clipper::HKL_info::HKL_reference_index &hri_model,
-		    const clipper::HKL_info::HKL_reference_index &hri_map,
-		    double va) const{
+                    const clipper::HKL_info::HKL_reference_index &hri_map,
+                    double va) const{
 
    double x_a = 2*M_PI*va*sqrt(hri_model.invresolsq());
    double x_b = 2*M_PI*va*sqrt(hri_map.invresolsq());
@@ -391,7 +391,7 @@ coot::util::emma::spherically_averaged_FT() {
 
 std::vector<std::pair<double, double> >
 coot::util::spherically_averaged_molecule(const atom_selection_container_t &asc,
-					  float angstroms_per_bin) {
+                                          float angstroms_per_bin) {
 
    std::vector<std::pair<double, double> > vp;
 
@@ -418,9 +418,9 @@ coot::util::spherically_averaged_molecule(const atom_selection_container_t &asc,
       float dist = std::sqrt((co - c).lengthsq());
       int bin_id = dist / angstroms_per_bin;
       if (bin_id >= n_bins) {
-	 std::cout << "ERROR:: bin error! " << std::endl;
+         std::cout << "ERROR:: bin error! " << std::endl;
       } else {
-	 vp[bin_id].second += 1.0;
+         vp[bin_id].second += 1.0;
       }
    }
 
@@ -446,9 +446,9 @@ coot::util::make_phi_thetas(unsigned int n_pts) {
 
 float
 coot::util::average_of_sample_map_at_sphere_points(clipper::Coord_orth &centre,
-						   float radius,
-						   const std::vector<coot::util::phitheta> &phi_thetas,
-						   clipper::Xmap<float> &xmap) {
+                                                   float radius,
+                                                   const std::vector<coot::util::phitheta> &phi_thetas,
+                                                   clipper::Xmap<float> &xmap) {
    float r = 0.0;
 
    double sum = 0.0;
@@ -456,8 +456,8 @@ coot::util::average_of_sample_map_at_sphere_points(clipper::Coord_orth &centre,
       const double &phi   = phi_thetas[i].first;
       const double &theta = phi_thetas[i].second;
       clipper::Coord_orth pt(radius * cos(theta) * sin(phi),
-			     radius * sin(theta) * sin(phi),
-			     radius * cos(phi));
+                             radius * sin(theta) * sin(phi),
+                             radius * cos(phi));
       //std::cout << "phi " << phi << " theta " << theta  << " pt: " << pt.format() << std::endl;
       pt += centre;
       sum += density_at_point_by_linear_interpolation(xmap, pt);

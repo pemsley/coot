@@ -136,7 +136,6 @@ int prefer_python();
 /*  ------------------------------------------------------------------------ */
 /*  File system Utility function: maybe there is a better place for it... */
 
-
 /*  Return like mkdir: mkdir returns zero on success, or -1 if an error */
 /*  occurred */
 
@@ -146,16 +145,6 @@ int prefer_python();
 /* section File System Functions */
 /*!  \name File System Functions */
 /*! \{ */
-
-/*! \brief make a directory dir (if it doesn't exist) and return error code
-
-   If it can be created, create the directory dir, return the success status
-   like mkdir: mkdir
-
-   @return zero on success, or -1 if an  error  occurred.
-   If dir already exists as a directory, return 0 of course.
- */
-int make_directory_maybe(const char *dir);
 
 /*! \brief Show Paths in Display Manager?
 

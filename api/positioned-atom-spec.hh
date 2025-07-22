@@ -1,5 +1,5 @@
 #include "geometry/residue-and-atom-specs.hh"
-#include "coords/Cartesian.h"
+#include "coords/Cartesian.hh"
 
 class positioned_atom_spec_t {
     public:

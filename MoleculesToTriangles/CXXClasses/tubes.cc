@@ -9,7 +9,6 @@
 #include "coot-utils/cylinder.hh"
 
 #include "MoleculesToTriangles/CXXSurface/CXXCoord.h"
-#include "geometry/residue-and-atom-specs.hh"
 #include "mmdb2/mmdb_selmngr.h"
 #include "tubes.hh"
 

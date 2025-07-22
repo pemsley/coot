@@ -26,15 +26,17 @@
 #include "compat/coot-sysdep.h"
 
 // include files needed to include molecule-class-info.h correctly. Useful.
-#include <mmdb2/mmdb_manager.h> 
-#include "coords/Cartesian.h"
-#include "coords/mmdb-extras.h"
-#include "coords/mmdb-crystal.h"
+#include <mmdb2/mmdb_manager.h>
+
+#include "coords/Cartesian.hh"
+#include "coords/mmdb-extras.hh"
+#include "coords/mmdb-crystal.hh"
 
 #include "coot-utils/coot-coord-utils.hh"
 #include "coot-utils/reduce.hh"
-#include "molecule-class-info.h"
 #include "coot-utils/reduce.hh"
+
+#include "molecule-class-info.h"
 
 
 std::vector<ProteinDB::Chain>

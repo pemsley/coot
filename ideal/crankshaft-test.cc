@@ -36,20 +36,16 @@
 #include <iomanip>
 
 #include <mmdb2/mmdb_manager.h>
-#include "coords/mmdb-extras.h"
-#include "coords/mmdb.hh"
 
-#include "crankshaft.hh"
+#include <clipper/core/xmap.h>
+#include <clipper/ccp4/ccp4_map_io.h>
+#include <clipper/ccp4/ccp4_mtz_io.h>
+#include <clipper/core/hkl_compute.h>
 
-#include "clipper/core/xmap.h"
-#include "clipper/core/map_utils.h"
-#include "clipper/ccp4/ccp4_map_io.h"
-#include "clipper/ccp4/ccp4_mtz_io.h"
-#include "clipper/core/hkl_compute.h"
-#include "clipper/core/map_utils.h" // Map_stats
+#include "coot-utils/coot-map-utils.hh"
 
 #include "simple-restraint.hh"
-#include "coot-utils/coot-map-utils.hh"
+#include "crankshaft.hh"
 
 class molecule_score_t {
 public:

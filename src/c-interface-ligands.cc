@@ -42,11 +42,15 @@
 #include <string>
 
 #include <mmdb2/mmdb_manager.h>
-#include "coords/mmdb-extras.h"
+
+#include "coords/mmdb-extras.hh"
 #include "coords/mmdb.hh"
-#include "coords/mmdb-crystal.h"
+#include "coords/mmdb-crystal.hh"
 
 #include "coot-utils/read-sm-cif.hh"
+#include "coot-utils/coot-coord-utils.hh"
+#include "coot-utils/peak-search.hh"
+#include "coot-utils/coot-h-bonds.hh"
 
 #include "graphics-info.h"
 #include "c-interface.h"
@@ -54,9 +58,6 @@
 #include "c-interface-gtk-widgets.h"
 #include "cc-interface.hh"
 #include "cc-interface-scripting.hh"
-#include "coot-utils/coot-coord-utils.hh"
-#include "coot-utils/peak-search.hh"
-#include "coot-utils/coot-h-bonds.hh"
 
 // #include "coot-compare-residues.hh"
 

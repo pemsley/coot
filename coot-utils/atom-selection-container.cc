@@ -91,8 +91,8 @@ atom_selection_container_t::clear_up() {
 
    if (read_success)
       if (SelectionHandle)
-	 if (mol)
-	    mol->DeleteSelection(SelectionHandle);
+         if (mol)
+            mol->DeleteSelection(SelectionHandle);
    delete mol;
    atom_selection = 0;
    mol = 0;
@@ -1039,18 +1039,18 @@ atom_selection_container_t read_standard_residues() {
       struct stat buf;
       int status = stat(standard_file_name.c_str(), &buf);
       if (status != 0) { // standard-residues file was not found in
-			 // default location either...
-	 std::cout << "WARNING: environment variable for standard residues ";
-	 std::cout << standard_env_dir << "\n";
-	 std::cout << "         is not set.";
-	 std::cout << " Mutations will not be possible\n";
-	 // mark as not read then:
-	 standard_residues_asc.read_success = 0;
-	 // std::cout << "DEBUG:: standard_residues_asc marked as
-	 // empty" << std::endl;
+                         // default location either...
+         std::cout << "WARNING: environment variable for standard residues ";
+         std::cout << standard_env_dir << "\n";
+         std::cout << "         is not set.";
+         std::cout << " Mutations will not be possible\n";
+         // mark as not read then:
+         standard_residues_asc.read_success = 0;
+         // std::cout << "DEBUG:: standard_residues_asc marked as
+         // empty" << std::endl;
       } else {
-	 // stat success:
-	 standard_residues_asc = get_atom_selection(standard_file_name, false, true, false);
+         // stat success:
+         standard_residues_asc = get_atom_selection(standard_file_name, false, true, false);
       }
    } else {
       standard_residues_asc = get_atom_selection(filename, false, true, false);

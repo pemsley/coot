@@ -38,8 +38,9 @@
 #include "coot-utils/oct.hh"
 #include "coot-utils/read-sm-cif.hh"
 
-#include "coords/Bond_lines.h"
+#include "coords/Bond_lines.hh"
 #include "coords/mmdb.hh"
+#include "coords/mmdb-extras.hh"
 
 #include "utils/logging.hh"
 extern logging logger;
@@ -103,6 +104,9 @@ molecules_container_t::init() {
    ligand_water_sigma_cut_off = 1.75; // max moorhen points for tutorial 1.
 
    // debug();
+   //
+   size_t sss = sizeof(molecules_container_t);
+   std::cout << "::::::::::::::::: sizeof molecules_container_t " << sss << std::endl;
 }
 
 
@@ -851,7 +855,7 @@ molecules_container_t::import_cif_dictionary(const std::string &cif_file_name, i
                                                                  cif_dictionary_read_number, imol_enc);
    cif_dictionary_read_number++;
 
-   if (true)
+   if (false)
       std::cout << "debug:: import_cif_dictionary() cif_file_name: " << cif_file_name
                 << " for imol_enc " << imol_enc << " success " << r.success << " with "
                 << r.n_atoms << " atoms " << r.n_bonds << " bonds " << r.n_links << " links"
@@ -1686,23 +1690,50 @@ molecules_container_t::get_residue(int imol, const coot::residue_spec_t &residue
 mmdb::Atom *
 molecules_container_t::get_atom_using_cid(int imol, const std::string &cid) const {
 
-   mmdb::Atom *at = nullptr;
+   mmdb::Atom *at_p = nullptr;
    if (is_valid_model_molecule(imol)) {
       std::pair<bool, coot::atom_spec_t> p = molecules[imol].cid_to_atom_spec(cid);
-      if (p.first)
-         at = molecules[imol].get_atom(p.second);
+      if (p.first) {
+         mmdb::Atom *at_m = molecules[imol].get_atom(p.second);
+         if (at_m) {
+            at_p = new mmdb::Atom;
+            at_p->Copy(at_m);
+         }
+      }
    }
-   return at;
+   return at_p; // maybe a memory leak?
 }
 
 // returns either the specified residue or null if not found
 mmdb::Residue *
 molecules_container_t::get_residue_using_cid(int imol, const std::string &cid) const {
+
+   auto deep_copy_residue_local = [] (mmdb::Residue *residue) {
+
+      mmdb::Residue *rres = new mmdb::Residue;
+      rres->SetResID(residue->GetResName(), residue->GetSeqNum(), residue->GetInsCode());
+
+      mmdb::PPAtom residue_atoms;
+      int nResidueAtoms;
+      residue->GetAtomTable(residue_atoms, nResidueAtoms);
+      for(int iat=0; iat<nResidueAtoms; iat++) {
+         mmdb::Atom *atom_p = new mmdb::Atom;
+         atom_p->Copy(residue_atoms[iat]);
+         rres->AddAtom(atom_p);
+      }
+      return rres;
+   };
+
    mmdb::Residue *residue_p = nullptr;
+
    if (is_valid_model_molecule(imol)) {
       std::pair<bool, coot::residue_spec_t> p = molecules[imol].cid_to_residue_spec(cid);
-      if (p.first)
-         residue_p = molecules[imol].get_residue(p.second);
+      if (p.first) {
+         mmdb::Residue *rr = molecules[imol].get_residue(p.second);
+         if (rr) {
+            residue_p = deep_copy_residue_local(rr);
+         }
+      }
    }
    return residue_p;
 }
@@ -2862,7 +2893,7 @@ molecules_container_t::refine_residues_using_atom_cid(int imol, const std::strin
          // status = refine_residues(imol, spec.chain_id, spec.res_no, spec.ins_code, spec.alt_conf, mode, n_cycles);
          std::vector<mmdb::Residue *> rv = molecules[imol].select_residues(cid, mode);
 
-         debug_selected_residues(rv);
+         // debug_selected_residues(rv);
          std::string alt_conf = "";
          status = refine_direct(imol, rv, alt_conf, n_cycles);
          set_updating_maps_need_an_update(imol);
@@ -2967,7 +2998,6 @@ molecules_container_t::find_serial_number_for_insert(int seqnum_new,
 }
 
 
-#include "coords/mmdb-extras.h"
 
 std::pair<mmdb::Manager *, std::vector<mmdb::Residue *> >
 molecules_container_t::create_mmdbmanager_from_res_vector(const std::vector<mmdb::Residue *> &residues,
@@ -3868,30 +3898,36 @@ molecules_container_t::add_waters(int imol_model, int imol_map) {
          coot::ligand lig;
          int n_cycles = ligand_water_n_cycles; // 3 by default
 
-         // n_cycles = 1; // for debugging.
+         try {
+            // n_cycles = 1; // for debugging.
+            short int mask_waters_flag; // treat waters like other atoms?
+            // mask_waters_flag = g.find_ligand_mask_waters_flag;
+            mask_waters_flag = 1; // when looking for waters we should not
+            // ignore the waters that already exist.
+            // short int do_flood_flag = 0;    // don't flood fill the map with waters for now.
 
-         short int mask_waters_flag; // treat waters like other atoms?
-         // mask_waters_flag = g.find_ligand_mask_waters_flag;
-         mask_waters_flag = 1; // when looking for waters we should not
-         // ignore the waters that already exist.
-         // short int do_flood_flag = 0;    // don't flood fill the map with waters for now.
+            lig.import_map_from(molecules[imol_map].xmap, molecules[imol_map].get_map_rmsd_approx());
+            // lig.set_masked_map_value(-2.0); // sigma level of masked map gets distorted
+            lig.set_map_atom_mask_radius(1.9); // Angstroms
+            lig.set_water_to_protein_distance_limits(ligand_water_to_protein_distance_lim_max,
+                                                     ligand_water_to_protein_distance_lim_min);
+            lig.set_variance_limit(ligand_water_variance_limit);
+            lig.mask_map(molecules[imol_model].atom_sel.mol, mask_waters_flag);
+            // lig.output_map("masked-for-waters.map");
+            // std::cout << "debug:: add_waters(): using n-sigma cut off " << ligand_water_sigma_cut_off << std::endl;
+            logger.log(log_t::DEBUG, logging::function_name_t("add_waters"),
+                       "using n-sigma cut-ff ", ligand_water_sigma_cut_off);
 
-         lig.import_map_from(molecules[imol_map].xmap, molecules[imol_map].get_map_rmsd_approx());
-         // lig.set_masked_map_value(-2.0); // sigma level of masked map gets distorted
-         lig.set_map_atom_mask_radius(1.9); // Angstroms
-         lig.set_water_to_protein_distance_limits(ligand_water_to_protein_distance_lim_max,
-                                                  ligand_water_to_protein_distance_lim_min);
-         lig.set_variance_limit(ligand_water_variance_limit);
-         lig.mask_map(molecules[imol_model].atom_sel.mol, mask_waters_flag);
-         // lig.output_map("masked-for-waters.map");
-         std::cout << "debug:: add_waters(): using n-sigma cut off " << ligand_water_sigma_cut_off << std::endl;
+            lig.water_fit(ligand_water_sigma_cut_off, n_cycles);
 
-         lig.water_fit(ligand_water_sigma_cut_off, n_cycles);
-
-         coot::minimol::molecule water_mol = lig.water_mol();
-         molecules[imol_model].insert_waters_into_molecule(water_mol, "HOH");
-         n_waters_added = water_mol.count_atoms();
-         set_updating_maps_need_an_update(imol_model);
+            coot::minimol::molecule water_mol = lig.water_mol();
+            molecules[imol_model].insert_waters_into_molecule(water_mol, "HOH");
+            n_waters_added = water_mol.count_atoms();
+            set_updating_maps_need_an_update(imol_model);
+         }
+         catch (const std::bad_alloc &e) {
+            std::cout << "WARNING::" << e.what() << std::endl;
+         }
       }
    }
    return n_waters_added;
@@ -4272,6 +4308,31 @@ molecules_container_t::get_non_standard_residues_in_molecule(int imol) const {
    }
    return v;
 }
+
+
+//! Try to read the dictionaries for any residue type in imol that as yet does not have
+//! a dictionary
+//!
+//! @param imol is the model molecule index
+//! @return true if there were no dictionary for new types that couldn't be read.
+bool
+molecules_container_t::try_read_dictionaries_for_new_residue_types(int imol) {
+
+   bool status = true;
+   std::vector<std::string> v = get_residue_names_with_no_dictionary(imol);
+   if (v.empty()) {
+      return true;
+   } else {
+      int read_number = 50;
+      int imol_enc_any = get_imol_enc_any();
+      for (const auto &rn : v) {
+         int ss = geom.check_and_try_dynamic_add(rn, imol_enc_any, read_number);
+         read_number++;
+      }
+   }
+   return status;
+}
+
 
 
 coot::simple_mesh_t
@@ -5210,14 +5271,16 @@ molecules_container_t::get_map_histogram(int imol, unsigned int n_bins, float zo
 
 
 //! read extra restraints (e.g. from ProSMART)
-void
+int
 molecules_container_t::read_extra_restraints(int imol, const std::string &file_name) {
 
+   int n = -1;
    if (is_valid_model_molecule(imol)) {
-      molecules[imol].read_extra_restraints(file_name);
+      n = molecules[imol].read_extra_restraints(file_name);
    } else {
       std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
-  }
+   }
+   return n;
 }
 
 
@@ -5945,6 +6008,26 @@ molecules_container_t::get_overlaps(int imol) {
    }
    return v;
 }
+
+//! Get the atom overlap score
+//!
+//! @param imol the model molecule index
+//! @return the overlap score - a negative number indicates failure
+float
+molecules_container_t::get_atom_overlap_score(int imol) {
+
+   float v = -1.0;
+   if (is_valid_model_molecule(imol)) {
+      v = molecules[imol].get_atom_overlap_score(&geom);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+
+   return v;
+
+}
+
+
 
 //! not const because it can dynamically add dictionaries
 std::vector<coot::plain_atom_overlap_t>

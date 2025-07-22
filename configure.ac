@@ -84,9 +84,11 @@ AX_CXX_HAVE_THREAD
 
 # AX_CXX_COMPILE_STDCXX_11 sets HAVE_CXX11=1 (hopefully)
 if test $HAVE_CXX11 = 1 ; then
-   CXXFLAGS="$CXXFLAGS -std=c++17"
+   # C++20 is required by newest versions of RDKit (since March 2025)
+   # Coot itself should compile with C++17
+   CXXFLAGS="$CXXFLAGS -std=c++20"
 else
-   echo we can\'t compile coot then
+   echo We can\'t compile Coot without C++17 \(C++20 ideally\)
 fi
 
 AC_LIB_PREPARE_MULTILIB

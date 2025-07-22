@@ -138,7 +138,7 @@ coot::util::slurp_fill_xmap_from_map_file(const std::string &file_name,
 
       if (is_gzip) {
          // This can fail (at the moment) if the axes are not in X,Y,Z order.
-	 // Also, this returns false when there is PANDDA:: in the header.
+         // Also, this returns false when there is PANDDA:: in the header.
          status = slurp_fill_xmap_from_gz_map_file(file_name, xmap_p, check_only);
       } else {
          struct stat s;
@@ -338,16 +338,16 @@ coot::util::slurp_parse_xmap_data(char *data,
       std::cout << "label length " << s.length() << std::endl;
       if (s.length() >= 8) {
          if (s.substr(0,8) == "PANDDA::") {
-	    std::cout << "debug:: slurp_parse_xmap_data() found a PANDDA::!" << std::endl;
+            std::cout << "debug:: slurp_parse_xmap_data() found a PANDDA::!" << std::endl;
             return slurp_map_result_t::NOT_AN_EM_MAP;
-	 } else {
-	    std::cout << "debug:: " << s << " does not start with PANDDA::" << std::endl;
-	    if (s.length() >= 16) {
-	       if (s.substr(0,16) == "APPLY-SYMMETRY::") {
+         } else {
+            std::cout << "debug:: " << s << " does not start with PANDDA::" << std::endl;
+            if (s.length() >= 16) {
+               if (s.substr(0,16) == "APPLY-SYMMETRY::") {
                   return slurp_map_result_t::NOT_AN_EM_MAP;
-	       }
-	    }
-	 }
+               }
+            }
+         }
       }
    }
 
@@ -564,9 +564,9 @@ coot::util::map_labels_contain_PANDDA(const std::string &file_name) {
    for (const auto &s : v) {
       if (s.length() >= 8) {
          if (s.substr(0,8) == "PANDDA::") {
-	    status = true;
-	    break;
-	 }
+            status = true;
+            break;
+         }
       }
    }
    return status;
@@ -590,9 +590,9 @@ coot::util::get_map_labels(const std::string &file_name) {
       n_rows = *reinterpret_cast<int *>(data+4);
       n_secs = *reinterpret_cast<int *>(data+8);
       if (debug) {
-	 std::cout << "debug:: n_cols " << n_cols << std::endl;
-	 std::cout << "debug:: n_rows " << n_rows << std::endl;
-	 std::cout << "debug:: n_sections " << n_secs << std::endl;
+         std::cout << "debug:: n_cols " << n_cols << std::endl;
+         std::cout << "debug:: n_rows " << n_rows << std::endl;
+         std::cout << "debug:: n_sections " << n_secs << std::endl;
       }
 
       int mode = -1;
@@ -602,7 +602,7 @@ coot::util::get_map_labels(const std::string &file_name) {
       if (mode == 1) data_size = 2;
       if (mode == 6) data_size = 2; // two-byte integer. Needs fixing in the casting.
       if (debug)
-	 std::cout << "debug:: slurp_parse_get_labels() mode: " << mode << std::endl;
+         std::cout << "debug:: slurp_parse_get_labels() mode: " << mode << std::endl;
 
       int nx_start = -1, ny_start = -1, nz_start = -1;
       int mx = -1, my = -1, mz = -1;
@@ -614,8 +614,8 @@ coot::util::get_map_labels(const std::string &file_name) {
       mz = *reinterpret_cast<int *>(data+36);
 
       if (debug)
-	 std::cout << "debug:: start and range " << nx_start << " " << ny_start << " " << nz_start
-		   << " range " << mx << " " << my << " " << mz << std::endl;
+         std::cout << "debug:: start and range " << nx_start << " " << ny_start << " " << nz_start
+                   << " range " << mx << " " << my << " " << mz << std::endl;
       float cell_a = 0, cell_b = 0, cell_c = 0;
       float cell_al = 0, cell_be = 0, cell_ga = 0;
       int map_row = -1, map_col = -1, map_sec = -1;
@@ -628,8 +628,8 @@ coot::util::get_map_labels(const std::string &file_name) {
       cell_ga = *reinterpret_cast<float *>(data+60);
 
       if (debug)
-	 std::cout << "debug:: cell " << cell_a << " " << cell_b << " " << cell_c << " "
-		   << cell_al << " " << cell_be << " " << cell_ga << std::endl;
+         std::cout << "debug:: cell " << cell_a << " " << cell_b << " " << cell_c << " "
+                   << cell_al << " " << cell_be << " " << cell_ga << std::endl;
 
       // axis order
       map_row = *reinterpret_cast<int *>(data+64);
@@ -641,15 +641,15 @@ coot::util::get_map_labels(const std::string &file_name) {
       axis_order_xyz[map_sec-1] = 2;
 
       if (debug)
-	 std::cout << "debug:: axis order " << map_row << " " << map_col << " " << map_sec << std::endl;
+         std::cout << "debug:: axis order " << map_row << " " << map_col << " " << map_sec << std::endl;
 
       // At the moment this function only works with simple X Y Z map ordering.
       // So escape with fail status if that is not the case
       bool is_simple_x_y_z_order = false; // initially
       if (map_row == 1)
-	 if (map_col == 2)
-	    if (map_sec == 3)
-	       is_simple_x_y_z_order = true;
+         if (map_col == 2)
+            if (map_sec == 3)
+               is_simple_x_y_z_order = true;
 
       float dmin = 0.0, dmax = 0.0, dmean = 0.0;
       dmax  = *reinterpret_cast<float *>(data+76);
@@ -658,7 +658,7 @@ coot::util::get_map_labels(const std::string &file_name) {
       int space_group_number = -1;
       space_group_number = *reinterpret_cast<int *>(data+88);
       if (space_group_number == 0) // EM, maybe chimera maps
-	 space_group_number = 1;
+         space_group_number = 1;
       int size_extended_header = 0;
       size_extended_header = *reinterpret_cast<int *>(data+92);
       char *extra = data+96; // 100 bytes max
@@ -671,7 +671,7 @@ coot::util::get_map_labels(const std::string &file_name) {
       origin_c = *reinterpret_cast<float *>(data+204);
 
       if (debug)
-	 std::cout << "origin " << origin_a << " " << origin_b << " " << origin_c << std::endl;
+         std::cout << "origin " << origin_a << " " << origin_b << " " << origin_c << std::endl;
 
       char *type = data+208; // 4 bytes "MAP "
       int machine_stamp = *reinterpret_cast<int *>(data+212);
@@ -681,9 +681,9 @@ coot::util::get_map_labels(const std::string &file_name) {
       char *labels = data+224;
 
       for(int i=0; i<number_of_labels; i++) {
-	 char *label = labels + i * 80;
-	 std::string s(label, 0, 80);
-	 v.push_back(s);
+         char *label = labels + i * 80;
+         std::string s(label, 0, 80);
+         v.push_back(s);
       }
       return v;
    };
@@ -695,21 +695,21 @@ coot::util::get_map_labels(const std::string &file_name) {
       off_t st_size = s.st_size;
       std::cout << "get_map_labels(): st_size: " << st_size << std::endl;
       try {
-	 // 20231006-PE as it used to be.
-	 char *space = new char[st_size+1];
-	 // Happy Path
-	 size_t st_size_2 = fread(space, st_size, 1, fptr);
-	 char *data = static_cast<char *>(space);
-	 fclose(fptr);
-	 if (st_size_2 == 1) {
-	    // Happy Path
-	    if (st_size > 1024) {
-	       v = slurp_parse_get_labels(data);
-	    }
-	 }
+         // 20231006-PE as it used to be.
+         char *space = new char[st_size+1];
+         // Happy Path
+         size_t st_size_2 = fread(space, st_size, 1, fptr);
+         char *data = static_cast<char *>(space);
+         fclose(fptr);
+         if (st_size_2 == 1) {
+            // Happy Path
+            if (st_size > 1024) {
+               v = slurp_parse_get_labels(data);
+            }
+         }
       }
       catch (const std::bad_alloc &e) {
-	 std::cout << "WARNING:: out-of-memory " << st_size+1 << " " << e.what() << std::endl;
+         std::cout << "WARNING:: out-of-memory " << st_size+1 << " " << e.what() << std::endl;
       }
    }
    return v;

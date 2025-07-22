@@ -45,8 +45,8 @@
 #include "coot-utils/texture-as-floats.hh"
 #include "coot-utils/coot-align.hh"
 #include "geometry/residue-and-atom-specs.hh"
-#include "coords/Cartesian.h"
-#include "coords/Bond_lines.h"
+#include "coords/Cartesian.hh"
+#include "coords/Bond_lines.hh"
 #include "ideal/simple-restraint.hh"
 #include "ideal/extra-restraints.hh"
 #include "coot-utils/simple-mesh.hh"
@@ -62,7 +62,7 @@
 
 #include "coot-colour.hh" // put this in utils
 
-#include "coords/mmdb-extras.h"
+#include "coords/mmdb-extras.hh"
 #include "merge-molecule-results-info-t.hh"
 #include "phi-psi-prob.hh"
 
@@ -889,6 +889,8 @@ namespace coot {
 
       std::vector<residue_spec_t> get_non_standard_residues_in_molecule() const;
 
+      std::vector<std::string> get_residue_types_without_dictionaries(const protein_geometry &geom) const;
+
       //! @return the instanced mesh for the specified ligand
       instanced_mesh_t contact_dots_for_ligand(const std::string &cid, const protein_geometry &geom,
                                                unsigned int num_subdivisions) const;
@@ -960,6 +962,9 @@ namespace coot {
 
       //! not const because it can dynamically add dictionaries
       std::vector<plain_atom_overlap_t> get_overlaps(protein_geometry *geom_p);
+
+      //! get the atom overlap
+      float get_atom_overlap_score(protein_geometry *geom_p) const;
 
       //! not const because it can dynamically add dictionaries
       std::vector<plain_atom_overlap_t> get_overlaps_for_ligand(const std::string &cid_ligand,
@@ -1266,7 +1271,7 @@ namespace coot {
       coot::extra_restraints_t extra_restraints;
 
       //! read extra restraints (e.g. from ProSMART)
-      void read_extra_restraints(const std::string &file_name);
+      int read_extra_restraints(const std::string &file_name);
       //! refinement tool
       std::vector<mmdb::Residue *> select_residues(const residue_spec_t &spec, const std::string &mode) const;
       //! resno_start and resno_end are inclusive

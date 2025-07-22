@@ -25,14 +25,15 @@
 #include <iomanip>
 #include <fstream>
 
-#include <mmdb2/mmdb_manager.h>
-#include "coords/mmdb-extras.h"
-#include "coords/Cartesian.h"
-#include "coords/mmdb-crystal.h"
-#include "molecule-class-info.h"
+#include <clipper/ccp4/ccp4_mtz_io.h>
+#include <clipper/cns/cns_map_io.h>
 
-#include "clipper/ccp4/ccp4_mtz_io.h"
-#include "clipper/cns/cns_map_io.h"
+#include <mmdb2/mmdb_manager.h>
+
+#include "coords/mmdb-extras.hh"
+#include "coords/Cartesian.hh"
+#include "coords/mmdb-crystal.hh"
+#include "molecule-class-info.h"
 
 
 

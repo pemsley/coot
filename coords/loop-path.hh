@@ -28,7 +28,7 @@
 #define LOOP_PATH_HH
 #include <mmdb2/mmdb_manager.h>
 
-#include "Cartesian.h"
+#include "Cartesian.hh"
 
 namespace coot {
 

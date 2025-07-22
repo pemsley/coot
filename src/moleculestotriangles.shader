@@ -43,6 +43,7 @@ uniform mat4 mvp;
 out vec4 colour_transfer;
 out vec3 normal_transfer;
 out vec3 frag_pos_transfer;
+out mat3 model_rotation_transfer;
 
 void main() {
    vec4 n = vec4(normal, 1.0);
@@ -50,6 +51,7 @@ void main() {
    normal_transfer = normalize(normal); // probably the normalize() here is not needed
    colour_transfer = colour;
    frag_pos_transfer = position;
+   model_rotation_transfer = mat3(mvp);
 }
 
 
@@ -81,19 +83,27 @@ uniform LightSource light_sources[2];
 uniform vec3 eye_position;
 uniform vec4 background_colour;
 uniform bool do_depth_fog;
+uniform bool do_specular;
+uniform float opacity;
+uniform bool show_shadows;
+uniform sampler2D shadow_map;
+
+struct Material {
+   vec4 ambient;
+   vec4 diffuse;
+   vec4 specular;
+   float shininess;
+   float specular_strength;
+};
+uniform Material material;
 
 in vec4 colour_transfer;
 in vec3 normal_transfer;
 in vec3 frag_pos_transfer;
+in mat3 model_rotation_transfer;
 
 out vec4 outputColor;
 
-struct Material {
-   float shininess;
-   float specular_strength;
-   vec4 specular;
-};
-uniform Material material;
 
 float get_fog_amount(float depth_in) {
 
@@ -117,6 +127,7 @@ void main() {
    float shininess = material.shininess;
 
    for (int i=0; i<2; i++) {
+      // if (i > 0) continue;
       if (light_sources[i].is_on) {
          vec3 light_dir = light_sources[i].direction_in_molecule_coordinates_space;
          float dp = dot(normal_transfer, light_dir);
@@ -125,18 +136,17 @@ void main() {
             specular_strength = 0.0;
          dp = clamp(dp, 0.1, 1.0); // no negative dot products for diffuse
 
-         // why don't I use the light source?
-         vec4 lsa = vec4(0.4, 0.4, 0.4, 1.0);
-         vec4 lsd = vec4(0.6, 0.6, 0.6, 1.0);
-         vec4 ambient = colour_transfer * lsa * 0.1;
-         vec4 diffuse = colour_transfer * lsd * dp * 0.8;
+         vec4 lsa = light_sources[i].ambient;
+         vec4 lsd = light_sources[i].diffuse;
+         vec4 ambient = colour_transfer * lsa * 0.1; // I scale this down here - it's bright. why?
+         vec4 diffuse = colour_transfer * lsd * dp;
 
          // specular
-         vec3 eye_pos = eye_position;
-         vec3 norm_2 = normalize(normal_transfer); // not needed, I think
+         vec3 eye_pos = eye_position * transpose(model_rotation_transfer);
+         vec3 norm_2 = normal_transfer; // normalize(normal_transfer); // not needed, I think
          vec3 view_dir = normalize(eye_pos - frag_pos_transfer);
-         vec3 reflect_dir = reflect(-light_dir, norm_2);
-         reflect_dir = normalize(reflect_dir); // belt and braces
+         vec3 reflect_dir = reflect(light_dir, norm_2);
+         // reflect_dir = normalize(reflect_dir); // belt and braces
          float dp_view_reflect = dot(view_dir, reflect_dir);
          dp_view_reflect = clamp(dp_view_reflect, 0.0, 1.0);
          float spec = pow(dp_view_reflect, shininess);
@@ -155,5 +165,9 @@ void main() {
       fog_amount = get_fog_amount(gl_FragCoord.z);
    outputColor += mix(sum_col, bg_col, fog_amount);
 
-}
+   // outputColor.a = 0.1;
 
+   if (show_shadows)
+      outputColor = vec4(0.7, 0.2, 0.1, 0.2);
+
+}

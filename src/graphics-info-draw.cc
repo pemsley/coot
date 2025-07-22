@@ -1861,7 +1861,7 @@ graphics_info_t::draw_molecules() {
 
    draw_atom_pull_restraints();
 
-   draw_meshed_generic_display_object_meshes(PASS_TYPE_STANDARD);
+   // return; // no draw
 
    draw_molecules_other_meshes(PASS_TYPE_STANDARD);
 
@@ -1872,8 +1872,6 @@ graphics_info_t::draw_molecules() {
    draw_unit_cells();
 
    draw_environment_graphics_object();
-
-   draw_generic_objects(PASS_TYPE_STANDARD);
 
    draw_hydrogen_bonds_mesh(); // like boids
 
@@ -1898,6 +1896,11 @@ graphics_info_t::draw_molecules() {
    // transparent things...
 
    draw_map_molecules(true); // transparent
+
+   draw_generic_objects(PASS_TYPE_STANDARD);
+
+   // moved down
+   draw_meshed_generic_display_object_meshes(PASS_TYPE_STANDARD);
 
 }
 
@@ -2268,6 +2271,8 @@ graphics_info_t::draw_unit_cells() {
 void
 graphics_info_t::draw_meshed_generic_display_object_meshes(unsigned int pass_type) {
 
+   // non-instanced.
+
    // std::cout << "draw_meshed_generic_display_object_meshes() with pass_type " << pass_type << std::endl;
 
    auto have_generic_display_objects_to_draw = [] () {
@@ -2284,15 +2289,19 @@ graphics_info_t::draw_meshed_generic_display_object_meshes(unsigned int pass_typ
    };
 
    if (pass_type == PASS_TYPE_STANDARD) {
+
+      glEnable(GL_BLEND); // 20250714-PE
       if (have_generic_display_objects_to_draw()) {
          glm::mat4 model_rotation = get_model_rotation();
          glm::mat4 mvp = get_molecule_mvp();
          glm::vec4 bg_col(background_colour, 1.0);
          bool wireframe_mode = false;
-         float opacity = 1.0f;
+         float opacity = 0.5;
          auto ccrc = RotationCentre();
          glm::vec3 rc(ccrc.x(), ccrc.y(), ccrc.z());
          for (unsigned int i=0; i<generic_display_objects.size(); i++) {
+            if (false)
+               std::cout << "drawing i " << i << std::endl;
             generic_display_objects[i].mesh.draw(&shader_for_moleculestotriangles,
                                                  mvp, model_rotation, lights, eye_position, rc, opacity,
                                                  bg_col, wireframe_mode, false, show_just_shadows);
@@ -3175,6 +3184,26 @@ graphics_info_t::draw_hud_buttons() {
       }
    }
 }
+
+void
+graphics_info_t::setup_draw_for_translation_gizmo() {
+
+   attach_buffers();
+
+   size_t s = translation_gizmo.mesh.vertices.size();
+   std::vector<s_generic_vertex> cv(s); //  conveted vertices
+   for (unsigned int i=0; i<cv.size(); i++) {
+      cv[i].pos    = translation_gizmo.mesh.vertices[i].pos;
+      cv[i].normal = translation_gizmo.mesh.vertices[i].normal;
+      cv[i].color  = translation_gizmo.mesh.vertices[i].color;
+   }
+   translation_gizmo_mesh.clear(); // so that we don't add to the mesh!
+   translation_gizmo_mesh.import(cv, translation_gizmo.mesh.triangles);
+   translation_gizmo_mesh.setup_buffers();
+   translation_gizmo_mesh.set_draw_this_mesh(true); // for debugging
+
+}
+
 
 void
 graphics_info_t::clear_gl_rama_plot() {
@@ -4479,6 +4508,8 @@ graphics_info_t::render_3d_scene(GtkGLArea *gl_area) {
    draw_extra_distance_restraints(PASS_TYPE_STANDARD); // GM_restraints
 
    draw_pointer_distances_objects();
+
+   draw_translation_gizmo(); // maybe rotation gizmo too, later.
 
    draw_texture_meshes();
 
@@ -6056,6 +6087,43 @@ graphics_info_t::draw_pointer_distances_objects() {
 }
 
 void
+graphics_info_t::draw_translation_gizmo() { // maybe rotation gizmo too, later.
+
+   if (translation_gizmo_mesh.get_draw_this_mesh()) {
+      bool do_it = false;
+      int tgagdo_num = translation_gizmo.attached_to_generic_display_object_number;
+      int tgam_num   = translation_gizmo.attached_to_molecule_number;
+      if (tgagdo_num != translation_gizmo_t::UNATTACHED)
+         if (tgagdo_num >= 0)
+            if (tgagdo_num < int(generic_display_objects.size()))
+               if (generic_display_objects[tgagdo_num].mesh.get_draw_this_mesh())
+                  do_it = true;
+      if (is_valid_model_molecule(tgam_num))
+         if (molecules[tgagdo_num].get_mol_is_displayed())
+            do_it = true;
+      if (is_valid_map_molecule(tgam_num))
+         if (molecules[tgagdo_num].is_displayed_p())
+            do_it = true;
+      if (do_it) {
+         Shader &shader = shader_for_moleculestotriangles;
+         glm::mat4 mvp = get_molecule_mvp();
+         glm::mat4 model_rotation_matrix = get_model_rotation();
+         glm::vec4 bg_col(background_colour, 1.0);
+         bool show_just_shadows = false;
+         bool wireframe_mode = false;
+         float opacity = 1.0f;
+         auto ccrc = RotationCentre();
+         glm::vec3 rc(ccrc.x(), ccrc.y(), ccrc.z());
+         translation_gizmo_mesh.draw(&shader, mvp, model_rotation_matrix, lights, eye_position, rc, opacity,
+                                     bg_col, wireframe_mode, shader_do_depth_fog_flag, show_just_shadows);
+      }
+   }
+
+}
+
+
+
+void
 graphics_info_t::make_extra_distance_restraints_objects() {
 
    // c.f. update_hydrogen_bond_mesh().
@@ -6346,6 +6414,141 @@ void keypad_translate_xyz(short int axis, short int direction) {
 
 
 #include "rsr-functions.hh"
+
+// static
+void
+graphics_info_t::print_key_bindings() {
+
+   std::vector<std::pair<std::string, int>> v = {
+      std::make_pair("0", 0x030),
+      std::make_pair("1", 0x031),
+      std::make_pair("2", 0x032),
+      std::make_pair("3", 0x033),
+      std::make_pair("4", 0x034),
+      std::make_pair("5", 0x035),
+      std::make_pair("6", 0x036),
+      std::make_pair("7", 0x037),
+      std::make_pair("8", 0x038),
+      std::make_pair("9", 0x039),
+      std::make_pair("colon",     0x03a),
+      std::make_pair("semicolon", 0x03b),
+      std::make_pair("less",      0x03c),
+      std::make_pair("equal",     0x03d),
+      std::make_pair("greater",   0x03e),
+      std::make_pair("question",  0x03f),
+      std::make_pair("minus",    GDK_KEY_minus),
+      std::make_pair("plus",    GDK_KEY_plus),
+      std::make_pair("at", 0x040),
+      std::make_pair("A", 0x041),
+      std::make_pair("B", 0x042),
+      std::make_pair("C", 0x043),
+      std::make_pair("D", 0x044),
+      std::make_pair("E", 0x045),
+      std::make_pair("F", 0x046),
+      std::make_pair("G", 0x047),
+      std::make_pair("H", 0x048),
+      std::make_pair("I", 0x049),
+      std::make_pair("J", 0x04a),
+      std::make_pair("K", 0x04b),
+      std::make_pair("L", 0x04c),
+      std::make_pair("M", 0x04d),
+      std::make_pair("N", 0x04e),
+      std::make_pair("O", 0x04f),
+      std::make_pair("P", 0x050),
+      std::make_pair("Q", 0x051),
+      std::make_pair("R", 0x052),
+      std::make_pair("S", 0x053),
+      std::make_pair("T", 0x054),
+      std::make_pair("U", 0x055),
+      std::make_pair("V", 0x056),
+      std::make_pair("W", 0x057),
+      std::make_pair("X", 0x058),
+      std::make_pair("Y", 0x059),
+      std::make_pair("Z", 0x05a),
+      std::make_pair("bracketleft",  0x05b),
+      std::make_pair("backslash",    0x05c),
+      std::make_pair("bracketright", 0x05d),
+      std::make_pair("asciicircum",  0x05e),
+      std::make_pair("underscore",   0x05f),
+      std::make_pair("grave",        0x060),
+      std::make_pair("quoteleft",    0x060),
+      std::make_pair("a", 0x061),
+      std::make_pair("b", 0x062),
+      std::make_pair("c", 0x063),
+      std::make_pair("d", 0x064),
+      std::make_pair("e", 0x065),
+      std::make_pair("f", 0x066),
+      std::make_pair("g", 0x067),
+      std::make_pair("h", 0x068),
+      std::make_pair("i", 0x069),
+      std::make_pair("j", 0x06a),
+      std::make_pair("k", 0x06b),
+      std::make_pair("l", 0x06c),
+      std::make_pair("m", 0x06d),
+      std::make_pair("n", 0x06e),
+      std::make_pair("o", 0x06f),
+      std::make_pair("p", 0x070),
+      std::make_pair("q", 0x071),
+      std::make_pair("r", 0x072),
+      std::make_pair("s", 0x073),
+      std::make_pair("t", 0x074),
+      std::make_pair("u", 0x075),
+      std::make_pair("v", 0x076),
+      std::make_pair("w", 0x077),
+      std::make_pair("x", 0x078),
+      std::make_pair("y", 0x079),
+      std::make_pair("z", 0x07a),
+      std::make_pair("KP_0", 0xffb0),
+      std::make_pair("KP_1", 0xffb1),
+      std::make_pair("KP_2", 0xffb2),
+      std::make_pair("KP_3", 0xffb3),
+      std::make_pair("KP_4", 0xffb4),
+      std::make_pair("KP_5", 0xffb5),
+      std::make_pair("KP_6", 0xffb6),
+      std::make_pair("KP_7", 0xffb7),
+      std::make_pair("KP_8", 0xffb8),
+      std::make_pair("KP_9", 0xffb9),
+      std::make_pair("F1",  0xffbe),
+      std::make_pair("F2",  0xffbf),
+      std::make_pair("F3",  0xffc0),
+      std::make_pair("F4",  0xffc1),
+      std::make_pair("F5",  0xffc2),
+      std::make_pair("F6",  0xffc3),
+      std::make_pair("F7" , 0xffc4),
+      std::make_pair("F8",  0xffc5),
+      std::make_pair("F9",  0xffc6),
+      std::make_pair("F10", 0xffc7),
+      std::make_pair("F11", 0xffc8),
+      std::make_pair("L1",  0xffc8),
+      std::make_pair("F12", 0xffc9),
+      std::make_pair("L2",  0xffc9),
+      std::make_pair("Escape",  GDK_KEY_Escape),
+      std::make_pair("Return",  GDK_KEY_Return),
+      std::make_pair("Left",    GDK_KEY_Left),
+      std::make_pair("Right",   GDK_KEY_Right),
+      std::make_pair("Up",      GDK_KEY_Up),
+      std::make_pair("Down",    GDK_KEY_Down),
+};
+
+   // std::map<keyboard_key_t, key_bindings_t> key_bindings_map;
+
+   for (const auto &kb : key_bindings_map) {
+      std::string key_string = "gdk-symbol-" + std::to_string(kb.first.gdk_key);
+      for (unsigned int ii=0; ii<v.size(); ii++) {
+         if (v[ii].second == kb.first.gdk_key) {
+            key_string = v[ii].first;
+            break;
+         }
+      }
+      std::string ctrl_string = "    ";
+      if (kb.first.ctrl_is_pressed) ctrl_string = "Ctrl";
+      std::cout << "binding: "
+                << ctrl_string << " " << std::setw(5) << key_string
+                << "  ->  " << std::setw(16) << std::left << kb.second.description
+                << " " << key_bindings_t::type_to_string(kb.second.type)
+                << std::endl;
+   }
+}
 
 void
 graphics_info_t::setup_key_bindings() {

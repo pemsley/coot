@@ -57,7 +57,7 @@
 
 #include "clipper/core/xmap.h"
 
-#include "coords/Cartesian.h"
+#include "coords/Cartesian.hh"
 #include "ccp4mg-utils/mgtree.h"
 
 #include "pick.hh" // 20220723-PE no picking for WebAssembly build
@@ -153,6 +153,7 @@
 #include "framebuffer.hh"
 #include "lights-info.hh"
 #include "atom-label-info.hh"
+#include "translation-gizmo.hh"
 
 #ifdef USE_GUILE
 #include <libguile.h>
@@ -4092,7 +4093,7 @@ public:
 
    void update_molecular_representation_widgets();
    static void molecular_representation_meshes_checkbutton_toggled(GtkCheckButton *button, gpointer *user_data);
-
+   static void undisplay_all_molecule_meshes(int imol); // for imol, of course
 
    int add_molecular_representation(int imol,
                                     const std::string &atom_selection,
@@ -4117,6 +4118,7 @@ public:
 
    static GtkWidget *generic_objects_dialog;
    static std::vector<meshed_generic_display_object> generic_display_objects;
+   static bool is_valid_generic_display_object_number(int obj_no);
    static void from_generic_object_remove_last_item(int object_number);
 
    static void set_display_generic_object_simple(int object_number, short int istate) {
@@ -4614,6 +4616,15 @@ string   static std::string sessionid;
                                                        // if so, what is it? (say 20A)
                                                        // used in draw_bonds().
 
+   static translation_gizmo_t translation_gizmo;
+   static Mesh translation_gizmo_mesh;
+   static void setup_draw_for_translation_gizmo();
+   static void draw_translation_gizmo();
+   static bool translation_gizmo_is_being_dragged;
+   static translation_gizmo_t::pick_info_t translation_gizmo_axis_dragged;
+   static translation_gizmo_t::pick_info_t translation_gizmo_picked();
+   static void translate_things_on_translation_gizmo_dragged(); // including the gizmo
+
    // extensions registry
    // a name (a script file name) and a version number/identifier as a string
    //
@@ -4987,6 +4998,8 @@ string   static std::string sessionid;
    static void add_key_binding(keyboard_key_t k, key_bindings_t kb) {
       key_bindings_map[k] = kb;
    }
+
+   static void print_key_bindings();
 
    // GL IDs go here
 

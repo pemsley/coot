@@ -10404,12 +10404,7 @@ Fri 25 Feb 2022 07:14:47 GMT
 
 setenv XDG_DATA_DIRS ~/gtk/inst/share
 
-Thu  9 Sep 22:15:06 BST 2021
-
-   Re: alphafold: 4lnz example from Tristan's presentation
-
-   There were a few snapshots from Janes' presentation that are worth more thought.
-
+----
 Tue 17 Oct 22:32:02 BST 2023
 
   Gtk4 is installed in a different directory to the one in which Coot is installed:
@@ -10420,6 +10415,13 @@ Tue 17 Oct 22:32:02 BST 2023
   /home/paule/gtk4/share/glib-2.0/schemas
   > cp $XDG_DATA_DIR/gschemas.compiled $prfx/share/glib-2.0/schemas
 
+
+----
+Thu  9 Sep 22:15:06 BST 2021
+
+   Re: alphafold: 4lnz example from Tristan's presentation
+
+   There were a few snapshots from James' presentation that are worth more thought.
 
 ----
 Fri 10 Sep 15:20:23 BST 2021
@@ -10443,21 +10445,17 @@ Mon 20 Sep 2021 17:16:29 BST
 
    Rising pitch feed-back - I like the sound of a marimba
 
+
 ---
-Mon 20 Sep 2021 17:43:55 BST
-
-
 Sat 23 Oct 08:02:34 BST 2021
 
     implement this: (density contouring)
     http://www.sci.utah.edu/~csilva/papers/noskinny.pdf
 
-
 ----
 Wed  5 Jan 18:57:11 GMT 2022
 
-5rdh rupp presentation
-
+   5rdh rupp presentation
 
 ---
 Tue 18 Jan 17:29:37 GMT 2022
@@ -11878,4 +11876,51 @@ Mon 16 Jun 18:42:05 BST 2025
 2 rows in a R plot:
 
    par(mfrow=c(2,1))
+
+---
+Sat 28 Jun 2025 09:13:57 CDT
+
+  getting a screenshot:
+
+  https://stackoverflow.com/questions/78771600/how-to-take-screenshot-in-gtk4
+
+---
+Fri  4 Jul 16:35:20 BST 2025
+
+  converting coot-download
+
+   std::string download_dir = "coot-download";
+
+   becomes
+
+   xdg_t xdg;
+   std::string download_dir = join(xdg.get_cache_home().string(), "coot-download");
+
+---
+Sat 19 Jul 2025 18:54:32 BST
+
+  to add c++ lsp to nvim with nvchad, edit ~/.config/nvim/lua/configs/lspconfig.lua
+
+local servers = { "html", "cssls" }
+
+to
+
+local servers = { "html", "cssls", "clangd" }
+
+and also (unrelated I think) in ~/.config/nvim/lua/plugins/init.lua
+
+  {
+    "nvim-treesitter/nvim-treesitter",
+  	opts = {
+  		ensure_installed = {
+   			"vim", "lua", "vimdoc", "html", "css", "python", "cpp"
+   		},
+   	},
+  },
+
+i.e. I added "cpp"
+
+treestitter does nice code markup.
+
+
 

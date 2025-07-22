@@ -21,19 +21,19 @@
  *
  */
 
-#ifndef MMDB_H
-#define MMDB_H
+#ifndef COOT_COORDS_MMDB_HH
+#define COOT_COORDS_MMDB_HH
 
 #include "lidia-core/lbg-molfile.hh"
 
 // needs to have included mmdb_manager.h"
 // and "mmdb-extras.h" for atom_selection_container_t
-#include "Cartesian.h"
+#include "Cartesian.hh"
 
 #include "coot-utils/atom-selection-container.hh"
 
 coot::Cartesian
-centre_of_molecule(atom_selection_container_t SelAtom); 
+centre_of_molecule(atom_selection_container_t SelAtom);
 
 
 
@@ -76,4 +76,4 @@ std::ostream& operator<<(std::ostream& s, mmdb::Atom &atom);
 
 std::ostream& operator<<(std::ostream& s, mmdb::PAtom atom); 
 
-#endif // MMDB_H
+#endif // COOT_COORDS_MMDB_H

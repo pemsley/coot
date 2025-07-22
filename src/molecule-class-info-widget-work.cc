@@ -27,9 +27,10 @@
 #include "molecule-class-info.h"
 
 #include <mmdb2/mmdb_manager.h>
-#include "coords/Cartesian.h"
-#include "coords/mmdb-extras.h"
-#include "coords/mmdb-crystal.h"
+
+#include "coords/Cartesian.hh"
+#include "coords/mmdb-extras.hh"
+#include "coords/mmdb-crystal.hh"
 
 #include "utils/coot-utils.hh"
 // #include "globjects.h" // for rotate_rgb.  That should be a utility

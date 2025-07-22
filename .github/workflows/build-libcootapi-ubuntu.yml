@@ -127,7 +127,7 @@ jobs:
         run:  cd build-libcootapi && make install
 
       - name: make test-molecules-container
-        run:  cd build-libcootapi && make test-molecules-container
+        run:  cd build-libcootapi && rm test-molecules-container && make VERBOSE=1 test-molecules-container
 
       - name: ldd the library
         run:  cd build-libcootapi && ldd ./libcootapi.so

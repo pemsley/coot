@@ -43,11 +43,11 @@ namespace coot {
       void calc_B();
    public:
       helix_params_t(int resno_start_in, atom_quad quad_in, double t) {
-	 resno_start = resno_start_in;
-	 quad = quad_in;
-	 torsion = clipper::Util::d2rad(t);
-	 calc_A();
-	 calc_B();
+         resno_start = resno_start_in;
+         quad = quad_in;
+         torsion = clipper::Util::d2rad(t);
+         calc_A();
+         calc_B();
       }
       int resno_start; // start of this quad
       atom_quad quad;
@@ -58,7 +58,7 @@ namespace coot {
       // get the set of atoms starting from the given residue serial number.
       atom_quad get_quad(const std::string &atom_name, mmdb::Chain *chain_p, int res_serial_no);
       mmdb::Manager *mol;
-	 
+         
    public:
       helix_params_container_t() {}
       std::vector<helix_params_t> params;

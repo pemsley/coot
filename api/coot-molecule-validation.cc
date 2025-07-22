@@ -844,6 +844,21 @@ coot::molecule_t::get_overlaps(protein_geometry *geom_p) {
 
 }
 
+//! get the atom overlap
+float
+coot::molecule_t::get_atom_overlap_score(protein_geometry *geom_p) const {
+
+   mmdb::Manager *mol = atom_sel.mol;
+   bool ignore_waters_flag = false;
+   coot::atom_overlaps_container_t ao(mol, geom_p, ignore_waters_flag);
+   ao.make_all_atom_overlaps();
+   float s = ao.score();
+   return s;
+
+}
+
+
+
 //! not const because it can dynamically add dictionaries
 std::vector<coot::plain_atom_overlap_t>
 coot::molecule_t::get_overlaps_for_ligand(const std::string &cid_ligand,

@@ -41,39 +41,39 @@ public:
       std::vector<int> cluster_counts;
 
       for (size_t i = 0; i < n; ++i) {
-	 double total_probability = 0.0;
-	 std::vector<double> probabilities;
+         double total_probability = 0.0;
+         std::vector<double> probabilities;
 
-	 // Calculate probabilities for existing clusters
-	 for (size_t k = 0; k < cluster_means.size(); ++k) {
-	    double prob = cluster_counts[k] * likelihood(data[i], cluster_means[k]);
-	    probabilities.push_back(prob);
-	    total_probability += prob;
-	 }
+         // Calculate probabilities for existing clusters
+         for (size_t k = 0; k < cluster_means.size(); ++k) {
+            double prob = cluster_counts[k] * likelihood(data[i], cluster_means[k]);
+            probabilities.push_back(prob);
+            total_probability += prob;
+         }
 
-	 // Calculate probability for a new cluster
-	 double new_cluster_prob = alpha * likelihood_new_cluster(data[i]);
-	 probabilities.push_back(new_cluster_prob);
-	 total_probability += new_cluster_prob;
+         // Calculate probability for a new cluster
+         double new_cluster_prob = alpha * likelihood_new_cluster(data[i]);
+         probabilities.push_back(new_cluster_prob);
+         total_probability += new_cluster_prob;
 
-	 // Normalize probabilities
-	 for (auto& prob : probabilities) {
-	    prob /= total_probability;
-	 }
+         // Normalize probabilities
+         for (auto& prob : probabilities) {
+            prob /= total_probability;
+         }
 
-	 // Sample a cluster based on probabilities
-	 unsigned int sampled_cluster = sample_from_distribution(probabilities);
-	 if (sampled_cluster == cluster_means.size()) {
-	    // New cluster
-	    cluster_means.push_back(data[i]);
-	    cluster_counts.push_back(1);
-	 } else {
-	    // Existing cluster
-	    cluster_means[sampled_cluster] = update_mean(cluster_means[sampled_cluster], data[i], cluster_counts[sampled_cluster]);
-	    ++cluster_counts[sampled_cluster];
-	 }
+         // Sample a cluster based on probabilities
+         unsigned int sampled_cluster = sample_from_distribution(probabilities);
+         if (sampled_cluster == cluster_means.size()) {
+            // New cluster
+            cluster_means.push_back(data[i]);
+            cluster_counts.push_back(1);
+         } else {
+            // Existing cluster
+            cluster_means[sampled_cluster] = update_mean(cluster_means[sampled_cluster], data[i], cluster_counts[sampled_cluster]);
+            ++cluster_counts[sampled_cluster];
+         }
 
-	 cluster_assignments[i] = sampled_cluster;
+         cluster_assignments[i] = sampled_cluster;
       }
 
       return cluster_assignments;

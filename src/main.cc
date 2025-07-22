@@ -73,8 +73,8 @@
 
 
 #include "utils/coot-utils.hh"
-#include "coords/Cartesian.h"
-#include "coords/Bond_lines.h"
+#include "coords/Cartesian.hh"
+#include "coords/Bond_lines.hh"
 
 #include "command-line.hh"
 

@@ -491,6 +491,7 @@ libcootsumo_la_SOURCES = \
 	c-interface.cc		 \
 	c-interface-test.cc      \
 	cc-interface.hh		 \
+	cc-interface-utils.cc    \
 	cc-interface-alignment.cc \
 	cc-interface-graphics.cc \
 	cc-interface-graphics.hh \
@@ -578,6 +579,8 @@ libcootsumo_la_SOURCES = \
 	eyes.cc eyes.hh		 \
 	event-controller-callbacks.hh \
 	event-controller-callbacks.cc \
+	file-system-utils.cc     \
+	file-system-utils.hh     \
 	fit-loop-gui.cc          \
 	fit-loop-gui.hh          \
 	flev.hh			 \
@@ -784,9 +787,11 @@ libcootsumo_la_SOURCES = \
 	testing.hh               \
 	Texture.cc Texture.hh    \
 	TextureMesh.cc TextureMesh.hh \
-	tomo-tools.cc \
+	tomo-tools.cc            \
+	translation-gizmo.cc     \
+	translation-gizmo.hh     \
 	triangle-extras.h        \
-	user-mods.hh user-mods.cc\
+	user-mods.hh user-mods.cc \
 	xmap-utils.cc 		 \
 	xmap-utils.h             \
 	remarks-browser-gtk-widgets.hh \

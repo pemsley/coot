@@ -294,10 +294,10 @@ coot::atom_overlaps_container_t::mark_donors_and_acceptors_central_residue(int u
                   // std::cout << "----- adding ligand HB_HYDROGEN udd " << atom_spec_t(at) << std::endl;
                   at->PutUDData(udd_h_bond_type_handle, coot::HB_HYDROGEN); // hb_t -> int
                }
-	       // additionally NR5 can be a donor (because the real type should be NR15)
-	       if (neigh_energy_type == "NR5") {
+               // additionally NR5 can be a donor (because the real type should be NR15)
+               if (neigh_energy_type == "NR5") {
                   at->PutUDData(udd_h_bond_type_handle, coot::HB_HYDROGEN);
-	       }
+               }
             }
          } else {
             std::string energy_type = central_residue_dictionary.type_energy(atom_name);
@@ -307,12 +307,12 @@ coot::atom_overlaps_container_t::mark_donors_and_acceptors_central_residue(int u
             if (false)
                std::cout << "marked ligand atom " << coot::atom_spec_t(at) << " as hb_type " << hb_type
                          << " note HB_DONOR " << HB_DONOR << " HB_ACCEPTOR " << HB_ACCEPTOR << std::endl;
-	    if (energy_type == "NR5") {
-	      // test here that there is a hydrogen atom bonded to this one
-	      if (true) {
-		at->PutUDData(udd_h_bond_type_handle, coot::HB_DONOR); // hack, for above reasons
-	      }
-	    }
+            if (energy_type == "NR5") {
+              // test here that there is a hydrogen atom bonded to this one
+              if (true) {
+                at->PutUDData(udd_h_bond_type_handle, coot::HB_DONOR); // hack, for above reasons
+              }
+            }
          }
       }
    }
@@ -394,10 +394,10 @@ coot::atom_overlaps_container_t::mark_donors_and_acceptors_for_neighbours(int ud
                      // std::cout << "----- adding env HB_HYDROGEN udd " << atom_spec_t(n_at) << std::endl;
                      n_at->PutUDData(udd_h_bond_type_handle, coot::HB_HYDROGEN); // hb_t -> int
                   }
-		  // additionally NR5 can be a donor (because the real type should be NR15)
-		  if (neigh_energy_type == "NR5") {
-		    n_at->PutUDData(udd_h_bond_type_handle, coot::HB_HYDROGEN);
-		  }
+                  // additionally NR5 can be a donor (because the real type should be NR15)
+                  if (neigh_energy_type == "NR5") {
+                    n_at->PutUDData(udd_h_bond_type_handle, coot::HB_HYDROGEN);
+                  }
                } else {
                   std::cout << "ERROR:: mark_donors_and_acceptors_for_neighbours() oops empty heavy for H-atom "
                             << atom_name << std::endl;
@@ -415,12 +415,12 @@ coot::atom_overlaps_container_t::mark_donors_and_acceptors_for_neighbours(int ud
                   std::cout << "ERROR:: mark_donors_and_acceptors_for_neighbours() putting uddata for hb_type "
                             << hb_type << " fail" << std::endl;
                }
-	       if (energy_type == "NR5") {
-		 // test here that there is a hydrogen atom bonded to this one
-		 if (true) {
-		   n_at->PutUDData(udd_h_bond_type_handle, coot::HB_DONOR); // hack, for above reasons
-		 }
-	       }
+               if (energy_type == "NR5") {
+                 // test here that there is a hydrogen atom bonded to this one
+                 if (true) {
+                   n_at->PutUDData(udd_h_bond_type_handle, coot::HB_DONOR); // hack, for above reasons
+                 }
+               }
                if (false)
                   std::cout << "........... type_energy for atom name " << atom_name
                             << " in dictionary for comp-id \"" << dict.residue_info.comp_id
@@ -904,10 +904,10 @@ coot::atom_overlaps_container_t::h_bond_info_t::h_bond_info_t(mmdb::Atom *ligand
                       << udd_h_bond_type_handle << " ligand-atom: " << coot::atom_spec_t(ligand_atom) << " env_atom: "
                       << env_atom << " " << coot::atom_spec_t(env_atom) << std::endl;
 #if 0
-	if (ligand_atom->GetSeqNum() == 901 || env_atom->GetSeqNum() == 901) {
-	  std::cout << "h_bond_info_t constructor " << atom_spec_t(ligand_atom)   << " "
-		    << atom_spec_t(env_atom) << " " << hb_1 << " " << hb_2 << "\n";
-	}
+        if (ligand_atom->GetSeqNum() == 901 || env_atom->GetSeqNum() == 901) {
+          std::cout << "h_bond_info_t constructor " << atom_spec_t(ligand_atom)   << " "
+                    << atom_spec_t(env_atom) << " " << hb_1 << " " << hb_2 << "\n";
+        }
 #endif
 
          if (hb_1 == HB_HYDROGEN) {
@@ -2262,14 +2262,14 @@ coot::atom_overlaps_container_t::overlap_delta_to_contact_type(double delta, boo
 
    if (is_h_bond) {
       if (delta >= -0.15) { // not 0, so that we turn small overlaps to H-bond dots
-	 delta -= 0.8;
-	 if (delta > 0.4) {
-	    type = "clash";
-	    colour = "hotpink";
-	 } else {
-	    type = "H-bond";
-	    colour = "darkpurple";
-	 }
+         delta -= 0.8;
+         if (delta > 0.4) {
+            type = "clash";
+            colour = "hotpink";
+         } else {
+            type = "H-bond";
+            colour = "darkpurple";
+         }
       }
    } else {
 
@@ -2359,8 +2359,8 @@ coot::atom_overlaps_container_t::overlap_delta_to_contact_type(double delta,
             colour = "darkpurple";
          }
       } else {
-	type = "H-bond";
-	colour = "darkpurple";
+        type = "H-bond";
+        colour = "darkpurple";
       }
    } else {
 

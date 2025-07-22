@@ -26,7 +26,7 @@
 #ifndef MMDB_CRYSTAL
 #define MMDB_CRYSTAL
 
-#include "Cartesian.h" // uncommented so that r899 compiles for Bill. Strange.
+#include "Cartesian.hh"
 #include "coot-utils/atom-selection-container.hh"
 
 namespace coot {

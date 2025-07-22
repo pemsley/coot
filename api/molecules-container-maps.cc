@@ -37,6 +37,7 @@
 int
 molecules_container_t::read_ccp4_map(const std::string &file_name, bool is_a_difference_map) {
 
+   bool debug = false;
    int imol = -1; // currently unset
    int imol_in_hope = molecules.size();
    bool done = false;
@@ -46,7 +47,7 @@ molecules_container_t::read_ccp4_map(const std::string &file_name, bool is_a_dif
       return imol;
    }
 
-   if (true) {
+   if (debug) {
       if (coot::util::is_basic_em_map_file(file_name) == coot::util::slurp_map_result_t::IS_SLURPABLE_EM_MAP) {
          std::cout << "::::: read_ccp4_map() is_basic_em_map_file() finds a slurpable map " << std::endl;
       } else {
@@ -56,15 +57,17 @@ molecules_container_t::read_ccp4_map(const std::string &file_name, bool is_a_dif
 
    if (coot::util::is_basic_em_map_file(file_name) == coot::util::slurp_map_result_t::IS_SLURPABLE_EM_MAP) {
 
-      std::cout << "DEBUG:: mc::read_ccp4_map() returns true for is_basic_em_map_file() "
-                << file_name << std::endl;
+      if (debug)
+         std::cout << "DEBUG:: mc::read_ccp4_map() returns true for is_basic_em_map_file() "
+                   << file_name << std::endl;
 
       // fill xmap
       bool check_only = false;
       short int is_em_map = 1; // this is the correct type - it can be -1.
       coot::molecule_t m(file_name, imol_in_hope, is_em_map);
       short int m_em_status = m.is_EM_map();
-      std::cout << "::::: read_ccp4_map() m_em_status " << m_em_status << std::endl;
+      if (debug)
+         std::cout << "::::: read_ccp4_map() m_em_status " << m_em_status << std::endl;
       clipper::Xmap<float> &xmap = m.xmap;
       coot::util::slurp_map_result_t smr = coot::util::slurp_fill_xmap_from_map_file(file_name, &xmap, check_only);
       if (smr == coot::util::slurp_map_result_t::OK) {
@@ -86,7 +89,11 @@ molecules_container_t::read_ccp4_map(const std::string &file_name, bool is_a_dif
    }
 
    if (! done) {
-      std::cout << "INFO:: attempting to read CCP4 map: " << file_name << " via non-slurp method" << std::endl;
+
+      if (false)
+         std::cout << "INFO:: attempting to read CCP4 map: " << file_name
+                   << " via non-slurp method" << std::endl;
+
       // clipper::CCP4MAPfile file;
       clipper_map_file_wrapper w_file;
       try {
@@ -122,7 +129,9 @@ molecules_container_t::read_ccp4_map(const std::string &file_name, bool is_a_dif
                      molecules.push_back(m); // oof.
                      imol = imol_in_hope;
                      bool em_status = molecules[imol].is_EM_map();
-                     std::cout << "DEBUG:: read_ccp4_map(): inner block em_status " << em_status << std::endl;
+                     if (debug)
+                        std::cout << "DEBUG:: read_ccp4_map(): inner block em_status "
+                                  << em_status << std::endl;
                   }
                }
                catch (const clipper::Message_generic &exc) {

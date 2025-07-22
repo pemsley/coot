@@ -9,11 +9,11 @@
 #include <nanobind/ndarray.h>
 #include <nanobind/operators.h>
 
-#include "clipper/core/ramachandran.h"
-#include "clipper/clipper-ccp4.h"
+#include <clipper/core/ramachandran.h>
+#include <clipper/clipper-ccp4.h>
 
 #include "coot-utils/pugixml.hpp"
-#include "coords/mmdb-crystal.h"
+#include "coords/mmdb-crystal.hh"
 #include "coot-utils/acedrg-types-for-residue.hh"
 #include "coot-utils/g_triangle.hh"
 #include "mini-mol/mini-mol-utils.hh"
@@ -682,16 +682,18 @@ NB_MODULE(coot_headless_api, m) {
          &molecules_container_t::get_acedrg_atom_types_for_ligand,
          nb::arg("imol"), nb::arg("residue_cid"),
          get_docstring_from_xml("get_acedrg_atom_types_for_ligand").c_str())
-    .def("get_atom",
-         &molecules_container_t::get_atom, nb::rv_policy::reference,
-         get_docstring_from_xml("get_atom").c_str())
     .def("get_atom_differences",
          &molecules_container_t::get_atom_differences,
          nb::arg("imol1"), nb::arg("imol2"),
          get_docstring_from_xml("get_atom_differences").c_str())
     .def("get_atom_using_cid",
-         &molecules_container_t::get_atom_using_cid, nb::rv_policy::reference,
-         get_docstring_from_xml("get_atom_using_cid").c_str())
+         &molecules_container_t::get_atom_using_cid,
+         nb::arg("imol"), nb::arg("atom_cid"),
+         get_docstring_from_xml("get_atom").c_str())
+    .def("get_atom_overlap_score",
+         &molecules_container_t::get_atom_overlap_score,
+	 nb::arg("imol"),
+         get_docstring_from_xml("get_atom_overlap_score").c_str())
     .def("get_bonds_mesh",
          &molecules_container_t::get_bonds_mesh,
          nb::arg("imol"), nb::arg("mode"), nb::arg("against_a_dark_background"), nb::arg("bond_width"), nb::arg("atom_radius_to_bond_width_ratio"), nb::arg("smoothness_factor"),
@@ -855,6 +857,14 @@ NB_MODULE(coot_headless_api, m) {
          &molecules_container_t::get_octahemisphere,
          nb::arg("n_divisions"),
          get_docstring_from_xml("get_octahemisphere").c_str())
+    .def("get_overlaps",
+         &molecules_container_t::get_overlaps,
+         nb::arg("imol"),
+         get_docstring_from_xml("get_overlaps").c_str())
+    .def("get_overlaps_for_ligand",
+         &molecules_container_t::get_overlaps_for_ligand,
+         nb::arg("imol"), nb::arg("ligand_cid"),
+         get_docstring_from_xml("get_overlaps_for_ligand").c_str())
     .def("get_q_score",
          &molecules_container_t::get_q_score,
          nb::arg("imol_model"), nb::arg("imol_map"),
@@ -877,9 +887,6 @@ NB_MODULE(coot_headless_api, m) {
          nb::arg("imol"),
          get_docstring_from_xml("get_ramachandran_validation_markup_mesh").c_str())
     //Using allow_raw_pointers(). Perhaps suggests we need to do something different from exposing mmdb pointers to JS.
-    .def("get_residue",
-         &molecules_container_t::get_residue, nb::rv_policy::reference,
-         get_docstring_from_xml("get_residue").c_str())
     .def("get_residue_average_position",
          &molecules_container_t::get_residue_average_position,
          nb::arg("imol"), nb::arg("cid"),
@@ -902,6 +909,7 @@ NB_MODULE(coot_headless_api, m) {
          get_docstring_from_xml("get_residue_sidechain_average_position").c_str())
     .def("get_residue_using_cid",
          &molecules_container_t::get_residue_using_cid,
+         nb::arg("imol"), nb::arg("cid"),
          get_docstring_from_xml("get_residue_using_cid").c_str())
     .def("get_residues_near_residue",
          &molecules_container_t::get_residues_near_residue,
@@ -1372,6 +1380,10 @@ NB_MODULE(coot_headless_api, m) {
          &molecules_container_t::transform_map_using_lsq_matrix,
          nb::arg("imol_map"), nb::arg("lsq_matrix"), nb::arg("x"), nb::arg("y"), nb::arg("z"), nb::arg("radius"),
          get_docstring_from_xml("transform_map_using_lsq_matrix").c_str())
+    .def("try_read_dictionaries_for_new_residue_types",
+         &molecules_container_t::try_read_dictionaries_for_new_residue_types,
+         nb::arg("imol"),
+         get_docstring_from_xml("try_read_dictionaries_for_new_residue_types").c_str())
     .def("undo",
          &molecules_container_t::undo,
          nb::arg("imol"),
@@ -1501,6 +1513,16 @@ NB_MODULE(coot_headless_api, m) {
     .def_rw("float_user_data",&coot::atom_spec_t::float_user_data)
     .def_rw("string_user_data",&coot::atom_spec_t::string_user_data)
     .def_rw("model_number",&coot::atom_spec_t::model_number)
+    ;
+    nb::class_<coot::plain_atom_overlap_t>(m,"plain_atom_overlap_t")
+    .def(nb::init<>())
+       .def_rw("ligand_atom_index", &coot::plain_atom_overlap_t::ligand_atom_index)
+       .def_rw("atom_spec_1", &coot::plain_atom_overlap_t::atom_spec_1)
+       .def_rw("atom_spec_2", &coot::plain_atom_overlap_t::atom_spec_2)
+       .def_rw("overlap_volume", &coot::plain_atom_overlap_t::overlap_volume)
+       .def_rw("r_1", &coot::plain_atom_overlap_t::r_1)
+       .def_rw("r_2", &coot::plain_atom_overlap_t::r_2)
+       .def_rw("is_h_bond", &coot::plain_atom_overlap_t::is_h_bond)
     ;
     nb::class_<positioned_atom_spec_t>(m,"positioned_atom_spec_t")
     .def(nb::init<>())

@@ -104,8 +104,8 @@ int coot_get_url_and_activate_curl_hook(const std::string &url,
 					short int activate_curl_hook_flag,
                                         std::optional<ProgressNotifier> notifier) {
 
-   std::cout << "DEBUG:: in coot_get_url_and_activate_curl_hook "
-	     << url << " " << file_name << std::endl;
+   std::cout << "DEBUG:: in coot_get_url_and_activate_curl_hook():\n url:       "
+	     << url << "\n file-name: " << file_name << std::endl;
 
    // This can take a while to download files - i.e. can block.  If
    // this is called in a guile thread, then that is bad because it
@@ -157,9 +157,29 @@ int coot_get_url_and_activate_curl_hook(const std::string &url,
       std::filesystem::path p(file_name);
       std::uintmax_t file_size = std::filesystem::file_size(p);
       if (file_size < 10)
-         status = true;
+         if (file_size < 0)
+            status = true;
       return status;
 
+   };
+
+
+   auto file_to_string = [] (const std::string &file_name) {
+      std::string s;
+      std::string line;
+      std::ifstream f(file_name);
+      if (!f) {
+         std::cout << "Failed to open " << file_name << std::endl;
+      } else {
+         std::cout << "file_to_string() A " << std::endl;
+         while (std::getline(f, line)) {
+            std::cout << "file_to_string() B " << line << std::endl;
+            s += line;
+            s += "\n";
+         }
+         std::cout << "file_to_string() C (while terminated) " << std::endl;
+      }
+      return s;
    };
 
    // write binary
@@ -180,6 +200,7 @@ int coot_get_url_and_activate_curl_hook(const std::string &url,
             to = 6; // bored of a waiting for slow EBI server
       }
 
+      bool debug = false;
       std::pair<FILE *, CURL *> p_for_write(f,c);
       curl_easy_setopt(c, CURLOPT_URL, url.c_str());
       curl_easy_setopt(c, CURLOPT_NOSIGNAL, no_signal);
@@ -202,8 +223,10 @@ int coot_get_url_and_activate_curl_hook(const std::string &url,
       std::pair <CURL *, std::string> p(c,file_name);
       CURLcode success = CURLcode(-1);
 
-      std::cout << "debug:: here in coot_get_url_and_activate_curl_hook() with activate_curl_hook_flag "
-                << activate_curl_hook_flag << std::endl;
+      if (debug)
+         std::cout << "debug:: here in coot_get_url_and_activate_curl_hook() with activate_curl_hook_flag "
+                   << activate_curl_hook_flag << std::endl;
+
       if (activate_curl_hook_flag) {
 	 graphics_info_t g;
 	 g.add_curl_handle_and_file_name(p);
@@ -223,20 +246,33 @@ int coot_get_url_and_activate_curl_hook(const std::string &url,
          // 20250526-PE unfortunately curl_easy_perform() is returning 0 even
          // if the file was not on the server.
 	 success = curl_easy_perform(c);
+
          if (coot::file_exists(file_name)) {
+            std::cout << "::::::::::::::: file_exists " << file_name << std::endl;
+            std::filesystem::path fp(file_name);
+            std::uintmax_t size = std::filesystem::file_size(fp);
+            std::cout << "::::::::::::::: file_size " << size << std::endl;
             if (is_html(file_name)) {
+               std::cout << "::::::::::::::: file is html " << file_name << std::endl;
                success = CURLcode(23); // CURL write error (say)
                int rm_status = remove(file_name.c_str()); // Ciao Bella
                if (rm_status == 0)
                   logger.log(log_t::INFO, logging::function_name_t("coot_get_url_and_activate_curl_hook"),
                              file_name, "removed (failed download)");
             } else {
+               if (debug)
+                  std::cout << "::::::::::::::: file is not html " << file_name << std::endl;
                if (is_error_message(file_name)) {
+                  if (debug)
+                     std::cout << "::::::::::::::: file is error message " << file_name << std::endl;
                   success = CURLcode(23); // CURL write error (say)
                   int rm_status = remove(file_name.c_str()); // Ciao Bella
                   if (rm_status == 0)
                      logger.log(log_t::INFO, logging::function_name_t("coot_get_url_and_activate_curl_hook"),
                                 file_name, "removed (failed download)");
+               } else {
+                  if (debug)
+                     std::cout << "::::::::::::::: file is not error message " << file_name << std::endl;
                }
             }
          } else {
@@ -627,6 +663,11 @@ fetch_alphafold_model_for_uniprot_id(const std::string &uniprot_id) {
          }
       }
 
+      // display_pae_from_file_in_a_dialog() needs the model to exist
+      // (so that it knows which model to manipulate)
+      imol = handle_read_draw_molecule_and_move_molecule_here(fn_pdb);
+      graphics_draw();
+
       // now let's do the PAE file
       std::string fn_pae = coot::util::append_dir_file(download_dir, fn_tail_pae);
       url = std::string("https://alphafold.ebi.ac.uk/files/") + fn_tail_pae;
@@ -635,14 +676,12 @@ fetch_alphafold_model_for_uniprot_id(const std::string &uniprot_id) {
       if (needs_downloading) {
          coot_get_url(url.c_str(), fn_pae.c_str());
          if (coot::file_exists_and_non_tiny(fn_pae, 500)) {
-            display_pae_from_file_in_a_dialog(fn_pae);
+            display_pae_from_file_in_a_dialog(imol, fn_pae);
          }
       } else {
-         display_pae_from_file_in_a_dialog(fn_pae);
+         display_pae_from_file_in_a_dialog(imol, fn_pae);
       }
 
-      imol = handle_read_draw_molecule_and_move_molecule_here(fn_pdb);
-      graphics_draw();
    }
    return imol;
 }
@@ -911,8 +950,10 @@ void get_monomer_dictionary_in_subthread(const std::string &comp_id,
       const char v = tolower(rs); // get the sub directory name
       std::string letter(1, v);
       std::string cif_file_name = comp_id + ".cif";
-      std::filesystem::path github = "https://raw.githubusercontent.com/MonomerLibrary/monomers/refs/heads/master";
-      std::filesystem::path url_path = github / letter / cif_file_name;
+
+      // Bernhard says not to use std::filesystem for URLs - OK.
+      std::string github = "https://raw.githubusercontent.com/MonomerLibrary/monomers/refs/heads/master";
+      std::string url_string = github + "/" +  letter + "/" + cif_file_name;
 
       xdg_t xdg;
 
@@ -937,25 +978,26 @@ void get_monomer_dictionary_in_subthread(const std::string &comp_id,
 	    if (std::filesystem::exists(letter_dir_path)) {
 	       std::filesystem::path cif_file_path = letter_dir_path / cif_file_name;
                // return 0 on success
-	       int status = coot_get_url(url_path.string(), cif_file_path.string());
+	       int status = coot_get_url(url_string, cif_file_path.string());
                logger.log(log_t::DEBUG, logging::function_name_t("get_monomer_dictionary_in_subthread()"),
                           "coot_get_url() returned status ", status);
                if (status != 0)
                   delete_cif_file_if_exists(cif_file_path);
 	    } else {
 	       // std::cout << "INFO:: " << letter_dir_path << " does not exist " << std::endl;
-	       logger.log(log_t::INFO, letter_dir_path, "does not exist");
+	       logger.log(log_t::INFO, letter_dir_path.string(), "does not exist");
 	    }
 	 } else {
 	    //std::cout << "INFO:: " << monomers_path << " does not exist " << std::endl;
-	    logger.log(log_t::INFO, monomers_path, "does not exist");
+	    logger.log(log_t::INFO, monomers_path.string(), "does not exist");
 	 }
       } else {
 	 // std::cout << "INFO:: " << ch << " does not exist " << std::endl;
-	 logger.log(log_t::INFO, ch, "does not exist");
+	 logger.log(log_t::INFO, ch.string(), "does not exist");
       }
       c->fetch_done = 1;
    };
+
 
    if (! comp_id.empty()) {
       // std::cout << "INFO:: Get " << comp_id << " in a sub-thread" << std::endl;
@@ -986,7 +1028,7 @@ void get_monomer_dictionary_in_subthread(const std::string &comp_id,
             // std::cout << "INFO:: call read_cif_dictionary() on this cif "
             // << cif_file_path << std::endl;
             if (std::filesystem::exists(cif_file_path)) {
-               logger.log(log_t::INFO, "call read_cif_dictionary() on this cif", cif_file_path);
+               logger.log(log_t::INFO, "call read_cif_dictionary() on this cif", cif_file_path.string());
                int read_status = read_cif_dictionary(cif_file_path.string());
                if (read_status > 0) {
                   if (cif_data->run_get_monomer_post_fetch_flag)

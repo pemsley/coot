@@ -134,6 +134,14 @@ public:
 #endif
    }
    gboolean run() const;
+   static std::string type_to_string(binding_type t) {
+      std::string s = "unset";
+      if (t == NONE)     s = "NONE";
+      if (t == SCHEME)   s = "SCHEME";
+      if (t == PYTHON)   s = "PYTHON";
+      if (t == BUILT_IN) s = "BUILT_IN";
+      return s;
+   }
 };
 
 #endif // KEY_BINDINGS_HH

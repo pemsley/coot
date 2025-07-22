@@ -27,7 +27,7 @@
 #define PHI_PSI_PROB_HH
 
 #include "coot-utils/coot-rama.hh"
-#include "coords/Cartesian.h"
+#include "coords/Cartesian.hh"
 #include "coords/ramachandran-container.hh"
 
 namespace coot {

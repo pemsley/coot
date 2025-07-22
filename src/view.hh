@@ -24,7 +24,7 @@
 #define VIEW_HH
 
 #include <glm/gtc/quaternion.hpp>
-#include "coords/Cartesian.h"
+#include "coords/Cartesian.hh"
 
 namespace coot {
    

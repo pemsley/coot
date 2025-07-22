@@ -1,25 +1,51 @@
 
 --- Items ---
 
+o lidia needs a wrapper and to be moved to libexec
+
+o Bonds and angles validation on 2d diagram from chapi
+  as svg.
+
 o arwen, alejandro, santosh, dorothee
 
-o add-water should have a key-binding
+o Take a cif molecule, copy it, move the copy to symmetry-related position
+  merge with first and write out the cif. Is the header (secondary structure)
+  preserved in the outpute cif?
 
-o make a function that returns the secondary structure for libcootapi/chapi
+o Robbie: 3pdt is Mg and should be K. A2.
 
-o "Flood the blob with dummy atoms" - useful of pomgnt2
+o moorhen (and coot) ribbon diagram coloured by b-factor
 
-o print the key bindings
+o read in a molecule, make a molecule with DNA models. Refine DNA, then
+  try to undo refinement of DNA. Fails. 8v1w.
 
-o install latest chapi, python3 import coot_headless_api
-  then the molecules_container_t gives an error message
-  about COOT_PREFIX
+o move make_directory_maybe() to take std::string arg.
+  Will need to change the header. Maybe a new header?
 
-o Add curl fetch stuff to chapi api. Use modern accession codes.
+o Talk to Stuart:
+::function get_atom not found - out of 386 docstrings
+::function get_atom_using_cid not found - out of 386 docstrings
+::function get_residue not found - out of 386 docstrings
+::function get_residue_using_cid not found - out of 386 docstrings
 
-o refine_resiude_using_cid CHAIN too much debugging information
+o Move Molecule Here should be an overlay
+
+o check that hydrogen bonds are displayed correctly.
+  See update_hydrogen_bond_mesh()
+
+o change stringify_error_message to stringify_error_code
+
+o add header guard to gizmo and gensurf headers
+
+o rename Cartesian.h to Cartesian.hh
+
+o get rid of generic object functions from graphics-info.h
+  Put them in aa new file along with
+  bool is_valid_generic_display_object_number(int obj_no) const;
 
 --- Other Items ---
+
+o "Flood the blob with dummy atoms" - useful of pomgnt2
 
 o Add ability to rotate view around z axis :: 0.5
 
@@ -29,6 +55,8 @@ o auto-scale the make-a-difference map
 o colour stops for b-factor analysis, rather than colour wheel. :: 1
 
 o have another look at Rama plot :: 1
+
+o Add curl fetch stuff to chapi api. Use modern accession codes.
 
 o address-sanitizer for coot
 
@@ -76,8 +104,67 @@ o  It was a strange bit of code in get_group().
 
 --- Done Items ---
 
-o swig should not be a dependency if building chapi
+o side-chain 180 should do a syn/anti flip for nucleotide bases
+  i.e. rotate 180 around C1-N1 (or N9)
+  Make a video. In chapi too?
+
+o what are the chi angles for ASN? In sequons? With link
+  to NAG?
+* for Lucrezia. Use top 3000 filtering on modern structures to
+  get new reference set.
+
+o User-defined filename filter for coords file open
+  https://docs.gtk.org/gtk4/class.FileFilter.html
+* Assigned to Jakub
+
+o make a file that maps CCD-id to RDKit Canonical SMILES.
+  (is the SMILES in Acedrg output the canonical SMILES?)
+* Looks good. Jakub to continue this
+
+o Add split water to new coot
 * Done.
+
+o install latest chapi, python3 import coot_headless_api
+  then the molecules_container_t gives an error message
+  about COOT_PREFIX
+* Not for me.
+
+o std::bad_alloc when fitting waters in chapi - maybe.
+  Put some protection in.
+* Done.
+
+o filename filter for coords file open
+  https://docs.gtk.org/gtk4/class.FileFilter.html
+  Done. But now I think that this is not what Oli wanted.
+  There should be a user-defined globbing string.
+  Add a GtkFileDialog to a dialog. See google docs notes.
+
+o multi-select for maps
+* Done
+
+o 2vf7: alphafold model tutorial? Or is it too close to the actual model?
+  *It's too close.  Good idea though.
+
+o bernie comments
+* Done.
+
+o refine_residue_using_cid "CHAIN": too much debugging information
+* Done.
+
+o Fix curlew (download to wrong directory)
+* Done.
+
+o make a function that returns the secondary structure for libcootapi/chapi
+* Done.
+
+o print the key bindings
+* Done.
+
+o add-water should have a key-binding
+* Done.
+
+o swig should not be a dependency if building chapi
+* Done. And done.
 
 o Process Stuart's outliers file ::: 1
 * Done
@@ -95,4 +182,7 @@ o what is the radius of gyration? Make a function. ::: 1
 * Done.
 
 o remove GEMMI hack at top of atom-selection-container.cc ::: 0.2
+
+o make a function that returns the secondary structure for libcootapi/chapi
+* Done
 

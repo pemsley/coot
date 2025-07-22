@@ -30,7 +30,7 @@
 
 void
 coot::helix_params_container_t::make(mmdb::Manager *mol_in, const std::string chain_id,
-				     int resno_helix_start, int resno_helix_end) {
+                                     int resno_helix_start, int resno_helix_end) {
 
    mol = mol_in;
    int imod = 1;
@@ -40,26 +40,26 @@ coot::helix_params_container_t::make(mmdb::Manager *mol_in, const std::string ch
    for (int ichain=0; ichain<n_chains; ichain++) {
       chain_p = model_p->GetChain(ichain);
       if (chain_id == chain_p->GetChainID()) { 
-	 int nres = chain_p->GetNumberOfResidues();
-	 mmdb::Residue *residue_p;
-	 mmdb::Atom *at;
-	 for (int ires=0; ires<nres; ires++) { 
-	    residue_p = chain_p->GetResidue(ires);
-	    int resno = residue_p->GetSeqNum();
+         int nres = chain_p->GetNumberOfResidues();
+         mmdb::Residue *residue_p;
+         mmdb::Atom *at;
+         for (int ires=0; ires<nres; ires++) { 
+            residue_p = chain_p->GetResidue(ires);
+            int resno = residue_p->GetSeqNum();
 
-	    if (resno >= resno_helix_start) {
-	       if (resno <= (resno_helix_end - 2)) { // that was a bit hacky!
-		  std::cout << "chain_id: " << residue_p->GetChainID()
-			    << " resno: " << resno << std::endl;
-		  atom_quad quad = get_quad(" CA ", chain_p, ires);
+            if (resno >= resno_helix_start) {
+               if (resno <= (resno_helix_end - 2)) { // that was a bit hacky!
+                  std::cout << "chain_id: " << residue_p->GetChainID()
+                            << " resno: " << resno << std::endl;
+                  atom_quad quad = get_quad(" CA ", chain_p, ires);
 
-		  if (quad.filled_p()) {
-		     double tors = quad.torsion();
-		     helix_params_t t(resno, quad, tors);
-		  }
-	       }
-	    }
-	 }
+                  if (quad.filled_p()) {
+                     double tors = quad.torsion();
+                     helix_params_t t(resno, quad, tors);
+                  }
+               }
+            }
+         }
       }
    }
 }
@@ -68,24 +68,24 @@ coot::helix_params_container_t::make(mmdb::Manager *mol_in, const std::string ch
 // get the set of atoms starting from the given residue serial number.
 coot::atom_quad
 coot::helix_params_container_t::get_quad(const std::string &atom_name,
-					 mmdb::Chain *chain_p,
-					 int res_serial_no) {
+                                         mmdb::Chain *chain_p,
+                                         int res_serial_no) {
 
    atom_quad quad;
    int nres = chain_p->GetNumberOfResidues();
    for (int ires=0; ires<4; ires++) {
       int isr = res_serial_no + ires;
       if (isr < nres) {
-	 mmdb::Residue *res_p = chain_p->GetResidue(isr);
-	 if (res_p) {
-	    mmdb::Atom *at = res_p->GetAtom(atom_name.c_str());
-	    if (at) {
-	       if (ires == 0) quad.atom_1 = at;
-	       if (ires == 1) quad.atom_2 = at;
-	       if (ires == 2) quad.atom_3 = at;
-	       if (ires == 3) quad.atom_4 = at;
-	    } 
-	 } 
+         mmdb::Residue *res_p = chain_p->GetResidue(isr);
+         if (res_p) {
+            mmdb::Atom *at = res_p->GetAtom(atom_name.c_str());
+            if (at) {
+               if (ires == 0) quad.atom_1 = at;
+               if (ires == 1) quad.atom_2 = at;
+               if (ires == 2) quad.atom_3 = at;
+               if (ires == 3) quad.atom_4 = at;
+            } 
+         } 
       } 
    }
    return quad;
@@ -107,8 +107,8 @@ coot::helix_params_t::calc_A() {
       double ct = cos(tau_23);
       double st = sin(tau_23);
       A = clipper::Mat33<double> (-cp,  -sp, 0,
-				  sp*ct, -cp*ct, -st,
-				  sp*st, -cp*st, ct);
+                                  sp*ct, -cp*ct, -st,
+                                  sp*st, -cp*st, ct);
    }
    catch (const std::runtime_error &rte) {
       std::cout << "WARNING::" << rte.what() << std::endl;
@@ -137,8 +137,8 @@ coot::helix_params_t::calc_B() {
       double theta = acos(cos_theta);
       double sin_theta = sin(theta);
       std::cout << "theta: " << clipper::Util::rad2d(theta) << " degrees "
-		<< " cos(theta): " << cos_theta << " "
-		<< " sin(theta): " << sin_theta << std::endl;
+                << " cos(theta): " << cos_theta << " "
+                << " sin(theta): " << sin_theta << std::endl;
 
       clipper::Coord_orth e_xi(C.unit());
       clipper::Coord_orth c_crossed(clipper::Coord_orth::cross(C, C_pr));
@@ -151,44 +151,44 @@ coot::helix_params_t::calc_B() {
       
       
       clipper::Coord_orth e_zeta(c_crossed.x() * sin_theta/(len_C*len_C),
-				 c_crossed.y() * sin_theta/(len_C*len_C),
-				 c_crossed.z() * sin_theta/(len_C*len_C));
+                                 c_crossed.y() * sin_theta/(len_C*len_C),
+                                 c_crossed.z() * sin_theta/(len_C*len_C));
       clipper::Coord_orth e_nu(clipper::Coord_orth::cross(e_zeta, e_xi));
 
        std::cout << "C: " << C.format() << " "
-		 << "B_pr " << B_pr.format() << " "
-		 << "B " << B.format()
-		 << std::endl;
+                 << "B_pr " << B_pr.format() << " "
+                 << "B " << B.format()
+                 << std::endl;
 
       std::cout << "e_nu: "   << e_nu.format()   << " "
-		<< "e_xi: "   << e_xi.format()   << " "
-		<< "e_zeta: " << e_zeta.format() << " "
-		<< std::endl;
+                << "e_xi: "   << e_xi.format()   << " "
+                << "e_zeta: " << e_zeta.format() << " "
+                << std::endl;
 
       std::cout << "e lengths: "
-		<< " e_nu: "   << sqrt(e_nu.lengthsq()) << "  "
-		<< " e_xi: "   << sqrt(e_xi.lengthsq()) << "  "
-		<< " e_zeta: " << sqrt(e_zeta.lengthsq()) << std::endl;
+                << " e_nu: "   << sqrt(e_nu.lengthsq()) << "  "
+                << " e_xi: "   << sqrt(e_xi.lengthsq()) << "  "
+                << " e_zeta: " << sqrt(e_zeta.lengthsq()) << std::endl;
 
       clipper::Coord_orth a_bits(A(2,1) - A(1,2),
-				 A(0,2) - A(2,0),
-				 A(1,0) - A(0,1));
+                                 A(0,2) - A(2,0),
+                                 A(1,0) - A(0,1));
       std::cout << "abits: " << a_bits.format() << " length: " << sqrt(a_bits.lengthsq())
-		<< std::endl;
+                << std::endl;
 
       clipper::Coord_orth a_bits_2(A(1,2) - A(2,1),
-				   A(2,0) - A(0,2),
-				   A(0,1) - A(1,0));
+                                   A(2,0) - A(0,2),
+                                   A(0,1) - A(1,0));
       std::cout << "abits: " << a_bits_2.format() << " length: " << sqrt(a_bits_2.lengthsq())
-		<< std::endl;
+                << std::endl;
 
       // half sin theta
       double hst = 0.5 * sin (theta);
       clipper::Coord_orth e_zeta_2(a_bits.x() * hst,
-				   a_bits.y() * hst,
-				   a_bits.z() * hst);
+                                   a_bits.y() * hst,
+                                   a_bits.z() * hst);
 
       std::cout << "e_zeta_2: " << e_zeta_2.format() << " length: "
-		<< sqrt(e_zeta_2.lengthsq()) << std::endl;
+                << sqrt(e_zeta_2.lengthsq()) << std::endl;
    }
 }

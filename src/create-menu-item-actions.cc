@@ -139,13 +139,26 @@ void on_map_filechooser_dialog_response_gtk4(GtkDialog *dialog,
 
    if (response == GTK_RESPONSE_ACCEPT) {
       GtkFileChooser *chooser = GTK_FILE_CHOOSER(dialog);
-      GFile *file = gtk_file_chooser_get_file(chooser);
-      char *file_name = g_file_get_path(file);
+
       int is_diff_map_flag = 0; // needs fixing obviously... FIXME
       const char *response_id_cstr = gtk_file_chooser_get_choice(GTK_FILE_CHOOSER(dialog), "is-diff-map");
       std::string response_id(response_id_cstr);
       if (response_id == "true") is_diff_map_flag = 1; // typically is "false"
-      handle_read_ccp4_map(file_name, is_diff_map_flag);
+
+      GListModel *lm = gtk_file_chooser_get_files(chooser);
+      guint n_items = g_list_model_get_n_items (lm);
+      if (n_items > 0) {
+         for (guint i=0; i<n_items; i++) {
+            gpointer item = g_list_model_get_item(lm, i);
+            // std::cout << "   " << i << " " << item << std::endl;
+            GFile *f = G_FILE(item);
+            char *file_name = g_file_get_path(f);
+            // std::cout << "          file_name " << file_name << std::endl;
+            if (file_name) {
+               handle_read_ccp4_map(file_name, is_diff_map_flag);
+            }
+         }
+      }
    }
    gtk_window_close(GTK_WINDOW(dialog));
    graphics_info_t::graphics_grab_focus();
@@ -186,6 +199,23 @@ void open_coordinates_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
    // I don't follow the options and labels, but this works strangely.
    gtk_file_chooser_add_choice(GTK_FILE_CHOOSER(dialog), "recentering", "Recentre", options, labels);
+
+   GtkFileFilter *filter_pdb  = gtk_file_filter_new();
+   GtkFileFilter *filter_pdbx = gtk_file_filter_new();
+   GtkFileFilter *filter_cif  = gtk_file_filter_new();
+   GtkFileFilter *filter_ent  = gtk_file_filter_new();
+   gtk_file_filter_set_name(filter_pdb,  "pdb files");
+   gtk_file_filter_set_name(filter_pdbx, "pdbx files");
+   gtk_file_filter_set_name(filter_cif,  "cif files");
+   gtk_file_filter_set_name(filter_ent,  "ent files");
+   gtk_file_filter_add_pattern(filter_pdb,  "*.pdb");
+   gtk_file_filter_add_pattern(filter_pdbx, "*.pdbx");
+   gtk_file_filter_add_pattern(filter_cif,  "*.cif");
+   gtk_file_filter_add_pattern(filter_ent,  "*.ent");
+   gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog), filter_pdb);
+   gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog), filter_pdbx);
+   gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog), filter_cif);
+   gtk_file_chooser_add_filter(GTK_FILE_CHOOSER(dialog), filter_ent);
 
    add_filename_filter_button(dialog, COOT_COORDS_FILE_SELECTION);
 
@@ -292,6 +322,7 @@ void open_map_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
    const gchar *labels[]  = {NULL};
    const gchar *options[] = {NULL};
+   gtk_file_chooser_set_select_multiple(GTK_FILE_CHOOSER(dialog), TRUE);
    gtk_file_chooser_add_choice(GTK_FILE_CHOOSER(dialog), "is-diff-map", "Is Difference Map", NULL, NULL);
 
    g_signal_connect(dialog, "response", G_CALLBACK(on_map_filechooser_dialog_response_gtk4), NULL);
@@ -3293,6 +3324,23 @@ void superpose_ligands_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    safe_python_command("coot_gui.superpose_ligand_gui()");
 }
 
+void split_water_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+			G_GNUC_UNUSED GVariant *parameter,
+			G_GNUC_UNUSED gpointer user_data) {
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      std::string chain_id = pp.second.second.chain_id;
+      int res_no = pp.second.second.res_no;
+      std::string ins_code = pp.second.second.ins_code;
+      split_water(imol, chain_id.c_str(), res_no, ins_code.c_str());
+   } else {
+      add_status_bar_text("No active atom found");
+   }
+
+}
+
 void symm_shift_reference_chain_here_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                             G_GNUC_UNUSED GVariant *parameter,
                                             G_GNUC_UNUSED gpointer user_data) {
@@ -5049,6 +5097,7 @@ create_actions(GtkApplication *application) {
    add_action(  "rigid_body_fit_residue_ranges_action",   rigid_body_fit_residue_ranges_action);
    add_action(        "rigid_body_fit_molecule_action",         rigid_body_fit_molecule_action);
    add_action(              "superpose_ligands_action",               superpose_ligands_action);
+   add_action(                    "split_water_action",                     split_water_action);
    add_action("symm_shift_reference_chain_here_action", symm_shift_reference_chain_here_action);
    add_action(          "other_modelling_tools_action",           other_modelling_tools_action);
    add_action(                     "whats_this_action",                      whats_this_action);

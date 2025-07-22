@@ -55,7 +55,7 @@
 #include "coot-utils/cylinder.hh"
 #include "coot-utils/oct.hh"
 
-#include "coords/Bond_lines.h"
+#include "coords/Bond_lines.hh"
 
 #include "bond-colour-mode.hh"
 

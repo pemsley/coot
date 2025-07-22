@@ -46,19 +46,19 @@
 #else
 #include <windows.h>
 #endif
- 
+
 
 #include <mmdb2/mmdb_manager.h>
-#include "coords/mmdb-extras.h"
+
+#include "coords/mmdb-extras.hh"
 #include "coords/mmdb.hh"
+#include "coords/Cartesian.hh"
+#include "coords/Bond_lines.hh"
+#include "coords/mmdb-crystal.hh"
 
 // 20220723-PE maybe just delete this header altogether.
 #include "globjects.h" //includes gtk/gtk.h
 
-#include "coords/mmdb-crystal.h"
-
-#include "coords/Cartesian.h"
-#include "coords/Bond_lines.h"
 
 #include "graphics-info.h"
 

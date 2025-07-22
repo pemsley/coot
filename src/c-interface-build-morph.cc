@@ -51,30 +51,29 @@
 
 
 #include <mmdb2/mmdb_manager.h>
-#include "coords/mmdb-extras.h"
+
+#include "utils/coot-utils.hh"  // for is_member_p
+#include "utils/coot-fasta.hh"
+#include "coords/mmdb-extras.hh"
 #include "coords/mmdb.hh"
-
-// just delete it?
-#include "globjects.h" //includes gtk/gtk.h
-
-#include "coords/mmdb-crystal.h"
-
-#include "coords/Cartesian.h"
-#include "coords/Bond_lines.h"
-
-#include "graphics-info.h"
+#include "coords/mmdb-crystal.hh"
+#include "coords/Cartesian.hh"
+#include "coords/Bond_lines.hh"
 
 #include "coot-utils/coot-coord-utils.hh"
-#include "utils/coot-fasta.hh"
+
+#include "graphics-info.h"
 
 #include "skeleton/BuildCas.h"
 #include "ligand/helix-placement.hh"
 #include "ligand/fast-ss-search.hh"
 
-#include "utils/coot-utils.hh"  // for is_member_p
 #include "coot-utils/coot-map-heavy.hh"  // for fffear
 
 #include "guile-fixups.h"
+
+// just delete it?
+#include "globjects.h" //includes gtk/gtk.h
 
 
 #include "c-interface.h"

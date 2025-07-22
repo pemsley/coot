@@ -2,7 +2,7 @@
 #define LIGAND_RESIDUE_INFO_HH
 
 #include "geometry/residue-and-atom-specs.hh"
-#include "coords/Cartesian.h"
+#include "coords/Cartesian.hh"
 
 namespace coot {
 

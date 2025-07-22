@@ -24,7 +24,7 @@
 #include <iostream>
 #include "add-terminal-residue.hh"
 
-#include "coords/mmdb-extras.h"
+#include "coords/mmdb-extras.hh"
 #include "coot-utils/coot-coord-utils.hh"
 #include "ligand/residue_by_phi_psi.hh"
 

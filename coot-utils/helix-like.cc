@@ -87,17 +87,17 @@ coot::like_a_helix(mmdb::Manager *mol, int residue_selection_handle) {
       std::vector<clipper::Coord_orth> ref_pos = alpha_helical_reference_positions();
 
       for (int istart=0; istart<(nSelResidues-4); istart++) {
-	 std::vector<mmdb::Residue *> test_residues;
-	 if ((istart+4) < nSelResidues) {
-	    for (int i_4=istart; i_4<(istart+4); i_4++)
-	       test_residues.push_back(SelResidues[i_4]);
+         std::vector<mmdb::Residue *> test_residues;
+         if ((istart+4) < nSelResidues) {
+            for (int i_4=istart; i_4<(istart+4); i_4++)
+               test_residues.push_back(SelResidues[i_4]);
 
-	    if (test_residues.size() == 4) {
-	       helical_results_t helicals = compare_to_helix(test_residues, ref_pos);
+            if (test_residues.size() == 4) {
+               helical_results_t helicals = compare_to_helix(test_residues, ref_pos);
                if (helicals.is_alpha_helix_like)
                   helical_residues.push_back(test_residues[1]);
-	    }
-	 }
+            }
+         }
       }
    }
    return helical_residues;
@@ -158,7 +158,7 @@ coot::compare_to_helix(const std::vector<mmdb::Residue *> &helical_residues,
          if (sum_delta < sum_delta_lim) {
             r.is_alpha_helix_like = true;
          }
-	 r.sum_delta = sum_delta;
+         r.sum_delta = sum_delta;
       }
    }
    return r;

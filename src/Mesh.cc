@@ -923,14 +923,15 @@ Mesh::setup_buffers() {
       glBufferData(GL_ELEMENT_ARRAY_BUFFER, n_bytes_for_gl_lines, &lines_vertex_indices[0], GL_STATIC_DRAW);
       err = glGetError();
       if (err)
-	 std::cout << "GL ERROR:: setup_buffers - setup_buffers_for_gl_lines()\n";
+	 logger.log(log_t::GL_ERROR, logging::function_name_t("Mesh::setup_buffers"),
+		    {"on gl_lines glBufferData() ", stringify_error_message(err), "for mesh", name});
    } else {
       glBufferData(GL_ELEMENT_ARRAY_BUFFER, n_bytes_for_triangles, &triangles[0], GL_STATIC_DRAW);
       err = glGetError();
       if (err) {
 	 std::cout << "GL ERROR:: Mesh::setup_buffers()\n";
-	 logger.log(log_t::GL_ERROR, logging::function_name_t("Mesh::setup_buffers()"),
-		    {"on glBufferData() ", stringify_error_message(err)});
+	 logger.log(log_t::GL_ERROR, logging::function_name_t("Mesh::setup_buffers"),
+		    {"on glBufferData() ", stringify_error_message(err), "for mesh", name});
       }
    }
 
@@ -945,6 +946,49 @@ Mesh::setup_buffers() {
    first_time = false;
 
 }
+
+std::optional<glm::vec3>
+Mesh::get_centre_of_mesh() const {
+
+   if (vertices.empty()) {
+      return std::nullopt;
+   } else {
+      size_t n_vertices = vertices.size();
+      glm::vec3 sum(0,0,0);
+      for (const auto &vertex : vertices) {
+         sum += vertex.pos;
+      }
+      glm::vec3 av(sum.x/static_cast<double>(n_vertices),
+                   sum.y/static_cast<double>(n_vertices),
+                   sum.z/static_cast<double>(n_vertices));
+      return av;
+   }
+}
+
+std::optional<float>
+Mesh::get_radius_of_gyration() const {
+
+   if (vertices.empty()) {
+      return std::nullopt;
+   } else {
+      std::optional<glm::vec3> centre = get_centre_of_mesh();
+      if (centre) {
+         size_t n_vertices = vertices.size();
+         double sum_dd = 0.0;
+         for (const auto &vertex : vertices) {
+            double dd = glm::distance2(vertex.pos, centre.value());
+            sum_dd += dd;
+         }
+         double rr = sum_dd / static_cast<double>(n_vertices);
+         double r = std::sqrt(rr);
+         return r;
+      } else {
+         return std::nullopt;
+      }
+   }
+}
+
+
 
 void
 Mesh::setup_instanced_debugging_objects(Shader *shader_p, const Material &material_in) {
@@ -2016,10 +2060,12 @@ Mesh::draw(Shader *shader_p,
    }
 
    shader_p->set_float_for_uniform("opacity", opacity);
+   if (false)
+      std::cout << "sending opacity " << opacity << std::endl;
 
    err = glGetError();
-   if (err) std::cout << "GL ERROR:: draw() " << shader_name << " pre-set eye position "
-                      << " with GL err " << err << std::endl;
+   if (err) std::cout << "GL ERROR:: draw() " << shader_name << " set float for uniform opacity "
+                      << " with GL err " << stringify_error_message(err) << std::endl;
 
    // this is not useful - eye_position_in_molecule_coordinates_space is what is needed
    // for correct specular reflections.

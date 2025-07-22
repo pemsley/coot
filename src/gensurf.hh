@@ -25,7 +25,7 @@
  */
 
 #include <clipper/core/xmap.h>
-#include "coords/Cartesian.h"
+#include "coords/Cartesian.hh"
 #include "density-contour/density-contour-triangles.hh"
 
 void gensurf_and_add_vecs_threaded_workpackage(const clipper::Xmap<float> *xmap_p,

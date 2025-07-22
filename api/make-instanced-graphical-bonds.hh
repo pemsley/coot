@@ -4,7 +4,7 @@
 #include "coords/graphical-bonds-container.hh"
 #include "instancing.hh"
 #include "bond-colour.hh"
-#include "coords/mmdb-crystal.h" // for symm_trans_t
+#include "coords/mmdb-crystal.hh" // for symm_trans_t
 
 void
 make_instanced_graphical_bonds_spherical_atoms(coot::instanced_mesh_t &m, // add to this

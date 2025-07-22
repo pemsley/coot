@@ -46,9 +46,9 @@
 
 #include <mmdb2/mmdb_manager.h>
 #include <mmdb2/mmdb_tables.h>  // for mmdb::Get1LetterCode()
-#include "coords/mmdb-extras.h"
-#include "coords/Cartesian.h"
-#include "coords/mmdb-crystal.h"
+#include "coords/mmdb-extras.hh"
+#include "coords/Cartesian.hh"
+#include "coords/mmdb-crystal.hh"
 
 #include "ligand/rotamer.hh" // in ligand
 

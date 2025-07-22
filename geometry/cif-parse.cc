@@ -2108,7 +2108,7 @@ coot::protein_geometry::init_standard() {
    // option].
    //
 
-   bool debug = true;
+   bool debug = false;
 
    // std::string dir = DATADIR;
    std::string pkg_data_dir = package_data_dir(); // xxx/share/coot
@@ -2221,7 +2221,7 @@ coot::protein_geometry::init_standard() {
    }
 
    if (debug)
-      std::cout << "Here with mon_lib_dir set to " << mon_lib_dir << std::endl;
+      std::cout << "DEBUG:: Here with mon_lib_dir set to " << mon_lib_dir << std::endl;
 
    if (mon_lib_dir.length() > 0) {
       mon_lib_dir =  coot::util::intelligent_debackslash(mon_lib_dir);

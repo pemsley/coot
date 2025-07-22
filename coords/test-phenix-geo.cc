@@ -21,11 +21,7 @@
  *
  */
 
-#include "mmdb-extras.h"
-#include "mmdb.hh"
-#include "mmdb-crystal.h" 
-#include "Bond_lines.h"
-
+#include "Bond_lines.hh"
 
 int main(int argc, char **argv) {
 
