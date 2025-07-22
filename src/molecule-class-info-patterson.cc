@@ -29,7 +29,6 @@
 
 #include "compat/coot-sysdep.h"
 
-
 // Having to set up the include files like this so that
 // molecule-class-info.h can be parsed, is silly.
 

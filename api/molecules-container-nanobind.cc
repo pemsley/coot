@@ -9,11 +9,11 @@
 #include <nanobind/ndarray.h>
 #include <nanobind/operators.h>
 
-#include "clipper/core/ramachandran.h"
-#include "clipper/clipper-ccp4.h"
+#include <clipper/core/ramachandran.h>
+#include <clipper/clipper-ccp4.h>
 
 #include "coot-utils/pugixml.hpp"
-#include "coords/mmdb-crystal.h"
+#include "coords/mmdb-crystal.hh"
 #include "coot-utils/acedrg-types-for-residue.hh"
 #include "coot-utils/g_triangle.hh"
 #include "mini-mol/mini-mol-utils.hh"
