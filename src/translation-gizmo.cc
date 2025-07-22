@@ -1,4 +1,6 @@
 
+#include <functional>
+
 #include "translation-gizmo.hh"
 #include "coot-utils/cylinder.hh"
 #include "generic-vertex.hh"
@@ -76,35 +78,23 @@ translation_gizmo_t::init() {
    z_axis_mesh_c3.translate(  glm::vec3(0.0, 0.0, 7.2));
    z_axis_mesh_cone.translate(glm::vec3(0.0, 0.0, 8.0));
 
-   std::vector<std::reference_wrapper<coot::simple_mesh_t> > x_sub_meshes = {
-      x_axis_mesh_c0, x_axis_mesh_c1, x_axis_mesh_c2, x_axis_mesh_c3, x_axis_mesh_cone };
-   std::vector<std::reference_wrapper<coot::simple_mesh_t> > y_sub_meshes = {
-      y_axis_mesh_c0, y_axis_mesh_c1, y_axis_mesh_c2, y_axis_mesh_c3, y_axis_mesh_cone };
-   std::vector<std::reference_wrapper<coot::simple_mesh_t> > z_sub_meshes = {
-      z_axis_mesh_c0, z_axis_mesh_c1, z_axis_mesh_c2, z_axis_mesh_c3, z_axis_mesh_cone };
-   for (auto &mesh : x_sub_meshes) { mesh.get().change_colour(red); }
-   for (auto &mesh : y_sub_meshes) { mesh.get().change_colour(green); }
-   for (auto &mesh : z_sub_meshes) { mesh.get().change_colour(blue); }
-
    mesh.clear();
 
-   mesh.add_submesh(x_axis_mesh_c0);
-   mesh.add_submesh(x_axis_mesh_c1);
-   mesh.add_submesh(x_axis_mesh_c2);
-   mesh.add_submesh(x_axis_mesh_c3);
-   mesh.add_submesh(x_axis_mesh_cone);
-
-   mesh.add_submesh(y_axis_mesh_c0);
-   mesh.add_submesh(y_axis_mesh_c1);
-   mesh.add_submesh(y_axis_mesh_c2);
-   mesh.add_submesh(y_axis_mesh_c3);
-   mesh.add_submesh(y_axis_mesh_cone);
-
-   mesh.add_submesh(z_axis_mesh_c0);
-   mesh.add_submesh(z_axis_mesh_c1);
-   mesh.add_submesh(z_axis_mesh_c2);
-   mesh.add_submesh(z_axis_mesh_c3);
-   mesh.add_submesh(z_axis_mesh_cone);
+   std::vector<std::reference_wrapper<coot::simple_mesh_t> > x_sub_meshes = {
+     std::ref(x_axis_mesh_c0), std::ref(x_axis_mesh_c1), std::ref(x_axis_mesh_c2),
+     std::ref(x_axis_mesh_c3), std::ref(x_axis_mesh_cone) };
+   std::vector<std::reference_wrapper<coot::simple_mesh_t> > y_sub_meshes = {
+     std::ref(y_axis_mesh_c0), std::ref(y_axis_mesh_c1), std::ref(y_axis_mesh_c2),
+     std::ref(y_axis_mesh_c3), std::ref(y_axis_mesh_cone) };
+   std::vector<std::reference_wrapper<coot::simple_mesh_t> > z_sub_meshes = {
+     std::ref(z_axis_mesh_c0), std::ref(z_axis_mesh_c1), std::ref(z_axis_mesh_c2),
+     std::ref(z_axis_mesh_c3), std::ref(z_axis_mesh_cone) };
+   for (auto &m : x_sub_meshes) { m.get().change_colour(red); }
+   for (auto &m : y_sub_meshes) { m.get().change_colour(green); }
+   for (auto &m : z_sub_meshes) { m.get().change_colour(blue); }
+   for (auto &m : x_sub_meshes) { mesh.add_submesh(m); }
+   for (auto &m : y_sub_meshes) { mesh.add_submesh(m); }
+   for (auto &m : z_sub_meshes) { mesh.add_submesh(m); }
 
    // Now bring the whole mesh to Unit size
    mesh.scale(1.0/7.8);
