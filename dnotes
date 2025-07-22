@@ -11896,3 +11896,31 @@ Fri  4 Jul 16:35:20 BST 2025
    xdg_t xdg;
    std::string download_dir = join(xdg.get_cache_home().string(), "coot-download");
 
+---
+Sat 19 Jul 2025 18:54:32 BST
+
+  to add c++ lsp to nvim with nvchad, edit ~/.config/nvim/lua/configs/lspconfig.lua
+
+local servers = { "html", "cssls" }
+
+to
+
+local servers = { "html", "cssls", "clangd" }
+
+and also (unrelated I think) in ~/.config/nvim/lua/plugins/init.lua
+
+  {
+    "nvim-treesitter/nvim-treesitter",
+  	opts = {
+  		ensure_installed = {
+   			"vim", "lua", "vimdoc", "html", "css", "python", "cpp"
+   		},
+   	},
+  },
+
+i.e. I added "cpp"
+
+treestitter does nice code markup.
+
+
+
