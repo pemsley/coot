@@ -11899,7 +11899,7 @@ Fri  4 Jul 16:35:20 BST 2025
 ---
 Sat 19 Jul 2025 18:54:32 BST
 
-  to add c++ lsp to nvim with nvchad, edit ~/.config/nvim/lua/configs/lspconfig.lua
+To add c++ lsp to nvim with nvchad, edit ~/.config/nvim/lua/configs/lspconfig.lua
 
 local servers = { "html", "cssls" }
 

@@ -3,6 +3,8 @@
 
 o lidia needs a wrapper and to be moved to libexec
 
+o pickable ribbons.
+
 o Bonds and angles validation on 2d diagram from chapi
   as svg.
 
@@ -22,13 +24,7 @@ o read in a molecule, make a molecule with DNA models. Refine DNA, then
 o move make_directory_maybe() to take std::string arg.
   Will need to change the header. Maybe a new header?
 
-o Talk to Stuart:
-::function get_atom not found - out of 386 docstrings
-::function get_atom_using_cid not found - out of 386 docstrings
-::function get_residue not found - out of 386 docstrings
-::function get_residue_using_cid not found - out of 386 docstrings
-
-o Move Molecule Here should be an overlay
+o environment distances should be an overlay
 
 o check that hydrogen bonds are displayed correctly.
   See update_hydrogen_bond_mesh()
@@ -103,6 +99,16 @@ o  It was a strange bit of code in get_group().
    Solved now? Am I using the right version?
 
 --- Done Items ---
+
+o Talk to Stuart:
+::function get_atom not found - out of 386 docstrings
+::function get_atom_using_cid not found - out of 386 docstrings
+::function get_residue not found - out of 386 docstrings
+::function get_residue_using_cid not found - out of 386 docstrings
+* Done
+
+o Move Molecule Here should be an overlay
+* Done
 
 o side-chain 180 should do a syn/anti flip for nucleotide bases
   i.e. rotate 180 around C1-N1 (or N9)
