@@ -564,6 +564,77 @@ void add_toolbar_subprocess_button(const std::string &button_label,
 
 }
 
+#include "c-interface.h" // for is_valid_model_molecule()))
+
+// resolution in A.
+// The map in imol_fofc_map gets overwritten.
+void emplacement_local(int imol_model,
+                       const std::string &half_map_1, const std::string &half_map_2,
+                       int search_centre_x,
+                       int search_centre_y,
+                       int search_centre_z,
+                       float resolution) {
+
+   // this doesn't actually work yet. It is a placeholder to be fixed up later.
+
+   auto emplace_local_func = [] (const std::vector<std::string> &cmd_list ) {
+
+      try {
+         subprocess::OutBuffer obuf = subprocess::check_output(cmd_list);
+         if (true) {
+            std::cout << "Data : " << obuf.buf.data() << std::endl;
+            std::cout << "Data len: " << obuf.length << std::endl;
+         }
+      }
+      catch (const std::runtime_error &e) {
+         std::cout << "WARNING:: runtime_error " << e.what() << std::endl;
+      }
+      catch (const std::exception &e) {
+         std::cout << "WARNING:: exception " << e.what() << std::endl;
+      }
+      catch (...) {
+         std::cout << "WARNING:: caught some other error" << std::endl;
+      }
+   };
+
+   auto check_it = +[] (gpointer data) {
+      std::cout << "checking..." << std::endl;
+   };
+
+   if (is_valid_model_molecule(imol_model)) {
+      char *ccp4_ev = getenv("CCP4");
+      std::string model_file_name = "emplace_local_in.pdb";
+      write_pdb_file(imol_model, model_file_name.c_str());
+      if (ccp4_ev) {
+         std::string ccp4_prfx(ccp4_ev);
+         std::string em_placement_py_file = ccp4_prfx + "/ccp4-9/lib/python3.9/site-packages" +
+            "/phaser_voyager/src/New_Voyager/scripts/emplace_local.py";
+         std::vector<std::string> command_list = {
+            "ccp4-python",
+            em_placement_py_file,
+            "--model_file",
+            model_file_name,
+            "--map1", half_map_1,
+            "--map2", half_map_2,
+            "--d_min", std::to_string(resolution),
+            "--sphere_center",
+            std::to_string(search_centre_x),
+            std::to_string(search_centre_y),
+            std::to_string(search_centre_z)
+         };
+
+         std::thread thread(emplace_local_func, command_list);
+         thread.detach();
+
+         GSourceFunc f = GSourceFunc(check_it);
+         g_timeout_add(400, f, nullptr);
+
+      }
+   }
+
+}
+
+
 // in c-interface-gui.cc
 // fill_combobox_with_map_options(combobox_1, callback);
 // but not in a header

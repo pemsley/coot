@@ -6850,6 +6850,26 @@ Do you want to continue?
               </child>
 
               <child>
+                <object class="GtkBox" id="subprocess_running_box">
+                  <property name="visible">False</property>
+                  <property name="orientation">vertical</property>
+                  <property name="valign">center</property>
+                  <child>
+                    <object class="GtkLabel" id="subprocess_running_label_1">
+                      <property name="label" translatable="yes">Running...</property>
+                      <property name="justify">center</property>
+                    </object>
+                  </child>
+                  <child>
+                    <object class="GtkLabel" id="subprocess_running_label_2">
+                      <property name="label" translatable="yes">🕘</property>
+                      <property name="justify">center</property>
+                    </object>
+                  </child>
+                </object>
+              </child>
+
+              <child>
                 <object class="GtkButton" id="coot-points-button">
                   <property name="label" translatable="yes">Coot Points</property>
                   <property name="can-focus">0</property>
