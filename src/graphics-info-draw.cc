@@ -5354,19 +5354,19 @@ graphics_info_t::update_bad_nbc_atom_pair_marker_positions() {
 
          GLenum err = glGetError();
          if (err)
-            std::cout << "GL ERROR:: update_bad_nbc_atom_pair_marker_positions() pos-B " << stringify_error_message(err) << std::endl;
+            std::cout << "GL ERROR:: update_bad_nbc_atom_pair_marker_positions() pos-B " << stringify_error_code(err) << std::endl;
 
          attach_buffers();
          err = glGetError();
          if (err)
             std::cout << "GL ERROR:: update_bad_nbc_atom_pair_marker_positions() pos-C - post attach_buffers "
-                      << stringify_error_message(err) << std::endl;
+                      << stringify_error_code(err) << std::endl;
          tmesh_for_bad_nbc_atom_pair_markers.draw_this_mesh = true;
          tmesh_for_bad_nbc_atom_pair_markers.update_instancing_buffer_data(bad_nbc_atom_pair_marker_positions);
          err = glGetError();
          if (err)
             std::cout << "GL ERROR:: update_bad_nbc_atom_pair_marker_positions() pos-C - post update_instancing_buffer_data "
-                      << stringify_error_message(err) << std::endl;
+                      << stringify_error_code(err) << std::endl;
          if (! bad_nbc_atom_pair_marker_positions.empty())
             draw_bad_nbc_atom_pair_markers_flag = true;
 

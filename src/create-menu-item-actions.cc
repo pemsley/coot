@@ -916,8 +916,8 @@ void
 move_molecule_here_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                           G_GNUC_UNUSED GVariant *parameter,
                           G_GNUC_UNUSED gpointer user_data) {
-   GtkWidget *w = widget_from_builder("move_molecule_here_dialog");
-   fill_move_molecule_here_dialog(w);
+   GtkWidget *w = widget_from_builder("move_molecule_here_frame");
+   fill_move_molecule_here_frame(w);
    gtk_widget_set_visible(w, TRUE);
 }
 

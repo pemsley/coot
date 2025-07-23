@@ -227,7 +227,7 @@ GtkWidget *wrapped_create_delete_item_dialog() {
 // move_molecule_here_big_molecules_checkbutton.
 //
 void
-fill_move_molecule_here_dialog(GtkWidget *w) {
+fill_move_molecule_here_frame(GtkWidget *w) {
 
    // // GtkWidget *option_menu  = lookup_widget(w, "move_molecule_here_optionmenu");
 

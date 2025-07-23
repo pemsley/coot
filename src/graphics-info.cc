@@ -23,7 +23,6 @@
 
 
 #ifdef USE_PYTHON
-#include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #include "python-3-interface.hh"
 #endif
 
@@ -39,9 +38,7 @@
 #include <vector>
 #endif
 
-#ifndef EMSCRIPTEN
 #include <gtk/gtk.h>  // must come after mmdb_manager on MacOS X Darwin
-#endif
 
 #include <iostream>
 #ifdef _MSC_VER

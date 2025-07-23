@@ -782,6 +782,7 @@ libcootsumo_la_SOURCES = \
 	startup-utils.cc         \
 	startup-scripts.hh       \
 	startup-scripts.hh       \
+	stringify-error-code.hh  \
 	testing.cc testing-2.cc  \
 	testing-data.hh          \
 	testing.hh               \

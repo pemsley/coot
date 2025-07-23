@@ -1151,7 +1151,7 @@ molecule_class_info_t::sort_map_triangles(const clipper::Coord_orth &eye_positio
 void
 molecule_class_info_t::setup_glsl_map_rendering(const clipper::Coord_orth &centre, float radius) {
 
-   auto stringify_error_message = [] (GLenum err) {
+   auto stringify_error_code = [] (GLenum err) {
 
       std::string r = std::to_string(err);
       if (err == GL_INVALID_ENUM)      r = "GL_INVALID_ENUM";
@@ -1165,7 +1165,7 @@ molecule_class_info_t::setup_glsl_map_rendering(const clipper::Coord_orth &centr
    GLenum err = glGetError();
    if (err) {
       std::cout << "GL ERROR:: Mesh::setup_glsl_map_rendering() \""  << "\" --- start --- "
-                << stringify_error_message(err) << std::endl;
+                << stringify_error_code(err) << std::endl;
    } else {
       // std::cout << "INFO:: Mesh::setup_glsl_map_rendering() \""  << "\" --- start --- "
       //                 << "no error here" << std::endl;
@@ -1186,7 +1186,7 @@ molecule_class_info_t::setup_glsl_map_rendering(const clipper::Coord_orth &centr
    err = glGetError();
    if (err) {
       std::cout << "GL ERROR:: Mesh::setup_glsl_map_rendering() Pos A0 "
-                << stringify_error_message(err) << std::endl;
+                << stringify_error_code(err) << std::endl;
    } else {
       // std::cout << "INFO:: Mesh::setup_glsl_map_rendering() Pos A0 "
       // << "no error here" << std::endl;
@@ -1197,7 +1197,7 @@ molecule_class_info_t::setup_glsl_map_rendering(const clipper::Coord_orth &centr
    err = glGetError();
    if (err) {
       std::cout << "GL ERROR:: Mesh::setup_glsl_map_rendering() Pos A1 "
-                << stringify_error_message(err) << std::endl;
+                << stringify_error_code(err) << std::endl;
    } else {
       // std::cout << "INFO:: Mesh::setup_glsl_map_rendering() Pos A1 "
       // << "no error here" << std::endl;
@@ -1213,7 +1213,7 @@ molecule_class_info_t::setup_glsl_map_rendering(const clipper::Coord_orth &centr
    err = glGetError();
    if (err) {
       std::cout << "GL ERROR:: Mesh::setup_glsl_map_rendering() Pos A "
-                << stringify_error_message(err) << std::endl;
+                << stringify_error_code(err) << std::endl;
    } else {
       // std::cout << "INFO:: Mesh::setup_glsl_map_rendering() Pos A "
       // << "no error here" << std::endl;
@@ -1297,7 +1297,7 @@ molecule_class_info_t::setup_glsl_map_rendering(const clipper::Coord_orth &centr
    err = glGetError();
    if (err) {
       std::cout << "GL ERROR:: Mesh::setup_glsl_map_rendering() Pos B "
-                << stringify_error_message(err) << std::endl;
+                << stringify_error_code(err) << std::endl;
    } else {
       // std::cout << "INFO:: Mesh::setup_glsl_map_rendering() Pos B "
       // << "no error here" << std::endl;
@@ -1334,7 +1334,7 @@ molecule_class_info_t::setup_glsl_map_rendering(const clipper::Coord_orth &centr
    err = glGetError();
    if (err) {
       std::cout << "GL ERROR:: Mesh::setup_glsl_map_rendering() Pos C "
-                << stringify_error_message(err) << std::endl;
+                << stringify_error_code(err) << std::endl;
    } else {
       // std::cout << "INFO:: Mesh::setup_glsl_map_rendering() Pos C "
       //                 << "no error here" << std::endl;
@@ -1353,7 +1353,7 @@ molecule_class_info_t::setup_glsl_map_rendering(const clipper::Coord_orth &centr
    err = glGetError();
    if (err) {
       std::cout << "GL ERROR:: Mesh::setup_glsl_map_rendering() Pos D "
-                << stringify_error_message(err) << std::endl;
+                << stringify_error_code(err) << std::endl;
    } else {
       // std::cout << "INFO:: Mesh::setup_glsl_map_rendering() Pos D "
       // << "no error here" << std::endl;

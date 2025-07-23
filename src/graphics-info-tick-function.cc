@@ -93,17 +93,17 @@ graphics_info_t::glarea_tick_func(GtkWidget *widget,
       } else {
          GLenum err = glGetError();
          if (err)
-            std::cout << "glarea_tick_func() particles block start " << stringify_error_message(err) << std::endl;
+            std::cout << "glarea_tick_func() particles block start " << stringify_error_code(err) << std::endl;
          gtk_gl_area_attach_buffers(GTK_GL_AREA(graphics_info_t::glareas[0])); // needed?
          err = glGetError();
          if (err)
-            std::cout << "glarea_tick_func() particles block A " << stringify_error_message(err) << std::endl;
+            std::cout << "glarea_tick_func() particles block A " << stringify_error_code(err) << std::endl;
          graphics_info_t::particles.update_particles();
          if (err)
-            std::cout << "glarea_tick_func() particles block B " << stringify_error_message(err) << std::endl;
+            std::cout << "glarea_tick_func() particles block B " << stringify_error_code(err) << std::endl;
          graphics_info_t::mesh_for_particles.update_instancing_buffer_data_for_particles(particles);
          if (err)
-            std::cout << "glarea_tick_func() particles block C " << stringify_error_message(err) << std::endl;
+            std::cout << "glarea_tick_func() particles block C " << stringify_error_code(err) << std::endl;
       }
    }
 
@@ -114,14 +114,14 @@ graphics_info_t::glarea_tick_func(GtkWidget *widget,
 
          GLenum err = glGetError();
          if (err)
-            std::cout << "glarea_tick_func() gone-diegos block start " << stringify_error_message(err) << std::endl;
+            std::cout << "glarea_tick_func() gone-diegos block start " << stringify_error_code(err) << std::endl;
 
          attach_buffers();
 
          err = glGetError();
          if (err)
             std::cout << "glarea_tick_func() gone-diegos post attach_buffers() "
-                      << stringify_error_message(err) << std::endl;
+                      << stringify_error_code(err) << std::endl;
 
          for (unsigned int ip=0; ip<meshed_particles_for_gone_diegos.size(); ip++) {
             // give back the GL buffers for meshes that will be removed
@@ -132,18 +132,18 @@ graphics_info_t::glarea_tick_func(GtkWidget *widget,
                err = glGetError();
                if (err)
                   std::cout << "glarea_tick_func() gone-diegos block loop pos-A0 "
-                            << stringify_error_message(err) << std::endl;
+                            << stringify_error_code(err) << std::endl;
                mesh.delete_gl_buffers();
                err = glGetError();
                if (err)
                   std::cout << "glarea_tick_func() gone-diegos block loop pos-A1 "
-                            << stringify_error_message(err) << std::endl;
+                            << stringify_error_code(err) << std::endl;
             }
          }
 
          err = glGetError();
          if (err)
-            std::cout << "glarea_tick_func() gone-diegos block pos-B " << stringify_error_message(err) << std::endl;
+            std::cout << "glarea_tick_func() gone-diegos block pos-B " << stringify_error_code(err) << std::endl;
 
          auto remover = [] (const meshed_particle_container_t &mp) {
             bool still_alive = mp.particle_container.have_particles_with_life();
@@ -156,7 +156,7 @@ graphics_info_t::glarea_tick_func(GtkWidget *widget,
 
          err = glGetError();
          if (err)
-            std::cout << "glarea_tick_func() gone-diegos block pos-C " << stringify_error_message(err) << std::endl;
+            std::cout << "glarea_tick_func() gone-diegos block pos-C " << stringify_error_code(err) << std::endl;
 
          for (unsigned int ip=0; ip<meshed_particles_for_gone_diegos.size(); ip++) {
             auto &particles = meshed_particles_for_gone_diegos[ip].particle_container;
@@ -165,12 +165,12 @@ graphics_info_t::glarea_tick_func(GtkWidget *widget,
             mesh.update_instancing_buffer_data_for_particles(particles);
             err = glGetError();
             if (err)
-               std::cout << "glarea_tick_func() gone-diegos block pos-D " << stringify_error_message(err) << std::endl;
+               std::cout << "glarea_tick_func() gone-diegos block pos-D " << stringify_error_code(err) << std::endl;
 
          }
          err = glGetError();
          if (err)
-            std::cout << "glarea_tick_func() gone-diegos block pos-E " << stringify_error_message(err) << std::endl;
+            std::cout << "glarea_tick_func() gone-diegos block pos-E " << stringify_error_code(err) << std::endl;
 
       }
    }

@@ -5330,8 +5330,7 @@ string   static std::string sessionid;
       }
    }
 
-
-   static std::string stringify_error_message(GLenum err) {
+   static std::string stringify_error_code(GLenum err) {
 
       std::string r = std::to_string(err);
       if (err == GL_INVALID_ENUM)      r = "GL_INVALID_ENUM";
@@ -5348,7 +5347,7 @@ string   static std::string sessionid;
             GLenum err = glGetError();
             if (err) {
                std::cout << "GL ERROR:: attach_buffers --- start --- "
-                         << stringify_error_message(err) <<  " \n";
+                         << stringify_error_code(err) <<  " \n";
 #ifdef USE_BACKWARD
                backward::StackTrace st;
                backward::Printer p;
@@ -5361,7 +5360,7 @@ string   static std::string sessionid;
             err = glGetError();
             if (err) {
                std::cout << "GL ERROR:: attach_buffers() --- post gtk_gl_area_attach_buffers() "
-                         << stringify_error_message(err) << " with gl_area " << gl_area
+                         << stringify_error_code(err) << " with gl_area " << gl_area
                          << " calling function: " << s << "()\n";
 #ifdef USE_BACKWARD
                backward::StackTrace st;

@@ -563,7 +563,7 @@ void clear_restraints_editor_by_dialog(GtkWidget *dialog); /* close button press
 GtkWidget *wrapped_create_move_molecule_here_dialog();
 void move_molecule_here_by_widget(); /* no widget */
 int move_molecule_to_screen_centre_internal(int imol);
-void fill_move_molecule_here_dialog(GtkWidget *w);
+void fill_move_molecule_here_frame(GtkWidget *w);
 
 /* } */
 

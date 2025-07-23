@@ -5005,7 +5005,7 @@ on_move_molecule_here_ok_button_clicked(GtkButton       *button,
                                         gpointer         user_data) {
 
   move_molecule_here_by_widget();
-  GtkWidget *w = widget_from_builder("move_molecule_here_dialog");
+  GtkWidget *w = widget_from_builder("move_molecule_here_frame");
   gtk_widget_set_visible(w, FALSE);
 
 }
@@ -5018,7 +5018,7 @@ on_move_molecule_here_cancel_button_clicked
                                         gpointer         user_data)
 {
 
-  GtkWidget *w = widget_from_builder("move_molecule_here_dialog");
+  GtkWidget *w = widget_from_builder("move_molecule_here_frame");
   gtk_widget_set_visible(w, FALSE);
 
 }
@@ -5816,8 +5816,8 @@ on_move_molecule_here_big_molecules_checkbutton_toggled
                                         (GtkToggleButton *togglebutton,
                                         gpointer         user_data)
 {
-  GtkWidget *dialog = widget_from_builder("move_molecule_here_dialog");
-  fill_move_molecule_here_dialog(dialog);
+  GtkWidget *frame = widget_from_builder("move_molecule_here_frame");
+  fill_move_molecule_here_frame(frame);
 }
 
 extern "C" G_MODULE_EXPORT

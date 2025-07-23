@@ -74,7 +74,7 @@ extern logging logger;
 
 
 // this can be outside of Mesh
-std::string stringify_error_message(GLenum err) {
+std::string stringify_error_code(GLenum err) {
 
    std::string r = std::to_string(err);
    if (err == GL_INVALID_ENUM)  r = "GL_INVALID_ENUM";
@@ -800,15 +800,15 @@ Mesh::setup_buffers() {
       // std::cout << "GL ERROR:: Mesh::setup_buffers() \"" << name << "\" --- start --- "
       // << stringify_error_message(err) << std::endl;
       logger.log(log_t::GL_ERROR, logging::function_name_t("Mesh::setup_buffers()"),
-		 stringify_error_message(err));
+		 stringify_error_code(err));
       err = glGetError();
       if (err != 0)
          std::cout << "GL ERROR:: Mesh::setup_buffers() \"" << name << "\" --- start --- stack-clear "
-                   << stringify_error_message(err) << std::endl;
+                   << stringify_error_code(err) << std::endl;
       err = glGetError();
       if (err != 0)
          std::cout << "GL ERROR:: Mesh::setup_buffers() \"" << name << "\" --- start --- stack-clear "
-                   << stringify_error_message(err) << std::endl;
+                   << stringify_error_code(err) << std::endl;
    }
 
    bool setup_buffers_for_gl_lines = false;
@@ -832,7 +832,7 @@ Mesh::setup_buffers() {
       // 20220803-PE did you forget to attach_buffers() beforehand again?
       std::cout << "GL ERROR:: Mesh::setup_buffers() on binding vao " << vao << " error " << _(err) << std::endl;
       logger.log(log_t::GL_ERROR, logging::function_name_t("Mesh::setup_buffers()"),
-		 {"on binding vao", vao, stringify_error_message(err)});
+		 {"on binding vao", vao, stringify_error_code(err)});
    }
 
    unsigned int n_vertices = vertices.size();
@@ -884,14 +884,14 @@ Mesh::setup_buffers() {
       if (err) {
 	 std::cout << "GL ERROR:: Mesh::setup_buffers()\n";
 	 logger.log(log_t::GL_ERROR, logging::function_name_t("Mesh::setup_buffers()"),
-		    {"on glGenBuffers()", stringify_error_message(err)});
+		    {"on glGenBuffers()", stringify_error_code(err)});
       }
       glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer_id);
       err = glGetError();
       if (err) {
 	 std::cout << "GL ERROR:: Mesh::setup_buffers()\n";
 	 logger.log(log_t::GL_ERROR, logging::function_name_t("Mesh::setup_buffers()"),
-		    {"on glBindBuffer()", stringify_error_message(err)});
+		    {"on glBindBuffer()", stringify_error_code(err)});
       }
    } else {
       glDeleteBuffers(1, &index_buffer_id);
@@ -900,14 +900,14 @@ Mesh::setup_buffers() {
       if (err) {
 	 std::cout << "GL ERROR:: Mesh::setup_buffers()\n";
 	 logger.log(log_t::GL_ERROR, logging::function_name_t("Mesh::setup_buffers()"),
-		    {"on delete and gen", stringify_error_message(err)});
+		    {"on delete and gen", stringify_error_code(err)});
       }
       glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer_id);
       err = glGetError();
       if (err) {
 	 std::cout << "GL ERROR:: Mesh::setup_buffers()\n";
 	 logger.log(log_t::GL_ERROR, logging::function_name_t("Mesh::setup_buffers()"),
-		    {"on glBindBuffer() - not first time:", stringify_error_message(err)});
+		    {"on glBindBuffer() - not first time:", stringify_error_code(err)});
       }
    }
 
@@ -924,14 +924,14 @@ Mesh::setup_buffers() {
       err = glGetError();
       if (err)
 	 logger.log(log_t::GL_ERROR, logging::function_name_t("Mesh::setup_buffers"),
-		    {"on gl_lines glBufferData() ", stringify_error_message(err), "for mesh", name});
+		    {"on gl_lines glBufferData() ", stringify_error_code(err), "for mesh", name});
    } else {
       glBufferData(GL_ELEMENT_ARRAY_BUFFER, n_bytes_for_triangles, &triangles[0], GL_STATIC_DRAW);
       err = glGetError();
       if (err) {
 	 std::cout << "GL ERROR:: Mesh::setup_buffers()\n";
 	 logger.log(log_t::GL_ERROR, logging::function_name_t("Mesh::setup_buffers"),
-		    {"on glBufferData() ", stringify_error_message(err), "for mesh", name});
+		    {"on glBufferData() ", stringify_error_code(err), "for mesh", name});
       }
    }
 
@@ -2065,7 +2065,7 @@ Mesh::draw(Shader *shader_p,
 
    err = glGetError();
    if (err) std::cout << "GL ERROR:: draw() " << shader_name << " set float for uniform opacity "
-                      << " with GL err " << stringify_error_message(err) << std::endl;
+                      << " with GL err " << stringify_error_code(err) << std::endl;
 
    // this is not useful - eye_position_in_molecule_coordinates_space is what is needed
    // for correct specular reflections.
@@ -3384,12 +3384,12 @@ Mesh::setup_extra_distance_restraint_cylinder(const Material &material_in) { // 
    if (err) {
       std::cout << "GL ERROR:: Mesh::setup_extra_distance_restraint_cylinder() \""
                 << name << "\" --- start --- "
-                << stringify_error_message(err) << std::endl;
+                << stringify_error_code(err) << std::endl;
       err = glGetError();
       if (err != 0)
          std::cout << "GL ERROR:: Mesh::setup_extra_distance_restraint_cylinder() \""
                    << name << "\" --- start --- stack-clear "
-                   << stringify_error_message(err) << std::endl;
+                   << stringify_error_code(err) << std::endl;
    }
 
    auto vnc_vertex_to_generic_vertex = [] (const coot::api::vnc_vertex &v) {
