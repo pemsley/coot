@@ -1,0 +1,15 @@
+#!/bin/sh
+export LC_ALL=C
+export LANG=C
+
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+@libexecdir@/layla-bin "$@"
+
+# Note to Charles, use this instead of the above block
+# for relocatable binaries
+
+    # unlinked_exe=$(readlink -f $0)
+    # unlinked_exe_dir=$(dirname $unlinked_exe)
+    # COOT_PREFIX=$(dirname $unlinked_exe_dir)
+    # $COOT_PREFIX/libexec/layla-bin "$@"

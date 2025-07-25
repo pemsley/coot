@@ -577,6 +577,7 @@ fonts/Makefile
 pyrogen/Makefile
 pyrogen/pyrogen
 layla/Makefile
+layla/layla
 MoleculesToTriangles/Makefile
 MoleculesToTriangles/CXXSurface/Makefile
 MoleculesToTriangles/CXXSurface/MoleculesToTrianglesCXXSurface.pc
