@@ -613,7 +613,10 @@ libcootsumo_la_SOURCES = \
 	graphics-info-defines.cc \
 	graphics-info-defines-gtk4.cc \
 	graphics-info-draw.cc    \
+	graphics-info-draw-utils.cc \
 	graphics-info-draw-models.cc \
+	graphics-info-enums.hh \
+	graphics-info-geometry-graphs.cc \
 	graphics-info-graphs.cc	 \
 	graphics-info-gui.cc	 \
 	graphics-info-init.cc	 \
@@ -640,6 +643,7 @@ libcootsumo_la_SOURCES = \
 	graphics-info-superpose.cc	\
 	graphics-info-tick-function.cc \
 	graphics-info-trackball.cc	\
+	graphics-info-utils.cc	 \
 	graphics-ligand-view.cc	 \
 	graphics-ligand-view.hh	 \
 	graphics-ligand-mesh-molecule.cc \
@@ -656,6 +660,7 @@ libcootsumo_la_SOURCES = \
 	gtk-utils.hh \
 	guile-fixups.h		 \
 	history_list.hh		 \
+	intermediate-atom.hh     \
 	HUDMesh.cc               \
 	HUDMesh.hh               \
 	HUDTextureMesh.cc        \

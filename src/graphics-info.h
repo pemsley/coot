@@ -198,310 +198,7 @@ enum { N_ATOMS_MEANS_BIG_MOLECULE = 400 };
 //   82 | extern char *textdomain (const char *__domainname) __THROW;
 //       |              ^~~~~~~~~~
 
-
-namespace coot {
-   enum {NEW_COORDS_UNSET = 0,       // moving_atoms_asc_type values
-	 NEW_COORDS_ADD = 1,                 // not used?
-	 NEW_COORDS_REPLACE = 2,
-	 NEW_COORDS_REPLACE_CHANGE_ALTCONF = 3,
-	 NEW_COORDS_INSERT = 4,
-         NEW_COORDS_INSERT_CHANGE_ALTCONF = 5};
-   enum {STATE_SCM = 1, STATE_PYTHON = 2};
-   enum undo_type { UNDO, REDO};
-   enum display_mode_type {MONO_MODE=0, HARDWARE_STEREO_MODE=1,
-			   SIDE_BY_SIDE_STEREO=2,  // cross-eye
-			   DTI_SIDE_BY_SIDE_STEREO=3,
-                           SIDE_BY_SIDE_STEREO_WALL_EYE=4,
-                           ZALMAN_STEREO=5};
-   enum accept_reject_text_type { CHI_SQUAREDS, CHIRAL_CENTRES};
-   enum chooser_selector_type { OLD_STYLE, CHOOSER_STYLE };
-   enum chooser_overwrite_type { CHOOSER_OVERWRITE, CHOOSER_OVERWRITE_PROTECT };
-   enum accept_reject_dialog_type { DIALOG, DIALOG_DOCKED };
-   enum accept_reject_dialog_docked_type { DIALOG_DOCKED_HIDE = 0,
-                                           DIALOG_DOCKED_SHOW = 1};
-   enum fixed_atom_pick_state_t { FIXED_ATOM_NO_PICK = 0,
-				  FIXED_ATOM_FIX = 1,
-				  FIXED_ATOM_UNFIX = 2 };
-   enum ncs_matrix_type { NCS_SSM  = 0,
-                          NCS_LSQ  = 1,
-			  NCS_LSQ2 = 2};
-   namespace model_toolbar {
-     enum toolbar_position_type { RIGHT  = 0,
-                                  LEFT   = 1,
-                                  TOP    = 2,
-                                  BOTTOM = 3};
-   }
-   namespace refmac {
-     enum refmac_refinement_method_type { RESTRAINED     = 0 ,
-					  RIGID_BODY     = 1 ,
-					  RESTRAINED_TLS = 2 };
-     enum refmac_phase_input_type { NO_PHASES = 0,
-				    PHASE_FOM = 1 ,
-				    HL        = 2 ,
-                                    SAD       = 3 };
-     enum refmac_use_tls_type { TLS_OFF = 0,
-				TLS_ON  = 1};
-     enum refmac_use_twin_type { TWIN_OFF = 0,
-				 TWIN_ON  = 1};
-     enum refmac_use_sad_type { SAD_OFF = 0,
-				SAD_ON = 1};
-     enum refmac_use_ncs_type { NCS_OFF = 0,
-				NCS_ON  = 1};
-     enum refmac_use_intensities_type { AMPLITUDES   = 0,
-					INTENSITIES  = 1};
-     enum refmac_used_mtz_file_type { MAP = 0,
-				      MTZ = 1};
-
-     class sad_atom_info_t {
-     public:
-	std::string atom_name;
-	float fp;
-	float fpp;
-	float lambda;
-        sad_atom_info_t(const std::string &atom_name_in, float &fp_in,
-			float &fpp_in, float &lambda_in) :
-           atom_name(atom_name_in), fp(fp_in), fpp(fpp_in), lambda(lambda_in) { }
-     };
-   }
-
-   enum nomenclature_error_handle_type {
-     AUTO_CORRECT, IGNORE, PROMPT};
-
-   enum scripting_language_type { SCRIPT_UNSET = -1,
-				  SCHEME_SCRIPT = 1,
-				  PYTHON_SCRIPT = 2};
-
-   // we can (only) use scripting_function for things that return a
-   // command_arg_t (bool, int, float, string) but that should cover
-   // most cases.
-   coot::command_arg_t scripting_function(const std::string &function_name,
-					  const std::vector<coot::command_arg_t> &args);
-
-
-#ifdef DO_GEOMETRY_GRAPHS
-   void set_validation_graph(int imol, coot::geometry_graph_type type, GtkWidget *dialog);
-   GtkWidget *get_validation_graph(int imol, coot::geometry_graph_type type);
-#endif
-
-   class coord_orth_triple {
-   public:
-      clipper::Coord_orth p1;
-      clipper::Coord_orth p2;
-      clipper::Coord_orth p3;
-   };
-
-   class intermediate_atom_distance_t {
-      coot::Cartesian static_position;
-      mmdb::Atom *dynamic_atom;
-      bool static_pos_filled_flag;
-
-   public:
-      intermediate_atom_distance_t() {
-         dynamic_atom = 0;
-         static_pos_filled_flag = 0;
-      }
-      explicit intermediate_atom_distance_t(const coot::Cartesian &pt) : static_position(pt) {
-         dynamic_atom = 0;
-         static_pos_filled_flag = 1;
-      }
-      explicit intermediate_atom_distance_t(mmdb::Atom *at) : dynamic_atom(at) {
-         static_pos_filled_flag = 0;
-      }
-      void draw_dynamic_distance() const;
-      bool static_position_is_filled() const { return static_pos_filled_flag; }
-      bool atom_is_filled() const {
-         return (dynamic_atom != 0);
-      }
-      void add_atom(mmdb::Atom *at) {
-         dynamic_atom = at;
-      }
-      void add_static_point(Cartesian &pt) {
-         static_position = pt;
-         static_pos_filled_flag = 1;
-      }
-      bool filled() const {
-         return (static_pos_filled_flag && dynamic_atom);
-      }
-   };
-
-   class ramachandran_points_container_t {
-
-      std::vector<std::pair<std::string, clipper::Coord_orth> > points;
-
-
-   public:
-      ramachandran_points_container_t() {};
-      void clear() {
-	 points.resize(0);
-      }
-      std::pair<short int, clipper::Coord_orth> get(const std::string &atom_name) const {
-	 std::pair<short int, clipper::Coord_orth> v;
-	 v.first = 0;
-	 for (unsigned int i=0; i<points.size(); i++) {
-	    if (atom_name == points[i].first) {
-	       v.first = 1;
-	       v.second = points[i].second;
-	       break;
-	    }
-	 }
-	 return v;
-      }
-      void add(const std::string &s, const clipper::Coord_orth &p) {
-	 points.push_back(std::pair<std::string, clipper::Coord_orth> (s,p));
-      }
-
-   };
-
-   class graph_rotamer_info_t {
-   public:
-     std::string chain_id;
-     int resno;
-     std::string inscode;
-     float probability;
-     std::string rotamer_name;
-     graph_rotamer_info_t(const std::string &chain_id_in, int resno_in, const std::string &inscode_in, float prob_in, const std::string &rotamer_name_in) {
-       chain_id = chain_id_in;
-       resno = resno_in;
-       inscode = inscode_in;
-       probability = prob_in;
-       rotamer_name = rotamer_name_in;
-     }
-   };
-
-   // To pass rotamer info back to scripting layer, for testing.
-   // Hmmmm.. confusing names, perhaps.
-   //
-   class rotamer_graphs_info_t {
-   public:
-     std::vector<graph_rotamer_info_t> info;
-   };
-
-   class diff_map_peak_helper_data {
-   public:
-      int ipeak;
-      clipper::Coord_orth pos;
-   };
-
-
-   enum tube_end_t { NO_ENDS, FLAT_ENDS, ROUND_ENDS};  // use gluDisk or gluSphere.
-
-
-   class console_display_commands_t {
-   public:
-     bool display_commands_flag;
-     bool hilight_flag;
-     bool hilight_colour_flag;
-     int colour_prefix;
-     console_display_commands_t() {
-       // hilighting
-       display_commands_flag = 1;
-       hilight_flag = 1;
-       colour_prefix = 4;
-       hilight_colour_flag = 0;
-     }
-   };
-
-  // for preferences
-  class preference_info_t {
-
-  public:
-    int preference_type;   // e.g. PREFERENCES_bla
-    int ivalue1;
-    int ivalue2;
-    float fvalue1;
-    float fvalue2;
-    float fvalue3;
-  };
-
-  class preferences_icon_info_t {
-
-  public:
-    int icon_pos;
-    std::string icon_filename;
-    std::string icon_text;
-    std::string icon_widget;
-    int show_hide_flag;
-    int default_show_flag;
-    preferences_icon_info_t(int icon_pos_in,
-			    std::string icon_filename_in,
-			    std::string icon_text_in,
-			    std::string icon_widget_in,
-			    int show_hide_flag_in,
-			    int default_show_flag_in) {
-	icon_pos = icon_pos_in;
-	icon_filename = icon_filename_in;
-	icon_text = icon_text_in;
-	icon_widget = icon_widget_in;
-	show_hide_flag = show_hide_flag_in;
-	default_show_flag = default_show_flag_in;
-    }
-    void hide() {
-	show_hide_flag = 0;
-    }
-    void show() {
-	show_hide_flag = 1;
-    }
-  };
-
-  class command_line_commands_t {
-  public:
-    std::vector<std::string> commands;
-    bool is_python;
-    command_line_commands_t() {
-      is_python = 0;
-    }
-  };
-
-
-  class ScreenVectors {
-  public:
-    ScreenVectors();
-    Cartesian screen_x;
-    Cartesian screen_y;
-    Cartesian screen_z;
-  };
-
-  class saved_strand_info_t {
-  public:
-    coot::residue_spec_t start;
-    coot::residue_spec_t end;
-    int strand_idx;
-    saved_strand_info_t(const coot::residue_spec_t &s, const coot::residue_spec_t &e, int idx) {
-      start = s; end = e; strand_idx = idx;
-    }
-  };
-
-
-#ifdef USE_LIBCURL
-  class simple_curl_handler_t {
-  public:
-    CURL * c;
-    std::string file_name;
-    bool stop_it;
-    simple_curl_handler_t(CURL *cin, std::string f) {
-      file_name = f;
-      c = cin;
-      stop_it=0;
-    }
-    bool stop_is_set() {
-      return stop_it;
-    }
-    void set_stop() {
-      stop_it = 1;
-    }
-  };
-#endif // USE_LIBCURL
-
-} // namespace coot
-
-enum { IN_STEREO_MONO = 0, 
-       IN_STEREO_HARDWARE_STEREO=1, 
-       IN_STEREO_ZALMAN_RIGHT=5, 
-       IN_STEREO_ZALMAN_LEFT=6, 
-       IN_STEREO_SIDE_BY_SIDE_LEFT=10,
-       IN_STEREO_SIDE_BY_SIDE_RIGHT=11
-};
-
+#include "graphics-info-enums.hh" // still needs splitting
 
 #include "view.hh"
 
@@ -579,6 +276,7 @@ class graphics_info_t {
    // public static GtkApplication *application; // below. used for finding the menu bar
    //
    static GtkWidget *display_control_window_;
+   static GtkWidget *get_display_control_window();
 
    //
    // static int mol_no_for_environment_distances is public
@@ -828,73 +526,15 @@ class graphics_info_t {
 
    // Geometry Graphs:
 #ifdef DO_GEOMETRY_GRAPHS
-   coot::geometry_graphs *geometry_graph_dialog_to_object(GtkWidget *w) const {
-      coot::geometry_graphs *gr = NULL;
-      if (!w) {
-         std::cout << "geometry_graph_dialog_to_object case A" << std::endl;
-	 std::cout << "ERROR:: null w in geometry_graph_dialog_to_object" << std::endl;
-      } else {
-         std::cout << "geometry_graph_dialog_to_object case B" << std::endl;
-	 GtkWidget *local_graph_canvas = lookup_widget(w, "geometry_graph_canvas");
-	 if (local_graph_canvas) {
-	    // gr = (coot::geometry_graphs *) (gtk_object_get_user_data(GTK_OBJECT(local_graph_dialog)));
-            // this need a corresponding change to set the g_object data - whereever that is.
-            gr = static_cast<coot::geometry_graphs *> (g_object_get_data(G_OBJECT(local_graph_canvas), "geometry-graph"));
-            if (! gr)
-               std::cout << "geometry_graph_dialog_to_object case C - bad news" << std::endl;
-         } else {
-            std::cout << "geometry_graph_dialog_to_object case D - bad news" << std::endl;
-         }
-      }
-      return gr;
-   }
+   coot::geometry_graphs *geometry_graph_dialog_to_object(GtkWidget *w) const;
 #endif
 
    std::vector<coot::geometry_distortion_info_container_t>
      geometric_distortions_from_mol(int imol, const atom_selection_container_t &asc, bool with_nbcs);
    void print_geometry_distortion(const std::vector<coot::geometry_distortion_info_container_t> &v) const;
 
-#if (GTK_MAJOR_VERSION >= 4)
-
    void check_if_in_range_defines();
    void check_if_in_rotamer_define_gtk4(const pick_info &naii);
-
-#else
-   int check_if_in_range_defines(GdkEventButton *event, const GdkModifierType &state);
-
-   int  check_if_in_regularize_define(GdkEventButton *event);
-   int  check_if_in_refine_define(GdkEventButton *event);
-   int  check_if_in_rigid_body_define(GdkEventButton *event);
-   int  check_if_in_rot_trans_define(GdkEventButton *event);
-   void check_if_in_residue_info_define(GdkEventButton *event);
-   void check_if_in_geometry_range_defines(GdkEventButton *event);
-   void check_if_in_pepflip_define(GdkEventButton *event);
-   void check_if_in_terminal_residue_define(GdkEventButton *event);
-   void check_if_in_db_main_define(GdkEventButton *event);
-   void check_if_in_delete_item_define(GdkEventButton *event,
-				       const GdkModifierType &state);
-   void check_if_in_rotamer_define(GdkEventButton *event);
-   void check_if_in_mutate_define(GdkEventButton *event);
-   void check_if_in_mutate_auto_fit_define(GdkEventButton *event);
-   void check_if_in_auto_fit_define(GdkEventButton *event);
-   void check_if_in_add_alt_conf_define(GdkEventButton *event);
-   void check_if_in_cis_trans_convertion_define(GdkEventButton *event);
-   void check_if_in_edit_phi_psi_define(GdkEventButton *event);
-   void check_if_in_edit_chi_angles_define(GdkEventButton *event);
-   void check_if_in_180_degree_flip_define(GdkEventButton *event);
-   void check_if_in_edit_backbone_torsion_define(GdkEventButton *event);
-   void check_if_in_save_symmetry_define(GdkEventButton *event);
-   void check_if_in_reverse_direction_define(GdkEventButton *event);
-   void check_if_in_lsq_plane_define(GdkEventButton *event);
-   void check_if_in_lsq_plane_deviant_atom_define(GdkEventButton *event);
-   void check_if_in_torsion_general_define(GdkEventButton *event);
-   void check_if_in_residue_partial_alt_locs(GdkEventButton *event);
-   void check_if_in_base_pairing_define(GdkEventButton *event);
-   void check_if_in_multi_residue_torsion_define(GdkEventButton *event);
-   void check_if_in_fixed_atom_define(GdkEventButton *event,
-				      const GdkModifierType &state); // can use Ctrl key
-   void check_if_in_user_defined_define(GdkEventButton *event);
-#endif
 
    static std::vector<std::string> model_fit_refine_toggle_button_name_list();
    static std::vector<std::string> model_fit_refine_button_name_list();
@@ -1008,32 +648,8 @@ public:
    static std::chrono::time_point<std::chrono::high_resolution_clock> previous_frame_time;
    static std::chrono::time_point<std::chrono::high_resolution_clock> previous_frame_time_for_per_second_counter;
 
-   static void graphics_grab_focus() {
-
-      if (use_graphics_interface_flag) {
-         if (! glareas.empty()) {
-            GtkWidget *glarea = glareas[0];
-            gtk_widget_grab_focus(glarea);
-         }
-      }
-   }
-
-   static void graphics_draw() {
-
-      // Don't put timing things here - it's not called when tick function is used (somehow). Put it in render()
-      if (use_graphics_interface_flag) {
-         if (! glareas.empty()) {
-            for (unsigned int i=0; i<glareas.size(); i++) {
-               GtkWidget *glarea = glareas[i];
-               gtk_widget_queue_draw(glarea);
-               if (make_movie_flag)
-                  dump_a_movie_image();
-            }
-         }
-      }
-      if (! smooth_scroll_on_going) // 20230423-PE exclude other animations too?
-         draw_rama_plots(); // the widgeted rama plots, not the in-window one.
-   }
+   static void graphics_grab_focus();
+   static void graphics_draw();
 
    // sometimes (when we have 100s of molecules, we don't want to redraw when a molecule
    // is displayed or undisplayed)
@@ -1041,53 +657,10 @@ public:
 
    static void toggle_display_of_last_model();
 
-   static bool is_valid_model_molecule(int imol) {
-
-     bool v = 0;
-     if (imol >= 0) {
-       if (imol < n_molecules()) {
-	 if (molecules[imol].has_model()) {
-	   v = 1;
-	 }
-       }
-     }
-     return v;
-   }
-
-   static bool is_valid_map_molecule(int imol) {
-
-     bool v = 0;
-     if (imol >= 0) {
-       if (imol < n_molecules()) {
-	 if (molecules[imol].has_xmap()) {
-	   v = 1;
-	 }
-	 // NXMAP-FIXME // do I want to check for nxmap here too?
-       }
-     }
-     return v;
-   }
-
-   static bool is_difference_map(int imol) {
-      bool status = false;
-      if (imol >= 0) {
-         if (imol < n_molecules()) {
-            status = molecules[imol].is_difference_map_p();
-         }
-      }
-      return status;
-   }
-
-   static bool display_mode_use_secondary_p() {
-
-     bool r = false;
-     if ((display_mode == coot::SIDE_BY_SIDE_STEREO) ||
-	 (display_mode == coot::SIDE_BY_SIDE_STEREO_WALL_EYE) ||
-	 (display_mode == coot::DTI_SIDE_BY_SIDE_STEREO)) {
-       r = true;
-     }
-     return r;
-   }
+   static bool is_valid_model_molecule(int imol);
+   static bool is_valid_map_molecule(int imol);
+   static bool is_difference_map(int imol);
+   static bool display_mode_use_secondary_p();
 
    // New-style Application!
    static GtkApplication *application; // used for finding the menu bar
@@ -1113,12 +686,7 @@ public:
 
    static std::vector<GtkWidget *> glareas;
    static GtkAllocation get_glarea_allocation();
-   static gl_context_info_t get_gl_context_info() {
-      gl_context_info_t glc; // null default
-      if (glareas.size() > 0) glc.widget_1 = glareas[0];
-      if (glareas.size() > 1) glc.widget_2 = glareas[1];
-      return glc;
-   }
+   static gl_context_info_t get_gl_context_info();
 
    // we need to store these because when we want to correct the size
    // and position of HUD objects (refinemetn arrow, HUD refinement buttons)
@@ -1198,20 +766,9 @@ public:
    // return a vector of the current valid map molecules
    std::vector<int> valid_map_molecules() const;
 
-   // return the new molecule number
-   static int create_molecule();
-
-   static void erase_last_molecule() {
-     // std::vector<molecule_class_info_t>::iterator it = molecules.end();
-     // std << "DEBUG:: Erasing molecule number " << it->MoleculeNumber() << std::endl;
-/*      std::cout << "DEBUG:: Erasing the back molecule " << molecules.size() - 1  */
-/* 	       << " which says that it has molecule number "  */
-/* 	       << molecules[molecules.size() -1].MoleculeNumber() << std::endl; */
-     molecules.pop_back();
-   }
-
+   static int create_molecule(); // return the new molecule number
+   static void erase_last_molecule();
    static int get_latest_model_molecule();
-
    static int get_biggest_model_molecule();
 
    static bool use_graphics_interface_flag; // 20220409-PE now defaults is false!
@@ -1273,13 +830,8 @@ public:
 				    const double &x, const double &y, const double &z,
 				    bool do_unproject, bool mono_font, double scale_factor);
 
-   std::string get_directory_for_fileselection() const {
-     return directory_for_fileselection;
-   }
-   std::string get_directory_for_filechooser() const {
-     return directory_for_filechooser;
-   }
-
+   std::string get_directory_for_fileselection() const; // 20250725-PE can this be removed now?
+   std::string get_directory_for_filechooser() const;
 
    static int map_line_width;
 
@@ -1421,18 +973,8 @@ public:
    void adjust_clipping(float d);
    void set_clipping_front(float v);
    void set_clipping_back(float v);
-   float get_clipping_plane_front() const {
-      if (perspective_projection_flag)
-         return screen_z_near_perspective;
-      else
-         return clipping_front;
-   }
-   float get_clipping_plane_back() const {
-      if (perspective_projection_flag)
-         return screen_z_far_perspective;
-      else
-         return clipping_back;
-   }
+   float get_clipping_plane_front() const;
+   float get_clipping_plane_back() const;
 
    void increase_clipping_front();
    void increase_clipping_back();
@@ -1483,14 +1025,7 @@ public:
    void remove_all_atom_labels();
 
    static int n_molecules() { return molecules.size();}
-   static int n_map_molecules() {
-      int n = 0;
-      for (unsigned int i=0; i<molecules.size(); i++) {
-         if (is_valid_map_molecule(i))
-            n++;
-      }
-      return n;
-   }
+   static int n_map_molecules();
    static std::vector<molecule_class_info_t> molecules;
 
    // To which map is the mouse scroll wheel attached?
@@ -1524,12 +1059,11 @@ public:
    static void SetShowFPS(int t);
 
    void SetActiveMapDrag(int t);
-   short int GetActiveMapDrag() { return active_map_drag_flag; };
+   short int GetActiveMapDrag() const;
 
    // return -1 on error
    //
    int lookup_molecule_name(const std::string &molecule_name) const;
-
 
    void SetMouseBegin(double x, double y);
    void SetMouseClicked(double x, double y);
@@ -1646,17 +1180,12 @@ public:
    //
    static float rotation_centre_cube_size; // cross-hair
    static glm::vec4 rotation_centre_cross_hairs_colour;
-   void set_rotation_centre_cross_hairs_colour(const glm::vec4 &c) { rotation_centre_cross_hairs_colour = c; }
+   void set_rotation_centre_cross_hairs_colour(const glm::vec4 &c);
 
-   static void Increment_Frames() {
-      Frames++;
-   }
+   static void Increment_Frames();
 
-   //
    void set_font_size(int size);
 
-
-   //
    void update_map_colour_menu();
 
    static short int do_scroll_by_wheel_mouse_flag;
@@ -1672,7 +1201,6 @@ public:
    static short int show_aniso_atoms_radius_flag; // shall the atoms be
                                            // limited to a certain distance?
    static float     show_aniso_atoms_probability;
-
 
    //
    void set_vt_surface(int v); // virtual trackball
@@ -1988,13 +1516,8 @@ public:
    // the names of the boxes so that we can add extra entries to them
    // when we create new maps and molecules
    //
-   void save_display_control_widget_in_graphics(GtkWidget *widget) {
-      display_control_window_ = widget;
-   }
-
-   GtkWidget *display_control_window() {
-     return display_control_window_;
-   }
+   void save_display_control_widget_in_graphics(GtkWidget *widget);
+   GtkWidget *display_control_window();
 
    static void activate_scroll_radio_button_in_display_manager(int imol);
    static float find_waters_sigma_cut_off;
@@ -2297,9 +1820,7 @@ public:
    coot::refinement_results_t refine_chain(int imol, const std::string &chain_id, mmdb::Manager *mol);
 
    static bool use_harmonic_approximation_for_NBCs;
-   void set_use_harmonic_approximations_for_nbcs(bool flag) {
-      use_harmonic_approximation_for_NBCs = flag;
-   }
+   void set_use_harmonic_approximations_for_nbcs(bool flag);
 
    // on reading a pdb file, we get a list of residues, use these to
    // load monomers from the dictionary
@@ -2354,7 +1875,7 @@ public:
 
    // background colour
    static glm::vec3 background_colour;
-   static glm::vec4 get_background_colour() { return glm::vec4(background_colour, 1.0f); }
+   static glm::vec4 get_background_colour();
    static bool background_is_black_p();
 
    // dynarama: a list of dynarama canvases, each of which has
@@ -2422,14 +1943,11 @@ public:
    static float map_radius_slider_max;
 
    // mouse buttons
-   GdkModifierType gdk_button1_mask() { return button_1_mask_;}
-   GdkModifierType gdk_button2_mask() { return button_2_mask_;}
-   GdkModifierType gdk_button3_mask() { return button_3_mask_;}
+   GdkModifierType gdk_button1_mask();
+   GdkModifierType gdk_button2_mask();
+   GdkModifierType gdk_button3_mask();
 
-   void quanta_buttons() {
-      button_1_mask_ = GDK_BUTTON2_MASK;
-      button_2_mask_ = GDK_BUTTON1_MASK;
-   }
+   void quanta_buttons();
 
    static int draw_axes_flag;
    //
@@ -2438,12 +1956,8 @@ public:
    static std::string display_density_level_screen_string;
    void set_density_level_string(int imol, float dlevel);
 
-   static coot::Cartesian to_cartesian(const clipper::Coord_orth &co) {
-      return coot::Cartesian(co.x(), co.y(), co.z());
-   }
-   static clipper::Coord_orth to_coord_orth(const coot::Cartesian &c) {
-      return clipper::Coord_orth(c.x(), c.y(), c.z());
-   }
+   static coot::Cartesian to_cartesian(const clipper::Coord_orth &co);
+   static clipper::Coord_orth to_coord_orth(const coot::Cartesian &c);
 
    static std::string int_to_string(int i);
    static std::string float_to_string(float f);
@@ -2451,66 +1965,18 @@ public:
    static std::string backslash_filename(const std::string &s); // needed for windows?
 
    void set_find_ligands_mols(int map, int protein,
-			      const std::vector<std::pair<int, bool> > &ligand_wiggly_info) {
-      find_ligand_map_mol_ = map;
-      find_ligand_protein_mol_ = protein;
-      // *find_ligand_ligand_mols_ = ligand_wiggly_info; // lets add some protection..
-      find_ligand_ligand_mols_->clear();
-      for (unsigned int ilig=0; ilig<ligand_wiggly_info.size(); ilig++) {
-	int il=ligand_wiggly_info[ilig].first;
-	if (il < n_molecules()) {
-	  if (molecules[il].atom_sel.n_selected_atoms > 0) {
-	    find_ligand_ligand_mols_->push_back(ligand_wiggly_info[ilig]);
-	  }
-	}
-      }
-   }
-   int find_ligand_map_mol() const {
-      return find_ligand_map_mol_;
-   }
-   int find_ligand_protein_mol() const {
-      return find_ligand_protein_mol_;
-   }
-   static void set_ligand_protein_mol(int imol) {
-     if (imol >=0)
-       if (imol < n_molecules())
-	 find_ligand_protein_mol_ = imol;
-   }
-   static void set_ligand_map_mol(int imol) {
-     if (imol >=0)
-       if (imol < n_molecules())
-       find_ligand_map_mol_ = imol;
-   }
-   static void find_ligand_add_rigid_ligand(int imol) {
-     if (imol >=0) {
-       if (imol < n_molecules()) {
-	 if (molecules[imol].has_model()) {
-	   find_ligand_ligand_mols_->push_back(std::pair<int, bool>(imol, 0));
-	 }
-       }
-     }
-   }
-   static void find_ligand_add_flexible_ligand(int imol) {
-     if (imol >=0) {
-       if (imol < n_molecules()) {
-	 if (molecules[imol].has_model()) {
-	   find_ligand_ligand_mols_->push_back(std::pair<int, bool>(imol, 1));
-	 }
-       }
-     }
-   }
-   void set_find_ligand_do_real_space_refine_state(bool state) {
-     find_ligand_do_real_space_refine_ = state;
-   }
-   bool find_ligand_do_real_space_refine_state() {
-     return find_ligand_do_real_space_refine_;
-   }
-   std::vector<std::pair<int, bool> > find_ligand_ligand_mols() const {
-     return *find_ligand_ligand_mols_;
-   }
-   void find_ligand_clear_ligand_mols() {
-     find_ligand_ligand_mols_->clear();
-   }
+			      const std::vector<std::pair<int, bool> > &ligand_wiggly_info);
+   int find_ligand_map_mol() const;
+   int find_ligand_protein_mol() const;
+   static void set_ligand_protein_mol(int imol);
+   static void set_ligand_map_mol(int imol);
+   static void find_ligand_add_rigid_ligand(int imol);
+   static void find_ligand_add_flexible_ligand(int imol);
+   void set_find_ligand_do_real_space_refine_state(bool state);
+   bool find_ligand_do_real_space_refine_state();
+   std::vector<std::pair<int, bool> > find_ligand_ligand_mols() const;
+   void find_ligand_clear_ligand_mols();
+
    static std::vector<clipper::Coord_orth> *ligand_big_blobs;
    static int find_ligand_n_top_ligands;
    static short int find_ligand_mask_waters_flag;
@@ -2526,9 +1992,8 @@ public:
 
    // Geometry issues:
 
-   // debugging:
-   // const coot::protein_geometry *Geom_p() const { return geom_p; }
-   static coot::protein_geometry *Geom_p() { return geom_p; }
+   static coot::protein_geometry *Geom_p();
+
    //
    std::vector <coot::dict_torsion_restraint_t> get_monomer_torsions_from_geometry(const std::string &monomer_type) const;
 
@@ -2563,7 +2028,6 @@ public:
    void model_fit_refine_unactive_togglebutton(const std::string &button_name) const;
 
    static GtkWidget *go_to_atom_window;
-
 
 
    // For updating the model/fit/refine widget (turning on/off
@@ -2689,7 +2153,7 @@ public:
 
    static float get_x_base_for_hud_geometry_bars();
 
-   static Texture texture_for_camera_facing_quad; // debugging            
+   static Texture texture_for_camera_facing_quad; // debugging
    static TextureMesh tmesh_for_camera_facing_quad;
    static Shader camera_facing_quad_shader;  // uses camera-facing-quad-shader-for-testing.shader
 
@@ -2801,7 +2265,7 @@ public:
    static short int delete_item_sidechain_range;
    static short int delete_item_chain;
    // must save the widget so that it can be deleted when the item is selected.
-   
+
    static GtkWidget *delete_item_widget; // 20220723-PE do I need this now?
    static int keep_delete_item_active_flag;
    // really, we should save pick data with atom or residue specs, so
@@ -2981,7 +2445,7 @@ public:
 			                        // moving_atoms_asc
    // 20220812-PE new interface
    void do_rotamers(int imol, mmdb::Atom *active_atom);
-   
+
    // 20220812-PE void fill_rotamer_selection_buttons(GtkWidget *window, int atom_index, int imol) const;
    void fill_rotamer_selection_buttons(GtkWidget *window, mmdb::Atom *atom, int imol) const;
 
@@ -3268,11 +2732,9 @@ public:
    std::pair<int, int> get_closest_atom() const;
 
    //
-#if (GTK_MAJOR_VERSION >= 4)|| (GTK_MINOR_VERSION == 94)
+
    static GdkCursor pick_cursor_index; // user setable
-#else
-   static GdkCursorType pick_cursor_index; // user setable
-#endif
+
    static void pick_cursor_maybe();
    static void pick_cursor_real();
    static void normal_cursor();
@@ -3346,11 +2808,6 @@ public:
 						    gpointer user_data);
    static void on_change_current_chi_button_entered(GtkButton *button,
 						    gpointer user_data);
-#if (GTK_MAJOR_VERSION >= 4)
-#else
-   static void on_change_current_chi_motion_notify(GtkWidget *widget,
-						   GdkEventMotion *event);
-#endif
 
    static short int moving_atoms_move_chis_flag;
    void setup_flash_bond_using_moving_atom_internal(int ibond);
@@ -3565,15 +3022,7 @@ public:
    void set_fixed_points_for_sheared_drag();
    void do_post_drag_refinement_maybe();
 
-   int last_restraints_size() const {
-      // It's OK to call this when there are no restraints - e.g. we move by rotate/translate
-      // rather than during a refinement.
-     if (! last_restraints) {
-	return 0;
-     } else {
-       return last_restraints->size();
-     }
-   }
+   int last_restraints_size() const;
 
    static int dragged_refinement_steps_per_frame;
    static short int dragged_refinement_refine_per_frame_flag;
@@ -3582,7 +3031,6 @@ public:
    //
    static bool draw_zero_occ_spots_flag;
    static bool draw_cis_peptide_markups;
-
 
    // static
    static std::string ccp4_defs_file_name();
@@ -4142,98 +3590,14 @@ public:
 
    static void
    on_generic_objects_dialog_object_check_button_toggled(GtkButton       *button,
-                                                         gpointer         user_data) {
-
-      // std::cout << "in on_generic_objects_dialog_object_check_button_toggled() " << std::endl;
-      int generic_object_number = GPOINTER_TO_INT(user_data);
-      int state = 0;
-      if (gtk_check_button_get_active(GTK_CHECK_BUTTON(button)))
-         state = 1;
-      set_display_generic_object_simple(generic_object_number, state);
-      graphics_draw();
-   }
-
+                                                         gpointer         user_data) ;
    void generic_objects_dialog_grid_add_object_internal(const meshed_generic_display_object &gdo,
                                                         GtkWidget *dialog,
                                                         GtkWidget *grid,
-                                                        int io) {
-
-      // std::cout << "generic_objects_dialog_grid_add_object_internal() --- start --- " << std::endl;
-
-      if (! gdo.mesh.is_closed()) {
-         // std::cout << "generic_objects_dialog_grid_add_object_internal() no-closed " << io << std::endl;
-         GtkWidget *checkbutton = gtk_check_button_new_with_mnemonic (("Display"));
-         std::string label_str = gdo.mesh.name;
-         GtkWidget *label = gtk_label_new(label_str.c_str());
-
-         std::string stub = "generic_object_" + std::to_string(io);
-         std::string toggle_button_name = stub + "_toggle_button";
-         std::string label_name = stub + "_label";
-
-         // set the names of these widgets so that they can be
-         // looked up and toggled/hidden dynamically.
-
-         if (dialog) {
-            g_object_set_data(G_OBJECT(dialog), toggle_button_name.c_str(), checkbutton);
-            g_object_set_data(G_OBJECT(dialog), label_name.c_str(), label);
-         } else {
-            std::cout << "WARNING:: null dialog in generic_objects_dialog_grid_add_object_internal()" << std::endl;
-         }
-
-         // grid child left top width height
-         gtk_grid_attach (GTK_GRID (grid), label,       0, io, 1, 1);
-         gtk_grid_attach (GTK_GRID (grid), checkbutton, 1, io, 1, 1);
-
-         if (gdo.mesh.get_draw_this_mesh())
-            gtk_check_button_set_active(GTK_CHECK_BUTTON(checkbutton), TRUE);
-
-         g_signal_connect(G_OBJECT(checkbutton), "toggled",
-                          G_CALLBACK(on_generic_objects_dialog_object_check_button_toggled),
-                          GINT_TO_POINTER(io));
-
-         gtk_widget_set_visible (label, TRUE);
-         gtk_widget_set_visible (checkbutton, TRUE);
-
-      }
-
-   }
-   int new_generic_object_number(const std::string &name) {
-      Mesh mesh(name);
-      meshed_generic_display_object meshed(mesh);
-      generic_display_objects.push_back(meshed);
-      int n_new = generic_display_objects.size() - 1;
-      if (use_graphics_interface_flag) {
-         GtkWidget *grid = widget_from_builder("generic_objects_dialog_grid"); // changed 20211020-PE
-         if (grid) {
-            // 20240420-PE the class variable generic_objects_dialog needs to be removed
-            GtkWidget *generic_objects_dialog = widget_from_builder("generic_objects_dialog");
-            const meshed_generic_display_object &gdo = generic_display_objects[n_new];
-            generic_objects_dialog_grid_add_object_internal(gdo,
-                                                            generic_objects_dialog,
-                                                            grid,
-                                                            n_new);
-         }
-      }
-      return n_new;
-   }
-   int new_generic_object_number_for_molecule(const std::string &name, int imol) {
-      int idx = new_generic_object_number(name);
-      generic_display_objects.at(idx).imol = imol;
-      return idx;
-   }
-   static int generic_object_index(const std::string &name) {
-      int index = -1;
-      int nobjs = generic_display_objects.size();
-      for (int iobj=0; iobj<nobjs; iobj++) {
-         if (generic_display_objects[iobj].mesh.name == name) {
-            if (!generic_display_objects[iobj].mesh.this_mesh_is_closed) {
-               index = iobj;
-               break;
-            }
-         }
-      }
-      return index;
-   }
+                                                        int io);
+   int new_generic_object_number(const std::string &name);
+   int new_generic_object_number_for_molecule(const std::string &name, int imol);
+   static int generic_object_index(const std::string &name);
 
    static void myglLineWidth(int n_pixels);
 
@@ -4582,19 +3946,10 @@ string   static std::string sessionid;
    static float contact_dot_sphere_subdivisions;
    static bool get_exta_annotation_state();
 
-   static void fill_rotamer_probability_tables() {
-
-     if (! rot_prob_tables.tried_and_failed()) {
-       rot_prob_tables.fill_tables();
-     }
-   }
-
+   static void fill_rotamer_probability_tables();
    static std::pair<bool, float> model_display_radius;
-   void set_model_display_radius(bool on_off, float radius_in) {
-      model_display_radius.first  = on_off;
-      model_display_radius.second = radius_in;
-   }
-   // molecules use this to see if the point is within the distance from the screen centre
+
+   void set_model_display_radius(bool on_off, float radius_in);
    // - maybe this is not the best place for this function?
    static bool is_within_display_radius(const coot::CartesianPair &p);
    static bool is_within_display_radius(const coot::Cartesian &p);
@@ -4660,17 +4015,9 @@ string   static std::string sessionid;
    static int view_rotation_location;  // GLSL
    // static glm::quat glm_quat;
    void set_view_quaternion(float i, float j, float k, float l);
-   static glm::vec3 get_rotation_centre() {
-     return glm::vec3(rotation_centre_x, rotation_centre_y, rotation_centre_z);
-   }
-   static clipper::Coord_orth get_rotation_centre_co() {
-      return clipper::Coord_orth(rotation_centre_x, rotation_centre_y, rotation_centre_z);
-   }
-   static void add_to_rotation_centre(const glm::vec3 &offset) {
-     rotation_centre_x += offset.x;
-     rotation_centre_y += offset.y;
-     rotation_centre_z += offset.z;
-   }
+   static glm::vec3 get_rotation_centre();
+   static clipper::Coord_orth get_rotation_centre_co();
+   static void add_to_rotation_centre(const glm::vec3 &offset);
 
    // static bool using_trackpad;
    static bool use_primary_mouse_for_view_rotation_flag;
@@ -4680,9 +4027,9 @@ string   static std::string sessionid;
    static double drag_begin_y;
    static double mouse_speed; // default 1.0, but adjusted to be bigger for wide display
    static std::pair<double, double> mouse_previous_position;
-   static void set_mouse_previous_position(double x, double y) { mouse_previous_position.first = x; mouse_previous_position.second = y; }
-   static double get_mouse_previous_position_x() { return mouse_previous_position.first; }
-   static double get_mouse_previous_position_y() { return mouse_previous_position.second; }
+   static void set_mouse_previous_position(double x, double y);
+   static double get_mouse_previous_position_x();
+   static double get_mouse_previous_position_y();
    static glm::quat view_quaternion;
    // static void update_view_quaternion(int area_width, int area_height);
    // let's copy the one from crows:
@@ -4907,9 +4254,7 @@ string   static std::string sessionid;
    void conditionally_wait_for_refinement_to_finish();
 
    static bool convert_dictionary_planes_to_improper_dihedrals_flag;
-   void set_convert_dictionary_planes_to_improper_dihedrals(bool state) {
-      convert_dictionary_planes_to_improper_dihedrals_flag = state;
-   }
+   void set_convert_dictionary_planes_to_improper_dihedrals(bool state);
 
    // for updating (difference) maps - we don't want to set 2 of these (or more) off
    //  at the same time.
@@ -4960,7 +4305,7 @@ string   static std::string sessionid;
    // this function sets up the colour bar too and enables its drawing. It will need extra args for
    // the tick marks.
    static void set_user_defined_colours(const std::vector<coot::colour_holder> &user_defined_colours_in);
-   static bool have_user_defined_colours() { return ! user_defined_colours.empty(); }
+   static bool have_user_defined_colours();
    // run glColor3f())
    static void set_bond_colour_from_user_defined_colours(int icol);
 
@@ -4981,7 +4326,7 @@ string   static std::string sessionid;
 #ifdef USE_PYTHON
    // Python function, called per frame draw - for Hamish
    static std::string python_draw_function_string;
-   void set_python_draw_function(const std::string &f) { python_draw_function_string = f; }
+   void set_python_draw_function(const std::string &f);
 #endif // USE_PYTHON
 
    static ctpl::thread_pool static_thread_pool;
@@ -5101,11 +4446,7 @@ string   static std::string sessionid;
 
    static std::chrono::time_point<std::chrono::high_resolution_clock> tick_hydrogen_bond_mesh_t_previous;
 
-   static void add_a_tick() {
-      // needs glarea-tick-func.hh
-      if (! tick_function_is_active())
-         tick_function_id = gtk_widget_add_tick_callback(glareas[0], glarea_tick_func, 0, 0);
-   }
+   static void add_a_tick();
 
    static gboolean glarea_tick_func(GtkWidget *widget,
                                     G_GNUC_UNUSED GdkFrameClock *frame_clock,
@@ -5217,21 +4558,7 @@ string   static std::string sessionid;
    static unsigned int shadow_texture_multiplier;
    static unsigned int shadow_texture_width;  //  = 4 * 1024; // too big?      // derived from the above (n x 1024)
    static unsigned int shadow_texture_height; //  = 4 * 1024;
-   void set_shadow_texture_resolution_multiplier(unsigned int m) {
-      if (m != 0) {
-         if (m < 8) {
-            if (shadow_texture_multiplier != m) {
-               shadow_texture_multiplier = m;
-               shadow_texture_width  = 1024 * m;
-               shadow_texture_height = 1024 * m;
-               // rengerate the framebuffer texture
-               glBindTexture(GL_TEXTURE_2D, shadow_depthMap_texture);
-               glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, shadow_texture_width, shadow_texture_height,
-                            0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
-            }
-         }
-      }
-   }
+   void set_shadow_texture_resolution_multiplier(unsigned int m);
    static float shadow_strength;
    static unsigned int shadow_softness; // 1, 2 or 3
    static unsigned int shadow_depthMap_framebuffer; // change this to a real framebuffer
@@ -5260,15 +4587,8 @@ string   static std::string sessionid;
    void read_some_test_models();
 
    static std::vector<Model> models; // from crows 20220129-PE
-   static void add_model(const Model &model) {
-      models.push_back(model);
-   }
-   void scale_model(unsigned int idx, float scale_factor) {
-      attach_buffers(); // because the glbufferdata is changed
-      if (idx < models.size())
-         models[idx].scale(scale_factor);
-   }
-
+   static void add_model(const Model &model);
+   void scale_model(unsigned int idx, float scale_factor);
 
    // static unsigned int gBufferFBO;
    static unsigned int ssaoFBO;
@@ -5326,62 +4646,11 @@ string   static std::string sessionid;
    }
 
    //! \brief enable/disable the model animation (on or off)
-   void set_model_animation_state(unsigned int model_index, bool state) {
-      if (model_index < models.size()) {
-         auto &model = models[model_index];
-         model.set_do_animation(state);
-      }
-   }
+   void set_model_animation_state(unsigned int model_index, bool state);
 
-   static std::string stringify_error_code(GLenum err) {
+   static std::string stringify_error_code(GLenum err);
 
-      std::string r = std::to_string(err);
-      if (err == GL_INVALID_ENUM)      r = "GL_INVALID_ENUM";
-      if (err == GL_INVALID_VALUE)     r = "GL_INVALID_VALUE";
-      if (err == GL_INVALID_OPERATION) r = "GL_INVALID_OPERATION";
-      return r;
-   };
-
-   static void attach_buffers(const char *s = __builtin_FUNCTION()) {
-
-      bool print_errors = false;
-      if (use_graphics_interface_flag) {
-         if (print_errors) {
-            GLenum err = glGetError();
-            if (err) {
-               std::cout << "GL ERROR:: attach_buffers --- start --- "
-                         << stringify_error_code(err) <<  " \n";
-#ifdef USE_BACKWARD
-               backward::StackTrace st;
-               backward::Printer p;
-               st.load_here(32);
-               p.print(st);
-#endif
-            }
-            auto gl_area = glareas[0];
-            gtk_gl_area_attach_buffers(GTK_GL_AREA(gl_area));
-            err = glGetError();
-            if (err) {
-               std::cout << "GL ERROR:: attach_buffers() --- post gtk_gl_area_attach_buffers() "
-                         << stringify_error_code(err) << " with gl_area " << gl_area
-                         << " calling function: " << s << "()\n";
-#ifdef USE_BACKWARD
-               backward::StackTrace st;
-               backward::Printer p;
-               st.load_here(32);
-               p.print(st);
-#endif
-            }
-         } else {
-
-            // cleaner output
-            auto gl_area = glareas[0];
-            gtk_gl_area_attach_buffers(GTK_GL_AREA(gl_area));
-
-         }
-      }
-   }
-
+   static void attach_buffers(const char *s = __builtin_FUNCTION()) ;
 
    /// List of label strings (col 0) and model indices (int) (col 1)
    static GtkListStore* validation_graph_model_list;
