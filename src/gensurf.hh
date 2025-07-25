@@ -24,6 +24,9 @@
  *
  */
 
+#ifndef COOT_SRC_GENSURF_HH
+#define COOT_SRC_GENSURF_HH
+
 #include <clipper/core/xmap.h>
 #include "coords/Cartesian.hh"
 #include "density-contour/density-contour-triangles.hh"
@@ -38,3 +41,6 @@ void gensurf_and_add_vecs_threaded_workpackage(const clipper::Xmap<float> *xmap_
 					       std::vector<coot::density_contour_triangles_container_t> *draw_vector_sets_p);
 
 // std::vector<std::pair<const coot::CartesianPair *,int> > draw_vector_sets;
+
+
+#endif // COOT_SRC_GENSURF_HH

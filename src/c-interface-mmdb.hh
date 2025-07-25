@@ -27,7 +27,12 @@
 
 #ifdef __cplusplus
 #ifdef USE_GUILE
-#include <libguile.h>	
+
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wvolatile"
+#include <libguile.h>
+#pragma GCC diagnostic pop
+
 
 // return 0 on failure.  An atom with an atom name of "" and element
 // of "" is converted to a Ter atom.

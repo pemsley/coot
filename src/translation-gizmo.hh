@@ -1,3 +1,5 @@
+#ifndef COOT_SRC_TRANSLATION_GIZMO_HH
+#define COOT_SRC_TRANSLATION_GIZMO_HH
 
 #include "coot-utils/simple-mesh.hh"
 #include "coords/Cartesian.hh"
@@ -22,4 +24,7 @@ public:
    int attached_to_generic_display_object_number;
    int attached_to_molecule_number;
 };
+
+
+#endif // COOT_SRC_TRANSLATION_GIZMO_HH
 

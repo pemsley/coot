@@ -567,7 +567,6 @@ libcootsumo_la_SOURCES = \
 	density-results-container-t.hh \
 	dots-representation.hh   \
 	draw.cc                  \
-	graphics-info-tick-function.cc \
 	draw.hh                  \
 	draw-2.hh                \
 	drag-and-drop.hh         \
@@ -619,6 +618,7 @@ libcootsumo_la_SOURCES = \
 	graphics-info-gui.cc	 \
 	graphics-info-init.cc	 \
 	graphics-info-intermediate.cc    \
+	graphics-info-keybindings.cc     \
 	graphics-info-modelling.cc       \
 	graphics-info-navigation.cc	 \
 	graphics-info-navigation-gtk2.cc \
@@ -638,6 +638,7 @@ libcootsumo_la_SOURCES = \
 	graphics-info-state.cc	 \
 	graphics-info-statics.cc \
 	graphics-info-superpose.cc	\
+	graphics-info-tick-function.cc \
 	graphics-info-trackball.cc	\
 	graphics-ligand-view.cc	 \
 	graphics-ligand-view.hh	 \

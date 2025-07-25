@@ -69,7 +69,10 @@ p  So we need to have this function external for c++ linking.
 #ifdef __cplusplus
 #ifdef USE_GUILE
 #include <cstdio> /* for std::FILE in gmp.h for libguile.h */
-#include <libguile.h>		/* for SCM type (returned by safe_scheme_command) */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wvolatile"
+#include <libguile.h>
+#pragma GCC diagnostic pop
 #else
 #include <string> /* for std::string; included (sic!) in above for guile */
 #endif /*  USE_GUILE */
