@@ -111,7 +111,8 @@ coot::h_bonds::get(int selHnd_1, int selHnd_2, mmdb::Manager *mol, const coot::p
    // std::cout << "------------------- timing: " << d10 <<  " milliseconds for SeekContacts "
    //            << std::endl;
 
-   std::cout << "h_bonds:: get(): found n_contacts between atom selections: " << n_contacts << std::endl;
+   if (debug)
+      std::cout << "h_bonds:: get(): found n_contacts between atom selections: " << n_contacts << std::endl;
 
    if (n_contacts > 0) {
       if (pscontact) {
