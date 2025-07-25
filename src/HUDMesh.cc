@@ -33,7 +33,7 @@ constexpr float HUD_button_info_t::button_width;
 // static
 constexpr float HUD_button_info_t::button_height;
 
-std::string stringify_error_message(GLenum err); // from Mesh.cc
+std::string stringify_error_code(GLenum err); // from Mesh.cc
 
 void
 HUDMesh::init() {
@@ -332,7 +332,7 @@ HUDMesh::update_instancing_buffer_data(const std::vector<HUD_button_info_t> &but
    GLenum err = glGetError();
    if (err)
       std::cout << "GL ERROR:: HUDmesh::update_instancing_buffer_data(button_info) --start-- err "
-                << stringify_error_message(err) << std::endl;
+                << stringify_error_code(err) << std::endl;
 
    unsigned int s = buttons_info.size();
    n_instances = s;
