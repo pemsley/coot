@@ -3,6 +3,8 @@
 
 o lidia needs a wrapper and to be moved to libexec
 
+o key-binding for smooth bonds
+
 o pickable ribbons.
 
 o Bonds and angles validation on 2d diagram from chapi
@@ -21,23 +23,14 @@ o moorhen (and coot) ribbon diagram coloured by b-factor
 o read in a molecule, make a molecule with DNA models. Refine DNA, then
   try to undo refinement of DNA. Fails. 8v1w.
 
-o move make_directory_maybe() to take std::string arg.
-  Will need to change the header. Maybe a new header?
-
-o environment distances should be an overlay
-
 o check that hydrogen bonds are displayed correctly.
   See update_hydrogen_bond_mesh()
-
-o change stringify_error_message to stringify_error_code
-
-o add header guard to gizmo and gensurf headers
-
-o rename Cartesian.h to Cartesian.hh
 
 o get rid of generic object functions from graphics-info.h
   Put them in aa new file along with
   bool is_valid_generic_display_object_number(int obj_no) const;
+
+o fix the map caps.
 
 --- Other Items ---
 
@@ -46,7 +39,7 @@ o "Flood the blob with dummy atoms" - useful of pomgnt2
 o Add ability to rotate view around z axis :: 0.5
 
 o auto-scale the make-a-difference map
-  think about create power-matched option also? :: 1
+  think about create power-matched option also? It's in chapi :: 1
 
 o colour stops for b-factor analysis, rather than colour wheel. :: 1
 
@@ -100,6 +93,18 @@ o  It was a strange bit of code in get_group().
 
 --- Done Items ---
 
+o add header guard to gizmo and gensurf headers
+* Done.
+
+o change stringify_error_message to stringify_error_code
+* Done
+
+o rename Cartesian.h to Cartesian.hh
+* Done.
+
+o Move Molecule Here should be an overlay
+* Done.
+
 o Talk to Stuart:
 ::function get_atom not found - out of 386 docstrings
 ::function get_atom_using_cid not found - out of 386 docstrings
@@ -109,6 +114,10 @@ o Talk to Stuart:
 
 o Move Molecule Here should be an overlay
 * Done
+
+o move make_directory_maybe() to take std::string arg.
+  Will need to change the header. Maybe a new header?
+* Done.
 
 o side-chain 180 should do a syn/anti flip for nucleotide bases
   i.e. rotate 180 around C1-N1 (or N9)
