@@ -1135,7 +1135,7 @@ graphics_info_t::update_rama_balls(std::vector<Instanced_Markup_Mesh_attrib_t> *
    // the calling function calls
    // rama_balls_mesh.update_instancing_buffers(balls) after this function
 
-   auto rr = saved_dragged_refinement_results;
+   const auto &rr = saved_dragged_refinement_results;
 
    balls->clear();
 
