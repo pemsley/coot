@@ -1,3 +1,16 @@
+  Release Notes for 1.1.17
+
+ o FEATURE: Ctrl-F keybinding added to smooth the bonds
+
+ o FEATURE: Multi-select for opening maps
+
+ o BUG-FIX: Removed bug in parsing external torsion restraints
+
+Chapi/libcootapi:
+
+ o CHANGE: the way the monomer library is looked up is improved
+
+-----
 
   Release Notes for 1.1.17
 
