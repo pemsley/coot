@@ -6195,29 +6195,6 @@ on_find_ligand_real_space_refine_solutions_checkbutton_toggled
 }
 
 
-extern "C" G_MODULE_EXPORT
-void
-on_copy_fragment_dialog_response(GtkDialog *dialog,
-                                 gint response_id,
-                                 gpointer user_data) {
-
-   if (response_id == GTK_RESPONSE_OK) {
-      graphics_info_t g;
-      GtkWidget *entry = widget_from_builder("copy_fragment_atom_selection_entry");
-      std::string text = gtk_editable_get_text(GTK_EDITABLE(GTK_ENTRY(entry)));
-      GtkWidget *combobox = GTK_WIDGET(g_object_get_data(G_OBJECT(dialog), "combobox"));
-      int imol = g.combobox_get_imol(GTK_COMBO_BOX(combobox));
-      int imol_new = new_molecule_by_atom_selection(imol, text.c_str());
-      GtkWidget *checkbutton = widget_from_builder("copy_fragment_move_molecule_here_checkbutton");
-      if (gtk_check_button_get_active(GTK_CHECK_BUTTON(checkbutton)))
-         move_molecule_to_screen_centre_internal(imol_new);
-      if (is_valid_model_molecule(imol_new))
-         gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
-   }
-   if (response_id == GTK_RESPONSE_CANCEL) {
-      gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
-   }
-}
 
 extern "C" G_MODULE_EXPORT
 void

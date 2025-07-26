@@ -1658,7 +1658,7 @@ void do_edit_copy_molecule() {
 void  do_edit_copy_fragment() {
 
    graphics_info_t g;
-   GtkWidget *dialog = widget_from_builder("copy_fragment_dialog");
+   GtkWidget *frame = widget_from_builder("copy_fragment_frame");
    GtkWidget *vbox   = widget_from_builder("copy_fragment_vbox");
    int imol_active = g.get_active_atom().first;
 
@@ -1666,32 +1666,16 @@ void  do_edit_copy_fragment() {
    };
 
 
-#if (GTK_MAJOR_VERSION >= 4)
-
    GtkWidget *combobox_molecule = widget_from_builder("copy_fragment_combobox"); // its a GtkComboBoxText
    GCallback callback_func = G_CALLBACK(NULL); // combobox is only used when it's read on OK response
 
    // new_fill_combobox_with_coordinates_options() doesn't set the active item - I don't understand why.
    g.new_fill_combobox_with_coordinates_options(combobox_molecule, callback_func, imol_active);
-   g_object_set_data(G_OBJECT(dialog), "combobox", combobox_molecule); // for reading. 20220828-PE still needed?
-   set_transient_for_main_window(dialog);
-   gtk_widget_set_visible(dialog, TRUE);
+   g_object_set_data(G_OBJECT(frame), "combobox", combobox_molecule); // for reading. 20220828-PE still needed?
+   set_transient_for_main_window(frame);
+   gtk_widget_set_visible(frame, TRUE);
 
-#else
-   // For the moment keep this block for reference
-   // gtk_container_foreach(GTK_CONTAINER(vbox), my_delete_box_items, vbox);
-   // GtkWidget *combobox = gtk_combo_box_new();
-   // gtk_box_pack_start(GTK_BOX(vbox), combobox, FALSE, FALSE, 4);
-   // gtk_box_reorder_child(GTK_BOX(vbox), combobox, 1);
-   // GCallback callback_func = G_CALLBACK(NULL); // combobox is only used when it's read on OK response
-   // g.new_fill_combobox_with_coordinates_options(combobox, callback_func, imol);
-   // g_object_set_data(G_OBJECT(dialog), "combobox", combobox); // for reading
-   // gtk_widget_set_visible(combobox, TRUE);
-   // gtk_widget_set_visible(dialog, TRUE);
-
-#endif
-
-   // the dialog response callback for this is on_copy_fragment_dialog_response_gtkbuilder_callback()
+   // the dialog response callback for this is on_copy_fragment_dialog_response()
 
 }
 

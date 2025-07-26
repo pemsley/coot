@@ -624,7 +624,7 @@ on_add_an_atom_iodine_button_clicked(G_GNUC_UNUSED GtkButton       *button,
    gtk_widget_set_visible(box, FALSE);
 }
 
- 
+
 extern "C" G_MODULE_EXPORT
 void
 on_get_monomer_ok_button_clicked(GtkButton       *button,
@@ -1508,6 +1508,37 @@ on_copy_molecule_copy_button_clicked(G_GNUC_UNUSED GtkButton       *button,
    copy_molecule(imol);
    gtk_widget_set_visible(frame, FALSE);
 }
+
+extern "C" G_MODULE_EXPORT
+void
+on_copy_fragment_ok_button_clicked(G_GNUC_UNUSED GtkButton       *button,
+                                   G_GNUC_UNUSED gpointer         user_data) {
+
+   GtkWidget *frame    = widget_from_builder("copy_fragment_frame");
+   GtkWidget *combobox = widget_from_builder("copy_fragment_combobox");
+   int imol = my_combobox_get_imol(GTK_COMBO_BOX(combobox));
+   GtkWidget *entry = widget_from_builder("copy_fragment_atom_selection_entry");
+   std::string text = gtk_editable_get_text(GTK_EDITABLE(GTK_ENTRY(entry)));
+
+   int imol_new = new_molecule_by_atom_selection(imol, text.c_str());
+   GtkWidget *checkbutton = widget_from_builder("copy_fragment_move_molecule_here_checkbutton");
+   if (gtk_check_button_get_active(GTK_CHECK_BUTTON(checkbutton)))
+      move_molecule_to_screen_centre_internal(imol_new);
+
+   if (is_valid_model_molecule(imol_new))
+      gtk_widget_set_visible(frame, FALSE);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_copy_fragment_cancel_button_clicked(G_GNUC_UNUSED GtkButton       *button,
+                                       G_GNUC_UNUSED gpointer         user_data) {
+
+   GtkWidget *frame = widget_from_builder("copy_fragment_frame");
+   gtk_widget_set_visible(frame, FALSE);
+}
+
+
 
 extern "C" G_MODULE_EXPORT
 void
