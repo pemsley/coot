@@ -27,9 +27,9 @@ CompileFlags:
         -I/opt/homebrew/Cellar/graphene/1.10.8/include/graphene-1.0
         -I/opt/homebrew/Cellar/graphene/1.10.8/lib/graphene-1.0/include
         -I/opt/homebrew/Cellar/glib/2.84.3/include
-        -I/Library/Developer/CommandLineTools/SDKs/MacOSX15.sdk/usr/include/ffi
         -I/opt/homebrew/Cellar/glib/2.84.3/include/glib-2.0
         -I/opt/homebrew/Cellar/glib/2.84.3/lib/glib-2.0/include
+        -I/Library/Developer/CommandLineTools/SDKs/MacOSX15.sdk/usr/include/ffi
         -I/opt/homebrew/opt/gettext/include
         -I/opt/homebrew/Cellar/pcre2/10.45/include
   ]

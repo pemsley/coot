@@ -1,11 +1,15 @@
 
 --- Items ---
 
-o lidia needs a wrapper and to be moved to libexec
-
-o key-binding for smooth bonds
+o make "Copy Fragment" an overlay
 
 o pickable ribbons.
+  Big Job.
+
+o double-click on a symmetry atom to label.
+
+o does get_ligand_validation_vs_dictionary() do good things?
+  Does it give ceus?
 
 o Bonds and angles validation on 2d diagram from chapi
   as svg.
@@ -23,6 +27,8 @@ o moorhen (and coot) ribbon diagram coloured by b-factor
 o read in a molecule, make a molecule with DNA models. Refine DNA, then
   try to undo refinement of DNA. Fails. 8v1w.
 
+o environment distances should be an overlay
+
 o check that hydrogen bonds are displayed correctly.
   See update_hydrogen_bond_mesh()
 
@@ -30,7 +36,7 @@ o get rid of generic object functions from graphics-info.h
   Put them in aa new file along with
   bool is_valid_generic_display_object_number(int obj_no) const;
 
-o fix the map caps.
+o fix the map caps. Make it work in moorhen.
 
 --- Other Items ---
 
@@ -200,4 +206,17 @@ o remove GEMMI hack at top of atom-selection-container.cc ::: 0.2
 
 o make a function that returns the secondary structure for libcootapi/chapi
 * Done
+
+o key-binding for smooth bonds
+* Done.
+
+o layla needs a wrapper and to be moved to libexec
+* Done.
+
+o get rid of debugging on get_h_bonds()
+* Done. Nice.
+
+o move make_directory_maybe() to take std::string arg.
+  Will need to change the header. Maybe a new header?
+* Done.
 
