@@ -75,10 +75,7 @@
 #include "ligand/helix-placement.hh"
 #include "ligand/fast-ss-search.hh"
 
-#pragma GCC diagnostic push
-#pragma GCC diagnostic ignored "-Wvolatile"
-#include <libguile.h>
-#pragma GCC diagnostic pop
+#include "guile-fixups.h"
 
 #include "c-interface.h"
 #include "c-interface-gtk-widgets.h"
