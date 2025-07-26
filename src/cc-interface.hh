@@ -31,7 +31,10 @@
 #include <optional>
 
 #ifdef USE_GUILE
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wvolatile"
 #include <libguile.h>
+#pragma GCC diagnostic pop
 #endif // USE_GUILE
 
 #include "utils/coot-utils.hh"

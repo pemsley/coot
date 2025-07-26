@@ -31,11 +31,6 @@
 
 #include <epoxy/gl.h>
 
-// needed to parse cc-interface.hh
-#ifdef USE_GUILE
-#include <libguile.h> 
-#endif // USE_GUILE
-
 #include "pythonic-cfc.hh"
 #include "cfc-widgets.hh"
 
@@ -57,7 +52,7 @@
 // solvated_ligand_info_py is a list of
 //   list mol_no ligand_spec
 // which, with radius will be used to find the waters
-// 
+//
 PyObject *old_chemical_feature_clusters_py(PyObject *environment_residues_py,
 					   PyObject *solvated_ligand_info_py, // [imol, ligand-specs]s
 					   double radius_1, double radius_2) {
@@ -128,11 +123,11 @@ PyObject *old_chemical_feature_clusters_py(PyObject *environment_residues_py,
 
 			coot::chem_feat_solvated_ligand_spec lig(ligand_spec, neighbs_waters, mol, imol);
 			ligands.push_back(lig);
-			
+
 		     } else {
 			std::cout << "ERROR:: invalid model molecule " << imol << std::endl;
 		     }
-		     
+
 		  } else {
 		     std::cout << "ERROR:: mol_idx is not a int " << std::endl;
 		     break;
