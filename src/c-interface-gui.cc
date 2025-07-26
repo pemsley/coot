@@ -4149,27 +4149,26 @@ align_labels_checkbutton_toggled(GtkToggleButton *togglebutton) {
       align = 1.0;
 
    graphics_info_t g;
-   if (g.display_control_window()) { // it should be :-)
-      int n_mols = graphics_info_t::n_molecules();
-      for (int i=0; i<n_mols; i++) {
-	 if (is_valid_model_molecule(i)) {
-	    std::string name_stub = "display_mol_entry_";
-	    std::string name = name_stub + coot::util::int_to_string(i);
-	    // GtkWidget *entry = lookup_widget(g.display_control_window(), name.c_str());
-	    GtkWidget *entry = 0; // 20220309-PE fixme one day. Not today
-	    if (entry) {
-	       // 20180304
-	       // This only changes the alignment for entries that have smaller text than
-	       // the widget.  I want all widgets to adjust their text.
-	       // Maybe use PangoLayout. read gtkentry.c to see if you can work out what
-	       // happens when the user does a click-drag (left or right) on the text.
-	       // So I will make the checkbutton invisible for now.
-	       //
-	       // gtk_entry_set_alignment(GTK_ENTRY(entry), align);
 
-	       // gtk_misc_set_alignment(GTK_MISC(entry), align, 0.5); // no. an entry is not a misc.
-	    }
-	 }
+   int n_mols = graphics_info_t::n_molecules();
+   for (int i=0; i<n_mols; i++) {
+      if (is_valid_model_molecule(i)) {
+         std::string name_stub = "display_mol_entry_";
+         std::string name = name_stub + coot::util::int_to_string(i);
+         // GtkWidget *entry = lookup_widget(g.display_control_window(), name.c_str());
+         GtkWidget *entry = 0; // 20220309-PE fixme one day. Not today
+         if (entry) {
+            // 20180304
+            // This only changes the alignment for entries that have smaller text than
+            // the widget.  I want all widgets to adjust their text.
+            // Maybe use PangoLayout. read gtkentry.c to see if you can work out what
+            // happens when the user does a click-drag (left or right) on the text.
+            // So I will make the checkbutton invisible for now.
+            //
+            // gtk_entry_set_alignment(GTK_ENTRY(entry), align);
+
+            // gtk_misc_set_alignment(GTK_MISC(entry), align, 0.5); // no. an entry is not a misc.
+         }
       }
    }
 }

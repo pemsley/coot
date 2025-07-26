@@ -703,8 +703,9 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
       commands.push_back(state_command("coot", "post-model-fit-refine-dialog", il));
    if (go_to_atom_window)
       commands.push_back(state_command("coot", "post-go-to-atom-window", il));
-   if (display_control_window_)
-      commands.push_back(state_command("coot", "post-display-control-window", il));
+
+   // some condition here?
+   commands.push_back(state_command("coot", "post-display-control-window", il));
 
    short int istat = 0;
    if (! disable_state_script_writing) {

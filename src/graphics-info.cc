@@ -1128,10 +1128,7 @@ graphics_info_t::display_all_model_molecules() {
       int state = 1;
       if (is_valid_model_molecule(i)) {
          molecules[i].set_mol_is_displayed(state);
-#ifndef EMSCRIPTEN
-         if (display_control_window())
-            set_display_control_button_state(i, "Displayed", state);
-#endif
+         set_display_control_button_state(i, "Displayed", state);
       }
    }
 }
@@ -1149,12 +1146,8 @@ graphics_info_t::undisplay_all_model_molecules_except(int imol) {
       if (is_valid_model_molecule(i)) {
          molecules[i].set_mol_is_displayed(state); // raw, no callbacks
          molecules[i].set_mol_is_active(state);    //
-#ifndef EMSCRIPTEN
-         if (display_control_window()) {
-            set_display_control_button_state(imol, "Displayed", state);
-            set_display_control_button_state(imol, "Active",   state);
-         }
-#endif
+         set_display_control_button_state(imol, "Displayed", state);
+         set_display_control_button_state(imol, "Active",   state);
       }
    }
 }
@@ -1178,10 +1171,8 @@ graphics_info_t::undisplay_all_model_molecules_except(const std::vector<int> &ke
       if (is_valid_model_molecule(i)) {
          molecules[i].set_mol_is_displayed(state);
          molecules[i].set_mol_is_active(state);
-         if (display_control_window())
-            set_display_control_button_state(i, "Displayed", state);
-         if (display_control_window())
-            set_display_control_button_state(i, "Active", state);
+         set_display_control_button_state(i, "Displayed", state);
+         set_display_control_button_state(i, "Active", state);
       }
    }
 }

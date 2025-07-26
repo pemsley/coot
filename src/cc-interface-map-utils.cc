@@ -49,13 +49,11 @@ void undisplay_all_maps_except(int imol_map) {
       if (g.is_valid_map_molecule(i)) {
          if (i == imol_map) {
             g.molecules[i].set_map_is_displayed(true); // just a state change
-            if (g.display_control_window())
-               set_display_control_button_state(i, "Displayed", true);
+            set_display_control_button_state(i, "Displayed", true);
          } else {
             if (g.molecules[i].is_displayed_p()) {
                g.molecules[i].set_map_is_displayed(false);
-               if (g.display_control_window())
-                  set_display_control_button_state(i, "Displayed", false);
+               set_display_control_button_state(i, "Displayed", false);
             }
          }
       }

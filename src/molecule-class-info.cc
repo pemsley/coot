@@ -43,7 +43,6 @@
 #include <iostream>
 #include <iomanip>
 #include <string>
-#include <vector>
 #include <stdexcept>
 
 // For stat, mkdir:
@@ -6890,18 +6889,18 @@ molecule_class_info_t::close_yourself() {
 	 original_fphis_p = 0;
          delete tmp_p;
       }
-      
+
       if (original_fobs_sigfobs_filled) {
          delete original_fobs_sigfobs_p;
 	 original_fobs_sigfobs_p = 0;
       }
-      
+
       if (original_r_free_flags_p) { // no flag for filled?
          delete original_r_free_flags_p;
 	 original_r_free_flags_p = 0;
       }
    }
-      
+
    // delete from display manager combo box
    //
    graphics_info_t g;
