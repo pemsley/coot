@@ -3,7 +3,7 @@
 
 o make "Copy Fragment" an overlay
 
-o environment distances should be an overlay
+o make "Environment Distances" an overlay
 
 o pickable ribbons.
   Big Job.
@@ -36,10 +36,6 @@ o read in a molecule, make a molecule with DNA models. Refine DNA, then
 
 o check that hydrogen bonds are displayed correctly.
   See update_hydrogen_bond_mesh()
-
-o get rid of generic object functions from graphics-info.h
-  Put them in aa new file along with
-  bool is_valid_generic_display_object_number(int obj_no) const;
 
 o fix the map caps. Make it work in moorhen. Single colour mode and joined edges.
   Slice "solid" maps.
@@ -104,6 +100,11 @@ o  It was a strange bit of code in get_group().
    Solved now? Am I using the right version?
 
 --- Done Items ---
+
+o get rid of generic object functions from graphics-info.h
+  Put them in aa new file along with
+  bool is_valid_generic_display_object_number(int obj_no) const;
+* Done
 
 o add header guard to gizmo and gensurf headers
 * Done.

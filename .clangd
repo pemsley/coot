@@ -1,6 +1,7 @@
 
 CompileFlags:
-  Add: [-I/usr/lib/graphene-1.0/include
+  Add: [-I/usr/include/graphene-1.0
+        -I/usr/lib/graphene-1.0/include
         -I/opt/homebrew/lib/graphene-1.0/include
         -I/opt/homebrew/Cellar/gtk4/4.18.6/include/gtk-4.0
         -I/opt/homebrew/Cellar/pango/1.56.3/include/pango-1.0
