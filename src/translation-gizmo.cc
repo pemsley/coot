@@ -132,7 +132,6 @@ translation_gizmo_t::pick(const coot::Cartesian &front, const coot::Cartesian &b
       if (dist < dist_crit)
          pi = Z_AXIS;
    }
-   std::cout << "picking translation gizmo: scale_factor " << scale_factor << " pi: " << pi << std::endl;
    return pi;
 }
 

@@ -1734,6 +1734,18 @@ public:        //                      public
 				     const std::string &altconf,
 				     coot::protein_geometry *geom_p);
 
+   int do_180_degree_side_chain_flip_protein(const std::string &chain_id,
+					     int resno,
+					     const std::string &inscode,
+					     const std::string &altconf,
+					     coot::protein_geometry *geom_p);
+
+   int do_180_degree_side_chain_flip_nucleic_acid(const std::string &chain_id,
+						  int resno,
+						  const std::string &inscode,
+						  const std::string &altconf,
+						  coot::protein_geometry *geom_p);
+
    // return "N', "C" or "not-terminal-residue"
    std::string get_term_type_old(int atom_index);
    std::string get_term_type(int atom_index) const;

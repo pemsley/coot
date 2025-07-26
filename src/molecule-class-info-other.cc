@@ -22,10 +22,6 @@
  * Fifth Floor, Boston, MA, 02110-1301, USA.
  */
 
-#ifdef USE_PYTHON
-#include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
-#endif
-
 #include <stdlib.h>
 
 #if !defined WINDOWS_MINGW && !defined _MSC_VER
@@ -46,7 +42,6 @@
 
 #include <iostream>
 #include <vector>
-#include <queue>
 
 #include "compat/coot-sysdep.h"
 
@@ -87,6 +82,7 @@
 #include "coot-utils/coot-map-heavy.hh"   // situation's heavy... [simplex]
 #include "ideal/pepflip.hh"
 #include "ligand/backrub-rotamer.hh"
+#include "ligand/torsion-general.hh"
 
 #include "api/coot-molecule.hh"  // pick up RESIDUE_NUMBER_UNSET (it used to be in molecule-class-info.h)
                                  // I don't think that this is a good organization
@@ -8263,6 +8259,68 @@ molecule_class_info_t::do_180_degree_side_chain_flip(const std::string &chain_id
                                                      const std::string &altconf,
                                                      coot::protein_geometry *geom_p) {
 
+   auto check_for_nucleic_acid_atom_names = [] (mmdb::Residue *residue_p) {
+
+      bool status = false;
+      mmdb::PPAtom residue_atoms = nullptr;
+      int nResidueAtoms = 0;
+      residue_p->GetAtomTable(residue_atoms, nResidueAtoms);
+      unsigned int n_matched = 0;
+      std::vector<std::string> real_names = {" C1'", " C2'", " C3'", " C4'", " O4'", " C5'", " O5'",
+	 " P  ", " C2 ", " N1 ", " O1P", " O3'"};
+      if (nResidueAtoms > 0) {
+	 for(int iat=0; iat<nResidueAtoms; iat++) {
+	    mmdb::Atom *at = residue_atoms[iat];
+	    std::string atom_name = at->GetAtomName();
+	    if (std::find(real_names.begin(), real_names.end(), atom_name) != real_names.end())
+	       n_matched++;
+	 }
+	 if (n_matched > 7) status = true;
+      }
+      return status;
+   };
+
+   int status = 0;
+
+   bool is_protein      = false;
+   bool is_nucleic_acid = false;
+   mmdb::Residue *residue_p = get_residue(chain_id, resno, inscode);
+   if (residue_p) {
+      std::string res_name = residue_p->GetResName();
+      std::vector<std::string> protein_types =
+	 { "GLY", "ALA", "CYS", "ASP", "GLU", "PHE", "HIS", "ILE", "LYS", "LEU",
+	   "MET", "MSE", "ASN", "PRO", "GLN", "ARG", "SER", "THR", "VAL", "TRP",
+	   "TYR"};
+      std::vector<std::string> nucleic_acid_types =
+	 {"G", "A", "T", "U", "DA", "DG", "DC", "DT"};
+      if (std::find(protein_types.begin(), protein_types.end(), res_name) !=
+	  protein_types.end())
+	 is_protein = true;
+      if (std::find(nucleic_acid_types.begin(), nucleic_acid_types.end(), res_name) !=
+	  nucleic_acid_types.end())
+	 is_nucleic_acid = true;
+
+      if (! is_nucleic_acid)
+	 is_nucleic_acid = check_for_nucleic_acid_atom_names(residue_p);
+
+      if (is_protein)
+	 return do_180_degree_side_chain_flip_protein(chain_id, resno, inscode, altconf, geom_p);
+      if (is_nucleic_acid)
+	 return do_180_degree_side_chain_flip_nucleic_acid(chain_id, resno, inscode, altconf, geom_p);
+      return status;
+   }
+   return status;
+}
+
+// Return 1 on a successful flip.  Flip the last chi angle.
+//
+int
+molecule_class_info_t::do_180_degree_side_chain_flip_protein(const std::string &chain_id,
+							     int resno,
+							     const std::string &inscode,
+							     const std::string &altconf,
+							     coot::protein_geometry *geom_p) {
+
    // Notice that chi_angles has no concept of alt conf.
    //
    // chi_angles works on the atoms of a residue, with no alt conf
@@ -8419,6 +8477,78 @@ molecule_class_info_t::do_180_degree_side_chain_flip(const std::string &chain_id
    return istatus;
 }
 
+#include "coot-utils/jed-flip.hh"
+
+// Return 1 on a successful flip.  Flip the last chi angle.
+//
+int
+molecule_class_info_t::do_180_degree_side_chain_flip_nucleic_acid(const std::string &chain_id,
+								  int resno,
+								  const std::string &inscode,
+								  const std::string &altconf,
+								  coot::protein_geometry *geom_p) {
+
+   auto atom_names_to_atom_specs = [] (const std::vector<std::string> &atom_names, mmdb::Residue *residue_p) {
+      std::vector<coot::atom_spec_t> specs;
+      std::string chain_id = residue_p->GetChainID();
+      int res_no = residue_p->GetSeqNum();
+      std::string ins_code = residue_p->GetInsCode();
+      for (const std::string &atom_name : atom_names) {
+         specs.push_back(coot::atom_spec_t(chain_id, res_no, ins_code, atom_name, ""));
+      }
+      return specs;
+   };
+
+   int istatus = 0;
+   mmdb::Residue *residue_p = get_residue(chain_id, resno, inscode);
+   if (residue_p) {
+      mmdb::Atom *at_C1prime = residue_p->GetAtom("C1'");
+      mmdb::Atom *at_N1      = residue_p->GetAtom("N1");
+      mmdb::Atom *at_N9      = residue_p->GetAtom("N9");
+      mmdb::Atom *at_N = nullptr;
+      if (at_C1prime) {
+         coot::Cartesian C1prime_pos(at_C1prime->x, at_C1prime->y, at_C1prime->z);
+         coot::Cartesian N_pos;
+         bool found_the_N = false;
+         bool N_is_N1 = false;
+         bool N_is_N9 = false;
+         if (at_N1) {
+            coot::Cartesian N_posi(at_N1->x, at_N1->y, at_N1->z);
+            float dd = coot::Cartesian::lengthsq(C1prime_pos, N_posi);
+            if (dd < 10.0) {
+               found_the_N = true;
+               at_N = at_N1;
+               N_pos = N_posi;
+               N_is_N1 = true;
+            }
+         }
+         if (at_N9) {
+            coot::Cartesian N_posi(at_N9->x, at_N9->y, at_N9->z);
+            float dd = coot::Cartesian::lengthsq(C1prime_pos, N_posi);
+            if (dd < 10.0) {
+               found_the_N = true;
+               at_N = at_N1;
+               N_pos = N_posi;
+               N_is_N9 = true;
+            }
+         }
+         if (found_the_N) {
+            mmdb::Manager *mol = atom_sel.mol;
+            std::vector<std::string> atom_names;
+            if (N_is_N1) atom_names = { " C2'", " C1'", " N1 ", " C6 "};
+            if (N_is_N9) atom_names = { " C2'", " C1'", " N9 ", " C8 "};
+            std::vector<coot::atom_spec_t> torsion_atoms = atom_names_to_atom_specs(atom_names, residue_p);
+            coot::torsion_general tg(residue_p, mol, torsion_atoms);
+            Tree tree = tg.GetTree_0_based();
+            tg.change_by(180.0, &tree);
+            have_unsaved_changes_flag = 1;
+            make_bonds_type_checked(__FUNCTION__);
+         }
+      }
+   }
+   return istatus;
+
+}
 
 
 // Return a vector of residues that have missing atoms by dictionary

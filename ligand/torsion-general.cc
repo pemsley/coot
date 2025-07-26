@@ -19,6 +19,9 @@
  * 02110-1301, USA.
  */
 
+#include <iostream>
+
+#include <clipper/core/clipper_util.h>
 
 #include "torsion-general.hh"
 
@@ -34,9 +37,9 @@ coot::torsion_general::torsion_general(mmdb::Residue *res, mmdb::Manager *residu
    int index_2 = atom_index(user_defined_torsion_atoms[2]);
    int index_3 = atom_index(user_defined_torsion_atoms[3]);
 
-   if (index_0 != FAIL) { 
-      if (index_1 != FAIL) { 
-	 if (index_2 != FAIL) { 
+   if (index_0 != FAIL) {
+      if (index_1 != FAIL) {
+	 if (index_2 != FAIL) {
 	    if (index_3 != FAIL) {
 	       contact_indices = get_contact_indices();
 	       clicked_atom_indices.clear();
@@ -44,7 +47,7 @@ coot::torsion_general::torsion_general(mmdb::Residue *res, mmdb::Manager *residu
 	       clicked_atom_indices.push_back(index_1);
 	       clicked_atom_indices.push_back(index_2);
 	       clicked_atom_indices.push_back(index_3);
-	       setup_correctly = 1;
+	       setup_correctly = YES;
 	    } else {
 	       std::cout << "ERROR:: failed to find " << user_defined_torsion_atoms[3] << std::endl;
 	    }
@@ -60,13 +63,35 @@ coot::torsion_general::torsion_general(mmdb::Residue *res, mmdb::Manager *residu
 }
 
 Tree
+coot::torsion_general::GetTree_0_based() const {
+
+   Tree tree;
+   if (setup_correctly == YES) {
+
+      mmdb::Atom **residue_atoms = nullptr;
+      int n_residue_atoms = 0;
+      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      std::vector< ::Cartesian > coords;
+      for(int i=0; i<n_residue_atoms; i++) {
+	 ::Cartesian c(residue_atoms[i]->x,
+		       residue_atoms[i]->y,
+		       residue_atoms[i]->z);
+	 coords.push_back(c);
+      }
+      int base_index = 0;
+      tree.SetCoords(coords, base_index, contact_indices);
+   }
+   return tree;
+}
+
+Tree
 coot::torsion_general::GetTree() const {
 
    Tree tree;
-   if (setup_correctly) {
+   if (setup_correctly == YES) {
 
-      mmdb::PPAtom residue_atoms;
-      int n_residue_atoms;
+      mmdb::Atom **residue_atoms = nullptr;
+      int n_residue_atoms = 0;
       residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
       std::vector< ::Cartesian > coords;
       for(int i=0; i<n_residue_atoms; i++) {
@@ -76,18 +101,22 @@ coot::torsion_general::GetTree() const {
 	 coords.push_back(c);
       }
       int base_index = clicked_atom_indices[0];
+      base_index = 0;
       tree.SetCoords(coords, base_index, contact_indices);
    }
    return tree;
-
-} 
+}
 
 int
 coot::torsion_general::change_by(double diff, Tree *tree) {
 
+   bool debug = false;
+
    int r=1;
-//    std::cout << "user_defined_torsion_atoms.size(): " << user_defined_torsion_atoms.size()
-// 	     << std::endl;
+
+   std::cout << "user_defined_torsion_atoms.size(): " << user_defined_torsion_atoms.size()
+ 	     << std::endl;
+
    if (setup_correctly) {
 
       mmdb::PPAtom residue_atoms;
@@ -101,35 +130,52 @@ coot::torsion_general::change_by(double diff, Tree *tree) {
 	 coords.push_back(c);
       }
 
-      
       TreeVertex *tv = tree->GetCoord(clicked_atom_indices[1]);
 
-      if (0) // debugging
+      if (debug) // debugging
 	 std::cout << "children of tree vertex of clicked atom[1] "
 		   << tv->GetNumberOfChildren() << std::endl;
-      
+
       if (tv->GetNumberOfChildren() > 0) {
 	 TreeVertex *tvc0 = tv->GetChild(0);
 	 float tors = clipper::Util::d2rad(diff);
 
-	 if (0) // debugging
-	    std::cout << " rotating about " << clicked_atom_indices[1] << " "
-		      << clicked_atom_indices[2] << " by " << tors << std::endl;
-	 
+	 if (debug) { // debugging
+	    std::cout << "debug:: change_by() clicked atom indices: "
+		      << clicked_atom_indices[0] << " "
+		      << clicked_atom_indices[1] << " "
+		      << clicked_atom_indices[2] << " "
+		      << clicked_atom_indices[3] << std::endl;
+	    std::cout << "debug:: change_by() rotating about "
+		      << clicked_atom_indices[1] << " "
+		      << clicked_atom_indices[2] << " by "
+		      << tors << "radians" << std::endl;
+	 }
+
 	 tree->RotateAboutBond(clicked_atom_indices[1],
 			       clicked_atom_indices[2], tors);
-      
+
 	 std::vector< ::Cartesian > coords_rotatated =
 	    tree->GetAllCartesians();
 	 if (int(coords_rotatated.size()) != n_residue_atoms) {
 	    std::cout << "disaster in atom selection, tors_general\n";
 	 } else {
 	    for (int iat=0; iat<n_residue_atoms; iat++) {
-//  	       std::cout << residue_atoms[iat]->name << " ("
-//  			 << residue_atoms[iat]->x << " "
-//  			 << residue_atoms[iat]->y << " " 
-//  			 << residue_atoms[iat]->z << ") to  "
-//  			 << coords_rotatated[iat] << std::endl;
+
+	       if (debug) {
+		  float dx = residue_atoms[iat]->x - coords_rotatated[iat].get_x();
+		  float dy = residue_atoms[iat]->x - coords_rotatated[iat].get_x();
+		  float dz = residue_atoms[iat]->x - coords_rotatated[iat].get_x();
+		  float dd = dx * dx + dy * dy + dz * dz;
+		  float d = sqrt(dd);
+		  std::cout << residue_atoms[iat]->name << "debug:: change_by(): "
+			    << residue_atoms[iat]->x << " "
+			    << residue_atoms[iat]->y << " "
+			    << residue_atoms[iat]->z << " to  "
+			    << coords_rotatated[iat] << " moved by "
+			    << d << std::endl;
+	       }
+
 	       residue_atoms[iat]->x = coords_rotatated[iat].get_x();
 	       residue_atoms[iat]->y = coords_rotatated[iat].get_y();
 	       residue_atoms[iat]->z = coords_rotatated[iat].get_z();
@@ -139,11 +185,13 @@ coot::torsion_general::change_by(double diff, Tree *tree) {
       } else {
 	 std::cout << "WARNING: this vertex " << clicked_atom_indices[2]
 		   << " has no children (strangely)\n";
-      } 
-      for(int i=0; i<n_residue_atoms; i++) {
-	 ::Cartesian c(residue_atoms[i]->x,
-		       residue_atoms[i]->y,
-		       residue_atoms[i]->z);
+      }
+      if (debug) {
+	 for(int i=0; i<n_residue_atoms; i++) {
+	    ::Cartesian c(residue_atoms[i]->x,
+			  residue_atoms[i]->y,
+			  residue_atoms[i]->z);
+	 }
       }
    } else {
       std::cout << "Sorry torsion_general not setup correctly" << std::endl;

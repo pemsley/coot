@@ -19,19 +19,14 @@
  * 02110-1301, USA.
  */
 
-
 #include <vector>
-#include <string>
-#include "coot-utils/coot-coord-utils.hh"
-
-#ifndef __MMDB_Manager__
-#include <mmdb_manager.h>
-#endif
+#include "geometry/residue-and-atom-specs.hh"
 #include "ccp4mg-utils/mgtree.h"
 
 namespace coot {
 
    class torsion_general {
+
       enum setup_params { NO, YES, FAIL=-1 };
       bool setup_correctly;
       mmdb::Residue *residue_p;
@@ -43,11 +38,16 @@ namespace coot {
       // spec.  Return -1 on failure to find the atom.
       int atom_index(const coot::atom_spec_t &spec) const;
       std::vector<std::vector<int> > get_contact_indices() const;
+
    public:
       torsion_general(mmdb::Residue *res, mmdb::Manager *residue_mol_in,
 		      const std::vector<atom_spec_t> &user_defined_torsion_atoms_in);
       int change_by(double diff, Tree *tree); // tree is modified
       Tree GetTree() const;
+      Tree GetTree_0_based() const; // 20250726-PE this is the function I want
+                                    // for syn-anti flip. If I use the above function
+                                    // then the atom indices are messed up, i.e.
+                                    // atom have the coordinates of other atoms.
    };
 
-} 
+}
