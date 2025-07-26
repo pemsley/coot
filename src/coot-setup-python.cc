@@ -52,6 +52,8 @@
 
 void setup_python_basic(int argc, char **argv) {
 
+   // wretched python.
+
 #ifdef USE_PYTHON
 #ifdef USE_PYMAC_INIT
 
@@ -73,7 +75,44 @@ void setup_python_basic(int argc, char **argv) {
       _argv[i] = arg;
    }
    Py_InitializeEx(0);
+
+#if PY_VERSION_HEX > 0x030400F0
+
+// #if PY_VERSION_HEX > 0x030A00F0
+#if 0
+
+   // new python setup - it takes control of the command line.
+   // I don't want that.
+
+   PyConfig config;
+   PyConfig_InitPythonConfig(&config);
+   PyStatus status = PyConfig_SetBytesArgv(&config, argc, argv);
+   if (PyStatus_Exception(status)) {
+      Py_ExitStatusException(status);
+   }
+
+   status = Py_InitializeFromConfig(&config);
+   if (PyStatus_Exception(status)) {
+      Py_ExitStatusException(status);
+   }
+
+   // Now Python is initialized and argv is set
+
+   PyRun_SimpleString("import sys; print(sys.argv)");
+
+   Py_Finalize();
+
+   PyConfig_Clear(&config);
+
+#else
+   int update_path = 1;
+   PySys_SetArgvEx(argc, _argv, update_path);
+#endif
+
+#else
+   // ancient python
    PySys_SetArgv(argc, _argv);
+#endif
 
    // We expect these to be null because we are outside a python script.
    // PyObject *globals = PyEval_GetGlobals();
