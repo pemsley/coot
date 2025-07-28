@@ -714,7 +714,7 @@ create_local_picture(const std::string &local_filename) {
    GtkWidget *picture = 0;
 
    std::string pdd = coot::package_data_dir();
-   std::cout << "pdd " << pdd << std::endl;
+   // std::cout << "pdd " << pdd << std::endl;
    std::string icon_dir = coot::util::append_dir_file(pdd, "images");
    std::vector<std::string> pixmap_directories_gtk4 = {};
    pixmap_directories_gtk4.push_back(icon_dir);
