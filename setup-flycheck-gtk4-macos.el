@@ -39,7 +39,7 @@
    "/opt/homebrew/Cellar/python@3.13/3.13.5/Frameworks/Python.framework/Versions/3.13/include/python3.13"
    "/opt/homebrew/Cellar/nanobind//2.7.0/share/nanobind/include"
    "/opt/homebrew/Cellar/glm/1.0.1/include"
-   "/opt/homebrew/Cellar/gtk4/4.18.4/include/gtk-4.0"
+   "/opt/homebrew/Cellar/gtk4/4.18.6/include/gtk-4.0"
    "/opt/homebrew/Cellar/glib/2.84.3/include/glib-2.0"
    "/opt/homebrew/Cellar/glib/2.84.3/lib/glib-2.0/include"
    "/opt/homebrew/Cellar/cairo/1.18.4/include/cairo"
