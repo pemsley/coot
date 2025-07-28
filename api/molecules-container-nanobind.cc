@@ -1501,6 +1501,7 @@ NB_MODULE(coot_headless_api, m) {
     .def_rw("res_no",&coot::residue_spec_t::res_no)
     .def_rw("ins_code",&coot::residue_spec_t::ins_code)
     .def_rw("int_user_data",&coot::residue_spec_t::int_user_data)
+    .def("format", &coot::residue_spec_t::format)
     ;
     nb::class_<coot::atom_spec_t>(m,"atom_spec_t")
     .def(nb::init<const std::string &, int, const std::string &, const std::string &, const std::string &>())
@@ -1513,6 +1514,7 @@ NB_MODULE(coot_headless_api, m) {
     .def_rw("float_user_data",&coot::atom_spec_t::float_user_data)
     .def_rw("string_user_data",&coot::atom_spec_t::string_user_data)
     .def_rw("model_number",&coot::atom_spec_t::model_number)
+    .def("format", &coot::atom_spec_t::format)
     ;
     nb::class_<coot::plain_atom_overlap_t>(m,"plain_atom_overlap_t")
     .def(nb::init<>())
