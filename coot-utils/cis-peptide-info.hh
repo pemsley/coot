@@ -110,8 +110,8 @@ namespace coot {
 
          std::string string() const;
 
-         bool operator==(const cis_peptide_info_t &a) {
-            bool r = 0;
+         bool operator==(const cis_peptide_info_t &a) const {
+            bool r = false;
 
             // The model number in pdb files usually bogus because of badly formed CISPEP cards
 
