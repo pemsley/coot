@@ -7534,8 +7534,7 @@ coot::util::remove_wrong_cis_peptides(mmdb::Manager *mol) {
 
    std::vector<cis_peptide_info_t> v_coords = cis_peptides_info_from_coords(mol);
 
-   mmdb::PCisPep CisPep;
-   if (mol) { 
+   if (mol) {
       int n_models = mol->GetNumberOfModels();
       for (int imod=1; imod<=n_models; imod++) {
          mmdb::Model *model_p = mol->GetModel(imod);
@@ -7544,27 +7543,24 @@ coot::util::remove_wrong_cis_peptides(mmdb::Manager *mol) {
             std::vector<mmdb::CisPep> good_cis_peptides;
             int ncp = model_p->GetNumberOfCisPeps();
             for (int icp=1; icp<=ncp; icp++) {
-               CisPep = model_p->GetCisPep(icp);
+               mmdb::CisPep *CisPep = model_p->GetCisPep(icp);
                if (CisPep)  {
                   //             std::cout << "mmdb:: " << " :" << CisPep->chainID1 << ": "
-                  // << CisPep->seqNum1 << " :" 
+                  // << CisPep->seqNum1 << " :"
                   // << CisPep->chainID2 << ": " << CisPep->seqNum2 << std::endl;
                   coot::util::cis_peptide_info_t cph(CisPep);
 
                   // Does that match any of the coordinates cispeps?
-                  short int ifound = 0;
+                  bool ifound = false;
                   for (unsigned int iccp=0; iccp<v_coords.size(); iccp++) {
                      if (cph == v_coords[iccp]) {
-                        // std::cout << " ......header matches" << std::endl;
-                        ifound = 1;
+                        ifound = true;
                         break;
-                     } else {
-                        // std::cout << "       header not the same" << std::endl;
                      }
                   }
-                  if (ifound == 0) {
+                  if (ifound == false) {
                      // needs to be removed
-                     std::cout << "INFO:: Removing CIS peptide from PDB header: " 
+                     std::cout << "INFO:: Removing CIS peptide from PDB header: "
                                << cph.chain_id_1 << " "
                                << cph.resno_1 << " "
                                << cph.chain_id_2 << " "
@@ -7573,13 +7569,13 @@ coot::util::remove_wrong_cis_peptides(mmdb::Manager *mol) {
                      bad_cis_peptides.push_back(*CisPep);
                   } else {
                      good_cis_peptides.push_back(*CisPep);
-                     //                std::cout << "This CIS peptide was real: " 
+                     //                std::cout << "This CIS peptide was real: "
                      //                          << cph.chain_id_1 << " "
                      //                          << cph.resno_1 << " "
                      //                          << cph.chain_id_2 << " "
                      //                          << cph.resno_2 << " "
                      //                          << std::endl;
-                  } 
+                  }
                }
             }
             if (bad_cis_peptides.size() > 0) {
