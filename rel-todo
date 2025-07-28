@@ -1,8 +1,6 @@
 
 --- Items ---
 
-o make "Copy Fragment" an overlay
-
 o make "Environment Distances" an overlay
 
 o pickable ribbons.
@@ -100,6 +98,9 @@ o  It was a strange bit of code in get_group().
    Solved now? Am I using the right version?
 
 --- Done Items ---
+
+o make "Copy Fragment" an overlay
+* Done.
 
 o get rid of generic object functions from graphics-info.h
   Put them in aa new file along with

@@ -1,14 +1,34 @@
-  Release Notes for 1.1.17
+
+  Release Notes for 1.1.18
 
  o FEATURE: Ctrl-F keybinding added to smooth the bonds
 
  o FEATURE: Multi-select for opening maps
 
+ o FEATURE: "Side-chain 180°" button now does syn/anti flip for nucleotides
+
+ o FEATURE: "Split Water" added to Modelling menu
+
+ o CHANGE:  "Copy Fragment" has become an overlay
+
+ o CHANGE:  "Move Molecule Here" has become an overlay
+
+ o CHANGE:  Generic Display Objects can now have translation gizmos
+
+ o CHANGE:  layla now has relocatable directory support
+
  o BUG-FIX: Removed bug in parsing external torsion restraints
+
+ o BUG-FIX: Curlew has moved to use XDG Base Directory specs
 
 Chapi/libcootapi:
 
  o CHANGE: the way the monomer library is looked up is improved
+
+ o CHANGE: get atom and get residue functions are now available in nanobindings
+
+ o CHANGE: swig has been removed from pythonic api
+
 
 -----
 
