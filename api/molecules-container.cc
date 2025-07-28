@@ -105,8 +105,8 @@ molecules_container_t::init() {
 
    // debug();
    //
-   size_t sss = sizeof(molecules_container_t);
-   std::cout << "::::::::::::::::: sizeof molecules_container_t " << sss << std::endl;
+   // size_t sss = sizeof(molecules_container_t);
+   // std::cout << "::::::::::::::::: sizeof molecules_container_t " << sss << std::endl;
 }
 
 
