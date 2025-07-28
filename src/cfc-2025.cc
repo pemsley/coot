@@ -19,6 +19,7 @@ chemical_feature_clustering(std::vector<std::pair<int, std::string>> &mol_info_v
    auto make_generic_display_objects_for_features = []
       (const std::vector<cfc::typed_cluster_t> &cluster_infos) {
 
+      std::vector<int> generic_object_indices;
       if (! cluster_infos.empty()) {
 
          graphics_info_t g;
@@ -39,8 +40,10 @@ chemical_feature_clustering(std::vector<std::pair<int, std::string>> &mol_info_v
             g.generic_display_objects[object_number].add_pentakis_dodecahedron(ch, col, 1.0, 0.4, pt);
             g.generic_display_objects[object_number].mesh.setup_buffers();
             g.set_display_generic_object_simple(object_number, 1);
+            generic_object_indices.push_back(object_number);
          }
       }
+      return generic_object_indices;
    };
 
    auto get_centre_position = [] (const std::vector<cfc::water_info_t> &wiv) {
@@ -87,12 +90,14 @@ chemical_feature_clustering(std::vector<std::pair<int, std::string>> &mol_info_v
 
    auto make_generic_display_objects_for_waters = [get_centre_position, get_width]
       (const std::vector<std::vector<cfc::water_info_t> > &water_infos) {
+
+      std::vector<int> generic_object_indices;
       for (unsigned int i=0; i<water_infos.size(); i++) {
          const auto &wi = water_infos[i];
          if (! wi.empty()) {
             graphics_info_t g;
             g.attach_buffers();
-            coot::colour_holder col("#dd2222");
+            coot::colour_holder col("#aa2266");
             int width = get_width(wi);
             clipper::Coord_orth pt = get_centre_position(wi);
             meshed_generic_display_object::point_info_t pi(col, pt, width);
@@ -104,8 +109,10 @@ chemical_feature_clustering(std::vector<std::pair<int, std::string>> &mol_info_v
             g.generic_display_objects[object_number].add_points(piv, num_subdivisions);
             g.generic_display_objects[object_number].mesh.setup_buffers();
             g.set_display_generic_object_simple(object_number, 1);
+            generic_object_indices.push_back(object_number);
          }
       }
+      return generic_object_indices;
    };
 
    graphics_info_t g;
@@ -135,14 +142,24 @@ chemical_feature_clustering(std::vector<std::pair<int, std::string>> &mol_info_v
       g.cfc_gui.setup(); // if needed
       g.cfc_gui.cluster_infos = results.first;
       g.cfc_gui.water_infos   = results.second;
-      make_generic_display_objects_for_features(g.cfc_gui.cluster_infos);
-      make_generic_display_objects_for_waters(g.cfc_gui.water_infos);
+      std::vector<int> generic_object_indices_for_features =
+         make_generic_display_objects_for_features(g.cfc_gui.cluster_infos);
+      std::vector<int> generic_object_indices_for_waters =
+         make_generic_display_objects_for_waters(g.cfc_gui.water_infos);
       GtkWidget *dialog = g.cfc_gui.get_dialog();
-      if (dialog) {
-         g.cfc_gui.fill_ligands_grid();
-         g.cfc_gui.fill_waters_grid();
-         gtk_widget_set_visible(dialog, TRUE);
-         g.set_transient_for_main_window(dialog);
+
+      // transfer the generic display object indices (so they can be toggled off
+      // when the feature button is toggled off)
+      if (generic_object_indices_for_features.size() != g.cfc_gui.cluster_infos.size()) {
+         std::cout << "ERROR:: mismatch cfc feature index" << std::endl;
+      } else {
+
+         if (dialog) {
+            g.cfc_gui.fill_ligands_grid(generic_object_indices_for_features);
+            g.cfc_gui.fill_waters_grid(generic_object_indices_for_waters);
+            gtk_widget_set_visible(dialog, TRUE);
+            g.set_transient_for_main_window(dialog);
+         }
       }
 
    } else {

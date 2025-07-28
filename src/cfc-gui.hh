@@ -19,8 +19,9 @@ public:
 	 setup();
       return widget_from_builder("cfc-dialog");
    }
-   void fill_ligands_grid();
-   void fill_waters_grid();
+   // pre-sort indices
+   void fill_ligands_grid(const std::vector<int> &generic_object_indices_for_features);
+   void fill_waters_grid(const std::vector<int> &generic_object_indices_for_waters);
 };
 
 #endif // COOT_SRC_CFC_GUI_HH

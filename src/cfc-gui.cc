@@ -6,6 +6,7 @@
 #include "cfc-gui.hh"
 #include "graphics-info.h"
 #include "c-interface.h"
+#include "c-interface-generic-objects.h"
 
 void
 cfc_gui_t::setup() {
@@ -205,7 +206,7 @@ on_cfc_waters_all_off_button_clicked(GtkButton       *button,
 }
 
 void
-cfc_gui_t::fill_waters_grid() {
+cfc_gui_t::fill_waters_grid(const std::vector<int> &generic_object_indices_for_waters) {
 
    auto sorter = +[] (const std::vector<cfc::water_info_t> &v1,
                       const std::vector<cfc::water_info_t> &v2) {
@@ -258,6 +259,12 @@ cfc_gui_t::fill_waters_grid() {
          // don't recentre if we are merely turnning off the representation
          if (state == 1)
             graphics_info_t::set_rotation_centre(pt);
+         int godi = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(togglebutton),
+                                                      "generic-display-object-index"));
+         if (state == 1)
+            set_display_generic_object_simple(godi, 1);
+         else
+            set_display_generic_object_simple(godi, 0);
       };
 
       auto tb_callback = +[] (GtkToggleButton *tb, gpointer data) {
@@ -283,6 +290,12 @@ cfc_gui_t::fill_waters_grid() {
          std::string label = "Water Cluster " + std::to_string(i);
          GtkWidget *tb = gtk_toggle_button_new_with_label(label.c_str());
          gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(tb), TRUE);
+         int generic_dislay_object_index = -1;
+         if (i < generic_object_indices_for_waters.size())
+            generic_dislay_object_index = generic_object_indices_for_waters[i];
+         g_object_set_data(G_OBJECT(tb),
+                           "generic-display-object-index",
+                           GINT_TO_POINTER(generic_dislay_object_index));
          water_cluster_t *wc = new water_cluster_t(i, wi[0].pos);
          g_signal_connect(G_OBJECT(tb), "toggled", G_CALLBACK(callback), wc);
          gtk_grid_attach(GTK_GRID(grid), tb, 0, i, 1, 1);
@@ -305,7 +318,7 @@ cfc_gui_t::fill_waters_grid() {
 }
 
 void
-cfc_gui_t::fill_ligands_grid() {
+cfc_gui_t::fill_ligands_grid(const std::vector<int> &generic_object_indices_for_features) {
 
    auto sorter = +[] (const cfc::typed_cluster_t &t1, const cfc::typed_cluster_t &t2) {
       return t1.imols_with_specs.size() > t2.imols_with_specs.size();
@@ -361,6 +374,12 @@ cfc_gui_t::fill_ligands_grid() {
          std::string label = ci.family + " " + ci.type + " " + std::to_string(ci.idx);
          GtkWidget *tb = gtk_toggle_button_new_with_label(label.c_str());
          gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(tb), TRUE);
+         int generic_dislay_object_index = -1;
+         if (i < generic_object_indices_for_features.size())
+            generic_dislay_object_index = generic_object_indices_for_features[i];
+         g_object_set_data(G_OBJECT(tb),
+                           "generic-display-object-index",
+                           GINT_TO_POINTER(generic_dislay_object_index));
          gtk_grid_attach(GTK_GRID(grid), tb, 0, i, 1, 1);
 
          auto callback = +[] (GtkToggleButton* togglebutton, gpointer data) {
@@ -379,6 +398,12 @@ cfc_gui_t::fill_ligands_grid() {
                int imol = tc->imols_with_specs[ii].first;
                set_mol_displayed(imol, state);
             }
+            int godi = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(togglebutton),
+                                                         "generic-display-object-index"));
+            if (state == 1)
+               set_display_generic_object_simple(godi, 1);
+            else
+               set_display_generic_object_simple(godi, 0);
          };
 
          // the molecule toggle buttons (not the feature toggle buttons)
@@ -392,6 +417,12 @@ cfc_gui_t::fill_ligands_grid() {
 
          cfc::typed_cluster_t *tc = new cfc::typed_cluster_t(ci);
          g_signal_connect(G_OBJECT(tb), "toggled", G_CALLBACK(callback), tc);
+         generic_dislay_object_index = -1;
+         if (i < generic_object_indices_for_features.size())
+            generic_dislay_object_index = generic_object_indices_for_features[i];
+         g_object_set_data(G_OBJECT(tb),
+                           "generic-display-object-index",
+                           GINT_TO_POINTER(generic_dislay_object_index));
 
          std::set<int>::const_iterator it;
          for (it=imols_in_cluster.begin(); it!=imols_in_cluster.end(); ++it) {
