@@ -229,6 +229,32 @@ molecules_container_t::get_sum_density_for_atoms_in_residue(int imol, const std:
 
 }
 
+//! get the number of atoms in a given residue
+   //!
+   //! @param imol is the model molecule index
+   //! @param residue_cid is the selection CID e.g "//A/15" (residue 15 of chain A)
+   //! @return the number of atoms in the residue, or -1 on failure
+   int
+   molecules_container_t::get_number_of_atoms_in_residue(int imol, const std::string &residue_cid) const {
+      int n_atoms = -1;
+      if (is_valid_model_molecule(imol)) {
+         mmdb::Residue *residue = molecules[imol].get_residue(residue_cid);
+         if (residue) {
+            mmdb::PAtom *atoms = 0;
+            int n_atoms_in_residue = 0;
+            residue->GetAtomTable(atoms, n_atoms_in_residue);
+            if (n_atoms_in_residue > 0) {
+               n_atoms = n_atoms_in_residue;
+            }
+         } else {
+            std::cout << "WARNING:: " << __FUNCTION__ << "(): no residue found for CID " << residue_cid << std::endl;
+         }
+      } else {
+         std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+      }
+      return n_atoms;
+   }
+
 
 //! density correlation validation information
 coot::validation_information_t

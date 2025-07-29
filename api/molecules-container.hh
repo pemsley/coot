@@ -2933,7 +2933,9 @@ public:
    // -------------------------------- Coordinates and map validation ----------------------
    //! \name Coordinates and Map Validation
 
-   //! Density fit validation information
+   //! Density fit validation information.
+   //!
+   //! This function returns the sum of the densiy of the atoms in the residue
    //!
    //! @param imol_model is the model molecule index
    //! @param imol_map is the map molecule index
@@ -2946,6 +2948,13 @@ public:
    double get_sum_density_for_atoms_in_residue(int imol, const std::string &cid,
                                                const std::vector<std::string> &atom_names,
                                                int imol_map);
+
+   //! get the number of atoms in a given residue
+   //!
+   //! @param imol is the model molecule index
+   //! @param residue_cid is the selection CID e.g "//A/15" (residue 15 of chain A)
+   //! @return the number of atoms in the residue, or -1 on failure
+   int get_number_of_atoms_in_residue(int imol, const std::string &residue_cid) const;
 
    //! Get the density correlation validation information
    //!

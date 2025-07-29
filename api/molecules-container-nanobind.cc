@@ -842,6 +842,10 @@ NB_MODULE(coot_headless_api, m) {
          &molecules_container_t::get_number_of_atoms,
          nb::arg("imol"),
          get_docstring_from_xml("get_number_of_atoms").c_str())
+    .def("get_number_of_atoms_in_residue",
+         &molecules_container_t::get_number_of_atoms_in_residue,
+         nb::arg("imol"), nb::arg("residue_cid"),
+         get_docstring_from_xml("get_number_of_atoms_in_residue").c_str())
     .def("get_number_of_hydrogen_atoms",
          &molecules_container_t::get_number_of_hydrogen_atoms,
          nb::arg("imol"),
