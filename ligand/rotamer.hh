@@ -78,7 +78,7 @@ namespace coot {
 // 	 std::cout << "::: " << n_samples_per_360 << "*(" << chi << "-0.5)/360 = "
 // 		   << t << std::endl;
 	 return t;
-      } 
+      }
    public:
       std::string residue_name;
       int n_chis;
@@ -93,7 +93,7 @@ namespace coot {
       a_rotamer_table(const std::string &residue_name_in,
 		      const std::string &file_name);
    };
-   
+
    // filled with molprobity table data
    //
    // We want this to be a static, and we ask for the probability of a
@@ -105,7 +105,7 @@ namespace coot {
    // is_well_formatted_ is 0, we also need to know that we've tried
    // to fill the class before and somehow failed, and not to try to
    // fill the class again.
-   // 
+   //
    class rotamer_probability_tables {
 
       std::vector<a_rotamer_table> tables;
