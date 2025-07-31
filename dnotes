@@ -11922,5 +11922,12 @@ i.e. I added "cpp"
 
 treestitter does nice code markup.
 
+tabs:
+  to show a tab as equivalent spacing to 8 spaces:
+
+  in ~/.config/nvim/lua/options.lua
+
+    vim.opt.tabstop = 8
+
 
 

@@ -39,6 +39,7 @@
 #include <clipper/contrib/edcalc.h>
 
 #include "coot-coord-utils.hh"
+#include "geometry/residue-and-atom-specs.hh"
 #include "utils/coot-utils.hh"
 #include "coot-map-utils.hh"
 #include "geometry/main-chain.hh"
@@ -418,11 +419,15 @@ coot::util::map_score(mmdb::PPAtom atom_selection,
    float f1;
 
    for (int i=0; i<n_selected_atoms; i++) {
-      f1 = density_at_point(xmap, clipper::Coord_orth(atom_selection[i]->x,
-                                                      atom_selection[i]->y,
-                                                      atom_selection[i]->z));
-      f1 *= atom_selection[i]->occupancy;
-      f += f1;
+      mmdb::Atom *at = atom_selection[i];
+      if (! at->isTer()) {
+         f1 = density_at_point(xmap, clipper::Coord_orth(atom_selection[i]->x,
+                                                         atom_selection[i]->y,
+                                                         atom_selection[i]->z));
+         f1 *= atom_selection[i]->occupancy;
+         f += f1;
+         // std::cout << "debug:: map_score() adding " << atom_spec_t(at) << " f1 " << f1 << std::endl;
+      }
    }
    return f;
 }

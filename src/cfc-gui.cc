@@ -27,25 +27,33 @@ cfc_gui_t::setup() {
       std::cout << "ERROR:: cfc bad builder" << std::endl;
    }
 
-   style_css = "button.custom-cfc-button {         \
+   style_css = "togglebutton.custom-cfc-button {         \
                                background: #576060;        /* Green */ \
                                color: white;       \
-                               padding: 7;         \
+                               padding: 2;         \
                                margin: 0;          \
-                               min-width: 6px;   /* adjust as needed */ \
-                               border-radius: 3px; \
+                               min-width: 16px;   /* adjust as needed */ \
+                               border-radius: 1px; \
                              } \
                                \
-                button.custom-cfc-blank-button {   \
-                               padding: 3;         \
+                togglebutton.custom-cfc-button {         \
+                               background: #576060;        /* Green */ \
+                               color: white;       \
+                               padding: 2;         \
+                               margin: 0;          \
+                               min-width: 16px;   /* adjust as needed */ \
+                               border-radius: 1px; \
+                             } \
+                toggolebutton.custom-cfc-blank-button {   \
+                               padding: 2;         \
                                color: #202020;     \
                                margin: 4;          \
                                min-width: 4px;     \
                                border-radius: 1px; \
                             } \
                 togglebutton.custom-cfc-blank-button:toggled {   \
-                               padding: 7;         \
-                               color: #20d020;     \
+                               padding: 2;         \
+                               color: #20f020;     \
                                margin: 0;          \
                                min-width: 4px;     \
                                border-radius: 1px; \
@@ -323,25 +331,6 @@ cfc_gui_t::fill_ligands_grid(const std::vector<int> &generic_object_indices_for_
    auto sorter = +[] (const cfc::typed_cluster_t &t1, const cfc::typed_cluster_t &t2) {
       return t1.imols_with_specs.size() > t2.imols_with_specs.size();
    };
-
-   // put this in the class
-   std::string style_css = "button.custom-cfc-button { \
-                               background: #576F50;        /* Green */ \
-                               color: white;       \
-                               padding: 0;         \
-                               margin: 0;          \
-                               min-width: 3px;   /* adjust as needed */ \
-                               border-radius: 5px; \
-                             } \
-                               \
-                            button.custom-cfc-blank-button { \
-                               padding: 0;         \
-                               color: #202020;     \
-                               margin: 0;          \
-                               min-width: 3px;     \
-                               border-radius: 1px; \
-                            } \
-                            ";
 
    GtkWidget *grid = widget_from_builder("cfc-ligands-grid");
    if (grid) {

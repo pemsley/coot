@@ -3,6 +3,13 @@
 
 o make "Environment Distances" an overlay
 
+o Ctrl-M should merge molecule (active ligand) into other model
+
+o fix relocatable innstaation of coot-residiue-density-fit
+  see the homebrew install
+
+o is density-residue-fit results available in the coot api?
+
 o pickable ribbons.
   Big Job.
 
