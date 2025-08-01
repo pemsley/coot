@@ -2793,12 +2793,16 @@ void print_opengl_info() {
       std::string ss2(s2);
       std::string ss3(s3);
       std::string ss4(s4);
-      std::cout << "INFO:: GL Version:                  " << ss1 << std::endl;
-      std::cout << "INFO:: GL Shading Language Version: " << ss2 << std::endl;
-      std::cout << "INFO:: GL Renderer:                 " << ss3 << std::endl;
-      std::cout << "INFO:: GL Vendor:                   " << ss4 << std::endl;
+      // std::cout << "INFO:: GL Version:                  " << ss1 << std::endl;
+      // std::cout << "INFO:: GL Shading Language Version: " << ss2 << std::endl;
+      // std::cout << "INFO:: GL Renderer:                 " << ss3 << std::endl;
+      // std::cout << "INFO:: GL Vendor:                   " << ss4 << std::endl;
+      logger.log(log_t::INFO, "GL Version:",                  ss1);
+      logger.log(log_t::INFO, "GL Shading Language Version:", ss2);
+      logger.log(log_t::INFO, "GL Renderer:",                 ss3);
+      logger.log(log_t::INFO, "GL Vendor:",                   ss4);
    } else {
-      std::cout << "error:: on_glarea_realize() null from glGetString()" << std::endl;
+      std::cout << "ERROR:: on_glarea_realize() null from glGetString()" << std::endl;
    }
 
 }
