@@ -52,6 +52,9 @@
 
 #include "lbg-graph.hh"
 
+#include "utils/logging.hh"
+extern logging logger;
+
 void
 coot::protein_geometry::set_only_bonds(int dict_idx) {
 
@@ -188,8 +191,10 @@ coot::protein_geometry::init_refmac_mon_lib(std::string ciffilename, int read_nu
 
       } else {
          if (verbose_mode)
-            std::cout << "There are " << ciffile.GetNofData() << " data in "
-                      << ciffilename << std::endl;
+            // std::cout << "There are " << ciffile.GetNofData() << " data in "
+            //                       << ciffilename << std::endl;
+            logger.log(log_t::INFO, "There are ", std::to_string(ciffile.GetNofData()),
+                       " data in ", ciffilename);
 
          for(int idata=0; idata<ciffile.GetNofData(); idata++) {
 

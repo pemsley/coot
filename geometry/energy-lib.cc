@@ -29,6 +29,9 @@
 #include "utils/coot-utils.hh"
 #include "protein-geometry.hh"
 
+#include "utils/logging.hh"
+extern logging logger;
+
 void
 coot::energy_lib_t::add_energy_lib_atom(    const coot::energy_lib_atom    &atom) {
    atom_map[atom.type] = atom;
@@ -82,8 +85,11 @@ coot::energy_lib_t::read(const std::string &file_name, bool print_info_message_f
       
    } else {
       if (print_info_message_flag)
-	 std::cout << "There are " << ciffile.GetNofData() << " data in "
-		   << file_name << std::endl;
+	 // std::cout << "There are " << ciffile.GetNofData() << " data in "
+         // << file_name << std::endl;
+         logger.log(log_t::INFO, "There are ", std::to_string(ciffile.GetNofData()),
+                    " data in ", file_name);
+
       for(int idata=0; idata<ciffile.GetNofData(); idata++) { 
 	 mmdb::mmcif::PData data = ciffile.GetCIFData(idata);
 	 // if (std::string(data->GetDataName()).substr(0,5) == "_lib_atom") {
