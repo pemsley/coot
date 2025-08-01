@@ -47,6 +47,8 @@
    "/home/paule/autobuild/build-for-chapi-arch-gtk4/lib/python3.12/site-packages/nanobind/include"
    "/home/paule/autobuild/Linux-penelope-gtk4-python/include"
 
+   "/lmb/home/pemsley/autobuild/coot-stable/include/rdkit"
+
    ;; from https://github.com/Wilfred/flycheck-pkg-config/issues/2
    "/usr/include/gtk-4.0"
    "/home/paule/gtk4/include/gtk-4.0"

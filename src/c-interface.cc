@@ -1948,8 +1948,10 @@ float density_score_residue(int imol, const char *chain_id, int res_no, const ch
             r->GetAtomTable(residue_atoms, n_residue_atoms);
             for (int iat=0; iat<n_residue_atoms; iat++) {
                mmdb::Atom *at = residue_atoms[iat];
-               float d_at = density_at_point(imol_map, at->x, at->y, at->z);
-               v += d_at * at->occupancy;
+               if (!at->isTer()) {
+                  float d_at = density_at_point(imol_map, at->x, at->y, at->z);
+                  v += d_at * at->occupancy;
+                }
             }
          }
       }
