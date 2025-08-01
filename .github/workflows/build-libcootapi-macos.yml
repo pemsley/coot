@@ -70,6 +70,9 @@ jobs:
          brew install boost boost-python3 brewsci/bio/clipper4coot robin-map nanobind
          brewsci/bio/ssm brewsci/bio/gemmi dwarfutils gsl rdkit glm gfortran
 
+      - name: Install maeparser sure the linker can find maeparser. If CMake is used,
+        run:  brew install maeparser
+
       # now in /opt/homebrew/opt/rdkit
       - name: tell me about rdkit installation
         run:  |

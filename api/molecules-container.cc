@@ -59,6 +59,16 @@ molecules_container_t::~molecules_container_t() {
    standard_residues_asc.clear_up();
 }
 
+//! the one and only constructor
+// verbose is an optional arg, default true
+molecules_container_t::molecules_container_t(bool verbose) :
+   ramachandrans_container(ramachandrans_container_t()),
+   thread_pool(8) {
+   if (! verbose) geom.set_verbose(false);
+   init();
+}
+
+
 //! init (private)
 void
 molecules_container_t::init() {
@@ -108,6 +118,63 @@ molecules_container_t::init() {
    // size_t sss = sizeof(molecules_container_t);
    // std::cout << "::::::::::::::::: sizeof molecules_container_t " << sss << std::endl;
 }
+
+//! don't use this in emscript
+coot::molecule_t &
+molecules_container_t::operator[] (unsigned int imol) {
+   // maybe this should throw an exception on out-of-range?
+   return molecules[imol];
+}
+
+//! don't use this in ecmascript
+mmdb::Manager *
+molecules_container_t::get_mol(unsigned int imol) const { // 20221018-PE function name change
+
+
+   if (is_valid_model_molecule(imol)) {
+      return molecules[imol].atom_sel.mol;
+   } else {
+      return nullptr;
+   }
+}
+
+//! Fill the rotamer probability tables (currently not ARG and LYS)
+void
+molecules_container_t::fill_rotamer_probability_tables() {
+   if (! rot_prob_tables.tried_and_failed()) {
+
+      std::string tables_dir = coot::package_data_dir();
+      char *data_dir = getenv("COOT_DATA_DIR");
+      if (data_dir) {
+         tables_dir = data_dir;
+      }
+      tables_dir += "/rama-data";
+      rot_prob_tables.set_tables_dir(tables_dir);
+      bool ignore_lys_and_arg_flag = true; // 20221018-PE remove this flag when rotamer probabiity
+      // tables are read from a binary file (and is fast enough
+      // to include lys and arg).
+      rot_prob_tables.fill_tables(ignore_lys_and_arg_flag);
+   }
+}
+
+bool
+molecules_container_t::contains_unsaved_models() const {
+   for (const auto &m : molecules) {
+      if (m.have_unsaved_changes()) return true;
+   }
+   return false;
+}
+
+//! Save the unsaved model - this function has not yet been written!
+void
+molecules_container_t::save_unsaved_model_changes() {
+   for (const auto &m : molecules) {
+      if (m.have_unsaved_changes()) {
+         // something fun here. - whatever it is though, don't put it in this header.
+      }
+   }
+}
+
 
 
 //! Get the package version

@@ -386,14 +386,7 @@ class molecules_container_t {
 public:
 
    //! the one and only constructor
-   explicit molecules_container_t(bool verbose=true) :
-      ramachandrans_container(ramachandrans_container_t()),
-      thread_pool(8) {
-
-      if (! verbose) geom.set_verbose(false);
-      init();
-
-   }
+   explicit molecules_container_t(bool verbose=true);
 
    ~molecules_container_t();
 
@@ -609,44 +602,18 @@ public:
 #ifdef DOXYGEN_SHOULD_PARSE_THIS
 #else
    //! don't use this in emscript
-   coot::molecule_t & operator[] (unsigned int imol) {
-      // maybe this should throw an exception on out-of-range?
-      return molecules[imol];
-   }
+   coot::molecule_t & operator[] (unsigned int imol);
 #endif
 #endif
 
 #ifdef DOXYGEN_SHOULD_PARSE_THIS
 #else
    //! don't use this in ecmascript
-   mmdb::Manager *get_mol(unsigned int imol) const { // 20221018-PE function name change
-
-
-      if (is_valid_model_molecule(imol)) {
-         return molecules[imol].atom_sel.mol;
-      } else {
-         return nullptr;
-      }
-   }
+   mmdb::Manager *get_mol(unsigned int imol) const;
 #endif
 
    //! Fill the rotamer probability tables (currently not ARG and LYS)
-   void fill_rotamer_probability_tables() {
-      if (! rot_prob_tables.tried_and_failed()) {
-
-         std::string tables_dir = coot::package_data_dir();
-         char *data_dir = getenv("COOT_DATA_DIR");
-         if (data_dir) {
-            tables_dir = data_dir;
-         }
-         tables_dir += "/rama-data";
-         rot_prob_tables.set_tables_dir(tables_dir);
-         bool ignore_lys_and_arg_flag = true; // 20221018-PE remove this flag when rotamer probabiity
-                                              // tables are read from a binary file (and is fast enough
-                                              // to include lys and arg).
-         rot_prob_tables.fill_tables(ignore_lys_and_arg_flag);
-      }
-   }
+   void fill_rotamer_probability_tables();
 
    //! Access to a compressed file that contains the rotamer probabilities
    //!
@@ -662,21 +629,10 @@ public:
    //! e.g. as yet not written to disk
    //!
    //! @return a flag of unsaved models state - e.g. if any of them are unsaved, then this returns True.
-   bool contains_unsaved_models() const {
-      for (const auto &m : molecules) {
-         if (m.have_unsaved_changes()) return true;
-      }
-      return false;
-   }
+   bool contains_unsaved_models() const;
 
    //! Save the unsaved model - this function has not yet been written!
-   void save_unsaved_model_changes() {
-      for (const auto &m : molecules) {
-         if (m.have_unsaved_changes()) {
-            // something fun here. - whatever it is though, don't put it in this header.
-         }
-      }
-   }
+   void save_unsaved_model_changes();
 
    // -------------------------------- geometry/dictionaries --------------------------------
    //! \name Geometry and Dictionaries
