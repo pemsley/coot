@@ -51,7 +51,7 @@ libcoot_ligand_la_SOURCES = ligand.cc ligand-extras.cc  residue_by_phi_psi.cc \
 	torsion-general.cc rotamer-tables.cc primitive-chi-angles.cc dipole.cc\
         base-pairing.cc backrub-rotamer.cc trace.cc trace-2.cc multi-peptide.cc \
         ligands-db.cc joining-residues.cc ligand-score-card.cc side-chain-densities.cc \
-	tube-finder.cc smith-waterman.cc side-chain.cc refine-isolated-chain.cc 
+	tube-finder.cc smith-waterman.cc side-chain.cc refine-isolated-chain.cc
 
 # chi-angles, monomer-utils, rotamer torsion-general use coot::Cartesian
 # from libcoot-coords

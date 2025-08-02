@@ -29,6 +29,10 @@
 #include "rotamer.hh"
 
 #include "utils/coot-utils.hh"
+
+#include "utils/logging.hh"
+extern logging logger;
+
 coot::a_rotamer_table::a_rotamer_table(const std::string &residue_name_in,
 				       const std::string &file_name) {
 
@@ -36,7 +40,7 @@ coot::a_rotamer_table::a_rotamer_table(const std::string &residue_name_in,
    // std::cout << "DEBUG:: reading file for " << residue_name << "\n";
    n_chis = -1; // unset
    if (residue_name == "SER" || residue_name == "VAL" ||
-       residue_name == "THR" || residue_name == "CYS" || residue_name == "PRO") { 
+       residue_name == "THR" || residue_name == "CYS" || residue_name == "PRO") {
       fill_chi_1(file_name);
       n_chis = 1;
    }
@@ -50,7 +54,7 @@ coot::a_rotamer_table::a_rotamer_table(const std::string &residue_name_in,
        residue_name == "GLU" || residue_name == "GLN") {
       fill_chi_1_2_3(file_name);
       n_chis = 3;
-   } 
+   }
     if (residue_name == "LYS" || residue_name == "ARG") {
        fill_chi_1_2_3_4(file_name);
        n_chis = 4;
@@ -60,10 +64,10 @@ coot::a_rotamer_table::a_rotamer_table(const std::string &residue_name_in,
 // Throw a runtime_error on failure to read file.
 void
 coot::a_rotamer_table::fill_chi_1(const std::string& file_name) {
-   
+
    std::ifstream f(file_name.c_str());
    char chars[1024];
-   
+
    bool in_table = 0;
    float chi;
    float prob;
@@ -436,11 +440,16 @@ coot::a_rotamer_table::fill_chi_1_2_3_4(const std::string& file_name) {
 void
 coot::rotamer_probability_tables::fill_tables(const std::string &dir, bool ignore_lys_and_arg_flag) {
 
+   // 20250802-PE the logic at the end of this function means that when this function is executed
+   // a secondd time, either is_well_formatted_ is true or tried_and_failed_ is true.
+   // Which means that this function can only the usefully run once.
+   // That will need to obe reviewed when late-loading the LYS and ARG tables in Moorhen.
+
    if (is_well_formatted_)
       return; // filled already.
    if (tried_and_failed_)
       return; // tried before and failed.
-   
+
    std::vector<std::pair<std::string, std::string> > res;
    res.push_back(std::pair<std::string, std::string> ("SER", "rota500-ser.data"));
    res.push_back(std::pair<std::string, std::string> ("VAL", "rota500-val.data"));
@@ -467,46 +476,60 @@ coot::rotamer_probability_tables::fill_tables(const std::string &dir, bool ignor
       res.push_back(std::pair<std::string, std::string> ("LYS", "rota500-lys.data"));
    }
 
+   // xxx/share/coot/rama-data
    std::string file_name_stub = dir;
-   bool bad_read = 0;
+   bool bad_read = false;
 
-   std::cout << "INFO:: Reading rotamer probability tables...";
+   // std::cout << "INFO:: Reading rotamer probability tables...";
+   logger.log(log_t::INFO, "Reading rotamer probability tables...");
    std::cout.flush();
    for (unsigned int i=0; i<res.size(); i++) {
       std::string file_name = file_name_stub + "/" + res[i].second;
-      try { 
-	 coot::a_rotamer_table t = coot::a_rotamer_table(res[i].first, file_name);
-	 tables.push_back(t);
+      try {
+         const std::string &res_name = res[i].first;
+         coot::a_rotamer_table t = coot::a_rotamer_table(res_name, file_name);
+         bool already_exists = false;
+
+         for (const auto &t : tables) {
+            if (t.residue_name == res_name) {
+               already_exists = true;
+               break;
+            }
+         }
+         if (already_exists) {
+            // skip the new read
+         } else {
+            tables.push_back(t);
+         }
       }
       catch (const std::runtime_error &mess) {
-	 std::cout << "Failed to read rotamer probability table for " << res[i].first
-		   << "\n" << mess.what() << std::endl;
-	 bad_read = 1;
-      } 
+         std::cout << "Failed to read rotamer probability table for " << res[i].first
+                   << "\n" << mess.what() << std::endl;
+         bad_read = 1;
+      }
    }
 
-   if (0) 
-      if (bad_read == 0) 
-	 bad_read = test_yourself();
-   
-   if (bad_read == 0)
-      is_well_formatted_ = 1;
+   if (false)
+      if (bad_read == false)
+         bad_read = test_yourself();
+
+   if (bad_read == false)
+      is_well_formatted_ = true;
    else
-      tried_and_failed_ = 1;
-   std::cout << "\n";
+      tried_and_failed_ = true;
 }
 
 // can throw an exception
 const coot::a_rotamer_table &
 coot::rotamer_probability_tables::operator[](unsigned int idx) const {
 
-   if (idx < tables.size()) { 
+   if (idx < tables.size()) {
       return tables[idx];
    } else {
       std::string s("out-of-range rotamer (table)");
       throw std::runtime_error(s);
-   } 
-} 
+   }
+}
 
 
 // float, a state and a name:
@@ -538,10 +561,10 @@ coot::rotamer_probability_tables::probability_this_rotamer(unsigned int i_table,
       if (n == 2) std::cout << "angles " << chi_angles[0].second << " " << chi_angles[1].second
 			    << "  bins: " << bins[0] << " " << bins[1] << std::endl;
       if (n == 3) std::cout << "angles " << chi_angles[0].second << " " << chi_angles[1].second << " "
-			    << chi_angles[2].second 
+			    << chi_angles[2].second
 			    << "  bins: " << bins[0] << " " << bins[1] << " " << bins[2] << std::endl;
       if (n == 4) std::cout << "angles " << chi_angles[0].second << " " << chi_angles[1].second << " "
-			    << chi_angles[2].second << " " << chi_angles[3].second 
+			    << chi_angles[2].second << " " << chi_angles[3].second
 			    << "  bins: " << bins[0] << " " << bins[1] << " " << bins[2] << " " << bins[3]
 			    << std::endl;
    }
