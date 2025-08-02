@@ -17,6 +17,8 @@
 
  o CHANGE:  layla now has relocatable directory support
 
+ o CHANGE:  Monomer-library look-up reworked
+
  o BUG-FIX: Removed bug in parsing external torsion restraints
 
  o BUG-FIX: Curlew has moved to use XDG Base Directory specs
@@ -29,6 +31,7 @@ Chapi/libcootapi:
 
  o CHANGE: swig has been removed from pythonic api
 
+ o CHANGE: format() function added for residue and atom specs
 
 -----
 

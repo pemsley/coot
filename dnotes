@@ -11929,5 +11929,6 @@ tabs:
 
     vim.opt.tabstop = 8
 
+# to check the file type in nvim:
 
-
+:set filetype?

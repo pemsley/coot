@@ -1,14 +1,20 @@
 
 --- Items ---
 
+o Let's move the light for different shadows in Fancy Mode
+
 o make "Environment Distances" an overlay
+
+o make downloading emd map an overlay
 
 o Ctrl-M should merge molecule (active ligand) into other model
 
-o fix relocatable innstaation of coot-residiue-density-fit
-  see the homebrew install
+o fix relocatable instation of coot-residue-density-fit.
+  See the homebrew install.
 
-o is density-residue-fit results available in the coot api?
+o put contact dots on the residues around the ligand.
+  How about hexagonal slabs (instead of balls) as
+  an option? (Tricky to get the orientation correct "between" atoms).
 
 o pickable ribbons.
   Big Job.

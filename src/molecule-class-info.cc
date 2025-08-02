@@ -5061,10 +5061,12 @@ molecule_class_info_t::update_extra_restraints_representation_geman_mcclure() {
       if (! ifound_1) {
          int idx = full_atom_spec_to_atom_index(rest.atom_1);
          if (idx != -1) {
-            at_1 = atom_sel.atom_selection[idx];
-            if (rest.atom_1.matches_spec(at_1)) {
-               p1 = clipper::Coord_orth(at_1->x, at_1->y, at_1->z);
-               ifound_1 = true;
+            if (idx < atom_sel.n_selected_atoms) {
+               at_1 = atom_sel.atom_selection[idx];
+               if (rest.atom_1.matches_spec(at_1)) {
+                  p1 = clipper::Coord_orth(at_1->x, at_1->y, at_1->z);
+                  ifound_1 = true;
+               }
             }
          }
       }
@@ -5080,10 +5082,12 @@ molecule_class_info_t::update_extra_restraints_representation_geman_mcclure() {
       if (! ifound_2) {
          int idx = full_atom_spec_to_atom_index(rest.atom_1);
          if (idx != -1) {
-            at_1 = atom_sel.atom_selection[idx];
-            if (rest.atom_2.matches_spec(at_2)) {
-               p2 = clipper::Coord_orth(at_2->x, at_2->y, at_2->z);
-               ifound_2 = true;
+            if (idx < atom_sel.n_selected_atoms) {
+               at_1 = atom_sel.atom_selection[idx];
+               if (rest.atom_2.matches_spec(at_2)) {
+                  p2 = clipper::Coord_orth(at_2->x, at_2->y, at_2->z);
+                  ifound_2 = true;
+               }
             }
          }
       }
