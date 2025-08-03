@@ -551,8 +551,8 @@ graphics_info_t::on_glarea_click(GtkGestureClick *controller,
                         std::pair<symm_trans_t, Cell_Translation> symtransshiftinfo(sap.symm_trans, sap.pre_shift_to_origin);
                         molecules[imol].add_atom_to_labelled_symm_atom_list(sap.atom_index, sap.symm_trans,
                                                                             sap.pre_shift_to_origin);
+                        handled = true;
                         graphics_draw();
-                        graphics_grab_focus();
                      }
                   }
                }
