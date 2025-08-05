@@ -22,6 +22,8 @@ public:
    // pre-sort indices
    void fill_ligands_grid(const std::vector<int> &generic_object_indices_for_features);
    void fill_waters_grid(const std::vector<int> &generic_object_indices_for_waters);
+   static void toggle_molecule_buttons(GtkToggleButton *toggle_button, int imol, int state);
+
 };
 
 #endif // COOT_SRC_CFC_GUI_HH

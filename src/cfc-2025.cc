@@ -139,6 +139,9 @@ chemical_feature_clustering(std::vector<std::pair<int, std::string>> &mol_info_v
    if (! input_infos.empty()) {
       std::pair<std::vector<cfc::typed_cluster_t>, std::vector<std::vector<cfc::water_info_t> > >
          results = cfc::chemical_feature_clustering(input_infos, *g.Geom_p());
+      std::cout << "Here with results size " << results.first.size() << " " << results.second.size()
+                << std::endl;
+
       g.cfc_gui.setup(); // if needed
       g.cfc_gui.cluster_infos = results.first;
       g.cfc_gui.water_infos   = results.second;
@@ -147,6 +150,11 @@ chemical_feature_clustering(std::vector<std::pair<int, std::string>> &mol_info_v
       std::vector<int> generic_object_indices_for_waters =
          make_generic_display_objects_for_waters(g.cfc_gui.water_infos);
       GtkWidget *dialog = g.cfc_gui.get_dialog();
+
+      std::cout << "Here with g.cfc_gui.cluster_infos size " 
+                << g.cfc_gui.cluster_infos.size() << std::endl;
+      std::cout << "Here with generic_object_indices_for_features size " 
+                << generic_object_indices_for_features.size() << std::endl;
 
       // transfer the generic display object indices (so they can be toggled off
       // when the feature button is toggled off)
