@@ -26,15 +26,15 @@ chemical_feature_clustering(std::vector<std::pair<int, std::string>> &mol_info_v
          g.attach_buffers();
          for (const auto &ci : cluster_infos) {
             std::string name = ci.make_name();
-            std::string col = "#a0a0a0";
+            std::string col = "#808080";
             if (false)
                std::cout << "ci.family " << ci.family << std::endl;
-            if (ci.family == "Acceptor")     col = "#ddaaaa";
-            if (ci.family == "Donor")        col = "#aaaaff";
-            if (ci.family == "Aromatic")     col = "#88ff88";
-            if (ci.family == "NegIonizable") col = "#ff88aa";
-            if (ci.family == "PosIonizable") col = "#bb88ff";
-            if (ci.family == "ZnBinder")     col = "#bbccff";
+            if (ci.family == "Acceptor")     col = "#bb4040";
+            if (ci.family == "Donor")        col = "#4040ff";
+            if (ci.family == "Aromatic")     col = "#30dd30";
+            if (ci.family == "NegIonizable") col = "#bb4060";
+            if (ci.family == "PosIonizable") col = "#7040bb";
+            if (ci.family == "ZnBinder")     col = "#8090ff";
             coot::colour_holder ch = coot::colour_holder_from_colour_name(col);
             clipper::Coord_orth pt(ci.pos.x, ci.pos.y, ci.pos.z);
             int object_number = g.new_generic_object_number(name);

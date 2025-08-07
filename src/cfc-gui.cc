@@ -210,6 +210,18 @@ on_cfc_ligands_all_off_button_clicked(GtkButton       *button,
 
 extern "C" G_MODULE_EXPORT
 void
+on_cfc_ligands_show_chemical_features_button_clicked(GtkButton       *button,
+                                                     gpointer         user_data) {
+
+   graphics_info_t g;
+   for (int i=0; i<g.cfc_gui.generic_object_indices_for_features.size(); i++) {
+      int idx = g.cfc_gui.generic_object_indices_for_features[i];
+      set_display_generic_object(idx, 1);
+   }
+}
+
+extern "C" G_MODULE_EXPORT
+void
 on_cfc_waters_all_on_button_clicked(GtkButton       *button,
                                     gpointer         user_data) {
 
@@ -609,7 +621,8 @@ cfc_gui_t::fill_ligands_grid() {
                GtkWidget *item_widget = gtk_widget_get_first_child(hbox);
                while (item_widget) {
                   GtkToggleButton *tb = GTK_TOGGLE_BUTTON(item_widget);
-                  int imol_is_in_this_cluster = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(tb), "imol-is-in-this-cluster"));
+                  int imol_is_in_this_cluster =
+                     GPOINTER_TO_INT(g_object_get_data(G_OBJECT(tb), "imol-is-in-this-cluster"));
                   if (imol_is_in_this_cluster == 1) {
                      if (state == 0)
                         if (gtk_toggle_button_get_active(tb))
