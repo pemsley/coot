@@ -4,8 +4,8 @@
 
   <object class="GtkDialog" id="cfc-dialog">
     <property name="title" translatable="yes">Coot: CFC</property>
-    <property name="default-width">500</property>
-    <property name="default-height">500</property>
+    <property name="default-width">700</property>
+    <property name="default-height">600</property>
     <!-- <signal name="close" handler="cfc_dialog_close" swapped="no"/> -->
     <!-- <signal name="response" handler="on_cfc_dialog_response" swapped="no"/> -->
 

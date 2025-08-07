@@ -27,7 +27,8 @@ chemical_feature_clustering(std::vector<std::pair<int, std::string>> &mol_info_v
          for (const auto &ci : cluster_infos) {
             std::string name = ci.make_name();
             std::string col = "#a0a0a0";
-            std::cout << "ci.family " << ci.family << std::endl;
+            if (false)
+               std::cout << "ci.family " << ci.family << std::endl;
             if (ci.family == "Acceptor")     col = "#ddaaaa";
             if (ci.family == "Donor")        col = "#aaaaff";
             if (ci.family == "Aromatic")     col = "#88ff88";
@@ -139,8 +140,10 @@ chemical_feature_clustering(std::vector<std::pair<int, std::string>> &mol_info_v
    if (! input_infos.empty()) {
       std::pair<std::vector<cfc::typed_cluster_t>, std::vector<std::vector<cfc::water_info_t> > >
          results = cfc::chemical_feature_clustering(input_infos, *g.Geom_p());
-      std::cout << "Here with results size " << results.first.size() << " " << results.second.size()
-                << std::endl;
+
+      if (false)
+         std::cout << "DEBUG:: Here with results size " << results.first.size() << " "
+                   << results.second.size() << std::endl;
 
       g.cfc_gui.setup(); // if needed
       g.cfc_gui.cluster_infos = results.first;
@@ -151,10 +154,12 @@ chemical_feature_clustering(std::vector<std::pair<int, std::string>> &mol_info_v
          make_generic_display_objects_for_waters(g.cfc_gui.water_infos);
       GtkWidget *dialog = g.cfc_gui.get_dialog();
 
-      std::cout << "Here with g.cfc_gui.cluster_infos size " 
-                << g.cfc_gui.cluster_infos.size() << std::endl;
-      std::cout << "Here with generic_object_indices_for_features size " 
-                << generic_object_indices_for_features.size() << std::endl;
+      if (false) {
+         std::cout << "Here with g.cfc_gui.cluster_infos size "
+                   << g.cfc_gui.cluster_infos.size() << std::endl;
+         std::cout << "Here with generic_object_indices_for_features size "
+                   << generic_object_indices_for_features.size() << std::endl;
+      }
 
       // transfer the generic display object indices (so they can be toggled off
       // when the feature button is toggled off)
@@ -163,8 +168,10 @@ chemical_feature_clustering(std::vector<std::pair<int, std::string>> &mol_info_v
       } else {
 
          if (dialog) {
-            g.cfc_gui.fill_ligands_grid(generic_object_indices_for_features);
-            g.cfc_gui.fill_waters_grid(generic_object_indices_for_waters);
+            g.cfc_gui.set_generic_object_indices_for_features(generic_object_indices_for_features);
+            g.cfc_gui.set_generic_object_indices_for_waters(generic_object_indices_for_waters);
+            g.cfc_gui.fill_ligands_grid();
+            g.cfc_gui.fill_waters_grid();
             gtk_widget_set_visible(dialog, TRUE);
             g.set_transient_for_main_window(dialog);
          }
