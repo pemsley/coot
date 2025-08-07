@@ -268,26 +268,29 @@ cfc::chemical_feature_clustering(const std::vector<cfc::input_info_t> &mol_infos
             }
          }
 
-         if (true) {
+         if (false)
             std::cout << "------- in chemical_feature_clustering() cluster_waters() end --- "
                       << std::endl;
-            for (unsigned int i=0; i<clusters.size(); i++) {
-               const auto &wi = clusters[i];
-               std::cout << "cluster " << i << " has " << wi.size() << " contributons"
-                         << std::endl;
-               std::set<int> imols_in_cluster;
-               for (unsigned int jj=0; jj<wi.size(); jj++) {
-                  int imol = wi[jj].imol;
-                  imols_in_cluster.insert(imol);
+
+         for (unsigned int i=0; i<clusters.size(); i++) {
+            const auto &wi = clusters[i];
+            std::cout << "cluster " << i << " has " << wi.size() << " contributons"
+                      << std::endl;
+            std::set<int> imols_in_cluster;
+            for (unsigned int jj=0; jj<wi.size(); jj++) {
+               int imol = wi[jj].imol;
+               imols_in_cluster.insert(imol);
+               if (false)
                   std::cout << "cluster " << i <<  ": adding imol " << imol << std::endl;
-               }
-               if (true)
-                  std::cout << "debug:: water_clusters [" << i << "] has "
-                            << imols_in_cluster.size() << " waters"
-                            << std::endl;
             }
-            std::cout << "------------" << std::endl;
+            if (false)
+               std::cout << "debug:: water_clusters [" << i << "] has "
+                         << imols_in_cluster.size() << " waters"
+                         << std::endl;
          }
+
+         if (false)
+            std::cout << "------------" << std::endl;
 
 
          return clusters;
