@@ -76,6 +76,12 @@
                                      <signal name="clicked" handler="on_cfc_ligands_show_chemical_features_button_clicked" swapped="no"/>
                                   </object>
                                 </child>
+                                <child>
+                                  <object class="GtkButton" id="cfc-ligands-hide-chemical-features">
+                                     <property name="label" translatable="yes">Hide Chem. Feat.</property>
+                                     <signal name="clicked" handler="on_cfc_ligands_hide_chemical_features_button_clicked" swapped="no"/>
+                                  </object>
+                                </child>
                               </object>
                             </child>
 

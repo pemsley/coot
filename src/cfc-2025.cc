@@ -2,6 +2,7 @@
 #include <iostream>
 #include <string>
 #include <vector>
+#include "clipper/core/coords.h"
 #include "coot-utils/cfc.hh"
 #include "analysis/stats.hh"
 #include "graphics-info.h"
@@ -38,14 +39,31 @@ chemical_feature_clustering(std::vector<std::pair<int, std::string>> &mol_info_v
             coot::colour_holder ch = coot::colour_holder_from_colour_name(col);
             clipper::Coord_orth pt(ci.pos.x, ci.pos.y, ci.pos.z);
             int object_number = g.new_generic_object_number(name);
+            // use differnt object shapes here
             g.generic_display_objects[object_number].add_pentakis_dodecahedron(ch, col, 1.0, 0.4, pt);
             g.generic_display_objects[object_number].mesh.setup_buffers();
             g.set_display_generic_object_simple(object_number, 1);
             generic_object_indices.push_back(object_number);
+            std::vector<meshed_generic_display_object::point_info_t> piv;
+            for (unsigned int ic=0; ic<ci.contributing_points.size(); ic++) {
+               const RDGeom::Point3D &p = ci.contributing_points[ic];
+               clipper::Coord_orth pc(p.x, p.y, p.z);
+               int width = 5;
+               meshed_generic_display_object::point_info_t pi(ch, pc, width);
+               piv.push_back(pi);
+            }
+            std::string contributors_name = name + " Contributors";
+            std::string wcn = std::string(contributors_name);
+            object_number = g.new_generic_object_number(wcn);
+            int num_subdivisions = 2;
+            g.generic_display_objects[object_number].add_points(piv, num_subdivisions);
+            g.generic_display_objects[object_number].mesh.setup_buffers();
+            g.set_display_generic_object_simple(object_number, 1);
          }
       }
       return generic_object_indices;
    };
+
 
    auto get_centre_position = [] (const std::vector<cfc::water_info_t> &wiv) {
 
@@ -152,6 +170,7 @@ chemical_feature_clustering(std::vector<std::pair<int, std::string>> &mol_info_v
          make_generic_display_objects_for_features(g.cfc_gui.cluster_infos);
       std::vector<int> generic_object_indices_for_waters =
          make_generic_display_objects_for_waters(g.cfc_gui.water_infos);
+
       GtkWidget *dialog = g.cfc_gui.get_dialog();
 
       if (false) {

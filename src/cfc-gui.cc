@@ -123,12 +123,6 @@ cfc_gui_t::sort_cluster_info_internals_by_number_of_chemical_features() {
       }
    }
 
-   if (true) {
-      for(const auto &k : number_of_chemical_features) {
-         std::cout << "map: " << k.first << " " << number_of_chemical_features.at(k.first) << std::endl;
-      }
-   }
-
    auto sorter = [number_of_chemical_features] (int imol_1, int imol_2) {
       return number_of_chemical_features.at(imol_2) < number_of_chemical_features.at(imol_1);
    };
@@ -217,6 +211,18 @@ on_cfc_ligands_show_chemical_features_button_clicked(GtkButton       *button,
    for (int i=0; i<g.cfc_gui.generic_object_indices_for_features.size(); i++) {
       int idx = g.cfc_gui.generic_object_indices_for_features[i];
       set_display_generic_object(idx, 1);
+   }
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_cfc_ligands_hide_chemical_features_button_clicked(GtkButton       *button,
+                                                     gpointer         user_data) {
+
+   graphics_info_t g;
+   for (int i=0; i<g.cfc_gui.generic_object_indices_for_features.size(); i++) {
+      int idx = g.cfc_gui.generic_object_indices_for_features[i];
+      set_display_generic_object(idx, 0);
    }
 }
 
