@@ -24,6 +24,7 @@ public:
    // gets sorted differently (and thus regenerated)
    std::vector<int> generic_object_indices_for_features;
    std::vector<int> generic_object_indices_for_waters;
+   std::vector<int> generic_object_indices_for_contributors;
    // pre-sort indices
    void fill_ligands_grid();
    void fill_waters_grid();

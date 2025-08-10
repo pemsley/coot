@@ -21,6 +21,8 @@ chemical_feature_clustering(std::vector<std::pair<int, std::string>> &mol_info_v
       (const std::vector<cfc::typed_cluster_t> &cluster_infos) {
 
       std::vector<int> generic_object_indices;
+      std::vector<int> generic_object_indices_for_contributors;
+
       if (! cluster_infos.empty()) {
 
          graphics_info_t g;
@@ -40,7 +42,9 @@ chemical_feature_clustering(std::vector<std::pair<int, std::string>> &mol_info_v
             clipper::Coord_orth pt(ci.pos.x, ci.pos.y, ci.pos.z);
             int object_number = g.new_generic_object_number(name);
             // use differnt object shapes here
-            g.generic_display_objects[object_number].add_pentakis_dodecahedron(ch, col, 1.0, 0.4, pt);
+            float stellation_factor = 1.0;
+            float scale_factor = 0.48;
+            g.generic_display_objects[object_number].add_pentakis_dodecahedron(ch, col, stellation_factor, scale_factor, pt);
             g.generic_display_objects[object_number].mesh.setup_buffers();
             g.set_display_generic_object_simple(object_number, 1);
             generic_object_indices.push_back(object_number);
@@ -59,9 +63,10 @@ chemical_feature_clustering(std::vector<std::pair<int, std::string>> &mol_info_v
             g.generic_display_objects[object_number].add_points(piv, num_subdivisions);
             g.generic_display_objects[object_number].mesh.setup_buffers();
             g.set_display_generic_object_simple(object_number, 1);
+            generic_object_indices_for_contributors.push_back(object_number);
          }
       }
-      return generic_object_indices;
+      return std::make_pair(generic_object_indices, generic_object_indices_for_contributors);
    };
 
 
@@ -166,8 +171,10 @@ chemical_feature_clustering(std::vector<std::pair<int, std::string>> &mol_info_v
       g.cfc_gui.setup(); // if needed
       g.cfc_gui.cluster_infos = results.first;
       g.cfc_gui.water_infos   = results.second;
-      std::vector<int> generic_object_indices_for_features =
+      std::pair<std::vector<int>, std::vector<int> > pp =
          make_generic_display_objects_for_features(g.cfc_gui.cluster_infos);
+      std::vector<int> generic_object_indices_for_features     = pp.first;
+      std::vector<int> generic_object_indices_for_contributors = pp.second;
       std::vector<int> generic_object_indices_for_waters =
          make_generic_display_objects_for_waters(g.cfc_gui.water_infos);
 

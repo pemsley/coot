@@ -153,6 +153,28 @@
                                      <signal name="clicked" handler="on_cfc_waters_all_off_button_clicked" swapped="no"/>
                                   </object>
                                 </child>
+
+                                <child>
+                                  <object class="GtkButton" id="cfc-waters-show-generic-object">
+                                    <property name="label" translatable="yes">Show Water Objects</property>
+                                     <signal name="clicked" handler="on_cfc_waters_show_generic_objects_button_clicked" swapped="no"/>
+                                  </object>
+                                </child>
+
+                                <child>
+                                  <object class="GtkButton" id="cfc-waters-hide-generic-object">
+                                    <property name="label" translatable="yes">Hide Water Objects</property>
+                                     <signal name="clicked" handler="on_cfc_waters_hide_generic_objects_button_clicked" swapped="no"/>
+                                  </object>
+                                </child>
+
+                                <child>
+                                  <object class="GtkButton" id="cfc-hide-contributor-objects">
+                                    <property name="label" translatable="yes">Hide Contributor Objects</property>
+                                     <signal name="clicked" handler="on_cfc_hide_contributor_objects_button_clicked" swapped="no"/>
+                                  </object>
+                                </child>
+
                               </object>
                             </child>
 

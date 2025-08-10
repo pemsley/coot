@@ -220,8 +220,8 @@ on_cfc_ligands_hide_chemical_features_button_clicked(GtkButton       *button,
                                                      gpointer         user_data) {
 
    graphics_info_t g;
-   for (int i=0; i<g.cfc_gui.generic_object_indices_for_features.size(); i++) {
-      int idx = g.cfc_gui.generic_object_indices_for_features[i];
+   for (int i=0; i<g.cfc_gui.generic_object_indices_for_contributors.size(); i++) {
+      int idx = g.cfc_gui.generic_object_indices_for_contributors[i];
       set_display_generic_object(idx, 0);
    }
 }
@@ -295,6 +295,39 @@ on_cfc_waters_all_off_button_clicked(GtkButton       *button,
    }
 
    graphics_draw();
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_cfc_waters_show_generic_objects_button_clicked(GtkButton       *button,
+                                                  gpointer         user_data) {
+
+   graphics_info_t g;
+   for (int i=0; i<g.cfc_gui.generic_object_indices_for_waters.size(); i++) {
+      int idx = g.cfc_gui.generic_object_indices_for_waters[i];
+      set_display_generic_object(idx, 1);
+   }
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_cfc_waters_hide_generic_objects_button_clicked(GtkButton       *button,
+                                                  gpointer         user_data) {
+
+   graphics_info_t g;
+   for (int i=0; i<g.cfc_gui.generic_object_indices_for_waters.size(); i++) {
+      int idx = g.cfc_gui.generic_object_indices_for_waters[i];
+      set_display_generic_object(idx, 0);
+   }
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_cfc_waters_hide_contributor_objects_button_clicked(GtkButton       *button,
+                                                      gpointer         user_data) {
+
+   graphics_info_t g;
+   
 }
 
 std::set<int>
@@ -622,7 +655,7 @@ cfc_gui_t::fill_ligands_grid() {
 
             // now we need to turn off (or on) each of the individual buttons
             GtkWidget *hbox = GTK_WIDGET(g_object_get_data(G_OBJECT(togglebutton), "hbox"));
-            std::cout << "testing hbox " << hbox << std::endl;
+            // std::cout << "fill_lignds_grid(): callback testing hbox " << hbox << std::endl;
             if (hbox) {
                GtkWidget *item_widget = gtk_widget_get_first_child(hbox);
                while (item_widget) {
@@ -659,35 +692,39 @@ cfc_gui_t::fill_ligands_grid() {
             GtkWidget *grid = GTK_WIDGET(g_object_get_data(G_OBJECT(b), "grid"));
             if (grid) {
 
-                int row = 0;
-                GtkWidget *box = gtk_grid_get_child_at(GTK_GRID(grid), 1, row);
-                do {
-                    if (box) {
-                       box = gtk_grid_get_child_at(GTK_GRID(grid), 1, row);
-                       // the children of this box are a row of toggle buttons
-                       GtkWidget *item_widget = gtk_widget_get_first_child(box);
-                       while (item_widget) {
-                          GtkToggleButton *box_toggle_button = GTK_TOGGLE_BUTTON(item_widget);
-                          if (box_toggle_button != b) {
-                             int imol_box_toggle_button = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(box_toggle_button), "imol"));
-                             if (imol_box_toggle_button == imol) {
-                                // don't toggle unless needed
-                                if (state == 1) {
-                                   if (gtk_toggle_button_get_active(box_toggle_button) == FALSE)
-                                      gtk_toggle_button_set_active(box_toggle_button, 1);
-                                }
-                                if (state == 0) {
-                                   if (gtk_toggle_button_get_active(box_toggle_button))
-                                      gtk_toggle_button_set_active(box_toggle_button, 0);
-                                }
-                             }
-                          }
-                          item_widget = gtk_widget_get_next_sibling(item_widget);
-                       }
+               int row = 0;
+               while (true) {
+                  GtkWidget *box = gtk_grid_get_child_at(GTK_GRID(grid), 1, row);
+                  // std::cout << "do loop with box " << box << std::endl;
+                  if (box) {
+                     box = gtk_grid_get_child_at(GTK_GRID(grid), 1, row);
+                     row++; // for next time
 
-                       row++;
-                    }
-                } while(box);
+                     // the children of this box are a row of toggle buttons
+                     GtkWidget *item_widget = gtk_widget_get_first_child(box);
+                     while (item_widget) {
+                        GtkToggleButton *box_toggle_button = GTK_TOGGLE_BUTTON(item_widget);
+                        if (box_toggle_button != b) {
+                           int imol_box_toggle_button =
+                              GPOINTER_TO_INT(g_object_get_data(G_OBJECT(box_toggle_button), "imol"));
+                           if (imol_box_toggle_button == imol) {
+                              // don't toggle unless needed
+                              if (state == 1) {
+                                 if (gtk_toggle_button_get_active(box_toggle_button) == FALSE)
+                                    gtk_toggle_button_set_active(box_toggle_button, 1);
+                              }
+                              if (state == 0) {
+                                 if (gtk_toggle_button_get_active(box_toggle_button))
+                                    gtk_toggle_button_set_active(box_toggle_button, 0);
+                              }
+                           }
+                        }
+                        item_widget = gtk_widget_get_next_sibling(item_widget);
+                     }
+                  } else {
+                     break;
+                  }
+               }
 
             } else {
                std::cout << "ERROR:: no grid" << std::endl;
