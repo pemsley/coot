@@ -36,7 +36,11 @@ SOFTWARE.
 
 #include <algorithm> // all_of, find, for_each
 #include <cassert> // assert
+//#if __cplusplus >= 202302L // c++-20 - test doen't work (arch linux gcc 15.1.1 20250729)
+#include <version>
+//#else
 #include <ciso646> // and, not, or
+//#endif
 #include <cstddef> // nullptr_t, ptrdiff_t, size_t
 #include <functional> // hash, less
 #include <initializer_list> // initializer_list

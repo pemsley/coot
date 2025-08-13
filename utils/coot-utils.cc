@@ -26,6 +26,7 @@
 
 #include <iostream>
 #include <algorithm>
+#include <cstring>
 
 #include <stdexcept> // for string_to_int.
 #include <sstream>   // ditto.
@@ -58,6 +59,10 @@
 
 #include "coot-utils.hh"
 
+#include "utils/logging.hh"
+extern logging logger;
+
+
 // below function sets this:
 static std::string real_path_for_coot_executable;
 
@@ -70,6 +75,15 @@ void coot::set_realpath_for_coot_executable(const std::string &argv0) {
 #else
    char *exec_path = realpath(argv0.c_str(), NULL);
 #endif
+
+   if (exec_path) {
+      // std::cout << "set_realpath_for_coot_executable(): got exec_path " << exec_path << std::endl;
+   } else {
+      std::cout << "ERROR::  set_realpath_for_coot_executable(): null exec_path " << std::endl;
+      logger.log(log_t::ERROR, "set_realpath_for_coot_executable(): null exec_path",
+                 std::string(strerror(errno)));
+   }
+
    if (exec_path) {
       real_path_for_coot_executable = exec_path;
    }
@@ -606,9 +620,12 @@ coot::sequence::fasta::fasta(const std::string &seq_in) {
 
    std::string seq;
 
+   std::cout << "debug:: coot::sequence::fasta::fasta seq_in: " << seq_in << std::endl;
+
    int nchars = seq_in.length();
-   short int found_greater = 0;
-   short int found_newline = 0;
+   bool found_greater = false;
+   bool found_newline = false;
+
    std::string t;
 
    for (int i=0; i<nchars; i++) {
@@ -616,28 +633,26 @@ coot::sequence::fasta::fasta(const std::string &seq_in) {
       // std::cout << "checking character: " << seq_in[i] << std::endl;
 
       if (found_newline && found_greater) {
-	 t = toupper(seq_in[i]);
-	 if (is_fasta_aa(t)) {
-	    std::cout << "adding character: " << seq_in[i] << std::endl;
-	    seq += t;
-	 }
+         t = toupper(seq_in[i]);
+         if (is_fasta_aa(t)) {
+            std::cout << "adding character: " << seq_in[i] << std::endl;
+            seq += t;
+         }
       }
       if (seq_in[i] == '>') {
-	 std::cout << "DEBUG:: " << seq_in[i] << " is > (greater than)\n";
-	 found_greater = 1;
+         std::cout << "DEBUG:: " << seq_in[i] << " is > (greater than)\n";
+         found_greater = true;
       }
       if (seq_in[i] == '\n') {
-	 if (found_greater) {
-	    std::cout << "DEBUG:: " << seq_in[i] << " is carriage return\n";
-	    found_newline = 1;
-	 }
+         if (found_greater) {
+            std::cout << "DEBUG:: " << seq_in[i] << " is carriage return\n";
+            found_newline = true;
+         }
       }
    }
 
-   if (seq.length() > 0) {
-      // std::cout << "storing sequence: " << seq << std::endl;
-   } else {
-      std::cout << "WARNING:: no sequence found or improper fasta sequence format\n";
+   if (seq.empty()) {
+      std::cout << "WARNING:: coot::utils fasta::fasta() no sequence found or improper fasta sequence format\n";
    }
 }
 
@@ -650,11 +665,11 @@ coot::sequence::fasta::is_fasta_aa(const std::string &a) const {
       r = 1;
    } else {
       if (a == "B"
-	  || a == "C" || a == "D" || a == "E" || a == "F" || a == "H" || a == "I"
-	  || a == "K" || a == "L" || a == "M" || a == "N" || a == "P" || a == "Q"
-	  || a == "R" || a == "S" || a == "T" || a == "U" || a == "V" || a == "W"
-	  || a == "Y" || a == "Z" || a == "X" || a == "*" || a == "-") {
-	 r = 1;
+          || a == "C" || a == "D" || a == "E" || a == "F" || a == "H" || a == "I"
+          || a == "K" || a == "L" || a == "M" || a == "N" || a == "P" || a == "Q"
+          || a == "R" || a == "S" || a == "T" || a == "U" || a == "V" || a == "W"
+          || a == "Y" || a == "Z" || a == "X" || a == "*" || a == "-") {
+         r = 1;
       }
    }
    return r;
