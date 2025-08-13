@@ -3,6 +3,8 @@
 
 o on the coot web page say how/where to report a bug.
 
+o Assign sequence gui needs fixing..
+
 o Let's move the light for different shadows in Fancy Mode
 
 o in cfc, give me a button that shows the chemical features
@@ -23,7 +25,8 @@ o make "Environment Distances" an overlay
 
 o make downloading emd map an overlay
 
-o Ctrl-M should merge molecule (active ligand) into other model
+o Ctrl-M should merge molecule (active ligand) into other model.
+  Or just rewrite the "Review/Accept Ligands" dialog.
 
 o fix relocatable installation of coot-residue-density-fit
   see the homebrew install
@@ -46,9 +49,6 @@ o Bonds and angles validation on 2d diagram from chapi
   as svg.
 
 o arwen, alejandro, santosh, dorothee
-
-o check for g.display_control_window() usage - they should
-  not be needed these days, I think.
 
 o have another look at the PAE drag box for residue selection
 
@@ -129,6 +129,10 @@ o  It was a strange bit of code in get_group().
    Solved now? Am I using the right version?
 
 --- Done Items ---
+
+o check for g.display_control_window() usage - they should
+  not be needed these days, I think.
+* Done
 
 o make "Copy Fragment" an overlay
 * Done.
