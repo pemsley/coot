@@ -2213,11 +2213,11 @@ coot::protein_geometry::init_standard() {
                   if (is_dir_or_link(lib_dir)) {
                      mon_lib_dir = lib_dir;
                   } else {
-                     std::cout << "WARNING:: COOT_PREFIX set, but no dictionary lib found\n";
+                     std::cout << "WARNING:: init_standard(): env var COOT_PREFIX set, but no dictionary lib found\n";
+                     std::cout << "WARNING:: init_standard(): env var COOT_PREFIX was set to \"" << s << "\"\n";
                   }
                } else {
-                  std::cout << "WARNING:: COOT_PREFIX not set, all attempts to "
-                            << "find dictionary lib failed\n";
+                  std::cout << "WARNING:: env var COOT_PREFIX not set" << std::endl;
                   mon_lib_dir.clear();
                }
             }
