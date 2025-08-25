@@ -2018,7 +2018,7 @@ molecule_class_info_t::initialize_map_things_on_read_molecule(std::string molecu
             map_colour.blue  = 0.2;
          } else {
             map_colour.red   = 0.6;
-            map_colour.green = 0.6;
+            map_colour.green = 0.65;
             map_colour.blue  = 0.4;
          }
       } else {

@@ -106,7 +106,7 @@ coot::util::map_fill_from_mtz(clipper::Xmap<float> *xmap,
                                   }
                                   return p;
                                 };
-   
+
 
    if (!file_exists(mtz_file_name))
       return false;

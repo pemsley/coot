@@ -469,7 +469,7 @@ class molecule_class_info_t {
 			     const float &reso_low,
 			     const float &reso_high) const;
    // Retard the phases for use with anomalous data.
-   void fix_anomalous_phases(clipper::HKL_data< clipper::datatypes::F_phi<float> > *fphidata) const;
+   void shift_90_anomalous_phases(clipper::HKL_data< clipper::datatypes::F_phi<float> > *fphidata) const;
 
 
    // merge molecules helper function

@@ -1612,7 +1612,7 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 							  std::string phi_col,
 							  std::string weight_col,
 							  int use_weights,
-							  short int is_anomalous_flag,
+							  short int anom_phases_need_90_degree_shift,
 							  int is_diff_map,
 							  short int use_reso_limits,
 							  float low_reso_limit,
@@ -1623,7 +1623,8 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
    bool debug = false;
 
    if (debug) {
-      std::cout << "mci::map_fill_from_mtz_with_reso_limits() " << mtz_file_name << " " << f_col << " " << phi_col << std::endl;
+      std::cout << "mci::map_fill_from_mtz_with_reso_limits() " << mtz_file_name << " " << f_col << " "
+                << phi_col << std::endl;
    }
 
    graphics_info_t g;
@@ -1633,8 +1634,8 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
       fourier_f_label = f_col;
       fourier_phi_label = phi_col;
       fourier_weight_label = weight_col; // magic label, we can go
-					 // combining if this is not
-					 // "";
+                                         // combining if this is not
+                                         // "";
 //       std::cout << "DEBUG:: saving fourier_weight_label: " <<
 // 	 fourier_weight_label << std::endl;
    }
@@ -1674,7 +1675,7 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
       mol_name += g.float_to_string(high_reso_limit);
    }
 
-   initialize_map_things_on_read_molecule(mol_name, is_diff_map, is_anomalous_flag,
+   initialize_map_things_on_read_molecule(mol_name, is_diff_map, anom_phases_need_90_degree_shift,
                                           g.swap_difference_map_colours);
 
    // If use weights, use both strings, else just use the first
@@ -1722,8 +1723,8 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 	    data_resolution_ = 1.0/sqrt(fft_reso.invresolsq_limit());
 	 }
 
-	 if (is_anomalous_flag) {
-	    fix_anomalous_phases(&fphidata);
+	 if (anom_phases_need_90_degree_shift) {
+	    shift_90_anomalous_phases(&fphidata);
 	 }
          // std::cout << "INFO:: finding ASU unique map points with sampling rate "
          //           << map_sampling_rate	<< std::endl;
@@ -1782,7 +1783,7 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 	 save_phi_col = phi_col;
 	 save_weight_col = weight_col;
 	 save_use_weights = use_weights;
-	 save_is_anomalous_map_flag = is_anomalous_flag;
+	 save_is_anomalous_map_flag = anom_phases_need_90_degree_shift;
 	 save_is_diff_map_flag = is_diff_map;
 	 save_high_reso_limit = high_reso_limit;
 	 save_low_reso_limit = low_reso_limit;
@@ -1862,12 +1863,12 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 	       save_state_command_strings_.push_back(single_quote(""));
 	       save_state_command_strings_.push_back(single_quote(""));
 	       save_state_command_strings_.push_back(g.int_to_string(0)); // sensible r-free
-	       save_state_command_strings_.push_back(g.int_to_string(is_anomalous_flag));
+	       save_state_command_strings_.push_back(g.int_to_string(anom_phases_need_90_degree_shift));
 	       save_state_command_strings_.push_back(g.int_to_string(save_use_reso_limits));
 	       save_state_command_strings_.push_back(g.float_to_string( low_reso_limit));
 	       save_state_command_strings_.push_back(g.float_to_string(high_reso_limit));
 	    } else {
-	       if (is_anomalous_flag) {
+	       if (anom_phases_need_90_degree_shift) {
 		  save_state_command_strings_.push_back("coot.make-and-draw-map-with-reso-with-refmac-params");
 		  save_state_command_strings_.push_back(single_quote(f2));
 		  save_state_command_strings_.push_back(single_quote(f_col));
@@ -1880,7 +1881,7 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
 		  save_state_command_strings_.push_back(single_quote(""));
 		  save_state_command_strings_.push_back(single_quote(""));
 		  save_state_command_strings_.push_back(g.int_to_string(0)); // sensible r-free
-		  save_state_command_strings_.push_back(g.int_to_string(is_anomalous_flag));
+		  save_state_command_strings_.push_back(g.int_to_string(anom_phases_need_90_degree_shift));
 		  save_state_command_strings_.push_back(g.int_to_string(0)); // use reso limits
 		  save_state_command_strings_.push_back(g.float_to_string(999.9));
 		  save_state_command_strings_.push_back(g.float_to_string(1.2));
@@ -2073,10 +2074,10 @@ molecule_class_info_t::get_refmac_params() const {
 
 
 void
-molecule_class_info_t::fix_anomalous_phases(clipper::HKL_data< clipper::datatypes::F_phi<float> > *fphidata) const {
+molecule_class_info_t::shift_90_anomalous_phases(clipper::HKL_data< clipper::datatypes::F_phi<float> > *fphidata) const {
 
    for (clipper::HKL_info::HKL_reference_index hri = fphidata->first(); !hri.last(); hri.next()) {
-      (*fphidata)[hri].shift_phase(-M_PI_2);
+      (*fphidata)[hri].shift_phase(+M_PI_2);
    }
 }
 

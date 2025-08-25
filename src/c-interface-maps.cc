@@ -677,7 +677,6 @@ void stop_updating_molecule(int imol) {
 std::vector<int> auto_read_make_and_draw_maps(const char *mtz_file_name) {
 
    std::vector<int> imol_vec;
-   int imol = -1;
 
    if (! coot::file_exists(mtz_file_name)) {
       std::cout << "WARNING:: file " << mtz_file_name << " does not exist" << std::endl;
@@ -728,6 +727,10 @@ std::vector<int> auto_read_make_and_draw_maps_from_mtz(const std::string &mtz_fi
                                           const coot::mtz_column_types_info_t &mtz_col_types,
                                           bool is_diff) {
 
+      if (false)
+         std::cout << "::::::::::::::::::::::::: read_mtz_local() " << f << " " << phi
+                   << " " << is_diff << std::endl;
+
       std::string fobs_col;
       std::string sig_fobs_col;
       std::string r_free_col;
@@ -758,8 +761,9 @@ std::vector<int> auto_read_make_and_draw_maps_from_mtz(const std::string &mtz_fi
          }
       }
 
-      // std::cout << "debug:: in read_mtz_local() fobs and sig_fobs_col and r_free_cols "
-      //           << fobs_col << " " << sig_fobs_col << " " << r_free_col << std::endl;
+      short int is_anom = 0;
+
+      // if (f == "FAN") is_anom = 1;
 
       int imol = make_and_draw_map_with_reso_with_refmac_params(mtz_file_name.c_str(),
                                                                 f.c_str(),
@@ -772,7 +776,7 @@ std::vector<int> auto_read_make_and_draw_maps_from_mtz(const std::string &mtz_fi
                                                                 sig_fobs_col.c_str(),    //   const char *sigfobs_col,
                                                                 r_free_col.c_str(),    //   const char *r_free_col,
                                                                 hrp,   //   short int sensible_f_free_col,
-                                                                0,     //   short int is_anomalous_flag,
+                                                                is_anom, //   short int is_anomalous_flag,
                                                                 0,     //   short int use_reso_limits,
                                                                 0,     //   float low_reso_limit,
                                                                 0);    //   float high_reso_limit
@@ -780,8 +784,6 @@ std::vector<int> auto_read_make_and_draw_maps_from_mtz(const std::string &mtz_fi
       return imol;
    };
 
-   int imol1 = -1;
-   int imol2 = -1;
    graphics_info_t g;
 
    std::vector<coot::mtz_column_trials_info_t> auto_mtz_pairs;
