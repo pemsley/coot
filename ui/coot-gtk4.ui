@@ -11545,25 +11545,25 @@ density (too big to be waters):
     <child>
       <object class="GtkBox" id="mask-map-by-atom-selection-dialog-vbox">
         <property name="orientation">vertical</property>
-        <property name="margin-top">6</property>
-        <property name="margin-bottom">6</property>
-        <property name="margin-start">6</property>
-        <property name="margin-end">6</property>
+        <property name="margin-top">4</property>
+        <property name="margin-bottom">4</property>
+        <property name="margin-start">4</property>
+        <property name="margin-end">4</property>
 
         <child>
           <object class="GtkFrame">
-            <property name="margin-top">6</property>
-            <property name="margin-bottom">6</property>
+            <property name="margin-top">4</property>
+            <property name="margin-bottom">4</property>
             <child>
               <object class="GtkBox">
                 <property name="orientation">vertical</property>
                 <child>
                   <object class="GtkLabel">
                     <property name="label" translatable="yes">Select Map:</property>
-                    <property name="margin-top">6</property>
+                    <property name="margin-top">4</property>
                     <property name="margin-bottom">2</property>
-                    <property name="margin-start">6</property>
-                    <property name="margin-end">6</property>
+                    <property name="margin-start">4</property>
+                    <property name="margin-end">4</property>
                   </object>
                 </child>
 
@@ -11571,15 +11571,15 @@ density (too big to be waters):
                   <object class="GtkComboBoxText" id="mask_map_by_atom_selection_map_combobox">
                     <property name="margin-top">6</property>
                     <property name="margin-bottom">6</property>
-                    <property name="margin-start">10</property>
-                    <property name="margin-end">10</property>
+                    <property name="margin-start">6</property>
+                    <property name="margin-end">6</property>
                   </object>
                 </child>
               </object>
             </child>
           </object>
         </child>
-        
+
         <child>
           <object class="GtkFrame">
             <property name="margin-top">6</property>
@@ -11601,8 +11601,8 @@ density (too big to be waters):
                   <object class="GtkComboBoxText" id="mask_map_by_atom_selection_model_combobox">
                     <property name="margin-top">6</property>
                     <property name="margin-bottom">6</property>
-                    <property name="margin-start">10</property>
-                    <property name="margin-end">10</property>
+                    <property name="margin-start">6</property>
+                    <property name="margin-end">6</property>
                   </object>
                 </child>
               </object>
@@ -11614,8 +11614,8 @@ density (too big to be waters):
           <object class="GtkBox" id="mask_map_by_atom_selection_atom_selection_hbox">>
           <property name="margin-top">6</property>
           <property name="margin-bottom">6</property>
-          <property name="margin-start">10</property>
-          <property name="margin-end">10</property>
+          <property name="margin-start">6</property>
+          <property name="margin-end">6</property>
           <child>
             <object class="GtkLabel">
               <property name="label" translatable="yes">Atom Selection: </property>
@@ -11659,7 +11659,7 @@ density (too big to be waters):
             <property name="label" translatable="yes">Invert Masking?</property>
           </object>
         </child>
-        
+
         <child>
           <object class="GtkSeparator">
             <property name="margin-top">4</property>
@@ -11696,7 +11696,7 @@ density (too big to be waters):
             </child>
           </object>
         </child>
-        
+
       </object>
     </child>
   </object>>

@@ -34,7 +34,7 @@
 
 #include "utils/coot-utils.hh"
 // #include "globjects.h" // for rotate_rgb.  That should be a utility
-  			// function, not in globjects.hh
+                          // function, not in globjects.hh
 
 #include "widget-from-builder.hh"
 #include "c-interface.h"

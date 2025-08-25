@@ -4,8 +4,8 @@
 
   <object class="GtkDialog" id="cfc-dialog">
     <property name="title" translatable="yes">Coot: CFC</property>
-    <property name="default-width">400</property>
-    <property name="default-height">500</property>
+    <property name="default-width">700</property>
+    <property name="default-height">600</property>
     <!-- <signal name="close" handler="cfc_dialog_close" swapped="no"/> -->
     <!-- <signal name="response" handler="on_cfc_dialog_response" swapped="no"/> -->
 
@@ -58,6 +58,30 @@
                                      <signal name="clicked" handler="on_cfc_ligands_all_off_button_clicked" swapped="no"/>
                                   </object>
                                 </child>
+                                <child>
+                                  <object class="GtkButton" id="cfc-ligands-sort-by-molecule-number-button">
+                                     <property name="label" translatable="yes">Sort by Mol. Number</property>
+                                     <signal name="clicked" handler="on_cfc_ligands_sort_by_molecule_number" swapped="no"/>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkButton" id="cfc-ligands-sort-by-number-of-chemical-features-button">
+                                     <property name="label" translatable="yes">Sort by Num. Chem. Feat.</property>
+                                     <signal name="clicked" handler="on_cfc_ligands_sort_by_number_of_chemical_features" swapped="no"/>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkButton" id="cfc-ligands-show-chemical-features">
+                                     <property name="label" translatable="yes">Show Chem. Feat.</property>
+                                     <signal name="clicked" handler="on_cfc_ligands_show_chemical_features_button_clicked" swapped="no"/>
+                                  </object>
+                                </child>
+                                <child>
+                                  <object class="GtkButton" id="cfc-ligands-hide-chemical-features">
+                                     <property name="label" translatable="yes">Hide Chem. Feat.</property>
+                                     <signal name="clicked" handler="on_cfc_ligands_hide_chemical_features_button_clicked" swapped="no"/>
+                                  </object>
+                                </child>
                               </object>
                             </child>
 
@@ -71,6 +95,10 @@
                                     <property name="vexpand">1</property>
                                     <child>
                                       <object class="GtkGrid" id="cfc-ligands-grid">
+                                        <property name="margin-start">4</property>
+                                        <property name="margin-end">4</property>
+                                        <property name="margin-top">4</property>
+                                        <property name="margin-bottom">4</property>
                                       </object>
                                     </child>
                                   </object>
@@ -125,6 +153,28 @@
                                      <signal name="clicked" handler="on_cfc_waters_all_off_button_clicked" swapped="no"/>
                                   </object>
                                 </child>
+
+                                <child>
+                                  <object class="GtkButton" id="cfc-waters-show-generic-object">
+                                    <property name="label" translatable="yes">Show Water Objects</property>
+                                     <signal name="clicked" handler="on_cfc_waters_show_generic_objects_button_clicked" swapped="no"/>
+                                  </object>
+                                </child>
+
+                                <child>
+                                  <object class="GtkButton" id="cfc-waters-hide-generic-object">
+                                    <property name="label" translatable="yes">Hide Water Objects</property>
+                                     <signal name="clicked" handler="on_cfc_waters_hide_generic_objects_button_clicked" swapped="no"/>
+                                  </object>
+                                </child>
+
+                                <child>
+                                  <object class="GtkButton" id="cfc-hide-contributor-objects">
+                                    <property name="label" translatable="yes">Hide Contributor Objects</property>
+                                     <signal name="clicked" handler="on_cfc_hide_contributor_objects_button_clicked" swapped="no"/>
+                                  </object>
+                                </child>
+
                               </object>
                             </child>
 

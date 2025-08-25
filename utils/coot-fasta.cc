@@ -174,22 +174,22 @@ coot::fasta::fasta(const std::string &combined_string) { // decomposition happen
    } else {
       sequence = "";
       name = "";
-      std::cout << "WARNING:: no sequence found or improper fasta sequence format\n";
+      std::cout << "WARNING:: fasta::fasta() no sequence found or improper fasta sequence format\n";
    }
 }
 
 bool
-coot::fasta::is_fasta_aa(const std::string &a) const { 
+coot::fasta::is_fasta_aa(const std::string &a) const {
 
    short int r = 0;
-   
-   if (a == "A" || a == "G" ) { 
+
+   if (a == "A" || a == "G" ) {
       r = 1;
-   } else { 
-      if (a == "B" 
+   } else {
+      if (a == "B"
 	  || a == "C" || a == "D" || a == "E" || a == "F" || a == "H" || a == "I"
-	  || a == "K" || a == "L" || a == "M" || a == "N" || a == "P" || a == "Q" 
-	  || a == "R" || a == "S" || a == "T" || a == "U" || a == "V" || a == "W" 
+	  || a == "K" || a == "L" || a == "M" || a == "N" || a == "P" || a == "Q"
+	  || a == "R" || a == "S" || a == "T" || a == "U" || a == "V" || a == "W"
 	  || a == "Y" || a == "Z" || a == "X" || a == "*" || a == "-") {
 	 r = 1;
       }
@@ -205,7 +205,7 @@ coot::fasta_multi::read(const std::string &file_name) {
       if (f) {
 	 std::vector<std::string> lines;
 	 std::string line;
-	 while (std::getline(f, line)) { 
+	 while (std::getline(f, line)) {
 	    lines.push_back(line);
 	 }
 	 if (lines.size()) {

@@ -195,56 +195,55 @@ coot::sequence_assignment::side_chain_score_t::add_fasta_sequence(const std::str
    std::string seq;
 
    int nchars = seq_in.length();
-   short int found_greater = 0;
-   short int found_newline = 0;
+   bool found_greater = false;
+   bool found_newline = false;
    std::string t;
 
    for (int i=0; i<nchars; i++) {
 
-      //       std::cout << "checking character: " << seq_in[i] << std::endl;
+      std::cout << "checking character: " << seq_in[i] << std::endl;
 
       if (found_newline && found_greater) {
-	 t = toupper(seq_in[i]);
-	 if (is_fasta_aa(t)) {
-	    // std::cout << "adding character: " << seq_in[i] << std::endl;
-	    seq += t;
-	 }
+         t = toupper(seq_in[i]);
+         if (is_fasta_aa(t)) {
+            std::cout << "adding character: " << seq_in[i] << std::endl;
+            seq += t;
+         }
       }
       if (seq_in[i] == '>') {
-	 // std::cout << "DEBUG:: " << seq_in[i] << " is > (greater than)\n";
-	 found_greater = 1;
+         std::cout << "DEBUG:: " << seq_in[i] << " is > (greater than)\n";
+         found_greater = true;
       }
-      if (seq_in[i] == '\n') { 
-	 if (found_greater) {
-	    // std::cout << "DEBUG:: " << seq_in[i] << " is carriage return\n";
-	    found_newline = 1;
-	 }
+      if (seq_in[i] == '\n') {
+         if (found_greater) {
+            std::cout << "DEBUG:: " << seq_in[i] << " is carriage return\n";
+            found_newline = true;
+         }
       }
    }
-   
-   if (seq.length() > 0) { 
-      std::cout << "storing sequence: " << seq << " for chain id: "
-		<< sequence_chain_id_in << std::endl;
-      input_sequence.push_back(std::pair<std::string, std::string> (sequence_chain_id_in,seq));   
-      // make sequence_as_indices from input_sequence:
-      // sequence_as_indices.push_back(std::pair<std::string, std::vector<int> > (sequence_chain_id_in, convert_seq_to_indices(seq)));
-      sequence_infos.push_back(coot::sequence_assignment::sequence_info_t(sequence_chain_id_in, convert_seq_to_indices(seq)));
-				    
+
+   if (seq.length() > 0) {
+      std::cout << "debug:: coot::sequence_assignment::side_chain_score_t::add_fasta_sequence() "
+                << "storing sequence: " << seq << " for chain id: "
+                << sequence_chain_id_in << std::endl;
+      input_sequence.push_back(std::pair<std::string, std::string> (sequence_chain_id_in,seq));
+      coot::sequence_assignment::sequence_info_t si(sequence_chain_id_in, convert_seq_to_indices(seq));
+      sequence_infos.push_back(si);
    } else {
-      std::cout << "WARNING:: no sequence found or improper fasta sequence format\n";
+      std::cout << "WARNING:: high-res: no sequence found or improper fasta sequence format\n";
    }
 }
 
- 
+
 // Note vector can return 1000 on unfound residue type.
-// 
+//
 std::vector<coot::sequence_assignment::side_chain_name_index>
-coot::sequence_assignment::side_chain_score_t::convert_seq_to_indices(const std::string &seq) const { 
+coot::sequence_assignment::side_chain_score_t::convert_seq_to_indices(const std::string &seq) const {
 
    std::vector<coot::sequence_assignment::side_chain_name_index> r;
    std::string w = "WARNING:: The following codes were not comprehensible:\n";
    int incomprehensible = 0;
-   
+
    for (unsigned int i=0; i<seq.length(); i++) {
 
       std::string s = seq.substr(i,1);

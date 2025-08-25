@@ -2474,10 +2474,12 @@ public:        //                      public
 
    // sequence [a -other function]
    void assign_fasta_sequence(const std::string &chain_id, const std::string &seq); // add to input_sequence vector
+
+   // this is not assigning the sequence! This is adding a PIR file for a particular chain id!
+   void assign_pir_sequence(const std::string &chain_id, const std::string &seq);
+
    void assign_sequence(const clipper::Xmap<float> &xmap, const std::string &chain_id);
    std::vector<std::pair<std::string, std::string> > sequence_info() const { return input_sequence; };
-
-   void assign_pir_sequence(const std::string &chain_id, const std::string &seq);
 
    // this does an alignment! How confusing
    void assign_sequence_from_file(const std::string &filename);

@@ -27,6 +27,7 @@ namespace cfc {
       std::string type;
       int idx;
       RDGeom::Point3D pos;
+      std::vector<RDGeom::Point3D> contributing_points;
       std::vector<std::pair<int, coot::residue_spec_t> > imols_with_specs;
       typed_cluster_t(const std::string &f, const std::string &t, int idx) :
          family(f), type(t), idx(idx) {}

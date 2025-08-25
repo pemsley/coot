@@ -268,26 +268,29 @@ cfc::chemical_feature_clustering(const std::vector<cfc::input_info_t> &mol_infos
             }
          }
 
-         if (true) {
+         if (false)
             std::cout << "------- in chemical_feature_clustering() cluster_waters() end --- "
                       << std::endl;
-            for (unsigned int i=0; i<clusters.size(); i++) {
-               const auto &wi = clusters[i];
-               std::cout << "cluster " << i << " has " << wi.size() << " contributons"
-                         << std::endl;
-               std::set<int> imols_in_cluster;
-               for (unsigned int jj=0; jj<wi.size(); jj++) {
-                  int imol = wi[jj].imol;
-                  imols_in_cluster.insert(imol);
+
+         for (unsigned int i=0; i<clusters.size(); i++) {
+            const auto &wi = clusters[i];
+            std::cout << "cluster " << i << " has " << wi.size() << " contributons"
+                      << std::endl;
+            std::set<int> imols_in_cluster;
+            for (unsigned int jj=0; jj<wi.size(); jj++) {
+               int imol = wi[jj].imol;
+               imols_in_cluster.insert(imol);
+               if (false)
                   std::cout << "cluster " << i <<  ": adding imol " << imol << std::endl;
-               }
-               if (true)
-                  std::cout << "debug:: water_clusters [" << i << "] has "
-                            << imols_in_cluster.size() << " waters"
-                            << std::endl;
             }
-            std::cout << "------------" << std::endl;
+            if (false)
+               std::cout << "debug:: water_clusters [" << i << "] has "
+                         << imols_in_cluster.size() << " waters"
+                         << std::endl;
          }
+
+         if (false)
+            std::cout << "------------" << std::endl;
 
 
          return clusters;
@@ -333,8 +336,9 @@ cfc::chemical_feature_clustering(const std::vector<cfc::input_info_t> &mol_infos
       for (const auto &pair : feature_info_map) {
          std::string key = pair.first;
          const std::vector<feature_info_t> &vv = pair.second;
-         std::cout << "debug:: feature_info_map key " << key
-                   << " has " << vv.size() << " features " << std::endl;
+         if (false)
+            std::cout << "DEBUG:: feature_info_map key " << key
+                      << " has " << vv.size() << " features " << std::endl;
          double alpha = 1.0;
          double beta  = 0.01; // 0.03;
          std::vector<glm::vec3> v = make_test_points(vv);
@@ -342,26 +346,23 @@ cfc::chemical_feature_clustering(const std::vector<cfc::input_info_t> &mol_infos
          std::vector<unsigned int> clustered_points = dpc.fit(v);
          unsigned int n_clusters = get_n_clusters(clustered_points);
          logger.log(log_t::DEBUG, logging::function_name_t("cluster_features"),
-                    {"xCluster", key, "had", n_clusters, "clusters"});
+                    {"Cluster", key, "had", n_clusters, "clusters"});
          std::pair<std::string, std::string> p = split_string(key, "_");
          std::string family = p.first;
          std::string type   = p.second;
          for (unsigned int iclust=0; iclust<n_clusters; iclust++) {
             typed_cluster_t tc(family, type, iclust);
             RDGeom::Point3D pos_sum = RDGeom::Point3D(0,0,0);
+            std::vector<RDGeom::Point3D> contributing_points;
             unsigned int n_contributors = 0;
             for (unsigned int i_feat_info=0; i_feat_info<vv.size(); i_feat_info++) {
-               // std::cout << "      testing i_feat_info " << i_feat_info << std::endl;
                if (clustered_points[i_feat_info] == iclust) {
                   const feature_info_t &fi = vv[i_feat_info];
                   coot::residue_spec_t residue_spec = fi.residue_spec;
                   int imol_feat = fi.imol;
                   n_contributors++;
                   pos_sum += fi.pos;
-                  if (false)
-                     std::cout << "   iclust: " << iclust << " contributor ifeat "
-                               << i_feat_info << " at " << fi.pos
-                               << std::endl;
+                  contributing_points.push_back(fi.pos);
                   bool found = false;
                   for (unsigned int ii=0; ii<tc.imols_with_specs.size(); ii++) {
                      if (imol_feat == tc.imols_with_specs[ii].first) {
@@ -376,6 +377,7 @@ cfc::chemical_feature_clustering(const std::vector<cfc::input_info_t> &mol_infos
             }
             if (n_contributors > 0) {
                tc.pos = pos_sum / static_cast<double>(n_contributors);
+               tc.contributing_points = contributing_points;
                std::cout << "debug:: n_contributors " << n_contributors
                          << " average pos " << pos_sum << std::endl;
             }
@@ -395,7 +397,7 @@ cfc::chemical_feature_clustering(const std::vector<cfc::input_info_t> &mol_infos
             std::cout << " at " << tc.pos << std::endl;
          }
       }
-      
+
       return typed_clusters;
    };
 

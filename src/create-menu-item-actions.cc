@@ -2651,7 +2651,7 @@ void add_views_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    gtk_box_append(GTK_BOX(outer_box), views_hbox);
 
    gtk_box_append(GTK_BOX(toolbar_hbox), view_menubutton);
- 
+
 }
 
 
@@ -2660,12 +2660,108 @@ void
 associate_sequence_file_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                G_GNUC_UNUSED GVariant *parameter,
                                G_GNUC_UNUSED gpointer user_data) {
+
+   auto on_associate_sequence_filechooser_dialog_response = +[] (GtkDialog *dialog,
+                                                                int response) {
+      if (response == GTK_RESPONSE_ACCEPT) {
+
+         // first get the imol
+         int imol = -1;
+         const char *r = gtk_file_chooser_get_choice(GTK_FILE_CHOOSER(dialog), "imol");
+         if (r) {
+            std::string sr(r);
+            if (sr.length() > 4) {
+               std::string ssr = sr.substr(4, sr.length());
+               try {
+                  imol = coot::util::string_to_int(ssr);
+               }
+               catch (const std::runtime_error &e) {
+                  logger.log(log_t::WARNING, logging::function_name_t(__FUNCTION__), e.what());
+               }
+            }
+         }
+
+         // now read in the sequence
+         if (is_valid_model_molecule(imol)) {
+            GtkFileChooser *chooser = GTK_FILE_CHOOSER (dialog);
+            GListModel *lm = gtk_file_chooser_get_files(chooser);
+            guint n_items = g_list_model_get_n_items (lm);
+            if (n_items > 0) {
+               for (unsigned int i=0; i<n_items; i++) {
+                  gpointer item = g_list_model_get_item(lm, i);
+                  GFile *f = G_FILE(item);
+                  char *file_name = g_file_get_path(f);
+                  if (file_name) {
+                     associate_sequence_from_file(imol, file_name);
+                  }
+               }
+            }
+         } else {
+            logger.log(log_t::WARNING, logging::function_name_t(__FUNCTION__),
+                       "Failed to read valid molecule from the file chooser dialog");
+         }
+      }
+      gtk_window_close(GTK_WINDOW(dialog));
+      graphics_info_t::graphics_grab_focus();
+   };
+
+   GtkWindow *parent_window = GTK_WINDOW(user_data);
+   GtkFileChooserAction action = GTK_FILE_CHOOSER_ACTION_OPEN;
+   GtkWidget *dialog = gtk_file_chooser_dialog_new("Open File", parent_window, action,
+                                                   ("_Cancel"), GTK_RESPONSE_CANCEL,
+                                                   ("Asssign this Sequence"), GTK_RESPONSE_ACCEPT,
+                                                   NULL);
+   g_signal_connect(dialog, "response", G_CALLBACK(on_associate_sequence_filechooser_dialog_response), NULL);
+   GtkFileFilter *filterselect = gtk_file_filter_new();
+   gtk_file_filter_add_pattern(filterselect, "*.pir");
+   gtk_file_filter_add_pattern(filterselect, "*.seq");
+   gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog), filterselect);
+
+   // const gchar *labels[]  = {"A", "AA", "AAA", NULL};
+   // const gchar *options[] = {"option-a", "option-aa", "option-aaa",      NULL};
+
+   std::vector<std::string> mol_labels;
+   std::vector<std::string> mol_options;
+
+   graphics_info_t g;
+   int n_mol = g.n_molecules();
+   for (int i=0; i<n_mol; i++) {
+      if (g.is_valid_model_molecule(i)) {
+         std::string imol_label = std::to_string(i);
+         std::string option = "mol-" + imol_label;
+         std::string label = imol_label + " " + g.molecules[i].get_name();
+         mol_options.push_back(option);
+         mol_labels.push_back(label);
+      }
+   }
+
+   // Allocate C array, +1 for NULL at the end
+   const gchar **labels = new const gchar*[mol_labels.size() + 1];
+   for (size_t i = 0; i < mol_labels.size(); ++i)
+      labels[i] = g_strdup(mol_labels[i].c_str());
+   labels[mol_labels.size()] = nullptr;
+
+   // Same again for mol options
+   const gchar **options = new const gchar*[mol_options.size() + 1];
+   for (size_t i = 0; i < mol_options.size(); ++i)
+      options[i] = g_strdup(mol_options[i].c_str());
+   options[mol_options.size()] = nullptr;
+
+   // I don't follow the options and labels, but this works strangely.
+   gtk_file_chooser_add_choice(GTK_FILE_CHOOSER(dialog), "imol", "Assign Sequence to Molecule ", options, labels);
+
+   set_transient_for_main_window(dialog);
+   gtk_widget_set_visible(dialog, TRUE);
+
 }
 
 void
 assign_sequence_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                        G_GNUC_UNUSED GVariant *parameter,
                        G_GNUC_UNUSED gpointer user_data) {
+
+   assign_sequence_to_active_fragment();
+
 }
 
 void

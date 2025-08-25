@@ -4034,11 +4034,12 @@ molecule_class_info_t::associate_sequence_from_file(const std::string &seq_file_
       } else {
          assign_fasta_sequence(chain_id, seq);
       }
-   } else {std::cout << "WARNING:: file does not exist: " << seq_file_name << std::endl;
+   } else {
+      std::cout << "WARNING:: file does not exist: " << seq_file_name << std::endl;
    }
 }
 
-
+// this is not assigning the sequence! This is adding a PIR file for a particular chain id!
 void
 molecule_class_info_t::assign_pir_sequence(const std::string &chain_id, const std::string &seq_in) {
 
@@ -4100,11 +4101,12 @@ molecule_class_info_t::assign_pir_sequence(const std::string &chain_id, const st
       }
 
       if (! found_chain) {
-         std::cout << "input_sequence pushing back " << chain_id << " " << seq << std::endl;
+         std::cout << "debug:: assign_pir_sequence() input_sequence pushing back for chain-id: \"" << chain_id << "\" seq: "
+                   << seq << " imol " << imol_no << std::endl;
          input_sequence.push_back(std::pair<std::string, std::string> (chain_id, seq));
       }
    } else {
-      std::cout << "WARNING:: no sequence found or improper pir sequence format\n";
+      std::cout << "WARNING:: assign_pir_sequence() no sequence found or improper pir sequence format\n";
    }
 
 }
@@ -4243,7 +4245,7 @@ molecule_class_info_t::assign_sequence_to_NCS_related_chains_from_string(const s
             assign_sequence_from_string_simple(ncs_related_chain_ids[in], seq);
 
    } else {
-      std::cout << "WARNING:: no sequence found or improper string\n";
+      std::cout << "WARNING:: assign_sequence_to_NCS_related_chains_from_string() no sequence found or improper string\n";
    }
 }
 
@@ -6719,18 +6721,23 @@ molecule_class_info_t::find_deviant_geometry(float strictness) {
 
 #include "high-res/sequence-assignment.hh"
 
+// This is not the sequence assignment function that you are looking for.
+// (it is the ancient high-ree function that does nothing)
+//
 void
 molecule_class_info_t::assign_sequence(const clipper::Xmap<float> &xmap,
                                        const std::string &chain_id) {
 
-   coot::sequence_assignment::side_chain_score_t scs;
+   std::cout << "debug:: in assign_sequence() there are " << input_sequence.size() << " sequences input "
+             << "for imol " << imol_no << std::endl;
 
-   std::string sequence_chain_id("A");
-
-   std::string fasta_seq;
    for (unsigned int i=0; i<input_sequence.size(); i++) {
-      if (input_sequence[i].first == sequence_chain_id){
-         scs.add_fasta_sequence(sequence_chain_id, input_sequence[i].second);
+      if (input_sequence[i].first == chain_id){
+         coot::sequence_assignment::side_chain_score_t scs;
+         std::string seq = input_sequence[i].second;
+         std::cout << "calling scs.add_fasta_sequence() for chain_id \"" << chain_id << "\" seq"
+                   << seq << std::endl;
+         scs.add_fasta_sequence(chain_id, seq);
       }
    }
 }
