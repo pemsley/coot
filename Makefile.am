@@ -1,18 +1,18 @@
 # Makefile.am
-# 
+#
 # Copyright 2001, 2002, 2003, 2004, 2005, 2006, 2007 The University of York
 # Author: Paul Emsley
-# 
+#
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
 # the Free Software Foundation; either version 3 of the License, or (at
 # your option) any later version.
-# 
+#
 # This program is distributed in the hope that it will be useful, but
 # WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
 # General Public License for more details.
-# 
+#
 # You should have received a copy of the GNU General Public License
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA
@@ -45,7 +45,7 @@ else
    SUBDIRS = auxil scheme python macros compat utils protein_db mini-mol geometry  \
         lidia-core coot-utils angles ccp4mg-utils db-main analysis cootaneer ideal ligand coords \
 	density-contour skeleton high-res build MoleculesToTriangles pli greg-tests \
-	python-tests cootilus fonts pyrogen data \
+	python-tests cootilus fonts pyrogen data monomers \
 	man rama-data doc glTF pixmaps textures sounds reference-structures api layla validation-graphs src ui
 endif
 endif
