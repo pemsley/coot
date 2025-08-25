@@ -36,7 +36,7 @@ EXTRA_DIST = $(cootmonomers_files)
 
 install-data-local:
 	@for file in $(cootmonomers_files); do \
-        cif_dir=$$(dirname $$file) ; \
-	mkdir -p "$(DESTDIR)$(cootmonomersdir)/$$cif_dir" ; \
-	install -m 644 "$(srcdir)/$$file" "$(DESTDIR)$(cootmonomersdir)/$$file"; \
+            cif_dir=$$(dirname $$file) ; \
+            mkdir -p "$(DESTDIR)$(cootmonomersdir)/$$cif_dir" ; \
+            install -m 644 "$(srcdir)/$$file" "$(DESTDIR)$(cootmonomersdir)/$$file"; \
 	done
