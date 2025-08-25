@@ -3,15 +3,23 @@
 
 o on the coot web page say how/where to report a bug.
 
+o Ctrl-S should add something to the log.
+
+o check that these work as expected (Martin Maly anom test):
+   coot.set_map_radius(7.52)
+   coot.set_map_radius_em(52.60)
+
 o Assign sequence gui needs fixing..
+* Done.
 
 o Let's move the light for different shadows in Fancy Mode
 
 o in cfc, give me a button that shows the chemical features
+* Done.
 
-o halogen ligand interaction
+o halogen ligand interaction - investigate.
 
-o cfc should also check for pi-stacking to the protein
+o CFC should also check for pi-stacking to the protein
   (i.e. not just internal chemical features)
 
 o do a better job at the 3d "icons" for chemical
@@ -20,6 +28,12 @@ o do a better job at the 3d "icons" for chemical
   Can you indicate the number of contributors somehow? Size?
 
 o what is PLIP(ify) Interaction Key?
+  https://github.com/volkamerlab/plipify
+  Salentin, S. et al. PLIP: fully automated protein-ligand interaction profiler.
+  Nucl. Acids Res., 2015, 43 (W1): W443-W447.
+  Uses conda - what does it depend on and can it be used outside of conda?
+
+o show the PLI interactions in 3d (in moorhen too)
 
 o make "Environment Distances" an overlay
 
