@@ -87,7 +87,17 @@
 #include "cmtz-interface.hh"
 
 #include "manipulation-modes.hh"
-#include "guile-fixups.h"
+
+// #include "guile-fixups.h" // fixups for ancient guile no longer needed
+
+#ifdef USE_GUILE
+
+#include <cstdio> /* for std::FILE in gmp.h for libguile.h */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wvolatile"
+#include <libguile.h>
+#pragma GCC diagnostic pop
+#endif
 
 #include "cc-interface.hh" // needed for display_all_model_molecules()
 
@@ -1819,8 +1829,7 @@ graphics_info_t::run_post_manipulation_hook(int imol, int mode) {
 
 #ifdef USE_GUILE
 void
-graphics_info_t::run_post_manipulation_hook_scm(int imol,
-   int mode) {
+graphics_info_t::run_post_manipulation_hook_scm(int imol, int mode) {
 
    std::string pms = "post-manipulation-hook";
    SCM v = safe_scheme_command(pms);

@@ -64,7 +64,17 @@
 #include "ligand/wligand.hh"
 
 #include "c-interface-ligands-swig.hh"
-#include "guile-fixups.h"
+
+// #include "guile-fixups.h"
+
+#ifdef USE_GUILE
+#include <cstdio> /* for std::FILE in gmp.h for libguile.h */
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wvolatile"
+#include <libguile.h>
+#pragma GCC diagnostic pop
+#endif
+
 
 #include "get-monomer.hh"
 
