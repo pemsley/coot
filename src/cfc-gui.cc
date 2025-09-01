@@ -208,7 +208,10 @@ on_cfc_ligands_show_chemical_features_button_clicked(GtkButton       *button,
                                                      gpointer         user_data) {
 
    graphics_info_t g;
-   for (int i=0; i<g.cfc_gui.generic_object_indices_for_features.size(); i++) {
+   std::cout << "debug:: on_cfc_ligands_show_chemical_features_button_clicked() showing "
+             << g.cfc_gui.generic_object_indices_for_features.size()
+             << " generic objects" << std::endl;
+   for (unsigned int i=0; i<g.cfc_gui.generic_object_indices_for_features.size(); i++) {
       int idx = g.cfc_gui.generic_object_indices_for_features[i];
       set_display_generic_object(idx, 1);
    }
@@ -220,11 +223,31 @@ on_cfc_ligands_hide_chemical_features_button_clicked(GtkButton       *button,
                                                      gpointer         user_data) {
 
    graphics_info_t g;
-   for (int i=0; i<g.cfc_gui.generic_object_indices_for_contributors.size(); i++) {
+   std::cout << "debug:: on_cfc_ligands_hide_chemical_features_button_clicked() hiding "
+             << g.cfc_gui.generic_object_indices_for_features.size()
+             << " generic objects" << std::endl;
+   for (unsigned int i=0; i<g.cfc_gui.generic_object_indices_for_features.size(); i++) {
+      int idx = g.cfc_gui.generic_object_indices_for_features[i];
+      set_display_generic_object(idx, 0);
+   }
+}
+
+extern "C" G_MODULE_EXPORT
+void on_cfc_hide_contributor_objects_button_clicked(GtkButton *button,
+                                                    gpointer   user_data) {
+
+   graphics_info_t g;
+
+   std::cout << "debug:: in on_cfc_waters_hide_contributor_objects_button_clicked() "
+             << g.cfc_gui.generic_object_indices_for_contributors.size()
+             << " objects for contributors" << std::endl;
+
+   for (unsigned int i=0; i<g.cfc_gui.generic_object_indices_for_contributors.size(); i++) {
       int idx = g.cfc_gui.generic_object_indices_for_contributors[i];
       set_display_generic_object(idx, 0);
    }
 }
+
 
 extern "C" G_MODULE_EXPORT
 void
@@ -303,7 +326,7 @@ on_cfc_waters_show_generic_objects_button_clicked(GtkButton       *button,
                                                   gpointer         user_data) {
 
    graphics_info_t g;
-   for (int i=0; i<g.cfc_gui.generic_object_indices_for_waters.size(); i++) {
+   for (unsigned int i=0; i<g.cfc_gui.generic_object_indices_for_waters.size(); i++) {
       int idx = g.cfc_gui.generic_object_indices_for_waters[i];
       set_display_generic_object(idx, 1);
    }
@@ -315,7 +338,7 @@ on_cfc_waters_hide_generic_objects_button_clicked(GtkButton       *button,
                                                   gpointer         user_data) {
 
    graphics_info_t g;
-   for (int i=0; i<g.cfc_gui.generic_object_indices_for_waters.size(); i++) {
+   for (unsigned int i=0; i<g.cfc_gui.generic_object_indices_for_waters.size(); i++) {
       int idx = g.cfc_gui.generic_object_indices_for_waters[i];
       set_display_generic_object(idx, 0);
    }
@@ -325,9 +348,7 @@ extern "C" G_MODULE_EXPORT
 void
 on_cfc_waters_hide_contributor_objects_button_clicked(GtkButton       *button,
                                                       gpointer         user_data) {
-
-   graphics_info_t g;
-   
+   // this is no signal for this atm
 }
 
 std::set<int>

@@ -66,6 +66,11 @@ chemical_feature_clustering(std::vector<std::pair<int, std::string>> &mol_info_v
             generic_object_indices_for_contributors.push_back(object_number);
          }
       }
+
+      if (true)
+         std::cout << "debug:: in make_generic_display_objects_for_features() generic_object_indices_for_contributors has size "
+                   << generic_object_indices_for_contributors.size() << std::endl;
+
       return std::make_pair(generic_object_indices, generic_object_indices_for_contributors);
    };
 
@@ -143,10 +148,13 @@ chemical_feature_clustering(std::vector<std::pair<int, std::string>> &mol_info_v
    if (! g.use_graphics_interface_flag)
       return;
 
-   for (const auto &mol_info : mol_info_vec) {
+   std::cout << "---------------------------------------------------------------------" << std::endl;
+   std::cout << "---------------------------------------------------------------------" << std::endl;
+   for (const auto &mol_info : mol_info_vec)
       std::cout << "DEBUG:: cfc: Molecule Index: " << mol_info.first
                 << ", Ligand Type: " << mol_info.second << std::endl;
-   }
+   std::cout << "---------------------------------------------------------------------" << std::endl;
+   std::cout << "---------------------------------------------------------------------" << std::endl;
 
    std::vector<cfc::input_info_t> input_infos;
    for (const auto &mol_info : mol_info_vec) {
@@ -164,8 +172,8 @@ chemical_feature_clustering(std::vector<std::pair<int, std::string>> &mol_info_v
       std::pair<std::vector<cfc::typed_cluster_t>, std::vector<std::vector<cfc::water_info_t> > >
          results = cfc::chemical_feature_clustering(input_infos, *g.Geom_p());
 
-      if (false)
-         std::cout << "DEBUG:: Here with results size " << results.first.size() << " "
+      if (true)
+         std::cout << "DEBUG:: ::::: Here with cfc results size " << results.first.size() << " "
                    << results.second.size() << std::endl;
 
       g.cfc_gui.setup(); // if needed
@@ -180,11 +188,13 @@ chemical_feature_clustering(std::vector<std::pair<int, std::string>> &mol_info_v
 
       GtkWidget *dialog = g.cfc_gui.get_dialog();
 
-      if (false) {
+      if (true) {
          std::cout << "Here with g.cfc_gui.cluster_infos size "
                    << g.cfc_gui.cluster_infos.size() << std::endl;
          std::cout << "Here with generic_object_indices_for_features size "
                    << generic_object_indices_for_features.size() << std::endl;
+         std::cout << "Here with generic_object_indices_for_contributors size "
+                   << generic_object_indices_for_contributors.size() << std::endl;
       }
 
       // transfer the generic display object indices (so they can be toggled off
@@ -196,6 +206,7 @@ chemical_feature_clustering(std::vector<std::pair<int, std::string>> &mol_info_v
          if (dialog) {
             g.cfc_gui.set_generic_object_indices_for_features(generic_object_indices_for_features);
             g.cfc_gui.set_generic_object_indices_for_waters(generic_object_indices_for_waters);
+            g.cfc_gui.generic_object_indices_for_contributors = generic_object_indices_for_contributors; // use a set function as above
             g.cfc_gui.fill_ligands_grid();
             g.cfc_gui.fill_waters_grid();
             gtk_widget_set_visible(dialog, TRUE);

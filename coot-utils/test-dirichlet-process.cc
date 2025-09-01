@@ -1,5 +1,7 @@
 
 #include <iostream>
+#include <set>
+
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/string_cast.hpp>
 
@@ -45,16 +47,50 @@ std::vector<glm::vec3> make_test_points() {
 int main(int argc, char **argv) {
 
    int status = 0;
-   double alpha = 2.0;
-   double beta  = 0.03;
-   std::vector<glm::vec3> v = make_test_points();
-   DirichletProcessClustering dpc(alpha, beta);
-   std::vector<unsigned int> clustered_points = dpc.fit(v);
 
-   for (unsigned int i=0; i<clustered_points.size(); i++) {
-      const auto &idx = clustered_points[i];
-      std::cout << " " << idx << " at "
-                << v[i].x << " " << v[i].y << " " << v[i].z << std::endl;
+   std::vector<double> exp_values;
+   for (int i=-200; i<200; i++) {
+      double v = static_cast<double>(i)/2.0;
+      exp_values.push_back(v);
+   }
+
+   for (double aa : exp_values) {
+
+      for (double bb : exp_values ) {
+
+         // double alpha = 0.1;
+         // double beta  = 0.01;
+
+         double alpha = std::pow(1.1, aa);
+         double beta  = std::pow(1.1, bb);
+
+         std::vector<glm::vec3> v = make_test_points();
+
+         if (true) {
+            for (unsigned int i=0; i<v.size(); i++) {
+               std::cout << "input point " << i << " " << glm::to_string(v[i]) << std::endl;
+            }
+         }
+
+         DirichletProcessClustering dpc(alpha, beta);
+         std::vector<unsigned int> clustered_points = dpc.fit(v);
+
+         for (unsigned int i=0; i<clustered_points.size(); i++) {
+            const auto &idx = clustered_points[i];
+            std::cout << " output cluster " << idx << " at "
+                      << v[i].x << " " << v[i].y << " " << v[i].z << std::endl;
+         }
+
+         std::set<unsigned int> cluster_set;
+         for (unsigned int i=0; i<clustered_points.size(); i++) {
+            const auto &idx = clustered_points[i];
+            cluster_set.insert(idx);
+         }
+
+         std::cout << "result: alpha " << alpha << " beta " << beta
+                   << " aa " << aa << " bb " << bb
+                   << " n-clusters: " << cluster_set.size() << std::endl;
+      }
    }
 
    return status;
