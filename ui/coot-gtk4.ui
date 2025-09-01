@@ -7387,8 +7387,8 @@ Do you want to continue?
                     <child>
                       <object class="GtkLabel">
 			<property name="label">Molecule to Copy:</property>
-			<property name="margin-end">6</property>
-			<property name="margin-start">6</property>
+		        <property name="margin-end">6</property>
+		        <property name="margin-start">6</property>
                       </object>
 		    </child>
 
@@ -7400,7 +7400,7 @@ Do you want to continue?
                         <property name="margin-bottom">4</property>
                       </object>
                     </child>
-		    <child>
+                    <child>
                       <object class="GtkBox">
                         <property name="orientation">horizontal</property>
                         <property name="halign">end</property>
@@ -7429,10 +7429,10 @@ Do you want to continue?
                         </child>
                       </object>
                     </child>
-		  </object>
-		</child>
-	      </object>
-	    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
 
             <child type="overlay">
               <object class="GtkFrame" id="copy_fragment_frame">
@@ -7581,6 +7581,92 @@ Do you want to continue?
 	    </child>
 
             <child type="overlay">
+              <object class="GtkFrame" id="copy_ncs_chain_frame">
+                <property name="halign">center</property>
+                <property name="valign">start</property>
+                <property name="visible">False</property>
+                <property name="margin-bottom">5</property>
+                <property name="margin-end">5</property>
+                <property name="margin-start">5</property>
+                <property name="margin-top">5</property>
+                <child>
+                  <object class="GtkBox">
+                    <property name="spacing">6</property>
+                    <property name="orientation">vertical</property>
+                    <property name="margin-start">6</property>
+                    <property name="margin-end">6</property>
+                    <property name="margin-bottom">6</property>
+                    <property name="margin-top">6</property>
+
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="label" translatable="yes">Copy NCS Chain in Molecule</property>
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="GtkComboBoxText" id="copy_ncs_chain_molecule_combobox">
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="GtkBox">
+                        <property name="orientation">horizontal</property>
+                        <property name="spacing">6</property>
+
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="label" translatable="yes"> Copy ChainID </property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkEntry" id="copy_ncs_chain_entry">
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="label" translatable="yes"> to others</property>
+                            <property name="justify">center</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="GtkBox">
+                        <property name="orientation">horizontal</property>
+                        <property name="halign">end</property>
+                        <child>
+                          <object class="GtkButton" id="copy_ncs_chain_cancel_button">
+                            <signal name="clicked" handler="on_copy_ncs_chain_cancel_button_clicked" swapped="no"/>
+                            <property name="label" translatable="yes">Cancel</property>
+                            <property name="margin-start">10</property>
+                            <property name="margin-end">10</property>
+                            <property name="margin-top">4</property>
+                            <property name="margin-bottom">10</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkButton" id="copy_ncs_chain_copy_button">
+                            <signal name="clicked" handler="on_copy_ncs_chain_copy_button_clicked" swapped="no"/>
+                            <property name="label" translatable="yes">Copy</property>
+                            <property name="margin-start">10</property>
+                            <property name="margin-end">10</property>
+                            <property name="margin-top">4</property>
+                            <property name="margin-bottom">10</property>
+                            <style>
+                              <class name="suggested-action"/>
+                            </style>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+
+            <child type="overlay">
               <object class="GtkFrame" id="acedrg_running_frame">
                 <property name="halign">center</property>
                 <property name="valign">start</property>
@@ -7595,7 +7681,7 @@ Do you want to continue?
                     <property name="margin-end">6</property>
                     <property name="margin-start">6</property>
                   </object>
-		</child>
+                </child>
               </object>
             </child>
 

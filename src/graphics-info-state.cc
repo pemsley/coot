@@ -364,7 +364,7 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
                if (!molecules[i].show_symmetry) {
                   // default would be to show symmetry
                   active_strings.clear();
-                  display_strings.push_back("coot");
+                  active_strings.push_back("coot");
                   active_strings.push_back("set-show-symmetry-molecule");
                   active_strings.push_back(int_to_string(molecule_count));
                   active_strings.push_back(int_to_string(0));

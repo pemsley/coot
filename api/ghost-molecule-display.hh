@@ -29,7 +29,7 @@ namespace coot {
       }
       virtual void update_bonds(mmdb::Manager *mol); // the parent's mol
 
-      bool is_empty() { return (SelectionHandle == -1); }
+      bool is_empty() const { return (SelectionHandle == -1); }
       ncs_residue_info_t get_differences(mmdb::Residue *this_residue_p,
                                          mmdb::Residue *master_residue_p,
                                          float main_chain_weight) const;

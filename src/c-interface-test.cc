@@ -1252,8 +1252,16 @@ static PyObject *rdkit_chem_properties_func = NULL;
 PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
 
    std::cout << "-------------------------- test_function_py() " << std::endl;
-   std::string d = coot::prefix_dir();
-   std::cout << "--------- prefix_dir " << d << std::endl;
+
+   if (true)   {
+      int imol = 0;
+      graphics_info_t::molecules[imol].debug_ghosts();
+   }
+
+   if (false) {
+      std::string d = coot::prefix_dir();
+      std::cout << "--------- prefix_dir " << d << std::endl;
+   }
 
 
 #if 0
@@ -1390,7 +1398,7 @@ PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
             catch (const std::runtime_error &rte) {
                std::cout << "ERROR:: (runtime error) in fle_view_with_rdkit(): "
                          << rte.what() << std::endl;
-            } 
+            }
             catch (const std::exception &e) {
                std::cout << "ERROR (exception) in fle_view_with_rdkit(): " << e.what() << std::endl;
             }

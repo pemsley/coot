@@ -724,28 +724,30 @@ graphics_info_t::setup_key_bindings() {
    kb_vec.push_back(p_res_info);
 
    auto ldr = [] () {
-                 graphics_info_t g;
-                 std::pair<bool, std::pair<int, coot::atom_spec_t> > aa_spec_pair = active_atom_spec();
-                 if (aa_spec_pair.first) {
-                    int imol = aa_spec_pair.second.first;
-                    mmdb::Atom *at = molecules[imol].get_atom(aa_spec_pair.second.second);
-                    mmdb::Residue *residue_p = at->GetResidue();
-                    if (residue_p) {
-                       // for this to work I need to move setup_delete_item_pulse() into
-                       // graphics_info_t. Not today.
-                       g.setup_delete_item_pulse(residue_p);
-                       coot::residue_spec_t residue_spec(residue_p);
-                       g.molecules[imol].delete_residue(residue_spec);
-                    }
-                 }
-                 return gboolean(TRUE);
-              };
+
+      std::cout << "ldr start --------------------------------------" << std::endl;
+      graphics_info_t g;
+      std::pair<bool, std::pair<int, coot::atom_spec_t> > aa_spec_pair = active_atom_spec();
+      if (aa_spec_pair.first) {
+         int imol = aa_spec_pair.second.first;
+         mmdb::Atom *at = molecules[imol].get_atom(aa_spec_pair.second.second);
+         mmdb::Residue *residue_p = at->GetResidue();
+         if (residue_p) {
+            // for this to work I need to move setup_delete_item_pulse() into
+            // graphics_info_t. Not today.
+            g.setup_delete_item_pulse(residue_p);
+            coot::residue_spec_t residue_spec(residue_p);
+            g.molecules[imol].delete_residue(residue_spec);
+         }
+      }
+      std::cout << "ldr done --------------------------------------" << std::endl;
+      return gboolean(TRUE);
+   };
    key_bindings_t delete_residue_key_binding(ldr, "Delete Residue");
    std::pair<keyboard_key_t, key_bindings_t> pdel(keyboard_key_t(GDK_KEY_d, true), delete_residue_key_binding);
    kb_vec.push_back(pdel);
 
    auto law = [] () {
-      std::cout << "-------------------- add water" << std::endl;
       graphics_info_t g;
       g.place_typed_atom_at_pointer("Water");
       return gboolean(TRUE);

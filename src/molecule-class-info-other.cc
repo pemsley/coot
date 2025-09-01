@@ -999,7 +999,7 @@ molecule_class_info_t::delete_residue(int model_number,
    int n_models = atom_sel.mol->GetNumberOfModels();
    for (int imod=1; imod<=n_models; imod++) {
 
-      if (0)
+      if (false)
          std::cout << "debug:: delete_residue() comparing imod: "
                    << imod << " and model_number "
                    << model_number << std::endl;

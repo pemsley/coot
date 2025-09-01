@@ -508,6 +508,7 @@ class molecule_class_info_t {
    bool last_ghost_matching_target_chain_id_p(int i_match,
 					      const std::vector<drawn_ghost_molecule_display_t> &ncs_ghosts) const;
    void delete_ghost_selections();
+   // void debug_ghosts() const; public
 
    std::vector<coot::ghost_molecule_display_t> strict_ncs_info;
    std::vector<coot::coot_mat44> strict_ncs_matrices;
@@ -1257,6 +1258,7 @@ public:        //                      public
       display_stick_mode_atoms_flag = f;
    }
 
+   void debug_ghosts() const;
 
    std::vector<int> labelled_atom_index_list;
    // a functor to remove them

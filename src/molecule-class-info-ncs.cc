@@ -58,9 +58,11 @@ extern logging logger;
 
 // This is called by make_bonds_type_checked(), which is called by
 // update_molecule_after_additions().
-// 
+//
 void
 molecule_class_info_t::update_ghosts() {
+
+   std::cout << "debug:: here in update_ghosts() with show_ghosts_flag " << show_ghosts_flag << std::endl;
 
    if (show_ghosts_flag) {
 
@@ -73,6 +75,30 @@ molecule_class_info_t::update_ghosts() {
       }
    }
 }
+
+void
+molecule_class_info_t::debug_ghosts() const {
+
+   std::cout << "debug:: in delete_ghost_selections() there are " << ncs_ghosts.size()
+             << " ncs ghosts" << std::endl;
+   std::cout << "debug:: in delete_ghost_selections() show_ghosts_flag " << show_ghosts_flag
+             << std::endl;
+   std::cout << "debug:: in delete_ghost_selections() ncs_ghosts_have_rtops_flag " << ncs_ghosts_have_rtops_flag
+             << std::endl;
+   for (unsigned int ighost=0; ighost<ncs_ghosts.size(); ighost++) {
+      const auto &ghost = ncs_ghosts[ighost];
+      std::cout << "debug:: in delete_ghost_selections() Ghost idx " << ighost
+                << " name: " << ghost.name
+                << " chain-id: " << ghost.chain_id
+                << " residue-matches-size: " << ghost.residue_matches.size()
+                << " is-empty: " << ghost.is_empty()
+                << " display_it_flag: " << ghost.display_it_flag
+                << " SelectionHandle: " << ghost.SelectionHandle << std::endl;
+      std::cout << "debug:: in delete_ghost_selections() rtop:\n" << ghost.rtop.format()
+                << std::endl;
+   }
+}
+
 
 void
 molecule_class_info_t::delete_ghost_selections() {
@@ -107,18 +133,41 @@ molecule_class_info_t::delete_ghost_selections() {
    //
    // Hmmm... reflection: NCS code is complex and crash-prone.
 
-//    std::cout << "::::::::::::::::::::;; wwwwwoooooo!  ghosts! ::::::"
-//  	     << std::endl;
+   // 20250831-PE Here we are again.
+   // NCS Chain master A
+   // Delete residue B72
+   // We come from:
+   // "molecule-class-info-other.cc", line 1032, in delete_residue [0x7fbe27f2b320]
+   //    1029:                         if (ins_code == inscodestr) {
+   //    1030:                            make_backup();
+   //    1031:                            atom_sel.mol->DeleteSelection(atom_sel.SelectionHandle);
+   //   >1032:                            delete_ghost_selections();
+   //    1033:                            chain->DeleteResidue(iseqno, inscode);
+   //    1034:                            was_deleted = 1;
+   //    1035:                            res = NULL;
+   // We crash on the line:
+   // 	       atom_sel.mol->DeleteSelection(ncs_ghosts[ighost].SelectionHandle);
 
-   if (ncs_ghosts.size() > 0) {
+   if (! ncs_ghosts.empty()) {
+      if (true)
+         std::cout << "debug:: in delete_ghost_selections() there are " << ncs_ghosts.size()
+                   << " ncs ghosts" << std::endl;
       for (unsigned int ighost=0; ighost<ncs_ghosts.size(); ighost++) {
-         // 	 std::cout << "Ghost " << ighost << " state "
-         // 		   << ncs_ghosts[ighost].is_empty() << std::endl;
-	 if (! ncs_ghosts[ighost].is_empty()) {
-	    if (ncs_ghosts[ighost].display_it_flag) {
-	       atom_sel.mol->DeleteSelection(ncs_ghosts[ighost].SelectionHandle);
-	    }
-	 }
+         if (true)
+            std::cout << "debug:: Ghost " << ighost << " is-empty: "
+                      << ncs_ghosts[ighost].is_empty()
+                      << " display_it_flag: " << ncs_ghosts[ighost].display_it_flag << std::endl;
+         if (! ncs_ghosts[ighost].is_empty()) {
+            if (ncs_ghosts[ighost].display_it_flag) {
+
+               logger.log(log_t::WARNING, logging::function_name_t(__FUNCTION__),
+                          "Not actually deleting selection for ghosts");
+
+               // 20250901-PE - don't do this here and now - the selection handles may be out of date.
+               // It seems tricky and time-consuming to fix. Let's live with a possible memory leak.
+               // atom_sel.mol->DeleteSelection(ncs_ghosts[ighost].SelectionHandle);
+            }
+         }
       }
    }
 }
@@ -333,8 +382,8 @@ molecule_class_info_t::fill_ghost_info(short int do_rtops_flag,
 	 int nchains = model_p->GetNumberOfChains();
 
 	 // std::cout << "DEUBG:: in fill_ghost_info() nchains is " << nchains << std::endl;
-	 
-	 if (nchains <= 0) { 
+
+	 if (nchains <= 0) {
 	    std::cout << "bad nchains in molecule " << nchains
 		      << std::endl;
 	 } else {
@@ -432,25 +481,25 @@ molecule_class_info_t::add_ncs_ghosts_no_explicit_master(const std::vector<std::
 							 float homology_level,
 							 bool allow_offset_flag) {
 
-   // debug input 
-   if (0) { 
+   // debug input
+   if (false) {
       std::cout << " in add_ncs_ghosts_no_explicit_master() ncs chain_ids are ";
       for (unsigned int i=0; i<chain_ids.size(); i++) {
-	 std::cout << ":" << chain_ids[i] << ": ";
+         std::cout << ":" << chain_ids[i] << ": ";
       }
       std::cout << std::endl;
       std::cout << " and there are " << residue_types.size() << " elements in the residue_types vector "
-		<< std::endl;
+                << std::endl;
    }
-      
-   
+
+
    // when checking for ncs, we must make sure that the number of
    // residues is greater than 0 (because we get 0 for solvent
    // chains).
    // Actually, greater than 2 would be even more sensible.
    //
 
-   // so I have marked some code as "trickiness" - 
+   // so I have marked some code as "trickiness" -
    // Consider the case of alpha-3 beta-2, A,B,C of type alpha D,E of type beta
    //
    // We want B onto A and C onto A and E onto D - but not C onto B.
@@ -458,7 +507,7 @@ molecule_class_info_t::add_ncs_ghosts_no_explicit_master(const std::vector<std::
    // not the reference) that this is not a unique - the matcher target
    // for this type of molecule is higher up the list, we don't want to see
    // matchers to this "second" chain.
-   // 
+   //
 
    // std::cout << "DEBUG:: Checking chains for NCS.. (no explicit master)" << std::endl;
    // So now let's check the chains against each other:
@@ -471,7 +520,7 @@ molecule_class_info_t::add_ncs_ghosts_no_explicit_master(const std::vector<std::
 			    << ifirst << " (" << chain_ids[ifirst] << ") and "
 			    << isec << " (" << chain_ids[isec] << ") with homology_level "
 			    << homology_level << std::endl;
-	       if (ncs_chains_match_p(residue_types[ifirst],
+               if (ncs_chains_match_p(residue_types[ifirst],
 				      residue_types[isec],
 				      homology_level,
 				      allow_offset_flag)) {
@@ -500,6 +549,7 @@ molecule_class_info_t::add_ncs_ghosts_no_explicit_master(const std::vector<std::
 			ghost.residue_matches = ghost_info.residue_matches;
 		     }
 		  }
+
 		  ghost.SelectionHandle = chain_atom_selection_handles[isec];
 		  ghost.target_chain_id = chain_ids[ifirst];
 		  ghost.chain_id = chain_ids[isec];
@@ -521,7 +571,7 @@ molecule_class_info_t::add_ncs_ghosts_no_explicit_master(const std::vector<std::
       }
       catch (const std::runtime_error &rte) {
 	 std::cout << rte.what() << std::endl;
-      } 
+      }
    }
 
 };
@@ -533,25 +583,23 @@ molecule_class_info_t::add_ncs_ghosts_using_ncs_master(const std::string &master
 						       const std::vector<int> &chain_atom_selection_handles,
 						       float homology_level) {
 
-   std::cout << "   %%%%%% add_ncs_ghosts_using_ncs_master " << std::endl;
    // float homology_level = 0.7;
    bool allow_offset_flag = 0;
    // First find imaster
-   int imaster = -1; 
+   int imaster = -1;
    for (unsigned int ichain=0; ichain<chain_ids.size(); ichain++) {
       if (chain_ids[ichain] == master_chain_id) {
-	 imaster = ichain;
-	 break;
+         imaster = ichain;
+         break;
       }
    }
 
-   std::cout << "   %%%%%% imaster: " << imaster << std::endl;
-   
-   
+   std::cout << "DEBUG:: add_ncs_ghosts_using_ncs_master():   %%%%%% imaster: " << imaster << std::endl;
+
    if (imaster != -1) {
       std::cout << "   Checking chains for NCS matching to chain " << master_chain_id << std::endl;
       for (unsigned int ichain=0; ichain<chain_ids.size(); ichain++) {
-	 try { 
+	 try {
 	    if (chain_ids[ichain] != chain_ids[imaster]) {
 	       if (ncs_chains_match_p(residue_types[imaster],
 				      residue_types[ichain],
@@ -1656,7 +1704,7 @@ std::ostream& coot::operator<<(std::ostream &s, const coot::ghost_molecule_displ
 
 
 
-int 
+int
 molecule_class_info_t::copy_residue_range_from_ncs_master_to_other_using_ghost(std::string from_chain_id,
 									       std::string to_chain_id,
 									       int residue_range_1,
@@ -1693,13 +1741,13 @@ molecule_class_info_t::copy_residue_range_from_ncs_master_to_other_using_ghost(s
 			std::string chain_id(chain_p->GetChainID());
 			if (from_chain_id == chain_id) {
 			   mmdb::Chain *from_chain = chain_p;
-			   if (0) { 
-  			   std::cout << "Doing a copy_residue range "
+			   if (false) {
+                              std::cout << "Doing a copy_residue range "
  				     << from_chain->GetChainID() << " to "
-  				     << to_chain->GetChainID() << " " << residue_range_1
- 				     << " to "
-  				     << residue_range_2 << "\n"
- 				     << rtop.format() << std::endl;
+                                        << to_chain->GetChainID() << " " << residue_range_1
+                                        << " to "
+                                        << residue_range_2 << "\n"
+                                        << rtop.format() << std::endl;
 			   }
 			   copy_residue_range(from_chain, to_chain, residue_range_1,
 					      residue_range_2, rtop);
@@ -1732,7 +1780,9 @@ molecule_class_info_t::copy_from_ncs_master_to_others(const std::string &master_
 	    // std::cout << "   %%%%%%%%% calling fill_ghost_info from "
 	    // std::cout << "copy_from_ncs_master_to_others "
 	    // << std::endl;
-	    fill_ghost_info(1, 0.7); // 0.7?
+            short int do_rtops = 1;
+            float homology_lev = 0.7;
+	    fill_ghost_info(do_rtops, homology_lev);
 	 }
 	 for (unsigned int ighost=0; ighost<ncs_ghosts.size(); ighost++) {
 	    std::string master = ncs_ghosts[ighost].target_chain_id;

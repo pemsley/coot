@@ -234,7 +234,7 @@ coot::aromatic_graph_t::get_neighbours_of_vertex_excluding_path(int this_vertex,
    std::vector<int> v;
    std::vector<int> local_edges = vertices[this_vertex].get_edges();
 
-   if (0) { // debug
+   if (false) { // debug
       std::cout << "local_edges (" << local_edges.size() << ") of " << this_vertex << " are : ";
       for (unsigned int in=0; in<local_edges.size(); in++) {
 	 std::cout << local_edges[in] << "  ";
@@ -318,7 +318,7 @@ coot::aromatic_graph_t::add_path_maybe(const std::vector<int> &circular_path_in)
       }
    }
    if (! ifound) {
-      if (false) {
+      if (false) { // debug
          std::cout << "add_path_maybe() pushes back this: ";
          for (unsigned int jj=0; jj<circular_path.size(); jj++) {
             std::cout << vertices[circular_path[jj]].get_name();
@@ -394,7 +394,7 @@ coot::aromatic_graph_t::bonded_quad_ring_list() {
          std::cout << std::endl;
       }
    }
-   
+
    for (unsigned int i=0; i<rings.size(); i++) {
       const std::vector<std::string> &this_ring = rings[i];
       int this_ring_size = this_ring.size();

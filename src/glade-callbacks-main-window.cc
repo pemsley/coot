@@ -1538,6 +1538,29 @@ on_copy_fragment_cancel_button_clicked(G_GNUC_UNUSED GtkButton       *button,
    gtk_widget_set_visible(frame, FALSE);
 }
 
+extern "C" G_MODULE_EXPORT
+void
+on_copy_ncs_chain_copy_button_clicked(G_GNUC_UNUSED GtkButton       *button,
+                                      G_GNUC_UNUSED gpointer         user_data) {
+
+   GtkWidget *frame = widget_from_builder("copy_ncs_chain_frame");
+   GtkWidget *combobox = widget_from_builder("copy_ncs_chain_molecule_combobox");
+   int imol = my_combobox_get_imol(GTK_COMBO_BOX(combobox));
+   GtkWidget *entry = widget_from_builder("copy_ncs_chain_entry");
+   std::string text = gtk_editable_get_text(GTK_EDITABLE(GTK_ENTRY(entry)));
+   copy_from_ncs_master_to_others(imol, text.c_str());
+   gtk_widget_set_visible(frame, FALSE);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_copy_ncs_chain_cancel_button_clicked(G_GNUC_UNUSED GtkButton       *button,
+                                        G_GNUC_UNUSED gpointer         user_data) {
+
+   GtkWidget *frame = widget_from_builder("copy_ncs_chain_frame");
+   gtk_widget_set_visible(frame, FALSE);
+}
+
 
 
 extern "C" G_MODULE_EXPORT
