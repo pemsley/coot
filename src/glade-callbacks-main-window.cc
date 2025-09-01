@@ -1561,6 +1561,42 @@ on_copy_ncs_chain_cancel_button_clicked(G_GNUC_UNUSED GtkButton       *button,
    gtk_widget_set_visible(frame, FALSE);
 }
 
+extern "C" G_MODULE_EXPORT
+void
+on_copy_ncs_residue_range_copy_button_clicked(G_GNUC_UNUSED GtkButton       *button,
+                                                G_GNUC_UNUSED gpointer         user_data) {
+
+   GtkWidget *frame = widget_from_builder("copy_ncs_residue_range_frame");
+   GtkWidget *combobox = widget_from_builder("copy_ncs_residue_range_molecule_combobox");
+   int imol = my_combobox_get_imol(GTK_COMBO_BOX(combobox));
+   GtkWidget *entry_chain_id    = widget_from_builder("copy_ncs_residue_range_chain_entry");
+   GtkWidget *entry_resno_start = widget_from_builder("copy_ncs_residue_range_start_residue_number_entry");
+   GtkWidget *entry_resno_end   = widget_from_builder("copy_ncs_residue_range_end_residue_number_entry");
+   std::string chain_id_text    = gtk_editable_get_text(GTK_EDITABLE(GTK_ENTRY(entry_chain_id)));
+   std::string resno_start_text = gtk_editable_get_text(GTK_EDITABLE(GTK_ENTRY(entry_resno_start)));
+   std::string resno_end_text   = gtk_editable_get_text(GTK_EDITABLE(GTK_ENTRY(entry_resno_end)));
+   try {
+      int resno_start = coot::util::string_to_int(resno_start_text);
+      int resno_end   = coot::util::string_to_int(resno_end_text);
+      copy_residue_range_from_ncs_master_to_others(imol, chain_id_text.c_str(), resno_start, resno_end);
+   }
+   catch (const std::runtime_error &e) {
+      std::cout << "WARNING::" << e.what() << std::endl;
+      logger.log(log_t::WARNING, logging::function_name_t("on_copy_ncs_residue_range_copy_button_clicked"),
+                 "bad resno range", resno_start_text, resno_end_text);
+   }
+   gtk_widget_set_visible(frame, FALSE);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_copy_ncs_residue_range_cancel_button_clicked(G_GNUC_UNUSED GtkButton       *button,
+                                                G_GNUC_UNUSED gpointer         user_data) {
+
+   GtkWidget *frame = widget_from_builder("copy_ncs_residue_range_frame");
+   gtk_widget_set_visible(frame, FALSE);
+}
+
 
 
 extern "C" G_MODULE_EXPORT

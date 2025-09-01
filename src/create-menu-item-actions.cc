@@ -1663,6 +1663,30 @@ copy_ncs_residue_range_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                               G_GNUC_UNUSED GVariant *parameter,
                               G_GNUC_UNUSED gpointer user_data) {
 
+   auto get_model_molecule_vector = [] () {
+      graphics_info_t g;
+      std::vector<int> vec;
+      int n_mol = g.n_molecules();
+      for (int i=0; i<n_mol; i++)
+         if (g.is_valid_model_molecule(i))
+            vec.push_back(i);
+      return vec;
+   };
+
+   GtkWidget *frame = widget_from_builder("copy_ncs_residue_range_frame");
+   if (frame) {
+      GtkWidget *combobox = widget_from_builder("copy_ncs_residue_range_molecule_combobox");
+      if (combobox) {
+         graphics_info_t g;
+         int imol_active = -1;
+         GCallback func = G_CALLBACK(nullptr); // we don't care until this dialog is read
+         auto model_list = get_model_molecule_vector();
+         if (! model_list.empty()) imol_active = model_list[0];
+         g.fill_combobox_with_molecule_options(combobox, func, imol_active, model_list);
+      }
+      gtk_widget_set_visible(frame, TRUE);
+   }
+
 }
 
 void

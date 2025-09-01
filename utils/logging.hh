@@ -145,7 +145,11 @@ public:
 
    void log(log_t type_in, const function_name_t &fn, const std::string &s1, const std::string &s2);
 
+   void log(log_t type_in, const function_name_t &fn, const std::string &s1, const std::string &s2, const std::string &s3);
+
    void log(log_t type_in, const function_name_t &fn, const std::string &s1, int);
+
+   void log(log_t type_in, const function_name_t &fn, const std::string &s1, int i, int j);
 
    void log(log_t type_in, const function_name_t &fn, const std::vector<ltw> &v);
 
