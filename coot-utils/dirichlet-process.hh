@@ -115,10 +115,13 @@ private:
       double dist_squared = glm::distance2(point, mean);
       double a = dist_squared / (2.0 * beta);
       const double lowest_double = std::numeric_limits<double>::denorm_min();
-      if (a < 708.0)
+      if (a < 708.0) {
          return std::exp(-a) / std::sqrt(2.0 * M_PI * beta);
-      else
+      } else {
+         std::cout << "Underflow! d^2: " << dist_squared << " beta: " << beta
+                   << " a: " << a << std::endl;
          return lowest_double;
+      }
    }
 
    double likelihood_new_cluster(const glm::vec3& point) {
