@@ -1,0 +1,17 @@
+.clangd
+
+*/*.lo
+*/*.o
+*/.libs
+*/.deps
+*/*.la
+*/Makefile
+*/Makefile.in
+
+*/*/*.lo
+*/*/*.o
+*/*/.libs
+*/*/.deps
+*/*/*.la
+*/*/Makefile
+*/*/Makefile.in
