@@ -947,14 +947,14 @@ NB_MODULE(coot_headless_api, m) {
          &molecules_container_t::get_symmetry,
          nb::arg("imol"), nb::arg("symmetry_search_radius"), nb::arg("centre_x"), nb::arg("centre_y"), nb::arg("centre_z"),
          get_docstring_from_xml("get_symmetry").c_str())
+    .def("get_temperature_factor_of_atom",
+         &molecules_container_t::get_temperature_factor_of_atom,
+         nb::arg("imol"), nb::arg("atom_cid"),
+         get_docstring_from_xml("get_temperature_factor_of_atom").c_str())
     .def("get_torsion",
          &molecules_container_t::get_torsion,
          nb::arg("imol"), nb::arg("cid"), nb::arg("atom_names"),
          get_docstring_from_xml("get_torsion").c_str())
-    .def("get_types_in_molecule",
-         &molecules_container_t::get_types_in_molecule,
-         nb::arg("imol"),
-         get_docstring_from_xml("get_types_in_molecule").c_str())
     .def("get_torsion_restraints_weight",
          &molecules_container_t::get_torsion_restraints_weight,
          get_docstring_from_xml("get_torsion_restraints_weight").c_str())
@@ -962,6 +962,10 @@ NB_MODULE(coot_headless_api, m) {
          &molecules_container_t::get_triangles_for_blender,
          nb::arg("imol"),
          get_docstring_from_xml("get_triangles_for_blender").c_str())
+    .def("get_types_in_molecule",
+         &molecules_container_t::get_types_in_molecule,
+         nb::arg("imol"),
+         get_docstring_from_xml("get_types_in_molecule").c_str())
     .def("get_use_gemmi",
          &molecules_container_t::get_use_gemmi,
          get_docstring_from_xml("get_use_gemmi").c_str())

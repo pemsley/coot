@@ -4850,6 +4850,18 @@ coot::molecule_t::get_median_temperature_factor() const {
 
 }
 
+float
+coot::molecule_t::get_temperature_factor_of_atom(const std::string &atom_cid) const {
+
+   float b = -1.1f;
+   mmdb:: Atom *at = cid_to_atom(atom_cid);
+   if (at) {
+      b = at->tempFactor;
+   }
+   return b;
+
+}
+
 
 #include "utils/coot-fasta.hh"
 
