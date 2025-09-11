@@ -6171,6 +6171,26 @@ molecules_container_t::get_median_temperature_factor(int imol) const {
    return b_factor;
 }
 
+//! Get the atom temperature factor
+//!
+//! @param imol is the model molecule index
+//! @param atom_cid is the selection cid for the atom
+//!
+//! @return a negative number on failure, otherwise the temperature factor
+float
+molecules_container_t::get_temperature_factor_of_atom(int imol, const std::string &atom_cid) const {
+
+   float b_factor = -1.1;
+   if (is_valid_model_molecule(imol)) {
+      b_factor = molecules[imol].get_temperature_factor_of_atom(atom_cid);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return b_factor;
+}
+
+
+
 // return the atom name match on superposing the atoms of the given dictionaries
 std::map<std::string, std::string>
 molecules_container_t::dictionary_atom_name_map(const std::string &comp_id_1, int imol_1, const std::string &comp_id_2, int imol_2) {

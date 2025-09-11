@@ -2958,6 +2958,14 @@ public:
    //! @return a negative number on failure
    float get_median_temperature_factor(int imol) const;
 
+   //! Get the atom temperature factor
+   //!
+   //! @param imol is the model molecule index
+   //! @param atom_cid is the selection cid for the atom
+   //!
+   //! @return a negative number on failure, otherwise the temperature factor
+   float get_temperature_factor_of_atom(int imol, const std::string &atom_cid) const;
+
    //! Get interesting places
    //!
    //! This function does not work yet

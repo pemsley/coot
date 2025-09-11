@@ -6580,6 +6580,26 @@ int test_radius_of_gyration(molecules_container_t &mc) {
    return status;
 }
 
+int test_temperature_factor_of_atom(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   float b1 = mc.get_temperature_factor_of_atom(imol, "//A/8/CB");
+   float b2 = mc.get_temperature_factor_of_atom(imol, "//x/8/CB");
+
+   std::cout << "debug b1 " << b1 << " b2 " << b2 << std::endl;
+
+   if (b2 < 0.0)
+      if (b1 < 40.0)
+         if (b1 > 39.0)
+            status = 1;
+
+   return status;
+}
+
+
 
 int test_template(molecules_container_t &mc) {
 
@@ -6914,6 +6934,7 @@ int main(int argc, char **argv) {
          // status += run_test(test_map_vertices_histogram, "map vertices histogram", mc);
          // status += run_test(test_non_XYZ_EM_map_status, "non-XYZ map status", mc);
          status += run_test(test_radius_of_gyration, "radius of gyration", mc);
+         status += run_test(test_temperature_factor_of_atom, "temperature factor of atom", mc);
          if (status == n_tests) all_tests_status = 0;
 
          print_results_summary();

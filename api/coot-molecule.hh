@@ -509,6 +509,8 @@ namespace coot {
 
       float get_median_temperature_factor() const;
 
+      float get_temperature_factor_of_atom(const std::string &atom_cid) const;
+
       // ------------------------ close
 
       int close_yourself();
