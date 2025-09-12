@@ -607,6 +607,11 @@ namespace coot {
 
       int split_residue_using_map(mmdb::Residue *residue_p, mmdb::Manager *mol, const clipper::Xmap<float> &xmap);
 
+      std::vector<std::vector<float> >
+      get_density_on_cylinder(const clipper::Coord_orth &pt_1, const clipper::Coord_orth &pt_2,
+                              const clipper::Coord_orth &pt_ref, const clipper::Xmap<float> &xmap,
+                              double radius, unsigned int n_length, unsigned int n_ring);
+
    }
 }
 

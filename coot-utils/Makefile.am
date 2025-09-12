@@ -177,7 +177,7 @@ check_PROGRAMS = test-h-bonds testshelxreader test-hole test-elastic \
 		 test-5-residue-fragments test-diff-diff-map-peaks \
 		 make-cablam-like-stats test-cod-atom-types-from-sm-cif test-parse-pisa \
 		 test-coot-utils test-pae test-q-score servalcat-tracker test-zd test-grid-balls \
-		 test-dirichlet-process test-born
+		 test-dirichlet-process test-born test-map-tubes
 
 # wrong build order - delete from make check for now.
 # test-emma test-convolute test-coot-utils test-segmap
@@ -373,6 +373,10 @@ test_q_score_LDADD = libcoot-map-utils.la \
 test_diff_diff_map_peaks_SOURCES = test-diff-diff-map-peaks.cc
 
 test_diff_diff_map_peaks_LDADD = libcoot-map-utils.la libcoot-coord-utils.la $(CLIPPER_LIBS) $(EMBEDDED_PYTHON_LIBS)
+
+test_map_tubes_SOURCES = test-map-tubes.cc
+
+test_map_tubes_LDADD = libcoot-map-utils.la $(top_builddir)/analysis/libcoot-analysis.la $(CLIPPER_LIBS)
 
 dictionary_atom_types_SOURCES = dictionary-atom-types.cc
 
