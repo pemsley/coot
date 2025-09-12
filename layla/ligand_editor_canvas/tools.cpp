@@ -546,6 +546,30 @@ std::string ElementInsertion::get_exception_message_prefix() const noexcept {
     return "Could not insert atom: ";
 }
 
+void ElementInsertion::on_blank_space_click(ClickContext& ctx, int x, int y) {
+    g_debug("The click could not be resolved to any atom or bond.");
+    // This 'if' should be removed once we implement merging molecules
+    if(ctx.widget_data.get_molecule_count_impl() == 0) {
+        g_debug("There are no molecules. Element insertion will therefore create a new one.");
+        auto rdkit_mol = std::make_shared<RDKit::RWMol>();
+        rdkit_mol->addAtom(new RDKit::Atom(this->get_atomic_number()),false,true);
+        RDKit::MolOps::sanitizeMol(*rdkit_mol);
+        // append_molecule() already calls begin_edition() and finalize_edition()
+        // ctx.widget_data.begin_edition();
+        #ifndef __EMSCRIPTEN__
+        auto* widget_ptr = static_cast<impl::CootLigandEditorCanvasPriv*>(&ctx.widget_data);
+        coot_ligand_editor_canvas_append_molecule(COOT_COOT_LIGAND_EDITOR_CANVAS(widget_ptr), rdkit_mol);
+        #else // __EMSCRIPTEN__ defined
+        // Lhasa-specific includes/definitions
+        auto* widget_ptr = static_cast<::CootLigandEditorCanvas*>(&ctx.widget_data);
+        coot_ligand_editor_canvas_append_molecule(widget_ptr, rdkit_mol);
+        #endif
+        ctx.widget_data.update_status("New molecule created from an atom.");
+    } else {
+        g_debug("There are already molecules. Element insertion on blank space is a no-op.");
+    }
+}
+
 bool BondModifier::on_molecule_click(MoleculeClickContext& ctx) {
     ctx.widget_data.begin_edition();
     return true;
@@ -577,6 +601,33 @@ void BondModifier::on_atom_click(MoleculeClickContext& ctx, CanvasMolecule::Atom
 
 std::string BondModifier::get_exception_message_prefix() const noexcept {
     return "Could not alter/create bond: ";
+}
+
+void BondModifier::on_blank_space_click(ClickContext& ctx, int x, int y) {
+    g_debug("The click could not be resolved to any atom or bond.");
+    // This 'if' should be removed once we implement merging molecules
+    if(ctx.widget_data.get_molecule_count_impl() == 0) {
+        g_debug("There are no molecules. Element insertion will therefore create a new one.");
+        auto rdkit_mol = std::make_shared<RDKit::RWMol>();
+        auto first_carbon_idx = rdkit_mol->addAtom(new RDKit::Atom(6),false,true);
+        auto second_carbon_idx = rdkit_mol->addAtom(new RDKit::Atom(6),false,true);
+        rdkit_mol->addBond(first_carbon_idx,second_carbon_idx,CanvasMolecule::bond_type_to_rdkit(this->get_target_bond_type()));
+        // This theoretically may throw but it has no reason to as we just created a valid molecule
+        RDKit::MolOps::sanitizeMol(*rdkit_mol);
+        // append_molecule() already calls begin_edition() and finalize_edition()
+        // ctx.widget_data.begin_edition();
+        #ifndef __EMSCRIPTEN__
+        auto* widget_ptr = static_cast<impl::CootLigandEditorCanvasPriv*>(&ctx.widget_data);
+        coot_ligand_editor_canvas_append_molecule(COOT_COOT_LIGAND_EDITOR_CANVAS(widget_ptr), rdkit_mol);
+        #else // __EMSCRIPTEN__ defined
+        // Lhasa-specific includes/definitions
+        auto* widget_ptr = static_cast<::CootLigandEditorCanvas*>(&ctx.widget_data);
+        coot_ligand_editor_canvas_append_molecule(widget_ptr, rdkit_mol);
+        #endif
+        ctx.widget_data.update_status("New molecule created from an atom.");
+    } else {
+        g_debug("There are already molecules. Element insertion on blank space is a no-op.");
+    }
 }
 
 bool ActiveTool::is_creating_bond() const noexcept {
@@ -1117,6 +1168,7 @@ std::string StructureInsertion::get_exception_message_prefix() const noexcept {
 
 void StructureInsertion::on_blank_space_click(ClickContext& ctx, int x, int y) {
     g_debug("The click could not be resolved to any atom or bond.");
+    // This 'if' should be removed once we implement merging molecules
     if(ctx.widget_data.get_molecule_count_impl() == 0) {
         g_debug("There are no molecules. Structure insertion will therefore create a new one.");
         auto rdkit_mol = std::make_shared<RDKit::RWMol>();
@@ -1138,6 +1190,8 @@ void StructureInsertion::on_blank_space_click(ClickContext& ctx, int x, int y) {
         
         ctx.widget_data.update_status("New molecule created from carbon ring.");
         // todo: make sure that this is crash-safe vs edit/undo
+    } else {
+        g_debug("There are already molecules. Structure insertion on blank space is a no-op.");
     }
 }
 

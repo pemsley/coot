@@ -192,6 +192,7 @@ class BondModifier : public Tool {
     void finish_creating_bond() noexcept;
     std::optional<std::pair<unsigned int,unsigned int>> get_molecule_idx_and_first_atom_of_new_bond() const noexcept;
 
+    virtual void on_blank_space_click(ClickContext& ctx, int x, int y) override;
     virtual bool on_molecule_click(MoleculeClickContext& ctx) override;
     virtual void on_bond_click(MoleculeClickContext& ctx, CanvasMolecule::Bond& bond) override;
     virtual void on_atom_click(MoleculeClickContext& ctx, CanvasMolecule::Atom& atom) override;
@@ -222,6 +223,7 @@ class ElementInsertion : public Tool {
 
     unsigned int get_atomic_number() const noexcept;
 
+    virtual void on_blank_space_click(ClickContext& ctx, int x, int y) override;
     virtual bool on_molecule_click(MoleculeClickContext& ctx) override;
     virtual void on_bond_click(MoleculeClickContext& ctx, CanvasMolecule::Bond& bond) override;
     virtual void on_atom_click(MoleculeClickContext& ctx, CanvasMolecule::Atom& atom) override;
