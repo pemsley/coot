@@ -3,6 +3,24 @@
 
 o on the coot web page say how/where to report a bug.
 
+o read in lib/data/monomers/metals.json - add it to the disribution
+
+o check power scaled map with 1gwd atom map.
+
+o try 8box in flatpak coot. Colour by chain. Missing dictionaries.
+  Make an easy way to download all the missing dictionaries
+
+o get_atom_position() add to chapi
+
+o add sphericity test (current analysis) to chapi
+
+o do we have "B-factor analysis" i.e.. show me atoms with B-factor
+  more than 70 (or so)
+
+o rdkit mol -> mmcif - for output from layla
+
+o 6ZV ligand - does it display correctly?
+
 o Ctrl-S should add something to the log.
 
 o check that these work as expected (Martin Maly anom test):
