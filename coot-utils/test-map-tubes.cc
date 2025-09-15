@@ -28,7 +28,7 @@ public:
          }
       }
       const double mean = s.mean();
-      std::cout << "normalize mean " << res_spec << " " << mean << std::endl;
+      // std::cout << "normalize mean " << res_spec << " " << mean << std::endl;
 
       std::vector<std::reference_wrapper<std::vector<std::vector<float> > > > refs = { ring_0, ring_1, ring_2};
       for (auto &ring : refs) {
@@ -40,7 +40,7 @@ public:
          }
       }
 
-      if (true) { // remove this debugging
+      if (false) { // remove this debugging
          std::string chain_id = res_spec.chain_id;
          if (chain_id == "") chain_id = "---";
          int res_no = res_spec.res_no;
@@ -114,9 +114,13 @@ get_tube(mmdb::Residue *residue_p, const clipper::Xmap<float> &xmap, const std::
 
    residue_tube_density_container_t rtdc;
 
+   // std::string at_name_1   = " C5'";
+   // std::string at_name_2   = " C4'";
+   // std::string at_name_ref = " O5'";
+
    std::string at_name_1   = " C5'";
-   std::string at_name_2   = " C4'";
-   std::string at_name_ref = " O5'";
+   std::string at_name_2   = " O5'";
+   std::string at_name_ref = " C4'";
 
    std::optional<clipper::Coord_orth> pt_1   = get_atom_pos(residue_p, at_name_1);
    std::optional<clipper::Coord_orth> pt_2   = get_atom_pos(residue_p, at_name_2);
@@ -126,7 +130,8 @@ get_tube(mmdb::Residue *residue_p, const clipper::Xmap<float> &xmap, const std::
       for (unsigned int i=0; i<radii.size(); i++) {
          double radius = radii[i];
          std::vector<std::vector<float> > v =
-            coot::util::get_density_on_cylinder(pt_1.value(), pt_2.value(), pt_ref.value(), xmap, radius, n_length, n_ring);
+            coot::util::get_density_on_cylinder(pt_1.value(), pt_2.value(), pt_ref.value(),
+                                                xmap, radius, n_length, n_ring);
          // bleugh
          if (i == 0) rtdc.ring_0 = v;
          if (i == 1) rtdc.ring_1 = v;
@@ -159,7 +164,6 @@ void tube_analysis(const std::vector<residue_tube_density_container_t> &tubes) {
             const std::vector<float> &v_in = ring[i];
             for (unsigned int j=0; j<v_in.size(); j++) {
                unsigned int idx = iring * 10000 + i * 100 + j;
-               std::cout << "debug idx " << idx << std::endl;
                spec_map[idx] = tube_r.res_spec;
                const float &f = v_in[j];
                s_map[idx].add(f);
@@ -179,12 +183,15 @@ void tube_analysis(const std::vector<residue_tube_density_container_t> &tubes) {
       mean_sd_map[idx] = std::make_pair(mean, sd);
       const auto &data = s.second.v;
       double ks = coot::stats::get_kolmogorov_smirnov_vs_normal(data, mean, sd);
-      std::cout << "distribution-analysis idx " << idx << " mean " << std::setw(9) << std::left << mean
-                << " sd " << std::setw(9) << sd << " n-data " << std::right << std::setw(5) << data.size()
-                << " ks " << ks << std::endl;
-      if (idx == 10101) {
-         for (unsigned int i=0; i<data.size(); i++) {
-            std::cout << "idx " << idx << " i " << i << " " << data[i] << std::endl;
+      if (false)
+         std::cout << "distribution-analysis idx " << idx << " mean " << std::setw(9) << std::left << mean
+                   << " sd " << std::setw(9) << sd << " n-data " << std::right << std::setw(5) << data.size()
+                   << " ks " << ks << std::endl;
+      if (false) {
+         if (idx == 10101) {
+            for (unsigned int i=0; i<data.size(); i++) {
+               std::cout << "idx " << idx << " i " << i << " " << data[i] << std::endl;
+            }
          }
       }
    }
