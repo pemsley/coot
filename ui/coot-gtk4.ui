@@ -483,13 +483,11 @@
         </item>
         <item>
           <attribute name="label">Rebuild Fragment using DBLoop (Small)</attribute>
-          <attribute name="action">app.rebuild_fragment_using_dbloop_action</attribute>
-          <attribute name="target">small</attribute>
+          <attribute name="action">app.rebuild_fragment_using_dbloop_action_small</attribute>
         </item>
         <item>
           <attribute name="label">Rebuild Fragment using DBLoop (Bigger)</attribute>
-          <attribute name="action">app.rebuild_fragment_using_dbloop_action</attribute>
-          <attribute name="target">bigger</attribute>
+          <attribute name="action">app.rebuild_fragment_using_dbloop_action_bigger</attribute>
         </item>
         <item>
           <attribute name="label">Replace Residue...</attribute>
@@ -641,18 +639,15 @@
             <attribute name="label">Bond Smoothness</attribute>
             <item>
               <attribute name="label">Default</attribute>
-              <attribute name="action">app.bond_smoothness_action</attribute>
-              <attribute name="target">1</attribute>
+              <attribute name="action">app.bond_smoothness_action_1</attribute>
             </item>
             <item>
               <attribute name="label">Smooth</attribute>
-              <attribute name="action">app.bond_smoothness_action</attribute>
-              <attribute name="target">2</attribute>
+              <attribute name="action">app.bond_smoothness_action_2</attribute>
             </item>
             <item>
               <attribute name="label">Fine</attribute>
-              <attribute name="action">app.bond_smoothness_action</attribute>
-              <attribute name="target">3</attribute>
+              <attribute name="action">app.bond_smoothness_action_3</attribute>
             </item>
           </submenu>
 

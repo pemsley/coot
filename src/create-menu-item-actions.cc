@@ -3166,6 +3166,29 @@ bond_smoothness_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    graphics_info_t::graphics_grab_focus();
 }
 
+void
+bond_smoothness_action_1(G_GNUC_UNUSED GSimpleAction *simple_action,
+                        G_GNUC_UNUSED GVariant *parameter,
+                        G_GNUC_UNUSED gpointer user_data) {
+
+   set_bond_smoothness_factor(1);
+}
+
+void
+bond_smoothness_action_2(G_GNUC_UNUSED GSimpleAction *simple_action,
+                        G_GNUC_UNUSED GVariant *parameter,
+                        G_GNUC_UNUSED gpointer user_data) {
+
+   set_bond_smoothness_factor(2);
+}
+
+void
+bond_smoothness_action_3(G_GNUC_UNUSED GSimpleAction *simple_action,
+                        G_GNUC_UNUSED GVariant *parameter,
+                        G_GNUC_UNUSED gpointer user_data) {
+
+   set_bond_smoothness_factor(3);
+}
 
 void
 bond_parameters_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -3494,7 +3517,33 @@ void rebuild_fragment_using_dbloop_action(G_GNUC_UNUSED GSimpleAction *simple_ac
          std::cout << "do something here with db loop fit for " << imol << " " << pp.second.second << std::endl;
       }
    }
+}
 
+// 2025-09-15 14:41 PE: add the non-target version of the action functions
+void rebuild_fragment_using_dbloop_action_small(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                                GVariant *parameter,
+                                                G_GNUC_UNUSED gpointer user_data) {
+
+   std::cout << "::::::::::::::::::::::::::::::::::::::::::::::::::: HERE A :::::::::::::::::::" << std::endl;
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      std::cout << "do something here with db loop fit for " << imol << " " << pp.second.second << std::endl;
+   }
+}
+
+void rebuild_fragment_using_dbloop_action_bigger(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                                 GVariant *parameter,
+                                                 G_GNUC_UNUSED gpointer user_data) {
+
+   std::cout << "::::::::::::::::::::::::::::::::::::::::::::::::::: HERE B :::::::::::::::::::" << std::endl;
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      std::cout << "do something here with db loop fit for " << imol << " " << pp.second.second << std::endl;
+   }
 }
 
 void replace_residue_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -5329,6 +5378,10 @@ create_actions(GtkApplication *application) {
 
    add_action_with_param("rebuild_fragment_using_dbloop_action", rebuild_fragment_using_dbloop_action);
 
+   // 2025-09-15 16:11 PE hack functions
+   add_action("rebuild_fragment_using_dbloop_action_small", rebuild_fragment_using_dbloop_action_small);
+   add_action("rebuild_fragment_using_dbloop_action_bigger", rebuild_fragment_using_dbloop_action_bigger);
+
    // Draw
 
    // these could be done with a parameter add_action_with_param()
@@ -5459,6 +5512,11 @@ create_actions(GtkApplication *application) {
 
    // Draw menu
    add_action_with_param("bond_smoothness_action", bond_smoothness_action);
+
+   // 2025-09-15 16:40 PE: hack functions
+   add_action("bond_smoothness_action_1", bond_smoothness_action_1);
+   add_action("bond_smoothness_action_2", bond_smoothness_action_2);
+   add_action("bond_smoothness_action_3", bond_smoothness_action_3);
 
    // Delete menu
    add_action_with_param("delete_item", delete_item);
