@@ -38,18 +38,15 @@
         </item>
         <item>
           <attribute name="label">Fetch PDB using Accession Code...</attribute>
-          <attribute name="action">app.show_accession_code_fetch_frame</attribute>
-          <attribute name="target">oca</attribute>
+          <attribute name="action">app.show_accession_code_fetch_frame_oca</attribute>
         </item>
         <item>
           <attribute name="label">Fetch PDB &amp; Map using EDS...</attribute>
-          <attribute name="action">app.show_accession_code_fetch_frame</attribute>
-          <attribute name="target">eds</attribute>
+          <attribute name="action">app.show_accession_code_fetch_frame_eds</attribute>
         </item>
         <item>
           <attribute name="label">Fetch PDB and Map Using PDB-REDO...</attribute>
-          <attribute name="action">app.show_accession_code_fetch_frame</attribute>
-          <attribute name="target">pdb-redo</attribute>
+          <attribute name="action">app.show_accession_code_fetch_frame_pdb_redo</attribute>
         </item>
         <item>
          <attribute name="label">Fetch Corresponding AlphaFold Model &amp; Superpose</attribute>
@@ -57,8 +54,7 @@
         </item>
          <item>
          <attribute name="label">Fetch AlphaFold Model using Uniprot ID...</attribute>
-          <attribute name="action">app.show_accession_code_fetch_frame</attribute>
-          <attribute name="target">uniprot-id</attribute>
+          <attribute name="action">app.show_accession_code_fetch_frame_uniprot_id</attribute>
         </item>
         <item>
           <attribute name="label">Fetch PDBe Ligand Description</attribute>
@@ -66,8 +62,7 @@
         </item>
         <item>
           <attribute name="label">Fetch COD Entry...</attribute>
-          <attribute name="action">app.show_accession_code_fetch_frame</attribute>
-          <attribute name="target">cod</attribute>
+          <attribute name="action">app.show_accession_code_fetch_frame_cod</attribute>
         </item>
         <item>
           <attribute name="label">Fetch Map from EMDB...</attribute>

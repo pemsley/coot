@@ -498,10 +498,10 @@ void toggle_display_frames_per_second_action(G_GNUC_UNUSED GSimpleAction *simple
    set_show_fps(1);
 }
 
-void
-search_monomer_library_action(G_GNUC_UNUSED GSimpleAction *simple_action,
-                              G_GNUC_UNUSED GVariant *parameter,
-                              G_GNUC_UNUSED gpointer user_data) {
+void search_monomer_library_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                   G_GNUC_UNUSED GVariant *parameter,
+                                   G_GNUC_UNUSED gpointer user_data) {
+
    GtkWidget *w = widget_from_builder("monomer_search_dialog");
    gtk_widget_set_visible(w, TRUE);
 }
@@ -512,10 +512,8 @@ void show_accession_code_fetch_frame(G_GNUC_UNUSED GSimpleAction *simple_action,
 
    // 20230923-PE now does COD too
 
-   gchar* mode_name_cstr;
-   g_variant_get(parameter,"s",&mode_name_cstr);
-   std::string mode_name(mode_name_cstr);
    auto mode_num_from_name = [](const std::string& mode_name) {
+
       std::cout << ":::::::::::::::::::::: mode_name \"" << mode_name << "\"" << std::endl;
       if (mode_name == "oca") {
          return COOT_ACCESSION_CODE_WINDOW_OCA;
@@ -533,6 +531,10 @@ void show_accession_code_fetch_frame(G_GNUC_UNUSED GSimpleAction *simple_action,
          return COOT_ACCESSION_CODE_WINDOW_OCA;
       }
    };
+
+   gchar* mode_name_cstr;
+   g_variant_get(parameter,"s",&mode_name_cstr);
+   std::string mode_name(mode_name_cstr);
    int mode_num = mode_num_from_name(mode_name);
    g_debug("Accession code fetch frame mode number: %i", mode_num);
    GtkWidget *frame = widget_from_builder("accession_code_frame");
@@ -564,8 +566,79 @@ void show_accession_code_fetch_frame(G_GNUC_UNUSED GSimpleAction *simple_action,
 
    GtkWidget* entry = widget_from_builder("accession_code_entry");
    gtk_widget_grab_focus(entry);
-   // this is probably equivalent
-   //gtk_widget_set_visible(frame,TRUE);
+   gtk_widget_set_visible(frame, TRUE);
+}
+
+// 2025-09-15 12:32 PE: because of the "target" failure bug, the previous function will be expanded
+// for each of the target cases. Bleugh.
+
+void show_accession_code_fetch_frame_oca(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                         G_GNUC_UNUSED GVariant *parameter,
+                                         G_GNUC_UNUSED gpointer user_data) {
+
+   GtkWidget *label = widget_from_builder("accession_code_label");
+   GtkWidget* entry = widget_from_builder("accession_code_entry");
+   GtkWidget *frame = widget_from_builder("accession_code_frame");
+   int mode_num = COOT_ACCESSION_CODE_WINDOW_OCA;
+   g_object_set_data(G_OBJECT(frame), "mode", GINT_TO_POINTER(mode_num));
+   gtk_label_set_text(GTK_LABEL(label), "PDB Accession Code: ");
+   gtk_widget_grab_focus(entry);
+   gtk_widget_set_visible(frame, TRUE);
+}
+
+void show_accession_code_fetch_frame_eds(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                         G_GNUC_UNUSED GVariant *parameter,
+                                         G_GNUC_UNUSED gpointer user_data) {
+
+   GtkWidget *label = widget_from_builder("accession_code_label");
+   GtkWidget* entry = widget_from_builder("accession_code_entry");
+   GtkWidget *frame = widget_from_builder("accession_code_frame");
+   int mode_num = COOT_ACCESSION_CODE_WINDOW_EDS;
+   g_object_set_data(G_OBJECT(frame), "mode", GINT_TO_POINTER(mode_num));
+   gtk_label_set_text(GTK_LABEL(label), "PDB Accession Code: ");
+   gtk_widget_grab_focus(entry);
+   gtk_widget_set_visible(frame, TRUE);
+}
+
+void show_accession_code_fetch_frame_pdb_redo(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                         G_GNUC_UNUSED GVariant *parameter,
+                                         G_GNUC_UNUSED gpointer user_data) {
+
+   GtkWidget *label = widget_from_builder("accession_code_label");
+   GtkWidget* entry = widget_from_builder("accession_code_entry");
+   GtkWidget *frame = widget_from_builder("accession_code_frame");
+   int mode_num = COOT_ACCESSION_CODE_WINDOW_PDB_REDO;
+   g_object_set_data(G_OBJECT(frame), "mode", GINT_TO_POINTER(mode_num));
+   gtk_label_set_text(GTK_LABEL(label), "PDB Accession Code: ");
+   gtk_widget_grab_focus(entry);
+   gtk_widget_set_visible(frame, TRUE);
+}
+
+void show_accession_code_fetch_frame_uniprod_id(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                                G_GNUC_UNUSED GVariant *parameter,
+                                                G_GNUC_UNUSED gpointer user_data) {
+
+   GtkWidget *label = widget_from_builder("accession_code_label");
+   GtkWidget* entry = widget_from_builder("accession_code_entry");
+   GtkWidget *frame = widget_from_builder("accession_code_frame");
+   int mode_num = COOT_UNIPROT_ID;
+   g_object_set_data(G_OBJECT(frame), "mode", GINT_TO_POINTER(mode_num));
+   gtk_label_set_text(GTK_LABEL(label), "PDB Accession Code: ");
+   gtk_widget_grab_focus(entry);
+   gtk_widget_set_visible(frame, TRUE);
+}
+
+void show_accession_code_fetch_frame_cod(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                         G_GNUC_UNUSED GVariant *parameter,
+                                         G_GNUC_UNUSED gpointer user_data) {
+
+   GtkWidget *label = widget_from_builder("accession_code_label");
+   GtkWidget* entry = widget_from_builder("accession_code_entry");
+   GtkWidget *frame = widget_from_builder("accession_code_frame");
+   int mode_num = COOT_COD_CODE;
+   g_object_set_data(G_OBJECT(frame), "mode", GINT_TO_POINTER(mode_num));
+   gtk_label_set_text(GTK_LABEL(label), "PDB Accession Code: ");
+   gtk_widget_grab_focus(entry);
    gtk_widget_set_visible(frame, TRUE);
 }
 
@@ -5123,6 +5196,13 @@ create_actions(GtkApplication *application) {
    add_action("get_monomer_action", get_monomer_action);
    add_action(     "curlew_action",      curlew_action);
    add_action(       "exit_action",        exit_action);
+
+   // 2025-09-15 13:00 PE hack functions
+   add_action("show_accession_code_fetch_frame_oca",        show_accession_code_fetch_frame_oca);
+   add_action("show_accession_code_fetch_frame_eds",        show_accession_code_fetch_frame_eds);
+   add_action("show_accession_code_fetch_frame_pdb_redo",   show_accession_code_fetch_frame_pdb_redo);
+   add_action("show_accession_code_fetch_frame_uniprot_id", show_accession_code_fetch_frame_uniprod_id);
+   add_action("show_accession_code_fetch_frame_cod",        show_accession_code_fetch_frame_cod);
 
    add_action_with_param("show_accession_code_fetch_frame",       show_accession_code_fetch_frame);
    add_action(           "search_monomer_library_action",           search_monomer_library_action);
