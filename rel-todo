@@ -5,9 +5,9 @@ o on the coot web page say how/where to report a bug.
 
 o read in lib/data/monomers/metals.json - add it to the disribution
 
-o check power scaled map with 1gwd atom map.
+o check power-scaled map with 1gwd atom map.
 
-o try 8box in flatpak coot. Colour by chain. Missing dictionaries.
+o try 8b0x in flatpak coot. Colour by chain. Missing dictionaries.
   Make an easy way to download all the missing dictionaries
 
 o get_atom_position() add to chapi
