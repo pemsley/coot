@@ -5175,10 +5175,8 @@ delete_item(GSimpleAction *simple_action,
             // Needs "check_if_in_range_defines" to be working.
             // Here we need to turn on the expecting the delet residue range "start" flag
             // and unset the others c.f. set_delete_residue_zone_mode()
-
             delete_residue_range();
             g.graphics_draw();
-
          }
          if (par == "side-chain") {
             auto &m = g.molecules[imol];
@@ -5189,6 +5187,16 @@ delete_item(GSimpleAction *simple_action,
          if (par == "side-chain-residue-range") {
             // use old-style "setup"
             std::cout << "delete side-chain-residue-range needs fixing" << std::endl;
+            int imol_1 = g.in_range_first_picked_atom.int_user_data;
+            int imol_2 = g.in_range_second_picked_atom.int_user_data;
+            if (g.is_valid_model_molecule(imol_1)) {
+               if (imol_1 == imol_2) {
+                  coot::residue_spec_t rs1(g.in_range_first_picked_atom);
+                  coot::residue_spec_t rs2(g.in_range_second_picked_atom);
+                  g.delete_sidechain_range(imol, rs1, rs2);
+                  g.graphics_draw(); // needed?
+               }
+            }
          }
          if (par == "side-chains-in-chain") {
             delete_sidechains_for_chain(imol, atom_spec.chain_id);
@@ -5202,6 +5210,200 @@ delete_item(GSimpleAction *simple_action,
          }
       }
       g.graphics_grab_focus();
+   }
+}
+
+void
+delete_item_atom(GSimpleAction *simple_action,
+                 GVariant *parameter,
+                 gpointer user_data) {
+
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
+   if (pp.first) {
+      auto atom_spec = pp.second.second;
+      coot::residue_spec_t res_spec(atom_spec);
+      int imol = pp.second.first;
+      auto &m = g.molecules[imol];
+      m.delete_atom(atom_spec);
+      g.graphics_draw();
+   }
+}
+
+void
+delete_item_water(GSimpleAction *simple_action,
+                 GVariant *parameter,
+                 gpointer user_data) {
+
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
+   if (pp.first) {
+      auto atom_spec = pp.second.second;
+      coot::residue_spec_t res_spec(atom_spec);
+      int imol = pp.second.first;
+      auto &m = g.molecules[imol];
+      m.delete_water(atom_spec);
+   }
+}
+
+void
+delete_item_side_chain(GSimpleAction *simple_action,
+                 GVariant *parameter,
+                 gpointer user_data) {
+
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
+   if (pp.first) {
+      auto atom_spec = pp.second.second;
+      coot::residue_spec_t res_spec(atom_spec);
+      int imol = pp.second.first;
+      auto &m = g.molecules[imol];
+      // change this signature to use an residue spec.
+      m.delete_residue_sidechain(res_spec.chain_id, res_spec.res_no, res_spec.ins_code);
+      g.graphics_draw();
+   }
+}
+
+void
+delete_item_side_chain_residue_range(GSimpleAction *simple_action,
+                 GVariant *parameter,
+                 gpointer user_data) {
+
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
+   if (pp.first) {
+      auto atom_spec = pp.second.second;
+      coot::residue_spec_t res_spec(atom_spec);
+      int imol = pp.second.first;
+      int imol_1 = g.in_range_first_picked_atom.int_user_data;
+      int imol_2 = g.in_range_second_picked_atom.int_user_data;
+      if (g.is_valid_model_molecule(imol_1)) {
+         if (imol_1 == imol_2) {
+            coot::residue_spec_t rs1(g.in_range_first_picked_atom);
+            coot::residue_spec_t rs2(g.in_range_second_picked_atom);
+            g.delete_sidechain_range(imol, rs1, rs2);
+            g.graphics_draw(); // needed?
+         }
+      }
+   }
+}
+
+void
+delete_item_side_chains_in_chain(GSimpleAction *simple_action,
+                 GVariant *parameter,
+                 gpointer user_data) {
+
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
+   if (pp.first) {
+      auto atom_spec = pp.second.second;
+      coot::residue_spec_t res_spec(atom_spec);
+      int imol = pp.second.first;
+      delete_sidechains_for_chain(imol, atom_spec.chain_id);
+   }
+}
+
+void
+delete_item_hydrogen_atoms_in_residue(GSimpleAction *simple_action,
+                                      GVariant *parameter,
+                                      gpointer user_data) {
+
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
+   if (pp.first) {
+      auto atom_spec = pp.second.second;
+      coot::residue_spec_t res_spec(atom_spec);
+      int imol = pp.second.first;
+      auto &m = g.molecules[imol];
+      m.delete_residue_hydrogens(res_spec.chain_id, res_spec.res_no, res_spec.ins_code, atom_spec.alt_conf);
+      graphics_draw();
+   }
+}
+
+void
+delete_item_residue(GSimpleAction *simple_action,
+                 GVariant *parameter,
+                 gpointer user_data) {
+
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
+   if (pp.first) {
+      g.delete_active_residue(); // does a redraw
+   }
+}
+
+void
+delete_item_residue_atoms_with_alt_conf(GSimpleAction *simple_action,
+                 GVariant *parameter,
+                 gpointer user_data) {
+
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
+   if (pp.first) {
+      g.delete_active_residue_alt_conf_atoms(); // does a redraw
+   }
+}
+
+void
+delete_item_residue_range(GSimpleAction *simple_action,
+                          GVariant *parameter,
+                          gpointer user_data) {
+
+   auto delete_residue_range = [] () {
+
+      graphics_info_t g;
+      int imol_1 = g.in_range_first_picked_atom.int_user_data;
+      int imol_2 = g.in_range_second_picked_atom.int_user_data;
+      if (g.is_valid_model_molecule(imol_1)) {
+         if (imol_1 == imol_2) {
+            coot::residue_spec_t rs1(g.in_range_first_picked_atom);
+            coot::residue_spec_t rs2(g.in_range_second_picked_atom);
+            g.delete_residue_range(imol_1, rs1, rs2);
+         }
+      }
+   };
+
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
+   if (pp.first) {
+      auto atom_spec = pp.second.second;
+      coot::residue_spec_t res_spec(atom_spec);
+      int imol = pp.second.first;
+      delete_residue_range();
+      g.graphics_draw();
+   }
+}
+
+void
+delete_item_chain(GSimpleAction *simple_action,
+                  GVariant *parameter,
+                  gpointer user_data) {
+
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
+   if (pp.first) {
+      auto atom_spec = pp.second.second;
+      coot::residue_spec_t res_spec(atom_spec);
+      int imol = pp.second.first;
+      auto &m = g.molecules[imol];
+      m.delete_chain(atom_spec.chain_id);
+      g.graphics_draw();
+   }
+}
+
+void
+delete_item_hydrogen_atoms_in_molecule(GSimpleAction *simple_action,
+                                       GVariant *parameter,
+                                       gpointer user_data) {
+
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
+   if (pp.first) {
+      auto atom_spec = pp.second.second;
+      coot::residue_spec_t res_spec(atom_spec);
+      int imol = pp.second.first;
+      g.molecules[imol].delete_hydrogens();
+      g.graphics_draw();
    }
 }
 
@@ -5521,6 +5723,18 @@ create_actions(GtkApplication *application) {
    // Delete menu
    add_action_with_param("delete_item", delete_item);
 
+   // 2025-09-15 17:24 PE hack functions
+   add_action("delete_item_atom", delete_item_atom);
+   add_action("delete_item_water", delete_item_water);
+   add_action("delete_item_side_chain", delete_item_side_chain);
+   add_action("delete_item_side_chain_residue_range", delete_item_side_chain_residue_range);
+   add_action("delete_item_side_chains_in_chain", delete_item_side_chains_in_chain);
+   add_action("delete_item_hydrogen_atoms_in_residue", delete_item_hydrogen_atoms_in_residue);
+   add_action("delete_item_residue", delete_item_residue);
+   add_action("delete_item_residue_atoms_with_alt_conf", delete_item_residue_atoms_with_alt_conf);
+   add_action("delete_item_residue_range", delete_item_residue_range);
+   add_action("delete_item_chain", delete_item_chain);
+   add_action("delete_item_hydrogen_atoms_in_molecule", delete_item_hydrogen_atoms_in_molecule);
 
    // --- Modules ---
 
