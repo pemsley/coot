@@ -1,6 +1,8 @@
 
 --- Items ---
 
+o check "Fix nomenclature errors"
+
 o on the coot web page say how/where to report a bug.
 
 o read in lib/data/monomers/metals.json - add it to the disribution
@@ -37,6 +39,10 @@ o in cfc, give me a button that shows the chemical features
 
 o halogen ligand interaction - investigate.
 
+o refine a structure with the wrong magnification and look at the
+  distortion of the bond lengths. I have done some work on this,
+  but where is it?
+
 o CFC should also check for pi-stacking to the protein
   (i.e. not just internal chemical features)
 
@@ -52,6 +58,8 @@ o what is PLIP(ify) Interaction Key?
   Uses conda - what does it depend on and can it be used outside of conda?
 
 o show the PLI interactions in 3d (in moorhen too)
+
+o external Rama torsion restraints for servalcat
 
 o make "Environment Distances" an overlay
 
@@ -104,6 +112,8 @@ o fix the map caps. Make it work in moorhen. Single colour mode and joined edges
 --- Other Items ---
 
 o "Flood the blob with dummy atoms" - useful of pomgnt2
+
+o import cif dictionary from string.
 
 o Add ability to rotate view around z axis :: 0.5
 
