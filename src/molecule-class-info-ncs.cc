@@ -62,7 +62,7 @@ extern logging logger;
 void
 molecule_class_info_t::update_ghosts() {
 
-   std::cout << "debug:: here in update_ghosts() with show_ghosts_flag " << show_ghosts_flag << std::endl;
+   // std::cout << "debug:: here in update_ghosts() with show_ghosts_flag " << show_ghosts_flag << std::endl;
 
    if (show_ghosts_flag) {
 
@@ -79,22 +79,22 @@ molecule_class_info_t::update_ghosts() {
 void
 molecule_class_info_t::debug_ghosts() const {
 
-   std::cout << "debug:: in delete_ghost_selections() there are " << ncs_ghosts.size()
+   std::cout << "debug:: in debug_ghosts() there are " << ncs_ghosts.size()
              << " ncs ghosts" << std::endl;
-   std::cout << "debug:: in delete_ghost_selections() show_ghosts_flag " << show_ghosts_flag
+   std::cout << "debug:: in debug_ghosts() show_ghosts_flag " << show_ghosts_flag
              << std::endl;
-   std::cout << "debug:: in delete_ghost_selections() ncs_ghosts_have_rtops_flag " << ncs_ghosts_have_rtops_flag
+   std::cout << "debug:: in debug_ghosts() ncs_ghosts_have_rtops_flag " << ncs_ghosts_have_rtops_flag
              << std::endl;
    for (unsigned int ighost=0; ighost<ncs_ghosts.size(); ighost++) {
       const auto &ghost = ncs_ghosts[ighost];
-      std::cout << "debug:: in delete_ghost_selections() Ghost idx " << ighost
+      std::cout << "debug:: in debug_ghosts() Ghost idx " << ighost
                 << " name: " << ghost.name
                 << " chain-id: " << ghost.chain_id
                 << " residue-matches-size: " << ghost.residue_matches.size()
                 << " is-empty: " << ghost.is_empty()
                 << " display_it_flag: " << ghost.display_it_flag
                 << " SelectionHandle: " << ghost.SelectionHandle << std::endl;
-      std::cout << "debug:: in delete_ghost_selections() rtop:\n" << ghost.rtop.format()
+      std::cout << "debug:: in debug_ghosts() rtop:\n" << ghost.rtop.format()
                 << std::endl;
    }
 }
@@ -149,11 +149,11 @@ molecule_class_info_t::delete_ghost_selections() {
    //                atom_sel.mol->DeleteSelection(ncs_ghosts[ighost].SelectionHandle);
 
    if (! ncs_ghosts.empty()) {
-      if (true)
+      if (false)
          std::cout << "debug:: in delete_ghost_selections() there are " << ncs_ghosts.size()
                    << " ncs ghosts" << std::endl;
       for (unsigned int ighost=0; ighost<ncs_ghosts.size(); ighost++) {
-         if (true)
+         if (false)
             std::cout << "debug:: Ghost " << ighost << " is-empty: "
                       << ncs_ghosts[ighost].is_empty()
                       << " display_it_flag: " << ncs_ghosts[ighost].display_it_flag << std::endl;
