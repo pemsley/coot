@@ -5075,6 +5075,167 @@ mutate_to_type(GSimpleAction *simple_action,
    g.graphics_grab_focus();
 }
 
+void mutate_to_type_inner(const std::string &type) {
+
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      g.mutate_residue_imol = imol;
+      g.mutate_auto_fit_residue_imol = imol;
+      coot::residue_spec_t res_spec(pp.second.second);
+      g.do_mutation(imol, res_spec, type, false); // not stub
+   }
+   g.graphics_grab_focus();
+}
+
+void
+mutate_to_type_ALA(GSimpleAction *simple_action,
+                   GVariant *parameter,
+                   gpointer user_data) {
+   mutate_to_type_inner("ALA");
+}
+
+void
+mutate_to_type_ARG(GSimpleAction *simple_action,
+                   GVariant *parameter,
+                   gpointer user_data) {
+   mutate_to_type_inner("ARG");
+}
+
+void
+mutate_to_type_ASN(GSimpleAction *simple_action,
+                   GVariant *parameter,
+                   gpointer user_data) {
+   mutate_to_type_inner("ASN");
+}
+
+void
+mutate_to_type_ASP(GSimpleAction *simple_action,
+                   GVariant *parameter,
+                   gpointer user_data) {
+   mutate_to_type_inner("ASP");
+}
+
+void
+mutate_to_type_CYS(GSimpleAction *simple_action,
+                   GVariant *parameter,
+                   gpointer user_data) {
+   mutate_to_type_inner("CYS");
+}
+
+void
+mutate_to_type_GLN(GSimpleAction *simple_action,
+                   GVariant *parameter,
+                   gpointer user_data) {
+   mutate_to_type_inner("GLN");
+}
+
+void
+mutate_to_type_GLU(GSimpleAction *simple_action,
+                   GVariant *parameter,
+                   gpointer user_data) {
+   mutate_to_type_inner("GLU");
+}
+
+void
+mutate_to_type_GLY(GSimpleAction *simple_action,
+                   GVariant *parameter,
+                   gpointer user_data) {
+   mutate_to_type_inner("GLY");
+}
+
+void
+mutate_to_type_HIS(GSimpleAction *simple_action,
+                   GVariant *parameter,
+                   gpointer user_data) {
+   mutate_to_type_inner("HIS");
+}
+
+void
+mutate_to_type_ILE(GSimpleAction *simple_action,
+                   GVariant *parameter,
+                   gpointer user_data) {
+   mutate_to_type_inner("ILE");
+}
+
+void
+mutate_to_type_LEU(GSimpleAction *simple_action,
+                   GVariant *parameter,
+                   gpointer user_data) {
+   mutate_to_type_inner("LEU");
+}
+
+void
+mutate_to_type_LYS(GSimpleAction *simple_action,
+                   GVariant *parameter,
+                   gpointer user_data) {
+   mutate_to_type_inner("LYS");
+}
+
+void
+mutate_to_type_MET(GSimpleAction *simple_action,
+                   GVariant *parameter,
+                   gpointer user_data) {
+   mutate_to_type_inner("MET");
+}
+
+void
+mutate_to_type_MSE(GSimpleAction *simple_action,
+                   GVariant *parameter,
+                   gpointer user_data) {
+   mutate_to_type_inner("MSE");
+}
+
+void
+mutate_to_type_PHE(GSimpleAction *simple_action,
+                   GVariant *parameter,
+                   gpointer user_data) {
+   mutate_to_type_inner("PHE");
+}
+
+void
+mutate_to_type_PRO(GSimpleAction *simple_action,
+                   GVariant *parameter,
+                   gpointer user_data) {
+   mutate_to_type_inner("PRO");
+}
+
+void
+mutate_to_type_SER(GSimpleAction *simple_action,
+                   GVariant *parameter,
+                   gpointer user_data) {
+   mutate_to_type_inner("SER");
+}
+
+void
+mutate_to_type_THR(GSimpleAction *simple_action,
+                   GVariant *parameter,
+                   gpointer user_data) {
+   mutate_to_type_inner("THR");
+}
+
+void
+mutate_to_type_TRP(GSimpleAction *simple_action,
+                   GVariant *parameter,
+                   gpointer user_data) {
+   mutate_to_type_inner("TRP");
+}
+
+void
+mutate_to_type_TYR(GSimpleAction *simple_action,
+                   GVariant *parameter,
+                   gpointer user_data) {
+   mutate_to_type_inner("TYR");
+}
+
+void
+mutate_to_type_VAL(GSimpleAction *simple_action,
+                   GVariant *parameter,
+                   gpointer user_data) {
+   mutate_to_type_inner("VAL");
+}
+
 void
 mutate_base_to_type(GSimpleAction *simple_action,
                     GVariant *parameter,
@@ -5110,7 +5271,71 @@ mutate_base_to_type(GSimpleAction *simple_action,
    }
 }
 
+void mutate_base_to_type_inner(const std::string &type) {
 
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      const auto &atom_spec =  pp.second.second;
+      int imol = pp.second.first;
+      if (is_valid_model_molecule(imol)) {
+          coot::residue_spec_t res_spec(atom_spec.chain_id, atom_spec.res_no, atom_spec.ins_code);
+          mmdb::Residue *r = g.molecules[imol].get_residue(res_spec);
+          if (r) {
+             std::string cbn;
+              if (coot::util::nucleotide_is_DNA(r)) {
+                cbn = coot::util::canonical_base_name(type, coot::DNA);
+             } else {
+                cbn = coot::util::canonical_base_name(type, coot::RNA);
+             }
+             if (cbn != "") {
+                int istat = graphics_info_t::molecules[imol].mutate_base(res_spec, cbn, false);
+                graphics_draw();
+             }
+          }
+       }
+   }
+}
+
+void
+mutate_base_to_type_A(GSimpleAction *simple_action,
+                      GVariant *parameter,
+                      gpointer user_data) {
+
+   mutate_base_to_type_inner("A");
+}
+
+void
+mutate_base_to_type_G(GSimpleAction *simple_action,
+                      GVariant *parameter,
+                      gpointer user_data) {
+
+   mutate_base_to_type_inner("G");
+}
+
+void
+mutate_base_to_type_C(GSimpleAction *simple_action,
+                      GVariant *parameter,
+                      gpointer user_data) {
+
+   mutate_base_to_type_inner("C");
+}
+
+void
+mutate_base_to_type_T(GSimpleAction *simple_action,
+                      GVariant *parameter,
+                      gpointer user_data) {
+
+   mutate_base_to_type_inner("T");
+}
+
+void
+mutate_base_to_type_U(GSimpleAction *simple_action,
+                      GVariant *parameter,
+                      gpointer user_data) {
+
+   mutate_base_to_type_inner("U");
+}
 
 void
 delete_item(GSimpleAction *simple_action,
@@ -5711,6 +5936,35 @@ create_actions(GtkApplication *application) {
    // Mutate menu
    add_action_with_param("mutate_to_type", mutate_to_type);
    add_action_with_param("mutate_base_to_type", mutate_base_to_type);
+
+   // 2025-09-16 13:06 PE hack functions
+   add_action("mutate_to_type_ALA", mutate_to_type_ALA);
+   add_action("mutate_to_type_ARG", mutate_to_type_ARG);
+   add_action("mutate_to_type_ASN", mutate_to_type_ASN);
+   add_action("mutate_to_type_ASP", mutate_to_type_ASP);
+   add_action("mutate_to_type_CYS", mutate_to_type_CYS);
+   add_action("mutate_to_type_GLN", mutate_to_type_GLN);
+   add_action("mutate_to_type_GLU", mutate_to_type_GLU);
+   add_action("mutate_to_type_GLY", mutate_to_type_GLY);
+   add_action("mutate_to_type_HIS", mutate_to_type_HIS);
+   add_action("mutate_to_type_ILE", mutate_to_type_ILE);
+   add_action("mutate_to_type_LEU", mutate_to_type_LEU);
+   add_action("mutate_to_type_LYS", mutate_to_type_LYS);
+   add_action("mutate_to_type_MET", mutate_to_type_MET);
+   add_action("mutate_to_type_MSE", mutate_to_type_MSE);
+   add_action("mutate_to_type_PHE", mutate_to_type_PHE);
+   add_action("mutate_to_type_PRO", mutate_to_type_PRO);
+   add_action("mutate_to_type_SER", mutate_to_type_SER);
+   add_action("mutate_to_type_THR", mutate_to_type_THR);
+   add_action("mutate_to_type_TRP", mutate_to_type_TRP);
+   add_action("mutate_to_type_TYR", mutate_to_type_TYR);
+   add_action("mutate_to_type_VAL", mutate_to_type_VAL);
+
+   add_action("mutate_base_to_type_A", mutate_base_to_type_A);
+   add_action("mutate_base_to_type_G", mutate_base_to_type_G);
+   add_action("mutate_base_to_type_T", mutate_base_to_type_T);
+   add_action("mutate_base_to_type_C", mutate_base_to_type_C);
+   add_action("mutate_base_to_type_C", mutate_base_to_type_U);
 
    // Draw menu
    add_action_with_param("bond_smoothness_action", bond_smoothness_action);
