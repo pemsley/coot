@@ -498,10 +498,10 @@ void toggle_display_frames_per_second_action(G_GNUC_UNUSED GSimpleAction *simple
    set_show_fps(1);
 }
 
-void
-search_monomer_library_action(G_GNUC_UNUSED GSimpleAction *simple_action,
-                              G_GNUC_UNUSED GVariant *parameter,
-                              G_GNUC_UNUSED gpointer user_data) {
+void search_monomer_library_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                   G_GNUC_UNUSED GVariant *parameter,
+                                   G_GNUC_UNUSED gpointer user_data) {
+
    GtkWidget *w = widget_from_builder("monomer_search_dialog");
    gtk_widget_set_visible(w, TRUE);
 }
@@ -512,10 +512,8 @@ void show_accession_code_fetch_frame(G_GNUC_UNUSED GSimpleAction *simple_action,
 
    // 20230923-PE now does COD too
 
-   gchar* mode_name_cstr;
-   g_variant_get(parameter,"s",&mode_name_cstr);
-   std::string mode_name(mode_name_cstr);
    auto mode_num_from_name = [](const std::string& mode_name) {
+
       std::cout << ":::::::::::::::::::::: mode_name \"" << mode_name << "\"" << std::endl;
       if (mode_name == "oca") {
          return COOT_ACCESSION_CODE_WINDOW_OCA;
@@ -533,6 +531,10 @@ void show_accession_code_fetch_frame(G_GNUC_UNUSED GSimpleAction *simple_action,
          return COOT_ACCESSION_CODE_WINDOW_OCA;
       }
    };
+
+   gchar* mode_name_cstr;
+   g_variant_get(parameter,"s",&mode_name_cstr);
+   std::string mode_name(mode_name_cstr);
    int mode_num = mode_num_from_name(mode_name);
    g_debug("Accession code fetch frame mode number: %i", mode_num);
    GtkWidget *frame = widget_from_builder("accession_code_frame");
@@ -564,8 +566,79 @@ void show_accession_code_fetch_frame(G_GNUC_UNUSED GSimpleAction *simple_action,
 
    GtkWidget* entry = widget_from_builder("accession_code_entry");
    gtk_widget_grab_focus(entry);
-   // this is probably equivalent
-   //gtk_widget_set_visible(frame,TRUE);
+   gtk_widget_set_visible(frame, TRUE);
+}
+
+// 2025-09-15 12:32 PE: because of the "target" failure bug, the previous function will be expanded
+// for each of the target cases. Bleugh.
+
+void show_accession_code_fetch_frame_oca(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                         G_GNUC_UNUSED GVariant *parameter,
+                                         G_GNUC_UNUSED gpointer user_data) {
+
+   GtkWidget *label = widget_from_builder("accession_code_label");
+   GtkWidget* entry = widget_from_builder("accession_code_entry");
+   GtkWidget *frame = widget_from_builder("accession_code_frame");
+   int mode_num = COOT_ACCESSION_CODE_WINDOW_OCA;
+   g_object_set_data(G_OBJECT(frame), "mode", GINT_TO_POINTER(mode_num));
+   gtk_label_set_text(GTK_LABEL(label), "PDB Accession Code: ");
+   gtk_widget_grab_focus(entry);
+   gtk_widget_set_visible(frame, TRUE);
+}
+
+void show_accession_code_fetch_frame_eds(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                         G_GNUC_UNUSED GVariant *parameter,
+                                         G_GNUC_UNUSED gpointer user_data) {
+
+   GtkWidget *label = widget_from_builder("accession_code_label");
+   GtkWidget* entry = widget_from_builder("accession_code_entry");
+   GtkWidget *frame = widget_from_builder("accession_code_frame");
+   int mode_num = COOT_ACCESSION_CODE_WINDOW_EDS;
+   g_object_set_data(G_OBJECT(frame), "mode", GINT_TO_POINTER(mode_num));
+   gtk_label_set_text(GTK_LABEL(label), "PDB Accession Code: ");
+   gtk_widget_grab_focus(entry);
+   gtk_widget_set_visible(frame, TRUE);
+}
+
+void show_accession_code_fetch_frame_pdb_redo(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                         G_GNUC_UNUSED GVariant *parameter,
+                                         G_GNUC_UNUSED gpointer user_data) {
+
+   GtkWidget *label = widget_from_builder("accession_code_label");
+   GtkWidget* entry = widget_from_builder("accession_code_entry");
+   GtkWidget *frame = widget_from_builder("accession_code_frame");
+   int mode_num = COOT_ACCESSION_CODE_WINDOW_PDB_REDO;
+   g_object_set_data(G_OBJECT(frame), "mode", GINT_TO_POINTER(mode_num));
+   gtk_label_set_text(GTK_LABEL(label), "PDB Accession Code: ");
+   gtk_widget_grab_focus(entry);
+   gtk_widget_set_visible(frame, TRUE);
+}
+
+void show_accession_code_fetch_frame_uniprod_id(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                                G_GNUC_UNUSED GVariant *parameter,
+                                                G_GNUC_UNUSED gpointer user_data) {
+
+   GtkWidget *label = widget_from_builder("accession_code_label");
+   GtkWidget* entry = widget_from_builder("accession_code_entry");
+   GtkWidget *frame = widget_from_builder("accession_code_frame");
+   int mode_num = COOT_UNIPROT_ID;
+   g_object_set_data(G_OBJECT(frame), "mode", GINT_TO_POINTER(mode_num));
+   gtk_label_set_text(GTK_LABEL(label), "PDB Accession Code: ");
+   gtk_widget_grab_focus(entry);
+   gtk_widget_set_visible(frame, TRUE);
+}
+
+void show_accession_code_fetch_frame_cod(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                         G_GNUC_UNUSED GVariant *parameter,
+                                         G_GNUC_UNUSED gpointer user_data) {
+
+   GtkWidget *label = widget_from_builder("accession_code_label");
+   GtkWidget* entry = widget_from_builder("accession_code_entry");
+   GtkWidget *frame = widget_from_builder("accession_code_frame");
+   int mode_num = COOT_COD_CODE;
+   g_object_set_data(G_OBJECT(frame), "mode", GINT_TO_POINTER(mode_num));
+   gtk_label_set_text(GTK_LABEL(label), "PDB Accession Code: ");
+   gtk_widget_grab_focus(entry);
    gtk_widget_set_visible(frame, TRUE);
 }
 
@@ -3093,6 +3166,29 @@ bond_smoothness_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    graphics_info_t::graphics_grab_focus();
 }
 
+void
+bond_smoothness_action_1(G_GNUC_UNUSED GSimpleAction *simple_action,
+                        G_GNUC_UNUSED GVariant *parameter,
+                        G_GNUC_UNUSED gpointer user_data) {
+
+   set_bond_smoothness_factor(1);
+}
+
+void
+bond_smoothness_action_2(G_GNUC_UNUSED GSimpleAction *simple_action,
+                        G_GNUC_UNUSED GVariant *parameter,
+                        G_GNUC_UNUSED gpointer user_data) {
+
+   set_bond_smoothness_factor(2);
+}
+
+void
+bond_smoothness_action_3(G_GNUC_UNUSED GSimpleAction *simple_action,
+                        G_GNUC_UNUSED GVariant *parameter,
+                        G_GNUC_UNUSED gpointer user_data) {
+
+   set_bond_smoothness_factor(3);
+}
 
 void
 bond_parameters_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -3421,7 +3517,33 @@ void rebuild_fragment_using_dbloop_action(G_GNUC_UNUSED GSimpleAction *simple_ac
          std::cout << "do something here with db loop fit for " << imol << " " << pp.second.second << std::endl;
       }
    }
+}
 
+// 2025-09-15 14:41 PE: add the non-target version of the action functions
+void rebuild_fragment_using_dbloop_action_small(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                                GVariant *parameter,
+                                                G_GNUC_UNUSED gpointer user_data) {
+
+   std::cout << "::::::::::::::::::::::::::::::::::::::::::::::::::: HERE A :::::::::::::::::::" << std::endl;
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      std::cout << "do something here with db loop fit for " << imol << " " << pp.second.second << std::endl;
+   }
+}
+
+void rebuild_fragment_using_dbloop_action_bigger(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                                 GVariant *parameter,
+                                                 G_GNUC_UNUSED gpointer user_data) {
+
+   std::cout << "::::::::::::::::::::::::::::::::::::::::::::::::::: HERE B :::::::::::::::::::" << std::endl;
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      std::cout << "do something here with db loop fit for " << imol << " " << pp.second.second << std::endl;
+   }
 }
 
 void replace_residue_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -4953,6 +5075,167 @@ mutate_to_type(GSimpleAction *simple_action,
    g.graphics_grab_focus();
 }
 
+void mutate_to_type_inner(const std::string &type) {
+
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      g.mutate_residue_imol = imol;
+      g.mutate_auto_fit_residue_imol = imol;
+      coot::residue_spec_t res_spec(pp.second.second);
+      g.do_mutation(imol, res_spec, type, false); // not stub
+   }
+   g.graphics_grab_focus();
+}
+
+void
+mutate_to_type_ALA(GSimpleAction *simple_action,
+                   GVariant *parameter,
+                   gpointer user_data) {
+   mutate_to_type_inner("ALA");
+}
+
+void
+mutate_to_type_ARG(GSimpleAction *simple_action,
+                   GVariant *parameter,
+                   gpointer user_data) {
+   mutate_to_type_inner("ARG");
+}
+
+void
+mutate_to_type_ASN(GSimpleAction *simple_action,
+                   GVariant *parameter,
+                   gpointer user_data) {
+   mutate_to_type_inner("ASN");
+}
+
+void
+mutate_to_type_ASP(GSimpleAction *simple_action,
+                   GVariant *parameter,
+                   gpointer user_data) {
+   mutate_to_type_inner("ASP");
+}
+
+void
+mutate_to_type_CYS(GSimpleAction *simple_action,
+                   GVariant *parameter,
+                   gpointer user_data) {
+   mutate_to_type_inner("CYS");
+}
+
+void
+mutate_to_type_GLN(GSimpleAction *simple_action,
+                   GVariant *parameter,
+                   gpointer user_data) {
+   mutate_to_type_inner("GLN");
+}
+
+void
+mutate_to_type_GLU(GSimpleAction *simple_action,
+                   GVariant *parameter,
+                   gpointer user_data) {
+   mutate_to_type_inner("GLU");
+}
+
+void
+mutate_to_type_GLY(GSimpleAction *simple_action,
+                   GVariant *parameter,
+                   gpointer user_data) {
+   mutate_to_type_inner("GLY");
+}
+
+void
+mutate_to_type_HIS(GSimpleAction *simple_action,
+                   GVariant *parameter,
+                   gpointer user_data) {
+   mutate_to_type_inner("HIS");
+}
+
+void
+mutate_to_type_ILE(GSimpleAction *simple_action,
+                   GVariant *parameter,
+                   gpointer user_data) {
+   mutate_to_type_inner("ILE");
+}
+
+void
+mutate_to_type_LEU(GSimpleAction *simple_action,
+                   GVariant *parameter,
+                   gpointer user_data) {
+   mutate_to_type_inner("LEU");
+}
+
+void
+mutate_to_type_LYS(GSimpleAction *simple_action,
+                   GVariant *parameter,
+                   gpointer user_data) {
+   mutate_to_type_inner("LYS");
+}
+
+void
+mutate_to_type_MET(GSimpleAction *simple_action,
+                   GVariant *parameter,
+                   gpointer user_data) {
+   mutate_to_type_inner("MET");
+}
+
+void
+mutate_to_type_MSE(GSimpleAction *simple_action,
+                   GVariant *parameter,
+                   gpointer user_data) {
+   mutate_to_type_inner("MSE");
+}
+
+void
+mutate_to_type_PHE(GSimpleAction *simple_action,
+                   GVariant *parameter,
+                   gpointer user_data) {
+   mutate_to_type_inner("PHE");
+}
+
+void
+mutate_to_type_PRO(GSimpleAction *simple_action,
+                   GVariant *parameter,
+                   gpointer user_data) {
+   mutate_to_type_inner("PRO");
+}
+
+void
+mutate_to_type_SER(GSimpleAction *simple_action,
+                   GVariant *parameter,
+                   gpointer user_data) {
+   mutate_to_type_inner("SER");
+}
+
+void
+mutate_to_type_THR(GSimpleAction *simple_action,
+                   GVariant *parameter,
+                   gpointer user_data) {
+   mutate_to_type_inner("THR");
+}
+
+void
+mutate_to_type_TRP(GSimpleAction *simple_action,
+                   GVariant *parameter,
+                   gpointer user_data) {
+   mutate_to_type_inner("TRP");
+}
+
+void
+mutate_to_type_TYR(GSimpleAction *simple_action,
+                   GVariant *parameter,
+                   gpointer user_data) {
+   mutate_to_type_inner("TYR");
+}
+
+void
+mutate_to_type_VAL(GSimpleAction *simple_action,
+                   GVariant *parameter,
+                   gpointer user_data) {
+   mutate_to_type_inner("VAL");
+}
+
 void
 mutate_base_to_type(GSimpleAction *simple_action,
                     GVariant *parameter,
@@ -4988,7 +5271,71 @@ mutate_base_to_type(GSimpleAction *simple_action,
    }
 }
 
+void mutate_base_to_type_inner(const std::string &type) {
 
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      const auto &atom_spec =  pp.second.second;
+      int imol = pp.second.first;
+      if (is_valid_model_molecule(imol)) {
+          coot::residue_spec_t res_spec(atom_spec.chain_id, atom_spec.res_no, atom_spec.ins_code);
+          mmdb::Residue *r = g.molecules[imol].get_residue(res_spec);
+          if (r) {
+             std::string cbn;
+              if (coot::util::nucleotide_is_DNA(r)) {
+                cbn = coot::util::canonical_base_name(type, coot::DNA);
+             } else {
+                cbn = coot::util::canonical_base_name(type, coot::RNA);
+             }
+             if (cbn != "") {
+                int istat = graphics_info_t::molecules[imol].mutate_base(res_spec, cbn, false);
+                graphics_draw();
+             }
+          }
+       }
+   }
+}
+
+void
+mutate_base_to_type_A(GSimpleAction *simple_action,
+                      GVariant *parameter,
+                      gpointer user_data) {
+
+   mutate_base_to_type_inner("A");
+}
+
+void
+mutate_base_to_type_G(GSimpleAction *simple_action,
+                      GVariant *parameter,
+                      gpointer user_data) {
+
+   mutate_base_to_type_inner("G");
+}
+
+void
+mutate_base_to_type_C(GSimpleAction *simple_action,
+                      GVariant *parameter,
+                      gpointer user_data) {
+
+   mutate_base_to_type_inner("C");
+}
+
+void
+mutate_base_to_type_T(GSimpleAction *simple_action,
+                      GVariant *parameter,
+                      gpointer user_data) {
+
+   mutate_base_to_type_inner("T");
+}
+
+void
+mutate_base_to_type_U(GSimpleAction *simple_action,
+                      GVariant *parameter,
+                      gpointer user_data) {
+
+   mutate_base_to_type_inner("U");
+}
 
 void
 delete_item(GSimpleAction *simple_action,
@@ -5053,10 +5400,8 @@ delete_item(GSimpleAction *simple_action,
             // Needs "check_if_in_range_defines" to be working.
             // Here we need to turn on the expecting the delet residue range "start" flag
             // and unset the others c.f. set_delete_residue_zone_mode()
-
             delete_residue_range();
             g.graphics_draw();
-
          }
          if (par == "side-chain") {
             auto &m = g.molecules[imol];
@@ -5067,6 +5412,16 @@ delete_item(GSimpleAction *simple_action,
          if (par == "side-chain-residue-range") {
             // use old-style "setup"
             std::cout << "delete side-chain-residue-range needs fixing" << std::endl;
+            int imol_1 = g.in_range_first_picked_atom.int_user_data;
+            int imol_2 = g.in_range_second_picked_atom.int_user_data;
+            if (g.is_valid_model_molecule(imol_1)) {
+               if (imol_1 == imol_2) {
+                  coot::residue_spec_t rs1(g.in_range_first_picked_atom);
+                  coot::residue_spec_t rs2(g.in_range_second_picked_atom);
+                  g.delete_sidechain_range(imol, rs1, rs2);
+                  g.graphics_draw(); // needed?
+               }
+            }
          }
          if (par == "side-chains-in-chain") {
             delete_sidechains_for_chain(imol, atom_spec.chain_id);
@@ -5080,6 +5435,200 @@ delete_item(GSimpleAction *simple_action,
          }
       }
       g.graphics_grab_focus();
+   }
+}
+
+void
+delete_item_atom(GSimpleAction *simple_action,
+                 GVariant *parameter,
+                 gpointer user_data) {
+
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
+   if (pp.first) {
+      auto atom_spec = pp.second.second;
+      coot::residue_spec_t res_spec(atom_spec);
+      int imol = pp.second.first;
+      auto &m = g.molecules[imol];
+      m.delete_atom(atom_spec);
+      g.graphics_draw();
+   }
+}
+
+void
+delete_item_water(GSimpleAction *simple_action,
+                 GVariant *parameter,
+                 gpointer user_data) {
+
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
+   if (pp.first) {
+      auto atom_spec = pp.second.second;
+      coot::residue_spec_t res_spec(atom_spec);
+      int imol = pp.second.first;
+      auto &m = g.molecules[imol];
+      m.delete_water(atom_spec);
+   }
+}
+
+void
+delete_item_side_chain(GSimpleAction *simple_action,
+                 GVariant *parameter,
+                 gpointer user_data) {
+
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
+   if (pp.first) {
+      auto atom_spec = pp.second.second;
+      coot::residue_spec_t res_spec(atom_spec);
+      int imol = pp.second.first;
+      auto &m = g.molecules[imol];
+      // change this signature to use an residue spec.
+      m.delete_residue_sidechain(res_spec.chain_id, res_spec.res_no, res_spec.ins_code);
+      g.graphics_draw();
+   }
+}
+
+void
+delete_item_side_chain_residue_range(GSimpleAction *simple_action,
+                 GVariant *parameter,
+                 gpointer user_data) {
+
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
+   if (pp.first) {
+      auto atom_spec = pp.second.second;
+      coot::residue_spec_t res_spec(atom_spec);
+      int imol = pp.second.first;
+      int imol_1 = g.in_range_first_picked_atom.int_user_data;
+      int imol_2 = g.in_range_second_picked_atom.int_user_data;
+      if (g.is_valid_model_molecule(imol_1)) {
+         if (imol_1 == imol_2) {
+            coot::residue_spec_t rs1(g.in_range_first_picked_atom);
+            coot::residue_spec_t rs2(g.in_range_second_picked_atom);
+            g.delete_sidechain_range(imol, rs1, rs2);
+            g.graphics_draw(); // needed?
+         }
+      }
+   }
+}
+
+void
+delete_item_side_chains_in_chain(GSimpleAction *simple_action,
+                 GVariant *parameter,
+                 gpointer user_data) {
+
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
+   if (pp.first) {
+      auto atom_spec = pp.second.second;
+      coot::residue_spec_t res_spec(atom_spec);
+      int imol = pp.second.first;
+      delete_sidechains_for_chain(imol, atom_spec.chain_id);
+   }
+}
+
+void
+delete_item_hydrogen_atoms_in_residue(GSimpleAction *simple_action,
+                                      GVariant *parameter,
+                                      gpointer user_data) {
+
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
+   if (pp.first) {
+      auto atom_spec = pp.second.second;
+      coot::residue_spec_t res_spec(atom_spec);
+      int imol = pp.second.first;
+      auto &m = g.molecules[imol];
+      m.delete_residue_hydrogens(res_spec.chain_id, res_spec.res_no, res_spec.ins_code, atom_spec.alt_conf);
+      graphics_draw();
+   }
+}
+
+void
+delete_item_residue(GSimpleAction *simple_action,
+                 GVariant *parameter,
+                 gpointer user_data) {
+
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
+   if (pp.first) {
+      g.delete_active_residue(); // does a redraw
+   }
+}
+
+void
+delete_item_residue_atoms_with_alt_conf(GSimpleAction *simple_action,
+                 GVariant *parameter,
+                 gpointer user_data) {
+
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
+   if (pp.first) {
+      g.delete_active_residue_alt_conf_atoms(); // does a redraw
+   }
+}
+
+void
+delete_item_residue_range(GSimpleAction *simple_action,
+                          GVariant *parameter,
+                          gpointer user_data) {
+
+   auto delete_residue_range = [] () {
+
+      graphics_info_t g;
+      int imol_1 = g.in_range_first_picked_atom.int_user_data;
+      int imol_2 = g.in_range_second_picked_atom.int_user_data;
+      if (g.is_valid_model_molecule(imol_1)) {
+         if (imol_1 == imol_2) {
+            coot::residue_spec_t rs1(g.in_range_first_picked_atom);
+            coot::residue_spec_t rs2(g.in_range_second_picked_atom);
+            g.delete_residue_range(imol_1, rs1, rs2);
+         }
+      }
+   };
+
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
+   if (pp.first) {
+      auto atom_spec = pp.second.second;
+      coot::residue_spec_t res_spec(atom_spec);
+      int imol = pp.second.first;
+      delete_residue_range();
+      g.graphics_draw();
+   }
+}
+
+void
+delete_item_chain(GSimpleAction *simple_action,
+                  GVariant *parameter,
+                  gpointer user_data) {
+
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
+   if (pp.first) {
+      auto atom_spec = pp.second.second;
+      coot::residue_spec_t res_spec(atom_spec);
+      int imol = pp.second.first;
+      auto &m = g.molecules[imol];
+      m.delete_chain(atom_spec.chain_id);
+      g.graphics_draw();
+   }
+}
+
+void
+delete_item_hydrogen_atoms_in_molecule(GSimpleAction *simple_action,
+                                       GVariant *parameter,
+                                       gpointer user_data) {
+
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
+   if (pp.first) {
+      auto atom_spec = pp.second.second;
+      coot::residue_spec_t res_spec(atom_spec);
+      int imol = pp.second.first;
+      g.molecules[imol].delete_hydrogens();
+      g.graphics_draw();
    }
 }
 
@@ -5123,6 +5672,13 @@ create_actions(GtkApplication *application) {
    add_action("get_monomer_action", get_monomer_action);
    add_action(     "curlew_action",      curlew_action);
    add_action(       "exit_action",        exit_action);
+
+   // 2025-09-15 13:00 PE hack functions
+   add_action("show_accession_code_fetch_frame_oca",        show_accession_code_fetch_frame_oca);
+   add_action("show_accession_code_fetch_frame_eds",        show_accession_code_fetch_frame_eds);
+   add_action("show_accession_code_fetch_frame_pdb_redo",   show_accession_code_fetch_frame_pdb_redo);
+   add_action("show_accession_code_fetch_frame_uniprot_id", show_accession_code_fetch_frame_uniprod_id);
+   add_action("show_accession_code_fetch_frame_cod",        show_accession_code_fetch_frame_cod);
 
    add_action_with_param("show_accession_code_fetch_frame",       show_accession_code_fetch_frame);
    add_action(           "search_monomer_library_action",           search_monomer_library_action);
@@ -5248,6 +5804,10 @@ create_actions(GtkApplication *application) {
    add_action(                     "whats_this_action",                      whats_this_action);
 
    add_action_with_param("rebuild_fragment_using_dbloop_action", rebuild_fragment_using_dbloop_action);
+
+   // 2025-09-15 16:11 PE hack functions
+   add_action("rebuild_fragment_using_dbloop_action_small", rebuild_fragment_using_dbloop_action_small);
+   add_action("rebuild_fragment_using_dbloop_action_bigger", rebuild_fragment_using_dbloop_action_bigger);
 
    // Draw
 
@@ -5377,12 +5937,58 @@ create_actions(GtkApplication *application) {
    add_action_with_param("mutate_to_type", mutate_to_type);
    add_action_with_param("mutate_base_to_type", mutate_base_to_type);
 
+   // 2025-09-16 13:06 PE hack functions
+   add_action("mutate_to_type_ALA", mutate_to_type_ALA);
+   add_action("mutate_to_type_ARG", mutate_to_type_ARG);
+   add_action("mutate_to_type_ASN", mutate_to_type_ASN);
+   add_action("mutate_to_type_ASP", mutate_to_type_ASP);
+   add_action("mutate_to_type_CYS", mutate_to_type_CYS);
+   add_action("mutate_to_type_GLN", mutate_to_type_GLN);
+   add_action("mutate_to_type_GLU", mutate_to_type_GLU);
+   add_action("mutate_to_type_GLY", mutate_to_type_GLY);
+   add_action("mutate_to_type_HIS", mutate_to_type_HIS);
+   add_action("mutate_to_type_ILE", mutate_to_type_ILE);
+   add_action("mutate_to_type_LEU", mutate_to_type_LEU);
+   add_action("mutate_to_type_LYS", mutate_to_type_LYS);
+   add_action("mutate_to_type_MET", mutate_to_type_MET);
+   add_action("mutate_to_type_MSE", mutate_to_type_MSE);
+   add_action("mutate_to_type_PHE", mutate_to_type_PHE);
+   add_action("mutate_to_type_PRO", mutate_to_type_PRO);
+   add_action("mutate_to_type_SER", mutate_to_type_SER);
+   add_action("mutate_to_type_THR", mutate_to_type_THR);
+   add_action("mutate_to_type_TRP", mutate_to_type_TRP);
+   add_action("mutate_to_type_TYR", mutate_to_type_TYR);
+   add_action("mutate_to_type_VAL", mutate_to_type_VAL);
+
+   add_action("mutate_base_to_type_A", mutate_base_to_type_A);
+   add_action("mutate_base_to_type_G", mutate_base_to_type_G);
+   add_action("mutate_base_to_type_T", mutate_base_to_type_T);
+   add_action("mutate_base_to_type_C", mutate_base_to_type_C);
+   add_action("mutate_base_to_type_C", mutate_base_to_type_U);
+
    // Draw menu
    add_action_with_param("bond_smoothness_action", bond_smoothness_action);
+
+   // 2025-09-15 16:40 PE: hack functions
+   add_action("bond_smoothness_action_1", bond_smoothness_action_1);
+   add_action("bond_smoothness_action_2", bond_smoothness_action_2);
+   add_action("bond_smoothness_action_3", bond_smoothness_action_3);
 
    // Delete menu
    add_action_with_param("delete_item", delete_item);
 
+   // 2025-09-15 17:24 PE hack functions
+   add_action("delete_item_atom", delete_item_atom);
+   add_action("delete_item_water", delete_item_water);
+   add_action("delete_item_side_chain", delete_item_side_chain);
+   add_action("delete_item_side_chain_residue_range", delete_item_side_chain_residue_range);
+   add_action("delete_item_side_chains_in_chain", delete_item_side_chains_in_chain);
+   add_action("delete_item_hydrogen_atoms_in_residue", delete_item_hydrogen_atoms_in_residue);
+   add_action("delete_item_residue", delete_item_residue);
+   add_action("delete_item_residue_atoms_with_alt_conf", delete_item_residue_atoms_with_alt_conf);
+   add_action("delete_item_residue_range", delete_item_residue_range);
+   add_action("delete_item_chain", delete_item_chain);
+   add_action("delete_item_hydrogen_atoms_in_molecule", delete_item_hydrogen_atoms_in_molecule);
 
    // --- Modules ---
 

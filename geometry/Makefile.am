@@ -34,7 +34,7 @@ pkginclude_HEADERS =  protein-geometry.hh read-sbase.hh lbg-graph.hh srs-interfa
 pkgincludedir = $(includedir)/coot/geometry
 
 AM_CPPFLAGS = -I$(top_srcdir) \
-	 $(CLIPPER_CXXFLAGS) $(CCP4SRS_CXXFLAGS) $(MMDB_CXXFLAGS)
+	 $(CLIPPER_CXXFLAGS) $(CCP4SRS_CXXFLAGS) $(MMDB_CXXFLAGS) $(GSL_CFLAGS)
 
 AM_CXXFLAGS = \
 	-DXDATADIR='"$(datadir)"'       \

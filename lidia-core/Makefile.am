@@ -77,4 +77,5 @@ test_lig_build_LDFLAGS = -lcoot-lidia-core      \
    $(top_builddir)/geometry/libcoot-geometry.la \
    $(top_builddir)/utils/libcoot-utils.la       \
    $(CLIPPER_LIBS)                              \
-   -Wl,-rpath=/home/paule/autobuild/Linux-penelope-pre-release-gtk3/lib $(RDKIT_LIBS)
+   $(RDKIT_LIBS)
+

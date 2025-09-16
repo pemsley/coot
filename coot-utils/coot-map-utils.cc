@@ -5434,6 +5434,7 @@ coot::util::get_density_on_cylinder(const clipper::Coord_orth &pt_1, const clipp
 
    bool debug = false;
    std::vector<std::vector<float> > v;
+   v.reserve(n_length);
    clipper::Coord_orth v1 = pt_2 - pt_1;
    clipper::Coord_orth v0 = pt_1 - pt_ref;
 
@@ -5451,6 +5452,7 @@ coot::util::get_density_on_cylinder(const clipper::Coord_orth &pt_1, const clipp
       for (unsigned int j=0; j<n_ring; j++) {
          // rotate circle_start around the vector v1:
          double angle = static_cast<double>(j)/static_cast<double>(n_ring) * 2.0 * M_PI;
+         // args: direction, position, origin_shift, angle
          clipper::Coord_orth rotated_pt =
             coot::util::rotate_around_vector(v1, circle_start, pt_1, angle);
          float d = coot::util::density_at_point(xmap, rotated_pt);

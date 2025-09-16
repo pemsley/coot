@@ -30,7 +30,7 @@
 #include <epoxy/gl.h>
 
 #include <clipper/core/test_core.h>
- #include <clipper/contrib/test_contrib.h>
+#include <clipper/contrib/test_contrib.h>
 
 #include "utils/xdg-base.hh"
 
@@ -106,7 +106,7 @@ void
 new_startup_realize(GtkWidget *gl_area) {
 
    GdkDisplay *display = gdk_display_get_default();
-   GListModel* lm = gdk_display_get_monitors(display);
+   GListModel *lm = gdk_display_get_monitors(display);
 
    guint n_items = g_list_model_get_n_items(lm);
    if (n_items > 0) {
