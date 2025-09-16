@@ -95,12 +95,12 @@ coot::ligand::cluster_is_possible_water(const coot::map_point_cluster &mpc) cons
 }
 
 // Things above this volume limit are too bit to be waters.  What is that limit?
-// 
+//
 double
 coot::ligand::possible_water_volume_limit() const {
 
    return water_molecule_volume;
-} 
+}
 
 
 // In the case of waters, the search map is the masked map.
@@ -115,8 +115,8 @@ coot::ligand::move_atom_to_peak(const clipper::Coord_orth &a,
    clipper::Grad_map<float>  grad_map;
    clipper::Curv_map<float> curv_map;
    float shift_len = 1.0; // Angstroms
-   int n_cycle = 0; 
-   int n_cycle_max = 500; 
+   int n_cycle = 0;
+   int n_cycle_max = 500;
 
    while ((n_cycle < n_cycle_max) && (shift_len > 0.001)) { // Angstroms
 
@@ -268,21 +268,19 @@ coot::ligand::mean_and_variance_where_the_atoms_are(mmdb::Manager *mol) const {
    return r;
 }
 
+#include "coot-utils/coot-map-utils.hh"
 
-coot::ligand::spherical_density_score_t
-coot::ligand::spherical_density_score(const clipper::Coord_orth &a,
-				      float mean_density_of_other_atoms) const {
+float
+coot::ligand::spherical_density_score_t::get_spherical_variance(const clipper::Coord_orth &atom_pos,
+                                                                const clipper::Xmap<float> &search_map,
+                                                                float mean_density_of_other_atoms) const {
 
    double step = 0.4;
-
-   const clipper::Xmap<float> &search_map = xmap_pristine;
 
    std::vector<int> n_samples = { 0, 30, 80, 150 };
    int n_total = 30 + 80 + 150;
 
-   std::vector<float> var(4,0);
-
-   float sum_for_scaling = 0.0;
+   std::vector<float> var(4, 0.0f); // var[] is not used
 
    for (int istep=1; istep<=3; istep++) {
       std::vector<clipper::Coord_orth> sphere_points = fibonacci_sphere(n_samples[istep]);
@@ -290,27 +288,36 @@ coot::ligand::spherical_density_score(const clipper::Coord_orth &a,
       double sum = 0;
 
       for (int i=0; i<n_samples[istep]; i++) {
-         clipper::Coord_orth pos = a + step * sphere_points[i];
-         float dv = density_at_point(pos, search_map);
+         clipper::Coord_orth pos = atom_pos + step * sphere_points[i];
+         float dv = util::density_at_point(search_map, pos);
          sum    += dv;
          sum_sq += dv * dv;
-         sum_for_scaling += dv;
       }
 
       float mean = sum/static_cast<float>(n_samples[istep]);
       var[istep] = sum_sq/static_cast<float>(n_samples[istep]) - mean * mean;
 
    }
-   float overall_mean = sum_for_scaling/static_cast<float>(n_total);
    float non_spherical = 0.0;
    for (int istep=1; istep<=3; istep++)
       non_spherical += 0.333 * sqrt(var[istep])/mean_density_of_other_atoms;
    // if (non_spherical < 0.0) non_spherical = 0.0;
    // if (non_spherical > 1.0) non_spherical = 1.0;
-   float sphericalness = 1.0 - non_spherical;
+   return non_spherical;
 
-   float dp = density_at_point(a, search_map);
-   return spherical_density_score_t(dp, non_spherical);
+}
+
+
+coot::ligand::spherical_density_score_t
+coot::ligand::spherical_density_score(const clipper::Coord_orth &atom_pos,
+				      float mean_density_of_other_atoms) const {
+
+   const clipper::Xmap<float> &search_map = xmap_pristine;
+   spherical_density_score_t sds;
+   float non_spherical = sds.get_spherical_variance(atom_pos, search_map, mean_density_of_other_atoms);
+   float dp = density_at_point(atom_pos, search_map);
+   sds = spherical_density_score_t(dp, non_spherical);
+   return sds;
 
 }
 
