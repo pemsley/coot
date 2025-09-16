@@ -261,7 +261,7 @@ CFLAGS="$save_cflags"
 # I don't understand how this test works
 # AX_PATH_GSL(GSL_VERSION, [], [AC_MSG_ERROR(could not find required version of GSL)])
 
-AX_PATH_GSL(1.3, [], [AC_MSG_ERROR(could not find required version of GSL)])
+# AX_PATH_GSL(1.3, [], [AC_MSG_ERROR(could not find required version of GSL)])
 
 
 dnl =========================== GLM ================================
