@@ -374,21 +374,24 @@ void
 graphics_info_t::show_missing_refinement_residues_dialog(const std::vector<std::string> &res_names,
 							 bool run_get_monomer_post_fetch_flag) {
 
-   GtkWidget *dialog = widget_from_builder("download_monomers_dialog");
-   gtk_widget_set_visible(dialog, TRUE);
-   GtkWidget *vbox = widget_from_builder("download_monomers_dialog_vbox_inner");
-   gtk_widget_set_visible(vbox, TRUE);
-   clear_out_container(vbox);
-   for (const auto &rn : res_names) {
-      GtkWidget *label = gtk_label_new(rn.c_str());
-      char* ccx = new char[rn.size() + 1];
-      for (unsigned int ii=0; ii<=rn.size(); ii++) ccx[ii] = 0;
-      std::copy(rn.begin(), rn.end(), ccx);
-      g_object_set_data(G_OBJECT(label), "comp_id", ccx); // read in on_download_monomers_ok_button_clicked()
-      gtk_box_append(GTK_BOX(vbox), label);
+   if (use_graphics_interface_flag) {
+
+      GtkWidget *dialog = widget_from_builder("download_monomers_dialog");
+      gtk_widget_set_visible(dialog, TRUE);
+      GtkWidget *vbox = widget_from_builder("download_monomers_dialog_vbox_inner");
+      gtk_widget_set_visible(vbox, TRUE);
+      clear_out_container(vbox);
+      for (const auto &rn : res_names) {
+         GtkWidget *label = gtk_label_new(rn.c_str());
+         char* ccx = new char[rn.size() + 1];
+         for (unsigned int ii=0; ii<=rn.size(); ii++) ccx[ii] = 0;
+         std::copy(rn.begin(), rn.end(), ccx);
+         g_object_set_data(G_OBJECT(label), "comp_id", ccx); // read in on_download_monomers_ok_button_clicked()
+         gtk_box_append(GTK_BOX(vbox), label);
+      }
+      g_object_set_data(G_OBJECT(dialog), "run_get_monomer_post_fetch_flag",
+                        GINT_TO_POINTER(run_get_monomer_post_fetch_flag));
    }
-   g_object_set_data(G_OBJECT(dialog), "run_get_monomer_post_fetch_flag",
-		     GINT_TO_POINTER(run_get_monomer_post_fetch_flag));
 }
 
 
@@ -1651,7 +1654,7 @@ graphics_info_t::generate_molecule_and_refine(int imol,
 	    check_dictionary_for_residue_restraints(imol, residues);
 	 if (icheck.first == 0) {
 	    // info_dialog_missing_refinement_residues(icheck.second);
-	    show_missing_refinement_residues_dialog(icheck.second, false);
+	    show_missing_refinement_residues_dialog(icheck.second, false); // now had use_graphics_interface_flag protection
 	 }
       }
    }
