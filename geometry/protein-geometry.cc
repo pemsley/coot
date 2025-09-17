@@ -580,16 +580,19 @@ coot::protein_geometry::try_dynamic_add(const std::string &resname, int read_num
 
    if (s) {
 
-      std::cout << "PATH p-A" << std::endl;
+      if (debug)
+         std::cout << "PATH p-A" << std::endl;
 
    } else {
 
-      std::cout << "PATH p-B" << std::endl;
+      if (debug)
+         std::cout << "PATH p-B" << std::endl;
 
       s = clibd;
 
       if (! s) {
-         std::cout << "PATH p-C" << std::endl;
+         if (debug)
+            std::cout << "PATH p-C" << std::endl;
          if (debug)
             std::cout << "DEBUG:: try_dynamic_add() using package_data_dir(): " << package_data_dir()
                       << std::endl;
