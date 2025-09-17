@@ -368,6 +368,9 @@ class molecules_container_t {
    float ligand_water_variance_limit;
    float ligand_water_sigma_cut_off;
 #endif
+
+   unsigned int max_number_of_simple_mesh_vertices;
+
    // --------------------- init --------------------------
 #ifdef SKIP_FOR_PYTHON_DOXYGEN
 #else
@@ -3442,6 +3445,9 @@ public:
    //!
    //! @return a unit-vector end-cap octohemisphere mesh
    coot::simple_mesh_t get_octahemisphere(unsigned int n_divisions) const;
+
+   unsigned int get_max_number_of_simple_mesh_vertices() const;
+   void set_max_number_of_simple_mesh_vertices(unsigned int n);
 
    //! Predicted alignment error (AlphaFold)
    //! @return a string of a png

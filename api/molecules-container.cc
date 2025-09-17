@@ -113,10 +113,17 @@ molecules_container_t::init() {
    ligand_water_variance_limit = 0.1;
    ligand_water_sigma_cut_off = 1.75; // max moorhen points for tutorial 1.
 
+   max_number_of_simple_mesh_vertices = 200000;
+
    // debug();
    //
    // size_t sss = sizeof(molecules_container_t);
    // std::cout << "::::::::::::::::: sizeof molecules_container_t " << sss << std::endl;
+}
+
+void
+molecules_container_t::set_max_number_of_simple_mesh_vertices(unsigned int n) {
+   max_number_of_simple_mesh_vertices = n;
 }
 
 //! don't use this in emscript
@@ -2169,6 +2176,11 @@ molecules_container_t::get_map_contours_mesh(int imol, double position_x, double
    }
    auto tp_1 = std::chrono::high_resolution_clock::now();
    contouring_time = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
+   if (mesh.vertices.size() > max_number_of_simple_mesh_vertices) {
+      mesh.clear();
+      mesh.status = 0;
+      mesh.set_name("too-many-vertices-in-mesh");
+   }
    return mesh;
 }
 
