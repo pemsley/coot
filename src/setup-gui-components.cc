@@ -23,7 +23,6 @@
  * See http://www.gnu.org/licenses/
  *
  */
-#include <map>
 #include <gtk/gtk.h>
 #include "graphics-info.h"
 #include "c-interface-gtk-widgets.h"
