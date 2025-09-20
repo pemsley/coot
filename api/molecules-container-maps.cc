@@ -771,6 +771,7 @@ float
 molecules_container_t::get_spherical_variance(int imol_map, int imol_model,
                                               const std::string &atom_cid,
                                               float mean_density_other_atoms) const {
+
    float v = -1.0;
    if (is_valid_map_molecule(imol_map)) {
       if (is_valid_model_molecule(imol_model)) {
@@ -784,10 +785,23 @@ molecules_container_t::get_spherical_variance(int imol_map, int imol_model,
                if (at) {
                   clipper::Coord_orth pt(at->x, at->y, at->z);
                   float mean_d = mean_density_other_atoms;
+                  coot::ligand::spherical_density_score_t sds;
+                  float sv = sds.get_spherical_variance(pt, xmap, mean_d);
+                  v = sv;
+               } else {
+                  std::cout << "WARNING:: get_spherical_variance() not found atom pointer " << atom_spec << std::endl;
                }
+            } else {
+               std::cout << "WARNING:: get_spherical_variance() not found atom " << atom_cid << std::endl;
             }
+         } else {
+            std::cout << "WARNING:: get_spherical_variance() failed to convert cid to atom spec " << atom_cid << std::endl;
          }
+      } else {
+         std::cout << "WARNING:: get_spherical_variance() not a valid model molecule " << imol_model << std::endl;
       }
+   } else {
+     std::cout << "WARNING:: get_spherical_variance() not a valid map molecule " << imol_map << std::endl;
    }
    return v;
 }
