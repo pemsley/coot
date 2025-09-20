@@ -6599,6 +6599,21 @@ int test_temperature_factor_of_atom(molecules_container_t &mc) {
    return status;
 }
 
+int test_water_spherical_variance(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+   int imol     = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
+   if (mc.is_valid_model_molecule(imol)) {
+      unsigned int n_waters = mc.add_waters(imol, imol_map);
+      std::cout << "DEBUG:: test_water_spherical_variance(): " << std::endl;
+      std::string atom_cid;
+      mc.get_spherical_variance(imol_map, imol, atom_cid, mean_density_other_atoms);
+   }
+   return status;
+}
+
 
 
 int test_template(molecules_container_t &mc) {
@@ -6935,6 +6950,7 @@ int main(int argc, char **argv) {
          // status += run_test(test_non_XYZ_EM_map_status, "non-XYZ map status", mc);
          status += run_test(test_radius_of_gyration, "radius of gyration", mc);
          status += run_test(test_temperature_factor_of_atom, "temperature factor of atom", mc);
+         status += run_test(test_water_spherical_variance, "water spherical variance", mc);
          if (status == n_tests) all_tests_status = 0;
 
          print_results_summary();

@@ -186,23 +186,23 @@ coot::ligand::mean_and_variance_where_the_atoms_are(mmdb::Manager *mol) const {
       const clipper::Xmap<float> &xmap = xmap_pristine;
       int n_chains = model_p->GetNumberOfChains();
       for (int ichain=0; ichain<n_chains; ichain++) {
-	 mmdb::Chain *chain_p = model_p->GetChain(ichain);
-	 int nres = chain_p->GetNumberOfResidues();
-	 for (int ires=0; ires<nres; ires++) {
-	    mmdb::Residue *residue_p = chain_p->GetResidue(ires);
-	    std::string rn(residue_p->GetResName());
-	    if (rn != "HOH") {
-	       int n_atoms = residue_p->GetNumberOfAtoms();
-	       for (int iat=0; iat<n_atoms; iat++) {
-		  mmdb::Atom *at = residue_p->GetAtom(iat);
-		  if (! at->isTer()) {
-		     std::string ele = at->element;
-		     if (ele != " H")
-			n_molecule_atoms++;
-		  }
-	       }
-	    }
-	 }
+         mmdb::Chain *chain_p = model_p->GetChain(ichain);
+         int nres = chain_p->GetNumberOfResidues();
+         for (int ires=0; ires<nres; ires++) {
+            mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+            std::string rn(residue_p->GetResName());
+            if (rn != "HOH") {
+               int n_atoms = residue_p->GetNumberOfAtoms();
+               for (int iat=0; iat<n_atoms; iat++) {
+                  mmdb::Atom *at = residue_p->GetAtom(iat);
+                  if (! at->isTer()) {
+                     std::string ele = at->element;
+                     if (ele != " H")
+                        n_molecule_atoms++;
+                  }
+               }
+            }
+         }
       }
 
       if (n_molecule_atoms > n_test_points) {

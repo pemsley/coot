@@ -1,7 +1,50 @@
 
 --- Items ---
 
+o Moorhen: key binding for "Nice" bonds.
+
+o in moorhen, maybe coot, draw the dodecs close to CA - not gapped
+  witht the rama ball missing.
+
+o Moorhen/libcootapi test fsc with more map pairs
+
+o Coot: go to atom dialog and use numpad enter key
+
+o ligand code KCX: make pdb from chapi and read it into moorhen - with hydrogen atoms
+  In Lucy's example some hydrogen atoms were disconnected.
+
+o add_molecular_symmetry add this to moorhen/libcootapi
+
+o set status 0 for more than 100,000 (or so?) vertices
+  Make an api function for the user to set the max vertices
+* Done
+
+o "de-dust"/hide dust
+
+o given the residual map, can you find the centres of the blobs? I have in mind
+  doing the cryo-EM tutorial non-interactively. Use rings and shift? Use low-resolution
+  maps - resample for more speed.
+
+o give me a list of "clashes" in the validation tools in moorhen
+
+o add low-pass filter
+
+o add solvent mask - combine the maps from the gaussian surfaces
+
 o check "Fix nomenclature errors"
+
+o rebuild_fragment_using_dbloop function needs more work.
+
+o this fails to create the directory for the dictionary (it seems):
+INFO::       Reading coordinate file: /Users/pemsley/.cache/Coot/coot-download/pdb4dab.ent
+INFO:: file /Users/pemsley/.cache/Coot/coot-download/pdb4dab.ent has been read.
+PATH p-B
+PATH p-C
+DEBUG:: try_dynamic_add() using package_data_dir(): /Users/pemsley/install-coot/share/coot
+:::::::::::::::: debug in try_dynamic_add() here A with s /Users/pemsley/install-coot/share/coot/lib/data
+:::::::::::::::: debug in try_dynamic_add() here A with null cmld
+debug:: try_dynamic_add(): here C filename /Users/pemsley/install-coot/share/coot/lib/data/monomers/
+DEBUG:: try_dynamic_add(): /Users/pemsley/.cache/Coot/monomers/h does not exist
 
 o on the coot web page say how/where to report a bug.
 

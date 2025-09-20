@@ -32,7 +32,6 @@
 #include "clipper/core/coords.h"
 #include "clipper/core/map_interp.h"
 #include "clipper/core/hkl_compute.h"
-#include "clipper/mmdb/clipper_mmdb.h"
 #include "clipper/ccp4/ccp4_mtz_io.h"
 #include "clipper/ccp4/ccp4_map_io.h"
 #include "clipper/contrib/skeleton.h"

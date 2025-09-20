@@ -28,9 +28,12 @@
 #include <iostream>
 #include <algorithm>
 #include <fstream>
-#include <queue>
 #include <set>
+#include <queue>
 
+#include "clipper/core/coords.h"
+#include "clipper/core/xmap.h"
+#include "clipper/ccp4/ccp4_map_io.h"
 #include "peak-search.hh"
 #include "xmap-stats.hh"
 #include "segmap.hh"
@@ -236,7 +239,54 @@ coot::segmap::flood_from_peaks(const std::vector<std::pair<clipper::Xmap_base::M
 
 
 // remove "dust" that is smaller than 5.0A across (by default)
-void
-coot::segmap::dedust(float vol) {
+clipper::Xmap<float> coot::dedust(const clipper::Xmap<float> &xmap, unsigned int n_grid_points) {
 
+   mean_and_variance<float> map_stats = map_density_distribution(xmap, 1000, false, true);
+   float var = map_stats.variance;
+   float sd = std::sqrt(var);
+   float cut_off = 4.0 * sd; // say
+   unsigned int n_clust_max = 3;
+   clipper::Xmap<float> dust_free = xmap; // return this
+
+   clipper::Xmap<int> considered_points_map;
+   clipper::Xmap_base::Map_reference_index ix;
+   considered_points_map.init(xmap.spacegroup(), xmap.cell(), xmap.grid_sampling());
+   for (ix = considered_points_map.first(); !ix.last(); ix.next()) {
+      if (xmap[ix] < cut_off)
+         considered_points_map[ix] = 1;
+      else
+         considered_points_map[ix] = 0;
+   }
+
+   clipper::Skeleton_basic::Neighbours neighb_l1(xmap);
+   clipper::Skeleton_basic::Neighbours neighb_l2(xmap);
+   std::queue<clipper::Coord_grid> q;
+   for (ix = considered_points_map.first(); !ix.last(); ix.next()) {
+      if (considered_points_map[ix] == 0) {
+         std::vector<clipper::Coord_grid> cluster_grid_points;
+         // i.e. not yet considered
+         clipper::Coord_grid c_g_start = ix.coord();
+         for (int i=0; i<neighb_l1.size(); i++) {
+            clipper::Coord_grid c_g_1 = c_g_start + neighb_l1[i];
+            if (considered_points_map.get_data(c_g_1) == 0) {
+               for (int j=0; j<neighb_l2.size(); j++) {
+                  clipper::Coord_grid c_g_2 = c_g_1 + neighb_l2[i];
+                  if (c_g_2 != c_g_start) {
+                     if (considered_points_map.get_data(c_g_2) == 0) {
+                        if (std::find(cluster_grid_points.begin(), cluster_grid_points.end(), c_g_2) == cluster_grid_points.end())
+                           cluster_grid_points.push_back(c_g_2);
+                     }
+                  }
+               }
+            }
+         }
+         if (cluster_grid_points.size() < 4) {
+            for (auto &gp : cluster_grid_points) {
+               considered_points_map.set_data(gp, 1);
+               dust_free.set_data(gp, 0.0);
+            }
+         }
+      }
+   }
+   return dust_free;
 }

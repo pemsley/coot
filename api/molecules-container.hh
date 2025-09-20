@@ -1680,10 +1680,17 @@ public:
    //! @return a vector/list of the map molecule indices.
    std::vector<int> make_masked_maps_split_by_chain(int imol, int imol_map);
 
+   //! dedust map
+   //!
+   //! @param imol_map the map molecule index
+   //!
+   //! @return the map molecule index of the dedusted map or -1 on failure
+   int dedust_map(int imol);
+
    //! Set the map colour
    //!
    //! The next time a map mesh is requested, it will have this colour.
-   //! This does not affect the colour of the difference maps.
+   //! This does not apply to/affect the colour of the difference maps.
    //!
    //! RGB colour codes,
    //! e.g. green is r:0, g: 255, b:0
@@ -3089,6 +3096,22 @@ public:
    //!
    //! @return a `validation_information_t` object
    coot::validation_information_t get_q_score_for_cid(int imol_model, const std::string &cid, int imol_map) const;
+
+   //! get mean and variance of map at non-waters
+   //!
+   //! @param imol_model is the model molecule index
+   //! @param imol_map is the map molecule index
+   //!
+   //! @return the mean and variance or a negative number on failure
+   std::pair<float,float> get_mean_and_variance_of_density_for_non_water_atoms(int imol_coords, int imol_map) const;
+
+   //! Get spherical variance - typically for water atoms
+   //!
+   //! @param imol_model is the model molecule index
+   //! @param imol_map is the map molecule index
+   //!
+   //! @return the variance or a negative number on failure
+   float get_spherical_variance(int imol_map, int imol_model, const std::string &atom_cid, float mean_density_other_atoms) const;
 
    // -------------------------------- Rail Points ------------------------------------------
    //! \name Rail Points!
