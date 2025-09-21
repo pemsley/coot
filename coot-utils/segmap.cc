@@ -238,15 +238,20 @@ coot::segmap::flood_from_peaks(const std::vector<std::pair<clipper::Xmap_base::M
 }
 
 
-// remove "dust" that is smaller than 5.0A across (by default)
+// remove "dust" that is smaller than 8 grid points at 1.0 standard deviations
 clipper::Xmap<float> coot::dedust(const clipper::Xmap<float> &xmap, unsigned int n_grid_points) {
 
+   bool debug = true;
    mean_and_variance<float> map_stats = map_density_distribution(xmap, 1000, false, true);
    float var = map_stats.variance;
    float sd = std::sqrt(var);
-   float cut_off = 4.0 * sd; // say
-   unsigned int n_clust_max = 3;
+   float cut_off = 1.0 * sd; // this is about where dust appears
+   unsigned int n_cluster_max = 8;
    clipper::Xmap<float> dust_free = xmap; // return this
+   clipper::Grid_sampling gs = xmap.grid_sampling();
+   clipper::Cell cell = xmap.cell();
+
+   // std::cout << "::::::::::::: dedust() sd " << sd << std::endl;
 
    clipper::Xmap<int> considered_points_map;
    clipper::Xmap_base::Map_reference_index ix;
@@ -261,14 +266,20 @@ clipper::Xmap<float> coot::dedust(const clipper::Xmap<float> &xmap, unsigned int
    clipper::Skeleton_basic::Neighbours neighb_l1(xmap);
    clipper::Skeleton_basic::Neighbours neighb_l2(xmap);
    std::queue<clipper::Coord_grid> q;
+   unsigned int n_squished = 0;
+   // std::cout << "starting scan..." << std::endl;
    for (ix = considered_points_map.first(); !ix.last(); ix.next()) {
+      std::vector<clipper::Coord_grid> cluster_grid_points;
       if (considered_points_map[ix] == 0) {
-         std::vector<clipper::Coord_grid> cluster_grid_points;
          // i.e. not yet considered
          clipper::Coord_grid c_g_start = ix.coord();
+         if (std::find(cluster_grid_points.begin(), cluster_grid_points.end(), c_g_start) == cluster_grid_points.end())
+            cluster_grid_points.push_back(c_g_start);
          for (int i=0; i<neighb_l1.size(); i++) {
             clipper::Coord_grid c_g_1 = c_g_start + neighb_l1[i];
             if (considered_points_map.get_data(c_g_1) == 0) {
+               if (std::find(cluster_grid_points.begin(), cluster_grid_points.end(), c_g_1) == cluster_grid_points.end())
+                  cluster_grid_points.push_back(c_g_1);
                for (int j=0; j<neighb_l2.size(); j++) {
                   clipper::Coord_grid c_g_2 = c_g_1 + neighb_l2[i];
                   if (c_g_2 != c_g_start) {
@@ -280,13 +291,23 @@ clipper::Xmap<float> coot::dedust(const clipper::Xmap<float> &xmap, unsigned int
                }
             }
          }
-         if (cluster_grid_points.size() < 4) {
-            for (auto &gp : cluster_grid_points) {
-               considered_points_map.set_data(gp, 1);
-               dust_free.set_data(gp, 0.0);
+      }
+      if (cluster_grid_points.size() < n_cluster_max) {
+         for (auto &gp : cluster_grid_points) {
+            considered_points_map.set_data(gp, 1);
+            dust_free.set_data(gp, 0.0);
+            n_squished++;
+            if (debug) {
+               clipper::Coord_frac cf = gp.coord_frac(gs);
+               clipper::Coord_orth co = cf.coord_orth(cell);
+               std::cout << "squished " << co.x() << " " << co.y() << " " << co.z() << "\n";
             }
          }
       }
    }
+   clipper::Grid grid = xmap.grid_asu();
+   unsigned int n_grid_points_in_map = grid.nu() * grid.nv() * grid.nw();
+   float frac = static_cast<float>(n_squished) / static_cast<float>(n_grid_points_in_map);
+   std::cout << "dedust squished " << n_squished << " grid points out of " << n_grid_points_in_map << " " << frac << std::endl;
    return dust_free;
 }

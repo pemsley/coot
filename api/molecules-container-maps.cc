@@ -736,10 +736,10 @@ molecules_container_t::dedust_map(int imol) {
    if (is_valid_map_molecule(imol)) {
       const clipper::Xmap<float> xmap = molecules[imol].xmap;
       clipper::Xmap<float> new_map = coot::dedust(xmap, 0);
-      int imol_map_new = molecules.size();
+      imol_new = molecules.size();
       std::string name = "Dedusted map from " + molecules[imol].get_name();
       bool is_em_map = molecules[imol].is_EM_map();
-      molecules.push_back(coot::molecule_t(name, imol_map_new, new_map, is_em_map));
+      molecules.push_back(coot::molecule_t(name, imol_new, new_map, is_em_map));
    }
    return imol_new;
 }

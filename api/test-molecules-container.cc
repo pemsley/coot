@@ -6626,6 +6626,15 @@ int test_water_spherical_variance(molecules_container_t &mc) {
 }
 
 
+int test_dedust(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+   int imol_map = mc.read_ccp4_map(reference_data("emd_16890.map"), false);
+   int imol_new = mc.dedust_map(imol_map);
+   mc.write_map(imol_new, "dedust-16890.map");
+   return status;
+}
 
 int test_template(molecules_container_t &mc) {
 
@@ -6962,6 +6971,7 @@ int main(int argc, char **argv) {
          status += run_test(test_radius_of_gyration, "radius of gyration", mc);
          status += run_test(test_temperature_factor_of_atom, "temperature factor of atom", mc);
          status += run_test(test_water_spherical_variance, "water spherical variance", mc);
+         status += run_test(test_dedust, "dedust", mc);
          if (status == n_tests) all_tests_status = 0;
 
          print_results_summary();

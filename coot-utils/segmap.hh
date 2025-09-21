@@ -44,9 +44,8 @@ namespace coot {
       segmap(const clipper::Xmap<float> &xmap_in) : xmap(xmap_in) {}
       const clipper::Xmap<float> &xmap;
       void proc(bool do_write_flag, const std::string &file_name);
-      // remove "dust" that is smaller than 5.0A across (by default)
-      // This is not a segmap function and can be removed from this class
    };
 
+   // remove "dust" that is smaller than 5.0A across (by default)
    clipper::Xmap<float> dedust(const clipper::Xmap<float> &xmap, unsigned int n_grid_points);
 }
