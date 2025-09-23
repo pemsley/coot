@@ -474,6 +474,10 @@
           <!-- </item> -->
         </submenu>
         <item>
+          <attribute name="label">N-linked Glycan</attribute>
+          <attribute name="action">app.glyco_wta_action</attribute>
+        </item>
+        <item>
           <attribute name="label">Phosphorylate This Residue</attribute>
           <attribute name="action">app.phosphorylate_this_residue_action</attribute>
         </item>
@@ -3126,6 +3130,7 @@ Calculate a skeleton now?
                     <property name="margin-end">8</property>
                     <property name="margin-top">4</property>
                     <property name="margin-bottom">4</property>
+                    <property name="active">0</property>
                     <items>
                       <item translatable="yes">Check</item>
                       <item translatable="yes">Delete</item>
@@ -7336,16 +7341,16 @@ Do you want to continue?
                 <property name="margin-end">5</property>
                 <property name="margin-start">5</property>
                 <property name="margin-top">5</property>
-		<child>
-		  <object class="GtkBox" id="copy_molecule_vbox">
-		    <property name="orientation">vertical</property>
+                <child>
+                  <object class="GtkBox" id="copy_molecule_vbox">
+                    <property name="orientation">vertical</property>
                     <child>
                       <object class="GtkLabel">
-			<property name="label">Molecule to Copy:</property>
-		        <property name="margin-end">6</property>
-		        <property name="margin-start">6</property>
+                        <property name="label">Molecule to Copy:</property>
+                        <property name="margin-end">6</property>
+                        <property name="margin-start">6</property>
                       </object>
-		    </child>
+                    </child>
 
                     <child>
                       <object class="GtkComboBoxText" id="copy_molecule_comboboxtext">
@@ -7389,6 +7394,68 @@ Do you want to continue?
               </object>
             </child>
 
+            <child type="overlay">
+              <object class="GtkFrame" id="glyco-wta-frame">
+                <property name="halign">center</property>
+                <property name="valign">start</property>
+                <property name="visible">False</property>
+                <property name="margin-bottom">5</property>
+                <property name="margin-end">5</property>
+                <property name="margin-start">5</property>
+                <property name="margin-top">5</property>
+                <child>
+                  <object class="GtkBox" id="glyco-wta-vbox">
+                    <property name="orientation">vertical</property>
+
+                    <child>
+                      <object class="GtkComboBoxText" id="glyco_wta_glycosylation_name_comboboxtext">
+                        <property name="margin-start">4</property>
+                        <property name="margin-end">4</property>
+                        <property name="margin-top">4</property>
+                        <property name="margin-bottom">4</property>
+                        <property name="active">0</property>
+                        <items>
+                               <item>NAG-NAG-BMA</item>
+                               <item>High Mannose</item>
+                               <item>Hybrid</item>
+                               <item>Mammalian Biantennary</item>
+                               <item>Plant Biantennary</item>
+                        </items>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="orientation">horizontal</property>
+                        <property name="halign">end</property>
+                        <child>
+                          <object class="GtkButton" id="glyco_wta_cancel_button">
+                            <signal name="clicked" handler="on_glyco_wta_cancel_button_clicked" swapped="no"/>
+                            <property name="label" translatable="yes">Cancel</property>
+                            <property name="margin-start">10</property>
+                            <property name="margin-end">10</property>
+                            <property name="margin-top">4</property>
+                            <property name="margin-bottom">10</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkButton" id="glyco_wta_fit_button">
+                            <signal name="clicked" handler="on_glyco_wta_fit_button_clicked" swapped="no"/>
+                            <property name="label" translatable="yes">Build</property>
+                            <property name="margin-start">10</property>
+                            <property name="margin-end">10</property>
+                            <property name="margin-top">4</property>
+                            <property name="margin-bottom">10</property>
+                            <style>
+                              <class name="suggested-action"/>
+                            </style>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
             <child type="overlay">
               <object class="GtkFrame" id="copy_fragment_frame">
                 <property name="halign">center</property>
