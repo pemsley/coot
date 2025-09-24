@@ -3376,6 +3376,16 @@ void dna_rna_models_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 }
 
 
+void glyco_wta_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                      G_GNUC_UNUSED GVariant *parameter,
+                      G_GNUC_UNUSED gpointer user_data) {
+
+   GtkWidget *w = widget_from_builder("glyco-wta-frame");
+   if (w) {
+      gtk_widget_set_visible(w, TRUE);
+   }
+}
+
 void place_helix_here_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                              G_GNUC_UNUSED GVariant *parameter,
                              G_GNUC_UNUSED gpointer user_data) {
@@ -5781,6 +5791,7 @@ create_actions(GtkApplication *application) {
    add_action(    "add_other_solvent_molecules_action",     add_other_solvent_molecules_action);
    add_action(                   "find_ligands_action",                    find_ligands_action);
    add_action(                    "find_waters_action",                     find_waters_action);
+   add_action(                      "glyco_wta_action",                       glyco_wta_action);
    add_action(                 "dna_rna_models_action",                  dna_rna_models_action);
    add_action(               "place_helix_here_action",                place_helix_here_action);
    add_action(              "cis_trans_convert_action",               cis_trans_convert_action);
