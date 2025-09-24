@@ -474,7 +474,7 @@
           <!-- </item> -->
         </submenu>
         <item>
-          <attribute name="label">N-linked Glycan</attribute>
+          <attribute name="label">N-linked Glycan...</attribute>
           <attribute name="action">app.glyco_wta_action</attribute>
         </item>
         <item>
@@ -7413,7 +7413,7 @@ Do you want to continue?
                         <property name="margin-end">4</property>
                         <property name="margin-top">4</property>
                         <property name="margin-bottom">4</property>
-                        <property name="active">0</property>
+                        <property name="active">1</property>
                         <items>
                                <item>NAG-NAG-BMA</item>
                                <item>High Mannose</item>

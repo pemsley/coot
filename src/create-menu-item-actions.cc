@@ -3382,6 +3382,8 @@ void glyco_wta_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
    GtkWidget *w = widget_from_builder("glyco-wta-frame");
    if (w) {
+      GtkWidget *c = widget_from_builder("glyco_wta_glycosylation_name_comboboxtext");
+      gtk_combo_box_set_active(GTK_COMBO_BOX(c), 0);
       gtk_widget_set_visible(w, TRUE);
    }
 }

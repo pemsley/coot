@@ -24,31 +24,17 @@
 // Must include these headers to get molecule_class_info_t.h to parse.
 //
 
-#ifdef USE_PYTHON
-#include "Python.h"
-#endif
-
 #include "compat/coot-sysdep.h"
 
-
-#include <string>
-#include <algorithm>
-#include <stdexcept>
-
 #include <string.h>
-// #include <GL/glut.h>
 
 // #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 // // includes order important, otherwise we get dcgettext() problems.
 // #include "rdkit-interface.hh" // needed for add_hydrogens()
 // #endif
-#include "graphics-info.h"  // for rama probablity definitions
 
 #include <mmdb2/mmdb_manager.h>
 #include <mmdb2/mmdb_tables.h>  // for mmdb::Get1LetterCode()
-#include "coords/mmdb-extras.hh"
-#include "coords/Cartesian.hh"
-#include "coords/mmdb-crystal.hh"
 
 #include "ligand/rotamer.hh" // in ligand
 
@@ -57,12 +43,13 @@
 #include "ligand/base-pairing.hh"
 #include "ideal/torsion-bonds.hh"
 
-#include "molecule-class-info.h"
 #include "geometry/mol-utils.hh"
 #include "utils/coot-utils.hh"
-#include "coot-hydrogens.hh"
+#include "ideal/add-linked-cho.hh"
 
-#include "rama_plot_with_canvas.hh"
+#include "molecule-class-info.h"
+#include "coot-hydrogens.hh"
+#include "graphics-info.h"
 
 
 // 1: success
@@ -2715,3 +2702,21 @@ molecule_class_info_t::resolve_clashing_sidechains_by_rebuilding(const coot::pro
       make_bonds_type_checked(__FUNCTION__);
    }
 }
+
+// carbohydrate building - WTA for the moment
+void
+molecule_class_info_t::add_named_glyco_tree(const std::string &glycosylation_type,
+                                            coot::protein_geometry *geom_p,
+                                            const coot::residue_spec_t &asn_res_spec,
+                                            const clipper::Xmap<float> &xmap) {
+
+   std::cout << "=============== " << asn_res_spec << " ==== glycosylation_type :" << glycosylation_type << ":" << std::endl;
+   coot::cho::add_named_glyco_tree(glycosylation_type, &atom_sel, imol_no, xmap,
+                                   geom_p, asn_res_spec.chain_id, asn_res_spec.res_no);
+   have_unsaved_changes_flag = true;
+   atom_sel.mol->FinishStructEdit();
+   atom_sel = make_asc(atom_sel.mol);
+   make_bonds_type_checked(__FUNCTION__);
+
+}
+

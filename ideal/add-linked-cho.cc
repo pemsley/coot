@@ -1002,6 +1002,7 @@ coot::cho::add_linked_residue_add_cho_function(atom_selection_container_t *asc,
                                                           new_atoms_b_factor, mode, geom, xmap, map_weight);
 
    if (false) {
+      std::cout << "===== add_linked_residue() returned " << new_res_spec << std::endl;
       // if mode is 3, then this will be a post-refined model.
       std::string fn = "added-" + new_link + "-" + new_res_type + ".pdb";
       asc->mol->WritePDBASCII(fn.c_str());
