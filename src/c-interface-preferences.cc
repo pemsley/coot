@@ -808,18 +808,19 @@ void user_defined_click_scm(int n_clicks, SCM func) {
 
 #ifdef USE_PYTHON
 void user_defined_click_py(int n_clicks, PyObject *func) {
-  if (n_clicks > 0) {
-    graphics_info_t g;
-    g.user_defined_atom_pick_specs.clear();
-    g.in_user_defined_define = n_clicks;
-    g.user_defined_click_py_func = func;
-    Py_XINCREF(g.user_defined_click_py_func);
-    g.pick_cursor_maybe();
-  } else {
-    std::cout<<"INFO:: number of clicks less than 1, cannot define user click"<<std::endl;
-  } 
-} 
+   if (n_clicks > 0) {
+      graphics_info_t g;
+      g.user_defined_atom_pick_specs.clear();
+      g.in_user_defined_define = n_clicks;
+      g.user_defined_click_py_func = func;
+      Py_XINCREF(g.user_defined_click_py_func);
+      g.pick_cursor_maybe();
+   } else {
+      std::cout<<"INFO:: number of clicks less than 1, cannot define user click"<<std::endl;
+   }
+}
 #endif // USE_PYTHON
+
 /*  ------------------------------------------------------------------------ */
 /*                     state (a graphics_info thing)                         */
 /*  ------------------------------------------------------------------------ */
