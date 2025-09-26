@@ -121,6 +121,11 @@ molecules_container_t::init() {
    // std::cout << "::::::::::::::::: sizeof molecules_container_t " << sss << std::endl;
 }
 
+unsigned int
+molecules_container_t::get_max_number_of_simple_mesh_vertices() const {
+   return max_number_of_simple_mesh_vertices;
+}
+
 void
 molecules_container_t::set_max_number_of_simple_mesh_vertices(unsigned int n) {
    max_number_of_simple_mesh_vertices = n;
