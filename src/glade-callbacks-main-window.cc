@@ -54,6 +54,7 @@ typedef const char entry_char_type;
 
 #include <vector>
 #include "utils/coot-utils.hh"
+#include "ideal/add-linked-cho.hh"
 #include "graphics-info.h"
 
 #include "cc-interface.hh" // for read_ccp4_map()
@@ -1736,6 +1737,54 @@ on_make_an_average_map_ok_button_clicked(G_GNUC_UNUSED GtkButton       *button,
    GtkWidget *frame = widget_from_builder("make_an_average_map_frame");
    if (frame)
       gtk_widget_set_visible(frame, FALSE);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_glyco_wta_cancel_button_clicked(G_GNUC_UNUSED GtkButton       *button,
+                                   G_GNUC_UNUSED gpointer         user_data) {
+
+   GtkWidget *w = widget_from_builder("glyco-wta-frame");
+   if (w)
+      gtk_widget_set_visible(w, FALSE);
+
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_glyco_wta_fit_button_clicked(G_GNUC_UNUSED GtkButton       *button,
+                                G_GNUC_UNUSED gpointer         user_data) {
+
+   GtkWidget *frame    = widget_from_builder("glyco-wta-frame");
+   GtkWidget *combobox = widget_from_builder("glyco_wta_glycosylation_name_comboboxtext");
+   graphics_info_t g;
+   std::string t = g.get_active_label_in_comboboxtext(GTK_COMBO_BOX_TEXT(combobox));
+   std::cout << "================ t: " << t << std::endl;
+   std::pair<int, mmdb::Atom *> aa = g.get_active_atom();
+   int imol = aa.first;
+   if (is_valid_model_molecule(imol)) {
+      int imol_map = g.Imol_Refinement_Map();
+      if (is_valid_map_molecule(imol_map)) {
+         std::string tt;
+         if (t == "NAG-NAG-BMA")            tt = "NAG-NAG-BMA";
+         if (t == "High Mannose")           tt = "high-mannose";
+         if (t == "Hybrid")                 tt = "hybrid";
+         if (t == "Mammalian Bianntennary") tt = "mammalian-biantennary";
+         if (t == "Plant Bianntennary")     tt = "plant-biantennary";
+         clipper::Xmap<float> xmap = g.molecules[imol_map].xmap;
+         coot::residue_spec_t res_spec(coot::atom_spec_t(aa.second));
+         // coot::cho::add_named_glyco_tree(tt, &g.molecules[imol].atom_sel, imol, xmap, g.Geom_p(), as.chain_id, as.res_no);
+         g.molecules[imol].add_named_glyco_tree(tt, g.Geom_p(), res_spec, xmap); // needs bonds update
+         g.graphics_draw();
+      } else {
+         std::cout << "not a valid map " << imol_map << std::endl;
+      }
+   } else {
+      std::cout << "not a valid model " << imol << std::endl;
+   }
+   if (frame)
+      gtk_widget_set_visible(frame, FALSE);
+
 }
 
 extern "C" G_MODULE_EXPORT

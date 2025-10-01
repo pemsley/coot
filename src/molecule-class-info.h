@@ -51,6 +51,7 @@
 #ifndef MOLECULE_CLASS_INFO_T
 #define MOLECULE_CLASS_INFO_T
 
+#include "geometry/residue-and-atom-specs.hh"
 #ifndef HAVE_STRING
 #define HAVE_STRING
 #include <string>
@@ -3632,6 +3633,12 @@ void draw_map_molecule(bool draw_transparent_maps,
    void glyco_tree_internal_distances_fn(const coot::residue_spec_t &base_residue_spec,
 					 coot::protein_geometry *geom_p,
 					 const std::string &file_name);
+
+   // carbohydrate building - WTA for the moment
+   void add_named_glyco_tree(const std::string &glycosylation_type,
+                             coot::protein_geometry *geom_p,
+                             const coot::residue_spec_t &res_spec,
+                             const clipper::Xmap<float> &xmap);
 
    // hacky function to retrive the atom based on the position
    // (silly thing to do)

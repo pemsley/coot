@@ -23,7 +23,6 @@
  * See http://www.gnu.org/licenses/
  *
  */
-#include <map>
 #include <gtk/gtk.h>
 #include "graphics-info.h"
 #include "c-interface-gtk-widgets.h"
@@ -49,7 +48,7 @@ inline GMenu* menu_from_builder(const std::string& m_name) {
 void
 add_typed_menu_to_mutate_menubutton(const std::string &action_type, const std::string &residue_type) {
 
-   // should I (do I need to) remove the menu model that is already attachedk to the menu button?
+   // should I (do I need to) remove the menu model that is already attached to the menu button?
 
    if (action_type == "AUTOFIT") {
       GtkWidget *mutate_menubutton = widget_from_builder("mutate_and_autofit_menubutton");

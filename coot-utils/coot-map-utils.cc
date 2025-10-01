@@ -32,7 +32,6 @@
 #include "clipper/core/coords.h"
 #include "clipper/core/map_interp.h"
 #include "clipper/core/hkl_compute.h"
-#include "clipper/mmdb/clipper_mmdb.h"
 #include "clipper/ccp4/ccp4_mtz_io.h"
 #include "clipper/ccp4/ccp4_map_io.h"
 #include "clipper/contrib/skeleton.h"
@@ -4035,9 +4034,9 @@ coot::util::soi_variance::make_variance_map() const {
       auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
       auto d32 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_3 - tp_2).count();
       auto d43 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_4 - tp_3).count();
-      std::cout << "Timings:: grid spliting: grid-points  " << std::setw(4) << d21 << " milliseconds" << std::endl;
-      std::cout << "Timings:: grid spliting: make-threads " << std::setw(4) << d32 << " milliseconds" << std::endl;
-      std::cout << "Timings:: grid spliting: wait threads " << std::setw(4) << d43 << " milliseconds" << std::endl;
+      std::cout << "Timings:: make_variance_map(): grid spliting: grid-points  " << std::setw(4) << d21 << " milliseconds" << std::endl;
+      std::cout << "Timings:: make_variance_map(): grid spliting: make-threads " << std::setw(4) << d32 << " milliseconds" << std::endl;
+      std::cout << "Timings:: make_variance_map(): grid spliting: wait threads " << std::setw(4) << d43 << " milliseconds" << std::endl;
    }
 
    return var_map;
@@ -5416,5 +5415,54 @@ coot::util::split_residue_using_map(mmdb::Residue *residue_p,
    split_residue(residue_p, vec);
 
    return status;
+
+}
+
+// pt_ref must not be co-linear with pt_1-pt_2
+//
+//   pt_1 ------------- pt_2
+//       /
+//      /
+//     /
+//   pt_ref
+//
+std::vector<std::vector<float> >
+coot::util::get_density_on_cylinder(const clipper::Coord_orth &pt_1, const clipper::Coord_orth &pt_2,
+                                    const clipper::Coord_orth &pt_ref, const clipper::Xmap<float> &xmap,
+                                    double radius, unsigned int n_length, unsigned int n_ring) {
+
+   bool debug = false;
+   std::vector<std::vector<float> > v;
+   v.reserve(n_length);
+   clipper::Coord_orth v1 = pt_2 - pt_1;
+   clipper::Coord_orth v0 = pt_1 - pt_ref;
+
+   clipper::Coord_orth v_up_uv(clipper::Coord_orth::cross(clipper::Coord_orth(v1.unit()),
+                                                          clipper::Coord_orth(v0.unit())));
+   clipper::Coord_orth v_tube_uv(v1.unit());
+   clipper::Coord_orth v_perp_uv(clipper::Coord_orth::cross(v_tube_uv, v_up_uv));
+
+   clipper::Coord_orth v_step = 1.0/static_cast<double>(n_length) * v1;
+
+   for (unsigned int i=0; i<=n_length; i++) {
+      clipper::Coord_orth tube_mid = pt_1 + static_cast<double>(i) * v_step;
+      clipper::Coord_orth circle_start = tube_mid + radius * v_perp_uv;
+      std::vector<float> d_ring(n_ring, 0.0f);
+      for (unsigned int j=0; j<n_ring; j++) {
+         // rotate circle_start around the vector v1:
+         double angle = static_cast<double>(j)/static_cast<double>(n_ring) * 2.0 * M_PI;
+         // args: direction, position, origin_shift, angle
+         clipper::Coord_orth rotated_pt =
+            coot::util::rotate_around_vector(v1, circle_start, pt_1, angle);
+         float d = coot::util::density_at_point(xmap, rotated_pt);
+         if (debug)
+            std::cout << "rotated_pt: " << i << " " << j << " "
+                      << rotated_pt.x() << " " << rotated_pt.y() << " " << rotated_pt.z()
+                      << " density: " << d << std::endl;
+         d_ring[j] = d;
+      }
+      v.push_back(d_ring);
+   }
+   return v;
 
 }

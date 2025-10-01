@@ -521,6 +521,10 @@ NB_MODULE(coot_headless_api, m) {
          &molecules_container_t::copy_molecule,
          nb::arg("imol"),
          get_docstring_from_xml("copy_molecule").c_str())
+    .def("dedust_map",
+          &molecules_container_t::dedust_map,
+          nb::arg("imol"),
+          get_docstring_from_xml("dedust_map").c_str())
     .def("delete_all_carbohydrate",
          &molecules_container_t::delete_all_carbohydrate,
          nb::arg("imol"),
@@ -806,6 +810,10 @@ NB_MODULE(coot_headless_api, m) {
     .def("get_map_weight",
          &molecules_container_t::get_map_weight,
          get_docstring_from_xml("get_map_weight").c_str())
+    .def("get_mean_and_variance_of_density_for_non_water_atoms",
+         &molecules_container_t::get_mean_and_variance_of_density_for_non_water_atoms,
+         nb::arg("imol_coords"), nb::arg("imol_map"),
+         get_docstring_from_xml("get_mean_and_variance_of_density_for_non_water_atoms").c_str())
     .def("get_median_temperature_factor",
          &molecules_container_t::get_median_temperature_factor,
          nb::arg("imol"),
@@ -931,6 +939,11 @@ NB_MODULE(coot_headless_api, m) {
          &molecules_container_t::get_single_letter_codes_for_chain,
          nb::arg("imol"), nb::arg("chain_id"),
          get_docstring_from_xml("get_single_letter_codes_for_chain").c_str())
+    .def("get_spherical_variance",
+         &molecules_container_t::get_spherical_variance,
+         nb::arg("imol_map"), nb::arg("imol_model"),
+         nb::arg("atom_cid"), nb::arg("mean_density_other_atoms"),
+         get_docstring_from_xml("get_spherical_variance").c_str())
     .def("get_sum_density_for_atoms_in_residue",
          &molecules_container_t::get_sum_density_for_atoms_in_residue,
          nb::arg("imol"), nb::arg("cid"), nb::arg("atom_names"), nb::arg("imol_map"),
@@ -947,14 +960,14 @@ NB_MODULE(coot_headless_api, m) {
          &molecules_container_t::get_symmetry,
          nb::arg("imol"), nb::arg("symmetry_search_radius"), nb::arg("centre_x"), nb::arg("centre_y"), nb::arg("centre_z"),
          get_docstring_from_xml("get_symmetry").c_str())
+    .def("get_temperature_factor_of_atom",
+         &molecules_container_t::get_temperature_factor_of_atom,
+         nb::arg("imol"), nb::arg("atom_cid"),
+         get_docstring_from_xml("get_temperature_factor_of_atom").c_str())
     .def("get_torsion",
          &molecules_container_t::get_torsion,
          nb::arg("imol"), nb::arg("cid"), nb::arg("atom_names"),
          get_docstring_from_xml("get_torsion").c_str())
-    .def("get_types_in_molecule",
-         &molecules_container_t::get_types_in_molecule,
-         nb::arg("imol"),
-         get_docstring_from_xml("get_types_in_molecule").c_str())
     .def("get_torsion_restraints_weight",
          &molecules_container_t::get_torsion_restraints_weight,
          get_docstring_from_xml("get_torsion_restraints_weight").c_str())
@@ -962,6 +975,10 @@ NB_MODULE(coot_headless_api, m) {
          &molecules_container_t::get_triangles_for_blender,
          nb::arg("imol"),
          get_docstring_from_xml("get_triangles_for_blender").c_str())
+    .def("get_types_in_molecule",
+         &molecules_container_t::get_types_in_molecule,
+         nb::arg("imol"),
+         get_docstring_from_xml("get_types_in_molecule").c_str())
     .def("get_use_gemmi",
          &molecules_container_t::get_use_gemmi,
          get_docstring_from_xml("get_use_gemmi").c_str())

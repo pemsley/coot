@@ -27,7 +27,7 @@ c/CIT.cif               g/GLU.cif               n/NAP.cif               u/UNK.ci
 c/CL.cif                g/GLY.cif               n/NDP.cif               u/UNX.cif \
 c/CLR.cif               g/GOL.cif               n/NH2.cif               v/VAL.cif \
 c/CME.cif               g/GTP.cif               n/NI.cif                z/ZN.cif  \
-c/CO.cif                h/HEC.cif               n/NO3.cif \
+c/CO.cif                h/HEC.cif               n/NO3.cif               3/3GP.cif \
 c/COA.cif               h/HEM.cif               o/OMG.cif \
 c/CSO.cif               h/HIS.cif               p/PCA.cif \
 b/BTB.cif               e/EBE.cif               p/PE8.cif               t/TAM.cif

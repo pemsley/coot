@@ -431,7 +431,7 @@ coot::a_rotamer_table::fill_chi_1_2_3_4(const std::string& file_name) {
 		  n_x4_obj_count = 2;
 	       }
 	    }
-	 } 
+	 }
       }
    }
 }

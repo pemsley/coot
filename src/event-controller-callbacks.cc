@@ -24,6 +24,7 @@
  *
  */
 
+#include "geometry/residue-and-atom-specs.hh"
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/string_cast.hpp> // for to_string()
 
@@ -494,7 +495,7 @@ graphics_info_t::on_glarea_click(GtkGestureClick *controller,
    };
 
    // no longer useful
-   // std::cout << "(mouse) click!" << std::endl;
+   // std::cout << "----------(mouse) click!" << std::endl;
 
    SetMouseBegin(x,y);
 
@@ -571,94 +572,116 @@ graphics_info_t::on_glarea_click(GtkGestureClick *controller,
 
             bool handled = check_if_refinement_dialog_arrow_tab_was_clicked();
 
-            GdkModifierType modifier = gtk_event_controller_get_current_event_state(GTK_EVENT_CONTROLLER(controller));
-            // std::cout << "debug:: on_glarea_click(); modifier: " << modifier << std::endl;
-            if (modifier == 8) { // "option" key on Mac (ALT on PC is 24)
-               bool intermediate_atoms_only_flag = false;
-               pick_info naii = atom_pick_gtk3(intermediate_atoms_only_flag);
-               if (naii.success) {
-                  setRotationCentre(naii.atom_index, naii.imol);
-                  add_picked_atom_info_to_status_bar(naii.imol, naii.atom_index);
+            if (! handled) {
+               // test for user-defined click here
+               if (in_user_defined_define > 0) {
+                  bool intermediate_atoms_only_flag = false;
+                  std::cout << "in user-defined " << in_user_defined_define << std::endl;
+                  pick_info naii = atom_pick_gtk3(intermediate_atoms_only_flag);
+                  if (naii.success) {
+                     mmdb::Atom *at = molecules[naii.imol].atom_sel.atom_selection[naii.atom_index];
+                     coot::atom_spec_t spec(at);
+                     user_defined_atom_pick_specs.push_back(spec);
+                     in_user_defined_define -= 1;
+                     if (in_user_defined_define == 0) {
+                        // run the function then
+                        run_user_defined_click_func();
+                     }
+                  }
+                  handled = true;
                }
+            }
 
-            } else { // not "option" modifier
-
+            if (! handled) {
                GdkModifierType modifier = gtk_event_controller_get_current_event_state(GTK_EVENT_CONTROLLER(controller));
                // std::cout << "debug:: on_glarea_click(); modifier: " << modifier << std::endl;
+               if (modifier == 8) { // "option" key on Mac (ALT on PC is 24)
+                  bool intermediate_atoms_only_flag = false;
+                  pick_info naii = atom_pick_gtk3(intermediate_atoms_only_flag);
+                  if (naii.success) {
+                     setRotationCentre(naii.atom_index, naii.imol);
+                     add_picked_atom_info_to_status_bar(naii.imol, naii.atom_index);
+                  }
 
-               if (tomo_picker_flag) {
+               } else { // not "option" modifier
 
-                  bool shift_is_pressed = (modifier & GDK_SHIFT_MASK);
-                  handled = tomo_pick(x,y, n_press, shift_is_pressed);
+                  GdkModifierType modifier = gtk_event_controller_get_current_event_state(GTK_EVENT_CONTROLLER(controller));
+                  // std::cout << "debug:: on_glarea_click(); modifier: " << modifier << std::endl;
 
-               } else {
+                  if (tomo_picker_flag) {
 
-                  if (modifier & GDK_SHIFT_MASK) { // shift
-
-                     bool intermediate_atoms_only_flag = false;
-                     pick_info naii = atom_pick_gtk3(intermediate_atoms_only_flag);
-                     if (naii.success) {
-                        int imol = naii.imol;
-                        mmdb::Atom *at = molecules[imol].atom_sel.atom_selection[naii.atom_index];
-                        molecules[imol].add_to_labelled_atom_list(naii.atom_index);
-                        graphics_draw();
-                        handled = true;
-                     }
-                     if (! handled) {
-                        coot::Symm_Atom_Pick_Info_t sapi = symmetry_atom_pick();
-                        if (sapi.success == GL_TRUE) {
-                           int imol = sapi.imol;
-                           molecules[imol].add_atom_to_labelled_symm_atom_list(sapi.atom_index, sapi.symm_trans,
-                                                                               sapi.pre_shift_to_origin);
-                           graphics_draw();
-                        }
-                     }
+                     bool shift_is_pressed = (modifier & GDK_SHIFT_MASK);
+                     handled = tomo_pick(x,y, n_press, shift_is_pressed);
 
                   } else {
 
-                     // std::cout << "Here with in_range_define " << in_range_define << std::endl;
-                     if (in_range_define == 1 || in_range_define == 2) {
+                     if (modifier & GDK_SHIFT_MASK) { // shift
+
                         bool intermediate_atoms_only_flag = false;
                         pick_info naii = atom_pick_gtk3(intermediate_atoms_only_flag);
                         if (naii.success) {
                            int imol = naii.imol;
                            mmdb::Atom *at = molecules[imol].atom_sel.atom_selection[naii.atom_index];
-                           if (in_range_define == 1) {
-                              in_range_first_picked_atom  = coot::atom_spec_t(at);
-                              in_range_first_picked_atom.int_user_data = imol;
-                              molecules[imol].add_to_labelled_atom_list(naii.atom_index);
+                           molecules[imol].add_to_labelled_atom_list(naii.atom_index);
+                           graphics_draw();
+                           handled = true;
+                        }
+                        if (! handled) {
+                           coot::Symm_Atom_Pick_Info_t sapi = symmetry_atom_pick();
+                           if (sapi.success == GL_TRUE) {
+                              int imol = sapi.imol;
+                              molecules[imol].add_atom_to_labelled_symm_atom_list(sapi.atom_index, sapi.symm_trans,
+                                                                                  sapi.pre_shift_to_origin);
+                              graphics_draw();
                            }
-                           if (in_range_define == 2) {
-                              in_range_second_picked_atom = coot::atom_spec_t(at);
-                              in_range_second_picked_atom.int_user_data = imol;
-                              molecules[imol].add_to_labelled_atom_list(naii.atom_index);
+                        }
+
+                     } else {
+
+                        // std::cout << "Here with in_range_define " << in_range_define << std::endl;
+                        if (in_range_define == 1 || in_range_define == 2) {
+                           bool intermediate_atoms_only_flag = false;
+                           pick_info naii = atom_pick_gtk3(intermediate_atoms_only_flag);
+                           if (naii.success) {
+                              int imol = naii.imol;
+                              mmdb::Atom *at = molecules[imol].atom_sel.atom_selection[naii.atom_index];
+                              if (in_range_define == 1) {
+                                 in_range_first_picked_atom  = coot::atom_spec_t(at);
+                                 in_range_first_picked_atom.int_user_data = imol;
+                                 molecules[imol].add_to_labelled_atom_list(naii.atom_index);
+                              }
+                              if (in_range_define == 2) {
+                                 in_range_second_picked_atom = coot::atom_spec_t(at);
+                                 in_range_second_picked_atom.int_user_data = imol;
+                                 molecules[imol].add_to_labelled_atom_list(naii.atom_index);
+                              }
+                              in_range_define = 2;
+                              graphics_draw(); // make the label appear
+                              handled =  true;
                            }
-                           in_range_define = 2;
-                           graphics_draw(); // make the label appear
-                           handled =  true;
                         }
                      }
                   }
-               }
 
-               if (! handled) {
-                  bool intermediate_atoms_only_flag = true;
-                  pick_info naii = atom_pick_gtk3(intermediate_atoms_only_flag);
-                  if (naii.success) {
-                     mmdb::Atom *at = moving_atoms_asc->atom_selection[naii.atom_index];
-                     moving_atoms_currently_dragged_atom_index = naii.atom_index;
-                     // std::cout << "debug:: in on_glarea_click() picked an intermediate atom " << coot::atom_spec_t(at) << std::endl;
+                  if (! handled) {
+                     bool intermediate_atoms_only_flag = true;
+                     pick_info naii = atom_pick_gtk3(intermediate_atoms_only_flag);
+                     if (naii.success) {
+                        mmdb::Atom *at = moving_atoms_asc->atom_selection[naii.atom_index];
+                        moving_atoms_currently_dragged_atom_index = naii.atom_index;
+                        // std::cout << "debug:: in on_glarea_click() picked an intermediate atom " << coot::atom_spec_t(at) << std::endl;
+                     }
                   }
-               }
 
-               if (! handled) {
+                  if (! handled) {
 
-                  // 20240902-PE maybe it should run (and act on the symmtry atom pick) if this is a middle-mouse click?
+                     // 20240902-PE maybe it should run (and act on the symmtry atom pick) if this is a middle-mouse click?
 
-                  // does this ever run?
-                  // 20240902-PE yes it does - maybe it shouldn't.
-                  // std::cout << "debug:: click handler: Symmetry atom pick here B - does this run? When? " << std::endl;
-                  // coot::Symm_Atom_Pick_Info_t sap = symmetry_atom_pick();
+                     // does this ever run?
+                     // 20240902-PE yes it does - maybe it shouldn't.
+                     // std::cout << "debug:: click handler: Symmetry atom pick here B - does this run? When? " << std::endl;
+                     // coot::Symm_Atom_Pick_Info_t sap = symmetry_atom_pick();
+                  }
                }
             }
          }

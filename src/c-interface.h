@@ -7299,7 +7299,7 @@ void globularize(int imol);
     20100616 This doesn't get into the doxygen documentation for some
     reason I can't figure out.
 
-    \fn user_defined_click_scm(int n_clicks, SCM func);
+    \fn user_defined_click_py(int n_clicks, SCM func);
 
     \brief run a user defined function
 

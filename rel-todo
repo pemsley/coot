@@ -1,7 +1,160 @@
 
 --- Items ---
 
+o Moorhen: key binding for "Nice" bonds.
+
+o Moorhen: environment distances to symmetry-related molecules.
+
+o Robbie: 3lem: B2-B3 link
+
+o in moorhen, maybe coot, draw the dodecs close to CA - not gapped
+  witht the rama ball missing.
+
+o Moorhen/libcootapi test fsc with more map pairs
+
+o Coot: go to atom dialog and use numpad enter key. Needs a computer
+  with a numpad!
+
+o Coot: bring carboydrate, in WTA mode, to the gui
+  i.e. 4d514356326ca57852d349f9a2e34b7815688673 needs user interface.
+
+o ligand code KCX: make pdb from chapi and read it into moorhen - with hydrogen atoms
+  In Lucy's example some hydrogen atoms were disconnected.
+
+o add_molecular_symmetry add this to moorhen/libcootapi
+
+o set status 0 for more than 100,000 (or so?) vertices
+  Make an api function for the user to set the max vertices
+* Done
+
+o "de-dust"/hide dust. Maybe the contour level needs to be sent also.
+* Done.
+
+o given the residual map, can you find the centres of the blobs? I have in mind
+  doing the cryo-EM tutorial non-interactively. Use rings and shift? Use low-resolution
+  maps - resample for more speed.
+
+o give me a list of "clashes" in the validation tools in moorhen
+
+o add low-pass filter
+
+o add solvent mask - combine the maps from the gaussian surfaces
+
+o check "Fix nomenclature errors"
+
+o rebuild_fragment_using_dbloop function needs more work.
+
+o this fails to create the directory for the dictionary (it seems):
+INFO::       Reading coordinate file: /Users/pemsley/.cache/Coot/coot-download/pdb4dab.ent
+INFO:: file /Users/pemsley/.cache/Coot/coot-download/pdb4dab.ent has been read.
+PATH p-B
+PATH p-C
+DEBUG:: try_dynamic_add() using package_data_dir(): /Users/pemsley/install-coot/share/coot
+:::::::::::::::: debug in try_dynamic_add() here A with s /Users/pemsley/install-coot/share/coot/lib/data
+:::::::::::::::: debug in try_dynamic_add() here A with null cmld
+debug:: try_dynamic_add(): here C filename /Users/pemsley/install-coot/share/coot/lib/data/monomers/
+DEBUG:: try_dynamic_add(): /Users/pemsley/.cache/Coot/monomers/h does not exist
+
 o on the coot web page say how/where to report a bug.
+
+o read in lib/data/monomers/metals.json - add it to the disribution
+
+o check power-scaled map with 1gwd atom map.
+
+o try 8b0x in flatpak coot. Colour by chain. Missing dictionaries.
+  Make an easy way to download all the missing dictionaries
+
+o get_atom_position() add to chapi
+
+o add sphericity test (current analysis) to chapi
+
+o do we have "B-factor analysis" i.e.. show me atoms with B-factor
+  more than 70 (or so)
+
+o rdkit mol -> mmcif - for output from layla
+
+o 6ZV ligand - does it display correctly?
+
+o crash on run unit tests:
+
+Stack trace (most recent call last):
+#31 | Source "Python/ceval.c", line 6439, in _PyEval_EvalFrame
+      Source "./Include/internal/pycore_ceval.h", line 73, in _PyEval_Vector [0x7f1af7462f3f]
+#30 | Source "Python/ceval.c", line 5381, in do_call_core
+      Source "Python/ceval.c", line 7357, in _PyEval_EvalFrameDefault [0x7f1af745d50f]
+#29 | Source "Objects/classobject.c", line 89, in _PyObject_VectorcallTstate
+      Source "./Include/internal/pycore_call.h", line 92, in method_vectorcall [0x7f1af735560f]
+#28 | Source "Python/ceval.c", line 6439, in _PyEval_EvalFrame
+      Source "./Include/internal/pycore_ceval.h", line 73, in _PyEval_Vector [0x7f1af7462f3f]
+#27 | Source "Python/ceval.c", line 5381, in do_call_core
+      Source "Python/ceval.c", line 7357, in _PyEval_EvalFrameDefault [0x7f1af745d50f]
+#26 | Source "Python/ceval.c", line 6439, in _PyEval_EvalFrame
+      Source "./Include/internal/pycore_ceval.h", line 73, in _PyEval_Vector [0x7f1af7462f3f]
+#25   Source "Python/ceval.c", line 4774, in _PyEval_EvalFrameDefault [0x7f1af745ca28]
+#24   Source "Objects/call.c", line 214, in _PyObject_MakeTpCall [0x7f1af73526ec]
+#23   Source "Objects/methodobject.c", line 553, in cfunction_call [0x7f1af73a9550]
+#22   Source "/home/paule/Projects/coot/git/coot-main/build-arch/src/coot_wrap_python.cc", line 29968, in _wrap_regularize_zone [0x7f1ae64dcc64]
+       29965:     SWIG_exception_fail(SWIG_ArgError(res5), "in method '" "regularize_zone" "', argument " "5"" of type '" "char const *""'");
+       29966:   }
+       29967:   arg5 = reinterpret_cast< char * >(buf5);
+      >29968:   result = (int)regularize_zone(arg1,(char const *)arg2,arg3,arg4,(char const *)arg5);
+       29969:   resultobj = SWIG_From_int(static_cast< int >(result));
+       29970:   if (alloc2 == SWIG_NEWOBJ) delete[] buf2;
+       29971:   if (alloc5 == SWIG_NEWOBJ) delete[] buf5;
+#21   Source "../../coot/src/c-interface-refine.cc", line 175, in regularize_zone [0x7f1af955f394]
+        172:       short int auto_range = 0;
+        173:       if (index1 >= 0) {
+        174: 	 if (index2 >= 0) {
+      > 175: 	    coot::refinement_results_t rr = g.regularize(imol, auto_range, index1, index2);
+        176: 	    std::cout << "debug:: restraints results " << rr.found_restraints_flag << " "
+        177: 		      << rr.lights.size() << " " << rr.info_text << std::endl;
+        178: 	    if (rr.lights.size() > 0)
+#20   Source "../../coot/src/graphics-info-modelling.cc", line 2500, in regularize [0x7f1af97a7ccd]
+       2497:       std::cout << "Picked atoms are not in the same chain.  Failure" << std::endl;
+       2498:    } else {
+       2499:       // flash_selection(imol, resno_1, inscode_1, resno_2, inscode_2, altconf, chain_id_1);
+      >2500:       rr = copy_mol_and_regularize(imol, resno_1, inscode_1, resno_2, inscode_2, altconf, chain_id_1);
+       2501:       short int istat = rr.found_restraints_flag;
+       2502:       if (istat) {
+       2503: 	 graphics_draw();
+#19   Source "../../coot/src/graphics-info-modelling.cc", line 196, in copy_mol_and_regularize [0x7f1af97a774a]
+        193: 					 std::string altconf,// use this (e.g. "A") or "".
+        194: 					 std::string chain_id_1) {
+        195: 
+      > 196:    return copy_mol_and_refine(imol, -1, resno_1, inscode_1, resno_2, inscode_2, altconf, chain_id_1);
+        197: }
+#18   Source "../../coot/src/graphics-info-modelling.cc", line 365, in copy_mol_and_refine [0x7f1af97a74fa]
+        362:       // 					  imol_for_map);
+        363: 
+        364:       if (imol_for_map == -1)
+      > 365: 	 rr = regularize_residues_vec(imol_for_atoms, residues, altconf, mol);
+        366:       else
+        367: 	 rr = refine_residues_vec(imol_for_atoms, residues, altconf, mol);
+        368:    }
+#17   Source "../../coot/src/graphics-info-modelling.cc", line 1201, in regularize_residues_vec [0x7f1af97a6be2]
+       1198: 					 mmdb::Manager *mol) {
+       1199: 
+       1200:    bool use_map_flag = 0;
+      >1201:    coot::refinement_results_t rr = generate_molecule_and_refine(imol, residues, alt_conf, mol, use_map_flag);
+       1202:    short int istat = rr.found_restraints_flag;
+       1203:    if (istat) {
+       1204:       graphics_draw();
+#16   Source "../../coot/src/graphics-info-modelling.cc", line 1654, in generate_molecule_and_refine [0x7f1af97a64b0]
+       1651: 	    check_dictionary_for_residue_restraints(imol, residues);
+       1652: 	 if (icheck.first == 0) {
+       1653: 	    // info_dialog_missing_refinement_residues(icheck.second);
+      >1654: 	    show_missing_refinement_residues_dialog(icheck.second, false);
+       1655: 	 }
+       1656:       }
+       1657:    }
+#15   Source "../../coot/src/graphics-info-modelling.cc", line 383, in show_missing_refinement_residues_dialog [0x7f1af97960e7]
+        380:    gtk_widget_set_visible(vbox, TRUE);
+        381:    clear_out_container(vbox);
+        382:    for (const auto &rn : res_names) {
+      > 383:       GtkWidget *label = gtk_label_new(rn.c_str());
+        384:       char* ccx = new char[rn.size() + 1];
+        385:       for (unsigned int ii=0; ii<=rn.size(); ii++) ccx[ii] = 0;
+        386:       std::copy(rn.begin(), rn.end(), ccx);
 
 o Ctrl-S should add something to the log.
 
@@ -19,6 +172,10 @@ o in cfc, give me a button that shows the chemical features
 
 o halogen ligand interaction - investigate.
 
+o refine a structure with the wrong magnification and look at the
+  distortion of the bond lengths. I have done some work on this,
+  but where is it?
+
 o CFC should also check for pi-stacking to the protein
   (i.e. not just internal chemical features)
 
@@ -34,6 +191,8 @@ o what is PLIP(ify) Interaction Key?
   Uses conda - what does it depend on and can it be used outside of conda?
 
 o show the PLI interactions in 3d (in moorhen too)
+
+o external Rama torsion restraints for servalcat
 
 o make "Environment Distances" an overlay
 
@@ -86,6 +245,8 @@ o fix the map caps. Make it work in moorhen. Single colour mode and joined edges
 --- Other Items ---
 
 o "Flood the blob with dummy atoms" - useful of pomgnt2
+
+o import cif dictionary from string.
 
 o Add ability to rotate view around z axis :: 0.5
 

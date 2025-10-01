@@ -244,7 +244,7 @@ cfc::chemical_feature_clustering(const std::vector<cfc::input_info_t> &mol_infos
          water_positions.push_back(p);
          iwat_to_water_info_index[iwat] = water;
       }
-      double alpha = 189.0; // was 9.1;
+      double alpha = 2.0; // was 9.1;
       double beta  = 0.0085; // was 0.01;
       DirichletProcessClustering dpc(alpha, beta);
       std::vector<unsigned int> clustered_points = dpc.fit(water_positions);

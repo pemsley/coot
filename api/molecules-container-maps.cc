@@ -27,12 +27,14 @@
 #include "compat/coot-sysdep.h"
 #include "clipper/core/clipper_types.h"
 #include "clipper/core/coords.h"
+#include "geometry/residue-and-atom-specs.hh"
 #include "mmdb2/mmdb_atom.h"
 #include "molecules-container.hh"
 #include "validation-information.hh"
 
 #include "clipper-ccp4-map-file-wrapper.hh"
 #include "coot-utils/slurp-map.hh"
+#include "coot-utils/segmap.hh"
 
 int
 molecules_container_t::read_ccp4_map(const std::string &file_name, bool is_a_difference_map) {
@@ -726,6 +728,81 @@ molecules_container_t::get_map_vertices_histogram(int imol, int imol_map_for_sam
       }
    }
    return hi;
+}
 
+int
+molecules_container_t::dedust_map(int imol) {
+   int imol_new = -1;
+   if (is_valid_map_molecule(imol)) {
+      const clipper::Xmap<float> xmap = molecules[imol].xmap;
+      clipper::Xmap<float> new_map = coot::dedust(xmap, 0);
+      imol_new = molecules.size();
+      std::string name = "Dedusted map from " + molecules[imol].get_name();
+      bool is_em_map = molecules[imol].is_EM_map();
+      molecules.push_back(coot::molecule_t(name, imol_new, new_map, is_em_map));
+   }
+   return imol_new;
+}
+
+#include "ligand/ligand.hh"
+
+std::pair<float,float>
+molecules_container_t::get_mean_and_variance_of_density_for_non_water_atoms(int imol_coords, int imol_map) const {
+
+   std::pair<float,float> r(-1, -1);
+   if (is_valid_map_molecule(imol_map)) {
+      const clipper::Xmap<float> &xmap = molecules[imol_map].xmap;
+      if (is_valid_model_molecule(imol_coords)) {
+         mmdb::Manager *mol = molecules[imol_coords].atom_sel.mol;
+         coot::ligand l;
+         l.import_map_from(xmap);
+         std::pair<float, float> mv = l.mean_and_variance_where_the_atoms_are(mol);
+         r = mv;
+      }
+   }
+   return r;
+}
+
+
+//! Get spherical variance - typically for water atoms
+//!
+//! @return the variance or a negative number on failure
+float
+molecules_container_t::get_spherical_variance(int imol_map, int imol_model,
+                                              const std::string &atom_cid,
+                                              float mean_density_other_atoms) const {
+
+   float v = -1.0;
+   if (is_valid_map_molecule(imol_map)) {
+      if (is_valid_model_molecule(imol_model)) {
+         const clipper::Xmap<float> &xmap = molecules[imol_map].xmap;
+         std::pair<bool, coot::atom_spec_t> p = molecules[imol_model].cid_to_atom_spec(atom_cid);
+         if (p.first) {
+            mmdb::Atom *at_m = molecules[imol_model].get_atom(p.second);
+            if (at_m) {
+               coot::atom_spec_t atom_spec(at_m);
+               mmdb::Atom *at = molecules[imol_model].get_atom(atom_spec);
+               if (at) {
+                  clipper::Coord_orth pt(at->x, at->y, at->z);
+                  float mean_d = mean_density_other_atoms;
+                  coot::ligand::spherical_density_score_t sds;
+                  float sv = sds.get_spherical_variance(pt, xmap, mean_d);
+                  v = sv;
+               } else {
+                  std::cout << "WARNING:: get_spherical_variance() not found atom pointer " << atom_spec << std::endl;
+               }
+            } else {
+               std::cout << "WARNING:: get_spherical_variance() not found atom " << atom_cid << std::endl;
+            }
+         } else {
+            std::cout << "WARNING:: get_spherical_variance() failed to convert cid to atom spec " << atom_cid << std::endl;
+         }
+      } else {
+         std::cout << "WARNING:: get_spherical_variance() not a valid model molecule " << imol_model << std::endl;
+      }
+   } else {
+     std::cout << "WARNING:: get_spherical_variance() not a valid map molecule " << imol_map << std::endl;
+   }
+   return v;
 }
 

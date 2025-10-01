@@ -1,6 +1,7 @@
 
 #include <iostream>
 #include <iomanip>
+#include <string>
 
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -6580,6 +6581,60 @@ int test_radius_of_gyration(molecules_container_t &mc) {
    return status;
 }
 
+int test_temperature_factor_of_atom(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   float b1 = mc.get_temperature_factor_of_atom(imol, "//A/8/CB");
+   float b2 = mc.get_temperature_factor_of_atom(imol, "//x/8/CB");
+
+   std::cout << "debug b1 " << b1 << " b2 " << b2 << std::endl;
+
+   if (b2 < 0.0)
+      if (b1 < 40.0)
+         if (b1 > 39.0)
+            status = 1;
+
+   return status;
+}
+
+int test_water_spherical_variance(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+   int imol     = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
+   if (mc.is_valid_model_molecule(imol)) {
+      unsigned int n_waters = mc.add_waters(imol, imol_map);
+      std::cout << "DEBUG:: test_water_spherical_variance(): n_waters: " << n_waters << std::endl;
+      mc.write_coordinates(imol, "with-waters.pdb");
+      bool all_pass = true;
+      for (unsigned int rn=1; rn<=50; rn++) {
+         std::string atom_cid = "//B/" + std::to_string(rn) + "/O";
+         std::pair<float,float> mv = mc.get_mean_and_variance_of_density_for_non_water_atoms(imol, imol_map);
+         if (mv.first > 0) { // this test that the function worked as expected/hoped
+            float sv = mc.get_spherical_variance(imol_map, imol, atom_cid, mv.first);
+            // std::cout << "spherical variance: " << atom_cid << " " << sv << std::endl;
+            if (sv <= 0.0) all_pass = false;
+         }
+      }
+      if (all_pass) status = 1;
+   }
+   return status;
+}
+
+
+int test_dedust(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+   int imol_map = mc.read_ccp4_map(reference_data("emd_16890.map"), false);
+   int imol_new = mc.dedust_map(imol_map);
+   mc.write_map(imol_new, "dedust-16890.map");
+   return status;
+}
 
 int test_template(molecules_container_t &mc) {
 
@@ -6914,6 +6969,9 @@ int main(int argc, char **argv) {
          // status += run_test(test_map_vertices_histogram, "map vertices histogram", mc);
          // status += run_test(test_non_XYZ_EM_map_status, "non-XYZ map status", mc);
          status += run_test(test_radius_of_gyration, "radius of gyration", mc);
+         status += run_test(test_temperature_factor_of_atom, "temperature factor of atom", mc);
+         status += run_test(test_water_spherical_variance, "water spherical variance", mc);
+         status += run_test(test_dedust, "dedust", mc);
          if (status == n_tests) all_tests_status = 0;
 
          print_results_summary();

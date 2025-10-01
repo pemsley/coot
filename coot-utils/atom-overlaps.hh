@@ -133,6 +133,7 @@ namespace coot {
          is_h_bond = false;
          overlap_volume = o;
       }
+      atom_overlap_t() : ligand_atom_index(-1), r_1(-1), r_2(-1), atom_1(nullptr), atom_2(nullptr), overlap_volume(-1), is_h_bond(false) {}
       int ligand_atom_index;
       double r_1, r_2;
       mmdb::Atom *atom_1;
@@ -318,6 +319,9 @@ namespace coot {
                                 bool ignore_water_contacts_flag,
                                 double clash_spike_length_in = 0.5,
                                 double probe_radius_in = 0.25);
+
+      // default constructor for use with moorhen javascript wrapper
+      atom_overlaps_container_t() {}
 
       // If there are no overlaps, is it because there was no dictionary for one or more residues?
       bool get_have_dictionary() const { return have_dictionary; }

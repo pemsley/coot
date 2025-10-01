@@ -1,7 +1,14 @@
 BasedOnStyle: Google
 IndentWidth: 3
+SeparateDefinitionBlocks: Leave
 
 NamespaceIndentation: All
 AccessModifierOffset: -3
 
 AlignAfterOpenBracket: Align
+
+SortIncludes: false
+
+PointerAlignment: Right
+
+ColumnLimit: 0
