@@ -545,7 +545,8 @@ target_compile_features(coot-mini-rsr PRIVATE cxx_std_17)
 
 target_compile_features(res-tracer-libcootapi PRIVATE cxx_std_17)
 
-target_link_libraries(coot_headless_api PUBLIC cootapi  ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${MMDB2_LIBRARY} ${libdwarf} ${libelf})
+target_link_libraries(coot_headless_api PUBLIC cootapi  ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${MMDB2_LIBRARY}
+                      ${RDKit_libs_for_libcootapi} ${libdwarf} ${libelf})
 
 target_include_directories(findligand PRIVATE ${MMDB2_INCLUDE_DIR} ${CLIPPER-CORE_INCLUDE_DIR} ${coot_src})
 
