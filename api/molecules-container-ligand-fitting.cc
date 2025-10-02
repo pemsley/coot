@@ -1,6 +1,8 @@
 
 #include <clipper/ccp4/ccp4_map_io.h> // debugging mapout
+#include <memory>
 
+#include "coot-utils/cfc.hh"
 #include "utils/base64-encode-decode.hh"
 #include "ligand/wligand.hh"
 
@@ -55,6 +57,14 @@ molecules_container_t::get_rdkit_mol(const std::string &residue_name, int imol_e
 }
 #endif
 
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+std::shared_ptr<RDKit::RWMol>
+molecules_container_t::get_rdkit_mol_shared(const std::string &residue_name, int imol_enc) {
+   RDKit::RWMol rwmol = get_rdkit_mol(residue_name, imol_enc);
+   std::shared_ptr<RDKit::RWMol> m = std::make_shared<RDKit::RWMol>(rwmol);
+   return m;
+}
+#endif
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 
