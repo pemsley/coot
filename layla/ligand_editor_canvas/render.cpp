@@ -405,7 +405,7 @@ std::string Renderer::text_span_to_pango_markup(const TextSpan& span, const std:
     bool style_block = should_specify_style();
     if(style_block) {
         const auto& style = span.style;
-        ret += "<span ";
+        ret += "<span line_height=\"0.75\"";
         if(style.specifies_color) {
             std::stringstream html_color;
             html_color << "#";
@@ -624,10 +624,20 @@ std::tuple<Renderer::TextSpan, bool> MoleculeRenderContext::process_appendix(con
         }
         if (ap.reversed) {
             ret.as_subspans().push_back(root_span);
+            if(ap.vertical) {
+                Renderer::TextSpan br_span;
+                br_span.as_caption() = "\n";
+                ret.as_subspans().push_back(br_span);
+            }
             ret.as_subspans().push_back(symbol_span);
             reversed = true;
         } else {
             ret.as_subspans().push_back(symbol_span);
+            if(ap.vertical) {
+                Renderer::TextSpan br_span;
+                br_span.as_caption() = "\n";
+                ret.as_subspans().push_back(br_span);
+            }
             ret.as_subspans().push_back(root_span);
         }
         //ret += "</span>";
