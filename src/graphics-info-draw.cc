@@ -3204,7 +3204,7 @@ graphics_info_t::setup_draw_for_translation_gizmo() {
    translation_gizmo_mesh.clear(); // so that we don't add to the mesh!
    translation_gizmo_mesh.import(cv, translation_gizmo.mesh.triangles);
    translation_gizmo_mesh.setup_buffers();
-   translation_gizmo_mesh.set_draw_this_mesh(true); // for debugging
+   translation_gizmo_mesh.set_draw_this_mesh(false);
 
 }
 

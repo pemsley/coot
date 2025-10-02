@@ -92,6 +92,7 @@ graphics_info_t::translation_gizmo_picked() {
 
    translation_gizmo_t::pick_info_t pick_info = translation_gizmo_t::pick_info_t::NONE;
    if (translation_gizmo_mesh.get_draw_this_mesh()) {
+      std::cout << "translation gizmo is being drawn" << std::endl;
       graphics_info_t g;
       GtkAllocation allocation = get_glarea_allocation();
       int w = allocation.width;
@@ -161,6 +162,8 @@ graphics_info_t::on_glarea_drag_update_primary(GtkGestureDrag *gesture,
          if (translation_gizmo_axis_dragged == translation_gizmo_t::pick_info_t::Y_AXIS) t = coot::Cartesian(0, mol_space_vec.y, 0);
          if (translation_gizmo_axis_dragged == translation_gizmo_t::pick_info_t::Z_AXIS) t = coot::Cartesian(0, 0, mol_space_vec.z);
 
+         // 2025-10-01-PE I need to call setup_draw_for_translation_gizmo() here?
+         // That doesn't seem like a good design.
          translation_gizmo.translate(t);
          setup_draw_for_translation_gizmo();
 
