@@ -172,8 +172,17 @@ Renderer::TextSpan::TextSpan(const std::vector<TextSpan>& subspans) {
     this->content = subspans;
 }
 
+Renderer::TextSpan::TextSpan(const Newline& nl) {
+    this->specifies_style = false;
+    this->content = nl;
+}
+
 bool Renderer::TextSpan::has_subspans() const {
     return std::holds_alternative<std::vector<TextSpan>>(this->content);
+}
+
+bool Renderer::TextSpan::is_newline() const {
+    return std::holds_alternative<Newline>(this->content);
 }
 
 std::string& Renderer::TextSpan::as_caption() {
@@ -451,6 +460,8 @@ std::string Renderer::text_span_to_pango_markup(const TextSpan& span, const std:
             std::optional<TextStyle> styleopt = subspan.specifies_style ? subspan.style : parent_style;
             ret += this->text_span_to_pango_markup(subspan, styleopt);
         }
+    } else if(span.is_newline()) {
+        ret += "\n";
     } else {
         const auto& caption = span.as_caption();
         // todo: escape characters!
@@ -625,8 +636,7 @@ std::tuple<Renderer::TextSpan, bool> MoleculeRenderContext::process_appendix(con
         if (ap.reversed) {
             ret.as_subspans().push_back(root_span);
             if(ap.vertical) {
-                Renderer::TextSpan br_span;
-                br_span.as_caption() = "\n";
+                Renderer::TextSpan br_span(Renderer::TextSpan::Newline{});
                 ret.as_subspans().push_back(br_span);
             }
             ret.as_subspans().push_back(symbol_span);
@@ -634,8 +644,7 @@ std::tuple<Renderer::TextSpan, bool> MoleculeRenderContext::process_appendix(con
         } else {
             ret.as_subspans().push_back(symbol_span);
             if(ap.vertical) {
-                Renderer::TextSpan br_span;
-                br_span.as_caption() = "\n";
+                Renderer::TextSpan br_span(Renderer::TextSpan::Newline{});
                 ret.as_subspans().push_back(br_span);
             }
             ret.as_subspans().push_back(root_span);

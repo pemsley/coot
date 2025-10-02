@@ -73,8 +73,12 @@ struct Renderer {
     };
 
     class TextSpan {
+        public:
+        struct Newline {};
 
-        std::variant<std::string, std::vector<TextSpan>> content;
+        private:
+
+        std::variant<std::string, std::vector<TextSpan>, Newline> content;
 
         public:
         TextStyle style;
@@ -82,6 +86,7 @@ struct Renderer {
         bool specifies_style;
 
         bool has_subspans() const;
+        bool is_newline() const;
         std::string& as_caption();
         const std::string& as_caption() const;
         std::vector<TextSpan>& as_subspans();
@@ -89,6 +94,7 @@ struct Renderer {
         TextSpan();
         TextSpan(const std::string&);
         TextSpan(const std::vector<TextSpan>&);
+        TextSpan(const Newline&);
 
         #ifdef __EMSCRIPTEN__
         inline friend std::size_t hash_value(const TextSpan&);
