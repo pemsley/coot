@@ -897,9 +897,19 @@ void CanvasMolecule::build_internal_molecule_representation(const RDGeom::INT_PO
                 if(terminus && x_coordinate_of_bonded_atom.has_value()) {
                     float x_diff = x_coordinate_of_bonded_atom.value() - canvas_atom.x;
                     float y_diff = y_coordinate_of_bonded_atom.value() - canvas_atom.y;
-                    ap.reversed = x_diff > 0.2;
-                    // If this gives stupid results, I will make it angle-based
-                    ap.vertical = std::abs(y_diff) > std::abs(x_diff);
+                    float alpha = std::atan(y_diff / x_diff);
+                    // g_info("Atom %u: x_diff=%f y_diff=%f alpha=%f",canvas_atom.idx,x_diff,y_diff,alpha);
+                    
+                    // todo: extract magic numbers into constants
+                    ap.vertical = std::abs(alpha) > M_PI_2 - 33.75/360 * 2 * M_PI;
+
+                    if(ap.vertical) {
+                        if(y_diff > 0) {
+                            ap.reversed = true;
+                        }
+                    } else {
+                        ap.reversed = x_diff > 0.2;
+                    }
                 }
                 canvas_atom.appendix = ap;
             }
