@@ -698,6 +698,7 @@ std::pair<unsigned int,graphene_rect_t> MoleculeRenderContext::render_atom(const
         }
         default:
         case DisplayMode::Standard: {
+            // todo: vertical appendices
             auto [appendix,p_reversed] = process_appendix(atom.symbol, atom.appendix, atom_span.style);
             reversed = p_reversed;
             raw_atom_span.as_caption() += atom.symbol;
@@ -732,6 +733,7 @@ std::pair<unsigned int,graphene_rect_t> MoleculeRenderContext::render_atom(const
     #endif
     int layout_x_offset = reversed ? size.width - raw_size.width / 2.f + magic1 : raw_size.width / 2.f;
     double origin_x = atom.x * scale_factor + x_offset - layout_x_offset;
+    // todo: vertical appendices support
     double origin_y = atom.y * scale_factor + y_offset - raw_size.height / 2.f;
 
     graphene_rect_t rect;
