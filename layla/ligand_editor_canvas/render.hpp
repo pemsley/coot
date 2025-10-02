@@ -266,8 +266,8 @@ class MoleculeRenderContext {
 
 
     void process_atom_highlight(const CanvasMolecule::Atom& atom);
-    /// Returns the appendix span + info if the appendix is reversed
-    std::tuple<Renderer::TextSpan, bool> process_appendix(const std::string& symbol, const std::optional<CanvasMolecule::Atom::Appendix>& appendix, const Renderer::TextStyle& inherited_style);
+    /// Returns the appendix span + if the appendix is reversed + if the appendix is vertical
+    std::tuple<Renderer::TextSpan, bool, bool> process_appendix(const std::string& symbol, const std::optional<CanvasMolecule::Atom::Appendix>& appendix, const Renderer::TextStyle& inherited_style);
     /// Returns a pair of atom index and bonding rect
     std::pair<unsigned int,graphene_rect_t> render_atom(const CanvasMolecule::Atom& atom, DisplayMode render_mode = DisplayMode::Standard);
     // Returns on-screen bond coordinates
