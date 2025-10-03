@@ -17,6 +17,15 @@
 #include "coot-utils/acedrg-types-for-residue.hh"
 #include "coot-utils/g_triangle.hh"
 #include "mini-mol/mini-mol-utils.hh"
+#include "lidia-core/use-rdkit.hh"
+
+#if NB_VERSION_MAJOR // for flychecking
+#include <nanobind/nanobind.h>
+#include <nanobind/stl/string.h>        // For std::string conversion
+#include <nanobind/stl/shared_ptr.h>    // <-- CRITICAL: Provides std::shared_ptr bindings
+#include <nanobind/stl/vector.h>        // Typically useful for RDKit
+#endif
+
 
 #include "molecules-container.hh"
 
@@ -896,6 +905,18 @@ NB_MODULE(coot_headless_api, m) {
     .def("get_rama_plot_restraints_weight",
          &molecules_container_t::get_rama_plot_restraints_weight,
          get_docstring_from_xml("get_rama_plot_restraints_weight").c_str())
+    .def("get_rdkit_mol",
+         &molecules_container_t::get_rdkit_mol,
+         nb::arg("res_name"), nb::arg("imol_enc"),
+         get_docstring_from_xml("get_rdkit_mol").c_str())
+    .def("get_rdkit_mol_shared",
+         &molecules_container_t::get_rdkit_mol_shared,
+         nb::arg("res_name"), nb::arg("imol_enc"),
+         get_docstring_from_xml("get_rdkit_mol_shared").c_str())
+    .def("get_rdkit_mol_pickle_base64",
+         &molecules_container_t::get_rdkit_mol_pickle_base64,
+         nb::arg("res_name"), nb::arg("imol_enc"),
+         get_docstring_from_xml("get_rdkit_mol_pickle_base64").c_str())
     .def("get_ramachandran_validation_markup_mesh",
          &molecules_container_t::get_ramachandran_validation_markup_mesh,
          nb::arg("imol"),

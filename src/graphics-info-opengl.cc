@@ -414,10 +414,13 @@ graphics_info_t::blob_under_pointer_to_screen_centre() {
 	    std::cout << mess.what() << std::endl;
 	 }
       } else {
-	 std::string s = "WARNING:: Refinement map not selected - no action";
-	 std::cout << s << std::endl;
-	 // add_status_bar_text(s.c_str());
-	 info_dialog(s.c_str());
+         // 2025-10-01-PE I don't like this popping up when there are no molecules
+         // maybe a visual effect would be better - like the red rings.
+         if (! molecules.empty()) {
+	    std::string s = "WARNING:: Refinement map not selected - no action";
+	    std::cout << s << std::endl;
+	    info_dialog(s.c_str());
+         }
       }
    }
    return r;

@@ -2,6 +2,7 @@
 #ifndef MOLECULES_CONTAINER_HH
 #define MOLECULES_CONTAINER_HH
 
+#include <memory>
 #ifdef SWIG
 #include "Python.h"
 #endif
@@ -658,6 +659,9 @@ public:
    //! @param imol_enc the molecule for the ligand (typically is imol_enc_any)
    //! @return an RDKit RDMol.
    RDKit::RWMol get_rdkit_mol(const std::string &residue_name, int imol_enc);
+
+   std::shared_ptr<RDKit::RWMol> get_rdkit_mol_shared(const std::string &residue_name, int imol_enc);
+
    //! get the 64base-encoded pickled string that represents the given residue/ligand name
    //!
    //! @param residue_name the residue name

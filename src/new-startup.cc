@@ -216,9 +216,9 @@ new_startup_realize(GtkWidget *gl_area) {
    g.mesh_for_extra_distance_restraints.setup_extra_distance_restraint_cylinder(material); // init
 
    // scale the gizmo to the object being translated
-   // float scale_factor = 22.2;
-   // g.translation_gizmo.scale(scale_factor);
-   // g.setup_draw_for_translation_gizmo();
+   float scale_factor = 22.2;
+   g.translation_gizmo.scale(scale_factor);
+   g.setup_draw_for_translation_gizmo();
 
    g.setup_key_bindings();
 
