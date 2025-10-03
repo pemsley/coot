@@ -339,7 +339,18 @@ namespace std {
 inline std::size_t coot::ligand_editor_canvas::impl::hash_value(const coot::ligand_editor_canvas::impl::Renderer::TextSpan& span) {
     auto ret = std::hash<coot::ligand_editor_canvas::impl::Renderer::TextStyle>{}(span.style);
     boost::hash_combine(ret, span.specifies_style);
-    boost::hash_combine(ret, span.content);
+    // This causes memory corruption
+    // boost::hash_combine(ret, span.content);
+    if(std::holds_alternative<std::string>(span.content)) {
+        boost::hash_combine(ret, std::get<std::string>(span.content));
+    } else if(std::holds_alternative<std::vector<coot::ligand_editor_canvas::impl::Renderer::TextSpan>>(span.content)) {
+        
+        for(const auto& subspan : std::get<std::vector<coot::ligand_editor_canvas::impl::Renderer::TextSpan>>(span.content)) {
+            boost::hash_combine(ret, hash_value(subspan));
+        }
+    } else if(std::holds_alternative<coot::ligand_editor_canvas::impl::Renderer::TextSpan::Newline>(span.content)) {
+        boost::hash_combine(ret, std::get<coot::ligand_editor_canvas::impl::Renderer::TextSpan::Newline>(span.content));
+    }
     return ret;
 }
 #endif // __EMSCRIPTEN__
