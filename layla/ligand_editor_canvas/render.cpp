@@ -544,6 +544,7 @@ Renderer::TextSize Renderer::measure_text(const Renderer::TextSpan& text) {
     //     return {0,0};
     // }
     if(this->tm_cache) {
+        g_debug("About to hash TextSpan for caching.");
         this->tm_cache->add(text_hash.value(), ret);
         g_debug("TextSpan added to cache. Cache entries: %lu", this->tm_cache->size());
     }
@@ -637,16 +638,14 @@ std::tuple<Renderer::TextSpan, bool, bool> MoleculeRenderContext::process_append
         if (ap.reversed) {
             ret.as_subspans().push_back(root_span);
             if(ap.vertical) {
-                Renderer::TextSpan br_span(Renderer::TextSpan::Newline{});
-                ret.as_subspans().push_back(br_span);
+                ret.as_subspans().push_back(Renderer::TextSpan(Renderer::TextSpan::Newline{}));
             }
             ret.as_subspans().push_back(symbol_span);
             reversed = true;
         } else {
             ret.as_subspans().push_back(symbol_span);
             if(ap.vertical) {
-                Renderer::TextSpan br_span(Renderer::TextSpan::Newline{});
-                ret.as_subspans().push_back(br_span);
+                ret.as_subspans().push_back(Renderer::TextSpan(Renderer::TextSpan::Newline{}));
             }
             ret.as_subspans().push_back(root_span);
         }

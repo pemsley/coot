@@ -323,6 +323,12 @@ namespace std {
         }
     };
 
+    template<> struct std::hash<coot::ligand_editor_canvas::impl::Renderer::TextSpan::Newline> {
+        std::size_t operator()(const coot::ligand_editor_canvas::impl::Renderer::TextSpan::Newline&) const noexcept {
+            return 0x9e3879b9; // random constant
+        }
+    };
+
     template<> struct std::hash<coot::ligand_editor_canvas::impl::Renderer::TextSpan> {
         std::size_t operator()(const coot::ligand_editor_canvas::impl::Renderer::TextSpan& span) const noexcept {
            return coot::ligand_editor_canvas::impl::hash_value(span);
