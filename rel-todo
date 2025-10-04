@@ -1,7 +1,30 @@
 
 --- Items ---
 
+o moorhen/lhasa: use bansu for link generation
+
+o coot: 
+  contour level for map 1 is 0.187223 pending
+  tell me what the step size is also.
+
+o update build-it to the latest version of the RDKit 2025_03_6
+
+o install cctbx (conda install) to get mmtx.probe2 to get new dots.
+
+o molprobity reduce has updated the hydrogen bond distance (it seems?)
+  libcootapi should follow - use distances in new monomer library.
+
+o MMRRCC use a different residue range length
+
+o how to represent missing ligand atoms?
+
+o Lucrezia: table of bond and angles and distances vs model table in moorhen
+
+o Moorhen: auto-fit-rotamer without map.
+
 o Moorhen: key binding for "Nice" bonds.
+
+o Delete link in Coot
 
 o Moorhen: environment distances to symmetry-related molecules.
 
@@ -15,7 +38,7 @@ o Moorhen/libcootapi test fsc with more map pairs
 o Coot: go to atom dialog and use numpad enter key. Needs a computer
   with a numpad!
 
-o Coot: bring carboydrate, in WTA mode, to the gui
+o Coot: bring carbohydrate, in WTA mode, to the gui
   i.e. 4d514356326ca57852d349f9a2e34b7815688673 needs user interface.
 
 o ligand code KCX: make pdb from chapi and read it into moorhen - with hydrogen atoms
