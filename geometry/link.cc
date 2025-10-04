@@ -468,7 +468,7 @@ coot::dict_chiral_restraint_t::assign_chiral_volume_target_internal(double a, do
 
 // return "" on failure.
 // no order switch is considered.
-// 
+//
 std::string
 coot::protein_geometry::find_glycosidic_linkage_type(mmdb::Residue *first, mmdb::Residue *second) const {
 
@@ -481,18 +481,18 @@ coot::protein_geometry::find_glycosidic_linkage_type(mmdb::Residue *first, mmdb:
                                // Needed to stop the beta1-6 linked MAN
                                // on a BMA linkinking to the NAG to which
                                // the BMA is bonded (A605-602 in 3whe).
-                              
+
    mmdb::PPAtom res_selection_1 = NULL;
    mmdb::PPAtom res_selection_2 = NULL;
    int i_no_res_atoms_1;
    int i_no_res_atoms_2;
    double d;
    std::vector<coot::glycosidic_distance> close;
-   
+
    first->GetAtomTable( res_selection_1, i_no_res_atoms_1);
    second->GetAtomTable(res_selection_2, i_no_res_atoms_2);
 
-   for (int i1=0; i1<i_no_res_atoms_1; i1++) { 
+   for (int i1=0; i1<i_no_res_atoms_1; i1++) {
       clipper::Coord_orth a1(res_selection_1[i1]->x,
 			     res_selection_1[i1]->y,
 			     res_selection_1[i1]->z);
@@ -515,20 +515,20 @@ coot::protein_geometry::find_glycosidic_linkage_type(mmdb::Residue *first, mmdb:
    // the forming of a glycosidic bond, consider the residue numbering
    // of the residues involved: the "residue 1" should have the O4 and
    // the "residue 2" (+1 residue number) should have the C1.
-   // 
+   //
    if (debug) {
       std::cout << "DEBUG:: find_glycosidic_linkage_type() "
 		<< "number of sorted distances: "
 		<< close.size() << std::endl;
       for (unsigned int i=0; i<close.size(); i++) {
 	 std::cout << "#### glyco close: " << close[i].distance << "  "
-		   << close[i].at1->GetChainID() << " " 
-		   << close[i].at1->GetSeqNum() << " " 
-		   << close[i].at1->GetAtomName() << " " 
+		   << close[i].at1->GetChainID() << " "
+		   << close[i].at1->GetSeqNum() << " "
+		   << close[i].at1->GetAtomName() << " "
 		   << " to "
-		   << close[i].at2->GetChainID() << " " 
-		   << close[i].at2->GetSeqNum() << " " 
-		   << close[i].at2->GetAtomName() << " " 
+		   << close[i].at2->GetChainID() << " "
+		   << close[i].at2->GetSeqNum() << " "
+		   << close[i].at2->GetAtomName() << " "
 		   << std::endl;
       }
    }
@@ -536,8 +536,8 @@ coot::protein_geometry::find_glycosidic_linkage_type(mmdb::Residue *first, mmdb:
    std::string link_type("");
 
    // glyco_chiral constructor can throw an exception
-   try { 
-   
+   try {
+
       float smallest_link_dist = 99999.9;
       for (unsigned int i=0; i<close.size(); i++) {
 	 std::string name_1(close[i].at1->name);
@@ -553,22 +553,21 @@ coot::protein_geometry::find_glycosidic_linkage_type(mmdb::Residue *first, mmdb:
 		  // link_type = "NAG-ASN";
 		  link_type = "pyr-ASN"; // 20221211-PE new dictionary
 	       }
-      
+
 	 if (name_1 == " O4 " )
 	    if (name_2 == " C1 ")
 	       if (close[i].distance < smallest_link_dist) {
 		  coot::atom_quad glyco_chiral_quad(first, second, "BETA1-4");
-		  if (glyco_chiral_quad.chiral_volume() > 0.0) { 
+		  if (glyco_chiral_quad.chiral_volume() > 0.0) {
 		     smallest_link_dist = close[i].distance;
 		     link_type = "BETA1-4";
 		  }
 	       }
-      
 	 if (name_1 == " O2 " )
 	    if (name_2 == " C1 ")
 	       if (close[i].distance < smallest_link_dist) {
 		  coot::atom_quad glyco_chiral_quad(first, second, "BETA1-2");
-		  if (glyco_chiral_quad.chiral_volume() > 0.0) { 
+		  if (glyco_chiral_quad.chiral_volume() > 0.0) {
 		     smallest_link_dist = close[i].distance;
 		     link_type = "BETA1-2";
 		  }
@@ -578,12 +577,11 @@ coot::protein_geometry::find_glycosidic_linkage_type(mmdb::Residue *first, mmdb:
 	    if (name_2 == " C1 ")
 	       if (close[i].distance < smallest_link_dist) {
 		  coot::atom_quad glyco_chiral_quad(first, second, "BETA1-3");
-		  if (glyco_chiral_quad.chiral_volume() > 0.0) { 
+		  if (glyco_chiral_quad.chiral_volume() > 0.0) {
 		     smallest_link_dist = close[i].distance;
 		     link_type = "BETA1-3";
 		  }
 	       }
-      
 
 	 // The BETA2-3 link should never happen :-)
 	 // There are no biosynthetic pathways to make an BETA2-3 link for a SIA.
@@ -637,22 +635,22 @@ coot::protein_geometry::find_glycosidic_linkage_type(mmdb::Residue *first, mmdb:
 		     link_type = "BETA1-6";
 		  }
 	       }
-	       
+
 	 if (name_1 == " O2 " )
 	    if (name_2 == " C1 ")
 	       if (close[i].distance < smallest_link_dist) {
 		  coot::atom_quad glyco_chiral_quad(first, second, "ALPHA1-2");
-		  if (glyco_chiral_quad.chiral_volume() < 0.0) { 
+		  if (glyco_chiral_quad.chiral_volume() < 0.0) {
 		     smallest_link_dist = close[i].distance;
 		     link_type = "ALPHA1-2";
 		  }
 	       }
-	       
+
 	 if (name_1 == " O3 " )
 	    if (name_2 == " C1 ")
 	       if (close[i].distance < smallest_link_dist) {
 		  coot::atom_quad glyco_chiral_quad(first, second, "ALPHA1-3");
-		  if (glyco_chiral_quad.chiral_volume() < 0.0) { 
+		  if (glyco_chiral_quad.chiral_volume() < 0.0) {
 		     smallest_link_dist = close[i].distance;
 		     link_type = "ALPHA1-3";
 		  }
@@ -660,7 +658,7 @@ coot::protein_geometry::find_glycosidic_linkage_type(mmdb::Residue *first, mmdb:
 
 	 if (name_1 == " C2 " )
 	    if (name_2 == " O3 ")
-	       if (std::string(close[i].at1->GetResName()) == "SIA") { 
+	       if (std::string(close[i].at1->GetResName()) == "SIA") {
 		  if (close[i].distance < smallest_link_dist) {
 		     coot::atom_quad glyco_chiral_quad(first, second, "ALPHA2-3");
                      if (debug)
@@ -668,23 +666,23 @@ coot::protein_geometry::find_glycosidic_linkage_type(mmdb::Residue *first, mmdb:
                                   << close[i].at1->GetResName() << " "
                                   << close[i].at2->GetResName() << " "
                                   << glyco_chiral_quad.chiral_volume() << std::endl;
-		     if (glyco_chiral_quad.chiral_volume() < 0.0) { 
+		     if (glyco_chiral_quad.chiral_volume() < 0.0) {
 			smallest_link_dist = close[i].distance;
 			link_type = "ALPHA2-3";
 		     }
 		  }
 	       }
-      
+
 	 if (name_1 == " O4 " )
 	    if (name_2 == " C1 ")
 	       if (close[i].distance < smallest_link_dist) {
 		  coot::atom_quad glyco_chiral_quad(first, second, "ALPHA1-4");
-		  if (glyco_chiral_quad.chiral_volume() < 0.0) { 
+		  if (glyco_chiral_quad.chiral_volume() < 0.0) {
 		     smallest_link_dist = close[i].distance;
 		     link_type = "ALPHA1-4";
 		  }
 	       }
-      
+
 	 if (name_1 == " O6 " )
 	    if (name_2 == " C1 ")
 	       if (close[i].distance < smallest_link_dist) {
@@ -732,10 +730,10 @@ coot::protein_geometry::find_glycosidic_linkage_type(mmdb::Residue *first, mmdb:
 		<< first->GetChainID() << " " << first->GetSeqNum() << " " << first->GetInsCode()
 		<< first->GetResName() << ","
 		<< second->GetChainID() << " " << second->GetSeqNum() << " " << second->GetInsCode()
-		<< second->GetResName() 
+		<< second->GetResName()
 		<< " returns \"" << link_type << "\""
 		<< std::endl;
-   
+
    return link_type;
 }
 
@@ -743,10 +741,10 @@ std::string
 coot::protein_geometry::find_glycosidic_linkage_type(mmdb::Residue *first,
 						     mmdb::Residue *second,
 						     mmdb::Manager *mol) const {
-   
+
    // First check that the residues are LINK - or are sequential.
    // If so, then we can find the link as above.
-   
+
    std::string link_type;
    bool are_linked = false;
    bool are_sequential = false;
@@ -760,7 +758,7 @@ coot::protein_geometry::find_glycosidic_linkage_type(mmdb::Residue *first,
    if (chain_id_1 == chain_id_2) {
       if (resno_1 == (resno_2+1)) are_sequential = true;
       if (resno_2 == (resno_1+1)) are_sequential = true;
-   } 
+   }
 
    if (! are_sequential) {
       // Test for link in molecule
@@ -768,10 +766,10 @@ coot::protein_geometry::find_glycosidic_linkage_type(mmdb::Residue *first,
       std::string ins_code_2 = second->GetInsCode();
       int imod = 1;
       mmdb::Model *model_p = mol->GetModel(imod);
-      if (model_p) { 
+      if (model_p) {
 	 mmdb::LinkContainer *links = model_p->GetLinks();
 	 int n_links = model_p->GetNumberOfLinks();
-	 for (int ilink=1; ilink<=n_links; ilink++) { 
+	 for (int ilink=1; ilink<=n_links; ilink++) {
 	    mmdb::Link *link = model_p->GetLink(ilink);
 	    if (link) {
 	       are_linked = are_linked_in_order(first, second, link);
@@ -782,7 +780,7 @@ coot::protein_geometry::find_glycosidic_linkage_type(mmdb::Residue *first,
 	    }
 	 }
       }
-   } 
+   }
 
 
    if (are_linked || are_sequential)
@@ -806,17 +804,17 @@ coot::protein_geometry::are_linked_in_order(mmdb::Residue *first,
    std::string chain_id_2 = second->GetChainID();
    int resno_1 =  first->GetSeqNum();
    int resno_2 = second->GetSeqNum();
-   if (link_chain_id_1 == chain_id_1) { 
+   if (link_chain_id_1 == chain_id_1) {
       if (link_chain_id_2 == chain_id_2) {
 	 int link_reso_1 = link->seqNum1;
 	 int link_reso_2 = link->seqNum2;
-	 if (link_reso_1 == resno_1) { 
+	 if (link_reso_1 == resno_1) {
 	    if (link_reso_2 == resno_2) {
 	       std::string link_ins_code_1 = link->insCode1;
 	       std::string link_ins_code_2 = link->insCode2;
 	       std::string ins_code_1 =  first->GetInsCode();
 	       std::string ins_code_2 = second->GetInsCode();
-	       if (link_ins_code_1 == ins_code_1) { 
+	       if (link_ins_code_1 == ins_code_1) {
 		  if (link_ins_code_2 == ins_code_2) {
 		     linked = true;
 		  }
@@ -827,8 +825,8 @@ coot::protein_geometry::are_linked_in_order(mmdb::Residue *first,
    }
 
    return linked;
-} 
-					    
+}
+
 
 std::pair<std::string, bool>
 coot::protein_geometry::find_glycosidic_linkage_type_with_order_switch(mmdb::Residue *first, mmdb::Residue *second) const {
@@ -837,18 +835,18 @@ coot::protein_geometry::find_glycosidic_linkage_type_with_order_switch(mmdb::Res
 
    std::string l = find_glycosidic_linkage_type(first, second);
 
-   if (l == "") { 
+   if (l == "") {
       l = find_glycosidic_linkage_type(second,first);
       if (l != "") {
 	 r.first = l;
 	 r.second = true;
-      } 
+      }
    } else {
       r.first = l;
       r.second = false;
-   } 
+   }
    return r;
-} 
+}
 
 
 

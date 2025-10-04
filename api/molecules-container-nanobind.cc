@@ -115,6 +115,8 @@ std::string get_docstring_from_xml(const std::string& func_name) {
    if (docstring_cache.empty()) {
       pugi::xml_document doc;
       if (!doc.load_file(api_doxygen_xml_file_name.c_str())) {
+         std::cout << "WARNING:: doxygen file " << api_doxygen_xml_file_name << " not found - nanobind API docummentation will not be generated"
+                   << std::endl;
          return "";
       }
       auto compounddef = doc.child("doxygen").child("compounddef");
