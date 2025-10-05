@@ -7,16 +7,17 @@ o coot:
   contour level for map 1 is 0.187223 pending
   tell me what the step size is also.
 
-o update build-it to the latest version of the RDKit 2025_03_6
+o update build-it-3-3 to the latest version of the RDKit: 2025_03_6
 
-o install cctbx (conda install) to get mmtx.probe2 to get new dots.
+o install cctbx (conda install) to get mmtbx.probe2 to get new dots.
 
 o molprobity reduce has updated the hydrogen bond distance (it seems?)
-  libcootapi should follow - use distances in new monomer library.
+  libcootapi should follow - actually, use distances in new monomer library.
 
-o MMRRCC use a different residue range length
+o For MMRRCC: use a different residue range length
 
 o how to represent missing ligand atoms?
+  Draw them in black with a white outline?
 
 o Lucrezia: table of bond and angles and distances vs model table in moorhen
 
