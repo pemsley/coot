@@ -16,6 +16,7 @@ int main(int argc, char **argv) {
       int Cn_for_coil = 3;
       int accuracy_for_coil = 12;
       unsigned int n_slices_for_coil = 12;
+      /* -- removed until tubes can be compiled without coot libs/includes
       coot::simple_mesh_t mesh = make_tubes_representation(asc.mol,
                                                            atom_selection_str,
                                                            colour_scheme,
@@ -23,6 +24,7 @@ int main(int argc, char **argv) {
                                                            Cn_for_coil, accuracy_for_coil,
                                                            n_slices_for_coil,
                                                            secondaryStructureUsageFlag);
+                                                         */
       float roughness = 0.2;
       float smoothnesss =- 0.8;
       bool use_binary_format = true;

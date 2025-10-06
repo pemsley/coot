@@ -80,17 +80,7 @@ endif()
 
 #  pyrogen, auxil, goograph, src ignored.
 
-
-add_library(cootapi SHARED
-            ${coot_src}/lidia-core/svg-molecule.cc
-            ${coot_src}/lidia-core/cod-types.cc
-            ${coot_src}/lidia-core/cod-atom-types.cc
-            ${coot_src}/lidia-core/chemical-feature-clusters.cc
-            ${coot_src}/lidia-core/bond-record-container-t.cc
-            ${coot_src}/lidia-core/atom-types.cc
-            ${coot_src}/lidia-core/cod-atom-type-t.cc
-            ${coot_src}/lidia-core/rdkit-interface.cc
-            ${coot_src}/lidia-core/bond-table-record-t.cc
+add_library(cootmoleculestotriangles SHARED
             ${coot_src}/MoleculesToTriangles/CXXSurface/CXXBall.cpp
             ${coot_src}/MoleculesToTriangles/CXXSurface/CXXChargeTable.cpp
             ${coot_src}/MoleculesToTriangles/CXXSurface/CXXCircle.cpp
@@ -156,7 +146,20 @@ add_library(cootapi SHARED
             ${coot_src}/MoleculesToTriangles/CXXClasses/Vector3.cpp
             ${coot_src}/MoleculesToTriangles/CXXClasses/VertexColorNormalPrimitive.cpp
             ${coot_src}/MoleculesToTriangles/CXXClasses/lfit.c
-            ${coot_src}/MoleculesToTriangles/CXXClasses/tubes.cc
+            #  ${coot_src}/MoleculesToTriangles/CXXClasses/tubes.cc - not ready yet
+)
+
+
+add_library(cootapi SHARED
+            ${coot_src}/lidia-core/svg-molecule.cc
+            ${coot_src}/lidia-core/cod-types.cc
+            ${coot_src}/lidia-core/cod-atom-types.cc
+            ${coot_src}/lidia-core/chemical-feature-clusters.cc
+            ${coot_src}/lidia-core/bond-record-container-t.cc
+            ${coot_src}/lidia-core/atom-types.cc
+            ${coot_src}/lidia-core/cod-atom-type-t.cc
+            ${coot_src}/lidia-core/rdkit-interface.cc
+            ${coot_src}/lidia-core/bond-table-record-t.cc
             ${coot_src}/api/rigid-body-fit.cc
             ${coot_src}/api/blender-mesh.cc
             ${coot_src}/api/add-terminal-residue.cc
@@ -501,13 +504,17 @@ if (ENABLE_DWARF)
   target_link_libraries(cootapi PRIVATE ${LIBDWARF})
 endif()
 
+target_include_directories(cootmoleculestotriangles PRIVATE ${MMDB2_INCLUDE_DIR}
+   ${CLIPPER-CORE_INCLUDE_DIR} ${coot_src} ${CLIPPER-MMDB_INCLUDE_DIR} ${CLIPPER-CCP4_INCLUDE_DIR} ${FFTW2_INCLUDE_DIRS})
 
 # use MMDB2_INCLUDE_DIR to find the RDKIT for now.
 target_include_directories(cootapi PRIVATE ${coot_src} ${coot_src}/coords ${coot_src}/utils ${coot_src}/ccp4mg-utils ${coot_src}/ccp4mg-utils/util ${coot_src}/ccp4mg-utils/pygl ${MMDB2_INCLUDE_DIR} ${SSM_INCLUDE_DIR} ${CLIPPER-CORE_INCLUDE_DIR} ${CLIPPER-MMDB_INCLUDE_DIR} ${CLIPPER-CCP4_INCLUDE_DIR} ${FFTW2_INCLUDE_DIRS} ${RDKit_INCLUDE_DIRS} ${GLM_INCLUDE_DIRS} ${GSL_INCLUDE_DIRS} ${PNG_PNG_INCLUDE_DIR} ${RDKit_INCLUDE_DIR})
 
+target_link_libraries(cootmoleculestotriangles PRIVATE ${SSM_LIBRARY} ${CLIPPER-MINIMOL_LIBRARY} ${CLIPPER-MMDB_LIBRARY} ${CLIPPER-CIF_LIBRARY} ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${CLIPPER-CONTRIB_LIBRARY} ${FFTW2_LIBRARY} ${RFFTW2_LIBRARY} ${MMDB2_LIBRARY} ${CCP4C_LIBRARY})
+
 # Charles adds Boost::iostreams Boost::filesystem Boost::system. I don't know why Boost::filesystem was added - I have removed it.
 # 2025-09-20 14:15 PE: Boost::system is no longer a thing - I have removed it
-target_link_libraries(cootapi PRIVATE ${SSM_LIBRARY} ${CLIPPER-MINIMOL_LIBRARY} ${CLIPPER-MMDB_LIBRARY} ${CLIPPER-CIF_LIBRARY} ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${CLIPPER-CONTRIB_LIBRARY} ${FFTW2_LIBRARY} ${RFFTW2_LIBRARY} ${MMDB2_LIBRARY} ${CCP4C_LIBRARY} ${ZLIB_LIBRARIES} ${GSL_LIBRARIES} ${GSL_CBLAS_LIBRARY} ${RDKit_libs_for_libcootapi} ${PNG_LIBRARY} Boost::thread Boost::iostreams gemmi::gemmi_cpp ${libdwarf} ${libelf})
+target_link_libraries(cootapi PRIVATE cootmoleculestotriangles ${SSM_LIBRARY} ${CLIPPER-MINIMOL_LIBRARY} ${CLIPPER-MMDB_LIBRARY} ${CLIPPER-CIF_LIBRARY} ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${CLIPPER-CONTRIB_LIBRARY} ${FFTW2_LIBRARY} ${RFFTW2_LIBRARY} ${MMDB2_LIBRARY} ${CCP4C_LIBRARY} ${ZLIB_LIBRARIES} ${GSL_LIBRARIES} ${GSL_CBLAS_LIBRARY} ${RDKit_libs_for_libcootapi} ${PNG_LIBRARY} Boost::thread Boost::iostreams gemmi::gemmi_cpp ${libdwarf} ${libelf})
 
 target_compile_features(cootapi PRIVATE cxx_std_17)
 
@@ -582,7 +589,7 @@ set_target_properties(coot_headless_api PROPERTIES INSTALL_RPATH "${CMAKE_INSTAL
 
 set_target_properties(coot_headless_api PROPERTIES INSTALL_RPATH_USE_LINK_PATH TRUE)
 
-install(TARGETS cootapi)
+install(TARGETS cootmoleculestotriangles cootapi)
 
 install(FILES standard-residues.pdb  DESTINATION share/coot)
 
@@ -636,3 +643,4 @@ install(TARGETS coot_headless_api DESTINATION lib)
 
 # thanks merkys
 set_target_properties(cootapi PROPERTIES SOVERSION 1.1)
+set_target_properties(cootmoleculestotriangles PROPERTIES SOVERSION 1.1)

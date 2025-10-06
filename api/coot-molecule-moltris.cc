@@ -396,8 +396,9 @@ coot::molecule_t::get_molecular_representation_mesh(const std::string &atom_sele
       float Cn_for_coil = 2;
       int accuracy_for_coil = 12;
       unsigned int n_slices_for_coil = 12;
-      mesh = make_tubes_representation(mol, atom_selection, colour_scheme, radius_for_coil, Cn_for_coil,
-                                       accuracy_for_coil, n_slices_for_coil, secondaryStructureUsageFlag);
+      // make_tubes_representation() removed until it can be compiled without using coot include/libs
+      // mesh = make_tubes_representation(mol, atom_selection, colour_scheme, radius_for_coil, Cn_for_coil,
+      //                                  accuracy_for_coil, n_slices_for_coil, secondaryStructureUsageFlag);
 
    } else {
 

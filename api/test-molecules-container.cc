@@ -5718,6 +5718,7 @@ int test_n_map_sections(molecules_container_t &mc) {
    return status;
 }
 
+#if 0
 int test_rdkit_mol(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -5732,6 +5733,7 @@ int test_rdkit_mol(molecules_container_t &mc) {
 #endif
    return status;
 }
+#endif
 
 
 
@@ -6922,7 +6924,7 @@ int main(int argc, char **argv) {
          status += run_test(test_n_map_sections, "N map sections ", mc);
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
          status += run_test(test_pdbe_dictionary_depiction, "pdbe dictionary depiction", mc);
-         status += run_test(test_rdkit_mol, "RDKit mol", mc);
+         // status += run_test(test_rdkit_mol, "RDKit mol", mc);
 #endif
 
 #ifdef USE_GEMMI

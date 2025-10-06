@@ -171,9 +171,9 @@ std::string get_docstring_from_xml(const std::string& func_name) {
             // Collect all <para> from <detaileddescription>
             auto detailed = member.child("detaileddescription");
             if (detailed) {
-	       unsigned int n_para = 0;
+               unsigned int n_para = 0;
                for (auto para : detailed.children("para")) {
-		  n_para++;
+                  n_para++;
                   std::string para_text = para.text().get();
                   if (!para_text.empty()) {
 		     if (n_para > 1)
@@ -714,7 +714,7 @@ NB_MODULE(coot_headless_api, m) {
     .def("get_atom_using_cid",
          &molecules_container_t::get_atom_using_cid,
          nb::arg("imol"), nb::arg("atom_cid"),
-         get_docstring_from_xml("get_atom").c_str())
+         get_docstring_from_xml("get_atom_using_cid").c_str())
     .def("get_atom_overlap_score",
          &molecules_container_t::get_atom_overlap_score,
 	 nb::arg("imol"),
@@ -915,14 +915,15 @@ NB_MODULE(coot_headless_api, m) {
     .def("get_rama_plot_restraints_weight",
          &molecules_container_t::get_rama_plot_restraints_weight,
          get_docstring_from_xml("get_rama_plot_restraints_weight").c_str())
-    .def("get_rdkit_mol",
-         &molecules_container_t::get_rdkit_mol,
-         nb::arg("res_name"), nb::arg("imol_enc"),
-         get_docstring_from_xml("get_rdkit_mol").c_str())
-    .def("get_rdkit_mol_shared",
-         &molecules_container_t::get_rdkit_mol_shared,
-         nb::arg("res_name"), nb::arg("imol_enc"),
-         get_docstring_from_xml("get_rdkit_mol_shared").c_str())
+    // maybe these will work in future - or maybe just delete them
+    // .def("get_rdkit_mol",
+    //      &molecules_container_t::get_rdkit_mol,
+    //      nb::arg("res_name"), nb::arg("imol_enc"),
+    //      get_docstring_from_xml("get_rdkit_mol").c_str())
+    // .def("get_rdkit_mol_shared",
+    //      &molecules_container_t::get_rdkit_mol_shared,
+    //      nb::arg("res_name"), nb::arg("imol_enc"),
+    //      get_docstring_from_xml("get_rdkit_mol_shared").c_str())
     .def("get_rdkit_mol_pickle_base64",
          &molecules_container_t::get_rdkit_mol_pickle_base64,
          nb::arg("res_name"), nb::arg("imol_enc"),

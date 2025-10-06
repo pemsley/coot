@@ -36,7 +36,7 @@
 #include "Representation.h"
 #include "DiscreteSegment.h"
 
-#include "compat/coot-sysdep.h"
+// #include "compat/coot-sysdep.h" // we can't have coot dependences in MoleculesToTriangles
 #include "mmdb2/mmdb_manager.h"
 
 class Renderer;

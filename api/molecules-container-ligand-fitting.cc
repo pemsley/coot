@@ -33,6 +33,7 @@ std::string get_first_residue_name(mmdb::Manager *mol) {
    return res_name;
 }
 
+#if 0
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 // Another ligand but non-ligand-fitting function:
 RDKit::RWMol
@@ -56,7 +57,9 @@ molecules_container_t::get_rdkit_mol(const std::string &residue_name, int imol_e
    return m;
 }
 #endif
+#endif
 
+#if 0
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 std::shared_ptr<RDKit::RWMol>
 molecules_container_t::get_rdkit_mol_shared(const std::string &residue_name, int imol_enc) {
@@ -64,6 +67,7 @@ molecules_container_t::get_rdkit_mol_shared(const std::string &residue_name, int
    std::shared_ptr<RDKit::RWMol> m = std::make_shared<RDKit::RWMol>(rwmol);
    return m;
 }
+#endif
 #endif
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
@@ -91,7 +95,21 @@ molecules_container_t::get_rdkit_mol_pickle_base64(const std::string &residue_na
 
    RDKIT_GRAPHMOL_EXPORT RDKit::MolPickler mp;
    std::string pickle_string;
-   RDKit::RWMol mol = get_rdkit_mol(residue_name, imol_enc);
+   // RDKit::RWMol mol = get_rdkit_mol(residue_name, imol_enc);
+   RDKit::RWMol mol;
+   try {
+      std::pair<bool, coot::dictionary_residue_restraints_t> r_p =
+         geom.get_monomer_restraints(residue_name, imol_enc);
+      if (r_p.first) {
+         const auto &restraints = r_p.second;
+         mol = coot::rdkit_mol(restraints);
+         std::string prop_string = "ligand-from-dictionary-" + residue_name + "-" + std::to_string(imol_enc);
+         mol.setProp("moorhen-id", prop_string);
+      }
+   }
+   catch (const std::runtime_error &rte) {
+      std::cout << rte.what() << std::endl;
+   }
    if (mol.getNumAtoms() > 0) {
       mp.pickleMol(mol, pickle_string);
       return moorhen_base64::base64_encode((const unsigned char*)pickle_string.c_str(), pickle_string.size());
