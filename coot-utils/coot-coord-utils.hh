@@ -734,6 +734,10 @@ namespace coot {
       //
       mmdb::Atom *get_atom(const atom_spec_t &spec, mmdb::Manager *mol);
 
+      // Return NULL on atom not found in this molecule.
+      // Here, if the first search files, then pad the atom name in various ways to try to find a match
+      mmdb::Atom *get_atom_using_fuzzy_search(const atom_spec_t &spec, mmdb::Manager *mol);
+
       // Return NULL on atom not found in this residue
       //
       mmdb::Atom *get_atom(const atom_spec_t &spec, mmdb::Residue *residue_p);

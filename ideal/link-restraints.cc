@@ -1294,17 +1294,17 @@ coot::restraints_container_t::find_link_type(mmdb::Residue *first,
 	 bool use_links_in_molecule = false; // because this is the simple version
 	 link_type = find_glycosidic_linkage_type(first, second, geom, use_links_in_molecule);
 	 std::cout << "INFO:: glycosidic_linkage type :" << link_type << ":\n";
-      } 
+      }
    }
 
    return link_type;
 }
 
-// Return "" on failure to find link.  
-// 
+// Return "" on failure to find link.
+//
 // If this returns "", consider calling this function again, with
 // reversed arguments.
-// 
+//
 std::string
 coot::restraints_container_t::find_glycosidic_linkage_type(mmdb::Residue *first, mmdb::Residue *second,
 							   const protein_geometry &geom,
@@ -1312,7 +1312,7 @@ coot::restraints_container_t::find_glycosidic_linkage_type(mmdb::Residue *first,
 
    std::string r;
    if (use_links_in_molecule)
-      r = geom.find_glycosidic_linkage_type(first, second); // 20150714 FIXME
+      r = geom.find_glycosidic_linkage_type_by_distance(first, second); // 20150714 FIXME
    else
       r = geom.find_glycosidic_linkage_type(first, second, mol);
    return r;

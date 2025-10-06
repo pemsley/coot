@@ -472,3 +472,4 @@ std::vector<std::string> get_types_in_molecule(int imol) {
    }
    return v;
 }
+

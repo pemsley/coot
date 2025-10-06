@@ -2521,6 +2521,11 @@ void positron_plot_py(const std::string &fn_z_csv, const std::string &fn_s_csv,
                       PyObject *base_map_index_list);
 #endif
 
+#ifdef USE_PYTHON
+PyObject *global_phasing_screen(int imol, PyObject *screen_dict);
+#endif
+
+
 #ifdef SWIG
 #else
 void positron_plot_internal(const std::string &fn_z_csv, const std::string &fn_s_csv,

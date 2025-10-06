@@ -3,6 +3,14 @@
 
  o FEATURE: Double click to label symmetry atom
 
+ o CHANGE:  user-defined-clicks function added back
+
+ o CHANGE:  Assign and Associate Sequence menu item functions now added back
+
+ o BUG-FIX: Menu items with targets don't work on macOS (I don't know why)
+            The targets have been removed, so these menu items should now
+            work again (e.g. Fetch and Mutate menu items)
+
 -----
 
   Release Notes for 1.1.18

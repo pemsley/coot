@@ -426,7 +426,7 @@ coot::dict_chiral_restraint_t::assign_chiral_volume_target_internal(double a, do
    double cos_alpha = cos(alpha);
    double cos_beta  = cos(beta);
    double cos_gamma = cos(gamma);
-   
+
    double cos_2_alpha = cos_alpha * cos_alpha;
    double cos_2_beta  = cos_beta  * cos_beta;
    double cos_2_gamma = cos_gamma * cos_gamma;
@@ -470,7 +470,7 @@ coot::dict_chiral_restraint_t::assign_chiral_volume_target_internal(double a, do
 // no order switch is considered.
 //
 std::string
-coot::protein_geometry::find_glycosidic_linkage_type(mmdb::Residue *first, mmdb::Residue *second) const {
+coot::protein_geometry::find_glycosidic_linkage_type_by_distance(mmdb::Residue *first, mmdb::Residue *second) const {
 
    // Fixup needed for PDBv3
 
@@ -784,7 +784,7 @@ coot::protein_geometry::find_glycosidic_linkage_type(mmdb::Residue *first,
 
 
    if (are_linked || are_sequential)
-      link_type = find_glycosidic_linkage_type(first, second);
+      link_type = find_glycosidic_linkage_type_by_distance(first, second);
 
    return link_type;
 }
@@ -833,10 +833,10 @@ coot::protein_geometry::find_glycosidic_linkage_type_with_order_switch(mmdb::Res
 
    std::pair<std::string, bool> r("", false);
 
-   std::string l = find_glycosidic_linkage_type(first, second);
+   std::string l = find_glycosidic_linkage_type_by_distance(first, second);
 
    if (l == "") {
-      l = find_glycosidic_linkage_type(second,first);
+      l = find_glycosidic_linkage_type_by_distance(second,first);
       if (l != "") {
 	 r.first = l;
 	 r.second = true;

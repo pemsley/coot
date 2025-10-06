@@ -2929,9 +2929,9 @@ coot::util::get_residue(const std::string &chain_id,
 
    if (mol) {
       mmdb::Model *model_p = mol->GetModel(1);
-      if (model_p) { 
+      if (model_p) {
          mmdb::Chain *chain_p;
-         int n_chains = model_p->GetNumberOfChains(); 
+         int n_chains = model_p->GetNumberOfChains();
          for (int i_chain=0; i_chain<n_chains; i_chain++) {
             chain_p = model_p->GetChain(i_chain);
             std::string mol_chain(chain_p->GetChainID());
@@ -3415,7 +3415,7 @@ coot::util::get_nth_residue(int nth, mmdb::Manager *mol) {
       }
    }
    return res;
-} 
+}
 
 
 // Return NULL on atom not found in this molecule
@@ -3427,10 +3427,10 @@ coot::util::get_atom(const atom_spec_t &spec, mmdb::Manager *mol) {
    mmdb::Residue *res = get_residue(residue_spec_t(spec), mol);
 
    if (res) {
-      mmdb::PPAtom residue_atoms = 0;
-      int n_residue_atoms;
+      mmdb::PPAtom residue_atoms = nullptr;
+      int n_residue_atoms = 0;
       res->GetAtomTable(residue_atoms, n_residue_atoms);
-      for (int iat=0; iat<n_residue_atoms; iat++) { 
+      for (int iat=0; iat<n_residue_atoms; iat++) {
          mmdb::Atom *test_at = residue_atoms[iat];
          std::string at_name = test_at->name;
          std::string at_alt_conf = test_at->altLoc;
@@ -3441,14 +3441,81 @@ coot::util::get_atom(const atom_spec_t &spec, mmdb::Manager *mol) {
                   break;
                }
             }
-         } 
+         }
       }
-   } 
+   }
    return at;
 }
 
+// Return NULL on atom not found in this molecule.
+// Here, if the first search files, then pad the atom name in various ways to try to find a match
+mmdb::Atom *
+coot::util::get_atom_using_fuzzy_search(const atom_spec_t &spec, mmdb::Manager *mol) {
+
+   mmdb::Atom *rat = nullptr;
+   if (mol) {
+      mmdb::Model *model_p = mol->GetModel(1);
+      if (model_p) {
+         int n_chains = model_p->GetNumberOfChains();
+         for (int i_chain=0; i_chain<n_chains; i_chain++) {
+            mmdb::Chain *chain_p = model_p->GetChain(i_chain);
+            std::string mol_chain(chain_p->GetChainID());
+            if (mol_chain == spec.chain_id) {
+               int nres = chain_p->GetNumberOfResidues();
+               for (int ires=0; ires<nres; ires++) {
+                  mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                  if (residue_p->GetSeqNum() == spec.res_no) {
+                     std::string ins_code(residue_p->GetInsCode());
+                     if (ins_code == spec.ins_code) {
+                        mmdb::PPAtom residue_atoms = nullptr;
+                        int n_residue_atoms = 0;
+                        residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+                        // no pad
+                        for (int iat=0; iat<n_residue_atoms; iat++) {
+                           mmdb:: Atom *at = residue_atoms[iat];
+                           if (! at->isTer()) {
+                              std::string atom_name(at->name);
+                              if (atom_name == spec.atom_name) {
+                                 rat = at;
+                                 break;
+                              }
+                           }
+                        }
+                        std::vector<std::string> test_names = {
+                           std::string(" ")  + spec.atom_name,
+                           std::string(" ")  + spec.atom_name + std::string("  "),
+                           std::string("  ") + spec.atom_name,
+                           std::string(" ") + spec.atom_name + std::string(" "),
+                           std::string("  ") + spec.atom_name + std::string(" "),
+                           spec.atom_name + std::string(" "),
+                        };
+                        for (const auto &t : test_names) {
+                           for (int iat=0; iat<n_residue_atoms; iat++) {
+                              mmdb:: Atom *at = residue_atoms[iat];
+                              if (! at->isTer()) {
+                                 std::string atom_name(at->name);
+                                 if (atom_name == t) {
+                                    rat = at;
+                                    break;
+                                 }
+                              }
+                           }
+                           if (rat) break;
+                        }
+                     }
+                  }
+                  if (rat) break;
+               }
+            }
+         }
+      }
+   }
+   return rat;
+}
+
+
 // Return NULL on atom not found in this residue
-// 
+//
 mmdb::Atom*
 coot::util::get_atom(const atom_spec_t &spec, mmdb::Residue *res) {
 
@@ -3457,7 +3524,7 @@ coot::util::get_atom(const atom_spec_t &spec, mmdb::Residue *res) {
       mmdb::PPAtom residue_atoms = 0;
       int n_residue_atoms;
       res->GetAtomTable(residue_atoms, n_residue_atoms);
-      for (int iat=0; iat<n_residue_atoms; iat++) { 
+      for (int iat=0; iat<n_residue_atoms; iat++) {
          mmdb::Atom *test_at = residue_atoms[iat];
          std::string at_name = test_at->name;
          std::string at_alt_conf = test_at->altLoc;

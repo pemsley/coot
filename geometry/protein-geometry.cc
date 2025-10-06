@@ -548,7 +548,7 @@ int
 coot::protein_geometry::try_dynamic_add(const std::string &resname, int read_number) {
 
    bool debug = false;
-   if (verbose_mode) debug = true;
+   // if (verbose_mode) debug = true;
 
    int success = 0;  // fail initially and is set to the number of
                      // atoms read from the mmcif dictionary file in
