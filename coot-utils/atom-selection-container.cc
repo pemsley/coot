@@ -1059,6 +1059,16 @@ atom_selection_container_t read_standard_residues() {
    return standard_residues_asc;
 }
 
+void
+atom_selection_container_t::debug_write_pdb() {
+
+   if (mol) {
+      std::string fn = "debug-" + std::to_string(user_data) + ".pdb";
+      mol->WritePDBASCII(fn.c_str());
+   }
+
+}
+
 
 // return an estimate of the molecule diameter
 float
@@ -1103,4 +1113,5 @@ coot::get_molecule_diameter(const atom_selection_container_t &asc) {
    return f;
 
 }
+
 

@@ -609,6 +609,7 @@ libcootsumo_la_SOURCES = \
 	globularize.cc           \
 	glarea_tick_function.hh  \
 	globularize.hh           \
+	gphl-screen.cc           \
 	graphics-info.cc	 \
 	graphics-info-defines.cc \
 	graphics-info-defines-gtk4.cc \

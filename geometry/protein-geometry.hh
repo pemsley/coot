@@ -2050,12 +2050,12 @@ namespace coot {
                           const std::string &group_1,
                           const std::string &comp_id_2,
                           const std::string &group_2) const;
-      
+
       // Try to find a link that is not a peptide link (because that
       // fails on a distance check).  This is the method to find
       // isopeptide links (which again need to be distance checked in
       // find_link_type_rigourous()).
-      // 
+      //
       // bool the need-order-switch-flag
       std::vector<chem_link>
       matching_chem_links_non_peptide(const std::string &comp_id_1,
@@ -2073,14 +2073,13 @@ namespace coot {
 
       // return "" on failure.
       // no order switch is considered.
-      // 
-      std::string find_glycosidic_linkage_type(mmdb::Residue *first, mmdb::Residue *second) const;
+      //
+      std::string find_glycosidic_linkage_type_by_distance(mmdb::Residue *first, mmdb::Residue *second) const;
       std::string find_glycosidic_linkage_type(mmdb::Residue *first, mmdb::Residue *second,
                                                mmdb::Manager *mol) const;
       bool are_linked_in_order(mmdb::Residue *first,
                                mmdb::Residue *second,
                                mmdb::Link *link) const;
-      
 
       std::pair<std::string, bool>
       find_glycosidic_linkage_type_with_order_switch(mmdb::Residue *first, mmdb::Residue *second) const;

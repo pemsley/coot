@@ -2,7 +2,7 @@
 
 o talk to Bernie about chapi
 
-o make molecules to triangles complile without coot libs
+o make molecules to triangles compile without coot libs
   then split the build of libcootapi to link then
   m2t library.
 
@@ -11,7 +11,7 @@ o check chemistry - extra hydrogen atom when making a link.
 o edit the alt conf-ids interactively.
 
 o where did we get to with alt conf colouring or selection (in Coot)
-  e.g. untangle chalenge challenge.
+  e.g. untangle chalenge challenge. Look at alt-conf-switcher.py
 
 o make some inchi keys for the G* dictionaries. Using my parser and making
   rdkit molecules - do they match the inchi keys from the wwwPDB CCD?

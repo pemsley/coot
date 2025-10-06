@@ -4070,7 +4070,10 @@ coot::molecule_t::add_named_glyco_tree(const std::string &glycosylation_name, co
                                        coot::protein_geometry *geom) {
 
    // the atom selection gets updated.
+   float mt = get_median_temperature_factor();
+   float new_atoms_b_factor = 1.55 * mt;
    coot::cho::add_named_glyco_tree(glycosylation_name, &atom_sel, imol_no,
+                                   new_atoms_b_factor,
                                    xmap, geom, chain_id, res_no);
 
 }

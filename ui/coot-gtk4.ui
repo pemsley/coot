@@ -7416,10 +7416,12 @@ Do you want to continue?
                         <property name="active">1</property>
                         <items>
                                <item>NAG-NAG-BMA</item>
+                               <!-- 2025-10-06-PE building/refinement of branches doesn't work properly ATM
                                <item>High Mannose</item>
                                <item>Hybrid</item>
                                <item>Mammalian Biantennary</item>
                                <item>Plant Biantennary</item>
+                               -->
                         </items>
                       </object>
                     </child>
@@ -15176,6 +15178,10 @@ Sorry.
               <object class="GtkBox" id="hbox50">
                 <property name="homogeneous">1</property>
                 <property name="spacing">4</property>
+                <property name="margin-start">4</property>
+                <property name="margin-end">4</property>
+                <property name="margin-top">4</property>
+                <property name="margin-bottom">4</property>
                 <child>
                   <object class="GtkButton" id="rotamer_selection_cancel_button">
                     <property name="label">Cancel</property>

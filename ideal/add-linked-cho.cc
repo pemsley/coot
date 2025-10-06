@@ -78,7 +78,7 @@ void coot::cho::build_onto_node(const coot::cho::Node &node,
                                 const clipper::Xmap<float> *xmap,
                                 float new_atoms_b_factor) {
 
-   float map_weight = 400.0;
+   float map_weight = 40.0; // should be passed
 
    for (const auto& edge : node.edges) {
       unsigned int new_level = node.level + 1;;
@@ -98,10 +98,17 @@ coot::cho::traverse_tree_and_build(const coot::cho::Node& node,
                                    const clipper::Xmap<float> *xmap,
                                    float new_atoms_b_factor) {
     printNodeInfo(node);
+    // debug_atom_selection_container(*asc);
     build_onto_node(node, asc, imol, geom, xmap, new_atoms_b_factor);
     for (const auto& edge : node.edges) {
-        printEdgeInfo(edge);
-        traverse_tree_and_build(*edge.target, asc, imol, geom, xmap, new_atoms_b_factor);
+       { // debugging
+          asc->user_data++;
+          // std::cout << "------------------------------------------ debug_write_pdb() " << asc->user_data << std::endl;
+          // asc->debug_write_pdb();
+       }
+       // std::cout << "=============================== edge info with count " << asc->user_data << std::endl;
+       printEdgeInfo(edge);
+       traverse_tree_and_build(*edge.target, asc, imol, geom, xmap, new_atoms_b_factor);
     }
 }
 
@@ -109,6 +116,7 @@ coot::cho::traverse_tree_and_build(const coot::cho::Node& node,
 //
 void
 coot::cho::add_named_glyco_tree(const std::string &glycoylation_name, atom_selection_container_t *asc, int imol,
+                                float new_atoms_b_factor,
                                 const clipper::Xmap<float> &xmap, coot::protein_geometry *geom,
                                 std::string asn_chain_id, int asn_res_no) {
 
@@ -132,12 +140,12 @@ coot::cho::add_named_glyco_tree(const std::string &glycoylation_name, atom_selec
       child2->edges.push_back({child3,  "BETA1-4"});
       child3->edges.push_back({child4,  "ALPHA1-3"});
       child4->edges.push_back({child5,  "ALPHA1-2"});
-      child5->edges.push_back({child6,  "ALPHA1-2"});
+      // child5->edges.push_back({child6,  "ALPHA1-2"});
 
-      child3->edges.push_back({child7,  "ALPHA1-6"});
-      child7->edges.push_back({child8,  "ALPHA1-6"});
-      child8->edges.push_back({child9,  "ALPHA1-2"});
-      child7->edges.push_back({child10, "ALPHA1-3"});
+      // child3->edges.push_back({child7,  "ALPHA1-6"});
+      // child7->edges.push_back({child8,  "ALPHA1-6"});
+      // child8->edges.push_back({child9,  "ALPHA1-2"});
+      // child7->edges.push_back({child10, "ALPHA1-3"});
 
       return root;
    };
@@ -243,7 +251,6 @@ coot::cho::add_named_glyco_tree(const std::string &glycoylation_name, atom_selec
       }
 
       coot::residue_spec_t parent(asn_chain_id, asn_res_no, "");
-      float new_atoms_b_factor = 40.0; // calculate this!
 
       // std::pair<std::string, std::string> res_pair("pyr-ASN", "NAG");
       // coot::residue_spec_t new_res_spec =

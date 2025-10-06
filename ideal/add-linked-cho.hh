@@ -13,6 +13,7 @@ namespace coot {
       // If we dont regen_atom_selection() then there are warning messages from create_mmdbmanager_from_residue_specs()
       //
       void add_named_glyco_tree(const std::string &glycoylation_name, atom_selection_container_t *asc, int imol,
+                                float new_atoms_b_factor,
                                 const clipper::Xmap<float> &xmap, coot::protein_geometry *geom,
                                 std::string asn_chain_id, int asn_res_no);
 
