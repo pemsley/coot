@@ -9,6 +9,8 @@ o coot:
 
 o update build-it-3-3 to the latest version of the RDKit: 2025_03_6
 
+o dot and comma don't work for rotamers
+
 o install cctbx (conda install) to get mmtbx.probe2 to get new dots.
 
 o molprobity reduce has updated the hydrogen bond distance (it seems?)
