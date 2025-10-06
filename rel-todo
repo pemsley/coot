@@ -1,5 +1,51 @@
-
 --- Items ---
+
+o talk to Bernie about chapi
+
+o make molecules to triangles complile without coot libs
+  then split the build of libcootapi to link then
+  m2t library.
+
+o check chemistry - extra hydrogen atom when making a link.
+
+o edit the alt conf-ids interactively.
+
+o where did we get to with alt conf colouring or selection (in Coot)
+  e.g. untangle chalenge challenge.
+
+o make some inchi keys for the G* dictionaries. Using my parser and making
+  rdkit molecules - do they match the inchi keys from the wwwPDB CCD?
+
+o atom ids in output from libcootapi/chapi when gemmi is used.
+  We need label_atom_id and label_segid (not the auth version of those)
+
+o moorhen: make a useful interface for atom overlaps
+
+o coot: let's get bansu integrated - for those who don't have acedrg
+
+o where are with with the panda inspect interface?
+
+o when refining carbohydrate, don't find links by distance - use residue numbers and links.
+
+o libcootapi: make a get-atom-overlaps() function that is useful from Moorhen.
+
+o html anchors so that svg (flev) from coot can be used for interactivity in moorhen.
+
+o Coot: 2 (EM?) maps - don't scroll the map that is not displayed
+
+o Moorhen: get the map for the given molecule when using EM structure
+
+o Friday: de-dust
+o Next friday: density correlation for a residue cid
+o 2-weeks friday: Goodsell colouring
+
+o libcootapi/moorhen: density correlation for a cid
+
+o libcootapi/moorhen: renumber residues function
+
+o libcootapi add a mask for the fourier shell
+
+o libcootapi: using model and gaussian surface export a mask soft edge (0.0 to 1.0 in floats)
 
 o Moorhen: key binding for "Nice" bonds.
 
@@ -22,6 +68,10 @@ o ligand code KCX: make pdb from chapi and read it into moorhen - with hydrogen 
   In Lucy's example some hydrogen atoms were disconnected.
 
 o add_molecular_symmetry add this to moorhen/libcootapi
+
+o calculate the bonds up-front and use a container that can generate the bond
+  and atom indices from a mol or atom selection that has updated atom positons
+  (from dynamics, say).
 
 o set status 0 for more than 100,000 (or so?) vertices
   Make an api function for the user to set the max vertices
