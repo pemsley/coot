@@ -1272,6 +1272,9 @@ int new_startup(int argc, char **argv) {
    // delete activate_data; Nope. This is used in new_startup_application_activate.
    // Delete it there if you want to delete it.
 
+   // read in inchikeys - is this the right place for this?
+   graphics_info_t::read_inchikeys();
+
    int status = g_application_run(G_APPLICATION(app), 1, argv);
    std::cout << "--- g_application_run() returns with status " << status << std::endl;
    g_object_unref(app);

@@ -476,6 +476,8 @@ nanobind_add_module(coot_headless_api ${coot_src}/api/molecules-container-nanobi
 # target_compile_options(cootapi PRIVATE -fsanitize=address -fno-omit-frame-pointer)
 # target_link_libraries(cootapi PRIVATE -fsanitize=address) # Linker flags
 
+set(MAKE_COOT_HEADLESS_API_PYI 1)
+
 if (MAKE_COOT_HEADLESS_API_PYI)
   # thanks Jordan (install coot_headless_api.pyi in the right place)
   nanobind_add_stub(coot_headless_api_ext_stub

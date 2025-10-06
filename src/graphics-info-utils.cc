@@ -323,3 +323,8 @@ void
 graphics_info_t::set_python_draw_function(const std::string &f) {
    python_draw_function_string = f;
 }
+
+// static
+void graphics_info_t::read_inchikeys() {
+   inchikey_store.init();
+}

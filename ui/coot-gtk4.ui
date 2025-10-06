@@ -18262,6 +18262,12 @@ Move a copy?</property>
             </child>
             <child>
               <object class="GtkShortcutsShortcut">
+                <property name="accelerator">&lt;Ctrl&gt;l</property>
+                <property name="title" translatable="yes">Go To Ligand</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
                 <property name="accelerator">o</property>
                 <property name="title" translatable="yes">NCS Other Chain</property>
               </object>

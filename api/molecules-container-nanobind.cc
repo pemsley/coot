@@ -78,8 +78,17 @@ std::unordered_map<std::string, std::string> docstring_cache;
 std::string get_docstring_from_xml(const std::string& func_name) {
 
    // this is the relative path for standard out-of-tree build
-   std::string api_doxygen_xml_file_name =
+   std::string api_doxygen_xml_file_name_1 =
       "../coot/api/doxy-sphinx/xml/classmolecules__container__t.xml";
+   // for a build inside the source:
+   std::string api_doxygen_xml_file_name_2 =
+      "../api/doxy-sphinx/xml/classmolecules__container__t.xml";
+   // fill this:
+   std::string api_doxygen_xml_file_name;
+   if (std::filesystem::exists(std::filesystem::path(api_doxygen_xml_file_name_1)))
+      api_doxygen_xml_file_name = api_doxygen_xml_file_name_1;
+   if (std::filesystem::exists(std::filesystem::path(api_doxygen_xml_file_name_2)))
+      api_doxygen_xml_file_name = api_doxygen_xml_file_name_2;
 
    auto convert_type = [] (const std::string &s_in) {
       std::string s = s_in;
@@ -115,7 +124,8 @@ std::string get_docstring_from_xml(const std::string& func_name) {
    if (docstring_cache.empty()) {
       pugi::xml_document doc;
       if (!doc.load_file(api_doxygen_xml_file_name.c_str())) {
-         std::cout << "WARNING:: doxygen file " << api_doxygen_xml_file_name << " not found - nanobind API docummentation will not be generated"
+         std::cout << "WARNING:: doxygen file " << api_doxygen_xml_file_name
+                   << " not found - nanobind API docummentation will not be generated"
                    << std::endl;
          return "";
       }

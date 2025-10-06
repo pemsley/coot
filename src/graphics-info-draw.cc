@@ -6419,7 +6419,10 @@ graphics_info_t::contour_level_scroll_scrollable_map(int direction) {
       //           << " pending: " << molecules[imol_scroll].pending_contour_level_change_count
       //           << std::endl;
       logger.log(log_t::INFO, "contour level for map", imol_scroll, "is",
-		 molecules[imol_scroll].contour_level, "pending",
+		 molecules[imol_scroll].contour_level,
+                 "step-size iso:", iso_level_increment,
+                 "diff: ", diff_map_iso_level_increment,
+                 "pending",
 		 molecules[imol_scroll].pending_contour_level_change_count);
 
       set_density_level_string(imol_scroll, molecules[imol_scroll].contour_level);

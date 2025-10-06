@@ -725,7 +725,6 @@ graphics_info_t::setup_key_bindings() {
 
    auto ldr = [] () {
 
-      std::cout << "ldr start --------------------------------------" << std::endl;
       graphics_info_t g;
       std::pair<bool, std::pair<int, coot::atom_spec_t> > aa_spec_pair = active_atom_spec();
       if (aa_spec_pair.first) {
@@ -740,7 +739,6 @@ graphics_info_t::setup_key_bindings() {
             g.molecules[imol].delete_residue(residue_spec);
          }
       }
-      std::cout << "ldr done --------------------------------------" << std::endl;
       return gboolean(TRUE);
    };
    key_bindings_t delete_residue_key_binding(ldr, "Delete Residue");
@@ -755,6 +753,15 @@ graphics_info_t::setup_key_bindings() {
    key_bindings_t add_water_key_binding(law, "Add Water");
    std::pair<keyboard_key_t, key_bindings_t> paw(keyboard_key_t(GDK_KEY_w, true), add_water_key_binding);
    kb_vec.push_back(paw);
+
+   // 2025-10-03-PE Thanks for the reminder AAAAdragon.
+   auto l_go_to_lig = [] {
+      go_to_ligand();
+      return gboolean(TRUE);
+   };
+   key_bindings_t go_to_ligand_binding(l_go_to_lig, "Go To Ligand");
+   std::pair<keyboard_key_t, key_bindings_t> pgl(keyboard_key_t(GDK_KEY_l, true), go_to_ligand_binding);
+   kb_vec.push_back(pgl);
 
    // Direction is either +1 or -1 (in or out)
    //
