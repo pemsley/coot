@@ -149,7 +149,8 @@ fi
 
 #RDKit
 if [ $BUILD_RDKIT = true ]; then
-    BOOST_CMAKE_STUFF=`for i in ${INSTALL_DIR}/lib/cmake/boost*; do j=${i%-$boost_release}; k=${j#${INSTALL_DIR}/lib/cmake/boost_}; echo -Dboost_${k}_DIR=$i; done`
+    BOOST_CMAKE_STUFF=`for i in ${INSTALL_DIR}/lib/cmake/boost*; do j=${i%-static}; k=${j%-$boost_release}; l=${k#${INSTALL_DIR}/lib/cmake/boost_}; echo -Dboost_${l}_DIR=$i; done`
+    # echo BOOST_CMAKE_STUFF: $BOOST_CMAKE_STUFF
     mkdir -p ${BUILD_DIR}/rdkit_build
     cd ${BUILD_DIR}/rdkit_build
     emcmake cmake -DBoost_DIR=${INSTALL_DIR}/lib/cmake/Boost-$boost_release \
@@ -160,6 +161,7 @@ if [ $BUILD_RDKIT = true ]; then
                   -DRDK_BUILD_SLN_SUPPORT=OFF \
                   -DRDK_TEST_MMFF_COMPLIANCE=OFF \
                   -DRDK_BUILD_CPP_TESTS=OFF \
+                  -DRDK_USE_BOOST_STACKTRACE=ON \
                   -DRDK_USE_BOOST_SERIALIZATION=ON \
                   -DRDK_BUILD_THREADSAFE_SSS=OFF \
                   -DBoost_INCLUDE_DIR=${INSTALL_DIR}/include \
