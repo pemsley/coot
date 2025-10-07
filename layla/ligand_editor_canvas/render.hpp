@@ -30,6 +30,7 @@
     #include <optional>
     #include <vector>
     #include <emscripten/val.h>
+    #include "../../lhasa/glog_replacement.hpp"
 #endif
 #include <map>
 #include <memory>
@@ -309,19 +310,6 @@ namespace std {
             return boost::hash_value(std::tie(color.a, color.r, color.g, color.b));
         }
     };
-    template <> struct std::hash<coot::ligand_editor_canvas::impl::Renderer::TextStyle> {
-        std::size_t operator()(const coot::ligand_editor_canvas::impl::Renderer::TextStyle& style) const noexcept {
-            auto ret = std::hash<coot::ligand_editor_canvas::impl::Renderer::Color>{}(style.color);
-            boost::hash_combine(ret, std::tie(
-                style.size,
-                //style.color hashed above
-                style.specifies_color,
-                style.positioning,
-                style.weight
-            ));
-            return ret;
-        }
-    };
 
     template<> struct std::hash<coot::ligand_editor_canvas::impl::Renderer::TextSpan::Newline> {
         std::size_t operator()(const coot::ligand_editor_canvas::impl::Renderer::TextSpan::Newline&) const noexcept {
@@ -336,19 +324,43 @@ namespace std {
     };
 }
 
-inline std::size_t coot::ligand_editor_canvas::impl::hash_value(const coot::ligand_editor_canvas::impl::Renderer::TextSpan& span) {
-    auto ret = std::hash<coot::ligand_editor_canvas::impl::Renderer::TextStyle>{}(span.style);
-    boost::hash_combine(ret, span.specifies_style);
-    // This causes memory corruption
-    // boost::hash_combine(ret, span.content);
-    if(std::holds_alternative<std::string>(span.content)) {
-        boost::hash_combine(ret, std::get<std::string>(span.content));
-    } else if(std::holds_alternative<std::vector<coot::ligand_editor_canvas::impl::Renderer::TextSpan>>(span.content)) {
-        
-        for(const auto& subspan : std::get<std::vector<coot::ligand_editor_canvas::impl::Renderer::TextSpan>>(span.content)) {
-            boost::hash_combine(ret, hash_value(subspan));
+namespace boost {
+    template<> struct hash<coot::ligand_editor_canvas::impl::Renderer::TextSpan> {
+        std::size_t operator()(const coot::ligand_editor_canvas::impl::Renderer::TextSpan& span) const noexcept {
+           return coot::ligand_editor_canvas::impl::hash_value(span);
         }
-    } else if(std::holds_alternative<coot::ligand_editor_canvas::impl::Renderer::TextSpan::Newline>(span.content)) {
+    };  
+
+    template <> struct hash<coot::ligand_editor_canvas::impl::Renderer::TextStyle> {
+        std::size_t operator()(const coot::ligand_editor_canvas::impl::Renderer::TextStyle& style) const noexcept {
+            auto ret = std::hash<coot::ligand_editor_canvas::impl::Renderer::Color>{}(style.color);
+            boost::hash_combine(ret, std::tie(
+                style.size,
+                //style.color hashed above
+                style.specifies_color,
+                style.positioning,
+                style.weight
+            ));
+            return ret;
+        }
+    };
+}
+
+inline std::size_t coot::ligand_editor_canvas::impl::hash_value(const coot::ligand_editor_canvas::impl::Renderer::TextSpan& span) {
+    std::size_t ret = std::hash<bool>{}(span.specifies_style);
+    if(span.specifies_style) {
+        boost::hash_combine(ret, span.style);
+    }
+    // Hash the content variant by type
+    if (std::holds_alternative<std::string>(span.content)) {
+        boost::hash_combine(ret, std::get<std::string>(span.content));
+    } else if (std::holds_alternative<std::vector<coot::ligand_editor_canvas::impl::Renderer::TextSpan>>(span.content)) {
+        const auto& vec = std::get<std::vector<coot::ligand_editor_canvas::impl::Renderer::TextSpan>>(span.content);
+        for (const auto& subspan : vec) {
+            g_info("Hashing subspans...");
+            boost::hash_combine(ret, subspan);
+        }
+    } else if (std::holds_alternative<coot::ligand_editor_canvas::impl::Renderer::TextSpan::Newline>(span.content)) {
         boost::hash_combine(ret, std::get<coot::ligand_editor_canvas::impl::Renderer::TextSpan::Newline>(span.content));
     }
     return ret;
