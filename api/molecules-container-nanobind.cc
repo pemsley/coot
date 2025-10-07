@@ -1,6 +1,9 @@
+
+#include <filesystem>
 #include <unordered_map>
 #include <sstream>
 
+#include <stdlib.h> // for getenv()
 #include <nanobind/nanobind.h>
 #include <nanobind/stl/string.h>
 #include <nanobind/stl/pair.h>
@@ -17,7 +20,6 @@
 #include "coot-utils/acedrg-types-for-residue.hh"
 #include "coot-utils/g_triangle.hh"
 #include "mini-mol/mini-mol-utils.hh"
-#include "lidia-core/use-rdkit.hh"
 
 #if NB_VERSION_MAJOR // for flychecking
 #include <nanobind/nanobind.h>
@@ -89,6 +91,15 @@ std::string get_docstring_from_xml(const std::string& func_name) {
       api_doxygen_xml_file_name = api_doxygen_xml_file_name_1;
    if (std::filesystem::exists(std::filesystem::path(api_doxygen_xml_file_name_2)))
       api_doxygen_xml_file_name = api_doxygen_xml_file_name_2;
+   // try to find the xml file using CONDA_PREFIX - idea from eunos-1128
+   const char *e = getenv("CONDA_PREFIX");
+   if (e) {
+      std::filesystem::path conda_prefix(e);
+      std::filesystem::path xml_dir = conda_prefix / "share" / "doxy-sphinx" / "xml";
+      std::filesystem::path full_path = xml_dir / "classmolecules__container__t.xml";
+      if (std::filesystem::exists(full_path))
+         api_doxygen_xml_file_name = full_path.string();
+   }
 
    auto convert_type = [] (const std::string &s_in) {
       std::string s = s_in;
