@@ -135,11 +135,14 @@ echo "BUILD_LIBSIGCPP " $BUILD_LIBSIGCPP
 if [ $BUILD_BOOST = true ]; then
     mkdir -p ${BUILD_DIR}/boost
     cd ${BUILD_DIR}/boost
+    #export BOOST_STACKTRACE_LIBCXX_RUNTIME_MAY_CAUSE_MEMORY_LEAK=1
     emcmake cmake -DCMAKE_C_FLAGS="${LHASA_CMAKE_FLAGS}" \
                   -DCMAKE_CXX_FLAGS="${LHASA_CMAKE_FLAGS}" \
                   -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} \
                   ${SOURCE_DIR}/checkout/boost-$boost_release \
-                  -DBOOST_EXCLUDE_LIBRARIES="context;fiber;fiber_numa;asio;log;coroutine;cobalt;nowide"
+                  -DBOOST_STACKTRACE_LIBCXX_RUNTIME_MAY_CAUSE_MEMORY_LEAK=1 \
+                  -DBOOST_STACKTRACE_ENABLE_FROM_EXCEPTION=OFF \
+                  -DBOOST_EXCLUDE_LIBRARIES="context;fiber;fiber_numa;process;asio;log;coroutine;cobalt;nowide"
     emmake make -j ${NUMPROCS}
     emmake make install
 fi
