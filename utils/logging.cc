@@ -572,6 +572,44 @@ logging::log(log_t type_in, ltw l1, ltw l2, ltw l3, ltw l4, ltw l5, ltw l6) {
 }
 
 void
+logging::log(log_t type_in,
+             logging::ltw const &l1, logging::ltw const &l2,
+             logging::ltw const &l3, logging::ltw const &l4,
+             logging::ltw const &l5, logging::ltw const &l6,
+             logging::ltw const &l7, logging::ltw const &l8,
+             logging::ltw const &l9, logging::ltw const &l10) {
+
+   log_item l;
+   l.type = type_in;
+   timeval current_time;
+   int success = gettimeofday(&current_time, NULL);
+   if (success == 0) // was successful
+      l.t = current_time.tv_sec;
+   l.message += l1.to_string();
+   l.message += " ";
+   l.message += l2.to_string();
+   l.message += " ";
+   l.message += l3.to_string();
+   l.message += " ";
+   l.message += l4.to_string();
+   l.message += " ";
+   l.message += l5.to_string();
+   l.message += " ";
+   l.message += l6.to_string();
+   l.message += " ";
+   l.message += l7.to_string();
+   l.message += " ";
+   l.message += l8.to_string();
+   l.message += " ";
+   l.message += l9.to_string();
+   l.message += " ";
+   l.message += l10.to_string();
+   history.push_back(l);
+   output_to_terminal_maybe();
+   notify();
+}
+
+void
 logging::log(log_t type_in, const std::string &s1, const double &d1, const std::string &s2, const double &d2) {
 
    log_item l;
