@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION 3.25)
 project(Lhasa)
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 23)
 
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
