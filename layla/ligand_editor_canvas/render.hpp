@@ -311,12 +311,6 @@ namespace std {
         }
     };
 
-    template<> struct std::hash<coot::ligand_editor_canvas::impl::Renderer::TextSpan::Newline> {
-        std::size_t operator()(const coot::ligand_editor_canvas::impl::Renderer::TextSpan::Newline&) const noexcept {
-            return 0x9e3879b9; // random constant
-        }
-    };
-
     template<> struct std::hash<coot::ligand_editor_canvas::impl::Renderer::TextSpan> {
         std::size_t operator()(const coot::ligand_editor_canvas::impl::Renderer::TextSpan& span) const noexcept {
            return coot::ligand_editor_canvas::impl::hash_value(span);
@@ -330,6 +324,12 @@ namespace boost {
            return coot::ligand_editor_canvas::impl::hash_value(span);
         }
     };  
+
+    template<> struct hash<coot::ligand_editor_canvas::impl::Renderer::TextSpan::Newline> {
+        std::size_t operator()(const coot::ligand_editor_canvas::impl::Renderer::TextSpan::Newline&) const noexcept {
+            return 0x9e3879b9; // random constant
+        }
+    };
 
     template <> struct hash<coot::ligand_editor_canvas::impl::Renderer::TextStyle> {
         std::size_t operator()(const coot::ligand_editor_canvas::impl::Renderer::TextStyle& style) const noexcept {
@@ -351,18 +351,9 @@ inline std::size_t coot::ligand_editor_canvas::impl::hash_value(const coot::liga
     if(span.specifies_style) {
         boost::hash_combine(ret, span.style);
     }
-    // Hash the content variant by type
-    if (std::holds_alternative<std::string>(span.content)) {
-        boost::hash_combine(ret, std::get<std::string>(span.content));
-    } else if (std::holds_alternative<std::vector<coot::ligand_editor_canvas::impl::Renderer::TextSpan>>(span.content)) {
-        const auto& vec = std::get<std::vector<coot::ligand_editor_canvas::impl::Renderer::TextSpan>>(span.content);
-        for (const auto& subspan : vec) {
-            g_info("Hashing subspans...");
-            boost::hash_combine(ret, subspan);
-        }
-    } else if (std::holds_alternative<coot::ligand_editor_canvas::impl::Renderer::TextSpan::Newline>(span.content)) {
-        boost::hash_combine(ret, std::get<coot::ligand_editor_canvas::impl::Renderer::TextSpan::Newline>(span.content));
-    }
+    // For future: make sure that all types have boost::hash implemented.
+    // It's a madness when it breaks.
+    boost::hash_combine(ret, span.content);
     return ret;
 }
 #endif // __EMSCRIPTEN__
