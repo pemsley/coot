@@ -108,6 +108,7 @@ EMSCRIPTEN_BINDINGS(lhasa) {
   class_<impl::Renderer::TextSpan>("TextSpan")
     .property("style", &impl::Renderer::TextSpan::style)
     .property("specifies_style", &impl::Renderer::TextSpan::specifies_style)
+    .function("is_newline", &impl::Renderer::TextSpan::is_newline)
     .function("has_subspans", &impl::Renderer::TextSpan::has_subspans) 
     .function("as_caption", select_const(&impl::Renderer::TextSpan::as_caption))
     .function("as_subspans", select_const(&impl::Renderer::TextSpan::as_subspans))

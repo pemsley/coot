@@ -1,6 +1,5 @@
 cmake_minimum_required(VERSION 3.25)
 project(Lhasa)
-set(CMAKE_CXX_STANDARD 17)
 
 if(NOT CMAKE_BUILD_TYPE)
     set(CMAKE_BUILD_TYPE Release)
@@ -16,7 +15,7 @@ else()
 endif()
 set(CMAKE_CXX_FLAGS_RELEASE "-O2")
 set(CMAKE_C_FLAGS_RELEASE "-O2")
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 23)
 
 
 

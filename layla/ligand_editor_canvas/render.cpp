@@ -172,8 +172,17 @@ Renderer::TextSpan::TextSpan(const std::vector<TextSpan>& subspans) {
     this->content = subspans;
 }
 
+Renderer::TextSpan::TextSpan(const Newline& nl) {
+    this->specifies_style = false;
+    this->content = nl;
+}
+
 bool Renderer::TextSpan::has_subspans() const {
     return std::holds_alternative<std::vector<TextSpan>>(this->content);
+}
+
+bool Renderer::TextSpan::is_newline() const {
+    return std::holds_alternative<Newline>(this->content);
 }
 
 std::string& Renderer::TextSpan::as_caption() {
@@ -405,7 +414,7 @@ std::string Renderer::text_span_to_pango_markup(const TextSpan& span, const std:
     bool style_block = should_specify_style();
     if(style_block) {
         const auto& style = span.style;
-        ret += "<span ";
+        ret += "<span line_height=\"0.75\"";
         if(style.specifies_color) {
             std::stringstream html_color;
             html_color << "#";
@@ -451,6 +460,8 @@ std::string Renderer::text_span_to_pango_markup(const TextSpan& span, const std:
             std::optional<TextStyle> styleopt = subspan.specifies_style ? subspan.style : parent_style;
             ret += this->text_span_to_pango_markup(subspan, styleopt);
         }
+    } else if(span.is_newline()) {
+        ret += "\n";
     } else {
         const auto& caption = span.as_caption();
         // todo: escape characters!
@@ -533,6 +544,7 @@ Renderer::TextSize Renderer::measure_text(const Renderer::TextSpan& text) {
     //     return {0,0};
     // }
     if(this->tm_cache) {
+        g_debug("About to hash TextSpan for caching.");
         this->tm_cache->add(text_hash.value(), ret);
         g_debug("TextSpan added to cache. Cache entries: %lu", this->tm_cache->size());
     }
@@ -581,10 +593,11 @@ MoleculeRenderContext::~MoleculeRenderContext() {
 
 }
 
-std::tuple<Renderer::TextSpan, bool> MoleculeRenderContext::process_appendix(const std::string& symbol, const std::optional<Atom::Appendix>& appendix, const Renderer::TextStyle& inherited_style) {
+std::tuple<Renderer::TextSpan, bool, bool> MoleculeRenderContext::process_appendix(const std::string& symbol, const std::optional<Atom::Appendix>& appendix, const Renderer::TextStyle& inherited_style) {
     Renderer::TextSpan ret((std::vector<Renderer::TextSpan>()));
     Renderer::TextSpan symbol_span(symbol);
     bool reversed = false;
+    bool vertical = false;
     if(!appendix.has_value()) {
         ret.as_subspans().push_back(symbol_span);
     } else {
@@ -624,11 +637,20 @@ std::tuple<Renderer::TextSpan, bool> MoleculeRenderContext::process_appendix(con
         }
         if (ap.reversed) {
             ret.as_subspans().push_back(root_span);
+            if(ap.vertical) {
+                ret.as_subspans().push_back(Renderer::TextSpan(Renderer::TextSpan::Newline{}));
+            }
             ret.as_subspans().push_back(symbol_span);
             reversed = true;
         } else {
             ret.as_subspans().push_back(symbol_span);
+            if(ap.vertical) {
+                ret.as_subspans().push_back(Renderer::TextSpan(Renderer::TextSpan::Newline{}));
+            }
             ret.as_subspans().push_back(root_span);
+        }
+        if(ap.vertical) {
+            vertical = true;
         }
         //ret += "</span>";
         if(ap.charge != 0) {
@@ -645,7 +667,7 @@ std::tuple<Renderer::TextSpan, bool> MoleculeRenderContext::process_appendix(con
             ret.as_subspans().push_back(charge_span);
         }
     }
-    return std::make_tuple(ret,reversed);
+    return std::make_tuple(ret, reversed, vertical);
 }
 
 std::pair<unsigned int,graphene_rect_t> MoleculeRenderContext::render_atom(const CanvasMolecule::Atom& atom, DisplayMode render_mode) {
@@ -675,6 +697,7 @@ std::pair<unsigned int,graphene_rect_t> MoleculeRenderContext::render_atom(const
     raw_atom_span.style = atom_span.style;
 
     bool reversed = false;
+    bool vertical = false;
 
     switch (render_mode) {
         case DisplayMode::AtomIndices: {
@@ -698,8 +721,9 @@ std::pair<unsigned int,graphene_rect_t> MoleculeRenderContext::render_atom(const
         }
         default:
         case DisplayMode::Standard: {
-            auto [appendix,p_reversed] = process_appendix(atom.symbol, atom.appendix, atom_span.style);
+            auto [appendix, p_reversed, p_vertical] = process_appendix(atom.symbol, atom.appendix, atom_span.style);
             reversed = p_reversed;
+            vertical = p_vertical;
             raw_atom_span.as_caption() += atom.symbol;
             atom_span
                 .as_subspans()
@@ -723,22 +747,23 @@ std::pair<unsigned int,graphene_rect_t> MoleculeRenderContext::render_atom(const
     const int magic2 = 0;
     // Magic number. This should be removed.
     // Workaround for pango giving us too high layout size.
-    const float layout_to_high = 3.f;
+    const float layout_too_high = 3.f;
     #else
     const int magic1 = 0;
     // Text appears too high. Manuall offset.
     const int magic2 = 15;
-    const float layout_to_high = 0.f;
+    const float layout_too_high = 0.f;
     #endif
-    int layout_x_offset = reversed ? size.width - raw_size.width / 2.f + magic1 : raw_size.width / 2.f;
+    int layout_x_offset = reversed && !vertical ? size.width - raw_size.width / 2.f + magic1 : raw_size.width / 2.f;
+    int layout_y_offset = vertical && reversed ? size.height - raw_size.height / 2.f : raw_size.height / 2.f;
     double origin_x = atom.x * scale_factor + x_offset - layout_x_offset;
-    double origin_y = atom.y * scale_factor + y_offset - raw_size.height / 2.f;
+    double origin_y = atom.y * scale_factor + y_offset - layout_y_offset;
 
     graphene_rect_t rect;
     rect.origin.x = origin_x;
-    rect.origin.y = origin_y + layout_to_high;
+    rect.origin.y = origin_y + layout_too_high;
     rect.size.width = size.width;
-    rect.size.height = size.height - layout_to_high * 2.f;
+    rect.size.height = size.height - layout_too_high * 2.f;
 
     // g_info("Rect: x=%f, y=%f, width=%f, height=%f", rect.origin.x, rect.origin.y, rect.size.width, rect.size.height);
 

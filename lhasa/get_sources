@@ -39,7 +39,7 @@ echo
 # curl -L https://unpkg.com/@rdkit/rdkit/Code/MinimalLib/dist/RDKit_minimal.js -o web_example/RDKit_minimal.js
 
 echo "Checking out boost"
-curl -L https://github.com/boostorg/boost/releases/download/boost-$boost_release/boost-$boost_release.tar.gz  -o boost_$boost_release.tar.gz
+curl -L https://github.com/boostorg/boost/releases/download/boost-$boost_release/boost-$boost_release-cmake.tar.gz  -o boost_$boost_release.tar.gz
 tar xf boost_$boost_release.tar.gz
 
 ln -s boost-$boost_release boost
