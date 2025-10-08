@@ -54,67 +54,68 @@ int handle_drag_and_drop_string(const std::string &uri_in) {
    std::string uri = uri_in;
    std::string url = uri_in;
 
-   // std::cout << ":::::::::::::::: handle_drag_and_drop_string(" << uri_in << ")" << std::endl;
+   std::cout << ":::::::::::::::: handle_drag_and_drop_string(" << uri_in << ")" << std::endl;
 
    if (! tried_already) {
       // OK, was it an HTTP type string?
       if (url.length() > 9) {
 
-	      if (url.substr(0,7) == "http://" || url.substr(0,8) == "https://") {
-	         tried_already = true;
-	         int l = url.length();
-	         if (url[l-1] == '\n') { 
-	            // std::cout << "extra \\n" << std::endl;
-	            url = url.substr(0, l-1);
-	         }
+         if (url.substr(0,7) == "http://" || url.substr(0,8) == "https://") {
+            tried_already = true;
+            int l = url.length();
+            if (url[l-1] == '\n') {
+               // std::cout << "extra \\n" << std::endl;
+               url = url.substr(0, l-1);
+            }
 
-	         l = url.length();
-	         int c = url[l-1];
-	         if (url[l-1] == '\r') { 
-	            // std::cout << "extra \\r" << std::endl;
-	            url = url.substr(0, l-1);
-	         }
-	    
+            l = url.length();
+            int c = url[l-1];
+            if (url[l-1] == '\r') {
+               // std::cout << "extra \\r" << std::endl;
+               url = url.substr(0, l-1);
+            }
+
             if (true) { // OK, we made it (or had it)
                std::string url_file_name_file = url;
 
-	            std::string ext = coot::util::file_name_extension(url);
-               
-	            if (ext == ".png") {
-		            // special rule - convert the url of the png to that
-		            // of an accession code.
-		            if (url.find("/PDBimages/")) {
-		               std::pair<std::string, std::string> s   = coot::util::split_string_on_last_slash(url);
-		               std::pair<std::string, std::string> ss  = coot::util::split_string_on_last_slash(s.first);
-		               std::pair<std::string, std::string> sss = coot::util::split_string_on_last_slash(ss.first);
-		               tried_already = true;
-		               handled = FALSE;
-		               if (ss.second.length() == 2) {
-			               if (sss.second.length() == 2) {
-			                  std::string code;
-			                  code += ss.second[0];
-			                  code += sss.second;
-			                  code += ss.second[1];
-			                  // get_coords_for_accession_code(code.c_str());
+               std::string ext = coot::util::file_name_extension(url);
+
+               if (ext == ".png") {
+                  // special rule - convert the url of the png to that
+                  // of an accession code.
+                  if (url.find("/PDBimages/")) {
+                     std::pair<std::string, std::string> s   = coot::util::split_string_on_last_slash(url);
+                     std::pair<std::string, std::string> ss  = coot::util::split_string_on_last_slash(s.first);
+                     std::pair<std::string, std::string> sss = coot::util::split_string_on_last_slash(ss.first);
+                     tried_already = true;
+                     handled = FALSE;
+                     if (ss.second.length() == 2) {
+                        if (sss.second.length() == 2) {
+                           std::string code;
+                           code += ss.second[0];
+                           code += sss.second;
+                           code += ss.second[1];
+                           // get_coords_for_accession_code(code.c_str());
                            network_get_accession_code_entity(code, 0);
-			               }
-		               }
-		            }
+                        }
+                     }
+                  }
 
-	            } else {
+               } else {
 
-		            // it was coords or mtz - we presume
-		            std::string::size_type pos = url.find_last_of('/');
-		            if (pos != std::string::npos) {
-		               // normal path
-		               url_file_name_file = url.substr(pos);
-		            }
-		            std::string file_name = coot::util::append_dir_file("coot-download", url_file_name_file);
-		            coot_get_url(url.c_str(), file_name.c_str());
-		            handled = handle_drag_and_drop_single_item(file_name);
-	            }
-	         }
-	      }
+                  // it was coords or mtz - we presume
+                  std::string::size_type pos = url.find_last_of('/');
+                  if (pos != std::string::npos) {
+                     // normal path
+                     url_file_name_file = url.substr(pos);
+                  }
+                  std::string file_name = coot::util::append_dir_file("coot-download", url_file_name_file);
+                  coot_get_url(url.c_str(), file_name.c_str());
+                  std::cout << "::::::::::::::::::: calling handle_drag_and_drop_single_item()" << std::endl;
+                  handled = handle_drag_and_drop_single_item(file_name);
+               }
+            }
+         }
       }
    }
 
@@ -125,7 +126,7 @@ int handle_drag_and_drop_string(const std::string &uri_in) {
          get_coords_for_accession_code(uri_in.c_str());
          tried_already = true;
          handled = TRUE;
-      } 
+      }
    }
 
    if (! tried_already) {
@@ -133,7 +134,7 @@ int handle_drag_and_drop_string(const std::string &uri_in) {
       if (coot::file_exists(url)) {
 	 handled = handle_drag_and_drop_single_item(url);
       } 
-   } 
+   }
    return handled;
 }
 
