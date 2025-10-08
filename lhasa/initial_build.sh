@@ -159,6 +159,7 @@ if [ $BUILD_RDKIT = true ]; then
                   -DRDK_INSTALL_STATIC_LIBS=ON \
                   -DRDK_INSTALL_INTREE=OFF \
                   -DRDK_BUILD_SLN_SUPPORT=OFF \
+                  -DRDK_BUILD_INCHI_SUPPORT=ON \
                   -DRDK_TEST_MMFF_COMPLIANCE=OFF \
                   -DRDK_BUILD_CPP_TESTS=OFF \
                   -DRDK_USE_BOOST_STACKTRACE=ON \
