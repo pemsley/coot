@@ -1033,6 +1033,7 @@ public:
    //
    static int scroll_wheel_map;
    void update_scroll_wheel_map_on_molecule_close();
+   int intelligent_get_scroll_wheel_map() const;
 
    void contour_level_scroll_scrollable_map(int direction);
 

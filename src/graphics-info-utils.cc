@@ -328,3 +328,22 @@ graphics_info_t::set_python_draw_function(const std::string &f) {
 void graphics_info_t::read_inchikeys() {
    inchikey_store.init();
 }
+
+int graphics_info_t::intelligent_get_scroll_wheel_map() const {
+
+   int swm = -1;
+   if (is_valid_map_molecule(scroll_wheel_map))
+      if (molecules[scroll_wheel_map].get_map_is_displayed())
+         swm = scroll_wheel_map;
+   if (swm == -1) {
+      // find the first visible map then
+      for(int imol=0; imol<molecules.size(); imol++) {
+         if (is_valid_map_molecule(imol))
+            if (molecules[imol].get_map_is_displayed()) {
+               swm = imol;
+               break;
+            }
+      }
+   }
+   return swm;
+}

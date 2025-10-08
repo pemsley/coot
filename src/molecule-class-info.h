@@ -887,6 +887,7 @@ public:        //                      public
 
    void set_map_is_displayed(int state); // 20250216-PE moved out of header, to handle
                                          // expired map contours
+   bool get_map_is_displayed() const { return draw_it_for_map; }
 
    void set_map_is_displayed_as_standard_lines(short int state) {
       draw_it_for_map_standard_lines = state;
