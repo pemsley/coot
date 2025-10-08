@@ -901,10 +901,7 @@ void CanvasMolecule::build_internal_molecule_representation(const RDGeom::INT_PO
                     // g_info("Atom %u: x_diff=%f y_diff=%f alpha=%f",canvas_atom.idx,x_diff,y_diff,alpha);
                     
                     // todo: extract magic numbers into constants
-                    // Disable for now, before it can be enabled as expected on the main branch
-                    // ap.vertical = std::abs(alpha) > M_PI_2 - 33.75/360 * 2 * M_PI;
-
-                    ap.vertical = false;
+                    ap.vertical = std::abs(alpha) > M_PI_2 - 33.75/360 * 2 * M_PI;
 
                     if(ap.vertical) {
                         if(y_diff > 0) {
