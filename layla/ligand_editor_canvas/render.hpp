@@ -30,6 +30,7 @@
     #include <optional>
     #include <vector>
     #include <emscripten/val.h>
+    #include "../../lhasa/glog_replacement.hpp"
 #endif
 #include <map>
 #include <memory>
@@ -73,8 +74,12 @@ struct Renderer {
     };
 
     class TextSpan {
+        public:
+        struct Newline {};
 
-        std::variant<std::string, std::vector<TextSpan>> content;
+        private:
+
+        std::variant<std::string, std::vector<TextSpan>, Newline> content;
 
         public:
         TextStyle style;
@@ -82,6 +87,7 @@ struct Renderer {
         bool specifies_style;
 
         bool has_subspans() const;
+        bool is_newline() const;
         std::string& as_caption();
         const std::string& as_caption() const;
         std::vector<TextSpan>& as_subspans();
@@ -89,6 +95,7 @@ struct Renderer {
         TextSpan();
         TextSpan(const std::string&);
         TextSpan(const std::vector<TextSpan>&);
+        TextSpan(const Newline&);
 
         #ifdef __EMSCRIPTEN__
         inline friend std::size_t hash_value(const TextSpan&);
@@ -260,8 +267,8 @@ class MoleculeRenderContext {
 
 
     void process_atom_highlight(const CanvasMolecule::Atom& atom);
-    /// Returns the appendix span + info if the appendix is reversed
-    std::tuple<Renderer::TextSpan, bool> process_appendix(const std::string& symbol, const std::optional<CanvasMolecule::Atom::Appendix>& appendix, const Renderer::TextStyle& inherited_style);
+    /// Returns the appendix span + if the appendix is reversed + if the appendix is vertical
+    std::tuple<Renderer::TextSpan, bool, bool> process_appendix(const std::string& symbol, const std::optional<CanvasMolecule::Atom::Appendix>& appendix, const Renderer::TextStyle& inherited_style);
     /// Returns a pair of atom index and bonding rect
     std::pair<unsigned int,graphene_rect_t> render_atom(const CanvasMolecule::Atom& atom, DisplayMode render_mode = DisplayMode::Standard);
     // Returns on-screen bond coordinates
@@ -303,7 +310,28 @@ namespace std {
             return boost::hash_value(std::tie(color.a, color.r, color.g, color.b));
         }
     };
-    template <> struct std::hash<coot::ligand_editor_canvas::impl::Renderer::TextStyle> {
+
+    template<> struct std::hash<coot::ligand_editor_canvas::impl::Renderer::TextSpan> {
+        std::size_t operator()(const coot::ligand_editor_canvas::impl::Renderer::TextSpan& span) const noexcept {
+           return coot::ligand_editor_canvas::impl::hash_value(span);
+        }
+    };
+}
+
+namespace boost {
+    template<> struct hash<coot::ligand_editor_canvas::impl::Renderer::TextSpan> {
+        std::size_t operator()(const coot::ligand_editor_canvas::impl::Renderer::TextSpan& span) const noexcept {
+           return coot::ligand_editor_canvas::impl::hash_value(span);
+        }
+    };  
+
+    template<> struct hash<coot::ligand_editor_canvas::impl::Renderer::TextSpan::Newline> {
+        std::size_t operator()(const coot::ligand_editor_canvas::impl::Renderer::TextSpan::Newline&) const noexcept {
+            return 0x9e3879b9; // random constant
+        }
+    };
+
+    template <> struct hash<coot::ligand_editor_canvas::impl::Renderer::TextStyle> {
         std::size_t operator()(const coot::ligand_editor_canvas::impl::Renderer::TextStyle& style) const noexcept {
             auto ret = std::hash<coot::ligand_editor_canvas::impl::Renderer::Color>{}(style.color);
             boost::hash_combine(ret, std::tie(
@@ -316,17 +344,15 @@ namespace std {
             return ret;
         }
     };
-
-    template<> struct std::hash<coot::ligand_editor_canvas::impl::Renderer::TextSpan> {
-        std::size_t operator()(const coot::ligand_editor_canvas::impl::Renderer::TextSpan& span) const noexcept {
-           return coot::ligand_editor_canvas::impl::hash_value(span);
-        }
-    };
 }
 
 inline std::size_t coot::ligand_editor_canvas::impl::hash_value(const coot::ligand_editor_canvas::impl::Renderer::TextSpan& span) {
-    auto ret = std::hash<coot::ligand_editor_canvas::impl::Renderer::TextStyle>{}(span.style);
-    boost::hash_combine(ret, span.specifies_style);
+    std::size_t ret = std::hash<bool>{}(span.specifies_style);
+    if(span.specifies_style) {
+        boost::hash_combine(ret, span.style);
+    }
+    // For future: make sure that all types have boost::hash implemented.
+    // It's a madness when it breaks.
     boost::hash_combine(ret, span.content);
     return ret;
 }

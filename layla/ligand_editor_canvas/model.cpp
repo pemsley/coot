@@ -331,7 +331,8 @@ CanvasMolecule::AtomColor CanvasMolecule::atom_color_from_rdkit(const RDKit::Ato
 
 CanvasMolecule::Atom::Appendix::Appendix() noexcept 
     :charge(0),
-    reversed(false) {
+    reversed(false),
+    vertical(false) {
     
 }
 
@@ -816,6 +817,8 @@ void CanvasMolecule::build_internal_molecule_representation(const RDGeom::INT_PO
         std::vector<std::shared_ptr<Bond>> bonds_to_be_cached;
         // Used to determine if the 'appendix' should be 'reversed'
         std::optional<float> x_coordinate_of_bonded_atom;
+        // Used to determine if the 'appendix' should be 'vertical'
+        std::optional<float> y_coordinate_of_bonded_atom;
 
         for (const auto& bond: boost::make_iterator_range(this->rdkit_molecule->getAtomBonds(rdkit_atom))) {
             // Based on `getAtomBonds` documentation.
@@ -828,6 +831,7 @@ void CanvasMolecule::build_internal_molecule_representation(const RDGeom::INT_PO
             if(the_other_atom->getSymbol() != "H") {
                 surrounding_non_hydrogen_count++;
                 x_coordinate_of_bonded_atom = coordinate_map.at(the_other_atom_idx).x;
+                y_coordinate_of_bonded_atom = coordinate_map.at(the_other_atom_idx).y;
             } 
             // else {
             //     g_warning("Skipping explicit hydrogen bound to atom with idx=%u!",canvas_atom.idx);
@@ -882,7 +886,8 @@ void CanvasMolecule::build_internal_molecule_representation(const RDGeom::INT_PO
 
         bool terminus = (surrounding_non_hydrogen_count < 2);
         if (canvas_atom.symbol != "H" && (canvas_atom.symbol != "C" || terminus)) {
-            //todo: oxygens I guess?
+            // todo: oxygens I guess?
+            // or maybe not?
             if(surrounding_hydrogen_count > 0) {
                 Atom::Appendix ap = canvas_atom.appendix.value_or(Atom::Appendix());
                 ap.superatoms = "H";
@@ -890,8 +895,24 @@ void CanvasMolecule::build_internal_molecule_representation(const RDGeom::INT_PO
                     ap.superatoms += std::to_string(surrounding_hydrogen_count);
                 }
                 if(terminus && x_coordinate_of_bonded_atom.has_value()) {
-                    float diff = x_coordinate_of_bonded_atom.value() - canvas_atom.x;
-                    ap.reversed = diff > 0.2;
+                    float x_diff = x_coordinate_of_bonded_atom.value() - canvas_atom.x;
+                    float y_diff = y_coordinate_of_bonded_atom.value() - canvas_atom.y;
+                    float alpha = std::atan(y_diff / x_diff);
+                    // g_info("Atom %u: x_diff=%f y_diff=%f alpha=%f",canvas_atom.idx,x_diff,y_diff,alpha);
+                    
+                    // todo: extract magic numbers into constants
+                    // Disable for now, before it can be enabled as expected on the main branch
+                    // ap.vertical = std::abs(alpha) > M_PI_2 - 33.75/360 * 2 * M_PI;
+
+                    ap.vertical = false;
+
+                    if(ap.vertical) {
+                        if(y_diff > 0) {
+                            ap.reversed = true;
+                        }
+                    } else {
+                        ap.reversed = x_diff > 0.2;
+                    }
                 }
                 canvas_atom.appendix = ap;
             }
