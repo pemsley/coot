@@ -25,6 +25,7 @@ int main(int argc, char **argv) {
                                                            n_slices_for_coil,
                                                            secondaryStructureUsageFlag);
                                                          */
+      coot::simple_mesh_t mesh;
       float roughness = 0.2;
       float smoothnesss =- 0.8;
       bool use_binary_format = true;

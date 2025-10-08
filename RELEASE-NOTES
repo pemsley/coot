@@ -3,9 +3,14 @@
 
  o FEATURE: Double click to label symmetry atom
 
+ o FEATURE: drag-and-drop immport for local-file-system files
+
  o CHANGE:  user-defined-clicks function added back
 
  o CHANGE:  Assign and Associate Sequence menu item functions now added back
+
+ o CHANGE:  Improve the scrolling of the map contour level when the 
+            nominated map is not displayed
 
  o BUG-FIX: Menu items with targets don't work on macOS (I don't know why)
             The targets have been removed, so these menu items should now

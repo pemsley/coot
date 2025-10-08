@@ -52,6 +52,21 @@
   <update_contact>pemsley_AT_mrc-lmb.cam.ac.uk</update_contact>
   <content_rating type="oars-1.1" />
   <releases>
+    <release version="1.1.19" date="2025-10-07">
+      <description>
+        <ul>
+           <li> o FEATURE: Double-click to label symmetry atoms</li>
+           <li> o FEATURE: drag-and-drop immport for local-file-system files</li>
+           <li> o CHANGE:  user-defined-clicks added back</li>
+           <li> o CHANGE:  Assign and Associate Sequence menu items functions now added back</li>
+           <li> o CHANGE:  Improve the scrolling of the map contour level when the 
+                  nominated map is not displayed</li>
+           <li> o BUG-FIX: Menu items with targets don't work on macOS (I don't know why).
+            The targets have been removed, so these menu items should now
+            work again (e.g. Fetch and Mutate menu items)</li>
+        </ul>
+      </description>
+    </release>
     <release version="1.1.18" date="2025-08-01">
       <description>
         <ul>

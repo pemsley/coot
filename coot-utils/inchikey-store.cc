@@ -21,12 +21,15 @@ std::optional<std::pair<std::string, std::string> > coot::inchikey_store_t::get_
 void
 coot::inchikey_store_t::parse_from_data_components_file() {
 
-   std::string pkg_data_dir = coot::package_data_dir(); 
+   bool debug = true;
+   std::string pkg_data_dir = coot::package_data_dir();
    std::filesystem::path dir(pkg_data_dir);
    std::filesystem::path fn = dir / "data" / "Components-inchikey.ich";
-   std::cout << "::: parse_from_data_components_file() dir: " << dir << std::endl;
-   std::cout << "::: parse_from_data_components_file() pkg_data_dir: " << pkg_data_dir << std::endl;
-   std::cout << "::: parse_from_data_components_file() " << fn << std::endl;
+   if (debug) {
+      std::cout << "::: parse_from_data_components_file() dir: " << dir << std::endl;
+      std::cout << "::: parse_from_data_components_file() pkg_data_dir: " << pkg_data_dir << std::endl;
+      std::cout << "::: parse_from_data_components_file() " << fn << std::endl;
+   }
 
    if (std::filesystem::exists(fn)) {
       std::ifstream f(fn);
@@ -45,7 +48,8 @@ coot::inchikey_store_t::parse_from_data_components_file() {
          }
       }
    } else {
-      std::cout << "File does not exist: " << fn << std::endl;
+      std::cout << "WARNING:: File does not exist: " << fn << std::endl;
    }
-   std::cout << "inchikey store size " << store.size() << std::endl;
+   if (debug)
+      std::cout << "DEBUG:: inchikey store size " << store.size() << std::endl;
 }
