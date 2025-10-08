@@ -177,6 +177,7 @@ struct WidgetCoreData {
     void emit_mutation_signals() const noexcept;
 
     coot::ligand_editor_canvas::SmilesMap build_smiles() const;
+    coot::ligand_editor_canvas::InchiKeyMap build_inchi_keys() const;
 
     unsigned int get_molecule_count_impl() const noexcept;
     /// Returns -1 if none
@@ -250,7 +251,9 @@ struct CootLigandEditorCanvas : coot::ligand_editor_canvas::impl::CootLigandEdit
     coot::ligand_editor_canvas::DisplayMode get_display_mode() noexcept;
     void set_display_mode(coot::ligand_editor_canvas::DisplayMode value) noexcept;
     coot::ligand_editor_canvas::SmilesMap get_smiles() noexcept;
+    coot::ligand_editor_canvas::InchiKeyMap get_inchi_keys() noexcept;
     std::string get_smiles_for_molecule(unsigned int molecule_idx) noexcept;
+    std::string get_inchi_key_for_molecule(unsigned int molecule_idx) noexcept;
     std::string get_pickled_molecule(unsigned int molecule_idx) noexcept;
     std::string get_pickled_molecule_base64(unsigned int molecule_idx) noexcept;
     void clear_molecules() noexcept;

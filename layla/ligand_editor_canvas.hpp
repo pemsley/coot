@@ -66,7 +66,11 @@ coot::ligand_editor_canvas::DisplayMode coot_ligand_editor_canvas_get_display_mo
 void coot_ligand_editor_canvas_set_display_mode(CootLigandEditorCanvas* self, coot::ligand_editor_canvas::DisplayMode value) noexcept;
 
 coot::ligand_editor_canvas::SmilesMap coot_ligand_editor_canvas_get_smiles(CootLigandEditorCanvas* self) noexcept;
+coot::ligand_editor_canvas::InchiKeyMap coot_ligand_editor_canvas_get_inchi_keys(CootLigandEditorCanvas* self) noexcept;
+
 std::string coot_ligand_editor_canvas_get_smiles_for_molecule(CootLigandEditorCanvas* self, unsigned int molecule_idx) noexcept;
+std::string coot_ligand_editor_canvas_get_inchi_key_for_molecule(CootLigandEditorCanvas* self, unsigned int molecule_idx) noexcept;
+
 std::string coot_ligand_editor_canvas_get_pickled_molecule(CootLigandEditorCanvas* self, unsigned int molecule_idx) noexcept;
 std::string coot_ligand_editor_canvas_get_pickled_molecule_base64(CootLigandEditorCanvas* self, unsigned int molecule_idx) noexcept;
 
