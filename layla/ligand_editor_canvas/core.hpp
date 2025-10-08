@@ -24,6 +24,7 @@
 
 #include <rdkit/GraphMol/RWMol.h>
 #include <rdkit/GraphMol/SmilesParse/SmilesWrite.h>
+#include <rdkit/GraphMol/inchi.h>
 
 #include <memory>
 #include <vector>
