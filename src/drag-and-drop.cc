@@ -54,7 +54,8 @@ int handle_drag_and_drop_string(const std::string &uri_in) {
    std::string uri = uri_in;
    std::string url = uri_in;
 
-   std::cout << ":::::::::::::::: handle_drag_and_drop_string(" << uri_in << ")" << std::endl;
+   if (true)
+      std::cout << ":::::::::: handle_drag_and_drop_string(" << uri_in << ")" << std::endl;
 
    if (! tried_already) {
       // OK, was it an HTTP type string?
@@ -110,8 +111,8 @@ int handle_drag_and_drop_string(const std::string &uri_in) {
                      url_file_name_file = url.substr(pos);
                   }
                   std::string file_name = coot::util::append_dir_file("coot-download", url_file_name_file);
-                  coot_get_url(url.c_str(), file_name.c_str());
-                  std::cout << "::::::::::::::::::: calling handle_drag_and_drop_single_item()" << std::endl;
+                  // return 0 on success
+                  int status = coot_get_url(url.c_str(), file_name.c_str());
                   handled = handle_drag_and_drop_single_item(file_name);
                }
             }
@@ -130,10 +131,23 @@ int handle_drag_and_drop_string(const std::string &uri_in) {
    }
 
    if (! tried_already) {
-      std::cout << "here at the end of handle_drag_and_drop_string() " << std::endl;
+      // std::cout << "here at the end of handle_drag_and_drop_string() " << std::endl;
       if (coot::file_exists(url)) {
 	 handled = handle_drag_and_drop_single_item(url);
-      } 
+         tried_already = true;
+      }
+   }
+
+   if (! tried_already) {
+      if (uri.length() > 7) {
+         if (uri.find("file:///") != std::string::npos) {
+            std::string fn = uri.substr(7);
+            std::string ext = coot::util::file_name_extension(fn);
+            if (ext == ".cif") read_coordinates(fn);
+            if (ext == ".pdb") read_coordinates(fn);
+            if (ext == ".mtz") auto_read_make_and_draw_maps(fn.c_str());
+         }
+      }
    }
    return handled;
 }
@@ -141,6 +155,8 @@ int handle_drag_and_drop_string(const std::string &uri_in) {
 int handle_drag_and_drop_single_item(const std::string &file_name) {
 
    int handled = FALSE;
+   std::cout << "Here in handle_drag_and_drop_single_item() with file_name "
+             << file_name << std::endl;
 
    std::string ext = coot::util::file_name_extension(file_name);
    if (ext == ".cif") {
