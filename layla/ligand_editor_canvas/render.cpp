@@ -595,6 +595,7 @@ MoleculeRenderContext::~MoleculeRenderContext() {
 
 std::tuple<Renderer::TextSpan, bool, bool> MoleculeRenderContext::process_appendix(const std::string& symbol, const std::optional<Atom::Appendix>& appendix, const Renderer::TextStyle& inherited_style) {
     Renderer::TextSpan ret((std::vector<Renderer::TextSpan>()));
+    /// Contains the symbol of the main atom
     Renderer::TextSpan symbol_span(symbol);
     bool reversed = false;
     bool vertical = false;
@@ -603,6 +604,7 @@ std::tuple<Renderer::TextSpan, bool, bool> MoleculeRenderContext::process_append
     } else {
         const auto& ap = appendix.value();
         //ret += "<span>";
+        /// Contains symbols and indices of superatoms
         Renderer::TextSpan root_span((std::vector<Renderer::TextSpan>()));
         Renderer::TextSpan superatoms_symbol_span;
         auto make_index_span = [=](){

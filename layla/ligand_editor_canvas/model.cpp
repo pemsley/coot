@@ -907,7 +907,7 @@ void CanvasMolecule::build_internal_molecule_representation(const RDGeom::INT_PO
                     float x_diff = x_coordinate_of_bonded_atom - canvas_atom.x;
                     ap.reversed = x_diff > 0.2;
                 }
-                if(in_an_a_corner) {
+                else if(in_an_a_corner) {
                     if(coords.size() != 2) {
                         throw std::runtime_error("Internal error: An atom in a corner should have exactly two non-hydrogen neighbors.");
                     }
@@ -934,7 +934,10 @@ void CanvasMolecule::build_internal_molecule_representation(const RDGeom::INT_PO
 
                     if(ap.vertical) {
                         if(mid_y > 0) {
+                            g_info("REVERSED VERTICAL SUPERATOM!!!!!!!!");
                             ap.reversed = true;
+                        } else {
+                            g_info("NORMAL VERTICAL SUPERATOM!!!!!!!!");
                         }
                     } else {
                         ap.reversed = mid_x > 0.2;
