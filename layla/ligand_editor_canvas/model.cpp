@@ -51,6 +51,8 @@ const float CanvasMolecule::ATOM_HITBOX_RADIUS = 12.f;
 const float CanvasMolecule::BOND_LINE_SEPARATION = 0.3f;
 const float CanvasMolecule::BOND_DISTANCE_BOUNDARY = 10.f;
 const float CanvasMolecule::BASE_SCALE_FACTOR = 30.f;
+// 33.75 degrees
+const float CanvasMolecule::VERTICAL_SUPERATOM_ANGLE_THRESHOLD = 11.f/48.f * M_PI;
 
 const char* coot::ligand_editor_canvas::display_mode_to_string(DisplayMode mode) noexcept {
     switch (mode) {
@@ -928,8 +930,7 @@ void CanvasMolecule::build_internal_molecule_representation(const RDGeom::INT_PO
                     float mid_y = y_diff_1 + y_diff_2;
 
                     float alpha = std::atan(mid_y / mid_x);
-                    // todo: extract magic numbers into constants
-                    ap.vertical = std::abs(alpha) > M_PI_2 - 33.75/360 * 2 * M_PI;
+                    ap.vertical = std::abs(alpha) > M_PI_2 - CanvasMolecule::VERTICAL_SUPERATOM_ANGLE_THRESHOLD;
 
                     if(ap.vertical) {
                         if(mid_y > 0) {
