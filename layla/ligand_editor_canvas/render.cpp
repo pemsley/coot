@@ -595,6 +595,7 @@ MoleculeRenderContext::~MoleculeRenderContext() {
 
 std::tuple<Renderer::TextSpan, bool, bool> MoleculeRenderContext::process_appendix(const std::string& symbol, const std::optional<Atom::Appendix>& appendix, const Renderer::TextStyle& inherited_style) {
     Renderer::TextSpan ret((std::vector<Renderer::TextSpan>()));
+    /// Contains the symbol of the main atom
     Renderer::TextSpan symbol_span(symbol);
     bool reversed = false;
     bool vertical = false;
@@ -603,6 +604,7 @@ std::tuple<Renderer::TextSpan, bool, bool> MoleculeRenderContext::process_append
     } else {
         const auto& ap = appendix.value();
         //ret += "<span>";
+        /// Contains symbols and indices of superatoms
         Renderer::TextSpan root_span((std::vector<Renderer::TextSpan>()));
         Renderer::TextSpan superatoms_symbol_span;
         auto make_index_span = [=](){
@@ -635,37 +637,45 @@ std::tuple<Renderer::TextSpan, bool, bool> MoleculeRenderContext::process_append
         if(!index_span.as_caption().empty()) {
             root_span.as_subspans().push_back(std::move(index_span));
         }
-        if (ap.reversed) {
-            ret.as_subspans().push_back(root_span);
-            if(ap.vertical) {
-                ret.as_subspans().push_back(Renderer::TextSpan(Renderer::TextSpan::Newline{}));
+        auto process_charge_span = [&](){
+            if(ap.charge != 0) {
+                Renderer::TextSpan charge_span;
+                charge_span.specifies_style = true;
+                charge_span.style = inherited_style;
+                charge_span.style.positioning = Renderer::TextPositioning::Super;
+
+                unsigned int charge_no_sign = std::abs(ap.charge);
+                if(charge_no_sign > 1) {
+                    charge_span.as_caption() += std::to_string(charge_no_sign);
+                }
+                charge_span.as_caption().push_back(ap.charge > 0 ? '+' : '-');
+                ret.as_subspans().push_back(charge_span);
             }
-            ret.as_subspans().push_back(symbol_span);
-            reversed = true;
-        } else {
-            ret.as_subspans().push_back(symbol_span);
-            if(ap.vertical) {
-                ret.as_subspans().push_back(Renderer::TextSpan(Renderer::TextSpan::Newline{}));
-            }
-            ret.as_subspans().push_back(root_span);
-        }
+        };
         if(ap.vertical) {
             vertical = true;
         }
-        //ret += "</span>";
-        if(ap.charge != 0) {
-            Renderer::TextSpan charge_span;
-            charge_span.specifies_style = true;
-            charge_span.style = inherited_style;
-            charge_span.style.positioning = Renderer::TextPositioning::Super;
+        if (ap.reversed) {
+            reversed = true;
 
-            unsigned int charge_no_sign = std::abs(ap.charge);
-            if(charge_no_sign > 1) {
-                charge_span.as_caption() += std::to_string(charge_no_sign);
+            ret.as_subspans().push_back(root_span);
+            if(vertical) {
+                ret.as_subspans().push_back(Renderer::TextSpan(Renderer::TextSpan::Newline{}));
             }
-            charge_span.as_caption().push_back(ap.charge > 0 ? '+' : '-');
-            ret.as_subspans().push_back(charge_span);
+            ret.as_subspans().push_back(symbol_span);
+            process_charge_span();
+        } else {
+            ret.as_subspans().push_back(symbol_span);
+            if(vertical) {
+                process_charge_span();
+                ret.as_subspans().push_back(Renderer::TextSpan(Renderer::TextSpan::Newline{}));
+            }
+            ret.as_subspans().push_back(root_span);
+            if(!vertical) {
+                process_charge_span();
+            }
         }
+        //ret += "</span>";
     }
     return std::make_tuple(ret, reversed, vertical);
 }
