@@ -30,6 +30,7 @@
 #include <vector>
 #include <set>
 #include <string>
+#include <functional>
 #include <mmdb2/mmdb_manager.h>
 
 namespace coot {
