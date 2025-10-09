@@ -650,7 +650,9 @@ void CanvasMolecule::process_alignment_in_rings() {
             auto& atom = this->atoms.at(atom_one_idx);
             if (atom.appendix.has_value()) {
                 bool should_reverse = atom.x < ring_center_x;
-                atom.appendix->reversed = should_reverse;
+                if(!atom.appendix->vertical) {
+                    atom.appendix->reversed = should_reverse;
+                }
             }
             i++;
             j++;
@@ -934,15 +936,12 @@ void CanvasMolecule::build_internal_molecule_representation(const RDGeom::INT_PO
 
                     if(ap.vertical) {
                         if(mid_y > 0) {
-                            g_info("REVERSED VERTICAL SUPERATOM!!!!!!!!");
                             ap.reversed = true;
-                        } else {
-                            g_info("NORMAL VERTICAL SUPERATOM!!!!!!!!");
                         }
                     } else {
                         ap.reversed = mid_x > 0.2;
                     }
-                    g_info("Mid vect=(%f,%f) Alpha=%f Vertical=%i Reversed=%i", mid_x, mid_y, alpha / (M_PI * 2) * 360, ap.vertical, ap.reversed);
+                    // g_info("Mid vect=(%f,%f) Alpha=%f Vertical=%i Reversed=%i", mid_x, mid_y, alpha / (M_PI * 2) * 360, ap.vertical, ap.reversed);
                 }
             }
             canvas_atom.appendix = ap;
