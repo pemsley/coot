@@ -667,8 +667,8 @@ std::tuple<Renderer::TextSpan, bool, bool> MoleculeRenderContext::process_append
         } else {
             ret.as_subspans().push_back(symbol_span);
             if(vertical) {
-                ret.as_subspans().push_back(Renderer::TextSpan(Renderer::TextSpan::Newline{}));
                 process_charge_span();
+                ret.as_subspans().push_back(Renderer::TextSpan(Renderer::TextSpan::Newline{}));
             }
             ret.as_subspans().push_back(root_span);
             if(!vertical) {
