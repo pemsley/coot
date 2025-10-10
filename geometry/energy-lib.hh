@@ -27,6 +27,7 @@
 #include <string>
 #include <vector>
 #include <map>
+#include <functional>
 
 #include <mmdb2/mmdb_manager.h>
 #include "hb-types.hh"

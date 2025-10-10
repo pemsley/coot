@@ -107,7 +107,7 @@ class CanvasMolecule {
         std::string symbol;
         std::optional<std::string> name;
 
-      /// Appendix represents optional elements that appear after atom's symbol,
+        /// Appendix represents optional elements that appear after atom's symbol (i.e. superatoms),
         /// e.g. charge, hydrogens
         struct Appendix {
             /// Ionization
@@ -119,6 +119,7 @@ class CanvasMolecule {
             std::string superatoms;
             /// NH2 VS H2N, CH3 VS H3C, etc.
             bool reversed;
+            bool vertical;
             Appendix() noexcept;
         };
         /// Appendix is set when we draw groups.
@@ -217,6 +218,7 @@ class CanvasMolecule {
     static const float ATOM_HITBOX_RADIUS;
     static const float BASE_SCALE_FACTOR;
     static const float BOND_LINE_SEPARATION;
+    static const float VERTICAL_SUPERATOM_ANGLE_THRESHOLD;
 
     static BondType bond_type_from_rdkit(RDKit::Bond::BondType);
     static AtomColor atom_color_from_rdkit(const RDKit::Atom *) noexcept;

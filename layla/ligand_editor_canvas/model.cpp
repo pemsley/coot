@@ -51,6 +51,8 @@ const float CanvasMolecule::ATOM_HITBOX_RADIUS = 12.f;
 const float CanvasMolecule::BOND_LINE_SEPARATION = 0.3f;
 const float CanvasMolecule::BOND_DISTANCE_BOUNDARY = 10.f;
 const float CanvasMolecule::BASE_SCALE_FACTOR = 30.f;
+// 33.75 degrees
+const float CanvasMolecule::VERTICAL_SUPERATOM_ANGLE_THRESHOLD = 11.f/48.f * M_PI;
 
 const char* coot::ligand_editor_canvas::display_mode_to_string(DisplayMode mode) noexcept {
     switch (mode) {
@@ -331,7 +333,8 @@ CanvasMolecule::AtomColor CanvasMolecule::atom_color_from_rdkit(const RDKit::Ato
 
 CanvasMolecule::Atom::Appendix::Appendix() noexcept 
     :charge(0),
-    reversed(false) {
+    reversed(false),
+    vertical(false) {
     
 }
 
@@ -647,7 +650,9 @@ void CanvasMolecule::process_alignment_in_rings() {
             auto& atom = this->atoms.at(atom_one_idx);
             if (atom.appendix.has_value()) {
                 bool should_reverse = atom.x < ring_center_x;
-                atom.appendix->reversed = should_reverse;
+                if(!atom.appendix->vertical) {
+                    atom.appendix->reversed = should_reverse;
+                }
             }
             i++;
             j++;
@@ -814,8 +819,8 @@ void CanvasMolecule::build_internal_molecule_representation(const RDGeom::INT_PO
 
         // Bond pointers to be stored in the `bond_map`
         std::vector<std::shared_ptr<Bond>> bonds_to_be_cached;
-        // Used to determine if the 'appendix' should be 'reversed'
-        std::optional<float> x_coordinate_of_bonded_atom;
+        // Used to determine if the 'appendix' should be 'reversed' or 'vertical'
+        std::optional<std::vector<std::pair<float,float>>> coordinates_of_bonded_atoms;
 
         for (const auto& bond: boost::make_iterator_range(this->rdkit_molecule->getAtomBonds(rdkit_atom))) {
             // Based on `getAtomBonds` documentation.
@@ -827,7 +832,11 @@ void CanvasMolecule::build_internal_molecule_representation(const RDGeom::INT_PO
             const auto* the_other_atom =  this->rdkit_molecule->getAtomWithIdx(the_other_atom_idx);
             if(the_other_atom->getSymbol() != "H") {
                 surrounding_non_hydrogen_count++;
-                x_coordinate_of_bonded_atom = coordinate_map.at(the_other_atom_idx).x;
+                if(coordinates_of_bonded_atoms.has_value()) {
+                    coordinates_of_bonded_atoms->push_back(std::make_pair(coordinate_map.at(the_other_atom_idx).x, coordinate_map.at(the_other_atom_idx).y));
+                } else {
+                    coordinates_of_bonded_atoms = std::vector<std::pair<float,float>>({std::make_pair(coordinate_map.at(the_other_atom_idx).x, coordinate_map.at(the_other_atom_idx).y)});
+                }
             } 
             // else {
             //     g_warning("Skipping explicit hydrogen bound to atom with idx=%u!",canvas_atom.idx);
@@ -881,20 +890,61 @@ void CanvasMolecule::build_internal_molecule_representation(const RDGeom::INT_PO
         }
 
         bool terminus = (surrounding_non_hydrogen_count < 2);
-        if (canvas_atom.symbol != "H" && (canvas_atom.symbol != "C" || terminus)) {
-            //todo: oxygens I guess?
-            if(surrounding_hydrogen_count > 0) {
-                Atom::Appendix ap = canvas_atom.appendix.value_or(Atom::Appendix());
-                ap.superatoms = "H";
-                if(surrounding_hydrogen_count > 1) {
-                    ap.superatoms += std::to_string(surrounding_hydrogen_count);
-                }
-                if(terminus && x_coordinate_of_bonded_atom.has_value()) {
-                    float diff = x_coordinate_of_bonded_atom.value() - canvas_atom.x;
-                    ap.reversed = diff > 0.2;
-                }
-                canvas_atom.appendix = ap;
+        bool in_an_a_corner = (surrounding_non_hydrogen_count == 2);
+        // If this is something which has hydrogens to be drawn
+        if (canvas_atom.symbol != "H" && (canvas_atom.symbol != "C" || terminus) && surrounding_hydrogen_count > 0) {
+            Atom::Appendix ap = canvas_atom.appendix.value_or(Atom::Appendix());
+            ap.superatoms = "H";
+            if(surrounding_hydrogen_count > 1) {
+                ap.superatoms += std::to_string(surrounding_hydrogen_count);
             }
+
+            if(coordinates_of_bonded_atoms.has_value()) {
+                const auto& coords = coordinates_of_bonded_atoms.value();
+                if(terminus) {
+                    if(coords.size() != 1) {
+                        throw std::runtime_error("Internal error: A terminus should have exactly one non-hydrogen neighbor.");
+                    }
+                    auto [x_coordinate_of_bonded_atom, _y_coordinate_of_bonded_atom] = coords.front();
+                    float x_diff = x_coordinate_of_bonded_atom - canvas_atom.x;
+                    ap.reversed = x_diff > 0.2;
+                }
+                else if(in_an_a_corner) {
+                    if(coords.size() != 2) {
+                        throw std::runtime_error("Internal error: An atom in a corner should have exactly two non-hydrogen neighbors.");
+                    }
+                    auto [x1, y1] = coords.front();
+                    auto [x2, y2] = coords.back();
+                    float x_diff_1 = x1 - canvas_atom.x;
+                    float y_diff_1 = y1 - canvas_atom.y;
+                    float x_diff_2 = x2 - canvas_atom.x;
+                    float y_diff_2 = y2 - canvas_atom.y;
+
+                    // Normalize vectors
+                    float len_1 = std::sqrt(x_diff_1 * x_diff_1 + y_diff_1 * y_diff_1);
+                    float len_2 = std::sqrt(x_diff_2 * x_diff_2 + y_diff_2 * y_diff_2);
+                    x_diff_1 /= len_1;
+                    y_diff_1 /= len_1;
+                    x_diff_2 /= len_2;
+                    y_diff_2 /= len_2;
+
+                    float mid_x = x_diff_1 + x_diff_2;
+                    float mid_y = y_diff_1 + y_diff_2;
+
+                    float alpha = std::atan(mid_y / mid_x);
+                    ap.vertical = std::abs(alpha) > M_PI_2 - CanvasMolecule::VERTICAL_SUPERATOM_ANGLE_THRESHOLD;
+
+                    if(ap.vertical) {
+                        if(mid_y > 0) {
+                            ap.reversed = true;
+                        }
+                    } else {
+                        ap.reversed = mid_x > 0.2;
+                    }
+                    // g_info("Mid vect=(%f,%f) Alpha=%f Vertical=%i Reversed=%i", mid_x, mid_y, alpha / (M_PI * 2) * 360, ap.vertical, ap.reversed);
+                }
+            }
+            canvas_atom.appendix = ap;
         }
 
         auto setup_potential_centered_double_bond = [&] (const unsigned int &atom_idx) {
