@@ -401,11 +401,23 @@ coot::smcif::read_sm_cif(const std::string &file_name) const {
          clipper::Cell cell = get_cell(data);
          std::cout << "INFO:: got cell from cif: " << cell.format() << std::endl;
 
-         std::vector<std::string> symm_strings;
-         const char *loopTag1[2] = { "_symmetry_equiv_pos_as_xyz",
-                                     ""};
+         // 8107610.cif uses _space_group_symop_operation_xyz for symmetry
+         // It is from shelx and it would be good to extract the data and
+         // make a map in such cases.
 
-         mmdb::mmcif::PLoop loop = data->FindLoop(loopTag1);
+         std::vector<std::string> symm_strings;
+         const char *loopTag1[2] = { "_symmetry_equiv_pos_as_xyz", ""};
+         const char *loopTag2[2] = { "_space_group_symop_operation_xyz", ""};
+
+         mmdb::mmcif::PLoop loop;
+         loop = data->FindLoop(loopTag2);
+         if (loop) {
+            std::cout << "Found loopTag2" << std::endl;
+         } else {
+            std::cout << "Failed to find loopTag2" << std::endl;
+         }
+
+         loop = data->FindLoop(loopTag1);
          if (loop) {
             int ll = loop->GetLoopLength();
             if (ll > 0) { 
