@@ -24,7 +24,13 @@
 
 #include <rdkit/GraphMol/RWMol.h>
 #include <rdkit/GraphMol/SmilesParse/SmilesWrite.h>
+// To check if Inchi support is enabled
+#include <rdkit/RDGeneral/RDConfig.h>
+#ifdef RDK_BUILD_INCHI_SUPPORT
 #include <rdkit/GraphMol/inchi.h>
+#else
+#warning Your version of RDKit was built without InChI support. Molecule InChI key lookup will not be available.
+#endif
 
 #include <memory>
 #include <vector>
