@@ -5,6 +5,9 @@
 
  o FEATURE: drag-and-drop import for local-file-system files
 
+ o FEATURE: Carbohydrate builder restored (limited to NAG-NAG-BMA
+            WTA/autobuild)
+
  o CHANGE:  user-defined-clicks function added back
 
  o CHANGE:  Assign and Associate Sequence menu item functions now added back

@@ -885,6 +885,12 @@ public:
    //! @param occ_new is the new occupancy
    void set_occupancy(int imol, const std::string &cid, float occ_new);
 
+   //! Get atom selection as json
+   //!
+   //! @param imol is the model molecule index
+   //! @param cid is the atom selection CID e.g "//A/15/OH" (atom OH in residue 15 of chain A)
+   std::string get_molecule_selection_as_json(int imol, const std::string &cid) const;
+
    //! Write a PNG for the given compound_id.
    //!
    //! Currently this function does nothing (drawing is done with the not-allowed cairo)

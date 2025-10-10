@@ -622,6 +622,8 @@ namespace coot {
       // here res-name might be HOH or DUM
       int insert_waters_into_molecule(const minimol::molecule &water_mol, const std::string &res_name);
 
+      std::string get_molecule_selection_as_json(const std::string &cid) const;
+
       // ----------------------- model utils
 
      //! get missing residue ranges

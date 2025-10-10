@@ -6604,3 +6604,19 @@ molecules_container_t::get_radius_of_gyration(int imol) const {
    return d;
 
 }
+
+//! Get atom selection as json
+//!
+//! @param imol is the model molecule index
+//! @param cid is the atom selection CID e.g "//A/15/OH" (atom OH in residue 15 of chain A)
+std::string molecules_container_t::get_molecule_selection_as_json(int imol, const std::string &cid) const {
+
+   std::string s;
+   if (is_valid_model_molecule(imol)) {
+      s = molecules[imol].get_molecule_selection_as_json(cid);
+   } else {
+      logger.log(log_t::WARNING, logging::function_name_t(__FUNCTION__),
+		 "not a valid model molecule", imol);
+   }
+   return s;
+}
