@@ -5252,6 +5252,7 @@ coot::molecule_t::get_mutation_info() const {
 
 void
 coot::molecule_t::set_temperature_factors_using_cid(const std::string &cid, float temp_fact) {
+
    if (atom_sel.mol) {
       int selHnd = atom_sel.mol->NewSelection(); // d
       mmdb::Atom **SelAtoms = nullptr;

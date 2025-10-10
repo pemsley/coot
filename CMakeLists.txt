@@ -56,7 +56,7 @@ endif(WIN32)
 
 set(coot_src ${CMAKE_CURRENT_SOURCE_DIR})
 
-add_definitions(-DANALYSE_REFINEMENT_TIMING -DPACKAGE_VERSION="1.1.19"
+add_definitions(-DANALYSE_REFINEMENT_TIMING -DPACKAGE_VERSION="1.1.x-pre"
   -DHAVE_CXX_THREAD -DHAVE_SSMLIB -DHAVE_BOOST -DUSE_LIBPNG=1 -DCLIPPER_HAS_TOP8000 -DUSE_GEMMI -DHAVE_BOOST_THREAD -DHAVE_GSL
   -DPKGDATADIR="${CMAKE_INSTALL_PREFIX}/share/coot" -DXDATADIR="${CMAKE_INSTALL_PREFIX}/share")
 
@@ -172,6 +172,7 @@ add_library(cootapi SHARED
             ${coot_src}/api/coot-molecule-blender.cc
             ${coot_src}/api/coot-molecule-bonds.cc
             ${coot_src}/api/coot-molecule-bonds-instanced.cc
+            ${coot_src}/api/coot-molecule-json.cc
             ${coot_src}/api/coot-molecule-maps.cc
             ${coot_src}/api/coot-molecule-change-chain-id.cc
             ${coot_src}/api/coot-molecule-moltris.cc

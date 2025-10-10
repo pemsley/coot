@@ -3,7 +3,10 @@
 
  o FEATURE: Double click to label symmetry atom
 
- o FEATURE: drag-and-drop immport for local-file-system files
+ o FEATURE: drag-and-drop import for local-file-system files
+
+ o FEATURE: Carbohydrate builder restored (limited to NAG-NAG-BMA
+            WTA/autobuild)
 
  o CHANGE:  user-defined-clicks function added back
 

@@ -866,6 +866,10 @@ NB_MODULE(coot_headless_api, m) {
          &molecules_container_t::get_molecule_name,
          nb::arg("imol"),
          get_docstring_from_xml("get_molecule_name").c_str())
+    .def("get_molecule_selection_as_json",
+         &molecules_container_t::get_molecule_selection_as_json,
+         nb::arg("imol"), nb::arg("cid"),
+         get_docstring_from_xml("get_molecule_selection_as_json").c_str())
     .def("get_monomer",
          &molecules_container_t::get_monomer,
          nb::arg("monomer_name"),

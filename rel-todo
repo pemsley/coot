@@ -1,6 +1,9 @@
 --- Items ---
 
 o talk to Bernie about chapi
+* Done
+
+o move the download from COD to XDG.
 
 o make molecules to triangles compile without coot libs
   then split the build of libcootapi to link then
@@ -15,6 +18,9 @@ o where did we get to with alt conf colouring or selection (in Coot)
 
 o make some inchi keys for the G* dictionaries. Using my parser and making
   rdkit molecules - do they match the inchi keys from the wwwPDB CCD?
+
+o make a function: to update bonds without updating bonding.
+  Useful for dynamics.
 
 o atom ids in output from libcootapi/chapi when gemmi is used.
   We need label_atom_id and label_segid (not the auth version of those)

@@ -56,7 +56,7 @@
       <description>
         <ul>
            <li> o FEATURE: Double-click to label symmetry atoms</li>
-           <li> o FEATURE: drag-and-drop immport for local-file-system files</li>
+           <li> o FEATURE: drag-and-drop import for local-file-system files</li>
            <li> o CHANGE:  user-defined-clicks added back</li>
            <li> o CHANGE:  Assign and Associate Sequence menu items functions now added back</li>
            <li> o CHANGE:  Improve the scrolling of the map contour level when the 
