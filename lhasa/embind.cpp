@@ -224,6 +224,8 @@ EMSCRIPTEN_BINDINGS(lhasa) {
     .field("qed_score", &CanvasMolecule::QEDInfo::qed_score);
   class_<impl::WidgetCoreData>("ImplWidgetCoreData");
   register_map<unsigned int, std::string>("SmilesMap");
+  // type already registered
+  // register_map<unsigned int, std::string>("InchiKeyMap");
   // Without this, Emscripten errors out
   register_vector<unsigned int>("MoleculeIdVector");
   class_<CootLigandEditorCanvas, base<impl::WidgetCoreData>>("Canvas")
