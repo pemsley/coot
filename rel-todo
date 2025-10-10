@@ -8,12 +8,14 @@ o move the download from COD to XDG.
 o make molecules to triangles compile without coot libs
   then split the build of libcootapi to link then
   m2t library.
+* Done!
 
 o check chemistry - extra hydrogen atom when making a link.
+  Example? Reported by Clemens?
 
-o edit the alt conf-ids interactively.
+o Clemens: edit the alt conf-ids interactively.
 
-o where did we get to with alt conf colouring or selection (in Coot)
+o Where did we get to with alt conf colouring or selection (in Coot)
   e.g. untangle chalenge challenge. Look at alt-conf-switcher.py
 
 o make some inchi keys for the G* dictionaries. Using my parser and making
