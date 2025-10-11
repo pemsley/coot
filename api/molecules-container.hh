@@ -3054,13 +3054,20 @@ public:
                                    float start_pos_x, float start_pos_y, float start_pos_z,
                                    float end_pos_x, float end_pos_y, float end_pos_z) const;
 
-   // Calculate the MMRRCC for the residues in the chain
-   // Multi Masked Residue Range Corellation Coefficient
+   //! Calculate the MMRRCC for the residues in the chain
+   //!
+   //! Multi Masked Residue Range Corellation Coefficient
+   //!
+   //! @param imol is the model molecule index
+   //! @param chain_id is the model chain_id
+   //! @param n_residue_per_residue_range is the number of residues in the residue range. 11
+   //!        is a reasonable number for a smooth plot
+   //! @param imol_map is the map molecule index
 #ifdef SWIG
 #else
    std::pair<std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t>,
              std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t> >
-   mmrrcc(int imol, const std::string &chain_id, int imol_map) const;
+   mmrrcc(int imol, const std::string &chain_id, unsigned int n_residue_per_residue_range, int imol_map) const;
 #endif
 
    // calculate the MMRRCC for the residues in the chain
@@ -3071,6 +3078,7 @@ public:
              std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t> >
    mmrrcc_internal(const atom_selection_container_t &asc,
                    const std::string &chain_id,
+                   unsigned int n_residue_per_residue_range,
                    const clipper::Xmap<float> &xmap) const;
 #endif
 
