@@ -2878,9 +2878,11 @@ public:
 
    //! Get Atom Overlaps
    // not const because it can dynamically add dictionaries
+   //! This function used to be called get_overlaps()
+   //!
    //! @param imol is the model molecule index
    //! @return a vector of atom overlap objects
-   std::vector<coot::plain_atom_overlap_t> get_overlaps(int imol);
+   std::vector<coot::plain_atom_overlap_t> get_atom_overlaps(int imol);
 
    //! Get the atom overlap score
    //!

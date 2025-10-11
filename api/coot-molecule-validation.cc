@@ -824,7 +824,7 @@ coot::molecule_t::get_mesh_for_ligand_validation_vs_dictionary(const std::string
 
 //! not const because it can dynamically add dictionaries
 std::vector<coot::plain_atom_overlap_t>
-coot::molecule_t::get_overlaps(protein_geometry *geom_p) {
+coot::molecule_t::get_atom_overlaps(protein_geometry *geom_p) {
 
    std::vector<coot::plain_atom_overlap_t> v;
    if (atom_sel.mol) {
