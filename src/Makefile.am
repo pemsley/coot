@@ -738,6 +738,7 @@ libcootsumo_la_SOURCES = \
 	new-molecule-by-symmetry-matrix.hh \
 	nsv.hh                   \
 	obj_loader.h obj_loader.cc \
+	pandda-inspect.cc        \
 	pae-interface.cc         \
 	pisa-interface.hh	 \
 	pisa-internal.hh         \
