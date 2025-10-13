@@ -45,9 +45,6 @@ tar xf boost_$boost_release.tar.gz
 ln -s boost-$boost_release boost
 ln -s "rdkit-$rdkit_release" rdkit
 
-
-patch -p0 < ../patches/boost-emscripten.patch
-
 cd ..
 
 
