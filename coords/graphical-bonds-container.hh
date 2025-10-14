@@ -148,6 +148,14 @@ public:
       radius_scale = 4.0;
    }
 
+   void update(mmdb::Atom **atom_selection, int n_atoms) {
+      if (atom_index < n_atoms) {
+         if (atom_index >= 0) {
+            mmdb::Atom *at = atom_selection[atom_index];
+            position = coot::Cartesian(at->x, at->y, at->z);
+         }
+      }
+   }
 };
 
 template<class T> class graphical_bonds_points_list {
@@ -158,7 +166,7 @@ public:
 
    // use a is-H-atom-flag for first
    T *points;
-   
+
    graphical_bonds_points_list() {
       current_count = 0;
       num_points = 0;
