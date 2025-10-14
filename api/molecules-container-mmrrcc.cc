@@ -5,12 +5,12 @@ std::pair<std::map<coot::residue_spec_t, coot::util::density_correlation_stats_i
           std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t> >
 molecules_container_t::mmrrcc_internal(const atom_selection_container_t &asc,
                                        const std::string &chain_id,
+                                       unsigned int n_residue_per_residue_range,
                                        const clipper::Xmap<float> &xmap) const {
 
    bool exclude_NOC = true;
    float atom_mask_radius = 2.8;
    float NOC_mask_radius = 1.8;
-   unsigned int n_residue_per_residue_range = 11;
 
    std::pair<std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t>,
              std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t> > residue_stats =
@@ -56,12 +56,13 @@ molecules_container_t::mmrrcc_internal(const atom_selection_container_t &asc,
 
 std::pair<std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t>,
           std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t> >
-molecules_container_t::mmrrcc(int imol, const std::string &chain_id, int imol_map) const {
+molecules_container_t::mmrrcc(int imol, const std::string &chain_id, unsigned int n_residue_per_residue_range,
+                              int imol_map) const {
 
    std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t> dummy;
    if (is_valid_model_molecule(imol)) {
       if (is_valid_map_molecule(imol_map)) {
-         return mmrrcc_internal(molecules[imol].atom_sel, chain_id, molecules[imol_map].xmap);
+         return mmrrcc_internal(molecules[imol].atom_sel, chain_id, n_residue_per_residue_range, molecules[imol_map].xmap);
       }
    }
    return std::make_pair(dummy, dummy);

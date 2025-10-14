@@ -50,7 +50,6 @@
 #include "rotamer-container.hh"
 #include "ligand/rotamer.hh"
 #include "coot-utils/coot-coord-utils.hh" // is this needed?
-#include "mmdb-crystal.hh"
 
 #include "geometry/bonded-quad.hh"
 #include "mmdb-crystal.hh"
@@ -153,6 +152,7 @@ class Bond_lines {
    const coot::Cartesian &GetStart(unsigned int i) const;
    const coot::Cartesian &GetFinish(unsigned int i) const;
    const graphics_line_t &operator[](unsigned int i) const;
+   void update(mmdb::Atom **atom_selection, int n_atoms);
 };
 
 //
@@ -987,6 +987,15 @@ public:
                                            const std::pair<symm_trans_t, Cell_Translation> &symm_trans);
 
    void set_use_deuteranomaly_mode() { use_deuteranomaly_mode = true; }
+
+   // 20251014-PE lightweight update the bonds without recalculating the bonding. make_graphical_bonds() will
+   // still be needed for now.
+   // Note that some cylinder (in kekulized mode, say) will not be terminating at atom positions.
+   // Using this update() will make them do so.
+   //
+   // Note to self: I need to update the atoms too.
+   //
+   void update(mmdb::Atom **atom_selection, int n_atoms);
 
 };
 
