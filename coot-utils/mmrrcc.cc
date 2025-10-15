@@ -35,12 +35,24 @@
 
 int main(int argc, char **argv) {
 
-   bool is_cryo_em  = true;
+   unsigned int n_residue_per_residue_range = 11;
 
    if (argc > 3) {
       std::string pdb_file_name = argv[1];
       std::string chain_id      = argv[2];
       std::string map_file_name = argv[3];
+
+      if (argc > 5) {
+         if (std::string(argv[4]) == "--residues-per-residue-range") {
+            try {
+               int nrr = coot::util::string_to_int(std::string(argv[5]));
+               n_residue_per_residue_range = nrr;
+            }
+            catch (const std::runtime_error &e) {
+               std::cout << "WARNING::" << e.what() << std::endl;
+            }
+         }
+      }
 
       std::cout << "INFO:: Getting atoms... " << std::endl;
       bool use_gemmi = false;
@@ -63,7 +75,6 @@ int main(int argc, char **argv) {
             bool exclude_NOC = true;
             float atom_mask_radius = 2.8;
             float NOC_mask_radius = 1.8;
-            unsigned int n_residue_per_residue_range = 11;
             std::pair<std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t>,
                       std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t> > residue_stats =
                coot::util::map_to_model_correlation_stats_per_residue_run(asc.mol, chain_id, xmap,
