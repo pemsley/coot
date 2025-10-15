@@ -42,6 +42,11 @@ class LaylaState {
         PNG,
         SVG
     };
+
+    struct InchiKeyLookupResult {
+        std::string monomer_id;
+        std::string chemical_name;
+    };
     private:
 
     enum class UnsavedChangesDialogPurpose: unsigned char {
@@ -86,6 +91,9 @@ class LaylaState {
 
     ///Useful for signal handlers
     CootLigandEditorCanvas* get_canvas() const noexcept;
+
+    /// Uses the `inchi_key_database` to look up th given inchi key
+    std::optional<InchiKeyLookupResult> lookup_inchi_key(const std::string& inchi_key) const noexcept;
 
     /// Clears all molecules, file names, etc.
     void reset() noexcept;
