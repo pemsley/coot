@@ -6082,11 +6082,11 @@ molecules_container_t::get_overlap_dots_for_ligand(int imol, const std::string &
 
 //! not const because it can dynamically add dictionaries
 std::vector<coot::plain_atom_overlap_t>
-molecules_container_t::get_overlaps(int imol) {
+molecules_container_t::get_atom_overlaps(int imol) {
 
    std::vector<coot::plain_atom_overlap_t> v;
    if (is_valid_model_molecule(imol)) {
-      v = molecules[imol].get_overlaps(&geom);
+      v = molecules[imol].get_atom_overlaps(&geom);
    } else {
       std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }

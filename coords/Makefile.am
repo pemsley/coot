@@ -48,7 +48,7 @@ AM_CXXFLAGS = \
 libcoot_coords_la_SOURCES = Bond_lines.cc Cartesian.cc cos-sin.cc \
 		 phenix-geo-bonds.cc mmdb-extras.cc utils.cc mmdb.cc mmdb-crystal.cc \
 		 Bond_lines_ext.cc coot-close.cc phenix-geo.cc \
-		 rotamer-markup.cc \
+		 rotamer-markup.cc graphics-line.cc \
 		 loop-path.cc rama-plot-phi-psi.cc phi-psi-prob.cc ramachandran-validation.cc
 
 

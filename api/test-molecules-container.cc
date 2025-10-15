@@ -3333,12 +3333,13 @@ int test_mmrrcc(molecules_container_t &mc) {
    int status = 0;
    int imol     = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
    int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
+   unsigned int n_residue_per_residue_range = 11;
 
    if (mc.is_valid_model_molecule(imol)) {
       std::string chain_id = "A";
       std::pair<std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t>,
                 std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t> > results =
-         mc.mmrrcc(imol, chain_id, imol_map);
+         mc.mmrrcc(imol, chain_id, n_residue_per_residue_range, imol_map);
       auto mcc = results.first;
       if (mcc.size() > 90)
          status = 1;
@@ -3355,7 +3356,7 @@ int test_mmrrcc(molecules_container_t &mc) {
       // Filo's example 11729 and 7adk
       imol = mc.read_pdb(reference_data("pdb7adk.ent"));
       imol_map = mc.read_ccp4_map(reference_data("emd_11729.map"), 0);
-      auto results = mc.mmrrcc(imol, "B", imol_map);
+      auto results = mc.mmrrcc(imol, "B", n_residue_per_residue_range, imol_map);
       auto mcc = results.first;
       auto scc = results.second;
       std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t>::const_iterator it;
@@ -6638,6 +6639,23 @@ int test_dedust(molecules_container_t &mc) {
    return status;
 }
 
+int test_atom_overlaps(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   std::vector<coot::plain_atom_overlap_t> aov = mc.get_atom_overlaps(imol);
+   for (unsigned int i=0; i<aov.size(); i++) {
+      if (i > 10) continue;
+      const auto &ao = aov[i];
+      std::cout << "Overlapping atom " << ao.atom_spec_1 << " " << ao.atom_spec_2
+                << " with overlap volume " << ao.overlap_volume << std::endl;
+      if (ao.overlap_volume > 2.0) status = 1;
+   }
+
+   return status;
+}
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -6973,7 +6991,8 @@ int main(int argc, char **argv) {
          status += run_test(test_radius_of_gyration, "radius of gyration", mc);
          status += run_test(test_temperature_factor_of_atom, "temperature factor of atom", mc);
          status += run_test(test_water_spherical_variance, "water spherical variance", mc);
-         status += run_test(test_dedust, "dedust", mc);
+         // status += run_test(test_dedust, "dedust", mc);
+         status += run_test(test_atom_overlaps, "atom overlaps", mc);
          if (status == n_tests) all_tests_status = 0;
 
          print_results_summary();

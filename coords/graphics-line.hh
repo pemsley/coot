@@ -27,6 +27,7 @@
 #define GRAPHICS_LINE_HH
 
 #include "Cartesian.hh"
+#include <mmdb2/mmdb_manager.h> // for updating from an atom selection
 
 class graphics_line_t {
 public:
@@ -76,7 +77,10 @@ public:
       begin_cap_shape_type = FLAT;
       end_cap_shape_type = FLAT;
    }
-   graphics_line_t() { }
+   graphics_line_t() {}
+
+   void update(mmdb::Atom **atom_selection, int n_atoms);
+
 };
 
 #endif // GRAPHICS_LINE_HH

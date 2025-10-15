@@ -2122,8 +2122,6 @@ void network_get_accession_code_entity(const std::string &text, int mode) {
 /*                  get by accession code:                                  */
 /*  ----------------------------------------------------------------------- */
 
-/* Accession code, and dispatch guile command to download and display
-   the model.  Hmmm.  */
 void handle_get_accession_code(GtkWidget *frame, GtkWidget *entry) {
 
    auto join = [] (const std::string &d, const std::string &f) {
@@ -2184,44 +2182,6 @@ void handle_get_accession_code(GtkWidget *frame, GtkWidget *entry) {
       }
    };
 
-   // 20240630-PE no longer used - can be deleted.
-   auto python_network_get = [] (const std::string &text, int n) {
-
-                                std::string python_command;
-                                if (n == COOT_ACCESSION_CODE_WINDOW_OCA) {
-                                      python_command = "import get_ebi ; get_ebi.get_ebi_pdb(";
-                                      python_command += single_quote(text);
-                                      python_command += ")";
-                                } else {
-
-                                   if (n == COOT_ACCESSION_CODE_WINDOW_EDS) {
-                                      // 20050725 EDS code:
-                                      python_command = "import get_ebi ; get_ebi.get_eds_pdb_and_mtz(";
-                                      python_command += single_quote(text);
-                                      python_command += ")";
-                                   } else {
-                                      if (n == COOT_ACCESSION_CODE_WINDOW_OCA_WITH_SF) {
-                                         // *n == 2 see callbacks.c on_get_pdb_and_sf_using_code1_activate
-                                         python_command = "import get_ebi ; get_ebi.get_ebi_pdb_and_sfs(";
-                                         python_command += single_quote(text);
-                                         python_command += ")";
-                                      } else {
-                                         if (n == COOT_ACCESSION_CODE_WINDOW_PDB_REDO) {
-                                            python_command = "import get_ebi ; get_ebi.get_pdb_redo(";
-                                            python_command += single_quote(text);
-                                            python_command += ")";
-                                         } else {
-                                            // this does not use a python script
-                                            if (n == COOT_UNIPROT_ID) {
-                                               fetch_alphafold_model_for_uniprot_id(text);
-                                            }
-                                         }
-                                      }
-                                   }
-                                }
-                                safe_python_command(python_command);
-                             };
-
    const gchar *text_c = gtk_editable_get_text(GTK_EDITABLE(entry));
 
    if (! text_c) {
@@ -2237,7 +2197,9 @@ void handle_get_accession_code(GtkWidget *frame, GtkWidget *entry) {
          fetch_emdb_map(text);
       } else {
          if (n == COOT_COD_CODE) {
+#ifdef USE_LIBCURL
             fetch_cod_entry(text);
+#endif
          } else {
             network_get(text_c, n);
          }

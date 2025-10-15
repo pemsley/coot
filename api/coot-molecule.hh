@@ -965,7 +965,7 @@ namespace coot {
 					     float dist_max) const;
 
       //! not const because it can dynamically add dictionaries
-      std::vector<plain_atom_overlap_t> get_overlaps(protein_geometry *geom_p);
+      std::vector<plain_atom_overlap_t> get_atom_overlaps(protein_geometry *geom_p);
 
       //! get the atom overlap
       float get_atom_overlap_score(protein_geometry *geom_p) const;
