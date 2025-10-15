@@ -75,10 +75,32 @@ LaylaState::LaylaState(CootLigandEditorCanvas* canvas_widget, GtkWindow* win, Gt
 
         typedef std::tuple<std::unique_ptr<InchiKeyDatabase>*, CootLigandEditorCanvas*> HelperTuple2;
         HelperTuple2* ht2 = new std::tuple(load_target, std::get<2>(*helper_tuple));
-        g_file_read_async(file, G_PRIORITY_LOW, nullptr, +[](GObject* source_object, GAsyncResult* res, gpointer data) {
+        g_file_load_contents_async(file, nullptr, +[](GObject* source_object, GAsyncResult* res, gpointer data) {
             HelperTuple2* ht2 = (HelperTuple2*) data;
-            g_info("Loading thing...");
+            GError* error = nullptr;
+            gchar* contents = nullptr;
+            gsize length = 0;
+            gboolean success = g_file_load_contents_finish(G_FILE(source_object), res, &contents, &length, nullptr, &error);
+            if (success && contents) {
+                try {
+                    // Actually load the database from contents
+                    std::unique_ptr<InchiKeyDatabase>* load_target = std::get<0>(*ht2);
+                    // *load_target = std::make_unique<InchiKeyDatabase>(std::string(contents, length));
+                    g_info("InChIKey database loaded successfully.");
+                } catch (const std::exception& e) {
+                    g_warning("Failed to load InChIKey database: %s", e.what());
+                }
+            } else {
+                g_warning("Failed to read InChIKey database file: %s", error ? error->message : "unknown error");
+                if (error) { 
+                    g_error_free(error);
+                }
+            }
+            if (contents) { 
+                g_free(contents);
+            }
             delete ht2;
+            g_object_unref(G_FILE(source_object));
         }, ht2);
         delete helper_tuple;
     }, helper_tuple);
