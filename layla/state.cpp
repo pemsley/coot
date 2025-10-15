@@ -36,6 +36,7 @@
 #include "utils.hpp"
 // todo: remove dependency on lidia-core
 #include "lidia-core/rdkit-interface.hh"
+#include "utils/coot-utils.hh"
 #include <string>
 #include "python_utils.hpp"
 
@@ -59,6 +60,30 @@ LaylaState::LaylaState(CootLigandEditorCanvas* canvas_widget, GtkWindow* win, Gt
             }
         }
     }), this);
+
+
+    std::string package_dir = coot::package_data_dir();
+    typedef std::tuple<std::string, std::unique_ptr<InchiKeyDatabase>*, CootLigandEditorCanvas*> HelperTuple1;
+    HelperTuple1* helper_tuple = new std::tuple(coot::util::append_dir_dir(package_dir, "data"), &this->inchi_key_database, canvas_widget);
+    g_warning("WTF DUDE");
+    g_idle_add_once(+[](gpointer user_data){
+        HelperTuple1* helper_tuple = (HelperTuple1*) user_data;
+        std::string inchi_key_database_path = coot::util::append_dir_file(std::get<0>(*helper_tuple), "Components-inchikey.ich");
+        g_info("Loading InChIKey database from: %s", inchi_key_database_path.c_str());
+        GFile* file = g_file_new_for_path(inchi_key_database_path.c_str());
+        std::unique_ptr<InchiKeyDatabase>* load_target = std::get<1>(*helper_tuple);
+
+        typedef std::tuple<std::unique_ptr<InchiKeyDatabase>*, CootLigandEditorCanvas*> HelperTuple2;
+        HelperTuple2* ht2 = new std::tuple(load_target, std::get<2>(*helper_tuple));
+        g_file_read_async(file, G_PRIORITY_LOW, nullptr, +[](GObject* source_object, GAsyncResult* res, gpointer data) {
+            HelperTuple2* ht2 = (HelperTuple2*) data;
+            g_info("Loading thing...");
+            delete ht2;
+        }, ht2);
+        delete helper_tuple;
+    }, helper_tuple);
+
+
     g_signal_connect(canvas_widget, "smiles-changed", G_CALLBACK(+[](CootLigandEditorCanvas* self, gpointer user_data){
         LaylaState* state = (LaylaState*) user_data;
         state->unsaved_changes = true;
