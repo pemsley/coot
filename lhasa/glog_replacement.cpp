@@ -23,6 +23,7 @@
 #include <stdio.h>
 #include <string>
 #include <stdexcept>
+#include <emscripten/console.h>
 
 void lhasa::impl::glog_replacement(lhasa::impl::LogLevel level, const char* format, ...) {
     va_list args;
@@ -57,9 +58,37 @@ void lhasa::impl::glog_replacement(lhasa::impl::LogLevel level, const char* form
     }
     m_format.append(format);
     m_format.append("\n");
-    vprintf(m_format.c_str(), args);
+    char s[1024];
+    vsnprintf(s, 1024, m_format.c_str(), args);
     va_end(args);
 
+    switch(level) {
+        case LogLevel::Debug:{
+            emscripten_dbg(s);
+            break;
+        }
+        case LogLevel::Info:{
+            emscripten_console_log(s);
+            break;
+        }
+        case LogLevel::Message:{
+            emscripten_console_log(s);
+            break;
+        }
+        case LogLevel::Warning:{
+            emscripten_console_warn(s);
+            break;
+        }
+        case LogLevel::Critical:{
+            emscripten_console_error(s);
+            break;
+        }
+        default:
+        case LogLevel::Error:{
+            emscripten_console_error(s);
+            break;
+        }
+    }
     if(level == LogLevel::Error){
         // todo: this might need improvement
         throw std::runtime_error("g_error() called. Fatal error.");
