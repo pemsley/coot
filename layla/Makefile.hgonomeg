@@ -8,12 +8,12 @@ CXXFLAGS= \
    -I$(COOT_DIR)/include \
    -I$(COOT_DIR)/include/coot \
    -I/usr/include/rdkit \
-   -I/usr/include/python3.11 \
+   -I/usr/include/python3.13 \
    -DUSE_PYTHON \
    -DUSE_LIBCURL \
    -DVERSION="\"dummyVERSION\"" \
    `pkg-config --cflags gtk4` \
-   -ggdb -O2 -march=native -std=c++17
+   -ggdb -O2 -march=native -std=c++20
 # `pkg-config --cflags epoxy` 
 # `pkg-config --cflags clipper` 
 
@@ -24,8 +24,8 @@ LDLIBS=-fuse-ld=mold \
         -Wl,--export-dynamic,--rpath=$(COOT_DIR)/lib \
         -lfreetype -lm -ldl \
         -lcoot-geometry -lcoot-lidia-core -lcoot-utils \
-        -lRDKitDepictor -lRDKitSmilesParse -lRDKitMolDraw2D -lRDKitGraphMol -lRDKitRDGeneral -lRDKitFileParsers -lRDKitSubstructMatch \
-        -lboost_iostreams -lboost_serialization -lboost_python311 -lpython3.11 -lcurl
+        -lRDKitDepictor -lRDKitMolTransforms -lRDKitSmilesParse -lRDKitMolDraw2D -lRDKitGraphMol -lRDKitRDInchiLib -lRDKitInchi -lRDKitRDGeneral -lRDKitRDGeometryLib -lRDKitFileParsers -lRDKitDescriptors -lRDKitChemTransforms -lRDKitSubstructMatch -lRDKitGenericGroups -lRDKitDataStructs \
+        -lboost_iostreams -lboost_serialization -lboost_python313 -lpython3.13 -lcurl
 
 	   # -lcoot-ligand -lcoot-ideal -lcoot-coords -lcoot-map-utils -lcoot-coord-utils -lcoot-geometry -lmmdb2 
        #`pkg-config --libs epoxy` 
@@ -37,6 +37,7 @@ HEADERS = \
     utils.hpp \
     notifier.hpp \
     generators.hpp \
+    inchi_key_database.hpp \
     ligand_editor_canvas/model.hpp \
     ligand_editor_canvas/core.hpp \
     ligand_editor_canvas/tools.hpp \
@@ -44,6 +45,7 @@ HEADERS = \
     ligand_editor_canvas.hpp \
     layla_embedded.hpp \
     python_utils.hpp \
+    qed.hpp
 
 SOURCES = \
     state.cpp \
@@ -52,6 +54,7 @@ SOURCES = \
     utils.cpp \
     notifier.cpp \
     generators.cpp \
+    inchi_key_database.cpp \
     ligand_editor_canvas/model.cpp \
     ligand_editor_canvas/core.cpp \
     ligand_editor_canvas/tools.cpp \
@@ -59,6 +62,7 @@ SOURCES = \
     ligand_editor_canvas.cpp \
     layla_embedded.cpp \
     python_utils.cpp \
+    qed.cpp \
     main.cpp
 
 

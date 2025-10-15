@@ -52,14 +52,14 @@ int main(int argc, char** argv) {
 
         auto* builder = load_gtk_builder();
         coot::layla::global_layla_gtk_builder = builder;
-
+        
+        std::string package_dir = coot::package_data_dir();
         auto *win = coot::layla::setup_main_window(app, builder);
 
         auto* icon_theme = gtk_icon_theme_get_for_display(gtk_widget_get_display(GTK_WIDGET(win)));
         gboolean dark_mode_flag = FALSE;
         g_object_get(gtk_settings_get_default(), "gtk-application-prefer-dark-theme", &dark_mode_flag, NULL);
 
-        std::string package_dir = coot::package_data_dir();
         std::string prefix_dir = coot::prefix_dir();
         std::string pixmaps_path_for_icons = coot::util::append_dir_dir(package_dir, "pixmaps");
         if(dark_mode_flag) {

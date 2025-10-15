@@ -24,6 +24,13 @@
 
 #include <rdkit/GraphMol/RWMol.h>
 #include <rdkit/GraphMol/SmilesParse/SmilesWrite.h>
+// To check if Inchi support is enabled
+#include <rdkit/RDGeneral/RDConfig.h>
+#ifdef RDK_BUILD_INCHI_SUPPORT
+#include <rdkit/GraphMol/inchi.h>
+#else
+#warning Your version of RDKit was built without InChI support. Molecule InChI key lookup will not be available.
+#endif
 
 #include <memory>
 #include <vector>
@@ -177,6 +184,7 @@ struct WidgetCoreData {
     void emit_mutation_signals() const noexcept;
 
     coot::ligand_editor_canvas::SmilesMap build_smiles() const;
+    coot::ligand_editor_canvas::InchiKeyMap build_inchi_keys() const;
 
     unsigned int get_molecule_count_impl() const noexcept;
     /// Returns -1 if none
@@ -250,7 +258,9 @@ struct CootLigandEditorCanvas : coot::ligand_editor_canvas::impl::CootLigandEdit
     coot::ligand_editor_canvas::DisplayMode get_display_mode() noexcept;
     void set_display_mode(coot::ligand_editor_canvas::DisplayMode value) noexcept;
     coot::ligand_editor_canvas::SmilesMap get_smiles() noexcept;
+    coot::ligand_editor_canvas::InchiKeyMap get_inchi_keys() noexcept;
     std::string get_smiles_for_molecule(unsigned int molecule_idx) noexcept;
+    std::string get_inchi_key_for_molecule(unsigned int molecule_idx) noexcept;
     std::string get_pickled_molecule(unsigned int molecule_idx) noexcept;
     std::string get_pickled_molecule_base64(unsigned int molecule_idx) noexcept;
     void clear_molecules() noexcept;

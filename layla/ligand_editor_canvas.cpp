@@ -698,11 +698,31 @@ coot::ligand_editor_canvas::SmilesMap coot_ligand_editor_canvas_get_smiles(CootL
     return self->build_smiles();
 }
 
+coot::ligand_editor_canvas::InchiKeyMap coot_ligand_editor_canvas_get_inchi_keys(CootLigandEditorCanvas* self) noexcept {
+    return self->build_inchi_keys();
+}
+
 std::string coot_ligand_editor_canvas_get_smiles_for_molecule(CootLigandEditorCanvas* self, unsigned int molecule_idx) noexcept {
     if(molecule_idx < self->rdkit_molecules->size()) {
         const auto& mol_opt = (*self->rdkit_molecules)[molecule_idx];
         if(mol_opt.has_value()) {
             return RDKit::MolToSmiles(*mol_opt->get());
+        }
+    }
+    return "";
+}
+
+std::string coot_ligand_editor_canvas_get_inchi_key_for_molecule(CootLigandEditorCanvas* self, unsigned int molecule_idx) noexcept {
+    if(molecule_idx < self->rdkit_molecules->size()) {
+        const auto& mol_opt = (*self->rdkit_molecules)[molecule_idx];
+        if(mol_opt.has_value()) {
+            #ifdef RDK_BUILD_INCHI_SUPPORT
+            return RDKit::MolToInchiKey(*mol_opt->get());
+            #else
+            return "";
+            #warning Your version of RDKit was built without InChI support. Molecule InChI key lookup will not be available.
+            #endif
+            
         }
     }
     return "";

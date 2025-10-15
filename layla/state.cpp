@@ -36,6 +36,8 @@
 #include "utils.hpp"
 // todo: remove dependency on lidia-core
 #include "lidia-core/rdkit-interface.hh"
+#include "utils/coot-utils.hh"
+#include "inchi_key_database.hpp"
 #include <string>
 #include "python_utils.hpp"
 
@@ -59,6 +61,52 @@ LaylaState::LaylaState(CootLigandEditorCanvas* canvas_widget, GtkWindow* win, Gt
             }
         }
     }), this);
+
+
+    std::string package_dir = coot::package_data_dir();
+    typedef std::tuple<std::string, std::unique_ptr<InchiKeyDatabase>*> HelperTuple1;
+    HelperTuple1* helper_tuple = new std::tuple(coot::util::append_dir_dir(package_dir, "data"), &this->inchi_key_database);
+    g_idle_add_once(+[](gpointer user_data){
+        HelperTuple1* helper_tuple = (HelperTuple1*) user_data;
+        std::string inchi_key_database_path = coot::util::append_dir_file(std::get<0>(*helper_tuple), "Components-inchikey.ich");
+        g_info("Loading InChIKey database from: %s", inchi_key_database_path.c_str());
+        GFile* file = g_file_new_for_path(inchi_key_database_path.c_str());
+        std::unique_ptr<InchiKeyDatabase>* load_target = std::get<1>(*helper_tuple);
+
+        typedef std::tuple<std::unique_ptr<InchiKeyDatabase>*> HelperTuple2;
+        HelperTuple2* ht2 = new std::tuple(load_target);
+        g_file_load_contents_async(file, nullptr, +[](GObject* source_object, GAsyncResult* res, gpointer data) {
+            HelperTuple2* ht2 = (HelperTuple2*) data;
+            GError* error = nullptr;
+            gchar* contents = nullptr;
+            gsize length = 0;
+            gboolean success = g_file_load_contents_finish(G_FILE(source_object), res, &contents, &length, nullptr, &error);
+            if (success && contents) {
+                try {
+                    g_info("InchiKey database file loaded successfully. Size=%zu bytes.", length);
+                    std::istringstream iss(std::string(contents, length));
+                    std::unique_ptr<InchiKeyDatabase>* tgt = std::get<0>(*ht2);
+                    tgt->reset(new InchiKeyDatabase(parseInchikeyDatabase(iss)));
+                    g_info("InchiKey database parsed successfully. Entry count=%zu", (*tgt)->size());
+                } catch (const std::exception& e) {
+                    g_warning("Failed to load InChIKey database: %s", e.what());
+                }
+            } else {
+                g_warning("Failed to read InChIKey database file: %s", error ? error->message : "unknown error");
+                if (error) { 
+                    g_error_free(error);
+                }
+            }
+            if (contents) { 
+                g_free(contents);
+            }
+            delete ht2;
+            g_object_unref(G_FILE(source_object));
+        }, ht2);
+        delete helper_tuple;
+    }, helper_tuple);
+
+
     g_signal_connect(canvas_widget, "smiles-changed", G_CALLBACK(+[](CootLigandEditorCanvas* self, gpointer user_data){
         LaylaState* state = (LaylaState*) user_data;
         state->unsaved_changes = true;
@@ -732,4 +780,16 @@ void LaylaState::switch_display_mode(ligand_editor_canvas::DisplayMode mode) {
 void coot::layla::initialize_global_instance(CootLigandEditorCanvas* canvas, GtkWindow* win, GtkLabel* status_label) {
     global_instance = new LaylaState(canvas,win,status_label);
     g_info("Global instance of LaylaState has been initialized at: %p",global_instance);
+}
+
+std::optional<LaylaState::InchiKeyLookupResult> LaylaState::lookup_inchi_key(const std::string& inchi_key) const noexcept {
+    if(!this->inchi_key_database) {
+        return std::nullopt;
+    }
+    const auto& db = *this->inchi_key_database;
+    auto it = db.find(inchi_key);
+    if (it == db.end()) {
+        return std::nullopt;
+    }
+    return InchiKeyLookupResult{it->second.first, it->second.second};
 }

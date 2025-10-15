@@ -64,6 +64,7 @@ enum class DisplayMode: unsigned char {
 };
 
 typedef std::map<unsigned int, std::string> SmilesMap;
+typedef std::map<unsigned int, std::string> InchiKeyMap;
 
 const char* display_mode_to_string(DisplayMode mode) noexcept;
 std::optional<DisplayMode> display_mode_from_string(const char*) noexcept;
@@ -288,6 +289,7 @@ class CanvasMolecule {
     /// Part of the lowering process.
     void shorten_double_bonds();
 
+    /// Updates the `qed_info` variable
     void update_qed_info();
     
     /// Manages error highlights
