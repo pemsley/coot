@@ -27,8 +27,8 @@
 #include <vector>
 #include <utility>
 
-std::unordered_map<std::string, std::pair<std::string, std::string>> coot::layla::parseInchikeyDatabase(std::istream& rawData) {
-   std::unordered_map<std::string, std::pair<std::string, std::string>> inchiMap;
+coot::layla::InchiKeyDatabase coot::layla::parseInchikeyDatabase(std::istream& rawData) {
+   InchiKeyDatabase inchiMap;
    std::string line;
 
    while (std::getline(rawData, line)) {

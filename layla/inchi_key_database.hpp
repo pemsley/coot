@@ -26,14 +26,10 @@
 #include <istream>
 namespace coot::layla {
 
-class InchiKeyDatabase :public std::unordered_map<std::string, std::pair<std::string, std::string>> {
 
-    public:
+typedef std::unordered_map<std::string, std::pair<std::string, std::string>> InchiKeyDatabase;
 
-    
-};
-
-std::unordered_map<std::string, std::pair<std::string, std::string>> parseInchikeyDatabase(std::istream& rawData);
+InchiKeyDatabase parseInchikeyDatabase(std::istream& rawData);
 
 }
 
