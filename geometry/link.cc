@@ -745,6 +745,10 @@ coot::protein_geometry::find_glycosidic_linkage_type(mmdb::Residue *first,
    // First check that the residues are LINK - or are sequential.
    // If so, then we can find the link as above.
 
+   // After filtering that a LINK exists and these residues are
+   // sequential, this function calls
+   // find_glycosidic_linkage_type_by_distance().
+
    std::string link_type;
    bool are_linked = false;
    bool are_sequential = false;
@@ -767,18 +771,18 @@ coot::protein_geometry::find_glycosidic_linkage_type(mmdb::Residue *first,
       int imod = 1;
       mmdb::Model *model_p = mol->GetModel(imod);
       if (model_p) {
-	 mmdb::LinkContainer *links = model_p->GetLinks();
-	 int n_links = model_p->GetNumberOfLinks();
-	 for (int ilink=1; ilink<=n_links; ilink++) {
-	    mmdb::Link *link = model_p->GetLink(ilink);
-	    if (link) {
-	       are_linked = are_linked_in_order(first, second, link);
-	       if (! are_linked)
-		  are_linked = are_linked_in_order(first, second, link);
-	       if (are_linked)
-		  break;
-	    }
-	 }
+         mmdb::LinkContainer *links = model_p->GetLinks();
+         int n_links = model_p->GetNumberOfLinks();
+         for (int ilink=1; ilink<=n_links; ilink++) {
+            mmdb::Link *link = model_p->GetLink(ilink);
+            if (link) {
+               are_linked = are_linked_in_order(first, second, link);
+               if (! are_linked)
+                  are_linked = are_linked_in_order(first, second, link);
+               if (are_linked)
+                  break;
+            }
+         }
       }
    }
 
@@ -806,21 +810,21 @@ coot::protein_geometry::are_linked_in_order(mmdb::Residue *first,
    int resno_2 = second->GetSeqNum();
    if (link_chain_id_1 == chain_id_1) {
       if (link_chain_id_2 == chain_id_2) {
-	 int link_reso_1 = link->seqNum1;
-	 int link_reso_2 = link->seqNum2;
-	 if (link_reso_1 == resno_1) {
-	    if (link_reso_2 == resno_2) {
-	       std::string link_ins_code_1 = link->insCode1;
-	       std::string link_ins_code_2 = link->insCode2;
-	       std::string ins_code_1 =  first->GetInsCode();
-	       std::string ins_code_2 = second->GetInsCode();
-	       if (link_ins_code_1 == ins_code_1) {
-		  if (link_ins_code_2 == ins_code_2) {
-		     linked = true;
-		  }
-	       }
-	    }
-	 }
+         int link_reso_1 = link->seqNum1;
+         int link_reso_2 = link->seqNum2;
+         if (link_reso_1 == resno_1) {
+            if (link_reso_2 == resno_2) {
+               std::string link_ins_code_1 = link->insCode1;
+               std::string link_ins_code_2 = link->insCode2;
+               std::string ins_code_1 =  first->GetInsCode();
+               std::string ins_code_2 = second->GetInsCode();
+               if (link_ins_code_1 == ins_code_1) {
+                  if (link_ins_code_2 == ins_code_2) {
+                     linked = true;
+                  }
+               }
+            }
+         }
       }
    }
 
