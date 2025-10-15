@@ -159,8 +159,12 @@ GtkApplicationWindow* coot::layla::setup_main_window(GtkApplication* app, GtkBui
         };
         auto get_widgets_for_mol_id = [display_grid](unsigned int id) -> std::optional<WidgetsT> {
             WidgetsT ret;
+            ret.smiles_label = nullptr;
+            ret.inchi_label = nullptr;
             for (auto* i = gtk_widget_get_first_child(GTK_WIDGET(display_grid)); i != nullptr; i = gtk_widget_get_next_sibling(GTK_WIDGET(i))) {
-                if (!GTK_IS_EDITABLE_LABEL(i) || !g_object_get_data(G_OBJECT(i), "inchi_label")) {
+                bool is_editable = GTK_IS_EDITABLE_LABEL(i);
+                gpointer inchi_label_gptr = g_object_get_data(G_OBJECT(i), "inchi_label");
+                if (!is_editable && !inchi_label_gptr) {
                     // Skipping irrelevant labels / widgets
                     continue;
                 }
@@ -177,6 +181,7 @@ GtkApplicationWindow* coot::layla::setup_main_window(GtkApplication* app, GtkBui
                     }
                 }
             }
+            // g_info("smiles_label %p inchi_label %p", ret.smiles_label, ret.inchi_label);
             if (!ret.inchi_label || !ret.smiles_label) {
                 return std::nullopt;
             } else {
@@ -200,7 +205,6 @@ GtkApplicationWindow* coot::layla::setup_main_window(GtkApplication* app, GtkBui
         for (const auto& [mol_idx, smiles_code] : smiles_map) {
             auto widgets = get_widgets_for_mol_id(mol_idx);
             if (widgets.has_value()) {
-                
                 const auto m_widgets = widgets.value();
                 if (!gtk_editable_label_get_editing(GTK_EDITABLE_LABEL(m_widgets.smiles_label))) {
                     g_info("Updating SMILES text for mol %u", mol_idx);
