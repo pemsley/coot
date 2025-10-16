@@ -3973,6 +3973,7 @@ INFO::
 	How to make a release
 
    o Up to date with Bernie's commits?
+   o Up to date with Jakubs's commits?
    o Run the damn tests - don't be lazy
    o make check
    o before the release commit, make sure it builds and passes tests on cluster
@@ -3983,6 +3984,7 @@ INFO::
    o change the version in configure.ac
    o change the version (image file name) in src/new-startup.cc
    o change the PACKAGE_VERSION in CMakeLists.txt
+   o update data/Components-inchikey.ich
    o Correct the version in the about_dialog in the coot-gtk4.ui file
    o Artists acknowledged in glade/aboutdialog?
    o Use []
