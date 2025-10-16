@@ -1,51 +1,67 @@
 --- Items ---
 
+o score lucy's ligands.
+
+o "Fill partial residues" doesn't work.
+
+o "Phosphorylate this residue" doesn't work.
+
+o For MMRRCC: use a different residue range length for averaging.
+
+o colour by dictionary/chain for 3ood ligand.
+
+o when refining carbohydrate, don't find links by distance - use residue numbers and links.
+
+o Have another look at the carbohydrate builder.
+
+o Where did we get to with alt conf colouring or selection (in Coot)
+  e.g. untangle chalenge challenge. Look at alt-conf-switcher.py
+
+o where are with with the panda inspect interface?
+
+o update build-it-3-3 to the latest version of the RDKit: 2025_03_6
+
+o have a look at moorhen CMakeLists.txt for how to properly use rdkit libs
+
+o html anchors so that svg (flev) from coot can be used for interactivity in moorhen.
+
+o Moorhen: get the map for the given molecule when using EM structure
+
+o moorhen: make a useful interface for atom overlaps
+  Write a test.
+* Done.
+
 o talk to Bernie about chapi
 * Done
 
 o move the download from COD to XDG.
+* Done.
 
 o make molecules to triangles compile without coot libs
   then split the build of libcootapi to link then
   m2t library.
 * Done!
 
+o make some inchi keys for the G* dictionaries. Using my parser and making
+  rdkit molecules - do they match the inchi keys from the wwwPDB CCD?
+* Done. Good progress
+
+o make a function: to update bonds without updating bonding.
+  Useful for dynamics.
+* OK, done - now I need a means to genate molecule position updates.
+
 o check chemistry - extra hydrogen atom when making a link.
   Example? Reported by Clemens?
 
 o Clemens: edit the alt conf-ids interactively.
+  Residue Editor is not enough. Clarify with Clemens.
 
-o Where did we get to with alt conf colouring or selection (in Coot)
-  e.g. untangle chalenge challenge. Look at alt-conf-switcher.py
-
-o make some inchi keys for the G* dictionaries. Using my parser and making
-  rdkit molecules - do they match the inchi keys from the wwwPDB CCD?
-
-o make a function: to update bonds without updating bonding.
-  Useful for dynamics.
-
-o atom ids in output from libcootapi/chapi when gemmi is used.
+o Consider atom ids in output from libcootapi/chapi when gemmi is used.
   We need label_atom_id and label_segid (not the auth version of those)
-
-o moorhen: make a useful interface for atom overlaps
 
 o coot: let's get bansu integrated - for those who don't have acedrg
 
-o where are with with the panda inspect interface?
-
-o when refining carbohydrate, don't find links by distance - use residue numbers and links.
-
-o libcootapi: make a get-atom-overlaps() function that is useful from Moorhen.
-
-o html anchors so that svg (flev) from coot can be used for interactivity in moorhen.
-
 o Coot: 2 (EM?) maps - don't scroll the map that is not displayed
-
-o Moorhen: get the map for the given molecule when using EM structure
-
-o Friday: de-dust
-o Next friday: density correlation for a residue cid
-o 2-weeks friday: Goodsell colouring
 
 o libcootapi/moorhen: density correlation for a cid
 
@@ -57,11 +73,9 @@ o libcootapi: using model and gaussian surface export a mask soft edge (0.0 to 1
 
 o moorhen/lhasa: use bansu for link generation
 
-o coot: 
+o coot:
   contour level for map 1 is 0.187223 pending
   tell me what the step size is also.
-
-o update build-it-3-3 to the latest version of the RDKit: 2025_03_6
 
 o dot and comma don't work for rotamers
 
@@ -70,16 +84,12 @@ o install cctbx (conda install) to get mmtbx.probe2 to get new dots.
 o molprobity reduce has updated the hydrogen bond distance (it seems?)
   libcootapi should follow - actually, use distances in new monomer library.
 
-o For MMRRCC: use a different residue range length
-
 o how to represent missing ligand atoms?
   Draw them in black with a white outline?
 
 o Lucrezia: table of bond and angles and distances vs model table in moorhen
 
 o Moorhen: auto-fit-rotamer without map.
-
-o Moorhen: key binding for "Nice" bonds.
 
 o Delete link in Coot
 
