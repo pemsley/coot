@@ -3504,6 +3504,16 @@ fill_partial_residues_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                              G_GNUC_UNUSED GVariant *parameter,
                              G_GNUC_UNUSED gpointer user_data) {
 
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      graphics_info_t g;
+      int imol = pp.second.first;
+      int imol_refinement_map = g.Imol_Refinement_Map();
+      if (is_valid_map_molecule(imol_refinement_map)) {
+         g.molecules[imol].fill_partial_residues(g.Geom_p(), imol_refinement_map);
+      }
+   }
+   graphics_info_t::graphics_draw();
    graphics_info_t::graphics_grab_focus();
 }
 
@@ -3511,6 +3521,22 @@ void phosphorylate_this_residue_action(G_GNUC_UNUSED GSimpleAction *simple_actio
                                        G_GNUC_UNUSED GVariant *parameter,
                                        G_GNUC_UNUSED gpointer user_data) {
 
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      graphics_info_t g;
+      int imol = pp.second.first;
+      int imol_refinement_map = g.Imol_Refinement_Map();
+      if (is_valid_map_molecule(imol_refinement_map)) {
+         coot::residue_spec_t res_spec(pp.second.second);
+         std::string chain_id = res_spec.chain_id;
+         int res_no = res_spec.res_no;
+         std::string res_name = g.molecules[imol].get_residue_name(res_spec);
+         if (res_name == "TYR") g.molecules[imol].mutate_by_overlap(chain_id, res_no, "PTR");
+         if (res_name == "SER") g.molecules[imol].mutate_by_overlap(chain_id, res_no, "SEP");
+         if (res_name == "THR") g.molecules[imol].mutate_by_overlap(chain_id, res_no, "TPO");
+      }
+   }
+   graphics_info_t::graphics_draw();
    graphics_info_t::graphics_grab_focus();
 }
 

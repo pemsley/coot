@@ -3067,7 +3067,18 @@ public:
 #else
    std::pair<std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t>,
              std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t> >
-   mmrrcc(int imol, const std::string &chain_id, unsigned int n_residue_per_residue_range, int imol_map) const;
+   get_mmrrcc(int imol, const std::string &chain_id, unsigned int n_residue_per_residue_range, int imol_map) const;
+
+   //! This is a wrapper for get_mmrrcc(), using 11 for the `n_residue_per_residue_range`.
+   //!
+   //! Multi Masked Residue Range Corellation Coefficient
+   //!
+   //! @param imol is the model molecule index
+   //! @param chain_id is the model chain_id
+   //! @param imol_map is the map molecule index
+   std::pair<std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t>,
+             std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t> >
+   mmrrcc(int imol, const std::string &chain_id, int imol_map) const;
 #endif
 
    // calculate the MMRRCC for the residues in the chain
