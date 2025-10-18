@@ -85,6 +85,8 @@ input_data_t get_input_details(int argc, char **argv) {
    while (-1 !=
           (ch = coot_getopt_long(argc, argv, optstr, long_options, &option_index))) {
 
+      // std::cout << "debug::: ch: " << ch << std::endl;
+
       switch (ch) {
       case 0:
          // if (! coot_optarg) std::cout << "No coot_optarg" << std::endl;
