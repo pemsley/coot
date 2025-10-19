@@ -33,10 +33,10 @@ void show_usage() {
    std::string prog_name = "ligand-validation";
 
    std::cout << "Usage: " << prog_name << "\n"
-	     << "       --pdbin pdb-in-filename\n"
-	     << "       --chain-id ligand-chain-id\n"
-	     << "       --res-no ligand-residue-number\n"
-	     << "       --dictionary cif-dictionary-file-name\n"
+             << "       --pdbin pdb-in-filename\n"
+             << "       --chain-id ligand-chain-id\n"
+             << "       --res-no ligand-residue-number\n"
+             << "       --dictionary cif-dictionary-file-name\n"
              << "       --pocket       # include interactions to the binding pocket\n"
              << std::endl;
 }
@@ -83,57 +83,58 @@ input_data_t get_input_details(int argc, char **argv) {
    };
 
    while (-1 !=
-	  (ch = coot_getopt_long(argc, argv, optstr, long_options, &option_index))) {
+          (ch = coot_getopt_long(argc, argv, optstr, long_options, &option_index))) {
+
+      // std::cout << "debug::: ch: " << ch << std::endl;
 
       switch (ch) {
       case 0:
-	 // if (! coot_optarg) std::cout << "No coot_optarg" << std::endl;
+         // if (! coot_optarg) std::cout << "No coot_optarg" << std::endl;
          // std::cout << "coot_optarg " << coot_optarg << std::endl;
-	 if (coot_optarg) {
-	    std::string arg_str = long_options[option_index].name;
-	    if (arg_str == "pdbin") {
-	       d.pdb_file_name = coot_optarg;
-	    }
-	    if (arg_str == "chain-id") {
-	       d.chain_id = coot_optarg;
-	    }
-	    if (arg_str == "res-no") {
-	       d.res_no_ligand_str = coot_optarg;
-	    }
-	    if (arg_str == "res-no-protein") {
-	       d.res_no_protein_str = coot_optarg;
-	    }
-	    if (arg_str == "dictionary") {
-	       d.dictionary = coot_optarg;
-	    }
-	    if (arg_str == "dictin") {
-	       d.dictionary = coot_optarg;
-	    }
-            
+         if (coot_optarg) {
+            std::string arg_str = long_options[option_index].name;
+            if (arg_str == "pdbin") {
+               d.pdb_file_name = coot_optarg;
+            }
+            if (arg_str == "chain-id") {
+               d.chain_id = coot_optarg;
+            }
+            if (arg_str == "res-no") {
+               d.res_no_ligand_str = coot_optarg;
+            }
+            if (arg_str == "res-no-protein") {
+               d.res_no_protein_str = coot_optarg;
+            }
+            if (arg_str == "dictionary") {
+               d.dictionary = coot_optarg;
+            }
+            if (arg_str == "dictin") {
+               d.dictionary = coot_optarg;
+            }
          } else {
-	    // long argument without parameter:
-	    std::string arg_str(long_options[option_index].name);
-	    if (arg_str == "help") {
-	       show_usage();
-	       exit(0);
-	    }
-	    if (arg_str == "version") {
-	       print_version();
-	       exit(0);
-	    }
-	    if (arg_str == "pocket") {
+            // long argument without parameter:
+            std::string arg_str(long_options[option_index].name);
+            if (arg_str == "help") {
+               show_usage();
+               exit(0);
+            }
+            if (arg_str == "version") {
+               print_version();
+               exit(0);
+            }
+            if (arg_str == "pocket") {
                d.use_pocket = true;
-	    }
+            }
          }
          break;
 
       case 'h':
          { show_usage(); exit(0); }
-	 break;
+         break;
 
       case 'v':
          { print_version(); exit(0); }
-	 break;
+         break;
       }
    } // end while
 
@@ -231,7 +232,7 @@ read_data_validate_ligand(const input_data_t &input_data) {
       std::string pdb_file_name = input_data.pdb_file_name;
       atom_selection_container_t asc = get_atom_selection(pdb_file_name, false, allow_dups, verbose);
       mmdb::Manager *mol = asc.mol;
-      
+
       try {
          int res_no = coot::util::string_to_int(input_data.res_no_ligand_str);
          coot::residue_spec_t spec(input_data.chain_id, res_no, "");
@@ -284,5 +285,5 @@ int main(int argc, char **argv) {
    }
 
    return status;
-   
+
 }

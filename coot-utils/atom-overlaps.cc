@@ -479,6 +479,9 @@ coot::atom_overlaps_container_t::fill_ligand_atom_neighbour_map() {
 void
 coot::atom_overlaps_container_t::make_overlaps() {
 
+   if (false)
+      std::cout << ":::::::::::::::::: make_overlaps()" << std::endl;
+
    if (! have_dictionary) {
       std::cout << "WARNING:: make_overlaps(): No dictionary!" << std::endl;
       return;
@@ -609,9 +612,11 @@ coot::atom_overlaps_container_t::make_overlaps() {
 
    std::sort(baddies.begin(), baddies.end(), baddie_attribs_t::sorter);
    for(auto const &b : baddies) {
-      std::cout << "INFO:: " << atom_spec_t(b.cr_at) << "" << " and " << atom_spec_t(b.n_at)
-                << " r_1 " << b.r_1 << " and r_2 " << b.r_2  <<  " and d " << b.d
-                << " overlap " << b.o;
+      std::cout << "INFO:: make_overlaps(): baddie: "
+                << atom_spec_t(b.cr_at) << "" << " and " << atom_spec_t(b.n_at)
+                << " r_1 " << std::left << std::setw(4) << b.r_1 << " and r_2 "
+                << std::left << std::setw(4) << b.r_2
+                <<  " and d " << std::setw(4) << b.d << " overlap " << b.o;
       // << " IS H-Bond (ligand donor)" << std::endl;
       if (b.is_hydrogen_bond) {
          if (b.hydrogen_atom_is_first_atom)
