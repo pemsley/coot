@@ -11401,7 +11401,7 @@ Fri 31 May 23:47:08 BST 2024
 ---
 Sat 15 Jun 2024 14:17:30 BST
 
-   change the number of graphcs per page in R
+   change the number of graphics per page in R
    par(mfrow=c(2,1))
 
 

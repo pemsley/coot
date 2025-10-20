@@ -476,6 +476,7 @@ namespace coot {
       float phosphate_distance(mmdb::Residue *following_res);
       float phosphate_distance_to_base_plane(mmdb::Residue *following_res);
       std::string puckered_atom() const;
+      std::string to_json() const;
    };
 
 

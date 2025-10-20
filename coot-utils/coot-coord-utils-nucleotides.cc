@@ -107,7 +107,7 @@ coot::pucker_analysis_info_t::pucker_analysis_info_t(mmdb::Residue *res_p,
       for (int i_oop_atom=0; i_oop_atom<5; i_oop_atom++) {
 //          std::cout << "   pucker_distortion_and_oop_d["
 //                    << i_oop_atom << "] "
-//                    << pucker_distortion_and_oop_d[i_oop_atom].first  << " " 
+//                    << pucker_distortion_and_oop_d[i_oop_atom].first  << " "
 //                    << pucker_distortion_and_oop_d[i_oop_atom].second  << std::endl;
          if (fabs(pucker_distortion_and_oop_d[i_oop_atom].first) > fabs(most_deviant.first)) {
             most_deviant = pucker_distortion_and_oop_d[i_oop_atom];
@@ -119,6 +119,30 @@ coot::pucker_analysis_info_t::pucker_analysis_info_t(mmdb::Residue *res_p,
    }
 }
 
+#include "json.hpp" // Assumes nlohmann/json.hpp is available
+using json = nlohmann::json;
+
+std::string
+coot::pucker_analysis_info_t::to_json() const {
+
+   json j;
+   json j_altconf = altconf;
+   json j_plane_distortion = plane_distortion;
+   json j_out_of_plane_distance = out_of_plane_distance;
+   json j_puckered_atom = puckered_atom();
+   j["altconf"]               = j_altconf;
+   j["plane_distortion"]      = j_plane_distortion;
+   j["out_of_plane_distance"] = j_out_of_plane_distance;
+   j["puckered_atom"]         = j_puckered_atom;
+
+   // json["plane_distortion"] = plane_distortion;
+   // json["out_of_plane_distance"] = out_of_plane_distance;
+   // json["puckered_atom"] = puckered_atom();
+   std::string s = j.dump(4);
+   return s;
+}
+
+
 
 void
 coot::pucker_analysis_info_t::assign_base_atom_coords(mmdb::Residue *residue_p) {
@@ -128,7 +152,7 @@ coot::pucker_analysis_info_t::assign_base_atom_coords(mmdb::Residue *residue_p) 
    std::vector<std::string> adenine_base_names;
    std::vector<std::string> guanine_base_names;
    std::vector<std::string> thymine_base_names;
-   
+
    cytidine_base_names.push_back(" N1 ");
    cytidine_base_names.push_back(" C2 ");
    cytidine_base_names.push_back(" N3 ");
