@@ -366,19 +366,20 @@ add_library(cootapi SHARED
             ${coot_src}/coot-utils/simple-mesh.cc
             ${coot_src}/coot-utils/gl-matrix.cc
             ${coot_src}/coot-utils/gl-matrix-eigensystem.cc
-            ${coot_src}/coords/phenix-geo-bonds.cc
+            ${coot_src}/coords/Bond_lines.cc
             ${coot_src}/coords/Bond_lines_ext.cc
-            ${coot_src}/coords/mmdb-crystal.cc
-            ${coot_src}/coords/utils.cc
-            ${coot_src}/coords/phenix-geo.cc
-            ${coot_src}/coords/mmdb.cc
-            ${coot_src}/coords/Cartesian.cc
-            ${coot_src}/coords/loop-path.cc
             ${coot_src}/coords/coot-close.cc
             ${coot_src}/coords/cos-sin.cc
-            ${coot_src}/coords/rotamer-markup.cc
+            ${coot_src}/coords/Cartesian.cc
+            ${coot_src}/coords/graphics-line.cc
+            ${coot_src}/coords/mmdb-crystal.cc
+            ${coot_src}/coords/loop-path.cc
+            ${coot_src}/coords/mmdb.cc
             ${coot_src}/coords/mmdb-extras.cc
-            ${coot_src}/coords/Bond_lines.cc
+            ${coot_src}/coords/phenix-geo.cc
+            ${coot_src}/coords/phenix-geo-bonds.cc
+            ${coot_src}/coords/rotamer-markup.cc
+            ${coot_src}/coords/utils.cc
             ${coot_src}/geometry/cif-parse-link.cc
             ${coot_src}/geometry/cif-parse.cc
             ${coot_src}/geometry/main-chain.cc
@@ -537,13 +538,13 @@ target_include_directories(coot_headless_api PRIVATE ${coot_src} ${coot_src}/coo
                                                      ${RDKit_INCLUDE_DIRS} ${GLM_INCLUDE_DIRS}
                                                      ${GSL_INCLUDE_DIRS} ${PNG_PNG_INCLUDE_DIR})
 
-add_executable(findligand ${coot_src}/ligand/find-ligand.cc)
+add_executable(coot-findligand ${coot_src}/ligand/find-ligand.cc)
 
-add_executable(findwaters ${coot_src}/ligand/find-waters.cc)
+add_executable(coot-findwaters ${coot_src}/ligand/find-waters.cc)
 
 add_executable(coot-mini-rsr ${coot_src}/ideal/mini-rsr.cc)
 
-add_executable(res-tracer-libcootapi ${coot_src}/ligand/res-tracer.cc)
+add_executable(coot-res-tracer-libcootapi ${coot_src}/ligand/res-tracer.cc)
 
 add_executable(test-molecules-container ${coot_src}/api/test-molecules-container.cc
                                         ${coot_src}/api/filo-tests.cc
@@ -553,26 +554,26 @@ add_executable(mmcif-tests ${coot_src}/api/mmcif-tests-main.cc ${coot_src}/api/m
 
 target_compile_features(coot-mini-rsr PRIVATE cxx_std_17)
 
-target_compile_features(res-tracer-libcootapi PRIVATE cxx_std_17)
+target_compile_features(coot-res-tracer-libcootapi PRIVATE cxx_std_17)
 
 target_link_libraries(coot_headless_api PUBLIC cootapi  ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${MMDB2_LIBRARY}
                       ${RDKit_libs_for_libcootapi} ${libdwarf} ${libelf})
 
-target_include_directories(findligand PRIVATE ${MMDB2_INCLUDE_DIR} ${CLIPPER-CORE_INCLUDE_DIR} ${coot_src})
+target_include_directories(coot-findligand PRIVATE ${MMDB2_INCLUDE_DIR} ${CLIPPER-CORE_INCLUDE_DIR} ${coot_src})
 
-target_include_directories(findwaters PRIVATE ${MMDB2_INCLUDE_DIR} ${CLIPPER-CORE_INCLUDE_DIR} ${coot_src})
+target_include_directories(coot-findwaters PRIVATE ${MMDB2_INCLUDE_DIR} ${CLIPPER-CORE_INCLUDE_DIR} ${coot_src})
 
 target_include_directories(coot-mini-rsr PRIVATE ${MMDB2_INCLUDE_DIR} ${coot_src} ${PNG_INCLUDE_DIR})
 
-target_include_directories(res-tracer-libcootapi PRIVATE ${MMDB2_INCLUDE_DIR} ${coot_src} ${PNG_INCLUDE_DIR})
+target_include_directories(coot-res-tracer-libcootapi PRIVATE ${MMDB2_INCLUDE_DIR} ${coot_src} ${PNG_INCLUDE_DIR})
 
-target_link_libraries(findligand PUBLIC cootapi ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${MMDB2_LIBRARY} Boost::thread Threads::Threads)
+target_link_libraries(coot-findligand PUBLIC cootapi ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${MMDB2_LIBRARY} Boost::thread Threads::Threads)
 
-target_link_libraries(findwaters PUBLIC cootapi ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${MMDB2_LIBRARY})
+target_link_libraries(coot-findwaters PUBLIC cootapi ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${MMDB2_LIBRARY})
 
 target_link_libraries(coot-mini-rsr PUBLIC cootapi ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${MMDB2_LIBRARY} Threads::Threads)
 
-target_link_libraries(res-tracer-libcootapi PUBLIC cootapi ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${MMDB2_LIBRARY} Threads::Threads)
+target_link_libraries(coot-res-tracer-libcootapi PUBLIC cootapi ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${MMDB2_LIBRARY} Threads::Threads)
 
 target_include_directories(test-molecules-container PRIVATE ${coot_src} ${coot_src}/coords ${coot_src}/utils ${coot_src}/ccp4mg-utils ${coot_src}/ccp4mg-utils/util ${coot_src}/ccp4mg-utils/pygl ${MMDB2_INCLUDE_DIR}/include ${SSM_INCLUDE_DIR} ${CLIPPER-CORE_INCLUDE_DIR} ${CLIPPER-MMDB_INCLUDE_DIR} ${CLIPPER-CCP4_INCLUDE_DIR} ${FFTW2_INCLUDE_DIRS} ${RDKit_INCLUDE_DIRS} ${PNG_INCLUDE_DIR})
 

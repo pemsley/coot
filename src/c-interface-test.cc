@@ -27,6 +27,10 @@
 
 // Load the head if it hasn't been included.
 
+#include "gtk/gtk.h"
+#include "lidia-core/svg-container.hh"
+#include <filesystem>
+#include <unordered_map>
 #ifdef USE_PYTHON
 #ifndef PYTHONH
 #define PYTHONH
@@ -399,13 +403,13 @@ int test_function(int i, int j) {
    }
 
 
-   if (0) {
+   if (false) {
       GtkWidget *w = wrapped_create_least_squares_dialog();
       gtk_widget_set_visible(w, TRUE);
    }
 
 
-   if (0) {
+   if (false) {
       std::vector<std::string> s;
       s.push_back("");
       s.push_back("123");
@@ -1246,6 +1250,8 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
 
 #include <boost/python.hpp> // because we try to call python functions from c++ using an rdkit molecule
 
+void pandda();
+
 #ifdef USE_PYTHON
 static PyObject *rdkit_chem_qed_func        = NULL;
 static PyObject *rdkit_chem_properties_func = NULL;
@@ -1253,7 +1259,11 @@ PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
 
    std::cout << "-------------------------- test_function_py() " << std::endl;
 
-   if (true)   {
+   if (true) {
+      pandda();
+   }
+
+   if (false)   {
       int imol = 0;
       graphics_info_t::molecules[imol].debug_ghosts();
    }

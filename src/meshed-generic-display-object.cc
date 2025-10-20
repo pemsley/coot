@@ -137,7 +137,7 @@ meshed_generic_display_object::add_point(const coot::colour_holder &colour_in,
    glm::vec3 position_glm = coord_orth_to_glm(coords_in);
    std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> > oct =
        wrapped_make_octasphere(num_subdivisions, position_glm, radius, col);
-   if (true)
+   if (false)
       std::cout << "debug:: mgdo::add_point() with colour " << glm::to_string(col)
                 << " adding " << oct.first.size() << " " << oct.second.size()
                 << " vertices and triangles " << std::endl;

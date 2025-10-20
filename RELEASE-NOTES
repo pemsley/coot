@@ -1,3 +1,13 @@
+  Release Notes for 1.1.20
+
+ o CHANGE:  XDG is used for the download of COD entries
+
+Chapi/libcootapi
+
+ o  NEW FUNCTION: get_mmrrcc() - takes an extra argument (the number of
+                  residues in the range).
+
+-----
 
   Release Notes for 1.1.19
 
@@ -12,7 +22,7 @@
 
  o CHANGE:  Assign and Associate Sequence menu item functions now added back
 
- o CHANGE:  Improve the scrolling of the map contour level when the 
+ o CHANGE:  Improve the scrolling of the map contour level when the
             nominated map is not displayed
 
  o BUG-FIX: Menu items with targets don't work on macOS (I don't know why)

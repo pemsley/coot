@@ -1,12 +1,11 @@
 --- Items ---
 
-o score lucy's ligands.
+o Score lucy's ligands.
 
-o "Fill partial residues" doesn't work.
+o prefix with "coot-" the CMake executables
 
-o "Phosphorylate this residue" doesn't work.
-
-o For MMRRCC: use a different residue range length for averaging.
+o get some RNA and do a copy fragment. The fragment should have
+  orange phosphate atoms.
 
 o colour by dictionary/chain for 3ood ligand.
 
@@ -21,11 +20,19 @@ o where are with with the panda inspect interface?
 
 o update build-it-3-3 to the latest version of the RDKit: 2025_03_6
 
+o Add to the EM tutorial (both Coot and moorhen) running MMRRCC before and after
+  (morph) fitting.
+
 o have a look at moorhen CMakeLists.txt for how to properly use rdkit libs
 
 o html anchors so that svg (flev) from coot can be used for interactivity in moorhen.
 
 o Moorhen: get the map for the given molecule when using EM structure
+
+o Click and drag the PAE plot
+
+o For MMRRCC: use a different residue range length for averaging.
+* Done.
 
 o moorhen: make a useful interface for atom overlaps
   Write a test.
@@ -45,6 +52,12 @@ o make molecules to triangles compile without coot libs
 o make some inchi keys for the G* dictionaries. Using my parser and making
   rdkit molecules - do they match the inchi keys from the wwwPDB CCD?
 * Done. Good progress
+
+o "Fill partial residues" doesn't work.
+* Done.
+
+o "Phosphorylate this residue" doesn't work.
+* Done.
 
 o make a function: to update bonds without updating bonding.
   Useful for dynamics.

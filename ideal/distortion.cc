@@ -334,18 +334,24 @@ coot::geometry_distortion_info_container_t::distortion() const {
 
    double total_distortion = 0.0;
    for (unsigned int i=0; i< geometry_distortion.size(); i++) {
-      const coot::simple_restraint &rest = geometry_distortion[i].restraint;
+      const coot::simple_restraint &rest  = geometry_distortion[i].restraint;
       const double &rest_distortion_score = geometry_distortion[i].distortion_score;
 
       if (rest.restraint_type == coot::NON_BONDED_CONTACT_RESTRAINT) {
-	 total_distortion += rest_distortion_score;
+         total_distortion += rest_distortion_score;
       }
 
-      if (rest.restraint_type == coot::BOND_RESTRAINT) {
-         std::cout << "bond rest_distortion_score " << rest_distortion_score << std::endl;
+      if (true) { // debugging
+         if (rest.restraint_type == coot::BOND_RESTRAINT) {
+            mmdb::Atom *at_1 = atom[rest.atom_index_1];
+            mmdb::Atom *at_2 = atom[rest.atom_index_2];
+            if (at_1 && at_2) {
+               std::cout << "INFO:: bond rest_distortion_score "
+                         << rest.atom_index_1 << " " << atom_spec_t(at_1) << " "
+                         << rest.atom_index_2 << " " << atom_spec_t(at_2) << "  " << rest_distortion_score << std::endl;
+            }
+         }
       }
-
-      continue;
 
       if (rest.restraint_type == coot::BOND_RESTRAINT) {
 	 mmdb::Atom *at_1 = atom[rest.atom_index_1];
@@ -356,8 +362,9 @@ coot::geometry_distortion_info_container_t::distortion() const {
 	    double d = sqrt((p2-p1).lengthsq());
 	    double distortion = d - rest.target_value;
 	    double pen_score = distortion*distortion/(rest.sigma*rest.sigma);
-            std::cout << "bond c.f.: pen_score " << pen_score << " rest_distortion_score " << rest_distortion_score
-                      << std::endl;
+            if (false) // pen_score and rest_distortion_score are the same
+               std::cout << "DEBUG:: bond c.f.: pen_score " << pen_score
+                         << " rest_distortion_score " << rest_distortion_score << std::endl;
 	    total_distortion += pen_score;
 	 }
       }
