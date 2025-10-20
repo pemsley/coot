@@ -1679,12 +1679,84 @@ test_cremer_pople(int argc, char **argv) {
    }
 }
 
+int test_ribose_torsions(int argc, char **argv) {
+
+   std::string pdb_file_name = "8b0x.cif";
+   if (argc > 1)
+      pdb_file_name = argv[1];
+
+   int status = 0;
+   atom_selection_container_t asc = get_atom_selection(pdb_file_name, false, true, true);
+   std::vector<std::string> base_names = {"A", "G", "T", "U"};
+   std::string alt_conf = "";
+   if (asc.mol) {
+      int imod = 1;
+      mmdb::Model *model_p = asc.mol->GetModel(imod);
+      if (model_p) {
+         int n_chains = model_p->GetNumberOfChains();
+         for (int ichain=0; ichain<n_chains; ichain++) {
+            mmdb::Chain *chain_p = model_p->GetChain(ichain);
+            int n_res = chain_p->GetNumberOfResidues();
+            for (int ires=0; ires<n_res; ires++) {
+               mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+               if (residue_p) {
+                  std::string res_name = residue_p->GetResName();
+                  if (std::find(base_names.begin(), base_names.end(), res_name) != base_names.end()) {
+                     mmdb::Atom *at_O4_prime = nullptr;
+                     mmdb::Atom *at_C1_prime = nullptr;
+                     mmdb::Atom *at_C2_prime = nullptr;
+                     mmdb::Atom *at_C3_prime = nullptr;
+                     mmdb::Atom *at_C4_prime = nullptr;
+                     int n_atoms = residue_p->GetNumberOfAtoms();
+                     for (int iat=0; iat<n_atoms; iat++) {
+                        mmdb::Atom *at = residue_p->GetAtom(iat);
+                        if (! at->isTer()) {
+                           std::string atom_name = at->GetAtomName();
+                           if (atom_name == " O4'") at_O4_prime = at;
+                           if (atom_name == " C1'") at_C1_prime = at;
+                           if (atom_name == " C2'") at_C2_prime = at;
+                           if (atom_name == " C3'") at_C3_prime = at;
+                           if (atom_name == " C4'") at_C4_prime = at;
+                        }
+                     }
+                     if (at_O4_prime && at_C1_prime && at_C2_prime && at_C3_prime && at_C4_prime) {
+                        coot::atom_quad aq_1(at_O4_prime, at_C1_prime, at_C2_prime, at_C3_prime);
+                        coot::atom_quad aq_2(at_C1_prime, at_C2_prime, at_C3_prime, at_C4_prime);
+                        coot::atom_quad aq_3(at_C2_prime, at_C3_prime, at_C4_prime, at_O4_prime);
+                        coot::atom_quad aq_4(at_C3_prime, at_C4_prime, at_O4_prime, at_C1_prime);
+                        coot::atom_quad aq_5(at_C4_prime, at_O4_prime, at_C1_prime, at_C2_prime);
+
+                        double t1 = aq_1.torsion();
+                        double t2 = aq_2.torsion();
+                        double t3 = aq_3.torsion();
+                        double t4 = aq_4.torsion();
+                        double t5 = aq_5.torsion();
+
+                        coot::pucker_analysis_info_t pi(residue_p, alt_conf);
+
+                        std::cout << "puckered-atom" << pi.puckered_atom() << " torsions: "
+                                  << std::setw(9) << t1 << " " << std::setw(9) << t2 << " "
+                                  << std::setw(9) << t3 << " " << std::setw(9) << t4 << " "
+                                  << std::setw(9) << t5 << std::endl;
+                     }
+                  }
+               }
+            }
+         }
+      }
+   }
+   return status;
+}
+
 
 int main(int argc, char **argv) {
 
    mmdb::InitMatType();
 
    if (true)
+      test_ribose_torsions(argc, argv);
+
+   if (false)
       test_cremer_pople(argc, argv);
 
    if (false)
