@@ -18019,6 +18019,73 @@ Move a copy?</property>
     </child>
   </object>
 
+  <object class="GtkDialog" id="first-startup-dialog">
+    <property name="title" translatable="yes">Coot: Configure Mouse</property>
+    <property name="default-width">500</property>
+    <child>
+      <object class="GtkBox" id="first_startup_dialog_vbox_internal">
+        <property name="orientation">vertical</property>
+        <property name="spacing">2</property>
+        <child>
+          <object class="GtkLabel">
+            <property name="label" translatable="yes">First-time start-up:</property>
+            <property name="justify">center</property>
+            <property name="use-markup">1</property>
+            <property name="margin-top">12</property>
+            <property name="margin-bottom">12</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkLabel">
+            <property name="label" translatable="yes">Which mouse button should be used for view rotation?</property>
+            <property name="justify">start</property>
+            <property name="margin-top">6</property>
+            <property name="margin-bottom">18</property>
+          </object>
+        </child>
+
+        <child>
+          <object class="GtkSeparator">
+          </object>
+        </child>
+
+        <child>
+          <object class="GtkBox">
+            <property name="orientation">horizontal</property>
+            <property name="spacing">6</property>
+            <property name="halign">end</property>
+            <property name="margin-end">6</property>
+            <property name="margin-start">4</property>
+            <property name="margin-top">6</property>
+            <property name="margin-bottom">6</property>
+            <child>
+              <object class="GtkButton" id="first_startup_cancel_button">
+                <property name="label" translatable="yes">Cancel</property>
+                <signal name="clicked" handler="on_first_startup_cancel_button_clicked" />
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="first_startup_use_left_button">
+                <property name="label" translatable="yes">Left</property>
+                <signal name="clicked" handler="on_first_startup_use_left_button_clicked" />
+              </object>
+            </child>
+            <child>
+              <object class="GtkButton" id="first_startup_use_right_button">
+                <property name="label" translatable="yes">Right</property>
+                <signal name="clicked" handler="on_first_startup_use_right_button_clicked" />
+                <style>
+                  <class name="suggested-action"/>
+                </style>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
+
+
   <object class="GtkDialog" id="hole_dialog">
     <property name="title" translatable="yes">Coot: HOLE</property>
     <signal name="response" handler="on_hole_dialog_response" swapped="no"/>
