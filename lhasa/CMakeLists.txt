@@ -81,6 +81,8 @@ target_link_libraries(lhasa PRIVATE
     RDKitSmilesParse 
     RDKitMolDraw2D 
     RDKitGraphMol 
+    RDKitRDInchiLib
+    RDKitInchi
     RDKitRDGeneral 
     RDKitRDGeometryLib
     RDKitFileParsers 

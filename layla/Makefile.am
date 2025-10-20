@@ -23,6 +23,7 @@ subpkgdata_DATA = layla.ui
 pkginclude_HEADERS = \
 	layla_embedded.hpp \
 	generators.hpp \
+	inchi_key_database.hpp \
 	notifier.hpp \
 	ui.hpp \
 	utils.hpp \
@@ -40,6 +41,7 @@ pkgincludedir = $(includedir)/coot/layla
 libcoot_layla_la_SOURCES = \
 	layla_embedded.cpp \
 	generators.cpp \
+	inchi_key_database.cpp \
 	notifier.cpp \
 	signals.cpp \
 	state.cpp \

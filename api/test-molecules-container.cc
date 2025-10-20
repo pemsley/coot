@@ -3339,7 +3339,7 @@ int test_mmrrcc(molecules_container_t &mc) {
       std::string chain_id = "A";
       std::pair<std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t>,
                 std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t> > results =
-         mc.mmrrcc(imol, chain_id, n_residue_per_residue_range, imol_map);
+         mc.mmrrcc(imol, chain_id, imol_map);
       auto mcc = results.first;
       if (mcc.size() > 90)
          status = 1;
@@ -3356,7 +3356,7 @@ int test_mmrrcc(molecules_container_t &mc) {
       // Filo's example 11729 and 7adk
       imol = mc.read_pdb(reference_data("pdb7adk.ent"));
       imol_map = mc.read_ccp4_map(reference_data("emd_11729.map"), 0);
-      auto results = mc.mmrrcc(imol, "B", n_residue_per_residue_range, imol_map);
+      auto results = mc.mmrrcc(imol, "B", imol_map);
       auto mcc = results.first;
       auto scc = results.second;
       std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t>::const_iterator it;

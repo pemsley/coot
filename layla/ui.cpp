@@ -147,86 +147,125 @@ GtkApplicationWindow* coot::layla::setup_main_window(GtkApplication* app, GtkBui
 
 
     GtkGrid* smiles_display_grid = (GtkGrid*) gtk_builder_get_object(builder, "layla_smiles_display_grid");
-    g_signal_connect(canvas, "smiles-changed", G_CALLBACK(+[](CootLigandEditorCanvas* self, gpointer user_data){
+    g_signal_connect(canvas, "smiles-changed", G_CALLBACK(+[](CootLigandEditorCanvas* self, gpointer user_data) {
         GtkGrid* display_grid = GTK_GRID(user_data);
         // Don't clear the widget all the time. It will create horrible mess
         // for(auto* i = gtk_widget_get_first_child(GTK_WIDGET(display_grid)); i != nullptr; i = gtk_widget_get_next_sibling(GTK_WIDGET(i))) {
         //     gtk_grid_remove(display_grid, i);
         // }
-        auto get_widget_for_mol_id = [display_grid](unsigned int id) -> GtkWidget* {
-            for(auto* i = gtk_widget_get_first_child(GTK_WIDGET(display_grid)); i != nullptr; i = gtk_widget_get_next_sibling(GTK_WIDGET(i))) {
-                if(! GTK_IS_EDITABLE_LABEL(i)) {
-                    // g_info("Skipping widget of type %s", G_OBJECT_TYPE_NAME(i));
+        struct WidgetsT {
+            GtkWidget* smiles_label;
+            GtkWidget* inchi_label;
+        };
+        auto get_widgets_for_mol_id = [display_grid](unsigned int id) -> std::optional<WidgetsT> {
+            WidgetsT ret;
+            ret.smiles_label = nullptr;
+            ret.inchi_label = nullptr;
+            for (auto* i = gtk_widget_get_first_child(GTK_WIDGET(display_grid)); i != nullptr; i = gtk_widget_get_next_sibling(GTK_WIDGET(i))) {
+                bool is_editable = GTK_IS_EDITABLE_LABEL(i);
+                gpointer inchi_label_gptr = g_object_get_data(G_OBJECT(i), "inchi_label");
+                if (!is_editable && !inchi_label_gptr) {
+                    // Skipping irrelevant labels / widgets
                     continue;
                 }
                 // g_info("Inspecting a widget for \"mol_id\"");
-                gpointer mol_id_gptr = g_object_get_data(G_OBJECT(i),"mol_id");
-                if(mol_id_gptr) {
+                gpointer mol_id_gptr = g_object_get_data(G_OBJECT(i), "mol_id");
+                if (mol_id_gptr) {
                     // Differeniate between nullptr and zero
-                    if(GPOINTER_TO_UINT(mol_id_gptr) - 1 == id) {
-                        return i;
+                    if (GPOINTER_TO_UINT(mol_id_gptr) - 1 == id) {
+                        if (GTK_IS_EDITABLE_LABEL(i)) {
+                            ret.smiles_label = i;
+                        } else {
+                            ret.inchi_label = i;
+                        }
                     }
-                } else {
-                    // g_info("Skipping null gpointer");
                 }
             }
-            return nullptr;
+            // g_info("smiles_label %p inchi_label %p", ret.smiles_label, ret.inchi_label);
+            if (!ret.inchi_label || !ret.smiles_label) {
+                return std::nullopt;
+            } else {
+                return ret;
+            }
         };
 
         auto smiles_map = coot_ligand_editor_canvas_get_smiles(self);
-        for(const auto& [mol_idx, smiles_code] : smiles_map) {
-            auto* widget_ptr = get_widget_for_mol_id(mol_idx);
-            if(widget_ptr) {
-                if(! gtk_editable_label_get_editing(GTK_EDITABLE_LABEL(widget_ptr))) {
+
+        auto do_inchi_lookup = [&](unsigned int mol_idx) -> std::string {
+            std::string inchi_key = coot_ligand_editor_canvas_get_inchi_key_for_molecule(self, mol_idx);
+            auto lookup_result = coot::layla::global_instance->lookup_inchi_key(inchi_key);
+            if(lookup_result.has_value()) {
+                auto lookup_result_value = lookup_result.value();
+                return lookup_result_value.chemical_name + " " +  lookup_result_value.monomer_id;
+            } else {
+                return "";
+            }
+        };
+
+        for (const auto& [mol_idx, smiles_code] : smiles_map) {
+            auto widgets = get_widgets_for_mol_id(mol_idx);
+            if (widgets.has_value()) {
+                const auto m_widgets = widgets.value();
+                if (!gtk_editable_label_get_editing(GTK_EDITABLE_LABEL(m_widgets.smiles_label))) {
                     g_info("Updating SMILES text for mol %u", mol_idx);
-                    gtk_editable_set_text(GTK_EDITABLE(widget_ptr), smiles_code.c_str());
+                    gtk_editable_set_text(GTK_EDITABLE(m_widgets.smiles_label), smiles_code.c_str());
                 } else {
                     g_info("Not updating SMILES for mol %u, with SMILES text currently being edited.", mol_idx);
                 }
+                auto inchi_str = do_inchi_lookup(mol_idx);
+                gtk_label_set_text(GTK_LABEL(m_widgets.inchi_label), inchi_str.c_str());
             } else {
                 g_info("Creating SMILES row for mol %u ", mol_idx);
                 // Create widgets
                 auto l_str = std::to_string(mol_idx) + ":";
-                GtkLabel* label = (GtkLabel*) gtk_label_new(l_str.c_str());
+                GtkLabel* label = (GtkLabel*)gtk_label_new(l_str.c_str());
                 // Differeniate between nullptr and zero
                 g_object_set_data(G_OBJECT(label), "mol_id", GUINT_TO_POINTER(mol_idx + 1));
                 gtk_grid_attach(display_grid, GTK_WIDGET(label), 0, mol_idx, 1, 1);
 
-                GtkEditableLabel* smiles_label =  (GtkEditableLabel*) gtk_editable_label_new(smiles_code.c_str());
+                GtkEditableLabel* smiles_label = (GtkEditableLabel*)gtk_editable_label_new(smiles_code.c_str());
                 // Differeniate between nullptr and zero
                 g_object_set_data(G_OBJECT(smiles_label), "mol_id", GUINT_TO_POINTER(mol_idx + 1));
-                g_signal_connect(smiles_label, "changed", G_CALLBACK(+[](GtkEditable* smiles_label, gpointer user_data){
-                    if(! gtk_editable_label_get_editing(GTK_EDITABLE_LABEL(smiles_label))) {
+                g_signal_connect(smiles_label, "changed", G_CALLBACK(+[](GtkEditable* smiles_label, gpointer user_data) {
+                    if (!gtk_editable_label_get_editing(GTK_EDITABLE_LABEL(smiles_label))) {
                         // We don't want to update the mol from smiles if the text changed
                         // as a result of the molecule being modified on screen by the user
                         return;
                     }
                     CootLigandEditorCanvas* self = COOT_COOT_LIGAND_EDITOR_CANVAS(user_data);
                     std::string smiles_text = gtk_editable_get_text(smiles_label);
-                    unsigned int mol_id = GPOINTER_TO_UINT(g_object_get_data(G_OBJECT(smiles_label),"mol_id")) - 1;
+                    unsigned int mol_id = GPOINTER_TO_UINT(g_object_get_data(G_OBJECT(smiles_label), "mol_id")) - 1;
                     coot_ligand_editor_canvas_update_molecule_from_smiles(self, mol_id, smiles_text.c_str());
-                }), self);
+                }),
+                self);
 
-                GtkCssProvider *provider = gtk_css_provider_new();
+                GtkCssProvider* provider = gtk_css_provider_new();
                 std::string smiles_label_font_string = ".smiles_label { font-family: monospace; }";
-#if (GTK_MAJOR_VERSION == 4) && (GTK_MINOR_VERSION > 11) // available since 4.12
+    #if (GTK_MAJOR_VERSION == 4) && (GTK_MINOR_VERSION > 11)  // available since 4.12
                 gtk_css_provider_load_from_string(provider, smiles_label_font_string.c_str());
-#else
-                gtk_css_provider_load_from_data(provider, smiles_label_font_string.c_str(), smiles_label_font_string.size());
-#endif
-                GtkStyleContext *context = gtk_widget_get_style_context(GTK_WIDGET(smiles_label));
-                gtk_style_context_add_provider (context, GTK_STYLE_PROVIDER (provider), GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
-                gtk_style_context_add_class (context, "smiles_label");      
+    #else
+    gtk_css_provider_load_from_data(provider, smiles_label_font_string.c_str(), smiles_label_font_string.size());
+    #endif
+                GtkStyleContext* context = gtk_widget_get_style_context(GTK_WIDGET(smiles_label));
+                gtk_style_context_add_provider(context, GTK_STYLE_PROVIDER(provider), GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+                gtk_style_context_add_class(context, "smiles_label");
 
                 gtk_grid_attach(display_grid, GTK_WIDGET(smiles_label), 1, mol_idx, 1, 1);
+
+                auto inchi_str = do_inchi_lookup(mol_idx);
+                GtkLabel* inchi_data_label = (GtkLabel*) gtk_label_new(inchi_str.c_str());
+                g_object_set_data(G_OBJECT(inchi_data_label), "mol_id", GUINT_TO_POINTER(mol_idx + 1));
+                g_object_set_data(G_OBJECT(inchi_data_label), "inchi_label", GUINT_TO_POINTER(1));
+                gtk_grid_attach(display_grid, GTK_WIDGET(inchi_data_label), 2, mol_idx, 1, 1);
             }
         }
-    }), smiles_display_grid);
+    }),
+    smiles_display_grid);
 
     g_signal_connect(canvas, "molecule-deleted", G_CALLBACK(+[](CootLigandEditorCanvas* self, unsigned int deleted_mol_idx, gpointer user_data){
         GtkGrid* display_grid = GTK_GRID(user_data);
         // Prevents iterator invalidation
-        std::vector<GtkWidget*> to_be_removed(2);
+        std::vector<GtkWidget*> to_be_removed(3);
         for(auto* i = gtk_widget_get_first_child(GTK_WIDGET(display_grid)); i != nullptr; i = gtk_widget_get_next_sibling(GTK_WIDGET(i))) {
             // if(g_object_get_data(G_OBJECT(i),"is_id_label")) {
             //     continue;

@@ -257,6 +257,32 @@ coot::ligand_editor_canvas::SmilesMap WidgetCoreData::build_smiles() const {
     return ret;
 }
 
+coot::ligand_editor_canvas::InchiKeyMap WidgetCoreData::build_inchi_keys() const {
+    coot::ligand_editor_canvas::InchiKeyMap ret;
+    auto it = this->rdkit_molecules->cbegin();
+    unsigned int idx = 0;
+
+    auto append_inchi_key = [&](){
+        const auto& mol_ptr_opt = *it;
+        if(mol_ptr_opt.has_value()) {
+            RDKit::RWMol* mol_ptr = mol_ptr_opt->get();
+            #ifdef RDK_BUILD_INCHI_SUPPORT
+            ret.emplace(idx, RDKit::MolToInchiKey(*mol_ptr));
+            #else
+            ret.emplace(idx, "");
+            #warning Your version of RDKit was built without InChI support. Molecule InChI key lookup will not be available.
+            #endif
+        }
+    };
+
+    while(it != this->rdkit_molecules->cend()) {
+        append_inchi_key();
+        it++;
+        idx++;
+    }
+    return ret;
+}
+
 unsigned int WidgetCoreData::get_molecule_count_impl() const noexcept {
     unsigned int ret = 0;
     for(const auto& mol_opt: *this->rdkit_molecules) {
@@ -381,12 +407,20 @@ void CootLigandEditorCanvas::set_display_mode(coot::ligand_editor_canvas::Displa
     coot_ligand_editor_canvas_set_display_mode(this, value);
 }
 
+coot::ligand_editor_canvas::InchiKeyMap CootLigandEditorCanvas::get_inchi_keys() noexcept {
+    return coot_ligand_editor_canvas_get_inchi_keys(this);
+}
+
 coot::ligand_editor_canvas::SmilesMap CootLigandEditorCanvas::get_smiles() noexcept {
     return coot_ligand_editor_canvas_get_smiles(this);
 }
 
 std::string CootLigandEditorCanvas::get_smiles_for_molecule(unsigned int molecule_idx) noexcept {
     return coot_ligand_editor_canvas_get_smiles_for_molecule(this, molecule_idx);
+}
+
+std::string CootLigandEditorCanvas::get_inchi_key_for_molecule(unsigned int molecule_idx) noexcept {
+    return coot_ligand_editor_canvas_get_inchi_key_for_molecule(this, molecule_idx);
 }
 
 std::string CootLigandEditorCanvas::get_pickled_molecule(unsigned int molecule_idx) noexcept {

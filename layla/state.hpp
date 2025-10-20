@@ -21,6 +21,7 @@
 
 #ifndef LAYLA_STATE_HPP
 #define LAYLA_STATE_HPP
+#include "inchi_key_database.hpp"
 #include "ligand_editor_canvas.hpp"
 #include "notifier.hpp"
 #include <rdkit/GraphMol/RWMol.h>
@@ -40,6 +41,11 @@ class LaylaState {
         PDF,
         PNG,
         SVG
+    };
+
+    struct InchiKeyLookupResult {
+        std::string monomer_id;
+        std::string chemical_name;
     };
     private:
 
@@ -64,6 +70,7 @@ class LaylaState {
 
     /// Store of monomer library information
     std::unique_ptr<protein_geometry> monomer_library_info_store;
+    std::unique_ptr<InchiKeyDatabase> inchi_key_database;
 
     /// Adds the molecule to the canvas.
     /// This function takes ownership of the molecule pointer.
@@ -84,6 +91,9 @@ class LaylaState {
 
     ///Useful for signal handlers
     CootLigandEditorCanvas* get_canvas() const noexcept;
+
+    /// Uses the `inchi_key_database` to look up th given inchi key
+    std::optional<InchiKeyLookupResult> lookup_inchi_key(const std::string& inchi_key) const noexcept;
 
     /// Clears all molecules, file names, etc.
     void reset() noexcept;
