@@ -985,6 +985,12 @@ namespace coot {
                                 const clipper::Coord_orth &end_pos,
                                 const protein_geometry &geom) const;
 
+      //! get pucker info
+      //!
+      //! @param imol2 is the model molecule index
+      //! @return a json string or an empty string on failure
+      std::string get_pucker_analysis_info() const;
+
       //! Get SVG for 2d ligand environment view (FLEV)
       //!
       //! The caller should make sure that the dictionary for the ligand has been loaded - this

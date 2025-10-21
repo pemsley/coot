@@ -6620,3 +6620,20 @@ std::string molecules_container_t::get_molecule_selection_as_json(int imol, cons
    }
    return s;
 }
+
+//! get pucker info
+//!
+//! @param imol2 is the model molecule index
+//! @return a json string or an empty string on failure
+std::string
+molecules_container_t::get_pucker_analysis_info(int imol) const {
+
+   std::string pai;
+   if (is_valid_model_molecule(imol)) {
+      pai = molecules[imol].get_pucker_analysis_info();
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return pai;
+}
+

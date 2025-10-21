@@ -5269,3 +5269,66 @@ coot::molecule_t::set_temperature_factors_using_cid(const std::string &cid, floa
    }
 }
 
+#include "coot-utils/json.hpp"
+using json = nlohmann::json;
+
+//! get pucker info
+//!
+//! @param imol2 is the model molecule index
+//! @return a json string or an empty string on failure
+std::string
+coot::molecule_t::get_pucker_analysis_info() const {
+
+   std::string s;
+
+   std::vector<std::pair<mmdb::Residue *, pucker_analysis_info_t> > puckers;
+   std::string alt_conf = "";
+   if (atom_sel.mol) {
+      int imod = 1;
+      mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+      if (model_p) {
+         int n_chains = model_p->GetNumberOfChains();
+         for (int ichain=0; ichain<n_chains; ichain++) {
+            mmdb::Chain *chain_p = model_p->GetChain(ichain);
+            int n_res = chain_p->GetNumberOfResidues();
+            for (int ires=0; ires<n_res; ires++) {
+               mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+               if (residue_p) {
+                  try {
+                     pucker_analysis_info_t pi(residue_p, alt_conf);
+                     puckers.push_back(std::make_pair(residue_p, pi));
+                  }
+                  catch (const std::runtime_error &e) {
+                     // it's OK.
+                     // std::cout << "WARNING::" << e.what() << std::endl;
+                  }
+               }
+            }
+         }
+      }
+   }
+   if (! puckers.empty()) {
+
+      json j = json::array();
+      for (unsigned int i=0; i<puckers.size(); i++) {
+         const auto &pi = puckers[i].second;
+         mmdb::Residue *residue_p  = puckers[i].first;
+         json j_plane_distortion = pi.plane_distortion;
+         json j_out_of_plane_distance = pi.out_of_plane_distance;
+         json j_puckered_atom = pi.puckered_atom();
+         json j_res_name = residue_p->GetResName();
+         json j_chain_id = residue_p->GetChainID();
+         json j_res_no = residue_p->GetSeqNum();
+         json j_pucker;
+         j_pucker["plane_distortion"]      = j_plane_distortion;
+         j_pucker["out_of_plane_distance"] = j_out_of_plane_distance;
+         j_pucker["puckered_atom"]         = j_puckered_atom;
+         j_pucker["chain_id"]              = j_chain_id;
+         j_pucker["res_no"]                = j_res_no;
+         j_pucker["res_name"]              = j_res_name;
+         j.push_back(j_pucker);
+      }
+      s = j.dump(4);
+   }
+   return s;
+}

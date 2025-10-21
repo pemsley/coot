@@ -2907,6 +2907,12 @@ public:
    std::vector <positioned_atom_spec_t>
    get_atom_differences(int imol1, int imol2);
 
+   //! get pucker info
+   //!
+   //! @param imol is the model molecule index
+   //! @return a json string or an empty string on failure
+   std::string get_pucker_analysis_info(int imol) const;
+
 
    // -------------------------------- Coordinates and map validation ----------------------
    //! \name Coordinates and Map Validation

@@ -6656,6 +6656,28 @@ int test_atom_overlaps(molecules_container_t &mc) {
    return status;
 }
 
+#include "coot-utils/json.hpp"
+using json = nlohmann::json;
+
+int test_pucker_info(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+   int imol = mc.read_pdb(reference_data("2pwt.cif"));
+   std::string pucker_info_json = mc.get_pucker_analysis_info(imol);
+   json j = json::parse(pucker_info_json);
+   unsigned int count = 0;
+   for (json::iterator it=j.begin(); it!=j.end(); ++it) {
+      count += 1;
+      if (count > 5) continue;
+      json &item = *it;
+      std::string s = item.dump(4);
+      std::cout << s << std::endl;
+   }
+   if (count > 10) status = 1;
+   return status;
+}
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -6993,6 +7015,7 @@ int main(int argc, char **argv) {
          status += run_test(test_water_spherical_variance, "water spherical variance", mc);
          // status += run_test(test_dedust, "dedust", mc);
          status += run_test(test_atom_overlaps, "atom overlaps", mc);
+         status += run_test(test_pucker_info, "pucker info", mc);
          if (status == n_tests) all_tests_status = 0;
 
          print_results_summary();
