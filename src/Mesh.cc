@@ -1225,7 +1225,7 @@ Mesh::setup_matrix_and_colour_instancing_buffers(const std::vector<glm::mat4> &m
    n_instances_allocated = n_instances;
 
    if (vao == VAO_NOT_SET)
-      std::cout << "ERROR:: inn setup_matrix_and_colour_instancing_buffers() You didn't correctly setup this Mesh "
+      std::cout << "GL ERROR:: in setup_matrix_and_colour_instancing_buffers() You didn't correctly setup this Mesh "
                 << name << " " << std::endl;
 
    glBindVertexArray(vao);
@@ -1328,7 +1328,7 @@ Mesh::setup_matrix_and_colour_instancing_buffers_standard(const std::vector<glm:
                       << err << std::endl;
 
    if (vao == VAO_NOT_SET)
-      std::cout << "ERROR:: in setup_matrix_and_colour_instancing_buffers_standard() You didn't correctly setup this Mesh "
+      std::cout << "GL ERROR:: in setup_matrix_and_colour_instancing_buffers_standard() You didn't correctly setup this Mesh "
                 << name << " " << std::endl;
 
    glBindVertexArray(vao);
@@ -1633,7 +1633,7 @@ Mesh::draw_instanced(int pass_type,
                      float z_rotation_angle) {
 
    if (debug_mode)
-      std::cout << "Mesh::draw_instanced() Mesh " << name << " -- start -- with shader " << shader_p->name
+      std::cout << "DEBUG:: Mesh::draw_instanced() Mesh " << name << " -- start -- with shader " << shader_p->name
                 << "pass_type: " << pass_type << " and do_pulse " << do_pulse
 		<< " and draw_this_mesh " << draw_this_mesh << std::endl;
 
@@ -1645,19 +1645,19 @@ Mesh::draw_instanced(int pass_type,
    if (n_triangles == 0) return;
 
    GLenum err = glGetError();
-   if (err) std::cout << "error Mesh::draw_instanced() " << name << " " << shader_p->name
+   if (err) std::cout << "GL ERROR:: Mesh::draw_instanced() " << name << " " << shader_p->name
                       << " -- start -- " << err << std::endl;
    shader_p->Use();
    const std::string &shader_name = shader_p->name;
 
    glUniformMatrix4fv(shader_p->mvp_uniform_location, 1, GL_FALSE, &mvp[0][0]);
    err = glGetError();
-   if (err) std::cout << "error:: " << shader_p->name << " draw_instanced() post mvp uniform "
+   if (err) std::cout << "GL ERROR:: " << shader_p->name << " draw_instanced() post mvp uniform "
                       << err << std::endl;
 
    glUniformMatrix4fv(shader_p->view_rotation_uniform_location, 1, GL_FALSE, &view_rotation_matrix[0][0]);
    err = glGetError();
-   if (err) std::cout << "error:: Mesh::draw_instanced() " << name << " " << shader_p->name
+   if (err) std::cout << "GL ERROR:: Mesh::draw_instanced() " << name << " " << shader_p->name
                       << " draw_instanced() post view rotation uniform " << err << std::endl;
 
    std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
