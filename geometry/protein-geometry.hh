@@ -1015,6 +1015,12 @@ namespace coot {
       int atom_1_comp_id, atom_2_comp_id;
       double dist() const { return value_dist; }
       double esd()  const { return value_dist_esd; }
+      bool matches(const std::string &at_name_1, const std::string &at_name_2) const {
+         bool status = true;
+         if (at_name_1 != atom_id_1()) status = false;
+         if (at_name_2 != atom_id_2()) status = false;
+         return status;
+      }
    }; 
 
    class dict_link_angle_restraint_t : public basic_dict_restraint_t {
