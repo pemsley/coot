@@ -151,21 +151,13 @@ void coot_ligand_editor_canvas_measure(GtkWidget *widget, GtkOrientation orienta
 {
     CootLigandEditorCanvas* self = COOT_COOT_LIGAND_EDITOR_CANVAS(widget);
 #else
-CootLigandEditorCanvas::SizingInfo CootLigandEditorCanvas::measure(CootLigandEditorCanvas::MeasurementDirection orientation) noexcept {
+CootLigandEditorCanvas::SizingInfo CootLigandEditorCanvas::measure(CootLigandEditorCanvas::MeasurementDirection orientation) const noexcept {
     auto* self = this;
     SizingInfo ret;
     int* minimum_size = &ret.requested_size;
     int* natural_size = &ret.requested_size;
 #endif
-    graphene_rect_t bounding_rect_for_all;
-    graphene_rect_init(&bounding_rect_for_all, 0, 0, 0, 0);
-
-    for(const auto& a: *self->molecules) {
-        if(a.has_value()) {
-            auto bounding_rect = a->get_on_screen_bounding_rect(self->viewport_origin_offset, self->scale);
-            graphene_rect_union(&bounding_rect_for_all, &bounding_rect, &bounding_rect_for_all);
-        }
-    }
+    const auto bounding_rect_for_all = self->get_on_screen_bounding_rect();
     switch (orientation) {
         #ifndef __EMSCRIPTEN__
         case GTK_ORIENTATION_HORIZONTAL:{
@@ -197,17 +189,6 @@ CootLigandEditorCanvas::SizingInfo CootLigandEditorCanvas::measure(CootLigandEdi
     // }
     return ret;
     #endif
-    std::pair<int, int> viewport_offset = {0, 0};
-    if(bounding_rect_for_all.origin.x < 0) {
-        viewport_offset.first = bounding_rect_for_all.origin.x - impl::WidgetCoreData::VIEWPORT_OFFSET_PIXEL_MARGIN;
-    }
-    if(bounding_rect_for_all.origin.y < 0) {
-        viewport_offset.second = bounding_rect_for_all.origin.y - impl::WidgetCoreData::VIEWPORT_OFFSET_PIXEL_MARGIN;
-    }
-    // It is controversial to make any mutations in a 'measure' method,
-    // but this is the easiest way to implement panning via offsetting the viewport
-    // without reworking the molecule mutation process.
-    self->viewport_origin_offset = viewport_offset;
 }
 
 #ifndef __EMSCRIPTEN__
@@ -656,12 +637,14 @@ void coot_ligand_editor_canvas_update_molecule_from_smiles(CootLigandEditorCanva
 
 void coot_ligand_editor_canvas_undo_edition(CootLigandEditorCanvas* self) noexcept {
     self->undo_edition();
+    self->queue_resize();
     self->queue_redraw();
     self->emit_mutation_signals();
 }
 
 void coot_ligand_editor_canvas_redo_edition(CootLigandEditorCanvas* self) noexcept {
     self->redo_edition();
+    self->queue_resize();
     self->queue_redraw();
     self->emit_mutation_signals();
 }
@@ -704,6 +687,7 @@ DisplayMode coot_ligand_editor_canvas_get_display_mode(CootLigandEditorCanvas* s
 
 void coot_ligand_editor_canvas_set_display_mode(CootLigandEditorCanvas* self, DisplayMode value) noexcept {
     self->display_mode = value;
+    self->queue_resize();
     self->queue_redraw();
 }
 

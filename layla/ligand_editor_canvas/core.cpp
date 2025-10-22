@@ -337,7 +337,31 @@ void WidgetCoreData::queue_redraw() const noexcept {
     #endif
 }
 
-void WidgetCoreData::queue_resize() const noexcept {
+graphene_rect_t WidgetCoreData::get_on_screen_bounding_rect() const noexcept {
+    graphene_rect_t bounding_rect_for_all;
+    graphene_rect_init(&bounding_rect_for_all, 0, 0, 0, 0);
+
+    for(const auto& a: *this->molecules) {
+        if(a.has_value()) {
+            auto bounding_rect = a->get_on_screen_bounding_rect(this->viewport_origin_offset, this->scale);
+            graphene_rect_union(&bounding_rect_for_all, &bounding_rect, &bounding_rect_for_all);
+        }
+    }
+    return bounding_rect_for_all;
+}
+
+void WidgetCoreData::queue_resize() noexcept {
+    const auto bounding_rect_for_all = this->get_on_screen_bounding_rect();
+    std::pair<int, int> viewport_offset = {0, 0};
+    if(bounding_rect_for_all.origin.x < 0) {
+        viewport_offset.first = bounding_rect_for_all.origin.x - impl::WidgetCoreData::VIEWPORT_OFFSET_PIXEL_MARGIN;
+        g_debug("Viewport x-offset set to %i", viewport_offset.first);
+    }
+    if(bounding_rect_for_all.origin.y < 0) {
+        viewport_offset.second = bounding_rect_for_all.origin.y - impl::WidgetCoreData::VIEWPORT_OFFSET_PIXEL_MARGIN;
+        g_debug("Viewport y-offset set to %i", viewport_offset.second);
+    }
+    this->viewport_origin_offset = viewport_offset;
     #ifndef __EMSCRIPTEN__
     auto* widget_ptr = static_cast<const CootLigandEditorCanvasPriv*>(this);
     gtk_widget_queue_resize(GTK_WIDGET(widget_ptr));
