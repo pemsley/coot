@@ -162,7 +162,7 @@ CootLigandEditorCanvas::SizingInfo CootLigandEditorCanvas::measure(CootLigandEdi
 
     for(const auto& a: *self->molecules) {
         if(a.has_value()) {
-            auto bounding_rect = a->get_on_screen_bounding_rect();
+            auto bounding_rect = a->get_on_screen_bounding_rect(self->viewport_origin_offset, self->scale);
             graphene_rect_union(&bounding_rect_for_all, &bounding_rect, &bounding_rect_for_all);
         }
     }
@@ -199,10 +199,10 @@ CootLigandEditorCanvas::SizingInfo CootLigandEditorCanvas::measure(CootLigandEdi
     #endif
     std::pair<int, int> viewport_offset = {0, 0};
     if(bounding_rect_for_all.origin.x < 0) {
-        viewport_offset.first = bounding_rect_for_all.origin.x;
+        viewport_offset.first = bounding_rect_for_all.origin.x - impl::WidgetCoreData::VIEWPORT_OFFSET_PIXEL_MARGIN;
     }
     if(bounding_rect_for_all.origin.y < 0) {
-        viewport_offset.second = bounding_rect_for_all.origin.y;
+        viewport_offset.second = bounding_rect_for_all.origin.y - impl::WidgetCoreData::VIEWPORT_OFFSET_PIXEL_MARGIN;
     }
     // It is controversial to make any mutations in a 'measure' method,
     // but this is the easiest way to implement panning via offsetting the viewport
@@ -271,7 +271,7 @@ void CootLigandEditorCanvas::on_hover(double x, double y, bool alt_pressed, bool
             // when creating a bond
             if(self->currently_created_bond.has_value()) {
                 auto& new_bond = *self->currently_created_bond;
-                auto coords = target.get_on_screen_coords(atom.x, atom.y);
+                auto coords = target.get_on_screen_coords(atom.x, atom.y, self->viewport_origin_offset, self->scale);
                 new_bond.second_atom_x = coords.first;
                 new_bond.second_atom_y = coords.second;
             }
@@ -377,7 +377,7 @@ void CootLigandEditorCanvas::on_left_click(double x, double y, bool alt_pressed,
     if(self->active_tool->is_creating_bond()) {
         CurrentlyCreatedBond new_bond;
         auto [mol_idx, atom_idx] = self->active_tool->get_molecule_idx_and_first_atom_of_new_bond().value();
-        auto coords = *self->molecules->at(mol_idx)->get_on_screen_coords_of_atom(atom_idx);
+        auto coords = *self->molecules->at(mol_idx)->get_on_screen_coords_of_atom(atom_idx, self->viewport_origin_offset, self->scale);
         new_bond.first_atom_x = coords.first;
         new_bond.first_atom_y = coords.second;
         new_bond.second_atom_x = coords.first;
@@ -588,16 +588,17 @@ int coot_ligand_editor_canvas_append_molecule(CootLigandEditorCanvas* self, std:
         // Might throw if the constructor fails.
         self->begin_edition();
         self->molecules->push_back(CanvasMolecule(rdkit_mol, self->allow_invalid_molecules));
-        self->molecules->back()->set_canvas_scale(self->scale);
         #ifndef __EMSCRIPTEN__
         self->molecules->back()->apply_canvas_translation(
             gtk_widget_get_size(GTK_WIDGET(self), GTK_ORIENTATION_HORIZONTAL) / 2.0, 
-            gtk_widget_get_size(GTK_WIDGET(self), GTK_ORIENTATION_VERTICAL) / 2.0
+            gtk_widget_get_size(GTK_WIDGET(self), GTK_ORIENTATION_VERTICAL) / 2.0,
+            self->scale
         );
         #else
         self->molecules->back()->apply_canvas_translation(
             self->measure(CootLigandEditorCanvas::MeasurementDirection::HORIZONTAL).requested_size / 2.0, 
-            self->measure(CootLigandEditorCanvas::MeasurementDirection::VERTICAL).requested_size / 2.0
+            self->measure(CootLigandEditorCanvas::MeasurementDirection::VERTICAL).requested_size / 2.0,
+            self->scale
         );
         #endif
         self->rdkit_molecules->push_back(std::move(rdkit_mol));

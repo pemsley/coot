@@ -109,6 +109,9 @@ struct WidgetCoreData {
     /// Numbers of elements to be removed from the `state_stack`
     /// when its' maximum length gets exceeded
     const static unsigned int STATE_STACK_TRIM_BATCH_SIZE;
+    /// When the top-left coordinate of the canvas is in the negative numbers,
+    /// this determines the size of viewport offset margin, expressed in pixels
+    const static unsigned int VIEWPORT_OFFSET_PIXEL_MARGIN;
 
     protected:
 
@@ -140,7 +143,7 @@ struct WidgetCoreData {
 
     DisplayMode display_mode;
 
-    void render(Renderer&);
+    void render(Renderer&) const;
 
     /// Does Edit->Undo
     void undo_edition();

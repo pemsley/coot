@@ -57,6 +57,7 @@ const unsigned int WidgetCoreData::STATE_STACK_TRIM_BATCH_SIZE = 5;
 const unsigned int WidgetCoreData::MAX_STATE_STACK_LENGTH = 100;
 const unsigned int WidgetCoreData::STATE_STACK_TRIM_BATCH_SIZE = 30;
 #endif
+const unsigned int WidgetCoreData::VIEWPORT_OFFSET_PIXEL_MARGIN = 30;
 
 WidgetCoreData::MaybeAtomOrBondWithMolIdx WidgetCoreData::resolve_click(int raw_x, int raw_y) const noexcept {
     const int x = raw_x + this->viewport_origin_offset.first;
@@ -65,7 +66,7 @@ WidgetCoreData::MaybeAtomOrBondWithMolIdx WidgetCoreData::resolve_click(int raw_
     unsigned int idx = 0;
     for(const auto& mol_opt: *molecules_vec) {
         if(mol_opt.has_value()) {
-            auto result = mol_opt->resolve_click(x, y);
+            auto result = mol_opt->resolve_click(x, y, this->scale);
             if(result.has_value()) {
                 return std::pair(result.value(),idx);
             }
@@ -306,12 +307,11 @@ int WidgetCoreData::get_first_molecule_idx() const noexcept {
     return -1;
 }
 
-void WidgetCoreData::render(Renderer& ren) {
+void WidgetCoreData::render(Renderer& ren) const {
     if (this->molecules) {
         for(auto& drawn_molecule_opt: *this->molecules) {
             if(drawn_molecule_opt.has_value()) {
-                drawn_molecule_opt->set_canvas_scale(this->scale);
-                drawn_molecule_opt->draw(ren, this->display_mode, this->viewport_origin_offset);
+                drawn_molecule_opt->draw(ren, this->display_mode, this->viewport_origin_offset, this->scale);
             }
         }
     } else {
