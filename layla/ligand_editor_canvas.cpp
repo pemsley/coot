@@ -93,6 +93,7 @@ CootLigandEditorCanvas::CootLigandEditorCanvas() noexcept {
     self->state_stack = std::make_unique<impl::WidgetCoreData::StateStack>();
     self->display_mode = DisplayMode::Standard;
     self->scale = 1.0;
+    self->viewport_origin_offset = std::make_pair(0,0);
     self->allow_invalid_molecules = false;
     self->state_stack_pos = -1;
 }
@@ -150,7 +151,7 @@ void coot_ligand_editor_canvas_measure(GtkWidget *widget, GtkOrientation orienta
 {
     CootLigandEditorCanvas* self = COOT_COOT_LIGAND_EDITOR_CANVAS(widget);
 #else
-CootLigandEditorCanvas::SizingInfo CootLigandEditorCanvas::measure(CootLigandEditorCanvas::MeasurementDirection orientation) const noexcept {
+CootLigandEditorCanvas::SizingInfo CootLigandEditorCanvas::measure(CootLigandEditorCanvas::MeasurementDirection orientation) noexcept {
     auto* self = this;
     SizingInfo ret;
     int* minimum_size = &ret.requested_size;
@@ -196,6 +197,17 @@ CootLigandEditorCanvas::SizingInfo CootLigandEditorCanvas::measure(CootLigandEdi
     // }
     return ret;
     #endif
+    std::pair<int, int> viewport_offset = {0, 0};
+    if(bounding_rect_for_all.origin.x < 0) {
+        viewport_offset.first = bounding_rect_for_all.origin.x;
+    }
+    if(bounding_rect_for_all.origin.y < 0) {
+        viewport_offset.second = bounding_rect_for_all.origin.y;
+    }
+    // It is controversial to make any mutations in a 'measure' method,
+    // but this is the easiest way to implement panning via offsetting the viewport
+    // without reworking the molecule mutation process.
+    self->viewport_origin_offset = viewport_offset;
 }
 
 #ifndef __EMSCRIPTEN__

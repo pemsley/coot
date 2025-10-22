@@ -364,8 +364,8 @@ float CanvasMolecule::Bond::get_length() const noexcept {
     return std::sqrt(std::pow(bond_vector_x,2.f) + std::pow(bond_vector_y,2.f));
 }
 
-void CanvasMolecule::draw(impl::Renderer& ren, DisplayMode display_mode) const noexcept {
-    impl::MoleculeRenderContext renctx(*this, ren, display_mode);
+void CanvasMolecule::draw(impl::Renderer& ren, DisplayMode display_mode, const std::pair<int, int>& viewport_offset) const noexcept {
+    impl::MoleculeRenderContext renctx(*this, ren, display_mode, viewport_offset);
     renctx.draw_atoms();
     renctx.draw_bonds();
 }

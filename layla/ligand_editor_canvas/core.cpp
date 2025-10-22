@@ -58,7 +58,9 @@ const unsigned int WidgetCoreData::MAX_STATE_STACK_LENGTH = 100;
 const unsigned int WidgetCoreData::STATE_STACK_TRIM_BATCH_SIZE = 30;
 #endif
 
-WidgetCoreData::MaybeAtomOrBondWithMolIdx WidgetCoreData::resolve_click(int x, int y) const noexcept {
+WidgetCoreData::MaybeAtomOrBondWithMolIdx WidgetCoreData::resolve_click(int raw_x, int raw_y) const noexcept {
+    const int x = raw_x + this->viewport_origin_offset.first;
+    const int y = raw_y + this->viewport_origin_offset.second;
     const auto* molecules_vec = this->molecules.get();
     unsigned int idx = 0;
     for(const auto& mol_opt: *molecules_vec) {
@@ -309,7 +311,7 @@ void WidgetCoreData::render(Renderer& ren) {
         for(auto& drawn_molecule_opt: *this->molecules) {
             if(drawn_molecule_opt.has_value()) {
                 drawn_molecule_opt->set_canvas_scale(this->scale);
-                drawn_molecule_opt->draw(ren,this->display_mode);
+                drawn_molecule_opt->draw(ren, this->display_mode, this->viewport_origin_offset);
             }
         }
     } else {

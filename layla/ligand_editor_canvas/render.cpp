@@ -582,11 +582,11 @@ Renderer::~Renderer() {
     #endif
 }
 
-MoleculeRenderContext::MoleculeRenderContext(const CanvasMolecule& cm, Renderer& ren, DisplayMode mode) 
+MoleculeRenderContext::MoleculeRenderContext(const CanvasMolecule& cm, Renderer& ren, DisplayMode mode, const std::pair<int, int>& viewport_offset) 
 :canvas_molecule(cm), ren(ren), display_mode(mode) {
     scale_factor = canvas_molecule.get_scale();
-    x_offset = scale_factor * canvas_molecule.x_canvas_translation;
-    y_offset = scale_factor * canvas_molecule.y_canvas_translation;
+    x_offset = scale_factor * canvas_molecule.x_canvas_translation - viewport_offset.first;
+    y_offset = scale_factor * canvas_molecule.y_canvas_translation - viewport_offset.second;
 }
 
 MoleculeRenderContext::~MoleculeRenderContext() {

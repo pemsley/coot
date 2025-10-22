@@ -134,6 +134,8 @@ struct WidgetCoreData {
 
     float scale;
 
+    std::pair<int, int> viewport_origin_offset;
+
     bool allow_invalid_molecules;
 
     DisplayMode display_mode;
@@ -269,7 +271,8 @@ struct CootLigandEditorCanvas : coot::ligand_editor_canvas::impl::CootLigandEdit
     void connect(std::string signal_name, emscripten::val callback);
 
     // Implemented at 'ligand_editor_canvas.cpp'
-    SizingInfo measure(MeasurementDirection orientation) const noexcept;
+    // Manages viewport offset, thus not marked as `const`
+    SizingInfo measure(MeasurementDirection orientation) noexcept;
     // Implemented at 'ligand_editor_canvas.cpp'
     void on_hover(double x, double y, bool alt_pressed, bool control_pressed);
     // Implemented at 'ligand_editor_canvas.cpp'

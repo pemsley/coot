@@ -337,7 +337,7 @@ class CanvasMolecule {
     void rotate_by_angle(double radians);
 
     /// Draws the molecule using the renderer
-    void draw(impl::Renderer& ren, DisplayMode display_mode) const noexcept;
+    void draw(impl::Renderer& ren, DisplayMode display_mode, const std::pair<int, int>& viewport_offset) const noexcept;
 
     /// Checks if any object matches the click coordinates passed as arguments.
     /// Returns the thing that was clicked on (or nullopt if there's no match).
