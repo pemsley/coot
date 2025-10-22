@@ -2,7 +2,9 @@
 
 o Score lucy's ligands.
 
-o prefix with "coot-" the CMake executables
+o bring delete_link to the user interface in Coot
+
+o Add delete_link() to libcootapi - it's in coot-molecule
 
 o get some RNA and do a copy fragment. The fragment should have
   orange phosphate atoms.
@@ -12,9 +14,6 @@ o colour by dictionary/chain for 3ood ligand.
 o when refining carbohydrate, don't find links by distance - use residue numbers and links.
 
 o Have another look at the carbohydrate builder.
-
-o Where did we get to with alt conf colouring or selection (in Coot)
-  e.g. untangle chalenge challenge. Look at alt-conf-switcher.py
 
 o where are with with the panda inspect interface?
 
@@ -31,6 +30,13 @@ o Moorhen: get the map for the given molecule when using EM structure
 
 o Click and drag the PAE plot
 
+o Where did we get to with alt conf colouring or selection (in Coot)
+  e.g. untangle chalenge challenge. Look at alt-conf-switcher.py
+* Done.
+
+o prefix with "coot-" the CMake executables
+* Done.
+
 o For MMRRCC: use a different residue range length for averaging.
 * Done.
 
@@ -38,8 +44,15 @@ o moorhen: make a useful interface for atom overlaps
   Write a test.
 * Done.
 
+o Ctrl right-mouse to change the clipping planes
+
+o Get the bonding right for 7045509.cif - the Se1-Br
+  bonds are in the cif file (when colour-by-dictionary)
+
+o Put sad markers on unhappy atoms
+
 o talk to Bernie about chapi
-* Done
+* Done.
 
 o move the download from COD to XDG.
 * Done.
