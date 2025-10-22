@@ -421,7 +421,7 @@ void TransformManager::apply_current_transform_state(impl::WidgetCoreData* widge
     const TranslationState* tr = std::get_if<TranslationState>(&this->state);
     if(tr) {
         auto [offset_x,offset_y] = tr->get_current_offset();
-        mol.apply_canvas_translation(offset_x, offset_y);
+        mol.apply_canvas_translation(offset_x, offset_y, widget_data->scale);
         return;
     }
 }

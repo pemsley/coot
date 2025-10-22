@@ -289,7 +289,7 @@ class MoleculeRenderContext {
     static const float GEOMETRY_BOND_DASH_SEPARATION;
 
     public:
-    MoleculeRenderContext(const CanvasMolecule& cm, Renderer& ren, DisplayMode mode);
+    MoleculeRenderContext(const CanvasMolecule& cm, Renderer& ren, DisplayMode mode, const std::pair<int, int>& viewport_offset, float scale);
     ~MoleculeRenderContext();
 
     void draw_atoms();
