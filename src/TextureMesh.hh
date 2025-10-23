@@ -126,6 +126,7 @@ public:
    void import(const IndexedModel &ind_model, float scale);
    void import(const std::vector<TextureMeshVertex> &vertices, const std::vector<g_triangle> &triangles_in);
    bool have_instances() const { return is_instanced; }
+   int get_n_instances() const { return n_instances; }
    void setup_tbn(unsigned int n_vertices); // tangent bitangent normal, pass the n_vertices for validation of indices.
    void setup_camera_facing_quad(float scale_x, float scale_y, float offset_x, float offset_y);
    // for the Z section x-offset_y and y_offset should be zero

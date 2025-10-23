@@ -1676,6 +1676,9 @@ TextureMesh graphics_info_t::tmesh_for_bad_nbc_atom_pair_markers = TextureMesh("
 Texture graphics_info_t::texture_for_bad_nbc_atom_pair_markers;
 std::vector<glm::vec3> graphics_info_t::bad_nbc_atom_pair_marker_positions;
 
+TextureMesh graphics_info_t::tmesh_for_unhappy_atom_markers = TextureMesh("tmesh-unhappy-atom-outliers");
+Texture graphics_info_t::texture_for_unhappy_atom_markers;
+
 TextureMesh graphics_info_t::tmesh_for_chiral_volume_outlier_markers = TextureMesh("tmesh-chiral-volume-outliers");
 Texture graphics_info_t::texture_for_chiral_volume_outlier_markers;
 

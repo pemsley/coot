@@ -46,4 +46,8 @@ PyObject *c_beta_deviations_py(int imol);
 SCM c_beta_deviations_scm(int imol);
 #endif
 
+// atom_spec_list is a 5-member atom spec
+void add_unhappy_atom_marker_py(int imol, PyObject *atom_spec_list);
+void remove_unhappy_atom_marker_py(int imol, PyObject *atom_spec_list);
+
 

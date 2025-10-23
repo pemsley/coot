@@ -38,7 +38,7 @@
 #include <glm/gtc/type_ptr.hpp>  // for value_ptr() 20240326-PE
 
 #include <iostream>
-#include <iomanip>
+// #include <iomanip> remove this
 #include <string>
 #include <fstream>
 #include <gtk/gtk.h>
@@ -1884,6 +1884,8 @@ graphics_info_t::draw_molecules() {
    draw_bad_nbc_atom_pair_markers(PASS_TYPE_STANDARD);
 
    draw_chiral_volume_outlier_markers(PASS_TYPE_STANDARD);
+
+   draw_unhappy_atom_markers(PASS_TYPE_STANDARD);
 
    draw_anchored_atom_markers();
 
@@ -5603,6 +5605,69 @@ graphics_info_t::draw_bad_nbc_atom_pair_markers(unsigned int pass_type) {
        }
     }
  }
+
+void graphics_info_t::add_unhappy_atom_marker(int imol, const coot::atom_spec_t &atom_spec) {
+
+   if (is_valid_model_molecule(imol)) {
+      mmdb::Atom *at = molecules[imol].get_atom(atom_spec);
+      if (at) {
+         glm::vec3 p(at->x, at->y, at->z);
+         auto &positions = molecules[imol].unhappy_atom_marker_positions;
+         positions.push_back(p);
+         attach_buffers();
+         tmesh_for_unhappy_atom_markers.draw_this_mesh = true;
+         tmesh_for_unhappy_atom_markers.update_instancing_buffer_data(positions);
+         unsigned int n_instances = tmesh_for_chiral_volume_outlier_markers.get_n_instances();
+         if (false)
+            std::cout << "debug:: :::::::::::::::::::::::::::::::: add position " << glm::to_string(p)
+                      << "  " << n_instances << std::endl;
+      }
+   }
+
+}
+
+void graphics_info_t::setup_draw_for_unhappy_atom_markers() {
+
+   texture_for_unhappy_atom_markers.init("sad-santiago.png");
+   float ts = 0.7; // relative texture size
+   tmesh_for_unhappy_atom_markers.setup_camera_facing_quad(ts, ts, 0.0, 0.7);
+   tmesh_for_unhappy_atom_markers.setup_instancing_buffers(200);
+   tmesh_for_unhappy_atom_markers.draw_this_mesh = true;
+}
+
+// static
+void graphics_info_t::draw_unhappy_atom_markers(unsigned int pass_type) {
+
+   for (unsigned int imol=0; imol<molecules.size(); imol++) {
+      if (is_valid_model_molecule(imol)) {
+         if (molecules[imol].draw_it) {
+                   glm::mat4 mvp = get_molecule_mvp();
+                   glm::mat4 model_rotation = get_model_rotation();
+                   glm::vec4 bg_col(background_colour, 1.0);
+                   texture_for_unhappy_atom_markers.Bind(0);
+
+                   if (pass_type == PASS_TYPE_STANDARD) {
+                      tmesh_for_unhappy_atom_markers.draw_instances(&shader_for_happy_face_residue_markers,
+                                                                    mvp, model_rotation, bg_col, perspective_projection_flag);
+                   }
+
+                   if (pass_type == PASS_TYPE_SSAO) {
+                      GtkAllocation allocation;
+                      gtk_widget_get_allocation(GTK_WIDGET(glareas[0]), &allocation);
+                      int w = allocation.width;
+                      int h = allocation.height;
+                      bool do_orthographic_projection = ! perspective_projection_flag;
+                      auto model_matrix = get_model_matrix();
+                      auto view_matrix = get_view_matrix();
+                      auto projection_matrix = get_projection_matrix(do_orthographic_projection, w, h);
+                      tmesh_for_unhappy_atom_markers.draw_instances_for_ssao(&shader_for_happy_face_residue_markers_for_ssao,
+                                                                             model_matrix, view_matrix, projection_matrix);
+                   }
+         }
+      }
+   }
+
+}
 
 
 // static

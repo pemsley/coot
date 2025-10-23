@@ -29,9 +29,9 @@
 #define GRAPHICS_INFO_H
 
 #include "compat/coot-sysdep.h"
+#include "geometry/residue-and-atom-specs.hh"
 #include "validation-graphs/validation-information.hh"
 #include "validation-graphs/validation-graphs.hh"
-#include "validation-graphs/validation-graph-widget.hh"
 // need gtk things
 #include <gtk/gtk.h>
 #include <epoxy/gl.h>
@@ -2905,6 +2905,7 @@ public:
    static void draw_boids();
    static void draw_happy_face_residue_markers();
    static void draw_anchored_atom_markers();
+   static void draw_unhappy_atom_markers(unsigned int pass_type);
    static void draw_hydrogen_bonds_mesh(); // like boids
    void setup_draw_for_particles();
    void clear_measure_distances();
@@ -2939,6 +2940,11 @@ public:
                                                     // it sets the start position of the textures
    static Texture texture_for_anchored_atom_markers;
    static TextureMesh tmesh_for_anchored_atom_markers;
+
+   void setup_draw_for_unhappy_atom_markers();
+   static Texture texture_for_unhappy_atom_markers;
+   static TextureMesh tmesh_for_unhappy_atom_markers;
+   static void add_unhappy_atom_marker(int imol, const coot::atom_spec_t &atom_spec);
 
    static std::vector<meshed_particle_container_t> meshed_particles_for_gone_diegos;
    static void setup_draw_for_particles_for_new_gone_diegos(const std::vector<glm::vec3> &positions);
