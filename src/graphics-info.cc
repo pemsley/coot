@@ -57,9 +57,7 @@
 #endif
 
 #include <mmdb2/mmdb_manager.h>
-#include "coords/mmdb-extras.hh"
 #include "coords/mmdb.hh"
-#include "coords/mmdb-crystal.hh"
 #include "coords/Bond_lines.hh"
 
 #include "clipper/core/map_utils.h" // Map_stats
@@ -67,28 +65,10 @@
 
 #include "graphics-info.h"
 
-
 #include "molecule-class-info.h"
 #include "skeleton/BuildCas.h"
-
-#include "coot-utils/gl-matrix.h" // for baton rotation
-
-#include "analysis/bfkurt.hh"
-
-// #include "globjects.h" // try just deleting this header
-
-#include "ligand/ligand.hh"
-
-#include "ligand/dunbrack.hh"
-
 #include "utils/coot-utils.hh"
-
-//temp
-#include "cmtz-interface.hh"
-
 #include "manipulation-modes.hh"
-
-// #include "guile-fixups.h" // fixups for ancient guile no longer needed
 
 #ifdef USE_GUILE
 
