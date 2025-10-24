@@ -49,7 +49,8 @@ Texture::Texture(int image_width_in, int image_height_in, glm::vec4 colour) {
    image_width = image_width_in;
    image_height = image_height_in;
 
-   unsigned char image_data[image_height * image_width * 4];
+   // unsigned char image_data[image_height * image_width * 4];
+   unsigned char *image_data = new unsigned char[image_height * image_width * 4];
 
    unsigned char r = colour[0] * 255;
    unsigned char g = colour[1] * 255;
@@ -74,6 +75,8 @@ Texture::Texture(int image_width_in, int image_height_in, glm::vec4 colour) {
    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, image_width, image_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image_data);
+
+   delete [] image_data;
 
 }
 
@@ -146,7 +149,8 @@ Texture::colour_bar(int image_width_in, int image_height_in, const std::vector<g
    image_width = image_width_in;
    image_height = image_height_in;
 
-   unsigned char image_data[image_height * image_width * 4];
+   // unsigned char image_data[image_height * image_width * 4];
+   unsigned char *image_data = new unsigned char[image_height * image_width * 4];
    float s = colours.size();
 
    // image stored in rows
@@ -194,6 +198,8 @@ Texture::colour_bar(int image_width_in, int image_height_in, const std::vector<g
    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
    glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGBA8, image_width, image_height, 0, GL_RGBA, GL_UNSIGNED_BYTE, image_data);
+
+   delete [] image_data;
 }
 
 
