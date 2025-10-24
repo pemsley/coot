@@ -2201,7 +2201,7 @@ void handle_get_accession_code(GtkWidget *frame, GtkWidget *entry) {
             fetch_cod_entry(text);
 #endif
          } else {
-            network_get(text_c, n);
+            network_get(text, n);
          }
       }
    }
