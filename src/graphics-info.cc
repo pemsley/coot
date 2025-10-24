@@ -111,6 +111,8 @@
 #include "widget-from-builder.hh"
 #include "draw-2.hh"
 #include "pick.hh"
+#include "utils/logging.hh"
+extern logging logger;
 
 // static
 GtkWidget *
@@ -4448,22 +4450,25 @@ int
 graphics_info_t::apply_undo() {
 
    int state = 0;
-   int umol = Undo_molecule(coot::UNDO);
-   // std::cout << "DEBUG:: undo molecule : " << umol << std::endl;
+   // use (class) enum for the return value?
+   int umol = Undo_molecule(coot::UNDO); // return -2 on uncertainty. Return -1 on "unset"/nothing
    if (umol == -2) {
       if (use_graphics_interface_flag) {
 
          // GtkWidget *dialog = create_undo_molecule_chooser_dialog();
          GtkWidget *dialog = widget_from_builder("undo_molecule_chooser_dialog");
-         GtkWidget *combobox = widget_from_builder("undo_molecule_chooser_combobox");
+         GtkWidget *combobox = widget_from_builder("undo_molecule_chooser_comboboxtext");
+         if (false) {
+            std::cout << "DEBUG:: apply_undo(): dialog: " << dialog << std::endl;
+            std::cout << "DEBUG:: apply_undo(): combobox: " << combobox << std::endl;
+         }
          fill_combobox_with_undo_options(combobox);
          gtk_widget_set_visible(dialog, TRUE);
-
       }
    } else {
       if (umol == -1) {
-         std::cout << "There are no molecules with modifications "
-                   << "that can be undone" << std::endl;
+         std::string mess = "There are no molecules with modifications that can be undone";
+         logger.log(log_t::INFO, mess);
       } else {
 
          std::string cwd = coot::util::current_working_dir();
@@ -4600,19 +4605,22 @@ graphics_info_t::Undo_molecule(coot::undo_type undo_type) const {
       int n_mol = 0;
       for (int imol=0; imol<n_molecules(); imol++) {
 
-    if (undo_type == coot::UNDO) {
-       if (molecules[imol].Have_modifications_p()) {
-          n_mol++;
-          r = imol;
-       }
-    }
+         if (molecules[imol].open_molecule_p()) {
 
-    if (undo_type == coot::REDO) {
-       if (molecules[imol].Have_redoable_modifications_p()) {
-          n_mol++;
-          r = imol;
-       }
-    }
+            if (undo_type == coot::UNDO) {
+               if (molecules[imol].Have_modifications_p()) {
+                  n_mol++;
+                  r = imol;
+               }
+            }
+
+            if (undo_type == coot::REDO) {
+               if (molecules[imol].Have_redoable_modifications_p()) {
+                  n_mol++;
+                  r = imol;
+               }
+            }
+         }
       }
       if (n_mol > 1) {
          r = -2;

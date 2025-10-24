@@ -2265,9 +2265,9 @@ on_run_refmac_phase_combine_checkbutton_toggled (GtkToggleButton *togglebutton,
 
 extern "C" G_MODULE_EXPORT
 void
-on_baton_undo_button_clicked           (GtkButton       *button,
-                                        gpointer         user_data)
-{
+on_baton_undo_button_clicked(GtkButton       *button,
+                             gpointer         user_data) {
+
    baton_build_delete_last_residue();
 }
 
@@ -2276,11 +2276,15 @@ on_baton_undo_button_clicked           (GtkButton       *button,
 extern "C" G_MODULE_EXPORT
 void
 on_undo_molecule_chooser_ok_button_clicked (GtkButton       *button,
-					    gpointer         user_data)
-{
-   GtkWidget *widget = widget_from_builder("undo_molecule_chooser_dialog");
-   gtk_widget_set_visible(widget, FALSE);
+					    gpointer         user_data) {
 
+   GtkWidget *widget   = widget_from_builder("undo_molecule_chooser_dialog");
+   GtkWidget *combobox = widget_from_builder("undo_molecule_chooser_comboboxtext");
+   int imol = my_combobox_get_imol(GTK_COMBO_BOX(combobox));
+   graphics_info_t g;
+   if (g.is_valid_model_molecule(imol))
+      set_undo_molecule(imol);
+   gtk_widget_set_visible(widget, FALSE);
 }
 
 
