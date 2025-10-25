@@ -1798,6 +1798,22 @@ on_residue_info_master_atom_b_factor_entry_activate(GtkWidget *entry, gpointer u
 
 }
 
+extern "C" G_MODULE_EXPORT
+void
+on_keyboard_mutate_entry_changed(GtkEntry     *entry,
+                                 gpointer      user_data) {
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_keyboard_mutate_entry_activate(GtkWidget *entry, gpointer user_data) {
+
+   std::string s(gtk_editable_get_text(GTK_EDITABLE(entry)));
+   mutate_active_residue_to_single_letter_code(s);
+   GtkWidget *frame = widget_from_builder("keyboard_mutate_frame");
+   gtk_widget_set_visible(frame, FALSE);
+   graphics_info_t::graphics_grab_focus();
+}
 
 extern "C" G_MODULE_EXPORT
 void
@@ -6042,7 +6058,7 @@ on_multi_residue_torsion_start_button_clicked
 extern "C" G_MODULE_EXPORT
 void
 on_keyboard_go_to_residue_entry_changed(GtkEditable     *editable,
-                                                            gpointer         user_data) {
+                                        gpointer         user_data) {
 
 }
 

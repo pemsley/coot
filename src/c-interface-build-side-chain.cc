@@ -24,6 +24,7 @@
  * Fifth Floor, Boston, MA, 02110-1301, USA.
  */
 
+#include "gtk/gtk.h"
 #ifdef USE_PYTHON
 #include <Python.h>  // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #include "python-3-interface.hh"
@@ -684,9 +685,11 @@ mutate_active_residue_to_single_letter_code(const std::string &slc) {
 }
 
 // \brief show keyboard mutate dialog
-void show_keyboard_mutate_dialog() {
+void show_keyboard_mutate_frame() {
 
-   GtkWidget *w = widget_from_builder("keyboard_mutate_dialog");
+   GtkWidget *w = widget_from_builder("keyboard_mutate_frame");
+   GtkWidget *e = widget_from_builder("keyboard_mutate_entry");
+   gtk_widget_grab_focus(e);
    gtk_widget_set_visible(w, TRUE);
 
 }

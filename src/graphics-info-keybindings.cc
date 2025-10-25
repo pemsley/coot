@@ -1,6 +1,8 @@
 
 // there are the only two that we need from c-interface.h
 #include "c-interface.h"
+#include "cc-interface.hh"
+#include "glib.h"
 
 // fromm cc-interface.hh
 void set_bond_smoothness_factor(unsigned int fac);
@@ -606,7 +608,6 @@ graphics_info_t::setup_key_bindings() {
 
    auto l45 = [] () {
 
-      std::cout << "------------------- Here l45 start " << moving_atoms_asc << std::endl;
       graphics_info_t g;
       bool done = false;
       // I need to be consistent about checking for moving_atoms_asc or moving_atoms_asc->mol
@@ -627,6 +628,11 @@ graphics_info_t::setup_key_bindings() {
             g.pepflip(imol, as);
          }
       }
+      return gboolean(TRUE);
+   };
+
+   auto l46 = [] {
+      show_keyboard_mutate_frame();
       return gboolean(TRUE);
    };
 
@@ -665,6 +671,7 @@ graphics_info_t::setup_key_bindings() {
 
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_A,      key_bindings_t(l38, "Toggle Display of Last Model")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_E,      key_bindings_t(l40c, "Chain Refine")));
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_M,      key_bindings_t(l46, "Keyboard Mutate")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_R,      key_bindings_t(l40, "Sphere Refine")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_Q,      key_bindings_t(l37, "Display Next Map")));
 
