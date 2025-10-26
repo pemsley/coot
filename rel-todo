@@ -1,13 +1,43 @@
 --- Items ---
 
-o Score lucy's ligands.
+o CSHL: remove the startup script and see if it keeps asking about left mouse
 
-o strip spaces on PDB access code entry
-  (From Clemens)
+o CSHL: get monomer - grab the focus
+  Does the dialog close properly on enter? No.
+
+o CSHL: undo symmetry view
+
+o CSHL: the display manager is displayed from a state script generated
+        when the display manager was not displayed.
+
+o CSHL: Make Link
+
+o CSHL: in presentation add the anom map figure
+
+o CSHL: triple-refine auto-accpet key binding. Does it exist?
+
+o Coot: use common names in add other solvent
+
+o CSHL: Coot: add other residue type to other solvent molecules
+
+o CSHL: Coot: where is keyboard mutate?
+
+o CSHL: Coot: center of screen crosshairs customizable.
+  scale with the zoom.
+
+o CSHL: Coot:: add proportional editing.
+
+o CSHL: 0.9.x delete deviant extra restraints doesn't work
+
+o CSHL: Coot disable double click with trackpad
+
+o CSHL: Coot: environment distances don't update on moving to new residue
+
+o Score lucy's ligands.
 
 o bring delete_link to the user interface in Coot
 
-o key-binding: simple R - and add a shortcut too.
+o key-binding: simple R - and add a shortcut too. Also triple-refine-auto-accept.
 
 o Add delete_link() to libcootapi - it's in coot-molecule
 
@@ -37,6 +67,14 @@ o Moorhen: get the map for the given molecule when using EM structure
 o Click and drag the PAE plot
 
 o Ctrl right-mouse to change the clipping planes
+
+o strip spaces on PDB access code entry
+  (From Clemens)
+* Done.
+
+o after add other solvent moleucle, try valigdtion graappphs
+   mmodel chooser and you will ssee the ligand as a molecule!
+* Done.
 
 o Where did we get to with alt conf colouring or selection (in Coot)
   e.g. untangle chalenge challenge. Look at alt-conf-switcher.py
