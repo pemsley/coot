@@ -628,6 +628,7 @@ on_get_monomer_ok_button_clicked(GtkButton       *button,
    }
    GtkWidget *frame = widget_from_builder("get_monomer_frame");
    gtk_widget_set_visible(frame, FALSE);
+   graphics_info_t::graphics_grab_focus();
 }
 
 

@@ -27,6 +27,7 @@
 #include "graphics-info.h"
 #include "c-interface-gtk-widgets.h"
 #include "setup-gui-components.hh"
+#include "gtk/gtkshortcut.h"
 #include "utils/coot-utils.hh"
 #include "widget-from-builder.hh"
 
@@ -177,6 +178,8 @@ void setup_get_monomer() {
    GtkWidget* entry = widget_from_builder("get_monomer_entry");
    g_signal_connect(entry,"activate",G_CALLBACK(+[](GtkEntry* entry, gpointer user_data){
       handle_get_monomer_code(GTK_WIDGET(entry));
+      GtkWidget *frame = widget_from_builder("get_monomer_frame");
+      gtk_widget_set_visible(frame, FALSE);
    }),NULL);
    setup_generic_hide_on_escape_controller(entry,frame);
 }

@@ -429,7 +429,6 @@ void get_monomer_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    GtkWidget *entry = widget_from_builder("get_monomer_entry");
    gtk_widget_grab_focus(entry);
    gtk_widget_set_visible(frame, TRUE);
-   graphics_info_t::graphics_grab_focus();
 }
 
 
