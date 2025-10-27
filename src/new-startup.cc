@@ -1012,15 +1012,15 @@ new_startup_application_activate(GtkApplication *application,
 
          g_print("DEBUG:: Drop performed!\n");
          GType type = G_VALUE_TYPE(value);
-         std::cout << "DEBUG:: type is of type " << type << std::endl;
+         std::cout << "DEBUG:: value is of type " << type << std::endl;
 
          if (G_VALUE_HOLDS(value, G_TYPE_FILE)) {
-            std::cout << "!!!!!!!!!!!!! holds a file!" << std::endl;
+            std::cout << "!!!!!!!!!!!!! value holds a file!" << std::endl;
             GFile *file = (GFile *)g_value_get_object(value);
             if (file) {
-               std::cout << "got file " << file << std::endl;
+               std::cout << "DEBUG:: got file: " << file << std::endl;
                const gchar *filename = g_file_get_path(file);
-               std::cout << "got filename " << filename << std::endl;
+               std::cout << "DEBUG:: got filename: " << filename << std::endl;
                handle_drag_and_drop_string(filename);
                status = TRUE;
             } else {
@@ -1080,6 +1080,7 @@ new_startup_application_activate(GtkApplication *application,
          } else {
             std::cout << "not type G_TYPE_STRING! " << std::endl;
          }
+         std::cout << "DEBUG:: returning from on_drop_performed()." << std::endl;
          return status;
       };
       g_signal_connect(drop_target, "drop", G_CALLBACK(on_drop_performed), NULL);

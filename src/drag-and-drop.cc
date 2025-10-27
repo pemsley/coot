@@ -55,7 +55,7 @@ int handle_drag_and_drop_string(const std::string &uri_in) {
    std::string url = uri_in;
 
    if (true)
-      std::cout << ":::::::::: handle_drag_and_drop_string(" << uri_in << ")" << std::endl;
+      std::cout << "::::::::::::::::::::::::::: handle_drag_and_drop_string: " << uri_in << " " << std::endl;
 
    if (! tried_already) {
       // OK, was it an HTTP type string?
@@ -110,6 +110,7 @@ int handle_drag_and_drop_string(const std::string &uri_in) {
                      // normal path
                      url_file_name_file = url.substr(pos);
                   }
+                  // use XDG BDP here.
                   std::string file_name = coot::util::append_dir_file("coot-download", url_file_name_file);
                   // return 0 on success
                   int status = coot_get_url(url.c_str(), file_name.c_str());
@@ -131,7 +132,6 @@ int handle_drag_and_drop_string(const std::string &uri_in) {
    }
 
    if (! tried_already) {
-      // std::cout << "here at the end of handle_drag_and_drop_string() " << std::endl;
       if (coot::file_exists(url)) {
 	 handled = handle_drag_and_drop_single_item(url);
          tried_already = true;
