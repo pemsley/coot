@@ -140,12 +140,12 @@ coot::cho::add_named_glyco_tree(const std::string &glycoylation_name, atom_selec
       child2->edges.push_back({child3,  "BETA1-4"});
       child3->edges.push_back({child4,  "ALPHA1-3"});
       child4->edges.push_back({child5,  "ALPHA1-2"});
-      // child5->edges.push_back({child6,  "ALPHA1-2"});
+      child5->edges.push_back({child6,  "ALPHA1-2"});
 
-      // child3->edges.push_back({child7,  "ALPHA1-6"});
-      // child7->edges.push_back({child8,  "ALPHA1-6"});
-      // child8->edges.push_back({child9,  "ALPHA1-2"});
-      // child7->edges.push_back({child10, "ALPHA1-3"});
+      child3->edges.push_back({child7,  "ALPHA1-6"});
+      child7->edges.push_back({child8,  "ALPHA1-6"});
+      child8->edges.push_back({child9,  "ALPHA1-2"});
+      child7->edges.push_back({child10, "ALPHA1-3"});
 
       return root;
    };

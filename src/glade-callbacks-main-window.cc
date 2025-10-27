@@ -1751,7 +1751,6 @@ on_glyco_wta_fit_button_clicked(G_GNUC_UNUSED GtkButton       *button,
    GtkWidget *combobox = widget_from_builder("glyco_wta_glycosylation_name_comboboxtext");
    graphics_info_t g;
    std::string t = g.get_active_label_in_comboboxtext(GTK_COMBO_BOX_TEXT(combobox));
-   std::cout << "================ t: " << t << std::endl;
    std::pair<int, mmdb::Atom *> aa = g.get_active_atom();
    int imol = aa.first;
    if (is_valid_model_molecule(imol)) {
