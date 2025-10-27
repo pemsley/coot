@@ -18073,7 +18073,7 @@ Move a copy?</property>
         <child>
           <object class="GtkLabel">
             <property name="label" translatable="yes">Which mouse button should be used for view rotation?</property>
-            <property name="justify">start</property>
+            <property name="justify">left</property>
             <property name="margin-top">6</property>
             <property name="margin-bottom">18</property>
           </object>
@@ -18471,13 +18471,32 @@ Move a copy?</property>
                 <property name="title" translatable="yes">Reject Moving Atoms</property>
               </object>
             </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">&lt;Shift&gt;R</property>
+                <property name="title" translatable="yes">Sphere Refine</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">&lt;Shift&gt;E</property>
+                <property name="title" translatable="yes">Chain Refine</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
+                <property name="accelerator">H</property>
+                <property name="title" translatable="yes">Triple-Refine Auto-Accept</property>
+              </object>
+            </child>
 
           </object>
         </child>
+
         <child>
           <object class="GtkShortcutsGroup">
             <property name="title">Building Functions</property>
-            
+
             <child>
               <object class="GtkShortcutsShortcut">
                 <property name="accelerator">y</property>
@@ -18500,18 +18519,6 @@ Move a copy?</property>
               <object class="GtkShortcutsShortcut">
                 <property name="accelerator">&lt;Shift&gt;K</property>
                 <property name="title" translatable="yes">Delete Side-chain</property>
-              </object>
-            </child>
-            <child>
-              <object class="GtkShortcutsShortcut">
-                <property name="accelerator">&lt;Shift&gt;R</property>
-                <property name="title" translatable="yes">Sphere Refine</property>
-              </object>
-            </child>
-            <child>
-              <object class="GtkShortcutsShortcut">
-                <property name="accelerator">&lt;Shift&gt;E</property>
-                <property name="title" translatable="yes">Chain Refine</property>
               </object>
             </child>
             <child>
