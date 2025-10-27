@@ -1798,6 +1798,22 @@ on_residue_info_master_atom_b_factor_entry_activate(GtkWidget *entry, gpointer u
 
 }
 
+extern "C" G_MODULE_EXPORT
+void
+on_keyboard_mutate_entry_changed(GtkEntry     *entry,
+                                 gpointer      user_data) {
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_keyboard_mutate_entry_activate(GtkWidget *entry, gpointer user_data) {
+
+   std::string s(gtk_editable_get_text(GTK_EDITABLE(entry)));
+   mutate_active_residue_to_single_letter_code(s);
+   GtkWidget *frame = widget_from_builder("keyboard_mutate_frame");
+   gtk_widget_set_visible(frame, FALSE);
+   graphics_info_t::graphics_grab_focus();
+}
 
 extern "C" G_MODULE_EXPORT
 void
@@ -2265,9 +2281,9 @@ on_run_refmac_phase_combine_checkbutton_toggled (GtkToggleButton *togglebutton,
 
 extern "C" G_MODULE_EXPORT
 void
-on_baton_undo_button_clicked           (GtkButton       *button,
-                                        gpointer         user_data)
-{
+on_baton_undo_button_clicked(GtkButton       *button,
+                             gpointer         user_data) {
+
    baton_build_delete_last_residue();
 }
 
@@ -2276,11 +2292,15 @@ on_baton_undo_button_clicked           (GtkButton       *button,
 extern "C" G_MODULE_EXPORT
 void
 on_undo_molecule_chooser_ok_button_clicked (GtkButton       *button,
-					    gpointer         user_data)
-{
-   GtkWidget *widget = widget_from_builder("undo_molecule_chooser_dialog");
-   gtk_widget_set_visible(widget, FALSE);
+					    gpointer         user_data) {
 
+   GtkWidget *widget   = widget_from_builder("undo_molecule_chooser_dialog");
+   GtkWidget *combobox = widget_from_builder("undo_molecule_chooser_comboboxtext");
+   int imol = my_combobox_get_imol(GTK_COMBO_BOX(combobox));
+   graphics_info_t g;
+   if (g.is_valid_model_molecule(imol))
+      set_undo_molecule(imol);
+   gtk_widget_set_visible(widget, FALSE);
 }
 
 
@@ -6038,7 +6058,7 @@ on_multi_residue_torsion_start_button_clicked
 extern "C" G_MODULE_EXPORT
 void
 on_keyboard_go_to_residue_entry_changed(GtkEditable     *editable,
-                                                            gpointer         user_data) {
+                                        gpointer         user_data) {
 
 }
 

@@ -7794,6 +7794,45 @@ Do you want to continue?
             </child>
 
             <child type="overlay">
+              <object class="GtkFrame" id="keyboard_mutate_frame">
+                <property name="halign">center</property>
+                <property name="valign">start</property>
+                <property name="visible">False</property>
+                <property name="margin-bottom">5</property>
+                <property name="margin-end">5</property>
+                <property name="margin-start">5</property>
+                <property name="margin-top">5</property>
+
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                    <property name="spacing">2</property>
+
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="label" translatable="yes">Mutate to Type: (single-letter-code)</property>
+                        <property name="justify">center</property>
+                        <property name="margin-start">4</property>
+                        <property name="margin-end">4</property>
+                        <property name="margin-top">4</property>
+                        <property name="margin-bottom">4</property>
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="GtkEntry" id="keyboard_mutate_entry">
+                        <property name="can-focus">1</property>
+                        <property name="primary-icon-tooltip-text" translatable="yes">Type here the single letter code of the residue type - or press &quot;Esc&quot; to dismiss this dialog</property>
+                        <signal name="activate" handler="on_keyboard_mutate_entry_activate" swapped="no"/>
+                        <signal name="changed" handler="on_keyboard_mutate_entry_changed" swapped="no"/>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+
+            <child type="overlay">
               <object class="GtkFrame" id="acedrg_running_frame">
                 <property name="halign">center</property>
                 <property name="valign">start</property>
@@ -11192,23 +11231,7 @@ l              <object class="GtkComboBox" id="ramachandran_plot_molecule_choose
     <child type="titlebar">
     </child>
   </object>
-  <object class="GtkDialog" id="keyboard_mutate_dialog">
-    <property name="deletable">0</property>
-    <child>
-      <object class="GtkBox">
-        <property name="orientation">vertical</property>
-        <property name="spacing">2</property>
-        <child>
-          <object class="GtkEntry" id="keyboard_mutate_entry">
-            <property name="can-focus">1</property>
-            <property name="primary-icon-tooltip-text" translatable="yes">Type here the single letter code of the residue type - or press &quot;Esc&quot; to dismiss this dialog</property>
-          </object>
-        </child>
-      </object>
-    </child>
-    <child type="titlebar">
-    </child>
-  </object>
+
   <object class="GtkDialog" id="least_squares_dialog">
     <property name="title" translatable="yes">Least Squares Fit</property>
     <property name="hide-on-close">true</property>

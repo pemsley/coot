@@ -1252,6 +1252,9 @@ SCM test_function_scm(SCM i_scm, SCM j_scm) {
 
 void pandda();
 
+// should this be in a header?
+void add_unhappy_atom_marker(int imol, const coot::atom_spec_t &atom_spec);
+
 #ifdef USE_PYTHON
 static PyObject *rdkit_chem_qed_func        = NULL;
 static PyObject *rdkit_chem_properties_func = NULL;
@@ -1260,6 +1263,11 @@ PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
    std::cout << "-------------------------- test_function_py() " << std::endl;
 
    if (true) {
+      coot::atom_spec_t atom_spec("B", 145, "", "CE", "");
+      add_unhappy_atom_marker(0, atom_spec);
+   }
+
+   if (false) {
       pandda();
    }
 

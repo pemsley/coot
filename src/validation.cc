@@ -25,6 +25,7 @@
  */
 
 #include "validation.hh"
+#include "geometry/residue-and-atom-specs.hh"
 #include "graphics-info.h"
 
 #include "cc-interface.hh"  // for residue_spec_py
@@ -111,3 +112,61 @@ SCM c_beta_deviations_scm(int imol) {
 
 }
 #endif // USE_GUILE
+
+void delete_unhappy_atom_markers() {
+
+   for (int i=0; i<graphics_info_t::molecules.size(); i++) {
+      graphics_info_t::molecules[i].unhappy_atom_marker_positions.clear();
+      std::cout << "now call update for the unhappy_atom_markers texture mesh"
+                << std::endl;
+   }
+}
+
+void remove_unhappy_atom_marker_py(int imol, PyObject *atom_spec_py) {
+   // tricky lookup? Code needs reworking. Is it worth it?
+   std::cout << "remove marker here for the atom spec " << std::endl;
+}
+
+void add_unhappy_atom_marker(int imol, const coot::atom_spec_t &atom_spec) {
+
+   if (graphics_info_t::is_valid_model_molecule(imol)) {
+      graphics_info_t g;
+      g.add_unhappy_atom_marker(imol, atom_spec);
+   }
+} 
+
+// atom_spec_list is a 5-member atom spec
+void add_unhappy_atom_marker_py(int imol, PyObject *atom_spec_list_py) {
+
+   if (graphics_info_t::is_valid_model_molecule(imol)) {
+      if (PyList_Check(atom_spec_list_py)) {
+         int n = PyObject_Length(atom_spec_list_py);
+         if (n == 5) {
+            PyObject *chain_id_py  = PyList_GetItem(atom_spec_list_py, 0);
+            PyObject *res_no_py    = PyList_GetItem(atom_spec_list_py, 1);
+            PyObject *ins_code_py  = PyList_GetItem(atom_spec_list_py, 2);
+            PyObject *atom_name_py = PyList_GetItem(atom_spec_list_py, 3);
+            PyObject *alt_conf_py  = PyList_GetItem(atom_spec_list_py, 4);
+            if (PyLong_Check(res_no_py)) {
+               if (PyUnicode_Check(chain_id_py)) {
+                  if (PyUnicode_Check(ins_code_py)) {
+                     if (PyUnicode_Check(atom_name_py)) {
+                        if (PyUnicode_Check(alt_conf_py)) {
+		           std::string chain_id  = PyBytes_AS_STRING(PyUnicode_AsEncodedString(chain_id_py, "UTF-8", "strict"));
+		           std::string ins_code  = PyBytes_AS_STRING(PyUnicode_AsEncodedString(ins_code_py, "UTF-8", "strict"));
+		           std::string atom_name = PyBytes_AS_STRING(PyUnicode_AsEncodedString(atom_name_py, "UTF-8", "strict"));
+		           std::string alt_conf  = PyBytes_AS_STRING(PyUnicode_AsEncodedString(alt_conf_py, "UTF-8", "strict"));
+                           int res_no = PyLong_AsInt(res_no_py);
+                           coot::atom_spec_t atom_spec(chain_id, res_no, ins_code, atom_name, alt_conf);
+                           add_unhappy_atom_marker(imol, atom_spec);
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      }
+   }
+
+}
+

@@ -3873,6 +3873,8 @@ void draw_map_molecule(bool draw_transparent_maps,
    bool draw_chiral_volume_outlier_markers_flag;
    std::vector<glm::vec3> chiral_volume_outlier_marker_positions;
 
+   std::vector<glm::vec3> unhappy_atom_marker_positions;
+
 };
 
 #endif // MOLECULE_CLASS_INFO_T

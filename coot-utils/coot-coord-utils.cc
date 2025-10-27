@@ -3669,6 +3669,7 @@ coot::util::create_mmdbmanager_from_res_selection(mmdb::Manager *orig_mol,
                                                   const std::string &chain_id_1,
                                                   short int residue_from_alt_conf_split_flag) {
 
+
    int start_offset = 0;
    int end_offset = 0;
    
@@ -3784,7 +3785,24 @@ coot::util::create_mmdbmanager_from_residue_vector(const std::vector<mmdb::Resid
                                                    mmdb::Manager *old_mol,
                                                    const std::pair<bool,std::string> &use_alt_conf) {
 
-   if (false) {
+   auto copy_link_info = [] (mmdb::Link *old_link, mmdb::Link *new_link) {
+
+      strcpy(new_link->atName1,  old_link->atName1);
+      strcpy(new_link->aloc1,    old_link->aloc1);
+      strcpy(new_link->resName1, old_link->resName1);
+      strcpy(new_link->chainID1, old_link->chainID1);
+      strcpy(new_link->insCode1, old_link->insCode1);
+      new_link->seqNum1         = old_link->seqNum1;
+
+      strcpy(new_link->atName2,  old_link->atName2);
+      strcpy(new_link->aloc2,    old_link->aloc2);
+      strcpy(new_link->resName2, old_link->resName2);
+      strcpy(new_link->chainID2, old_link->chainID2);
+      strcpy(new_link->insCode2, old_link->insCode2);
+      new_link->seqNum2         = old_link->seqNum2;
+   };
+
+   if (false) { // debug input
 
       // Have I added new atoms to the molecule?
       //
@@ -4040,15 +4058,18 @@ coot::util::create_mmdbmanager_from_residue_vector(const std::vector<mmdb::Resid
          int n_links = mol_old_model_p->GetNumberOfLinks();
          if (n_links > 0) {
             for (int i_link=1; i_link<=n_links; i_link++) {
-               mmdb::Link *link = mol_old_model_p->GetLink(i_link);
-               std::pair<atom_spec_t, atom_spec_t> linked_atoms = link_atoms(link, mol_old_model_p);
+               mmdb::Link *old_link = mol_old_model_p->GetLink(i_link);
+               std::pair<atom_spec_t, atom_spec_t> linked_atoms = link_atoms(old_link, mol_old_model_p);
                // are those atoms in (new) mol?
                mmdb::Atom *at_1 = get_atom(linked_atoms.first,  mol);
                mmdb::Atom *at_2 = get_atom(linked_atoms.second, mol);
-               if (at_1 && at_2) {
+               // if (at_1 && at_2) {
+               if (true) { // copy them all over! We need links that are to residues
+                           // that are fixed.
                   // add this link to mol
                   mmdb::Link *link = new mmdb::Link; // sym ids default to 1555 1555
 
+#if 0
                   strcpy(link->atName1,  at_1->GetAtomName());
                   strcpy(link->aloc1,    at_1->altLoc);
                   strcpy(link->resName1, at_1->GetResName());
@@ -4062,6 +4083,9 @@ coot::util::create_mmdbmanager_from_residue_vector(const std::vector<mmdb::Resid
                   strcpy(link->chainID2, at_2->GetChainID());
                   strcpy(link->insCode2, at_2->GetInsCode());
                   link->seqNum2         = at_2->GetSeqNum();
+#endif
+                  // 2025-10-22-PE new copy function
+                  copy_link_info(old_link, link);
 
                   model_p->AddLink(link);
                }

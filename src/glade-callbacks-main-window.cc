@@ -22,8 +22,6 @@
  */
 
 
-#include "Python.h"
-
 #include <iostream>
 #include <gtk/gtk.h>
 
@@ -36,18 +34,11 @@
 
 // put preferences functions into their own file, not here.
 #include "coot-preferences.h"
-#include "c-interface-preferences.h"
 #include "rotate-translate-modes.hh"
-#include "restraints-editor-c.h"
-#include "generic-display-objects-c.h"
-#include "c-interface-refmac.h"
-#include "gtk-widget-conversion-utils.h"
-#include "curlew.h"
 #include "read-phs.h"
 #include "gtk-manual.h"
 #include "c-interface-refine.h"
 #include "widget-from-builder.hh"
-#include "read-molecule.hh" // 20230621-PE now with std::string args
 
 // this from callbacks.h (which I don't want to include here)
 typedef const char entry_char_type;

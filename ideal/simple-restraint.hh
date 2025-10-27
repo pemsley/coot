@@ -1719,6 +1719,15 @@ namespace coot {
       make_link_restraints_from_res_vec(const protein_geometry &geom,
                                         bool do_rama_plot_retraints,
                                         bool do_trans_peptide_restraints);
+
+      bonded_pair_container_t
+      make_link_restraints_by_distance(const protein_geometry &geom,
+                                        bool do_rama_plot_retraints,
+                                        bool do_trans_peptide_restraints);
+
+      bonded_pair_container_t
+      make_link_restraints_from_links(const protein_geometry &geom);
+
       // both of which use:
       int make_link_restraints_by_pairs(const protein_geometry &geom,
                                         const bonded_pair_container_t &bonded_residue_pairs,
