@@ -10857,10 +10857,19 @@ Do you want to continue?
 	<child>
 	  <object class="GtkButton" id="add_other_solvent_molecules_new_residue_type_button">
 	    <property name="label">Add a New Residue Type...</property>
-            <property name="visible">False</property>
+            <property name="visible">True</property>
 	    <signal name="clicked" handler="on_add_other_solvent_molecules_new_residue_type_button_clicked" swapped="no"/>
 	  </object>
 	</child>
+        <child>
+              <object class="GtkEntry" id="add_other_solvent_molecules_new_residue_type_entry">
+                <property name="can-focus">1</property>
+                <property name="max-width-chars">20</property>
+                <property name="text"></property>
+                <property name="visible">False</property>
+                <signal name="activate" handler="on_add_other_solvent_molecules_new_residue_type_entry_activate"/>
+              </object>
+         </child>
 
         <child>
           <object class="GtkSeparator">

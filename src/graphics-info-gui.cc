@@ -399,28 +399,19 @@ void
 graphics_info_t::set_directory_for_filechooser(GtkWidget *filechooser) const {
 
    if (directory_for_filechooser != "") {
-      // std::cout << "set directory_for_filechooser "
-      // << directory_for_filechooser << std::endl;
+      std::cout << "INFO:: set directory_for_filechooser " << directory_for_filechooser << std::endl;
 
-#if (GTK_MAJOR_VERSION >= 4)
       // 20220602-PE FIXME
-      std::cout << "in set_directory_for_filechooser() FIXME" << std::endl;
-#else
-      gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(filechooser),
-                                          directory_for_filechooser.c_str());
-#endif
+      std::cout << "INFO:: in set_directory_for_filechooser() FIXME" << std::endl;
+      GFile *f = g_file_new_for_path(directory_for_filechooser.c_str());
+      GError *err = NULL;
+      gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(filechooser), f, &err);
 
    } else {
-      // set to cwd!?
       std::string cwd = coot::util::current_working_dir();
-      // std::cout << "set directory_for_filechooser to cwd " << std::endl;
-#if (GTK_MAJOR_VERSION >= 4)
-      // 20220602-PE FIXME set current directory
-      std::cout << "in set_directory_for_filechooser() FIXME" << std::endl;
-#else
-      gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(filechooser), cwd.c_str());
-#endif
-      // std::cout << "not setting directory_for_fileselection" << std::endl;
+      GFile *f = g_file_new_for_path(cwd.c_str());
+      GError *err = NULL;
+      gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(filechooser), f, &err);
    }
 }
 

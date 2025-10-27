@@ -2725,14 +2725,11 @@ on_pointer_atom_type_other_button_clicked
 
 extern "C" G_MODULE_EXPORT
 void
-on_ligand_big_blob_dismiss_button_clicked
-                                        (GtkButton       *button,
-                                        gpointer         user_data)
-{
+on_ligand_big_blob_dismiss_button_clicked(GtkButton       *button,
+                                          gpointer         user_data) {
 
   GtkWidget *window = widget_from_builder( "ligand_big_blob_dialog");
   gtk_widget_set_visible(window, FALSE);
-
 }
 
 
@@ -4617,16 +4614,6 @@ on_other_model_tools_dialog_destroy    (GtkWidget       *object,
    do_cis_trans_conversion_setup(0);
    unset_other_modelling_tools_dialog();
 }
-
-
-
-extern "C" G_MODULE_EXPORT
-void
-on_ligand_big_blob_dialog_destroy(GtkWidget       *object,
-                                  gpointer         user_data) {
-  free_blob_dialog_memory(GTK_WIDGET(object));
-}
-
 
 extern "C" G_MODULE_EXPORT
 void
@@ -6979,12 +6966,53 @@ on_download_monomers_ok_button_clicked(GtkButton       *button,
 
 extern "C" G_MODULE_EXPORT
 void
-on_add_other_solvent_molecules_new_residue_type_button_clicked(GtkButton       *button,
-							       gpointer         user_data) {
+on_add_other_solvent_molecules_new_residue_type_button_clicked(GtkButton  *button,
+                                                               gpointer    user_data) {
 
-   std::cout << "Add other solvent new residue type here " << std::endl;
+   GtkWidget *entry = widget_from_builder("add_other_solvent_molecules_new_residue_type_entry");
+   int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(entry), "imol"));
+   std::cout << "DEBUG:: transfering imol " << imol << std::endl;
+   g_object_set_data(G_OBJECT(entry), "imol", GINT_TO_POINTER(imol));
+   gtk_widget_set_visible(entry, TRUE);
 }
 
+#include "get-monomer.hh"
+
+extern "C" G_MODULE_EXPORT
+void on_add_other_solvent_molecules_new_residue_type_entry_activate(GtkEntry *entry,
+                                                                    gpointer  user_data) {
+
+   // this callback is similar to the callback for the build-in residue type
+   // buttons in the dialog
+   const char *s = gtk_editable_get_text(GTK_EDITABLE(entry));
+   graphics_info_t g;
+   std::string type(s);
+   int imol_ligand = get_monomer(type);
+   fit_to_map_by_random_jiggle(imol_ligand, "A", 1, "", 100, 2.0);
+   if (g.is_valid_model_molecule(imol_ligand)) {
+      coot::residue_spec_t rspec("A", 1, "");
+      mmdb::Residue *residue_p = g.molecules[imol_ligand].get_residue(rspec);
+      if (residue_p) {
+         mmdb::Manager *mol = g.molecules[imol_ligand].atom_sel.mol;
+         std::vector<mmdb::Residue *> v;
+         std::string alt_conf;
+         v.push_back(residue_p);
+         short int save_state = g.refinement_immediate_replacement_flag;
+         g.refinement_immediate_replacement_flag = 1;
+         coot::refinement_results_t rr = g.refine_residues_vec(imol_ligand, v, alt_conf, mol);
+         g.refinement_immediate_replacement_flag = save_state;
+         c_accept_moving_atoms();
+         delete_hydrogen_atoms(imol_ligand);
+         int imol = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(entry), "imol"));
+         if (g.is_valid_model_molecule(imol)) {
+            std::vector<atom_selection_container_t> add_molecules_at_sels;
+            add_molecules_at_sels.push_back(g.molecules[imol_ligand].atom_sel);
+            g.molecules[imol].merge_molecules(add_molecules_at_sels);
+            close_molecule(imol_ligand);
+         }
+      }
+   }
+}
 
 extern "C" G_MODULE_EXPORT
 void

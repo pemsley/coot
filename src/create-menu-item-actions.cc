@@ -96,8 +96,13 @@ void on_coords_filechooser_dialog_response_gtk4(GtkDialog *dialog,
                      handle_read_draw_molecule_with_recentre(file_name, 0); // no recentre
                }
             }
+
+            std::string file_dir = coot::util::file_name_directory(file_name);
+            graphics_info_t g;
+            g.set_directory_for_filechooser_string(file_dir);
          }
       }
+
    }
    gtk_window_close(GTK_WINDOW(dialog));
    graphics_info_t::graphics_grab_focus();
@@ -183,6 +188,8 @@ void open_coordinates_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                                    NULL);
    gtk_file_chooser_set_select_multiple(GTK_FILE_CHOOSER(dialog), TRUE);
 
+   set_directory_for_filechooser(dialog);
+
    // void gtk_file_chooser_add_choice (GtkFileChooser* chooser,
    //                                   const char* id,
    //                                   const char* label,
@@ -251,6 +258,8 @@ void open_dataset_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    gtk_file_filter_add_pattern(filterselect, "*.mtz");
    gtk_file_chooser_set_filter(GTK_FILE_CHOOSER(dialog), filterselect);
    gtk_widget_set_visible(dialog, TRUE);
+
+   set_directory_for_filechooser(dialog);
 }
 
 void auto_open_mtz_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -281,8 +290,10 @@ void auto_open_mtz_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                                    ("_Open"), GTK_RESPONSE_ACCEPT,
                                                    NULL);
 
+   // this does set_directory_for_filechooser()
    GError *error = NULL;
    std::string dir = g.get_directory_for_filechooser();
+   std::cout << "DEBUG:: ****************** directory for file chooser: " << dir << std::endl;
    if (coot::is_directory_p(dir)) {
       GFile *f_dir = g_file_new_for_path(dir.c_str());
       gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(dialog), f_dir, &error);
@@ -326,6 +337,8 @@ void open_map_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    gtk_file_chooser_add_choice(GTK_FILE_CHOOSER(dialog), "is-diff-map", "Is Difference Map", NULL, NULL);
 
    g_signal_connect(dialog, "response", G_CALLBACK(on_map_filechooser_dialog_response_gtk4), NULL);
+
+   set_directory_for_filechooser(dialog);
 
    GtkFileFilter *filterselect = gtk_file_filter_new();
    gtk_file_filter_add_pattern(filterselect, "*.map");
@@ -3310,7 +3323,7 @@ void add_other_solvent_molecules_action(G_GNUC_UNUSED GSimpleAction *simple_acti
 	    // no need to add buttons, it has been done
 	 } else {
 	    std::vector<std::string> types = {"EDO", "GOL", "DMS", "ACT", "MPD", "CIT", "SO4",
-					      "PO4", "TRS", "TAM", "PEG", "PG4", "PE8",
+					      "PO4", "NO3", "TRS", "TAM", "PEG", "PG4", "PE8",
 					      "EBE", "BTB"};
 	    int imol_enc = coot::protein_geometry::IMOL_ENC_ANY;
 	    int cif_read_number = 50;
