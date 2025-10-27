@@ -24,7 +24,7 @@ LDLIBS=-fuse-ld=mold \
         -Wl,--export-dynamic,--rpath=$(COOT_DIR)/lib \
         -lfreetype -lm -ldl \
         -lcoot-geometry -lcoot-lidia-core -lcoot-utils \
-        -lRDKitDepictor -lRDKitMolTransforms -lRDKitSmilesParse -lRDKitMolDraw2D -lRDKitGraphMol -lRDKitRDInchiLib -linchi -lRDKitRDGeneral -lRDKitRDGeometryLib -lRDKitFileParsers -lRDKitDescriptors -lRDKitChemTransforms -lRDKitSubstructMatch -lRDKitGenericGroups -lRDKitDataStructs \
+        -lRDKitDepictor -lRDKitMolTransforms -lRDKitSmilesParse -lRDKitMolDraw2D -lRDKitGraphMol -lRDKitRDInchiLib  -lRDKitRDGeneral -lRDKitRDGeometryLib -lRDKitFileParsers -lRDKitDescriptors -lRDKitChemTransforms -lRDKitSubstructMatch -lRDKitGenericGroups -lRDKitDataStructs \
         -lboost_iostreams -lboost_serialization -lboost_python313 -lpython3.13 -lcurl
 
 	   # -lcoot-ligand -lcoot-ideal -lcoot-coords -lcoot-map-utils -lcoot-coord-utils -lcoot-geometry -lmmdb2 
