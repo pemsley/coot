@@ -11525,7 +11525,6 @@ l              <object class="GtkComboBox" id="ramachandran_plot_molecule_choose
   <object class="GtkDialog" id="ligand_big_blob_dialog">
     <property name="height-request">250</property>
     <property name="title" translatable="yes">Coot: Unmodelled blobs of density</property>
-    <signal name="destroy" handler="on_ligand_big_blob_dialog_destroy" swapped="no"/>
     <child>
       <object class="GtkBox" id="dialog-vbox36">
         <property name="orientation">vertical</property>
@@ -11570,7 +11569,7 @@ density (too big to be waters):
           </object>
         </child>
 
-        <child type="action">
+        <child>
           <object class="GtkButton" id="ligand_big_blob_dismiss_button">
             <property name="label" translatable="yes">  Dismiss  </property>
             <property name="can-focus">1</property>
@@ -11585,8 +11584,6 @@ density (too big to be waters):
 
       </object>
     </child>
-    <child type="titlebar">
-    </child>
   </object>
 
   <object class="GtkDialog" id="ligand_no_blobs_dialog">
@@ -11594,17 +11591,7 @@ density (too big to be waters):
     <child>
       <object class="GtkBox" id="dialog-vbox62">
         <property name="orientation">vertical</property>
-         <child type="action">
-              <object class="GtkBox" id="hbox106">
-                <child>
-                  <object class="GtkButton" id="ligand_no_blobs_OK_button">
-                    <property name="label" translatable="yes">   OK!   </property>
-                    <property name="use-underline">1</property>
-                    <signal name="clicked" handler="on_ligand_no_blobs_OK_button_clicked" swapped="no"/>
-                  </object>
-                </child>
-              </object>
-        </child>
+
         <child>
           <object class="GtkFrame" id="frame117">
             <child>
@@ -11612,7 +11599,7 @@ density (too big to be waters):
                 <property name="label" translatable="yes">
 
 
-     Coot found no unexplained blobs
+      Coot found no unexplained blobs      
 
 
                 </property>
@@ -11621,9 +11608,25 @@ density (too big to be waters):
             </child>
           </object>
         </child>
+
+        <child>
+          <object class="GtkBox" id="hbox106">
+            <property name="margin-top">6</property>
+            <property name="margin-bottom">6</property>
+            <property name="margin-start">6</property>
+            <property name="margin-end">6</property>
+            <property name="halign">end</property>
+            <child>
+              <object class="GtkButton" id="ligand_no_blobs_OK_button">
+                    <property name="label" translatable="yes">   OK!   </property>
+                    <property name="use-underline">1</property>
+                    <signal name="clicked" handler="on_ligand_no_blobs_OK_button_clicked" swapped="no"/>
+              </object>
+            </child>
+          </object>
+        </child>
+
       </object>
-    </child>
-    <child type="titlebar">
     </child>
   </object>
 
