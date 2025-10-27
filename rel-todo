@@ -1,26 +1,23 @@
 --- Items ---
 
-o CSHL: remove the startup script and see if it keeps asking about left mouse
+o CSHL: drag and drop mtz and pdb together from the Finder
+* Fix later.
 
-o CSHL: get monomer - grab the focus
-  Does the dialog close properly on enter? No.
+o CSHL: pucker in C++? in New coot? There is no markup and there should be.
 
-o CSHL: undo symmetry view
+o CSHL: molprobity.rna_validate to find RNA suite outliers. Mark this
+        up in Coot.
 
-o CSHL: the display manager is displayed from a state script generated
-        when the display manager was not displayed.
+o CSHL: visual feedback on changing the atom occupancies of a residue?
+        Animated textures would be nice.
+
+o CSHL: don't pick symmetry atoms when they are not displayed.
 
 o CSHL: Make Link
 
-o CSHL: in presentation add the anom map figure
+o CSHL: (in presentation add the anom map figure)
 
-o CSHL: triple-refine auto-accpet key binding. Does it exist?
-
-o Coot: use common names in add other solvent
-
-o CSHL: Coot: add other residue type to other solvent molecules
-
-o CSHL: Coot: where is keyboard mutate?
+o Coot: use common names in Add Other Solvent dialog - synonyms?
 
 o CSHL: Coot: center of screen crosshairs customizable.
   scale with the zoom.
@@ -32,6 +29,41 @@ o CSHL: 0.9.x delete deviant extra restraints doesn't work
 o CSHL: Coot disable double click with trackpad
 
 o CSHL: Coot: environment distances don't update on moving to new residue
+
+o CSHL: Does export of high-res mesh for model as gltf actually export
+        a high-res mesh? Consider using instancing.
+
+o CSHL: Coot: add other residue type to other solvent molecules
+* Done.
+
+o CSHL: triple-refine auto-accept key binding. Does it exist?
+* Yes - the H key.
+
+o CSHL: the display manager is displayed from a state script generated
+        when the display manager was not displayed.
+* Done.
+
+o CSHL: Add other solvent molecule: add nitrate, NO3
+* Done.
+
+o CSHL: open a pdb file in another directory. Now open an mtz file
+   - the file dialog should start in the same directory, but it does not.
+* Done.
+
+o CSHL: "no unmodelled blobs" dialog needs fixup.
+* Done.
+
+o CSHL: remove the startup script and see if it keeps asking about left mouse
+* Seems to be doing the right thing.
+
+o CSHL: get monomer - grab the focus
+  Does the dialog close properly on enter? No.
+
+o CSHL: undo symmetry view
+* Done.
+
+o CSHL: Coot: where is keyboard mutate?
+* Done.
 
 o Score lucy's ligands.
 
@@ -72,8 +104,8 @@ o strip spaces on PDB access code entry
   (From Clemens)
 * Done.
 
-o after add other solvent moleucle, try valigdtion graappphs
-   mmodel chooser and you will ssee the ligand as a molecule!
+o after add other solvent moleucle, try valigdtion graphs
+   model chooser and you will ssee the ligand as a molecule!
 * Done.
 
 o Where did we get to with alt conf colouring or selection (in Coot)
