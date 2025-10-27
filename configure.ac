@@ -405,7 +405,8 @@ fi
 librdkitinchi=
 if test -f "$rdkit_install_dir/include/rdkit/GraphMol/inchi.h"; then
     echo Enabling RDKit Inchi support.
-    librdkitinchi="-lRDKitRDInchiLib -lRDKitInchi"
+    # echo If this step causes linking problems, consider adding -linchi or -lRDKitInchi
+    librdkitinchi="-lRDKitRDInchiLib"
 else
    echo RDKit Inchi support disabled.
 fi
