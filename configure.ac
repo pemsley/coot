@@ -395,11 +395,23 @@ fi
 # We need to clarify that so that Coot can be linked correctly.
 librdkitcoordgen=
 AC_ARG_WITH([coordgen], AS_HELP_STRING([--with-coordgen Specify that the RDKit was compiled with coordgen]), with_rdkit_coordgen="$withval", with_rdkit_coordgen=false)
-if "$with_rdkit_coordgen" = true ; then
+if test -n "$with_rdkit_coordgen"; then
     librdkitcoordgen=-lRDKitcoordgen
 fi
 
-RDKIT_LIBS="-L$rdkit_install_dir/lib -lRDKitMolDraw2D -lRDKitForceFieldHelpers -lRDKitDescriptors -lRDKitForceField -lRDKitSubstructMatch -lRDKitOptimizer -lRDKitDistGeomHelpers -lRDKitDistGeometry -lRDKitChemReactions -lRDKitAlignment -lRDKitEigenSolvers -lRDKitDepictor $librdkitcoordgen -lRDKitMolChemicalFeatures -lRDKitPartialCharges -lRDKitFileParsers -lRDKitRDGeometryLib -lRDKitGraphMol -lRDKitShapeHelpers -lRDKitFingerprints -lRDKitMolAlign -lRDKitMolTransforms -lRDKitChemTransforms -lRDKitSmilesParse -lRDKitGenericGroups -lRDKitRingDecomposerLib -lRDKitFilterCatalog -lRDKitCatalogs -lRDKitSubgraphs -lRDKitPartialCharges -lRDKitRDGeneral -lRDKitDataStructs -lboost_serialization -lboost_iostreams"
+# test here for presence of Inchi support in the RDKit.
+# To clarify, this is not related to how to configure Coot, it is related to how the RDKit was configured (and linked).
+# We need to clarify that so that Coot can be linked correctly.
+librdkitinchi=
+if test -f "$rdkit_install_dir/include/rdkit/GraphMol/inchi.h"; then
+    echo Enabling RDKit Inchi support.
+    # echo If this step causes linking problems, consider adding -linchi or -lRDKitInchi
+    librdkitinchi="-lRDKitRDInchiLib"
+else
+   echo RDKit Inchi support disabled.
+fi
+
+RDKIT_LIBS="-L$rdkit_install_dir/lib -lRDKitMolDraw2D -lRDKitForceFieldHelpers -lRDKitDescriptors -lRDKitForceField -lRDKitSubstructMatch -lRDKitOptimizer -lRDKitDistGeomHelpers -lRDKitDistGeometry -lRDKitChemReactions -lRDKitAlignment -lRDKitEigenSolvers -lRDKitDepictor $librdkitcoordgen -lRDKitMolChemicalFeatures -lRDKitPartialCharges -lRDKitFileParsers -lRDKitRDGeometryLib -lRDKitGraphMol $librdkitinchi -lRDKitShapeHelpers -lRDKitFingerprints -lRDKitMolAlign -lRDKitMolTransforms -lRDKitChemTransforms -lRDKitSmilesParse -lRDKitGenericGroups -lRDKitRingDecomposerLib -lRDKitFilterCatalog -lRDKitCatalogs -lRDKitSubgraphs -lRDKitPartialCharges -lRDKitRDGeneral -lRDKitDataStructs -lboost_serialization -lboost_iostreams"
 
 # this must always be true now
 ENHANCED_LIGAND_TOOLS_CPPFLAGS="-DMAKE_ENHANCED_LIGAND_TOOLS"
