@@ -705,7 +705,13 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
       commands.push_back(state_command("coot", "post-go-to-atom-window", il));
 
    // some condition here?
-   commands.push_back(state_command("coot", "post-display-control-window", il));
+   if (use_graphics_interface_flag) {
+      GtkWidget *dcw = widget_from_builder("display_control_window_glade");
+      if (dcw) {
+         if (gtk_widget_get_visible(dcw))
+            commands.push_back(state_command("coot", "post-display-control-window", il));
+      }
+   }
 
    short int istat = 0;
    if (! disable_state_script_writing) {
