@@ -1180,7 +1180,7 @@ public:
    static bool auto_recontour_map_flag;
 
    //
-   static float rotation_centre_cube_size; // cross-hair
+   static float user_defined_rotation_centre_crosshairs_size_scale_factor;
    static glm::vec4 rotation_centre_cross_hairs_colour;
    void set_rotation_centre_cross_hairs_colour(const glm::vec4 &c);
 

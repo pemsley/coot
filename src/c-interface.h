@@ -2465,8 +2465,11 @@ void set_rotation_centre_size_from_widget(const gchar *text); /* and redraw */
 /* MOVE-ME to c-interface-gtk-widgets.h */
 gchar *get_text_for_rotation_centre_cube_size();
 
-/*! \brief set rotoation centre marker size */
+/*! \brief set the rotation centre marker size */
 void set_rotation_centre_size(float f); /* and redraw (maybe) */
+
+/*! \brief set the rotation centre marker size */
+void set_user_defined_rotation_centre_crosshairs_size_scale_factor(float f);
 
 /*! \brief set rotation centre colour
 

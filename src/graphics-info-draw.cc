@@ -2626,7 +2626,7 @@ graphics_info_t::draw_cube(GtkGLArea *glarea, unsigned int cube_type) {
    glm::vec3 rc = get_rotation_centre();
    if (cube_type == VIEW_CENTRAL_CUBE) {
       mvp = glm::translate(mvp, rc);
-      float s = rotation_centre_cube_size;
+      float s = user_defined_rotation_centre_crosshairs_size_scale_factor;
       glm::vec3 sc(s,s,s);
       mvp = glm::scale(mvp, sc);
    }
@@ -2716,9 +2716,9 @@ graphics_info_t::draw_rotation_centre_crosshairs(GtkGLArea *glarea, unsigned int
    glm::vec3 rc = graphics_info_t::get_rotation_centre();
    mvp = glm::translate(mvp, rc);
    // 20241105-PE is this a good idea?
-   if (rotation_centre_cube_size < 0.02)
-      rotation_centre_cube_size = 0.02;
-   float s = 2.0f * rotation_centre_cube_size;
+   if (user_defined_rotation_centre_crosshairs_size_scale_factor < 0.02)
+      user_defined_rotation_centre_crosshairs_size_scale_factor = 0.02;
+   float s = 0.2f * user_defined_rotation_centre_crosshairs_size_scale_factor * zoom;
    glm::vec3 sc(s,s,s);
    mvp = glm::scale(mvp, sc);
 

@@ -569,7 +569,7 @@ graphics_info_t::make_preferences_internal() {
   ret.push_back(p);
 
   // Pink pointer size
-  fvalue = graphics_info_t::rotation_centre_cube_size;
+  fvalue = graphics_info_t::user_defined_rotation_centre_crosshairs_size_scale_factor;
   p.preference_type = PREFERENCES_PINK_POINTER;
   p.fvalue1 = fvalue;
   ret.push_back(p);

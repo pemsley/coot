@@ -353,66 +353,68 @@ graphics_info_t::blob_under_pointer_to_screen_centre() {
    if (use_graphics_interface_flag) {
       int imol_map = Imol_Refinement_Map();
       if (imol_map != -1) {
-	 // OK we have a map to search.
-	 // coot::Cartesian front = unproject(0.0);
-	 // coot::Cartesian back  = unproject(1.0);
-         // glm::vec4 glm_front = new_unproject(-0.3);
-         // glm::vec4 glm_back  = new_unproject( 1.0);
+         if (molecules[imol_map].is_displayed_p()) {
+            // OK we have a map to search.
+            // coot::Cartesian front = unproject(0.0);
+            // coot::Cartesian back  = unproject(1.0);
+            // glm::vec4 glm_front = new_unproject(-0.3);
+            // glm::vec4 glm_back  = new_unproject( 1.0);
 
-         GtkAllocation allocation = graphics_info_t::get_glarea_allocation();
-         int w = allocation.width;
-         int h = allocation.height;
+            GtkAllocation allocation = graphics_info_t::get_glarea_allocation();
+            int w = allocation.width;
+            int h = allocation.height;
 
-         glm::mat4 mvp = graphics_info_t::get_molecule_mvp(); // modeglml matrix includes orientation with the quaternion
-         glm::mat4 vp_inv = glm::inverse(mvp);
+            glm::mat4 mvp = graphics_info_t::get_molecule_mvp(); // modeglml matrix includes orientation with the quaternion
+            glm::mat4 vp_inv = glm::inverse(mvp);
 
-         // 20220811-PE mouse_current_x and mouse_current_y are set by the motion callback.
-         float mouseX_2 = mouse_current_x  / (w * 0.5f) - 1.0f; // mouse_x and mouse_y are updated in the motion callback.
-         float mouseY_2 = mouse_current_y  / (h * 0.5f) - 1.0f;
-         // I revered the sign here - it does the right thing now.
-         glm::vec4 screenPos_1 = glm::vec4(mouseX_2, -mouseY_2, -1.0f, 1.0f);
-         glm::vec4 screenPos_2 = glm::vec4(mouseX_2, -mouseY_2,  1.0f, 1.0f);
-         glm::vec4 worldPos_1 = vp_inv * screenPos_1;
-         glm::vec4 worldPos_2 = vp_inv * screenPos_2;
+            // 20220811-PE mouse_current_x and mouse_current_y are set by the motion callback.
+            float mouseX_2 = mouse_current_x  / (w * 0.5f) - 1.0f; // mouse_x and mouse_y are updated in the motion callback.
+            float mouseY_2 = mouse_current_y  / (h * 0.5f) - 1.0f;
+            // I revered the sign here - it does the right thing now.
+            glm::vec4 screenPos_1 = glm::vec4(mouseX_2, -mouseY_2, -1.0f, 1.0f);
+            glm::vec4 screenPos_2 = glm::vec4(mouseX_2, -mouseY_2,  1.0f, 1.0f);
+            glm::vec4 worldPos_1 = vp_inv * screenPos_1;
+            glm::vec4 worldPos_2 = vp_inv * screenPos_2;
 
-         double oowp_1 = 1.0/worldPos_1.w;
-         double oowp_2 = 1.0/worldPos_2.w;
-         coot::Cartesian front(worldPos_1.x * oowp_1, worldPos_1.y * oowp_1, worldPos_1.z * oowp_1);
-	 coot::Cartesian  back(worldPos_2.x * oowp_2, worldPos_2.y * oowp_2, worldPos_2.z * oowp_2);
+            double oowp_1 = 1.0/worldPos_1.w;
+            double oowp_2 = 1.0/worldPos_2.w;
+            coot::Cartesian front(worldPos_1.x * oowp_1, worldPos_1.y * oowp_1, worldPos_1.z * oowp_1);
+            coot::Cartesian  back(worldPos_2.x * oowp_2, worldPos_2.y * oowp_2, worldPos_2.z * oowp_2);
 
-	 clipper::Coord_orth p1(front.x(), front.y(), front.z());
-	 clipper::Coord_orth p2( back.x(),  back.y(),  back.z());
-         if (true) {
-            std::cout << "debug:: blob_under_pointer_to_screen_centre() " << mouse_x << " " << mouse_y << std::endl;
-            std::cout << "debug:: blob_under_pointer_to_screen_centre() " << mouseX_2 << " " << mouseY_2 << std::endl;
-            std::cout << "debug:: blob_under_pointer_to_screen_centre() " << glm::to_string(screenPos_1) << " "
-                      << glm::to_string(screenPos_2) << std::endl;
-            std::cout << "debug:: blob_under_pointer_to_screen_centre() " << front << " " << back << std::endl;
-            // std::cout << "blob_under_pointer_to_screen_centre() " << p1.format() << " "
-            // << p2.format() << std::endl;
+            clipper::Coord_orth p1(front.x(), front.y(), front.z());
+            clipper::Coord_orth p2( back.x(),  back.y(),  back.z());
+            if (true) {
+               std::cout << "debug:: blob_under_pointer_to_screen_centre() " << mouse_x << " " << mouse_y << std::endl;
+               std::cout << "debug:: blob_under_pointer_to_screen_centre() " << mouseX_2 << " " << mouseY_2 << std::endl;
+               std::cout << "debug:: blob_under_pointer_to_screen_centre() " << glm::to_string(screenPos_1) << " "
+                         << glm::to_string(screenPos_2) << std::endl;
+               std::cout << "debug:: blob_under_pointer_to_screen_centre() " << front << " " << back << std::endl;
+               // std::cout << "blob_under_pointer_to_screen_centre() " << p1.format() << " "
+               // << p2.format() << std::endl;
+            }
+            coot::Cartesian rc = g.RotationCentre();
+
+            try {
+               clipper::Coord_orth blob =
+                  molecules[imol_refinement_map].find_peak_along_line_favour_front(p1, p2);
+               coot::Cartesian cc(blob.x(), blob.y(), blob.z());
+               // coot::Cartesian cc = front.mid_point(back);
+               coot::Cartesian delta = rc - cc;
+               // std::cout << "Delta: " << delta << std::endl;
+               g.setRotationCentre(cc);
+               for(int ii=0; ii<n_molecules(); ii++) {
+                  molecules[ii].update_map(auto_recontour_map_flag);
+                  molecules[ii].update_symmetry();
+               }
+               g.make_pointer_distance_objects();
+               graphics_draw();
+            }
+            catch (const std::runtime_error &mess) {
+               // 20220202-PE deprecated copy constexpr coot::Cartesian... I wonder what that means.
+               std::cout << "debug:: given front " << front << " and back " << back << std::endl;
+               std::cout << mess.what() << std::endl;
+            }
          }
-         coot::Cartesian rc = g.RotationCentre();
-
-	 try {
-	    clipper::Coord_orth blob =
-	       molecules[imol_refinement_map].find_peak_along_line_favour_front(p1, p2);
-	    coot::Cartesian cc(blob.x(), blob.y(), blob.z());
-            // coot::Cartesian cc = front.mid_point(back);
-            coot::Cartesian delta = rc - cc;
-            // std::cout << "Delta: " << delta << std::endl;
-	    g.setRotationCentre(cc);
-	    for(int ii=0; ii<n_molecules(); ii++) {
-	       molecules[ii].update_map(auto_recontour_map_flag);
-	       molecules[ii].update_symmetry();
-	    }
-	    g.make_pointer_distance_objects();
-	    graphics_draw();
-	 }
-	 catch (const std::runtime_error &mess) {
-            // 20220202-PE deprecated copy constexpr coot::Cartesian... I wonder what that means.
-            std::cout << "debug:: given front " << front << " and back " << back << std::endl;
-	    std::cout << mess.what() << std::endl;
-	 }
       } else {
          // 2025-10-01-PE I don't like this popping up when there are no molecules
          // maybe a visual effect would be better - like the red rings.

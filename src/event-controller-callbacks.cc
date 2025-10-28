@@ -551,12 +551,14 @@ graphics_info_t::on_glarea_click(GtkGestureClick *controller,
                   coot::Symm_Atom_Pick_Info_t sap = symmetry_atom_pick();
                   if (sap.success == GL_TRUE) {
                      if (is_valid_model_molecule(sap.imol)) {
-                        int imol = sap.imol;
-                        std::pair<symm_trans_t, Cell_Translation> symtransshiftinfo(sap.symm_trans, sap.pre_shift_to_origin);
-                        molecules[imol].add_atom_to_labelled_symm_atom_list(sap.atom_index, sap.symm_trans,
-                                                                            sap.pre_shift_to_origin);
-                        handled = true;
-                        graphics_draw();
+                        if (graphics_info_t::molecules[sap.imol].show_symmetry) {
+                           int imol = sap.imol;
+                           std::pair<symm_trans_t, Cell_Translation> symtransshiftinfo(sap.symm_trans, sap.pre_shift_to_origin);
+                           molecules[imol].add_atom_to_labelled_symm_atom_list(sap.atom_index, sap.symm_trans,
+                                                                               sap.pre_shift_to_origin);
+                           handled = true;
+                           graphics_draw();
+                        }
                      }
                   }
                }

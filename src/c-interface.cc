@@ -3865,13 +3865,20 @@ void set_rotation_centre_size_from_widget(const gchar *text) {
       std::cout << "Invalid cube size: " << text << ". Assuming 1.0A" << std::endl;
       val = 1.0;
    }
-   g.rotation_centre_cube_size = val;
+   g.user_defined_rotation_centre_crosshairs_size_scale_factor = val;
    graphics_draw();
 }
 
 void set_rotation_centre_size(float f) {
    graphics_info_t g;
-   g.rotation_centre_cube_size = f;
+   // g.rotation_centre_cube_size = f;
+   g.user_defined_rotation_centre_crosshairs_size_scale_factor = f;
+   graphics_draw();
+}
+
+void set_user_defined_rotation_centre_crosshairs_size_scale_factor(float f) {
+   graphics_info_t g;
+   g.user_defined_rotation_centre_crosshairs_size_scale_factor = f;
    graphics_draw();
 }
 
@@ -3894,7 +3901,7 @@ gchar *get_text_for_rotation_centre_cube_size() {
    graphics_info_t g;
 
    text = (char *)  malloc (100);
-   snprintf(text, 90, "%-6.3f", g.rotation_centre_cube_size);
+   snprintf(text, 90, "%-6.3f", g.user_defined_rotation_centre_crosshairs_size_scale_factor);
    return text;
 }
 

@@ -210,7 +210,7 @@ graphics_info_t::save_state_file(const std::string &filename, short int il) {
    commands.push_back(state_command("coot", "set-smooth-scroll-steps", smooth_scroll_n_steps, il));
    commands.push_back(state_command("coot", "set-smooth-scroll-limit", smooth_scroll_limit, il));
    commands.push_back(state_command("coot", "set-font-size", atom_label_font_size, il));
-   commands.push_back(state_command("coot", "set-rotation-centre-size", rotation_centre_cube_size, il));
+   // commands.push_back(state_command("coot", "set-rotation-centre-size", user_defined_rotation_centre_crosshairs_size_scale_factor, il));
    commands.push_back(state_command("coot", "set-do-anti-aliasing", do_anti_aliasing_flag, il));
    commands.push_back(state_command("coot", "set-default-bond-thickness", default_bond_width, il));
 
