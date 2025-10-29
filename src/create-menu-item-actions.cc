@@ -4092,6 +4092,7 @@ environment_distances_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
    GtkWidget *widget = widget_from_builder("environment_distance_dialog");
    fill_environment_widget(widget);
+   set_transient_for_main_window(widget);
    gtk_widget_set_visible(widget, TRUE);
    graphics_info_t::graphics_grab_focus();
 }
