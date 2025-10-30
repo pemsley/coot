@@ -2627,6 +2627,8 @@ coot::add_2d_conformer(RDKit::ROMol *rdk_mol, double weight_for_3d_distances) {
    
    unsigned int n_mol_atoms = rdk_mol->getNumAtoms();   
 
+   if (n_mol_atoms == 0) return -1;
+
    if (debug) 
       std::cout << "::::: add_2d_conformer before compute2DCoords n_atoms: "
 		<< rdk_mol->getConformer(0).getNumAtoms()
