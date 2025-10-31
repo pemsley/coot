@@ -19,103 +19,143 @@
  * 02110-1301, USA
  */
 
-#include <algorithm>
+#include <optional>
 #include <stdexcept>
 
+#include "clipper/core/coords.h"
+#include "geometry/residue-and-atom-specs.hh"
 #include "utils/coot-utils.hh"
 #include "coot-coord-utils.hh"
 
-
+ 
 // Throw an exception if it is not possible to generate pucker info
 // 
 coot::pucker_analysis_info_t::pucker_analysis_info_t(mmdb::Residue *res_p,
                                                      std::string altconf_in) {
 
-   C1_prime = 0;
-   N1_or_9 = 0;
+   auto get_base_lsq_plane = [] (const std::vector<clipper::Coord_orth> &coords) -> 
+      std::optional<lsq_plane_info_t> {
+
+      if (coords.size() < 3) return std::nullopt;
+      lsq_plane_info_t lsq_plane(coords);
+      return lsq_plane;
+   };
+
+   out_of_plane_distance = 0.0;
+   plane_distortion = 0.0;
+   C1_prime = nullptr;
+   N1_or_9  = nullptr;
    // The atoms are in the following order C1' C2' C3' C4' O4
    //
    altconf = altconf_in; // save for phosphate distance (if needed).
-   
+
    assign_base_atom_coords(res_p); // and C1_prime and N1_or_9 if possible
+   std::optional<lsq_plane_info_t> lsq_plane = get_base_lsq_plane(base_atoms_coords);
 
-   
-   std::vector<mmdb::Atom *> atoms(5);
-   std::vector<coot::pucker_analysis_info_t::PUCKERED_ATOM_T> possible_puckers;
-   possible_puckers.push_back(coot::pucker_analysis_info_t::C1_PRIME);
-   possible_puckers.push_back(coot::pucker_analysis_info_t::C2_PRIME);
-   possible_puckers.push_back(coot::pucker_analysis_info_t::C3_PRIME);
-   possible_puckers.push_back(coot::pucker_analysis_info_t::C4_PRIME);
-   possible_puckers.push_back(coot::pucker_analysis_info_t::O4_PRIME);
+   if (lsq_plane.has_value()) {
 
-   mmdb::PPAtom residue_atoms = NULL;
-   int n_residue_atoms;
-   res_p->GetAtomTable(residue_atoms, n_residue_atoms);
-   for (int i=0; i<n_residue_atoms; i++) {
-      std::string atm_name(residue_atoms[i]->name);
-      std::string alt_name(residue_atoms[i]->altLoc);
-      if (altconf == alt_name) { 
-         if (atm_name == " C1*") atoms[0] = residue_atoms[i];
-         if (atm_name == " C1'") atoms[0] = residue_atoms[i];
-         if (atm_name == " C2*") atoms[1] = residue_atoms[i];
-         if (atm_name == " C2'") atoms[1] = residue_atoms[i];
-         if (atm_name == " C3*") atoms[2] = residue_atoms[i];
-         if (atm_name == " C3'") atoms[2] = residue_atoms[i];
-         if (atm_name == " C4*") atoms[3] = residue_atoms[i];
-         if (atm_name == " C4'") atoms[3] = residue_atoms[i];
-         if (atm_name == " O4*") atoms[4] = residue_atoms[i];
-         if (atm_name == " O4'") atoms[4] = residue_atoms[i];
-      }
-   }
-   if (! (atoms[0] && atoms[1] && atoms[2] && atoms[3] && atoms[4])) {
-      std::string mess = "Not all atoms found in ribose.";
-      throw std::runtime_error(mess);
-   } else {
-      for (int i_oop_atom=0; i_oop_atom<5; i_oop_atom++) {
-         clipper::Coord_orth c(atoms[i_oop_atom]->x,
-                               atoms[i_oop_atom]->y,
-                               atoms[i_oop_atom]->z);
-         ribose_atoms_coords.push_back(c);
-      }
-      // oop: out of plane distance
-      std::vector<std::pair<float, float> > pucker_distortion_and_oop_d(5);
-      for (int i_oop_atom=0; i_oop_atom<5; i_oop_atom++) {
-         std::vector<mmdb::Atom *> plane_atom;
-         std::vector<clipper::Coord_orth> plane_atom_coords;
-         for (int i=0; i<5; i++) {
-            if (i != i_oop_atom) {
-               clipper::Coord_orth c(atoms[i]->x, atoms[i]->y, atoms[i]->z);
-               plane_atom.push_back(atoms[i]);
-               plane_atom_coords.push_back(c);
+      // store the geometry
+      markup_info.base_ring_centre = lsq_plane.value().centre();
+      markup_info.base_ring_normal = lsq_plane.value().centre();
+
+      std::vector<mmdb::Atom *> ribose_atoms(5, nullptr); // ribose atoms
+      std::vector<coot::pucker_analysis_info_t::PUCKERED_ATOM_T> possible_puckers;
+      possible_puckers.push_back(coot::pucker_analysis_info_t::C1_PRIME);
+      possible_puckers.push_back(coot::pucker_analysis_info_t::C2_PRIME);
+      possible_puckers.push_back(coot::pucker_analysis_info_t::C3_PRIME);
+      possible_puckers.push_back(coot::pucker_analysis_info_t::C4_PRIME);
+      possible_puckers.push_back(coot::pucker_analysis_info_t::O4_PRIME);
+
+      mmdb::PPAtom residue_atoms = NULL;
+      int n_residue_atoms = 0;
+      res_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      // find the phosphorus atom
+      for (int i=0; i<n_residue_atoms; i++) {
+         mmdb::Atom *atm = residue_atoms[i];
+         if (! atm->isTer()) {
+            std::string atm_name(atm->name);
+            std::string alt_name(atm->altLoc);
+            if (altconf == alt_name) {
+               if (atm_name == " P  ") { // PDBv3 FIXME
+                  clipper::Coord_orth p(atm->x, atm->y, atm->z);
+                  markup_info.phosphorus_position = p;
+                  markup_info.projected_point = lsq_plane.value().projected_point(p);
+               }
             }
          }
-         // plane atom is now filled with 4 atoms from which the plane
-         // should be calculated.
-         clipper::Coord_orth pt(atoms[i_oop_atom]->x,
-                                atoms[i_oop_atom]->y,
-                                atoms[i_oop_atom]->z);
-         // lsq_plane_deviation returns pair(out-of-plane-dist, rms_deviation_plane);
-         std::pair<double, double> dev =
-            coot::lsq_plane_deviation(plane_atom_coords, pt);
-         pucker_distortion_and_oop_d[i_oop_atom] = dev;
       }
-
-      // Find the biggest out-of-plane distance.  That is the pucker
-      // of this ribose.
-      puckered_atom_ = coot::pucker_analysis_info_t::NONE;
-      std::pair<float, float> most_deviant(0,0);
-      for (int i_oop_atom=0; i_oop_atom<5; i_oop_atom++) {
-//          std::cout << "   pucker_distortion_and_oop_d["
-//                    << i_oop_atom << "] "
-//                    << pucker_distortion_and_oop_d[i_oop_atom].first  << " "
-//                    << pucker_distortion_and_oop_d[i_oop_atom].second  << std::endl;
-         if (fabs(pucker_distortion_and_oop_d[i_oop_atom].first) > fabs(most_deviant.first)) {
-            most_deviant = pucker_distortion_and_oop_d[i_oop_atom];
-            puckered_atom_ = possible_puckers[i_oop_atom];
+      // find the ribose atoms
+      res_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (int i=0; i<n_residue_atoms; i++) {
+         std::string atm_name(residue_atoms[i]->name);
+         std::string alt_name(residue_atoms[i]->altLoc);
+         if (altconf == alt_name) {
+            if (atm_name == " C1*") ribose_atoms[0] = residue_atoms[i];
+            if (atm_name == " C1'") ribose_atoms[0] = residue_atoms[i];
+            if (atm_name == " C2*") ribose_atoms[1] = residue_atoms[i];
+            if (atm_name == " C2'") ribose_atoms[1] = residue_atoms[i];
+            if (atm_name == " C3*") ribose_atoms[2] = residue_atoms[i];
+            if (atm_name == " C3'") ribose_atoms[2] = residue_atoms[i];
+            if (atm_name == " C4*") ribose_atoms[3] = residue_atoms[i];
+            if (atm_name == " C4'") ribose_atoms[3] = residue_atoms[i];
+            if (atm_name == " O4*") ribose_atoms[4] = residue_atoms[i];
+            if (atm_name == " O4'") ribose_atoms[4] = residue_atoms[i];
          }
       }
-      out_of_plane_distance = most_deviant.first;
-      plane_distortion = most_deviant.second;
+      if (! (ribose_atoms[0] && ribose_atoms[1] && ribose_atoms[2] && ribose_atoms[3] && ribose_atoms[4])) {
+         std::string mess = "Not all atoms found in ribose.";
+         throw std::runtime_error(mess);
+      } else {
+         for (int i_oop_atom=0; i_oop_atom<5; i_oop_atom++) {
+            clipper::Coord_orth c(ribose_atoms[i_oop_atom]->x,
+                                  ribose_atoms[i_oop_atom]->y,
+                                  ribose_atoms[i_oop_atom]->z);
+            ribose_atoms_coords.push_back(c);
+         }
+         // oop: out of plane distance
+         std::vector<std::pair<float, float> > pucker_distortion_and_oop_d(5);
+         for (int i_oop_atom=0; i_oop_atom<5; i_oop_atom++) {
+            std::vector<mmdb::Atom *> plane_atom;
+            std::vector<clipper::Coord_orth> plane_atom_coords;
+            for (int i=0; i<5; i++) {
+               if (i != i_oop_atom) {
+                  clipper::Coord_orth c(ribose_atoms[i]->x, ribose_atoms[i]->y, ribose_atoms[i]->z);
+                  plane_atom.push_back(ribose_atoms[i]);
+                  plane_atom_coords.push_back(c);
+               }
+            }
+            // plane atom is now filled with 4 atoms from which the plane
+            // should be calculated.
+            clipper::Coord_orth pt(ribose_atoms[i_oop_atom]->x,
+                                   ribose_atoms[i_oop_atom]->y,
+                                   ribose_atoms[i_oop_atom]->z);
+            // lsq_plane_deviation returns pair(out-of-plane-dist, rms_deviation_plane);
+            std::pair<double, double> dev =
+               coot::lsq_plane_deviation(plane_atom_coords, pt);
+            pucker_distortion_and_oop_d[i_oop_atom] = dev;
+         }
+
+         // Find the biggest out-of-plane distance.  That is the pucker
+         // of this ribose.
+         puckered_atom_ = coot::pucker_analysis_info_t::NONE;
+         std::pair<float, float> most_deviant(0,0);
+         for (int i_oop_atom=0; i_oop_atom<5; i_oop_atom++) {
+            //          std::cout << "   pucker_distortion_and_oop_d["
+            //                    << i_oop_atom << "] "
+            //                    << pucker_distortion_and_oop_d[i_oop_atom].first  << " "
+            //                    << pucker_distortion_and_oop_d[i_oop_atom].second  << std::endl;
+            if (fabs(pucker_distortion_and_oop_d[i_oop_atom].first) > fabs(most_deviant.first)) {
+               most_deviant = pucker_distortion_and_oop_d[i_oop_atom];
+               puckered_atom_ = possible_puckers[i_oop_atom];
+            }
+         }
+         out_of_plane_distance = most_deviant.first;
+         plane_distortion = most_deviant.second;
+      }
+   } else {
+      // we throw on failure
+      std::string mess = "base lsq plane has no value";
+      throw std::runtime_error(mess);
    }
 }
 
@@ -193,7 +233,7 @@ coot::pucker_analysis_info_t::assign_base_atom_coords(mmdb::Residue *residue_p) 
    guanine_base_names.push_back(" C6 ");
    guanine_base_names.push_back(" O6 ");
    guanine_base_names.push_back(" N2 ");
-   
+
    thymine_base_names.push_back(" N1 ");
    thymine_base_names.push_back(" C2 ");
    thymine_base_names.push_back(" N3 ");
@@ -210,10 +250,10 @@ coot::pucker_analysis_info_t::assign_base_atom_coords(mmdb::Residue *residue_p) 
    residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
 
    // Assign N1_or_9 and C1_prime
-   for (int i=0; i<n_residue_atoms; i++) { 
+   for (int i=0; i<n_residue_atoms; i++) {
       std::string atom_name(residue_atoms[i]->name);
       std::string alt_name(residue_atoms[i]->altLoc);
-      if (alt_name == altconf) { 
+      if (alt_name == altconf) {
          if (atom_name == " N1 ")
             N1_or_9 = residue_atoms[i];
          if (atom_name == " N9 ")
@@ -230,28 +270,26 @@ coot::pucker_analysis_info_t::assign_base_atom_coords(mmdb::Residue *residue_p) 
    // the constructor if there are not enough base name atoms.
 
    std::vector<std::string> base_names;
-   
+
    std::string residue_name(residue_p->GetResName());
 
-   if (residue_name == "Cr")
-      base_names = cytidine_base_names;
-   if (residue_name == "Ur")
-      base_names = uracil_base_names;
-   if (residue_name == "Ar")
-      base_names = adenine_base_names;
-   if (residue_name == "Gr")
-      base_names = guanine_base_names;
+   // current names
+   if (residue_name == "C") base_names = cytidine_base_names;
+   if (residue_name == "U") base_names = uracil_base_names;
+   if (residue_name == "A") base_names = adenine_base_names;
+   if (residue_name == "G") base_names = guanine_base_names;
+   // old names
+   if (residue_name == "Cr") base_names = cytidine_base_names;
+   if (residue_name == "Ur") base_names = uracil_base_names;
+   if (residue_name == "Ar") base_names = adenine_base_names;
+   if (residue_name == "Gr") base_names = guanine_base_names;
    // modern (3.x) RNA base names
-   if (residue_name == "CYT")
-      base_names = cytidine_base_names;
-   if (residue_name == "URA")
-      base_names = uracil_base_names;
-   if (residue_name == "ADE")
-      base_names = adenine_base_names;
-   if (residue_name == "GUA")
-      base_names = guanine_base_names;
+   if (residue_name == "CYT") base_names = cytidine_base_names;
+   if (residue_name == "URA") base_names = uracil_base_names;
+   if (residue_name == "ADE") base_names = adenine_base_names;
+   if (residue_name == "GUA") base_names = guanine_base_names;
 
-   if (base_names.size() > 0) { 
+   if (base_names.size() > 0) {
       for (int i=0; i<n_residue_atoms; i++) {
          std::string atm_name(residue_atoms[i]->name);
          std::string alt_name(residue_atoms[i]->altLoc);
@@ -301,7 +339,6 @@ coot::pucker_analysis_info_t::phosphate_distance_to_base_plane(mmdb::Residue *fo
                m += coot::util::int_to_string(base_atoms_coords.size());
                m += " atoms. ";
                throw std::runtime_error(m);
-                  
             } else { 
                std::pair<double, double> oop_plus_dev =
                   coot::lsq_plane_deviation(base_atoms_coords, pt);
@@ -314,7 +351,7 @@ coot::pucker_analysis_info_t::phosphate_distance_to_base_plane(mmdb::Residue *fo
    }
    if (found == 0) {
       throw std::runtime_error("Failed to find following phosphate");
-   } 
+   }
    return oop;
 }
 

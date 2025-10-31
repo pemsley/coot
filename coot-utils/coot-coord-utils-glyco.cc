@@ -1484,7 +1484,7 @@ coot::glyco_tree_t::hybrid_tree() const {
    linked_residue_t GAL_7_2("GAL", "BETA1-4");  // parent is NAG_7_1
    linked_residue_t SIA_7_3("SIA", "ALPHA1-3"); // parent is GAL_7_2
    linked_residue_t FUC_1  ("FUC", "ALPHA1-6");  // parent is NAG_1
-   
+
    tree<linked_residue_t> t;
    tree<linked_residue_t>::iterator asn     = t.insert(t.begin(), ASN);
    tree<linked_residue_t>::iterator nag_1   = t.append_child(asn,     NAG_1);

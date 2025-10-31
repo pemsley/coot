@@ -5274,7 +5274,6 @@ using json = nlohmann::json;
 
 //! get pucker info
 //!
-//! @param imol2 is the model molecule index
 //! @return a json string or an empty string on failure
 std::string
 coot::molecule_t::get_pucker_analysis_info() const {
@@ -5291,16 +5290,24 @@ coot::molecule_t::get_pucker_analysis_info() const {
          for (int ichain=0; ichain<n_chains; ichain++) {
             mmdb::Chain *chain_p = model_p->GetChain(ichain);
             int n_res = chain_p->GetNumberOfResidues();
-            for (int ires=0; ires<n_res; ires++) {
-               mmdb::Residue *residue_p = chain_p->GetResidue(ires);
-               if (residue_p) {
-                  try {
-                     pucker_analysis_info_t pi(residue_p, alt_conf);
-                     puckers.push_back(std::make_pair(residue_p, pi));
-                  }
-                  catch (const std::runtime_error &e) {
-                     // it's OK.
-                     // std::cout << "WARNING::" << e.what() << std::endl;
+            if (n_res > 1) {
+               for (int ires=0; ires<(n_res-1); ires++) {
+                  mmdb::Residue *residue_p      = chain_p->GetResidue(ires);
+                  mmdb::Residue *residue_next_p = chain_p->GetResidue(ires+1);
+                  if (residue_p) {
+                     if (residue_p->GetNumberOfAtoms() > 14) {
+                        try {
+                           pucker_analysis_info_t pai(residue_p, alt_conf);
+                           double d = pai.phosphate_distance_to_base_plane(residue_next_p);
+                           // store d in the markup info
+                           pai.markup_info.phosphate_distance_to_base_plane = d;
+                           puckers.push_back(std::make_pair(residue_p, pai));
+                        }
+                        catch (const std::runtime_error &e) {
+                           // it's OK.
+                           // std::cout << "WARNING::" << e.what() << std::endl;
+                        }
+                     }
                   }
                }
             }
@@ -5315,10 +5322,27 @@ coot::molecule_t::get_pucker_analysis_info() const {
          mmdb::Residue *residue_p  = puckers[i].first;
          json j_plane_distortion = pi.plane_distortion;
          json j_out_of_plane_distance = pi.out_of_plane_distance;
+         json j_markup_info_phosphorus_distance_to_base_plane = pi.markup_info.phosphate_distance_to_base_plane;
          json j_puckered_atom = pi.puckered_atom();
          json j_res_name = residue_p->GetResName();
          json j_chain_id = residue_p->GetChainID();
          json j_res_no = residue_p->GetSeqNum();
+         json j_markup_info_base_ring_centre;
+         json j_markup_info_base_ring_normal;
+         json j_markup_info_base_phosphorus_position;
+         json j_markup_info_base_projected_point;
+         j_markup_info_base_ring_centre["x"] = pi.markup_info.base_ring_centre.x();
+         j_markup_info_base_ring_centre["y"] = pi.markup_info.base_ring_centre.y();
+         j_markup_info_base_ring_centre["z"] = pi.markup_info.base_ring_centre.z();
+         j_markup_info_base_ring_normal["x"] = pi.markup_info.base_ring_normal.x();
+         j_markup_info_base_ring_normal["y"] = pi.markup_info.base_ring_normal.y();
+         j_markup_info_base_ring_normal["z"] = pi.markup_info.base_ring_normal.z();
+         j_markup_info_base_phosphorus_position["x"] = pi.markup_info.phosphorus_position.x();
+         j_markup_info_base_phosphorus_position["y"] = pi.markup_info.phosphorus_position.y();
+         j_markup_info_base_phosphorus_position["z"] = pi.markup_info.phosphorus_position.z();
+         j_markup_info_base_projected_point["x"] = pi.markup_info.projected_point.x();
+         j_markup_info_base_projected_point["y"] = pi.markup_info.projected_point.y();
+         j_markup_info_base_projected_point["z"] = pi.markup_info.projected_point.z();
          json j_pucker;
          j_pucker["plane_distortion"]      = j_plane_distortion;
          j_pucker["out_of_plane_distance"] = j_out_of_plane_distance;
@@ -5326,6 +5350,11 @@ coot::molecule_t::get_pucker_analysis_info() const {
          j_pucker["chain_id"]              = j_chain_id;
          j_pucker["res_no"]                = j_res_no;
          j_pucker["res_name"]              = j_res_name;
+         j_pucker["base_ring_centre"]             = j_markup_info_base_ring_centre;
+         j_pucker["base_ring_normal"]             = j_markup_info_base_ring_normal;
+         j_pucker["phosphorus_position"]          = j_markup_info_base_phosphorus_position;
+         j_pucker["projected_point"]             = j_markup_info_base_projected_point;
+         j_pucker["phosphate_distance_to_base_plane"] = j_markup_info_phosphorus_distance_to_base_plane;
          j.push_back(j_pucker);
       }
       s = j.dump(4);

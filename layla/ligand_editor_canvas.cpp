@@ -713,24 +713,34 @@ std::string coot_ligand_editor_canvas_get_smiles_for_molecule(CootLigandEditorCa
 }
 
 std::string coot_ligand_editor_canvas_get_inchi_key_for_molecule(CootLigandEditorCanvas* self, unsigned int molecule_idx) noexcept {
-    if(molecule_idx < self->rdkit_molecules->size()) {
-        const auto& mol_opt = (*self->rdkit_molecules)[molecule_idx];
-        if(mol_opt.has_value()) {
-            #ifdef RDK_BUILD_INCHI_SUPPORT
-            return RDKit::MolToInchiKey(*mol_opt->get());
-            #else
+
+   std::cout << "comparing molecule_idx " << molecule_idx << std::endl;
+   std::cout << "rdkit moelcules: " << self->rdkit_molecules << std::endl;
+
+   std::string s;
+   if (molecule_idx < self->rdkit_molecules->size()) {
+        std::cout << "Here 1" << std::endl;
+        const auto &mol_opt = (*self->rdkit_molecules)[molecule_idx];
+        std::cout << "Here 2" << std::endl;
+        if (mol_opt.has_value()) {
+#ifdef RDK_BUILD_INCHI_SUPPORT
+            std::cout << "Here 3" << std::endl;
+            const auto &v = *mol_opt->get();
+            std::cout << "Here 3b wth n-bonds: " << v.getNumBonds() << std::endl;
+            // s = RDKit::MolToInchiKey(v); // crash (on macOS, at least) for now.
+            std::cout << "Here 4" << std::endl;
+#else
             return "";
             #warning Your version of RDKit was built without InChI support. Molecule InChI key lookup will not be available.
-            #endif
-            
+#endif
         }
-    }
-    return "";
+   }
+    return s;
 }
 
 std::string coot_ligand_editor_canvas_get_pickled_molecule(CootLigandEditorCanvas* self, unsigned int molecule_idx) noexcept {
     std::string ret = "";
-    if(molecule_idx < self->rdkit_molecules->size()) {
+    if (molecule_idx < self->rdkit_molecules->size()) {
         const auto& mol_opt = (*self->rdkit_molecules)[molecule_idx];
         if(mol_opt.has_value()) {
             RDKit::MolPickler::pickleMol(mol_opt->get(), ret);

@@ -1,37 +1,77 @@
 --- Items ---
 
-o CSHL: drag and drop mtz and pdb together from the Finder
-* Fix later.
-
 o CSHL: pucker in C++? in New coot? There is no markup and there should be.
-
-o CSHL: molprobity.rna_validate to find RNA suite outliers. Mark this
-        up in Coot.
 
 o CSHL: visual feedback on changing the atom occupancies of a residue?
         Animated textures would be nice.
 
 o CSHL: don't pick symmetry atoms when they are not displayed.
 
-o CSHL: Make Link
-
-o CSHL: (in presentation add the anom map figure)
-
-o Coot: use common names in Add Other Solvent dialog - synonyms?
-
-o CSHL: Coot: center of screen crosshairs customizable.
-  scale with the zoom.
-
-o CSHL: Coot:: add proportional editing.
-
-o CSHL: 0.9.x delete deviant extra restraints doesn't work
-
-o CSHL: Coot disable double click with trackpad
+o CSHL: Coot disable double click with trackpad - option/preferences
 
 o CSHL: Coot: environment distances don't update on moving to new residue
 
 o CSHL: Does export of high-res mesh for model as gltf actually export
         a high-res mesh? Consider using instancing.
+
+o C2S2: Add "Pick delete" - Ctrl left-click keeps the mode active
+        Needs a key-binding.
+
+o C2S2: need key-binding for rotation around axis into the screen
+
+o S2C2: Flev Close button doesn't work.
+
+o S2C2: On copy fragment, zoom and centre on the new fragment
+
+o S2C2: split the recent pucker analysis plots by purine/pyrimidine
+
+o S2C2: make a figure with DNA backbone and bases, without backbone
+        or maybe protein perhaps. Maybe around the ligand binding
+        site.
+
+o S2C2: fix the documenation that does "import chapi"
+
+o S2C2: Make a figure for atom overlap (vs clash score)
+
+o S2C2: write a function that swaps the alt conf of an atom
+        (and it's partner, obviously)
+
+o S2C2: "backbone energy" - for comparing structures when
+        flipping peptides
+ 
+o S2C2: arene arene interactions in the key of Moorhen?
+
+o S2C2: 7L17: arg A149 should be interacting with the ligand
+
+o S2C2: Is the conformation generator in chapi?
+
+o S2C2: Ser/thr linked carbohydrate - how hard can it be?
+
+o S2C2: the fitting of the FLEV to its window doesn't work well.
+        Also seems that the Close button doesn't work.
+
+o CSHL: molprobity.rna_validate to find RNA suite outliers. Mark this
+        up in Coot.
+* Fix later.
+
+o CSHL: 0.9.x delete deviant extra restraints doesn't work
+* Fix later.
+
+o CSHL: drag and drop mtz and pdb together from the Finder
+* Fix later.
+
+o CSHL: Coot:: add proportional editing.
+* Fix later.
+
+o Coot: use common names in Add Other Solvent dialog - synonyms?
+* not a priority.
+
+o CSHL: Coot: center of screen crosshairs customizable.
+  scale with the zoom.
+* Done.
+
+o CSHL: Make Link
+* It's all done. You need to use the "Range/Pair" button to set it up.
 
 o CSHL: Coot: add other residue type to other solvent molecules
 * Done.

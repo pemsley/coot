@@ -1568,7 +1568,7 @@ void set_display_intro_string(const char *str);
 /*! \brief return the extent of the box/radius of electron density contours */
 float get_map_radius();
 
-/*! \brief not everone likes coot's esoteric depth cueing system
+/*! \brief not everyone likes coot's esoteric depth cueing system
 
   Pass an argument istate=1 to turn it off
 

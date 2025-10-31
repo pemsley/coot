@@ -248,9 +248,25 @@ namespace coot {
          else
             throw std::runtime_error("no plane defined");
       }
+      //! project the point pt onto the lsq plane
+      clipper::Coord_orth projected_point(const clipper::Coord_orth &pt) {
+         const double &a = abcd[0];
+         const double &b = abcd[1];
+         const double &c = abcd[2];
+         const double &d = abcd[3];
+         double top = a * pt.x() + b * pt.y() + c * pt.z() + d;
+         double bot = a * a + b * b + c * c;
+         double f = top / bot;
+         double x_p = pt.x() - a * f;
+         double y_p = pt.y() - b * f;
+         double z_p = pt.z() - c * f;
+         return clipper::Coord_orth(x_p, y_p, z_p);
+      }
+      //! return the r.m.s. deviation of the point in the plane
       double plane_atoms_rms() const {
          return rms;
       }
+      //! return the lsq plane normal
       clipper::Coord_orth normal() const {
          return clipper::Coord_orth(abcd[0], abcd[1], abcd[2]);
       }
@@ -446,6 +462,23 @@ namespace coot {
    int get_brick_id_inner(int x_idx, int y_idx, int z_idx,
                           int nx_grid, int ny_grid, int nz_grid);
 
+   // pucker analysis helper class - for mark-up/rendering.
+   class pucker_analysis_markup_info_t {
+      public:
+         clipper::Coord_orth base_ring_centre;
+         clipper::Coord_orth base_ring_normal;
+         clipper::Coord_orth phosphorus_position;
+         clipper::Coord_orth projected_point; // of the phosphorus position onto the the plane
+                                              // of the base
+         double phosphate_distance_to_base_plane;
+         pucker_analysis_markup_info_t() {
+            base_ring_centre    = clipper::Coord_orth(0,0,0);
+            base_ring_normal    = clipper::Coord_orth(0,0,0);
+            phosphorus_position = clipper::Coord_orth(0,0,0);
+            projected_point     = clipper::Coord_orth(0,0,0);
+            phosphate_distance_to_base_plane = 0.0;
+         }
+   };
    // Pukka puckers?
    //
    // Throw an exception if it is not possible to generate pucker info
@@ -475,6 +508,7 @@ namespace coot {
       //
       float phosphate_distance(mmdb::Residue *following_res);
       float phosphate_distance_to_base_plane(mmdb::Residue *following_res);
+      pucker_analysis_markup_info_t markup_info; // fill this
       std::string puckered_atom() const;
       std::string to_json() const;
    };
