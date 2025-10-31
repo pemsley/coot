@@ -1314,7 +1314,7 @@ distances more than:</property>
                                       <object class="GtkLabel" id="label582">
                                         <property name="halign">center</property>
                                         <property name="visible">1</property>
-                                        <property name="label" translatable="yes">Size: </property>
+                                        <property name="label" translatable="yes">Scale: </property>
                                         <property name="justify">center</property>
                                       </object>
                                     </child>
@@ -1331,7 +1331,7 @@ distances more than:</property>
                                       <object class="GtkLabel" id="label583">
                                         <property name="halign">center</property>
                                         <property name="visible">1</property>
-                                        <property name="label" translatable="yes"> Ångström</property>
+                                        <property name="label" translatable="yes"></property>
                                         <property name="justify">center</property>
                                       </object>
                                     </child>
