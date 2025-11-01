@@ -10291,6 +10291,15 @@ Do you want to continue?
             </child>
 
             <child type="overlay">
+              <object class="GtkLabel" id="occupancy_b_factors_updated_label">
+                <property name="visible">False</property>
+                <property name="halign">center</property>
+                <property name="valign">start</property>
+                <property name="label" translatable="yes">Occupancy/B-factor of Residue Updated</property>
+              </object>
+            </child>
+
+            <child type="overlay">
               <object class="GtkLabel" id="partition_map_by_chain_status_label">
                 <property name="visible">False</property>
                 <property name="halign">center</property>

@@ -6674,13 +6674,13 @@ graphics_info_t::quick_save() {
    add_status_bar_text("Quick Saved");
 
    GtkWidget *w = widget_from_builder("session_saved_label");
-
    if (w) {
       gtk_widget_set_visible(w, TRUE);
 
       auto label_callback = +[] (gpointer user_data) {
          GtkWidget *w = GTK_WIDGET(user_data);
          gtk_widget_set_visible(w, FALSE);
+         return 0;
       };
       g_timeout_add(2000, G_SOURCE_FUNC(label_callback), w);
    }

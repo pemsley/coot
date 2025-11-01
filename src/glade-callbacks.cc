@@ -1740,6 +1740,19 @@ on_residue_info_apply_button_clicked(GtkButton       *button,
    apply_residue_info_changes();
    // GtkWidget *widget = widget_from_builder("residue_info_dialog");
    // gtk_widget_set_visible(widget, FALSE);
+   add_status_bar_text("Occupancies and B-factors have been updated");
+   GtkWidget *label = widget_from_builder("occupancy_b_factors_updated_label");
+   if (label) {
+      gtk_widget_set_visible(label, TRUE);
+
+      auto label_callback = +[] (gpointer user_data) {
+         GtkWidget *w = GTK_WIDGET(user_data);
+         gtk_widget_set_visible(w, FALSE);
+         return 0;
+      };
+      g_timeout_add(1000, G_SOURCE_FUNC(label_callback), label);
+
+   }
 }
 
 
