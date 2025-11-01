@@ -1,3 +1,5 @@
+-----
+
   Release Notes for 1.1.20
 
  o CHANGE:  XDG is used for the download of COD entries
@@ -13,8 +15,33 @@
 
  o FEATURE: now Open Dialogs track the latest used directory
 
+ o FEATURE: "Unhappy Atom" markup added
+
+ o FEATURE: Add keyboard mutate
+
+ o FEATURE: Add user-defined type to "Add Other Solvent Molecule"
+            dialog
+
  o FEATURE: on initial startup, Coot will ask if left-mouse
             should be used for view rotation
+
+ o FEATURE: Other types of Carbohydrate added (back)
+
+ o CHANGE:  Update the "No Unmodelled Blobs" dialog
+
+ o CHANGE:  Cross-hairs have fixed size, not relative size - the
+            size is configurable in Preferences
+
+ o CHANGE:  "Environment Distances" is now a transient [Oli Clarke]
+
+ o CHANGE:  CA Label now follow the residue on "Space" repositioning
+
+ o CHANGE:  Recentre on new fragment on "Copy Fragment"
+
+ o BUG-FIX: "Undo molecule" dialog operation fixed
+
+ o BUG-FIX: Display Control dialog is only displayed on restart
+            if it was displayed on session save
 
  o BUG-FIX: fix control of display control dialog in the
             state script
@@ -23,9 +50,13 @@
 
  o BUG-FIX: get-monomer dialog activate now closes the drop-down.
 
+ o BUG-FIX: undisplay "Get monomer" frame on entry activate
+
 Chapi/libcootapi
 
- o  NEW FUNCTION: get_mmrrcc()
+ o NEW FUNCTION: get_mmrrcc()
+
+ o NEW FUNCTION: get_residue_pucker_info() function added
 
 -----
 

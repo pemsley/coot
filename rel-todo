@@ -1,15 +1,6 @@
 --- Items ---
 
-o CSHL: pucker in C++? in New coot? There is no markup and there should be.
-
-o CSHL: visual feedback on changing the atom occupancies of a residue?
-        Animated textures would be nice.
-
-o CSHL: don't pick symmetry atoms when they are not displayed.
-
-o CSHL: Coot disable double click with trackpad - option/preferences
-
-o CSHL: Coot: environment distances don't update on moving to new residue
+o CSHL: Coot enable option to disable double click with trackpad - option/preferences
 
 o CSHL: Does export of high-res mesh for model as gltf actually export
         a high-res mesh? Consider using instancing.
@@ -20,8 +11,7 @@ o C2S2: Add "Pick delete" - Ctrl left-click keeps the mode active
 o C2S2: need key-binding for rotation around axis into the screen
 
 o S2C2: Flev Close button doesn't work.
-
-o S2C2: On copy fragment, zoom and centre on the new fragment
+* Looks OK to me.
 
 o S2C2: split the recent pucker analysis plots by purine/pyrimidine
 
@@ -45,10 +35,27 @@ o S2C2: 7L17: arg A149 should be interacting with the ligand
 
 o S2C2: Is the conformation generator in chapi?
 
-o S2C2: Ser/thr linked carbohydrate - how hard can it be?
+o S2C2: Ser/Thr linked carbohydrate - how hard can it be?
 
 o S2C2: the fitting of the FLEV to its window doesn't work well.
         Also seems that the Close button doesn't work.
+
+o CSHL: Visual feedback on changing the atom occupancies of a residue?
+        Animated textures would be nice.
+        Do it like "State Saved"
+* Done - is fine.
+
+o CSHL: pucker in C++? in New coot? There is no markup and there should be.
+* Done for moorhen.
+
+o CSHL: don't pick symmetry atoms when they are not displayed.
+* Done.
+
+o CSHL: Coot: environment distances don't update on moving to new residue
+* Done.
+
+o S2C2: On copy fragment, zoom and centre on the new fragment
+* Done.
 
 o CSHL: molprobity.rna_validate to find RNA suite outliers. Mark this
         up in Coot.
