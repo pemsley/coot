@@ -20,6 +20,8 @@
  * Foundation, Inc.,  51 Franklin Street, Fifth Floor, Boston, MA 02110-1335, USA
  */
 
+#include "coot-utils/coot-coord-utils.hh"
+#include "geometry/residue-and-atom-specs.hh"
 #ifdef USE_PYTHON
 #include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #endif
@@ -355,6 +357,12 @@ int
 graphics_info_t::intelligent_near_atom_centring(GtkWidget *go_to_atom_window,
                                                 const std::string &direction) {
 
+   auto label_unlabel_centre_atom = [] (mmdb::Atom *at_next, mmdb::Manager *mol, int imol) {
+      coot::residue_spec_t residue_next(at_next->GetResidue());
+      mmdb::Residue *residue_this = coot::util::get_previous_residue(residue_next, mol);
+      molecules[imol].add_atom_label(residue_next.chain_id.c_str(), residue_next.res_no, " CA ");
+      molecules[imol].remove_atom_label(residue_this->GetChainID(), residue_this->GetSeqNum(), " CA ");
+   };
 
    std::string chain =     go_to_atom_chain_;
    std::string atom_name = go_to_atom_atom_name_;
@@ -403,6 +411,7 @@ graphics_info_t::intelligent_near_atom_centring(GtkWidget *go_to_atom_window,
 
       if (atom_index != -1) {
          mmdb::Atom *next_atom = molecules[imol].atom_sel.atom_selection[atom_index];
+         mmdb::Manager *mol    = molecules[imol].atom_sel.mol;
 
          go_to_atom_chain_       = next_atom->GetChainID();
          go_to_atom_atom_name_   = next_atom->name;
@@ -412,6 +421,8 @@ graphics_info_t::intelligent_near_atom_centring(GtkWidget *go_to_atom_window,
 
          // now update the widget with the new values of the above (like
          // c-interface:goto_near_atom_maybe())
+
+         label_unlabel_centre_atom(next_atom, mol, imol);
 
          if (go_to_atom_window) {
             update_widget_go_to_atom_values(go_to_atom_window, next_atom);
