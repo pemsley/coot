@@ -4910,6 +4910,16 @@ int new_molecule_by_residue_type_selection(int imol_orig, const char *residue_ty
 
 int new_molecule_by_atom_selection(int imol_orig, const char* atom_selection_str) {
 
+   auto recentre_on_new_fragment = [] (int imol) {
+      graphics_info_t g;
+      coot::view_info_t this_view(g.view_quaternion, g.RotationCentre(), g.zoom, "");
+      float new_zoom = 100.0;
+      coot::Cartesian new_rotation_centre = g.molecules[imol].centre_of_molecule();
+      coot::view_info_t  new_view(g.view_quaternion, new_rotation_centre, new_zoom, "");
+      int nsteps = int(1000.0/g.views_play_speed);
+      coot::view_info_t::interpolate(this_view, new_view, nsteps);
+   };
+
    int imol = -1;
    if (is_valid_model_molecule(imol_orig)) {
       imol = graphics_info_t::create_molecule();
@@ -4936,6 +4946,7 @@ int new_molecule_by_atom_selection(int imol_orig, const char* atom_selection_str
 	    g.molecules[imol].install_model(imol, asc, g.Geom_p(), name, 1, shelx_flag);
 	    g.molecules[imol].set_have_unsaved_changes_from_outside();
 	    update_go_to_atom_window_on_new_mol();
+            recentre_on_new_fragment(imol);
 	 } else {
 	    std::cout << "in new_molecule_by_atom_selection "
 		      << "Something bad happened - No atoms selected"
