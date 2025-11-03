@@ -51,7 +51,7 @@ play_sound_file(const std::string &file_name) {
 
    std::cout << "play_sound_file() " << file_name << std::endl;
 
-   auto _ = [] (ALenum err) {
+   auto print_alerror = [] (ALenum err) {
      std::string s = std::to_string(err);
      if (err == AL_NO_ERROR)          s = "AL_NO_ERROR";
      if (err == AL_INVALID_NAME)      s = "AL_INVALID_NAME";
@@ -61,34 +61,42 @@ play_sound_file(const std::string &file_name) {
      return s;
    };
 
-   auto play_sound_file_inner = [_] (const std::string &file_name) {
+   auto play_sound_file_inner = [print_alerror] (const std::string &file_name) {
 
       std::cout << "DEBUG:: play_sound_file_inner: " << file_name << std::endl;
 
       ALCdevice *m_pDevice = alcOpenDevice(NULL);
-      alcCreateContext(m_pDevice, NULL);
 
       std::cout << "debug:: m_pDevice is " << m_pDevice << std::endl;
+      
+      if(!m_pDevice) {
+         std::cout << "ERROR:: play_sound_file_inner() could not open sound device" << std::endl;
+         return;
+      }
+
+      ALCcontext *m_pContext = alcCreateContext(m_pDevice, NULL);
+      alcMakeContextCurrent(m_pContext);
+
 
       ALenum err = alGetError();
-      if (err) std::cout << "AL ERROR:: play_sound_file_inner() A0 " << _(err) << std::endl;
+      if (err) std::cout << "AL ERROR:: play_sound_file_inner() A0 " << print_alerror(err) << std::endl;
       err = alGetError();
-      if (err) std::cout << "AL ERROR:: play_sound_file_inner() A1 " << _(err) << std::endl;
+      if (err) std::cout << "AL ERROR:: play_sound_file_inner() A1 " << print_alerror(err) << std::endl;
       err = alGetError();
-      if (err) std::cout << "AL ERROR:: play_sound_file_inner() A2 " << _(err) << std::endl;
+      if (err) std::cout << "AL ERROR:: play_sound_file_inner() A2 " << print_alerror(err) << std::endl;
       for (unsigned int i=0; i<10;i++) {
          err = alGetError();
-         if (err) std::cout << "AL ERROR:: play_sound_file_inner() Ae " << i << " " << _(err) << std::endl;
+         if (err) std::cout << "AL ERROR:: play_sound_file_inner() Ae " << i << " " << print_alerror(err) << std::endl;
       }
       ALuint source;
       alGenSources(1, &source);
       err = alGetError();
-      if (err) std::cout << "AL ERROR:: play_sound_file_inner() B1 " << _(err) << std::endl;
+      if (err) std::cout << "AL ERROR:: play_sound_file_inner() B1 " << print_alerror(err) << std::endl;
 
       ALuint buffer;
       alGenBuffers(1, &buffer);
       err = alGetError();
-      if (err) std::cout << "AL ERROR:: play_sound_file_inner() B2 " << _(err) << std::endl;
+      if (err) std::cout << "AL ERROR:: play_sound_file_inner() B2 " << print_alerror(err) << std::endl;
       FILE* file = fopen(file_name.c_str(), "rb");
       OggVorbis_File ovf;
       ov_open(file, &ovf, NULL, 0);
@@ -99,19 +107,19 @@ play_sound_file(const std::string &file_name) {
       int bitstream = 0;
       ov_read(&ovf, (char*)data, size, 0, 2, 1, &bitstream);
       err = alGetError();
-      if (err) std::cout << "AL ERROR:: play_sound_file_inner() C " << _(err) << std::endl;
+      if (err) std::cout << "AL ERROR:: play_sound_file_inner() C " << print_alerror(err) << std::endl;
       alBufferData(buffer, AL_FORMAT_STEREO16, data, size, vi->rate);
       err = alGetError();
-      if (err) std::cout << "AL ERROR:: play_sound_file_inner() D " << _(err) << std::endl;
+      if (err) std::cout << "AL ERROR:: play_sound_file_inner() D " << print_alerror(err) << std::endl;
 
       // Play the sound
       std::cout << "%%%%%%%%%%% play the sound " << file_name << std::endl;
       alSourcei(source, AL_BUFFER, buffer);
       err = alGetError();
-      if (err) std::cout << "AL ERROR:: play_sound_file_inner() E " << _(err) << std::endl;
+      if (err) std::cout << "AL ERROR:: play_sound_file_inner() E " << print_alerror(err) << std::endl;
       alSourcePlay(source);
       err = alGetError();
-      if (err) std::cout << "AL ERROR:: play_sound_file_inner() F " << _(err) << std::endl;
+      if (err) std::cout << "AL ERROR:: play_sound_file_inner() F " << print_alerror(err) << std::endl;
 
       ov_clear(&ovf);
       fclose(file);
