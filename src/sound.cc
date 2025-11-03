@@ -40,9 +40,35 @@
 #include "graphics-info.h" // to check for graphics_info_t::use_sounds
 
 #include <thread>
-// #include <atomic>
 
 // std::atomic<unsigned int> n_sound_files_playing(0);
+
+#ifdef WITH_SOUND
+#include <mutex>
+class OpenALState {
+   public:
+   ALCdevice *device;
+   ALCcontext *context;
+
+   OpenALState(ALCdevice * m_device, ALCcontext* m_context) : device(m_device), context(m_context) {
+      // empty
+   }
+
+   ~OpenALState() {
+      if(context) {
+         alcMakeContextCurrent(NULL);
+         alcDestroyContext(context);
+      }
+      if(device) {
+         alcCloseDevice(device);
+      }
+   }
+};
+
+inline std::mutex openal_init_mutex;
+inline OpenALState* openal_state_ptr = nullptr;
+
+#endif
 
 void
 play_sound_file(const std::string &file_name) {
@@ -76,41 +102,57 @@ play_sound_file(const std::string &file_name) {
 
       std::cout << "DEBUG:: play_sound_file_inner: " << file_name << std::endl;
 
-      ALCdevice *m_pDevice = alcOpenDevice(NULL);
+      ALCdevice *m_pDevice;
+      ALCcontext *m_pContext;
 
-      const auto* default_device = alcGetString(NULL, ALC_DEFAULT_DEVICE_SPECIFIER);
-      if(default_device) {
-         std::cout << "DEBUG:: Default sound device: " << default_device;
-      } else {
-         std::cout << "DEBUG:: No default sound device found. ";
+      openal_init_mutex.lock();
+      if(openal_state_ptr != nullptr) {
+         m_pDevice = openal_state_ptr->device;
+         m_pContext = openal_state_ptr->context;
+      } else { // Initialize OpenAL
+         m_pDevice = alcOpenDevice(NULL);
+         if(!m_pDevice) {
+            std::cout << "ERROR:: play_sound_file_inner() giving up after device opening failure." << std::endl;
+            return;
+         }
+         m_pContext = alcCreateContext(m_pDevice, NULL);
+         // this error check seems to be unreliable
+         // check_alerror("Context creation");
+         if(!m_pContext) {
+            // We don't close the device here, as it may be in use by other threads
+            std::cout << "ERROR:: play_sound_file_inner() giving up after context creation failure." << std::endl;
+            return;
+         }
+
+         alcMakeContextCurrent(m_pContext);
+         check_alerror("make context current");
+         
+         OpenALState* initial_state = new OpenALState(m_pDevice, m_pContext);
+         openal_state_ptr = initial_state;
+
+         const auto* default_device = alcGetString(NULL, ALC_DEFAULT_DEVICE_SPECIFIER);
+         if(default_device) {
+            std::cout << "DEBUG:: Default sound device: " << default_device;
+         } else {
+            std::cout << "DEBUG:: No default sound device found. ";
+         }
+         const auto* devices = alcGetString(NULL, ALC_DEVICE_SPECIFIER);
+         std::cout << "; Available sound devices: ";
+         while(*devices) {
+            std::cout << " " << devices;
+            devices += strlen(devices) + 1;
+         }
+         std::cout << std::endl;
       }
-      const auto* devices = alcGetString(NULL, ALC_DEVICE_SPECIFIER);
-      std::cout << "; Available sound devices: ";
-      while(*devices) {
-         std::cout << " " << devices;
-         devices += strlen(devices) + 1;
-      }
-      std::cout << std::endl;
+      openal_init_mutex.unlock();
+
 
       std::cout << "debug:: m_pDevice is " << m_pDevice << std::endl;
       
-      if(!m_pDevice) {
-         std::cout << "ERROR:: play_sound_file_inner() could not open sound device" << std::endl;
+      if(!m_pDevice || !m_pContext) {
+         std::cout << "ERROR:: play_sound_file_inner() device or context is null. Giving up" << std::endl;
          return;
       }
-
-      ALCcontext *m_pContext = alcCreateContext(m_pDevice, NULL);
-      // this error check seems to be unreliable
-      // check_alerror("Context creation");
-      if(!m_pContext) {
-         alcCloseDevice(m_pDevice);
-         std::cout << "ERROR:: play_sound_file_inner() giving up after context creation failure" << std::endl;
-         return;
-      }
-
-      alcMakeContextCurrent(m_pContext);
-
-      check_alerror("make context current");
       
       ALuint source;
       alGenSources(1, &source);
@@ -123,9 +165,6 @@ play_sound_file(const std::string &file_name) {
       auto openal_cleanup = [&] () {
          alDeleteBuffers(1, &buffer);
          alDeleteSources(1, &source);
-         alcMakeContextCurrent(NULL);
-         alcDestroyContext(m_pContext);
-         alcCloseDevice(m_pDevice);
       };
 
       FILE* file = fopen(file_name.c_str(), "rb");
