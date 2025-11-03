@@ -40,9 +40,9 @@
 #include "graphics-info.h" // to check for graphics_info_t::use_sounds
 
 #include <thread>
-#include <atomic>
+// #include <atomic>
 
-std::atomic<unsigned int> n_sound_files_playing(0);
+// std::atomic<unsigned int> n_sound_files_playing(0);
 
 void
 play_sound_file(const std::string &file_name) {
@@ -58,6 +58,8 @@ play_sound_file(const std::string &file_name) {
      if (err == AL_INVALID_ENUM)      s = "AL_INVALID_ENUM";
      if (err == AL_INVALID_VALUE)     s = "AL_INVALID_VALUE";
      if (err == AL_INVALID_OPERATION) s = "AL_INVALID_OPERATION";
+     if (err == ALC_INVALID_CONTEXT) s = "ALC_INVALID_CONTEXT";
+     if (err == ALC_INVALID_DEVICE) s = "ALC_INVALID_DEVICE";
      return s;
    };
 
@@ -76,6 +78,20 @@ play_sound_file(const std::string &file_name) {
 
       ALCdevice *m_pDevice = alcOpenDevice(NULL);
 
+      const auto* default_device = alcGetString(NULL, ALC_DEFAULT_DEVICE_SPECIFIER);
+      if(default_device) {
+         std::cout << "DEBUG:: Default sound device: " << default_device << std::endl;
+      } else {
+         std::cout << "DEBUG:: No default sound device found" << std::endl;
+      }
+      const auto* devices = alcGetString(NULL, ALC_DEVICE_SPECIFIER);
+      std::cout << "DEBUG:: Available sound devices: ";
+      while(*devices) {
+         std::cout << " " << devices;
+         devices += strlen(devices) + 1;
+      }
+      std::cout << std::endl;
+
       std::cout << "debug:: m_pDevice is " << m_pDevice << std::endl;
       
       if(!m_pDevice) {
@@ -84,8 +100,11 @@ play_sound_file(const std::string &file_name) {
       }
 
       ALCcontext *m_pContext = alcCreateContext(m_pDevice, NULL);
-      if(check_alerror("create context")) {
+      // this error check seems to be unreliable
+      // check_alerror("Context creation");
+      if(!m_pContext) {
          alcCloseDevice(m_pDevice);
+         std::cout << "ERROR:: play_sound_file_inner() giving up after context creation failure" << std::endl;
          return;
       }
 
@@ -112,28 +131,50 @@ play_sound_file(const std::string &file_name) {
       FILE* file = fopen(file_name.c_str(), "rb");
 
       if(!file) {
-         std::cout << "ERROR:: play_sound_file_inner() could not open sound file " << file_name << std::endl;
+         std::cout << "ERROR:: play_sound_file_inner() could not open sound file. Giving up. File: " << file_name << std::endl;
          openal_cleanup();
          return;
       }
 
       OggVorbis_File ovf;
-      ov_open(file, &ovf, NULL, 0);
+      if (ov_open(file, &ovf, NULL, 0) < 0) {
+         std::cout << "ERROR:: play_sound_file_inner() could not open OggVorbis file. Giving up. File: " << file_name << std::endl;
+         fclose(file);
+         openal_cleanup();
+         return;
+      }
+
       vorbis_info *vi = ov_info(&ovf, -1);
 
-      // wtf is this "2" ? 
-      ALsizei size = vi->channels * vi->rate * 2;
-      ALshort* data = new ALshort[size];
+      ALenum format = vi->channels == 1 ? AL_FORMAT_MONO16 : AL_FORMAT_STEREO16;
+      ALsizei size_in_samples = ov_pcm_total(&ovf, -1) * vi->channels;
+      // Both AL_FORMAT_MONO16 and AL_FORMAT_STEREO16 use two bytes per sample.
+      ALsizei size_in_bytes = size_in_samples * 2;
+      ALshort* data = new ALshort[size_in_samples];
       int bitstream = 0;
-      ov_read(&ovf, (char*)data, size, 0, 2, 1, &bitstream);
+      unsigned int offset = 0;
+      while(true) {
+         long ov_read_res = ov_read(&ovf, (char*)(data) + offset, size_in_bytes - offset, 0, 2, 1, &bitstream);
+         if (ov_read_res > 0) {
+            offset += ov_read_res;
+         } else if (ov_read_res == 0) {
+            // EOF
+            break;
+         } else {
+            std::cout << "ERROR:: play_sound_file_inner() error while reading OggVorbis file. Giving up. File: " << file_name << std::endl;
+            ov_clear(&ovf);
+            openal_cleanup();
+            delete[] data;
+            return;
+         }
+      }
 
-      alBufferData(buffer, AL_FORMAT_STEREO16, data, size, vi->rate);
+      alBufferData(buffer, format, data, size_in_bytes, vi->rate);
       check_alerror("Write buffer data");
 
-      // Play the sound
-      std::cout << " Play the sound " << file_name << std::endl;
       alSourcei(source, AL_BUFFER, buffer);
       check_alerror("Attach buffer to source");
+      std::cout << "DEBUG:: Playing the sound " << file_name << std::endl;
       alSourcePlay(source);
       check_alerror("source play");
 
@@ -143,9 +184,13 @@ play_sound_file(const std::string &file_name) {
          alGetSourcei(source, AL_SOURCE_STATE, &source_state);
       } while (source_state == AL_PLAYING);
 
+      std::cout << "DEBUG:: Playback finished " << file_name << std::endl;
+
       ov_clear(&ovf);
-      fclose(file);
+      // this appear to be already freed above
+      // fclose(file);
       openal_cleanup();
+      delete[] data;
    };
 
    std::string fn = file_name;
