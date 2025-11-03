@@ -49,7 +49,7 @@ play_sound_file(const std::string &file_name) {
 
 #ifdef WITH_SOUND
 
-   std::cout << "play_sound_file_macos() " << file_name << std::endl;
+   std::cout << "play_sound_file() " << file_name << std::endl;
 
    auto _ = [] (ALenum err) {
      std::string s = std::to_string(err);
