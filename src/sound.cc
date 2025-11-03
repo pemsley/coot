@@ -117,8 +117,8 @@ play_sound_file(const std::string &file_name) {
          // this error check seems to be unreliable
          // check_alerror("Context creation");
          if(!m_pContext) {
-            // We don't close the device here, as it may be in use by other threads
             std::cout << "ERROR:: play_sound_file_inner() giving up after context creation failure." << std::endl;
+            alcCloseDevice(m_pDevice);
             return;
          }
 
