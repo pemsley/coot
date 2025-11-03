@@ -302,7 +302,7 @@ _coot_la_LDFLAGS = -module $(SHARED_LDFLAGS) --no-undefined  \
 	   $(top_builddir)/pli/libcoot-pli.la                \
 	   $(top_builddir)/lidia-core/libcoot-lidia-core.la  \
 	   $(top_builddir)/utils/libcoot-utils.la            \
-	   $(openal_LIBS) $(PYTHON_LIBS) $(CLIPPER_LIBS)
+	   $(PYTHON_LIBS) $(CLIPPER_LIBS)
 
 
 if OS_WIN32
@@ -924,6 +924,7 @@ libcootsumo_la_LIBADD = $(OPENMP_CFLAGS) \
 		$(L_BOOST_PYTHON)     \
 		-lfreetype            \
 		$(SQLITE3_LIBS)       \
+		$(openal_LIBS)        \
 		$(SHARED_LDFLAGS)     \
 		-lpthread
 

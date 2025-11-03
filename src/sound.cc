@@ -61,7 +61,16 @@ play_sound_file(const std::string &file_name) {
      return s;
    };
 
-   auto play_sound_file_inner = [print_alerror] (const std::string &file_name) {
+   auto check_alerror = [print_alerror] (const std::string &where) {
+      ALenum err = alGetError();
+      if (err != AL_NO_ERROR) {
+         std::cout << "AL ERROR:: " << where << " : " << print_alerror(err) << std::endl;
+         return true;
+      }
+      return false;
+   };
+
+   auto play_sound_file_inner = [print_alerror, check_alerror] (const std::string &file_name) {
 
       std::cout << "DEBUG:: play_sound_file_inner: " << file_name << std::endl;
 
@@ -75,54 +84,68 @@ play_sound_file(const std::string &file_name) {
       }
 
       ALCcontext *m_pContext = alcCreateContext(m_pDevice, NULL);
+      if(check_alerror("create context")) {
+         alcCloseDevice(m_pDevice);
+         return;
+      }
+
       alcMakeContextCurrent(m_pContext);
 
-
-      ALenum err = alGetError();
-      if (err) std::cout << "AL ERROR:: play_sound_file_inner() A0 " << print_alerror(err) << std::endl;
-      err = alGetError();
-      if (err) std::cout << "AL ERROR:: play_sound_file_inner() A1 " << print_alerror(err) << std::endl;
-      err = alGetError();
-      if (err) std::cout << "AL ERROR:: play_sound_file_inner() A2 " << print_alerror(err) << std::endl;
-      for (unsigned int i=0; i<10;i++) {
-         err = alGetError();
-         if (err) std::cout << "AL ERROR:: play_sound_file_inner() Ae " << i << " " << print_alerror(err) << std::endl;
-      }
+      check_alerror("make context current");
+      
       ALuint source;
       alGenSources(1, &source);
-      err = alGetError();
-      if (err) std::cout << "AL ERROR:: play_sound_file_inner() B1 " << print_alerror(err) << std::endl;
-
+      check_alerror("source generation");
+      
       ALuint buffer;
       alGenBuffers(1, &buffer);
-      err = alGetError();
-      if (err) std::cout << "AL ERROR:: play_sound_file_inner() B2 " << print_alerror(err) << std::endl;
+      check_alerror("buffer generation");
+
+      auto openal_cleanup = [&] () {
+         alDeleteBuffers(1, &buffer);
+         alDeleteSources(1, &source);
+         alcMakeContextCurrent(NULL);
+         alcDestroyContext(m_pContext);
+         alcCloseDevice(m_pDevice);
+      };
+
       FILE* file = fopen(file_name.c_str(), "rb");
+
+      if(!file) {
+         std::cout << "ERROR:: play_sound_file_inner() could not open sound file " << file_name << std::endl;
+         openal_cleanup();
+         return;
+      }
+
       OggVorbis_File ovf;
       ov_open(file, &ovf, NULL, 0);
       vorbis_info *vi = ov_info(&ovf, -1);
 
+      // wtf is this "2" ? 
       ALsizei size = vi->channels * vi->rate * 2;
       ALshort* data = new ALshort[size];
       int bitstream = 0;
       ov_read(&ovf, (char*)data, size, 0, 2, 1, &bitstream);
-      err = alGetError();
-      if (err) std::cout << "AL ERROR:: play_sound_file_inner() C " << print_alerror(err) << std::endl;
+
       alBufferData(buffer, AL_FORMAT_STEREO16, data, size, vi->rate);
-      err = alGetError();
-      if (err) std::cout << "AL ERROR:: play_sound_file_inner() D " << print_alerror(err) << std::endl;
+      check_alerror("Write buffer data");
 
       // Play the sound
-      std::cout << "%%%%%%%%%%% play the sound " << file_name << std::endl;
+      std::cout << " Play the sound " << file_name << std::endl;
       alSourcei(source, AL_BUFFER, buffer);
-      err = alGetError();
-      if (err) std::cout << "AL ERROR:: play_sound_file_inner() E " << print_alerror(err) << std::endl;
+      check_alerror("Attach buffer to source");
       alSourcePlay(source);
-      err = alGetError();
-      if (err) std::cout << "AL ERROR:: play_sound_file_inner() F " << print_alerror(err) << std::endl;
+      check_alerror("source play");
+
+      ALint source_state;
+      do {
+         std::this_thread::yield();
+         alGetSourcei(source, AL_SOURCE_STATE, &source_state);
+      } while (source_state == AL_PLAYING);
 
       ov_clear(&ovf);
       fclose(file);
+      openal_cleanup();
    };
 
    std::string fn = file_name;
