@@ -103,7 +103,7 @@ play_sound_file(const std::string &file_name) {
       ALCdevice *m_pDevice;
       ALCcontext *m_pContext;
 
-      openal_init_mutex.lock();
+      std::unique_lock<std::mutex> init_lock(openal_init_mutex);
       if(openal_state_ptr != nullptr) {
          m_pDevice = openal_state_ptr->device;
          m_pContext = openal_state_ptr->context;
@@ -142,7 +142,7 @@ play_sound_file(const std::string &file_name) {
          }
          std::cout << std::endl;
       }
-      openal_init_mutex.unlock();
+      init_lock.unlock();
 
 
       std::cout << "debug:: m_pDevice is " << m_pDevice << std::endl;
