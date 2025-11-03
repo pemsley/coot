@@ -480,7 +480,7 @@ fi
 AM_COOT_SYS_BUILD_TYPE
 
 
-AC_ARG_WITH([sound], AS_HELP_STRING([--with-sound compile with ogg-vorbis and ALSA libs]), with_sound="withval", with_sound=false)
+AC_ARG_WITH([sound], AS_HELP_STRING([--with-sound compile with ogg-vorbis and OpenAL libs]), with_sound="withval", with_sound=false)
 AC_MSG_CHECKING([for sound])
 if test "x$with_sound" = xfalse ; then
    :
@@ -488,13 +488,14 @@ if test "x$with_sound" = xfalse ; then
 else
    AC_MSG_RESULT(yes)
    PKG_CHECK_MODULES(VORBISFILE, [vorbisfile >= 1.2])
-   uname_s=$(uname -s) # should autoconf do this for us? If so, I can't see where it is stored
-   if test "$uname_s" = Linux ; then
-      PKG_CHECK_MODULES(ALSA, [alsa >= 1.2])
-   else
-      # it's a mac then
-      PKG_CHECK_MODULES(OpenAL, [OpenAL >= 1.23])
-   fi
+   PKG_CHECK_MODULES(openal, [openal >= 1.23])
+   # uname_s=$(uname -s) # should autoconf do this for us? If so, I can't see where it is stored
+   # if test "$uname_s" = Linux ; then
+   #   PKG_CHECK_MODULES(ALSA, [alsa >= 1.2])
+   #else
+   #   # it's a mac then
+   #   PKG_CHECK_MODULES(OpenAL, [OpenAL >= 1.23])
+   #fi
    # Use Core Audio on macOS. Consider PortAudio instead of using alsa directly.
    AC_SUBST(SOUND_FLAGS, -DWITH_SOUND)
 fi
