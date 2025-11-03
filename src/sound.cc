@@ -80,12 +80,12 @@ play_sound_file(const std::string &file_name) {
 
       const auto* default_device = alcGetString(NULL, ALC_DEFAULT_DEVICE_SPECIFIER);
       if(default_device) {
-         std::cout << "DEBUG:: Default sound device: " << default_device << std::endl;
+         std::cout << "DEBUG:: Default sound device: " << default_device;
       } else {
-         std::cout << "DEBUG:: No default sound device found" << std::endl;
+         std::cout << "DEBUG:: No default sound device found. ";
       }
       const auto* devices = alcGetString(NULL, ALC_DEVICE_SPECIFIER);
-      std::cout << "DEBUG:: Available sound devices: ";
+      std::cout << "; Available sound devices: ";
       while(*devices) {
          std::cout << " " << devices;
          devices += strlen(devices) + 1;
@@ -180,7 +180,8 @@ play_sound_file(const std::string &file_name) {
 
       ALint source_state;
       do {
-         std::this_thread::yield();
+         // std::this_thread::yield();
+         std::this_thread::sleep_for(std::chrono::milliseconds(100));
          alGetSourcei(source, AL_SOURCE_STATE, &source_state);
       } while (source_state == AL_PLAYING);
 
