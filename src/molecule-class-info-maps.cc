@@ -5258,7 +5258,7 @@ molecule_class_info_t::export_map_molecule_as_gltf(const std::string &file_name)
 bool
 molecule_class_info_t::export_model_molecule_as_gltf(const std::string &file_name) const {
 
-   std::cout << "DEBUG:: in m::export_model_molecule_as_gltf() " << meshes.size() << std::endl;
+   std::cout << "DEBUG:: in m::export_model_molecule_as_gltf() meshes.size(): " << meshes.size() << std::endl;
 
    bool status = true;
 
@@ -5274,7 +5274,8 @@ molecule_class_info_t::export_model_molecule_as_gltf(const std::string &file_nam
       // this needs to be completey reworked
       // molecule_as_mesh.export_to_glTF(file_name, use_binary);
       // FIXME
-      std::cout << "export_model_molecule_as_gltf() FIXME" << std::endl;
+      std::cout << "export_model_molecule_as_gltf() - export as instanced object: FIXME"
+                << std::endl;
    }
    return status;
 }
