@@ -1,27 +1,28 @@
 --- Items ---
 
-o CSHL: Coot enable option to disable double click with trackpad - option/preferences
+o report the symmetry on the command line
+
+o without internet connection: don't overwrite existing pdb
+  file with blank file when using --code
+
+o S2C2: 7L17: arg A149 should be interacting with the ligand
+
+o CSHL: Coot enable option to disable double click with trackpad -
+        option/preferences
 
 o CSHL: Does export of high-res mesh for model as gltf actually export
         a high-res mesh? Consider using instancing.
+        It does not. Instancing is the way.
 
 o C2S2: Add "Pick delete" - Ctrl left-click keeps the mode active
         Needs a key-binding.
 
 o C2S2: need key-binding for rotation around axis into the screen
 
-o S2C2: Flev Close button doesn't work.
-* Looks OK to me.
-
 o S2C2: split the recent pucker analysis plots by purine/pyrimidine
 
 o S2C2: make a figure with DNA backbone and bases, without backbone
-        or maybe protein perhaps. Maybe around the ligand binding
-        site.
-
-o S2C2: fix the documenation that does "import chapi"
-
-o S2C2: Make a figure for atom overlap (vs clash score)
+        or maybe protein perhaps. Maybe around the ligand binding site.
 
 o S2C2: write a function that swaps the alt conf of an atom
         (and it's partner, obviously)
@@ -31,14 +32,15 @@ o S2C2: "backbone energy" - for comparing structures when
  
 o S2C2: arene arene interactions in the key of Moorhen?
 
-o S2C2: 7L17: arg A149 should be interacting with the ligand
-
 o S2C2: Is the conformation generator in chapi?
 
 o S2C2: Ser/Thr linked carbohydrate - how hard can it be?
 
 o S2C2: the fitting of the FLEV to its window doesn't work well.
         Also seems that the Close button doesn't work.
+
+o S2C2: Flev Close button doesn't work.
+* Looks OK to me.
 
 o CSHL: Visual feedback on changing the atom occupancies of a residue?
         Animated textures would be nice.

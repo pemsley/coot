@@ -38,6 +38,8 @@
 
  o CHANGE:  Recentre on new fragment on "Copy Fragment"
 
+ o CHANGE:  Overlay notification on B-factor and Occupancy updated
+
  o BUG-FIX: "Undo molecule" dialog operation fixed
 
  o BUG-FIX: Display Control dialog is only displayed on restart
