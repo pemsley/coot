@@ -640,8 +640,8 @@ fetch_alphafold_model_for_uniprot_id(const std::string &uniprot_id) {
    int imol = -1; // return this
    // https://alphafold.ebi.ac.uk/files/AF-Q7N8I7-F1-model_v4.pdb
    // https://alphafold.ebi.ac.uk/files/AF-Q7N8I7-F1-predicted_aligned_error_v4.json
-   std::string fn_tail_pdb = std::string("AF-") + uniprot_id + std::string("-F1-model_v3.pdb");
-   std::string fn_tail_pae = std::string("AF-") + uniprot_id + std::string("-F1-predicted_aligned_error_v4.json");
+   std::string fn_tail_pdb = std::string("AF-") + uniprot_id + std::string("-F1-model_v6.pdb");
+   std::string fn_tail_pae = std::string("AF-") + uniprot_id + std::string("-F1-predicted_aligned_error_v6.json");
 
    xdg_t xdg;
    std::string download_dir = join(xdg.get_cache_home().string(), "coot-download");
