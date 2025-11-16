@@ -3194,7 +3194,17 @@ graphics_info_t::draw_hud_buttons() {
 void
 graphics_info_t::setup_draw_for_translation_gizmo() {
 
-   attach_buffers();
+   GLenum err = glGetError();
+   if (err)
+      logger.log(log_t::GL_ERROR, logging::function_name_t("setup_draw_for_translation_gizmo"),
+                 "--start--", stringify_error_code(err));
+
+   attach_buffers(); // this causes a GL error - why?
+
+   err = glGetError();
+   if (err)
+      logger.log(log_t::GL_ERROR, logging::function_name_t("setup_draw_for_translation_gizmo"),
+                 "A", stringify_error_code(err));
 
    size_t s = translation_gizmo.mesh.vertices.size();
    std::vector<s_generic_vertex> cv(s); //  conveted vertices
@@ -3203,10 +3213,30 @@ graphics_info_t::setup_draw_for_translation_gizmo() {
       cv[i].normal = translation_gizmo.mesh.vertices[i].normal;
       cv[i].color  = translation_gizmo.mesh.vertices[i].color;
    }
+   err = glGetError();
+   if (err)
+      logger.log(log_t::GL_ERROR, logging::function_name_t("setup_draw_for_translation_gizmo"),
+                 "B", stringify_error_code(err));
    translation_gizmo_mesh.clear(); // so that we don't add to the mesh!
+   err = glGetError();
+   if (err)
+      logger.log(log_t::GL_ERROR, logging::function_name_t("setup_draw_for_translation_gizmo"),
+                 "C", stringify_error_code(err));
    translation_gizmo_mesh.import(cv, translation_gizmo.mesh.triangles);
+   err = glGetError();
+   if (err)
+      logger.log(log_t::GL_ERROR, logging::function_name_t("setup_draw_for_translation_gizmo"),
+                 "D", stringify_error_code(err));
    translation_gizmo_mesh.setup_buffers();
+   err = glGetError();
+   if (err)
+      logger.log(log_t::GL_ERROR, logging::function_name_t("setup_draw_for_translation_gizmo"),
+                 "E",  stringify_error_code(err));
    translation_gizmo_mesh.set_draw_this_mesh(false);
+   err = glGetError();
+   if (err)
+      logger.log(log_t::GL_ERROR, logging::function_name_t("setup_draw_for_translation_gizmo"),
+                 "F", stringify_error_code(err));
 
 }
 
