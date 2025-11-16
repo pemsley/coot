@@ -701,6 +701,7 @@ logging::log_item::type_as_string() const {
    if (type == log_t::DEBUG)       tt = "DEBUG::  ";
    if (type == log_t::ERROR)       tt = "ERROR::  ";
    if (type == log_t::WARNING)     tt = "WARNING::";
+   if (type == log_t::GL_ERROR)    tt = "GL_ERROR::";
    if (type == log_t::UNSPECIFIED) tt = "UNSPECIFIED::";
    return tt;
 }
