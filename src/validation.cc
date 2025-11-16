@@ -115,10 +115,13 @@ SCM c_beta_deviations_scm(int imol) {
 
 void delete_unhappy_atom_markers() {
 
-   for (int i=0; i<graphics_info_t::molecules.size(); i++) {
-      graphics_info_t::molecules[i].unhappy_atom_marker_positions.clear();
-      std::cout << "now call update for the unhappy_atom_markers texture mesh"
-                << std::endl;
+   for (unsigned int i=0; i<graphics_info_t::molecules.size(); i++) {
+      if (! graphics_info_t::molecules[i].unhappy_atom_marker_positions.empty()) {
+         graphics_info_t::molecules[i].unhappy_atom_marker_positions.clear();
+         graphics_info_t::attach_buffers();
+         const auto &positions = graphics_info_t::molecules[i].unhappy_atom_marker_positions;
+         graphics_info_t::tmesh_for_unhappy_atom_markers.update_instancing_buffer_data(positions);
+      }
    }
 }
 
@@ -133,7 +136,7 @@ void add_unhappy_atom_marker(int imol, const coot::atom_spec_t &atom_spec) {
       graphics_info_t g;
       g.add_unhappy_atom_marker(imol, atom_spec);
    }
-} 
+}
 
 // atom_spec_list is a 5-member atom spec
 void add_unhappy_atom_marker_py(int imol, PyObject *atom_spec_list_py) {
@@ -156,7 +159,7 @@ void add_unhappy_atom_marker_py(int imol, PyObject *atom_spec_list_py) {
 		           std::string ins_code  = PyBytes_AS_STRING(PyUnicode_AsEncodedString(ins_code_py, "UTF-8", "strict"));
 		           std::string atom_name = PyBytes_AS_STRING(PyUnicode_AsEncodedString(atom_name_py, "UTF-8", "strict"));
 		           std::string alt_conf  = PyBytes_AS_STRING(PyUnicode_AsEncodedString(alt_conf_py, "UTF-8", "strict"));
-                           int res_no = PyLong_AsInt(res_no_py);
+                           long res_no = PyLong_AsLong(res_no_py);
                            coot::atom_spec_t atom_spec(chain_id, res_no, ins_code, atom_name, alt_conf);
                            add_unhappy_atom_marker(imol, atom_spec);
                         }
