@@ -2005,7 +2005,7 @@ void fill_logging_text_view() {
       GtkTextTag *gl_error_color_tag = gtk_text_tag_table_lookup(tag_table, "gl-error-type-color");
       if (gl_error_color_tag == NULL) {
          GtkTextTag *gl_error_color_tag = gtk_text_tag_new("gl-error-type-color");
-         std::string gl_error_type_colour = "#ee2222";
+         std::string gl_error_type_colour = "#cc8822";
          g_object_set(gl_error_color_tag, "foreground", gl_error_type_colour.c_str(), NULL);
          gtk_text_tag_table_add(gtk_text_buffer_get_tag_table(buffer), gl_error_color_tag);
       }

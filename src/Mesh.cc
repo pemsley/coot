@@ -797,10 +797,8 @@ Mesh::setup_buffers() {
 
    GLenum err = glGetError();
    if (err) {
-      // std::cout << "GL ERROR:: Mesh::setup_buffers() \"" << name << "\" --- start --- "
-      // << stringify_error_code(err) << std::endl;
-      logger.log(log_t::GL_ERROR, logging::function_name_t("Mesh::setup_buffers()"),
-		 stringify_error_code(err));
+      logger.log(log_t::GL_ERROR, logging::function_name_t("Mesh::setup_buffers"),
+                 name, stringify_error_code(err));
       err = glGetError();
       if (err != 0)
          std::cout << "GL ERROR:: Mesh::setup_buffers() \"" << name << "\" --- start --- stack-clear "
