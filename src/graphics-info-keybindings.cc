@@ -172,7 +172,7 @@ graphics_info_t::print_key_bindings() {
       if (kb.first.ctrl_is_pressed) ctrl_string = "Ctrl";
       std::cout << "binding: "
                 << ctrl_string << " " << std::setw(5) << key_string
-                << "  ->  " << std::setw(16) << std::left << kb.second.description
+                << "  ->  " << std::setw(20) << std::left << kb.second.description
                 << " " << key_bindings_t::type_to_string(kb.second.type)
                 << std::endl;
    }
