@@ -5617,7 +5617,7 @@ void graphics_info_t::add_unhappy_atom_marker(int imol, const coot::atom_spec_t 
          attach_buffers();
          tmesh_for_unhappy_atom_markers.draw_this_mesh = true;
          tmesh_for_unhappy_atom_markers.update_instancing_buffer_data(positions);
-         unsigned int n_instances = tmesh_for_chiral_volume_outlier_markers.get_n_instances();
+         unsigned int n_instances = tmesh_for_unhappy_atom_markers.get_n_instances();
          if (false)
             std::cout << "debug:: :::::::::::::::::::::::::::::::: add position " << glm::to_string(p)
                       << "  " << n_instances << std::endl;
