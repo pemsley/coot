@@ -69,7 +69,7 @@ pick_atom_from_atom_selection(const atom_selection_container_t &SelAtom, int imo
    if (false)
       std::cout << "pick_atom_from_atom_selection() imol " << imol
                 << " n_selected_atoms " << SelAtom.n_selected_atoms << " "
-                << front << " " << back << " " << pick_mode << std::endl;
+                << front << " " << back << " pick_mode: " << pick_mode << std::endl;
 
    for (int i=0; i< SelAtom.n_selected_atoms; i++) {
 
@@ -275,6 +275,8 @@ graphics_info_t::atom_pick_gtk3(bool intermediate_atoms_only_flag) const {
                if (m.Bonds_box_type() == coot::CA_BONDS_PLUS_LIGANDS)                pick_mode = PICK_ATOM_CA_OR_LIGAND;
                if (m.Bonds_box_type() == coot::COLOUR_BY_RAINBOW_BONDS)		     pick_mode = PICK_ATOM_CA_OR_LIGAND; // yes, this mode shows ligands
                if (m.Bonds_box_type() == coot::CA_BONDS_PLUS_LIGANDS_AND_SIDECHAINS) pick_mode = PICK_ATOM_CA_OR_SIDECHAIN_OR_LIGAND;
+               // this should be combined with the above, not override it.
+               if (m.draw_hydrogens() == 0) pick_mode = PICK_ATOM_NON_HYDROGEN;
                bool verbose_mode = graphics_info_t::debug_atom_picking;
                pick_info mpi = pick_atom_from_atom_selection(m.atom_sel, imol, front, back, pick_mode, verbose_mode);
                return mpi;
