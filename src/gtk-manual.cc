@@ -497,7 +497,7 @@ void display_control_molecule_combo_box(const std::string &name, int imol,
    gtk_editable_set_text(GTK_EDITABLE(entry), name.c_str());
    gtk_widget_set_visible(entry, TRUE);
    gtk_box_append(GTK_BOX(hbox), entry);
-   std::string widget_name = "display_model_entry" + std::to_string(imol);
+   std::string widget_name = "display_model_entry_" + std::to_string(imol);
    gtk_widget_set_name(entry, widget_name.c_str());
 
    // 3: "Display" checkbutton
@@ -637,6 +637,7 @@ GtkWidget *molecule_index_to_display_manager_entry(int imol) {
    // see also set_display_control_button_state()
 
    auto get_inner_entry = [] (const std::string &widget_name, GtkWidget *vbox) {
+
       GtkWidget *entry = nullptr;
       GtkWidget *item_widget = gtk_widget_get_first_child(vbox);
       while (item_widget) {
@@ -652,6 +653,8 @@ GtkWidget *molecule_index_to_display_manager_entry(int imol) {
                   entry = item_widget_inner;
                   break;
                }
+            } else {
+               // std::cout << "DEBUG:: in get_inner_entry(): null widget_name" << std::endl;
             }
             item_widget_inner = gtk_widget_get_next_sibling(item_widget_inner);
          }
@@ -686,6 +689,8 @@ update_name_in_display_control_molecule_combo_box(int imol, const char *display_
    GtkWidget *entry = molecule_index_to_display_manager_entry(imol);
    if (entry)
       gtk_editable_set_text(GTK_EDITABLE(entry), display_name);
+   else
+      std::cout << "DEBUG:: update_name_in_display_control_molecule_combo_box() entry lookup failed" << std::endl;
 }
 
 void
