@@ -349,6 +349,43 @@ molecule_class_info_t::set_atom_attribute(std::string chain_id, int resno, std::
    return istate;
 }
 
+int molecule_class_info_t::swap_atom_alt_conf(std::string chain_id, int res_no, std::string ins_code,
+                                              std::string atom_name, std::string alt_conf) {
+
+  int istate = 0;
+   if (atom_sel.n_selected_atoms > 0) {
+      int SelectionHandle = atom_sel.mol->NewSelection();
+      atom_sel.mol->SelectAtoms(SelectionHandle, 0,
+                                chain_id.c_str(),
+                                res_no, ins_code.c_str(),
+                                res_no, ins_code.c_str(),
+                                "*",
+                                atom_name.c_str(),
+                                "*",
+                                "*");
+      int nSelAtoms;
+      mmdb::PPAtom SelAtoms;
+      atom_sel.mol->GetSelIndex(SelectionHandle, SelAtoms, nSelAtoms);
+      if (nSelAtoms > 1) {
+         mmdb::Atom *at_0 = SelAtoms[0];
+         mmdb::Atom *at_1 = SelAtoms[1];
+         std::string alt_conf_0 = at_0->altLoc;
+         std::string alt_conf_1 = at_1->altLoc;
+         if (alt_conf_0.length() <= 8){
+            if (alt_conf_1.length() <= 8){
+               strncpy(at_0->altLoc, alt_conf_1.c_str(), alt_conf_1.length()+1);
+               strncpy(at_1->altLoc, alt_conf_0.c_str(), alt_conf_0.length()+1);
+            }
+         }
+      }
+   }
+   have_unsaved_changes_flag = 1;
+   atom_sel.mol->FinishStructEdit();
+   make_bonds_type_checked(__FUNCTION__); // calls update_ghosts()
+   return istate;
+ }
+
+
 int
 molecule_class_info_t::set_atom_string_attribute(std::string chain_id, int resno, std::string ins_code,
                                                  std::string atom_name, std::string alt_conf,
@@ -358,13 +395,13 @@ molecule_class_info_t::set_atom_string_attribute(std::string chain_id, int resno
    if (atom_sel.n_selected_atoms > 0) {
       int SelectionHandle = atom_sel.mol->NewSelection();
       atom_sel.mol->SelectAtoms(SelectionHandle, 0,
-                                (char *) chain_id.c_str(),
-                                resno, (char *) ins_code.c_str(),
-                                resno, (char *) ins_code.c_str(),
+                                chain_id.c_str(),
+                                resno, ins_code.c_str(),
+                                resno, ins_code.c_str(),
                                 "*",
-                                (char *) atom_name.c_str(),
+                                atom_name.c_str(),
                                 "*",
-                                (char *) alt_conf.c_str());
+                                alt_conf.c_str());
       int nSelAtoms;
       mmdb::PPAtom SelAtoms;
       atom_sel.mol->GetSelIndex(SelectionHandle, SelAtoms, nSelAtoms);

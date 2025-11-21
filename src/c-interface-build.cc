@@ -974,6 +974,25 @@ void set_debug_refinement(int state) {
    graphics_info_t::do_debug_refinement = state;
 }
 
+int swap_atom_alt_conf(int imol, const char *chain_id, int res_no, const char *ins_code, const char *atom_name, const char*alt_conf) {
+
+   int istat = 0;
+   if (is_valid_model_molecule(imol)) {
+      istat = graphics_info_t::molecules[imol].swap_atom_alt_conf(chain_id, res_no, ins_code, atom_name, alt_conf);
+   }
+   graphics_draw();
+   std::string cmd = "swap-atom-alt-conf";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(imol);
+   args.push_back(coot::util::single_quote(chain_id));
+   args.push_back(res_no);
+   args.push_back(coot::util::single_quote(ins_code));
+   args.push_back(coot::util::single_quote(atom_name));
+   args.push_back(coot::util::single_quote(alt_conf));
+   add_to_history_typed(cmd, args);
+   return istat;
+}
+
 
 int set_atom_attribute(int imol, const char *chain_id, int resno, const char *ins_code, const char *atom_name, const char*alt_conf, const char *attribute_name, float val) {
    int istat = 0;

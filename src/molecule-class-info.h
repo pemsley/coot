@@ -2813,6 +2813,8 @@ public:        //                      public
    // Replace the atoms in this molecule by those in the given atom selection.
    int replace_fragment(atom_selection_container_t asc);
 
+   int swap_atom_alt_conf(std::string chain_id, int res_no, std::string ins_code, std::string atom_name, std::string alt_conf);
+
    int set_atom_attribute(std::string chain_id, int resno, std::string ins_code,
 			  std::string atom_name, std::string alt_conf,
 			  std::string attribute_name, float val);

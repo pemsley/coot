@@ -2598,6 +2598,10 @@ void set_temperature_factors_for_atoms_in_residue_scm(int imol, SCM residue_spec
 #endif
 #endif
 
+/*! \brief swap atom alt-confs */
+int swap_atom_alt_conf(int imol, const char *chain_id, int res_no, const char *ins_code,
+                       const char *atom_name, const char*alt_conf);
+
 /*! \brief set a numberical attibute to the atom with the given specifier.
 
 Attributes can be "x", "y","z", "B", "occ" and the attribute val is a floating point number*/
