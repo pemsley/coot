@@ -248,12 +248,12 @@ int coot_get_url_and_activate_curl_hook(const std::string &url,
 	 success = curl_easy_perform(c);
 
          if (coot::file_exists(file_name)) {
-            std::cout << "::::::::::::::: file_exists " << file_name << std::endl;
+            std::cout << "DEBUG:: file_exists " << file_name << std::endl;
             std::filesystem::path fp(file_name);
             std::uintmax_t size = std::filesystem::file_size(fp);
-            std::cout << "::::::::::::::: file_size " << size << std::endl;
+            std::cout << "DEBUG:: file_size " << size << std::endl;
             if (is_html(file_name)) {
-               std::cout << "::::::::::::::: file is html " << file_name << std::endl;
+               std::cout << "DEBUG:: file is html " << file_name << std::endl;
                success = CURLcode(23); // CURL write error (say)
                int rm_status = remove(file_name.c_str()); // Ciao Bella
                if (rm_status == 0)
