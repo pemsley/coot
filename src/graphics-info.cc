@@ -2144,6 +2144,7 @@ graphics_info_t::clear_up_moving_atoms() {
       // now the diegos
       bad_nbc_atom_pair_marker_positions.clear(); // this should be in the update function, surely?
       update_bad_nbc_atom_pair_marker_positions();
+      update_bad_nbc_atom_pair_dashed_lines();
       update_chiral_volume_outlier_marker_positions();
 
    }

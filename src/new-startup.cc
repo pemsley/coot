@@ -183,7 +183,8 @@ new_startup_realize(GtkWidget *gl_area) {
    g.gl_rama_plot.setup_buffers(double_rama_size); // rama relative size, put it into graphics_info_t
    // and allow it to be set in the API
    g.setup_draw_for_happy_face_residue_markers_init();
-   g.setup_draw_for_bad_nbc_atom_pair_markers();
+   g.setup_draw_for_bad_nbc_atom_pair_markers(); // angry diego
+   g.setup_draw_for_bad_nbc_atom_pair_dashed_line();
    g.setup_draw_for_chiral_volume_outlier_markers();
    g.setup_draw_for_anchored_atom_markers_init();
    g.setup_draw_for_unhappy_atom_markers();

@@ -1849,6 +1849,8 @@ graphics_info_t::draw_hud_colour_bar() {
 void
 graphics_info_t::draw_molecules() {
 
+   // this is not called in fancy mode.
+
    // opaque things
 
    draw_outlined_active_residue();
@@ -1882,6 +1884,8 @@ graphics_info_t::draw_molecules() {
    draw_happy_face_residue_markers();
 
    draw_bad_nbc_atom_pair_markers(PASS_TYPE_STANDARD);
+
+   draw_bad_nbc_atom_pair_dashed_lines(PASS_TYPE_STANDARD);
 
    draw_chiral_volume_outlier_markers(PASS_TYPE_STANDARD);
 
@@ -5432,6 +5436,98 @@ graphics_info_t::update_bad_nbc_atom_pair_marker_positions() {
    }
 }
 
+#include "coot-utils/cylinder-utils.hh"
+
+// static
+void graphics_info_t::update_bad_nbc_atom_pair_dashed_lines() {
+
+   // look at above
+
+   auto convert_vertices = [] (const std::vector<coot::api::vnc_vertex> &vertices) {
+      std::vector<s_generic_vertex> v_out(vertices.size());
+      for (unsigned int i=0; i<vertices.size(); i++) {
+         const auto &v = vertices[i];
+         v_out[i].pos    = v.pos;
+         v_out[i].normal = v.normal;
+         v_out[i].color  = v.color;
+      }
+      return v_out;
+   };
+
+   auto baddies_to_dashed_lines = [] (const std::vector<coot::refinement_results_nbc_baddie_t> &baddies,
+                                      unsigned int n_dashes) {
+      dashed_cylinders_info_t dci;
+      std::vector<std::pair<glm::vec3, glm::vec3> > positions;
+      for (unsigned int i=0; i<baddies.size(); i++) {
+         const auto &baddie = baddies[i];
+         glm::vec3 p1(baddie.atom_1_pos.x(), baddie.atom_1_pos.y(), baddie.atom_1_pos.z());
+         glm::vec3 p2(baddie.atom_2_pos.x(), baddie.atom_2_pos.y(), baddie.atom_2_pos.z());
+         positions.push_back(std::make_pair(p1, p2));
+      }
+      dci = get_dashed_cylinders(positions, n_dashes);
+      return dci;
+   };
+
+   // Note:
+   //    class dashed_cylinders_info_t {
+   // public:
+   //    dashed_cylinders_info_t() {}
+   //    cylinder c;
+   //    glm::mat3 rot;
+   //    glm::vec3 scales;
+   //    std::vector<glm::vec3> offsets;
+   // };
+
+   GLenum err = glGetError();
+   if (err)
+      logger.log(log_t::GL_ERROR, logging::function_name_t("update_bad_nbc_atom_pair_dashed_lines"),
+                 "--start--", stringify_error_code(err));
+
+   if (moving_atoms_asc) {
+      if (moving_atoms_asc->mol) {
+         coot::refinement_results_t &rr = saved_dragged_refinement_results;
+
+         unsigned int n_dashes = 23;
+
+         attach_buffers();
+         err = glGetError();
+         if (err)
+            logger.log(log_t::GL_ERROR, logging::function_name_t("update_bad_nbc_atom_pair_dashed_lines"),
+                       "A", stringify_error_code(err));
+
+         // make instances
+         std::vector<coot::refinement_results_nbc_baddie_t> &baddies(rr.sorted_nbc_baddies);
+         if (! baddies.empty()) {
+            dashed_cylinders_info_t dl = baddies_to_dashed_lines(baddies, n_dashes);
+            std::vector<glm::mat4> mats;
+            std::vector<glm::vec4> colours;
+            for (unsigned int i=0; i<dl.oris_and_offsets.size(); i++) {
+               const auto &ori = dl.oris_and_offsets[i].first;
+               for (unsigned int j=0; j<dl.oris_and_offsets[i].second.size(); j++) {
+                  const auto &offset = dl.oris_and_offsets[i].second[j];
+                  glm::mat4 u(1.0f);
+                  glm::mat4 s = glm::scale(u, dl.scales);
+                  glm::mat4 r = dl.oris_and_offsets[i].first;
+                  glm::mat4 t = glm::translate(u, offset);
+                  glm::mat4 m1 = t * r * s;
+                  mats.push_back(m1);
+                  colours.push_back(glm::vec4(0.6, 0.4, 0.2, 1.0));
+               }
+            }
+            Shader *shader_p = nullptr;
+            unsigned int n_instances = mats.size();
+            Material material;
+            if (n_instances > 0) {
+               for (unsigned int i=0; i<mats.size(); i++) {
+                  // std::cout << "mat " << i << " " << glm::to_string(mats[i]) << std::endl;
+               }
+            }
+            bad_nbc_atom_pair_dashed_line.setup_rtsc_instancing(shader_p, mats, colours, n_instances, material);
+         }
+      }
+   }
+}
+
 
 void
 graphics_info_t::setup_draw_for_particles_for_new_gone_diegos(const std::vector<glm::vec3> &positions) {
@@ -5524,6 +5620,41 @@ graphics_info_t::setup_draw_for_bad_nbc_atom_pair_markers() {
 
 }
 
+void graphics_info_t::setup_draw_for_bad_nbc_atom_pair_dashed_line() {
+
+   // the mesh gets setup on update
+   auto convert_vertices = [] (const std::vector<coot::api::vnc_vertex> &vertices) {
+      std::vector<s_generic_vertex> v_out(vertices.size());
+      for (unsigned int i=0; i<vertices.size(); i++) {
+         const auto &v = vertices[i];
+         v_out[i].pos    = v.pos;
+         v_out[i].normal = v.normal;
+         v_out[i].color  = v.color;
+      }
+      return v_out;
+   };
+
+   GLenum err = glGetError();
+   if (err)
+      logger.log(log_t::WARNING, logging::function_name_t("setup_draw_for_bad_nbc_atom_pair_dashed_line"),
+                 "---start---", stringify_error_code(err));
+
+   attach_buffers();
+   cylinder c;
+   c.init_unit(20);
+   c.add_flat_end_cap();
+   c.add_flat_start_cap();
+   bad_nbc_atom_pair_dashed_line = Mesh(convert_vertices(c.vertices), c.triangles);
+   bad_nbc_atom_pair_dashed_line.set_name("bad_nbc_atom_pair_dashed_line Mesh");
+   bad_nbc_atom_pair_dashed_line.setup_buffers();
+
+   if (err)
+      logger.log(log_t::WARNING, logging::function_name_t("setup_draw_for_bad_nbc_atom_pair_dashed_line"),
+                 "---end---", stringify_error_code(err));
+
+}
+
+
 // static
 void
 graphics_info_t::draw_bad_nbc_atom_pair_markers(unsigned int pass_type) {
@@ -5557,6 +5688,35 @@ graphics_info_t::draw_bad_nbc_atom_pair_markers(unsigned int pass_type) {
       }
    }
 }
+
+void graphics_info_t::draw_bad_nbc_atom_pair_dashed_lines(unsigned int pass_type) {
+
+   if (curmudgeon_mode) return;
+
+   if (draw_bad_nbc_atom_pair_markers_flag) {
+
+      if (! bad_nbc_atom_pair_marker_positions.empty()) {
+         glm::mat4 mvp = get_molecule_mvp();
+         glm::mat4 model_rotation = get_model_rotation();
+         glm::vec4 bg_col(background_colour, 1.0);
+
+         bool transfered_colour_is_instanced = true;
+         if (pass_type == PASS_TYPE_STANDARD)
+            bad_nbc_atom_pair_dashed_line.draw_instanced(pass_type,
+                                                         &shader_for_instanced_objects,
+                                                         mvp,
+                                                         model_rotation,
+                                                         lights,
+                                                         eye_position,
+                                                         bg_col,
+                                                         shader_do_depth_fog_flag,
+                                                         transfered_colour_is_instanced);
+
+      }
+   }
+
+}
+
 
  void
     graphics_info_t::setup_draw_for_chiral_volume_outlier_markers() {

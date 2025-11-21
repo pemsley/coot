@@ -1676,6 +1676,8 @@ TextureMesh graphics_info_t::tmesh_for_bad_nbc_atom_pair_markers = TextureMesh("
 Texture graphics_info_t::texture_for_bad_nbc_atom_pair_markers;
 std::vector<glm::vec3> graphics_info_t::bad_nbc_atom_pair_marker_positions;
 
+Mesh graphics_info_t::bad_nbc_atom_pair_dashed_line = Mesh("bad nbc atom_pair dashed line instanced mesh");
+
 TextureMesh graphics_info_t::tmesh_for_unhappy_atom_markers = TextureMesh("tmesh-unhappy-atom-outliers");
 Texture graphics_info_t::texture_for_unhappy_atom_markers;
 

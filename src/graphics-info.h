@@ -2962,6 +2962,11 @@ public:
    static std::vector<glm::vec3> bad_nbc_atom_pair_marker_positions;
    const unsigned int draw_count_max_for_bad_nbc_atom_pair_markers = 100; // needed?
 
+   static void setup_draw_for_bad_nbc_atom_pair_dashed_line();
+   static void update_bad_nbc_atom_pair_dashed_lines();
+   static Mesh bad_nbc_atom_pair_dashed_line; // instanced mesh
+   static void draw_bad_nbc_atom_pair_dashed_lines(unsigned int pass_type);
+
    void setup_draw_for_chiral_volume_outlier_markers();
    static void draw_chiral_volume_outlier_markers(unsigned int pass_type);
    static void update_chiral_volume_outlier_marker_positions();

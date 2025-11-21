@@ -124,7 +124,9 @@ public:
    bool debug_mode; // setable from the outside, rather than me editing the draw() function
    void debug() const;
    void debug_to_file() const;
+   //! the resets the vao
    void delete_gl_buffers();
+   //! this resets the vao if delete_gl_buffers_also is true
    void clear(bool delete_gl_buffers_also = false) {
       if (delete_gl_buffers_also)
          delete_gl_buffers();
