@@ -81,16 +81,8 @@ std::optional<DisplayMode> coot::ligand_editor_canvas::display_mode_from_string(
     }
 }
 
-float CanvasMolecule::get_scale() const noexcept {
-    return BASE_SCALE_FACTOR * this->canvas_scale;
-}
-
-void CanvasMolecule::set_canvas_scale(float scale) {
-    this->canvas_scale = scale;
-}
-
-CanvasMolecule::MaybeAtomOrBond CanvasMolecule::resolve_click(int x, int y) const noexcept {
-    float scale = this->get_scale();
+CanvasMolecule::MaybeAtomOrBond CanvasMolecule::resolve_click(int x, int y, float canvas_scale) const noexcept {
+    float scale = BASE_SCALE_FACTOR * canvas_scale;
     auto x_offset = this->x_canvas_translation * scale;
     auto y_offset = this->y_canvas_translation * scale;
     // atoms first 
@@ -134,29 +126,29 @@ CanvasMolecule::MaybeAtomOrBond CanvasMolecule::resolve_click(int x, int y) cons
     return std::nullopt;
 }
 
-void CanvasMolecule::apply_canvas_translation(int delta_x, int delta_y) noexcept {
-    float scale = this->get_scale();
+void CanvasMolecule::apply_canvas_translation(int delta_x, int delta_y, float canvas_scale) noexcept {
+    float scale = BASE_SCALE_FACTOR * canvas_scale;
     this->x_canvas_translation += (float) delta_x / scale;
     this->y_canvas_translation += (float) delta_y / scale;
 }
 
-std::pair<float,float> CanvasMolecule::get_on_screen_coords(float x, float y) const noexcept {
-    float scale = this->get_scale();
-    auto x_offset = this->x_canvas_translation * scale;
-    auto y_offset = this->y_canvas_translation * scale;
+std::pair<float,float> CanvasMolecule::get_on_screen_coords(float x, float y, const std::pair<int, int>& viewport_offset, float canvas_scale) const noexcept {
+    float scale = BASE_SCALE_FACTOR * canvas_scale;
+    auto x_offset = this->x_canvas_translation * scale - viewport_offset.first;
+    auto y_offset = this->y_canvas_translation * scale - viewport_offset.second;
     return std::make_pair(x * scale + x_offset, y * scale + y_offset);
 }
 
-std::optional<std::pair<float,float>> CanvasMolecule::get_on_screen_coords_of_atom(unsigned int atom_idx) const noexcept {
+std::optional<std::pair<float,float>> CanvasMolecule::get_on_screen_coords_of_atom(unsigned int atom_idx, const std::pair<int, int>& viewport_offset, float canvas_scale) const noexcept {
     if(this->atoms.size() <= atom_idx) {
         return std::nullopt;
     }
     const Atom& a = this->atoms[atom_idx];
-    return this->get_on_screen_coords(a.x, a.y);
+    return this->get_on_screen_coords(a.x, a.y, viewport_offset, canvas_scale);
 }
 
-graphene_rect_t CanvasMolecule::get_on_screen_bounding_rect() const noexcept {
-    float scale = this->get_scale();
+graphene_rect_t CanvasMolecule::get_on_screen_bounding_rect(const std::pair<int, int>& viewport_offset, float canvas_scale) const noexcept {
+    float scale = BASE_SCALE_FACTOR * canvas_scale;
     auto x_offset = this->x_canvas_translation * scale;
     auto y_offset = this->y_canvas_translation * scale;
     graphene_rect_t ret;
@@ -364,8 +356,8 @@ float CanvasMolecule::Bond::get_length() const noexcept {
     return std::sqrt(std::pow(bond_vector_x,2.f) + std::pow(bond_vector_y,2.f));
 }
 
-void CanvasMolecule::draw(impl::Renderer& ren, DisplayMode display_mode) const noexcept {
-    impl::MoleculeRenderContext renctx(*this, ren, display_mode);
+void CanvasMolecule::draw(impl::Renderer& ren, DisplayMode display_mode, const std::pair<int, int>& viewport_offset, float canvas_scale) const noexcept {
+    impl::MoleculeRenderContext renctx(*this, ren, display_mode, viewport_offset, canvas_scale);
     renctx.draw_atoms();
     renctx.draw_bonds();
 }

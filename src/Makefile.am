@@ -228,7 +228,7 @@ AM_CXXFLAGS = \
 	-DXDATADIR='"$(datadir)"'    \
 	-DCOOT_SYS_BUILD_TYPE='"$(COOT_SYS_BUILD_TYPE)"' \
 	-DCOOT_BUILD_INFO_STRING='"$(COOT_BUILD_INFO_STRING)"' \
-        $(OpenAL_CFLAGS)        \
+    $(openal_CFLAGS)        \
 	$(RSVG_CFLAGS)		\
 	$(USE_LIBCURL)          \
 	$(WITH_GUILE_CFLAGS)	\
@@ -272,7 +272,6 @@ AM_CPPFLAGS = \
 	$(GLOB_CFLAGS)                  \
 	$(WITH_SOUND)                   \
 	$(VORBISFILE_CFLAGS)            \
-	$(ALSA_CFLAGS)                  \
 	$(SOUND_FLAGS)                  \
 	$(SQLITE3_CFLAGS)               \
 	$(GEMMI_CXXFLAGS)               \
@@ -303,7 +302,7 @@ _coot_la_LDFLAGS = -module $(SHARED_LDFLAGS) --no-undefined  \
 	   $(top_builddir)/pli/libcoot-pli.la                \
 	   $(top_builddir)/lidia-core/libcoot-lidia-core.la  \
 	   $(top_builddir)/utils/libcoot-utils.la            \
-	   $(OpenAL_LIBS) $(PYTHON_LIBS) $(CLIPPER_LIBS)
+	   $(PYTHON_LIBS) $(CLIPPER_LIBS)
 
 
 if OS_WIN32
@@ -906,7 +905,6 @@ endif
 libcootsumo_la_LIBADD = $(OPENMP_CFLAGS) \
                 $(COOT_EXTRA_LIBS)      \
 		$(VORBISFILE_LIBS)      \
-		$(ALSA_LIBS)            \
 		$(GTK_LIBS)             \
 		$(CLIPPER_LIBS) 	\
 		$(LIBSSM_LIBS)		\
@@ -926,6 +924,7 @@ libcootsumo_la_LIBADD = $(OPENMP_CFLAGS) \
 		$(L_BOOST_PYTHON)     \
 		-lfreetype            \
 		$(SQLITE3_LIBS)       \
+		$(openal_LIBS)        \
 		$(SHARED_LDFLAGS)     \
 		-lpthread
 

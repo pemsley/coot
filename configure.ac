@@ -395,11 +395,23 @@ fi
 # We need to clarify that so that Coot can be linked correctly.
 librdkitcoordgen=
 AC_ARG_WITH([coordgen], AS_HELP_STRING([--with-coordgen Specify that the RDKit was compiled with coordgen]), with_rdkit_coordgen="$withval", with_rdkit_coordgen=false)
-if "$with_rdkit_coordgen" = true ; then
+if test -n "$with_rdkit_coordgen"; then
     librdkitcoordgen=-lRDKitcoordgen
 fi
 
-RDKIT_LIBS="-L$rdkit_install_dir/lib -lRDKitMolDraw2D -lRDKitForceFieldHelpers -lRDKitDescriptors -lRDKitForceField -lRDKitSubstructMatch -lRDKitOptimizer -lRDKitDistGeomHelpers -lRDKitDistGeometry -lRDKitChemReactions -lRDKitAlignment -lRDKitEigenSolvers -lRDKitDepictor $librdkitcoordgen -lRDKitMolChemicalFeatures -lRDKitPartialCharges -lRDKitFileParsers -lRDKitRDGeometryLib -lRDKitGraphMol -lRDKitShapeHelpers -lRDKitFingerprints -lRDKitMolAlign -lRDKitMolTransforms -lRDKitChemTransforms -lRDKitSmilesParse -lRDKitGenericGroups -lRDKitRingDecomposerLib -lRDKitFilterCatalog -lRDKitCatalogs -lRDKitSubgraphs -lRDKitPartialCharges -lRDKitRDGeneral -lRDKitDataStructs -lboost_serialization -lboost_iostreams"
+# test here for presence of Inchi support in the RDKit.
+# To clarify, this is not related to how to configure Coot, it is related to how the RDKit was configured (and linked).
+# We need to clarify that so that Coot can be linked correctly.
+librdkitinchi=
+if test -f "$rdkit_install_dir/include/rdkit/GraphMol/inchi.h"; then
+    echo Enabling RDKit Inchi support.
+    # echo If this step causes linking problems, consider adding -linchi or -lRDKitInchi
+    librdkitinchi="-lRDKitRDInchiLib"
+else
+   echo RDKit Inchi support disabled.
+fi
+
+RDKIT_LIBS="-L$rdkit_install_dir/lib -lRDKitMolDraw2D -lRDKitForceFieldHelpers -lRDKitDescriptors -lRDKitForceField -lRDKitSubstructMatch -lRDKitOptimizer -lRDKitDistGeomHelpers -lRDKitDistGeometry -lRDKitChemReactions -lRDKitAlignment -lRDKitEigenSolvers -lRDKitDepictor $librdkitcoordgen -lRDKitMolChemicalFeatures -lRDKitPartialCharges -lRDKitFileParsers -lRDKitRDGeometryLib -lRDKitGraphMol $librdkitinchi -lRDKitShapeHelpers -lRDKitFingerprints -lRDKitMolAlign -lRDKitMolTransforms -lRDKitChemTransforms -lRDKitSmilesParse -lRDKitGenericGroups -lRDKitRingDecomposerLib -lRDKitFilterCatalog -lRDKitCatalogs -lRDKitSubgraphs -lRDKitPartialCharges -lRDKitRDGeneral -lRDKitDataStructs -lboost_serialization -lboost_iostreams"
 
 # this must always be true now
 ENHANCED_LIGAND_TOOLS_CPPFLAGS="-DMAKE_ENHANCED_LIGAND_TOOLS"
@@ -468,7 +480,7 @@ fi
 AM_COOT_SYS_BUILD_TYPE
 
 
-AC_ARG_WITH([sound], AS_HELP_STRING([--with-sound compile with ogg-vorbis and ALSA libs]), with_sound="withval", with_sound=false)
+AC_ARG_WITH([sound], AS_HELP_STRING([--with-sound compile with ogg-vorbis and OpenAL libs]), with_sound="withval", with_sound=false)
 AC_MSG_CHECKING([for sound])
 if test "x$with_sound" = xfalse ; then
    :
@@ -476,13 +488,14 @@ if test "x$with_sound" = xfalse ; then
 else
    AC_MSG_RESULT(yes)
    PKG_CHECK_MODULES(VORBISFILE, [vorbisfile >= 1.2])
-   uname_s=$(uname -s) # should autoconf do this for us? If so, I can't see where it is stored
-   if test "$uname_s" = Linux ; then
-      PKG_CHECK_MODULES(ALSA, [alsa >= 1.2])
-   else
-      # it's a mac then
-      PKG_CHECK_MODULES(OpenAL, [OpenAL >= 1.23])
-   fi
+   PKG_CHECK_MODULES(openal, [openal >= 1.23])
+   # uname_s=$(uname -s) # should autoconf do this for us? If so, I can't see where it is stored
+   # if test "$uname_s" = Linux ; then
+   #   PKG_CHECK_MODULES(ALSA, [alsa >= 1.2])
+   #else
+   #   # it's a mac then
+   #   PKG_CHECK_MODULES(OpenAL, [OpenAL >= 1.23])
+   #fi
    # Use Core Audio on macOS. Consider PortAudio instead of using alsa directly.
    AC_SUBST(SOUND_FLAGS, -DWITH_SOUND)
 fi

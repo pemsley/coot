@@ -93,6 +93,7 @@ CootLigandEditorCanvas::CootLigandEditorCanvas() noexcept {
     self->state_stack = std::make_unique<impl::WidgetCoreData::StateStack>();
     self->display_mode = DisplayMode::Standard;
     self->scale = 1.0;
+    self->viewport_origin_offset = std::make_pair(0,0);
     self->allow_invalid_molecules = false;
     self->state_stack_pos = -1;
 }
@@ -156,15 +157,7 @@ CootLigandEditorCanvas::SizingInfo CootLigandEditorCanvas::measure(CootLigandEdi
     int* minimum_size = &ret.requested_size;
     int* natural_size = &ret.requested_size;
 #endif
-    graphene_rect_t bounding_rect_for_all;
-    graphene_rect_init(&bounding_rect_for_all, 0, 0, 0, 0);
-
-    for(const auto& a: *self->molecules) {
-        if(a.has_value()) {
-            auto bounding_rect = a->get_on_screen_bounding_rect();
-            graphene_rect_union(&bounding_rect_for_all, &bounding_rect, &bounding_rect_for_all);
-        }
-    }
+    const auto bounding_rect_for_all = self->get_on_screen_bounding_rect();
     switch (orientation) {
         #ifndef __EMSCRIPTEN__
         case GTK_ORIENTATION_HORIZONTAL:{
@@ -259,7 +252,7 @@ void CootLigandEditorCanvas::on_hover(double x, double y, bool alt_pressed, bool
             // when creating a bond
             if(self->currently_created_bond.has_value()) {
                 auto& new_bond = *self->currently_created_bond;
-                auto coords = target.get_on_screen_coords(atom.x, atom.y);
+                auto coords = target.get_on_screen_coords(atom.x, atom.y, self->viewport_origin_offset, self->scale);
                 new_bond.second_atom_x = coords.first;
                 new_bond.second_atom_y = coords.second;
             }
@@ -365,7 +358,7 @@ void CootLigandEditorCanvas::on_left_click(double x, double y, bool alt_pressed,
     if(self->active_tool->is_creating_bond()) {
         CurrentlyCreatedBond new_bond;
         auto [mol_idx, atom_idx] = self->active_tool->get_molecule_idx_and_first_atom_of_new_bond().value();
-        auto coords = *self->molecules->at(mol_idx)->get_on_screen_coords_of_atom(atom_idx);
+        auto coords = *self->molecules->at(mol_idx)->get_on_screen_coords_of_atom(atom_idx, self->viewport_origin_offset, self->scale);
         new_bond.first_atom_x = coords.first;
         new_bond.first_atom_y = coords.second;
         new_bond.second_atom_x = coords.first;
@@ -576,16 +569,17 @@ int coot_ligand_editor_canvas_append_molecule(CootLigandEditorCanvas* self, std:
         // Might throw if the constructor fails.
         self->begin_edition();
         self->molecules->push_back(CanvasMolecule(rdkit_mol, self->allow_invalid_molecules));
-        self->molecules->back()->set_canvas_scale(self->scale);
         #ifndef __EMSCRIPTEN__
         self->molecules->back()->apply_canvas_translation(
             gtk_widget_get_size(GTK_WIDGET(self), GTK_ORIENTATION_HORIZONTAL) / 2.0, 
-            gtk_widget_get_size(GTK_WIDGET(self), GTK_ORIENTATION_VERTICAL) / 2.0
+            gtk_widget_get_size(GTK_WIDGET(self), GTK_ORIENTATION_VERTICAL) / 2.0,
+            self->scale
         );
         #else
         self->molecules->back()->apply_canvas_translation(
             self->measure(CootLigandEditorCanvas::MeasurementDirection::HORIZONTAL).requested_size / 2.0, 
-            self->measure(CootLigandEditorCanvas::MeasurementDirection::VERTICAL).requested_size / 2.0
+            self->measure(CootLigandEditorCanvas::MeasurementDirection::VERTICAL).requested_size / 2.0,
+            self->scale
         );
         #endif
         self->rdkit_molecules->push_back(std::move(rdkit_mol));
@@ -643,12 +637,14 @@ void coot_ligand_editor_canvas_update_molecule_from_smiles(CootLigandEditorCanva
 
 void coot_ligand_editor_canvas_undo_edition(CootLigandEditorCanvas* self) noexcept {
     self->undo_edition();
+    self->queue_resize();
     self->queue_redraw();
     self->emit_mutation_signals();
 }
 
 void coot_ligand_editor_canvas_redo_edition(CootLigandEditorCanvas* self) noexcept {
     self->redo_edition();
+    self->queue_resize();
     self->queue_redraw();
     self->emit_mutation_signals();
 }
@@ -691,6 +687,7 @@ DisplayMode coot_ligand_editor_canvas_get_display_mode(CootLigandEditorCanvas* s
 
 void coot_ligand_editor_canvas_set_display_mode(CootLigandEditorCanvas* self, DisplayMode value) noexcept {
     self->display_mode = value;
+    self->queue_resize();
     self->queue_redraw();
 }
 
