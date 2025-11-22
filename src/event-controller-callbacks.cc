@@ -581,7 +581,7 @@ graphics_info_t::on_glarea_click(GtkGestureClick *controller,
                // test for user-defined click here
                if (in_user_defined_define > 0) {
                   bool intermediate_atoms_only_flag = false;
-                  std::cout << "in user-defined " << in_user_defined_define << std::endl;
+                  std::cout << "DEBUG:: in user-defined " << in_user_defined_define << std::endl;
                   pick_info naii = atom_pick_gtk3(intermediate_atoms_only_flag);
                   if (naii.success) {
                      mmdb::Atom *at = molecules[naii.imol].atom_sel.atom_selection[naii.atom_index];
@@ -643,26 +643,52 @@ graphics_info_t::on_glarea_click(GtkGestureClick *controller,
 
                      } else {
 
-                        // std::cout << "Here with in_range_define " << in_range_define << std::endl;
-                        if (in_range_define == 1 || in_range_define == 2) {
+                        if (delete_item_atom == 1) {
+                           std::cout << "here A " << std::endl;
                            bool intermediate_atoms_only_flag = false;
                            pick_info naii = atom_pick_gtk3(intermediate_atoms_only_flag);
                            if (naii.success) {
-                              int imol = naii.imol;
-                              mmdb::Atom *at = molecules[imol].atom_sel.atom_selection[naii.atom_index];
-                              if (in_range_define == 1) {
-                                 in_range_first_picked_atom  = coot::atom_spec_t(at);
-                                 in_range_first_picked_atom.int_user_data = imol;
-                                 molecules[imol].add_to_labelled_atom_list(naii.atom_index);
+                              std::cout << "here C " << std::endl;
+                              // this is convoluted!
+                              mmdb::Atom *at = molecules[naii.imol].atom_sel.atom_selection[naii.atom_index];
+                              coot::atom_spec_t at_spec(at);
+                              std::cout << "here D " << at_spec << std::endl;
+                              graphics_info_t::molecules[naii.imol].delete_atom(at_spec);
+                              graphics_info_t::graphics_draw();
+                              if (modifier & GDK_CONTROL_MASK) {
+                                 std::cout << "mulit-pick" << std::endl;
+                              } else {
+                                 delete_item_atom = 0; // unset
                               }
-                              if (in_range_define == 2) {
-                                 in_range_second_picked_atom = coot::atom_spec_t(at);
-                                 in_range_second_picked_atom.int_user_data = imol;
-                                 molecules[imol].add_to_labelled_atom_list(naii.atom_index);
+                           } else {
+                              std::cout << "Missed" << std::endl;
+                              // do red ring ping here.
+                           }
+                           handled = true;
+                        }
+
+                        // std::cout << "Here with in_range_define " << in_range_define << std::endl;
+                        if (! handled) {
+                           if (in_range_define == 1 || in_range_define == 2) {
+                              bool intermediate_atoms_only_flag = false;
+                              pick_info naii = atom_pick_gtk3(intermediate_atoms_only_flag);
+                              if (naii.success) {
+                                 int imol = naii.imol;
+                                 mmdb::Atom *at = molecules[imol].atom_sel.atom_selection[naii.atom_index];
+                                 if (in_range_define == 1) {
+                                    in_range_first_picked_atom  = coot::atom_spec_t(at);
+                                    in_range_first_picked_atom.int_user_data = imol;
+                                    molecules[imol].add_to_labelled_atom_list(naii.atom_index);
+                                 }
+                                 if (in_range_define == 2) {
+                                    in_range_second_picked_atom = coot::atom_spec_t(at);
+                                    in_range_second_picked_atom.int_user_data = imol;
+                                    molecules[imol].add_to_labelled_atom_list(naii.atom_index);
+                                 }
+                                 in_range_define = 2;
+                                 graphics_draw(); // make the label appear
+                                 handled =  true;
                               }
-                              in_range_define = 2;
-                              graphics_draw(); // make the label appear
-                              handled =  true;
                            }
                         }
                      }
@@ -927,6 +953,11 @@ graphics_info_t::on_glarea_key_controller_key_released(GtkEventControllerKey *co
 
    control_is_pressed = (modifiers & GDK_CONTROL_MASK);
    shift_is_pressed   = (modifiers & GDK_SHIFT_MASK);
+
+   // 20251122-PE
+   delete_item_atom = 0; // turn off pick-delete, otherwise if Ctrl is released, delete_item_atom
+                         // is still active, leading to delete of atom on next atom pick - which
+                         // is probably not what is wanted.
 
 }
 
