@@ -4,6 +4,7 @@
 #include <numeric>
 #include <cmath>
 #include <random>
+#include <algorithm> // shuffle
 
 // Including the GLM headers for vec3 and mat3, and necessary functions.
 // Note: GLM is a header-only library, so you typically just need to include the headers.
@@ -44,23 +45,25 @@ public:
       initialize(data);
 
       for (int i = 0; i < max_iterations; ++i) {
+
          std::cout << "Iteration " << i + 1 << std::endl;
+
          // E-step: Calculate responsibilities
          std::vector<std::vector<double>> responsibilities = expectationStep(data);
-            
          // M-step: Update parameters based on responsibilities
          maximizationStep(data, responsibilities);
       }
    }
 
    // Function to print the learned parameters of the GMM.
-   void printParameters() const {
-      std::cout << "\n--- Final GMM Parameters ---" << std::endl;
+   void printParameters(const std::string &lab) const {
+
+      std::cout << "\n--- " << lab << " GMM Parameters ---" << std::endl;
       for (int i = 0; i < k_; ++i) {
          std::cout << "Component " << i + 1 << ":" << std::endl;
          std::cout << "  Weight: " << components_[i].weight << std::endl;
          std::cout << "  Mean: " << glm::to_string(components_[i].mean) << std::endl;
-         std::cout << "  Covariance:\n" << glm::to_string(components_[i].covariance) << std::endl;
+         std::cout << "  Covariance: " << glm::to_string(components_[i].covariance) << std::endl;
       }
    }
 
@@ -77,7 +80,7 @@ private:
         // - Set covariance to identity matrix.
         // - Set weights equally.
         std::shuffle(components_.begin(), components_.end(), rng_);
-        
+
         std::vector<int> random_indices(data.size());
         std::iota(random_indices.begin(), random_indices.end(), 0);
         std::shuffle(random_indices.begin(), random_indices.end(), rng_);
@@ -90,15 +93,19 @@ private:
     }
 
     // Calculates the probability density function (PDF) for a multivariate Gaussian.
-    double gaussianPDF(const glm::vec3& x, const glm::vec3& mean, const glm::mat3& cov) {
-        // PDF formula: (1 / ((2*pi)^(d/2) * |Cov|^(1/2))) * exp(-1/2 * (x-mean)^T * Cov^-1 * (x-mean))
+    double gaussianPDF(const glm::vec3 &x, const glm::vec3 &mean, const glm::mat3 &cov) {
+
+       // PDF formula: (1 / ((2*pi)^(d/2) * |Cov|^(1/2))) * exp(-1/2 * (x-mean)^T * Cov^-1 * (x-mean))
         // Here, d=3.
         try {
             glm::mat3 inv_cov = glm::inverse(cov);
             double det = glm::determinant(cov);
             if (det <= 0) {
                 // If the determinant is non-positive, something went wrong.
-                return 0.0;
+               std::cout << "something went wrong:      det: " << det << std::endl;
+               std::cout << "                           cov: " << glm::to_string(cov) << std::endl;
+               std::cout << "                      inv_cov:  " << glm::to_string(inv_cov) << std::endl;
+               return 0.0;
             }
 
             double exponent = -0.5 * glm::dot(x - mean, inv_cov * (x - mean));
@@ -113,24 +120,26 @@ private:
 
    // The Expectation step: calculates the responsibilities of each component.
    std::vector<std::vector<double>> expectationStep(const std::vector<glm::vec3>& data) {
-        std::vector<std::vector<double>> responsibilities(data.size(), std::vector<double>(k_));
 
-        for (size_t i = 0; i < data.size(); ++i) {
-           double responsibility_sum = 0.0;
-           for (int j = 0; j < k_; ++j) {
-                double prob = gaussianPDF(data[i], components_[j].mean, components_[j].covariance);
-                responsibilities[i][j] = components_[j].weight * prob;
-                responsibility_sum += responsibilities[i][j];
-           }
+      std::vector<std::vector<double>> responsibilities(data.size(), std::vector<double>(k_));
 
-           // Normalize responsibilities
-           if (responsibility_sum > EPSILON) {
-              for (int j = 0; j < k_; ++j) {
-                 responsibilities[i][j] /= responsibility_sum;
-              }
-           }
-        }
-        return responsibilities;
+      for (size_t i = 0; i < data.size(); ++i) {
+         double responsibility_sum = 0.0;
+         for (int j = 0; j < k_; ++j) {
+            double prob = gaussianPDF(data[i], components_[j].mean, components_[j].covariance);
+            responsibilities[i][j] = components_[j].weight * prob;
+            responsibility_sum += responsibilities[i][j];
+         }
+
+         std::cout << "responsibility_sum " << responsibility_sum << std::endl;
+         // Normalize responsibilities
+         if (responsibility_sum > EPSILON) {
+            for (int j = 0; j < k_; ++j) {
+               responsibilities[i][j] /= responsibility_sum;
+            }
+         }
+      }
+      return responsibilities;
    }
 
    // The Maximization step: updates the parameters of each component.
@@ -157,10 +166,18 @@ private:
              glm::mat3 new_cov(0.0f);
              for (size_t i = 0; i < data.size(); ++i) {
                  glm::vec3 diff = data[i] - components_[j].mean;
-                 double r_ij = responsibilities[i][j];
-                 new_cov += glm::vec3(r_ij, r_ij, r_ij) * glm::outerProduct(diff, diff);
+                 float r_ij = responsibilities[i][j]; // casting
+                 glm::mat3 op = glm::outerProduct(diff, diff);
+                 new_cov += r_ij * op;
              }
-             components_[j].covariance = new_cov / (float)responsibility_sum_j;
+
+             // Final covariance update: Divide by sum of responsibilities
+             glm::mat3 final_cov = new_cov / static_cast<float>(responsibility_sum_j);
+
+             // Add regularization to the diagonal (prevents singularities)
+             final_cov += glm::mat3(EPSILON);
+
+             components_[j].covariance = final_cov;
          }
       }
    }

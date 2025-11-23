@@ -177,7 +177,7 @@ check_PROGRAMS = test-h-bonds testshelxreader test-hole test-elastic \
 		 test-5-residue-fragments test-diff-diff-map-peaks \
 		 make-cablam-like-stats test-cod-atom-types-from-sm-cif test-parse-pisa \
 		 test-coot-utils test-pae servalcat-tracker test-zd test-grid-balls \
-		 test-dirichlet-process test-born
+		 test-dirichlet-process test-born test-gmm
 
 # wrong build order - delete from make check for now.
 # test-emma test-convolute test-coot-utils test-segmap
@@ -222,7 +222,7 @@ test_coot_probe_LDADD =          \
 
 servalcat_tracker_SOURCES = servalcat-tracker.cc
 
-# servalcat_tracker_LDADD = 
+# servalcat_tracker_LDADD =
 
 test_parse_pisa_SOURCES = test-parse-pisa.cc
 test_parse_pisa_LDADD = \
@@ -236,6 +236,9 @@ test_born_SOURCES = test-born.cc
 test_born_LDADD = \
 	./libcoot-map-utils.la \
 	$(CLIPPER_LIBS)
+
+test_gmm_SOURCES = test-gmm.cc
+test_gmm_LDADD =
 
 test_dirichlet_process_SOURCES = test-dirichlet-process.cc
 test_dirichlet_process_LDADD = $(top_builddir)/utils/libcoot-utils.la
