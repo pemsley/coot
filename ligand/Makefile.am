@@ -181,8 +181,7 @@ coot_make_ligands_db_LDADD = ./libcoot-ligand.la \
         $(top_builddir)/lidia-core/libcoot-lidia-core.la   \
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la       \
         $(top_builddir)/analysis/libcoot-analysis.la	   \
-	$(top_builddir)/compat/libcoot-compat.la           \
-        $(RDKIT_LIBS)
+	$(top_builddir)/compat/libcoot-compat.la
 
 coot_identify_protein_bin_SOURCES = identify-protein.cc
 
@@ -311,7 +310,6 @@ coot_findligand_bin_LDADD = \
         $(top_builddir)/analysis/libcoot-analysis.la	   \
 	$(top_builddir)/compat/libcoot-compat.la           \
         $(GLOB_LIBS) \
-        $(RDKIT_LIBS) \
 	$(CLIPPER_LIBS) $(MMDB_LIBS) $(gsl_LIBS)
 
 # 	$(top_builddir)/coords/libcoot-coords.la
@@ -333,7 +331,6 @@ coot_findwaters_bin_LDADD = \
         $(top_builddir)/analysis/libcoot-analysis.la	   \
 	$(top_builddir)/compat/libcoot-compat.la           \
         $(GLOB_LIBS) \
-        $(RDKIT_LIBS) \
 	$(CLIPPER_LIBS) $(MMDB_LIBS) $(gsl_LIBS)
 
 #testwlig_LDADD = -L. -lcoot-ligand      \
