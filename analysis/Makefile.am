@@ -39,6 +39,7 @@ libcoot_analysis_la_SOURCES = bfkurt.cc mogul.cc kolmogorov.hh kolmogorov.cc sta
 
 # note to self: does RDKIT_LIBS belong here or should it be added to the LDADD of
 # one of these libraries?
+# 2025-11-24-PE it does not.
 libcoot_analysis_la_LIBADD = \
    $(top_builddir)/coot-utils/libcoot-map-utils.la   \
    $(top_builddir)/coot-utils/libcoot-coord-utils.la \
@@ -46,7 +47,7 @@ libcoot_analysis_la_LIBADD = \
    $(top_builddir)/geometry/libcoot-geometry.la      \
    $(top_builddir)/mini-mol/libcoot-mini-mol.la      \
    $(top_builddir)/utils/libcoot-utils.la            \
-   $(CLIPPER_LIBS) $(MMDB_LIBS) $(gsl_LIBS) $(RDKIT_LIBS)
+   $(CLIPPER_LIBS) $(MMDB_LIBS) $(gsl_LIBS)
 
 libcoot_analysis_la_LDFLAGS = $(SHARED_LDFLAGS)
 

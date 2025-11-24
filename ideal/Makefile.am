@@ -179,7 +179,6 @@ mini_rsr_bin_LDADD =  \
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la       \
         $(top_builddir)/compat/libcoot-compat.la           \
 	$(GLOB_LIBS) \
-	$(RDKIT_LIBS) \
         $(CLIPPER_LIBS) $(MMDB_LIBS) $(gsl_LIBS) -lpthread
 
 #test_indexing_LDADD = \
