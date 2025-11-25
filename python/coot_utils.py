@@ -4690,7 +4690,7 @@ def rename_alt_confs(imol, chain_id, res_no, ins_code,
 
         # first check if we have alt confs:
         alt_confs = residue_alt_confs(imol, chain_id, res_no, ins_code)
-        if (alt_confs > 1):
+        if len(alt_confs) > 1:
             atom_ls = coot.residue_info_py(imol, chain_id, res_no, ins_code)
             change_list = []
             for i in range(len(atom_ls)):
