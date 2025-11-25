@@ -18,6 +18,7 @@
  * 02110-1301, USA
  */
 
+#include "geometry/residue-and-atom-specs.hh"
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 
 #include <cstdint> // fix std::uint64_t problems
@@ -356,10 +357,11 @@ flev_t::annotate(const std::vector<std::pair<coot::atom_spec_t, float> > &s_a_v,
       }
    };
 
-   std::cout << "--------------------------- debug in ::annotate() with pi_stack_info.stackings.size "
-             << pi_stack_info.stackings.size() << std::endl;
+   if (true)
+      std::cout << "--------------------------- debug in ::annotate() with pi_stack_info.stackings.size "
+                << pi_stack_info.stackings.size() << std::endl;
 
-   if (false) {
+   if (true) {
       std::cout << "debug::flev_t::annotate(): " << bonds_to_ligand.size() << " bonds to ligand" << std::endl;
       for (unsigned int ib=0; ib<bonds_to_ligand.size(); ib++) {
          std::cout << "  =============== flev_t::annotate() bond to ligand " << ib << " "
@@ -805,11 +807,21 @@ pli::fle_view_with_rdkit_internal(mmdb::Manager *mol,
             std::vector<mmdb::Residue *> residues =
                coot::residues_near_residue(res_ref, mol_for_res_ref, residues_near_radius);
 
+            std::cout << "DEBUG:: residues_near_radius " << residues_near_radius << std::endl;
+            std::cout << "DEBUG:: Here are the residues near the ligand " << residues.size() << std::endl;
+            for (auto res : residues) {
+               std::cout << "      residues: " << coot::residue_spec_t(res) << " " << res->GetResName() << std::endl;
+            }
+
             // residues needs to be filtered to remove waters that
             // are not connected to a protein atom.
 
             std::vector<mmdb::Residue *> filtered_residues =
                coot::filter_residues_by_solvent_contact(res_ref, mol_for_res_ref, residues, 3.25);
+
+            for (auto res : filtered_residues) {
+               std::cout << "      filtered_residues: " << coot::residue_spec_t(res) << " " << res->GetResName() << std::endl;
+            }
 
             // for the atoms in the ligand only, for the moment.
             // More would require a class containing with and
@@ -858,9 +870,10 @@ pli::fle_view_with_rdkit_internal(mmdb::Manager *mol,
                   RDKit::MolOps::sanitizeMol(rdkm, failed_op_1, RDKit::MolOps::SANITIZE_ALL);
                   RDKit::MolOps::sanitizeMol(rdkm, failed_op_2, RDKit::MolOps::SANITIZE_KEKULIZE);
 
-                  std::cout << "DEBUG:: sanitizeMol() returned with failed_op: "
-                            << failed_op_1 << " " << failed_op_2
-                            << " (note 'no-failure' is value 0)." << std::endl;
+                  if (true)
+                     std::cout << "DEBUG:: sanitizeMol() returned with failed_op: "
+                               << failed_op_1 << " " << failed_op_2
+                               << " (note 'no-failure' is value 0)." << std::endl;
 
                   try {
                      RDKit::RingInfo *ri = rdkm.getRingInfo();
@@ -944,6 +957,12 @@ pli::fle_view_with_rdkit_internal(mmdb::Manager *mol,
                                                mol_for_res_ref, name_map, *geom_p, imol,
                                                flev.fle_water_dist_max,
                                                flev.fle_h_bond_dist_max);
+
+                  if (true) {
+                     for (const auto &btl : bonds_to_ligand) {
+                        std::cout << "DEBUG:: bond to ligand xxxxx " << btl << std::endl;
+                     }
+                  }
 
                   std::vector<fle_residues_helper_t> res_centres =
                      pli::get_flev_residue_centres(res_ref,
@@ -1079,13 +1098,17 @@ flev_t::draw_substitution_contour() {
          try {
             std::pair<lig_build::pos_t, lig_build::pos_t> l_e_pair = mol.ligand_extents();
             ligand_grid grid(l_e_pair.first, l_e_pair.second);
-            // debug_bash_distances(mol);
+            if (debug)
+               debug_bash_distances(mol);
 
             for (unsigned int iat=0; iat<mol.atoms.size(); iat++) {
 
                const auto &atom = mol.atoms[iat];
                const auto &atom_position = mol.atoms[iat].atom_position;
                unsigned int n_bash_distances = atom.bash_distances.size();
+
+               if (debug)
+                  std::cout << "DEBUG:: n_bash_distances: " << n_bash_distances << std::endl;
 
                if (n_bash_distances == 0) {
                   if (mol.atoms[iat].element != "H") // checked.

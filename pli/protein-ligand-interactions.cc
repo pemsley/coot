@@ -43,7 +43,7 @@ pli::get_fle_ligand_bonds(mmdb::Residue *ligand_res,
       std::cout << "::::::::: n residues: " << residues.size() << std::endl;
       for (unsigned int ires=0; ires<residues.size(); ires++)
 	 std::cout << ":::::::::      residue: " << ires << " " << coot::residue_spec_t(residues[ires])
-		   << std::endl;
+		   << " " << residues[ires]->GetResName() << std::endl;
       std::cout << "::::::::: mol: " << mol << std::endl;
       std::cout << "::::::::: name map size: " << name_map.size() << std::endl;
       std::map<std::string, std::string>::const_iterator it;
@@ -78,10 +78,18 @@ pli::get_fle_ligand_bonds(mmdb::Residue *ligand_res,
       if (! status.first)
 	 std::cout << "WARNING:: ===================== no HB status on atoms of ligand! ======="
 		   << "=========" << std::endl;
-      std::vector<coot::h_bond> hbonds = hb.get_mcdonald_and_thornton(SelHnd_lig, SelHnd_all, m.second,
-								      geom, imol, h_bond_dist_max);
 
-      if (true)
+      std::vector<coot::h_bond> hbonds = hb.get_mcdonald_and_thornton(SelHnd_lig, SelHnd_all, m.second,
+                                                                      geom, imol, h_bond_dist_max);
+
+      if (debug) {
+         std::cout << "DEBUG:: get_mcdonald_and_thornton() returned " << hbonds.size() << " H-bonds" << std::endl;
+         for (int i=0; i<hbonds.size(); i++) {
+            std::cout << "      " << i << " " << hbonds[i] << std::endl;
+         }
+      }
+
+      if (debug)
 	 std::cout << "DEBUG:: get_fle_ligand_bonds from h_bonds class found "
 		   << hbonds.size() << " H bonds." << std::endl;
 
