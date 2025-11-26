@@ -6736,7 +6736,12 @@ on_validation_graph_model_combobox_changed(GtkComboBox* self, gpointer user_data
       gtk_tree_model_get(gtk_combo_box_get_model(self),&iter,1,&new_active_model,-1);
       graphics_info_t::update_active_validation_graph_model(new_active_model);
    } else {
-      g_warning("on_validation_graph_model_combobox_changed(): Could not get active iter in validation graph model ComboBox");
+      // this is noisy - and it seems possible that the active iter has not yet been set.
+      if (false) {
+         std::string mess = "on_validation_graph_model_combobox_changed(): ";
+         mess += "Could not get active iter in validation graph model ComboBox";
+         g_warning(mess.c_str());
+      }
    }
 }
 

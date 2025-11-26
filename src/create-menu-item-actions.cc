@@ -4133,6 +4133,7 @@ void show_validation_graphs_dialog(G_GNUC_UNUSED GSimpleAction *simple_action, G
    gtk_window_set_transient_for(GTK_WINDOW(di), GTK_WINDOW(main_window));
 
    auto get_first_model_molecule = [] () {
+
       graphics_info_t g;
       int imol = -1;
       int n_mol = g.molecules.size();
@@ -4143,6 +4144,23 @@ void show_validation_graphs_dialog(G_GNUC_UNUSED GSimpleAction *simple_action, G
       return imol;
    };
 
+   auto get_index_of_imol = [] (int imol) {
+
+      graphics_info_t g;
+      int n_mol = g.molecules.size();
+      int count = 0;
+      for (int ii=0; ii<n_mol; ii++) {
+         if (ii == imol) {
+            if (g.molecules[ii].open_molecule_p()) {
+               return count;
+            }
+         }
+         if (g.molecules[ii].open_molecule_p())
+            count += 1;
+      }
+      return -1; // failed to find (very strange)
+   };
+
    graphics_info_t g;
    GtkWidget *model_combobox = widget_from_builder("validation_graph_model_combobox");
 
@@ -4151,8 +4169,16 @@ void show_validation_graphs_dialog(G_GNUC_UNUSED GSimpleAction *simple_action, G
       imol = get_first_model_molecule();
 
    // I don't think that it's imol that I want to use for the index.
-   std::cout << "--------- in show_validation_graphs_dialog() " << model_combobox << " " << imol << std::endl;
-   gtk_combo_box_set_active(GTK_COMBO_BOX(model_combobox), imol);
+   std::cout << "DEBUG:: --- in show_validation_graphs_dialog() " << model_combobox << " " << imol << std::endl;
+
+   GtkTreeIter iter;
+   if (gtk_combo_box_get_active_iter(GTK_COMBO_BOX(model_combobox), &iter)) {
+      // iter was set (already)
+   } else {
+      int idx = get_index_of_imol(imol);
+      if (idx != -1)
+          gtk_combo_box_set_active(GTK_COMBO_BOX(model_combobox), idx);
+   }
 
    gtk_widget_set_visible(di, TRUE);
 }
