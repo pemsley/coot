@@ -6,9 +6,6 @@
 #include <random>
 #include <algorithm> // shuffle
 
-// Including the GLM headers for vec3 and mat3, and necessary functions.
-// Note: GLM is a header-only library, so you typically just need to include the headers.
-// You might need to add -I<path_to_glm> to your compiler command.
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>
 #include <glm/gtx/string_cast.hpp> // For printing vectors and matrices
@@ -46,7 +43,7 @@ public:
 
       for (int i = 0; i < max_iterations; ++i) {
 
-         std::cout << "Iteration " << i + 1 << std::endl;
+         // std::cout << "Iteration " << i + 1 << std::endl;
 
          // E-step: Calculate responsibilities
          std::vector<std::vector<double>> responsibilities = expectationStep(data);
@@ -131,7 +128,7 @@ private:
             responsibility_sum += responsibilities[i][j];
          }
 
-         std::cout << "responsibility_sum " << responsibility_sum << std::endl;
+         // std::cout << "responsibility_sum " << responsibility_sum << std::endl;
          // Normalize responsibilities
          if (responsibility_sum > EPSILON) {
             for (int j = 0; j < k_; ++j) {

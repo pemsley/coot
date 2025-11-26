@@ -6,7 +6,8 @@
 
 #include "geometry/protein-geometry.hh"
 #include "coot-coord-utils.hh"
-#include "coot-utils/dirichlet-process.hh"
+#include "dirichlet-process.hh"
+#include "gmm.hh"
 #include "json.hpp"
 #include "cfc.hh"
 #include "lidia-core/rdkit-interface.hh"
@@ -234,7 +235,34 @@ cfc::chemical_feature_clustering(const std::vector<cfc::input_info_t> &mol_infos
       return p;
    };
 
-   auto cluster_waters = [get_n_clusters] (const std::vector<water_info_t> &water_infos) {
+   auto cluster_waters_gmm = [get_n_clusters] (const std::vector<water_info_t> &water_infos) {
+
+      std::map<int, water_info_t> iwat_to_water_info_index;
+      std::vector<glm::vec3> water_positions;
+      for (const auto &water : water_infos) {
+         glm::vec3 p(water.pos.x, water.pos.y, water.pos.z);
+         int iwat = water_positions.size();
+         water_positions.push_back(p);
+         iwat_to_water_info_index[iwat] = water;
+      }
+
+      unsigned int num_clusters = 3;
+      std::vector<glm::vec3> data;
+      for (const auto &water : water_infos) {
+         glm::vec3 pos(water.pos.x, water.pos.y, water.pos.z);
+         data.push_back(pos);
+      }
+      // Create and fit the GMM.
+      GMM gmm(num_clusters);
+      gmm.fit(data, 200);
+      gmm.printParameters("Waters Final");
+
+      std::vector<std::vector<water_info_t> > clusters;
+      return clusters;
+
+   };
+
+   auto cluster_waters_dirichlet = [get_n_clusters] (const std::vector<water_info_t> &water_infos) {
 
       std::map<int, water_info_t> iwat_to_water_info_index;
       std::vector<glm::vec3> water_positions;
@@ -344,7 +372,8 @@ cfc::chemical_feature_clustering(const std::vector<cfc::input_info_t> &mol_infos
          std::vector<glm::vec3> v = make_test_points(vv);
          DirichletProcessClustering dpc(alpha, beta);
          std::vector<unsigned int> clustered_points = dpc.fit(v);
-         std::cout << "debug:: dirichletprocess v in: " << v.size() << " clustered_points out " << clustered_points.size() << std::endl;
+         std::cout << "debug:: dirichletprocess v in: " << v.size()
+                   << " clustered_points out " << clustered_points.size() << std::endl;
          if (true) {
             std::cout << "   in cluster ";
             for (const auto &item : clustered_points)
@@ -514,6 +543,29 @@ cfc::chemical_feature_clustering(const std::vector<cfc::input_info_t> &mol_infos
       lsq_matchers->push_back(m);
    };
 
+   auto feature_is_close_to_a_protein_atom = [] (const feature_info_t &fi,
+                                                 const std::vector<mmdb::Residue *> &residues_near_ligand,
+                                                 float dist_crit) {
+
+      for (unsigned int i=0; i<residues_near_ligand.size(); i++) {
+         mmdb::Residue *residue_p = residues_near_ligand[i];
+         mmdb::Atom **residue_atoms = 0;
+         int n_residue_atoms = 0;
+         residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+         for (int iat=0; iat<n_residue_atoms; iat++) {
+            mmdb::Atom *at = residue_atoms[iat];
+            if (! at->isTer()) {
+               float delta_x = at->x - fi.pos.x;
+               float delta_y = at->y - fi.pos.y;
+               float delta_z = at->z - fi.pos.z;
+               float dd = delta_x * delta_x + delta_y * delta_y + delta_z * delta_z;
+               if (dd < dist_crit * dist_crit)
+                  return true;
+            }
+         }
+      }
+      return false;
+   };
 
    // --------------------- main line -------------------
 
@@ -556,11 +608,16 @@ cfc::chemical_feature_clustering(const std::vector<cfc::input_info_t> &mol_infos
                // residues
 
                mmdb::Residue *residue_p = find_residue_near_ligand_site(mol, pt_ref);
+               std::vector<mmdb::Residue *> residues_near_residue = coot::residues_near_residue(residue_p, mol, 4.3);
                if (residue_p) {
                   std::string rn = residue_p->GetResName();
                   auto new_chemical_features = chemical_features(residue_p, imol, imol_enc, geom);
                   for (const auto &fi : new_chemical_features) {
-                     feature_infos.push_back(fi);
+                     float dist_crit = 4.3;
+                     // if (feature_is_close_to_a_protein_atom(fi, residues_near_residue, dist_crit)) {
+                     if (true) {
+                        feature_infos.push_back(fi);
+                     }
                   }
                } else {
                   // std::cout << "ERROR:: no residue found near ligand site" << std::endl;
@@ -590,7 +647,13 @@ cfc::chemical_feature_clustering(const std::vector<cfc::input_info_t> &mol_infos
                  "Found a total of", n_features, "features");
 
       std::vector<typed_cluster_t> typed_clusters = cluster_features(feature_infos);
-      std::vector<std::vector<water_info_t> > water_clusters = cluster_waters(water_infos);
+      std::vector<std::vector<water_info_t> > water_clusters_dir = cluster_waters_dirichlet(water_infos);
+
+      std::cout << "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^" << std::endl;
+      std::vector<std::vector<water_info_t> > water_clusters_gmm = cluster_waters_gmm(water_infos);
+      std::cout << "^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^" << std::endl;
+
+      std::vector<std::vector<water_info_t> > water_clusters = water_clusters_dir;
 
       auto water_sorter = +[] (const std::vector<water_info_t> &wi1,
                                const std::vector<water_info_t> &wi2) {
