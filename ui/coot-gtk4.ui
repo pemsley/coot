@@ -17889,6 +17889,7 @@ Move a copy?</property>
         </child>
         <child>
           <object class="GtkBox">
+            <property name="halign">end</property>
             <child>
               <object class="GtkButton" id="curlew_dialog_close_button">
                 <property name="accessible-role">menu-item-radio</property>
