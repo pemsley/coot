@@ -66,7 +66,7 @@ LaylaState::LaylaState(CootLigandEditorCanvas* canvas_widget, GtkWindow* win, Gt
     std::string package_dir = coot::package_data_dir();
     typedef std::tuple<std::string, std::unique_ptr<InchiKeyDatabase>*> HelperTuple1;
     HelperTuple1* helper_tuple = new std::tuple(coot::util::append_dir_dir(package_dir, "data"), &this->inchi_key_database);
-    g_idle_add_once(+[](gpointer user_data){
+    g_idle_add(+[](gpointer user_data){
         HelperTuple1* helper_tuple = (HelperTuple1*) user_data;
         std::string inchi_key_database_path = coot::util::append_dir_file(std::get<0>(*helper_tuple), "Components-inchikey.ich");
         g_info("Loading InChIKey database from: %s", inchi_key_database_path.c_str());
@@ -104,6 +104,7 @@ LaylaState::LaylaState(CootLigandEditorCanvas* canvas_widget, GtkWindow* win, Gt
             g_object_unref(G_FILE(source_object));
         }, ht2);
         delete helper_tuple;
+        return gboolean(FALSE);
     }, helper_tuple);
 
 
