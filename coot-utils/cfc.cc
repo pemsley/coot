@@ -503,6 +503,18 @@ cfc::chemical_feature_clustering(const std::vector<cfc::input_info_t> &mol_infos
       }
    };
 
+   auto output_waters_plain = [] (const std::vector<std::vector<water_info_t> > &water_clusters) {
+
+      std::cout << "DEBUG:: output_waters_plain() " << water_clusters.size() << std::endl;
+      for (unsigned int iclust=0; iclust<water_clusters.size(); iclust++) {
+         const std::vector<water_info_t> &v = water_clusters.at(iclust);
+         for (unsigned int i=0; i<v.size(); i++) {
+            const water_info_t &wi = v[i];
+            std::cout << "water " << iclust << " " << wi.pos.x << " " << wi.pos.y << " " << wi.pos.z << std::endl;
+         }
+      }
+   };
+
    auto add_lsq_superpose_match = [] (const std::string &chain_id_ref, int res_no_ref_start, int res_no_ref_end,
                                       const std::string &chain_id_mov, int res_no_mov_start, int res_no_mov_end,
                                       short int mode, std::vector<coot::lsq_range_match_info_t> *lsq_matchers) {
@@ -607,6 +619,7 @@ cfc::chemical_feature_clustering(const std::vector<cfc::input_info_t> &mol_infos
       output_clusters(typed_clusters, mol_infos);
 
       output_waters(water_clusters);
+      output_waters_plain(water_clusters); // to terminal
 
       if (true) {
          std::cout << "--------- at end of chemical_feature_clustering() --- "
