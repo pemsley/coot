@@ -5252,18 +5252,70 @@ graphics_info_t::get_chi_atom_names(mmdb::Residue *residue,
 
 
 
-
+#include "pulse-data.hh"
 
 // Called by mouse motion callback (in_edit_chi_mode_flag)
 //
 void
 graphics_info_t::rotate_chi(double x, double y) {
 
-   // the displacement of the mouse is the change in speed of the rotation
+   auto atom_to_glm = [] (mmdb::Atom *at) { return glm::vec3(at->x, at->y, at->z); };
+
+   auto get_residue_from_moving_mol = [] () {
+
+      mmdb::Residue *residue_p = nullptr;
+      if (! moving_atoms_asc) {
+         std::cout << "ERROR: moving_atoms_asc is NULL" << std::endl;
+      } else {
+         if (moving_atoms_asc->n_selected_atoms == 0) {
+            std::cout << "ERROR: no atoms in moving_atoms_asc" << std::endl;
+         } else {
+            mmdb::Model *model_p = moving_atoms_asc->mol->GetModel(1);
+            if (model_p) {
+               mmdb::Chain *chain_p = model_p->GetChain(0);
+               if (chain_p) {
+                  if (chain_p->GetNumberOfResidues() > 0)
+                     residue_p = chain_p->GetResidue(0);
+               }
+            }
+         }
+      }
+      return residue_p;
+   };
+
+   auto setup_invalid_chi_angle_pulse = [atom_to_glm] (mmdb::Residue *residue_p) {
+
+      bool broken_line_mode = false;
+      lines_mesh_for_identification_pulse.setup_red_pulse(broken_line_mode);
+      pulse_data_t *pulse_data = new pulse_data_t(0, 6);
+      gpointer user_data = reinterpret_cast<void *>(pulse_data);
+      std::vector<glm::vec3> positions;
+      mmdb::Atom **residue_atoms = 0;
+      int n_residue_atoms = 0;
+      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      for (int iat=0; iat<n_residue_atoms; iat++) {
+         mmdb::Atom *at = residue_atoms[iat];
+         if (! at->isTer()) {
+            positions.push_back(atom_to_glm(at));
+         }
+      }
+      delete_item_pulse_centres = positions;
+      gtk_widget_add_tick_callback(glareas[0], generic_pulse_function, user_data, NULL);
+   };
+
+      // the displacement of the mouse is the change in speed of the rotation
    // it's fun. Maybe tricky and conter-intuitive.
 
    // real values start at 1:
-   if (edit_chi_current_chi <= 0) return;
+   if (edit_chi_current_chi <= 0) {
+
+      mmdb::Residue *residue_p = get_residue_from_moving_mol();
+      if (residue_p) {
+         setup_invalid_chi_angle_pulse(residue_p);
+         graphics_info_t::ephemeral_overlay_label("select_a_chi_angle_label");
+      }
+      return;
+   }
 
    mouse_current_x = x;
    mouse_current_y = y;

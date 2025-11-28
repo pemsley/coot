@@ -6647,6 +6647,7 @@ graphics_info_t::sfcalc_genmaps_using_bulk_solvent(int imol_model,
 
 #include "utils/xdg-base.hh"
 
+// static
 void graphics_info_t::ephemeral_overlay_label(const std::string &overlay_label) {
 
    GtkWidget *w = widget_from_builder(overlay_label.c_str());
