@@ -392,13 +392,11 @@ int molecule_class_info_t::swap_atom_alt_conf(std::string chain_id, int res_no, 
 int molecule_class_info_t::swap_residue_alt_confs(const std::string &chain_id, int res_no,
                                                   const std::string &ins_code) {
 
-   std::cout << "here A" << std::endl;
 
    int state = 0;
    coot::residue_spec_t rs(chain_id, res_no, ins_code);
    mmdb::Residue *residue_p = get_residue(rs);
    if (residue_p) {
-      std::cout << "here b" << std::endl;
       mmdb::Atom **residue_atoms = 0;
       int n_residue_atoms = 0;
       residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
@@ -408,7 +406,6 @@ int molecule_class_info_t::swap_residue_alt_confs(const std::string &chain_id, i
          std::string alt_conf = at->altLoc;
          alt_confs.insert(alt_conf);
       }
-      std::cout << "here c " << alt_confs.size() << std::endl;
       if (alt_confs.size() == 2) {
          make_backup();
          std::string first_ac = *alt_confs.begin();
