@@ -70,7 +70,7 @@ public:
    std::vector<unsigned int> indices;
    void set_name(const std::string &n) { name = n; }
    void setup();
-   void setup_red_pulse(bool broken_line_mode);
+   void setup_red_pulse(float radius_overall, unsigned int n_rings, bool broken_line_mode);
    void setup_green_pulse(bool broken_line_mode);
    void set_scales(const glm::vec2 &s) { scales = s; scales_have_been_set = true; }
    void set_offset_positions(const glm::vec2 &p) { offset_positions = p; offset_positions_have_been_set = true; }

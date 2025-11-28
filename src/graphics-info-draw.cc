@@ -2180,7 +2180,9 @@ graphics_info_t::update_mesh_for_outline_of_active_residue(int imol, const coot:
    auto setup_invalid_residue_pulse_for_invalid_range_outine = [] () {
       std::cout << "debug:: update_mesh_for_outline_of_active_residue: lambda start " << std::endl;
       bool broken_line_mode = false;
-      lines_mesh_for_identification_pulse.setup_red_pulse(broken_line_mode);
+      float radius_overall = 6.0;
+      unsigned int n_rings = 3;
+      lines_mesh_for_identification_pulse.setup_red_pulse(radius_overall, n_rings, broken_line_mode);
       pulse_data_t *pulse_data = new pulse_data_t(0, 12);
       gpointer user_data = reinterpret_cast<void *>(pulse_data);
       std::vector<glm::vec3> positions = { get_rotation_centre() };
@@ -6159,7 +6161,9 @@ graphics_info_t::setup_delete_item_pulse(mmdb::Residue *residue_p) {
    delete_item_pulse_centres = positions;
    gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0]));
    bool broken_line_mode = true;
-   lines_mesh_for_delete_item_pulse.setup_red_pulse(broken_line_mode);
+   float radius_overall = 6.0;
+   unsigned int n_rings = 3;
+   lines_mesh_for_delete_item_pulse.setup_red_pulse(radius_overall, n_rings, broken_line_mode);
    gtk_widget_add_tick_callback(glareas[0], delete_item_pulse_func, user_data, NULL);
 
 };
@@ -6202,7 +6206,9 @@ graphics_info_t::setup_delete_residues_pulse(const std::vector<mmdb::Residue *> 
    delete_item_pulse_centres = all_positions;
    gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0]));
    bool broken_line_mode = true;
-   lines_mesh_for_delete_item_pulse.setup_red_pulse(broken_line_mode);
+   unsigned int n_rings = 3;
+   float radius_overall = 6.0;
+   lines_mesh_for_delete_item_pulse.setup_red_pulse(radius_overall, n_rings, broken_line_mode);
    gtk_widget_add_tick_callback(glareas[0], delete_item_pulse_func, user_data, NULL);
 
 };
@@ -6243,8 +6249,7 @@ graphics_info_t::generic_pulse_function(GtkWidget *widget,
       lines_mesh_for_identification_pulse.clear();
       delete_item_pulse_centres.clear();
    } else {
-      float f = 1.03f;
-      lines_mesh_for_identification_pulse.update_buffers_by_resize(f);
+      lines_mesh_for_identification_pulse.update_buffers_by_resize(pulse_data->resize_factor);
    }
    graphics_draw();
    return gboolean(continue_status);
@@ -6259,8 +6264,10 @@ graphics_info_t::setup_invalid_residue_pulse(mmdb::Residue *residue_p) {
    std::vector<glm::vec3> residue_positions = residue_to_positions(residue_p);
    delete_item_pulse_centres = residue_positions; // sneakily use a wrongly named function
    gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0]));
+   unsigned int n_rings = 3;
+   float radius_overall = 6.0;
    bool broken_line_mode = false;
-   lines_mesh_for_identification_pulse.setup_red_pulse(broken_line_mode);
+   lines_mesh_for_identification_pulse.setup_red_pulse(radius_overall, n_rings, broken_line_mode);
    gtk_widget_add_tick_callback(glareas[0], invalid_residue_pulse_function, user_data, NULL);
 
 }

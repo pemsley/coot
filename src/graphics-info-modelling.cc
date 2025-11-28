@@ -5286,8 +5286,11 @@ graphics_info_t::rotate_chi(double x, double y) {
    auto setup_invalid_chi_angle_pulse = [atom_to_glm] (mmdb::Residue *residue_p) {
 
       bool broken_line_mode = false;
-      lines_mesh_for_identification_pulse.setup_red_pulse(broken_line_mode);
-      pulse_data_t *pulse_data = new pulse_data_t(0, 6);
+      unsigned int n_rings = 5;
+      float radius_overall = 1.0;
+      lines_mesh_for_identification_pulse.setup_red_pulse(radius_overall, n_rings, broken_line_mode);
+      pulse_data_t *pulse_data = new pulse_data_t(0, 40);
+      pulse_data->resize_factor = 1.005f;
       gpointer user_data = reinterpret_cast<void *>(pulse_data);
       std::vector<glm::vec3> positions;
       mmdb::Atom **residue_atoms = 0;
@@ -5299,7 +5302,7 @@ graphics_info_t::rotate_chi(double x, double y) {
             positions.push_back(atom_to_glm(at));
          }
       }
-      delete_item_pulse_centres = positions;
+      delete_item_pulse_centres = positions;  // 20251128-PE class variable should be renamed
       gtk_widget_add_tick_callback(glareas[0], generic_pulse_function, user_data, NULL);
    };
 
@@ -5311,7 +5314,11 @@ graphics_info_t::rotate_chi(double x, double y) {
 
       mmdb::Residue *residue_p = get_residue_from_moving_mol();
       if (residue_p) {
-         setup_invalid_chi_angle_pulse(residue_p);
+         // user feedback,
+         // first check that there isn't a pulse already underway
+         if (lines_mesh_for_identification_pulse.empty()) {
+            setup_invalid_chi_angle_pulse(residue_p);
+         }
          graphics_info_t::ephemeral_overlay_label("select_a_chi_angle_label");
       }
       return;
