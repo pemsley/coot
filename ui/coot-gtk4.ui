@@ -10287,6 +10287,15 @@ Do you want to continue?
             </child>
 
             <child type="overlay">
+              <object class="GtkLabel" id="select_a_chi_angle_label">
+                <property name="visible">False</property>
+                <property name="halign">center</property>
+                <property name="valign">start</property>
+                <property name="label" translatable="yes"> Select A Χ Angle</property>
+              </object>
+            </child>
+
+            <child type="overlay">
               <object class="GtkLabel" id="session_saved_label">
                 <property name="visible">False</property>
                 <property name="halign">center</property>

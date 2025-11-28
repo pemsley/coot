@@ -193,6 +193,13 @@ o make molecules to triangles compile without coot libs
   m2t library.
 * Done!
 
+o check chemistry - extra hydrogen atom when making a link.
+
+o does "make mask" have a place in the GUI in Coot?
+
+o where did we get to with alt conf colouring or selection (in Coot)
+  e.g. untangle chalenge challenge. Look at alt-conf-switcher.py
+
 o make some inchi keys for the G* dictionaries. Using my parser and making
   rdkit molecules - do they match the inchi keys from the wwwPDB CCD?
 * Done. Good progress
