@@ -2549,6 +2549,8 @@ public:
 						       short int lang_flag) const;
    void quick_save();
 
+   // and the generalization of that: - display the label overlay for 2 seconds
+   void ephemeral_overlay_label(const std::string &overlay_label);
 
    static std::string save_state_file_name;
 

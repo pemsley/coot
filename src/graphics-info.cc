@@ -6647,6 +6647,21 @@ graphics_info_t::sfcalc_genmaps_using_bulk_solvent(int imol_model,
 
 #include "utils/xdg-base.hh"
 
+void graphics_info_t::ephemeral_overlay_label(const std::string &overlay_label) {
+
+   GtkWidget *w = widget_from_builder(overlay_label.c_str());
+   if (w) {
+      gtk_widget_set_visible(w, TRUE);
+
+      auto label_callback = +[] (gpointer user_data) {
+         GtkWidget *w = GTK_WIDGET(user_data);
+         gtk_widget_set_visible(w, FALSE);
+         return 0;
+      };
+      g_timeout_add(2000, G_SOURCE_FUNC(label_callback), w);
+   }
+}
+
 void
 graphics_info_t::quick_save() {
 
