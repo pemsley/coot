@@ -4768,6 +4768,7 @@ that you wish to delete.               </property>
         </child>
         <child type="action">
           <object class="GtkBox" id="hbox71">
+            <property name="halign">end</property>
             <child>
               <object class="GtkButton" id="edit_chi_angles_cancel_button">
                 <property name="label" translatable="yes">  Cancel  </property>
