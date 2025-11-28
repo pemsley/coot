@@ -538,6 +538,8 @@ graphics_info_t::on_glarea_click(GtkGestureClick *controller,
             }
 
             if (! handled) {
+
+               std::cout << ":::::::::::::::::::::::::::: this path ::::::::::::::::::::::::::::::" << std::endl;
                bool intermediate_atoms_only_flag = false;
                pick_info naii = atom_pick_gtk3(intermediate_atoms_only_flag);
                if (naii.success) {

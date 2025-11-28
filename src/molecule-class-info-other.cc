@@ -42,6 +42,7 @@
 
 #include <iostream>
 #include <vector>
+#include <iterator>
 
 #include "compat/coot-sysdep.h"
 
@@ -93,6 +94,9 @@
 // #include "GL/glut.h"
 
 #include "rotamer-search-modes.hh"
+
+#include "utils/logging.hh"
+extern logging logger;
 
 
 // ---------------------------------------------------------------------------------------
@@ -384,6 +388,47 @@ int molecule_class_info_t::swap_atom_alt_conf(std::string chain_id, int res_no, 
    make_bonds_type_checked(__FUNCTION__); // calls update_ghosts()
    return istate;
  }
+
+int molecule_class_info_t::swap_residue_alt_confs(const std::string &chain_id, int res_no,
+                                                  const std::string &ins_code) {
+
+   std::cout << "here A" << std::endl;
+
+   int state = 0;
+   coot::residue_spec_t rs(chain_id, res_no, ins_code);
+   mmdb::Residue *residue_p = get_residue(rs);
+   if (residue_p) {
+      std::cout << "here b" << std::endl;
+      mmdb::Atom **residue_atoms = 0;
+      int n_residue_atoms = 0;
+      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+      std::set<std::string> alt_confs;
+      for (int iat=0; iat<n_residue_atoms; iat++) {
+         mmdb::Atom *at = residue_atoms[iat];
+         std::string alt_conf = at->altLoc;
+         alt_confs.insert(alt_conf);
+      }
+      std::cout << "here c " << alt_confs.size() << std::endl;
+      if (alt_confs.size() == 2) {
+         make_backup();
+         std::string first_ac = *alt_confs.begin();
+         std::string second_ac = *std::next(alt_confs.begin());
+         for (int iat=0; iat<n_residue_atoms; iat++) {
+            mmdb::Atom *at = residue_atoms[iat];
+            std::string alt_conf = at->altLoc;
+            if (alt_conf == first_ac)  strncpy(at->altLoc, second_ac.c_str(), second_ac.length()+1);
+            if (alt_conf == second_ac) strncpy(at->altLoc,  first_ac.c_str(),  first_ac.length()+1);
+            have_unsaved_changes_flag = 1;
+         }
+      } else {
+         logger.log(log_t::WARNING, "expected residue to have 2 alt confs but it had",
+                    alt_confs.size(), rs.format());
+      }
+   }
+   atom_sel.mol->FinishStructEdit();
+   make_bonds_type_checked(__FUNCTION__); // calls update_ghosts()
+   return state;
+}
 
 
 int

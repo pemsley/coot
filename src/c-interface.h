@@ -2598,9 +2598,27 @@ void set_temperature_factors_for_atoms_in_residue_scm(int imol, SCM residue_spec
 #endif
 #endif
 
+#ifdef __cplusplus/* protection from use in callbacks.c, else compilation probs */
+#ifdef USE_GUILE
+SCM get_residue_alt_confs_scm(int imol, const char *chain_id, int res_no, const char *ins_code);
+#endif
+#endif
+
+#ifdef __cplusplus /* protection from use in callbacks.c, else compilation probs */
+#ifdef USE_PYTHON
+/*! \brief Return either False (on failure) or a list of alt-conf strings (might be [""]) */
+PyObject *get_residue_alt_confs_py(int imol, const char *chain_id, int res_no, const char *ins_code);
+#endif
+#endif
+
+
+
 /*! \brief swap atom alt-confs */
 int swap_atom_alt_conf(int imol, const char *chain_id, int res_no, const char *ins_code,
                        const char *atom_name, const char*alt_conf);
+
+/*! \brief swap atom alt-confs */
+int swap_residue_alt_confs(int imol, const char *chain_id, int res_no, const char *ins_code);
 
 /*! \brief set a numberical attibute to the atom with the given specifier.
 

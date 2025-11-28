@@ -974,6 +974,65 @@ void set_debug_refinement(int state) {
    graphics_info_t::do_debug_refinement = state;
 }
 
+#ifdef USE_GUILE
+SCM get_residue_alt_confs_scm(int imol, const char *chain_id, int res_no, const char *ins_code) {
+
+   SCM r = SCM_EOL;
+   std::cout << "get_residue_alt_confs_scm(): Needs to be implemented" << std::endl;
+   return r;
+
+}
+#endif
+
+#ifdef USE_PYTHON
+/*! \brief Return either None (on failure) or a list of alt-conf strings (might be [""]) */
+PyObject *get_residue_alt_confs_py(int imol, const char *chain_id, int res_no, const char *ins_code) {
+
+   PyObject *r = Py_False;
+
+   if (is_valid_model_molecule(imol)) {
+      mmdb::Residue *residue_p = graphics_info_t::molecules[imol].get_residue(chain_id, res_no, ins_code);
+      if (residue_p) {
+         std::vector<std::string> ac = graphics_info_t::molecules[imol].get_residue_alt_confs(residue_p);
+         if (! ac.empty()) {
+            r = PyList_New(ac.size());
+            for (unsigned int i=0; i<ac.size(); i++) {
+               PyObject *s = myPyString_FromString(ac[i].c_str());
+               PyList_SetItem(r, i, s);
+            }
+         }
+      }
+   }
+
+   if (PyBool_Check(r))
+      Py_INCREF(r);
+
+   return r;
+}
+#endif
+
+
+/*! \brief swap atom alt-confs */
+int swap_residue_alt_confs(int imol, const char *chain_id, int res_no, const char *ins_code) {
+
+   int state = 0;
+
+   if (is_valid_model_molecule(imol)) {
+      state = graphics_info_t::molecules[imol].swap_residue_alt_confs(chain_id, res_no, ins_code);
+      graphics_info_t::graphics_draw();
+   }
+
+   std::string cmd = "swap-residue-alt-confs";
+   std::vector<coot::command_arg_t> args;
+   args.push_back(imol);
+   args.push_back(coot::util::single_quote(chain_id));
+   args.push_back(res_no);
+   args.push_back(coot::util::single_quote(ins_code));
+   add_to_history_typed(cmd, args);
+   return state;
+}
+
+
 int swap_atom_alt_conf(int imol, const char *chain_id, int res_no, const char *ins_code, const char *atom_name, const char*alt_conf) {
 
    int istat = 0;
