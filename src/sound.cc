@@ -124,7 +124,7 @@ play_sound_file(const std::string &file_name) {
 
          alcMakeContextCurrent(m_pContext);
          check_alerror("make context current");
-         
+
          OpenALState* initial_state = new OpenALState(m_pDevice, m_pContext);
          openal_state_ptr = initial_state;
 
@@ -146,16 +146,16 @@ play_sound_file(const std::string &file_name) {
 
 
       std::cout << "debug:: m_pDevice is " << m_pDevice << std::endl;
-      
+
       if(!m_pDevice || !m_pContext) {
          std::cout << "ERROR:: play_sound_file_inner() device or context is null. Giving up" << std::endl;
          return;
       }
-      
+
       ALuint source;
       alGenSources(1, &source);
       check_alerror("source generation");
-      
+
       ALuint buffer;
       alGenBuffers(1, &buffer);
       check_alerror("buffer generation");
@@ -259,6 +259,7 @@ void play_sound(const std::string &type) {
       if (type == "OOPS")    play_sound_file("538550_3725923-lq-Sjonas88-Deep-tone.ogg");
       if (type == "diego-gone-pop") play_sound_file("pop-dodrio-554022_1433422-lq.ogg");
       if (type == "diego-arrives")  play_sound_file("cdonahueucsd-337132_5955158-lq.ogg");
+      if (type == "new-bump")  play_sound_file("bump-7-by-Calethos-31125_248225-lq.ogg");
    }
 
 }

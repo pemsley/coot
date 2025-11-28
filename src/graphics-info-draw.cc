@@ -5388,11 +5388,17 @@ graphics_info_t::update_bad_nbc_atom_pair_marker_positions() {
          // if (nbc_baddies_count_delta(previous_round_nbc_baddies_atom_index_map, rr.nbc_baddies_atom_index_map) > 1)
          // play_sound("diego-arrives");
 
+         int bad_nbc_atom_pair_marker_positions_size_pre = bad_nbc_atom_pair_marker_positions.size();
          bad_nbc_atom_pair_marker_positions.clear();
          std::vector<coot::refinement_results_nbc_baddie_t> &baddies(rr.sorted_nbc_baddies);
          for (unsigned int i=0; i<baddies.size(); i++) {
             bad_nbc_atom_pair_marker_positions.push_back(coord_orth_to_glm(baddies[i].mid_point));
          }
+         int bad_nbc_atom_pair_marker_positions_size_post = bad_nbc_atom_pair_marker_positions.size();
+
+         int bad_nbc_size_delta = bad_nbc_atom_pair_marker_positions_size_post - bad_nbc_atom_pair_marker_positions_size_pre;
+         if (bad_nbc_size_delta > 0)
+            play_sound("diego-arrives");  // maybe new-bump
 
          GLenum err = glGetError();
          if (err)
