@@ -1,6 +1,6 @@
 -----
 
-  Release Notes for 1.1.20
+  Pre-Release Notes for 1.1.20
 
  o CHANGE:  XDG is used for the download of COD entries
 
@@ -25,20 +25,35 @@
  o FEATURE: on initial startup, Coot will ask if left-mouse
             should be used for view rotation
 
+ o FEATURE: (Multi) Pick Delete Atom added
+
+ o FEATURE: Bad Non-bonded contact markers now have dashed lines
+            between the atoms
+
+ o FEATURE: The space group info is now displayed in log on reading
+            a coordinates file
+
+ o FEATURE: Now configuration with --sound works
+
  o FEATURE: Other types of Carbohydrate added (back)
 
  o CHANGE:  Update the "No Unmodelled Blobs" dialog
 
+ o CHANGE:  Update the url for AlphaFold models to v6
+
  o CHANGE:  Cross-hairs have fixed size, not relative size - the
             size is configurable in Preferences
 
- o CHANGE:  "Environment Distances" is now a transient [Oli Clarke]
+ o CHANGE:  "Environment Distances" is now a transient [Oliver Clarke]
 
  o CHANGE:  CA Label now follow the residue on "Space" repositioning
 
  o CHANGE:  Recentre on new fragment on "Copy Fragment"
 
  o CHANGE:  Overlay notification on B-factor and Occupancy updated
+
+ o CHANGE:  B-factor and Occupancy modifcation now has an overlay
+            notifier
 
  o BUG-FIX: "Undo molecule" dialog operation fixed
 
@@ -47,6 +62,14 @@
 
  o BUG-FIX: fix control of display control dialog in the
             state script
+
+ o BUG-FIX: fix missing protein-ligand interactions for FLEV
+            [thanks Lan Guan]
+
+ o BUG-FIX: set_molecule_name() function for models fixed
+
+ o BUG-FIX: one can now no longer pick/drag undisplayed intermediate
+            hydrogren atoms [thanks Oliver Clarke]
 
  o BUG-FIX: the "No Unmodelled blobs" dialog tided up
 
