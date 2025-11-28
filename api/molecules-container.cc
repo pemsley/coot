@@ -31,6 +31,7 @@
 #include <sys/stat.h>
 
 #include "molecules-container.hh"
+#include "geometry/residue-and-atom-specs.hh"
 #include "ideal/pepflip.hh"
 #include "coot-utils/coot-coord-utils.hh"
 #include "coot-utils/coot-map-utils.hh"
@@ -42,6 +43,7 @@
 #include "coords/mmdb.hh"
 #include "coords/mmdb-extras.hh"
 
+#include "mmdb2/mmdb_atom.h"
 #include "utils/logging.hh"
 extern logging logger;
 
@@ -6550,6 +6552,32 @@ molecules_container_t::residue_is_nucleic_acid(int imol, const std::string &cid)
    }
    return status;
 }
+
+
+//! Get the residue type
+//!
+//! @param imol is the model molecule index
+//! @param cid is the selection CID e.g "//A/16" (residue 16 of chain A)
+//! @return a string. Return an empty string on failure
+std::string
+molecules_container_t::get_residue_type(int imol, const std::string &cid) const {
+
+   std::string r;
+   if (is_valid_model_molecule(imol)) {
+      mmdb::Residue *res_p = get_residue_using_cid(imol, cid);
+      if (res_p) {
+         std::string chain_id = res_p->GetChainID();
+         std::string ins_code = res_p->GetInsCode();
+         int res_no = res_p->GetSeqNum();
+         coot::residue_spec_t rs(chain_id, res_no, ins_code);
+         r = molecules[imol].get_residue_name(rs);
+      }
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return r;
+}
+
 
 //! get atom distances
 //! other stuff here

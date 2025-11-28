@@ -1300,6 +1300,13 @@ public:
    //! @return the residue name, return a blank string on residue not found.
    std::string get_residue_name(int imol, const std::string &chain_id, int res_no, const std::string &ins_code) const;
 
+   //! Get the residue type
+   //!
+   //! @param imol is the model molecule index
+   //! @param cid is the selection CID e.g "//A/16" (residue 16 of chain A)
+   //! @return a string. Return an empty string on failure
+   std::string get_residue_type(int imol, const std::string &cid) const;
+
    //! Get the SMILES string for the give residue type
    //!
    //! @param residue 3 letter-code/name of the compound-id
