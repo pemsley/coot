@@ -1,8 +1,6 @@
 --- Items ---
 
-o Adding a label to an atom should change the status bar text
-  [Clemens Vonrhein]
-* Can't reproduce
+o add an N-linked glycan and then undo it.
 
 o CSHL: Coot enable option to disable double click with trackpad -
         option/preferences
@@ -64,6 +62,17 @@ o CSHL: Coot: environment distances don't update on moving to new residue
 
 o S2C2: On copy fragment, zoom and centre on the new fragment
 * Done.
+
+o Edit Chi Angles: when then torsion has not been set
+  but the user tries to move the mouse, then make
+  red rings over the atoms. (on-going red rings will need
+  to be checked). Make sure that Edit Chi Angles works
+  with a trackpad.
+* Done.
+
+o Adding a label to an atom should change the status bar text
+  [Clemens Vonrhein]
+* Can't reproduce
 
 o CSHL: molprobity.rna_validate to find RNA suite outliers. Mark this
         up in Coot.
