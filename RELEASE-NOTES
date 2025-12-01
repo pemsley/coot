@@ -2,8 +2,6 @@
 
   Pre-Release Notes for 1.1.20
 
- o CHANGE:  XDG is used for the download of COD entries
-
  o FEATURE: "New Residue Type" now available in Add Other
             Solvents dialog.
 
@@ -37,9 +35,14 @@
 
  o FEATURE: Other types of Carbohydrate added (back)
 
+ o CHANGE:  XDG is used for the download of COD entries
+
  o CHANGE:  Update the "No Unmodelled Blobs" dialog
 
  o CHANGE:  Update the url for AlphaFold models to v6
+
+ o CHANGE:  User-feedback when trying to rotate unselected chi angle
+            improved
 
  o CHANGE:  Cross-hairs have fixed size, not relative size - the
             size is configurable in Preferences
