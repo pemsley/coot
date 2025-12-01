@@ -51,9 +51,9 @@ coot::atom_tree_t::atom_tree_t(const coot::dictionary_residue_restraints_t &rest
 
 coot::atom_tree_t::atom_tree_t(const dictionary_residue_restraints_t &rest,
                                const std::vector<std::vector<int> > &contact_indices,
-                               int base_atom_index, 
+                               int base_atom_index,
                                const minimol::residue &res_in,
-                               const std::string &altconf) { 
+                               const std::string &altconf) {
 
    made_from_minimol_residue_flag = 1;
    residue = coot::GetResidue(res_in);
@@ -68,12 +68,12 @@ coot::atom_tree_t::atom_tree_t(const dictionary_residue_restraints_t &rest,
 // constructor, given a list of bonds and a base atom index.
 //
 // Used for multi-residue tree generation.
-// 
+//
 coot::atom_tree_t::atom_tree_t(const std::vector<std::vector<int> > &contact_indices,
-                               int base_atom_index, 
+                               int base_atom_index,
                                mmdb::Manager *mol,
                                int selection_handle) {
-   
+
    made_from_minimol_residue_flag = 0;
    residue = NULL; // we can't use (single) residue, we have an
                    // arbitrary atom selection;
@@ -95,13 +95,13 @@ coot::atom_tree_t::atom_tree_t(const coot::dictionary_residue_restraints_t &rest
    atom_selection = NULL;
    construct_internal(rest, res, altconf);
 
-}   
+}
 
 // the constructor, given a list of bonds and a base atom index.
 // Used perhaps as the fallback when the above raises an
 // exception.
 coot::atom_tree_t::atom_tree_t(const std::vector<std::vector<int> > &contact_indices,
-                               int base_atom_index, 
+                               int base_atom_index,
                                mmdb::Residue *res,
                                const std::string &altconf) {
 
@@ -111,20 +111,19 @@ coot::atom_tree_t::atom_tree_t(const std::vector<std::vector<int> > &contact_ind
    if (! res) {
       std::string mess = "null residue in alternate atom_tree_t constructor";
       throw std::runtime_error(mess);
-   } else { 
+   } else {
       residue = res;
       fill_name_map(altconf);
       fill_atom_vertex_vec_using_contacts(contact_indices, base_atom_index);
-   } 
+   }
 
 }
 
 
 
-void 
-coot::atom_tree_t::construct_internal(const coot::dictionary_residue_restraints_t &rest,
-                                       mmdb::Residue *res,
-                                       const std::string &altconf) {
+void coot::atom_tree_t::construct_internal(const coot::dictionary_residue_restraints_t &rest,
+                                           mmdb::Residue *res,
+                                           const std::string &altconf) {
 
    auto residue_has_deuterium_atoms = [] (mmdb::Residue *residue) {
                                          int nResidueAtoms = residue->GetNumberOfAtoms();
@@ -181,7 +180,8 @@ coot::atom_tree_t::construct_internal(const coot::dictionary_residue_restraints_
 
       if (has_deuterium_atoms) {
 
-         std::cout << ":::::: in construct_internal() has_deuterium_atoms" << std::endl;
+         // std::cout << ":::::: in construct_internal() has_deuterium_atoms" << std::endl;
+
          // same again with dictionary atom name changes
          for (int iat=0; iat<n_residue_atoms; iat++) {
             std::string atom_name = residue_atoms[iat]->name;
@@ -221,15 +221,15 @@ coot::atom_tree_t::construct_internal(const coot::dictionary_residue_restraints_
       throw std::runtime_error(mess);
    }
 
-   bool success_torsion = fill_torsions(rest, res, altconf); 
+   bool success_torsion = fill_torsions(rest, res, altconf);
 
-   // if you want print out the atom tree, do it in fill_atom_vertex_vec() 
+   // if you want print out the atom tree, do it in fill_atom_vertex_vec()
 }
 
 
 void
 coot::atom_tree_t::fill_name_map(const std::string &altconf) {
-   
+
    mmdb::PPAtom residue_atoms = 0;
    int n_residue_atoms;
    residue->GetAtomTable(residue_atoms, n_residue_atoms);
@@ -319,8 +319,8 @@ coot::atom_tree_t::fill_atom_vertex_vec_using_contacts(const std::vector<std::ve
 
    bool r=0; // return 1 on successful fill
 
-   mmdb::PPAtom residue_atoms;
-   int n_residue_atoms;
+   mmdb::Atom **residue_atoms = nullptr;
+   int n_residue_atoms = 0;
    residue->GetAtomTable(residue_atoms, n_residue_atoms);
    atom_vertex_vec.resize(n_residue_atoms);
 
@@ -335,8 +335,12 @@ coot::atom_tree_t::fill_atom_vertex_vec_using_contacts_by_atom_selection(const s
                                                                          int n_atoms,
                                                                          int base_atom_index) {
 
-   bool r = false;
    bool debug = false;
+   if (debug)
+      std::cout << ":::::::::::: fill_atom_vertex_vec_using_contacts_by_atom_selection() --- start -- with n_atoms "
+                << n_atoms << std::endl;
+
+   bool r = false;
    coot::atom_vertex av;
    atom_vertex_vec.resize(n_atoms);
    av.connection_type = coot::atom_vertex::START;
@@ -346,7 +350,8 @@ coot::atom_tree_t::fill_atom_vertex_vec_using_contacts_by_atom_selection(const s
    if (contact_indices.size() == 0)
       return 0;
 
-   if (debug) { 
+   if (debug) {
+      std::cout << "debug:: starting fill_atom_vertex_vec_using_contacts_by_atom_selection(): --- start --- " << std::endl;
       std::cout << " debug:: =========== contact indices ======= " << std::endl;
       for (unsigned int ic1=0; ic1<contact_indices.size(); ic1++) {
          std::cout << " index " << ic1 << " : ";
@@ -368,7 +373,7 @@ coot::atom_tree_t::fill_atom_vertex_vec_using_contacts_by_atom_selection(const s
       int this_base_atom = q.front();
       // now what are the forward atoms of av?
       std::vector<int> av_contacts = contact_indices[this_base_atom]; // size check above
-      
+
       for (unsigned int iav=0; iav<av_contacts.size(); iav++) {
 
          int i_forward = av_contacts[iav];
@@ -377,13 +382,13 @@ coot::atom_tree_t::fill_atom_vertex_vec_using_contacts_by_atom_selection(const s
          // atoms of this_base_atom
          bool ifound_forward = 0;
          for (unsigned int ifo=0; ifo<atom_vertex_vec[this_base_atom].forward.size(); ifo++) {
-            if (atom_vertex_vec[this_base_atom].forward[ifo] == av_contacts[iav]) { 
+            if (atom_vertex_vec[this_base_atom].forward[ifo] == av_contacts[iav]) {
                ifound_forward = 1;
                break;
             }
          }
 
-         if (! ifound_forward) { 
+         if (! ifound_forward) {
             // Add the contact as a forward atom of this_base_atom but
             // only if the forward atom does not have a forward atom
             // which is this_base_atom (and this keeps the tree going in
@@ -407,18 +412,18 @@ coot::atom_tree_t::fill_atom_vertex_vec_using_contacts_by_atom_selection(const s
             if (done[idone] == av_contacts[iav]) {
                in_done = 1;
                break;
-            } 
+            }
          }
          if (!in_done)
             q.push(av_contacts[iav]);
       }
-      
+
       // if the forward atoms of this_atom_index do not have a back
       // atom, add one (but not, of course, if forward atom is the
       // start point of the tree).
       for (unsigned int iav=0; iav<av_contacts.size(); iav++) {
          if (atom_vertex_vec[av_contacts[iav]].backward.size() == 0) {
-            if (atom_vertex_vec[av_contacts[iav]].connection_type != coot::atom_vertex::START) 
+            if (atom_vertex_vec[av_contacts[iav]].connection_type != coot::atom_vertex::START)
                atom_vertex_vec[av_contacts[iav]].backward.push_back(this_base_atom);
          }
       }
@@ -426,7 +431,7 @@ coot::atom_tree_t::fill_atom_vertex_vec_using_contacts_by_atom_selection(const s
       done.push_back(this_base_atom);
       r = 1; // return success
    }
-   
+
    // print out the name_to_index map
    if (debug) {
       std::cout << "==== atom indexes ===\n";
@@ -442,20 +447,20 @@ coot::atom_tree_t::fill_atom_vertex_vec_using_contacts_by_atom_selection(const s
                 << std::endl;
       for (unsigned int iv=0; iv<atom_vertex_vec.size(); iv++) {
          std::cout << "   atom_vertex_vec[" << iv << "] forward atom ";
-         for (unsigned int ifo=0; ifo<atom_vertex_vec[iv].forward.size(); ifo++) 
+         for (unsigned int ifo=0; ifo<atom_vertex_vec[iv].forward.size(); ifo++)
             std::cout << atom_vertex_vec[iv].forward[ifo] << " ";
          std::cout << std::endl;
       }
    }
 
    return r;
-} 
+}
 
 // This used to throw an exception.  But now it does not because the
 // catcher was empty (we don't want to know about unfilled hydrogen
 // torsions).  And an empty catch is bad.  So now we return a pair,
 // the first of which defines whether the torsion is good or not.
-// 
+//
 std::pair<bool,coot::atom_index_quad>
 coot::atom_tree_t::get_atom_index_quad(const coot::dict_torsion_restraint_t &tr,
                                        mmdb::Residue *res,
@@ -1372,10 +1377,10 @@ coot::atom_tree_t::rotate_internal(std::vector<coot::map_index_t> moving_atom_in
          std::cout << "  rotate_internal() moving atom number " << im << " " << at->name
                    << " from\n    " << at->x << "," << at->y << "," << at->z << " to "
                    << pt.format() << std::endl;
-      at->x = pt.x(); 
-      at->y = pt.y(); 
-      at->z = pt.z(); 
-   } 
+      at->x = pt.x();
+      at->y = pt.y();
+      at->z = pt.z();
+   }
 }
 
 // can throw an exception
@@ -1393,14 +1398,14 @@ coot::atom_tree_t::set_dihedral(const std::string &atom1, const std::string &ato
           std::cout << "set_dihedral() :" << it->first << ": -> " <<  it->second.index() << std::endl;
        }
    }
-   
+
    coot::map_index_t i1 = name_to_index[atom1];
    coot::map_index_t i2 = name_to_index[atom2];
    coot::map_index_t i3 = name_to_index[atom3];
    coot::map_index_t i4 = name_to_index[atom4];
 
    if (i1.is_assigned() && i2.is_assigned() && i3.is_assigned() && i4.is_assigned()) {
-      if (0) 
+      if (false)
          std::cout << "in atom_tree_t::set_dihedral() calling set_dihedral with indices  "
                    << i1.index() << " " << i2.index() << " " << i3.index() << " " << i4.index()
                    << " to angle " << angle << std::endl;
@@ -1415,7 +1420,7 @@ coot::atom_tree_t::set_dihedral(const std::string &atom1, const std::string &ato
       if (! i4.is_assigned()) unassigned.push_back(atom4);
       if (unassigned.size() > 0) {
          mess += "Unassigned atoms: ";
-         for (unsigned int i=0; i<unassigned.size(); i++) { 
+         for (unsigned int i=0; i<unassigned.size(); i++) {
             mess += "\"";
             mess += unassigned[i];
             mess += "\"  ";
@@ -1438,13 +1443,13 @@ double
 coot::atom_tree_t::set_dihedral(const coot::map_index_t &i1,
                                 const coot::map_index_t &i2,
                                 const coot::map_index_t &i3,
-                                const coot::map_index_t &i4, 
+                                const coot::map_index_t &i4,
                                 double angle) {
 
    double dihedral_angle = 0.0;
-   try { 
+   try {
       coot::atom_index_quad iq(i1.index(), i2.index(), i3.index(), i4.index());
-      
+
       double current_dihedral_angle = -1000; // unset
       if (residue)
          current_dihedral_angle = iq.torsion(residue);
@@ -1484,12 +1489,23 @@ coot::atom_tree_t::set_dihedral(const coot::map_index_t &i1,
 }
 
 // this can throw an exception
-// 
+//
 // return the angle of the torsion (should be the same as was set)
 //
 double
 coot::atom_tree_t::set_dihedral(const coot::atom_quad &quad, double angle,
                                 bool reverse_flag) {
+
+   if (false) {
+      std::cout << "debug:: in set_dihedral() A "
+                << quad.atom_1 << " " << quad.atom_2 << " "
+                << quad.atom_3 << " " << quad.atom_4 << std::endl;
+      int idx1 = get_index(quad.atom_1).index();
+      int idx2 = get_index(quad.atom_2).index();
+      int idx3 = get_index(quad.atom_3).index();
+      int idx4 = get_index(quad.atom_4).index();
+      std::cout << "debug:: in set_dihedral() B " << idx1 << " " << idx2 << " " << idx3 << "  " << idx4 << std::endl;
+   }
 
    double dihedral_angle = 0.0;
    double current_dihedral_angle = quad.torsion();
@@ -1500,6 +1516,7 @@ coot::atom_tree_t::set_dihedral(const coot::atom_quad &quad, double angle,
    int ind_3 = get_index(quad.atom_3).index();
    if (ind_2 == -1) throw std::runtime_error("set_dihedral(quad) missing atom 2");
    if (ind_3 == -1) throw std::runtime_error("set_dihedral(quad) missing atom 3");
+   // std::cout << "rotate_about " << ind_2 << " " << ind_3 << " " << diff << std::endl;
    rotate_about(ind_2, ind_3, diff, reverse_flag);
 
    dihedral_angle = quad.torsion();
@@ -1569,20 +1586,21 @@ coot::atom_tree_t::in_forward_atoms(const coot::map_index_t &bond_atom_index,
 
    bool status = false;
 
-   if (fixed.is_assigned()) { 
-      std::pair<int, std::vector<coot::map_index_t> >  p = 
+   if (fixed.is_assigned()) {
+      std::pair<int, std::vector<coot::map_index_t> >  p =
          get_forward_atoms(bond_atom_index, bond_atom_index);
       if (std::find(p.second.begin(), p.second.end(), fixed) != p.second.end())
          status = true;
    }
    return status;
-} 
+}
 
 
 coot::map_index_t
 coot::atom_tree_t::get_index(mmdb::Atom *atom) const {
 
    coot::map_index_t idx;
+   // std::cout << "debug:: in get_index() residue is " << residue << " and atom_selection is " << atom_selection << std::endl;
    if (residue) {
       mmdb::PPAtom residue_atoms = 0;
       int n_residue_atoms;
@@ -1591,17 +1609,21 @@ coot::atom_tree_t::get_index(mmdb::Atom *atom) const {
          if (residue_atoms[iat] == atom) {
             idx = map_index_t(iat);
             break;
-         } 
+         }
       }
    }
    if (atom_selection) {
       for (int iat=0; iat<n_selected_atoms; iat++) {
+         if (false)
+            std::cout << "::: in get_index() comparing atom " << atom << " " << coot::atom_spec_t(atom)
+                      << " with atom-seletion-atom: " <<  iat << " " << atom_selection[iat] << " "
+                      << coot::atom_spec_t(atom_selection[iat]) << std::endl;
          if (atom_selection[iat] == atom) {
             idx = map_index_t(iat);
             break;
          }
       }
-   } 
+   }
 
    return idx;
 }

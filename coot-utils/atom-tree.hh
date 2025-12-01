@@ -44,7 +44,7 @@ namespace coot {
       // or we create this class with an atom selection, in which case
       // residue is not set.
       //
-      // Thquis difference is used in rotate_internal, where we decide
+      // This difference is used in rotate_internal, where we decide
       // which atoms to move.
       //
       //

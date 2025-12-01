@@ -4774,7 +4774,7 @@ coot::util::create_mmdbmanager_from_residue(mmdb::Residue *res) {
 
    mmdb::Manager *mol = NULL;
 
-   if (res) { 
+   if (res) {
       mol = new mmdb::Manager;
       mmdb::Residue *r = coot::util::deep_copy_this_residue(res);
       mmdb::Model *model_p = new mmdb::Model;
