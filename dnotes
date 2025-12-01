@@ -3986,7 +3986,7 @@ INFO::
    o change the PACKAGE_VERSION in CMakeLists.txt
    o update data/Components-inchikey.ich
    o Correct the version in the about_dialog in the coot-gtk4.ui file
-   o Artists acknowledged in glade/aboutdialog?
+   o Artists acknowledged in glade/aboutdialog? 
    o update Components-inchikey.ich
    o Use []
         Change the splash screen?
@@ -11953,3 +11953,10 @@ Sun 23 Nov 2025 13:49:06 GMT
 
 https://www.reddit.com/r/StructuralBiology/comments/1p3y49c/hbat_2_analyze_hydrogen_bonds_and_noncovalent/
 
+---
+Sat 29 Nov 15:08:12 GMT 2025
+
+   when talking about thought about the new interface:
+   QoL
+
+   learnability, productivity, forgiveness, and aesthetics
