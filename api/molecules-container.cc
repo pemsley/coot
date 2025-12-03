@@ -4796,7 +4796,8 @@ molecules_container_t::sharpen_blur_map(int imol_map, float b_factor, bool in_pl
             name += " Blur ";
          name += std::to_string(b_factor);
          imol_new = molecules.size();
-         coot::molecule_t cm(name, imol_new);
+         bool is_em = molecules[imol_map].is_EM_map();
+         coot::molecule_t cm(name, imol_new, is_em);
          cm.xmap = xmap_new;
          molecules.push_back(cm);
       }
