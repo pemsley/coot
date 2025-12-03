@@ -52,6 +52,97 @@
   <update_contact>pemsley_AT_mrc-lmb.cam.ac.uk</update_contact>
   <content_rating type="oars-1.1" />
   <releases>
+
+    <release version="1.1.20" date="2025-11-29">
+      <description>
+        <ul>
+
+          <li> o FEATURE: "New Residue Type" now available in Add Other
+                           Solvents dialog</li>
+
+          <li> o FEATURE: key-binding for Triple-Refine AA (H)</li>
+
+          <li> o FEATURE: key-binding for Undo Symmetry View (Shift V)</li>
+
+          <li> o FEATURE: key-binding for Keyboard Mutate (Shift-M)</li>
+
+          <li> o FEATURE: now Open Dialogs track the latest used directory</li>
+
+          <li> o FEATURE: "Unhappy Atom" markup added</li>
+
+          <li> o FEATURE: Add keyboard mutate</li>
+
+          <li> o FEATURE: Add user-defined type to "Add Other Solvent Molecule"
+                          dialog</li>
+
+          <li> o FEATURE: on initial startup, Coot will ask if left-mouse
+          should be used for view rotation</li>
+
+          <li> o FEATURE: (Multi) Pick Delete Atom added</li>
+
+          <li> o FEATURE: Bad Non-bonded contact markers now have dashed lines
+                          between the atoms</li>
+
+          <li> o FEATURE: The space group info is now displayed in log on reading
+                          a coordinates file</li>
+
+          <li> o FEATURE: Now configuration with --sound works</li>
+
+          <li> o FEATURE: Other types of Carbohydrate added (back)</li>
+
+          <li> o CHANGE:  XDG is used for the download of COD entries</li>
+
+          <li> o CHANGE:  Update the "No Unmodelled Blobs" dialog</li>
+
+          <li> o CHANGE:  Update the url for AlphaFold models to v6</li>
+
+          <li> o CHANGE:  User-feedback when trying to rotate unselected chi angle
+                          improved</li>
+
+          <li> o CHANGE:  Cross-hairs have fixed size, not relative size - the
+                          size is configurable in Preferences</li>
+
+          <li> o CHANGE:  "Environment Distances" is now a transient [Oliver Clarke]</li>
+
+          <li> o CHANGE:  CA Label now follow the residue on "Space" repositioning</li>
+
+          <li> o CHANGE:  Recentre on new fragment on "Copy Fragment"</li>
+
+          <li> o CHANGE:  Overlay notification on B-factor and Occupancy updated</li>
+
+          <li> o CHANGE:  B-factor and Occupancy modifcation now has an overlay
+                          notifier</li>
+
+          <li> o BUG-FIX: "Undo molecule" dialog operation fixed</li>
+
+          <li> o BUG-FIX: Display Control dialog is only displayed on restart
+                          if it was displayed on session save</li>
+
+          <li> o BUG-FIX: fix control of display control dialog in the
+                          state script</li>
+
+          <li> o BUG-FIX: fix missing protein-ligand interactions for FLEV
+                          [thanks Lan Guan]</li>
+
+          <li> o BUG-FIX: set_molecule_name() function for models fixed</li>
+
+          <li> o BUG-FIX: one can now no longer pick/drag undisplayed intermediate
+                          hydrogren atoms [thanks Oliver Clarke]</li>
+
+          <li> o BUG-FIX: the "No Unmodelled blobs" dialog tided up</li>
+
+          <li> o BUG-FIX: get-monomer dialog activate now closes the drop-down.</li>
+
+          <li> o BUG-FIX: undisplay "Get monomer" frame on entry activate</li>
+
+          <li> o NEW FUNCTION: get_mmrrcc()</li>
+
+          <li> o NEW FUNCTION: get_residue_pucker_info() function added</li>
+
+        </ul>
+      </description>
+    </release>
+
     <release version="1.1.19" date="2025-10-07">
       <description>
         <ul>
@@ -59,7 +150,7 @@
            <li> o FEATURE: drag-and-drop import for local-file-system files</li>
            <li> o CHANGE:  user-defined-clicks added back</li>
            <li> o CHANGE:  Assign and Associate Sequence menu items functions now added back</li>
-           <li> o CHANGE:  Improve the scrolling of the map contour level when the 
+           <li> o CHANGE:  Improve the scrolling of the map contour level when the
                   nominated map is not displayed</li>
            <li> o BUG-FIX: Menu items with targets don't work on macOS (I don't know why).
             The targets have been removed, so these menu items should now

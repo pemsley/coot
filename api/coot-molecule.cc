@@ -34,6 +34,7 @@
 
 #include "utils/coot-utils.hh"
 #include "coot-utils/coot-coord-utils.hh"
+#include "coot-utils/coot-coord-extras.hh"
 #include "coords/mmdb.hh"
 #include "coot-molecule.hh"
 #include "ideal/pepflip.hh"

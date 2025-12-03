@@ -738,6 +738,7 @@ molecules_container_t::get_dictionary_conformers(const std::string &comp_id, int
       for (unsigned int i=0; i<confs.size(); i++) {
          mmdb::Residue *res = confs[i];
          mmdb::Manager *mol = coot::util::create_mmdbmanager_from_residue(res);
+         // std::cout << "conf " << i  << " mol: " << mol << std::endl;
          std::string name = comp_id + "-conf-" + std::to_string(i);
          atom_selection_container_t asc = make_asc(mol);
          int imol_no = molecules.size();
@@ -746,6 +747,12 @@ molecules_container_t::get_dictionary_conformers(const std::string &comp_id, int
       }
       for (unsigned int i=0; i<confs.size(); i++)
          delete confs[i];
+   }
+   if (false)  {
+      std::cout << "mol_indices:" << std::endl;
+      for (unsigned int i=0; i<mol_indices.size(); i++) {
+         std::cout << "       " << mol_indices[i] << std::endl;
+      }
    }
    return mol_indices;
 }
