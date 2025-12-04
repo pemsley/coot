@@ -1017,7 +1017,7 @@ coot::set_atom_chirality(RDKit::Atom *rdkit_at,
 void
 coot::set_atom_chirality(RDKit::Atom *rdkit_at, const coot::dict_atom &dict_atom) {
 
-   bool debug = false;;
+   bool debug = false;
 
    if (dict_atom.pdbx_stereo_config.first) {
       if (dict_atom.pdbx_stereo_config.second == "R") {
@@ -1183,6 +1183,7 @@ coot::chiral_check_order_swap_singleton(RDKit::Atom *at_1, RDKit::Atom *at_2,
 RDKit::RWMol
 coot::rdkit_mol(const coot::dictionary_residue_restraints_t &r) {
 
+   bool debug = false;
    RDKit::RWMol m;
    const RDKit::PeriodicTable *tbl = RDKit::PeriodicTable::getTable();
 
@@ -1354,7 +1355,6 @@ coot::rdkit_mol(const coot::dictionary_residue_restraints_t &r) {
 
    set_3d_conformer_state(&m);
 
-   bool debug = true;
    if (debug)
       std::cout << "---------------------- calling assign_formal_charges() -----------"
 		<< std::endl;
