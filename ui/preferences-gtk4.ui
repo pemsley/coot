@@ -293,9 +293,54 @@
                   </object>
                 </child>
 
+                <!--
                 <child>
                   <object class="GtkNotebookPage">
                     <property name="position">2</property>
+                    <property name="tab">
+                      <object class="GtkLabel">
+                        <property name="label" translatable="yes">Theme</property>
+                      </object>
+                    </property>
+                    <property name="child">
+                      <object class="GtkFrame" id="preferences_theme_frame">
+                        <child>
+                          <object class="GtkBox" id="vbox_for_theme">
+                            <property name="orientation">horizontal</property>
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="label" translatable="yes">Light</property>
+                                <property name="justify">center</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkSwitch" id="light-mode-dark-mode-switch">
+                                <property name="active">True</property>
+                                <property name="margin-top">4</property>
+                                <property name="margin-bottom">4</property>
+                                <property name="margin-start">4</property>
+                                <property name="margin-end">4</property>
+                                <property name="valign">center</property>
+                              </object>
+                            </child>
+
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="label" translatable="yes">Dark</property>
+                                <property name="justify">center</property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                    </property>
+                  </object>
+                </child>
+                -->
+
+                <child>
+                  <object class="GtkNotebookPage">
+                    <property name="position">3</property>
                     <property name="tab">
                       <object class="GtkLabel">
                         <property name="visible">1</property>

@@ -24,6 +24,7 @@
  *
  */
 
+#include <cstddef>
 #include <iostream>
 #include <string>
 #include <gtk/gtk.h>
@@ -32,6 +33,9 @@
 #include <clipper/core/test_core.h>
 #include <clipper/contrib/test_contrib.h>
 
+#include "glib-object.h"
+#include "glib.h"
+#include "glibconfig.h"
 #include "utils/xdg-base.hh"
 
 #include "graphics-info.h"
@@ -47,6 +51,7 @@
 #include "testing.hh" // for test_internal();
 
 #include "utils/logging.hh"
+#include "widget-from-builder.hh"
 extern logging logger;
 
 void print_opengl_info();
@@ -1111,6 +1116,7 @@ new_startup_application_activate(GtkApplication *application,
       // now we are ready to show graphical objects made from reading files:
       handle_command_line_data(activate_data->cld);
 
+
       // 20251019-PE is this the first time Coot-1 has been started?
       {
          bool show_first_startup_dialog = true;
@@ -1270,10 +1276,34 @@ int new_startup(int argc, char **argv) {
    gtk_widget_set_visible(splash_screen, TRUE);
 
    g_object_set(gtk_settings_get_default(), "gtk-application-prefer-dark-theme", TRUE, NULL);
-
    // Here's how you access that:
    // gboolean dark_mode_flag = FALSE;
    // g_object_get(gtk_settings_get_default(), "gtk-application-prefer-dark-theme", &dark_mode_flag, NULL);
+
+   // dark mode vs light-mode switch
+   GtkWidget *mode_switch = widget_from_preferences_builder("light-mode-dark-mode-switch");
+   if (mode_switch) {
+   auto mode_switch_callback = +[] (GtkSwitch *sw, gboolean state, gpointer user_data) {
+        
+        GtkSettings *settings = gtk_settings_get_default();
+        
+        // 'state' is TRUE if the user just clicked "On"
+        // 'state' is FALSE if the user just clicked "Off"
+        if (state) {
+            //TO Dark Mode
+            g_object_set(settings, "gtk-application-prefer-dark-theme", TRUE, NULL);
+        } else {
+            // TO Light Mode
+            g_object_set(settings, "gtk-application-prefer-dark-theme", FALSE, NULL);
+        }
+
+        // Return FALSE to allow the switch to complete the animation/toggle
+        return gboolean(FALSE); 
+        };
+
+         gpointer *user_data = nullptr;
+         g_signal_connect(G_OBJECT(mode_switch), "state-set", G_CALLBACK(mode_switch_callback), user_data);
+   }
 
    GError *error = NULL;
 #if GLIB_MAJOR_VERSION == 2 && GLIB_MINOR_VERSION >= 74 || GLIB_MAJOR_VERSION > 2

@@ -635,7 +635,7 @@
             <attribute name="action">app.bond_colours_action</attribute>
           </item>
           <item>
-            <attribute name="label">Bond Parameters...</attribute>
+            <attribute name="label">Bond and Atom Parameters...</attribute>
             <attribute name="action">app.bond_parameters_action</attribute>
           </item>
 
