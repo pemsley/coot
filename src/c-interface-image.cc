@@ -24,6 +24,7 @@
  *
  */
 
+#include <fstream>
 #ifdef USE_PYTHON
 #include <Python.h>  // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #endif
@@ -81,13 +82,24 @@ GtkWidget *test_get_image_widget_for_comp_id(const std::string &comp_id) {
 }
 
 
-GtkWidget *get_image_widget_for_comp_id(const std::string &comp_id, int imol) {
+GtkWidget *get_image_widget_for_comp_id(const std::string &comp_id, int imol, unsigned int image_size) {
+
+   auto write_image_data = [] (const std::string &dt, const std::string &comp_id) {
+
+      std::string fn = comp_id + ".png";
+      std::ofstream f(fn);
+      if (f) {
+         f << dt;
+         f.close();
+      }
+   };
 
    GtkWidget *r = 0;
-   unsigned int image_size = 150; // pixels
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 #ifdef RDKIT_HAS_CAIRO_SUPPORT
+
+   std::cout << "Here in get_image_widget_for_comp_id() with image size " << image_size << std::endl;
 
    graphics_info_t g;
    g.Geom_p()->try_dynamic_add(comp_id, g.cif_dictionary_read_number++);
@@ -126,6 +138,8 @@ GtkWidget *get_image_widget_for_comp_id(const std::string &comp_id, int imol) {
             GError *error = NULL;
             GdkPixbufLoader *loader = gdk_pixbuf_loader_new_with_type("png", &error);
             const guchar *image_data = reinterpret_cast<const guchar *>(dt.c_str());
+            if (true)
+               write_image_data(dt, comp_id);
             gboolean load_success = gdk_pixbuf_loader_write(loader, image_data, dt.length(), &error);
             if (load_success) {
                GdkPixbuf *pixbuf = gdk_pixbuf_loader_get_pixbuf(loader);

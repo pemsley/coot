@@ -1424,6 +1424,11 @@ std::vector<std::pair<std::string, std::string> > monomer_lib_3_letter_codes_mat
 int
 handle_make_monomer_search(const char *text, GtkWidget *viewport) {
 
+   unsigned int image_size = 128;
+#if __APPLE__
+   // image_size = 450;
+#endif
+
    int stat = 0;
    std::string t(text);
    GtkWidget *vbox_current = widget_from_builder("monomer_search_results_vbox");
@@ -1435,7 +1440,7 @@ handle_make_monomer_search(const char *text, GtkWidget *viewport) {
    std::vector<std::pair<std::string, std::string> > v =
       monomer_lib_3_letter_codes_matching(t, allow_minimal_descriptions_flag);
 
-   if (true)
+   if (false)
       std::cout << "DEBUG::  " << " found " << v.size() << " matching molecules "
 		<< " using string :" << t << ":"
 		<< std::endl;
@@ -1451,13 +1456,14 @@ handle_make_monomer_search(const char *text, GtkWidget *viewport) {
       const std::string &tlc           = v[i].first;
       const std::string &molecule_name = v[i].second;
       std::string *s = new std::string(tlc); // memory leak
-      GtkWidget *wp = get_image_widget_for_comp_id(tlc, coot::protein_geometry::IMOL_ENC_ANY);
+      GtkWidget *wp = get_image_widget_for_comp_id(tlc, coot::protein_geometry::IMOL_ENC_ANY, image_size);
       if (wp) {
          GtkWidget *button_for_image = gtk_button_new();
          gtk_button_set_child(GTK_BUTTON(button_for_image), wp);
-         gtk_widget_set_size_request(wp, 150, 150);
-         gtk_widget_set_hexpand(wp, TRUE);
-         gtk_widget_set_vexpand(wp, TRUE);
+         // gtk_widget_set_size_request(wp, image_size, image_size);
+         // gtk_widget_set_hexpand(wp, TRUE);
+         // gtk_widget_set_vexpand(wp, TRUE);
+         gtk_image_set_pixel_size(GTK_IMAGE(wp), image_size); // Example: request 64 logical pixels
          gtk_grid_attach(GTK_GRID(grid), button_for_image, 0, i, 1, 1);
          g_signal_connect(G_OBJECT(button_for_image), "clicked", G_CALLBACK(on_monomer_lib_search_results_button_press), s);
       }
