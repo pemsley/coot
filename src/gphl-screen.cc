@@ -1,6 +1,9 @@
 
 #include "coot-utils/coot-coord-utils.hh"
 #include "cc-interface.hh"
+#include "glibconfig.h"
+#include "gtk/gtk.h"
+#include "gtk/gtkshortcut.h"
 #include "positioned-widgets.h"
 #include "c-interface-gtk-widgets.h" // for set_transient_and_position()
 #include "c-interface.h"
@@ -66,16 +69,13 @@ void go_to_gphl_atoms(int imol, const std::string &atom_ids, const std::string &
 
    if (type == "unhappy-atom") {
       std::vector<std::string> parts_1 = coot::util::split_string(atom_ids, "|");
-      std::cout << "debug:: " << parts_1.size() << std::endl;
       if (parts_1.size() == 2) {
          std::string chain_id = parts_1[0];
          std::string rest_1   = parts_1[1];
-         std::cout << "debug:: chain_id: " << chain_id << " rest_1: " << rest_1 << std::endl;
          std::vector<std::string> parts_2 = coot::util::split_string(rest_1, ":");
          if (parts_2.size() == 2) {
             std::string res_no_str = parts_2[0];
             std::string rest_2     = parts_2[1];
-            std::cout << "debug:: res_no_str: " << res_no_str << " rest_2: " << rest_2 << std::endl;
             std::vector<std::string> parts_3 = coot::util::split_string(rest_2, "(");
             if (parts_3.size() == 2) {
                std::string atom_name = parts_3[0];
@@ -518,9 +518,10 @@ PyObject *global_phasing_screen(int imol, PyObject *screen_dict) {
       return  w;
    };
 
-   auto connect_callback = +[] (GtkWidget *go_button, int imol, const std::string &atom_ids, const std::string &type) {
+   auto connect_callback = +[] (GtkWidget *go_button, GtkWidget *eye_label, int imol, const std::string &atom_ids, const std::string &type) {
 
       struct button_wrapper_t {
+         GtkWidget *eye_label;
          int imol;
          std::string atom_ids;
          std::string type;
@@ -534,6 +535,8 @@ PyObject *global_phasing_screen(int imol, PyObject *screen_dict) {
             if (! bw->atom_ids.empty()) {
                go_to_gphl_atoms(bw->imol, bw->atom_ids, bw->type);
             }
+            if (bw->eye_label)
+               gtk_widget_set_visible(bw->eye_label, TRUE);
          }
       };
 
@@ -541,6 +544,7 @@ PyObject *global_phasing_screen(int imol, PyObject *screen_dict) {
       bw->imol = imol;
       bw->atom_ids =  atom_ids;
       bw->type = type;
+      bw->eye_label = eye_label;
       g_signal_connect(G_OBJECT(go_button), "clicked", G_CALLBACK(go_button_clicked), bw);
    };
 
@@ -611,8 +615,11 @@ PyObject *global_phasing_screen(int imol, PyObject *screen_dict) {
                   }
                }
                GtkWidget *go_button = gtk_button_new_with_label("Go");
-               connect_callback(go_button, screen_results.imol, atom_ids, "bond");
+               GtkWidget *eye_label = gtk_label_new("👁");
+               connect_callback(go_button, eye_label, screen_results.imol, atom_ids, "bond");
                gtk_grid_attach(GTK_GRID(grid), go_button, 6, i_row, 1, 1);
+               gtk_grid_attach(GTK_GRID(grid), eye_label, 7, i_row, 1, 1);
+               gtk_widget_set_visible(eye_label, FALSE);
 
                // GtkWidget *fix_button = gtk_button_new_with_label("Try Fix");
                // gtk_grid_attach(GTK_GRID(grid), fix_button, 7, i_row, 1, 1);
@@ -654,8 +661,11 @@ PyObject *global_phasing_screen(int imol, PyObject *screen_dict) {
                   }
                }
                GtkWidget *go_button  = gtk_button_new_with_label("Go");
-               connect_callback(go_button, screen_results.imol, atom_ids, "angle");
+               GtkWidget *eye_label = gtk_label_new("👁");
+               connect_callback(go_button, eye_label, screen_results.imol, atom_ids, "angle");
                gtk_grid_attach(GTK_GRID(grid), go_button, 6, i_row, 1, 1);
+               gtk_grid_attach(GTK_GRID(grid), eye_label, 7, i_row, 1, 1);
+               gtk_widget_set_visible(eye_label, FALSE);
                // GtkWidget *fix_button = gtk_button_new_with_label("Try Fix");
                // gtk_grid_attach(GTK_GRID(grid), fix_button, 7, i_row, 1, 1);
                i_row++;
@@ -696,8 +706,11 @@ PyObject *global_phasing_screen(int imol, PyObject *screen_dict) {
                   }
                }
                GtkWidget *go_button = gtk_button_new_with_label("Go");
-               connect_callback(go_button, screen_results.imol, atom_ids, "torsion");
+               GtkWidget *eye_label = gtk_label_new("👁");
+               connect_callback(go_button, eye_label, screen_results.imol, atom_ids, "torsion");
                gtk_grid_attach(GTK_GRID(grid), go_button,  6, i_row, 1, 1);
+               gtk_grid_attach(GTK_GRID(grid), eye_label,  7, i_row, 1, 1);
+               gtk_widget_set_visible(eye_label, FALSE);
                // GtkWidget *fix_button = gtk_button_new_with_label("Try Fix");
                // gtk_grid_attach(GTK_GRID(grid), fix_button, 7, i_row, 1, 1);
                i_row++;
@@ -736,8 +749,11 @@ PyObject *global_phasing_screen(int imol, PyObject *screen_dict) {
                   }
                }
                GtkWidget *go_button = gtk_button_new_with_label("Go");
-               connect_callback(go_button, screen_results.imol, atom_ids, "plane");
+               GtkWidget *eye_label = gtk_label_new("👁");
+               connect_callback(go_button, eye_label, screen_results.imol, atom_ids, "plane");
                gtk_grid_attach(GTK_GRID(grid), go_button,  6, i_row, 1, 1);
+               gtk_grid_attach(GTK_GRID(grid), eye_label,  7, i_row, 1, 1);
+               gtk_widget_set_visible(eye_label, FALSE);
                // GtkWidget *fix_button = gtk_button_new_with_label("Try Fix");
                // gtk_grid_attach(GTK_GRID(grid), fix_button, 7, i_row, 1, 1);
                i_row++;
@@ -779,8 +795,11 @@ PyObject *global_phasing_screen(int imol, PyObject *screen_dict) {
                   }
                }
                GtkWidget *go_button = gtk_button_new_with_label("Go");
-               connect_callback(go_button, screen_results.imol, atom_ids, "ideal-contact");
+               GtkWidget *eye_label = gtk_label_new("👁");
+               connect_callback(go_button, eye_label, screen_results.imol, atom_ids, "ideal-contact");
                gtk_grid_attach(GTK_GRID(grid), go_button, 6, i_row, 1, 1);
+               gtk_grid_attach(GTK_GRID(grid), eye_label, 7, i_row, 1, 1);
+               gtk_widget_set_visible(eye_label, FALSE);
                // GtkWidget *fix_button = gtk_button_new_with_label("Try Fix");
                // gtk_grid_attach(GTK_GRID(grid), fix_button, 7, i_row, 1, 1);
                i_row++;
@@ -807,8 +826,11 @@ PyObject *global_phasing_screen(int imol, PyObject *screen_dict) {
                gtk_grid_attach(GTK_GRID(grid), l1, 1, i_row, 1, 1);
 
                GtkWidget *go_button = gtk_button_new_with_label("Go");
-               connect_callback(go_button, screen_results.imol, atom_id, "unhappy-atom");
+               GtkWidget *eye_label = gtk_label_new("👁");
+               connect_callback(go_button, eye_label, screen_results.imol, atom_id, "unhappy-atom");
                gtk_grid_attach(GTK_GRID(grid), go_button, 2, i_row, 1, 1);
+               gtk_grid_attach(GTK_GRID(grid), eye_label, 3, i_row, 1, 1);
+               gtk_widget_set_visible(eye_label, FALSE);
                i_row++;
             }
          }

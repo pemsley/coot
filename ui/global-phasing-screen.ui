@@ -56,10 +56,58 @@
               </object>
             </child>
 
-            <!-- notebook page -->
+            <!-- notebook page - Clemens wanted this repositioned -->
             <child>
               <object class="GtkNotebookPage">
                 <property name="position">1</property>
+                <property name="tab">
+                  <object class="GtkLabel">
+                    <property name="visible">1</property>
+                    <property name="label" translatable="yes">Unhappy Atom</property>
+                  </object>
+                </property>
+                <property name="child">
+                  <object class="GtkFrame">
+                    <property name="visible">1</property>
+                    <property name="child">
+                      <object class="GtkBox" id="gphl-screen-unhappy-atoms-frame">
+                        <child>
+                          <object class="GtkBox" id="gphl-screen-unhappy-atoms-vbox">
+                            <property name="orientation">vertical</property>
+
+                            <child>
+                              <object class="GtkScrolledWindow" id="gphl-screen-unhappy-atoms-scrolledwindow">
+                                <property name="hexpand">1</property>
+                                <property name="vexpand">1</property>
+                                <child>
+                                  <object class="GtkViewport">
+                                    <property name="hexpand">1</property>
+                                    <property name="vexpand">1</property>
+                                    <child>
+                                      <object class="GtkGrid" id="gphl-screen-unhappy-atom-grid">
+                                        <property name="margin-start">12</property>
+                                        <property name="margin-end">4</property>
+                                        <property name="margin-top">4</property>
+                                        <property name="margin-bottom">4</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                    </property>
+                  </object>
+                </property>
+              </object>
+            </child>
+
+            <!-- notebook page -->
+            <child>
+              <object class="GtkNotebookPage">
+                <property name="position">2</property>
                 <property name="tab">
                   <object class="GtkLabel">
                     <property name="visible">1</property>
@@ -107,7 +155,7 @@
             <!-- notebook page -->
             <child>
               <object class="GtkNotebookPage">
-                <property name="position">2</property>
+                <property name="position">3</property>
                 <property name="tab">
                   <object class="GtkLabel">
                     <property name="visible">1</property>
@@ -156,7 +204,7 @@
             <!-- notebook page -->
             <child>
               <object class="GtkNotebookPage">
-                <property name="position">3</property>
+                <property name="position">4</property>
                 <property name="tab">
                   <object class="GtkLabel">
                     <property name="visible">1</property>
@@ -193,7 +241,7 @@
             <!-- notebook page -->
             <child>
               <object class="GtkNotebookPage">
-                <property name="position">4</property>
+                <property name="position">5</property>
                 <property name="tab">
                   <object class="GtkLabel">
                     <property name="visible">1</property>
@@ -230,7 +278,7 @@
             <!-- notebook page -->
             <child>
               <object class="GtkNotebookPage">
-                <property name="position">5</property>
+                <property name="position">6</property>
                 <property name="tab">
                   <object class="GtkLabel">
                     <property name="visible">1</property>
@@ -256,54 +304,6 @@
                                     <property name="vexpand">1</property>
                                     <child>
                                       <object class="GtkGrid" id="gphl-screen-ideal-contact-grid">
-                                        <property name="margin-start">12</property>
-                                        <property name="margin-end">4</property>
-                                        <property name="margin-top">4</property>
-                                        <property name="margin-bottom">4</property>
-                                      </object>
-                                    </child>
-                                  </object>
-                                </child>
-                              </object>
-                            </child>
-                          </object>
-                        </child>
-                      </object>
-                    </property>
-                  </object>
-                </property>
-              </object>
-            </child>
-
-            <!-- notebook page -->
-            <child>
-              <object class="GtkNotebookPage">
-                <property name="position">6</property>
-                <property name="tab">
-                  <object class="GtkLabel">
-                    <property name="visible">1</property>
-                    <property name="label" translatable="yes">Unhappy Atom</property>
-                  </object>
-                </property>
-                <property name="child">
-                  <object class="GtkFrame">
-                    <property name="visible">1</property>
-                    <property name="child">
-                      <object class="GtkBox" id="gphl-screen-unhappy-atoms-frame">
-                        <child>
-                          <object class="GtkBox" id="gphl-screen-unhappy-atoms-vbox">
-                            <property name="orientation">vertical</property>
-
-                            <child>
-                              <object class="GtkScrolledWindow" id="gphl-screen-unhappy-atoms-scrolledwindow">
-                                <property name="hexpand">1</property>
-                                <property name="vexpand">1</property>
-                                <child>
-                                  <object class="GtkViewport">
-                                    <property name="hexpand">1</property>
-                                    <property name="vexpand">1</property>
-                                    <child>
-                                      <object class="GtkGrid" id="gphl-screen-unhappy-atom-grid">
                                         <property name="margin-start">12</property>
                                         <property name="margin-end">4</property>
                                         <property name="margin-top">4</property>
