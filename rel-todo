@@ -1,6 +1,44 @@
 --- Items ---
 
+o search monomer library molecule images are too small on macos - or
+  at least, on this laptop.
+
+o a switch "state-set" callback has 3 args - check code
+
+o make dark-mode user-configurable - gui item?
+* Tried - didn't work
+
+o martin: iterate through residues in chapi.
+  say to change the rotamer.
+  Make a function: residues_in_chain_py(imol, chain_id)
+
 o add an N-linked glycan and then undo it.
+
+o screen: fix alt conf parsing in global phasing output
+
+o screen: go to atom can be under other windows and and doesn't "pop up"
+  when you click on the button
+* I have added unminimize. gtk_window_present was already in place. WM issues.
+
+o screen: flash the atom selection when going to planes or so for global phasing screen
+* Done. Good
+
+o add tick mark and modification notifier on screen dialog
+* Done
+
+o screen: move unhappy atom tab after the summary
+* Done
+
+o screen: check mtz file for Flearly and Flate and ano map labels
+  How about "auto-read"?
+
+o Use arrow key on difference map peaks
+
+o screen summary monospace fffont
+
+o martin: change to rotamer number?
+
+o maring get number of rotaerms for residue type
 
 o CSHL: Coot enable option to disable double click with trackpad -
         option/preferences
