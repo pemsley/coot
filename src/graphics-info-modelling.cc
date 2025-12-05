@@ -5249,10 +5249,20 @@ graphics_info_t::get_chi_atom_names(mmdb::Residue *residue,
    return r;
 }
 
-
-
-
 #include "pulse-data.hh"
+
+void graphics_info_t::pulse_marked_positions(const std::vector<glm::vec3> &positions,
+                                             bool broken_lines_mode, unsigned int n_rings, float radius_overall,
+                                             unsigned int n_ticks, const glm::vec4 &colour) {
+
+   lines_mesh_for_identification_pulse.setup_red_pulse(radius_overall, n_rings, broken_lines_mode, colour);
+   pulse_data_t *pulse_data = new pulse_data_t(0, 100);
+   pulse_data->resize_factor = 1.005f;
+   gpointer user_data = reinterpret_cast<void *>(pulse_data);
+   delete_item_pulse_centres = positions;  // 2025-12-05-PE class variable should be renamed
+   gtk_widget_add_tick_callback(glareas[0], generic_pulse_function, user_data, NULL);
+}
+
 
 // Called by mouse motion callback (in_edit_chi_mode_flag)
 //
@@ -5306,7 +5316,7 @@ graphics_info_t::rotate_chi(double x, double y) {
       gtk_widget_add_tick_callback(glareas[0], generic_pulse_function, user_data, NULL);
    };
 
-      // the displacement of the mouse is the change in speed of the rotation
+   // the displacement of the mouse is the change in speed of the rotation
    // it's fun. Maybe tricky and conter-intuitive.
 
    // real values start at 1:

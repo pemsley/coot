@@ -1,6 +1,7 @@
 
 #include "coot-utils/coot-coord-utils.hh"
 #include "cc-interface.hh"
+#include "geometry/residue-and-atom-specs.hh"
 #include "glibconfig.h"
 #include "gtk/gtk.h"
 #include "gtk/gtkshortcut.h"
@@ -22,38 +23,78 @@ void on_gphl_screen_close_button_clicked(GtkButton       *button,
       std::cout << "boooo null dialog " << std::endl;
 }
 
+
+coot::atom_spec_t gphl_atom_id_to_coot_spec(const std::string &atom_spec_gphl) {
+
+   coot::atom_spec_t atom_spec;
+   std::vector<std::string> parts_3 = coot::util::split_string(atom_spec_gphl, "|");
+   if (parts_3.size() == 2) {
+      std::string chain_id = parts_3[0];
+      std::string rest     = parts_3[1];
+      std::vector<std::string> parts_4 = coot::util::split_string(rest, ":");
+      if (parts_4.size() == 2) {
+         try {
+            std::string res_no_str = parts_4[0];
+            int res_no = coot::util::string_to_int(res_no_str);
+            // now strip out "(PHE)"
+            std::vector<std::string> parts_5 = coot::util::split_string(parts_4[1], "(");
+            if (parts_5.size() > 0) {
+               std::string ins_code;
+               std::string alt_conf;
+               std::string atom_name_raw = parts_5[0];
+               std::string atom_name = atom_name_raw; // unpadded
+               atom_spec = coot::atom_spec_t(chain_id, res_no, ins_code, atom_name, alt_conf);
+            }
+         } catch (const std::runtime_error &rte) {
+            std::cout << "WARNING::" << rte.what() << std::endl;
+         }
+      }
+   }
+   return atom_spec;
+};
+
+
+std::vector<coot::atom_spec_t> gphl_atom_ids_to_atom_specs(const std::string &atom_ids, const std::string &type) {
+
+   std::vector<coot::atom_spec_t> atom_specs;
+   if (type == "unhappy-atom") {
+      coot::atom_spec_t atom_spec = gphl_atom_id_to_coot_spec(atom_ids); // just the one in this case
+      atom_specs.push_back(atom_spec);
+   } else {
+      std::vector<std::string> parts = coot::util::split_string(atom_ids, "=");
+      for(const auto &part : parts) {
+         coot::atom_spec_t atom_spec = gphl_atom_id_to_coot_spec(part);
+         atom_specs.push_back(atom_spec);
+      }
+   }
+   return atom_specs;
+}
+
 void go_to_gphl_atoms(int imol, const std::string &atom_ids, const std::string &type) {
 
-   bool debug = false;
+   auto pulse_atom_specs = [] (int imol, const std::vector<coot::atom_spec_t> &atom_specs) {
 
-   auto gphl_spec_to_coot_spec = [] (const std::string &atom_spec_gphl) {
-
-      coot::atom_spec_t atom_spec;
-      std::vector<std::string> parts_3 = coot::util::split_string(atom_spec_gphl, "|");
-      if (parts_3.size() == 2) {
-         std::string chain_id = parts_3[0];
-         std::string rest     = parts_3[1];
-         std::vector<std::string> parts_4 = coot::util::split_string(rest, ":");
-         if (parts_4.size() == 2) {
-            try {
-               std::string res_no_str = parts_4[0];
-               int res_no = coot::util::string_to_int(res_no_str);
-               // now strip out "(PHE)"
-               std::vector<std::string> parts_5 = coot::util::split_string(parts_4[1], "(");
-               if (parts_5.size() > 0) {
-                  std::string ins_code;
-                  std::string alt_conf;
-                  std::string atom_name_raw = parts_5[0];
-                  std::string atom_name = atom_name_raw; // unpadded
-                  atom_spec = coot::atom_spec_t(chain_id, res_no, ins_code, atom_name, alt_conf);
-               }
-            } catch (const std::runtime_error &rte) {
-               std::cout << "WARNING::" << rte.what() << std::endl;
+      std::vector<glm::vec3> positions;
+      for (const auto &as : atom_specs) {
+         if (graphics_info_t::is_valid_model_molecule(imol)) {
+            mmdb::Atom *at = graphics_info_t::molecules[imol].get_atom(as);
+            if (at) {
+               glm::vec3 p(at->x, at->y, at->z);
+               positions.push_back(p);
             }
          }
       }
-      return atom_spec;
+      if (! positions.empty()) {
+         unsigned int n_rings = 4;
+         bool broken_lines_mode = false;
+         float radius_overall = 2.3;
+         unsigned int n_ticks = 100;
+         glm::vec4 col(0.7, 0.7, 0.6, 1.0);
+         graphics_info_t::pulse_marked_positions(positions, broken_lines_mode, n_rings, radius_overall, n_ticks, col);
+      }
    };
+
+   bool debug = false;
 
    // ------------------ main line --------------------
 
@@ -89,6 +130,8 @@ void go_to_gphl_atoms(int imol, const std::string &atom_ids, const std::string &
                      std::string alt_conf;
                      coot::atom_spec_t atom_spec(chain_id, res_no, ins_code, atom_name, alt_conf);
                      graphics_info_t::add_unhappy_atom_marker(imol, atom_spec);
+                     std::vector<coot::atom_spec_t> atom_specs = { atom_spec };
+                     pulse_atom_specs(imol, atom_specs);
                   }
                   catch (const std::runtime_error &e) {
                      std::cout << "WARNING::" << e.what() << std::endl;
@@ -101,7 +144,8 @@ void go_to_gphl_atoms(int imol, const std::string &atom_ids, const std::string &
    if (type == "bond") {
       // e.g.: "A|502:O5'=C5'"
       std::vector<std::string> parts_1 = coot::util::split_string(atom_ids, "|");
-      std::cout << "debug:: " << parts_1.size() << std::endl;
+      if (debug)
+         std::cout << "debug::  bond_block: " << parts_1.size() << std::endl;
       if (parts_1.size() == 2) {
          std::string chain_id = parts_1[0];
          std::string rest_1   = parts_1[1];
@@ -141,6 +185,8 @@ void go_to_gphl_atoms(int imol, const std::string &atom_ids, const std::string &
                            clipper::Coord_orth pt_2(at_2->x, at_2->y, at_2->z);
                            clipper::Coord_orth mid(0.5 * (pt_1 + pt_2));
                            set_rotation_centre(mid.x(), mid.y(), mid.z());
+                           std::vector<coot::atom_spec_t> atom_specs = { atom_spec_1, atom_spec_2};
+                           pulse_atom_specs(imol, atom_specs);
                         } else {
                            std::cout << "WARNING:: failed to lookup an atom " << atom_spec_1 << " " << atom_spec_2
                                      << std::endl;
@@ -165,7 +211,8 @@ void go_to_gphl_atoms(int imol, const std::string &atom_ids, const std::string &
       // 124.058     126.800       2.742       0.700       3.917    A|502:C5=C4=N3 (ANP)
       // 125.172     119.300      -5.872       1.500      -3.914    A|231:C(ALA)=A|232:N(PRO)=A|232:CA(PRO)
       std::vector<std::string> parts_1 = coot::util::split_string(atom_ids, "|");
-      std::cout << "debug:: " << parts_1.size() << std::endl;
+      if (debug)
+         std::cout << "debug:: angle block" << parts_1.size() << std::endl;
       if (parts_1.size() == 2) {
          // simple case = all atoms in the same residue
          std::string chain_id = parts_1[0];
@@ -213,6 +260,8 @@ void go_to_gphl_atoms(int imol, const std::string &atom_ids, const std::string &
                               clipper::Coord_orth pt_3(at_3->x, at_3->y, at_3->z);
                               clipper::Coord_orth mid(0.333333 * (pt_1 + pt_2 + pt_3));
                               set_rotation_centre(mid.x(), mid.y(), mid.z());
+                              std::vector<coot::atom_spec_t> atom_specs = { atom_spec_1, atom_spec_2, atom_spec_3};
+                              pulse_atom_specs(imol, atom_specs);
                            } else {
                               std::cout << "WARNING:: failed to lookup an atom " << atom_spec_1
                                         << " " << atom_spec_2 << " " << atom_spec_3 << std::endl;
@@ -235,9 +284,9 @@ void go_to_gphl_atoms(int imol, const std::string &atom_ids, const std::string &
             std::string atom_2 = parts_2[1];
             std::string atom_3 = parts_2[2];
             // for each of the atoms
-            coot::atom_spec_t atom_spec_1 = gphl_spec_to_coot_spec(atom_1);
-            coot::atom_spec_t atom_spec_2 = gphl_spec_to_coot_spec(atom_2);
-            coot::atom_spec_t atom_spec_3 = gphl_spec_to_coot_spec(atom_3);
+            coot::atom_spec_t atom_spec_1 = gphl_atom_id_to_coot_spec(atom_1);
+            coot::atom_spec_t atom_spec_2 = gphl_atom_id_to_coot_spec(atom_2);
+            coot::atom_spec_t atom_spec_3 = gphl_atom_id_to_coot_spec(atom_3);
             if (! atom_spec_1.empty() && ! atom_spec_2.empty() && ! atom_spec_3.empty()) {
                mmdb::Atom *at_1 = coot::util::get_atom_using_fuzzy_search(atom_spec_1, mol);
                mmdb::Atom *at_2 = coot::util::get_atom_using_fuzzy_search(atom_spec_2, mol);
@@ -248,6 +297,8 @@ void go_to_gphl_atoms(int imol, const std::string &atom_ids, const std::string &
                   clipper::Coord_orth pt_3(at_3->x, at_3->y, at_3->z);
                   clipper::Coord_orth mid(0.333333 * (pt_1 + pt_2 + pt_3));
                   set_rotation_centre(mid.x(), mid.y(), mid.z());
+                  std::vector<coot::atom_spec_t> atom_specs = { atom_spec_1, atom_spec_2, atom_spec_3};
+                  pulse_atom_specs(imol, atom_specs);
                } else {
                   std::cout << "WARNING:: Failed to find an atom from specs: "
                             << atom_spec_1 << " " << atom_spec_2 << " " << atom_spec_3 << std::endl;
@@ -263,7 +314,8 @@ void go_to_gphl_atoms(int imol, const std::string &atom_ids, const std::string &
    if (type == "torsion") {
       // 119.206      60.000     -59.206      15.000      -3.947    A|330:N=CA=CB=OG (SER)
       std::vector<std::string> parts_1 = coot::util::split_string(atom_ids, "|");
-      std::cout << "debug:: " << parts_1.size() << std::endl;
+      if (debug)
+         std::cout << "debug:: torsion block: " << parts_1.size() << std::endl;
       if (parts_1.size() == 2) {
          // simple case = all atoms in the same residue
          std::string chain_id = parts_1[0];
@@ -309,6 +361,8 @@ void go_to_gphl_atoms(int imol, const std::string &atom_ids, const std::string &
                                  clipper::Coord_orth pt_4(at_4->x, at_4->y, at_4->z);
                                  clipper::Coord_orth mid(0.25 * (pt_1 + pt_2 + pt_3 + pt_4));
                                  set_rotation_centre(mid.x(), mid.y(), mid.z());
+                                 std::vector<coot::atom_spec_t> atom_specs = { atom_spec_1, atom_spec_2, atom_spec_3, atom_spec_4};
+                                 pulse_atom_specs(imol, atom_specs);
                               } else {
                                  std::cout << "WARNING:: failed to lookup an atom"
                                            << " " << atom_spec_1 << " " << atom_spec_2
@@ -356,13 +410,16 @@ void go_to_gphl_atoms(int imol, const std::string &atom_ids, const std::string &
                      for (unsigned int i=0; i<atom_names.size(); i++)
                         std::cout << "part: " << atom_names[i] << std::endl;
                   std::vector<mmdb::Atom *> atoms;
+                  std::vector<coot::atom_spec_t> atom_specs;
                   for (unsigned int i=0; i<atom_names.size(); i++) {
                      const std::string &atom_name = atom_names[i];
                      std::string alt_conf;
                      coot::atom_spec_t as(chain_id, res_no, ins_code, atom_name, alt_conf);
                      mmdb:: Atom *at = coot::util::get_atom_using_fuzzy_search(as, mol);
-                     if (at)
+                     if (at) {
                         atoms.push_back(at);
+                        atom_specs.push_back(coot::atom_spec_t(at));
+                     }
                   }
                   if (atoms.size() == atom_names.size()) {
                      clipper::Coord_orth sum(0,0,0);
@@ -373,6 +430,7 @@ void go_to_gphl_atoms(int imol, const std::string &atom_ids, const std::string &
                      double f = 1.0/static_cast<double>(atom_names.size());
                      clipper::Coord_orth mid(f * sum);
                      set_rotation_centre(mid.x(), mid.y(), mid.z());
+                     pulse_atom_specs(imol, atom_specs);
                   }
                }
             }
@@ -385,13 +443,16 @@ void go_to_gphl_atoms(int imol, const std::string &atom_ids, const std::string &
       if (parts_1.size() > 3) {
          std::vector<std::string> gphl_atom_specs = coot::util::split_string(atom_ids, "=");
          std::vector<mmdb:: Atom *> atoms;
+         std::vector<coot::atom_spec_t> atom_specs;
          for (const auto &gas : gphl_atom_specs) {
-            coot::atom_spec_t as = gphl_spec_to_coot_spec(gas);
+            coot::atom_spec_t as = gphl_atom_id_to_coot_spec(gas);
             mmdb:: Atom *at = coot::util::get_atom_using_fuzzy_search(as, mol);
-            if (at)
+            if (at) {
                atoms.push_back(at);
-            else
+               atom_specs.push_back(coot::atom_spec_t(at));
+            } else {
                std::cout << "WARNING:: failed to get atom from  " << gas << "   " << as << std::endl;
+            }
          }
          if (debug)
             std::cout << "debug:: plane block: here with atoms size " << atoms.size() << std::endl;
@@ -404,6 +465,7 @@ void go_to_gphl_atoms(int imol, const std::string &atom_ids, const std::string &
             double f = 1.0/static_cast<double>(atoms.size());
             clipper::Coord_orth mid(f * sum);
             set_rotation_centre(mid.x(), mid.y(), mid.z());
+            pulse_atom_specs(imol, atom_specs);
          } else {
             std::cout << "WARNING:: failed to find 3 or more atoms from " << atom_ids << std::endl;
          }
@@ -441,13 +503,16 @@ void go_to_gphl_atoms(int imol, const std::string &atom_ids, const std::string &
                         for (unsigned int i=0; i<atom_names.size(); i++)
                            std::cout << "debug:: ideal_contact_block simple case atom-name: " << atom_names[i] << std::endl;
                      std::vector<mmdb::Atom *> atoms;
+                     std::vector<coot::atom_spec_t> atom_specs;
                      for (unsigned int i=0; i<atom_names.size(); i++) {
                         const std::string &atom_name = atom_names[i];
                         std::string alt_conf;
                         coot::atom_spec_t as(chain_id, res_no, ins_code, atom_name, alt_conf);
                         mmdb:: Atom *at = coot::util::get_atom_using_fuzzy_search(as, mol);
-                        if (at)
+                        if (at) {
                            atoms.push_back(at);
+                           atom_specs.push_back(coot::atom_spec_t(at));
+                        }
                      }
                      if (atoms.size() == atom_names.size()) {
                         clipper::Coord_orth sum(0,0,0);
@@ -458,6 +523,7 @@ void go_to_gphl_atoms(int imol, const std::string &atom_ids, const std::string &
                         double f = 1.0/static_cast<double>(atom_names.size());
                         clipper::Coord_orth mid(f * sum);
                         set_rotation_centre(mid.x(), mid.y(), mid.z());
+                        pulse_atom_specs(imol, atom_specs);
                      }
                   }
                }
@@ -475,13 +541,16 @@ void go_to_gphl_atoms(int imol, const std::string &atom_ids, const std::string &
             std::string front = parts_2[0];
             std::vector<std::string> gphl_atom_specs = coot::util::split_string(front, "=");
             std::vector<mmdb:: Atom *> atoms;
+            std::vector<coot::atom_spec_t> atom_specs;
             for (const auto &gas : gphl_atom_specs) {
-               coot::atom_spec_t as = gphl_spec_to_coot_spec(gas);
+               coot::atom_spec_t as = gphl_atom_id_to_coot_spec(gas);
                mmdb:: Atom *at = coot::util::get_atom_using_fuzzy_search(as, mol);
-               if (at)
+               if (at) {
                   atoms.push_back(at);
-               else
+                  atom_specs.push_back(coot::atom_spec_t(at));
+               } else {
                   std::cout << "WARNING:: ideal-contact failed to get atom from  " << gas << "   " << as << std::endl;
+               }
             }
             if (debug)
                std::cout << "debug here in ideal-contact with atoms size " << atoms.size() << std::endl;
@@ -494,6 +563,7 @@ void go_to_gphl_atoms(int imol, const std::string &atom_ids, const std::string &
                double f = 1.0/static_cast<double>(atoms.size());
                clipper::Coord_orth mid(f * sum);
                set_rotation_centre(mid.x(), mid.y(), mid.z());
+               pulse_atom_specs(imol, atom_specs);
             }
          }
       }

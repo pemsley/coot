@@ -391,12 +391,11 @@ LinesMesh::setup_green_pulse(bool broken_line_mode) {
 }
 
 void
-LinesMesh::setup_red_pulse(float radius_overall, unsigned int n_rings, bool broken_line_mode) {
+LinesMesh::setup_red_pulse(float radius_overall, unsigned int n_rings, bool broken_line_mode, const glm::vec4 &col) {
 
-   glm::vec4 colour(0.8, 0.2, 0.2, 1.0);
    // unsigned int n_rings = 3;
    // float radius_overall = 6.0;
-   make_vertices_for_pulse(colour, radius_overall, n_rings, 0.0, broken_line_mode);
+   make_vertices_for_pulse(col, radius_overall, n_rings, 0.0, broken_line_mode);
    setup();
 }
 
