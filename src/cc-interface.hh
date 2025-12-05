@@ -1355,7 +1355,7 @@ PyObject *water_chain_py(int imol);
 
 
 /*  ----------------------------------------------------------------------- */
-/*                  intrface utils                                          */
+/*                  interface utils                                          */
 /*  ----------------------------------------------------------------------- */
 //! \name Interface Utils
 //! \{
@@ -1504,6 +1504,10 @@ overlap_ligands_internal(int imol_ligand, int imol_ref, const char *chain_id_ref
 //! is generated.
 void do_smiles_to_simple_3d_overlay_frame();
 
+#ifdef USE_PYTHON
+//! @return a python list of residue specs for the residues in the given chain
+PyObject *get_residues_in_chain_py(int imol, const std::string &chain_id);
+#endif
 
 /*  ----------------------------------------------------------------------- */
 /*                  conformers (part of ligand search)                      */

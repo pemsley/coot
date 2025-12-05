@@ -24,6 +24,7 @@
  * Fifth Floor, Boston, MA, 02110-1301, USA.
  */
 
+#include "geometry/residue-and-atom-specs.hh"
 #include "gtk/gtk.h"
 #ifdef USE_PYTHON
 #include <Python.h>  // before system includes to stop "POSIX_C_SOURCE" redefined problems
@@ -1424,4 +1425,43 @@ void assign_sequence_to_active_fragment() {
    } else {
       std::cout << "No active atom" << std::endl;
    }
+}
+
+
+//! @return a python list of residue specs for the residues in the given chain
+PyObject *get_residues_in_chain_py(int imol, const std::string &chain_id) {
+
+   PyObject *l = PyList_New(0);
+   if (is_valid_model_molecule(imol)) {
+      mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+      if (mol) {
+         int imod = 1;
+         mmdb::Model *model_p = mol->GetModel(imod);
+         if (model_p) {
+            int n_chains = model_p->GetNumberOfChains();
+            for (int ichain=0; ichain<n_chains; ichain++) {
+               mmdb::Chain *chain_p = model_p->GetChain(ichain);
+               int n_res = chain_p->GetNumberOfResidues();
+               std::vector<coot::residue_spec_t> res_specs;
+               for (int ires=0; ires<n_res; ires++) {
+                  mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+                  if (residue_p) {
+                     coot::residue_spec_t rs(residue_p);
+                     res_specs.push_back(rs);
+                  }
+               }
+               if (! res_specs.empty()) {
+                  // delete l here
+                  l = PyList_New(res_specs.size());
+                  for (unsigned int i=0; i<res_specs.size(); i++) {
+                     const auto &rs = res_specs[i];
+                     PyObject *o = residue_spec_to_py(rs);
+                     PyList_SetItem(l, i, o);
+                  }
+               }
+            }
+         }
+      }
+   }
+   return l;
 }
