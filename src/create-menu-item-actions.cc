@@ -2614,8 +2614,8 @@ void add_refine_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,
       GtkWidget *switch_rama          = gtk_switch_new();
       GtkWidget *switch_rota          = gtk_switch_new();
 
-      auto switch_contact_dots_switched = +[] (GtkSwitch *sw, gpointer data) {
-         if (gtk_switch_get_active(GTK_SWITCH(sw))) {
+      auto switch_contact_dots_switched = +[] (GtkSwitch *sw, gboolean state, gpointer data) {
+         if (state) {
             set_do_coot_probe_dots_during_refine(1);
          } else {
             set_do_coot_probe_dots_during_refine(0);
@@ -2623,8 +2623,8 @@ void add_refine_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,
          return static_cast<gboolean>(FALSE);
       };
 
-      auto switch_GM_restraints_switched = +[] (GtkSwitch *sw, gpointer data) {
-         if (gtk_switch_get_active(GTK_SWITCH(sw))) {
+      auto switch_GM_restraints_switched = +[] (GtkSwitch *sw, gboolean state, gpointer data) {
+         if (state) {
             std::cout << "GM restraints on" << std::endl;
             set_draw_moving_atoms_restraints(1);
          } else {
@@ -2634,8 +2634,8 @@ void add_refine_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,
          return static_cast<gboolean>(FALSE);
       };
 
-      auto switch_rama_switched = +[] (GtkSwitch *sw, gpointer data) {
-         if (gtk_switch_get_active(GTK_SWITCH(sw))) {
+      auto switch_rama_switched = +[] (GtkSwitch *sw, gboolean state, gpointer data) {
+         if (state) {
             set_draw_moving_atoms_rama_markup(1);
          } else {
             set_draw_moving_atoms_rama_markup(0);
@@ -2643,8 +2643,9 @@ void add_refine_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,
          return static_cast<gboolean>(FALSE);
       };
 
-      auto switch_rota_switched = +[] (GtkSwitch *sw, gpointer data) {
-         if (gtk_switch_get_active(GTK_SWITCH(sw))) {
+      auto switch_rota_switched = +[] (GtkSwitch *sw, gboolean state, gpointer data) {
+
+         if (state) {
             std::cout << "rota on" << std::endl;
             set_draw_moving_atoms_rota_markup(1);
          } else {
