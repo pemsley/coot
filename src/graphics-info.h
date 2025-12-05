@@ -2947,6 +2947,7 @@ public:
    static Texture texture_for_unhappy_atom_markers;
    static TextureMesh tmesh_for_unhappy_atom_markers;
    static void add_unhappy_atom_marker(int imol, const coot::atom_spec_t &atom_spec);
+   static void remove_all_unhappy_atom_markers();
 
    static std::vector<meshed_particle_container_t> meshed_particles_for_gone_diegos;
    static void setup_draw_for_particles_for_new_gone_diegos(const std::vector<glm::vec3> &positions);

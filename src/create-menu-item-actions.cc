@@ -3755,14 +3755,9 @@ go_to_atom_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    // wrapped_create_show_symmetry_window() fills the window also
    GtkWidget *widget = wrapped_create_goto_atom_window(); // uses gtkbuilder
 
-				/* now we need to fill the entry boxes
-				   with default vaules and the option
-				   menu according to molecules that
-				   have coordinates. */
-
    gtk_widget_set_visible(widget, TRUE);
+   gtk_window_unminimize(GTK_WINDOW(widget));
    gtk_window_present(GTK_WINDOW(widget));
-   graphics_info_t::graphics_grab_focus();
 }
 
 

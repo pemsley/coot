@@ -130,6 +130,10 @@ void remove_unhappy_atom_marker_py(int imol, PyObject *atom_spec_py) {
    std::cout << "remove marker here for the atom spec " << std::endl;
 }
 
+void remove_all_unhappy_atom_markers() {
+   graphics_info_t::remove_all_unhappy_atom_markers();
+}
+
 void add_unhappy_atom_marker(int imol, const coot::atom_spec_t &atom_spec) {
 
    if (graphics_info_t::is_valid_model_molecule(imol)) {

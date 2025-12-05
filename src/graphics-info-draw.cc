@@ -5821,7 +5821,21 @@ void graphics_info_t::add_unhappy_atom_marker(int imol, const coot::atom_spec_t 
                       << "  " << n_instances << std::endl;
       }
    }
+}
 
+void graphics_info_t::remove_all_unhappy_atom_markers() {
+
+   for (int imol=0; imol<molecules.size(); imol++) {
+      if (is_valid_model_molecule(imol)) {
+         if (! molecules[imol].unhappy_atom_marker_positions.empty()) {
+            molecules[imol].unhappy_atom_marker_positions.clear();
+         }
+      }
+   }
+   std::vector<glm::vec3> empty;
+   tmesh_for_unhappy_atom_markers.draw_this_mesh = false;
+   tmesh_for_unhappy_atom_markers.update_instancing_buffer_data(empty);
+   graphics_draw();
 }
 
 void graphics_info_t::setup_draw_for_unhappy_atom_markers() {

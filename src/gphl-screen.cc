@@ -85,6 +85,10 @@ void go_to_gphl_atoms(int imol, const std::string &atom_ids, const std::string &
                      int res_no = coot::util::string_to_int(res_no_str);
                      set_go_to_atom_molecule(imol);
                      set_go_to_atom_chain_residue_atom_name(chain_id.c_str(), res_no, atom_name.c_str());
+                     std::string ins_code;
+                     std::string alt_conf;
+                     coot::atom_spec_t atom_spec(chain_id, res_no, ins_code, atom_name, alt_conf);
+                     graphics_info_t::add_unhappy_atom_marker(imol, atom_spec);
                   }
                   catch (const std::runtime_error &e) {
                      std::cout << "WARNING::" << e.what() << std::endl;
