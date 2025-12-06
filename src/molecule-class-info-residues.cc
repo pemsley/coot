@@ -2712,7 +2712,7 @@ molecule_class_info_t::add_named_glyco_tree(const std::string &glycosylation_typ
 
    float mt = coot::util::median_temperature_factor(atom_sel.atom_selection, atom_sel.n_selected_atoms, 2.0, 2222.2, false, false);
    float b_factor_for_new_atoms = 1.55 * mt;
-   std::cout << "=============== " << asn_res_spec << " ==== glycosylation_type :" << glycosylation_type << ":" << std::endl;
+   make_backup();
    coot::cho::add_named_glyco_tree(glycosylation_type, &atom_sel, imol_no, b_factor_for_new_atoms, xmap,
                                    geom_p, asn_res_spec.chain_id, asn_res_spec.res_no);
    have_unsaved_changes_flag = true;
