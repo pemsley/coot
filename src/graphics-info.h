@@ -4423,12 +4423,14 @@ string   static std::string sessionid;
 
    // these are "setup" by the function that starts them
    static LinesMesh lines_mesh_for_identification_pulse;
-   static LinesMesh lines_mesh_for_delete_item_pulse;
+   static LinesMesh lines_mesh_for_generic_pulse; // loop through generic_pulse_centres
    static glm::vec3 identification_pulse_centre;
-   static void draw_identification_pulse();
+   static void draw_at_screen_centre_pulse(); // green sonar ping
+   // these are variations of the (typically) multi-centre identification pulse.
+   static void draw_generic_pulses();
    static void draw_invalid_residue_pulse();
    static void draw_delete_item_pulse();
-   static std::vector<glm::vec3> delete_item_pulse_centres;
+   static std::vector<glm::vec3> generic_pulse_centres;
    std::vector<glm::vec3> residue_to_positions(mmdb::Residue *residue_p) const;
    std::vector<glm::vec3> residue_to_side_chain_positions(mmdb::Residue *residue_p) const;
    void setup_delete_item_pulse(mmdb::Residue *residue_p);
@@ -4438,12 +4440,17 @@ string   static std::string sessionid;
                                              bool broken_lines_mode, unsigned int n_rings, float radius_overall,
                                              unsigned int n_ticks, const glm::vec4 &col);
 
-   static gboolean invalid_residue_pulse_function(GtkWidget *widget,  // return the continue-status
-                                                  GdkFrameClock *frame_clock,
-                                                  gpointer data);
+   static gboolean screen_centre_pulse_function(GtkWidget *widget,
+                                                GdkFrameClock *frame_clock,
+                                                gpointer data);
    static gboolean generic_pulse_function(GtkWidget *widget,
                                           GdkFrameClock *frame_clock,
                                           gpointer data);
+   // this should wrap generic_pulse_function
+   // return the continue-status
+   static gboolean invalid_residue_pulse_function(GtkWidget *widget,
+                                                  GdkFrameClock *frame_clock,
+                                                  gpointer data);
    static gboolean wait_for_hooray_refinement_tick_func(GtkWidget *widget,
                                                         GdkFrameClock *frame_clock,
                                                         gpointer data);

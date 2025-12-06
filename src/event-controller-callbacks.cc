@@ -24,17 +24,14 @@
  *
  */
 
-#include "geometry/residue-and-atom-specs.hh"
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/string_cast.hpp> // for to_string()
 
-#include "event-controller-callbacks.hh"
-#include "graphics-info.h"
-#include "sound.hh"
-
 #include "utils/logging.hh"
-extern logging logger;
+#include "geometry/residue-and-atom-specs.hh"
+#include "graphics-info.h"
 
+extern logging logger;
 
 void play_sound_left_click() {
 
@@ -45,7 +42,6 @@ void play_sound_left_click() {
    // play_sound_file("538549_3725923-lq-Sjonas-Select-2.ogg"); // "tink"
    // play_sound_file("538550_3725923-lq-Sjonas88-Deep-tone.ogg"); // marimba?
    // play_sound_file("538553_3725923-lq-Sjonas88-Stars.ogg"); // high pitch couple of notes
-
 }
 
 // ---------------------------------------------------------------------------------------------------------
@@ -534,7 +530,7 @@ graphics_info_t::on_glarea_click(GtkGestureClick *controller,
 
             bool handled = false;
 
-            std::cout << "########## double-click!" << std::endl;
+            std::cout << "DEBUG:: ########## double-click!" << std::endl;
 
             if (in_moving_atoms_drag_atom_mode_flag) {
                if (last_restraints_size() > 0) {
@@ -544,7 +540,7 @@ graphics_info_t::on_glarea_click(GtkGestureClick *controller,
 
             if (! handled) {
 
-               std::cout << ":::::::::::::::::::::::::::: this path ::::::::::::::::::::::::::::::" << std::endl;
+               // std::cout << ":::::::::::::::::::::::::::: this path ::::::::::::::::::::::::::::::" << std::endl;
                bool intermediate_atoms_only_flag = false;
                pick_info naii = atom_pick_gtk3(intermediate_atoms_only_flag);
                if (naii.success) {

@@ -20,11 +20,7 @@
  * Fifth Floor, Boston, MA, 02110-1301, USA.
  */
 
-
-#ifdef USE_PYTHON
-#include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #include "python-3-interface.hh"
-#endif
 
 #include "compat/coot-sysdep.h"
 
@@ -5255,11 +5251,11 @@ void graphics_info_t::pulse_marked_positions(const std::vector<glm::vec3> &posit
                                              bool broken_lines_mode, unsigned int n_rings, float radius_overall,
                                              unsigned int n_ticks, const glm::vec4 &colour) {
 
-   lines_mesh_for_identification_pulse.setup_red_pulse(radius_overall, n_rings, broken_lines_mode, colour);
-   pulse_data_t *pulse_data = new pulse_data_t(0, 100);
+   lines_mesh_for_generic_pulse.setup_red_pulse(radius_overall, n_rings, broken_lines_mode, colour);
+   pulse_data_t *pulse_data = new pulse_data_t(0, n_ticks);
    pulse_data->resize_factor = 1.005f;
    gpointer user_data = reinterpret_cast<void *>(pulse_data);
-   delete_item_pulse_centres = positions;  // 2025-12-05-PE class variable should be renamed
+   generic_pulse_centres = positions; // class variable
    gtk_widget_add_tick_callback(glareas[0], generic_pulse_function, user_data, NULL);
 }
 
@@ -5312,7 +5308,7 @@ graphics_info_t::rotate_chi(double x, double y) {
             positions.push_back(atom_to_glm(at));
          }
       }
-      delete_item_pulse_centres = positions;  // 20251128-PE class variable should be renamed
+      generic_pulse_centres = positions;  // 20251128-PE class variable should be renamed
       gtk_widget_add_tick_callback(glareas[0], generic_pulse_function, user_data, NULL);
    };
 

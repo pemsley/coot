@@ -1652,8 +1652,8 @@ LinesMesh graphics_info_t::lines_mesh_for_boids_box;
 Mesh graphics_info_t::mesh_for_hydrogen_bonds = Mesh("mesh for hydrogen bonds");
 
 LinesMesh graphics_info_t::lines_mesh_for_identification_pulse;
-LinesMesh graphics_info_t::lines_mesh_for_delete_item_pulse;
-std::vector<glm::vec3> graphics_info_t::delete_item_pulse_centres;
+LinesMesh graphics_info_t::lines_mesh_for_generic_pulse;
+std::vector<glm::vec3> graphics_info_t::generic_pulse_centres;
 
 LinesMesh graphics_info_t::lines_mesh_for_hud_lines;
 LinesMesh graphics_info_t::lines_mesh_for_pull_restraint_neighbour_displacement_max_radius_ring;

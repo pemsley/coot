@@ -41,7 +41,15 @@ coot::atom_spec_t gphl_atom_id_to_coot_spec(const std::string &atom_spec_gphl) {
             if (parts_5.size() > 0) {
                std::string ins_code;
                std::string alt_conf;
-               std::string atom_name_raw = parts_5[0];
+               std::string atom_name_raw = parts_5[0]; // might contain the alt-conf too.
+               std::cout << "atom_spec_gphl: " << atom_spec_gphl << " atom_name_raw: " << atom_name_raw<< std::endl;
+               if (atom_name_raw.find(".") != std::string::npos) {
+                  std::vector<std::string> parts_6 = coot::util::split_string(atom_name_raw, ".");
+                  if (parts_6.size() == 2) {
+                     atom_name_raw = parts_6[0];
+                     alt_conf      = parts_6[1];
+                  }
+               }
                std::string atom_name = atom_name_raw; // unpadded
                atom_spec = coot::atom_spec_t(chain_id, res_no, ins_code, atom_name, alt_conf);
             }
@@ -523,6 +531,7 @@ void go_to_gphl_atoms(int imol, const std::string &atom_ids, const std::string &
                         double f = 1.0/static_cast<double>(atom_names.size());
                         clipper::Coord_orth mid(f * sum);
                         set_rotation_centre(mid.x(), mid.y(), mid.z());
+                        std::cout << "pulse_atom_specs A " << atom_specs.size() << std::endl;
                         pulse_atom_specs(imol, atom_specs);
                      }
                   }
@@ -552,7 +561,7 @@ void go_to_gphl_atoms(int imol, const std::string &atom_ids, const std::string &
                   std::cout << "WARNING:: ideal-contact failed to get atom from  " << gas << "   " << as << std::endl;
                }
             }
-            if (debug)
+            if (true)
                std::cout << "debug here in ideal-contact with atoms size " << atoms.size() << std::endl;
             if (atoms.size() == 2) {
                clipper::Coord_orth sum(0,0,0);
@@ -836,7 +845,7 @@ PyObject *global_phasing_screen(int imol, PyObject *screen_dict) {
 
          // --------------------- Ideal-Contact -------------------------------------
 
-         if (! screen_results.bond_dict_vec.empty()) {
+         if (! screen_results.ideal_contact_dict_vec.empty()) {
             const std::vector<std::map<std::string, std::string> > &v = screen_results.ideal_contact_dict_vec;
             GtkWidget *grid = widget_from_builder("gphl-screen-ideal-contact-grid", builder);
             gtk_grid_set_column_spacing(GTK_GRID(grid), 10);
@@ -844,8 +853,9 @@ PyObject *global_phasing_screen(int imol, PyObject *screen_dict) {
             gtk_grid_attach(GTK_GRID(grid), gtk_label_new("Actual"),       0, 0, 1, 1);
             gtk_grid_attach(GTK_GRID(grid), gtk_label_new("ContactD"),     1, 0, 1, 1);
             gtk_grid_attach(GTK_GRID(grid), gtk_label_new("Delta"),        2, 0, 1, 1);
-            gtk_grid_attach(GTK_GRID(grid), gtk_label_new("Delta/Sigma"),  3, 0, 1, 1);
-            gtk_grid_attach(GTK_GRID(grid), gtk_label_new("AtomIds"),      4, 0, 1, 1);
+            gtk_grid_attach(GTK_GRID(grid), gtk_label_new(" Sigma"),       3, 0, 1, 1);
+            gtk_grid_attach(GTK_GRID(grid), gtk_label_new("Delta/Sigma"),  4, 0, 1, 1);
+            gtk_grid_attach(GTK_GRID(grid), gtk_label_new("AtomIds"),      5, 0, 1, 1);
 
             std::vector<std::pair<std::string, unsigned int> > vv = {
                {"actual", 0}, {"contactD", 1}, {"delta", 2}, {"sigma", 3}, {"delta_sigma", 4}, {"atom_ids", 5} };

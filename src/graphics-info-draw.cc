@@ -2178,15 +2178,14 @@ graphics_info_t::update_mesh_for_outline_of_active_residue(int imol, const coot:
    // the invalid residue pulse (maybe it needs a new name then?). It uses delete_item_pulse_centres
    // for the centres of the pulses.
    auto setup_invalid_residue_pulse_for_invalid_range_outine = [] () {
-      std::cout << "debug:: update_mesh_for_outline_of_active_residue: lambda start " << std::endl;
       bool broken_line_mode = false;
       float radius_overall = 6.0;
       unsigned int n_rings = 3;
-      lines_mesh_for_identification_pulse.setup_red_pulse(radius_overall, n_rings, broken_line_mode);
+      lines_mesh_for_generic_pulse.setup_red_pulse(radius_overall, n_rings, broken_line_mode);
       pulse_data_t *pulse_data = new pulse_data_t(0, 12);
       gpointer user_data = reinterpret_cast<void *>(pulse_data);
       std::vector<glm::vec3> positions = { get_rotation_centre() };
-      delete_item_pulse_centres = positions;
+      generic_pulse_centres = positions;
       gtk_widget_add_tick_callback(glareas[0], generic_pulse_function, user_data, NULL);
    };
 
@@ -4539,11 +4538,13 @@ graphics_info_t::render_3d_scene(GtkGLArea *gl_area) {
                      // so rename this function? Or just bring everything here?  Put this render() function
                      // into new file graphics-info-opengl-render.cc
 
+   draw_at_screen_centre_pulse();
+
    draw_invalid_residue_pulse();
 
-   draw_identification_pulse();
-
    draw_delete_item_pulse();
+
+   draw_generic_pulses();
 
    draw_measure_distance_and_angles(); // maybe in draw_molecules()?
 
@@ -4556,6 +4557,7 @@ graphics_info_t::render_3d_scene(GtkGLArea *gl_area) {
    draw_texture_meshes();
 
 }
+
 
 void
 graphics_info_t::render_3d_scene_with_shadows() {
@@ -4585,9 +4587,11 @@ graphics_info_t::render_3d_scene_with_shadows() {
                                   // so rename this function? Or just bring everything here?  Put this render() function
                                   // into new file graphics-info-opengl-render.cc
 
+   draw_at_screen_centre_pulse();
+
    draw_invalid_residue_pulse();
 
-   draw_identification_pulse();
+   draw_generic_pulses();
 
    draw_delete_item_pulse();
 
@@ -6165,11 +6169,11 @@ graphics_info_t::setup_delete_item_pulse(mmdb::Residue *residue_p) {
                                     pulse_data->n_pulse_steps += 1;
                                     if (pulse_data->n_pulse_steps > pulse_data->n_pulse_steps_max) {
                                        continue_status = 0;
-                                       lines_mesh_for_delete_item_pulse.clear();
-                                       delete_item_pulse_centres.clear();
+                                       lines_mesh_for_generic_pulse.clear();
+                                       generic_pulse_centres.clear();
                                     } else {
                                        float ns = pulse_data->n_pulse_steps;
-                                       lines_mesh_for_delete_item_pulse.update_buffers_for_pulse(ns, -1);
+                                       lines_mesh_for_generic_pulse.update_buffers_for_pulse(ns, -1);
                                     }
                                     graphics_draw();
                                     return gboolean(continue_status);
@@ -6178,12 +6182,12 @@ graphics_info_t::setup_delete_item_pulse(mmdb::Residue *residue_p) {
    pulse_data_t *pulse_data = new pulse_data_t(0, 20); // 20 matches the number in update_buffers_for_pulse()
    gpointer user_data = reinterpret_cast<void *>(pulse_data);
    std::vector<glm::vec3> positions = residue_to_positions(residue_p);
-   delete_item_pulse_centres = positions;
+   generic_pulse_centres = positions;
    gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0]));
    bool broken_line_mode = true;
    float radius_overall = 6.0;
    unsigned int n_rings = 3;
-   lines_mesh_for_delete_item_pulse.setup_red_pulse(radius_overall, n_rings, broken_line_mode);
+   lines_mesh_for_generic_pulse.setup_red_pulse(radius_overall, n_rings, broken_line_mode);
    gtk_widget_add_tick_callback(glareas[0], delete_item_pulse_func, user_data, NULL);
 
 };
@@ -6205,11 +6209,11 @@ graphics_info_t::setup_delete_residues_pulse(const std::vector<mmdb::Residue *> 
                                     pulse_data->n_pulse_steps += 1;
                                     if (pulse_data->n_pulse_steps > pulse_data->n_pulse_steps_max) {
                                        continue_status = 0;
-                                       lines_mesh_for_delete_item_pulse.clear();
-                                       delete_item_pulse_centres.clear();
+                                       lines_mesh_for_generic_pulse.clear();
+                                       generic_pulse_centres.clear();
                                     } else {
                                        float ns = pulse_data->n_pulse_steps;
-                                       lines_mesh_for_delete_item_pulse.update_buffers_for_pulse(ns, -1);
+                                       lines_mesh_for_generic_pulse.update_buffers_for_pulse(ns, -1);
                                     }
                                     graphics_draw();
                                     return gboolean(continue_status);
@@ -6223,12 +6227,12 @@ graphics_info_t::setup_delete_residues_pulse(const std::vector<mmdb::Residue *> 
       std::vector<glm::vec3> residue_positions = residue_to_positions(residue_p);
       all_positions.insert(all_positions.end(), residue_positions.begin(), residue_positions.end());
    }
-   delete_item_pulse_centres = all_positions;
+   generic_pulse_centres = all_positions;
    gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0]));
    bool broken_line_mode = true;
    unsigned int n_rings = 3;
    float radius_overall = 6.0;
-   lines_mesh_for_delete_item_pulse.setup_red_pulse(radius_overall, n_rings, broken_line_mode);
+   lines_mesh_for_generic_pulse.setup_red_pulse(radius_overall, n_rings, broken_line_mode);
    gtk_widget_add_tick_callback(glareas[0], delete_item_pulse_func, user_data, NULL);
 
 };
@@ -6246,12 +6250,29 @@ graphics_info_t::invalid_residue_pulse_function(GtkWidget *widget,
    if (pulse_data->n_pulse_steps > pulse_data->n_pulse_steps_max) {
       continue_status = 0;
       lines_mesh_for_identification_pulse.clear();
-      delete_item_pulse_centres.clear(); // we sneakily use this vector (but no longer)
+      generic_pulse_centres.clear(); // we sneakily use this vector (but no longer)
    } else {
       float ns = pulse_data->n_pulse_steps;
       lines_mesh_for_identification_pulse.update_buffers_for_invalid_residue_pulse(ns);
    }
    graphics_draw();
+   return gboolean(continue_status);
+}
+
+// static
+gboolean
+graphics_info_t::screen_centre_pulse_function(GtkWidget *widget,
+                                              GdkFrameClock *frame_clock,
+                                              gpointer data) {
+
+   gboolean continue_status = 1;
+   pulse_data_t *pulse_data = reinterpret_cast<pulse_data_t *>(data);
+   pulse_data->n_pulse_steps += 1;
+   if (pulse_data->n_pulse_steps > pulse_data->n_pulse_steps_max) {
+      continue_status = 0;
+      lines_mesh_for_identification_pulse.clear();
+      generic_pulse_centres.clear();
+   }
    return gboolean(continue_status);
 }
 
@@ -6266,10 +6287,10 @@ graphics_info_t::generic_pulse_function(GtkWidget *widget,
    pulse_data->n_pulse_steps += 1;
    if (pulse_data->n_pulse_steps > pulse_data->n_pulse_steps_max) {
       continue_status = 0;
-      lines_mesh_for_identification_pulse.clear();
-      delete_item_pulse_centres.clear();
+      lines_mesh_for_generic_pulse.clear();
+      generic_pulse_centres.clear();
    } else {
-      lines_mesh_for_identification_pulse.update_buffers_by_resize(pulse_data->resize_factor);
+      lines_mesh_for_generic_pulse.update_buffers_by_resize(pulse_data->resize_factor);
    }
    graphics_draw();
    return gboolean(continue_status);
@@ -6282,7 +6303,7 @@ graphics_info_t::setup_invalid_residue_pulse(mmdb::Residue *residue_p) {
    pulse_data_t *pulse_data = new pulse_data_t(0, 24);
    gpointer user_data = reinterpret_cast<void *>(pulse_data);
    std::vector<glm::vec3> residue_positions = residue_to_positions(residue_p);
-   delete_item_pulse_centres = residue_positions; // sneakily use a wrongly named function
+   generic_pulse_centres = residue_positions; // sneakily use a wrongly named function
    gtk_gl_area_attach_buffers(GTK_GL_AREA(glareas[0]));
    unsigned int n_rings = 3;
    float radius_overall = 6.0;
@@ -6293,51 +6314,68 @@ graphics_info_t::setup_invalid_residue_pulse(mmdb::Residue *residue_p) {
 }
 
 
-void
-graphics_info_t::draw_invalid_residue_pulse() {
+void graphics_info_t::draw_at_screen_centre_pulse() {
 
-   if (! lines_mesh_for_identification_pulse.empty()) {
-      glm::mat4 mvp = get_molecule_mvp();
-      glm::mat4 model_rotation_matrix = get_model_rotation();
-      myglLineWidth(3.0);
-      GLenum err = glGetError();
-      if (err) std::cout << "draw_invalid_residue_pulse() glLineWidth " << err << std::endl;
-      for (auto pulse_centre : delete_item_pulse_centres)
-         lines_mesh_for_identification_pulse.draw(&shader_for_lines_pulse,
-                                                  pulse_centre, mvp,
-                                                  model_rotation_matrix, true);
-   }
-}
-
-
-void
-graphics_info_t::draw_identification_pulse() {
+   // 2025-12-06-PE identification and screen-centre are the same thing. "identification" should be renamed.
 
    if (! lines_mesh_for_identification_pulse.empty()) {
       glm::mat4 mvp = get_molecule_mvp();
       glm::mat4 model_rotation_matrix = get_model_rotation();
       myglLineWidth(2.0);
       GLenum err = glGetError();
-      if (err) std::cout << "draw_identification_pulse() glLineWidth " << err << std::endl;
+      if (err) std::cout << "draw_at_screen_centre_pulse() post glLineWidth " << err << std::endl;
       lines_mesh_for_identification_pulse.draw(&shader_for_lines_pulse,
                                                identification_pulse_centre,
                                                mvp, model_rotation_matrix, true);
    }
 }
 
+void graphics_info_t::draw_generic_pulses() {
+
+   if (false)
+      std::cout << "draw_generic_pulses()  -- start -- "
+                << lines_mesh_for_generic_pulse.empty() << " " << generic_pulse_centres.size() << std::endl;
+
+   if (! lines_mesh_for_generic_pulse.empty()) {
+      glm::mat4 mvp = get_molecule_mvp();
+      glm::mat4 model_rotation_matrix = get_model_rotation();
+      for (auto pulse_centre : generic_pulse_centres)
+         lines_mesh_for_generic_pulse.draw(&shader_for_lines_pulse,
+                                           pulse_centre, mvp,
+                                           model_rotation_matrix, true);
+   }
+}
+
+void graphics_info_t::draw_invalid_residue_pulse() {
+
+   return; // because we do it in draw_generic_pulses()
+
+   if (! lines_mesh_for_generic_pulse.empty()) {
+      glm::mat4 mvp = get_molecule_mvp();
+      glm::mat4 model_rotation_matrix = get_model_rotation();
+      myglLineWidth(3.0);
+      GLenum err = glGetError();
+      if (err) std::cout << "draw_invalid_residue_pulse() glLineWidth " << err << std::endl;
+      for (auto pulse_centre : generic_pulse_centres)
+         lines_mesh_for_generic_pulse.draw(&shader_for_lines_pulse,
+                                           pulse_centre, mvp,
+                                           model_rotation_matrix, true);
+   }
+}
+
 void
 graphics_info_t::draw_delete_item_pulse() {
 
-   if (! lines_mesh_for_delete_item_pulse.empty()) {
+   if (! lines_mesh_for_generic_pulse.empty()) {
       glm::mat4 mvp = get_molecule_mvp();
       glm::mat4 model_rotation_matrix = get_model_rotation();
       myglLineWidth(2.0);
       GLenum err = glGetError();
       if (err) std::cout << "draw_delete_item_pulse() glLineWidth " << err << std::endl;
-      for (unsigned int i=0; i<delete_item_pulse_centres.size(); i++) {
-         lines_mesh_for_delete_item_pulse.draw(&shader_for_lines_pulse,
-                                               delete_item_pulse_centres[i],
-                                               mvp, model_rotation_matrix, true);
+      for (unsigned int i=0; i<generic_pulse_centres.size(); i++) {
+         lines_mesh_for_generic_pulse.draw(&shader_for_lines_pulse,
+                                           generic_pulse_centres[i],
+                                           mvp, model_rotation_matrix, true);
       }
    }
 }
