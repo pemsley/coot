@@ -31,6 +31,7 @@
 #include <sys/stat.h>
 
 #include "molecules-container.hh"
+#include "geometry/protein-geometry.hh"
 #include "geometry/residue-and-atom-specs.hh"
 #include "ideal/pepflip.hh"
 #include "coot-utils/coot-coord-utils.hh"
@@ -2354,6 +2355,23 @@ molecules_container_t::change_to_first_rotamer(int imol, const std::string &resi
 }
 
 
+//! Change to the nth rotamer
+//!
+//! @param imol is the model molecule index
+//! @param residue_cid is the atom selection CID e.g "//A/15" (all the atoms in residue 15 of chain A)
+//! @param alt_conf is the alternate conformation, e.g. "A" or "B"
+//!
+//! @return the state of the change.
+int molecules_container_t::set_residue_to_rotamer_number(int imol, const std::string &residue_cid,
+                                                         const std::string &alt_conf, int rotamer_number) {
+
+   int state = 0;
+   if (is_valid_model_molecule(imol)) {
+      coot::residue_spec_t res_spec = residue_cid_to_residue_spec(imol, residue_cid);
+      state = molecules[imol].set_residue_to_rotamer_number(res_spec, alt_conf, rotamer_number, geom);
+   }
+   return state;
+}
 
 
 std::pair<int, unsigned int>

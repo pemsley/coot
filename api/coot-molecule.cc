@@ -4231,8 +4231,34 @@ coot::molecule_t::change_rotamer_number(const coot::residue_spec_t &res_spec, co
 
    // save_info.new_modification("change_rotamer_number()");
    return rci;
-
 }
+
+
+int coot::molecule_t::set_residue_to_rotamer_number(coot::residue_spec_t res_spec,
+                                                    const std::string &alt_conf_in,
+                                                    int rotamer_number,
+                                                    const coot::protein_geometry &pg) {
+
+   int status = 0;
+   mmdb::Residue *res = get_residue(res_spec);
+   if (res) {
+      coot::richardson_rotamer d(res, alt_conf_in, atom_sel.mol, 0.01, 0);
+      std::string monomer_type = res->GetResName();
+      std::pair<short int, coot::dictionary_residue_restraints_t> p =
+         pg.get_monomer_restraints(monomer_type, imol_no);
+      if (p.first) {
+         const coot::dictionary_residue_restraints_t &rest = p.second;
+         mmdb::Residue *moving_res = d.GetResidue(rest, rotamer_number);
+         if (moving_res) {
+            make_backup("set_residue_to_rotamer_number");
+            status = set_residue_to_rotamer_move_atoms(res, moving_res);
+            delete moving_res; // or moving_res->chain?
+         }
+      }
+   }
+   return status;
+}
+
 
 
 int

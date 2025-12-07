@@ -1227,6 +1227,11 @@ namespace coot {
                                            int rotamer_change_direction,
                                            const coot::protein_geometry &pg);
 
+      int set_residue_to_rotamer_number(coot::residue_spec_t res_spec,
+                                        const std::string &alt_conf_in,
+                                        int rotamer_number,
+                                        const coot::protein_geometry &pg);
+
       void associate_sequence_with_molecule(const std::string &chain_id, const std::string &sequence);
 
       //! try to fit all of the sequences to all of the chains

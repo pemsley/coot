@@ -1872,6 +1872,15 @@ public:
    //! @return the change information.
    coot::molecule_t::rotamer_change_info_t change_to_first_rotamer(int imol, const std::string &residue_cid, const std::string &alt_conf);
 
+   //! Change to the nth rotamer
+   //!
+   //! @param imol is the model molecule index
+   //! @param residue_cid is the atom selection CID e.g "//A/15" (all the atoms in residue 15 of chain A)
+   //! @param alt_conf is the alternate conformation, e.g. "A" or "B"
+   //!
+   //! @return the state of the change.
+   int set_residue_to_rotamer_number(int imol, const std::string &residue_cid, const std::string &alt_conf, int rotamer_number);
+
    //! Delete item
    //!
    //! @param imol is the model molecule index
