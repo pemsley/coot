@@ -593,6 +593,60 @@ int test_undo_and_redo_2(molecules_container_t &mc) {
    return status;
 }
 
+// Test for set_residue_to_rotamer_number()
+//
+int test_set_residue_to_rotamer_number(molecules_container_t &mc) {
+
+    starting_test(__FUNCTION__);
+    int status = 0;
+
+    // Load test structure model
+    int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+    if (!mc.is_valid_model_molecule(imol)) {
+        std::cout << "Failed to load model molecule" << std::endl;
+        return status;
+    }
+
+    // Pick a known residue (e.g. chain A, residue 270)
+    int rotamer_number = 2; // Try setting to rotamer #2
+
+    // Get a key atom to track the change (e.g. CG for ASP)
+    std::string chain_id = "A";
+    int res_no = 269;
+    std::string residue_cid = "//A/269";
+    std::string alt_conf;
+    coot::atom_spec_t atom_spec(chain_id, res_no, "", " CG ", alt_conf);
+    mmdb::Atom* at_start = mc.get_atom(imol, atom_spec);
+    if (!at_start) {
+        std::cout << "Failed to find atom CG in starting residue" << std::endl;
+        mc.close_molecule(imol);
+        return status;
+    }
+    coot::Cartesian pos_start = coot::Cartesian(at_start->x, at_start->y, at_start->z);
+
+    int result = mc.set_residue_to_rotamer_number(imol, residue_cid, alt_conf, rotamer_number);
+
+    // Find the atom after the function call
+    mmdb::Atom* at_end = mc.get_atom(imol, atom_spec);
+    if (!at_end) {
+        std::cout << "Failed to find atom CG after rotamer set" << std::endl;
+        mc.close_molecule(imol);
+        return status;
+    }
+    coot::Cartesian pos_end = coot::Cartesian(at_end->x, at_end->y, at_end->z);
+
+    double dist_moved = std::sqrt(coot::Cartesian::lengthsq(pos_start, pos_end));
+    std::cout << "CG atom moved " << dist_moved << " Å by set_residue_to_rotamer_number()" << std::endl;
+
+    // Success: function returned 1 and atom moved
+    if (result == 1 && dist_moved > 0.3) {
+        status = 1;
+    }
+
+    mc.close_molecule(imol);
+    return status;
+}
+
 
 int test_ramachandran_analysis(molecules_container_t &mc) {
 
@@ -6665,16 +6719,19 @@ int test_pucker_info(molecules_container_t &mc) {
    int status = 0;
    int imol = mc.read_pdb(reference_data("2pwt.cif"));
    std::string pucker_info_json = mc.get_pucker_analysis_info(imol);
-   json j = json::parse(pucker_info_json);
-   unsigned int count = 0;
-   for (json::iterator it=j.begin(); it!=j.end(); ++it) {
-      count += 1;
-      if (count > 5) continue;
-      json &item = *it;
-      std::string s = item.dump(4);
-      std::cout << s << std::endl;
+   // parsign an empty json string causes a crash
+   if (pucker_info_json.size() > 10) {
+      json j = json::parse(pucker_info_json);
+      unsigned int count = 0;
+      for (json::iterator it=j.begin(); it!=j.end(); ++it) {
+         count += 1;
+         if (count > 5) continue;
+         json &item = *it;
+         std::string s = item.dump(4);
+         std::cout << s << std::endl;
+      }
+      if (count > 10) status = 1;
    }
-   if (count > 10) status = 1;
    return status;
 }
 
@@ -7016,6 +7073,7 @@ int main(int argc, char **argv) {
          // status += run_test(test_dedust, "dedust", mc);
          status += run_test(test_atom_overlaps, "atom overlaps", mc);
          status += run_test(test_pucker_info, "pucker info", mc);
+         status += run_test(test_set_residue_to_rotamer_number, "set residue", mc);
          if (status == n_tests) all_tests_status = 0;
 
          print_results_summary();
