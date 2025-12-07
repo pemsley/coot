@@ -6,6 +6,7 @@
     <property name="title" translatable="yes">Coot: Buster Validation</property>
     <property name="default-width">900</property>
     <property name="default-height">600</property>
+    <property name="vexpand">1</property>
 
     <child>
       <object class="GtkBox" id="gphl_vbox">
@@ -13,10 +14,10 @@
 
         <child>
           <object class="GtkNotebook" id="gphl_screen_notebook">
-            <property name="hexpand">1</property>
             <property name="visible">1</property>
             <property name="focusable">1</property>
             <property name="scrollable">1</property>
+            <property name="vexpand">1</property>
 
             <!-- notebook page -->
             <child>
@@ -79,6 +80,7 @@
                               <object class="GtkScrolledWindow" id="gphl-screen-unhappy-atoms-scrolledwindow">
                                 <property name="hexpand">1</property>
                                 <property name="vexpand">1</property>
+                                <property name="propagate-natural-height">0</property>
                                 <child>
                                   <object class="GtkViewport">
                                     <property name="hexpand">1</property>
@@ -127,6 +129,7 @@
                               <object class="GtkScrolledWindow" id="gphl-screen-bonds-scrolledwindow">
                                 <property name="hexpand">1</property>
                                 <property name="vexpand">1</property>
+                                <property name="propagate-natural-height">0</property>
                                 <child>
                                   <object class="GtkViewport">
                                     <property name="hexpand">1</property>
@@ -175,11 +178,10 @@
                               <object class="GtkScrolledWindow" id="gphl-screen-angles-scrolledwindow">
                                 <property name="hexpand">1</property>
                                 <property name="vexpand">1</property>
+                                <property name="propagate-natural-height">0</property>
                                 <child>
                                   <object class="GtkViewport">
                                     <property name="hexpand">1</property>
-                                    <property name="vexpand">1</property>
-
                                     <child>
                                       <object class="GtkGrid" id="gphl-screen-angles-grid">
                                         <property name="margin-start">12</property>
@@ -221,11 +223,23 @@
                             <property name="orientation">vertical</property>
 
                             <child>
-                              <object class="GtkGrid" id="gphl-screen-torsions-grid">
-                                <property name="margin-start">12</property>
-                                <property name="margin-end">4</property>
-                                <property name="margin-top">4</property>
-                                <property name="margin-bottom">4</property>
+                              <object class="GtkScrolledWindow" id="gphl-screen-torsions-scrolledwindow">
+                                <property name="hexpand">1</property>
+                                <property name="vexpand">1</property>
+                                <property name="propagate-natural-height">0</property>
+                                <child>
+                                  <object class="GtkViewport">
+                                    <property name="hexpand">1</property>
+                                    <child>
+                                      <object class="GtkGrid" id="gphl-screen-torsions-grid">
+                                        <property name="margin-start">12</property>
+                                        <property name="margin-end">4</property>
+                                        <property name="margin-top">4</property>
+                                        <property name="margin-bottom">4</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </child>
                               </object>
                             </child>
 
@@ -258,11 +272,23 @@
                             <property name="orientation">vertical</property>
 
                             <child>
-                              <object class="GtkGrid" id="gphl-screen-planes-grid">
-                                <property name="margin-start">12</property>
-                                <property name="margin-end">4</property>
-                                <property name="margin-top">4</property>
-                                <property name="margin-bottom">4</property>
+                              <object class="GtkScrolledWindow" id="gphl-screen-planes-scrolledwindow">
+                                <property name="hexpand">1</property>
+                                <property name="vexpand">1</property>
+                                <property name="propagate-natural-height">0</property>
+                                <child>
+                                  <object class="GtkViewport">
+                                    <property name="hexpand">1</property>
+                                    <child>
+                                      <object class="GtkGrid" id="gphl-screen-planes-grid">
+                                        <property name="margin-start">12</property>
+                                        <property name="margin-end">4</property>
+                                        <property name="margin-top">4</property>
+                                        <property name="margin-bottom">4</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </child>
                               </object>
                             </child>
 
@@ -298,6 +324,7 @@
                               <object class="GtkScrolledWindow" id="gphl-screen-ideal-contact-scrolledwindow">
                                 <property name="hexpand">1</property>
                                 <property name="vexpand">1</property>
+                                <property name="propagate-natural-height">0</property>
                                 <child>
                                   <object class="GtkViewport">
                                     <property name="hexpand">1</property>
