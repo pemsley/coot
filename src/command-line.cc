@@ -56,7 +56,6 @@
 #include <gtk/gtk.h>
 
 // #include "mtz-bits.h" use cmtz-interface
-#include "cmtz-interface.hh"
 
 #include "graphics-info.h"
 // Including python needs to come after graphics-info.h, because
@@ -65,7 +64,6 @@
 // BL says:: and (2.3 - dewinter), i.e. is a Mac - Python issue
 // since the follwing two include python graphics-info.h is moved up
 #include "c-interface.h"
-#include "cc-interface.hh"
 #include "coot-version.hh"
 #include "command-line.hh"
 
@@ -197,6 +195,9 @@ parse_command_line(int argc, char ** argv ) {
 	    if (arg_str == "dictionary") {
 	       cld.dictionaries.push_back(coot_optarg);
 	    }
+	    if (arg_str == "dictionary-with-mol") {
+	       cld.dictionaries_with_mol.push_back(coot_optarg);
+	    }
 	    if (arg_str == "ccp4-project") {
 	       cld.ccp4_project = coot_optarg;
 	    }
@@ -245,6 +246,7 @@ parse_command_line(int argc, char ** argv ) {
 			       << "            [--hklin mtz-file-name]\n"
 			       << "            [--auto mtz-file-name]\n"
 			       << "            [--dictionary cif-dictionary-file-name]\n"
+			       << "            [--dictionary-with-mol cif-dictionary-file-name]\n"
 			       << "            [--script script-file-name]\n"
 			       << "            [--em]\n"
 			       << "            [--title some-title]\n"
