@@ -5730,8 +5730,7 @@ void graphics_info_t::draw_bad_nbc_atom_pair_dashed_lines(unsigned int pass_type
 }
 
 
- void
-    graphics_info_t::setup_draw_for_chiral_volume_outlier_markers() {
+void graphics_info_t::setup_draw_for_chiral_volume_outlier_markers() {
 
     texture_for_chiral_volume_outlier_markers.init("chiral-volume-outlier-marker.png");
     float ts = 0.7; // relative texture size
@@ -5741,12 +5740,13 @@ void graphics_info_t::draw_bad_nbc_atom_pair_dashed_lines(unsigned int pass_type
 
 }
 
- // static
- void
-    graphics_info_t::draw_chiral_volume_outlier_markers(unsigned int pass_type) {
+// static
+void graphics_info_t::draw_chiral_volume_outlier_markers(unsigned int pass_type) {
 
-    // unlike NBC markers, each molecule can have it's own chiral volume outlier markers
-    for (unsigned int imol=0; imol<molecules.size(); imol++) {
+   if (curmudgeon_mode) return;
+
+   // unlike NBC markers, each molecule can have it's own chiral volume outlier markers
+   for (unsigned int imol=0; imol<molecules.size(); imol++) {
        if (is_valid_model_molecule(imol)) {
           if (molecules[imol].draw_it) {
              if (molecules[imol].draw_chiral_volume_outlier_markers_flag) {
@@ -5809,6 +5809,8 @@ void graphics_info_t::draw_bad_nbc_atom_pair_dashed_lines(unsigned int pass_type
  }
 
 void graphics_info_t::add_unhappy_atom_marker(int imol, const coot::atom_spec_t &atom_spec) {
+
+   if (curmudgeon_mode) return;
 
    if (is_valid_model_molecule(imol)) {
       mmdb::Atom *at = molecules[imol].get_atom(atom_spec);
