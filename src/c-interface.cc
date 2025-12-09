@@ -25,6 +25,12 @@
 // $Rev: 1458 $
 
 // Load the head if it hasn't been included.
+#include <cerrno>
+#include <cstddef>
+#include <exception>
+#include <stdexcept>
+#include <utility>
+#include "glib.h"
 #ifdef USE_PYTHON
 #ifndef PYTHONH
 #define PYTHONH
@@ -8698,35 +8704,69 @@ void handle_online_coot_search_request(const char *entry_text) {
 /*  ----------------------------------------------------------------------- */
 /* section Remote Control */
 
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <unistd.h>
+#include <cstring>
+#include <iostream>
+#include <fcntl.h>
+
+static int server_fd = -1;
+static int client_fd = -1;
+
+void init_coot_socket_listener() {
+
+   int port = graphics_info_t::remote_control_port_number;
+   server_fd = socket(AF_INET, SOCK_STREAM, 0);
+   if (server_fd < 0) {
+      std::cerr << "Error: Unable to create socket\n";
+      return;
+   }
+
+   sockaddr_in addr;
+   std::memset(&addr, 0, sizeof(addr));
+   addr.sin_family = AF_INET;
+   addr.sin_addr.s_addr = htonl(INADDR_LOOPBACK); // localhost only
+   addr.sin_port = htons(port);
+
+   int optval = 1;
+   setsockopt(server_fd, SOL_SOCKET, SO_REUSEADDR, &optval, sizeof(optval));
+
+   if (bind(server_fd, (sockaddr*)&addr, sizeof(addr)) < 0) {
+      std::cerr << "Error: Unable to bind socket\n";
+      close(server_fd);
+      server_fd = -1;
+      return;
+   }
+   if (listen(server_fd, 1) < 0) {
+      std::cerr << "Error: Unable to listen\n";
+      close(server_fd);
+      server_fd = -1;
+      return;
+   }
+
+   // Make server socket non-blocking
+   int flags = fcntl(server_fd, F_GETFL, 0);
+   fcntl(server_fd, F_SETFL, flags | O_NONBLOCK);
+
+   // log this
+   std::cout << "INFO:: Socket listener initialized on port " << port << std::endl;
+}
+
 // called by c_inner_main() if we have guile
 void make_socket_listener_maybe() {
 
-   std::vector<std::string> cmd;
-
    if (graphics_info_t::try_port_listener) {
-      cmd.push_back("open-coot-listener-socket");
-      cmd.push_back(graphics_info_t::int_to_string(graphics_info_t::remote_control_port_number));
-      cmd.push_back(single_quote(graphics_info_t::remote_control_hostname));
-
-      // This is not a static function, perhaps it should be:
-      graphics_info_t g;
-#ifdef USE_GUILE
-      std::string scm_command = g.state_command(cmd, coot::STATE_SCM);
-
-      safe_scheme_command(scm_command);
-#else
-#ifdef USE_PYTHON
-      std::string python_command = g.state_command(cmd, coot::STATE_PYTHON);
-
-      safe_python_command(python_command);
-#endif // USE_PYTHON
-#endif // USE_GUILE
       if (graphics_info_t::coot_socket_listener_idle_function_token == -1) {
-	 if (graphics_info_t::listener_socket_have_good_socket_state) {
-	    GSourceFunc f = coot_socket_listener_idle_func;
-	    graphics_info_t::coot_socket_listener_idle_function_token =
-	       g_idle_add(f, NULL);
-	 }
+         // if (graphics_info_t::listener_socket_have_good_socket_state) {
+         // 2025-12-07-PE I am not sure that that is useful in this new
+         // listener.
+         if (true) {
+            init_coot_socket_listener();
+            graphics_info_t::coot_socket_listener_idle_function_token =
+              g_timeout_add(1000, coot_socket_listener_idle_func, nullptr);
+         }
       }
    }
 }
@@ -8743,24 +8783,300 @@ int get_remote_control_port_number() {
   return graphics_info_t::remote_control_port_number;
 }
 
+#include <netinet/in.h>
+#include <coot-utils/json.hpp>
+using json = nlohmann::json;
+
+struct func_doc {
+   std::string function_name;
+   std::string documentation;
+};
+
 gint coot_socket_listener_idle_func(gpointer data) {
 
-#ifdef USE_GUILE
-   std::cout << "DEBUG:: running socket idle function" << std::endl;
-   if (graphics_info_t::listener_socket_have_good_socket_state) {
-      std::cout << "DEBUG:: running guile function" << std::endl;
-      safe_scheme_command("(coot-listener-idle-function-proc)");
+   auto extract_param_info = [] () {
+/*
+            if (attr && PyCallable_Check(attr)) {
+               PyObject* sig = PyObject_CallMethod(inspect, "signature", "O", attr);
+
+               if (!sig) {
+                  PyErr_Print();
+               } else {
+
+                  std::cout << "Here A" << std::endl;
+                  PyObject* params = PyObject_GetAttrString(sig, "parameters");
+                  PyObject *key, *value;
+                  Py_ssize_t pos = 0;
+
+                  PyObject* empty = PyObject_GetAttrString(inspect, "_empty");
+                  while (PyDict_Next(params, &pos, &key, &value)) {
+                     std::cout << "Here B" << std::endl;
+                     const char* param_name = PyUnicode_AsUTF8(key);
+                     PyObject *kindObj    = PyObject_GetAttrString(value, "kind");
+                     PyObject *defaultObj = PyObject_GetAttrString(value, "default");
+                     PyObject *annotObj   = PyObject_GetAttrString(value, "annotation");
+                     long kind = PyLong_AsLong(kindObj);
+                     bool has_annot = (annotObj != empty);
+                     std::string annotation;
+                     if (has_annot) {
+                         PyObject* s = PyObject_Str(annotObj);
+                         annotation = PyUnicode_AsUTF8(s);
+                         Py_DECREF(s);
+                     }
+                     std::cout << "param_name: " << param_name << " kind: " << kind
+                               << " annotation: " << annotation << std::endl;
+                  }
+                  PyObject* retAnn = PyObject_GetAttrString(sig, "return_annotation");
+                  bool has_ret_annot = (retAnn != empty);
+
+                  std::string return_type;
+                  if (has_ret_annot) {
+                      PyObject* s = PyObject_Str(retAnn);
+                      return_type = PyUnicode_AsUTF8(s);
+                      Py_DECREF(s);
+                  }
+                  Py_DECREF(retAnn);
+
+               }
+            }
+*/
+   };
+
+   auto handle_list_tools = [] () {
+
+      // the first is the module name, e.g. coot, coot_utils and the
+      // second is the list of functions in that module
+      // return functions
+      std::vector<std::pair<std::string, std::vector<func_doc> > > functions;
+
+      PyObject* inspect = PyImport_ImportModule("inspect");
+
+      std::vector<std::string> module_names = {"coot", "coot_utils"};
+      for (const std::string &module_name : module_names) {
+         std::vector<func_doc> v; // functions that are in this module
+         PyObject* pModule = PyImport_ImportModule(module_name.c_str());
+
+         if (!pModule) {
+            PyErr_Print();
+            std::cerr << "Failed to import module " << module_name << "\n";
+            continue;
+         }
+
+         // Get list of attributes (like dir(coot))
+         PyObject* pDir = PyObject_Dir(pModule);
+         if (!pDir) {
+             PyErr_Print();
+             Py_DECREF(pModule);
+             continue;
+         }
+
+         // Iterate over list
+         Py_ssize_t size = PyList_Size(pDir);
+         for (Py_ssize_t i=0; i<size; ++i) {
+
+            PyObject* pName = PyList_GetItem(pDir, i); // borrowed ref
+            const char* name = PyUnicode_AsUTF8(pName);
+
+            PyObject* attr = PyObject_GetAttrString(pModule, name);
+            if (PyCallable_Check(attr)) {
+               func_doc fd;
+               fd.function_name = name;
+               PyObject* docObj = PyObject_GetAttrString(attr, "__doc__");
+               if (docObj) {
+                  if (docObj == Py_None) {
+                     if (false)
+                        std::cout << "debug:: name " << name << " docobj: pynone" << std::endl;
+                  } else {
+                     std::string doc = PyBytes_AS_STRING(PyUnicode_AsUTF8String(docObj));
+                     if (false)
+                        std::cout << "debug:: name " << name << " docobj: " << doc << std::endl;
+                     if (! doc.empty())
+                        fd.documentation = doc;
+                  }
+               }
+               v.push_back(fd);
+               Py_XDECREF(attr);
+            }
+         }
+
+         if (! v.empty())
+            functions.push_back(std::make_pair(module_name, v));
+
+         Py_DECREF(pDir);
+         Py_DECREF(pModule);
+      }
+      return functions;
+   };
+
+   auto make_response_from_functions = [] (const std::vector<std::pair<std::string, std::vector<func_doc> > > &functions, int id) {
+
+      json j_functions;
+      json j_item;
+      j_item["name"] = "python.exec";
+      j_item["description"] = "Execute Python Code";
+      j_item["params"] = "code"; // I mean '["code"]'
+      j_functions.push_back(j_item);
+
+      for (const auto &module_pair : functions) {
+         const auto &module = module_pair.first;
+         const auto &funcs = module_pair.second;
+         for (const auto &func : funcs) {
+            json j_item;
+            j_item["name"] = module + "." + func.function_name;
+            if (!func.documentation.empty())
+               j_item["description"] = func.documentation;
+            j_item["params"] = ""; // I mean '[]'
+            j_functions.push_back(j_item);
+         }
+      }
+      return j_functions.dump();
+   };
+
+   // run return result wrapped in json.
+   //
+   auto handle_string_as_json = [handle_list_tools, make_response_from_functions] (const std::string &buf_str) {
+
+      std::cout << "handle this string: " << buf_str << ":" << std::endl;
+      std::string s; // wrap and return this
+
+      int id = -1; // unset/unfound
+      if (! buf_str.empty()) {
+         json req = json::parse(buf_str);
+         json::const_iterator j_id = req.find("id");
+         if (j_id != req.end()) {
+            id = j_id.value();
+         } else {
+            std::cout << "handle_string_as_json(): id not found - sad" << std::endl;
+         }
+         try {
+
+            if (req["method"] == "python.exec") {
+               std::string code = req["params"]["code"];
+               std::cout << "Executing Python from JSON-RPC: " << s << std::endl;
+               PyObject *rrr = safe_python_command_with_return(code);
+               if (PyBool_Check(rrr) || rrr == Py_None)
+                  Py_INCREF(rrr);
+               const char *mess = "%s";
+               PyObject *dest = myPyString_FromString(mess);
+               PyObject *o = PyUnicode_Format(dest, rrr);
+               s = PyBytes_AS_STRING(PyUnicode_AsUTF8String(o));
+            }
+
+            if (req["method"] == "mcp.list_tools") {
+               std::vector<std::pair<std::string, std::vector<func_doc> > > functions = handle_list_tools();
+               std::string response_str = make_response_from_functions(functions, id);
+               s = response_str;
+               std::cout << "debug:: in handle_string_as_json(): s size " << response_str.size() << std::endl;
+            }
+         }
+         catch (const std::exception &e) {
+            std::cout << "WARNING:: coot_socket_listener_idle_func(): catch handle_string_as_json fail "
+                      << buf_str << std::endl;
+         }
+      }
+      json j_response;
+      j_response["jsonrpc"] = "2.0";
+      j_response["id"] = std::to_string(id);
+      j_response["result"] = s;
+      std::string response_str = j_response.dump();
+      std::cout << "debug:: in handle_string_as_json(): response_str size " << response_str.size() << std::endl;
+      return response_str;
+
+   };
+
+   auto write_all = [] (int fd, const std::string &s) {
+
+      const char* p = static_cast<const char*>(s.c_str());
+      size_t length = s.length();
+      while (length > 0) {
+         ssize_t n = write(fd, p, length);
+         if (n < 0) {
+            std::cout << "DEBUG:: write() error: " << errno << " (" << strerror(errno) << ")" << std::endl;
+            switch(errno) {
+               case (EINTR):
+                  std::cout << "DEBUG:: EINTR" << std::endl;
+                  // try again
+                  break;
+               case (EAGAIN):
+                  std::cout << "DEBUG:: EAGAIN" << std::endl;
+                  // output buffer was filled - write() needs to be called again to finish sending s
+                  std::this_thread::sleep_for(std::chrono::microseconds(200));
+                  break;
+               default:
+                  std::cout << "DEBUG:: neither EINTR not EAGAIN "
+                            << EINTR << " " << EAGAIN << " errno " << errno << std::endl;
+                  return false;  // real error
+            }
+         }
+         if (n == 0) {
+            return false;  // connection closed
+         }
+         if (n > 0) {
+            p += n;
+            length -= n;
+         }
+      }
+      return true;
+   };
+
+   std::cout << "listening..." << std::endl;
+
+   // If no active client connection, accept one non-blockingly
+   if (client_fd < 0 && server_fd >= 0) {
+      client_fd = accept(server_fd, nullptr, nullptr);
+      if (client_fd >= 0) {
+         // Set client socket non-blocking too
+         int flags = fcntl(client_fd, F_GETFL, 0);
+         fcntl(client_fd, F_SETFL, flags | O_NONBLOCK);
+         std::cout << "Accepted new client socket connection.\n";
+      }
    }
-#else
-#ifdef USE_PYTHON
-   //   std::cout << "DEBUG:: running socket idle function" << std::endl;
-   if (graphics_info_t::listener_socket_have_good_socket_state) {
-      //std::cout << "DEBUG:: running python function" << std::endl;
-      safe_python_command("coot_listener_idle_function_proc()");
+   // If we have a client, read any incoming data non-blockingly
+   if (client_fd >= 0) {
+      char buffer[4096];
+      ssize_t n_read = read(client_fd, buffer, sizeof(buffer) - 1);
+      std::cout << "debug:: n_read: " << n_read << std::endl;
+      if (n_read > 4) {
+         int n_sent = int(buffer[3]) + 256 * int(buffer[2]) + 256 * 256 * int(buffer[1]) + 256 * 26 * 256 * int(buffer[0]);
+         std::cout << "debug:: n_sent: " << n_sent << std::endl;
+         buffer[n_read] = '\0';
+         std::cout << "Received: " << buffer+4 << std::endl;
+         std::string buf_as_string(buffer+4, n_read);
+         std::string r = handle_string_as_json(buf_as_string);
+
+         const std::string &response_str = r;
+         int32_t len = response_str.size();
+
+         std::cout << "debug:: response_str len " << len << std::endl;
+
+         char header[4];
+         header[0] = (len >> 24) & 0xFF;
+         header[1] = (len >> 16) & 0xFF;
+         header[2] = (len >> 8)  & 0xFF;
+         header[3] = (len)       & 0xFF;
+
+         std::string framed;
+         framed.reserve(4 + response_str.size());
+         framed.append(header, 4);        // 4-byte header
+         framed.append(response_str);     // JSON body
+         bool write_statue = write_all(client_fd, framed);
+         // std::cout << "DEBUG:: write_status: " << write_statue << std::endl;
+
+      } else if (n_read == 0) {
+         // Client disconnected
+         std::cout << "Client disconnected.\n";
+         close(client_fd);
+         client_fd = -1;
+      } else if (n_read < 0 && errno != EWOULDBLOCK && errno != EAGAIN) {
+         std::cerr << "Socket read error\n";
+         close(client_fd);
+         client_fd = -1;
+      }
+      // else: nothing to read right now
    }
-#endif // USE_PYTHON
-#endif // USE_GUILE
+   // Always return 1 (TRUE) to keep idle handler running
    return 1;
+
 }
 
 /* tooltips */
