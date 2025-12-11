@@ -5291,25 +5291,28 @@ graphics_info_t::rotate_chi(double x, double y) {
 
    auto setup_invalid_chi_angle_pulse = [atom_to_glm] (mmdb::Residue *residue_p) {
 
-      bool broken_line_mode = false;
-      unsigned int n_rings = 5;
-      float radius_overall = 1.0;
-      lines_mesh_for_identification_pulse.setup_red_pulse(radius_overall, n_rings, broken_line_mode);
-      pulse_data_t *pulse_data = new pulse_data_t(0, 40);
-      pulse_data->resize_factor = 1.005f;
-      gpointer user_data = reinterpret_cast<void *>(pulse_data);
-      std::vector<glm::vec3> positions;
-      mmdb::Atom **residue_atoms = 0;
-      int n_residue_atoms = 0;
-      residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
-      for (int iat=0; iat<n_residue_atoms; iat++) {
-         mmdb::Atom *at = residue_atoms[iat];
-         if (! at->isTer()) {
-            positions.push_back(atom_to_glm(at));
+      // don't add a new pulse/reset the pulse if pulse is already on-going
+      if (lines_mesh_for_generic_pulse.empty()) {
+         bool broken_line_mode = false;
+         unsigned int n_rings = 5;
+         float radius_overall = 1.0;
+         lines_mesh_for_generic_pulse.setup_red_pulse(radius_overall, n_rings, broken_line_mode);
+         pulse_data_t *pulse_data = new pulse_data_t(0, 40);
+         pulse_data->resize_factor = 1.005f;
+         gpointer user_data = reinterpret_cast<void *>(pulse_data);
+         std::vector<glm::vec3> positions;
+         mmdb::Atom **residue_atoms = 0;
+         int n_residue_atoms = 0;
+         residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
+         for (int iat=0; iat<n_residue_atoms; iat++) {
+            mmdb::Atom *at = residue_atoms[iat];
+            if (! at->isTer()) {
+               positions.push_back(atom_to_glm(at));
+            }
          }
+         generic_pulse_centres = positions;  // 20251128-PE class variable should be renamed
+         gtk_widget_add_tick_callback(glareas[0], generic_pulse_function, user_data, NULL);
       }
-      generic_pulse_centres = positions;  // 20251128-PE class variable should be renamed
-      gtk_widget_add_tick_callback(glareas[0], generic_pulse_function, user_data, NULL);
    };
 
    // the displacement of the mouse is the change in speed of the rotation
