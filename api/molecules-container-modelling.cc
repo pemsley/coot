@@ -748,7 +748,7 @@ molecules_container_t::get_dictionary_conformers(const std::string &comp_id, int
       for (unsigned int i=0; i<confs.size(); i++)
          delete confs[i];
    }
-   if (false)  {
+   if (false) {
       std::cout << "mol_indices:" << std::endl;
       for (unsigned int i=0; i<mol_indices.size(); i++) {
          std::cout << "       " << mol_indices[i] << std::endl;

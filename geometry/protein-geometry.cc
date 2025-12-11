@@ -53,6 +53,9 @@
 #include "lbg-graph.hh"
 #include "utils/xdg-base.hh"
 
+#include "utils/logging.hh"
+extern logging logger;
+
 // std::string 
 // coot::basic_dict_restraint_t::atom_id_1_4c() const {
 //    return atom_id_mmdb_expand(atom_id_1_); 
@@ -741,6 +744,7 @@ coot::protein_geometry::try_dynamic_add(const std::string &resname, int read_num
    if (!success) {
       // try the XDG Base Directory Protocol cache
       xdg_t xdg;
+      bool debug = false;
       std::filesystem::path ch = xdg.get_cache_home();
       if (std::filesystem::exists(ch)) {
          std::filesystem::path monomers_path = ch / "monomers";
@@ -759,16 +763,20 @@ coot::protein_geometry::try_dynamic_add(const std::string &resname, int read_num
                } else {
                   // we will need to download it then
                   // and put it in the above directory)
-                  std::cout << "DEBUG:: try_dynamic_add(): " << cif_file_path.string() << " does not exist" << std::endl;
+                  if (debug)
+                     std::cout << "DEBUG:: try_dynamic_add(): " << cif_file_path.string() << " does not exist" << std::endl;
                }
             } else {
-               std::cout << "DEBUG:: try_dynamic_add(): " << sub_dir.string() << " does not exist" << std::endl;
+               if (debug)
+                  std::cout << "DEBUG:: try_dynamic_add(): " << sub_dir.string() << " does not exist" << std::endl;
             }
          } else {
-            std::cout << "DEBUG:: try_dynamic_add(): " << monomers_path.string() << " does not exist" << std::endl;
+            if (debug)
+               std::cout << "DEBUG:: try_dynamic_add(): " << monomers_path.string() << " does not exist" << std::endl;
          }
       } else {
-         std::cout << "DEBUG:: try_dynamic_add(): " << ch.string() << " does not exist" << std::endl;
+         if (debug)
+            std::cout << "DEBUG:: try_dynamic_add(): " << ch.string() << " does not exist" << std::endl;
       }
    }
 

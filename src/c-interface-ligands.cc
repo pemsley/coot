@@ -75,6 +75,8 @@
 #pragma GCC diagnostic pop
 #endif
 
+#include "utils/logging.hh"
+extern logging logger;
 
 #include "get-monomer.hh"
 
@@ -1466,6 +1468,9 @@ handle_make_monomer_search(const char *text, GtkWidget *viewport) {
          gtk_image_set_pixel_size(GTK_IMAGE(wp), image_size); // Example: request 64 logical pixels
          gtk_grid_attach(GTK_GRID(grid), button_for_image, 0, i, 1, 1);
          g_signal_connect(G_OBJECT(button_for_image), "clicked", G_CALLBACK(on_monomer_lib_search_results_button_press), s);
+      } else {
+         // 20251211-PE too noisy. Many tlc don't have dictionaries
+         // logger.log(log_t::WARNING, "failed to get image widget for", tlc);
       }
       std::string button_label = tlc + std::string(": ") + molecule_name;
       GtkWidget *button_for_label = gtk_button_new();

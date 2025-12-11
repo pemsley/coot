@@ -1351,7 +1351,8 @@ coot::rdkit_mol(const coot::dictionary_residue_restraints_t &r) {
       }
    }
 
-   std::cout << "debug:: ##### in rdkit_mol(): numbonds " << m.getNumBonds() << std::endl;
+   if (debug)
+      std::cout << "DEBUG:: rdkit_mol(): numbonds " << m.getNumBonds() << std::endl;
 
    set_3d_conformer_state(&m);
 
