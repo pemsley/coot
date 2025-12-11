@@ -395,8 +395,10 @@ fi
 # We need to clarify that so that Coot can be linked correctly.
 librdkitcoordgen=
 AC_ARG_WITH([coordgen], AS_HELP_STRING([--with-coordgen Specify that the RDKit was compiled with coordgen]), with_rdkit_coordgen="$withval", with_rdkit_coordgen=false)
-if test -n "$with_rdkit_coordgen"; then
-    librdkitcoordgen=-lRDKitcoordgen
+if test "$with_rdkit_coordgen" = false ; then
+   :
+else
+   librdkitcoordgen=-lRDKitcoordgen
 fi
 
 # test here for presence of Inchi support in the RDKit.
