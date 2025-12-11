@@ -100,6 +100,7 @@ namespace coot {
 
    enum { RESIDUE_NUMBER_UNSET = -1111}; // from molecule-class-info
 
+   //! a simple wrapper for a residue range
    class residue_range_t {
    public:
       residue_range_t() : res_no_start(-999), res_no_end(-999) {}
@@ -109,6 +110,7 @@ namespace coot {
       int res_no_end;
    };
 
+   //! a simple wrapper for annotated distances
    class atom_distance_t {
    public:
      atom_distance_t(const atom_spec_t &a1, const atom_spec_t &a2,
