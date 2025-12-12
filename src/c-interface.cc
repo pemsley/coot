@@ -7148,6 +7148,7 @@ void post_scheme_scripting_window() {
 
 }
 
+#include "network-get.hh"
 // this needs a header?
 // mode 1 means "mtz" and 0 means coords
 void network_get_accession_code_entity(const std::string &text, int mode);
@@ -8914,10 +8915,12 @@ gint coot_socket_listener_idle_func(gpointer data) {
       json j_item;
       j_item["name"] = "python.exec";
       j_item["description"] = "Execute Python Code";
-      j_item["params"] = "code"; // I mean '["code"]'
+      j_item["params"] = json::array({"code"});
       j_functions.push_back(j_item);
 
+      unsigned int n = 0;
       for (const auto &module_pair : functions) {
+         if (n >= 4) continue; // tmp limit
          const auto &module = module_pair.first;
          const auto &funcs = module_pair.second;
          for (const auto &func : funcs) {
@@ -8925,19 +8928,21 @@ gint coot_socket_listener_idle_func(gpointer data) {
             j_item["name"] = module + "." + func.function_name;
             if (!func.documentation.empty())
                j_item["description"] = func.documentation;
-            j_item["params"] = ""; // I mean '[]'
+            j_item["params"] = json::array();
             j_functions.push_back(j_item);
          }
+         n++;
       }
-      return j_functions.dump();
+      return j_functions;
    };
 
    // run return result wrapped in json.
    //
    auto handle_string_as_json = [handle_list_tools, make_response_from_functions] (const std::string &buf_str) {
 
-      std::cout << "handle this string: " << buf_str << ":" << std::endl;
-      std::string s; // wrap and return this
+      // std::cout << "handle this string: " << buf_str << ":" << std::endl;
+
+      std::string response_str; // can return blank if we don't get a method that we  know
 
       int id = -1; // unset/unfound
       if (! buf_str.empty()) {
@@ -8952,21 +8957,28 @@ gint coot_socket_listener_idle_func(gpointer data) {
 
             if (req["method"] == "python.exec") {
                std::string code = req["params"]["code"];
-               std::cout << "Executing Python from JSON-RPC: " << s << std::endl;
                PyObject *rrr = safe_python_command_with_return(code);
                if (PyBool_Check(rrr) || rrr == Py_None)
                   Py_INCREF(rrr);
                const char *mess = "%s";
                PyObject *dest = myPyString_FromString(mess);
                PyObject *o = PyUnicode_Format(dest, rrr);
-               s = PyBytes_AS_STRING(PyUnicode_AsUTF8String(o));
+               std::string s = PyBytes_AS_STRING(PyUnicode_AsUTF8String(o));
+               json j_response;
+               j_response["jsonrpc"] = "2.0";
+               j_response["id"] = std::to_string(id);
+               j_response["result"] = s;
+               response_str = j_response.dump();
             }
 
             if (req["method"] == "mcp.list_tools") {
                std::vector<std::pair<std::string, std::vector<func_doc> > > functions = handle_list_tools();
-               std::string response_str = make_response_from_functions(functions, id);
-               s = response_str;
-               std::cout << "debug:: in handle_string_as_json(): s size " << response_str.size() << std::endl;
+               json response_funcs = make_response_from_functions(functions, id);
+               json j_response;
+               j_response["jsonrpc"] = "2.0";
+               j_response["id"] = std::to_string(id);
+               j_response["result"] = response_funcs;
+               response_str = j_response.dump();
             }
          }
          catch (const std::exception &e) {
@@ -8974,12 +8986,6 @@ gint coot_socket_listener_idle_func(gpointer data) {
                       << buf_str << std::endl;
          }
       }
-      json j_response;
-      j_response["jsonrpc"] = "2.0";
-      j_response["id"] = std::to_string(id);
-      j_response["result"] = s;
-      std::string response_str = j_response.dump();
-      std::cout << "debug:: in handle_string_as_json(): response_str size " << response_str.size() << std::endl;
       return response_str;
 
    };
