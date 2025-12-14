@@ -2124,6 +2124,16 @@ SCM map_to_model_correlation_scm(int imol,
                                  SCM neighb_residue_specs,
                                  unsigned short int atom_mask_mode,
                                  int imol_map);
+
+//! \brief Map-to-model correlation statistics (Guile interface)
+//!
+//! @param imol Model molecule number
+//! @param residue_specs Scheme list of residue specs
+//! @param neighb_residue_specs Scheme list of neighboring residue specs
+//! @param atom_mask_mode Controls which atoms to include
+//! @param imol_map Map molecule number
+//!
+//! @return SCM - Association list with statistics
 SCM map_to_model_correlation_stats_scm(int imol,
                                        SCM residue_specs,
                                        SCM neighb_residue_specs,
@@ -2132,17 +2142,136 @@ SCM map_to_model_correlation_stats_scm(int imol,
 #endif
 
 #ifdef USE_PYTHON
+//! \brief Calculate map-to-model correlation (Python interface)
+//!
+//! Python wrapper for map_to_model_correlation. Evaluates the fit of specific
+//! residues to the electron density map.
+//!
+//! @param imol Model molecule number
+//! @param residue_specs Python list of residue specs [[chain_id, resno, ins_code], ...]
+//! @param neighb_residue_specs Python list of neighboring residue specs to exclude
+//! @param atom_mask_mode Controls which atoms to include (see atom_mask_mode values above)
+//! @param imol_map Map molecule number
+//!
+//! @return PyObject* - correlation coefficient as a Python float
+//!
+//! \note Use atom_mask_mode=2 to evaluate side-chain fit specifically
+//!
+//! Example usage:
+//! \code{.py}
+//! # Evaluate side-chain fit for residues 40-44
+//! residue_specs = [['A', res_no, ''] for res_no in range(40, 45)]
+//! correlation = map_to_model_correlation_py(
+//!     imol=1,
+//!     residue_specs=residue_specs,
+//!     neighb_residue_specs=[],
+//!     atom_mask_mode=2,  # Side-chain atoms only
+//!     imol_map=2
+//! )
+//! print(f"Side-chain correlation: {correlation}")
+//! \endcode
 PyObject *map_to_model_correlation_py(int imol,
                                       PyObject *residue_specs,
                                       PyObject *neighb_residue_specs,
                                       unsigned short int atom_mask_mode,
                                       int imol_map);
+
+//! \brief Get map-to-model correlation statistics (Python interface)
+//!
+//! Returns detailed statistics about the correlation between model and map,
+//! including mean, standard deviation, and range.
+//!
+//! @param imol Model molecule number
+//! @param residue_specs Python list of residue specs
+//! @param neighb_residue_specs Python list of neighboring residue specs
+//! @param atom_mask_mode Controls which atoms to include
+//! @param imol_map Map molecule number
+//!
+//! @return PyObject* - Dictionary with statistics:
+//!         - 'mean': Mean correlation
+//!         - 'std_dev': Standard deviation
+//!         - 'min': Minimum correlation
+//!         - 'max': Maximum correlation
+//!
+//! Example usage:
+//! \code{.py}
+//! stats = map_to_model_correlation_stats_py(1, residues, [], 0, 2)
+//! print(f"Mean: {stats['mean']:.3f}")
+//! print(f"Std Dev: {stats['std_dev']:.3f}")
+//! print(f"Range: {stats['min']:.3f} to {stats['max']:.3f}")
+//! \endcode
 PyObject *map_to_model_correlation_stats_py(int imol,
                                       PyObject *residue_specs,
                                       PyObject *neighb_residue_specs,
                                       unsigned short int atom_mask_mode,
                                       int imol_map);
 
+//! \brief Get density statistics per residue range (Python interface)
+//!
+//! **PRIMARY FUNCTION FOR FINDING POORLY-FITTED RESIDUES**
+//!
+//! This is the main function to use when asked "Which side chain is worst fitting to density?"
+//! It analyzes correlation statistics for all residues in a chain and returns comprehensive
+//! data for both all-atom and side-chain-only analysis.
+//!
+//! @param imol Model molecule number
+//! @param chain_id Chain identifier (e.g., "A", "B")
+//! @param imol_map Map molecule number
+//! @param n_residue_per_residue_range Number of residues per analysis window:
+//!        - Use 1 for per-residue statistics (most common)
+//!        - Use 3 for smoothed statistics over 3-residue windows
+//! @param exclude_NOC_flag Whether to exclude backbone N, O, C atoms:
+//!        - 0: Include all atoms (for overall fit assessment)
+//!        - 1: Exclude N, O, C (for side-chain-focused analysis)
+//!
+//! @return PyObject* - Tuple of two dictionaries (all_atom_stats, sidechain_stats):
+//!         Each dictionary maps residue_spec to correlation_stats containing:
+//!         - correlation: Correlation coefficient
+//!         - mean_density: Mean density value
+//!         - std_dev: Standard deviation
+//!         - n_points: Number of grid points
+//!
+//! \note This function analyzes the ENTIRE chain at once, making it very efficient
+//! \note Returns both all-atom and side-chain statistics in one call
+//! \note Use the side-chain statistics to identify problem side chains specifically
+//!
+//! Example usage - Find worst-fitting side chain:
+//! \code{.py}
+//! # Get correlation statistics for all residues in chain A
+//! all_atom_stats, sidechain_stats = map_to_model_correlation_stats_per_residue_range_py(
+//!     imol=1,              # Model molecule
+//!     chain_id="A",        # Chain A
+//!     imol_map=2,          # Map molecule
+//!     n_residue_per_residue_range=1,  # Per-residue (not averaged)
+//!     exclude_NOC_flag=0   # Include all atoms
+//! )
+//! 
+//! # Find worst-fitting side chain
+//! worst_residue = min(sidechain_stats.items(), 
+//!                     key=lambda x: x[1]['correlation'])
+//! 
+//! chain_id, resno, ins_code = worst_residue[0]
+//! correlation = worst_residue[1]['correlation']
+//! 
+//! print(f"Worst side chain: {chain_id} {resno}, correlation = {correlation:.3f}")
+//! 
+//! # Center on worst residue
+//! set_go_to_atom_chain_residue_atom_name(chain_id, resno, 'CA')
+//! \endcode
+//!
+//! Example usage - Compare main-chain vs side-chain fit:
+//! \code{.py}
+//! all_atom, sidechain = map_to_model_correlation_stats_per_residue_range_py(
+//!     1, "A", 2, 1, 0
+//! )
+//! 
+//! for residue_spec in all_atom.keys():
+//!     all_corr = all_atom[residue_spec]['correlation']
+//!     side_corr = sidechain[residue_spec]['correlation']
+//!     
+//!     if all_corr > 0.7 and side_corr < 0.5:
+//!         print(f"Residue {residue_spec}: Good backbone, poor sidechain")
+//! \endcode
 PyObject *
 map_to_model_correlation_stats_per_residue_range_py(int imol,
                                                     const std::string &chain_id,
@@ -2152,14 +2281,43 @@ map_to_model_correlation_stats_per_residue_range_py(int imol,
 
 #endif
 
+// Map to Model Correlation Functions - Enhanced Doxygen Documentation
+// 
+// These functions assess how well a molecular model fits into electron density maps.
+// Essential for model validation and identifying poorly-fitted regions.
+
+//! \name Map to Model Correlation
+//! \{
+
+//! \brief Calculate the correlation between a map and model for specific residues
+//!
+//! This function calculates the map-to-model correlation for specified residues,
+//! excluding grid points that overlap with neighboring residues.
+//!
+//! @param imol Model molecule number
+//! @param residue_specs Vector of residue specifications to evaluate
+//! @param neigh_residue_specs Vector of neighboring residues whose grid points should be excluded
+//! @param atom_mask_mode Controls which atoms are included in the calculation:
+//!        - 0: All atoms
+//!        - 1: Main-chain atoms if standard amino acid, else all atoms
+//!        - 2: Side-chain atoms if standard amino acid, else all atoms
+//!        - 3: Side-chain atoms excluding CB if standard amino acid, else all atoms
+//!        - 4: Main-chain atoms if standard amino acid, else nothing
+//!        - 5: Side-chain atoms if standard amino acid, else nothing
+//!        - 10: Atom radius dependent on B-factor
+//! @param imol_map Map molecule number to correlate against
+//! 
+//! @return Correlation coefficient (float) between model and map
+//!
+//! \note Use this after refinement to evaluate if the fit improved
+//!
+//! Example:
+//! \code{.cpp}
+//! std::vector<coot::residue_spec_t> residues = {{chain_id, 40, ""}, {chain_id, 41, ""}};
+//! std::vector<coot::residue_spec_t> neighbors;
+//! float corr = map_to_model_correlation(1, residues, neighbors, 2, 2);
+//! \endcode
 //! \brief atom-mask-mode is as follows:
-// 0: all-atoms
-// 1: main-chain atoms if is standard amino-acid, else all atoms
-// 2: side-chain atoms if is standard amino-acid, else all atoms
-// 3: side-chain atoms-excluding CB if is standard amino-acid, else all atoms
-// 4: main-chain atoms if is standard amino-acid, else nothing
-// 5: side-chain atoms if is standard amino-acid, else nothing
-// 10: atom radius is dependent atom atom B-factor
 float
 map_to_model_correlation(int imol,
                          const std::vector<coot::residue_spec_t> &residue_specs,
@@ -2167,16 +2325,32 @@ map_to_model_correlation(int imol,
                          unsigned short int atom_mask_mode,
                          int imol_map);
 
-//! \brief map to model density correlation stats
+//! \brief Get detailed statistics for map-to-model correlation
 //!
-//! \brief atom-mask-mode is as follows:
-// 0: all-atoms
-// 1: main-chain atoms if is standard amino-acid, else all atoms
-// 2: side-chain atoms if is standard amino-acid, else all atoms
-// 3: side-chain atoms-excluding CB if is standard amino-acid, else all atoms
-// 4: main-chain atoms if is standard amino-acid, else nothing
-// 5: side-chain atoms if is standard amino-acid, else nothing
-//
+//! Returns comprehensive statistics including mean, standard deviation, minimum,
+//! and maximum correlation values for the specified residues.
+//!
+//! @param imol Model molecule number
+//! @param residue_specs Vector of residue specifications to evaluate
+//! @param neigh_residue_specs Vector of neighboring residues to exclude from grid
+//! @param atom_mask_mode Controls which atoms are included (see atom_mask_mode values)
+//! @param imol_map Map molecule number
+//!
+//! @return coot::util::density_correlation_stats_info_t containing:
+//!         - mean correlation
+//!         - standard deviation
+//!         - minimum correlation
+//!         - maximum correlation
+//!         - number of residues evaluated
+//!
+//! \note Useful for getting overall quality metrics for a region
+//!
+//! Example:
+//! \code{.cpp}
+//! auto stats = map_to_model_correlation_stats(1, residues, neighbors, 0, 2);
+//! std::cout << "Mean correlation: " << stats.mean << std::endl;
+//! std::cout << "Std dev: " << stats.std_dev << std::endl;
+//! \endcode
 coot::util::density_correlation_stats_info_t
 map_to_model_correlation_stats(int imol,
                                const std::vector<coot::residue_spec_t> &residue_specs,
@@ -2185,22 +2359,61 @@ map_to_model_correlation_stats(int imol,
                                int imol_map);
 #ifndef SWIG
 
-//! \brief map to model density correlation, reported per residue
+//! \brief Get map-to-model correlation per residue
 //!
-//! \brief atom-mask-mode is as follows:
-// 0: all-atoms
-// 1: main-chain atoms if is standard amino-acid, else all atoms
-// 2: side-chain atoms if is standard amino-acid, else all atoms
-// 3: side-chain atoms-excluding CB if is standard amino-acid, else all atoms
-// 4: main-chain atoms if is standard amino-acid, else nothing
-// 5: side-chain atoms if is standard amino-acid, else nothing
-//
+//! Returns individual correlation values for each specified residue.
+//! Useful for identifying which specific residues fit poorly.
+//!
+//! @param imol Model molecule number
+//! @param specs Vector of residue specifications
+//! @param atom_mask_mode Controls which atoms to include
+//! @param imol_map Map molecule number
+//!
+//! @return Vector of pairs: (residue_spec, correlation_value)
+//!
+//! \note The correlation values can be sorted to find worst-fitting residues
+//!
+//! Example:
+//! \code{.cpp}
+//! auto correlations = map_to_model_correlation_per_residue(1, specs, 0, 2);
+//! // Sort by correlation (lowest first)
+//! std::sort(correlations.begin(), correlations.end(),
+//!           [](const auto &a, const auto &b) { return a.second < b.second; });
+//! // First element is now the worst-fitting residue
+//! std::cout << "Worst residue: " << correlations[0].first 
+//!           << " correlation: " << correlations[0].second << std::endl;
+//! \endcode
 std::vector<std::pair<coot::residue_spec_t,float> >
 map_to_model_correlation_per_residue(int imol, const std::vector<coot::residue_spec_t> &specs,
                                      unsigned short int atom_mask_mode,
                                      int imol_map);
 
-//! \brief map to model density statistics, reported per residue
+//! \brief Get detailed density statistics per residue
+//!
+//! Returns comprehensive density statistics for each residue including
+//! correlation, mean, standard deviation, and other metrics.
+//!
+//! @param imol Model molecule number
+//! @param residue_specs Vector of residue specifications
+//! @param atom_mask_mode Controls which atoms to include
+//! @param atom_radius_for_masking Radius around atoms for masking (typically 1.5 Å)
+//! @param imol_map Map molecule number
+//!
+//! @return Map of residue_spec to density_stats_info_t containing detailed statistics
+//!
+//! \note Provides more detailed information than correlation alone
+//!
+//! Example:
+//! \code{.cpp}
+//! auto stats_map = map_to_model_correlation_stats_per_residue(
+//!     1, specs, 0, 1.5, 2
+//! );
+//! for (const auto &pair : stats_map) {
+//!     std::cout << pair.first << ": "
+//!               << "corr=" << pair.second.correlation << ", "
+//!               << "mean=" << pair.second.mean_density << std::endl;
+//! }
+//! \endcode
 std::map<coot::residue_spec_t, coot::util::density_stats_info_t>
 map_to_model_correlation_stats_per_residue(int imol,
                                            const std::vector<coot::residue_spec_t> &residue_specs,
@@ -2208,10 +2421,38 @@ map_to_model_correlation_stats_per_residue(int imol,
                                            float atom_radius_for_masking,
                                            int imol_map);
 
-//! \brief map to model density statistics, reported per residue, the middle residue
-//!        of a range of residues
+//! \brief Get density statistics per residue range
 //!
-//! @return the all-atom stats first and side chains stats second
+//! Analyzes correlation statistics for residue ranges (windows) along a chain.
+//! The middle residue of each range represents the statistics for that window.
+//!
+//! @param imol Model molecule number
+//! @param chain_id Chain identifier (e.g., "A", "B")
+//! @param imol_map Map molecule number
+//! @param n_residue_per_residue_range Number of residues per analysis window (typically 1 for per-residue)
+//! @param exclude_NOC_flag Whether to exclude backbone N, O, C atoms (1=yes, 0=no)
+//!
+//! @return Pair of maps:
+//!         - first: All-atom statistics per residue
+//!         - second: Side-chain-only statistics per residue
+//!
+//! \note This is the primary function for comprehensive chain-wide validation
+//! \note Use n_residue_per_residue_range=1 for per-residue statistics
+//! \note Use n_residue_per_residue_range=3 for smoothed statistics
+//!
+//! Example:
+//! \code{.cpp}
+//! auto [all_atom_stats, sidechain_stats] =
+//!     map_to_model_correlation_stats_per_residue_range(1, "A", 2, 1, 0);
+//!
+//! // Find worst-fitting residue (all atoms)
+//! auto worst = std::min_element(
+//!     all_atom_stats.begin(), all_atom_stats.end(),
+//!     [](const auto &a, const auto &b) {
+//!         return a.second.correlation < b.second.correlation;
+//!     }
+//! );
+//! \endcode
 std::pair<std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t>,
           std::map<coot::residue_spec_t, coot::util::density_correlation_stats_info_t> >
 map_to_model_correlation_stats_per_residue_range(int imol, const std::string &chain_id, int imol_map,
@@ -2221,13 +2462,28 @@ map_to_model_correlation_stats_per_residue_range(int imol, const std::string &ch
 #endif // not for swigging.
 
 #ifdef USE_GUILE
-//! \brief map to model correlation
+//! \brief Map-to-model correlation per residue (Guile interface)
+//!
+//! @param imol Model molecule number
+//! @param residue_specs Scheme list of residue specs
+//! @param atom_mask_mode Controls which atoms to include
+//! @param imol_map Map molecule number
+//!
+//! @return SCM - List of pairs: ((residue-spec correlation) ...)
 SCM
 map_to_model_correlation_per_residue_scm(int imol, SCM residue_specs,
                                          unsigned short int atom_mask_mode,
                                          int imol_map);
 
-//! \brief map to model stats
+//! \brief Map-to-model correlation stats per residue (Guile interface)
+//!
+//! @param imol Model molecule number
+//! @param residue_specs_scm Scheme list of residue specs
+//! @param atom_mask_mode Controls which atoms to include
+//! @param atom_radius_for_masking Radius for atom masking
+//! @param imol_map Map molecule number
+//!
+//! @return SCM - Association list mapping residue specs to stats
 SCM
 map_to_model_correlation_stats_per_residue_scm(int imol,
                                                SCM residue_specs_scm,
@@ -2258,9 +2514,42 @@ SCM qq_plot_map_and_model_scm(int imol,
 #endif
 
 #ifdef USE_PYTHON
+//! \brief Get map-to-model correlation per residue (Python interface)
+//!
+//! Returns correlation values individually for each specified residue.
+//! Essential for identifying which specific residues have poor density fit.
+//!
+//! @param imol Model molecule number
+//! @param residue_specs Python list of residue specs
+//! @param atom_mask_mode Controls which atoms to include
+//! @param imol_map Map molecule number
+//!
+//! @return PyObject* - List of tuples: [(residue_spec, correlation), ...]
+//!
+//! \note Sort the results to find worst-fitting residues
+//!
+//! Example usage:
+//! \code{.py}
+//! # Get all residues in chain A
+//! residues = get_residues_in_chain_py(1, "A")
+//!
+//! # Get per-residue correlations
+//! correlations = map_to_model_correlation_per_residue_py(
+//!     imol=1,
+//!     residue_specs=residues,
+//!     atom_mask_mode=0,  # All atoms
+//!     imol_map=2
+//! )
+//!
+//! # Find worst 10 residues
+//! worst_10 = sorted(correlations, key=lambda x: x[1])[:10]
+//! for spec, corr in worst_10:
+//!     print(f"Residue {spec}: correlation = {corr:.3f}")
+//! \endcode
 PyObject *map_to_model_correlation_per_residue_py(int imol, PyObject *residue_specs,
                                                   unsigned short int atom_mask_mode,
                                                   int imol_map);
+
 PyObject *qq_plot_map_and_model_py(int imol,
                               PyObject *residue_specs_py,
                               PyObject *neigh_residue_specs_py,
