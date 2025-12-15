@@ -4241,26 +4241,29 @@ python3 -m pip install packaging
 ###### pcre2 is needed for glib. glib is compiled by gobject-introspection
 ###### (that doesn't seem good). Let's install pcre2 and see what happens
 
-if test -e $install_top_dir/include/pcre2.h ; then
-    echo installation has pcre2
-    echo installation has pcre2 >&2
-else
-   pcre2_version=10.43
-   echo BUILDING: pcre2 $pcre2_version
-   echo BUILDING: pcre2 $pcre2_version >&2
-   (
-   unset LD_LIBRARY_PATH
-   d=https://github.com/PCRE2Project/pcre2/releases/download/pcre2-$pcre2_version
-   ${WGET} $d/pcre2-$pcre2_version.tar.gz
-   tar xf $AUTOBUILD_SOURCES/pcre2-$pcre2_version.tar.gz
-   cd pcre2-$pcre2_version
-   ./configure --prefix=$install_top_dir
-   if $MAKE ; then
-       make install
-   fi
-   cd -
-   ) > $HOSTLOGDIR/28-pcre2.txt 2>&1
-fi
+### 20251215-PE it wasn't a good idea. There were linking problems when
+### my gtk4 (or glib?) got updated. Remove this installation of pcre2
+
+# if test -e $install_top_dir/include/pcre2.h ; then
+#     echo installation has pcre2
+#     echo installation has pcre2 >&2
+# else
+#    pcre2_version=10.47
+#    echo BUILDING: pcre2 $pcre2_version
+#    echo BUILDING: pcre2 $pcre2_version >&2
+#    (
+#    unset LD_LIBRARY_PATH
+#    d=https://github.com/PCRE2Project/pcre2/releases/download/pcre2-$pcre2_version
+#    ${WGET} $d/pcre2-$pcre2_version.tar.gz
+#    tar xf $AUTOBUILD_SOURCES/pcre2-$pcre2_version.tar.gz
+#    cd pcre2-$pcre2_version
+#    ./configure --prefix=$install_top_dir
+#    if $MAKE ; then
+#        make install
+#    fi
+#    cd -
+#    ) > $HOSTLOGDIR/28-pcre2.txt 2>&1
+# fi
 
 ###############################################################################
 ##########         gobject-introspection                          #############
