@@ -4027,9 +4027,10 @@ int  show_pointer_distances_state();
 /*! \{ */
 /*! \brief scale the view by f
 
+   Values outside the range 0.5 to 1.8 have no effect.
    external (scripting) interface (with redraw)
     @param f the smaller f, the bigger the zoom, typical value 1.3.
-    Values outside the range 0.5 to 1.8 are filtered out */
+    */
 void scale_zoom(float f);
 /* internal interface */
 void scale_zoom_internal(float f);
