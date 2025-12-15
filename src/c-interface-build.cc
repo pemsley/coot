@@ -4863,6 +4863,7 @@ void c_accept_moving_atoms() {
    graphics_info_t g;
    while (g.continue_threaded_refinement_loop)
       std::this_thread::sleep_for(std::chrono::milliseconds(200));
+   g.clear_hud_buttons();
    g.accept_moving_atoms();
    g.clear_moving_atoms_object();
 
@@ -4893,6 +4894,7 @@ PyObject *accept_moving_atoms_py() {
 
    coot::refinement_results_t rr = g.accept_moving_atoms(); // does a g.clear_up_moving_atoms();
    rr.show();
+   g.clear_hud_buttons();
    g.clear_moving_atoms_object();
    PyObject *o = g.refinement_results_to_py(rr);
    return o;
