@@ -4166,14 +4166,17 @@ graphics_info_t::fill_difference_map_peaks_button_box() {
       label += float_to_string(centres[i_peak].second);
       label += " (";
       label += float_to_string(f);
-      label += " rmsd) at ";
-      label += "(";
+      label += " rmsd) ";
+#if 0
+      label += "at (";
       label += coot::util::float_to_string_using_dec_pl(centres[i_peak].first.x(), 2);
       label += ", ";
       label += coot::util::float_to_string_using_dec_pl(centres[i_peak].first.y(), 2);
       label += ", ";
       label += coot::util::float_to_string_using_dec_pl(centres[i_peak].first.z(), 2);
       label += ")";
+#endif
+      // 20251215-PE instead of that, find the nearest atom to centres[i_peak]
       return label;
    };
 

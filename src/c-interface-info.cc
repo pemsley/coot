@@ -413,9 +413,9 @@ std::string atom_info_as_text_for_statusbar(int atom_index, int imol) {
            ai += at->GetInsCode();
            ai += " ";
            ai += at->GetResName();
-           ai += " occ: ";
+           ai += " occupancy: ";
            ai += graphics_info_t::float_to_string(at->occupancy);
-           ai += " bf: ";
+           ai += " b-factor: ";
            ai += graphics_info_t::float_to_string(at->tempFactor);
            ai += " ele: ";
            ai += at->element;

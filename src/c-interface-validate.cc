@@ -828,9 +828,6 @@ difference_map_peaks(int imol, int imol_coords,
       // std::cout << "\n   Found " << centres.size() << " peak positions:\n";
       logger.log(log_t::INFO, "Found", std::to_string(centres.size()), "peak positions");
    }
-   
-      
-   
 }
 
 void set_difference_map_peaks_widget(GtkWidget *w) {
