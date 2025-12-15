@@ -76,6 +76,22 @@ user_defined_alert_smarts = []
 # e.g.: [centre_of_mass, 0], [func_name, arg1, arg2,...],...
 #
 def with_no_backups(imol, *funcs):
+    """Execute functions with backups disabled for a molecule.
+    
+    Temporarily disables backups for the specified molecule, runs the provided
+    functions, then restores the original backup state.
+    
+    Parameters
+    ----------
+    imol : int
+        Molecule number
+    *funcs : tuple
+        Variable number of function calls, each as [func, arg1, arg2, ...]
+        
+    Examples
+    --------
+    >>> with_no_backups(0, [coot.refine_zone, 0, "A", 10, 15, ""])
+    """
 
     b_state = coot.backup_state(imol)
     coot.turn_off_backup(imol)
@@ -97,6 +113,25 @@ def with_no_backups(imol, *funcs):
 # e.g.: [centre_of_mass, 0], [func_name, arg1, arg2,...],...
 #
 def with_auto_accept(*funcs):
+    """Execute functions with automatic acceptance of refinement.
+    
+    Temporarily enables immediate replacement mode, runs the provided functions
+    with automatic acceptance, then restores the original refinement state.
+    
+    Parameters
+    ----------
+    *funcs : tuple
+        Variable number of function calls, each as [func, arg1, arg2, ...]
+        
+    Returns
+    -------
+    object
+        Result of the last function executed
+        
+    Examples
+    --------
+    >>> with_auto_accept([coot.refine_zone, 0, "A", 10, 15, ""])
+    """
 
     replace_state = coot.refinement_immediate_replacement_state()
     coot.set_refinement_immediate_replacement(1)
@@ -128,6 +163,30 @@ def with_auto_accept(*funcs):
 
 
 def using_active_atom(*funcs):
+    """Execute function using the currently active (closest) atom.
+    
+    Finds the closest atom to the screen center and passes its specifications
+    to the provided function. Use placeholder strings like "aa_imol", "aa_chain_id",
+    etc. to reference atom properties.
+    
+    Parameters
+    ----------
+    *funcs : tuple
+        Function and arguments with placeholders for active atom specs.
+        Available placeholders:
+        - "aa_imol": molecule number
+        - "aa_chain_id": chain ID
+        - "aa_res_no": residue number
+        - "aa_ins_code": insertion code
+        - "aa_atom_name": atom name
+        - "aa_alt_conf": alternate conformation
+        - "aa_res_spec": residue spec [chain_id, res_no, ins_code]
+        
+    Examples
+    --------
+    >>> using_active_atom(coot.refine_zone, "aa_imol", "aa_chain_id", 
+    ...                   "aa_res_no", "aa_res_no", "")
+    """
 
     active_atom = closest_atom_simple()
     print("debug:: active_atom", active_atom)
@@ -365,6 +424,13 @@ def get_directory(dir_name):
 
 # 20220228-PE accepted on merge - maybe wrong.
 def get_active_molecule():
+    """Get the first displayed model molecule number.
+    
+    Returns
+    -------
+    int or False
+        Molecule number of first displayed model, or False if none found
+    """
     active_atom = closest_atom_simple()
     if active_atom:
         return active_atom[0]
@@ -375,10 +441,29 @@ def get_active_molecule():
 # Pythonize function: return a python boolean.
 #
 def molecule_has_hydrogens(imol):
+    """Check if molecule contains hydrogen atoms.
+    
+    Parameters
+    ----------
+    imol : int
+        Molecule number
+        
+    Returns
+    -------
+    bool
+        True if molecule contains hydrogens, False otherwise
+    """
     return (coot.molecule_has_hydrogens_raw(imol) == 1)
 
 
 def add_hydrogens_using_refmac(imol):
+    """Add hydrogen atoms to molecule using REFMAC.
+    
+    Parameters
+    ----------
+    imol : int
+        Molecule number to add hydrogens to
+    """
     out_file_name = os.path.join("coot-refmac", molecule_name_stub(imol, 0) + '-needs-H.pdb')
     in_file_name  = os.path.join("coot-refmac", molecule_name_stub(imol, 0) +  '-with-H.pdb')
     coot.make_directory_maybe('coot-refmac')
@@ -463,6 +548,13 @@ def molecule_list(molecule_filter_function):
 # is_valid_model_molecule_qm
 #
 def molecule_number_list():
+    """Get list of all valid molecule numbers.
+    
+    Returns
+    -------
+    list of int
+        List of all valid molecule numbers (both models and maps)
+    """
     ret = []
     for mol_no in range(coot.graphics_n_molecules()):
         if valid_map_molecule_qm(mol_no) or valid_model_molecule_qm(mol_no):
@@ -471,6 +563,13 @@ def molecule_number_list():
 
 
 def model_molecule_number_list():
+    """Get list of all model molecule numbers.
+    
+    Returns
+    -------
+    list of int
+        List of all valid model (not map) molecule numbers
+    """
     return list(filter(valid_model_molecule_qm, molecule_number_list()))
 
 def display_all_maps():
@@ -656,6 +755,24 @@ def residue_atom_to_atom_spec(ra, chain_id, res_no, ins_code):
 
 
 def residue_spec_to_chain_id(rs):
+    """Extract chain ID from residue spec.
+    
+    Parameters
+    ----------
+    rs : list
+        Residue spec [chain_id, res_no, ins_code]
+        
+    Returns
+    -------
+    str
+        Chain ID
+        
+    Examples
+    --------
+    >>> spec = ["A", 42, ""]
+    >>> residue_spec_to_chain_id(spec)
+    'A'
+    """
     if not isinstance(rs, list):
         return False
     else:
@@ -669,6 +786,24 @@ def residue_spec_to_chain_id(rs):
 
 
 def residue_spec_to_res_no(rs):
+    """Extract residue number from residue spec.
+    
+    Parameters
+    ----------
+    rs : list
+        Residue spec [chain_id, res_no, ins_code]
+        
+    Returns
+    -------
+    int
+        Residue number
+        
+    Examples
+    --------
+    >>> spec = ["A", 42, ""]
+    >>> residue_spec_to_res_no(spec)
+    42
+    """
     if not isinstance(rs, list):
         return False
     else:
@@ -681,6 +816,24 @@ def residue_spec_to_res_no(rs):
 
 
 def residue_spec_to_ins_code(rs):
+    """Extract insertion code from residue spec.
+    
+    Parameters
+    ----------
+    rs : list
+        Residue spec [chain_id, res_no, ins_code]
+        
+    Returns
+    -------
+    str
+        Insertion code
+        
+    Examples
+    --------
+    >>> spec = ["A", 42, "A"]
+    >>> residue_spec_to_ins_code(spec)
+    'A'
+    """
     if not isinstance(rs, list):
         return False
     else:
@@ -693,6 +846,20 @@ def residue_spec_to_ins_code(rs):
 
 
 def residue_specs_match_qm(spec_1, spec_2):
+    """Check if two residue specs refer to the same residue.
+    
+    Parameters
+    ----------
+    spec_1 : list
+        First residue spec [chain_id, res_no, ins_code]
+    spec_2 : list
+        Second residue spec [chain_id, res_no, ins_code]
+        
+    Returns
+    -------
+    bool
+        True if specs match, False otherwise
+    """
     if (residue_spec_to_chain_id(spec_1) ==
             residue_spec_to_chain_id(spec_2)):
         if (residue_spec_to_res_no(spec_1) ==
@@ -704,6 +871,18 @@ def residue_specs_match_qm(spec_1, spec_2):
 
 
 def atom_spec_to_imol(atom_spec):
+    """Extract molecule number from atom spec.
+    
+    Parameters
+    ----------
+    atom_spec : list
+        Atom spec [imol, chain_id, res_no, ins_code, atom_name, alt_conf, ...]
+        
+    Returns
+    -------
+    int
+        Molecule number
+    """
     import types
     if not (isinstance(atom_spec, list)):
         return False
@@ -752,6 +931,25 @@ def residue_spec_less_than(spec_1, spec_2):
 
 
 def residue_spec_to_string(spec):
+    """Convert residue spec to human-readable string.
+    
+    Parameters
+    ----------
+    spec : list
+        Residue spec [chain_id, res_no, ins_code]
+        
+    Returns
+    -------
+    str
+        Formatted string like "A42" or "B15A" (with insertion code)
+        
+    Examples
+    --------
+    >>> residue_spec_to_string(["A", 42, ""])
+    'A42'
+    >>> residue_spec_to_string(["B", 15, "A"])
+    'B15A'
+    """
     ret = residue_spec_to_chain_id(spec) + " "
     ret += str(residue_spec_to_res_no(spec))
     ret += residue_spec_to_ins_code(spec)
@@ -762,6 +960,18 @@ def residue_spec_to_string(spec):
 
 
 def map_molecule_list():
+    """Get list of all map molecule numbers.
+    
+    Returns
+    -------
+    list of int
+        List of all valid map molecule numbers
+        
+    Examples
+    --------
+    >>> maps = map_molecule_list()
+    >>> print(f"Found {len(maps)} maps")
+    """
 
     map_list = []
     for i in range(coot.graphics_n_molecules()):
@@ -774,6 +984,13 @@ def map_molecule_list():
 
 
 def model_molecule_list():
+    """Get list of all model molecule numbers (same as model_molecule_number_list).
+    
+    Returns
+    -------
+    list of int
+        List of all valid model molecule numbers
+    """
 
     model_list = []
     for i in range(coot.graphics_n_molecules()):
@@ -786,6 +1003,18 @@ def model_molecule_list():
 
 
 def shelx_molecule_qm(imol):
+    """Check if molecule is a SHELX molecule.
+    
+    Parameters
+    ----------
+    imol : int
+        Molecule number
+        
+    Returns
+    -------
+    bool
+        True if molecule is SHELX format, False otherwise
+    """
     if (coot.is_shelx_molecule(imol) == 1):
         return True
     else:
@@ -802,6 +1031,20 @@ is_protein_chain_qm = coot.is_protein_chain_p
 
 
 def is_nucleotide_chain_qm(imol, chain_id):
+    """Check if chain is nucleotide/nucleic acid.
+    
+    Parameters
+    ----------
+    imol : int
+        Molecule number
+    chain_id : str
+        Chain ID
+        
+    Returns
+    -------
+    bool
+        True if chain is nucleotide, False otherwise
+    """
     return coot.is_nucleotide_chain_p(imol, chain_id) == 1
 
 
@@ -857,6 +1100,13 @@ def string_append_with_spaces(ls):
 
 
 def rotation_centre():
+    """Get current rotation centre coordinates.
+    
+    Returns
+    -------
+    list of float
+        [x, y, z] coordinates of rotation centre
+    """
     return [coot.rotation_centre_position(0),
             coot.rotation_centre_position(1),
             coot.rotation_centre_position(2)]
@@ -942,6 +1192,25 @@ def shell_command_to_string(cmd):
 
 
 def command_in_path_qm(cmd, no_disk_search=True,
+    """Check if a command is available in the system PATH.
+    
+    Parameters
+    ----------
+    cmd : str
+        Command name to search for
+    no_disk_search : bool, optional
+        If True, only check PATH without disk search (default: True)
+        
+    Returns
+    -------
+    str or False
+        Full path to command if found, False otherwise
+        
+    Examples
+    --------
+    >>> command_in_path_qm("refmac5")
+    '/usr/local/bin/refmac5'
+    """
                        only_extension_here=None,
                        add_extensions_here=[]):
 
@@ -1827,6 +2096,19 @@ def lineify_maps():
 #
 def chain_ids(imol):
 
+    """ Get list of chain IDs for a molecule
+
+    Parameters
+    ----------
+    imol : int
+        molecule number
+
+    Returns
+    -------
+    list
+        list of chain ID strings (e.g., ['A', 'B', 'C'])
+    """
+
     # if this fails, check that you have not set chain_id to override coot's chain_id()
     return [chain_id(imol, ic) for ic in range(coot.n_chains(imol))]
 
@@ -1858,6 +2140,20 @@ def is_protein_chain_qm(imol, chain_id):
 
 
 def is_nucleotide_chain_qm(imol, chain_id):
+    """Check if chain is nucleotide/nucleic acid.
+    
+    Parameters
+    ----------
+    imol : int
+        Molecule number
+    chain_id : str
+        Chain ID
+        
+    Returns
+    -------
+    bool
+        True if chain is nucleotide, False otherwise
+    """
     return coot.is_nucleotide_chain_p(imol, chain_id) == 1
 
 # python (schemeyish) interface to eponymous scripting interface function!?
@@ -1866,6 +2162,18 @@ def is_nucleotide_chain_qm(imol, chain_id):
 
 
 def valid_model_molecule_qm(imol):
+    """Check if molecule number is a valid model.
+    
+    Parameters
+    ----------
+    imol : int
+        Molecule number to check
+        
+    Returns
+    -------
+    bool
+        True if imol is a valid model molecule, False otherwise
+    """
     if (coot.is_valid_model_molecule(imol) == 1):
         return True
     else:
@@ -1877,6 +2185,18 @@ def valid_model_molecule_qm(imol):
 
 
 def valid_map_molecule_qm(imol):
+    """Check if molecule number is a valid map.
+    
+    Parameters
+    ----------
+    imol : int
+        Molecule number to check
+        
+    Returns
+    -------
+    bool
+        True if imol is a valid map molecule, False otherwise
+    """
     if coot.is_valid_map_molecule(imol) == 1:
         return True
     else:
@@ -1911,6 +2231,18 @@ def valid_refinement_map_qm():
 
 
 def shelx_molecule_qm(imol):
+    """Check if molecule is a SHELX molecule.
+    
+    Parameters
+    ----------
+    imol : int
+        Molecule number
+        
+    Returns
+    -------
+    bool
+        True if molecule is SHELX format, False otherwise
+    """
     return coot.is_shelx_molecule(imol) == 1
 
 # python (schemeyish) interface to the function that returns whether or not a map
@@ -2461,6 +2793,18 @@ def atoms_with_zero_occ(imol):
 
 
 def atom_spec_to_chain_id(atom_spec):
+    """Extract chain ID from atom spec.
+    
+    Parameters
+    ----------
+    atom_spec : list
+        Atom spec [imol, chain_id, res_no, ins_code, atom_name, alt_conf, ...]
+        
+    Returns
+    -------
+    str
+        Chain ID
+    """
     # atom_spec example ["A", 7, "", " SG ", ""]
     ret = False
     if not atom_spec:
