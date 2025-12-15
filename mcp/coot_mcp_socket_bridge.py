@@ -71,6 +71,7 @@ def send_coot_rpc(method: str, params: dict = None) -> dict:
 
 def _recv_exact(sock, n):
     """Helper to ensure we read exactly n bytes from the stream"""
+    data = b''
     while len(data) < n:
         packet = sock.recv(n - len(data))
         if not packet:
@@ -80,12 +81,11 @@ def _recv_exact(sock, n):
 
 # --- MCP TOOLS ---
 
-@server.resource()
-async def read_resource(uri: str):
-    if uri == "coot://skill":
-        dirname = Path(os.path.dirname(__file__))
-        skill_path = dirname / "docs" / "SKILL.md"
-        return skill_path.read_text()
+@server.resource("coot://skill")
+async def read_resource():
+    dirname = Path(os.path.dirname(__file__))
+    skill_path = dirname / "docs" / "SKILL.md"
+    return skill_path.read_text()
 
 @mcp.tool()
 def run_python(code: str) -> str:
@@ -106,27 +106,31 @@ def run_python(code: str) -> str:
 
     return "No result returned."
 
+def get_start_text():
+    return 'Coot has over 1000 functions. Use search_coot_functions(pattern) to find specific ones. Use list_available_tools_in_block(block_index) where block_index varies from 0 to 11 (inclusive) to get each of the api documentation blocks. Coot only returns values if the code is a single line. Multi-line code does not return values. If you need a return value from a block of code then define a wrapper function in one call (that will return None) and then run that function in the next call. Note that coot.active_atom_spec_py() is a useful function to determine the "selected" residue (i.e. the "active" residue that will be acted on by the tools in the interface). The coot module is already imported, the coot_utils module will need to be imported first if you want to use a function in that module.'
+
 @mcp.tool()
 def list_available_tools() -> str:
-    """Ask Coot what tools it supports. Currently, this only retuns a small fragment of the api"""
-    response = send_coot_rpc("mcp.list_tools")
-    return str(response.get("result", []))
+    """Ask Coot what tools it supports"""
+    # response = send_coot_rpc("mcp.list_tools")
+    # return str(response.get("result", []))
+    return get_start_text()
 
 @mcp.tool()
 def list_available_tools_in_block(block_index: int) -> str:
-    """Ask Coot what tools it supports. There are about 10 tool blocks, each returning about 200 functions"""
+    """Ask Coot what tools it supports. There are about 11 tool blocks, each returning about 200 functions"""
     response = send_coot_rpc("mcp.list_tools_block", {"block_index": block_index})
     return str(response.get("result", []))
 
 @mcp.tool()
 def coot_info() -> str:
     """Returns: 'Coot has over 1000 functions. Use search_coot_functions(pattern) to find specific ones.'"""
-    return 'Coot has over 1000 functions. Use search_coot_functions(pattern) to find specific ones. Use list_available_tools_in_block(block_index) where block_index vvaries from 0 to 99 (inclusive) to get each of the api documention blocks. list_available_tools() currently returns only a fragment of the api. Coot only returns values if the code is a single line. Multi-line code does not return values. Note that coot.active_atom_spec_py() is a useful function to determine the "selected" residue (i.e. the "active" residue that will be acted on by the tools in the interface). The coot module is already imported, the coot_utils module will need to be imported first if you want to use a function in that module.'
+    return get_start_text()
 
-@mcp.tool()  
+@mcp.tool()
 def search_coot_functions(pattern: str) -> str:
     """Search for Coot functions by pattern
-        
+
     Use this to find specific functions. Common searches:
     - 'correlation' - for map-to-model fit functions
     - 'ramachandran' - for backbone validation
