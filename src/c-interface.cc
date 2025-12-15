@@ -1357,13 +1357,11 @@ void set_stereo_style(int mode) {
 
    if (mode == 0)
       graphics_info_t::stereo_style_2010 = true;
-   else 
+   else
       graphics_info_t::stereo_style_2010 = false;
 
    graphics_draw();
 }
-   
-
 
 void set_hardware_stereo_angle_factor(float f) {
    graphics_info_t::hardware_stereo_angle_factor = f;
@@ -4047,7 +4045,7 @@ int min_resno_in_chain(int imol, const char *chain_id) {
    return res_no_min;
 
 }
-   
+
 /*! \brief return the maximum residue number for imol chain chain_id */
 int max_resno_in_chain(int imol, const char *chain_id) {
 
@@ -5686,12 +5684,12 @@ void set_skeletonization_level_from_widget(const char *txt) {
 
    tmp = atof(txt);
 
-   if (tmp > 0.0 &&  tmp < 9999.9) { 
-      g.skeleton_level = tmp; 
+   if (tmp > 0.0 &&  tmp < 9999.9) {
+      g.skeleton_level = tmp;
    } else {
       std::cout << "Cannot interpret " << txt << " using 0.2 instead" << std::endl;
-      g.skeleton_level = 0.2; 
-   } 
+      g.skeleton_level = 0.2;
+   }
 
    for (int imol=0; imol<g.n_molecules(); imol++) {
       if (g.molecules[imol].has_xmap() &&
@@ -5718,10 +5716,10 @@ void set_skeleton_box_size_from_widget(const char *txt) {
 
    tmp = atof(txt);
 
-   if (tmp > 0.0 &&  tmp < 9999.9) { 
+   if (tmp > 0.0 &&  tmp < 9999.9) {
       g.skeleton_box_radius = tmp;
-   } else { 
-      
+   } else {
+
       std::cout << "Cannot interpret " << txt << " using 0.2 instead" << std::endl;
       g.skeleton_box_radius = 0.2;
    }
@@ -6359,7 +6357,7 @@ scale_zoom_internal(float f) {
    graphics_info_t g;
    if (f > 0.0)
       if (f < 1.8)
-         if (f > 0.5)
+         if (f >= 0.5)
             g.zoom *= f;
 
 }
@@ -6534,7 +6532,7 @@ void set_refinement_overall_weight_from_text(const char *t) {
       graphics_info_t::geometry_vs_map_weight = v;
       graphics_info_t g;
       g.poke_the_refinement();
-      
+
    } else {
       std::cout << "WARNING:: in set_refinement_overall_weight_from_text() t null " << std::endl;
    }
@@ -6542,7 +6540,7 @@ void set_refinement_overall_weight_from_text(const char *t) {
 }
 
 void set_refinement_torsion_weight_from_text(int idx, const char *t) {
-   
+
    graphics_info_t g;
    float v = coot::util::string_to_float(t);
    graphics_info_t::refine_params_dialog_torsions_weight_combox_position = idx;
@@ -6674,6 +6672,66 @@ int pyrun_simple_string(const char *python_command) {
 
 #ifdef USE_PYTHON
 
+
+/**
+ * Alternative version that extracts a return value from multi-line code.
+ * Wraps the code to capture the last expression's value.
+ *
+ * @param code Python code to execute
+ * @return PyObject* result (new reference), or NULL on error
+ */
+PyObject* execute_python_code_with_result(const std::string &code) {
+
+    PyObject* result = NULL;
+
+    // Get __main__ namespace
+    PyObject* main_module = PyImport_AddModule("__main__");
+    if (!main_module) {
+        std::cerr << "ERROR: Failed to get __main__ module" << std::endl;
+        return NULL;
+    }
+
+    PyObject* global_dict = PyModule_GetDict(main_module);
+    if (!global_dict) {
+        std::cerr << "ERROR: Failed to get __main__ dictionary" << std::endl;
+        return NULL;
+    }
+
+    // Try as simple expression first
+    result = PyRun_String(code.c_str(), Py_eval_input, global_dict, global_dict);
+    if (result) {
+        return result;
+    }
+
+    PyErr_Clear();
+
+    // For multi-line code, we need to handle it differently
+    // Execute the code
+    PyObject* exec_result = PyRun_String(code.c_str(), Py_file_input, global_dict, global_dict);
+
+    if (!exec_result) {
+        std::cerr << "ERROR: Python execution failed:" << std::endl;
+        if (PyErr_Occurred()) {
+            PyErr_Print();
+        }
+        return NULL;
+    }
+
+    Py_DECREF(exec_result);  // This is typically Py_None
+
+    // Look for a special variable '__result__' that the code may have set
+    // Or just return None to indicate successful execution
+    PyObject* stored_result = PyDict_GetItemString(global_dict, "__result__");
+    if (stored_result) {
+        Py_INCREF(stored_result);  // GetItemString returns borrowed reference
+        return stored_result;
+    }
+
+    // No specific result - return None to indicate success
+    Py_RETURN_NONE;
+}
+
+
 // BL says:: let's have a python command with can receive return values
 // we need to pass the script file containing the funcn and the funcn itself
 // returns a PyObject which can then be used further
@@ -6703,32 +6761,36 @@ PyObject *safe_python_command_with_return(const std::string &python_cmd) {
 
       std::cout << "running command: " << command << std::endl;
       PyObject* source_code = Py_CompileString(command.c_str(), "adhoc", Py_eval_input);
-      PyObject* func = PyFunction_New(source_code, d);
-      result = PyObject_CallObject(func, PyTuple_New(0));
-      std::cout << "--------------- in safe_python_command_with_return() result at: " << result << std::endl;
-      if (result) {
-         if(!PyUnicode_Check(result)) {
-             std::cout << "--------------- in safe_python_command_with_return() result is probably not a string." << std::endl;
+      if (source_code) {
+         PyObject* func = PyFunction_New(source_code, d);
+         result = PyObject_CallObject(func, PyTuple_New(0));
+         std::cout << "--------------- in safe_python_command_with_return() result at: " << result << std::endl;
+         if (result) {
+            if(!PyUnicode_Check(result)) {
+                std::cout << "--------------- in safe_python_command_with_return() result is probably not a string." << std::endl;
+            }
+            PyObject* displayed = display_python(result);
+            PyObject* as_string = PyUnicode_AsUTF8String(displayed);
+            std::cout << "--------------- in safe_python_command_with_return() result: "
+                      << PyBytes_AS_STRING(as_string) << std::endl;
+            Py_XDECREF(displayed);
+            Py_XDECREF(as_string);
          }
-         PyObject* displayed = display_python(result);
-         PyObject* as_string = PyUnicode_AsUTF8String(displayed);
-         std::cout << "--------------- in safe_python_command_with_return() result: "
-                   << PyBytes_AS_STRING(as_string) << std::endl;
-         Py_XDECREF(displayed);
-         Py_XDECREF(as_string);
-      }
-      else {
-         std::cout << "--------------- in safe_python_command_with_return() result was null" << std::endl;
-         if(PyErr_Occurred()) {
-            std::cout << "--------------- in safe_python_command_with_return() Printing Python exception:" << std::endl;
-            PyErr_Print();
+         else {
+            std::cout << "--------------- in safe_python_command_with_return() result was null" << std::endl;
+            if(PyErr_Occurred()) {
+               std::cout << "--------------- in safe_python_command_with_return() Printing Python exception:" << std::endl;
+               PyErr_Print();
+            }
          }
-      }
 
-      // debugging
-      // PyRun_String("import coot; print(dir(coot))", Py_file_input, d, d);
-      Py_XDECREF(func);
-      Py_XDECREF(source_code);
+         // debugging
+         // PyRun_String("import coot; print(dir(coot))", Py_file_input, d, d);
+         Py_XDECREF(func);
+         Py_XDECREF(source_code);
+      } else {
+         std::cout << "DEBUG:: in safe_python_command_with_return, null source_code" << std::endl;
+      }
    } else {
       std::cout << "ERROR:: Hopeless failure: module for __main__ is null" << std::endl;
    }
@@ -7237,7 +7299,7 @@ void set_found_coot_gui() {
    graphics_info_t g;
 #ifdef USE_GUILE
    std::cout << "Coot Scheme Scripting GUI code found and loaded." << std::endl;
-   g.guile_gui_loaded_flag = TRUE; 
+   g.guile_gui_loaded_flag = TRUE;
 #endif // USE_GUILE
 }
 
@@ -7632,7 +7694,7 @@ void print_sequence_chain_general(int imol, const char *chain_id,
 
       std::string full_seq;
       if (pir_format) {
-         std::string n = graphics_info_t::molecules[imol].name_sans_extension(0); 
+         std::string n = graphics_info_t::molecules[imol].name_sans_extension(0);
          full_seq = ">P1;";
          full_seq += n;
          full_seq += " ";
@@ -7641,7 +7703,7 @@ void print_sequence_chain_general(int imol, const char *chain_id,
          full_seq += seq;
          full_seq += "\n*\n";
       } else {
-         std::string n = graphics_info_t::molecules[imol].name_sans_extension(0); 
+         std::string n = graphics_info_t::molecules[imol].name_sans_extension(0);
          full_seq = "> ";
          full_seq += n;
          full_seq += " ";
@@ -7979,7 +8041,7 @@ int read_cif_data_fofc_map(const char *filename, int imol_coordinates) {
       }
       return -1; // which is status in an error
    } else {
-      
+
       std::cout << "Reading cif file: " << filename << std::endl;
 
       graphics_info_t g;
@@ -8843,15 +8905,17 @@ gint coot_socket_listener_idle_func(gpointer data) {
 */
    };
 
-   auto handle_list_tools = [] () {
+   auto handle_list_tools = [] (int block_index) {
 
       // the first is the module name, e.g. coot, coot_utils and the
       // second is the list of functions in that module
       // return functions
       std::vector<std::pair<std::string, std::vector<func_doc> > > functions;
+      int n_blocks = 200;
 
       PyObject* inspect = PyImport_ImportModule("inspect");
 
+      unsigned int count = 0;
       std::vector<std::string> module_names = {"coot", "coot_utils"};
       for (const std::string &module_name : module_names) {
          std::vector<func_doc> v; // functions that are in this module
@@ -8889,14 +8953,20 @@ gint coot_socket_listener_idle_func(gpointer data) {
                         std::cout << "debug:: name " << name << " docobj: pynone" << std::endl;
                   } else {
                      std::string doc = PyBytes_AS_STRING(PyUnicode_AsUTF8String(docObj));
-                     if (false)
+                     if (true)
                         std::cout << "debug:: name " << name << " docobj: " << doc << std::endl;
                      if (! doc.empty())
                         fd.documentation = doc;
                   }
                }
-               v.push_back(fd);
+               if (false)
+                  std::cout << "DEBUG:: in handle_list_tools() n_blocks is " << n_blocks
+                            << " count/n_blocks is " << count/n_blocks << " block_index is "
+                            << block_index << std::endl;
+               if (count/n_blocks == block_index || block_index == -1)
+                  v.push_back(fd);
                Py_XDECREF(attr);
+               count++;
             }
          }
 
@@ -8909,7 +8979,35 @@ gint coot_socket_listener_idle_func(gpointer data) {
       return functions;
    };
 
-   auto make_response_from_functions = [] (const std::vector<std::pair<std::string, std::vector<func_doc> > > &functions, int id) {
+   auto handle_list_tools_with_search_pattern = [handle_list_tools] (const std::string &pattern) {
+
+      std::cout << "DEBUG:: in handle_list_tools_with_search_pattern(): " << pattern << std::endl;
+
+      std::vector<std::pair<std::string, std::vector<func_doc> > > functions = handle_list_tools(-1);
+      std::vector<std::pair<std::string, std::vector<func_doc> > > filtered_functions;
+      std::cout << "DEBUG:: inn handle_list_tools_with_search_pattern(): there are " << functions.size() << " modules " << std::endl;
+      for (const auto &module_pair : functions) {
+         const auto &module = module_pair.first;
+         const auto &funcs = module_pair.second;
+         std::vector<func_doc> matchers;
+         for (const auto &func : funcs) {
+            std::cout << "DEBUG:: in handle_list_tools_with_search_pattern(): there are " << funcs.size() << " functions in module " << module << std::endl;
+            std::cout << "DEBUG:: looking for " << pattern << " in " << func.function_name << std::endl;
+            if (func.function_name.find(pattern) != std::string::npos) {
+               matchers.push_back(func);
+            } else {
+               std::cout << "DEBUG:: looking for " << pattern << " in " << func.documentation << std::endl;
+               if (func.documentation.find(pattern) != std::string::npos)
+                  matchers.push_back(func);
+            }
+         }
+         if (! matchers.empty())
+            filtered_functions.push_back(std::make_pair(module, matchers));
+      }
+      return filtered_functions;
+   };
+
+   auto make_response_from_functions = [] (const std::vector<std::pair<std::string, std::vector<func_doc> > > &functions, int id, int n_max) {
 
       json j_functions;
       json j_item;
@@ -8920,25 +9018,30 @@ gint coot_socket_listener_idle_func(gpointer data) {
 
       unsigned int n = 0;
       for (const auto &module_pair : functions) {
-         if (n >= 4) continue; // tmp limit
          const auto &module = module_pair.first;
          const auto &funcs = module_pair.second;
          for (const auto &func : funcs) {
+            if (n >= n_max)
+               if (n_max != -1)
+                  continue; // tmp limit
             json j_item;
             j_item["name"] = module + "." + func.function_name;
-            if (!func.documentation.empty())
+            std::cout << "debug:: j_item[name] is " << module + "." + func.function_name << std::endl;
+            if (!func.documentation.empty()) {
                j_item["description"] = func.documentation;
+               std::cout << "DEBUG:: documentation for " << func.function_name << ":\n" << func.documentation << std::endl;
+            }
             j_item["params"] = json::array();
             j_functions.push_back(j_item);
+            n++;
          }
-         n++;
       }
       return j_functions;
    };
 
    // run return result wrapped in json.
    //
-   auto handle_string_as_json = [handle_list_tools, make_response_from_functions] (const std::string &buf_str) {
+   auto handle_string_as_json = [handle_list_tools, handle_list_tools_with_search_pattern, make_response_from_functions] (const std::string &buf_str) {
 
       // std::cout << "handle this string: " << buf_str << ":" << std::endl;
 
@@ -8957,29 +9060,85 @@ gint coot_socket_listener_idle_func(gpointer data) {
 
             if (req["method"] == "python.exec") {
                std::string code = req["params"]["code"];
-               PyObject *rrr = safe_python_command_with_return(code);
-               if (PyBool_Check(rrr) || rrr == Py_None)
-                  Py_INCREF(rrr);
+               // PyObject *rrr = safe_python_command_with_return(code);
+               PyObject *rrr = execute_python_code_with_result(code);
+               if (rrr)
+                  if (PyBool_Check(rrr) || rrr == Py_None)
+                     Py_INCREF(rrr);
                const char *mess = "%s";
                PyObject *dest = myPyString_FromString(mess);
                PyObject *o = PyUnicode_Format(dest, rrr);
-               std::string s = PyBytes_AS_STRING(PyUnicode_AsUTF8String(o));
-               json j_response;
-               j_response["jsonrpc"] = "2.0";
-               j_response["id"] = std::to_string(id);
-               j_response["result"] = s;
-               response_str = j_response.dump();
+               if (o) {
+                  std::string s = PyBytes_AS_STRING(PyUnicode_AsUTF8String(o));
+                  json j_response;
+                  j_response["jsonrpc"] = "2.0";
+                  j_response["id"] = std::to_string(id);
+                  j_response["result"] = s;
+                  response_str = j_response.dump();
+               }
             }
 
             if (req["method"] == "mcp.list_tools") {
-               std::vector<std::pair<std::string, std::vector<func_doc> > > functions = handle_list_tools();
-               json response_funcs = make_response_from_functions(functions, id);
+               int block_index = -1; // means all tools
+               std::vector<std::pair<std::string, std::vector<func_doc> > > functions = handle_list_tools(block_index);
+               int n_max = 205;
+               json response_funcs = make_response_from_functions(functions, id, n_max);
                json j_response;
                j_response["jsonrpc"] = "2.0";
                j_response["id"] = std::to_string(id);
                j_response["result"] = response_funcs;
                response_str = j_response.dump();
             }
+
+            if (req["method"] == "mcp.list_tools_block") {
+               int block_index = 0;
+               json::const_iterator it_params = req.find("params");
+               if (it_params != req.end()) {
+                  const json &j_params = *it_params;
+                  std::cout << "DEBUG:: ::::::::::::::: here in list tools block with j_params " << j_params << std::endl;
+                  json::const_iterator it_block_index = j_params.find("block_index");
+                  if (it_block_index != j_params.end()) {
+                     block_index = it_block_index->get<int>();
+                     std::cout << "DEBUG:: block_index: " << block_index << std::endl;
+                  } else {
+                     std::cout << "DEBUG:: block_index not found" << std::endl;
+                  }
+               }
+               int n_max = 205;
+               std::vector<std::pair<std::string, std::vector<func_doc> > > functions = handle_list_tools(block_index);
+               json response_funcs = make_response_from_functions(functions, id, n_max);
+               json j_response;
+               j_response["jsonrpc"] = "2.0";
+               j_response["id"] = std::to_string(id);
+               j_response["result"] = response_funcs;
+               response_str = j_response.dump();
+            }
+
+            if (req["method"] == "mcp.search") {
+               std::cout << "DEBUG:: ::::::::::::::: here in search block AAAAAAAAAAAAAAAAA" << std::endl;
+               json::const_iterator it_params = req.find("params");
+               if (it_params != req.end()) {
+                  const json &j_params = *it_params;
+                  std::cout << "DEBUG:: ::::::::::::::: here in search block with j_params " << j_params << std::endl;
+                  json::const_iterator it_pattern = j_params.find("pattern");
+                  if (it_pattern != j_params.end()) {
+                     std::cout << "DEBUG:: :::::: FOUND pattern in j_params" << std::endl;
+                     std::string pattern = it_pattern->get<std::string>();
+                     std::cout << "DEBUG:: :::::: FOUND pattern is " << pattern << std::endl;
+                     std::vector<std::pair<std::string, std::vector<func_doc> > > functions = handle_list_tools_with_search_pattern(pattern);
+                     int n_max = 205;
+                     json response_funcs = make_response_from_functions(functions, id, n_max);
+                     json j_response;
+                     j_response["jsonrpc"] = "2.0";
+                     j_response["id"] = std::to_string(id);
+                     j_response["result"] = response_funcs;
+                     response_str = j_response.dump();
+                  } else {
+                     std::cout << "DEBUG:: :::::: failed to find pattern in j_params" << std::endl;
+                  }
+               }
+            }
+
          }
          catch (const std::exception &e) {
             std::cout << "WARNING:: coot_socket_listener_idle_func(): catch handle_string_as_json fail "

@@ -101,7 +101,9 @@ EXTRA_DIST = \
 	post-process-coot-wrap-guile.sh \
 	post-process-coot-wrap-python.sh \
 	fixup-interface.h.sh \
-	coot_wrap_guile_pre.cc
+	coot_wrap_guile_pre.cc \
+	coot_c_interface_docs.i \
+	coot_cc_interface_docs.i
 
 
 # subpkgdatadir = $(pkgdatadir)
