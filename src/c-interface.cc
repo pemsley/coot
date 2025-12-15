@@ -8911,7 +8911,7 @@ gint coot_socket_listener_idle_func(gpointer data) {
       // second is the list of functions in that module
       // return functions
       std::vector<std::pair<std::string, std::vector<func_doc> > > functions;
-      int n_blocks = 100;
+      int n_blocks = 200;
 
       PyObject* inspect = PyImport_ImportModule("inspect");
 
@@ -8953,15 +8953,16 @@ gint coot_socket_listener_idle_func(gpointer data) {
                         std::cout << "debug:: name " << name << " docobj: pynone" << std::endl;
                   } else {
                      std::string doc = PyBytes_AS_STRING(PyUnicode_AsUTF8String(docObj));
-                     if (false)
+                     if (true)
                         std::cout << "debug:: name " << name << " docobj: " << doc << std::endl;
                      if (! doc.empty())
                         fd.documentation = doc;
                   }
                }
-               std::cout << "DEBUG:: in handle_list_tools() n_blocks is " << n_blocks
-                         << " count/n_blocsk is " << count/n_blocks << " block_index is "
-                         << block_index << std::endl;
+               if (false)
+                  std::cout << "DEBUG:: in handle_list_tools() n_blocks is " << n_blocks
+                            << " count/n_blocks is " << count/n_blocks << " block_index is "
+                            << block_index << std::endl;
                if (count/n_blocks == block_index || block_index == -1)
                   v.push_back(fd);
                Py_XDECREF(attr);
@@ -9026,8 +9027,10 @@ gint coot_socket_listener_idle_func(gpointer data) {
             json j_item;
             j_item["name"] = module + "." + func.function_name;
             std::cout << "debug:: j_item[name] is " << module + "." + func.function_name << std::endl;
-            if (!func.documentation.empty())
+            if (!func.documentation.empty()) {
                j_item["description"] = func.documentation;
+               std::cout << "DEBUG:: documentation for " << func.function_name << ":\n" << func.documentation << std::endl;
+            }
             j_item["params"] = json::array();
             j_functions.push_back(j_item);
             n++;
@@ -9078,7 +9081,7 @@ gint coot_socket_listener_idle_func(gpointer data) {
             if (req["method"] == "mcp.list_tools") {
                int block_index = -1; // means all tools
                std::vector<std::pair<std::string, std::vector<func_doc> > > functions = handle_list_tools(block_index);
-               int n_max = 46;
+               int n_max = 205;
                json response_funcs = make_response_from_functions(functions, id, n_max);
                json j_response;
                j_response["jsonrpc"] = "2.0";
@@ -9101,7 +9104,7 @@ gint coot_socket_listener_idle_func(gpointer data) {
                      std::cout << "DEBUG:: block_index not found" << std::endl;
                   }
                }
-               int n_max = 46;
+               int n_max = 205;
                std::vector<std::pair<std::string, std::vector<func_doc> > > functions = handle_list_tools(block_index);
                json response_funcs = make_response_from_functions(functions, id, n_max);
                json j_response;
@@ -9123,7 +9126,7 @@ gint coot_socket_listener_idle_func(gpointer data) {
                      std::string pattern = it_pattern->get<std::string>();
                      std::cout << "DEBUG:: :::::: FOUND pattern is " << pattern << std::endl;
                      std::vector<std::pair<std::string, std::vector<func_doc> > > functions = handle_list_tools_with_search_pattern(pattern);
-                     int n_max = 46;
+                     int n_max = 205;
                      json response_funcs = make_response_from_functions(functions, id, n_max);
                      json j_response;
                      j_response["jsonrpc"] = "2.0";
