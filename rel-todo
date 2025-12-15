@@ -1,9 +1,68 @@
 --- Items ---
 
+o tell the user to use range/pair before Make Link...
+
+o --no-splash-screen doesn't work
+
+o curmudgen mode should turn off the unhappy atom marker
+
+o difference map peaks do not need position - add
+  closest atom
+
+o expand word bf and occ in atom info in status bar
+  maybe make bold.
+
+o add a coot function PyObject *get_chain_ids(int imol);
+
+o last cliked Go will have a differnt colour
+
+o fix the crash in coot.map_to_model_correlation_stats_per_residue_range_py()
+
+o Clement: easy acetylation, methylation of side chains in moorhen - How?
+  Good question. But not for now.
+
+o accept-moving atoms from scripting doesn't undisplay the HUD buttons.
+* Done.
+
+o Stuart: Moorhen: the colour of atoms when coloured by element should be transparent
+
+o extend the screen parser for the adp analysis.
+
+o --buster does the right thing.
+
+o check that amplitude_vs_resolution(1) gives sane results for tutorial data.
+
+o when user selects left-mouse for view rotation, right mouse should be for zoom. Check
+
+o what is the keybinding for pepflip? Add it to the shortcuts
+
+o Put unlabel atoms in Draw menu.
+
+o local b factors - don't label hydrogen atoms
+  use the b-factor to change the colour of the B-factor labels
+  or make it easy to model colour by b-factor atoms.
+
+o make down key work to move down to the next difference map peak.
+
+o screen: turn on green highlighting for relevant atoms if possible
+  maybe not green.
+
+o zoom in for unhappy atom if long way out.
+
+o need a space after FILE-1 filename in acedrg link input
+
+o search CCD with a smarts - and a smarts from a lidia mol
+
+o with --dictionary, turn off the molecule genertion
+
+o screen: fix alt conf parsing in global phasing output
+* Done.
+
 o search monomer library molecule images are too small on macos - or
   at least, on this laptop.
 
 o a switch "state-set" callback has 3 args - check code
+* Done.
 
 o make dark-mode user-configurable - gui item?
 * Tried - didn't work
@@ -11,10 +70,10 @@ o make dark-mode user-configurable - gui item?
 o martin: iterate through residues in chapi.
   say to change the rotamer.
   Make a function: residues_in_chain_py(imol, chain_id)
+* Done.
 
 o add an N-linked glycan and then undo it.
-
-o screen: fix alt conf parsing in global phasing output
+* Done.
 
 o screen: go to atom can be under other windows and and doesn't "pop up"
   when you click on the button
@@ -34,11 +93,11 @@ o screen: check mtz file for Flearly and Flate and ano map labels
 
 o Use arrow key on difference map peaks
 
-o screen summary monospace fffont
+o martin: change to rotamer number in chapi.
 
-o martin: change to rotamer number?
+o martin: get number of rotamers for residue type
 
-o maring get number of rotaerms for residue type
+o cartoon putty?
 
 o CSHL: Coot enable option to disable double click with trackpad -
         option/preferences

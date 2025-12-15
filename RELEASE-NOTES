@@ -17,9 +17,6 @@
 
  o FEATURE: Add keyboard mutate
 
- o FEATURE: Add user-defined type to "Add Other Solvent Molecule"
-            dialog
-
  o FEATURE: on initial startup, Coot will ask if left-mouse
             should be used for view rotation
 
