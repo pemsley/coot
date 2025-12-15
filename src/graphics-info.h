@@ -2550,7 +2550,10 @@ public:
    void quick_save();
 
    // and the generalization of that: - display the label overlay for 2 seconds
-   static void ephemeral_overlay_label(const std::string &overlay_label);
+   static void ephemeral_overlay_label_from_id(const std::string &overlay_label_id);
+
+   // and the generalization of that! Just pass the text of the ephemeral overlay label
+   static void ephemeral_overlay_label(const std::string &overlay_label_text);
 
    static std::string save_state_file_name;
 

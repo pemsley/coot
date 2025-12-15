@@ -897,6 +897,7 @@ make_link_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    graphics_info_t g;
    const std::string &alt_conf_1 = g.in_range_first_picked_atom.alt_conf;
    const std::string &alt_conf_2 = g.in_range_second_picked_atom.alt_conf;
+   bool done =  false;
 
    if (alt_conf_1 == alt_conf_2) {
 
@@ -920,6 +921,7 @@ make_link_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                               g.in_range_second_picked_atom,
                               link_name, dist, *g.Geom_p());
                   g.graphics_draw();
+                  done = true;
                } else {
                   std::cout << "ERROR:: Missing atom " << std::endl;
                }
@@ -932,6 +934,12 @@ make_link_action(G_GNUC_UNUSED GSimpleAction *simple_action,
       }
    } else {
       add_status_bar_text("Mismatched alt-confs - doing nothing");
+   }
+
+   if (! done) {
+      std::string mess = "Use Range/Pair to define the linked atoms";
+      add_status_bar_text(mess);
+      g.ephemeral_overlay_label(mess);
    }
 }
 

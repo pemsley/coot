@@ -91,7 +91,7 @@ namespace std {
   init_coot_as_python_module();
 %}
 
-%feature("autodoc", "3"); // add doc string for Intellisense (hopefully)
+// %feature("autodoc", "3"); // add doc string for Intellisense (hopefully)
 
 // If the following line is enabled, then the comments extracted
 // using -doxygen on the command line are lost.

@@ -5328,7 +5328,7 @@ graphics_info_t::rotate_chi(double x, double y) {
          if (lines_mesh_for_identification_pulse.empty()) {
             setup_invalid_chi_angle_pulse(residue_p);
          }
-         graphics_info_t::ephemeral_overlay_label("select_a_chi_angle_label");
+         graphics_info_t::ephemeral_overlay_label_from_id("select_a_chi_angle_label");
       }
       return;
    }
