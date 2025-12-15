@@ -92,9 +92,16 @@ namespace std {
 %}
 
 %feature("autodoc", "3"); // add doc string for Intellisense (hopefully)
+
 // If the following line is enabled, then the comments extracted
 // using -doxygen on the command line are lost.
 // %feature("docstring");
+// 2025-12-14-PE because, I guess, %feature("docstring") needs to be
+// specified for each function!
+
+// 2025-12-15-PE modern method
+%include "coot_cc_interface_docs.i"
+%include "coot_c_interface_docs.i"
 
 #include "globjects.h"  //includes gtk/gtk.h
 #include "coot-utils/coot-coord-utils.hh"
