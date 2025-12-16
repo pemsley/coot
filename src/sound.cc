@@ -145,7 +145,7 @@ play_sound_file(const std::string &file_name) {
       init_lock.unlock();
 
 
-      std::cout << "debug:: m_pDevice is " << m_pDevice << std::endl;
+      // std::cout << "debug:: m_pDevice is " << m_pDevice << std::endl;
 
       if(!m_pDevice || !m_pContext) {
          std::cout << "ERROR:: play_sound_file_inner() device or context is null. Giving up" << std::endl;
