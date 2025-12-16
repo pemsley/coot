@@ -73,7 +73,7 @@ play_sound_file(const std::string &file_name) {
 
 #ifdef WITH_SOUND
 
-   std::cout << "play_sound_file() " << file_name << std::endl;
+   // std::cout << "play_sound_file() " << file_name << std::endl;
 
    auto print_alerror = [] (ALenum err) {
      std::string s = std::to_string(err);
@@ -98,7 +98,7 @@ play_sound_file(const std::string &file_name) {
 
    auto play_sound_file_inner = [print_alerror, check_alerror] (const std::string &file_name) {
 
-      std::cout << "DEBUG:: play_sound_file_inner: " << file_name << std::endl;
+      // std::cout << "DEBUG:: play_sound_file_inner: " << file_name << std::endl;
 
       ALCdevice *m_pDevice;
       ALCcontext *m_pContext;
@@ -211,7 +211,7 @@ play_sound_file(const std::string &file_name) {
 
       alSourcei(source, AL_BUFFER, buffer);
       check_alerror("Attach buffer to source");
-      std::cout << "DEBUG:: Playing the sound " << file_name << std::endl;
+      // std::cout << "DEBUG:: Playing the sound " << file_name << std::endl;
       alSourcePlay(source);
       check_alerror("source play");
 
@@ -222,7 +222,7 @@ play_sound_file(const std::string &file_name) {
          alGetSourcei(source, AL_SOURCE_STATE, &source_state);
       } while (source_state == AL_PLAYING);
 
-      std::cout << "DEBUG:: Playback finished " << file_name << std::endl;
+      // std::cout << "DEBUG:: Playback finished " << file_name << std::endl;
 
       ov_clear(&ovf);
       // this appear to be already freed above
