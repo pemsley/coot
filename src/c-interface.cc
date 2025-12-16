@@ -6906,18 +6906,14 @@ SCM residue_spec_to_scm(const coot::residue_spec_t &res) {
 // residues-matching-criteria [return-val, chain-id, resno, ins-code]
 // This is a library function really.  There should be somewhere else to put it.
 // It doesn't need expression at the scripting level.
-// return a null list on problem
 PyObject *residue_spec_to_py(const coot::residue_spec_t &res) {
-   PyObject *r;
-   r = PyList_New(4);
 
-//    std::cout <<  "py_residue on: " << res.chain << " " << res.resno << " "
-// 	     << res.insertion_code  << std::endl;
-   Py_XINCREF(Py_True); // warning: dereferencing type-punned pointer will break strict-aliasing rules
-   PyList_SetItem(r, 0, Py_True);
-   PyList_SetItem(r, 1, myPyString_FromString(res.chain_id.c_str()));
-   PyList_SetItem(r, 2, PyLong_FromLong(res.res_no));
-   PyList_SetItem(r, 3, myPyString_FromString(res.ins_code.c_str()));
+   // 20251216-PE this no longer prefixes a True
+   PyObject *r = PyList_New(3);
+
+   PyList_SetItem(r, 0, myPyString_FromString(res.chain_id.c_str()));
+   PyList_SetItem(r, 1, PyLong_FromLong(res.res_no));
+   PyList_SetItem(r, 2, myPyString_FromString(res.ins_code.c_str()));
 
    return r;
 }

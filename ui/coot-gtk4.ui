@@ -18447,7 +18447,7 @@ Move a copy?</property>
         <child>
           <object class="GtkShortcutsGroup">
             <property name="title">Map Functions</property>
-            
+
             <child>
               <object class="GtkShortcutsShortcut">
                 <property name="accelerator">plus</property>
@@ -18554,12 +18554,19 @@ Move a copy?</property>
             </child>
             <child>
               <object class="GtkShortcutsShortcut">
+                <property name="accelerator">q</property>
+                <property name="title" translatable="yes">Flip Peptide</property>
+              </object>
+            </child>
+            <child>
+              <object class="GtkShortcutsShortcut">
                 <property name="accelerator">&lt;Ctrl&gt;W</property>
                 <property name="title" translatable="yes">Add Water</property>
               </object>
             </child>
           </object>
         </child>
+
         <child>
           <object class="GtkShortcutsGroup">
             <property name="title">Function Keys</property>

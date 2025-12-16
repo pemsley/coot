@@ -5249,11 +5249,12 @@ graphics_info_t::get_chi_atom_names(mmdb::Residue *residue,
 
 void graphics_info_t::pulse_marked_positions(const std::vector<glm::vec3> &positions,
                                              bool broken_lines_mode, unsigned int n_rings, float radius_overall,
-                                             unsigned int n_ticks, const glm::vec4 &colour) {
+                                             unsigned int n_ticks, const glm::vec4 &colour,
+                                             float resize_factor) {
 
    lines_mesh_for_generic_pulse.setup_red_pulse(radius_overall, n_rings, broken_lines_mode, colour);
    pulse_data_t *pulse_data = new pulse_data_t(0, n_ticks);
-   pulse_data->resize_factor = 1.005f;
+   pulse_data->resize_factor = resize_factor;
    gpointer user_data = reinterpret_cast<void *>(pulse_data);
    generic_pulse_centres = positions; // class variable
    gtk_widget_add_tick_callback(glareas[0], generic_pulse_function, user_data, NULL);

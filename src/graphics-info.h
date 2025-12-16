@@ -4440,8 +4440,8 @@ string   static std::string sessionid;
    void setup_delete_residues_pulse(const std::vector<mmdb::Residue *> &residues);
    void setup_invalid_residue_pulse(mmdb::Residue *residue_p);
    static void pulse_marked_positions(const std::vector<glm::vec3> &positions, // generalization of above
-                                             bool broken_lines_mode, unsigned int n_rings, float radius_overall,
-                                             unsigned int n_ticks, const glm::vec4 &col);
+                                      bool broken_lines_mode, unsigned int n_rings, float radius_overall,
+                                      unsigned int n_ticks, const glm::vec4 &col, float resize_factor = 1.005f);
 
    static gboolean screen_centre_pulse_function(GtkWidget *widget,
                                                 GdkFrameClock *frame_clock,

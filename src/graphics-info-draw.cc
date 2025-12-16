@@ -5831,7 +5831,7 @@ void graphics_info_t::add_unhappy_atom_marker(int imol, const coot::atom_spec_t 
 
 void graphics_info_t::remove_all_unhappy_atom_markers() {
 
-   for (int imol=0; imol<molecules.size(); imol++) {
+   for (unsigned int imol=0; imol<molecules.size(); imol++) {
       if (is_valid_model_molecule(imol)) {
          if (! molecules[imol].unhappy_atom_marker_positions.empty()) {
             molecules[imol].unhappy_atom_marker_positions.clear();
@@ -5855,6 +5855,8 @@ void graphics_info_t::setup_draw_for_unhappy_atom_markers() {
 
 // static
 void graphics_info_t::draw_unhappy_atom_markers(unsigned int pass_type) {
+
+   if (curmudgeon_mode) return;
 
    for (unsigned int imol=0; imol<molecules.size(); imol++) {
       if (is_valid_model_molecule(imol)) {

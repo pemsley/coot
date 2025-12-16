@@ -155,7 +155,7 @@ map_to_model_correlation_stats_per_residue_range_py(int imol, const std::string 
       count++;
    }
    count = 0;
-   for (it=m.first.begin(); it!=m.first.end(); ++it) {
+   for (it=m.second.begin(); it!=m.second.end(); ++it) {
       const coot::residue_spec_t &spec(it->first);
       const coot::util::density_correlation_stats_info_t &stats(it->second);
       PyObject *spec_py = residue_spec_to_py(spec);

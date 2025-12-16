@@ -501,8 +501,10 @@ void multi_sharpen_blur_map_py(int imol_map, PyObject *b_factors_list);
 
 #ifdef USE_PYTHON
 //! amplitude vs resolution data for graph
+//!
 //! @param imol the molecule index
-//! @return a list of list pairs, resolution is the first element (in reciprocal Angstroms squared) and the amplitude is in the second element.
+//! @return a list of list of lists, for each item in the list the resolution is the 0th element (in reciprocal Angstroms squared)
+//!  and the count is the element index 1 and the amplitude is in element index 2.
 PyObject *amplitude_vs_resolution_py(int mol_map);
 #endif
 
@@ -1296,18 +1298,19 @@ PyObject *active_residue_py();
 PyObject *closest_atom_simple_py();
 
 //! \brief return closest atom in imolth molecule
-//
-//! Return a list of [imol, chain-id, resno, ins-code, atom-name,
-//! alt-conf, [x, y, z]] for atom that is closest to the screen
+//!
+//! @param imol is the molecule index
+//! @return a list of [imol, chain-id, resno, ins-code, atom-name,
+//! alt-conf, [x, y, z]] for the atom that is closest to the screen
 //! centre in the given molecule (unlike active-residue, no account is
-//! taken of the displayed state of the molecule).  If there is no
+//! taken of the displayed state of the imol molecule).  If there is no
 //! atom, or if imol is not a valid model molecule, return False.
 //
 PyObject *closest_atom_py(int imol);
 
 //! \brief return the specs of the closest atom to the centre of the screen
 //!
-//! Return a list of (list imol chain-id resno ins-code atom-name
+//! @return a list of (list imol chain-id resno ins-code atom-name
 //! alt-conf (list x y z)) for atom that is closest to the screen
 //! for displayed molecules. If there is no atom, return scheme false.
 //! Don't choose the CA of the residue if there is a CA in the residue
@@ -1315,19 +1318,19 @@ PyObject *closest_atom_py(int imol);
 PyObject *closest_atom_raw_py();
 
 
-//! \brief
-// Return residue specs for residues that have atoms that are
-// closer than radius Angstroems to any atom in the residue
-// specified by residue_in.
+//! \brief get the residues near a specified residue
+//!
+//! This is useful to select the residues for "Sphere" refinement.
+//!
+//! @param imol is the molecule index
+//! @param residue_in is a residue spec [chain_id, res_no, insertion_code]
+//! @param radius is the cut-off distance atoms of the surrounding residues
+//!        if they are to be included in the residue selection.
+//! @return a list of residue specs for residues that have atoms that are
+//! closer than radius Angstroems to any atom in the residue
+//! specified by residue_in.
 //
 PyObject *residues_near_residue_py(int imol, PyObject *residue_in, float radius);
-
-//! \brief
-// Return residue specs for residues that have atoms that are
-// closer than radius Angstroems to any atom in the residues
-// specified by residues_in.
-//
-PyObject *residues_near_residues_py(int imol, PyObject *residues_in, float radius);
 
 //! \brief
 //! Return residue specs for residues that have atoms that are
@@ -2511,16 +2514,17 @@ PyObject *map_to_model_correlation_stats_py(int imol,
 //! @param n_residue_per_residue_range Number of residues per analysis window:
 //!        - Use 1 for per-residue statistics (most common)
 //!        - Use 3 for smoothed statistics over 3-residue windows
-//! @param exclude_NOC_flag Whether to exclude backbone N, O, C atoms:
+//! @param exclude_backbone_NOC_flag Whether to exclude backbone N, O, C atoms:
 //!        - 0: Include all atoms (for overall fit assessment)
 //!        - 1: Exclude N, O, C (for side-chain-focused analysis)
 //!
-//! @return PyObject* - Tuple of two dictionaries (all_atom_stats, sidechain_stats):
-//!         Each dictionary maps residue_spec to correlation_stats containing:
-//!         - correlation: Correlation coefficient
-//!         - mean_density: Mean density value
-//!         - std_dev: Standard deviation
+//! @return PyObject* - List of two lists (first is all_atom_stats, second is sidechain_stats):
+//!         Each list contains a residue_spec [chain_id, res_no, ins_code]  and correlation_stats containing:
 //!         - n_points: Number of grid points
+//!         - correlation: Correlation coefficient
+//!
+//! If the residue does not have a side-chain then the number of grid points is 0 and the
+//! correlation is nan.
 //!
 //! \note This function analyzes the ENTIRE chain at once, making it very efficient
 //! \note Returns both all-atom and side-chain statistics in one call
@@ -2536,16 +2540,15 @@ PyObject *map_to_model_correlation_stats_py(int imol,
 //!     n_residue_per_residue_range=1,  # Per-residue (not averaged)
 //!     exclude_NOC_flag=0   # Include all atoms
 //! )
-//! 
+//!
 //! # Find worst-fitting side chain
-//! worst_residue = min(sidechain_stats.items(), 
-//!                     key=lambda x: x[1]['correlation'])
-//! 
+//! worst_residue = min(sidechain_stats.items(), key=lambda x: x[1][1])
+//!
 //! chain_id, resno, ins_code = worst_residue[0]
-//! correlation = worst_residue[1]['correlation']
-//! 
+//! correlation = worst_residue[1][1]
+//!
 //! print(f"Worst side chain: {chain_id} {resno}, correlation = {correlation:.3f}")
-//! 
+//!
 //! # Center on worst residue
 //! set_go_to_atom_chain_residue_atom_name(chain_id, resno, 'CA')
 //! \endcode
@@ -2555,11 +2558,11 @@ PyObject *map_to_model_correlation_stats_py(int imol,
 //! all_atom, sidechain = map_to_model_correlation_stats_per_residue_range_py(
 //!     1, "A", 2, 1, 0
 //! )
-//! 
+//!
 //! for residue_spec in all_atom.keys():
 //!     all_corr = all_atom[residue_spec]['correlation']
 //!     side_corr = sidechain[residue_spec]['correlation']
-//!     
+//!
 //!     if all_corr > 0.7 and side_corr < 0.5:
 //!         print(f"Residue {residue_spec}: Good backbone, poor sidechain")
 //! \endcode
@@ -2568,7 +2571,7 @@ map_to_model_correlation_stats_per_residue_range_py(int imol,
                                                     const std::string &chain_id,
                                                     int imol_map,
                                                     unsigned int n_residue_per_residue_range,
-                                                    short int exclude_NOC_flag);
+                                                    short int exclude_mainchain_NOC_flag);
 
 #endif
 

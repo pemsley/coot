@@ -321,21 +321,35 @@ given molecule.
 */
 int n_models(int imol);
 
-/*! \brief  number of chains in molecule number imol
+/*! \brief get the number of chains in molecule number imol
 
-   @return the number of chains*/
+  @param imol is the molecule index
+  @return the number of chains
+*/
 int n_chains(int imol);
+
+#ifdef USE_PYTHON
+/*! \brief get the chain ids of molecule number imol
+
+  @param imol is the molecule index
+  @return a list of the the chain ids or False on failure
+*/
+PyObject *get_chain_ids_py(int imol);
+#endif
 
 /*! \brief is this a solvent chain? [Raw function]
 
    This is a raw interface function, you should generally not use
    this, but instead use (is-solvent-chain? imol chain-id)
 
+   This wraps the mmdb function isSolventChain().
+
+   @param imol is the molecule index
+   @param chain_id is the chain id (e.g. "A" or "B")
    @return -1 on error, 0 for no, 1 for is "a solvent chain".  We
    wouldn't want to be doing rotamer searches and the like on such a
    chain.
 
-   This wraps the mmdb function isSolventChain().
  */
 int is_solvent_chain_p(int imol, const char *chain_id);
 

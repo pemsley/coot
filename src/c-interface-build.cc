@@ -2483,6 +2483,43 @@ int n_chains(int imol) {
    return nchains;
 }
 
+#ifdef USE_PYTHON
+/*! \brief get the chain ids of molecule number imol
+
+  @param imol is the molecule index
+  @return a list of the the chain ids or None on failure
+*/
+PyObject *get_chain_ids_py(int imol) {
+
+   PyObject *r = Py_False;
+   if (is_valid_model_molecule(imol)) {
+      mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+      int imod = 1;
+      mmdb::Model *model_p = mol->GetModel(imod);
+      std::vector<std::string> chain_ids;
+      if (model_p) {
+         int n_chains = model_p->GetNumberOfChains();
+         for (int ichain=0; ichain<n_chains; ichain++) {
+            mmdb::Chain *chain_p = model_p->GetChain(ichain);
+            chain_ids.push_back(chain_p->GetChainID());
+         }
+      }
+      if (! chain_ids.empty()) {
+         r = PyList_New(chain_ids.size());
+         for (unsigned int i=0; i<chain_ids.size(); i++) {
+            PyObject *o = myPyString_FromString(chain_ids[i].c_str());
+            PyList_SetItem(r, i, o);
+         }
+      }
+   }
+   if (PyBool_Check(r)) {
+     Py_INCREF(r);
+   }
+   return r;
+}
+#endif
+
+
 
 /*! \brief return the number of models in molecule number imol
 

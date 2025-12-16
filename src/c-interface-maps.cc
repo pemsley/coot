@@ -3017,9 +3017,11 @@ PyObject *amplitude_vs_resolution_py(int imol_map) {
       r = PyList_New(data.size());
       for (std::size_t i=0; i<data.size(); i++) {
          PyObject *o = PyList_New(3);
-         PyList_SetItem(o, 0, PyFloat_FromDouble(data[i].get_average_fsqrd()));
+         // std::cout << "set o " << data[i].get_average_fsqrd() << std::endl;
+         PyList_SetItem(o, 0, PyFloat_FromDouble(data[i].get_invresolsq()));
          PyList_SetItem(o, 1, PyLong_FromLong(data[i].count));
-         PyList_SetItem(o, 2, PyFloat_FromDouble(data[i].get_invresolsq()));
+         PyList_SetItem(o, 2, PyFloat_FromDouble(data[i].get_average_fsqrd()));
+         PyList_SetItem(r, i, o);
       }
    }
 
