@@ -579,7 +579,7 @@ graphics_info_t::check_if_moving_atom_pull(bool was_a_double_click) {
 
       if (true) { // debug
          mmdb::Atom *at = moving_atoms_asc->atom_selection[pi.atom_index];
-         std::cout << "------------------- in check_if_moving_atom_pull() picked! " << coot::atom_spec_t(at) << std::endl;
+         // std::cout << "------------------- in check_if_moving_atom_pull() picked! " << coot::atom_spec_t(at) << std::endl;
 
          // OK, so, where do we think the cursor is (in real-world 3d?)
 
@@ -608,7 +608,7 @@ graphics_info_t::check_if_moving_atom_pull(bool was_a_double_click) {
 	      //
 	      moving_atoms_dragged_atom_indices.insert(pi.atom_index);
 
-	      if (true)
+	      if (false)
 	         std::cout << "moving_atoms_currently_dragged_atom_index "
                       << moving_atoms_currently_dragged_atom_index << std::endl;
 

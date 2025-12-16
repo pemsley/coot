@@ -4333,7 +4333,7 @@ graphics_info_t::check_if_hud_button_moused_over_or_act_on_hit(double x, double 
          HUD_button_limits_t lims = button.get_button_limits(w, h);
          if (lims.is_hit(x_gl_coords,y_gl_coords)) {
             if (act_on_hit) {
-               std::cout << "Act on button " << i << " callback" << std::endl;
+               // std::cout << "Act on button " << i << " callback" << std::endl;
                if (button.callback_function) {
                   button.callback_function();
                }
@@ -4493,9 +4493,10 @@ graphics_info_t::check_if_hud_rama_plot_clicked(double mouse_x, double mouse_y) 
                int w = allocation.width;
                int h = allocation.height;
                mouse_over_hit_t hit = gl_rama_plot.get_mouse_over_hit(mouse_x, mouse_y, w, h);
-               std::cout << "hit: plot clicked: " << hit.plot_was_clicked
-                         << " residue_was_clicked: " << hit.residue_was_clicked
-                         << " spec " << hit.residue_spec << std::endl;
+               if (false)
+                  std::cout << "hit: plot clicked: " << hit.plot_was_clicked
+                            << " residue_was_clicked: " << hit.residue_was_clicked
+                            << " spec " << hit.residue_spec << std::endl;
                if (hit.plot_was_clicked) status = true;
                if (hit.residue_was_clicked) {
                   std::pair<bool, coot::Cartesian> rc = get_rotation_centre_from_intermediate_atoms_residue_spec(hit.residue_spec);

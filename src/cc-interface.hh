@@ -1330,7 +1330,20 @@ PyObject *closest_atom_raw_py();
 //! closer than radius Angstroems to any atom in the residue
 //! specified by residue_in.
 //
-PyObject *residues_near_residue_py(int imol, PyObject *residue_in, float radius);
+PyObject *residues_near_residue_py(int imol, PyObject *residue_spec_in, float radius);
+
+//! \brief get the residues near a specified list of residues
+//!
+//! @param imol is the molecule index
+//! @param residues_in is a list of residue specs each of which is
+//!        [chain_id, res_no, insertion_code]
+//! @param radius is the cut-off distance atoms of the surrounding residues
+//!        if they are to be included in the residue selection.
+//! @return a list of residue specs for residues that have atoms that are
+//! closer than radius Angstroems to any atom in the residue
+//! specified by the input residue spec list.
+//
+PyObject *residues_near_residues_py(int imol, PyObject *residues_specs_in, float radius);
 
 //! \brief
 //! Return residue specs for residues that have atoms that are
