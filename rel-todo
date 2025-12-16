@@ -1,40 +1,55 @@
 --- Items ---
 
+o --buster does the right thing.
+
 o tell the user to use range/pair before Make Link...
+* Done. Not great.
 
 o --no-splash-screen doesn't work
+* Fixed.
+
+o MCP: add coot api function: get molecule names/info
 
 o curmudgen mode should turn off the unhappy atom marker
+* Done.
 
-o difference map peaks do not need position - add
-  closest atom
+o difference map peaks do not need position
+* Done.
 
-o expand word bf and occ in atom info in status bar
-  maybe make bold.
+o difference map peaks
+  void graphics_info_t::fill_difference_map_peaks_button_box()
+  add closest atom info
+
+o maybe make bold b-factor and occupancies in atom info in status bar
+  std::string atom_info_as_text_for_statusbar(int atom_index, int imol);
 
 o add a coot function PyObject *get_chain_ids(int imol);
+* Done.
 
 o last cliked Go will have a differnt colour
-
-o fix the crash in coot.map_to_model_correlation_stats_per_residue_range_py()
-
-o Clement: easy acetylation, methylation of side chains in moorhen - How?
-  Good question. But not for now.
+* Done.
 
 o accept-moving atoms from scripting doesn't undisplay the HUD buttons.
 * Done.
+
+o fix the crash in coot.map_to_model_correlation_stats_per_residue_range_py()
+* I didn't find the crash, but I fixed a bug in the output.
 
 o Stuart: Moorhen: the colour of atoms when coloured by element should be transparent
 
 o extend the screen parser for the adp analysis.
 
-o --buster does the right thing.
-
-o check that amplitude_vs_resolution(1) gives sane results for tutorial data.
+o check that amplitude_vs_resolution_py(1) gives sane results for tutorial data.
+* Done - it does now.
 
 o when user selects left-mouse for view rotation, right mouse should be for zoom. Check
+* Yes.
 
 o what is the keybinding for pepflip? Add it to the shortcuts
+* It's q. Added to Shortcuts
+
+o Clement: easy acetylation, methylation of side chains in moorhen - How?
+  Good question. But not for now.
 
 o Put unlabel atoms in Draw menu.
 
