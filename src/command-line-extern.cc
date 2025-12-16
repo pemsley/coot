@@ -53,6 +53,8 @@
 
 #include "read-molecule.hh" // now with std::string args
 
+#include "gphl-screen.hh"
+
 
 extern "C"
 void
@@ -60,7 +62,7 @@ handle_command_line_data_argc_argv(int argc, char **argv) {
 
    command_line_data cld = parse_command_line(argc, argv);
    handle_command_line_data(cld);
-} 
+}
 
 
 extern "C"
@@ -222,6 +224,9 @@ handle_command_line_data(command_line_data cld) {
    // --no-guano used?
    if (cld.disable_state_script_writing)
       graphics_info_t::disable_state_script_writing = 1;
+
+   if (cld.open_buster_output_files)
+      open_buster_output_files();
 
    //
    if (cld.try_listener) {

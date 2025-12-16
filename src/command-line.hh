@@ -63,6 +63,7 @@ public:
    bool em_mode;
    bool use_gtkbuilder;
    bool show_ccp4i2_save_button;
+   bool open_buster_output_files;
    command_line_data() {
      hardware_stereo_flag = 0; // default off
      port = 0;
@@ -79,6 +80,7 @@ public:
      use_gtkbuilder = true;
      use_opengl_es = false;
      show_ccp4i2_save_button = false;
+     open_buster_output_files = false;
    }
    void handle_immediate_settings();
    void add(const std::string &file); // determine where it goes based on extension and contents

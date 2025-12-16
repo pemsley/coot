@@ -105,6 +105,7 @@ parse_command_line(int argc, char ** argv ) {
       {"hklin",  1, 0, 0},
       {"auto",   1, 0, 0},
       {"script", 1, 0, 0},
+      {"buster", 1, 0, 0},
       {"command", 1, 0, 0},
       {"ccp4-project", 1, 0, 0},
       {"dictionary", 1, 0, 0},
@@ -215,6 +216,9 @@ parse_command_line(int argc, char ** argv ) {
 	    }
 	    if (arg_str == "show-ccp4i2-save-button") {
 	       cld.show_ccp4i2_save_button = true;
+	    }
+	    if (arg_str == "buster") {
+	       cld.open_buster_output_files = true;
 	    }
 	    if (arg_str == "title") {
 	       cld.title = coot_optarg;

@@ -1,4 +1,6 @@
 
+#include <filesystem>
+
 #include "coot-utils/coot-coord-utils.hh"
 #include "cc-interface.hh"
 #include "geometry/residue-and-atom-specs.hh"
@@ -1221,3 +1223,48 @@ PyObject *global_phasing_screen(int imol, PyObject *screen_dict) {
    return r;
 }
 #endif
+
+#include "read-molecule.hh"
+
+void open_buster_output_files() {
+
+   std::filesystem::path pdb("refine.pdb");
+   std::filesystem::path mtz("refine.mtz");
+
+   if (std::filesystem::exists(pdb)) {
+      read_pdb(pdb);
+      set_show_symmetry_master(1);
+   }
+
+   if (std::filesystem::exists(mtz)) {
+      int map_eden = read_mtz("refine.mtz", "2FOFCWT", "PH2FOFCWT", "", 0, 0);
+      set_contour_level_in_sigma(map_eden, 1.0f);
+      set_map_colour(map_eden, 0.31,0.78,1.00);
+
+      int map_diff = read_mtz("refine.mtz", "FOFCWT", "PHFOFCWT", "", 0, 1);
+      set_contour_level_in_sigma(map_diff, 3.5);
+      set_map_colour(map_diff, 0.21,0.94,0.23);
+
+      int map_isofill = read_mtz("refine.mtz", "2FOFCWT_iso-fill", "PH2FOFCWT_iso-fill", "", 0, 0);
+      set_contour_level_in_sigma(map_isofill, 1.0);
+      set_map_colour(map_isofill, 0.31,0.78,1.00);
+
+      int map_anisofill = read_mtz("refine.mtz", "2FOFCWT_aniso-fill", "PH2FOFCWT_aniso-fill", "", 0, 0);
+      set_contour_level_in_sigma(map_anisofill, 1.0);
+      set_map_colour(map_anisofill, 0.31,0.78,1.00);
+
+      int map_raddam = read_mtz("refine.mtz",  "F_early-late", "PHI_early-late", "", 0, 1);
+      set_contour_level_in_sigma(map_raddam, 4.0);
+      set_map_colour(map_raddam, 0.93,0.94,0.23);
+
+      int map_ano  = read_mtz("refine.mtz",  "F_ano", "PHI_ano",  "", 0, 1);
+      set_contour_level_in_sigma(map_ano, 4.0);
+      set_map_colour(map_ano, 0.94,0.76,0.18);
+
+      // these flags depend on the type of 2mFo-DFc map present (prioritisation):
+      set_map_displayed(map_eden, 0);
+      set_map_displayed(map_isofill, 0);
+      set_map_displayed(map_anisofill, 1);
+
+   }
+}

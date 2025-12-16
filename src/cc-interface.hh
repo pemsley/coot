@@ -3245,7 +3245,7 @@ clipper::Spacegroup py_symop_strings_to_space_group(PyObject *symop_string_list)
 //! \brief enable or diable sounds (coot needs to have been compiled with sounds of course)
 void set_use_sounds(bool state);
 
-//! \brief no sounds
+//! \brief turn off sounds and particles and textures
 void curmudgeon_mode();
 
 //! easter egg 2023
