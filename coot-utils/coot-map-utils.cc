@@ -3276,6 +3276,7 @@ coot::util::map_to_model_correlation_stats_per_residue_run(mmdb::Manager *mol,
       if (! residue_runs.empty()) {
          unsigned int n_threads = coot::get_max_number_of_threads();
          std::vector<std::thread> threads;
+         std::vector<std::pair<unsigned int, unsigned int> > ranges = atom_index_ranges(residue_runs.size(), n_threads);
 
          std::vector<std::map<residue_spec_t, util::density_correlation_stats_info_t> > stats_map_all_atom_vec(n_threads);   // local maps
          std::vector<std::map<residue_spec_t, util::density_correlation_stats_info_t> > stats_map_side_chain_vec(n_threads); // local maps
