@@ -1,6 +1,9 @@
 --- Items ---
 
+o extend the screen parser for the ADP analysis.
+
 o --buster does the right thing.
+* Nearly.
 
 o tell the user to use range/pair before Make Link...
 * Done. Not great.
@@ -26,7 +29,7 @@ o maybe make bold b-factor and occupancies in atom info in status bar
 o add a coot function PyObject *get_chain_ids(int imol);
 * Done.
 
-o last cliked Go will have a differnt colour
+o last cliked Go will have a different colour
 * Done.
 
 o accept-moving atoms from scripting doesn't undisplay the HUD buttons.
@@ -36,8 +39,6 @@ o fix the crash in coot.map_to_model_correlation_stats_per_residue_range_py()
 * I didn't find the crash, but I fixed a bug in the output.
 
 o Stuart: Moorhen: the colour of atoms when coloured by element should be transparent
-
-o extend the screen parser for the adp analysis.
 
 o check that amplitude_vs_resolution_py(1) gives sane results for tutorial data.
 * Done - it does now.
@@ -61,14 +62,17 @@ o make down key work to move down to the next difference map peak.
 
 o screen: turn on green highlighting for relevant atoms if possible
   maybe not green.
+Adjusted. Good enough for now.
 
 o zoom in for unhappy atom if long way out.
+* Meh.
 
 o need a space after FILE-1 filename in acedrg link input
 
 o search CCD with a smarts - and a smarts from a lidia mol
 
 o with --dictionary, turn off the molecule genertion
+* Done.
 
 o screen: fix alt conf parsing in global phasing output
 * Done.
