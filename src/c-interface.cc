@@ -8907,7 +8907,7 @@ gint coot_socket_listener_idle_func(gpointer data) {
       // second is the list of functions in that module
       // return functions
       std::vector<std::pair<std::string, std::vector<func_doc> > > functions;
-      int n_blocks = 200;
+      int n_blocks = 400;
 
       PyObject* inspect = PyImport_ImportModule("inspect");
 
@@ -9077,7 +9077,7 @@ gint coot_socket_listener_idle_func(gpointer data) {
             if (req["method"] == "mcp.list_tools") {
                int block_index = -1; // means all tools
                std::vector<std::pair<std::string, std::vector<func_doc> > > functions = handle_list_tools(block_index);
-               int n_max = 205;
+               int n_max = 405;
                json response_funcs = make_response_from_functions(functions, id, n_max);
                json j_response;
                j_response["jsonrpc"] = "2.0";
@@ -9100,7 +9100,7 @@ gint coot_socket_listener_idle_func(gpointer data) {
                      std::cout << "DEBUG:: block_index not found" << std::endl;
                   }
                }
-               int n_max = 205;
+               int n_max = 405;
                std::vector<std::pair<std::string, std::vector<func_doc> > > functions = handle_list_tools(block_index);
                json response_funcs = make_response_from_functions(functions, id, n_max);
                json j_response;
@@ -9122,7 +9122,7 @@ gint coot_socket_listener_idle_func(gpointer data) {
                      std::string pattern = it_pattern->get<std::string>();
                      std::cout << "DEBUG:: :::::: FOUND pattern is " << pattern << std::endl;
                      std::vector<std::pair<std::string, std::vector<func_doc> > > functions = handle_list_tools_with_search_pattern(pattern);
-                     int n_max = 205;
+                     int n_max = 405;
                      json response_funcs = make_response_from_functions(functions, id, n_max);
                      json j_response;
                      j_response["jsonrpc"] = "2.0";
