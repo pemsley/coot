@@ -81,7 +81,7 @@
 
 void graphics_info_t::refresh_validation_graph_model_list() {
 
-   g_debug("refresh_validation_graph_model_list() called.");
+   // g_debug("refresh_validation_graph_model_list() called.");
 
    // std::cout << "-------------- refresh_validation_graph_model_list ------- " << std::endl;
 
@@ -98,7 +98,7 @@ void graphics_info_t::refresh_validation_graph_model_list() {
       if (graphics_info_t::molecules[i].has_model()) {
          std::string label = graphics_info_t::molecules[i].dotted_chopped_name();
          GtkTreeIter iter;
-         std::cout << "----- refresh_validation_graph_model_list adding label " << label << std::endl;
+         // std::cout << "----- refresh_validation_graph_model_list adding label " << label << std::endl;
          gtk_list_store_append(validation_graph_model_list, &iter);
          gtk_list_store_set(validation_graph_model_list, &iter, 0, label.c_str(), 1, i, -1);
          if (idx_active  == -1)
@@ -115,9 +115,9 @@ void graphics_info_t::refresh_validation_graph_model_list() {
 
    if (idx_active != -1) {
       if (!is_valid_model_molecule(active_validation_graph_model_idx)) {
-         std::cout << "TODO:: in refresh_validation_graph_model_list() Destroy graphs for model "
-                   << active_validation_graph_model_idx << " here..." << std::endl;
-         // destroy_validation_graph(coot::validation_graph_type type);
+         if (false)
+            std::cout << "TODO:: in refresh_validation_graph_model_list() Destroy graphs for model "
+                      << active_validation_graph_model_idx << " here..." << std::endl;
       }
    }
 }
@@ -157,7 +157,7 @@ void graphics_info_t::refresh_ramachandran_plot_model_list() {
 
    // what is this - I mean, who calls it/when does it run? Is this an old method now that we have rama_plot_boxes?
 
-   std::cout << "----------------------- refresh_ramachandran_plot_model_list --------- " << std::endl;
+   // std::cout << "----------------------- refresh_ramachandran_plot_model_list --------- " << std::endl;
 
    auto fn = +[] (GtkTreeModel* model, GtkTreePath* path, GtkTreeIter* iter, gpointer data) {
       GtkListStore* list = GTK_LIST_STORE(model);
@@ -170,13 +170,13 @@ void graphics_info_t::refresh_ramachandran_plot_model_list() {
       if (graphics_info_t::molecules[i].has_model()) {
          std::string label = graphics_info_t::molecules[i].dotted_chopped_name();
          GtkTreeIter iter;
-         std::cout << "----- refresh_ramachandran_plot_model_list adding label " << label << std::endl;
+         // std::cout << "----- refresh_ramachandran_plot_model_list adding label " << label << std::endl;
          gtk_list_store_append(ramachandran_plot_model_list, &iter);
          gtk_list_store_set(ramachandran_plot_model_list, &iter, 0, label.c_str(), 1, i, -1);
       }
    }
 
-   std::cout << "----------------------- done refresh_ramachandran_plot_model_list --------- " << std::endl;
+   // std::cout << "----------------------- done refresh_ramachandran_plot_model_list --------- " << std::endl;
 }
 
 // TODO: we're not using tabs right now. Do we ever intend to do so?
@@ -962,10 +962,12 @@ graphics_info_t::update_validation_graphs(int imol_changed_model) {
    // imol has change (e.g. a rotamer or RSR) and now I want to update the graphs
    // for that molecule if they are displayed.
 
-   g_debug("update_validation() called");
-   g_warning("Reimplement update_validation(). "
-             "The function should iterate over the std::map holding validation data for each active graph "
-             "and recompute it, then trigger a redraw.");
+   if (false) {
+      g_debug("update_validation() called");
+      g_warning("Reimplement update_validation(). "
+                "The function should iterate over the std::map holding validation data for each active graph "
+                "and recompute it, then trigger a redraw.");
+   }
 
    // 20230527-PE maybe this is the right wasy to do it. But I think that I have done it a different way for now.
    //
@@ -981,14 +983,6 @@ graphics_info_t::update_validation_graphs(int imol_changed_model) {
          coot_validation_graph_set_validation_information(cvg, vip);
       }
    }
-
-// #ifdef HAVE_GOOCANVAS
-//    update_ramachandran_plot(imol);
-//    // now update the geometry graphs, so get the asc
-//    atom_selection_container_t u_asc = molecules[imol].atom_sel;
-//    update_geometry_graphs(u_asc, imol);
-// #endif
-
 }
 
 
