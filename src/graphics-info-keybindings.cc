@@ -126,6 +126,8 @@ graphics_info_t::print_key_bindings() {
       std::make_pair("x", 0x078),
       std::make_pair("y", 0x079),
       std::make_pair("z", 0x07a),
+      std::make_pair("KP_plus",  0xffab),
+      std::make_pair("KP_minus", 0xffad),
       std::make_pair("KP_0", 0xffb0),
       std::make_pair("KP_1", 0xffb1),
       std::make_pair("KP_2", 0xffb2),
@@ -156,7 +158,7 @@ graphics_info_t::print_key_bindings() {
       std::make_pair("Right",   GDK_KEY_Right),
       std::make_pair("Up",      GDK_KEY_Up),
       std::make_pair("Down",    GDK_KEY_Down),
-};
+   };
 
    // std::map<keyboard_key_t, key_bindings_t> key_bindings_map;
 
@@ -656,6 +658,8 @@ graphics_info_t::setup_key_bindings() {
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_plus,   key_bindings_t(l8, "increase contour level")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_equal,  key_bindings_t(l8, "increase contour level")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_minus,  key_bindings_t(l7, "decrease contour level")));
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_KP_Add,      key_bindings_t(l8, "increase contour level")));
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_KP_Subtract, key_bindings_t(l7, "decrease contour level")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_p,      key_bindings_t(l9, "update go-to atom by position")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_q,      key_bindings_t(l45, "Pep-flip")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_n,      key_bindings_t(l10, "Zoom in")));
