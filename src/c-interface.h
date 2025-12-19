@@ -60,7 +60,7 @@
   But, we need that function to set the filename in mol_info, which
   is a c++ class.
 
-p  So we need to have this function external for c++ linking.
+  So we need to have this function external for c++ linking.
 
 */
 
@@ -119,6 +119,7 @@ void try_load_python_extras_dir();
 /*!  \brief tell coot that you prefer to run python scripts if/when
   there is an option to do so. */
 void set_prefer_python();
+
 /*! \brief the python-prefered mode.
 
 This is available so that the scripting functions know whether on not
@@ -129,7 +130,7 @@ which is used elsewhere to stop python functions adding to the gui,
 when guile-gtk functions have alread done so.  We should clean up this
 (rather obscure) interface at some stage.
 
-return 1 for python is prefered, 0 for not. */
+@return 1 for python is prefered, 0 for not. */
 int prefer_python();
 
 /*! \} */
@@ -160,19 +161,22 @@ void set_show_paths_in_display_manager(int i);
 
    What is the internal flag?
 
-   @return 1 for "yes, display paths" , 0 for not
+   @return 1 for "yes, display paths", 0 for not
  */
 int show_paths_in_display_manager_state();
 
 /*! \brief add an extension to be treated as coordinate files
+   @param ext the extension to be added
 */
 void add_coordinates_glob_extension(const char *ext);
 
 /*! \brief add an extension to be treated as data (reflection) files
+   @param ext the extension to be added
 */
 void add_data_glob_extension(const char *ext);
 
 /*! \brief add an extension to be treated as geometry dictionary files
+   @param ext the extension to be added
 */
 void add_dictionary_glob_extension(const char *ext);
 
@@ -181,14 +185,17 @@ void add_dictionary_glob_extension(const char *ext);
 void add_map_glob_extension(const char *ext);
 
 /*! \brief remove an extension to be treated as coordinate files
+   @param ext the extension to be added
 */
 void remove_coordinates_glob_extension(const char *ext);
 
 /*! \brief remove an extension to be treated as data (reflection) files
+   @param ext the extension to be removed
 */
 void remove_data_glob_extension(const char *ext);
 
 /*! \brief remove an extension to be treated as geometry dictionary files
+   @param ext the extension to be removed
 */
 void remove_dictionary_glob_extension(const char *ext);
 
@@ -211,17 +218,14 @@ void unset_sticky_sort_by_date();
 set to 1 to pre-filter, [0 (off, non-pre-filtering) is the default */
 void set_filter_fileselection_filenames(int istate);
 
-
 /*! \brief, return the state of the above variable */
 int filter_fileselection_filenames_state();
 
 /*! \brief is the given file name suitable to be read as coordinates? */
 short int file_type_coords(const char *file_name);
 
-
 /*! \brief display the open coordinates dialog */
 void open_coords_dialog();
-
 
 /*! \brief this flag set chooser as default for windows, otherwise use
   selector 0 is selector 1 is chooser */
