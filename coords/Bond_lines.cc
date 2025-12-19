@@ -2207,12 +2207,16 @@ Bond_lines_container::add_link_bond_templ(mmdb::Model *model_p, int udd_atom_ind
          add_dashed_bond(col, bond_mid_point, pos_2, HALF_BOND_SECOND_ATOM, graphics_line_t::SINGLE, model_number, atom_index_1, atom_index_2);
       }
    } else {
+#if 0
+      // 20251219-PE because all of the links are copied, we often find that some links are not in the selection
+      // for the sphere refinement. We don't want to hear that. Ideally, we'd not even get here in such cases.
       if (! atom_1)
          std::cout << "debug:: in add_link_bond_templ() failed to find atom-1 "
                    << "\"" << link->chainID1 << "\" " << link->seqNum1 << " \"" << link->atName1 << "\"" << std::endl;
       if (! atom_2)
          std::cout << "debug:: in add_link_bond_templ() failed to find atom-2 "
                    << "\"" << link->chainID2 << "\" " << link->seqNum2 << " \"" << link->atName2 << "\"" << std::endl;
+#endif
    }
 }
 
