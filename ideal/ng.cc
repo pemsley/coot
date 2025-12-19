@@ -29,6 +29,7 @@
 #include "compat/coot-sysdep.h"
 
 #include "coot-utils/bonded-pairs.hh"
+#include "geometry/residue-and-atom-specs.hh"
 #include "simple-restraint.hh"
 #include "coot-utils/contacts-by-bricks.hh"
 #include "coot-utils/stack-and-pair.hh"
@@ -2157,7 +2158,9 @@ coot::restraints_container_t::make_other_types_of_link(const coot::protein_geome
                                                        const std::map<mmdb::Residue *, std::vector<mmdb::Residue *> > &residue_link_vector_map,
                                                        const std::set<std::pair<mmdb::Residue *, mmdb::Residue *> > &residue_pair_link_set) {
 
-   // ------------- Generic/non-polymer and carbohydrate Links -------------------
+   // ------------- Generic/non-polymer -------------------
+
+   // carbohydrate links are generated using LINKs in the header, not here, make_link_restraints_from_links()
 
    auto is_member = [] (const std::vector<std::string> &names, const std::string &n) {
       return std::find(names.begin(), names.end(), n) != names.end();
@@ -2199,7 +2202,7 @@ coot::restraints_container_t::make_other_types_of_link(const coot::protein_geome
       for (std::size_t i=0; i<vcontacts.size(); i++) {
          const std::set<unsigned int> &n_set = vcontacts[i];
          if (! n_set.empty()) {
-            mmdb::Atom *at_1 = atom[i];
+           mmdb::Atom *at_1 = atom[i];
             std::cout << "vcontact for " << i << " " << atom_spec_t(at_1) << ": ";
             std::set<unsigned int>::const_iterator it_inner;
             for (it_inner=n_set.begin(); it_inner!=n_set.end(); ++it_inner) {
@@ -2220,6 +2223,7 @@ coot::restraints_container_t::make_other_types_of_link(const coot::protein_geome
          std::set<unsigned int>::const_iterator it;
          for (it=n_set.begin(); it!=n_set.end(); ++it) {
             mmdb::Atom *at_2 = atom[*it];
+
             if (strcmp(at_2->element, " H") == 0) continue;
 
             mmdb::Residue *res_1 = at_1->residue;
