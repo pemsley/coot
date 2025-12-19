@@ -4775,6 +4775,9 @@ string   static std::string sessionid;
    static coot::inchikey_store_t inchikey_store;
    static void read_inchikeys();
 
+   // 20251219-PE Do I need this?
+   static std::string current_alt_conf; // nobody wants this "per molecule" right?
+
    // add a pumpkin as a graphics object and draw it.
    void pumpkin();
 

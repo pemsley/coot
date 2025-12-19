@@ -643,6 +643,7 @@ graphics_info_t::setup_key_bindings() {
       return gboolean(TRUE);
    };
 
+
    // Note to self, Space and Shift Space are key *Release* functions
 
    std::vector<std::pair<keyboard_key_t, key_bindings_t> > kb_vec;
@@ -863,12 +864,31 @@ graphics_info_t::setup_key_bindings() {
    };
 
    auto lc_toggle_alt_conf_view = [] () {
+
       graphics_info_t g;
       std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
-      const std::string &current_alt_conf = pp.second.second.alt_conf;
       if (pp.first) {
          int imol = pp.second.first;
-         g.molecules[imol].alt_conf_view_next_alt_conf(current_alt_conf);
+         std::vector<std::string> alt_confs = molecules[imol].alt_confs_in_molecule();
+         if (! alt_confs.empty()) {
+            std::vector<std::string>::iterator it =
+               std::find(alt_confs.begin(), alt_confs.end(), current_alt_conf); // not const
+            std::string new_alt_conf;
+            if (it == alt_confs.end()) {
+               new_alt_conf = alt_confs[0];
+            } else {
+               std::size_t index = std::distance(alt_confs.begin(), it);
+               std::size_t next_index = index + 1;
+               if (next_index == alt_confs.size()) {
+                  next_index = 0;
+               }
+               new_alt_conf = alt_confs[next_index];
+            }
+            std::string cid = "//*/*/*:" + new_alt_conf;
+            molecules[imol].set_new_non_drawn_bonds(cid);
+            current_alt_conf = new_alt_conf; // for next time
+            graphics_draw();
+         }
       }
       return gboolean(TRUE);
    };

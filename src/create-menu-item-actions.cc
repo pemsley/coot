@@ -3069,6 +3069,18 @@ calculate_updating_maps_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 }
 
 
+void
+alt_conf_switcher_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                         G_GNUC_UNUSED GVariant *parameter,
+                         G_GNUC_UNUSED gpointer user_data) {
+
+   GtkWidget *button = widget_from_builder("alt-conf-switcher-button");
+   if (button) {
+      gtk_widget_set_visible(button, TRUE);
+      graphics_info_t g;
+      g.ephemeral_overlay_label("Use Ctrl-A key for alt-conf switching");
+   }
+}
 
 void
 background_black_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -5903,6 +5915,7 @@ create_actions(GtkApplication *application) {
    // Draw
 
    // these could be done with a parameter add_action_with_param()
+   add_action(         "alt_conf_switcher_action",         alt_conf_switcher_action);
    add_action(          "background_black_action",          background_black_action);
    add_action(   "background_nearly_black_action",   background_nearly_black_action);
    add_action(     "background_light_grey_action",     background_light_grey_action);

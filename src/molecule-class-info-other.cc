@@ -9519,3 +9519,39 @@ void
 molecule_class_info_t::set_show_non_bonded_contact_baddies_markers(int state) {
 
 }
+
+
+std::vector<std::string> molecule_class_info_t::alt_confs_in_molecule() const {
+
+   std::vector<std::string> v;
+   int imod = 1;
+   if (atom_sel.mol) {
+      mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+      if (model_p) {
+         int n_chains = model_p->GetNumberOfChains();
+         for (int ichain=0; ichain<n_chains; ichain++) {
+            mmdb::Chain *chain_p = model_p->GetChain(ichain);
+            int n_res = chain_p->GetNumberOfResidues();
+            for (int ires=0; ires<n_res; ires++) {
+               mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+               if (residue_p) {
+                  int n_atoms = residue_p->GetNumberOfAtoms();
+                  for (int iat=0; iat<n_atoms; iat++) {
+                     mmdb::Atom *at = residue_p->GetAtom(iat);
+                     if (! at->isTer()) {
+                        std::string alt_conf_atom = at->altLoc;
+                        if (alt_conf_atom != "") {
+                           if (std::find(v.begin(), v.end(), alt_conf_atom) == v.end()) {
+                              v.push_back(alt_conf_atom);
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+         }
+      }
+   }
+   return v;
+
+}
