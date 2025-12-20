@@ -985,7 +985,7 @@ coot::restraints_container_t::make_link_restraints_by_linear(const coot::protein
 	     << " residues (for link restraints) between (and including) residues "
 	     << istart_res << " and " << iend_res << " of chain " << chain_id_save
 	     << std::endl;
-   
+
    coot::bonded_pair_container_t bonded_residue_pairs =
       bonded_residues_conventional(selHnd, geom);
 
@@ -1025,20 +1025,23 @@ coot::restraints_container_t::make_link_restraints_from_res_vec(const coot::prot
 coot::bonded_pair_container_t
 coot::restraints_container_t::make_link_restraints_from_links(const coot::protein_geometry &geom) {
 
+   enum class found_link_t { LINK_NONE, LINK_FORWARD, LINK_BACKWARD };
+
    auto choose_a_link = [] (const std::string &comp_id_1, const std::string &comp_id_2,
                             const std::string &group_1, const std::string &group_2,
                             const std::vector<chem_link> &link_infos_f, const std::vector<chem_link> &link_infos_b,
                             const std::pair<atom_spec_t, atom_spec_t> &l_atoms,
-                            const coot::protein_geometry &geom) -> std::optional<dictionary_residue_link_restraints_t> {
+                            const coot::protein_geometry &geom) -> std::pair<found_link_t, dictionary_residue_link_restraints_t> {
 
       // std::cout << "choose_a_link(): " << l_atoms.first << " " << l_atoms.second << std::endl;
       std::vector<dictionary_residue_link_restraints_t> matched_links; // by Id and atom names
+      found_link_t found_link = found_link_t::LINK_NONE;
+
       // look in geom.dict_link_res_restraints for a matching link restraint.
       for (unsigned int i=0; i<link_infos_f.size(); i++) {
          std::string id = link_infos_f[i].Id();
          dictionary_residue_link_restraints_t lr = geom.link(id);
          if (! lr.empty()) {
-            // std::cout << "   non-empty link found " << lr.link_id << std::endl;
             for (unsigned int j=0; j<lr.link_bond_restraint.size(); j++) {
                const auto &lbr = lr.link_bond_restraint[j];
                if (false)
@@ -1049,27 +1052,53 @@ coot::restraints_container_t::make_link_restraints_from_links(const coot::protei
                bool m = lbr.matches(a1, a2);
                if (m) {
                   matched_links.push_back(lr);
+                  found_link = found_link_t::LINK_FORWARD;
+               }
+            }
+         }
+      }
+      for (unsigned int i=0; i<link_infos_b.size(); i++) {
+         std::string id = link_infos_b[i].Id();
+         dictionary_residue_link_restraints_t lr = geom.link(id);
+         if (! lr.empty()) {
+            for (unsigned int j=0; j<lr.link_bond_restraint.size(); j++) {
+               const auto &lbr = lr.link_bond_restraint[j];
+               if (false)
+                  std::cout << "   compare " << id << " " << l_atoms.first << " " << l_atoms.second << " "
+                            << lbr.atom_id_1() << " " << lbr.atom_id_2() << " " << std::endl;
+               std::string a1 = util::remove_whitespace(l_atoms.first.atom_name);
+               std::string a2 = util::remove_whitespace(l_atoms.second.atom_name);
+               bool m = lbr.matches(a2, a1);
+               if (m) {
+                  matched_links.push_back(lr);
+                  if (found_link == found_link_t::LINK_NONE)
+                     found_link = found_link_t::LINK_BACKWARD;
                }
             }
          }
       }
 
-      // std::cout << "DEBUG:: found " << matched_links.size() << " matched links" << std::endl;
+      if (false)
+         std::cout << "DEBUG:: found " << matched_links.size() << " matched links for "
+                   << comp_id_1 << " " << comp_id_2 << " "
+                   << group_1 << " " << group_2 << std::endl;
 
       // this is pretty hacky!
       if (matched_links.empty()) {
-         return std::nullopt;
+         dictionary_residue_link_restraints_t dum;
+         return std::make_pair(found_link_t::LINK_NONE, dum);
       } else {
          unsigned int idx_pref = 0;
          if (matched_links.size() > 1) {
             if (matched_links[1].link_id == "BETA1-4")
                idx_pref = 1;
          }
-         return matched_links[idx_pref];
+         return std::make_pair(found_link, matched_links[idx_pref]);
       }
    };
 
-   // std::cout << "DEBUG:: starting make_link_restraints_from_links() ::::::::::::::::::::::::::::::::::::::::::::::::" << std::endl;
+   if (false)
+      std::cout << "DEBUG:: starting make_link_restraints_from_links() ::::::::::::::::::::::::::::::::::::::::::::::::" << std::endl;
 
    coot::bonded_pair_container_t v;
    // go through the list of links in the manager and see if there are links that match
@@ -1115,13 +1144,13 @@ coot::restraints_container_t::make_link_restraints_from_links(const coot::protei
                            std::cout << "DEBUG:: make_link_restraints_from_links(): link_infos_b " << link_infos_b[i] << std::endl;
                      }
 
-                     std::optional<dictionary_residue_link_restraints_t> lr =
+                     std::pair<found_link_t, dictionary_residue_link_restraints_t> lr =
                         choose_a_link(comp_id_1, comp_id_2, group_1, group_2, link_infos_f, link_infos_b, l_atoms, geom);
-                     if (lr) {
+                     if (lr.first == found_link_t::LINK_FORWARD || lr.first == found_link_t::LINK_BACKWARD) {
 
                         bool fixed_1 = false;
                         bool fixed_2 = false;
-                        std::string link_id = lr.value().link_id;
+                        std::string link_id = lr.second.link_id;
                         // 2025-10-22-PE now find if the residues of this link were fixed. Is there a better way than this
                         // code block!?
                         for (unsigned int i=0; i<residues_vec.size(); i++) {
@@ -1130,11 +1159,18 @@ coot::restraints_container_t::make_link_restraints_from_links(const coot::protei
                         }
 
                         if (false)
-                           std::cout << "OK, eventually calliing make_link_restraints_for_link_ng() for "
+                           std::cout << "OK, eventually calling make_link_restraints_for_link_ng() for "
                                      << coot::residue_spec_t(first_residue) << " and " << coot::residue_spec_t(second_residue)
                                      << " " << link_id << std::endl;
 
-                        make_link_restraints_for_link_ng(link_id, first_residue, second_residue, fixed_1, fixed_2, false, geom);
+                        if (lr.first == found_link_t::LINK_FORWARD)
+                           make_link_restraints_for_link_ng(link_id, first_residue, second_residue, fixed_1, fixed_2, false, geom);
+                        if (lr.first == found_link_t::LINK_BACKWARD)
+                           make_link_restraints_for_link_ng(link_id, second_residue, first_residue, fixed_2, fixed_1, false, geom);
+
+                     } else {
+                        if (false)
+                           std::cout << ".... choose a link found nothing" << std::endl;
                      }
                   }
                }

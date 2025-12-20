@@ -84,7 +84,7 @@ def _recv_exact(sock, n):
 @server.resource("coot://skill")
 async def read_resource():
     dirname = Path(os.path.dirname(__file__))
-    skill_path = dirname / "docs" / "SKILL.md"
+    skill_path = dirname / "docs" / "skills" / "best-practices" / "SKILL.md"
     return skill_path.read_text()
 
 @mcp.tool()
@@ -107,7 +107,7 @@ def run_python(code: str) -> str:
     return "No result returned."
 
 def get_start_text():
-    return 'Coot has over 1000 functions. Use search_coot_functions(pattern) to find specific ones. Use list_available_tools_in_block(block_index) where block_index varies from 0 to 11 (inclusive) to get each of the api documentation blocks. Coot only returns values if the code is a single line. Multi-line code does not return values. If you need a return value from a block of code then define a wrapper function in one call (that will return None) and then run that function in the next call. Note that coot.active_atom_spec_py() is a useful function to determine the "selected" residue (i.e. the "active" residue that will be acted on by the tools in the interface). The coot module is already imported, the coot_utils module will need to be imported first if you want to use a function in that module. Do not use matplotlib for graphs, instead use pygal.'
+    return 'Coot has over 1000 functions. Use search_coot_functions(pattern) to find specific ones. Use list_available_tools_in_block(block_index) where block_index varies from 0 to 6 (inclusive) to get each of the api documentation blocks. Coot only returns values if the code is a single line. Multi-line code does not return values. If you need a return value from a block of code then define a wrapper function in one call (that will return None) and then run that function in the next call. Note that coot.active_atom_spec_py() is a useful function to determine the "selected" residue (i.e. the "active" residue that will be acted on by the tools in the interface). The coot module is already imported, the coot_utils module will need to be imported first if you want to use a function in that module. Do not use matplotlib for graphs, instead use pygal.'
 
 @mcp.tool()
 def list_available_tools() -> str:

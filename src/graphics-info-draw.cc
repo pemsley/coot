@@ -486,7 +486,7 @@ glm::mat4
 graphics_info_t::get_model_matrix() {
 
    // rework this so that the view rotation matrix becomes part of the *model* matrix
-   // for both orthograph and perspective
+   // for both orthographic and perspective
 
    glm::mat4 m(1.0f);
    glm::vec3 rc = get_rotation_centre();

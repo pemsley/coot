@@ -215,7 +215,7 @@ short int graphics_info_t::smooth_scroll_on = 0;
 int    graphics_info_t::smooth_scroll_current_step = 0;
 coot::Cartesian graphics_info_t::smooth_scroll_delta;
 int    graphics_info_t::mouse_just_cliked     = 0;
-float  graphics_info_t::user_defined_rotation_centre_crosshairs_size_scale_factor = 0.1;
+float  graphics_info_t::user_defined_rotation_centre_crosshairs_size_scale_factor = 0.05;
 glm::vec4 graphics_info_t::rotation_centre_cross_hairs_colour = glm::vec4(0.8, 0.8, 0.8, 1.0);
 short int graphics_info_t::quanta_like_zoom_flag = 0;
 int    graphics_info_t::go_to_ligand_animate_view_n_steps = 50;
@@ -1866,4 +1866,4 @@ coot::inchikey_store_t graphics_info_t::inchikey_store;
 std::pair<bool, std::string> graphics_info_t::servalcat_fofc    = std::pair<bool, std::string> (false, "");
 std::pair<bool, std::string> graphics_info_t::servalcat_refine  = std::pair<bool, std::string> (false, "");
 
-
+std::string graphics_info_t::current_alt_conf = "";

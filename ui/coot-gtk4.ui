@@ -531,7 +531,11 @@
       <attribute name="label">Draw</attribute>
       <submenu>
         <attribute name="label">View</attribute>
-        <section>
+          <section>
+            <item>
+              <attribute name="label">Alt-Conf Switcher</attribute>
+              <attribute name="action">app.alt_conf_switcher_action</attribute>
+            </item>
 
           <!-- <item> -->
           <!--   <attribute name="label">Background Colour...</attribute> -->
@@ -566,7 +570,6 @@
             </item>
           </submenu>
          
-
           <item>
             <attribute name="label">Display Only Active</attribute>
             <attribute name="action">app.display_only_active_action</attribute>
@@ -6734,6 +6737,15 @@ Do you want to continue?
                   <property name="label" translatable="yes">Grab Focus</property>
                   <property name="can-focus">0</property>
                   <signal name="clicked" handler="on_graphics_grab_focus_button_clicked" swapped="no"/>
+                </object>
+              </child>
+
+              <child>
+                <object class="GtkButton" id="alt-conf-switcher-button">
+                  <property name="label" translatable="yes">Clear AltConf Switcher</property>
+                  <property name="can-focus">0</property>
+                  <property name="visible">False</property>
+                  <signal name="clicked" handler="on_alt_conf_switcher_button_clicked" swapped="no"/>
                 </object>
               </child>
 

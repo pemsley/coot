@@ -1,3 +1,7 @@
+---
+name: coot-best-practices
+description: "Best Practices for using Coot MCP"
+---
 # Coot Python API Best Practices
 
 ## Overview

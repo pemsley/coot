@@ -2816,6 +2816,8 @@ public:        //                      public
    int swap_atom_alt_conf(std::string chain_id, int res_no, std::string ins_code, std::string atom_name,
                           std::string alt_conf);
 
+   std::vector<std::string> alt_confs_in_molecule() const;
+
    int swap_residue_alt_confs(const std::string &chain_id, int res_no, const std::string &ins_code);
 
    int set_atom_attribute(std::string chain_id, int resno, std::string ins_code,
