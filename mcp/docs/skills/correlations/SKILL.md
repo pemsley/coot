@@ -1,3 +1,8 @@
+---
+name: coot-correlations
+description: "Using Density-Fit Correlations in Coot"
+---
+
 # Improved MCP Function Documentation for Coot
 
 ## Map to Model Correlation Functions

@@ -1,0 +1,12 @@
+
+example:
+
+create best-practices/SKILL.md
+
+$ zip -r best-practices.skill best-practices
+
+In Claude Desktop:
+
+Options -> Capabilities -> Skills -> Add... best-practices.skill
+
+
