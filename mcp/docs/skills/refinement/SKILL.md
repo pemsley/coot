@@ -19,9 +19,8 @@ coot.set_refinement_immediate_replacement(1)
 
 **Why:** Enables synchronous operation where refinement directly updates coordinates. Without this:
 - Refinement happens asynchronously in background threads
-- Need to call `accept_moving_atoms_py()` after each operation
-- Risk of threading conflicts and crashes
-- Race conditions between refinement and rendering
+- Need to call `coot.set_refinement_immediate_replacement()` before using refinement functions (just once is enough)
+  which should remove the risk of threading conflicts and crashes, race conditions between refinement and rendering.
 
 **When to use:** Any time you're scripting refinement operations (auto_fit_best_rotamer, refine_zone, etc.)
 

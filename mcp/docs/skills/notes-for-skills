@@ -1,7 +1,7 @@
 
 example:
 
-create best-practices/SKILL.md
+create or edit best-practices/SKILL.md
 
 $ zip -r best-practices.skill best-practices
 
