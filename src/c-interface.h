@@ -7322,9 +7322,134 @@ void start_ligand_builder_gui();
 SCM all_molecule_rotamer_score(int imol);
 SCM all_molecule_ramachandran_score(int imol); /* a stub currently */
 #endif /* USE_GUILE */
+
 #ifdef USE_PYTHON
+/**
+ * @brief Compute rotamer score for an entire molecule and return result as a Python object.
+ *
+ * This wrapper computes the rotamer score information for molecule number @p imol
+ * and returns a Python list containing the numeric score and the number of
+ * rotamer-bearing residues.
+ *
+ * Parameters
+ * ----------
+ * @param imol
+ *     Model (molecule) index to analyze.
+ *
+ * Return value
+ * ------------
+ * Returns a NEW reference to a Python object. Two possible outcomes:
+ *
+ * - Success: a Python list of length 2 (PyList), with elements:
+ *     0 : float — overall rotamer score (PyFloat)
+ *     1 : int   — number of rotamer residues considered (PyLong)
+ *
+ * - Failure / invalid model index: Py_False (Python False).
+ *   The implementation INCREFs Py_False before returning, so the caller receives
+ *   a new reference in the failure case as well.
+ *
+ * Reference counting
+ * -----------------
+ * The returned PyObject* is a new reference. The caller is responsible for
+ * DECREFing it when finished.
+ *
+ * Notes
+ * -----
+ * - Callers should detect the failure case by testing with PyBool_Check (Py_False).
+ * - Ensure the Python GIL is held when calling this function from non-Python threads.
+ */
 PyObject *all_molecule_rotamer_score_py(int imol);
+#endif /* USE_PYTHON */
+
+#ifdef USE_PYTHON
+/**
+ * @brief Compute overall and per-residue Ramachandran statistics for a molecule and
+ *        return the results as a Python object.
+ *
+ * This wrapper gathers the Ramachandran score information computed for molecule
+ * number @p imol and returns a Python list with six elements describing the
+ * overall scores and per-residue details.
+ *
+ * Parameters
+ * ----------
+ * @param imol
+ *     Model (molecule) index to analyze.
+ *
+ * Return value
+ * ------------
+ * @return a NEW reference to a Python object. Two possible outcomes:
+ *
+ * - Success: a Python list of length 6 (PyList), with elements:
+ *     0 : float   — overall Ramachandran score (PyFloat)
+ *     1 : int     — number of residues considered (PyLong)
+ *     2 : float   — Ramachandran score restricted to non-secondary-structure residues (PyFloat)
+ *     3 : int     — number of residues used for the non-secondary-structure score (PyLong)
+ *     4 : int     — number of zero-score residues (PyLong)
+ *     5 : list    — info_by_residue: a list with one entry per residue (length == number of residues).
+ *                     Each entry is either:
+ *                       - a list of four items:
+ *                           [ phi_psi_list, residue_spec_py, residue_score, res_names_list ]
+ *                             * phi_psi_list: list of two floats [phi, psi]
+ *                             * residue_spec_py: Python representation of the residue spec (see residue_spec_to_py)
+ *                             * residue_score: float (PyFloat)
+ *                             * res_names_list: list of three strings [prev_res_name, this_res_name, next_res_name]
+ *                       - the integer -1 as a placeholder if per-residue info could not be computed for that index.
+ *
+ * - Failure / invalid model index: Py_False (Python False). The implementation INCREFs Py_False before returning,
+ *   so the caller receives a new reference in this case as well.
+ *
+ * Reference counting
+ * -----------------
+ * The returned PyObject* is a new reference. The caller is responsible for DECREFing it when finished.
+ *
+ * Notes
+ * -----
+ * - Callers should check the return with PyBool_Check to detect the failure case (Py_False).
+ * - Some per-residue entries may be -1 (an integer) if residue data was unavailable.
+ * - The function must be called with appropriate GIL handling if invoked from non-Python threads.
+ */
+
 PyObject *all_molecule_ramachandran_score_py(int imol); /* a stub currently */
+#endif /* USE_PYTHON */
+
+#ifdef USE_PYTHON
+/**
+ * @brief Return the Ramachandran region annotation for a molecule as a Python list.
+ *
+ * This wrapper returns per-residue region information computed for molecule @p imol.
+ * It queries the internal Ramachandran scoring machinery and returns a Python list
+ * of (residue_spec, region_int) pairs for residues that lie in the computed region.
+ *
+ * Parameters
+ * ----------
+ * @param imol
+ *     Model (molecule) index to query.
+ *
+ * Return value
+ * ------------
+ * Returns a NEW reference to a Python object. There are two possible outcomes:
+ *
+ * - Success: a Python list (PyList) of length N > 0, where each element is a 2-tuple:
+ *     ( residue_spec_py, region_code )
+ *     * residue_spec_py: Python representation of the residue spec (as produced by residue_spec_to_py).
+ *     * region_code: integer (PyLong) — the integer label associated with that residue's Ramachandran region
+ *       (as provided by the underlying rama score/region computation).
+ *
+ * - Failure / no region entries / invalid model index: Py_False (Python False).
+ *   The implementation INCREFs Py_False before returning, so the caller receives a new reference
+ *   in this case as well.
+ *
+ * Reference counting
+ * -----------------
+ * The returned PyObject* is a new reference. The caller is responsible for DECREFing it when finished.
+ *
+ * Notes
+ * -----
+ * - Callers should detect the failure/empty case by testing with PyBool_Check (Py_False).
+ * - The exact meaning of the integer region_code is defined by the internal Ramachandran scoring code;
+ *   consult the implementation or documentation for interpretation of region codes.
+ * - Ensure the Python GIL is held when calling this function from non-Python threads.
+ */
 PyObject *all_molecule_ramachandran_region_py(int imol);
 #endif /* USE_PYTHON */
 #endif /* __cplusplus */
@@ -7333,7 +7458,9 @@ PyObject *all_molecule_ramachandran_region_py(int imol);
 
 This is not guaranteed to generate the correct biological entity, but will bring together
 molecules (chains/domains) that are dispersed throughout the unit cell.
-  */
+
+@param imol the molecule index.
+*/
 void globularize(int imol);
 
 #ifdef __cplusplus

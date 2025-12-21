@@ -6672,7 +6672,6 @@ int pyrun_simple_string(const char *python_command) {
 
 #ifdef USE_PYTHON
 
-
 /**
  * Alternative version that extracts a return value from multi-line code.
  * Wraps the code to capture the last expression's value.
@@ -6680,55 +6679,79 @@ int pyrun_simple_string(const char *python_command) {
  * @param code Python code to execute
  * @return PyObject* result (new reference), or NULL on error
  */
-PyObject* execute_python_code_with_result(const std::string &code) {
+std::pair<PyObject*, std::string> execute_python_code_with_result_internal(const std::string &code) {
 
-    PyObject* result = NULL;
+   std::string error_message;
+   PyObject* result = NULL;
 
-    // Get __main__ namespace
-    PyObject* main_module = PyImport_AddModule("__main__");
-    if (!main_module) {
-        std::cerr << "ERROR: Failed to get __main__ module" << std::endl;
-        return NULL;
-    }
+   // Get __main__ namespace
+   PyObject* main_module = PyImport_AddModule("__main__");
+   if (!main_module) {
+      std::cerr << "ERROR: Failed to get __main__ module" << std::endl;
+      return std::make_pair(result, error_message);
+   }
 
-    PyObject* global_dict = PyModule_GetDict(main_module);
-    if (!global_dict) {
-        std::cerr << "ERROR: Failed to get __main__ dictionary" << std::endl;
-        return NULL;
-    }
+   PyObject* global_dict = PyModule_GetDict(main_module);
+   if (!global_dict) {
+      std::cerr << "ERROR: Failed to get __main__ dictionary" << std::endl;
+      return std::make_pair(result, error_message);
+   }
 
-    // Try as simple expression first
-    result = PyRun_String(code.c_str(), Py_eval_input, global_dict, global_dict);
-    if (result) {
-        return result;
-    }
+   // Try as simple expression first
+   result = PyRun_String(code.c_str(), Py_eval_input, global_dict, global_dict);
+   if (result) {
+      return std::make_pair(result, error_message);
+   }
 
-    PyErr_Clear();
+   PyErr_Clear();
 
-    // For multi-line code, we need to handle it differently
-    // Execute the code
-    PyObject* exec_result = PyRun_String(code.c_str(), Py_file_input, global_dict, global_dict);
+   // For multi-line code, we need to handle it differently
+   // Execute the code
+   PyObject* exec_result = PyRun_String(code.c_str(), Py_file_input, global_dict, global_dict);
 
-    if (!exec_result) {
+   if (!exec_result) {
         std::cerr << "ERROR: Python execution failed:" << std::endl;
         if (PyErr_Occurred()) {
-            PyErr_Print();
-        }
-        return NULL;
-    }
+           PyObject *ptype, *pvalue, *ptraceback;
+           PyErr_Fetch(&ptype, &pvalue, &ptraceback);
+           if (pvalue) {
+              PyObject* str_obj = PyObject_Str(pvalue);
+              if (str_obj) {
+                 const char* str = PyUnicode_AsUTF8(str_obj);
+                 if (str) {
+                     error_message = str;
+                 }
+                 Py_DECREF(str_obj);
+               }
+           }
 
-    Py_DECREF(exec_result);  // This is typically Py_None
+           Py_XDECREF(ptype);
+           Py_XDECREF(pvalue);
+           Py_XDECREF(ptraceback);
+           PyErr_Print();
+        }
+        return std::make_pair(result, error_message);
+   }
+
+   Py_DECREF(exec_result);  // This is typically Py_None
 
     // Look for a special variable '__result__' that the code may have set
     // Or just return None to indicate successful execution
     PyObject* stored_result = PyDict_GetItemString(global_dict, "__result__");
     if (stored_result) {
         Py_INCREF(stored_result);  // GetItemString returns borrowed reference
-        return stored_result;
+        return std::make_pair(stored_result, error_message);
     }
 
     // No specific result - return None to indicate success
-    Py_RETURN_NONE;
+    // Py_RETURN_NONE;
+    return std::make_pair(Py_None, error_message);
+}
+
+PyObject* execute_python_code_with_result(const std::string &code) {
+
+   std::pair<PyObject *, std::string> r = execute_python_code_with_result_internal(code);
+   return r.first;
 }
 
 
@@ -9057,20 +9080,40 @@ gint coot_socket_listener_idle_func(gpointer data) {
             if (req["method"] == "python.exec") {
                std::string code = req["params"]["code"];
                // PyObject *rrr = safe_python_command_with_return(code);
-               PyObject *rrr = execute_python_code_with_result(code);
-               if (rrr)
-                  if (PyBool_Check(rrr) || rrr == Py_None)
-                     Py_INCREF(rrr);
+               std::pair<PyObject *, std::string> rrr = execute_python_code_with_result_internal(code);
+               std::string error_message = rrr.second;
+               if (rrr.first)
+                  if (PyBool_Check(rrr.first) || rrr.first == Py_None)
+                     Py_INCREF(rrr.first);
                const char *mess = "%s";
                PyObject *dest = myPyString_FromString(mess);
-               PyObject *o = PyUnicode_Format(dest, rrr);
+               PyObject *o = PyUnicode_Format(dest, rrr.first);
                if (o) {
                   std::string s = PyBytes_AS_STRING(PyUnicode_AsUTF8String(o));
                   json j_response;
                   j_response["jsonrpc"] = "2.0";
                   j_response["id"] = std::to_string(id);
                   j_response["result"] = s;
+                  if (! error_message.empty()) {
+                     json j_error;
+                     j_error["code"] = -32001;
+                     j_error["message"] = error_message;
+                     j_response["error"] = j_error;
+                  }
                   response_str = j_response.dump();
+               } 
+               if (true) {
+                  if (! error_message.empty()) {
+                     json j_response;
+                     j_response["jsonrpc"] = "2.0";
+                     j_response["id"] = std::to_string(id);
+                     json j_error;
+                     j_error["code"] = -32001;
+                     j_error["message"] = error_message;
+                     j_response["error"] = j_error;
+                     response_str = j_response.dump();
+                     std::cout << "DEBUG:: here A is the full dump:::::::::::::::\n" << response_str << std::endl;
+                  }
                }
             }
 
@@ -9091,7 +9134,7 @@ gint coot_socket_listener_idle_func(gpointer data) {
                json::const_iterator it_params = req.find("params");
                if (it_params != req.end()) {
                   const json &j_params = *it_params;
-                  std::cout << "DEBUG:: ::::::::::::::: here in list tools block with j_params " << j_params << std::endl;
+                  // std::cout << "DEBUG:: ::::::::::::::: here in list tools block with j_params " << j_params << std::endl;
                   json::const_iterator it_block_index = j_params.find("block_index");
                   if (it_block_index != j_params.end()) {
                      block_index = it_block_index->get<int>();
