@@ -21,6 +21,7 @@
  * Fifth Floor, Boston, MA, 02110-1301, USA.
  */
 
+#include "molecule-class-info.h"
 #ifdef USE_PYTHON
 #include <Python.h> // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #endif
@@ -8235,6 +8236,8 @@ molecule_class_info_t::add_dummy_atom(coot::Cartesian pos) {
 
 // Backup filename: return a stub.
 //
+// move to molecule-class-info-backups.cc
+//
 std::string
 molecule_class_info_t::get_save_molecule_filename(const std::string &dir) {
 
@@ -8314,6 +8317,7 @@ molecule_class_info_t::make_maybe_backup_dir(const std::string &backup_dir) cons
 // If successful, increase history_index and if not in a backup
 // increase max_history_index too.
 //
+// move this function to the mci-backups file.
 int
 molecule_class_info_t::make_backup() { // changes history details
 
@@ -8395,6 +8399,9 @@ molecule_class_info_t::make_backup() { // changes history details
                   std::string warn;
                   warn = "WARNING:: WritePDBASCII failed! Return status ";
                   warn += istat;
+                  // 2025-12-22-PE - the function should return a value
+                  // with this warning message. This is not the place
+                  // for GUI code.
                   g.info_dialog_and_text(warn);
                }
             } else {
@@ -8423,16 +8430,19 @@ molecule_class_info_t::make_backup() { // changes history details
 void
 molecule_class_info_t::save_history_file_name(const std::string &file) {
 
+   // FIXME!!!!!!!!!!!!!!!!!!!!
+
    // First, history_index is zero and the vec is zero,
    // normal service, then another backup: history_index is 1 and vec is 1.
    //
    if (history_index == int(history_filename_vec.size())) {
-      history_filename_vec.push_back(file);
+      coot::backup_file_info_t(file);
+      // history_filename_vec.push_back(file);
    } else {
       // we have gone back in history.
       //
       if (history_index < int(history_filename_vec.size())) {
-         history_filename_vec[history_index] = file;
+         history_filename_vec[history_index].backup_file_name = file;
       }
    }
 }
@@ -8454,7 +8464,7 @@ molecule_class_info_t::restore_from_backup(int history_offset,
       std::string save_name = name_;
       if (hist_vec_index < int(history_filename_vec.size()) &&
           hist_vec_index >= 0) {
-         std::string filename = history_filename_vec[hist_vec_index];
+         std::string filename = history_filename_vec[hist_vec_index].backup_file_name;
          //      history_index = hist_index;
          short int reset_rotation_centre = 0;
          // handle_read_draw_molecule uses graphics_info_t::n_molecules

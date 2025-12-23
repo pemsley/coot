@@ -1345,6 +1345,59 @@ Parameters
 state : int
 ";
 
+%feature("docstring") make_backup_checkpoint "
+Make a backup for a model molecule.
+
+  imol  the model molecule index @description a description that goes along with this back point the index of the backup, or -1 on failure
+
+Parameters
+----------
+imol : int
+    the model molecule index @description a description that goes along with this back point
+description : const char *
+";
+
+%feature("docstring") restore_to_backup_checkpoint "
+Restore molecule from backup.
+
+restore model imol to checkpoint backup backup_index
+
+  imol  the model molecule index   backup_index  the backup index to restore to the index of the backup, or -1 on failure
+
+Parameters
+----------
+imol : int
+    the model molecule index
+backup_index : int
+    the backup index to restore to
+";
+
+%feature("docstring") compare_current_model_to_backup "
+Compare current model to backup.
+
+  imol  the model molecule index   backup_index  the backup index to restore to a Python dict, with 2 items, a \"status\" which is either \"ok\" or \"error\" or \"bad-index\" and a list of residue specs for residues that have at least one atom in a different place (which might be empty).
+
+Parameters
+----------
+imol : int
+    the model molecule index
+backup_index : int
+    the backup index to restore to
+";
+
+%feature("docstring") get_backup_info "
+Get backup info.
+
+  imol  the model molecule index   backup_index  the backup index to restore to a Python list of the given description (str) and a timestamp (str).
+
+Parameters
+----------
+imol : int
+    the model molecule index
+backup_index : int
+    the backup index to restore to
+";
+
 %feature("docstring") recover_session "
 recover session
 

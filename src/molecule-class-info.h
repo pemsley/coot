@@ -27,6 +27,7 @@
 #define MOLECULE_CLASS_INFO_T
 
 #include "geometry/residue-and-atom-specs.hh"
+#include <ctime>
 #ifndef HAVE_STRING
 #define HAVE_STRING
 #include <string>
@@ -193,15 +194,32 @@ namespace coot {
 
    // a helper class - provide filenames and status for dialog widget
    //
-   class backup_file_info {
+   class backup_file_info_t {
    public:
-      short int status;
+      bool valid_status;
       int imol;
       std::string name;
+      std::string description;
       std::string backup_file_name;
-      backup_file_info() {
-	 status = 0; // initially no backup reported
+      timespec ctime;
+      std::string get_timespec_string() const {
+         char buffer[80];
+         struct tm* timeinfo = localtime(&ctime.tv_sec);
+         strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", timeinfo);
+         std::ostringstream oss;
+         oss << buffer << "." << std::setfill('0') << std::setw(3) << (ctime.tv_nsec / 1000000);
+         return oss.str();
+      }
+      backup_file_info_t() {
+	 valid_status = false; // initially no backup reported
          imol = -1;
+      }
+      backup_file_info_t(const std::string &file_name,
+                         const std::string &descr) {
+         valid_status = false;
+         imol = -1;
+         backup_file_name = file_name;
+         description = descr;
       }
    };
 
@@ -345,10 +363,51 @@ class molecule_class_info_t {
    int history_index;
    int max_history_index;
    void save_history_file_name(const std::string &file);
-   std::vector<std::string> history_filename_vec;
+   std::vector<coot::backup_file_info_t> history_filename_vec;
    std::string save_time_string;
    void restore_from_backup(int history_offset, const std::string &cwd);
 
+   public: // FIXME later
+
+   /*! \brief Make a backup for a model molecule
+    *
+    * @param imol the model molecule index
+    * @description a description that goes along with this back point
+    */
+   int make_backup_checkpoint(const std::string &description);
+
+   /*! \brief Restore molecule from backup
+    * 
+    * restore model @p imol to checkpoint backup @p backup_index
+    *
+    * @param imol the model molecule index
+    * @param backup_index the backup index to restore to
+    */
+   int restore_to_backup_checkpoint(int backup_index);
+
+   /*! \brief Compare current model to backup
+    * 
+    * @param imol the model molecule index
+    * @param backup_index the backup index to restore to
+    * @return a list of residue specs for residues that have
+    *         at least one atom in a different place.
+    *   the first says is the backup_index was valid.
+    */
+   std::pair<bool, std::vector<coot::residue_spec_t> > compare_current_model_to_backup(int backup_index);
+
+   /*! \brief Get backup info
+    * 
+    * @param imol the model molecule index
+    * @param backup_index the backup index to restore to
+    * @return a Python list of the given description (str)
+    *         and a timestamp (str).
+    */
+   coot::backup_file_info_t get_backup_info(int backup_index);
+
+   private:
+
+   // map tools
+   //
    void set_initial_contour_level(); // tinker with the class data.
 				     // Must be called after sigma_
 				     // and is_diff_map has been set
@@ -2092,7 +2151,7 @@ public:        //                      public
    //
    short int execute_restore_from_recent_backup(std::string backup_file_name,
 						std::string cwd);
-   coot::backup_file_info recent_backup_file_info() const;
+   coot::backup_file_info_t recent_backup_file_info() const;
 
    // For model view (go to atom)
    //

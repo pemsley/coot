@@ -91,7 +91,8 @@ namespace std {
   init_coot_as_python_module();
 %}
 
-// %feature("autodoc", "3"); // add doc string for Intellisense (hopefully)
+// %feature("autodoc", "1"); // add doc string for Intellisense (hopefully)
+%feature("autodoc", "1"); // add type hints hopefully
 
 // If the following line is enabled, then the comments extracted
 // using -doxygen on the command line are lost.
@@ -102,6 +103,7 @@ namespace std {
 // 2025-12-15-PE modern method
 %include "coot_cc_interface_docs.i"
 %include "coot_c_interface_docs.i"
+%include "coot_rsr_functions_docs.i"
 
 #include "globjects.h"  //includes gtk/gtk.h
 #include "coot-utils/coot-coord-utils.hh"

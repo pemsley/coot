@@ -8869,62 +8869,132 @@ int get_remote_control_port_number() {
 #include <coot-utils/json.hpp>
 using json = nlohmann::json;
 
+struct param_doc {
+   std::string name;
+   long kind;
+   std::string annotation;
+};
+
 struct func_doc {
    std::string function_name;
    std::string documentation;
+   std::vector<param_doc> params;
 };
 
 gint coot_socket_listener_idle_func(gpointer data) {
 
-   auto extract_param_info = [] () {
-/*
-            if (attr && PyCallable_Check(attr)) {
-               PyObject* sig = PyObject_CallMethod(inspect, "signature", "O", attr);
+   auto get_param_docs = [] (PyObject *attr) {
 
-               if (!sig) {
-                  PyErr_Print();
-               } else {
+      // std::cout << "get_param_docs(): --- start --- " << attr << std::endl;
+      std::vector<param_doc> param_doc_vec; // return this
 
-                  std::cout << "Here A" << std::endl;
-                  PyObject* params = PyObject_GetAttrString(sig, "parameters");
-                  PyObject *key, *value;
-                  Py_ssize_t pos = 0;
+      if (attr && PyCallable_Check(attr)) {
+         PyObject *inspect_module_name = myPyString_FromString("inspect");
+         PyObject *inspect = PyImport_Import(inspect_module_name);
+         PyObject* signature = PyObject_CallMethod(inspect, "signature", "O", attr);
 
-                  PyObject* empty = PyObject_GetAttrString(inspect, "_empty");
-                  while (PyDict_Next(params, &pos, &key, &value)) {
-                     std::cout << "Here B" << std::endl;
-                     const char* param_name = PyUnicode_AsUTF8(key);
-                     PyObject *kindObj    = PyObject_GetAttrString(value, "kind");
-                     PyObject *defaultObj = PyObject_GetAttrString(value, "default");
-                     PyObject *annotObj   = PyObject_GetAttrString(value, "annotation");
-                     long kind = PyLong_AsLong(kindObj);
-                     bool has_annot = (annotObj != empty);
-                     std::string annotation;
-                     if (has_annot) {
-                         PyObject* s = PyObject_Str(annotObj);
-                         annotation = PyUnicode_AsUTF8(s);
-                         Py_DECREF(s);
-                     }
-                     std::cout << "param_name: " << param_name << " kind: " << kind
-                               << " annotation: " << annotation << std::endl;
-                  }
-                  PyObject* retAnn = PyObject_GetAttrString(sig, "return_annotation");
-                  bool has_ret_annot = (retAnn != empty);
+         if (!signature) {
+            std::cout << "get_param_docs(): null sig" << std::endl;
+            PyErr_Print();
+         } else {
 
-                  std::string return_type;
-                  if (has_ret_annot) {
-                      PyObject* s = PyObject_Str(retAnn);
-                      return_type = PyUnicode_AsUTF8(s);
-                      Py_DECREF(s);
-                  }
-                  Py_DECREF(retAnn);
+            PyObject* params = PyObject_GetAttrString(signature, "parameters");
+            PyObject *key, *value;
+            Py_ssize_t pos = 0;
 
-               }
+            // std::cout << "DEBUG:: params type: " << params->ob_type->tp_name << std::endl;
+            PyObject* empty = PyObject_GetAttrString(inspect, "_empty");
+
+            if (params) {
+                // Get keys from the mappingproxy
+                PyObject* keys = PyMapping_Keys(params);
+                if (keys) {
+
+                    // PyObject *dp = display_python(keys);
+                    // if (dp)
+                    //    std::cout << "DEBUG:: keys: " << PyBytes_AS_STRING(PyUnicode_AsUTF8(dp)) << std::endl;
+                    // else
+                    //    std::cout << "DEBUG:: null dp" << std::endl;
+
+                    Py_ssize_t size = PyList_Size(keys);
+
+                    for (Py_ssize_t i = 0; i < size; i++) {
+                        PyObject* key = PyList_GetItem(keys, i);
+                        const char* param_name = PyUnicode_AsUTF8(key);
+
+                        // PyObject* value = PyObject_GetItem(params, key);
+                        PyObject* value = PyMapping_GetItemString(params, param_name);  // ← Use this instead
+
+                        /* 
+                        // std::cout << "DEBUG: processing parameter: " << param_name << std::endl;
+                        {
+                           if (value) {
+                              // Get the type name to see what we actually have
+                              const char* type_name = value->ob_type->tp_name;
+                              // type_name is "Parameter"
+                              // std::cout << "DEBUG:: key " << i << " name: " << param_name << " type: " << type_name << std::endl;
+
+                              // Try to get the 'kind' attribute to verify it's a Parameter object
+                              PyObject *kindObj = PyObject_GetAttrString(value, "kind");
+                              if (kindObj) {
+                                  long kind = PyLong_AsLong(kindObj);
+                                  std::cout << "DEBUG::   -> has kind attribute: " << kind << std::endl;
+                                  Py_DECREF(kindObj);
+                              } else {
+                                  std::cout << "DEBUG::   -> NO kind attribute (not a Parameter object!)" << std::endl;
+                                  PyErr_Clear();
+                              }
+                           }
+                        }
+                        */
+
+                        // Now you can access the Parameter object
+                        PyObject *kindObj    = PyObject_GetAttrString(value, "kind");
+                        PyObject *defaultObj = PyObject_GetAttrString(value, "default");
+                        PyObject *annotObj   = PyObject_GetAttrString(value, "annotation");
+
+                        long kind = PyLong_AsLong(kindObj);
+                        bool has_annot = (annotObj != empty);
+                        std::string annotation;
+                        if (has_annot) {
+                           PyObject* s = PyObject_Str(annotObj);
+                           annotation = PyUnicode_AsUTF8(s);
+                           Py_DECREF(s);
+                        }
+
+                        param_doc dp;
+                        dp.name = param_name;
+                        dp.kind = PyLong_AsLong(kindObj);
+                        dp.annotation = annotation;
+
+                        param_doc_vec.push_back(dp);
+
+                        Py_DECREF(value);
+                    }
+                    Py_DECREF(keys);
+                }
             }
-*/
+
+            /* -------------- put this in another function ---------- 
+            PyObject* retAnn = PyObject_GetAttrString(sig, "return_annotation");
+            bool has_ret_annot = (retAnn != empty);
+
+            std::string return_type;
+            if (has_ret_annot) {
+                PyObject* s = PyObject_Str(retAnn);
+                return_type = PyUnicode_AsUTF8(s);
+                Py_DECREF(s);
+            }
+            Py_DECREF(retAnn);
+            */
+
+         }
+      }
+      // std::cout << "DEBUG:: ----------- returning " << param_doc_vec.size() << " param docs" << std::endl;
+      return param_doc_vec;
    };
 
-   auto handle_list_tools = [] (int block_index) {
+   auto handle_list_tools = [get_param_docs] (int block_index) {
 
       // the first is the module name, e.g. coot, coot_utils and the
       // second is the list of functions in that module
@@ -8937,7 +9007,7 @@ gint coot_socket_listener_idle_func(gpointer data) {
       unsigned int count = 0;
       std::vector<std::string> module_names = {"coot", "coot_utils"};
       for (const std::string &module_name : module_names) {
-         std::vector<func_doc> v; // functions that are in this module
+         std::vector<func_doc> func_doc_vec; // functions that are in this module
          PyObject* pModule = PyImport_ImportModule(module_name.c_str());
 
          if (!pModule) {
@@ -8972,25 +9042,31 @@ gint coot_socket_listener_idle_func(gpointer data) {
                         std::cout << "debug:: name " << name << " docobj: pynone" << std::endl;
                   } else {
                      std::string doc = PyBytes_AS_STRING(PyUnicode_AsUTF8String(docObj));
-                     if (true)
+                     if (false)
                         std::cout << "debug:: name " << name << " docobj: " << doc << std::endl;
                      if (! doc.empty())
                         fd.documentation = doc;
                   }
                }
+               std::vector<param_doc> param_docs = get_param_docs(attr);
+               // std::cout << "DEBUG:: :::::::::: got param docs size " << param_docs.size() << std::endl;
+               if (! param_docs.empty())
+                  fd.params = param_docs;
+
                if (false)
                   std::cout << "DEBUG:: in handle_list_tools() n_blocks is " << n_blocks
                             << " count/n_blocks is " << count/n_blocks << " block_index is "
                             << block_index << std::endl;
+
                if (count/n_blocks == block_index || block_index == -1)
-                  v.push_back(fd);
+                  func_doc_vec.push_back(fd);
                Py_XDECREF(attr);
                count++;
             }
          }
 
-         if (! v.empty())
-            functions.push_back(std::make_pair(module_name, v));
+         if (! func_doc_vec.empty())
+            functions.push_back(std::make_pair(module_name, func_doc_vec));
 
          Py_DECREF(pDir);
          Py_DECREF(pModule);
@@ -9004,18 +9080,18 @@ gint coot_socket_listener_idle_func(gpointer data) {
 
       std::vector<std::pair<std::string, std::vector<func_doc> > > functions = handle_list_tools(-1);
       std::vector<std::pair<std::string, std::vector<func_doc> > > filtered_functions;
-      std::cout << "DEBUG:: inn handle_list_tools_with_search_pattern(): there are " << functions.size() << " modules " << std::endl;
+      // std::cout << "DEBUG:: in handle_list_tools_with_search_pattern(): there are " << functions.size() << " modules " << std::endl;
       for (const auto &module_pair : functions) {
          const auto &module = module_pair.first;
          const auto &funcs = module_pair.second;
          std::vector<func_doc> matchers;
          for (const auto &func : funcs) {
-            std::cout << "DEBUG:: in handle_list_tools_with_search_pattern(): there are " << funcs.size() << " functions in module " << module << std::endl;
-            std::cout << "DEBUG:: looking for " << pattern << " in " << func.function_name << std::endl;
+            // std::cout << "DEBUG:: in handle_list_tools_with_search_pattern(): there are " << funcs.size() << " functions in module " << module << std::endl;
+            // std::cout << "DEBUG:: looking for " << pattern << " in " << func.function_name << std::endl;
             if (func.function_name.find(pattern) != std::string::npos) {
                matchers.push_back(func);
             } else {
-               std::cout << "DEBUG:: looking for " << pattern << " in " << func.documentation << std::endl;
+               // std::cout << "DEBUG:: looking for " << pattern << " in " << func.documentation << std::endl;
                if (func.documentation.find(pattern) != std::string::npos)
                   matchers.push_back(func);
             }
@@ -9026,14 +9102,16 @@ gint coot_socket_listener_idle_func(gpointer data) {
       return filtered_functions;
    };
 
-   auto make_response_from_functions = [] (const std::vector<std::pair<std::string, std::vector<func_doc> > > &functions, int id, int n_max) {
+   auto make_response_from_functions = [] (const std::vector<std::pair<std::string, std::vector<func_doc> > > &functions, int id, int n_max, bool add_python_exec) {
 
       json j_functions;
       json j_item;
-      j_item["name"] = "python.exec";
-      j_item["description"] = "Execute Python Code";
-      j_item["params"] = json::array({"code"});
-      j_functions.push_back(j_item);
+      if (add_python_exec) {
+         j_item["name"] = "python.exec";
+         j_item["description"] = "Execute Python Code";
+         j_item["params"] = json::array({"code"});
+         j_functions.push_back(j_item);
+      }
 
       unsigned int n = 0;
       for (const auto &module_pair : functions) {
@@ -9045,12 +9123,26 @@ gint coot_socket_listener_idle_func(gpointer data) {
                   continue; // tmp limit
             json j_item;
             j_item["name"] = module + "." + func.function_name;
-            std::cout << "debug:: j_item[name] is " << module + "." + func.function_name << std::endl;
+            // std::cout << "debug:: j_item[name] is " << module + "." + func.function_name << std::endl;
             if (!func.documentation.empty()) {
                j_item["description"] = func.documentation;
-               std::cout << "DEBUG:: documentation for " << func.function_name << ":\n" << func.documentation << std::endl;
+               // std::cout << "DEBUG:: documentation for " << func.function_name << ":\n" << func.documentation << std::endl;
             }
-            j_item["params"] = json::array();
+            json j_params = json::array();
+            if (! func.params.empty()) {
+               for (unsigned int i=0; i<func.params.size(); i++) {
+                  json jp;
+                  const auto &param = func.params[i];
+                  json j_param_name = param.name;
+                  jp["name"] = j_param_name;
+                  jp["kind"] = param.kind;
+                  if (! param.annotation.empty()) {
+                     jp["annotation"] = param.annotation;
+                  }
+                  j_params.push_back(jp);
+               }
+            }
+            j_item["params"] = j_params;
             j_functions.push_back(j_item);
             n++;
          }
@@ -9120,8 +9212,9 @@ gint coot_socket_listener_idle_func(gpointer data) {
             if (req["method"] == "mcp.list_tools") {
                int block_index = -1; // means all tools
                std::vector<std::pair<std::string, std::vector<func_doc> > > functions = handle_list_tools(block_index);
+               bool add_python_exec = true;
                int n_max = 405;
-               json response_funcs = make_response_from_functions(functions, id, n_max);
+               json response_funcs = make_response_from_functions(functions, id, n_max, add_python_exec);
                json j_response;
                j_response["jsonrpc"] = "2.0";
                j_response["id"] = std::to_string(id);
@@ -9144,8 +9237,9 @@ gint coot_socket_listener_idle_func(gpointer data) {
                   }
                }
                int n_max = 405;
+               bool add_python_exec = true;
                std::vector<std::pair<std::string, std::vector<func_doc> > > functions = handle_list_tools(block_index);
-               json response_funcs = make_response_from_functions(functions, id, n_max);
+               json response_funcs = make_response_from_functions(functions, id, n_max, add_python_exec);
                json j_response;
                j_response["jsonrpc"] = "2.0";
                j_response["id"] = std::to_string(id);
@@ -9154,19 +9248,16 @@ gint coot_socket_listener_idle_func(gpointer data) {
             }
 
             if (req["method"] == "mcp.search") {
-               std::cout << "DEBUG:: ::::::::::::::: here in search block AAAAAAAAAAAAAAAAA" << std::endl;
                json::const_iterator it_params = req.find("params");
                if (it_params != req.end()) {
                   const json &j_params = *it_params;
-                  std::cout << "DEBUG:: ::::::::::::::: here in search block with j_params " << j_params << std::endl;
                   json::const_iterator it_pattern = j_params.find("pattern");
                   if (it_pattern != j_params.end()) {
-                     std::cout << "DEBUG:: :::::: FOUND pattern in j_params" << std::endl;
                      std::string pattern = it_pattern->get<std::string>();
-                     std::cout << "DEBUG:: :::::: FOUND pattern is " << pattern << std::endl;
                      std::vector<std::pair<std::string, std::vector<func_doc> > > functions = handle_list_tools_with_search_pattern(pattern);
                      int n_max = 405;
-                     json response_funcs = make_response_from_functions(functions, id, n_max);
+                     bool add_python_exec = true;
+                     json response_funcs = make_response_from_functions(functions, id, n_max, add_python_exec);
                      json j_response;
                      j_response["jsonrpc"] = "2.0";
                      j_response["id"] = std::to_string(id);

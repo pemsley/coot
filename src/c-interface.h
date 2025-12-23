@@ -1087,7 +1087,6 @@ void set_have_unsaved_changes(int imol);
  @return -1 on bad imol, 0 on no unsaved changes, 1 on has unsaved changes */
 int have_unsaved_changes_p(int imol);
 
-
 /*! \brief set the molecule to which undo operations are done to
   molecule number imol */
 void set_undo_molecule(int imol);
@@ -1120,6 +1119,47 @@ int  backup_compress_files_state();
 
 /*! \brief set if backup files will be compressed or not using gzip */
 void  set_backup_compress_files(int state);
+
+/*! \brief Make a backup for a model molecule
+ *
+ * @param imol the model molecule index
+ * @description a description that goes along with this back point
+ * @return the index of the backup, or -1 on failure
+ */
+int make_backup_checkpoint(int imol, const char *description);
+
+/*! \brief Restore molecule from backup
+ * 
+ * restore model @p imol to checkpoint backup @p backup_index
+ *
+ * @param imol the model molecule index
+ * @param backup_index the backup index to restore to
+ * @return the index of the backup, or -1 on failure
+ */
+int restore_to_backup_checkpoint(int imol, int backup_index);
+
+#ifdef USE_PYTHON
+/*! \brief Compare current model to backup
+ * 
+ * @param imol the model molecule index
+ * @param backup_index the backup index to restore to
+ * @return a Python dict, with 2 items, a "status" which is either "ok" 
+ *         or "error" or "bad-index" and a list of residue specs for residues
+ *         that have at least one atom in a different place (which might be empty).
+ */
+PyObject *compare_current_model_to_backup(int imol, int backup_index);
+#endif
+
+#ifdef USE_PYTHON
+/*! \brief Get backup info
+ * 
+ * @param imol the model molecule index
+ * @param backup_index the backup index to restore to
+ * @return a Python list of the given description (str)
+ *         and a timestamp (str).
+ */
+PyObject *get_backup_info(int imol, int backup_index);
+#endif
 
 /*! \} */
 

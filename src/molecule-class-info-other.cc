@@ -3741,10 +3741,10 @@ molecule_class_info_t::get_minimol_pos(const coot::minimol::molecule &a_rotamer)
 // We have name_.  We use that to find backup files in coot-backup
 // dir.  If there is one and it is more recent that the file name_
 // then restore for it and return 1.  Else return 0.
-coot::backup_file_info
+coot::backup_file_info_t
 molecule_class_info_t::recent_backup_file_info() const {
 
-   coot::backup_file_info info;
+   coot::backup_file_info_t bfi;
 
 #if !defined(_MSC_VER)
    if (has_model()) {
@@ -3841,16 +3841,16 @@ molecule_class_info_t::recent_backup_file_info() const {
                if (mtime_youngest > name_mtime) {
 //                   std::cout << "Restoring from a recent backup "
 //                             << backup_filename << std::endl;
-                  info.name = name_;
-                  info.backup_file_name = backup_filename;
-                  info.status = 1; // There is a file.
+                  bfi.name = name_;
+                  bfi.backup_file_name = backup_filename;
+                  bfi.valid_status = true; // There is a file.
                }
             }
          }
       }
    }
 #endif
-   return info;
+   return bfi;
 }
 
 

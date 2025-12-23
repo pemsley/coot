@@ -10,3 +10,17 @@ In Claude Desktop:
 Options -> Capabilities -> Skills -> Add... best-practices.skill
 
 
+-------------
+
+typical novel 70-120,000 words
+
+Claude is about 200,000 words - so about 2 novels worth of context.
+
+Coot XML Doc is 10Mb, remove decoration that about 1.5 millon tokens
+
+A factor of 7 or 8 times too much.
+
+Documentation for AI has to be thematically separated.
+Non-trivial
+
+

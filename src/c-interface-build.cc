@@ -24,6 +24,8 @@
  * Fifth Floor, Boston, MA, 02110-1301, USA.
  */
 
+#include <cstddef>
+#include "geometry/residue-and-atom-specs.hh"
 #ifdef USE_PYTHON
 #include <Python.h>  // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #include "python-3-interface.hh"
@@ -522,6 +524,95 @@ int decoloned_backup_file_names_state() {
    return graphics_info_t::decoloned_backup_file_names_flag;
 }
 
+
+/*! \brief Make a backup for a model molecule
+ *
+ * @param imol the model molecule index
+ * @description a description that goes along with this back point
+ */
+int make_backup_checkpoint(int imol, const char *description) {
+
+   int backup_index = -1;
+   if (is_valid_model_molecule(imol)) {
+      std::string ss(description);
+      backup_index = graphics_info_t::molecules[imol].make_backup_checkpoint(ss);
+   }
+   return backup_index;
+}
+
+/*! \brief Restore molecule from backup
+ * 
+ * restore model @p imol to checkpoint backup @p backup_index
+ *
+ * @param imol the model molecule index
+ * @param backup_index the backup index to restore to
+ */
+int restore_to_backup_checkpoint(int imol, int backup_index) {
+
+   backup_index = -1;
+   if (is_valid_model_molecule(imol)) {
+      backup_index = graphics_info_t::molecules[imol].restore_to_backup_checkpoint(backup_index);
+   }
+   return backup_index;
+}
+
+#ifdef USE_PYTHON
+/*! \brief Compare current model to backup
+ * 
+ * @param imol the model molecule index
+ * @param backup_index the backup index to restore to
+ * @return a Python dict, with 2 items, a "status" which is either "ok" 
+ *         or "fail" or "bad-index" and a list of residue specs for residues
+ *         that have at least one atom in a different place (which might be empty).
+ */
+PyObject *compare_current_model_to_backup(int imol, int backup_index) {
+
+   PyObject *d = PyDict_New();
+   if (is_valid_model_molecule(imol)) {
+      // How do I return "bad backup_index?" Use a pair.
+      std::pair<bool, std::vector<coot::residue_spec_t> > mvp = graphics_info_t::molecules[imol].compare_current_model_to_backup(backup_index);
+      if (mvp.first) {
+         std::vector<coot::residue_spec_t> mv = mvp.second;
+         PyObject *l = PyList_New(mv.size());
+         for (unsigned int i=0; i<mv.size(); i++) {
+             const auto &rs(mv[i]);
+             PyObject *s = residue_spec_to_py(rs);
+             PyList_SetItem(l, i, s);
+         }
+         PyDict_SetItemString(d, "moved-residue-list", l);
+         PyDict_SetItemString(d, "status", myPyString_FromString("ok"));
+      } else {
+         PyDict_SetItemString(d, "status", myPyString_FromString("bad-index"));
+      }
+   } else {
+      PyDict_SetItemString(d, "status", myPyString_FromString("fail"));
+   }
+   return d;
+}
+#endif
+
+#ifdef USE_PYTHON
+/*! \brief Get backup info
+ * 
+ * @param imol the model molecule index
+ * @param backup_index the backup index to restore to
+ * @return a Python list of the given description (str)
+ *         and a timestamp (str).
+ */
+PyObject *get_backup_info(int imol, int backup_index) {
+
+   PyObject *r = PyList_New(0);
+   if (is_valid_model_molecule(imol)) {
+      auto backup_info = graphics_info_t::molecules[imol].get_backup_info(backup_index);
+      r = PyList_New(2);
+      PyObject *d  = myPyString_FromString(backup_info.description.c_str());
+      PyObject *dt = myPyString_FromString(backup_info.get_timespec_string().c_str());
+      PyList_SetItem(r, 0, d);
+      PyList_SetItem(r, 1, dt);
+   }
+   return r;
+}
+#endif
 
 
 

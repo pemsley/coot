@@ -595,11 +595,10 @@ void recover_session() {
    int i_rec = 0;
    for (int imol=0; imol<graphics_info_t::n_molecules(); imol++) {
       if (graphics_info_t::molecules[imol].has_model()) {
-	 coot::backup_file_info info =
-	    graphics_info_t::molecules[imol].recent_backup_file_info();
-	 if (info.status) {
+	 coot::backup_file_info_t info = graphics_info_t::molecules[imol].recent_backup_file_info();
+	 if (info.valid_status) {
 
-	    coot::backup_file_info *info_copy = new coot::backup_file_info;
+	    coot::backup_file_info_t *info_copy = new coot::backup_file_info_t;
 	    *info_copy = info;
 	    info_copy->imol = imol;
 
@@ -630,8 +629,8 @@ void recover_session() {
 //
 void execute_recover_session(GtkWidget *widget) {
 
-   coot::backup_file_info *info =
-      (coot::backup_file_info *) g_object_get_data(G_OBJECT(widget), "backup_file_info");
+   coot::backup_file_info_t *info =
+      (coot::backup_file_info_t *) g_object_get_data(G_OBJECT(widget), "backup_file_info");
 
    if (info) {
 
