@@ -2,6 +2,10 @@
 #include "dict-link-info.hh"
 #include "coot-coord-utils.hh"
 
+#ifdef USE_BACKWARD
+#include <utils/backward.hpp>
+#endif
+
 // this can throw a std::runtime_error
 coot::dict_link_info_t::dict_link_info_t(mmdb::Residue *residue_ref,
                                          mmdb::Residue *residue_new,
@@ -26,7 +30,11 @@ coot::dict_link_info_t::dict_link_info_t(mmdb::Residue *residue_ref,
       } else {
          coot::dictionary_residue_link_restraints_t rr = geom.link(link_type);
          if (rr.link_id == "") {
-            throw (std::runtime_error("Link not found in dictionary"));
+            std::string rn1 = residue_ref->GetResName();
+            std::string rn2 = residue_new->GetResName();
+            std::string mess = "Link not found in dictionary " + link_type + " between " + rn1 + " " + rn2;
+
+            throw (std::runtime_error(mess));
          } else {
 
             bool order_switch_flag = check_for_order_switch(residue_ref,
