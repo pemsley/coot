@@ -5022,8 +5022,10 @@ PyObject *accept_moving_atoms_py() {
 
    coot::refinement_results_t rr = g.accept_moving_atoms(); // does a g.clear_up_moving_atoms();
    rr.show();
-   g.clear_hud_buttons();
-   g.clear_moving_atoms_object();
+   if (g.use_graphics_interface_flag) {
+      g.clear_hud_buttons();
+      g.clear_moving_atoms_object();
+   }
    PyObject *o = g.refinement_results_to_py(rr);
    return o;
 }
