@@ -1767,21 +1767,12 @@ namespace coot {
          return dict_res_restraints[i]; }
       const dictionary_residue_link_restraints_t & link(int i) const {
          return dict_link_res_restraints[i]; }
-      dictionary_residue_link_restraints_t link(const std::string &id_in) const {
-         dictionary_residue_link_restraints_t r;
-         for (unsigned int id=0; id<dict_link_res_restraints.size(); id++) {
-            if (dict_link_res_restraints[id].link_id == id_in) {
-               r = dict_link_res_restraints[id];
-               break;
-            }
-         }
-         return r;
-      }
+
+      dictionary_residue_link_restraints_t link(const std::string &id_in) const;
 
       // return "" on comp_id not found, else return the file name.
       //
-      std::string get_cif_file_name(const std::string &comp_id,
-                                    int imol_enc) const;
+      std::string get_cif_file_name(const std::string &comp_id, int imol_enc) const;
 
       int link_size() const { return dict_link_res_restraints.size(); }
       void info() const;
