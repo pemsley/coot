@@ -244,7 +244,10 @@ graphics_info_t::on_glarea_drag_update_primary(GtkGestureDrag *gesture,
                   }
                } else {
                   // is this logic correct?
-                  rotate_chi(delta_delta_x, delta_delta_y); // does its own graphics_draw()
+                  if (edit_chi_current_chi >= 1) {
+                     // rotate_chi() needs moving atoms
+                     rotate_chi(delta_delta_x, delta_delta_y); // does its own graphics_draw()
+                  }
                }
             }
          }

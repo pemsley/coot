@@ -1058,7 +1058,7 @@ on_acedrg_link_ok_button_clicked(GtkButton       *button,
       ss += atom_name_first;
       ss += " ";
       if (!cif_file_name_1.empty())
-         ss += std::string("FILE-1 ") + cif_file_name_1;
+         ss += std::string("FILE-1 ") + cif_file_name_1 + " ";
 
       ss += "RES-NAME-2 ";
       ss += residue_name_second;
@@ -1114,7 +1114,7 @@ on_acedrg_link_ok_button_clicked(GtkButton       *button,
                   ss += std::string("CHANGE BOND ") + std::string(change_bond_order_first_atom_1) + std::string(" ") +
                      std::string(change_bond_order_first_atom_2) + std::string(" ") + std::string(cbo_first) + " 1 ";
 
-      ss += "RES-NAME-2 ";
+      ss += " RES-NAME-2 ";
       ss += residue_name_second;
       ss += " ";
       ss += "ATOM-NAME-2 ";

@@ -241,9 +241,9 @@ graphics_info_t::setup_key_bindings() {
                 return gboolean(TRUE);
              };
 
-   auto l10 = []() { graphics_info_t::zoom *= 0.9; return gboolean(TRUE); };
+   auto l10 = []() { graphics_info_t::zoom *= 1.1; return gboolean(TRUE); };
 
-   auto l11 = []() { graphics_info_t::zoom *= 1.1; return gboolean(TRUE); };
+   auto l11 = []() { graphics_info_t::zoom *= 0.9; return gboolean(TRUE); };
 
    auto l12 = []() { graphics_info_t g; g.move_forwards(); return gboolean(TRUE); };
 
@@ -663,8 +663,8 @@ graphics_info_t::setup_key_bindings() {
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_KP_Subtract, key_bindings_t(l7, "decrease contour level")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_p,      key_bindings_t(l9, "update go-to atom by position")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_q,      key_bindings_t(l45, "Pep-flip")));
-   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_n,      key_bindings_t(l10, "Zoom in")));
-   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_m,      key_bindings_t(l11, "Zoom out")));
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_n,      key_bindings_t(l10, "Zoom out")));
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_m,      key_bindings_t(l11, "Zoom in")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_w,      key_bindings_t(l12, "Move forward")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_s,      key_bindings_t(l13, "Move backward")));
    // kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_o,      key_bindings_t(l14, "NCS Skip forward")));

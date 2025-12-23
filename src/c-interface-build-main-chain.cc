@@ -775,11 +775,11 @@ void make_link_scm(int imol, SCM spec_1, SCM spec_2,
    if (s1.string_user_data != "OK")
       std::cout << "WARNING:: problem with atom spec "
 		<< scm_to_locale_string(display_scm(spec_1)) << std::endl;
-   else 
+   else
       if (s2.string_user_data != "OK")
-	 std::cout << "WARNING:: problem with atom spec "
+	 std::cout << "WARNING:: make_link_scm(): problem with atom spec "
 		   << scm_to_locale_string(display_scm(spec_2)) << std::endl;
-      else 
+      else
 	 make_link(imol, s1, s2, link_name, length);
 }
 #endif
@@ -787,16 +787,17 @@ void make_link_scm(int imol, SCM spec_1, SCM spec_2,
 #ifdef USE_PYTHON
 void make_link_py(int imol, PyObject *spec_1, PyObject *spec_2,
                   const std::string &link_name, float length) {
+
    coot::atom_spec_t s1 = atom_spec_from_python_expression(spec_1);
    coot::atom_spec_t s2 = atom_spec_from_python_expression(spec_2);
    if (s1.string_user_data != "OK")
-     std::cout << "WARNING:: problem with atom spec "
-               << PyUnicode_AsUTF8String(display_python(spec_1)) << std::endl;
-   else 
+     std::cout << "WARNING:: make_link_py(): A problem with atom spec "
+               << PyUnicode_AsUTF8String(display_python(spec_1)) << " " << s1 << std::endl;
+   else
      if (s2.string_user_data != "OK")
-       std::cout << "WARNING:: problem with atom spec "
-                 << PyUnicode_AsUTF8String(display_python(spec_2)) << std::endl;
-     else 
+       std::cout << "WARNING:: make_link_py() B problem with atom spec "
+                 << PyUnicode_AsUTF8String(display_python(spec_2)) << " " << s2 << std::endl;
+     else
        make_link(imol, s1, s2, link_name, length);
 }
 #endif

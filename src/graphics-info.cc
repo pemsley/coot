@@ -1870,7 +1870,8 @@ graphics_info_t::run_post_manipulation_hook_py(int imol, int mode) {
 
    PyObject *error_thing = PyErr_Occurred();
    if (! error_thing) {
-      std::cout << "INFO:: run_post_manipulation_hook_py() No Python error on callable check" << std::endl;
+      if (false)
+         std::cout << "DEBUG:: run_post_manipulation_hook_py() No Python error on callable check" << std::endl;
    } else {
       std::cout << "ERROR:: while executing run_post_manipulation_hook_py() a python error occured " << std::endl;
       PyObject *type, *value, *traceback;
@@ -2243,7 +2244,8 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
                                                    ) {
 
    if (! moving_atoms_asc) {
-      std::cout << "info:: make_moving_atoms_graphics_object() makes a new moving_atoms_asc" << std::endl;
+      if (false)
+         std::cout << "info:: make_moving_atoms_graphics_object() makes a new moving_atoms_asc" << std::endl;
       moving_atoms_asc = new atom_selection_container_t;
    } else {
       // moving_atoms_asc->clear_up(); // crash.  Much complexity to fix the crash, I think.
@@ -4936,74 +4938,73 @@ graphics_info_t::setup_flash_bond_using_moving_atom_internal(int i_torsion_index
    // get the residue type and from that the atom name pairs:
    //
    if (! moving_atoms_asc) {
-      std::cout << "ERROR: moving_atoms_asc is NULL" << std::endl;
+      // std::cout << "ERROR:: moving_atoms_asc is NULL" << std::endl;
+      logger.log(log_t::ERROR, logging::function_name_t(__FUNCTION__), "moving_atoms_asc is NULL");
    } else {
       if (moving_atoms_asc->n_selected_atoms == 0) {
-    std::cout << "ERROR: no atoms in moving_atoms_asc" << std::endl;
+         std::cout << "ERROR: no atoms in moving_atoms_asc" << std::endl;
       } else {
-    mmdb::Model *model_p = moving_atoms_asc->mol->GetModel(1);
-    if (model_p) {
-       mmdb::Chain *chain_p = model_p->GetChain(0);
-       if (chain_p) {
-          mmdb::Residue *residue_p = chain_p->GetResidue(0);
-          if (residue_p) {
+         mmdb::Model *model_p = moving_atoms_asc->mol->GetModel(1);
+         if (model_p) {
+            mmdb::Chain *chain_p = model_p->GetChain(0);
+            if (chain_p) {
+               mmdb::Residue *residue_p = chain_p->GetResidue(0);
+               if (residue_p) {
 
-     std::string residue_type(residue_p->GetResName());
-     bool add_reverse_contacts = 0;
+                  std::string residue_type(residue_p->GetResName());
 
-     std::pair<std::string, std::string> atom_names;
+                  std::pair<std::string, std::string> atom_names;
 
-     std::pair<short int, coot::dictionary_residue_restraints_t> r =
-        geom_p->get_monomer_restraints(residue_type, imol_moving_atoms);
+                  std::pair<short int, coot::dictionary_residue_restraints_t> r =
+                     geom_p->get_monomer_restraints(residue_type, imol_moving_atoms);
 
-     if (r.first) {
-        std::vector <coot::dict_torsion_restraint_t> torsion_restraints =
-   r.second.get_non_const_torsions(find_hydrogen_torsions_flag);
+                  if (r.first) {
+                     std::vector <coot::dict_torsion_restraint_t> torsion_restraints =
+                        r.second.get_non_const_torsions(find_hydrogen_torsions_flag);
 
-        if (i_torsion_index >= 0 && i_torsion_index < int(torsion_restraints.size())) {
+                     if (i_torsion_index >= 0 && i_torsion_index < int(torsion_restraints.size())) {
 
-   atom_names.first  = torsion_restraints[i_torsion_index].atom_id_2_4c();
-   atom_names.second = torsion_restraints[i_torsion_index].atom_id_3_4c();
+                        atom_names.first  = torsion_restraints[i_torsion_index].atom_id_2_4c();
+                        atom_names.second = torsion_restraints[i_torsion_index].atom_id_3_4c();
 
-   if ((atom_names.first != "") &&
-       (atom_names.second != "")) {
+                        if ((atom_names.first != "") &&
+                            (atom_names.second != "")) {
 
-      mmdb::PPAtom residue_atoms;
-      int nResidueAtoms;
-      residue_p->GetAtomTable(residue_atoms, nResidueAtoms);
+                           mmdb::PPAtom residue_atoms;
+                           int nResidueAtoms;
+                           residue_p->GetAtomTable(residue_atoms, nResidueAtoms);
 
-      if (nResidueAtoms > 0) { // of course it is!
-         for (int iat1=0; iat1<nResidueAtoms; iat1++) {
-    std::string ra1=residue_atoms[iat1]->name;
-    if (ra1 == atom_names.first) {
-       for (int iat2=0; iat2<nResidueAtoms; iat2++) {
-          std::string ra2=residue_atoms[iat2]->name;
-          if (ra2 == atom_names.second) {
+                           if (nResidueAtoms > 0) { // of course it is!
+                              for (int iat1=0; iat1<nResidueAtoms; iat1++) {
+                                 std::string ra1=residue_atoms[iat1]->name;
+                                 if (ra1 == atom_names.first) {
+                                    for (int iat2=0; iat2<nResidueAtoms; iat2++) {
+                                       std::string ra2=residue_atoms[iat2]->name;
+                                       if (ra2 == atom_names.second) {
 
-     draw_chi_angle_flash_bond_flag = 1;
-     clipper::Coord_orth p1(residue_atoms[iat1]->x,
-    residue_atoms[iat1]->y,
-    residue_atoms[iat1]->z);
-     clipper::Coord_orth p2(residue_atoms[iat2]->x,
-    residue_atoms[iat2]->y,
-    residue_atoms[iat2]->z);
+                                          draw_chi_angle_flash_bond_flag = 1;
+                                          clipper::Coord_orth p1(residue_atoms[iat1]->x,
+                                                                 residue_atoms[iat1]->y,
+                                                                 residue_atoms[iat1]->z);
+                                          clipper::Coord_orth p2(residue_atoms[iat2]->x,
+                                                                 residue_atoms[iat2]->y,
+                                                                 residue_atoms[iat2]->z);
 
-
-     std::pair<clipper::Coord_orth, clipper::Coord_orth> cp(p1, p2);
-     graphics_info_t g;
-     g.add_flash_bond(cp);
-     graphics_draw();
-          }
-       }
-    }
+                                          std::pair<clipper::Coord_orth, clipper::Coord_orth> cp(p1, p2);
+                                          graphics_info_t g;
+                                          g.add_flash_bond(cp);
+                                          graphics_draw();
+                                       }
+                                    }
+                                 }
+                              }
+                           }
+                        }
+                     }
+                  }
+               }
+            }
          }
-      }
-   }
-        }
-     }
-          }
-       }
-    }
       }
    }
 }

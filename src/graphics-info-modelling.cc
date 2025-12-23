@@ -104,6 +104,9 @@
 
 #include "widget-from-builder.hh"
 
+#include "utils/logging.hh"
+extern logging logger;
+
 
 void
 graphics_info_t::get_restraints_lock(const std::string &calling_function_name) {
@@ -5272,7 +5275,9 @@ graphics_info_t::rotate_chi(double x, double y) {
 
       mmdb::Residue *residue_p = nullptr;
       if (! moving_atoms_asc) {
-         std::cout << "ERROR: moving_atoms_asc is NULL" << std::endl;
+         // std::cout << "ERROR:: moving_atoms_asc is NULL" << std::endl;
+         logger.log(log_t::ERROR, logging::function_name_t("rotate_chi get_residue_from_moving_mol"),
+                    "moving_atoms_asc is NULL");
       } else {
          if (moving_atoms_asc->n_selected_atoms == 0) {
             std::cout << "ERROR: no atoms in moving_atoms_asc" << std::endl;
@@ -5350,24 +5355,24 @@ graphics_info_t::rotate_chi(double x, double y) {
    // positions.
    //
 
-
    short int istat = 1; // failure
    if (! moving_atoms_asc) {
-      std::cout << "ERROR: moving_atoms_asc is NULL" << std::endl;
+      // std::cout << "ERROR: moving_atoms_asc is NULL" << std::endl;
+      logger.log(log_t::ERROR, logging::function_name_t("rotate_chi"), "moving_atoms_asc is NULL");
    } else {
       if (moving_atoms_asc->n_selected_atoms == 0) {
-	 std::cout << "ERROR: no atoms in moving_atoms_asc" << std::endl;
+         std::cout << "ERROR: no atoms in moving_atoms_asc" << std::endl;
       } else {
-	 mmdb::Model *model_p = moving_atoms_asc->mol->GetModel(1);
-	 if (model_p) {
-	    mmdb::Chain *chain_p = model_p->GetChain(0);
-	    if (chain_p) {
-	       mmdb::Residue *residue_p = chain_p->GetResidue(0);
-	       if (residue_p) {
-		  istat = update_residue_by_chi_change(imol_moving_atoms, residue_p, *moving_atoms_asc, chi, diff);
-	       }
-	    }
-	 }
+         mmdb::Model *model_p = moving_atoms_asc->mol->GetModel(1);
+         if (model_p) {
+            mmdb::Chain *chain_p = model_p->GetChain(0);
+            if (chain_p) {
+               mmdb::Residue *residue_p = chain_p->GetResidue(0);
+               if (residue_p) {
+                  istat = update_residue_by_chi_change(imol_moving_atoms, residue_p, *moving_atoms_asc, chi, diff);
+               }
+            }
+         }
       }
    }
 
