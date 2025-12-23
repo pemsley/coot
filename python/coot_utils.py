@@ -1192,27 +1192,28 @@ def shell_command_to_string(cmd):
 
 
 def command_in_path_qm(cmd, no_disk_search=True,
+                       only_extension_here=None,
+                       add_extensions_here=[]):
+
     """Check if a command is available in the system PATH.
-    
+
     Parameters
     ----------
     cmd : str
         Command name to search for
     no_disk_search : bool, optional
         If True, only check PATH without disk search (default: True)
-        
+
     Returns
     -------
     str or False
         Full path to command if found, False otherwise
-        
+
     Examples
     --------
     >>> command_in_path_qm("refmac5")
     '/usr/local/bin/refmac5'
     """
-                       only_extension_here=None,
-                       add_extensions_here=[]):
 
     exe_path = find_exe(cmd, "PATH", no_disk_search=True,
                         screen_info=False,
