@@ -1,5 +1,13 @@
 --- Items ---
 
+o there may be a paper in using shiftfield B for cryo-EM
+
+o about dialog should give date and commit for a pre-release
+
+o fix/reversee M and N key bindings.
+
+o make sure you can edit chi on test30_0 structure, multi-carbo-coot-3.pdb
+
 o extend the screen parser for the ADP analysis.
 
 o --buster does the right thing.
