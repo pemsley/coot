@@ -157,7 +157,8 @@ void graphics_info_t::refresh_ramachandran_plot_model_list() {
 
    // what is this - I mean, who calls it/when does it run? Is this an old method now that we have rama_plot_boxes?
 
-   std::cout << "----------------------- refresh_ramachandran_plot_model_list --------- " << std::endl;
+   // noise
+   // std::cout << "----------------------- refresh_ramachandran_plot_model_list --------- " << std::endl;
 
    auto fn = +[] (GtkTreeModel* model, GtkTreePath* path, GtkTreeIter* iter, gpointer data) {
       GtkListStore* list = GTK_LIST_STORE(model);
@@ -170,13 +171,11 @@ void graphics_info_t::refresh_ramachandran_plot_model_list() {
       if (graphics_info_t::molecules[i].has_model()) {
          std::string label = graphics_info_t::molecules[i].dotted_chopped_name();
          GtkTreeIter iter;
-         std::cout << "----- refresh_ramachandran_plot_model_list adding label " << label << std::endl;
+         // std::cout << "----- refresh_ramachandran_plot_model_list adding label " << label << std::endl;
          gtk_list_store_append(ramachandran_plot_model_list, &iter);
          gtk_list_store_set(ramachandran_plot_model_list, &iter, 0, label.c_str(), 1, i, -1);
       }
    }
-
-   std::cout << "----------------------- done refresh_ramachandran_plot_model_list --------- " << std::endl;
 }
 
 // TODO: we're not using tabs right now. Do we ever intend to do so?
