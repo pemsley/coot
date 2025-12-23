@@ -1144,11 +1144,17 @@ int restore_to_backup_checkpoint(int imol, int backup_index);
  * @param imol the model molecule index
  * @param backup_index the backup index to restore to
  * @return a Python dict, with 2 items, a "status" which is either "ok" 
- *         or "error" or "bad-index" and a list of residue specs for residues
+ *         or "error" or "bad-index". The other key is "moved-residues-list",
+ *         the value for which is a list of residue specs for residues
  *         that have at least one atom in a different place (which might be empty).
  */
 PyObject *compare_current_model_to_backup(int imol, int backup_index);
 #endif
+
+/*! \brief Print the history info
+ * 
+ */
+void print_backup_history_info(int imol);
 
 #ifdef USE_PYTHON
 /*! \brief Get backup info

@@ -579,7 +579,7 @@ PyObject *compare_current_model_to_backup(int imol, int backup_index) {
              PyObject *s = residue_spec_to_py(rs);
              PyList_SetItem(l, i, s);
          }
-         PyDict_SetItemString(d, "moved-residue-list", l);
+         PyDict_SetItemString(d, "moved-residues-list", l);
          PyDict_SetItemString(d, "status", myPyString_FromString("ok"));
       } else {
          PyDict_SetItemString(d, "status", myPyString_FromString("bad-index"));
@@ -614,7 +614,11 @@ PyObject *get_backup_info(int imol, int backup_index) {
 }
 #endif
 
-
+void print_backup_history_info(int imol) {
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t::molecules[imol].print_backup_history_info();
+   }
+}
 
 /*  ----------------------------------------------------------------------- */
 /*                  rotate/translate buttons                                */

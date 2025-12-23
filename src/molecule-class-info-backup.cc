@@ -13,7 +13,8 @@ extern logging logger;
  */
 int molecule_class_info_t::make_backup_checkpoint(const std::string &description) {
 
-   make_backup();
+   make_backup(description);
+   std::cout << "DEBUG:: mci make_backup_checkpoint() returns " << history_index << std::endl;
    return history_index;
 }
 
@@ -99,6 +100,9 @@ std::pair<bool, std::vector<coot::residue_spec_t> > molecule_class_info_t::compa
                                                       if (std::fabsf(delta_x) > 0.01) {
                                                          if (std::fabsf(delta_y) > 0.01) {
                                                             if (std::fabsf(delta_z) > 0.01) {
+                                                               if (false)
+                                                                  std::cout << "DEBUG:: atom " << coot::atom_spec_t(at_1) << " " << coot::atom_spec_t(at_2) << " "
+                                                                            << delta_x << " " << delta_y << " " << delta_z << std::endl;
                                                                if (std::find(moved_residues.begin(), moved_residues.end(), residue_1_p) == moved_residues.end()) {
                                                                   moved_residues.push_back(residue_1_p);
                                                                }
@@ -171,7 +175,19 @@ coot::backup_file_info_t molecule_class_info_t::get_backup_info(int backup_index
       coot::backup_file_info_t bfi = history_filename_vec[backup_index];
    }
    return bfi;
-
 }
 
 
+void molecule_class_info_t::print_backup_history_info() const {
+
+   std::cout << "DEBUG:: =========== history has " << history_filename_vec.size() << " entries ================"
+             << std::endl;
+   for (unsigned int i=0; i<history_filename_vec.size(); i++) {
+      const auto &history = history_filename_vec[i];
+      std::cout << "DEBUG:: " << i << " " << history.imol << " " << history.backup_file_name << " "
+                << history.name << " description: " << history.description << " time: " << history.get_timespec_string() << std::endl;
+   }
+
+
+
+}

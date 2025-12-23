@@ -4470,7 +4470,7 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
 
    //
    if (bested) {
-      make_backup();
+      make_backup(__FUNCTION__);
       std::cout << "INFO:: Improved fit from " << initial_score << " to " << best_score << std::endl;
 
       v = best_score;

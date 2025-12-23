@@ -1317,7 +1317,7 @@ molecule_class_info_t::copy_chain(mmdb::Chain *from_chain, mmdb::Chain *to_chain
    if (atom_sel.n_selected_atoms > 0) { 
       
       int imod = 1;
-      make_backup();
+      make_backup(__FUNCTION__);
       atom_sel.mol->DeleteSelection(atom_sel.SelectionHandle);
       
       mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
@@ -1398,7 +1398,7 @@ molecule_class_info_t::copy_residue_range(mmdb::Chain *from_chain, mmdb::Chain *
          residue_range_1 = t;
       }
          
-      make_backup();
+      make_backup(__FUNCTION__);
       atom_sel.mol->DeleteSelection(atom_sel.SelectionHandle);
 
       std::string old_seg_id_for_chain_atoms;

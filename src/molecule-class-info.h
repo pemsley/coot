@@ -352,7 +352,7 @@ class molecule_class_info_t {
    // saving temporary files (undo)
    //
    std::string get_save_molecule_filename(const std::string &dir);
-   int make_backup(); // changes history details
+   int make_backup(const std::string &descr); // changes history details
    int make_maybe_backup_dir(const std::string &filename) const;
    bool backup_this_molecule;
 
@@ -362,7 +362,7 @@ class molecule_class_info_t {
    //
    int history_index;
    int max_history_index;
-   void save_history_file_name(const std::string &file);
+   void save_history_file_name(const std::string &file, const std::string &description);
    std::vector<coot::backup_file_info_t> history_filename_vec;
    std::string save_time_string;
    void restore_from_backup(int history_offset, const std::string &cwd);
@@ -403,6 +403,8 @@ class molecule_class_info_t {
     *         and a timestamp (str).
     */
    coot::backup_file_info_t get_backup_info(int backup_index);
+
+   void print_backup_history_info() const;
 
    private:
 
