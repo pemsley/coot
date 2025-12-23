@@ -5,34 +5,23 @@
 
 ;; remove USE_GUILE=1 for now
 ;; "USE_MOLECULES_TO_TRIANGLES=1"
-;; "HAVE_GOOCANVAS=1" 
+;; "HAVE_GOOCANVAS=1"
 ;;
-(setq flycheck-gcc-definitions   (list "HAVE_CXX_THREAD=1" "HAVE_GSL=1" "VERSION=\"0.9.9-pre\"" "HAVE_BOOST=1" "HAVE_BOOST_BASED_THREAD_POOL_LIBRARY=1" "PKGDATADIR=11111" "USE_PYTHON=1" "PYTHONDIR=/asdf" "PKGPYTHONDIR=asdf" "USE_LIBCURL=1" "BUILD_CURLEW=1" "COOT_BUILD_INFO_STRING=x" "_OPENMP=1" "MAKE_ENHANCED_LIGAND_TOOLS=1" "WITH_SOUND=1" "USE_GEMMI=1"  "USE_MOLECULES_TO_TRIANGLES=1"))
 (setq flycheck-clang-definitions (list "HAVE_CXX_THREAD=1" "HAVE_GSL=1" "VERSION=\"0.9.9-pre\"" "HAVE_BOOST=1" "HAVE_BOOST_BASED_THREAD_POOL_LIBRARY=1" "PKGDATADIR=11111" "USE_PYTHON=1" "PYTHONDIR=/asdf" "PKGPYTHONDIR=asdf" "USE_LIBCURL=1" "BUILD_CURLEW=1" "COOT_BUILD_INFO_STRING=x" "_OPENMP=1" "MAKE_ENHANCED_LIGAND_TOOLS=1" "WITH_SOUND=1" "USE_GEMMI=1" "USE_MOLECULES_TO_TRIANGLES=1"))
 
-(setq flycheck-gcc-args   '("-Wno-unknown-pragmas" "-std=c++17"))
 (setq flycheck-clang-args '("-Wno-unknown-pragmas" "-std=c++17"))
-(setq flycheck-gcc-language-standard   "c++17")
 (setq flycheck-clang-language-standard "c++17")
 
 (setq build-path-list
   (list
 
    "." ".." "../.."
-   "/usr/lib/x86_64-linux-gnu/glib-2.0/include"
-   "/usr/local/include"
-   "/usr/local/include/coot"
-   "/usr/local/include/rdkit"
-   "/usr/local/include/boost"
-   "/usr/local/include/python3.11"
-   "/usr/local/include/MoleculesToTriangles"
-   "/usr/local/include/gsl"
 
    "/opt/homebrew/include"
    "/opt/homebrew/include/coot"
    "/opt/homebrew/include/rdkit"
    "/opt/homebrew/include/boost"
-   "/opt/homebrew/include/python3.11"
+   "/opt/homebrew/include/python3.14"
    "/opt/homebrew/include/MoleculesToTriangles"
    "/opt/homebrew/include/gsl"
    "/opt/homebrew/include/gtk-4.0"
@@ -50,12 +39,10 @@
    "/opt/homebrew/Cellar/graphene/1.10.8/lib/graphene-1.0/include"
    "/opt/homebrew/Cellar/freetype/2.13.3/include/freetype2"
 
-   "/Users/pemsley/python3/include/python3.8"
    "/Users/pemsley/glm/include"
    "/Users/pemsley/ogg-vorbis/include"
    "/Users/pemsley/assimp/include"
 
-   "/Users/pemsley/python3/include/python3.9"
    "/Users/pemsley/autobuild/build-for-chapi-gtk4/lib/python3.10/site-packages/nanobind/include"
    "/Users/pemsley/autobuild/Linux-penelope-gtk4-python/include"
 

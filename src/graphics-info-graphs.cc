@@ -157,6 +157,7 @@ void graphics_info_t::refresh_ramachandran_plot_model_list() {
 
    // what is this - I mean, who calls it/when does it run? Is this an old method now that we have rama_plot_boxes?
 
+   // noise
    // std::cout << "----------------------- refresh_ramachandran_plot_model_list --------- " << std::endl;
 
    auto fn = +[] (GtkTreeModel* model, GtkTreePath* path, GtkTreeIter* iter, gpointer data) {
@@ -175,7 +176,6 @@ void graphics_info_t::refresh_ramachandran_plot_model_list() {
          gtk_list_store_set(ramachandran_plot_model_list, &iter, 0, label.c_str(), 1, i, -1);
       }
    }
-
    // std::cout << "----------------------- done refresh_ramachandran_plot_model_list --------- " << std::endl;
 }
 

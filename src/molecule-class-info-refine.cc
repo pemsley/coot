@@ -1001,7 +1001,7 @@ molecule_class_info_t::morph_fit_residues(std::vector<std::pair<mmdb::Residue *,
    // std::cout << "rtop_map.size(): " << rtop_map.size() << std::endl;
    if (rtop_map.size()) {
       success = 1;
-      make_backup();
+      make_backup(__FUNCTION__);
 
       // get the "key" residues, for use to find the peptide_C_N_pairs
       std::vector<mmdb::Residue *> residues_vec;
@@ -1376,7 +1376,7 @@ molecule_class_info_t::morph_fit_by_secondary_structure_elements(const std::stri
       mmdb::Model *model_p = atom_sel.mol->GetModel(imodel);
       if (model_p) {
 
-	 make_backup();
+	 make_backup(__FUNCTION__);
 	 bool model_changed = true;
 
 	 int nhelix = model_p->GetNumberOfHelices();
@@ -1689,7 +1689,7 @@ void
 molecule_class_info_t::shiftfield_b_factor_refinement(const clipper::HKL_data<clipper::data32::F_sigF> &fobs,
                                                       const clipper::HKL_data<clipper::data32::Flag> &free) {
    if (atom_sel.mol) {
-      make_backup();
+      make_backup(__FUNCTION__);
       int n_cycles = 3;
       coot::shift_field_b_factor_refinement(fobs, free, atom_sel.mol, n_cycles);
    }
@@ -1701,7 +1701,7 @@ molecule_class_info_t::shiftfield_xyz_factor_refinement(const clipper::HKL_data<
                                                         const clipper::HKL_data<clipper::data32::Flag> &free) {
 
    if (atom_sel.mol) {
-      make_backup();
+      make_backup(__FUNCTION__);
       coot::shift_field_xyz_refinement(fobs, free, atom_sel.mol, 2.0);
    }
 }

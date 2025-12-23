@@ -177,7 +177,7 @@ molecule_class_info_t::sprout_hydrogens(const std::string &chain_id,
 
    std::pair<bool, std::string> r(0, "");
 
-   make_backup();
+   make_backup(__FUNCTION__);
    mmdb::Residue *residue_p = get_residue(chain_id, res_no, ins_code);
    std::vector<coot::atom_spec_t> fixed_atoms;
    mmdb::PPAtom residue_atoms = 0;
@@ -852,7 +852,7 @@ molecule_class_info_t::hetify_residue_atoms(const std::string &chain_id,
    int r = -1;
    mmdb::Residue *residue_p = get_residue(chain_id, resno, ins_code);
    if (residue_p) {
-      make_backup();
+      make_backup(__FUNCTION__);
       int n_atoms = coot::hetify_residue_atoms_as_needed(residue_p);
       if (n_atoms > 0)
 	 r = 1;
@@ -1269,7 +1269,7 @@ molecule_class_info_t::watson_crick_pair_for_residue_range(const std::string &ch
 
    if (model_p) {
       if (new_residues.size()) {
-	 make_backup();
+	 make_backup(__FUNCTION__);
 	 mmdb::Chain *chain_p = new mmdb::Chain;
 	 // set the chain id
 	 std::pair<short int, std::string> u = unused_chain_id();
@@ -1313,7 +1313,7 @@ molecule_class_info_t::add_residue(mmdb::Residue *new_res,
 	       chain_p = model_p->GetChain(ichain);
 	       std::string chain_id(chain_p->GetChainID());
 	       if (chain_id == chain_id_in) {
-		  make_backup();
+		  make_backup(__FUNCTION__);
 		  res_copied = copy_and_add_residue_to_chain(chain_p, new_res);
 		  status = true;
 		  have_unsaved_changes_flag = 1;
@@ -1570,7 +1570,7 @@ molecule_class_info_t::split_water(std::string chain_id, int res_no, std::string
       if (n_atoms == 1) {
 	 mmdb::Atom *at = residue_p->GetAtom(" O  "); // PDBv3
 	 if (at) {
-	    make_backup();
+	    make_backup(__FUNCTION__);
         float old_occ = at->occupancy;
 	    mmdb::Atom *new_at = new mmdb::Atom;
 	    new_at->Copy(at);
@@ -1862,7 +1862,7 @@ molecule_class_info_t::rotate_residue(const coot::residue_spec_t &rs,
 
    mmdb::Residue *residue_p = get_residue(rs);
    if (residue_p) {
-      make_backup();
+      make_backup(__FUNCTION__);
       coot::util::rotate_residue(residue_p, around_vec, origin_offset, angle);
       have_unsaved_changes_flag = 1;
       atom_sel.mol->FinishStructEdit();
@@ -2097,7 +2097,7 @@ molecule_class_info_t::residue_partial_alt_locs_split_residue(coot::residue_spec
 				    tree.rotate_about(ra1, ra2, theta, reverse_fragment);
 
 				    if (atom_store.size()) {
-				       make_backup();
+				       make_backup(__FUNCTION__);
 				       std::cout << "These are the moving atoms: " << std::endl;
 				       for (unsigned int ii=0; ii<atom_store.size(); ii++) {
 					  std::cout << "here 0 " << ii << " of " << atom_store.size() << std::endl;
@@ -2161,7 +2161,7 @@ molecule_class_info_t::delete_chain(const std::string &chain_id) {
 	    if (chain_p) {
 	       std::string this_chain_id(chain_p->GetChainID());
 	       if (this_chain_id == chain_id) {
-                  make_backup();
+                  make_backup(__FUNCTION__);
 		  model_p->DeleteChain(ichain);
 		  done = true;
 	       }
@@ -2194,7 +2194,7 @@ molecule_class_info_t::delete_sidechains_for_chain(const std::string &chain_id) 
 	       std::string this_chain_id = chain_p->GetChainID();
 	       if (this_chain_id == chain_id) {
 
-		  make_backup();
+		  make_backup(__FUNCTION__);
 
 		  int nres = chain_p->GetNumberOfResidues();
 		  // delete the specific atoms of eacho of the residues:
@@ -2280,7 +2280,7 @@ molecule_class_info_t::delete_sidechain_range(const coot::residue_spec_t &res_1,
 	       std::string this_chain_id = chain_p->GetChainID();
 	       if (this_chain_id == chain_id) {
 
-		  make_backup();
+		  make_backup(__FUNCTION__);
 
 		  int nres = chain_p->GetNumberOfResidues();
 		  // delete the specific atoms of eacho of the residues:
@@ -2324,7 +2324,7 @@ void
 molecule_class_info_t::delete_all_carbohydrate() {
 
    if (atom_sel.mol) {
-      make_backup();
+      make_backup(__FUNCTION__);
       coot::util::delete_all_carbohydrate(atom_sel.mol);
       make_bonds_type_checked();
    }
@@ -2411,7 +2411,7 @@ void molecule_class_info_t::spin_N(const coot::residue_spec_t &residue_spec, flo
       mmdb::Atom *c  = coot::util::get_atom( c_spec, residue_p);
       mmdb::Atom *o  = coot::util::get_atom( o_spec, residue_p);
       if (ca && c && o) {
-	 make_backup();
+	 make_backup(__FUNCTION__);
 	 clipper::Coord_orth ca_pos = coot::co(ca);
 	 clipper::Coord_orth  c_pos = coot::co(c);
 	 clipper::Coord_orth dir = ca_pos - c_pos;
@@ -2479,7 +2479,7 @@ molecule_class_info_t::merge_fragments() {
 
    int status = 1;
 
-   make_backup();
+   make_backup(__FUNCTION__);
 
    coot::merge_atom_selections(atom_sel.mol); // doesn't return a value, should it?
 
@@ -2712,7 +2712,7 @@ molecule_class_info_t::add_named_glyco_tree(const std::string &glycosylation_typ
 
    float mt = coot::util::median_temperature_factor(atom_sel.atom_selection, atom_sel.n_selected_atoms, 2.0, 2222.2, false, false);
    float b_factor_for_new_atoms = 1.55 * mt;
-   make_backup();
+   make_backup(__FUNCTION__);
    coot::cho::add_named_glyco_tree(glycosylation_type, &atom_sel, imol_no, b_factor_for_new_atoms, xmap,
                                    geom_p, asn_res_spec.chain_id, asn_res_spec.res_no);
    have_unsaved_changes_flag = true;

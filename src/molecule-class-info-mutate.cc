@@ -210,7 +210,7 @@ molecule_class_info_t::mutate(mmdb::Residue *res, const std::string &residue_typ
 
             } else {
 
-               make_backup();
+               make_backup(__FUNCTION__);
 
                mmdb::PPAtom residue_atoms;
                int nResidueAtoms;
@@ -295,7 +295,7 @@ molecule_class_info_t::mutate_chain(const std::string &chain_id,
    if (mutation_info.insertions.size() > 0 ||
        mutation_info.deletions.size() > 0 ||
        mutation_info.mutations.size() > 0) {
-      make_backup();
+      make_backup(__FUNCTION__);
 
       // Don't backup each mutation, insertion etc - just do it before
       // and after.
@@ -1251,7 +1251,7 @@ void
 molecule_class_info_t::mutate_base_internal(mmdb::Residue *residue, mmdb::Residue *std_base,
 					    bool use_old_names) {
 
-   make_backup();
+   make_backup(__FUNCTION__);
 
    if (0)
       std::cout << "DEBUG:: mutate_base_internal():: residue name: "
@@ -1405,7 +1405,7 @@ molecule_class_info_t::spin_search(clipper::Xmap<float> &xmap,
 	    std::cout << "ERROR:: something bad in spin_search" << std::endl;
 	 } else {
 
-	    make_backup();
+	    make_backup(__FUNCTION__);
 
 	    // Now rotate the atoms in moving_atoms_list about dir;
 	    //
@@ -1583,7 +1583,7 @@ molecule_class_info_t::apply_sequence(int imol_map, mmdb::Manager *poly_ala_mol,
 
 //    std::cout << "DEBUG:: residue vector len " <<  mmdb_residues.size() << std::endl;
 //    std::cout << "DEBUG:: best sequence  len " <<  best_seq.length() << std::endl;
-   make_backup();
+   make_backup(__FUNCTION__);
 
    int selHnd = poly_ala_mol->NewSelection();
    poly_ala_mol->Select(selHnd, mmdb::STYPE_RESIDUE, 1,
@@ -1776,7 +1776,7 @@ molecule_class_info_t::delete_all_except_res(mmdb::Residue *res) {
 
    int state = 0;
    if (atom_sel.n_selected_atoms > 0) {
-      make_backup();
+      make_backup(__FUNCTION__);
 //       std::cout << "DEBUG:: molecule number " << imol_no << " contains "
 // 		<< atom_sel.mol->GetNumberOfModels() << " models"
 // 		<< std::endl;
@@ -1882,7 +1882,7 @@ molecule_class_info_t::remove_ter_atoms(const coot::residue_spec_t &spec) {  // 
    if (residue_p)
       has_ter = residue_has_TER_atom(residue_p);
    if (has_ter) {
-      make_backup();
+      make_backup(__FUNCTION__);
       remove_TER_internal(residue_p);
    }
 }
@@ -1954,7 +1954,7 @@ molecule_class_info_t::nudge_residue_sequence(const std::string &chain_id,
 
       if (seq_status && int(current_types.size()) == (range+1)) {
 
-	 make_backup();
+	 make_backup(__FUNCTION__);
 
 	 status = 1; // we did something
 

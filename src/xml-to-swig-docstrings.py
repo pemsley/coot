@@ -1,16 +1,6 @@
 #!/usr/bin/env python3
 """
-Convert Doxygen XML output to SWIG %feature("docstring") directives.
-
-This script parses Doxygen XML and generates a .i file that can be 
-included in your main SWIG interface file to add rich documentation
-to Python bindings.
-
-Usage:
-    1. Run Doxygen with XML output enabled
-    2. python xml-to-swig-docstrings.py xml/index.xml
-    3. Add '%include "coot_docstrings.i"' to your coot.i file
-    4. Rebuild SWIG bindings
+Improved version - extracts sections properly without duplication
 """
 
 import xml.etree.ElementTree as ET
@@ -19,34 +9,151 @@ import argparse
 
 def convert_type(tt: str) -> str:
     """Convert C++ types to Python type hints for documentation"""
-    if tt == "const ": tt = "str"
-    if tt == "const std::string &": tt = "str"
-    if tt == "std::string": tt = "str"
-    if tt == "unsigned int": tt = "int"
-    if tt == "double": tt = "float"
-    if tt == 'std::vector< ': tt = "list"
-    if tt == 'const std::vector< ': tt = "list"
-    if tt == 'const std::vector< float > &': tt = "list"
-    if tt == 'std::vector< float > &': tt = "list"
-    if tt == "const std::vector< std::string > &": tt = "list"
-    if tt == 'const std::map< unsigned int, std::array< float, 3 > > &': tt = "dict"
-    if tt == 'const std::map< unsigned int, std::array< float, 4 > > &': tt = "dict"
-    if tt == 'const std::vector< std::pair< std::string, unsigned int > > &': tt = "list"
-    if tt == 'const coot::residue_spec_t &': tt = 'residue_spec'
-    if tt == 'const coot::colour_t &': tt = 'colour'
-    if tt == 'const coot::atom_spec_t &': tt = 'atom_spec'
-    if tt == 'coot::residue_spec_t &': tt = 'residue_spec'
-    if tt == 'std::vector< coot::api::moved_atom_t > &': tt = 'list'
-    if tt == 'const std::vector< coot::api::moved_residue_t > &': tt = 'list'
-    if tt == 'PyObject *': tt = 'object'
-    if tt == 'char const *': tt = 'str'
-    if tt == 'short': tt = 'int'
-    if tt == 'bool': tt = 'bool'
-    if tt == 'int': tt = 'int'
-    if tt == 'float': tt = 'float'
-    if tt == 'void': tt = 'None'
+    type_map = {
+        "const ": "str",
+        "const std::string &": "str",
+        "std::string": "str",
+        "unsigned int": "int",
+        "double": "float",
+        'PyObject *': 'object',
+        'char const *': 'str',
+        'short': 'int',
+        'bool': 'bool',
+        'int': 'int',
+        'float': 'float',
+        'void': 'None',
+    }
+    
+    # Try exact match first
+    if tt in type_map:
+        return type_map[tt]
+    
+    # Pattern matching for complex types
+    if 'std::vector<' in tt or 'const std::vector<' in tt:
+        return "list"
+    if 'std::map<' in tt:
+        return "dict"
+    if 'coot::residue_spec_t' in tt:
+        return 'residue_spec'
+    if 'coot::colour_t' in tt:
+        return 'colour'
+    if 'coot::atom_spec_t' in tt:
+        return 'atom_spec'
     
     return tt
+
+def extract_all_text(elem):
+    """
+    Recursively extract ALL text from an element, including nested elements.
+    Returns plain text with newlines preserved where appropriate.
+    """
+    parts = []
+    
+    if elem.text:
+        parts.append(elem.text.strip())
+    
+    for child in elem:
+        # Recursively get text from children
+        child_text = extract_all_text(child)
+        if child_text:
+            parts.append(child_text)
+        
+        # Get tail text (after closing tag)
+        if child.tail:
+            tail = child.tail.strip()
+            if tail:
+                parts.append(tail)
+    
+    return " ".join(parts)
+
+def format_as_list(itemizedlist_elem, indent=0):
+    """Format an itemizedlist element as a bulleted list"""
+    items = []
+    indent_str = "  " * indent
+    
+    for listitem in itemizedlist_elem.findall("listitem"):
+        # Get all text from this list item
+        item_text = extract_all_text(listitem)
+        if item_text:
+            # Check for nested lists
+            nested_lists = listitem.findall(".//itemizedlist")
+            if nested_lists:
+                # Add the main item
+                items.append(f"{indent_str}- {item_text.split('  -')[0].strip()}")
+                # Add nested items with more indentation
+                for nested in nested_lists:
+                    nested_items = format_as_list(nested, indent + 1)
+                    items.extend(nested_items)
+            else:
+                items.append(f"{indent_str}- {item_text}")
+    
+    return items
+
+def parse_detailed_description(detaileddesc_elem):
+    """
+    Parse the detaileddescription element and return structured content.
+    Returns dict with 'intro' and 'sections' keys.
+    """
+    result = {
+        'intro': '',
+        'sections': []
+    }
+    
+    # Get introductory text (direct para children before any sections)
+    intro_parts = []
+    for child in detaileddesc_elem:
+        if child.tag == "para":
+            # Extract text, handling computeroutput
+            text = extract_all_text(child)
+            if text:
+                intro_parts.append(text)
+        elif child.tag in ["sect1", "sect2"]:
+            # Stop when we hit sections
+            break
+    
+    if intro_parts:
+        result['intro'] = "\n\n".join(intro_parts)
+    
+    # Now process all sect1/sect2 sections
+    for sect in detaileddesc_elem.findall(".//sect2"):
+        section = {'title': '', 'content': []}
+        
+        # Get title
+        title_elem = sect.find("title")
+        if title_elem is not None and title_elem.text:
+            section['title'] = title_elem.text.strip()
+        
+        # Process para elements in this section
+        for para in sect.findall("para"):
+            # Check for special structures
+            paramlist = para.find("parameterlist")
+            if paramlist is not None:
+                # Skip - we'll handle parameters separately
+                continue
+            
+            simplesect = para.find("simplesect")
+            if simplesect is not None and simplesect.attrib.get('kind') == 'return':
+                # Get return description
+                ret_text = extract_all_text(simplesect)
+                if ret_text:
+                    section['content'].append(ret_text)
+            
+            # Check for itemizedlist
+            itemlist = para.find("itemizedlist")
+            if itemlist is not None:
+                list_items = format_as_list(itemlist)
+                if list_items:
+                    section['content'].extend(list_items)
+            else:
+                # Regular paragraph
+                text = extract_all_text(para)
+                if text:
+                    section['content'].append(text)
+        
+        if section['title'] or section['content']:
+            result['sections'].append(section)
+    
+    return result
 
 def make_swig_docstring(function: dict) -> str:
     """Generate docstring content for SWIG %feature directive"""
@@ -57,64 +164,69 @@ def make_swig_docstring(function: dict) -> str:
     if 'briefdescription' in function and function['briefdescription']:
         doc_parts.append(function['briefdescription'].strip())
     
-    # Detailed description
-    if 'detaileddescription' in function and function['detaileddescription']:
-        if doc_parts:  # Add blank line if we had brief description
+    # Introductory text from detailed description
+    if 'intro' in function and function['intro']:
+        if doc_parts:
             doc_parts.append("")
-        doc_parts.append(function['detaileddescription'].strip())
+        doc_parts.append(function['intro'])
     
-    # Parameters section (NumPy-style format)
+    # Process structured sections
+    if 'sections' in function and function['sections']:
+        for section in function['sections']:
+            title = section.get('title', '')
+            content = section.get('content', [])
+            
+            if not (title or content):
+                continue
+            
+            doc_parts.append("")
+            if title:
+                doc_parts.append(title)
+                # Add underline for major sections
+                if title in ['Parameters', 'Returns', 'Return value', 'Notes', 
+                             'Examples', 'Reference counting']:
+                    doc_parts.append("-" * len(title))
+            
+            # Add content
+            if content:
+                for line in content:
+                    doc_parts.append(line)
+    
+    # Add parameter info if we have it
     if 'params' in function and function['params']:
-        doc_parts.append("")
-        doc_parts.append("Parameters")
-        doc_parts.append("----------")
-        for param in function['params']:
-            param_type = convert_type(param['type'])
-            param_name = param['declname']
-            doc_parts.append(f"{param_name} : {param_type}")
-            # Add parameter description if available
-            if 'description' in param and param['description']:
-                # Indent parameter descriptions
-                desc_lines = param['description'].strip().split('\n')
-                for line in desc_lines:
-                    doc_parts.append(f"    {line}")
-    
-    # Return value
-    if 'return_description' in function and function['return_description']:
-        doc_parts.append("")
-        doc_parts.append("Returns")
-        doc_parts.append("-------")
-        return_type = convert_type(function.get('type', ''))
-        if return_type and return_type != 'None':
-            doc_parts.append(f"{return_type}")
-            doc_parts.append(f"    {function['return_description'].strip()}")
-        else:
-            doc_parts.append(function['return_description'].strip())
-    
-    # Examples section if available
-    if 'examples' in function and function['examples']:
-        doc_parts.append("")
-        doc_parts.append("Examples")
-        doc_parts.append("--------")
-        doc_parts.append(function['examples'].strip())
+        # Check if we already have a Parameters section
+        has_param_section = any(
+            s.get('title') == 'Parameters' 
+            for s in function.get('sections', [])
+        )
+        
+        if not has_param_section:
+            doc_parts.append("")
+            doc_parts.append("Parameters")
+            doc_parts.append("----------")
+            for param in function['params']:
+                param_type = convert_type(param['type'])
+                param_name = param['declname']
+                doc_parts.append(f"{param_name} : {param_type}")
+                if 'description' in param and param['description']:
+                    desc_lines = param['description'].strip().split('\n')
+                    for line in desc_lines:
+                        doc_parts.append(f"    {line}")
     
     return "\n".join(doc_parts)
 
 def escape_docstring(docstring: str) -> str:
     """Escape special characters for SWIG docstring"""
-    # Escape backslashes and quotes
     docstring = docstring.replace('\\', '\\\\')
     docstring = docstring.replace('"', '\\"')
     return docstring
 
-def make_swig_interface(functions: list, output_file: str = "coot_docstrings.i", 
-                        namespace: str = None) -> None:
+def make_swig_interface(functions: list, output_file: str = "coot_docstrings.i") -> None:
     """Generate SWIG interface file with docstring features"""
     
     with open(output_file, "w") as f:
         f.write("/* Auto-generated SWIG docstrings from Doxygen XML */\n")
-        f.write("/* Generated by xml-to-swig-docstrings.py */\n")
-        f.write(f"/* Include this file in your main .i file with: %include \"{output_file}\" */\n\n")
+        f.write("/* Generated by xml-to-swig-docstrings.py */\n\n")
         
         function_count = 0
         
@@ -123,27 +235,16 @@ def make_swig_interface(functions: list, output_file: str = "coot_docstrings.i",
                 continue
             
             func_name = function.get('name', '')
-            if not func_name:
+            if not func_name or func_name.startswith('~'):
                 continue
             
-            # Skip constructors/destructors (adjust for your class name)
-            if func_name.startswith('~'):
-                continue
-            if namespace and func_name == namespace:
-                continue
-            
-            # Generate docstring
             docstring = make_swig_docstring(function)
             
             if docstring.strip():
-                # Escape the docstring
                 escaped_docstring = escape_docstring(docstring)
-                
-                # Write SWIG %feature directive
                 f.write(f'%feature("docstring") {func_name} "\n')
                 f.write(escaped_docstring)
                 f.write('\n";\n\n')
-                
                 function_count += 1
         
         print(f"✓ Generated SWIG docstrings for {function_count} functions")
@@ -164,123 +265,95 @@ def parse_doxygen_xml(xml_file: str) -> list:
     myroot = mytree.getroot()
     functions = []
     
-    for x in myroot.iter('sectiondef'):
-        for child in x:
-            if child.tag == "memberdef":
-                keep_going = True
-                try:
-                    a_function = {}
-                    kind = child.attrib.get('kind', '')
-                    a_function['kind'] = kind
-                    
-                    if kind != "function":
-                        continue
-                    
-                    # Extract function details
-                    for ch in child:
-                        if ch.tag == "definition":
-                            # Skip constructors/destructors
-                            if "~" in ch.text:
-                                keep_going = False
-                                break
-                        
-                        if ch.tag == "name":
-                            a_function["name"] = ch.text
-                        
-                        if ch.tag == "type":
-                            a_function["type"] = ch.text
-                        
-                        if ch.tag == "param":
-                            t = ch.find("type")
-                            tt = t.text if t is not None else ""
-                            dn = ch.find("declname")
-                            dn_text = dn.text if dn is not None else ""
-                            
-                            if 'params' not in a_function:
-                                a_function['params'] = []
-                            a_function['params'].append({
-                                "type": tt, 
-                                "declname": dn_text
-                            })
-                        
-                        if ch.tag == "briefdescription":
-                            for c in ch:
-                                if c.tag == "para" and c.text:
-                                    a_function["briefdescription"] = c.text
-                        
-                        if ch.tag == "detaileddescription":
-                            parts = []
-                            for c in ch:
-                                if c.tag == "para":
-                                    if c.text:
-                                        parts.append(c.text)
-                                    
-                                    # Handle parameter descriptions
-                                    for chunk in c:
-                                        if chunk.tag == "parameterlist":
-                                            param_docs = []
-                                            for pchunk in chunk:
-                                                param_name = ""
-                                                param_desc = ""
-                                                for cchunk in pchunk:
-                                                    if cchunk.tag == "parameternamelist":
-                                                        for kchunk in cchunk:
-                                                            if kchunk.tag == "parametername":
-                                                                param_name = kchunk.text
-                                                    if cchunk.tag == "parameterdescription":
-                                                        for kchunk in cchunk:
-                                                            if kchunk.tag == "para" and kchunk.text:
-                                                                param_desc = kchunk.text
-                                                
-                                                if param_name and param_desc:
-                                                    param_docs.append(f":param {param_name}: {param_desc}")
-                                            
-                                            if param_docs:
-                                                parts.append("\n".join(param_docs))
-                                        
-                                        # Handle return descriptions
-                                        if chunk.tag == "simplesect":
-                                            if chunk.attrib.get('kind') == 'return':
-                                                for kchunk in chunk:
-                                                    if kchunk.tag == "para" and kchunk.text:
-                                                        a_function["return_description"] = kchunk.text
-                            
-                            if parts:
-                                a_function["detaileddescription"] = "\n\n".join(parts)
-                    
-                    if keep_going and a_function.get('name'):
-                        functions.append(a_function)
+    for sectiondef in myroot.iter('sectiondef'):
+        for memberdef in sectiondef:
+            if memberdef.tag != "memberdef":
+                continue
+            
+            if memberdef.attrib.get('kind') != 'function':
+                continue
+            
+            try:
+                a_function = {'kind': 'function'}
                 
-                except Exception as e:
-                    print(f"Warning: Error processing function: {e}")
+                # Get function name
+                name_elem = memberdef.find("name")
+                if name_elem is None or not name_elem.text:
                     continue
+                a_function['name'] = name_elem.text
+                
+                # Skip destructors
+                definition_elem = memberdef.find("definition")
+                if definition_elem is not None and definition_elem.text and "~" in definition_elem.text:
+                    continue
+                
+                # Get return type
+                type_elem = memberdef.find("type")
+                if type_elem is not None:
+                    a_function['type'] = type_elem.text if type_elem.text else ""
+                
+                # Get parameters
+                params = []
+                for param in memberdef.findall("param"):
+                    t = param.find("type")
+                    dn = param.find("declname")
+                    params.append({
+                        "type": t.text if t is not None and t.text else "",
+                        "declname": dn.text if dn is not None and dn.text else ""
+                    })
+                if params:
+                    a_function['params'] = params
+                
+                # Get brief description
+                briefdesc = memberdef.find("briefdescription")
+                if briefdesc is not None:
+                    for para in briefdesc.findall("para"):
+                        text = extract_all_text(para)
+                        if text:
+                            a_function['briefdescription'] = text
+                
+                # Get detailed description with structured sections
+                detaileddesc = memberdef.find("detaileddescription")
+                if detaileddesc is not None:
+                    parsed = parse_detailed_description(detaileddesc)
+                    if parsed['intro']:
+                        a_function['intro'] = parsed['intro']
+                    if parsed['sections']:
+                        a_function['sections'] = parsed['sections']
+                    
+                    # Also extract parameter descriptions to add to params
+                    for para in detaileddesc.findall(".//para"):
+                        paramlist = para.find("parameterlist")
+                        if paramlist is not None:
+                            for paramitem in paramlist.findall("parameteritem"):
+                                param_name_elem = paramitem.find(".//parametername")
+                                param_desc_elem = paramitem.find(".//parameterdescription")
+                                
+                                if param_name_elem is not None and param_desc_elem is not None:
+                                    param_name = param_name_elem.text
+                                    param_desc = extract_all_text(param_desc_elem)
+                                    
+                                    # Add description to matching parameter
+                                    if 'params' in a_function:
+                                        for p in a_function['params']:
+                                            if p['declname'] == param_name:
+                                                p['description'] = param_desc
+                
+                functions.append(a_function)
+            
+            except Exception as e:
+                func_name = a_function.get('name', 'unknown')
+                print(f"Warning: Error processing function {func_name}: {e}")
+                import traceback
+                traceback.print_exc()
+                continue
     
     return functions
 
 def main():
-    parser = argparse.ArgumentParser(
-        description='Convert Doxygen XML to SWIG docstrings',
-        formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog="""
-Examples:
-  # Process a single class XML file
-  python xml-to-swig-docstrings.py xml/classmolecules__container__t.xml
-  
-  # Process index.xml (processes all classes)
-  python xml-to-swig-docstrings.py xml/index.xml -o coot_all_docstrings.i
-  
-  # Specify output file
-  python xml-to-swig-docstrings.py xml/cc-interface.xml -o cc_interface_docs.i
-"""
-    )
-    
-    parser.add_argument('xml_file', 
-                       help='Doxygen XML file to process (e.g., xml/index.xml)')
-    parser.add_argument('-o', '--output', 
-                       default='coot_docstrings.i',
-                       help='Output .i file (default: coot_docstrings.i)')
-    parser.add_argument('-n', '--namespace',
-                       help='Class/namespace name (to skip constructor/destructor)')
+    parser = argparse.ArgumentParser(description='Convert Doxygen XML to SWIG docstrings')
+    parser.add_argument('xml_file', help='Doxygen XML file to process')
+    parser.add_argument('-o', '--output', default='coot_docstrings.i', help='Output .i file')
     
     args = parser.parse_args()
     
@@ -290,13 +363,7 @@ Examples:
     print(f"Found {len(functions)} functions")
     
     if functions:
-        make_swig_interface(functions, args.output, args.namespace)
-        print(f"\nNext steps:")
-        print(f"1. Add this line to your coot.i file:")
-        print(f"   %include \"{args.output}\"")
-        print(f"2. Rebuild SWIG bindings")
-        print(f"3. Rebuild Coot")
-        print(f"4. Restart MCP server to see updated documentation")
+        make_swig_interface(functions, args.output)
     else:
         print("Warning: No functions found in XML file")
         return 1
