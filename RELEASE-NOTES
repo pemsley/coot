@@ -54,7 +54,7 @@
 
  o CHANGE:  Overlay notification on B-factor and Occupancy updated
 
- o CHANGE:  B-factor and Occupancy modifcation now has an overlay
+ o CHANGE:  B-factor and Occupancy modification now has an overlay
             notifier
 
  o BUG-FIX: "Undo molecule" dialog operation fixed
@@ -71,7 +71,7 @@
  o BUG-FIX: set_molecule_name() function for models fixed
 
  o BUG-FIX: one can now no longer pick/drag undisplayed intermediate
-            hydrogren atoms [thanks Oliver Clarke]
+            hydrogen atoms [thanks Oliver Clarke]
 
  o BUG-FIX: the "No Unmodelled blobs" dialog tided up
 
