@@ -1851,24 +1851,68 @@ graphics_info_t::run_post_manipulation_hook_py(int imol, int mode) {
    //           << std::endl;
    // return;
 
-   std::string pms = "post_manipulation_script";
-   // pms = "print";
-   std::string check_pms = "callable(" + pms + ")";
+   if (false) // debugging
+      std::cout << "debug run_post_manipulation_hook_py() --- start --- " << std::endl;
 
-   const char *modulename = "__main__";
-   PyObject *pName = myPyString_FromString(modulename);
-   PyObject *pModule = PyImport_Import(pName);
-   pModule = PyImport_AddModule("__main__");
-   pModule = PyImport_AddModule("coot");
-   pModule = PyImport_AddModule("coot_utils");
-   PyObject *globals = PyModule_GetDict(pModule);
+   PyObject *error_thing = PyErr_Occurred();
+   if (error_thing) {
+      std::cout << "ERROR:: while executing run_post_manipulation_hook_py() a python error occured before start " << std::endl;
+      PyObject *type, *value, *traceback;
+      PyErr_Fetch(&type, &value, &traceback);
+      PyErr_NormalizeException(&type, &value, &traceback);
+      PyObject *exception_string = PyObject_Repr(value);
+      const char *em = myPyString_AsString(exception_string);
+      std::cout << "ERROR:: " << em << std::endl;
+      Py_XDECREF(value);
+      Py_XDECREF(traceback);
+      Py_XDECREF(type);
+   }
 
-   PyObject *result = PyRun_String(check_pms.c_str(), Py_eval_input, globals, globals);
+   PyObject *result = nullptr;
+   PyObject *pModule = PyImport_ImportModule("coot_utils");
+   if (!pModule) {
+      std::cout << "ERROR:: run_post_manipulation_hook_py() no pModule " << std::endl;
+      PyErr_Print();
+      return;
+   } else {
+      PyObject *attr = PyObject_GetAttrString(pModule, "post_manipulation_script");
+      if (attr && PyCallable_Check(attr)) {
+
+         if (false) { // debugging calling this function
+            // attr is a new/borrowed reference you already obtained
+            PyObject *repr = PyObject_Repr(attr);  // new reference
+            if (repr) {
+               const char *s = PyUnicode_AsUTF8(repr); // NULL if not a unicode
+               if (s)
+                  std::cout << "callable repr: " << s << std::endl;
+               else
+                  std::cout << "callable repr: <non-unicode repr>" << std::endl;
+               Py_XDECREF(repr);
+            } else {
+               // If PyObject_Repr fails, print the Python error so you can debug
+               PyErr_Print();
+            }
+         }
+
+         PyObject *arg_1 = PyLong_FromLong(imol);
+         PyObject *arg_2 = PyLong_FromLong(mode);
+         // result = PyObject_CallObject(attr, t);
+         result = PyObject_CallFunctionObjArgs(attr, arg_1, arg_2, NULL);
+         Py_XDECREF(result);
+      } else {
+         if (false) // useful when debugging.
+            std::cout << "DEBUG:: coot_utils.post_manipulation_script is not callable" << std::endl;
+         return;
+      }
+      Py_XDECREF(attr);
+      Py_XDECREF(pModule);
+   }
+
    // the above function can set an error  - that's bad news for the python wrapping
    // of accept_moving_atoms(). So instead of properly handling the error, or investigating
    // why it is happening, let's just clear it.
-
-   PyObject *error_thing = PyErr_Occurred();
+   //
+   error_thing = PyErr_Occurred();
    if (! error_thing) {
       if (false)
          std::cout << "DEBUG:: run_post_manipulation_hook_py() No Python error on callable check" << std::endl;
@@ -1886,36 +1930,6 @@ graphics_info_t::run_post_manipulation_hook_py(int imol, int mode) {
    }
 
    PyErr_Clear();
-
-   if (false) {
-      std::cout << "::::::: in run_post_manipulation_hook_py() with check_pms \"" << check_pms << "\"" << std::endl;
-      std::cout << "::::::: in run_post_manipulation_hook_py() with result " << result << std::endl;
-   }
-
-   if (result) {
-      long ret = PyLong_AsLong(result);
-      // std::cout << "::::::: in run_post_manipulation_hook_py() with ret " << ret << std::endl;
-      if (ret == 1) {
-         std::string ss = pms;
-         ss += "(";
-         ss += int_to_string(imol);
-         ss += ", ";
-         ss += int_to_string(mode);
-         ss += ")";
-         // std::cout << "running safe command: " << ss << std::endl;
-         PyObject *res = safe_python_command_with_return(ss);
-         // std::cout << "safe_python_command_with_return() returned res " << res << std::endl;
-         if (res) {
-            PyObject *fmt =  myPyString_FromString("result: \%s");
-            PyObject *tuple = PyTuple_New(1);
-            PyTuple_SetItem(tuple, 0, res);
-            //PyString_Format(p, tuple);
-            PyObject *msg = PyUnicode_Format(fmt, tuple);
-            // std::cout << PyUnicode_AsUTF8String(msg)<<std::endl;;
-            Py_DECREF(msg);
-         }
-      }
-   }
 
    // Py_XDECREF(v);
 }
