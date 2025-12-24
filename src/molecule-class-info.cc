@@ -22,6 +22,7 @@
  */
 
 #include "molecule-class-info.h"
+#include <filesystem>
 #ifdef USE_PYTHON
 #include <Python.h> // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #endif
@@ -8459,10 +8460,11 @@ molecule_class_info_t::save_history_file_name(const std::string &file_name,
 }
 
 // restore from (previous) backup
-void
-molecule_class_info_t::restore_from_backup(int history_offset,
-                                           const std::string &cwd) {
+bool molecule_class_info_t::restore_from_backup(int history_offset,
+                                                const std::string &cwd) {
 
+   // return success status
+   bool status = false;
 
    // consider passing this:
    bool v2_convert_flag = graphics_info_t::convert_to_v2_atom_names_flag;
@@ -8470,8 +8472,10 @@ molecule_class_info_t::restore_from_backup(int history_offset,
 
    int hist_vec_index = history_index + history_offset;
    if (int(history_filename_vec.size()) > hist_vec_index) {
-      std::cout << "restoring from backup " << history_filename_vec.size()
-                << " " << history_index << std::endl;
+      // std::cout << "INFO:: restoring from backup " << history_filename_vec.size()
+      //           << " " << history_index << std::endl;
+      logger.log(log_t::INFO, "restoring from backup", history_filename_vec.size(),
+            "history index: ", history_index);
       std::string save_name = name_;
       if (hist_vec_index < int(history_filename_vec.size()) &&
           hist_vec_index >= 0) {
@@ -8499,12 +8503,14 @@ molecule_class_info_t::restore_from_backup(int history_offset,
          save_state_command_strings_ = save_save_state;
          imol_no = save_imol;
          name_ = save_name;
+         status = true;
       }
    } else {
       std::cout << "not restoring from backup because "
                 << history_filename_vec.size()
                 << " " << history_index << std::endl;
    }
+   return status;
 }
 
 

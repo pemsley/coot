@@ -365,7 +365,8 @@ class molecule_class_info_t {
    void save_history_file_name(const std::string &file, const std::string &description);
    std::vector<coot::backup_file_info_t> history_filename_vec;
    std::string save_time_string;
-   void restore_from_backup(int history_offset, const std::string &cwd);
+   // return success status.
+   bool restore_from_backup(int history_offset, const std::string &cwd);
 
    public: // FIXME later
 

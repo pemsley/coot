@@ -27,10 +27,12 @@ int molecule_class_info_t::make_backup_checkpoint(const std::string &description
  */
 int molecule_class_info_t::restore_to_backup_checkpoint(int backup_index) {
 
-   int status = -1;
    std::string cwd = coot::util::current_working_dir();
-   restore_from_backup(backup_index, cwd);
-   return backup_index;
+   bool status = restore_from_backup(backup_index, cwd);
+   if (status)
+      return backup_index;
+   else
+      return -1;
 }
 
 /*! \brief Compare current model to backup
