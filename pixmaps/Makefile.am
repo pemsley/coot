@@ -27,7 +27,7 @@ cootpixmapdir = $(pkgdatadir)/pixmaps
 cootsplashscreendir = $(pkgdatadir)/images
 cootpixmapdarkdir = $(pkgdatadir)/pixmaps/dark
 
-dist_cootsplashscreen_DATA = coot-1.1.19.png
+dist_cootsplashscreen_DATA = coot-1.1.20.png
 
 dist_cootpixmap_DATA = \
 add-alt-conf.png      dna.svg			   probe-clash.svg                \

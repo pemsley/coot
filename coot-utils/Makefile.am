@@ -47,7 +47,7 @@ pkginclude_HEADERS = peak-search.hh coot-trim.hh \
         diff-diff-map-peaks.hh tiny_gltf.h json.hpp \
 	stb_image.h stb_image_write.h glyco-tree.hh positron.hh mini-texture.hh texture-as-floats.hh pae.hh q-score.hh \
 	acedrg-types-for-residue.hh gl-matrix.h ortep.hh coot-align.hh grid-balls.hh dict-link-info.hh \
-        dirichlet-process.hh cfc.hh cremer-pople.hh born.hh inchikey-store.hh cylinder-utils.hh
+        dirichlet-process.hh cfc.hh cremer-pople.hh born.hh inchikey-store.hh cylinder-utils.hh gmm.hh
 
 
 pkgincludedir = $(includedir)/coot/coot-utils

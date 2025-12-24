@@ -3986,7 +3986,7 @@ INFO::
    o change the PACKAGE_VERSION in CMakeLists.txt
    o update data/Components-inchikey.ich
    o Correct the version in the about_dialog in the coot-gtk4.ui file
-   o Artists acknowledged in glade/aboutdialog? 
+   o Artists acknowledged in glade/aboutdialog?
    o update Components-inchikey.ich
    o Use []
         Change the splash screen?
@@ -4005,6 +4005,8 @@ INFO::
         copy into the new directory the script configure-it.
         configure and make check
    o git status # what did you forget to add?
+   o check chapi compiles
+   o test-molecules-container
    o are the shaders up to date?
    o Transfer the dist tar to hal and build it there
    o git commit -a

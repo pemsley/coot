@@ -32,6 +32,8 @@
 
  o FEATURE: Other types of Carbohydrate added (back)
 
+ o FEATURE: server mode turned into JSON RPC server
+
  o CHANGE:  XDG is used for the download of COD entries
 
  o CHANGE:  Update the "No Unmodelled Blobs" dialog

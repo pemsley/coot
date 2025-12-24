@@ -926,7 +926,10 @@ graphics_info_t::update_geometry_graphs(const atom_selection_container_t &moving
 void
 graphics_info_t::update_ramachandran_plot(int imol) {
 
-   std::cout << "update_ramachandran_plot() " << imol << " FIXME? " << std::endl;
+   // a noise annoys
+   //
+   if (false)
+      std::cout << "debug:: update_ramachandran_plot() " << imol << " does nothing - FIXME? " << std::endl;
 }
 
 #include "dynamic-validation.hh"
