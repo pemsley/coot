@@ -34,6 +34,7 @@
 #endif // HAVE_STRING
 
 #include <deque>
+#include <iomanip>
 
 #include "compat/coot-sysdep.h"
 
