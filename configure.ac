@@ -482,7 +482,7 @@ fi
 AM_COOT_SYS_BUILD_TYPE
 
 
-AC_ARG_WITH([sound], AS_HELP_STRING([--with-sound compile with ogg-vorbis and OpenAL libs]), with_sound="withval", with_sound=false)
+AC_ARG_WITH([sound], AS_HELP_STRING([--with-sound compile with ogg-vorbis and OpenAL libs]), with_sound="$withval", with_sound=false)
 AC_MSG_CHECKING([for sound])
 if test "x$with_sound" = xfalse ; then
    :
