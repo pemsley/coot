@@ -203,14 +203,7 @@ namespace coot {
       std::string description;
       std::string backup_file_name;
       timespec ctime;
-      std::string get_timespec_string() const {
-         char buffer[80];
-         struct tm* timeinfo = localtime(&ctime.tv_sec);
-         strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", timeinfo);
-         std::ostringstream oss;
-         oss << buffer << "." << std::setfill('0') << std::setw(3) << (ctime.tv_nsec / 1000000);
-         return oss.str();
-      }
+      std::string get_timespec_string() const;
       backup_file_info_t() {
 	 valid_status = false; // initially no backup reported
          imol = -1;

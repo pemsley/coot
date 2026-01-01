@@ -372,6 +372,18 @@ molecule_class_info_t::setup_internal() { // init
    draw_chiral_volume_outlier_markers_flag = false;
 }
 
+std::string
+coot::backup_file_info_t::get_timespec_string() const {
+
+   char buffer[80];
+   struct tm* timeinfo = localtime(&ctime.tv_sec);
+   strftime(buffer, sizeof(buffer), "%Y-%m-%d %H:%M:%S", timeinfo);
+   std::ostringstream oss;
+   oss << buffer << "." << std::setfill('0') << std::setw(3) << (ctime.tv_nsec / 1000000);
+   return oss.str();
+}
+
+
 int
 molecule_class_info_t::update_molecule(std::string file_name, std::string cwd) {
 
