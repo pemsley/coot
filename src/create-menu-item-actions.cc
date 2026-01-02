@@ -4403,7 +4403,7 @@ about_coot_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                   G_GNUC_UNUSED GVariant *parameter,
                   G_GNUC_UNUSED gpointer user_data) {
 
-   std::cout << "About Coot" << std::endl;
+   //std::cout << "About Coot" << std::endl;
 
    GtkWidget *dialog = widget_from_builder("about_dialog");
    if (dialog) {
