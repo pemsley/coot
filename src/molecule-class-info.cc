@@ -2473,15 +2473,18 @@ molecule_class_info_t::local_b_factor_display(bool state,
                   for (int iat=0; iat<n_atoms; iat++) {
                      mmdb::Atom *at = residue_p->GetAtom(iat);
                      if (! at->isTer()) {
-                        float dx = at->x - screen_centre.x();
-                        float dy = at->y - screen_centre.y();
-                        float dz = at->z - screen_centre.z();
-                        float dd = dx * dx + dy * dy + dz * dz;
-                        if (dd < close_dist_sqrd) {
-                           int handle = -1; // not set
-                           std::string label = coot::util::float_to_string_using_dec_pl(at->tempFactor, 1);
-                           coot::generic_text_object_t gto(label, handle, at->x + 0.2, at->y, at->z);
-                           text_objects.push_back(gto);
+                        std::string ele = at->element;
+                        if (ele != " H") { // don't show B factors of H atoms - crowded and not useful
+                           float dx = at->x - screen_centre.x();
+                           float dy = at->y - screen_centre.y();
+                           float dz = at->z - screen_centre.z();
+                           float dd = dx * dx + dy * dy + dz * dz;
+                           if (dd < close_dist_sqrd) {
+                              int handle = -1; // not set
+                              std::string label = coot::util::float_to_string_using_dec_pl(at->tempFactor, 1);
+                              coot::generic_text_object_t gto(label, handle, at->x + 0.2, at->y, at->z);
+                              text_objects.push_back(gto);
+                           }
                         }
                      }
                   }
