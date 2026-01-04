@@ -10,9 +10,9 @@ data_energy
 # ---------------------------------------------------
 #   -----------   Description of atom's type --------     
 #HEADER        C Carbon PI
-#ATOMTYPE CSP  = with triple bond
+#ATOMTYPE CSP  = with triple bond or two double bonds
 #ATOMTYPE CSP1 = with triple bond and 1 hydrogen
-#HEADER        C Carbon SP2
+#HEADER       C  Carbon SP2
 #ATOMTYPE C    = without hydrogen ( carbonyl C )
 #ATOMTYPE C1   = connected to 1 hydrogen  
 #ATOMTYPE C2   = connected to 2 hydrogens 
@@ -30,9 +30,10 @@ data_energy
 #ATOMTYPE CH2  = connected to 2 hydrogens ( CB of most amono acids)
 #ATOMTYPE CH3  = connected to 3 hydrogens ( CD1 CD2 of LEUCINE)
 #ATOMTYPE CT   = without hydrogen
+#HEADER       SI silicon
 #ATOMTYPE SI   = tetragonal silicon
 #ATOMTYPE SI1  = other silicons
-#HEADER        H Hydrogen
+#HEADER        H Hydrogen   # Now we have only one H atom type. these are here for historical reasons
 #ATOMTYPE HCH  = hydrogen of aliphatic group
 #ATOMTYPE HCR  = hydrogen of aromatic group
 #ATOMTYPE HNC1 = hydrogen connected to NC1
@@ -45,30 +46,49 @@ data_energy
 #ATOMTYPE HOH1 = hydrogen connected to OH1
 #ATOMTYPE HOH2 = hydrogen of water
 #ATOMTYPE HSH1 = hydrogen of sulphur
-#HEADER        N Nitrogen PI
-#ATOMTYPE NS   = without hydrogen ( triple bond )
-#ATOMTYPE NS1  = connected to 1 hydrogen
+#HEADER        N Nitrogen SP1
+#ATOMTYPE NSP   = without hydrogen ( triple bond )
+#ATOMTYPE NSP1   = with one hydrogen ( triple bond )
+#ATOMTYPE NS   = without hydrogen ( triple bond ) = NSP
+#ATOMTYPE NS1  = connected to 1 hydrogen = NSP1
 #HEADER        N Nitrogen SP2
-#ATOMTYPE N    = without hydrogen ( N  of PRO )
-#ATOMTYPE NC1  = connected to 1 hyd. in a charged group ( NE of ARG )
-#ATOMTYPE NC2  = connected to 2 hyd. in a charged group ( NH2 of ARG )
+## N with three bonds
+#ATOMTYPE NH0  = connected to 0 hydrogen
 #ATOMTYPE NH1  = connected to 1 hydrogen ( N of main chain )
 #ATOMTYPE NH2  = connected to 2 hydrogen ( NE2 of GLU )
+## N with two bonds
+#ATOMTYPE N20  = connected to 0 hydrogen
+#ATOMTYPE N21  = connected to 1 hydrogen
+## OBSOLETE
+#ATOMTYPE NC1  = connected to 1 hyd. in a charged group ( NE of ARG )
+#ATOMTYPE NC2  = connected to 2 hyd. in a charged group ( NH2 of ARG )
 #ATOMTYPE NPA  = without hydrogen ( NA and NC of HEME )
 #ATOMTYPE NPB  = without hydrogen ( NB and ND of HEME )
 #ATOMTYPE NRD5 = without hydrogen but with electronic doublet in 5 atoms ring
 #ATOMTYPE NRD6 = without hydrogen but with electronic doublet in 6 atoms ring 
 #ATOMTYPE NR15 = connected to 1 hyd. in 5 atoms ring ( ND1 of HIS )
 #ATOMTYPE NR16 = connected to 1 hyd. in 6  atoms ring 
-#ATOMTYPE NR5  = connected to 3 atoms in 5 atoms ring ( N9 of ADE )
-#ATOMTYPE NR6  = connected to 3 atoms in 6 atoms ring ( N1 of CYT )
+#ATOMTYPE NR5  = connected to 3 non-hydrogen atoms in 5 atoms ring
+#ATOMTYPE NR55 = between two atoms in 5-5 rings
+#ATOMTYPE NR56 = between two atoms in 5-6 rings
+#ATOMTYPE NR6  = connected to 3 non-hydrogen atoms in 6 atoms ring
+#ATOMTYPE NR66 = between two atoms in 6-6 rings
 #HEADER        N Nitrogen SP3
+# N with four bonds
+#ATOMTYPE N    = without hydrogen
 #ATOMTYPE NT   = without hydrogen
 #ATOMTYPE NT1  = connected to 1 hydrogen
 #ATOMTYPE NT2  = connected to 2 hydrogens
 #ATOMTYPE NT3  = connected to 3 hydrogens
+#ATOMTYPE NT4  = connected to 4 hydrogens
+# N with three bonds
+#ATOMTYPE N30  = without hydrogen
+#ATOMTYPE N31  = connected to 1 hydrogen
+#ATOMTYPE N32  = connected to 2 hydrogens
+#ATOMTYPE N33  = connected to 3 hydrogens
+#HEADER        P Phosphor
 #ATOMTYPE P    = tetragonal P with four bonds
-#ATOMTYPE P1   = with three bonds. Planar? 
+#ATOMTYPE P1   = with three bonds.
 #HEADER        O Oxygen SP2
 #ATOMTYPE O    = without  NET charge ( O of main chain )
 #ATOMTYPE OC   = with a NET charge   ( OE1 OE2 of GLU )
@@ -77,7 +97,7 @@ data_energy
 #ATOMTYPE OB   = with a NET charge connected to B
 #HEADER        O Oxygen SP3
 #ATOMTYPE O2   = connected to 2 atoms ( O4' of ribose )
-#ATOMTYPE OC2  = with a NET charge connected to 2 ATOMS ( O3' of ribose )
+#ATOMTYPE OC2  = connected to 2 ATOMS ( O3' of ribose )
 #ATOMTYPE OH1  = oxygen of alcohol groups ( OG1 of THR )
 #ATOMTYPE OH2  = oxygen of water
 #ATOMTYPE OHA  = oxygen of water in MO6
@@ -149,31 +169,43 @@ _lib_atom.sp
  CH3     12.01150  N     1.700     1.940     .     C   4  3
  CT      12.01150  N     1.700     1.850     .     C   4  3
 #
- NS      14.00670  N     1.550     1.600    1.32   N   3  1
+ NS      14.00670  A     1.550     1.600    1.32   N   3  1
+ NSP     14.00670  A     1.550     1.600    1.32   N   3  1
+ NS1     14.00670  D     1.550     1.600    1.32   N   3  1
+ NSP1    14.00670  D     1.550     1.600    1.32   N   3  1
  N       14.00670  N     1.550     1.600    1.32   N   3  2
  NC1     14.00670  D     1.550     1.600    1.32   N   3  2
+ NH0     14.00670  N     1.550     1.600    1.32   N   3  2
  NH1     14.00670  D     1.550     1.600    1.32   N   3  2
  NC2     14.00670  D     1.550     1.600    1.32   N   3  2
  NH2     14.00670  D     1.550     1.600    1.32   N   3  2
  NC3     14.00670  D     1.550     1.600    1.32   N   3  2
- NT      14.00670  D     1.550     1.600    1.32   N   3  3
+ N20     14.00670  A     1.550     1.600    1.32   N   3  2
+ N21     14.00670  B     1.550     1.600    1.32   N   3  2
+ NT      14.00670  N     1.550     1.600    1.32   N   3  3
  NT1     14.00670  D     1.550     1.600    1.32   N   3  3
  NT2     14.00670  D     1.550     1.600    1.32   N   3  3
  NT3     14.00670  D     1.550     1.600    1.32   N   3  3
+ NT4     14.00670  D     1.550     1.600    1.32   N   3  3
+ N30     14.00670  A     1.550     1.600    1.32   N   3  3
+ N31     14.00670  B     1.550     1.600    1.32   N   3  3
+ N32     14.00670  B     1.550     1.600    1.32   N   3  3
+ N33     14.00670  B     1.550     1.600    1.32   N   3  3
  NPA     14.00670  A     1.550     1.600    1.32   N   3  2
  NPB     14.00670  A     1.550     1.600    1.32   N   3  2
- NR5     14.00670  N     1.550     1.600    1.32   N   3  2
+ NR5     14.00670  A     1.550     1.600    1.32   N   3  2
  NR15    14.00670  D     1.550     1.600    1.32   N   3  2
  NRD5    14.00670  A     1.550     1.600    1.32   N   3  2
- NR56    14.00670  A     1.550     1.600    1.32   N   3  2
- NR55    14.00670  A     1.550     1.600    1.32   N   3  2
- NR6     14.00670  N     1.550     1.600    1.32   N   3  2
+ NR56    14.00670  N     1.550     1.600    1.32   N   3  2
+ NR55    14.00670  N     1.550     1.600    1.32   N   3  2
+ NR6     14.00670  A     1.550     1.600    1.32   N   3  2
  NR66    14.00670  N     1.550     1.600    1.32   N   3  2
  NR16    14.00670  D     1.550     1.600    1.32   N   3  2
  NRD6    14.00670  A     1.550     1.600    1.32   N   3  2
 #
  OS      15.99940  A     1.520     1.520    1.28   O   2  2
  O       15.99940  A     1.520     1.520    1.28   O   2  2  
+ AF      15.99940  A     1.520     1.520    1.28  AF   2  2  
  O2      15.99940  A     1.520     1.520    1.28   O   2  3
  OH1     15.99940  B     1.520     1.520    1.28   O   2  3
  OH2     15.99940  B     1.520     1.520    1.28   O   2  3
@@ -185,15 +217,15 @@ _lib_atom.sp
  OP      15.99940  A     1.520     1.520    1.28   O   2  2
  OB      15.99940  A     1.520     1.520    1.28   O   2  2
 #
- P       30.97380  N     1.800     1.88     0.59   P   5  .
- P1      30.97380  N     1.800     1.88     0.59   P   5  .
- PS      30.97380  N     1.800     1.90     0.59   P   5  .
- S       32.06400  A     1.800     1.88     0.4    S   2  .
- S3      32.06400  A     1.800     1.88     0.4    S   4  .
- S2      32.06400  A     1.800     1.88     0.4    S   2  .
- S1      32.06400  A     1.800     1.88     0.4    S   2  .
- ST      32.06400  A     1.800     1.88     0.4    S   6  3
- SH1     32.06400  B     1.800     1.950    0.4    S   2  .
+ P       30.97380  N     1.800     1.88     1.79   P   5  .
+ P1      30.97380  N     1.800     1.88     1.79   P   5  .
+ PS      30.97380  N     1.800     1.90     1.79   P   5  .
+ S       32.06400  A     1.800     1.88     1.7    S   2  .
+ S3      32.06400  A     1.800     1.88     1.7    S   4  .
+ S2      32.06400  A     1.800     1.88     1.7    S   2  .
+ S1      32.06400  A     1.800     1.88     1.7    S   2  .
+ ST      32.06400  A     1.800     1.88     1.7    S   6  3
+ SH1     32.06400  B     1.800     1.950    1.7    S   2  .
 #
  H        1.00800  N     1.200      .     .     H   1  .
  HCH      1.00800  N     1.200      .     .     H   1  .
@@ -349,7 +381,7 @@ _lib_atom.sp
  XE    131.29      N     2.16       .   1.90    XE   1  .
  RN    222.0       N     2.20       .   2.0     RN   1  .
  DUM    16.0       N     0.6       0.6  0.6     O    .  .
- .        .        .      .         .    .      .    .  .
+ .        .        B     1.7       1.5  1.7     C    4  3
 #
 # ---   LIST OF SYNONYMS ---
 #
@@ -509,11 +541,18 @@ _lib_bond.value_esd
  CT   CSP  single    200.000    1.470   0.020
  NS1  .    triple       .       1.170    .
  NS1  .    single       .       1.350    .      # ?
+ NSP1 .    triple       .       1.170    .
+ NSP1 .    single       .       1.350    .      # ?
  NS   .    triple       .       1.170    .
  NS   .    single       .       1.350    .      # ?
  NS   CSP  triple       .       1.158    .
  NS   CSP1 triple       .       1.158    .
  NS   NS   triple       .       1.158    .      # ?
+ NSP  .    triple       .       1.170    .
+ NSP  .    single       .       1.350    .      # ?
+ NSP  CSP  triple       .       1.158    .
+ NSP  CSP1 triple       .       1.158    .
+ NSP  NSP  triple       .       1.158    .      # ?
  N    .    single       .       1.410    .      # ?
  N    N    single       .       1.410    .      # ?
  N    .    deloc        .       1.30    0.020
@@ -537,6 +576,7 @@ _lib_bond.value_esd
  NC1  C1   deloc     471.000    1.327    .
  NC1  C2   deloc     471.000    1.327    .
  NC1  CH2  single    422.000    1.457    .
+ NH0  .    single    422.000    1.400    .
  NH1  .    single    422.000    1.400    .
  NH1  C    deloc     471.000    1.330    .
  NH1  C1   deloc     471.000    1.330    .
@@ -565,7 +605,6 @@ _lib_bond.value_esd
  NH2  CR6  deloc     471.000    1.355    0.020
  NH2  CH1  single    422.000    1.450    0.020
  NH2  CH2  single    422.000    1.450    0.020
- NT3   .   single      .        1.420     .
  NT3  CR6  single    422.000    1.488     .
  NT3  CH1  single    422.000    1.488    0.020
  NT3  CH2  single    422.000    1.488    0.020
@@ -576,6 +615,8 @@ _lib_bond.value_esd
  NT3  C2   single    422.000    1.420    0.020
  NT1  .    single      .        1.420    0.020
  NT2  .    single      .        1.420    0.020
+ NT3   .   single      .        1.420     .
+ NT4   .   single      .        1.420     .
  NT   .    single      .        1.420     .
  NT   C    single    422.000    1.416    0.020
  NT   C1   single    422.000    1.416    0.020
@@ -583,6 +624,10 @@ _lib_bond.value_esd
  NT   CH1  single    422.000    1.469    0.020
  NT   CH2  single    422.000    1.469    0.020
  NT   CH3  single    422.000    1.469    0.020
+ N30  .    single      .        1.420    0.020
+ N31  .    single      .        1.420    0.020
+ N32  .    single      .        1.420    0.020
+ N33  .    single      .        1.420    0.020
  NPA   .   aromatic    .        1.31      .
  NPA   .   single      .        1.40      .
  NPA  CR5  aromatic  471.000    1.336    0.014
@@ -651,8 +696,8 @@ _lib_bond.value_esd
  NRD6 CR6  aromatic  470.000    1.350     .  #?
  NRD6 CR66 aromatic  470.000    1.350     .  #?
  O    H    single      .        1.040     .
- O    .    single      .        1.269     .
- O    .    double      .        1.080     .
+ O    .    single      .        1.480     .
+ O    .    double      .        1.210     .
  O    C    single    580.000    1.330     .
  O    C    double    580.000    1.220     .
  O    C1   single    580.000    1.330     .
@@ -683,7 +728,7 @@ _lib_bond.value_esd
  O2   CH3  single    320.000    1.426     0.020
  O2   CT   single    320.000    1.426     0.020
  O2   NR15 aromatic  580.000    1.400     0.020
- OH1  .    single      .        1.469      .
+ OH1  .    single      .        1.152      .
  OH1  C    single    450.000    1.330     0.015
  OH1  C1   single    450.000    1.330     0.015
  OH1  C2   single    450.000    1.330     0.015
@@ -697,7 +742,8 @@ _lib_bond.value_esd
  OH1  NH1  single    450.000    1.392     0.020
  OH1  NT   single    450.000    1.460     0.020
  OH1  NT3  single    450.000    1.460     0.020
- OC2   .   single      .        1.469     0.020
+ OH2  .    single      .        1.153      .   
+ OC2   .   single      .        1.153     0.020
  OC2  CR15 single    580.000    1.354      .  #?
  OC2  CR15 aromatic  580.000    1.254      .  #?
  OC2  CH1  single    320.000    1.410      .
@@ -817,11 +863,11 @@ _lib_bond.value_esd
  MG   .    metal       .        2.670     0.040
  MG   NPA  metal     500.000    2.090      .
  MG   NPB  metal     500.000    2.090      .
- MG   OHA  metal     500.000    2.150      .  # ?
- MG   OHB  metal     500.000    2.150      .  # ?
- MG   OHC  metal     500.000    2.150      .  # ?
- MG   O    metal     500.000    2.180      .  # ?
- MG   OC   metal     500.000    2.180      .  # ?
+ MG   OHA  metal     500.000    2.080      .  # ?
+ MG   OHB  metal     500.000    2.080      .  # ?
+ MG   OHC  metal     500.000    2.080      .  # ?
+ MG   O    metal     500.000    2.080      .  # ?
+ MG   OC   metal     500.000    2.080      .  # ?
  F    .    single       .       1.300      .  # ?
  F    CH1  single       .       1.370      .
  F    CH2  single       .       1.370      .
@@ -888,6 +934,8 @@ _lib_bond.value_esd
  AL        .       metal  .     2.30     0.070
  AL        O       double .     1.850    0.030
  AL        F       single .     1.800    0.030
+ TB        O       metal  .     2.450    0.07
+ TB        .       metal  .     3.440    0.07
  GD        .       metal  .     3.570    0.070
  NI        .       metal  .     2.800    0.070
  SM        .       metal  .     2.450    0.070
@@ -1027,7 +1075,6 @@ _lib_angle.value
  O    C    N      85.000  123.000
  O    C    NH1    65.000  123.000
  O    C    NH2    65.000  123.000
- O    C    NH3    65.000  123.000
  O    C    NC1    65.000  123.000
  O    C    NC2    65.000  123.000
  O    C    NT3    65.000  122.000
@@ -2014,6 +2061,7 @@ _lib_angle.value
  F    CT   F      50.000  109.470
  F    CT   F      50.000  109.470
  NS   NS   NS     60.     180.000
+ NSP  NSP  NSP    60.     180.000
  CH1  N    C      80.000  121.000
  CH2  N    C      80.000  127.000
  CH3  N    C      80.000  127.000
@@ -2075,7 +2123,6 @@ _lib_angle.value
  HNH2 NH2  CH1    30.000  120.000
  HNH2 NH2  CH2    30.000  120.000
  HNH2 NH2  HNH2   40.000  120.000
- HNH3 NH3  HNH3   40.000  109.470
  CH2  NT3  CR6    40.000  109.470
  CH3  NT3  CH2    40.000  109.470
  CH3  NT3  CH3    40.000  109.470
@@ -2127,15 +2174,12 @@ _lib_angle.value
 
  CH1  NR5  CR5    70.000  126.000
  CH1  NR5  CR15   70.000  126.000
- CH1  NR5  CRD5   70.000  126.000
  CH1  NR5  CR56   70.000  126.000
  CH2  NR5  CR5    70.000  126.000
  CH2  NR5  CR15   70.000  126.000
- CH2  NR5  CRD5   70.000  126.000
  CH2  NR5  CR56   70.000  126.000
  CH3  NR5  CR5    70.000  126.000
  CH3  NR5  CR15   70.000  126.000
- CH3  NR5  CRD5   70.000  126.000
  CH3  NR5  CR56   70.000  126.000
 
  CR15 NR15 CR15   60.000  108.000
@@ -2386,6 +2430,7 @@ _lib_angle.value
  .     CT       .       .    109.5
 #
  .     NS        .       .    180.0
+ .     NSP       .       .    180.0
  .     N         .       .    120.0
  .     NC1       .       .    120.0
  .     NH1       .       .    120.0

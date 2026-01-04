@@ -315,7 +315,7 @@ parse_command_line(int argc, char ** argv ) {
 			      std::cout << std::endl;
 			   }
 			   std::string s = COOT_BUILD_INFO_STRING;
-			   if (s.length())
+			   if (s.length() > 0)
 			      std::cout << "Builder_info: " << s << std::endl;
 			   exit(0);
 			} else {
