@@ -4207,7 +4207,34 @@ graphics_info_t::fill_difference_map_peaks_button_box() {
       return l;
    };
 
-   auto fill_difference_map_button_box_inner = [make_map_parts_of_label, make_model_parts_of_label]
+   auto on_diff_map_button_key_controller_key_pressed = +[] (GtkEventControllerKey *controller,
+                                                    guint                  keyval,
+                                                    guint                  keycode,
+                                                    guint                  modifiers,
+                                                    GtkButton             *button) {
+   };
+
+   auto on_diff_map_button_key_controller_key_released = +[] (GtkEventControllerKey *controller,
+                                                     guint                  keyval,
+                                                     guint                  keycode,
+                                                     guint                  modifiers,
+                                                     GtkButton             *button) {
+
+      std::cout << "key released" << std::endl;
+      std::cout << "debug:: keyval " << keyval << std::endl;
+      std::cout << "debug:: keycode " << keycode << std::endl;
+      std::cout << "debug:: modifiers " << modifiers << std::endl;
+      if (keyval == GDK_KEY_Up) {
+         std::cout << ".... up list" << std::endl;
+      }
+      if (keyval == GDK_KEY_Down) {
+         std::cout << ".... down list" << std::endl;
+      }
+   };
+
+   auto fill_difference_map_button_box_inner = [make_map_parts_of_label, make_model_parts_of_label,
+                                                on_diff_map_button_key_controller_key_pressed,
+                                                on_diff_map_button_key_controller_key_released]
       (GtkWidget *button_vbox,
        const std::vector<std::pair<clipper::Coord_orth, float> > &centres,
        float map_sigma,
@@ -4242,6 +4269,13 @@ graphics_info_t::fill_difference_map_peaks_button_box() {
                           G_CALLBACK(on_diff_map_peak_button_selection_toggled), hd);
          gtk_box_append(GTK_BOX(button_vbox), radio_button);
 
+#if 0 // 20260103-PE I don't want a keybinding on the button, I want it in the graphics window (it seems (for focus-related reasons)).
+         // --------------------- key binding --------------------
+         GtkEventController *key_controller = gtk_event_controller_key_new();
+         g_signal_connect(key_controller, "key-pressed",  G_CALLBACK(on_diff_map_button_key_controller_key_pressed),  radio_button);
+         g_signal_connect(key_controller, "key-released", G_CALLBACK(on_diff_map_button_key_controller_key_released), radio_button);
+         gtk_widget_add_controller(radio_button, key_controller);
+#endif
       }
    };
 

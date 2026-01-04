@@ -455,7 +455,6 @@ on_glarea_key_controller_key_released(GtkEventControllerKey *controller,
 
    graphics_info_t g;
    g.on_glarea_key_controller_key_released(controller, keyval, keycode, modifiers);
-
 }
 
 
