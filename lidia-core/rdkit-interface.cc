@@ -19,6 +19,13 @@
  * 02110-1301, USA
  */
 
+#include <stdexcept>
+#include <string>
+#include "clipper/core/coords.h"
+#include "clipper/minimol/minimol.h"
+#include "geometry/protein-geometry.hh"
+#include "lidia-core/use-rdkit.hh"
+#include "mmdb2/mmdb_mattype.h"
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 
 #include <cstring>  // Fixes ::strchr complaints on 4.4.7 (hal)
@@ -55,7 +62,7 @@ coot::rdkit_mol(mmdb::Residue *residue_p, int imol_enc, const coot::protein_geom
       if (false)
          std::cout << "====================  here in rdkit_mol() with geometry with res_name \""
                    << res_name << "\"" << std::endl;
-   
+
       std::pair<bool, coot::dictionary_residue_restraints_t> p = 
          geom.get_monomer_restraints_at_least_minimal(res_name, imol_enc);
       if (! p.first) {
@@ -2275,7 +2282,9 @@ coot::delete_excessive_hydrogens(RDKit::RWMol *rdkm) {
 #endif
       if (at_p->getAtomicNum() == 7) {
          
-         int e_valence = at_p->getExplicitValence();
+         // int e_valence = at_p->getExplicitValence();
+         RDKit::Atom::ValenceType which = RDKit::Atom::ValenceType::EXPLICIT;
+         int e_valence = at_p->getValence(which);
 
          // std::cout << " atom N has explicit valence: " << e_valence << std::endl;
 
@@ -2325,14 +2334,19 @@ coot::assign_formal_charges(RDKit::RWMol *rdkm) {
    
    for (int iat=0; iat<n_mol_atoms; iat++) {
       RDKit::Atom* at_p = (*rdkm)[iat];
-      if (debug) 
+      if (debug) {
+         // int v = at-at_p->getExplicitValence();
+         RDKit::Atom::ValenceType which = RDKit::Atom::ValenceType::EXPLICIT;
+         int v = at_p->getValence(which);
          std::cout << "atom " << iat << "/" << n_mol_atoms << "  " << at_p->getAtomicNum()
-                   << " with valence " << at_p->getExplicitValence()
-                   << std::endl;
+                   << " with valence " << v << std::endl;
+      }
       if (at_p->getAtomicNum() == 7) { // N
          if (debug)
             std::cout << " incoming atom N has charge: " << at_p->getFormalCharge() << std::endl;
-         int e_valence = at_p->getExplicitValence();
+         // int e_valence = at_p->getExplicitValence();
+         RDKit::Atom::ValenceType which = RDKit::Atom::ValenceType::EXPLICIT;
+         int e_valence = at_p->getValence(which);
          if (debug)
             std::cout << " atom N has explicit valence: " << e_valence << std::endl;
          if (e_valence == 4) {
@@ -3943,6 +3957,156 @@ coot::join_molecules(const RDKit::ROMol &mol, int atom_index, const RDKit::ROMol
    }
    return v;
 }
+
+mmdb::Residue *coot::residue_from_rdkit_mol(const RDKit::ROMol &mol, int conf_id, const std::string &new_comp_id) {
+
+   std::cout << "DEBUG:: residue_from_rdkit_mol()::::::::::::::::::::::::::::::: --- start ---" << std::endl;
+   const RDKit::PeriodicTable *tbl = RDKit::PeriodicTable::getTable();
+   mmdb::Residue *r = nullptr;
+   std::vector<mmdb::Atom *> atoms;
+   unsigned int n_atoms = mol.getNumAtoms();
+   std::map<std::string, unsigned int> ele_count;
+   if (n_atoms > 0) {
+      unsigned int iconf = 0;
+      const RDKit::Conformer &conf = mol.getConformer(iconf);
+      for (unsigned int i=0; i<n_atoms; i++) {
+         const RDKit::Atom *rat = mol.getAtomWithIdx(i);
+         mmdb::Atom *at = new mmdb::Atom;
+         int atomic_number = rat->getAtomicNum();
+         std::string ele = tbl->getElementSymbol(atomic_number);
+         ele_count[ele]++;
+         try {
+            std::string name;
+            rat->getProp("name", name); // They must have been made by caller
+            // this name extraction code is common code
+            if (name.size() == 1) name = " " + name + "  ";
+            if (name.size() == 2) name = " " + name + " ";
+            if (name.size() == 3) name = " " + name;
+            at->SetAtomName(name.c_str());
+            at->SetElementName(ele.c_str());
+            RDGeom::Point3D p = conf.getAtomPos(i);
+            mmdb::realtype occ = 1.0;
+            mmdb::realtype tFac = 30.0;
+            std::cout << "DEBUG:: residue atom " << i << " \"" << name << "\" at " << p.x << " " << p.y << " " << p.z << std::endl;
+            at->SetCoordinates(p.x, p.y, p.z, occ, tFac);
+            atoms.push_back(at);
+         }
+         catch (const std::runtime_error &rte) {
+            std::cout << "DEBUG:: rte " << rte.what() << std::endl;
+         }
+      }
+      if (! atoms.empty()) {
+         r = new mmdb::Residue;
+         r->SetResID(new_comp_id.c_str(), 1, "");
+         for (unsigned int i=0; i<atoms.size(); i++) {
+            mmdb::Atom *at = atoms[i];
+            r->AddAtom(at);
+         }
+      }
+   }
+   std::cout << "DEBUG:: residue_from_rdkit_mol()::::::::::::::::::::::::::::::: returning " << r << std::endl;
+   return r;
+}
+
+std::optional<coot::dictionary_residue_restraints_t> coot::dictionary_from_rdkit_mol(const RDKit::ROMol &mol, int conf_id, const std::string &new_comp_id) {
+
+   // 2025-12-28-PE - Hmmm.. I must have done something like this for pyrogen.
+
+   auto make_bond = [] (const RDKit::ROMol &mol, const RDKit::Bond *bond_ptr,
+                        const std::map<std::string, std::string> &name_map, unsigned int iconf) -> std::optional<coot::dict_bond_restraint_t> {
+
+      const RDKit::Conformer &conf = mol.getConformer(iconf);
+      unsigned int idx_1  = bond_ptr->getBeginAtomIdx();
+      unsigned int idx_2  = bond_ptr->getEndAtomIdx();
+      RDKit::Atom *atom_1 = bond_ptr->getBeginAtom();
+      RDKit::Atom *atom_2 = bond_ptr->getEndAtom();
+      std::string name_1;
+      std::string name_2;
+      atom_1->getProp("name", name_1);
+      atom_2->getProp("name", name_2);
+      std::map<std::string, std::string>::const_iterator it_1;
+      std::map<std::string, std::string>::const_iterator it_2;
+      it_1 = name_map.find(name_1);
+      it_2 = name_map.find(name_2);
+      if (it_1 != name_map.end() &&  it_2 != name_map.end()) {
+         std::string type = "x-unset-x";
+         if (bond_ptr->getBondType() == RDKit::Bond::SINGLE)   type = "single";
+         if (bond_ptr->getBondType() == RDKit::Bond::DOUBLE)   type = "double";
+         if (bond_ptr->getBondType() == RDKit::Bond::TRIPLE)   type = "triple";
+         if (bond_ptr->getBondType() == RDKit::Bond::AROMATIC) type = "aromatic";
+         RDGeom::Point3D p1 = conf.getAtomPos(idx_1);
+         RDGeom::Point3D p2 = conf.getAtomPos(idx_2);
+         RDGeom::Point3D delta = p2 - p1;
+         double dd = delta.lengthSq();
+         double d = std::sqrt(dd);
+         double esd = 0.015;
+         std::cout << "DEBUG:: dictionary_from_rdkit_mol(): bond \"" << name_1 << "\" \"" << name_2
+                   << "\" type: " << type << " rdkit-type: " << bond_ptr->getBondType() << " bl: " << d << std::endl;
+         dict_bond_restraint_t b(name_1, name_2, type, d, esd, 0.0, 0.0, false);
+         return b;
+      } else {
+         std::cout << "DEBUG:: bond atom name lookup fail" << std::endl;
+         return std::nullopt;
+      }
+   };
+
+   std::cout << "DEBUG:: dict_from_rdkit_mol()::::::::::::::::::::::::::::::: --- start ---" << std::endl;
+   std::map<std::string, std::string> name_map;
+   coot::dictionary_residue_restraints_t dict;
+   dict.residue_info.name    = new_comp_id;
+   dict.residue_info.comp_id = new_comp_id;
+   dict.residue_info.group = "non-polymer";
+   const RDKit::PeriodicTable *tbl = RDKit::PeriodicTable::getTable();
+   std::vector<coot::dict_atom> atoms;
+   unsigned int n_atoms = mol.getNumAtoms();
+   std::map<std::string, unsigned int> ele_count;
+   if (n_atoms > 0) {
+      unsigned int iconf = 0;
+      const RDKit::Conformer &conf = mol.getConformer(iconf);
+      for (unsigned int i=0; i<n_atoms; i++) {
+         const RDKit::Atom *rat = mol.getAtomWithIdx(i);
+         int atomic_number = rat->getAtomicNum();
+         std::string ele = tbl->getElementSymbol(atomic_number);
+         ele_count[ele]++;
+         std::string name;
+         try {
+            rat->getProp("name", name); // They must have not been make by the caller
+            std::string name_4c = name;
+            if (name.size() == 1) name_4c = " " + name + "  ";
+            if (name.size() == 2) name_4c = " " + name + " ";
+            if (name.size() == 3) name_4c = " " + name;
+            RDGeom::Point3D p = conf.getAtomPos(i);
+            std::pair<bool, float> charge(false, 0.0);
+            std::string energy_type = "missing-energy-type";  // FIXME
+            name_map[name] = name_4c;
+            dict_atom at(name, name_4c, ele, energy_type, charge);
+            int pos_type = 1;
+            std::pair<bool, clipper::Coord_orth> cpos(true, clipper::Coord_orth(p.x, p.y, p.z));
+            std::cout << "DEBUG:: dictionary atom " << i << " \"" << name << "\" at " << cpos.second.format() << std::endl;
+            at.add_pos(pos_type, cpos);
+            at.add_ordinal_id(i);
+            atoms.push_back(at);
+         } catch (const std::runtime_error &rte) {
+            std::cout << "DEBUG:: missing atom name for atom index " << i << std::endl;
+            return std::nullopt;
+         }
+      }
+      std::vector<dict_bond_restraint_t> bonds;
+      unsigned int n_bonds = mol.getNumBonds();
+      for (unsigned int i=0; i<n_bonds; i++) {
+         const RDKit::Bond *bond_ptr = mol.getBondWithIdx(i);
+         std::optional<coot::dict_bond_restraint_t> bond = make_bond(mol, bond_ptr, name_map, iconf);
+         if (bond)
+            bonds.push_back(bond.value());
+      }
+      dict.atom_info = atoms;
+      dict.bond_restraint = bonds;
+      return dict;
+   } else {
+      return std::nullopt;
+   }
+}
+
 
 
 #endif // MAKE_ENHANCED_LIGAND_TOOLS
