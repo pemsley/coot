@@ -88,6 +88,7 @@ SCM ligand_atom_overlaps_scm(int imol, SCM ligand_spec, double neighb_radius) {
 PyObject *ligand_atom_overlaps_py(int imol, PyObject *ligand_spec, double neighb_radius) {
 
    PyObject *r = Py_False;
+   int n_max = 50;
 
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
@@ -99,10 +100,41 @@ PyObject *ligand_atom_overlaps_py(int imol, PyObject *ligand_spec, double neighb
 	    coot::residues_near_residue(residue_p, mol, neighb_radius);
 	 
 	 if (neighb_residues.size()) {
-	    coot::atom_overlaps_container_t ol(residue_p, neighb_residues, mol, g.Geom_p());
-	    ol.make_overlaps();
-
-	    // convert ol to a python object.  FIXME
+	    coot::atom_overlaps_container_t overlaps(residue_p, neighb_residues, mol, g.Geom_p());
+	    overlaps.make_overlaps();
+            std::vector<coot::atom_overlap_t> olv = overlaps.overlaps;
+            int list_size = n_max;
+            if (n_max == -1) {
+               list_size = olv.size();
+            } else {
+               if (n_max > olv.size())
+                  list_size = olv.size();
+            }
+            PyObject *o_py = PyList_New(list_size);
+            for (int ii=0; ii<list_size; ii++) {
+               const coot::atom_overlap_t &o = olv[ii];
+               if (false) // debug
+                  std::cout << "Overlap " << ii << " "
+                            << coot::atom_spec_t(o.atom_1) << " "
+                            << coot::atom_spec_t(o.atom_2) << " overlap-vol "
+                            << o.overlap_volume << " r_1 "
+                            << o.r_1 << " r_2 " << o.r_2 << std::endl;
+               PyObject *item_dict_py = PyDict_New();
+               coot::atom_spec_t spec_1(o.atom_1);
+               coot::atom_spec_t spec_2(o.atom_2);
+               PyObject *spec_1_py = atom_spec_to_py(spec_1);
+               PyObject *spec_2_py = atom_spec_to_py(spec_2);
+               PyObject *r_1_py = PyFloat_FromDouble(o.r_1);
+               PyObject *r_2_py = PyFloat_FromDouble(o.r_2);
+               PyObject *ov_py  = PyFloat_FromDouble(o.overlap_volume);
+               PyDict_SetItemString(item_dict_py, "atom-1-spec", spec_1_py);
+               PyDict_SetItemString(item_dict_py, "atom-2-spec", spec_2_py);
+               PyDict_SetItemString(item_dict_py, "overlap-volume", ov_py);
+               PyDict_SetItemString(item_dict_py, "radius-1", r_1_py);
+               PyDict_SetItemString(item_dict_py, "radius-2", r_2_py);
+               PyList_SetItem(o_py, ii, item_dict_py);
+            }
+            r = o_py;
 	 }
       } 
    };
@@ -158,9 +190,10 @@ SCM molecule_atom_overlaps_scm(int imol) {
 
 
 #ifdef USE_PYTHON
-PyObject *molecule_atom_overlaps_py(int imol) {
+PyObject *molecule_atom_overlaps_py(int imol, int n_max) {
 
    PyObject *r = Py_False;
+   if (n_max < -1) return r;
 
    if (is_valid_model_molecule(imol)) {
 
@@ -170,8 +203,15 @@ PyObject *molecule_atom_overlaps_py(int imol) {
       coot::atom_overlaps_container_t overlaps(mol, graphics_info_t::Geom_p(), ignore_waters, 0.5, 0.25);
       overlaps.make_all_atom_overlaps();
       std::vector<coot::atom_overlap_t> olv = overlaps.overlaps;
-      PyObject *o_py = PyList_New(olv.size());
-      for (std::size_t ii=0; ii<olv.size(); ii++) {
+      int list_size = n_max;
+      if (n_max == -1) {
+         list_size = olv.size();
+      } else {
+         if (n_max > olv.size())
+            list_size = olv.size();
+      }
+      PyObject *o_py = PyList_New(list_size);
+      for (int ii=0; ii<list_size; ii++) {
 	 const coot::atom_overlap_t &o = olv[ii];
 	 if (false) // debug
 	    std::cout << "Overlap " << ii << " "

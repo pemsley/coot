@@ -1,6 +1,7 @@
 
 // #include "geometry/residue-and-atom-specs.hh"
 #include <utility>
+#include <cmath>
 #include "molecule-class-info.h"
 
 #include "utils/logging.hh"

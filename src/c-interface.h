@@ -987,6 +987,8 @@ positive blobs.  Useful function if bound to a key.
 The refinement map must be set.  (We can't check all maps because they
 are not (or may not be) on the same scale).
 
+Not useful for MCP. For interactive use only.
+
    @return 1 if successfully found a blob and moved there.
    return 0 if no move.
 */
@@ -999,7 +1001,10 @@ SCM select_atom_under_pointer_scm();
 #endif
 
 #ifdef USE_PYTHON
-/*! \brief return Python false or a list of molecule number and an atom spec  */
+/*! \brief return Python false or a list of molecule number and an atom spec
+ *
+ * Not useful for MCP. For interactive use only.
+*/
 PyObject *select_atom_under_pointer_py();
 #endif
 #endif /* __cplusplus */
@@ -4812,7 +4817,11 @@ void set_ligand_water_to_protein_distance_limits(float f1, float f2);
 void set_ligand_water_n_cycles(int i);
 void set_write_peaksearched_waters();
 
-/*! \brief find blobs  */
+/*! \brief find blobs
+ *
+ * Not useful for MCP. For interactive use only.
+ *
+ * */
 void execute_find_blobs(int imol_model, int imol_for_map, float cut_off, short int interactive_flag);
 
 /* there is also a c++ interface to find blobs, which returns a vector
@@ -4826,6 +4835,12 @@ If there is more than one atom in the specified resiue, don't do
 anything.
 
 If the given atom does not have an alt conf of "", don't do anything.
+
+ @param imol the index of the molecule
+ @param chain_id the chain id
+ @param res_no the residue number
+ @param ins_code the insertion code of the residue
+
  */
 void split_water(int imol, const char *chain_id, int res_no, const char *ins_code);
 

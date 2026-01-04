@@ -1762,6 +1762,22 @@ SCM ligand_search_make_conformers_scm();
 
 #ifdef USE_PYTHON
 PyObject *ligand_search_make_conformers_py();
+
+//! \brief get an rdkit molecule as a pickled string
+//!
+//! @param imol the index of the molecule
+//! @param residue spec the residue specifier, e..g ['A', 11, ""]
+//! @return pickled string. Return empty string on failure.
+std::string get_rdkit_mol_base64_from_molecule(int imol, PyObject *residue_spec);
+
+//! \brief and back the other way - import an RDKit mol in base64-encoded binary format
+//!
+//! @return the index of the new molecule - or -1 on failure
+int molecule_from_rdkit_mol_base64(const std::string &rdkit_mol, PyObject *atom_name_list);
+
+// make minimal restraints from mol (bonds and atoms)
+int restraints_from_rdkit_mol_base64(const std::string &rdkit_mol_binary_base64, PyObject *atom_name_list_py);
+
 #endif
 
 std::vector<int> ligand_search_make_conformers_internal();
@@ -3110,7 +3126,17 @@ void register_interesting_positions_list_py(PyObject *pos_list);
 /*                      all-molecule atom overlaps                           */
 /* ------------------------------------------------------------------------- */
 #ifdef USE_PYTHON
-PyObject *molecule_atom_overlaps_py(int imol);
+//! \brief get the atom overlaps for the molecule
+//!
+//! @param imol the molecule index
+//! @param n_max_pairs the maximum number of atom pairs to return. Typically this
+//         should be 20 or 30. Use -1 (with caution!) to get all of the
+//         (poteentially thousands) of atom overlaps.
+//! @return a list of dictionaries with contact information.
+//         The list is sorted by largest overlap first.
+//         Return False on failure.
+//
+PyObject *molecule_atom_overlaps_py(int imol, int n_max_pairs);
 #endif // USE_PYTHON
 #ifdef USE_GUILE
 SCM molecule_atom_overlaps_scm(int imol);
