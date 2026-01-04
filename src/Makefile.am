@@ -688,6 +688,7 @@ libcootsumo_la_SOURCES = \
 	init-from-gtkbuilder.cc  \
         idles.hh                 \
 	interface.h              \
+	json-rpc.cc              \
 	key-bindings.cc	         \
 	key-bindings.hh	         \
 	manipulation-modes.hh    \
