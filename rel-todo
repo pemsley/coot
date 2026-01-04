@@ -1,16 +1,30 @@
 --- Items ---
 
-o about dialog should give date and commit for a pre-release
-
-o make sure you can edit chi on test30_0 structure, multi-carbo-coot-3.pdb
-
-o make better docs for rsr-functions and add them to the coot.i file
-
-o fix documenation for all_molecule_ramachandran_score_py()
-
-o J: add CUDA version of FFT and therefore sharpen/blur
+o what does the Coot interface to running servalcat look like?
+  I added one to chapi Dec 2024.
 
 o extend the screen parser for the ADP analysis.
+
+o maybe make bold b-factor and occupancies in atom info in status bar
+  std::string atom_info_as_text_for_statusbar(int atom_index, int imol);
+It will do for now.
+
+o make sure you can edit chi on test30_0 structure, multi-carbo-coot-3.pdb
+* Seems OK, the O1 has been deleted (for the link)
+
+o difference map peaks
+  void graphics_info_t::fill_difference_map_peaks_button_box()
+  add closest atom info
+* Done.
+
+o about dialog should give date and commit for a pre-release
+* Done
+
+o make better docs for rsr-functions and add them to the coot.i file
+* Done.
+
+o fix documenation for all_molecule_ramachandran_score_py()
+* Done.
 
 o put alt-conf switcher in the gui
 * Done.
@@ -27,20 +41,11 @@ o tell the user to use range/pair before Make Link...
 o --no-splash-screen doesn't work
 * Fixed.
 
-o MCP: add coot api function: get molecule names/info
-
 o curmudgen mode should turn off the unhappy atom marker
 * Done.
 
 o difference map peaks do not need position
 * Done.
-
-o difference map peaks
-  void graphics_info_t::fill_difference_map_peaks_button_box()
-  add closest atom info
-
-o maybe make bold b-factor and occupancies in atom info in status bar
-  std::string atom_info_as_text_for_statusbar(int atom_index, int imol);
 
 o add a coot function PyObject *get_chain_ids(int imol);
 * Done.
