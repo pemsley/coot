@@ -4,11 +4,13 @@ example:
 create or edit best-practices/SKILL.md
 
 $ zip -r best-practices.skill best-practices
+$ mv best-practices.skill ~/Desktop
 
 In Claude Desktop:
 
 Options -> Capabilities -> Skills -> Add... best-practices.skill
 
+(i.e. don't keep .skill files)
 
 -------------
 
