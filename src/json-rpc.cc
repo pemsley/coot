@@ -15,6 +15,7 @@
 #include "python-3-interface.hh"
 #include "python-results-container.hh"
 #include "graphics-info.h"
+#include "c-interface.h"
 
 using json = nlohmann::json;
 

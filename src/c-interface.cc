@@ -8914,6 +8914,7 @@ void handle_online_coot_search_request(const char *entry_text) {
 #include <iostream>
 #include <fcntl.h>
 
+
 /* tooltips */
 void
 set_tip_of_the_day_flag (int state) {
