@@ -1,5 +1,8 @@
 --- Items ---
 
+o make ribbon diagrams be generic display objects, so they can
+  be deleted or undisplayed.
+
 o what does the Coot interface to running servalcat look like?
   I added one to chapi Dec 2024.
 
