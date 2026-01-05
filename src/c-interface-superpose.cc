@@ -66,11 +66,11 @@ void superpose(int imol1, int imol2, short int move_copy_of_imol2_flag) {
 
 #ifdef HAVE_SSMLIB
 
-   std::cout << "superposing molecule " << imol2 << " on to " << imol1
+   std::cout << "DEBUG:: superposing molecule " << imol2 << " on to " << imol1
 	     << " (reference)\n";
 
-   if (graphics_info_t::molecules[imol1].has_model()) {
-      if (graphics_info_t::molecules[imol2].has_model()) {
+   if (is_valid_model_molecule(imol1)) {
+      if (is_valid_model_molecule(imol2)) {
 
 	 graphics_info_t g;
 	 std::string name = graphics_info_t::molecules[imol2].name_for_display_manager();

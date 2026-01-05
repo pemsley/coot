@@ -3975,6 +3975,7 @@ INFO::
    o Up to date with Bernie's commits?
    o Up to date with Jakubs's commits?
    o Run the damn tests - don't be lazy
+   o Update the src/coot_*.i files if needed
    o make check
    o before the release commit, make sure it builds and passes tests on cluster
    o New entry in ChangeLog

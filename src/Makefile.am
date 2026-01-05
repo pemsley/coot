@@ -103,13 +103,15 @@ EXTRA_DIST = \
 	fixup-interface.h.sh      \
 	coot_wrap_guile_pre.cc    \
 	coot_rsr_functions_docs.i \
+	coot_network_functions_docs.i \
 	coot_c_interface_docs.i   \
 	coot_cc_interface_docs.i
 
 regen-interface-docs-for-swig:
-	python3 $(top_srcdir)/src/xml-to-swig-docstrings.py --output   coot_c_interface_docs.i $(top_srcdir)/src/doxygen/xml/c-interface_8h.xml
-	python3 $(top_srcdir)/src/xml-to-swig-docstrings.py --output  coot_cc_interface_docs.i $(top_srcdir)/src/doxygen/xml/cc-interface_8hh.xml
-	python3 $(top_srcdir)/src/xml-to-swig-docstrings.py --output coot_rsr_functions_docs.i $(top_srcdir)/src/doxygen/xml/rsr-functions_8hh.xml
+	python3 $(top_srcdir)/src/xml-to-swig-docstrings.py --output       coot_c_interface_docs.i $(top_srcdir)/src/doxygen/xml/c-interface_8h.xml
+	python3 $(top_srcdir)/src/xml-to-swig-docstrings.py --output      coot_cc_interface_docs.i $(top_srcdir)/src/doxygen/xml/cc-interface_8hh.xml
+	python3 $(top_srcdir)/src/xml-to-swig-docstrings.py --output     coot_rsr_functions_docs.i $(top_srcdir)/src/doxygen/xml/rsr-functions_8hh.xml
+	python3 $(top_srcdir)/src/xml-to-swig-docstrings.py --output coot_network_functions_docs.i $(top_srcdir)/src/doxygen/xml/network-get_8hh.xml
 
 # or
 # coot_c_interface_docs.i:
@@ -686,6 +688,7 @@ libcootsumo_la_SOURCES = \
 	init-from-gtkbuilder.cc  \
         idles.hh                 \
 	interface.h              \
+	json-rpc.cc              \
 	key-bindings.cc	         \
 	key-bindings.hh	         \
 	manipulation-modes.hh    \

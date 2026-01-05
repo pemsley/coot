@@ -3,6 +3,35 @@
 o what does the Coot interface to running servalcat look like?
   I added one to chapi Dec 2024.
 
+o Add Coot api access to header and secondary structure
+  info
+
+o what is the equivalent to "--code" in python?
+
+o Rename the binaries in CMake:
+   findligand
+   findwaters
+   coot-mini-rsr
+   res-tracer-libcootapi
+
+o add an m_pair_max_number for molecule_atom_overlaps_py()
+  and document that 30 should be used by typically.
+* Done.
+
+o difference_map_peaks_py() should return information about
+  the closest atom.
+
+o about dialog should give date and commit for a pre-release
+  [Clemens]
+
+o make sure you can edit chi on test30_0 structure, multi-carbo-coot-3.pdb
+
+o make better docs for rsr-functions and add them to the coot.i file
+
+o fix documenation for all_molecule_ramachandran_score_py()
+
+o J: add CUDA version of FFT and therefore sharpen/blur
+
 o extend the screen parser for the ADP analysis.
 
 o maybe make bold b-factor and occupancies in atom info in status bar

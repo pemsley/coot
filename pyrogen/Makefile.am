@@ -108,7 +108,7 @@ lib_LTLIBRARIES=libcoot_py_restraints.la
 #
 libcoot_py_restraints_la_SOURCES = mmff-restraints.cc mmff-restraints.hh \
 	py-restraints.cc py-restraints.hh restraints-private.hh cairo-molecule.hh \
-	cairo-molecule.cc atom_types.cc
+	cairo-molecule.cc
 
 # 20141014 Add $RDKIT_LIBS for Bill
 libcoot_py_restraints_la_LIBADD =  \

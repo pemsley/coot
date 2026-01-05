@@ -244,6 +244,10 @@ namespace coot {
 
    // test calling with bad conf_id
    mmdb::Residue *residue_from_rdkit_mol(const RDKit::ROMol &mol_in, int conf_id, const std::string &new_comp_id);
+
+   // like the above but make the dictionary for the above
+   // All atoms must have atom names or this will return std::nullopt
+   std::optional<dictionary_residue_restraints_t> dictionary_from_rdkit_mol(const RDKit::ROMol &mol_in, int conf_id, const std::string &new_comp_id);
 }
 
 #endif // RDKIT_INTERFACE_HH

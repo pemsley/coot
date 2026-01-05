@@ -19,6 +19,10 @@
  * write to the Free Software Foundation, Inc., 51 Franklin Street,  02110-1301, USA
  */
 
+#include "coot-utils/atom-selection-container.hh"
+#include "coot-utils/cfc.hh"
+#include "geometry/protein-geometry.hh"
+#include "mmdb2/mmdb_atom.h"
 #ifdef USE_PYTHON
 #include <Python.h>  // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #include "python-3-interface.hh"
@@ -1136,6 +1140,153 @@ std::vector<int> ligand_search_make_conformers_internal() {
    }
 
    return mol_list;
+}
+
+#include "lidia-core/rdkit-interface.hh"
+#include "utils/base64-encode-decode.hh"
+
+// Prevents preprocessor substitution of `VERSION` in `MolPickler.h`
+#ifndef RD_MOLPICKLE_H
+
+#ifdef VERSION
+#define __COOT_VERSION_VALUE VERSION
+#undef VERSION
+#endif
+
+#include <GraphMol/MolPickler.h>
+
+#ifdef __COOT_VERSION_VALUE
+#define VERSION __COOT_VERSION_VALUE
+#undef __COOT_VERSION_VALUE
+#endif
+
+#endif //RD_MOLPICKLE_H
+
+
+#ifdef USE_PYTHON
+//! \brief get an rdkit molecule as a pickled string
+//!
+//! @param imol the index of the molecule
+//! @param residue spec the residue specifier, e..g ['A', 11, ""]
+//! @return pickled string. Return empty string on failure.
+std::string get_rdkit_mol_base64_from_molecule(int imol, PyObject *residue_spec_py) {
+
+   // test removing pickle stuff from this function.
+
+   // std::cout << "DEBUG:: in get_rdkit_mol_pickle_base64_from_molecule() --- start ---" << std::endl;
+
+   std::string pickle_string;
+   coot::residue_spec_t rs = residue_spec_from_py(residue_spec_py);
+   if (is_valid_model_molecule(imol)) {
+      // std::cout << "DEBUG:: in get_rdkit_mol_pickle_base64_from_molecule() A " << std::endl;
+      graphics_info_t g;
+      mmdb::Residue *r = graphics_info_t::molecules[imol].get_residue(rs);
+      std::string residue_name = r->GetResName();
+      int imol_enc = coot::protein_geometry::IMOL_ENC_ANY;
+      std::pair<bool, coot::dictionary_residue_restraints_t> rp = g.Geom_p()->get_monomer_restraints(residue_name, imol_enc);
+      // std::cout << "DEBUG:: in get_rdkit_mol_pickle_base64_from_molecule() B " << r << std::endl;
+      if (r) {
+         const auto &dict = rp.second;
+         RDKIT_GRAPHMOL_EXPORT RDKit::MolPickler mp;
+         RDKit::RWMol mol = coot::rdkit_mol(r, dict);
+         // std::cout << "DEBUG:: in get_rdkit_mol_pickle_base64_from_molecule() C " << mol.getNumAtoms() << std::endl;
+         if (mol.getNumAtoms() > 0) {
+            // std::cout << "DEBUG:: in get_rdkit_mol_pickle_base64_from_molecule() D " << std::endl;
+            unsigned int flags = RDKit::PicklerOps::AtomProps; // yay, this works for atom names.
+            mp.pickleMol(mol, pickle_string, flags);
+            pickle_string = moorhen_base64::base64_encode((const unsigned char*)pickle_string.c_str(), pickle_string.size());
+
+            // debug
+            if (false) {
+               std::ofstream f("test-mol.pickle");
+               f << pickle_string;
+               f.close();
+            }
+         }
+      }
+   }
+   // std::cout << "DEBUG:: in get_rdkit_mol_pickle_base64_from_molecule() len pickle_string is " << pickle_string.length() << std::endl;
+   return pickle_string; // this is RDKit binary representation encoded with base64. Not a normal python picked object.
+}
+#endif
+
+int restraints_from_rdkit_mol_base64(const std::string &rdkit_mol_binary_base64, PyObject *atom_name_list_py) {
+
+   int status = 0;
+   std::string binary = moorhen_base64::base64_decode(rdkit_mol_binary_base64);
+   RDKit::ROMol mol_ro(binary);
+   RDKit::RWMol mol(mol_ro);
+   coot::set_energy_lib_atom_types(&mol);
+   long n_atoms = mol.getNumAtoms(); // for type match
+   unsigned int conf_id = 0;
+   std::string new_comp_id = "comp-id";
+   std::vector<std::string> atom_name_list;
+   if (PyList_Check(atom_name_list_py)) {
+      long len_atom_name_list = PyObject_Length(atom_name_list_py);
+      if (n_atoms == len_atom_name_list) {
+         // shove the atom names into the rdkit mol atoms:
+         for (long i=0; i<n_atoms; i++) {
+            RDKit::Atom *atom_ptr = mol.getAtomWithIdx(i);
+            PyObject *an_py = PyList_GetItem(atom_name_list_py, i);
+            std::string atom_name_from_list = myPyString_AsString(an_py);
+            atom_ptr->setProp("name", atom_name_from_list);
+            // std::cout << "DEBUG:: in restraints_from_rdkit_mol_base64 atom " << i << " set name " << atom_name_from_list << std::endl;
+         }
+      }
+   }
+   std::optional<coot::dictionary_residue_restraints_t> restraints = coot::dictionary_from_rdkit_mol(mol, conf_id, new_comp_id);
+   if (restraints) {
+      int imol_enc = coot::protein_geometry::IMOL_ENC_ANY;
+      graphics_info_t::Geom_p()->add(imol_enc, restraints.value());
+      restraints.value().write_cif("test.cif");
+      status = 1;
+   }
+   return status;
+}
+
+//! \brief and back the other way - import an RDKit mol
+//!
+//! @return the index of the new molecule - or -1 on failure
+int molecule_from_rdkit_mol_base64(const std::string &rdkit_mol_binary_base64, PyObject *atom_name_list_py) {
+
+   int imol = -1;
+
+   try {
+      std::string binary = moorhen_base64::base64_decode(rdkit_mol_binary_base64);
+      RDKit::ROMol mol(binary);
+      long n_atoms = mol.getNumAtoms(); // for type match
+      if (n_atoms > 0) {
+
+         std::vector<std::string> atom_name_list;
+         if (PyList_Check(atom_name_list_py)) {
+            long len_atom_name_list = PyObject_Length(atom_name_list_py);
+            if (n_atoms == len_atom_name_list) {
+               // shove the atom names into the rdkit mol atoms:
+               for (long i=0; i<n_atoms; i++) {
+                  RDKit::Atom *atom_ptr = mol.getAtomWithIdx(i);
+                  PyObject *an_py = PyList_GetItem(atom_name_list_py, i);
+                  std::string atom_name_from_list = myPyString_AsString(an_py);
+                  atom_ptr->setProp("name", atom_name_from_list);
+               }
+               unsigned int conf_id = 0;
+               std::string new_comp_id = "comp-id";
+               std::string mol_name = "RDKit Molecule";
+               mmdb::Residue *r = coot::residue_from_rdkit_mol(mol, conf_id, new_comp_id);
+               mmdb::Manager *mmol = coot::util::create_mmdbmanager_from_residue(r);
+               if (mmol) {
+                  imol = graphics_info_t::create_molecule();
+                  atom_selection_container_t asc = make_asc(mmol);
+                  graphics_info_t::molecules[imol].install_model(imol, asc, graphics_info_t::Geom_p(), mol_name, 1);
+                  graphics_info_t::graphics_draw();
+               }
+            }
+         }
+      }
+   }
+   catch (const std::runtime_error &rte) {
+      std::cout << "WARNING:: molecule_from_rdkit_mol_base64() error " << rte.what() << std::endl;
+   }
+   return imol;
 }
 
 /*! \brief make conformers of the ligand search molecules, each in its

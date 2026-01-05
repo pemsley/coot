@@ -107,7 +107,7 @@ def run_python(code: str) -> str:
     return "No result returned."
 
 def get_start_text():
-    return 'Coot has over 1000 functions. Use search_coot_functions(pattern) to find specific ones. Use list_available_tools_in_block(block_index) where block_index varies from 0 to 4 (inclusive) to get each of the api documentation blocks. Coot only returns values if the code is a single line. Multi-line code does not return values. If you need a return value from a block of code then define a wrapper function in one call (that will return None) and then run that function in the next call. Do not try to print values, you do not have access to the standard output. You can only read the return values from single lines of code (which can be a call to a function you just created, of course). You must call coot.set_refinement_immediate_replacement() before running refinment functions (once is enough) - that will make the refinement synchronous. If a model-building tool moves the atoms in a way that you later deem "worse than before" you can call coot.apply_undo() to restore the previous model. Never try to code that writes to disk - instead, write code that returns a string. Note that coot.active_atom_spec_py() is a useful function to determine the "selected" residue (i.e. the "active" residue that will be acted on by the tools in the interface). The coot module is already imported, the coot_utils module will need to be imported first if you want to use a function in that module. Do not use matplotlib for graphs, instead use pygal.'
+    return 'Coot has over 1000 functions. Use search_coot_functions(pattern) to find specific ones (where pattern is a (potentially) multi-words patter (using space separated fields). Use list_available_tools_in_block(block_index) where block_index varies from 0 to 4 (inclusive) to get each of the api documentation blocks. Coot only returns values if the code is a single line. Multi-line code does not return values. If you need a return value from a block of code then define a wrapper function in one call (that will return None) and then run that function in the next call. Do not try to print values, you do not have access to the standard output. You can only read the return values from single lines of code (which can be a call to a function you just created, of course). You must call coot.set_refinement_immediate_replacement() before running refinment functions (once is enough) - that will make the refinement synchronous. If a model-building tool moves the atoms in a way that you later deem "worse than before" you can call coot.apply_undo() to restore the previous model. Never try to code that writes to disk - instead, write code that returns a string. Note that coot.active_atom_spec_py() is a useful function to determine the "selected" residue (i.e. the "active" residue that will be acted on by the tools in the interface). The coot module is already imported, the coot_utils module will need to be imported first if you want to use a function in that module. Do not use matplotlib for graphs, instead use pygal.'
 
 @mcp.tool()
 def list_available_tools() -> str:
@@ -124,7 +124,7 @@ def list_available_tools_in_block(block_index: int) -> str:
 
 @mcp.tool()
 def coot_info() -> str:
-    """Returns: 'Coot has over 1000 functions. Use search_coot_functions(pattern) to find specific ones.'"""
+    """Returns: usage string'"""
     return get_start_text()
 
 @mcp.tool()

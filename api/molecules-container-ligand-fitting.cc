@@ -1,8 +1,7 @@
 
 #include <clipper/ccp4/ccp4_map_io.h> // debugging mapout
-#include <memory>
+#include <stdexcept>
 
-#include "coot-utils/cfc.hh"
 #include "utils/base64-encode-decode.hh"
 #include "ligand/wligand.hh"
 
@@ -36,8 +35,7 @@ std::string get_first_residue_name(mmdb::Manager *mol) {
 #if 0
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 // Another ligand but non-ligand-fitting function:
-RDKit::RWMol
-molecules_container_t::get_rdkit_mol(const std::string &residue_name, int imol_enc) {
+RDKit::RWMol molecules_container_t::get_rdkit_mol(const std::string &residue_name, int imol_enc) {
 
    RDKit::RWMol m;
 
@@ -59,16 +57,6 @@ molecules_container_t::get_rdkit_mol(const std::string &residue_name, int imol_e
 #endif
 #endif
 
-#if 0
-#ifdef MAKE_ENHANCED_LIGAND_TOOLS
-std::shared_ptr<RDKit::RWMol>
-molecules_container_t::get_rdkit_mol_shared(const std::string &residue_name, int imol_enc) {
-   RDKit::RWMol rwmol = get_rdkit_mol(residue_name, imol_enc);
-   std::shared_ptr<RDKit::RWMol> m = std::make_shared<RDKit::RWMol>(rwmol);
-   return m;
-}
-#endif
-#endif
 
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
 
@@ -95,27 +83,20 @@ molecules_container_t::get_rdkit_mol_pickle_base64(const std::string &residue_na
 
    RDKIT_GRAPHMOL_EXPORT RDKit::MolPickler mp;
    std::string pickle_string;
-   // RDKit::RWMol mol = get_rdkit_mol(residue_name, imol_enc);
-   RDKit::RWMol mol;
    try {
       std::pair<bool, coot::dictionary_residue_restraints_t> r_p =
          geom.get_monomer_restraints(residue_name, imol_enc);
       if (r_p.first) {
          const auto &restraints = r_p.second;
-         mol = coot::rdkit_mol(restraints);
-         std::string prop_string = "ligand-from-dictionary-" + residue_name + "-" + std::to_string(imol_enc);
-         mol.setProp("moorhen-id", prop_string);
+         RDKit::RWMol mol = coot::rdkit_mol(restraints);
+         if (mol.getNumAtoms() > 0) {
+            mp.pickleMol(mol, pickle_string);
+            return moorhen_base64::base64_encode((const unsigned char*)pickle_string.c_str(), pickle_string.size());
+         }
       }
    }
    catch (const std::runtime_error &rte) {
-      std::cout << rte.what() << std::endl;
-   }
-   if (mol.getNumAtoms() > 0) {
-      mp.pickleMol(mol, pickle_string);
-      return moorhen_base64::base64_encode((const unsigned char*)pickle_string.c_str(), pickle_string.size());
-      // std::ofstream f("test-mol.pickle");
-      // f << pickle_string;
-      // f.close();
+      std::cout << "DEBUG:: get_rdkit_mol_pickle_base64 " << rte.what() << std::endl;
    }
    return pickle_string;
 }

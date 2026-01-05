@@ -259,19 +259,20 @@ coot::set_energy_lib_atom_types(RDKit::ROMol *mol) {
    for (std::size_t ism=0; ism<smarts_list.size(); ism++) {
       const atom_typing &smarts_type = smarts_list[ism];
       RDKit::RWMol *query = RDKit::SmartsToMol(smarts_type.smarts_string);
-      std::vector<RDKit::MatchVectType>  matches;
+      std::vector<RDKit::MatchVectType> matches;
       bool recursionPossible = true;
       bool useChirality = true;
       bool uniquify = true;
-      // int matched = RDKit::SubstructMatch(*mol, *query, matches, uniquify, recursionPossible, useChirality); 20210923-PE FIXME
-      int matched = false;
-      if (matched) {
+      unsigned int n_matched = RDKit::SubstructMatch(*mol, *query, matches, uniquify, recursionPossible, useChirality); // 20210923-PE FIXME
+      // int matched = false;
+      //
+      if (n_matched > 0) {
 	 for (unsigned int im=0; im<matches.size(); im++) {
 	    for (std::size_t j=0; j<smarts_type.atom_index.size(); j++) {
 	       unsigned int match_atom_index = smarts_type.atom_index[j];
 	       unsigned int idx_this_atom_1 = matches[im][match_atom_index].first;
 	       unsigned int idx_this_atom_2 = matches[im][match_atom_index].second;
-	       if (false)
+	       if (true)
 		  std::cout << "query " << smarts_list[ism].smarts_string
 			    << " matches idx pair " << idx_this_atom_1 << " " << idx_this_atom_2
 			    << " " << smarts_type.energy_type
@@ -281,11 +282,11 @@ coot::set_energy_lib_atom_types(RDKit::ROMol *mol) {
 	       try {
 		  std::string e;
 		  at_p->getProp("type_energy", e);
-		  // std::cout << "already has type_energy \"" << e << "\""<< std::endl;
+		  std::cout << "already has type_energy \"" << e << "\""<< std::endl;
 	       }
 	       catch (const KeyErrorException &e) {
-		  // std::cout << "setting type_energy " << smarts_type.energy_type
-		  // << " for atom " << idx_this_atom_2 << std::endl;
+		  std::cout << "setting type_energy " << smarts_type.energy_type
+		            << " for atom " << idx_this_atom_2 << std::endl;
 		  at_p->setProp("type_energy", smarts_type.energy_type);
 	       }
 	    }
