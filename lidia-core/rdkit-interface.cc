@@ -2251,7 +2251,7 @@ coot::remove_non_polar_Hs(RDKit::RWMol *rdkm) {
 
    // std::cout << "DEBUG:: remove_non_polar_Hs() updatePropertyCache() " << std::endl;
    rdkm->updatePropertyCache();
-   
+
    // std::cout << "DEBUG:: remove_non_polar_Hs() kekulize() " << std::endl;
    RDKit::MolOps::Kekulize(*rdkm);
    // std::cout << "DEBUG:: remove_non_polar_Hs() assignRadicals() " << std::endl;
@@ -2261,11 +2261,11 @@ coot::remove_non_polar_Hs(RDKit::RWMol *rdkm) {
    RDKit::MolOps::setConjugation(*rdkm);
    // set hybridization
    // std::cout << "DEBUG:: remove_non_polar_Hs() setHybridization() " << std::endl;
-   RDKit::MolOps::setHybridization(*rdkm); 
+   RDKit::MolOps::setHybridization(*rdkm);
    // remove bogus chirality specs:
    // std::cout << "DEBUG:: remove_non_polar_Hs() cleanupChirality() " << std::endl;
    RDKit::MolOps::cleanupChirality(*rdkm);
-   
+
 }
 
 
@@ -2273,22 +2273,26 @@ coot::remove_non_polar_Hs(RDKit::RWMol *rdkm) {
 void
 coot::delete_excessive_hydrogens(RDKit::RWMol *rdkm) {
 
-   unsigned int n_mol_atoms = rdkm->getNumAtoms();   
+   unsigned int n_mol_atoms = rdkm->getNumAtoms();
    for (unsigned int iat=0; iat<n_mol_atoms; iat++) {
+
 #if (RDKIT_VERSION >= RDKIT_VERSION_CHECK(2018, 3, 1))
       RDKit::Atom* at_p = (*rdkm)[iat];
 #else
          RDKit::Atom *at_p = (*rdkm)[iat];
 #endif
       if (at_p->getAtomicNum() == 7) {
-         
-         // int e_valence = at_p->getExplicitValence();
+
+#if (RDKIT_VERSION >= RDKIT_VERSION_CHECK(2025, 3, 1))
          RDKit::Atom::ValenceType which = RDKit::Atom::ValenceType::EXPLICIT;
          int e_valence = at_p->getValence(which);
+#else
+         int e_valence = at_p->getExplicitValence();
+#endif
 
          // std::cout << " atom N has explicit valence: " << e_valence << std::endl;
 
-         if (e_valence == 4) { 
+         if (e_valence == 4) {
 
             RDKit::ROMol::OEDGE_ITER current, end;
             boost::tie(current, end) = rdkm->getAtomBonds(at_p);
@@ -2312,7 +2316,7 @@ coot::delete_excessive_hydrogens(RDKit::RWMol *rdkm) {
    }
 }
 
-// Put a +1 charge on Ns with 4 bonds, 
+// Put a +1 charge on Ns with 4 bonds,
 void
 coot::assign_formal_charges(RDKit::RWMol *rdkm) {
 
@@ -2331,22 +2335,30 @@ coot::assign_formal_charges(RDKit::RWMol *rdkm) {
                    << "  " << at_p->getAtomicNum() << std::endl;
       at_p->calcExplicitValence(false);
    }
-   
+
    for (int iat=0; iat<n_mol_atoms; iat++) {
       RDKit::Atom* at_p = (*rdkm)[iat];
       if (debug) {
-         // int v = at-at_p->getExplicitValence();
+
+#if (RDKIT_VERSION >= RDKIT_VERSION_CHECK(2025, 3, 1))
          RDKit::Atom::ValenceType which = RDKit::Atom::ValenceType::EXPLICIT;
          int v = at_p->getValence(which);
+#else
+         int v = at_p->getExplicitValence();
+#endif
          std::cout << "atom " << iat << "/" << n_mol_atoms << "  " << at_p->getAtomicNum()
                    << " with valence " << v << std::endl;
       }
       if (at_p->getAtomicNum() == 7) { // N
          if (debug)
             std::cout << " incoming atom N has charge: " << at_p->getFormalCharge() << std::endl;
-         // int e_valence = at_p->getExplicitValence();
+
+#if (RDKIT_VERSION >= RDKIT_VERSION_CHECK(2025, 3, 1))
          RDKit::Atom::ValenceType which = RDKit::Atom::ValenceType::EXPLICIT;
          int e_valence = at_p->getValence(which);
+#else
+         int e_valence = at_p->getExplicitValence();
+#endif
          if (debug)
             std::cout << " atom N has explicit valence: " << e_valence << std::endl;
          if (e_valence == 4) {
@@ -2364,8 +2376,8 @@ coot::assign_formal_charges(RDKit::RWMol *rdkm) {
    }
 
    charge_phosphates(rdkm);
-   
-   if (debug) 
+
+   if (debug)
       std::cout << "----------- normal completion of assign_formal_charges()" << std::endl;
 }
 
@@ -2373,7 +2385,7 @@ coot::assign_formal_charges(RDKit::RWMol *rdkm) {
 // dictionary.  Add atoms to residue_p, return success status.
 //
 // This calls undelocalise.  Is that what we want to do?
-// 
+//
 std::pair<bool, std::string>
 coot::add_hydrogens_with_rdkit(mmdb::Residue *residue_p,
                               const coot::dictionary_residue_restraints_t &restraints) {
