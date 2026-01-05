@@ -32,7 +32,7 @@ This skill provides best practices for interacting with Coot's Python API throug
 **Example of the problem:**
 ```python
 # This will fail with NameError if coot_utils not imported
-coot_utils.chain_ids(0)  
+coot_utils.chain_ids(0)
 
 # Solution:
 import coot_utils
@@ -228,6 +228,19 @@ stats = coot.map_to_model_correlation_stats_per_residue_range_py(
 )
 ```
 
+## Zoom and View Settings
+
+When adjusting the view in Coot, remember that **higher zoom values mean the molecule appears larger on screen** (i.e., zoomed in), while **lower values show more of the scene** (zoomed out). Typical ranges:
+
+- **150-300**: Whole-molecule overview (appropriate for ribbons, surfaces, overall architecture)
+- **50-100**: Domain or region level
+- **20-50**: Residue-level detail (inspecting side chains, density fit, rotamers)
+
+Small proteins like RNase A (~124 residues) may appear compact even at zoom 200, while larger complexes will fill the screen at lower zoom values. When presenting a ribbon diagram or other overview representation, consider turning off the bond representation (`coot.set_mol_displayed(imol, 0)`) and hiding electron density maps (`coot.set_map_displayed(imol_map, 0)`) to reduce visual clutter while keeping the ribbon mesh visible.
+
+Use `coot.zoom_factor()` to query the current zoom level and `coot.set_zoom(value)` to set it. For interactive exploration, users can also adjust zoom with the scroll wheel.
+
+
 ## Performance Considerations
 
 ### Function Call Overhead
@@ -306,20 +319,25 @@ coot.tutorial_model_and_data()
 coot.load_tutorial_model_and_data()
 ```
 
-### 4. Expecting return from print()
-```python
-# ❌ Returns None
-result = []
-for i in range(5):
-    result.append(i)
-print(result)  # Returns None
 
-# ✅ Return the value
+### 4. Getting output from multi-line code
+```python
+# ✅ Use print() to see output - it appears in stdout
 result = []
 for i in range(5):
     result.append(i)
-result  # Returns the list
+print(result)  # Output: [0, 1, 2, 3, 4]
+
+# ❌ A bare expression at the end of multi-line code does NOT return a value
+result = []
+for i in range(5):
+    result.append(i)
+result  # Returns None - this doesn't work!
+
+# ✅ For return values, use single-line expressions
+[i for i in range(5)]  # Returns [0, 1, 2, 3, 4]
 ```
+
 
 ## Summary
 

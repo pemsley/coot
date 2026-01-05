@@ -148,6 +148,7 @@ def list_coot_categories() -> str:
 @mcp.tool()
 def get_functions_in_category(category: str) -> str:
     """Returns functions in that category (maybe 50-200 per category)"""
+    return search_coot_functions(category)
 
 if __name__ == "__main__":
 
