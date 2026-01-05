@@ -1210,14 +1210,13 @@ std::string get_rdkit_mol_base64_from_molecule(int imol, PyObject *residue_spec_
 }
 #endif
 
-#include "utils/base64-encode-decode.hh"
-#include "lidia-core/use-rdkit.hh"
-
 int restraints_from_rdkit_mol_base64(const std::string &rdkit_mol_binary_base64, PyObject *atom_name_list_py) {
 
    int status = 0;
    std::string binary = moorhen_base64::base64_decode(rdkit_mol_binary_base64);
-   RDKit::ROMol mol(binary);
+   RDKit::ROMol mol_ro(binary);
+   RDKit::RWMol mol(mol_ro);
+   coot::set_energy_lib_atom_types(&mol);
    long n_atoms = mol.getNumAtoms(); // for type match
    unsigned int conf_id = 0;
    std::string new_comp_id = "comp-id";
@@ -1231,7 +1230,7 @@ int restraints_from_rdkit_mol_base64(const std::string &rdkit_mol_binary_base64,
             PyObject *an_py = PyList_GetItem(atom_name_list_py, i);
             std::string atom_name_from_list = myPyString_AsString(an_py);
             atom_ptr->setProp("name", atom_name_from_list);
-            std::cout << "DEBUG:: in restraints_from_rdkit_mol_base64 atom " << i << " name " << atom_name_from_list << std::endl;
+            // std::cout << "DEBUG:: in restraints_from_rdkit_mol_base64 atom " << i << " set name " << atom_name_from_list << std::endl;
          }
       }
    }
@@ -1250,19 +1249,12 @@ int restraints_from_rdkit_mol_base64(const std::string &rdkit_mol_binary_base64,
 //! @return the index of the new molecule - or -1 on failure
 int molecule_from_rdkit_mol_base64(const std::string &rdkit_mol_binary_base64, PyObject *atom_name_list_py) {
 
-   std::cout << "DEBUG:: molecule_from_rdkit_mol_base64() ::::::::::::::::::::: --- start ---" << std::endl;
-
    int imol = -1;
 
    try {
-      std::cout << "DEBUG:: molecule_from_rdkit_mol_base64() ::::::::::::::::::::: A" << std::endl;
       std::string binary = moorhen_base64::base64_decode(rdkit_mol_binary_base64);
-      std::cout << "DEBUG:: molecule_from_rdkit_mol_base64() ::::::::::::::::::::: B" << std::endl;
       RDKit::ROMol mol(binary);
-
-      std::cout << "DEBUG:: molecule_from_rdkit_mol_base64() ::::::::::::::::::::: C" << std::endl;
       long n_atoms = mol.getNumAtoms(); // for type match
-      std::cout << "DEBUG:: molecule_from_rdkit_mol_base64() found n_atoms " << n_atoms << std::endl;
       if (n_atoms > 0) {
 
          std::vector<std::string> atom_name_list;
@@ -1279,13 +1271,9 @@ int molecule_from_rdkit_mol_base64(const std::string &rdkit_mol_binary_base64, P
                unsigned int conf_id = 0;
                std::string new_comp_id = "comp-id";
                std::string mol_name = "RDKit Molecule";
-               std::cout << "DEBUG:: molecule_from_rdkit_mol_base64() ::::::::::::::::::::: D" << std::endl;
                mmdb::Residue *r = coot::residue_from_rdkit_mol(mol, conf_id, new_comp_id);
-               std::cout << "DEBUG:: molecule_from_rdkit_mol_base64() ::::::::::::::::::::: E" << std::endl;
                mmdb::Manager *mmol = coot::util::create_mmdbmanager_from_residue(r);
-               std::cout << "DEBUG:: molecule_from_rdkit_mol_base64() ::::::::::::::::::::: F" << std::endl;
                if (mmol) {
-                  std::cout << "DEBUG:: molecule_from_rdkit_mol_base64() ::::::::::::::::::::: G" << std::endl;
                   imol = graphics_info_t::create_molecule();
                   atom_selection_container_t asc = make_asc(mmol);
                   graphics_info_t::molecules[imol].install_model(imol, asc, graphics_info_t::Geom_p(), mol_name, 1);
@@ -1296,7 +1284,7 @@ int molecule_from_rdkit_mol_base64(const std::string &rdkit_mol_binary_base64, P
       }
    }
    catch (const std::runtime_error &rte) {
-      std::cout << "DEBUG:: molecule_from_rdkit_mol_base64() error " << rte.what() << std::endl;
+      std::cout << "WARNING:: molecule_from_rdkit_mol_base64() error " << rte.what() << std::endl;
    }
    return imol;
 }

@@ -4077,12 +4077,13 @@ std::optional<coot::dictionary_residue_restraints_t> coot::dictionary_from_rdkit
             if (name.size() == 3) name_4c = " " + name;
             RDGeom::Point3D p = conf.getAtomPos(i);
             std::pair<bool, float> charge(false, 0.0);
-            std::string energy_type = "missing-energy-type";  // FIXME
+            std::string type_energy = "missing-energy-type";  // FIXME
+            rat->getProp("type_energy", type_energy);
             name_map[name] = name_4c;
-            dict_atom at(name, name_4c, ele, energy_type, charge);
+            dict_atom at(name, name_4c, ele, type_energy, charge);
             int pos_type = 1;
             std::pair<bool, clipper::Coord_orth> cpos(true, clipper::Coord_orth(p.x, p.y, p.z));
-            std::cout << "DEBUG:: dictionary atom " << i << " \"" << name << "\" at " << cpos.second.format() << std::endl;
+            std::cout << "DEBUG:: dictionary atom " << i << " \"" << name << "\" type " << type_energy << " at " << cpos.second.format() << std::endl;
             at.add_pos(pos_type, cpos);
             at.add_ordinal_id(i);
             atoms.push_back(at);

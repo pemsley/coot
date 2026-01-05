@@ -22,7 +22,7 @@ pkginclude_HEADERS = lbg-shared.hh lbg-molfile.hh lig-build.hh \
 	bond-record-container-t.hh bond-table-record-t.hh \
 	cod-atom-types.hh cod-atom-type-t.hh primes.hh \
 	chemical-feature-clusters.hh third-neighbour-info-t.hh get-residue.hh \
-	svg-molecule.hh svg-container.hh
+	svg-molecule.hh svg-container.hh atom-types.hh
 
 pkgincludedir = $(includedir)/coot/lidia-core
 
