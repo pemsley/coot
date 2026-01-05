@@ -1,5 +1,8 @@
 --- Items ---
 
+o Add Coot api access to header and secondary structure
+  info
+
 o what is the equivalent to "--code" in python?
 
 o Rename the binaries in CMake:
