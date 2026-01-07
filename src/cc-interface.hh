@@ -1773,10 +1773,10 @@ std::string get_rdkit_mol_base64_from_molecule(int imol, PyObject *residue_spec)
 //! \brief and back the other way - import an RDKit mol in base64-encoded binary format
 //!
 //! @return the index of the new molecule - or -1 on failure
-int molecule_from_rdkit_mol_base64(const std::string &rdkit_mol, PyObject *atom_name_list);
+int molecule_from_rdkit_mol_base64(const std::string &rdkit_mol, PyObject *atom_name_list, const std::string &comp_id);
 
 // make minimal restraints from mol (bonds and atoms)
-int restraints_from_rdkit_mol_base64(const std::string &rdkit_mol_binary_base64, PyObject *atom_name_list_py);
+int restraints_from_rdkit_mol_base64(const std::string &rdkit_mol_binary_base64, PyObject *atom_name_list_py, const std::string &comp_id);
 
 #endif
 

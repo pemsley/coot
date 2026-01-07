@@ -1210,7 +1210,8 @@ std::string get_rdkit_mol_base64_from_molecule(int imol, PyObject *residue_spec_
 }
 #endif
 
-int restraints_from_rdkit_mol_base64(const std::string &rdkit_mol_binary_base64, PyObject *atom_name_list_py) {
+int restraints_from_rdkit_mol_base64(const std::string &rdkit_mol_binary_base64, PyObject *atom_name_list_py,
+                                     const std::string &comp_id) {
 
    int status = 0;
    std::string binary = moorhen_base64::base64_decode(rdkit_mol_binary_base64);
@@ -1219,7 +1220,6 @@ int restraints_from_rdkit_mol_base64(const std::string &rdkit_mol_binary_base64,
    coot::set_energy_lib_atom_types(&mol);
    long n_atoms = mol.getNumAtoms(); // for type match
    unsigned int conf_id = 0;
-   std::string new_comp_id = "comp-id";
    std::vector<std::string> atom_name_list;
    if (PyList_Check(atom_name_list_py)) {
       long len_atom_name_list = PyObject_Length(atom_name_list_py);
@@ -1234,7 +1234,7 @@ int restraints_from_rdkit_mol_base64(const std::string &rdkit_mol_binary_base64,
          }
       }
    }
-   std::optional<coot::dictionary_residue_restraints_t> restraints = coot::dictionary_from_rdkit_mol(mol, conf_id, new_comp_id);
+   std::optional<coot::dictionary_residue_restraints_t> restraints = coot::dictionary_from_rdkit_mol(mol, conf_id, comp_id);
    if (restraints) {
       int imol_enc = coot::protein_geometry::IMOL_ENC_ANY;
       graphics_info_t::Geom_p()->add(imol_enc, restraints.value());
@@ -1247,7 +1247,7 @@ int restraints_from_rdkit_mol_base64(const std::string &rdkit_mol_binary_base64,
 //! \brief and back the other way - import an RDKit mol
 //!
 //! @return the index of the new molecule - or -1 on failure
-int molecule_from_rdkit_mol_base64(const std::string &rdkit_mol_binary_base64, PyObject *atom_name_list_py) {
+int molecule_from_rdkit_mol_base64(const std::string &rdkit_mol_binary_base64, PyObject *atom_name_list_py, const std::string &comp_id) {
 
    int imol = -1;
 
@@ -1269,9 +1269,8 @@ int molecule_from_rdkit_mol_base64(const std::string &rdkit_mol_binary_base64, P
                   atom_ptr->setProp("name", atom_name_from_list);
                }
                unsigned int conf_id = 0;
-               std::string new_comp_id = "comp-id";
                std::string mol_name = "RDKit Molecule";
-               mmdb::Residue *r = coot::residue_from_rdkit_mol(mol, conf_id, new_comp_id);
+               mmdb::Residue *r = coot::residue_from_rdkit_mol(mol, conf_id, comp_id);
                mmdb::Manager *mmol = coot::util::create_mmdbmanager_from_residue(r);
                if (mmol) {
                   imol = graphics_info_t::create_molecule();

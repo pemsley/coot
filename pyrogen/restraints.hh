@@ -103,14 +103,21 @@ namespace coot {
 		       const std::string &mmcif_out_file_name,
 		       bool quartet_planes, bool quartet_hydrogen_planes,
 		       bool replace_with_mmff_b_a_restraints=true);
-   
+
    // which is a wrapper for:
    std::pair<bool, coot::dictionary_residue_restraints_t>
    mmcif_dict_from_mol_using_energy_lib(const std::string &comp_id,
 					const std::string &compound_name,
 					PyObject *rdkit_mol,
 					bool quartet_planes, bool quartet_hydrogen_planes);
-   
+
+   // 2026-01-05 now generate restraint from an rdkit molecule
+   std::pair<bool, coot::dictionary_residue_restraints_t>
+   mmcif_dict_from_mol_using_energy_lib(const std::string &comp_id,
+					const std::string &compound_name,
+					const RDKit::ROMol &rdkit_mol,
+					bool quartet_planes, bool quartet_hydrogen_planes);
+
    void write_restraints(PyObject *restraints_py,
 			 const std::string &monomer_type,
 			 const std::string &file_name);
