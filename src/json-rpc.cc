@@ -8,6 +8,7 @@
 
 #include <gtk/gtk.h>
 #include <netinet/in.h>
+#include <fcntl.h>
 #include <coot-utils/json.hpp>
 
 #include <utils/coot-utils.hh>
