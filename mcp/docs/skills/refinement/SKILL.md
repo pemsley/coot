@@ -50,7 +50,13 @@ coot.refine_residues_py(
     [['A', 43, ""], ['A', 44, '']]
 )
 
-# No need for accept_moving_atoms_py() with immediate replacement!
+# Ideally there is no need for coot.accept_moving_atoms_py() with immediate replacement
+# but it might be needed if there is a bug. It would be useful for the user to be
+# alerted if you expected the atoms to have moved after a refinement (and thus model-based
+# statistics or density fit or correlation to have changed), but (surprisingly) they did not.
+# In such caess, try to use coot.accept_moving_atoms_py() and that will force a sync/update
+# of the atoms under refinement.
+
 ```
 
 ### Zone Refinement
