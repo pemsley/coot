@@ -716,10 +716,23 @@ graphics_info_t::render_scene_with_depth_blur(Shader *shader_for_tmeshes_p, Shad
 
 
 
-
 // needs args bool to_screendump_framebuffer_flag, const std::string &output_file_name
 gboolean
 graphics_info_t::render_scene() {
+
+   if (true) {
+      return render_scene_for_eye_internal(stereo_eye_t::MONO);
+   } else {
+      bool ss = render_scene_for_eye_internal(stereo_eye_t::LEFT_EYE);
+      bool st = render_scene_for_eye_internal(stereo_eye_t::RIGHT_EYE);
+      return ss;
+   }
+}
+
+
+// needs args bool to_screendump_framebuffer_flag, const std::string &output_file_name
+gboolean
+graphics_info_t::render_scene_for_eye_internal(stereo_eye_t eye) {
 
    // make this a member data
    // bool draw_background_image = true;

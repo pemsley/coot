@@ -213,7 +213,8 @@ class graphics_info_t {
 
    static int n_molecules_max;
 
-   static short int in_side_by_side_stereo_mode;
+   static bool in_side_by_side_stereo_mode; // user interfae should toggle this and it gets used
+                                            // in render_scene()
 
    static std::pair<double, double> mouse_begin;
    static std::pair<double, double> mouse_clicked_begin;
@@ -758,8 +759,8 @@ public:
    void draw_anti_aliasing();
    static int display_mode; // e.g. HARDWARE_STEREO_MODE, DTI_SIDE_BY_SIDE_STEREO
    static float hardware_stereo_angle_factor;
-   static short int in_wall_eyed_side_by_side_stereo_mode;
-   enum stereo_eye_t { FRONT_EYE, LEFT_EYE, RIGHT_EYE };
+   static bool in_wall_eyed_side_by_side_stereo_mode;
+   enum class stereo_eye_t { MONO, LEFT_EYE, RIGHT_EYE };
    static stereo_eye_t which_eye;
    static glm::vec3 eye_position; // useful in projection (testing)
    static bool stereo_style_2010;
@@ -4178,6 +4179,7 @@ string   static std::string sessionid;
    static gboolean render(bool render_to_screendump_framebuffer_flag=false,
                           const std::string &output_file_name="coot-screendump.tga");
    static gboolean render_scene(); // like crows
+   static gboolean render_scene_for_eye_internal(stereo_eye_t e); // like crows
    enum { PASS_TYPE_STANDARD, PASS_TYPE_GEN_SHADOW_MAP, PASS_TYPE_SSAO, PASS_TYPE_WITH_SHADOWS};
    static void render_scene_with_x_blur();
    static void render_scene_with_y_blur();
