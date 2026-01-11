@@ -1429,6 +1429,39 @@ Don't search the density.
 a list of new molecule numbers
 ";
 
+%feature("docstring") get_rdkit_mol_base64_from_molecule "
+get an rdkit molecule as a pickled string
+
+  imol  the index of the molecule   residue  spec the residue specifier, e..g ['A', 11, \"\"] pickled string. Return empty string on failure.
+
+Parameters
+----------
+imol : int
+    the index of the molecule
+residue_spec : object
+";
+
+%feature("docstring") molecule_from_rdkit_mol_base64 "
+and back the other way - import an RDKit mol in base64-encoded binary format
+
+the index of the new molecule - or -1 on failure
+
+Parameters
+----------
+rdkit_mol : str
+atom_name_list : object
+comp_id : str
+";
+
+%feature("docstring") restraints_from_rdkit_mol_base64 "
+
+Parameters
+----------
+rdkit_mol_binary_base64 : str
+atom_name_list_py : object
+comp_id : str
+";
+
 %feature("docstring") cootaneer "
 cootaneer (i.e. assign sidechains onto mainchain model)
 
@@ -2296,10 +2329,16 @@ pos_list : object
 ";
 
 %feature("docstring") molecule_atom_overlaps_py "
+get the atom overlaps for the molecule
+
+  imol  the molecule index   n_max_pairs  the maximum number of atom pairs to return. Typically this a list of dictionaries with contact information.
 
 Parameters
 ----------
 imol : int
+    the molecule index
+n_max_pairs : int
+    the maximum number of atom pairs to return. Typically this
 ";
 
 %feature("docstring") molecule_atom_overlaps_scm "
@@ -3337,12 +3376,25 @@ cut_off_density_level : float
 ";
 
 %feature("docstring") find_blobs_py "
+Find regions of unmodeled electron density (\"blobs\") in a map.
+
+Identifies regions of significant electron density that are not explained by the current atomic model. This is essential for discovering missing features such as waters, ligands, alternative conformations, metal ions, or missing residues during structure validation and refinement.
+
+The function masks out density already explained by the model atoms, then searches for contiguous regions of density above the specified sigma threshold. Each blob is characterized by its center position and an integrated volume/score representing the strength of the feature.
+
+  imol_model  The model molecule index. Density explained by atoms in this model will be masked out (excluded) from the search. Must be a valid model molecule.   imol_map  The map molecule index to search for unmodeled density. This is typically a difference map (mFo-DFc) for most sensitive detection, but can also be a regular map (2mFo-DFc). Must be a valid map molecule.   cut_off_sigma  The sigma threshold for blob detection (in units of map sigma). Typical values:  3.0σ: Standard threshold for significant features in difference maps 2.5σ: More sensitive, finds weaker features (more false positives) 4.0σ: Conservative, only very strong features (fewer false positives) 1.0σ: For regular maps (2mFo-DFc), lower threshold appropriate PyObject* - Returns a Python list of blobs, or Py_False on error. Return format (on success): [ [[x1, y1, z1], volume1], # First blob: [position_list, score] [[x2, y2, z2], volume2], # Second blob ... ]
+
+Each blob is represented as a 2-element list:  Element 0: Position as [x, y, z] list (coordinates in Ångströms, orthogonal space) Element 1: Volume/score as float (integrated density strength)
+
+Return value (on error):  Py_False if imol_model is not a valid model molecule Py_False if imol_map is not a valid map molecule
 
 Parameters
 ----------
 imol_model : int
+    The model molecule index. Density explained by atoms in this model will be masked out (excluded) from the search. Must be a valid model molecule.
 imol_map : int
-cut_off_density_level : float
+    The map molecule index to search for unmodeled density. This is typically a difference map (mFo-DFc) for most sensitive detection, but can also be a regular map (2mFo-DFc). Must be a valid map molecule.
+cut_off_sigma_density_level : float
 ";
 
 %feature("docstring") b_factor_distribution_graph "
