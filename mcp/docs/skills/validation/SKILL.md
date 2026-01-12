@@ -83,6 +83,12 @@ for position, score in blobs:
 
 The **score** represents the strength/volume of the unmodeled density. Higher scores indicate more significant features that should be investigated.
 
+### Recentering the View
+
+The user likes to see what you are considering and how you change the model, so, if you
+can, try to use coot.set_rotation_centre() or coot.set_go_to_atom_chain_residue_atom_name()
+or some such to bring the currently interesting issue to the centre of the screen.
+
 ## Complete Validation Workflow
 
 ### 1. Model-to-Map Validation
