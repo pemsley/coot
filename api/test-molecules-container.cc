@@ -6735,6 +6735,40 @@ int test_pucker_info(molecules_container_t &mc) {
    return status;
 }
 
+int test_inner_bond_kekulization(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+   int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   if (mc.is_valid_model_molecule(imol)) {
+
+      // first delete the water
+      // status,atom_count
+      std::pair<int, unsigned int> dw = mc.delete_residue(imol, "B", 1, "");
+      if (dw.first == 1) {
+
+         std::string mode("COLOUR-BY-CHAIN-AND-DICTIONARY");
+         std::string selection_cid_1 = "//*";
+         std::string selection_cid_2 = "//*/(!HOH)";
+         coot::instanced_mesh_t m_1 = mc.get_bonds_mesh_for_selection_instanced(imol, selection_cid_1, mode,
+                                                                                false, 0.1, 1.0, false, false, false, 2);
+         coot::instanced_mesh_t m_2 = mc.get_bonds_mesh_for_selection_instanced(imol, selection_cid_2, mode,
+                                                                                false, 0.1, 1.0, false, false, false, 2);
+         std::cout << "--------------------------------- mesh 1 ---------------------------" << std::endl;
+         std::vector<std::pair<glm::vec4, unsigned int> > r_1 = colour_analysis(m_1);
+         std::cout << "--------------------------------- mesh 2 ---------------------------" << std::endl;
+         std::vector<std::pair<glm::vec4, unsigned int> > r_2 = colour_analysis(m_2);
+         status = 1; // failure on mismatch
+         for (unsigned int i=0; i<r_1.size(); i++) {
+            const auto &cp_1 = r_1[i];
+            const auto &cp_2 = r_2[i];
+            if (cp_1.second != cp_2.second) status = 0;
+         }
+      }
+   }
+   return status;
+}
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -7067,13 +7101,16 @@ int main(int argc, char **argv) {
          // status += run_test(test_instanced_goodsell_style_mesh, "instanced goodsell style mesh", mc);
          // status += run_test(test_map_vertices_histogram, "map vertices histogram", mc);
          // status += run_test(test_non_XYZ_EM_map_status, "non-XYZ map status", mc);
-         status += run_test(test_radius_of_gyration, "radius of gyration", mc);
-         status += run_test(test_temperature_factor_of_atom, "temperature factor of atom", mc);
-         status += run_test(test_water_spherical_variance, "water spherical variance", mc);
-         // status += run_test(test_dedust, "dedust", mc);
-         status += run_test(test_atom_overlaps, "atom overlaps", mc);
-         status += run_test(test_pucker_info, "pucker info", mc);
-         status += run_test(test_set_residue_to_rotamer_number, "set residue", mc);
+
+         // put these up
+         // status += run_test(test_radius_of_gyration, "radius of gyration", mc);
+         // status += run_test(test_temperature_factor_of_atom, "temperature factor of atom", mc);
+         // status += run_test(test_water_spherical_variance, "water spherical variance", mc);
+         // status += run_test(test_dedust, "dedust", mc);  .... maybe not this one
+         // status += run_test(test_atom_overlaps, "atom overlaps", mc);
+         // status += run_test(test_pucker_info, "pucker info", mc);
+         // status += run_test(test_set_residue_to_rotamer_number, "set residue", mc);
+         status += run_test(test_inner_bond_kekulization, "inner-bond kekulization", mc);
          if (status == n_tests) all_tests_status = 0;
 
          print_results_summary();
