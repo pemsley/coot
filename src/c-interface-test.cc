@@ -1267,7 +1267,7 @@ PyObject *test_function_py(PyObject *i_py, PyObject *j_py) {
       add_unhappy_atom_marker(0, atom_spec);
    }
 
-   if (false) {
+   if (true) {
       pandda();
    }
 

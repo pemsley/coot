@@ -3,11 +3,35 @@
 o make ribbon diagrams be generic display objects, so they can
   be deleted or undisplayed.
 
+o Add to moorhen atom selection:
+   No sidechain/no mainchain
+   for making figures where residues interact with protein
+
+o Erringtonn 2024
+   https://link.springer.com/article/10.1186/s13321-025-01011-6
+   s13321-025-01011-6.pdf
+
+o clippeed bonds and atoms (c.f. normal)
+  try using background colour rather than black(ish?)
+
+o add that the carbonyl oxgen is rotated
+  in the documenation for flip peptide.
+
+o ctrl click refine drag atom in molten zone
+
+o Fit loop dialog too wide
+
+o Rama plot doesn't label residue 
+  
+o what should coot say on loading a key-binding?
+What happens if there is a python error on reading
+
 o what does the Coot interface to running servalcat look like?
   I added one to chapi Dec 2024.
 
-o Add Coot api access to header and secondary structure
-  info
+o give backrub_rotamer_intermediate_atoms() a key-binding
+
+o Add Coot api access to header and secondary structure info
 
 o what is the equivalent to "--code" in python?
 

@@ -8,6 +8,7 @@
 
 #include <gtk/gtk.h>
 #include <netinet/in.h>
+#include <fcntl.h>
 #include <coot-utils/json.hpp>
 
 #include <utils/coot-utils.hh>
@@ -564,12 +565,12 @@ gint coot_socket_listener_idle_func(gpointer data) {
    if (client_fd >= 0) {
       char buffer[4096];
       ssize_t n_read = read(client_fd, buffer, sizeof(buffer) - 1);
-      std::cout << "debug:: n_read: " << n_read << std::endl;
+      // std::cout << "debug:: n_read: " << n_read << std::endl;
       if (n_read > 4) {
          int n_sent = int(buffer[3]) + 256 * int(buffer[2]) + 256 * 256 * int(buffer[1]) + 256 * 26 * 256 * int(buffer[0]);
-         std::cout << "debug:: n_sent: " << n_sent << std::endl;
+         // std::cout << "debug:: n_sent: " << n_sent << std::endl;
          buffer[n_read] = '\0';
-         std::cout << "Received: " << buffer+4 << std::endl;
+         std::cout << "<- Received: " << buffer+4 << std::endl;
          std::string buf_as_string(buffer+4, n_read);
          std::string r = handle_string_as_json(buf_as_string);
 
@@ -577,11 +578,10 @@ gint coot_socket_listener_idle_func(gpointer data) {
          int32_t len = response_str.size();
 
          if (true) {
-            std::cout << "final-response:" << std::endl;
+            std::cout << "-> Final-response:" << std::endl;
             std::cout << response_str << std::endl;
-            std::cout << "" << std::endl;
+            std::cout << "DEBUG:: response_str len " << len << std::endl;
          }
-         std::cout << "debug:: response_str len " << len << std::endl;
 
          char header[4];
          header[0] = (len >> 24) & 0xFF;

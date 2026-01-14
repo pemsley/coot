@@ -1548,8 +1548,209 @@ find_blobs(int imol_model, int imol_map, float cut_off_density_level);
 //! \brief find blobs
 SCM find_blobs_scm(int imol_model, int imol_map, float cut_off_density_level);
 #endif
+
 #ifdef USE_PYTHON
-PyObject *find_blobs_py(int imol_model, int imol_map, float cut_off_density_level);
+//! @brief Find regions of unmodeled electron density ("blobs") in a map
+//! 
+//! Identifies regions of significant electron density that are not explained by the current
+//! atomic model. This is essential for discovering missing features such as waters, ligands,
+//! alternative conformations, metal ions, or missing residues during structure validation
+//! and refinement.
+//! 
+//! The function masks out density already explained by the model atoms, then searches for
+//! contiguous regions of density above the specified sigma threshold. Each blob is 
+//! characterized by its center position and an integrated volume/score representing the
+//! strength of the feature.
+//! 
+//! @param imol_model  The model molecule index. Density explained by atoms in this model
+//!                    will be masked out (excluded) from the search. Must be a valid model
+//!                    molecule.
+//! 
+//! @param imol_map    The map molecule index to search for unmodeled density. This is 
+//!                    typically a difference map (mFo-DFc) for most sensitive detection,
+//!                    but can also be a regular map (2mFo-DFc). Must be a valid map molecule.
+//! 
+//! @param cut_off_sigma  The sigma threshold for blob detection (in units of map sigma).
+//!                       Typical values:
+//!                       - 3.0σ: Standard threshold for significant features in difference maps
+//!                       - 2.5σ: More sensitive, finds weaker features (more false positives)
+//!                       - 4.0σ: Conservative, only very strong features (fewer false positives)
+//!                       - 1.0σ: For regular maps (2mFo-DFc), lower threshold appropriate
+//! 
+//! @return PyObject* - Returns a Python list of blobs, or Py_False on error.
+//! 
+//! Return format (on success):
+//! @code{.py}
+//! [
+//!   [[x1, y1, z1], volume1],  # First blob: [position_list, score]
+//!   [[x2, y2, z2], volume2],  # Second blob
+//!   ...
+//! ]
+//! @endcode
+//! 
+//! Each blob is represented as a 2-element list:
+//! - Element 0: Position as [x, y, z] list (coordinates in Ångströms, orthogonal space)
+//! - Element 1: Volume/score as float (integrated density strength)
+//! 
+//! Return value (on error):
+//! - Py_False if imol_model is not a valid model molecule
+//! - Py_False if imol_map is not a valid map molecule
+//! 
+//! @section interpretation Interpreting Results
+//! 
+//! Blob Score Interpretation (for difference maps at 3σ):
+//! - **>50**: Large feature - likely missing ligand, cofactor, metal with waters, or several residues
+//! - **10-50**: Medium feature - likely 1-3 water molecules or alternative conformation
+//! - **3-10**: Small feature - likely single water or weak alternative conformation
+//! - **<3**: Very weak feature - may be noise or very weak partial occupancy
+//! 
+//! Map Type Considerations:
+//! - **Difference maps (mFo-DFc)**: Most sensitive for finding missing features
+//!   - Positive blobs (>3σ): Missing atoms/features that should be added
+//!   - Negative blobs (<-3σ): Incorrectly modeled atoms that should be removed/moved
+//! - **Regular maps (2mFo-DFc)**: Less sensitive to model bias
+//!   - Good for finding larger missing features
+//!   - Use lower sigma threshold (0.5-1.5σ)
+//! 
+//! @section algorithm Algorithm Details
+//! 
+//! The blob detection algorithm:
+//! 1. Imports the map specified by imol_map
+//! 2. Masks the map using atoms from imol_model with a 1.9Å radius
+//! 3. Waters can be optionally excluded from masking (controlled by find_ligand_mask_waters_flag)
+//! 4. Searches for contiguous density regions above cut_off_sigma threshold
+//! 5. Calculates center position and integrated volume for each blob
+//! 6. Returns blobs sorted by significance
+//! 
+//! @section example Example Usage
+//! 
+//! @code{.py}
+//! # Find blobs in difference map at 3 sigma
+//! blobs = coot.find_blobs_py(
+//!     imol_model=0,              # protein model
+//!     imol_map=2,                # difference map (mFo-DFc)
+//!     cut_off_sigma=3.0          # standard threshold
+//! )
+//! 
+//! if blobs:
+//!     print(f"Found {len(blobs)} blobs")
+//!     
+//!     # Process by size
+//!     for position, score in blobs:
+//!         x, y, z = position
+//!         if score > 50:
+//!             print(f"Large blob at ({x:.2f}, {y:.2f}, {z:.2f}) - "
+//!                   f"score: {score:.2f} - likely ligand/metal")
+//!         elif score > 10:
+//!             print(f"Medium blob at ({x:.2f}, {y:.2f}, {z:.2f}) - "
+//!                   f"score: {score:.2f} - likely waters")
+//!         else:
+//!             print(f"Small blob at ({x:.2f}, {y:.2f}, {z:.2f}) - "
+//!                   f"score: {score:.2f} - check carefully")
+//! 
+//! # Sort blobs by score to prioritize investigation
+//! sorted_blobs = sorted(blobs, key=lambda x: x[1], reverse=True)
+//! 
+//! # Investigate top 5 blobs
+//! for position, score in sorted_blobs[:5]:
+//!     x, y, z = position
+//!     print(f"Priority blob: ({x:.2f}, {y:.2f}, {z:.2f}) score: {score:.2f}")
+//!     # Navigate to this position in Coot to inspect visually
+//!     coot.set_rotation_centre(x, y, z)
+//! @endcode
+//! 
+//! @section advanced_usage Advanced Usage Patterns
+//! 
+//! Finding waters to place:
+//! @code{.py}
+//! blobs = coot.find_blobs_py(0, 2, 3.0)
+//! for position, score in blobs:
+//!     if 5 < score < 30:  # Typical water blob size
+//!         x, y, z = position
+//!         # Check hydrogen bonding potential before placing water
+//!         # Could use coot.place_typed_atom_at_pointer("HOH")
+//! @endcode
+//! 
+//! Finding large missing features:
+//! @code{.py}
+//! blobs = coot.find_blobs_py(0, 2, 3.0)
+//! large_features = [(pos, score) for pos, score in blobs if score > 100]
+//! for position, score in large_features:
+//!     print(f"Large unmodeled density at {position}")
+//!     print(f"  -> Check for missing residues, ligands, or nucleotides")
+//! @endcode
+//! 
+//! Comparing difference map vs regular map:
+//! @code{.py}
+//! # Difference map - sensitive to model errors
+//! diff_blobs = coot.find_blobs_py(0, 2, 3.0)  # mFo-DFc at 3σ
+//! 
+//! # Regular map - less model-biased
+//! regular_blobs = coot.find_blobs_py(0, 1, 1.0)  # 2mFo-DFc at 1σ
+//! 
+//! # Features in both maps are high confidence
+//! @endcode
+//! 
+//! @section validation Integration with Validation Workflows
+//! 
+//! Blob detection should be performed as part of comprehensive structure validation
+//! alongside:
+//! - Ramachandran analysis (local backbone geometry)
+//! - Rotamer analysis (side-chain conformations)
+//! - Atom overlap detection (packing problems)
+//! - Density correlation analysis (model-to-map fit)
+//! 
+//! Complete validation example:
+//! @code{.py}
+//! # 1. Check model fit to map
+//! rama = coot.all_molecule_ramachandran_score_py(0)
+//! rotamers = coot.rotamer_graphs_py(0)
+//! 
+//! # 2. Check for packing problems
+//! overlaps = coot.molecule_atom_overlaps_py(0, 30)
+//! 
+//! # 3. Find missing features (THIS FUNCTION)
+//! blobs = coot.find_blobs_py(0, 2, 3.0)
+//! 
+//! # All three perspectives needed for complete validation
+//! @endcode
+//! 
+//! @section notes Important Notes
+//! 
+//! - The returned blob positions are suitable for navigation with coot.set_rotation_centre()
+//! - Blob scores are not directly comparable between different maps or molecules
+//! - Very large blobs may indicate systematic problems (e.g., missing domains)
+//! - Blob detection is computationally inexpensive and should be run routinely
+//! - Results are affected by the find_ligand_mask_waters_flag global setting
+//! - The masking radius is fixed at 1.9Å (reasonable for most cases)
+//! 
+//! @section see_also Related Functions
+//! 
+//! @see set_find_waters_sigma_cut_off() - Set default sigma for water finding
+//! @see execute_find_waters_real() - Automated water placement
+//! @see place_typed_atom_at_pointer() - Place atoms at blob positions
+//! @see set_rotation_centre() - Navigate to blob positions
+//! @see molecule_atom_overlaps_py() - Check for steric clashes
+//! @see map_to_model_correlation_stats_per_residue_range_py() - Check model fit
+//! 
+//! @section references References
+//! 
+//! The blob detection algorithm is part of the ligand finding machinery in Coot.
+//! For methodology details, see:
+//! - Emsley & Cowtan (2004) Acta Cryst. D60, 2126-2132
+//! - "Coot: model-building tools for molecular graphics"
+//! 
+//! @warning This function requires valid model and map molecules. Always check
+//!          validity with is_valid_model_molecule() and is_valid_map_molecule()
+//!          if molecule indices are not guaranteed.
+//! 
+//! @since This function has been available in Coot for many versions. The return
+//!        format (list of [position, score] pairs) has been stable.
+//! 
+//! @note Reference counting: The returned PyObject is a new reference. The caller
+//!       is responsible for DECREFing when finished. Py_False is properly INCREF'd
+//!       before return on failure paths.
+PyObject *find_blobs_py(int imol_model, int imol_map, float cut_off_sigma_density_level);
 #endif
 
 //! B-factor distribution histogram
@@ -1773,10 +1974,10 @@ std::string get_rdkit_mol_base64_from_molecule(int imol, PyObject *residue_spec)
 //! \brief and back the other way - import an RDKit mol in base64-encoded binary format
 //!
 //! @return the index of the new molecule - or -1 on failure
-int molecule_from_rdkit_mol_base64(const std::string &rdkit_mol, PyObject *atom_name_list);
+int molecule_from_rdkit_mol_base64(const std::string &rdkit_mol, PyObject *atom_name_list, const std::string &comp_id);
 
 // make minimal restraints from mol (bonds and atoms)
-int restraints_from_rdkit_mol_base64(const std::string &rdkit_mol_binary_base64, PyObject *atom_name_list_py);
+int restraints_from_rdkit_mol_base64(const std::string &rdkit_mol_binary_base64, PyObject *atom_name_list_py, const std::string &comp_id);
 
 #endif
 

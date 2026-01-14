@@ -396,14 +396,33 @@ When users ask questions like:
    - Rotamer scores: Lower = worse (percentage probability)
    - Correlation: Higher = better fit to density
 
-2. **Atom Mask Modes**:
+2. **GLY Correlation Warning**:
+   - **GLY residue correlations are unreliable and should be treated with skepticism**
+   - GLY has only 4 backbone atoms (N, CA, C, O) and no sidechain
+   - When neighbouring residue atoms are masked out during correlation calculation, very few grid points remain
+   - This leads to unreliable/meaningless correlation values for GLY
+   - **Recommendation**: When identifying poorly-fitted residues, filter out GLY residues or verify GLY problems by visual inspection before attempting fixes
+   
+   ```python
+   # Example: Filter out GLY when finding problem residues
+   stats = coot.map_to_model_correlation_stats_per_residue_range_py(0, "A", 1, 1, 0)
+   poor_residues = []
+   for res in stats[0]:
+       resno = res[0][1]
+       corr = res[1][1]
+       res_name = coot.residue_name(0, "A", resno, "")
+       if corr < 0.7 and res_name != "GLY":  # Skip GLY
+           poor_residues.append((resno, res_name, corr))
+   ```
+
+3. **Atom Mask Modes**:
    - Use mode 2 for side-chain-only analysis
    - Use mode 0 for all-atom analysis
    - Use mode 1 for main-chain analysis
 
-3. **Workflow**:
+4. **Workflow**:
    - Always validate BEFORE and AFTER refinement
-   - Fix worst outliers first
+   - Fix worst outliers first (excluding GLY correlation issues)
    - Re-validate after each fix
 
 ---

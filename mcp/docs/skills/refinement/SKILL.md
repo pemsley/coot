@@ -22,35 +22,49 @@ coot.set_refinement_immediate_replacement(1)
 - Need to call `coot.set_refinement_immediate_replacement()` before using refinement functions (just once is enough)
   which should remove the risk of threading conflicts and crashes, race conditions between refinement and rendering.
 
-**When to use:** Any time you're scripting refinement operations (auto_fit_best_rotamer, refine_zone, etc.)
+**When to use:** Any time you're scripting refinement operations (refine_residues_py, refine_zone, etc.)
 
 ## Safe Refinement Workflow
 
-### Single Residue Refinement
-
-```python
 # 1. Enable immediate replacement
 coot.set_refinement_immediate_replacement(1)
 
-# 2. Fix rotamer
-coot.auto_fit_best_rotamer(
-    imol,
-    chain_id,
-    res_no,
-    ins_code,
-    alt_loc,
-    imol_map,
-    clash_flag,
-    probability_lim
-)
+# 2. Set the refinement map
+coot.set_imol_refinement_map(imol_map)
 
-# 3. Refine in context (sphere refinement)
-coot.refine_residues_py(
-    imol,
-    [['A', 43, ""], ['A', 44, '']]
-)
+# 3. Refine residues (preferred method)
+# Pass a list of residue specs: [["A", 42, ""], ["A", 43, ""], ...]
+residue_specs = [["A", resno, ""] for resno in range(start_resno, end_resno + 1)]
+result = coot.refine_residues_py(imol, residue_specs)
 
-# No need for accept_moving_atoms_py() with immediate replacement!
+# 4. so-called "sphere refine" is often useful because it allows movement/improvement
+# of residues that are close in space but distant in sequence.
+central_residue_spec = ['A', 12, '']
+neigbs = coot.residues_near_residue(imol, central_residue_spec)
+residue_spec = neigbs
+residue_specs.append(central_residue_spec)
+result = coot.refine_residues_py(imol, residue_specs)
+
+# Note: If refine_residues_py fails, report the error and try refine_zone as fallback:
+# result = coot.refine_zone(imol, chain_id, start_resno, end_resno, "")
+
+# 5. Always accept moving atoms (required for robustness)
+coot.accept_moving_atoms_py()
+
+# Note: If refinement appears to have no effect (coordinates unchanged, 
+# statistics unchanged), please report which function failed and under 
+# what conditions so the bug can be fixed.
+
+# Ideally there is no need for coot.accept_moving_atoms_py() with immediate replacement mode enabled,
+# but it might be needed if there is a bug. For robustness, call coot.accept_moving_atoms_py()
+# after refinement functions (refine_zone, refine_residues_py, refine_residues_using_atom_cid, etc.).
+#
+# Debugging note: If you expected atoms to have moved after refinement (and thus 
+# model-based statistics, density fit, or correlation to have changed) but surprisingly
+# they did not, try coot.accept_moving_atoms_py() to force a sync/update.
+# Please report which function failed to auto-sync so the bug can be fixed.
+
+
 ```
 
 ### Zone Refinement
@@ -110,7 +124,7 @@ gtk_gl_area_snapshot
 
 ### Asynchronous Refinement Without Accept
 
-**Problem:** Refinement starts but coordinates aren't committed before next operation.
+**Problem:** Refinement starts but coordinates aren't committed/synched before next operation.
 
 **Solution:** Either:
 1. Use immediate replacement mode (recommended)

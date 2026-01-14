@@ -31,6 +31,7 @@
 #include <stdexcept>
 #include <utility>
 #include "glib.h"
+#include "pytypedefs.h"
 #ifdef USE_PYTHON
 #ifndef PYTHONH
 #define PYTHONH
@@ -6784,8 +6785,10 @@ execute_python_results_container_t execute_python_code_with_result_internal(cons
    // capture stdout - end
 
    // Try as simple expression first
-   rc.result = PyRun_String(code.c_str(), Py_eval_input, global_dict, global_dict);
-   if (rc.result) {
+   //
+   PyObject *exec_result = PyRun_String(code.c_str(), Py_eval_input, global_dict, global_dict);
+   rc.result = exec_result;
+   if (exec_result) {
       // get captured outpuT
       PyObject* stdout_obj = PyDict_GetItemString(global_dict, "__stdout_capture__");
       if (stdout_obj) {
@@ -6794,7 +6797,6 @@ execute_python_results_container_t execute_python_code_with_result_internal(cons
             const char* output_str = PyUnicode_AsUTF8(captured);
             if (output_str && strlen(output_str) > 0) {
                std::cout << output_str;  // Print to terminal
-               // Optionally append to error_message or store separately
                rc.stdout = output_str;
             }
             Py_DECREF(captured);
@@ -6804,11 +6806,83 @@ execute_python_results_container_t execute_python_code_with_result_internal(cons
       PyRun_SimpleString("sys.stdout = __original_stdout__");
       return rc;
    }
-   PyErr_Clear();
 
-   // For multi-line code, we need to handle it differently
-   // Execute the code
-   PyObject* exec_result = PyRun_String(code.c_str(), Py_file_input, global_dict, global_dict);
+   // Check if it's a syntax error (multi-line code) vs a real error
+   PyObject *ptype, *pvalue, *ptraceback;
+   PyErr_Fetch(&ptype, &pvalue, &ptraceback);
+   bool is_syntax_error = ptype && PyErr_GivenExceptionMatches(ptype, PyExc_SyntaxError);
+   if (is_syntax_error) {
+      std::cout << "DEBUG:: ------------ trying multi-line code" << std::endl;
+      exec_result = PyRun_String(code.c_str(), Py_file_input, global_dict, global_dict);
+   }
+
+   std::cout << "DEBUG:: ------------ exec_result " << exec_result << std::endl;
+   if (exec_result) {
+      rc.result = exec_result;
+      // get captured output
+      PyObject* stdout_obj = PyDict_GetItemString(global_dict, "__stdout_capture__");
+      if (stdout_obj) {
+         PyObject* captured = PyObject_CallMethod(stdout_obj, "getvalue", NULL);
+         if (captured) {
+            const char* output_str = PyUnicode_AsUTF8(captured);
+            if (output_str && strlen(output_str) > 0) {
+               std::cout << output_str;  // Print to terminal
+               rc.stdout = output_str;
+            }
+            Py_DECREF(captured);
+         }
+      }
+      // Restore stdout
+      PyRun_SimpleString("sys.stdout = __original_stdout__");
+      return rc;
+
+   } else {
+      std::cerr << "ERROR: execute_python_code_with_result_internal(): Python execution failed" << std::endl;
+
+      // Import traceback module and format the exception
+      PyObject* traceback_module = PyImport_ImportModule("traceback");
+      if (traceback_module && ptraceback) {
+         PyObject* format_exception = PyObject_GetAttrString(traceback_module, "format_exception");
+         if (format_exception) {
+             PyObject* formatted = PyObject_CallFunctionObjArgs(format_exception, ptype, pvalue, ptraceback, NULL);
+             if (formatted && PyList_Check(formatted)) {
+                 // Join all traceback lines into single string
+                 std::string full_traceback;
+                 Py_ssize_t size = PyList_Size(formatted);
+                 for (Py_ssize_t i = 0; i < size; i++) {
+                     PyObject* line = PyList_GetItem(formatted, i);
+                     const char* line_str = PyUnicode_AsUTF8(line);
+                     if (line_str) {
+                         full_traceback += line_str;
+                     }
+                 }
+                 rc.error_message = full_traceback;
+             }
+             Py_XDECREF(formatted);
+             Py_DECREF(format_exception);
+         }
+         Py_DECREF(traceback_module);
+
+      } else {
+         // Fallback to simple error message if traceback unavailable
+         if (pvalue) {
+            PyObject* str_obj = PyObject_Str(pvalue);
+            if (str_obj) {
+               const char* str = PyUnicode_AsUTF8(str_obj);
+               if (str) {
+                   rc.error_message = str;
+               }
+               Py_DECREF(str_obj);
+            }
+         }
+
+         Py_XDECREF(ptype);
+         Py_XDECREF(pvalue);
+         Py_XDECREF(ptraceback);
+      }
+      return rc;
+   }
+   PyErr_Clear();
 
    // **GET CAPTURED OUTPUT (for multi-line case too)**
    PyObject* stdout_obj = PyDict_GetItemString(global_dict, "__stdout_capture__");
@@ -6826,31 +6900,6 @@ execute_python_results_container_t execute_python_code_with_result_internal(cons
    }
    // Restore stdout
    PyRun_SimpleString("sys.stdout = __original_stdout__");
-
-   if (!exec_result) {
-        std::cerr << "ERROR: Python execution failed:" << std::endl;
-        if (PyErr_Occurred()) {
-           PyObject *ptype, *pvalue, *ptraceback;
-           PyErr_Fetch(&ptype, &pvalue, &ptraceback);
-           if (pvalue) {
-              PyObject* str_obj = PyObject_Str(pvalue);
-              if (str_obj) {
-                 const char* str = PyUnicode_AsUTF8(str_obj);
-                 if (str) {
-                     rc.error_message = str;
-                 }
-                 Py_DECREF(str_obj);
-               }
-           }
-
-           Py_XDECREF(ptype);
-           Py_XDECREF(pvalue);
-           Py_XDECREF(ptraceback);
-           PyErr_Print();
-        }
-        return rc;
-   }
-   Py_DECREF(exec_result);
 
    // Look for a special variable '__result__' that the code may have set
    PyObject* stored_result = PyDict_GetItemString(global_dict, "__result__");

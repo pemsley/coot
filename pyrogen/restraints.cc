@@ -438,9 +438,23 @@ coot::mmcif_dict_from_mol_using_energy_lib(const std::string &comp_id,
 					   bool quartet_planes, bool quartet_hydrogen_planes) {
 
    bool status = true;
-   coot::dictionary_residue_restraints_t restraints (comp_id, 1);
-   
+   coot::dictionary_residue_restraints_t restraints(comp_id, 1);
    RDKit::ROMol &mol = boost::python::extract<RDKit::ROMol&>(rdkit_mol_py);
+   std::pair<bool, coot::dictionary_residue_restraints_t> p = 
+      mmcif_dict_from_mol_using_energy_lib(comp_id, compound_name, mol, quartet_planes, quartet_hydrogen_planes);
+   return p;
+}
+
+// return also success status, true is good
+// 
+std::pair<bool, coot::dictionary_residue_restraints_t>
+coot::mmcif_dict_from_mol_using_energy_lib(const std::string &comp_id,
+					   const std::string &compound_name,
+					   const RDKit::ROMol &mol,
+					   bool quartet_planes, bool quartet_hydrogen_planes) {
+
+   bool status = true;
+   coot::dictionary_residue_restraints_t restraints(comp_id, 1);
 
    // Was there a user over-ride?
    std::string env_as_string;

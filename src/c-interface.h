@@ -3464,8 +3464,10 @@ void set_residue_selection_flash_frames_number(int i);
 
 /*! \brief accept the new positions of the regularized or refined residues
 
-    If you are scripting refinement and/or regularization, this is the
+    If you are scripting refinement and/or regularization, this is not the
     function that you need to call after refine-zone or regularize-zone.
+    If you are using Python, use accept_moving_atoms_py() and that will
+    provide a return value that may be of some use.
 */
 void c_accept_moving_atoms();
 
