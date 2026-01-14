@@ -4159,7 +4159,7 @@ def rebuild_residues_using_db_loop(imol, middle_residue_spec, n_neighbs):
         list(range(resno_mid + 1 + n_neighbs, resno_mid + 3 + n_neighbs))
     ch_id = residue_spec_to_chain_id(middle_residue_spec)
     residue_specs = map(lambda res_no: [ch_id, res_no, ""], r)
-    db_loop_preserve_residue_names = 1 # True?
+    db_loop_preserve_residue_names = True
 
     loop_mols = protein_db_loops(imol, residue_specs, coot.imol_refinement_map(),
                                  1, db_loop_preserve_residue_names)
