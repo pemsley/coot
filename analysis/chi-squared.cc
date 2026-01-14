@@ -1,7 +1,7 @@
-/* src/gl-matrix-eigensystem.cc
+/* analysis/chi-squared.cc
  *
  * Copyright 2025,  by Global Phasing Ltd.
- * Author: ClAuS Flensburg, Clemens Vonrhein, Gerard Brigogne
+ * Author: ClAuS Flensburg, Clemens Vonrhein, Gerard Bricogne
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU Lesser General Public License as published
