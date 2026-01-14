@@ -1918,7 +1918,8 @@ public:
    //! @param res_no is the residue number, e.g. 12
    //! @param ins_code is the insertion code, e.g. "A"
    //!
-   //! @return 1 on successful deletion, return 0 on failure to delete.
+   //! @return 1 as first on successful deletion, return 0 on failure to delete.
+   //!         The second is the resulting atom count.
    std::pair<int, unsigned int> delete_residue(int imol, const std::string &chain_id, int res_no, const std::string &ins_code);
 
    //! Delete residue using cid

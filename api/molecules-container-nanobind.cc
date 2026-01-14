@@ -1565,6 +1565,8 @@ NB_MODULE(coot_headless_api, m) {
        .def("size",                   &coot::geometry_distortion_info_container_t::size)
        .def("get_geometry_distortion_info", &coot::geometry_distortion_info_container_t::get_geometry_distortion_info)
        .def_ro("geometry_distortion", &coot::geometry_distortion_info_container_t::geometry_distortion)
+       .def_ro("min_resno",           &coot::geometry_distortion_info_container_t::min_resno)
+       .def_ro("max_resno",           &coot::geometry_distortion_info_container_t::max_resno)
     ;
     nb::class_<molecules_container_t::fit_ligand_info_t>(m, "fit_ligand_info_t")
     .def_ro("imol", &molecules_container_t::fit_ligand_info_t::imol)
