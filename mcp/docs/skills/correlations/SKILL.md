@@ -36,22 +36,35 @@ PyObject *map_to_model_correlation_stats_per_residue_range_py(
 - `n_residue_per_residue_range`: Window size for averaging (use 1 for per-residue stats)
 - `exclude_NOC_flag`: Whether to exclude backbone N, O, C atoms (1 to exclude, 0 to include)
 
+**IMPORTANT BUG**: When `exclude_NOC_flag=0`, the side-chain correlation array (stats[1]) returns all zeros/NaN values. To get valid side-chain correlations, you must use `exclude_NOC_flag=1`.
+
 **Returns**: 
-A Python object containing correlation statistics for each residue in the chain.
+A list with two elements:
+- `stats[0]`: All-atom correlations - `[[chain, resno, ins_code], [n_points, correlation]]`
+- `stats[1]`: Side-chain correlations (only valid when `exclude_NOC_flag=1`)
 
 **Example Usage**:
 ```python
-# Find worst fitting residues in chain A
+# Get per-residue correlation stats for chain A
+# Use exclude_NOC_flag=1 to get valid side-chain correlations
 stats = map_to_model_correlation_stats_per_residue_range_py(
-    imol=1,           # Model molecule
+    imol=0,           # Model molecule
     chain_id="A",     # Chain A
-    imol_map=2,       # Map molecule
+    imol_map=1,       # Map molecule
     n_residue_per_residue_range=1,  # Per-residue statistics
-    exclude_NOC_flag=0  # Include all atoms
+    exclude_NOC_flag=1  # MUST be 1 for valid side-chain correlations
 )
 
-# Find the residue with lowest correlation
-worst_residue = min(stats, key=lambda x: x['correlation'])
+all_atom = stats[0]      # All-atom correlations
+sidechain = stats[1]     # Side-chain correlations
+
+# Find residues with poor all-atom correlation
+for res in all_atom:
+    resno = res[0][1]
+    n_points = res[1][0]
+    corr = res[1][1]
+    if corr < 0.7:
+        print(f"Poor fit: residue {resno}, correlation={corr:.3f}")
 ```
 
 ---
