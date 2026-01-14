@@ -259,6 +259,14 @@ int add_terminal_residue(int imol,
    return istate;
 }
 
+int add_residue_by_map_fit(int imol, const char *chain_id, int residue_number,
+                           const char *residue_type, int immediate_add) {
+
+   return add_terminal_residue(imol, chain_id, residue_number, residue_type, immediate_add);
+}
+
+
+
 /*! \brief Add a terminal residue using given phi and psi angles
  */
 int add_terminal_residue_using_phi_psi(int imol, const char *chain_id, int res_no, 

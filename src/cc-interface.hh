@@ -1237,16 +1237,60 @@ PyObject *atom_info_string_py(int imol, const char *chain_id, int resno,
 //! Return the molecule as a PDB string
 PyObject *molecule_to_pdb_string_py(int imol);
 
-//! \brief
-//! Return a list of atom info for each atom in the specified residue:
-//
-//! output is like this:
-//! [
-//!     [[atom-name,alt-conf]
-//!      [occ,temp_fact,element]
-//!      [x,y,z]]]
+//! \brief Get detailed atom information for a residue (Python interface)
 //!
+//! Returns per-atom information including coordinates, occupancy, B-factor,
+//! and element for all atoms in the specified residue. Useful for inspecting
+//! residue completeness and identifying missing atoms.
+//!
+//! \param imol Model molecule index
+//! \param chain_id Chain identifier (e.g., "A")
+//! \param resno Residue number
+//! \param ins_code Insertion code (use "" if none)
+//!
+//! \return PyObject* - A list of atom information, one entry per atom:
+//!   \code
+//!   [
+//!     [[atom_name, alt_conf], [occupancy, b_factor, element, ?], [x, y, z], atom_index],
+//!     ...
+//!   ]
+//!   \endcode
+//!   - \c atom_name (str): Atom name (e.g., " CA ", " SG ")
+//!   - \c alt_conf (str): Alternate conformation identifier ("" if none)
+//!   - \c occupancy (float): Atom occupancy (0.0-1.0)
+//!   - \c b_factor (float): Temperature factor
+//!   - \c element (str): Element symbol (e.g., " C", " N", " S")
+//!   - \c x, \c y, \c z (float): Cartesian coordinates in Ångstroms
+//!   - \c atom_index (int): Internal atom index
+//!
+//! Example usage:
+//! \code{.py}
+//! # Check if a CYS residue has all expected atoms
+//! atoms = coot.residue_info_py(0, "A", 72, "")
+//! atom_names = [a[0][0].strip() for a in atoms]
+//! print(f"Atoms present: {atom_names}")
+//!
+//! expected_cys = ['N', 'CA', 'CB', 'SG', 'C', 'O']
+//! missing = [a for a in expected_cys if a not in atom_names]
+//! if missing:
+//!     print(f"Missing atoms: {missing}")
+//!
+//! # Get B-factors for all atoms
+//! for atom in atoms:
+//!     name = atom[0][0].strip()
+//!     b_factor = atom[1][1]
+//!     print(f"{name}: B={b_factor:.2f}")
+//! \endcode
 PyObject *residue_info_py(int imol, const char* chain_id, int resno, const char *ins_code);
+
+//! \brief resturn the residue name
+//!
+//! @param imol Model molecule index
+//! @param chain_id Chain identifier (e.g., "A")
+//! @param resno Residue number
+//! @param ins_code Insertion code (use "" if none)
+//! @return residue name string or blank string on failure
+//!
 PyObject *residue_name_py(int imol, const char* chain_id, int resno, const char *ins_code);
 
 // the expanded form of this is in c-interface.h
@@ -1483,8 +1527,39 @@ SCM accept_moving_atoms_scm();
 #ifdef USE_PYTHON
 //! Accept moving atoms
 //!
-//! This waits for the refinement to finish and then accepts
-//! the moving atoms so that they move into the main molecule.
+//! \brief Accept refined/regularized atoms into the main molecule (Python interface)
+//!
+//! When scripting refinement with set_refinement_immediate_replacement(1),
+//! call this function after refinement operations to ensure atoms are
+//! committed. While immediate replacement mode should handle this
+//! automatically, calling accept_moving_atoms_py() ensures reliable
+//! synchronization.
+//!
+//! \return PyObject* with one of:
+//!   - \c Py_False if no restraints were found (nothing to accept)
+//!   - A Python list \c [info_text, progress, lights] on success:
+//!     - \c info_text (str): Usually empty string
+//!     - \c progress (int): GSL minimization status
+//!       - 0 = GSL_SUCCESS (converged)
+//!       - -2 = GSL_CONTINUE
+//!       - 27 = GSL_ENOPROG (no progress)
+//!     - \c lights (list): Refinement statistics as [[name, label, value], ...]
+//!       - \c name (str): Restraint type (e.g., "Bonds", "Angles", 
+//!         "Trans_peptide", "Planes", "Non-bonded", "Chirals")
+//!       - \c label (str): Formatted string (e.g., "Bonds: 0.625")
+//!       - \c value (float): Distortion value (lower is better)
+//!
+//! Example usage:
+//! \code{.py}
+//! coot.set_refinement_immediate_replacement(1)
+//! coot.refine_residues_py(0, [["A", 42, ""]])
+//! result = coot.accept_moving_atoms_py()
+//!
+//! if result:
+//!     info, progress, lights = result
+//!     for name, label, value in lights:
+//!         print(f"{name}: {value:.3f}")
+//! \endcode
 PyObject *accept_moving_atoms_py();
 #endif
 

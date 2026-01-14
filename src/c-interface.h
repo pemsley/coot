@@ -1080,8 +1080,15 @@ void turn_on_backup(int imol);
  return 0 for backups off, 1 for backups on, -1 for unknown */
 int  backup_state(int imol);
 
-/*! \brief apply undo - the "Undo" button callback */
+/*! \brief apply undo - the "Undo" button callback
+ *
+ * undo the most recent modification on the model
+ * set in set_undo_molecule().
+ *
+ * @return 1 on succesful undo, 0 on failed to undo.
+ */
 int apply_undo();		/* "Undo" button callback */
+
 /*! \brief apply redo - the "Redo" button callback */
 int apply_redo();
 
@@ -3443,9 +3450,14 @@ void remove_omega_torsion_restriants();
 void set_refine_hydrogen_bonds(int state);
 
 
-/*! \brief set immediate replacement mode for refinement and
-  regularization.  You need this (call with istate=1) if you are
-  scripting refinement/regularization  */
+/*! \brief set immediate replacement mode for refinement and regularization
+ *
+ * This can enable synchronous refinement (with istate = 1).
+ * You need this (call with istate=1) if you are
+ * scripting refinement/regularization
+ *
+ * @param istate set the state of immediate-refinemnt 
+ * */
 void set_refinement_immediate_replacement(int istate);
 
 /*! \brief query the state of the immediate replacement mode */
@@ -5115,10 +5127,26 @@ int n_dots_sets(int imol);
 /*! \name Pep-flip Interface */
 /*! \{ */
 void do_pepflip(short int state); /* sets up pepflip, ready for atom pick. */
-/*! \brief pepflip the given residue */
-/* the residue with CO, for scripting interface. */
+
+/*! \brief pepflip (flip the peptide) of the given residue
+ *
+ *  Rotate the the carbonyl C and O atom of this residue and the N of the
+ *  next residue around a vector between the two CA atoms by 180 degrees.
+ *  This is often a useful modelling operation to create a different hypothesis
+ *  about the orientation of the main-chain atoms - that can then be used
+ *  for refinement. This can sometimes allow the model to be removed from
+ *  local minima of backbone conformations.
+ *
+ *  @param imol is the index of the model molecule
+ *  @param chain_id is the chain-id
+ *  @param res_no is the residue number (the residue that has the C and O atoms)
+ *  @param inscode the insertion code (typically "")
+ *  @param altconf the altconf (typically "")
+ *
+ */
 void pepflip(int imol, const char *chain_id, int resno, const char *inscode,
 	     const char *altconf);
+
 int pepflip_intermediate_atoms();
 int pepflip_intermediate_atoms_other_peptide();
 
@@ -5223,12 +5251,33 @@ call with i=1 for immediate addtion */
 void set_add_terminal_residue_immediate_addition(int i);
 
 /*! \brief Add a terminal residue
+ 
+  Some text here that should be a detailed-description
 
-residue type can be "auto" and immediate_add is recommended to be 1.
-
-@return 0 on failure, 1 on success */
+   @param residue_type can be "auto" 
+   @param immediate_add is recommended to be 1.
+   @return 0 on failure, 1 on success
+*/
 int add_terminal_residue(int imol, const char *chain_id, int residue_number,
                           const char *residue_type, int immediate_add);
+
+/*! \brief Add a residue to a chain or at the end of a fragment
+
+  This can be used to fill a gap of one residue or to fill a gap
+  of multiple residues by being called several times. Probably
+  RSR refinement would be useful after each call to this function in
+  such a case.
+
+  @param imol the molecule index
+  @param chain_id the chain ID
+  @param residue_number the residue number (of the existing residue to attach to)
+  @param residue_type the type for new residue, can be "auto"
+  @param immediate_add is recommended to be 1
+
+   @return 0 on failure, 1 on success
+*/
+int add_residue_by_map_fit(int imol, const char *chain_id, int residue_number,
+                           const char *residue_type, int immediate_add);
 
 /*! \brief Add a terminal nucleotide
 
@@ -5239,8 +5288,13 @@ int add_nucleotide(int imol, const char *chain_id, int res_no);
 
 /*! \brief Add a terminal residue using given phi and psi angles
 
-
-@return the success status, 0 on failure, 1 on success
+  @param imol the molecule index
+  @param chain_id the chain ID
+  @param residue_number the residue number (of the existing residue to attach to
+  @param residue_type can be "auto"
+  @param phi is phi in degrees
+  @param psi is psi in degrees
+  @return the success status, 0 on failure, 1 on success
  */
 int add_terminal_residue_using_phi_psi(int imol, const char *chain_id, int res_no,
 				       const char *residue_type, float phi, float psi);
@@ -5299,8 +5353,18 @@ void delete_residue_hydrogens_by_atom_index(int imol, int index, short int do_de
 /*! \brief delete residue range */
 void delete_residue_range(int imol, const char *chain_id, int resno_start, int end_resno);
 
-/*! \brief delete residue  */
-void delete_residue(int imol, const char *chain_id, int resno, const char *inscode);
+/*! \brief delete residue
+ *
+ * @param imol the molecule index
+ * @param chain_id the chain id
+ * @param res_no the residue number
+ * @param inscode the insertion code
+ *
+ * @return 0 on failure to delete, return 1 on residue successfully deleted
+ *
+ * */
+int delete_residue(int imol, const char *chain_id, int res_no, const char *inscode);
+
 /*! \brief delete residue with altconf  */
 void delete_residue_with_full_spec(int imol, int imodel, const char *chain_id, int resno, const char *inscode, const char *altloc);
 #ifdef __cplusplus
@@ -7312,7 +7376,16 @@ void set_visible_toolbar_multi_refine_cancel_button(short int state);
 /* button_type is one of "stop", "continue", "cancel"
    state is 1 for on, 0 for off. */
 void toolbar_multi_refine_button_set_sensitive(const char *button_type, short int state);
-/*! \brief load tutorial model and data  */
+
+/*! \brief load tutorial model and data
+ *
+ * Loads an example dataset - the sample is an RNase structure (model and maps) and is
+ * used for learning and testing.
+ *
+ * This is the standard Coot tutorial dataset for practicing model building
+ * and validation.
+ *
+ * */
 void load_tutorial_model_and_data();
 
 
