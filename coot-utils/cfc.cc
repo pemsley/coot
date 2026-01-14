@@ -277,7 +277,7 @@ cfc::chemical_feature_clustering(const std::vector<cfc::input_info_t> &mol_infos
       // Use BIC to automatically select optimal number of clusters
       // Test k from 1 to min(10, number of waters)
       int k_min = 1;
-      int k_max = std::min(10, static_cast<int>(water_infos.size()));
+      int k_max = std::min(50, static_cast<int>(water_infos.size()));
       int max_iterations = 200;
 
       std::cout << "Testing GMM with BIC for optimal number of clusters..." << std::endl;
@@ -734,17 +734,16 @@ cfc::chemical_feature_clustering(const std::vector<cfc::input_info_t> &mol_infos
       if (true) {
          std::cout << "--------- at end of chemical_feature_clustering() --- "
                    << std::endl;
-         std::set<int> imols_in_cluster;
          for (unsigned int i=0; i<water_clusters.size(); i++) {
+            std::set<int> imols_in_cluster;
             const auto &wi = water_clusters[i];
             for (unsigned int jj=0; jj<wi.size(); jj++) {
                int imol = wi[jj].imol;
                imols_in_cluster.insert(imol);
             }
-            if (true)
-               std::cout << "debug:: water_clusters [" << i << "] has "
-                         << imols_in_cluster.size() << " waters"
-                         << std::endl;
+            std::cout << "debug:: water_clusters[" << i << "] has contributions from "
+                      << imols_in_cluster.size() << " molecules"
+                      << std::endl;
          }
          std::cout << "------------" << std::endl;
       }
