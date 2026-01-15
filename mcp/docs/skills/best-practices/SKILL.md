@@ -334,10 +334,82 @@ for i in range(5):
     result.append(i)
 result  # Returns None - this doesn't work!
 
-# ✅ For return values, use single-line expressions
-[i for i in range(5)]  # Returns [0, 1, 2, 3, 4]
+## API Discovery Tools
+
+### Using search_coot_functions
+
+The `search_coot_functions` tool is your primary method for finding Coot functions. It supports powerful search patterns:
+
+**Space-separated words = Logical AND**
+```python
+# Find functions containing ALL these words
+search_coot_functions("map model correlation")
+# Returns functions like: map_to_model_correlation_stats_per_residue_range_py
+
+search_coot_functions("residue range chain")
+# Returns functions dealing with residue ranges in chains
+
+search_coot_functions("min max residue")
+# Returns functions with all three words (not just any one)
 ```
 
+**Single words = Simple search**
+```python
+search_coot_functions("correlation")  # All functions with "correlation"
+search_coot_functions("validation")   # All functions with "validation"
+search_coot_functions("rotamer")      # All functions with "rotamer"
+```
+
+**Common search patterns:**
+- `"map correlation"` - density fit functions
+- `"residue validation"` - geometry checking
+- `"chain residue"` - chain/residue operations
+- `"ligand environment"` - ligand analysis
+- `"ramachandran"` - backbone validation
+- `"density fit"` - map fitting functions
+
+### ✅ CORRECT Search Strategy
+
+```python
+# Looking for functions to get residues in a chain
+search_coot_functions("chain residue")  # Logical AND
+
+# Looking for min/max residue number functions
+search_coot_functions("min max residue")  # All three words required
+
+# Looking for correlation analysis
+search_coot_functions("correlation residue")  # Both words required
+```
+
+### ❌ INCORRECT Search Strategy
+
+```python
+# DON'T use grep with pipe (|) when you mean AND
+# This searches for min OR max OR residue (logical OR)
+# Use search_coot_functions with spaces instead
+```
+
+### When to use each discovery tool
+
+1. **search_coot_functions(pattern)** - First choice
+   - Use space-separated words for AND logic
+   - Returns max 40 results with documentation
+   - Best for targeted searches
+
+2. **list_coot_categories()** - For browsing
+   - Returns: ['load', 'read', 'display', 'refinement', 'validation', 'ligand', 'util']
+   - Use when you want to explore a general area
+
+3. **get_functions_in_category(category)** - For comprehensive lists
+   - Returns all functions in a category (50-200 functions)
+   - Use after identifying the right category
+
+### Search Tips
+
+- Start with **2-3 specific words** that describe what you need
+- If too many results, add more words to narrow down
+- If no results, try synonyms or broader terms
+- Common terms: validation, correlation, residue, chain, map, model, ligand, fit, geometry
 
 ## Summary
 
@@ -346,5 +418,6 @@ result  # Returns None - this doesn't work!
 3. **Remember `coot` is auto-imported**, `coot_utils` is not
 4. **Use single-line expressions** when possible for cleaner returns
 5. **Check function names** - `load_tutorial_model_and_data()` not `tutorial_model_and_data()`
+6. **Use `search_coot_functions` with space-separated words** for AND logic when searching the API
 
 Following these practices ensures optimal performance and correct API usage when working with Coot through the MCP server.

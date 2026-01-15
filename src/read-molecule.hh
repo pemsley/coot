@@ -46,8 +46,21 @@ int handle_read_draw_molecule_and_move_molecule_here(const std::string &filename
 /*! \brief read coordinates from filename */
 int read_pdb(const std::string &filename);
 
-/*! \brief read coordinates from filename */
+/*! \brief read coordinates from filename
+ * 
+ * @param filename is the file name of the coordinates
+ * @return the new molecule index. Return -1 on failure
+ *
+ * */
 int read_coordinates(const std::string &filename);
+
+/*! \brief read coordinates from a string
+ * 
+ * @param file_as_string a string which is the contents of a file
+ * @return the new molecule index. Return -1 on failure
+ *
+ */
+int read_coordinates_as_string(const std::string &file_as_string, const std::string &molecule_name);
 
 /* pass back the newly created molecule number */
 /*! \brief a synonym for read-pdb.  Read the coordinates from

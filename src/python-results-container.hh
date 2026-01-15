@@ -13,3 +13,4 @@ class execute_python_results_container_t {
 };
 
 execute_python_results_container_t execute_python_code_with_result_internal(const std::string &code);
+execute_python_results_container_t execute_python_multiline_code_with_result_internal(const std::string &code);

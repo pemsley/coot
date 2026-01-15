@@ -104,6 +104,8 @@ namespace std {
 %include "coot_cc_interface_docs.i"
 %include "coot_c_interface_docs.i"
 %include "coot_rsr_functions_docs.i"
+%include "coot_network_functions_docs.i"
+%include "coot_read_molecule_docs.i"
 
 #include "globjects.h"  //includes gtk/gtk.h
 #include "coot-utils/coot-coord-utils.hh"

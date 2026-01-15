@@ -326,6 +326,7 @@ std::string coot_get_url_as_string_internal(const char *url) {
       std::cout << "ERROR: " << buff << std::endl;
    }
    curl_easy_cleanup(c);
+   // std::cout << "DEBUG:: coot_get_url_as_string_internal() returns this string\n---start---\n" << s << "\n---end---\n"<< std::endl;
    return s;
 }
 #endif // USE_LIBCURL
@@ -342,11 +343,27 @@ SCM coot_get_url_as_string(const char *url) {
 
 #ifdef USE_PYTHON
 PyObject *coot_get_url_as_string_py(const char *url) {
-   PyObject *r  = Py_False;
+
+   PyObject *r = Py_False;
    std::string s = coot_get_url_as_string_internal(url);
-   r = myPyString_FromString(s.c_str());
-   if (PyBool_Check(r)) {
-     Py_INCREF(r);
+   r = PyUnicode_FromString(s.c_str());
+   if (r) {
+      if (PyUnicode_Check(r)) {
+         // all good
+      } else {
+         std::cout << "DEBUG:: coot_get_url_as_string_py(): A response was not unicode" << std::endl;
+         PyErr_Clear(); // clear the above error
+         r = PyBytes_FromStringAndSize(s.c_str(), s.size());
+      }
+      if (r) {
+         if (PyBool_Check(r)) {
+           Py_INCREF(r);
+         }
+      }
+   } else {
+      std::cout << "DEBUG:: coot_get_url_as_string_py(): B response was not unicode" << std::endl;
+      PyErr_Clear(); // clear the above error
+      r = PyBytes_FromStringAndSize(s.c_str(), s.size());
    }
    return r;
 }
@@ -356,20 +373,14 @@ PyObject *coot_get_url_as_string_py(const char *url) {
 
 #ifdef USE_LIBCURL
 size_t
-write_coot_curl_data(void *buffer, size_t size, size_t nmemb, void *userp) {
+write_coot_curl_data(void *buffer, size_t size, size_t nmemb, void *user_data) {
 
-   // std::cout << "size: " << size << " nmeb: " << nmemb;
-   if (buffer) {
-      char *s = static_cast<char *> (buffer);
-      std::string res(s);
-      // std::cout << res << std::endl;
-      std::string *sp = static_cast<std::string *>(userp);
-      *sp += res;
-   } else {
-      std::cout << std::endl;
-   }
-   return nmemb; // slightly naughty, we should return the size of the
-		 // data that we actually delt with.
+   // don't stop on null if we have binary data
+   size_t realsize = size * nmemb;
+   std::string *response = static_cast<std::string*>(user_data);
+   char *ptr = static_cast<char *>(buffer);
+   response->append(ptr, realsize);
+   return realsize;  // continue reading
 }
 #endif /* USE_LIBCURL */
 

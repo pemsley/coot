@@ -299,9 +299,12 @@ for overlap in overlaps:
 ### 1. Address High-Confidence Issues First
 
 1. **Severe atom overlaps (>5 Ų)** - atoms deeply interpenetrating, fix immediately
-2. **Ramachandran outliers with poor density correlation** - likely wrong
-3. **Large difference map blobs (>4σ)** - definitely missing something
-4. **Moderate atom overlaps (2-5 Ų) between distant residues** - packing problems
+2. **Rotamer score = 0% with poor density correlation** - side-chain is almost certainly wrong
+3. **Ramachandran outliers with poor density correlation** - likely wrong
+4. **Large difference map blobs (>4σ)** - definitely missing something
+5. **Moderate atom overlaps (2-5 Ų) between distant residues** - packing problems
+
+**Note on 0% rotamer scores**: A rotamer score of 0% is a severe issue - the side-chain is in a conformation rarely seen in nature. However, if the density correlation for that residue is good, it may be a genuine unusual conformation. Always check the density fit before "fixing" a 0% rotamer with good correlation.
 
 ### 2. Investigate Moderate Issues
 

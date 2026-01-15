@@ -1553,6 +1553,7 @@ NB_MODULE(coot_headless_api, m) {
        .def_ro("target_value",   &coot::simple_restraint::target_value)
     ;
     nb::class_<coot::geometry_distortion_info_t>(m, "geometry_distortion_info_t")
+       .def("initialized_p",        &coot::geometry_distortion_info_t::initialised_p)
        .def_ro("distortion_score",  &coot::geometry_distortion_info_t::distortion_score)
        .def_ro("atom_indices",      &coot::geometry_distortion_info_t::atom_indices)
        .def_ro("atom_specs",        &coot::geometry_distortion_info_t::atom_specs)
@@ -1562,6 +1563,8 @@ NB_MODULE(coot_headless_api, m) {
     nb::class_<coot::geometry_distortion_info_container_t>(m, "geometry_distortion_info_container_t")
        .def_ro("chain_id",            &coot::geometry_distortion_info_container_t::chain_id)
        .def("distortion_sum",         &coot::geometry_distortion_info_container_t::distortion_sum)
+       .def("distortion",             &coot::geometry_distortion_info_container_t::distortion)
+       .def("print",                  &coot::geometry_distortion_info_container_t::print)
        .def("size",                   &coot::geometry_distortion_info_container_t::size)
        .def("get_geometry_distortion_info", &coot::geometry_distortion_info_container_t::get_geometry_distortion_info)
        .def_ro("geometry_distortion", &coot::geometry_distortion_info_container_t::geometry_distortion)

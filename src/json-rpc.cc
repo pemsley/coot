@@ -36,6 +36,7 @@ struct func_doc {
 
 static int server_fd = -1;
 static int client_fd = -1;
+static int server_listen_count = 0;
 gint coot_socket_listener_idle_func(gpointer data);
 
 void init_coot_socket_listener() {
@@ -121,8 +122,9 @@ gint coot_socket_listener_idle_func(gpointer data) {
          PyObject* signature = PyObject_CallMethod(inspect, "signature", "O", attr);
 
          if (!signature) {
-            std::cout << "get_param_docs(): null sig" << std::endl;
+            std::cout << "WARNING:: coot_socket_listener_idle_func(): get_param_docs(): null signature" << std::endl;
             PyErr_Print();
+            PyErr_Clear();
          } else {
 
             PyObject* params = PyObject_GetAttrString(signature, "parameters");
@@ -275,20 +277,25 @@ gint coot_socket_listener_idle_func(gpointer data) {
                         fd.documentation = doc;
                   }
                }
-               std::vector<param_doc> param_docs = get_param_docs(attr);
-               // std::cout << "DEBUG:: :::::::::: got param docs size " << param_docs.size() << std::endl;
-               if (! param_docs.empty())
-                  fd.params = param_docs;
+               bool attr_is_a_real_function = false;
+               if (PyCFunction_Check(attr)) attr_is_a_real_function = true;
+               if (PyFunction_Check(attr))  attr_is_a_real_function = true;
+               if (PyMethod_Check(attr))    attr_is_a_real_function = true;
+               if (attr_is_a_real_function) {
+                  std::vector<param_doc> param_docs = get_param_docs(attr);
+                  if (! param_docs.empty())
+                     fd.params = param_docs;
 
-               if (false)
-                  std::cout << "DEBUG:: in handle_list_tools() n_blocks is " << n_blocks
-                            << " count/n_blocks is " << count/n_blocks << " block_index is "
-                            << block_index << std::endl;
+                  if (false)
+                     std::cout << "DEBUG:: in handle_list_tools() n_blocks is " << n_blocks
+                               << " count/n_blocks is " << count/n_blocks << " block_index is "
+                               << block_index << std::endl;
 
-               if (count/n_blocks == block_index || block_index == -1)
-                  func_doc_vec.push_back(fd);
-               Py_XDECREF(attr);
-               count++;
+                  if (count/n_blocks == block_index || block_index == -1)
+                     func_doc_vec.push_back(fd);
+                  Py_XDECREF(attr);
+                  count++;
+               }
             }
          }
 
@@ -339,10 +346,16 @@ gint coot_socket_listener_idle_func(gpointer data) {
       json j_functions;
       json j_item;
       if (add_python_exec) {
+         json j_item;
          j_item["name"] = "python.exec";
          j_item["description"] = "Execute Python Code";
          j_item["params"] = json::array({"code"});
          j_functions.push_back(j_item);
+         json j_item_m;
+         j_item_m["name"] = "python.exec_multiline";
+         j_item_m["description"] = "Execute Multi-line Python Code";
+         j_item_m["params"] = json::array({"code"});
+         j_functions.push_back(j_item_m);
       }
 
       unsigned int n = 0;
@@ -382,9 +395,51 @@ gint coot_socket_listener_idle_func(gpointer data) {
       return j_functions;
    };
 
+   auto handle_execute_python_result = [] (execute_python_results_container_t rrr, int id) {
+
+      std::string response_str;
+      if (rrr.result)
+         if (PyBool_Check(rrr.result) || rrr.result == Py_None)
+            Py_INCREF(rrr.result);
+      const char *mess = "%s";
+      PyObject *dest = myPyString_FromString(mess);
+      PyObject *o = PyUnicode_Format(dest, rrr.result);
+      if (o) {
+         std::string s = PyBytes_AS_STRING(PyUnicode_AsUTF8String(o));
+         json j_response;
+         j_response["jsonrpc"] = "2.0";
+         j_response["id"] = std::to_string(id);
+         json j_result;
+         j_result["value"] = s;
+         if (! rrr.stdout.empty())
+            j_result["stdout"] = rrr.stdout;
+         j_response["result"] = j_result;
+         if (! rrr.error_message.empty()) {
+            json j_error;
+            j_error["code"] = -32001;
+            j_error["message"] = rrr.error_message;
+            j_response["error"] = j_error;
+         }
+         response_str = j_response.dump();
+      } 
+      if (! rrr.error_message.empty()) {
+         json j_response;
+         j_response["jsonrpc"] = "2.0";
+         j_response["id"] = std::to_string(id);
+         json j_error;
+         j_error["code"] = -32001;
+         j_error["message"] = rrr.error_message;
+         j_response["error"] = j_error;
+         response_str = j_response.dump();
+         std::cout << "DEBUG:: here in handle_string_as_json(): B is the full dump:::::::::::::::\n" << response_str << std::endl;
+      }
+      return response_str;
+   };
+
    // run return result wrapped in json.
    //
-   auto handle_string_as_json = [handle_list_tools, handle_list_tools_with_search_pattern, make_response_from_functions] (const std::string &buf_str) {
+   auto handle_string_as_json = [handle_list_tools, handle_list_tools_with_search_pattern,
+                                 make_response_from_functions, handle_execute_python_result] (const std::string &buf_str) {
 
       // std::cout << "handle this string: " << buf_str << ":" << std::endl;
 
@@ -403,45 +458,14 @@ gint coot_socket_listener_idle_func(gpointer data) {
 
             if (req["method"] == "python.exec") {
                std::string code = req["params"]["code"];
-               // PyObject *rrr = safe_python_command_with_return(code);
-               // std::pair<PyObject *, std::string> rrr = execute_python_code_with_result_internal(code);
                execute_python_results_container_t rrr = execute_python_code_with_result_internal(code);
-               std::string error_message = rrr.error_message;
-               if (rrr.result)
-                  if (PyBool_Check(rrr.result) || rrr.result == Py_None)
-                     Py_INCREF(rrr.result);
-               const char *mess = "%s";
-               PyObject *dest = myPyString_FromString(mess);
-               PyObject *o = PyUnicode_Format(dest, rrr.result);
-               if (o) {
-                  std::string s = PyBytes_AS_STRING(PyUnicode_AsUTF8String(o));
-                  json j_response;
-                  j_response["jsonrpc"] = "2.0";
-                  j_response["id"] = std::to_string(id);
-                  json j_result;
-                  j_result["value"] = s;
-                  if (! rrr.stdout.empty())
-                     j_result["stdout"] = rrr.stdout;
-                  j_response["result"] = j_result;
-                  if (! error_message.empty()) {
-                     json j_error;
-                     j_error["code"] = -32001;
-                     j_error["message"] = error_message;
-                     j_response["error"] = j_error;
-                  }
-                  response_str = j_response.dump();
-               } 
-               if (! error_message.empty()) {
-                  json j_response;
-                  j_response["jsonrpc"] = "2.0";
-                  j_response["id"] = std::to_string(id);
-                  json j_error;
-                  j_error["code"] = -32001;
-                  j_error["message"] = error_message;
-                  j_response["error"] = j_error;
-                  response_str = j_response.dump();
-                  std::cout << "DEBUG:: here B is the full dump:::::::::::::::\n" << response_str << std::endl;
-               }
+               response_str = handle_execute_python_result(rrr, id);
+            }
+
+            if (req["method"] == "python.exec_multiline") {
+               std::string code = req["params"]["code"];
+               execute_python_results_container_t rrr = execute_python_multiline_code_with_result_internal(code);
+               response_str = handle_execute_python_result(rrr, id);
             }
 
             if (req["method"] == "mcp.list_tools") {
@@ -549,7 +573,8 @@ gint coot_socket_listener_idle_func(gpointer data) {
       return true;
    };
 
-   std::cout << "listening..." << std::endl;
+   std::cout << "listening " << server_listen_count << "..."<< std::endl;
+   server_listen_count++;
 
    // If no active client connection, accept one non-blockingly
    if (client_fd < 0 && server_fd >= 0) {

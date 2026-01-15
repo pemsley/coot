@@ -882,26 +882,39 @@ imol : int
 ";
 
 %feature("docstring") residue_info_py "
-Return a list of atom info for each atom in the specified residue:
+Get detailed atom information for a residue (Python interface)
 
-output is like this: [ [[atom-name,alt-conf] [occ,temp_fact,element] [x,y,z]]]
+Returns per-atom information including coordinates, occupancy, B-factor, and element for all atoms in the specified residue. Useful for inspecting residue completeness and identifying missing atoms.
+
+  imol  Model molecule index   chain_id  Chain identifier (e.g., \"A\")   resno  Residue number   ins_code  Insertion code (use \"\" if none) PyObject* - A list of atom information, one entry per atom: [ [[atom_name, alt_conf], [occupancy, b_factor, element, ?], [x, y, z], atom_index], ... ]  atom_name (str): Atom name (e.g., \" CA \", \" SG \") alt_conf (str): Alternate conformation identifier (\"\" if none) occupancy (float): Atom occupancy (0.0-1.0) b_factor (float): Temperature factor element (str): Element symbol (e.g., \" C\", \" N\", \" S\") x , y , z (float): Cartesian coordinates in Ångstroms atom_index (int): Internal atom index Example usage: # Check if a CYS residue has all expected atoms atoms = coot.residue_info_py(0, \"A\" , 72, \"\" ) atom_names = [a[0][0].strip() for a in atoms] print(f \"Atoms present: {atom_names}\" ) expected_cys = [ 'N' , 'CA' , 'CB' , 'SG' , 'C' , 'O' ] missing = [a for a in expected_cys if a not in atom_names] if missing: print(f \"Missing atoms: {missing}\" ) # Get B-factors for all atoms for atom in atoms: name = atom[0][0].strip() b_factor = atom[1][1] print(f \"{name}: B={b_factor:.2f}\" )
 
 Parameters
 ----------
 imol : int
+    Model molecule index
 chain_id : const char *
+    Chain identifier (e.g., \"A\")
 resno : int
+    Residue number
 ins_code : const char *
+    Insertion code (use \"\" if none)
 ";
 
 %feature("docstring") residue_name_py "
+resturn the residue name
+
+  imol  Model molecule index   chain_id  Chain identifier (e.g., \"A\")   resno  Residue number   ins_code  Insertion code (use \"\" if none) residue name string or blank string on failure
 
 Parameters
 ----------
 imol : int
+    Model molecule index
 chain_id : const char *
+    Chain identifier (e.g., \"A\")
 resno : int
+    Residue number
 ins_code : const char *
+    Insertion code (use \"\" if none)
 ";
 
 %feature("docstring") residue_centre_from_spec_py "
@@ -1218,9 +1231,13 @@ mode : bool
 ";
 
 %feature("docstring") accept_moving_atoms_py "
+Accept refined/regularized atoms into the main molecule (Python interface)
+
 Accept moving atoms
 
-This waits for the refinement to finish and then accepts the moving atoms so that they move into the main molecule.
+When scripting refinement with set_refinement_immediate_replacement(1), call this function after refinement operations to ensure atoms are committed. While immediate replacement mode should handle this automatically, calling accept_moving_atoms_py() ensures reliable synchronization.
+
+PyObject* with one of:  Py_False if no restraints were found (nothing to accept) A Python list [info_text, progress, lights] on success:  info_text (str): Usually empty string progress (int): GSL minimization status  0 = GSL_SUCCESS (converged) -2 = GSL_CONTINUE 27 = GSL_ENOPROG (no progress) lights (list): Refinement statistics as [[name, label, value], ...]  name (str): Restraint type (e.g., \"Bonds\", \"Angles\", \"Trans_peptide\", \"Planes\", \"Non-bonded\", \"Chirals\") label (str): Formatted string (e.g., \"Bonds: 0.625\") value (float): Distortion value (lower is better) Example usage: coot.set_refinement_immediate_replacement(1) coot.refine_residues_py(0, [[ \"A\" , 42, \"\" ]]) result = coot.accept_moving_atoms_py() if result: info, progress, lights = result for name, label, value in lights: print(f \"{name}: {value:.3f}\" )
 ";
 
 %feature("docstring") register_post_intermediate_atoms_moved_hook "

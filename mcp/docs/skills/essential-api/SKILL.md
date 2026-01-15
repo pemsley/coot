@@ -23,6 +23,16 @@ coot.molecule_name(imol) -> str            # Returns the molecule filename/descr
 coot.n_chains(imol) -> int                 # Returns number of chains
 coot.coot_version() -> str                 # Returns Coot version string
 coot.load_tutorial_model_and_data()        # Loads tutorial RNase structure + maps
+
+# Download structures and data from PDBe
+coot.network_get_accession_code_entity(pdb_accession_code, mode)
+# Downloads model and/or structure factors from PDBe
+# Parameters:
+#   pdb_accession_code: str - PDB accession code (e.g., "4wa9")
+#   mode: int - 0 for coordinates (.pdb or .cif), 1 for structure factors (.mtz)
+# Example - fetch both model and data:
+#   coot.network_get_accession_code_entity("4wa9", 0)  # Get coordinates
+#   coot.network_get_accession_code_entity("4wa9", 1)  # Get structure factors
 ```
 
 ## Chain and Residue Information

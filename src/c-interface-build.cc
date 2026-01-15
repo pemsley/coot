@@ -821,33 +821,32 @@ SCM CG_spin_search_scm(int imol_model, int imol_map) {
 /*  ----------------------------------------------------------------------- */
 /*                  delete residue                                          */
 /*  ----------------------------------------------------------------------- */
-void delete_residue(int imol, const char *chain_id, int resno, const char *inscode) {
+int delete_residue(int imol, const char *chain_id, int resno, const char *inscode) {
+
+   int status = 0;
 
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
       int model_number_ANY = mmdb::MinInt4;
       std::string ic(inscode);
-      short int istat = g.molecules[imol].delete_residue(model_number_ANY, chain_id, resno, ic);
-
+      status = g.molecules[imol].delete_residue(model_number_ANY, chain_id, resno, ic);
       g.update_validation(imol);
 
-      if (istat) {
-	 // now if the go to atom widget was being displayed, we need to
-	 // redraw the residue list and atom list (if the molecule of the
-	 // residue and atom list is the molecule that has just been
-	 // deleted)
+      if (status) {
+         // now if the go to atom widget was being displayed, we need to
+         // redraw the residue list and atom list (if the molecule of the
+         // residue and atom list is the molecule that has just been
+         // deleted)
 
-	 g.update_go_to_atom_window_on_changed_mol(imol);
-
-	 if (! is_valid_model_molecule(imol)) {
-
-	    g.delete_molecule_from_display_manager(imol, false);
+         g.update_go_to_atom_window_on_changed_mol(imol);
+         if (! is_valid_model_molecule(imol)) {
+            g.delete_molecule_from_display_manager(imol, false);
          }
+         graphics_draw();
 
-	 graphics_draw();
       } else {
-	 std::cout << "failed to delete residue " << chain_id
-		   << " " << resno << "\n";
+         std::cout << "failed to delete residue " << chain_id
+                   << " " << resno << "\n";
       }
       std::vector<std::string> command_strings;
       command_strings.push_back("delete-residue");
@@ -859,6 +858,7 @@ void delete_residue(int imol, const char *chain_id, int resno, const char *insco
    } else {
       add_status_bar_text("Oops bad molecule from whcih to delete a residue");
    }
+   return status;
 }
 
 void delete_residue_hydrogens(int imol,

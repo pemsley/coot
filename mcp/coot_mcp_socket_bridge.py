@@ -16,7 +16,7 @@ server = FastMCP("Knowing about stuff")
 
 _request_id = itertools.count(0)
 
-def send_coot_rpc(method: str, params: dict = None) -> dict:
+def send_coot_rpc(method: str, params: dict) -> dict:
     """
     Connects to Coot via socket, sends a framed JSON-RPC request,
     and awaits a framed response.
@@ -132,6 +132,12 @@ def run_python_multiline(code: str) -> str:
 def get_start_text():
     return '''The Coot API has over 2000 functions.
 
+Use coot_ping() to verify Coot is responsive after:
+  - A break in the conversation (no Coot commands for several minutes)
+  - Coot has been recompiled or restarted
+  - You receive an error suggesting Coot might not be responding
+Do NOT call coot_ping() before every command - it's only needed to check if Coot has crashed or been restarted, not for routine operation.
+
 Use search_coot_functions(pattern) to find specific ones (where pattern is a (potentially) multi-words pattern (using space-separated fields). 
 
 Use list_available_tools_in_block(block_index) where block_index varies from 0 to 4 (inclusive) to get each of the api documentation blocks.
@@ -198,6 +204,28 @@ def list_coot_categories() -> str:
 def get_functions_in_category(category: str) -> str:
     """Returns functions in that category (maybe 50-200 per category)"""
     return search_coot_functions(category)
+
+@mcp.tool()
+def coot_ping() -> str:
+    """
+    Quick health check - verifies Coot is responsive by having it compute 2+2.
+    Returns '4' if Coot is alive and responding correctly.
+    """
+    response = send_coot_rpc("python.exec", {"code": "2 + 2"})
+
+    if "error" in response:
+        return f"Coot not responding: {response['error']}"
+
+    if "result" in response:
+        result = response["result"]
+        # Check if we got the expected value
+        if str(result.get("value")) == "4":
+            return "4"
+        else:
+            return f"Unexpected result from Coot: {result}"
+
+    return "No result from Coot"
+
 
 if __name__ == "__main__":
 

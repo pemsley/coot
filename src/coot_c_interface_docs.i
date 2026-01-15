@@ -1163,6 +1163,8 @@ Put the blob under the cursor to the screen centre. Check only positive blobs. U
 
 The refinement map must be set. (We can't check all maps because they are not (or may not be) on the same scale).
 
+Not useful for MCP. For interactive use only.
+
 1 if successfully found a blob and moved there. return 0 if no move.
 ";
 
@@ -1172,6 +1174,8 @@ return scheme false or a list of molecule number and an atom spec
 
 %feature("docstring") select_atom_under_pointer_py "
 return Python false or a list of molecule number and an atom spec
+
+Not useful for MCP. For interactive use only.
 ";
 
 %feature("docstring") normal_cursor "
@@ -1269,6 +1273,10 @@ imol : int
 
 %feature("docstring") apply_undo "
 apply undo - the \"Undo\" button callback
+
+undo the most recent modification on the model set in set_undo_molecule() .
+
+1 on succesful undo, 0 on failed to undo.
 ";
 
 %feature("docstring") apply_redo "
@@ -1375,7 +1383,7 @@ backup_index : int
 %feature("docstring") compare_current_model_to_backup "
 Compare current model to backup.
 
-  imol  the model molecule index   backup_index  the backup index to restore to a Python dict, with 2 items, a \"status\" which is either \"ok\" or \"error\" or \"bad-index\" and a list of residue specs for residues that have at least one atom in a different place (which might be empty).
+  imol  the model molecule index   backup_index  the backup index to restore to a Python dict, with 2 items, a \"status\" which is either \"ok\" or \"error\" or \"bad-index\". The other key is \"moved-residues-list\", the value for which is a list of residue specs for residues that have at least one atom in a different place (which might be empty).
 
 Parameters
 ----------
@@ -1383,6 +1391,14 @@ imol : int
     the model molecule index
 backup_index : int
     the backup index to restore to
+";
+
+%feature("docstring") print_backup_history_info "
+Print the history info.
+
+Parameters
+----------
+imol : int
 ";
 
 %feature("docstring") get_backup_info "
@@ -4643,11 +4659,16 @@ state : int
 ";
 
 %feature("docstring") set_refinement_immediate_replacement "
-set immediate replacement mode for refinement and regularization. You need this (call with istate=1) if you are scripting refinement/regularization
+set immediate replacement mode for refinement and regularization
+
+This can enable synchronous refinement (with istate = 1). You need this (call with istate=1) if you are scripting refinement/regularization
+
+  istate  set the state of immediate-refinemnt
 
 Parameters
 ----------
 istate : int
+    set the state of immediate-refinemnt
 ";
 
 %feature("docstring") refinement_immediate_replacement_state "
@@ -4674,7 +4695,7 @@ i : int
 %feature("docstring") c_accept_moving_atoms "
 accept the new positions of the regularized or refined residues
 
-If you are scripting refinement and/or regularization, this is the function that you need to call after refine-zone or regularize-zone.
+If you are scripting refinement and/or regularization, this is not the function that you need to call after refine-zone or regularize-zone. If you are using Python, use accept_moving_atoms_py() and that will provide a return value that may be of some use.
 ";
 
 %feature("docstring") accept_regularizement "
@@ -7074,6 +7095,8 @@ i : int
 %feature("docstring") execute_find_blobs "
 find blobs
 
+Not useful for MCP. For interactive use only.
+
 Parameters
 ----------
 imol_model : int
@@ -7091,12 +7114,18 @@ If there is more than one atom in the specified resiue, don't do anything.
 
 If the given atom does not have an alt conf of \"\", don't do anything.
 
+  imol  the index of the molecule   chain_id  the chain id   res_no  the residue number   ins_code  the insertion code of the residue
+
 Parameters
 ----------
 imol : int
+    the index of the molecule
 chain_id : const char *
+    the chain id
 res_no : int
+    the residue number
 ins_code : const char *
+    the insertion code of the residue
 ";
 
 %feature("docstring") set_default_bond_thickness "
@@ -7629,15 +7658,23 @@ state : short int
 ";
 
 %feature("docstring") pepflip "
-pepflip the given residue
+pepflip (flip the peptide) of the given residue
+
+Rotate the the carbonyl C and O atom of this residue and the N of the next residue around a vector between the two CA atoms by 180 degrees. This is often a useful modelling operation to create a different hypothesis about the orientation of the main-chain atoms - that can then be used for refinement. This can sometimes allow the model to be removed from local minima of backbone conformations.
+
+  imol  is the index of the model molecule   chain_id  is the chain-id   res_no  is the residue number (the residue that has the C and O atoms)   inscode  the insertion code (typically \"\")   altconf  the altconf (typically \"\")
 
 Parameters
 ----------
 imol : int
+    is the index of the model molecule
 chain_id : const char *
+    is the chain-id
 resno : int
 inscode : const char *
+    the insertion code (typically \"\")
 altconf : const char *
+    the altconf (typically \"\")
 ";
 
 %feature("docstring") pepflip_using_difference_map_scm "
@@ -7784,9 +7821,9 @@ i : int
 %feature("docstring") add_terminal_residue "
 Add a terminal residue.
 
-residue type can be \"auto\" and immediate_add is recommended to be 1.
+Some text here that should be a detailed-description
 
-0 on failure, 1 on success
+  residue_type  can be \"auto\"   immediate_add  is recommended to be 1. 0 on failure, 1 on success
 
 Parameters
 ----------
@@ -7794,7 +7831,30 @@ imol : int
 chain_id : const char *
 residue_number : int
 residue_type : const char *
+    can be \"auto\"
 immediate_add : int
+    is recommended to be 1.
+";
+
+%feature("docstring") add_residue_by_map_fit "
+Add a residue to a chain or at the end of a fragment.
+
+This can be used to fill a gap of one residue or to fill a gap of multiple residues by being called several times. Probably RSR refinement would be useful after each call to this function in such a case.
+
+  imol  the molecule index   chain_id  the chain ID   residue_number  the residue number (of the existing residue to attach to)   residue_type  the type for new residue, can be \"auto\"   immediate_add  is recommended to be 1 0 on failure, 1 on success
+
+Parameters
+----------
+imol : int
+    the molecule index
+chain_id : const char *
+    the chain ID
+residue_number : int
+    the residue number (of the existing residue to attach to)
+residue_type : const char *
+    the type for new residue, can be \"auto\"
+immediate_add : int
+    is recommended to be 1
 ";
 
 %feature("docstring") add_nucleotide "
@@ -7812,16 +7872,21 @@ res_no : int
 %feature("docstring") add_terminal_residue_using_phi_psi "
 Add a terminal residue using given phi and psi angles.
 
-the success status, 0 on failure, 1 on success
+  imol  the molecule index   chain_id  the chain ID   residue_number  the residue number (of the existing residue to attach to   residue_type  can be \"auto\"   phi  is phi in degrees   psi  is psi in degrees the success status, 0 on failure, 1 on success
 
 Parameters
 ----------
 imol : int
+    the molecule index
 chain_id : const char *
+    the chain ID
 res_no : int
 residue_type : const char *
+    can be \"auto\"
 phi : float
+    is phi in degrees
 psi : float
+    is psi in degrees
 ";
 
 %feature("docstring") set_add_terminal_residue_default_residue_type "
@@ -7916,12 +7981,18 @@ end_resno : int
 %feature("docstring") delete_residue "
 delete residue
 
+  imol  the molecule index   chain_id  the chain id   res_no  the residue number   inscode  the insertion code 0 on failure to delete, return 1 on residue successfully deleted
+
 Parameters
 ----------
 imol : int
+    the molecule index
 chain_id : const char *
-resno : int
+    the chain id
+res_no : int
+    the residue number
 inscode : const char *
+    the insertion code
 ";
 
 %feature("docstring") delete_residue_with_full_spec "
@@ -11429,6 +11500,10 @@ state : short int
 
 %feature("docstring") load_tutorial_model_and_data "
 load tutorial model and data
+
+Loads an example dataset - the sample is an RNase structure (model and maps) and is used for learning and testing.
+
+This is the standard Coot tutorial dataset for practicing model building and validation.
 ";
 
 %feature("docstring") handle_go_to_residue_keyboarding_mode "
