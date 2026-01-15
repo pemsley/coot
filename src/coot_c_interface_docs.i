@@ -1273,6 +1273,10 @@ imol : int
 
 %feature("docstring") apply_undo "
 apply undo - the \"Undo\" button callback
+
+undo the most recent modification on the model set in set_undo_molecule() .
+
+1 on succesful undo, 0 on failed to undo.
 ";
 
 %feature("docstring") apply_redo "
@@ -4655,11 +4659,16 @@ state : int
 ";
 
 %feature("docstring") set_refinement_immediate_replacement "
-set immediate replacement mode for refinement and regularization. You need this (call with istate=1) if you are scripting refinement/regularization
+set immediate replacement mode for refinement and regularization
+
+This can enable synchronous refinement (with istate = 1). You need this (call with istate=1) if you are scripting refinement/regularization
+
+  istate  set the state of immediate-refinemnt
 
 Parameters
 ----------
 istate : int
+    set the state of immediate-refinemnt
 ";
 
 %feature("docstring") refinement_immediate_replacement_state "
@@ -7649,15 +7658,23 @@ state : short int
 ";
 
 %feature("docstring") pepflip "
-pepflip the given residue
+pepflip (flip the peptide) of the given residue
+
+Rotate the the carbonyl C and O atom of this residue and the N of the next residue around a vector between the two CA atoms by 180 degrees. This is often a useful modelling operation to create a different hypothesis about the orientation of the main-chain atoms - that can then be used for refinement. This can sometimes allow the model to be removed from local minima of backbone conformations.
+
+  imol  is the index of the model molecule   chain_id  is the chain-id   res_no  is the residue number (the residue that has the C and O atoms)   inscode  the insertion code (typically \"\")   altconf  the altconf (typically \"\")
 
 Parameters
 ----------
 imol : int
+    is the index of the model molecule
 chain_id : const char *
+    is the chain-id
 resno : int
 inscode : const char *
+    the insertion code (typically \"\")
 altconf : const char *
+    the altconf (typically \"\")
 ";
 
 %feature("docstring") pepflip_using_difference_map_scm "
@@ -11483,6 +11500,10 @@ state : short int
 
 %feature("docstring") load_tutorial_model_and_data "
 load tutorial model and data
+
+Loads an example dataset - the sample is an RNase structure (model and maps) and is used for learning and testing.
+
+This is the standard Coot tutorial dataset for practicing model building and validation.
 ";
 
 %feature("docstring") handle_go_to_residue_keyboarding_mode "

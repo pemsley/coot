@@ -959,6 +959,26 @@ int read_coordinates(const std::string &filename) {
    return handle_read_draw_molecule(filename);
 }
 
+int read_coordinates_as_string(const std::string &file_contents, const std::string &molecule_name) {
+
+#if !defined _MSC_VER
+   pid_t pid = getpid();
+#else
+   DWORD pid = GetCurrentProcessId();
+#endif
+   std::string pid_str = std::to_string(pid);
+   std::string fn("tmp-");
+   fn += pid_str;
+   fn += ".pdb";
+   std::ofstream f(fn);
+   f << file_contents;
+   f.close();
+   int imol = read_coordinates(fn);
+   if (is_valid_model_molecule(imol))
+      set_molecule_name(imol, molecule_name.c_str());
+   return imol;
+}
+
 
 //! set (or unset) GEMMI as the molecule parser. Currently by passing an int.
 void set_use_gemmi_as_model_molecule_parser(int state) {

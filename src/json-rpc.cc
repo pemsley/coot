@@ -36,6 +36,7 @@ struct func_doc {
 
 static int server_fd = -1;
 static int client_fd = -1;
+static int server_listen_count = 0;
 gint coot_socket_listener_idle_func(gpointer data);
 
 void init_coot_socket_listener() {
@@ -572,7 +573,8 @@ gint coot_socket_listener_idle_func(gpointer data) {
       return true;
    };
 
-   std::cout << "listening..." << std::endl;
+   std::cout << "listening " << server_listen_count << "..."<< std::endl;
+   server_listen_count++;
 
    // If no active client connection, accept one non-blockingly
    if (client_fd < 0 && server_fd >= 0) {
