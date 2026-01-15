@@ -2283,7 +2283,7 @@ coot::delete_excessive_hydrogens(RDKit::RWMol *rdkm) {
 #endif
       if (at_p->getAtomicNum() == 7) {
 
-#if (RDKIT_VERSION >= RDKIT_VERSION_CHECK(2017, 3, 1))
+#if (RDKIT_VERSION >= RDKIT_VERSION_CHECK(2020, 3, 1))
          RDKit::Atom::ValenceType which = RDKit::Atom::ValenceType::EXPLICIT;
          int e_valence = at_p->getValence(which);
 #else
@@ -2329,7 +2329,7 @@ coot::assign_formal_charges(RDKit::RWMol *rdkm) {
    for (int iat=0; iat<n_mol_atoms; iat++) {
       RDKit::Atom* at_p = (*rdkm)[iat];
       // debug
-      if (0)
+      if (false)
          std::cout << "in assign_formal_charges() calcExplicitValence on atom "
                    << iat << "/" << n_mol_atoms
                    << "  " << at_p->getAtomicNum() << std::endl;
@@ -2340,7 +2340,7 @@ coot::assign_formal_charges(RDKit::RWMol *rdkm) {
       RDKit::Atom* at_p = (*rdkm)[iat];
       if (debug) {
 
-#if (RDKIT_VERSION >= RDKIT_VERSION_CHECK(2017, 3, 1))
+#if (RDKIT_VERSION >= RDKIT_VERSION_CHECK(2020, 3, 1))
          RDKit::Atom::ValenceType which = RDKit::Atom::ValenceType::EXPLICIT;
          int v = at_p->getValence(which);
 #else
@@ -2353,7 +2353,7 @@ coot::assign_formal_charges(RDKit::RWMol *rdkm) {
          if (debug)
             std::cout << " incoming atom N has charge: " << at_p->getFormalCharge() << std::endl;
 
-#if (RDKIT_VERSION >= RDKIT_VERSION_CHECK(2017, 3, 1))
+#if (RDKIT_VERSION >= RDKIT_VERSION_CHECK(2020, 3, 1))
          RDKit::Atom::ValenceType which = RDKit::Atom::ValenceType::EXPLICIT;
          int e_valence = at_p->getValence(which);
 #else

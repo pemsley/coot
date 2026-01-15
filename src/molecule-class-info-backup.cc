@@ -2,6 +2,7 @@
 // #include "geometry/residue-and-atom-specs.hh"
 #include <utility>
 #include <cmath>
+#include <math.h> // for fabsf
 #include "molecule-class-info.h"
 
 #include "utils/logging.hh"
@@ -20,7 +21,7 @@ int molecule_class_info_t::make_backup_checkpoint(const std::string &description
 }
 
 /*! \brief Restore molecule from backup
- * 
+ *
  * restore model @p imol to checkpoint backup @p backup_index
  *
  * @param imol the model molecule index
@@ -37,7 +38,7 @@ int molecule_class_info_t::restore_to_backup_checkpoint(int backup_index) {
 }
 
 /*! \brief Compare current model to backup
- * 
+ *
  * @param imol the model molecule index
  * @param backup_index the backup index to restore to
  * @return a list of residue specs for residues that have
@@ -45,7 +46,7 @@ int molecule_class_info_t::restore_to_backup_checkpoint(int backup_index) {
  *   the first says is the backup_index was valid.
  */
 std::pair<bool, std::vector<coot::residue_spec_t> > molecule_class_info_t::compare_current_model_to_backup(int backup_index) {
-   
+
    bool status = false;
    std::vector<coot::residue_spec_t> rs;
 
@@ -100,9 +101,9 @@ std::pair<bool, std::vector<coot::residue_spec_t> > molecule_class_info_t::compa
                                                       float delta_x = at_1->x - at_2->x;
                                                       float delta_y = at_1->y - at_2->y;
                                                       float delta_z = at_1->z - at_2->z;
-                                                      if (std::fabsf(delta_x) > 0.01) {
-                                                         if (std::fabsf(delta_y) > 0.01) {
-                                                            if (std::fabsf(delta_z) > 0.01) {
+                                                      if (fabsf(delta_x) > 0.01) {
+                                                         if (fabsf(delta_y) > 0.01) {
+                                                            if (fabsf(delta_z) > 0.01) {
                                                                if (false)
                                                                   std::cout << "DEBUG:: atom " << coot::atom_spec_t(at_1) << " " << coot::atom_spec_t(at_2) << " "
                                                                             << delta_x << " " << delta_y << " " << delta_z << std::endl;
