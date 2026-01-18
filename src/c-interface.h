@@ -6186,15 +6186,27 @@ void citation_notice_off();
 /*! \{ */
 
 /*! \brief simple interface to superposition.
+ *
+ * @param imol1 the reference model index
+ * @param imol2 the index of the superposed molecule
 
-Superpose all residues of imol2 onto imol1.  imol1 is reference, we
-can either move imol2 or copy it to generate a new molecule depending
-on the vaule of move_imol2_flag (1 for copy 0 for move). */
+   Superpose all residues of imol2 onto imol1.  imol1 is reference, we
+   can either move imol2 or copy it to generate a new molecule depending
+   on the vaule of move_imol2_flag (1 for copy 0 for move). */
 void superpose(int imol1, int imol2, short int move_imol2_flag);
 
 
 /*! \brief chain-based interface to superposition.
-
+ *
+ * @param imol1 the reference model index
+ * @param imol2 the index of the superposed molecule
+ * @param chain_imol1 the chain_id of imol1
+ * @param chain_imol2 the chain_id of imol2
+ * @param chain_used_flag_imol1 should the chain-id be used for imol1 (1 for yes, 0 for no)
+ * @param chain_used_flag_imol2 should the chain-id be used for imol2 (1 for yes, 0 for no)
+ * @param move_imol2_coppy_flag flag to control if imol2 is
+ *        copied (1) or moved (0)
+ 
 Superpose the given chains of imol2 onto imol1.  imol1 is reference,
 we can either move imol2 or copy it to generate a new molecule
 depending on the vaule of move_imol2_flag (1 for move 0 for copy). */
@@ -6207,14 +6219,21 @@ void superpose_with_chain_selection(int imol1, int imol2,
 
 /*! \brief detailed interface to superposition.
 
-Superpose the given atom selection (specified by the mmdb atom
-selection strings) of imol2 onto imol1.  imol1 is reference, we can
-either move imol2 or copy it to generate a new molecule depending on
-the vaule of move_imol2_flag (1 for move 0 for copy).
+   Superpose the given atom selection (specified by the mmdb atom
+   selection strings) of imol2 onto imol1.  imol1 is reference, we can
+   either move imol2 or copy it to generate a new molecule depending on
+   the vaule of move_imol2_flag (1 for move 0 for copy).
 
-@return the index of the superposed molecule - which could either be a
-new molecule (if move_imol2_flag was 1) or the imol2 or -1 (signifying
-failure to do the SMM superposition).
+   @return the index of the superposed molecule - which could either be a
+   new molecule (if move_imol2_flag was 1) or the imol2 or -1 (signifying
+   failure to do the SSM superposition).
+ *
+ * @param imol1 the reference model index
+ * @param imol2 the index of the superposed molecule
+ * @param mmdb_atom_sel_str_1 the mmdb-format atom selection for imol1
+ * @param mmdb_atom_sel_str_2 the mmdb-format atom selection for imol2
+ * @param move_imol2_coppy_flag flag to control if imol2 is
+ *        copied (1) or moved (0)
 */
 int superpose_with_atom_selection(int imol1, int imol2,
 				  const char *mmdb_atom_sel_str_1,
