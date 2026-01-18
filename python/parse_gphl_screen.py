@@ -21,6 +21,7 @@ def parse_screenfile(file_name):
             ideal_contact_outliers_is_live = False
             unhappy_atom_is_live           = False
             for line in lines:
+
                 # ---------- Front page ----------------
                 if front_page_is_live:
                     if " Bond lenth outliers," in line:

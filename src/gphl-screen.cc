@@ -44,7 +44,7 @@ coot::atom_spec_t gphl_atom_id_to_coot_spec(const std::string &atom_spec_gphl) {
                std::string ins_code;
                std::string alt_conf;
                std::string atom_name_raw = parts_5[0]; // might contain the alt-conf too.
-               std::cout << "atom_spec_gphl: " << atom_spec_gphl << " atom_name_raw: " << atom_name_raw<< std::endl;
+               // std::cout << "atom_spec_gphl: " << atom_spec_gphl << " atom_name_raw: " << atom_name_raw<< std::endl;
                if (atom_name_raw.find(".") != std::string::npos) {
                   std::vector<std::string> parts_6 = coot::util::split_string(atom_name_raw, ".");
                   if (parts_6.size() == 2) {
@@ -71,10 +71,105 @@ std::vector<coot::atom_spec_t> gphl_atom_ids_to_atom_specs(const std::string &at
       coot::atom_spec_t atom_spec = gphl_atom_id_to_coot_spec(atom_ids); // just the one in this case
       atom_specs.push_back(atom_spec);
    } else {
-      std::vector<std::string> parts = coot::util::split_string(atom_ids, "=");
-      for(const auto &part : parts) {
-         coot::atom_spec_t atom_spec = gphl_atom_id_to_coot_spec(part);
-         atom_specs.push_back(atom_spec);
+      // e.g. A|290:CD2=CE2 (PHE)  or  A|458:C(ASP)=A|459:N.B(ARG)
+      std::vector<std::string> parts_1 = coot::util::split_string(atom_ids, "|");
+      if (parts_1.size() == 2) {
+         std::string chain_id = parts_1[0];
+         std::string rest_1   = parts_1[1];
+         std::vector<std::string> parts_2 = coot::util::split_string(rest_1, ":"); // rest_1 one example: 290:CD2=CE2 (PHE)
+         if (parts_2.size() == 2) {
+            // both atoms in the same residue
+            std::string res_no_str = parts_2[0];
+            std::string rest_2     = parts_2[1];
+            try {
+               // rest_2 is now CD2=CE2 (PHE)  or  CG.A=CD.A (ARG)
+               int res_no = coot::util::string_to_int(res_no_str);
+               // "=" is the atom separator in the screen file atom ids
+               std::vector<std::string> parts_3 = coot::util::split_string(rest_2, "=");
+               if (parts_3.size() == 2) { // bond
+                  std::string atom_name_1_raw = parts_3[0];
+                  std::string rest_3      = parts_3[1];
+                  // now strip out "(PHE)" from CD.A (PHE)
+                  std::vector<std::string> parts_4 = coot::util::split_string(rest_3, "(");
+                  if (parts_4.size() > 0) {
+                     std::string ins_code;
+                     std::string atom_name_2_raw = coot::util::remove_trailing_whitespace(parts_4[0]); // might contain the alt-conf too.
+                     std::string atom_name_1; // filled below
+                     std::string atom_name_2; // filled below
+                     std::string alt_conf_1;  // maybe filled below
+                     std::string alt_conf_2;  // maybe filled below
+                     if (atom_name_2_raw.find(".") != std::string::npos) {
+                        std::vector<std::string> parts_6 = coot::util::split_string(atom_name_2_raw, ".");
+                        atom_name_2 = parts_6[0];
+                        alt_conf_2  = parts_6[1];
+                     } else {
+                        atom_name_2 = atom_name_2_raw;
+                     }
+                     // now go back to atom_1 and try to split that
+                     if (atom_name_2_raw.find(".") != std::string::npos) {
+                        std::vector<std::string> parts_7 = coot::util::split_string(atom_name_1_raw, ".");
+                        atom_name_1 = parts_7[0];
+                        alt_conf_1  = parts_7[1];
+                     } else {
+                        atom_name_1 = atom_name_1_raw;
+                     }
+                     coot::atom_spec_t atom_spec_1(chain_id, res_no, ins_code, atom_name_1, alt_conf_1);
+                     coot::atom_spec_t atom_spec_2(chain_id, res_no, ins_code, atom_name_2, alt_conf_2);
+                     atom_specs.push_back(atom_spec_1);
+                     atom_specs.push_back(atom_spec_2);
+                  }
+               }
+               if (parts_3.size() == 3) { // angle
+                  std::string ins_code;
+                  std::string atom_name_1_raw = parts_3[0]; // e.g. CD.A
+                  std::string atom_name_2_raw = parts_3[1]; // e.g. NE2.A
+                  std::string atom_name_3_raw = parts_3[2]; // e.g. HE22.A (GLN)
+                  std::string atom_name_1; // filled below
+                  std::string atom_name_2; // filled below
+                  std::string atom_name_3; // filled below
+                  std::string alt_conf_1;  // maybe filled below
+                  std::string alt_conf_2;  // maybe filled below
+                  std::string alt_conf_3;  // maybe filled below
+                  if (atom_name_1_raw.find(".") != std::string::npos) {
+                     std::vector<std::string> parts_4 = coot::util::split_string(atom_name_1_raw, ".");
+                     atom_name_1 = parts_4[0];
+                     alt_conf_1  = parts_4[1];
+                  } else {
+                     atom_name_1 = atom_name_1_raw;
+                  }
+                  if (atom_name_2_raw.find(".") != std::string::npos) {
+                     std::vector<std::string> parts_4 = coot::util::split_string(atom_name_2_raw, ".");
+                     atom_name_2 = parts_4[0];
+                     alt_conf_2  = parts_4[1];
+                  } else {
+                     atom_name_2 = atom_name_2_raw;
+                  }
+                  if (atom_name_3_raw.find(".") != std::string::npos) {
+                     std::vector<std::string> parts_4 = coot::util::split_string(atom_name_3_raw, ".");
+                     atom_name_3 = parts_4[0];
+                     alt_conf_3  = parts_4[1];
+                  } else {
+                     atom_name_3 = atom_name_3_raw;
+                  }
+                  coot::atom_spec_t atom_spec_1(chain_id, res_no, ins_code, atom_name_1, alt_conf_1);
+                  coot::atom_spec_t atom_spec_2(chain_id, res_no, ins_code, atom_name_2, alt_conf_2);
+                  coot::atom_spec_t atom_spec_3(chain_id, res_no, ins_code, atom_name_3, alt_conf_3);
+                  atom_specs.push_back(atom_spec_1);
+                  atom_specs.push_back(atom_spec_2);
+                  atom_specs.push_back(atom_spec_3);
+               }
+            }
+            catch (const std::runtime_error &e) {
+               std::cout << "WARNING::" << e.what() << std::endl;
+            }
+         }
+      } else {
+         // atoms in different residues, e.g.  A|458:C(ASP)=A|459:N.B(ARG)
+         std::vector<std::string> parts_2 = coot::util::split_string(atom_ids, "=");
+         for (const auto &part : parts_2) {
+            coot::atom_spec_t atom_spec = gphl_atom_id_to_coot_spec(part);
+            atom_specs.push_back(atom_spec);
+         }
       }
    }
    return atom_specs;
@@ -105,6 +200,8 @@ void go_to_gphl_atoms(int imol, const std::string &atom_ids, const std::string &
       }
    };
 
+   std::cout << ":::::::::::::::::::: go_to_gphl_atoms(): " << atom_ids << std::endl;
+
    bool debug = false;
 
    // ------------------ main line --------------------
@@ -120,99 +217,37 @@ void go_to_gphl_atoms(int imol, const std::string &atom_ids, const std::string &
       return;
 
    if (type == "unhappy-atom") {
-      std::vector<std::string> parts_1 = coot::util::split_string(atom_ids, "|");
-      if (parts_1.size() == 2) {
-         std::string chain_id = parts_1[0];
-         std::string rest_1   = parts_1[1];
-         std::vector<std::string> parts_2 = coot::util::split_string(rest_1, ":");
-         if (parts_2.size() == 2) {
-            std::string res_no_str = parts_2[0];
-            std::string rest_2     = parts_2[1];
-            std::vector<std::string> parts_3 = coot::util::split_string(rest_2, "(");
-            if (parts_3.size() == 2) {
-               std::string atom_name = parts_3[0];
-               std::string rest_3    = parts_3[1];
-               if (! atom_name.empty()) {
-                  try {
-                     int res_no = coot::util::string_to_int(res_no_str);
-                     set_go_to_atom_molecule(imol);
-                     set_go_to_atom_chain_residue_atom_name(chain_id.c_str(), res_no, atom_name.c_str());
-                     std::string ins_code;
-                     std::string alt_conf;
-                     coot::atom_spec_t atom_spec(chain_id, res_no, ins_code, atom_name, alt_conf);
-                     graphics_info_t::add_unhappy_atom_marker(imol, atom_spec);
-                     std::vector<coot::atom_spec_t> atom_specs = { atom_spec };
-                     pulse_atom_specs(imol, atom_specs);
-                  }
-                  catch (const std::runtime_error &e) {
-                     std::cout << "WARNING::" << e.what() << std::endl;
-                  }
-               }
-            }
-         }
-      }
+      // e.g. "A|501:H6.A(U5P)"
+      graphics_info_t g;
+      coot::atom_spec_t atom_spec = gphl_atom_id_to_coot_spec(atom_ids); // just one
+      g.set_go_to_atom_molecule(imol); // 20260117-PE not static(!)
+      graphics_info_t::add_unhappy_atom_marker(imol, atom_spec);
+      graphics_info_t::set_go_to_atom(imol, atom_spec); // just settings
+      g.try_centre_from_new_go_to_atom();
+      std::vector<coot::atom_spec_t> atom_specs = { atom_spec };
+      pulse_atom_specs(imol, atom_specs);
    }
+
    if (type == "bond") {
       // e.g.: "A|502:O5'=C5'"
-      std::vector<std::string> parts_1 = coot::util::split_string(atom_ids, "|");
-      if (debug)
-         std::cout << "debug::  bond_block: " << parts_1.size() << std::endl;
-      if (parts_1.size() == 2) {
-         std::string chain_id = parts_1[0];
-         std::string rest_1   = parts_1[1];
-         if (debug)
-            std::cout << "debug:: bond_block: chain_id: " << chain_id << " rest_1: " << rest_1 << std::endl;
-         std::vector<std::string> parts_2 = coot::util::split_string(rest_1, ":");
-         if (parts_2.size() == 2) {
-            std::string res_no_str = parts_2[0];
-            std::string rest_2     = parts_2[1];
+      std::vector<coot::atom_spec_t> vs = gphl_atom_ids_to_atom_specs(atom_ids, "bond");
+      if (vs.size() == 2) {
+         coot::atom_spec_t atom_spec_1 = vs[0];
+         coot::atom_spec_t atom_spec_2 = vs[1];
+         mmdb::Atom *at_1 = coot::util::get_atom_using_fuzzy_search(atom_spec_1, mol);
+         mmdb::Atom *at_2 = coot::util::get_atom_using_fuzzy_search(atom_spec_2, mol);
+         if (at_1 && at_2) {
             if (debug)
-               std::cout << "debug:: bond_block: res_no_str: " << res_no_str << " rest_2: " << rest_2 << std::endl;
-            std::vector<std::string> parts_3 = coot::util::split_string(rest_2, "=");
-            if (parts_3.size() == 2) {
-               std::string atom_name_1_raw = parts_3[0];
-               std::string rest_3      = parts_3[1];
-               std::string atom_name_2_raw = rest_3;
-               std::string atom_name_1 = atom_name_1_raw;
-               std::string atom_name_2 = atom_name_2_raw;
-               if (debug)
-                  std::cout << "debug:: bond_block: atom_name_1 " << atom_name_1
-                            << " atom_name_2 " << atom_name_2 << std::endl;
-               if (! atom_name_1.empty()) {
-                  if (! atom_name_2.empty()) {
-                     try {
-                        int res_no = coot::util::string_to_int(res_no_str);
-                        // it will be a pain to decode these
-                        std::string ins_code;
-                        std::string alt_conf;
-                        coot::atom_spec_t atom_spec_1(chain_id, res_no, ins_code, atom_name_1, alt_conf);
-                        coot::atom_spec_t atom_spec_2(chain_id, res_no, ins_code, atom_name_2, alt_conf);
-                        mmdb::Atom *at_1 = coot::util::get_atom_using_fuzzy_search(atom_spec_1, mol);
-                        mmdb::Atom *at_2 = coot::util::get_atom_using_fuzzy_search(atom_spec_2, mol);
-                        if (at_1 && at_2) {
-                           if (debug)
-                              std::cout << "debug:: bond block - found both" << std::endl;
-                           clipper::Coord_orth pt_1(at_1->x, at_1->y, at_1->z);
-                           clipper::Coord_orth pt_2(at_2->x, at_2->y, at_2->z);
-                           clipper::Coord_orth mid(0.5 * (pt_1 + pt_2));
-                           set_rotation_centre(mid.x(), mid.y(), mid.z());
-                           std::vector<coot::atom_spec_t> atom_specs = { atom_spec_1, atom_spec_2};
-                           pulse_atom_specs(imol, atom_specs);
-                        } else {
-                           std::cout << "WARNING:: failed to lookup an atom " << atom_spec_1 << " " << atom_spec_2
-                                     << std::endl;
-                        }
-                     }
-                     catch (const std::runtime_error &e) {
-                        std::cout << "WARNING::" << e.what() << std::endl;
-                     }
-                  } else  {
-                     std::cout << "WARNING:: blank atom_name_2" << std::endl;
-                  }
-               } else {
-                  std::cout << "WARNING:: blank atom_name_1" << std::endl;
-               }
-            }
+               std::cout << "debug:: bond block - found both" << std::endl;
+            clipper::Coord_orth pt_1(at_1->x, at_1->y, at_1->z);
+            clipper::Coord_orth pt_2(at_2->x, at_2->y, at_2->z);
+            clipper::Coord_orth mid(0.5 * (pt_1 + pt_2));
+            set_rotation_centre(mid.x(), mid.y(), mid.z());
+            std::vector<coot::atom_spec_t> atom_specs = { atom_spec_1, atom_spec_2};
+            pulse_atom_specs(imol, atom_specs);
+         } else {
+            std::cout << "WARNING:: failed to lookup an atom " << atom_spec_1 << " " << atom_spec_2
+                      << std::endl;
          }
       }
    }
@@ -224,66 +259,28 @@ void go_to_gphl_atoms(int imol, const std::string &atom_ids, const std::string &
       std::vector<std::string> parts_1 = coot::util::split_string(atom_ids, "|");
       if (debug)
          std::cout << "debug:: angle block" << parts_1.size() << std::endl;
-      if (parts_1.size() == 2) {
-         // simple case = all atoms in the same residue
-         std::string chain_id = parts_1[0];
-         std::string rest_1   = parts_1[1];
-         if (debug)
-            std::cout << "debug:: angle_block: chain_id: " << chain_id << " rest_1: " << rest_1 << std::endl;
-         std::vector<std::string> parts_2 = coot::util::split_string(rest_1, ":");
-         if (parts_2.size() == 2) {
-            std::string res_no_str = parts_2[0];
-            std::string rest_2     = parts_2[1];
-            if (debug)
-               std::cout << "debug:: angle_block: res_no_str: " << res_no_str << " rest_2: " << rest_2 << std::endl;
-            std::vector<std::string> parts_3 = coot::util::split_string(rest_2, "=");
-            if (parts_3.size() == 3) {
-               std::string atom_name_1_raw = parts_3[0];
-               std::string rest_3          = parts_3[1];
-               std::string atom_name_2_raw = rest_3;
-               std::string atom_name_3_raw = parts_3[2];
-               // instead of padding here, it would be better to use get_atom_using_fuzzy_search()
-               // so that the atom name can be passed without needing to pad it.
-               std::string atom_name_1 = atom_name_1_raw;
-               std::string atom_name_2 = atom_name_2_raw;
-               std::string atom_name_3 = atom_name_3_raw;
-               if (debug)
-                  std::cout << "debug:: angle_block:"
-                            << " atom_name_1 " << atom_name_1
-                            << " atom_name_2 " << atom_name_2
-                            << " atom_name_3 " << atom_name_3 << std::endl;
-               if (! atom_name_1.empty()) {
-                  if (! atom_name_2.empty()) {
-                     if (! atom_name_3.empty()) {
-                        try {
-                           int res_no = coot::util::string_to_int(res_no_str);
-                           std::string ins_code;
-                           std::string alt_conf;
-                           coot::atom_spec_t atom_spec_1(chain_id, res_no, ins_code, atom_name_1, alt_conf);
-                           coot::atom_spec_t atom_spec_2(chain_id, res_no, ins_code, atom_name_2, alt_conf);
-                           coot::atom_spec_t atom_spec_3(chain_id, res_no, ins_code, atom_name_3, alt_conf);
-                           mmdb::Atom *at_1 = coot::util::get_atom_using_fuzzy_search(atom_spec_1, mol);
-                           mmdb::Atom *at_2 = coot::util::get_atom_using_fuzzy_search(atom_spec_2, mol);
-                           mmdb::Atom *at_3 = coot::util::get_atom_using_fuzzy_search(atom_spec_3, mol);
-                           if (at_1 && at_2 && at_3) {
-                              clipper::Coord_orth pt_1(at_1->x, at_1->y, at_1->z);
-                              clipper::Coord_orth pt_2(at_2->x, at_2->y, at_2->z);
-                              clipper::Coord_orth pt_3(at_3->x, at_3->y, at_3->z);
-                              clipper::Coord_orth mid(0.333333 * (pt_1 + pt_2 + pt_3));
-                              set_rotation_centre(mid.x(), mid.y(), mid.z());
-                              std::vector<coot::atom_spec_t> atom_specs = { atom_spec_1, atom_spec_2, atom_spec_3};
-                              pulse_atom_specs(imol, atom_specs);
-                           } else {
-                              std::cout << "WARNING:: failed to lookup an atom " << atom_spec_1
-                                        << " " << atom_spec_2 << " " << atom_spec_3 << std::endl;
-                           }
-                        } catch (const std::runtime_error &e) {
-                           std::cout << "WARNING::" << e.what() << std::endl;
-                        }
-                     }
-                  }
-               }
-            }
+      std::vector<coot::atom_spec_t> vs = gphl_atom_ids_to_atom_specs(atom_ids, "angle");
+      if (vs.size() == 3) {
+         coot::atom_spec_t atom_spec_1 = vs[0];
+         coot::atom_spec_t atom_spec_2 = vs[1];
+         coot::atom_spec_t atom_spec_3 = vs[2];
+         mmdb::Atom *at_1 = coot::util::get_atom_using_fuzzy_search(atom_spec_1, mol);
+         mmdb::Atom *at_2 = coot::util::get_atom_using_fuzzy_search(atom_spec_2, mol);
+         mmdb::Atom *at_3 = coot::util::get_atom_using_fuzzy_search(atom_spec_3, mol);
+         if (at_1 && at_2 && at_3) {
+            clipper::Coord_orth pt_1(at_1->x, at_1->y, at_1->z);
+            clipper::Coord_orth pt_2(at_2->x, at_2->y, at_2->z);
+            clipper::Coord_orth pt_3(at_3->x, at_3->y, at_3->z);
+            clipper::Coord_orth mid(0.333333 * (pt_1 + pt_2 + pt_3));
+            set_rotation_centre(mid.x(), mid.y(), mid.z());
+            std::vector<coot::atom_spec_t> atom_specs = { atom_spec_1, atom_spec_2, atom_spec_3};
+            pulse_atom_specs(imol, atom_specs);
+         } else {
+            std::cout << "WARNING:: failed to lookup an atom " << atom_spec_1
+                      << " " << atom_spec_2 << " " << atom_spec_3 << std::endl;
+            if (!at_1) std::cout << "WARNING:: at_1 " << atom_spec_1 << " was null" << std::endl;
+            if (!at_2) std::cout << "WARNING:: at_2 " << atom_spec_2 << " was null" << std::endl;
+            if (!at_3) std::cout << "WARNING:: at_3 " << atom_spec_3 << " was null" << std::endl;
          }
       }
       // A|231:C(ALA)=A|232:N(PRO)=A|232:CA(PRO)
@@ -625,6 +622,7 @@ PyObject *global_phasing_screen(int imol, PyObject *screen_dict) {
          button_wrapper_t *bw = static_cast<button_wrapper_t *>(user_data);
          if (bw) {
             if (! bw->atom_ids.empty()) {
+               std::cout << "bw->atom_ids: " << bw->atom_ids << std::endl;
                go_to_gphl_atoms(bw->imol, bw->atom_ids, bw->type);
             }
             if (bw->eye_label)
@@ -640,7 +638,8 @@ PyObject *global_phasing_screen(int imol, PyObject *screen_dict) {
                if (GTK_IS_LABEL(l)) {
                   gtk_label_set_markup(GTK_LABEL(l), bc.c_str());
                } else {
-                  std::cout << "widget " << l << " is not a label, index: " << bw->eye_column << " " << i << std::endl;
+                  if (false) // do we want to know this?
+                     std::cout << "widget " << l << " is not a label, index: " << bw->eye_column << " " << i << std::endl;
                }
             }
             gtk_label_set_markup(GTK_LABEL(bw->eye_label), bcmr.c_str());
