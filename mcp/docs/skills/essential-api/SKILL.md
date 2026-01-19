@@ -165,12 +165,7 @@ coot.find_blobs_py(imol_model, imol_map, sigma_cutoff) -> list
 coot.refine_residues_py(imol, residue_specs) -> list
 # Real-space refinement of specified residues
 # residue_specs = [["A", 42, ""], ["A", 43, ""], ...]  # [chain, resno, ins_code]
-# Returns refinement status
-
-coot.accept_moving_atoms_py() -> list
-# Accept the current refinement/regularization
 # Returns: ['', status, [[metric_name, description, value], ...]]
-# Call this after refine_residues_py()
 ```
 
 ## Model Building - Rotamers
@@ -223,12 +218,10 @@ severe = [o for o in overlaps if o['overlap-volume'] > 5.0]
 # 5. Fix bad rotamers
 coot.auto_fit_best_rotamer(0, "A", 89, "", "", 1, 1, 0.01)
 coot.refine_residues_py(0, [["A", 89, ""]])
-coot.accept_moving_atoms_py()
 
 # 6. Fix backbone issues
 coot.pepflip(0, "A", 41, "", "")
 coot.refine_residues_py(0, [["A", 40, ""], ["A", 41, ""], ["A", 42, ""]])
-coot.accept_moving_atoms_py()
 
 # 7. Re-validate
 overlaps_after = coot.molecule_atom_overlaps_py(0, 10)
@@ -237,7 +230,6 @@ overlaps_after = coot.molecule_atom_overlaps_py(0, 10)
 ## Important Notes
 
 1. **Always call `set_refinement_immediate_replacement(1)` first** - makes refinement synchronous
-2. **Always call `accept_moving_atoms_py()` after refinement** - commits the changes
 3. **Use `coot.*_py()` functions directly** - faster than `coot_utils` wrappers
 4. **Import coot_utils only when needed** - for convenience functions like `chain_ids()`
 5. **The `coot` module is auto-imported** - no import statement needed

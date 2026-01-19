@@ -45,28 +45,6 @@ residue_spec = neigbs
 residue_specs.append(central_residue_spec)
 result = coot.refine_residues_py(imol, residue_specs)
 
-# Note: If refine_residues_py fails, report the error and try refine_zone as fallback:
-# result = coot.refine_zone(imol, chain_id, start_resno, end_resno, "")
-
-# 5. Always accept moving atoms (required for robustness)
-coot.accept_moving_atoms_py()
-
-# Note: If refinement appears to have no effect (coordinates unchanged, 
-# statistics unchanged), please report which function failed and under 
-# what conditions so the bug can be fixed.
-
-# Ideally there is no need for coot.accept_moving_atoms_py() with immediate replacement mode enabled,
-# but it might be needed if there is a bug. For robustness, call coot.accept_moving_atoms_py()
-# after refinement functions (refine_zone, refine_residues_py, refine_residues_using_atom_cid, etc.).
-#
-# Debugging note: If you expected atoms to have moved after refinement (and thus 
-# model-based statistics, density fit, or correlation to have changed) but surprisingly
-# they did not, try coot.accept_moving_atoms_py() to force a sync/update.
-# Please report which function failed to auto-sync so the bug can be fixed.
-
-
-```
-
 ### Zone Refinement
 
 ```python
@@ -124,12 +102,6 @@ gtk_gl_area_snapshot
 
 ### Asynchronous Refinement Without Accept
 
-**Problem:** Refinement starts but coordinates aren't committed/synched before next operation.
-
-**Solution:** Either:
-1. Use immediate replacement mode (recommended)
-2. OR call `accept_moving_atoms_py()` after each refinement
-
 ## Multi-Line Code Limitation
 
 Coot only returns values if code is a single line:
@@ -165,16 +137,16 @@ worst = coot.get_n_residues_with_worst_density_fit(0, 10)
 # 3. For each poor residue:
 for residue in worst:
     chain_id, resno, inscode, corr = residue
-    
+
     # Build CID
     cid = f"//{chain_id}/{resno}"
-    
+
     # Try rotamer fix
     coot.auto_fit_best_rotamer(cid, "", 0, 1, 1, 0.1)
-    
+
     # Refine in context
     coot.refine_residues_using_atom_cid(0, cid, "SPHERE", 4000)
-    
+
     # Check improvement
     new_corr = coot.density_correlation_analysis_scm(0, chain_id, resno, inscode)
     print(f"{cid}: {corr:.3f} → {new_corr['all-atom']:.3f}")
