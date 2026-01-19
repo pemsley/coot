@@ -195,34 +195,34 @@ graphics_info_t::setup_key_bindings() {
 
    auto l6 = []() {
 
-                if (do_tick_spin) {
-                   std::cout << "removing tick spin flag" << std::endl;
-                   do_tick_spin = false;
-                } else {
-                   std::cout << "adding tick spin flag A" << std::endl;
-                   if (! tick_function_is_active()) {
-                      std::cout << "adding tick spin flag B" << std::endl;
-                      int spin_tick_id = gtk_widget_add_tick_callback(glareas[0], glarea_tick_func, 0, 0);
-                      // this is not a good name if we are storing a generic tick function id.
-                      idle_function_spin_rock_token = spin_tick_id;
-                   }
-                   do_tick_spin = true;
-                }
-                return gboolean(TRUE);
-             };
+      if (do_tick_spin) {
+         std::cout << "removing tick spin flag" << std::endl;
+         do_tick_spin = false;
+      } else {
+         std::cout << "adding tick spin flag A" << std::endl;
+         if (! tick_function_is_active()) {
+            std::cout << "adding tick spin flag B" << std::endl;
+            int spin_tick_id = gtk_widget_add_tick_callback(glareas[0], glarea_tick_func, 0, 0);
+            // this is not a good name if we are storing a generic tick function id.
+            idle_function_spin_rock_token = spin_tick_id;
+         }
+         do_tick_spin = true;
+      }
+      return gboolean(TRUE);
+   };
 
    auto l7 = []() {
-                graphics_info_t g;
-                int imol_scroll = g.intelligent_get_scroll_wheel_map();
-                if (graphics_info_t::is_valid_map_molecule(imol_scroll)) {
-                   graphics_info_t::molecules[imol_scroll].pending_contour_level_change_count--;
-                }
-                if (graphics_info_t::glareas.size() > 0)
-                   int contour_idle_token = g_idle_add(idle_contour_function, graphics_info_t::glareas[0]);
-                g.set_density_level_string(imol_scroll, graphics_info_t::molecules[imol_scroll].contour_level);
-                graphics_info_t::display_density_level_this_image = 1;
-                return gboolean(TRUE);
-             };
+      graphics_info_t g;
+      int imol_scroll = g.intelligent_get_scroll_wheel_map();
+      if (graphics_info_t::is_valid_map_molecule(imol_scroll)) {
+         graphics_info_t::molecules[imol_scroll].pending_contour_level_change_count--;
+      }
+      if (graphics_info_t::glareas.size() > 0)
+         int contour_idle_token = g_idle_add(idle_contour_function, graphics_info_t::glareas[0]);
+      g.set_density_level_string(imol_scroll, graphics_info_t::molecules[imol_scroll].contour_level);
+      graphics_info_t::display_density_level_this_image = 1;
+      return gboolean(TRUE);
+   };
 
    auto l8 = []() {
                 graphics_info_t g;
@@ -385,6 +385,27 @@ graphics_info_t::setup_key_bindings() {
                  }
                  return gboolean(TRUE);
               };
+
+   auto l27 = [] {
+
+      graphics_info_t g;
+      std::pair<bool, std::pair<int, coot::atom_spec_t> > aa_spec_pair = active_atom_spec();
+      if (aa_spec_pair.first) {
+         int imol = aa_spec_pair.second.first;
+         int saved_state = g.refinement_immediate_replacement_flag;
+         mmdb::Atom *at = molecules[imol].get_atom(aa_spec_pair.second.second);
+         mmdb::Residue *residue_p = at->GetResidue();
+         mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
+         g.refinement_immediate_replacement_flag = 1;
+         std::string alt_conf("");
+         std::vector<mmdb::Residue *> rs = { residue_p };
+         g.refine_residues_vec(imol, rs, alt_conf, mol);
+         g.conditionally_wait_for_refinement_to_finish();
+         g.accept_moving_atoms();
+         g.refinement_immediate_replacement_flag = saved_state;
+      }
+      return gboolean(TRUE);
+   };
 
    auto l28 = [] () {
 
@@ -672,6 +693,7 @@ graphics_info_t::setup_key_bindings() {
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_KP_Subtract, key_bindings_t(l7, "decrease contour level")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_p,      key_bindings_t(l9, "update go-to atom by position")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_q,      key_bindings_t(l45, "Pep-flip")));
+   kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_r,      key_bindings_t(l27, "Refine Residue Auto-Accept")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_n,      key_bindings_t(l10, "Zoom out")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_m,      key_bindings_t(l11, "Zoom in")));
    kb_vec.push_back(std::pair<keyboard_key_t, key_bindings_t>(GDK_KEY_w,      key_bindings_t(l12, "Move forward")));
