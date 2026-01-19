@@ -1989,6 +1989,9 @@ molecule_class_info_t::auto_fit_best_rotamer(int rotamer_search_mode,
                                              int clash_flag, float lowest_prob,
                                              const coot::protein_geometry &pg) {
 
+
+   float r = -99.9; // resturn this on failure
+
    // 20090714 We decide here if we go into auto_fit_best_rotamer
    // (conventional mode with rigid body fitting) or backrub rotamers
    //
@@ -2008,17 +2011,29 @@ molecule_class_info_t::auto_fit_best_rotamer(int rotamer_search_mode,
       }
    }
 
-   if (do_backrub) {
-      std::pair<bool,float> br_score = backrub_rotamer(chain_id, resno, insertion_code, altloc, pg);
-      if (br_score.first)
-         return br_score.second;
-      else
+   mmdb::Manager *mol = atom_sel.mol;
+   mmdb::Residue *residue_this_p = coot::util::get_residue(chain_id, resno, insertion_code, mol);
+   if (residue_this_p) {
+
+      // now check that previous and next residues are actually there:
+      mmdb::Residue *residue_prev_p = coot::util::previous_residue(residue_this_p);
+      mmdb::Residue *residue_next_p = coot::util::next_residue(residue_this_p);
+      if (! residue_prev_p) do_backrub = false;
+      if (! residue_next_p) do_backrub = false;
+
+      if (do_backrub) {
+         std::pair<bool,float> br_score = backrub_rotamer(chain_id, resno, insertion_code, altloc, pg);
+         if (br_score.first)
+            return br_score.second;
+         else
+            return auto_fit_best_rotamer(resno, altloc, insertion_code, chain_id, imol_map,
+                                         clash_flag, lowest_prob, pg);
+      } else {
          return auto_fit_best_rotamer(resno, altloc, insertion_code, chain_id, imol_map,
                                       clash_flag, lowest_prob, pg);
-   } else {
-      return auto_fit_best_rotamer(resno, altloc, insertion_code, chain_id, imol_map,
-                                   clash_flag, lowest_prob, pg);
+      }
    }
+   return r;
 }
 
 

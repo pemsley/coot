@@ -5177,6 +5177,7 @@ void mutate_to_type_inner(const std::string &type) {
       g.mutate_residue_imol = imol;
       g.mutate_auto_fit_residue_imol = imol;
       coot::residue_spec_t res_spec(pp.second.second);
+      g.residue_type_chooser_auto_fit_flag = true; // do_mutation() does autofitting
       g.do_mutation(imol, res_spec, type, false); // not stub
    }
    g.graphics_grab_focus();
