@@ -11098,7 +11098,7 @@ void
 molecule_class_info_t::add_ribbon_representation_with_user_defined_residue_colours(const std::vector<coot::colour_holder> &user_defined_colours,
                                                                                    const std::string &mesh_name) {
 
-   if (true) {
+   if (false) {
       std::cout << "DEBUG:: in add_ribbon_represenaiton_with_user_defined_residue_colours....................." << std::endl;
       std::cout << "DEBUG:: in add_ribbon_represenaiton_with_user_defined_residue_colours user_defined_colours size "
                 << user_defined_colours.size() << std::endl;
