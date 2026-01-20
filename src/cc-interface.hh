@@ -3406,12 +3406,12 @@ void register_interesting_positions_list_py(PyObject *pos_list);
 //!
 //! @param imol the molecule index
 //! @param n_max_pairs the maximum number of atom pairs to return. Typically this
-//         should be 20 or 30. Use -1 (with caution!) to get all of the
-//         (poteentially thousands) of atom overlaps.
+//!        should be 20 or 30. Use -1 (with caution!) to get all of the
+//!        (poteentially thousands) of atom overlaps.
 //! @return a list of dictionaries with contact information.
-//         The list is sorted by largest overlap first.
-//         Return False on failure.
-//
+//!        The list is sorted by largest overlap first.
+//!        Return False on failure.
+//!
 PyObject *molecule_atom_overlaps_py(int imol, int n_max_pairs);
 #endif // USE_PYTHON
 #ifdef USE_GUILE
