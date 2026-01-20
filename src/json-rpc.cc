@@ -398,41 +398,56 @@ gint coot_socket_listener_idle_func(gpointer data) {
    auto handle_execute_python_result = [] (execute_python_results_container_t rrr, int id) {
 
       std::string response_str;
-      if (rrr.result)
-         if (PyBool_Check(rrr.result) || rrr.result == Py_None)
-            Py_INCREF(rrr.result);
-      const char *mess = "%s";
-      PyObject *dest = myPyString_FromString(mess);
-      PyObject *o = PyUnicode_Format(dest, rrr.result);
-      if (o) {
-         std::string s = PyBytes_AS_STRING(PyUnicode_AsUTF8String(o));
-         json j_response;
-         j_response["jsonrpc"] = "2.0";
-         j_response["id"] = std::to_string(id);
-         json j_result;
-         j_result["value"] = s;
-         if (! rrr.stdout.empty())
-            j_result["stdout"] = rrr.stdout;
-         j_response["result"] = j_result;
-         if (! rrr.error_message.empty()) {
-            json j_error;
-            j_error["code"] = -32001;
-            j_error["message"] = rrr.error_message;
-            j_response["error"] = j_error;
-         }
-         response_str = j_response.dump();
-      } 
-      if (! rrr.error_message.empty()) {
-         json j_response;
-         j_response["jsonrpc"] = "2.0";
-         j_response["id"] = std::to_string(id);
+      json j_response;
+      j_response["jsonrpc"] = "2.0";
+      j_response["id"] = std::to_string(id);
+
+      // Check if we have an error first
+      if (!rrr.error_message.empty()) {
          json j_error;
          j_error["code"] = -32001;
          j_error["message"] = rrr.error_message;
          j_response["error"] = j_error;
          response_str = j_response.dump();
-         std::cout << "DEBUG:: here in handle_string_as_json(): B is the full dump:::::::::::::::\n" << response_str << std::endl;
+         std::cout << "DEBUG:: error response: " << response_str << std::endl;
+         return response_str;
       }
+
+      // Only format result if we have one
+      if (rrr.result) {
+         if (PyBool_Check(rrr.result) || rrr.result == Py_None)
+            Py_INCREF(rrr.result);
+
+         const char *mess = "%s";
+         PyObject *dest = myPyString_FromString(mess);
+         PyObject *o = PyUnicode_Format(dest, rrr.result);
+         Py_DECREF(dest);  // Don't leak!
+
+         if (o) {
+            std::string s = PyBytes_AS_STRING(PyUnicode_AsUTF8String(o));
+            json j_result;
+            j_result["value"] = s;
+            if (!rrr.stdout.empty())
+               j_result["stdout"] = rrr.stdout;
+            j_response["result"] = j_result;
+            Py_DECREF(o);  // Don't leak!
+         } else {
+            // PyUnicode_Format failed - clear the error and return generic message
+            PyErr_Clear();
+            json j_error;
+            j_error["code"] = -32001;
+            j_error["message"] = "Failed to format Python result";
+            j_response["error"] = j_error;
+         }
+      } else {
+         // No result and no error message - shouldn't happen but handle it
+         json j_error;
+         j_error["code"] = -32001;
+         j_error["message"] = "No result returned";
+         j_response["error"] = j_error;
+      }
+
+      response_str = j_response.dump();
       return response_str;
    };
 
