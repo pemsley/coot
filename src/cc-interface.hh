@@ -1243,22 +1243,22 @@ PyObject *molecule_to_pdb_string_py(int imol);
 //! and element for all atoms in the specified residue. Useful for inspecting
 //! residue completeness and identifying missing atoms.
 //!
-//! \param imol Model molecule index
-//! \param chain_id Chain identifier (e.g., "A")
-//! \param resno Residue number
-//! \param ins_code Insertion code (use "" if none)
+//! @param imol Model molecule index
+//! @param chain_id Chain identifier (e.g., "A")
+//! @param resno Residue number
+//! @param ins_code Insertion code (use "" if none)
 //!
-//! \return PyObject* - A list of atom information, one entry per atom:
+//! @return PyObject* - A list of atom information, one entry per atom:
 //!   \code
 //!   [
-//!     [[atom_name, alt_conf], [occupancy, b_factor, element, ?], [x, y, z], atom_index],
+//!     [[atom_name, alt_conf], [occupancy, b_factor, element, seg_id], [x, y, z], atom_index],
 //!     ...
 //!   ]
 //!   \endcode
 //!   - \c atom_name (str): Atom name (e.g., " CA ", " SG ")
 //!   - \c alt_conf (str): Alternate conformation identifier ("" if none)
 //!   - \c occupancy (float): Atom occupancy (0.0-1.0)
-//!   - \c b_factor (float): Temperature factor
+//!   - \c b_factor (float or list of [b_iso, B11, B22, B33, B12, B13, B23]): Temperature factor
 //!   - \c element (str): Element symbol (e.g., " C", " N", " S")
 //!   - \c x, \c y, \c z (float): Cartesian coordinates in Ångstroms
 //!   - \c atom_index (int): Internal atom index

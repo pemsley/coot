@@ -33,7 +33,7 @@ coot.network_get_accession_code_entity(pdb_accession_code, mode)
 #   mode: int - 0 for coordinates (.pdb or .cif), 1 for structure factors (.mtz)
 # Example - fetch both model and data:
 #   coot.network_get_accession_code_entity("4wa9", 0)  # Get coordinates
-#   coot.network_get_accession_code_entity("4wa9", 1)  # Get structure factors
+#   coot.network_get_accession_code_entity("4wa9", 1)  # Get structure factors to make a map
 ```
 
 ## Checkpoints - Model State Management

@@ -122,6 +122,75 @@ n_chains = coot.n_chains(0)
 import coot_utils
 chains = coot_utils.chain_ids(0)  # Convenience wrapper
 ```
+## MMDB Atom Selection Syntax
+
+When using functions like `new_molecule_by_atom_selection()` or `superpose_with_atom_selection()`, use MMDB atom selection strings to specify which atoms to include.
+
+### Format
+```
+//chn/seq(res).ic/atm[elm]:aloc
+```
+
+### Components
+
+- **`//`** - Model specifier (typically `//` for single-model structures, or `/1/` for model 1)
+- **`chn`** - Chain ID (e.g., `A`, `B`, `X`)
+  - Multiple chains can be specified with commas: `A,B,C`
+- **`seq`** - Residue number or range:
+  - Single: `50`
+  - Range: `10-20`
+- **`res`** - Residue name in parentheses (e.g., `(HIS)`, `(ALA)`, `(GLY)`)
+- **`ic`** - Insertion code
+- **`atm`** - Atom name (e.g., `CA`, `N`, `O`)
+- **`elm`** - Element in square brackets (e.g., `[C]`, `[N]`)
+- **`aloc`** - Alternate location indicator
+
+All components are optional - you only need to specify what you want to filter.
+
+### Examples
+```python
+# Select entire chain
+"//A"                          # All atoms in chain A
+"//A,B,C"                      # All atoms in chains A, B, and C
+
+# Select residue range
+"//A/12-130"                   # Residues 12-130 in chain A
+"//A/12-130/CA"                # CA atoms from residues 12-130 in chain A
+
+# Select specific residue type
+"//B/10-20(GLY)"               # GLY residues 10-20 in chain B
+"//A/*(HIS)"                   # All HIS residues in chain A
+
+# Select specific atom
+"//A/50/CA"                    # CA atom of residue 50 in chain A
+"//A/50(HIS)/CA"               # CA atom of HIS 50 in chain A
+
+# Select multiple chains in one selection
+"//X,Y,1,2"                    # All atoms in chains X, Y, 1, and 2
+```
+
+### Usage Examples
+```python
+import coot
+
+# Create a new molecule with chains A and B
+imol_ab = coot.new_molecule_by_atom_selection(0, "//A,B")
+
+# Create a new molecule with CA atoms from residues 10-50 in chain A
+imol_ca = coot.new_molecule_by_atom_selection(0, "//A/10-50/CA")
+
+# Create molecule with transcription factor (chains X, Y) and DNA (chains 1, 2)
+imol_complex = coot.new_molecule_by_atom_selection(0, "//X,Y,1,2")
+
+# Superpose using atom selection
+coot.superpose_with_atom_selection(
+    imol1=0,
+    imol2=1,
+    mmdb_atom_sel_str_1="//A/10-100",
+    mmdb_atom_sel_str_2="//A/10-100",
+    move_imol2_copy_flag=0
+)
+```
 
 ## Code Execution Patterns
 
