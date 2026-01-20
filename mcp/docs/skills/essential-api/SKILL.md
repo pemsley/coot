@@ -4,7 +4,8 @@ description: "API documentation to be loaded at startup"
 ---
 # Coot Essential API Functions
 
-This document contains the core Coot API functions needed for typical validation and model-building workflows. Reading these function signatures at session start eliminates the need for searching.
+This document contains the core Coot API functions needed for typical validation and model-building workflows.
+Reading these function signatures at session start eliminates the need for searching.
 
 ## Setup & Configuration
 
@@ -33,6 +34,45 @@ coot.network_get_accession_code_entity(pdb_accession_code, mode)
 # Example - fetch both model and data:
 #   coot.network_get_accession_code_entity("4wa9", 0)  # Get coordinates
 #   coot.network_get_accession_code_entity("4wa9", 1)  # Get structure factors
+```
+
+## Checkpoints - Model State Management
+
+When experimenting with the various model building tools available to
+address a particular model-building problem it is useful to create
+backup checkpoints. This allows you to return to a particular state,
+so that you can try alternative model-building parameters or
+functions, or combinations of functions.
+
+```python
+coot.make_backup_checkpoint(imol, description_string) -> int
+# Creates a named checkpoint of the molecule's current state
+# Returns: checkpoint index for later restoration
+#
+# Parameters:
+#   imol: Model molecule index
+#   description_string: Human-readable description (e.g., "before rotamer fix")
+#
+# CRITICAL: Always checkpoint before experimental or risky operations
+#
+# Example:
+checkpoint_idx = coot.make_backup_checkpoint(0, "before rotamer fix")
+coot.auto_fit_best_rotamer(0, "A", 42, "", "", 1, 1, 0.01)
+# ... check if improvement worked ...
+if not improved:
+    coot.restore_to_backup_checkpoint(0, checkpoint_idx)
+
+coot.restore_to_backup_checkpoint(imol, checkpoint_index)
+# Restores molecule to a previously saved checkpoint state
+# Parameters:
+#   imol: Model molecule index  
+#   checkpoint_index: Index returned by make_backup_checkpoint()
+
+coot.compare_current_model_to_backup(imol, checkpoint_index) -> dict
+# Compares current model state to a checkpoint to see what changed
+# Parameters:
+#   imol: Model molecule index
+#   checkpoint_index: Index of checkpoint to compare against
 ```
 
 ## Chain and Residue Information
@@ -165,12 +205,7 @@ coot.find_blobs_py(imol_model, imol_map, sigma_cutoff) -> list
 coot.refine_residues_py(imol, residue_specs) -> list
 # Real-space refinement of specified residues
 # residue_specs = [["A", 42, ""], ["A", 43, ""], ...]  # [chain, resno, ins_code]
-# Returns refinement status
-
-coot.accept_moving_atoms_py() -> list
-# Accept the current refinement/regularization
 # Returns: ['', status, [[metric_name, description, value], ...]]
-# Call this after refine_residues_py()
 ```
 
 ## Model Building - Rotamers
@@ -223,12 +258,10 @@ severe = [o for o in overlaps if o['overlap-volume'] > 5.0]
 # 5. Fix bad rotamers
 coot.auto_fit_best_rotamer(0, "A", 89, "", "", 1, 1, 0.01)
 coot.refine_residues_py(0, [["A", 89, ""]])
-coot.accept_moving_atoms_py()
 
 # 6. Fix backbone issues
 coot.pepflip(0, "A", 41, "", "")
 coot.refine_residues_py(0, [["A", 40, ""], ["A", 41, ""], ["A", 42, ""]])
-coot.accept_moving_atoms_py()
 
 # 7. Re-validate
 overlaps_after = coot.molecule_atom_overlaps_py(0, 10)
@@ -237,7 +270,6 @@ overlaps_after = coot.molecule_atom_overlaps_py(0, 10)
 ## Important Notes
 
 1. **Always call `set_refinement_immediate_replacement(1)` first** - makes refinement synchronous
-2. **Always call `accept_moving_atoms_py()` after refinement** - commits the changes
 3. **Use `coot.*_py()` functions directly** - faster than `coot_utils` wrappers
 4. **Import coot_utils only when needed** - for convenience functions like `chain_ids()`
 5. **The `coot` module is auto-imported** - no import statement needed

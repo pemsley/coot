@@ -22,8 +22,7 @@ checkpoint_idx = coot.make_backup_checkpoint(0, "before adding OXT")
 
 # Try the operation
 coot.add_OXT_to_residue(0, "A", 93, "")
-coot.refine_residues_py(0, [["A", 93, ""]])
-coot.accept_moving_atoms_py()
+result = coot.refine_residues_py(0, [["A", 93, ""]])
 
 # Check if it worked - if not, restore
 if result_is_bad:
@@ -42,16 +41,14 @@ checkpoint_before = coot.make_backup_checkpoint(0, "original state")
 
 # Try approach 1
 coot.auto_fit_best_rotamer(0, "A", 42, "", "", 1, 1, 0.01)
-coot.refine_residues_py(0, [["A", 41, ""], ["A", 42, ""], ["A", 43, ""]])
-coot.accept_moving_atoms_py()
+results = coot.refine_residues_py(0, [["A", 41, ""], ["A", 42, ""], ["A", 43, ""]])
 score_approach1 = check_correlation(0, "A", 42)
 checkpoint_approach1 = coot.make_backup_checkpoint(0, "after approach 1")
 
 # Restore and try approach 2
 coot.restore_to_backup_checkpoint(0, checkpoint_before)
 coot.pepflip(0, "A", 42, "", "")
-coot.refine_residues_py(0, [["A", 41, ""], ["A", 42, ""], ["A", 43, ""]])
-coot.accept_moving_atoms_py()
+results = coot.refine_residues_py(0, [["A", 41, ""], ["A", 42, ""], ["A", 43, ""]])
 score_approach2 = check_correlation(0, "A", 42)
 
 # Keep the better result
@@ -64,8 +61,7 @@ if score_approach1 > score_approach2:
 - Without this, subsequent refinements may fail silently
 - The refinement creates intermediate atoms that must be accepted to update the model
 ```python
-coot.refine_residues_py(0, [["A", 41, ""]])
-coot.accept_moving_atoms_py()  # Essential!
+results = coot.refine_residues_py(0, [["A", 41, ""]])
 ```
 
 ### 3. Extend Selection Around Problem Residues

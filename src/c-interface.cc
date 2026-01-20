@@ -6803,7 +6803,7 @@ execute_python_results_container_t execute_python_code_with_result_internal(cons
    PyObject *exec_result = PyRun_String(code.c_str(), Py_eval_input, global_dict, global_dict);
    rc.result = exec_result;
    if (exec_result) {
-      // get captured outpuT
+      // get captured output
       PyObject* stdout_obj = PyDict_GetItemString(global_dict, "__stdout_capture__");
       if (stdout_obj) {
          PyObject* captured = PyObject_CallMethod(stdout_obj, "getvalue", NULL);
@@ -6820,52 +6820,46 @@ execute_python_results_container_t execute_python_code_with_result_internal(cons
       PyRun_SimpleString("sys.stdout = __original_stdout__");
 
    } else {
-
       std::cerr << "ERROR: execute_python_code_with_result_internal(): Python execution failed" << std::endl;
-
       // Import traceback module and format the exception
       PyObject *ptype, *pvalue, *ptraceback;
-      // PyErr_Fetch() consumes the error.
-      PyErr_Fetch(&ptype, &pvalue, &ptraceback); // 2026-01-11-PE use PyErr_GetRaisedException() in future
-      PyObject* traceback_module = PyImport_ImportModule("traceback");
-      if (traceback_module && ptraceback) {
-         PyObject* format_exception = PyObject_GetAttrString(traceback_module, "format_exception");
-         if (format_exception) {
-             PyObject* formatted = PyObject_CallFunctionObjArgs(format_exception, ptype, pvalue, ptraceback, NULL);
-             if (formatted && PyList_Check(formatted)) {
-                 // Join all traceback lines into single string
-                 std::string full_traceback;
-                 Py_ssize_t size = PyList_Size(formatted);
-                 for (Py_ssize_t i = 0; i < size; i++) {
-                     PyObject* line = PyList_GetItem(formatted, i);
-                     const char* line_str = PyUnicode_AsUTF8(line);
-                     if (line_str) {
-                         full_traceback += line_str;
-                     }
-                 }
-                 rc.error_message = full_traceback;
-             }
-             Py_XDECREF(formatted);
-             Py_DECREF(format_exception);
-         }
-         Py_DECREF(traceback_module);
+      PyErr_Fetch(&ptype, &pvalue, &ptraceback);
 
-      } else {
-         // Fallback to simple error message if traceback unavailable
-         if (pvalue) {
-            PyObject* str_obj = PyObject_Str(pvalue);
-            if (str_obj) {
-               const char* str = PyUnicode_AsUTF8(str_obj);
-               if (str) {
-                   rc.error_message = str;
-               }
-               Py_DECREF(str_obj);
+      std::cerr << "DEBUG: ptype=" << (ptype ? "NOT NULL" : "NULL") << std::endl;
+      std::cerr << "DEBUG: pvalue=" << (pvalue ? "NOT NULL" : "NULL") << std::endl;
+      std::cerr << "DEBUG: ptraceback=" << (ptraceback ? "NOT NULL" : "NULL") << std::endl;
+
+      // Always use fallback path - simpler and more robust
+      if (pvalue) {
+         std::cerr << "DEBUG: Converting pvalue to string" << std::endl;
+         PyObject* str_obj = PyObject_Str(pvalue);
+         if (str_obj) {
+            const char* str = PyUnicode_AsUTF8(str_obj);
+            if (str) {
+               rc.error_message = std::string(str);
+               std::cerr << "DEBUG: rc.error_message set to: " << rc.error_message << std::endl;
+            } else {
+               rc.error_message = "Python error occurred but could not retrieve error message";
+               std::cerr << "DEBUG: PyUnicode_AsUTF8 failed" << std::endl;
             }
+            Py_DECREF(str_obj);
+         } else {
+            rc.error_message = "Python error occurred but PyObject_Str failed";
+            std::cerr << "DEBUG: PyObject_Str failed" << std::endl;
          }
-         Py_XDECREF(ptype);
-         Py_XDECREF(pvalue);
-         Py_XDECREF(ptraceback);
+      } else {
+         rc.error_message = "Python error occurred but no exception value available";
+         std::cerr << "DEBUG: No pvalue" << std::endl;
       }
+
+      // ALWAYS clean up the error objects
+      Py_XDECREF(ptype);
+      Py_XDECREF(pvalue);
+      Py_XDECREF(ptraceback);
+
+      // Restore stdout even on error path
+      PyRun_SimpleString("sys.stdout = __original_stdout__");
+      PyErr_Clear();
    }
    return rc;
 }

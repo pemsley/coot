@@ -1,33 +1,36 @@
 --- Items ---
 
-gphl items:
-  molprobity output in coot
-  documentation for gemmi - i.e. read the functions.
+o check Validation -> Outliers vs Overlaps, Peptides, etc.
+  Outliers can go now?
 
-o read molprobity_probe.txt asa a string in libcootapi
+o R and X are not in the keybindings?
+* Done - added R - seems slow.
+
+o coot.refine_residues_py() doesn't wait for completion of
+  the refinement in immediate-replacement mode.
+
+o ctrl click refine drag atom in molten zone
+
+o auto-fit rotamer on newly added residue (add-terminal-residue)
+  This is tricky becausee both simple and auto-fit use mutate_to_type_inner()
+  because they both use mutate_to_type_HIS() etc (I think).
+  Mutate and auto-fit is not doing auto-fitting.
+
+o non-solid aniostropic ADP representation - Claus.
+  Tricky.
+
+o read molprobity_probe.txt as a string in libcootapi
   get_probe_dots_unformatted_mesh()
   c.f handle_read_draw_probe_dots_unformatted()
+
+o Add the handling of "missing atoms" in skills. Validation first.
 
 o Lucrezia to write molprobity script producing JSON for
   input to Moorhen and Coot.
 
-o New std::fabsf() usage - change to fabsf()
-* Done.
-
 o Oliver: torsion validation by dictionary?
   Note ring info from mogul is interesting also
-
-o Make Acedrg extract torsions
-
-o Clemens: already basic functionality in gemmi for fortran.
-  Good useful api documentation for GEMMI. In C++ is fine for
-  the moment.
-
-o non-solid adp representation - Claus
-
-o document the functions in gemmi - what does the function?
-
-o "missing atoms" in skills.
+  Make Acedrg extract torsions.
 
 o make ribbon diagrams be generic display objects, so they can
   be deleted or undisplayed.
@@ -43,12 +46,8 @@ o Erington 2024
 o shader: for clipped bonds and atoms (c.f. normal) try skip
   rather than black(ish)
 
-o add that the carbonyl oxgen is rotated in the documenation for
-  flip peptide.
-
-o ctrl click refine drag atom in molten zone
-
 o Fit loop dialog too wide
+* Checked, I don't see where the width is set.
 
 o Rama plot doesn't label residue
 
@@ -64,6 +63,18 @@ o give backrub_rotamer_intermediate_atoms() a key-binding
 o Add Coot api access to header and secondary structure info
 
 o what is the equivalent to "--code" in python?
+
+o New std::fabsf() usage - change to fabsf()
+* Done.
+
+o Clemens: already basic functionality in gemmi for fortran.
+  Good useful api documentation for GEMMI. In C++ is fine for
+  the moment.
+* Done.
+
+o add that the carbonyl oxgen is rotated in the documenation for
+  flip peptide.
+* Done.
 
 o Rename the binaries in CMake:
    findligand
