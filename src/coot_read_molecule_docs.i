@@ -106,6 +106,7 @@ Parameters
 ----------
 file_as_string : str
     a string which is the contents of a file
+molecule_name : str
 ";
 
 %feature("docstring") handle_read_draw_molecule "

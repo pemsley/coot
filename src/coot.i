@@ -106,6 +106,8 @@ namespace std {
 %include "coot_rsr_functions_docs.i"
 %include "coot_network_functions_docs.i"
 %include "coot_read_molecule_docs.i"
+%include "coot_cc_interface_user_defined_atom_colours.i"
+%include "coot_cc_interface_molecular_representation.i"
 
 #include "globjects.h"  //includes gtk/gtk.h
 #include "coot-utils/coot-coord-utils.hh"

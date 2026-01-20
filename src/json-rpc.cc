@@ -462,14 +462,15 @@ gint coot_socket_listener_idle_func(gpointer data) {
 
       int id = -1; // unset/unfound
       if (! buf_str.empty()) {
-         json req = json::parse(buf_str);
-         json::const_iterator j_id = req.find("id");
-         if (j_id != req.end()) {
-            id = j_id.value();
-         } else {
-            std::cout << "handle_string_as_json(): id not found - sad" << std::endl;
-         }
          try {
+
+             json req = json::parse(buf_str);
+             json::const_iterator j_id = req.find("id");
+             if (j_id != req.end()) {
+                id = j_id.value();
+             } else {
+               std::cout << "handle_string_as_json(): id not found - sad" << std::endl;
+            }
 
             if (req["method"] == "python.exec") {
                std::string code = req["params"]["code"];
@@ -546,6 +547,10 @@ gint coot_socket_listener_idle_func(gpointer data) {
          }
          catch (const std::exception &e) {
             std::cout << "WARNING:: coot_socket_listener_idle_func(): catch handle_string_as_json fail "
+                      << buf_str << std::endl;
+         }
+         catch (...) {
+            std::cout << "WARNING:: coot_socket_listener_idle_func(): catch-all catch handle_string_as_json fail "
                       << buf_str << std::endl;
          }
       }
