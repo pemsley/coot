@@ -138,7 +138,13 @@ Use coot_ping() to verify Coot is responsive after:
   - You receive an error suggesting Coot might not be responding
 Do NOT call coot_ping() before every command - it's only needed to check if Coot has crashed or been restarted, not for routine operation.
 
-Use search_coot_functions(pattern) to find specific ones (where pattern is a (potentially) multi-words pattern (using space-separated fields). 
+Use search_coot_functions(pattern) to find specific ones (where pattern is a (potentially) multi-words pattern - using space-separated fields for logical "and". 
+
+There is no regular expressions available in search at the moment.
+
+Do not search for "chain" - it returns too many results.
+
+Use specific feature terms (e.g., "ribbon", "rotamer", "refine") rather than generic terms (e.g., "chain", "residue", "atom")
 
 Use list_available_tools_in_block(block_index) where block_index varies from 0 to 4 (inclusive) to get each of the api documentation blocks.
 
