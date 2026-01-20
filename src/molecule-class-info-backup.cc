@@ -79,7 +79,7 @@ std::pair<bool, std::vector<coot::residue_spec_t> > molecule_class_info_t::compa
                            mmdb::Residue *residue_2_p = chain_2_p->GetResidue(jres);
                            if (residue_2_p) {
                               int res_no_2 = residue_2_p->GetSeqNum();
-                              const char *ins_code_2 = residue_1_p->GetInsCode();
+                              const char *ins_code_2 = residue_2_p->GetInsCode();
                               if (res_no_1 == res_no_2) {
                                  if (strcmp(ins_code_1, ins_code_2) == 0) {
                                     bool diff_found = false;

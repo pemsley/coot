@@ -1,7 +1,7 @@
-/* src/gl-matrix-eigensystem.cc
+/* coot-utils/gl-matrix-eigensystem.cc
  *
  * Copyright 2024,  by Global Phasing Ltd.
- * Author: ClAuS Flensburg, Clemens Vonrhein, Gerard Brigogne
+ * Author: ClAuS Flensburg, Clemens Vonrhein, Gerard Bricogne
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
