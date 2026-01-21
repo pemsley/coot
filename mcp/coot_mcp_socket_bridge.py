@@ -12,7 +12,6 @@ COOT_PORT = 9090
 
 # Initialize MCP Server
 mcp    = FastMCP("Coot Socket Bridge")
-server = FastMCP("Knowing about stuff")
 
 _request_id = itertools.count(0)
 
@@ -81,7 +80,7 @@ def _recv_exact(sock, n):
 
 # --- MCP TOOLS ---
 
-@server.resource("coot://skill")
+@mcp.resource("coot://skill")
 async def read_resource():
     dirname = Path(os.path.dirname(__file__))
     skill_path = dirname / "docs" / "skills" / "best-practices" / "SKILL.md"
@@ -129,6 +128,20 @@ def run_python_multiline(code: str) -> str:
 
     return "No result returned."
 
+@mcp.tool()
+def get_function_descriptions(function_names: list[str]) -> str:
+    """
+    Get documentation for a list of Coot function names.
+    Typicallly used to get the essential/starup API.
+
+    Args:
+        function_names: List of function names to get docs for
+
+    Returns: Formatted documentation for all requested functions
+    """
+    response = send_coot_rpc("mcp.get_function_descriptions", {"function_names": function_names})
+    return str(response.get("result", []))
+
 def get_start_text():
     return '''The Coot API has over 2000 functions.
 
@@ -138,13 +151,15 @@ Use coot_ping() to verify Coot is responsive after:
   - You receive an error suggesting Coot might not be responding
 Do NOT call coot_ping() before every command - it's only needed to check if Coot has crashed or been restarted, not for routine operation.
 
-Use search_coot_functions(pattern) to find specific ones (where pattern is a (potentially) multi-words pattern - using space-separated fields for logical "and". 
+Read the coot-essential-api Skills, if you can access it. Load all the function documentation for the functions mentioned there.
+
+Use search_coot_functions(pattern) to find specific ones (where pattern is a (potentially) multi-words pattern - using space-separated fields for logical "and". Use a "|" separator between words for logical "or".
 
 There is no regular expressions available in search at the moment.
 
 Do not search for "chain" - it returns too many results.
 
-Use specific feature terms (e.g., "ribbon", "rotamer", "refine") rather than generic terms (e.g., "chain", "residue", "atom")
+Use specific feature terms (e.g., "ribbon", "rotamer", "refine") rather than generic terms (e.g., "chain", "residue", "atom").
 
 Use list_available_tools_in_block(block_index) where block_index varies from 0 to 4 (inclusive) to get each of the api documentation blocks.
 
@@ -201,15 +216,6 @@ def search_coot_functions(pattern: str) -> str:
     response = send_coot_rpc("mcp.search", {"pattern": pattern})
     return str(response.get("result", []))
 
-@mcp.tool()
-def list_coot_categories() -> str:
-    """Returns: ['load', 'read', 'display', 'refinement', 'validation', 'ligand', 'util']"""
-    return  str(['load', 'read', 'display', 'refinement', 'validation', 'ligand', 'util'])
-
-@mcp.tool()
-def get_functions_in_category(category: str) -> str:
-    """Returns functions in that category (maybe 50-200 per category)"""
-    return search_coot_functions(category)
 
 @mcp.tool()
 def coot_ping() -> str:
