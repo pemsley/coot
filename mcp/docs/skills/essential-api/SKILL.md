@@ -65,7 +65,7 @@ if not improved:
 coot.restore_to_backup_checkpoint(imol, checkpoint_index)
 # Restores molecule to a previously saved checkpoint state
 # Parameters:
-#   imol: Model molecule index  
+#   imol: Model molecule index
 #   checkpoint_index: Index returned by make_backup_checkpoint()
 
 coot.compare_current_model_to_backup(imol, checkpoint_index) -> dict
@@ -140,7 +140,7 @@ expected_atoms = {
 }
 
 # Find missing atoms
-res_type = coot.residue_name(0, "A", 72, "")
+res_type = coot.residue_name_py(0, "A", 72, "")
 if res_type in expected_atoms:
     missing = [a for a in expected_atoms[res_type] if a not in atom_names]
     if missing:
