@@ -2348,14 +2348,14 @@ pos_list : object
 %feature("docstring") molecule_atom_overlaps_py "
 get the atom overlaps for the molecule
 
-  imol  the molecule index   n_max_pairs  the maximum number of atom pairs to return. Typically this a list of dictionaries with contact information.
+  imol  the molecule index   n_max_pairs  the maximum number of atom pairs to return. Typically this should be 20 or 30. Use -1 (with caution!) to get all of the (poteentially thousands) of atom overlaps. a list of dictionaries with contact information. The list is sorted by largest overlap first. Return False on failure.
 
 Parameters
 ----------
 imol : int
     the molecule index
 n_max_pairs : int
-    the maximum number of atom pairs to return. Typically this
+    the maximum number of atom pairs to return. Typically this should be 20 or 30. Use -1 (with caution!) to get all of the (poteentially thousands) of atom overlaps.
 ";
 
 %feature("docstring") molecule_atom_overlaps_scm "
