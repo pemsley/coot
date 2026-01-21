@@ -101,6 +101,7 @@ coot.closest_atom_py(imol) -> list
 
 coot.active_atom_spec_py() -> list
 # Returns the currently "active" atom specification
+# (found, (imol, atom_spec))
 ```
 
 ## Residue Inspection
@@ -194,7 +195,7 @@ coot.molecule_atom_overlaps_py(imol, n_pairs) -> list
 coot.find_blobs_py(imol_model, imol_map, sigma_cutoff) -> list
 # Finds unmodeled density blobs
 # Returns: [[position, score], ...]
-# position has .x(), .y(), .z() methods
+# position is a list or 3 floats, (for x, y, z)
 # Use sigma_cutoff=3.0 for difference maps, 1.0 for 2mFo-DFc
 # Higher score = larger/stronger blob
 ```

@@ -40,7 +40,7 @@ for chain in ['A', 'B']:
     for resno in range(1, 150):
         atoms = coot.residue_info_py(0, chain, resno, "")
         if atoms:
-            res_name = coot.residue_name(0, chain, resno, "")
+            res_name = coot.residue_name_py(0, chain, resno, "")
             for atom in atoms:
                 x, y, z = atom[2]
                 d = dist(blob_x, blob_y, blob_z, x, y, z)

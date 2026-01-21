@@ -8,6 +8,31 @@ description: "Best Practices for using Coot MCP"
 
 This skill provides best practices for interacting with Coot's Python API through the MCP server. Following these guidelines ensures optimal performance, correct usage, and reliable results.
 
+## Startup Procedure
+
+**CRITICAL: On every "Coot Mode" start, before doing anything else:**
+
+1. Read the `/mnt/skills/user/coot-essential-api/SKILL.md` file
+2. Extract all function names mentioned in that file
+3. Call `get_function_descriptions()` with the complete list of function names
+4. This loads the essential API documentation into context, providing immediate access to the ~25 core functions needed for typical validation and model-building workflows
+
+This startup procedure eliminates the need to search for basic functions during the session and ensures you have the foundational API ready to use.
+
+Example:
+```python
+# After reading coot-essential-api/SKILL.md, call:
+Coot:get_function_descriptions([
+    "set_refinement_immediate_replacement",
+    "is_valid_model_molecule",
+    "is_valid_map_molecule",
+    # ... all other functions from the essential API
+])
+```
+
+Only after completing this startup should you proceed with the user's task.
+
+
 ## Critical Rule: Prefer C++ Functions Over Python Wrappers
 
 **ALWAYS use `coot.*_py()` functions directly instead of `coot_utils.*` equivalents when they are simple passthroughs.**
