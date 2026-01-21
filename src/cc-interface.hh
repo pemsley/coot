@@ -1283,7 +1283,7 @@ PyObject *molecule_to_pdb_string_py(int imol);
 //! \endcode
 PyObject *residue_info_py(int imol, const char* chain_id, int resno, const char *ins_code);
 
-//! \brief resturn the residue name
+//! \brief get the residue name
 //!
 //! @param imol Model molecule index
 //! @param chain_id Chain identifier (e.g., "A")
@@ -1647,9 +1647,9 @@ SCM find_blobs_scm(int imol_model, int imol_map, float cut_off_density_level);
 //! 
 //! @param cut_off_sigma  The sigma threshold for blob detection (in units of map sigma).
 //!                       Typical values:
-//!                       - 3.0σ: Standard threshold for significant features in difference maps
+//!                       - 3.5σ: Standard threshold for significant features in difference maps
 //!                       - 2.5σ: More sensitive, finds weaker features (more false positives)
-//!                       - 4.0σ: Conservative, only very strong features (fewer false positives)
+//!                       - 4.5σ: Conservative, only strong features (fewer false positives)
 //!                       - 1.0σ: For regular maps (2mFo-DFc), lower threshold appropriate
 //! 
 //! @return PyObject* - Returns a Python list of blobs, or Py_False on error.
