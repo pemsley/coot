@@ -737,7 +737,7 @@ graphics_info_t::render_scene_for_eye_internal(stereo_eye_t eye) {
    // make this a member data
    // bool draw_background_image = true;
 
-   auto render_scene_basic = [] () {
+   auto render_scene_basic = [] (stereo_eye_t eye) {
 
       // std::cout << "--- render_scene_basic() ---------------------------------------- " << std::endl;
       // auto tp_0 = std::chrono::high_resolution_clock::now();
@@ -758,7 +758,7 @@ graphics_info_t::render_scene_for_eye_internal(stereo_eye_t eye) {
 #ifdef __APPLE__
       sf = 2;
 #endif
-      // we always want this viewport to be the size of the widget (in the case of APPLE, theree
+      // we always want this viewport to be the size of the widget (in the case of APPLE, there
       // is the double resolution issue to handle)
 
       if (scale_up_graphics != 1) {
@@ -780,7 +780,17 @@ graphics_info_t::render_scene_for_eye_internal(stereo_eye_t eye) {
       if (err)
          std::cout << "GL ERROR:: render_scene_basic() B " << err << std::endl;
 
-      glViewport(0, 0, width * sf, height * sf);
+      int left = 0;
+      int bot = 0;
+      int right = width * sf;
+      int top = height *sf;
+      if (eye == stereo_eye_t::LEFT_EYE) {
+         right /= 2;
+      }
+      if (eye == stereo_eye_t::RIGHT_EYE) {
+         left = right/2;
+      }
+      glViewport(left, bot, right, top);
       err = glGetError();
       if (err)
          std::cout << "GL ERROR:: render_scene_basic() C " << err << std::endl;
@@ -790,7 +800,8 @@ graphics_info_t::render_scene_for_eye_internal(stereo_eye_t eye) {
       if (err)
          std::cout << "GL ERROR:: render_scene_basic() D " << err << std::endl;
 
-      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+      if (eye != stereo_eye_t::RIGHT_EYE) // drawn second
+         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
       err = glGetError();
       if (err)
          std::cout << "GL ERROR:: render_scene_basic() E " << err << std::endl;
@@ -864,7 +875,7 @@ graphics_info_t::render_scene_for_eye_internal(stereo_eye_t eye) {
       if (err)
          std::cout << "GL ERROR:: render_scene() basic path " << err << std::endl;
 
-      render_scene_basic();
+      render_scene_basic(eye);
    } else {
       if (shader_do_depth_of_field_blur_flag || shader_do_outline_flag) {
          render_scene_with_depth_blur(shader_for_tmeshes_p, // or outline
