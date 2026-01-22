@@ -37,6 +37,7 @@ void set_user_defined_atom_colour_by_selection_py(int imol, PyObject *CID_colour
 
    // 20220707-PE You are passing a list of tuples, right?
 
+   unsigned int n_new_colours = 0;
    if (is_valid_model_molecule(imol)) {
       if (PyList_Check(CID_colour_index_tuple_list_py)) {
 	 unsigned int l = PyObject_Length(CID_colour_index_tuple_list_py);
@@ -58,15 +59,17 @@ void set_user_defined_atom_colour_by_selection_py(int imol, PyObject *CID_colour
                               cis.push_back(p);
                            }
                         }
-		     }
-		  }
-	       }
-	    }
+                     }
+                  }
+               }
+            }
             // this sets apply_colour_to_non_carbon_atoms_also to true
-	    graphics_info_t::molecules[imol].set_user_defined_colour_indices_by_selections(cis);
-	 }
+            graphics_info_t::molecules[imol].set_user_defined_colour_indices_by_selections(cis);
+            n_new_colours = cis.size();
+         }
       }
    }
+   std::cout << "DEBUG:: set_user_defined_atom_colour_by_selection_py() n_new_colours: " << n_new_colours << std::endl;
 }
 
 #include "c-interface-python.hh"
