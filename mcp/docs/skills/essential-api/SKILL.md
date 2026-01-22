@@ -1,6 +1,6 @@
 ---
 name: coot-essential-api
-description: "API documentation to be loaded at startup"
+description: "API documentation to be loaded at startup - when starting a Coot session, immediately call get_function_descriptions() with the functions listed in this skill.""
 ---
 # Coot Essential API Functions
 
@@ -100,8 +100,13 @@ coot.closest_atom_py(imol) -> list
 # Same as above but for specific molecule
 
 coot.active_atom_spec_py() -> list
-# Returns the currently "active" atom specification
+# Returns the currently "active" atom specification (or False if none found)
 # (found, (imol, atom_spec))
+#   found: Boolean indicating if an atom exists close to the center
+#   molecule_number: Integer molecule ID
+#   atom_spec: List [chain_id, resno, ins_code, atom_name, alt_conf]
+
+
 ```
 
 ## Residue Inspection

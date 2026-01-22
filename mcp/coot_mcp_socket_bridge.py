@@ -153,6 +153,19 @@ Do NOT call coot_ping() before every command - it's only needed to check if Coot
 
 Read the coot-essential-api Skills, if you can access it. Load all the function documentation for the functions mentioned there.
 
+On starting a Coot session, read ALL these user skills if you have access:
+    - coot-essential-api
+    - coot-best-practices
+    - coot-refinement
+    - coot-unmodelled-blobs
+    - coot-correlations
+    - coot-model-building
+    - coot-validation
+    - coot-NCS-reference-guidance
+    - coot-rdkit
+    - pdbe-api
+Don't pick and choose - read all of them.
+
 Use search_coot_functions(pattern) to find specific ones (where pattern is a (potentially) multi-words pattern - using space-separated fields for logical "and". Use a "|" separator between words for logical "or".
 
 There is no regular expressions available in search at the moment.
@@ -200,7 +213,7 @@ def list_available_tools_in_block(block_index: int) -> str:
 
 @mcp.tool()
 def coot_info() -> str:
-    """Returns: usage string'"""
+    """Session start information - vital to run on initializing or starting a Coot session. Contains essential usage instructions"""
     return get_start_text()
 
 @mcp.tool()
@@ -222,6 +235,8 @@ def coot_ping() -> str:
     """
     Quick health check - verifies Coot is responsive by having it compute 2+2.
     Returns '4' if Coot is alive and responding correctly.
+    This function merely checks that Coot is responsive - when starting a 
+    coot session the function coot_info() should be invoked (also)
     """
     response = send_coot_rpc("python.exec", {"code": "2 + 2"})
 
