@@ -1,5 +1,13 @@
 --- Items ---
 
+o add a Coot API function to get header info
+
+o Martin Maly: If I could make a wish, yes, it would be nice
+  to have the function get_rotamer_name_py()  in CHAPI please.
+  And also n_rotamers, set_residue_to_rotamer_number or
+  set_residue_to_rotamer_name could be useful in my efforts
+  with model shaking before bootstrap.
+
 o check Validation -> Outliers vs Overlaps, Peptides, etc.
   Outliers can go now?
 
@@ -8,6 +16,7 @@ o R and X are not in the keybindings?
 
 o coot.refine_residues_py() doesn't wait for completion of
   the refinement in immediate-replacement mode.
+* Fixed.
 
 o ctrl click refine drag atom in molten zone
 
@@ -32,27 +41,92 @@ o Oliver: torsion validation by dictionary?
   Note ring info from mogul is interesting also
   Make Acedrg extract torsions.
 
+o is there python access to headers in the Coot API?
+
+o "Summary of Structure" for accession code using Solr?
+
+o "press U to revert centre" label when Fetching a model
+* Done
+
+o ctrl click-drag to refine drag single atom in molten zone
+  Check on PC, where rotation is on right mouse.
+
+o Fit loop dialog too wide
+
+o eigen-flip should flip only "active" alt conf
+
+o have another look at drag and drop from the Finder
+* Maybe macOS bug - see GTK drag and drop feedback issue chat
+
+o look up what does RDKit do with carboranes when minimizing?
+* Done. Seems tricky but there are people doing stuff with carboranes.
+
+o for api, atom-spec(chain_id, res_no, inscode, atom-name, alt-conf) to cid for interfacing to servalcat
+
+o update your moorhen - look at sampling factor bug.
+
+o Make int read_coordinates_from_url(url) i.e. bypass pythonic strings
+  (especially gzipped strings). Low priority.
+
+o 4wa9 coot.get_environment_distances_representation_py(0, ["A", 9000, ""])
+  returns no result.
+
+o add a coot_ping() tool to the bridge that checks if it can communicate
+  with Coot.
+* Done.
+
+o Molecule 4 is "Copy_of_pdb2hyy.ent Chain A" - but I didn't intentionally create it. Looking back at my code, when I called:
+   coot.superpose_with_chain_selection(0, 3, "A", "A", 1, 1, 1)
+   superposing on 4wa9.
+   The molecule name should end in "with superposed Chain A"
+
+o add a coot api function that returns a list of
+  residue specs and names: named_residue_specs() perhaps
+  or all_residue_specs_py() c.f. get_residues_in_chain
+
+o In the API search, use "|" for logical or. Document it in the bridge.
+
 o make ribbon diagrams be generic display objects, so they can
   be deleted or undisplayed.
+
+o what do I have for placing dummy atoms in Coot and chapi?
+
+o for LLM connection, I will need to be able to run servalcat
+  synchronously.
 
 o Add to moorhen atom selection:
    No sidechain/no mainchain
    for making figures where residues interact with protein
 
-o Erington 2024
+o Errington 2024
+
    https://link.springer.com/article/10.1186/s13321-025-01011-6
    s13321-025-01011-6.pdf
 
 o shader: for clipped bonds and atoms (c.f. normal) try skip
   rather than black(ish)
 
+o add that the carbonyl oxgen is rotated in the documenation for
+  flip peptide.
+
+o ctrl click refine drag atom in molten zone
+
+>>>>>>> Stashed changes
 o Fit loop dialog too wide
 * Checked, I don't see where the width is set.
 
 o Rama plot doesn't label residue
+=======
+* Done.
+
+o Rama plot doesn't label residue 
+
+o add a setting which will mean that quick-save and end session save
+  files are written to the local directory. Derek Logan
+>>>>>>> Stashed changes
 
 o what should coot say on loading a key-binding?
-What happens if there is a python error on reading
+  What happens if there is a python error on reading
 
 o what does the Coot interface to running servalcat look like?
   Needed for Agentic Coot.
