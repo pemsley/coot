@@ -854,6 +854,21 @@ Mesh::setup_buffers() {
    } else {
       glDeleteBuffers(1, &buffer_id);
       glGenBuffers(1, &buffer_id);
+
+
+      if (false)
+         std::cout << "DEBUG setup_buffers: buffer_id=" << buffer_id << " about to bind" << std::endl;
+
+      // Check if we have a valid GL context
+      GLenum err = glGetError();
+      if (err)
+         std::cout << "ERROR:: setup_buffers(): GL error before bind: " << err << std::endl;
+
+      GLint current_context = 0;
+      glGetIntegerv(GL_CURRENT_PROGRAM, &current_context);
+      if (false)
+         std::cout << "Current GL context check (program): " << current_context << std::endl;
+
       glBindBuffer(GL_ARRAY_BUFFER, buffer_id);
       glBufferData(GL_ARRAY_BUFFER, n_vertices * sizeof(s_generic_vertex), &(vertices[0]), GL_STATIC_DRAW);
    }
@@ -1754,6 +1769,15 @@ Mesh::draw_instanced(int pass_type,
    if (debug_mode)
       std::cout << "Mesh::draw_instanced() Mesh \"" << name << "\" drawing n_verts " << n_verts << " n_instances " << n_instances
                 << " with shader " << shader_p->name << " and vao " << vao << std::endl;
+
+   err = glGetError();
+   if (err) std::cout << "GL_ERROR pre glDrawElementsInstanced()" << std::endl;
+
+   if (false)
+      std::cout << "draw_instanced() pre-glDrawElementsInstanced()"
+                << " shader: " << shader_p->name << " vao: " << vao
+                << " n_triangle_verts: " << n_verts << " n_instances: " << n_instances
+                << " with GL err " << err << std::endl;
 
    glDrawElementsInstanced(GL_TRIANGLES, n_verts, GL_UNSIGNED_INT, nullptr, n_instances);
    err = glGetError();

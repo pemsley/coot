@@ -337,12 +337,14 @@ int graphics_info_t::intelligent_get_scroll_wheel_map() const {
          swm = scroll_wheel_map;
    if (swm == -1) {
       // find the first visible map then
-      for(int imol=0; imol<molecules.size(); imol++) {
-         if (is_valid_map_molecule(imol))
+      int molecules_size = molecules.size();
+      for(int imol=0; imol<molecules_size; imol++) {
+         if (is_valid_map_molecule(imol)) {
             if (molecules[imol].get_map_is_displayed()) {
                swm = imol;
                break;
             }
+         }
       }
    }
    return swm;

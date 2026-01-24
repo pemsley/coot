@@ -428,7 +428,7 @@ molecular_mesh_generator_t::get_molecular_triangles_mesh(mmdb::Manager *mol,
 
 std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> >
 molecular_mesh_generator_t::get_molecular_triangles_mesh_for_ribbon_with_user_defined_residue_colours(mmdb::Manager *mol, mmdb::Chain *chain_p,
-                                                                                                      const std::vector<coot::colour_holder> &user_defined_colours,
+                                                                                                      const std::vector<std::pair<unsigned int, coot::colour_holder> > &user_defined_colours,
                                                                                                       int secondary_structure_usage_flag,
                                                                                                       const std::vector<std::pair<std::string, float> > &M2T_float_params,
                                                                                                       const std::vector<std::pair<std::string, int> >   &M2T_int_params) {
@@ -450,13 +450,25 @@ molecular_mesh_generator_t::get_molecular_triangles_mesh_for_ribbon_with_user_de
                      mmdb::Atom *at = residue_p->GetAtom(iat);
                      if (! at->isTer()) {
                         FCXXCoord fc_col = cr.colorForAtom(at);
-                        std::cout << " atom colour " << coot::atom_spec_t(at) << " " << fc_col[0] << " " << fc_col[1] << " " << fc_col[2] << "\n";
+                        std::cout << "debug:: get_molecular_triangles_mesh_for_ribbon_with_user_defined_residue_colours() atom colour "
+                                  << coot::atom_spec_t(at) << " " << fc_col[0] << " " << fc_col[1] << " " << fc_col[2] << "\n";
                      }
                   }
                }
             }
          }
       }
+   };
+
+   auto debug_the_colour_table = [] (const std::vector<std::pair<unsigned int, coot::colour_holder> > &user_defined_colours) {
+
+      std::cout << "-------------- mmg get_molecular_triangles_mesh_for_ribbon_with_user_defined_residue_colours debug_the_colour_table start --- " << std::endl;
+      for (unsigned int i=0; i<user_defined_colours.size(); i++) {
+         unsigned int idx = user_defined_colours[i].first;
+         const auto &col  = user_defined_colours[i].second;
+         std::cout << "debug colour " << idx << " " << col << std::endl;
+      }
+      std::cout << "-------------- mmg get_molecular_triangles_mesh_for_ribbon_with_user_defined_residue_colours debug_the_colour_table done --- " << std::endl;
    };
 
    // -------------------------------------------------------------------------
@@ -468,6 +480,11 @@ molecular_mesh_generator_t::get_molecular_triangles_mesh_for_ribbon_with_user_de
    auto this_cs = ribbon_ramp_cs;
 
    int udd_handle = mol->GetUDDHandle(mmdb::UDR_ATOM, "user-defined-atom-colour-index");
+
+   if (false) {
+      debug_the_colour_table(user_defined_colours);
+   }
+
    ud_colour_rule cr(udd_handle, mol, user_defined_colours);
    std::string atom_selection_str = "//" + std::string(chain_p->GetChainID());
    std::shared_ptr<CompoundSelection> comp_sel = std::make_shared<CompoundSelection>(atom_selection_str);

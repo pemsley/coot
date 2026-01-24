@@ -107,6 +107,8 @@ void init_framebuffers(GtkWidget *glarea) {
 
 #include "text-rendering-utils.hh"
 #include "stringify-error-code.hh"
+// from c-inteerface.cc
+extern "C" void run_command_line_scripts();
 
 
 void
@@ -235,6 +237,12 @@ new_startup_realize(GtkWidget *gl_area) {
    if (err)
       std::cout << "ERROR:: new_startup_realize() --end-- err is " << stringify_error_code(err)
                 << std::endl;
+
+   auto run_command_line_scripts_callback = +[] (gpointer user_data) {
+      run_command_line_scripts();
+      return G_SOURCE_REMOVE;
+   };
+   g_idle_add(run_command_line_scripts_callback, nullptr);
 
    // Hmm! - causes weird graphics problems
    // setup_python(0, NULL); // needs to called after GTK has started - because it depends on gtk.
@@ -1128,7 +1136,9 @@ new_startup_application_activate(GtkApplication *application,
       setup_gui_components();
       setup_go_to_residue_keyboarding_mode_entry_signals();
 
-      handle_start_scripts(); // what used to be in ~/.coot/*.py
+      handle_start_scripts(); // what used to be in ~/.coot/*.py.
+                              // 20260124-PE Not to self: these are not
+                              // command-line scripts.
 
       // now we are ready to show graphical objects made from reading files:
       handle_command_line_data(activate_data->cld);
@@ -1167,12 +1177,6 @@ new_startup_application_activate(GtkApplication *application,
          return G_SOURCE_REMOVE;
       };
       g_idle_add(destroy_splash_screen_callback, splash_screen);
-
-      auto run_command_line_scripts_callback = +[] (gpointer user_data) {
-         run_command_line_scripts();
-         return G_SOURCE_REMOVE;
-      };
-      g_idle_add(run_command_line_scripts_callback, nullptr);
 
       return G_SOURCE_REMOVE;
    }, activate_data);

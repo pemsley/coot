@@ -55,7 +55,7 @@ int add_molecular_representation_scm(int imol, SCM atom_selection_scm, SCM Color
 //!
 //! @param imol the molecule index
 //! @param name the name to appear in the display control widget
-//! @return -1 on failure, something else on success
+//! @return will be -1 - the return value currently has no meaning.
 //!
 int add_ribbon_representation_with_user_defined_colours(int imol, const std::string &name);
 

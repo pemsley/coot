@@ -4041,8 +4041,10 @@ molecule_class_info_t::set_atom_radius_scale_factor(float sf) {
 std::vector<glm::vec4>
 molecule_class_info_t::make_colour_table() const {
 
-   // std::cout << ":::::::::::: in make_colour_table() bonds_box_type is " << bonds_box_type << " vs "
-   // << coot::COLOUR_BY_B_FACTOR_BONDS << std::endl;
+   if (false)
+      std::cout << ":::::::::::: in make_colour_table() imol: " << imol_no
+                << " bonds_box_type is " << bonds_box_type << " vs "
+                << coot::COLOUR_BY_B_FACTOR_BONDS << std::endl;
 
    graphics_info_t g; // Hmm..
 
@@ -4077,9 +4079,13 @@ molecule_class_info_t::make_colour_table() const {
             if (! graphics_info_t::user_defined_colours.empty()) {
                int n_ud_colours = graphics_info_t::user_defined_colours.size();
                if (icol < n_ud_colours) {
-                  const coot::colour_holder &col = graphics_info_t::user_defined_colours[icol];
+                  unsigned int idx               = graphics_info_t::user_defined_colours[icol].first;
+                  const coot::colour_holder &col = graphics_info_t::user_defined_colours[icol].second;
                   glm::vec4 ud_col(col.red, col.green, col.blue, 1.0);
-                  colour_table[icol] = ud_col;
+                  if (idx < colour_table.size())
+                     colour_table[idx] = ud_col;
+                  else
+                     std::cout << "ERROR:: in make_colour_table() trapped bad index " << std::endl;
                } else {
                   std::cout << "WARNING:: in make_colour_table() out of index colour COLOUR_BY_USER_DEFINED_COLOURS_CA_BONDS "
                             << icol << " " << graphics_info_t::user_defined_colours.size() << std::endl;
@@ -4122,21 +4128,30 @@ molecule_class_info_t::make_colour_table() const {
                   glm::vec4 col = get_bond_colour_by_colour_wheel_position(icol, bonds_box_type);
                   colour_table[icol] = col;
                } else {
+
                   coot::colour_t cc = get_bond_colour_by_mol_no(icol, dark_bg_flag);
                   cc.brighter(0.8); // calm down - now that we are using the instanced-object.shader - the molecule is too bright.
                   colour_table[icol] = cc.to_glm();
+                  // std::cout << "..................... this path icol " << icol << " cc " << cc << std::endl;
                }
             }
          }
       }
 
-      // wsa there a graphics_info_t user-defined bond colour that superceeds this?
+      // was there a graphics_info_t user-defined bond colour that superceeds the colour for this icol?
 
       if (! g.user_defined_colours.empty()) {
-         if (icol < int(g.user_defined_colours.size())) {
-            const coot::colour_holder &col = g.user_defined_colours[icol];
-            auto glm_col = colour_holder_to_glm(col);
-            colour_table[icol] = glm_col;
+         int colour_table_size = g.user_defined_colours.size();
+         if (debug_colour_table) {
+            std::cout << "checking" << std::endl;
+            g.print_user_defined_colour_table();
+         }
+         // replace this colour table with a colour from the user_defined_colours?
+         for (unsigned int i=0; i<g.user_defined_colours.size(); i++) {
+            int idx = g.user_defined_colours[i].first;
+            if (idx == icol) {
+               colour_table[icol] = colour_holder_to_glm(g.user_defined_colours[i].second);
+            }
          }
       }
    }
@@ -4180,11 +4195,9 @@ molecule_class_info_t::make_colour_table() const {
       }
    }
 
-   if (debug_colour_table)
+   if (debug_colour_table) {
       std::cout << "------------ make_colour_table(): D colour_table has size " << colour_table.size()
                 << std::endl;
-
-   if (debug_colour_table) {
       std::cout << "------------ make_colour_table(): E colour table for bonds_box_type " << bonds_box_type
                 << " ---------" << std::endl;
       std::cout << "------------ make_colour_table(): E colour_table has size " << colour_table.size()
@@ -4193,11 +4206,14 @@ molecule_class_info_t::make_colour_table() const {
          graphical_bonds_lines_list<graphics_line_t> &ll = bonds_box.bonds_[icol];
          int n_bonds = ll.num_lines;
          float s = colour_table[icol][0] + colour_table[icol][1] + colour_table[icol][2];
-         std::cout << "make_colour_table(): colour-table index " << std::setw(2) << icol << " n-bonds: "
-                   << std::setw(4) << n_bonds << " " << glm::to_string(colour_table[icol]) << " br: " << s
-                   << std::endl;
+         std::cout << "make_colour_table(): imol " << imol_no << " colour-table index "
+                   << std::setw(2) << icol << " n-bonds: " << std::setw(4) << n_bonds << " "
+                   << glm::to_string(colour_table[icol]) << " br: " << s << std::endl;
       }
    }
+
+   if (false)
+      std::cout << ":::::::::::: in make_colour_table() done." << std::endl;
 
    return colour_table;
 }
@@ -4229,7 +4245,7 @@ molecule_class_info_t::set_user_defined_atom_colour_by_selection(const std::vect
       int colour_index = rc.second; // change type
       int selHnd = atom_sel.mol->NewSelection(); // d
 
-      mmdb::Atom **SelAtoms;
+      mmdb::Atom **SelAtoms = nullptr;
       int nSelAtoms = 0;
       atom_sel.mol->Select(selHnd, mmdb::STYPE_ATOM, cid.c_str(), mmdb::SKEY_NEW);
       atom_sel.mol->GetSelIndex(selHnd, SelAtoms, nSelAtoms);
@@ -4318,9 +4334,9 @@ molecule_class_info_t::make_meshes_from_bonds_box_instanced_version() {
    auto print_colour_table = [this] (const std::string &l) {
 
       std::vector<glm::vec4> colour_table = this->make_colour_table();
-      std::cout << "----------- Here is the colour table: " << l << " -------" << std::endl;
+      std::cout << "----------- Here is the colour table for imol " << imol_no << " : " << l << " -------" << std::endl;
       for (unsigned int i=0; i<colour_table.size(); i++) {
-         std::cout << "    " << i << " " << glm::to_string(colour_table[i]) << std::endl;
+         std::cout << "    " << std::setw(2) << i << " " << glm::to_string(colour_table[i]) << std::endl;
       }
    };
 
@@ -4374,7 +4390,8 @@ molecule_class_info_t::make_meshes_from_bonds_box_instanced_version() {
       }
 
       std::vector<glm::vec4> colour_table = make_colour_table();
-      // print_colour_table(" ");
+      if (false)
+         print_colour_table(" ");
 
       err = glGetError();
       if (err) std::cout << "error in make_glsl_bonds_type_checked() pre molecules_as_mesh\n";
@@ -4753,7 +4770,7 @@ void
 molecule_class_info_t::make_bonds_type_checked(const std::set<int> &no_bonds_to_these_atom_indices,
                                                const char *caller) {
 
-   if (false)
+   if (true)
       std::cout << "debug:: ---- in make_bonds_type_checked(2args) --- start ---" << std::endl;
 
    if (false) {
@@ -11095,19 +11112,23 @@ molecule_class_info_t::updating_coordinates_updates_genmaps(gpointer data) {
 
 // Don't forget to call graphics_info_t::attach_buffers() before calling this function
 void
-molecule_class_info_t::add_ribbon_representation_with_user_defined_residue_colours(const std::vector<coot::colour_holder> &user_defined_colours,
+molecule_class_info_t::add_ribbon_representation_with_user_defined_residue_colours(const std::vector<std::pair<unsigned int, coot::colour_holder> > &user_defined_colours,
                                                                                    const std::string &mesh_name) {
 
-   if (false) {
-      std::cout << "DEBUG:: in add_ribbon_represenaiton_with_user_defined_residue_colours....................." << std::endl;
-      std::cout << "DEBUG:: in add_ribbon_represenaiton_with_user_defined_residue_colours user_defined_colours size "
+   int secondary_structure_usage_flag = CALC_SECONDARY_STRUCTURE; // pass this.
+
+   if (true) {
+      std::cout << "DEBUG:: in add_ribbon_represenation_with_user_defined_residue_colours....................." << std::endl;
+      std::cout << "DEBUG:: in add_ribbon_represenation_with_user_defined_residue_colours user_defined_colours size "
                 << user_defined_colours.size() << std::endl;
       for (size_t i = 0; i < user_defined_colours.size(); i++) {
-         std::cout << "DEBUG:: " << i << "   " << user_defined_colours[i] << std::endl;
+         unsigned int idx = user_defined_colours[i].first;
+         const auto &col  = user_defined_colours[i].second;
+         std::cout << "DEBUG:: add_ribbon_represenation_with_user_defined_residue_colours() col-index: " << idx
+                   << " col: " << col << std::endl;
       }
    }
 
-   int secondary_structure_usage_flag = CALC_SECONDARY_STRUCTURE;
    molecular_mesh_generator_t mmg;
    Material material;
 

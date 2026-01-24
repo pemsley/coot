@@ -6,7 +6,7 @@ add a molecular representation, e.g. Ribbon diagram or surface
 
 e.g. 0, \"//C\", \"RampChainsScheme\", \"Ribbon\"
 
-  imol  the molecule index   atom_selection_py  the atom-selection in mmdb-style CID   ColorScheme_py  colour-scheme-name, e.g. \"RampChainsScheme\" or \"Chain\"   style_py  the representation style, e.g. \"Ribbon\" or \"MolecularSurface\" -1 on failure, the representation index on success
+  imol  the molecule index   atom_selection_py  the atom-selection in mmdb-style CID   ColorScheme_py  colour-scheme-name, e.g. \"colorRampChainsScheme\" or \"Chain\" or \"colorBySecondaryScheme\"   style_py  the representation style, e.g. \"Ribbon\" or \"MolecularSurface\" -1 on failure, the representation index on success
 
 Parameters
 ----------
@@ -15,7 +15,7 @@ imol : int
 atom_selection_py : object
     the atom-selection in mmdb-style CID
 ColorScheme_py : object
-    colour-scheme-name, e.g. \"RampChainsScheme\" or \"Chain\"
+    colour-scheme-name, e.g. \"colorRampChainsScheme\" or \"Chain\" or \"colorBySecondaryScheme\"
 style_py : object
     the representation style, e.g. \"Ribbon\" or \"MolecularSurface\"
 ";
@@ -35,7 +35,7 @@ add ribbon representation with user-defined colours
 
 not dependent on scm or python
 
-  imol  the molecule index   name  the name to appear in the display control widget -1 on failure, something else on success
+  imol  the molecule index   name  the name to appear in the display control widget will be -1 - the return value currently has no meaning.
 
 Parameters
 ----------

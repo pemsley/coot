@@ -2783,6 +2783,7 @@ void print_header_secondary_structure_info(int imol) {
 
 #include "coot-utils/secondary-structure-headers.hh"
 
+
 //
 void write_header_secondary_structure_info(int imol, const char *file_name) {
 
@@ -2817,8 +2818,90 @@ void add_header_secondary_structure_info(int imol) {
       graphics_info_t::molecules[imol].add_secondary_structure_header_records();
 }
 
+/*! \brief get the secondary structure from the header
+ *
+ * @param imol the molecule index
+ * @return a dictionary of header info.
+ */
+PyObject *get_header_secondary_structure_info(int imol) {
 
+   PyObject *r = Py_False;
 
+   if (is_valid_model_molecule(imol)) {
+      mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+      if (mol) {
+         mmdb::Model *model_p = mol->GetModel(1);
+         if (model_p) {
+            int nhelix = model_p->GetNumberOfHelices();
+            int nsheet = model_p->GetNumberOfSheets();
+            std::cout << "DEBUG:: There are " << nhelix << " helices and "
+                      << nsheet << " sheets\n";
+            r = PyDict_New();
+            if (nhelix > 0) {
+               std::vector<PyObject *> helix_info_py_vec;
+               for (int ih=1; ih<=nhelix; ih++) {
+                  mmdb::Helix *helix_p = model_p->GetHelix(ih);
+                  if (helix_p) {
+                     std::cout << helix_p->serNum << " " << helix_p->helixID << " "
+                               << helix_p->initChainID << " " << helix_p->initSeqNum
+                               << " " << helix_p->endChainID << " " << helix_p->endSeqNum << " "
+                               << helix_p->length << " " << helix_p->comment << std::endl;
+                     PyObject *h_dict = PyDict_New();
+                     PyDict_SetItemString(h_dict, "serNum",      PyLong_FromLong(helix_p->serNum));
+                     PyDict_SetItemString(h_dict, "helixID",     myPyString_FromString(helix_p->helixID));
+                     PyDict_SetItemString(h_dict, "initChainID", myPyString_FromString(helix_p->initChainID));
+                     PyDict_SetItemString(h_dict, "initSeqNum",  PyLong_FromLong(helix_p->initSeqNum));
+                     PyDict_SetItemString(h_dict, "endChainID",  myPyString_FromString(helix_p->endChainID));
+                     PyDict_SetItemString(h_dict, "endSeqNum",   PyLong_FromLong(helix_p->endSeqNum));
+                     PyDict_SetItemString(h_dict, "length",      PyLong_FromLong(helix_p->length));
+                     PyDict_SetItemString(h_dict, "comment",     myPyString_FromString(helix_p->comment));
+                     helix_info_py_vec.push_back(h_dict);
+                  }
+               }
+               if (! helix_info_py_vec.empty()) {
+                  size_t l = helix_info_py_vec.size();
+                  PyObject *helix_info_list_py = PyList_New(l);
+                  for (unsigned int i=0; i<helix_info_py_vec.size(); i++)
+                     PyList_SetItem(helix_info_list_py, i, helix_info_py_vec[i]);
+                  PyDict_SetItemString(r, "helices", helix_info_list_py);
+               }
+            }
+
+            if (nsheet > 0) {
+               std::vector<PyObject *> strand_info_py_vec;
+               for (int is=1; is<=nsheet; is++) {
+                  mmdb::Sheet *sheet_p = model_p->GetSheet(is);
+                  int nstrand = sheet_p->nStrands;
+                  for (int istrand=0; istrand<nstrand; istrand++) {
+                     mmdb::Strand *strand_p = sheet_p->strand[istrand];
+                     if (strand_p) {
+                        PyObject *s_dict = PyDict_New();
+                        PyDict_SetItemString(s_dict, "SheetID",     myPyString_FromString(strand_p->sheetID));
+                        PyDict_SetItemString(s_dict, "strandNo",    PyLong_FromLong(strand_p->strandNo));
+                        PyDict_SetItemString(s_dict, "initChainID", myPyString_FromString(strand_p->initChainID));
+                        PyDict_SetItemString(s_dict, "initSeqNum",  PyLong_FromLong(strand_p->initSeqNum));
+                        PyDict_SetItemString(s_dict, "endChainID",  myPyString_FromString(strand_p->endChainID));
+                        PyDict_SetItemString(s_dict, "endSeqNum",   PyLong_FromLong(strand_p->endSeqNum));
+                        strand_info_py_vec.push_back(s_dict);
+                     }
+                  }
+               }
+               if (! strand_info_py_vec.empty()) {
+                  size_t l = strand_info_py_vec.size();
+                  PyObject *strand_info_list_py = PyList_New(l);
+                  for (unsigned int i=0; i<strand_info_py_vec.size(); i++)
+                     PyList_SetItem(strand_info_list_py, i, strand_info_py_vec[i]);
+                  PyDict_SetItemString(r, "strands", strand_info_list_py);
+               }
+            }
+         }
+      }
+   }
+   if (PyBool_Check(r)) {
+     Py_INCREF(r);
+   }
+   return r;
+}
 
 
 /*  ----------------------------------------------------------------------- */

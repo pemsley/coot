@@ -446,6 +446,19 @@ Parameters
 imol : int
 ";
 
+%feature("docstring") get_header_secondary_structure_info "
+get the secondary structure from the header
+
+  imol  the molecule index a dictionary of header info Returns: {'helices': [...], 'strands': [...]} Each helix dict contains: serNum, helixID, initChainID, initSeqNum, endChainID, endSeqNum, length, comment
+
+Each strand dict contains: SheetID, strandNo, initChainID, initSeqNum, endChainID, endSeqNum
+
+Parameters
+----------
+imol : int
+    the molecule index
+";
+
 %feature("docstring") add_header_secondary_structure_info "
 add secondary structure info to the internal representation of the model
 

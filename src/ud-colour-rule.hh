@@ -31,31 +31,55 @@
 
 class ud_colour_rule : public ColorRule {
 public:
-   std::vector<coot::colour_holder> user_defined_colours;
+   // this is the the ideal container!
+   std::vector<std::pair<unsigned int, coot::colour_holder> > user_defined_colours;
    int udd_handle;
-   int size; // because int vs unsigned int.
+   int max_colour_index;
    mmdb::Manager *mol;
-   ud_colour_rule(int udd_handle_in, mmdb::Manager *mol_in, const std::vector<coot::colour_holder> &user_defined_colours_in) : ColorRule(), user_defined_colours(user_defined_colours_in) {
-      // user_defined_colours = user_defined_colours_in;
+   ud_colour_rule(int udd_handle_in, mmdb::Manager *mol_in, const std::vector<std::pair<unsigned int, coot::colour_holder> > &user_defined_colours_in) :
+      ColorRule(), user_defined_colours(user_defined_colours_in) {
+
+      user_defined_colours = user_defined_colours_in;
       udd_handle = udd_handle_in;
-      size = user_defined_colours.size();
+      max_colour_index = -1;
+      // size = user_defined_colours.size();
+      // size = -1;
+      for (unsigned int i=0; i<user_defined_colours.size(); i++) {
+         int colour_index = user_defined_colours[i].first; // change type
+         if (colour_index > max_colour_index) max_colour_index = user_defined_colours[i].first;
+      }
       mol = mol_in;
       type = 1;
    }
    FCXXCoord colorForAtom(const mmdb::Atom *atom) {
       mmdb::Atom *nc_atom = const_cast<mmdb::Atom *> (atom);
       int idx = -1;
+      // std::cout << "debug:: here in colorForAtom(): A " << std::endl;
       if (nc_atom->GetUDData(udd_handle, idx) == mmdb::UDDATA_Ok) {
-         if (idx>=0 && idx<size) {
-            coot::colour_holder col = user_defined_colours[idx];
-            FCXXCoord fxcol(col.red, col.green, col.blue, 1.0);
-            return fxcol;
+         // std::cout << "debug:: here in colorForAtom(): B with idx " << idx << std::endl;
+         if (idx>=0 && idx<=max_colour_index) {
+            // std::cout << "debug:: here in colorForAtom(): C colorForAtom(): extracted idx " << idx << std::endl;
+            bool found = false;
+            for (unsigned int i=0; i<user_defined_colours.size(); i++) {
+               if (static_cast<int>(user_defined_colours[i].first) == idx) {
+                  const coot::colour_holder &col = user_defined_colours[i].second;
+                  // std::cout << "debug:: here in colorForAtom(): D colorForAtom(): found idx " << idx
+                  // << " col " << col<< std::endl;
+                  FCXXCoord fxcol(col.red, col.green, col.blue, 1.0);
+                  return fxcol;
+               }
+            }
+            if (! found) {
+               // std::cout << "no match for atom " << std::endl;
+               return FCXXCoord(0.3, 0.1, 0.1, 1.0);
+            }
          } else {
             return FCXXCoord(0.3, 0.3, 0.5, 1.0);
          }
       } else {
          return FCXXCoord(0.3, 0.3, 0.3, 1.0);
       }
+      return FCXXCoord(0.3, 0.2, 0.2, 1.0);
    }
 };
 

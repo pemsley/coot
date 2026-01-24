@@ -689,7 +689,7 @@ molecule_class_info_t::fill_fobs_sigfobs() {
          auto tp_1 = std::chrono::high_resolution_clock::now();
          auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
          std::cout << "Timings: read mtz file and store data " << d10 << " milliseconds" << std::endl;
-         
+
       }
    } else {
       std::cout << "DEBUG:: fill_fobs_sigfobs() no Fobs parameters\n";
@@ -837,7 +837,22 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
 
       clipper::Coord_orth centre_c(centre.x(), centre.y(), centre.z()); // dont I have an converter?
 
-      setup_glsl_map_rendering(centre_c, radius); // turn tri_con into buffers.
+
+      // 20260124-PE so that we have a GL Context, so that attach_buffers() in setup_glsl_map_rendering()
+      //             works
+
+      gtk_gl_area_make_current(GTK_GL_AREA(graphics_info_t::glareas[0]));
+
+      // Check for errors from make_current
+      GError *error = gtk_gl_area_get_error(GTK_GL_AREA(graphics_info_t::glareas[0]));
+      if (error) {
+         std::cout << "ERROR:: gtk_gl_area_make_current failed: "
+                   << error->message << std::endl;
+         return;
+      } else {
+         // std::cout << "INFO:: no make_current context error!" << std::endl;
+         setup_glsl_map_rendering(centre_c, radius); // turn tri_con into buffers.
+      }
 
 
       // 20220211-PE what does this do!?
@@ -1160,16 +1175,6 @@ molecule_class_info_t::setup_glsl_map_rendering(const clipper::Coord_orth &centr
       return r;
    };
 
-   GdkGLContext *context = gtk_gl_area_get_context(GTK_GL_AREA(graphics_info_t::glareas[0]));
-
-   GLenum err = glGetError();
-   if (err) {
-      std::cout << "GL ERROR:: Mesh::setup_glsl_map_rendering() \""  << "\" --- start --- "
-                << stringify_error_code(err) << std::endl;
-   } else {
-      // std::cout << "INFO:: Mesh::setup_glsl_map_rendering() \""  << "\" --- start --- "
-      //                 << "no error here" << std::endl;
-   }
 
    // This is called from update_map_triangles().
 
@@ -1177,26 +1182,43 @@ molecule_class_info_t::setup_glsl_map_rendering(const clipper::Coord_orth &centr
       return glm::vec4(rgba.red, rgba.green, rgba.blue, rgba.alpha);
    };
 
+   GdkGLContext *context = gtk_gl_area_get_context(GTK_GL_AREA(graphics_info_t::glareas[0]));
+
+   GLenum err = glGetError();
+   if (err) {
+      std::cout << "GL ERROR:: mci::setup_glsl_map_rendering() \""  << "\" --- start --- "
+                << stringify_error_code(err) << std::endl;
+   } else {
+      // std::cout << "INFO:: Mesh::setup_glsl_map_rendering() \""  << "\" --- start --- "
+      //                 << "no error here" << std::endl;
+   }
+
    if (false)
-      std::cout << "#### setup_glsl_map_rendering() start: map_colour " << imol_no << " "
+      std::cout << "#### mci::setup_glsl_map_rendering() start: map_colour " << imol_no << " "
                 << map_colour.red << " "  << map_colour.green << " " << map_colour.blue << std::endl;
 
    if (! has_xmap()) return;
 
    err = glGetError();
    if (err) {
-      std::cout << "GL ERROR:: Mesh::setup_glsl_map_rendering() Pos A0 "
+      std::cout << "GL ERROR:: mci::setup_glsl_map_rendering() Pos A0 "
                 << stringify_error_code(err) << std::endl;
    } else {
       // std::cout << "INFO:: Mesh::setup_glsl_map_rendering() Pos A0 "
       // << "no error here" << std::endl;
    }
 
-   graphics_info_t::attach_buffers();
+   // 20260124-PE Don't do this:
+   // Why? Map setup (creating meshes, uploading vertices) doesn't
+   // need the GLArea's framebuffer attached. You're just creating GPU
+   // resources, not rendering. The framebuffer will be correctly
+   // attached automatically when the render callback runs.
+   //
+   // graphics_info_t::attach_buffers();
 
    err = glGetError();
    if (err) {
-      std::cout << "GL ERROR:: Mesh::setup_glsl_map_rendering() Pos A1 "
+      std::cout << "GL ERROR:: mci::setup_glsl_map_rendering() Pos A1 "
                 << stringify_error_code(err) << std::endl;
    } else {
       // std::cout << "INFO:: Mesh::setup_glsl_map_rendering() Pos A1 "
@@ -1212,10 +1234,10 @@ molecule_class_info_t::setup_glsl_map_rendering(const clipper::Coord_orth &centr
 
    err = glGetError();
    if (err) {
-      std::cout << "GL ERROR:: Mesh::setup_glsl_map_rendering() Pos A "
+      std::cout << "GL ERROR:: mci::setup_glsl_map_rendering() Pos A "
                 << stringify_error_code(err) << std::endl;
    } else {
-      // std::cout << "INFO:: Mesh::setup_glsl_map_rendering() Pos A "
+      // std::cout << "INFO:: mci::setup_glsl_map_rendering() Pos A "
       // << "no error here" << std::endl;
    }
 
@@ -1296,7 +1318,7 @@ molecule_class_info_t::setup_glsl_map_rendering(const clipper::Coord_orth &centr
 
    err = glGetError();
    if (err) {
-      std::cout << "GL ERROR:: Mesh::setup_glsl_map_rendering() Pos B "
+      std::cout << "GL ERROR:: mci::setup_glsl_map_rendering() Pos B "
                 << stringify_error_code(err) << std::endl;
    } else {
       // std::cout << "INFO:: Mesh::setup_glsl_map_rendering() Pos B "
@@ -1333,7 +1355,7 @@ molecule_class_info_t::setup_glsl_map_rendering(const clipper::Coord_orth &centr
 
    err = glGetError();
    if (err) {
-      std::cout << "GL ERROR:: Mesh::setup_glsl_map_rendering() Pos C "
+      std::cout << "GL ERROR:: mci::setup_glsl_map_rendering() Pos C "
                 << stringify_error_code(err) << std::endl;
    } else {
       // std::cout << "INFO:: Mesh::setup_glsl_map_rendering() Pos C "
@@ -1352,10 +1374,10 @@ molecule_class_info_t::setup_glsl_map_rendering(const clipper::Coord_orth &centr
 
    err = glGetError();
    if (err) {
-      std::cout << "GL ERROR:: Mesh::setup_glsl_map_rendering() Pos D "
+      std::cout << "GL ERROR:: mci::setup_glsl_map_rendering() Pos D "
                 << stringify_error_code(err) << std::endl;
    } else {
-      // std::cout << "INFO:: Mesh::setup_glsl_map_rendering() Pos D "
+      // std::cout << "INFO:: mci::setup_glsl_map_rendering() Pos D "
       // << "no error here" << std::endl;
    }
 

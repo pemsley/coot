@@ -29,7 +29,7 @@ public:
       double end_y;
       glm::vec4 col;
       box_info_t(double sx, double sy, double ex, double ey, const glm::vec4 &c) :
-	 start_x(sx), start_y(sy), end_x(ex), end_y(ey), col(c) {}
+         start_x(sx), start_y(sy), end_x(ex), end_y(ey), col(c) {}
    };
    int imol;
    pae_t pae_info;
@@ -39,21 +39,22 @@ public:
    augmented_pae_info_t(int imol, const pae_t &p) : imol(imol), pae_info(p), dragging_mode(false), cr(nullptr) {}
 
    // fill colours_p as needed
+   // 20260122-PE I don't think this function is now needed.
    static void add_colour(const coot::colour_holder &col,
-			  unsigned int idx,
-			  std::vector<coot::colour_holder> *colours_p) {
+                          unsigned int idx,
+                          std::vector<coot::colour_holder> *colours_p) {
 
       if (idx < colours_p->size()) {
-	 colours_p->at(idx) = col;
+         colours_p->at(idx) = col;
       } else {
-	 unsigned int cc = colours_p->capacity();
-	 if (cc < (idx+1))
-	    colours_p->reserve(2 * idx);
-	 colours_p->resize(idx+1);
-	 colours_p->at(idx) = col;
+         unsigned int cc = colours_p->capacity();
+         if (cc < (idx+1))
+            colours_p->reserve(2 * idx);
+         colours_p->resize(idx+1);
+         colours_p->at(idx) = col;
       }
    };
-   
+
 };
 
 void
@@ -68,16 +69,16 @@ grey_ribbons_for_active_molecule() {
       std::string style = "Ribbon";
 
       std::vector<std::pair<std::string, unsigned int> > cis;
-      std::vector<coot::colour_holder> colours;
+      std::vector<std::pair<unsigned int, coot::colour_holder> > colours;
       coot::colour_holder base(0.7, 0.7, 0.7);
       cis.push_back(std::make_pair("//", 60));
-      augmented_pae_info_t::add_colour(base, 60, &colours);
+      colours.push_back(std::make_pair(60, base));
       g.set_user_defined_colours(colours);
       g.molecules[imol].set_user_defined_colour_indices_by_selections(cis);
 
       // add_ribbon_representation_with_user_defined_colours(imol, "AlphaFold-PAE");
       g.graphics_draw();
-      
+
       set_mol_displayed(imol, 0);
    }
 }
@@ -127,9 +128,9 @@ on_drag_begin(GtkGestureDrag *gesture, double start_x, double start_y, gpointer 
 
 void
 pae_colour_ribbon_model(int imol,
-			unsigned int box_index,
-			const augmented_pae_info_t::box_info_t &box,
-			const std::vector<std::vector<int> > &pae_vecs) {
+                        unsigned int box_index,
+                        const augmented_pae_info_t::box_info_t &box,
+                        const std::vector<std::vector<int> > &pae_vecs) {
 
    std::string chain_id = "A"; // this is a hack, we should get the chain id from the pae_vecs
    unsigned int n_residues = pae_vecs.size();
@@ -143,7 +144,7 @@ pae_colour_ribbon_model(int imol,
    float f2 = static_cast<float>(box.end_x)   / static_cast<float>(n_residues);
    int start_residue_index = static_cast<int>(f1 * static_cast<float>(n_residues));
    int   end_residue_index = static_cast<int>(f2 * static_cast<float>(n_residues));
-      
+
    int max_index = n_residues - 1;
    if (start_residue_index < 0) start_residue_index = 0;
    if (  end_residue_index < 0)   end_residue_index = 0;
@@ -157,9 +158,10 @@ pae_colour_ribbon_model(int imol,
       std::to_string(start_residue_number) + "-" + std::to_string(end_residue_number);
    coot::colour_holder ch(box.col.r, box.col.g, box.col.b, 1.0);
 
-   std::vector<coot::colour_holder> colours = g.user_defined_colours;
+   std::vector<std::pair<unsigned int, coot::colour_holder> > colours = g.user_defined_colours;
    unsigned int colour_index = 60 + box_index + 1;
-   augmented_pae_info_t::add_colour(ch, colour_index, &colours);
+   // augmented_pae_info_t::add_colour(ch, colour_index, &colours);
+   colours.push_back(std::make_pair(colour_index, ch));
    g.set_user_defined_colours(colours);
    std::vector<std::pair<std::string, unsigned int> > cis;
    std::cout << "selection: " << selection << " colour: " << ch << std::endl;
@@ -173,7 +175,7 @@ pae_colour_ribbon_model(int imol,
    gtk_widget_set_visible(w, TRUE);
    g.set_transient_for_main_window(w);
    g.update_molecular_representation_widgets();
-   
+
 }
 
 static void

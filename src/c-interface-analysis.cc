@@ -196,11 +196,11 @@ SCM model_composition_statistics_scm(int imol) {
 
    SCM r = SCM_EOL;
 
-   /* 
+   /*
 Model composition
    Non-hydrogen atoms
    Protein residues
-   Zinc ions (or other ligands) 
+   Zinc ions (or other ligands)
 
 RMS deviations
    Bonds
@@ -228,10 +228,13 @@ PyObject *model_composition_statistics_py(int imol) {
 
    PyObject *r = Py_False;
 
+   if (is_valid_model_molecule(imol)) {
+      coot::model_composition_stats_t s = graphics_info_t::molecules[imol].get_model_composition_statistics();
+   }
+
    if (PyBool_Check(r))
      Py_INCREF(r);
    return r;
-
 }
 #endif
 

@@ -6751,38 +6751,43 @@ graphics_info_t::quick_save() {
 void
 graphics_info_t::set_bond_colour_from_user_defined_colours(int icol) {
 
-   if (use_graphics_interface_flag) {
-      int n_user_defined_colours = user_defined_colours.size();
-      if (icol < n_user_defined_colours) {
-         if (icol >= 0) {
-            const coot::colour_holder &ch = user_defined_colours[icol];
-            glColor3f(ch.red, ch.green, ch.blue);
-         } else {
-            coot::colour_holder ch;
-            glColor3f(ch.red, ch.green, ch.blue);
-         }
-      } else {
-         coot::colour_holder ch;
-         glColor3f(ch.red, ch.green, ch.blue);
-      }
-   }
+   std::cout << "Don't call this function " <<  __FUNCTION__ << std::endl;
 }
 
 // static
 void
-graphics_info_t::set_user_defined_colours(const std::vector<coot::colour_holder> &user_defined_colours_in) {
+graphics_info_t::set_user_defined_colours(const std::vector<std::pair<unsigned int, coot::colour_holder> > &user_defined_colours_in) {
 
    user_defined_colours = user_defined_colours_in;
-   std::vector<glm::vec4> t_cols(user_defined_colours.size());
-   for (unsigned int i=0; i<user_defined_colours.size(); i++) {
-      const auto &col = user_defined_colours[i];
-      float alpha = 1.0; // put alpha into coot::colour_holder
-      t_cols[i] = glm::vec4(col.red, col.green, col.blue, alpha);
-   }
-   if (! user_defined_colours.empty())
+   // texture colours:
+   if (! user_defined_colours.empty()) {
+      std::vector<glm::vec4> t_cols(user_defined_colours.size());
+      for (unsigned int i=0; i<user_defined_colours.size(); i++) {
+         unsigned int idx = user_defined_colours[i].first;
+         const auto &col = user_defined_colours[i].second;
+         float alpha = 1.0; // put alpha into coot::colour_holder
+         t_cols[idx] = glm::vec4(col.red, col.green, col.blue, alpha);
+      }
       texture_for_hud_colour_bar = Texture(400, 200, t_cols, 5);
-
+   }
 }
+
+
+// static
+void graphics_info_t::print_user_defined_colour_table() {
+
+   if (user_defined_colours.empty()) {
+      std::cout << "INFO:: no user-defined colours" << std::endl;
+      return;
+   }
+
+   for (unsigned int i=0; i<user_defined_colours.size(); i++) {
+      unsigned int icol = user_defined_colours[i].first;
+      const auto &col   = user_defined_colours[i].second;
+      std::cout << "   user-defined colour-table: " << icol << " col " << col << std::endl;
+   }
+}
+
 
 
 // static

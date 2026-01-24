@@ -420,9 +420,8 @@ PyObject *residue_centre_py(int imol, const char *chain_id, int resno, const cha
 #ifdef USE_GUILE
 SCM model_composition_statistics_scm(int imol);
 #endif
-#ifdef USE_PYTHON
+
 PyObject *model_composition_statistics_py(int imol);
-#endif
 #endif
 
 
@@ -438,6 +437,21 @@ void remarks_dialog(int imol);
 /*! \brief simply print secondary structure info to the
   terminal/console.  In future, this could/should return the info.  */
 void print_header_secondary_structure_info(int imol);
+
+/*! \brief get the secondary structure from the header
+ *
+ * @param imol the molecule index
+ * @return a dictionary of header info
+ * Returns: {'helices': [...], 'strands': [...]}
+ *
+ * Each helix dict contains:
+ *  serNum, helixID, initChainID, initSeqNum, endChainID, endSeqNum, length, comment
+ *
+ * Each strand dict contains:
+ *  SheetID, strandNo, initChainID, initSeqNum, endChainID, endSeqNum
+ */
+PyObject *get_header_secondary_structure_info(int imol);
+
 
 /*! \brief add secondary structure info to the
   internal representation of the model */

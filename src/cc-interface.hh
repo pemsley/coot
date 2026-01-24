@@ -2297,13 +2297,21 @@ void reload_model_shader();
 //! \brief
 void set_atom_radius_scale_factor(int imol, float scale_factor);
 
-//! \brief set use fancy lighting (default 1 = true);
+//! \brief set use fancy rendering lighting
+//!
+//! Turn on framebuffer effects
+//!
+//! @param state where 1 mean turn on and 0 means turn off.
 void set_use_fancy_lighting(short int state);
 
 //! \brief set use simple lines for model molecule
+//!
+//! @param state where 1 mean turn on and 0 means turn off.
 void set_use_simple_lines_for_model_molecules(short int state);
 
 //! \brief
+//!
+//! @param state where 1 mean turn on and 0 means turn off.
 void set_fresnel_colour(int imol, float red, float green, float blue, float opacity);
 
 //! \brief
@@ -2316,6 +2324,8 @@ void set_use_depth_blur(short int state);
 void set_focus_blur_strength(float st);
 
 //! \brief set shadow stren
+//!
+//! @param s is the shadow strength between 0 and 1.
 void set_shadow_strength(float s);
 
 //! \brief set the shadow resolution (1,2,3,4)
@@ -2328,12 +2338,25 @@ void set_shadow_box_size(float size);
 void set_ssao_kernel_n_samples(unsigned int n_samples);
 
 //! \brief set SSAO strength
+//!
+//! screen-space ambient occlusionn
+//!
+//! @param strength is the SSAO strength between 0 and 1.
 void set_ssao_strength(float strength);
 
-//! \brief set SSAO strength
+//! \brief set SSAO radius
+//!
+//! screen-space ambient occlusionn
+//! Doesn't do much. Not worth adjusting
+//!
+//! @param radius is the SSAO radius.
 void set_ssao_radius(float radius);
 
 //! \brief set SSAO bias
+//!
+//! screen-space ambient occlusionn
+//! Doesn't do much. Not worth adjusting
+//!
 void set_ssao_bias(float bias);
 
 //! \brief set SSAO blur size (0, 1, or 2)

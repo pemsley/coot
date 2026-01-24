@@ -3662,7 +3662,7 @@ void draw_map_molecule(bool draw_transparent_maps,
                                     int secondary_structure_usage_flag);
 
    // for AlphaFold pLDDT colouring
-   void add_ribbon_representation_with_user_defined_residue_colours(const std::vector<coot::colour_holder> &user_defined_colours,
+   void add_ribbon_representation_with_user_defined_residue_colours(const std::vector<std::pair<unsigned int, coot::colour_holder> > &user_defined_colours,
                                                                     const std::string &mesh_name);
    void remove_molecular_representation(int idx);
 

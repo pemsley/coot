@@ -725,7 +725,6 @@ gint coot_socket_listener_idle_func(gpointer data) {
    // If no active client connection, accept one non-blockingly
    if (client_fd < 0 && server_fd >= 0) {
       client_fd = accept(server_fd, nullptr, nullptr);
-      std::cout << "here with client_fd " << client_fd << std::endl;
       if (client_fd >= 0) {
          // Set client socket non-blocking too
          int flags = fcntl(client_fd, F_GETFL, 0);

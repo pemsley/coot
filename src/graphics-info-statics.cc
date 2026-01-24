@@ -1734,7 +1734,7 @@ double graphics_info_t::torsion_restraints_weight = 1.0;
 bool graphics_info_t::use_harmonic_approximation_for_NBCs = false;
 
 bool graphics_info_t::draw_hud_colour_bar_flag = false;
-std::vector<coot::colour_holder> graphics_info_t::user_defined_colours; // initially empty
+std::vector<std::pair<unsigned int, coot::colour_holder> > graphics_info_t::user_defined_colours; // initially empty
 
 unsigned int graphics_info_t::bond_smoothness_factor = 1; // changes num_subdivisions and n_slices
 

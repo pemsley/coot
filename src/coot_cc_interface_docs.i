@@ -901,7 +901,7 @@ ins_code : const char *
 ";
 
 %feature("docstring") residue_name_py "
-resturn the residue name
+get the residue name
 
   imol  Model molecule index   chain_id  Chain identifier (e.g., \"A\")   resno  Residue number   ins_code  Insertion code (use \"\" if none) residue name string or blank string on failure
 
@@ -3399,7 +3399,7 @@ Identifies regions of significant electron density that are not explained by the
 
 The function masks out density already explained by the model atoms, then searches for contiguous regions of density above the specified sigma threshold. Each blob is characterized by its center position and an integrated volume/score representing the strength of the feature.
 
-  imol_model  The model molecule index. Density explained by atoms in this model will be masked out (excluded) from the search. Must be a valid model molecule.   imol_map  The map molecule index to search for unmodeled density. This is typically a difference map (mFo-DFc) for most sensitive detection, but can also be a regular map (2mFo-DFc). Must be a valid map molecule.   cut_off_sigma  The sigma threshold for blob detection (in units of map sigma). Typical values:  3.0σ: Standard threshold for significant features in difference maps 2.5σ: More sensitive, finds weaker features (more false positives) 4.0σ: Conservative, only very strong features (fewer false positives) 1.0σ: For regular maps (2mFo-DFc), lower threshold appropriate PyObject* - Returns a Python list of blobs, or Py_False on error. Return format (on success): [ [[x1, y1, z1], volume1], # First blob: [position_list, score] [[x2, y2, z2], volume2], # Second blob ... ]
+  imol_model  The model molecule index. Density explained by atoms in this model will be masked out (excluded) from the search. Must be a valid model molecule.   imol_map  The map molecule index to search for unmodeled density. This is typically a difference map (mFo-DFc) for most sensitive detection, but can also be a regular map (2mFo-DFc). Must be a valid map molecule.   cut_off_sigma  The sigma threshold for blob detection (in units of map sigma). Typical values:  3.5σ: Standard threshold for significant features in difference maps 2.5σ: More sensitive, finds weaker features (more false positives) 4.5σ: Conservative, only strong features (fewer false positives) 1.0σ: For regular maps (2mFo-DFc), lower threshold appropriate PyObject* - Returns a Python list of blobs, or Py_False on error. Return format (on success): [ [[x1, y1, z1], volume1], # First blob: [position_list, score] [[x2, y2, z2], volume2], # Second blob ... ]
 
 Each blob is represented as a 2-element list:  Element 0: Position as [x, y, z] list (coordinates in Ångströms, orthogonal space) Element 1: Volume/score as float (integrated density strength)
 

@@ -4322,13 +4322,14 @@ string   static std::string sessionid;
    //
 
    static bool draw_hud_colour_bar_flag;
-   static std::vector<coot::colour_holder> user_defined_colours;
+   static std::vector<std::pair<unsigned int, coot::colour_holder> > user_defined_colours;
    // this function sets up the colour bar too and enables its drawing. It will need extra args for
    // the tick marks.
-   static void set_user_defined_colours(const std::vector<coot::colour_holder> &user_defined_colours_in);
+   static void set_user_defined_colours(const std::vector<std::pair<unsigned int, coot::colour_holder> > &user_defined_colours_in);
    static bool have_user_defined_colours();
    // run glColor3f())
    static void set_bond_colour_from_user_defined_colours(int icol);
+   static void print_user_defined_colour_table();
 
 #ifdef USE_PYTHON
    PyObject *pyobject_from_graphical_bonds_container(int imol,

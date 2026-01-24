@@ -47,12 +47,12 @@ set the user-defined colours
 
 by default user-defined colour indices will use a colour wheel but here we can set them ourselves by passing something like: [(61, [0.2, 0.3, 0.4]), (62, [0.6, 0.4, 0.2])] i.e. a tuple for each colour index and colour (r,g,b list). If the colour index goes beyond the limit, or there is a missing value, then colour will be [0.5, 0.5, 0.5] The first 49 indices have internal colours already asigned. Those can be overridden using this function, but generally user-defined colours indices start at index 60.
 
-  colour_list_py  is a list of indexed colour tuples for use by add_molecular_representation_py()
+  colour_list_py  is a list of indexed colour tuples for use by add_ribbon_representation_with_user_defined_colours() and add_molecular_representation_py().
 
 Parameters
 ----------
 colour_list_py : object
-    is a list of indexed colour tuples for use by add_molecular_representation_py()
+    is a list of indexed colour tuples for use by add_ribbon_representation_with_user_defined_colours() and add_molecular_representation_py().
 ";
 
 %feature("docstring") clear_user_defined_atom_colours "
