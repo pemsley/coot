@@ -151,9 +151,10 @@ Use coot_ping() to verify Coot is responsive after:
   - You receive an error suggesting Coot might not be responding
 Do NOT call coot_ping() before every command - it's only needed to check if Coot has crashed or been restarted, not for routine operation.
 
-Read the coot-essential-api Skills, if you can access it. Load all the function documentation for the functions mentioned there.
+When starting a Coot session read the coot-essential-api Skills.
+Also, load all the function documentation for the functions mentioned there.
 
-On starting a Coot session, read ALL these user skills if you have access:
+On starting a Coot session, read ALL these user skills
     - coot-essential-api
     - coot-best-practices
     - coot-refinement
@@ -235,7 +236,7 @@ def coot_ping() -> str:
     """
     Quick health check - verifies Coot is responsive by having it compute 2+2.
     Returns '4' if Coot is alive and responding correctly.
-    This function merely checks that Coot is responsive - when starting a 
+    This function merely checks that Coot is responsive - when starting a
     coot session the function coot_info() should be invoked (also)
     """
     response = send_coot_rpc("python.exec", {"code": "2 + 2"})
