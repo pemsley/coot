@@ -24,6 +24,7 @@
  *
  */
 
+#include "stereo-eye.hh"
 #ifdef USE_PYTHON
 #include <Python.h>
 #endif // USE_PYTHON
@@ -38,24 +39,19 @@
 #include <glm/gtc/type_ptr.hpp>  // for value_ptr() 20240326-PE
 
 #include <iostream>
-// #include <iomanip> remove this
 #include <string>
-#include <fstream>
 #include <gtk/gtk.h>
 #include <epoxy/gl.h>
 
 #include "c-interface.h" // for update_go_to_atom_from_current_position()
-#include "globjects.h"
 #include "graphics-info.h"
 
-#include "draw.hh"
 #include "draw-2.hh"
 #include "framebuffer.hh"
 
 #include "text-rendering-utils.hh"
 #include "cc-interface-scripting.hh"
 #include "coot-utils/cylinder-with-rotation-translation.hh"
-#include "vnc-vertex-to-generic-vertex.hh"
 
 #include "screendump-tga.hh"
 #include "widget-from-builder.hh"
@@ -890,7 +886,7 @@ graphics_info_t::draw_map_molecules(bool draw_transparent_maps) {
 }
 
 void
-graphics_info_t::draw_model_molecules() {
+graphics_info_t::draw_model_molecules(stereo_eye_t eye) {
 
    // std::cout << "draw_model_molecules() --- start ---" << std::endl;
 
@@ -918,7 +914,7 @@ graphics_info_t::draw_model_molecules() {
       float opacity = 1.0f;
       bool gl_lines_mode = false;
       bool show_just_shadows = false;
-      m.model_molecule_meshes.draw(&shader_for_meshes, &shader_instances_p, mvp, model_rotation, lights, eye_position,
+      m.model_molecule_meshes.draw(&shader_for_meshes, &shader_instances_p, eye, mvp, model_rotation, lights, eye_position,
                                    opacity, bgc, gl_lines_mode, shader_do_depth_fog_flag, show_just_shadows);
 
       if (show_symmetry) {
@@ -1051,6 +1047,8 @@ graphics_info_t::draw_molecule_atom_labels(molecule_class_info_t &m,
 void
 graphics_info_t::draw_intermediate_atoms(unsigned int pass_type) { // draw_moving_atoms()
 
+   stereo_eye_t eye = stereo_eye_t::MONO; // pass this
+
    // std::cout << "draw_intermediate_atoms() --- start --- " << std::endl;
 
    // ----------------------------------------
@@ -1111,7 +1109,7 @@ graphics_info_t::draw_intermediate_atoms(unsigned int pass_type) { // draw_movin
       bool do_depth_fog = true;
       glm::vec4 bg_col(background_colour, 1.0);
       m.model_molecule_meshes.draw(&shader_for_models, &shader_for_instanced_objects,
-                                   mvp_orthogonal, model_rotation, lights, dummy_eye_position,
+                                   eye, mvp_orthogonal, model_rotation, lights, dummy_eye_position,
                                    opacity, bg_col, gl_lines_mode, do_depth_fog, show_just_shadows);
    }
 
@@ -1847,7 +1845,7 @@ graphics_info_t::draw_hud_colour_bar() {
 
 
 void
-graphics_info_t::draw_molecules() {
+graphics_info_t::draw_molecules(stereo_eye_t eye) {
 
    // this is not called in fancy mode.
 
@@ -1897,7 +1895,7 @@ graphics_info_t::draw_molecules() {
    // It should be easy to break out the atom label code into its own function. That
    // might be better.
    //
-   draw_model_molecules();
+   draw_model_molecules(eye);
 
    // transparent things...
 
@@ -4513,7 +4511,7 @@ graphics_info_t::check_if_hud_rama_plot_clicked(double mouse_x, double mouse_y) 
 
 
 void
-graphics_info_t::render_3d_scene(GtkGLArea *gl_area) {
+graphics_info_t::render_3d_scene(GtkGLArea *gl_area, stereo_eye_t eye) {
 
    // note: this function is called from render_scene_sans_depth_blur()
    // 20230814-PE Is it?
@@ -4535,7 +4533,7 @@ graphics_info_t::render_3d_scene(GtkGLArea *gl_area) {
    draw_origin_cube(gl_area);
    err = glGetError(); if (err) std::cout << "render scene lambda post cubes err " << err << std::endl;
 
-   draw_molecules(); // includes particles, happy-faces and boids (should they be there (maybe not))
+   draw_molecules(eye); // includes particles, happy-faces and boids (should they be there (maybe not))
                      // so rename this function? Or just bring everything here?  Put this render() function
                      // into new file graphics-info-opengl-render.cc
 
@@ -4690,7 +4688,7 @@ graphics_info_t::render(bool to_screendump_framebuffer_flag, const std::string &
          err = glGetError();
          if (err) std::cout << "GL ERROR:: render() post screen_framebuffer bind() err " << err << std::endl;
 
-         render_3d_scene(gl_area);
+         render_3d_scene(gl_area, stereo_eye_t::MONO);
 
          // screendump
          glDisable(GL_DEPTH_TEST);
@@ -4712,7 +4710,7 @@ graphics_info_t::render(bool to_screendump_framebuffer_flag, const std::string &
       } else {
 
          gtk_gl_area_attach_buffers(gl_area);
-         render_3d_scene(gl_area);
+         render_3d_scene(gl_area, stereo_eye_t::MONO);
          draw_hud_elements();
 
       }

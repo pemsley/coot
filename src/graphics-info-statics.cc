@@ -1285,7 +1285,6 @@ bool      graphics_info_t::do_flat_shading_for_solid_density_surface = 1;
 // stereo?
 int graphics_info_t::display_mode = coot::MONO_MODE;
 float graphics_info_t::hardware_stereo_angle_factor = 1.0;
-graphics_info_t::stereo_eye_t graphics_info_t::which_eye = graphics_info_t::stereo_eye_t::MONO;
 
 // remote controlled coot
 int graphics_info_t::try_port_listener = 0;

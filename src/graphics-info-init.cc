@@ -132,8 +132,6 @@ graphics_info_t::init() {
 
       // camera = benny::Camera(glm::vec3(0.0f,0.0f,-3.5f), 70, aspect, 0.1f, 500.0f);
 
-      which_eye = stereo_eye_t::MONO;
-
       on_going_updating_map_lock = false;
 
       find_ligand_ligand_mols_ = new std::vector<std::pair<int, bool> >;

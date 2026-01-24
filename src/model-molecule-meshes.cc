@@ -450,6 +450,7 @@ model_molecule_meshes_t::make_bond_lines(const graphical_bonds_container &bonds_
 void
 model_molecule_meshes_t::draw(Shader *shader_mesh,
                               Shader *shader_for_instanced_mesh,
+                              stereo_eye_t eye,
                               const glm::mat4 &mvp,
                               const glm::mat4 &view_rotation_matrix,
                               const std::map<unsigned int, lights_info_t> &lights,

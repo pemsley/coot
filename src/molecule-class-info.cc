@@ -22,6 +22,7 @@
  */
 
 #include "molecule-class-info.h"
+#include "stereo-eye.hh"
 #include <filesystem>
 #ifdef USE_PYTHON
 #include <Python.h> // before system includes to stop "POSIX_C_SOURCE" redefined problems
@@ -4552,6 +4553,8 @@ molecule_class_info_t::draw_molecule_as_meshes(Shader *shader_p,
                                                const glm::vec4 &background_colour,
                                                bool do_depth_fog) {
 
+   stereo_eye_t eye = stereo_eye_t::MONO; // pass this
+
    if (false) {
       std::cout << "draw_molecule_as_meshes() shader " << shader_p->name << " " << std::endl;
       std::cout << "   mvp                  " << glm::to_string(mvp) << std::endl;
@@ -4564,7 +4567,7 @@ molecule_class_info_t::draw_molecule_as_meshes(Shader *shader_p,
    float opacity = 1.0f;
    bool gl_lines_mode = false;
    bool show_just_shadows = false;
-   model_molecule_meshes.draw(shader_for_simple_mesh, shader_for_instances, mvp, view_rotation_matrix, lights, eye_position, opacity, background_colour,
+   model_molecule_meshes.draw(shader_for_simple_mesh, shader_for_instances, eye, mvp, view_rotation_matrix, lights, eye_position, opacity, background_colour,
                               gl_lines_mode, do_depth_fog, show_just_shadows);
 
 }
@@ -4613,8 +4616,6 @@ molecule_class_info_t::draw_molecule_as_meshes_with_shadows(Shader *shader,
 
 
 
-
-
 void
 molecule_class_info_t::draw_symmetry(Shader *shader_p,
                                      const glm::mat4 &mvp,
@@ -4623,6 +4624,8 @@ molecule_class_info_t::draw_symmetry(Shader *shader_p,
                                      const glm::vec3 &eye_position,
                                      const glm::vec4 &background_colour,
                                      bool do_depth_fog) {
+
+   stereo_eye_t eye = stereo_eye_t::MONO;
 
    if (draw_it) {
       if (show_symmetry) {
@@ -4638,9 +4641,10 @@ molecule_class_info_t::draw_symmetry(Shader *shader_p,
             float opacity = 1.0;
             bool gl_lines_mode = false;
             bool show_just_shadows = false;
-            meshes_for_symmetry_atoms.draw(shader_for_simple_mesh, shader_for_instances, mvp, view_rotation,
-                                           lights, eye_position, opacity, background_colour,
-                                           gl_lines_mode, do_depth_fog, show_just_shadows);
+            meshes_for_symmetry_atoms.draw(shader_for_simple_mesh, shader_for_instances, eye,
+                                           mvp, view_rotation, lights, eye_position, opacity,
+                                           background_colour, gl_lines_mode, do_depth_fog,
+                                           show_just_shadows);
 
          }
       }

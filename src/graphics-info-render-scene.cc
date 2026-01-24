@@ -720,7 +720,11 @@ graphics_info_t::render_scene_with_depth_blur(Shader *shader_for_tmeshes_p, Shad
 gboolean
 graphics_info_t::render_scene() {
 
-   if (true) {
+   bool do_mono = true;
+   if (display_mode == coot::SIDE_BY_SIDE_STEREO)          do_mono = false;
+   if (display_mode == coot::SIDE_BY_SIDE_STEREO_WALL_EYE) do_mono = false;
+
+   if (do_mono) {
       return render_scene_for_eye_internal(stereo_eye_t::MONO);
    } else {
       bool ss = render_scene_for_eye_internal(stereo_eye_t::LEFT_EYE);
@@ -762,7 +766,7 @@ graphics_info_t::render_scene_for_eye_internal(stereo_eye_t eye) {
       // is the double resolution issue to handle)
 
       if (scale_up_graphics != 1) {
-         width *= scale_up_graphics;
+         width  *= scale_up_graphics;
          height *= scale_up_graphics;
       }
       if (scale_down_graphics != 1) {
@@ -835,7 +839,7 @@ graphics_info_t::render_scene_for_eye_internal(stereo_eye_t eye) {
          std::cout << "GL ERROR:: render_scene_basic() I " << err << std::endl;
 
       draw_rotation_centre_crosshairs(GTK_GL_AREA(gl_area), PASS_TYPE_STANDARD);
-      render_3d_scene(GTK_GL_AREA(gl_area));
+      render_3d_scene(GTK_GL_AREA(gl_area), eye);
       // HUD things? Not here?
       if (show_fps_flag) {
          err = glGetError();
