@@ -24,6 +24,15 @@ When Paul reports bugs or unexpected behavior:
 
 **Bad response:** "You could set the ribbon colors last to avoid the issue"
 
-**Good response:** "Is the ribbon coloring clobbering the per-molecule color state? Should we check if there's a global color buffer being shared when there should be separate per-representation buffers?"
+**Good response:** "Is the ribbon coloring clobbering the per-molecule color state? Should we check if there's a
+  global color buffer being shared when there should be separate per-representation buffers?"
 
 The goal is fixing Coot, not working around its bugs.
+
+
+## Code Format
+
+ - 3 spaces for indenting C++ code
+ - 4 spaces for indenting Python code
+ - No spaces on otherwise blank lines
+ - No trailing spaces
