@@ -84,6 +84,24 @@ coot_utils.chain_ids(imol) -> list         # Returns list of chain IDs, e.g., ['
 # Direct C++ functions (preferred when possible)
 coot.chain_id_py(imol, chain_index) -> str # Get chain ID by index
 ```
+## Secondary Structure Information
+```python
+coot.get_header_secondary_structure_info(imol) -> dict
+# Returns secondary structure from PDB header
+# Returns: {'helices': [...], 'strands': [...]}
+#
+# Each helix dict contains:
+#   serNum, helixID, initChainID, initSeqNum, endChainID, endSeqNum, length, comment
+#
+# Each strand dict contains:
+#   SheetID, strandNo, initChainID, initSeqNum, endChainID, endSeqNum
+#
+# Example - get beta barrel strands:
+ss = coot.get_header_secondary_structure_info(0)
+if 'strands' in ss:
+    for strand in ss['strands']:
+        print(f"Strand {strand['strandNo']}: {strand['initSeqNum']}-{strand['endSeqNum']}")
+```
 
 ## Navigation
 
