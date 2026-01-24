@@ -1,5 +1,5 @@
 ---
-name: coot-cpp-docs
+name: coot-developer-cpp-docs
 description: "C++ documentation style conventions for Coot codebase"
 ---
 

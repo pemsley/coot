@@ -833,6 +833,7 @@ libcootsumo_la_SOURCES = \
 	spherical-density.cc     \
 	single-map-properties-dialog.cc \
 	single-map-properties-dialog.hh \
+	stereo-eye.hh            \
 	fragment-info.hh	 \
 	atom-name-bits.hh	 \
 	additional-representation.hh	   \

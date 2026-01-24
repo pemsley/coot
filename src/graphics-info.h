@@ -70,6 +70,7 @@
 
 #include "geometry/protein-geometry.hh"
 
+#include "stereo-eye.hh"
 #include "molecule-class-info.h"
 
 #ifdef HAVE_SSMLIB
@@ -760,8 +761,7 @@ public:
    static int display_mode; // e.g. HARDWARE_STEREO_MODE, DTI_SIDE_BY_SIDE_STEREO
    static float hardware_stereo_angle_factor;
    static bool in_wall_eyed_side_by_side_stereo_mode;
-   enum class stereo_eye_t { MONO, LEFT_EYE, RIGHT_EYE };
-   static stereo_eye_t which_eye;
+   // static stereo_eye_t which_eye;
    static glm::vec3 eye_position; // useful in projection (testing)
    static bool stereo_style_2010;
 
@@ -4186,7 +4186,7 @@ string   static std::string sessionid;
    static void render_scene_with_texture_combination_for_depth_blur();
    static void draw_map_molecules(bool draw_transparent_maps);
    static void draw_map_molecules_with_shadows();
-   static void draw_model_molecules();
+   static void draw_model_molecules(stereo_eye_t eye);
    static void draw_model_molecules_symmetry_with_shadows();
    static void draw_intermediate_atoms(unsigned int pass_type);
    static void draw_intermediate_atoms_rama_balls(unsigned int pass_type);
@@ -4196,7 +4196,7 @@ string   static std::string sessionid;
    static void draw_hud_refinement_dialog_arrow_tab();
    static void draw_hud_colour_bar();
    static void draw_molecular_triangles();
-   static void draw_molecules();
+   static void draw_molecules(stereo_eye_t eye);
    static void draw_meshes();
    static void draw_meshed_generic_display_object_meshes(unsigned int pass_type);
    static void draw_molecules_other_meshes(unsigned int pass_type);
@@ -4612,7 +4612,7 @@ string   static std::string sessionid;
    // AO new try (dec-2021)
 
    static void draw_hud_elements();
-   static void render_3d_scene(GtkGLArea *gl_area);
+   static void render_3d_scene(GtkGLArea *gl_area, stereo_eye_t eye);
    static void render_3d_scene_for_ssao(); // c.f. above, this one doesn't pass the gl_area.
                                            // I don't know which is best.
    static void render_3d_scene_with_shadows(); // change the shader from meshes.shader to meshes-with-shadows.shader

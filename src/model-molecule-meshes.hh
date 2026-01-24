@@ -31,6 +31,7 @@
 #include "Shader.hh"
 #include "Material.hh"
 #include "Mesh.hh"
+#include "stereo-eye.hh"
 #include "api/bond-colour.hh"
 
 // This class draws the meshes in instanced_mesh_t
@@ -57,6 +58,7 @@ public:
    // wrapper for both the instanced and simple meshes
    void draw(Shader *shader_mesh,
              Shader *shader_instanced_mesh,
+             stereo_eye_t eye,
              const glm::mat4 &mvp,
              const glm::mat4 &view_rotation_matrix,
              const std::map<unsigned int, lights_info_t> &lights,

@@ -25,6 +25,7 @@
  */
 
 #include "graphics-info.h"
+#include "stereo-eye.hh"
 
 void
 graphics_info_t::draw_models_for_ssao() {
@@ -278,6 +279,8 @@ graphics_info_t::draw_Models_for_shadow_map(unsigned int light_index) {
 void
 graphics_info_t::draw_molecules_for_shadow_map(unsigned int light_index) {
 
+   stereo_eye_t eye = stereo_eye_t::MONO; // pass this
+
    // std::cout << "draw_molecules_for_shadow_map() " << std::endl;
 
    GLenum err = glGetError();
@@ -333,7 +336,7 @@ graphics_info_t::draw_molecules_for_shadow_map(unsigned int light_index) {
 
                m.model_molecule_meshes.draw(&shader_for_meshes_shadow_map,
                                             &shader_for_instanced_meshes_shadow_map,
-                                            mvp_orthogonal, model_rotation, lights, dummy_eye_position,
+                                            eye, mvp_orthogonal, model_rotation, lights, dummy_eye_position,
                                             opacity, bg_col_v4, gl_lines_mode, do_depth_fog, show_just_shadows);
             }
          }
