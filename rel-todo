@@ -1,15 +1,32 @@
 --- Items ---
 
+o add a menu or button to start JSON-RPC server localhost
+  and an entry for a port number
+
+o small angle and wide angle scattering - sax and wasc?
+  carbohydrate fitting?
+
 o add a Coot API function to get header info
+* Done.
+
+o For Clemens: check what is being got from Rotamer and Rama in chapi.
+  Make plots for tutorial model.
 
 o Martin Maly: If I could make a wish, yes, it would be nice
-  to have the function get_rotamer_name_py()  in CHAPI please.
-  And also n_rotamers, set_residue_to_rotamer_number or
-  set_residue_to_rotamer_name could be useful in my efforts
+  to have the function get_rotamer_name_py() in CHAPI please.
+  And also get_n_rotamers(), set_residue_to_rotamer_number() or
+  set_residue_to_rotamer_name() could be useful in my efforts
   with model shaking before bootstrap.
+
+o for MCP Coot: validate_residue(imol, residue_spec)
+  capture Rama, rota, atom overlaps and density fit.
 
 o check Validation -> Outliers vs Overlaps, Peptides, etc.
   Outliers can go now?
+
+o Why don't Ribbon diagrams cast shadows on themselves?
+  They cast shadows on other things. Ah, the shader for
+  ribbons needs to use the shadow map. Easy?
 
 o R and X are not in the keybindings?
 * Done - added R - seems slow.
@@ -18,10 +35,12 @@ o coot.refine_residues_py() doesn't wait for completion of
   the refinement in immediate-replacement mode.
 * Fixed.
 
-o ctrl click refine drag atom in molten zone
+o refine ctrl click drag atom (without refinement) in molten zone
+
+o get em_placement working
 
 o auto-fit rotamer on newly added residue (add-terminal-residue)
-  This is tricky becausee both simple and auto-fit use mutate_to_type_inner()
+  This is tricky because both simple and auto-fit use mutate_to_type_inner()
   because they both use mutate_to_type_HIS() etc (I think).
   Mutate and auto-fit is not doing auto-fitting.
 
@@ -42,6 +61,9 @@ o Oliver: torsion validation by dictionary?
   Make Acedrg extract torsions.
 
 o is there python access to headers in the Coot API?
+  No. There should be.
+
+o Fill PyObject *model_composition_statistics_py(int imol);
 
 o "Summary of Structure" for accession code using Solr?
 
