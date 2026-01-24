@@ -12438,7 +12438,7 @@ density (too big to be waters):
           <object class="GtkFrame" id="frame110">
             <child>
               <object class="GtkBox" id="vbox116">
-                <property name="spacing">8</property>
+                <property name="spacing">4</property>
                 <property name="margin-start">4</property>
                 <property name="margin-end">4</property>
                 <property name="margin-top">4</property>
@@ -12524,7 +12524,7 @@ density (too big to be waters):
                         <property name="orientation">vertical</property>
                         <child>
                           <object class="GtkLabel" id="label245">
-                            <property name="label" translatable="yes">Successive Peptides by Ramachandran search (this may not work well)</property>
+                            <property name="label" translatable="yes">Fit Loop by Ramachandran search</property>
                             <property name="justify">center</property>
                           </object>
                         </child>
