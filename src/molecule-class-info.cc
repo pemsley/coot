@@ -905,8 +905,10 @@ void
 molecule_class_info_t::draw_atom_labels(int brief_atom_labels_flag,
                                         short int seg_ids_in_atom_labels_flag,
                                         const glm::vec4 &atom_label_colour,
+                                        stereo_eye_t eye,
                                         const glm::mat4 &mvp,
                                         const glm::mat4 &view_rotation) {
+
 
    if (draw_it) {
       if (has_model()) {
@@ -924,7 +926,7 @@ molecule_class_info_t::draw_atom_labels(int brief_atom_labels_flag,
          for (int ii=0; ii<n_atoms_to_label ; ii++)
             draw_atom_label(labelled_atom_index_list[ii], brief_atom_labels_flag,
                             seg_ids_in_atom_labels_flag, atom_label_colour,
-                            mvp, view_rotation);
+                            eye, mvp, view_rotation);
 
          unsigned int n_symm_atoms_to_label = labelled_symm_atom_index_list.size();
 
@@ -2681,6 +2683,8 @@ molecule_class_info_t::draw_fixed_atom_positions() const {
 void
 molecule_class_info_t::draw_ghost_bonds(int ighost) {
 
+   stereo_eye_t eye = stereo_eye_t::MONO; // PASS THIS
+
 #if 0 // olden code
    // hack in a value
    bool against_a_dark_background = true;
@@ -2712,7 +2716,7 @@ molecule_class_info_t::draw_ghost_bonds(int ighost) {
    if (ighost<int(ncs_ghosts.size())) {
       if (ncs_ghosts[ighost].display_it_flag) {
          Shader *shader_p = &graphics_info_t::shader_for_meshes_with_shadows;
-         glm::mat4 mvp = graphics_info_t::get_molecule_mvp();
+         glm::mat4 mvp = graphics_info_t::get_molecule_mvp(eye);
          glm::mat4 model_rotation_matrix = graphics_info_t::get_model_rotation();
          glm::vec4 background_colour = graphics_info_t::get_background_colour();
          const auto &lights = graphics_info_t::lights;
@@ -3545,6 +3549,7 @@ molecule_class_info_t::draw_atom_label(int atom_index,
                                        int brief_atom_labels_flag,
                                        short int seg_ids_in_atom_labels_flag,
                                        const glm::vec4 &atom_label_colour,
+                                       stereo_eye_t eye,
                                        const glm::mat4 &mvp,
                                        const glm::mat4 &view_rotation) {
 
@@ -3560,7 +3565,7 @@ molecule_class_info_t::draw_atom_label(int atom_index,
 
             graphics_info_t g;
             g.tmesh_for_labels.draw_atom_label(label, position, atom_label_colour,
-                                               &g.shader_for_atom_labels, mvp, view_rotation,
+                                               &g.shader_for_atom_labels, eye, mvp, view_rotation,
                                                glm::vec4(g.background_colour, 1.0),
                                                g.shader_do_depth_fog_flag,
                                                g.perspective_projection_flag);
@@ -3585,6 +3590,8 @@ molecule_class_info_t::draw_symm_atom_label(int atom_index,
                                             const glm::mat4 &mvp,
                                             const glm::mat4 &view_rotation) {
 
+   stereo_eye_t eye = stereo_eye_t::MONO;
+
    if (has_model()) {
       if (atom_index < atom_sel.n_selected_atoms) {
          mmdb::Atom *atom = atom_sel.atom_selection[atom_index];
@@ -3597,7 +3604,7 @@ molecule_class_info_t::draw_symm_atom_label(int atom_index,
 
             graphics_info_t g;
             g.tmesh_for_labels.draw_atom_label(label, position, atom_label_colour,
-                                               &g.shader_for_atom_labels, mvp, view_rotation,
+                                               &g.shader_for_atom_labels, eye, mvp, view_rotation,
                                                glm::vec4(g.background_colour, 1.0),
                                                g.shader_do_depth_fog_flag,
                                                g.perspective_projection_flag);

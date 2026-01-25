@@ -53,6 +53,8 @@ uniform float pulsing_amplitude; // = 0.25;  // make these uniforms?
 uniform float pulsing_frequency; // = 5.0;
 uniform float pulsing_phase_distribution; // = 0.2;
 uniform float z_rotation_angle;
+uniform float stereo_x_scale;
+uniform float stereo_x_offset;
 
 out vec4 colour_transfer;
 out vec3 normal_transfer;
@@ -83,7 +85,7 @@ void main() {
    vec4 p4 = vec4(t_pos, 1.0);
    vec4 frag_pos = model_rotation_translation_scale * p4;
 
-   gl_Position = mvp * frag_pos;
+   gl_Position = mvp * frag_pos * vec4(stereo_x_scale, 1.0f, 1.0f, 1.0f) + vec4(stereo_x_offset, 0.0f, 0.0f, 0.0f);
 
    normal_transfer = model_rotation * n_dir;
    colour_transfer = colour;

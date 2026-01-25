@@ -24,6 +24,7 @@
  *
  */
 
+#include "stereo-eye.hh"
 #ifdef USE_PYTHON
 #include "Python.h"
 #endif
@@ -301,11 +302,27 @@ TextureMesh::draw_atom_label(const std::string &atom_label,
                              const glm::vec3 &atom_label_position,
                              const glm::vec4 &text_colour, // set using glBufferSubData
                              Shader *shader_p,
+                             stereo_eye_t eye,
                              const glm::mat4 &mvp,
                              const glm::mat4 &view_rotation_matrix,
                              const glm::vec4 &background_colour,
                              bool do_depth_fog,
                              bool is_perspective_projection) {
+
+   auto get_stereo_x_scale_and_offset = [] (stereo_eye_t eye) {
+
+      // for side by side stereo, of course
+      float stereo_x_scale  = 1.0;
+      float stereo_x_offset = 0.0;
+      if (eye == stereo_eye_t::LEFT_EYE) {
+         stereo_x_scale = 2.0f;
+      }
+      if (eye == stereo_eye_t::RIGHT_EYE) {
+         stereo_x_offset = -0.5f;
+      }
+      return std::pair<float, float>(stereo_x_scale, stereo_x_offset);
+   };
+
 
    if (! draw_this_mesh) return;
 
@@ -355,6 +372,16 @@ TextureMesh::draw_atom_label(const std::string &atom_label,
    err = glGetError();
    if (err) std::cout << "GL ERROR:: TextureMesh::draw_atom_label() " << name << " " << shader_p->name
                       << " post is_perspective_projection " << err << std::endl;
+
+   std::pair<float, float> stereo_x_scale_and_offset = get_stereo_x_scale_and_offset(eye);
+   const float &stereo_x_scale  = stereo_x_scale_and_offset.first;
+   const float &stereo_x_offset = stereo_x_scale_and_offset.second;
+
+   std::cout << "DEBUG:: draw_atom_label() stereo_x_scale and offset " << stereo_x_scale << " " << stereo_x_offset << std::endl;
+
+   shader_p->set_float_for_uniform("stereo_x_scale",  stereo_x_scale);
+   shader_p->set_float_for_uniform("stereo_x_offset", stereo_x_offset);
+
 
    if (vao == VAO_NOT_SET)
       std::cout << "You forget to setup this TextureMesh " << name << " " << shader_p->name << std::endl;

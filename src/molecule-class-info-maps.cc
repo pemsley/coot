@@ -152,6 +152,8 @@ molecule_class_info_t::draw_map_molecule( bool draw_transparent_maps,
 
 
 
+   stereo_eye_t eye = stereo_eye_t::MONO; // PASS THIS
+
    if (! draw_it_for_map) return;
 
    bool cosine_dependent_map_opacity = true; // I wonder what this does these days
@@ -238,7 +240,7 @@ molecule_class_info_t::draw_map_molecule( bool draw_transparent_maps,
          bool show_just_shadows = false;
          bool do_depth_fog = graphics_info_t::shader_do_depth_fog_flag;
          bool wireframe_mode = true; // aka "standard lines" / chickenwire
-         map_as_mesh_gl_lines_version.draw(&shader, mvp, view_rotation, lights, eye_position, rotation_centre, opacity, bgc,
+         map_as_mesh_gl_lines_version.draw(&shader, eye, mvp, view_rotation, lights, eye_position, rotation_centre, opacity, bgc,
                                            wireframe_mode, do_depth_fog, show_just_shadows);
       }
 
@@ -248,7 +250,7 @@ molecule_class_info_t::draw_map_molecule( bool draw_transparent_maps,
          bool wireframe_mode = false; // aka "standard lines" / chickenwire
          if (opacity < 1.0)
             map_as_mesh.sort_map_triangles(eye_position);
-         map_as_mesh.draw(&shader, mvp, view_rotation, lights, eye_position, rotation_centre, opacity, bgc,
+         map_as_mesh.draw(&shader, eye, mvp, view_rotation, lights, eye_position, rotation_centre, opacity, bgc,
                           wireframe_mode, do_depth_fog, show_just_shadows);
       }
    }

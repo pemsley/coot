@@ -632,7 +632,7 @@ graphics_info_t::get_light_space_mvp(int light_index) {
 
 // static
 glm::mat4
-graphics_info_t::get_molecule_mvp(bool debug_matrices) {
+graphics_info_t::get_molecule_mvp(stereo_eye_t eye, bool debug_matrices) {
 
    int w = graphics_x_size;
    int h = graphics_y_size;
@@ -658,6 +658,18 @@ graphics_info_t::get_molecule_mvp(bool debug_matrices) {
    glm::mat4  view_matrix =       get_view_matrix();
    glm::mat4 model_matrix =      get_model_matrix();
    glm::mat4  proj_matrix = get_projection_matrix(do_orthographic_projection, w, h);
+
+   // this setup is for cross-eye : i.e left image is on the right.
+   // we will need to know the stereo mode (wall vs cross) to get the correct sign
+   if (eye == stereo_eye_t::LEFT_EYE) {
+      glm::mat4 rot_z = glm::rotate(glm::mat4(1.0f), glm::radians(-3.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+      view_matrix = rot_z * view_matrix;
+   }
+   if (eye == stereo_eye_t::RIGHT_EYE) {
+      glm::mat4 rot_z = glm::rotate(glm::mat4(1.0f), glm::radians(3.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+      view_matrix = rot_z * view_matrix;
+   }
+
    glm::mat4 mvp = proj_matrix * view_matrix * model_matrix;
 
    if (false) {
@@ -737,6 +749,8 @@ glm::vec4
 graphics_info_t::unproject(float z) {
 
    // z is 1 and -1 for front and back (or vice verse).
+ 
+   stereo_eye_t eye = stereo_eye_t::MONO;
 
    GtkAllocation allocation;
    gtk_widget_get_allocation(graphics_info_t::glareas[0], &allocation);
@@ -750,7 +764,7 @@ graphics_info_t::unproject(float z) {
              << g.GetMouseBeginX() << " "
              << g.GetMouseBeginY() << std::endl;
    std::cout << "debug in new_unproject mouse x and y GL      " << mouseX << " " << mouseY << std::endl;
-   glm::mat4 mvp = get_molecule_mvp();
+   glm::mat4 mvp = get_molecule_mvp(eye);
    glm::mat4 vp_inv = glm::inverse(mvp);
    float real_y = - mouseY; // in range -1 -> 1
    glm::vec4 screenPos_f = glm::vec4(mouseX, real_y, z, 1.0f);
@@ -795,7 +809,7 @@ graphics_info_t::myglLineWidth(int n_pixels) {
 }
 
 void
-graphics_info_t::draw_map_molecules(bool draw_transparent_maps) {
+graphics_info_t::draw_map_molecules(stereo_eye_t eye, bool draw_transparent_maps) {
 
    GLenum err = glGetError();
    if (err) std::cout << "GL ERROR:: g.draw_map_molecules() -- start -- " << err << std::endl;
@@ -855,7 +869,7 @@ graphics_info_t::draw_map_molecules(bool draw_transparent_maps) {
       Shader &shader = shader_for_meshes;
       shader.Use(); // needed? I think not.
 
-      glm::mat4 mvp = get_molecule_mvp();
+      glm::mat4 mvp = get_molecule_mvp(eye);
       glm::mat4 model_rotation = get_model_rotation();
 
       glEnable(GL_DEPTH_TEST); // this needs to be in the draw loop!?
@@ -893,7 +907,7 @@ graphics_info_t::draw_model_molecules(stereo_eye_t eye) {
    // This is only called in "Plain" mode - i.e. it is not used in "Fancy" mode.
    // This function is called by draw_molecules(), which in turn is called by render_3d_scene()
 
-   glm::mat4 mvp = get_molecule_mvp();
+   glm::mat4 mvp = get_molecule_mvp(eye);
 
    // std::cout << "debug:: mvp in draw_model_molecules() is     " << glm::to_string(mvp) << std::endl;
    glm::mat4 model_rotation = get_model_rotation();
@@ -951,13 +965,15 @@ graphics_info_t::draw_model_molecules(stereo_eye_t eye) {
       m.draw_ncs_ghosts(&shader_for_meshes, mvp, model_rotation, lights, eye_position, bgc);
 
       glEnable(GL_BLEND);
-      draw_molecule_atom_labels(m, mvp, model_rotation);
+      draw_molecule_atom_labels(m, eye, mvp, model_rotation);
 
    }
 }
 
 void
 graphics_info_t::draw_model_molecules_symmetry_with_shadows() {
+   
+   stereo_eye_t eye = stereo_eye_t::MONO; // PASS THIS
 
    if (show_symmetry) {
       for (int ii=n_molecules()-1; ii>=0; ii--) {
@@ -967,7 +983,7 @@ graphics_info_t::draw_model_molecules_symmetry_with_shadows() {
          Shader &symm_shader_p = shader_for_symmetry_atoms_bond_lines;
          glm::mat4 model_rotation = get_model_rotation();
          glm::vec4 bgc(background_colour, 1.0);
-         glm::mat4 mvp = get_molecule_mvp();
+         glm::mat4 mvp = get_molecule_mvp(eye);
          m.draw_symmetry(&symm_shader_p, mvp, model_rotation, lights, eye_position, bgc, shader_do_depth_fog_flag);
       }
    }
@@ -981,6 +997,7 @@ graphics_info_t::draw_map_molecules_with_shadows() {
 
 void
 graphics_info_t::draw_molecule_atom_labels(molecule_class_info_t &m,
+                                           stereo_eye_t eye,
                                            const glm::mat4 &mvp,
                                            const glm::mat4 &view_rotation) {
 
@@ -1020,7 +1037,7 @@ graphics_info_t::draw_molecule_atom_labels(molecule_class_info_t &m,
    if (n_atoms_to_label == 0 && n_symm_atoms_to_label == 0) {
    } else {
       m.draw_atom_labels(brief_atom_labels_flag, seg_ids_in_atom_labels_flag,
-                         label_colour, mvp, view_rotation);
+                         label_colour, eye, mvp, view_rotation);
    }
 
    // this is draw_generic_texts() - but not in its own function
@@ -1032,7 +1049,7 @@ graphics_info_t::draw_molecule_atom_labels(molecule_class_info_t &m,
          const std::string &label = gto.s;
          glm::vec3 position(gto.x, gto.y, gto.z);
          tmesh_for_labels.draw_atom_label(label, position, atom_label_colour,
-                                          &shader_for_atom_labels, mvp, view_rotation,
+                                          &shader_for_atom_labels, eye, mvp, view_rotation,
                                           glm::vec4(background_colour, 1.0),
                                           shader_do_depth_fog_flag,
                                           perspective_projection_flag);
@@ -1047,7 +1064,7 @@ graphics_info_t::draw_molecule_atom_labels(molecule_class_info_t &m,
 void
 graphics_info_t::draw_intermediate_atoms(unsigned int pass_type) { // draw_moving_atoms()
 
-   stereo_eye_t eye = stereo_eye_t::MONO; // pass this
+   stereo_eye_t eye = stereo_eye_t::MONO; // PASS THIS
 
    // std::cout << "draw_intermediate_atoms() --- start --- " << std::endl;
 
@@ -1061,7 +1078,7 @@ graphics_info_t::draw_intermediate_atoms(unsigned int pass_type) { // draw_movin
    if (! moving_atoms_asc) return;
    if (! moving_atoms_asc->mol) return;
 
-   glm::mat4 mvp = get_molecule_mvp();
+   glm::mat4 mvp = get_molecule_mvp(eye);
    glm::mat4 model_rotation = get_model_rotation();
 
    molecule_class_info_t &m = graphics_info_t::moving_atoms_molecule;
@@ -1176,6 +1193,8 @@ graphics_info_t::update_rama_balls(std::vector<Instanced_Markup_Mesh_attrib_t> *
 void
 graphics_info_t::draw_intermediate_atoms_rama_balls(unsigned int pass_type) {
 
+   stereo_eye_t eye = stereo_eye_t::MONO;
+
    // 20220302-PE Currently I don't draw rama balls with instancing
    //             It would be nice to have.
    return;
@@ -1185,7 +1204,7 @@ graphics_info_t::draw_intermediate_atoms_rama_balls(unsigned int pass_type) {
 
    Shader &shader = graphics_info_t::shader_for_rama_balls;
 
-   glm::mat4 mvp = get_molecule_mvp();
+   glm::mat4 mvp = get_molecule_mvp(eye);
    glm::vec3 eye_position = get_world_space_eye_position();
    glm::mat4 model_rotation = get_model_rotation();
    glm::vec4 bg_col(background_colour, 1.0);
@@ -1408,6 +1427,8 @@ graphics_info_t::setup_atom_pull_restraints_glsl() {
 void
 graphics_info_t::draw_atom_pull_restraints() {
 
+   stereo_eye_t eye = stereo_eye_t::MONO; // PASS THIS
+
    // Note to self: do this first with standard (modern) OpenGL.
    //
    // Then do it again with instances. It will be faster to draw bonds and atoms that way.
@@ -1439,7 +1460,7 @@ graphics_info_t::draw_atom_pull_restraints() {
             if (err) std::cout << "   error draw_atom_pull_restraints() glBindVertexArray()"
                                << " with GL err " << err << std::endl;
 
-            glm::mat4 mvp = get_molecule_mvp();
+            glm::mat4 mvp = get_molecule_mvp(eye);
             glm::mat4 model_rotation = get_model_rotation();
             GLuint mvp_location = shader.mvp_uniform_location;
             GLuint view_rotation_location = shader.view_rotation_uniform_location;
@@ -1520,11 +1541,13 @@ graphics_info_t::draw_molecular_triangles() {
 void
 graphics_info_t::draw_particles() {
 
+   stereo_eye_t eye = stereo_eye_t::MONO; // PASS THIS
+
    if (curmudgeon_mode) return;
 
    if (! particles.empty()) {
       if (mesh_for_particles.have_instances()) {
-         glm::mat4 mvp = get_molecule_mvp();
+         glm::mat4 mvp = get_molecule_mvp(eye);
          glm::mat4 model_rotation = get_model_rotation();
          mesh_for_particles.draw_particles(&shader_for_particles, mvp, model_rotation);
       }
@@ -1535,7 +1558,7 @@ graphics_info_t::draw_particles() {
       for (unsigned int i=0; i<meshed_particles_for_gone_diegos.size(); i++) {
          Mesh &mesh(meshed_particles_for_gone_diegos[i].mesh);
          if (mesh.have_instances()) {
-            glm::mat4 mvp = get_molecule_mvp();
+            glm::mat4 mvp = get_molecule_mvp(eye);
             glm::mat4 model_rotation = get_model_rotation();
             // std::cout << "debug:: draw_particles(): drawing gone diego particles! imesh: " << i << std::endl;
             mesh.draw_particles(&shader_for_particles, mvp, model_rotation);
@@ -1548,7 +1571,7 @@ graphics_info_t::draw_particles() {
    { // gone difference map peaks.
       Mesh &mesh = meshed_particles_for_gone_diff_map_peaks.mesh;
       if (mesh.have_instances()) {
-         glm::mat4 mvp = get_molecule_mvp();
+         glm::mat4 mvp = get_molecule_mvp(eye);
          glm::mat4 model_rotation = get_model_rotation();
          mesh.draw_particles(&shader_for_particles, mvp, model_rotation);
       }
@@ -1558,6 +1581,8 @@ graphics_info_t::draw_particles() {
 // static
 void
 graphics_info_t::draw_happy_face_residue_markers() {
+
+   stereo_eye_t eye = stereo_eye_t::MONO; // PASS THIS
 
    if (curmudgeon_mode) return;
 
@@ -1576,7 +1601,7 @@ graphics_info_t::draw_happy_face_residue_markers() {
          // the update of the instanced positions is done in the tick function
 
          graphics_info_t g; // needed for draw_count_max_for_happy_face_residue_markers. Use a better way?
-         glm::mat4 mvp = get_molecule_mvp();
+         glm::mat4 mvp = get_molecule_mvp(eye);
          glm::mat4 model_rotation = get_model_rotation();
          texture_for_happy_face_residue_marker.Bind(0);
          unsigned int draw_count = draw_count_for_happy_face_residue_markers;
@@ -1592,9 +1617,11 @@ graphics_info_t::draw_happy_face_residue_markers() {
 void
 graphics_info_t::draw_anchored_atom_markers()  {
 
+   stereo_eye_t eye = stereo_eye_t::MONO; // PASS THIS
+
    if (tmesh_for_anchored_atom_markers.draw_this_mesh) {
       if (tmesh_for_anchored_atom_markers.have_instances()) {
-         glm::mat4 mvp = get_molecule_mvp();
+         glm::mat4 mvp = get_molecule_mvp(eye);
          glm::mat4 view_rotation = get_model_rotation();
          glm::vec4 bg_col(background_colour, 1.0);
          texture_for_anchored_atom_markers.Bind(0);
@@ -1609,8 +1636,10 @@ graphics_info_t::draw_texture_meshes() {
 
    // std::cout << "draw_texture_meshes() --- start --- " << std::endl;
 
+   stereo_eye_t eye = stereo_eye_t::MONO; // PASS THIS
+
    if (! texture_meshes.empty()) {
-      glm::mat4 mvp = get_molecule_mvp();
+      glm::mat4 mvp = get_molecule_mvp(eye);
       glm::vec3 eye_position = get_world_space_eye_position();
       glm::mat4 model_rotation = get_model_rotation();
       glm::vec4 bg_col(background_colour, 1.0);
@@ -1863,17 +1892,17 @@ graphics_info_t::draw_molecules(stereo_eye_t eye) {
 
    // return; // no draw
 
-   draw_molecules_other_meshes(PASS_TYPE_STANDARD);
+   draw_molecules_other_meshes(eye, PASS_TYPE_STANDARD);
 
    draw_instanced_meshes();
 
-   draw_map_molecules(false); // transparency
+   draw_map_molecules(eye, false); // transparency
 
    draw_unit_cells();
 
    draw_environment_graphics_object();
 
-   draw_hydrogen_bonds_mesh(); // like boids
+   draw_hydrogen_bonds_mesh(eye); // like boids
 
    draw_boids();
 
@@ -1899,9 +1928,9 @@ graphics_info_t::draw_molecules(stereo_eye_t eye) {
 
    // transparent things...
 
-   draw_map_molecules(true); // transparent
+   draw_map_molecules(eye, true); // transparent
 
-   draw_generic_objects(PASS_TYPE_STANDARD);
+   draw_generic_objects(PASS_TYPE_STANDARD, eye);
 
    // moved down
    draw_meshed_generic_display_object_meshes(PASS_TYPE_STANDARD);
@@ -1911,9 +1940,11 @@ graphics_info_t::draw_molecules(stereo_eye_t eye) {
 void
 graphics_info_t::draw_molecules_with_shadows() {
 
+   stereo_eye_t eye = stereo_eye_t::MONO; // PASS THIS
+
    int n_mols = n_molecules();
    bool show_just_shadows = false;
-   glm::mat4 mvp = get_molecule_mvp();
+   glm::mat4 mvp = get_molecule_mvp(eye);
    auto model_rotation_matrix = get_model_rotation();
 
    int light_index = 0; // 20220215-PE for now.
@@ -2039,7 +2070,7 @@ graphics_info_t::draw_molecules_with_shadows() {
 
    draw_meshed_generic_display_object_meshes(PASS_TYPE_WITH_SHADOWS);
 
-   draw_molecules_other_meshes(PASS_TYPE_STANDARD);
+   draw_molecules_other_meshes(eye, PASS_TYPE_STANDARD);
 
    draw_instanced_meshes();
 
@@ -2049,9 +2080,9 @@ graphics_info_t::draw_molecules_with_shadows() {
 
    draw_environment_graphics_object();
 
-   draw_generic_objects(PASS_TYPE_STANDARD);
+   draw_generic_objects(PASS_TYPE_STANDARD, eye);
 
-   draw_hydrogen_bonds_mesh(); // like boids
+   draw_hydrogen_bonds_mesh(eye); // like boids
 
    draw_anchored_atom_markers();
 
@@ -2081,11 +2112,12 @@ graphics_info_t::draw_molecules_with_shadows() {
 void
 graphics_info_t::draw_molecules_atom_labels() {
 
+   stereo_eye_t eye = stereo_eye_t::MONO; // PASS THIS
 
    // calls draw_molecule_atom_labels(m, mvp, model_rotation_matrix);
 
    int n_mols = n_molecules();
-   glm::mat4 mvp = get_molecule_mvp();
+   glm::mat4 mvp = get_molecule_mvp(eye);
    auto model_rotation_matrix = get_model_rotation();
 
    for (int i=0; i<n_mols; i++) {
@@ -2093,7 +2125,7 @@ graphics_info_t::draw_molecules_atom_labels() {
          // glEnable(GL_BLEND); // surely this is called inside draw_labels()?
          molecule_class_info_t &m = molecules[i];
          if (m.draw_it) {
-            draw_molecule_atom_labels(m, mvp, model_rotation_matrix);
+            draw_molecule_atom_labels(m, eye, mvp, model_rotation_matrix);
          }
       }
    }
@@ -2105,6 +2137,8 @@ graphics_info_t::draw_molecules_atom_labels() {
 // static
 void
 graphics_info_t::draw_environment_graphics_object() {
+
+   stereo_eye_t eye = stereo_eye_t::MONO; // PASS THIS
 
 #if 0   // old... keep for reference (for a while)
    graphics_info_t g;
@@ -2121,7 +2155,7 @@ graphics_info_t::draw_environment_graphics_object() {
       molecule_class_info_t &m = molecules[mol_no_for_environment_distances];
       if (m.is_displayed_p()) {
          if (environment_show_distances) {
-            glm::mat4 mvp = get_molecule_mvp();
+            glm::mat4 mvp = get_molecule_mvp(eye);
             glm::vec3 eye_position = get_world_space_eye_position();
             glm::mat4 model_rotation = get_model_rotation();
             glm::vec4 bg_col(background_colour, 1.0);
@@ -2133,7 +2167,7 @@ graphics_info_t::draw_environment_graphics_object() {
             auto ccrc = RotationCentre();
             glm::vec3 rc(ccrc.x(), ccrc.y(), ccrc.z());
             mesh_for_environment_distances.mesh.draw(&shader_for_moleculestotriangles,
-                                                     mvp, model_rotation,
+                                                     eye, mvp, model_rotation,
                                                      lights, eye_position, rc, opacity, bg_col,
                                                      wireframe_mode, do_depth_fog, show_just_shadows);
 
@@ -2151,7 +2185,7 @@ graphics_info_t::draw_environment_graphics_object() {
                   // caches these textures in a map std::map<std::string, thing> where
                   // the key is the label.
                   tmesh_for_labels.draw_atom_label(label, position, colour, shader_p,
-                                                   mvp, model_rotation, bg_col, do_depth_fog,
+                                                   eye, mvp, model_rotation, bg_col, do_depth_fog,
                                                    perspective_projection_flag);
                }
             }
@@ -2244,8 +2278,10 @@ graphics_info_t::update_mesh_for_outline_of_active_residue(int imol, const coot:
 void
 graphics_info_t::draw_outlined_active_residue() {
 
+   stereo_eye_t eye = stereo_eye_t::MONO; // PASS THIS
+
    if (outline_for_active_residue_frame_count > 0) {
-      glm::mat4 mvp = get_molecule_mvp();
+      glm::mat4 mvp = get_molecule_mvp(eye);
       std::map<unsigned int, lights_info_t> dummy_lights;
       glm::vec3 eye_position = get_world_space_eye_position();
       glm::mat4 model_rotation = get_model_rotation();
@@ -2256,7 +2292,7 @@ graphics_info_t::draw_outlined_active_residue() {
       float opacity = 1.0f;
       auto ccrc = RotationCentre();
       glm::vec3 rc(ccrc.x(), ccrc.y(), ccrc.z());
-      mesh_for_outline_of_active_residue.draw(&shader, mvp, model_rotation, dummy_lights, eye_position, rc,
+      mesh_for_outline_of_active_residue.draw(&shader, eye, mvp, model_rotation, dummy_lights, eye_position, rc,
                                               opacity, bg_col, wireframe_mode, false, show_just_shadows);
    }
 };
@@ -2265,7 +2301,9 @@ graphics_info_t::draw_outlined_active_residue() {
 void
 graphics_info_t::draw_unit_cells() {
 
-   glm::mat4 mvp = get_molecule_mvp();
+   stereo_eye_t eye = stereo_eye_t::MONO; // PASS THIS
+
+   glm::mat4 mvp = get_molecule_mvp(eye);
    for (int ii=n_molecules()-1; ii>=0; ii--) {
       molecule_class_info_t &m = molecules[ii];
       m.draw_unit_cell(&shader_for_lines, mvp);
@@ -2275,6 +2313,8 @@ graphics_info_t::draw_unit_cells() {
 
 void
 graphics_info_t::draw_meshed_generic_display_object_meshes(unsigned int pass_type) {
+
+   stereo_eye_t eye = stereo_eye_t::MONO; // PASS THIS
 
    // non-instanced.
 
@@ -2298,7 +2338,7 @@ graphics_info_t::draw_meshed_generic_display_object_meshes(unsigned int pass_typ
       glEnable(GL_BLEND); // 20250714-PE
       if (have_generic_display_objects_to_draw()) {
          glm::mat4 model_rotation = get_model_rotation();
-         glm::mat4 mvp = get_molecule_mvp();
+         glm::mat4 mvp = get_molecule_mvp(eye);
          glm::vec4 bg_col(background_colour, 1.0);
          bool wireframe_mode = false;
          float opacity = 0.5;
@@ -2308,7 +2348,7 @@ graphics_info_t::draw_meshed_generic_display_object_meshes(unsigned int pass_typ
             if (false)
                std::cout << "drawing i " << i << std::endl;
             generic_display_objects[i].mesh.draw(&shader_for_moleculestotriangles,
-                                                 mvp, model_rotation, lights, eye_position, rc, opacity,
+                                                 eye, mvp, model_rotation, lights, eye_position, rc, opacity,
                                                  bg_col, wireframe_mode, false, show_just_shadows);
          }
       }
@@ -2353,7 +2393,7 @@ graphics_info_t::draw_meshed_generic_display_object_meshes(unsigned int pass_typ
             bool gl_lines_mode = false;
             for (unsigned int i=0; i<generic_display_objects.size(); i++) {
                generic_display_objects[i].mesh.draw(&shader_for_meshes_shadow_map,
-                                                    mvp_orthogonal, model_rotation, lights, dummy_eye_position,
+                                                    eye, mvp_orthogonal, model_rotation, lights, dummy_eye_position,
                                                     rc, opacity, bg_col_v4, gl_lines_mode,
                                                     do_depth_fog, show_just_shadows);
             }
@@ -2365,7 +2405,7 @@ graphics_info_t::draw_meshed_generic_display_object_meshes(unsigned int pass_typ
 
       // std::cout << "--------------------------- pass_type WITH SHADOWS!!!!!!!!!!!!!!!!!" << std::endl;
       if (have_generic_display_objects_to_draw()) {
-         glm::mat4 mvp = get_molecule_mvp();
+         glm::mat4 mvp = get_molecule_mvp(eye);
          glm::mat4 model_rotation = get_model_rotation();
          glm::vec4 bg_col_v4(background_colour, 1.0f);
          auto ccrc = RotationCentre();
@@ -2391,7 +2431,7 @@ graphics_info_t::draw_meshed_generic_display_object_meshes(unsigned int pass_typ
 
 
 void
-graphics_info_t::draw_molecules_other_meshes(unsigned int pass_type) {
+graphics_info_t::draw_molecules_other_meshes(stereo_eye_t eye, unsigned int pass_type) {
 
    // This function doesn't draw these
    // graphics_info_t::draw_instanced_meshes() A Molecule 2: Ligand Contact Dots H-bond
@@ -2405,7 +2445,7 @@ graphics_info_t::draw_molecules_other_meshes(unsigned int pass_type) {
    bool draw_mesh_normals = false;
 
    glm::vec3 eye_position = get_world_space_eye_position();
-   glm::mat4 mvp = get_molecule_mvp();
+   glm::mat4 mvp = get_molecule_mvp(eye);
    glm::mat4 mvp_orthogonal = glm::mat4(1.0f); // placeholder
    glm::mat4 model_rotation = get_model_rotation();
    glm::vec4 bg_col(background_colour, 1.0);
@@ -2461,8 +2501,8 @@ graphics_info_t::draw_molecules_other_meshes(unsigned int pass_type) {
                if (mesh.is_instanced) {
 
                   bool transferred_colour_is_instanced = false;
-                  mesh.draw_instanced(pass_type,
-                                      &shader_for_moleculestotriangles, mvp,
+                  mesh.draw_instanced(pass_type, 
+                                      &shader_for_moleculestotriangles, eye, mvp,
                                       model_rotation, lights, eye_position,
                                       bg_col, do_depth_fog, transferred_colour_is_instanced);
                } else {
@@ -2471,7 +2511,7 @@ graphics_info_t::draw_molecules_other_meshes(unsigned int pass_type) {
                      bool show_just_shadows = false;
                      bool wireframe_mode = false;
                      float opacity = 1.0f;
-                     m.meshes[jj].draw(&shader_for_moleculestotriangles, mvp,
+                     m.meshes[jj].draw(&shader_for_moleculestotriangles, eye, mvp,
                                        model_rotation, lights, eye_position, rc, opacity, bg_col,
                                        wireframe_mode, do_depth_fog, show_just_shadows);
 
@@ -2498,6 +2538,7 @@ graphics_info_t::draw_molecules_other_meshes(unsigned int pass_type) {
                      bool opacity = 1.0;
 
                      mesh.draw(&shader_for_meshes_shadow_map,
+                               eye,
                                mvp_orthogonal,
                                model_rotation,
                                lights,
@@ -2529,6 +2570,8 @@ graphics_info_t::draw_molecules_other_meshes(unsigned int pass_type) {
 void
 graphics_info_t::draw_instanced_meshes() {
 
+   stereo_eye_t eye = stereo_eye_t::MONO; // PASS THIS
+
    // presumes opaque-only
 
    // ---------------------- Draw molecule instanced_meshes
@@ -2546,7 +2589,7 @@ graphics_info_t::draw_instanced_meshes() {
 
    if (have_mol_meshes_to_draw) {
       glm::vec3 eye_position = get_world_space_eye_position();
-      glm::mat4 mvp = get_molecule_mvp();
+      glm::mat4 mvp = get_molecule_mvp(eye);
       glm::mat4 model_rotation = get_model_rotation();
       glm::vec4 bg_col(background_colour, 1.0);
       bool do_depth_fog = shader_do_depth_fog_flag;
@@ -2568,7 +2611,7 @@ graphics_info_t::draw_instanced_meshes() {
 
    if (! instanced_meshes.empty()) {
       glm::mat4 model_rotation = get_model_rotation();
-      glm::mat4 mvp = get_molecule_mvp();
+      glm::mat4 mvp = get_molecule_mvp(eye);
       glm::vec4 bg_col(background_colour, 1.0);
       bool do_depth_fog = shader_do_depth_fog_flag;
       for (unsigned int jj=0; jj<instanced_meshes.size(); jj++) {
@@ -2597,6 +2640,8 @@ graphics_info_t::draw_meshes() {
 void
 graphics_info_t::draw_cube(GtkGLArea *glarea, unsigned int cube_type) {
 
+   stereo_eye_t eye = stereo_eye_t::MONO; // PASS THIS
+
    // std::cout << "draw_cube() with cube_type " << cube_type << std::endl;
 
    gtk_gl_area_make_current(glarea);
@@ -2619,7 +2664,7 @@ graphics_info_t::draw_cube(GtkGLArea *glarea, unsigned int cube_type) {
    // glGetFloatv(GL_ALIASED_LINE_WIDTH_RANGE, lineWidthRange);
    // This may not be possible in GL_LINE_SMOOTH mode.
 
-   glm::mat4 mvp = get_molecule_mvp();
+   glm::mat4 mvp = get_molecule_mvp(eye);
    glm::mat4 model_rotation = get_model_rotation(); // hhmm... naming ... 20220212-PE  fixed now.
 
    glBindVertexArray(central_cube_vertexarray_id);
@@ -2694,6 +2739,8 @@ graphics_info_t::draw_origin_cube(GtkGLArea *glarea) {
 void
 graphics_info_t::draw_rotation_centre_crosshairs(GtkGLArea *glarea, unsigned int pass_type) {
 
+   stereo_eye_t eye = stereo_eye_t::MONO; // PASS THIS
+
    // gtk_gl_area_make_current(glarea); // needed?, no it isn't.
    GLenum err = glGetError();
    if (err) std::cout << "error draw_rotation_centre_crosshairs() A0 err " << err << std::endl;
@@ -2702,7 +2749,7 @@ graphics_info_t::draw_rotation_centre_crosshairs(GtkGLArea *glarea, unsigned int
    err = glGetError();
    if (err) std::cout << "error draw_rotation_centre_crosshairs() A1 err " << err << std::endl;
 
-   glm::mat4 mvp = get_molecule_mvp();
+   glm::mat4 mvp = get_molecule_mvp(eye);
    glm::mat4 model_rotation = get_model_rotation();
 
    glBindVertexArray(rotation_centre_crosshairs_vertexarray_id);
@@ -2855,9 +2902,11 @@ on_glarea_resize(GtkGLArea *glarea, gint width, gint height) {
 void
 graphics_info_t::draw_measure_distance_and_angles() {
 
+   stereo_eye_t eye = stereo_eye_t::MONO; // PASS THIS
+
    if (mesh_for_measure_distance_object_vec.get_draw_this_mesh()) {
       Shader &shader = shader_for_moleculestotriangles;
-      glm::mat4 mvp = get_molecule_mvp();
+      glm::mat4 mvp = get_molecule_mvp(eye);
       glm::mat4 model_rotation_matrix = get_model_rotation();
       glm::vec4 bg_col(background_colour, 1.0);
       bool show_just_shadows = false;
@@ -2865,17 +2914,17 @@ graphics_info_t::draw_measure_distance_and_angles() {
       float opacity = 1.0f;
       auto ccrc = RotationCentre();
       glm::vec3 rc(ccrc.x(), ccrc.y(), ccrc.z());
-      mesh_for_measure_distance_object_vec.draw(&shader, mvp, model_rotation_matrix, lights, eye_position, rc,
+      mesh_for_measure_distance_object_vec.draw(&shader, eye, mvp, model_rotation_matrix, lights, eye_position, rc,
                                                 opacity, bg_col, wireframe_mode, shader_do_depth_fog_flag, show_just_shadows);
 
-      mesh_for_measure_angle_object_vec.draw(&shader, mvp, model_rotation_matrix, lights, eye_position, rc,
+      mesh_for_measure_angle_object_vec.draw(&shader, eye, mvp, model_rotation_matrix, lights, eye_position, rc,
                                              opacity, bg_col, wireframe_mode, shader_do_depth_fog_flag, show_just_shadows);
 
       if (! labels_for_measure_distances_and_angles.empty()) {
          for (unsigned int i=0; i<labels_for_measure_distances_and_angles.size(); i++) {
             const auto &label = labels_for_measure_distances_and_angles[i];
             tmesh_for_labels.draw_atom_label(label.label, label.position, label.colour, &shader_for_atom_labels,
-                                             mvp, model_rotation_matrix, bg_col,
+                                             eye, mvp, model_rotation_matrix, bg_col,
                                              shader_do_depth_fog_flag, perspective_projection_flag);
          }
       }
@@ -5670,12 +5719,14 @@ void graphics_info_t::setup_draw_for_bad_nbc_atom_pair_dashed_line() {
 void
 graphics_info_t::draw_bad_nbc_atom_pair_markers(unsigned int pass_type) {
 
+   stereo_eye_t eye = stereo_eye_t::MONO; // PASS THIS
+
    if (curmudgeon_mode) return;
 
    if (draw_bad_nbc_atom_pair_markers_flag) {
       if (! bad_nbc_atom_pair_marker_positions.empty()) {
 
-         glm::mat4 mvp = get_molecule_mvp();
+         glm::mat4 mvp = get_molecule_mvp(eye);
          glm::mat4 model_rotation = get_model_rotation();
          glm::vec4 bg_col(background_colour, 1.0);
          texture_for_bad_nbc_atom_pair_markers.Bind(0);
@@ -5702,12 +5753,14 @@ graphics_info_t::draw_bad_nbc_atom_pair_markers(unsigned int pass_type) {
 
 void graphics_info_t::draw_bad_nbc_atom_pair_dashed_lines(unsigned int pass_type) {
 
+   stereo_eye_t eye = stereo_eye_t::MONO; // PASS THIS
+
    if (curmudgeon_mode) return;
 
    if (draw_bad_nbc_atom_pair_markers_flag) {
 
       if (! bad_nbc_atom_pair_marker_positions.empty()) {
-         glm::mat4 mvp = get_molecule_mvp();
+         glm::mat4 mvp = get_molecule_mvp(eye);
          glm::mat4 model_rotation = get_model_rotation();
          glm::vec4 bg_col(background_colour, 1.0);
 
@@ -5715,6 +5768,7 @@ void graphics_info_t::draw_bad_nbc_atom_pair_dashed_lines(unsigned int pass_type
          if (pass_type == PASS_TYPE_STANDARD)
             bad_nbc_atom_pair_dashed_line.draw_instanced(pass_type,
                                                          &shader_for_instanced_objects,
+                                                         eye,
                                                          mvp,
                                                          model_rotation,
                                                          lights,
@@ -5742,6 +5796,8 @@ void graphics_info_t::setup_draw_for_chiral_volume_outlier_markers() {
 // static
 void graphics_info_t::draw_chiral_volume_outlier_markers(unsigned int pass_type) {
 
+   stereo_eye_t eye = stereo_eye_t::MONO; // PASS THIS
+
    if (curmudgeon_mode) return;
 
    // unlike NBC markers, each molecule can have it's own chiral volume outlier markers
@@ -5753,7 +5809,7 @@ void graphics_info_t::draw_chiral_volume_outlier_markers(unsigned int pass_type)
 
                    unsigned int n = graphics_info_t::molecules[imol].chiral_volume_outlier_marker_positions.size();
 
-                   glm::mat4 mvp = get_molecule_mvp();
+                   glm::mat4 mvp = get_molecule_mvp(eye);
                    glm::mat4 model_rotation = get_model_rotation();
                    glm::vec4 bg_col(background_colour, 1.0);
                    texture_for_chiral_volume_outlier_markers.Bind(0);
@@ -5855,12 +5911,14 @@ void graphics_info_t::setup_draw_for_unhappy_atom_markers() {
 // static
 void graphics_info_t::draw_unhappy_atom_markers(unsigned int pass_type) {
 
+   stereo_eye_t eye = stereo_eye_t::MONO; // PASS THIS
+
    if (curmudgeon_mode) return;
 
    for (unsigned int imol=0; imol<molecules.size(); imol++) {
       if (is_valid_model_molecule(imol)) {
          if (molecules[imol].draw_it) {
-                   glm::mat4 mvp = get_molecule_mvp();
+                   glm::mat4 mvp = get_molecule_mvp(eye);
                    glm::mat4 model_rotation = get_model_rotation();
                    glm::vec4 bg_col(background_colour, 1.0);
                    texture_for_unhappy_atom_markers.Bind(0);
@@ -6061,8 +6119,10 @@ graphics_info_t::draw_hud_ligand_view() {
 void
 graphics_info_t::draw_boids() {
 
+   stereo_eye_t eye = stereo_eye_t::MONO; // PASS THIS
+
    if (boids.size() > 0) {
-      glm::mat4 mvp = get_molecule_mvp();
+      glm::mat4 mvp = get_molecule_mvp(eye);
       glm::vec3 eye_position = get_world_space_eye_position();
       glm::mat4 model_rotation_matrix = get_model_rotation();
       glm::vec4 bg_col(background_colour, 1.0);
@@ -6072,7 +6132,7 @@ graphics_info_t::draw_boids() {
       auto ccrc = RotationCentre();
       glm::vec3 rc(ccrc.x(), ccrc.y(), ccrc.z());
       mesh_for_boids.draw(&shader_for_instanced_objects,
-                          mvp, model_rotation_matrix, lights, eye_position, rc, opacity, bg_col,
+                          eye, mvp, model_rotation_matrix, lights, eye_position, rc, opacity, bg_col,
                           wireframe_mode, shader_do_depth_fog_flag, show_just_shadows);
 
       lines_mesh_for_boids_box.draw(&shader_for_lines, mvp, model_rotation_matrix);
@@ -6115,21 +6175,21 @@ graphics_info_t::update_hydrogen_bond_mesh(const std::string &label) {
 }
 
 void
-graphics_info_t::draw_hydrogen_bonds_mesh() {
+graphics_info_t::draw_hydrogen_bonds_mesh(stereo_eye_t eye) {
 
    // 20210827-PE  each molecule should have its own hydrogen bond mesh. Not just one of them.
    // Fix that later.
 
    if (mesh_for_hydrogen_bonds.get_draw_this_mesh()) {
 
-      glm::mat4 mvp = get_molecule_mvp();
+      glm::mat4 mvp = get_molecule_mvp(eye);
       glm::vec3 eye_position = get_world_space_eye_position();
       glm::mat4 model_rotation_matrix = get_model_rotation();
       glm::vec4 bg_col(background_colour, 1.0);
 
       int pass_type = PASS_TYPE_STANDARD;
       mesh_for_hydrogen_bonds.draw_instanced(pass_type,
-                                             &shader_for_instanced_objects,
+                                             &shader_for_instanced_objects, eye,
                                              mvp, model_rotation_matrix, lights, eye_position, bg_col,
                                              shader_do_depth_fog_flag, false, false, true, 0, 0, 0, 0.2);
    }
@@ -6321,8 +6381,10 @@ void graphics_info_t::draw_at_screen_centre_pulse() {
 
    // 2025-12-06-PE identification and screen-centre are the same thing. "identification" should be renamed.
 
+   stereo_eye_t eye = stereo_eye_t::MONO;
+
    if (! lines_mesh_for_identification_pulse.empty()) {
-      glm::mat4 mvp = get_molecule_mvp();
+      glm::mat4 mvp = get_molecule_mvp(eye);
       glm::mat4 model_rotation_matrix = get_model_rotation();
       myglLineWidth(2.0);
       GLenum err = glGetError();
@@ -6339,8 +6401,10 @@ void graphics_info_t::draw_generic_pulses() {
       std::cout << "draw_generic_pulses()  -- start -- "
                 << lines_mesh_for_generic_pulse.empty() << " " << generic_pulse_centres.size() << std::endl;
 
+   stereo_eye_t eye = stereo_eye_t::MONO; // PASS THIS
+
    if (! lines_mesh_for_generic_pulse.empty()) {
-      glm::mat4 mvp = get_molecule_mvp();
+      glm::mat4 mvp = get_molecule_mvp(eye);
       glm::mat4 model_rotation_matrix = get_model_rotation();
       for (auto pulse_centre : generic_pulse_centres)
          lines_mesh_for_generic_pulse.draw(&shader_for_lines_pulse,
@@ -6353,8 +6417,10 @@ void graphics_info_t::draw_invalid_residue_pulse() {
 
    return; // because we do it in draw_generic_pulses()
 
+   stereo_eye_t eye = stereo_eye_t::MONO; // PASS THIS
+
    if (! lines_mesh_for_generic_pulse.empty()) {
-      glm::mat4 mvp = get_molecule_mvp();
+      glm::mat4 mvp = get_molecule_mvp(eye);
       glm::mat4 model_rotation_matrix = get_model_rotation();
       myglLineWidth(3.0);
       GLenum err = glGetError();
@@ -6369,8 +6435,10 @@ void graphics_info_t::draw_invalid_residue_pulse() {
 void
 graphics_info_t::draw_delete_item_pulse() {
 
+   stereo_eye_t eye = stereo_eye_t::MONO; // PASS THIS
+
    if (! lines_mesh_for_generic_pulse.empty()) {
-      glm::mat4 mvp = get_molecule_mvp();
+      glm::mat4 mvp = get_molecule_mvp(eye);
       glm::mat4 model_rotation_matrix = get_model_rotation();
       myglLineWidth(2.0);
       GLenum err = glGetError();
@@ -6386,10 +6454,12 @@ graphics_info_t::draw_delete_item_pulse() {
 void
 graphics_info_t::draw_pointer_distances_objects() {
 
+   stereo_eye_t eye = stereo_eye_t::MONO; // PASS THIS
+
    if (show_pointer_distances_flag) {
       if (! pointer_distances_object_vec.empty()) {
          Shader &shader = shader_for_moleculestotriangles;
-         glm::mat4 mvp = get_molecule_mvp();
+         glm::mat4 mvp = get_molecule_mvp(eye);
          glm::mat4 model_rotation_matrix = get_model_rotation();
          glm::vec4 bg_col(background_colour, 1.0);
          bool show_just_shadows = false;
@@ -6397,7 +6467,7 @@ graphics_info_t::draw_pointer_distances_objects() {
          float opacity = 1.0f;
          auto ccrc = RotationCentre();
          glm::vec3 rc(ccrc.x(), ccrc.y(), ccrc.z());
-         mesh_for_pointer_distances.mesh.draw(&shader, mvp, model_rotation_matrix, lights, eye_position, rc, opacity,
+         mesh_for_pointer_distances.mesh.draw(&shader, eye, mvp, model_rotation_matrix, lights, eye_position, rc, opacity,
                                               bg_col, wireframe_mode, shader_do_depth_fog_flag, show_just_shadows);
 
          if (! labels_for_pointer_distances.empty()) {
@@ -6405,7 +6475,7 @@ graphics_info_t::draw_pointer_distances_objects() {
             for (unsigned int i=0; i<labels_for_pointer_distances.size(); i++) {
                const auto &label = labels_for_pointer_distances[i];
                tmesh_for_labels.draw_atom_label(label.label, label.position, label.colour, &shader_labels,
-                                                mvp, model_rotation_matrix, bg_col,
+                                                eye, mvp, model_rotation_matrix, bg_col,
                                                 shader_do_depth_fog_flag, perspective_projection_flag);
             }
          }
@@ -6415,6 +6485,8 @@ graphics_info_t::draw_pointer_distances_objects() {
 
 void
 graphics_info_t::draw_translation_gizmo() { // maybe rotation gizmo too, later.
+
+   stereo_eye_t eye = stereo_eye_t::MONO;
 
    if (translation_gizmo_mesh.get_draw_this_mesh()) {
       bool do_it = false;
@@ -6433,7 +6505,7 @@ graphics_info_t::draw_translation_gizmo() { // maybe rotation gizmo too, later.
             do_it = true;
       if (do_it) {
          Shader &shader = shader_for_moleculestotriangles;
-         glm::mat4 mvp = get_molecule_mvp();
+         glm::mat4 mvp = get_molecule_mvp(eye);
          glm::mat4 model_rotation_matrix = get_model_rotation();
          glm::vec4 bg_col(background_colour, 1.0);
          bool show_just_shadows = false;
@@ -6441,7 +6513,7 @@ graphics_info_t::draw_translation_gizmo() { // maybe rotation gizmo too, later.
          float opacity = 1.0f;
          auto ccrc = RotationCentre();
          glm::vec3 rc(ccrc.x(), ccrc.y(), ccrc.z());
-         translation_gizmo_mesh.draw(&shader, mvp, model_rotation_matrix, lights, eye_position, rc, opacity,
+         translation_gizmo_mesh.draw(&shader, eye, mvp, model_rotation_matrix, lights, eye_position, rc, opacity,
                                      bg_col, wireframe_mode, shader_do_depth_fog_flag, show_just_shadows);
       }
    }
@@ -6529,6 +6601,8 @@ graphics_info_t::make_extra_distance_restraints_objects() {
 void
 graphics_info_t::draw_extra_distance_restraints(int pass_type) {
 
+   stereo_eye_t eye = stereo_eye_t::MONO; // PASS THIS
+
    // 20230825-PE we don't want to see these if there are no intermediate atoms being displayed
    // Maybe they should be cleared up on "clear_moving_atoms()" (or whatever the function is called).
 
@@ -6557,7 +6631,7 @@ graphics_info_t::draw_extra_distance_restraints(int pass_type) {
                    << std::endl;
       if (show_extra_distance_restraints_flag) {
          if (! extra_distance_restraints_markup_data.empty()) {
-            glm::mat4 mvp = get_molecule_mvp();
+            glm::mat4 mvp = get_molecule_mvp(eye);
             glm::mat4 model_rotation_matrix = get_model_rotation();
             glm::vec4 bg_col(background_colour, 1.0f);
             glDisable(GL_BLEND);

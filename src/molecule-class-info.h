@@ -27,6 +27,7 @@
 #define MOLECULE_CLASS_INFO_T
 
 #include "geometry/residue-and-atom-specs.hh"
+#include "stereo-eye.hh"
 #include <ctime>
 #ifndef HAVE_STRING
 #define HAVE_STRING
@@ -768,6 +769,7 @@ public:        //                      public
                         int brief_atom_labels_flag,
                         short int seg_ids_in_atom_labels_flag,
                         const glm::vec4 &atom_label_colour,
+                        stereo_eye_t eye,
                         const glm::mat4 &mvp,
                         const glm::mat4 &view_rotation);
 
@@ -1138,6 +1140,7 @@ public:        //                      public
    void draw_atom_labels(int brief_atom_labels_flag,
                          short int seg_ids_in_atom_labels_flag,
                          const glm::vec4 &atom_label_colour,
+                         stereo_eye_t eye,
                          const glm::mat4 &mvp,
                          const glm::mat4 &view_rotation);
 

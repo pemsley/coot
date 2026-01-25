@@ -24,6 +24,7 @@
  *
  */
 
+#include "stereo-eye.hh"
 #ifdef USE_PYTHON
 #include <Python.h>
 #endif
@@ -301,6 +302,8 @@ graphics_info_t::unproject(float x, float y, float z) {
 
    // z is 1 and -1 for front and back (or vice verse).
 
+   stereo_eye_t eye = stereo_eye_t::MONO;
+
    if (! glareas[0]) return glm::vec4(0,0,0,0);
 
    GtkAllocation allocation;
@@ -311,7 +314,7 @@ graphics_info_t::unproject(float x, float y, float z) {
    float mouseX = x / (w * 0.5f) - 1.0f;
    float mouseY = (h - y) / (h * 0.5f) - 1.0f;
 
-   glm::mat4 mvp = get_molecule_mvp();
+   glm::mat4 mvp = get_molecule_mvp(eye);
    glm::mat4 vp_inv = glm::inverse(mvp);
    glm::vec4 screenPos_f = glm::vec4(mouseX, mouseY, z, 1.0f); // maybe +1
    glm::vec4 worldPos_f = vp_inv * screenPos_f;
@@ -333,7 +336,9 @@ graphics_info_t::unproject(float x, float y, float z) {
 glm::vec3
 graphics_info_t::unproject_to_world_coordinates(const glm::vec3 &projected_coords) {
 
-   glm::mat4 mvp = get_molecule_mvp();
+   stereo_eye_t eye = stereo_eye_t::MONO;
+
+   glm::mat4 mvp = get_molecule_mvp(eye);
    glm::mat4 vp_inv = glm::inverse(mvp);
    glm::vec4 screenPos = glm::vec4(projected_coords, 1.0f);
    glm::vec4 c = vp_inv * screenPos;
@@ -347,6 +352,8 @@ graphics_info_t::unproject_to_world_coordinates(const glm::vec3 &projected_coord
 
 int
 graphics_info_t::blob_under_pointer_to_screen_centre() {
+
+   stereo_eye_t eye = stereo_eye_t::MONO; // PASS THIS
 
    graphics_info_t g; // needed?
    int r = 0;
@@ -364,7 +371,7 @@ graphics_info_t::blob_under_pointer_to_screen_centre() {
             int w = allocation.width;
             int h = allocation.height;
 
-            glm::mat4 mvp = graphics_info_t::get_molecule_mvp(); // modeglml matrix includes orientation with the quaternion
+            glm::mat4 mvp = graphics_info_t::get_molecule_mvp(eye); // modeglml matrix includes orientation with the quaternion
             glm::mat4 vp_inv = glm::inverse(mvp);
 
             // 20220811-PE mouse_current_x and mouse_current_y are set by the motion callback.

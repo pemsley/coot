@@ -53,6 +53,8 @@ graphics_info_t::draw_models_for_ssao() {
 void
 graphics_info_t::draw_molecules_for_ssao() {
 
+   stereo_eye_t eye = stereo_eye_t::MONO; // PASS THIS
+
    bool do_orthographic_projection = ! perspective_projection_flag;
    GtkAllocation allocation;
    auto gl_area = glareas[0];
@@ -96,8 +98,8 @@ graphics_info_t::draw_molecules_for_ssao() {
 #endif
 
    draw_meshed_generic_display_object_meshes(PASS_TYPE_SSAO);
-   draw_molecules_other_meshes(PASS_TYPE_SSAO); // draws the meshes in a molecules std::vector<Messh> meshes;
-   draw_generic_objects(PASS_TYPE_SSAO);
+   draw_molecules_other_meshes(eye, PASS_TYPE_SSAO); // draws the meshes in a molecules std::vector<Messh> meshes;
+   draw_generic_objects(PASS_TYPE_SSAO, eye);
    glDisable(GL_BLEND);
 
 }
@@ -202,15 +204,17 @@ graphics_info_t::draw_models_with_shadows(Shader *shader_for_tmeshes_with_shadow
 					 bool show_just_shadows) {
 
    // crow convertion vars
-   auto get_mvp = [] (int x, int y) {
-                     return get_molecule_mvp(); // no args passed.... Hmm.
+   auto get_mvp = [] (stereo_eye_t eye, int x, int y) {
+                     return get_molecule_mvp(eye); // no args passed.... Hmm.
                    };
 
+
+   stereo_eye_t eye = stereo_eye_t::MONO; // PASS THIS
 
    glm::vec3 bg_col = background_colour;
    bool do_depth_fog = shader_do_depth_fog_flag;
 
-   glm::mat4 mvp = get_mvp(graphics_x_size, graphics_y_size);
+   glm::mat4 mvp = get_mvp(eye, graphics_x_size, graphics_y_size);
    // std::cout << "debug:: mvp draw_models_with_shadows() is " << glm::to_string(mvp) << std::endl;
    glm::mat4 model_rotation = get_model_rotation();
    glm::vec4 bg_col_v4(bg_col, 1.0f);
@@ -310,7 +314,7 @@ graphics_info_t::draw_molecules_for_shadow_map(unsigned int light_index) {
                bool do_depth_fog = false;
                // draw the surface - not the mesh - not sure if this is a good idea yet.
                m.map_as_mesh.draw(&shader_for_meshes_shadow_map,
-                                  mvp_orthogonal, model_rotation, lights, dummy_eye_position, rc,
+                                  eye, mvp_orthogonal, model_rotation, lights, dummy_eye_position, rc,
                                   opacity, bg_col_v4, gl_lines_mode, do_depth_fog, show_just_shadows);
             }
          }
@@ -347,7 +351,7 @@ graphics_info_t::draw_molecules_for_shadow_map(unsigned int light_index) {
 
    draw_meshed_generic_display_object_meshes(PASS_TYPE_GEN_SHADOW_MAP); // draws generic objects
 
-   draw_molecules_other_meshes(PASS_TYPE_GEN_SHADOW_MAP); // draws the meshes in a molecules std::vector<Messh> meshes;
+   draw_molecules_other_meshes(eye, PASS_TYPE_GEN_SHADOW_MAP); // draws the meshes in a molecules std::vector<Messh> meshes;
 
    // more stuff needs to be added here - see draw_molecules_for_ssao() (where they haven't been added either)
 }

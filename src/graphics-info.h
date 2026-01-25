@@ -2902,7 +2902,7 @@ public:
    static bool display_generic_objects_as_solid_flag;
    static void draw_geometry_objects();
    static void draw_dynamic_distances();
-   static void draw_generic_objects(unsigned int pass_type);
+   static void draw_generic_objects(unsigned int pass_type, stereo_eye_t eye);
    static void draw_generic_objects_simple();
    static void draw_generic_objects_solid();
    static void draw_generic_text();
@@ -2912,7 +2912,7 @@ public:
    static void draw_happy_face_residue_markers();
    static void draw_anchored_atom_markers();
    static void draw_unhappy_atom_markers(unsigned int pass_type);
-   static void draw_hydrogen_bonds_mesh(); // like boids
+   static void draw_hydrogen_bonds_mesh(stereo_eye_t eye); // like boids
    void setup_draw_for_particles();
    void clear_measure_distances();
    void clear_last_measure_distance();
@@ -4160,7 +4160,7 @@ string   static std::string sessionid;
    static void draw_hud_geometry_bars();
    static void draw_hud_geometry_tooltip();
    static bool draw_hud_tooltip_flag;
-   static glm::mat4 get_molecule_mvp(bool debug_matrices=false);
+   static glm::mat4 get_molecule_mvp(stereo_eye_t eye, bool debug_matrices=false);
    static glm::mat4 get_model_view_matrix();
    glm::mat4 get_mvp_for_shadow_map(const glm::vec3 &light_position) const;
    static glm::mat4 get_light_space_mvp(int light_index);
@@ -4184,13 +4184,14 @@ string   static std::string sessionid;
    static void render_scene_with_x_blur();
    static void render_scene_with_y_blur();
    static void render_scene_with_texture_combination_for_depth_blur();
-   static void draw_map_molecules(bool draw_transparent_maps);
+   static void draw_map_molecules(stereo_eye_t eye, bool draw_transparent_maps);
    static void draw_map_molecules_with_shadows();
    static void draw_model_molecules(stereo_eye_t eye);
    static void draw_model_molecules_symmetry_with_shadows();
    static void draw_intermediate_atoms(unsigned int pass_type);
    static void draw_intermediate_atoms_rama_balls(unsigned int pass_type);
    static void draw_molecule_atom_labels(molecule_class_info_t &m,
+                                         stereo_eye_t eye,
                                          const glm::mat4 &mvp,
                                          const glm::mat4 &view_rotation);
    static void draw_hud_refinement_dialog_arrow_tab();
@@ -4199,7 +4200,7 @@ string   static std::string sessionid;
    static void draw_molecules(stereo_eye_t eye);
    static void draw_meshes();
    static void draw_meshed_generic_display_object_meshes(unsigned int pass_type);
-   static void draw_molecules_other_meshes(unsigned int pass_type);
+   static void draw_molecules_other_meshes(stereo_eye_t eye, unsigned int pass_type);
    static void draw_instanced_meshes();
    static void draw_unit_cells();
    static void draw_cube(GtkGLArea *glarea, unsigned int cube_type);

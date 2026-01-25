@@ -38,6 +38,8 @@ layout(location = 5) in vec2 texCoord;
 uniform mat4 mvp;
 uniform mat4 view_rotation;
 uniform vec3 label_position;
+uniform float stereo_x_scale;
+uniform float stereo_x_offset;
 
 out vec4 colour_transfer;
 out vec2 texCoord_transfer;
@@ -51,7 +53,8 @@ void main() {
    mat4 t = transpose(view_rotation);
    vec4 pos_down = scale * vec4(position, 1.0);
    vec4 p = pos_down + vec4(label_position, 1.0) * t;
-   gl_Position = mvp * t * vec4(p);
+   // gl_Position = mvp * t * vec4(p);
+   gl_Position = mvp * t * vec4(p) * vec4(stereo_x_scale, 1.0f, 1.0f, 1.0f) + vec4(stereo_x_offset, 0.0f, 0.0f, 0.0f);
    colour_transfer = colour;
    texCoord_transfer = texCoord;
 

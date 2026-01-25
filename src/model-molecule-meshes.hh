@@ -32,7 +32,6 @@
 #include "Material.hh"
 #include "Mesh.hh"
 #include "stereo-eye.hh"
-#include "api/bond-colour.hh"
 
 // This class draws the meshes in instanced_mesh_t
 // (and that is a vector of instanced meshes and a simple_mesh_t)
@@ -70,6 +69,7 @@ public:
              bool show_just_shadows);
 
    void draw_instances(Shader *shader_for_instanced_meshes_p,
+                       stereo_eye_t eye,
                        const glm::mat4 &mvp,
                        const glm::mat4 &view_rotation_matrix,
                        const std::map<unsigned int, lights_info_t> &lights,
@@ -86,6 +86,7 @@ public:
 
    // the (previous) Mesh draw function
    void draw_simple(Shader *shader,
+                    stereo_eye_t eye,
                     const glm::mat4 &mvp,
                     const glm::mat4 &view_rotation_matrix,
                     const std::map<unsigned int, lights_info_t> &lights,

@@ -25,6 +25,7 @@
  */
 //
 #include <iostream>
+#include "stereo-eye.hh"
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/string_cast.hpp>  // to_string()
 
@@ -275,6 +276,8 @@ Model::draw_meshes(Shader *shader_p,  // e.g. molecular_triangles_shader
                    const glm::vec4 &background_colour,
                    bool do_depth_fog) {
 
+   stereo_eye_t eye = stereo_eye_t::MONO; // PASS THIS
+
    if (! draw_this_model) return;
 
    // meshes should be draw opaque, right?
@@ -287,7 +290,7 @@ Model::draw_meshes(Shader *shader_p,  // e.g. molecular_triangles_shader
       }
       bool draw_just_shadows = false; // pass this if needed.
       bool wireframe_mode = false;
-      meshes[i].draw(shader_p, mvp, view_rotation_matrix, lights, eye_position, rotation_centre,
+      meshes[i].draw(shader_p, eye, mvp, view_rotation_matrix, lights, eye_position, rotation_centre,
                      opacity, background_colour, wireframe_mode, do_depth_fog, draw_just_shadows);
       if (false)
          meshes[i].draw_normals(mvp, 0.1);
@@ -307,10 +310,12 @@ Model::draw_mesh(unsigned int mesh_index,
                  bool do_depth_fog,
 		 bool draw_just_shadows) {
 
+   stereo_eye_t eye = stereo_eye_t::MONO; // PASS THIS
+
    glDisable(GL_BLEND);
    // std::cout << "Model draw_mesh() " << mesh_index << " \"" << meshes[mesh_index].name << "\"" << std::endl;
    bool wireframe_mode = false;
-   meshes[mesh_index].draw(shader_p, mvp, view_rotation_matrix, lights, eye_position, rotation_centre,
+   meshes[mesh_index].draw(shader_p, eye, mvp, view_rotation_matrix, lights, eye_position, rotation_centre,
                            opacity, background_colour, wireframe_mode, do_depth_fog, draw_just_shadows);
 }
 
