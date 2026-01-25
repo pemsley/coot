@@ -360,8 +360,10 @@ graphics_info_t::intelligent_near_atom_centring(GtkWidget *go_to_atom_window,
    auto label_unlabel_centre_atom = [] (mmdb::Atom *at_next, mmdb::Manager *mol, int imol) {
       coot::residue_spec_t residue_next(at_next->GetResidue());
       mmdb::Residue *residue_this = coot::util::get_previous_residue(residue_next, mol);
-      molecules[imol].add_atom_label(residue_next.chain_id.c_str(), residue_next.res_no, " CA ");
-      molecules[imol].remove_atom_label(residue_this->GetChainID(), residue_this->GetSeqNum(), " CA ");
+      if (residue_this) {
+         molecules[imol].add_atom_label(residue_next.chain_id.c_str(), residue_next.res_no, " CA ");
+         molecules[imol].remove_atom_label(residue_this->GetChainID(), residue_this->GetSeqNum(), " CA ");
+      }
    };
 
    std::string chain =     go_to_atom_chain_;
@@ -413,35 +415,37 @@ graphics_info_t::intelligent_near_atom_centring(GtkWidget *go_to_atom_window,
          mmdb::Atom *next_atom = molecules[imol].atom_sel.atom_selection[atom_index];
          mmdb::Manager *mol    = molecules[imol].atom_sel.mol;
 
-         go_to_atom_chain_       = next_atom->GetChainID();
-         go_to_atom_atom_name_   = next_atom->name;
-         go_to_atom_residue_     = next_atom->GetSeqNum();
-         go_to_atom_inscode_     = next_atom->GetInsCode();
-         go_to_atom_atom_altLoc_ = next_atom->altLoc;
+         if (next_atom) {
 
-         // now update the widget with the new values of the above (like
-         // c-interface:goto_near_atom_maybe())
+            go_to_atom_chain_       = next_atom->GetChainID();
+            go_to_atom_atom_name_   = next_atom->name;
+            go_to_atom_residue_     = next_atom->GetSeqNum();
+            go_to_atom_inscode_     = next_atom->GetInsCode();
+            go_to_atom_atom_altLoc_ = next_atom->altLoc;
 
-         label_unlabel_centre_atom(next_atom, mol, imol);
+            // now update the widget with the new values of the above (like
+            // c-interface:goto_near_atom_maybe())
 
-         if (go_to_atom_window) {
-            update_widget_go_to_atom_values(go_to_atom_window, next_atom);
-            //          GtkWidget *residue_tree = lookup_widget(go_to_atom_window,
-            //                                                  "go_to_atom_residue_tree");
-            // make_synthetic_select_on_residue_tree(residue_tree, next_atom);
+            label_unlabel_centre_atom(next_atom, mol, imol);
+
+            if (go_to_atom_window) {
+               update_widget_go_to_atom_values(go_to_atom_window, next_atom);
+               //          GtkWidget *residue_tree = lookup_widget(go_to_atom_window,
+               //                                                  "go_to_atom_residue_tree");
+               // make_synthetic_select_on_residue_tree(residue_tree, next_atom);
+            }
+            try_centre_from_new_go_to_atom();
+
+            // Update the graphics (glarea widget):
+            //
+            // update_things_on_move_and_redraw(); // (symmetry, environment, map) and draw it
+            // and show something in the statusbar
+            std::string ai;
+            ai = atom_info_as_text_for_statusbar(atom_index, imol);
+            add_status_bar_text(ai);
+
+            std::cout << "if sequence view is displayed update highlighted position here C " << std::endl;
          }
-         try_centre_from_new_go_to_atom();
-
-         // Update the graphics (glarea widget):
-         //
-         // update_things_on_move_and_redraw(); // (symmetry, environment, map) and draw it
-         // and show something in the statusbar
-         std::string ai;
-         ai = atom_info_as_text_for_statusbar(atom_index, imol);
-         add_status_bar_text(ai);
-
-         std::cout << "if sequence view is displayed update highlighted position here C " << std::endl;
-
       }
    }
    return 1;
