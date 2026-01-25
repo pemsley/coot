@@ -267,6 +267,7 @@ Model::loadMaterialTextures(aiMaterial *mat,
 
 void
 Model::draw_meshes(Shader *shader_p,  // e.g. molecular_triangles_shader
+                   stereo_eye_t eye,
                    const glm::mat4 &mvp,
                    const glm::mat4 &view_rotation_matrix,
                    const std::map<unsigned int, lights_info_t> &lights,
@@ -275,8 +276,6 @@ Model::draw_meshes(Shader *shader_p,  // e.g. molecular_triangles_shader
                    float opacity,
                    const glm::vec4 &background_colour,
                    bool do_depth_fog) {
-
-   stereo_eye_t eye = stereo_eye_t::MONO; // PASS THIS
 
    if (! draw_this_model) return;
 
@@ -300,6 +299,7 @@ Model::draw_meshes(Shader *shader_p,  // e.g. molecular_triangles_shader
 void
 Model::draw_mesh(unsigned int mesh_index,
                  Shader *shader_p,
+                 stereo_eye_t eye,
                  const glm::mat4 &mvp,
                  const glm::mat4 &view_rotation_matrix,
                  const std::map<unsigned int, lights_info_t> &lights,
@@ -309,8 +309,6 @@ Model::draw_mesh(unsigned int mesh_index,
                  const glm::vec4 &background_colour,
                  bool do_depth_fog,
 		 bool draw_just_shadows) {
-
-   stereo_eye_t eye = stereo_eye_t::MONO; // PASS THIS
 
    glDisable(GL_BLEND);
    // std::cout << "Model draw_mesh() " << mesh_index << " \"" << meshes[mesh_index].name << "\"" << std::endl;

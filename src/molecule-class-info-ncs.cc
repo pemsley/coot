@@ -295,6 +295,7 @@ drawn_ghost_molecule_display_t::update_bonds(mmdb::Manager *mol) {
 
 void
 molecule_class_info_t::draw_ncs_ghosts(Shader *shader_for_meshes,
+                                       stereo_eye_t eye,
                                        const glm::mat4 &mvp,
                                        const glm::mat4 &model_rotation_matrix,
                                        const std::map<unsigned int, lights_info_t> &lights,
@@ -303,7 +304,7 @@ molecule_class_info_t::draw_ncs_ghosts(Shader *shader_for_meshes,
 
    if (show_ghosts_flag) {
       for (auto &ghost : ncs_ghosts) {
-         ghost.draw(shader_for_meshes, mvp, model_rotation_matrix, lights, eye_position, background_colour);
+         ghost.draw(shader_for_meshes, eye, mvp, model_rotation_matrix, lights, eye_position, background_colour);
       }
    }
 
@@ -311,13 +312,12 @@ molecule_class_info_t::draw_ncs_ghosts(Shader *shader_for_meshes,
 
 void
 drawn_ghost_molecule_display_t::draw(Shader *shader_p,
+                                     stereo_eye_t eye,
                                      const glm::mat4 &mvp,
                                      const glm::mat4 &view_rotation_matrix,
                                      const std::map<unsigned int, lights_info_t> &lights,
                                      const glm::vec3 &eye_position, // eye position in view space (not molecule space)
                                      const glm::vec4 &background_colour) {
-
-   stereo_eye_t eye = stereo_eye_t::MONO; // PASS THIS
 
    if (false)
       std::cout << "ncs_ghosts::draw() n-verts: " << mesh.vertices.size()

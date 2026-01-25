@@ -377,7 +377,7 @@ TextureMesh::draw_atom_label(const std::string &atom_label,
    const float &stereo_x_scale  = stereo_x_scale_and_offset.first;
    const float &stereo_x_offset = stereo_x_scale_and_offset.second;
 
-   std::cout << "DEBUG:: draw_atom_label() stereo_x_scale and offset " << stereo_x_scale << " " << stereo_x_offset << std::endl;
+   // std::cout << "DEBUG:: draw_atom_label() stereo_x_scale and offset " << stereo_x_scale << " " << stereo_x_offset << std::endl;
 
    shader_p->set_float_for_uniform("stereo_x_scale",  stereo_x_scale);
    shader_p->set_float_for_uniform("stereo_x_offset", stereo_x_offset);

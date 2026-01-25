@@ -108,13 +108,14 @@ molecule_class_info_t::set_use_vertex_gradients_for_map_normals(bool state) {
 
 
 void
-molecule_class_info_t::draw_map_molecule( bool draw_transparent_maps,
+molecule_class_info_t::draw_map_molecule( stereo_eye_t eye,
+                                          bool draw_transparent_maps,
                                           Shader &shader, // unusual reference.. .change to pointer for consistency?
                                           const glm::mat4 &mvp,
                                           const glm::mat4 &view_rotation,
                                           const glm::vec3 &eye_position,
                                           const glm::vec4 &ep,
-                                          const std::map<unsigned int, lights_info_t> &lights, 
+                                          const std::map<unsigned int, lights_info_t> &lights,
                                           const glm::vec3 &background_colour,
                                           bool perspective_projection_flag
                                           ) {
@@ -149,10 +150,6 @@ molecule_class_info_t::draw_map_molecule( bool draw_transparent_maps,
                                                                        << err << std::endl;
 
                              };
-
-
-
-   stereo_eye_t eye = stereo_eye_t::MONO; // PASS THIS
 
    if (! draw_it_for_map) return;
 

@@ -1853,7 +1853,7 @@ public:
 
    static int mol_no_for_environment_distances;
    static bool display_environment_graphics_object_as_solid_flag;
-   static void draw_environment_graphics_object();
+   static void draw_environment_graphics_object(stereo_eye_t eye);
    // void symmetry_environment_graphics_object() const;
 
    // for flashing the picked intermediate atom.
@@ -2505,13 +2505,13 @@ public:
    void clear_pointer_distances();
    static std::vector<std::pair<clipper::Coord_orth, clipper::Coord_orth> > pointer_distances_object_vec;
    // static Mesh mesh_for_pointer_distances; // here for future-Paul
-   static void draw_pointer_distances_objects(); // draw them
+   static void draw_pointer_distances_objects(stereo_eye_t eye); // draw them
    void make_pointer_distance_objects(); // (re)generate them
    static std::vector<atom_label_info_t> labels_for_pointer_distances;
 
    // --- Extra Distance Restraints ---
 
-   static void draw_extra_distance_restraints(int pass_type);
+   static void draw_extra_distance_restraints(stereo_eye_t eye, int pass_type);
    void make_extra_distance_restraints_objects(); // (re)generate them
    static float extra_distance_restraint_penalty_cutoff; // restraints that have less penalty/energy than
                                                          // this are not worth drawing.
@@ -2906,12 +2906,12 @@ public:
    static void draw_generic_objects_simple();
    static void draw_generic_objects_solid();
    static void draw_generic_text();
-   static void draw_particles();
-   static void draw_molecules_atom_labels();
-   static void draw_boids();
-   static void draw_happy_face_residue_markers();
-   static void draw_anchored_atom_markers();
-   static void draw_unhappy_atom_markers(unsigned int pass_type);
+   static void draw_particles(stereo_eye_t eye);
+   static void draw_molecules_atom_labels(stereo_eye_t eye);
+   static void draw_boids(stereo_eye_t eye);
+   static void draw_happy_face_residue_markers(stereo_eye_t eye);
+   static void draw_anchored_atom_markers(stereo_eye_t eye);
+   static void draw_unhappy_atom_markers(stereo_eye_t eye, unsigned int pass_type);
    static void draw_hydrogen_bonds_mesh(stereo_eye_t eye); // like boids
    void setup_draw_for_particles();
    void clear_measure_distances();
@@ -2962,7 +2962,7 @@ public:
 
    static bool draw_bad_nbc_atom_pair_markers_flag; // user can turn them off
    static void setup_draw_for_bad_nbc_atom_pair_markers();
-   static void draw_bad_nbc_atom_pair_markers(unsigned int pass_type);
+   static void draw_bad_nbc_atom_pair_markers(stereo_eye_t eye, unsigned int pass_type);
    static void update_bad_nbc_atom_pair_marker_positions();
    static Texture texture_for_bad_nbc_atom_pair_markers;
    static TextureMesh tmesh_for_bad_nbc_atom_pair_markers;
@@ -2972,10 +2972,10 @@ public:
    static void setup_draw_for_bad_nbc_atom_pair_dashed_line();
    static void update_bad_nbc_atom_pair_dashed_lines();
    static Mesh bad_nbc_atom_pair_dashed_line; // instanced mesh
-   static void draw_bad_nbc_atom_pair_dashed_lines(unsigned int pass_type);
+   static void draw_bad_nbc_atom_pair_dashed_lines(stereo_eye_t eye, unsigned int pass_type);
 
    void setup_draw_for_chiral_volume_outlier_markers();
-   static void draw_chiral_volume_outlier_markers(unsigned int pass_type);
+   static void draw_chiral_volume_outlier_markers(stereo_eye_t eye, unsigned int pass_type);
    static void update_chiral_volume_outlier_marker_positions();
    static Texture texture_for_chiral_volume_outlier_markers;
    static TextureMesh tmesh_for_chiral_volume_outlier_markers;
@@ -3576,7 +3576,7 @@ public:
 
    // -------- Texture Meshes (for importing glTF models) -------------
    static std::vector<TextureMesh> texture_meshes;
-   static void draw_texture_meshes();
+   static void draw_texture_meshes(stereo_eye_t eye);
 
    static Mesh mesh_for_eyelashes;
    static Mesh &get_mesh_for_eyelashes();
@@ -3915,7 +3915,7 @@ string   static std::string sessionid;
    static void atom_pull_off(const coot::atom_spec_t &spec);
    static void atom_pulls_off(const std::vector<coot::atom_spec_t> &specs);
    void add_or_replace_current(const atom_pull_info_t &atom_pull_in);
-   static void draw_atom_pull_restraints();
+   static void draw_atom_pull_restraints(stereo_eye_t eye);
    // we don't want to refine_again if the accept/reject dialog "Accept" button was clicked
    // (not least because now the refined atoms have gone out of scope)
    void clear_atom_pull_restraint(const coot::atom_spec_t &spec, bool refine_again_flag);
@@ -3997,7 +3997,7 @@ string   static std::string sessionid;
    static translation_gizmo_t translation_gizmo;
    static Mesh translation_gizmo_mesh;
    static void setup_draw_for_translation_gizmo();
-   static void draw_translation_gizmo();
+   static void draw_translation_gizmo(stereo_eye_t eye);
    static bool translation_gizmo_is_being_dragged;
    static translation_gizmo_t::pick_info_t translation_gizmo_axis_dragged;
    static translation_gizmo_t::pick_info_t translation_gizmo_picked();
@@ -4187,9 +4187,9 @@ string   static std::string sessionid;
    static void draw_map_molecules(stereo_eye_t eye, bool draw_transparent_maps);
    static void draw_map_molecules_with_shadows();
    static void draw_model_molecules(stereo_eye_t eye);
-   static void draw_model_molecules_symmetry_with_shadows();
-   static void draw_intermediate_atoms(unsigned int pass_type);
-   static void draw_intermediate_atoms_rama_balls(unsigned int pass_type);
+   static void draw_model_molecules_symmetry_with_shadows(stereo_eye_t eye);
+   static void draw_intermediate_atoms(stereo_eye_t eye, unsigned int pass_type);
+   static void draw_intermediate_atoms_rama_balls(stereo_eye_t eye, unsigned int pass_type);
    static void draw_molecule_atom_labels(molecule_class_info_t &m,
                                          stereo_eye_t eye,
                                          const glm::mat4 &mvp,
@@ -4199,19 +4199,19 @@ string   static std::string sessionid;
    static void draw_molecular_triangles();
    static void draw_molecules(stereo_eye_t eye);
    static void draw_meshes();
-   static void draw_meshed_generic_display_object_meshes(unsigned int pass_type);
+   static void draw_meshed_generic_display_object_meshes(stereo_eye_t eye, unsigned int pass_type);
    static void draw_molecules_other_meshes(stereo_eye_t eye, unsigned int pass_type);
-   static void draw_instanced_meshes();
-   static void draw_unit_cells();
-   static void draw_cube(GtkGLArea *glarea, unsigned int cube_type);
-   static void draw_central_cube(GtkGLArea *glarea);
-   static void draw_origin_cube(GtkGLArea *glarea);
-   static void draw_rotation_centre_crosshairs(GtkGLArea *glarea, unsigned int pass_type);
-   static void draw_outlined_active_residue();
+   static void draw_instanced_meshes(stereo_eye_t eye);
+   static void draw_unit_cells(stereo_eye_t eye);
+   static void draw_cube(stereo_eye_t eye, GtkGLArea *glarea, unsigned int cube_type);
+   static void draw_central_cube(stereo_eye_t eye, GtkGLArea *glarea);
+   static void draw_origin_cube(stereo_eye_t eye, GtkGLArea *glarea);
+   static void draw_rotation_centre_crosshairs(stereo_eye_t eye, GtkGLArea *glarea, unsigned int pass_type);
+   static void draw_outlined_active_residue(stereo_eye_t eye);
    static void draw_hud_ligand_view();
    static void draw_hud_buttons();
    static void draw_hud_fps();
-   static void draw_measure_distance_and_angles();
+   static void draw_measure_distance_and_angles(stereo_eye_t eye);
    static void draw_ncs_ghosts();
    static std::list<std::chrono::time_point<std::chrono::high_resolution_clock> > frame_time_history_list;
    void set_do_ambient_occlusion(bool s) { shader_do_ambient_occlusion_flag = s; } // caller redraws
@@ -4432,11 +4432,11 @@ string   static std::string sessionid;
    static LinesMesh lines_mesh_for_identification_pulse;
    static LinesMesh lines_mesh_for_generic_pulse; // loop through generic_pulse_centres
    static glm::vec3 identification_pulse_centre;
-   static void draw_at_screen_centre_pulse(); // green sonar ping
+   static void draw_at_screen_centre_pulse(stereo_eye_t eye); // green sonar ping
    // these are variations of the (typically) multi-centre identification pulse.
-   static void draw_generic_pulses();
-   static void draw_invalid_residue_pulse();
-   static void draw_delete_item_pulse();
+   static void draw_generic_pulses(stereo_eye_t eye);
+   static void draw_invalid_residue_pulse(stereo_eye_t eye);
+   static void draw_delete_item_pulse(stereo_eye_t eye);
    static std::vector<glm::vec3> generic_pulse_centres;
    std::vector<glm::vec3> residue_to_positions(mmdb::Residue *residue_p) const;
    std::vector<glm::vec3> residue_to_side_chain_positions(mmdb::Residue *residue_p) const;
@@ -4508,12 +4508,14 @@ string   static std::string sessionid;
 
    // 20220129-PE integrating crows
 
-   static void render_scene_sans_depth_blur(Shader *shader_for_tmeshes_p, Shader *shader_for_meshes_p,
+   static void render_scene_sans_depth_blur(stereo_eye_t eye,
+                                     Shader *shader_for_tmeshes_p, Shader *shader_for_meshes_p,
                                      Shader *shader_for_tmeshes_with_shadows_p,
                                      Shader *shader_for_meshes_with_shadows_p,
                                      int width, int height);
 
-   static void render_scene_with_depth_blur(Shader *shader_for_tmeshes_p, Shader *shader_for_meshes_p,
+   static void render_scene_with_depth_blur(stereo_eye_t eye,
+                                            Shader *shader_for_tmeshes_p, Shader *shader_for_meshes_p,
                                             Shader *shader_for_tmeshes_with_shadows_p,
                                             Shader *shader_for_meshes_with_shadows_p,
                                             int width, int height);
@@ -4539,7 +4541,8 @@ string   static std::string sessionid;
    static HUDTextureMesh tmesh_for_shadow_map;
    static bool show_just_shadows; // show *just* the shadows in the texture-mesh-with-shadows shader
 
-   void draw_models(Shader *shader_for_tmeshes_p,
+   void draw_models(stereo_eye_t eye,
+                    Shader *shader_for_tmeshes_p,
                     Shader *shader_for_meshes_p,
                     Shader *shader_for_tmeshes_with_shadows_p,
                     Shader *shader_for_meshes_with_shadows_p,
@@ -4549,7 +4552,8 @@ string   static std::string sessionid;
                     float shadow_strength = 0.4,
                     bool show_just_shadows = false);
 
-   void draw_models_with_shadows(Shader *shader_for_tmeshes_with_shadows_p,
+   void draw_models_with_shadows(stereo_eye_t eye,
+				 Shader *shader_for_tmeshes_with_shadows_p,
 				 Shader *shader_for_meshes_with_shadows_p,
 				 int graphics_x_size,
 				 int graphics_y_size,
@@ -4562,8 +4566,8 @@ string   static std::string sessionid;
    void draw_molecules_for_shadow_map(unsigned int light_index);
 
    static void draw_models_for_ssao();
-   static void draw_molecules_for_ssao();
-   static void draw_molecules_with_shadows(); // use the above created shadow map to colour the pixels
+   static void draw_molecules_for_ssao(stereo_eye_t eye);
+   static void draw_molecules_with_shadows(stereo_eye_t eye); // use the above created shadow map to colour the pixels
 
 
    // DOF blur
@@ -4616,7 +4620,7 @@ string   static std::string sessionid;
    static void render_3d_scene(GtkGLArea *gl_area, stereo_eye_t eye);
    static void render_3d_scene_for_ssao(); // c.f. above, this one doesn't pass the gl_area.
                                            // I don't know which is best.
-   static void render_3d_scene_with_shadows(); // change the shader from meshes.shader to meshes-with-shadows.shader
+   static void render_3d_scene_with_shadows(stereo_eye_t eye); // change the shader from meshes.shader to meshes-with-shadows.shader
    void init_joey_ssao_stuff(int w, int h);
    void read_some_test_models();
 

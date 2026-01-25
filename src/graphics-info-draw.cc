@@ -889,7 +889,7 @@ graphics_info_t::draw_map_molecules(stereo_eye_t eye, bool draw_transparent_maps
                       << " shader " << shader.name << std::endl;
 
          m.map_as_mesh_gl_lines_version.set_material(m.material_for_maps); // how/why is this needed? (seems that it is)
-         m.draw_map_molecule(draw_transparent_maps, shader, mvp, model_rotation, eye_position, ep,
+         m.draw_map_molecule(eye, draw_transparent_maps, shader, mvp, model_rotation, eye_position, ep,
                              lights, background_colour, perspective_projection_flag);
       }
    }
@@ -962,7 +962,7 @@ graphics_info_t::draw_model_molecules(stereo_eye_t eye) {
       m.draw_dots(&shader_for_rama_balls, mvp, model_rotation, lights, eye_position,
                      bgc, shader_do_depth_fog_flag);
 
-      m.draw_ncs_ghosts(&shader_for_meshes, mvp, model_rotation, lights, eye_position, bgc);
+      m.draw_ncs_ghosts(&shader_for_meshes, eye, mvp, model_rotation, lights, eye_position, bgc);
 
       glEnable(GL_BLEND);
       draw_molecule_atom_labels(m, eye, mvp, model_rotation);
@@ -971,9 +971,7 @@ graphics_info_t::draw_model_molecules(stereo_eye_t eye) {
 }
 
 void
-graphics_info_t::draw_model_molecules_symmetry_with_shadows() {
-   
-   stereo_eye_t eye = stereo_eye_t::MONO; // PASS THIS
+graphics_info_t::draw_model_molecules_symmetry_with_shadows(stereo_eye_t eye) {
 
    if (show_symmetry) {
       for (int ii=n_molecules()-1; ii>=0; ii--) {
@@ -1062,9 +1060,7 @@ graphics_info_t::draw_molecule_atom_labels(molecule_class_info_t &m,
 }
 
 void
-graphics_info_t::draw_intermediate_atoms(unsigned int pass_type) { // draw_moving_atoms()
-
-   stereo_eye_t eye = stereo_eye_t::MONO; // PASS THIS
+graphics_info_t::draw_intermediate_atoms(stereo_eye_t eye, unsigned int pass_type) { // draw_moving_atoms()
 
    // std::cout << "draw_intermediate_atoms() --- start --- " << std::endl;
 
@@ -1191,9 +1187,7 @@ graphics_info_t::update_rama_balls(std::vector<Instanced_Markup_Mesh_attrib_t> *
 
 
 void
-graphics_info_t::draw_intermediate_atoms_rama_balls(unsigned int pass_type) {
-
-   stereo_eye_t eye = stereo_eye_t::MONO;
+graphics_info_t::draw_intermediate_atoms_rama_balls(stereo_eye_t eye, unsigned int pass_type) {
 
    // 20220302-PE Currently I don't draw rama balls with instancing
    //             It would be nice to have.
@@ -1425,9 +1419,7 @@ graphics_info_t::setup_atom_pull_restraints_glsl() {
 
 // static
 void
-graphics_info_t::draw_atom_pull_restraints() {
-
-   stereo_eye_t eye = stereo_eye_t::MONO; // PASS THIS
+graphics_info_t::draw_atom_pull_restraints(stereo_eye_t eye) {
 
    // Note to self: do this first with standard (modern) OpenGL.
    //
@@ -1539,9 +1531,7 @@ graphics_info_t::draw_molecular_triangles() {
 
 // static
 void
-graphics_info_t::draw_particles() {
-
-   stereo_eye_t eye = stereo_eye_t::MONO; // PASS THIS
+graphics_info_t::draw_particles(stereo_eye_t eye) {
 
    if (curmudgeon_mode) return;
 
@@ -1580,9 +1570,7 @@ graphics_info_t::draw_particles() {
 
 // static
 void
-graphics_info_t::draw_happy_face_residue_markers() {
-
-   stereo_eye_t eye = stereo_eye_t::MONO; // PASS THIS
+graphics_info_t::draw_happy_face_residue_markers(stereo_eye_t eye) {
 
    if (curmudgeon_mode) return;
 
@@ -1615,9 +1603,7 @@ graphics_info_t::draw_happy_face_residue_markers() {
 
 // static
 void
-graphics_info_t::draw_anchored_atom_markers()  {
-
-   stereo_eye_t eye = stereo_eye_t::MONO; // PASS THIS
+graphics_info_t::draw_anchored_atom_markers(stereo_eye_t eye) {
 
    if (tmesh_for_anchored_atom_markers.draw_this_mesh) {
       if (tmesh_for_anchored_atom_markers.have_instances()) {
@@ -1632,11 +1618,9 @@ graphics_info_t::draw_anchored_atom_markers()  {
 }
 
 void
-graphics_info_t::draw_texture_meshes() {
+graphics_info_t::draw_texture_meshes(stereo_eye_t eye) {
 
    // std::cout << "draw_texture_meshes() --- start --- " << std::endl;
-
-   stereo_eye_t eye = stereo_eye_t::MONO; // PASS THIS
 
    if (! texture_meshes.empty()) {
       glm::mat4 mvp = get_molecule_mvp(eye);
@@ -1880,45 +1864,45 @@ graphics_info_t::draw_molecules(stereo_eye_t eye) {
 
    // opaque things
 
-   draw_outlined_active_residue();
+   draw_outlined_active_residue(eye);
 
-   draw_intermediate_atoms(PASS_TYPE_STANDARD);
+   draw_intermediate_atoms(eye, PASS_TYPE_STANDARD);
 
-   draw_intermediate_atoms_rama_balls(PASS_TYPE_STANDARD);
+   draw_intermediate_atoms_rama_balls(eye, PASS_TYPE_STANDARD);
 
    draw_intermediate_atoms_pull_restraint_neighbour_displacement_max_radius_ring(); // proportional editing
 
-   draw_atom_pull_restraints();
+   draw_atom_pull_restraints(eye);
 
    // return; // no draw
 
    draw_molecules_other_meshes(eye, PASS_TYPE_STANDARD);
 
-   draw_instanced_meshes();
+   draw_instanced_meshes(eye);
 
    draw_map_molecules(eye, false); // transparency
 
-   draw_unit_cells();
+   draw_unit_cells(eye);
 
-   draw_environment_graphics_object();
+   draw_environment_graphics_object(eye);
 
    draw_hydrogen_bonds_mesh(eye); // like boids
 
-   draw_boids();
+   draw_boids(eye);
 
-   draw_particles();
+   draw_particles(eye);
 
-   draw_happy_face_residue_markers();
+   draw_happy_face_residue_markers(eye);
 
-   draw_bad_nbc_atom_pair_markers(PASS_TYPE_STANDARD);
+   draw_bad_nbc_atom_pair_markers(eye, PASS_TYPE_STANDARD);
 
-   draw_bad_nbc_atom_pair_dashed_lines(PASS_TYPE_STANDARD);
+   draw_bad_nbc_atom_pair_dashed_lines(eye, PASS_TYPE_STANDARD);
 
-   draw_chiral_volume_outlier_markers(PASS_TYPE_STANDARD);
+   draw_chiral_volume_outlier_markers(eye, PASS_TYPE_STANDARD);
 
-   draw_unhappy_atom_markers(PASS_TYPE_STANDARD);
+   draw_unhappy_atom_markers(eye, PASS_TYPE_STANDARD);
 
-   draw_anchored_atom_markers();
+   draw_anchored_atom_markers(eye);
 
    // this is the last opaque thing to be drawn because the atom labels are blended.
    // It should be easy to break out the atom label code into its own function. That
@@ -1933,14 +1917,12 @@ graphics_info_t::draw_molecules(stereo_eye_t eye) {
    draw_generic_objects(PASS_TYPE_STANDARD, eye);
 
    // moved down
-   draw_meshed_generic_display_object_meshes(PASS_TYPE_STANDARD);
+   draw_meshed_generic_display_object_meshes(eye, PASS_TYPE_STANDARD);
 
 }
 
 void
-graphics_info_t::draw_molecules_with_shadows() {
-
-   stereo_eye_t eye = stereo_eye_t::MONO; // PASS THIS
+graphics_info_t::draw_molecules_with_shadows(stereo_eye_t eye) {
 
    int n_mols = n_molecules();
    bool show_just_shadows = false;
@@ -1987,7 +1969,7 @@ graphics_info_t::draw_molecules_with_shadows() {
             m.draw_dots(&shader_for_rama_balls, mvp, model_rotation_matrix, lights, eye_position,
                         bg_col_v4, shader_do_depth_fog_flag);
 
-            m.draw_ncs_ghosts(&shader_for_meshes, mvp, model_rotation_matrix, lights, eye_position, bg_col_v4);
+            m.draw_ncs_ghosts(&shader_for_meshes, eye, mvp, model_rotation_matrix, lights, eye_position, bg_col_v4);
 
             glEnable(GL_BLEND);
             // good idea to not use shadows on atom labels?
@@ -2058,39 +2040,39 @@ graphics_info_t::draw_molecules_with_shadows() {
 
    // convert these to read the shadow texture
 
-   draw_model_molecules_symmetry_with_shadows(); // does symmetry
+   draw_model_molecules_symmetry_with_shadows(eye); // does symmetry
 
-   draw_outlined_active_residue();
+   draw_outlined_active_residue(eye);
 
-   draw_intermediate_atoms(PASS_TYPE_STANDARD);
+   draw_intermediate_atoms(eye, PASS_TYPE_STANDARD);
 
-   draw_intermediate_atoms_rama_balls(PASS_TYPE_STANDARD);
+   draw_intermediate_atoms_rama_balls(eye, PASS_TYPE_STANDARD);
 
-   draw_atom_pull_restraints();
+   draw_atom_pull_restraints(eye);
 
-   draw_meshed_generic_display_object_meshes(PASS_TYPE_WITH_SHADOWS);
+   draw_meshed_generic_display_object_meshes(eye, PASS_TYPE_WITH_SHADOWS);
 
    draw_molecules_other_meshes(eye, PASS_TYPE_STANDARD);
 
-   draw_instanced_meshes();
+   draw_instanced_meshes(eye);
 
    // draw_map_molecules(false); // transparency
 
-   draw_unit_cells();
+   draw_unit_cells(eye);
 
-   draw_environment_graphics_object();
+   draw_environment_graphics_object(eye);
 
    draw_generic_objects(PASS_TYPE_STANDARD, eye);
 
    draw_hydrogen_bonds_mesh(eye); // like boids
 
-   draw_anchored_atom_markers();
+   draw_anchored_atom_markers(eye);
 
-   draw_boids();
+   draw_boids(eye);
 
-   draw_particles();
+   draw_particles(eye);
 
-   draw_happy_face_residue_markers();
+   draw_happy_face_residue_markers(eye);
 
    // now drawn later, like atom labels
    // draw_bad_nbc_atom_pair_markers(PASS_TYPE_STANDARD);
@@ -2110,9 +2092,7 @@ graphics_info_t::draw_molecules_with_shadows() {
 
 
 void
-graphics_info_t::draw_molecules_atom_labels() {
-
-   stereo_eye_t eye = stereo_eye_t::MONO; // PASS THIS
+graphics_info_t::draw_molecules_atom_labels(stereo_eye_t eye) {
 
    // calls draw_molecule_atom_labels(m, mvp, model_rotation_matrix);
 
@@ -2136,9 +2116,7 @@ graphics_info_t::draw_molecules_atom_labels() {
 //
 // static
 void
-graphics_info_t::draw_environment_graphics_object() {
-
-   stereo_eye_t eye = stereo_eye_t::MONO; // PASS THIS
+graphics_info_t::draw_environment_graphics_object(stereo_eye_t eye) {
 
 #if 0   // old... keep for reference (for a while)
    graphics_info_t g;
@@ -2276,9 +2254,7 @@ graphics_info_t::update_mesh_for_outline_of_active_residue(int imol, const coot:
 
 
 void
-graphics_info_t::draw_outlined_active_residue() {
-
-   stereo_eye_t eye = stereo_eye_t::MONO; // PASS THIS
+graphics_info_t::draw_outlined_active_residue(stereo_eye_t eye) {
 
    if (outline_for_active_residue_frame_count > 0) {
       glm::mat4 mvp = get_molecule_mvp(eye);
@@ -2299,9 +2275,7 @@ graphics_info_t::draw_outlined_active_residue() {
 
 
 void
-graphics_info_t::draw_unit_cells() {
-
-   stereo_eye_t eye = stereo_eye_t::MONO; // PASS THIS
+graphics_info_t::draw_unit_cells(stereo_eye_t eye) {
 
    glm::mat4 mvp = get_molecule_mvp(eye);
    for (int ii=n_molecules()-1; ii>=0; ii--) {
@@ -2312,9 +2286,7 @@ graphics_info_t::draw_unit_cells() {
 }
 
 void
-graphics_info_t::draw_meshed_generic_display_object_meshes(unsigned int pass_type) {
-
-   stereo_eye_t eye = stereo_eye_t::MONO; // PASS THIS
+graphics_info_t::draw_meshed_generic_display_object_meshes(stereo_eye_t eye, unsigned int pass_type) {
 
    // non-instanced.
 
@@ -2568,9 +2540,7 @@ graphics_info_t::draw_molecules_other_meshes(stereo_eye_t eye, unsigned int pass
 }
 
 void
-graphics_info_t::draw_instanced_meshes() {
-
-   stereo_eye_t eye = stereo_eye_t::MONO; // PASS THIS
+graphics_info_t::draw_instanced_meshes(stereo_eye_t eye) {
 
    // presumes opaque-only
 
@@ -2638,9 +2608,7 @@ graphics_info_t::draw_meshes() {
 }
 
 void
-graphics_info_t::draw_cube(GtkGLArea *glarea, unsigned int cube_type) {
-
-   stereo_eye_t eye = stereo_eye_t::MONO; // PASS THIS
+graphics_info_t::draw_cube(stereo_eye_t eye, GtkGLArea *glarea, unsigned int cube_type) {
 
    // std::cout << "draw_cube() with cube_type " << cube_type << std::endl;
 
@@ -2726,20 +2694,18 @@ graphics_info_t::draw_cube(GtkGLArea *glarea, unsigned int cube_type) {
 
 
 void
-graphics_info_t::draw_central_cube(GtkGLArea *glarea) {
-   draw_cube(glarea, VIEW_CENTRAL_CUBE);
+graphics_info_t::draw_central_cube(stereo_eye_t eye, GtkGLArea *glarea) {
+   draw_cube(eye, glarea, VIEW_CENTRAL_CUBE);
 }
 
 void
-graphics_info_t::draw_origin_cube(GtkGLArea *glarea) {
+graphics_info_t::draw_origin_cube(stereo_eye_t eye, GtkGLArea *glarea) {
 
-   draw_cube(glarea, ORIGIN_CUBE);
+   draw_cube(eye, glarea, ORIGIN_CUBE);
 }
 
 void
-graphics_info_t::draw_rotation_centre_crosshairs(GtkGLArea *glarea, unsigned int pass_type) {
-
-   stereo_eye_t eye = stereo_eye_t::MONO; // PASS THIS
+graphics_info_t::draw_rotation_centre_crosshairs(stereo_eye_t eye, GtkGLArea *glarea, unsigned int pass_type) {
 
    // gtk_gl_area_make_current(glarea); // needed?, no it isn't.
    GLenum err = glGetError();
@@ -2900,9 +2866,7 @@ on_glarea_resize(GtkGLArea *glarea, gint width, gint height) {
 
 
 void
-graphics_info_t::draw_measure_distance_and_angles() {
-
-   stereo_eye_t eye = stereo_eye_t::MONO; // PASS THIS
+graphics_info_t::draw_measure_distance_and_angles(stereo_eye_t eye) {
 
    if (mesh_for_measure_distance_object_vec.get_draw_this_mesh()) {
       Shader &shader = shader_for_moleculestotriangles;
@@ -4579,36 +4543,36 @@ graphics_info_t::render_3d_scene(GtkGLArea *gl_area, stereo_eye_t eye) {
    // glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
    err = glGetError(); if (err) std::cout << "render_3d_scene lambda C err " << err << std::endl;
 
-   draw_origin_cube(gl_area);
+   draw_origin_cube(eye, gl_area);
    err = glGetError(); if (err) std::cout << "render scene lambda post cubes err " << err << std::endl;
 
    draw_molecules(eye); // includes particles, happy-faces and boids (should they be there (maybe not))
                      // so rename this function? Or just bring everything here?  Put this render() function
                      // into new file graphics-info-opengl-render.cc
 
-   draw_at_screen_centre_pulse();
+   draw_at_screen_centre_pulse(eye);
 
-   draw_invalid_residue_pulse();
+   draw_invalid_residue_pulse(eye);
 
-   draw_delete_item_pulse();
+   draw_delete_item_pulse(eye);
 
-   draw_generic_pulses();
+   draw_generic_pulses(eye);
 
-   draw_measure_distance_and_angles(); // maybe in draw_molecules()?
+   draw_measure_distance_and_angles(eye); // maybe in draw_molecules()?
 
-   draw_extra_distance_restraints(PASS_TYPE_STANDARD); // GM_restraints
+   draw_extra_distance_restraints(eye, PASS_TYPE_STANDARD); // GM_restraints
 
-   draw_pointer_distances_objects();
+   draw_pointer_distances_objects(eye);
 
-   draw_translation_gizmo(); // maybe rotation gizmo too, later.
+   draw_translation_gizmo(eye); // maybe rotation gizmo too, later.
 
-   draw_texture_meshes();
+   draw_texture_meshes(eye);
 
 }
 
 
 void
-graphics_info_t::render_3d_scene_with_shadows() {
+graphics_info_t::render_3d_scene_with_shadows(stereo_eye_t eye) {
 
    // std::cout << "render_3d_scene_with_shadows() --- start ---" << std::endl;
 
@@ -4626,30 +4590,30 @@ graphics_info_t::render_3d_scene_with_shadows() {
    GLenum err = glGetError();
    if (err) std::cout << "render_3d_scene_with_shadows B err " << err << std::endl;
 
-   draw_origin_cube(gl_area);
+   draw_origin_cube(eye, gl_area);
    err = glGetError(); if (err) std::cout << "render scene lambda post cubes err " << err << std::endl;
 
    // draw_rotation_centre_crosshairs(gl_area, PASS_TYPE_STANDARD);
 
-   draw_molecules_with_shadows(); // includes particles, happy-faces and boids (should they be there (maybe not))
+   draw_molecules_with_shadows(eye); // includes particles, happy-faces and boids (should they be there (maybe not))
                                   // so rename this function? Or just bring everything here?  Put this render() function
                                   // into new file graphics-info-opengl-render.cc
 
-   draw_at_screen_centre_pulse();
+   draw_at_screen_centre_pulse(eye);
 
-   draw_invalid_residue_pulse();
+   draw_invalid_residue_pulse(eye);
 
-   draw_generic_pulses();
+   draw_generic_pulses(eye);
 
-   draw_delete_item_pulse();
+   draw_delete_item_pulse(eye);
 
-   draw_measure_distance_and_angles(); // maybe in draw_molecules()?
+   draw_measure_distance_and_angles(eye); // maybe in draw_molecules()?
 
-   draw_pointer_distances_objects();
+   draw_pointer_distances_objects(eye);
 
-   draw_extra_distance_restraints(PASS_TYPE_WITH_SHADOWS); // GM_restraints. 20231121-PE is this the right pass type?
+   draw_extra_distance_restraints(eye, PASS_TYPE_WITH_SHADOWS); // GM_restraints. 20231121-PE is this the right pass type?
 
-   draw_texture_meshes();
+   draw_texture_meshes(eye);
 
 }
 
@@ -5717,9 +5681,7 @@ void graphics_info_t::setup_draw_for_bad_nbc_atom_pair_dashed_line() {
 
 // static
 void
-graphics_info_t::draw_bad_nbc_atom_pair_markers(unsigned int pass_type) {
-
-   stereo_eye_t eye = stereo_eye_t::MONO; // PASS THIS
+graphics_info_t::draw_bad_nbc_atom_pair_markers(stereo_eye_t eye, unsigned int pass_type) {
 
    if (curmudgeon_mode) return;
 
@@ -5751,9 +5713,7 @@ graphics_info_t::draw_bad_nbc_atom_pair_markers(unsigned int pass_type) {
    }
 }
 
-void graphics_info_t::draw_bad_nbc_atom_pair_dashed_lines(unsigned int pass_type) {
-
-   stereo_eye_t eye = stereo_eye_t::MONO; // PASS THIS
+void graphics_info_t::draw_bad_nbc_atom_pair_dashed_lines(stereo_eye_t eye, unsigned int pass_type) {
 
    if (curmudgeon_mode) return;
 
@@ -5794,9 +5754,7 @@ void graphics_info_t::setup_draw_for_chiral_volume_outlier_markers() {
 }
 
 // static
-void graphics_info_t::draw_chiral_volume_outlier_markers(unsigned int pass_type) {
-
-   stereo_eye_t eye = stereo_eye_t::MONO; // PASS THIS
+void graphics_info_t::draw_chiral_volume_outlier_markers(stereo_eye_t eye, unsigned int pass_type) {
 
    if (curmudgeon_mode) return;
 
@@ -5909,9 +5867,7 @@ void graphics_info_t::setup_draw_for_unhappy_atom_markers() {
 }
 
 // static
-void graphics_info_t::draw_unhappy_atom_markers(unsigned int pass_type) {
-
-   stereo_eye_t eye = stereo_eye_t::MONO; // PASS THIS
+void graphics_info_t::draw_unhappy_atom_markers(stereo_eye_t eye, unsigned int pass_type) {
 
    if (curmudgeon_mode) return;
 
@@ -6117,9 +6073,7 @@ graphics_info_t::draw_hud_ligand_view() {
 
 
 void
-graphics_info_t::draw_boids() {
-
-   stereo_eye_t eye = stereo_eye_t::MONO; // PASS THIS
+graphics_info_t::draw_boids(stereo_eye_t eye) {
 
    if (boids.size() > 0) {
       glm::mat4 mvp = get_molecule_mvp(eye);
@@ -6377,11 +6331,9 @@ graphics_info_t::setup_invalid_residue_pulse(mmdb::Residue *residue_p) {
 }
 
 
-void graphics_info_t::draw_at_screen_centre_pulse() {
+void graphics_info_t::draw_at_screen_centre_pulse(stereo_eye_t eye) {
 
    // 2025-12-06-PE identification and screen-centre are the same thing. "identification" should be renamed.
-
-   stereo_eye_t eye = stereo_eye_t::MONO;
 
    if (! lines_mesh_for_identification_pulse.empty()) {
       glm::mat4 mvp = get_molecule_mvp(eye);
@@ -6395,13 +6347,11 @@ void graphics_info_t::draw_at_screen_centre_pulse() {
    }
 }
 
-void graphics_info_t::draw_generic_pulses() {
+void graphics_info_t::draw_generic_pulses(stereo_eye_t eye) {
 
    if (false)
       std::cout << "draw_generic_pulses()  -- start -- "
                 << lines_mesh_for_generic_pulse.empty() << " " << generic_pulse_centres.size() << std::endl;
-
-   stereo_eye_t eye = stereo_eye_t::MONO; // PASS THIS
 
    if (! lines_mesh_for_generic_pulse.empty()) {
       glm::mat4 mvp = get_molecule_mvp(eye);
@@ -6413,11 +6363,9 @@ void graphics_info_t::draw_generic_pulses() {
    }
 }
 
-void graphics_info_t::draw_invalid_residue_pulse() {
+void graphics_info_t::draw_invalid_residue_pulse(stereo_eye_t eye) {
 
    return; // because we do it in draw_generic_pulses()
-
-   stereo_eye_t eye = stereo_eye_t::MONO; // PASS THIS
 
    if (! lines_mesh_for_generic_pulse.empty()) {
       glm::mat4 mvp = get_molecule_mvp(eye);
@@ -6433,9 +6381,7 @@ void graphics_info_t::draw_invalid_residue_pulse() {
 }
 
 void
-graphics_info_t::draw_delete_item_pulse() {
-
-   stereo_eye_t eye = stereo_eye_t::MONO; // PASS THIS
+graphics_info_t::draw_delete_item_pulse(stereo_eye_t eye) {
 
    if (! lines_mesh_for_generic_pulse.empty()) {
       glm::mat4 mvp = get_molecule_mvp(eye);
@@ -6452,9 +6398,7 @@ graphics_info_t::draw_delete_item_pulse() {
 }
 
 void
-graphics_info_t::draw_pointer_distances_objects() {
-
-   stereo_eye_t eye = stereo_eye_t::MONO; // PASS THIS
+graphics_info_t::draw_pointer_distances_objects(stereo_eye_t eye) {
 
    if (show_pointer_distances_flag) {
       if (! pointer_distances_object_vec.empty()) {
@@ -6484,9 +6428,7 @@ graphics_info_t::draw_pointer_distances_objects() {
 }
 
 void
-graphics_info_t::draw_translation_gizmo() { // maybe rotation gizmo too, later.
-
-   stereo_eye_t eye = stereo_eye_t::MONO;
+graphics_info_t::draw_translation_gizmo(stereo_eye_t eye) { // maybe rotation gizmo too, later.
 
    if (translation_gizmo_mesh.get_draw_this_mesh()) {
       bool do_it = false;
@@ -6599,9 +6541,7 @@ graphics_info_t::make_extra_distance_restraints_objects() {
 
 // static
 void
-graphics_info_t::draw_extra_distance_restraints(int pass_type) {
-
-   stereo_eye_t eye = stereo_eye_t::MONO; // PASS THIS
+graphics_info_t::draw_extra_distance_restraints(stereo_eye_t eye, int pass_type) {
 
    // 20230825-PE we don't want to see these if there are no intermediate atoms being displayed
    // Maybe they should be cleared up on "clear_moving_atoms()" (or whatever the function is called).
