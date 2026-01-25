@@ -660,13 +660,16 @@ graphics_info_t::get_molecule_mvp(stereo_eye_t eye, bool debug_matrices) {
    glm::mat4  proj_matrix = get_projection_matrix(do_orthographic_projection, w, h);
 
    // this setup is for cross-eye : i.e left image is on the right.
-   // we will need to know the stereo mode (wall vs cross) to get the correct sign
+   // we use the stereo mode (wall vs cross) to get the correct sign
+   //
+   float angle = -3.0f; // degrees, default cross-eye
+   if (display_mode == coot::SIDE_BY_SIDE_STEREO_WALL_EYE) angle = -angle;
    if (eye == stereo_eye_t::LEFT_EYE) {
-      glm::mat4 rot_z = glm::rotate(glm::mat4(1.0f), glm::radians(-3.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+      glm::mat4 rot_z = glm::rotate(glm::mat4(1.0f), glm::radians(angle), glm::vec3(0.0f, 1.0f, 0.0f));
       view_matrix = rot_z * view_matrix;
    }
    if (eye == stereo_eye_t::RIGHT_EYE) {
-      glm::mat4 rot_z = glm::rotate(glm::mat4(1.0f), glm::radians(3.0f), glm::vec3(0.0f, 1.0f, 0.0f));
+      glm::mat4 rot_z = glm::rotate(glm::mat4(1.0f), glm::radians(-angle), glm::vec3(0.0f, 1.0f, 0.0f));
       view_matrix = rot_z * view_matrix;
    }
 
