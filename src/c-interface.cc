@@ -31,6 +31,8 @@
 #include <stdexcept>
 #include <utility>
 #include "glib.h"
+#include "gtk/gtk.h"
+#include "gtk/gtkshortcut.h"
 #include "pytypedefs.h"
 #ifdef USE_PYTHON
 #ifndef PYTHONH
@@ -1212,8 +1214,12 @@ void mono_mode() {
 	 int previous_mode = graphics_info_t::display_mode;
          // GtkWidget *gl_widget = lookup_widget(graphics_info_t::get_main_window(), "window1");
          GtkWidget *gl_widget = graphics_info_t::glareas[0];
-         int x_size = gtk_widget_get_allocated_width(gl_widget);
-         int y_size = gtk_widget_get_allocated_height(gl_widget);
+         // int x_size = gtk_widget_get_allocated_width(gl_widget);
+         // int y_size = gtk_widget_get_allocated_height(gl_widget);
+         GtkAllocation allocation;
+         gtk_widget_get_allocation(graphics_info_t::glareas[0], &allocation);
+         int x_size = allocation.width;
+         int y_size = allocation.height;
 	 graphics_info_t::display_mode = coot::MONO_MODE;
          graphics_info_t::graphics_draw();
          GtkWidget *gl_area = graphics_info_t::glareas[0];
