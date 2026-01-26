@@ -682,7 +682,7 @@ PyObject *global_phasing_screen(int imol, PyObject *screen_dict) {
 
          if (! screen_results.front_page_strings.empty()) {
             GtkWidget *label = widget_from_builder("screen-front-page-label", builder);
-            std::string s = "<span font_family='monospace'>\n";
+            std::string s = "<span font-family='monospace'>\n";
             for (unsigned int i=0; i<screen_results.front_page_strings.size(); i++) {
                s += screen_results.front_page_strings[i];
                s += "\n";
