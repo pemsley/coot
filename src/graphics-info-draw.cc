@@ -2483,7 +2483,7 @@ graphics_info_t::draw_molecules_other_meshes(stereo_eye_t eye, unsigned int pass
                      bool wireframe_mode = false;
                      float opacity = 1.0f;
                      if (true)
-                        m.meshes[jj].draw(&shader_for_moleculestotriangles, mvp,
+                        m.meshes[jj].draw(&shader_for_moleculestotriangles, eye, mvp,
                                           model_rotation, lights, eye_position, rc, opacity, bg_col,
                                           wireframe_mode, do_depth_fog, show_just_shadows);
 
@@ -2495,9 +2495,10 @@ graphics_info_t::draw_molecules_other_meshes(stereo_eye_t eye, unsigned int pass
                      bool show_just_shadows = false;
                      float opacity = 1.0f;
                      glm::mat4 light_view_mvp = get_light_space_mvp(light_index);
-                     show_just_shadows =  false;
+                     show_just_shadows = false;
 
-                     m.meshes[jj].draw_with_shadows(&shader_for_moleculestotriangles_with_shadows, eye, mvp,
+                     // we don't do eye for shadows yet.
+                     m.meshes[jj].draw_with_shadows(&shader_for_moleculestotriangles_with_shadows, mvp,
                                                     model_rotation, lights, eye_position, opacity, bg_col,
                                                     do_depth_fog, light_view_mvp,
                                                     shadow_depthMap_texture, shadow_strength,
@@ -4737,7 +4738,7 @@ graphics_info_t::render(bool to_screendump_framebuffer_flag, const std::string &
 
          render_scene();
 
-         gtk_gl_area_attach_buffers(gl_area);
+         // gtk_gl_area_attach_buffers(gl_area);
          screendump_tga_internal(output_file_name, w, h, sf, screendump_framebuffer.get_fbo());
 
       } else {

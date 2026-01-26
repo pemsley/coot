@@ -89,7 +89,7 @@ void screendump_tga_internal(std::string tga_file,
    std::cout << "debug::  pre-bind with local_fbo binding " << local_fbo << std::endl;
 
    // framebuffer.bind();
-   glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_obj);
+   // glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_obj);
 
    err = glGetError();
    if (err) std::cout << "error:: screendump_tga_internal() post-bind "
@@ -109,7 +109,8 @@ void screendump_tga_internal(std::string tga_file,
    // This is part of OpenGL 4.4+ - not OpenGL 3.3!
    //
    // glNamedFramebufferReadBuffer(framebuffer_obj, GL_BACK); // this often errors
-   glNamedFramebufferReadBuffer(framebuffer_obj, GL_COLOR_ATTACHMENT0);
+   // glNamedFramebufferReadBuffer(framebuffer_obj, GL_FRONT);
+   glReadBuffer(GL_COLOR_ATTACHMENT0);
    err = glGetError();
    if (err) std::cout << "error:: screendump_tga_internal() post-set glnamedreadbuffer "
                       << err << std::endl;

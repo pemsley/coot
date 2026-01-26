@@ -569,7 +569,7 @@
               <attribute name="action">app.background_white_action</attribute>
             </item>
           </submenu>
-         
+
           <item>
             <attribute name="label">Display Only Active</attribute>
             <attribute name="action">app.display_only_active_action</attribute>
@@ -600,7 +600,7 @@
             </submenu>
           </section>
           <item>
-            <attribute name="label">̶S̶c̶r̶e̶e̶n̶s̶h̶o̶t̶</attribute>
+            <attribute name="label">Screenshot</attribute>
             <attribute name="action">app.screenshot_action</attribute>
           </item>
           <item>
