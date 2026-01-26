@@ -267,7 +267,7 @@ void main() {
 
          if (shadow_diffuse > 1.99)
             addition_col = test_col;
-         else 
+         else
             addition_col += ambient + diffuse * shadow_diffuse + specular * shadow_specular * specular_strength;
 
          // addition_col = vec4(vec3(shadow_diffuse), 1.0);

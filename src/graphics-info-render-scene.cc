@@ -300,7 +300,7 @@ graphics_info_t::render_scene_sans_depth_blur(Shader *shader_for_tmeshes_p, Shad
                   texture_for_background_image.Bind(0);
                   tmesh_for_background_image.draw(&shader_for_background_image, HUDTextureMesh::TOP_LEFT);
                }
-         
+
                glEnable(GL_DEPTH_TEST);
                glDepthFunc(GL_LESS);
                glDisable(GL_BLEND);

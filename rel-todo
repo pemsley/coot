@@ -1,5 +1,19 @@
 --- Items ---
 
+o turn on fancy graphics and make a ribbon diagram.
+  There should be no PASS_TYPE_STANDARD that renders
+  to the display buffer, right? But there seems to be.
+  Turn off and on 2470. What is calling
+  draw_molecules_other_meshes(PASS_TYPE_STANDARD)
+  when we are in fancy graphics mode?
+
+o test pygal in python, Coot and then with Claude.
+
+o double shader settings SSAAO N kernel samples max
+
+o add a function to check that a residue exists
+  residue_exists_py(imol, spec) -> Bool:
+
 o add a menu or button to start JSON-RPC server localhost
   and an entry for a port number
 

@@ -2393,6 +2393,8 @@ graphics_info_t::draw_meshed_generic_display_object_meshes(unsigned int pass_typ
 void
 graphics_info_t::draw_molecules_other_meshes(unsigned int pass_type) {
 
+   // std::cout << "debug:: draw_molecules_other_meshes() ---start--- " << pass_type << std::endl;
+
    // This function doesn't draw these
    // graphics_info_t::draw_instanced_meshes() A Molecule 2: Ligand Contact Dots H-bond
    // graphics_info_t::draw_instanced_meshes() A Molecule 2: Ligand Contact Dots wide-contact
@@ -2426,13 +2428,7 @@ graphics_info_t::draw_molecules_other_meshes(unsigned int pass_type) {
 
    glm::mat3 vrm(glm::toMat4(graphics_info_t::view_quaternion));
 
-   // Yes, identity matrix
-   // std::cout << "p: " << glm::to_string(p) << std::endl;
-
-   // 20231121-PE Hack for now:
-   if (pass_type == PASS_TYPE_WITH_SHADOWS) pass_type = PASS_TYPE_STANDARD;
-
-   if (draw_meshes) { //local, debugging
+   if (draw_meshes) {
       bool have_meshes_to_draw = false;
       for (int i=n_molecules()-1; i>=0; i--) {
          if (! molecules[i].meshes.empty()) {
@@ -2444,7 +2440,7 @@ graphics_info_t::draw_molecules_other_meshes(unsigned int pass_type) {
       // std::cout << "in draw_meshed_generic_display_object_meshes() with have_meshes_to_draw " << have_meshes_to_draw << std::endl;
 
       if (have_meshes_to_draw) {
-         // std::cout << "   Here A in draw_meshed_generic_display_object_meshes() " << std::endl;
+
          glDisable(GL_BLEND);
          for (int ii=n_molecules()-1; ii>=0; ii--) {
 
@@ -2471,9 +2467,26 @@ graphics_info_t::draw_molecules_other_meshes(unsigned int pass_type) {
                      bool show_just_shadows = false;
                      bool wireframe_mode = false;
                      float opacity = 1.0f;
-                     m.meshes[jj].draw(&shader_for_moleculestotriangles, mvp,
-                                       model_rotation, lights, eye_position, rc, opacity, bg_col,
-                                       wireframe_mode, do_depth_fog, show_just_shadows);
+                     if (true)
+                        m.meshes[jj].draw(&shader_for_moleculestotriangles, mvp,
+                                          model_rotation, lights, eye_position, rc, opacity, bg_col,
+                                          wireframe_mode, do_depth_fog, show_just_shadows);
+
+                  }
+                  if (pass_type == PASS_TYPE_WITH_SHADOWS) {
+                     if (false)
+                        std::cout << "draw-molecule-other-meshes() " << m.meshes[jj].name << " "
+                                  << shader_for_moleculestotriangles_with_shadows.name << std::endl;
+                     bool show_just_shadows = false;
+                     float opacity = 1.0f;
+                     glm::mat4 light_view_mvp = get_light_space_mvp(light_index);
+                     show_just_shadows =  false;
+
+                     m.meshes[jj].draw_with_shadows(&shader_for_moleculestotriangles_with_shadows, mvp,
+                                                    model_rotation, lights, eye_position, opacity, bg_col,
+                                                    do_depth_fog, light_view_mvp,
+                                                    shadow_depthMap_texture, shadow_strength,
+                                                    shadow_softness, show_just_shadows);
 
                   }
                   if (pass_type == PASS_TYPE_SSAO) {
@@ -4585,6 +4598,8 @@ graphics_info_t::render_3d_scene_with_shadows() {
    draw_molecules_with_shadows(); // includes particles, happy-faces and boids (should they be there (maybe not))
                                   // so rename this function? Or just bring everything here?  Put this render() function
                                   // into new file graphics-info-opengl-render.cc
+
+   draw_molecules_other_meshes(PASS_TYPE_WITH_SHADOWS);
 
    draw_at_screen_centre_pulse();
 

@@ -2027,6 +2027,8 @@ Mesh::draw(Shader *shader_p,
 
    if (! draw_this_mesh) return;
 
+   const std::string &shader_name = shader_p->name;
+
    unsigned int n_triangles = triangles.size();
    GLuint n_verts = 3 * n_triangles;
 
@@ -2035,15 +2037,23 @@ Mesh::draw(Shader *shader_p,
    if (n_triangles == 0 && lines_vertex_indices.empty()) return;
 
    GLenum err = glGetError();
-   if (err) std::cout << "GL ERROR:: Mesh::draw() " << name << " " << shader_p->name
+   if (err) std::cout << "GL ERROR:: Mesh::draw() " << name << " shader: " << shader_p->name
                       << " -- start -- " << err << std::endl;
    shader_p->Use();
-   const std::string &shader_name = shader_p->name;
-
-   glUniformMatrix4fv(shader_p->mvp_uniform_location, 1, GL_FALSE, &mvp[0][0]);
    err = glGetError();
-   if (err) std::cout << "GL ERROR:: Mesh::draw() shader: " << shader_p->name << " post mvp uniform "
-                      << err << std::endl;
+   if (err)
+      std::cout << "GL ERROR:: Mesh::draw() post Use() " << name
+                << " shader: " << shader_p->name
+                << " error: " << stringify_error_code(err) << std::endl;
+
+   GLint mvp_uniform_location = glGetUniformLocation(shader_p->program_id, "mvp");
+   glUniformMatrix4fv(mvp_uniform_location, 1, GL_FALSE, &mvp[0][0]);
+   err = glGetError();
+   if (err)
+      std::cout << "GL ERROR:: Mesh::draw() " << name
+                << " shader: " << shader_p->name << " post mvp uniform"
+                << " location " << shader_p->mvp_uniform_location
+                << " error: " << stringify_error_code(err) << std::endl;
 
    glUniformMatrix4fv(shader_p->view_rotation_uniform_location, 1, GL_FALSE,
                       &mouse_based_rotation_matrix[0][0]);

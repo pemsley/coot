@@ -48,6 +48,11 @@ Shader::Shader(const std::string &file_name, Shader::Entity_t e) {
 
 Shader::Shader(const std::string &vs_file_name, const std::string &fs_file_name) {
 
+   // this should never be called afaics.
+
+   std::cout << "::::::::::::::::::::::::::::::::::::::::: hot shader reload "
+             << vs_file_name << " " << fs_file_name << std::endl;
+
    entity_type = Entity_t::HUD_TEXT; // hackety-hack
    program_id = glCreateProgram();
 
@@ -91,6 +96,14 @@ void Shader::init(const std::string &file_name, Shader::Entity_t e) {
          } else {
             // happy path
             Use();
+            if (false)
+               std::cout << "----- calling set_uniform_locations() for file_name " << file_name
+                         << " entity-type: " << static_cast<int>(e)
+                         << " c.f. MAP: " << static_cast<int>(Entity_t::MAP)
+                         << " c.f. MODEL: " << static_cast<int>(Entity_t::MODEL)
+                         << " c.f. INFRASTRUCTURE: " << static_cast<int>(Entity_t::INFRASTRUCTURE)
+                         << " c.f. VALIDATION: " << static_cast<int>(Entity_t::VALIDATION)
+                      << std::endl;
             set_uniform_locations();
             set_attribute_locations();
          }
@@ -260,29 +273,31 @@ Shader::set_attribute_locations() {
    }
 }
 
+#include "stringify-error-code.hh"
+
 GLint
 Shader::glGetUniformLocation_internal(const std::string &key) {
 
-   // don't ask the hardware about the location of the uniform if we
-   // have asked before.
+   // Just use glGetUniformLocation() on the fly.
+   // Asking the hardware about the location is fast enough.
 
-   // sort of strange thing - because I store the locations - Hmm.
+   // 20260125-PE the shader just need to just call this function with the key.
+   // No need to store the uniform location or use a map for it.
+   // see the new Mesh::draw() which uses glGetUniformLocation() for the "mvp"
 
-   std::map<std::string, GLuint>::const_iterator it = uniform_location_map.find(key);
-   if (it != uniform_location_map.end()) {
-      return it->second;
-   } else {
-      GLint l = glGetUniformLocation(program_id, key.c_str());
-      if (l == -1)
-         if (false)
-            std::cout << "INFO/WARNING:: " << name << " can't get a uniform location for " << key << std::endl;
-      uniform_location_map[key] = l;
-      // std::cout << "creating a new location for key " << key << " " << l << std::endl;
-      return l;
-   }
+   GLint l = glGetUniformLocation(program_id, key.c_str());
+   if (l == -1)
+      if (false)
+         std::cout << "WARNING:: glGetUniformLocation_internal(): " << name
+                   << " can't get a uniform location for " << key << std::endl;
+   return l;
 }
 
 void Shader::set_uniform_locations() {
+
+   // 20260125-PE we don't really need to use the the uniform locations, we can look them up using glGetUniformLocation()
+   // on the fly in the draw() call.
+
    GLuint err;
 
    if (entity_type == Entity_t::MODEL ||
@@ -302,11 +317,12 @@ void Shader::set_uniform_locations() {
 
       // the compiler can "throw these away" 4294967295 if they are not used in the fragment shader (it optimizes)
       if (false)
-         std::cout << "debug:: set_uniform_locations() mvp: "
-                   << mvp_uniform_location << " view-rot: "
-                   << view_rotation_uniform_location << " bg: "
-                   << background_colour_uniform_location << " eye_pos: "
-                   << eye_position_uniform_location << std::endl;
+         std::cout << "debug:: Shader::set_uniform_locations() "
+                   << " name: " << name
+                   << " mvp: " << mvp_uniform_location
+                   << " view-rot: " << view_rotation_uniform_location
+                   << " bg: " << background_colour_uniform_location
+                   << " eye_pos: " << eye_position_uniform_location << std::endl;
    }
    if (entity_type == Entity_t::MOLECULAR_TRIANGLES) {
       set_more_uniforms_for_molecular_triangles();
@@ -502,6 +518,13 @@ Shader::create() const {
       std::cout << "WARNING:: validation failed: " << name << " validation status " << status << std::endl;
       message = "validation-failed";
    }
+
+
+   if (true) { // debugging mvp
+      GLint i_mvp = glGetUniformLocation(program, "mvp");
+      std::cout << "debug:: in Shader::create() " << name << " mvp location " << i_mvp << std::endl;
+   }
+
    glDeleteShader(vs);
    glDeleteShader(fs);
 

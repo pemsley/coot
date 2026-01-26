@@ -459,6 +459,56 @@ coot.set_ssao_kernel_n_samples(32)  # Default is often 16
 coot.set_ssao_blur_size(1)  # Smooths out SSAO shadows
 ```
 
+### Shadow Settings
+
+Coot provides real-time shadow rendering that adds depth and dimensionality to molecular structures:
+
+```python
+# Enable shadows by setting shadow strength (0 = off, higher = darker)
+# Recommended range: 0.3-0.7
+coot.set_shadow_strength(0.3)  # Subtle shadows (recommended)
+coot.set_shadow_strength(0.5)  # Medium shadows
+coot.set_shadow_strength(0.7)  # Strong shadows
+
+# Shadow resolution (1-4, higher = sharper shadows)
+# 4 is maximum quality
+coot.set_shadow_resolution(4)  # Maximum resolution - sharpest shadows
+
+# Shadow softness (1-3, higher = softer edges)
+# 3 is maximum softness
+coot.set_shadow_softness(3)  # Maximum softness - smoothest shadow edges
+
+# Shadow box size (default: 66)
+# Adjust if shadows are cut off
+coot.set_shadow_box_size(66)
+```
+
+**Recommended shadow settings for publication:**
+- **Strength**: 0.3 (subtle, doesn't overpower the structure)
+- **Resolution**: 4 (maximum quality)
+- **Softness**: 3 (smooth, professional appearance)
+
+**When to use shadows:**
+- Publication figures with complex 3D structures
+- Presentations where depth perception is important
+- Visualizations that benefit from enhanced spatial relationships
+- Combined with mid-grey backgrounds for best effect
+
+**Example:**
+```python
+def enable_publication_shadows():
+    """Enable subtle, high-quality shadows for publication figures"""
+    coot.set_shadow_strength(0.3)      # Subtle shadows
+    coot.set_shadow_resolution(4)      # Maximum resolution
+    coot.set_shadow_softness(3)        # Maximum softness
+    return "Publication shadows enabled"
+
+def disable_shadows():
+    """Disable shadows"""
+    coot.set_shadow_strength(0.0)
+    return "Shadows disabled"
+```
+
 ### Other Quality Settings
 
 ```python
@@ -499,6 +549,11 @@ def setup_publication_graphics():
     coot.set_ssao_kernel_n_samples(32)
     coot.set_ssao_blur_size(1)
     
+    # Enable subtle, high-quality shadows
+    coot.set_shadow_strength(0.3)
+    coot.set_shadow_resolution(4)
+    coot.set_shadow_softness(3)
+    
     return "Publication graphics settings applied"
 
 def setup_presentation_graphics():
@@ -517,6 +572,11 @@ def setup_presentation_graphics():
     coot.set_use_fancy_lighting(1)
     coot.set_use_depth_blur(1)
     
+    # Enable shadows for presentations
+    coot.set_shadow_strength(0.4)  # Slightly stronger for dark backgrounds
+    coot.set_shadow_resolution(4)
+    coot.set_shadow_softness(3)
+    
     return "Presentation graphics settings applied"
 ```
 
@@ -529,6 +589,7 @@ def setup_presentation_graphics():
 5. **Extract features to separate molecules** for emphasis
 6. **Use consistent color schemes** for clarity
 7. **Enable fancy graphics** for publication-quality figures
-8. **Choose appropriate background** for your publication medium
+8. **Configure shadows** for enhanced depth (strength 0.3, resolution 4, softness 3)
+9. **Choose appropriate background** for your publication medium (mid-grey works well with shadows)
 
 Following these practices ensures reliable, publication-quality molecular graphics figures in Coot.

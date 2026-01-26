@@ -4090,6 +4090,7 @@ string   static std::string sessionid;
    static Shader shader_for_models;
    static Shader shader_for_model_as_meshes; // _as_Model in due course
    static Shader shader_for_moleculestotriangles;
+   static Shader shader_for_moleculestotriangles_with_shadows;
    static Shader shader_for_origin_cube;
    static Shader shader_for_central_cube;
    static Shader shader_for_rotation_centre_cross_hairs_for_ssao; // central_cube by a modern name

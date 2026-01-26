@@ -1498,6 +1498,7 @@ Shader graphics_info_t::shader_for_map_caps;
 Shader graphics_info_t::shader_for_models;
 Shader graphics_info_t::shader_for_model_as_meshes;
 Shader graphics_info_t::shader_for_moleculestotriangles;
+Shader graphics_info_t::shader_for_moleculestotriangles_with_shadows;
 Shader graphics_info_t::shader_for_symmetry_atoms_bond_lines;
 Shader graphics_info_t::shader_for_central_cube;
 Shader graphics_info_t::shader_for_origin_cube;

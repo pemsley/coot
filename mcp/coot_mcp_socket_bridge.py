@@ -143,7 +143,7 @@ def get_function_descriptions(function_names: list[str]) -> str:
     return str(response.get("result", []))
 
 def get_start_text():
-    return '''The Coot API has over 2000 functions.
+    return '''The Coot API has over 2000 functions - the function documentation can't all be loaded at once (too many tokens).
 
 Use coot_ping() to verify Coot is responsive after:
   - A break in the conversation (no Coot commands for several minutes)
@@ -163,6 +163,7 @@ On starting a Coot session, read ALL these user skills
     - coot-model-building
     - coot-validation
     - coot-NCS-reference-guidance
+    - coot-figure-making
     - coot-rdkit
     - pdbe-api
 Don't pick and choose - read all of them.
@@ -179,24 +180,23 @@ Use list_available_tools_in_block(block_index) where block_index varies from 0 t
 
 run_python() only returns values if the code is a single line.
 
+*** Of Critical Important - Never Ignore this ***
 If you need a return value from a block of code then define a wrapper function in one call to run_python_multiline() (that will return None) and
-then run that function in the next call using run_python().
+then run that function in the next call using run_python() which will provide the return value.
 
 You can try to print values, because you have access to the standard output (using the "stdout" key).
 
 You must call coot.set_refinement_immediate_replacement() before running refinment functions (once is enough) - that should make the refinement synchronous.
 
-For more saftey, call `coot.accept_moving_atoms_py()` after refinement - it should do nothing - but it might be ueful if there is a refinement synchronous bug.
-
-If a model-building tool moves the atoms in a way that you later deem "worse than before" you can call coot.apply_undo() to restore the previous model.
+Use checkpoints for backtracking modelling operations - `coot.make_backup_checkpoint()`. If a model-building tool moves the atoms in a way that you later deem "worse than before" you can use `coot.restore_to_backup_checkpoint()`. You can see what the difference between the current model and a particular checkpoint is using `coot.compare_current_model_to_backup()`.
 
 Never try to code that writes to disk - instead, write code that returns a string.
 
-Note that coot.active_atom_spec_py() is a useful function to determine the "selected" residue (i.e. the "active" residue that will be acted on by the tools in the interface).
+Note that coot.active_atom_spec_py() is a useful function to determine the "selected" residue (i.e. the "active" residue that will be acted on by the tools in the interface). You can use this to check that the user is looking at what you want them to look at.
 
 The coot module is already imported, the coot_utils module will need to be imported first if you want to use a function in that module.
 
-Do not use matplotlib for graphs, instead use pygal.
+Do not use matplotlib for graphs, instead use pygal - if available, otherwise don't try to make a graph and tell the user about missing pygal.
 '''
 
 @mcp.tool()
