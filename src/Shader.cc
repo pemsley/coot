@@ -81,6 +81,7 @@ void Shader::init(const std::string &file_name, Shader::Entity_t e) {
    // clear then go
    VertexSource.clear();
    FragmentSource.clear();
+   uniform_location_map.clear();
    name = file_name;
    std::string message;
 
