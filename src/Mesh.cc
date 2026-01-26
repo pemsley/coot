@@ -29,6 +29,7 @@
 #include <map>
 #include <set>
 #include <chrono>
+#include "stereo-eye.hh"
 
 #ifdef USE_BACKWARD
 #include <utils/backward.hpp>
@@ -163,6 +164,22 @@ Mesh::~Mesh() {
 void
 Mesh::set_is_headless() {
    is_headless = true;
+}
+
+
+// static 
+std::pair<float, float> Mesh::get_stereo_x_scale_and_offset(stereo_eye_t eye) {
+
+   // for side by side stereo, of course
+   float stereo_x_scale  = 1.0;
+   float stereo_x_offset = 0.0;
+   if (eye == stereo_eye_t::LEFT_EYE) {
+      stereo_x_scale = 2.0f;
+   }
+   if (eye == stereo_eye_t::RIGHT_EYE) {
+      stereo_x_offset = -0.5f;
+   }
+   return std::pair<float, float>(stereo_x_scale, stereo_x_offset);
 }
 
 void
@@ -1648,6 +1665,7 @@ Mesh::draw_normals(const glm::mat4 &mvp, float normal_scaling) {
 void
 Mesh::draw_instanced(int pass_type,
                      Shader *shader_p,
+                     stereo_eye_t eye,
                      const glm::mat4 &mvp,
                      const glm::mat4 &view_rotation_matrix,
                      const std::map<unsigned int, lights_info_t> &lights,
@@ -1686,10 +1704,17 @@ Mesh::draw_instanced(int pass_type,
    if (err) std::cout << "GL ERROR:: " << shader_p->name << " draw_instanced() post mvp uniform "
                       << err << std::endl;
 
+   // the view_rotation_matrix is not used to calculate glPosition in instanced-objects.shader
+   //
+   std::pair<float, float> stereo_x_scale_and_offset = get_stereo_x_scale_and_offset(eye);
+   const float &stereo_x_scale  = stereo_x_scale_and_offset.first;
+   const float &stereo_x_offset = stereo_x_scale_and_offset.second;
+
    glUniformMatrix4fv(shader_p->view_rotation_uniform_location, 1, GL_FALSE, &view_rotation_matrix[0][0]);
    err = glGetError();
-   if (err) std::cout << "GL ERROR:: Mesh::draw_instanced() " << name << " " << shader_p->name
-                      << " draw_instanced() post view rotation uniform " << err << std::endl;
+   if (err)
+      std::cout << "GL ERROR:: Mesh::draw_instanced() " << name << " " << shader_p->name
+                << " draw_instanced() post view rotation uniform " << err << std::endl;
 
    std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
    float time = std::chrono::duration_cast<std::chrono::milliseconds>(now - time_constructed).count();
@@ -1709,6 +1734,8 @@ Mesh::draw_instanced(int pass_type,
       shader_p->setup_light(light_idx, it->second, view_rotation_matrix);
    }
 
+   shader_p->set_float_for_uniform("stereo_x_scale",  stereo_x_scale);
+   shader_p->set_float_for_uniform("stereo_x_offset", stereo_x_offset);
    shader_p->set_vec4_for_uniform("background_colour", background_colour);
    shader_p->set_bool_for_uniform("do_depth_fog", do_depth_fog);
 
@@ -2003,6 +2030,7 @@ Mesh::draw_particles(Shader *shader_p, const glm::mat4 &mvp, const glm::mat4 &vi
 // set the glLineWidth before this draw call (if drawing with lines)
 void
 Mesh::draw(Shader *shader_p,
+           stereo_eye_t eye,
            const glm::mat4 &mvp,
            const glm::mat4 &mouse_based_rotation_matrix,
            const std::map<unsigned int, lights_info_t> &lights,
@@ -2061,6 +2089,10 @@ Mesh::draw(Shader *shader_p,
    if (err) std::cout << "GL ERROR:: Mesh::draw() " << name << " " << shader_p->name
                       << " draw() post view rotation uniform " << err << std::endl;
 
+   std::pair<float, float> stereo_x_scale_and_offset = get_stereo_x_scale_and_offset(eye);
+   const float &stereo_x_scale  = stereo_x_scale_and_offset.first;
+   const float &stereo_x_offset = stereo_x_scale_and_offset.second;
+
    std::map<unsigned int, lights_info_t>::const_iterator it;
    unsigned int light_idx = 0;
    it = lights.find(light_idx);
@@ -2089,6 +2121,14 @@ Mesh::draw(Shader *shader_p,
    shader_p->set_vec4_for_uniform( "material.specular",  material.specular);
    shader_p->set_float_for_uniform("material.shininess", material.shininess);
    shader_p->set_float_for_uniform("material.specular_strength", material.specular_strength);
+
+   if (false)
+      std::cout << "DEBUG:: Mesh::draw() name: " << name << " shader-name: " << shader_p->name
+                << " eye " << static_cast<int>(eye) 
+                << " stereo_x_scale " << stereo_x_scale << " stereo_x_offset " << stereo_x_offset << std::endl;
+
+   shader_p->set_float_for_uniform("stereo_x_scale",  stereo_x_scale);
+   shader_p->set_float_for_uniform("stereo_x_offset", stereo_x_offset);
 
    if (false) {
       std::cout << "debug:: Mesh::draw(): " << name << " " << shader_p->name << " do_specular "

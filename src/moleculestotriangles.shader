@@ -39,6 +39,8 @@ layout(location = 1) in vec3 normal;
 layout(location = 2) in vec4 colour;
 
 uniform mat4 mvp;
+uniform float stereo_x_scale;
+uniform float stereo_x_offset;
 
 out vec4 colour_transfer;
 out vec3 normal_transfer;
@@ -47,7 +49,8 @@ out mat3 model_rotation_transfer;
 
 void main() {
    vec4 n = vec4(normal, 1.0);
-   gl_Position = mvp * vec4(position, 1.0);
+   // gl_Position = mvp * vec4(position, 1.0);
+   gl_Position = mvp * vec4(position, 1.0) * vec4(stereo_x_scale, 1.0f, 1.0f, 1.0f) + vec4(stereo_x_offset, 0.0f, 0.0f, 0.0f);
    normal_transfer = normalize(normal); // probably the normalize() here is not needed
    colour_transfer = colour;
    frag_pos_transfer = position;

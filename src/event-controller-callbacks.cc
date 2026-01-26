@@ -24,6 +24,7 @@
  *
  */
 
+#include "stereo-eye.hh"
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/string_cast.hpp> // for to_string()
 
@@ -86,6 +87,8 @@ graphics_info_t::translation_gizmo_picked() {
 
    // 20250719-PE c.f. atom_pick_gtk3()
 
+   stereo_eye_t eye = stereo_eye_t::MONO; // PASS THIS
+
    translation_gizmo_t::pick_info_t pick_info = translation_gizmo_t::pick_info_t::NONE;
    if (translation_gizmo_mesh.get_draw_this_mesh()) {
       std::cout << "translation gizmo is being drawn" << std::endl;
@@ -95,7 +98,7 @@ graphics_info_t::translation_gizmo_picked() {
       int h = allocation.height;
       float mouseX = g.GetMouseBeginX() / (w * 0.5f) - 1.0f;  // should be static?
       float mouseY = g.GetMouseBeginY() / (h * 0.5f) - 1.0f;
-      glm::mat4 mvp = get_molecule_mvp();
+      glm::mat4 mvp = get_molecule_mvp(eye);
       glm::mat4 vp_inv = glm::inverse(mvp);
       float real_y = - mouseY; // in range -1 -> 1
       glm::vec4 screenPos_f = glm::vec4(mouseX, real_y, -1.0f, 1.0f);
@@ -731,13 +734,15 @@ graphics_info_t::on_glarea_click(GtkGestureClick *controller,
 void
 graphics_info_t::do_drag_pan_gtk4(GtkWidget *widget, double drag_delta_x, double drag_delta_y) {
 
+   stereo_eye_t eye = stereo_eye_t::MONO; // PASS THIS
+
    GtkAllocation allocation;
    gtk_widget_get_allocation(widget, &allocation);
    int w = allocation.width;
    int h = allocation.height;
 
    graphics_info_t g;
-   glm::mat4 mvp = g.get_molecule_mvp(); // modeglml matrix includes orientation with the quaternion
+   glm::mat4 mvp = g.get_molecule_mvp(eye); // modeglml matrix includes orientation with the quaternion
 
    mouse_current_x = mouse_clicked_begin.first  + drag_delta_x;
    mouse_current_y = mouse_clicked_begin.second + drag_delta_y;
@@ -805,13 +810,15 @@ graphics_info_t::do_drag_pan_gtk3(GtkWidget *widget, double drag_delta_x, double
 
    // This should be a graphics_info_t function
 
+   stereo_eye_t eye = stereo_eye_t::MONO; // PASS THIS
+
    GtkAllocation allocation;
    gtk_widget_get_allocation(widget, &allocation);
    int w = allocation.width;
    int h = allocation.height;
 
    graphics_info_t g;
-   glm::mat4 mvp = g.get_molecule_mvp(); // modeglml matrix includes orientation with the quaternion
+   glm::mat4 mvp = g.get_molecule_mvp(eye); // modeglml matrix includes orientation with the quaternion
 
    mouse_current_x = mouse_clicked_begin.first  + drag_delta_x;
    mouse_current_y = mouse_clicked_begin.second + drag_delta_y;

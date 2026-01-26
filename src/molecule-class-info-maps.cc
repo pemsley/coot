@@ -108,13 +108,14 @@ molecule_class_info_t::set_use_vertex_gradients_for_map_normals(bool state) {
 
 
 void
-molecule_class_info_t::draw_map_molecule( bool draw_transparent_maps,
+molecule_class_info_t::draw_map_molecule( stereo_eye_t eye,
+                                          bool draw_transparent_maps,
                                           Shader &shader, // unusual reference.. .change to pointer for consistency?
                                           const glm::mat4 &mvp,
                                           const glm::mat4 &view_rotation,
                                           const glm::vec3 &eye_position,
                                           const glm::vec4 &ep,
-                                          const std::map<unsigned int, lights_info_t> &lights, 
+                                          const std::map<unsigned int, lights_info_t> &lights,
                                           const glm::vec3 &background_colour,
                                           bool perspective_projection_flag
                                           ) {
@@ -149,8 +150,6 @@ molecule_class_info_t::draw_map_molecule( bool draw_transparent_maps,
                                                                        << err << std::endl;
 
                              };
-
-
 
    if (! draw_it_for_map) return;
 
@@ -238,7 +237,7 @@ molecule_class_info_t::draw_map_molecule( bool draw_transparent_maps,
          bool show_just_shadows = false;
          bool do_depth_fog = graphics_info_t::shader_do_depth_fog_flag;
          bool wireframe_mode = true; // aka "standard lines" / chickenwire
-         map_as_mesh_gl_lines_version.draw(&shader, mvp, view_rotation, lights, eye_position, rotation_centre, opacity, bgc,
+         map_as_mesh_gl_lines_version.draw(&shader, eye, mvp, view_rotation, lights, eye_position, rotation_centre, opacity, bgc,
                                            wireframe_mode, do_depth_fog, show_just_shadows);
       }
 
@@ -248,7 +247,7 @@ molecule_class_info_t::draw_map_molecule( bool draw_transparent_maps,
          bool wireframe_mode = false; // aka "standard lines" / chickenwire
          if (opacity < 1.0)
             map_as_mesh.sort_map_triangles(eye_position);
-         map_as_mesh.draw(&shader, mvp, view_rotation, lights, eye_position, rotation_centre, opacity, bgc,
+         map_as_mesh.draw(&shader, eye, mvp, view_rotation, lights, eye_position, rotation_centre, opacity, bgc,
                           wireframe_mode, do_depth_fog, show_just_shadows);
       }
    }

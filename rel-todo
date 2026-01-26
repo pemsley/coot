@@ -14,6 +14,11 @@ o double shader settings SSAAO N kernel samples max
 o add a function to check that a residue exists
   residue_exists_py(imol, spec) -> Bool:
 
+o turn off the info dialog that says
+  WARNING:: refinement map not selected - no action
+  when there are no maps.
+  Trying and missing to double click on an atom
+
 o add a menu or button to start JSON-RPC server localhost
   and an entry for a port number
 
@@ -57,6 +62,7 @@ o auto-fit rotamer on newly added residue (add-terminal-residue)
   This is tricky because both simple and auto-fit use mutate_to_type_inner()
   because they both use mutate_to_type_HIS() etc (I think).
   Mutate and auto-fit is not doing auto-fitting.
+* Done - seems reasonable now.
 
 o non-solid aniostropic ADP representation - Claus.
   Tricky.

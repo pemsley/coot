@@ -27,6 +27,7 @@
 #define MOLECULE_CLASS_INFO_T
 
 #include "geometry/residue-and-atom-specs.hh"
+#include "stereo-eye.hh"
 #include <ctime>
 #ifndef HAVE_STRING
 #define HAVE_STRING
@@ -768,6 +769,7 @@ public:        //                      public
                         int brief_atom_labels_flag,
                         short int seg_ids_in_atom_labels_flag,
                         const glm::vec4 &atom_label_colour,
+                        stereo_eye_t eye,
                         const glm::mat4 &mvp,
                         const glm::mat4 &view_rotation);
 
@@ -1138,6 +1140,7 @@ public:        //                      public
    void draw_atom_labels(int brief_atom_labels_flag,
                          short int seg_ids_in_atom_labels_flag,
                          const glm::vec4 &atom_label_colour,
+                         stereo_eye_t eye,
                          const glm::mat4 &mvp,
                          const glm::mat4 &view_rotation);
 
@@ -2633,6 +2636,7 @@ public:        //                      public
    }
 
    void draw_ncs_ghosts(Shader *shader_for_meshes,
+                        stereo_eye_t eye,
                         const glm::mat4 &mvp,
                         const glm::mat4 &model_rotation_matrix,
                         const std::map<unsigned int, lights_info_t> &lights,
@@ -3274,7 +3278,8 @@ public:        //                      public
    Material material_for_maps;
    Material material_for_models;
 
-void draw_map_molecule(bool draw_transparent_maps,
+void draw_map_molecule(stereo_eye_t eye,
+                          bool draw_transparent_maps,
                           Shader &shader, // unusual reference.. .change to pointer for consistency?
                           const glm::mat4 &mvp,
                           const glm::mat4 &view_rotation,

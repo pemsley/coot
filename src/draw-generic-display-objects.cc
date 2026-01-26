@@ -24,19 +24,12 @@
  *
  */
 
-#ifdef USE_PYTHON
-#include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
-#endif
-
 #include <epoxy/gl.h>
 #include "compat/coot-sysdep.h"
 
-// #include <GL/glu.h> OpenGLv1
-
-#include "utils/coot-utils.hh"
 #include "old-generic-display-object.hh"
 #include "graphics-info.h"
-#include "c-interface-widgets.hh"
+#include "stereo-eye.hh"
 
 // ---------------------- generic objects -----------------------------
 
@@ -77,10 +70,10 @@ void coot::old_generic_display_object_t::add_point(const coot::colour_holder &co
    int points_set_index = -1; // magic unset number
    for (unsigned int ips=0; ips<points_set.size(); ips++) {
       if (points_set[ips].colour_name == colour_name) {
-	 if (points_set[ips].size == size_in) {
-	    points_set_index = ips;
-	    break;
-	 }
+         if (points_set[ips].size == size_in) {
+            points_set_index = ips;
+            break;
+          }
       }
    }
    if (points_set_index == -1) {
@@ -123,7 +116,7 @@ coot::old_generic_display_object_t::add_pentakis_dodecahedron(const colour_holde
 
 // static
 void
-graphics_info_t::draw_generic_objects(unsigned int pass_type) {
+graphics_info_t::draw_generic_objects(unsigned int pass_type, stereo_eye_t eye) {
 
    // This is the function that draws clash spike capped cylinders
 
@@ -132,7 +125,7 @@ graphics_info_t::draw_generic_objects(unsigned int pass_type) {
       // std::cout << "draw_generic_objects() pass_type: " << pass_type << std::endl;
 
       glm::vec3 eye_position = get_world_space_eye_position();
-      glm::mat4 mvp = get_molecule_mvp();
+      glm::mat4 mvp = get_molecule_mvp(eye);
       glm::mat4 model_rotation = get_model_rotation();
       glm::vec4 bg_col(background_colour, 1.0);
       Shader &shader = shader_for_moleculestotriangles;
@@ -188,7 +181,7 @@ graphics_info_t::draw_generic_objects(unsigned int pass_type) {
                                   << " and pulsing should be on" << std::endl;
                      int pass_type = PASS_TYPE_STANDARD;
 		     // obj.mesh.debug_mode = true;
-                     obj.mesh.draw_instanced(pass_type, &shader_for_instanced_objects, mvp, model_rotation,
+                     obj.mesh.draw_instanced(pass_type, &shader_for_instanced_objects, eye, mvp, model_rotation,
                                              lights, eye_position, bg_col,
                                              do_depth_fog, true, true, false, 0.25f, 3.0f, 0.2f, 0.0f);
                   } else {
@@ -198,10 +191,10 @@ graphics_info_t::draw_generic_objects(unsigned int pass_type) {
                      auto ccrc = RotationCentre();
                      glm::vec3 rc(ccrc.x(), ccrc.y(), ccrc.z());
                      if (obj.wireframe_mode) {
-                        obj.mesh.draw(&shader_for_lines, mvp, model_rotation, lights, eye_position, rc, opacity,
+                        obj.mesh.draw(&shader_for_lines, eye, mvp, model_rotation, lights, eye_position, rc, opacity,
                                       bg_col, obj.wireframe_mode, do_depth_fog, show_just_shadows);
                      } else {
-                        obj.mesh.draw(&shader, mvp, model_rotation, lights, eye_position, rc, opacity,
+                        obj.mesh.draw(&shader, eye, mvp, model_rotation, lights, eye_position, rc, opacity,
                                       bg_col, obj.wireframe_mode, do_depth_fog, show_just_shadows);
                      }
                   }

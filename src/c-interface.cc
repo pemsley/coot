@@ -1215,6 +1215,7 @@ void mono_mode() {
          int x_size = gtk_widget_get_allocated_width(gl_widget);
          int y_size = gtk_widget_get_allocated_height(gl_widget);
 	 graphics_info_t::display_mode = coot::MONO_MODE;
+         graphics_info_t::graphics_draw();
          GtkWidget *gl_area = graphics_info_t::glareas[0];
 	 // GtkWidget *vbox = lookup_widget(gl_area, "main_window_vbox");
 	 GtkWidget *vbox = widget_from_builder("main_window_vbox");
