@@ -206,7 +206,7 @@ void go_to_gphl_atoms(int imol, const std::string &atom_ids, const std::string &
 
    // ------------------ main line --------------------
 
-   if (debug)
+   if (true)
       std::cout << "debug:: go_to_gphl_atoms(): decode this: " << atom_ids
                 << " type: " << type << std::endl;
 
@@ -480,7 +480,25 @@ void go_to_gphl_atoms(int imol, const std::string &atom_ids, const std::string &
       }
    }
 
+
    if (type == "ideal-contact") {
+      std::vector<coot::atom_spec_t> atom_specs = gphl_atom_ids_to_atom_specs(atom_ids, "ideal-contact");
+      if (! atom_specs.empty()) {
+         if (atom_specs.size() == 2) {
+            mmdb:: Atom *at_1 = coot::util::get_atom_using_fuzzy_search(atom_specs[0], mol);
+            mmdb:: Atom *at_2 = coot::util::get_atom_using_fuzzy_search(atom_specs[1], mol);
+            if (at_1 && at_2) {
+               clipper::Coord_orth c(0,0,0);
+               c += 0.5 * clipper::Coord_orth(at_1->x, at_1->y, at_1->z);
+               c += 0.5 * clipper::Coord_orth(at_2->x, at_2->y, at_2->z);
+               set_rotation_centre(c.x(), c.y(), c.z());
+               pulse_atom_specs(imol, atom_specs);
+            }
+         }
+      }
+   }
+
+   if (type == "ideal-contactx") {
       // e.g.:
       // A|318:O(PHE)=A|320:N(ALA) [ideal 1-N]
       // A|307:N=CD1 (LEU) [ideal 1-5]
