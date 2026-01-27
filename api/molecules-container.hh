@@ -1496,7 +1496,7 @@ public:
    //! @return the map sampling rate, the default is 1.8
    float get_map_sampling_rate() { return map_sampling_rate; }
 
-   //! Set the map sampling rate
+   //! \brief Set the map sampling rate
    //!
    //! Higher numbers mean smoother maps, but they take
    //! longer to generate, longer to transfer, longer to parse and longer to draw
@@ -1504,7 +1504,7 @@ public:
    //! @param msr is the map sampling rate to set, the default is 1.8
    void set_map_sampling_rate(float msr) { map_sampling_rate = msr; }
 
-   //! Read the given mtz file
+   //! \brief Read the given mtz file
    //!
    //! @param file_name is the name of the MTZ file
    //! @param f F column, "FWT"
