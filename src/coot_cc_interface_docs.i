@@ -3920,22 +3920,31 @@ scale_factor : float
 ";
 
 %feature("docstring") set_use_fancy_lighting "
-set use fancy lighting (default 1 = true);
+set use fancy rendering lighting
+
+Turn on framebuffer effects
+
+  state  where 1 mean turn on and 0 means turn off.
 
 Parameters
 ----------
 state : short int
+    where 1 mean turn on and 0 means turn off.
 ";
 
 %feature("docstring") set_use_simple_lines_for_model_molecules "
 set use simple lines for model molecule
 
+  state  where 1 mean turn on and 0 means turn off.
+
 Parameters
 ----------
 state : short int
+    where 1 mean turn on and 0 means turn off.
 ";
 
 %feature("docstring") set_fresnel_colour "
+  state  where 1 mean turn on and 0 means turn off.
 
 Parameters
 ----------
@@ -3964,9 +3973,12 @@ st : float
 %feature("docstring") set_shadow_strength "
 set shadow stren
 
+  s  is the shadow strength between 0 and 1.
+
 Parameters
 ----------
 s : float
+    is the shadow strength between 0 and 1.
 ";
 
 %feature("docstring") set_shadow_resolution "
@@ -3996,21 +4008,33 @@ n_samples : int
 %feature("docstring") set_ssao_strength "
 set SSAO strength
 
+screen-space ambient occlusionn
+
+  strength  is the SSAO strength between 0 and 1.
+
 Parameters
 ----------
 strength : float
+    is the SSAO strength between 0 and 1.
 ";
 
 %feature("docstring") set_ssao_radius "
-set SSAO strength
+set SSAO radius
+
+screen-space ambient occlusionn Doesn't do much. Not worth adjusting
+
+  radius  is the SSAO radius.
 
 Parameters
 ----------
 radius : float
+    is the SSAO radius.
 ";
 
 %feature("docstring") set_ssao_bias "
 set SSAO bias
+
+screen-space ambient occlusionn Doesn't do much. Not worth adjusting
 
 Parameters
 ----------

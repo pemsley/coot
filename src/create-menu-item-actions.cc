@@ -4442,6 +4442,30 @@ perspective_view_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    set_use_perspective_projection(1);
 }
 
+void
+side_by_side_stereo_cross_eyed_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                      G_GNUC_UNUSED GVariant *parameter,
+                                      G_GNUC_UNUSED gpointer user_data) {
+   side_by_side_stereo_mode(0);
+   graphics_draw();
+}
+
+void
+side_by_side_stereo_wall_eyed_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                     G_GNUC_UNUSED GVariant *parameter,
+                                     G_GNUC_UNUSED gpointer user_data) {
+   side_by_side_stereo_mode(1);
+   graphics_draw();
+}
+
+void
+side_by_side_stereo_mono_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                G_GNUC_UNUSED GVariant *parameter,
+                                G_GNUC_UNUSED gpointer user_data) {
+   mono_mode();
+   graphics_draw();
+}
+
 
 // gui helper function
 std::vector<labelled_button_info_t>
@@ -5947,6 +5971,9 @@ create_actions(GtkApplication *application) {
    add_action(        "rock_view_action",         rock_view_action);
    add_action( "perspective_view_action",  perspective_view_action);
    add_action("orthographic_view_action", orthographic_view_action);
+   add_action("side_by_side_stereo_cross_eyed_action", side_by_side_stereo_cross_eyed_action);
+   add_action("side_by_side_stereo_wall_eyed_action",  side_by_side_stereo_wall_eyed_action);
+   add_action("side_by_side_stereo_mono_action",       side_by_side_stereo_mono_action);
 
    add_action(     "residue_type_selection_action",      residue_type_selection_action);
    add_action(    "residues_with_alt_confs_action",     residues_with_alt_confs_action);

@@ -59,6 +59,10 @@ void screendump_tga_internal(std::string tga_file,
 
    std::cout << "----------------- screendump_tga_internal() --- start ---" << std::endl;
 
+#ifdef __APPLE__
+   image_scale_factor *= 2;
+#endif
+
    GLenum err = glGetError();
    if (err) std::cout << "error:: screendump_tga_internal() start " << err << std::endl;
    int w = widget_width;
@@ -100,12 +104,6 @@ void screendump_tga_internal(std::string tga_file,
 
    std::cout << "debug:: Using framebuffer fbo " << framebuffer_obj << std::endl;
 
-#ifdef __APPLE__
-
-   std::cout << "WARNING:: No glNamedFramebufferReadBuffer() available" << std::endl;
-
-#else
-
    // This is part of OpenGL 4.4+ - not OpenGL 3.3!
    //
    // glNamedFramebufferReadBuffer(framebuffer_obj, GL_BACK); // this often errors
@@ -127,7 +125,6 @@ void screendump_tga_internal(std::string tga_file,
    std::cout << "INFO:: screendump_tga sf " << sf << " " << w << "x" << h
              << " wrote " << 3 * sf * sf * w * h << " bytes" << std::endl;
 
-#endif // __APPLE__
 
 }
 

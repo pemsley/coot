@@ -3283,9 +3283,12 @@ try to turn on mono mode
 %feature("docstring") side_by_side_stereo_mode "
 turn on side bye side stereo mode
 
+  use_wall_eye_mode  1 mean wall-eyed, 0 means cross-eyed
+
 Parameters
 ----------
 use_wall_eye_mode : short int
+    1 mean wall-eyed, 0 means cross-eyed
 ";
 
 %feature("docstring") set_dti_stereo_mode "

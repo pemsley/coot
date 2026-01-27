@@ -2422,9 +2422,11 @@ void graphics_draw(); 	/* and wrapper interface to gtk_widget_draw(glarea)  */
 
 /*! \brief try to turn on Zalman stereo mode  */
 void zalman_stereo_mode();
-/*! \brief try to turn on stereo mode  */
+
 void hardware_stereo_mode();
 
+/*! \brief try to turn on stereo mode  */
+void hardware_stereo_mode();
 
 /*! \brief set the stereo mode (the relative view of the eyes)
 
@@ -2439,7 +2441,11 @@ void set_stereo_style(int mode);
 int  stereo_mode_state();
 /*! \brief try to turn on mono mode  */
 void mono_mode();
-/*! \brief turn on side bye side stereo mode */
+
+/*! \brief turn on side bye side stereo mode
+ *
+ * @param use_wall_eye_mode 1 mean wall-eyed, 0 means cross-eyed
+ * */
 void side_by_side_stereo_mode(short int use_wall_eye_mode);
 
 /* DTI stereo mode - undocumented, secret interface for testing, currently.
@@ -2447,10 +2453,12 @@ state should be 0 or 1. */
 /* when it works, call it dti_side_by_side_stereo_mode() */
 void set_dti_stereo_mode(short int state);
 
-/*! \brief how much should the eyes be separated in stereo mode?
+/*! \brief set the stereo angle
+ *
+ * @param angle: stereo angle in degrees - default is 6 degrees
+ * */
+void set_stereo_angle(float angle);
 
-   @param f the angular difference (in multiples of 4.5 degrees) */
-void set_hardware_stereo_angle_factor(float f);
 /*! \brief return the hardware stereo angle factor */
 float hardware_stereo_angle_factor_state();
 

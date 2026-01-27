@@ -759,7 +759,7 @@ public:
    void set_do_anti_aliasing(int state);
    void draw_anti_aliasing();
    static int display_mode; // e.g. HARDWARE_STEREO_MODE, DTI_SIDE_BY_SIDE_STEREO
-   static float hardware_stereo_angle_factor;
+   static float stereo_angle;  // 6 degrees default
    static bool in_wall_eyed_side_by_side_stereo_mode;
    // static stereo_eye_t which_eye;
    static glm::vec3 eye_position; // useful in projection (testing)
