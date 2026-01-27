@@ -603,6 +603,23 @@
             <attribute name="label">Screenshot</attribute>
             <attribute name="action">app.screenshot_action</attribute>
           </item>
+          <section>
+            <submenu>
+              <attribute name="label">Side-by-side Stereo...</attribute>
+              <item>
+                <attribute name="label">Mono</attribute>
+                <attribute name="action">app.side_by_side_stereo_mono_action</attribute>
+              </item>
+              <item>
+                <attribute name="label">Cross-Eyed</attribute>
+                <attribute name="action">app.side_by_side_stereo_cross_eyed_action</attribute>
+              </item>
+              <item>
+                <attribute name="label">Wall-Eyed</attribute>
+                <attribute name="action">app.side_by_side_stereo_wall_eyed_action</attribute>
+              </item>
+            </submenu>
+          </section>
           <item>
             <attribute name="label">Spin View</attribute>
             <attribute name="action">app.spin_view_action</attribute>
