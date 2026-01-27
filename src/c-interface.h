@@ -2439,7 +2439,11 @@ void set_stereo_style(int mode);
 int  stereo_mode_state();
 /*! \brief try to turn on mono mode  */
 void mono_mode();
-/*! \brief turn on side bye side stereo mode */
+
+/*! \brief turn on side bye side stereo mode
+ *
+ * @param use_wall_eye_mode 1 mean wall-eyed, 0 means cross-eyed
+ * */
 void side_by_side_stereo_mode(short int use_wall_eye_mode);
 
 /* DTI stereo mode - undocumented, secret interface for testing, currently.
