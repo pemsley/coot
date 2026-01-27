@@ -2385,12 +2385,22 @@ coot::protein_geometry::monomer_types() const {
 // so that find_link_type_rigourous() works for link type "p" (RNA/DNA
 // stuff).  (Problem found when trying to sphere refine a on RNA -
 // 3l0u).
-// 
+//
+// 2026-01-27-PE this causes a crash related to links when refining.
+// Instead of checking all the functions that call this function, I
+// will merely add a try/catch here.
 std::string
 coot::protein_geometry::get_group(mmdb::Residue *r) const {
 
    std::string res_name = r->GetResName();
-   return get_group(res_name);
+   try {
+      std::string group = get_group(res_name);
+      return group;
+   }
+   catch(const std::runtime_error& e) {
+      std::cout << "ERROR:: pg::get_group" << res_name << " " << e.what() << '\n';
+      return std::string("");
+   }  
 }
 
 
