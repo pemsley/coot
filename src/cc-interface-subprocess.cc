@@ -3,6 +3,9 @@
 #include "cc-interface.hh"
 #include "graphics-info.h" // static state information in here
 
+#include "utils/logging.hh"
+extern logging logger;
+
 std::pair<bool, std::string> graphics_info_t::acedrg_link = std::pair(false, "");
 
 void
@@ -11,16 +14,17 @@ run_acedrg_link_generation(const std::string &acedrg_link_command) {
    auto run_acedrg_func = [] (const std::string &acedrg_link_command) {
       std::string link_command_file_name = "acedrg-link-in.txt";
       xdg_t xdg;
-      std::filesystem::path runtime_dir = xdg.get_runtime_dir();
-      std::string file_name = (runtime_dir / link_command_file_name).string();
-      std::ofstream ofs(file_name);
+      std::ofstream ofs(link_command_file_name);
       ofs << acedrg_link_command << std::endl;
       ofs.close();
-      std::cout << "in run_acedrg_func: file_name is " << file_name << std::endl;
-      std::vector<std::string> cmd_list = {"acedrg", "-L", file_name};
+      std::cout << "DEBUG:: in run_acedrg_func: link-info acedrg-input file_name is " << link_command_file_name << std::endl;
+      std::string cif_link_file_name_stub = "acedrg-link-from-coot";
+      std::string acedrg_link_from_coot_file_name = cif_link_file_name_stub + "_link.cif";
+      std::vector<std::string> cmd_list = {"acedrg", "-L", link_command_file_name, "-o", cif_link_file_name_stub};
+      logger.log(log_t::INFO, "link CIF (acedrg ouput) file name will be", acedrg_link_from_coot_file_name);
       try {
          subprocess::OutBuffer obuf = subprocess::check_output(cmd_list);
-         graphics_info_t::acedrg_link.second = "dictionary.cif";
+         graphics_info_t::acedrg_link.second = acedrg_link_from_coot_file_name;
       }
       catch (const subprocess::CalledProcessError &e) {
          std::cout << "WARNING::" << e.what() << std::endl;
@@ -51,9 +55,10 @@ run_acedrg_link_generation(const std::string &acedrg_link_command) {
             // graphics_info_t::log.log(logging::INFO, "read dictionary", file_name);
             std::cout << "INFO:: read dictionary " << file_name << std::endl;
             add_status_bar_text("INFO:: read dictionary " + file_name);
+            std::cout << "DEBUG:: about to read cif dictionary " << file_name << std::endl;
             read_cif_dictionary(file_name);
          } else {
-            std::cout << "WARNING:: failed to make dictionary " << file_name << std::endl;
+            std::cout << "WARNING:: failed to make dictionary \"" << file_name << "\"" << std::endl;
             std::string err_info_log = "AcedrgOut_errorInfo.txt";
             if (coot::file_exists(err_info_log)) {
                std::string s = file_name_to_string(err_info_log);
