@@ -1226,7 +1226,6 @@ fill_and_show_shader_preferences() {
       gtk_widget_set_sensitive(fancy_vbox1, FALSE);
       gtk_widget_set_sensitive(fancy_vbox2, FALSE);
    }
-
    double v1 = graphics_info_t::ssao_strength;
    double v2 = graphics_info_t::SSAO_radius;
    double v3 = graphics_info_t::n_ssao_kernel_samples;
@@ -1241,7 +1240,7 @@ fill_and_show_shader_preferences() {
    gtk_range_set_value(GTK_RANGE(r1), v1);
    gtk_range_set_range(GTK_RANGE(r2), 0.0, 100.0);
    gtk_range_set_value(GTK_RANGE(r2), v2);
-   gtk_range_set_range(GTK_RANGE(r3), 0.0, 256.0);
+   gtk_range_set_range(GTK_RANGE(r3), 0.0, 512.0);
    gtk_range_set_value(GTK_RANGE(r3), v3);
    gtk_range_set_range(GTK_RANGE(r4), 0.0, 1.0);
    gtk_range_set_value(GTK_RANGE(r4), v4);
