@@ -3868,6 +3868,7 @@ void draw_map_molecule(stereo_eye_t eye,
    Mesh molecule_as_mesh_rota_dodecs;
    // pass this function to the Mesh so that we can determine the atom and bond colours
    void draw_molecule_as_meshes(Shader *shader_p,
+                                stereo_eye_t eye,
                                 const glm::mat4 &mvp,
                                 const glm::mat4 &view_rotation_matrix,
                                 const std::map<unsigned int, lights_info_t> &lights,

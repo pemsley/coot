@@ -4553,6 +4553,7 @@ molecule_class_info_t::set_model_molecule_representation_style(unsigned int mode
 // draw molecule as instanced meshes.
 void
 molecule_class_info_t::draw_molecule_as_meshes(Shader *shader_p,
+                                               stereo_eye_t eye,
                                                const glm::mat4 &mvp,
                                                const glm::mat4 &view_rotation_matrix,
                                                const std::map<unsigned int, lights_info_t> &lights,
@@ -4560,7 +4561,6 @@ molecule_class_info_t::draw_molecule_as_meshes(Shader *shader_p,
                                                const glm::vec4 &background_colour,
                                                bool do_depth_fog) {
 
-   stereo_eye_t eye = stereo_eye_t::MONO; // pass this
 
    if (false) {
       std::cout << "draw_molecule_as_meshes() shader " << shader_p->name << " " << std::endl;

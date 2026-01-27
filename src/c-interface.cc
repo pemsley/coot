@@ -1392,8 +1392,11 @@ void set_stereo_style(int mode) {
 }
 
 void set_hardware_stereo_angle_factor(float f) {
-   graphics_info_t::hardware_stereo_angle_factor = f;
-   std::string cmd = "set-hardware-stereo-angle-factor";
+}
+
+void set_stereo_angle(float f) {
+   graphics_info_t::stereo_angle = f;
+   std::string cmd = "set-stereo-angle";
    std::vector<coot::command_arg_t> args;
    args.push_back(f);
    add_to_history_typed(cmd, args);
@@ -1402,7 +1405,7 @@ void set_hardware_stereo_angle_factor(float f) {
 
 float hardware_stereo_angle_factor_state() {
    add_to_history_simple("hardware-stereo-angle-factor-state");
-   return graphics_info_t::hardware_stereo_angle_factor;
+   return 0;
 }
 
 void set_model_display_radius(int state, float radius) {

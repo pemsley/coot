@@ -662,7 +662,7 @@ graphics_info_t::get_molecule_mvp(stereo_eye_t eye, bool debug_matrices) {
    // this setup is for cross-eye : i.e left image is on the right.
    // we use the stereo mode (wall vs cross) to get the correct sign
    //
-   float angle = -3.0f; // degrees, default cross-eye
+   float angle = -stereo_angle / 2.0f; // 6 degrees default, default cross-eye
    if (display_mode == coot::SIDE_BY_SIDE_STEREO_WALL_EYE) angle = -angle;
    if (eye == stereo_eye_t::LEFT_EYE) {
       glm::mat4 rot_z = glm::rotate(glm::mat4(1.0f), glm::radians(angle), glm::vec3(0.0f, 1.0f, 0.0f));
@@ -1091,7 +1091,7 @@ graphics_info_t::draw_intermediate_atoms(stereo_eye_t eye, unsigned int pass_typ
       // instanced:
       Shader &shader_p = shader_for_instanced_objects;
       // m.model_molecule_meshes.set_debug_mode(true);
-      m.draw_molecule_as_meshes(&shader_p, mvp, model_rotation, lights, eye_position, bgc, shader_do_depth_fog_flag);
+      m.draw_molecule_as_meshes(&shader_p, eye, mvp, model_rotation, lights, eye_position, bgc, shader_do_depth_fog_flag);
    }
 
    if (pass_type == PASS_TYPE_SSAO) {
