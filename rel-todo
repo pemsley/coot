@@ -1,5 +1,12 @@
 --- Items ---
 
+o figure making skll - add map, semi-opaque maps -
+  density around ligand.
+
+o look at buster refine of 9hdw refine.pdb
+  B352 HZ3 - A393 NE2 is marked in atom overlaps
+  with spikes. The distance is 1.8A - that's fine.
+
 o turn on fancy graphics and make a ribbon diagram.
   There should be no PASS_TYPE_STANDARD that renders
   to the display buffer, right? But there seems to be.

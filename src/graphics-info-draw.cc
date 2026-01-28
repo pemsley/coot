@@ -2055,7 +2055,7 @@ graphics_info_t::draw_molecules_with_shadows(stereo_eye_t eye) {
 
    draw_meshed_generic_display_object_meshes(eye, PASS_TYPE_WITH_SHADOWS);
 
-   draw_molecules_other_meshes(eye, PASS_TYPE_STANDARD);
+   draw_molecules_other_meshes(eye, PASS_TYPE_WITH_SHADOWS);
 
    draw_instanced_meshes(eye);
 
@@ -2479,6 +2479,7 @@ graphics_info_t::draw_molecules_other_meshes(stereo_eye_t eye, unsigned int pass
                } else {
 
                   if (pass_type == PASS_TYPE_STANDARD) {
+
                      bool show_just_shadows = false;
                      bool wireframe_mode = false;
                      float opacity = 1.0f;
@@ -2489,7 +2490,7 @@ graphics_info_t::draw_molecules_other_meshes(stereo_eye_t eye, unsigned int pass
 
                   }
                   if (pass_type == PASS_TYPE_WITH_SHADOWS) {
-                     if (false)
+                     if (true)
                         std::cout << "draw-molecule-other-meshes() " << m.meshes[jj].name << " "
                                   << shader_for_moleculestotriangles_with_shadows.name << std::endl;
                      bool show_just_shadows = false;
@@ -2498,6 +2499,7 @@ graphics_info_t::draw_molecules_other_meshes(stereo_eye_t eye, unsigned int pass
                      show_just_shadows = false;
 
                      // we don't do eye for shadows yet.
+                     std::cout << "calling draw_with_shadows() " << std::endl;
                      m.meshes[jj].draw_with_shadows(&shader_for_moleculestotriangles_with_shadows, mvp,
                                                     model_rotation, lights, eye_position, opacity, bg_col,
                                                     do_depth_fog, light_view_mvp,
@@ -4613,11 +4615,13 @@ graphics_info_t::render_3d_scene_with_shadows(stereo_eye_t eye) {
    // draw_rotation_centre_crosshairs(gl_area, PASS_TYPE_STANDARD);
 
    draw_molecules_with_shadows(eye); // includes particles, happy-faces and boids (should they be there (maybe not))
-                                  // so rename this function? Or just bring everything here?  Put this render() function
-                                  // into new file graphics-info-opengl-render.cc
+                                     // so rename this function? Or just bring everything here?  Put this render() function
+                                     // into new file graphics-info-opengl-render.cc
+                                     // draw_molecules_with_shadows() called draw_molecules_other_meshes()
+                                     // so we don't need to call it again from this function!
 
 
-   draw_molecules_other_meshes(eye, PASS_TYPE_WITH_SHADOWS);
+   // draw_molecules_other_meshes(eye, PASS_TYPE_WITH_SHADOWS);
 
    draw_at_screen_centre_pulse(eye);
 
