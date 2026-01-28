@@ -200,13 +200,13 @@ void go_to_gphl_atoms(int imol, const std::string &atom_ids, const std::string &
       }
    };
 
-   std::cout << ":::::::::::::::::::: go_to_gphl_atoms(): " << atom_ids << std::endl;
+   std::cout << "DEBUG:: ::::::::::::::::::: go_to_gphl_atoms(): " << atom_ids << std::endl;
 
    bool debug = false;
 
    // ------------------ main line --------------------
 
-   if (true)
+   if (debug)
       std::cout << "debug:: go_to_gphl_atoms(): decode this: " << atom_ids
                 << " type: " << type << std::endl;
 
