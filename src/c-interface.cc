@@ -1763,6 +1763,19 @@ void info_dialog_with_markup(const char *txt) {
 }
 
 
+/*! \brief created an ephemeral label in the graphics window
+ *
+ * the text stays on screen for about 2 sesconds.
+ *
+ * @param txt the text
+*/
+void ephemeral_overlay_label(const char *txt) {
+
+   graphics_info_t::ephemeral_overlay_label(std::string(txt));
+}
+
+
+
 void
 set_main_window_title(const char *s) {
 

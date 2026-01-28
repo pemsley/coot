@@ -1853,6 +1853,15 @@ This dialog is left-justified and can use markup such as angled bracketted tt or
 void info_dialog_with_markup(const char *txt);
 
 
+/*! \brief created an ephemeral label in the graphics window
+ *
+ * the text stays on screen for about 2 sesconds.
+ *
+ * @param txt the text
+*/
+void ephemeral_overlay_label(const char *txt);
+
+
 /*! \} */
 
 
