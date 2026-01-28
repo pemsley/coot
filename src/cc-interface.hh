@@ -2009,10 +2009,20 @@ overlap_ligands_internal(int imol_ligand, int imol_ref, const char *chain_id_ref
 //! is generated.
 void do_smiles_to_simple_3d_overlay_frame();
 
-#ifdef USE_PYTHON
+//! \brief get residues in the specified chain
+//!
+//! @param imol the molecule index
+//! @param chain_id the specified chain-id
+//!
 //! @return a python list of residue specs for the residues in the given chain
 PyObject *get_residues_in_chain_py(int imol, const std::string &chain_id);
-#endif
+
+//! does the specfied residue exist?
+//!
+//! @param imol the molecule index
+//! @param spec is the residue spec to test for existance
+//! @return 0 for no, 1 for yes, -1 for error
+int residue_exists_py(int imol, PyObject *residue_spec_py);
 
 /*  ----------------------------------------------------------------------- */
 /*                  conformers (part of ligand search)                      */
