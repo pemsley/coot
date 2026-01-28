@@ -2490,7 +2490,7 @@ graphics_info_t::draw_molecules_other_meshes(stereo_eye_t eye, unsigned int pass
 
                   }
                   if (pass_type == PASS_TYPE_WITH_SHADOWS) {
-                     if (true)
+                     if (false)
                         std::cout << "draw-molecule-other-meshes() " << m.meshes[jj].name << " "
                                   << shader_for_moleculestotriangles_with_shadows.name << std::endl;
                      bool show_just_shadows = false;
@@ -2499,7 +2499,6 @@ graphics_info_t::draw_molecules_other_meshes(stereo_eye_t eye, unsigned int pass
                      show_just_shadows = false;
 
                      // we don't do eye for shadows yet.
-                     std::cout << "calling draw_with_shadows() " << std::endl;
                      m.meshes[jj].draw_with_shadows(&shader_for_moleculestotriangles_with_shadows, mvp,
                                                     model_rotation, lights, eye_position, opacity, bg_col,
                                                     do_depth_fog, light_view_mvp,
