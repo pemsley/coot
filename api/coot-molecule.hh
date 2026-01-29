@@ -829,6 +829,22 @@ namespace coot {
                                                       const std::string &style,
                                                       int secondaryStructureUsageFlag) const;
 
+      struct res_prop_t {
+         coot::colour_holder colour;
+         float value; // e.g. worm-radius
+      };
+      std::map<coot::residue_spec_t, res_prop_t> residue_properies_map;
+
+      //! \brief set the residue properties
+      //!
+      //! a list of propperty maps such as `{"chain-id": "A", "res-no": 34, "ins-code": "", "worm-radius": 1.2}`
+      //!
+      //! @param json_string is the properties in JSON format
+      //! @return true
+      bool set_residue_properties(const std::string &json_string);
+
+      void clear_residue_properties();
+
       simple_mesh_t get_gaussian_surface(float sigma, float contour_level,
                                          float box_radius, float grid_scale, float fft_b_factor) const;
 

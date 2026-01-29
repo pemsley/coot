@@ -1144,10 +1144,28 @@ public:
    //! @param secondary_structure_usage_flag 0 (USE_HEADER), 1 (DONT_USE) or 2 (CALC_SECONDARY_STRUCTURE).
    //!
    //! @return a `simple_mesh_t`
-   coot::simple_mesh_t get_molecular_representation_mesh(int imol, const std::string &cid, const std::string &colour_scheme,
-                                                         const std::string &style, int secondary_structure_usage_flag);
+   coot::simple_mesh_t get_molecular_representation_mesh(int imol, const std::string &cid,
+                                                         const std::string &colour_scheme,
+                                                         const std::string &style,
+                                                         int secondary_structure_usage_flag);
+
+   //! \brief set the residue properties
+   //!
+   //! a list of propperty maps such as `{"chain-id": "A", "res-no": 34, "ins-code": "", "worm-radius": 1.2}`
+   //!
+   //! @param imol is the model molecule index
+   //! @param json_string is the properties in JSON format
+   //! @return true
+   bool set_residue_properties(int imol, const std::string &json_string);
+
+   // \brief clear the reisidue properties
+   //!
+   //! @param imol is the model molecule index
+   void clear_residue_properties(int imol);
 
    //! Get a Gaussian surface representation
+   //!
+   //! Waters are not included in the surface calculation
    //!
    //! @param imol is the model molecule index
    //! @param sigma default 4.4

@@ -1383,6 +1383,10 @@ NB_MODULE(coot_headless_api, m) {
          &molecules_container_t::set_refinement_geman_mcclure_alpha,
          nb::arg("a"),
          get_docstring_from_xml("set_refinement_geman_mcclure_alpha").c_str())
+    .def("set_residue_properties",
+         &molecules_container_t::set_residue_properties,
+         nb::arg("imol"), nb::arg("json_string_properties"),
+         get_docstring_from_xml("set_residue_properties").c_str())
     .def("set_residue_to_rotamer_number",
          &molecules_container_t::set_residue_to_rotamer_number,
          nb::arg("imol"), nb::arg("residue_cid"),

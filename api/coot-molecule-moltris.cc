@@ -197,6 +197,53 @@ coot::molecule_t::print_M2T_IntParameters() const {
 #include "MoleculesToTriangles/CXXSurface/CXXSurface.h"
 #include "MoleculesToTriangles/CXXSurface/CXXCreator.h"
 
+#include "coot-utils/json.hpp"
+using json = nlohmann::json;
+
+//! \brief set the residue properties
+//!
+//! a list of propperty maps such as `{"chain-id": "A", "res-no": 34, "ins-code": "", "worm-radius": 1.2}`
+//!
+//! @param json_string is the properties in JSON format
+//! @return true
+bool
+coot::molecule_t::set_residue_properties(const std::string &json_string) {
+
+   bool status = true;
+
+   json j = json::parse(json_string);
+   for (json::iterator it=j.begin(); it!=j.end(); ++it) {
+      json j_residue_properties = *it;
+      json::const_iterator j_chain_id    = j_residue_properties.find("chain-id");
+      json::const_iterator j_res_no      = j_residue_properties.find("res-no");
+      json::const_iterator j_ins_code    = j_residue_properties.find("ins-code");
+      json::const_iterator j_worm_radius = j_residue_properties.find("worm-radius");
+      if (j_chain_id != j_residue_properties.end()) {
+         if (j_res_no != j_residue_properties.end()) {
+            if (j_ins_code != j_residue_properties.end()) {
+               if (j_worm_radius != j_residue_properties.end()) {
+                  std::string chain_id = j_chain_id.value();
+                  int res_no = j_res_no.value();
+                  std::string ins_code = j_ins_code.value();
+                  float radius = j_worm_radius.value();
+                  coot::residue_spec_t res_spec(chain_id, res_no, ins_code);
+                  res_prop_t res_prop = {coot::colour_holder(0.5, 0.5, 0.5), radius};
+                  std::cout << "debug:: storing props for " << res_spec << " " << radius << std::endl;
+                  residue_properies_map[res_spec] = res_prop;
+               }
+            }
+         }
+      }
+   }
+   return status;
+}
+
+void
+coot::molecule_t::clear_residue_properties() {
+
+   residue_properies_map.clear();
+}
+
 
 coot::simple_mesh_t
 coot::molecule_t::get_molecular_representation_mesh(const std::string &atom_selection_str,

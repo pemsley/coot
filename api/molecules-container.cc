@@ -4481,6 +4481,30 @@ molecules_container_t::try_read_dictionaries_for_new_residue_types(int imol) {
    return status;
 }
 
+//! \brief set the residue properties
+//!
+//! a list of propperty maps such as `{"chain-id": "A", "res-no": 34, "ins-code": "", "worm-radius": 1.2}`
+//!
+//! @param json_string is the properties in JSON format
+//! @return true
+bool molecules_container_t::set_residue_properties(int imol, const std::string &json_string) {
+
+   bool status = false;
+   if (is_valid_model_molecule(imol)) {
+      status = molecules[imol].set_residue_properties(json_string);
+   }
+   return status;
+}
+
+// \brief clear the reisidue properties
+//!
+//! @param imol is the model molecule index
+void molecules_container_t::clear_residue_properties(int imol) {
+
+   if (is_valid_model_molecule(imol)) {
+      molecules[imol].clear_residue_properties();
+   }
+}
 
 
 coot::simple_mesh_t
