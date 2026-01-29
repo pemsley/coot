@@ -1256,6 +1256,9 @@ public:
 
    //! Get number of hydrogen atoms
    //!
+   //! Count only the number of hydrogen atoms in the model number 1, not the sum
+   //! from all models.
+   //!
    //! @param imol is the model molecule index
    //!
    //! @return the number of hydrogen atoms in the specified model, or -1 on error
