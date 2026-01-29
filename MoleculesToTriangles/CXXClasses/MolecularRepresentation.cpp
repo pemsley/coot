@@ -595,12 +595,14 @@ int MolecularRepresentation::drawRibbon()
             for (int i=startSubdivision; i<endSubdivision; i++){
                 //for (int i=0; i<subdivisionsPerCalpha; i++){
                 xVal = (iCalpha + (i*stepPerSubdivision)) - 0.5;
-                FCXXCoord coord = segment.coordFor(xVal);
+                FCXXCoord coord     = segment.coordFor(xVal);
                 FCXXCoord normalOne = segment.normalOneFor(xVal);
                 FCXXCoord normalTwo = segment.normalTwoFor(xVal);
+                // Get per-residue radius multiplier from the 4th component (interpolated via spline)
+                float radiusMultiplier = (coord.r() > 0.0f) ? coord.r() : 1.0f;
                 //Widths at which things should be drawn is a matter of painful heuristics
-                float radiusOne = radiusOneNone;
-                float radiusTwo = radiusTwoNone;
+                float radiusOne = radiusOneNone * radiusMultiplier;
+                float radiusTwo = radiusTwoNone * radiusMultiplier;
                 if (currentSSE == mmdb::SSE_Helix) {
                     if (i<subdivisionsPerCalpha/2){
                         if (currentSSE == lastSSE) {
@@ -624,6 +626,8 @@ int MolecularRepresentation::drawRibbon()
                             radiusTwo = radiusTwoHelix - factor * (radiusTwoHelix-radiusTwoNone);
                         }
                     }
+                    radiusOne *= radiusMultiplier;
+                    radiusTwo *= radiusMultiplier;
                     CylinderPoint cylinderPoint(coord, color, normalOne, normalTwo, radiusOne, radiusTwo, calpha);
                     currentCylinder->addPoint(cylinderPoint);
                 }
@@ -650,12 +654,15 @@ int MolecularRepresentation::drawRibbon()
                             radiusTwo = radiusTwoDNARNA - factor * (radiusTwoDNARNA-radiusTwoNone);
                         }
                     }
+                    radiusOne *= radiusMultiplier;
+                    radiusTwo *= radiusMultiplier;
                     CylinderPoint cylinderPoint(coord, color, normalOne, normalTwo, radiusOne, radiusTwo, calpha);
                     currentCylinder->addPoint(cylinderPoint);
                 }
                 else if (currentSSE == mmdb::SSE_Strand) {
                     if (i==startSubdivision && lastSSE != currentSSE) {
-                        CylinderPoint cylinderPoint(coord, color, normalOne, normalTwo, radiusOneNone, radiusTwoNone, calpha);
+                        CylinderPoint cylinderPoint(coord, color, normalOne, normalTwo,
+                                                    radiusOneNone * radiusMultiplier, radiusTwoNone * radiusMultiplier, calpha);
                         currentBoxSection->addPoint(cylinderPoint);
                         lastSSE = currentSSE;
                     }
@@ -667,7 +674,8 @@ int MolecularRepresentation::drawRibbon()
                     }
                     if (i == subdivisionsPerCalpha/2){
                         if (currentSSE != nextSSE){
-                            CylinderPoint cylinderPoint(coord, color, normalOne, normalTwo, radiusOneStrand, radiusTwoStrand, calpha);
+                            CylinderPoint cylinderPoint(coord, color, normalOne, normalTwo,
+                                                        radiusOneStrand * radiusMultiplier, radiusTwoStrand * radiusMultiplier, calpha);
                             currentBoxSection->addPoint(cylinderPoint);
                         }
                     }
@@ -682,10 +690,13 @@ int MolecularRepresentation::drawRibbon()
                             radiusTwo = radiusTwoArrow - factor * (radiusTwoArrow-radiusTwoNone);
                         }
                     }
+                    radiusOne *= radiusMultiplier;
+                    radiusTwo *= radiusMultiplier;
                     CylinderPoint cylinderPoint(coord, color, normalOne, normalTwo, radiusOne, radiusTwo, calpha);
                     currentBoxSection->addPoint(cylinderPoint);
                 }
                 else {
+                    // radiusOne and radiusTwo already have radiusMultiplier applied from initialization
                     CylinderPoint cylinderPoint(coord, color, normalOne, normalTwo, radiusOne, radiusTwo, calpha);
                     currentCylinder->addPoint(cylinderPoint);
                 }
@@ -697,6 +708,8 @@ int MolecularRepresentation::drawRibbon()
             FCXXCoord coord = segment.coordFor(xVal);
             FCXXCoord normalOne = segment.normalOneFor(xVal);
             FCXXCoord normalTwo = segment.normalTwoFor(xVal);
+            // Get per-residue radius multiplier for end-of-residue segment
+            float endRadiusMultiplier = (coord.r() > 0.0f) ? coord.r() : 1.0f;
 
             float radiusOne;
             float radiusTwo;
@@ -714,6 +727,8 @@ int MolecularRepresentation::drawRibbon()
                 radiusOne = radiusOneStrand;
                 radiusTwo = radiusTwoStrand;
             }
+            radiusOne *= endRadiusMultiplier;
+            radiusTwo *= endRadiusMultiplier;
             CylinderPoint cylinderPoint(coord, color, normalOne, normalTwo, radiusOne, radiusTwo, calpha);
             if (currentSSE == mmdb::SSE_Strand) currentBoxSection->addPoint(cylinderPoint);
             else currentCylinder->addPoint(cylinderPoint);

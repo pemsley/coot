@@ -42,9 +42,13 @@ public:
         normalOnes.clear();
         normalTwos.clear();
     }
-    void addCalpha(mmdb::Atom* calpha){ 
+    void addCalpha(mmdb::Atom* calpha){
         calphas.push_back(calpha);
-        calphaCoords.push_back(FCXXCoord (calpha->x, calpha->y, calpha->z));
+        calphaCoords.push_back(FCXXCoord (calpha->x, calpha->y, calpha->z, 1.0f));
+    }
+    void addCalpha(mmdb::Atom* calpha, float radius){
+        calphas.push_back(calpha);
+        calphaCoords.push_back(FCXXCoord (calpha->x, calpha->y, calpha->z, radius));
     }
     FCXXCoord operator [] (int i) {
         return FCXXCoord (calphas[i]->x, calphas[i]->y, calphas[i]->z);

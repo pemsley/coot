@@ -338,11 +338,13 @@ int MyMolecule::identifySegments(std::vector<DiscreteSegment *> &segments, int s
                                         if (distance > 4.1){
                                             // std::cout << "New chain start "<< calpha->GetResName() << calpha->GetSeqNum () << calpha->segID << "\n";
                                             DiscreteSegment *segment = new DiscreteSegment();
-                                            segment->addCalpha(calpha);
+                                            float radius = getRadiusForResidue(calpha->GetResidue());
+                                            segment->addCalpha(calpha, radius);
                                             segments.push_back(segment);
                                         }
                                         else {
-                                            segments.back()->addCalpha(calpha);
+                                            float radius = getRadiusForResidue(calpha->GetResidue());
+                                            segments.back()->addCalpha(calpha, radius);
                                         }
                                         lastCoord = calphaPosition;
                                     }
@@ -380,10 +382,12 @@ int MyMolecule::identifySegments(std::vector<DiscreteSegment *> &segments, int s
                                                 // std::cout << "New chain nucleotide start "<< atom_p->GetResName() << " "
                                                 // << atom_p->GetSeqNum () << atom_p->GetChainID() << "\n";
                                                 DiscreteSegment *segment = new DiscreteSegment();
-                                                segment->addCalpha(atom_p);
+                                                float radius = getRadiusForResidue(residue_p);
+                                                segment->addCalpha(atom_p, radius);
                                                 segments.push_back(segment);
                                             } else {
-                                                segments.back()->addCalpha(atom_p);
+                                                float radius = getRadiusForResidue(residue_p);
+                                                segments.back()->addCalpha(atom_p, radius);
                                             }
                                             lastCoord = atom_pos;
                                         }
@@ -628,6 +632,26 @@ FCXXCoord MyMolecule::centreOfSelectionHandle(int selHnd)
 void MyMolecule::writePDB(const std::string &filePath)
 {
     mmdb->WritePDBASCII(filePath.c_str());
+}
+
+void MyMolecule::setResidueRadii(const std::map<std::tuple<std::string, int, std::string>, float> &radii) {
+    residueRadii = radii;
+}
+
+float MyMolecule::getRadiusForResidue(mmdb::Residue *res, float default_radius) const {
+    if (!res) return default_radius;
+    std::string chain_id = res->GetChainID();
+    int res_no = res->GetSeqNum();
+    std::string ins_code = res->GetInsCode();
+    auto key = std::make_tuple(chain_id, res_no, ins_code);
+    auto it = residueRadii.find(key);
+    if (it != residueRadii.end()) {
+        float radius = it->second;
+        // Treat 0 or negative as "use default"
+        if (radius > 0.0f)
+            return radius;
+    }
+    return default_radius;
 }
 
 std::ostream& operator<<(std::ostream& o, const MyMolecule &myMolecule)

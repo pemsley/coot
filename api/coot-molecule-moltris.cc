@@ -43,6 +43,8 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/string_cast.hpp>
 
+#include <tuple>
+
 
 //! Add a colour rule: eg. ("//A", "red")
 void
@@ -454,6 +456,20 @@ coot::molecule_t::get_molecular_representation_mesh(const std::string &atom_sele
          try {
 
             auto my_mol = std::make_shared<MyMolecule>(atom_sel.mol, secondaryStructureUsageFlag);
+
+            // Convert residue_properies_map to M2T format and pass to MyMolecule
+            if (!residue_properies_map.empty()) {
+               std::map<std::tuple<std::string, int, std::string>, float> radii_map;
+               for (const auto &[spec, prop] : residue_properies_map) {
+                  if (prop.value > 0.0f) {
+                     radii_map[std::make_tuple(spec.chain_id, spec.res_no, spec.ins_code)] = prop.value;
+                  }
+               }
+               if (!radii_map.empty()) {
+                  my_mol->setResidueRadii(radii_map);
+               }
+            }
+
             // auto chain_cs = ColorScheme::colorChainsScheme();
             auto chain_cs = ColorScheme::colorChainsSchemeWithColourRules(colour_rules);
             if (! colour_rules.empty())

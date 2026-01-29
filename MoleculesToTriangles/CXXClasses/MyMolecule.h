@@ -30,6 +30,7 @@
 #include <vector>
 #include <string>
 #include <map>
+#include <tuple>
 
 class DiscreteSegment;
 class DisplayPrimitive;
@@ -58,6 +59,7 @@ class MyMolecule {
 private:
     bool doDraw;
     bool ownsMMDB;
+    std::map<std::tuple<std::string, int, std::string>, float> residueRadii;
     int loadFromPDB(const char *filepath, int secondaryStructureUsageFlag);
     int processCoords(int secondaryStructureUsageFlag);
 public:
@@ -95,6 +97,8 @@ public:
     };
     int FormatPDBCard (AtomCard theAtom, char *card,int count);
     void writePDB(const std::string &filePath);
+    void setResidueRadii(const std::map<std::tuple<std::string, int, std::string>, float> &radii);
+    float getRadiusForResidue(mmdb::Residue *res, float default_radius = 1.0f) const;
     static std::shared_ptr<MyMolecule> create(std::string(filePathString), int secondaryStructureUsageFlag){
         auto newMolecule = new MyMolecule(filePathString, secondaryStructureUsageFlag);
         std::cout << newMolecule;
