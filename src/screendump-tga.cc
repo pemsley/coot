@@ -54,8 +54,7 @@ void set_framebuffer_scale_factor(unsigned int sf) {
 
 
 void screendump_tga_internal(std::string tga_file,
-                             int widget_width, int widget_height, int image_scale_factor,
-                             unsigned int framebuffer_obj) {
+                             int widget_width, int widget_height, int framebuffer_scale) {
 
    std::cout << "----------------- screendump_tga_internal() --- start ---" << std::endl;
 
@@ -68,7 +67,7 @@ void screendump_tga_internal(std::string tga_file,
    int w = widget_width;
    int h = widget_height;
    FILE *output_file = fopen(tga_file.c_str(), "w");
-   short int sf = static_cast<short int>(image_scale_factor);
+   short int sf = static_cast<short int>(framebuffer_scale);
    unsigned char* pixel_data = new unsigned char[4 * sf * sf * w * h]; // 4 components? Probably not right.
    short int sfw = static_cast<short int>(sf * widget_width);
    short int sfh = static_cast<short int>(sf * widget_height);
@@ -101,8 +100,6 @@ void screendump_tga_internal(std::string tga_file,
 
    glGetIntegerv(GL_FRAMEBUFFER_BINDING, &local_fbo);
    std::cout << "debug:: post-bind with local_fbo binding " << local_fbo << std::endl;
-
-   std::cout << "debug:: Using framebuffer fbo " << framebuffer_obj << std::endl;
 
    // This is part of OpenGL 4.4+ - not OpenGL 3.3!
    //

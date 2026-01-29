@@ -4742,7 +4742,7 @@ graphics_info_t::render(bool to_screendump_framebuffer_flag, const std::string &
          render_scene();
 
          // gtk_gl_area_attach_buffers(gl_area);
-         screendump_tga_internal(output_file_name, w, h, sf, screendump_framebuffer.get_fbo());
+         screendump_tga_internal(output_file_name, w, h, sf);
 
       } else {
 
