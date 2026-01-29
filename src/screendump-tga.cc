@@ -59,7 +59,7 @@ void screendump_tga_internal(std::string tga_file,
    std::cout << "----------------- screendump_tga_internal() --- start ---" << std::endl;
 
 #ifdef __APPLE__
-   image_scale_factor *= 2;
+   framebuffer_scale *= 2;
 #endif
 
    GLenum err = glGetError();
