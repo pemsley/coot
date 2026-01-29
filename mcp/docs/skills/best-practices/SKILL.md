@@ -246,52 +246,6 @@ mols  # Final expression is returned
 [i for i in range(3)]
 ```
 
-## MMDB Atom Selection Syntax
-
-When using functions like `new_molecule_by_atom_selection()` or `superpose_with_atom_selection()`, use MMDB atom selection strings to specify which atoms to include.
-
-### Format
-```
-//chn/seq(res).ic/atm[elm]:aloc
-```
-
-### Components
-
-- **`//`** - Model specifier (typically `//` for single-model structures, or `/1/` for model 1)
-- **`chn`** - Chain ID (e.g., `A`, `B`, `X`)
-- **`seq`** - Residue number or range:
-  - Single: `50`
-  - Range: `10-20`
-- **`res`** - Residue name in parentheses (e.g., `(HIS)`, `(ALA)`, `(GLY)`)
-- **`ic`** - Insertion code
-- **`atm`** - Atom name (e.g., `CA`, `N`, `O`)
-- **`elm`** - Element in square brackets (e.g., `[C]`, `[N]`)
-- **`aloc`** - Alternate location indicator
-
-All components are optional - you only need to specify what you want to filter.
-
-### Examples
-```python
-# Select entire chain
-"//A"                          # All atoms in chain A
-
-# Select residue range
-"//A/12-130"                   # Residues 12-130 in chain A
-"//A/12-130/CA"                # CA atoms from residues 12-130 in chain A
-
-# Select specific residue type
-"//B/10-20(GLY)"               # GLY residues 10-20 in chain B
-"//A/(HIS)"                    # All HIS residues in chain A
-
-# Select specific atom
-"//A/50/CA"                    # CA atom of residue 50 in chain A
-"//A/50(HIS)/CA"               # CA atom of HIS 50 in chain A
-
-# Multiple chains (create separate selections and merge)
-imol_a = coot.new_molecule_by_atom_selection(imol, "//A")
-imol_b = coot.new_molecule_by_atom_selection(imol, "//B")
-```
-
 ### Usage Example
 ```python
 import coot
@@ -358,7 +312,7 @@ for chain in chains:
 atom = coot.closest_atom_simple_py()
 if atom:
     imol, chain, resno, ins, atom_name, alt, coords = atom[0], atom[1], atom[2], atom[3], atom[4], atom[5], atom[6]
-    
+
 # ✅ Get active residue (with potential CA substitution)
 import coot_utils
 active = coot_utils.active_residue()
