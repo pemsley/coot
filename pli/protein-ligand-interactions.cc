@@ -84,7 +84,7 @@ pli::get_fle_ligand_bonds(mmdb::Residue *ligand_res,
 
       if (debug) {
          std::cout << "DEBUG:: get_mcdonald_and_thornton() returned " << hbonds.size() << " H-bonds" << std::endl;
-         for (int i=0; i<hbonds.size(); i++) {
+         for (unsigned int i=0; i<hbonds.size(); i++) {
             std::cout << "      " << i << " " << hbonds[i] << std::endl;
          }
       }
