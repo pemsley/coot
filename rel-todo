@@ -5,6 +5,12 @@ o where did we get to with the fat-worm (e.g. B-factor) representation?
   molecular_respresentation is created. Do it in Coot first.
   Fat-worm representation for NMR chemical shifts on ligand binnding?
 
+o read/use PTM table in Coot
+
+o spermine structures analysis.
+
+o acedrg link bond order default single.
+
 o Have a flag to gaussian_surface to strip water for gaussian surface.
   Is water stripped anyway?
   Low importance. Instead add the function below.
@@ -51,12 +57,19 @@ o look at buster refine of 9hdw refine.pdb
   B352 HZ3 - A393 NE2 is marked in atom overlaps
   with spikes. The distance is 1.8A - that's fine.
 
+o what do you do with chem_mod_bond? It is suposed to
+  modify the bond order when a link is made.
+  See notes from Lucrezia.
+
+o File -> Fetch restraints dictionary for this residue
+
 o turn on fancy graphics and make a ribbon diagram.
   There should be no PASS_TYPE_STANDARD that renders
   to the display buffer, right? But there seems to be.
   Turn off and on 2470. What is calling
   draw_molecules_other_meshes(PASS_TYPE_STANDARD)
   when we are in fancy graphics mode?
+* Done.
 
 o test pygal in python, Coot and then with Claude.
 * partially done, I can make plot now.
