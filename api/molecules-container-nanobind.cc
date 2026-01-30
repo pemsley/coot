@@ -9,6 +9,7 @@
 #include <nanobind/stl/pair.h>
 #include <nanobind/stl/map.h>
 #include <nanobind/stl/vector.h>
+#include <nanobind/stl/array.h>
 #include <nanobind/ndarray.h>
 #include <nanobind/operators.h>
 
