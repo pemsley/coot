@@ -755,6 +755,8 @@ public:
 
    static bool sequence_view_is_docked_flag;
 
+   static bool validation_graphs_is_docked; // is in main window
+
    static short int do_anti_aliasing_flag; // BL feature
    void set_do_anti_aliasing(int state);
    void draw_anti_aliasing();

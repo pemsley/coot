@@ -1616,6 +1616,7 @@ bool graphics_info_t::draw_missing_loops_flag = true;
 
 bool graphics_info_t::sequence_view_is_docked_flag = true;
 
+bool graphics_info_t::validation_graphs_is_docked = true;
 
 int graphics_info_t::tick_function_id = -1; // unset
 bool graphics_info_t::do_tick_particles = false;
