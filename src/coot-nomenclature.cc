@@ -24,6 +24,7 @@
 #include <iostream>
 #include "coot-nomenclature.hh"
 #include "ideal/simple-restraint.hh"
+#include "mmdb2/mmdb_mattype.h"
 
 
 #ifdef USE_DUNBRACK_ROTAMERS
@@ -289,11 +290,13 @@ int
 coot::nomenclature::test_and_fix_PHE_TYR_nomenclature_errors(mmdb::Residue *residue_p,
 							     bool apply_swap_if_found) {
 
+   // return 0; // testing memory corruption
+
    // PDBv3 FIXME - all this function.
 
    int iswapped = 0; // number of alt confs swapped in this residue
-   mmdb::PPAtom residue_atoms;
-   int n_residue_atoms;
+   mmdb::Atom **residue_atoms = 0;
+   int n_residue_atoms = 0;
    residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
 
    // We have to test all the altconfs, so what are the altconfs of the CD1 atoms?
@@ -337,7 +340,7 @@ coot::nomenclature::test_and_fix_PHE_TYR_nomenclature_errors(mmdb::Residue *resi
       }
       if (CA==0 || CB==0 || CG==0) { // no need for CD1, it will be set
 	 for (int i=0; i<n_residue_atoms; i++) {
-	    std::string atom_name = residue_atoms[i]->name;
+	    std::string atom_name    = residue_atoms[i]->name;
 	    std::string atom_altconf = residue_atoms[i]->altLoc;
 	    if (atom_altconf == "") {
 	       if (atom_name == " CA ")
@@ -401,12 +404,23 @@ coot::nomenclature::test_and_fix_PHE_TYR_nomenclature_errors(mmdb::Residue *resi
 		  }
 		  if (CE1 && CE2) {
 		     if (apply_swap_if_found) { 
+#if 0
 			CD1->SetAtomName(" CD2");
 			CD2->SetAtomName(" CD1");
 			CE1->SetAtomName(" CE2");
 			CE2->SetAtomName(" CE1");
+#endif
+                        mmdb::realtype pos_cd1[3] = {CD1->x, CD1->y, CD1->z};
+                        mmdb::realtype pos_cd2[3] = {CD2->x, CD2->y, CD2->z};
+                        mmdb::realtype pos_ce1[3] = {CE1->x, CE1->y, CE1->z};
+                        mmdb::realtype pos_ce2[3] = {CE2->x, CE2->y, CE2->z};
+
+                        CD1->x = pos_cd2[0]; CD1->y = pos_cd2[1]; CD1->z = pos_cd2[2];
+                        CD2->x = pos_cd1[0]; CD2->y = pos_cd1[1]; CD2->z = pos_cd1[2];
+                        CE1->x = pos_ce2[0]; CE1->y = pos_ce2[1]; CE1->z = pos_ce2[2];
+                        CE2->x = pos_ce1[0]; CE2->y = pos_ce1[1]; CE2->z = pos_ce1[2];
 		     }
-		     if (0)
+		     if (false)
 			std::cout << "DEBUG:: swapped in test_and_fix_PHE_TYR_nomenclature_errors()"
 				  << std::endl;
 
@@ -444,6 +458,8 @@ coot::nomenclature::test_and_fix_PHE_TYR_nomenclature_errors(mmdb::Residue *resi
 int
 coot::nomenclature::test_and_fix_ASP_GLU_nomenclature_errors(mmdb::Residue *residue_p,
 							     bool apply_swap_if_found) {
+
+   // return 0;  // testing memory corruption
 
    int iswapped = 0;
    mmdb::PPAtom residue_atoms;
@@ -517,8 +533,8 @@ coot::nomenclature::test_and_fix_ASP_GLU_nomenclature_errors(mmdb::Residue *resi
 	       std::string swap_name_1 = " OD1";
 	       std::string swap_name_2 = " OD2";
 	       if (residue_name == "GLU") {
-		  std::string swap_name_1 = " OE1";
-		  std::string swap_name_2 = " OE2";
+		  swap_name_1 = " OE1";
+		  swap_name_2 = " OE2";
 	       }
 
 	       mmdb::Atom *at_1 = 0;
