@@ -2869,20 +2869,22 @@ PyObject *get_header_secondary_structure_info(int imol) {
 
             if (nsheet > 0) {
                std::vector<PyObject *> strand_info_py_vec;
-               for (int is=1; is<=nsheet; is++) {
+               for (int is=0; is<nsheet; is++) {
                   mmdb::Sheet *sheet_p = model_p->GetSheet(is);
-                  int nstrand = sheet_p->nStrands;
-                  for (int istrand=0; istrand<nstrand; istrand++) {
-                     mmdb::Strand *strand_p = sheet_p->strand[istrand];
-                     if (strand_p) {
-                        PyObject *s_dict = PyDict_New();
-                        PyDict_SetItemString(s_dict, "SheetID",     myPyString_FromString(strand_p->sheetID));
-                        PyDict_SetItemString(s_dict, "strandNo",    PyLong_FromLong(strand_p->strandNo));
-                        PyDict_SetItemString(s_dict, "initChainID", myPyString_FromString(strand_p->initChainID));
-                        PyDict_SetItemString(s_dict, "initSeqNum",  PyLong_FromLong(strand_p->initSeqNum));
-                        PyDict_SetItemString(s_dict, "endChainID",  myPyString_FromString(strand_p->endChainID));
-                        PyDict_SetItemString(s_dict, "endSeqNum",   PyLong_FromLong(strand_p->endSeqNum));
-                        strand_info_py_vec.push_back(s_dict);
+                  if (sheet_p) {
+                     int nstrand = sheet_p->nStrands;
+                     for (int istrand=0; istrand<nstrand; istrand++) {
+                        mmdb::Strand *strand_p = sheet_p->strand[istrand];
+                        if (strand_p) {
+                           PyObject *s_dict = PyDict_New();
+                           PyDict_SetItemString(s_dict, "SheetID",     myPyString_FromString(strand_p->sheetID));
+                           PyDict_SetItemString(s_dict, "strandNo",    PyLong_FromLong(strand_p->strandNo));
+                           PyDict_SetItemString(s_dict, "initChainID", myPyString_FromString(strand_p->initChainID));
+                           PyDict_SetItemString(s_dict, "initSeqNum",  PyLong_FromLong(strand_p->initSeqNum));
+                           PyDict_SetItemString(s_dict, "endChainID",  myPyString_FromString(strand_p->endChainID));
+                           PyDict_SetItemString(s_dict, "endSeqNum",   PyLong_FromLong(strand_p->endSeqNum));
+                           strand_info_py_vec.push_back(s_dict);
+                        }
                      }
                   }
                }
