@@ -4836,12 +4836,12 @@ molecule_class_info_t::make_bonds_type_checked(const std::set<int> &no_bonds_to_
 
 
 void
-molecule_class_info_t::update_bonds_using_phenix_geo(const coot::phenix_geo_bonds &b) {
+molecule_class_info_t::update_bonds_using_phenix_geo(const coot::phenix_geo_bonds &geo_bonds) {
 
-   Bond_lines_container bonds(atom_sel.mol, b);
+   Bond_lines_container bonds(atom_sel.mol, geo_bonds);
    bonds_box.clear_up();
    bonds_box = bonds.make_graphical_bonds();
-
+   make_glsl_bonds_type_checked(__FUNCTION__);
 
 }
 
