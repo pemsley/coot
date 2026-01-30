@@ -1,6 +1,50 @@
 --- Items ---
 
-o figure making skll - add map, semi-opaque maps -
+o where did we get to with the fat-worm (e.g. B-factor) representation?
+  Fatness per residue has already been fed to libcoootapi before the
+  molecular_respresentation is created. Do it in Coot first.
+  Fat-worm representation for NMR chemical shifts on ligand binnding?
+
+o Have a flag to gaussian_surface to strip water for gaussian surface.
+  Is water stripped anyway?
+  Low importance. Instead add the function below.
+
+o get_gaussian_surface_for_atom_selection()
+
+o make_gaussian_surface_map_for_atom_selection and return a map (create a map molecule)
+
+o moorhen make a ribbon diagram of NMR model 2luz
+
+o geobonds
+
+o Clement: make a difference between sax data and our model
+  (masking enenough?). Compare mask and gaussian surface map.
+  Make mask have a smooth surface - by adding a b-factor.
+
+o Clemens: compile libccp4 with modern compiler? (building-coot) Needs new tar?
+
+o 2luz ribbon diagram, I want to see the ribbon diagram for each model.
+
+o Rota dodec colour, rama balls colours - what is the function?
+
+o finish the pucker validation analysis.
+
+o Don't forget the AXI analysis - what's going on there?
+
+o bonds and angles etc validation? in libcootapi.
+
+o rebuild coot dependencies with Python3.14 and new boost and rdkti and libicudata (unicode)
+
+o 2luz custom rerepresentation bonds All molecule> -> Create
+  how about /2,3
+* No, mmdb doesn't do that.
+
+o thermal ellipsoid with transparenty instead of wireframe.
+  or
+  the 3 lines around without the solid inside.
+  And colour them. If you can do that, can you do other rings?
+
+o For figure making skill - add map, semi-opaque maps -
   density around ligand.
 
 o look at buster refine of 9hdw refine.pdb
@@ -15,22 +59,23 @@ o turn on fancy graphics and make a ribbon diagram.
   when we are in fancy graphics mode?
 
 o test pygal in python, Coot and then with Claude.
+* partially done, I can make plot now.
 
 o double shader settings SSAAO N kernel samples max
+*  Done.
 
 o add a function to check that a residue exists
   residue_exists_py(imol, spec) -> Bool:
+* Done.
 
 o turn off the info dialog that says
   WARNING:: refinement map not selected - no action
   when there are no maps.
   Trying and missing to double click on an atom
+* Done.
 
 o add a menu or button to start JSON-RPC server localhost
   and an entry for a port number
-
-o small angle and wide angle scattering - sax and wasc?
-  carbohydrate fitting?
 
 o add a Coot API function to get header info
 * Done.
@@ -53,6 +98,7 @@ o check Validation -> Outliers vs Overlaps, Peptides, etc.
 o Why don't Ribbon diagrams cast shadows on themselves?
   They cast shadows on other things. Ah, the shader for
   ribbons needs to use the shadow map. Easy?
+* Not easy, but done.
 
 o R and X are not in the keybindings?
 * Done - added R - seems slow.
