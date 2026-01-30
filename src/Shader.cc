@@ -521,7 +521,7 @@ Shader::create() const {
    }
 
 
-   if (true) { // debugging mvp
+   if (false) { // debugging mvp
       GLint i_mvp = glGetUniformLocation(program, "mvp");
       std::cout << "debug:: in Shader::create() " << name << " mvp location " << i_mvp << std::endl;
    }
