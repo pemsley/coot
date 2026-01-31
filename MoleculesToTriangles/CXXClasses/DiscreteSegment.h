@@ -26,6 +26,12 @@
 #include "NRStuff.h"
 
 #include <vector>
+#include <tuple>
+#include <map>
+#include <memory>
+
+class ColorScheme;
+class ColorRule;
 
 class DiscreteSegment {
 private:
@@ -33,22 +39,37 @@ private:
     std::vector<FCXXCoord  >calphaCoords;
     std::vector<FCXXCoord  >normalOnes;
     std::vector<FCXXCoord  >normalTwos;
+    std::vector<std::tuple<float, float, float>> anisoValues;
     CoordSpline coordSpline;
     CoordSpline normalOnesSpline;
     CoordSpline normalTwosSpline;
+    CoordSpline anisoSpline;
+    CoordSpline colorSpline;
 public:
     ~DiscreteSegment(){
         calphas.clear();
         normalOnes.clear();
         normalTwos.clear();
+        anisoValues.clear();
     }
     void addCalpha(mmdb::Atom* calpha){
         calphas.push_back(calpha);
         calphaCoords.push_back(FCXXCoord (calpha->x, calpha->y, calpha->z, 1.0f));
+        anisoValues.push_back(std::make_tuple(1.0f, 1.0f, 1.0f));
     }
     void addCalpha(mmdb::Atom* calpha, float radius){
         calphas.push_back(calpha);
         calphaCoords.push_back(FCXXCoord (calpha->x, calpha->y, calpha->z, radius));
+        anisoValues.push_back(std::make_tuple(1.0f, 1.0f, 1.0f));
+    }
+    void addCalpha(mmdb::Atom* calpha, float ax, float ay, float az){
+        calphas.push_back(calpha);
+        calphaCoords.push_back(FCXXCoord (calpha->x, calpha->y, calpha->z, 1.0f));
+        anisoValues.push_back(std::make_tuple(ax, ay, az));
+    }
+    std::tuple<float, float, float> anisoFor(float xVal) {
+        FCXXCoord aniso = anisoSpline.coordForXEquals(xVal);
+        return std::make_tuple(aniso.x(), aniso.y(), aniso.z());
     }
     FCXXCoord operator [] (int i) {
         return FCXXCoord (calphas[i]->x, calphas[i]->y, calphas[i]->z);
@@ -62,7 +83,9 @@ public:
     void evaluateNormals();
     void smoothBetas();
     void evaluateSplines();
+    void evaluateColors(std::shared_ptr<ColorScheme> colorScheme, std::map<std::shared_ptr<ColorRule>, int> &handles);
     FCXXCoord coordFor(float xVal);
     FCXXCoord normalOneFor(float xVal);
     FCXXCoord normalTwoFor(float xVal);
+    FCXXCoord colorFor(float xVal);
 };

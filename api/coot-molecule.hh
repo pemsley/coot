@@ -829,11 +829,16 @@ namespace coot {
                                                       const std::string &style,
                                                       int secondaryStructureUsageFlag) const;
 
-      struct res_prop_t {
-         coot::colour_holder colour;
+      class res_prop_t {
+         public:
          float value; // e.g. worm-radius
+         float value_x; // for aniso props
+         float value_y;
+         float value_z;
+         res_prop_t() : value(-1.1f), value_x(-1.1f), value_y(-1.1f), value_z(-1.1f) {}
+         bool filled_aniso() const { return value_x > 0.0f && value_y > 0.0f && value_z > 0.0f; }
       };
-      std::map<coot::residue_spec_t, res_prop_t> residue_properies_map;
+      std::map<coot::residue_spec_t, res_prop_t> residue_properties_map;
 
       //! \brief set the residue properties
       //!

@@ -23,6 +23,7 @@
  */
 
 #include <cstring>
+#include <cmath>
 
 #include "MolecularRepresentation.h"
 #include "DishyBase.h"
@@ -548,6 +549,7 @@ int MolecularRepresentation::drawRibbon()
         segment.evaluateNormals();
         if (boolParameters["smoothBetas"]) segment.smoothBetas();
         segment.evaluateSplines();
+        segment.evaluateColors(colorScheme, handles);
         FCXXCoord color;
 
         std::shared_ptr<CylindersPrimitive>currentCylinder(new CylindersPrimitive());
@@ -586,8 +588,6 @@ int MolecularRepresentation::drawRibbon()
                     currentCylinder->setAngularSampling(intParameters["cylindersStyleAngularSampling"]);
                 }
             }
-            color = colorScheme->colorForAtom(calpha, handles);
-
             int endSubdivision = ((iCalpha == (segment.nCalphas()-1))?subdivisionsPerCalpha/2:subdivisionsPerCalpha);
             int startSubdivision = ((iCalpha == 0) ? (subdivisionsPerCalpha/2):0);
             float xVal = 0.;
@@ -598,6 +598,7 @@ int MolecularRepresentation::drawRibbon()
                 FCXXCoord coord     = segment.coordFor(xVal);
                 FCXXCoord normalOne = segment.normalOneFor(xVal);
                 FCXXCoord normalTwo = segment.normalTwoFor(xVal);
+                color = segment.colorFor(xVal);
                 // Get per-residue radius multiplier from the 4th component (interpolated via spline)
                 float radiusMultiplier = (coord.r() > 0.0f) ? coord.r() : 1.0f;
                 //Widths at which things should be drawn is a matter of painful heuristics
@@ -696,7 +697,18 @@ int MolecularRepresentation::drawRibbon()
                     currentBoxSection->addPoint(cylinderPoint);
                 }
                 else {
-                    // radiusOne and radiusTwo already have radiusMultiplier applied from initialization
+                    // Get interpolated aniso values and apply projection onto normals
+                    auto [ax, ay, az] = segment.anisoFor(xVal);
+                    float anisoMultiplierOne = std::sqrt(
+                        std::pow(normalOne.x() * ax, 2) +
+                        std::pow(normalOne.y() * ay, 2) +
+                        std::pow(normalOne.z() * az, 2));
+                    float anisoMultiplierTwo = std::sqrt(
+                        std::pow(normalTwo.x() * ax, 2) +
+                        std::pow(normalTwo.y() * ay, 2) +
+                        std::pow(normalTwo.z() * az, 2));
+                    radiusOne = radiusOneNone * anisoMultiplierOne;
+                    radiusTwo = radiusTwoNone * anisoMultiplierTwo;
                     CylinderPoint cylinderPoint(coord, color, normalOne, normalTwo, radiusOne, radiusTwo, calpha);
                     currentCylinder->addPoint(cylinderPoint);
                 }
@@ -708,8 +720,7 @@ int MolecularRepresentation::drawRibbon()
             FCXXCoord coord = segment.coordFor(xVal);
             FCXXCoord normalOne = segment.normalOneFor(xVal);
             FCXXCoord normalTwo = segment.normalTwoFor(xVal);
-            // Get per-residue radius multiplier for end-of-residue segment
-            float endRadiusMultiplier = (coord.r() > 0.0f) ? coord.r() : 1.0f;
+            color = segment.colorFor(xVal);
 
             float radiusOne;
             float radiusTwo;
@@ -727,8 +738,20 @@ int MolecularRepresentation::drawRibbon()
                 radiusOne = radiusOneStrand;
                 radiusTwo = radiusTwoStrand;
             }
-            radiusOne *= endRadiusMultiplier;
-            radiusTwo *= endRadiusMultiplier;
+            else {
+                // Coil case: apply interpolated aniso projection
+                auto [ax, ay, az] = segment.anisoFor(xVal);
+                float anisoMultiplierOne = std::sqrt(
+                    std::pow(normalOne.x() * ax, 2) +
+                    std::pow(normalOne.y() * ay, 2) +
+                    std::pow(normalOne.z() * az, 2));
+                float anisoMultiplierTwo = std::sqrt(
+                    std::pow(normalTwo.x() * ax, 2) +
+                    std::pow(normalTwo.y() * ay, 2) +
+                    std::pow(normalTwo.z() * az, 2));
+                radiusOne = radiusOneNone * anisoMultiplierOne;
+                radiusTwo = radiusTwoNone * anisoMultiplierTwo;
+            }
             CylinderPoint cylinderPoint(coord, color, normalOne, normalTwo, radiusOne, radiusTwo, calpha);
             if (currentSSE == mmdb::SSE_Strand) currentBoxSection->addPoint(cylinderPoint);
             else currentCylinder->addPoint(cylinderPoint);

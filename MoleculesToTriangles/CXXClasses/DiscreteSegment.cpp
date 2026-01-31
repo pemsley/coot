@@ -24,6 +24,7 @@
 
 #include <string>
 #include "DiscreteSegment.h"
+#include "ColorScheme.h"
 
 extern "C" {
 #include "lfit.h"
@@ -137,6 +138,8 @@ void DiscreteSegment::evaluateSplines()
         coordSpline.addPair((float)i, calphaCoords[i]);
         normalOnesSpline.addPair((float)i, normalOnes[i]);
         normalTwosSpline.addPair((float)i, normalTwos[i]);
+        auto [ax, ay, az] = anisoValues[i];
+        anisoSpline.addPair((float)i, FCXXCoord(ax, ay, az, 1.0f));
     }
     // std::cout << "evaluateSpines() A" << std::endl;
     coordSpline.calculateYDoublePrimes(1e30f, 1e30f);
@@ -145,6 +148,7 @@ void DiscreteSegment::evaluateSplines()
     // std::cout << "evaluateSpines() C" << std::endl;
     normalTwosSpline.calculateYDoublePrimes(1e30f, 1e30f);
     // std::cout << "evaluateSpines() D" << std::endl;
+    anisoSpline.calculateYDoublePrimes(1e30f, 1e30f);
 }
 
 FCXXCoord DiscreteSegment::coordFor(float xVal)
@@ -158,4 +162,18 @@ FCXXCoord DiscreteSegment::normalOneFor(float xVal)
 FCXXCoord DiscreteSegment::normalTwoFor(float xVal)
 {
     return normalTwosSpline.coordForXEquals(xVal);
+}
+
+void DiscreteSegment::evaluateColors(std::shared_ptr<ColorScheme> colorScheme, std::map<std::shared_ptr<ColorRule>, int> &handles)
+{
+    for (int i=0; i<calphas.size(); i++){
+        FCXXCoord color = colorScheme->colorForAtom(calphas[i], handles);
+        colorSpline.addPair((float)i, color);
+    }
+    colorSpline.calculateYDoublePrimes(1e30f, 1e30f);
+}
+
+FCXXCoord DiscreteSegment::colorFor(float xVal)
+{
+    return colorSpline.coordForXEquals(xVal);
 }
