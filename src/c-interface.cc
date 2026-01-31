@@ -30,6 +30,7 @@
 #include <exception>
 #include <stdexcept>
 #include <utility>
+#include "coords/phenix-geo.hh"
 #include "glib.h"
 #include "gtk/gtk.h"
 #include "gtk/gtkshortcut.h"
@@ -5679,7 +5680,7 @@ set_b_factor_bonds_scale_factor(int imol, float f) {
    return r;
 }
 
-void graphics_to_phenix_geo_representation(int imol, int mode, const coot::phenix_geo_bonds &g) {
+void graphics_to_phenix_geo_representation(int imol, int mode, const coot::phenix_geo::phenix_geometry &g) {
 
    if (is_valid_model_molecule(imol)) {
       graphics_info_t::molecules[imol].update_bonds_using_phenix_geo(g);
@@ -5691,8 +5692,9 @@ void graphics_to_phenix_geo_representation(int imol, int mode, const coot::pheni
 void graphics_to_phenix_geo_representation(int imol, int mode,
 					   const std::string &geo_file_name) {
 
-   coot::phenix_geo_bonds pgb(geo_file_name);
-   graphics_to_phenix_geo_representation(imol, mode, pgb);
+   coot::phenix_geo::phenix_geometry pg;
+   pg.parse(geo_file_name);
+   graphics_to_phenix_geo_representation(imol, mode, pg);
 
 }
 

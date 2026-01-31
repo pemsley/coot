@@ -61,6 +61,10 @@
           <attribute name="action">app.fetch_pdbe_ligand_description_action</attribute>
         </item>
         <item>
+          <attribute name="label">Fetch Ligand Restraints</attribute>
+          <attribute name="action">app.fetch_ligand_restraints_from_github</attribute>
+        </item>
+        <item>
           <attribute name="label">Fetch COD Entry...</attribute>
           <attribute name="action">app.show_accession_code_fetch_frame_cod</attribute>
         </item>

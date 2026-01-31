@@ -21,10 +21,6 @@
  *
  */
 
-#include "mmdb-extras.hh"
-#include "mmdb.hh"
-#include "mmdb-crystal.hh"  // should be merged with extras
-
 #include "coot-utils/coot-coord-utils.hh"
 
 #include "Bond_lines.hh"
@@ -32,7 +28,7 @@
 // Phenix Geo
 //
 Bond_lines_container::Bond_lines_container(mmdb::Manager *mol,
-                                           const coot::phenix_geo_bonds &gbc) {
+                                           const coot::phenix_geo::phenix_geometry &pg) {
 
    // fill this, then make bonds from it.
    std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> > bonded_atom_pairs;
@@ -41,10 +37,10 @@ Bond_lines_container::Bond_lines_container(mmdb::Manager *mol,
    mmdb::Atom *previous_atom_1 = NULL;
    mmdb::Residue *previous_residue = NULL;
    coot::atom_spec_t previous_atom_spec;
-   for (unsigned int i=0; i<gbc.size(); i++) {
+   for (unsigned int i=0; i<pg.geo_bonds.size(); i++) {
       mmdb::Residue *atom_1_res = NULL;
       mmdb::Atom *atom_1 = NULL;
-      const coot::phenix_geo_bond &gb = gbc[i];
+      const coot::phenix_geo::phenix_geo_bond &gb = pg.geo_bonds[i];
       const coot::atom_spec_t &atom_1_spec = gb.atom_1;
       const coot::atom_spec_t &atom_2_spec = gb.atom_2;
       coot::residue_spec_t res_1_spec(atom_1_spec);
@@ -211,7 +207,7 @@ Bond_lines_container::Bond_lines_container(mmdb::Manager *mol,
 
    if (false)
       std::cout << "Made " << bonded_atom_pairs.size() << " bonded_atom_pairs"
-                << " from " << gbc.size() << " geo-bonds" << std::endl;
+                << " from " << pg.geo_bonds.size() << " geo-bonds" << std::endl;
 
    Bond_lines a;
    bonds.push_back(a); // bonded

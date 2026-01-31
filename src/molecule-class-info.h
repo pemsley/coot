@@ -26,6 +26,7 @@
 #ifndef MOLECULE_CLASS_INFO_T
 #define MOLECULE_CLASS_INFO_T
 
+#include "coords/phenix-geo.hh"
 #include "geometry/residue-and-atom-specs.hh"
 #include "stereo-eye.hh"
 #include <ctime>
@@ -3606,7 +3607,7 @@ void draw_map_molecule(stereo_eye_t eye,
 			const std::string &atom_name,
 			const coot::protein_geometry &geom);
 
-   void update_bonds_using_phenix_geo(const coot::phenix_geo_bonds &b);
+   void update_bonds_using_phenix_geo(const coot::phenix_geo::phenix_geometry &b);
 
    void export_map_fragment_to_plain_file(float radius,
 					  clipper::Coord_orth centre,
