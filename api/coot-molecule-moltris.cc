@@ -216,23 +216,45 @@ coot::molecule_t::set_residue_properties(const std::string &json_string) {
    json j = json::parse(json_string);
    for (json::iterator it=j.begin(); it!=j.end(); ++it) {
       json j_residue_properties = *it;
-      json::const_iterator j_chain_id    = j_residue_properties.find("chain-id");
-      json::const_iterator j_res_no      = j_residue_properties.find("res-no");
-      json::const_iterator j_ins_code    = j_residue_properties.find("ins-code");
-      json::const_iterator j_worm_radius = j_residue_properties.find("worm-radius");
+      json::const_iterator j_chain_id          = j_residue_properties.find("chain-id");
+      json::const_iterator j_res_no            = j_residue_properties.find("res-no");
+      json::const_iterator j_ins_code          = j_residue_properties.find("ins-code");
+      json::const_iterator j_worm_radius       = j_residue_properties.find("worm-radius");
+      json::const_iterator j_worm_radius_aniso = j_residue_properties.find("worm-radius-aniso");
+      float radius = -1.1f;
       if (j_chain_id != j_residue_properties.end()) {
          if (j_res_no != j_residue_properties.end()) {
             if (j_ins_code != j_residue_properties.end()) {
-               if (j_worm_radius != j_residue_properties.end()) {
-                  std::string chain_id = j_chain_id.value();
-                  int res_no = j_res_no.value();
-                  std::string ins_code = j_ins_code.value();
-                  float radius = j_worm_radius.value();
-                  coot::residue_spec_t res_spec(chain_id, res_no, ins_code);
-                  res_prop_t res_prop = {coot::colour_holder(0.5, 0.5, 0.5), radius};
-                  std::cout << "debug:: storing props for " << res_spec << " " << radius << std::endl;
-                  residue_properies_map[res_spec] = res_prop;
+               res_prop_t res_prop;
+
+               std::string chain_id = j_chain_id.value();
+               int res_no = j_res_no.value();
+               std::string ins_code = j_ins_code.value();
+               coot::residue_spec_t res_spec(chain_id, res_no, ins_code);
+
+               if (j_worm_radius_aniso != j_residue_properties.end()) {
+                  if (j_worm_radius_aniso->is_array()) {
+                     if (j_worm_radius_aniso->size() == 3) {
+                        res_prop.value_x = (*j_worm_radius_aniso)[0];
+                        res_prop.value_y = (*j_worm_radius_aniso)[1];
+                        res_prop.value_z = (*j_worm_radius_aniso)[2];
+                        std::cout << "debug:: radius_aniso for " << res_spec << " "
+                                  << res_prop.value_x << " " << res_prop.value_y << " " << res_prop.value_z << std::endl;
+                     }
+                  }
                }
+
+               if (j_worm_radius != j_residue_properties.end()) {
+                  float radius = j_worm_radius.value();
+                  if (radius > 0.0) {
+                     std::cout << "debug:: radius for " << res_spec << " " << radius << std::endl;
+                     res_prop.value = radius;
+                  }
+               }
+
+               if (res_prop.value > 0 || res_prop.filled_aniso())
+                  residue_properties_map[res_spec] = res_prop;
+
             }
          }
       }
@@ -243,7 +265,7 @@ coot::molecule_t::set_residue_properties(const std::string &json_string) {
 void
 coot::molecule_t::clear_residue_properties() {
 
-   residue_properies_map.clear();
+   residue_properties_map.clear();
 }
 
 
@@ -458,11 +480,16 @@ coot::molecule_t::get_molecular_representation_mesh(const std::string &atom_sele
             auto my_mol = std::make_shared<MyMolecule>(atom_sel.mol, secondaryStructureUsageFlag);
 
             // Convert residue_properies_map to M2T format and pass to MyMolecule
-            if (!residue_properies_map.empty()) {
-               std::map<std::tuple<std::string, int, std::string>, float> radii_map;
-               for (const auto &[spec, prop] : residue_properies_map) {
-                  if (prop.value > 0.0f) {
-                     radii_map[std::make_tuple(spec.chain_id, spec.res_no, spec.ins_code)] = prop.value;
+            if (!residue_properties_map.empty()) {
+               std::map<std::tuple<std::string, int, std::string>, std::tuple<float, float, float>> radii_map;
+               for (const auto &[spec, prop] : residue_properties_map) {
+                  if (prop.filled_aniso()) {
+                     radii_map[std::make_tuple(spec.chain_id, spec.res_no, spec.ins_code)] =
+                         std::make_tuple(prop.value_x, prop.value_y, prop.value_z);
+                  } else if (prop.value > 0.0f) {
+                     // Isotropic fallback: use same value for all axes
+                     radii_map[std::make_tuple(spec.chain_id, spec.res_no, spec.ins_code)] =
+                         std::make_tuple(prop.value, prop.value, prop.value);
                   }
                }
                if (!radii_map.empty()) {

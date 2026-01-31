@@ -338,13 +338,13 @@ int MyMolecule::identifySegments(std::vector<DiscreteSegment *> &segments, int s
                                         if (distance > 4.1){
                                             // std::cout << "New chain start "<< calpha->GetResName() << calpha->GetSeqNum () << calpha->segID << "\n";
                                             DiscreteSegment *segment = new DiscreteSegment();
-                                            float radius = getRadiusForResidue(calpha->GetResidue());
-                                            segment->addCalpha(calpha, radius);
+                                            auto [ax, ay, az] = getRadiiForResidue(calpha->GetResidue());
+                                            segment->addCalpha(calpha, ax, ay, az);
                                             segments.push_back(segment);
                                         }
                                         else {
-                                            float radius = getRadiusForResidue(calpha->GetResidue());
-                                            segments.back()->addCalpha(calpha, radius);
+                                            auto [ax, ay, az] = getRadiiForResidue(calpha->GetResidue());
+                                            segments.back()->addCalpha(calpha, ax, ay, az);
                                         }
                                         lastCoord = calphaPosition;
                                     }
@@ -382,12 +382,12 @@ int MyMolecule::identifySegments(std::vector<DiscreteSegment *> &segments, int s
                                                 // std::cout << "New chain nucleotide start "<< atom_p->GetResName() << " "
                                                 // << atom_p->GetSeqNum () << atom_p->GetChainID() << "\n";
                                                 DiscreteSegment *segment = new DiscreteSegment();
-                                                float radius = getRadiusForResidue(residue_p);
-                                                segment->addCalpha(atom_p, radius);
+                                                auto [ax, ay, az] = getRadiiForResidue(residue_p);
+                                                segment->addCalpha(atom_p, ax, ay, az);
                                                 segments.push_back(segment);
                                             } else {
-                                                float radius = getRadiusForResidue(residue_p);
-                                                segments.back()->addCalpha(atom_p, radius);
+                                                auto [ax, ay, az] = getRadiiForResidue(residue_p);
+                                                segments.back()->addCalpha(atom_p, ax, ay, az);
                                             }
                                             lastCoord = atom_pos;
                                         }
@@ -634,24 +634,21 @@ void MyMolecule::writePDB(const std::string &filePath)
     mmdb->WritePDBASCII(filePath.c_str());
 }
 
-void MyMolecule::setResidueRadii(const std::map<std::tuple<std::string, int, std::string>, float> &radii) {
+void MyMolecule::setResidueRadii(const std::map<std::tuple<std::string, int, std::string>, std::tuple<float, float, float>> &radii) {
     residueRadii = radii;
 }
 
-float MyMolecule::getRadiusForResidue(mmdb::Residue *res, float default_radius) const {
-    if (!res) return default_radius;
+std::tuple<float, float, float> MyMolecule::getRadiiForResidue(mmdb::Residue *res) const {
+    if (!res) return std::make_tuple(1.0f, 1.0f, 1.0f);
     std::string chain_id = res->GetChainID();
     int res_no = res->GetSeqNum();
     std::string ins_code = res->GetInsCode();
     auto key = std::make_tuple(chain_id, res_no, ins_code);
     auto it = residueRadii.find(key);
     if (it != residueRadii.end()) {
-        float radius = it->second;
-        // Treat 0 or negative as "use default"
-        if (radius > 0.0f)
-            return radius;
+        return it->second;
     }
-    return default_radius;
+    return std::make_tuple(1.0f, 1.0f, 1.0f);
 }
 
 std::ostream& operator<<(std::ostream& o, const MyMolecule &myMolecule)
