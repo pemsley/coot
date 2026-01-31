@@ -273,14 +273,18 @@ coot::dots_representation_info_t::add_dots(int SelHnd, mmdb::Manager *mol,
 
 // ------------------------- NEF maybe this doesn't beloong in this file
 
-#include "coot-utils/parse-nef-gemmi.hh"
+#include "coot-utils/nef-utils.hh"
 
 bool molecule_class_info_t::read_nef(const std::string &file_name) {
 
    bool status = false;
    std::cout << "DEBUG:: read " << file_name << std::endl;
 
-   std::string f = nef::preprocess_star_file(file_name);
+   nef::NEFParser nef = nef::NEFParser::from_file(file_name);
+   const std::vector<nef::DistanceRestraint>& restraints = nef.restraints();
+   std::cout << "Found " << restraints.size() << " restraints" << std::endl;
+   for (const auto &restraint : restraints) {
+   }
 
    return status;
 }

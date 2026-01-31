@@ -133,6 +133,78 @@ namespace nef {
    std::string preprocess_star_file_string(const std::string& content);
    std::string preprocess_star_file(const std::string& filepath);
 
+
+
+// ============================================================================
+// NEF/STAR Parser class
+// ============================================================================
+
+   class NEFParser {
+
+   public:
+      /**
+       * Construct parser from file content string (suitable for WebAssembly).
+       *
+       * @param content The STAR/NEF file content as a string
+       * @param source_name A name to identify the source (for error messages)
+       */
+      NEFParser(const std::string& content, const std::string& source_name);
+
+      /**
+       * Construct parser from a filepath (convenience wrapper).
+       *
+       * @param filepath Path to the STAR/NEF file
+       */
+      static NEFParser from_file(const std::string& filepath);
+
+   private:
+
+      void init_from_string(const std::string& content, const std::string& source_name);
+
+      // ============================================================================
+      // Helper functions
+      // ============================================================================
+
+      std::string format_to_string(nef::FileFormat fmt) const;
+      bool is_null_value(const std::string& val) const;
+      std::optional<double> parse_double(const std::string& val) const;
+      std::optional<int> parse_int(const std::string& val) const;
+
+   public:
+
+      void parse();
+      void print_summary() const;
+      void print_statistics() const;
+
+      // Accessors
+      const std::vector<nef::AssignedChemicalShift>& chemical_shifts() const { return chemical_shifts_; }
+      const std::vector<nef::CouplingConstant>& coupling_constants() const { return coupling_constants_; }
+      const std::vector<nef::NOEPeak>& peaks() const { return peaks_; }
+      const std::vector<nef::DistanceRestraint>& restraints() const { return restraints_; }
+
+   private:
+      nef::FileFormat detect_format();
+      void parse_assigned_chemical_shifts();
+      void process_chemical_shift_loop(const gemmi::cif::Loop& loop);
+      void parse_coupling_constants();
+      void parse_noe_peaks();
+      void parse_distance_restraints();
+      void parse_nef_distance_restraints();
+      void process_nef_distance_restraint_loop(const gemmi::cif::Loop& loop, const std::string& restraint_origin);
+      void parse_bmrb_distance_restraints();
+      void process_bmrb_distance_constraint_loop(const gemmi::cif::Loop& loop, const std::string& constraint_type);
+
+      std::string filepath_;
+      gemmi::cif::Document doc_;
+      gemmi::cif::Block* block_;
+      nef::FileFormat format_ = nef::FileFormat::UNKNOWN;
+
+      std::vector<nef::AssignedChemicalShift> chemical_shifts_;
+      std::vector<nef::CouplingConstant> coupling_constants_;
+      std::vector<nef::NOEPeak> peaks_;
+      std::vector<nef::DistanceRestraint> restraints_;
+   };
+
 }
 
 #endif // COOT_UTILS_PARSE_GEMMI_NEF

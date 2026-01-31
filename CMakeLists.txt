@@ -483,7 +483,9 @@ nanobind_add_module(coot_headless_api ${coot_src}/api/molecules-container-nanobi
 
 set(MAKE_COOT_HEADLESS_API_PYI 1)
 
-if (MAKE_COOT_HEADLESS_API_PYI)
+# disable this for now!
+# if (MAKE_COOT_HEADLESS_API_PYI)
+if (False)
   # thanks Jordan (install coot_headless_api.pyi in the right place)
   nanobind_add_stub(coot_headless_api_ext_stub
     MODULE coot_headless_api
