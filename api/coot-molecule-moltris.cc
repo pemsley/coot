@@ -238,9 +238,6 @@ coot::molecule_t::set_residue_properties(const std::string &json_string) {
                         res_prop.value_x = (*j_worm_radius_aniso)[0];
                         res_prop.value_y = (*j_worm_radius_aniso)[1];
                         res_prop.value_z = (*j_worm_radius_aniso)[2];
-                        if (false)
-                           std::cout << "debug:: radius_aniso for " << res_spec << " "
-                                     << res_prop.value_x << " " << res_prop.value_y << " " << res_prop.value_z << std::endl;
                      }
                   }
                }
