@@ -269,3 +269,18 @@ coot::dots_representation_info_t::add_dots(int SelHnd, mmdb::Manager *mol,
    imm.update_instancing_buffers(balls);
    if (err) std::cout << "GL ERROR:: add_dots() post-update_instancing_buffers() with GL err " << err << std::endl;
 }
+
+
+// ------------------------- NEF maybe this doesn't beloong in this file
+
+#include "coot-utils/parse-nef-gemmi.hh"
+
+bool molecule_class_info_t::read_nef(const std::string &file_name) {
+
+   bool status = false;
+   std::cout << "DEBUG:: read " << file_name << std::endl;
+
+   std::string f = nef::preprocess_star_file(file_name);
+
+   return status;
+}

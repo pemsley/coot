@@ -759,6 +759,8 @@ libcootsumo_la_SOURCES = \
 	mtz-column-auto-read.hh  \
 	named-rotamer-score.hh   \
 	network-get.hh           \
+	nef.hh                   \
+	nef.cc                   \
 	new-molecule-by-symmetry-matrix.hh \
 	nsv.hh                   \
 	obj_loader.h obj_loader.cc \

@@ -1,5 +1,9 @@
 --- Items ---
 
+o MolecularRepresentation.cpp line 654 - fix.
+
+o the bond colours against a dark background are too dark.
+
 o where did we get to with the fat-worm (e.g. B-factor) representation?
   Fatness per residue has already been fed to libcoootapi before the
   molecular_respresentation is created. Do it in Coot first.

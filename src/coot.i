@@ -72,6 +72,7 @@
 #ifdef USE_MOLECULES_TO_TRIANGLES
 #include "cc-interface-molecular-representation.hh"
 #endif // USE_MOLECULES_TO_TRIANGLES
+#include "nef.hh"
 %}
 
 
@@ -159,6 +160,7 @@ namespace std {
 %include "M2T-interface.hh"
 %include "cc-interface-alignment.hh"
 %include "cfc-2025.hh"
+%include "nef.hh"
 
 // # ignore some functions with c++ objects
 %ignore rigid_body_fit_with_residue_range();

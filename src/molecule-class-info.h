@@ -3920,6 +3920,9 @@ void draw_map_molecule(stereo_eye_t eye,
 
    std::vector<glm::vec3> unhappy_atom_marker_positions;
 
+   bool read_nef(const std::string &file_name);
+
+
 };
 
 #endif // MOLECULE_CLASS_INFO_T
