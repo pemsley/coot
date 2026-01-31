@@ -3529,7 +3529,7 @@ void simple_text_dialog(const std::string &dialog_title, const std::string &text
 /*  ----------------------------------------------------------------------- */
 //! \brief phenix GEO bonds representation
 void graphics_to_phenix_geo_representation(int imol, int mode,
-                                           const coot::phenix_geo::phenix_geo_bonds &g);
+                                           const coot::phenix_geo::phenix_geometry &g);
 //! \brief phenix GEO bonds representation, read from file
 void graphics_to_phenix_geo_representation(int imol, int mode,
                                            const std::string &geo_file_name);
