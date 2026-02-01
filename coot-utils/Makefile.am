@@ -241,7 +241,7 @@ test_born_LDADD = \
 	$(CLIPPER_LIBS)
 
 test_nef_utils_SOURCES = test-nef-utils.cc
-test_nef_utils_LDADD =
+test_nef_utils_LDADD = ./libcoot-coord-utils.la
 
 test_gmm_SOURCES = test-gmm.cc
 test_gmm_LDADD =
