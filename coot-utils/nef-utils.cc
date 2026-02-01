@@ -770,21 +770,21 @@ void nef::NEFParser::process_nef_distance_restraint_loop(const gemmi::cif::Loop&
    };
 
    int idx_index = get_col_idx("index");
-   int idx_restraint_id = get_col_idx("restraint_id");
+   int idx_restraint_id   = get_col_idx("restraint_id");
    int idx_combination_id = get_col_idx("restraint_combination_id");
-   int idx_chain_1 = get_col_idx("chain_code_1");
-   int idx_seq_1 = get_col_idx("sequence_code_1");
-   int idx_res_1 = get_col_idx("residue_name_1");
-   int idx_atom_1 = get_col_idx("atom_name_1");
-   int idx_chain_2 = get_col_idx("chain_code_2");
-   int idx_seq_2 = get_col_idx("sequence_code_2");
-   int idx_res_2 = get_col_idx("residue_name_2");
-   int idx_atom_2 = get_col_idx("atom_name_2");
-   int idx_weight = get_col_idx("weight");
-   int idx_target = get_col_idx("target_value");
-   int idx_target_unc = get_col_idx("target_value_uncertainty");
-   int idx_lower = get_col_idx("lower_limit");
-   int idx_upper = get_col_idx("upper_limit");
+   int idx_chain_1        = get_col_idx("chain_code_1");
+   int idx_seq_1          = get_col_idx("sequence_code_1");
+   int idx_res_1          = get_col_idx("residue_name_1");
+   int idx_atom_1         = get_col_idx("atom_name_1");
+   int idx_chain_2        = get_col_idx("chain_code_2");
+   int idx_seq_2          = get_col_idx("sequence_code_2");
+   int idx_res_2          = get_col_idx("residue_name_2");
+   int idx_atom_2         = get_col_idx("atom_name_2");
+   int idx_weight         = get_col_idx("weight");
+   int idx_target         = get_col_idx("target_value");
+   int idx_target_unc     = get_col_idx("target_value_uncertainty");
+   int idx_lower          = get_col_idx("lower_limit");
+   int idx_upper          = get_col_idx("upper_limit");
 
    // Required columns check
    if (idx_seq_1 < 0 || idx_atom_1 < 0 || idx_seq_2 < 0 || idx_atom_2 < 0) {
@@ -957,6 +957,60 @@ void nef::NEFParser::process_bmrb_distance_constraint_loop(const gemmi::cif::Loo
    if (n_errors > 0) {
       std::cout << "    Note: " << n_errors << " constraints had parsing errors\n";
    }
+}
+
+std::string nef::NEFParser::restraints_to_json() const {
+
+   std::ostringstream oss;
+   oss << "[\n";
+   for (size_t i = 0; i < restraints_.size(); ++i) {
+      const auto& r = restraints_[i];
+      oss << "   {\n";
+      oss << "      \"index\": " << r.index << ",\n";
+      oss << "      \"restraint_id\": " << r.restraint_id << ",\n";
+      if (r.restraint_combination_id) {
+         oss << "      \"restraint_combination_id\": " << *r.restraint_combination_id << ",\n";
+      } else {
+         oss << "      \"restraint_combination_id\": null,\n";
+      }
+      oss << "      \"chain_code_1\": \"" << r.chain_code_1 << "\",\n";
+      oss << "      \"sequence_code_1\": " << r.sequence_code_1 << ",\n";
+      oss << "      \"residue_name_1\": \"" << r.residue_name_1 << "\",\n";
+      oss << "      \"atom_name_1\": \"" << r.atom_name_1 << "\",\n";
+      oss << "      \"chain_code_2\": \"" << r.chain_code_2 << "\",\n";
+      oss << "      \"sequence_code_2\": " << r.sequence_code_2 << ",\n";
+      oss << "      \"residue_name_2\": \"" << r.residue_name_2 << "\",\n";
+      oss << "      \"atom_name_2\": \"" << r.atom_name_2 << "\",\n";
+      oss << "      \"weight\": " << r.weight << ",\n";
+      if (r.target_value) {
+         oss << "      \"target_value\": " << *r.target_value << ",\n";
+      } else {
+         oss << "      \"target_value\": null,\n";
+      }
+      if (r.target_value_uncertainty) {
+         oss << "      \"target_value_uncertainty\": " << *r.target_value_uncertainty << ",\n";
+      } else {
+         oss << "      \"target_value_uncertainty\": null,\n";
+      }
+      if (r.lower_limit) {
+         oss << "      \"lower_limit\": " << *r.lower_limit << ",\n";
+      } else {
+         oss << "      \"lower_limit\": null,\n";
+      }
+      if (r.upper_limit) {
+         oss << "      \"upper_limit\": " << *r.upper_limit << ",\n";
+      } else {
+         oss << "      \"upper_limit\": null,\n";
+      }
+      oss << "      \"restraint_origin\": \"" << r.restraint_origin << "\"\n";
+      oss << "   }";
+      if (i < restraints_.size() - 1) {
+         oss << ",";
+      }
+      oss << "\n";
+   }
+   oss << "]\n";
+   return oss.str();
 }
 
 

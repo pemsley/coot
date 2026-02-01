@@ -182,6 +182,9 @@ namespace nef {
       const std::vector<nef::NOEPeak>& peaks() const { return peaks_; }
       const std::vector<nef::DistanceRestraint>& restraints() const { return restraints_; }
 
+      // JSON export
+      std::string restraints_to_json() const;
+
    private:
       nef::FileFormat detect_format();
       void parse_assigned_chemical_shifts();

@@ -27,7 +27,6 @@
 #ifndef MESHED_GENERIC_DISPLAY_OBJECT_HH
 #define MESHED_GENERIC_DISPLAY_OBJECT_HH
 
-#include "utils/coot-utils.hh"  // for colour_holder
 #include "utils/dodec.hh"
 
 #include "coords/graphical-bonds-container.hh"
@@ -42,7 +41,6 @@
 #include "Mesh.hh"
 #include "utils/colour-holder.hh"
 #include "coot-utils/arc-info.hh"
-#include "coot-colour.hh"
 
 std::string probe_dots_short_contact_name_to_expanded_name(const std::string &short_name);
 
@@ -181,7 +179,7 @@ public:
       coot::colour_holder colour;
       clipper::Coord_orth position_start;
       clipper::Coord_orth position_end;
-      float radius;;
+      float radius;
    };
 
    enum {UNDEFINED = -1, INTERMEDIATE_ATOMS=-9};
