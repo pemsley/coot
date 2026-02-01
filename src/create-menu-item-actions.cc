@@ -1884,7 +1884,7 @@ void acedrg_link_interface_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                   G_GNUC_UNUSED GVariant *parameter,
                                   G_GNUC_UNUSED gpointer user_data) {
 
-   std::cout << "show acedrg link interface overlay" << std::endl;
+   // std::cout << "show acedrg link interface overlay" << std::endl;
    show_acedrg_link_interface_overlay();
    graphics_info_t::graphics_grab_focus();
 

@@ -8589,31 +8589,29 @@ Do you want to continue?
                   <object class="GtkBox">
                     <property name="orientation">vertical</property>
                     <property name="spacing">5</property>
-
-		    <child>
-		      <object class="GtkFrame" id="acedrg_link_bond_order_frame">
-			<property name="label">Bond Order</property>
-			<child>
-			  <object class="GtkComboBoxText" id="acedrg_link_bond_order_combobox">
-			    <property name="margin-bottom">5</property>
-			    <property name="margin-end">6</property>
-			    <property name="margin-start">6</property>
-			    <property name="margin-top">5</property>
-
-                            <layout>
-                              <property name="column">1</property>
-                              <property name="row">1</property>
-                            </layout>
+                    <child>
+                      <object class="GtkFrame" id="acedrg_link_bond_order_frame">
+                        <property name="label">Bond Order</property>
+                        <child>
+                          <object class="GtkComboBoxText" id="acedrg_link_bond_order_combobox">
+                            <property name="margin-bottom">5</property>
+                            <property name="margin-end">6</property>
+                            <property name="margin-start">6</property>
+                            <property name="margin-top">5</property>
+                            <property name="active">0</property>
                             <items>
                               <item translatable="yes">single</item>
                               <item translatable="yes">double</item>
                               <item translatable="yes">triple</item>
                             </items>
-
-			  </object>
+                            <layout>
+                              <property name="column">1</property>
+                              <property name="row">1</property>
+                            </layout>
+                          </object>
                         </child>
                       </object>
-                   </child>
+                    </child>
 
 		   <child>
 		     <object class="GtkFrame" id="acedrg_link_interface_first_residue">
@@ -8912,6 +8910,8 @@ Do you want to continue?
 		       <property name="halign">end</property>
 		       <property name="margin-end">5</property>
 		       <property name="margin-start">4</property>
+		       <property name="margin-top">4</property>
+		       <property name="margin-bottom">4</property>
 		       <child>
 			 <object class="GtkButton" id="acedrg_link_cancel_button">
 			   <property name="label" translatable="yes">Cancel</property>
