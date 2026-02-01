@@ -639,7 +639,7 @@ int MolecularRepresentation::drawRibbon()
                             radiusTwo = radiusTwoDNARNA;
                         }
                         else {
-                            float factor = (float)i / ((float)subdivisionsPerCalpha/2.f);
+                            float factor = (float)i / ((float)subdivisionsPerCalpha/2.0f);
                             radiusOne = radiusOneNone + factor * (radiusOneDNARNA-radiusOneNone);
                             radiusTwo = radiusTwoNone + factor * (radiusTwoDNARNA-radiusTwoNone);
                         }
@@ -650,7 +650,7 @@ int MolecularRepresentation::drawRibbon()
                             radiusTwo = radiusTwoDNARNA;
                         }
                         else {
-                            float factor = (float)(i-(subdivisionsPerCalpha/2)) / ((float)subdivisionsPerCalpha/2.f);
+                            float factor = (float)(i-(subdivisionsPerCalpha/2.0f)) / ((float)subdivisionsPerCalpha/2.0f);
                             radiusOne = radiusOneDNARNA - factor * (radiusOneDNARNA-radiusOneNone);
                             radiusTwo = radiusTwoDNARNA - factor * (radiusTwoDNARNA-radiusTwoNone);
                         }
