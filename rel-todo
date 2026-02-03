@@ -1,31 +1,35 @@
 --- Items ---
 
 o MolecularRepresentation.cpp line 654 - fix.
+* Done.
 
 o the bond colours against a dark background are too dark.
+* Done.
 
 o where did we get to with the fat-worm (e.g. B-factor) representation?
   Fatness per residue has already been fed to libcoootapi before the
   molecular_respresentation is created. Do it in Coot first.
   Fat-worm representation for NMR chemical shifts on ligand binnding?
+* Done. Nice.
 
 o read/use PTM table in Coot
 
+o screen table adps
+
+o rainbow ribbon colours are too bright
+
 o spermine structures analysis.
+* Done.
 
 o acedrg link bond order default single.
-
-o Have a flag to gaussian_surface to strip water for gaussian surface.
-  Is water stripped anyway?
-  Low importance. Instead add the function below.
+* Done.
 
 o get_gaussian_surface_for_atom_selection()
+* Done
 
 o make_gaussian_surface_map_for_atom_selection and return a map (create a map molecule)
 
-o moorhen make a ribbon diagram of NMR model 2luz
-
-o geobonds
+o phenix geobonds
 
 o Clement: make a difference between sax data and our model
   (masking enenough?). Compare mask and gaussian surface map.
@@ -33,9 +37,12 @@ o Clement: make a difference between sax data and our model
 
 o Clemens: compile libccp4 with modern compiler? (building-coot) Needs new tar?
 
-o 2luz ribbon diagram, I want to see the ribbon diagram for each model.
+o moorhen: make a ribbon diagram of NMR model 2luz
+
+o Coot: 2luz ribbon diagram, I want to see the ribbon diagram for each model.
 
 o Rota dodec colour, rama balls colours - what is the function?
+  Send it to pumble
 
 o finish the pucker validation analysis.
 
@@ -49,7 +56,7 @@ o 2luz custom rerepresentation bonds All molecule> -> Create
   how about /2,3
 * No, mmdb doesn't do that.
 
-o thermal ellipsoid with transparenty instead of wireframe.
+o Claus: thermal ellipsoid with transparenty instead of wireframe.
   or
   the 3 lines around without the solid inside.
   And colour them. If you can do that, can you do other rings?
