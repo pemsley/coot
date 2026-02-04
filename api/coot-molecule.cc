@@ -4372,12 +4372,14 @@ coot::molecule_t::add_target_position_restraint_and_refine(const std::string &at
    std::string mode = "COLOUR-BY-CHAIN-AND-DICTIONARY";
    unsigned int smoothness_factor = 1;
    bool show_atoms_as_aniso_flag = false;
-   bool show_aniso_atoms_as_ortep_flag = false;
+   bool show_aniso_atoms_as_ortep_flag  = false;
+   bool show_aniso_atoms_as_ortep_empty = false;
    float aniso_probability = 0.5f;
    m = get_bonds_mesh_instanced(mode, geom_p, true, 0.1, 1.4,
                                 show_atoms_as_aniso_flag,
                                 aniso_probability,
                                 show_aniso_atoms_as_ortep_flag,
+                                show_aniso_atoms_as_ortep_empty,
                                 smoothness_factor, true, true);
    return m;
 
@@ -4680,11 +4682,13 @@ coot::molecule_t::export_model_molecule_as_gltf(const std::string &mode,
 
    bool show_atoms_as_aniso_flag = true;
    bool show_aniso_atoms_as_ortep_flag = false; // pass these
+   bool show_aniso_atoms_as_empty_flag = false;
 
    instanced_mesh_t im = get_bonds_mesh_for_selection_instanced(mode, selection_cid, geom, against_a_dark_background,
                                                                 bonds_width, atom_radius_to_bond_width_ratio,
                                                                 show_atoms_as_aniso_flag,
                                                                 show_aniso_atoms_as_ortep_flag,
+                                                                show_aniso_atoms_as_empty_flag,
                                                                 smoothness_factor,
                                                                 draw_hydrogen_atoms_flag, draw_missing_residue_loops);
 

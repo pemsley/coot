@@ -3300,6 +3300,16 @@ void set_show_aniso_atoms_as_ortep(int imol, int state) {
    graphics_draw();
 }
 
+/*! \brief set show aniso atoms as ortep */
+void set_show_aniso_atoms_as_empty(int imol, int state) {
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t::molecules[imol].set_show_aniso_atoms_as_empty(state);
+   }
+   graphics_draw();
+}
+
+
 char *get_text_for_aniso_limit_radius_entry() {
    char *text;
    graphics_info_t g;

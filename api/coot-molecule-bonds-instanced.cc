@@ -50,8 +50,12 @@ make_instanced_graphical_bonds_spherical_atoms(coot::instanced_mesh_t &m, // add
                                                bool render_atoms_as_aniso,
                                                float aniso_probability, // 0.0 to 1.0
                                                bool render_aniso_atoms_as_ortep,
+                                               bool render_aniso_atoms_as_empty,
                                                unsigned int num_subdivisions,
                                                const std::vector<glm::vec4> &colour_table) {
+
+   // if render_aniso_atoms_as_empty then we want to dray the rings thicker and 
+   // in atom colours (or not black, at least).
 
    auto convert_vertices = [] (const std::vector<coot::api::vnc_vertex> &v_in) {
       std::vector<coot::api::vn_vertex> v_out(v_in.size());
@@ -62,8 +66,7 @@ make_instanced_graphical_bonds_spherical_atoms(coot::instanced_mesh_t &m, // add
       return v_out;
    };
 
-   auto add_ellipse_rings = [] (coot::instanced_geometry_t *ig, const glm::vec3 &sc, const glm::vec3 &t, const glm::mat4 &ori) {
-      glm::vec4 col(0.1, 0.1, 0.1, 1.0);
+   auto add_ellipse_rings = [] (coot::instanced_geometry_t *ig, const glm::vec3 &sc, const glm::vec3 &t, const glm::mat4 &ori, const glm::vec4 &col) {
       glm::vec3 sc_other = 1.000f * sc;
       glm::mat4 m_unit(1.0);
       glm::mat4 m_x = glm::rotate(m_unit, static_cast<float>(0.5 * M_PI), glm::vec3(1.0, 0.0, 0.0));
@@ -121,8 +124,14 @@ make_instanced_graphical_bonds_spherical_atoms(coot::instanced_mesh_t &m, // add
    // setup the cylinder for the thin bands around the aniso atoms.
    // note to self: having a cylinder symmetric about the z=0 seems not to work.
    // It does if the first position is the "top" - cylinder has weird coordinates.
-   cylinder cylinder_for_bands(std::make_pair(glm::vec3(0.0f, 0.0f, 0.02f), glm::vec3(0.0f, 0.0f, -0.02f)),
-                               1.0f, 1.0f, 0.04f, 32, 2);
+   // 2026-02-04-PE I added some logic to change the width for the case where we
+   // are *only* drawing the ellipsoid bands.
+   float ellipsoid_band_thickness = 0.02f; // default, black.
+   if (render_aniso_atoms_as_empty) ellipsoid_band_thickness = 0.04;
+   std::cout << "DEBUG:: band thickness " << ellipsoid_band_thickness << std::endl;
+   cylinder cylinder_for_bands(std::make_pair(glm::vec3(0.0f, 0.0f,  ellipsoid_band_thickness),
+                                              glm::vec3(0.0f, 0.0f, -ellipsoid_band_thickness)),
+                               1.0f, 1.0f, 2.0f * ellipsoid_band_thickness, 32, 2);
    coot::instanced_geometry_t ig_ellipsoid_band("ellipsoid band");
    ig_ellipsoid_band.vertices = convert_vertices(cylinder_for_bands.vertices);
    ig_ellipsoid_band.triangles = cylinder_for_bands.triangles;
@@ -200,9 +209,21 @@ make_instanced_graphical_bonds_spherical_atoms(coot::instanced_mesh_t &m, // add
                   if (render_aniso_atoms_as_ortep)
                      ig_ortep.instancing_data_B.push_back(idB);
                   else
-                     ig_sphere.instancing_data_B.push_back(idB);
+                     if (! render_aniso_atoms_as_empty)
+                        ig_sphere.instancing_data_B.push_back(idB);
                   if (do_ellipse_rings) {
-                     add_ellipse_rings(&ig_ellipsoid_band, sc, t, ori);
+                     // we want black rings when the atom is represented in (normal) opaque shape
+                     // and atom colour when the opaque ellipsoid is missing.
+                     glm::vec4 ellipsoid_ring_col = glm::vec4(0.1, 0.1, 0.1, 1.0);
+                     if (render_aniso_atoms_as_empty)
+                        ellipsoid_ring_col = col;
+                     add_ellipse_rings(&ig_ellipsoid_band, sc, t, ori, ellipsoid_ring_col);
+                     // and let's have an atom sphere when drawing empty ellipsoid rings
+                     if (render_aniso_atoms_as_empty) {
+                        glm::vec3 sc_local = glm::vec3(base_atom_radius);
+                        coot::instancing_data_type_A_t idA(t, col, sc_local);
+                        ig_sphere.instancing_data_A.push_back(idA);
+                     }
                   }
                } else {
                   // as below
@@ -570,6 +591,7 @@ coot::molecule_t::get_bonds_mesh_instanced(const std::string &mode, coot::protei
                                            bool render_atoms_as_aniso,
                                            float aniso_probability,
                                            bool render_aniso_atoms_as_ortep,
+                                           bool render_aniso_atoms_as_empty,
                                            int smoothness_factor,
                                            bool draw_hydrogen_atoms_flag,
                                            bool draw_missing_residue_loops_flag) {
@@ -650,6 +672,7 @@ coot::molecule_t::get_bonds_mesh_instanced(const std::string &mode, coot::protei
       make_instanced_graphical_bonds_spherical_atoms(m, gbc, bonds_box_type, atom_radius, bond_radius,
                                                      render_atoms_as_aniso, aniso_probability,
                                                      render_aniso_atoms_as_ortep,
+                                                     render_aniso_atoms_as_empty,
                                                      num_subdivisions, colour_table);
       make_instanced_graphical_bonds_hemispherical_atoms(m, gbc, bonds_box_type, atom_radius,
                                                          bond_radius, num_subdivisions, colour_table);
@@ -691,6 +714,7 @@ coot::molecule_t::get_bonds_mesh_instanced(const std::string &mode, coot::protei
                                                      render_atoms_as_aniso,
                                                      aniso_probability,
                                                      render_aniso_atoms_as_ortep,
+                                                     render_aniso_atoms_as_empty,
                                                      num_subdivisions, colour_table);
       make_instanced_graphical_bonds_hemispherical_atoms(m, bonds_box, bonds_box_type,
                                                          atom_radius, bond_radius,
@@ -710,6 +734,7 @@ coot::molecule_t::get_bonds_mesh_for_selection_instanced(const std::string &mode
                                                          float bond_radius, float atom_radius_to_bond_width_ratio,
                                                          bool show_atoms_as_aniso_flag,
                                                          bool show_aniso_atoms_as_ortep_flag,
+                                                         bool show_aniso_atoms_as_empty_flag,
                                                          int  num_subdivisions,
                                                          bool draw_hydrogen_atoms_flag,
                                                          bool draw_missing_residue_loops) {
@@ -818,6 +843,7 @@ coot::molecule_t::get_bonds_mesh_for_selection_instanced(const std::string &mode
                                                      show_atoms_as_aniso_flag,
                                                      aniso_probability,
                                                      show_aniso_atoms_as_ortep_flag,
+                                                     show_aniso_atoms_as_empty_flag,
                                                      num_subdivisions, colour_table);
       make_instanced_graphical_bonds_hemispherical_atoms(m, gbc, bonds_box_type, atom_radius, bond_radius,
                                                          num_subdivisions, colour_table);

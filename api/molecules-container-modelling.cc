@@ -512,11 +512,13 @@ molecules_container_t::minimize_energy(int imol, const std::string &atom_selecti
       unsigned int smoothness_factor = 1;
       bool show_atoms_as_aniso_flag = false;
       bool show_aniso_atoms_as_ortep = false;
+      bool show_aniso_atoms_as_empty = false;
       float aniso_probability = 0.5f;
       im = molecules[imol].get_bonds_mesh_instanced(mode, &geom, true, 0.12, 1.4,
                                                     show_atoms_as_aniso_flag,
                                                     aniso_probability,
                                                     show_aniso_atoms_as_ortep,
+                                                    show_aniso_atoms_as_empty,
                                                     smoothness_factor,
                                                     draw_hydrogen_atoms_flag, draw_missing_residue_loops_flag);
 

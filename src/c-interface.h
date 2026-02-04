@@ -2390,6 +2390,9 @@ void set_show_aniso_atoms(int imol, int state);
 /*! \brief set show aniso atoms as ortep */
 void set_show_aniso_atoms_as_ortep(int imol, int state);
 
+/*! \brief set show aniso atoms as ortep */
+void set_show_aniso_atoms_as_empty(int imol, int state);
+
 /* DELETE-ME */
 void set_aniso_limit_size_from_widget(const char *text);
 

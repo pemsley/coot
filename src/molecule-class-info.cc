@@ -150,6 +150,7 @@ molecule_class_info_t::setup_internal() { // init
 
    show_atoms_as_aniso_flag = false;
    show_aniso_atoms_as_ortep_flag = false;
+   show_aniso_atoms_as_empty_flag = false;
 
    ghost_bond_width = 2.0;
 
@@ -4396,10 +4397,12 @@ molecule_class_info_t::make_meshes_from_bonds_box_instanced_version() {
       if (err) std::cout << "error in make_glsl_bonds_type_checked() pre molecules_as_mesh\n";
       float aniso_probability = graphics_info_t::show_aniso_atoms_probability;
 
+      std::cout << "DEBUG:: *********************** calling make_graphical_bonds()" << std::endl;
       model_molecule_meshes.make_graphical_bonds(imol_no, bonds_box, atom_radius, bond_radius,
                                                  show_atoms_as_aniso_flag, // class member - user setable
                                                  aniso_probability,
                                                  show_aniso_atoms_as_ortep_flag, // ditto
+                                                 show_aniso_atoms_as_empty_flag,
                                                  num_subdivisions, n_slices, n_stacks, colour_table);
 
       // 2025-07-28 10:14 I don't want to set this here, surely.

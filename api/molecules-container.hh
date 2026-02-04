@@ -957,6 +957,7 @@ public:
                                                    float bond_width, float atom_radius_to_bond_width_ratio,
                                                    bool show_atoms_as_aniso_flag,
                                                    bool show_aniso_atoms_as_ortep_flag,
+                                                   bool show_aniso_atoms_as_empty,
                                                    bool draw_hydrogen_atoms_flag,
                                                    int smoothness_factor);
 
@@ -971,6 +972,7 @@ public:
                                                                  float bond_width, float atom_radius_to_bond_width_ratio,
                                                                  bool show_atoms_as_aniso_flag,
                                                                  bool show_aniso_atoms_as_ortep_flag,
+                                                                 bool show_aniso_atoms_as_empty_flag,
                                                                  bool draw_hydrogen_atoms_flag,
                                                                  int smoothness_factor);
 

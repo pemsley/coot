@@ -164,13 +164,14 @@ public:
    // the simple-lines option for the main molecule
    void make_bond_lines(const graphical_bonds_container &bonds_box, const std::vector<glm::vec4> &colour_table);
 
-   // 20230828-PE it seem sthat udd_handle_bonded_type is not used at the moment
+   // 20230828-PE it seems that udd_handle_bonded_type is not used at the moment
    void make_graphical_bonds(int imol,
                              const graphical_bonds_container &bonds_box,
                              float atom_radius, float bond_radius,
                              bool show_atoms_as_aniso_flag,
                              float aniso_probability,
                              bool show_aniso_atoms_as_ortep_flag,
+                             bool show_aniso_atoms_as_empty_flag,
                              int num_subdivisions, int n_slices, int n_stacks,
                              const std::vector<glm::vec4> &colour_table);
 

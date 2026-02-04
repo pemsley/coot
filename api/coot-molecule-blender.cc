@@ -32,6 +32,7 @@ coot::molecule_t::make_mesh_for_bonds_for_blender(const std::string &mode, prote
 
    bool show_atoms_as_aniso_flag = true; // pass this
    bool show_aniso_atoms_as_ortep = true; // pass this also
+   bool show_aniso_atoms_as_empty = false; // pass this also
    // 20241202-PE start the stopwatch... when will Lucrezia complain?
 
    // from the swig version:
@@ -51,6 +52,7 @@ coot::molecule_t::make_mesh_for_bonds_for_blender(const std::string &mode, prote
                                                   show_atoms_as_aniso_flag,
                                                   aniso_probability,
                                                   show_aniso_atoms_as_ortep,
+                                                  show_aniso_atoms_as_empty,
                                                   smoothness_factor, draw_hydrogen_atoms_flag, draw_missing_loops_flag);
 
    blender_mesh_t bm(im);
