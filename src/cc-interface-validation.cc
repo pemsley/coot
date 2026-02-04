@@ -243,6 +243,7 @@ void show_interesting_positions_dialog(int imol,
 
 void read_interesting_places_json_file(const std::string &file_name) {
 
+   bool debug = true;
    if (coot::file_exists(file_name)) {
 
       graphics_info_t g;
@@ -304,7 +305,8 @@ void read_interesting_places_json_file(const std::string &file_name) {
 	 try {
 	    json j = json::parse(s);
 	    unsigned int n_outer = j.size();
-	    // std::cout << "Found " << n_outer << " parts in the json" << std::endl;
+            if (debug)
+               std::cout << "Found " << n_outer << " parts in the json" << std::endl;
 	    json::const_iterator j_title = j.find("title");
 	    if (j_title != j.end()) {
 	       title = j_title.value();
@@ -312,7 +314,8 @@ void read_interesting_places_json_file(const std::string &file_name) {
 	    json j_sections = j["sections"];
 	    unsigned int n_sections = j_sections.size();
 	    if (true) {
-               // std::cout << "here A n_sections " << n_sections << std::endl;
+               if (debug)
+                  std::cout << "here A n_sections " << n_sections << std::endl;
 	       for (std::size_t i=0; i<n_sections; i++) {
 		  const json &j_section = j_sections[i];
 		  std::string section_title;
@@ -325,6 +328,7 @@ void read_interesting_places_json_file(const std::string &file_name) {
 		  unsigned int n_items = j_items.size();
 
 		  for (std::size_t i=0; i<n_items; i++) {
+                     std::cout << "item " << i << " of " << n_items << std::endl;
 		     const json &j_item = j_items[i];
 		     json::const_iterator it_1 = j_item.find(std::string("position-type"));
 		     if (it_1 != j_item.end()) {
@@ -410,6 +414,26 @@ void read_interesting_places_json_file(const std::string &file_name) {
                                     residue_spec.int_user_data = 1; // float user data was set
                                  }
 				 residue_specs.push_back(residue_spec);
+			      }
+			   }
+			}
+
+			if (position_type == "by-atom-spec") {
+			   std::cout << "Here J --- found a by-atom-spec" << std::endl;
+			   json::const_iterator it_3 = j_item.find(std::string("atom-spec"));
+			   if (it_3 != j_item.end()) {
+			      const json &j_atom_spec = *it_3;
+			      coot::atom_spec_t atom_spec = get_atom_spec(j_atom_spec);
+			      if (atom_spec.chain_id != "unset") {
+				 atom_spec.string_user_data = label;
+				 atom_spec.int_user_data = i;
+                                 it_3 = j_item.find(std::string("badness")); // optional
+                                 if (it_3 != j_item.end()) {
+                                    float badness = it_3->get<float>();
+                                    atom_spec.float_user_data = badness;
+                                    atom_spec.int_user_data = 1; // float user data was set
+                                 }
+				 atom_specs.push_back(atom_spec);
 			      }
 			   }
 			}
