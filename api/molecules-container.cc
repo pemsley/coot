@@ -4563,6 +4563,58 @@ molecules_container_t::get_gaussian_surface(int imol, float sigma, float contour
 
 }
 
+coot::simple_mesh_t
+molecules_container_t::get_gaussian_surface_for_atom_selection(int imol, const std::string &cid,
+                                                               float sigma, float contour_level,
+                                                               float box_radius, float grid_scale, float b_factor) const {
+   coot::simple_mesh_t mesh;
+   if (is_valid_model_molecule(imol)) {
+      mesh = molecules[imol].get_gaussian_surface_for_atom_selection(cid, sigma, contour_level, box_radius,
+                                                                     grid_scale, b_factor);
+   } else {
+      std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return mesh;
+}
+
+#include "density-contour/gaussian-surface.hh"
+
+// Make a map from a gaussian surface
+//!
+//! Waters are not included in the surface calculation
+//!
+//! @param imol is the model molecule index
+//! @param cid is the atom selection CID
+//! @param sigma default 4.4
+//! @param contour_level default 4.0
+//! @param box_radius default 5.0
+//! @param grid_scale default 0.7
+//! @param b_factor default 100.0 (use 0.0 for no FFT-B-factor smoothing)
+//!
+//! @return a new molecule index for the map or -1 on failur
+int molecules_container_t::gaussian_surface_to_map_molecule(int imol, const std::string &cid,
+                                                            float sigma, float box_radius,
+                                                            float grid_scale, float fft_b_factor) {
+
+   int imol_new = -1;
+   if (is_valid_model_molecule(imol)) {
+      int chain_cid_mode = 0; // use cid to make the atom selection
+      mmdb::Manager *mol = molecules[imol].get_mol();
+      if (mol) {
+         coot::gaussian_surface_t gauss_surf(mol, cid, chain_cid_mode,
+                                             sigma, 0.5,
+                                             box_radius, grid_scale, fft_b_factor);
+         clipper::Xmap<float> xmap = gauss_surf.get_xmap();
+         imol_new = molecules.size();
+         std::string name = "Gaussian Map";
+         bool is_em_map = true; // not sure
+         coot::molecule_t m = coot::molecule_t(name, imol, xmap, is_em_map);
+         molecules.push_back(m);
+      }
+   }
+   return imol_new;
+}
+
 
 //! get chemical feaatures for the given residue
 coot::simple_mesh_t

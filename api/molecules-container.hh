@@ -1178,6 +1178,41 @@ public:
    coot::simple_mesh_t get_gaussian_surface(int imol, float sigma, float contour_level,
                                             float box_radius, float grid_scale, float b_factor) const;
 
+   //! Get a Gaussian surface representation
+   //!
+   //! Waters are not included in the surface calculation
+   //!
+   //! @param imol is the model molecule index
+   //! @param cid is the atom selection CID
+   //! @param sigma default 4.4
+   //! @param contour_level default 4.0
+   //! @param box_radius default 5.0
+   //! @param grid_scale default 0.7
+   //! @param b_factor default 100.0 (use 0.0 for no FFT-B-factor smoothing)
+   //!
+   //! @return a `simple_mesh_t` composed of a number of Gaussian surfaces (one for each chain)
+   coot::simple_mesh_t get_gaussian_surface_for_atom_selection(int imol, const std::string &cid,
+                                                               float sigma, float contour_level,
+                                                               float box_radius, float grid_scale,
+                                                               float b_factor) const;
+
+   // Make a map from a gaussian surface
+   //!
+   //! Waters are not included in the surface calculation
+   //!
+   //! @param imol is the model molecule index
+   //! @param cid is the atom selection CID
+   //! @param sigma default 4.4
+   //! @param contour_level default 4.0
+   //! @param box_radius default 5.0
+   //! @param grid_scale default 0.7
+   //! @param b_factor default 100.0 (use 0.0 for no FFT-B-factor smoothing)
+   //!
+   //! @return a new molecule index for the map or -1 on failur
+   int gaussian_surface_to_map_molecule(int imol, const std::string &cid,
+                                        float sigma, float box_radius,
+                                        float grid_scale, float fft_b_factor);
+
    //! Get chemical features for the specified residue
    //!
    //! @param imol is the model molecule index

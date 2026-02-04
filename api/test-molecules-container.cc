@@ -6769,6 +6769,41 @@ int test_inner_bond_kekulization(molecules_container_t &mc) {
    return status;
 }
 
+int test_gaussian_surface_to_map_molecule(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   int imol     = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
+   int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
+
+   //!
+   //! @param imol is the model molecule index
+   //! @param cid is the atom selection CID
+   //! @param sigma default 4.4
+   //! @param contour_level default 4.0
+   //! @param box_radius default 5.0
+   //! @param grid_scale default 0.7
+   //! @param b_factor default 100.0 (use 0.0 for no FFT-B-factor smoothing)
+   //!
+   //! @return a new molecule index for the map or -1 on failur
+   float sigma = 4.0;
+   float box_radius = 5.0;
+   float grid_scale = 1.0;
+   float fft_b_factor = 30.0;
+   std::string cid  = "//A";
+   int imol_new = mc.gaussian_surface_to_map_molecule(imol, cid, sigma, box_radius, grid_scale, fft_b_factor);
+   if (mc.is_valid_map_molecule(imol_new)) {
+      status = 1;
+      if (true) {
+         mc.write_map(imol_new, "gaussian-surface-as-map.map");
+         int imol_mask = mc.make_mask(imol_map, imol, "//A", 13.0f);
+         mc.write_map(imol_mask, "mask-map.map");
+      }
+   }
+   return status;
+}
+
 int test_template(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
@@ -7110,7 +7145,8 @@ int main(int argc, char **argv) {
          // status += run_test(test_atom_overlaps, "atom overlaps", mc);
          // status += run_test(test_pucker_info, "pucker info", mc);
          // status += run_test(test_set_residue_to_rotamer_number, "set residue", mc);
-         status += run_test(test_inner_bond_kekulization, "inner-bond kekulization", mc);
+         // status += run_test(test_inner_bond_kekulization, "inner-bond kekulization", mc);
+         status += run_test(test_gaussian_surface_to_map_molecule, "gaussian-surface to map", mc);
          if (status == n_tests) all_tests_status = 0;
 
          print_results_summary();

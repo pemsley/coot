@@ -700,6 +700,11 @@ NB_MODULE(coot_headless_api, m) {
          &molecules_container_t::fourier_shell_correlation,
          nb::arg("imol_map_1"), nb::arg("imol_map_2"),
          get_docstring_from_xml("fourier_shell_correlation").c_str())
+    .def("gaussian_surface_to_map_molecule",
+         &molecules_container_t::gaussian_surface_to_map_molecule,
+         nb::arg("imol"), nb::arg("cid"), nb::arg("sigma"),
+         nb::arg("box_radius"), nb::arg("grid_scale"), nb::arg("b_factor"),
+         get_docstring_from_xml("gaussian_surface_to_map_molecule").c_str())
     .def("generate_self_restraints",
          &molecules_container_t::generate_self_restraints,
          nb::arg("imol"), nb::arg("local_dist_max"),
@@ -781,8 +786,14 @@ NB_MODULE(coot_headless_api, m) {
          get_docstring_from_xml("get_distances_between_atoms_of_residues").c_str())
     .def("get_gaussian_surface",
          &molecules_container_t::get_gaussian_surface,
-         nb::arg("imol"), nb::arg("sigma"), nb::arg("contour_level"), nb::arg("box_radius"), nb::arg("grid_scale"), nb::arg("b_factor"),
+         nb::arg("imol"), nb::arg("sigma"), nb::arg("contour_level"), nb::arg("box_radius"),
+         nb::arg("grid_scale"), nb::arg("b_factor"),
          get_docstring_from_xml("get_gaussian_surface").c_str())
+    .def("get_gaussian_surface_for_atom_selection",
+         &molecules_container_t::get_gaussian_surface_for_atom_selection,
+         nb::arg("imol"), nb::arg("sigma"), nb::arg("cid"), nb::arg("contour_level"),
+         nb::arg("box_radius"), nb::arg("grid_scale"), nb::arg("b_factor"),
+         get_docstring_from_xml("get_gaussian_surface_for_atom_selection").c_str())
     .def("get_goodsell_style_mesh_instanced",
          &molecules_container_t::get_goodsell_style_mesh_instanced,
          nb::arg("imol"), nb::arg("colour_wheel_rotation_step"), nb::arg("saturation"), nb::arg("goodselliness"),

@@ -598,6 +598,7 @@ namespace coot {
 
       std::string get_name() const { return name; }
       void set_molecule_name(const std::string &n) { name = n; };
+      mmdb::Manager *get_mol(); // return null on failure
       int get_molecule_index() const { return imol_no; }
       // void set_molecule_index(int idx) { imol_no = idx; } // 20221011-PE needed?
       bool is_valid_model_molecule() const;
@@ -852,6 +853,9 @@ namespace coot {
 
       simple_mesh_t get_gaussian_surface(float sigma, float contour_level,
                                          float box_radius, float grid_scale, float fft_b_factor) const;
+
+      simple_mesh_t get_gaussian_surface_for_atom_selection(const std::string &cid, float sigma, float contour_level,
+                                                            float box_radius, float grid_scale, float fft_b_factor) const;
 
       simple_mesh_t get_chemical_features_mesh(const std::string &cid, const protein_geometry &geom) const;
 
