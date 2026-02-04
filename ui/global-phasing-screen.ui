@@ -350,6 +350,104 @@
               </object>
             </child>
 
+            <!-- notebook page -->
+            <child>
+              <object class="GtkNotebookPage">
+                <property name="position">7</property>
+                <property name="tab">
+                  <object class="GtkLabel">
+                    <property name="visible">1</property>
+                    <property name="label" translatable="yes">Aniso SPH</property>
+                  </object>
+                </property>
+                <property name="child">
+                  <object class="GtkFrame">
+                    <property name="visible">1</property>
+                    <property name="child">
+                      <object class="GtkBox" id="gphl-screen-aniso-sph-frame">
+                        <child>
+                          <object class="GtkBox" id="gphl-screen-aniso-sph-vbox">
+                            <property name="orientation">vertical</property>
+
+                            <child>
+                              <object class="GtkScrolledWindow" id="gphl-screen-aniso-sph-scrolledwindow">
+                                <property name="hexpand">1</property>
+                                <property name="vexpand">1</property>
+                                <property name="propagate-natural-height">0</property>
+                                <child>
+                                  <object class="GtkViewport">
+                                    <property name="hexpand">1</property>
+                                    <property name="vexpand">1</property>
+                                    <child>
+                                      <object class="GtkGrid" id="gphl-screen-aniso-sph-grid">
+                                        <property name="margin-start">12</property>
+                                        <property name="margin-end">4</property>
+                                        <property name="margin-top">4</property>
+                                        <property name="margin-bottom">4</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                    </property>
+                  </object>
+                </property>
+              </object>
+            </child>
+
+            <!-- notebook page -->
+            <child>
+              <object class="GtkNotebookPage">
+                <property name="position">7</property>
+                <property name="tab">
+                  <object class="GtkLabel">
+                    <property name="visible">1</property>
+                    <property name="label" translatable="yes">Aniso SPH nonbonded</property>
+                  </object>
+                </property>
+                <property name="child">
+                  <object class="GtkFrame">
+                    <property name="visible">1</property>
+                    <property name="child">
+                      <object class="GtkBox" id="gphl-screen-aniso-sph-nonb-frame">
+                        <child>
+                          <object class="GtkBox" id="gphl-screen-aniso-sph-nonb-vbox">
+                            <property name="orientation">vertical</property>
+
+                            <child>
+                              <object class="GtkScrolledWindow" id="gphl-screen-aniso-sph-nonb-scrolledwindow">
+                                <property name="hexpand">1</property>
+                                <property name="vexpand">1</property>
+                                <property name="propagate-natural-height">0</property>
+                                <child>
+                                  <object class="GtkViewport">
+                                    <property name="hexpand">1</property>
+                                    <property name="vexpand">1</property>
+                                    <child>
+                                      <object class="GtkGrid" id="gphl-screen-aniso-sph-nonb-grid">
+                                        <property name="margin-start">12</property>
+                                        <property name="margin-end">4</property>
+                                        <property name="margin-top">4</property>
+                                        <property name="margin-bottom">4</property>
+                                      </object>
+                                    </child>
+                                  </object>
+                                </child>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                    </property>
+                  </object>
+                </property>
+              </object>
+            </child>
+
           </object>
         </child>
 

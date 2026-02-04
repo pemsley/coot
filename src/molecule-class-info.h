@@ -1158,6 +1158,7 @@ public:        //                      public
    void old_draw_anisotropic_atoms(); // old OpenGL function
    bool show_atoms_as_aniso_flag;
    bool show_aniso_atoms_as_ortep_flag;
+   bool show_aniso_atoms_as_empty_flag; // draw just the rings
    void set_show_atoms_as_aniso(bool state) {
       if (state != show_atoms_as_aniso_flag) {
          show_atoms_as_aniso_flag = state;
@@ -1171,6 +1172,10 @@ public:        //                      public
          show_aniso_atoms_as_ortep_flag = state;
          make_bonds_type_checked("set_show_aniso_atoms_as_ortep()");
       }
+   }
+   void set_show_aniso_atoms_as_empty(bool state) {
+      show_aniso_atoms_as_empty_flag = state;
+      make_bonds_type_checked("set_show_aniso_atoms_as_empty()");
    }
 
    // void draw_coord_unit_cell(const coot::colour_holder &cell_colour);

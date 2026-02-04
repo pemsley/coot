@@ -2532,54 +2532,6 @@ void set_multi_residue_torsion_reverse_mode(short int mode) {
 }
 
 
-/* ------------------------------------------------------------------------- */
-/*                      prodrg import function                               */
-/* ------------------------------------------------------------------------- */
-// the function passed to lbg, which is called when a new
-// prodrg-in.mdl file has been made.  We no longer have a timeout
-// function waiting for prodrg-in.mdl to be updated/written.
-//
-void prodrg_import_function(std::string file_name, std::string comp_id) {
-
-   std::string func_name = "import-from-3d-generator-from-mdl";
-   std::vector<coot::command_arg_t> args;
-   args.push_back(single_quote(file_name));
-   args.push_back(single_quote(comp_id));
-   coot::scripting_function(func_name, args);
-}
-
-
-/* ------------------------------------------------------------------------- */
-/*                       SBase import function                               */
-/* ------------------------------------------------------------------------- */
-// the function passed to lbg, so that it calls it when a new
-// SBase comp_id is required.  We no longer have a timeout
-// function waiting for prodrg-in.mdl to be updated/written.
-//
-void sbase_import_function(std::string comp_id) {
-
-   bool done = false;
-#ifdef USE_PYTHON
-   if (graphics_info_t::prefer_python) {
-      std::string s = "get_sbase_monomer_and_overlay(";
-      s += single_quote(comp_id);
-      s += ")";
-      safe_python_command(s);
-      done = true;
-   }
-#endif
-
-#ifdef USE_GUILE
-   if (! done) {
-      std::string s = "(get-ccp4srs-monomer-and-overlay ";
-      s += single_quote(comp_id);
-      s += ")";
-      safe_scheme_command(s);
-   }
-#endif
-
-}
-
 
 // return a spec for the first residue with the given type.
 // test the returned spec for unset_p().

@@ -728,6 +728,7 @@ namespace coot {
                                                 bool render_atoms_as_aniso, // if possible, of course
                                                 float aniso_probability,
                                                 bool render_aniso_atoms_as_ortep,
+                                                bool render_aniso_atoms_as_empty,
                                                 int smoothness_factor,
                                                 bool draw_hydrogen_atoms_flag,
                                                 bool draw_missing_residue_loops);
@@ -738,6 +739,7 @@ namespace coot {
                                                               float bonds_width, float atom_radius_to_bond_width_ratio,
                                                               bool render_atoms_as_aniso, // if possible, of course
                                                               bool render_aniso_atoms_as_ortep,
+                                                              bool render_aniso_atoms_as_empty,
                                                               int smoothness_factor,
                                                               bool draw_hydrogen_atoms_flag,
                                                               bool draw_missing_residue_loops);

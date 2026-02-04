@@ -2085,6 +2085,7 @@ molecules_container_t::get_bonds_mesh_instanced(int imol, const std::string &mod
                                                 float bond_width, float atom_radius_to_bond_width_ratio,
                                                 bool show_atoms_as_aniso_flag,
                                                 bool show_aniso_atoms_as_ortep_flag,
+                                                bool show_aniso_atoms_as_empty_flag,
                                                 bool draw_hydrogen_atoms_flag,
                                                 int smoothness_factor) {
 
@@ -2103,6 +2104,7 @@ molecules_container_t::get_bonds_mesh_instanced(int imol, const std::string &mod
                                                     show_atoms_as_aniso_flag,
                                                     aniso_probability,
                                                     show_aniso_atoms_as_ortep_flag,
+                                                    show_aniso_atoms_as_empty_flag,
                                                     smoothness_factor, draw_hydrogen_atoms_flag,
                                                     draw_missing_residue_loops_flag);
    } else {
@@ -2128,6 +2130,7 @@ molecules_container_t::get_bonds_mesh_for_selection_instanced(int imol, const st
                                                               float bond_width, float atom_radius_to_bond_width_ratio,
                                                               bool show_atoms_as_aniso_flag,
                                                               bool show_aniso_atoms_as_ortep_flag,
+                                                              bool show_aniso_atoms_as_empty_flag,
                                                               bool draw_hydrogen_atoms_flag,
                                                               int smoothness_factor) {
 
@@ -2139,6 +2142,7 @@ molecules_container_t::get_bonds_mesh_for_selection_instanced(int imol, const st
                                                                   &geom, against_a_dark_background, bond_width, atom_radius_to_bond_width_ratio,
                                                                   show_atoms_as_aniso_flag,
                                                                   show_aniso_atoms_as_ortep_flag,
+                                                                  show_aniso_atoms_as_empty_flag,
                                                                   smoothness_factor,
                                                                   draw_hydrogen_atoms_flag,
                                                                   draw_missing_residue_loops_flag);
@@ -5325,12 +5329,14 @@ molecules_container_t::refine(int imol, int n_cycles) {
       bool draw_hydrogen_atoms_flag = true; // use data member as we do for draw_missing_residue_loops_flag?
       bool show_atoms_as_aniso_flag = false;
       bool show_aniso_atoms_as_ortep = false;
+      bool show_aniso_atoms_as_empty = false;
       float aniso_probability = 0.5f;
       unsigned int smoothness_factor = 1;
       im = molecules[imol].get_bonds_mesh_instanced(mode, &geom, true, 0.12, 1.4,
                                                     show_atoms_as_aniso_flag,
                                                     aniso_probability,
                                                     show_aniso_atoms_as_ortep,
+                                                    show_aniso_atoms_as_empty,
                                                     smoothness_factor,
                                                     draw_hydrogen_atoms_flag, draw_missing_residue_loops_flag);
    } else {

@@ -3298,15 +3298,15 @@ Parameters
 state : short int
 ";
 
-%feature("docstring") set_stereo_angle "
-set the stereo angle
+%feature("docstring") set_hardware_stereo_angle_factor "
+how much should the eyes be separated in stereo mode?
 
-  angle  stereo angle in degrees - default is 6 degrees
+  f  the angular difference (in multiples of 4.5 degrees)
 
 Parameters
 ----------
-angle : float
-    stereo angle in degrees - default is 6 degrees
+f : float
+    the angular difference (in multiples of 4.5 degrees)
 ";
 
 %feature("docstring") hardware_stereo_angle_factor_state "

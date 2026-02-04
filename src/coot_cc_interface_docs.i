@@ -3490,28 +3490,12 @@ display the SMILES entry. This is the simple version - no dictionary is generate
 ";
 
 %feature("docstring") get_residues_in_chain_py "
-get residues in the specified chain
-
-  imol  the molecule index   chain_id  the specified chain-id a python list of residue specs for the residues in the given chain
+a python list of residue specs for the residues in the given chain
 
 Parameters
 ----------
 imol : int
-    the molecule index
 chain_id : str
-    the specified chain-id
-";
-
-%feature("docstring") residue_exists_py "
-does the specfied residue exist?
-
-  imol  the molecule index   spec  is the residue spec to test for existance 0 for no, 1 for yes, -1 for error
-
-Parameters
-----------
-imol : int
-    the molecule index
-residue_spec_py : object
 ";
 
 %feature("docstring") add_animated_ligand_interaction "

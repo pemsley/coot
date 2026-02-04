@@ -13,6 +13,8 @@ def parse_screenfile(file_name):
             plane_outliers       = []
             unhappy_atoms        = []
             ideal_contact_outliers = []
+            aniso_sph_outliers     = []
+            aniso_sph_nonb_outliers = []
             front_page_is_live             = False
             bond_length_outliers_is_live   = False
             bond_angle_outliers_is_live    = False
@@ -20,6 +22,8 @@ def parse_screenfile(file_name):
             plane_outliers_is_live         = False
             ideal_contact_outliers_is_live = False
             unhappy_atom_is_live           = False
+            aniso_sph_is_live              = False
+            aniso_sph_nonb_is_live          = False
             for line in lines:
 
                 # ---------- Front page ----------------
@@ -66,6 +70,7 @@ def parse_screenfile(file_name):
                 if bond_angle_outliers_is_live:
                     if "Torsion angles in degrees." in line:
                         bond_angle_outliers_is_live = False
+
                 if bond_angle_outliers_is_live:
                     parts = line.split()
                     if len(parts) == 0:
@@ -82,6 +87,7 @@ def parse_screenfile(file_name):
                             bao = {"actual": actual, "ideal": ideal, "sigma": sigma, "delta_sigma": delta_sigma,
                                    "atom_ids": atom_ids, "res_type": res_type}
                             bond_angle_outliers.append(bao)
+
                 if "Bond angle outliers, angles in degrees" in line:
                     bond_angle_outliers_is_live = True
 
@@ -182,14 +188,57 @@ def parse_screenfile(file_name):
                 if "    Report the (function contribution)/(median contribution). Median=" in line:
                     unhappy_atom_is_live = True
 
+                # ------------- anisotropic atoms ------------------------
+
+                if aniso_sph_is_live:
+                    if line == " \n":
+                        aniso_sph_is_live = False
+
+                if "Atom" in line: continue
+
+                if aniso_sph_is_live:
+                    parts = line.split()
+                    if len(parts) == 3:
+                        parts = line.split()
+                        value    = parts[0]
+                        function = parts[1]
+                        atom     = parts[2]
+                        asph = {"value": value, "function": function, "atom": atom}
+                        aniso_sph_outliers.append(asph)
+
+                if "Anisotropic restraint outliers for SPH " in line:
+                    aniso_sph_is_live = True
+
+                # ------------- anisotropic atoms non-bonded ------------------------
+
+                if aniso_sph_nonb_is_live:
+                    if line == " \n":
+                        aniso_sph_nonb_is_live = False
+
+                if aniso_sph_nonb_is_live:
+                    parts = line.split()
+                    if len(parts) == 3:
+                        parts = line.split()
+                        value    = parts[0]
+                        function = parts[1]
+                        atom     = parts[2]
+                        asph = {"value": value, "function": function, "atom": atom}
+                        aniso_sph_nonb_outliers.append(asph)
+
+                if "Anisotropic restraint outliers for SPH[nonb] " in line:
+                    aniso_sph_nonb_is_live = True
+
             # consolidate:
-            if front_page: r["Front page"] = front_page
-            if bond_length_outliers: r["Bond length"] = bond_length_outliers
-            if bond_angle_outliers: r["Bond angle"] = bond_angle_outliers
-            if torsion_outliers: r["Torsion"] = torsion_outliers
-            if plane_outliers: r["Plane"] = plane_outliers
-            if ideal_contact_outliers: r["Ideal Contact"] = ideal_contact_outliers
-            if unhappy_atoms: r["Unhappy Atom"] = unhappy_atoms
+            if front_page:              r["Front page"]     = front_page
+            if bond_length_outliers:    r["Bond length"]    = bond_length_outliers
+            if bond_angle_outliers:     r["Bond angle"]     = bond_angle_outliers
+            if torsion_outliers:        r["Torsion"]        = torsion_outliers
+            if plane_outliers:          r["Plane"]          = plane_outliers
+            if ideal_contact_outliers:  r["Ideal Contact"]  = ideal_contact_outliers
+            if unhappy_atoms:           r["Unhappy Atom"]   = unhappy_atoms
+            if aniso_sph_outliers:      r["Aniso SPH"]      = aniso_sph_outliers
+            if aniso_sph_nonb_outliers: r["Aniso SPH nonb"] = aniso_sph_nonb_outliers
+
     else:
         print("file does not exist", file_name)
     return r

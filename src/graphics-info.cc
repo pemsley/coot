@@ -6759,14 +6759,19 @@ void
 graphics_info_t::set_user_defined_colours(const std::vector<std::pair<unsigned int, coot::colour_holder> > &user_defined_colours_in) {
 
    user_defined_colours = user_defined_colours_in;
+
    // texture colours:
+   // (2026-02-04-PE I don't understand what this does)
    if (! user_defined_colours.empty()) {
       std::vector<glm::vec4> t_cols(user_defined_colours.size());
       for (unsigned int i=0; i<user_defined_colours.size(); i++) {
          unsigned int idx = user_defined_colours[i].first;
-         const auto &col = user_defined_colours[i].second;
+         const auto &col  = user_defined_colours[i].second;
          float alpha = 1.0; // put alpha into coot::colour_holder
-         t_cols[idx] = glm::vec4(col.red, col.green, col.blue, alpha);
+         if (idx < t_cols.size())
+            t_cols[idx] = glm::vec4(col.red, col.green, col.blue, alpha);
+         else
+            std::cout << "ERROR:: idx out of range in set_user_defined_colours() " << idx << std::endl;
       }
       texture_for_hud_colour_bar = Texture(400, 200, t_cols, 5);
    }

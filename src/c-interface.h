@@ -2390,6 +2390,9 @@ void set_show_aniso_atoms(int imol, int state);
 /*! \brief set show aniso atoms as ortep */
 void set_show_aniso_atoms_as_ortep(int imol, int state);
 
+/*! \brief set show aniso atoms as ortep */
+void set_show_aniso_atoms_as_empty(int imol, int state);
+
 /* DELETE-ME */
 void set_aniso_limit_size_from_widget(const char *text);
 
@@ -4995,7 +4998,15 @@ void graphics_to_b_factor_cas_representation(int imol);
 void graphics_to_occupancy_representation(int imol);
 /*! \brief draw molecule number imol in CA+Ligands mode coloured by user-defined atom colours */
 void graphics_to_user_defined_atom_colours_representation(int imol);
-/*! \brief draw molecule number imol all atoms coloured by user-defined atom colours */
+/*! \brief draw molecule number imol all atoms coloured by user-defined atom colours
+ *
+ * Use this function after using set_user_defined_atom_colour_by_selection_py()
+ * and/or set_user_defined_atom_colour_py().
+ * When atom selection colouring has been created or updated, then calling this function
+ * actually forces the regeneration and drawing of the molecule with the new colour scheme.
+ *
+ * @param imol the molecule index
+ * */
 void graphics_to_user_defined_atom_colours_all_atoms_representation(int imol);
 /*! \brief what is the bond drawing state of molecule number imol  */
 int get_graphics_molecule_bond_type(int imol);
@@ -7341,26 +7352,6 @@ void set_add_linked_residue_do_fit_and_refine(int state);
 /*! \{ */
 
 void fle_view(int imol, const char *chain_id, int res_no, const char *ins_code, float dist_max);
-
-/* delete these other functions  */
-
-void fle_view_internal(int imol, const char *chain_id, int res_no,
-		       const char *ins_code,
-		       int imol_ligand_fragment,
-		       const char *prodrg_output_flat_mol_file_name,
-		       const char *prodrg_output_flat_pdb_file_name,
-		       const char *prodrg_output_3d_pdb_file_name,
-		       const char *prodrg_output_dict_cif_file_name);
-/* for command-line operation */
-void fle_view_internal_to_png(int imol, const char *chain_id, int res_no,
-			      const char *ins_code,
-			      int imol_ligand_fragment,
-			      const char *prodrg_output_flat_mol_file_name,
-			      const char *prodrg_output_flat_pdb_file_name,
-			      const char *prodrg_output_3d_pdb_file_name,
-			      const char *prodrg_output_dict_cif_file_name,
-			      int output_to_png_file_flag,
-			      const char *png_file_name);
 
 void fle_view_with_rdkit(int imol, const char *chain_id, int res_no, const char *ins_code, float residues_near_radius);
 void fle_view_with_rdkit_to_png(int imol, const char *chain_id, int res_no, const char *ins_code, float residues_near_radius, const char *png_file_name);

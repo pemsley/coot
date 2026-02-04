@@ -11,6 +11,7 @@
 #include "c-interface-gtk-widgets.h" // for set_transient_and_position()
 #include "c-interface.h"
 #include "graphics-info.h"
+#include "unicodeobject.h"
 
 // dialog callbacks
 extern "C" G_MODULE_EXPORT
@@ -67,7 +68,7 @@ coot::atom_spec_t gphl_atom_id_to_coot_spec(const std::string &atom_spec_gphl) {
 std::vector<coot::atom_spec_t> gphl_atom_ids_to_atom_specs(const std::string &atom_ids, const std::string &type) {
 
    std::vector<coot::atom_spec_t> atom_specs;
-   if (type == "unhappy-atom") {
+   if (type == "unhappy-atom" || type == "aniso-sph" || type == "aniso-sph-nonb") {
       coot::atom_spec_t atom_spec = gphl_atom_id_to_coot_spec(atom_ids); // just the one in this case
       atom_specs.push_back(atom_spec);
    } else {
@@ -200,7 +201,7 @@ void go_to_gphl_atoms(int imol, const std::string &atom_ids, const std::string &
       }
    };
 
-   std::cout << "DEBUG:: ::::::::::::::::::: go_to_gphl_atoms(): " << atom_ids << std::endl;
+   // std::cout << "DEBUG:: ::::::::::::::::::: go_to_gphl_atoms(): " << atom_ids << std::endl;
 
    bool debug = false;
 
@@ -498,6 +499,31 @@ void go_to_gphl_atoms(int imol, const std::string &atom_ids, const std::string &
       }
    }
 
+   if (type == "aniso-sph") {
+      // just one atom - need to strip off the "(RES)"
+      std::vector<coot::atom_spec_t> atom_specs = gphl_atom_ids_to_atom_specs(atom_ids, "aniso-sph");
+      if (atom_specs.size() == 1) {
+         mmdb:: Atom *at = coot::util::get_atom_using_fuzzy_search(atom_specs[0], mol);
+         if (at) {
+            set_rotation_centre(at->x, at->y, at->z);
+            pulse_atom_specs(imol, atom_specs);
+         }
+      }
+   }
+
+   if (type == "aniso-sph-nonb") {
+      // just one atom - need to strip off the "(RES)"
+      std::vector<coot::atom_spec_t> atom_specs = gphl_atom_ids_to_atom_specs(atom_ids, "aniso-sph-nonb");
+      if (atom_specs.size() == 1) {
+         mmdb:: Atom *at = coot::util::get_atom_using_fuzzy_search(atom_specs[0], mol);
+         if (at) {
+            set_rotation_centre(at->x, at->y, at->z);
+            pulse_atom_specs(imol, atom_specs);
+         }
+      }
+   }
+
+   // delete
    if (type == "ideal-contactx") {
       // e.g.:
       // A|318:O(PHE)=A|320:N(ALA) [ideal 1-N]
@@ -611,6 +637,8 @@ PyObject *global_phasing_screen(int imol, PyObject *screen_dict) {
       std::vector<std::map<std::string, std::string> > torsion_dict_vec;
       std::vector<std::map<std::string, std::string> > plane_dict_vec;
       std::vector<std::map<std::string, std::string> > ideal_contact_dict_vec;
+      std::vector<std::map<std::string, std::string> > aniso_sph_dict_vec;
+      std::vector<std::map<std::string, std::string> > aniso_sph_nonb_dict_vec;
       std::vector<std::pair<std::string, std::string> > unhappy_atoms;
    };
 
@@ -640,7 +668,8 @@ PyObject *global_phasing_screen(int imol, PyObject *screen_dict) {
          button_wrapper_t *bw = static_cast<button_wrapper_t *>(user_data);
          if (bw) {
             if (! bw->atom_ids.empty()) {
-               std::cout << "bw->atom_ids: " << bw->atom_ids << std::endl;
+               if (false)
+                  std::cout << "debug:: go_button_clicked(): bw->atom_ids: " << bw->atom_ids << std::endl;
                go_to_gphl_atoms(bw->imol, bw->atom_ids, bw->type);
             }
             if (bw->eye_label)
@@ -654,12 +683,14 @@ PyObject *global_phasing_screen(int imol, PyObject *screen_dict) {
             for (unsigned int i=0; i<bw->n_rows_in_grid; i++) {
                GtkWidget *l = gtk_grid_get_child_at(GTK_GRID(bw->grid), bw->eye_column, i); // column, row indexing
                if (GTK_IS_LABEL(l)) {
+                  // std::cout << "DEBUG:: row " << i << " bc " << bc << std::endl;
                   gtk_label_set_markup(GTK_LABEL(l), bc.c_str());
                } else {
                   if (false) // do we want to know this?
-                     std::cout << "widget " << l << " is not a label, index: " << bw->eye_column << " " << i << std::endl;
+                     std::cout << "widget " << l << " is not a label (for eye), index: " << bw->eye_column << " on row " << i << std::endl;
                }
             }
+            // std::cout << "DEBUG:: set_markup eye label " << bw->eye_label << " " << bcmr << std::endl;
             gtk_label_set_markup(GTK_LABEL(bw->eye_label), bcmr.c_str());
          }
       };
@@ -970,6 +1001,86 @@ PyObject *global_phasing_screen(int imol, PyObject *screen_dict) {
             }
          }
 
+         // --------------------- Aniso SPH Atoms -------------------------------------
+
+         if (! screen_results.aniso_sph_dict_vec.empty()) {
+            const std::vector<std::map<std::string, std::string> > &v = screen_results.aniso_sph_dict_vec;
+            GtkWidget *grid = widget_from_builder("gphl-screen-aniso-sph-grid", builder);
+            gtk_grid_set_column_spacing(GTK_GRID(grid), 10);
+            gtk_grid_set_row_spacing(GTK_GRID(grid), 2);
+            gtk_grid_attach(GTK_GRID(grid), gtk_label_new("Value"),       0, 0, 1, 1);
+            gtk_grid_attach(GTK_GRID(grid), gtk_label_new("Function"),    1, 0, 1, 1);
+            gtk_grid_attach(GTK_GRID(grid), gtk_label_new("Atom"),        2, 0, 1, 1);
+            std::vector<std::pair<std::string, unsigned int> > vv = { {"value", 0}, {"function", 1}, {"atom", 2} };
+
+            for (unsigned int i=0; i<v.size(); i++) {
+               std::string atomid;
+               unsigned int i_row = i+1;
+               const std::map<std::string, std::string> &m = v[i];
+               std::map<std::string, std::string>::const_iterator it;
+               for (unsigned int j=0; j<vv.size(); j++) {
+                  it = m.find(vv[j].first);
+                  if (it != m.end()) {
+                     GtkWidget *w = gtk_label_new(it->second.c_str());
+                     if (vv[j].first == "atom") {
+                        gtk_widget_set_halign(w, GTK_ALIGN_START);
+                        atomid = it->second;
+                     }
+                     gtk_grid_attach(GTK_GRID(grid), w, vv[j].second, i_row, 1, 1);
+                  } else {
+                     std::cout << "Failed to find " << vv[j].first << std::endl;
+                  }
+               }
+               GtkWidget *go_button = gtk_button_new_with_label("Go");
+               GtkWidget *eye_label = gtk_label_new("👁");
+               gtk_label_set_use_markup(GTK_LABEL(eye_label), TRUE);
+               connect_callback(grid, go_button, eye_label, screen_results.imol, i_row, v.size(), 4, atomid, "aniso-sph");
+               gtk_grid_attach(GTK_GRID(grid), go_button, 3, i_row, 1, 1);
+               gtk_grid_attach(GTK_GRID(grid), eye_label, 4, i_row, 1, 1);
+               gtk_widget_set_visible(eye_label, FALSE);
+            }
+         }
+
+         // --------------------- Aniso SPH nonbonded Atoms -------------------------------------
+
+         if (! screen_results.aniso_sph_nonb_dict_vec.empty()) {
+            const std::vector<std::map<std::string, std::string> > &v = screen_results.aniso_sph_nonb_dict_vec;
+            GtkWidget *grid = widget_from_builder("gphl-screen-aniso-sph-nonb-grid", builder);
+            gtk_grid_set_column_spacing(GTK_GRID(grid), 10);
+            gtk_grid_set_row_spacing(GTK_GRID(grid), 2);
+            gtk_grid_attach(GTK_GRID(grid), gtk_label_new("Value"),       0, 0, 1, 1);
+            gtk_grid_attach(GTK_GRID(grid), gtk_label_new("Function"),    1, 0, 1, 1);
+            gtk_grid_attach(GTK_GRID(grid), gtk_label_new("Atom"),        2, 0, 1, 1);
+            std::vector<std::pair<std::string, unsigned int> > vv = { {"value", 0}, {"function", 1}, {"atom", 2} };
+
+            for (unsigned int i=0; i<v.size(); i++) {
+               std::string atomid;
+               unsigned int i_row = i+1;
+               const std::map<std::string, std::string> &m = v[i];
+               std::map<std::string, std::string>::const_iterator it;
+               for (unsigned int j=0; j<vv.size(); j++) {
+                  it = m.find(vv[j].first);
+                  if (it != m.end()) {
+                     GtkWidget *w = gtk_label_new(it->second.c_str());
+                     if (vv[j].first == "atom") {
+                        gtk_widget_set_halign(w, GTK_ALIGN_START);
+                        atomid = it->second;
+                     }
+                     gtk_grid_attach(GTK_GRID(grid), w, vv[j].second, i_row, 1, 1);
+                  } else {
+                     std::cout << "Failed to find " << vv[j].first << std::endl;
+                  }
+               }
+               GtkWidget *go_button = gtk_button_new_with_label("Go");
+               GtkWidget *eye_label = gtk_label_new("👁");
+               gtk_label_set_use_markup(GTK_LABEL(eye_label), TRUE);
+               connect_callback(grid, go_button, eye_label, screen_results.imol, i_row, v.size(), 4, atomid, "aniso-sph-nonb");
+               gtk_grid_attach(GTK_GRID(grid), go_button, 3, i_row, 1, 1);
+               gtk_grid_attach(GTK_GRID(grid), eye_label, 4, i_row, 1, 1);
+               gtk_widget_set_visible(eye_label, FALSE);
+            }
+         }
+
          // --------------------- Finally -------------------------------------
 
          if (dialog)
@@ -1202,6 +1313,68 @@ PyObject *global_phasing_screen(int imol, PyObject *screen_dict) {
                               ideal_contact_dict["delta_sigma"] = delta_sigma;
                               ideal_contact_dict["atom_ids"]    = atom_ids;
                               screen_results.ideal_contact_dict_vec.push_back(ideal_contact_dict);
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+         }
+
+         {
+            PyObject *aniso_sph_data_py = PyDict_GetItemString(screen_dict, "Aniso SPH"); // a borrowed reference
+            if (aniso_sph_data_py) {
+               if (PyList_Check(aniso_sph_data_py)) {
+                  long lpi = PyObject_Length(aniso_sph_data_py);
+                  for (long i=0; i<lpi; i++) {
+                     PyObject *aniso_sph_dict_py = PyList_GetItem(aniso_sph_data_py, i);
+                     if (PyDict_Check(aniso_sph_dict_py)) {
+                        PyObject *value_py    = PyDict_GetItemString(aniso_sph_dict_py, "value");
+                        PyObject *function_py = PyDict_GetItemString(aniso_sph_dict_py, "function");
+                        PyObject *atom_py     = PyDict_GetItemString(aniso_sph_dict_py, "atom");
+                        if (value_py && function_py && atom_py) {
+                           if (PyUnicode_Check(value_py) &&
+                               PyUnicode_Check(function_py) &&
+                               PyUnicode_Check(atom_py)) {
+                              std::string value    = PyBytes_AS_STRING(PyUnicode_AsUTF8String(value_py));
+                              std::string function = PyBytes_AS_STRING(PyUnicode_AsUTF8String(function_py));
+                              std::string atom     = PyBytes_AS_STRING(PyUnicode_AsUTF8String(atom_py));
+                              std::map<std::string, std::string> aniso_sph_dict;
+                              aniso_sph_dict["value"]    = value;
+                              aniso_sph_dict["function"] = function;
+                              aniso_sph_dict["atom"]     = atom;
+                              screen_results.aniso_sph_dict_vec.push_back(aniso_sph_dict);
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+         }
+
+         {
+            PyObject *aniso_sph_data_py = PyDict_GetItemString(screen_dict, "Aniso SPH nonb"); // a borrowed reference
+            if (aniso_sph_data_py) {
+               if (PyList_Check(aniso_sph_data_py)) {
+                  long lpi = PyObject_Length(aniso_sph_data_py);
+                  for (long i=0; i<lpi; i++) {
+                     PyObject *aniso_sph_dict_py = PyList_GetItem(aniso_sph_data_py, i);
+                     if (PyDict_Check(aniso_sph_dict_py)) {
+                        PyObject *value_py    = PyDict_GetItemString(aniso_sph_dict_py, "value");
+                        PyObject *function_py = PyDict_GetItemString(aniso_sph_dict_py, "function");
+                        PyObject *atom_py     = PyDict_GetItemString(aniso_sph_dict_py, "atom");
+                        if (value_py && function_py && atom_py) {
+                           if (PyUnicode_Check(value_py) &&
+                               PyUnicode_Check(function_py) &&
+                               PyUnicode_Check(atom_py)) {
+                              std::string value    = PyBytes_AS_STRING(PyUnicode_AsUTF8String(value_py));
+                              std::string function = PyBytes_AS_STRING(PyUnicode_AsUTF8String(function_py));
+                              std::string atom     = PyBytes_AS_STRING(PyUnicode_AsUTF8String(atom_py));
+                              std::map<std::string, std::string> aniso_sph_dict;
+                              aniso_sph_dict["value"]    = value;
+                              aniso_sph_dict["function"] = function;
+                              aniso_sph_dict["atom"]     = atom;
+                              screen_results.aniso_sph_nonb_dict_vec.push_back(aniso_sph_dict);
                            }
                         }
                      }
