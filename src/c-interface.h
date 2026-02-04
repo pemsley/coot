@@ -4995,7 +4995,15 @@ void graphics_to_b_factor_cas_representation(int imol);
 void graphics_to_occupancy_representation(int imol);
 /*! \brief draw molecule number imol in CA+Ligands mode coloured by user-defined atom colours */
 void graphics_to_user_defined_atom_colours_representation(int imol);
-/*! \brief draw molecule number imol all atoms coloured by user-defined atom colours */
+/*! \brief draw molecule number imol all atoms coloured by user-defined atom colours
+ *
+ * Use this function after using set_user_defined_atom_colour_by_selection_py()
+ * and/or set_user_defined_atom_colour_py().
+ * When atom selection colouring has been created or updated, then calling this function
+ * actually forces the regeneration and drawing of the molecule with the new colour scheme.
+ *
+ * @param imol the molecule index
+ * */
 void graphics_to_user_defined_atom_colours_all_atoms_representation(int imol);
 /*! \brief what is the bond drawing state of molecule number imol  */
 int get_graphics_molecule_bond_type(int imol);
