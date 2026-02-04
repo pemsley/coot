@@ -7350,26 +7350,6 @@ void set_add_linked_residue_do_fit_and_refine(int state);
 
 void fle_view(int imol, const char *chain_id, int res_no, const char *ins_code, float dist_max);
 
-/* delete these other functions  */
-
-void fle_view_internal(int imol, const char *chain_id, int res_no,
-		       const char *ins_code,
-		       int imol_ligand_fragment,
-		       const char *prodrg_output_flat_mol_file_name,
-		       const char *prodrg_output_flat_pdb_file_name,
-		       const char *prodrg_output_3d_pdb_file_name,
-		       const char *prodrg_output_dict_cif_file_name);
-/* for command-line operation */
-void fle_view_internal_to_png(int imol, const char *chain_id, int res_no,
-			      const char *ins_code,
-			      int imol_ligand_fragment,
-			      const char *prodrg_output_flat_mol_file_name,
-			      const char *prodrg_output_flat_pdb_file_name,
-			      const char *prodrg_output_3d_pdb_file_name,
-			      const char *prodrg_output_dict_cif_file_name,
-			      int output_to_png_file_flag,
-			      const char *png_file_name);
-
 void fle_view_with_rdkit(int imol, const char *chain_id, int res_no, const char *ins_code, float residues_near_radius);
 void fle_view_with_rdkit_to_png(int imol, const char *chain_id, int res_no, const char *ins_code, float residues_near_radius, const char *png_file_name);
 void fle_view_with_rdkit_to_svg(int imol, const char *chain_id, int res_no, const char *ins_code, float residues_near_radius, const char *svg_file_name);

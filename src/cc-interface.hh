@@ -3452,36 +3452,6 @@ SCM molecule_atom_overlaps_scm(int imol);
 #endif // USE_GUILE
 
 /* ------------------------------------------------------------------------- */
-/*                      prodrg import function                               */
-/* ------------------------------------------------------------------------- */
-
-// 20230916-PE Kill this
-//
-//! \brief import given mdl file into prodrg or other 3d generation program
-//!
-//! the function passed to lbg, so that it calls it when a new
-//! prodrg-in.mdl file has been made.  We no longer have a timeout
-//! function waiting for prodrg-in.mdl to be updated/written.
-//
-void prodrg_import_function(std::string file_name, std::string comp_id);
-
-
-
-/* ------------------------------------------------------------------------- */
-/*                       SBase import function                               */
-/* ------------------------------------------------------------------------- */
-
-// 20230916-PE Kill this
-//
-//! \brief import molecule from CCP4 SRS (or SBase, as it used to be called).
-//!
-//! the function passed to lbg, so that it calls it when a new
-//! SBase comp_id is required.  We no longer have a timeout
-//! function waiting for prodrg-in.mdl to be updated/written.
-//
-void sbase_import_function(std::string comp_id);
-
-/* ------------------------------------------------------------------------- */
 /*                       Alignment functions (now C++)                       */
 /* ------------------------------------------------------------------------- */
 
