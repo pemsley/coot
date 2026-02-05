@@ -28,6 +28,7 @@
 #include <gtk/gtk.h>
 
 #include "coot-utils/coot-coord-utils.hh"
+#include "geometry/residue-and-atom-specs.hh"
 #include "graphics-info.h"
 #include "c-interface.h"
 #include "c-interface-gtk-widgets.h"
@@ -675,6 +676,25 @@ fetch_map_from_emdb_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    gtk_widget_set_visible(frame, TRUE);
 
 }
+
+// why isn't this in a header?
+void get_monomer_dictionary_in_subthread(const std::string &comp_id, bool run_get_monomer_post_fetch_flag);
+
+void
+fetch_ligand_restraints_from_github_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                           G_GNUC_UNUSED GVariant *parameter,
+                                           G_GNUC_UNUSED gpointer user_data) {
+
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      const auto &atom_spec = pp.second.second;
+      std::string rn = g.molecules[imol].get_residue_name(coot::residue_spec_t(atom_spec));
+      get_monomer_dictionary_in_subthread(rn, true);
+   }
+}
+
 
 
 #include "curl-utils.hh"
@@ -5807,6 +5827,7 @@ create_actions(GtkApplication *application) {
    add_action("show_accession_code_fetch_frame_cod",        show_accession_code_fetch_frame_cod);
 
    add_action_with_param("show_accession_code_fetch_frame",       show_accession_code_fetch_frame);
+   add_action("fetch_ligand_restraints_from_github_action", fetch_ligand_restraints_from_github_action);
    add_action(           "search_monomer_library_action",           search_monomer_library_action);
    add_action(    "fetch_pdbe_ligand_description_action",    fetch_pdbe_ligand_description_action);
    add_action( "fetch_and_superpose_alphafold_models_action", fetch_and_superpose_alphafold_models_action);

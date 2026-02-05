@@ -62,7 +62,7 @@
         </item>
         <item>
           <attribute name="label">Fetch Ligand Restraints</attribute>
-          <attribute name="action">app.fetch_ligand_restraints_from_github</attribute>
+          <attribute name="action">app.fetch_ligand_restraints_from_github_action</attribute>
         </item>
         <item>
           <attribute name="label">Fetch COD Entry...</attribute>
