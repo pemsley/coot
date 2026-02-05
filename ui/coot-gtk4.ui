@@ -1295,6 +1295,10 @@
         <attribute name="action">app.jiggle_fit_active_residue_action</attribute>
       </item>
       <item>
+        <attribute name="label">Ligand Builder...</attribute>
+        <attribute name="action">app.ligand_builder_action</attribute>
+      </item>
+      <item>
         <attribute name="label" translatable="no">Make LINK...</attribute>
         <attribute name="action">app.make_link_action</attribute>
       </item>
