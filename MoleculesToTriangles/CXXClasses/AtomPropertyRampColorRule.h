@@ -49,9 +49,9 @@ public:
       type = AtomPropertyRamp;
       rampType = ResidueNumber;
       compoundSelection = std::shared_ptr<CompoundSelection>(new CompoundSelection("/*/*/*.*/*"));
-      startHSV  = FCXXCoord (240., 0.4, 1.0, 1.);
-      middleHSV = FCXXCoord (120., 0.4, 1.0, 1.);
-      endHSV    = FCXXCoord (0.,   0.4, 1.0, 1.);
+      startHSV  = FCXXCoord (240., 0.4, 0.6, 1.);
+      middleHSV = FCXXCoord (120., 0.4, 0.6, 1.);
+      endHSV    = FCXXCoord (0.,   0.4, 0.6, 1.);
       updateSpline();
    };
         float getStartValue() const {
