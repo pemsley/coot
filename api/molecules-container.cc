@@ -4581,6 +4581,36 @@ molecules_container_t::get_gaussian_surface_for_atom_selection(int imol, const s
    return mesh;
 }
 
+#include "coot-utils/coot-map-heavy.hh"
+
+int molecules_container_t::gaussian_surface_to_map_molecule(int imol_ref, int imol_model, const std::string &cid,
+                                                            float sigma, float box_radius, float fft_b_factor) {
+
+   int imol_new = -1;
+   if (is_valid_model_molecule(imol_model)) {
+      if (is_valid_map_molecule(imol_ref)) {
+         const clipper::Xmap<float> &xmap_ref = molecules[imol_ref].xmap;
+         mmdb::Manager *mol = molecules[imol_model].get_mol();
+         if (mol) {
+            int sel_hnd = mol->NewSelection(); // d
+            mol->Select(sel_hnd, mmdb::STYPE_ATOM, cid.c_str(), mmdb::SKEY_NEW);
+            clipper::Xmap<float> xmap = coot::util::make_gaussian_atom_map_for_mask(xmap_ref, mol, sel_hnd, sigma, box_radius);
+            imol_new = molecules.size();
+            std::string name = "Gaussian Map";
+            if (fft_b_factor != 0.0f) {
+               clipper::Xmap<float> xmap_blur = coot::util::sharpen_blur_map(xmap, fft_b_factor);
+               xmap = xmap_blur;
+            }
+            bool is_em_map = true; // not sure
+            coot::molecule_t m = coot::molecule_t(name, imol_new, xmap, is_em_map);
+            molecules.push_back(m);
+            mol->DeleteSelection(sel_hnd);
+         }
+      }
+   }
+   return imol_new;
+}
+
 #include "density-contour/gaussian-surface.hh"
 
 // Make a map from a gaussian surface
@@ -4596,9 +4626,9 @@ molecules_container_t::get_gaussian_surface_for_atom_selection(int imol, const s
 //! @param b_factor default 100.0 (use 0.0 for no FFT-B-factor smoothing)
 //!
 //! @return a new molecule index for the map or -1 on failur
-int molecules_container_t::gaussian_surface_to_map_molecule(int imol, const std::string &cid,
-                                                            float sigma, float box_radius,
-                                                            float grid_scale, float fft_b_factor) {
+int molecules_container_t::gaussian_surface_to_map_molecule_v2(int imol, const std::string &cid,
+                                                              float sigma, float box_radius,
+                                                              float grid_scale, float fft_b_factor) {
 
    int imol_new = -1;
    if (is_valid_model_molecule(imol)) {

@@ -196,5 +196,11 @@ namespace coot {
                                             mmdb::Manager *mol,
                                             int atom_selection_handle);
 
+      // similar to above, the inner method is the same as is used for gaussian surface
+      clipper::Xmap<float> make_gaussian_atom_map_for_mask(const clipper::Xmap<float> &map_ref,
+                                                           mmdb::Manager *mol,
+                                                           int atom_selection_handle,
+                                                           float sigma, float box_radius);
+
    }
 }

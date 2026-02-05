@@ -296,6 +296,7 @@ add_library(cootapi SHARED
             ${coot_src}/coot-utils/diff-diff-map-peaks.cc
             ${coot_src}/coot-utils/gltf-export.cc
             ${coot_src}/coot-utils/shiftfield.cpp
+            ${coot_src}/coot-utils/gaussian-atom-map-for-mask.cc
             ${coot_src}/coot-utils/stack-and-pair.cc
             ${coot_src}/coot-utils/spherical-harmonics.cc
             ${coot_src}/coot-utils/peak-search-from-list.cc

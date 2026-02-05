@@ -2912,7 +2912,7 @@ int test_instanced_bonds_mesh(molecules_container_t &mc) {
 
    std::string mode("COLOUR-BY-CHAIN-AND-DICTIONARY");
    if (mc.is_valid_model_molecule(imol)) {
-      coot::instanced_mesh_t im = mc.get_bonds_mesh_instanced(imol, mode, true, 0.1, 1.0, false, false, true, 1);
+      coot::instanced_mesh_t im = mc.get_bonds_mesh_instanced(imol, mode, true, 0.1, 1.0, false, false, false, true, 1);
       std::cout << "instanced mesh has " << im.geom.size()  << " geoms" << std::endl;
       if (im.geom.size() > 3) {
          if (false) {
@@ -2938,7 +2938,7 @@ int test_instanced_bonds_mesh(molecules_container_t &mc) {
    }
 
    std::string cid("/*/A/270");
-   coot::instanced_mesh_t im_lig = mc.get_bonds_mesh_for_selection_instanced(imol, cid, mode, true, 0.1, 1.0, false, false, true, 1);
+   coot::instanced_mesh_t im_lig = mc.get_bonds_mesh_for_selection_instanced(imol, cid, mode, true, 0.1, 1.0, false, false, false, true, 1);
    unsigned int n_geoms = im_lig.geom.size();
    for (unsigned int i=0; i<n_geoms; i++) {
       std::cout << "test_instanced_bonds_mesh()) im_lig " << im_lig.geom[i].name << " " << i << " has A " << im_lig.geom[i].instancing_data_A.size() << std::endl;
@@ -2961,10 +2961,10 @@ int test_instanced_bonds_mesh_v2(molecules_container_t &mc) {
    std::string selection_cid = "//A/1301"; // "//A/1301||//A/456";
 
    int imol_frag = mc.copy_fragment_using_cid(imol, selection_cid);
-   coot::instanced_mesh_t im_frag = mc.get_bonds_mesh_instanced(imol, mode, true, 0.2, 1.0, false, false, true, 2);
+   coot::instanced_mesh_t im_frag = mc.get_bonds_mesh_instanced(imol, mode, true, 0.2, 1.0, false, false, false, true, 2);
    colour_analysis(im_frag);
 
-   coot::instanced_mesh_t im = mc.get_bonds_mesh_for_selection_instanced(imol_frag, selection_cid, mode, true, 0.2, 1.0, false, false, true, 2);
+   coot::instanced_mesh_t im = mc.get_bonds_mesh_for_selection_instanced(imol_frag, selection_cid, mode, true, 0.2, 1.0, false, false, false, true, 2);
    colour_analysis(im);
 
    unsigned int n_geoms = im.geom.size();
@@ -3309,7 +3309,7 @@ int test_colour_rules(molecules_container_t &mc) {
    auto v = mc.get_colour_rules(imol_0);
 
    std::string mode("COLOUR-BY-CHAIN-AND-DICTIONARY");
-   auto mesh = mc.get_bonds_mesh_instanced(imol_0, mode, true, 0.1, 1.0, false, false, true, 1);
+   auto mesh = mc.get_bonds_mesh_instanced(imol_0, mode, true, 0.1, 1.0, false, false, false, true, 1);
 
    if (true) {
       std::cout << "colour rules: " << std::endl;
@@ -3662,9 +3662,9 @@ int test_non_drawn_atoms(molecules_container_t &mc) {
    int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
    glm::vec3 ca_pos(26.83, 3.43, 31.43);
    std::string mode("COLOUR-BY-CHAIN-AND-DICTIONARY");
-   auto mesh_1 = mc.get_bonds_mesh_instanced(imol, mode, true, 0.1, 1.0, false, false, true, 1);
+   auto mesh_1 = mc.get_bonds_mesh_instanced(imol, mode, true, 0.1, 1.0, false, false, false, true, 1);
    mc.add_to_non_drawn_bonds(imol, "//A/270");
-   auto mesh_2 = mc.get_bonds_mesh_instanced(imol, mode, true, 0.1, 1.0, false, false, true, 1);
+   auto mesh_2 = mc.get_bonds_mesh_instanced(imol, mode, true, 0.1, 1.0, false, false, false, true, 1);
 
    // the first one should have the atom, the second should not.
    bool f1 = atom_in_mesh(mesh_1, ca_pos);
@@ -3860,7 +3860,7 @@ int test_user_defined_bond_colours(molecules_container_t &mc) {
          mc.set_user_defined_bond_colours(imol, colour_map);
          bool colour_applies_to_non_carbon_atoms_also = true;
          mc.set_user_defined_atom_colour_by_selection(imol, indexed_residues_cids, colour_applies_to_non_carbon_atoms_also);
-         coot::instanced_mesh_t im = mc.get_bonds_mesh_instanced(imol, mode, true, 0.1, 1.0, false, false, true, 1);
+         coot::instanced_mesh_t im = mc.get_bonds_mesh_instanced(imol, mode, true, 0.1, 1.0, false, false, false, true, 1);
          if (im.geom.size() > 3) {
             if (im.geom[0].instancing_data_A.size() > 1000)
                status = 1;
@@ -4020,7 +4020,7 @@ int test_bespoke_carbon_colour(molecules_container_t &mc) {
       mc.set_use_bespoke_carbon_atom_colour(imol, true);
       mc.set_bespoke_carbon_atom_colour(imol, col);
       std::string mode("VDW-BALLS");
-      coot::instanced_mesh_t im = mc.get_bonds_mesh_instanced(imol, mode, true, 0.1, 1.0, false, false, true, 1);
+      coot::instanced_mesh_t im = mc.get_bonds_mesh_instanced(imol, mode, true, 0.1, 1.0, false, false, false, true, 1);
 
       std::cout << "There are " << im.geom.size() << " geoms " << std::endl;
       for (unsigned int ig=0; ig<im.geom.size(); ig++) {
@@ -4060,8 +4060,8 @@ int test_dark_mode_colours(molecules_container_t &mc) {
    int imol = mc.get_monomer("LZA");
    if (mc.is_valid_model_molecule(imol)) {
       std::string mode = "COLOUR-BY-CHAIN-AND-DICTIONARY";
-      auto mesh_light = mc.get_bonds_mesh_instanced(imol, mode, false, 0.2, 1.0, false, false, true, 1);
-      auto mesh_dark  = mc.get_bonds_mesh_instanced(imol, mode, true,  0.2, 1.0, false, false, true, 1);
+      auto mesh_light = mc.get_bonds_mesh_instanced(imol, mode, false, 0.2, 1.0, false, false, false, true, 1);
+      auto mesh_dark  = mc.get_bonds_mesh_instanced(imol, mode, true,  0.2, 1.0, false, false, false, true, 1);
       std::cout << "starting colour analysis for mesh_light" << std::endl;
       colour_analysis(mesh_light);
       std::cout << "starting colour analysis for mesh_dark" << std::endl;
@@ -4312,7 +4312,7 @@ int test_user_defined_bond_colours_v2(molecules_container_t &mc) {
      }
    }
 
-   auto bonds = mc.get_bonds_mesh_instanced(imol, mode, false, 0.2, 1.0, false, false, true, 1);
+   auto bonds = mc.get_bonds_mesh_instanced(imol, mode, false, 0.2, 1.0, false, false, false, true, 1);
 
    auto colour_table = mc.get_colour_table(imol, false);
    for (unsigned int i=0; i<colour_table.size(); i++) {
@@ -4328,7 +4328,7 @@ int test_user_defined_bond_colours_v2(molecules_container_t &mc) {
                   if (close_float(colour_table[13][2], 1.0))
                      status = 1;
 
-   coot::instanced_mesh_t im = mc.get_bonds_mesh_for_selection_instanced(imol, "//A/1-3", "VDW-BALLS", false, 0.1, 1.0, false, false, true, 1);
+   coot::instanced_mesh_t im = mc.get_bonds_mesh_for_selection_instanced(imol, "//A/1-3", "VDW-BALLS", false, 0.1, 1.0, false, false, false, true, 1);
    if (! im.geom.empty()) {
       const coot::instanced_geometry_t &ig = im.geom[0]; // 0 is spheres
       std::cout << "debug:: in im type A data size: " << ig.instancing_data_A.size() << std::endl;
@@ -4409,7 +4409,7 @@ int test_user_defined_bond_colours_v3(molecules_container_t &mc) {
       std::string mode = "COLOUR-BY-CHAIN-AND-DICTIONARY";
 
       // now test the colours:
-      auto bonds = mc.get_bonds_mesh_for_selection_instanced(imol, "/", mode, false, 0.2, 1.0, false, false, true, 1);
+      auto bonds = mc.get_bonds_mesh_for_selection_instanced(imol, "/", mode, false, 0.2, 1.0, false, false, false, true, 1);
       auto &geom = bonds.geom;
       auto ca = get_colour_analysis(bonds);
 
@@ -4481,10 +4481,10 @@ int test_other_user_defined_colours_other(molecules_container_t &mc) {
          std::vector<std::pair<std::string, unsigned int> > indexed_cids;
          indexed_cids.push_back(std::make_pair("//A/1-5", 21));
          bool non_carbon_atoms_also_flag = false;
-         auto bonds_1 = mc.get_bonds_mesh_for_selection_instanced(imol, "/", mode, false, 0.2, 1.0, false, false, true, 1);
-         auto bonds_2 = mc.get_bonds_mesh_instanced(imol, mode, false, 0.2, 1.0, false, false, true, 1);
+         auto bonds_1 = mc.get_bonds_mesh_for_selection_instanced(imol, "/", mode, false, 0.2, 1.0, false, false, false, true, 1);
+         auto bonds_2 = mc.get_bonds_mesh_instanced(imol, mode, false, 0.2, 1.0, false, false, false, true, 1);
          mc.set_user_defined_atom_colour_by_selection(imol, indexed_cids, non_carbon_atoms_also_flag);
-         auto bonds_3 = mc.get_bonds_mesh_for_selection_instanced(imol, "/", mode, false, 0.2, 1.0, false, false, true, 1);
+         auto bonds_3 = mc.get_bonds_mesh_for_selection_instanced(imol, "/", mode, false, 0.2, 1.0, false, false, false, true, 1);
          auto &geom_1 = bonds_1.geom;
          auto &geom_3 = bonds_3.geom;
 
@@ -5062,7 +5062,7 @@ int test_gltf_export(molecules_container_t &mc) {
    int imol_lig = mc.get_monomer("LZA");
    int imol_frag = mc.copy_fragment_using_cid(imol, "//A/1299");
    std::cout << "test_gltf_export() imol_frag " << imol_frag << std::endl;
-   coot::instanced_mesh_t im    = mc.get_bonds_mesh_instanced(imol_frag, mode, true, 0.1, 1.0, false, false, true, 1);
+   coot::instanced_mesh_t im    = mc.get_bonds_mesh_instanced(imol_frag, mode, true, 0.1, 1.0, false, false, false, true, 1);
    coot::simple_mesh_t sm_lig = coot::instanced_mesh_to_simple_mesh(im);
    sm_lig.export_to_gltf("lig.glb", 0.5, 0.5, true);
 
@@ -5070,7 +5070,7 @@ int test_gltf_export(molecules_container_t &mc) {
    std::vector<coot::residue_spec_t> neighbs = mc.get_residues_near_residue(imol, "//A/1299", 4.2);
    std::string multi_cid = make_multi_cid(neighbs);
    mc.set_draw_missing_residue_loops(false);
-   coot::instanced_mesh_t im_neighbs = mc.get_bonds_mesh_for_selection_instanced(imol, multi_cid, mode, true, 0.15, 1.0, false, false, true, 1);
+   coot::instanced_mesh_t im_neighbs = mc.get_bonds_mesh_for_selection_instanced(imol, multi_cid, mode, true, 0.15, 1.0, false, false, false, true, 1);
    coot::simple_mesh_t sm_neighbs = coot::instanced_mesh_to_simple_mesh(im_neighbs);
    sm_neighbs.export_to_gltf("neighbs.glb", 0.5f, 0.5f, true);
 
@@ -5387,7 +5387,7 @@ int test_non_drawn_CA_bonds(molecules_container_t &mc) {
       int imol_frag = mc.copy_fragment_using_cid(imol, "//A/101-111");
       mc.add_to_non_drawn_bonds(imol_frag, "//A/103-111");
       std::string mode = "CA+LIGANDS";
-      auto bonds = mc.get_bonds_mesh_for_selection_instanced(imol_frag, "//A", mode, false, 0.2, 1.0, false, false, true, 1);
+      auto bonds = mc.get_bonds_mesh_for_selection_instanced(imol_frag, "//A", mode, false, 0.2, 1.0, false, false, false, true, 1);
       auto &geom = bonds.geom;
       // should be size 2 of course, if we don't add the range to the non-drawn bond
       // not 4
@@ -5844,7 +5844,7 @@ int test_alpha_in_colour_holder(molecules_container_t &mc) {
       mc.set_user_defined_bond_colours(imol_1, colour_map);
       mc.set_user_defined_atom_colour_by_selection(imol_1, indexed_residues_cids, true);
       std::string mode = "COLOUR-BY-CHAIN-AND-DICTIONARY";
-      auto mesh = mc.get_bonds_mesh_instanced(imol_1, mode, true,  0.2, 1.0, false, false, true, 1);
+      auto mesh = mc.get_bonds_mesh_instanced(imol_1, mode, true,  0.2, 1.0, false, false, false, true, 1);
       std::vector<std::pair<glm::vec4, unsigned int> > colour_count = colour_analysis(mesh);
       unsigned int n_transparent = 0;
       for(const auto &cc : colour_count) {
@@ -5978,7 +5978,7 @@ int test_for_long_bonds(molecules_container_t &mc, int imol) {
 
    int state = -1; // unset
    if (mc.is_valid_model_molecule(imol)) {
-      auto instanced_mesh = mc.get_bonds_mesh_instanced(imol, "COLOUR-BY-CHAIN-AND-DICTIONARY", false, 0.1f, 1.0f, false, false, true, 1);
+      auto instanced_mesh = mc.get_bonds_mesh_instanced(imol, "COLOUR-BY-CHAIN-AND-DICTIONARY", false, 0.1f, 1.0f, false, false, false, true, 1);
       const auto &geom_vec = instanced_mesh.geom;
       unsigned int geom_vec_size = geom_vec.size();
       for (unsigned int i = 0; i < geom_vec_size; i++) {
@@ -6751,9 +6751,9 @@ int test_inner_bond_kekulization(molecules_container_t &mc) {
          std::string selection_cid_1 = "//*";
          std::string selection_cid_2 = "//*/(!HOH)";
          coot::instanced_mesh_t m_1 = mc.get_bonds_mesh_for_selection_instanced(imol, selection_cid_1, mode,
-                                                                                false, 0.1, 1.0, false, false, false, 2);
+                                                                                false, 0.1, 1.0, false, false, false, false, 2);
          coot::instanced_mesh_t m_2 = mc.get_bonds_mesh_for_selection_instanced(imol, selection_cid_2, mode,
-                                                                                false, 0.1, 1.0, false, false, false, 2);
+                                                                                false, 0.1, 1.0, false, false, false, false, 2);
          std::cout << "--------------------------------- mesh 1 ---------------------------" << std::endl;
          std::vector<std::pair<glm::vec4, unsigned int> > r_1 = colour_analysis(m_1);
          std::cout << "--------------------------------- mesh 2 ---------------------------" << std::endl;
@@ -6792,7 +6792,7 @@ int test_gaussian_surface_to_map_molecule(molecules_container_t &mc) {
    float grid_scale = 1.0;
    float fft_b_factor = 30.0;
    std::string cid  = "//A";
-   int imol_new = mc.gaussian_surface_to_map_molecule(imol, cid, sigma, box_radius, grid_scale, fft_b_factor);
+   int imol_new = mc.gaussian_surface_to_map_molecule_v2(imol, cid, sigma, box_radius, grid_scale, fft_b_factor);
    if (mc.is_valid_map_molecule(imol_new)) {
       status = 1;
       if (true) {
