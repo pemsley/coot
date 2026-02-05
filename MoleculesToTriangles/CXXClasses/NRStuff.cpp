@@ -165,6 +165,12 @@ std::vector <FCXXCoord> CoordSpline::SplineCurve(const std::vector<FCXXCoord> &c
    maxt = std::max(maxt,maxy);
    maxt = std::max(maxt,maxz);
 
+   // All control points have the same x,y,z values - return a constant spline
+   if (maxt <= mint) {
+      output.resize(nsteps, ctlPts[0]);
+      return output;
+   }
+
    tstep = (maxt-mint)/float(nsteps-1);
    knotstep = (maxt-mint)/(ctlPts.size()-1);
 
