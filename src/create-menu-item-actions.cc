@@ -28,6 +28,8 @@
 #include <gtk/gtk.h>
 
 #include "coot-utils/coot-coord-utils.hh"
+#include "coot-utils/ptm-database.hh"
+#include "geometry/residue-and-atom-specs.hh"
 #include "graphics-info.h"
 #include "c-interface.h"
 #include "c-interface-gtk-widgets.h"
@@ -675,6 +677,25 @@ fetch_map_from_emdb_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    gtk_widget_set_visible(frame, TRUE);
 
 }
+
+// why isn't this in a header?
+void get_monomer_dictionary_in_subthread(const std::string &comp_id, bool run_get_monomer_post_fetch_flag);
+
+void
+fetch_ligand_restraints_from_github_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                           G_GNUC_UNUSED GVariant *parameter,
+                                           G_GNUC_UNUSED gpointer user_data) {
+
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      const auto &atom_spec = pp.second.second;
+      std::string rn = g.molecules[imol].get_residue_name(coot::residue_spec_t(atom_spec));
+      get_monomer_dictionary_in_subthread(rn, true);
+   }
+}
+
 
 
 #include "curl-utils.hh"
@@ -3463,6 +3484,59 @@ void add_OXT_to_residue_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    graphics_info_t::graphics_grab_focus();
 }
 
+void add_PTM_to_residue_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                               G_GNUC_UNUSED GVariant *parameter,
+                               G_GNUC_UNUSED gpointer user_data) {
+
+   auto fill_combobox_with_ptms_for_res_type = [] (GtkWidget *combobox, const std::string &res_name,
+                                                   bool is_N_term, bool is_C_term) {
+
+      std::vector<coot::ptm_entry_t> entries = graphics_info_t::ptm_database.get_entries_for_residue(res_name);
+      unsigned int count = 0;
+      for (unsigned int i=0; i<entries.size(); i++) {
+         const auto &entry = entries[i];
+         bool do_it = true;
+         if (entry.location == "N-terminal")
+            if (! is_N_term)
+               do_it = false;
+         if (entry.location == "C-terminal")
+            if (! is_C_term)
+               do_it = false;
+         if (do_it) {
+            std::cout << "DEBUG:: add_PTM_to_residue_action(): entry "
+                      << entry.modified_residue_name << " ::cat "
+                      << entry.category << " ::type " << entry.type << " ::pos "
+                      << entry.position << " ::loc " << entry.location << std::endl;
+            std::string label = entry.modified_residue_name + " " + entry.type;
+            const char *id = entry.modified_residue_name.c_str(); // safe because ptm_database doesn't go away.
+            gtk_combo_box_text_insert(GTK_COMBO_BOX_TEXT(combobox), i, id, label.c_str());
+            count++;
+         }
+      }
+      if (count > 0)
+         gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), 0);
+   };
+
+   GtkWidget *frame = widget_from_builder("add_PTM_frame");
+   gtk_widget_set_visible(frame, TRUE);
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      if (is_valid_model_molecule(imol)) {
+         coot::residue_spec_t res_spec(pp.second.second);
+         std::string res_name = get_residue_name(imol, res_spec);
+         bool is_N_term = is_N_terminus(imol, res_spec);
+         bool is_C_term = is_C_terminus(imol, res_spec);
+         if (! res_name.empty()) {
+            GtkWidget *combobox = widget_from_builder("add_PTM_combobox");
+            if (combobox) {
+               fill_combobox_with_ptms_for_res_type(combobox, res_name, is_N_term, is_C_term);
+            }
+         }
+      }
+   }
+}
+
 void reverse_chain_direction_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                     G_GNUC_UNUSED GVariant *parameter,
                                     G_GNUC_UNUSED gpointer user_data) {
@@ -5807,6 +5881,7 @@ create_actions(GtkApplication *application) {
    add_action("show_accession_code_fetch_frame_cod",        show_accession_code_fetch_frame_cod);
 
    add_action_with_param("show_accession_code_fetch_frame",       show_accession_code_fetch_frame);
+   add_action("fetch_ligand_restraints_from_github_action", fetch_ligand_restraints_from_github_action);
    add_action(           "search_monomer_library_action",           search_monomer_library_action);
    add_action(    "fetch_pdbe_ligand_description_action",    fetch_pdbe_ligand_description_action);
    add_action( "fetch_and_superpose_alphafold_models_action", fetch_and_superpose_alphafold_models_action);
@@ -5912,6 +5987,7 @@ create_actions(GtkApplication *application) {
    add_action(               "place_helix_here_action",                place_helix_here_action);
    add_action(              "cis_trans_convert_action",               cis_trans_convert_action);
    add_action(             "add_OXT_to_residue_action",              add_OXT_to_residue_action);
+   add_action(             "add_PTM_to_residue_action",              add_PTM_to_residue_action);
    add_action(        "reverse_chain_direction_action",         reverse_chain_direction_action);
    add_action(  "arrange_waters_around_protein_action",   arrange_waters_around_protein_action);
    add_action("assign_hetatms_for_this_residue_action", assign_hetatms_for_this_residue_action);

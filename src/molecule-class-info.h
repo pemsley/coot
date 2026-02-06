@@ -1800,6 +1800,9 @@ public:        //                      public
 							   mmdb::realtype alignment_wspace,
 							   bool is_nucleic_acid_flag = false) const;
 
+   bool is_N_terminus(const coot::residue_spec_t &rs) const;
+   bool is_C_terminus(const coot::residue_spec_t &rs) const;
+
    std::vector<std::string> get_types_in_molecule() const;
 
 

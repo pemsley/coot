@@ -245,7 +245,7 @@ coot::molecule_t::set_residue_properties(const std::string &json_string) {
                if (j_worm_radius != j_residue_properties.end()) {
                   float radius = j_worm_radius.value();
                   if (radius > 0.0) {
-                     std::cout << "debug:: radius for " << res_spec << " " << radius << std::endl;
+                     // std::cout << "debug:: radius for " << res_spec << " " << radius << std::endl;
                      res_prop.value = radius;
                   }
                }

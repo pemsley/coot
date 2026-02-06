@@ -889,6 +889,15 @@ public:
    //!
    //! @param imol is the model molecule index
    //! @param cid is the atom selection CID e.g "//A/15/OH" (atom OH in residue 15 of chain A)
+   //! @return a json string that contains a molecule hierarchy.
+   //!         The atom data include
+   //!   "x"
+   //!   "y"
+   //!   "z"
+   //!   "tempFactor"
+   //!   "occupancy"
+   //!   "name"
+   //!   "element"
    std::string get_molecule_selection_as_json(int imol, const std::string &cid) const;
 
    //! Write a PNG for the given compound_id.
@@ -1201,6 +1210,26 @@ public:
    // Make a map from a gaussian surface
    //!
    //! Waters are not included in the surface calculation
+   //! The map `imol_map_ref` is used to provide the cell
+   //! and gridding.
+   //!
+   //! @param imol_map_ref is the model molecule index
+   //! @param imol_model is the model molecule index
+   //! @param cid is the atom selection CID
+   //! @param sigma default 4.4
+   //! @param contour_level default 4.0
+   //! @param box_radius default 5.0
+   //! @param grid_scale default 0.7
+   //! @param b_factor default 100.0 (use 0.0 for no FFT-B-factor smoothing)
+   //!
+   //! @return a new molecule index for the map or -1 on failur
+   int gaussian_surface_to_map_molecule(int imol_map_ref, int imol_model,
+                                        const std::string &cid,
+                                        float sigma, float box_radius, float fft_b_factor);
+
+   // Make a map from a gaussian surface
+   //!
+   //! Waters are not included in the surface calculation
    //!
    //! @param imol is the model molecule index
    //! @param cid is the atom selection CID
@@ -1211,9 +1240,9 @@ public:
    //! @param b_factor default 100.0 (use 0.0 for no FFT-B-factor smoothing)
    //!
    //! @return a new molecule index for the map or -1 on failur
-   int gaussian_surface_to_map_molecule(int imol, const std::string &cid,
-                                        float sigma, float box_radius,
-                                        float grid_scale, float fft_b_factor);
+   int gaussian_surface_to_map_molecule_v2(int imol, const std::string &cid,
+                                          float sigma, float box_radius,
+                                          float grid_scale, float fft_b_factor);
 
    //! Get chemical features for the specified residue
    //!

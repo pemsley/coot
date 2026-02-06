@@ -12,7 +12,7 @@
 # and modify it by tracking changes made to the nanobinds file.
 
 import xml.etree.ElementTree as ET
-mytree = ET.parse('xml/classmolecules__container__t.xml')
+mytree = ET.parse('xml/namespacegemmi.xml')
 myroot = mytree.getroot()
 
 def convert_type(tt: str) -> str:
@@ -33,7 +33,7 @@ def convert_type(tt: str) -> str:
     if tt == 'const std::vector< std::pair< std::string, unsigned int > > &': tt = "list"
     if tt == 'const std::vector< std::pair< std::string, unsigned int > > &': tt = "list"
     if tt == 'const std::vector< std::pair< bool, mmdb::Residue * > > &, links: const std::vector< mmdb::Link > &': tt = "list"
-    if tt == 'std::vector<': tt = list
+    if tt == 'std::vector<': tt = "list"
     if tt == 'const coot::residue_spec_t &': tt = 'str'
     if tt == 'const coot::colour_t &': tt = 'list'   #use the proper type later
     if tt == 'const coot::atom_spec_t &': tt = 'str'
@@ -79,9 +79,9 @@ def make_return_type(function: dict) -> str:
     return rt, return_type
 
 
-def make_python_script(functions: list) -> None:
+def make_python_script(functions: list, output_file_name: str) -> None:
 
-    f = open("chapi-functions.py", "w")
+    f = open(output_file_name, "w")
     f.write("class molecules_container_t:\n")
     for function in functions:
         func_name = ""
@@ -232,45 +232,51 @@ for x in myroot.iter('sectiondef'):
                                                       for kk,kchunk in enumerate(cchunk):
                                                            if kchunk.tag == "parametername":
                                                               print("kchunk", kk, "text:", kchunk.text)
-                                                              parts += "\n       " + " :param " + kchunk.text + ": "
+                                                              if kchunk.text:
+                                                                 parts += "\n       " + " :param " + kchunk.text + ": "
 
                                                    if cchunk.tag == "parameterdescription":
                                                        print('len(cchunk)', len(cchunk))
                                                        for kk,kchunk in enumerate(cchunk):
                                                            if kchunk.tag == "para":
-                                                              print("kchunk", kk, "text:", kchunk.text)
-                                                              parts += " " + kchunk.text
-                                                              for kk,pchunk in enumerate(kchunk):
-                                                                  if pchunk.tag == "computeroutput":
-                                                                     if pchunk.text:
-                                                                        print("        computeroutput:", pchunk.text)
-                                                                        parts += "`"
-                                                                        parts += pchunk.text
-                                                                        parts += "`"
-                                                                        parts += pchunk.tail
+                                                               if kchunk.text:
+                                                                   print("kchunk", kk, "text:", kchunk.text)
+                                                                   parts += " " + kchunk.text
+                                                                   for kk,pchunk in enumerate(kchunk):
+                                                                      if pchunk.tag == "computeroutput":
+                                                                         if pchunk.text:
+                                                                             if pchunk.tail:
+                                                                                 print("        computeroutput:", pchunk.text)
+                                                                                 parts += "`"
+                                                                                 parts += pchunk.text
+                                                                                 parts += "`"
+                                                                                 parts += pchunk.tail
 
                                     if chunk.tag == "computeroutput":
                                         print("        computeroutput:", chunk.text)
                                         if chunk.text:
-                                            parts += "`"
-                                            parts += chunk.text
-                                            parts += "`"
-                                            parts += chunk.tail
+                                            if chunk.tail:
+                                                parts += "`"
+                                                parts += chunk.text
+                                                parts += "`"
+                                                parts += chunk.tail
                                     if chunk.tag == "simplesect":
                                         for kk,kchunk in enumerate(chunk):
                                             # print("kk:", kk, kchunk)
                                             if kchunk.tag == "para":
                                                 print("kchunk", kk, "text:", kchunk.text)
                                                 #parts += "Return" + " " + kchunk.text
-                                                parts += "\n\n       " + " :return: " + kchunk.text
-                                                for kk,pchunk in enumerate(kchunk):
-                                                    if pchunk.tag == "computeroutput":
-                                                       if pchunk.text:
-                                                          print("        computeroutput:", pchunk.text)
-                                                          parts += "`"
-                                                          parts += pchunk.text
-                                                          parts += "`"
-                                                          parts += pchunk.tail
+                                                if kchunk.text:
+                                                    parts += "\n\n       " + " :return: " + kchunk.text
+                                                    for kk,pchunk in enumerate(kchunk):
+                                                        if pchunk.tag == "computeroutput":
+                                                           if pchunk.text:
+                                                               if pchunk.tail:
+                                                                   print("        computeroutput:", pchunk.text)
+                                                                   parts += "`"
+                                                                   parts += pchunk.text
+                                                                   parts += "`"
+                                                                   parts += pchunk.tail
 
 
                     if parts:
@@ -282,4 +288,5 @@ for x in myroot.iter('sectiondef'):
             except AttributeError as e:
                 print(e)
 
-make_python_script(functions)
+fn = "gemmi_funcs.py"
+make_python_script(functions, fn)

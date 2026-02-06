@@ -2588,7 +2588,6 @@ SCM get_residue_by_type_scm(int imol, const std::string &residue_type) {
 #endif
 
 
-#ifdef USE_PYTHON
 PyObject *get_residue_by_type_py(int imol, const std::string &residue_type) {
 
    PyObject *r = Py_False;
@@ -2601,7 +2600,55 @@ PyObject *get_residue_by_type_py(int imol, const std::string &residue_type) {
 
    return r;
 }
-#endif
+
+//! get the residue name of the specified residue
+//!
+//! @param imol the molecule index
+//! @param residue_spec_py the residue spec
+//! @return
+std::string get_residue_name_py(int imol, PyObject *residue_spec_py) {
+
+   std::string r;
+   if (is_valid_model_molecule(imol)) {
+      coot::residue_spec_t res_spec = residue_spec_from_py(residue_spec_py);
+      r = graphics_info_t::molecules[imol].get_residue_name(res_spec);
+   }
+   return r;
+
+}
+
+//! as above, but for use by callback
+std::string get_residue_name(int imol, coot::residue_spec_t &res_spec) {
+
+   std::string r;
+   if (is_valid_model_molecule(imol)) {
+      r = graphics_info_t::molecules[imol].get_residue_name(res_spec);
+   }
+   return r;
+}
+
+//! use by callback
+bool is_N_terminus(int imol, coot::residue_spec_t &res_spec) {
+
+  bool status = false;
+  if (is_valid_model_molecule(imol)) {
+     status = graphics_info_t::molecules[imol].is_N_terminus(res_spec);
+
+  }
+  return status;
+}
+
+//! use by callback
+bool is_C_terminus(int imol, coot::residue_spec_t &res_spec) {
+
+  bool status = false;
+  if (is_valid_model_molecule(imol)) {
+     status = graphics_info_t::molecules[imol].is_C_terminus(res_spec);
+  }
+  return status;
+}
+
+
 
 
 #ifdef USE_GUILE

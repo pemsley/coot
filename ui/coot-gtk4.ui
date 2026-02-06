@@ -62,7 +62,7 @@
         </item>
         <item>
           <attribute name="label">Fetch Ligand Restraints</attribute>
-          <attribute name="action">app.fetch_ligand_restraints_from_github</attribute>
+          <attribute name="action">app.fetch_ligand_restraints_from_github_action</attribute>
         </item>
         <item>
           <attribute name="label">Fetch COD Entry...</attribute>
@@ -403,6 +403,10 @@
         <item>
           <attribute name="label">Add OXT to residue...</attribute>
           <attribute name="action">app.add_OXT_to_residue_action</attribute>
+        </item>
+        <item>
+          <attribute name="label">Add PTM to residue...</attribute>
+          <attribute name="action">app.add_PTM_to_residue_action</attribute>
         </item>
         <item>
           <attribute name="label">Arrange Waters Around Protein</attribute>
@@ -1293,6 +1297,10 @@
       <item>
         <attribute name="label" translatable="no">Jiggle Fit Residue</attribute>
         <attribute name="action">app.jiggle_fit_active_residue_action</attribute>
+      </item>
+      <item>
+        <attribute name="label">Ligand Builder...</attribute>
+        <attribute name="action">app.ligand_builder_action</attribute>
       </item>
       <item>
         <attribute name="label" translatable="no">Make LINK...</attribute>
@@ -7863,6 +7871,60 @@ Do you want to continue?
                         <signal name="changed" handler="on_keyboard_mutate_entry_changed" swapped="no"/>
                       </object>
                     </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+
+            <child type="overlay">
+              <object class="GtkFrame" id="add_PTM_frame">
+                <property name="halign">center</property>
+                <property name="valign">start</property>
+                <property name="visible">False</property>
+                <property name="margin-bottom">5</property>
+                <property name="margin-end">5</property>
+                <property name="margin-start">5</property>
+                <property name="margin-top">5</property>
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                    <property name="spacing">2</property>
+
+                    <child>
+                      <object class="GtkComboBoxText" id="add_PTM_combobox">
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="GtkBox">
+                        <property name="orientation">horizontal</property>
+                        <property name="halign">end</property>
+                        <child>
+                          <object class="GtkButton" id="add_PTM_cancel_button">
+                            <signal name="clicked" handler="on_add_PTM_cancel_button_clicked" swapped="no"/>
+                            <property name="label" translatable="yes">Cancel</property>
+                            <property name="margin-start">10</property>
+                            <property name="margin-end">10</property>
+                            <property name="margin-top">4</property>
+                            <property name="margin-bottom">10</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkButton" id="add_PTM_apply_button">
+                            <signal name="clicked" handler="on_add_PTM_apply_button_clicked" swapped="no"/>
+                            <property name="label" translatable="yes">Apply</property>
+                            <property name="margin-start">10</property>
+                            <property name="margin-end">10</property>
+                            <property name="margin-top">4</property>
+                            <property name="margin-bottom">10</property>
+                            <style>
+                              <class name="suggested-action"/>
+                            </style>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+
                   </object>
                 </child>
               </object>

@@ -84,6 +84,7 @@
 #include "build/CalphaBuild.hh"
 #include "ideal/simple-restraint.hh"
 #include "coot-utils/positron.hh"
+#include "coot-utils/ptm-database.hh"
 #include "api/cell.hh"
 
 // #ifdef DO_GEOMETRY_GRAPHS
@@ -4807,6 +4808,9 @@ string   static std::string sessionid;
       float get_P_z() { return cell.c * static_cast<float>(section_index)/static_cast<float>(molecules[imol].xmap.grid_sampling().nw()); }
    };
    static tomo_view_info_t tomo_view_info;
+
+   // ptm database
+   static coot::ptm_database_t ptm_database;
 
 };
 

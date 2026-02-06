@@ -746,11 +746,11 @@ NB_MODULE(coot_headless_api, m) {
          get_docstring_from_xml("get_bonds_mesh").c_str())
     .def("get_bonds_mesh_for_selection_instanced",
          &molecules_container_t::get_bonds_mesh_for_selection_instanced,
-         nb::arg("imol"), nb::arg("atom_selection_cid"), nb::arg("mode"), nb::arg("against_a_dark_background"), nb::arg("bond_width"), nb::arg("atom_radius_to_bond_width_ratio"), nb::arg("show_atoms_as_aniso_flag"), nb::arg("show_aniso_atoms_as_ortep_flag"), nb::arg("draw_hydrogen_atoms_flag"), nb::arg("smoothness_factor"),
+         nb::arg("imol"), nb::arg("atom_selection_cid"), nb::arg("mode"), nb::arg("against_a_dark_background"), nb::arg("bond_width"), nb::arg("atom_radius_to_bond_width_ratio"), nb::arg("show_atoms_as_aniso_flag"), nb::arg("show_aniso_atoms_as_ortep_flag"), nb::arg("show_aniso_atoms_as_empty_flag"), nb::arg("draw_hydrogen_atoms_flag"), nb::arg("smoothness_factor"),
          get_docstring_from_xml("get_bonds_mesh_for_selection_instanced").c_str())
     .def("get_bonds_mesh_instanced",
          &molecules_container_t::get_bonds_mesh_instanced,
-         nb::arg("imol"), nb::arg("mode"), nb::arg("against_a_dark_background"), nb::arg("bond_width"), nb::arg("atom_radius_to_bond_width_ratio"), nb::arg("show_atoms_as_aniso_flag"), nb::arg("show_aniso_atoms_as_ortep_flag"), nb::arg("draw_hydrogen_atoms_flag"), nb::arg("smoothness_factor"),
+         nb::arg("imol"), nb::arg("mode"), nb::arg("against_a_dark_background"), nb::arg("bond_width"), nb::arg("atom_radius_to_bond_width_ratio"), nb::arg("show_atoms_as_aniso_flag"), nb::arg("show_aniso_atoms_as_ortep_flag"), nb::arg("show_aniso_atoms_as_empty_flag"), nb::arg("draw_hydrogen_atoms_flag"), nb::arg("smoothness_factor"),
          get_docstring_from_xml("get_bonds_mesh_instanced").c_str())
     .def("get_cell",
          &molecules_container_t::get_cell,

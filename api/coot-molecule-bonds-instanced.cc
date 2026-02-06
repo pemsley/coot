@@ -128,7 +128,6 @@ make_instanced_graphical_bonds_spherical_atoms(coot::instanced_mesh_t &m, // add
    // are *only* drawing the ellipsoid bands.
    float ellipsoid_band_thickness = 0.02f; // default, black.
    if (render_aniso_atoms_as_empty) ellipsoid_band_thickness = 0.04;
-   std::cout << "DEBUG:: band thickness " << ellipsoid_band_thickness << std::endl;
    cylinder cylinder_for_bands(std::make_pair(glm::vec3(0.0f, 0.0f,  ellipsoid_band_thickness),
                                               glm::vec3(0.0f, 0.0f, -ellipsoid_band_thickness)),
                                1.0f, 1.0f, 2.0f * ellipsoid_band_thickness, 32, 2);

@@ -43,31 +43,39 @@ std::string coot::molecule_t::get_molecule_selection_as_json(const std::string &
                      if (residue_p) {
                         int n_atoms = residue_p->GetNumberOfAtoms();
                         nlohmann::json j_atoms = nlohmann::json::array();
+                        int atom_count = 0;
                         for (int iat=0; iat<n_atoms; iat++) {
                            mmdb::Atom *at = residue_p->GetAtom(iat);
                            if (! at->isTer()) {
                               if (at->isInSelection(selHnd)) {
                                  nlohmann::json j = atom_to_json(at);
                                  j_atoms.push_back(j);
+                                 atom_count++;
                               }
                            }
                         }
-                        nlohmann::json j_residue;
-                        j_residue["name"]     = residue_p->GetResName();
-                        j_residue["ins_code"] = residue_p->GetInsCode();
-                        j_residue["seqnum"]   = residue_p->GetSeqNum();
-                        j_residue["atoms"] = j_atoms;
-                        j_residues.push_back(j_residue);
+                        if (atom_count > 0) {
+                           nlohmann::json j_residue;
+                           j_residue["name"]     = residue_p->GetResName();
+                           j_residue["ins_code"] = residue_p->GetInsCode();
+                           j_residue["seqnum"]   = residue_p->GetSeqNum();
+                           j_residue["atoms"] = j_atoms;
+                           j_residues.push_back(j_residue);
+                        }
                      }
                   }
-                  nlohmann::json j_chain;
-                  j_chain["chain_id"] = chain_p->GetChainID();
-                  j_chain["residues"] = j_residues;
-                  j_chains.push_back(j_chain);
+                  if (j_residues.size() > 0) {
+                     nlohmann::json j_chain;
+                     j_chain["chain_id"] = chain_p->GetChainID();
+                     j_chain["residues"] = j_residues;
+                     j_chains.push_back(j_chain);
+                  }
                }
-               nlohmann::json j_model;
-               j_model["chains"] = j_chains;
-               j_models.push_back(j_model);
+               if (j_chains.size() > 0) {
+                  nlohmann::json j_model;
+                  j_model["chains"] = j_chains;
+                  j_models.push_back(j_model);
+               }
             }
          }
          nlohmann::json j_manager;

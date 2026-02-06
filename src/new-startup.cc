@@ -1357,6 +1357,7 @@ int new_startup(int argc, char **argv) {
    // Delete it there if you want to delete it.
 
    // read in inchikeys - is this the right place for this?
+   // 2026-02-06-PE No. It should be in graphics_info_t::init(), as is ptm_database init.
    graphics_info_t::read_inchikeys();
 
    int status = g_application_run(G_APPLICATION(app), 1, argv);

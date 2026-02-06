@@ -1,9 +1,33 @@
 --- Items ---
 
-o get rid of prodrg_import_function() and references to it in skills.
-* Done
+o Lucrezia's Presentation:
+  interactive FFT.
+  with 2 sliders: Sharpening and Resolution cutoff
+  use raised cosine, or something similar
+
+o John Beale
+
+o multi-model ribbons for NMR
+
+o read/use PTM table in Coot
+
+o 1m5q for B-factor putty
+* Done. Nice.
 
 o put Ligand builder in Ligand module
+* Done.
+
+o Get Restraints for ligand
+* Done
+
+o restore the tube for normal ribbon diagram.
+* Done.
+
+o rainbow ribbon colours are too bright
+* Done.
+
+o get rid of prodrg_import_function() and references to it in skills.
+* Done
 
 o MolecularRepresentation.cpp line 654 - fix.
 * Done.
@@ -20,11 +44,8 @@ o where did we get to with the fat-worm (e.g. B-factor) representation?
 o rename parse_gphl_screen.py - remove parse_
 * Done.
 
-o read/use PTM table in Coot
-
 o screen table adps
-
-o rainbow ribbon colours are too bright
+* Done. For now
 
 o spermine structures analysis.
 * Done.
@@ -40,6 +61,8 @@ o make_gaussian_surface_map_for_atom_selection and return a map (create a map mo
 o Make a modern Blender screenshot
 
 o phenix geobonds
+
+o don't forget "proportional editing" - and domain rotation.
 
 o Clement: make a difference between sax data and our model
   (masking enenough?). Compare mask and gaussian surface map.
@@ -61,6 +84,8 @@ o have another bash at calculating occlusion
 o Use gemmi tar files in build-it-3-3
 
 o Don't forget the AXI analysis - what's going on there?
+
+o don't forget the rotamer values from new coot.
 
 o bonds and angles etc validation? in libcootapi.
 
