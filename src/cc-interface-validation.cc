@@ -40,8 +40,8 @@ public:
    std::vector<std::string> actions;
    interesting_position_button_t() : button_index(-1) {}
    interesting_position_button_t(const coot::Cartesian &p,
-				 const std::string &l,
-				 int button_idx) : position(p), label(l), button_index(button_idx) {}
+                                 const std::string &l,
+                                 int button_idx) : position(p), label(l), button_index(button_idx) {}
 };
 
 class atom_spec_pair_t {
@@ -78,13 +78,6 @@ void show_interesting_positions_dialog(int imol,
       button_info_t(const std::string &l, const clipper::Coord_orth &co, GtkWidget *b) :
          labelled_button_info_t(l, co), button(b) {}
    };
-
-   // c.f. void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol)
-
-   std::vector<button_info_t> buttons;
-   if (! graphics_info_t::is_valid_model_molecule(imol)) return;
-   mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
-   if (mol == nullptr) return;
 
    // This is a bit of a strange "encoding" - the button index is inside the atom and residue spes
    // and positions - I will try to keep the button order
@@ -138,11 +131,18 @@ void show_interesting_positions_dialog(int imol,
       return button;
    };
 
-   for (int button_index=0; button_index<20000; button_index++) {
+   // c.f. void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol)
+
+   std::vector<button_info_t> buttons;
+   if (! graphics_info_t::is_valid_model_molecule(imol)) return;
+   mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+   if (mol == nullptr) return;
+
+   {
 
       for (unsigned int i=0; i<atom_specs.size(); i++) {
          int idx_button_for_this_atom_spec = atom_specs[i].int_user_data;
-         if (idx_button_for_this_atom_spec == button_index) {
+         if (true) {
             const coot::atom_spec_t &atom_spec = atom_specs[i];
             const std::string &l = atom_spec.string_user_data;
             std::pair<bool, clipper::Coord_orth> co = atom_spec_to_position(imol, atom_spec);
@@ -159,11 +159,12 @@ void show_interesting_positions_dialog(int imol,
       }
       for (unsigned int i=0; i<atom_pair_specs.size(); i++) {
          int idx_button_for_this_atom_spec = atom_pair_specs[i].button_index;
-         if (idx_button_for_this_atom_spec == button_index) {
-            std::cout << "Button B  " << button_index << std::endl;
+         if (true) {
             const coot::atom_spec_t &atom_spec_1 = atom_pair_specs[i].spec_1;
             const coot::atom_spec_t &atom_spec_2 = atom_pair_specs[i].spec_2;
             const std::string &l = atom_spec_1.string_user_data;
+            std::cout << "Button for atom spec pair B  " << " " << atom_spec_1 << " "  << atom_spec_2
+                      << " " << l << std::endl;
             std::pair<bool, clipper::Coord_orth> co_1 = atom_spec_to_position(imol, atom_spec_1);
             std::pair<bool, clipper::Coord_orth> co_2 = atom_spec_to_position(imol, atom_spec_2);
             if (co_1.first) {
@@ -179,12 +180,15 @@ void show_interesting_positions_dialog(int imol,
          }
       }
       for (unsigned int i=0; i<residue_specs.size(); i++) {
-         int idx_button_for_this_residue_spec = residue_specs[i].int_user_data;
-         if (idx_button_for_this_residue_spec == button_index) {
+         if (true) {
             const coot::residue_spec_t &res_spec = residue_specs[i];
+            std::cout << "handling residue spec B " << i << " " << res_spec << std::endl;
             const std::string &l = res_spec.string_user_data;
             std::pair<bool, clipper::Coord_orth> co = coot::util::get_residue_mid_point(mol, res_spec);
+            std::cout << "debug:: res_spec " << res_spec << " midpoint " << co.first << " " << co.second.format()
+                      << std::endl;
             if (co.first) {
+               std::cout << "handling residue spec C " << std::endl;
                float badness = -1; // as yet unassigned
                if (res_spec.int_user_data == 1) {
                   badness = res_spec.float_user_data;
@@ -196,8 +200,7 @@ void show_interesting_positions_dialog(int imol,
          }
       }
       for (unsigned int i=0; i<positions.size(); i++) {
-         int idx_button_for_this_position = positions[i].button_index;
-         if (idx_button_for_this_position == button_index) {
+         if (true) {
             const std::string &l = positions[i].label;
             const coot::Cartesian cc = positions[i].position;
             clipper::Coord_orth pos(cc.x(), cc.y(), cc.z());
@@ -278,6 +281,7 @@ void read_interesting_places_json_file(const std::string &file_name) {
          };
 
          auto get_residue_spec = [] (const json &j) {
+
             std::cout << "Here in get_residue_spec() --- start ---" << std::endl;
             coot::residue_spec_t spec;
             std::cout << "Here in get_residue_spec() j.size " << j.size() << std::endl;
@@ -288,6 +292,17 @@ void read_interesting_places_json_file(const std::string &file_name) {
                std::string chain_id  =  chain_id_item.get<std::string>();
                int res_no            =    res_no_item.get<int>();
                std::string ins_code  =  ins_code_item.get<std::string>();
+               spec = coot::residue_spec_t(chain_id, res_no, ins_code);
+            }
+            if (j.size() == 5) {
+               const json &chain_id_item  = j[0];
+               const json &res_no_item    = j[1];
+               const json &ins_code_item  = j[2];
+               std::string chain_id  =  chain_id_item.get<std::string>();
+               int res_no            =    res_no_item.get<int>();
+               std::string ins_code  =  ins_code_item.get<std::string>();
+               // anomaly in the input file
+               if (ins_code == " ") ins_code = "";
                spec = coot::residue_spec_t(chain_id, res_no, ins_code);
             }
             return spec;
@@ -413,6 +428,8 @@ void read_interesting_places_json_file(const std::string &file_name) {
                                     residue_spec.float_user_data = badness;
                                     residue_spec.int_user_data = 1; // float user data was set
                                  }
+                                 std::cout << "--------------- on parsing: pushing back residue_spec "
+                                           << residue_spec << std::endl;
                                  residue_specs.push_back(residue_spec);
                               }
                            }
