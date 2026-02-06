@@ -889,6 +889,15 @@ public:
    //!
    //! @param imol is the model molecule index
    //! @param cid is the atom selection CID e.g "//A/15/OH" (atom OH in residue 15 of chain A)
+   //! @return a json string that contains a molecule hierarchy.
+   //!         The atom data include
+   //!   "x"
+   //!   "y"
+   //!   "z"
+   //!   "tempFactor"
+   //!   "occupancy"
+   //!   "name"
+   //!   "element"
    std::string get_molecule_selection_as_json(int imol, const std::string &cid) const;
 
    //! Write a PNG for the given compound_id.
