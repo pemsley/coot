@@ -1,10 +1,18 @@
 --- Items ---
 
+o Lucrezia's Presentation:
+  interactive FFT.
+  with 2 sliders: Sharpening and Resolution cutoff
+  use raised cosine, or something similar
+
 o John Beale
 
 o multi-model ribbons for NMR
 
 o read/use PTM table in Coot
+
+o 1m5q for B-factor putty
+* Done. Nice.
 
 o put Ligand builder in Ligand module
 * Done.
@@ -76,6 +84,8 @@ o have another bash at calculating occlusion
 o Use gemmi tar files in build-it-3-3
 
 o Don't forget the AXI analysis - what's going on there?
+
+o don't forget the rotamer values from new coot.
 
 o bonds and angles etc validation? in libcootapi.
 
