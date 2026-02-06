@@ -7,9 +7,34 @@ o Lucrezia's Presentation:
 
 o John Beale
 
-o multi-model ribbons for NMR
+o Make a modern Blender screenshot
+
+o phenix geobonds
 
 o read/use PTM table in Coot
+
+o generate python api for gemmi like is done for chapi.
+  Turn this into Fortran api also?
+
+o Fix make_mask()
+
+o use a pre-existing map for make-mask()
+
+o create a mask map of a sphere where the sphere, is the plus part
+  and the - a reference grid is given, radius and postion.
+
+o z-score for ramas and rotas?
+
+o put Ligand builder in Ligand module
+
+o Clement: nice to have: function to calcuate mean, sd of a volume
+  around a point. alternative: at all  of the positions of the atoms
+  in a specified residue - sphere_of_density_stats()
+
+o multipy a map by a map - e.g. local resolution.
+
+o multi-model ribbons for NMR
+* Done. Nice.
 
 o 1m5q for B-factor putty
 * Done. Nice.
@@ -57,10 +82,7 @@ o get_gaussian_surface_for_atom_selection()
 * Done
 
 o make_gaussian_surface_map_for_atom_selection and return a map (create a map molecule)
-
-o Make a modern Blender screenshot
-
-o phenix geobonds
+* Done.
 
 o don't forget "proportional editing" - and domain rotation.
 
@@ -69,10 +91,6 @@ o Clement: make a difference between sax data and our model
   Make mask have a smooth surface - by adding a b-factor.
 
 o Clemens: compile libccp4 with modern compiler? (building-coot) Needs new tar?
-
-o moorhen: make a ribbon diagram of NMR model 2luz
-
-o Coot: 2luz ribbon diagram, I want to see the ribbon diagram for each model.
 
 o Rota dodec colour, rama balls colours - what is the function?
   Send it to pumble
