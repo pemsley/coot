@@ -1863,6 +1863,7 @@ bool graphics_info_t::tomo_picker_flag = false;
 graphics_info_t::tomo_view_info_t graphics_info_t::tomo_view_info;
 
 coot::inchikey_store_t graphics_info_t::inchikey_store;
+coot::ptm_database_t graphics_info_t::ptm_database;
 
 std::pair<bool, std::string> graphics_info_t::servalcat_fofc    = std::pair<bool, std::string> (false, "");
 std::pair<bool, std::string> graphics_info_t::servalcat_refine  = std::pair<bool, std::string> (false, "");

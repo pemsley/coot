@@ -24,6 +24,7 @@
  *
  */
 
+#include "utils/coot-utils.hh"
 #ifdef USE_PYTHON
 #include <Python.h>
 #endif
@@ -202,36 +203,21 @@ graphics_info_t::init() {
       directory_for_fileselection = "";
       directory_for_filechooser = "";
 
-      // these are no longer pointers
-      // baton_next_ca_options = new std::vector<coot::scored_skel_coord>;
-      // baton_previous_ca_positions = new std::vector<clipper::Coord_orth>;
-
       // rotamer distortion graph scale
       rotamer_distortion_scale = 0.3;
 
       // cif dictionary
       cif_dictionary_filename_vec = new std::vector<std::string>;
 
-/*       // ramachandran plots: */
-/*       dynarama_is_displayed = new GtkWidget *[n_molecules_max]; */
-/*       for (int i=0; i<n_molecules_max; i++) */
-/* 	 dynarama_is_displayed[i] = NULL; // belt and braces */
+      std::string pdd = coot::package_data_dir();
+      std::filesystem::path pdd_path(pdd);
+      std::filesystem::path ptm_database_json = pdd_path / "data" / "ptm_database.json";
+      ptm_database.read(ptm_database_json.string());
 
-/*       // sequence_view */
-/*       sequence_view_is_displayed = new GtkWidget * [n_molecules_max]; */
-/*       for (int i=0; i<n_molecules_max; i++) */
-/* 	 sequence_view_is_displayed[i] = NULL; */
+      // 2026-02-06-PE
+      // put the inchikey reader here.
 
-      // 20230515-PE this is no longer a pointer
-      // residue edits
-      // residue_info_edits = new std::vector<coot::select_atom_info>;
-
-      // display distances
-      // distance_object_vec = new std::vector<coot::simple_distance_object_t>;
-
-      // pointer distances
-      // pointer_distances_object_vec = new std::vector<std::pair<clipper::Coord_orth, clipper::Coord_orth> >;
-
+      // 2026-02-06-PE is this still a thing?
       // ligand blobs:
       ligand_big_blobs = new std::vector<clipper::Coord_orth>;
 

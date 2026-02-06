@@ -23,6 +23,7 @@
  */
 
 #include <stdlib.h>
+#include <cstddef>
 
 #if !defined WINDOWS_MINGW && !defined _MSC_VER
 #  include <glob.h>
@@ -945,6 +946,60 @@ molecule_class_info_t::get_term_type(mmdb::Atom *atom) const {
    // std::cout << "DEBUG:: get_term_type Returning residue type " << term_type << std::endl;
 
    return term_type;
+}
+
+bool molecule_class_info_t::is_N_terminus(const coot::residue_spec_t &rs) const {
+
+   int status = false;
+   if (atom_sel.mol == 0) return false;
+   int imod = 1;
+   mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+   if (model_p) {
+      int n_chains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<n_chains; ichain++) {
+         mmdb::Chain *chain_p = model_p->GetChain(ichain);
+         std::string chain_id = chain_p->GetChainID();
+         if (rs.chain_id == chain_id) {
+            int n_res = chain_p->GetNumberOfResidues();
+            if (n_res > 0) {
+               mmdb::Residue *residue_p = chain_p->GetResidue(0);
+               if (residue_p) {
+                  if (rs == coot::residue_spec_t(residue_p)) {
+                     status = true;
+                  }
+               }
+            }
+         }
+      }
+   }
+   return status;
+}
+
+bool molecule_class_info_t::is_C_terminus(const coot::residue_spec_t &rs) const {
+
+   int status = false;
+   if (atom_sel.mol == 0) return false;
+   int imod = 1;
+   mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+   if (model_p) {
+      int n_chains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<n_chains; ichain++) {
+         mmdb::Chain *chain_p = model_p->GetChain(ichain);
+         std::string chain_id = chain_p->GetChainID();
+         if (rs.chain_id == chain_id) {
+            int n_res = chain_p->GetNumberOfResidues();
+            if (n_res > 0) {
+               mmdb::Residue *residue_p = chain_p->GetResidue(n_res-1);
+               if (residue_p) {
+                  if (rs == coot::residue_spec_t(residue_p)) {
+                     status = true;
+                  }
+               }
+            }
+         }
+      }
+   }
+   return status;
 }
 
 // Replace the atoms in this molecule by those in the given atom selection.

@@ -217,15 +217,14 @@ GdkRGBA colour_by_distortion(float dist) {
 }
 #endif
 
-#ifndef EMSCRIPTEN
 GdkRGBA colour_by_rama_plot_distortion(float plot_value, int rama_type) {
 
    if (true)
       std::cout << "in colour_by_rama_plot_distortion plot_value "
-   << plot_value << " rama_type " << rama_type
-   << " c.f. coot::RAMA_TYPE_LOGRAMA " << coot::RAMA_TYPE_LOGRAMA
-   << " coot::RAMA_TYPE_ZO " << coot::RAMA_TYPE_ZO
-   << std::endl;
+                << plot_value << " rama_type " << rama_type
+                << " c.f. coot::RAMA_TYPE_LOGRAMA " << coot::RAMA_TYPE_LOGRAMA
+                << " coot::RAMA_TYPE_ZO " << coot::RAMA_TYPE_ZO
+                << std::endl;
 
    // ZO type data need to scaled to match
    // 20*zo_type_data-80 = log_rama_type_data
@@ -284,7 +283,6 @@ GdkRGBA colour_by_rama_plot_distortion(float plot_value, int rama_type) {
    }
    return col;
 }
-#endif
 
 
 // static
@@ -513,10 +511,8 @@ graphics_info_t::add_cif_dictionary(std::string cif_dictionary_filename,
       if (use_graphics_interface_flag) {
          if (show_no_bonds_dialog_maybe_flag) {
             // GtkWidget *widget = create_no_cif_dictionary_bonds_dialog();
-#ifndef EMSCRIPTEN
             GtkWidget *widget = widget_from_builder("no_cif_dictionary_bonds_dialog");
             gtk_widget_set_visible(widget, TRUE);
-#endif
          }
       }
 

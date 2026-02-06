@@ -23,6 +23,8 @@
 #ifndef CC_INTERFACE_HH
 #define CC_INTERFACE_HH
 
+#include "geometry/residue-and-atom-specs.hh"
+#include "pytypedefs.h"
 #ifdef USE_PYTHON
 #include "Python.h"
 #endif
@@ -1041,9 +1043,7 @@ PyObject *residue_spec_make_triple_py(PyObject *residue_spec_py);
 coot::residue_spec_t residue_spec_from_scm(SCM residue_in);
 #endif
 
-#ifdef USE_PYTHON
 coot::residue_spec_t residue_spec_from_py(PyObject *residue_in);
-#endif
 
 // return a spec for the first residue with the given type.
 // test the returned spec for unset_p().
@@ -1052,20 +1052,69 @@ coot::residue_spec_t get_residue_by_type(int imol, const std::string &residue_ty
 
 std::vector<coot::residue_spec_t> get_residue_specs_in_mol(int imol, const std::string &residue_type);
 
-#ifdef USE_PYTHON
 // Always returns a list
 PyObject *get_residue_specs_in_mol_py(int imol, const std::string &residue_type);
-#endif
 
 #ifdef USE_GUILE
 // return a residue spec or scheme false
 SCM get_residue_by_type_scm(int, const std::string &residue_type);
 #endif
-#ifdef USE_PYTHON
-// return a residue spec or Python False.
-PyObject *get_residue_by_type_py(int, const std::string &residue_type);
-#endif
 
+//! get residue by type
+//!
+//! Find the first residue of the given type in the molecule
+//!
+//! @param imol the molecule index
+//! @param residue_type the residue type requested
+//! @return a residue spec or Python False.
+PyObject *get_residue_by_type_py(int imol, const std::string &residue_type);
+
+//! get the residue name of the specified residue
+//!
+//! @param imol the molecule index
+//! @param residue_spec_py the residue spec
+//! @return the residue name or blank on failure
+std::string get_residue_name_py(int imol, PyObject *residue_spec_py);
+
+//! as above, but for use by callback
+std::string get_residue_name(int imol, coot::residue_spec_t &res_spec);
+
+//! use by callback
+bool is_N_terminus(int imol, coot::residue_spec_t &res_spec);
+
+//! use by callback
+bool is_C_terminus(int imol, coot::residue_spec_t &res_spec);
+
+
+/*  ----------------------------------------------------------------------- */
+/*               Atom info                                                  */
+/*  ----------------------------------------------------------------------- */
+
+//! \name Atom Information functions
+//! \{
+
+#ifdef USE_GUILE
+//! \brief output atom info in a scheme list for use in scripting
+//!
+//! in this format (list occ temp-factor element x y z).  Return empty
+//! list if atom not found. */
+SCM atom_info_string_scm(int imol, const char *chain_id, int resno,
+                         const char *ins_code, const char *atname,
+                         const char *altconf);
+SCM molecule_to_pdb_string_scm(int imol);
+#endif // USE_GUILE
+
+/*! \brief return the rename from a residue serial number
+
+   @return blank ("") on failure. */
+std::string resname_from_serial_number(int imol, const char *chain_id, int serial_num);
+
+//! \brief return the residue name of the specified residue
+std::string residue_name(int imol, const std::string &chain_id, int resno, const std::string &ins_code);
+
+//! \brief return the serial number of the specified residue
+//!
+//! @return -1 on failure to find the residue
 
 /*  ----------------------------------------------------------------------- */
 /*               Atom info                                                  */
