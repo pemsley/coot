@@ -30,8 +30,22 @@
 Bond_lines_container::Bond_lines_container(mmdb::Manager *mol,
                                            const coot::phenix_geo::phenix_geometry &pg) {
 
+   struct bonded_atom_pair_t {
+      mmdb::Atom *atom_1;
+      mmdb::Atom *atom_2;
+      double residual;
+      bonded_atom_pair_t(mmdb::Atom *a1, mmdb::Atom *a2, double r) : atom_1(a1), atom_2(a2), residual(r) {}
+   };
+
+   auto atom_colour = [] (double residual) {
+      // residual 0 -> colour 60, residual >= 10 -> colour 90, linear in between
+      if (residual >= 10.0) return 90;
+      if (residual <= 0.0) return 60;
+      return static_cast<int>(60.0 + (residual / 10.0) * 30.0);
+   };
+
    // fill this, then make bonds from it.
-   std::vector<std::pair<mmdb::Atom *, mmdb::Atom *> > bonded_atom_pairs;
+   std::vector<bonded_atom_pair_t> bonded_atom_pairs;
 
    coot::residue_spec_t previous_res_spec;
    mmdb::Atom *previous_atom_1 = NULL;
@@ -64,8 +78,7 @@ Bond_lines_container::Bond_lines_container(mmdb::Manager *mol,
                   // OK both atoms in the same residue
 
                   if (atom_2) {
-                     std::pair<mmdb::Atom *, mmdb::Atom *> ap(atom_1, atom_2);
-                     bonded_atom_pairs.push_back(ap);
+                     bonded_atom_pairs.push_back(bonded_atom_pair_t(atom_1, atom_2, gb.residual));
                   } else {
                      std::cout << "Null atom 2 - [A path] this should not happen " << std::endl;
                   }
@@ -85,8 +98,7 @@ Bond_lines_container::Bond_lines_container(mmdb::Manager *mol,
                      mmdb::Atom *atom_2 = coot::util::get_atom(atom_2_spec, nr);
                      done = true;
                      if (atom_2) {
-                        std::pair<mmdb::Atom *, mmdb::Atom *> ap(atom_1, atom_2);
-                        bonded_atom_pairs.push_back(ap);
+                        bonded_atom_pairs.push_back(bonded_atom_pair_t(atom_1, atom_2, gb.residual));
                      } else {
                         std::cout << "Null atom 2 - [B path] this should not happen " << std::endl;
                      }
@@ -96,8 +108,7 @@ Bond_lines_container::Bond_lines_container(mmdb::Manager *mol,
                      mmdb::Atom *atom_2 = coot::util::get_atom(atom_2_spec, pr);
                      done = true;
                      if (atom_2) {
-                        std::pair<mmdb::Atom *, mmdb::Atom *> ap(atom_1, atom_2);
-                        bonded_atom_pairs.push_back(ap);
+                        bonded_atom_pairs.push_back(bonded_atom_pair_t(atom_1, atom_2, gb.residual));
                      } else {
                         std::cout << "Null atom 2 - [C path] this should not happen " << std::endl;
                      }
@@ -113,8 +124,7 @@ Bond_lines_container::Bond_lines_container(mmdb::Manager *mol,
                      mmdb::Atom *atom_2_l = coot::util::get_atom(atom_2_spec, residue_p);
                      done = true;
                      if (atom_2_l) {
-                        std::pair<mmdb::Atom *, mmdb::Atom *> ap(atom_1, atom_2_l);
-                        bonded_atom_pairs.push_back(ap);
+                        bonded_atom_pairs.push_back(bonded_atom_pair_t(atom_1, atom_2_l, gb.residual));
                      } else {
                         std::cout << "Null atom 2 - [D path] this should not happen " << std::endl;
                      }
@@ -140,16 +150,14 @@ Bond_lines_container::Bond_lines_container(mmdb::Manager *mol,
                if (res_2_spec == res_1_spec) {
                   mmdb::Atom *atom_2 = coot::util::get_atom(atom_2_spec, atom_1->residue);
                   if (atom_2) {
-                     std::pair<mmdb::Atom *, mmdb::Atom *> ap(atom_1, atom_2);
-                     bonded_atom_pairs.push_back(ap);
+                     bonded_atom_pairs.push_back(bonded_atom_pair_t(atom_1, atom_2, gb.residual));
                   } else {
                      std::cout << "Null atom 2 - [E path] this should not happen " << std::endl;
                   }
                } else {
                   mmdb::Atom *atom_2 = coot::util::get_atom(atom_2_spec, mol);
                   if (atom_2) {
-                     std::pair<mmdb::Atom *, mmdb::Atom *> ap(atom_1, atom_2);
-                     bonded_atom_pairs.push_back(ap);
+                     bonded_atom_pairs.push_back(bonded_atom_pair_t(atom_1, atom_2, gb.residual));
                   } else {
                      std::cout << "Null atom 2 - [E path] this should not happen " << std::endl;
                   }
@@ -174,8 +182,7 @@ Bond_lines_container::Bond_lines_container(mmdb::Manager *mol,
             if (res_2_spec == res_1_spec) {
                mmdb::Atom *atom_2 = coot::util::get_atom(atom_2_spec, atom_1->residue);
                if (atom_2) {
-                  std::pair<mmdb::Atom *, mmdb::Atom *> ap(atom_1, atom_2);
-                  bonded_atom_pairs.push_back(ap);
+                  bonded_atom_pairs.push_back(bonded_atom_pair_t(atom_1, atom_2, gb.residual));
                } else {
                   std::cout << "Null atom 2 - [G path] this should not happen " << std::endl;
                }
@@ -183,8 +190,7 @@ Bond_lines_container::Bond_lines_container(mmdb::Manager *mol,
                // the residue of atom_2 was different to the residue of atom_1
                mmdb::Atom *atom_2 = coot::util::get_atom(atom_2_spec, mol);
                if (atom_2) {
-                  std::pair<mmdb::Atom *, mmdb::Atom *> ap(atom_1, atom_2);
-                  bonded_atom_pairs.push_back(ap);
+                  bonded_atom_pairs.push_back(bonded_atom_pair_t(atom_1, atom_2, gb.residual));
                } else {
                   std::cout << "Null atom 2 - [H path] this should not happen " << std::endl;
                }
@@ -217,15 +223,24 @@ Bond_lines_container::Bond_lines_container(mmdb::Manager *mol,
    bool have_udd_atoms = true;
    set_udd_unbonded(mol, uddHnd);
 
+   int udd_atom_index_handle = mol->GetUDDHandle(mmdb::UDR_ATOM, "atom index");
+
    for (unsigned int i=0; i<bonded_atom_pairs.size(); i++) {
-      mmdb::Atom *a1 = bonded_atom_pairs[i].first;
-      mmdb::Atom *a2 = bonded_atom_pairs[i].second;
-      coot::CartesianPair p(coot::Cartesian(a1->x, a1->y, a1->z),
-                            coot::Cartesian(a2->x, a2->y, a2->z));
+      const bonded_atom_pair_t &bap = bonded_atom_pairs[i];
+      mmdb::Atom *a1 = bap.atom_1;
+      mmdb::Atom *a2 = bap.atom_2;
       a1->PutUDData(uddHnd, graphical_bonds_container::BONDED_WITH_STANDARD_ATOM_BOND);
       a2->PutUDData(uddHnd, graphical_bonds_container::BONDED_WITH_STANDARD_ATOM_BOND);
       graphics_line_t::cylinder_class_t cc = graphics_line_t::SINGLE;
-      bonds[0].add_bond(p, cc, true, true, -1, -1, -1);
+      int model_number = a1->GetModel()->GetSerNum();
+      int atom_index_1 = -1;
+      int atom_index_2 = -1;
+      a1->GetUDData(udd_atom_index_handle, atom_index_1);
+      a2->GetUDData(udd_atom_index_handle, atom_index_2);
+      int col = atom_colour(bap.residual);
+      addBond(col, coot::Cartesian(a1->x, a1->y, a1->z),
+                   coot::Cartesian(a2->x, a2->y, a2->z),
+              cc, model_number, atom_index_1, atom_index_2);
    }
 
    stars_for_unbonded_atoms(mol, uddHnd);
