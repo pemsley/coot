@@ -10,6 +10,9 @@ o John Beale
 o multi-model ribbons for NMR
 
 o read/use PTM table in Coot
+   On add_PTM_apply_button_clicked, we need to check
+   the selected new residue type has a dictionary.
+   Else go and get it synchronously.
 
 o 1m5q for B-factor putty
 * Done. Nice.
