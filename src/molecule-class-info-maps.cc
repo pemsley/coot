@@ -819,7 +819,7 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
 
       // post_process_map_triangles();
 
-      if (false) {
+      if (false) { // apply occlusions
          for (std::size_t i=0; i<draw_vector_sets.size(); i++) {
             coot::density_contour_triangles_container_t &tri_con = draw_vector_sets[i];
             std::vector<coot::augmented_position> positions(tri_con.points.size());
@@ -827,7 +827,7 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
             for (unsigned int j=0; j<n; j++) {
                const clipper::Coord_orth &pos  = tri_con.points[j];
                const clipper::Coord_orth &norm = tri_con.normals[j];
-               positions[i] = coot::augmented_position(pos, norm);
+               positions[j] = coot::augmented_position(pos, norm);
             }
             coot::set_occlusions(positions); // crash, related to range
             coot::transfer_occlusions(positions, &draw_vector_sets[i]);
@@ -1284,9 +1284,18 @@ molecule_class_info_t::setup_glsl_map_rendering(const clipper::Coord_orth &centr
          const coot::density_contour_triangles_container_t &tri_con(*it);
          unsigned int idx_base = vertices.size();
          for (unsigned int i=0; i<tri_con.points.size(); i++) {
+            float w = 1.0;
+            if (false) { // apply the occlusions.
+               const float &of = tri_con.occlusion_factor[i];
+               w = (200.0 - of)/200.0;
+               if (w < 0.0) w = 0.0;
+               if (w > 1.0) w = 1.0;
+               // std::cout << "DEBUG:: occlusion_factor  i " << i << " " << of << " w " << w << std::endl;
+            }
             glm::vec3 pos    = coord_orth_to_glm(tri_con.points[i]);
             glm::vec3 normal = coord_orth_to_glm(tri_con.normals[i]);
-            s_generic_vertex vert(pos, normal, col);
+            glm::vec4 vert_col(col[0] * w, col[1] * w, col[2] * w, col[3]);
+            s_generic_vertex vert(pos, normal, vert_col);
             vertices.push_back(vert);
          }
          for (unsigned int i=0; i<tri_con.point_indices.size(); i++) {
