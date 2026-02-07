@@ -282,11 +282,13 @@ coot::set_energy_lib_atom_types(RDKit::ROMol *mol) {
                try {
                   std::string e;
                   at_p->getProp("type_energy", e);
-                  std::cout << "already has type_energy \"" << e << "\""<< std::endl;
+                  if (false)
+                     std::cout << "already has type_energy \"" << e << "\""<< std::endl;
                }
                catch (const KeyErrorException &e) {
-                  std::cout << "setting type_energy " << smarts_type.energy_type
-                            << " for atom " << idx_this_atom_2 << std::endl;
+                  if (false)
+                     std::cout << "KeyErrorException setting type_energy " << smarts_type.energy_type
+                               << " for atom " << idx_this_atom_2 << std::endl;
                   at_p->setProp("type_energy", smarts_type.energy_type);
                }
             }
