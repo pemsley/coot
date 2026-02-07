@@ -24,6 +24,7 @@
  *
  */
 
+#include "coot-utils/coot-coord-utils.hh"
 #include "graphics-info.h"
 #include "widget-from-builder.hh"
 #include "dynamic-validation.hh"
@@ -602,4 +603,165 @@ void overlaps_peptides_cbeta_ramas_and_rotas_internal(int imol) {
    for(auto button_info : sorted_buttons)
       gtk_box_append(GTK_BOX(vbox), button_info.second);
 
+}
+
+void phenix_geo_validation_buttons(int imol,
+                                   const coot::phenix_geo::phenix_geometry &pg,
+                                   double residual_cutoff) {
+
+   auto atom_spec_to_label = [] (const coot::atom_spec_t &spec) {
+      std::string s = spec.chain_id;
+      s += " ";
+      s += std::to_string(spec.res_no);
+      if (!spec.ins_code.empty()) s += " " + spec.ins_code;
+      s += " ";
+      s += coot::util::remove_whitespace(spec.atom_name);
+      if (!spec.alt_conf.empty()) s += " " + spec.alt_conf;
+      return s;
+   };
+
+   auto button_callback = +[] (GtkButton *button, G_GNUC_UNUSED gpointer user_data) {
+      std::string target_position_x_str(static_cast<const char *>(g_object_get_data(G_OBJECT(button), "target-position-x")));
+      std::string target_position_y_str(static_cast<const char *>(g_object_get_data(G_OBJECT(button), "target-position-y")));
+      std::string target_position_z_str(static_cast<const char *>(g_object_get_data(G_OBJECT(button), "target-position-z")));
+      try {
+         float x = coot::util::string_to_float(target_position_x_str);
+         float y = coot::util::string_to_float(target_position_y_str);
+         float z = coot::util::string_to_float(target_position_z_str);
+         clipper::Coord_orth p(x, y, z);
+         graphics_info_t::set_rotation_centre(p);
+      }
+      catch (const std::runtime_error &e) {
+         std::cout << "WARNING::" << e.what() << std::endl;
+      }
+      graphics_info_t g;
+      g.graphics_grab_focus();
+   };
+
+   auto set_target_position_data = [] (GtkWidget *button, const clipper::Coord_orth &p) {
+      char *x = new char[10];
+      char *y = new char[10];
+      char *z = new char[10];
+      for (unsigned int i=0; i<10; i++) x[i] = 0;
+      for (unsigned int i=0; i<10; i++) y[i] = 0;
+      for (unsigned int i=0; i<10; i++) z[i] = 0;
+      strncpy(x, std::to_string(p.x()).c_str(), 9);
+      strncpy(y, std::to_string(p.y()).c_str(), 9);
+      strncpy(z, std::to_string(p.z()).c_str(), 9);
+      g_object_set_data(G_OBJECT(button), "target-position-x", x);
+      g_object_set_data(G_OBJECT(button), "target-position-y", y);
+      g_object_set_data(G_OBJECT(button), "target-position-z", z);
+   };
+
+   auto sorter = [] (const std::pair<coot::residue_spec_t, GtkWidget *> &r1,
+                     const std::pair<coot::residue_spec_t, GtkWidget *> &r2) {
+      return (r1.first < r2.first);
+   };
+
+   GtkWidget *pane_to_show = widget_from_builder("main_window_ramchandran_and_validation_pane");
+   gtk_widget_set_visible(pane_to_show, TRUE);
+   GtkWidget *pane = widget_from_builder("main_window_graphics_rama_vs_graphics_pane");
+
+   GtkWidget *vbox_2 = widget_from_builder("validation_boxes_vbox");
+   gtk_widget_set_visible(vbox_2, TRUE);
+
+   GtkWidget *outer_vbox = widget_from_builder("dynamic_validation_vbox");
+   gtk_widget_set_visible(outer_vbox, TRUE);
+
+   GtkWidget *vbox  = widget_from_builder("dynamic_validation_outliers_vbox");
+   GtkWidget *label = widget_from_builder("dynamic_validation_outliers_label");
+
+   int pos = gtk_paned_get_position(GTK_PANED(pane));
+   if (pos < 320)
+      gtk_paned_set_position(GTK_PANED(pane), 320);
+
+   graphics_info_t::clear_out_container(vbox);
+
+   mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+
+   std::vector<std::pair<coot::residue_spec_t, GtkWidget *> > buttons;
+
+   // Bond outliers
+   for (unsigned int i = 0; i < pg.geo_bonds.size(); i++) {
+      const coot::phenix_geo::phenix_geo_bond &gb = pg.geo_bonds[i];
+      if (gb.residual < residual_cutoff) continue;
+
+      mmdb::Atom *at_1 = coot::util::get_atom_using_fuzzy_search(gb.atom_1, mol);
+      mmdb::Atom *at_2 = coot::util::get_atom_using_fuzzy_search(gb.atom_2, mol);
+      if (!at_1 || !at_2) continue;
+
+      clipper::Coord_orth p1(at_1->x, at_1->y, at_1->z);
+      clipper::Coord_orth p2(at_2->x, at_2->y, at_2->z);
+      clipper::Coord_orth midpoint = 0.5 * (p1 + p2);
+
+      std::string lab = "Bond " + atom_spec_to_label(gb.atom_1) + " - " + atom_spec_to_label(gb.atom_2);
+      lab += " Δ: " + coot::util::float_to_string_using_dec_pl(gb.delta, 3) + "Å";
+      lab += " (" + coot::util::float_to_string_using_dec_pl(std::sqrt(gb.residual), 1) + "σ)";
+
+      GtkWidget *button = gtk_button_new();
+      GtkWidget *button_label = gtk_label_new(lab.c_str());
+      gtk_widget_set_halign(button_label, GTK_ALIGN_START);
+      gtk_button_set_child(GTK_BUTTON(button), button_label);
+      gtk_widget_set_margin_start (button, 4);
+      gtk_widget_set_margin_end   (button, 4);
+      gtk_widget_set_margin_top   (button, 2);
+      gtk_widget_set_margin_bottom(button, 2);
+
+      set_target_position_data(button, midpoint);
+      g_signal_connect(G_OBJECT(button), "clicked", G_CALLBACK(button_callback), nullptr);
+
+      coot::residue_spec_t res_spec(gb.atom_1);
+      buttons.push_back(std::make_pair(res_spec, button));
+   }
+
+
+   // Angle outliers
+   for (unsigned int i = 0; i < pg.geo_angles.size(); i++) {
+      const coot::phenix_geo::phenix_geo_angle &ga = pg.geo_angles.angles[i];
+      if (ga.residual < residual_cutoff) continue;
+
+      mmdb::Atom *at_2 = coot::util::get_atom_using_fuzzy_search(ga.atom_2, mol); // middle atom of angle
+      if (!at_2) {
+         std::cout << "DEBUG:: Angle outliers: failed to get ga.atom_2 " << ga.atom_2 << std::endl;
+         continue;
+      }
+
+      clipper::Coord_orth target(at_2->x, at_2->y, at_2->z);
+
+      std::string lab = "Angle " + atom_spec_to_label(ga.atom_1) + " - ";
+      lab += atom_spec_to_label(ga.atom_2) + " - " + atom_spec_to_label(ga.atom_3);
+      lab += " Δ: " + coot::util::float_to_string_using_dec_pl(ga.delta, 1) + "°";
+      lab += " (" + coot::util::float_to_string_using_dec_pl(std::sqrt(ga.residual), 1) + "σ)";
+
+      GtkWidget *button = gtk_button_new();
+      GtkWidget *button_label = gtk_label_new(lab.c_str());
+      gtk_widget_set_halign(button_label, GTK_ALIGN_START);
+      gtk_button_set_child(GTK_BUTTON(button), button_label);
+      gtk_widget_set_margin_start (button, 4);
+      gtk_widget_set_margin_end   (button, 4);
+      gtk_widget_set_margin_top   (button, 2);
+      gtk_widget_set_margin_bottom(button, 2);
+
+      set_target_position_data(button, target);
+      g_signal_connect(G_OBJECT(button), "clicked", G_CALLBACK(button_callback), nullptr);
+
+      coot::residue_spec_t res_spec(ga.atom_2);
+      buttons.push_back(std::make_pair(res_spec, button));
+   }
+
+
+   if (label) {
+      unsigned int n_outliers = buttons.size();
+      std::string label_txt = "Phenix Geo Outliers: ";
+      label_txt += std::to_string(n_outliers);
+      gtk_label_set_text(GTK_LABEL(label), label_txt.c_str());
+   }
+
+   std::sort(buttons.begin(), buttons.end(), sorter);
+
+   for (const auto &button_info : buttons) {
+      gtk_widget_set_visible(button_info.second, TRUE);
+      gtk_box_append(GTK_BOX(vbox), button_info.second);
+   }
+   gtk_widget_set_visible(vbox, TRUE);
 }

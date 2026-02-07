@@ -172,10 +172,10 @@ Bond_lines_container::Bond_lines_container(mmdb::Manager *mol,
       } else { // res of this atom_1 was not the same as the the res of the previous atom_1
 
          atom_1 = coot::util::get_atom(atom_1_spec, mol);
-         res_1_spec = coot::residue_spec_t(atom_1->GetResidue());
 
          if (atom_1) {
 
+            res_1_spec = coot::residue_spec_t(atom_1->GetResidue());
             atom_1_res=atom_1->residue;
 
             coot::residue_spec_t res_2_spec(gb.atom_2);

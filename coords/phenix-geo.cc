@@ -31,44 +31,55 @@
 std::ostream&
 coot::phenix_geo::operator<<(std::ostream &s, coot::phenix_geo::phenix_geo_bond gb) {
 
-   std::cout << "[phenix geo: " << gb.atom_1 << " " << gb.atom_2 << " ]";
+   std::cout << "[phenix geo-bond: " << gb.atom_1 << " " << gb.atom_2 << " ]";
    return s;
-
 }
-
 
 coot::atom_spec_t
 coot::phenix_geo::parse_line_for_atom_spec(const std::string &l) {
 
-   atom_spec_t atom_spec;
-   std::string atom_name_1(l.substr(10,4));
-   std::string chain_id(l.substr(19,1));
-   unsigned int post_chain_id_char_idx = 20;
+   // Find pdb=" and parse relative to that position
+   // Format after pdb=" is:
+   //   positions 0-3: atom name (4 chars)
+   //   position 4: space
+   //   positions 5-7: residue name (3 chars)
+   //   position 8: space
+   //   position 9: chain ID
+   //   position 10: space
+   //   position 11+: residue number
 
-   // Fix multi-char chain-ids here with a while() {}
+   atom_spec_t atom_spec;
+   std::string::size_type pdb_pos = l.find("pdb=\"");
+   if (pdb_pos == std::string::npos) return atom_spec;
+
+   unsigned int base = pdb_pos + 5; // position after pdb="
+   if (base + 12 > l.length()) return atom_spec; // need at least 12 chars
+
+   std::string atom_name(l.substr(base, 4));
+   std::string chain_id(l.substr(base + 9, 1));
+   unsigned int residue_number_str_idx = base + 11;
 
    unsigned int llen = l.length();
-   unsigned int residue_number_str_idx = post_chain_id_char_idx + 1; // start
    std::string residue_number_str;
    std::string ins_code;
    while (residue_number_str_idx < llen) {
       char c = l[residue_number_str_idx];
       if (c >= '0' && c <= '9') {
-	 residue_number_str += c;
+         residue_number_str += c;
       } else {
-	 if (c != ' ')
-	    ins_code = c;
-	 if (residue_number_str.length())
-	    break;
+         if (c != ' ' && c != '"')
+            ins_code = c;
+         if (residue_number_str.length())
+            break;
       }
       residue_number_str_idx++;
    }
    try {
       int res_no = util::string_to_int(residue_number_str);
-      atom_spec = atom_spec_t(chain_id, res_no, ins_code, atom_name_1, "");
+      atom_spec = atom_spec_t(chain_id, res_no, ins_code, atom_name, "");
    }
    catch (const std::runtime_error &rte) {
-      // parse fail. Heyho.
+      // parse fail
    }
    return atom_spec;
 }
