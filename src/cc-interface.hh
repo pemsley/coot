@@ -3546,12 +3546,29 @@ void simple_text_dialog(const std::string &dialog_title, const std::string &text
 /*  ----------------------------------------------------------------------- */
 /*                  Phenix Functions                                        */
 /*  ----------------------------------------------------------------------- */
-//! \brief phenix GEO bonds representation
+
+//!  phenix GEO bonds representation
+//!
+//! This function is not for scripting
 void graphics_to_phenix_geo_representation(int imol, int mode,
                                            const coot::phenix_geo::phenix_geometry &g);
-//! \brief phenix GEO bonds representation, read from file
+
+//! \brief phenix GEO bonds representation, read GEO info from file
+//!
+//! @param imol the molecule index
+//! @param mode current unused, so use 0
+//! @param geo_file_name is the file name of the phenix_geo file
 void graphics_to_phenix_geo_representation(int imol, int mode,
                                            const std::string &geo_file_name);
+
+//! \brief validate using phenix geo bonds
+//!
+//! Typically this would be called shortly after
+//! graphics_to_phenix_geo_representation()
+//!
+//! @param imol the molecule index
+//! @param geo_file_name is the file name of the phenix_geo file
+void validate_using_phenix_geo_bonds(int imol, const std::string &geo_file_name);
 
 /*  ----------------------------------------------------------------------- */
 /*                  Client/Server                                        */

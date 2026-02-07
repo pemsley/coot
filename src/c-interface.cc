@@ -5708,6 +5708,25 @@ void graphics_to_phenix_geo_representation(int imol, int mode,
 
 }
 
+void phenix_geo_validation_buttons(int imol,
+                                   const coot::phenix_geo::phenix_geometry &pg,
+                                   double residual_cutoff);
+
+//! \brief validate using phenix geo bonds
+//!
+//! Typically this would be called shortly after
+//!
+//! @param imol
+void validate_using_phenix_geo_bonds(int imol, const std::string &geo_file_name) {
+
+   if (is_valid_model_molecule(imol)) {
+      coot::phenix_geo::phenix_geometry pg;
+      pg.parse(geo_file_name);
+      float residual_criterion = 4.4;
+      phenix_geo_validation_buttons(imol, pg, residual_criterion);
+   }
+}
+
 /*  Not today
 void set_ca_bonds_loop_params(float p1, float p2, float p3) {
 

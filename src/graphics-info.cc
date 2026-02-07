@@ -6756,8 +6756,9 @@ graphics_info_t::set_user_defined_colours(const std::vector<std::pair<unsigned i
 
    user_defined_colours = user_defined_colours_in;
 
-   // texture colours:
+#if 0
    // (2026-02-04-PE I don't understand what this does)
+   // texture colours:
    if (! user_defined_colours.empty()) {
       std::vector<glm::vec4> t_cols(user_defined_colours.size());
       for (unsigned int i=0; i<user_defined_colours.size(); i++) {
@@ -6771,6 +6772,7 @@ graphics_info_t::set_user_defined_colours(const std::vector<std::pair<unsigned i
       }
       texture_for_hud_colour_bar = Texture(400, 200, t_cols, 5);
    }
+#endif
 }
 
 

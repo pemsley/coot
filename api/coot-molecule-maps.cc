@@ -303,7 +303,7 @@ coot::molecule_t::update_map_triangles(float radius, coot::Cartesian centre, flo
             for (unsigned int j=0; j<n; j++) {
                const clipper::Coord_orth &pos  = tri_con.points[j];
                const clipper::Coord_orth &norm = tri_con.normals[j];
-               positions[i] = coot::augmented_position(pos, norm);
+               positions[j] = coot::augmented_position(pos, norm);
             }
             coot::set_occlusions(positions); // crash, related to range
             coot::transfer_occlusions(positions, &draw_vector_sets[i]);

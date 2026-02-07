@@ -54,7 +54,7 @@ make_instanced_graphical_bonds_spherical_atoms(coot::instanced_mesh_t &m, // add
                                                unsigned int num_subdivisions,
                                                const std::vector<glm::vec4> &colour_table) {
 
-   // if render_aniso_atoms_as_empty then we want to dray the rings thicker and 
+   // if render_aniso_atoms_as_empty then we want to dray the rings thicker and
    // in atom colours (or not black, at least).
 
    auto convert_vertices = [] (const std::vector<coot::api::vnc_vertex> &v_in) {
@@ -66,7 +66,19 @@ make_instanced_graphical_bonds_spherical_atoms(coot::instanced_mesh_t &m, // add
       return v_out;
    };
 
+   // For latitude rings: normals point in +Z (becomes ellipsoid axis after orientation transform)
+   auto convert_vertices_z_normal = [] (const std::vector<coot::api::vnc_vertex> &v_in) {
+      std::vector<coot::api::vn_vertex> v_out(v_in.size());
+      glm::vec3 z_normal(0.0f, 0.0f, 1.0f);
+      for (unsigned int i=0; i<v_in.size(); i++) {
+         const auto &v = v_in[i];
+         v_out[i] = coot::api::vn_vertex(v.pos, z_normal);
+      }
+      return v_out;
+   };
+
    auto add_ellipse_rings = [] (coot::instanced_geometry_t *ig, const glm::vec3 &sc, const glm::vec3 &t, const glm::mat4 &ori, const glm::vec4 &col) {
+
       glm::vec3 sc_other = 1.000f * sc;
       glm::mat4 m_unit(1.0);
       glm::mat4 m_x = glm::rotate(m_unit, static_cast<float>(0.5 * M_PI), glm::vec3(1.0, 0.0, 0.0));
@@ -79,6 +91,54 @@ make_instanced_graphical_bonds_spherical_atoms(coot::instanced_mesh_t &m, // add
       ig->instancing_data_B.push_back(idB_y);
    };
 
+   // ig_long: longitude rings (radial normals), ig_lat: latitude rings (Z-axis normals)
+   auto add_ellipsoidal_multi_ring = [] (coot::instanced_geometry_t *ig_long,
+                                         coot::instanced_geometry_t *ig_lat,
+                                         const glm::vec3 &sc, const glm::vec3 &t,
+                                         const glm::mat4 &ori, const glm::vec4 &col) {
+
+      glm::mat4 m_unit(1.0);
+      // First rotate the ring from XY plane to XZ plane (for longitude lines)
+      glm::mat4 m_x = glm::rotate(m_unit, static_cast<float>(0.5 * M_PI), glm::vec3(1.0, 0.0, 0.0));
+
+      // Add longitude lines: rotate around Z axis from 0 to 180 degrees
+      unsigned int n_longitude_steps = 10;
+      for (unsigned int i = 0; i < n_longitude_steps; i++) {
+         float angle = static_cast<float>(M_PI) * static_cast<float>(i) / static_cast<float>(n_longitude_steps);
+         glm::mat4 m_z = glm::rotate(m_unit, angle, glm::vec3(0.0, 0.0, 1.0));
+         coot::instancing_data_type_B_t idB(t, col, sc, ori * m_z * m_x);
+         ig_long->instancing_data_B.push_back(idB);
+      }
+
+      // Add latitude lines: horizontal rings at different heights (using Z-normal geometry)
+      // First add the equator
+      coot::instancing_data_type_B_t idB_equator(t, col, sc, ori);
+      ig_lat->instancing_data_B.push_back(idB_equator);
+
+      unsigned int n_latitude_steps = 5;
+      for (unsigned int i = 1; i <= n_latitude_steps; i++) {
+         float lat_angle = static_cast<float>(0.5 * M_PI) * static_cast<float>(i) / static_cast<float>(n_latitude_steps + 1);
+         float cos_lat = std::cos(lat_angle);
+         float sin_lat = std::sin(lat_angle);
+
+         // Scale the ring radius by cos(latitude) - the ring is in XY plane
+         glm::vec3 sc_lat(sc.x * cos_lat, sc.y * cos_lat, sc.z);
+
+         // Offset in Z direction (local ellipsoid space), then transform to world
+         glm::vec3 z_offset_local(0.0f, 0.0f, sc.z * sin_lat);
+         glm::vec3 z_offset_world = glm::vec3(ori * glm::vec4(z_offset_local, 0.0f));
+
+         // Ring above equator
+         coot::instancing_data_type_B_t idB_above(t + z_offset_world, col, sc_lat, ori);
+         ig_lat->instancing_data_B.push_back(idB_above);
+
+         // Ring below equator
+         coot::instancing_data_type_B_t idB_below(t - z_offset_world, col, sc_lat, ori);
+         ig_lat->instancing_data_B.push_back(idB_below);
+      }
+   };
+
+   // 20230114-PE
    // 20230114-PE
    // copied and edited from from src/Mesh-from-graphical-bonds-instanced.cc
 
@@ -124,16 +184,22 @@ make_instanced_graphical_bonds_spherical_atoms(coot::instanced_mesh_t &m, // add
    // setup the cylinder for the thin bands around the aniso atoms.
    // note to self: having a cylinder symmetric about the z=0 seems not to work.
    // It does if the first position is the "top" - cylinder has weird coordinates.
+   //
    // 2026-02-04-PE I added some logic to change the width for the case where we
    // are *only* drawing the ellipsoid bands.
    float ellipsoid_band_thickness = 0.02f; // default, black.
-   if (render_aniso_atoms_as_empty) ellipsoid_band_thickness = 0.04;
+   if (render_aniso_atoms_as_empty) ellipsoid_band_thickness = 0.01;
    cylinder cylinder_for_bands(std::make_pair(glm::vec3(0.0f, 0.0f,  ellipsoid_band_thickness),
                                               glm::vec3(0.0f, 0.0f, -ellipsoid_band_thickness)),
                                1.0f, 1.0f, 2.0f * ellipsoid_band_thickness, 32, 2);
-   coot::instanced_geometry_t ig_ellipsoid_band("ellipsoid band");
+   coot::instanced_geometry_t ig_ellipsoid_band("ellipsoid band longitude");
    ig_ellipsoid_band.vertices = convert_vertices(cylinder_for_bands.vertices);
    ig_ellipsoid_band.triangles = cylinder_for_bands.triangles;
+
+   // For latitude rings: same geometry but with Z-pointing normals
+   coot::instanced_geometry_t ig_ellipsoid_band_latitude("ellipsoid band latitude");
+   ig_ellipsoid_band_latitude.vertices = convert_vertices_z_normal(cylinder_for_bands.vertices);
+   ig_ellipsoid_band_latitude.triangles = cylinder_for_bands.triangles;
 
    // ----------------------- setup the instances ----------------------
 
@@ -213,10 +279,14 @@ make_instanced_graphical_bonds_spherical_atoms(coot::instanced_mesh_t &m, // add
                   if (do_ellipse_rings) {
                      // we want black rings when the atom is represented in (normal) opaque shape
                      // and atom colour when the opaque ellipsoid is missing.
-                     glm::vec4 ellipsoid_ring_col = glm::vec4(0.1, 0.1, 0.1, 1.0);
-                     if (render_aniso_atoms_as_empty)
-                        ellipsoid_ring_col = col;
-                     add_ellipse_rings(&ig_ellipsoid_band, sc, t, ori, ellipsoid_ring_col);
+                     if (render_aniso_atoms_as_empty) {
+                        glm::vec4 ellipsoid_ring_col = glm::vec4(0.1, 0.1, 0.1, 1.0);
+                        add_ellipsoidal_multi_ring(&ig_ellipsoid_band, &ig_ellipsoid_band_latitude,
+                                                   sc, t, ori, ellipsoid_ring_col);
+                     } else {
+                        glm::vec4 ellipsoid_ring_col = col;
+                        add_ellipse_rings(&ig_ellipsoid_band, sc, t, ori, ellipsoid_ring_col);
+                     }
                      // and let's have an atom sphere when drawing empty ellipsoid rings
                      if (render_aniso_atoms_as_empty) {
                         glm::vec3 sc_local = glm::vec3(base_atom_radius);
@@ -238,9 +308,10 @@ make_instanced_graphical_bonds_spherical_atoms(coot::instanced_mesh_t &m, // add
       }
    }
 
-   if (!ig_sphere.empty())          m.add(ig_sphere);
-   if (!ig_ortep.empty())           m.add(ig_ortep);
-   if (!ig_ellipsoid_band.empty())  m.add(ig_ellipsoid_band);
+   if (!ig_sphere.empty())                   m.add(ig_sphere);
+   if (!ig_ortep.empty())                    m.add(ig_ortep);
+   if (!ig_ellipsoid_band.empty())           m.add(ig_ellipsoid_band);
+   if (!ig_ellipsoid_band_latitude.empty())  m.add(ig_ellipsoid_band_latitude);
 
 }
 

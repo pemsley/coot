@@ -12,6 +12,9 @@ o Make a modern Blender screenshot
 o phenix geobonds
 
 o read/use PTM table in Coot
+   On add_PTM_apply_button_clicked, we need to check
+   the selected new residue type has a dictionary.
+   Else go and get it synchronously.
 
 o generate python api for gemmi like is done for chapi.
   Turn this into Fortran api also?
