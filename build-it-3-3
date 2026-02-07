@@ -2651,6 +2651,9 @@ if true ; then
     pwd >&2
     echo gemmi build start_dir is $start_dir
     echo gemmi build start_dir is $start_dir >&2
+    echo use this, not the git repo: https://github.com/project-gemmi/gemmi/archive/refs/tags/v0.7.4.tar.gz
+    gemmi_tar_dir=https://github.com/project-gemmi/gemmi/archive/refs/tags
+    gemmi_version=v0.7.4
     (
           save_dir=$(pwd)
           cd "$start_dir"
