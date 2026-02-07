@@ -749,6 +749,103 @@ void phenix_geo_validation_buttons(int imol,
       buttons.push_back(std::make_pair(res_spec, button));
    }
 
+   // Chiral outliers
+   for (unsigned int i = 0; i < pg.geo_chirals.size(); i++) {
+      const coot::phenix_geo::phenix_geo_chiral &gc = pg.geo_chirals.chirals[i];
+      if (gc.residual < residual_cutoff) continue;
+
+      mmdb::Atom *at_centre = coot::util::get_atom_using_fuzzy_search(gc.atom_centre, mol);
+      if (!at_centre) continue;
+
+      clipper::Coord_orth target(at_centre->x, at_centre->y, at_centre->z);
+
+      std::string lab = "Chiral " + atom_spec_to_label(gc.atom_centre);
+      lab += " Δ: " + coot::util::float_to_string_using_dec_pl(gc.delta, 2) + "ų";
+      lab += " (" + coot::util::float_to_string_using_dec_pl(std::sqrt(gc.residual), 1) + "σ)";
+
+      GtkWidget *button = gtk_button_new();
+      GtkWidget *button_label = gtk_label_new(lab.c_str());
+      gtk_widget_set_halign(button_label, GTK_ALIGN_START);
+      gtk_button_set_child(GTK_BUTTON(button), button_label);
+      gtk_widget_set_margin_start (button, 4);
+      gtk_widget_set_margin_end   (button, 4);
+      gtk_widget_set_margin_top   (button, 2);
+      gtk_widget_set_margin_bottom(button, 2);
+
+      set_target_position_data(button, target);
+      g_signal_connect(G_OBJECT(button), "clicked", G_CALLBACK(button_callback), nullptr);
+
+      coot::residue_spec_t res_spec(gc.atom_centre);
+      buttons.push_back(std::make_pair(res_spec, button));
+   }
+
+   // Torsion/dihedral outliers
+   for (unsigned int i = 0; i < pg.geo_dihedrals.size(); i++) {
+      const coot::phenix_geo::phenix_geo_dihedral &gd = pg.geo_dihedrals.dihedrals[i];
+      if (gd.residual < residual_cutoff) continue;
+
+      // Navigate to atom_2 (middle-ish of the torsion)
+      mmdb::Atom *at_2 = coot::util::get_atom_using_fuzzy_search(gd.atom_2, mol);
+      if (!at_2) continue;
+
+      clipper::Coord_orth target(at_2->x, at_2->y, at_2->z);
+
+      std::string lab = "Torsion " + atom_spec_to_label(gd.atom_1) + " - ";
+      lab += atom_spec_to_label(gd.atom_2) + " - ";
+      lab += atom_spec_to_label(gd.atom_3) + " - ";
+      lab += atom_spec_to_label(gd.atom_4);
+      lab += " Δ: " + coot::util::float_to_string_using_dec_pl(gd.delta, 1) + "°";
+      lab += " (" + coot::util::float_to_string_using_dec_pl(std::sqrt(gd.residual), 1) + "σ)";
+
+      GtkWidget *button = gtk_button_new();
+      GtkWidget *button_label = gtk_label_new(lab.c_str());
+      gtk_widget_set_halign(button_label, GTK_ALIGN_START);
+      gtk_button_set_child(GTK_BUTTON(button), button_label);
+      gtk_widget_set_margin_start (button, 4);
+      gtk_widget_set_margin_end   (button, 4);
+      gtk_widget_set_margin_top   (button, 2);
+      gtk_widget_set_margin_bottom(button, 2);
+
+      set_target_position_data(button, target);
+      g_signal_connect(G_OBJECT(button), "clicked", G_CALLBACK(button_callback), nullptr);
+
+      coot::residue_spec_t res_spec(gd.atom_2);
+      buttons.push_back(std::make_pair(res_spec, button));
+   }
+
+   // Non-bonded (clash) outliers
+   double clash_overlap_cutoff = 0.4; // Angstroms
+   for (unsigned int i = 0; i < pg.geo_nonbondeds.size(); i++) {
+      const coot::phenix_geo::phenix_geo_nonbonded &gnb = pg.geo_nonbondeds.nonbondeds[i];
+      double overlap = gnb.vdw - gnb.model;
+      if (overlap < clash_overlap_cutoff) continue;
+
+      mmdb::Atom *at_1 = coot::util::get_atom_using_fuzzy_search(gnb.atom_1, mol);
+      mmdb::Atom *at_2 = coot::util::get_atom_using_fuzzy_search(gnb.atom_2, mol);
+      if (!at_1 || !at_2) continue;
+
+      clipper::Coord_orth p1(at_1->x, at_1->y, at_1->z);
+      clipper::Coord_orth p2(at_2->x, at_2->y, at_2->z);
+      clipper::Coord_orth midpoint = 0.5 * (p1 + p2);
+
+      std::string lab = "Clash " + atom_spec_to_label(gnb.atom_1) + " - " + atom_spec_to_label(gnb.atom_2);
+      lab += " overlap: " + coot::util::float_to_string_using_dec_pl(overlap, 2) + "Å";
+
+      GtkWidget *button = gtk_button_new();
+      GtkWidget *button_label = gtk_label_new(lab.c_str());
+      gtk_widget_set_halign(button_label, GTK_ALIGN_START);
+      gtk_button_set_child(GTK_BUTTON(button), button_label);
+      gtk_widget_set_margin_start (button, 4);
+      gtk_widget_set_margin_end   (button, 4);
+      gtk_widget_set_margin_top   (button, 2);
+      gtk_widget_set_margin_bottom(button, 2);
+
+      set_target_position_data(button, midpoint);
+      g_signal_connect(G_OBJECT(button), "clicked", G_CALLBACK(button_callback), nullptr);
+
+      coot::residue_spec_t res_spec(gnb.atom_1);
+      buttons.push_back(std::make_pair(res_spec, button));
+   }
 
    if (label) {
       unsigned int n_outliers = buttons.size();
