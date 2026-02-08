@@ -31,7 +31,7 @@ o z-score for ramas and rotas?
 o put Ligand builder in Ligand module
 
 o Clement: nice to have: function to calcuate mean, sd of a volume
-  around a point. alternative: at all  of the positions of the atoms
+  around a point. alternative: at all of the positions of the atoms
   in a specified residue - sphere_of_density_stats()
 
 o multipy a map by a map - e.g. local resolution.

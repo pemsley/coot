@@ -54,74 +54,51 @@ void set_framebuffer_scale_factor(unsigned int sf) {
 
 
 void screendump_tga_internal(std::string tga_file,
-                             int widget_width, int widget_height, int framebuffer_scale) {
+                             int widget_width, int widget_height, int framebuffer_scale_factor) {
 
-   std::cout << "----------------- screendump_tga_internal() --- start ---" << std::endl;
+   // The caller is responsible for binding the correct framebuffer before calling this function.
+   // This function reads pixels from whatever framebuffer is currently bound.
 
 #ifdef __APPLE__
-   framebuffer_scale *= 2;
+   framebuffer_scale_factor *= 2;
 #endif
 
-   GLenum err = glGetError();
-   if (err) std::cout << "error:: screendump_tga_internal() start " << err << std::endl;
    int w = widget_width;
    int h = widget_height;
-   FILE *output_file = fopen(tga_file.c_str(), "w");
-   short int sf = static_cast<short int>(framebuffer_scale);
-   unsigned char* pixel_data = new unsigned char[4 * sf * sf * w * h]; // 4 components? Probably not right.
-   short int sfw = static_cast<short int>(sf * widget_width);
-   short int sfh = static_cast<short int>(sf * widget_height);
+   short int sf = static_cast<short int>(framebuffer_scale_factor);
+   int pixel_width  = sf * w;
+   int pixel_height = sf * h;
+
+   FILE *output_file = fopen(tga_file.c_str(), "wb");
+   if (!output_file) {
+      std::cout << "ERROR:: screendump_tga_internal() could not open " << tga_file << " for writing" << std::endl;
+      return;
+   }
+
+   unsigned char* pixel_data = new unsigned char[4 * pixel_width * pixel_height];
+   short int sfw = static_cast<short int>(pixel_width);
+   short int sfh = static_cast<short int>(pixel_height);
    short int TGAhead[] = {0, 2, 0, 0, 0, 0, sfw, sfh, 32};
 
-   std::cout << "screendump_tga application image: scaling " << sf << " " << w << " x " << h
-             << " to " << tga_file << std::endl;
+   std::cout << "INFO:: screendump_tga_internal() " << pixel_width << "x" << pixel_height
+             << " (scale " << sf << ") to " << tga_file << std::endl;
 
-#if THIS_IS_HMT
-   display_info_t di;
-   di.attach_buffers();
-#else
-   graphics_info_t g;
-   g.attach_buffers();
-#endif
-
-   err = glGetError();
-   if (err) std::cout << "error:: screendump_tga_internal() post-attach " << err << std::endl;
-
-   GLint local_fbo;
-   glGetIntegerv(GL_FRAMEBUFFER_BINDING, &local_fbo);
-   std::cout << "debug::  pre-bind with local_fbo binding " << local_fbo << std::endl;
-
-   // framebuffer.bind();
-   // glBindFramebuffer(GL_FRAMEBUFFER, framebuffer_obj);
-
-   err = glGetError();
-   if (err) std::cout << "error:: screendump_tga_internal() post-bind "
-                      << err << std::endl;
-
-   glGetIntegerv(GL_FRAMEBUFFER_BINDING, &local_fbo);
-   std::cout << "debug:: post-bind with local_fbo binding " << local_fbo << std::endl;
-
-   // This is part of OpenGL 4.4+ - not OpenGL 3.3!
-   //
-   // glNamedFramebufferReadBuffer(framebuffer_obj, GL_BACK); // this often errors
-   // glNamedFramebufferReadBuffer(framebuffer_obj, GL_FRONT);
    glReadBuffer(GL_COLOR_ATTACHMENT0);
-   err = glGetError();
-   if (err) std::cout << "error:: screendump_tga_internal() post-set glnamedreadbuffer "
-                      << err << std::endl;
+   GLenum err = glGetError();
+   if (err) std::cout << "ERROR:: screendump_tga_internal() post-glReadBuffer " << err << std::endl;
 
    glFinish();
-   glReadPixels(0, 0, sf * w, sf * h, GL_BGRA, GL_UNSIGNED_BYTE, pixel_data);
-   err = glGetError(); if (err) std::cout << "error:: screendump_tga_internal() post-glReadpixels "
-                                          << err << std::endl;
+   glReadPixels(0, 0, pixel_width, pixel_height, GL_BGRA, GL_UNSIGNED_BYTE, pixel_data);
+   err = glGetError();
+   if (err) std::cout << "ERROR:: screendump_tga_internal() post-glReadPixels " << err << std::endl;
+
    fwrite(&TGAhead, sizeof(TGAhead), 1, output_file);
-   fwrite(pixel_data, 4 * sf * sf * w * h, 1, output_file); // 4 components
+   fwrite(pixel_data, 4 * pixel_width * pixel_height, 1, output_file);
    fclose(output_file);
    delete [] pixel_data;
 
-   std::cout << "INFO:: screendump_tga sf " << sf << " " << w << "x" << h
-             << " wrote " << 3 * sf * sf * w * h << " bytes" << std::endl;
-
+   std::cout << "INFO:: screendump_tga_internal() wrote " << tga_file << " "
+             << pixel_width << "x" << pixel_height << std::endl;
 
 }
 

@@ -2483,6 +2483,17 @@ graphics_info_t::draw_molecules_other_meshes(stereo_eye_t eye, unsigned int pass
                      bool show_just_shadows = false;
                      bool wireframe_mode = false;
                      float opacity = 1.0f;
+#if 0 // 20260208-PE debugging colours
+                     if (jj == 0 && !m.meshes[jj].vertices.empty()) {
+                        auto &v = m.meshes[jj].vertices;
+                        for (unsigned int kk=0; kk<v.size(); kk++) {
+                           std::cout << "DEBUG:: M2T vertex colour: "
+                                     << v[kk].color[0] << " " << v[kk].color[1] << " " << v[kk].color[2] << " " << v[kk].color[3]
+                                     << std::endl;
+                        }
+                     }
+#endif
+
                      if (true)
                         m.meshes[jj].draw(&shader_for_moleculestotriangles, eye, mvp,
                                           model_rotation, lights, eye_position, rc, opacity, bg_col,
@@ -4702,69 +4713,63 @@ graphics_info_t::render(bool to_screendump_framebuffer_flag, const std::string &
                                 };
 
    auto screendump_image = [update_fps_statistics] (const std::string &output_file_name) {
-      // this works! Nice framebuffer scaling with screendump_tga().
-
-      std::cout << "debug:: in screendump_image() with use_framebuffers " << use_framebuffers << std::endl;
 
       GtkGLArea *gl_area = GTK_GL_AREA(glareas[0]);
       GtkAllocation allocation;
       gtk_widget_get_allocation(GTK_WIDGET(gl_area), &allocation);
       int w = allocation.width;
       int h = allocation.height;
+      unsigned int sf = 2; // hardcoded 2x for high-res screenshots
 
-// #ifdef __APPLE__
-//      use_framebuffers = false;
-// #endif
+      bool show_basic_scene_state = (displayed_image_type == SHOW_BASIC_SCENE);
 
-      if (use_framebuffers) { // static class variable
+      if (show_basic_scene_state) {
 
-         glViewport(0, 0, framebuffer_scale * w, framebuffer_scale * h);
-         GLenum err = glGetError();
-         if (err) std::cout << "GL ERROR:: render() post glViewport() err " << err << std::endl;
-         screen_framebuffer.bind(); // screen_ao, that is
-         err = glGetError();
-         if (err) std::cout << "GL ERROR:: render() post screen_framebuffer bind() err " << err << std::endl;
+         // Basic path: render directly to an offscreen FBO at sf * widget_size.
+         // None of the draw functions in this path change framebuffer bindings,
+         // so they all render into whatever FBO is currently bound.
 
-         render_3d_scene(gl_area, stereo_eye_t::MONO);
-
-         // screendump
-         glDisable(GL_DEPTH_TEST);
-         const unsigned int &sf = framebuffer_scale;
-         glViewport(0, 0, sf * w, sf * h);
-         framebuffer screendump_framebuffer;
+         framebuffer screendump_fb;
          unsigned int index_offset = 0;
-         screendump_framebuffer.init(sf * w, sf * h, index_offset, "screendump");
-         screendump_framebuffer.bind();
+         screendump_fb.init(sf * w, sf * h, index_offset, "screendump");
+         screendump_fb.bind();
 
-         // render_3d_scene(gl_area);
-         // render_scene_with_screen_ao_shader();
+         glViewport(0, 0, sf * w, sf * h);
+         glClearColor(background_colour.r, background_colour.g, background_colour.b, 1.0);
+         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+         glDisable(GL_BLEND);
+         glEnable(GL_DEPTH_TEST);
+         glDepthFunc(GL_LESS);
 
-         render_scene();
+         if (draw_background_image_flag) {
+            texture_for_background_image.Bind(0);
+            tmesh_for_background_image.draw(&shader_for_background_image, HUDTextureMesh::TOP_LEFT);
+         }
 
-         // gtk_gl_area_attach_buffers(gl_area);
+         graphics_info_t g;
+         stereo_eye_t eye = stereo_eye_t::MONO;
+         // g.draw_models(eye, &shader_for_tmeshes, &shader_for_meshes, nullptr, nullptr, sf * w, sf * h);
+         draw_rotation_centre_crosshairs(eye, gl_area, PASS_TYPE_STANDARD);
+         render_3d_scene(gl_area, eye);
+
+         // Ensure we read from the screendump FBO
+         screendump_fb.bind();
          screendump_tga_internal(output_file_name, w, h, sf);
 
       } else {
 
-         gtk_gl_area_attach_buffers(gl_area);
-         render_3d_scene(gl_area, stereo_eye_t::MONO);
-         draw_hud_elements();
+         // Fancy path (effects/AO/shadows) - not yet implemented for high-res screendump.
+         // For now, fall back to screen-resolution capture.
+         std::cout << "WARNING:: high-res screendump not yet implemented for fancy rendering mode. "
+                   << "Capturing at screen resolution." << std::endl;
+         render_scene();
+         attach_buffers();
+         screendump_tga_internal(output_file_name, w, h, 1);
 
       }
 
-      // 20211112-PE
-      // This seems to do bad things to the frame-rate on the PC (although fullscreen mode seems
-      // unaffected and looks to be *faster* than windowed mode (could be a gtk thing)).
-      // This is vital to see anything sane on the Mac.
       glFlush();
-
-      // auto tp_1 = std::chrono::high_resolution_clock::now();
-      // auto d10 = std::chrono::duration_cast<std::chrono::microseconds>(tp_1 - tp_0).count();
-      // std::cout << "INFO:: render() " << d10 << " microseconds" << std::endl;
-
-      // std::cout << "calling update_fps_statistics() " << std::endl;
       update_fps_statistics();
-
       return FALSE;
 
    };

@@ -119,6 +119,7 @@ molecular_mesh_generator_t::molecular_representation_instance_to_mesh(std::share
             gv.color[3] = 1.0;
             if ((gv.color[0] + gv.color[1] + gv.color[2]) > 10.0) {
                gv.color *= 0.00392; // /255
+               gv.color[3] = 1.0;
             }
          }
 
