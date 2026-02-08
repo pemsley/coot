@@ -28,6 +28,12 @@ graphics_info_t::stringify_error_code(GLenum err) {
 void
 graphics_info_t::attach_buffers(const char *calling_function) {
 
+   // During high-res screendump, redirect to the screendump FBO instead of the GTK default
+   if (screendump_target_framebuffer != 0) {
+      glBindFramebuffer(GL_FRAMEBUFFER, screendump_target_framebuffer);
+      return;
+   }
+
    bool print_errors = false;
    if (use_graphics_interface_flag) {
       if (print_errors) {

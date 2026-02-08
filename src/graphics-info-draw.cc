@@ -4758,13 +4758,39 @@ graphics_info_t::render(bool to_screendump_framebuffer_flag, const std::string &
 
       } else {
 
-         // Fancy path (effects/AO/shadows) - not yet implemented for high-res screendump.
-         // For now, fall back to screen-resolution capture.
-         std::cout << "WARNING:: high-res screendump not yet implemented for fancy rendering mode. "
-                   << "Capturing at screen resolution." << std::endl;
+         // Fancy path (effects/AO/shadows) - render at high-res by temporarily resizing
+         // all intermediate FBOs and redirecting attach_buffers() to our screendump FBO.
+
+         // Save state
+         int saved_gx = graphics_x_size;
+         int saved_gy = graphics_y_size;
+
+         // Create screendump FBO
+         framebuffer screendump_fb;
+         unsigned int index_offset = 0;
+         screendump_fb.init(sf * w, sf * h, index_offset, "screendump");
+
+         // Resize all intermediate FBOs to the high-res size
+         graphics_x_size = sf * w;
+         graphics_y_size = sf * h;
+         graphics_info_t g;
+         g.resize_framebuffers_textures_renderbuffers(sf * w, sf * h);
+
+         // Redirect attach_buffers() to our screendump FBO
+         screendump_target_framebuffer = screendump_fb.get_fbo();
+
+         // Render the full fancy pipeline - all attach_buffers() calls go to screendump FBO
          render_scene();
-         attach_buffers();
-         screendump_tga_internal(output_file_name, w, h, 1);
+
+         // Read pixels from the screendump FBO
+         screendump_fb.bind();
+         screendump_tga_internal(output_file_name, w, h, sf);
+
+         // Restore state
+         screendump_target_framebuffer = 0;
+         graphics_x_size = saved_gx;
+         graphics_y_size = saved_gy;
+         g.resize_framebuffers_textures_renderbuffers(saved_gx, saved_gy);
 
       }
 

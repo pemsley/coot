@@ -151,6 +151,10 @@ graphics_info_t::render_scene_sans_depth_blur(stereo_eye_t eye,
          // render
          // ------
 
+         // Set viewport for SSAO passes (needed for high-res screendump where the
+         // previous frame's viewport may differ from the current FBO size)
+         glViewport(0, 0, w, h);
+
          // 1. geometry pass: render scene's geometry/color data into gbuffer
          // -----------------------------------------------------------------
          // glBindFramebuffer(GL_FRAMEBUFFER, di.gBufferFBO);
@@ -494,6 +498,10 @@ graphics_info_t::render_scene_with_depth_blur(stereo_eye_t eye,
          // render
          // ------
 
+         // Set viewport for SSAO passes (needed for high-res screendump where the
+         // previous frame's viewport may differ from the current FBO size)
+         glViewport(0, 0, w, h);
+
          // 1. geometry pass: render scene's geometry/color data into gbuffer
          // -----------------------------------------------------------------
          // glBindFramebuffer(GL_FRAMEBUFFER, di.gBufferFBO);
@@ -704,7 +712,7 @@ graphics_info_t::render_scene_with_depth_blur(stereo_eye_t eye,
             combine_textures_using_depth_framebuffer.bind();
             render_scene_with_x_blur();
 
-            gtk_gl_area_attach_buffers(GTK_GL_AREA(gl_area));
+            di.attach_buffers(); // use attach_buffers() so screendump redirect works
 
             render_scene_with_texture_combination_for_depth_blur();
 
