@@ -52,7 +52,10 @@
 #include "graphics-info.h"
 
 #ifdef USE_GUILE
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wvolatile"
 #include <libguile.h>
+#pragma GCC diagnostic pop
 #endif // USE_GUILE
 
 // Including python needs to come after graphics-info.h, because
