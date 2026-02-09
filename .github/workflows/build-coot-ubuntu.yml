@@ -1,0 +1,197 @@
+name: Coot CI Ubuntu
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  build-ubuntu:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v4
+
+    - name: wget test data
+      run:  wget -nv https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/data/greg-data.tar.gz
+
+    - name: Untar test data
+      run: cd src && tar xf ../greg-data.tar.gz && cd -
+
+    - name: cache test data
+      id: cache-coot-test-data
+      uses: actions/cache@v4
+      with:
+         path: src/greg-data
+         key:  coot-test-data
+
+    - name: Cache coot dependencies
+      id: cache-coot-dependencies-ubuntu
+      uses: actions/cache@v4
+      with:
+         path: /home/runner/install/coot-Linux-ubuntu
+         key:  coot-deps-ubuntu
+
+    - name: Cache gemmi source
+      id:   Cache-gemmi-source
+      uses: actions/cache@v4
+      with:
+         path: gemmi
+         key:  coot-build-ubuntu-gemmi-cache-source
+
+    - name: Cache gemmi build
+      id:   Cache-gemmi-build-ubuntu
+      uses: actions/cache@v4
+      with:
+         path: build-gemmi
+         key:  coot-build-ubuntu-gemmi-cache-build
+
+    - name: Delete any installed Coot libs
+      run:  if test -e /home/runner/install/coot-Linux-ubuntu/lib/libcoot-analysis.so ; then rm /home/runner/install/coot-Linux-ubuntu/lib/libcoot* /home/runner/install/coot-Linux-ubuntu/lib/libMoleculesToTrianglesCXXClasses* ; fi
+
+    - name: Update apt-get
+      run:  sudo apt-get update
+
+    - name: Install system dependencies
+      run: sudo apt-get install cmake libdw-dev libncurses5-dev libgtk-4-dev libvorbis-dev libasound2-dev gobject-introspection libgirepository1.0-dev gir1.2-glib-2.0
+
+    # is this needed?
+    - name: Install linear algebra libraries
+      run: sudo apt-get install libblas-dev liblapack-dev
+
+    - name: Where are we?
+      run:  pwd
+
+    - name: Run build-with-build-it-3-3
+      run:  bash build-it-3-3 || echo done
+
+    - name: Upload build logs
+      uses: actions/upload-artifact@v4
+      with:
+        name: build-logs-public-html-package
+        path: /home/runner/public_html
+        retention-days: 3
+
+    # - name: check the clipper
+    #   run:  find /home/runner/install/coot-Linux-ubuntu
+
+    # - name: check the clipper libs
+    #   run:  find /home/runner/install/coot-Linux-ubuntu/lib
+
+    - name: Run autogen.sh
+      run:  bash autogen.sh
+
+    - name: Set the PATH
+      # the install dir is set specifically in build-it-3-3 when we in github actions
+      run:  echo /home/runner/install/coot-Linux-ubuntu/bin >> $GITHUB_PATH
+
+    - name: Run configure
+      # we echo done so that this returns a success status so that the logs are always uploaded
+      run: >
+        ./configure --prefix=/home/runner/install/coot-Linux-ubuntu
+        --enable-silent-rules
+        --with-enhanced-ligand-tools
+        --with-fftw-prefix=/home/runner/install/coot-Linux-ubuntu
+        --with-boost=/home/runner/install/coot-Linux-ubuntu
+        --with-gemmi=/home/runner/install/coot-Linux-ubuntu
+        --with-boost-libdir=/home/runner/install/coot-Linux-ubuntu/lib
+        --with-backward --with-libdw --with-sound --disable-static
+        SHELL=/bin/bash
+        PYTHON=/home/runner/install/coot-Linux-ubuntu/bin/python3
+        PKG_CONFIG_PATH=/home/runner/install/coot-Linux-ubuntu/lib64/pkgconfig:/home/runner/install/coot-Linux-ubuntu/lib/pkgconfig:/home/runner/install/coot-Linux-ubuntu/lib/x86_64-linux-gnu/pkgconfig
+        || echo done
+
+    # great. configure now terminates correctly
+    - name: compile it 1
+      id: compile-step-1
+      run: |
+        make -j 4 -C auxil
+        make -j 4 -C compat
+        make -j 4 -C utils
+        make -j 4 -C protein_db
+        make -j 4 -C mini-mol
+        make -j 4 -C geometry
+        make -j 4 -C lidia-core
+        make -j 4 -C coot-utils
+        make -j 4 -C angles
+        make -j 4 -C ccp4mg-utils
+        make -j 4 -C db-main
+        make -j 4 -C analysis
+        make -j 4 -C cootaneer
+        make -j 4 -C ideal
+        make -j 4 -C ligand
+        make -j 4 -C coords
+        make -j 4 -C density-contour
+        make -j 4 -C skeleton
+        make -j 4 -C high-res
+        make -j 4 -C build
+        make -j 4 -C MoleculesToTriangles
+        make -j 4 -C pli
+        make -j 4 -C greg-tests
+        make -j 4 -C cootilus
+        make -j 4 -C pyrogen
+
+    - name: compile it 2
+      id: compile-step-2
+      run: |
+        make -j 4 -C api
+        make -j 4 -C layla
+        make -j 4 -C validation-graphs
+
+    - name: Compile it 3
+      id: compile-step-3
+      run:  make -j 4
+
+    # Yay. make not works! Let's install
+    - name: Install with make install
+      run:  make install
+
+    - name: diagnostics 1
+      run:  find /home/runner/install/coot-Linux-ubuntu/lib > installed-lib-files.log
+
+    - name: upload installed-lib-files.log
+      uses: actions/upload-artifact@v4
+      with:
+        name: upload-installed-lib-files-log-package
+        path: ./installed-lib-files.log
+        retention-days: 3
+
+    - name: diagnostics 2
+      run:  find /home/runner/install/coot-Linux-ubuntu/include > installed-include-files.log
+
+    - name: upload installed-include-files.log
+      uses: actions/upload-artifact@v4
+      with:
+        name: upload-installed-include-files-log-package
+        path: ./installed-include-files.log
+        retention-days: 3
+
+    - name: Upload config.log
+      uses: actions/upload-artifact@v4
+      with:
+        name: upload-config-log-package
+        path: ./config.log
+        retention-days: 3
+
+    - name: Does it run?
+      run:  cd src && ./coot-1 --self-test < /dev/null && cd -
+
+    - name: Run make check
+      run:  make check
+
+    - name: Run make dist
+      run:  make dist
+
+    # - name: Run the Unit Python Tests
+    #   env:
+    #     COOT_REFMAC_LIB_DIR: /home/runner/work/coot/coot
+    #     COOT_TEST_DATA_DIR:  ../src/greg-data
+    #   run:  cd python-tests && ../src/coot-1 --no-graphics --script run_the_unit_tests.py && cd -
+
+    - name: Upload binaries
+      uses: actions/upload-artifact@v4
+      with:
+        name: ubuntu-binaries-package
+        path: /home/runner/install
+        retention-days: 3
+
