@@ -53,7 +53,7 @@ jobs:
       run:  sudo apt-get update
 
     - name: Install system dependencies
-      run: sudo apt-get install cmake libdw-dev libncurses5-dev libgtk-4-dev libvorbis-dev libasound2-dev gobject-introspection libgirepository1.0-dev gir1.2-glib-2.0
+      run: sudo apt-get install cmake libdw-dev libncurses5-dev libgtk-4-dev libvorbis-dev libasound2-dev gobject-introspection libgirepository1.0-dev gir1.2-glib-2.0 openal
 
     # is this needed?
     - name: Install linear algebra libraries
