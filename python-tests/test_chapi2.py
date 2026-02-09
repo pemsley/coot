@@ -1,4 +1,4 @@
-import chapi
+import coot_headless_api as chapi
 mc = chapi.molecules_container_t(True)
 imol = mc.read_pdb('data/tutorial-modern.pdb')
 residue_list = mc.get_residues_near_residue(imol, '//A/20', 6)
