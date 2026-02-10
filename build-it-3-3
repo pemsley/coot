@@ -2645,69 +2645,29 @@ fi
 ###############################################################################
 
 if true ; then
-    echo BUILDING gemmi from git repo \(and installing GEMMI\)
-    echo BUILDING gemmi from git repo \(and installing GEMMI\) >&2
+    # --------------------------------- gemmi from tar ----------------------------
+    gemmi_version=0.7.4
+    echo BUILDING gemmi from tar gemmi $gemmi_version
+    echo BUILDING gemmi from tar gemmi $gemmi_version >&2
     pwd >&2
     echo gemmi build start_dir is $start_dir
     echo gemmi build start_dir is $start_dir >&2
     echo use this, not the git repo: https://github.com/project-gemmi/gemmi/archive/refs/tags/v0.7.4.tar.gz
     gemmi_tar_dir=https://github.com/project-gemmi/gemmi/archive/refs/tags
-    gemmi_version=v0.7.4
     (
-          save_dir=$(pwd)
           cd "$start_dir"
-          needs_rebuild=false
+          wget https://github.com/project-gemmi/gemmi/archive/refs/tags/v$gemmi_version.tar.gz
           ls -l
-          if [ -e gemmi ] ; then
-              pwd
-              echo path A
-              cd gemmi
-              git remote update
-              git status -uno
-              needs_rebuild=false
-              if git status -uno | grep -q "branch is behind" ; then
-                  needs_rebuild=true
-                  git fetch
-                  git merge
-              fi
-              echo needs rebuild: $needs_rebuild
-              cd -
-          else
-              pwd
-              echo path B
-              git clone https://github.com/project-gemmi/gemmi.git
-              needs_rebuild=true
-          fi
-          # cd gemmi/include
-          # note to self: fix this for Darwin - which has a crippled cp
-          # cp -a -r gemmi $install_top_dir/include
-          # cd -
-          # cd $save_dir
-          needs_rebuild=true; # hack to see what happens
-          echo gemmi needs rebuild: $needs_rebuild
-          echo gemmi needs rebuild: $needs_rebuild > $start_dir/gemmi-rebuild.txt
-          if test "$needs_rebuild" = true ; then
-              if [ -d build-gemmi ] ; then
-                  :
-              else
-                  mkdir build-gemmi
-              fi
-              cd build-gemmi
-              pwd
-              # add -DUSE_PYTHON=1 here at some stage.
-              cmake -DCMAKE_INSTALL_PREFIX=$install_top_dir -DBUILD_SHARED_LIBS=ON ../gemmi
-              if $MAKE ; then
-                  make install
-              else
-                  echo gemmi make failed
-              fi
-          fi
-    ) > $HOSTLOGDIR/05-gemmi.txt 2>&1
-    cat $start_dir/gemmi-rebuild.txt 2>&1
-    echo BUILDING: "done gemmi"
-    echo BUILDING: "done gemmi" >&2
+          tar xf v$gemmi_version.tar.gz
+          mkdir build-gemmi-$gemmi_version
+          cmake -DCMAKE_INSTALL_PREFIX=$install_top_dir -DBUILD_SHARED_LIBS=ON ../gemmi-$gemmi_version
+          make -j 4
+          make install
+    )
+    > $HOSTLOGDIR/05-gemmi.txt 2>&1
+    echo BUILDING: "done from tar gemmi" $gemmi_version
+    echo BUILDING: "done from tar gemmi" $gemmi_version >&2
 fi
-
 
 
 #######################################################################
