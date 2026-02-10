@@ -2641,7 +2641,7 @@ fi
 
 
 ###############################################################################
-# GEMMI is frequently updated and uses git not releases - so always install it.
+# GEMMI now uses releases
 ###############################################################################
 
 if true ; then
@@ -2660,11 +2660,13 @@ if true ; then
           ls -l
           tar xf v$gemmi_version.tar.gz
           mkdir build-gemmi-$gemmi_version
+          cd build-gemmi-$gemmi_version
           cmake -DCMAKE_INSTALL_PREFIX=$install_top_dir -DBUILD_SHARED_LIBS=ON ../gemmi-$gemmi_version
           make -j 4
           make install
-    )
-    > $HOSTLOGDIR/05-gemmi.txt 2>&1
+          cd -
+          cd "$start_dir"
+    ) > $HOSTLOGDIR/05-gemmi.txt 2>&1
     echo BUILDING: "done from tar gemmi" $gemmi_version
     echo BUILDING: "done from tar gemmi" $gemmi_version >&2
 fi
