@@ -922,6 +922,7 @@ namespace coot {
       }
       int size () const { return geometry_distortion.size(); }
       double print() const;  // return the total distortion
+      double print_using_atom_specs() const;  // safe version using stored atom_specs
       double distortion() const;  // return the total distortion
       double distortion_sum() const; // return the sum of the distortions from the restraints - no calculation
       geometry_distortion_info_t get_geometry_distortion_info(unsigned int idx) const;
