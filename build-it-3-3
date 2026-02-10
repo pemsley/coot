@@ -2132,19 +2132,18 @@ fi
 
 # ============= python ================
 #
-# python_version is the filename of the python executable.  For python
-# 2.5.1 it is python2.5, not python2.5.1
+# python_version is the filename of the python executable.
 #
-python_version=python3.13
-pver=3.13.5
-python_version_extension=3.13 # extract this
+python_version=python3.14
+pver=3.14.2
+python_version_extension=3.14 # extract this
 # I think that for python to be compatible with Blender, we don't want the debug version
 # python_abiflags=d # because we use --with-pydebug on the command line for Python configure
-python_version_squish=313
+python_version_squish=314
 
 # for Blender 4 in 2024, we want Python 3.10.13, so uncomment the 3 lines below:
 # for Blender 4.1 in June 2025, we want Python 3.11.x
-# But the CMakeLists file here rqures 3.12.4 - so let's use that
+# But the CMakeLists file here requres 3.12.4 - so let's use that
 if [ "$CHAPI_ONLY" = true ] ; then
 
     # blender
