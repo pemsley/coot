@@ -4638,7 +4638,8 @@ if [ "$build_guile" = true ] ; then
       fi
       cd -
       ) > $HOSTLOGDIR/39-guile.txt 2>&1
-      echo "done guile:"
+      echo "done guile"
+      echo "done guile" >&2
    fi
 else
    echo not building guile:
@@ -4793,6 +4794,7 @@ if [ "$build_guile_lib" = true ] ; then
 
    if [ $skip_this = false ] ; then
       echo ========================= build guile-lib =================================
+      echo BUILDING guile-lib $guile_lib_version >&2
       if [ -e $AUTOBUILD_SOURCES/guile-lib-$guile_lib_version.tar.gz ] ; then
          tar xf $AUTOBUILD_SOURCES/guile-lib-$guile_lib_version.tar.gz
       else
