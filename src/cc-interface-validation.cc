@@ -237,7 +237,7 @@ void show_interesting_positions_dialog(int imol,
    gtk_widget_set_visible(label,      TRUE);
 
    for (auto &button : buttons) {
-      std::cout << "appending button " << button.button << std::endl;
+      // std::cout << "appending button " << button.button << std::endl;
       gtk_box_append(GTK_BOX(vbox), button.button);
    }
 
@@ -282,9 +282,9 @@ void read_interesting_places_json_file(const std::string &file_name) {
 
          auto get_residue_spec = [] (const json &j) {
 
-            std::cout << "Here in get_residue_spec() --- start ---" << std::endl;
+            // std::cout << "Here in get_residue_spec() --- start ---" << std::endl;
             coot::residue_spec_t spec;
-            std::cout << "Here in get_residue_spec() j.size " << j.size() << std::endl;
+            // std::cout << "Here in get_residue_spec() j.size " << j.size() << std::endl;
             if (j.size() == 3) {
                const json &chain_id_item  = j[0];
                const json &res_no_item    = j[1];
@@ -343,7 +343,8 @@ void read_interesting_places_json_file(const std::string &file_name) {
                   unsigned int n_items = j_items.size();
 
                   for (std::size_t i=0; i<n_items; i++) {
-                     std::cout << "item " << i << " of " << n_items << std::endl;
+                     if (debug)
+                        std::cout << "item " << i << " of " << n_items << std::endl;
                      const json &j_item = j_items[i];
                      json::const_iterator it_1 = j_item.find(std::string("position-type"));
                      if (it_1 != j_item.end()) {
@@ -352,7 +353,11 @@ void read_interesting_places_json_file(const std::string &file_name) {
                         coot::Cartesian position(0,0,0);
                         json::const_iterator it_2 = j_item.find(std::string("label"));
                         if (it_2 != j_item.end()) {
+                           if (debug)
+                              std::cout << "found the label" << std::endl;
                            label = it_2.value();
+                        } else {
+                           std::cout << "DEBUG:: " << i << " didn't find the label" << std::endl;
                         }
 
                         if (position_type == "by-atom-spec") {
@@ -411,12 +416,12 @@ void read_interesting_places_json_file(const std::string &file_name) {
                            }
                         }
 
-                        std::cout << "Here H with position_type " << position_type << std::endl;
-
                         if (position_type == "by-residue-spec") {
                            // std::cout << "Here I --- found a by-residue-spec" << std::endl;
                            json::const_iterator it_3 = j_item.find(std::string("residue-spec"));
                            if (it_3 != j_item.end()) {
+                              if (debug)
+                                 std::cout << "found residue-spec" << std::endl;
                               const json &j_residue_spec = *it_3;
                               coot::residue_spec_t residue_spec = get_residue_spec(j_residue_spec);
                               if (residue_spec.chain_id != "unset") {
@@ -428,15 +433,17 @@ void read_interesting_places_json_file(const std::string &file_name) {
                                     residue_spec.float_user_data = badness;
                                     residue_spec.int_user_data = 1; // float user data was set
                                  }
-                                 std::cout << "--------------- on parsing: pushing back residue_spec "
-                                           << residue_spec << std::endl;
                                  residue_specs.push_back(residue_spec);
                               }
+                           } else {
+                              if (debug)
+                                 std::cout << "DEBUG:: didn't find residue spec" << std::endl;
                            }
                         }
 
                         if (position_type == "by-atom-spec") {
-                           std::cout << "Here J --- found a by-atom-spec" << std::endl;
+                           if (debug)
+                              std::cout << "Here J --- found a by-atom-spec" << std::endl;
                            json::const_iterator it_3 = j_item.find(std::string("atom-spec"));
                            if (it_3 != j_item.end()) {
                               const json &j_atom_spec = *it_3;
