@@ -180,7 +180,8 @@ check_PROGRAMS = test-h-bonds testshelxreader test-hole test-elastic \
 		 test-5-residue-fragments test-diff-diff-map-peaks \
 		 make-cablam-like-stats test-cod-atom-types-from-sm-cif test-parse-pisa \
 		 test-coot-utils test-pae servalcat-tracker test-zd test-grid-balls \
-		 test-dirichlet-process test-born test-gmm test-nef-utils test-zernike
+		 test-dirichlet-process test-born test-gmm test-nef-utils test-zernike \
+		 test-zernike-params
 
 # wrong build order - delete from make check for now.
 # test-emma test-convolute test-coot-utils test-segmap
@@ -343,6 +344,10 @@ test_zd_LDADD = libcoot-map-utils.la $(CLIPPER_LIBS)
 test_zernike_SOURCES = test-zernike.cc
 
 test_zernike_LDADD = libcoot-map-heavy.la libcoot-map-utils.la $(CLIPPER_LIBS)
+
+test_zernike_params_SOURCES = test-zernike-params.cc
+
+test_zernike_params_LDADD = libcoot-map-heavy.la libcoot-map-utils.la $(CLIPPER_LIBS)
 
 test_cod_atom_types_SOURCES = test-cod-atom-types.cc
 

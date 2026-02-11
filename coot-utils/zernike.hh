@@ -76,6 +76,24 @@ namespace coot {
                         int n_grid = 64,
                         int order = 20);
 
+      // Compute Zernike descriptor with pre-computed relative mask
+      // Uses relative CA positions for consistent masking at any centre position
+      //
+      // @param xmap The electron density map
+      // @param centre The centre point for the spherical sample region
+      // @param radius The radius of the sampling sphere (Angstroms)
+      // @param relative_ca_positions CA positions relative to reference centre
+      // @param mask_radius Distance threshold from CA atoms (Angstroms)
+      // @param n_grid Number of grid points along each dimension for sampling
+      // @param order Maximum Zernike order n (typically 15-20)
+      ZernikeDescriptor(const clipper::Xmap<float> &xmap,
+                        const clipper::Coord_orth &centre,
+                        float radius,
+                        const std::vector<clipper::Coord_orth> &relative_ca_positions,
+                        float mask_radius,
+                        int n_grid = 64,
+                        int order = 20);
+
       // Default constructor for empty descriptor
       ZernikeDescriptor() : order_(0), radius_(0.0f), n_grid_(0) {}
 
