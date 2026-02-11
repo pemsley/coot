@@ -280,11 +280,10 @@ make_instanced_graphical_bonds_spherical_atoms(coot::instanced_mesh_t &m, // add
                      // we want black rings when the atom is represented in (normal) opaque shape
                      // and atom colour when the opaque ellipsoid is missing.
                      if (render_aniso_atoms_as_empty) {
-                        glm::vec4 ellipsoid_ring_col = glm::vec4(0.1, 0.1, 0.1, 1.0);
                         add_ellipsoidal_multi_ring(&ig_ellipsoid_band, &ig_ellipsoid_band_latitude,
-                                                   sc, t, ori, ellipsoid_ring_col);
+                                                   sc, t, ori, col);
                      } else {
-                        glm::vec4 ellipsoid_ring_col = col;
+                        glm::vec4 ellipsoid_ring_col = glm::vec4(0.1, 0.1, 0.1, 1.0);
                         add_ellipse_rings(&ig_ellipsoid_band, sc, t, ori, ellipsoid_ring_col);
                      }
                      // and let's have an atom sphere when drawing empty ellipsoid rings
