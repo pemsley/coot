@@ -76,7 +76,7 @@ jobs:
 
     - name: Run configure
       env:
-        CXXFLAGS="-Wno-deprecated-declarations"
+        CXXFLAGS: "-Wno-deprecated-declarations"
       # we echo done so that this returns a success status so that the logs are always uploaded
       run: >
         ./configure --prefix=/home/runner/install/coot-Linux-ubuntu
