@@ -32,20 +32,6 @@ jobs:
          path: /home/runner/install/coot-Linux-ubuntu
          key:  coot-deps-ubuntu
 
-    - name: Cache gemmi source
-      id:   Cache-gemmi-source
-      uses: actions/cache@v4
-      with:
-         path: gemmi
-         key:  coot-build-ubuntu-gemmi-cache-source
-
-    - name: Cache gemmi build
-      id:   Cache-gemmi-build-ubuntu
-      uses: actions/cache@v4
-      with:
-         path: build-gemmi
-         key:  coot-build-ubuntu-gemmi-cache-build
-
     - name: Delete any installed Coot libs
       run:  if test -e /home/runner/install/coot-Linux-ubuntu/lib/libcoot-analysis.so ; then rm /home/runner/install/coot-Linux-ubuntu/lib/libcoot* /home/runner/install/coot-Linux-ubuntu/lib/libMoleculesToTrianglesCXXClasses* ; fi
 
