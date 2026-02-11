@@ -4601,9 +4601,18 @@ fi
 if [ "$build_guile" = true ] ; then
    skip_this=false
    if [ "$test_for_already_installed_dependencies" = true ] ; then
-      if [ -e $install_top_dir/include/guile/2.2/libguile.h ] ; then # use the right file
-         skip_this=true
-      fi
+       # why is guile being built (again)?
+       echo ls $install_top_dir/include/guile
+       ls $install_top_dir/include/guile
+       echo ls $install_top_dir/include/guile >&2
+       ls $install_top_dir/include/guile >&2
+       if [ -e $install_top_dir/include/guile/2.2/libguile.h ] ; then # use the right file
+           echo $install_top_dir/include/guile/2.2/libguile.h exists
+           skip_this=true
+       else
+           echo $install_top_dir/include/guile/2.2/libguile.h DOES NOT exist
+           echo We must build guile
+       fi
    fi
 
    # echo guile skip_this $skip_this
@@ -4611,6 +4620,7 @@ if [ "$build_guile" = true ] ; then
    if [ $skip_this = false ] ; then
       echo BUILDING guile:
       echo BUILDING guile $guile_version >&2
+      date >&2
       (
       unset LD_LIBRARY_PATH
       echo ========================= build guile =================================
@@ -4638,7 +4648,8 @@ if [ "$build_guile" = true ] ; then
       fi
       cd -
       ) > $HOSTLOGDIR/39-guile.txt 2>&1
-      echo "done guile:"
+      date >&2
+      echo "done guile" >&2
    fi
 else
    echo not building guile:
