@@ -335,27 +335,25 @@ graphics_info_t::split_resno_inscode(const std::string &entry_str) {
 // It is fine to call this will null go_to_atom_window.
 //
 int
-graphics_info_t::intelligent_next_atom_centring(GtkWidget *go_to_atom_window) {
+graphics_info_t::intelligent_next_atom_centring() {
 
    return intelligent_near_atom_centring(go_to_atom_window, std::string("next"));
 
 }
 
 // Return success status:
-// It is fine to call this will null go_to_atom_window.
 //
 int
-graphics_info_t::intelligent_previous_atom_centring(GtkWidget *go_to_atom_window) {
+graphics_info_t::intelligent_previous_atom_centring() {
 
-   return intelligent_near_atom_centring(go_to_atom_window, std::string("previous"));
+   return intelligent_near_atom_centring(std::string("previous"));
 
 }
 
 // direction is either "next" or "previous"
 //
 int
-graphics_info_t::intelligent_near_atom_centring(GtkWidget *go_to_atom_window,
-                                                const std::string &direction) {
+graphics_info_t::intelligent_near_atom_centring(const std::string &direction) {
 
    auto label_unlabel_centre_atom = [] (mmdb::Atom *at_next, mmdb::Manager *mol, int imol) {
       coot::residue_spec_t residue_next(at_next->GetResidue());
@@ -412,6 +410,11 @@ graphics_info_t::intelligent_near_atom_centring(GtkWidget *go_to_atom_window,
       }
 
       if (atom_index != -1) {
+         if (atom_index >= molecules[imol].atom_sel.n_selected_atoms) {
+            std::cout << "ERROR:: in intelligent_near_atom_centring() atom index error! " 
+                      << atom_index << " " << molecules[imol].atom_sel.n_selected_atoms << std::endl;
+            return 0; // failure
+         }
          mmdb::Atom *next_atom = molecules[imol].atom_sel.atom_selection[atom_index];
          mmdb::Manager *mol    = molecules[imol].atom_sel.mol;
 
@@ -428,6 +431,7 @@ graphics_info_t::intelligent_near_atom_centring(GtkWidget *go_to_atom_window,
 
             label_unlabel_centre_atom(next_atom, mol, imol);
 
+            GtkWidget *go_to_atom_window = widget_from_builder("goto_atom_window");
             if (go_to_atom_window) {
                update_widget_go_to_atom_values(go_to_atom_window, next_atom);
                //          GtkWidget *residue_tree = lookup_widget(go_to_atom_window,
