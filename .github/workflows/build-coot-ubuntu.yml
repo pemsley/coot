@@ -30,7 +30,10 @@ jobs:
       uses: actions/cache@v4
       with:
          path: /home/runner/install/coot-Linux-ubuntu
-         key:  coot-deps-ubuntu
+         key:  coot-deps-ubuntu-v2-${{ github.run_id }}
+         restore-keys: |
+             coot-deps-ubuntu-v2-
+             coot-deps-ubuntu-
 
     - name: Delete any installed Coot libs
       run:  if test -e /home/runner/install/coot-Linux-ubuntu/lib/libcoot-analysis.so ; then rm /home/runner/install/coot-Linux-ubuntu/lib/libcoot* /home/runner/install/coot-Linux-ubuntu/lib/libMoleculesToTrianglesCXXClasses* ; fi
@@ -72,11 +75,12 @@ jobs:
       run:  echo /home/runner/install/coot-Linux-ubuntu/bin >> $GITHUB_PATH
 
     - name: Run configure
+      env:
+        CXXFLAGS="-Wno-deprecated-declarations"
       # we echo done so that this returns a success status so that the logs are always uploaded
       run: >
         ./configure --prefix=/home/runner/install/coot-Linux-ubuntu
         --enable-silent-rules
-        --with-enhanced-ligand-tools
         --with-fftw-prefix=/home/runner/install/coot-Linux-ubuntu
         --with-boost=/home/runner/install/coot-Linux-ubuntu
         --with-gemmi=/home/runner/install/coot-Linux-ubuntu
