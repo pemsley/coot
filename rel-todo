@@ -5,16 +5,23 @@ o Lucrezia's Presentation:
   with 2 sliders: Sharpening and Resolution cutoff
   use raised cosine, or something similar
 
+o emplacement
+
+o chapi.get_ligand_validation_vs_dictionary() generates its
+  data on the fly - when the atoms have expired. Rework this
+  so that the data are filled shortly after the molecule fragment
+  is geneated - and before they go out of scope.
+
 o John Beale
 
+o XDG bernie
+
+o findwaters bug
+* Tested. No bug for me.
+
+o validate flatpak
+
 o Make a modern Blender screenshot
-
-o phenix geobonds
-
-o read/use PTM table in Coot
-   On add_PTM_apply_button_clicked, we need to check
-   the selected new residue type has a dictionary.
-   Else go and get it synchronously.
 
 o generate python api for gemmi like is done for chapi.
   Turn this into Fortran api also?
@@ -35,6 +42,11 @@ o Clement: nice to have: function to calcuate mean, sd of a volume
   in a specified residue - sphere_of_density_stats()
 
 o multipy a map by a map - e.g. local resolution.
+
+o read/use PTM table in Coot
+   On add_PTM_apply_button_clicked, we need to check
+   the selected new residue type has a dictionary.
+* Done
 
 o multi-model ribbons for NMR
 * Done. Nice.
@@ -87,6 +99,15 @@ o get_gaussian_surface_for_atom_selection()
 o make_gaussian_surface_map_for_atom_selection and return a map (create a map molecule)
 * Done.
 
+o phenix geobonds
+* Done.
+
+o make_gaussian_surface_map_for_atom_selection and return a map (create a map molecule)
+* Done.
+
+o Coot: 2luz ribbon diagram, I want to see the ribbon diagram for each model.
+* Done.
+
 o don't forget "proportional editing" - and domain rotation.
 
 o Clement: make a difference between sax data and our model
@@ -101,6 +122,7 @@ o Rota dodec colour, rama balls colours - what is the function?
 o finish the pucker validation analysis.
 
 o have another bash at calculating occlusion
+* I did. Things improved. Still work to do.
 
 o Use gemmi tar files in build-it-3-3
 
@@ -110,11 +132,7 @@ o don't forget the rotamer values from new coot.
 
 o bonds and angles etc validation? in libcootapi.
 
-o rebuild coot dependencies with Python3.14 and new boost and rdkti and libicudata (unicode)
-
-o 2luz custom rerepresentation bonds All molecule> -> Create
-  how about /2,3
-* No, mmdb doesn't do that.
+o rebuild coot dependencies with Python3.14 and new boost and rdkit and libicudata (unicode)
 
 o Claus: thermal ellipsoid with transparenty instead of wireframe.
   or
