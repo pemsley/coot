@@ -2656,7 +2656,7 @@ if true ; then
     gemmi_tar_dir=https://github.com/project-gemmi/gemmi/archive/refs/tags
     (
           cd "$start_dir"
-          wget https://github.com/project-gemmi/gemmi/archive/refs/tags/v$gemmi_version.tar.gz
+          wget -nv https://github.com/project-gemmi/gemmi/archive/refs/tags/v$gemmi_version.tar.gz
           ls -l
           tar xf v$gemmi_version.tar.gz
           mkdir build-gemmi-$gemmi_version
