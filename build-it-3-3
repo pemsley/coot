@@ -2644,11 +2644,14 @@ fi
 # GEMMI now uses releases
 ###############################################################################
 
+# 2026-02-12-PE Put GEMMI after python? Does GEMMI do Python-related configuration?
+
 if true ; then
     # --------------------------------- gemmi from tar ----------------------------
     gemmi_version=0.7.4
     echo BUILDING gemmi from tar gemmi $gemmi_version
     echo BUILDING gemmi from tar gemmi $gemmi_version >&2
+    date >&2
     pwd >&2
     echo gemmi build start_dir is $start_dir
     echo gemmi build start_dir is $start_dir >&2
@@ -2669,6 +2672,7 @@ if true ; then
     ) > $HOSTLOGDIR/05-gemmi.txt 2>&1
     echo BUILDING: "done from tar gemmi" $gemmi_version
     echo BUILDING: "done from tar gemmi" $gemmi_version >&2
+    date >&2
 fi
 
 
@@ -4706,6 +4710,7 @@ if [ "$build_g_wrap" = true ] ; then
    if [ $skip_this = false ] ; then
       echo BUILDING: g-wrap $g_wrap_version
       echo BUILDING: g-wrap $g_wrap_version >&2
+      date >&2
       (
       unset LD_LIBRARY_PATH
       echo ========================= build g-wrap =================================
@@ -4730,6 +4735,7 @@ if [ "$build_g_wrap" = true ] ; then
          fi
       fi
       ) > $HOSTLOGDIR/40-g-wrap.txt 2>&1
+      date >&2
       echo BUILDING: g-wrap done >&2
    fi
 else
@@ -4747,6 +4753,7 @@ if [ "$build_guile_cairo" = true ] ; then
    if [ $skip_this = false ] ; then
       echo BUILDING guile-cairo:
       echo BUILDING guile-cairo $guile_cairo_version >&2
+      date >&2
       (
       unset LD_LIBRARY_PATH
       echo ========================= build guile-cairo =================================
@@ -4769,6 +4776,7 @@ if [ "$build_guile_cairo" = true ] ; then
       fi
       cd -
       ) > $HOSTLOGDIR/41-guile-cairo.txt 2>&1
+      date >&2
       echo BUILDING: "guile-cairo done" >&2
    fi
 else
@@ -4850,6 +4858,7 @@ if [ "$build_guile_gnome_platform" = true ] ; then
    if [ $skip_this = false ] ; then
       echo BUILDING: gnome-gnome-platform
       echo BUILDING: gnome-gnome-platform $guile_gnome_platform_version >&2
+      date >&2
       (
       unset LD_LIBRARY_PATH
       echo ========================= build guile-gnome-platform =================================
@@ -4867,7 +4876,9 @@ if [ "$build_guile_gnome_platform" = true ] ; then
          fi
       fi
       ) > $HOSTLOGDIR/43-guile-gnome-platform.txt 2>&1
-      echo BUILDING gnome-gnome-platform finished
+      echo BUILDING gnome-gnome-platform $guile_gnome_platform_version finished
+      echo BUILDING gnome-gnome-platform finished >&2
+      date >&2
    fi
 else
    echo not building guile-gnome-platform
