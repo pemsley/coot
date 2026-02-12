@@ -2639,6 +2639,11 @@ else
 fi
 
 
+###############################################################################
+# do we want to test for alreay installed dependencies?
+test_for_already_installed_dependencies=true
+###############################################################################
+
 
 ###############################################################################
 # GEMMI now uses releases
@@ -2750,8 +2755,7 @@ fi
 ###############################################################################
 
 
-test_for_already_installed_dependencies=true
-    unset LD_LIBRARY_PATH
+unset LD_LIBRARY_PATH
 
 # So that python3 is found when it is installed:
 #
