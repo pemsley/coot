@@ -1,7 +1,7 @@
-
 /*! \file
   \brief Coot Scripting Interface - Curlew
 */
+#include <string>
 
 /*  ----------------------------------------------------------------------- */
 /*                  curlew                                                  */
