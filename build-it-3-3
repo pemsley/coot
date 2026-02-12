@@ -416,13 +416,13 @@
 # 6.21 20240327-PE Reposition the cairo build (after ninja)
 # 6.22 20240427-PE Fix-ups for building on fedora (partial)
 # 6.23 20250214-PE Remove build_type (gtk4) from directory names
-script_version=6.22
-
-
+# 6.24 20260212-PE update gemmi build wrapper
+script_version=6.24
 
 echo ==================================================== add test for SWIG version
 echo ==================================================== add test for CMake version
 echo this is script version $script_version
+date
 
 
 # :: NOTE::
@@ -2655,11 +2655,14 @@ if true ; then
     # --------------------------------- gemmi from tar ----------------------------
     gemmi_version=0.7.4
     skip_build=false
+    echo testing for existance of $install_top_dir/include/gemmi/version.hpp >&2
+    ls $install_top_dir/include/gemmi/version.hpp >&2
     if [ $test_for_already_installed_dependencies = true ] ; then
         if [ -e $install_top_dir/include/gemmi/version.hpp ] ; then
             skip_build=true
         fi
     fi
+    echo now we have skip_build $skip_build >&2
     if test $skip_build = false ; then
         echo BUILDING gemmi from tar gemmi $gemmi_version
         echo BUILDING gemmi from tar gemmi $gemmi_version >&2
