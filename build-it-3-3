@@ -417,7 +417,8 @@
 # 6.22 20240427-PE Fix-ups for building on fedora (partial)
 # 6.23 20250214-PE Remove build_type (gtk4) from directory names
 # 6.24 20260212-PE update gemmi build wrapper
-script_version=6.24
+# 6.25 20260212-PE update the version of ninja
+script_version=6.25
 
 echo ==================================================== add test for SWIG version
 echo ==================================================== add test for CMake version
@@ -3153,7 +3154,7 @@ if [ $build_ninja = true ] ; then
    (
    # see https://github.com/ninja-build/ninja/releases
    unset LD_LIBRARY_PATH
-   ninja_version=1.10.2
+   ninja_version=1.12.1
    ${WGET} https://github.com/ninja-build/ninja/archive/refs/tags/v$ninja_version.tar.gz
    tar xf ${AUTOBUILD_SOURCES}/v$ninja_version.tar.gz
    cd ninja-$ninja_version
