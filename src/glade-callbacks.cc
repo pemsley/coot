@@ -511,7 +511,7 @@ on_go_to_atom_next_residue_button_clicked (GtkButton       *button,
 /*   goto_next_atom_maybe(chain_str, res_str, atom_name_str, residue_entry); */
 
   GtkWidget *window = widget_from_builder("goto_atom_window");
-  goto_next_atom_maybe_new(window);
+  goto_next_atom_maybe_new();
 }
 
 
@@ -543,7 +543,7 @@ on_go_to_atom_previous_residue_button_clicked (GtkButton       *button,
   GtkWidget *window = widget_from_builder("goto_atom_window");
   if (! window)
      printf("ERROR:: in on_go_to_atom_previous_residue_button_clicked NULL window\n");
-  goto_previous_atom_maybe_new(window);
+  goto_previous_atom_maybe_new();
 }
 
 extern "C" G_MODULE_EXPORT

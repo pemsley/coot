@@ -761,13 +761,11 @@ graphics_info_t::reorienting_next_residue(bool dir) {
       }
    }
    if (! done_it) {
-#ifndef EMSCRIPTEN
       // Oops! Next residue was not found, back to normal/standard/old mode
       if (dir)
-         intelligent_next_atom_centring(go_to_atom_window);
+         intelligent_next_atom_centring();
       else
-         intelligent_previous_atom_centring(go_to_atom_window);
-#endif
+         intelligent_previous_atom_centring();
    }
    // graphics_draw();
 }

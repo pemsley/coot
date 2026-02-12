@@ -282,9 +282,9 @@ graphics_info_t::setup_key_bindings() {
                           } else {
                              // old/standard simple translation
                              if (graphics_info_t::shift_is_pressed) {
-                                g.intelligent_previous_atom_centring(g.go_to_atom_window);
+                                g.intelligent_previous_atom_centring();
                              } else {
-                                g.intelligent_next_atom_centring(g.go_to_atom_window);
+                                g.intelligent_next_atom_centring();
                              }
                           }
                        }

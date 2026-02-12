@@ -400,8 +400,8 @@ void save_molecule_coords_combobox_changed(GtkWidget *combobox, gpointer data);
 GtkWidget *wrapped_create_goto_atom_window();
 void fill_go_to_atom_window(GtkWidget *widget);
 
-int goto_next_atom_maybe_new(GtkWidget *window);
-int goto_previous_atom_maybe_new(GtkWidget *window);
+int goto_next_atom_maybe_new();
+int goto_previous_atom_maybe_new();
 
 /* used by keypress (return) callbacks */
 

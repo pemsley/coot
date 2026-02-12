@@ -1475,9 +1475,9 @@ public:
    static void pointer_atom_molecule_combobox_changed(GtkWidget *combobox, gpointer data);
 
    // return success status
-   int intelligent_next_atom_centring(GtkWidget *widget);
-   int intelligent_previous_atom_centring(GtkWidget *widget);
-   int intelligent_near_atom_centring(GtkWidget *widget, const std::string &direction);
+   int intelligent_next_atom_centring();
+   int intelligent_previous_atom_centring();
+   int intelligent_near_atom_centring(const std::string &direction);
 
    // this can be used for symmetry atom pick:
    std::pair<coot::Cartesian, coot::Cartesian> get_front_and_back_for_pick() const;

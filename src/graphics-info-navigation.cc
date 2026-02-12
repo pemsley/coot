@@ -337,7 +337,7 @@ graphics_info_t::split_resno_inscode(const std::string &entry_str) {
 int
 graphics_info_t::intelligent_next_atom_centring() {
 
-   return intelligent_near_atom_centring(go_to_atom_window, std::string("next"));
+   return intelligent_near_atom_centring(std::string("next"));
 
 }
 
