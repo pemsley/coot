@@ -1003,7 +1003,14 @@ PyObject *global_phasing_screen(int imol, PyObject *screen_dict) {
 
          // --------------------- Aniso SPH Atoms -------------------------------------
 
-         if (! screen_results.aniso_sph_dict_vec.empty()) {
+         std::cout << "screen_results.aniso_sph_dict_vec     size " << screen_results.aniso_sph_dict_vec.size() << std::endl;
+         std::cout << "screen_results.aniso_sph_nonbdict_vec size " << screen_results.aniso_sph_nonb_dict_vec.size() << std::endl;
+         if (screen_results.aniso_sph_dict_vec.empty()) {
+            GtkWidget *page = widget_from_builder("aniso-sph-notebook-page", builder);
+            std::cout << ".................... make page aniso-sph non-visible" << std::endl;
+            if (page)
+               gtk_widget_set_visible(page, FALSE);
+         } else {
             const std::vector<std::map<std::string, std::string> > &v = screen_results.aniso_sph_dict_vec;
             GtkWidget *grid = widget_from_builder("gphl-screen-aniso-sph-grid", builder);
             gtk_grid_set_column_spacing(GTK_GRID(grid), 10);
@@ -1043,7 +1050,11 @@ PyObject *global_phasing_screen(int imol, PyObject *screen_dict) {
 
          // --------------------- Aniso SPH nonbonded Atoms -------------------------------------
 
-         if (! screen_results.aniso_sph_nonb_dict_vec.empty()) {
+         if (screen_results.aniso_sph_nonb_dict_vec.empty()) {
+            GtkWidget *page = widget_from_builder("aniso-sph-nonbonded-notebook-page", builder);
+            if (page)
+               gtk_widget_set_visible(page, FALSE);
+         } else {
             const std::vector<std::map<std::string, std::string> > &v = screen_results.aniso_sph_nonb_dict_vec;
             GtkWidget *grid = widget_from_builder("gphl-screen-aniso-sph-nonb-grid", builder);
             gtk_grid_set_column_spacing(GTK_GRID(grid), 10);
