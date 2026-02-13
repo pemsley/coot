@@ -420,8 +420,6 @@
 # 6.25 20260212-PE update the version of ninja
 script_version=6.25
 
-echo ==================================================== add test for SWIG version
-echo ==================================================== add test for CMake version
 echo this is script version $script_version
 date
 
@@ -1453,7 +1451,10 @@ fi
 
 echo need_guile_unused_values_patch is $need_guile_unused_values_patch
 
-
+#########################
+echo swig version
+swig -version
+#########################
 
 # need to add test that make is GNU make, and set number of processor if we have
 # enough memory and cpus...
@@ -3160,12 +3161,14 @@ if [ $build_ninja = true ] ; then
    cd ninja-$ninja_version
    python3 ./configure.py --bootstrap # builds ninja, requires python
    if [ -e ninja ] ; then
+      echo cp ninja $install_top_dir/bin
       cp ninja $install_top_dir/bin
    else
       echo configure/boostrap of ninja failed - what a surprise.
    fi
    cd -
    ) > $HOSTLOGDIR/15-ninja.txt 2>&1
+   echo done building ninja
 fi
 
 
