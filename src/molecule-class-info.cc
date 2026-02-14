@@ -4404,6 +4404,9 @@ molecule_class_info_t::make_meshes_from_bonds_box_instanced_version() {
                                                  show_aniso_atoms_as_empty_flag,
                                                  num_subdivisions, n_slices, n_stacks, colour_table);
 
+      // Restore the user's material settings after recreating the bonds mesh
+      model_molecule_meshes.set_material(material_for_models);
+
       // 2025-07-28 10:14 I don't want to set this here, surely.
       // There should be some other control.
       // I want to be able to update the mesh without seeing the bonds (Ctrl F)
