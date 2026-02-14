@@ -3202,65 +3202,66 @@ else
     ) > $HOSTLOGDIR/16-a-pixman.txt
 fi
 
-
-#######################################################################
-# Cairo - needed for RKit molecule drawing - which can be used by chapi
-#######################################################################
-# 20240326-PE
-if [ -e $install_top_dir/include/cairo/cairo.h ] ; then
-    echo installation has cairo
-else
-    # we need modern cairo - because that is what is used by GTK4.
-    # in fact, perhaps we should build cairo at all on arch...
-    use_new_cairo=false
-    if test "$dist_name" = arch ; then
-        use_new_cairo=true
-    fi
-    if test "$dist_name" = ubuntu ; then
-        use_new_cairo=true
-    fi
-    if $use_new_cairo = true ; then
-        (
-        cairo_version=1.18.2
-        echo BUILDING: cairo $cairo_version
-        echo BUILDING: cairo $cairo_version >&2
-        ${WGET} https://www.cairographics.org/releases/cairo-$cairo_version.tar.xz
-        tar xf $AUTOBUILD_SOURCES/cairo-$cairo_version.tar.xz
-        cd cairo-$cairo_version
-        meson setup -Dprefix=$install_top_dir build
-        cd build
-        ninja
-        # ninja install
-        echo no install of cairo in this path at the moment.
-        cd ..
-        cd ..
-        ) > $HOSTLOGDIR/16-b-cairo-by-ninja.txt 2>&1
-    else
-       cairo_version=1.16.0 # not meson/ninja
-        echo BUILDING: cairo $cairo_version
-        echo BUILDING: cairo $cairo_version >&2
-        (
-            unset LD_LIBRARY_PATH
-            ${WGET} https://www.cairographics.org/releases/cairo-$cairo_version.tar.xz
-            tar xf $AUTOBUILD_SOURCES/cairo-$cairo_version.tar.xz
-            cd cairo-$cairo_version
-            pwd
-            # meson/ninja
-            # mkdir build
-            # cd build
-            # meson -Dprefix=$install_top_dir ..
-            # ninja
-            # ninja install
-            # cd ..
-            # cd ..
-            # standard
-            ./configure --prefix=$install_top_dir
-            if $MAKE ; then
-                make install
-            fi
-        ) > $HOSTLOGDIR/16-b-cairo.txt 2>&1
-    fi
-fi
+# 20260213-PE shall we just use the system cairo these days?
+#
+# #######################################################################
+# # Cairo - needed for RKit molecule drawing - which can be used by chapi
+# #######################################################################
+# # 20240326-PE
+# if [ -e $install_top_dir/include/cairo/cairo.h ] ; then
+#     echo installation has cairo
+# else
+#     # we need modern cairo - because that is what is used by GTK4.
+#     # in fact, perhaps we should not build cairo at all on arch...
+#     use_new_cairo=false
+#     if test "$dist_name" = arch ; then
+#         use_new_cairo=true
+#     fi
+#     if test "$dist_name" = ubuntu ; then
+#         use_new_cairo=true
+#     fi
+#     if $use_new_cairo = true ; then
+#         (
+#         cairo_version=1.18.2
+#         echo BUILDING: cairo $cairo_version
+#         echo BUILDING: cairo $cairo_version >&2
+#         ${WGET} https://www.cairographics.org/releases/cairo-$cairo_version.tar.xz
+#         tar xf $AUTOBUILD_SOURCES/cairo-$cairo_version.tar.xz
+#         cd cairo-$cairo_version
+#         meson setup -Dprefix=$install_top_dir build
+#         cd build
+#         ninja
+#         # ninja install
+#         echo no install of cairo in this path at the moment.
+#         cd ..
+#         cd ..
+#         ) > $HOSTLOGDIR/16-b-cairo-by-ninja.txt 2>&1
+#     else
+#        cairo_version=1.16.0 # not meson/ninja
+#         echo BUILDING: cairo $cairo_version
+#         echo BUILDING: cairo $cairo_version >&2
+#         (
+#             unset LD_LIBRARY_PATH
+#             ${WGET} https://www.cairographics.org/releases/cairo-$cairo_version.tar.xz
+#             tar xf $AUTOBUILD_SOURCES/cairo-$cairo_version.tar.xz
+#             cd cairo-$cairo_version
+#             pwd
+#             # meson/ninja
+#             # mkdir build
+#             # cd build
+#             # meson -Dprefix=$install_top_dir ..
+#             # ninja
+#             # ninja install
+#             # cd ..
+#             # cd ..
+#             # standard
+#             ./configure --prefix=$install_top_dir
+#             if $MAKE ; then
+#                 make install
+#             fi
+#         ) > $HOSTLOGDIR/16-b-cairo.txt 2>&1
+#     fi
+# fi
 
 
 ###############################################################################
