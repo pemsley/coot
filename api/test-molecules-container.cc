@@ -1779,6 +1779,22 @@ int test_dictionary_bonds(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
 
+   // 2026-02-14 Gemmi 0.7.4 crashes here
+   // #9    Object "/home/runner/install/chapi-Linux-ubuntu/lib/libcootapi.so.1.1", at 0x7fd0da654a14, in molecules_container_t::read_pdb(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+   // #8    Object "/home/runner/install/chapi-Linux-ubuntu/lib/libcootapi.so.1.1", at 0x7fd0da65460f, in molecules_container_t::read_coordinates(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > const&)
+   // #7    Object "/home/runner/install/chapi-Linux-ubuntu/lib/libcootapi.so.1.1", at 0x7fd0da9da7a4, in get_atom_selection(std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, bool, bool, bool)
+   // #6    Object "/home/runner/install/chapi-Linux-ubuntu/lib/libcootapi.so.1.1", at 0x7fd0da9d9cf4, in 
+   // #5    Object "/home/runner/install/chapi-Linux-ubuntu/lib/libcootapi.so.1.1", at 0x7fd0da9ea53b, in gemmi::copy_to_mmdb(gemmi::Structure const&, mmdb::Manager*)
+   // #4    Object "/home/runner/install/chapi-Linux-ubuntu/lib/libcootapi.so.1.1", at 0x7fd0da9e95cb, in gemmi::transfer_seqres_to_mmdb(gemmi::Structure const&, mmdb::Manager*)
+   // #3    Object "/home/runner/install/chapi-Linux-ubuntu/lib/libcootapi.so.1.1", at 0x7fd0da9e8f7c, in gemmi::set_mmdb_seqres(std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > > const&, mmdb::SeqRes&)
+   // #2    Object "./test-molecules-container", at 0x55fd099045be, in std::vector<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> >, std::allocator<std::__cxx11::basic_string<char, std::char_traits<char>, std::allocator<char> > > >::empty() const
+
+   bool use_gemmi = false;
+   if (mc.get_use_gemmi()) {
+      use_gemmi = true;
+      mc.set_use_gemmi(false);
+   }
+
    int imol_1 = mc.read_pdb(reference_data("pdb2sar-part.ent"));
    mc.import_cif_dictionary(reference_data("ATP.cif"), coot::protein_geometry::IMOL_ENC_ANY);
    mc.import_cif_dictionary(reference_data("3GP.cif"), imol_1);
@@ -1808,6 +1824,10 @@ int test_dictionary_bonds(molecules_container_t &mc) {
 	    status = 1;
       }
    }
+
+   // restore gemmi if needed
+   if (use_gemmi)
+      mc.set_use_gemmi(true);
 
    return status;
 }
