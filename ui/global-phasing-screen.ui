@@ -352,7 +352,7 @@
 
             <!-- notebook page -->
             <child>
-              <object class="GtkNotebookPage">
+              <object class="GtkNotebookPage" id="aniso-sph-notebook-page">
                 <property name="position">7</property>
                 <property name="tab">
                   <object class="GtkLabel">
@@ -401,7 +401,7 @@
 
             <!-- notebook page -->
             <child>
-              <object class="GtkNotebookPage">
+              <object class="GtkNotebookPage" id="aniso-sph-nonbonded-notebook-page">
                 <property name="position">7</property>
                 <property name="tab">
                   <object class="GtkLabel">

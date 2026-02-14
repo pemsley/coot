@@ -416,13 +416,14 @@
 # 6.21 20240327-PE Reposition the cairo build (after ninja)
 # 6.22 20240427-PE Fix-ups for building on fedora (partial)
 # 6.23 20250214-PE Remove build_type (gtk4) from directory names
-script_version=6.22
-
-
+# 6.24 20260212-PE update gemmi build wrapper
+# 6.25 20260212-PE update the version of ninja
+script_version=6.25
 
 echo ==================================================== add test for SWIG version
 echo ==================================================== add test for CMake version
 echo this is script version $script_version
+date
 
 
 # :: NOTE::
@@ -2639,6 +2640,11 @@ else
 fi
 
 
+###############################################################################
+# do we want to test for alreay installed dependencies?
+test_for_already_installed_dependencies=true
+###############################################################################
+
 
 ###############################################################################
 # GEMMI now uses releases
@@ -2649,30 +2655,43 @@ fi
 if true ; then
     # --------------------------------- gemmi from tar ----------------------------
     gemmi_version=0.7.4
-    echo BUILDING gemmi from tar gemmi $gemmi_version
-    echo BUILDING gemmi from tar gemmi $gemmi_version >&2
-    date >&2
-    pwd >&2
-    echo gemmi build start_dir is $start_dir
-    echo gemmi build start_dir is $start_dir >&2
-    echo use this, not the git repo: https://github.com/project-gemmi/gemmi/archive/refs/tags/v0.7.4.tar.gz
-    gemmi_tar_dir=https://github.com/project-gemmi/gemmi/archive/refs/tags
-    (
-          cd "$start_dir"
-          wget -nv https://github.com/project-gemmi/gemmi/archive/refs/tags/v$gemmi_version.tar.gz
-          ls -l
-          tar xf v$gemmi_version.tar.gz
-          mkdir build-gemmi-$gemmi_version
-          cd build-gemmi-$gemmi_version
-          cmake -DCMAKE_INSTALL_PREFIX=$install_top_dir -DBUILD_SHARED_LIBS=ON ../gemmi-$gemmi_version
-          make -j 4
-          make install
-          cd -
-          cd "$start_dir"
-    ) > $HOSTLOGDIR/05-gemmi.txt 2>&1
-    echo BUILDING: "done from tar gemmi" $gemmi_version
-    echo BUILDING: "done from tar gemmi" $gemmi_version >&2
-    date >&2
+    skip_build=false
+    echo testing for existance of $install_top_dir/include/gemmi/version.hpp >&2
+    ls $install_top_dir/include/gemmi/version.hpp >&2
+    if [ $test_for_already_installed_dependencies = true ] ; then
+        if [ -e $install_top_dir/include/gemmi/version.hpp ] ; then
+            skip_build=true
+        fi
+    fi
+    echo now we have skip_build $skip_build >&2
+    if test $skip_build = false ; then
+        echo BUILDING gemmi from tar gemmi $gemmi_version
+        echo BUILDING gemmi from tar gemmi $gemmi_version >&2
+        pwd >&2
+        date >&2
+        echo gemmi build start_dir is $start_dir
+        echo gemmi build start_dir is $start_dir >&2
+        echo use this, not the git repo: https://github.com/project-gemmi/gemmi/archive/refs/tags/v0.7.4.tar.gz
+        gemmi_tar_dir=https://github.com/project-gemmi/gemmi/archive/refs/tags
+        (
+            cd "$start_dir"
+            wget -nv https://github.com/project-gemmi/gemmi/archive/refs/tags/v$gemmi_version.tar.gz
+            ls -l
+            tar xf v$gemmi_version.tar.gz
+            mkdir build-gemmi-$gemmi_version
+            cd build-gemmi-$gemmi_version
+            cmake -DCMAKE_INSTALL_PREFIX=$install_top_dir -DBUILD_SHARED_LIBS=ON ../gemmi-$gemmi_version
+            make -j 4
+            make install
+            cd -
+            cd "$start_dir"
+        ) > $HOSTLOGDIR/05-gemmi.txt 2>&1
+        echo BUILDING: "done from tar gemmi" $gemmi_version
+        echo BUILDING: "done from tar gemmi" $gemmi_version >&2
+        date >&2
+    else
+        echo skip gemmi >&2
+    fi
 fi
 
 
@@ -2740,8 +2759,7 @@ fi
 ###############################################################################
 
 
-test_for_already_installed_dependencies=true
-    unset LD_LIBRARY_PATH
+unset LD_LIBRARY_PATH
 
 # So that python3 is found when it is installed:
 #
@@ -3136,7 +3154,7 @@ if [ $build_ninja = true ] ; then
    (
    # see https://github.com/ninja-build/ninja/releases
    unset LD_LIBRARY_PATH
-   ninja_version=1.10.2
+   ninja_version=1.12.1
    ${WGET} https://github.com/ninja-build/ninja/archive/refs/tags/v$ninja_version.tar.gz
    tar xf ${AUTOBUILD_SOURCES}/v$ninja_version.tar.gz
    cd ninja-$ninja_version

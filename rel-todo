@@ -1,16 +1,23 @@
 --- Items ---
 
+o Claude to made chapi tests from test-molecules-container
+
+o if there are no adps then don't make the Anoso sph tab
+  in the screen dialog [Clemens]
+
 o Lucrezia's Presentation:
   interactive FFT.
   with 2 sliders: Sharpening and Resolution cutoff
   use raised cosine, or something similar
 
-o emplacement
+o em_placement
 
 o chapi.get_ligand_validation_vs_dictionary() generates its
   data on the fly - when the atoms have expired. Rework this
   so that the data are filled shortly after the molecule fragment
-  is geneated - and before they go out of scope.
+  is generated - and before they go out of scope.
+
+o in build-it-3-3 build rdkit with inchikey
 
 o John Beale
 
