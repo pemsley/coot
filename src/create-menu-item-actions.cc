@@ -3492,6 +3492,8 @@ void add_PTM_to_residue_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                                    bool is_N_term, bool is_C_term) {
 
       std::vector<coot::ptm_entry_t> entries = graphics_info_t::ptm_database.get_entries_for_residue(res_name);
+      // gtk_cell_layout_clear(GTK_CELL_LAYOUT(combobox));
+      gtk_combo_box_text_remove_all(GTK_COMBO_BOX_TEXT(combobox));
       unsigned int count = 0;
       for (unsigned int i=0; i<entries.size(); i++) {
          const auto &entry = entries[i];
