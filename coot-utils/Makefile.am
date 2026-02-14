@@ -181,7 +181,7 @@ check_PROGRAMS = test-h-bonds testshelxreader test-hole test-elastic \
 		 make-cablam-like-stats test-cod-atom-types-from-sm-cif test-parse-pisa \
 		 test-coot-utils test-pae servalcat-tracker test-zd test-grid-balls \
 		 test-dirichlet-process test-born test-gmm test-nef-utils test-zernike \
-		 test-zernike-params
+		 test-zernike-params test-zernike-nxmap test-zernike-search
 
 # wrong build order - delete from make check for now.
 # test-emma test-convolute test-coot-utils test-segmap
@@ -348,6 +348,19 @@ test_zernike_LDADD = libcoot-map-heavy.la libcoot-map-utils.la $(CLIPPER_LIBS)
 test_zernike_params_SOURCES = test-zernike-params.cc
 
 test_zernike_params_LDADD = libcoot-map-heavy.la libcoot-map-utils.la $(CLIPPER_LIBS)
+
+test_zernike_nxmap_SOURCES = test-zernike-nxmap.cc
+
+test_zernike_nxmap_LDADD = libcoot-map-heavy.la libcoot-map-utils.la $(CLIPPER_LIBS)
+
+test_zernike_search_SOURCES = test-zernike-search.cc
+
+test_zernike_search_LDADD = libcoot-map-heavy.la libcoot-map-utils.la \
+	$(top_builddir)/ligand/libcoot-ligand.la \
+	$(top_builddir)/mini-mol/libcoot-mini-mol.la \
+	$(top_builddir)/geometry/libcoot-geometry.la \
+	$(top_builddir)/utils/libcoot-utils.la \
+	$(CLIPPER_LIBS)
 
 test_cod_atom_types_SOURCES = test-cod-atom-types.cc
 

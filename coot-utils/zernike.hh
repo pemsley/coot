@@ -30,6 +30,7 @@
 #include <vector>
 #include <complex>
 #include <clipper/core/xmap.h>
+#include <clipper/core/nxmap.h>
 #include <clipper/core/coords.h>
 #include <mmdb2/mmdb_manager.h>
 
@@ -91,6 +92,20 @@ namespace coot {
                         float radius,
                         const std::vector<clipper::Coord_orth> &relative_ca_positions,
                         float mask_radius,
+                        int n_grid = 64,
+                        int order = 20);
+
+      // Compute Zernike descriptor from an NXmap (non-crystallographic map)
+      // Useful for calculated density from atomic models
+      //
+      // @param nxmap The non-crystallographic electron density map
+      // @param centre The centre point for the spherical sample region
+      // @param radius The radius of the sampling sphere (Angstroms)
+      // @param n_grid Number of grid points along each dimension for sampling
+      // @param order Maximum Zernike order n (typically 15-20)
+      ZernikeDescriptor(const clipper::NXmap<float> &nxmap,
+                        const clipper::Coord_orth &centre,
+                        float radius,
                         int n_grid = 64,
                         int order = 20);
 

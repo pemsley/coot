@@ -360,6 +360,84 @@ ZernikeDescriptor::ZernikeDescriptor(const clipper::Xmap<float> &xmap,
    compute_invariants();
 }
 
+// Constructor for NXmap (non-crystallographic map, e.g., calculated density)
+ZernikeDescriptor::ZernikeDescriptor(const clipper::NXmap<float> &nxmap,
+                                     const clipper::Coord_orth &centre,
+                                     float radius,
+                                     int n_grid,
+                                     int order)
+   : order_(order), radius_(radius), n_grid_(n_grid) {
+
+   // Precompute Q coefficients for radial polynomials
+   precompute_Q_coefficients();
+
+   // Allocate moments array
+   size_t n_moments = 0;
+   for (int n = 0; n <= order_; ++n) {
+      for (int l = n; l >= 0; l -= 2) {
+         n_moments += 2 * l + 1;
+      }
+   }
+   moments_.resize(n_moments, std::complex<double>(0.0, 0.0));
+
+   // Sample the map on a grid within the sphere
+   std::vector<std::tuple<float,float,float,float>> grid_values;
+   grid_values.reserve(n_grid * n_grid * n_grid);
+
+   float grid_step = 2.0f * radius / (n_grid - 1);
+
+   // Initialize diagnostics (no mask for this constructor)
+   diagnostics_.n_grid_points = 0;
+   diagnostics_.n_points_in_sphere = 0;
+   diagnostics_.n_points_in_mask = 0;
+   diagnostics_.n_points_outside_mask = 0;
+   diagnostics_.density_min = std::numeric_limits<float>::max();
+   diagnostics_.density_max = std::numeric_limits<float>::lowest();
+   diagnostics_.density_sum = 0.0f;
+
+   for (int ix = 0; ix < n_grid; ++ix) {
+      float x = -radius + ix * grid_step;
+      for (int iy = 0; iy < n_grid; ++iy) {
+         float y = -radius + iy * grid_step;
+         for (int iz = 0; iz < n_grid; ++iz) {
+            float z = -radius + iz * grid_step;
+
+            // Check if point is inside the unit ball (normalized coordinates)
+            float r_norm = std::sqrt(x*x + y*y + z*z) / radius;
+            if (r_norm > 1.0f) continue;
+
+            diagnostics_.n_points_in_sphere++;
+
+            // Get density at this point using NXmap nearest-grid sampling
+            clipper::Coord_orth pt(centre.x() + x, centre.y() + y, centre.z() + z);
+            float density = util::density_at_point_by_nearest_grid(nxmap, pt);
+
+            // Update diagnostics
+            diagnostics_.n_grid_points++;
+            diagnostics_.density_sum += density;
+            if (density < diagnostics_.density_min) diagnostics_.density_min = density;
+            if (density > diagnostics_.density_max) diagnostics_.density_max = density;
+
+            // Store normalized coordinates and density
+            grid_values.push_back(std::make_tuple(x/radius, y/radius, z/radius, density));
+         }
+      }
+   }
+
+   // Finalize diagnostics
+   diagnostics_.density_mean = (diagnostics_.n_grid_points > 0) ?
+      diagnostics_.density_sum / diagnostics_.n_grid_points : 0.0f;
+
+   // Compute moments from grid values
+   compute_moments(grid_values);
+
+   // Normalize moments by density sum (shape, not mass)
+   normalize_moments();
+
+   // Convert moments to rotation-invariant descriptors
+   compute_invariants();
+}
+
 // Normalize moments by density sum to make descriptor shape-based, not mass-based
 void ZernikeDescriptor::normalize_moments() {
    if (std::abs(diagnostics_.density_sum) < 1e-10) return;  // avoid division by zero
