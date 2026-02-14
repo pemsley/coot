@@ -12015,4 +12015,10 @@ Mon  9 Feb 2026 21:05:36 GMT
 "Automated structure solution for cryo-EM" Terwilliger, T. C.,
  et al. Acta Crystallographica Section D, 74(6), 543–559. (2018)
 
+---
+Sat 14 Feb 2026 00:25:09 GMT
+
+  How to clear a combobox:
+      gtk_combo_box_text_remove_all(GTK_COMBO_BOX_TEXT(combobox));
+
 

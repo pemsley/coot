@@ -5,12 +5,24 @@ o Claude to made chapi tests from test-molecules-container
 o if there are no adps then don't make the Anoso sph tab
   in the screen dialog [Clemens]
 
+o Check acdrg atom types with a some recent dictionaries
+
+o duplications in the PTMs for ARG. Why?
+
+o delete or close generic display objects from the API
+
+o Martin: Figure with white background distance between
+  atoms is white on white. The pale text is not good.
+  The distance labels should be hideable.
+
 o Lucrezia's Presentation:
   interactive FFT.
   with 2 sliders: Sharpening and Resolution cutoff
   use raised cosine, or something similar
 
 o em_placement
+
+o do something about where ribbons live.
 
 o chapi.get_ligand_validation_vs_dictionary() generates its
   data on the fly - when the atoms have expired. Rework this
