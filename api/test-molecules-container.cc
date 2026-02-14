@@ -749,14 +749,17 @@ int test_density_mesh(molecules_container_t &mc) {
    // this could be any mtz file I suppose
    int imol_map = mc.read_mtz(reference_data("moorhen-tutorial-map-number-1.mtz"), "FWT", "PHWT", "W", false, false);
 
+   std::cout << "DEBUG:: test_density_mesh() imol_map " << imol_map << std::endl;
+
    clipper::Coord_orth p(55, 10, 10);
    float radius = 22;
    float contour_level = 0.13;
    mc.set_map_is_contoured_with_thread_pool(true);
    coot::simple_mesh_t map_mesh = mc.get_map_contours_mesh(imol_map, p.x(), p.y(), p.z(), radius, contour_level);
 
-   // std::cout << "DEBUG:: test_density_mesh(): " << map_mesh.vertices.size() << " vertices and " << map_mesh.triangles.size()
-   // << " triangles" << std::endl;
+   if (true)
+      std::cout << "DEBUG:: test_density_mesh(): " << map_mesh.vertices.size() << " vertices and " << map_mesh.triangles.size()
+                << " triangles" << std::endl;
 
    unsigned int size_1 = map_mesh.vertices.size();
    if (map_mesh.vertices.size() > 30000)
@@ -2076,13 +2079,15 @@ int test_read_a_map(molecules_container_t &mc) {
 
       float radius = 20;
       float contour_level = 0.013;
-      coot::Cartesian p(88.25823211669922, 69.19033813476562, 89.1391372680664);
+      coot::Cartesian p(88.25, 69.19, 89.13);
       coot::simple_mesh_t map_mesh = mc.get_map_contours_mesh(imol_map, p.x(), p.y(), p.z(), radius, contour_level);
       std::cout << "DEBUG:: test_read_a_map(): " << map_mesh.vertices.size() << " vertices and " << map_mesh.triangles.size()
                 << " triangles" << std::endl;
 
       if (map_mesh.vertices.size() > 30000)
          status = 1;
+   } else {
+      std::cout << "DEBUG:: map form test.map is not a valid map" << std::endl;
    }
    mc.close_molecule(imol);
    mc.close_molecule(imol_map);
@@ -2928,6 +2933,13 @@ int test_instanced_bonds_mesh(molecules_container_t &mc) {
    starting_test(__FUNCTION__);
    int status = 0;
 
+   // crash here with gemmi 0.7.4
+   bool use_gemmi = false;
+   if (mc.get_use_gemmi()) {
+      use_gemmi = true;
+      mc.set_use_gemmi(false);
+   }
+
    int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
 
    std::string mode("COLOUR-BY-CHAIN-AND-DICTIONARY");
@@ -2969,6 +2981,8 @@ int test_instanced_bonds_mesh(molecules_container_t &mc) {
       }
    }
    mc.close_molecule(imol);
+   if (use_gemmi)
+      mc.set_use_gemmi(true);
    return status;
 }
 
