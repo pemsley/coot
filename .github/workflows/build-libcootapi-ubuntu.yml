@@ -20,7 +20,7 @@ jobs:
           path: test-molecule-container-test-data-20240316.tar.gz
           key: ubuntu-test-data-cache
 
-      - name: careful download test data
+      # - name: careful download test data
         # run:  wget -N -nv https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/data/test-molecule-container-test-data.tar.gz
         # run: if [ $(wget --spider -S https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/data/test-molecule-container-test-data-20240316.tar.gz |& awk '/^Length/ { print $2 }') != $(wc -c test-molecule-container-test-data-20240316.tar.gz |& awk '{print $1}') ] ; then if [ -e test-molecule-container-test-data-20240316.tar.gz ] ; then rm test-molecule-container-test-data-20240316.tar.gz ; fi && wget https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/data/test-molecule-container-test-data-20240316.tar.gz ; fi
 
