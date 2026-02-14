@@ -3899,7 +3899,7 @@ if [ "$build_rdkit" = true ] ; then
    fi
 
    # hack
-   # skip_this=false
+   skip_this=false
 
    if [ $skip_this = false ] ;  then
 
