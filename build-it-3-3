@@ -4740,7 +4740,9 @@ if [ "$build_g_wrap" = true ] ; then
          tar xf $AUTOBUILD_SOURCES/g-wrap-$g_wrap_version.tar.gz
       else
          g_wrap_version=1.9.15
-         ${WGET} http://savannah.nongnu.org/download/g-wrap/g-wrap-$g_wrap_version.tar.gz
+         # 2026-02-14-PE this fails - don't know why
+         # ${WGET} http://savannah.nongnu.org/download/g-wrap/g-wrap-$g_wrap_version.tar.gz
+         ${WGET} https://mirror.easyname.at/nongnu/g-wrap/g-wrap-$g_wrap_version.tar.gz
          tar xf $AUTOBUILD_SOURCES/g-wrap-$g_wrap_version.tar.gz
       fi
       if [ ! -e $install_top_dir/bin/guile ] ; then
