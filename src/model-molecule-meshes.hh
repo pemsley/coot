@@ -110,12 +110,21 @@ public:
    // Mesh molecule_as_mesh_bonds_c11; // for instancing, both end-caps
    // Mesh molecule_as_mesh_bonds_round_cap_start // instancing
 
-   void set_material(const Material &material_in) { material = material_in; }
+   void set_material(const Material &material_in) {
+      // 2026-02-14-PE this material is not used.
+      material = material_in;
+      // this material in the meshes *is* used
+      for (auto &mesh : instanced_meshes) mesh.set_material(material_in);
+      simple_mesh.set_material(material_in);
+
+   }
    void set_material_specularity(float specular_strength, float shininess) {
       material.specular_strength = specular_strength;
-      material.shininess = shininess; }
-   void set_material_diffuse(const glm::vec4 &diffuse) { material.diffuse = diffuse; }
-   void set_material_ambient(const glm::vec4 &ambient) { material.ambient = ambient; }
+      material.shininess = shininess;
+      set_material(material);
+   }
+   void set_material_diffuse(const glm::vec4 &diffuse) { material.diffuse = diffuse; set_material(material); }
+   void set_material_ambient(const glm::vec4 &ambient) { material.ambient = ambient; set_material(material); }
 
    // --------------------- drawing function ------------------------------------
 
