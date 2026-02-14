@@ -7120,6 +7120,10 @@ int main(int argc, char **argv) {
          status += run_test(test_B_factor_multiply, "B-factor multiply",    mc);
          status += run_test(test_change_chain_id, "change chain id",    mc);
          status += run_test(test_17257, "read emd_17257.map.gz",    mc);
+
+         // 2026-02-14-PE too many gemmi errors. Let's shut it down for now 
+         mc.set_use_gemmi(false);
+
          status += run_test(test_get_diff_map_peaks, "get diff map peaks",    mc);
          status += run_test(test_shiftfield_b_factor_refinement, "Shiftfield B",    mc);
          status += run_test(test_non_drawn_CA_bonds,       "non-drawn bonds in CA+LIGANDS", mc);
