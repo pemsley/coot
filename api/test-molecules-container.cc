@@ -2990,6 +2990,13 @@ int test_instanced_bonds_mesh_v2(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
    int status = 0;
+
+   bool use_gemmi = false;
+   if (mc.get_use_gemmi()) {
+      use_gemmi = true;
+      mc.set_use_gemmi(false);
+   }
+
    int imol = mc.read_pdb(reference_data("pdb8ox7.ent"));
    std::string mode("COLOUR-BY-CHAIN-AND-DICTIONARY");
    std::string selection_cid = "//A/1301"; // "//A/1301||//A/456";
@@ -3013,6 +3020,7 @@ int test_instanced_bonds_mesh_v2(molecules_container_t &mc) {
             status = true;
       }
    }
+   if (use_gemmi) mc.set_use_gemmi(true);
    return status;
 }
 
