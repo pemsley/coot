@@ -64,6 +64,10 @@ namespace coot {
       //! cis-peptide markup can't be drawn instanced
       simple_mesh_t markup;
 
+      //! message
+      std::string message; // if this is non-empty then the mesh generation
+                           // failed and the user should see this messaage.
+
       //! clear
       void clear() { geom.clear(); markup.clear(); }
 

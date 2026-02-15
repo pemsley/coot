@@ -420,9 +420,8 @@ PyObject *residue_centre_py(int imol, const char *chain_id, int resno, const cha
 #ifdef USE_GUILE
 SCM model_composition_statistics_scm(int imol);
 #endif
-#ifdef USE_PYTHON
+
 PyObject *model_composition_statistics_py(int imol);
-#endif
 #endif
 
 
@@ -438,6 +437,21 @@ void remarks_dialog(int imol);
 /*! \brief simply print secondary structure info to the
   terminal/console.  In future, this could/should return the info.  */
 void print_header_secondary_structure_info(int imol);
+
+/*! \brief get the secondary structure from the header
+ *
+ * @param imol the molecule index
+ * @return a dictionary of header info
+ * Returns: {'helices': [...], 'strands': [...]}
+ *
+ * Each helix dict contains:
+ *  serNum, helixID, initChainID, initSeqNum, endChainID, endSeqNum, length, comment
+ *
+ * Each strand dict contains:
+ *  SheetID, strandNo, initChainID, initSeqNum, endChainID, endSeqNum
+ */
+PyObject *get_header_secondary_structure_info(int imol);
+
 
 /*! \brief add secondary structure info to the
   internal representation of the model */
@@ -1839,6 +1853,15 @@ This dialog is left-justified and can use markup such as angled bracketted tt or
 void info_dialog_with_markup(const char *txt);
 
 
+/*! \brief created an ephemeral label in the graphics window
+ *
+ * the text stays on screen for about 2 sesconds.
+ *
+ * @param txt the text
+*/
+void ephemeral_overlay_label(const char *txt);
+
+
 /*! \} */
 
 
@@ -2367,6 +2390,9 @@ void set_show_aniso_atoms(int imol, int state);
 /*! \brief set show aniso atoms as ortep */
 void set_show_aniso_atoms_as_ortep(int imol, int state);
 
+/*! \brief set show aniso atoms as ortep */
+void set_show_aniso_atoms_as_empty(int imol, int state);
+
 /* DELETE-ME */
 void set_aniso_limit_size_from_widget(const char *text);
 
@@ -2408,9 +2434,11 @@ void graphics_draw(); 	/* and wrapper interface to gtk_widget_draw(glarea)  */
 
 /*! \brief try to turn on Zalman stereo mode  */
 void zalman_stereo_mode();
-/*! \brief try to turn on stereo mode  */
+
 void hardware_stereo_mode();
 
+/*! \brief try to turn on stereo mode  */
+void hardware_stereo_mode();
 
 /*! \brief set the stereo mode (the relative view of the eyes)
 
@@ -2425,7 +2453,11 @@ void set_stereo_style(int mode);
 int  stereo_mode_state();
 /*! \brief try to turn on mono mode  */
 void mono_mode();
-/*! \brief turn on side bye side stereo mode */
+
+/*! \brief turn on side bye side stereo mode
+ *
+ * @param use_wall_eye_mode 1 mean wall-eyed, 0 means cross-eyed
+ * */
 void side_by_side_stereo_mode(short int use_wall_eye_mode);
 
 /* DTI stereo mode - undocumented, secret interface for testing, currently.
@@ -2433,10 +2465,12 @@ state should be 0 or 1. */
 /* when it works, call it dti_side_by_side_stereo_mode() */
 void set_dti_stereo_mode(short int state);
 
-/*! \brief how much should the eyes be separated in stereo mode?
+/*! \brief set the stereo angle
+ *
+ * @param angle: stereo angle in degrees - default is 6 degrees
+ * */
+void set_stereo_angle(float angle);
 
-   @param f the angular difference (in multiples of 4.5 degrees) */
-void set_hardware_stereo_angle_factor(float f);
 /*! \brief return the hardware stereo angle factor */
 float hardware_stereo_angle_factor_state();
 
@@ -4964,7 +4998,15 @@ void graphics_to_b_factor_cas_representation(int imol);
 void graphics_to_occupancy_representation(int imol);
 /*! \brief draw molecule number imol in CA+Ligands mode coloured by user-defined atom colours */
 void graphics_to_user_defined_atom_colours_representation(int imol);
-/*! \brief draw molecule number imol all atoms coloured by user-defined atom colours */
+/*! \brief draw molecule number imol all atoms coloured by user-defined atom colours
+ *
+ * Use this function after using set_user_defined_atom_colour_by_selection_py()
+ * and/or set_user_defined_atom_colour_py().
+ * When atom selection colouring has been created or updated, then calling this function
+ * actually forces the regeneration and drawing of the molecule with the new colour scheme.
+ *
+ * @param imol the molecule index
+ * */
 void graphics_to_user_defined_atom_colours_all_atoms_representation(int imol);
 /*! \brief what is the bond drawing state of molecule number imol  */
 int get_graphics_molecule_bond_type(int imol);
@@ -6186,15 +6228,27 @@ void citation_notice_off();
 /*! \{ */
 
 /*! \brief simple interface to superposition.
+ *
+ * @param imol1 the reference model index
+ * @param imol2 the index of the superposed molecule
 
-Superpose all residues of imol2 onto imol1.  imol1 is reference, we
-can either move imol2 or copy it to generate a new molecule depending
-on the vaule of move_imol2_flag (1 for copy 0 for move). */
+   Superpose all residues of imol2 onto imol1.  imol1 is reference, we
+   can either move imol2 or copy it to generate a new molecule depending
+   on the vaule of move_imol2_flag (1 for copy 0 for move). */
 void superpose(int imol1, int imol2, short int move_imol2_flag);
 
 
 /*! \brief chain-based interface to superposition.
-
+ *
+ * @param imol1 the reference model index
+ * @param imol2 the index of the superposed molecule
+ * @param chain_imol1 the chain_id of imol1
+ * @param chain_imol2 the chain_id of imol2
+ * @param chain_used_flag_imol1 should the chain-id be used for imol1 (1 for yes, 0 for no)
+ * @param chain_used_flag_imol2 should the chain-id be used for imol2 (1 for yes, 0 for no)
+ * @param move_imol2_coppy_flag flag to control if imol2 is
+ *        copied (1) or moved (0)
+ 
 Superpose the given chains of imol2 onto imol1.  imol1 is reference,
 we can either move imol2 or copy it to generate a new molecule
 depending on the vaule of move_imol2_flag (1 for move 0 for copy). */
@@ -6207,14 +6261,21 @@ void superpose_with_chain_selection(int imol1, int imol2,
 
 /*! \brief detailed interface to superposition.
 
-Superpose the given atom selection (specified by the mmdb atom
-selection strings) of imol2 onto imol1.  imol1 is reference, we can
-either move imol2 or copy it to generate a new molecule depending on
-the vaule of move_imol2_flag (1 for move 0 for copy).
+   Superpose the given atom selection (specified by the mmdb atom
+   selection strings) of imol2 onto imol1.  imol1 is reference, we can
+   either move imol2 or copy it to generate a new molecule depending on
+   the vaule of move_imol2_flag (1 for move 0 for copy).
 
-@return the index of the superposed molecule - which could either be a
-new molecule (if move_imol2_flag was 1) or the imol2 or -1 (signifying
-failure to do the SMM superposition).
+   @return the index of the superposed molecule - which could either be a
+   new molecule (if move_imol2_flag was 1) or the imol2 or -1 (signifying
+   failure to do the SSM superposition).
+ *
+ * @param imol1 the reference model index
+ * @param imol2 the index of the superposed molecule
+ * @param mmdb_atom_sel_str_1 the mmdb-format atom selection for imol1
+ * @param mmdb_atom_sel_str_2 the mmdb-format atom selection for imol2
+ * @param move_imol2_coppy_flag flag to control if imol2 is
+ *        copied (1) or moved (0)
 */
 int superpose_with_atom_selection(int imol1, int imol2,
 				  const char *mmdb_atom_sel_str_1,
@@ -7291,26 +7352,6 @@ void set_add_linked_residue_do_fit_and_refine(int state);
 /*! \{ */
 
 void fle_view(int imol, const char *chain_id, int res_no, const char *ins_code, float dist_max);
-
-/* delete these other functions  */
-
-void fle_view_internal(int imol, const char *chain_id, int res_no,
-		       const char *ins_code,
-		       int imol_ligand_fragment,
-		       const char *prodrg_output_flat_mol_file_name,
-		       const char *prodrg_output_flat_pdb_file_name,
-		       const char *prodrg_output_3d_pdb_file_name,
-		       const char *prodrg_output_dict_cif_file_name);
-/* for command-line operation */
-void fle_view_internal_to_png(int imol, const char *chain_id, int res_no,
-			      const char *ins_code,
-			      int imol_ligand_fragment,
-			      const char *prodrg_output_flat_mol_file_name,
-			      const char *prodrg_output_flat_pdb_file_name,
-			      const char *prodrg_output_3d_pdb_file_name,
-			      const char *prodrg_output_dict_cif_file_name,
-			      int output_to_png_file_flag,
-			      const char *png_file_name);
 
 void fle_view_with_rdkit(int imol, const char *chain_id, int res_no, const char *ins_code, float residues_near_radius);
 void fle_view_with_rdkit_to_png(int imol, const char *chain_id, int res_no, const char *ins_code, float residues_near_radius, const char *png_file_name);

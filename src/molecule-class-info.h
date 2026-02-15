@@ -26,7 +26,9 @@
 #ifndef MOLECULE_CLASS_INFO_T
 #define MOLECULE_CLASS_INFO_T
 
+#include "coords/phenix-geo.hh"
 #include "geometry/residue-and-atom-specs.hh"
+#include "stereo-eye.hh"
 #include <ctime>
 #ifndef HAVE_STRING
 #define HAVE_STRING
@@ -768,6 +770,7 @@ public:        //                      public
                         int brief_atom_labels_flag,
                         short int seg_ids_in_atom_labels_flag,
                         const glm::vec4 &atom_label_colour,
+                        stereo_eye_t eye,
                         const glm::mat4 &mvp,
                         const glm::mat4 &view_rotation);
 
@@ -1138,6 +1141,7 @@ public:        //                      public
    void draw_atom_labels(int brief_atom_labels_flag,
                          short int seg_ids_in_atom_labels_flag,
                          const glm::vec4 &atom_label_colour,
+                         stereo_eye_t eye,
                          const glm::mat4 &mvp,
                          const glm::mat4 &view_rotation);
 
@@ -1154,6 +1158,7 @@ public:        //                      public
    void old_draw_anisotropic_atoms(); // old OpenGL function
    bool show_atoms_as_aniso_flag;
    bool show_aniso_atoms_as_ortep_flag;
+   bool show_aniso_atoms_as_empty_flag; // draw just the rings
    void set_show_atoms_as_aniso(bool state) {
       if (state != show_atoms_as_aniso_flag) {
          show_atoms_as_aniso_flag = state;
@@ -1167,6 +1172,10 @@ public:        //                      public
          show_aniso_atoms_as_ortep_flag = state;
          make_bonds_type_checked("set_show_aniso_atoms_as_ortep()");
       }
+   }
+   void set_show_aniso_atoms_as_empty(bool state) {
+      show_aniso_atoms_as_empty_flag = state;
+      make_bonds_type_checked("set_show_aniso_atoms_as_empty()");
    }
 
    // void draw_coord_unit_cell(const coot::colour_holder &cell_colour);
@@ -1790,6 +1799,9 @@ public:        //                      public
 							   mmdb::realtype alignment_wgap,
 							   mmdb::realtype alignment_wspace,
 							   bool is_nucleic_acid_flag = false) const;
+
+   bool is_N_terminus(const coot::residue_spec_t &rs) const;
+   bool is_C_terminus(const coot::residue_spec_t &rs) const;
 
    std::vector<std::string> get_types_in_molecule() const;
 
@@ -2633,6 +2645,7 @@ public:        //                      public
    }
 
    void draw_ncs_ghosts(Shader *shader_for_meshes,
+                        stereo_eye_t eye,
                         const glm::mat4 &mvp,
                         const glm::mat4 &model_rotation_matrix,
                         const std::map<unsigned int, lights_info_t> &lights,
@@ -3274,7 +3287,8 @@ public:        //                      public
    Material material_for_maps;
    Material material_for_models;
 
-void draw_map_molecule(bool draw_transparent_maps,
+void draw_map_molecule(stereo_eye_t eye,
+                          bool draw_transparent_maps,
                           Shader &shader, // unusual reference.. .change to pointer for consistency?
                           const glm::mat4 &mvp,
                           const glm::mat4 &view_rotation,
@@ -3601,7 +3615,7 @@ void draw_map_molecule(bool draw_transparent_maps,
 			const std::string &atom_name,
 			const coot::protein_geometry &geom);
 
-   void update_bonds_using_phenix_geo(const coot::phenix_geo_bonds &b);
+   void update_bonds_using_phenix_geo(const coot::phenix_geo::phenix_geometry &b);
 
    void export_map_fragment_to_plain_file(float radius,
 					  clipper::Coord_orth centre,
@@ -3662,7 +3676,7 @@ void draw_map_molecule(bool draw_transparent_maps,
                                     int secondary_structure_usage_flag);
 
    // for AlphaFold pLDDT colouring
-   void add_ribbon_representation_with_user_defined_residue_colours(const std::vector<coot::colour_holder> &user_defined_colours,
+   void add_ribbon_representation_with_user_defined_residue_colours(const std::vector<std::pair<unsigned int, coot::colour_holder> > &user_defined_colours,
                                                                     const std::string &mesh_name);
    void remove_molecular_representation(int idx);
 
@@ -3863,6 +3877,7 @@ void draw_map_molecule(bool draw_transparent_maps,
    Mesh molecule_as_mesh_rota_dodecs;
    // pass this function to the Mesh so that we can determine the atom and bond colours
    void draw_molecule_as_meshes(Shader *shader_p,
+                                stereo_eye_t eye,
                                 const glm::mat4 &mvp,
                                 const glm::mat4 &view_rotation_matrix,
                                 const std::map<unsigned int, lights_info_t> &lights,
@@ -3912,6 +3927,9 @@ void draw_map_molecule(bool draw_transparent_maps,
    std::vector<glm::vec3> chiral_volume_outlier_marker_positions;
 
    std::vector<glm::vec3> unhappy_atom_marker_positions;
+
+   bool read_nef(const std::string &file_name);
+
 
 };
 

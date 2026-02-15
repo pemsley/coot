@@ -446,6 +446,19 @@ Parameters
 imol : int
 ";
 
+%feature("docstring") get_header_secondary_structure_info "
+get the secondary structure from the header
+
+  imol  the molecule index a dictionary of header info Returns: {'helices': [...], 'strands': [...]} Each helix dict contains: serNum, helixID, initChainID, initSeqNum, endChainID, endSeqNum, length, comment
+
+Each strand dict contains: SheetID, strandNo, initChainID, initSeqNum, endChainID, endSeqNum
+
+Parameters
+----------
+imol : int
+    the molecule index
+";
+
 %feature("docstring") add_header_secondary_structure_info "
 add secondary structure info to the internal representation of the model
 
@@ -3270,9 +3283,12 @@ try to turn on mono mode
 %feature("docstring") side_by_side_stereo_mode "
 turn on side bye side stereo mode
 
+  use_wall_eye_mode  1 mean wall-eyed, 0 means cross-eyed
+
 Parameters
 ----------
 use_wall_eye_mode : short int
+    1 mean wall-eyed, 0 means cross-eyed
 ";
 
 %feature("docstring") set_dti_stereo_mode "
@@ -9231,28 +9247,36 @@ run raster3d and display the resulting image.
 %feature("docstring") superpose "
 simple interface to superposition.
 
-Superpose all residues of imol2 onto imol1. imol1 is reference, we can either move imol2 or copy it to generate a new molecule depending on the vaule of move_imol2_flag (1 for copy 0 for move).
+  imol1  the reference model index   imol2  the index of the superposed molecule Superpose all residues of imol2 onto imol1. imol1 is reference, we can either move imol2 or copy it to generate a new molecule depending on the vaule of move_imol2_flag (1 for copy 0 for move).
 
 Parameters
 ----------
 imol1 : int
+    the reference model index
 imol2 : int
+    the index of the superposed molecule
 move_imol2_flag : short int
 ";
 
 %feature("docstring") superpose_with_chain_selection "
 chain-based interface to superposition.
 
-Superpose the given chains of imol2 onto imol1. imol1 is reference, we can either move imol2 or copy it to generate a new molecule depending on the vaule of move_imol2_flag (1 for move 0 for copy).
+  imol1  the reference model index   imol2  the index of the superposed molecule   chain_imol1  the chain_id of imol1   chain_imol2  the chain_id of imol2   chain_used_flag_imol1  should the chain-id be used for imol1 (1 for yes, 0 for no)   chain_used_flag_imol2  should the chain-id be used for imol2 (1 for yes, 0 for no)   move_imol2_coppy_flag  flag to control if imol2 is copied (1) or moved (0) Superpose the given chains of imol2 onto imol1. imol1 is reference, we can either move imol2 or copy it to generate a new molecule depending on the vaule of move_imol2_flag (1 for move 0 for copy).
 
 Parameters
 ----------
 imol1 : int
+    the reference model index
 imol2 : int
+    the index of the superposed molecule
 chain_imol1 : const char *
+    the chain_id of imol1
 chain_imol2 : const char *
+    the chain_id of imol2
 chain_used_flag_imol1 : int
+    should the chain-id be used for imol1 (1 for yes, 0 for no)
 chain_used_flag_imol2 : int
+    should the chain-id be used for imol2 (1 for yes, 0 for no)
 move_imol2_copy_flag : short int
 ";
 
@@ -9261,14 +9285,18 @@ detailed interface to superposition.
 
 Superpose the given atom selection (specified by the mmdb atom selection strings) of imol2 onto imol1. imol1 is reference, we can either move imol2 or copy it to generate a new molecule depending on the vaule of move_imol2_flag (1 for move 0 for copy).
 
-the index of the superposed molecule - which could either be a new molecule (if move_imol2_flag was 1) or the imol2 or -1 (signifying failure to do the SMM superposition).
+the index of the superposed molecule - which could either be a new molecule (if move_imol2_flag was 1) or the imol2 or -1 (signifying failure to do the SSM superposition).   imol1  the reference model index   imol2  the index of the superposed molecule   mmdb_atom_sel_str_1  the mmdb-format atom selection for imol1   mmdb_atom_sel_str_2  the mmdb-format atom selection for imol2   move_imol2_coppy_flag  flag to control if imol2 is copied (1) or moved (0)
 
 Parameters
 ----------
 imol1 : int
+    the reference model index
 imol2 : int
+    the index of the superposed molecule
 mmdb_atom_sel_str_1 : const char *
+    the mmdb-format atom selection for imol1
 mmdb_atom_sel_str_2 : const char *
+    the mmdb-format atom selection for imol2
 move_imol2_copy_flag : short int
 ";
 

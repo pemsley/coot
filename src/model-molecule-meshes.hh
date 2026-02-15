@@ -31,7 +31,7 @@
 #include "Shader.hh"
 #include "Material.hh"
 #include "Mesh.hh"
-#include "api/bond-colour.hh"
+#include "stereo-eye.hh"
 
 // This class draws the meshes in instanced_mesh_t
 // (and that is a vector of instanced meshes and a simple_mesh_t)
@@ -57,6 +57,7 @@ public:
    // wrapper for both the instanced and simple meshes
    void draw(Shader *shader_mesh,
              Shader *shader_instanced_mesh,
+             stereo_eye_t eye,
              const glm::mat4 &mvp,
              const glm::mat4 &view_rotation_matrix,
              const std::map<unsigned int, lights_info_t> &lights,
@@ -68,6 +69,7 @@ public:
              bool show_just_shadows);
 
    void draw_instances(Shader *shader_for_instanced_meshes_p,
+                       stereo_eye_t eye,
                        const glm::mat4 &mvp,
                        const glm::mat4 &view_rotation_matrix,
                        const std::map<unsigned int, lights_info_t> &lights,
@@ -84,6 +86,7 @@ public:
 
    // the (previous) Mesh draw function
    void draw_simple(Shader *shader,
+                    stereo_eye_t eye,
                     const glm::mat4 &mvp,
                     const glm::mat4 &view_rotation_matrix,
                     const std::map<unsigned int, lights_info_t> &lights,
@@ -107,12 +110,21 @@ public:
    // Mesh molecule_as_mesh_bonds_c11; // for instancing, both end-caps
    // Mesh molecule_as_mesh_bonds_round_cap_start // instancing
 
-   void set_material(const Material &material_in) { material = material_in; }
+   void set_material(const Material &material_in) {
+      // 2026-02-14-PE this material is not used.
+      material = material_in;
+      // this material in the meshes *is* used
+      for (auto &mesh : instanced_meshes) mesh.set_material(material_in);
+      simple_mesh.set_material(material_in);
+
+   }
    void set_material_specularity(float specular_strength, float shininess) {
       material.specular_strength = specular_strength;
-      material.shininess = shininess; }
-   void set_material_diffuse(const glm::vec4 &diffuse) { material.diffuse = diffuse; }
-   void set_material_ambient(const glm::vec4 &ambient) { material.ambient = ambient; }
+      material.shininess = shininess;
+      set_material(material);
+   }
+   void set_material_diffuse(const glm::vec4 &diffuse) { material.diffuse = diffuse; set_material(material); }
+   void set_material_ambient(const glm::vec4 &ambient) { material.ambient = ambient; set_material(material); }
 
    // --------------------- drawing function ------------------------------------
 
@@ -161,13 +173,14 @@ public:
    // the simple-lines option for the main molecule
    void make_bond_lines(const graphical_bonds_container &bonds_box, const std::vector<glm::vec4> &colour_table);
 
-   // 20230828-PE it seem sthat udd_handle_bonded_type is not used at the moment
+   // 20230828-PE it seems that udd_handle_bonded_type is not used at the moment
    void make_graphical_bonds(int imol,
                              const graphical_bonds_container &bonds_box,
                              float atom_radius, float bond_radius,
                              bool show_atoms_as_aniso_flag,
                              float aniso_probability,
                              bool show_aniso_atoms_as_ortep_flag,
+                             bool show_aniso_atoms_as_empty_flag,
                              int num_subdivisions, int n_slices, int n_stacks,
                              const std::vector<glm::vec4> &colour_table);
 

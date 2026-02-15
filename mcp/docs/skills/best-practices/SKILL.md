@@ -8,6 +8,31 @@ description: "Best Practices for using Coot MCP"
 
 This skill provides best practices for interacting with Coot's Python API through the MCP server. Following these guidelines ensures optimal performance, correct usage, and reliable results.
 
+## Startup Procedure
+
+**CRITICAL: On every "Coot Mode" start, before doing anything else:**
+
+1. Read the `/mnt/skills/user/coot-essential-api/SKILL.md` file
+2. Extract all function names mentioned in that file
+3. Call `get_function_descriptions()` with the complete list of function names
+4. This loads the essential API documentation into context, providing immediate access to the ~25 core functions needed for typical validation and model-building workflows
+
+This startup procedure eliminates the need to search for basic functions during the session and ensures you have the foundational API ready to use.
+
+Example:
+```python
+# After reading coot-essential-api/SKILL.md, call:
+Coot:get_function_descriptions([
+    "set_refinement_immediate_replacement",
+    "is_valid_model_molecule",
+    "is_valid_map_molecule",
+    # ... all other functions from the essential API
+])
+```
+
+Only after completing this startup should you proceed with the user's task.
+
+
 ## Critical Rule: Prefer C++ Functions Over Python Wrappers
 
 **ALWAYS use `coot.*_py()` functions directly instead of `coot_utils.*` equivalents when they are simple passthroughs.**
@@ -122,6 +147,75 @@ n_chains = coot.n_chains(0)
 import coot_utils
 chains = coot_utils.chain_ids(0)  # Convenience wrapper
 ```
+## MMDB Atom Selection Syntax
+
+When using functions like `new_molecule_by_atom_selection()` or `superpose_with_atom_selection()`, use MMDB atom selection strings to specify which atoms to include.
+
+### Format
+```
+//chn/seq(res).ic/atm[elm]:aloc
+```
+
+### Components
+
+- **`//`** - Model specifier (typically `//` for single-model structures, or `/1/` for model 1)
+- **`chn`** - Chain ID (e.g., `A`, `B`, `X`)
+  - Multiple chains can be specified with commas: `A,B,C`
+- **`seq`** - Residue number or range:
+  - Single: `50`
+  - Range: `10-20`
+- **`res`** - Residue name in parentheses (e.g., `(HIS)`, `(ALA)`, `(GLY)`)
+- **`ic`** - Insertion code
+- **`atm`** - Atom name (e.g., `CA`, `N`, `O`)
+- **`elm`** - Element in square brackets (e.g., `[C]`, `[N]`)
+- **`aloc`** - Alternate location indicator
+
+All components are optional - you only need to specify what you want to filter.
+
+### Examples
+```python
+# Select entire chain
+"//A"                          # All atoms in chain A
+"//A,B,C"                      # All atoms in chains A, B, and C
+
+# Select residue range
+"//A/12-130"                   # Residues 12-130 in chain A
+"//A/12-130/CA"                # CA atoms from residues 12-130 in chain A
+
+# Select specific residue type
+"//B/10-20(GLY)"               # GLY residues 10-20 in chain B
+"//A/*(HIS)"                   # All HIS residues in chain A
+
+# Select specific atom
+"//A/50/CA"                    # CA atom of residue 50 in chain A
+"//A/50(HIS)/CA"               # CA atom of HIS 50 in chain A
+
+# Select multiple chains in one selection
+"//X,Y,1,2"                    # All atoms in chains X, Y, 1, and 2
+```
+
+### Usage Examples
+```python
+import coot
+
+# Create a new molecule with chains A and B
+imol_ab = coot.new_molecule_by_atom_selection(0, "//A,B")
+
+# Create a new molecule with CA atoms from residues 10-50 in chain A
+imol_ca = coot.new_molecule_by_atom_selection(0, "//A/10-50/CA")
+
+# Create molecule with transcription factor (chains X, Y) and DNA (chains 1, 2)
+imol_complex = coot.new_molecule_by_atom_selection(0, "//X,Y,1,2")
+
+# Superpose using atom selection
+coot.superpose_with_atom_selection(
+    imol1=0,
+    imol2=1,
+    mmdb_atom_sel_str_1="//A/10-100",
+    mmdb_atom_sel_str_2="//A/10-100",
+    move_imol2_copy_flag=0
+)
+```
 
 ## Code Execution Patterns
 
@@ -151,6 +245,27 @@ mols  # Final expression is returned
 # ✅ ALSO CORRECT: List comprehension (single expression)
 [i for i in range(3)]
 ```
+
+### Usage Example
+```python
+import coot
+
+# Create a new molecule with only chain A
+imol_chain_a = coot.new_molecule_by_atom_selection(0, "//A")
+
+# Create a new molecule with CA atoms from residues 10-50
+imol_ca = coot.new_molecule_by_atom_selection(0, "//A/10-50/CA")
+
+# Superpose using atom selection
+coot.superpose_with_atom_selection(
+    imol1=0,
+    imol2=1,
+    mmdb_atom_sel_str_1="//A/10-100/CA",
+    mmdb_atom_sel_str_2="//A/10-100/CA",
+    move_imol2_copy_flag=0
+)
+```
+
 
 ## Common Tasks Reference
 
@@ -197,7 +312,7 @@ for chain in chains:
 atom = coot.closest_atom_simple_py()
 if atom:
     imol, chain, resno, ins, atom_name, alt, coords = atom[0], atom[1], atom[2], atom[3], atom[4], atom[5], atom[6]
-    
+
 # ✅ Get active residue (with potential CA substitution)
 import coot_utils
 active = coot_utils.active_residue()

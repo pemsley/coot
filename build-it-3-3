@@ -416,13 +416,12 @@
 # 6.21 20240327-PE Reposition the cairo build (after ninja)
 # 6.22 20240427-PE Fix-ups for building on fedora (partial)
 # 6.23 20250214-PE Remove build_type (gtk4) from directory names
-script_version=6.22
+# 6.24 20260212-PE update gemmi build wrapper
+# 6.25 20260212-PE update the version of ninja
+script_version=6.25
 
-
-
-echo ==================================================== add test for SWIG version
-echo ==================================================== add test for CMake version
 echo this is script version $script_version
+date
 
 
 # :: NOTE::
@@ -1452,7 +1451,10 @@ fi
 
 echo need_guile_unused_values_patch is $need_guile_unused_values_patch
 
-
+#########################
+echo swig version
+swig -version
+#########################
 
 # need to add test that make is GNU make, and set number of processor if we have
 # enough memory and cpus...
@@ -2132,19 +2134,18 @@ fi
 
 # ============= python ================
 #
-# python_version is the filename of the python executable.  For python
-# 2.5.1 it is python2.5, not python2.5.1
+# python_version is the filename of the python executable.
 #
-python_version=python3.13
-pver=3.13.5
-python_version_extension=3.13 # extract this
+python_version=python3.14
+pver=3.14.2
+python_version_extension=3.14 # extract this
 # I think that for python to be compatible with Blender, we don't want the debug version
 # python_abiflags=d # because we use --with-pydebug on the command line for Python configure
-python_version_squish=313
+python_version_squish=314
 
 # for Blender 4 in 2024, we want Python 3.10.13, so uncomment the 3 lines below:
 # for Blender 4.1 in June 2025, we want Python 3.11.x
-# But the CMakeLists file here rqures 3.12.4 - so let's use that
+# But the CMakeLists file here requres 3.12.4 - so let's use that
 if [ "$CHAPI_ONLY" = true ] ; then
 
     # blender
@@ -2640,72 +2641,59 @@ else
 fi
 
 
+###############################################################################
+# do we want to test for alreay installed dependencies?
+test_for_already_installed_dependencies=true
+###############################################################################
+
 
 ###############################################################################
-# GEMMI is frequently updated and uses git not releases - so always install it.
+# GEMMI now uses releases
 ###############################################################################
+
+# 2026-02-12-PE Put GEMMI after python? Does GEMMI do Python-related configuration?
 
 if true ; then
-    echo BUILDING gemmi from git repo \(and installing GEMMI\)
-    echo BUILDING gemmi from git repo \(and installing GEMMI\) >&2
-    pwd >&2
-    echo gemmi build start_dir is $start_dir
-    echo gemmi build start_dir is $start_dir >&2
-    (
-          save_dir=$(pwd)
-          cd "$start_dir"
-          needs_rebuild=false
-          ls -l
-          if [ -e gemmi ] ; then
-              pwd
-              echo path A
-              cd gemmi
-              git remote update
-              git status -uno
-              needs_rebuild=false
-              if git status -uno | grep -q "branch is behind" ; then
-                  needs_rebuild=true
-                  git fetch
-                  git merge
-              fi
-              echo needs rebuild: $needs_rebuild
-              cd -
-          else
-              pwd
-              echo path B
-              git clone https://github.com/project-gemmi/gemmi.git
-              needs_rebuild=true
-          fi
-          # cd gemmi/include
-          # note to self: fix this for Darwin - which has a crippled cp
-          # cp -a -r gemmi $install_top_dir/include
-          # cd -
-          # cd $save_dir
-          needs_rebuild=true; # hack to see what happens
-          echo gemmi needs rebuild: $needs_rebuild
-          echo gemmi needs rebuild: $needs_rebuild > $start_dir/gemmi-rebuild.txt
-          if test "$needs_rebuild" = true ; then
-              if [ -d build-gemmi ] ; then
-                  :
-              else
-                  mkdir build-gemmi
-              fi
-              cd build-gemmi
-              pwd
-              # add -DUSE_PYTHON=1 here at some stage.
-              cmake -DCMAKE_INSTALL_PREFIX=$install_top_dir -DBUILD_SHARED_LIBS=ON ../gemmi
-              if $MAKE ; then
-                  make install
-              else
-                  echo gemmi make failed
-              fi
-          fi
-    ) > $HOSTLOGDIR/05-gemmi.txt 2>&1
-    cat $start_dir/gemmi-rebuild.txt 2>&1
-    echo BUILDING: "done gemmi"
-    echo BUILDING: "done gemmi" >&2
+    # --------------------------------- gemmi from tar ----------------------------
+    gemmi_version=0.7.4
+    skip_build=false
+    echo testing for existance of $install_top_dir/include/gemmi/version.hpp >&2
+    ls $install_top_dir/include/gemmi/version.hpp >&2
+    if [ $test_for_already_installed_dependencies = true ] ; then
+        if [ -e $install_top_dir/include/gemmi/version.hpp ] ; then
+            skip_build=true
+        fi
+    fi
+    echo now we have skip_build $skip_build >&2
+    if test $skip_build = false ; then
+        echo BUILDING gemmi from tar gemmi $gemmi_version
+        echo BUILDING gemmi from tar gemmi $gemmi_version >&2
+        pwd >&2
+        date >&2
+        echo gemmi build start_dir is $start_dir
+        echo gemmi build start_dir is $start_dir >&2
+        echo use this, not the git repo: https://github.com/project-gemmi/gemmi/archive/refs/tags/v0.7.4.tar.gz
+        gemmi_tar_dir=https://github.com/project-gemmi/gemmi/archive/refs/tags
+        (
+            cd "$start_dir"
+            wget -nv https://github.com/project-gemmi/gemmi/archive/refs/tags/v$gemmi_version.tar.gz
+            ls -l
+            tar xf v$gemmi_version.tar.gz
+            mkdir build-gemmi-$gemmi_version
+            cd build-gemmi-$gemmi_version
+            cmake -DCMAKE_INSTALL_PREFIX=$install_top_dir -DBUILD_SHARED_LIBS=ON ../gemmi-$gemmi_version
+            make -j 4
+            make install
+            cd -
+            cd "$start_dir"
+        ) > $HOSTLOGDIR/05-gemmi.txt 2>&1
+        echo BUILDING: "done from tar gemmi" $gemmi_version
+        echo BUILDING: "done from tar gemmi" $gemmi_version >&2
+        date >&2
+    else
+        echo skip gemmi >&2
+    fi
 fi
-
 
 
 #######################################################################
@@ -2772,8 +2760,7 @@ fi
 ###############################################################################
 
 
-test_for_already_installed_dependencies=true
-    unset LD_LIBRARY_PATH
+unset LD_LIBRARY_PATH
 
 # So that python3 is found when it is installed:
 #
@@ -3168,18 +3155,20 @@ if [ $build_ninja = true ] ; then
    (
    # see https://github.com/ninja-build/ninja/releases
    unset LD_LIBRARY_PATH
-   ninja_version=1.10.2
+   ninja_version=1.12.1
    ${WGET} https://github.com/ninja-build/ninja/archive/refs/tags/v$ninja_version.tar.gz
    tar xf ${AUTOBUILD_SOURCES}/v$ninja_version.tar.gz
    cd ninja-$ninja_version
    python3 ./configure.py --bootstrap # builds ninja, requires python
    if [ -e ninja ] ; then
+      echo cp ninja $install_top_dir/bin
       cp ninja $install_top_dir/bin
    else
       echo configure/boostrap of ninja failed - what a surprise.
    fi
    cd -
    ) > $HOSTLOGDIR/15-ninja.txt 2>&1
+   echo done building ninja
 fi
 
 
@@ -3213,65 +3202,66 @@ else
     ) > $HOSTLOGDIR/16-a-pixman.txt
 fi
 
-
-#######################################################################
-# Cairo - needed for RKit molecule drawing - which can be used by chapi
-#######################################################################
-# 20240326-PE
-if [ -e $install_top_dir/include/cairo/cairo.h ] ; then
-    echo installation has cairo
-else
-    # we need modern cairo - because that is what is used by GTK4.
-    # in fact, perhaps we should build cairo at all on arch...
-    use_new_cairo=false
-    if test "$dist_name" = arch ; then
-        use_new_cairo=true
-    fi
-    if test "$dist_name" = ubuntu ; then
-        use_new_cairo=true
-    fi
-    if $use_new_cairo = true ; then
-        (
-        cairo_version=1.18.2
-        echo BUILDING: cairo $cairo_version
-        echo BUILDING: cairo $cairo_version >&2
-        ${WGET} https://www.cairographics.org/releases/cairo-$cairo_version.tar.xz
-        tar xf $AUTOBUILD_SOURCES/cairo-$cairo_version.tar.xz
-        cd cairo-$cairo_version
-        meson setup -Dprefix=$install_top_dir build
-        cd build
-        ninja
-        # ninja install
-        echo no install of cairo in this path at the moment.
-        cd ..
-        cd ..
-        ) > $HOSTLOGDIR/16-b-cairo-by-ninja.txt 2>&1
-    else
-       cairo_version=1.16.0 # not meson/ninja
-        echo BUILDING: cairo $cairo_version
-        echo BUILDING: cairo $cairo_version >&2
-        (
-            unset LD_LIBRARY_PATH
-            ${WGET} https://www.cairographics.org/releases/cairo-$cairo_version.tar.xz
-            tar xf $AUTOBUILD_SOURCES/cairo-$cairo_version.tar.xz
-            cd cairo-$cairo_version
-            pwd
-            # meson/ninja
-            # mkdir build
-            # cd build
-            # meson -Dprefix=$install_top_dir ..
-            # ninja
-            # ninja install
-            # cd ..
-            # cd ..
-            # standard
-            ./configure --prefix=$install_top_dir
-            if $MAKE ; then
-                make install
-            fi
-        ) > $HOSTLOGDIR/16-b-cairo.txt 2>&1
-    fi
-fi
+# 20260213-PE shall we just use the system cairo these days?
+#
+# #######################################################################
+# # Cairo - needed for RKit molecule drawing - which can be used by chapi
+# #######################################################################
+# # 20240326-PE
+# if [ -e $install_top_dir/include/cairo/cairo.h ] ; then
+#     echo installation has cairo
+# else
+#     # we need modern cairo - because that is what is used by GTK4.
+#     # in fact, perhaps we should not build cairo at all on arch...
+#     use_new_cairo=false
+#     if test "$dist_name" = arch ; then
+#         use_new_cairo=true
+#     fi
+#     if test "$dist_name" = ubuntu ; then
+#         use_new_cairo=true
+#     fi
+#     if $use_new_cairo = true ; then
+#         (
+#         cairo_version=1.18.2
+#         echo BUILDING: cairo $cairo_version
+#         echo BUILDING: cairo $cairo_version >&2
+#         ${WGET} https://www.cairographics.org/releases/cairo-$cairo_version.tar.xz
+#         tar xf $AUTOBUILD_SOURCES/cairo-$cairo_version.tar.xz
+#         cd cairo-$cairo_version
+#         meson setup -Dprefix=$install_top_dir build
+#         cd build
+#         ninja
+#         # ninja install
+#         echo no install of cairo in this path at the moment.
+#         cd ..
+#         cd ..
+#         ) > $HOSTLOGDIR/16-b-cairo-by-ninja.txt 2>&1
+#     else
+#        cairo_version=1.16.0 # not meson/ninja
+#         echo BUILDING: cairo $cairo_version
+#         echo BUILDING: cairo $cairo_version >&2
+#         (
+#             unset LD_LIBRARY_PATH
+#             ${WGET} https://www.cairographics.org/releases/cairo-$cairo_version.tar.xz
+#             tar xf $AUTOBUILD_SOURCES/cairo-$cairo_version.tar.xz
+#             cd cairo-$cairo_version
+#             pwd
+#             # meson/ninja
+#             # mkdir build
+#             # cd build
+#             # meson -Dprefix=$install_top_dir ..
+#             # ninja
+#             # ninja install
+#             # cd ..
+#             # cd ..
+#             # standard
+#             ./configure --prefix=$install_top_dir
+#             if $MAKE ; then
+#                 make install
+#             fi
+#         ) > $HOSTLOGDIR/16-b-cairo.txt 2>&1
+#     fi
+# fi
 
 
 ###############################################################################
@@ -4133,6 +4123,7 @@ if [ "$build_rdkit" = true ] ; then
                -DPYTHON_EXECUTABLE=$install_top_dir/bin/python3 \
                -DPYTHON_LIBRARY=$install_top_dir/lib/python$python_version_extension/config-${python_version_extension}$python_abiflags-$python_arch/libpython$python_version_extension$python_abiflags.a \
                -DCMAKE_INSTALL_PREFIX=$install_top_dir \
+               -DRDK_BUILD_INCHI_SUPPORT=ON \
                -DRDK_BUILD_MAEPARSER_SUPPORT=OFF \
                -DRDK_BUILD_CAIRO_SUPPORT=ON \
                -DRDK_INSTALL_INTREE=OFF \
@@ -4148,6 +4139,7 @@ if [ "$build_rdkit" = true ] ; then
                -DPYTHON_EXECUTABLE=$install_top_dir/bin/python3 \
                -DPYTHON_LIBRARY=$install_top_dir/lib/python$python_version_extension/config-${python_version_extension}$python_abiflags-$python_arch/libpython$python_version_extension$python_abiflags.a \
                -DCMAKE_INSTALL_PREFIX=$install_top_dir \
+               -DRDK_BUILD_INCHI_SUPPORT=ON \
                -DRDK_BUILD_MAEPARSER_SUPPORT=OFF \
                -DRDK_BUILD_CAIRO_SUPPORT=ON \
                -DRDK_INSTALL_INTREE=OFF \
@@ -4637,9 +4629,18 @@ fi
 if [ "$build_guile" = true ] ; then
    skip_this=false
    if [ "$test_for_already_installed_dependencies" = true ] ; then
-      if [ -e $install_top_dir/include/guile/2.2/libguile.h ] ; then # use the right file
-         skip_this=true
-      fi
+       # why is guile being built (again)?
+       echo ls $install_top_dir/include/guile
+       ls $install_top_dir/include/guile
+       echo ls $install_top_dir/include/guile >&2
+       ls $install_top_dir/include/guile >&2
+       if [ -e $install_top_dir/include/guile/2.2/libguile.h ] ; then # use the right file
+           echo $install_top_dir/include/guile/2.2/libguile.h exists
+           skip_this=true
+       else
+           echo $install_top_dir/include/guile/2.2/libguile.h DOES NOT exist
+           echo We must build guile
+       fi
    fi
 
    # echo guile skip_this $skip_this
@@ -4647,6 +4648,7 @@ if [ "$build_guile" = true ] ; then
    if [ $skip_this = false ] ; then
       echo BUILDING guile:
       echo BUILDING guile $guile_version >&2
+      date >&2
       (
       unset LD_LIBRARY_PATH
       echo ========================= build guile =================================
@@ -4674,7 +4676,9 @@ if [ "$build_guile" = true ] ; then
       fi
       cd -
       ) > $HOSTLOGDIR/39-guile.txt 2>&1
-      echo "done guile:"
+      date >&2
+      echo "done guile"
+      echo "done guile" >&2
    fi
 else
    echo not building guile:
@@ -4730,6 +4734,7 @@ if [ "$build_g_wrap" = true ] ; then
    if [ $skip_this = false ] ; then
       echo BUILDING: g-wrap $g_wrap_version
       echo BUILDING: g-wrap $g_wrap_version >&2
+      date >&2
       (
       unset LD_LIBRARY_PATH
       echo ========================= build g-wrap =================================
@@ -4737,7 +4742,9 @@ if [ "$build_g_wrap" = true ] ; then
          tar xf $AUTOBUILD_SOURCES/g-wrap-$g_wrap_version.tar.gz
       else
          g_wrap_version=1.9.15
-         ${WGET} http://savannah.nongnu.org/download/g-wrap/g-wrap-$g_wrap_version.tar.gz
+         # 2026-02-14-PE this fails - don't know why
+         # ${WGET} http://savannah.nongnu.org/download/g-wrap/g-wrap-$g_wrap_version.tar.gz
+         ${WGET} https://mirror.easyname.at/nongnu/g-wrap/g-wrap-$g_wrap_version.tar.gz
          tar xf $AUTOBUILD_SOURCES/g-wrap-$g_wrap_version.tar.gz
       fi
       if [ ! -e $install_top_dir/bin/guile ] ; then
@@ -4754,6 +4761,7 @@ if [ "$build_g_wrap" = true ] ; then
          fi
       fi
       ) > $HOSTLOGDIR/40-g-wrap.txt 2>&1
+      date >&2
       echo BUILDING: g-wrap done >&2
    fi
 else
@@ -4771,6 +4779,7 @@ if [ "$build_guile_cairo" = true ] ; then
    if [ $skip_this = false ] ; then
       echo BUILDING guile-cairo:
       echo BUILDING guile-cairo $guile_cairo_version >&2
+      date >&2
       (
       unset LD_LIBRARY_PATH
       echo ========================= build guile-cairo =================================
@@ -4793,6 +4802,7 @@ if [ "$build_guile_cairo" = true ] ; then
       fi
       cd -
       ) > $HOSTLOGDIR/41-guile-cairo.txt 2>&1
+      date >&2
       echo BUILDING: "guile-cairo done" >&2
    fi
 else
@@ -4829,6 +4839,7 @@ if [ "$build_guile_lib" = true ] ; then
 
    if [ $skip_this = false ] ; then
       echo ========================= build guile-lib =================================
+      echo BUILDING guile-lib $guile_lib_version >&2
       if [ -e $AUTOBUILD_SOURCES/guile-lib-$guile_lib_version.tar.gz ] ; then
          tar xf $AUTOBUILD_SOURCES/guile-lib-$guile_lib_version.tar.gz
       else
@@ -4873,6 +4884,7 @@ if [ "$build_guile_gnome_platform" = true ] ; then
    if [ $skip_this = false ] ; then
       echo BUILDING: gnome-gnome-platform
       echo BUILDING: gnome-gnome-platform $guile_gnome_platform_version >&2
+      date >&2
       (
       unset LD_LIBRARY_PATH
       echo ========================= build guile-gnome-platform =================================
@@ -4890,7 +4902,9 @@ if [ "$build_guile_gnome_platform" = true ] ; then
          fi
       fi
       ) > $HOSTLOGDIR/43-guile-gnome-platform.txt 2>&1
-      echo BUILDING gnome-gnome-platform finished
+      echo BUILDING gnome-gnome-platform $guile_gnome_platform_version finished
+      echo BUILDING gnome-gnome-platform finished >&2
+      date >&2
    fi
 else
    echo not building guile-gnome-platform

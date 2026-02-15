@@ -598,6 +598,7 @@ namespace coot {
 
       std::string get_name() const { return name; }
       void set_molecule_name(const std::string &n) { name = n; };
+      mmdb::Manager *get_mol(); // return null on failure
       int get_molecule_index() const { return imol_no; }
       // void set_molecule_index(int idx) { imol_no = idx; } // 20221011-PE needed?
       bool is_valid_model_molecule() const;
@@ -727,6 +728,7 @@ namespace coot {
                                                 bool render_atoms_as_aniso, // if possible, of course
                                                 float aniso_probability,
                                                 bool render_aniso_atoms_as_ortep,
+                                                bool render_aniso_atoms_as_empty,
                                                 int smoothness_factor,
                                                 bool draw_hydrogen_atoms_flag,
                                                 bool draw_missing_residue_loops);
@@ -737,6 +739,7 @@ namespace coot {
                                                               float bonds_width, float atom_radius_to_bond_width_ratio,
                                                               bool render_atoms_as_aniso, // if possible, of course
                                                               bool render_aniso_atoms_as_ortep,
+                                                              bool render_aniso_atoms_as_empty,
                                                               int smoothness_factor,
                                                               bool draw_hydrogen_atoms_flag,
                                                               bool draw_missing_residue_loops);
@@ -829,8 +832,32 @@ namespace coot {
                                                       const std::string &style,
                                                       int secondaryStructureUsageFlag) const;
 
+      class res_prop_t {
+         public:
+         float value; // e.g. worm-radius
+         float value_x; // for aniso props
+         float value_y;
+         float value_z;
+         res_prop_t() : value(-1.1f), value_x(-1.1f), value_y(-1.1f), value_z(-1.1f) {}
+         bool filled_aniso() const { return value_x > 0.0f && value_y > 0.0f && value_z > 0.0f; }
+      };
+      std::map<coot::residue_spec_t, res_prop_t> residue_properties_map;
+
+      //! \brief set the residue properties
+      //!
+      //! a list of propperty maps such as `{"chain-id": "A", "res-no": 34, "ins-code": "", "worm-radius": 1.2}`
+      //!
+      //! @param json_string is the properties in JSON format
+      //! @return true
+      bool set_residue_properties(const std::string &json_string);
+
+      void clear_residue_properties();
+
       simple_mesh_t get_gaussian_surface(float sigma, float contour_level,
                                          float box_radius, float grid_scale, float fft_b_factor) const;
+
+      simple_mesh_t get_gaussian_surface_for_atom_selection(const std::string &cid, float sigma, float contour_level,
+                                                            float box_radius, float grid_scale, float fft_b_factor) const;
 
       simple_mesh_t get_chemical_features_mesh(const std::string &cid, const protein_geometry &geom) const;
 

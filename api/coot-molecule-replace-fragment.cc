@@ -123,7 +123,8 @@ coot::molecule_t::replace_fragment(atom_selection_container_t asc) {
             }
          }
 
-         std::cout << "here in replace_fragment() with idx " << idx << " for " << coot::atom_spec_t(at) << std::endl;
+         // std::cout << "here in replace_fragment() with idx " << idx << " for " << coot::atom_spec_t(at)
+         //           << std::endl;
 
          if (idx == -1) {
             idx = full_atom_spec_to_atom_index(coot::atom_spec_t(at));

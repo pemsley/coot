@@ -38,6 +38,7 @@
 
 #include "Shader.hh"
 #include "Texture.hh" // now TextureMesh contains a vector of Textures - I am not sure this is a good
+#include "stereo-eye.hh"
                       // arrangement (it is a result of load_from_glTF() which also fill/creates textures)
 
 class TextureMeshVertex {
@@ -173,6 +174,7 @@ public:
                         const glm::vec3 &atom_label_position,
                         const glm::vec4 &text_colour, // set using subbufferdata
                         Shader *shader,
+                        stereo_eye_t eye,
                         const glm::mat4 &mvp,
                         const glm::mat4 &view_rotation_matrix,
                         const glm::vec4 &background_colour,

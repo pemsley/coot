@@ -889,6 +889,15 @@ public:
    //!
    //! @param imol is the model molecule index
    //! @param cid is the atom selection CID e.g "//A/15/OH" (atom OH in residue 15 of chain A)
+   //! @return a json string that contains a molecule hierarchy.
+   //!         The atom data include
+   //!   "x"
+   //!   "y"
+   //!   "z"
+   //!   "tempFactor"
+   //!   "occupancy"
+   //!   "name"
+   //!   "element"
    std::string get_molecule_selection_as_json(int imol, const std::string &cid) const;
 
    //! Write a PNG for the given compound_id.
@@ -957,6 +966,7 @@ public:
                                                    float bond_width, float atom_radius_to_bond_width_ratio,
                                                    bool show_atoms_as_aniso_flag,
                                                    bool show_aniso_atoms_as_ortep_flag,
+                                                   bool show_aniso_atoms_as_empty,
                                                    bool draw_hydrogen_atoms_flag,
                                                    int smoothness_factor);
 
@@ -971,6 +981,7 @@ public:
                                                                  float bond_width, float atom_radius_to_bond_width_ratio,
                                                                  bool show_atoms_as_aniso_flag,
                                                                  bool show_aniso_atoms_as_ortep_flag,
+                                                                 bool show_aniso_atoms_as_empty_flag,
                                                                  bool draw_hydrogen_atoms_flag,
                                                                  int smoothness_factor);
 
@@ -1144,10 +1155,28 @@ public:
    //! @param secondary_structure_usage_flag 0 (USE_HEADER), 1 (DONT_USE) or 2 (CALC_SECONDARY_STRUCTURE).
    //!
    //! @return a `simple_mesh_t`
-   coot::simple_mesh_t get_molecular_representation_mesh(int imol, const std::string &cid, const std::string &colour_scheme,
-                                                         const std::string &style, int secondary_structure_usage_flag);
+   coot::simple_mesh_t get_molecular_representation_mesh(int imol, const std::string &cid,
+                                                         const std::string &colour_scheme,
+                                                         const std::string &style,
+                                                         int secondary_structure_usage_flag);
+
+   //! \brief set the residue properties
+   //!
+   //! a list of propperty maps such as `{"chain-id": "A", "res-no": 34, "ins-code": "", "worm-radius": 1.2}`
+   //!
+   //! @param imol is the model molecule index
+   //! @param json_string is the properties in JSON format
+   //! @return true
+   bool set_residue_properties(int imol, const std::string &json_string);
+
+   // \brief clear the reisidue properties
+   //!
+   //! @param imol is the model molecule index
+   void clear_residue_properties(int imol);
 
    //! Get a Gaussian surface representation
+   //!
+   //! Waters are not included in the surface calculation
    //!
    //! @param imol is the model molecule index
    //! @param sigma default 4.4
@@ -1159,6 +1188,61 @@ public:
    //! @return a `simple_mesh_t` composed of a number of Gaussian surfaces (one for each chain)
    coot::simple_mesh_t get_gaussian_surface(int imol, float sigma, float contour_level,
                                             float box_radius, float grid_scale, float b_factor) const;
+
+   //! Get a Gaussian surface representation
+   //!
+   //! Waters are not included in the surface calculation
+   //!
+   //! @param imol is the model molecule index
+   //! @param cid is the atom selection CID
+   //! @param sigma default 4.4
+   //! @param contour_level default 4.0
+   //! @param box_radius default 5.0
+   //! @param grid_scale default 0.7
+   //! @param b_factor default 100.0 (use 0.0 for no FFT-B-factor smoothing)
+   //!
+   //! @return a `simple_mesh_t` composed of a number of Gaussian surfaces (one for each chain)
+   coot::simple_mesh_t get_gaussian_surface_for_atom_selection(int imol, const std::string &cid,
+                                                               float sigma, float contour_level,
+                                                               float box_radius, float grid_scale,
+                                                               float b_factor) const;
+
+   // Make a map from a gaussian surface
+   //!
+   //! Waters are not included in the surface calculation
+   //! The map `imol_map_ref` is used to provide the cell
+   //! and gridding.
+   //!
+   //! @param imol_map_ref is the model molecule index
+   //! @param imol_model is the model molecule index
+   //! @param cid is the atom selection CID
+   //! @param sigma default 4.4
+   //! @param contour_level default 4.0
+   //! @param box_radius default 5.0
+   //! @param grid_scale default 0.7
+   //! @param b_factor default 100.0 (use 0.0 for no FFT-B-factor smoothing)
+   //!
+   //! @return a new molecule index for the map or -1 on failur
+   int gaussian_surface_to_map_molecule(int imol_map_ref, int imol_model,
+                                        const std::string &cid,
+                                        float sigma, float box_radius, float fft_b_factor);
+
+   // Make a map from a gaussian surface
+   //!
+   //! Waters are not included in the surface calculation
+   //!
+   //! @param imol is the model molecule index
+   //! @param cid is the atom selection CID
+   //! @param sigma default 4.4
+   //! @param contour_level default 4.0
+   //! @param box_radius default 5.0
+   //! @param grid_scale default 0.7
+   //! @param b_factor default 100.0 (use 0.0 for no FFT-B-factor smoothing)
+   //!
+   //! @return a new molecule index for the map or -1 on failur
+   int gaussian_surface_to_map_molecule_v2(int imol, const std::string &cid,
+                                          float sigma, float box_radius,
+                                          float grid_scale, float fft_b_factor);
 
    //! Get chemical features for the specified residue
    //!
@@ -1255,6 +1339,9 @@ public:
    float get_molecule_diameter(int imol) const;
 
    //! Get number of hydrogen atoms
+   //!
+   //! Count only the number of hydrogen atoms in the model number 1, not the sum
+   //! from all models.
    //!
    //! @param imol is the model molecule index
    //!
@@ -1496,7 +1583,7 @@ public:
    //! @return the map sampling rate, the default is 1.8
    float get_map_sampling_rate() { return map_sampling_rate; }
 
-   //! Set the map sampling rate
+   //! \brief Set the map sampling rate
    //!
    //! Higher numbers mean smoother maps, but they take
    //! longer to generate, longer to transfer, longer to parse and longer to draw
@@ -1504,7 +1591,7 @@ public:
    //! @param msr is the map sampling rate to set, the default is 1.8
    void set_map_sampling_rate(float msr) { map_sampling_rate = msr; }
 
-   //! Read the given mtz file
+   //! \brief Read the given mtz file
    //!
    //! @param file_name is the name of the MTZ file
    //! @param f F column, "FWT"

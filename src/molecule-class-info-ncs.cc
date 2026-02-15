@@ -23,12 +23,8 @@
  * USA.
  */
 
-#ifdef USE_PYTHON
-#include "Python.h"  // before system includes to stop "POSIX_C_SOURCE" redefined problems
-#endif
 
 #include "compat/coot-sysdep.h"
-
 
 #ifdef _MSC_VER
 #include <windows.h>
@@ -42,14 +38,10 @@
 #include <mmdb2/mmdb_manager.h>
 
 #include "coords/Cartesian.hh"
-#include "coords/mmdb-extras.hh"
 #include "coords/mmdb.hh"
 #include "coords/mmdb-crystal.hh"
 #include "coot-utils/coot-map-utils.hh"
-
 #include "molecule-class-info.h"
-
-#include "xmap-utils.h"
 #include "graphics-info.h"
 
 #include "utils/logging.hh"
@@ -303,6 +295,7 @@ drawn_ghost_molecule_display_t::update_bonds(mmdb::Manager *mol) {
 
 void
 molecule_class_info_t::draw_ncs_ghosts(Shader *shader_for_meshes,
+                                       stereo_eye_t eye,
                                        const glm::mat4 &mvp,
                                        const glm::mat4 &model_rotation_matrix,
                                        const std::map<unsigned int, lights_info_t> &lights,
@@ -311,7 +304,7 @@ molecule_class_info_t::draw_ncs_ghosts(Shader *shader_for_meshes,
 
    if (show_ghosts_flag) {
       for (auto &ghost : ncs_ghosts) {
-         ghost.draw(shader_for_meshes, mvp, model_rotation_matrix, lights, eye_position, background_colour);
+         ghost.draw(shader_for_meshes, eye, mvp, model_rotation_matrix, lights, eye_position, background_colour);
       }
    }
 
@@ -319,6 +312,7 @@ molecule_class_info_t::draw_ncs_ghosts(Shader *shader_for_meshes,
 
 void
 drawn_ghost_molecule_display_t::draw(Shader *shader_p,
+                                     stereo_eye_t eye,
                                      const glm::mat4 &mvp,
                                      const glm::mat4 &view_rotation_matrix,
                                      const std::map<unsigned int, lights_info_t> &lights,
@@ -329,7 +323,7 @@ drawn_ghost_molecule_display_t::draw(Shader *shader_p,
       std::cout << "ncs_ghosts::draw() n-verts: " << mesh.vertices.size()
                 << " n-tris: " << mesh.triangles.size() << std::endl;
    glm::vec3 rc = graphics_info_t::get_rotation_centre();
-   mesh.draw(shader_p, mvp, view_rotation_matrix, lights, eye_position, rc, 1.0, background_colour, false, true, false);
+   mesh.draw(shader_p, eye, mvp, view_rotation_matrix, lights, eye_position, rc, 1.0, background_colour, false, true, false);
 }
 
 

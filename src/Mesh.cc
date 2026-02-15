@@ -29,6 +29,7 @@
 #include <map>
 #include <set>
 #include <chrono>
+#include "stereo-eye.hh"
 
 #ifdef USE_BACKWARD
 #include <utils/backward.hpp>
@@ -163,6 +164,22 @@ Mesh::~Mesh() {
 void
 Mesh::set_is_headless() {
    is_headless = true;
+}
+
+
+// static 
+std::pair<float, float> Mesh::get_stereo_x_scale_and_offset(stereo_eye_t eye) {
+
+   // for side by side stereo, of course
+   float stereo_x_scale  = 1.0;
+   float stereo_x_offset = 0.0;
+   if (eye == stereo_eye_t::LEFT_EYE) {
+      stereo_x_scale = 2.0f;
+   }
+   if (eye == stereo_eye_t::RIGHT_EYE) {
+      stereo_x_offset = -0.5f;
+   }
+   return std::pair<float, float>(stereo_x_scale, stereo_x_offset);
 }
 
 void
@@ -854,6 +871,21 @@ Mesh::setup_buffers() {
    } else {
       glDeleteBuffers(1, &buffer_id);
       glGenBuffers(1, &buffer_id);
+
+
+      if (false)
+         std::cout << "DEBUG setup_buffers: buffer_id=" << buffer_id << " about to bind" << std::endl;
+
+      // Check if we have a valid GL context
+      GLenum err = glGetError();
+      if (err)
+         std::cout << "ERROR:: setup_buffers(): GL error before bind: " << err << std::endl;
+
+      GLint current_context = 0;
+      glGetIntegerv(GL_CURRENT_PROGRAM, &current_context);
+      if (false)
+         std::cout << "Current GL context check (program): " << current_context << std::endl;
+
       glBindBuffer(GL_ARRAY_BUFFER, buffer_id);
       glBufferData(GL_ARRAY_BUFFER, n_vertices * sizeof(s_generic_vertex), &(vertices[0]), GL_STATIC_DRAW);
    }
@@ -1633,6 +1665,7 @@ Mesh::draw_normals(const glm::mat4 &mvp, float normal_scaling) {
 void
 Mesh::draw_instanced(int pass_type,
                      Shader *shader_p,
+                     stereo_eye_t eye,
                      const glm::mat4 &mvp,
                      const glm::mat4 &view_rotation_matrix,
                      const std::map<unsigned int, lights_info_t> &lights,
@@ -1671,10 +1704,17 @@ Mesh::draw_instanced(int pass_type,
    if (err) std::cout << "GL ERROR:: " << shader_p->name << " draw_instanced() post mvp uniform "
                       << err << std::endl;
 
+   // the view_rotation_matrix is not used to calculate glPosition in instanced-objects.shader
+   //
+   std::pair<float, float> stereo_x_scale_and_offset = get_stereo_x_scale_and_offset(eye);
+   const float &stereo_x_scale  = stereo_x_scale_and_offset.first;
+   const float &stereo_x_offset = stereo_x_scale_and_offset.second;
+
    glUniformMatrix4fv(shader_p->view_rotation_uniform_location, 1, GL_FALSE, &view_rotation_matrix[0][0]);
    err = glGetError();
-   if (err) std::cout << "GL ERROR:: Mesh::draw_instanced() " << name << " " << shader_p->name
-                      << " draw_instanced() post view rotation uniform " << err << std::endl;
+   if (err)
+      std::cout << "GL ERROR:: Mesh::draw_instanced() " << name << " " << shader_p->name
+                << " draw_instanced() post view rotation uniform " << err << std::endl;
 
    std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
    float time = std::chrono::duration_cast<std::chrono::milliseconds>(now - time_constructed).count();
@@ -1694,6 +1734,8 @@ Mesh::draw_instanced(int pass_type,
       shader_p->setup_light(light_idx, it->second, view_rotation_matrix);
    }
 
+   shader_p->set_float_for_uniform("stereo_x_scale",  stereo_x_scale);
+   shader_p->set_float_for_uniform("stereo_x_offset", stereo_x_offset);
    shader_p->set_vec4_for_uniform("background_colour", background_colour);
    shader_p->set_bool_for_uniform("do_depth_fog", do_depth_fog);
 
@@ -1754,6 +1796,15 @@ Mesh::draw_instanced(int pass_type,
    if (debug_mode)
       std::cout << "Mesh::draw_instanced() Mesh \"" << name << "\" drawing n_verts " << n_verts << " n_instances " << n_instances
                 << " with shader " << shader_p->name << " and vao " << vao << std::endl;
+
+   err = glGetError();
+   if (err) std::cout << "GL_ERROR pre glDrawElementsInstanced()" << std::endl;
+
+   if (false)
+      std::cout << "draw_instanced() pre-glDrawElementsInstanced()"
+                << " shader: " << shader_p->name << " vao: " << vao
+                << " n_triangle_verts: " << n_verts << " n_instances: " << n_instances
+                << " with GL err " << err << std::endl;
 
    glDrawElementsInstanced(GL_TRIANGLES, n_verts, GL_UNSIGNED_INT, nullptr, n_instances);
    err = glGetError();
@@ -1979,6 +2030,7 @@ Mesh::draw_particles(Shader *shader_p, const glm::mat4 &mvp, const glm::mat4 &vi
 // set the glLineWidth before this draw call (if drawing with lines)
 void
 Mesh::draw(Shader *shader_p,
+           stereo_eye_t eye,
            const glm::mat4 &mvp,
            const glm::mat4 &mouse_based_rotation_matrix,
            const std::map<unsigned int, lights_info_t> &lights,
@@ -2003,6 +2055,8 @@ Mesh::draw(Shader *shader_p,
 
    if (! draw_this_mesh) return;
 
+   const std::string &shader_name = shader_p->name;
+
    unsigned int n_triangles = triangles.size();
    GLuint n_verts = 3 * n_triangles;
 
@@ -2011,21 +2065,33 @@ Mesh::draw(Shader *shader_p,
    if (n_triangles == 0 && lines_vertex_indices.empty()) return;
 
    GLenum err = glGetError();
-   if (err) std::cout << "GL ERROR:: Mesh::draw() " << name << " " << shader_p->name
+   if (err) std::cout << "GL ERROR:: Mesh::draw() " << name << " shader: " << shader_p->name
                       << " -- start -- " << err << std::endl;
    shader_p->Use();
-   const std::string &shader_name = shader_p->name;
-
-   glUniformMatrix4fv(shader_p->mvp_uniform_location, 1, GL_FALSE, &mvp[0][0]);
    err = glGetError();
-   if (err) std::cout << "GL ERROR:: Mesh::draw() shader: " << shader_p->name << " post mvp uniform "
-                      << err << std::endl;
+   if (err)
+      std::cout << "GL ERROR:: Mesh::draw() post Use() " << name
+                << " shader: " << shader_p->name
+                << " error: " << stringify_error_code(err) << std::endl;
+
+   GLint mvp_uniform_location = glGetUniformLocation(shader_p->program_id, "mvp");
+   glUniformMatrix4fv(mvp_uniform_location, 1, GL_FALSE, &mvp[0][0]);
+   err = glGetError();
+   if (err)
+      std::cout << "GL ERROR:: Mesh::draw() " << name
+                << " shader: " << shader_p->name << " post mvp uniform"
+                << " location " << shader_p->mvp_uniform_location
+                << " error: " << stringify_error_code(err) << std::endl;
 
    glUniformMatrix4fv(shader_p->view_rotation_uniform_location, 1, GL_FALSE,
                       &mouse_based_rotation_matrix[0][0]);
    err = glGetError();
    if (err) std::cout << "GL ERROR:: Mesh::draw() " << name << " " << shader_p->name
                       << " draw() post view rotation uniform " << err << std::endl;
+
+   std::pair<float, float> stereo_x_scale_and_offset = get_stereo_x_scale_and_offset(eye);
+   const float &stereo_x_scale  = stereo_x_scale_and_offset.first;
+   const float &stereo_x_offset = stereo_x_scale_and_offset.second;
 
    std::map<unsigned int, lights_info_t>::const_iterator it;
    unsigned int light_idx = 0;
@@ -2055,6 +2121,14 @@ Mesh::draw(Shader *shader_p,
    shader_p->set_vec4_for_uniform( "material.specular",  material.specular);
    shader_p->set_float_for_uniform("material.shininess", material.shininess);
    shader_p->set_float_for_uniform("material.specular_strength", material.specular_strength);
+
+   if (false)
+      std::cout << "DEBUG:: Mesh::draw() name: " << name << " shader-name: " << shader_p->name
+                << " eye " << static_cast<int>(eye) 
+                << " stereo_x_scale " << stereo_x_scale << " stereo_x_offset " << stereo_x_offset << std::endl;
+
+   shader_p->set_float_for_uniform("stereo_x_scale",  stereo_x_scale);
+   shader_p->set_float_for_uniform("stereo_x_offset", stereo_x_offset);
 
    if (false) {
       std::cout << "debug:: Mesh::draw(): " << name << " " << shader_p->name << " do_specular "

@@ -115,11 +115,11 @@ int test_non_drawn_bond_multi_cid_2(molecules_container_t &mc) {
    int coordMolNo = mc.read_pdb(reference_data("5a3h.pdb"));
    if (mc.is_valid_model_molecule(coordMolNo)) {
       auto instanceMesh_1 = mc.get_bonds_mesh_for_selection_instanced(
-         coordMolNo, "//A/10-20||//A/25-30", "COLOUR-BY-CHAIN-AND-DICTIONARY", false, 0.1, 1, false, false, true, 1);
+         coordMolNo, "//A/10-20||//A/25-30", "COLOUR-BY-CHAIN-AND-DICTIONARY", false, 0.1, 1, false, false, false, true, 1);
 
       mc.add_to_non_drawn_bonds(coordMolNo, "//A/26-30");
       auto instanceMesh_2 = mc.get_bonds_mesh_for_selection_instanced(
-         coordMolNo, "//A/10-20||//A/25-30", "COLOUR-BY-CHAIN-AND-DICTIONARY", false, 0.1, 1, false, false, true, 1);
+         coordMolNo, "//A/10-20||//A/25-30", "COLOUR-BY-CHAIN-AND-DICTIONARY", false, 0.1, 1, false, false, false, true, 1);
 
       // mc.print_non_drawn_bonds(coordMolNo);
 
@@ -187,7 +187,7 @@ int test_change_chain_id_1(molecules_container_t &molecules_container) {
    molecules_container.add_colour_rule(coordMolNo, "//B", "#0000ff");
 
    auto instanceMesh_1 = molecules_container.get_bonds_mesh_instanced(
-      coordMolNo, "COLOUR-BY-CHAIN-AND-DICTIONARY", false, 0.1, 1, false, false, true, 1);
+      coordMolNo, "COLOUR-BY-CHAIN-AND-DICTIONARY", false, 0.1, 1, false, false, false, true, 1);
 
    std::vector<std::string> original_chains;
    auto original_chains_vec = molecules_container.get_chains_in_model(coordMolNo);
@@ -251,7 +251,7 @@ int test_change_chain_id_1(molecules_container_t &molecules_container) {
    //molecules_container.add_colour_rule(coordMolNo, '//X', '#0000ff').  ----> IF I COMMENT THIS OUT I GET BUS ERROR
 
    auto instanceMesh_2 = molecules_container.get_bonds_mesh_instanced(
-      coordMolNo, "COLOUR-BY-CHAIN-AND-DICTIONARY", false, 0.1, 1, false, false, true, 1);
+      coordMolNo, "COLOUR-BY-CHAIN-AND-DICTIONARY", false, 0.1, 1, false, false, false, true, 1);
 
    // expect(
    //    instanceMesh_2.geom.get(1).instancing_data_B.size()

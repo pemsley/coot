@@ -886,7 +886,7 @@ Get detailed atom information for a residue (Python interface)
 
 Returns per-atom information including coordinates, occupancy, B-factor, and element for all atoms in the specified residue. Useful for inspecting residue completeness and identifying missing atoms.
 
-  imol  Model molecule index   chain_id  Chain identifier (e.g., \"A\")   resno  Residue number   ins_code  Insertion code (use \"\" if none) PyObject* - A list of atom information, one entry per atom: [ [[atom_name, alt_conf], [occupancy, b_factor, element, ?], [x, y, z], atom_index], ... ]  atom_name (str): Atom name (e.g., \" CA \", \" SG \") alt_conf (str): Alternate conformation identifier (\"\" if none) occupancy (float): Atom occupancy (0.0-1.0) b_factor (float): Temperature factor element (str): Element symbol (e.g., \" C\", \" N\", \" S\") x , y , z (float): Cartesian coordinates in Ångstroms atom_index (int): Internal atom index Example usage: # Check if a CYS residue has all expected atoms atoms = coot.residue_info_py(0, \"A\" , 72, \"\" ) atom_names = [a[0][0].strip() for a in atoms] print(f \"Atoms present: {atom_names}\" ) expected_cys = [ 'N' , 'CA' , 'CB' , 'SG' , 'C' , 'O' ] missing = [a for a in expected_cys if a not in atom_names] if missing: print(f \"Missing atoms: {missing}\" ) # Get B-factors for all atoms for atom in atoms: name = atom[0][0].strip() b_factor = atom[1][1] print(f \"{name}: B={b_factor:.2f}\" )
+  imol  Model molecule index   chain_id  Chain identifier (e.g., \"A\")   resno  Residue number   ins_code  Insertion code (use \"\" if none) PyObject* - A list of atom information, one entry per atom: [ [[atom_name, alt_conf], [occupancy, b_factor, element, seg_id], [x, y, z], atom_index], ... ]  atom_name (str): Atom name (e.g., \" CA \", \" SG \") alt_conf (str): Alternate conformation identifier (\"\" if none) occupancy (float): Atom occupancy (0.0-1.0) b_factor (float or list of [b_iso, B11, B22, B33, B12, B13, B23]): Temperature factor element (str): Element symbol (e.g., \" C\", \" N\", \" S\") x , y , z (float): Cartesian coordinates in Ångstroms atom_index (int): Internal atom index Example usage: # Check if a CYS residue has all expected atoms atoms = coot.residue_info_py(0, \"A\" , 72, \"\" ) atom_names = [a[0][0].strip() for a in atoms] print(f \"Atoms present: {atom_names}\" ) expected_cys = [ 'N' , 'CA' , 'CB' , 'SG' , 'C' , 'O' ] missing = [a for a in expected_cys if a not in atom_names] if missing: print(f \"Missing atoms: {missing}\" ) # Get B-factors for all atoms for atom in atoms: name = atom[0][0].strip() b_factor = atom[1][1] print(f \"{name}: B={b_factor:.2f}\" )
 
 Parameters
 ----------
@@ -901,7 +901,7 @@ ins_code : const char *
 ";
 
 %feature("docstring") residue_name_py "
-resturn the residue name
+get the residue name
 
   imol  Model molecule index   chain_id  Chain identifier (e.g., \"A\")   resno  Residue number   ins_code  Insertion code (use \"\" if none) residue name string or blank string on failure
 
@@ -2348,14 +2348,14 @@ pos_list : object
 %feature("docstring") molecule_atom_overlaps_py "
 get the atom overlaps for the molecule
 
-  imol  the molecule index   n_max_pairs  the maximum number of atom pairs to return. Typically this a list of dictionaries with contact information.
+  imol  the molecule index   n_max_pairs  the maximum number of atom pairs to return. Typically this should be 20 or 30. Use -1 (with caution!) to get all of the (poteentially thousands) of atom overlaps. a list of dictionaries with contact information. The list is sorted by largest overlap first. Return False on failure.
 
 Parameters
 ----------
 imol : int
     the molecule index
 n_max_pairs : int
-    the maximum number of atom pairs to return. Typically this
+    the maximum number of atom pairs to return. Typically this should be 20 or 30. Use -1 (with caution!) to get all of the (poteentially thousands) of atom overlaps.
 ";
 
 %feature("docstring") molecule_atom_overlaps_scm "
@@ -3399,7 +3399,7 @@ Identifies regions of significant electron density that are not explained by the
 
 The function masks out density already explained by the model atoms, then searches for contiguous regions of density above the specified sigma threshold. Each blob is characterized by its center position and an integrated volume/score representing the strength of the feature.
 
-  imol_model  The model molecule index. Density explained by atoms in this model will be masked out (excluded) from the search. Must be a valid model molecule.   imol_map  The map molecule index to search for unmodeled density. This is typically a difference map (mFo-DFc) for most sensitive detection, but can also be a regular map (2mFo-DFc). Must be a valid map molecule.   cut_off_sigma  The sigma threshold for blob detection (in units of map sigma). Typical values:  3.0σ: Standard threshold for significant features in difference maps 2.5σ: More sensitive, finds weaker features (more false positives) 4.0σ: Conservative, only very strong features (fewer false positives) 1.0σ: For regular maps (2mFo-DFc), lower threshold appropriate PyObject* - Returns a Python list of blobs, or Py_False on error. Return format (on success): [ [[x1, y1, z1], volume1], # First blob: [position_list, score] [[x2, y2, z2], volume2], # Second blob ... ]
+  imol_model  The model molecule index. Density explained by atoms in this model will be masked out (excluded) from the search. Must be a valid model molecule.   imol_map  The map molecule index to search for unmodeled density. This is typically a difference map (mFo-DFc) for most sensitive detection, but can also be a regular map (2mFo-DFc). Must be a valid map molecule.   cut_off_sigma  The sigma threshold for blob detection (in units of map sigma). Typical values:  3.5σ: Standard threshold for significant features in difference maps 2.5σ: More sensitive, finds weaker features (more false positives) 4.5σ: Conservative, only strong features (fewer false positives) 1.0σ: For regular maps (2mFo-DFc), lower threshold appropriate PyObject* - Returns a Python list of blobs, or Py_False on error. Return format (on success): [ [[x1, y1, z1], volume1], # First blob: [position_list, score] [[x2, y2, z2], volume2], # Second blob ... ]
 
 Each blob is represented as a 2-element list:  Element 0: Position as [x, y, z] list (coordinates in Ångströms, orthogonal space) Element 1: Volume/score as float (integrated density strength)
 
@@ -3920,22 +3920,31 @@ scale_factor : float
 ";
 
 %feature("docstring") set_use_fancy_lighting "
-set use fancy lighting (default 1 = true);
+set use fancy rendering lighting
+
+Turn on framebuffer effects
+
+  state  where 1 mean turn on and 0 means turn off.
 
 Parameters
 ----------
 state : short int
+    where 1 mean turn on and 0 means turn off.
 ";
 
 %feature("docstring") set_use_simple_lines_for_model_molecules "
 set use simple lines for model molecule
 
+  state  where 1 mean turn on and 0 means turn off.
+
 Parameters
 ----------
 state : short int
+    where 1 mean turn on and 0 means turn off.
 ";
 
 %feature("docstring") set_fresnel_colour "
+  state  where 1 mean turn on and 0 means turn off.
 
 Parameters
 ----------
@@ -3964,9 +3973,12 @@ st : float
 %feature("docstring") set_shadow_strength "
 set shadow stren
 
+  s  is the shadow strength between 0 and 1.
+
 Parameters
 ----------
 s : float
+    is the shadow strength between 0 and 1.
 ";
 
 %feature("docstring") set_shadow_resolution "
@@ -3996,21 +4008,33 @@ n_samples : int
 %feature("docstring") set_ssao_strength "
 set SSAO strength
 
+screen-space ambient occlusionn
+
+  strength  is the SSAO strength between 0 and 1.
+
 Parameters
 ----------
 strength : float
+    is the SSAO strength between 0 and 1.
 ";
 
 %feature("docstring") set_ssao_radius "
-set SSAO strength
+set SSAO radius
+
+screen-space ambient occlusionn Doesn't do much. Not worth adjusting
+
+  radius  is the SSAO radius.
 
 Parameters
 ----------
 radius : float
+    is the SSAO radius.
 ";
 
 %feature("docstring") set_ssao_bias "
 set SSAO bias
+
+screen-space ambient occlusionn Doesn't do much. Not worth adjusting
 
 Parameters
 ----------

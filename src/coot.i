@@ -72,6 +72,7 @@
 #ifdef USE_MOLECULES_TO_TRIANGLES
 #include "cc-interface-molecular-representation.hh"
 #endif // USE_MOLECULES_TO_TRIANGLES
+#include "nef.hh"
 %}
 
 
@@ -106,6 +107,8 @@ namespace std {
 %include "coot_rsr_functions_docs.i"
 %include "coot_network_functions_docs.i"
 %include "coot_read_molecule_docs.i"
+%include "coot_cc_interface_user_defined_atom_colours.i"
+%include "coot_cc_interface_molecular_representation.i"
 
 #include "globjects.h"  //includes gtk/gtk.h
 #include "coot-utils/coot-coord-utils.hh"
@@ -157,6 +160,7 @@ namespace std {
 %include "M2T-interface.hh"
 %include "cc-interface-alignment.hh"
 %include "cfc-2025.hh"
+%include "nef.hh"
 
 // # ignore some functions with c++ objects
 %ignore rigid_body_fit_with_residue_range();

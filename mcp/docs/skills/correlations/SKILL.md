@@ -423,7 +423,7 @@ When users ask questions like:
    for res in stats[0]:
        resno = res[0][1]
        corr = res[1][1]
-       res_name = coot.residue_name(0, "A", resno, "")
+       res_name = coot.residue_name_py(0, "A", resno, "")
        if corr < 0.7 and res_name != "GLY":  # Skip GLY
            poor_residues.append((resno, res_name, corr))
    ```

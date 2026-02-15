@@ -35,7 +35,7 @@ pkginclude_HEADERS = peak-search.hh coot-trim.hh \
 	glyco-torsions.hh coot-least-squares.hh coot-density-stats.hh \
         atom-overlaps.hh reduce.hh atom-selection-container.hh contact-info.hh plane-utils.hh \
         secondary-structure-headers.hh c-beta-deviations.hh jed-flip.hh lidia-core-functions.hh \
-	bonded-atoms.hh spherical-harmonics.hh helix-like.hh merge-atom-selections.hh \
+	bonded-atoms.hh spherical-harmonics.hh zernike.hh helix-like.hh merge-atom-selections.hh \
 	contacts-by-bricks.hh amp-reso.hh stack-and-pair.hh atom-tools.hh segmap.hh fast-eigens.hh strand-fragments.hh \
 	sfcalc-genmap.hh cablam-markup.hh slurp-map.hh merge-molecules.hh arc-info.hh exp-fit.hh \
 	coot_shiftfield.h shiftfield.h fib-sphere.hh cis-peptide-info.hh \
@@ -47,7 +47,7 @@ pkginclude_HEADERS = peak-search.hh coot-trim.hh \
         diff-diff-map-peaks.hh tiny_gltf.h json.hpp \
 	stb_image.h stb_image_write.h glyco-tree.hh positron.hh mini-texture.hh texture-as-floats.hh pae.hh q-score.hh \
 	acedrg-types-for-residue.hh gl-matrix.h ortep.hh coot-align.hh grid-balls.hh dict-link-info.hh \
-        dirichlet-process.hh cfc.hh cremer-pople.hh born.hh inchikey-store.hh cylinder-utils.hh gmm.hh
+        dirichlet-process.hh cfc.hh cremer-pople.hh born.hh inchikey-store.hh cylinder-utils.hh gmm.hh nef-utils.hh ptm-database.hh
 
 
 pkgincludedir = $(includedir)/coot/coot-utils
@@ -84,11 +84,11 @@ libcoot_coord_utils_la_SOURCES = coot-coord-utils.cc \
 	atom-tools.cc bonded-atoms.cc bricks.cc helix-like.cc merge-atom-selections.cc \
 	contacts-by-bricks.cc stack-and-pair.cc fast-eigens.cc strand-fragments.cc sfcalc-genmap.cc \
 	cablam-markup.cc coot_shiftfield.cpp shiftfield.cpp fib-sphere.cc polar-atoms.cc \
-	3d-texture.cc merge-molecules.cc fragment-container.cc mutate.cc \
+	3d-texture.cc merge-molecules.cc fragment-container.cc mutate.cc ptm-database.cc \
 	cylinder.cc cylinder-with-rotation-translation.cc oct.cc prideout-octasphere.cc simple-mesh.cc \
 	shapes.cc cmtz-interface.cc pugixml.cpp parse-pisa.cc gltf-export.cc pae.cc \
 	gl-matrix.cc gl-matrix-eigensystem.cc coot-align.cc grid-balls.cc dict-link-info.cc \
-	cremer-pople.cc inchikey-store.cc cylinder-utils.cc
+	cremer-pople.cc inchikey-store.cc cylinder-utils.cc nef-utils.cc gaussian-atom-map-for-mask.cc
 
 #    $(top_builddir)/mini-mol/libcoot-mini-mol.la
 #    $(top_builddir)/utils/libcoot-utils.la
@@ -157,7 +157,7 @@ libcoot_map_utils_la_LDFLAGS = \
    $(SHARED_LDFLAGS) -lpthread
 
 # for map things that need mmdb, clipper, gsl and other things
-libcoot_map_heavy_la_SOURCES = coot-map-heavy.cc coot-fffear.cc spherical-harmonics.cc segmap.cc
+libcoot_map_heavy_la_SOURCES = coot-map-heavy.cc coot-fffear.cc spherical-harmonics.cc segmap.cc zernike.cc
 
 #   $(top_builddir)/utils/libcoot-utils.la
 
@@ -180,7 +180,8 @@ check_PROGRAMS = test-h-bonds testshelxreader test-hole test-elastic \
 		 test-5-residue-fragments test-diff-diff-map-peaks \
 		 make-cablam-like-stats test-cod-atom-types-from-sm-cif test-parse-pisa \
 		 test-coot-utils test-pae servalcat-tracker test-zd test-grid-balls \
-		 test-dirichlet-process test-born test-gmm
+		 test-dirichlet-process test-born test-gmm test-nef-utils test-zernike \
+		 test-zernike-params test-zernike-nxmap test-zernike-search
 
 # wrong build order - delete from make check for now.
 # test-emma test-convolute test-coot-utils test-segmap
@@ -240,6 +241,9 @@ test_born_LDADD = \
 	./libcoot-map-utils.la \
 	$(CLIPPER_LIBS)
 
+test_nef_utils_SOURCES = test-nef-utils.cc
+test_nef_utils_LDADD = ./libcoot-coord-utils.la
+
 test_gmm_SOURCES = test-gmm.cc
 test_gmm_LDADD =
 
@@ -273,6 +277,7 @@ test_coot_utils_LDADD = \
 	./libcoot-map-utils.la    \
 	./libcoot-coord-extras.la \
 	./libcoot-coord-utils.la  \
+	$(top_builddir)/mini-mol/libcoot-mini-mol.la \
 	$(top_builddir)/geometry/libcoot-geometry.la \
 	$(top_builddir)/utils/libcoot-utils.la \
 	$(CLIPPER_LIBS) $(CCP4SRS_LIBS) -lpthread
@@ -335,6 +340,27 @@ test_chem_feat_LDADD = \
 test_zd_SOURCES = test-zd.cc
 
 test_zd_LDADD = libcoot-map-utils.la $(CLIPPER_LIBS)
+
+test_zernike_SOURCES = test-zernike.cc
+
+test_zernike_LDADD = libcoot-map-heavy.la libcoot-map-utils.la $(CLIPPER_LIBS)
+
+test_zernike_params_SOURCES = test-zernike-params.cc
+
+test_zernike_params_LDADD = libcoot-map-heavy.la libcoot-map-utils.la $(CLIPPER_LIBS)
+
+test_zernike_nxmap_SOURCES = test-zernike-nxmap.cc
+
+test_zernike_nxmap_LDADD = libcoot-map-heavy.la libcoot-map-utils.la $(CLIPPER_LIBS)
+
+test_zernike_search_SOURCES = test-zernike-search.cc
+
+test_zernike_search_LDADD = libcoot-map-heavy.la libcoot-map-utils.la \
+	$(top_builddir)/ligand/libcoot-ligand.la \
+	$(top_builddir)/mini-mol/libcoot-mini-mol.la \
+	$(top_builddir)/geometry/libcoot-geometry.la \
+	$(top_builddir)/utils/libcoot-utils.la \
+	$(CLIPPER_LIBS)
 
 test_cod_atom_types_SOURCES = test-cod-atom-types.cc
 

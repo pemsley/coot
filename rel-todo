@@ -1,32 +1,351 @@
 --- Items ---
 
+o Claude to made chapi tests from test-molecules-container
+
+o if there are no adps then don't make the Anoso sph tab
+  in the screen dialog [Clemens]
+
+o Check acdrg atom types with a some recent dictionaries
+
+o duplications in the PTMs for ARG. Why?
+
+o delete or close generic display objects from the API
+
+o Martin: Figure with white background distance between
+  atoms is white on white. The pale text is not good.
+  The distance labels should be hideable.
+
+o Lucrezia's Presentation:
+  interactive FFT.
+  with 2 sliders: Sharpening and Resolution cutoff
+  use raised cosine, or something similar
+
+o em_placement
+
+o do something about where ribbons live.
+
+o chapi.get_ligand_validation_vs_dictionary() generates its
+  data on the fly - when the atoms have expired. Rework this
+  so that the data are filled shortly after the molecule fragment
+  is generated - and before they go out of scope.
+
+o in build-it-3-3 build rdkit with inchikey
+
+o John Beale
+
+o XDG bernie
+
+o findwaters bug
+* Tested. No bug for me.
+
+o validate flatpak
+
+o Make a modern Blender screenshot
+
+o generate python api for gemmi like is done for chapi.
+  Turn this into Fortran api also?
+
+o Fix make_mask()
+
+o use a pre-existing map for make-mask()
+
+o create a mask map of a sphere where the sphere, is the plus part
+  and the - a reference grid is given, radius and postion.
+
+o z-score for ramas and rotas?
+
+o put Ligand builder in Ligand module
+
+o Clement: nice to have: function to calcuate mean, sd of a volume
+  around a point. alternative: at all of the positions of the atoms
+  in a specified residue - sphere_of_density_stats()
+
+o multipy a map by a map - e.g. local resolution.
+
+o read/use PTM table in Coot
+   On add_PTM_apply_button_clicked, we need to check
+   the selected new residue type has a dictionary.
+* Done
+
+o multi-model ribbons for NMR
+* Done. Nice.
+
+o 1m5q for B-factor putty
+* Done. Nice.
+
+o put Ligand builder in Ligand module
+* Done.
+
+o Get Restraints for ligand
+* Done
+
+o restore the tube for normal ribbon diagram.
+* Done.
+
+o rainbow ribbon colours are too bright
+* Done.
+
+o get rid of prodrg_import_function() and references to it in skills.
+* Done
+
+o MolecularRepresentation.cpp line 654 - fix.
+* Done.
+
+o the bond colours against a dark background are too dark.
+* Done.
+
+o where did we get to with the fat-worm (e.g. B-factor) representation?
+  Fatness per residue has already been fed to libcoootapi before the
+  molecular_respresentation is created. Do it in Coot first.
+  Fat-worm representation for NMR chemical shifts on ligand binnding?
+* Done. Nice.
+
+o rename parse_gphl_screen.py - remove parse_
+* Done.
+
+o screen table adps
+* Done. For now
+
+o spermine structures analysis.
+* Done.
+
+o acedrg link bond order default single.
+* Done.
+
+o get_gaussian_surface_for_atom_selection()
+* Done
+
+o make_gaussian_surface_map_for_atom_selection and return a map (create a map molecule)
+* Done.
+
+o phenix geobonds
+* Done.
+
+o make_gaussian_surface_map_for_atom_selection and return a map (create a map molecule)
+* Done.
+
+o Coot: 2luz ribbon diagram, I want to see the ribbon diagram for each model.
+* Done.
+
+o don't forget "proportional editing" - and domain rotation.
+
+o Clement: make a difference between sax data and our model
+  (masking enenough?). Compare mask and gaussian surface map.
+  Make mask have a smooth surface - by adding a b-factor.
+
+o Clemens: compile libccp4 with modern compiler? (building-coot) Needs new tar?
+
+o Rota dodec colour, rama balls colours - what is the function?
+  Send it to pumble
+
+o finish the pucker validation analysis.
+
+o have another bash at calculating occlusion
+* I did. Things improved. Still work to do.
+
+o Use gemmi tar files in build-it-3-3
+
+o Don't forget the AXI analysis - what's going on there?
+
+o don't forget the rotamer values from new coot.
+
+o bonds and angles etc validation? in libcootapi.
+
+o rebuild coot dependencies with Python3.14 and new boost and rdkit and libicudata (unicode)
+
+o Claus: thermal ellipsoid with transparenty instead of wireframe.
+  or
+  the 3 lines around without the solid inside.
+  And colour them. If you can do that, can you do other rings?
+
+o For figure making skill - add map, semi-opaque maps -
+  density around ligand.
+
+o look at buster refine of 9hdw refine.pdb
+  B352 HZ3 - A393 NE2 is marked in atom overlaps
+  with spikes. The distance is 1.8A - that's fine.
+
+o what do you do with chem_mod_bond? It is suposed to
+  modify the bond order when a link is made.
+  See notes from Lucrezia.
+
+o File -> Fetch restraints dictionary for this residue
+
+o turn on fancy graphics and make a ribbon diagram.
+  There should be no PASS_TYPE_STANDARD that renders
+  to the display buffer, right? But there seems to be.
+  Turn off and on 2470. What is calling
+  draw_molecules_other_meshes(PASS_TYPE_STANDARD)
+  when we are in fancy graphics mode?
+* Done.
+
+o test pygal in python, Coot and then with Claude.
+* partially done, I can make plot now.
+
+o double shader settings SSAAO N kernel samples max
+*  Done.
+
+o add a function to check that a residue exists
+  residue_exists_py(imol, spec) -> Bool:
+* Done.
+
+o turn off the info dialog that says
+  WARNING:: refinement map not selected - no action
+  when there are no maps.
+  Trying and missing to double click on an atom
+* Done.
+
+o add a menu or button to start JSON-RPC server localhost
+  and an entry for a port number
+
+o add a Coot API function to get header info
+* Done.
+
+o For Clemens: check what is being got from Rotamer and Rama in chapi.
+  Make plots for tutorial model.
+
+o Martin Maly: If I could make a wish, yes, it would be nice
+  to have the function get_rotamer_name_py() in CHAPI please.
+  And also get_n_rotamers(), set_residue_to_rotamer_number() or
+  set_residue_to_rotamer_name() could be useful in my efforts
+  with model shaking before bootstrap.
+
+o for MCP Coot: validate_residue(imol, residue_spec)
+  capture Rama, rota, atom overlaps and density fit.
+
+o check Validation -> Outliers vs Overlaps, Peptides, etc.
+  Outliers can go now?
+
+o Why don't Ribbon diagrams cast shadows on themselves?
+  They cast shadows on other things. Ah, the shader for
+  ribbons needs to use the shadow map. Easy?
+* Not easy, but done.
+
+o R and X are not in the keybindings?
+* Done - added R - seems slow.
+
+o coot.refine_residues_py() doesn't wait for completion of
+  the refinement in immediate-replacement mode.
+* Fixed.
+
+o refine ctrl click drag atom (without refinement) in molten zone
+
+o get em_placement working
+
+o auto-fit rotamer on newly added residue (add-terminal-residue)
+  This is tricky because both simple and auto-fit use mutate_to_type_inner()
+  because they both use mutate_to_type_HIS() etc (I think).
+  Mutate and auto-fit is not doing auto-fitting.
+* Done - seems reasonable now.
+
+o non-solid aniostropic ADP representation - Claus.
+  Tricky.
+
+o read molprobity_probe.txt as a string in libcootapi
+  get_probe_dots_unformatted_mesh()
+  c.f handle_read_draw_probe_dots_unformatted()
+
+o Add the handling of "missing atoms" in skills. Validation first.
+
+o Lucrezia to write molprobity script producing JSON for
+  input to Moorhen and Coot.
+
+o Oliver: torsion validation by dictionary?
+  Note ring info from mogul is interesting also
+  Make Acedrg extract torsions.
+
+o is there python access to headers in the Coot API?
+  No. There should be.
+
+o Fill PyObject *model_composition_statistics_py(int imol);
+
+o "Summary of Structure" for accession code using Solr?
+
+o "press U to revert centre" label when Fetching a model
+* Done
+
+o ctrl click-drag to refine drag single atom in molten zone
+  Check on PC, where rotation is on right mouse.
+
+o Fit loop dialog too wide
+
+o eigen-flip should flip only "active" alt conf
+
+o have another look at drag and drop from the Finder
+* Maybe macOS bug - see GTK drag and drop feedback issue chat
+
+o look up what does RDKit do with carboranes when minimizing?
+* Done. Seems tricky but there are people doing stuff with carboranes.
+
+o for api, atom-spec(chain_id, res_no, inscode, atom-name, alt-conf) to cid for interfacing to servalcat
+
+o update your moorhen - look at sampling factor bug.
+
+o Make int read_coordinates_from_url(url) i.e. bypass pythonic strings
+  (especially gzipped strings). Low priority.
+
+o 4wa9 coot.get_environment_distances_representation_py(0, ["A", 9000, ""])
+  returns no result.
+
+o add a coot_ping() tool to the bridge that checks if it can communicate
+  with Coot.
+* Done.
+
+o Molecule 4 is "Copy_of_pdb2hyy.ent Chain A" - but I didn't intentionally create it. Looking back at my code, when I called:
+   coot.superpose_with_chain_selection(0, 3, "A", "A", 1, 1, 1)
+   superposing on 4wa9.
+   The molecule name should end in "with superposed Chain A"
+
+o add a coot api function that returns a list of
+  residue specs and names: named_residue_specs() perhaps
+  or all_residue_specs_py() c.f. get_residues_in_chain
+
+o In the API search, use "|" for logical or. Document it in the bridge.
+
 o make ribbon diagrams be generic display objects, so they can
   be deleted or undisplayed.
+
+o what do I have for placing dummy atoms in Coot and chapi?
+
+o for LLM connection, I will need to be able to run servalcat
+  synchronously.
 
 o Add to moorhen atom selection:
    No sidechain/no mainchain
    for making figures where residues interact with protein
 
-o Erringtonn 2024
+o Errington 2024
+
    https://link.springer.com/article/10.1186/s13321-025-01011-6
    s13321-025-01011-6.pdf
 
-o clippeed bonds and atoms (c.f. normal)
-  try using background colour rather than black(ish?)
+o shader: for clipped bonds and atoms (c.f. normal) try skip
+  rather than black(ish)
 
-o add that the carbonyl oxgen is rotated
-  in the documenation for flip peptide.
+o add that the carbonyl oxgen is rotated in the documenation for
+  flip peptide.
 
 o ctrl click refine drag atom in molten zone
 
+>>>>>>> Stashed changes
 o Fit loop dialog too wide
+* Checked, I don't see where the width is set.
+
+o Rama plot doesn't label residue
+=======
+* Done.
 
 o Rama plot doesn't label residue 
-  
+
+o add a setting which will mean that quick-save and end session save
+  files are written to the local directory. Derek Logan
+>>>>>>> Stashed changes
+
 o what should coot say on loading a key-binding?
-What happens if there is a python error on reading
+  What happens if there is a python error on reading
 
 o what does the Coot interface to running servalcat look like?
+  Needed for Agentic Coot.
   I added one to chapi Dec 2024.
 
 o give backrub_rotamer_intermediate_atoms() a key-binding
@@ -34,6 +353,18 @@ o give backrub_rotamer_intermediate_atoms() a key-binding
 o Add Coot api access to header and secondary structure info
 
 o what is the equivalent to "--code" in python?
+
+o New std::fabsf() usage - change to fabsf()
+* Done.
+
+o Clemens: already basic functionality in gemmi for fortran.
+  Good useful api documentation for GEMMI. In C++ is fine for
+  the moment.
+* Done.
+
+o add that the carbonyl oxgen is rotated in the documenation for
+  flip peptide.
+* Done.
 
 o Rename the binaries in CMake:
    findligand

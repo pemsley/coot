@@ -1,9 +1,12 @@
 ---
-name: coot-cpp-docs
+name: coot-developer-cpp-docs
 description: "C++ documentation style conventions for Coot codebase"
 ---
 
 # Coot C++ Documentation Style
+
+# Communication Style
+When communicating with me focus on bug identification and fixing rather than working around bugs.
 
 ## Doxygen Comment Style
 

@@ -1,4 +1,4 @@
-
+G
 ------
 Wed May  9 13:54:04 BST 2007
 
@@ -12003,6 +12003,32 @@ foxsight
 5pb7 BAZ2B
 x557 also
 
+---
+Sat 31 Jan 2026 13:03:02 GMT
 
+PyMOL NMR
+https://kpwulab.com/2021/04/11/pymol-morphing-nmr-structures/
 
+----
+Mon  9 Feb 2026 21:05:36 GMT
 
+"Automated structure solution for cryo-EM" Terwilliger, T. C.,
+ et al. Acta Crystallographica Section D, 74(6), 543–559. (2018)
+
+---
+Sat 14 Feb 2026 00:25:09 GMT
+
+  How to clear a combobox:
+      gtk_combo_box_text_remove_all(GTK_COMBO_BOX_TEXT(combobox));
+
+---
+Sat 14 Feb 2026 14:19:18 GMT
+
+To fix
+
+  File "coot_goodsell_menu.py", line 3, in <module>
+    import gi
+ModuleNotFoundError: No module named 'gi'
+
+python3 -m pip install PyGObject
+works on my mac.

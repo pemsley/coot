@@ -1,5 +1,6 @@
 
 #include "api/ghost-molecule-display.hh"
+#include "stereo-eye.hh"
 #include "Shader.hh"
 #include "Mesh.hh"
 
@@ -18,6 +19,7 @@ public:
    Mesh mesh;
 
    void draw(Shader *shader,
+             stereo_eye_t eye,
              const glm::mat4 &mvp,
              const glm::mat4 &view_rotation_matrix,
              const std::map<unsigned int, lights_info_t> &lights,

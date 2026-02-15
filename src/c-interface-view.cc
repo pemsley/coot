@@ -82,13 +82,13 @@ void orient_view(int imol,
 
 	    double theta = atan2(a_s_z, a_s_x) * 0.5;
 
-	    if (0) 
-	       std::cout << "theta: " << clipper::Util::rad2d(theta) << " degrees with asx " 
+	    if (false)
+	       std::cout << "theta: " << clipper::Util::rad2d(theta) << " degrees with asx "
 			 << a_s_x << " and asz " << a_s_z << std::endl;
 
 	    rotate_y_scene(100, 0.01 * clipper::Util::rad2d(theta));
 
-				       
+
 	 }
 	 catch (const std::runtime_error &rte) {
 	    std::cout << rte.what() << std::endl;
@@ -478,6 +478,7 @@ void set_use_fancy_lighting(short int state) {
 
 //! \brief set bond smoothness (default 1 (not smooth))
 void set_bond_smoothness_factor(unsigned int fac) {
+
    graphics_info_t::bond_smoothness_factor = fac;
 
    // rebonding of the molecules needed here.

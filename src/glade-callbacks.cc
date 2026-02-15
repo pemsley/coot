@@ -511,7 +511,7 @@ on_go_to_atom_next_residue_button_clicked (GtkButton       *button,
 /*   goto_next_atom_maybe(chain_str, res_str, atom_name_str, residue_entry); */
 
   GtkWidget *window = widget_from_builder("goto_atom_window");
-  goto_next_atom_maybe_new(window);
+  goto_next_atom_maybe_new();
 }
 
 
@@ -543,7 +543,7 @@ on_go_to_atom_previous_residue_button_clicked (GtkButton       *button,
   GtkWidget *window = widget_from_builder("goto_atom_window");
   if (! window)
      printf("ERROR:: in on_go_to_atom_previous_residue_button_clicked NULL window\n");
-  goto_previous_atom_maybe_new(window);
+  goto_previous_atom_maybe_new();
 }
 
 extern "C" G_MODULE_EXPORT
@@ -7074,6 +7074,42 @@ on_first_startup_use_right_button_clicked(GtkButton       *button,
 
    preferences_internal_change_value_int(PREFERENCES_VIEW_ROTATION_MOUSE_BUTTON, 0);
    set_use_primary_mouse_button_for_view_rotation(0);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_material_lighting_ambient_colorbutton_color_set(GtkColorButton *colorbutton,
+                                                   gpointer        user_data) {
+
+   GdkRGBA rgba;
+   gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER(colorbutton), &rgba);
+   GtkWidget *combobox = widget_from_builder("material_lighting_molecule_comboboxtext");
+   int imol = my_combobox_get_imol(GTK_COMBO_BOX(combobox));
+   graphics_info_t g;
+   if (g.is_valid_model_molecule(imol)) {
+      glm::vec4 ambient(rgba.red, rgba.green, rgba.blue, 1.0f);
+      g.molecules[imol].material_for_models.ambient = ambient;
+      g.molecules[imol].model_molecule_meshes.set_material_ambient(ambient);
+      g.graphics_draw();
+   }
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_material_lighting_diffuse_colorbutton_color_set(GtkColorButton *colorbutton,
+                                                   gpointer        user_data) {
+
+   GdkRGBA rgba;
+   gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER(colorbutton), &rgba);
+   GtkWidget *combobox = widget_from_builder("material_lighting_molecule_comboboxtext");
+   int imol = my_combobox_get_imol(GTK_COMBO_BOX(combobox));
+   graphics_info_t g;
+   if (g.is_valid_model_molecule(imol)) {
+      glm::vec4 diffuse(rgba.red, rgba.green, rgba.blue, 1.0f);
+      g.molecules[imol].material_for_models.ambient = diffuse;
+      g.molecules[imol].model_molecule_meshes.set_material_diffuse(diffuse);
+      g.graphics_draw();
+   }
 }
 
 extern "C" G_MODULE_EXPORT

@@ -1,10 +1,11 @@
 ---
 name: coot-essential-api
-description: "API documentation to be loaded at startup"
+description: "API documentation to be loaded at startup - when starting a Coot session, immediately call get_function_descriptions() with the functions listed in this skill.""
 ---
 # Coot Essential API Functions
 
-This document contains the core Coot API functions needed for typical validation and model-building workflows. Reading these function signatures at session start eliminates the need for searching.
+This document contains the core Coot API functions needed for typical validation and model-building workflows.
+Reading these function signatures at session start eliminates the need for searching.
 
 ## Setup & Configuration
 
@@ -32,7 +33,46 @@ coot.network_get_accession_code_entity(pdb_accession_code, mode)
 #   mode: int - 0 for coordinates (.pdb or .cif), 1 for structure factors (.mtz)
 # Example - fetch both model and data:
 #   coot.network_get_accession_code_entity("4wa9", 0)  # Get coordinates
-#   coot.network_get_accession_code_entity("4wa9", 1)  # Get structure factors
+#   coot.network_get_accession_code_entity("4wa9", 1)  # Get structure factors to make a map
+```
+
+## Checkpoints - Model State Management
+
+When experimenting with the various model building tools available to
+address a particular model-building problem it is useful to create
+backup checkpoints. This allows you to return to a particular state,
+so that you can try alternative model-building parameters or
+functions, or combinations of functions.
+
+```python
+coot.make_backup_checkpoint(imol, description_string) -> int
+# Creates a named checkpoint of the molecule's current state
+# Returns: checkpoint index for later restoration
+#
+# Parameters:
+#   imol: Model molecule index
+#   description_string: Human-readable description (e.g., "before rotamer fix")
+#
+# CRITICAL: Always checkpoint before experimental or risky operations
+#
+# Example:
+checkpoint_idx = coot.make_backup_checkpoint(0, "before rotamer fix")
+coot.auto_fit_best_rotamer(0, "A", 42, "", "", 1, 1, 0.01)
+# ... check if improvement worked ...
+if not improved:
+    coot.restore_to_backup_checkpoint(0, checkpoint_idx)
+
+coot.restore_to_backup_checkpoint(imol, checkpoint_index)
+# Restores molecule to a previously saved checkpoint state
+# Parameters:
+#   imol: Model molecule index
+#   checkpoint_index: Index returned by make_backup_checkpoint()
+
+coot.compare_current_model_to_backup(imol, checkpoint_index) -> dict
+# Compares current model state to a checkpoint to see what changed
+# Parameters:
+#   imol: Model molecule index
+#   checkpoint_index: Index of checkpoint to compare against
 ```
 
 ## Chain and Residue Information
@@ -43,6 +83,24 @@ coot_utils.chain_ids(imol) -> list         # Returns list of chain IDs, e.g., ['
 
 # Direct C++ functions (preferred when possible)
 coot.chain_id_py(imol, chain_index) -> str # Get chain ID by index
+```
+## Secondary Structure Information
+```python
+coot.get_header_secondary_structure_info(imol) -> dict
+# Returns secondary structure from PDB header
+# Returns: {'helices': [...], 'strands': [...]}
+#
+# Each helix dict contains:
+#   serNum, helixID, initChainID, initSeqNum, endChainID, endSeqNum, length, comment
+#
+# Each strand dict contains:
+#   SheetID, strandNo, initChainID, initSeqNum, endChainID, endSeqNum
+#
+# Example - get beta barrel strands:
+ss = coot.get_header_secondary_structure_info(0)
+if 'strands' in ss:
+    for strand in ss['strands']:
+        print(f"Strand {strand['strandNo']}: {strand['initSeqNum']}-{strand['endSeqNum']}")
 ```
 
 ## Navigation
@@ -60,7 +118,13 @@ coot.closest_atom_py(imol) -> list
 # Same as above but for specific molecule
 
 coot.active_atom_spec_py() -> list
-# Returns the currently "active" atom specification
+# Returns the currently "active" atom specification (or False if none found)
+# (found, (imol, atom_spec))
+#   found: Boolean indicating if an atom exists close to the center
+#   molecule_number: Integer molecule ID
+#   atom_spec: List [chain_id, resno, ins_code, atom_name, alt_conf]
+
+
 ```
 
 ## Residue Inspection
@@ -100,7 +164,7 @@ expected_atoms = {
 }
 
 # Find missing atoms
-res_type = coot.residue_name(0, "A", 72, "")
+res_type = coot.residue_name_py(0, "A", 72, "")
 if res_type in expected_atoms:
     missing = [a for a in expected_atoms[res_type] if a not in atom_names]
     if missing:
@@ -154,7 +218,7 @@ coot.molecule_atom_overlaps_py(imol, n_pairs) -> list
 coot.find_blobs_py(imol_model, imol_map, sigma_cutoff) -> list
 # Finds unmodeled density blobs
 # Returns: [[position, score], ...]
-# position has .x(), .y(), .z() methods
+# position is a list or 3 floats, (for x, y, z)
 # Use sigma_cutoff=3.0 for difference maps, 1.0 for 2mFo-DFc
 # Higher score = larger/stronger blob
 ```
@@ -165,12 +229,7 @@ coot.find_blobs_py(imol_model, imol_map, sigma_cutoff) -> list
 coot.refine_residues_py(imol, residue_specs) -> list
 # Real-space refinement of specified residues
 # residue_specs = [["A", 42, ""], ["A", 43, ""], ...]  # [chain, resno, ins_code]
-# Returns refinement status
-
-coot.accept_moving_atoms_py() -> list
-# Accept the current refinement/regularization
 # Returns: ['', status, [[metric_name, description, value], ...]]
-# Call this after refine_residues_py()
 ```
 
 ## Model Building - Rotamers
@@ -223,12 +282,10 @@ severe = [o for o in overlaps if o['overlap-volume'] > 5.0]
 # 5. Fix bad rotamers
 coot.auto_fit_best_rotamer(0, "A", 89, "", "", 1, 1, 0.01)
 coot.refine_residues_py(0, [["A", 89, ""]])
-coot.accept_moving_atoms_py()
 
 # 6. Fix backbone issues
 coot.pepflip(0, "A", 41, "", "")
 coot.refine_residues_py(0, [["A", 40, ""], ["A", 41, ""], ["A", 42, ""]])
-coot.accept_moving_atoms_py()
 
 # 7. Re-validate
 overlaps_after = coot.molecule_atom_overlaps_py(0, 10)
@@ -237,7 +294,6 @@ overlaps_after = coot.molecule_atom_overlaps_py(0, 10)
 ## Important Notes
 
 1. **Always call `set_refinement_immediate_replacement(1)` first** - makes refinement synchronous
-2. **Always call `accept_moving_atoms_py()` after refinement** - commits the changes
 3. **Use `coot.*_py()` functions directly** - faster than `coot_utils` wrappers
 4. **Import coot_utils only when needed** - for convenience functions like `chain_ids()`
 5. **The `coot` module is auto-imported** - no import statement needed

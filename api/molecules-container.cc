@@ -866,9 +866,53 @@ molecules_container_t::read_coordinates(const std::string &file_name) {
       }
    };
 
+   auto debug_model = [] (mmdb::Model *model_p, const std::string &tag) {
+
+      int n_atoms = 0;
+      if (model_p) {
+         std::cout << tag << " model_p: " << model_p << std::endl;
+         int n_chains = model_p->GetNumberOfChains();
+         for (int ichain=0; ichain<n_chains; ichain++) {
+            mmdb::Chain *chain_p = model_p->GetChain(ichain);
+            std::cout << tag << "   chain_p: " << chain_p << std::endl;
+            int n_res = chain_p->GetNumberOfResidues();
+            for (int ires=0; ires<n_res; ires++) {
+               mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+               std::cout << tag << "      residue_p: " << residue_p << std::endl;
+               if (residue_p) {
+                  int n_atoms = residue_p->GetNumberOfAtoms();
+                  for (int iat=0; iat<n_atoms; iat++) {
+                     mmdb::Atom *at = residue_p->GetAtom(iat);
+                     if (at) {
+                        std::cout << tag << "         at: " << at << " " << coot::atom_spec_t(at) << std::endl;
+                        if (! at->isTer()) {
+                           n_atoms++;
+                        }
+                     } else {
+                        std::cout << tag << "         at " << " was null " <<  iat
+                                  << " of " << n_atoms << std::endl;
+                     }
+                  }
+               }
+            }
+         }
+      }
+      std::cout << "n_atoms in model_p " << model_p << " " << n_atoms << std::endl;
+   };
+
    int status = -1;
    atom_selection_container_t asc = get_atom_selection(file_name, use_gemmi, true, false);
    if (asc.read_success) {
+
+      if (false) { // debugging the model
+         mmdb::Manager *mol = new mmdb::Manager;
+         mol->ReadPDBASCII(file_name.c_str());
+         for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+            mmdb::Model *model_p = mol->GetModel(imod);
+            std::string tag = "read_coordinates_molecule_MODEL_" + std::to_string(imod);
+            debug_model(model_p, tag);
+         }
+      }
 
       // print_the_SSE(asc.mol); make the function print_the_SSE() available in the API. It may be
       // useful there.
@@ -2041,6 +2085,7 @@ molecules_container_t::get_bonds_mesh_instanced(int imol, const std::string &mod
                                                 float bond_width, float atom_radius_to_bond_width_ratio,
                                                 bool show_atoms_as_aniso_flag,
                                                 bool show_aniso_atoms_as_ortep_flag,
+                                                bool show_aniso_atoms_as_empty_flag,
                                                 bool draw_hydrogen_atoms_flag,
                                                 int smoothness_factor) {
 
@@ -2059,6 +2104,7 @@ molecules_container_t::get_bonds_mesh_instanced(int imol, const std::string &mod
                                                     show_atoms_as_aniso_flag,
                                                     aniso_probability,
                                                     show_aniso_atoms_as_ortep_flag,
+                                                    show_aniso_atoms_as_empty_flag,
                                                     smoothness_factor, draw_hydrogen_atoms_flag,
                                                     draw_missing_residue_loops_flag);
    } else {
@@ -2084,6 +2130,7 @@ molecules_container_t::get_bonds_mesh_for_selection_instanced(int imol, const st
                                                               float bond_width, float atom_radius_to_bond_width_ratio,
                                                               bool show_atoms_as_aniso_flag,
                                                               bool show_aniso_atoms_as_ortep_flag,
+                                                              bool show_aniso_atoms_as_empty_flag,
                                                               bool draw_hydrogen_atoms_flag,
                                                               int smoothness_factor) {
 
@@ -2095,6 +2142,7 @@ molecules_container_t::get_bonds_mesh_for_selection_instanced(int imol, const st
                                                                   &geom, against_a_dark_background, bond_width, atom_radius_to_bond_width_ratio,
                                                                   show_atoms_as_aniso_flag,
                                                                   show_aniso_atoms_as_ortep_flag,
+                                                                  show_aniso_atoms_as_empty_flag,
                                                                   smoothness_factor,
                                                                   draw_hydrogen_atoms_flag,
                                                                   draw_missing_residue_loops_flag);
@@ -4437,6 +4485,30 @@ molecules_container_t::try_read_dictionaries_for_new_residue_types(int imol) {
    return status;
 }
 
+//! \brief set the residue properties
+//!
+//! a list of propperty maps such as `{"chain-id": "A", "res-no": 34, "ins-code": "", "worm-radius": 1.2}`
+//!
+//! @param json_string is the properties in JSON format
+//! @return true
+bool molecules_container_t::set_residue_properties(int imol, const std::string &json_string) {
+
+   bool status = false;
+   if (is_valid_model_molecule(imol)) {
+      status = molecules[imol].set_residue_properties(json_string);
+   }
+   return status;
+}
+
+// \brief clear the reisidue properties
+//!
+//! @param imol is the model molecule index
+void molecules_container_t::clear_residue_properties(int imol) {
+
+   if (is_valid_model_molecule(imol)) {
+      molecules[imol].clear_residue_properties();
+   }
+}
 
 
 coot::simple_mesh_t
@@ -4493,6 +4565,88 @@ molecules_container_t::get_gaussian_surface(int imol, float sigma, float contour
    }
    return mesh;
 
+}
+
+coot::simple_mesh_t
+molecules_container_t::get_gaussian_surface_for_atom_selection(int imol, const std::string &cid,
+                                                               float sigma, float contour_level,
+                                                               float box_radius, float grid_scale, float b_factor) const {
+   coot::simple_mesh_t mesh;
+   if (is_valid_model_molecule(imol)) {
+      mesh = molecules[imol].get_gaussian_surface_for_atom_selection(cid, sigma, contour_level, box_radius,
+                                                                     grid_scale, b_factor);
+   } else {
+      std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return mesh;
+}
+
+#include "coot-utils/coot-map-heavy.hh"
+
+int molecules_container_t::gaussian_surface_to_map_molecule(int imol_ref, int imol_model, const std::string &cid,
+                                                            float sigma, float box_radius, float fft_b_factor) {
+
+   int imol_new = -1;
+   if (is_valid_model_molecule(imol_model)) {
+      if (is_valid_map_molecule(imol_ref)) {
+         const clipper::Xmap<float> &xmap_ref = molecules[imol_ref].xmap;
+         mmdb::Manager *mol = molecules[imol_model].get_mol();
+         if (mol) {
+            int sel_hnd = mol->NewSelection(); // d
+            mol->Select(sel_hnd, mmdb::STYPE_ATOM, cid.c_str(), mmdb::SKEY_NEW);
+            clipper::Xmap<float> xmap = coot::util::make_gaussian_atom_map_for_mask(xmap_ref, mol, sel_hnd, sigma, box_radius);
+            imol_new = molecules.size();
+            std::string name = "Gaussian Map";
+            if (fft_b_factor != 0.0f) {
+               clipper::Xmap<float> xmap_blur = coot::util::sharpen_blur_map(xmap, fft_b_factor);
+               xmap = xmap_blur;
+            }
+            bool is_em_map = true; // not sure
+            coot::molecule_t m = coot::molecule_t(name, imol_new, xmap, is_em_map);
+            molecules.push_back(m);
+            mol->DeleteSelection(sel_hnd);
+         }
+      }
+   }
+   return imol_new;
+}
+
+#include "density-contour/gaussian-surface.hh"
+
+// Make a map from a gaussian surface
+//!
+//! Waters are not included in the surface calculation
+//!
+//! @param imol is the model molecule index
+//! @param cid is the atom selection CID
+//! @param sigma default 4.4
+//! @param contour_level default 4.0
+//! @param box_radius default 5.0
+//! @param grid_scale default 0.7
+//! @param b_factor default 100.0 (use 0.0 for no FFT-B-factor smoothing)
+//!
+//! @return a new molecule index for the map or -1 on failur
+int molecules_container_t::gaussian_surface_to_map_molecule_v2(int imol, const std::string &cid,
+                                                              float sigma, float box_radius,
+                                                              float grid_scale, float fft_b_factor) {
+
+   int imol_new = -1;
+   if (is_valid_model_molecule(imol)) {
+      int chain_cid_mode = 0; // use cid to make the atom selection
+      mmdb::Manager *mol = molecules[imol].get_mol();
+      if (mol) {
+         coot::gaussian_surface_t gauss_surf(mol, cid, chain_cid_mode,
+                                             sigma, 0.5,
+                                             box_radius, grid_scale, fft_b_factor);
+         clipper::Xmap<float> xmap = gauss_surf.get_xmap();
+         imol_new = molecules.size();
+         std::string name = "Gaussian Map";
+         bool is_em_map = true; // not sure
+         coot::molecule_t m = coot::molecule_t(name, imol, xmap, is_em_map);
+         molecules.push_back(m);
+      }
+   }
+   return imol_new;
 }
 
 
@@ -5205,12 +5359,14 @@ molecules_container_t::refine(int imol, int n_cycles) {
       bool draw_hydrogen_atoms_flag = true; // use data member as we do for draw_missing_residue_loops_flag?
       bool show_atoms_as_aniso_flag = false;
       bool show_aniso_atoms_as_ortep = false;
+      bool show_aniso_atoms_as_empty = false;
       float aniso_probability = 0.5f;
       unsigned int smoothness_factor = 1;
       im = molecules[imol].get_bonds_mesh_instanced(mode, &geom, true, 0.12, 1.4,
                                                     show_atoms_as_aniso_flag,
                                                     aniso_probability,
                                                     show_aniso_atoms_as_ortep,
+                                                    show_aniso_atoms_as_empty,
                                                     smoothness_factor,
                                                     draw_hydrogen_atoms_flag, draw_missing_residue_loops_flag);
    } else {

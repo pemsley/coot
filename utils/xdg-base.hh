@@ -172,6 +172,8 @@ public:
    }
    std::filesystem::path get_runtime_dir() const {
       // 20250113-PE add a check here that runtime_dir is on a local filesystem
+      // Using runtime_dir is non-trivial. It needs more work.
+      // Bottom line is don't use it at the moment.
       try {
          if (!std::filesystem::is_directory(runtime_dir))
             std::filesystem::create_directories(runtime_dir);

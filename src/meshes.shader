@@ -46,10 +46,13 @@ out vec4 colour_transfer;
 
 uniform mat4 mvp;
 uniform mat4 view_rotation;
+uniform float stereo_x_scale;
+uniform float stereo_x_offset;
 
 void main() {
    vec4 n = vec4(normal, 1.0);
-   gl_Position = mvp * vec4(position, 1.0);
+   // gl_Position = mvp * vec4(position, 1.0);
+   gl_Position = mvp * vec4(position, 1.0) * vec4(stereo_x_scale, 1.0f, 1.0f, 1.0f) + vec4(stereo_x_offset, 0.0f, 0.0f, 0.0f);
    normal_transfer = normal; // Hmmm! 20220209-PE normals are in "molecule" space (as are the light positions)
    colour_transfer = colour;
    frag_pos_transfer = position;

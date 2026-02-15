@@ -400,8 +400,8 @@ void save_molecule_coords_combobox_changed(GtkWidget *combobox, gpointer data);
 GtkWidget *wrapped_create_goto_atom_window();
 void fill_go_to_atom_window(GtkWidget *widget);
 
-int goto_next_atom_maybe_new(GtkWidget *window);
-int goto_previous_atom_maybe_new(GtkWidget *window);
+int goto_next_atom_maybe_new();
+int goto_previous_atom_maybe_new();
 
 /* used by keypress (return) callbacks */
 
@@ -893,6 +893,6 @@ void handle_phs_cell_choice_ok_button_clicked(GtkWidget *button);
 /* handle_read_ccp4_map is now a .hh/c++ interface function, so give the callback an internal c function */
 int handle_read_ccp4_map_internal(const char *fn, int is_difference_map);
 
-#endif /* C_INTERFACE_GTK_WIDGETS_H */
-
 END_C_DECLS
+
+#endif /* C_INTERFACE_GTK_WIDGETS_H */

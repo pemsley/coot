@@ -37,6 +37,7 @@ void set_user_defined_atom_colour_by_selection_py(int imol, PyObject *CID_colour
 
    // 20220707-PE You are passing a list of tuples, right?
 
+   unsigned int n_new_colours = 0;
    if (is_valid_model_molecule(imol)) {
       if (PyList_Check(CID_colour_index_tuple_list_py)) {
 	 unsigned int l = PyObject_Length(CID_colour_index_tuple_list_py);
@@ -58,15 +59,18 @@ void set_user_defined_atom_colour_by_selection_py(int imol, PyObject *CID_colour
                               cis.push_back(p);
                            }
                         }
-		     }
-		  }
-	       }
-	    }
+                     }
+                  }
+               }
+            }
             // this sets apply_colour_to_non_carbon_atoms_also to true
-	    graphics_info_t::molecules[imol].set_user_defined_colour_indices_by_selections(cis);
-	 }
+            graphics_info_t::molecules[imol].set_user_defined_colour_indices_by_selections(cis);
+            n_new_colours = cis.size();
+         }
       }
    }
+   std::cout << "DEBUG:: set_user_defined_atom_colour_by_selection_py() imol: " << imol
+             << " n_new_colours: " << n_new_colours << std::endl;
 }
 
 #include "c-interface-python.hh"
@@ -128,13 +132,14 @@ void set_user_defined_colours_py(PyObject *colour_list_in_py) {
    if (PyList_Check(colour_list_in_py)) {
       unsigned int l = PyObject_Length(colour_list_in_py);
       if (l > 0) {
-         std::vector<coot::colour_holder> colours;
+         std::vector<std::pair<unsigned int, coot::colour_holder> > colours;
          for (unsigned int i=0; i<l; i++) {
             PyObject *item_py = PyList_GetItem(colour_list_in_py, i);
             if (PyTuple_Check(item_py)) {
                unsigned int l2 = PyObject_Length(item_py);
                if (l2 == 2) {
-                  // std::cout << "l2 = 2 for " << item_py << std::endl;
+                  if (false)
+                     std::cout << "l2 = 2 for " << item_py << std::endl;
                   PyObject *colour_index_py = PyTuple_GetItem(item_py, 0);
                   PyObject *colour_list_py  = PyTuple_GetItem(item_py, 1);
                   // std::cout << "debug colour_index_py " << colour_index_py << std::endl;
@@ -150,32 +155,15 @@ void set_user_defined_colours_py(PyObject *colour_list_in_py) {
                                  double g = PyFloat_AsDouble(PyList_GetItem(colour_list_py, 1));
                                  double b = PyFloat_AsDouble(PyList_GetItem(colour_list_py, 2));
                                  coot::colour_holder ch(r,g,b);
-                                 int n_colours = colours.size();
-
-                                 // std::cout << "in set_user_defined_colours_py() colour_index " << colour_index
-                                 // << " colour " << ch << std::endl;
-                                 if (colour_index < 10000) {
-                                    if (colour_index < n_colours) {
-                                       if (colour_index >= 0) {
-                                          colours[colour_index] = ch;
-                                       }
-                                    } else {
-                                       int cc = colours.capacity();
-                                       if (cc < (colour_index+1))
-                                          colours.reserve(2 * colour_index);
-                                       colours.resize(colour_index+1);
-                                       colours[colour_index] = ch;
-                                       if (false)
-                                          std::cout << "debug:: colours " << colour_index
-                                                    << " set to " << ch << std::endl;
-                                    }
-                                 }
+                                 colours.push_back(std::make_pair(colour_index, ch));
                               }
                            }
                         }
                      }
                   }
                }
+            } else {
+               std::cout << "DEBUG:: not a tuple " << item_py << std::endl;
             }
          }
          graphics_info_t::set_user_defined_colours(colours);

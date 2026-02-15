@@ -25,9 +25,12 @@
  */
 
 //  testing using attach_buffers here fixes the GL ERROR
+#include "Material.hh"
 #include "graphics-info.h"
 
 #include "dots-representation.hh"
+#include "meshed-generic-display-object.hh"
+#include "utils/colour-holder.hh"
 
 // ---------------------------------------------------------------------------------------
 //                           dots
@@ -268,4 +271,51 @@ coot::dots_representation_info_t::add_dots(int SelHnd, mmdb::Manager *mol,
    if (err) std::cout << "GL ERROR:: add_dots() pre-update_instancing_buffers() with GL err " << err << std::endl;
    imm.update_instancing_buffers(balls);
    if (err) std::cout << "GL ERROR:: add_dots() post-update_instancing_buffers() with GL err " << err << std::endl;
+}
+
+
+// ------------------------- NEF maybe this doesn't belong in this file
+
+#include "coot-utils/nef-utils.hh"
+
+bool molecule_class_info_t::read_nef(const std::string &file_name) {
+
+   bool status = false;
+   std::cout << "DEBUG:: read NEF file " << file_name << std::endl;
+
+   nef::NEFParser nef = nef::NEFParser::from_file(file_name);
+   nef.parse();
+   const std::vector<nef::DistanceRestraint> &restraints = nef.restraints();
+   std::cout << "Found " << restraints.size() << " restraints" << std::endl;
+   if (! restraints.empty()) {
+      meshed_generic_display_object o;
+      std::vector<meshed_generic_display_object::line_info_t> lines;
+      coot::colour_holder ch(0.4, 0.6, 0.6);
+      float w = 0.1f; // width
+      for (const auto &restraint : restraints) {
+         std::cout << restraint.to_string() << std::endl;
+         std::string ins_code_1;
+         std::string ins_code_2;
+         std::string alt_conf;
+         coot::atom_spec_t atom_spec_1(restraint.chain_code_1, restraint.sequence_code_1, ins_code_1, restraint.atom_name_1, alt_conf);
+         coot::atom_spec_t atom_spec_2(restraint.chain_code_2, restraint.sequence_code_2, ins_code_2, restraint.atom_name_2, alt_conf);
+         mmdb::Atom *at_1 = get_atom(atom_spec_1);
+         mmdb::Atom *at_2 = get_atom(atom_spec_2);
+         if (at_1 && at_2) {
+            clipper::Coord_orth pt_1(at_1->x, at_1->y, at_1->z);
+            clipper::Coord_orth pt_2(at_2->x, at_2->y, at_2->z);
+            meshed_generic_display_object::line_info_t l(ch, pt_1, pt_2, w);
+            lines.push_back(l);
+         } else {
+            if (! at_1) std::cout << "DEBUG:: missing atom " << atom_spec_1 << std::endl;
+            if (! at_2) std::cout << "DEBUG:: missing atom " << atom_spec_2 << std::endl;
+         }
+      }
+      o.add_lines(lines);
+      o.attach_to_molecule(imol_no);
+      Material material;
+      o.mesh.setup(material);
+      graphics_info_t::generic_display_objects.push_back(o);
+   }
+   return status;
 }

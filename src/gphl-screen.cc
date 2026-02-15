@@ -11,6 +11,7 @@
 #include "c-interface-gtk-widgets.h" // for set_transient_and_position()
 #include "c-interface.h"
 #include "graphics-info.h"
+#include "unicodeobject.h"
 
 // dialog callbacks
 extern "C" G_MODULE_EXPORT
@@ -44,7 +45,7 @@ coot::atom_spec_t gphl_atom_id_to_coot_spec(const std::string &atom_spec_gphl) {
                std::string ins_code;
                std::string alt_conf;
                std::string atom_name_raw = parts_5[0]; // might contain the alt-conf too.
-               std::cout << "atom_spec_gphl: " << atom_spec_gphl << " atom_name_raw: " << atom_name_raw<< std::endl;
+               // std::cout << "atom_spec_gphl: " << atom_spec_gphl << " atom_name_raw: " << atom_name_raw<< std::endl;
                if (atom_name_raw.find(".") != std::string::npos) {
                   std::vector<std::string> parts_6 = coot::util::split_string(atom_name_raw, ".");
                   if (parts_6.size() == 2) {
@@ -67,14 +68,109 @@ coot::atom_spec_t gphl_atom_id_to_coot_spec(const std::string &atom_spec_gphl) {
 std::vector<coot::atom_spec_t> gphl_atom_ids_to_atom_specs(const std::string &atom_ids, const std::string &type) {
 
    std::vector<coot::atom_spec_t> atom_specs;
-   if (type == "unhappy-atom") {
+   if (type == "unhappy-atom" || type == "aniso-sph" || type == "aniso-sph-nonb") {
       coot::atom_spec_t atom_spec = gphl_atom_id_to_coot_spec(atom_ids); // just the one in this case
       atom_specs.push_back(atom_spec);
    } else {
-      std::vector<std::string> parts = coot::util::split_string(atom_ids, "=");
-      for(const auto &part : parts) {
-         coot::atom_spec_t atom_spec = gphl_atom_id_to_coot_spec(part);
-         atom_specs.push_back(atom_spec);
+      // e.g. A|290:CD2=CE2 (PHE)  or  A|458:C(ASP)=A|459:N.B(ARG)
+      std::vector<std::string> parts_1 = coot::util::split_string(atom_ids, "|");
+      if (parts_1.size() == 2) {
+         std::string chain_id = parts_1[0];
+         std::string rest_1   = parts_1[1];
+         std::vector<std::string> parts_2 = coot::util::split_string(rest_1, ":"); // rest_1 one example: 290:CD2=CE2 (PHE)
+         if (parts_2.size() == 2) {
+            // both atoms in the same residue
+            std::string res_no_str = parts_2[0];
+            std::string rest_2     = parts_2[1];
+            try {
+               // rest_2 is now CD2=CE2 (PHE)  or  CG.A=CD.A (ARG)
+               int res_no = coot::util::string_to_int(res_no_str);
+               // "=" is the atom separator in the screen file atom ids
+               std::vector<std::string> parts_3 = coot::util::split_string(rest_2, "=");
+               if (parts_3.size() == 2) { // bond
+                  std::string atom_name_1_raw = parts_3[0];
+                  std::string rest_3      = parts_3[1];
+                  // now strip out "(PHE)" from CD.A (PHE)
+                  std::vector<std::string> parts_4 = coot::util::split_string(rest_3, "(");
+                  if (parts_4.size() > 0) {
+                     std::string ins_code;
+                     std::string atom_name_2_raw = coot::util::remove_trailing_whitespace(parts_4[0]); // might contain the alt-conf too.
+                     std::string atom_name_1; // filled below
+                     std::string atom_name_2; // filled below
+                     std::string alt_conf_1;  // maybe filled below
+                     std::string alt_conf_2;  // maybe filled below
+                     if (atom_name_2_raw.find(".") != std::string::npos) {
+                        std::vector<std::string> parts_6 = coot::util::split_string(atom_name_2_raw, ".");
+                        atom_name_2 = parts_6[0];
+                        alt_conf_2  = parts_6[1];
+                     } else {
+                        atom_name_2 = atom_name_2_raw;
+                     }
+                     // now go back to atom_1 and try to split that
+                     if (atom_name_2_raw.find(".") != std::string::npos) {
+                        std::vector<std::string> parts_7 = coot::util::split_string(atom_name_1_raw, ".");
+                        atom_name_1 = parts_7[0];
+                        alt_conf_1  = parts_7[1];
+                     } else {
+                        atom_name_1 = atom_name_1_raw;
+                     }
+                     coot::atom_spec_t atom_spec_1(chain_id, res_no, ins_code, atom_name_1, alt_conf_1);
+                     coot::atom_spec_t atom_spec_2(chain_id, res_no, ins_code, atom_name_2, alt_conf_2);
+                     atom_specs.push_back(atom_spec_1);
+                     atom_specs.push_back(atom_spec_2);
+                  }
+               }
+               if (parts_3.size() == 3) { // angle
+                  std::string ins_code;
+                  std::string atom_name_1_raw = parts_3[0]; // e.g. CD.A
+                  std::string atom_name_2_raw = parts_3[1]; // e.g. NE2.A
+                  std::string atom_name_3_raw = parts_3[2]; // e.g. HE22.A (GLN)
+                  std::string atom_name_1; // filled below
+                  std::string atom_name_2; // filled below
+                  std::string atom_name_3; // filled below
+                  std::string alt_conf_1;  // maybe filled below
+                  std::string alt_conf_2;  // maybe filled below
+                  std::string alt_conf_3;  // maybe filled below
+                  if (atom_name_1_raw.find(".") != std::string::npos) {
+                     std::vector<std::string> parts_4 = coot::util::split_string(atom_name_1_raw, ".");
+                     atom_name_1 = parts_4[0];
+                     alt_conf_1  = parts_4[1];
+                  } else {
+                     atom_name_1 = atom_name_1_raw;
+                  }
+                  if (atom_name_2_raw.find(".") != std::string::npos) {
+                     std::vector<std::string> parts_4 = coot::util::split_string(atom_name_2_raw, ".");
+                     atom_name_2 = parts_4[0];
+                     alt_conf_2  = parts_4[1];
+                  } else {
+                     atom_name_2 = atom_name_2_raw;
+                  }
+                  if (atom_name_3_raw.find(".") != std::string::npos) {
+                     std::vector<std::string> parts_4 = coot::util::split_string(atom_name_3_raw, ".");
+                     atom_name_3 = parts_4[0];
+                     alt_conf_3  = parts_4[1];
+                  } else {
+                     atom_name_3 = atom_name_3_raw;
+                  }
+                  coot::atom_spec_t atom_spec_1(chain_id, res_no, ins_code, atom_name_1, alt_conf_1);
+                  coot::atom_spec_t atom_spec_2(chain_id, res_no, ins_code, atom_name_2, alt_conf_2);
+                  coot::atom_spec_t atom_spec_3(chain_id, res_no, ins_code, atom_name_3, alt_conf_3);
+                  atom_specs.push_back(atom_spec_1);
+                  atom_specs.push_back(atom_spec_2);
+                  atom_specs.push_back(atom_spec_3);
+               }
+            }
+            catch (const std::runtime_error &e) {
+               std::cout << "WARNING::" << e.what() << std::endl;
+            }
+         }
+      } else {
+         // atoms in different residues, e.g.  A|458:C(ASP)=A|459:N.B(ARG)
+         std::vector<std::string> parts_2 = coot::util::split_string(atom_ids, "=");
+         for (const auto &part : parts_2) {
+            coot::atom_spec_t atom_spec = gphl_atom_id_to_coot_spec(part);
+            atom_specs.push_back(atom_spec);
+         }
       }
    }
    return atom_specs;
@@ -105,6 +201,8 @@ void go_to_gphl_atoms(int imol, const std::string &atom_ids, const std::string &
       }
    };
 
+   // std::cout << "DEBUG:: ::::::::::::::::::: go_to_gphl_atoms(): " << atom_ids << std::endl;
+
    bool debug = false;
 
    // ------------------ main line --------------------
@@ -120,99 +218,37 @@ void go_to_gphl_atoms(int imol, const std::string &atom_ids, const std::string &
       return;
 
    if (type == "unhappy-atom") {
-      std::vector<std::string> parts_1 = coot::util::split_string(atom_ids, "|");
-      if (parts_1.size() == 2) {
-         std::string chain_id = parts_1[0];
-         std::string rest_1   = parts_1[1];
-         std::vector<std::string> parts_2 = coot::util::split_string(rest_1, ":");
-         if (parts_2.size() == 2) {
-            std::string res_no_str = parts_2[0];
-            std::string rest_2     = parts_2[1];
-            std::vector<std::string> parts_3 = coot::util::split_string(rest_2, "(");
-            if (parts_3.size() == 2) {
-               std::string atom_name = parts_3[0];
-               std::string rest_3    = parts_3[1];
-               if (! atom_name.empty()) {
-                  try {
-                     int res_no = coot::util::string_to_int(res_no_str);
-                     set_go_to_atom_molecule(imol);
-                     set_go_to_atom_chain_residue_atom_name(chain_id.c_str(), res_no, atom_name.c_str());
-                     std::string ins_code;
-                     std::string alt_conf;
-                     coot::atom_spec_t atom_spec(chain_id, res_no, ins_code, atom_name, alt_conf);
-                     graphics_info_t::add_unhappy_atom_marker(imol, atom_spec);
-                     std::vector<coot::atom_spec_t> atom_specs = { atom_spec };
-                     pulse_atom_specs(imol, atom_specs);
-                  }
-                  catch (const std::runtime_error &e) {
-                     std::cout << "WARNING::" << e.what() << std::endl;
-                  }
-               }
-            }
-         }
-      }
+      // e.g. "A|501:H6.A(U5P)"
+      graphics_info_t g;
+      coot::atom_spec_t atom_spec = gphl_atom_id_to_coot_spec(atom_ids); // just one
+      g.set_go_to_atom_molecule(imol); // 20260117-PE not static(!)
+      graphics_info_t::add_unhappy_atom_marker(imol, atom_spec);
+      graphics_info_t::set_go_to_atom(imol, atom_spec); // just settings
+      g.try_centre_from_new_go_to_atom();
+      std::vector<coot::atom_spec_t> atom_specs = { atom_spec };
+      pulse_atom_specs(imol, atom_specs);
    }
+
    if (type == "bond") {
       // e.g.: "A|502:O5'=C5'"
-      std::vector<std::string> parts_1 = coot::util::split_string(atom_ids, "|");
-      if (debug)
-         std::cout << "debug::  bond_block: " << parts_1.size() << std::endl;
-      if (parts_1.size() == 2) {
-         std::string chain_id = parts_1[0];
-         std::string rest_1   = parts_1[1];
-         if (debug)
-            std::cout << "debug:: bond_block: chain_id: " << chain_id << " rest_1: " << rest_1 << std::endl;
-         std::vector<std::string> parts_2 = coot::util::split_string(rest_1, ":");
-         if (parts_2.size() == 2) {
-            std::string res_no_str = parts_2[0];
-            std::string rest_2     = parts_2[1];
+      std::vector<coot::atom_spec_t> vs = gphl_atom_ids_to_atom_specs(atom_ids, "bond");
+      if (vs.size() == 2) {
+         coot::atom_spec_t atom_spec_1 = vs[0];
+         coot::atom_spec_t atom_spec_2 = vs[1];
+         mmdb::Atom *at_1 = coot::util::get_atom_using_fuzzy_search(atom_spec_1, mol);
+         mmdb::Atom *at_2 = coot::util::get_atom_using_fuzzy_search(atom_spec_2, mol);
+         if (at_1 && at_2) {
             if (debug)
-               std::cout << "debug:: bond_block: res_no_str: " << res_no_str << " rest_2: " << rest_2 << std::endl;
-            std::vector<std::string> parts_3 = coot::util::split_string(rest_2, "=");
-            if (parts_3.size() == 2) {
-               std::string atom_name_1_raw = parts_3[0];
-               std::string rest_3      = parts_3[1];
-               std::string atom_name_2_raw = rest_3;
-               std::string atom_name_1 = atom_name_1_raw;
-               std::string atom_name_2 = atom_name_2_raw;
-               if (debug)
-                  std::cout << "debug:: bond_block: atom_name_1 " << atom_name_1
-                            << " atom_name_2 " << atom_name_2 << std::endl;
-               if (! atom_name_1.empty()) {
-                  if (! atom_name_2.empty()) {
-                     try {
-                        int res_no = coot::util::string_to_int(res_no_str);
-                        // it will be a pain to decode these
-                        std::string ins_code;
-                        std::string alt_conf;
-                        coot::atom_spec_t atom_spec_1(chain_id, res_no, ins_code, atom_name_1, alt_conf);
-                        coot::atom_spec_t atom_spec_2(chain_id, res_no, ins_code, atom_name_2, alt_conf);
-                        mmdb::Atom *at_1 = coot::util::get_atom_using_fuzzy_search(atom_spec_1, mol);
-                        mmdb::Atom *at_2 = coot::util::get_atom_using_fuzzy_search(atom_spec_2, mol);
-                        if (at_1 && at_2) {
-                           if (debug)
-                              std::cout << "debug:: bond block - found both" << std::endl;
-                           clipper::Coord_orth pt_1(at_1->x, at_1->y, at_1->z);
-                           clipper::Coord_orth pt_2(at_2->x, at_2->y, at_2->z);
-                           clipper::Coord_orth mid(0.5 * (pt_1 + pt_2));
-                           set_rotation_centre(mid.x(), mid.y(), mid.z());
-                           std::vector<coot::atom_spec_t> atom_specs = { atom_spec_1, atom_spec_2};
-                           pulse_atom_specs(imol, atom_specs);
-                        } else {
-                           std::cout << "WARNING:: failed to lookup an atom " << atom_spec_1 << " " << atom_spec_2
-                                     << std::endl;
-                        }
-                     }
-                     catch (const std::runtime_error &e) {
-                        std::cout << "WARNING::" << e.what() << std::endl;
-                     }
-                  } else  {
-                     std::cout << "WARNING:: blank atom_name_2" << std::endl;
-                  }
-               } else {
-                  std::cout << "WARNING:: blank atom_name_1" << std::endl;
-               }
-            }
+               std::cout << "debug:: bond block - found both" << std::endl;
+            clipper::Coord_orth pt_1(at_1->x, at_1->y, at_1->z);
+            clipper::Coord_orth pt_2(at_2->x, at_2->y, at_2->z);
+            clipper::Coord_orth mid(0.5 * (pt_1 + pt_2));
+            set_rotation_centre(mid.x(), mid.y(), mid.z());
+            std::vector<coot::atom_spec_t> atom_specs = { atom_spec_1, atom_spec_2};
+            pulse_atom_specs(imol, atom_specs);
+         } else {
+            std::cout << "WARNING:: failed to lookup an atom " << atom_spec_1 << " " << atom_spec_2
+                      << std::endl;
          }
       }
    }
@@ -224,66 +260,28 @@ void go_to_gphl_atoms(int imol, const std::string &atom_ids, const std::string &
       std::vector<std::string> parts_1 = coot::util::split_string(atom_ids, "|");
       if (debug)
          std::cout << "debug:: angle block" << parts_1.size() << std::endl;
-      if (parts_1.size() == 2) {
-         // simple case = all atoms in the same residue
-         std::string chain_id = parts_1[0];
-         std::string rest_1   = parts_1[1];
-         if (debug)
-            std::cout << "debug:: angle_block: chain_id: " << chain_id << " rest_1: " << rest_1 << std::endl;
-         std::vector<std::string> parts_2 = coot::util::split_string(rest_1, ":");
-         if (parts_2.size() == 2) {
-            std::string res_no_str = parts_2[0];
-            std::string rest_2     = parts_2[1];
-            if (debug)
-               std::cout << "debug:: angle_block: res_no_str: " << res_no_str << " rest_2: " << rest_2 << std::endl;
-            std::vector<std::string> parts_3 = coot::util::split_string(rest_2, "=");
-            if (parts_3.size() == 3) {
-               std::string atom_name_1_raw = parts_3[0];
-               std::string rest_3          = parts_3[1];
-               std::string atom_name_2_raw = rest_3;
-               std::string atom_name_3_raw = parts_3[2];
-               // instead of padding here, it would be better to use get_atom_using_fuzzy_search()
-               // so that the atom name can be passed without needing to pad it.
-               std::string atom_name_1 = atom_name_1_raw;
-               std::string atom_name_2 = atom_name_2_raw;
-               std::string atom_name_3 = atom_name_3_raw;
-               if (debug)
-                  std::cout << "debug:: angle_block:"
-                            << " atom_name_1 " << atom_name_1
-                            << " atom_name_2 " << atom_name_2
-                            << " atom_name_3 " << atom_name_3 << std::endl;
-               if (! atom_name_1.empty()) {
-                  if (! atom_name_2.empty()) {
-                     if (! atom_name_3.empty()) {
-                        try {
-                           int res_no = coot::util::string_to_int(res_no_str);
-                           std::string ins_code;
-                           std::string alt_conf;
-                           coot::atom_spec_t atom_spec_1(chain_id, res_no, ins_code, atom_name_1, alt_conf);
-                           coot::atom_spec_t atom_spec_2(chain_id, res_no, ins_code, atom_name_2, alt_conf);
-                           coot::atom_spec_t atom_spec_3(chain_id, res_no, ins_code, atom_name_3, alt_conf);
-                           mmdb::Atom *at_1 = coot::util::get_atom_using_fuzzy_search(atom_spec_1, mol);
-                           mmdb::Atom *at_2 = coot::util::get_atom_using_fuzzy_search(atom_spec_2, mol);
-                           mmdb::Atom *at_3 = coot::util::get_atom_using_fuzzy_search(atom_spec_3, mol);
-                           if (at_1 && at_2 && at_3) {
-                              clipper::Coord_orth pt_1(at_1->x, at_1->y, at_1->z);
-                              clipper::Coord_orth pt_2(at_2->x, at_2->y, at_2->z);
-                              clipper::Coord_orth pt_3(at_3->x, at_3->y, at_3->z);
-                              clipper::Coord_orth mid(0.333333 * (pt_1 + pt_2 + pt_3));
-                              set_rotation_centre(mid.x(), mid.y(), mid.z());
-                              std::vector<coot::atom_spec_t> atom_specs = { atom_spec_1, atom_spec_2, atom_spec_3};
-                              pulse_atom_specs(imol, atom_specs);
-                           } else {
-                              std::cout << "WARNING:: failed to lookup an atom " << atom_spec_1
-                                        << " " << atom_spec_2 << " " << atom_spec_3 << std::endl;
-                           }
-                        } catch (const std::runtime_error &e) {
-                           std::cout << "WARNING::" << e.what() << std::endl;
-                        }
-                     }
-                  }
-               }
-            }
+      std::vector<coot::atom_spec_t> vs = gphl_atom_ids_to_atom_specs(atom_ids, "angle");
+      if (vs.size() == 3) {
+         coot::atom_spec_t atom_spec_1 = vs[0];
+         coot::atom_spec_t atom_spec_2 = vs[1];
+         coot::atom_spec_t atom_spec_3 = vs[2];
+         mmdb::Atom *at_1 = coot::util::get_atom_using_fuzzy_search(atom_spec_1, mol);
+         mmdb::Atom *at_2 = coot::util::get_atom_using_fuzzy_search(atom_spec_2, mol);
+         mmdb::Atom *at_3 = coot::util::get_atom_using_fuzzy_search(atom_spec_3, mol);
+         if (at_1 && at_2 && at_3) {
+            clipper::Coord_orth pt_1(at_1->x, at_1->y, at_1->z);
+            clipper::Coord_orth pt_2(at_2->x, at_2->y, at_2->z);
+            clipper::Coord_orth pt_3(at_3->x, at_3->y, at_3->z);
+            clipper::Coord_orth mid(0.333333 * (pt_1 + pt_2 + pt_3));
+            set_rotation_centre(mid.x(), mid.y(), mid.z());
+            std::vector<coot::atom_spec_t> atom_specs = { atom_spec_1, atom_spec_2, atom_spec_3};
+            pulse_atom_specs(imol, atom_specs);
+         } else {
+            std::cout << "WARNING:: failed to lookup an atom " << atom_spec_1
+                      << " " << atom_spec_2 << " " << atom_spec_3 << std::endl;
+            if (!at_1) std::cout << "WARNING:: at_1 " << atom_spec_1 << " was null" << std::endl;
+            if (!at_2) std::cout << "WARNING:: at_2 " << atom_spec_2 << " was null" << std::endl;
+            if (!at_3) std::cout << "WARNING:: at_3 " << atom_spec_3 << " was null" << std::endl;
          }
       }
       // A|231:C(ALA)=A|232:N(PRO)=A|232:CA(PRO)
@@ -483,7 +481,50 @@ void go_to_gphl_atoms(int imol, const std::string &atom_ids, const std::string &
       }
    }
 
+
    if (type == "ideal-contact") {
+      std::vector<coot::atom_spec_t> atom_specs = gphl_atom_ids_to_atom_specs(atom_ids, "ideal-contact");
+      if (! atom_specs.empty()) {
+         if (atom_specs.size() == 2) {
+            mmdb:: Atom *at_1 = coot::util::get_atom_using_fuzzy_search(atom_specs[0], mol);
+            mmdb:: Atom *at_2 = coot::util::get_atom_using_fuzzy_search(atom_specs[1], mol);
+            if (at_1 && at_2) {
+               clipper::Coord_orth c(0,0,0);
+               c += 0.5 * clipper::Coord_orth(at_1->x, at_1->y, at_1->z);
+               c += 0.5 * clipper::Coord_orth(at_2->x, at_2->y, at_2->z);
+               set_rotation_centre(c.x(), c.y(), c.z());
+               pulse_atom_specs(imol, atom_specs);
+            }
+         }
+      }
+   }
+
+   if (type == "aniso-sph") {
+      // just one atom - need to strip off the "(RES)"
+      std::vector<coot::atom_spec_t> atom_specs = gphl_atom_ids_to_atom_specs(atom_ids, "aniso-sph");
+      if (atom_specs.size() == 1) {
+         mmdb:: Atom *at = coot::util::get_atom_using_fuzzy_search(atom_specs[0], mol);
+         if (at) {
+            set_rotation_centre(at->x, at->y, at->z);
+            pulse_atom_specs(imol, atom_specs);
+         }
+      }
+   }
+
+   if (type == "aniso-sph-nonb") {
+      // just one atom - need to strip off the "(RES)"
+      std::vector<coot::atom_spec_t> atom_specs = gphl_atom_ids_to_atom_specs(atom_ids, "aniso-sph-nonb");
+      if (atom_specs.size() == 1) {
+         mmdb:: Atom *at = coot::util::get_atom_using_fuzzy_search(atom_specs[0], mol);
+         if (at) {
+            set_rotation_centre(at->x, at->y, at->z);
+            pulse_atom_specs(imol, atom_specs);
+         }
+      }
+   }
+
+   // delete
+   if (type == "ideal-contactx") {
       // e.g.:
       // A|318:O(PHE)=A|320:N(ALA) [ideal 1-N]
       // A|307:N=CD1 (LEU) [ideal 1-5]
@@ -596,6 +637,8 @@ PyObject *global_phasing_screen(int imol, PyObject *screen_dict) {
       std::vector<std::map<std::string, std::string> > torsion_dict_vec;
       std::vector<std::map<std::string, std::string> > plane_dict_vec;
       std::vector<std::map<std::string, std::string> > ideal_contact_dict_vec;
+      std::vector<std::map<std::string, std::string> > aniso_sph_dict_vec;
+      std::vector<std::map<std::string, std::string> > aniso_sph_nonb_dict_vec;
       std::vector<std::pair<std::string, std::string> > unhappy_atoms;
    };
 
@@ -625,6 +668,8 @@ PyObject *global_phasing_screen(int imol, PyObject *screen_dict) {
          button_wrapper_t *bw = static_cast<button_wrapper_t *>(user_data);
          if (bw) {
             if (! bw->atom_ids.empty()) {
+               if (false)
+                  std::cout << "debug:: go_button_clicked(): bw->atom_ids: " << bw->atom_ids << std::endl;
                go_to_gphl_atoms(bw->imol, bw->atom_ids, bw->type);
             }
             if (bw->eye_label)
@@ -638,11 +683,14 @@ PyObject *global_phasing_screen(int imol, PyObject *screen_dict) {
             for (unsigned int i=0; i<bw->n_rows_in_grid; i++) {
                GtkWidget *l = gtk_grid_get_child_at(GTK_GRID(bw->grid), bw->eye_column, i); // column, row indexing
                if (GTK_IS_LABEL(l)) {
+                  // std::cout << "DEBUG:: row " << i << " bc " << bc << std::endl;
                   gtk_label_set_markup(GTK_LABEL(l), bc.c_str());
                } else {
-                  std::cout << "widget " << l << " is not a label, index: " << bw->eye_column << " " << i << std::endl;
+                  if (false) // do we want to know this?
+                     std::cout << "widget " << l << " is not a label (for eye), index: " << bw->eye_column << " on row " << i << std::endl;
                }
             }
+            // std::cout << "DEBUG:: set_markup eye label " << bw->eye_label << " " << bcmr << std::endl;
             gtk_label_set_markup(GTK_LABEL(bw->eye_label), bcmr.c_str());
          }
       };
@@ -683,7 +731,7 @@ PyObject *global_phasing_screen(int imol, PyObject *screen_dict) {
 
          if (! screen_results.front_page_strings.empty()) {
             GtkWidget *label = widget_from_builder("screen-front-page-label", builder);
-            std::string s = "<span font_family='monospace'>\n";
+            std::string s = "<span font_family='monospace'>\n"; // 20260129-PE Is *was* right!
             for (unsigned int i=0; i<screen_results.front_page_strings.size(); i++) {
                s += screen_results.front_page_strings[i];
                s += "\n";
@@ -953,6 +1001,97 @@ PyObject *global_phasing_screen(int imol, PyObject *screen_dict) {
             }
          }
 
+         // --------------------- Aniso SPH Atoms -------------------------------------
+
+         std::cout << "screen_results.aniso_sph_dict_vec     size " << screen_results.aniso_sph_dict_vec.size() << std::endl;
+         std::cout << "screen_results.aniso_sph_nonbdict_vec size " << screen_results.aniso_sph_nonb_dict_vec.size() << std::endl;
+         if (screen_results.aniso_sph_dict_vec.empty()) {
+            GtkWidget *page = widget_from_builder("aniso-sph-notebook-page", builder);
+            std::cout << ".................... make page aniso-sph non-visible" << std::endl;
+            if (page)
+               gtk_widget_set_visible(page, FALSE);
+         } else {
+            const std::vector<std::map<std::string, std::string> > &v = screen_results.aniso_sph_dict_vec;
+            GtkWidget *grid = widget_from_builder("gphl-screen-aniso-sph-grid", builder);
+            gtk_grid_set_column_spacing(GTK_GRID(grid), 10);
+            gtk_grid_set_row_spacing(GTK_GRID(grid), 2);
+            gtk_grid_attach(GTK_GRID(grid), gtk_label_new("Value"),       0, 0, 1, 1);
+            gtk_grid_attach(GTK_GRID(grid), gtk_label_new("Function"),    1, 0, 1, 1);
+            gtk_grid_attach(GTK_GRID(grid), gtk_label_new("Atom"),        2, 0, 1, 1);
+            std::vector<std::pair<std::string, unsigned int> > vv = { {"value", 0}, {"function", 1}, {"atom", 2} };
+
+            for (unsigned int i=0; i<v.size(); i++) {
+               std::string atomid;
+               unsigned int i_row = i+1;
+               const std::map<std::string, std::string> &m = v[i];
+               std::map<std::string, std::string>::const_iterator it;
+               for (unsigned int j=0; j<vv.size(); j++) {
+                  it = m.find(vv[j].first);
+                  if (it != m.end()) {
+                     GtkWidget *w = gtk_label_new(it->second.c_str());
+                     if (vv[j].first == "atom") {
+                        gtk_widget_set_halign(w, GTK_ALIGN_START);
+                        atomid = it->second;
+                     }
+                     gtk_grid_attach(GTK_GRID(grid), w, vv[j].second, i_row, 1, 1);
+                  } else {
+                     std::cout << "Failed to find " << vv[j].first << std::endl;
+                  }
+               }
+               GtkWidget *go_button = gtk_button_new_with_label("Go");
+               GtkWidget *eye_label = gtk_label_new("👁");
+               gtk_label_set_use_markup(GTK_LABEL(eye_label), TRUE);
+               connect_callback(grid, go_button, eye_label, screen_results.imol, i_row, v.size(), 4, atomid, "aniso-sph");
+               gtk_grid_attach(GTK_GRID(grid), go_button, 3, i_row, 1, 1);
+               gtk_grid_attach(GTK_GRID(grid), eye_label, 4, i_row, 1, 1);
+               gtk_widget_set_visible(eye_label, FALSE);
+            }
+         }
+
+         // --------------------- Aniso SPH nonbonded Atoms -------------------------------------
+
+         if (screen_results.aniso_sph_nonb_dict_vec.empty()) {
+            GtkWidget *page = widget_from_builder("aniso-sph-nonbonded-notebook-page", builder);
+            if (page)
+               gtk_widget_set_visible(page, FALSE);
+         } else {
+            const std::vector<std::map<std::string, std::string> > &v = screen_results.aniso_sph_nonb_dict_vec;
+            GtkWidget *grid = widget_from_builder("gphl-screen-aniso-sph-nonb-grid", builder);
+            gtk_grid_set_column_spacing(GTK_GRID(grid), 10);
+            gtk_grid_set_row_spacing(GTK_GRID(grid), 2);
+            gtk_grid_attach(GTK_GRID(grid), gtk_label_new("Value"),       0, 0, 1, 1);
+            gtk_grid_attach(GTK_GRID(grid), gtk_label_new("Function"),    1, 0, 1, 1);
+            gtk_grid_attach(GTK_GRID(grid), gtk_label_new("Atom"),        2, 0, 1, 1);
+            std::vector<std::pair<std::string, unsigned int> > vv = { {"value", 0}, {"function", 1}, {"atom", 2} };
+
+            for (unsigned int i=0; i<v.size(); i++) {
+               std::string atomid;
+               unsigned int i_row = i+1;
+               const std::map<std::string, std::string> &m = v[i];
+               std::map<std::string, std::string>::const_iterator it;
+               for (unsigned int j=0; j<vv.size(); j++) {
+                  it = m.find(vv[j].first);
+                  if (it != m.end()) {
+                     GtkWidget *w = gtk_label_new(it->second.c_str());
+                     if (vv[j].first == "atom") {
+                        gtk_widget_set_halign(w, GTK_ALIGN_START);
+                        atomid = it->second;
+                     }
+                     gtk_grid_attach(GTK_GRID(grid), w, vv[j].second, i_row, 1, 1);
+                  } else {
+                     std::cout << "Failed to find " << vv[j].first << std::endl;
+                  }
+               }
+               GtkWidget *go_button = gtk_button_new_with_label("Go");
+               GtkWidget *eye_label = gtk_label_new("👁");
+               gtk_label_set_use_markup(GTK_LABEL(eye_label), TRUE);
+               connect_callback(grid, go_button, eye_label, screen_results.imol, i_row, v.size(), 4, atomid, "aniso-sph-nonb");
+               gtk_grid_attach(GTK_GRID(grid), go_button, 3, i_row, 1, 1);
+               gtk_grid_attach(GTK_GRID(grid), eye_label, 4, i_row, 1, 1);
+               gtk_widget_set_visible(eye_label, FALSE);
+            }
+         }
+
          // --------------------- Finally -------------------------------------
 
          if (dialog)
@@ -1185,6 +1324,68 @@ PyObject *global_phasing_screen(int imol, PyObject *screen_dict) {
                               ideal_contact_dict["delta_sigma"] = delta_sigma;
                               ideal_contact_dict["atom_ids"]    = atom_ids;
                               screen_results.ideal_contact_dict_vec.push_back(ideal_contact_dict);
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+         }
+
+         {
+            PyObject *aniso_sph_data_py = PyDict_GetItemString(screen_dict, "Aniso SPH"); // a borrowed reference
+            if (aniso_sph_data_py) {
+               if (PyList_Check(aniso_sph_data_py)) {
+                  long lpi = PyObject_Length(aniso_sph_data_py);
+                  for (long i=0; i<lpi; i++) {
+                     PyObject *aniso_sph_dict_py = PyList_GetItem(aniso_sph_data_py, i);
+                     if (PyDict_Check(aniso_sph_dict_py)) {
+                        PyObject *value_py    = PyDict_GetItemString(aniso_sph_dict_py, "value");
+                        PyObject *function_py = PyDict_GetItemString(aniso_sph_dict_py, "function");
+                        PyObject *atom_py     = PyDict_GetItemString(aniso_sph_dict_py, "atom");
+                        if (value_py && function_py && atom_py) {
+                           if (PyUnicode_Check(value_py) &&
+                               PyUnicode_Check(function_py) &&
+                               PyUnicode_Check(atom_py)) {
+                              std::string value    = PyBytes_AS_STRING(PyUnicode_AsUTF8String(value_py));
+                              std::string function = PyBytes_AS_STRING(PyUnicode_AsUTF8String(function_py));
+                              std::string atom     = PyBytes_AS_STRING(PyUnicode_AsUTF8String(atom_py));
+                              std::map<std::string, std::string> aniso_sph_dict;
+                              aniso_sph_dict["value"]    = value;
+                              aniso_sph_dict["function"] = function;
+                              aniso_sph_dict["atom"]     = atom;
+                              screen_results.aniso_sph_dict_vec.push_back(aniso_sph_dict);
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+         }
+
+         {
+            PyObject *aniso_sph_data_py = PyDict_GetItemString(screen_dict, "Aniso SPH nonb"); // a borrowed reference
+            if (aniso_sph_data_py) {
+               if (PyList_Check(aniso_sph_data_py)) {
+                  long lpi = PyObject_Length(aniso_sph_data_py);
+                  for (long i=0; i<lpi; i++) {
+                     PyObject *aniso_sph_dict_py = PyList_GetItem(aniso_sph_data_py, i);
+                     if (PyDict_Check(aniso_sph_dict_py)) {
+                        PyObject *value_py    = PyDict_GetItemString(aniso_sph_dict_py, "value");
+                        PyObject *function_py = PyDict_GetItemString(aniso_sph_dict_py, "function");
+                        PyObject *atom_py     = PyDict_GetItemString(aniso_sph_dict_py, "atom");
+                        if (value_py && function_py && atom_py) {
+                           if (PyUnicode_Check(value_py) &&
+                               PyUnicode_Check(function_py) &&
+                               PyUnicode_Check(atom_py)) {
+                              std::string value    = PyBytes_AS_STRING(PyUnicode_AsUTF8String(value_py));
+                              std::string function = PyBytes_AS_STRING(PyUnicode_AsUTF8String(function_py));
+                              std::string atom     = PyBytes_AS_STRING(PyUnicode_AsUTF8String(atom_py));
+                              std::map<std::string, std::string> aniso_sph_dict;
+                              aniso_sph_dict["value"]    = value;
+                              aniso_sph_dict["function"] = function;
+                              aniso_sph_dict["atom"]     = atom;
+                              screen_results.aniso_sph_nonb_dict_vec.push_back(aniso_sph_dict);
                            }
                         }
                      }

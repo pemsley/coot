@@ -1102,7 +1102,7 @@ namespace coot {
       mmdb::Manager *create_mmdbmanager_from_residue_specs(const std::vector<residue_spec_t> &r1,
                                                           mmdb::Manager *mol);
 
-      // split a NRM model into multiple models all with MODEL 1. 
+      // split a NRM model into multiple models all with MODEL 1.
       std::vector<mmdb::Manager *> split_multi_model_molecule(mmdb::Manager *mol);
 
       void add_copy_of_atom(mmdb::Manager *mol, mmdb::Atom *atom);
@@ -1133,7 +1133,10 @@ namespace coot {
       void copy_atoms_from_chain_to_chain(mmdb::Chain *from_chain, mmdb::Chain *to_chain);
 
       // add or delete residues and atoms as needed.
-      void replace_chain_contents_with_atoms_from_chain(mmdb::Chain *from_chain, mmdb::Manager *from_mol_orig, mmdb::Chain *to_chain, bool do_finishstructedit);
+      void replace_chain_contents_with_atoms_from_chain(mmdb::Chain *from_chain,
+                                                        mmdb::Manager *from_mol_orig,
+                                                        mmdb::Chain *to_chain,
+                                                        bool do_finishstructedit);
 
       // utility function for above:
       mmdb::Residue* deep_copy_this_residue_add_chain(mmdb::Residue *residue,
@@ -1261,7 +1264,7 @@ namespace coot {
       //
       // Take into account the insertion code too:
       std::vector<std::pair<mmdb::Residue *, int> > sort_residues_by_seqno(mmdb::PResidue *residues,
-                                                                      int nResidues);
+                                                                           int nResidues);
 
       // Use the results of the above to give us a sequence string:
       std::string model_sequence(const std::vector<std::pair<mmdb::Residue *, int> > &sa,

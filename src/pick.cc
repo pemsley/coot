@@ -159,6 +159,8 @@ pick_atom_from_atom_selection(const atom_selection_container_t &SelAtom, int imo
 std::pair<coot::Cartesian, coot::Cartesian>
 graphics_info_t::get_front_and_back_for_pick() const {
 
+   stereo_eye_t eye = stereo_eye_t::MONO; // PASS THIS
+
    // modern version of getting front and back (the position in 3D space of the mouse on
    // the front clipping plane and the back clipping plane)
    GtkAllocation allocation = get_glarea_allocation();
@@ -166,7 +168,7 @@ graphics_info_t::get_front_and_back_for_pick() const {
    int h = allocation.height;
    float mouseX = GetMouseBeginX() / (w * 0.5f) - 1.0f;
    float mouseY = GetMouseBeginY() / (h * 0.5f) - 1.0f;
-   glm::mat4 mvp = get_molecule_mvp();
+   glm::mat4 mvp = get_molecule_mvp(eye);
    glm::mat4 vp_inv = glm::inverse(mvp);
    // std::cout << "get_front_and_back_for_pick() mvp " << glm::to_string(mvp) << " back " << glm::to_string(vp_inv) << std::endl;
    float real_y = - mouseY; // in range -1 -> 1
@@ -233,6 +235,8 @@ graphics_info_t::tomo_pick(double x, double y, gint n_press, bool shift_is_press
 pick_info
 graphics_info_t::atom_pick_gtk3(bool intermediate_atoms_only_flag) const {
 
+   stereo_eye_t eye = stereo_eye_t::MONO; // PASS THIS
+
    pick_info p_i;
 
    //GLenum err = glGetError(); std::cout << "atom_pick_gtk3() A err " << err << std::endl;
@@ -247,7 +251,7 @@ graphics_info_t::atom_pick_gtk3(bool intermediate_atoms_only_flag) const {
    float screen_ratio = static_cast<float>(w)/static_cast<float>(h);
    float mouseX = GetMouseBeginX() / (w * 0.5f) - 1.0f;
    float mouseY = GetMouseBeginY() / (h * 0.5f) - 1.0f;
-   glm::mat4 mvp = get_molecule_mvp();
+   glm::mat4 mvp = get_molecule_mvp(eye);
    glm::mat4 vp_inv = glm::inverse(mvp);
    float real_y = - mouseY; // in range -1 -> 1
    glm::vec4 screenPos_f = glm::vec4(mouseX, real_y, -1.0f, 1.0f);

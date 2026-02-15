@@ -2532,54 +2532,6 @@ void set_multi_residue_torsion_reverse_mode(short int mode) {
 }
 
 
-/* ------------------------------------------------------------------------- */
-/*                      prodrg import function                               */
-/* ------------------------------------------------------------------------- */
-// the function passed to lbg, which is called when a new
-// prodrg-in.mdl file has been made.  We no longer have a timeout
-// function waiting for prodrg-in.mdl to be updated/written.
-//
-void prodrg_import_function(std::string file_name, std::string comp_id) {
-
-   std::string func_name = "import-from-3d-generator-from-mdl";
-   std::vector<coot::command_arg_t> args;
-   args.push_back(single_quote(file_name));
-   args.push_back(single_quote(comp_id));
-   coot::scripting_function(func_name, args);
-}
-
-
-/* ------------------------------------------------------------------------- */
-/*                       SBase import function                               */
-/* ------------------------------------------------------------------------- */
-// the function passed to lbg, so that it calls it when a new
-// SBase comp_id is required.  We no longer have a timeout
-// function waiting for prodrg-in.mdl to be updated/written.
-//
-void sbase_import_function(std::string comp_id) {
-
-   bool done = false;
-#ifdef USE_PYTHON
-   if (graphics_info_t::prefer_python) {
-      std::string s = "get_sbase_monomer_and_overlay(";
-      s += single_quote(comp_id);
-      s += ")";
-      safe_python_command(s);
-      done = true;
-   }
-#endif
-
-#ifdef USE_GUILE
-   if (! done) {
-      std::string s = "(get-ccp4srs-monomer-and-overlay ";
-      s += single_quote(comp_id);
-      s += ")";
-      safe_scheme_command(s);
-   }
-#endif
-
-}
-
 
 // return a spec for the first residue with the given type.
 // test the returned spec for unset_p().
@@ -2636,7 +2588,6 @@ SCM get_residue_by_type_scm(int imol, const std::string &residue_type) {
 #endif
 
 
-#ifdef USE_PYTHON
 PyObject *get_residue_by_type_py(int imol, const std::string &residue_type) {
 
    PyObject *r = Py_False;
@@ -2649,7 +2600,55 @@ PyObject *get_residue_by_type_py(int imol, const std::string &residue_type) {
 
    return r;
 }
-#endif
+
+//! get the residue name of the specified residue
+//!
+//! @param imol the molecule index
+//! @param residue_spec_py the residue spec
+//! @return
+std::string get_residue_name_py(int imol, PyObject *residue_spec_py) {
+
+   std::string r;
+   if (is_valid_model_molecule(imol)) {
+      coot::residue_spec_t res_spec = residue_spec_from_py(residue_spec_py);
+      r = graphics_info_t::molecules[imol].get_residue_name(res_spec);
+   }
+   return r;
+
+}
+
+//! as above, but for use by callback
+std::string get_residue_name(int imol, coot::residue_spec_t &res_spec) {
+
+   std::string r;
+   if (is_valid_model_molecule(imol)) {
+      r = graphics_info_t::molecules[imol].get_residue_name(res_spec);
+   }
+   return r;
+}
+
+//! use by callback
+bool is_N_terminus(int imol, coot::residue_spec_t &res_spec) {
+
+  bool status = false;
+  if (is_valid_model_molecule(imol)) {
+     status = graphics_info_t::molecules[imol].is_N_terminus(res_spec);
+
+  }
+  return status;
+}
+
+//! use by callback
+bool is_C_terminus(int imol, coot::residue_spec_t &res_spec) {
+
+  bool status = false;
+  if (is_valid_model_molecule(imol)) {
+     status = graphics_info_t::molecules[imol].is_C_terminus(res_spec);
+  }
+  return status;
+}
+
+
 
 
 #ifdef USE_GUILE

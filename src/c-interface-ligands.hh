@@ -49,9 +49,6 @@ namespace coot {
 
    enum { SP_HYBRIDIZATION, SP2_HYBRIDIZATION, SP3_HYBRIDIZATION };
 
-   std::vector<std::pair<std::string, int> >
-   get_prodrg_hybridizations(const std::string &prodrg_log_file_name);
-
    std::vector<std::pair<mmdb::Atom *, std::vector<clipper::Coord_orth> > >
    get_cannonball_vectors(mmdb::Residue *ligand_res_3d,
 			  const coot::dictionary_residue_restraints_t &monomer_restraints);

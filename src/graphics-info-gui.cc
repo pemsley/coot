@@ -4637,7 +4637,11 @@ int
 graphics_info_t::add_ribbon_representation_with_user_defined_colours(int imol, const std::string &name) {
 
    GtkWidget *w = widget_from_builder("molecular_representation_meshes_frame");
-   gtk_widget_set_visible(w, TRUE);
+   if (w) {
+      gtk_widget_set_visible(w, TRUE);
+   } else {
+      std::cout << "DEBUG:: failed to lookup molecular_representation_meshes_frame!!!!!!!!" << std::endl;
+   }
 
    attach_buffers();
 

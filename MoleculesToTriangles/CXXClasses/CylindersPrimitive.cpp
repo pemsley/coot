@@ -76,10 +76,33 @@ void CylindersPrimitive::generateArrays()
 {
     //std::cout << "In cylinder generateArrays "<<points.size()<<" "<<angularSampling;
     float angularStep = (2.*M_PI) / (float)angularSampling;
-    vertexColorNormalArray = new VertexColorNormal[angularSampling*points.size()];
-    atomArray = new const mmdb::Atom*[angularSampling*points.size()];
-    unsigned long nIndices = 6*angularSampling*points.size();
-    indexArray = new GLIndexType[nIndices];
+
+    // Count how many separate tube segments we have (separated by CylinderPointTypeStart)
+    int nCaps = 0;
+    if (points.size() >= 2) {
+        // Count start caps (each segment needs a start cap)
+        nCaps++; // First segment start
+        for (size_t i = 1; i < points.size(); i++) {
+            if (points[i].type == CylinderPoint::CylinderPointTypeStart) {
+                nCaps += 2; // End cap for previous segment, start cap for new segment
+            }
+        }
+        nCaps++; // Last segment end
+    }
+
+    // Cap geometry: 3 intermediate rings + 1 apex per cap
+    // Extra vertices per cap: 3*angularSampling (intermediate rings) + 1 (apex)
+    // Extra triangles per cap: 2*angularSampling * 3 (between rings) + angularSampling (last ring to apex)
+    int nCapRings = 3;
+    int capVertices = nCaps * (nCapRings * angularSampling + 1);
+    int capTriangles = nCaps * (2 * nCapRings * angularSampling + angularSampling);
+
+    int totalVertices = angularSampling * points.size() + capVertices;
+    unsigned long totalIndices = 6 * angularSampling * points.size() + 3 * capTriangles;
+
+    vertexColorNormalArray = new VertexColorNormal[totalVertices];
+    atomArray = new const mmdb::Atom*[totalVertices];
+    indexArray = new GLIndexType[totalIndices];
 
     int iGLVertex = 0;
     for (int i=0; i< points.size(); i++){
@@ -103,6 +126,8 @@ void CylindersPrimitive::generateArrays()
             iGLVertex++;
         }
     }
+
+    int tubeVertexCount = iGLVertex;
     _nVertices = iGLVertex;
 
     _nTriangles = 0;
@@ -136,6 +161,180 @@ void CylindersPrimitive::generateArrays()
 	  }
        }
     }
+
+    // Generate dome end caps
+    if (points.size() >= 2) {
+        // Lambda to add a dome cap
+        // tubeRingIndex: index of the tube ring (in points array) to cap
+        // capDirection: unit vector pointing outward from tube end
+        // isStartCap: true if this is the start of a segment (affects winding order)
+        auto addDomeCap = [&](int tubeRingIndex, FCXXCoord capDirection, bool isStartCap) {
+            const CylinderPoint& pt = points[tubeRingIndex];
+            int tubeRingVertexBase = tubeRingIndex * angularSampling;
+
+            // Cap parameters - 3 intermediate rings for smooth curvature
+            float maxPhi = M_PI / 6.0f;  // 30 degrees total - shallow dome
+            float capDepth = (pt.radiusOne + pt.radiusTwo) * 0.5f * 0.6f;
+
+            // Apex
+            FCXXCoord apex = pt.vertex + capDirection * capDepth;
+            int apexIndex = iGLVertex;
+
+            // Add apex vertex
+            for (int k = 0; k < 4; k++) {
+                vertexColorNormalArray[iGLVertex].vertex[k] = apex[k];
+                float floatComponentValue = pt.color[k] * 255.;
+                int uintComponentValue = (floatComponentValue < 0. ? 0 : (floatComponentValue > 255. ? 255 : floatComponentValue));
+                vertexColorNormalArray[iGLVertex].color[k] = uintComponentValue;
+                vertexColorNormalArray[iGLVertex].normal[k] = capDirection[k];
+            }
+            atomArray[iGLVertex] = pt.atom;
+            iGLVertex++;
+
+            // Add 3 intermediate ring vertices
+            int ringBases[3];
+            for (int ring = 0; ring < 3; ring++) {
+                // Latitude angles: distribute evenly from near-equator to near-apex
+                // ring 0: closest to tube edge, ring 2: closest to apex
+                float phi = maxPhi * (float)(ring + 1) / 4.0f;  // 7.5°, 15°, 22.5°
+                float cosPhi = cosf(phi);
+                float sinPhi = sinf(phi);
+
+                FCXXCoord ringCenter = pt.vertex + capDirection * (capDepth * sinPhi);
+                float ringRadiusOne = pt.radiusOne * cosPhi;
+                float ringRadiusTwo = pt.radiusTwo * cosPhi;
+
+                ringBases[ring] = iGLVertex;
+                for (int j = 0; j < angularSampling; j++) {
+                    float angle = (float)j * angularStep;
+                    FCXXCoord vertex = ringCenter + pt.normalOne * (ringRadiusOne * sinf(angle)) + pt.normalTwo * (ringRadiusTwo * cosf(angle));
+
+                    // Normal blends between radial and axial
+                    FCXXCoord radialNormal = pt.normalOne * sinf(angle) / powf(pt.radiusOne, 0.5f) +
+                                             pt.normalTwo * cosf(angle) / powf(pt.radiusTwo, 0.5f);
+                    radialNormal.normalise();
+                    FCXXCoord normal = radialNormal * cosPhi + capDirection * sinPhi;
+                    normal.normalise();
+
+                    for (int k = 0; k < 4; k++) {
+                        vertexColorNormalArray[iGLVertex].vertex[k] = vertex[k];
+                        float floatComponentValue = pt.color[k] * 255.;
+                        int uintComponentValue = (floatComponentValue < 0. ? 0 : (floatComponentValue > 255. ? 255 : floatComponentValue));
+                        vertexColorNormalArray[iGLVertex].color[k] = uintComponentValue;
+                        vertexColorNormalArray[iGLVertex].normal[k] = normal[k];
+                    }
+                    atomArray[iGLVertex] = pt.atom;
+                    iGLVertex++;
+                }
+            }
+
+            // Triangles: tube ring to first intermediate ring
+            for (int j = 0; j < angularSampling; j++) {
+                int j1 = (j + 1) % angularSampling;
+                int outerA = tubeRingVertexBase + j;
+                int outerB = tubeRingVertexBase + j1;
+                int innerA = ringBases[0] + j;
+                int innerB = ringBases[0] + j1;
+
+                if (isStartCap) {
+                    indexArray[iIndex++] = outerA;
+                    indexArray[iIndex++] = innerA;
+                    indexArray[iIndex++] = outerB;
+                    _nTriangles++;
+                    indexArray[iIndex++] = outerB;
+                    indexArray[iIndex++] = innerA;
+                    indexArray[iIndex++] = innerB;
+                    _nTriangles++;
+                } else {
+                    indexArray[iIndex++] = outerA;
+                    indexArray[iIndex++] = outerB;
+                    indexArray[iIndex++] = innerA;
+                    _nTriangles++;
+                    indexArray[iIndex++] = outerB;
+                    indexArray[iIndex++] = innerB;
+                    indexArray[iIndex++] = innerA;
+                    _nTriangles++;
+                }
+            }
+
+            // Triangles: between intermediate rings
+            for (int ring = 0; ring < 2; ring++) {
+                for (int j = 0; j < angularSampling; j++) {
+                    int j1 = (j + 1) % angularSampling;
+                    int outerA = ringBases[ring] + j;
+                    int outerB = ringBases[ring] + j1;
+                    int innerA = ringBases[ring + 1] + j;
+                    int innerB = ringBases[ring + 1] + j1;
+
+                    if (isStartCap) {
+                        indexArray[iIndex++] = outerA;
+                        indexArray[iIndex++] = innerA;
+                        indexArray[iIndex++] = outerB;
+                        _nTriangles++;
+                        indexArray[iIndex++] = outerB;
+                        indexArray[iIndex++] = innerA;
+                        indexArray[iIndex++] = innerB;
+                        _nTriangles++;
+                    } else {
+                        indexArray[iIndex++] = outerA;
+                        indexArray[iIndex++] = outerB;
+                        indexArray[iIndex++] = innerA;
+                        _nTriangles++;
+                        indexArray[iIndex++] = outerB;
+                        indexArray[iIndex++] = innerB;
+                        indexArray[iIndex++] = innerA;
+                        _nTriangles++;
+                    }
+                }
+            }
+
+            // Triangles: innermost ring to apex (fan)
+            for (int j = 0; j < angularSampling; j++) {
+                int j1 = (j + 1) % angularSampling;
+                int innerA = ringBases[2] + j;
+                int innerB = ringBases[2] + j1;
+
+                if (isStartCap) {
+                    indexArray[iIndex++] = innerA;
+                    indexArray[iIndex++] = apexIndex;
+                    indexArray[iIndex++] = innerB;
+                } else {
+                    indexArray[iIndex++] = innerA;
+                    indexArray[iIndex++] = innerB;
+                    indexArray[iIndex++] = apexIndex;
+                }
+                _nTriangles++;
+            }
+        };
+
+        // Find segment boundaries and add caps
+        int segmentStart = 0;
+        for (int i = 0; i <= (int)points.size(); i++) {
+            bool isSegmentEnd = (i == (int)points.size()) ||
+                               (i > 0 && points[i].type == CylinderPoint::CylinderPointTypeStart);
+
+            if (isSegmentEnd && i > segmentStart) {
+                int segmentEnd = i - 1;
+
+                // Only add caps if segment has at least 2 points
+                if (segmentEnd > segmentStart) {
+                    // Start cap
+                    FCXXCoord startDir = points[segmentStart].vertex - points[segmentStart + 1].vertex;
+                    startDir.normalise();
+                    addDomeCap(segmentStart, startDir, true);
+
+                    // End cap
+                    FCXXCoord endDir = points[segmentEnd].vertex - points[segmentEnd - 1].vertex;
+                    endDir.normalise();
+                    addDomeCap(segmentEnd, endDir, false);
+                }
+
+                segmentStart = i;
+            }
+        }
+    }
+
+    _nVertices = iGLVertex;
     //std::cout << "Highest index is " <<  highestIndex << std::endl;
 }
 

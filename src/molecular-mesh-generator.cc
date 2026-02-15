@@ -1216,13 +1216,13 @@ molecular_mesh_generator_t::get_molecular_triangles_mesh_for_active_residue(int 
 
    auto select_atoms_in_residues = [] (int selhnd, mmdb::Manager *mol,
                                        const std::vector<mmdb::Residue *> &rs) {
-         // is there a faster way than this?
-         std::vector<mmdb::Residue * >::const_iterator it;
-         for (it=rs.begin(); it!=rs.end(); ++it) {
-            mmdb::Residue *r(*it);
-            mol->SelectAtoms(selhnd, 0, r->GetChainID(), r->GetSeqNum(), "*", r->GetSeqNum(), "*",
-                           "*", "*", "*", "*", mmdb::SKEY_OR);
-         }
+      // is there a faster way than this?
+      std::vector<mmdb::Residue * >::const_iterator it;
+      for (it=rs.begin(); it!=rs.end(); ++it) {
+         mmdb::Residue *r(*it);
+         mol->SelectAtoms(selhnd, 0, r->GetChainID(), r->GetSeqNum(), "*", r->GetSeqNum(), "*",
+                          "*", "*", "*", "*", mmdb::SKEY_OR);
+      }
    };
 
    auto residues_in_range = [] (mmdb::Chain *chain_p, int resno_start, int resno_end) {

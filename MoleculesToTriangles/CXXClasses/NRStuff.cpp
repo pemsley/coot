@@ -46,8 +46,8 @@ void CoordSpline::DialASpline(float t, const std::vector<float> &a,  const std::
     int n = (int)(p.size()) - 1;
 
     if (Cn>n-1) Cn = n-1;       /* Anything greater gives one polynomial */
-    for (k=0; t> a[k]&&k<int(a.size()); k++);    /* Find enclosing knot interval */
-    for (h=k; t==a[k]; k++);    /* May want to use fewer legs */
+    for (k=0; k<int(a.size()) && t> a[k]; k++);
+    for (h=k; k<int(a.size()) && t==a[k]; k++);
     if (k>n) {k = n; if (h>k) h = k;}
     h = 1+Cn - (k-h); k--;
     lo = k-Cn; hi = k+1+Cn;
@@ -165,12 +165,19 @@ std::vector <FCXXCoord> CoordSpline::SplineCurve(const std::vector<FCXXCoord> &c
    maxt = std::max(maxt,maxy);
    maxt = std::max(maxt,maxz);
 
+   // All control points have the same x,y,z values - return a constant spline
+   if (maxt <= mint) {
+      output.resize(nsteps, ctlPts[0]);
+      return output;
+   }
+
    tstep = (maxt-mint)/float(nsteps-1);
    knotstep = (maxt-mint)/(ctlPts.size()-1);
 
    for(i=0;i<ctlPts.size();i++)
      knots.push_back(mint + (float)i*knotstep);
-   knots.push_back(tstep);
+   // knots.push_back(tstep);
+   knots.push_back(maxt);
 
    output.resize(nsteps);
    std::vector<FCXXCoord> work(ctlPts.size());

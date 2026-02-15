@@ -166,7 +166,7 @@ public:
 
    std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> >
    get_molecular_triangles_mesh_for_ribbon_with_user_defined_residue_colours(mmdb::Manager *mol, mmdb::Chain *chain_p,
-                                                                             const std::vector<coot::colour_holder> &user_defined_colours,
+                                                                             const std::vector<std::pair<unsigned int, coot::colour_holder> > &user_defined_colours,
                                                                              int secondary_structure_usage_flag,
                                                                              const std::vector<std::pair<std::string, float> > &M2T_float_params,
                                                                              const std::vector<std::pair<std::string, int> > &M2T_int_params);

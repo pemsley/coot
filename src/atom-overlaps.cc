@@ -78,9 +78,9 @@ SCM ligand_atom_overlaps_scm(int imol, SCM ligand_spec, double neighb_radius) {
 	    r = scm_reverse(r);
 	 }
       }
-   }; 
+   };
    return r;
-} 
+}
 #endif
 
 #ifdef USE_PYTHON
@@ -98,7 +98,7 @@ PyObject *ligand_atom_overlaps_py(int imol, PyObject *ligand_spec, double neighb
 	 mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
 	 std::vector<mmdb::Residue *> neighb_residues =
 	    coot::residues_near_residue(residue_p, mol, neighb_radius);
-	 
+
 	 if (neighb_residues.size()) {
 	    coot::atom_overlaps_container_t overlaps(residue_p, neighb_residues, mol, g.Geom_p());
 	    overlaps.make_overlaps();
@@ -107,7 +107,7 @@ PyObject *ligand_atom_overlaps_py(int imol, PyObject *ligand_spec, double neighb
             if (n_max == -1) {
                list_size = olv.size();
             } else {
-               if (n_max > olv.size())
+               if (n_max > static_cast<int>(olv.size()))
                   list_size = olv.size();
             }
             PyObject *o_py = PyList_New(list_size);
@@ -136,7 +136,7 @@ PyObject *ligand_atom_overlaps_py(int imol, PyObject *ligand_spec, double neighb
             }
             r = o_py;
 	 }
-      } 
+      }
    };
 
    if (PyBool_Check(r)) {
@@ -207,7 +207,7 @@ PyObject *molecule_atom_overlaps_py(int imol, int n_max) {
       if (n_max == -1) {
          list_size = olv.size();
       } else {
-         if (n_max > olv.size())
+         if (n_max > static_cast<int>(olv.size()))
             list_size = olv.size();
       }
       PyObject *o_py = PyList_New(list_size);

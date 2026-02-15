@@ -21,7 +21,8 @@ SUBDIRS = rama-coeffs cho-models cho-acedrg cho-links metal pdb-templates
 
 # putting syminfo.lib into the data subdirectory matches the installation from CMakeLists.txt
 # and where the code expects it to be
-dist_cootdata_DATA = tutorial-modern.pdb rnasa-1.8-all_refmac1.mtz ligands.db syminfo.lib Components-inchikey.ich
+dist_cootdata_DATA = tutorial-modern.pdb rnasa-1.8-all_refmac1.mtz ligands.db syminfo.lib Components-inchikey.ich \
+		     ptm_database.json
 
 # subpkgdatadir = $(pkgdatadir)
 # subpkgdata_DATA = syminfo.lib

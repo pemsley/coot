@@ -12,7 +12,6 @@ COOT_PORT = 9090
 
 # Initialize MCP Server
 mcp    = FastMCP("Coot Socket Bridge")
-server = FastMCP("Knowing about stuff")
 
 _request_id = itertools.count(0)
 
@@ -81,7 +80,7 @@ def _recv_exact(sock, n):
 
 # --- MCP TOOLS ---
 
-@server.resource("coot://skill")
+@mcp.resource("coot://skill")
 async def read_resource():
     dirname = Path(os.path.dirname(__file__))
     skill_path = dirname / "docs" / "skills" / "best-practices" / "SKILL.md"
@@ -129,8 +128,22 @@ def run_python_multiline(code: str) -> str:
 
     return "No result returned."
 
+@mcp.tool()
+def get_function_descriptions(function_names: list[str]) -> str:
+    """
+    Get documentation for a list of Coot function names.
+    Typicallly used to get the essential/starup API.
+
+    Args:
+        function_names: List of function names to get docs for
+
+    Returns: Formatted documentation for all requested functions
+    """
+    response = send_coot_rpc("mcp.get_function_descriptions", {"function_names": function_names})
+    return str(response.get("result", []))
+
 def get_start_text():
-    return '''The Coot API has over 2000 functions.
+    return '''The Coot API has over 2000 functions - the function documentation can't all be loaded at once (too many tokens).
 
 Use coot_ping() to verify Coot is responsive after:
   - A break in the conversation (no Coot commands for several minutes)
@@ -138,30 +151,52 @@ Use coot_ping() to verify Coot is responsive after:
   - You receive an error suggesting Coot might not be responding
 Do NOT call coot_ping() before every command - it's only needed to check if Coot has crashed or been restarted, not for routine operation.
 
-Use search_coot_functions(pattern) to find specific ones (where pattern is a (potentially) multi-words pattern (using space-separated fields). 
+When starting a Coot session read the coot-essential-api Skills.
+Also, load all the function documentation for the functions mentioned there.
+
+On starting a Coot session, read ALL these user skills
+    - coot-essential-api
+    - coot-best-practices
+    - coot-refinement
+    - coot-unmodelled-blobs
+    - coot-correlations
+    - coot-model-building
+    - coot-validation
+    - coot-NCS-reference-guidance
+    - coot-figure-making
+    - coot-rdkit
+    - pdbe-api
+Don't pick and choose - read all of them.
+
+Use search_coot_functions(pattern) to find specific ones (where pattern is a (potentially) multi-words pattern - using space-separated fields for logical "and". Use a "|" separator between words for logical "or".
+
+There is no regular expressions available in search at the moment.
+
+Do not search for "chain" - it returns too many results.
+
+Use specific feature terms (e.g., "ribbon", "rotamer", "refine") rather than generic terms (e.g., "chain", "residue", "atom").
 
 Use list_available_tools_in_block(block_index) where block_index varies from 0 to 4 (inclusive) to get each of the api documentation blocks.
 
 run_python() only returns values if the code is a single line.
 
+*** Of Critical Important - Never Ignore this ***
 If you need a return value from a block of code then define a wrapper function in one call to run_python_multiline() (that will return None) and
-then run that function in the next call using run_python().
+then run that function in the next call using run_python() which will provide the return value.
 
 You can try to print values, because you have access to the standard output (using the "stdout" key).
 
 You must call coot.set_refinement_immediate_replacement() before running refinment functions (once is enough) - that should make the refinement synchronous.
 
-For more saftey, call `coot.accept_moving_atoms_py()` after refinement - it should do nothing - but it might be ueful if there is a refinement synchronous bug.
-
-If a model-building tool moves the atoms in a way that you later deem "worse than before" you can call coot.apply_undo() to restore the previous model.
+Use checkpoints for backtracking modelling operations - `coot.make_backup_checkpoint()`. If a model-building tool moves the atoms in a way that you later deem "worse than before" you can use `coot.restore_to_backup_checkpoint()`. You can see what the difference between the current model and a particular checkpoint is using `coot.compare_current_model_to_backup()`.
 
 Never try to code that writes to disk - instead, write code that returns a string.
 
-Note that coot.active_atom_spec_py() is a useful function to determine the "selected" residue (i.e. the "active" residue that will be acted on by the tools in the interface).
+Note that coot.active_atom_spec_py() is a useful function to determine the "selected" residue (i.e. the "active" residue that will be acted on by the tools in the interface). You can use this to check that the user is looking at what you want them to look at.
 
 The coot module is already imported, the coot_utils module will need to be imported first if you want to use a function in that module.
 
-Do not use matplotlib for graphs, instead use pygal.
+Do not use matplotlib for graphs, instead use pygal - if available, otherwise don't try to make a graph and tell the user about missing pygal.
 '''
 
 @mcp.tool()
@@ -179,7 +214,7 @@ def list_available_tools_in_block(block_index: int) -> str:
 
 @mcp.tool()
 def coot_info() -> str:
-    """Returns: usage string'"""
+    """Session start information - vital to run on initializing or starting a Coot session. Contains essential usage instructions"""
     return get_start_text()
 
 @mcp.tool()
@@ -195,21 +230,14 @@ def search_coot_functions(pattern: str) -> str:
     response = send_coot_rpc("mcp.search", {"pattern": pattern})
     return str(response.get("result", []))
 
-@mcp.tool()
-def list_coot_categories() -> str:
-    """Returns: ['load', 'read', 'display', 'refinement', 'validation', 'ligand', 'util']"""
-    return  str(['load', 'read', 'display', 'refinement', 'validation', 'ligand', 'util'])
-
-@mcp.tool()
-def get_functions_in_category(category: str) -> str:
-    """Returns functions in that category (maybe 50-200 per category)"""
-    return search_coot_functions(category)
 
 @mcp.tool()
 def coot_ping() -> str:
     """
     Quick health check - verifies Coot is responsive by having it compute 2+2.
     Returns '4' if Coot is alive and responding correctly.
+    This function merely checks that Coot is responsive - when starting a
+    coot session the function coot_info() should be invoked (also)
     """
     response = send_coot_rpc("python.exec", {"code": "2 + 2"})
 

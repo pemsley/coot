@@ -105,7 +105,9 @@ EXTRA_DIST = \
 	coot_rsr_functions_docs.i \
 	coot_network_functions_docs.i \
 	coot_c_interface_docs.i   \
-	coot_cc_interface_docs.i
+	coot_cc_interface_docs.i \
+        coot_cc_interface_molecular_representation.i \
+        coot_cc_interface_user_defined_atom_colours.i
 
 regen-interface-docs-for-swig:
 	python3 $(top_srcdir)/src/xml-to-swig-docstrings.py --output       coot_c_interface_docs.i $(top_srcdir)/src/doxygen/xml/c-interface_8h.xml
@@ -113,7 +115,8 @@ regen-interface-docs-for-swig:
 	python3 $(top_srcdir)/src/xml-to-swig-docstrings.py --output     coot_rsr_functions_docs.i $(top_srcdir)/src/doxygen/xml/rsr-functions_8hh.xml
 	python3 $(top_srcdir)/src/xml-to-swig-docstrings.py --output coot_network_functions_docs.i $(top_srcdir)/src/doxygen/xml/network-get_8hh.xml
 	python3 $(top_srcdir)/src/xml-to-swig-docstrings.py --output coot_read_molecule_functions_docs.i $(top_srcdir)/src/doxygen/xml/read-molecule_8hh.xml
-
+	python3 $(top_srcdir)/xml-to-swig-docstrings.py --output coot_cc_interface_molecular_representation.i  $(top_srcdir)/doxygen/xml/cc-interface-molecular-representation_8hh.xml
+	python3 $(top_srcdir)/xml-to-swig-docstrings.py --output coot_cc_interface_user_defined_atom_colours.i $(top_srcdir)/doxygen/xml/cc-interface-user-defined-atom-colours_8hh.xml
 # or
 # coot_c_interface_docs.i:
 #	python3 $(top_srcdir)/src/xml-to-swig-docstrings.py --output  coot_c_interface_docs.i $(top_srcdir)/src/doxygen/xml/c-interface_8h.xml
@@ -147,7 +150,8 @@ dist_cootdata_DATA = atom-label.shader blur.shader central-cube.shader \
 		     meshes-for-ssao.shader effects.shader 9.ssao_blur.shader 9.ssao_geometry.shader 9.ssao.shader \
 		     instanced-meshes-for-ssao.shader texture-meshes-for-ssao.shader texture-meshes-with-shadows.shader \
 		     texture-meshes-shadow-map.shader shadow-map-image-texture.shader \
-		     rotation-centre-cross-hairs-for-ssao.shader background-image.shader
+		     rotation-centre-cross-hairs-for-ssao.shader background-image.shader \
+		     moleculestotriangles-with-shadows.shader
 
 MOLTRIANGLES_CPPFLAGS=-DUSE_MOLECULES_TO_TRIANGLES
 
@@ -755,6 +759,8 @@ libcootsumo_la_SOURCES = \
 	mtz-column-auto-read.hh  \
 	named-rotamer-score.hh   \
 	network-get.hh           \
+	nef.hh                   \
+	nef.cc                   \
 	new-molecule-by-symmetry-matrix.hh \
 	nsv.hh                   \
 	obj_loader.h obj_loader.cc \
@@ -830,6 +836,7 @@ libcootsumo_la_SOURCES = \
 	spherical-density.cc     \
 	single-map-properties-dialog.cc \
 	single-map-properties-dialog.hh \
+	stereo-eye.hh            \
 	fragment-info.hh	 \
 	atom-name-bits.hh	 \
 	additional-representation.hh	   \

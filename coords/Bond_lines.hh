@@ -728,7 +728,7 @@ public:
    //
    // Phenix Geo
    //
-   Bond_lines_container(mmdb::Manager *mol, const coot::phenix_geo_bonds &gb);
+   Bond_lines_container(mmdb::Manager *mol, const coot::phenix_geo::phenix_geometry &pg);
 
    // Constructor O
    //

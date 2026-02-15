@@ -314,6 +314,25 @@ coot::util::density_at_point_by_nearest_grid(const clipper::Xmap<float> &xmap,
    return dv;
 }
 
+// NXmap nearest-grid sampling
+float
+coot::util::density_at_point_by_nearest_grid(const clipper::NXmap<float> &nxmap,
+                                             const clipper::Coord_orth &co) {
+   float dv = 0.0f;
+   clipper::Coord_map a_cm = nxmap.coord_map(co);
+   clipper::Interp_nearest::interp(nxmap, a_cm, dv);
+   return dv;
+}
+
+// NXmap linear interpolation sampling
+float
+coot::util::density_at_point_by_linear_interp(const clipper::NXmap<float> &nxmap,
+                                              const clipper::Coord_orth &co) {
+   float dv = 0.0f;
+   clipper::Coord_map a_cm = nxmap.coord_map(co);
+   clipper::Interp_linear::interp(nxmap, a_cm, dv);
+   return dv;
+}
 
 
 void

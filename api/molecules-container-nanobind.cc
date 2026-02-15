@@ -9,6 +9,7 @@
 #include <nanobind/stl/pair.h>
 #include <nanobind/stl/map.h>
 #include <nanobind/stl/vector.h>
+#include <nanobind/stl/array.h>
 #include <nanobind/ndarray.h>
 #include <nanobind/operators.h>
 
@@ -699,6 +700,11 @@ NB_MODULE(coot_headless_api, m) {
          &molecules_container_t::fourier_shell_correlation,
          nb::arg("imol_map_1"), nb::arg("imol_map_2"),
          get_docstring_from_xml("fourier_shell_correlation").c_str())
+    .def("gaussian_surface_to_map_molecule",
+         &molecules_container_t::gaussian_surface_to_map_molecule,
+         nb::arg("imol"), nb::arg("cid"), nb::arg("sigma"),
+         nb::arg("box_radius"), nb::arg("grid_scale"), nb::arg("b_factor"),
+         get_docstring_from_xml("gaussian_surface_to_map_molecule").c_str())
     .def("generate_self_restraints",
          &molecules_container_t::generate_self_restraints,
          nb::arg("imol"), nb::arg("local_dist_max"),
@@ -740,11 +746,11 @@ NB_MODULE(coot_headless_api, m) {
          get_docstring_from_xml("get_bonds_mesh").c_str())
     .def("get_bonds_mesh_for_selection_instanced",
          &molecules_container_t::get_bonds_mesh_for_selection_instanced,
-         nb::arg("imol"), nb::arg("atom_selection_cid"), nb::arg("mode"), nb::arg("against_a_dark_background"), nb::arg("bond_width"), nb::arg("atom_radius_to_bond_width_ratio"), nb::arg("show_atoms_as_aniso_flag"), nb::arg("show_aniso_atoms_as_ortep_flag"), nb::arg("draw_hydrogen_atoms_flag"), nb::arg("smoothness_factor"),
+         nb::arg("imol"), nb::arg("atom_selection_cid"), nb::arg("mode"), nb::arg("against_a_dark_background"), nb::arg("bond_width"), nb::arg("atom_radius_to_bond_width_ratio"), nb::arg("show_atoms_as_aniso_flag"), nb::arg("show_aniso_atoms_as_ortep_flag"), nb::arg("show_aniso_atoms_as_empty_flag"), nb::arg("draw_hydrogen_atoms_flag"), nb::arg("smoothness_factor"),
          get_docstring_from_xml("get_bonds_mesh_for_selection_instanced").c_str())
     .def("get_bonds_mesh_instanced",
          &molecules_container_t::get_bonds_mesh_instanced,
-         nb::arg("imol"), nb::arg("mode"), nb::arg("against_a_dark_background"), nb::arg("bond_width"), nb::arg("atom_radius_to_bond_width_ratio"), nb::arg("show_atoms_as_aniso_flag"), nb::arg("show_aniso_atoms_as_ortep_flag"), nb::arg("draw_hydrogen_atoms_flag"), nb::arg("smoothness_factor"),
+         nb::arg("imol"), nb::arg("mode"), nb::arg("against_a_dark_background"), nb::arg("bond_width"), nb::arg("atom_radius_to_bond_width_ratio"), nb::arg("show_atoms_as_aniso_flag"), nb::arg("show_aniso_atoms_as_ortep_flag"), nb::arg("show_aniso_atoms_as_empty_flag"), nb::arg("draw_hydrogen_atoms_flag"), nb::arg("smoothness_factor"),
          get_docstring_from_xml("get_bonds_mesh_instanced").c_str())
     .def("get_cell",
          &molecules_container_t::get_cell,
@@ -780,8 +786,14 @@ NB_MODULE(coot_headless_api, m) {
          get_docstring_from_xml("get_distances_between_atoms_of_residues").c_str())
     .def("get_gaussian_surface",
          &molecules_container_t::get_gaussian_surface,
-         nb::arg("imol"), nb::arg("sigma"), nb::arg("contour_level"), nb::arg("box_radius"), nb::arg("grid_scale"), nb::arg("b_factor"),
+         nb::arg("imol"), nb::arg("sigma"), nb::arg("contour_level"), nb::arg("box_radius"),
+         nb::arg("grid_scale"), nb::arg("b_factor"),
          get_docstring_from_xml("get_gaussian_surface").c_str())
+    .def("get_gaussian_surface_for_atom_selection",
+         &molecules_container_t::get_gaussian_surface_for_atom_selection,
+         nb::arg("imol"), nb::arg("sigma"), nb::arg("cid"), nb::arg("contour_level"),
+         nb::arg("box_radius"), nb::arg("grid_scale"), nb::arg("b_factor"),
+         get_docstring_from_xml("get_gaussian_surface_for_atom_selection").c_str())
     .def("get_goodsell_style_mesh_instanced",
          &molecules_container_t::get_goodsell_style_mesh_instanced,
          nb::arg("imol"), nb::arg("colour_wheel_rotation_step"), nb::arg("saturation"), nb::arg("goodselliness"),
@@ -1383,6 +1395,10 @@ NB_MODULE(coot_headless_api, m) {
          &molecules_container_t::set_refinement_geman_mcclure_alpha,
          nb::arg("a"),
          get_docstring_from_xml("set_refinement_geman_mcclure_alpha").c_str())
+    .def("set_residue_properties",
+         &molecules_container_t::set_residue_properties,
+         nb::arg("imol"), nb::arg("json_string_properties"),
+         get_docstring_from_xml("set_residue_properties").c_str())
     .def("set_residue_to_rotamer_number",
          &molecules_container_t::set_residue_to_rotamer_number,
          nb::arg("imol"), nb::arg("residue_cid"),

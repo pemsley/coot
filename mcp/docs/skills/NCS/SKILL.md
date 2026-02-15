@@ -23,8 +23,8 @@ def compare_chain_sequences(imol, chain1, chain2):
     """Compare sequences of two chains, return differences."""
     diffs = []
     for resno in range(1, 200):  # Adjust range as needed
-        name1 = coot.residue_name(imol, chain1, resno, "")
-        name2 = coot.residue_name(imol, chain2, resno, "")
+        name1 = coot.residue_name_py(imol, chain1, resno, "")
+        name2 = coot.residue_name_py(imol, chain2, resno, "")
         
         if name1 and name2 and name1 != name2:
             diffs.append((resno, name1, name2))
@@ -54,7 +54,7 @@ If chain B is more complete, use it to guide chain A:
 # Get sequence from chain B
 target_seq = ""
 for resno in range(94, 97):
-    name = coot.residue_name(0, "B", resno, "")
+    name = coot.residue_name_py(0, "B", resno, "")
     if name:
         # Convert 3-letter to 1-letter code
         one_letter = {'GLY': 'G', 'ALA': 'A', 'VAL': 'V', 'LEU': 'L', 
@@ -81,7 +81,7 @@ coot.mutate_and_autofit_residue_range(0, "A", 94, 96, target_seq)
 
 2. **Check for subtle differences**
    - GLY vs GLN both start with 'G' - compare 3-letter codes, not single letters
-   - Use `residue_name()` not single-letter conversions for comparisons
+   - Use `residue_name_py()` not single-letter conversions for comparisons
 
 3. **Verify after mutation**
    - Check density correlation after mutating
@@ -99,7 +99,7 @@ def build_fragment_from_ncs(imol, target_chain, ref_chain, start_resno, end_resn
     # Get reference sequence
     ref_seq = ""
     for resno in range(start_resno, end_resno + 1):
-        name = coot.residue_name(imol, ref_chain, resno, "")
+        name = coot.residue_name_py(imol, ref_chain, resno, "")
         if name:
             one_letter = {'GLY': 'G', 'ALA': 'A', 'VAL': 'V', 'LEU': 'L', 
                           'ILE': 'I', 'PRO': 'P', 'PHE': 'F', 'TYR': 'Y',
@@ -112,7 +112,7 @@ def build_fragment_from_ncs(imol, target_chain, ref_chain, start_resno, end_resn
     
     # Find last existing residue in target chain
     last_resno = start_resno - 1
-    while coot.residue_name(imol, target_chain, last_resno, ""):
+    while coot.residue_name_py(imol, target_chain, last_resno, ""):
         pass
     last_resno -= 1
     
@@ -141,7 +141,7 @@ def build_fragment_from_ncs(imol, target_chain, ref_chain, start_resno, end_resn
     # Verify
     print(f"\nBuilt residues in {target_chain}:")
     for resno in range(start_resno, end_resno + 1):
-        name = coot.residue_name(imol, target_chain, resno, "")
+        name = coot.residue_name_py(imol, target_chain, resno, "")
         print(f"  {resno}: {name}")
 
 # Usage:
@@ -300,7 +300,7 @@ def copy_fragment_by_ncs(imol, from_chain, to_chain, start_resno, end_resno, fla
     refine_start = max(1, start_resno - flank)
     refine_end = end_resno + flank
     specs = [[to_chain, r, ""] for r in range(refine_start, refine_end + 1)
-             if coot.residue_name(imol, to_chain, r, "")]
+             if coot.residue_name_py(imol, to_chain, r, "")]
     
     coot.set_go_to_atom_chain_residue_atom_name(to_chain, start_resno, "CA")
     coot.refine_residues_py(imol, specs)

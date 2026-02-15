@@ -28,6 +28,9 @@
 #include <gtk/gtk.h>
 
 #include "coot-utils/coot-coord-utils.hh"
+#include "coot-utils/ptm-database.hh"
+#include "gdk/gdk.h"
+#include "geometry/residue-and-atom-specs.hh"
 #include "graphics-info.h"
 #include "c-interface.h"
 #include "c-interface-gtk-widgets.h"
@@ -676,6 +679,25 @@ fetch_map_from_emdb_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
 }
 
+// why isn't this in a header?
+void get_monomer_dictionary_in_subthread(const std::string &comp_id, bool run_get_monomer_post_fetch_flag);
+
+void
+fetch_ligand_restraints_from_github_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                           G_GNUC_UNUSED GVariant *parameter,
+                                           G_GNUC_UNUSED gpointer user_data) {
+
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      const auto &atom_spec = pp.second.second;
+      std::string rn = g.molecules[imol].get_residue_name(coot::residue_spec_t(atom_spec));
+      get_monomer_dictionary_in_subthread(rn, true);
+   }
+}
+
+
 
 #include "curl-utils.hh"
 
@@ -1226,7 +1248,6 @@ fill_and_show_shader_preferences() {
       gtk_widget_set_sensitive(fancy_vbox1, FALSE);
       gtk_widget_set_sensitive(fancy_vbox2, FALSE);
    }
-
    double v1 = graphics_info_t::ssao_strength;
    double v2 = graphics_info_t::SSAO_radius;
    double v3 = graphics_info_t::n_ssao_kernel_samples;
@@ -1241,7 +1262,7 @@ fill_and_show_shader_preferences() {
    gtk_range_set_value(GTK_RANGE(r1), v1);
    gtk_range_set_range(GTK_RANGE(r2), 0.0, 100.0);
    gtk_range_set_value(GTK_RANGE(r2), v2);
-   gtk_range_set_range(GTK_RANGE(r3), 0.0, 256.0);
+   gtk_range_set_range(GTK_RANGE(r3), 0.0, 512.0);
    gtk_range_set_value(GTK_RANGE(r3), v3);
    gtk_range_set_range(GTK_RANGE(r4), 0.0, 1.0);
    gtk_range_set_value(GTK_RANGE(r4), v4);
@@ -1265,7 +1286,42 @@ void
 show_shader_preferences_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                G_GNUC_UNUSED GVariant *parameter,
                                G_GNUC_UNUSED gpointer user_data) {
+
+   auto get_model_molecule_vector = [] () {
+                                       graphics_info_t g;
+                                       std::vector<int> vec;
+                                       int n_mol = g.n_molecules();
+                                       for (int i=0; i<n_mol; i++)
+                                          if (g.is_valid_model_molecule(i))
+                                             vec.push_back(i);
+                                       return vec;
+                                    };
+
    fill_and_show_shader_preferences();
+
+   GtkWidget *model_combobox = widget_from_builder("material_lighting_molecule_comboboxtext");
+   if (model_combobox) {
+      gtk_combo_box_text_remove_all(GTK_COMBO_BOX_TEXT(model_combobox));
+      auto mol_vec = get_model_molecule_vector();
+      graphics_info_t g;
+      int imol_active = first_coords_imol();
+      GCallback callback_func = G_CALLBACK(nullptr);
+      g.fill_combobox_with_molecule_options(model_combobox, callback_func, imol_active, mol_vec);
+      if (g.is_valid_model_molecule(imol_active)) {
+         GtkWidget *ambient_but = widget_from_builder("material_lighting_ambient_colorbutton");
+         GtkWidget *diffuse_but = widget_from_builder("material_lighting_diffuse_colorbutton");
+         GdkRGBA rgba;
+         rgba.alpha = 1.0;
+         rgba.red   = g.molecules[imol_active].model_molecule_meshes.material.ambient.r;
+         rgba.green = g.molecules[imol_active].model_molecule_meshes.material.ambient.g;
+         rgba.blue  = g.molecules[imol_active].model_molecule_meshes.material.ambient.b;
+         gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(ambient_but), &rgba);
+         rgba.red   = g.molecules[imol_active].model_molecule_meshes.material.diffuse.r;
+         rgba.green = g.molecules[imol_active].model_molecule_meshes.material.diffuse.g;
+         rgba.blue  = g.molecules[imol_active].model_molecule_meshes.material.diffuse.b;
+         gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(diffuse_but), &rgba);
+      }
+   }
 }
 
 
@@ -1885,7 +1941,7 @@ void acedrg_link_interface_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                   G_GNUC_UNUSED GVariant *parameter,
                                   G_GNUC_UNUSED gpointer user_data) {
 
-   std::cout << "show acedrg link interface overlay" << std::endl;
+   // std::cout << "show acedrg link interface overlay" << std::endl;
    show_acedrg_link_interface_overlay();
    graphics_info_t::graphics_grab_focus();
 
@@ -3464,6 +3520,61 @@ void add_OXT_to_residue_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    graphics_info_t::graphics_grab_focus();
 }
 
+void add_PTM_to_residue_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                               G_GNUC_UNUSED GVariant *parameter,
+                               G_GNUC_UNUSED gpointer user_data) {
+
+   auto fill_combobox_with_ptms_for_res_type = [] (GtkWidget *combobox, const std::string &res_name,
+                                                   bool is_N_term, bool is_C_term) {
+
+      std::vector<coot::ptm_entry_t> entries = graphics_info_t::ptm_database.get_entries_for_residue(res_name);
+      // gtk_cell_layout_clear(GTK_CELL_LAYOUT(combobox));
+      gtk_combo_box_text_remove_all(GTK_COMBO_BOX_TEXT(combobox));
+      unsigned int count = 0;
+      for (unsigned int i=0; i<entries.size(); i++) {
+         const auto &entry = entries[i];
+         bool do_it = true;
+         if (entry.location == "N-terminal")
+            if (! is_N_term)
+               do_it = false;
+         if (entry.location == "C-terminal")
+            if (! is_C_term)
+               do_it = false;
+         if (do_it) {
+            std::cout << "DEBUG:: add_PTM_to_residue_action(): entry "
+                      << entry.modified_residue_name << " ::cat "
+                      << entry.category << " ::type " << entry.type << " ::pos "
+                      << entry.position << " ::loc " << entry.location << std::endl;
+            std::string label = entry.modified_residue_name + " " + entry.type;
+            const char *id = entry.modified_residue_name.c_str(); // safe because ptm_database doesn't go away.
+            gtk_combo_box_text_insert(GTK_COMBO_BOX_TEXT(combobox), i, id, label.c_str());
+            count++;
+         }
+      }
+      if (count > 0)
+         gtk_combo_box_set_active(GTK_COMBO_BOX(combobox), 0);
+   };
+
+   GtkWidget *frame = widget_from_builder("add_PTM_frame");
+   gtk_widget_set_visible(frame, TRUE);
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      if (is_valid_model_molecule(imol)) {
+         coot::residue_spec_t res_spec(pp.second.second);
+         std::string res_name = get_residue_name(imol, res_spec);
+         bool is_N_term = is_N_terminus(imol, res_spec);
+         bool is_C_term = is_C_terminus(imol, res_spec);
+         if (! res_name.empty()) {
+            GtkWidget *combobox = widget_from_builder("add_PTM_combobox");
+            if (combobox) {
+               fill_combobox_with_ptms_for_res_type(combobox, res_name, is_N_term, is_C_term);
+            }
+         }
+      }
+   }
+}
+
 void reverse_chain_direction_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                     G_GNUC_UNUSED GVariant *parameter,
                                     G_GNUC_UNUSED gpointer user_data) {
@@ -4442,6 +4553,30 @@ perspective_view_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    set_use_perspective_projection(1);
 }
 
+void
+side_by_side_stereo_cross_eyed_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                      G_GNUC_UNUSED GVariant *parameter,
+                                      G_GNUC_UNUSED gpointer user_data) {
+   side_by_side_stereo_mode(0);
+   graphics_draw();
+}
+
+void
+side_by_side_stereo_wall_eyed_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                     G_GNUC_UNUSED GVariant *parameter,
+                                     G_GNUC_UNUSED gpointer user_data) {
+   side_by_side_stereo_mode(1);
+   graphics_draw();
+}
+
+void
+side_by_side_stereo_mono_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                G_GNUC_UNUSED GVariant *parameter,
+                                G_GNUC_UNUSED gpointer user_data) {
+   mono_mode();
+   graphics_draw();
+}
+
 
 // gui helper function
 std::vector<labelled_button_info_t>
@@ -5177,6 +5312,7 @@ void mutate_to_type_inner(const std::string &type) {
       g.mutate_residue_imol = imol;
       g.mutate_auto_fit_residue_imol = imol;
       coot::residue_spec_t res_spec(pp.second.second);
+      g.residue_type_chooser_auto_fit_flag = true; // do_mutation() does autofitting
       g.do_mutation(imol, res_spec, type, false); // not stub
    }
    g.graphics_grab_focus();
@@ -5783,6 +5919,7 @@ create_actions(GtkApplication *application) {
    add_action("show_accession_code_fetch_frame_cod",        show_accession_code_fetch_frame_cod);
 
    add_action_with_param("show_accession_code_fetch_frame",       show_accession_code_fetch_frame);
+   add_action("fetch_ligand_restraints_from_github_action", fetch_ligand_restraints_from_github_action);
    add_action(           "search_monomer_library_action",           search_monomer_library_action);
    add_action(    "fetch_pdbe_ligand_description_action",    fetch_pdbe_ligand_description_action);
    add_action( "fetch_and_superpose_alphafold_models_action", fetch_and_superpose_alphafold_models_action);
@@ -5888,6 +6025,7 @@ create_actions(GtkApplication *application) {
    add_action(               "place_helix_here_action",                place_helix_here_action);
    add_action(              "cis_trans_convert_action",               cis_trans_convert_action);
    add_action(             "add_OXT_to_residue_action",              add_OXT_to_residue_action);
+   add_action(             "add_PTM_to_residue_action",              add_PTM_to_residue_action);
    add_action(        "reverse_chain_direction_action",         reverse_chain_direction_action);
    add_action(  "arrange_waters_around_protein_action",   arrange_waters_around_protein_action);
    add_action("assign_hetatms_for_this_residue_action", assign_hetatms_for_this_residue_action);
@@ -5946,6 +6084,9 @@ create_actions(GtkApplication *application) {
    add_action(        "rock_view_action",         rock_view_action);
    add_action( "perspective_view_action",  perspective_view_action);
    add_action("orthographic_view_action", orthographic_view_action);
+   add_action("side_by_side_stereo_cross_eyed_action", side_by_side_stereo_cross_eyed_action);
+   add_action("side_by_side_stereo_wall_eyed_action",  side_by_side_stereo_wall_eyed_action);
+   add_action("side_by_side_stereo_mono_action",       side_by_side_stereo_mono_action);
 
    add_action(     "residue_type_selection_action",      residue_type_selection_action);
    add_action(    "residues_with_alt_confs_action",     residues_with_alt_confs_action);

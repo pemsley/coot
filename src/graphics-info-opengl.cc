@@ -24,6 +24,7 @@
  *
  */
 
+#include "stereo-eye.hh"
 #ifdef USE_PYTHON
 #include <Python.h>
 #endif
@@ -89,6 +90,7 @@ std::vector<std::reference_wrapper<Shader> > get_shader_refs() {
       rs.push_back(graphics_info_t::shader_for_shadow_map_image_texture_mesh);
       rs.push_back(graphics_info_t::shaderGeometryPass);
       rs.push_back(graphics_info_t::shader_for_happy_face_residue_markers_for_ssao);
+      rs.push_back(graphics_info_t::shader_for_moleculestotriangles_with_shadows);
       rs.push_back(graphics_info_t::shader_for_x_blur);
       rs.push_back(graphics_info_t::shader_for_y_blur);
       rs.push_back(graphics_info_t::shaderSSAO);
@@ -134,7 +136,7 @@ graphics_info_t::init_shaders() {
    for (it=shaders.begin(); it!=shaders.end(); ++it)
       it->get().set_default_directory(d);
 
-   shader_for_tmeshes.init("texture-meshes.shader",                                 Shader::Entity_t::MAP);  // Hmm! where is this used? (duplicate)
+   //  shader_for_tmeshes.init("texture-meshes.shader", Shader::Entity_t::MAP);  // Hmm! where is this used? (duplicate)
    shader_for_outline_of_active_residue.init("outline-of-active-residue.shader", Shader::Entity_t::MODEL);
    shader_for_maps.init("map.shader", Shader::Entity_t::MAP);
    shader_for_map_caps.init("draw-map-cap.shader", Shader::Entity_t::MAP);
@@ -163,8 +165,8 @@ graphics_info_t::init_shaders() {
    shader_for_rama_plot_phi_phis_markers.init("rama-plot-phi-psi-markers.shader", Shader::Entity_t::HUD_TEXT);
    shader_for_hud_lines.init("hud-lines.shader", Shader::Entity_t::MODEL);
    shader_for_background_image.init("background-image.shader", Shader::Entity_t::NONE);
-   shader_for_meshes.init("meshes.shader", Shader::Entity_t::MAP); // 20220208-PE temporay while crow code is merged.
-   shader_for_texture_meshes.init("texture-meshes.shader", Shader::Entity_t::MAP);
+   shader_for_meshes.init("meshes.shader", Shader::Entity_t::MAP); // 20220208-PE temporary while crow code is merged.
+   shader_for_texture_meshes.init("texture-meshes.shader", Shader::Entity_t::NONE);
 
    if (graphics_is_gl_es) {
    } else {
@@ -179,6 +181,7 @@ graphics_info_t::init_shaders() {
       shader_for_tmeshes_with_shadows.init("texture-meshes-with-shadows.shader",       Shader::Entity_t::MAP);
       shader_for_texture_meshes_shadow_map.init("texture-meshes-shadow-map.shader",    Shader::Entity_t::MAP);
       shader_for_shadow_map_image_texture_mesh.init("shadow-map-image-texture.shader", Shader::Entity_t::MAP);
+      shader_for_moleculestotriangles_with_shadows.init("moleculestotriangles-with-shadows.shader", Shader::Entity_t::MAP);
       shaderGeometryPass.init("9.ssao_geometry.shader", Shader::Entity_t::NONE);
       shaderSSAO.init(        "9.ssao.shader",          Shader::Entity_t::NONE);
       shaderSSAOBlur.init(    "9.ssao_blur.shader",     Shader::Entity_t::NONE);
@@ -252,7 +255,7 @@ graphics_info_t::init_framebuffers(unsigned int width, unsigned int height) { //
          std::cout << "Framebuffer for " << framebuffer_name << " not complete!" << std::endl;
       // else
       //    std::cout << "Framebuffer for " << framebuffer_name << " was complete!" << std::endl;
-   
+
       GLenum err = glGetError();
       if (err)
          std::cout << "GL ERROR:: init_framebuffers() post shadow depthmap, error is " << err << std::endl;
@@ -301,6 +304,8 @@ graphics_info_t::unproject(float x, float y, float z) {
 
    // z is 1 and -1 for front and back (or vice verse).
 
+   stereo_eye_t eye = stereo_eye_t::MONO;
+
    if (! glareas[0]) return glm::vec4(0,0,0,0);
 
    GtkAllocation allocation;
@@ -311,7 +316,7 @@ graphics_info_t::unproject(float x, float y, float z) {
    float mouseX = x / (w * 0.5f) - 1.0f;
    float mouseY = (h - y) / (h * 0.5f) - 1.0f;
 
-   glm::mat4 mvp = get_molecule_mvp();
+   glm::mat4 mvp = get_molecule_mvp(eye);
    glm::mat4 vp_inv = glm::inverse(mvp);
    glm::vec4 screenPos_f = glm::vec4(mouseX, mouseY, z, 1.0f); // maybe +1
    glm::vec4 worldPos_f = vp_inv * screenPos_f;
@@ -333,7 +338,9 @@ graphics_info_t::unproject(float x, float y, float z) {
 glm::vec3
 graphics_info_t::unproject_to_world_coordinates(const glm::vec3 &projected_coords) {
 
-   glm::mat4 mvp = get_molecule_mvp();
+   stereo_eye_t eye = stereo_eye_t::MONO;
+
+   glm::mat4 mvp = get_molecule_mvp(eye);
    glm::mat4 vp_inv = glm::inverse(mvp);
    glm::vec4 screenPos = glm::vec4(projected_coords, 1.0f);
    glm::vec4 c = vp_inv * screenPos;
@@ -347,6 +354,8 @@ graphics_info_t::unproject_to_world_coordinates(const glm::vec3 &projected_coord
 
 int
 graphics_info_t::blob_under_pointer_to_screen_centre() {
+
+   stereo_eye_t eye = stereo_eye_t::MONO; // PASS THIS
 
    graphics_info_t g; // needed?
    int r = 0;
@@ -364,7 +373,7 @@ graphics_info_t::blob_under_pointer_to_screen_centre() {
             int w = allocation.width;
             int h = allocation.height;
 
-            glm::mat4 mvp = graphics_info_t::get_molecule_mvp(); // modeglml matrix includes orientation with the quaternion
+            glm::mat4 mvp = graphics_info_t::get_molecule_mvp(eye); // modeglml matrix includes orientation with the quaternion
             glm::mat4 vp_inv = glm::inverse(mvp);
 
             // 20220811-PE mouse_current_x and mouse_current_y are set by the motion callback.
@@ -416,12 +425,25 @@ graphics_info_t::blob_under_pointer_to_screen_centre() {
             }
          }
       } else {
+
+
          // 2025-10-01-PE I don't like this popping up when there are no molecules
          // maybe a visual effect would be better - like the red rings.
+         //
+         // 20260126-PE I still don't like it - let's check at least that there was a map
          if (! molecules.empty()) {
-	    std::string s = "WARNING:: Refinement map not selected - no action";
-	    std::cout << s << std::endl;
-	    info_dialog(s.c_str());
+
+            unsigned int n_maps = 0;
+            for (unsigned int imol=0; imol<molecules.size(); imol++) {
+               if (is_valid_map_molecule(imol))
+                  if (molecules[imol].get_map_is_displayed())
+                     n_maps++;
+            }
+            if (n_maps > 0) {
+               std::string s = "WARNING:: Refinement map not selected - no action";
+               std::cout << s << std::endl;
+               info_dialog(s.c_str());
+            }
          }
       }
    }

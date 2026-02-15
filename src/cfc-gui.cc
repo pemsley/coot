@@ -67,7 +67,7 @@ cfc_gui_t::setup() {
                                border-radius: 0px; \
                             } \
                             ";
-
+#if 0 // 20260122-PE remove compiler warnings
    // style_css = "button.custom-cfc-button { \
    //                             background: #576F50;        /* Green */ \
    //                             color: white;       \
@@ -84,6 +84,7 @@ cfc_gui_t::setup() {
    //                             border-radius: 1px; \
    //                          } \
    //                          ";
+#endif
 }
 
 GtkWidget *

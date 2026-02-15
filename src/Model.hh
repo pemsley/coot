@@ -32,6 +32,7 @@
 #include <gtk/gtk.h>
 #include <epoxy/gl.h>
 
+#include "stereo-eye.hh"
 #include "Shader.hh"
 #include "Texture.hh"
 #include "Mesh.hh"
@@ -129,6 +130,7 @@ public:
    bool draw_this_model; // overall control
    void draw_mesh(unsigned int mesh_index,
 		  Shader *shader_p, // for plain meshes (e.g. molecular triangles)
+                  stereo_eye_t eye,
                   const glm::mat4 &mvp,
                   const glm::mat4 &view_rotation_matrix,
                   const std::map<unsigned int, lights_info_t> &lights,
@@ -164,6 +166,7 @@ public:
                       const glm::mat4 &view,
                       const glm::mat4 &projection);
    void draw_meshes(Shader *shader_p, // for plain meshes (e.g. molecular triangles)
+                    stereo_eye_t eye,
                     const glm::mat4 &mvp,
                     const glm::mat4 &view_rotation_matrix,
                     const std::map<unsigned int, lights_info_t> &lights,

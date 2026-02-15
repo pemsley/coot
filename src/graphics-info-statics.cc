@@ -1284,8 +1284,7 @@ bool      graphics_info_t::do_flat_shading_for_solid_density_surface = 1;
 
 // stereo?
 int graphics_info_t::display_mode = coot::MONO_MODE;
-float graphics_info_t::hardware_stereo_angle_factor = 1.0;
-graphics_info_t::stereo_eye_t graphics_info_t::which_eye = graphics_info_t::stereo_eye_t::MONO;
+float graphics_info_t::stereo_angle = 6.0;
 
 // remote controlled coot
 int graphics_info_t::try_port_listener = 0;
@@ -1485,6 +1484,7 @@ framebuffer graphics_info_t::blur_y_framebuffer;
 framebuffer graphics_info_t::combine_textures_using_depth_framebuffer;
 framebuffer graphics_info_t::blur_framebuffer; // 2020
 unsigned int graphics_info_t::framebuffer_scale = 1; // on supersampling by default.
+GLuint graphics_info_t::screendump_target_framebuffer = 0;
 
 bool graphics_info_t::perspective_projection_flag = false;
 float graphics_info_t::perspective_fov = 26.0; // was 30.0
@@ -1499,6 +1499,7 @@ Shader graphics_info_t::shader_for_map_caps;
 Shader graphics_info_t::shader_for_models;
 Shader graphics_info_t::shader_for_model_as_meshes;
 Shader graphics_info_t::shader_for_moleculestotriangles;
+Shader graphics_info_t::shader_for_moleculestotriangles_with_shadows;
 Shader graphics_info_t::shader_for_symmetry_atoms_bond_lines;
 Shader graphics_info_t::shader_for_central_cube;
 Shader graphics_info_t::shader_for_origin_cube;
@@ -1616,6 +1617,7 @@ bool graphics_info_t::draw_missing_loops_flag = true;
 
 bool graphics_info_t::sequence_view_is_docked_flag = true;
 
+bool graphics_info_t::validation_graphs_is_docked = true;
 
 int graphics_info_t::tick_function_id = -1; // unset
 bool graphics_info_t::do_tick_particles = false;
@@ -1734,7 +1736,7 @@ double graphics_info_t::torsion_restraints_weight = 1.0;
 bool graphics_info_t::use_harmonic_approximation_for_NBCs = false;
 
 bool graphics_info_t::draw_hud_colour_bar_flag = false;
-std::vector<coot::colour_holder> graphics_info_t::user_defined_colours; // initially empty
+std::vector<std::pair<unsigned int, coot::colour_holder> > graphics_info_t::user_defined_colours; // initially empty
 
 unsigned int graphics_info_t::bond_smoothness_factor = 1; // changes num_subdivisions and n_slices
 
@@ -1862,6 +1864,7 @@ bool graphics_info_t::tomo_picker_flag = false;
 graphics_info_t::tomo_view_info_t graphics_info_t::tomo_view_info;
 
 coot::inchikey_store_t graphics_info_t::inchikey_store;
+coot::ptm_database_t graphics_info_t::ptm_database;
 
 std::pair<bool, std::string> graphics_info_t::servalcat_fofc    = std::pair<bool, std::string> (false, "");
 std::pair<bool, std::string> graphics_info_t::servalcat_refine  = std::pair<bool, std::string> (false, "");

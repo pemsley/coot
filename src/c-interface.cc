@@ -30,7 +30,10 @@
 #include <exception>
 #include <stdexcept>
 #include <utility>
+#include "coords/phenix-geo.hh"
 #include "glib.h"
+#include "gtk/gtk.h"
+#include "gtk/gtkshortcut.h"
 #include "pytypedefs.h"
 #ifdef USE_PYTHON
 #ifndef PYTHONH
@@ -1212,9 +1215,14 @@ void mono_mode() {
 	 int previous_mode = graphics_info_t::display_mode;
          // GtkWidget *gl_widget = lookup_widget(graphics_info_t::get_main_window(), "window1");
          GtkWidget *gl_widget = graphics_info_t::glareas[0];
-         int x_size = gtk_widget_get_allocated_width(gl_widget);
-         int y_size = gtk_widget_get_allocated_height(gl_widget);
+         // int x_size = gtk_widget_get_allocated_width(gl_widget);
+         // int y_size = gtk_widget_get_allocated_height(gl_widget);
+         GtkAllocation allocation;
+         gtk_widget_get_allocation(graphics_info_t::glareas[0], &allocation);
+         int x_size = allocation.width;
+         int y_size = allocation.height;
 	 graphics_info_t::display_mode = coot::MONO_MODE;
+         graphics_info_t::graphics_draw();
          GtkWidget *gl_area = graphics_info_t::glareas[0];
 	 // GtkWidget *vbox = lookup_widget(gl_area, "main_window_vbox");
 	 GtkWidget *vbox = widget_from_builder("main_window_vbox");
@@ -1385,8 +1393,11 @@ void set_stereo_style(int mode) {
 }
 
 void set_hardware_stereo_angle_factor(float f) {
-   graphics_info_t::hardware_stereo_angle_factor = f;
-   std::string cmd = "set-hardware-stereo-angle-factor";
+}
+
+void set_stereo_angle(float f) {
+   graphics_info_t::stereo_angle = f;
+   std::string cmd = "set-stereo-angle";
    std::vector<coot::command_arg_t> args;
    args.push_back(f);
    add_to_history_typed(cmd, args);
@@ -1395,7 +1406,7 @@ void set_hardware_stereo_angle_factor(float f) {
 
 float hardware_stereo_angle_factor_state() {
    add_to_history_simple("hardware-stereo-angle-factor-state");
-   return graphics_info_t::hardware_stereo_angle_factor;
+   return 0;
 }
 
 void set_model_display_radius(int state, float radius) {
@@ -1751,6 +1762,19 @@ void info_dialog_with_markup(const char *txt) {
    args.push_back(single_quote(txt));
    add_to_history_typed(cmd, args);
 }
+
+
+/*! \brief created an ephemeral label in the graphics window
+ *
+ * the text stays on screen for about 2 sesconds.
+ *
+ * @param txt the text
+*/
+void ephemeral_overlay_label(const char *txt) {
+
+   graphics_info_t::ephemeral_overlay_label(std::string(txt));
+}
+
 
 
 void
@@ -2490,6 +2514,7 @@ get_map_colour(int imol) {
          colour.red   *= 65535;
          colour.green *= 65535;
          colour.blue  *= 65535;
+         colour.alpha *= 65535;
       }
    }
    std::string cmd = "get-map-colour";
@@ -3275,6 +3300,16 @@ void set_show_aniso_atoms_as_ortep(int imol, int state) {
    }
    graphics_draw();
 }
+
+/*! \brief set show aniso atoms as ortep */
+void set_show_aniso_atoms_as_empty(int imol, int state) {
+
+   if (is_valid_model_molecule(imol)) {
+      graphics_info_t::molecules[imol].set_show_aniso_atoms_as_empty(state);
+   }
+   graphics_draw();
+}
+
 
 char *get_text_for_aniso_limit_radius_entry() {
    char *text;
@@ -5261,24 +5296,24 @@ int set_go_to_atom_chain_residue_atom_name_strings(const char *t1, const char *t
 
 
 int
-goto_next_atom_maybe_new(GtkWidget *goto_atom_window) {
+goto_next_atom_maybe_new() {
 
 //    int it2 = atoi(t2);
 //    return goto_near_atom_maybe(t1, it2, t3, res_entry, +1);
 
    graphics_info_t g;
-   return g.intelligent_next_atom_centring(goto_atom_window);
+   return g.intelligent_next_atom_centring();
 
 }
 
 int
-goto_previous_atom_maybe_new(GtkWidget *goto_atom_window) {
+goto_previous_atom_maybe_new() {
 
 //    int it2 = atoi(t2);
 //    return goto_near_atom_maybe(t1, it2, t3, res_entry, +1);
 
    graphics_info_t g;
-   return g.intelligent_previous_atom_centring(goto_atom_window);
+   return g.intelligent_previous_atom_centring();
 }
 
 
@@ -5656,7 +5691,7 @@ set_b_factor_bonds_scale_factor(int imol, float f) {
    return r;
 }
 
-void graphics_to_phenix_geo_representation(int imol, int mode, const coot::phenix_geo_bonds &g) {
+void graphics_to_phenix_geo_representation(int imol, int mode, const coot::phenix_geo::phenix_geometry &g) {
 
    if (is_valid_model_molecule(imol)) {
       graphics_info_t::molecules[imol].update_bonds_using_phenix_geo(g);
@@ -5668,9 +5703,29 @@ void graphics_to_phenix_geo_representation(int imol, int mode, const coot::pheni
 void graphics_to_phenix_geo_representation(int imol, int mode,
 					   const std::string &geo_file_name) {
 
-   coot::phenix_geo_bonds pgb(geo_file_name);
-   graphics_to_phenix_geo_representation(imol, mode, pgb);
+   coot::phenix_geo::phenix_geometry pg;
+   pg.parse(geo_file_name);
+   graphics_to_phenix_geo_representation(imol, mode, pg);
 
+}
+
+void phenix_geo_validation_buttons(int imol,
+                                   const coot::phenix_geo::phenix_geometry &pg,
+                                   double residual_cutoff);
+
+//! \brief validate using phenix geo bonds
+//!
+//! Typically this would be called shortly after
+//!
+//! @param imol
+void validate_using_phenix_geo_bonds(int imol, const std::string &geo_file_name) {
+
+   if (is_valid_model_molecule(imol)) {
+      coot::phenix_geo::phenix_geometry pg;
+      pg.parse(geo_file_name);
+      float residual_criterion = 4.4;
+      phenix_geo_validation_buttons(imol, pg, residual_criterion);
+   }
 }
 
 /*  Not today
@@ -6803,7 +6858,7 @@ execute_python_results_container_t execute_python_code_with_result_internal(cons
    PyObject *exec_result = PyRun_String(code.c_str(), Py_eval_input, global_dict, global_dict);
    rc.result = exec_result;
    if (exec_result) {
-      // get captured outpuT
+      // get captured output
       PyObject* stdout_obj = PyDict_GetItemString(global_dict, "__stdout_capture__");
       if (stdout_obj) {
          PyObject* captured = PyObject_CallMethod(stdout_obj, "getvalue", NULL);
@@ -6820,52 +6875,46 @@ execute_python_results_container_t execute_python_code_with_result_internal(cons
       PyRun_SimpleString("sys.stdout = __original_stdout__");
 
    } else {
-
       std::cerr << "ERROR: execute_python_code_with_result_internal(): Python execution failed" << std::endl;
-
       // Import traceback module and format the exception
       PyObject *ptype, *pvalue, *ptraceback;
-      // PyErr_Fetch() consumes the error.
-      PyErr_Fetch(&ptype, &pvalue, &ptraceback); // 2026-01-11-PE use PyErr_GetRaisedException() in future
-      PyObject* traceback_module = PyImport_ImportModule("traceback");
-      if (traceback_module && ptraceback) {
-         PyObject* format_exception = PyObject_GetAttrString(traceback_module, "format_exception");
-         if (format_exception) {
-             PyObject* formatted = PyObject_CallFunctionObjArgs(format_exception, ptype, pvalue, ptraceback, NULL);
-             if (formatted && PyList_Check(formatted)) {
-                 // Join all traceback lines into single string
-                 std::string full_traceback;
-                 Py_ssize_t size = PyList_Size(formatted);
-                 for (Py_ssize_t i = 0; i < size; i++) {
-                     PyObject* line = PyList_GetItem(formatted, i);
-                     const char* line_str = PyUnicode_AsUTF8(line);
-                     if (line_str) {
-                         full_traceback += line_str;
-                     }
-                 }
-                 rc.error_message = full_traceback;
-             }
-             Py_XDECREF(formatted);
-             Py_DECREF(format_exception);
-         }
-         Py_DECREF(traceback_module);
+      PyErr_Fetch(&ptype, &pvalue, &ptraceback);
 
-      } else {
-         // Fallback to simple error message if traceback unavailable
-         if (pvalue) {
-            PyObject* str_obj = PyObject_Str(pvalue);
-            if (str_obj) {
-               const char* str = PyUnicode_AsUTF8(str_obj);
-               if (str) {
-                   rc.error_message = str;
-               }
-               Py_DECREF(str_obj);
+      std::cerr << "DEBUG: ptype=" << (ptype ? "NOT NULL" : "NULL") << std::endl;
+      std::cerr << "DEBUG: pvalue=" << (pvalue ? "NOT NULL" : "NULL") << std::endl;
+      std::cerr << "DEBUG: ptraceback=" << (ptraceback ? "NOT NULL" : "NULL") << std::endl;
+
+      // Always use fallback path - simpler and more robust
+      if (pvalue) {
+         std::cerr << "DEBUG: Converting pvalue to string" << std::endl;
+         PyObject* str_obj = PyObject_Str(pvalue);
+         if (str_obj) {
+            const char* str = PyUnicode_AsUTF8(str_obj);
+            if (str) {
+               rc.error_message = std::string(str);
+               std::cerr << "DEBUG: rc.error_message set to: " << rc.error_message << std::endl;
+            } else {
+               rc.error_message = "Python error occurred but could not retrieve error message";
+               std::cerr << "DEBUG: PyUnicode_AsUTF8 failed" << std::endl;
             }
+            Py_DECREF(str_obj);
+         } else {
+            rc.error_message = "Python error occurred but PyObject_Str failed";
+            std::cerr << "DEBUG: PyObject_Str failed" << std::endl;
          }
-         Py_XDECREF(ptype);
-         Py_XDECREF(pvalue);
-         Py_XDECREF(ptraceback);
+      } else {
+         rc.error_message = "Python error occurred but no exception value available";
+         std::cerr << "DEBUG: No pvalue" << std::endl;
       }
+
+      // ALWAYS clean up the error objects
+      Py_XDECREF(ptype);
+      Py_XDECREF(pvalue);
+      Py_XDECREF(ptraceback);
+
+      // Restore stdout even on error path
+      PyRun_SimpleString("sys.stdout = __original_stdout__");
+      PyErr_Clear();
    }
    return rc;
 }

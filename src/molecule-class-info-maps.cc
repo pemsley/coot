@@ -108,13 +108,14 @@ molecule_class_info_t::set_use_vertex_gradients_for_map_normals(bool state) {
 
 
 void
-molecule_class_info_t::draw_map_molecule( bool draw_transparent_maps,
+molecule_class_info_t::draw_map_molecule( stereo_eye_t eye,
+                                          bool draw_transparent_maps,
                                           Shader &shader, // unusual reference.. .change to pointer for consistency?
                                           const glm::mat4 &mvp,
                                           const glm::mat4 &view_rotation,
                                           const glm::vec3 &eye_position,
                                           const glm::vec4 &ep,
-                                          const std::map<unsigned int, lights_info_t> &lights, 
+                                          const std::map<unsigned int, lights_info_t> &lights,
                                           const glm::vec3 &background_colour,
                                           bool perspective_projection_flag
                                           ) {
@@ -149,8 +150,6 @@ molecule_class_info_t::draw_map_molecule( bool draw_transparent_maps,
                                                                        << err << std::endl;
 
                              };
-
-
 
    if (! draw_it_for_map) return;
 
@@ -238,7 +237,7 @@ molecule_class_info_t::draw_map_molecule( bool draw_transparent_maps,
          bool show_just_shadows = false;
          bool do_depth_fog = graphics_info_t::shader_do_depth_fog_flag;
          bool wireframe_mode = true; // aka "standard lines" / chickenwire
-         map_as_mesh_gl_lines_version.draw(&shader, mvp, view_rotation, lights, eye_position, rotation_centre, opacity, bgc,
+         map_as_mesh_gl_lines_version.draw(&shader, eye, mvp, view_rotation, lights, eye_position, rotation_centre, opacity, bgc,
                                            wireframe_mode, do_depth_fog, show_just_shadows);
       }
 
@@ -248,7 +247,7 @@ molecule_class_info_t::draw_map_molecule( bool draw_transparent_maps,
          bool wireframe_mode = false; // aka "standard lines" / chickenwire
          if (opacity < 1.0)
             map_as_mesh.sort_map_triangles(eye_position);
-         map_as_mesh.draw(&shader, mvp, view_rotation, lights, eye_position, rotation_centre, opacity, bgc,
+         map_as_mesh.draw(&shader, eye, mvp, view_rotation, lights, eye_position, rotation_centre, opacity, bgc,
                           wireframe_mode, do_depth_fog, show_just_shadows);
       }
    }
@@ -538,7 +537,7 @@ molecule_class_info_t::update_map(bool do_it) {
 void
 molecule_class_info_t::update_map_internal() {
 
-   // std::cout << "debug:: update_map_internal() --- start --- with contour_level " << contour_level << std::endl;
+   std::cout << "DEBUG:: update_map_internal() --- start --- " << imol_no << " with contour_level " << contour_level << std::endl;
 
    // duck out of doing map OpenGL map things if we are not in gui mode
    //
@@ -689,7 +688,7 @@ molecule_class_info_t::fill_fobs_sigfobs() {
          auto tp_1 = std::chrono::high_resolution_clock::now();
          auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
          std::cout << "Timings: read mtz file and store data " << d10 << " milliseconds" << std::endl;
-         
+
       }
    } else {
       std::cout << "DEBUG:: fill_fobs_sigfobs() no Fobs parameters\n";
@@ -820,7 +819,7 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
 
       // post_process_map_triangles();
 
-      if (false) {
+      if (false) { // apply occlusions
          for (std::size_t i=0; i<draw_vector_sets.size(); i++) {
             coot::density_contour_triangles_container_t &tri_con = draw_vector_sets[i];
             std::vector<coot::augmented_position> positions(tri_con.points.size());
@@ -828,7 +827,7 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
             for (unsigned int j=0; j<n; j++) {
                const clipper::Coord_orth &pos  = tri_con.points[j];
                const clipper::Coord_orth &norm = tri_con.normals[j];
-               positions[i] = coot::augmented_position(pos, norm);
+               positions[j] = coot::augmented_position(pos, norm);
             }
             coot::set_occlusions(positions); // crash, related to range
             coot::transfer_occlusions(positions, &draw_vector_sets[i]);
@@ -837,7 +836,22 @@ molecule_class_info_t::update_map_triangles(float radius, coot::Cartesian centre
 
       clipper::Coord_orth centre_c(centre.x(), centre.y(), centre.z()); // dont I have an converter?
 
-      setup_glsl_map_rendering(centre_c, radius); // turn tri_con into buffers.
+
+      // 20260124-PE so that we have a GL Context, so that attach_buffers() in setup_glsl_map_rendering()
+      //             works
+
+      gtk_gl_area_make_current(GTK_GL_AREA(graphics_info_t::glareas[0]));
+
+      // Check for errors from make_current
+      GError *error = gtk_gl_area_get_error(GTK_GL_AREA(graphics_info_t::glareas[0]));
+      if (error) {
+         std::cout << "ERROR:: gtk_gl_area_make_current failed: "
+                   << error->message << std::endl;
+         return;
+      } else {
+         // std::cout << "INFO:: no make_current context error!" << std::endl;
+         setup_glsl_map_rendering(centre_c, radius); // turn tri_con into buffers.
+      }
 
 
       // 20220211-PE what does this do!?
@@ -1160,16 +1174,6 @@ molecule_class_info_t::setup_glsl_map_rendering(const clipper::Coord_orth &centr
       return r;
    };
 
-   GdkGLContext *context = gtk_gl_area_get_context(GTK_GL_AREA(graphics_info_t::glareas[0]));
-
-   GLenum err = glGetError();
-   if (err) {
-      std::cout << "GL ERROR:: Mesh::setup_glsl_map_rendering() \""  << "\" --- start --- "
-                << stringify_error_code(err) << std::endl;
-   } else {
-      // std::cout << "INFO:: Mesh::setup_glsl_map_rendering() \""  << "\" --- start --- "
-      //                 << "no error here" << std::endl;
-   }
 
    // This is called from update_map_triangles().
 
@@ -1177,26 +1181,43 @@ molecule_class_info_t::setup_glsl_map_rendering(const clipper::Coord_orth &centr
       return glm::vec4(rgba.red, rgba.green, rgba.blue, rgba.alpha);
    };
 
+   GdkGLContext *context = gtk_gl_area_get_context(GTK_GL_AREA(graphics_info_t::glareas[0]));
+
+   GLenum err = glGetError();
+   if (err) {
+      std::cout << "GL ERROR:: mci::setup_glsl_map_rendering() \""  << "\" --- start --- "
+                << stringify_error_code(err) << std::endl;
+   } else {
+      // std::cout << "INFO:: Mesh::setup_glsl_map_rendering() \""  << "\" --- start --- "
+      //                 << "no error here" << std::endl;
+   }
+
    if (false)
-      std::cout << "#### setup_glsl_map_rendering() start: map_colour " << imol_no << " "
+      std::cout << "#### mci::setup_glsl_map_rendering() start: map_colour " << imol_no << " "
                 << map_colour.red << " "  << map_colour.green << " " << map_colour.blue << std::endl;
 
    if (! has_xmap()) return;
 
    err = glGetError();
    if (err) {
-      std::cout << "GL ERROR:: Mesh::setup_glsl_map_rendering() Pos A0 "
+      std::cout << "GL ERROR:: mci::setup_glsl_map_rendering() Pos A0 "
                 << stringify_error_code(err) << std::endl;
    } else {
       // std::cout << "INFO:: Mesh::setup_glsl_map_rendering() Pos A0 "
       // << "no error here" << std::endl;
    }
 
-   graphics_info_t::attach_buffers();
+   // 20260124-PE Don't do this:
+   // Why? Map setup (creating meshes, uploading vertices) doesn't
+   // need the GLArea's framebuffer attached. You're just creating GPU
+   // resources, not rendering. The framebuffer will be correctly
+   // attached automatically when the render callback runs.
+   //
+   // graphics_info_t::attach_buffers();
 
    err = glGetError();
    if (err) {
-      std::cout << "GL ERROR:: Mesh::setup_glsl_map_rendering() Pos A1 "
+      std::cout << "GL ERROR:: mci::setup_glsl_map_rendering() Pos A1 "
                 << stringify_error_code(err) << std::endl;
    } else {
       // std::cout << "INFO:: Mesh::setup_glsl_map_rendering() Pos A1 "
@@ -1212,10 +1233,10 @@ molecule_class_info_t::setup_glsl_map_rendering(const clipper::Coord_orth &centr
 
    err = glGetError();
    if (err) {
-      std::cout << "GL ERROR:: Mesh::setup_glsl_map_rendering() Pos A "
+      std::cout << "GL ERROR:: mci::setup_glsl_map_rendering() Pos A "
                 << stringify_error_code(err) << std::endl;
    } else {
-      // std::cout << "INFO:: Mesh::setup_glsl_map_rendering() Pos A "
+      // std::cout << "INFO:: mci::setup_glsl_map_rendering() Pos A "
       // << "no error here" << std::endl;
    }
 
@@ -1263,9 +1284,18 @@ molecule_class_info_t::setup_glsl_map_rendering(const clipper::Coord_orth &centr
          const coot::density_contour_triangles_container_t &tri_con(*it);
          unsigned int idx_base = vertices.size();
          for (unsigned int i=0; i<tri_con.points.size(); i++) {
+            float w = 1.0;
+            if (false) { // apply the occlusions.
+               const float &of = tri_con.occlusion_factor[i];
+               w = (200.0 - of)/200.0;
+               if (w < 0.0) w = 0.0;
+               if (w > 1.0) w = 1.0;
+               // std::cout << "DEBUG:: occlusion_factor  i " << i << " " << of << " w " << w << std::endl;
+            }
             glm::vec3 pos    = coord_orth_to_glm(tri_con.points[i]);
             glm::vec3 normal = coord_orth_to_glm(tri_con.normals[i]);
-            s_generic_vertex vert(pos, normal, col);
+            glm::vec4 vert_col(col[0] * w, col[1] * w, col[2] * w, col[3]);
+            s_generic_vertex vert(pos, normal, vert_col);
             vertices.push_back(vert);
          }
          for (unsigned int i=0; i<tri_con.point_indices.size(); i++) {
@@ -1296,7 +1326,7 @@ molecule_class_info_t::setup_glsl_map_rendering(const clipper::Coord_orth &centr
 
    err = glGetError();
    if (err) {
-      std::cout << "GL ERROR:: Mesh::setup_glsl_map_rendering() Pos B "
+      std::cout << "GL ERROR:: mci::setup_glsl_map_rendering() Pos B "
                 << stringify_error_code(err) << std::endl;
    } else {
       // std::cout << "INFO:: Mesh::setup_glsl_map_rendering() Pos B "
@@ -1333,7 +1363,7 @@ molecule_class_info_t::setup_glsl_map_rendering(const clipper::Coord_orth &centr
 
    err = glGetError();
    if (err) {
-      std::cout << "GL ERROR:: Mesh::setup_glsl_map_rendering() Pos C "
+      std::cout << "GL ERROR:: mci::setup_glsl_map_rendering() Pos C "
                 << stringify_error_code(err) << std::endl;
    } else {
       // std::cout << "INFO:: Mesh::setup_glsl_map_rendering() Pos C "
@@ -1352,10 +1382,10 @@ molecule_class_info_t::setup_glsl_map_rendering(const clipper::Coord_orth &centr
 
    err = glGetError();
    if (err) {
-      std::cout << "GL ERROR:: Mesh::setup_glsl_map_rendering() Pos D "
+      std::cout << "GL ERROR:: mci::setup_glsl_map_rendering() Pos D "
                 << stringify_error_code(err) << std::endl;
    } else {
-      // std::cout << "INFO:: Mesh::setup_glsl_map_rendering() Pos D "
+      // std::cout << "INFO:: mci::setup_glsl_map_rendering() Pos D "
       // << "no error here" << std::endl;
    }
 

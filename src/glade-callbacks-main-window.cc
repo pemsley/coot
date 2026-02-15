@@ -643,6 +643,59 @@ void on_generic_overlay_frame_cancel_button_clicked(GtkButton       *button,
    }
 }
 
+// 20260209-PE this is not in a header (yet)
+void get_monomer_dictionary_in_subthread(const std::string &comp_id,
+					 bool run_get_monomer_post_fetch_flag);
+
+extern "C" G_MODULE_EXPORT
+void on_add_PTM_apply_button_clicked(GtkButton *button,
+                                     gpointer user_data) {
+
+   GtkWidget *combobox = widget_from_builder("add_PTM_combobox");
+   if (combobox) {
+      graphics_info_t g;
+      std::pair<int, mmdb::Atom *> aa = g.get_active_atom();
+      int imol = aa.first;
+      if (is_valid_model_molecule(imol)) {
+         mmdb::Residue *residue_p = aa.second->residue;
+         if (residue_p) {
+            GtkWidget * combobox = widget_from_builder("add_PTM_combobox");
+            if (combobox) {
+               const char *id = gtk_combo_box_get_active_id(GTK_COMBO_BOX(combobox));
+               if (id) {
+                  std::string new_residue_type(id);
+                  bool new_residue_type_exists = false;
+                  int imol_enc_any = coot::protein_geometry::IMOL_ENC_ANY;
+                  std::pair<bool, std::string> mn = g.Geom_p()->get_monomer_name(new_residue_type, imol_enc_any);
+                  if (mn.first)
+                     new_residue_type_exists = true;
+                  if (new_residue_type_exists) {
+                     std::string chain_id = residue_p->GetChainID();
+                     int res_no = residue_p->GetSeqNum();
+                     g.molecules[imol].mutate_by_overlap(chain_id, res_no, new_residue_type);
+                     g.graphics_draw();
+                  } else {
+                     get_monomer_dictionary_in_subthread(new_residue_type, false);
+                     ephemeral_overlay_label("Fetching dictionary - try again");
+                  }
+               }
+            }
+         }
+      }
+   }
+   GtkWidget *frame = widget_from_builder("add_PTM_frame");
+   gtk_widget_set_visible(frame, FALSE);
+}
+
+extern "C" G_MODULE_EXPORT
+void on_add_PTM_cancel_button_clicked(GtkButton *button,
+                                      gpointer user_data) {
+
+   GtkWidget *frame = widget_from_builder("add_PTM_frame");
+   gtk_widget_set_visible(frame, FALSE);
+
+}
+
 // 20240518-PE this is the only function in this file that uses python. Hmm.
 // So rewrite mutate_by_overlap() into C++ (non-trivial)
 //

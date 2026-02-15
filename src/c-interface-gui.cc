@@ -2218,7 +2218,7 @@ void handle_get_accession_code(GtkWidget *frame, GtkWidget *entry) {
          }
       }
    }
-
+   graphics_info_t::ephemeral_overlay_label("Press U to return to previous centre");
    // and hide the accession code window
    gtk_widget_set_visible(frame, FALSE);
 }

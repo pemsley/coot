@@ -205,7 +205,12 @@ coot::molecule_t::get_residue(const std::string &residue_cid) const {
    return residue_p;
 }
 
+mmdb::Manager *coot::molecule_t::get_mol() {
 
+   // return null on failure
+   return atom_sel.mol;
+
+}
 
 
 // restore from (previous) backup
@@ -3904,6 +3909,53 @@ coot::molecule_t::get_gaussian_surface(float sigma, float contour_level,
 }
 
 
+// 20230206-PE maybe pass the colour map later - std::vector<std::string, std::string>
+// which would override the built-in colour rules
+//
+coot::simple_mesh_t
+coot::molecule_t::get_gaussian_surface_for_atom_selection(const std::string &cid,
+                                                          float sigma, float contour_level,
+                                                          float box_radius, float grid_scale, float b_factor) const {
+
+   auto colour_holder_to_glm = [] (const coot::colour_holder &ch) {
+      return glm::vec4(ch.red, ch.green, ch.blue, ch.alpha);
+   };
+
+   coot::simple_mesh_t mesh;
+
+   if (is_valid_model_molecule()) {
+
+      std::vector<std::string> chain_ids = get_chain_ids();
+      mmdb::Manager *mol = atom_sel.mol;
+
+      coot::gaussian_surface_t gauss_surf(mol, cid, sigma, contour_level, box_radius, grid_scale, b_factor);
+      coot::simple_mesh_t gs_mesh = gauss_surf.get_surface();
+
+      // do we have a colour rule to change the colour of that surface?
+      //
+      // This is hacky because in general colour rules are for selection (even down to the atom)
+      // but here we are interested only in colour rules that apply to just a chain
+      // So... I am looking only for colour rules that are for this chain
+      //
+      for (unsigned int icr=0; icr<colour_rules.size(); icr++) {
+         const std::string &colour_rule_cid = colour_rules[icr].first;
+         const std::string &colour          = colour_rules[icr].second;
+         if (cid == colour_rule_cid ||
+             colour_rule_cid == "/"    ||
+             colour_rule_cid == "//"   ||
+             colour_rule_cid == "/*/*/*/*") {
+            coot::colour_holder ch(colour);
+            glm::vec4 col = colour_holder_to_glm(ch);
+            gs_mesh.change_colour(col);
+         }
+      }
+      mesh.add_submesh(gs_mesh);
+   }
+   return mesh;
+}
+
+
+
 coot::simple_mesh_t
 coot::molecule_t::get_chemical_features_mesh(const std::string &cid,
                                              const coot::protein_geometry &geom) const {
@@ -4372,12 +4424,14 @@ coot::molecule_t::add_target_position_restraint_and_refine(const std::string &at
    std::string mode = "COLOUR-BY-CHAIN-AND-DICTIONARY";
    unsigned int smoothness_factor = 1;
    bool show_atoms_as_aniso_flag = false;
-   bool show_aniso_atoms_as_ortep_flag = false;
+   bool show_aniso_atoms_as_ortep_flag  = false;
+   bool show_aniso_atoms_as_ortep_empty = false;
    float aniso_probability = 0.5f;
    m = get_bonds_mesh_instanced(mode, geom_p, true, 0.1, 1.4,
                                 show_atoms_as_aniso_flag,
                                 aniso_probability,
                                 show_aniso_atoms_as_ortep_flag,
+                                show_aniso_atoms_as_ortep_empty,
                                 smoothness_factor, true, true);
    return m;
 
@@ -4680,11 +4734,13 @@ coot::molecule_t::export_model_molecule_as_gltf(const std::string &mode,
 
    bool show_atoms_as_aniso_flag = true;
    bool show_aniso_atoms_as_ortep_flag = false; // pass these
+   bool show_aniso_atoms_as_empty_flag = false;
 
    instanced_mesh_t im = get_bonds_mesh_for_selection_instanced(mode, selection_cid, geom, against_a_dark_background,
                                                                 bonds_width, atom_radius_to_bond_width_ratio,
                                                                 show_atoms_as_aniso_flag,
                                                                 show_aniso_atoms_as_ortep_flag,
+                                                                show_aniso_atoms_as_empty_flag,
                                                                 smoothness_factor,
                                                                 draw_hydrogen_atoms_flag, draw_missing_residue_loops);
 

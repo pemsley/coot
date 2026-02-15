@@ -61,6 +61,10 @@
           <attribute name="action">app.fetch_pdbe_ligand_description_action</attribute>
         </item>
         <item>
+          <attribute name="label">Fetch Ligand Restraints</attribute>
+          <attribute name="action">app.fetch_ligand_restraints_from_github_action</attribute>
+        </item>
+        <item>
           <attribute name="label">Fetch COD Entry...</attribute>
           <attribute name="action">app.show_accession_code_fetch_frame_cod</attribute>
         </item>
@@ -401,6 +405,10 @@
           <attribute name="action">app.add_OXT_to_residue_action</attribute>
         </item>
         <item>
+          <attribute name="label">Add PTM to residue...</attribute>
+          <attribute name="action">app.add_PTM_to_residue_action</attribute>
+        </item>
+        <item>
           <attribute name="label">Arrange Waters Around Protein</attribute>
           <attribute name="action">app.arrange_waters_around_protein_action</attribute>
         </item>
@@ -569,7 +577,7 @@
               <attribute name="action">app.background_white_action</attribute>
             </item>
           </submenu>
-         
+
           <item>
             <attribute name="label">Display Only Active</attribute>
             <attribute name="action">app.display_only_active_action</attribute>
@@ -600,9 +608,26 @@
             </submenu>
           </section>
           <item>
-            <attribute name="label">̶S̶c̶r̶e̶e̶n̶s̶h̶o̶t̶</attribute>
+            <attribute name="label">Screenshot</attribute>
             <attribute name="action">app.screenshot_action</attribute>
           </item>
+          <section>
+            <submenu>
+              <attribute name="label">Side-by-side Stereo...</attribute>
+              <item>
+                <attribute name="label">Mono</attribute>
+                <attribute name="action">app.side_by_side_stereo_mono_action</attribute>
+              </item>
+              <item>
+                <attribute name="label">Cross-Eyed</attribute>
+                <attribute name="action">app.side_by_side_stereo_cross_eyed_action</attribute>
+              </item>
+              <item>
+                <attribute name="label">Wall-Eyed</attribute>
+                <attribute name="action">app.side_by_side_stereo_wall_eyed_action</attribute>
+              </item>
+            </submenu>
+          </section>
           <item>
             <attribute name="label">Spin View</attribute>
             <attribute name="action">app.spin_view_action</attribute>
@@ -1272,6 +1297,10 @@
       <item>
         <attribute name="label" translatable="no">Jiggle Fit Residue</attribute>
         <attribute name="action">app.jiggle_fit_active_residue_action</attribute>
+      </item>
+      <item>
+        <attribute name="label">Ligand Builder...</attribute>
+        <attribute name="action">app.ligand_builder_action</attribute>
       </item>
       <item>
         <attribute name="label" translatable="no">Make LINK...</attribute>
@@ -7848,6 +7877,60 @@ Do you want to continue?
             </child>
 
             <child type="overlay">
+              <object class="GtkFrame" id="add_PTM_frame">
+                <property name="halign">center</property>
+                <property name="valign">start</property>
+                <property name="visible">False</property>
+                <property name="margin-bottom">5</property>
+                <property name="margin-end">5</property>
+                <property name="margin-start">5</property>
+                <property name="margin-top">5</property>
+                <child>
+                  <object class="GtkBox">
+                    <property name="orientation">vertical</property>
+                    <property name="spacing">2</property>
+
+                    <child>
+                      <object class="GtkComboBoxText" id="add_PTM_combobox">
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="GtkBox">
+                        <property name="orientation">horizontal</property>
+                        <property name="halign">end</property>
+                        <child>
+                          <object class="GtkButton" id="add_PTM_cancel_button">
+                            <signal name="clicked" handler="on_add_PTM_cancel_button_clicked" swapped="no"/>
+                            <property name="label" translatable="yes">Cancel</property>
+                            <property name="margin-start">10</property>
+                            <property name="margin-end">10</property>
+                            <property name="margin-top">4</property>
+                            <property name="margin-bottom">10</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkButton" id="add_PTM_apply_button">
+                            <signal name="clicked" handler="on_add_PTM_apply_button_clicked" swapped="no"/>
+                            <property name="label" translatable="yes">Apply</property>
+                            <property name="margin-start">10</property>
+                            <property name="margin-end">10</property>
+                            <property name="margin-top">4</property>
+                            <property name="margin-bottom">10</property>
+                            <style>
+                              <class name="suggested-action"/>
+                            </style>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+
+                  </object>
+                </child>
+              </object>
+            </child>
+
+            <child type="overlay">
               <object class="GtkFrame" id="acedrg_running_frame">
                 <property name="halign">center</property>
                 <property name="valign">start</property>
@@ -8568,31 +8651,29 @@ Do you want to continue?
                   <object class="GtkBox">
                     <property name="orientation">vertical</property>
                     <property name="spacing">5</property>
-
-		    <child>
-		      <object class="GtkFrame" id="acedrg_link_bond_order_frame">
-			<property name="label">Bond Order</property>
-			<child>
-			  <object class="GtkComboBoxText" id="acedrg_link_bond_order_combobox">
-			    <property name="margin-bottom">5</property>
-			    <property name="margin-end">6</property>
-			    <property name="margin-start">6</property>
-			    <property name="margin-top">5</property>
-
-                            <layout>
-                              <property name="column">1</property>
-                              <property name="row">1</property>
-                            </layout>
+                    <child>
+                      <object class="GtkFrame" id="acedrg_link_bond_order_frame">
+                        <property name="label">Bond Order</property>
+                        <child>
+                          <object class="GtkComboBoxText" id="acedrg_link_bond_order_combobox">
+                            <property name="margin-bottom">5</property>
+                            <property name="margin-end">6</property>
+                            <property name="margin-start">6</property>
+                            <property name="margin-top">5</property>
+                            <property name="active">0</property>
                             <items>
                               <item translatable="yes">single</item>
                               <item translatable="yes">double</item>
                               <item translatable="yes">triple</item>
                             </items>
-
-			  </object>
+                            <layout>
+                              <property name="column">1</property>
+                              <property name="row">1</property>
+                            </layout>
+                          </object>
                         </child>
                       </object>
-                   </child>
+                    </child>
 
 		   <child>
 		     <object class="GtkFrame" id="acedrg_link_interface_first_residue">
@@ -8891,6 +8972,8 @@ Do you want to continue?
 		       <property name="halign">end</property>
 		       <property name="margin-end">5</property>
 		       <property name="margin-start">4</property>
+		       <property name="margin-top">4</property>
+		       <property name="margin-bottom">4</property>
 		       <child>
 			 <object class="GtkButton" id="acedrg_link_cancel_button">
 			   <property name="label" translatable="yes">Cancel</property>
@@ -12438,7 +12521,7 @@ density (too big to be waters):
           <object class="GtkFrame" id="frame110">
             <child>
               <object class="GtkBox" id="vbox116">
-                <property name="spacing">8</property>
+                <property name="spacing">4</property>
                 <property name="margin-start">4</property>
                 <property name="margin-end">4</property>
                 <property name="margin-top">4</property>
@@ -12524,7 +12607,7 @@ density (too big to be waters):
                         <property name="orientation">vertical</property>
                         <child>
                           <object class="GtkLabel" id="label245">
-                            <property name="label" translatable="yes">Successive Peptides by Ramachandran search (this may not work well)</property>
+                            <property name="label" translatable="yes">Fit Loop by Ramachandran search</property>
                             <property name="justify">center</property>
                           </object>
                         </child>
@@ -16265,6 +16348,94 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                         </child>
                       </object>
                     </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkFrame">
+                <child>
+                  <object class="GtkExpander" id="material_lighting_expander">
+                    <property name="margin-start">4</property>
+                    <property name="margin-end">4</property>
+                    <property name="margin-top">4</property>
+                    <property name="margin-bottom">4</property>
+                    <child type="label">
+                      <object class="GtkLabel">
+                        <property name="label" translatable="yes">Expand</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="orientation">vertical</property>
+                        <property name="spacing">6</property>
+                        <property name="margin-start">8</property>
+                        <property name="margin-end">8</property>
+                        <property name="margin-top">6</property>
+                        <property name="margin-bottom">6</property>
+                        <child>
+                          <object class="GtkBox" id="material_lighting_molecule_hbox">
+                            <property name="spacing">8</property>
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="label" translatable="yes">Molecule:</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkComboBoxText" id="material_lighting_molecule_comboboxtext">
+                                <property name="hexpand">1</property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkBox">
+                            <property name="spacing">8</property>
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="label" translatable="yes">Ambient:</property>
+                                <property name="width-chars">8</property>
+                                <property name="xalign">0</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkColorButton" id="material_lighting_ambient_colorbutton">
+                                <property name="hexpand">1</property>
+                                <property name="use-alpha">0</property>
+                                <signal name="color-set" handler="on_material_lighting_ambient_colorbutton_color_set" swapped="no"/>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkBox">
+                            <property name="spacing">8</property>
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="label" translatable="yes">Diffuse:</property>
+                                <property name="width-chars">8</property>
+                                <property name="xalign">0</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkColorButton" id="material_lighting_diffuse_colorbutton">
+                                <property name="hexpand">1</property>
+                                <property name="use-alpha">0</property>
+                                <signal name="color-set" handler="on_material_lighting_diffuse_colorbutton_color_set" swapped="no"/>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child type="label">
+                  <object class="GtkLabel">
+                    <property name="label" translatable="yes">Material Lighting</property>
+                    <attributes>
+                      <attribute name="weight" value="bold"/>
+                    </attributes>
                   </object>
                 </child>
               </object>

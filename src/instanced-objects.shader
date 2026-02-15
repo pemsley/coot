@@ -53,6 +53,8 @@ uniform float pulsing_amplitude; // = 0.25;  // make these uniforms?
 uniform float pulsing_frequency; // = 5.0;
 uniform float pulsing_phase_distribution; // = 0.2;
 uniform float z_rotation_angle;
+uniform float stereo_x_scale;
+uniform float stereo_x_offset;
 
 out vec4 colour_transfer;
 out vec3 normal_transfer;
@@ -83,7 +85,7 @@ void main() {
    vec4 p4 = vec4(t_pos, 1.0);
    vec4 frag_pos = model_rotation_translation_scale * p4;
 
-   gl_Position = mvp * frag_pos;
+   gl_Position = mvp * frag_pos * vec4(stereo_x_scale, 1.0f, 1.0f, 1.0f) + vec4(stereo_x_offset, 0.0f, 0.0f, 0.0f);
 
    normal_transfer = model_rotation * n_dir;
    colour_transfer = colour;
@@ -117,6 +119,8 @@ struct LightSource {
 struct Material {
    float shininess;
    float specular_strength;
+   vec4 ambient;
+   vec4 diffuse;
    vec4 specular;
 };
 
@@ -157,7 +161,7 @@ void main() {
       if (light_sources[i].is_on) {
 
          // ambient
-         vec4 ambient = ct * light_sources[i].ambient * 0.2; // we are not using material here
+         vec4 ambient = ct * light_sources[i].ambient * material.ambient;
 
          // diffuse
          vec3 light_dir = light_sources[i].direction_in_molecule_coordinates_space.xyz;
@@ -167,7 +171,7 @@ void main() {
 
          float dp_raw = dot(norm_2, light_dir);
          float dp = max(dp_raw, 0.0);
-         vec4 diffuse = ct * light_sources[i].diffuse * dp * 0.8;
+         vec4 diffuse = ct * light_sources[i].diffuse * dp * 1.3 * material.diffuse;
 
          // specular
 
@@ -187,7 +191,7 @@ void main() {
 
          float spec = specular_strength * pow(dp_view_reflect, shininess);
          // spec = 0;
-         vec4 specular = 3.0 * spec * light_sources[i].specular;
+         vec4 specular = spec * light_sources[i].specular;
 
          // final
          running_col += ambient + diffuse + specular;

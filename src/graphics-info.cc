@@ -217,15 +217,14 @@ GdkRGBA colour_by_distortion(float dist) {
 }
 #endif
 
-#ifndef EMSCRIPTEN
 GdkRGBA colour_by_rama_plot_distortion(float plot_value, int rama_type) {
 
    if (true)
       std::cout << "in colour_by_rama_plot_distortion plot_value "
-   << plot_value << " rama_type " << rama_type
-   << " c.f. coot::RAMA_TYPE_LOGRAMA " << coot::RAMA_TYPE_LOGRAMA
-   << " coot::RAMA_TYPE_ZO " << coot::RAMA_TYPE_ZO
-   << std::endl;
+                << plot_value << " rama_type " << rama_type
+                << " c.f. coot::RAMA_TYPE_LOGRAMA " << coot::RAMA_TYPE_LOGRAMA
+                << " coot::RAMA_TYPE_ZO " << coot::RAMA_TYPE_ZO
+                << std::endl;
 
    // ZO type data need to scaled to match
    // 20*zo_type_data-80 = log_rama_type_data
@@ -284,7 +283,6 @@ GdkRGBA colour_by_rama_plot_distortion(float plot_value, int rama_type) {
    }
    return col;
 }
-#endif
 
 
 // static
@@ -513,10 +511,8 @@ graphics_info_t::add_cif_dictionary(std::string cif_dictionary_filename,
       if (use_graphics_interface_flag) {
          if (show_no_bonds_dialog_maybe_flag) {
             // GtkWidget *widget = create_no_cif_dictionary_bonds_dialog();
-#ifndef EMSCRIPTEN
             GtkWidget *widget = widget_from_builder("no_cif_dictionary_bonds_dialog");
             gtk_widget_set_visible(widget, TRUE);
-#endif
          }
       }
 
@@ -765,13 +761,11 @@ graphics_info_t::reorienting_next_residue(bool dir) {
       }
    }
    if (! done_it) {
-#ifndef EMSCRIPTEN
       // Oops! Next residue was not found, back to normal/standard/old mode
       if (dir)
-         intelligent_next_atom_centring(go_to_atom_window);
+         intelligent_next_atom_centring();
       else
-         intelligent_previous_atom_centring(go_to_atom_window);
-#endif
+         intelligent_previous_atom_centring();
    }
    // graphics_draw();
 }
@@ -6751,38 +6745,50 @@ graphics_info_t::quick_save() {
 void
 graphics_info_t::set_bond_colour_from_user_defined_colours(int icol) {
 
-   if (use_graphics_interface_flag) {
-      int n_user_defined_colours = user_defined_colours.size();
-      if (icol < n_user_defined_colours) {
-         if (icol >= 0) {
-            const coot::colour_holder &ch = user_defined_colours[icol];
-            glColor3f(ch.red, ch.green, ch.blue);
-         } else {
-            coot::colour_holder ch;
-            glColor3f(ch.red, ch.green, ch.blue);
-         }
-      } else {
-         coot::colour_holder ch;
-         glColor3f(ch.red, ch.green, ch.blue);
-      }
-   }
+   std::cout << "Don't call this function " <<  __FUNCTION__ << std::endl;
 }
 
 // static
 void
-graphics_info_t::set_user_defined_colours(const std::vector<coot::colour_holder> &user_defined_colours_in) {
+graphics_info_t::set_user_defined_colours(const std::vector<std::pair<unsigned int, coot::colour_holder> > &user_defined_colours_in) {
 
    user_defined_colours = user_defined_colours_in;
-   std::vector<glm::vec4> t_cols(user_defined_colours.size());
-   for (unsigned int i=0; i<user_defined_colours.size(); i++) {
-      const auto &col = user_defined_colours[i];
-      float alpha = 1.0; // put alpha into coot::colour_holder
-      t_cols[i] = glm::vec4(col.red, col.green, col.blue, alpha);
-   }
-   if (! user_defined_colours.empty())
-      texture_for_hud_colour_bar = Texture(400, 200, t_cols, 5);
 
+#if 0
+   // (2026-02-04-PE I don't understand what this does)
+   // texture colours:
+   if (! user_defined_colours.empty()) {
+      std::vector<glm::vec4> t_cols(user_defined_colours.size());
+      for (unsigned int i=0; i<user_defined_colours.size(); i++) {
+         unsigned int idx = user_defined_colours[i].first;
+         const auto &col  = user_defined_colours[i].second;
+         float alpha = 1.0; // put alpha into coot::colour_holder
+         if (idx < t_cols.size())
+            t_cols[idx] = glm::vec4(col.red, col.green, col.blue, alpha);
+         else
+            std::cout << "ERROR:: idx out of range in set_user_defined_colours() " << idx << std::endl;
+      }
+      texture_for_hud_colour_bar = Texture(400, 200, t_cols, 5);
+   }
+#endif
 }
+
+
+// static
+void graphics_info_t::print_user_defined_colour_table() {
+
+   if (user_defined_colours.empty()) {
+      std::cout << "INFO:: no user-defined colours" << std::endl;
+      return;
+   }
+
+   for (unsigned int i=0; i<user_defined_colours.size(); i++) {
+      unsigned int icol = user_defined_colours[i].first;
+      const auto &col   = user_defined_colours[i].second;
+      std::cout << "   user-defined colour-table: " << icol << " col " << col << std::endl;
+   }
+}
+
 
 
 // static

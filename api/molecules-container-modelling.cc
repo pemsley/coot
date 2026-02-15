@@ -39,6 +39,40 @@ molecules_container_t::copy_molecule(int imol) {
 int
 molecules_container_t::copy_fragment_using_cid(int imol, const std::string &multi_cids) {
 
+   auto debug_model = [] (mmdb::Model *model_p, const std::string &tag) {
+
+      int n_atoms = 0;
+      if (model_p) {
+         std::cout << tag << " model_p: " << model_p << std::endl;
+         int n_chains = model_p->GetNumberOfChains();
+         for (int ichain=0; ichain<n_chains; ichain++) {
+            mmdb::Chain *chain_p = model_p->GetChain(ichain);
+            std::cout << tag << "   chain_p: " << chain_p << std::endl;
+            int n_res = chain_p->GetNumberOfResidues();
+            for (int ires=0; ires<n_res; ires++) {
+               mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+               std::cout << tag << "      residue_p: " << residue_p << std::endl;
+               if (residue_p) {
+                  int n_atoms = residue_p->GetNumberOfAtoms();
+                  for (int iat=0; iat<n_atoms; iat++) {
+                     mmdb::Atom *at = residue_p->GetAtom(iat);
+                     if (at) {
+                        std::cout << tag << "         at: " << at << " " << coot::atom_spec_t(at) << std::endl;
+                        if (! at->isTer()) {
+                           n_atoms++;
+                        }
+                     } else {
+                        std::cout << tag << "         at " << " was null " <<  iat
+                                  << " of " << n_atoms << std::endl;
+                     }
+                  }
+               }
+            }
+         }
+      }
+      std::cout << "n_atoms in model_p " << model_p << " " << n_atoms << std::endl;
+   };
+
    int imol_new = -1;
    if (is_valid_model_molecule(imol)) {
       mmdb::Manager *mol = get_mol(imol);
@@ -48,7 +82,19 @@ molecules_container_t::copy_fragment_using_cid(int imol, const std::string &mult
          for (const auto &cid : v)
             mol->Select(selHnd, mmdb::STYPE_ATOM, cid.c_str(), mmdb::SKEY_OR);
       // replace_fragment() uses UDDOldAtomIndexHandle for fast indexing.
+
+#if 0 // 20260129-PE so that we can see this sort of code for next time we are debugging models
+      if (true) {
+         for(int imod = 1; imod<=mol->GetNumberOfModels(); imod++) {
+            mmdb::Model *model_p = mol->GetModel(imod);
+            std::string tag = "copy_fragment_using_cid_MODEL_" + std::to_string(imod);
+            debug_model(model_p, tag);
+         }
+      }
+#endif
+
       mmdb::Manager *new_manager = coot::util::create_mmdbmanager_from_atom_selection(mol, selHnd);
+
       if (new_manager) {
          int transfer_atom_index_handle = new_manager->GetUDDHandle(mmdb::UDR_ATOM, "transfer atom index");
 
@@ -60,14 +106,15 @@ molecules_container_t::copy_fragment_using_cid(int imol, const std::string &mult
          std::string new_name = "copy-fragment-from-molecule-" + std::to_string(imol);
          molecules.push_back(coot::molecule_t(asc, imol_new, new_name));
          if (false)
-            std::cout << "debug:: in mc::copy_fragment_using_cid(): the UDDOldAtomIndexHandle for molecule " << imol_new
-                      << " is " << molecules[imol_new].atom_sel.UDDOldAtomIndexHandle << std::endl;
+            std::cout << "debug:: in mc::copy_fragment_using_cid(): the UDDOldAtomIndexHandle for molecule "
+                      << imol_new << " is " << molecules[imol_new].atom_sel.UDDOldAtomIndexHandle << std::endl;
 
       }
       mol->DeleteSelection(selHnd);
    } else {
       std::cout << "debug:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
    }
+
    return imol_new;
 }
 
@@ -465,11 +512,13 @@ molecules_container_t::minimize_energy(int imol, const std::string &atom_selecti
       unsigned int smoothness_factor = 1;
       bool show_atoms_as_aniso_flag = false;
       bool show_aniso_atoms_as_ortep = false;
+      bool show_aniso_atoms_as_empty = false;
       float aniso_probability = 0.5f;
       im = molecules[imol].get_bonds_mesh_instanced(mode, &geom, true, 0.12, 1.4,
                                                     show_atoms_as_aniso_flag,
                                                     aniso_probability,
                                                     show_aniso_atoms_as_ortep,
+                                                    show_aniso_atoms_as_empty,
                                                     smoothness_factor,
                                                     draw_hydrogen_atoms_flag, draw_missing_residue_loops_flag);
 

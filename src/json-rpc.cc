@@ -37,6 +37,8 @@ struct func_doc {
 static int server_fd = -1;
 static int client_fd = -1;
 static int server_listen_count = 0;
+static std::vector<unsigned char> json_rpc_server_incoming_accumulator;
+static int32_t json_rpc_server_expected_length = -1;
 gint coot_socket_listener_idle_func(gpointer data);
 
 void init_coot_socket_listener() {
@@ -291,7 +293,8 @@ gint coot_socket_listener_idle_func(gpointer data) {
                                << " count/n_blocks is " << count/n_blocks << " block_index is "
                                << block_index << std::endl;
 
-                  if (count/n_blocks == block_index || block_index == -1)
+                  int block_count = count/n_blocks;
+                  if (block_count == block_index || block_index == -1)
                      func_doc_vec.push_back(fd);
                   Py_XDECREF(attr);
                   count++;
@@ -314,7 +317,9 @@ gint coot_socket_listener_idle_func(gpointer data) {
 
       std::cout << "DEBUG:: in handle_list_tools_with_search_pattern(): " << raw_pattern << std::endl;
 
-      std::vector<std::string> search_words = coot::util::split_string(raw_pattern, " ");
+      std::vector<std::string> search_words_and = coot::util::split_string(raw_pattern, " ");
+      std::vector<std::string> search_words_or  = coot::util::split_string(raw_pattern, "|");
+      if (search_words_or.size() == 1) search_words_or.clear(); // "thing" would return size 1.
 
       std::vector<std::pair<std::string, std::vector<func_doc> > > functions = handle_list_tools(-1);
       std::vector<std::pair<std::string, std::vector<func_doc> > > filtered_functions;
@@ -323,17 +328,31 @@ gint coot_socket_listener_idle_func(gpointer data) {
          const auto &funcs = module_pair.second;
          std::vector<func_doc> matchers;
          for (const auto &func : funcs) {
-
-            bool found = true;
-            for (const auto &word : search_words) {
-               if (func.function_name.find(word) == std::string::npos) {
-                  if (func.documentation.find(word) == std::string::npos)
-                     found = false;
+            if (search_words_or.empty()) {
+               bool found = true;  // unset if not found in function name or docs
+               for (const auto &word : search_words_and) {
+                  if (func.function_name.find(word) == std::string::npos) {
+                     if (func.documentation.find(word) == std::string::npos)
+                        found = false;
+                  }
+                  if (! found) break;
                }
-               if (! found) break;
+               if (found)
+                  matchers.push_back(func);
+            } else {
+               bool found = false;
+               for (const auto &word : search_words_or) {
+                  for (const auto &func : funcs) {
+                     if (func.function_name.find(word) == std::string::npos)
+                        found = true;
+                     if (func.documentation.find(word) == std::string::npos)
+                        found = true;
+                     if (found) break;
+                  }
+                  if (found)
+                     matchers.push_back(func);
+               }
             }
-            if (found)
-               matchers.push_back(func);
          }
          if (! matchers.empty())
             filtered_functions.push_back(std::make_pair(module, matchers));
@@ -358,7 +377,7 @@ gint coot_socket_listener_idle_func(gpointer data) {
          j_functions.push_back(j_item_m);
       }
 
-      unsigned int n = 0;
+      int n = 0;
       for (const auto &module_pair : functions) {
          const auto &module = module_pair.first;
          const auto &funcs = module_pair.second;
@@ -395,51 +414,146 @@ gint coot_socket_listener_idle_func(gpointer data) {
       return j_functions;
    };
 
+   // used by the function the provides the essential API
+   auto make_response_from_function_docs = [] (const std::vector<func_doc> &function_docs) {
+      json j_functions;
+      for (const auto &func : function_docs) {
+         json j_item;
+         json j_params = json::array();
+         if (! func.params.empty()) {
+            for (unsigned int i=0; i<func.params.size(); i++) {
+               json jp;
+               const auto &param = func.params[i];
+               json j_param_name = param.name;
+               jp["name"] = j_param_name;
+               jp["kind"] = param.kind;
+               if (! param.annotation.empty()) {
+                  jp["annotation"] = param.annotation;
+               }
+               j_params.push_back(jp);
+            }
+         }
+         j_item["name"] = func.function_name;
+         j_item["params"] = j_params;
+         if (!func.documentation.empty()) {
+            j_item["description"] = func.documentation;
+         }
+         j_functions.push_back(j_item);
+      }
+      return j_functions;
+   };
+
+   auto attr_to_doc_string = [] (PyObject *attr, const std::string &name) {
+      std::string doc;
+      PyObject* docObj = PyObject_GetAttrString(attr, "__doc__");
+      if (docObj) {
+         if (docObj == Py_None) {
+            if (false)
+               std::cout << "debug:: name " << name << " docobj: pynone" << std::endl;
+         } else {
+            doc = PyBytes_AS_STRING(PyUnicode_AsUTF8String(docObj));
+         }
+      }
+      return doc;
+   };
+
+   auto get_function_doc = [attr_to_doc_string] (const std::string &function_name) {
+
+      func_doc fd;
+      std::vector<std::string> module_names = {"coot", "coot_utils"};
+      for (const std::string &module_name : module_names) {
+         std::vector<func_doc> func_doc_vec; // functions that are in this module
+         PyObject* pModule = PyImport_ImportModule(module_name.c_str());
+         if (!pModule) {
+            PyErr_Print();
+            std::cerr << "Failed to import module " << module_name << "\n";
+            continue;
+         }
+         // Get list of attributes (like dir(coot))
+         PyObject* pDir = PyObject_Dir(pModule);
+         if (!pDir) {
+             PyErr_Print();
+             Py_DECREF(pModule);
+             continue;
+         }
+
+         // Iterate over list
+         Py_ssize_t size = PyList_Size(pDir);
+         for (Py_ssize_t i=0; i<size; ++i) {
+
+            PyObject* pName = PyList_GetItem(pDir, i); // borrowed ref
+            const char* name = PyUnicode_AsUTF8(pName);
+            if (name == function_name) {
+               PyObject* attr = PyObject_GetAttrString(pModule, name);
+               fd.function_name = name;
+               fd.documentation = attr_to_doc_string(attr, name);
+            }
+         }
+      }
+      return fd;
+   };
+
    auto handle_execute_python_result = [] (execute_python_results_container_t rrr, int id) {
 
       std::string response_str;
-      if (rrr.result)
-         if (PyBool_Check(rrr.result) || rrr.result == Py_None)
-            Py_INCREF(rrr.result);
-      const char *mess = "%s";
-      PyObject *dest = myPyString_FromString(mess);
-      PyObject *o = PyUnicode_Format(dest, rrr.result);
-      if (o) {
-         std::string s = PyBytes_AS_STRING(PyUnicode_AsUTF8String(o));
-         json j_response;
-         j_response["jsonrpc"] = "2.0";
-         j_response["id"] = std::to_string(id);
-         json j_result;
-         j_result["value"] = s;
-         if (! rrr.stdout.empty())
-            j_result["stdout"] = rrr.stdout;
-         j_response["result"] = j_result;
-         if (! rrr.error_message.empty()) {
-            json j_error;
-            j_error["code"] = -32001;
-            j_error["message"] = rrr.error_message;
-            j_response["error"] = j_error;
-         }
-         response_str = j_response.dump();
-      } 
-      if (! rrr.error_message.empty()) {
-         json j_response;
-         j_response["jsonrpc"] = "2.0";
-         j_response["id"] = std::to_string(id);
+      json j_response;
+      j_response["jsonrpc"] = "2.0";
+      j_response["id"] = std::to_string(id);
+
+      // Check if we have an error first
+      if (!rrr.error_message.empty()) {
          json j_error;
          j_error["code"] = -32001;
          j_error["message"] = rrr.error_message;
          j_response["error"] = j_error;
          response_str = j_response.dump();
-         std::cout << "DEBUG:: here in handle_string_as_json(): B is the full dump:::::::::::::::\n" << response_str << std::endl;
+         std::cout << "DEBUG:: error response: " << response_str << std::endl;
+         return response_str;
       }
+
+      // Only format result if we have one
+      if (rrr.result) {
+         if (PyBool_Check(rrr.result) || rrr.result == Py_None)
+            Py_INCREF(rrr.result);
+
+         const char *mess = "%s";
+         PyObject *dest = myPyString_FromString(mess);
+         PyObject *o = PyUnicode_Format(dest, rrr.result);
+         Py_DECREF(dest);  // Don't leak!
+
+         if (o) {
+            std::string s = PyBytes_AS_STRING(PyUnicode_AsUTF8String(o));
+            json j_result;
+            j_result["value"] = s;
+            if (!rrr.stdout.empty())
+               j_result["stdout"] = rrr.stdout;
+            j_response["result"] = j_result;
+            Py_DECREF(o);  // Don't leak!
+         } else {
+            // PyUnicode_Format failed - clear the error and return generic message
+            PyErr_Clear();
+            json j_error;
+            j_error["code"] = -32001;
+            j_error["message"] = "Failed to format Python result";
+            j_response["error"] = j_error;
+         }
+      } else {
+         // No result and no error message - shouldn't happen but handle it
+         json j_error;
+         j_error["code"] = -32001;
+         j_error["message"] = "No result returned";
+         j_response["error"] = j_error;
+      }
+
+      response_str = j_response.dump();
       return response_str;
    };
 
    // run return result wrapped in json.
    //
    auto handle_string_as_json = [handle_list_tools, handle_list_tools_with_search_pattern,
-                                 make_response_from_functions, handle_execute_python_result] (const std::string &buf_str) {
+                                 make_response_from_functions, handle_execute_python_result,
+                                 get_function_doc, make_response_from_function_docs] (const std::string &buf_str) {
 
       // std::cout << "handle this string: " << buf_str << ":" << std::endl;
 
@@ -447,14 +561,15 @@ gint coot_socket_listener_idle_func(gpointer data) {
 
       int id = -1; // unset/unfound
       if (! buf_str.empty()) {
-         json req = json::parse(buf_str);
-         json::const_iterator j_id = req.find("id");
-         if (j_id != req.end()) {
-            id = j_id.value();
-         } else {
-            std::cout << "handle_string_as_json(): id not found - sad" << std::endl;
-         }
          try {
+
+             json req = json::parse(buf_str);
+             json::const_iterator j_id = req.find("id");
+             if (j_id != req.end()) {
+                id = j_id.value();
+             } else {
+               std::cout << "handle_string_as_json(): id not found - sad" << std::endl;
+            }
 
             if (req["method"] == "python.exec") {
                std::string code = req["params"]["code"];
@@ -528,9 +643,40 @@ gint coot_socket_listener_idle_func(gpointer data) {
                }
             }
 
+            if (req["method"] == "mcp.get_function_descriptions") {
+               json::const_iterator it_params = req.find("params");
+               if (it_params != req.end()) {
+                  const json &j_params = *it_params;
+                  json::const_iterator it_function_names = j_params.find("function_names");
+                  // this is not an efficient search!
+                  if (it_function_names != j_params.end()) {
+                     std::vector<std::string> function_names = it_function_names->get<std::vector<std::string>>();
+                     // Look up each function and build documentation string
+                     std::vector<func_doc> function_docs;
+                     for (const auto &func_name : function_names) {
+                        // Look up func_name in your function documentation structure
+                        // Append formatted doc to docs vector
+                        func_doc doc = get_function_doc(func_name);
+                        function_docs.push_back(doc);
+                     }
+
+                     json response_funcs = make_response_from_function_docs(function_docs);
+                     json j_response;
+                     j_response["jsonrpc"] = "2.0";
+                     j_response["id"] = std::to_string(id);
+                     j_response["result"] = response_funcs;
+                     response_str = j_response.dump();
+                  }
+               }
+            }
          }
+
          catch (const std::exception &e) {
             std::cout << "WARNING:: coot_socket_listener_idle_func(): catch handle_string_as_json fail "
+                      << buf_str << std::endl;
+         }
+         catch (...) {
+            std::cout << "WARNING:: coot_socket_listener_idle_func(): catch-all catch handle_string_as_json fail "
                       << buf_str << std::endl;
          }
       }
@@ -588,50 +734,111 @@ gint coot_socket_listener_idle_func(gpointer data) {
    }
    // If we have a client, read any incoming data non-blockingly
    if (client_fd >= 0) {
-      char buffer[4096];
-      ssize_t n_read = read(client_fd, buffer, sizeof(buffer) - 1);
-      // std::cout << "debug:: n_read: " << n_read << std::endl;
-      if (n_read > 4) {
-         int n_sent = int(buffer[3]) + 256 * int(buffer[2]) + 256 * 256 * int(buffer[1]) + 256 * 26 * 256 * int(buffer[0]);
-         // std::cout << "debug:: n_sent: " << n_sent << std::endl;
-         buffer[n_read] = '\0';
-         std::cout << "<- Received: " << buffer+4 << std::endl;
-         std::string buf_as_string(buffer+4, n_read);
-         std::string r = handle_string_as_json(buf_as_string);
 
-         const std::string &response_str = r;
-         int32_t len = response_str.size();
+      // Read all available data in a loop
+      bool keep_reading = true;
+      while (keep_reading) {
+         unsigned char chunk[4096];
+         ssize_t n_read = read(client_fd, chunk, sizeof(chunk));
 
-         if (true) {
-            std::cout << "-> Final-response:" << std::endl;
-            std::cout << response_str << std::endl;
-            std::cout << "DEBUG:: response_str len " << len << std::endl;
+         if (n_read > 0) {
+            // Add new data to accumulator
+            json_rpc_server_incoming_accumulator.insert(
+               json_rpc_server_incoming_accumulator.end(),
+               chunk,
+               chunk + n_read
+            );
+
+            // Try to extract header if we haven't yet
+            if (json_rpc_server_expected_length == -1 && 
+                json_rpc_server_incoming_accumulator.size() >= 4) {
+               unsigned char* h = json_rpc_server_incoming_accumulator.data();
+               json_rpc_server_expected_length =
+                  ((uint32_t)h[0] << 24) |
+                  ((uint32_t)h[1] << 16) |
+                  ((uint32_t)h[2] << 8)  |
+                  (uint32_t)h[3];
+            }
+
+            // Process complete messages in a loop
+            while (json_rpc_server_expected_length != -1 &&
+                   json_rpc_server_incoming_accumulator.size() >= (size_t)(4 + json_rpc_server_expected_length)) {
+
+               // Extract JSON payload
+               std::string json_payload(
+                  json_rpc_server_incoming_accumulator.begin() + 4,
+                  json_rpc_server_incoming_accumulator.begin() + 4 + json_rpc_server_expected_length
+               );
+
+               std::cout << "<- Receiving: (" << json_rpc_server_expected_length 
+                         << " bytes) " << json_payload << std::endl;
+
+               // Handle the request
+               std::string r = handle_string_as_json(json_payload);
+
+               // Send response
+               const std::string &response_str = r;
+               int32_t len = response_str.size();
+
+               if (true) {
+                  std::cout << "-> Final-response:" << std::endl;
+                  std::cout << response_str << std::endl;
+                  std::cout << "DEBUG:: response_str len " << len << std::endl;
+               }
+
+               char header[4];
+               header[0] = (len >> 24) & 0xFF;
+               header[1] = (len >> 16) & 0xFF;
+               header[2] = (len >> 8)  & 0xFF;
+               header[3] = (len)       & 0xFF;
+
+               std::string framed;
+               framed.reserve(4 + response_str.size());
+               framed.append(header, 4);
+               framed.append(response_str);
+               bool write_status = write_all(client_fd, framed);
+
+               // Remove processed message from accumulator
+               json_rpc_server_incoming_accumulator.erase(
+                  json_rpc_server_incoming_accumulator.begin(),
+                  json_rpc_server_incoming_accumulator.begin() + 4 + json_rpc_server_expected_length
+               );
+               json_rpc_server_expected_length = -1;
+
+               // Check if there's another message header in the accumulator
+               if (json_rpc_server_incoming_accumulator.size() >= 4) {
+                  unsigned char* h = json_rpc_server_incoming_accumulator.data();
+                  json_rpc_server_expected_length =
+                     ((uint32_t)h[0] << 24) |
+                     ((uint32_t)h[1] << 16) |
+                     ((uint32_t)h[2] <<  8) |
+                     (uint32_t)h[3];
+               }
+            }
+
+         } else if (n_read == 0) {
+            // Client disconnected
+            std::cout << "Client disconnected.\n";
+            close(client_fd);
+            client_fd = -1;
+            json_rpc_server_incoming_accumulator.clear();
+            json_rpc_server_expected_length = -1;
+            keep_reading = false;
+         } else if (n_read < 0) {
+            if (errno == EWOULDBLOCK || errno == EAGAIN) {
+               // No more data available right now
+               keep_reading = false;
+            } else {
+               // Real error
+               std::cerr << "Socket read error\n";
+               close(client_fd);
+               client_fd = -1;
+               json_rpc_server_incoming_accumulator.clear();
+               json_rpc_server_expected_length = -1;
+               keep_reading = false;
+            }
          }
-
-         char header[4];
-         header[0] = (len >> 24) & 0xFF;
-         header[1] = (len >> 16) & 0xFF;
-         header[2] = (len >> 8)  & 0xFF;
-         header[3] = (len)       & 0xFF;
-
-         std::string framed;
-         framed.reserve(4 + response_str.size());
-         framed.append(header, 4);        // 4-byte header
-         framed.append(response_str);     // JSON body
-         bool write_statue = write_all(client_fd, framed);
-         // std::cout << "DEBUG:: write_status: " << write_statue << std::endl;
-
-      } else if (n_read == 0) {
-         // Client disconnected
-         std::cout << "Client disconnected.\n";
-         close(client_fd);
-         client_fd = -1;
-      } else if (n_read < 0 && errno != EWOULDBLOCK && errno != EAGAIN) {
-         std::cerr << "Socket read error\n";
-         close(client_fd);
-         client_fd = -1;
       }
-      // else: nothing to read right now
    }
    // Always return 1 (TRUE) to keep idle handler running
    return 1;

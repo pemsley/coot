@@ -106,23 +106,44 @@ molecule_class_info_t::mutate(int resno, const std::string &insertion_code,
 // this is the interface from the GUI.
 int
 molecule_class_info_t::mutate(int atom_index, const std::string &residue_type,
-			      short int do_stub_flag) {
+			      short int make_stub_flag) {
 
-   mmdb::Residue *res = atom_sel.atom_selection[atom_index]->residue;
-   int r = mutate(res, residue_type);
+   int r = -1;
 
-   if (atom_sel.mol) {
+   if (false) {
+      // 20260119-PE this function is crashing. What's happend to the molecule?
+      //
+      // the problem was mixing old thinking about transfer of atom and residue info
+      // into the new thinking.
+      std::cout << "::::::::::::::: atom_index " << atom_index << std::endl;
+      for (int iat=0; iat<atom_sel.n_selected_atoms; iat++) {
+         mmdb::Atom *at = atom_sel.atom_selection[iat];
+         std::cout << "atom " << at->residue->GetSeqNum() << " " << at->GetAtomName() << std::endl;
+      }
+   }
 
-      if (do_stub_flag) {
-	 int resno = res->GetSeqNum();
-	 std::string chain_id(res->GetChainID());
-	 std::string inscode(res->GetInsCode());
-     // BL says:: we made a new CB with a new B-factor
-     // we should either not delete it (pass do stub_flag) or
-     // save the b_factor and apply again. Not sure whats preferred,
-     // so leave it for now (shouldnt do stubbing anyway...?!)
-     // FIXME
-	 delete_residue_sidechain(chain_id, resno, inscode);
+   if (atom_index < 0) return r;
+
+   if (atom_index < atom_sel.n_selected_atoms) {
+      mmdb:: Atom *at = atom_sel.atom_selection[atom_index];
+      if (at) {
+         mmdb::Residue *res = at->residue;
+         if (res) {
+            r = mutate(res, residue_type);
+            if (atom_sel.mol) {
+               if (make_stub_flag) {
+                  int resno = res->GetSeqNum();
+                  std::string chain_id(res->GetChainID());
+                  std::string inscode(res->GetInsCode());
+                  // BL says:: we made a new CB with a new B-factor
+                  // we should either not delete it (pass do stub_flag) or
+                  // save the b_factor and apply again. Not sure whats preferred,
+                  // so leave it for now (shouldnt do stubbing anyway...?!)
+                  // FIXME
+                  delete_residue_sidechain(chain_id, resno, inscode);
+               }
+            }
+         }
       }
    }
    return r;

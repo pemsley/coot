@@ -23,6 +23,8 @@
 #ifndef CC_INTERFACE_HH
 #define CC_INTERFACE_HH
 
+#include "geometry/residue-and-atom-specs.hh"
+#include "pytypedefs.h"
 #ifdef USE_PYTHON
 #include "Python.h"
 #endif
@@ -1041,9 +1043,7 @@ PyObject *residue_spec_make_triple_py(PyObject *residue_spec_py);
 coot::residue_spec_t residue_spec_from_scm(SCM residue_in);
 #endif
 
-#ifdef USE_PYTHON
 coot::residue_spec_t residue_spec_from_py(PyObject *residue_in);
-#endif
 
 // return a spec for the first residue with the given type.
 // test the returned spec for unset_p().
@@ -1052,20 +1052,69 @@ coot::residue_spec_t get_residue_by_type(int imol, const std::string &residue_ty
 
 std::vector<coot::residue_spec_t> get_residue_specs_in_mol(int imol, const std::string &residue_type);
 
-#ifdef USE_PYTHON
 // Always returns a list
 PyObject *get_residue_specs_in_mol_py(int imol, const std::string &residue_type);
-#endif
 
 #ifdef USE_GUILE
 // return a residue spec or scheme false
 SCM get_residue_by_type_scm(int, const std::string &residue_type);
 #endif
-#ifdef USE_PYTHON
-// return a residue spec or Python False.
-PyObject *get_residue_by_type_py(int, const std::string &residue_type);
-#endif
 
+//! get residue by type
+//!
+//! Find the first residue of the given type in the molecule
+//!
+//! @param imol the molecule index
+//! @param residue_type the residue type requested
+//! @return a residue spec or Python False.
+PyObject *get_residue_by_type_py(int imol, const std::string &residue_type);
+
+//! get the residue name of the specified residue
+//!
+//! @param imol the molecule index
+//! @param residue_spec_py the residue spec
+//! @return the residue name or blank on failure
+std::string get_residue_name_py(int imol, PyObject *residue_spec_py);
+
+//! as above, but for use by callback
+std::string get_residue_name(int imol, coot::residue_spec_t &res_spec);
+
+//! use by callback
+bool is_N_terminus(int imol, coot::residue_spec_t &res_spec);
+
+//! use by callback
+bool is_C_terminus(int imol, coot::residue_spec_t &res_spec);
+
+
+/*  ----------------------------------------------------------------------- */
+/*               Atom info                                                  */
+/*  ----------------------------------------------------------------------- */
+
+//! \name Atom Information functions
+//! \{
+
+#ifdef USE_GUILE
+//! \brief output atom info in a scheme list for use in scripting
+//!
+//! in this format (list occ temp-factor element x y z).  Return empty
+//! list if atom not found. */
+SCM atom_info_string_scm(int imol, const char *chain_id, int resno,
+                         const char *ins_code, const char *atname,
+                         const char *altconf);
+SCM molecule_to_pdb_string_scm(int imol);
+#endif // USE_GUILE
+
+/*! \brief return the rename from a residue serial number
+
+   @return blank ("") on failure. */
+std::string resname_from_serial_number(int imol, const char *chain_id, int serial_num);
+
+//! \brief return the residue name of the specified residue
+std::string residue_name(int imol, const std::string &chain_id, int resno, const std::string &ins_code);
+
+//! \brief return the serial number of the specified residue
+//!
+//! @return -1 on failure to find the residue
 
 /*  ----------------------------------------------------------------------- */
 /*               Atom info                                                  */
@@ -1243,22 +1292,22 @@ PyObject *molecule_to_pdb_string_py(int imol);
 //! and element for all atoms in the specified residue. Useful for inspecting
 //! residue completeness and identifying missing atoms.
 //!
-//! \param imol Model molecule index
-//! \param chain_id Chain identifier (e.g., "A")
-//! \param resno Residue number
-//! \param ins_code Insertion code (use "" if none)
+//! @param imol Model molecule index
+//! @param chain_id Chain identifier (e.g., "A")
+//! @param resno Residue number
+//! @param ins_code Insertion code (use "" if none)
 //!
-//! \return PyObject* - A list of atom information, one entry per atom:
+//! @return PyObject* - A list of atom information, one entry per atom:
 //!   \code
 //!   [
-//!     [[atom_name, alt_conf], [occupancy, b_factor, element, ?], [x, y, z], atom_index],
+//!     [[atom_name, alt_conf], [occupancy, b_factor, element, seg_id], [x, y, z], atom_index],
 //!     ...
 //!   ]
 //!   \endcode
 //!   - \c atom_name (str): Atom name (e.g., " CA ", " SG ")
 //!   - \c alt_conf (str): Alternate conformation identifier ("" if none)
 //!   - \c occupancy (float): Atom occupancy (0.0-1.0)
-//!   - \c b_factor (float): Temperature factor
+//!   - \c b_factor (float or list of [b_iso, B11, B22, B33, B12, B13, B23]): Temperature factor
 //!   - \c element (str): Element symbol (e.g., " C", " N", " S")
 //!   - \c x, \c y, \c z (float): Cartesian coordinates in Ångstroms
 //!   - \c atom_index (int): Internal atom index
@@ -1283,7 +1332,7 @@ PyObject *molecule_to_pdb_string_py(int imol);
 //! \endcode
 PyObject *residue_info_py(int imol, const char* chain_id, int resno, const char *ins_code);
 
-//! \brief resturn the residue name
+//! \brief get the residue name
 //!
 //! @param imol Model molecule index
 //! @param chain_id Chain identifier (e.g., "A")
@@ -1647,9 +1696,9 @@ SCM find_blobs_scm(int imol_model, int imol_map, float cut_off_density_level);
 //! 
 //! @param cut_off_sigma  The sigma threshold for blob detection (in units of map sigma).
 //!                       Typical values:
-//!                       - 3.0σ: Standard threshold for significant features in difference maps
+//!                       - 3.5σ: Standard threshold for significant features in difference maps
 //!                       - 2.5σ: More sensitive, finds weaker features (more false positives)
-//!                       - 4.0σ: Conservative, only very strong features (fewer false positives)
+//!                       - 4.5σ: Conservative, only strong features (fewer false positives)
 //!                       - 1.0σ: For regular maps (2mFo-DFc), lower threshold appropriate
 //! 
 //! @return PyObject* - Returns a Python list of blobs, or Py_False on error.
@@ -2009,10 +2058,20 @@ overlap_ligands_internal(int imol_ligand, int imol_ref, const char *chain_id_ref
 //! is generated.
 void do_smiles_to_simple_3d_overlay_frame();
 
-#ifdef USE_PYTHON
+//! \brief get residues in the specified chain
+//!
+//! @param imol the molecule index
+//! @param chain_id the specified chain-id
+//!
 //! @return a python list of residue specs for the residues in the given chain
 PyObject *get_residues_in_chain_py(int imol, const std::string &chain_id);
-#endif
+
+//! does the specfied residue exist?
+//!
+//! @param imol the molecule index
+//! @param spec is the residue spec to test for existance
+//! @return 0 for no, 1 for yes, -1 for error
+int residue_exists_py(int imol, PyObject *residue_spec_py);
 
 /*  ----------------------------------------------------------------------- */
 /*                  conformers (part of ligand search)                      */
@@ -2297,13 +2356,21 @@ void reload_model_shader();
 //! \brief
 void set_atom_radius_scale_factor(int imol, float scale_factor);
 
-//! \brief set use fancy lighting (default 1 = true);
+//! \brief set use fancy rendering lighting
+//!
+//! Turn on framebuffer effects
+//!
+//! @param state where 1 mean turn on and 0 means turn off.
 void set_use_fancy_lighting(short int state);
 
 //! \brief set use simple lines for model molecule
+//!
+//! @param state where 1 mean turn on and 0 means turn off.
 void set_use_simple_lines_for_model_molecules(short int state);
 
 //! \brief
+//!
+//! @param state where 1 mean turn on and 0 means turn off.
 void set_fresnel_colour(int imol, float red, float green, float blue, float opacity);
 
 //! \brief
@@ -2316,6 +2383,8 @@ void set_use_depth_blur(short int state);
 void set_focus_blur_strength(float st);
 
 //! \brief set shadow stren
+//!
+//! @param s is the shadow strength between 0 and 1.
 void set_shadow_strength(float s);
 
 //! \brief set the shadow resolution (1,2,3,4)
@@ -2328,12 +2397,25 @@ void set_shadow_box_size(float size);
 void set_ssao_kernel_n_samples(unsigned int n_samples);
 
 //! \brief set SSAO strength
+//!
+//! screen-space ambient occlusionn
+//!
+//! @param strength is the SSAO strength between 0 and 1.
 void set_ssao_strength(float strength);
 
-//! \brief set SSAO strength
+//! \brief set SSAO radius
+//!
+//! screen-space ambient occlusionn
+//! Doesn't do much. Not worth adjusting
+//!
+//! @param radius is the SSAO radius.
 void set_ssao_radius(float radius);
 
 //! \brief set SSAO bias
+//!
+//! screen-space ambient occlusionn
+//! Doesn't do much. Not worth adjusting
+//!
 void set_ssao_bias(float bias);
 
 //! \brief set SSAO blur size (0, 1, or 2)
@@ -3406,47 +3488,17 @@ void register_interesting_positions_list_py(PyObject *pos_list);
 //!
 //! @param imol the molecule index
 //! @param n_max_pairs the maximum number of atom pairs to return. Typically this
-//         should be 20 or 30. Use -1 (with caution!) to get all of the
-//         (poteentially thousands) of atom overlaps.
+//!        should be 20 or 30. Use -1 (with caution!) to get all of the
+//!        (poteentially thousands) of atom overlaps.
 //! @return a list of dictionaries with contact information.
-//         The list is sorted by largest overlap first.
-//         Return False on failure.
-//
+//!        The list is sorted by largest overlap first.
+//!        Return False on failure.
+//!
 PyObject *molecule_atom_overlaps_py(int imol, int n_max_pairs);
 #endif // USE_PYTHON
 #ifdef USE_GUILE
 SCM molecule_atom_overlaps_scm(int imol);
 #endif // USE_GUILE
-
-/* ------------------------------------------------------------------------- */
-/*                      prodrg import function                               */
-/* ------------------------------------------------------------------------- */
-
-// 20230916-PE Kill this
-//
-//! \brief import given mdl file into prodrg or other 3d generation program
-//!
-//! the function passed to lbg, so that it calls it when a new
-//! prodrg-in.mdl file has been made.  We no longer have a timeout
-//! function waiting for prodrg-in.mdl to be updated/written.
-//
-void prodrg_import_function(std::string file_name, std::string comp_id);
-
-
-
-/* ------------------------------------------------------------------------- */
-/*                       SBase import function                               */
-/* ------------------------------------------------------------------------- */
-
-// 20230916-PE Kill this
-//
-//! \brief import molecule from CCP4 SRS (or SBase, as it used to be called).
-//!
-//! the function passed to lbg, so that it calls it when a new
-//! SBase comp_id is required.  We no longer have a timeout
-//! function waiting for prodrg-in.mdl to be updated/written.
-//
-void sbase_import_function(std::string comp_id);
 
 /* ------------------------------------------------------------------------- */
 /*                       Alignment functions (now C++)                       */
@@ -3494,12 +3546,29 @@ void simple_text_dialog(const std::string &dialog_title, const std::string &text
 /*  ----------------------------------------------------------------------- */
 /*                  Phenix Functions                                        */
 /*  ----------------------------------------------------------------------- */
-//! \brief phenix GEO bonds representation
+
+//!  phenix GEO bonds representation
+//!
+//! This function is not for scripting
 void graphics_to_phenix_geo_representation(int imol, int mode,
-                                           const coot::phenix_geo_bonds &g);
-//! \brief phenix GEO bonds representation, read from file
+                                           const coot::phenix_geo::phenix_geometry &g);
+
+//! \brief phenix GEO bonds representation, read GEO info from file
+//!
+//! @param imol the molecule index
+//! @param mode current unused, so use 0
+//! @param geo_file_name is the file name of the phenix_geo file
 void graphics_to_phenix_geo_representation(int imol, int mode,
                                            const std::string &geo_file_name);
+
+//! \brief validate using phenix geo bonds
+//!
+//! Typically this would be called shortly after
+//! graphics_to_phenix_geo_representation()
+//!
+//! @param imol the molecule index
+//! @param geo_file_name is the file name of the phenix_geo file
+void validate_using_phenix_geo_bonds(int imol, const std::string &geo_file_name);
 
 /*  ----------------------------------------------------------------------- */
 /*                  Client/Server                                        */

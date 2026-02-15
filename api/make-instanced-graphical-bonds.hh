@@ -15,6 +15,7 @@ make_instanced_graphical_bonds_spherical_atoms(coot::instanced_mesh_t &m, // add
                                                bool show_atoms_as_aniso_flag,
                                                float aniso_probability, // 0.0 to 1.0
                                                bool show_aniso_atoms_as_ortep,
+                                               bool show_atoms_as_empty_flag,
                                                unsigned int num_subdivisions,
                                                const std::vector<glm::vec4> &colour_table);
 
