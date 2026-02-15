@@ -603,7 +603,9 @@ int MolecularRepresentation::drawRibbon()
                 tangent.normalise();
                 normalOne = normalOne - tangent * (normalOne * tangent);
                 normalOne.normalise();
-                normalTwo = normalOne ^ tangent;
+                normalTwo = normalTwo - tangent * (normalTwo * tangent);
+                normalTwo = normalTwo - normalOne * (normalTwo * normalOne);
+                normalTwo.normalise();
                 //Widths at which things should be drawn is a matter of painful heuristics
                 float radiusOne = radiusOneNone;
                 float radiusTwo = radiusTwoNone;
@@ -708,7 +710,9 @@ int MolecularRepresentation::drawRibbon()
             tangent.normalise();
             normalOne = normalOne - tangent * (normalOne * tangent);
             normalOne.normalise();
-            normalTwo = normalOne ^ tangent;
+            normalTwo = normalTwo - tangent * (normalTwo * tangent);
+            normalTwo = normalTwo - normalOne * (normalTwo * normalOne);
+            normalTwo.normalise();
 
             float radiusOne;
             float radiusTwo;
