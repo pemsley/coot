@@ -87,8 +87,8 @@ void CylindersPrimitive::generateArrays()
             //First work out coords and vertices and copy these into relevant arrays
             float angle = (float)j * angularStep;
             FCXXCoord vertex = points[i].vertex + points[i].normalOne*(points[i].radiusOne*sinf(angle)) + points[i].normalTwo*(points[i].radiusTwo*cosf(angle));
-            FCXXCoord normal = points[i].normalOne*sinf(angle)/pow(points[i].radiusOne,0.5) +
-            points[i].normalTwo*cosf(angle)/pow(points[i].radiusTwo,0.5);
+            FCXXCoord normal = points[i].normalOne*sinf(angle)/points[i].radiusOne +
+            points[i].normalTwo*cosf(angle)/points[i].radiusTwo;
             normal.normalise();
             for (int k=0; k<4; k++){
                 vertexColorNormalArray[iGLVertex].vertex[k] = vertex[k];
