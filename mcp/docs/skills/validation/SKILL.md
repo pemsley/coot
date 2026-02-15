@@ -261,10 +261,10 @@ all_overlaps = coot.molecule_atom_overlaps_py(
 ### Understanding Overlap Results
 
 **Overlap volume** indicates severity:
-- **>5.0 Ų**: Severe clash - atoms are deeply interpenetrating
-- **2.0-5.0 Ų**: Moderate clash - needs immediate attention
-- **0.5-2.0 Ų**: Minor clash - may be acceptable in some contexts
-- **<0.5 Ų**: Very minor overlap - often acceptable
+- **>5.0 Å³**: Severe clash - atoms are deeply interpenetrating
+- **2.0-5.0 Å³**: Moderate clash - needs immediate attention
+- **0.5-2.0 Å³**: Minor clash - may be acceptable in some contexts
+- **<0.5 Å³**: Very minor overlap - often acceptable
 
 **Common clash patterns:**
 
@@ -289,20 +289,21 @@ for overlap in overlaps:
 
 **Example from tutorial data:**
 - Ramachandran validation found outliers at A/41-42
-- Overlap validation revealed **A/41 O ↔ A/43 N: 2.07 Ų** backbone clash
-- BUT also found **A/2 ↔ A/89 clashes (7.45, 6.40 Ų)** between distant residues that had PERFECT local geometry!
+- Overlap validation revealed **A/41 O ↔ A/43 N: 2.07 Å³** backbone clash
+- BUT also found **A/2 ↔ A/89 clashes (7.45, 6.40 Å³)** between distant residues that had PERFECT local geometry!
 
-**Key lesson**: A model can have perfect Ramachandran and rotamer scores but catastrophic packing problems. You need both local geometry validation (Rama/rotamer) AND global packing validation (overlaps).
+**Key lesson**: A model can have perfect Ramachandran and rotamer scores but catastrophic packing problems. You need
+both local geometry validation (Rama/rotamer) AND global packing validation (overlaps).
 
 ## Prioritizing Validation Fixes
 
 ### 1. Address High-Confidence Issues First
 
-1. **Severe atom overlaps (>5 Ų)** - atoms deeply interpenetrating, fix immediately
+1. **Severe atom overlaps (>5 Å³)** - atoms deeply interpenetrating, fix immediately
 2. **Rotamer score = 0% with poor density correlation** - side-chain is almost certainly wrong
 3. **Ramachandran outliers with poor density correlation** - likely wrong
 4. **Large difference map blobs (>4σ)** - definitely missing something
-5. **Moderate atom overlaps (2-5 Ų) between distant residues** - packing problems
+5. **Moderate atom overlaps (2-5 Å³) between distant residues** - packing problems
 
 **Note on 0% rotamer scores**: A rotamer score of 0% is a severe issue - the side-chain is in a conformation rarely seen in nature. However, if the density correlation for that residue is good, it may be a genuine unusual conformation. Always check the density fit before "fixing" a 0% rotamer with good correlation.
 
@@ -310,13 +311,13 @@ for overlap in overlaps:
 
 1. **Medium difference map blobs (3-4σ)** - probably real features
 2. **Rotamer outliers with poor correlation** - likely wrong rotamer
-3. **Minor atom overlaps (0.5-2 Ų)** - may need adjustment
+3. **Minor atom overlaps (0.5-2 Å³)** - may need adjustment
 4. **Moderate geometry outliers** - may need refinement
 
 ### 3. Review Low-Priority Items
 
 1. **Small blobs near model** - might be noise or minor adjustments
-2. **Very minor overlaps (<0.5 Ų)** - often acceptable
+2. **Very minor overlaps (<0.5 Å³)** - often acceptable
 3. **Isolated geometry outliers with good density** - may be genuine
 4. **Borderline Ramachandran outliers** - check context
 
