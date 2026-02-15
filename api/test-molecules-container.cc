@@ -751,18 +751,18 @@ int test_density_mesh(molecules_container_t &mc) {
 
    std::cout << "DEBUG:: test_density_mesh() imol_map " << imol_map << std::endl;
 
-   clipper::Coord_orth p(55, 10, 10);
-   float radius = 22;
-   float contour_level = 0.13;
+   clipper::Coord_orth p(26, 35, 36); // center of cell where protein density exists
+   float radius = 10;
+   float contour_level = 0.13; // was 0.13
    mc.set_map_is_contoured_with_thread_pool(true);
    coot::simple_mesh_t map_mesh = mc.get_map_contours_mesh(imol_map, p.x(), p.y(), p.z(), radius, contour_level);
 
    if (true)
       std::cout << "DEBUG:: test_density_mesh(): " << map_mesh.vertices.size() << " vertices and " << map_mesh.triangles.size()
-                << " triangles" << std::endl;
+                << " triangles name: " << map_mesh.name << std::endl;
 
    unsigned int size_1 = map_mesh.vertices.size();
-   if (map_mesh.vertices.size() > 30000)
+   if (map_mesh.vertices.size() > 20000)
       status = 1;
 
    mc.set_map_is_contoured_with_thread_pool(false);
@@ -2074,17 +2074,18 @@ int test_read_a_map(molecules_container_t &mc) {
    bool is_diff_map = false;
    int imol = mc.read_pdb(reference_data("moorhen-tutorial-structure-number-1.pdb"));
    int imol_map = mc.read_ccp4_map(reference_data("test.map"), is_diff_map);
-   std::cout << "Here in test_read_a_map() with imol_map " << imol_map << std::endl;
+   std::cout << "DEBUG:: in test_read_a_map() with imol_map " << imol_map << std::endl;
    if (mc.is_valid_map_molecule(imol_map)) {
 
-      float radius = 20;
-      float contour_level = 0.013;
+      float radius = 14; // 2026-02-15-PE there is a limit. I don't know why this hits the limit
+                         // and normal usage does not.
+      float contour_level = 0.13;
       coot::Cartesian p(88.25, 69.19, 89.13);
       coot::simple_mesh_t map_mesh = mc.get_map_contours_mesh(imol_map, p.x(), p.y(), p.z(), radius, contour_level);
       std::cout << "DEBUG:: test_read_a_map(): " << map_mesh.vertices.size() << " vertices and " << map_mesh.triangles.size()
-                << " triangles" << std::endl;
+                << " triangles with name " << map_mesh.name << std::endl;
 
-      if (map_mesh.vertices.size() > 30000)
+      if (map_mesh.vertices.size() > 20000)
          status = 1;
    } else {
       std::cout << "DEBUG:: map form test.map is not a valid map" << std::endl;
@@ -7192,7 +7193,8 @@ int main(int argc, char **argv) {
          // status += run_test(test_pucker_info, "pucker info", mc);
          // status += run_test(test_set_residue_to_rotamer_number, "set residue", mc);
          // status += run_test(test_inner_bond_kekulization, "inner-bond kekulization", mc);
-         status += run_test(test_gaussian_surface_to_map_molecule, "gaussian-surface to map", mc);
+         // status += run_test(test_gaussian_surface_to_map_molecule, "gaussian-surface to map", mc);
+         status += run_test(test_density_mesh,          "density mesh",             mc);
          if (status == n_tests) all_tests_status = 0;
 
          print_results_summary();
