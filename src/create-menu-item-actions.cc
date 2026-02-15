@@ -29,6 +29,7 @@
 
 #include "coot-utils/coot-coord-utils.hh"
 #include "coot-utils/ptm-database.hh"
+#include "gdk/gdk.h"
 #include "geometry/residue-and-atom-specs.hh"
 #include "graphics-info.h"
 #include "c-interface.h"
@@ -1285,7 +1286,42 @@ void
 show_shader_preferences_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                G_GNUC_UNUSED GVariant *parameter,
                                G_GNUC_UNUSED gpointer user_data) {
+
+   auto get_model_molecule_vector = [] () {
+                                       graphics_info_t g;
+                                       std::vector<int> vec;
+                                       int n_mol = g.n_molecules();
+                                       for (int i=0; i<n_mol; i++)
+                                          if (g.is_valid_model_molecule(i))
+                                             vec.push_back(i);
+                                       return vec;
+                                    };
+
    fill_and_show_shader_preferences();
+
+   GtkWidget *model_combobox = widget_from_builder("material_lighting_molecule_comboboxtext");
+   if (model_combobox) {
+      gtk_combo_box_text_remove_all(GTK_COMBO_BOX_TEXT(model_combobox));
+      auto mol_vec = get_model_molecule_vector();
+      graphics_info_t g;
+      int imol_active = first_coords_imol();
+      GCallback callback_func = G_CALLBACK(nullptr);
+      g.fill_combobox_with_molecule_options(model_combobox, callback_func, imol_active, mol_vec);
+      if (g.is_valid_model_molecule(imol_active)) {
+         GtkWidget *ambient_but = widget_from_builder("material_lighting_ambient_colorbutton");
+         GtkWidget *diffuse_but = widget_from_builder("material_lighting_diffuse_colorbutton");
+         GdkRGBA rgba;
+         rgba.alpha = 1.0;
+         rgba.red   = g.molecules[imol_active].model_molecule_meshes.material.ambient.r;
+         rgba.green = g.molecules[imol_active].model_molecule_meshes.material.ambient.g;
+         rgba.blue  = g.molecules[imol_active].model_molecule_meshes.material.ambient.b;
+         gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(ambient_but), &rgba);
+         rgba.red   = g.molecules[imol_active].model_molecule_meshes.material.diffuse.r;
+         rgba.green = g.molecules[imol_active].model_molecule_meshes.material.diffuse.g;
+         rgba.blue  = g.molecules[imol_active].model_molecule_meshes.material.diffuse.b;
+         gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(diffuse_but), &rgba);
+      }
+   }
 }
 
 
