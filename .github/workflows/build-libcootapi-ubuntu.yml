@@ -135,5 +135,5 @@ jobs:
           MOORHEN_TEST_DATA_DIR: ../test-data
           LD_LIBRARY_PATH: /home/runner/install/chapi-Linux-ubuntu/lib
         # run:  cd build-libcootapi && ./test-molecules-container | egrep "^FAIL|^PASS|^UN|^LIGHTS|^, "
-        run:  cd build-libcootapi && ./test-molecules-container || echo done
+        run:  cd build-libcootapi && ./test-molecules-container
 
