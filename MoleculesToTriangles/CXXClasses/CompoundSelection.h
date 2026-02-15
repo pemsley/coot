@@ -37,13 +37,14 @@
 class SelectionPrimitive {
 //Modelled
 protected:
-	std::string selectionString;  
+	std::string selectionString;
     std::string name;
 public:
 	int invert;
+    virtual ~SelectionPrimitive() = default;
     const std::string getName() const {
-        return 
-        name; 
+        return
+        name;
     };
     void setName(const std::string _name){
         name = _name;
@@ -73,7 +74,7 @@ public:
     CompoundSelection(std::string selectionText);
     CompoundSelection(std::string selectionText, std::string _name);
     virtual void setSelectionString(const std::string &_selectionString);
-	~CompoundSelection();
+	virtual ~CompoundSelection();
     virtual int handleInMMDB(mmdb::Manager *mmdb);
     void deleteInMMDB(mmdb::Manager *mmdb);
 	virtual void describe();
