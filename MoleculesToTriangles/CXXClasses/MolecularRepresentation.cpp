@@ -598,10 +598,12 @@ int MolecularRepresentation::drawRibbon()
                 FCXXCoord coord = segment.coordFor(xVal);
                 FCXXCoord normalOne = segment.normalOneFor(xVal);
                 FCXXCoord normalTwo = segment.normalTwoFor(xVal);
-                //Re-orthonormalise after spline interpolation
+                //Re-orthonormalise against tangent after spline interpolation
+                FCXXCoord tangent = segment.coordFor(xVal + stepPerSubdivision) - segment.coordFor(xVal - stepPerSubdivision);
+                tangent.normalise();
+                normalOne = normalOne - tangent * (normalOne * tangent);
                 normalOne.normalise();
-                normalTwo = normalTwo - normalOne * (normalTwo * normalOne);
-                normalTwo.normalise();
+                normalTwo = normalOne ^ tangent;
                 //Widths at which things should be drawn is a matter of painful heuristics
                 float radiusOne = radiusOneNone;
                 float radiusTwo = radiusTwoNone;
@@ -701,10 +703,12 @@ int MolecularRepresentation::drawRibbon()
             FCXXCoord coord = segment.coordFor(xVal);
             FCXXCoord normalOne = segment.normalOneFor(xVal);
             FCXXCoord normalTwo = segment.normalTwoFor(xVal);
-            //Re-orthonormalise after spline interpolation
+            //Re-orthonormalise against tangent after spline interpolation
+            FCXXCoord tangent = segment.coordFor(xVal + stepPerSubdivision) - segment.coordFor(xVal - stepPerSubdivision);
+            tangent.normalise();
+            normalOne = normalOne - tangent * (normalOne * tangent);
             normalOne.normalise();
-            normalTwo = normalTwo - normalOne * (normalTwo * normalOne);
-            normalTwo.normalise();
+            normalTwo = normalOne ^ tangent;
 
             float radiusOne;
             float radiusTwo;
