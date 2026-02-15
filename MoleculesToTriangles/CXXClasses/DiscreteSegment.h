@@ -57,7 +57,7 @@ public:
     }    
     void evaluateNormals();
     void smoothBetas();
-    void evaluateSplines();
+    void evaluateSplines(int samplesPerSegment = 6);
     FCXXCoord coordFor(float xVal);
     FCXXCoord normalOneFor(float xVal);
     FCXXCoord normalTwoFor(float xVal);

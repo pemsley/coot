@@ -547,7 +547,7 @@ int MolecularRepresentation::drawRibbon()
         DiscreteSegment &segment = *(segments[iSegment]);
         segment.evaluateNormals();
         if (boolParameters["smoothBetas"]) segment.smoothBetas();
-        segment.evaluateSplines();
+        segment.evaluateSplines(subdivisionsPerCalpha);
         FCXXCoord color;
 
         std::shared_ptr<CylindersPrimitive>currentCylinder(new CylindersPrimitive());
@@ -556,6 +556,8 @@ int MolecularRepresentation::drawRibbon()
 
         int lastSSE = -32767;
         int currentSSE = -32767;
+        bool useArrowTipCoord = false;
+        FCXXCoord arrowTipCoord;
         for (int iCalpha = 0; iCalpha<segment.nCalphas(); iCalpha++){
             const mmdb::Atom *calpha = (segment.calpha(iCalpha));
             auto residue = const_cast<mmdb::Atom*>(calpha)->GetResidue();
@@ -592,6 +594,11 @@ int MolecularRepresentation::drawRibbon()
             int startSubdivision = ((iCalpha == 0) ? (subdivisionsPerCalpha/2):0);
             float xVal = 0.;
 
+            //Arrow head extrapolation state
+            bool inArrowTaper = false;
+            FCXXCoord arrowBaseCoord, arrowBaseTangent, arrowBaseNormalOne, arrowBaseNormalTwo;
+            float arrowBaseXVal = 0.f;
+
             for (int i=startSubdivision; i<endSubdivision; i++){
                 //for (int i=0; i<subdivisionsPerCalpha; i++){
                 xVal = (iCalpha + (i*stepPerSubdivision)) - 0.5;
@@ -599,13 +606,25 @@ int MolecularRepresentation::drawRibbon()
                 FCXXCoord normalOne = segment.normalOneFor(xVal);
                 FCXXCoord normalTwo = segment.normalTwoFor(xVal);
                 //Re-orthonormalise against tangent after spline interpolation
-                FCXXCoord tangent = segment.coordFor(xVal + stepPerSubdivision) - segment.coordFor(xVal - stepPerSubdivision);
+                FCXXCoord tangentVec = segment.coordFor(xVal + stepPerSubdivision) - segment.coordFor(xVal - stepPerSubdivision);
+                FCXXCoord tangent = tangentVec;
                 tangent.normalise();
                 normalOne = normalOne - tangent * (normalOne * tangent);
                 normalOne.normalise();
                 normalTwo = normalTwo - tangent * (normalTwo * tangent);
                 normalTwo = normalTwo - normalOne * (normalTwo * normalOne);
                 normalTwo.normalise();
+                //Override with extrapolated frame during arrow taper
+                if (inArrowTaper) {
+                    coord = arrowBaseCoord + arrowBaseTangent * ((xVal - arrowBaseXVal) / (2.f * stepPerSubdivision));
+                    normalOne = arrowBaseNormalOne;
+                    normalTwo = arrowBaseNormalTwo;
+                }
+                //Start next SSE element at arrow tip for continuity
+                if (useArrowTipCoord) {
+                    coord = arrowTipCoord;
+                    useArrowTipCoord = false;
+                }
                 //Widths at which things should be drawn is a matter of painful heuristics
                 float radiusOne = radiusOneNone;
                 float radiusTwo = radiusTwoNone;
@@ -675,6 +694,13 @@ int MolecularRepresentation::drawRibbon()
                     }
                     if (i == subdivisionsPerCalpha/2){
                         if (currentSSE != nextSSE){
+                            //Capture frame at arrow base for extrapolation
+                            arrowBaseCoord = coord;
+                            arrowBaseTangent = tangentVec;
+                            arrowBaseNormalOne = normalOne;
+                            arrowBaseNormalTwo = normalTwo;
+                            arrowBaseXVal = xVal;
+                            inArrowTaper = true;
                             CylinderPoint cylinderPoint(coord, color, normalOne, normalTwo, radiusOneStrand, radiusTwoStrand, calpha);
                             currentBoxSection->addPoint(cylinderPoint);
                         }
@@ -713,6 +739,15 @@ int MolecularRepresentation::drawRibbon()
             normalTwo = normalTwo - tangent * (normalTwo * tangent);
             normalTwo = normalTwo - normalOne * (normalTwo * normalOne);
             normalTwo.normalise();
+            //Extrapolate arrow tip and store for next SSE continuity
+            if (inArrowTaper) {
+                coord = arrowBaseCoord + arrowBaseTangent * ((xVal - arrowBaseXVal) / (2.f * stepPerSubdivision));
+                normalOne = arrowBaseNormalOne;
+                normalTwo = arrowBaseNormalTwo;
+                arrowTipCoord = coord;
+                useArrowTipCoord = true;
+                inArrowTaper = false;
+            }
 
             float radiusOne;
             float radiusTwo;
