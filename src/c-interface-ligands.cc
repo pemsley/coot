@@ -69,26 +69,18 @@
 
 #include "c-interface-ligands-swig.hh"
 
-// #include "guile-fixups.h"
+#include "guile-fixups.h"
 
+// for all of this file:
 #ifdef USE_GUILE
-#include <cstdio> /* for std::FILE in gmp.h for libguile.h */
 #pragma GCC diagnostic push
 #pragma GCC diagnostic ignored "-Wvolatile"
-#include <libguile.h>
-#pragma GCC diagnostic pop
 #endif
 
 #include "utils/logging.hh"
 extern logging logger;
 
 #include "get-monomer.hh"
-
-
-#ifdef HAVE_GOOCANVAS
-#include <goocanvas.h>
-#include "lbg/wmolecule.hh"
-#endif
 
 #include "c-interface-bonds.hh"
 
@@ -2219,31 +2211,6 @@ std::vector<std::string>
 topological_equivalence_chiral_centres(const std::string &residue_type) {
 
    std::vector<std::string> centres;
-#ifdef HAVE_GOOCANVAS
-
-   graphics_info_t g;
-
-   int imol = 0; // dummy
-   std::pair<bool, coot::dictionary_residue_restraints_t> p =
-      g.Geom_p()->get_monomer_restraints(residue_type, imol);
-
-   if (p.first) {
-
-      const coot::dictionary_residue_restraints_t &restraints = p.second;
-      lig_build::molfile_molecule_t mm(restraints); // makes dummy atoms
-      widgeted_molecule_t wm(mm, NULL); // we have the atom names already.
-      topological_equivalence_t top_eq(wm.atoms, wm.bonds);
-      centres = top_eq.chiral_centres();
-
-      std::cout << "-------- chiral centres by topology analysis -----------"
-		<< std::endl;
-      for (unsigned int ic=0; ic<centres.size(); ic++) {
-	 std::cout << "     " << ic << "  " << centres[ic] << std::endl;
-      }
-      std::cout << "-------------------" << std::endl;
-   }
-
-#endif // HAVE_GOOCANVAS
    return centres;
 }
 

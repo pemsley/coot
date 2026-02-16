@@ -302,6 +302,9 @@ int replace_fragment(int imol_target, int imol_fragment,
 }
 
 #ifdef USE_GUILE
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wvolatile"
+
 int replace_residues_from_mol_scm(int imol_target,
 				 int imol_ref,
 				 SCM residue_specs_list_ref_scm) {
@@ -331,6 +334,7 @@ int replace_residues_from_mol_scm(int imol_target,
    }
    return status;
 }
+#pragma GCC diagnostic pop
 #endif // USE_GUILE
 
 /*! \brief replace the given residues from the reference molecule to the target molecule
@@ -696,6 +700,8 @@ void spin_search_by_atom_vectors(int imol_map, int imol, const std::string &chai
 }
 
 #ifdef USE_GUILE
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wvolatile"
 /*! \brief for the given residue, spin the atoms in moving_atom_list
   around the bond defined by direction_atoms_list looking for the best
   fit to density of imom_map map of the first atom in
@@ -714,7 +720,9 @@ void spin_search(int imol_map, int imol, const char *chain_id, int resno,
       std::cout << "bad direction atom pair" << std::endl;
    }
 }
+#pragma GCC diagnostic pop
 #endif
+
 #ifdef USE_PYTHON
 void spin_search_py(int imol_map, int imol, const char *chain_id, int resno,
                  const char *ins_code, PyObject *direction_atoms_list, PyObject *moving_atoms_list) {
@@ -748,6 +756,8 @@ void spin_N_py(int imol, PyObject *residue_spec_py, float angle) {
 #endif // USE_PYTHON
 
 #ifdef USE_GUILE
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wvolatile"
 void spin_N_scm(int imol, SCM residue_spec_scm, float angle) {
 
    if (is_valid_model_molecule(imol)) {
@@ -756,6 +766,7 @@ void spin_N_scm(int imol, SCM residue_spec_scm, float angle) {
       graphics_draw();
    }
 }
+#pragma GCC diagnostic pop
 #endif // USE_GUILE
 
 #ifdef USE_PYTHON
@@ -790,6 +801,8 @@ PyObject *CG_spin_search_py(int imol_model, int imol_map) {
 #endif // USE_PYTHON
 
 #ifdef USE_GUILE
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wvolatile"
 //! \brief Spin search the density based on possible positions of CG of a side-chain
 SCM CG_spin_search_scm(int imol_model, int imol_map) {
 
@@ -813,6 +826,7 @@ SCM CG_spin_search_scm(int imol_model, int imol_map) {
    }
    return r;
 }
+#pragma GCC diagnostic pop
 #endif // USE_GUILE
 
 
@@ -935,6 +949,8 @@ delete_residue_with_full_spec(int imol,
 
 
 #ifdef USE_GUILE
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wvolatile"
 /*! \brief delete residues in the residue spec list */
 void delete_residues_scm(int imol, SCM residue_specs_scm) {
    if (is_valid_model_molecule(imol)) {
@@ -943,6 +959,7 @@ void delete_residues_scm(int imol, SCM residue_specs_scm) {
       graphics_draw();
    }
 }
+#pragma GCC diagnostic pop
 #endif
 
 #ifdef USE_PYTHON
@@ -955,8 +972,6 @@ void delete_residues_py(int imol, PyObject *residue_specs_py) {
    }
 }
 #endif
-
-
 
 
 /*! \brief delete all hydrogens in molecule */
@@ -1070,6 +1085,8 @@ void set_debug_refinement(int state) {
 }
 
 #ifdef USE_GUILE
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wvolatile"
 SCM get_residue_alt_confs_scm(int imol, const char *chain_id, int res_no, const char *ins_code) {
 
    SCM r = SCM_EOL;
@@ -1077,6 +1094,7 @@ SCM get_residue_alt_confs_scm(int imol, const char *chain_id, int res_no, const 
    return r;
 
 }
+#pragma GCC diagnostic pop
 #endif
 
 #ifdef USE_PYTHON
@@ -1189,6 +1207,8 @@ int set_atom_string_attribute(int imol, const char *chain_id, int resno, const c
 }
 
 #ifdef USE_GUILE
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wvolatile"
 int set_atom_attributes(SCM attribute_expression_list) {
 
    int r= 0;
@@ -1277,6 +1297,7 @@ int set_atom_attributes(SCM attribute_expression_list) {
       graphics_draw();
    return r;
 }
+#pragma GCC diagnostic pop
 #endif // USE_GUILE
 
 #ifdef USE_PYTHON
@@ -1407,6 +1428,8 @@ void set_residue_name(int imol, const char *chain_id, int res_no, const char *in
 }
 
 #ifdef USE_GUILE
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wvolatile"
 SCM all_residues_with_serial_numbers_scm(int imol) {
 
    SCM r = SCM_BOOL_F;
@@ -1424,6 +1447,7 @@ SCM all_residues_with_serial_numbers_scm(int imol) {
    }
    return r;
 }
+#pragma GCC diagnostic pop
 #endif
 
 
@@ -1490,6 +1514,8 @@ short int refinement_already_ongoing_p() {
 
 
 #ifdef USE_GUILE
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wvolatile"
 SCM refine_residues_scm(int imol, SCM r) {
    return refine_residues_with_alt_conf_scm(imol, r, "");
 }
