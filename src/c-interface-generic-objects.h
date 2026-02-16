@@ -240,8 +240,12 @@ PyObject *get_generic_object_info(int obj_number);
 @return 0 for no things, 1 for things. */
 short int generic_object_has_objects_p(int obj_no); 
 
-/*! \brief close generic object, clear the lines/points etc, not
-  available for buttons/displaying etc */
+/*! \brief close generic object
+ *
+ * clear the lines/points etc, not available for buttons/displaying etc
+ *
+ * param obj_number the object_number of the generic object to close
+ * */
 void close_generic_object(int object_number);
 
 /*! \brief has the generic object been closed? 
