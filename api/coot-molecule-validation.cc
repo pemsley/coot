@@ -238,12 +238,12 @@ coot::molecule_t::all_molecule_contact_dots(const coot::protein_geometry &geom,
 
 // this function is a wrapper for the below function,
 //
-std::vector<coot::geometry_distortion_info_container_t>
+std::vector<coot::geometry_distortion_info_pod_container_t>
 coot::molecule_t::geometric_distortions_for_one_residue_from_mol(const std::string &ligand_cid, bool with_nbcs,
                                                                  coot::protein_geometry &geom,
                                                                  ctpl::thread_pool &static_thread_pool) {
 
-   std::vector<coot::geometry_distortion_info_container_t> v;
+   std::vector<coot::geometry_distortion_info_pod_container_t> v;
    mmdb::Residue *residue_p = cid_to_residue(ligand_cid);
    if (residue_p) {
       mmdb::Manager *mol = coot::util::create_mmdbmanager_from_residue(residue_p);
@@ -252,18 +252,19 @@ coot::molecule_t::geometric_distortions_for_one_residue_from_mol(const std::stri
          // does v contain pointers to atoms (I'd rather that it didnt)
          v = geometric_distortions_from_mol(asc, with_nbcs, geom, static_thread_pool);
          // asc.clear_up();  asc is no longer needed?
+         delete(mol);
       }
    }
    return v;
 }
 
 //
-std::vector<coot::geometry_distortion_info_container_t>
+std::vector<coot::geometry_distortion_info_pod_container_t>
 coot::molecule_t::geometric_distortions_for_selection_from_mol(const std::string &cid, bool with_nbcs,
                                                                coot::protein_geometry &geom,
                                                                ctpl::thread_pool &static_thread_pool) {
 
-   std::vector<coot::geometry_distortion_info_container_t> v;
+   std::vector<coot::geometry_distortion_info_pod_container_t> v;
    std::vector<mmdb::Residue *> residues = cid_to_residues(cid);
    if (! residues.empty()) {
       std::pair<bool, mmdb::Manager *> mol_p = coot::util::create_mmdbmanager_from_residue_vector(residues, atom_sel.mol);
@@ -279,14 +280,14 @@ coot::molecule_t::geometric_distortions_for_selection_from_mol(const std::string
 }
 
 
-std::vector<coot::geometry_distortion_info_container_t>
+std::vector<coot::geometry_distortion_info_pod_container_t>
 coot::molecule_t::geometric_distortions_from_mol(const atom_selection_container_t &asc, bool with_nbcs,
                                                  coot::protein_geometry &geom,
                                                  ctpl::thread_pool &static_thread_pool) {
 
    // 20241115-PE I think this function is dangerous (see below simple version)
 
-   std::vector<coot::geometry_distortion_info_container_t> dcv;
+   std::vector<coot::geometry_distortion_info_pod_container_t> dcv;
 
    if (! asc.mol)
       return dcv;
@@ -419,12 +420,16 @@ coot::molecule_t::geometric_distortions_from_mol(const atom_selection_container_
                                                 0.0, 0, false, false, false,
                                                 pseudos);
 
+                  if (false)
+                     std::cout << "debug:: in geometric_distortions_from_mol() nrestraints " << nrestraints
+                               << std::endl;
+
                   if (nrestraints > 0) {
 
 //                      std::cout << "DEBUG:: model " << imod << " pushing back " << nrestraints
 //                                << " restraints" << std::endl;
 
-                     dcv.push_back(restraints.geometric_distortions());
+                     dcv.push_back(restraints.geometric_distortions_pod());
 
                   } else {
 
@@ -684,11 +689,11 @@ coot::molecule_t::get_mesh_for_ligand_validation_vs_dictionary(const std::string
       if (mol) {
          bool with_nbcs = true; // pass this?
          atom_selection_container_t asc = make_asc(mol);
-         std::vector<coot::geometry_distortion_info_container_t> v =
+         std::vector<coot::geometry_distortion_info_pod_container_t> v =
             geometric_distortions_from_mol(asc, with_nbcs, geom, static_thread_pool);
          if (v.size() == 1) {
             if (v[0].geometry_distortion.size() > 1) {
-               coot::geometry_distortion_info_container_t gdc = v[0];
+               coot::geometry_distortion_info_pod_container_t gdc = v[0];
 
                if (gdc.geometry_distortion.size()) {
 
