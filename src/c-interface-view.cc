@@ -478,6 +478,7 @@ void set_use_fancy_lighting(short int state) {
 
 //! \brief set bond smoothness (default 1 (not smooth))
 void set_bond_smoothness_factor(unsigned int fac) {
+
    graphics_info_t::bond_smoothness_factor = fac;
 
    // rebonding of the molecules needed here.

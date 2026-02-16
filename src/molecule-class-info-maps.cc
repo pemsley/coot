@@ -537,7 +537,7 @@ molecule_class_info_t::update_map(bool do_it) {
 void
 molecule_class_info_t::update_map_internal() {
 
-   // std::cout << "debug:: update_map_internal() --- start --- with contour_level " << contour_level << std::endl;
+   std::cout << "DEBUG:: update_map_internal() --- start --- " << imol_no << " with contour_level " << contour_level << std::endl;
 
    // duck out of doing map OpenGL map things if we are not in gui mode
    //

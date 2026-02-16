@@ -130,7 +130,7 @@ void DiscreteSegment::smoothBetas()
     delete [] fixeds;
 }
 
-void DiscreteSegment::evaluateSplines()
+void DiscreteSegment::evaluateSplines(int samplesPerSegment)
 {
    // std::cout << "evaluateSpines() size " << calphas.size() << std::endl;
     for (int i=0; i<calphas.size(); i++){
@@ -142,11 +142,11 @@ void DiscreteSegment::evaluateSplines()
         anisoSpline.addPair((float)i, FCXXCoord(ax, ay, az, 1.0f));
     }
     // std::cout << "evaluateSpines() A" << std::endl;
-    coordSpline.calculateYDoublePrimes(1e30f, 1e30f);
+    coordSpline.calculateYDoublePrimes(1e30f, 1e30f, samplesPerSegment);
     // std::cout << "evaluateSpines() B" << std::endl;
-    normalOnesSpline.calculateYDoublePrimes(1e30f, 1e30f);
+    normalOnesSpline.calculateYDoublePrimes(1e30f, 1e30f, samplesPerSegment);
     // std::cout << "evaluateSpines() C" << std::endl;
-    normalTwosSpline.calculateYDoublePrimes(1e30f, 1e30f);
+    normalTwosSpline.calculateYDoublePrimes(1e30f, 1e30f, samplesPerSegment);
     // std::cout << "evaluateSpines() D" << std::endl;
     anisoSpline.calculateYDoublePrimes(1e30f, 1e30f);
 }

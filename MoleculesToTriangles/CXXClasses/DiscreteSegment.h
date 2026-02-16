@@ -82,7 +82,7 @@ public:
     }    
     void evaluateNormals();
     void smoothBetas();
-    void evaluateSplines();
+    void evaluateSplines(int samplesPerSegment = 6);
     void evaluateColors(std::shared_ptr<ColorScheme> colorScheme, std::map<std::shared_ptr<ColorRule>, int> &handles);
     FCXXCoord coordFor(float xVal);
     FCXXCoord normalOneFor(float xVal);

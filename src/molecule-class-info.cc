@@ -2025,15 +2025,18 @@ molecule_class_info_t::initialize_map_things_on_read_molecule(std::string molecu
             map_colour.red   = 0.2;
             map_colour.green = 0.6;
             map_colour.blue  = 0.2;
+            map_colour.alpha = 1.0;
          } else {
             map_colour.red   = 0.6;
             map_colour.green = 0.65;
             map_colour.blue  = 0.4;
+            map_colour.alpha = 1.0;
          }
       } else {
          map_colour.red   = 0.6;
          map_colour.green = 0.2;
          map_colour.blue  = 0.2;
+         map_colour.alpha = 1.0;
       }
    } else {
       std::vector<float> orig_colours(3); // convert this to using GdkRGBA
@@ -2046,6 +2049,7 @@ molecule_class_info_t::initialize_map_things_on_read_molecule(std::string molecu
       map_colour.red   = rgb_new[0];
       map_colour.green = rgb_new[1];
       map_colour.blue  = rgb_new[2];
+      map_colour.alpha = 1.0;
    }
 
    // negative contour level
@@ -2055,15 +2059,18 @@ molecule_class_info_t::initialize_map_things_on_read_molecule(std::string molecu
          map_colour_negative_level.red   = 0.6;
          map_colour_negative_level.green = 0.2;
          map_colour_negative_level.blue  = 0.2;
+         map_colour_negative_level.alpha = 1.0;
       } else {
          map_colour_negative_level.red   = 0.55;
          map_colour_negative_level.green = 0.25;
          map_colour_negative_level.blue  = 0.45;
+         map_colour_negative_level.alpha = 1.0;
       }
    } else {
       map_colour_negative_level.red   = 0.2;
       map_colour_negative_level.green = 0.6;
       map_colour_negative_level.blue  = 0.2;
+      map_colour_negative_level.alpha = 1.0;
    }
    name_ = molecule_name;
 
@@ -4403,6 +4410,9 @@ molecule_class_info_t::make_meshes_from_bonds_box_instanced_version() {
                                                  show_aniso_atoms_as_ortep_flag, // ditto
                                                  show_aniso_atoms_as_empty_flag,
                                                  num_subdivisions, n_slices, n_stacks, colour_table);
+
+      // Restore the user's material settings after recreating the bonds mesh
+      model_molecule_meshes.set_material(material_for_models);
 
       // 2025-07-28 10:14 I don't want to set this here, surely.
       // There should be some other control.

@@ -593,3 +593,109 @@ def setup_presentation_graphics():
 9. **Choose appropriate background** for your publication medium (mid-grey works well with shadows)
 
 Following these practices ensures reliable, publication-quality molecular graphics figures in Coot.
+
+## Summary of Additions to coot-figure-making/SKILL.md
+
+The following new content has been added to the figure-making skill based on today's session visualizing the 1ej6 reovirus core assembly.
+
+---
+
+## New Sections Added
+
+### 1. Gaussian Surface Representations
+
+**Key Topics Covered:**
+- Creating Gaussian surfaces
+- **CRITICAL RULE: Always use molecular symmetry coloring when applicable**
+- Gaussian surface parameters (contour level, sigma, grid scale, box radius, B-factor)
+- Working with generic display objects to selectively hide surfaces
+- Downloading biological assemblies from PDBe
+
+**Critical Best Practice:**
+```python
+# ALWAYS set molecular symmetry coloring for structures with symmetry
+coot.set_gaussian_surface_chain_colour_mode(2)
+coot.gaussian_surface(imol)
+```
+
+### 2. Downloading Biological Assemblies from PDBe
+
+**Correct URL Format:**
+- Use **hyphen** not underscore: `1ej6-assembly1` NOT `1ej6_assembly-1`
+- File is **gzipped**: `.cif.gz` extension
+- Base URL: `https://www.ebi.ac.uk/pdbe/static/entry/download/`
+
+**Complete example code provided** for downloading, decompressing, and loading assemblies.
+
+### 3. Advanced Graphics Settings for Gaussian Surfaces
+
+**Publication-Quality SSAO Settings:**
+- **256-512 kernel samples** for screenshots (not default 32)
+- **Large radius (20-25)** for large assemblies
+- Complete optimized settings for publication figures
+
+**CRITICAL Discovery: Outline and Depth Blur Are Mutually Exclusive**
+- Despite API allowing both, shader implementation makes them exclusive
+- **Recommendation:** Use outline mode for Gaussian surfaces
+- Clear documentation with correct/incorrect examples
+
+### 4. Complete Publication Setup
+
+**Optimized settings for Gaussian surface figures:**
+- Dark grey background (0.2, 0.2, 0.2) for dramatic contrast
+- Outline mode for polished cel-shaded look
+- High-quality SSAO (256 samples, radius 25)
+- Fancy lighting
+- Complete working code example
+
+---
+
+## Updated Summary Section
+
+Reorganized into three categories:
+
+1. **Ribbon Representations** (existing best practices)
+2. **Gaussian Surface Representations** (NEW - 6 best practices)
+3. **General Publication Graphics** (existing, refined)
+
+---
+
+## Key Lessons Learned
+
+### Image-Making Rules
+1. **Always use molecular symmetry coloring** for structures with symmetry
+2. **Use 256-512 SSAO kernel samples** for publication screenshots
+3. **Outline and depth blur are mutually exclusive** in the shader
+4. **Large SSAO radius (20-25)** needed for large assemblies
+5. **Correct PDBe assembly URL format** with hyphen and .cif.gz
+
+### Why This Matters
+- Molecular symmetry coloring **immediately reveals biological organization**
+- High kernel samples produce **smooth, professional shadows** without noise
+- Large assemblies need different parameters than small molecules
+- Biological assemblies show the **true functional form** of the structure
+
+---
+
+## Code Examples Added
+
+1. Download biological assembly from PDBe
+2. Hide first half of generic display objects
+3. Setup publication-quality SSAO for Gaussian surfaces
+4. Complete publication graphics configuration
+5. All with proper error handling and documentation
+
+---
+
+## Session Context
+
+These updates came from successfully:
+1. Fetching PDB 1ej6 (reovirus core, 300-chain assembly)
+2. Downloading biological assembly via PDBe API
+3. Creating Gaussian surface with molecular symmetry coloring
+4. Optimizing graphics settings for publication quality
+5. Discovering shader limitations (outline/depth blur exclusivity)
+6. Finding optimal SSAO parameters through experimentation
+
+The result: A beautiful visualization of icosahedral viral symmetry with 5 colors showing the distribution of 5 unique chain types across 300 chains in the biological assembly.
+

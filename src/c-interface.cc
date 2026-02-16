@@ -2514,6 +2514,7 @@ get_map_colour(int imol) {
          colour.red   *= 65535;
          colour.green *= 65535;
          colour.blue  *= 65535;
+         colour.alpha *= 65535;
       }
    }
    std::string cmd = "get-map-colour";

@@ -994,8 +994,7 @@ on_display_control_map_properties_button_clicked(GtkButton       *button,
    int imol = GPOINTER_TO_INT(user_data);
 
    // GtkWidget *window = create_single_mmdb:: Atom *atp_properties_dialog();
-   //   GtkWidget *patch_frame = lookup_widget(window,
-   // 					 "single_map_colour_button_frame");
+   // GtkWidget *patch_frame = lookup_widget(window, "single_map_colour_button_frame");
 
   // GtkWidget *single_map_properties_colour_button = lookup_widget(window, "single_map_properties_colour_button");
   // GtkWidget *label = lookup_widget(window, "label114");

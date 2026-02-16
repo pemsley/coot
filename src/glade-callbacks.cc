@@ -7078,6 +7078,42 @@ on_first_startup_use_right_button_clicked(GtkButton       *button,
 
 extern "C" G_MODULE_EXPORT
 void
+on_material_lighting_ambient_colorbutton_color_set(GtkColorButton *colorbutton,
+                                                   gpointer        user_data) {
+
+   GdkRGBA rgba;
+   gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER(colorbutton), &rgba);
+   GtkWidget *combobox = widget_from_builder("material_lighting_molecule_comboboxtext");
+   int imol = my_combobox_get_imol(GTK_COMBO_BOX(combobox));
+   graphics_info_t g;
+   if (g.is_valid_model_molecule(imol)) {
+      glm::vec4 ambient(rgba.red, rgba.green, rgba.blue, 1.0f);
+      g.molecules[imol].material_for_models.ambient = ambient;
+      g.molecules[imol].model_molecule_meshes.set_material_ambient(ambient);
+      g.graphics_draw();
+   }
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_material_lighting_diffuse_colorbutton_color_set(GtkColorButton *colorbutton,
+                                                   gpointer        user_data) {
+
+   GdkRGBA rgba;
+   gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER(colorbutton), &rgba);
+   GtkWidget *combobox = widget_from_builder("material_lighting_molecule_comboboxtext");
+   int imol = my_combobox_get_imol(GTK_COMBO_BOX(combobox));
+   graphics_info_t g;
+   if (g.is_valid_model_molecule(imol)) {
+      glm::vec4 diffuse(rgba.red, rgba.green, rgba.blue, 1.0f);
+      g.molecules[imol].material_for_models.ambient = diffuse;
+      g.molecules[imol].model_molecule_meshes.set_material_diffuse(diffuse);
+      g.graphics_draw();
+   }
+}
+
+extern "C" G_MODULE_EXPORT
+void
 on_button_clicked(GtkButton       *button,
                   gpointer         user_data) {
 
