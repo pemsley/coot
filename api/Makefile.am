@@ -77,6 +77,7 @@ libcoot_api_la_LDFLAGS = $(SHARED_LDFLAGS)            \
    $(top_builddir)/pli/libcoot-pli.la                 \
    $(top_builddir)/ideal/libcoot-ideal.la             \
    $(top_builddir)/lidia-core/libcoot-lidia-core.la   \
+   $(top_builddir)/pyrogen/libcoot_py_restraints.la   \
    $(top_builddir)/cootaneer/libcootaneer.la          \
    $(top_builddir)/db-main/libcoot-db-main.la         \
    $(top_builddir)/ccp4mg-utils/libccp4mg-utils.la    \
@@ -99,6 +100,7 @@ test_molecules_container_SOURCES = test-molecules-container.cc filo-tests.cc luc
 test_molecules_container_LDFLAGS = ./libcoot-api.la \
    $(top_builddir)/MoleculesToTriangles/CXXClasses/libMoleculesToTrianglesCXXClasses.la \
    $(top_builddir)/MoleculesToTriangles/CXXSurface/libMoleculesToTrianglesCXXSurface.la \
+   $(top_builddir)/pyrogen/libcoot_py_restraints.la    \
    $(top_builddir)/ligand/libcoot-ligand.la           \
    $(top_builddir)/ideal/libcoot-ideal.la             \
    $(top_builddir)/pli/libcoot-pli.la                 \

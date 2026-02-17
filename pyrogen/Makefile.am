@@ -73,7 +73,7 @@ pyrogen-swig.cc: $(top_srcdir)/pyrogen/pyrogen-swig.i $(top_srcdir)/pyrogen/rest
 
 pyexec_LTLIBRARIES += _pyrogen_swig.la pyrogen_boost.la
 # add these when it works geometry-store.cc geometry-store.hh geometry-store-private.hh
-_pyrogen_swig_la_SOURCES = pyrogen-swig.cc restraints.cc restraints.hh
+_pyrogen_swig_la_SOURCES = pyrogen-swig.cc
 
 ## _pyrogen_swig_la_CFLAGS = $(PYTHON_CFLAGS) -I$(top_srcdir)/include $(PYTHON_CPPFLAGS) 
 
@@ -108,7 +108,7 @@ lib_LTLIBRARIES=libcoot_py_restraints.la
 #
 libcoot_py_restraints_la_SOURCES = mmff-restraints.cc mmff-restraints.hh \
 	py-restraints.cc py-restraints.hh restraints-private.hh cairo-molecule.hh \
-	cairo-molecule.cc
+	cairo-molecule.cc restraints.cc restraints.hh
 
 # 20141014 Add $RDKIT_LIBS for Bill
 libcoot_py_restraints_la_LIBADD =  \
