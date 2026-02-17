@@ -28,6 +28,7 @@
 #include <algorithm> // for sort
 #include <stdexcept>
 #include <iomanip>
+#include "geometry/residue-and-atom-specs.hh"
 #ifdef HAVE_CXX_THREAD
 #include <thread>
 #include <chrono>
@@ -595,18 +596,24 @@ coot::restraints_container_t::geometric_distortions_pod(bool include_distortion_
    geometry_distortion_info_pod_container_t distortion_vec_container;
    distortion_vec_container.chain_id = chain_id;
    for (unsigned int i=0; i<restraints_vec.size(); i++) {
+      std::vector<atom_spec_t> atom_specs;
       double distortion = 0.0;
       int atom_index = -1;
       const simple_restraint &rest = restraints_vec[i];
       if (restraints_usage_flag & coot::BONDS_MASK) {
          if (rest.restraint_type == coot::BOND_RESTRAINT) {
             distortion = coot::distortion_score_bond(rest, x);
+            atom_specs.push_back(atom_spec_t(atom[rest.atom_index_1]));
+            atom_specs.push_back(atom_spec_t(atom[rest.atom_index_2]));
             atom_index = rest.atom_index_1;
          }
       }
       if (restraints_usage_flag & coot::ANGLES_MASK) {
          if (rest.restraint_type == coot::ANGLE_RESTRAINT) {
             distortion = coot::distortion_score_angle(rest, x);
+            atom_specs.push_back(atom_spec_t(atom[rest.atom_index_1]));
+            atom_specs.push_back(atom_spec_t(atom[rest.atom_index_2]));
+            atom_specs.push_back(atom_spec_t(atom[rest.atom_index_3]));
             atom_index = rest.atom_index_1;
          }
       }
@@ -617,6 +624,10 @@ coot::restraints_container_t::geometric_distortions_pod(bool include_distortion_
             try {
                distortion = coot::distortion_score_torsion(i, rest, x);
                atom_index = rest.atom_index_1;
+               atom_specs.push_back(atom_spec_t(atom[rest.atom_index_1]));
+               atom_specs.push_back(atom_spec_t(atom[rest.atom_index_2]));
+               atom_specs.push_back(atom_spec_t(atom[rest.atom_index_3]));
+               atom_specs.push_back(atom_spec_t(atom[rest.atom_index_4]));
             }
             catch (const std::runtime_error &rte) {
                std::cout << "ERROR::" << rte.what() << std::endl;
@@ -691,6 +702,7 @@ coot::restraints_container_t::geometric_distortions_pod(bool include_distortion_
       if (atom_index != -1) {
          coot::residue_spec_t rs(atom[atom_index]->GetResidue());
          coot::geometry_distortion_info_pod_t gdi(distortion, rest, rs);
+         gdi.atom_specs = atom_specs;
          distortion_vec_container.geometry_distortion.push_back(gdi);
       }
    }
