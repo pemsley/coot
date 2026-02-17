@@ -479,7 +479,7 @@ run_second_test=${run_second_test:=true}
 AUTOBUILD_INSTALLED=${AUTOBUILD_INSTALLED:=${HOME}/autobuild/${OS}-${HOST}}
 
 if test x$GITHUB_ENV = x ; then
-    : # we are not in a hithub actions build
+    : # we are not in a github actions build
 else
     if [ "$CHAPI_ONLY" = true ] ; then
         if [ $OS = Darwin ]  ; then
@@ -2742,7 +2742,7 @@ if test "$build_readline" = true ; then
     echo ./configure $generic_prefix --enable-shared --with-curses $extra_args_for_debian
     ./configure $generic_prefix --enable-shared --with-curses $extra_args_for_debian
     cp shlib/Makefile shlib/Makefile.orig
-    sed -ibackup -e 's/SHLIB_LIBS = /SHLIB_LIBS = -lcurses/' shlib/Makefile
+    sed -ibackup -e 's/-lcurses$(TERMCAP_LIB)/-lcurses $(TERMCAP_LIB)/' shlib/Makefile
     # single thread
     if make ; then
        make install
@@ -3716,6 +3716,7 @@ if [ "$build_boost" = true ] ; then
       boost_version=1_83_0
       boost_version=1_86_0
       boost_version=1_87_0
+      boost_version=1_90_0
       boost_server_dir=1.72.0
       boost_server_dir=1.72.0
       boost_server_dir=1.74.0
@@ -3723,6 +3724,7 @@ if [ "$build_boost" = true ] ; then
       boost_server_dir=1.83.0
       boost_server_dir=1.86.0
       boost_server_dir=1.87.0
+      boost_server_dir=1.90.0
       echo BUILDING boost $boost_version :
       echo BUILDING boost $boost_version >&2
 
