@@ -968,7 +968,8 @@ graphics_info_t::draw_model_molecules(stereo_eye_t eye) {
       m.draw_ncs_ghosts(&shader_for_meshes, eye, mvp, model_rotation, lights, eye_position, bgc);
 
       glEnable(GL_BLEND);
-      draw_molecule_atom_labels(m, eye, mvp, model_rotation);
+      if (draw_distance_labels_user_control)
+         draw_molecule_atom_labels(m, eye, mvp, model_rotation);
 
    }
 }
@@ -1001,6 +1002,9 @@ graphics_info_t::draw_molecule_atom_labels(molecule_class_info_t &m,
                                            stereo_eye_t eye,
                                            const glm::mat4 &mvp,
                                            const glm::mat4 &view_rotation) {
+
+   if (! draw_distance_labels_user_control)
+      return;
 
    // pass the glarea widget width and height.
 
@@ -2913,12 +2917,14 @@ graphics_info_t::draw_measure_distance_and_angles(stereo_eye_t eye) {
       mesh_for_measure_angle_object_vec.draw(&shader, eye, mvp, model_rotation_matrix, lights, eye_position, rc,
                                              opacity, bg_col, wireframe_mode, shader_do_depth_fog_flag, show_just_shadows);
 
-      if (! labels_for_measure_distances_and_angles.empty()) {
-         for (unsigned int i=0; i<labels_for_measure_distances_and_angles.size(); i++) {
-            const auto &label = labels_for_measure_distances_and_angles[i];
-            tmesh_for_labels.draw_atom_label(label.label, label.position, label.colour, &shader_for_atom_labels,
-                                             eye, mvp, model_rotation_matrix, bg_col,
-                                             shader_do_depth_fog_flag, perspective_projection_flag);
+      if (draw_distance_labels_user_control) {
+         if (! labels_for_measure_distances_and_angles.empty()) {
+            for (unsigned int i=0; i<labels_for_measure_distances_and_angles.size(); i++) {
+               const auto &label = labels_for_measure_distances_and_angles[i];
+               tmesh_for_labels.draw_atom_label(label.label, label.position, label.colour, &shader_for_atom_labels,
+                                                eye, mvp, model_rotation_matrix, bg_col,
+                                                shader_do_depth_fog_flag, perspective_projection_flag);
+            }
          }
       }
    }
@@ -6469,13 +6475,15 @@ graphics_info_t::draw_pointer_distances_objects(stereo_eye_t eye) {
          mesh_for_pointer_distances.mesh.draw(&shader, eye, mvp, model_rotation_matrix, lights, eye_position, rc, opacity,
                                               bg_col, wireframe_mode, shader_do_depth_fog_flag, show_just_shadows);
 
-         if (! labels_for_pointer_distances.empty()) {
-            Shader &shader_labels = shader_for_atom_labels;
-            for (unsigned int i=0; i<labels_for_pointer_distances.size(); i++) {
-               const auto &label = labels_for_pointer_distances[i];
-               tmesh_for_labels.draw_atom_label(label.label, label.position, label.colour, &shader_labels,
-                                                eye, mvp, model_rotation_matrix, bg_col,
-                                                shader_do_depth_fog_flag, perspective_projection_flag);
+         if (draw_distance_labels_user_control) {
+            if (! labels_for_pointer_distances.empty()) {
+               Shader &shader_labels = shader_for_atom_labels;
+               for (unsigned int i=0; i<labels_for_pointer_distances.size(); i++) {
+                  const auto &label = labels_for_pointer_distances[i];
+                  tmesh_for_labels.draw_atom_label(label.label, label.position, label.colour, &shader_labels,
+                                                   eye, mvp, model_rotation_matrix, bg_col,
+                                                   shader_do_depth_fog_flag, perspective_projection_flag);
+               }
             }
          }
       }

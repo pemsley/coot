@@ -2900,6 +2900,9 @@ public:
    static coot::rama_plot *edit_phi_psi_plot;
 #endif
 
+   // so that the user can add their own labels to screen shots
+   static bool draw_distance_labels_user_control;
+
    // distances and angles displayed on screen
    // uses distance_objects vector
    static bool display_generic_objects_as_solid_flag;

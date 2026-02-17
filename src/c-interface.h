@@ -4028,6 +4028,10 @@ int residue_info_dialog_is_displayed();
 void output_residue_info_as_text(int atom_index, int imol); /* text version */
 /* functions that uses mmdb_manager functions/data types moved to graphics_info_t */
 
+/* ! show the distance labels
+ * */
+void set_show_distance_labels(short int state);
+
 void do_distance_define();
 void do_angle_define();
 void do_torsion_define();

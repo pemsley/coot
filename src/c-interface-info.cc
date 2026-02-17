@@ -2350,6 +2350,10 @@ void residue_info_apply_all_checkbutton_toggled() {
 
 }
 
+void set_show_distance_labels(short int state) {
+   graphics_info_t::draw_distance_labels_user_control = state;
+   graphics_draw();
+}
 
 void apply_residue_info_changes() {
    graphics_info_t g;
