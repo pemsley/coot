@@ -400,7 +400,7 @@ namespace coot {
 
       // ====================== validation ======================================
 
-      std::vector<coot::geometry_distortion_info_container_t>
+      std::vector<coot::geometry_distortion_info_pod_container_t>
       geometric_distortions_from_mol(const atom_selection_container_t &asc, bool with_nbcs,
                                      coot::protein_geometry &geom,
                                      ctpl::thread_pool &static_thread_pool);
@@ -958,7 +958,7 @@ namespace coot {
       //!
       //! this function returns a vector of the wrong type (it has pointers to expired molecules).
       //!
-      std::vector<coot::geometry_distortion_info_container_t>
+      std::vector<coot::geometry_distortion_info_pod_container_t>
       geometric_distortions_for_one_residue_from_mol(const std::string &ligand_cid, bool with_nbcs,
                                                      coot::protein_geometry &geom,
                                                      ctpl::thread_pool &static_thread_pool);
@@ -967,7 +967,7 @@ namespace coot {
       //!
       //! this function returns a vector of the wrong type (it has pointers to expired molecules).
       //!
-      std::vector<coot::geometry_distortion_info_container_t>
+      std::vector<coot::geometry_distortion_info_pod_container_t>
       geometric_distortions_for_selection_from_mol(const std::string &selection_cid, bool with_nbcs,
                                                    coot::protein_geometry &geom,
                                                    ctpl::thread_pool &static_thread_pool);

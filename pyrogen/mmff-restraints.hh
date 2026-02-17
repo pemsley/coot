@@ -19,14 +19,10 @@
  * 02110-1301, USA
  */
 
-#include "Python.h"
-
-// #include <string>
-// #include <vector>
 
 #include "lidia-core/rdkit-interface.hh"
 
-namespace coot { 
+namespace coot {
    // this uses atom indices
    class mmff_bond_restraint_info_t {
    public:
@@ -47,11 +43,11 @@ namespace coot {
       std::string type;
       double resting_bond_length;
       double sigma; // pseudo sigma based on K_{bond}
-      unsigned int get_idx_1() const { return idx_1; } 
+      unsigned int get_idx_1() const { return idx_1; }
       unsigned int get_idx_2() const { return idx_2; }
       std::string get_type() const { return type; }
       double get_resting_bond_length() const { return resting_bond_length; }
-      double get_sigma() const { return sigma; } 
+      double get_sigma() const { return sigma; }
    };
 
    // this uses atom indices
@@ -74,11 +70,11 @@ namespace coot {
       unsigned int idx_3;
       double resting_angle;
       double sigma; // pseudo sigma based on K_{angle}
-      unsigned int get_idx_1() const { return idx_1; } 
+      unsigned int get_idx_1() const { return idx_1; }
       unsigned int get_idx_2() const { return idx_2; }
       unsigned int get_idx_3() const { return idx_3; }
       double get_resting_angle() const { return resting_angle; }
-      double get_sigma() const { return sigma; } 
+      double get_sigma() const { return sigma; }
    };
 
    class mmff_b_a_restraints_container_t {
@@ -92,11 +88,10 @@ namespace coot {
       // these will crash if you feed them an out-of-bounds index
       mmff_bond_restraint_info_t get_bond(const unsigned int i) {
 	 return bonds[i];
-      } 
+      }
       mmff_angle_restraint_info_t get_angle(const unsigned int i) {
 	 return angles[i];
       }
-      
    };
 
    // caller disposes of returned pointer

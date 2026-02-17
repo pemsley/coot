@@ -886,6 +886,28 @@ namespace coot {
    };
    std::ostream &operator<<(std::ostream &s, geometry_distortion_info_t);
 
+   class geometry_distortion_info_pod_t {
+   public:
+      geometry_distortion_info_pod_t(double distortion_in,
+                                     const simple_restraint &rest_in,
+                                     const residue_spec_t &residue_spec_in) :
+         restraint(rest_in), residue_spec(residue_spec_in) {
+         distortion_score = distortion_in;
+         is_set = true;
+      }
+      geometry_distortion_info_pod_t() {
+         is_set = false;
+         distortion_score = 0.0;
+      }
+      bool initialised_p;
+      simple_restraint restraint;
+      bool is_set;
+      std::vector<atom_spec_t> atom_specs;
+      residue_spec_t residue_spec;
+      double distortion_score;
+      double get_distortion() const { return distortion_score; }
+   };
+
    class geometry_distortion_info_container_t {
    public:
       std::vector<geometry_distortion_info_t> geometry_distortion;
@@ -920,7 +942,7 @@ namespace coot {
          min_resno = min_resno_in;
          max_resno = max_resno_in;
       }
-      int size () const { return geometry_distortion.size(); }
+      unsigned int size () const { return geometry_distortion.size(); }
       double print() const;  // return the total distortion
       double print_using_atom_specs() const;  // safe version using stored atom_specs
       double distortion() const;  // return the total distortion
@@ -929,6 +951,31 @@ namespace coot {
       friend std::ostream &operator<<(std::ostream &s, geometry_distortion_info_container_t);
    };
    std::ostream &operator<<(std::ostream &s, geometry_distortion_info_container_t gdic);
+
+   class geometry_distortion_info_pod_container_t {
+   public:
+      std::vector<geometry_distortion_info_pod_t> geometry_distortion;
+      std::string chain_id;
+      int n_atoms;
+      int min_resno;
+      int max_resno;
+      geometry_distortion_info_pod_container_t() {
+         n_atoms = 0;
+         max_resno = 0;
+         min_resno = 0;
+      }
+      geometry_distortion_info_pod_container_t(const std::vector<geometry_distortion_info_pod_t> &geometry_distortion_in,
+                                               const std::string &chain_id_in) :
+         geometry_distortion(geometry_distortion_in), chain_id(chain_id_in) {
+         n_atoms = 0; // this is worrying - why is this not passed. Who uses this constructor?
+         max_resno = 0;
+         min_resno = 0;
+      }
+      double print() const;  // return the total distortion
+      unsigned int size () const { return geometry_distortion.size(); }
+      geometry_distortion_info_pod_t get_geometry_distortion_info(unsigned int idx) const;
+      double get_distortion() const;
+   };
 
    class omega_distortion_info_t {
    public:
@@ -2311,8 +2358,12 @@ namespace coot {
       // geometric_distortions(restraint_usage_Flags flags);
 
       // Here we use the internal flags.  Causes crash currently (no inital atom positions?)
-      // 
+      //
       geometry_distortion_info_container_t geometric_distortions(bool keep_distortion_for_hydrogen_atom_restraints=true);
+
+      // Here we use the internal flags.
+      //
+      geometry_distortion_info_pod_container_t geometric_distortions_pod(bool include_distortion_for_hydrogen_atom_restraints=true);
 
       omega_distortion_info_container_t
       omega_trans_distortions(const protein_geometry &geom,

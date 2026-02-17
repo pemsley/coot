@@ -1198,6 +1198,10 @@ NB_MODULE(coot_headless_api, m) {
          &molecules_container_t::print_secondary_structure_info,
          nb::arg("imol"),
          get_docstring_from_xml("print_secondary_structure_info").c_str())
+    .def("pyrogen_from_SMILES",
+            &molecules_container_t::pyrogen_from_SMILES,
+            nb::arg("SMILES_string"), nb::arg("compound_id"),
+            get_docstring_from_xml("pyrogen_from_SMILES").c_str())
     .def("rail_points_total",
          &molecules_container_t::rail_points_total,
          get_docstring_from_xml("rail_points_total").c_str())
@@ -1568,24 +1572,20 @@ NB_MODULE(coot_headless_api, m) {
        .def_ro("restraint_type", &coot::simple_restraint::restraint_type)
        .def_ro("target_value",   &coot::simple_restraint::target_value)
     ;
-    nb::class_<coot::geometry_distortion_info_t>(m, "geometry_distortion_info_t")
-       .def("initialized_p",        &coot::geometry_distortion_info_t::initialised_p)
-       .def_ro("distortion_score",  &coot::geometry_distortion_info_t::distortion_score)
-       .def_ro("atom_indices",      &coot::geometry_distortion_info_t::atom_indices)
-       .def_ro("atom_specs",        &coot::geometry_distortion_info_t::atom_specs)
-       .def_ro("residue_spec",      &coot::geometry_distortion_info_t::residue_spec)
-       .def_ro("restraint",         &coot::geometry_distortion_info_t::restraint)
+    nb::class_<coot::geometry_distortion_info_pod_t>(m, "geometry_distortion_info_pod_t")
+       .def_ro("is_set",            &coot::geometry_distortion_info_pod_t::is_set)
+       .def_ro("atom_specs",        &coot::geometry_distortion_info_pod_t::atom_specs)
+       .def_ro("residue_spec",      &coot::geometry_distortion_info_pod_t::residue_spec)
+       .def_ro("restraint",         &coot::geometry_distortion_info_pod_t::restraint)
+       .def("get_distortion",       &coot::geometry_distortion_info_pod_t::get_distortion)
        ;
-    nb::class_<coot::geometry_distortion_info_container_t>(m, "geometry_distortion_info_container_t")
-       .def_ro("chain_id",            &coot::geometry_distortion_info_container_t::chain_id)
-       .def("distortion_sum",         &coot::geometry_distortion_info_container_t::distortion_sum)
-       .def("distortion",             &coot::geometry_distortion_info_container_t::distortion)
-       .def("print",                  &coot::geometry_distortion_info_container_t::print)
-       .def("size",                   &coot::geometry_distortion_info_container_t::size)
-       .def("get_geometry_distortion_info", &coot::geometry_distortion_info_container_t::get_geometry_distortion_info)
-       .def_ro("geometry_distortion", &coot::geometry_distortion_info_container_t::geometry_distortion)
-       .def_ro("min_resno",           &coot::geometry_distortion_info_container_t::min_resno)
-       .def_ro("max_resno",           &coot::geometry_distortion_info_container_t::max_resno)
+    nb::class_<coot::geometry_distortion_info_pod_container_t>(m, "geometry_distortion_info_pod_container_t")
+       .def_ro("chain_id",            &coot::geometry_distortion_info_pod_container_t::chain_id)
+       .def("print",                  &coot::geometry_distortion_info_pod_container_t::print)
+       .def("size",                   &coot::geometry_distortion_info_pod_container_t::size)
+       .def("get_geometry_distortion_info", &coot::geometry_distortion_info_pod_container_t::get_geometry_distortion_info)
+       .def_ro("min_resno",           &coot::geometry_distortion_info_pod_container_t::min_resno)
+       .def_ro("max_resno",           &coot::geometry_distortion_info_pod_container_t::max_resno)
     ;
     nb::class_<molecules_container_t::fit_ligand_info_t>(m, "fit_ligand_info_t")
     .def_ro("imol", &molecules_container_t::fit_ligand_info_t::imol)

@@ -2906,7 +2906,7 @@ public:
    //! @param include_non_bonded_contacts is the flag to include non bonded contacts
    //!
    //! @return a vector/list of interesting geometry - one for each chain involved
-   std::vector<coot::geometry_distortion_info_container_t>
+   std::vector<coot::geometry_distortion_info_pod_container_t>
    get_ligand_validation_vs_dictionary(int imol, const std::string &ligand_cid, bool include_non_bonded_contacts);
 
    //! General fragment distortion analysis
@@ -2916,7 +2916,7 @@ public:
    //! @param include_non_bonded_contacts is the flag to include non bonded contacts
    //!
    //! @return a vector/list of interesting geometry - one for each chain involved
-   std::vector<coot::geometry_distortion_info_container_t>
+   std::vector<coot::geometry_distortion_info_pod_container_t>
    get_validation_vs_dictionary_for_selection(int imol, const std::string &selection_cid, bool include_non_bonded_contacts);
 
    //! Get ligand distortion
@@ -3770,6 +3770,20 @@ public:
    std::vector<float> get_vertices_for_blender(int imol);
    //! Function for Blender interface
    std::vector<int>   get_triangles_for_blender(int imol);
+
+   // -------------------------------- Pyrogen ---------------------------------------
+
+   //! make a dictionary and create a molecule
+   //!
+   //! @param ccd_file_name the input SMILES string
+   //! @return the new molecule index or -1 on failure
+   int pyrogen_from_SMILES(const std::string &smiles_string, const std::string &compound_id);
+
+   //! make a dictionary and create a molecule
+   //!
+   //! @param ccd_file_name the input cif file file-name
+   //! @return the new molecule index or -1 on failure
+   int pyrogen_from_ccd_file(const std::string &ccd_file_name);
 
    // -------------------------------- Other ---------------------------------------
 

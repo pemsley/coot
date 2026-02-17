@@ -20,15 +20,21 @@
  * 02110-1301, USA
  */
 
+#ifdef LIBCOOTAPI_BUILD
+#else
 #include <Python.h>
+#include <boost/python.hpp>
+#endif
 
 #include <cstring> // Fix strchr problems on using RDKit includes.
 
 #include "compat/coot-sysdep.h"
-#include <boost/python.hpp>
 #include <lidia-core/use-rdkit.hh>
 #include "restraints.hh"
+#ifdef LIBCOOTAPI_BUILD
+#else
 #include "py-restraints.hh"
+#endif
 #include <lidia-core/rdkit-interface.hh>
 #include <coot-utils/coot-coord-utils.hh>
 
@@ -59,11 +65,13 @@ coot::convert_to_energy_lib_bond_type(RDKit::Bond::BondType bt) {
 } 
 
 
+#ifdef LIBCOOTAPI_BUILD
+#else
 coot::dictionary_residue_restraints_t
 monomer_restraints_from_python(PyObject *restraints) {
 
    coot::dictionary_residue_restraints_t rest;
-      
+
    std::vector<coot::dict_bond_restraint_t> bond_restraints;
    std::vector<coot::dict_angle_restraint_t> angle_restraints;
    std::vector<coot::dict_torsion_restraint_t> torsion_restraints;
@@ -393,8 +401,10 @@ monomer_restraints_from_python(PyObject *restraints) {
 
    return monomer_restraints;
 } 
+#endif
 
-
+#ifdef LIBCOOTAPI_BUILD
+#else
 PyObject *coot::monomer_restraints_to_python(const dictionary_residue_restraints_t &restraints) {
 
    PyObject *r = Py_False;
@@ -607,3 +617,4 @@ PyObject *coot::monomer_restraints_to_python(const dictionary_residue_restraints
    }
    return r;
 }
+#endif // LIBCOOTAPI_BUILD

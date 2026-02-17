@@ -41,13 +41,8 @@
 #include "skeleton/graphical_skel.h"
 #include "coot-utils/xmap-stats.hh"
 
-#ifdef HAVE_GOOCANVAS
-#include "goograph/goograph.hh"
-#endif
-
 #include "c-interface-mmdb.hh"
 #include "c-interface-python.hh"
-
 
 #include "graphics-info.h"
 #include "cc-interface.hh"
@@ -60,6 +55,12 @@
 #include "analysis/stats.hh"
 
 #include "read-molecule.hh" // 20230621-PE now with std::string args
+
+// for all of this file:
+#ifdef USE_GUILE
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wvolatile"
+#endif
 
 #include "utils/logging.hh"
 extern logging logger;

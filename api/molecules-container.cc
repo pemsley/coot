@@ -5440,12 +5440,12 @@ molecules_container_t::get_mesh_for_ligand_validation_vs_dictionary(int imol, co
 //! return type is validation data, not a mesh
 //!
 //! @return a vector of `geometry_distortion_info_container_t`
-std::vector<coot::geometry_distortion_info_container_t>
+std::vector<coot::geometry_distortion_info_pod_container_t>
 molecules_container_t::get_ligand_validation_vs_dictionary(int imol,
                                                            const std::string &ligand_cid,
                                                            bool with_nbcs) {
 
-   std::vector<coot::geometry_distortion_info_container_t> v;
+   std::vector<coot::geometry_distortion_info_pod_container_t> v;
    if (is_valid_model_molecule(imol)) {
       v = molecules[imol].geometric_distortions_for_one_residue_from_mol(ligand_cid, with_nbcs, geom, thread_pool);
    } else {
@@ -5461,12 +5461,12 @@ molecules_container_t::get_ligand_validation_vs_dictionary(int imol,
 //! @param include_non_bonded_contacts is the flag to include non bonded contacts
 //!
 //! @return a vector/list of interesting geometry
-std::vector<coot::geometry_distortion_info_container_t>
+std::vector<coot::geometry_distortion_info_pod_container_t>
 molecules_container_t::get_validation_vs_dictionary_for_selection(int imol,
                                                                   const std::string &selection_cid,
                                                                   bool include_non_bonded_contacts) {
 
-   std::vector<coot::geometry_distortion_info_container_t> v;
+   std::vector<coot::geometry_distortion_info_pod_container_t> v;
    if (is_valid_model_molecule(imol)) {
       v = molecules[imol].geometric_distortions_for_selection_from_mol(selection_cid,
                                                                        include_non_bonded_contacts,

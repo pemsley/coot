@@ -67,7 +67,8 @@ coot-molecule-refine.cc      molecules-container-superpose.cc                 ri
 moorhen-h-bonds.cc           molecules-container-bucca-ml-growing.cc          instancing.cc  \
 molecules-container-maps.cc  coot-molecule-change-chain-id.cc                 coot-molecule-modelling.cc \
 blender-mesh.cc              coot-molecule-blender.cc                         molecules-container-blender.cc \
-ghost-molecule-display.cc    model-analysis.cc                                coot-molecule-json.cc
+ghost-molecule-display.cc    model-analysis.cc                                coot-molecule-json.cc \
+molecules-container-pyrogen.cc
 
 libcoot_api_la_LDFLAGS = $(SHARED_LDFLAGS)            \
    $(top_builddir)/MoleculesToTriangles/CXXClasses/libMoleculesToTrianglesCXXClasses.la \

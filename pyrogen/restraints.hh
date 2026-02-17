@@ -23,7 +23,12 @@
 #ifndef RESTRAINTS_HH
 #define RESTRAINTS_HH
 
+#ifdef LIBCOOTAPI_BUILD // we don't want to use Python for lib
+// no python
+#else
 #include <Python.h>
+#endif
+
 #include <cstddef>
 #include <string>
 #include <vector>
@@ -52,7 +57,7 @@ namespace coot {
 	    n_max = q_in.size();
 	 for (unsigned int i=0; i<n_max; i++)
 	    idx[i] = q_in[i];
-      } 
+      }
       std::vector<unsigned int> idx;
       const unsigned int & operator[](unsigned int i) const { return idx[i]; }
    };
@@ -75,7 +80,9 @@ namespace coot {
                                         unsigned int idx_chiral_centre_atom,
                                         const std::vector<indexed_name_and_rank_t> &neighb_names_and_ranks);
 
-   void mogul_out_to_mmcif_dict(const std::string &mogul_file_name,
+#ifdef LIBCOOTAPI_BUILD
+#else
+void mogul_out_to_mmcif_dict(const std::string &mogul_file_name,
 				const std::string &comp_id,
 				const std::string &compound_name,
 				const std::vector<std::string> &atom_names,
@@ -111,6 +118,8 @@ namespace coot {
 					PyObject *rdkit_mol,
 					bool quartet_planes, bool quartet_hydrogen_planes);
 
+#endif // LIBCOOTAPI_BUILD
+
    // 2026-01-05 now generate restraint from an rdkit molecule
    std::pair<bool, coot::dictionary_residue_restraints_t>
    mmcif_dict_from_mol_using_energy_lib(const std::string &comp_id,
@@ -118,6 +127,8 @@ namespace coot {
 					const RDKit::ROMol &rdkit_mol,
 					bool quartet_planes, bool quartet_hydrogen_planes);
 
+#ifdef LIBCOOTAPI_BUILD
+#else
    void write_restraints(PyObject *restraints_py,
 			 const std::string &monomer_type,
 			 const std::string &file_name);
@@ -141,6 +152,8 @@ namespace coot {
 					      PyObject *template_comp_id_list,
 					      PyObject *template_cif_dict_file_names);
    void write_restraints(PyObject *restraints_py, const std::string &file_name);
+
+#endif
 
 }
 

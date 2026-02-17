@@ -70,6 +70,11 @@
 #include "widget-from-builder.hh"
 
 #include "guile-fixups.h"
+#ifdef USE_GUILE
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wvolatile"
+#endif // USE_GUILE
+
 #include "layla/layla_embedded.hpp"
 
 void clear_out_container(GtkWidget *vbox);  // in c-interface.cc
