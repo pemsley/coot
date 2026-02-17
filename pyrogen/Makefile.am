@@ -116,7 +116,8 @@ libcoot_py_restraints_la_LIBADD =  \
                                 $(top_builddir)/lidia-core/libcoot-lidia-core.la \
                                 $(top_builddir)/utils/libcoot-utils.la       \
                                 $(CLIPPER_LIBS) $(MMDB_LIBS) \
-                                $(RDKIT_LIBS) $(PYTHON_LIBS) $(CAIRO_LIBS)
+                                $(RDKIT_LIBS) $(BOOST_LDFLAGS) $(L_BOOST_PYTHON) \
+                                $(PYTHON_LIBS) $(CAIRO_LIBS)
 
 # -no-undefined causes strange/interesting link errors with clang/Mac OS X 10.10.3
 # libcoot_py_restraints_la_LDFLAGS = -no-undefined 
