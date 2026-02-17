@@ -2373,6 +2373,7 @@ if test -n "$build_ccp4c" ; then
     gzip -dc ${AUTOBUILD_SOURCES}/libccp4-$libccp4_version.tar.gz | tar xf -
     cd libccp4-$libccp4_version
     if ./configure $generic_prefix --enable-shared --disable-static --disable-fortran ; then
+       sed -ibackup -e 's/ int putenv ..;/ int putenv (char *);/' -e 's/int setenv ..;/int setenv (const char *, const char *, int);/' ccp4/library_utils.c
        if $MAKE ; then
            $MAKE install
            # 20250621-PE
@@ -3121,6 +3122,7 @@ if $build_meson = true ; then
    meson_version=1.2.3
    meson_version=1.7.0
    meson_version=1.8.1
+   meson_version=1.10.1
    echo BUILDING: meson $meson_version:
    echo BUILDING: meson $meson_version: >&2
    (
