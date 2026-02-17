@@ -35,6 +35,7 @@
 coot::dictionary_residue_restraints_t monomer_restraints_from_python(PyObject *restraints);
 
 //
-namespace coot { 
+namespace coot {
    PyObject *monomer_restraints_to_python(const dictionary_residue_restraints_t &restraints);
 }
+

@@ -3771,6 +3771,20 @@ public:
    //! Function for Blender interface
    std::vector<int>   get_triangles_for_blender(int imol);
 
+   // -------------------------------- Pyrogen ---------------------------------------
+
+   //! make a dictionary and create a molecule
+   //!
+   //! @param ccd_file_name the input SMILES string
+   //! @return the new molecule index or -1 on failure
+   int pyrogen_from_SMILES(const std::string &smiles_string, const std::string &compound_id);
+
+   //! make a dictionary and create a molecule
+   //!
+   //! @param ccd_file_name the input cif file file-name
+   //! @return the new molecule index or -1 on failure
+   int pyrogen_from_ccd_file(const std::string &ccd_file_name);
+
    // -------------------------------- Other ---------------------------------------
 
    void test_function(const std::string &s);

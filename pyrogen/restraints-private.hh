@@ -23,7 +23,11 @@
 #ifndef RESTRAINTS_PRIVATE_HH
 #define RESTRAINTS_PRIVATE_HH
 
+#ifdef LIBCOOTAPI_BUILD // we don't want to use Python for lib
+#else
 #include <Python.h>
+#endif
+
 #include <string>
 #include <mmdb2/mmdb_manager.h>
 #include <GraphMol/Substruct/SubstructMatch.h>
@@ -34,8 +38,10 @@
 
 namespace coot {
 
+#ifdef LIBCOOTAPI_BUILD
+#else
    // private (no SWIG interface)
-   // 
+   //
    // the engine for the above calls
    std::pair<mmdb::Manager *, mmdb::Residue *>
    regularize_inner(PyObject *rdkit_mol,
@@ -46,19 +52,19 @@ namespace coot {
    regularize_inner(RDKit::ROMol &mol,
 		    PyObject *restraints_py,
 		    const std::string &res_name);
+#endif
 
    void
    regularize_and_update_mol_and_restraints(RDKit::RWMol *mol, dictionary_residue_restraints_t *restraints_p);
-   
 
    bool is_const_torsion(const RDKit::ROMol &mol,
 			 const RDKit::Atom *at_2,
 			 const RDKit::Atom *at_3);
    // also private (no interface)
-   // 
+   //
    // now update the atom positions of the rdkit_molecule from residue_p
    // (perhaps this should be in rdkit-interface.hh?)
-   // 
+   //
    void update_coords(RDKit::RWMol *mol, int iconf, mmdb::Residue *residue_p);
 
    // after we have done minimization, we want to update the coordinates in the dictionary

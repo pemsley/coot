@@ -1198,6 +1198,10 @@ NB_MODULE(coot_headless_api, m) {
          &molecules_container_t::print_secondary_structure_info,
          nb::arg("imol"),
          get_docstring_from_xml("print_secondary_structure_info").c_str())
+    .def("pyrogen_from_SMILES",
+            &molecules_container_t::pyrogen_from_SMILES,
+            nb::arg("SMILES_string"), nb::arg("compound_id"),
+            get_docstring_from_xml("pyrogen_from_SMILES").c_str())
     .def("rail_points_total",
          &molecules_container_t::rail_points_total,
          get_docstring_from_xml("rail_points_total").c_str())
