@@ -90,7 +90,10 @@ molecules_container_t::get_rdkit_mol_pickle_base64(const std::string &residue_na
          const auto &restraints = r_p.second;
          RDKit::RWMol mol = coot::rdkit_mol(restraints);
          if (mol.getNumAtoms() > 0) {
-            mp.pickleMol(mol, pickle_string);
+            unsigned int pickleFlags = RDKit::PicklerOps::AtomProps
+                                     | RDKit::PicklerOps::BondProps
+                                     | RDKit::PicklerOps::MolProps;
+            mp.pickleMol(mol, pickle_string, pickleFlags);
             return moorhen_base64::base64_encode((const unsigned char*)pickle_string.c_str(), pickle_string.size());
          }
       }
