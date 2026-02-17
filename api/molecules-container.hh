@@ -3776,6 +3776,8 @@ public:
    //! make a dictionary and create a molecule
    //!
    //! @param ccd_file_name the input SMILES string
+   //! @param compound_id is the compound_id that should be assigned to the new dictionary
+   //!        and molecule
    //! @return the new molecule index or -1 on failure
    int pyrogen_from_SMILES(const std::string &smiles_string, const std::string &compound_id);
 
@@ -3784,6 +3786,15 @@ public:
    //! @param ccd_file_name the input cif file file-name
    //! @return the new molecule index or -1 on failure
    int pyrogen_from_ccd_file(const std::string &ccd_file_name);
+
+   //! this is the interface to use from the molecule sketcher (say) where the
+   //! calling function has an RDKit Mol
+   //!
+   //! @param rdkit_mol_pickled_string the rdkit mol as a picked string
+   //! @param compound_id is the compound_id that should be assigned to the new dictionary
+   //!        and molecule
+   //! @return the new molecule index or -1 on failure
+   int pyrogen_from_rdkit_mol_pickle_base64(const std::string &rdkit_mol_pickled_string, const std::string &compound_id);
 
    // -------------------------------- Other ---------------------------------------
 
