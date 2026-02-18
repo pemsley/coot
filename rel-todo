@@ -1,6 +1,16 @@
 --- Items ---
 
-o Claude to made chapi tests from test-molecules-container
+o try to use the atom specs in the new ligand validation output
+
+o Claude to make chapi tests from test-molecules-container
+
+o after using Lhasa, the generated dictionary should be made
+  available to post-moorhen program/cloud
+  Likewise after using pyrogen, the dictionary should be
+  available - so that Acedrg, say, can clean it up.
+
+o opacity for molecular surface and electrstatic surface also
+  See set_transparent_electrostatic_surface()
 
 o Pyrogen for Moorhen - make progress by the retreat.
 
@@ -11,13 +21,37 @@ o what is the legal status of code created by Claude Code?
 o if there are no adps then don't make the Anoso sph tab
   in the screen dialog [Clemens]
 
-o Check acdrg atom types with a some recent dictionaries
+o move the lights
+
+o set_map_colour() in molecule_class_info.h() calls
+  update_map() - all it needs to do is change the colour
+  of the vertices.
+
+o Check acedrg atom types with a some recent dictionaries
+
+o fix A3 symbol in validation skills Å³
+* Done.
+
+o for a slow day, add a box with widgets that control
+  ambient, diffuse and specular lighting for the models
+  in the "Shader Settings" dialog
+* Done.
 
 o duplications in the PTMs for ARG. Why?
+  Use gtk_combo_box_text_remove_all(GTK_COMBO_BOX_TEXT(combobox));
+* Done
 
 o delete or close generic display objects from the API
+* Done.
 
-o Martin: Figure with white background distance between
+o in build-it-3-3 build rdkit with inchikey
+* Done
+
+o findwaters bug
+* Tested. No bug for me.
+* Indeed. It was not my bug.
+
+o Martin M: Figure with white background distance between
   atoms is white on white. The pale text is not good.
   The distance labels should be hideable.
 
@@ -35,25 +69,20 @@ o chapi.get_ligand_validation_vs_dictionary() generates its
   so that the data are filled shortly after the molecule fragment
   is generated - and before they go out of scope.
 
-o in build-it-3-3 build rdkit with inchikey
-
 o John Beale
 
 o XDG bernie
 
-o findwaters bug
-* Tested. No bug for me.
-
 o validate flatpak
-
-o Make a modern Blender screenshot
 
 o generate python api for gemmi like is done for chapi.
   Turn this into Fortran api also?
 
 o Fix make_mask()
+* Done.
 
 o use a pre-existing map for make-mask()
+* Done.
 
 o create a mask map of a sphere where the sphere, is the plus part
   and the - a reference grid is given, radius and postion.
@@ -61,6 +90,7 @@ o create a mask map of a sphere where the sphere, is the plus part
 o z-score for ramas and rotas?
 
 o put Ligand builder in Ligand module
+* Done.
 
 o Clement: nice to have: function to calcuate mean, sd of a volume
   around a point. alternative: at all of the positions of the atoms
@@ -150,10 +180,12 @@ o have another bash at calculating occlusion
 * I did. Things improved. Still work to do.
 
 o Use gemmi tar files in build-it-3-3
+* Done.
 
 o Don't forget the AXI analysis - what's going on there?
 
 o don't forget the rotamer values from new coot.
+  Also other MM rotamer functions
 
 o bonds and angles etc validation? in libcootapi.
 
