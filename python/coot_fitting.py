@@ -38,7 +38,7 @@ import coot_utils
 #
 def fit_protein(imol, rotamer_only=False, animate=True):
 
-    coot_utils.set_go_to_atom_molecule(imol)
+    coot.set_go_to_atom_molecule(imol)
     coot.make_backup(imol) # do a backup first
     backup_mode = coot.backup_state(imol)
     imol_map  = coot.imol_refinement_map()
@@ -68,7 +68,7 @@ def fit_protein(imol, rotamer_only=False, animate=True):
                     #if (not res_name=="HOH"): not needed if only refining 3 or  more atoms
                         for alt_conf in coot_utils.residue_alt_confs(imol, chain_id, res_no, ins_code):
                             print("centering on ",chain_id,res_no," CA")
-                            coot_utils.set_go_to_atom_chain_residue_atom_name(chain_id,res_no,"CA")
+                            coot.set_go_to_atom_chain_residue_atom_name(chain_id,res_no,"CA")
                             if animate:
                                 coot.rotate_y_scene(30, 0.3) # n-frames frame-interval(degrees)
                             if (alt_conf == ""):
@@ -158,7 +158,7 @@ def fit_protein_fit_function(res_spec, imol_map):
         if (res_name != "HOH"):
             for alt_conf in coot_utils.residue_alt_confs(imol, chain_id, res_no, ins_code):
                 print("centering on", chain_id, res_no, "CA")
-                coot_utils.set_go_to_atom_chain_residue_atom_name(chain_id, res_no, "CA")
+                coot.set_go_to_atom_chain_residue_atom_name(chain_id, res_no, "CA")
                 coot.rotate_y_scene(10, 0.3) # n_frames frame_interval(degrees)        
                 res_atoms = coot.residue_info_py(imol, chain_id, res_no, ins_code)
                 if (len(res_atoms) > 3):
@@ -170,7 +170,7 @@ def fit_protein_fit_function(res_spec, imol_map):
                                                   imol_map, 1, 0.1)
                     if (coot_utils.valid_map_molecule_qm(imol_map)):
                         with coot_utils.NoBackups(imol):
-                            with AutoAccept():
+                            with coot_utils.AutoAccept():
                                 coot.refine_zone(imol, chain_id, res_no, res_no, alt_conf)
                     coot.rotate_y_scene(10, 0.3)
 
@@ -189,12 +189,12 @@ def fit_protein_stepped_refine_function(res_spec, imol_map, use_rama = False):
         res_name = coot.residue_name(imol, chain_id, res_no, ins_code)
         if (not res_name == "HOH"):
             print("centering on", chain_id, res_no, "CA")
-            coot_utils.set_go_to_atom_chain_residue_atom_name_full(chain_id, res_no,
+            coot.set_go_to_atom_chain_residue_atom_name_full(chain_id, res_no,
                                                         ins_code, "CA",
                                                         alt_conf)
             coot.rotate_y_scene(10, 0.3) # n_frames frame_interval(degrees)
             with coot_utils.NoBackups(imol):
-                with AutoAccept():
+                with coot_utils.AutoAccept():
                     coot.refine_auto_range(imol, chain_id, res_no, alt_conf)
             coot.rotate_y_scene(10, 0.3)    
 
@@ -456,7 +456,7 @@ def stepped_refine_protein_for_rama(imol):
 #
 def stepped_refine_protein_with_refine_func(imol, refine_func, res_step):
 
-    coot_utils.set_go_to_atom_molecule(imol)
+    coot.set_go_to_atom_molecule(imol)
     coot.make_backup(imol)
     backup_mode = coot.backup_state(imol)
     alt_conf = ""
@@ -525,73 +525,8 @@ def post_ligand_fit_gui():
 # 
 def molecules_matching_criteria(test_func):
 
-    try:
-        import pygtk
-        pygtk.require("2.0")
-        import gtk, pango
-
-        # first count the number of fitted ligands, and post this if is
-        # is greater than 0.
-
-        passed_molecules = []
-        for molecule_numbers in coot_utils.molecule_number_list():
-
-            if (test_func(molecule_numbers)):
-               passed_molecules.append(molecule_numbers)
-
-        if (len(passed_molecules) > 0):
-        # ok proceed
-
-           def delete_event(*args):
-               window.destroy()
-               return False
-
-           def centre_on_mol(widget, imol, name):
-               s = "Centred on " + name
-               coot.add_status_bar_text(s)
-               centre = coot_utils.molecule_centre(imol)
-               coot.set_rotation_centre(*centre)
-
-           window = gtk.Window(gtk.WINDOW_TOPLEVEL)
-           scrolled_win = gtk.ScrolledWindow()
-           outside_vbox = gtk.VBox(False,2)
-           inside_vbox = gtk.VBox(False,0)
-
-           window.set_default_size(200,140)
-           window.set_title("Fitted Ligands")
-           # inside_vbox.set_border_width(2)
-
-           window.add(outside_vbox)
-           outside_vbox.append(scrolled_win)
-
-           scrolled_win.add_with_viewport(inside_vbox)
-           scrolled_win.set_policy(gtk.POLICY_AUTOMATIC, gtk.POLICY_ALWAYS)
-
-           # (format #t "debug:: passed-molecules ~s~%" passed-molecules)
-           # ((("Fitted ligand #9" 68.4 11.9 4.6) 21)
-           #  (("Fitted ligand #8" 68.3 12.8 8.1) 20))
-
-           for molecule_numbers in passed_molecules:
-             imol = molecule_numbers
-             name = coot.molecule_name(imol)
-             button = gtk.Button(label=str(name))
-             inside_vbox.append(button)
-             button.connect("clicked", centre_on_mol, imol, name)
-
-           outside_vbox.set_border_width(6)
-           ok_button = gtk.Button(label="OK")
-           outside_vbox.append(ok_button)
-           ok_button.connect_object("clicked",delete_event,window)
-           window.connect("delete_event", delete_event)
-
-           window.show_all()
-
-        else:
-           # no matching molecules
-           coot.add_status_bar_text("No matching molecules!")
-
-    except:
-        print("BL WARNING:: no pygtk2. This function doesnt work!")
+    # 2026-02-18-PE function deleted
+    pass
 
 # This totally ignores insertion codes.  A clever algorithm would
 # need a re-write, I think.  Well, we'd have at this end a function
@@ -746,7 +681,7 @@ def refine_tandem_residues():
                   specs.append([chain_id, ires, ins_code])
            except TypeError as e:
                pass # no need to tell us
-       refine_residues(imol, specs)
+       coot.refine_residues(imol, specs)
 
 
 # Pepflip the active residue - needs a key binding
@@ -758,7 +693,7 @@ def pepflip_active_residue():
     else:
        imol       = active_atom[0]
 
-       ca = closest_atom_raw() # don't map to CA
+       ca = coot.closest_atom_raw() # don't map to CA
 
        chain_id   = ca[1]
        res_no     = ca[2]
@@ -776,7 +711,7 @@ def pepflip_active_residue():
 #
 def auto_fit_rotamer_active_residue():
 
-    active_atom = active_residue()
+    active_atom = coot.active_residue()
 
     if not active_atom:
        print("No active atom")
@@ -841,15 +776,15 @@ def add_extra_restraints_to_other_molecule(imol, chain_id,
 def add_extra_start_pos_restraints(imol, residue_spec, esd):
 
     ri = coot.residue_info_py(imol,
-                              res_spec_utils.residue_spec_to_chain_id(residue_spec),
-                              res_spec_utils.residue_spec_to_res_no(residue_spec),
+                              coot_utils.residue_spec_to_chain_id(residue_spec),
+                              coot_utils.residue_spec_to_res_no(residue_spec),
                               coot_utils.residue_spec_to_ins_code(residue_spec))
     for atom_info in ri:
         atom_name = coot_utils.residue_atom2atom_name(atom_info)
         alt_conf  = coot_utils.residue_atom2alt_conf(atom_info)
         coot.add_extra_start_pos_restraint(imol,
-                                      res_spec_utils.residue_spec_to_chain_id(residue_spec),
-                                      res_spec_utils.residue_spec_to_res_no(residue_spec),
+                                      coot_utils.residue_spec_to_chain_id(residue_spec),
+                                      coot_utils.residue_spec_to_res_no(residue_spec),
                                       coot_utils.residue_spec_to_ins_code(residue_spec),
                                       atom_name, alt_conf, esd)
 
