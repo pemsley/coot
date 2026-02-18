@@ -4635,6 +4635,7 @@ int molecules_container_t::gaussian_surface_to_map_molecule_v2(int imol, const s
       int chain_cid_mode = 0; // use cid to make the atom selection
       mmdb::Manager *mol = molecules[imol].get_mol();
       if (mol) {
+#if 0
          coot::gaussian_surface_t gauss_surf(mol, cid, chain_cid_mode,
                                              sigma, 0.5,
                                              box_radius, grid_scale, fft_b_factor);
@@ -4644,6 +4645,7 @@ int molecules_container_t::gaussian_surface_to_map_molecule_v2(int imol, const s
          bool is_em_map = true; // not sure
          coot::molecule_t m = coot::molecule_t(name, imol, xmap, is_em_map);
          molecules.push_back(m);
+#endif
       }
    }
    return imol_new;

@@ -47,48 +47,48 @@ coot::gaussian_surface_t::get_surface() const {
 }
 
 void
-coot::gaussian_surface_t::using_an_xmap_with_atom_selection(mmdb::Manager *mol, const std::string &cid,
-                                                            float sigma_in, float contour_level_in,
-                                                            float box_radius_in, float grid_scale,
-                                                            float fft_b_factor) {
-
-   std::cout << "using_an_xmap_with_atom_selection() grid_scale " << grid_scale << std::endl;
-   int by_chain = 0; // i.e. use the cid for atom selection.
-   using_an_xmap_internal(mol, cid, by_chain, sigma_in, contour_level_in, box_radius_in, grid_scale, fft_b_factor);
-}
-
-void
 coot::gaussian_surface_t::using_an_xmap(mmdb::Manager *mol, const std::string &chain_id,
                                         float sigma_in, float contour_level_in, float box_radius_in, float grid_scale,
                                         float fft_b_factor) {
 
-   std::cout << "using_an_xmap() grid_scale " << grid_scale << std::endl;
-   int by_chain = 1;
-   using_an_xmap_internal(mol, chain_id, by_chain, sigma_in, contour_level_in, box_radius_in, grid_scale, fft_b_factor);
+   // these affect the smoothness/resolution of the surface
+   //
+   // small sigmas mean higher resolution - 0.6 is very high resolution.
+   float sigma = 1.9; // neeeds testing
+   // 1.9 seems to be too "high resolution"
+   sigma = 3.6; // 3.6 contoured at 4.0 is a nice smooth low resolution surface
+   sigma = 4.4; // also good.
+   float gs = 0.7; // bigger number means more finely sampled grid (bigger numbers are cubic slower)
+   float contour_level = 4.0;
+   double box_radius = 5.0; // try smaller values - or larger ones for bigger sigma
+   float b_factor = fft_b_factor;
 
-}
-
-//  [expo_index_to_float, mmdb_to_clipper, place_atom_in_grid]
-clipper::Xmap<float>
-coot::gaussian_surface_t::make_and_fill_map(mmdb::Manager *mol, int sel_hnd, float gs,
-                                            std::pair<clipper::Coord_orth, clipper::Coord_orth> extents,
-                                            float sigma, float box_radius) {
-
-   std::cout << "------------------- make_and_fill_map() with gs " << gs << std::endl;
+   // 20230206-PE use the passed parameters
+   sigma = sigma_in;
+   contour_level = contour_level_in;
+   box_radius = box_radius_in;
+   gs = grid_scale;
 
    auto expo_index_to_float = [] (int i) {
       return static_cast<float>(i) * 0.01;
+   };
+
+   auto float_to_expo_index = [] (float &f) {
+      if (f < 0.0) f = 0;
+      return static_cast<int>(f * 100.0);
    };
 
    auto mmdb_to_clipper = [] (mmdb::Atom *at) {
       return clipper::Coord_orth(at->x, at->y, at->z);
    };
 
-   auto place_atom_in_grid = [] (const clipper::Coord_orth &pt,
-                                 clipper::Xmap<float> &xmap,
-                                 float sigma,
-                                 float box_radius) {
+   auto clipper_to_cart = [] (const clipper::Coord_orth &co) {
+      return coot::Cartesian(co.x(), co.y(), co.z());
+   };
 
+   auto place_atom_in_grid = [float_to_expo_index, sigma, box_radius] (const clipper::Coord_orth &pt,
+                              clipper::Xmap<float> &xmap,
+                              const std::vector<float> &expo) {
       // std::cout << "place_atom_in_grid " << pt.format() << std::endl;
       clipper::Coord_frac centre_f = pt.coord_frac(xmap.cell());
       float box_radius_sqrd = box_radius * box_radius;
@@ -132,16 +132,43 @@ coot::gaussian_surface_t::make_and_fill_map(mmdb::Manager *mol, int sel_hnd, flo
       }
    };
 
+   int sel_hnd = mol->NewSelection(); // d
+   mol->SelectAtoms (sel_hnd, 0, chain_id.c_str(),
+                     mmdb::ANY_RES, // starting resno, an int
+                     "*", // any insertion code
+                     mmdb::ANY_RES, // ending resno
+                     "*", // ending insertion code
+                     "!HOH", // any residue name
+                     "*",
+                     "*", // elements
+                     "*"  // alt loc.
+                     );
+   std::pair<clipper::Coord_orth, clipper::Coord_orth> e = util::extents(mol, sel_hnd);
    mmdb::PAtom *atom_selection = NULL;
    int n_selected_atoms;
    mol->GetSelIndex(sel_hnd, atom_selection, n_selected_atoms);
 
-   int nx = (extents.second.x() - extents.first.x()) * gs;
-   int ny = (extents.second.y() - extents.first.y()) * gs;
-   int nz = (extents.second.z() - extents.first.z()) * gs;
+   if (n_selected_atoms == 0)  return;
 
-   const clipper::Coord_orth &coords_base = extents.first;
-   clipper::Coord_orth dimensions = extents.second - extents.first;
+   if (false)
+      std::cout << "debug: chain-id " << chain_id << " extents: "
+                << e.first.format() << " "
+                << e.second.format() << std::endl;
+
+   mol->DeleteSelection(sel_hnd);
+   // extend the extents
+   clipper::Coord_orth delta(5,5,5);
+   e.first  -= delta;
+   e.second += delta;
+
+   int nx = (e.second.x() - e.first.x()) * gs;
+   int ny = (e.second.y() - e.first.y()) * gs;
+   int nz = (e.second.z() - e.first.z()) * gs;
+
+   const clipper::Coord_orth coords_base = e.first;
+   glm::vec3 coords_base_glm(coords_base.x(), coords_base.y(), coords_base.z());
+   coot::Cartesian coords_base_cart = clipper_to_cart(coords_base);
+   clipper::Coord_orth dimensions = e.second - e.first;
 
    clipper::Grid grid(nx, ny, nz);
    clipper::Grid_sampling grid_sampling(nx, ny, nz);
@@ -149,10 +176,9 @@ coot::gaussian_surface_t::make_and_fill_map(mmdb::Manager *mol, int sel_hnd, flo
    clipper::Cell_descr cell_desc(dimensions.x(), dimensions.y(), dimensions.z(), ninety, ninety, ninety);
    clipper::Cell cell(cell_desc);
 
-   if (true) {
+   if (false)
       std::cout << "debug:: cell and grid sampling: " << cell.format() << " "
-                << grid_sampling.format() << " using gs " << gs << "\n";
-   }
+                << grid_sampling.format() << "\n";
 
    clipper::Spacegroup spacegroup(clipper::Spacegroup::P1);
    clipper::Xmap<float> xmap(spacegroup, cell, grid_sampling);
@@ -164,94 +190,44 @@ coot::gaussian_surface_t::make_and_fill_map(mmdb::Manager *mol, int sel_hnd, flo
       expo[i] = exp(x);
    }
 
-   for (int iat=0; iat<n_selected_atoms; iat++) {
-      mmdb:: Atom *atom_p = atom_selection[iat];
-      if (! atom_p->isTer()) {
-         mmdb::Residue *residue_p = atom_p->GetResidue();
-         if (residue_p) {
-            std::string res_name_this = residue_p->GetResName();
-            if (res_name_this == "HOH") continue;
-            clipper::Coord_orth pt = mmdb_to_clipper(atom_p);
-            clipper::Coord_orth position_in_grid = pt - coords_base;
-            place_atom_in_grid(position_in_grid, xmap, sigma, box_radius); // change xmap
+   int imod = 1;
+   mmdb::Model *model_p = mol->GetModel(imod);
+   if (model_p) {
+      int n_chains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<n_chains; ichain++) {
+         mmdb::Chain *chain_p = model_p->GetChain(ichain);
+         std::string chain_id_this = chain_p->GetChainID();
+         if (chain_id_this == chain_id) {
+            int n_res = chain_p->GetNumberOfResidues();
+            for (int ires=0; ires<n_res; ires++) {
+               mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+               if (residue_p) {
+                  std::string res_name_this = residue_p->GetResName();
+                  if (res_name_this == "HOH") continue;
+                  int n_atoms = residue_p->GetNumberOfAtoms();
+                  for (int iat=0; iat<n_atoms; iat++) {
+                     // std::cout << "atom " << iat << std::endl;
+                     mmdb::Atom *at = residue_p->GetAtom(iat);
+                     if (! at->isTer()) {
+                        clipper::Coord_orth pt = mmdb_to_clipper(at);
+                        clipper::Coord_orth position_in_grid = pt - coords_base;
+                        place_atom_in_grid(position_in_grid, xmap, expo); // change xmap
+                     }
+                  }
+               }
+            }
          }
       }
    }
-   return xmap;
-}
-
-
-void
-coot::gaussian_surface_t::using_an_xmap_internal(mmdb::Manager *mol, const std::string &chain_id, int chain_selection_mode,
-                                        float sigma_in, float contour_level_in, float box_radius_in, float grid_scale,
-                                        float fft_b_factor) {
-
-   std::cout << "using_an_xmap_internal with grid_scale " << grid_scale << std::endl;
-
-   // these affect the smoothness/resolution of the surface
-   //
-   // small sigmas mean higher resolution - 0.6 is very high resolution.
-
-   // 20230206-PE use the passed parameters
-   float sigma = sigma_in;
-   float contour_level = contour_level_in;
-   float box_radius = box_radius_in;
-   float gs = grid_scale;
-   float b_factor = fft_b_factor;
-
-   auto clipper_to_cart = [] (const clipper::Coord_orth &co) {
-      return coot::Cartesian(co.x(), co.y(), co.z());
-   };
-
-   int sel_hnd = mol->NewSelection(); // d
-
-   if (chain_selection_mode) {
-      mol->SelectAtoms (sel_hnd, 0, chain_id.c_str(),
-                        mmdb::ANY_RES, // starting resno, an int
-                        "*", // any insertion code
-                        mmdb::ANY_RES, // ending resno
-                        "*", // ending insertion code
-                        "!HOH", // any residue name
-                        "*",
-                        "*", // elements
-                        "*"  // alt loc.
-                        );
-   } else {
-      // use the CID - which is the "chain_id" argument!
-      mol->Select(sel_hnd, mmdb::STYPE_ATOM, chain_id.c_str(), mmdb::SKEY_OR);
-   }
-
-   mmdb::PAtom *atom_selection = NULL;
-   int n_selected_atoms;
-   mol->GetSelIndex(sel_hnd, atom_selection, n_selected_atoms);
-   if (n_selected_atoms == 0)  return;
-
-   std::pair<clipper::Coord_orth, clipper::Coord_orth> extents = util::extents(mol, sel_hnd);
-   const clipper::Coord_orth &coords_base = extents.first;
-   coot::Cartesian coords_base_cart = clipper_to_cart(coords_base);
-   glm::vec3 coords_base_glm(coords_base.x(), coords_base.y(), coords_base.z());
-
-   if (false)
-      std::cout << "debug:: extents: "
-                << extents.first.format() << " "
-                << extents.second.format() << std::endl;
-
-   // extend the extents
-   clipper::Coord_orth delta(5,5,5);
-   extents.first  -= delta;
-   extents.second += delta;
-
-   std::cout << "calling  make_and_fill_map with grid_scale " << grid_scale << std::endl;
-   xmap = make_and_fill_map(mol, sel_hnd, grid_scale, extents, sigma, box_radius);
 
    if (b_factor > 0.0)
       util::sharpen_blur_map(&xmap, b_factor);
 
-   Cartesian centre(10, 10, 10);
+   coot::Cartesian centre(10, 10, 10);
    // std::pair<bool, clipper::Coord_orth> cc = coot::centre_of_molecule(mol);
    // if (cc.first)
       // centre = coot::Cartesian(cc.second.x(), cc.second.y(), cc.second.z());
-   clipper::Coord_orth e_midpoint = 0.5 * (extents.first + extents.second);
+   clipper::Coord_orth e_midpoint = 0.5 * (e.first + e.second);
    centre = clipper_to_cart(e_midpoint);
    centre -= coords_base_cart;
    // std::cout << "--------- Centre of molecule " << centre << " ----------" << std::endl;
@@ -259,7 +235,7 @@ coot::gaussian_surface_t::using_an_xmap_internal(mmdb::Manager *mol, const std::
    int iream_start = 0;
    int n_reams = 1;
    bool is_em_map = true;
-   double diag_distance = clipper::Coord_orth::length(extents.first, extents.second);
+   double diag_distance = clipper::Coord_orth::length(e.first, e.second);
    float dy_radius = diag_distance / 2.0;
 
    bool use_vertex_gradients_for_map_normals_flag = true;
@@ -294,16 +270,10 @@ coot::gaussian_surface_t::using_an_xmap_internal(mmdb::Manager *mol, const std::
       mesh.triangles.push_back(tri);
    }
 
-   mol->DeleteSelection(sel_hnd);
 
    // 20240911-PE do I need this now?
    // I think not.
    // normals_from_function_gradient(xmap, coords_base_glm); // changes the normal in the verties of the mesh
-}
-
-clipper::Xmap<float> coot::gaussian_surface_t::get_xmap() const {
-
-   return xmap;
 }
 
 void
@@ -428,18 +398,5 @@ coot::gaussian_surface_t::gaussian_surface_t(mmdb::Manager *mol, const std::stri
 
    // using_calc_density(mol);
    using_an_xmap(mol, chain_id, sigma, contour_level, box_radius, grid_scale, b_factor);
-
-}
-
-// optional args: float sigma=4.4, float contour_level=4.0, float box_radius=5.0, float grid_scale=0.7);
-coot::gaussian_surface_t::gaussian_surface_t(mmdb::Manager *mol, const std::string &cid,
-                                             int chain_vs_cid_mode,
-                                             float sigma, float contour_level, float box_radius, float grid_scale,
-                                             float b_factor) {
-
-   std::cout << "constructor with grid_scale " << grid_scale << std::endl;
-
-   // using_calc_density(mol);
-   using_an_xmap_with_atom_selection(mol, cid, sigma, contour_level, box_radius, grid_scale, b_factor);
 
 }
