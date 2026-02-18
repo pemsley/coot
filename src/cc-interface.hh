@@ -2681,6 +2681,12 @@ void set_gaussian_surface_fft_b_factor(float f);
 //!         that, in this mode, chains with the same sequence have the same colour
 void set_gaussian_surface_chain_colour_mode(short int mode);
 
+//! \brief set the opacity for a given molecule's gaussian_surface
+//!
+//! @param imol the molecule index
+//! @param opacity between 0. and 1.0
+void set_gaussian_surface_opacity(int imol, float opacity);
+
 void show_gaussian_surface_overlay();
 
 

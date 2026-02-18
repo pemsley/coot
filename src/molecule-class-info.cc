@@ -310,6 +310,9 @@ molecule_class_info_t::setup_internal() { // init
 
    write_model_vertices_and_triangles_to_file_mode = false;
 
+   // gaussian opacity
+   gaussian_surface_opacity = 1.0f;
+
    // don't show strict ncs unless it's turned on.
    show_strict_ncs_flag = 1;
 

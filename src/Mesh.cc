@@ -103,6 +103,7 @@ Mesh::init() {
    particle_draw_count = 0;
    gl_lines_mode = false;
    is_headless = false;
+   mesh_is_semi_transparent = false;
    buffer_id = 0; // not valid
    index_buffer_id = 0; // not valid
    debug_mode = false;

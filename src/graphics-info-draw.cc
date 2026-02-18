@@ -1883,8 +1883,6 @@ graphics_info_t::draw_molecules(stereo_eye_t eye) {
 
    // return; // no draw
 
-   draw_molecules_other_meshes(eye, PASS_TYPE_STANDARD);
-
    draw_instanced_meshes(eye);
 
    draw_map_molecules(eye, false); // transparency
@@ -1918,6 +1916,8 @@ graphics_info_t::draw_molecules(stereo_eye_t eye) {
    draw_model_molecules(eye);
 
    // transparent things...
+
+   draw_molecules_other_meshes(eye, PASS_TYPE_STANDARD);
 
    draw_map_molecules(eye, true); // transparent
 
@@ -2487,6 +2487,7 @@ graphics_info_t::draw_molecules_other_meshes(stereo_eye_t eye, unsigned int pass
                      bool show_just_shadows = false;
                      bool wireframe_mode = false;
                      float opacity = 1.0f;
+                     opacity = m.gaussian_surface_opacity;
 #if 0 // 20260208-PE debugging colours
                      if (jj == 0 && !m.meshes[jj].vertices.empty()) {
                         auto &v = m.meshes[jj].vertices;
@@ -2498,10 +2499,11 @@ graphics_info_t::draw_molecules_other_meshes(stereo_eye_t eye, unsigned int pass
                      }
 #endif
 
-                     if (true)
-                        m.meshes[jj].draw(&shader_for_moleculestotriangles, eye, mvp,
-                                          model_rotation, lights, eye_position, rc, opacity, bg_col,
-                                          wireframe_mode, do_depth_fog, show_just_shadows);
+                     // if (m.meshes[jj].mesh_is_semi_transparent) glEnable(GL_BLEND);
+                     m.meshes[jj].draw(&shader_for_moleculestotriangles, eye, mvp,
+                                       model_rotation, lights, eye_position, rc, opacity, bg_col,
+                                       wireframe_mode, do_depth_fog, show_just_shadows);
+                     if (m.meshes[jj].mesh_is_semi_transparent) glDisable(GL_BLEND);
 
                   }
                   if (pass_type == PASS_TYPE_WITH_SHADOWS) {
