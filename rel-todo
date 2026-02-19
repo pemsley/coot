@@ -1,11 +1,28 @@
 --- Items ---
 
 o try to use the atom specs in the new ligand validation output
+  For planes? What did I mean?
+
+o add a menu item to open socket for claude
+
+o in python entry Ctrl-E, Ctrl-A
+
+o make aniso lines width user-setable - or thicker
+
+o add arg for how to handle secondary structure in
+  molecular_respresentation cc-interface-molecular-representation.hh
+
+o Ctrl F toggle rough fine smooth
 
 o Claude to make chapi tests from test-molecules-container
 
+o split water doesn't work
+
+o think about how to make an atom selection for alt conformation
+  generation.
+
 o after using Lhasa, the generated dictionary should be made
-  available to post-moorhen program/cloud
+  available to post-moorhen program/cloud.
   Likewise after using pyrogen, the dictionary should be
   available - so that Acedrg, say, can clean it up.
 
