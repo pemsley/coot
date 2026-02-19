@@ -2247,7 +2247,13 @@ void fetch_and_superpose_alphafold_models(int imol);
 //! \brief return the model number
 int fetch_alphafold_model_for_uniprot_id(const std::string &uniprot_id);
 
-//! \brief Loads up map frmo emdb
+//! \brief Loads up map from emdb
+//!
+//! This is an asynchronous function and wil trigger a download subthread
+//! and return immediately.
+//!
+//! @param emd_accession_code the EMDB accession code
+//!
 void fetch_emdb_map(const std::string &emd_accession_code);
 
 //! \brief return the COD entry, return a molecule index
