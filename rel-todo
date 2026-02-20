@@ -1,50 +1,55 @@
 --- Items ---
 
-o try to use the atom specs in the new ligand validation output
-  For planes? What did I mean?
-
-o add a menu item to open socket for claude
-
-o in python entry Ctrl-E, Ctrl-A
+o Ctrl F toggle rough fine smooth
 
 o make aniso lines width user-setable - or thicker
 
+o split water doesn't work
+
+o try to use the atom specs in the new ligand validation output
+  For planes? What did I mean?
+
+o in python script entry Ctrl-E, Ctrl-A
+
+o add a menu item to open socket for claude
+
 o add arg for how to handle secondary structure in
   molecular_respresentation cc-interface-molecular-representation.hh
+  c.f. molecules-container.hh
 
-o Ctrl F toggle rough fine smooth
+o set_map_colour() in molecule_class_info.h() calls
+  update_map() - all it needs to do is change the colour
+  of the vertices.
+
+o move the lights
 
 o Claude to make chapi tests from test-molecules-container
 
-o split water doesn't work
+o add acedrg atom types to the mmcif from pyrogen
+
+o Check acedrg atom types with a some recent dictionaries
 
 o think about how to make an atom selection for alt conformation
-  generation.
+  generation. Shift-click to toggle addition
 
 o after using Lhasa, the generated dictionary should be made
   available to post-moorhen program/cloud.
   Likewise after using pyrogen, the dictionary should be
   available - so that Acedrg, say, can clean it up.
 
-o opacity for molecular surface and electrstatic surface also
+o opacity for molecular surface and electrostatic surface also
   See set_transparent_electrostatic_surface()
 
 o Pyrogen for Moorhen - make progress by the retreat.
+* Done.
 
 o what is the legal status of code created by Claude Code?
   Charles mentions "transformative"
   Talk to legal people
+* In progress
 
 o if there are no adps then don't make the Anoso sph tab
   in the screen dialog [Clemens]
-
-o move the lights
-
-o set_map_colour() in molecule_class_info.h() calls
-  update_map() - all it needs to do is change the colour
-  of the vertices.
-
-o Check acedrg atom types with a some recent dictionaries
 
 o fix A3 symbol in validation skills Å³
 * Done.
