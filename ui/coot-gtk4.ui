@@ -1651,7 +1651,7 @@ Copyright 2023, 2024, 2025 Global Phasing Ltd.</property>
             <property name="spacing">4</property>
             <child>
               <object class="GtkButton" id="add_OXT_cancel_button">
-                <property name="label" translatable="yes">  Cancel  </property>
+                <property name="label" translatable="yes"> Cancel </property>
                 <property name="can-focus">1</property>
                 <property name="use-underline">1</property>
                 <signal name="clicked" handler="on_add_OXT_cancel_button_clicked" swapped="no"/>
@@ -1663,7 +1663,7 @@ Copyright 2023, 2024, 2025 Global Phasing Ltd.</property>
             </child>
             <child>
               <object class="GtkButton" id="add_OXT_ok_button">
-                <property name="label" translatable="yes">  Add it  </property>
+                <property name="label" translatable="yes"> Add it </property>
                 <property name="can-focus">1</property>
                 <property name="use-underline">1</property>
                 <signal name="clicked" handler="on_add_OXT_ok_button_clicked" swapped="no"/>
@@ -1729,16 +1729,16 @@ Copyright 2023, 2024, 2025 Global Phasing Ltd.</property>
           </object>
         </child>
         <child>
-            <object class="GtkBox" id="hbox60">
-              <child>
-                <object class="GtkButton" id="add_alt_conf_cancel_button">
-                  <property name="label" translatable="yes">  Cancel  </property>
-                  <property name="can-focus">0</property>
-                  <property name="use-underline">1</property>
-                  <signal name="clicked" handler="on_add_alt_conf_cancel_button_clicked" swapped="no"/>
-                </object>
-              </child>
-            </object>
+          <object class="GtkBox" id="hbox60">
+            <child>
+              <object class="GtkButton" id="add_alt_conf_cancel_button">
+                <property name="label" translatable="yes">  Cancel  </property>
+                <property name="can-focus">0</property>
+                <property name="use-underline">1</property>
+                <signal name="clicked" handler="on_add_alt_conf_cancel_button_clicked" swapped="no"/>
+              </object>
+            </child>
+          </object>
         </child>
       </object>
     </child>
@@ -5581,6 +5581,7 @@ Do you want to continue?
 
         <child type="action">
           <object class="GtkBox" id="hbox43">
+            <property name="halign">end</property>
             <property name="spacing">10</property>
             <property name="margin-start">4</property>
             <property name="margin-end">4</property>
