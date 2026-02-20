@@ -2443,7 +2443,16 @@ void set_effects_shader_brightness(float f);
 void set_effects_shader_gamma(float f);
 
 //! \brief set bond smoothness (default 1 (not smooth))
+//!
+//! Use `fac` 3 for screenshots
+//!
+//! @param fac (1: course, 2: smooth, 3: fine)
 void set_bond_smoothness_factor(unsigned int fac);
+
+//! \brief increase bond smoothness
+//!
+//! and if it's currently at 3, reset back to 1
+void toggle_bond_smoothness_factor();
 
 //! \brief set the draw state of the Ramachandran plot display during Real Space Refinement
 void set_draw_gl_ramachandran_plot_during_refinement(short int state);

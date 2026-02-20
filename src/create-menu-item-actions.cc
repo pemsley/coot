@@ -5701,6 +5701,21 @@ delete_item_water(GSimpleAction *simple_action,
 }
 
 void
+delete_item_all_waters(GSimpleAction *simple_action,
+                       GVariant *parameter,
+                       gpointer user_data) {
+
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
+   if (pp.first) {
+      auto atom_spec = pp.second.second;
+      coot::residue_spec_t res_spec(atom_spec);
+      int imol = pp.second.first;
+      delete_waters(imol);
+   }
+}
+
+void
 delete_item_side_chain(GSimpleAction *simple_action,
                  GVariant *parameter,
                  gpointer user_data) {
@@ -6225,6 +6240,7 @@ create_actions(GtkApplication *application) {
    // 2025-09-15 17:24 PE hack functions
    add_action("delete_item_atom", delete_item_atom);
    add_action("delete_item_water", delete_item_water);
+   add_action("delete_item_all_waters", delete_item_all_waters);
    add_action("delete_item_side_chain", delete_item_side_chain);
    add_action("delete_item_side_chain_residue_range", delete_item_side_chain_residue_range);
    add_action("delete_item_side_chains_in_chain", delete_item_side_chains_in_chain);

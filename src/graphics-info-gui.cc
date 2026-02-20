@@ -1777,6 +1777,9 @@ graphics_info_t::new_fill_combobox_with_coordinates_options(GtkWidget *combobox_
 
    std::vector<int> molecule_indices = get_molecule_indices();
 
+   if (!molecule_indices.empty())
+      gtk_combo_box_set_active(GTK_COMBO_BOX(combobox_molecule), 0);
+
    GtkTreeModel *model_1 = gtk_combo_box_get_model(GTK_COMBO_BOX(combobox_molecule));
    std::cout << "debug:: new_fill_combobox_with_coordinates_options() model_1 " << model_1 << std::endl;
    GtkListStore *list_store = GTK_LIST_STORE(model_1);
@@ -1797,7 +1800,7 @@ graphics_info_t::new_fill_combobox_with_coordinates_options(GtkWidget *combobox_
       gtk_list_store_append(store, &iter);
       gtk_list_store_set(store, &iter, 0, imol, 1, ss.c_str(), -1);
    }
-   
+
    GtkTreeModel *model = GTK_TREE_MODEL(store);
    GtkCellRenderer *renderer = gtk_cell_renderer_text_new();
    gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(combobox_molecule), renderer, true);

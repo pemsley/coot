@@ -1,15 +1,34 @@
 --- Items ---
 
 o Ctrl F toggle rough fine smooth
+* Done. Nice.
+
+o in python script entry Ctrl-E, Ctrl-A
+
+o Have a look at fancy mode transparent surfaces.
 
 o make aniso lines width user-setable - or thicker
+* Done.
+
+o Make it easy to delete all waters.
+
+o open display manager, close it, open shader settings, close that,
+  open display manager again, close that - then when I re-open
+  shader settings for the second time, it is broken and unusable
+
+o fix the --help message to be more helpful (see general on pumble)
 
 o split water doesn't work
+* I can't make it fail
+
+o auto-split model: look for regions with large aniso for several residues.
 
 o try to use the atom specs in the new ligand validation output
   For planes? What did I mean?
 
-o in python script entry Ctrl-E, Ctrl-A
+o the thermal ellipsoid slider should go up to 99%
+
+o Edit -> Copy fragment doesn't have a default molecule
 
 o add a menu item to open socket for claude
 
