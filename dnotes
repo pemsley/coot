@@ -11512,7 +11512,7 @@ Fri Sep 13 04:03:17 AM BST 2024
    To move the Preferences Close button to the right-hand side, I added
                <property name="halign">end</property>
    to the GtkBox which contained the button
-
+   Fri 20 Feb 16:39:06 GMT 2026: was here again
 
 ----
 Sun  6 Oct 18:04:53 BST 2024
