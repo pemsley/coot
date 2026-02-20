@@ -1130,6 +1130,10 @@
         <attribute name="action">app.delete_item_water</attribute>
       </item>
       <item>
+        <attribute name="label" translatable="yes">All Waters</attribute>
+        <attribute name="action">app.delete_item_all_waters</attribute>
+      </item>
+      <item>
         <attribute name="label" translatable="yes">Side-chain</attribute>
         <attribute name="action">app.delete_item_side_chain</attribute>
       </item>
