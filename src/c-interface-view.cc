@@ -491,6 +491,22 @@ void set_bond_smoothness_factor(unsigned int fac) {
    graphics_draw();
 }
 
+void toggle_bond_smoothness_factor() {
+
+   int next = graphics_info_t::bond_smoothness_factor + 1;
+   if (next == 4) next = 1;
+
+   std::cout << "next: " << next << std::endl;
+   graphics_info_t::bond_smoothness_factor = next;
+
+   for (int imol=0; imol<graphics_n_molecules(); imol++) {
+      if (is_valid_model_molecule(imol)) {
+         graphics_info_t::molecules[imol].make_glsl_bonds_type_checked(__FUNCTION__);
+      }
+   }
+   graphics_draw();
+}
+
 
 //! \brief set the draw state of the Ramachandran plot display during Real Space Refinement
 void set_draw_gl_ramachandran_plot_during_refinement(short int state) {

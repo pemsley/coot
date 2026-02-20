@@ -879,7 +879,8 @@ graphics_info_t::setup_key_bindings() {
 
    auto lc_smooth_bonds = [] () {
       graphics_info_t g;
-      set_bond_smoothness_factor(2); // updates all molecules
+      // set_bond_smoothness_factor(2); // updates all molecules
+      toggle_bond_smoothness_factor();
       return gboolean(TRUE);
    };
 
