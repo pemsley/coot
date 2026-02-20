@@ -251,6 +251,8 @@ coot::molecule_t::geometric_distortions_for_one_residue_from_mol(const std::stri
          atom_selection_container_t asc = make_asc(mol);
          // does v contain pointers to atoms (I'd rather that it didnt)
          v = geometric_distortions_from_mol(asc, with_nbcs, geom, static_thread_pool);
+         //          2026-02-19-PE have a look here - check that asc.clear_up works OK. We don't
+         //          want to leak the atom selection.
          // asc.clear_up();  asc is no longer needed?
          delete(mol);
       }

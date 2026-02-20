@@ -1028,7 +1028,7 @@ coot::restraints_container_t::make_monomer_restraints_from_res_vec(int imol,
    if (verbose_geometry_reporting != QUIET) {
       // std::cout << "INFO:: make_monomer_restraints_from_res_vec() of size " << residues_vec.size()
       // << " created " << size() << " monomer restraints " << std::endl;
-      logger.log(log_t::INFO, logging::function_name_t("make_monomer_restraints_from_res_vec()"),
+      logger.log(log_t::INFO, logging::function_name_t("make_monomer_restraints_from_res_vec"),
                  {std::string("of size"), residues_vec.size(), std::string("created"),
                   size(), "monomer restraints"});
       sum.report(do_residue_internal_torsions);

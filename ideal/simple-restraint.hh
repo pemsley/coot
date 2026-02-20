@@ -29,9 +29,9 @@
 #include <list>
 #include <string>
 #include <stdexcept>
-#include <memory>
 
 #ifndef __NVCC__
+#include <memory>
 #include <thread>
 #include <atomic>
 #endif // __NVCC__
@@ -62,18 +62,12 @@ extern int getopt ();
 #endif // HAVE_BOOST
 #endif // __NVCC__
 
-#include "refinement-results-t.hh"
-
 #include <mmdb2/mmdb_manager.h>
-#include "coot-utils/bonded-pairs.hh"
-
-#include "parallel-planes.hh"
-
-#include "extra-restraints.hh"
-
-#include "model-bond-deltas.hh"
-
 #include "compat/coot-sysdep.h"
+#include "coot-utils/bonded-pairs.hh"
+#include "extra-restraints.hh"
+#include "model-bond-deltas.hh"
+#include "refinement-results-t.hh"
 
 // refinement_results_t is outside of the GSL test because it is
 // needed to make the accept_reject_dialog, and that can be compiled
@@ -167,6 +161,8 @@ namespace coot {
 
 #include "new-linked-residue-t.hh"
 
+#include "refinement-results-mini-stats.hh"
+
 
 // For Kevin's (Log) Ramachandran Plot and derivatives
 #include "lograma.h"
@@ -184,19 +180,6 @@ namespace coot {
 #define ATOM_INDEX_MAX 500000 // is that enough?
 
 namespace coot {
-
-
-   // restraint types:
-   //
-   enum restraint_type_t {BOND_RESTRAINT=1, ANGLE_RESTRAINT=2, TORSION_RESTRAINT=4, PLANE_RESTRAINT=8,
-                          NON_BONDED_CONTACT_RESTRAINT=16, CHIRAL_VOLUME_RESTRAINT=32, RAMACHANDRAN_RESTRAINT=64,
-                          START_POS_RESTRAINT=128,
-                          TARGET_POS_RESTRAINT=256, // restraint to make an atom be at a position
-                          PARALLEL_PLANES_RESTRAINT=512,
-                          GEMAN_MCCLURE_DISTANCE_RESTRAINT=1024,
-                          TRANS_PEPTIDE_RESTRAINT=2048,
-                          IMPROPER_DIHEDRAL_RESTRAINT=4096
-   };
 
    enum pseudo_restraint_bond_type {NO_PSEUDO_BONDS, HELIX_PSEUDO_BONDS,
                                     STRAND_PSEUDO_BONDS};
@@ -895,13 +878,21 @@ namespace coot {
          distortion_score = distortion_in;
          is_set = true;
       }
+      geometry_distortion_info_pod_t(const simple_restraint &rest_in,
+                                     const refinement_results_mini_stats_t &mini_stats_in,
+                                     const residue_spec_t &residue_spec_in) :
+         restraint(rest_in), mini_stats(mini_stats_in), residue_spec(residue_spec_in) {
+         distortion_score = mini_stats.distortion;
+         is_set = true;
+      }
       geometry_distortion_info_pod_t() {
          is_set = false;
          distortion_score = 0.0;
       }
-      bool initialised_p;
-      simple_restraint restraint;
+      bool initialised_p; // chose one!
       bool is_set;
+      simple_restraint restraint;
+      refinement_results_mini_stats_t mini_stats;
       std::vector<atom_spec_t> atom_specs;
       residue_spec_t residue_spec;
       double distortion_score;
@@ -1023,11 +1014,17 @@ namespace coot {
                                        int idx_start, int idx_end, double *distortion);
    double distortion_score_bond(const simple_restraint &bond_restraint,
                                 const gsl_vector *v);
+   refinement_results_mini_stats_t
+   distortion_bond_mini_stats(const coot::simple_restraint &bond_restraint,
+                              const gsl_vector *v);
    double distortion_score_geman_mcclure_distance(const simple_restraint &bond_restraint,
                                                   const gsl_vector *v,
                                                   const double &alpha);
    double distortion_score_angle(const simple_restraint &angle_restraint,
                                  const gsl_vector *v);
+   refinement_results_mini_stats_t
+   distortion_angle_mini_stats(const coot::simple_restraint &bond_restraint,
+                               const gsl_vector *v);
    // torsion score can throw a std::runtime_error if there is a problem calculating the torsion.
 
    double distortion_score_torsion(unsigned int idx_restraint,

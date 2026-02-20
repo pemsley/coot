@@ -700,10 +700,27 @@ coot::restraints_container_t::geometric_distortions_pod(bool include_distortion_
       }
 
       if (atom_index != -1) {
-         coot::residue_spec_t rs(atom[atom_index]->GetResidue());
-         coot::geometry_distortion_info_pod_t gdi(distortion, rest, rs);
-         gdi.atom_specs = atom_specs;
-         distortion_vec_container.geometry_distortion.push_back(gdi);
+         bool added = false;
+         residue_spec_t rs(atom[atom_index]->GetResidue());
+         if (rest.restraint_type == BOND_RESTRAINT) {
+            refinement_results_mini_stats_t mini_stats = distortion_bond_mini_stats(rest, x);
+            geometry_distortion_info_pod_t gdi(rest, mini_stats, rs);
+            gdi.atom_specs = atom_specs;
+            distortion_vec_container.geometry_distortion.push_back(gdi);
+            added = true;
+         }
+         if (rest.restraint_type == ANGLE_RESTRAINT) {
+            refinement_results_mini_stats_t mini_stats = distortion_angle_mini_stats(rest, x);
+            geometry_distortion_info_pod_t gdi(rest, mini_stats, rs);
+            gdi.atom_specs = atom_specs;
+            distortion_vec_container.geometry_distortion.push_back(gdi);
+            added = true;
+         }
+         if (! added) {
+            geometry_distortion_info_pod_t gdi(distortion, rest, rs);
+            gdi.atom_specs = atom_specs;
+            distortion_vec_container.geometry_distortion.push_back(gdi);
+         }
       }
    }
    return distortion_vec_container;
@@ -1627,6 +1644,28 @@ coot::distortion_score_bond(const coot::simple_restraint &bond_restraint,
    return weight * bit *bit;
 }
 
+coot::refinement_results_mini_stats_t
+coot::distortion_bond_mini_stats(const coot::simple_restraint &bond_restraint,
+                                 const gsl_vector *v) {
+
+   refinement_results_mini_stats_t mini_stats;
+   int idx = 3*bond_restraint.atom_index_1;
+   clipper::Coord_orth a1(gsl_vector_get(v,idx),
+			  gsl_vector_get(v,idx+1),
+			  gsl_vector_get(v,idx+2));
+   idx = 3*bond_restraint.atom_index_2;
+   clipper::Coord_orth a2(gsl_vector_get(v,idx),
+			  gsl_vector_get(v,idx+1),
+			  gsl_vector_get(v,idx+2));
+   double weight = 1.0/(bond_restraint.sigma * bond_restraint.sigma);
+   double b_i_sqrd = (a1-a2).lengthsq();
+   b_i_sqrd = b_i_sqrd > 0.01 ? b_i_sqrd : 0.01;  // Garib's stabilization
+   double bit = sqrt(b_i_sqrd) - bond_restraint.target_value;
+   double distortion = weight * bit *bit;
+   double observed = std::sqrt(b_i_sqrd);
+   return refinement_results_mini_stats_t(BOND_RESTRAINT, distortion, bond_restraint.target_value, observed);
+}
+
 double
 coot::distortion_score_geman_mcclure_distance(const coot::simple_restraint &restraint,
 					      const gsl_vector *v,
@@ -1710,6 +1749,49 @@ coot::distortion_score_angle(const coot::simple_restraint &angle_restraint,
    return weight * bit * bit;
 }
 
+coot::refinement_results_mini_stats_t
+coot::distortion_angle_mini_stats(const coot::simple_restraint &angle_restraint,
+                                  const gsl_vector *v) {
+
+   int idx = 3*(angle_restraint.atom_index_1);
+   clipper::Coord_orth a1(gsl_vector_get(v,idx),
+			  gsl_vector_get(v,idx+1),
+			  gsl_vector_get(v,idx+2));
+   idx = 3*(angle_restraint.atom_index_2);
+   clipper::Coord_orth a2(gsl_vector_get(v,idx),
+			  gsl_vector_get(v,idx+1),
+			  gsl_vector_get(v,idx+2));
+   idx = 3*(angle_restraint.atom_index_3);
+   clipper::Coord_orth a3(gsl_vector_get(v,idx),
+			  gsl_vector_get(v,idx+1),
+			  gsl_vector_get(v,idx+2));
+   clipper::Coord_orth d1 = a1 - a2;
+   clipper::Coord_orth d2 = a3 - a2;
+   double len1 = clipper::Coord_orth::length(a1,a2);
+   double len2 = clipper::Coord_orth::length(a3,a2);
+
+   // len1 = len1 > 0.01 ? len1 : 0.01;
+   // len2 = len2 > 0.01 ? len2 : 0.01;
+   if (len1 < 0.01) {
+      len1 = 0.01;
+      d1 = clipper::Coord_orth(0.01, 0.01, 0.01);
+   }
+   if (len2 < 0.01) {
+      len2 = 0.01;
+      d2 = clipper::Coord_orth(0.01, 0.01, -0.01);
+   }
+
+   double cos_theta = clipper::Coord_orth::dot(d1,d2)/(len1*len2);
+   if (cos_theta < -1.0) cos_theta = -1.0;
+   if (cos_theta >  1.0) cos_theta =  1.0;
+   double theta = acos(cos_theta);
+   double bit = clipper::Util::rad2d(theta) - angle_restraint.target_value;
+   double weight = 1.0/(angle_restraint.sigma * angle_restraint.sigma);
+
+   double distortion = weight * bit * bit;
+   double observed = bit;
+   return refinement_results_mini_stats_t(ANGLE_RESTRAINT, distortion, angle_restraint.target_value, observed);
+}
 
 //
 // Return the distortion score from a single torsion restraint.

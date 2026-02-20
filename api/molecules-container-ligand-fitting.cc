@@ -95,7 +95,11 @@ molecules_container_t::get_rdkit_mol_pickle_base64(const std::string &residue_na
                                      | RDKit::PicklerOps::MolProps;
             mp.pickleMol(mol, pickle_string, pickleFlags);
             return moorhen_base64::base64_encode((const unsigned char*)pickle_string.c_str(), pickle_string.size());
+         } else {
+            std::cout << "WARNING:: get_rdkit_mol_pickle_base64(): mol had no atoms" << std::endl;
          }
+      } else {
+         std::cout << "WARNING:: get_rdkit_mol_pickle_base64(): failed to get get_monomer_restraints" << std::endl;
       }
    }
    catch (const std::runtime_error &rte) {

@@ -9,6 +9,7 @@
 #include <nanobind/stl/pair.h>
 #include <nanobind/stl/map.h>
 #include <nanobind/stl/vector.h>
+#include <nanobind/stl/optional.h>
 #include <nanobind/stl/array.h>
 #include <nanobind/ndarray.h>
 #include <nanobind/operators.h>
@@ -20,6 +21,7 @@
 #include "coords/mmdb-crystal.hh"
 #include "coot-utils/acedrg-types-for-residue.hh"
 #include "coot-utils/g_triangle.hh"
+#include "ideal/simple-restraint.hh"
 #include "mini-mol/mini-mol-utils.hh"
 
 #if NB_VERSION_MAJOR // for flychecking
@@ -1572,11 +1574,20 @@ NB_MODULE(coot_headless_api, m) {
        .def_ro("restraint_type", &coot::simple_restraint::restraint_type)
        .def_ro("target_value",   &coot::simple_restraint::target_value)
     ;
+    nb::class_<coot::refinement_results_mini_stats_t>(m, "refinement_results_mini_stats_t")
+       .def_ro("is_set",         &coot::refinement_results_mini_stats_t::is_set)
+       .def_ro("restraint_type", &coot::refinement_results_mini_stats_t::type)
+       .def_ro("distortion",     &coot::refinement_results_mini_stats_t::distortion)
+       .def_ro("target_value",   &coot::refinement_results_mini_stats_t::target_value)
+       .def_ro("observed_value", &coot::refinement_results_mini_stats_t::observed_value)
+       .def_ro("nZ",             &coot::refinement_results_mini_stats_t::nZ)
+    ;
     nb::class_<coot::geometry_distortion_info_pod_t>(m, "geometry_distortion_info_pod_t")
        .def_ro("is_set",            &coot::geometry_distortion_info_pod_t::is_set)
        .def_ro("atom_specs",        &coot::geometry_distortion_info_pod_t::atom_specs)
        .def_ro("residue_spec",      &coot::geometry_distortion_info_pod_t::residue_spec)
        .def_ro("restraint",         &coot::geometry_distortion_info_pod_t::restraint)
+       .def_ro("mini_stats",        &coot::geometry_distortion_info_pod_t::mini_stats)
        .def("get_distortion",       &coot::geometry_distortion_info_pod_t::get_distortion)
        ;
     nb::class_<coot::geometry_distortion_info_pod_container_t>(m, "geometry_distortion_info_pod_container_t")
