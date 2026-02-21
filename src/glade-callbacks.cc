@@ -6740,7 +6740,7 @@ on_validation_graph_model_combobox_changed(GtkComboBox* self, gpointer user_data
       if (false) {
          std::string mess = "on_validation_graph_model_combobox_changed(): ";
          mess += "Could not get active iter in validation graph model ComboBox";
-         g_warning(mess.c_str());
+         g_warning("%s", mess.c_str());
       }
    }
 }
