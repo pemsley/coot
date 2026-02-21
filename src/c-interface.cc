@@ -106,6 +106,7 @@
 
 #include "utils/coot-utils.hh"
 #include "coot-utils/coot-map-utils.hh"
+#include "coot-utils/read-amber-trajectory.hh"
 #include "coot-database.hh"
 #include "coot-fileselections.h"
 
@@ -979,6 +980,34 @@ int read_coordinates_as_string(const std::string &file_contents, const std::stri
    int imol = read_coordinates(fn);
    if (is_valid_model_molecule(imol))
       set_molecule_name(imol, molecule_name.c_str());
+   return imol;
+}
+
+
+int read_amber_trajectory(int imol_coords,
+                          const std::string &trajectory_file_name,
+                          int start_frame,
+                          int end_frame,
+                          int stride) {
+
+   int imol = -1;
+   graphics_info_t g;
+
+   if (!is_valid_model_molecule(imol_coords)) {
+      std::cout << "WARNING:: read_amber_trajectory: invalid topology molecule " << imol_coords << std::endl;
+      return -1;
+   }
+
+   mmdb::Manager *topology_mol = g.molecules[imol_coords].atom_sel.mol;
+   mmdb::Manager *traj_mol = coot::read_amber_trajectory(topology_mol, trajectory_file_name,
+                                                         start_frame, end_frame, stride);
+   if (traj_mol) {
+      imol = g.create_molecule();
+      atom_selection_container_t asc = make_asc(traj_mol);
+      std::string name = trajectory_file_name + "_trajectory";
+      g.molecules[imol].install_model(imol, asc, g.Geom_p(), name, 1);
+   }
+
    return imol;
 }
 

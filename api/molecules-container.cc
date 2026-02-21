@@ -39,6 +39,7 @@
 #include "coot-utils/secondary-structure-headers.hh"
 #include "coot-utils/oct.hh"
 #include "coot-utils/read-sm-cif.hh"
+#include "coot-utils/read-amber-trajectory.hh"
 
 #include "coords/Bond_lines.hh"
 #include "coords/mmdb.hh"
@@ -958,6 +959,33 @@ molecules_container_t::read_small_molecule_cif(const std::string &file_name) {
    return imol;
 }
 
+
+int
+molecules_container_t::read_amber_trajectory(int imol_coords,
+                                             const std::string &trajectory_file_name,
+                                             int start_frame,
+                                             int end_frame,
+                                             int stride) {
+
+   int imol = -1;
+
+   if (!is_valid_model_molecule(imol_coords)) {
+      std::cout << "WARNING:: read_amber_trajectory: invalid topology molecule " << imol_coords << std::endl;
+      return -1;
+   }
+
+   mmdb::Manager *topology_mol = molecules[imol_coords].atom_sel.mol;
+   mmdb::Manager *traj_mol = coot::read_amber_trajectory(topology_mol, trajectory_file_name,
+                                                          start_frame, end_frame, stride);
+   if (traj_mol) {
+      imol = molecules.size();
+      atom_selection_container_t asc = make_asc(traj_mol);
+      std::string name = trajectory_file_name + "_trajectory";
+      molecules.push_back(coot::molecule_t(asc, imol, name));
+   }
+
+   return imol;
+}
 
 
 //! read a PDB file (or mmcif coordinates file, despite the name) to

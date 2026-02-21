@@ -513,6 +513,23 @@ AC_SUBST(RSVG_CFLAGS)
 AC_SUBST(RSVG_LIBS)
 
 
+AC_ARG_WITH([netcdf], AS_HELP_STRING([--with-netcdf], [compile with NetCDF support for Amber trajectories]), with_netcdf="$withval", with_netcdf=no)
+AC_MSG_CHECKING([for NetCDF support])
+if test "x$with_netcdf" = xno ; then
+   AC_MSG_RESULT(no)
+   AC_SUBST(NETCDF_CFLAGS, "")
+   AC_SUBST(NETCDF_LIBS, "")
+else
+   AC_MSG_RESULT(yes)
+   PKG_CHECK_MODULES([NETCDF], [netcdf], [
+      AC_DEFINE(HAVE_NETCDF, 1, [Define if NetCDF is available])
+   ], [
+      AC_MSG_ERROR([NetCDF library not found. Install netcdf or use --without-netcdf])
+   ])
+   AC_SUBST(NETCDF_CFLAGS)
+   AC_SUBST(NETCDF_LIBS)
+fi
+
 
 AM_WITH_MYSQL_DATABASE
 

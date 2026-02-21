@@ -47,7 +47,8 @@ pkginclude_HEADERS = peak-search.hh coot-trim.hh \
         diff-diff-map-peaks.hh tiny_gltf.h json.hpp \
 	stb_image.h stb_image_write.h glyco-tree.hh positron.hh mini-texture.hh texture-as-floats.hh pae.hh q-score.hh \
 	acedrg-types-for-residue.hh gl-matrix.h ortep.hh coot-align.hh grid-balls.hh dict-link-info.hh \
-        dirichlet-process.hh cfc.hh cremer-pople.hh born.hh inchikey-store.hh cylinder-utils.hh gmm.hh nef-utils.hh ptm-database.hh
+        dirichlet-process.hh cfc.hh cremer-pople.hh born.hh inchikey-store.hh cylinder-utils.hh gmm.hh nef-utils.hh ptm-database.hh \
+	read-amber-trajectory.hh
 
 
 pkgincludedir = $(includedir)/coot/coot-utils
@@ -64,7 +65,8 @@ AM_CPPFLAGS = \
 	$(WITH_GUILE_CFLAGS) \
 	$(RDKIT_CXXFLAGS)    \
 	$(BOOST_CPPFLAGS)    \
-	$(WITH_PYTHON_CFLAGS)
+	$(WITH_PYTHON_CFLAGS) \
+	$(NETCDF_CFLAGS)
 
 AM_CXXFLAGS = $(COOT_WINDOWS_CFLAGS) \
 	-DPKGDATADIR='"$(pkgdatadir)"'
@@ -88,7 +90,8 @@ libcoot_coord_utils_la_SOURCES = coot-coord-utils.cc \
 	cylinder.cc cylinder-with-rotation-translation.cc oct.cc prideout-octasphere.cc simple-mesh.cc \
 	shapes.cc cmtz-interface.cc pugixml.cpp parse-pisa.cc gltf-export.cc pae.cc \
 	gl-matrix.cc gl-matrix-eigensystem.cc coot-align.cc grid-balls.cc dict-link-info.cc \
-	cremer-pople.cc inchikey-store.cc cylinder-utils.cc nef-utils.cc gaussian-atom-map-for-mask.cc
+	cremer-pople.cc inchikey-store.cc cylinder-utils.cc nef-utils.cc gaussian-atom-map-for-mask.cc \
+	read-amber-trajectory.cc
 
 #    $(top_builddir)/mini-mol/libcoot-mini-mol.la
 #    $(top_builddir)/utils/libcoot-utils.la
@@ -103,7 +106,7 @@ libcoot_coord_utils_la_LIBADD = \
     $(top_builddir)/utils/libcoot-utils.la           \
     $(top_builddir)/mini-mol/libcoot-mini-mol.la     \
     $(CLIPPER_LIBS) $(GEMMI_LIBS) $(MMDB_LIBS) \
-    $(gsl_LIBS) $(RDKIT_LIBS) $(CAIRO_LIBS) $(BOOST_LDFLAGS) -lpthread
+    $(gsl_LIBS) $(RDKIT_LIBS) $(CAIRO_LIBS) $(BOOST_LDFLAGS) $(NETCDF_LIBS) -lpthread
 
 libcoot_coord_utils_la_LDFLAGS = $(SHARED_LDFLAGS)
 

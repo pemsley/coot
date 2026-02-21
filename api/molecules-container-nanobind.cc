@@ -1240,6 +1240,11 @@ NB_MODULE(coot_headless_api, m) {
          &molecules_container_t::read_small_molecule_cif,
          nb::arg("file_name"),
          get_docstring_from_xml("read_small_molecule_cif").c_str())
+    .def("read_amber_trajectory",
+         &molecules_container_t::read_amber_trajectory,
+         nb::arg("imol_coords"), nb::arg("trajectory_file_name"),
+         nb::arg("start_frame"), nb::arg("end_frame"), nb::arg("stride"),
+         get_docstring_from_xml("read_amber_trajectory").c_str())
     .def("redo",
          &molecules_container_t::redo,
          nb::arg("imol"),

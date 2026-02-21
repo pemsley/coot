@@ -696,6 +696,24 @@ public:
    //! @return the new molecule index on success and -1 on failure
    int read_small_molecule_cif(const std::string &file_name);
 
+   //! Read an Amber NetCDF trajectory file
+   //!
+   //! Reads trajectory frames and creates a multi-model molecule. Requires NetCDF support
+   //! to be compiled in (--with-netcdf at configure time).
+   //!
+   //! @param imol_coords is the model molecule index providing the topology (atom names, residues)
+   //! @param trajectory_file_name is the path to the Amber NetCDF trajectory file (.nc)
+   //! @param start_frame is the first frame to read (0-indexed), -1 for first frame
+   //! @param end_frame is the last frame to read (0-indexed), -1 for last frame
+   //! @param stride read every nth frame (1 = all frames)
+   //!
+   //! @return the new molecule index on success and -1 on failure
+   int read_amber_trajectory(int imol_coords,
+                             const std::string &trajectory_file_name,
+                             int start_frame,
+                             int end_frame,
+                             int stride);
+
    //! Print the secondary structure information
    //!
    //! @param imol is the model molecule index
