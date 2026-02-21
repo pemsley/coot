@@ -496,7 +496,7 @@ void toggle_bond_smoothness_factor() {
    int next = graphics_info_t::bond_smoothness_factor + 1;
    if (next == 4) next = 1;
 
-   std::cout << "next: " << next << std::endl;
+   // std::cout << "next: " << next << std::endl;
    graphics_info_t::bond_smoothness_factor = next;
 
    for (int imol=0; imol<graphics_n_molecules(); imol++) {
