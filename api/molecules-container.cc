@@ -975,8 +975,11 @@ molecules_container_t::read_amber_trajectory(int imol_coords,
    }
 
    mmdb::Manager *topology_mol = molecules[imol_coords].atom_sel.mol;
-   mmdb::Manager *traj_mol = coot::read_amber_trajectory(topology_mol, trajectory_file_name,
-                                                          start_frame, end_frame, stride);
+   mmdb::Manager *traj_mol = nullptr;
+#ifdef HAVE_NETCDF
+   traj_mol = coot::read_amber_trajectory(topology_mol, trajectory_file_name,
+                                          start_frame, end_frame, stride);
+#endif
    if (traj_mol) {
       imol = molecules.size();
       atom_selection_container_t asc = make_asc(traj_mol);
