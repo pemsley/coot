@@ -887,7 +887,8 @@ public:
                                                         coot::my_atom_colour_map_t acm,
                                                         float min_dist, float max_dist,
                                                         bool draw_missing_loops_flag,
-                                                        int bond_colour_type);
+                                                        int bond_colour_type,
+                                                        int model_number = 0);
    coot::my_atom_colour_map_t do_Ca_or_P_bonds_internal_old(atom_selection_container_t SelAtom,
                                                         const char *backbone_atom_id,
                                                         coot::my_atom_colour_map_t acm,
@@ -903,21 +904,24 @@ public:
                                  coot::protein_geometry *pg,
                                  float min_dist, float max_dist,
                                  bool draw_missing_loops_flag,
-                                 bool do_bonds_to_hydrogens_in);
+                                 bool do_bonds_to_hydrogens_in,
+                                 int model_number = 0);
    void do_Ca_plus_ligands_bonds(atom_selection_container_t SelAtom,
                                  int imol,
                                  coot::protein_geometry *pg,
                                  float min_dist, float max_dist,
                                  bool draw_missing_loops_flag,
                                  int atom_colour_type,
-                                 bool do_bonds_to_hydrogens_in);
+                                 bool do_bonds_to_hydrogens_in,
+                                 int model_number = 0);
    void do_Ca_plus_ligands_and_sidechains_bonds(atom_selection_container_t SelAtom,
                                                 int imol,
                                                 coot::protein_geometry *pg,
                                                 float min_dist_ca, float max_dist_ca,
                                                 float min_dist, float max_dist,
                                                 bool draw_missing_loops_flag,
-                                                bool do_bonds_to_hydrogens_in);
+                                                bool do_bonds_to_hydrogens_in,
+                                                int model_number = 0);
    void do_Ca_plus_ligands_and_sidechains_bonds(atom_selection_container_t SelAtom,
                                                 int imol,
                                                 coot::protein_geometry *pg,
@@ -925,7 +929,8 @@ public:
                                                 float min_dist, float max_dist,
                                                 bool draw_missing_loops_flag,
                                                 int atom_colour_type,
-                                                bool do_bonds_to_hydrogens_in);
+                                                bool do_bonds_to_hydrogens_in,
+                                                int model_number = 0);
    void do_colour_by_chain_bonds(const atom_selection_container_t &asc,
                                  bool use_asc_atom_selection_flag,
                                  int imol,
