@@ -12,6 +12,9 @@ o make aniso lines width user-setable - or thicker
 
 o Make it easy to delete all waters.
 
+o loot at A1CEP in 9oun and friends. Use chapi to make output
+  comparing and contrasting the ligands
+
 o open display manager, close it, open shader settings, close that,
   open display manager again, close that - then when I re-open
   shader settings for the second time, it is broken and unusable
