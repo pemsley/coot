@@ -2629,7 +2629,7 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
       // std::cout << "........... add_rotamer_goodness_spots() " << std::endl;
       add_rotamer_goodness_markup(SelAtom);
    }
-   add_atom_centres(imol, SelAtom, atom_colour_type);
+   add_atom_centres(imol, SelAtom, atom_colour_type, model_number);
    add_cis_peptide_markup(SelAtom, model_number);
 }
 
@@ -7085,7 +7085,8 @@ Bond_lines_container::do_colour_by_dictionary_and_by_chain_bonds_carbons_only(co
    if (do_goodsell_colour_mode)
       atom_colour_type = coot::COLOUR_BY_CHAIN_GOODSELL;
 
-   add_atom_centres(imol, asc, atom_colour_type, &atom_colour_map);
+   int model_number = 0; // all models for colour-by-chain
+   add_atom_centres(imol, asc, atom_colour_type, model_number, &atom_colour_map);
 
 }
 
@@ -7572,8 +7573,8 @@ Bond_lines_container::do_colour_by_chain_bonds(const atom_selection_container_t 
    int atom_colour_type = coot::COLOUR_BY_CHAIN;
    if (do_goodsell_colour_mode)
       atom_colour_type = coot::COLOUR_BY_CHAIN_GOODSELL;
-   add_atom_centres(imol, asc, atom_colour_type, &atom_colour_map);
-   int model_number = 0; // for all cis peptide markup (hmm, this function should be pass a model number?)
+   int model_number = 0; // for all models (hmm, this function should be passed a model number?)
+   add_atom_centres(imol, asc, atom_colour_type, model_number, &atom_colour_map);
    add_cis_peptide_markup(asc, model_number);
 }
 
@@ -7876,7 +7877,8 @@ Bond_lines_container::do_colour_by_chain_bonds_carbons_only(const atom_selection
    // atom_colour_type == coot::COLOUR_BY_CHAIN_GOODSELL;
 
    // std::cout << "DEBUG:: in " << __FUNCTION__ << " with atom_colour_type " << _(atom_colour_type) << std::endl;
-   add_atom_centres(imol, asc, atom_colour_type, &atom_colour_map);
+   int model_number = 0; // all models for colour-by-chain
+   add_atom_centres(imol, asc, atom_colour_type, model_number, &atom_colour_map);
 
    int udd_fixed_during_refinement_handle = asc.mol->GetUDDHandle(mmdb::UDR_ATOM, "FixedDuringRefinement");
    if (draw_missing_loops_flag)
@@ -8388,7 +8390,8 @@ Bond_lines_container::do_colour_by_molecule_bonds(const atom_selection_container
    add_zero_occ_spots(asc);
    add_deuterium_spots(asc);
    int atom_colour_type = coot::COLOUR_BY_MOLECULE;
-   add_atom_centres(imol, asc, atom_colour_type, nullptr);
+   int model_number = 0; // all models for colour-by-molecule
+   add_atom_centres(imol, asc, atom_colour_type, model_number, nullptr);
 }
 
 
@@ -8554,6 +8557,7 @@ void
 Bond_lines_container::add_atom_centres(int imol,
                                        const atom_selection_container_t &SelAtom,
                                        int atom_colour_type,
+                                       int model_number,
                                        coot::my_atom_colour_map_t *atom_colour_map_p) {
 
    // 20230224-PE we want atoms in ligands with no dictionary to be bigger
@@ -8580,6 +8584,13 @@ Bond_lines_container::add_atom_centres(int imol,
    for (int i=0; i<SelAtom.n_selected_atoms; i++) {
 
       mmdb::Atom *at = SelAtom.atom_selection[i];
+
+      // Filter by model number if specified (model_number != 0)
+      if (model_number != 0) {
+         int atom_model = at->GetModelNum();
+         if (atom_model != model_number)
+            continue;
+      }
       int idx = -1;
       at->GetUDData(SelAtom.UDDAtomIndexHandle, idx);
       // std::cout << "at " << at << "  idx: " << idx << std::endl;

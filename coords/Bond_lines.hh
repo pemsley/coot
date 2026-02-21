@@ -254,6 +254,7 @@ class Bond_lines_container {
    void add_atom_centres(int imol,
                          const atom_selection_container_t &SelAtom,
                          int atom_colour_type,
+                         int model_number,
                          coot::my_atom_colour_map_t *atom_colour_map = 0);
 
    int add_ligand_bonds(const atom_selection_container_t &SelAtom, int imol,

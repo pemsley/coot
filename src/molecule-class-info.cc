@@ -4867,7 +4867,7 @@ void
 molecule_class_info_t::single_model_view_model_number(int imodel) {
    if (has_model()) {
       single_model_view_current_model_number = imodel;
-      // make_bonds_type_checked();
+      make_bonds_type_checked(); // regenerates mesh - slow but functional for now
    }
 }
 
