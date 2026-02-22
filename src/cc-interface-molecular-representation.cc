@@ -39,8 +39,6 @@
 #include "cc-interface.hh"
 #include "cc-interface-molecular-representation.hh"
 
-#ifdef USE_PYTHON
-
 // Martin's Triangles
 
 // e.g. 0, "//C", "RampChainsScheme", "Ribbon"
@@ -48,7 +46,6 @@ int add_molecular_representation_py(int imol, PyObject *atom_selection_py, PyObj
 
    int status = -1;
    if (is_valid_model_molecule(imol)) {
-#ifdef USE_MOLECULES_TO_TRIANGLES
       // check that these are strings
       std::string atom_selection = PyBytes_AS_STRING(PyUnicode_AsUTF8String(atom_selection_py));
       std::string ColorScheme    = PyBytes_AS_STRING(PyUnicode_AsUTF8String(ColorScheme_py));
@@ -58,11 +55,9 @@ int add_molecular_representation_py(int imol, PyObject *atom_selection_py, PyObj
       graphics_info_t g;
       status = g.add_molecular_representation(imol, atom_selection, ColorScheme, style, secondary_structure_usage_flag);
       graphics_draw();
-#endif
    }
    return status;
 }
-#endif // USE_PYTHON
 
 #ifdef USE_GUILE
 // e.g. 0, "//C", "RampChainsScheme", "Ribbon"

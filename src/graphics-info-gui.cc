@@ -4629,7 +4629,8 @@ graphics_info_t::add_molecular_representation(int imol,
 
    attach_buffers();
 
-   int status = molecules[imol].add_molecular_representation(atom_selection, colour_scheme, style, secondary_structure_usage_flag);
+   int status = molecules[imol].add_molecular_representation(atom_selection, colour_scheme, style,
+                                                             secondary_structure_usage_flag);
 
    update_molecular_representation_widgets();
    graphics_draw();
@@ -4685,7 +4686,7 @@ graphics_info_t::set_show_molecular_representation(int imol, unsigned int mesh_i
          auto mesh = meshes[mesh_idx];
          mesh.set_draw_mesh_state(on_off);
       }
-   } 
+   }
 }
 
 // static
