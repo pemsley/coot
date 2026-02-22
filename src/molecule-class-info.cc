@@ -4794,7 +4794,7 @@ void
 molecule_class_info_t::make_bonds_type_checked(const std::set<int> &no_bonds_to_these_atom_indices,
                                                const char *caller) {
 
-   if (true)
+   if (false)
       std::cout << "debug:: ---- in make_bonds_type_checked(2args) --- start ---" << std::endl;
 
    if (false) {

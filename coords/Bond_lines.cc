@@ -201,7 +201,7 @@ Bond_lines_container::Bond_lines_container(const atom_selection_container_t &Sel
       std::set<int>::const_iterator it;
       for(it=no_bonds_to_these_atoms.begin(); it!=no_bonds_to_these_atoms.end(); it++) {
          mmdb::Atom *at = SelAtom.atom_selection[*it];
-         std::cout << "   Bond_lines_container constructor A " << *it << " " << coot::atom_spec_t(at) << std::endl;
+         std::cout << "   Bond_lines_container constructor B: " << *it << " " << coot::atom_spec_t(at) << std::endl;
       }
    }
 
@@ -4544,6 +4544,8 @@ Bond_lines_container::addBond(int colour_index,
       if (n_atoms_in_atom_selection > 0)
          return;
 
+#if 0 // 2026-02-22-PE I dont think this is right!
+      // I think we want to duck out if *either* of the atoms are in the non-bonds-to-these-atoms set
    // duck out if both of these atoms are in the no-bonds to these atoms set
    //
    if (no_bonds_to_these_atoms.find(atom_index_1) != no_bonds_to_these_atoms.end()) {
@@ -4554,6 +4556,11 @@ Bond_lines_container::addBond(int colour_index,
               return;
       }
    }
+#endif
+
+   // 2026-02-22 new logic
+   if (no_bonds_to_these_atoms.find(atom_index_1) != no_bonds_to_these_atoms.end()) return;
+   if (no_bonds_to_these_atoms.find(atom_index_2) != no_bonds_to_these_atoms.end()) return;
 
    if (false)
       if (no_bonds_to_these_atoms.size() > 0)
@@ -6985,7 +6992,8 @@ Bond_lines_container::do_colour_by_dictionary_and_by_chain_bonds_carbons_only(co
       }
    }
    // resize the bonds vector now that we know the number of bonds
-   bonds.resize(50+n_chains);
+   if (bonds.size() < (50+n_chains))
+      bonds.resize(50+n_chains);
 
    int udd_atom_index_handle = asc.UDDAtomIndexHandle;
    int atom_colour_type = coot::COLOUR_BY_CHAIN_C_ONLY;
@@ -7065,6 +7073,7 @@ Bond_lines_container::do_colour_by_dictionary_and_by_chain_bonds_carbons_only(co
                                 draw_hydrogens_flag, do_goodsell_colour_mode);
    }
 
+   std::cout << "DEBUG::do_colour_by_dictionary_and_by_chain_bonds_carbons_only() calling add_polymer_bonds()" << std::endl;
    add_polymer_bonds(asc, model_number, atom_colour_type, &atom_colour_map,  // draw_missing_loops_flag not used here
                      draw_hydrogens_flag, do_goodsell_colour_mode);
 
@@ -7144,6 +7153,8 @@ Bond_lines_container::add_polymer_bonds(const atom_selection_container_t &asc,
                                         int draw_hydrogens_flag,
                                         bool do_goodsell_colour_mode) {
 
+   std::cout << "DEBUG:: add_polymer_bonds() " << model_number << std::endl;
+
    add_peptide_bonds(       asc, model_number, atom_colour_type, atom_colour_map_p, draw_hydrogens_flag, do_goodsell_colour_mode);
    add_phosphodiester_bonds(asc, model_number, atom_colour_type, atom_colour_map_p, draw_hydrogens_flag, do_goodsell_colour_mode);
    add_carbohydrate_bonds(  asc, model_number, atom_colour_type, atom_colour_map_p, draw_hydrogens_flag, do_goodsell_colour_mode);
@@ -7159,6 +7170,9 @@ Bond_lines_container::add_polymer_bonds_generic(const atom_selection_container_t
                                                 const std::string &res_2_atom_name, // in "res2"
                                                 bool allow_het_group_linking,
                                                 bool do_goodsell_colour_mode) {
+   if (false)
+      std::cout << "DEBUG:: in add_polymer_bonds_generic(): with no_bonds_to_these_atoms size "
+                << no_bonds_to_these_atoms.size() << std::endl;
 
    int udd_user_defined_atom_colour_index_handle = asc.mol->GetUDDHandle(mmdb::UDR_ATOM, "user-defined-atom-colour-index");
 

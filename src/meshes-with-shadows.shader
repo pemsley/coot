@@ -309,9 +309,7 @@ void main() {
 
       if (do_fresnel) {
          // R can be calculated in the vertex shader
-         // vec3 eye_to_frag_pos_uv = normalize(frag_pos_transfer - eye_position_in_molecule_coordinates_space.xyz);
-         // 20221219-PE try the other coordinates system.. .Yes! That works
-         vec3 eye_to_frag_pos_uv = normalize(frag_pos_light_space_transfer.xyz - eye_position_in_molecule_coordinates_space.xyz);
+         vec3 eye_to_frag_pos_uv = normalize(frag_pos_transfer - eye_position_in_molecule_coordinates_space);
          float dp_eye = dot(normalize(normal_transfer), eye_to_frag_pos_uv);
          // (I.N) should be 1.0 if we are looking staight on to (perpendicular to) the surface.
          float I_dot_N = dp_eye;
