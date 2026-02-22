@@ -1677,10 +1677,14 @@ TextureMesh::load_from_glTF(const std::string &file_name_in, bool include_call_t
 
                            // images
 
-                           std::cout << "This model contains " << model.images.size() << " images" << std::endl;
-                           for (unsigned int i=0; i<model.images.size(); i++) {
-                              Texture texture = proc_images(model.images[i]);
-                              textures.push_back(texture);
+                           std::cout << "This model contains " << model.images.size() << " images and "
+                                     << model.textures.size() << " textures" << std::endl;
+                           for (unsigned int i=0; i<model.textures.size(); i++) {
+                              int image_index = model.textures[i].source;
+                              if (image_index >= 0 && image_index < static_cast<int>(model.images.size())) {
+                                 Texture texture = proc_images(model.images[image_index]);
+                                 textures.push_back(texture);
+                              }
                            }
 
                            return std::make_pair(r, textures);
