@@ -2147,6 +2147,9 @@ molecule_class_info_t::new_coords_mol_in_display_control_widget() const {
       }
    }
 
+   if (! meshes.empty())
+      update_display_control_mesh_toggles(imol_no);
+
 }
 
 std::string

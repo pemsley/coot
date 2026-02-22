@@ -171,10 +171,12 @@ pae_colour_ribbon_model(int imol,
    g.undisplay_all_molecule_meshes(imol);
    add_ribbon_representation_with_user_defined_colours(imol, "AlphaFold-PAE");
 
+#if 0 // 20260222-PE we no longer use this widget
    GtkWidget *w = widget_from_builder("molecular_representations_dialog");
    gtk_widget_set_visible(w, TRUE);
    g.set_transient_for_main_window(w);
    g.update_molecular_representation_widgets();
+#endif
 
 }
 
