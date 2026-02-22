@@ -1,10 +1,5 @@
 --- Items ---
 
-o Ctrl F toggle rough fine smooth
-* Done. Nice.
-
-o in python script entry Ctrl-E, Ctrl-A
-
 o Have a look at fancy mode transparent surfaces.
 
 o make aniso lines width user-setable - or thicker
@@ -24,14 +19,10 @@ o fix the --help message to be more helpful (see general on pumble)
 o split water doesn't work
 * I can't make it fail
 
-o auto-split model: look for regions with large aniso for several residues.
-
-o try to use the atom specs in the new ligand validation output
+o Try to use the atom specs in the new ligand validation output
   For planes? What did I mean?
 
 o the thermal ellipsoid slider should go up to 99%
-
-o Edit -> Copy fragment doesn't have a default molecule
 
 o add a menu item to open socket for claude
 
@@ -45,11 +36,14 @@ o set_map_colour() in molecule_class_info.h() calls
 
 o move the lights
 
-o Claude to make chapi tests from test-molecules-container
+o make chapi tests from test-molecules-container
 
 o add acedrg atom types to the mmcif from pyrogen
 
-o Check acedrg atom types with a some recent dictionaries
+o Science: Check acedrg atom types with a some recent dictionaries
+
+o Science: auto-split model: look for regions with large aniso for
+  several residues.
 
 o think about how to make an atom selection for alt conformation
   generation. Shift-click to toggle addition
@@ -61,6 +55,22 @@ o after using Lhasa, the generated dictionary should be made
 
 o opacity for molecular surface and electrostatic surface also
   See set_transparent_electrostatic_surface()
+
+o Edit -> Copy fragment doesn't have a default molecule
+* Done.
+
+o Ctrl F toggle rough fine smooth
+* Done. Nice.
+
+o in python script entry Ctrl-E, Ctrl-A
+* Done - Ctrl-e. Ctrl-a is strange, it looks as if it is already
+ bound to selecting all the text
+
+o make aniso lines width user-setable - or thicker
+* Done.
+
+o Make it easy to delete all waters.
+* Done
 
 o Pyrogen for Moorhen - make progress by the retreat.
 * Done.

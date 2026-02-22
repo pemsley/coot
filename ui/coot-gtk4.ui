@@ -113,6 +113,12 @@
       </section>
       <section>
         <item>
+          <attribute name="label">Start RCP Server...</attribute>
+          <attribute name="action">app.start_rpc_server_action</attribute>
+        </item>
+      </section>
+      <section>
+        <item>
           <attribute name="label">Exit</attribute>
           <attribute name="action">app.exit_action</attribute>
         </item>
@@ -7507,6 +7513,73 @@ Do you want to continue?
                 </child>
               </object>
             </child>
+
+            <child type="overlay">
+              <object class="GtkFrame" id="start_rpc_server_frame">
+                <property name="halign">center</property>
+                <property name="valign">start</property>
+                <property name="visible">False</property>
+                <property name="margin-bottom">5</property>
+                <property name="margin-end">5</property>
+                <property name="margin-start">5</property>
+                <property name="margin-top">5</property>
+
+                <child>
+                  <object class="GtkBox" id="vbox_for_start_rpc_server">
+                    <property name="orientation">vertical</property>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="orientation">horizontal</property>
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="label" translatable="yes">  Port  </property>
+                            <property name="justify">center</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkEntry" id="start_rpc_server_entry">
+                            <property name="width-request">5</property>
+                            <property name="can-focus">1</property>
+                            <property name="text">9090</property>
+                            <property name="halign">end</property>
+                            <property name="margin-top">2</property>
+                            <property name="margin-bottom">2</property>
+                            <property name="margin-end">6</property>
+                            <property name="margin-start">4</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="orientation">horizontal</property>
+                        <property name="spacing">6</property>
+                        <property name="margin-end">6</property>
+                        <property name="margin-start">4</property>
+                        <property name="halign">end</property>
+                        <child>
+                          <object class="GtkButton" id="start_rpc_server_cancel_button">
+                            <property name="label" translatable="yes">Cancel</property>
+                            <property name="halign">end</property>
+                            <signal name="clicked" handler="on_start_rpc_server_cancel_button_clicked" />
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkButton" id="start_rpc_server_ok_button">
+                            <property name="label" translatable="yes">OK</property>
+                            <signal name="clicked" handler="on_start_rpc_server_ok_button_clicked" />
+                            <style>
+                              <class name="suggested-action"/>
+                            </style>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+
             <child type="overlay">
               <object class="GtkFrame" id="copy_fragment_frame">
                 <property name="halign">center</property>

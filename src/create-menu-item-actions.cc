@@ -433,6 +433,15 @@ void curlew_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 
 }
 
+void start_rpc_server_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                             G_GNUC_UNUSED GVariant *parameter,
+                             G_GNUC_UNUSED gpointer user_data) {
+
+   GtkWidget *frame = widget_from_builder("start_rpc_server_frame");
+   gtk_widget_set_visible(frame, TRUE);
+
+}
+
 void get_monomer_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                         G_GNUC_UNUSED GVariant *parameter,
                         G_GNUC_UNUSED gpointer user_data) {
@@ -5925,6 +5934,8 @@ create_actions(GtkApplication *application) {
    add_action("get_monomer_action", get_monomer_action);
    add_action(     "curlew_action",      curlew_action);
    add_action(       "exit_action",        exit_action);
+
+   add_action("start_rpc_server_action", start_rpc_server_action);
 
    // 2025-09-15 13:00 PE hack functions
    add_action("show_accession_code_fetch_frame_oca",        show_accession_code_fetch_frame_oca);
