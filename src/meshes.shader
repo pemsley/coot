@@ -235,9 +235,6 @@ void main() {
       // (I.N) should be 1.0 if we are looking staight on to (perpendicular to) the surface.
       float I_dot_N = dp_eye;
       if (I_dot_N <= 0.0) {
-         float bias  = 0.01;
-         float scale = 0.5;
-         float power = 2.2;
          // I_dot_N = clamp(I_dot_N, 0.0, 1.0); // should not be needed.
          float R0 = fresnel_bias + fresnel_scale * pow((1.0 + I_dot_N), fresnel_power);
          float R = clamp(R0, 0.0, 1.0);
