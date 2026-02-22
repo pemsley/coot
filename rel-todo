@@ -1,30 +1,29 @@
 --- Items ---
 
+o em_placement
+
+o do something about where ribbons live.
+
+o John Beale
+
+o XDG bernie
+
+o validate flatpak
+
 o Have a look at fancy mode transparent surfaces.
+* Done
 
-o make aniso lines width user-setable - or thicker
-* Done.
-
-o Make it easy to delete all waters.
-
-o loot at A1CEP in 9oun and friends. Use chapi to make output
+o look at A1CEP in 9oun and friends. Use chapi to make output
   comparing and contrasting the ligands
 
-o open display manager, close it, open shader settings, close that,
-  open display manager again, close that - then when I re-open
-  shader settings for the second time, it is broken and unusable
+o check that these work as expected (Martin Maly anom test):
+   coot.set_map_radius(7.52)
+   coot.set_map_radius_em(52.60)
 
 o fix the --help message to be more helpful (see general on pumble)
 
 o split water doesn't work
 * I can't make it fail
-
-o Try to use the atom specs in the new ligand validation output
-  For planes? What did I mean?
-
-o the thermal ellipsoid slider should go up to 99%
-
-o add a menu item to open socket for claude
 
 o add arg for how to handle secondary structure in
   molecular_respresentation cc-interface-molecular-representation.hh
@@ -56,6 +55,20 @@ o after using Lhasa, the generated dictionary should be made
 o opacity for molecular surface and electrostatic surface also
   See set_transparent_electrostatic_surface()
 
+o make aniso lines width user-setable - or thicker
+* Done.
+
+o open display manager, close it, open shader settings, close that,
+  open display manager again, close that - then when I re-open
+  shader settings for the second time, it is broken and unusable
+* Done
+
+o the thermal ellipsoid slider should go up to 99%
+* Done.
+
+o add a menu item to open socket for rpc server
+* Done
+
 o Edit -> Copy fragment doesn't have a default molecule
 * Done.
 
@@ -64,7 +77,7 @@ o Ctrl F toggle rough fine smooth
 
 o in python script entry Ctrl-E, Ctrl-A
 * Done - Ctrl-e. Ctrl-a is strange, it looks as if it is already
- bound to selecting all the text
+  bound to selecting all the text
 
 o make aniso lines width user-setable - or thicker
 * Done.
@@ -108,26 +121,17 @@ o findwaters bug
 o Martin M: Figure with white background distance between
   atoms is white on white. The pale text is not good.
   The distance labels should be hideable.
+* Done, I think
 
 o Lucrezia's Presentation:
   interactive FFT.
   with 2 sliders: Sharpening and Resolution cutoff
   use raised cosine, or something similar
 
-o em_placement
-
-o do something about where ribbons live.
-
 o chapi.get_ligand_validation_vs_dictionary() generates its
   data on the fly - when the atoms have expired. Rework this
   so that the data are filled shortly after the molecule fragment
   is generated - and before they go out of scope.
-
-o John Beale
-
-o XDG bernie
-
-o validate flatpak
 
 o generate python api for gemmi like is done for chapi.
   Turn this into Fortran api also?
@@ -1040,10 +1044,6 @@ Stack trace (most recent call last):
         386:       std::copy(rn.begin(), rn.end(), ccx);
 
 o Ctrl-S should add something to the log.
-
-o check that these work as expected (Martin Maly anom test):
-   coot.set_map_radius(7.52)
-   coot.set_map_radius_em(52.60)
 
 o Assign sequence gui needs fixing..
 * Done.
