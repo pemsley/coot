@@ -59,5 +59,8 @@ void add_add_reps_frame_and_vbox(GtkWidget *display_control_window_glade,
 // bring the interface into C++
 void display_control_map_combo_box(const std::string &name, int imol);
 
+// update/add mesh toggle buttons for a molecule in the display control window
+void update_display_control_mesh_toggles(int imol);
+
 #endif // GTK_MANUAL_HH
 

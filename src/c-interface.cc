@@ -61,6 +61,11 @@
 #include "guile-fixups.h"
 #endif // USE_GUILE
 
+#ifdef USE_GUILE
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wvolatile"
+#endif
+
 #ifdef USE_PYTHON
 #include "c-interface-python.hh"
 #endif // USE_PYTHON
@@ -138,6 +143,7 @@
 #include "read-molecule.hh" // now with std::string args
 
 #include "widget-from-builder.hh"
+#include "gtk-manual.hh"
 #include "glarea_tick_function.hh"
 
 #include "validation-graphs/sequence-view-widget.hh"
@@ -6075,22 +6081,19 @@ set_display_control_button_state(int imol, const std::string &button_type, int s
 
          GtkWidget *item_widget = gtk_widget_get_first_child(display_control_vbox);
          while (item_widget) {
-            GtkWidget *child_0 = gtk_widget_get_first_child(item_widget);
-            GtkWidget *child_1 = gtk_widget_get_next_sibling(child_0);
-            GtkWidget *child_2 = gtk_widget_get_next_sibling(child_1);
-            GtkWidget *child_3 = gtk_widget_get_next_sibling(child_2);
-            GtkWidget *display_check_button = child_2;
-            GtkWidget *active_check_button  = child_3;
-            // std::cout << "child_2 " << child_2 << " child_3 " << child_3 << std::endl;
             int imol_widget = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(item_widget), "imol"));
             if (imol_widget == imol) {
-               if (button_type == "Displayed") {
-                  // actually I need only set the state if the state is not the current
-                  // state of the check button.
-                  gtk_check_button_set_active(GTK_CHECK_BUTTON(display_check_button), state);
-               }
-               if (button_type == "Active") {
-                  gtk_check_button_set_active(GTK_CHECK_BUTTON(active_check_button), state);
+               // item_widget is a mol_vbox, the hbox with controls is its first child
+               GtkWidget *hbox = gtk_widget_get_first_child(item_widget);
+               if (hbox) {
+                  GtkWidget *display_check_button = GTK_WIDGET(g_object_get_data(G_OBJECT(hbox), "display_check_button"));
+                  GtkWidget *active_check_button  = GTK_WIDGET(g_object_get_data(G_OBJECT(hbox), "active_check_button"));
+                  if (button_type == "Displayed" && display_check_button) {
+                     gtk_check_button_set_active(GTK_CHECK_BUTTON(display_check_button), state);
+                  }
+                  if (button_type == "Active" && active_check_button) {
+                     gtk_check_button_set_active(GTK_CHECK_BUTTON(active_check_button), state);
+                  }
                }
             }
             item_widget = gtk_widget_get_next_sibling(item_widget);
@@ -9186,6 +9189,7 @@ void make_generic_surface(int imol, const char *selection_str, int mode) {
       obj.mesh.set_material_specularity(0.7, 128);
       obj.mesh.setup_buffers();
 
+      update_display_control_mesh_toggles(imol);
       graphics_draw();
    }
 }

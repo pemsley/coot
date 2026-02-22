@@ -30,6 +30,7 @@
 #endif
 
 #include <string.h>
+#include <functional>
 
 // NOTE:: The order of these 6 include files seems fragile
 #include <gtk/gtk.h>
@@ -469,12 +470,26 @@ void display_control_molecule_combo_box(const std::string &name, int imol,
                                         G_GNUC_UNUSED bool show_add_reps_frame_flag) {
 
    GtkWidget *display_control_molecule_vbox = widget_from_builder("display_molecule_vbox");
+
+   // Wrap each molecule in a vbox: the hbox for the molecule controls, and below it a mesh toggles section
+   GtkWidget *mol_vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 0);
+   g_object_set_data(G_OBJECT(mol_vbox), "imol", GINT_TO_POINTER(imol));
+   gtk_box_append(GTK_BOX(display_control_molecule_vbox), mol_vbox);
+   gtk_widget_set_visible(mol_vbox, TRUE);
+
    GtkWidget *hbox = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2); // 2 pixels between widgets inside the box
    gtk_widget_set_margin_start(hbox, 2);
    gtk_widget_set_margin_end(hbox, 8);
    g_object_set_data(G_OBJECT(hbox), "imol", GINT_TO_POINTER(imol)); // so that we can delete this box on delete molecule
-   gtk_box_append(GTK_BOX(display_control_molecule_vbox), hbox);
+   gtk_box_append(GTK_BOX(mol_vbox), hbox);
    gtk_widget_set_visible(hbox, TRUE);
+
+   // Create a vbox for mesh toggle buttons (initially hidden, shown when meshes are added)
+   GtkWidget *mesh_vbox = gtk_box_new(GTK_ORIENTATION_VERTICAL, 2);
+   gtk_widget_set_margin_start(mesh_vbox, 30);
+   g_object_set_data(G_OBJECT(mol_vbox), "mesh_vbox", mesh_vbox);
+   gtk_box_append(GTK_BOX(mol_vbox), mesh_vbox);
+   gtk_widget_set_visible(mesh_vbox, FALSE);
 
    // We need to add thesee items:
    // 1: molecule number label
@@ -632,35 +647,146 @@ on_add_rep_all_on_check_button_toggled(GtkToggleButton    *button,
    }
 }
 
+static void
+on_display_control_mesh_toggle_toggled(GtkCheckButton *button, gpointer user_data) {
+
+   int imol     = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(button), "imol"));
+   int mesh_idx = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(button), "mesh_idx"));
+   bool state = gtk_check_button_get_active(button);
+   if (is_valid_model_molecule(imol)) {
+      auto &m = graphics_info_t::molecules[imol];
+      if (mesh_idx >= 0 && mesh_idx < static_cast<int>(m.meshes.size())) {
+         m.meshes[mesh_idx].set_draw_mesh_state(state);
+      }
+   }
+   graphics_draw();
+}
+
+static void
+on_display_control_generic_object_toggle_toggled(GtkCheckButton *button, gpointer user_data) {
+
+   int obj_idx = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(button), "generic_object_idx"));
+   bool state = gtk_check_button_get_active(button);
+   auto &gdo = graphics_info_t::generic_display_objects;
+   if (obj_idx >= 0 && obj_idx < static_cast<int>(gdo.size())) {
+      gdo[obj_idx].mesh.set_draw_mesh_state(state);
+   }
+   graphics_draw();
+}
+
+// Find the mol_vbox for a given molecule in the display control window
+static GtkWidget *find_display_control_mol_vbox(int imol) {
+
+   GtkWidget *display_control_molecule_vbox = widget_from_builder("display_molecule_vbox");
+   if (!display_control_molecule_vbox) return nullptr;
+   GtkWidget *child = gtk_widget_get_first_child(display_control_molecule_vbox);
+   while (child) {
+      int imol_child = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(child), "imol"));
+      if (imol_child == imol)
+         return child;
+      child = gtk_widget_get_next_sibling(child);
+   }
+   return nullptr;
+}
+
+void update_display_control_mesh_toggles(int imol) {
+
+   if (! graphics_info_t::use_graphics_interface_flag) return;
+
+   GtkWidget *mol_vbox = find_display_control_mol_vbox(imol);
+   if (!mol_vbox) return;
+
+   GtkWidget *mesh_vbox = GTK_WIDGET(g_object_get_data(G_OBJECT(mol_vbox), "mesh_vbox"));
+   if (!mesh_vbox) return;
+
+   if (!is_valid_model_molecule(imol)) return;
+   auto &mol = graphics_info_t::molecules[imol];
+   auto &gdo = graphics_info_t::generic_display_objects;
+
+   // Count existing toggle buttons in mesh_vbox
+   int n_existing = 0;
+   for (GtkWidget *w = gtk_widget_get_first_child(mesh_vbox); w; w = gtk_widget_get_next_sibling(w))
+      n_existing++;
+
+   // Count how many toggles we need: molecule meshes + generic display objects for this imol
+   int n_mol_meshes = mol.meshes.size();
+   int n_gdo_for_imol = 0;
+   for (unsigned int i = 0; i < gdo.size(); i++)
+      if (gdo[i].imol == imol && !gdo[i].mesh.name.empty())
+         n_gdo_for_imol++;
+
+   int n_total = n_mol_meshes + n_gdo_for_imol;
+   if (n_total == 0) {
+      gtk_widget_set_visible(mesh_vbox, FALSE);
+      return;
+   }
+
+   // Only add new toggles beyond what already exists.
+   // Molecule meshes come first, then generic display objects.
+   int toggle_idx = 0;
+
+   // Add toggle buttons for molecule meshes
+   for (unsigned int j = 0; j < mol.meshes.size(); j++) {
+      if (toggle_idx >= n_existing) {
+         const auto &mesh = mol.meshes[j];
+         std::string label = mesh.name;
+         GtkWidget *cb = gtk_check_button_new_with_label(label.c_str());
+         gtk_check_button_set_active(GTK_CHECK_BUTTON(cb), mesh.get_draw_this_mesh());
+         g_object_set_data(G_OBJECT(cb), "imol",     GINT_TO_POINTER(imol));
+         g_object_set_data(G_OBJECT(cb), "mesh_idx", GINT_TO_POINTER(j));
+         g_signal_connect(G_OBJECT(cb), "toggled",
+                          G_CALLBACK(on_display_control_mesh_toggle_toggled), nullptr);
+         gtk_box_append(GTK_BOX(mesh_vbox), cb);
+         gtk_widget_set_visible(cb, TRUE);
+         gtk_widget_set_margin_start(cb, 4);
+      }
+      toggle_idx++;
+   }
+
+   // Add toggle buttons for generic display objects belonging to this molecule
+   for (unsigned int i = 0; i < gdo.size(); i++) {
+      if (gdo[i].imol == imol && !gdo[i].mesh.name.empty()) {
+         if (toggle_idx >= n_existing) {
+            std::string label = gdo[i].mesh.name;
+            GtkWidget *cb = gtk_check_button_new_with_label(label.c_str());
+            gtk_check_button_set_active(GTK_CHECK_BUTTON(cb), gdo[i].mesh.get_draw_this_mesh());
+            g_object_set_data(G_OBJECT(cb), "imol",               GINT_TO_POINTER(imol));
+            g_object_set_data(G_OBJECT(cb), "generic_object_idx", GINT_TO_POINTER(i));
+            g_signal_connect(G_OBJECT(cb), "toggled",
+                             G_CALLBACK(on_display_control_generic_object_toggle_toggled), nullptr);
+            gtk_box_append(GTK_BOX(mesh_vbox), cb);
+            gtk_widget_set_visible(cb, TRUE);
+            gtk_widget_set_margin_start(cb, 4);
+         }
+         toggle_idx++;
+      }
+   }
+   gtk_widget_set_visible(mesh_vbox, TRUE);
+}
+
 GtkWidget *molecule_index_to_display_manager_entry(int imol) {
 
    // see also set_display_control_button_state()
 
-   auto get_inner_entry = [] (const std::string &widget_name, GtkWidget *vbox) {
-
-      GtkWidget *entry = nullptr;
-      GtkWidget *item_widget = gtk_widget_get_first_child(vbox);
-      while (item_widget) {
-
-         GtkWidget *item_widget_inner = gtk_widget_get_first_child(item_widget);
-         while (item_widget_inner) {
-
-            const char *wn = gtk_widget_get_name(item_widget_inner);
-            if (wn) {
-               // std::cout << "got widget_name " << wn << std::endl;
-               std::string wns(wn);
-               if (widget_name == wns) {
-                  entry = item_widget_inner;
-                  break;
-               }
-            } else {
-               // std::cout << "DEBUG:: in get_inner_entry(): null widget_name" << std::endl;
-            }
-            item_widget_inner = gtk_widget_get_next_sibling(item_widget_inner);
+   // Search for a widget by name up to 3 levels deep in the hierarchy
+   std::function<GtkWidget *(const std::string &, GtkWidget *, int)> find_widget_by_name;
+   find_widget_by_name = [&find_widget_by_name] (const std::string &widget_name, GtkWidget *parent, int depth) -> GtkWidget * {
+      if (depth <= 0) return nullptr;
+      GtkWidget *child = gtk_widget_get_first_child(parent);
+      while (child) {
+         const char *wn = gtk_widget_get_name(child);
+         if (wn) {
+            std::string wns(wn);
+            if (widget_name == wns) return child;
          }
-         item_widget = gtk_widget_get_next_sibling(item_widget);
-      };
-      return entry;
+         GtkWidget *found = find_widget_by_name(widget_name, child, depth - 1);
+         if (found) return found;
+         child = gtk_widget_get_next_sibling(child);
+      }
+      return nullptr;
+   };
+   auto get_inner_entry = [&find_widget_by_name] (const std::string &widget_name, GtkWidget *vbox) {
+      return find_widget_by_name(widget_name, vbox, 3);
    };
 
    GtkWidget *entry = nullptr;

@@ -93,6 +93,7 @@
 #include "guile-fixups.h"
 #include "widget-from-builder.hh"
 #include "c-interface-gtk-widgets.h"
+#include "gtk-manual.hh"
 
 #include "utils/logging.hh"
 extern logging logger;
@@ -4623,15 +4624,19 @@ graphics_info_t::add_molecular_representation(int imol,
              << "colour-scheme: \"" << colour_scheme << "\" "
              << "style \"" << style << "\"" << std::endl;
 
+#if 0 // 20260222-PE We no longer use this widget
    GtkWidget *w = widget_from_builder("molecular_representations_dialog");
    gtk_widget_set_visible(w, TRUE);
    set_transient_for_main_window(w);
+#endif
 
    attach_buffers();
 
-   int status = molecules[imol].add_molecular_representation(atom_selection, colour_scheme, style, secondary_structure_usage_flag);
+   int status = molecules[imol].add_molecular_representation(atom_selection, colour_scheme, style,
+                                                             secondary_structure_usage_flag);
 
    update_molecular_representation_widgets();
+   update_display_control_mesh_toggles(imol);
    graphics_draw();
    return status;
 }
@@ -4652,6 +4657,7 @@ graphics_info_t::add_ribbon_representation_with_user_defined_colours(int imol, c
    molecules[imol].add_ribbon_representation_with_user_defined_residue_colours(user_defined_colours, name);
 
    update_molecular_representation_widgets();
+   update_display_control_mesh_toggles(imol);
    graphics_draw();
    return status;
 }
@@ -4685,7 +4691,7 @@ graphics_info_t::set_show_molecular_representation(int imol, unsigned int mesh_i
          auto mesh = meshes[mesh_idx];
          mesh.set_draw_mesh_state(on_off);
       }
-   } 
+   }
 }
 
 // static
@@ -4729,6 +4735,10 @@ graphics_info_t::molecular_representation_meshes_checkbutton_toggled(GtkCheckBut
 
 void
 graphics_info_t::update_molecular_representation_widgets() {
+
+   // 20260222-PE
+   // this is no longer needed - now that the molecular meshes are in the display manager
+   return;
 
    // find the display toggle button for mesh idx_mesh for molecule imol
    auto find_button = [] (GtkWidget *box, unsigned int imol, unsigned int idx_mesh) {
