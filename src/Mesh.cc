@@ -2453,7 +2453,7 @@ Mesh::draw_with_shadows(Shader *shader_p,
    if (err) std::cout << "error:: Mesh::draw_with_shadows() " << shader_name << " " << name
                       << " glBindVertexArray() vao " << vao << " with GL err " << err << std::endl;
 
-   if (false) { // I doubt that the block is needed. 20210823-PE
+   if (true) {
       glBindBuffer(GL_ARRAY_BUFFER, buffer_id);
       err = glGetError(); if (err) std::cout << "GL ERROR:: Mesh::draw_with_shadows() glBindBuffer() v "
                                              << err << std::endl;
@@ -3979,13 +3979,10 @@ Mesh::sort_map_triangles(const glm::vec3 &eye_position) {
                 << glm::to_string(eye_position) << std::endl;
    auto tp_0 = std::chrono::high_resolution_clock::now();
 
-   if (false) { // debug
-      for (unsigned int i=0; i<map_triangle_centres.size(); i++) {
-         auto delta(map_triangle_centres[i].second.mid_point - eye_position);
-         float dd = glm::length2(delta);
-         std::cout << "map-triangle-centre " << i << " " << dd << "\n";
-         map_triangle_centres[i].second.back_front_projection_distance = dd;
-      }
+   for (unsigned int i=0; i<map_triangle_centres.size(); i++) {
+      auto delta(map_triangle_centres[i].second.mid_point - eye_position);
+      float dd = glm::length2(delta);
+      map_triangle_centres[i].second.back_front_projection_distance = dd;
    }
 
    // this sign needs checking (I did, I think that it's right now).
@@ -4010,12 +4007,14 @@ Mesh::sort_map_triangles(const glm::vec3 &eye_position) {
 
    GLenum err = glGetError();
 
+   glBindVertexArray(vao);
    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, index_buffer_id);
    err = glGetError(); if (err) std::cout << "GL error: sorting triangles: " << err << std::endl;
 
    unsigned int n_bytes = 3 * n_triangle_centres * sizeof(unsigned int);
    glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, n_bytes, &indices_for_triangles[0]);
    err = glGetError(); if (err) std::cout << "GL error: sorting triangles: " << err << std::endl;
+   glBindVertexArray(0);
 
    delete [] indices_for_triangles;
 
