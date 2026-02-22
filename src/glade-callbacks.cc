@@ -4083,7 +4083,22 @@ show_anisotropic_atoms_as_ortep_switch_state_set(GtkSwitch *switch_widget,
    }
 }
 
+extern "C" G_MODULE_EXPORT
+void
+show_anisotropic_atoms_as_empty_switch_state_set(GtkSwitch *switch_widget,
+                                                 gboolean   state,
+                                                 gpointer   user_data) {
 
+   GtkWidget *bond_parameters_molecule_comboboxtext =
+      widget_from_builder("bond_parameters_molecule_comboboxtext");
+
+   if (bond_parameters_molecule_comboboxtext) {
+      graphics_info_t g;
+      int imol = g.combobox_get_imol(GTK_COMBO_BOX(bond_parameters_molecule_comboboxtext));
+      g.molecules[imol].set_show_aniso_atoms_as_empty(state);
+      g.graphics_draw();
+   }
+}
 
 extern "C" G_MODULE_EXPORT
 void
