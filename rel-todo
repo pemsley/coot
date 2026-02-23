@@ -1,8 +1,11 @@
 --- Items ---
 
-o em_placement
+o check that these work as expected (Martin Maly anom test):
+   coot.set_map_radius(7.52)
+   coot.set_map_radius_em(52.60)
+* Checked. They don't.
 
-o do something about where ribbons live.
+o em_placement
 
 o John Beale
 
@@ -10,17 +13,12 @@ o XDG bernie
 
 o validate flatpak
 
-o Have a look at fancy mode transparent surfaces.
-* Done
-
 o look at A1CEP in 9oun and friends. Use chapi to make output
   comparing and contrasting the ligands
 
-o check that these work as expected (Martin Maly anom test):
-   coot.set_map_radius(7.52)
-   coot.set_map_radius_em(52.60)
-
 o fix the --help message to be more helpful (see general on pumble)
+
+o update the skills.
 
 o split water doesn't work
 * I can't make it fail
@@ -54,6 +52,12 @@ o after using Lhasa, the generated dictionary should be made
 
 o opacity for molecular surface and electrostatic surface also
   See set_transparent_electrostatic_surface()
+
+o do something about where ribbons live.
+* Done.
+
+o Have a look at fancy mode transparent surfaces.
+* Done
 
 o make aniso lines width user-setable - or thicker
 * Done.
