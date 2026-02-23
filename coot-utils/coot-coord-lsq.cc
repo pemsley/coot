@@ -23,6 +23,9 @@
 #include "utils/coot-utils.hh"
 #include "coot-coord-utils.hh"
 
+#include "utils/logging.hh"
+extern logging logger;
+
 // LSQing
 //
 std::pair<short int, clipper::RTop_orth>
@@ -46,7 +49,8 @@ coot::util::get_lsq_matrix(mmdb::Manager *mol1,
       if ((p.first.size() > 0) && (p.first.size() == p.second.size())) {
          if (false) { // debugging
             if (p.first.size() == 1)
-               std::cout << "    " << matches[i] << " " << p.first[0].format() << " " << p.second[0].format() << std::endl;
+               std::cout << "    " << matches[i] << " " << p.first[0].format() << " "
+                         << p.second[0].format() << std::endl;
          }
          for (unsigned int j=0; j<p.first.size(); j++) {
             co1v.push_back(p.first[j]);
@@ -84,6 +88,13 @@ coot::util::get_lsq_matrix(mmdb::Manager *mol1,
             // not variance about mean, variance from 0.
             //double var  = sum_dist2/double(co2v.size()) - mean*mean;
             double v    = sum_dist2/double(co2v.size());
+
+            logger.log(log_t::INFO, co1v.size(), "matched atoms with");
+            logger.log(log_t::INFO, "   mean devi", mean);
+            logger.log(log_t::INFO, "    rms devi", sqrt(v));
+            logger.log(log_t::INFO, "    max devi", maxd);
+            logger.log(log_t::INFO, "    min devi", mind);
+
             if (summary_to_screen)
                std::cout << "INFO:: " << co1v.size() << " matched atoms had: \n"
                          << "   mean devi: " << mean << "\n"
