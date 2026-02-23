@@ -6992,7 +6992,8 @@ Bond_lines_container::do_colour_by_dictionary_and_by_chain_bonds_carbons_only(co
       }
    }
    // resize the bonds vector now that we know the number of bonds
-   if (bonds.size() < (50+n_chains))
+   int bonds_size = bonds.size(); // change type
+   if (bonds_size < (50+n_chains))
       bonds.resize(50+n_chains);
 
    int udd_atom_index_handle = asc.UDDAtomIndexHandle;
