@@ -537,7 +537,9 @@ molecule_class_info_t::update_map(bool do_it) {
 void
 molecule_class_info_t::update_map_internal() {
 
-   std::cout << "DEBUG:: update_map_internal() --- start --- " << imol_no << " with contour_level " << contour_level << std::endl;
+   if (false)
+   std::cout << "DEBUG:: update_map_internal() --- start --- " << imol_no
+             << " with contour_level " << contour_level << std::endl;
 
    // duck out of doing map OpenGL map things if we are not in gui mode
    //
@@ -550,10 +552,9 @@ molecule_class_info_t::update_map_internal() {
          radius = graphics_info_t::box_radius_em;
 
       if (false)
-
-          std::cout << "in update_map_internal() " << radius << " vs x "
-                    << graphics_info_t::box_radius_xray << " em "
-                    << graphics_info_t::box_radius_em << " is-em: "
+          std::cout << "in update_map_internal() radius: " << radius
+                    << " c.f. x-ray " << graphics_info_t::box_radius_xray
+                    << " em " << graphics_info_t::box_radius_em << " is-em: "
                     << is_EM_map() << std::endl;
 
       coot::Cartesian rc(graphics_info_t::RotationCentre_x(),
@@ -2407,6 +2408,7 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
          bool check_only = false;
 
          done = coot::util::slurp_fill_xmap_from_map_file(filename, &xmap, check_only);
+         is_em_map_cached_flag = 1;
 
          auto tp_2 = std::chrono::high_resolution_clock::now();
          auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
@@ -2419,7 +2421,7 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
          if (done != coot::util::slurp_map_result_t::OK) {
             if (is_gzip) {
                em = true;
-               is_em_map_cached_flag = true; // who else gzip map files?
+               is_em_map_cached_flag = 1; // short int
                if (imol_no == 0) {
                   clipper::Cell c = xmap.cell();
                   coot::Cartesian m(0.5*c.descr().a(), 0.5*c.descr().b(), 0.5*c.descr().c());
@@ -2600,8 +2602,10 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
    if (bad_read)
       stat = -1;
 
-   // std::cout << "&&&&&&&&&&&&&&& mc::read_ccp4_map() bad_read " << bad_read << std::endl;
-   // std::cout << "&&&&&&&&&&&&&&& mc::read_ccp4_map() returns stat " << stat << std::endl;
+   if (false)
+      std::cout << "mc::read_ccp4_map() with is_em_map_cached_flag "
+                << is_em_map_cached_flag << std::endl;
+
    return stat;
 }
 
@@ -2656,6 +2660,9 @@ bool
 molecule_class_info_t::is_EM_map() const {
 
    bool ret_is_em = false;
+
+   if (false)
+      std::cout << "debug:: is_em_map_cached_flag: " << is_em_map_cached_flag << std::endl;
 
    if (has_xmap()) {
       if (is_em_map_cached_flag == 1) { // -1 means unset
