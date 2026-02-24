@@ -43,10 +43,10 @@ std::shared_ptr<ColorScheme> ColorScheme::colorByElementScheme()
 std::shared_ptr<ColorScheme> ColorScheme::colorBySecondaryScheme()
 {
     std::shared_ptr<ColorScheme> result(new ColorScheme());
-    result->addRule(SolidColorRule::colorRuleForSelectionAndName(std::make_shared<CompoundSelection>("/*/*/*.*/*:*", "NoSecondary"), "white"));
-    result->addRule(SolidColorRule::colorRuleForSelectionAndName(std::make_shared<CompoundSelection>("SSE_None",  "SSE_None"),   "white"));
-    result->addRule(SolidColorRule::colorRuleForSelectionAndName(std::make_shared<CompoundSelection>("SSE_Helix", "SSE_Helix"),  "magenta"));
-    result->addRule(SolidColorRule::colorRuleForSelectionAndName(std::make_shared<CompoundSelection>("SSE_Strand","SSE_Strand"), "yellow"));
+    result->addRule(SolidColorRule::colorRuleForSelectionAndName(std::make_shared<CompoundSelection>("/*/*/*.*/*:*", "NoSecondary"), "#666666"));
+    result->addRule(SolidColorRule::colorRuleForSelectionAndName(std::make_shared<CompoundSelection>("SSE_None",  "SSE_None"),   "#666666"));
+    result->addRule(SolidColorRule::colorRuleForSelectionAndName(std::make_shared<CompoundSelection>("SSE_Helix", "SSE_Helix"),  "#aa2222"));
+    result->addRule(SolidColorRule::colorRuleForSelectionAndName(std::make_shared<CompoundSelection>("SSE_Strand","SSE_Strand"), "#aaaa22"));
     result->addRule(SolidColorRule::colorRuleForSelectionAndName(std::make_shared<CompoundSelection>("NUCLEICACIDS","NUCLEICACIDS"), "forestgreen"));
     return result;
 }
