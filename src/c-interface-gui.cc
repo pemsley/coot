@@ -4269,7 +4269,12 @@ void fill_chi_angles_vbox(GtkWidget *vbox) {
 
    graphics_info_t g;
    gchar *strval = (gchar *) g_object_get_data(G_OBJECT(vbox), "strval");
-   g.fill_chi_angles_vbox(vbox, strval, graphics_info_t::EDIT_CHI);
+   if (strval) {
+      std::string s(strval);
+      g.fill_chi_angles_vbox(vbox, s, graphics_info_t::EDIT_CHI);
+   } else {
+      std::cout << "ERROR:: in fill_chi_angles_vbox(): null strval" << std::endl;
+   }
 }
 
 GtkWidget *wrapped_create_add_additional_representation_gui() {
