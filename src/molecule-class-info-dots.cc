@@ -276,6 +276,8 @@ coot::dots_representation_info_t::add_dots(int SelHnd, mmdb::Manager *mol,
 
 // ------------------------- NEF maybe this doesn't belong in this file
 
+#ifdef USE_GEMMI
+
 #include "coot-utils/nef-utils.hh"
 
 bool molecule_class_info_t::read_nef(const std::string &file_name) {
@@ -319,3 +321,5 @@ bool molecule_class_info_t::read_nef(const std::string &file_name) {
    }
    return status;
 }
+
+#endif // USE_GEMMI
