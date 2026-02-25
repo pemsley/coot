@@ -1,10 +1,5 @@
 --- Items ---
 
-o check that these work as expected (Martin Maly anom test):
-   coot.set_map_radius(7.52)
-   coot.set_map_radius_em(52.60)
-* Checked. They don't.
-
 o em_placement
 
 o John Beale
@@ -42,6 +37,10 @@ o Science: Check acedrg atom types with a some recent dictionaries
 o Science: auto-split model: look for regions with large aniso for
   several residues.
 
+o Science: AXI analysis
+
+o Science?: output ligand mmcif from libcoootapi
+
 o think about how to make an atom selection for alt conformation
   generation. Shift-click to toggle addition
 
@@ -49,6 +48,12 @@ o after using Lhasa, the generated dictionary should be made
   available to post-moorhen program/cloud.
   Likewise after using pyrogen, the dictionary should be
   available - so that Acedrg, say, can clean it up.
+
+o check that these work as expected (Martin Maly anom test):
+   coot.set_map_radius(7.52)
+   coot.set_map_radius_em(52.60)
+* Checked. They don't.
+* Fixed.
 
 o opacity for molecular surface and electrostatic surface also
   See set_transparent_electrostatic_surface()
@@ -243,8 +248,6 @@ o have another bash at calculating occlusion
 
 o Use gemmi tar files in build-it-3-3
 * Done.
-
-o Don't forget the AXI analysis - what's going on there?
 
 o don't forget the rotamer values from new coot.
   Also other MM rotamer functions
