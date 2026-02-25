@@ -60,7 +60,7 @@ void screendump_tga_internal(std::string tga_file,
    // This function reads pixels from whatever framebuffer is currently bound.
 
 #ifdef __APPLE__
-   framebuffer_scale_factor *= 2;
+   // framebuffer_scale_factor *= 2;
 #endif
 
    int w = widget_width;

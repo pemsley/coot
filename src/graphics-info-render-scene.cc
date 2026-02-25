@@ -776,6 +776,13 @@ graphics_info_t::render_scene_for_eye_internal(stereo_eye_t eye) {
       // we always want this viewport to be the size of the widget (in the case of APPLE, there
       // is the double resolution issue to handle)
 
+      // When screendumping, use the screendump FBO dimensions for viewport
+      if (screendump_target_framebuffer != 0) {
+         width = graphics_x_size;
+         height = graphics_y_size;
+         sf = 1; // graphics_x_size already includes scaling
+      }
+
       if (scale_up_graphics != 1) {
          width  *= scale_up_graphics;
          height *= scale_up_graphics;

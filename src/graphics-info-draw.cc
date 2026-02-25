@@ -4731,75 +4731,43 @@ graphics_info_t::render(bool to_screendump_framebuffer_flag, const std::string &
 
       bool show_basic_scene_state = (displayed_image_type == SHOW_BASIC_SCENE);
 
-      if (show_basic_scene_state) {
+      // Save state
+      int saved_gx = graphics_x_size;
+      int saved_gy = graphics_y_size;
 
-         // Basic path: render directly to an offscreen FBO at sf * widget_size.
-         // None of the draw functions in this path change framebuffer bindings,
-         // so they all render into whatever FBO is currently bound.
+      // Create screendump FBO
+      framebuffer screendump_fb;
+      unsigned int index_offset = 0;
+      screendump_fb.init(sf * w, sf * h, index_offset, "screendump");
 
-         framebuffer screendump_fb;
-         unsigned int index_offset = 0;
-         screendump_fb.init(sf * w, sf * h, index_offset, "screendump");
-         screendump_fb.bind();
+      // Set dimensions for projection matrix and viewport
+      graphics_x_size = sf * w;
+      graphics_y_size = sf * h;
 
-         glViewport(0, 0, sf * w, sf * h);
-         glClearColor(background_colour.r, background_colour.g, background_colour.b, 1.0);
-         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-         glDisable(GL_BLEND);
-         glEnable(GL_DEPTH_TEST);
-         glDepthFunc(GL_LESS);
-
-         if (draw_background_image_flag) {
-            texture_for_background_image.Bind(0);
-            tmesh_for_background_image.draw(&shader_for_background_image, HUDTextureMesh::TOP_LEFT);
-         }
-
-         graphics_info_t g;
-         stereo_eye_t eye = stereo_eye_t::MONO;
-         // g.draw_models(eye, &shader_for_tmeshes, &shader_for_meshes, nullptr, nullptr, sf * w, sf * h);
-         draw_rotation_centre_crosshairs(eye, gl_area, PASS_TYPE_STANDARD);
-         render_3d_scene(gl_area, eye);
-
-         // Ensure we read from the screendump FBO
-         screendump_fb.bind();
-         screendump_tga_internal(output_file_name, w, h, sf);
-
-      } else {
-
-         // Fancy path (effects/AO/shadows) - render at high-res by temporarily resizing
-         // all intermediate FBOs and redirecting attach_buffers() to our screendump FBO.
-
-         // Save state
-         int saved_gx = graphics_x_size;
-         int saved_gy = graphics_y_size;
-
-         // Create screendump FBO
-         framebuffer screendump_fb;
-         unsigned int index_offset = 0;
-         screendump_fb.init(sf * w, sf * h, index_offset, "screendump");
-
-         // Resize all intermediate FBOs to the high-res size
-         graphics_x_size = sf * w;
-         graphics_y_size = sf * h;
+      if (!show_basic_scene_state) {
+         // Fancy path needs intermediate FBOs resized
          graphics_info_t g;
          g.resize_framebuffers_textures_renderbuffers(sf * w, sf * h);
+      }
 
-         // Redirect attach_buffers() to our screendump FBO
-         screendump_target_framebuffer = screendump_fb.get_fbo();
+      // Redirect attach_buffers() to our screendump FBO
+      screendump_target_framebuffer = screendump_fb.get_fbo();
 
-         // Render the full fancy pipeline - all attach_buffers() calls go to screendump FBO
-         render_scene();
+      // Render (works for both basic and fancy paths)
+      render_scene();
 
-         // Read pixels from the screendump FBO
-         screendump_fb.bind();
-         screendump_tga_internal(output_file_name, w, h, sf);
+      // Read pixels from the screendump FBO
+      screendump_fb.bind();
+      screendump_tga_internal(output_file_name, w, h, sf);
 
-         // Restore state
-         screendump_target_framebuffer = 0;
-         graphics_x_size = saved_gx;
-         graphics_y_size = saved_gy;
+      // Restore state
+      screendump_target_framebuffer = 0;
+      graphics_x_size = saved_gx;
+      graphics_y_size = saved_gy;
+
+      if (!show_basic_scene_state) {
+         graphics_info_t g;
          g.resize_framebuffers_textures_renderbuffers(saved_gx, saved_gy);
-
       }
 
       glFlush();
