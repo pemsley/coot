@@ -10173,10 +10173,12 @@ molecule_class_info_t::set_coot_save_index(const std::string &filename) {
 void
 molecule_class_info_t::transform_by(mmdb::mat44 mat) {
 
+   std::cout << "********************** transform_by() mmdb mat" << std::endl;
+
    if (has_model()) {
       clipper::Coord_orth co;
       clipper::Coord_orth trans_pos;
-      make_backup("transform-by");
+      make_backup("transform-by-mmdb-mat");
       clipper::Mat33<double> clipper_mat(mat[0][0], mat[0][1], mat[0][2],
                                          mat[1][0], mat[1][1], mat[1][2],
                                          mat[2][0], mat[2][1], mat[2][2]);
@@ -10214,36 +10216,36 @@ void
 molecule_class_info_t::transform_by(const clipper::RTop_orth &rtop) {
 
    make_backup("transform-by-clipper-rtop");
-   std::cout << "INFO:: coordinates transformed by orthogonal matrix: \n"
-             << rtop.format() << std::endl;
+   std::cout << "INFO:: coordinates transformed by orthogonal matrix: \n" << rtop.format() << std::endl;
+
+   logger.log(log_t::INFO, logging::function_name_t("transform_by"), "coordinates transformed by orthogonal matrix:\n");
+   logger.log(log_t::INFO, logging::function_name_t("transform_by"), rtop.format());
+
    if (have_unit_cell) {
 
-      mmdb::realtype cell_params[6];
-      mmdb::realtype vol;
-      int orthcode;
-      atom_sel.mol->GetCell(cell_params[0], cell_params[1], cell_params[2],
-                            cell_params[3], cell_params[4], cell_params[5],
-                            vol, orthcode);
+      if (has_model()) {
+         mmdb::realtype cell_params[6];
+         mmdb::realtype vol;
+         int orthcode;
+         atom_sel.mol->GetCell(cell_params[0], cell_params[1], cell_params[2],
+                               cell_params[3], cell_params[4], cell_params[5],
+                               vol, orthcode);
 
-      clipper::Cell cell(clipper::Cell_descr(cell_params[0],
-                                             cell_params[1],
-                                             cell_params[2],
-                                             clipper::Util::d2rad(cell_params[3]),
-                                             clipper::Util::d2rad(cell_params[4]),
-                                             clipper::Util::d2rad(cell_params[5])));
-      std::cout << "INFO:: fractional coordinates matrix:" << std::endl;
-      std::cout << rtop.rtop_frac(cell).format() << std::endl;
-   } else {
-      std::cout << "No unit cell for this molecule, hence no fractional matrix." << std::endl;
-   }
-   clipper::Coord_orth co;
-   clipper::Coord_orth trans_pos;
-   if (has_model()) {
+         clipper::Cell cell(clipper::Cell_descr(cell_params[0],
+                                                cell_params[1],
+                                                cell_params[2],
+                                                clipper::Util::d2rad(cell_params[3]),
+                                                clipper::Util::d2rad(cell_params[4]),
+                                                clipper::Util::d2rad(cell_params[5])));
+         std::cout << "INFO:: fractional coordinates matrix:" << std::endl;
+         std::cout << rtop.rtop_frac(cell).format() << std::endl;
+      }
+
       for (int i=0; i<atom_sel.n_selected_atoms; i++) {
-         co = clipper::Coord_orth(atom_sel.atom_selection[i]->x,
-                                  atom_sel.atom_selection[i]->y,
-                                  atom_sel.atom_selection[i]->z);
-         trans_pos = co.transform(rtop);
+         clipper::Coord_orth co = clipper::Coord_orth(atom_sel.atom_selection[i]->x,
+                                                      atom_sel.atom_selection[i]->y,
+                                                      atom_sel.atom_selection[i]->z);
+         clipper::Coord_orth trans_pos = co.transform(rtop);
          atom_sel.atom_selection[i]->x = trans_pos.x();
          atom_sel.atom_selection[i]->y = trans_pos.y();
          atom_sel.atom_selection[i]->z = trans_pos.z();
@@ -10252,6 +10254,9 @@ molecule_class_info_t::transform_by(const clipper::RTop_orth &rtop) {
       atom_sel.mol->FinishStructEdit();
       have_unsaved_changes_flag = 1;
       make_bonds_type_checked(__FUNCTION__);
+
+   } else {
+      std::cout << "No unit cell for this molecule, hence no fractional matrix." << std::endl;
    }
 }
 
