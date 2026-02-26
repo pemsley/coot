@@ -557,13 +557,13 @@ coot::rotamer_probability_tables::probability_this_rotamer(unsigned int i_table,
    }
 
    if (false) { // debugging
-      if (n == 1) std::cout << "  bin: " << bins[0] << std::endl;
-      if (n == 2) std::cout << "angles " << chi_angles[0].second << " " << chi_angles[1].second
+      if (n == 1) std::cout << "debug:: " << tables[i_table].residue_name << "  bin: " << bins[0] << std::endl;
+      if (n == 2) std::cout << "debug:: " << tables[i_table].residue_name << "angles " << chi_angles[0].second << " " << chi_angles[1].second
 			    << "  bins: " << bins[0] << " " << bins[1] << std::endl;
-      if (n == 3) std::cout << "angles " << chi_angles[0].second << " " << chi_angles[1].second << " "
+      if (n == 3) std::cout << "debug:: " << tables[i_table].residue_name << "angles " << chi_angles[0].second << " " << chi_angles[1].second << " "
 			    << chi_angles[2].second
 			    << "  bins: " << bins[0] << " " << bins[1] << " " << bins[2] << std::endl;
-      if (n == 4) std::cout << "angles " << chi_angles[0].second << " " << chi_angles[1].second << " "
+      if (n == 4) std::cout << "debug:: " << tables[i_table].residue_name << "angles " << chi_angles[0].second << " " << chi_angles[1].second << " "
 			    << chi_angles[2].second << " " << chi_angles[3].second
 			    << "  bins: " << bins[0] << " " << bins[1] << " " << bins[2] << " " << bins[3]
 			    << std::endl;
@@ -583,7 +583,7 @@ coot::rotamer_probability_tables::probability_this_rotamer(unsigned int i_table,
       mess += coot::util::int_to_string(i_table);
       throw std::runtime_error(mess);
    }
-   
+
    return rotamer_probability_info_t(rotamer_probability_info_t::OK, pr*100.0, tables[i_table].residue_name);
 
 }
