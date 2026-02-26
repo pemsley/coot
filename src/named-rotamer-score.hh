@@ -27,6 +27,7 @@
 #define NAMED_ROTAMER_SCORE_HH
 
 #include <string>
+#include <vector>
 
 namespace coot {
 
