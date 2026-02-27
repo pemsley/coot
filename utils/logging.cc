@@ -465,8 +465,24 @@ logging::log(log_t type_in, const std::string &s1, const float &f1) {
    notify();
 }
 
-void
-logging::log(log_t type_in, ltw l1, ltw l2) {
+void logging::log(log_t type_in, const std::string &s1, const float &f1, const float &f2) {
+
+   log_item l(type_in);
+   timeval current_time;
+   int success = gettimeofday(&current_time, NULL);
+   if (success == 0) // was successful
+      l.t = current_time.tv_sec;
+   l.add_to_message(s1);
+   l.add_to_message(" ");
+   l.add_to_message(std::to_string(f1));
+   l.add_to_message(" ");
+   l.add_to_message(std::to_string(f2));
+   history.push_back(l);
+   output_to_terminal_maybe();
+   notify();
+}
+
+void logging::log(log_t type_in, ltw l1, ltw l2) {
 
    log_item l;
    l.type = type_in;
