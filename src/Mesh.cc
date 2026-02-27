@@ -758,8 +758,9 @@ Mesh::delete_gl_buffers() {
 
 
    if (false)
-      std::cout << "INFO:: Mesh::delete_gl_buffers() called for mesh \"" << name << "\""
-                << " with vao " << vao << std::endl;
+      // std::cout << "INFO:: Mesh::delete_gl_buffers() called for mesh \"" << name << "\""
+      //           << " with vao " << vao << std::endl;
+      logger.log(log_t::INFO, "Mesh::delete_gl_buffers() called for mesh", name, "with vao", vao);
 
    if (vao == VAO_NOT_SET) {
       std::cout << "ERROR:: Mesh::delete_gl_buffers() called without the VAO set for mesh \""

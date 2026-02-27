@@ -3000,8 +3000,10 @@ molecule_class_info_t::add_dipole(const std::vector<coot::residue_spec_t> &res_s
                std::pair<coot::dictionary_residue_restraints_t, mmdb::Residue *> p(rp.second, residue_p);
                pairs.push_back(p);
             } else {
-               std::cout << "INFO:: no monomer restraints found for "
-                         << coot::residue_spec_t(residue_p) << " type: " << res_type << std::endl;
+               // std::cout << "INFO:: no monomer restraints found for "
+               //           << coot::residue_spec_t(residue_p) << " type: " << res_type << std::endl;
+               logger.log(log_t::INFO, "no monomer restraints found for",
+                          coot::residue_spec_t(residue_p).format(), "type:", res_type);
             }
          }
          catch (const std::runtime_error &mess) {
@@ -3485,9 +3487,12 @@ molecule_class_info_t::filter_by_resolution(clipper::HKL_data< clipper::datatype
    }
    if (n_data > 0) {
       float f = static_cast<float>(n_reset)/static_cast<float>(n_data);
-      std::cout << "INFO:: Chopped " << n_reset << " data out of " << n_data << " (" << f << "%)" << std::endl;
+      // std::cout << "INFO:: Chopped " << n_reset << " data out of " << n_data << " (" << f << "%)" << std::endl;
+      logger.log(log_t::INFO, "Chopped", n_reset, "data out of", n_data,
+                 "(" + std::to_string(f) + "%)");
    } else {
-      std::cout << "INFO:: Chopped " << n_reset << " data out of " << n_data << std::endl;
+      // std::cout << "INFO:: Chopped " << n_reset << " data out of " << n_data << std::endl;
+      logger.log(log_t::INFO, "Chopped", n_reset, "data out of", n_data);
    }
 }
 
@@ -6062,7 +6067,8 @@ molecule_class_info_t::replace_coords(const atom_selection_container_t &asc,
          }
       }
    }
-   std::cout << "INFO:: replace_coords: " << n_atom << " atoms updated." << std::endl;
+   // std::cout << "INFO:: replace_coords: " << n_atom << " atoms updated." << std::endl;
+   logger.log(log_t::INFO, "replace_coords:", n_atom, "atoms updated.");
    have_unsaved_changes_flag = 1;
 
    if (show_symmetry) {  // internal
@@ -6880,7 +6886,8 @@ molecule_class_info_t::add_coords(const atom_selection_container_t &asc) {
 
    atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
    atom_sel.mol->FinishStructEdit();
-   std::cout << "INFO:: " << n_atom << " atoms added to molecule." << std::endl;
+   // std::cout << "INFO:: " << n_atom << " atoms added to molecule." << std::endl;
+   logger.log(log_t::INFO, n_atom, "atoms added to molecule.");
 
    // now regenerate the atom_selection
    //
@@ -6903,8 +6910,9 @@ molecule_class_info_t::add_coords(const atom_selection_container_t &asc) {
                              atom_sel.atom_selection,
                              atom_sel.n_selected_atoms);
 
-   std::cout << "INFO:: old n_atoms: " << old_n_atoms << " new: "
-             << atom_sel.n_selected_atoms << std::endl;
+   // std::cout << "INFO:: old n_atoms: " << old_n_atoms << " new: "
+   //           << atom_sel.n_selected_atoms << std::endl;
+   logger.log(log_t::INFO, "old n_atoms:", old_n_atoms, "new:", atom_sel.n_selected_atoms);
 
    have_unsaved_changes_flag = 1;
 
@@ -7429,14 +7437,16 @@ molecule_class_info_t::atom_intelligent(const std::string &chain_id, int resno,
       atom_sel.mol->GetSelIndex(selHnd, SelResidue, nSelResidues);
 
       if (nSelResidues == 0) {
-         std::cout << "INFO:: No selected residues" << std::endl;
+         // std::cout << "INFO:: No selected residues" << std::endl;
+         logger.log(log_t::INFO, "No selected residues");
       } else {
 
          mmdb::PPAtom residue_atoms;
          int nResidueAtoms;
          SelResidue[0]->GetAtomTable(residue_atoms, nResidueAtoms);
          if (nResidueAtoms == 0) {
-            std::cout << "INFO:: No atoms in residue" << std::endl;
+            // std::cout << "INFO:: No atoms in residue" << std::endl;
+            logger.log(log_t::INFO, "No atoms in residue");
          } else {
             bool found_it = false;
             std::string CA       = " CA "; // PDBv3 FIXME
@@ -8004,7 +8014,8 @@ molecule_class_info_t::save_coordinates(const std::string &filename,
       graphics_info_t g;
       g.info_dialog(ws);
    } else {
-      std::cout << "INFO:: saved coordinates " << filename << std::endl;
+      // std::cout << "INFO:: saved coordinates " << filename << std::endl;
+      logger.log(log_t::INFO, "saved coordinates", filename);
       have_unsaved_changes_flag = 0;
 
       // Now we have updated the molecule name, how shall we restore
@@ -9252,8 +9263,9 @@ molecule_class_info_t::insert_waters_into_molecule(const coot::minimol::molecule
    }
    if (p.first || (i_have_solvent_chain_flag == 0)) {
       make_backup("insert_waters_into_molecule");
-      std::cout << "INFO:: Adding to solvent chain: " << chain_p->GetChainID()
-                << std::endl;
+      // std::cout << "INFO:: Adding to solvent chain: " << chain_p->GetChainID()
+      //           << std::endl;
+      logger.log(log_t::INFO, "Adding to solvent chain: " + std::string(chain_p->GetChainID()));
       int prev_max_resno = max_resno;
       mmdb::Residue *new_residue_p = NULL;
       mmdb::Atom    *new_atom_p = NULL;
@@ -9340,10 +9352,12 @@ molecule_class_info_t::append_to_molecule(const coot::minimol::molecule &water_m
                //
                imatch = 1;
                istat = 1;
-               std::cout << "INFO:: Can't add waters from additional molecule "
-                         << "chain id = " << mol_chain_id << std::endl
-                         << "INFO:: That chain id already exists in this molecule"
-                         << std::endl;
+               // std::cout << "INFO:: Can't add waters from additional molecule "
+               //           << "chain id = " << mol_chain_id << std::endl
+               //           << "INFO:: That chain id already exists in this molecule"
+               //           << std::endl;
+               logger.log(log_t::INFO, "Can't add waters from additional molecule chain id =", mol_chain_id);
+               logger.log(log_t::INFO, "That chain id already exists in this molecule");
                break;
             }
          }
@@ -9388,7 +9402,8 @@ molecule_class_info_t::append_to_molecule(const coot::minimol::molecule &water_m
          }
       }
 
-      std::cout << "INFO:: " << n_atom << " atoms added to molecule." << std::endl;
+      // std::cout << "INFO:: " << n_atom << " atoms added to molecule." << std::endl;
+      logger.log(log_t::INFO, n_atom, "atoms added to molecule.");
       if (n_atom > 0) {
          atom_sel.mol->FinishStructEdit();
          update_molecule_after_additions(); // sets unsaved changes flag
@@ -10184,8 +10199,9 @@ molecule_class_info_t::transform_by(mmdb::mat44 mat) {
                                          mat[2][0], mat[2][1], mat[2][2]);
       clipper::Coord_orth cco(mat[0][3], mat[1][3], mat[2][3]);
       clipper::RTop_orth rtop(clipper_mat, cco);
-      std::cout << "INFO:: coordinates transformed by orthogonal matrix: \n"
-                << rtop.format() << std::endl;
+      // std::cout << "INFO:: coordinates transformed by orthogonal matrix: \n"
+      //           << rtop.format() << std::endl;
+      logger.log(log_t::INFO, "coordinates transformed by orthogonal matrix:\n", rtop.format());
       clipper::Rotation rtn( clipper_mat );
       clipper::Polar_ccp4 polar = rtn.polar_ccp4();
       clipper::Euler_ccp4 euler = rtn.euler_ccp4();
@@ -10216,7 +10232,7 @@ void
 molecule_class_info_t::transform_by(const clipper::RTop_orth &rtop) {
 
    make_backup("transform-by-clipper-rtop");
-   std::cout << "INFO:: coordinates transformed by orthogonal matrix: \n" << rtop.format() << std::endl;
+   // std::cout << "INFO:: coordinates transformed by orthogonal matrix: \n" << rtop.format() << std::endl;
 
    logger.log(log_t::INFO, logging::function_name_t("transform_by"), "coordinates transformed by orthogonal matrix:\n");
    logger.log(log_t::INFO, logging::function_name_t("transform_by"), rtop.format());
@@ -10237,8 +10253,10 @@ molecule_class_info_t::transform_by(const clipper::RTop_orth &rtop) {
                                                 clipper::Util::d2rad(cell_params[3]),
                                                 clipper::Util::d2rad(cell_params[4]),
                                                 clipper::Util::d2rad(cell_params[5])));
-         std::cout << "INFO:: fractional coordinates matrix:" << std::endl;
-         std::cout << rtop.rtop_frac(cell).format() << std::endl;
+         // std::cout << "INFO:: fractional coordinates matrix:" << std::endl;
+         // std::cout << rtop.rtop_frac(cell).format() << std::endl;
+         logger.log(log_t::INFO, "fractional coordinates matrix:");
+         logger.log(log_t::INFO, rtop.rtop_frac(cell).format());
       }
 
       for (int i=0; i<atom_sel.n_selected_atoms; i++) {
@@ -10264,8 +10282,9 @@ void
 molecule_class_info_t::transform_by(const clipper::RTop_orth &rtop, mmdb::Residue *residue_moving) {
 
    make_backup("transform-by-with-residue-moving");
-   std::cout << "INFO:: coordinates transformed_by: \n"
-             << rtop.format() << std::endl;
+   // std::cout << "INFO:: coordinates transformed_by: \n"
+   //           << rtop.format() << std::endl;
+   logger.log(log_t::INFO, "coordinates transformed_by:\n", rtop.format());
    if (has_model()) {
       transform_by_internal(rtop, residue_moving);
       atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
@@ -10697,8 +10716,9 @@ molecule_class_info_t::mark_atom_as_fixed(const coot::atom_spec_t &atom_spec, bo
                            int idx = get_atom_index(at);
                            atom_spec_local.int_user_data = idx;
                            fixed_atom_specs.push_back(atom_spec_local);
-                           std::cout << "INFO:: " << atom_spec << " marked as fixed"
-                                     << std::endl;
+                           // std::cout << "INFO:: " << atom_spec << " marked as fixed"
+                           //           << std::endl;
+                           logger.log(log_t::INFO, atom_spec.format() + " marked as fixed");
                            found = 1;
                         } else {
                            //  try to remove at from marked list
@@ -10708,8 +10728,9 @@ molecule_class_info_t::mark_atom_as_fixed(const coot::atom_spec_t &atom_spec, bo
                                    it != fixed_atom_specs.end();
                                    ++it) {
                                  if (atom_spec == *it) {
-                                    std::cout << "INFO:: removed " << atom_spec
-                                              << " from fixed atom." << std::endl;
+                                    // std::cout << "INFO:: removed " << atom_spec
+                                    //           << " from fixed atom." << std::endl;
+                                    logger.log(log_t::INFO, "removed " + atom_spec.format() + " from fixed atom.");
                                     fixed_atom_specs.erase(it);
                                     found = 1;
                                     break;
@@ -11031,7 +11052,8 @@ molecule_class_info_t::watch_coordinates_updates(gpointer data) {
                   clipper::Cell       cell       = g.molecules[imol_diff_map].xmap.cell();
                   clipper::Spacegroup spacegroup = g.molecules[imol_diff_map].xmap.spacegroup();
                   auto moved_peaks = coot::move_peaks_to_around_position(screen_centre, spacegroup, cell, diff_diff_map_peaks);
-                  std::cout << "INFO:: moved peaks " << moved_peaks.size() << std::endl;
+                  // std::cout << "INFO:: moved peaks " << moved_peaks.size() << std::endl;
+                  logger.log(log_t::INFO, logging::function_name_t("watch_coordinates_updates"), "moved peaks", static_cast<unsigned int>(moved_peaks.size()));
                   // the first one, where we shift from Refmac map to Clipper map has many thousands
                   // of peaks. So ignore that one.
                   if (moved_peaks.size() < 1000) {

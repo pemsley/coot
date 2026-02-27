@@ -24,7 +24,6 @@
 #define CC_INTERFACE_HH
 
 #include "geometry/residue-and-atom-specs.hh"
-#include "pytypedefs.h"
 #ifdef USE_PYTHON
 #include "Python.h"
 #endif

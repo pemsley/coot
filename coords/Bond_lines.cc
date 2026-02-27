@@ -2550,8 +2550,10 @@ Bond_lines_container::construct_from_asc(const atom_selection_container_t &SelAt
                         }
                      }
                   } else {
-                     std::cout << "INFO:: trapped atom without residue in non-bonded atom check: "
-                               << non_Hydrogen_atoms[i] << std::endl;
+                     // std::cout << "INFO:: trapped atom without residue in non-bonded atom check: "
+                     //           << non_Hydrogen_atoms[i] << std::endl;
+                     logger.log(log_t::INFO, "trapped atom without residue in non-bonded atom check:",
+                                coot::atom_spec_t(non_Hydrogen_atoms[i]).format());
                   }
                }
             } else {
@@ -6258,7 +6260,8 @@ Bond_lines_container::do_symmetry_Ca_bonds(atom_selection_container_t SelAtom,
                              contact, ncontacts,
                              0, &my_matt, i_contact_group);
 
-   std::cout << "INFO:: Found " << ncontacts/2 << " Ca-Ca links" << std::endl;
+   // std::cout << "INFO:: Found " << ncontacts/2 << " Ca-Ca links" << std::endl;
+   logger.log(log_t::INFO, "Found", ncontacts/2, "Ca-Ca links");
 
    if (ncontacts > 0) {
       for (int i=0; i< ncontacts; i++) {
@@ -7626,8 +7629,10 @@ Bond_lines_container::do_colour_by_chain_bonds(const atom_selection_container_t 
                         }
                      }
                   } else {
-                     std::cout << "INFO:: trapped atom without residue in non-bonded atom check: "
-                               << atom_selection[i] << std::endl;
+                     // std::cout << "INFO:: trapped atom without residue in non-bonded atom check: "
+                     //           << atom_selection[i] << std::endl;
+                     logger.log(log_t::INFO, "trapped atom without residue in non-bonded atom check:",
+                                coot::atom_spec_t(atom_selection[i]).format());
                   }
                }
             }
@@ -7914,8 +7919,10 @@ Bond_lines_container::do_colour_by_chain_bonds_carbons_only(const atom_selection
                         }
                      }
                   } else {
-                     std::cout << "INFO:: trapped atom without residue in non-bonded atom check: "
-                               << atom_selection[i] << std::endl;
+                     // std::cout << "INFO:: trapped atom without residue in non-bonded atom check: "
+                     //           << atom_selection[i] << std::endl;
+                     logger.log(log_t::INFO, "trapped atom without residue in non-bonded atom check:",
+                                coot::atom_spec_t(atom_selection[i]).format());
                   }
                }
             }

@@ -477,7 +477,8 @@ void set_undo_molecule(int imol) {
    if ((imol >= 0) && (imol < graphics_info_t::n_molecules())) {
       graphics_info_t g;
       if (g.molecules[imol].atom_sel.mol) {
-	 std::cout << "INFO:: undo molecule number set to: " << imol << std::endl;
+	 // std::cout << "INFO:: undo molecule number set to: " << imol << std::endl;
+	 logger.log(log_t::INFO, "undo molecule number set to:", imol);
 	 g.set_undo_molecule_number(imol);
       }
    }
@@ -2831,7 +2832,8 @@ void write_header_secondary_structure_info(int imol, const char *file_name) {
          coot::secondary_structure_header_records ssr(mol, false);
 
          if (ss_status == mmdb::SSERC_Ok) {
-            std::cout << "INFO:: SSE status was OK\n";
+            // std::cout << "INFO:: SSE status was OK\n";
+            logger.log(log_t::INFO, "SSE status was OK");
             model_p->PDBASCIIDumpPS(f); // dump CHelix and CStrand records.
          }
       }
@@ -4357,10 +4359,16 @@ SCM missing_atom_info_scm(int imol) {
          if (it != m_i_info.residue_missing_atom_names_map.end()) {
             const std::vector<std::string> &missing_atom_names = it->second;
             if (! missing_atom_names.empty()) {
-               std::cout << "INFO:: residue " << coot::residue_spec_t(residue_p) << " has missing atoms ";
-               for (unsigned int iat=0; iat<missing_atom_names.size(); iat++)
-                  std::cout << single_quote(missing_atom_names[iat]) << " ";
-               std::cout << std::endl;
+               // std::cout << "INFO:: residue " << coot::residue_spec_t(residue_p) << " has missing atoms ";
+               // for (unsigned int iat=0; iat<missing_atom_names.size(); iat++)
+               //    std::cout << single_quote(missing_atom_names[iat]) << " ";
+               // std::cout << std::endl;
+               {
+                  std::string ma_msg = "residue " + coot::residue_spec_t(residue_p).format() + " has missing atoms";
+                  for (unsigned int iat=0; iat<missing_atom_names.size(); iat++)
+                     ma_msg += " " + single_quote(missing_atom_names[iat]);
+                  logger.log(log_t::INFO, ma_msg);
+               }
             }
          }
       }
@@ -5712,12 +5720,14 @@ int handle_cif_dictionary_for_molecule(const std::string &filename, int imol_enc
       if (imol_enc >= 0 || imol_enc == coot::protein_geometry::IMOL_ENC_AUTO) {
          if (imol_enc == coot::protein_geometry::IMOL_ENC_AUTO) {
             if (g.Geom_p()->is_non_auto_load_ligand(rmit.comp_id)) {
-               std::cout << "INFO:: " << s1 << std::endl;
+               // std::cout << "INFO:: " << s1 << std::endl;
+               logger.log(log_t::INFO, s1);
                add_status_bar_text(s1);
                do_new_molecule = false;
             }
          } else {
-            std::cout << "INFO:: " << s2 << std::endl;
+            // std::cout << "INFO:: " << s2 << std::endl;
+            logger.log(log_t::INFO, s2);
             add_status_bar_text(s2);
             do_new_molecule = false;
          }
@@ -6135,8 +6145,9 @@ SCM add_linked_residue_scm(int imol, const char *chain_id, int resno, const char
 
       if (g.Geom_p()->have_dictionary_for_residue_type_no_dynamic_add(new_residue_comp_id, imol)) {
       } else {
-         std::cout << "INFO:: dictionary does not already have " << new_residue_comp_id
-                   << " dynamic add it now" << std::endl;
+         // std::cout << "INFO:: dictionary does not already have " << new_residue_comp_id
+         //           << " dynamic add it now" << std::endl;
+         logger.log(log_t::INFO, "dictionary does not already have", new_residue_comp_id, "dynamic add it now");
          int status = g.Geom_p()->try_dynamic_add(new_residue_comp_id, g.cif_dictionary_read_number);
          if (status == 0) { // fail
             std::cout << "WARNING:: failed to add dictionary for " << new_residue_comp_id << std::endl;
@@ -6203,8 +6214,9 @@ PyObject *add_linked_residue_py(int imol, const char *chain_id, int resno, const
       graphics_info_t g;
       if (g.Geom_p()->have_dictionary_for_residue_type_no_dynamic_add(new_residue_comp_id, imol)) {
       } else {
-         std::cout << "INFO:: dictionary does not already have " << new_residue_comp_id
-                   << " dynamic add it now" << std::endl;
+         // std::cout << "INFO:: dictionary does not already have " << new_residue_comp_id
+         //           << " dynamic add it now" << std::endl;
+         logger.log(log_t::INFO, "dictionary does not already have", new_residue_comp_id, "dynamic add it now");
          g.Geom_p()->try_dynamic_add(new_residue_comp_id, g.cif_dictionary_read_number);
       }
       g.cif_dictionary_read_number++;

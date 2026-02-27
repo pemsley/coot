@@ -37,6 +37,9 @@
 #endif
 
 #include "screendump-tga.hh"
+#include "utils/logging.hh"
+
+extern logging logger;
 
 void set_framebuffer_scale_factor(unsigned int sf) {
 
@@ -80,8 +83,9 @@ void screendump_tga_internal(std::string tga_file,
    short int sfh = static_cast<short int>(pixel_height);
    short int TGAhead[] = {0, 2, 0, 0, 0, 0, sfw, sfh, 32};
 
-   std::cout << "INFO:: screendump_tga_internal() " << pixel_width << "x" << pixel_height
-             << " (scale " << sf << ") to " << tga_file << std::endl;
+   logger.log(log_t::INFO, logging::ltw("screendump_tga_internal() "), logging::ltw(pixel_width), logging::ltw("x"), logging::ltw(pixel_height), logging::ltw(" (scale " + std::to_string(sf) + ") to "), logging::ltw(tga_file));
+   // std::cout << "INFO:: screendump_tga_internal() " << pixel_width << "x" << pixel_height
+   //           << " (scale " << sf << ") to " << tga_file << std::endl;
 
    glReadBuffer(GL_COLOR_ATTACHMENT0);
    GLenum err = glGetError();
@@ -97,8 +101,9 @@ void screendump_tga_internal(std::string tga_file,
    fclose(output_file);
    delete [] pixel_data;
 
-   std::cout << "INFO:: screendump_tga_internal() wrote " << tga_file << " "
-             << pixel_width << "x" << pixel_height << std::endl;
+   logger.log(log_t::INFO, logging::ltw("screendump_tga_internal() wrote "), logging::ltw(tga_file), logging::ltw(" "), logging::ltw(pixel_width), logging::ltw("x"), logging::ltw(pixel_height));
+   // std::cout << "INFO:: screendump_tga_internal() wrote " << tga_file << " "
+   //           << pixel_width << "x" << pixel_height << std::endl;
 
 }
 

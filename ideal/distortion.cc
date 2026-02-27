@@ -36,6 +36,8 @@
 
 #include <coot-utils/fast-eigens.hh>
 #include "simple-restraint.hh"
+#include "utils/logging.hh"
+extern logging logger;
 
 double
 coot::geometry_distortion_info_container_t::print() const {
@@ -463,9 +465,10 @@ coot::geometry_distortion_info_container_t::distortion() const {
             mmdb::Atom *at_1 = atom[rest.atom_index_1];
             mmdb::Atom *at_2 = atom[rest.atom_index_2];
             if (at_1 && at_2) {
-               std::cout << "INFO:: bond rest_distortion_score "
-                         << rest.atom_index_1 << " " << atom_spec_t(at_1) << " "
-                         << rest.atom_index_2 << " " << atom_spec_t(at_2) << "  " << rest_distortion_score << std::endl;
+               logger.log(log_t::INFO, logging::ltw("bond rest_distortion_score "), logging::ltw(rest.atom_index_1), logging::ltw(" " + atom_spec_t(at_1).format() + " "), logging::ltw(rest.atom_index_2), logging::ltw(" " + atom_spec_t(at_2).format() + "  "), logging::ltw(rest_distortion_score));
+               // std::cout << "INFO:: bond rest_distortion_score "
+               //           << rest.atom_index_1 << " " << atom_spec_t(at_1) << " "
+               //           << rest.atom_index_2 << " " << atom_spec_t(at_2) << "  " << rest_distortion_score << std::endl;
             }
          }
       }
@@ -909,10 +912,11 @@ coot::restraints_container_t::omega_trans_distortions(const coot::protein_geomet
                         omega_distortion_info_t odi(second->GetSeqNum(), distortion, info);
                         dc.omega_distortions.push_back(odi);
                      } else {
-                        std::cout << "INFO:: failed to get all atoms for omega torsion "
-                                  << "chain " << chain_id << " residues "
-                                  << first->GetSeqNum() << " to " << second->GetSeqNum()
-                                  << std::endl;
+                        logger.log(log_t::INFO, logging::ltw("failed to get all atoms for omega torsion chain "), logging::ltw(chain_id), logging::ltw(" residues "), logging::ltw(first->GetSeqNum()), logging::ltw(" to "), logging::ltw(second->GetSeqNum()));
+                        // std::cout << "INFO:: failed to get all atoms for omega torsion "
+                        //           << "chain " << chain_id << " residues "
+                        //           << first->GetSeqNum() << " to " << second->GetSeqNum()
+                        //           << std::endl;
                      }
                   }
                }

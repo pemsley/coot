@@ -53,7 +53,8 @@ run_acedrg_link_generation(const std::string &acedrg_link_command) {
          if (! file_name.empty()) {
             // we can't do this (yet?) It's something about where the static lives.
             // graphics_info_t::log.log(logging::INFO, "read dictionary", file_name);
-            std::cout << "INFO:: read dictionary " << file_name << std::endl;
+            // std::cout << "INFO:: read dictionary " << file_name << std::endl;
+            logger.log(log_t::INFO, "read dictionary", file_name);
             add_status_bar_text("INFO:: read dictionary " + file_name);
             std::cout << "DEBUG:: about to read cif dictionary " << file_name << std::endl;
             read_cif_dictionary(file_name);
@@ -66,7 +67,8 @@ run_acedrg_link_generation(const std::string &acedrg_link_command) {
                graphics_info_t g;
                g.info_dialog(ss, false);
             } else {
-               std::cout << "INFO:: " << err_info_log << " does not exist" << std::endl;
+               // std::cout << "INFO:: " << err_info_log << " does not exist" << std::endl;
+               logger.log(log_t::INFO, err_info_log, "does not exist");
             }
             // graphics_info_t::log.log(logging::WARNING, "failed to make link dictionary", file_name);
          }

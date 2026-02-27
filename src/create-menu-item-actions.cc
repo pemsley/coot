@@ -2623,7 +2623,8 @@ void add_prosmart_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 void add_rcrane_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                               G_GNUC_UNUSED GVariant *parameter,
                               G_GNUC_UNUSED gpointer user_data) {
-   std::cout << "INFO:: no RCrane" << std::endl;
+   // std::cout << "INFO:: no RCrane" << std::endl;
+   logger.log(log_t::INFO, "no RCrane");
    info_dialog("INFO:: No RCrane interface yet");
 }
 

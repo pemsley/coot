@@ -636,7 +636,9 @@ graphics_info_t::on_glarea_click(GtkGestureClick *controller,
                         if (naii.success) {
                            int imol = naii.imol;
                            mmdb::Atom *at = molecules[imol].atom_sel.atom_selection[naii.atom_index];
+                           
                            molecules[imol].add_to_labelled_atom_list(naii.atom_index);
+                           add_picked_atom_info_to_status_bar(naii.imol, naii.atom_index);
                            graphics_draw();
                            handled = true;
                         }
