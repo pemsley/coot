@@ -64,7 +64,7 @@ coot::util::residue_types_in_molecule(mmdb::Manager *mol) {
          // run over chains of the existing mol
          int nchains = model_p->GetNumberOfChains();
          if (nchains <= 0) { 
-            std::cout << "bad nchains in trim molecule " << nchains
+            std::cout << "ERROR:: bad nchains in trim molecule " << nchains
                       << std::endl;
          } else { 
             for (int ichain=0; ichain<nchains; ichain++) {
@@ -73,7 +73,7 @@ coot::util::residue_types_in_molecule(mmdb::Manager *mol) {
                   // This should not be necessary. It seem to be a
                   // result of mmdb corruption elsewhere - possibly
                   // DeleteChain in update_molecule_to().
-                  std::cout << "NULL chain in residues_types_in_molecule: "
+                  std::cout << "ERROR:: NULL chain in residues_types_in_molecule: "
                             << std::endl;
                } else { 
                   int nres = chain->GetNumberOfResidues();
