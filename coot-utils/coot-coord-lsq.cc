@@ -66,8 +66,9 @@ coot::util::get_lsq_matrix(mmdb::Manager *mol1,
       if (co1v.size() > 2) {
          if (co2v.size() > 2) {
             if (summary_to_screen)
-               std::cout << "INFO:: LSQ matched " << co1v.size() << " atoms"
-                         << std::endl;
+               // std::cout << "INFO:: LSQ matched " << co1v.size() << " atoms"
+               //           << std::endl;
+               logger.log(log_t::INFO, "LSQ matched", co1v.size(), "atoms");
             rtop = clipper::RTop_orth(co2v, co1v);
             double sum_dist = 0.0;
             double sum_dist2 = 0.0;
@@ -95,12 +96,18 @@ coot::util::get_lsq_matrix(mmdb::Manager *mol1,
             logger.log(log_t::INFO, "    max devi", maxd);
             logger.log(log_t::INFO, "    min devi", mind);
 
-            if (summary_to_screen)
-               std::cout << "INFO:: " << co1v.size() << " matched atoms had: \n"
-                         << "   mean devi: " << mean << "\n"
-                         << "    rms devi: " << sqrt(v) << "\n"
-                         << "    max devi: " << maxd << "\n"
-                         << "    min devi: " << mind << std::endl;
+            if (summary_to_screen) {
+               // std::cout << "INFO:: " << co1v.size() << " matched atoms had: \n"
+               //           << "   mean devi: " << mean << "\n"
+               //           << "    rms devi: " << sqrt(v) << "\n"
+               //           << "    max devi: " << maxd << "\n"
+               //           << "    min devi: " << mind << std::endl;
+               logger.log(log_t::INFO, co1v.size(), "matched atoms had:");
+               logger.log(log_t::INFO, "  mean devi:", mean);
+               logger.log(log_t::INFO, "   rms devi:", sqrt(v));
+               logger.log(log_t::INFO, "   max devi:", maxd);
+               logger.log(log_t::INFO, "   min devi:", mind);
+            }
             istat = 1;
          } else {
             std::cout << "WARNING:: not enough points to do matching (matching)"

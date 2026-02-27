@@ -400,10 +400,12 @@ void
 graphics_info_t::set_directory_for_filechooser(GtkWidget *filechooser) const {
 
    if (directory_for_filechooser != "") {
-      std::cout << "INFO:: set directory_for_filechooser " << directory_for_filechooser << std::endl;
+      // std::cout << "INFO:: set directory_for_filechooser " << directory_for_filechooser << std::endl;
+      logger.log(log_t::INFO, "set directory_for_filechooser", directory_for_filechooser);
 
       // 20220602-PE FIXME
-      std::cout << "INFO:: in set_directory_for_filechooser() FIXME" << std::endl;
+      // std::cout << "INFO:: in set_directory_for_filechooser() FIXME" << std::endl;
+      logger.log(log_t::INFO, "in set_directory_for_filechooser() FIXME");
       GFile *f = g_file_new_for_path(directory_for_filechooser.c_str());
       GError *err = NULL;
       gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(filechooser), f, &err);
@@ -826,8 +828,9 @@ graphics_info_t::skeletonize_map_by_combobox(GtkWidget *combobox) {
       if (do_it)
 	 graphics_info_t::skeletonize_map(graphics_info_t::map_for_skeletonize, prune_it);
       else {
-	 std::cout << "INFO:: unskeletonizing map number "
-		   << graphics_info_t::map_for_skeletonize << std::endl;
+	 // std::cout << "INFO:: unskeletonizing map number "
+	 //            << graphics_info_t::map_for_skeletonize << std::endl;
+	 logger.log(log_t::INFO, "unskeletonizing map number", graphics_info_t::map_for_skeletonize);
 	 graphics_info_t::unskeletonize_map(graphics_info_t::map_for_skeletonize);
       }
    }
@@ -2235,7 +2238,8 @@ graphics_info_t::undo_molecule_combobox_changed(GtkWidget *combobox, gpointer da
    graphics_info_t g;
    int imol = g.combobox_get_imol(GTK_COMBO_BOX(combobox));
    g.set_undo_molecule_number(imol);
-   std::cout << "INFO:: undo molecule number set to " << imol << std::endl;
+   // std::cout << "INFO:: undo molecule number set to " << imol << std::endl;
+   logger.log(log_t::INFO, "undo molecule number set to", imol);
 }
 
 void
@@ -3454,12 +3458,13 @@ graphics_info_t::wrapped_create_checked_waters_by_variance_dialog(const std::vec
 
       for (unsigned int i=0; i<v.size(); i++) {
 
-	 std::cout << "INFO:: Suspicious water: "
-		   << v[i].atom_name
-		   << v[i].alt_conf << " "
-		   << v[i].res_no << " "
-		   << v[i].ins_code << " "
-		   << v[i].chain_id << "\n";
+	 // std::cout << "INFO:: Suspicious water: "
+	 //            << v[i].atom_name
+	 //            << v[i].alt_conf << " "
+	 //            << v[i].res_no << " "
+	 //            << v[i].ins_code << " "
+	 //            << v[i].chain_id << "\n";
+	 logger.log(log_t::INFO, "Suspicious water:", v[i].atom_name, v[i].alt_conf, v[i].res_no, v[i].ins_code, v[i].chain_id);
 
 	 std::string button_label(" ");
 	 button_label += v[i].chain_id;
@@ -3492,7 +3497,8 @@ graphics_info_t::wrapped_create_checked_waters_by_variance_dialog(const std::vec
          gtk_widget_set_margin_end(toggle_button, 6);
       }
    } else {
-      std::cout << "INFO:: There are no unusual waters\n";
+      // std::cout << "INFO:: There are no unusual waters\n";
+      logger.log(log_t::INFO, "There are no unusual waters");
       std::string s = "There were no strange/anomalous waters\n";
       s += "(in relation to the difference map).";
       w = wrapped_nothing_bad_dialog(s);
@@ -3726,8 +3732,9 @@ graphics_info_t::fill_bond_parameters_internals(GtkWidget *combobox_for_molecule
 	    if (molecules[imol_active].has_ncs_p()) {
 	       make_insensitive = 0;
 	    } else {
-	       std::cout << "INFO:: in fill_bond_parameters_internals no NCS for  "
-			 << imol_active << "\n";
+	       // std::cout << "INFO:: in fill_bond_parameters_internals no NCS for  "
+	       //          << imol_active << "\n";
+	       logger.log(log_t::INFO, "in fill_bond_parameters_internals no NCS for", imol_active);
 	    }
 	 } else {
 	    std::cout << "ERROR:: bad imol in fill_bond_parameters_internals no model "

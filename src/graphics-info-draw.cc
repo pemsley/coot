@@ -2882,7 +2882,8 @@ on_glarea_resize(GtkGLArea *glarea, gint width, gint height) {
    g.graphics_x_size = width;
    g.graphics_y_size = height;
 
-   std::cout << "INFO:: in on_glarea_resize() GtkGLArea widget dimensions " << width << " " << height << std::endl;
+   // std::cout << "INFO:: in on_glarea_resize() GtkGLArea widget dimensions " << width << " " << height << std::endl;
+   logger.log(log_t::INFO, "in on_glarea_resize() GtkGLArea widget dimensions", width, height);
 
    // why do I need to do this?
    // setup_hud_text(width, height, g.shader_for_hud_text, false);

@@ -586,8 +586,9 @@ molecule_class_info_t::pepflip(int atom_index) {
    std::string inscode =  atom_sel.atom_selection[atom_index]->GetInsCode();
    std::string altconf =  atom_sel.atom_selection[atom_index]->altLoc;
 
-   std::cout << "INFO:: flipping " << resno << " " << altconf << " "
-             << chain_id << std::endl;
+   // std::cout << "INFO:: flipping " << resno << " " << altconf << " "
+   //           << chain_id << std::endl;
+   logger.log(log_t::INFO, "flipping", resno, altconf, chain_id);
    if (atom_name == " N  ")
       resno--;
    if (atom_name == " H  ")
@@ -609,7 +610,8 @@ molecule_class_info_t::pepflip_residue(const std::string &chain_id,
    make_backup(__FUNCTION__); // must do it here, no intermediate.
    int iresult = coot::pepflip(atom_sel.mol, chain_id, resno, ins_code, alt_conf);
    if (iresult == 1) {
-      std::cout << "INFO:: flipped " << resno << " " << chain_id << " success" << std::endl;
+      // std::cout << "INFO:: flipped " << resno << " " << chain_id << " success" << std::endl;
+      logger.log(log_t::INFO, "flipped", resno, chain_id, "success");
       make_bonds_type_checked(__FUNCTION__);
       have_unsaved_changes_flag = 1;
    } else {
@@ -4108,7 +4110,8 @@ molecule_class_info_t::cell_text_with_embeded_newline() const {
 void
 molecule_class_info_t::assign_fasta_sequence(const std::string &chain_id, const std::string &seq_in) {
 
-   std::cout << "INFO:: assign_fasta_sequence " << chain_id << "\n" << seq_in << std::endl;
+   // std::cout << "INFO:: assign_fasta_sequence " << chain_id << "\n" << seq_in << std::endl;
+   logger.log(log_t::INFO, "assign_fasta_sequence", chain_id, "\n", seq_in);
 
    // format "> name\n <sequence>", we ignore everything that is not a
    // letter after the newline.
@@ -4848,7 +4851,8 @@ molecule_class_info_t::trim_by_map(const clipper::Xmap<float> &xmap_in,
                                             delete_or_zero_occ_flag,
                                             waters_only_flag);
 
-   std::cout << "INFO:: " << i << " atoms were trimmed\n";
+   // std::cout << "INFO:: " << i << " atoms were trimmed\n";
+   logger.log(log_t::INFO, i, "atoms were trimmed");
    if (i > 0) {
       make_backup(__FUNCTION__);
       update_molecule_after_additions(); // sets have_unsaved_changes_flag
@@ -5751,14 +5755,20 @@ molecule_class_info_t::merge_molecules(const std::vector<atom_selection_containe
             std::vector<std::string> mapped_chains =
                map_chains_to_new_chains(adding_model_chains, this_model_chains);
 
-            std::cout << "INFO:: Merge From chains: " << std::endl;
+            // std::cout << "INFO:: Merge From chains: " << std::endl;
+            // for (unsigned int ich=0; ich<adding_model_chains.size(); ich++)
+            //    std::cout << " :" << adding_model_chains[ich] << ":";
+            // std::cout << std::endl;
+            // std::cout << "INFO:: Merge To chains: " << std::endl;
+            // for (unsigned int ich=0; ich<mapped_chains.size(); ich++)
+            //    std::cout << " :" << mapped_chains[ich] << ":";
+            // std::cout << std::endl;
+            logger.log(log_t::INFO, "Merge From chains:");
             for (unsigned int ich=0; ich<adding_model_chains.size(); ich++)
-               std::cout << " :" << adding_model_chains[ich] << ":";
-            std::cout << std::endl;
-            std::cout << "INFO:: Merge To chains: " << std::endl;
+               logger.log(log_t::INFO, " :", adding_model_chains[ich], ":");
+            logger.log(log_t::INFO, "Merge To chains:");
             for (unsigned int ich=0; ich<mapped_chains.size(); ich++)
-               std::cout << " :" << mapped_chains[ich] << ":";
-            std::cout << std::endl;
+               logger.log(log_t::INFO, " :", mapped_chains[ich], ":");
 
             if (mapped_chains.size() != adding_model_chains.size()) {
                // can't continue with merging - no chains available.
@@ -5804,7 +5814,8 @@ molecule_class_info_t::merge_molecules(const std::vector<atom_selection_containe
 
    // std::cout << "------- resulting_merge_info has size " << resulting_merge_info.size() << std::endl;
    if (!resulting_merge_info.empty())
-      std::cout << "INFO:: in merge_molecules(): resulting_merge_info[0] " << resulting_merge_info[0].spec << std::endl;
+      // std::cout << "INFO:: in merge_molecules(): resulting_merge_info[0] " << resulting_merge_info[0].spec << std::endl;
+      logger.log(log_t::INFO, "in merge_molecules(): resulting_merge_info[0] " + resulting_merge_info[0].spec.format());
 
    return std::pair<int, std::vector<merge_molecule_results_info_t> > (istat, resulting_merge_info);
 }
@@ -5888,8 +5899,9 @@ molecule_class_info_t::merge_molecules_just_one_residue_at_given_spec(atom_selec
                this_chain_p->SetChainID(target_spec.chain_id.c_str());
                this_model_p->AddChain(this_chain_p);
             } else {
-               std::cout << "INFO:: merge_molecules_just_one_residue_at_given_spec() "
-                         << " this chain not found in molecule (good)" << std::endl;
+               // std::cout << "INFO:: merge_molecules_just_one_residue_at_given_spec() "
+               //           << " this chain not found in molecule (good)" << std::endl;
+               logger.log(log_t::INFO, "merge_molecules_just_one_residue_at_given_spec() this chain not found in molecule (good)");
             }
             mmdb::Residue *r = coot::util::get_first_residue(molecule_to_add.mol);
             if (r) {
@@ -6314,7 +6326,8 @@ molecule_class_info_t::copy_and_add_residue_to_chain(mmdb::Chain *this_model_cha
       for (unsigned int i=0; i<close_residues.size(); i++) {
          if (close_residues[i]->isSolvent() && add_model_residue->isSolvent()) {
             add_this = false;
-            std::cout<<"INFO:: not adding water because of overlap\n"<<std::endl;
+            // std::cout<<"INFO:: not adding water because of overlap\n"<<std::endl;
+            logger.log(log_t::INFO, "not adding water because of overlap");
             break;
          }
       }
@@ -6830,8 +6843,9 @@ molecule_class_info_t::find_deviant_geometry(float strictness) {
 		  }
 	       }
 
-	       std::cout << "INFO:: " << nSelResidues << " residues selected for deviant object"
-			 << std::endl;
+	       // std::cout << "INFO:: " << nSelResidues << " residues selected for deviant object"
+	       //          << std::endl;
+	       logger.log(log_t::INFO, nSelResidues, "residues selected for deviant object");
 
 	       if (nSelResidues > 0) {
 
@@ -8880,7 +8894,8 @@ molecule_class_info_t::fill_partial_residues(coot::protein_geometry *geom_p,
       info = missing_atoms(0, geom_p);
 
       if (info.residues_with_missing_atoms.size() > 0) {
-         std::cout << "INFO:: Residues with missing atoms:" << "\n";
+         // std::cout << "INFO:: Residues with missing atoms:" << "\n";
+         logger.log(log_t::INFO, "Residues with missing atoms:");
          unsigned int n_per_line = 10;
          for (unsigned int i=0; i<info.residues_with_missing_atoms.size(); i+=n_per_line) {
             for (unsigned int ip=0; ip<n_per_line; ip++) {
@@ -9101,7 +9116,8 @@ molecule_class_info_t::renumber_waters() {
                      }
                   } else {
                      std::string chain_id(chain_p->GetChainID());
-                     std::cout << "INFO:: in renumbered_waters() chain " << chain_id << " is not a SolvenChain" << std::endl;
+                     // std::cout << "INFO:: in renumbered_waters() chain " << chain_id << " is not a SolvenChain" << std::endl;
+                     logger.log(log_t::INFO, "in renumbered_waters() chain", chain_id, "is not a SolvenChain");
                   }
                }
             }

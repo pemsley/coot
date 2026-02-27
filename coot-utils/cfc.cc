@@ -177,8 +177,9 @@ cfc::chemical_feature_clustering(const std::vector<cfc::input_info_t> &mol_infos
             std::cout << "DEBUG:: Found " << features.size() << " features" << std::endl;
             if (features.empty()) {
                std::string residue_name = residue_p->GetResName();
-               std::cout << "INFO:: -- boo! no features found for a " << residue_name
-                         << " (surprising)" << std::endl;
+               // std::cout << "INFO:: -- boo! no features found for a " << residue_name
+               //           << " (surprising)" << std::endl;
+               logger.log(log_t::INFO, "-- boo! no features found for a", residue_name, "(surprising)");
             } else {
                coot::residue_spec_t res_spec(residue_p);
                for (const auto &feature : features) {

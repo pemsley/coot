@@ -384,7 +384,8 @@ coot::torsionable_link_quads(int imol,
 
 	 } else {
 
-	    std::cout << "INFO:: link torsion generated from link bond restraint"  << std::endl;
+	    // std::cout << "INFO:: link torsion generated from link bond restraint"  << std::endl;
+	    logger.log(log_t::INFO, "link torsion generated from link bond restraint");
 
 	    // bleugh... OK, no torsion restraints.
 	    // So use a bond restaint to make one torsion (around the link bond).

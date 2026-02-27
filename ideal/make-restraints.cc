@@ -193,8 +193,9 @@ coot::restraints_container_t::make_restraints(int imol,
 	    reduced_angle_info_container_t ai(restraints_vec);
 	    int n_nbcr = make_non_bonded_contact_restraints(imol, bpc, ai, geom);
 	    if (verbose_geometry_reporting != QUIET)
-	       std::cout << "INFO:: make_restraints(): made " << n_nbcr
-			 << " non-bonded restraints\n";
+	       // std::cout << "INFO:: make_restraints(): made " << n_nbcr
+	       //          << " non-bonded restraints\n";
+	       logger.log(log_t::INFO, "make_restraints(): made", n_nbcr, "non-bonded restraints");
 	 }
       }
       make_restraint_types_index_limits();
@@ -575,12 +576,16 @@ coot::restraints_container_t::make_helix_pseudo_bond_restraints_from_res_vec_aut
             add(BOND_RESTRAINT, index_1, index_3, fixed_flags_2, ideal_dist_i_3, pseudo_bond_esd, 1.2);
 
             if (verbose_geometry_reporting != QUIET) {
-               std::cout << "INFO:: Alpha Helix Bond restraint ("
-                         << at_1->name << " " << at_1->GetSeqNum() << ") to ("
-                         << at_3->name << " " << at_3->GetSeqNum() << ") " << ideal_dist_i_3 << std::endl;
-               std::cout << "INFO:: Alpha Helix Bond restraint ("
-                         << at_1->name << " " << at_1->GetSeqNum() << ") to ("
-                         << at_2->name << " " << at_2->GetSeqNum() << ") " << ideal_dist_i_4 << std::endl;
+               // std::cout << "INFO:: Alpha Helix Bond restraint ("
+               //          << at_1->name << " " << at_1->GetSeqNum() << ") to ("
+               //          << at_3->name << " " << at_3->GetSeqNum() << ") " << ideal_dist_i_3 << std::endl;
+               logger.log(log_t::INFO, "Alpha Helix Bond restraint (" + std::string(at_1->name) + " " + std::to_string(at_1->GetSeqNum()) +
+                          ") to (" + std::string(at_3->name) + " " + std::to_string(at_3->GetSeqNum()) + ") " + std::to_string(ideal_dist_i_3));
+               // std::cout << "INFO:: Alpha Helix Bond restraint ("
+               //          << at_1->name << " " << at_1->GetSeqNum() << ") to ("
+               //          << at_2->name << " " << at_2->GetSeqNum() << ") " << ideal_dist_i_4 << std::endl;
+               logger.log(log_t::INFO, "Alpha Helix Bond restraint (" + std::string(at_1->name) + " " + std::to_string(at_1->GetSeqNum()) +
+                          ") to (" + std::string(at_2->name) + " " + std::to_string(at_2->GetSeqNum()) + ") " + std::to_string(ideal_dist_i_4));
             }
             n_helical_restraints += 2;
          } else {
@@ -592,9 +597,11 @@ coot::restraints_container_t::make_helix_pseudo_bond_restraints_from_res_vec_aut
 	       add(BOND_RESTRAINT, index_1, index_3, fixed_flags_2, ideal_dist_i_3, pseudo_bond_esd, 1.2);
 
                if (verbose_geometry_reporting != QUIET) {
-                  std::cout << "INFO:: Alpha Helix Bond restraint ("
-                            << at_1->name << " " << at_1->GetSeqNum() << ") to ("
-                            << at_3->name << " " << at_3->GetSeqNum() << ") " << ideal_dist_i_3 << std::endl;
+                  // std::cout << "INFO:: Alpha Helix Bond restraint ("
+                  //          << at_1->name << " " << at_1->GetSeqNum() << ") to ("
+                  //          << at_3->name << " " << at_3->GetSeqNum() << ") " << ideal_dist_i_3 << std::endl;
+                  logger.log(log_t::INFO, "Alpha Helix Bond restraint (" + std::string(at_1->name) + " " + std::to_string(at_1->GetSeqNum()) +
+                             ") to (" + std::string(at_3->name) + " " + std::to_string(at_3->GetSeqNum()) + ") " + std::to_string(ideal_dist_i_3));
                }
                n_helical_restraints += 1;
 	    }
@@ -611,7 +618,8 @@ coot::restraints_container_t::make_helix_pseudo_bond_restraints_from_res_vec_aut
    if (console_output_for_restraints_generation_timings) {
       auto tp_1 = std::chrono::high_resolution_clock::now();
       auto d10 = std::chrono::duration_cast<std::chrono::microseconds>(tp_1 - tp_0).count();
-      std::cout << "INFO:: Timing for auto-helix " << d10 << " microseconds" << std::endl;
+      // std::cout << "INFO:: Timing for auto-helix " << d10 << " microseconds" << std::endl;
+      logger.log(log_t::INFO, "Timing for auto-helix " + std::to_string(d10) + " microseconds");
    }
 
 }
@@ -998,7 +1006,8 @@ coot::restraints_container_t::make_monomer_restraints_by_linear(int imol,
 
    sum.report(do_residue_internal_torsions);
    if (verbose_geometry_reporting != QUIET) {
-      std::cout << "INFO:: by_linear() created " << size() << " restraints" << std::endl;
+      // std::cout << "INFO:: by_linear() created " << size() << " restraints" << std::endl;
+      logger.log(log_t::INFO, "by_linear() created", size(), "restraints");
       std::cout << std::endl;
    }
    return iret; // return 1 on success.  Hmm... how is this set? (and subsequently used?)
@@ -2060,19 +2069,18 @@ coot::restraints_container_t::add_rama(std::string link_type,
 						     post_res->GetResName());
 
 	 if (true)
-	    std::cout << "INFO:: Adding Ramachandran restraint "
-		      << "type " << std::setw(6) << zort << " for " << residue_spec_t(this_res)
-		      << " " << this_res->GetResName() << " "
-// 		      << coot::atom_spec_t(atom[atom_indices[0]]) << " "
-// 		      << coot::atom_spec_t(atom[atom_indices[1]]) << " "
-// 		      << coot::atom_spec_t(atom[atom_indices[2]]) << " "
-// 		      << coot::atom_spec_t(atom[atom_indices[3]]) << " "
-// 		      << coot::atom_spec_t(atom[atom_indices[4]])
-		      << "fixed: "
-		      << fixed_flag[0] << " " << fixed_flag[1] << " "
-		      << fixed_flag[2] << " " << fixed_flag[3] << " "
-		      << fixed_flag[4]
-		      << std::endl;
+	    // std::cout << "INFO:: Adding Ramachandran restraint "
+	    //           << "type " << std::setw(6) << zort << " for " << residue_spec_t(this_res)
+	    //           << " " << this_res->GetResName() << " "
+	    //           << "fixed: "
+	    //           << fixed_flag[0] << " " << fixed_flag[1] << " "
+	    //           << fixed_flag[2] << " " << fixed_flag[3] << " "
+	    //           << fixed_flag[4]
+	    //           << std::endl;
+	    logger.log(log_t::INFO, "Adding Ramachandran restraint type " + zort + " for " +
+                       residue_spec_t(this_res).format() + " " + std::string(this_res->GetResName()) +
+                       " fixed: " + std::to_string(fixed_flag[0]) + " " + std::to_string(fixed_flag[1]) + " " +
+                       std::to_string(fixed_flag[2]) + " " + std::to_string(fixed_flag[3]) + " " + std::to_string(fixed_flag[4]));
 
 	 add(RAMACHANDRAN_RESTRAINT,
 	     zort,
@@ -2514,7 +2522,8 @@ coot::restraints_container_t::construct_non_bonded_contact_list_by_res_vec(const
 
    end = std::chrono::system_clock::now();
    std::chrono::duration<double> elapsed_seconds = end-start;
-   std::cout << "INFO:: nbc computation " << "elapsed time: " << elapsed_seconds.count() << "s\n";
+   // std::cout << "INFO:: nbc computation " << "elapsed time: " << elapsed_seconds.count() << "s\n";
+   logger.log(log_t::INFO, "nbc computation elapsed time:", elapsed_seconds.count(), "s");
 
 #endif // HAVE_CXX_THREAD
 

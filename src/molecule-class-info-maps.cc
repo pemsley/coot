@@ -381,8 +381,9 @@ molecule_class_info_t::sharpen(float b_factor, bool try_gompertz, float gompertz
       }
 
       if (debugging)
-	 std::cout << "INFO:: sharpening " << original_fphis_p->num_obs() << " "
-		   << fphis.num_obs() << " data " << std::endl;
+	 // std::cout << "INFO:: sharpening " << original_fphis_p->num_obs() << " "
+	 //           << fphis.num_obs() << " data " << std::endl;
+	 logger.log(log_t::INFO, "sharpening", original_fphis_p->num_obs(), fphis.num_obs(), "data");
 
       n_count = 0;
       int n_gompertz_count = 0;
@@ -434,10 +435,11 @@ molecule_class_info_t::sharpen(float b_factor, bool try_gompertz, float gompertz
       }
       if (do_gompertz) {
 	 if (n_gompertz_count)
-	    std::cout << "INFO:: Average gompertz scale factor "
-		      << gompertz_sum/double(n_gompertz_count)
-		      << " from " << n_gompertz_count << " scaled reflections"
-		      << std::endl;
+	    // std::cout << "INFO:: Average gompertz scale factor "
+	    //           << gompertz_sum/double(n_gompertz_count)
+	    //           << " from " << n_gompertz_count << " scaled reflections"
+	    //           << std::endl;
+	    logger.log(log_t::INFO, "Average gompertz scale factor", gompertz_sum/double(n_gompertz_count), "from", n_gompertz_count, "scaled reflections");
 	 else
 	    std::cout << "WARNING:: no gompertz F/sig correction to reflections!"
 		      << std::endl;
@@ -649,9 +651,10 @@ molecule_class_info_t::fill_fobs_sigfobs() {
             mtzin_p->open_read(Refmac_mtz_filename());
             mtzin_p->import_hkl_data(*original_fobs_sigfobs_p, p.first);
             mtzin_p->close_read();
-            std::cout << "INFO:: reading " << Refmac_mtz_filename() << " provided "
-                      << original_fobs_sigfobs_p->num_obs() << " data using data name: "
-                      << p.first << std::endl;
+            // std::cout << "INFO:: reading " << Refmac_mtz_filename() << " provided "
+            //           << original_fobs_sigfobs_p->num_obs() << " data using data name: "
+            //           << p.first << std::endl;
+            logger.log(log_t::INFO, "reading", Refmac_mtz_filename(), "provided", original_fobs_sigfobs_p->num_obs(), "data using data name:", p.first);
             if (original_fobs_sigfobs_p->num_obs() > 10)
                original_fobs_sigfobs_filled = 1;
             else
@@ -667,16 +670,20 @@ molecule_class_info_t::fill_fobs_sigfobs() {
                      dataname = refmac_r_free_col;
                      dataname = "/*/*/[" + coot::util::file_name_non_directory(refmac_r_free_col) + "]";
                   }
-               std::cout << "INFO:: About to read " << Refmac_mtz_filename() << " with dataname " << dataname << std::endl;
+               // std::cout << "INFO:: About to read " << Refmac_mtz_filename() << " with dataname " << dataname << std::endl;
+               logger.log(log_t::INFO, "About to read", Refmac_mtz_filename(), "with dataname", dataname);
                clipper::CCP4MTZfile *mtzin_rfree_p = new clipper::CCP4MTZfile;
                mtzin_rfree_p->open_read(Refmac_mtz_filename());
                mtzin_rfree_p->import_hkl_data(*original_r_free_flags_p, dataname);
                mtzin_rfree_p->close_read();
 
-               std::cout << "INFO:: reading " << Refmac_mtz_filename() << " using dataname: " << dataname << " provided "
-                         << original_r_free_flags_p->num_obs() << " R-free flags\n";
+               // std::cout << "INFO:: reading " << Refmac_mtz_filename() << " using dataname: " << dataname << " provided "
+               //          << original_r_free_flags_p->num_obs() << " R-free flags\n";
+               logger.log(log_t::INFO, "reading " + Refmac_mtz_filename() + " using dataname: " + dataname +
+                          " provided " + std::to_string(original_r_free_flags_p->num_obs()) + " R-free flags");
             } else {
-               std::cout << "INFO:: no sensible R-free flag column label\n";
+               // std::cout << "INFO:: no sensible R-free flag column label\n";
+               logger.log(log_t::INFO, "no sensible R-free flag column label");
             }
          }
          catch (const clipper::Message_fatal &m) {
@@ -1323,7 +1330,8 @@ molecule_class_info_t::setup_glsl_map_rendering(const clipper::Coord_orth &centr
    auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
 
    if (false) // useful for me, not others
-      std::cout << "INFO:: with storing map triangles centres " << d10 << " milliseconds" << std::endl;
+      // std::cout << "INFO:: with storing map triangles centres " << d10 << " milliseconds" << std::endl;
+      logger.log(log_t::INFO, "with storing map triangles centres " + std::to_string(d10) + " milliseconds");
 
    err = glGetError();
    if (err) {
@@ -1738,7 +1746,8 @@ molecule_class_info_t::map_fill_from_mtz_with_reso_limits(std::string mtz_file_n
       }
 
       int n_reflections = fphidata.num_obs();
-      std::cout << "INFO:: Number of observed reflections: " << n_reflections << "\n";
+      // std::cout << "INFO:: Number of observed reflections: " << n_reflections << "\n";
+      logger.log(log_t::INFO, "Number of observed reflections:", n_reflections);
       if (n_reflections <= 0) {
          std::cout << "WARNING:: No reflections in mtz file!?" << std::endl;
       } else {
@@ -1983,8 +1992,9 @@ molecule_class_info_t::map_fill_from_cns_hkl(std::string cns_file_name,
 	 std::cout << "WARNING:: No reflections in cns file!?" << std::endl;
 	 return 0;
       }
-      std::cout << "INFO:: finding ASU unique map points with sampling rate "
-                << map_sampling_rate << std::endl;
+      // std::cout << "INFO:: finding ASU unique map points with sampling rate "
+      //           << map_sampling_rate << std::endl;
+      logger.log(log_t::INFO, "finding ASU unique map points with sampling rate", map_sampling_rate);
       clipper::Grid_sampling gs(fphidata.spacegroup(),
 				fphidata.cell(),
 				fphidata.resolution(),
@@ -2000,9 +2010,12 @@ molecule_class_info_t::map_fill_from_cns_hkl(std::string cns_file_name,
       // cout << "done fft..." << endl;
 
       long T3 = 0; // glutGet(GLUT_ELAPSED_TIME);
-      std::cout << "INFO:: " << float(T1-T0)/1000.0 << " seconds to read CNS file\n";
-      std::cout << "INFO:: " << float(T2-T1)/1000.0 << " seconds to initialize map\n";
-      std::cout << "INFO:: " << float(T3-T2)/1000.0 << " seconds for FFT\n";
+      // std::cout << "INFO:: " << float(T1-T0)/1000.0 << " seconds to read CNS file\n";
+      logger.log(log_t::INFO, float(T1-T0)/1000.0, "seconds to read CNS file");
+      // std::cout << "INFO:: " << float(T2-T1)/1000.0 << " seconds to initialize map\n";
+      logger.log(log_t::INFO, float(T2-T1)/1000.0, "seconds to initialize map");
+      // std::cout << "INFO:: " << float(T3-T2)/1000.0 << " seconds for FFT\n";
+      logger.log(log_t::INFO, float(T3-T2)/1000.0, "seconds for FFT");
       update_map_in_display_control_widget();
 
       // Fill the class variables:
@@ -2030,7 +2043,8 @@ molecule_class_info_t::map_fill_from_cns_hkl(std::string cns_file_name,
       // original_fphis = fphidata;
 
       long T4 = 0; // glutGet(GLUT_ELAPSED_TIME);
-      std::cout << "INFO:: " << float(T4-T3)/1000.0 << " seconds for statistics\n";
+      // std::cout << "INFO:: " << float(T4-T3)/1000.0 << " seconds for statistics\n";
+      logger.log(log_t::INFO, float(T4-T3)/1000.0, "seconds for statistics");
 
       std::cout << "      Map mean: ........ " << map_mean_ << std::endl;
       std::cout << "      Map sigma: ....... " << map_sigma_ << std::endl;
@@ -2041,8 +2055,10 @@ molecule_class_info_t::map_fill_from_cns_hkl(std::string cns_file_name,
 
       update_map(true);
       long T5 = 0; // glutGet(GLUT_ELAPSED_TIME);
-      std::cout << "INFO:: " << float(T5-T4)/1000.0 << " seconds for contour map\n";
-      std::cout << "INFO:: " << float(T5-T0)/1000.0 << " seconds in total\n";
+      // std::cout << "INFO:: " << float(T5-T4)/1000.0 << " seconds for contour map\n";
+      logger.log(log_t::INFO, float(T5-T4)/1000.0, "seconds for contour map");
+      // std::cout << "INFO:: " << float(T5-T0)/1000.0 << " seconds in total\n";
+      logger.log(log_t::INFO, float(T5-T0)/1000.0, "seconds in total");
       return 1;
    }
    catch (const clipper::Message_base &rte) {
@@ -2388,9 +2404,11 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
    if (filename.find(".mrc.gz") != std::string::npos) map_file_type = CCP4;
 
    if (map_file_type == CCP4)
-      std::cout << "INFO:: map file type was determined to be CCP4 type\n";
+      // std::cout << "INFO:: map file type was determined to be CCP4 type\n";
+      logger.log(log_t::INFO, "map file type was determined to be CCP4 type");
    if (map_file_type == CNS)
-      std::cout << "INFO:: map file type was determined to be CNS type\n";
+      // std::cout << "INFO:: map file type was determined to be CNS type\n";
+      logger.log(log_t::INFO, "map file type was determined to be CNS type");
 
    bool bad_read = false; // so far
    bool em = false;
@@ -2412,8 +2430,9 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
 
          auto tp_2 = std::chrono::high_resolution_clock::now();
          auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
-         std::cout << "INFO:: map read in " << d21 << " milliseconds with status: "
-		   << int(done) << std::endl;
+         // std::cout << "INFO:: map read in " << d21 << " milliseconds with status: "
+         //           << int(done) << std::endl;
+         logger.log(log_t::INFO, "map read in", d21, "milliseconds with status:", int(done));
 
          // Now set is_em_map_cached_flag and set the rotation centres.
          // I think that we only need set the is_em_map_cached_flag.
@@ -2426,7 +2445,8 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
                   clipper::Cell c = xmap.cell();
                   coot::Cartesian m(0.5*c.descr().a(), 0.5*c.descr().b(), 0.5*c.descr().c());
                   graphics_info_t g;
-                  std::cout << "INFO:: setRotationCentre " << m << std::endl;
+                  // std::cout << "INFO:: setRotationCentre " << m << std::endl;
+                  logger.log(log_t::INFO, "setRotationCentre", m.x(), m.y(), m.z());
                   g.setRotationCentre(m);
                }
             } else {
@@ -2439,7 +2459,8 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
                      clipper::Cell c = file.cell();
                      coot::Cartesian m(0.5*c.descr().a(), 0.5*c.descr().b(), 0.5*c.descr().c());
                      graphics_info_t g;
-                     std::cout << "INFO:: setRotationCentre " << m << std::endl;
+                     // std::cout << "INFO:: setRotationCentre " << m << std::endl;
+                     logger.log(log_t::INFO, "setRotationCentre", m.x(), m.y(), m.z());
                      g.setRotationCentre(m);
                   }
                }
@@ -2452,7 +2473,8 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
       }
 
       if (done != coot::util::slurp_map_result_t::OK) {
-         std::cout << "INFO:: attempting to read CCP4 map: " << filename << std::endl;
+         // std::cout << "INFO:: attempting to read CCP4 map: " << filename << std::endl;
+         logger.log(log_t::INFO, "attempting to read CCP4 map:", filename);
          // clipper::CCP4MAPfile file;
          clipper_map_file_wrapper file;
          try {
@@ -2487,7 +2509,8 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
                //
                std::cout << "=================== EM Map NXmap =================== " << std::endl;
                file.import_nxmap(nxmap);
-               std::cout << "INFO:: created NX Map with grid " << nxmap.grid().format() << std::endl;
+               // std::cout << "INFO:: created NX Map with grid " << nxmap.grid().format() << std::endl;
+               logger.log(log_t::INFO, "created NX Map with grid", nxmap.grid().format());
             }
          } catch (const clipper::Message_base &exc) {
             std::cout << "WARNING:: failed to open " << filename << std::endl;
@@ -2520,7 +2543,8 @@ molecule_class_info_t::read_ccp4_map(std::string filename, int is_diff_map_flag,
 
 
    } else {
-      std::cout << "INFO:: attempting to read CNS map: " << filename << std::endl;
+      // std::cout << "INFO:: attempting to read CNS map: " << filename << std::endl;
+      logger.log(log_t::INFO, "attempting to read CNS map:", filename);
       clipper::CNSMAPfile file;
       file.open_read(filename);
       try {
@@ -2789,8 +2813,9 @@ molecule_class_info_t::make_map_from_phs(std::string pdb_filename,
 
    int iret = -1; // default error return status
    //
-   std::cout << "INFO:: Make a map from " << phs_filename << " using "
-	     << pdb_filename << " for the cell and symmetry information " << std::endl;
+   // std::cout << "INFO:: Make a map from " << phs_filename << " using "
+   //          << pdb_filename << " for the cell and symmetry information " << std::endl;
+   logger.log(log_t::INFO, "Make a map from", phs_filename, "using", pdb_filename, "for the cell and symmetry information");
 
    atom_selection_container_t SelAtom = get_atom_selection(pdb_filename, false, true, false);
 
@@ -3024,7 +3049,8 @@ molecule_class_info_t::save_original_fphis_from_map() {
      if (! original_fphis_filled) {
          float mg = coot::util::max_gridding(xmap); // A/grid
          clipper::Resolution reso(2.0 * mg); // Angstroms
-         std::cout << "INFO:: save_original_fphis_from_map(): making data info" << std::endl;
+         // std::cout << "INFO:: save_original_fphis_from_map(): making data info" << std::endl;
+         logger.log(log_t::INFO, "save_original_fphis_from_map(): making data info");
          std::cout << "DEBUG:: save_original_fphis_from_map cell-i: " << xmap.cell().format() << std::endl;
          clipper::HKL_info hkl_info(xmap.spacegroup(), xmap.cell(), reso, true);
          clipper::HKL_sampling hkl_sampling(xmap.cell(), reso);
@@ -3047,7 +3073,8 @@ molecule_class_info_t::save_original_fphis_from_map() {
             if (cell_check_2.beta() > 0.0 && cell_check_2.beta() < 180)
                if (cell_check_2.gamma() > 0.0 && cell_check_2.gamma() < 180)
                   original_fphis_filled = true;
-         std::cout << "INFO:: stored original fphis from map" << std::endl;
+         // std::cout << "INFO:: stored original fphis from map" << std::endl;
+         logger.log(log_t::INFO, "stored original fphis from map");
       }
    }
 }
@@ -3089,8 +3116,10 @@ molecule_class_info_t::calculate_sfs_and_make_map(int imol_no_in,
    std::cout << "done iso fft..." << std::endl;
 
    // debug:: examine fphidata and myfsigf:
-   std::cout << "INFO:: myfsigf  has " <<  myfsigf.data_size() << " data" << std::endl;
-   std::cout << "INFO:: fphidata has " << fphidata.data_size() << " data" << std::endl;
+   // std::cout << "INFO:: myfsigf  has " <<  myfsigf.data_size() << " data" << std::endl;
+   logger.log(log_t::INFO, "myfsigf has", myfsigf.data_size(), "data");
+   // std::cout << "INFO:: fphidata has " << fphidata.data_size() << " data" << std::endl;
+   logger.log(log_t::INFO, "fphidata has", fphidata.data_size(), "data");
 
    if (0) { // debug
       float sum_fo = 0;
@@ -3138,9 +3167,11 @@ molecule_class_info_t::calculate_sfs_and_make_map(int imol_no_in,
        is_2fofc_type == molecule_map_type::TYPE_FO_FC) {
 
       if (is_2fofc_type == molecule_map_type::TYPE_2FO_FC)
-	 std::cout << "INFO:: calculating 2fofc map..." << std::endl;
+	 // std::cout << "INFO:: calculating 2fofc map..." << std::endl;
+	 logger.log(log_t::INFO, "calculating 2fofc map...");
       if (is_2fofc_type == molecule_map_type::TYPE_FO_FC)
-	 std::cout << "INFO:: calculating fofc map..." << std::endl;
+	 // std::cout << "INFO:: calculating fofc map..." << std::endl;
+	 logger.log(log_t::INFO, "calculating fofc map...");
 
       clipper::BasisFn_spline basis_f1f2( hkls, nprm, 2.0 );
       //  target_f1f2( fc, fo );
@@ -3369,9 +3400,10 @@ molecule_class_info_t::make_map_from_cif_sigmaa(int imol_no_in,
 	    std::cout << "WARNING:: Are you sure this file (" << cif_file_name
 		      << ") contains calculated structure factors?" << std::endl;
 	    std::cout << "WARNING:: No map calculated." << std::endl;
-	    std::cout << "INFO:: if you want to calculate structure factors from a"
-		      << " set of coordinates,  consider the function read_cif_data()"
-		      << std::endl;
+	    // std::cout << "INFO:: if you want to calculate structure factors from a"
+	    //           << " set of coordinates,  consider the function read_cif_data()"
+	    //           << std::endl;
+	    logger.log(log_t::INFO, "if you want to calculate structure factors from a set of coordinates, consider the function read_cif_data()");
 	 } else {
 
 	    std::string mol_name = cif_file_name;
@@ -3662,7 +3694,8 @@ molecule_class_info_t::make_map_from_mtz_by_calc_phases(int imol_no_in,
 
    clipper::CCP4MTZfile mtz;
 
-   std::cout << "INFO:: reading mtz file..." << mtz_file_name << std::endl;
+   // std::cout << "INFO:: reading mtz file..." << mtz_file_name << std::endl;
+   logger.log(log_t::INFO, "reading mtz file...", mtz_file_name);
    mtz.open_read(mtz_file_name);
 
    // make the data names for import:
@@ -3693,15 +3726,18 @@ molecule_class_info_t::make_map_from_phs(const clipper::Spacegroup &sg,
    clipper::PHSfile phs;
 
    if (! coot::file_exists(phs_filename)) {
-      std::cout << "INFO:: file " << phs_filename << " does not exit " << std::endl;
+      // std::cout << "INFO:: file " << phs_filename << " does not exit " << std::endl;
+      logger.log(log_t::INFO, "file", phs_filename, "does not exist");
       return -1;
    }
 
    try {
-      std::cout << "INFO:: reading phs file: " << phs_filename << std::endl;
+      // std::cout << "INFO:: reading phs file: " << phs_filename << std::endl;
+      logger.log(log_t::INFO, "reading phs file:", phs_filename);
       phs.open_read(phs_filename);
 
-      std::cout << "INFO:: phs: creating resolution" << std::endl;
+      // std::cout << "INFO:: phs: creating resolution" << std::endl;
+      logger.log(log_t::INFO, "phs: creating resolution");
       clipper::Resolution resolution = phs.resolution(cell);
       // mydata.init(sg, cell, resolution);
 
@@ -3711,9 +3747,11 @@ molecule_class_info_t::make_map_from_phs(const clipper::Spacegroup &sg,
       clipper::HKL_data<clipper::datatypes::Phi_fom<float> >  myphwt(mydata);
       clipper::HKL_data<clipper::datatypes::F_phi<float>   >  fphidata(mydata);
 
-      std::cout << "INFO:: phs: importing info" << std::endl;
+      // std::cout << "INFO:: phs: importing info" << std::endl;
+      logger.log(log_t::INFO, "phs: importing info");
       phs.import_hkl_info(mydata);
-      std::cout << "INFO:: phs: importing data" << std::endl;
+      // std::cout << "INFO:: phs: importing data" << std::endl;
+      logger.log(log_t::INFO, "phs: importing data");
       phs.import_hkl_data(myfsig);
       phs.import_hkl_data(myphwt);
 
@@ -3728,8 +3766,9 @@ molecule_class_info_t::make_map_from_phs(const clipper::Spacegroup &sg,
 		<< clipper::Util::rad2d(cell.descr().gamma()) << " "
 		<< single_quote(sg.symbol_hm()) << std::endl;
 
-      std::cout << "INFO:: phs: number of reflections: " << mydata.num_reflections()
-		<< "\n";
+      // std::cout << "INFO:: phs: number of reflections: " << mydata.num_reflections()
+      //           << "\n";
+      logger.log(log_t::INFO, "phs: number of reflections:", mydata.num_reflections());
 
       fphidata.update();
 
@@ -3830,7 +3869,8 @@ molecule_class_info_t::make_map_from_phs(const clipper::Spacegroup &sg,
    }
 
    catch (...) {
-      std::cout << "INFO:: problem reading phs file " << phs_filename << std::endl;
+      // std::cout << "INFO:: problem reading phs file " << phs_filename << std::endl;
+      logger.log(log_t::INFO, "problem reading phs file", phs_filename);
    }
 
   // as for 'normal' maps
@@ -4463,17 +4503,21 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
       trial_mol.transform(trial_results[i_trial].first, centre_pt);
       coot::minimol::molecule fitted_mol = rigid_body_fit(trial_mol, xmap_masked, map_sigma);
       float this_score = density_scoring_function(fitted_mol, atom_numbers, xmap_masked);
-      std::cout << "INFO:: Jiggle-fit: optimizing trial "
-		<< std::setw(3) << i_trial << ": prelim-score was "
-		<< std::setw(7) << trial_results[i_trial].second << " post-fit "
-		<< std::setw(5) << this_score;
+      // std::cout << "INFO:: Jiggle-fit: optimizing trial "
+      //           << std::setw(3) << i_trial << ": prelim-score was "
+      //           << std::setw(7) << trial_results[i_trial].second << " post-fit "
+      //           << std::setw(5) << this_score;
+      // if (this_score > best_score_so_far) { ... std::cout << " ***"; }
+      // std::cout << std::endl;
       if (this_score > best_score_so_far) {
          best_score_so_far = this_score;
-         if (this_score > initial_score) {
-            std::cout << " ***";
-         }
+         if (this_score > initial_score)
+            logger.log(log_t::INFO, "Jiggle-fit: optimizing trial", i_trial, ": prelim-score was", trial_results[i_trial].second, "post-fit", this_score, "***");
+         else
+            logger.log(log_t::INFO, "Jiggle-fit: optimizing trial", i_trial, ": prelim-score was", trial_results[i_trial].second, "post-fit", this_score);
+      } else {
+         logger.log(log_t::INFO, "Jiggle-fit: optimizing trial", i_trial, ": prelim-score was", trial_results[i_trial].second, "post-fit", this_score);
       }
-      std::cout << std::endl;
       post_fit_trial_results[i_trial].second = this_score;
    }
 #endif // HAVE_CXX_THREAD
@@ -4501,14 +4545,16 @@ molecule_class_info_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
       best_molecule = fitted_mol;
 
       float this_score = density_scoring_function(fitted_mol, atom_numbers, xmap_masked);
-      std::cout << "INFO:: chose new molecule with score " << this_score << std::endl;
+      // std::cout << "INFO:: chose new molecule with score " << this_score << std::endl;
+      logger.log(log_t::INFO, "chose new molecule with score", this_score);
       best_score = this_score;
    }
 
    //
    if (bested) {
       make_backup(__FUNCTION__);
-      std::cout << "INFO:: Improved fit from " << initial_score << " to " << best_score << std::endl;
+      // std::cout << "INFO:: Improved fit from " << initial_score << " to " << best_score << std::endl;
+      logger.log(log_t::INFO, "Improved fit from", initial_score, "to", best_score);
 
       v = best_score;
       if (! best_molecule.is_empty()) {

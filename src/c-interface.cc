@@ -1217,7 +1217,8 @@ void zalman_stereo_mode() {
 	    short int try_hardware_stereo_flag = 5;
 	    GtkWidget *glarea = gl_extras(vbox, try_hardware_stereo_flag);
 	    if (glarea) {
-	       std::cout << "INFO:: switch to zalman_stereo_mode succeeded\n";
+	       // std::cout << "INFO:: switch to zalman_stereo_mode succeeded\n";
+	       logger.log(log_t::INFO, "switch to zalman_stereo_mode succeeded");
 	       if (graphics_info_t::idle_function_spin_rock_token) {
 		  toggle_idle_spin_function(); // turn it off;
 	       }
@@ -1268,7 +1269,8 @@ void mono_mode() {
 	    short int try_hardware_stereo_flag = 0;
 	    GtkWidget *glarea = gl_extras(vbox, try_hardware_stereo_flag);
 	    if (glarea) {
-	       std::cout << "INFO:: switch to mono_mode succeeded\n";
+	       // std::cout << "INFO:: switch to mono_mode succeeded\n";
+	       logger.log(log_t::INFO, "switch to mono_mode succeeded");
 	       if (graphics_info_t::idle_function_spin_rock_token) {
 		  toggle_idle_spin_function(); // turn it off;
 	       }
@@ -4553,7 +4555,8 @@ void screendump_image(const char *filename) {
    graphics_draw();
 
    int istatus = graphics_info_t::screendump_image(filename);
-   std::cout << "INFO:: screendump_image status " << istatus << std::endl;
+   // std::cout << "INFO:: screendump_image status " << istatus << std::endl;
+   logger.log(log_t::INFO, "screendump_image status", istatus);
    if (istatus == 1) {
       std::string s = "Screendump image ";
       s += filename;
@@ -6243,7 +6246,8 @@ void display_only_active() {
 
    std::pair<bool, std::pair<int, coot::atom_spec_t> > aa = active_atom_spec();
 
-   std::cout << "INFO:: display_only_active()" << aa.first << " " << aa.second.first << " " << aa.second.second << std::endl;
+   // std::cout << "INFO:: display_only_active()" << aa.first << " " << aa.second.first << " " << aa.second.second << std::endl;
+   logger.log(log_t::INFO, "display_only_active()", aa.first, aa.second.first, aa.second.second.format());
 
    if (aa.first) {
       int imol_active = aa.second.first;
@@ -6322,7 +6326,8 @@ show_spacegroup(int imol) {
 
    if (is_valid_model_molecule(imol) || is_valid_map_molecule(imol)) {
       std::string spg = graphics_info_t::molecules[imol].show_spacegroup();
-      std::cout << "INFO:: spacegroup: " << spg << std::endl;
+      // std::cout << "INFO:: spacegroup: " << spg << std::endl;
+      logger.log(log_t::INFO, "spacegroup:", spg);
       unsigned int l = spg.length();
       char *s = new char[l+1];
       strncpy(s, spg.c_str(), l+1);
@@ -7580,8 +7585,9 @@ run_command_line_scripts() {
                 << std::endl;
 
    if (graphics_info_t::command_line_scripts.size()) {
-      std::cout << "INFO:: There are " << graphics_info_t::command_line_scripts.size()
-		<< " command line scripts to run\n";
+      // std::cout << "INFO:: There are " << graphics_info_t::command_line_scripts.size()
+      //          << " command line scripts to run\n";
+      logger.log(log_t::INFO, "There are", graphics_info_t::command_line_scripts.size(), "command line scripts to run");
       for (unsigned int i=0; i<graphics_info_t::command_line_scripts.size(); i++)
 	 std::cout << "    " << graphics_info_t::command_line_scripts[i].c_str()
 		   << std::endl;
@@ -8292,13 +8298,15 @@ int read_cif_data(const char *filename, int imol_coordinates) {
       // link itself.
       //
       if (status != 0 || !S_ISREG (s.st_mode)) {
-	 std::cout << "INFO:: Error reading " << filename << std::endl;
+	 // std::cout << "INFO:: Error reading " << filename << std::endl;
+	 logger.log(log_t::INFO, "Error reading " + std::string(filename));
 	 if (S_ISDIR(s.st_mode)) {
 	    std::cout << filename << " is a directory." << std::endl;
 	 }
 	 return -1; // which is status in an error
       } else {
-	 std::cout << "INFO:: Reading cif file: " << filename << std::endl;
+	 // std::cout << "INFO:: Reading cif file: " << filename << std::endl;
+	 logger.log(log_t::INFO, "Reading cif file: " + std::string(filename));
 	 graphics_info_t g;
 	 int imol = g.create_molecule();
 	 int istat =
@@ -8348,7 +8356,8 @@ int read_cif_data_2fofc_map(const char *filename, int imol_coordinates) {
 
       if (is_valid_model_molecule(imol_coordinates)) {
 
-	 std::cout << "INFO:: Reading cif file: " << filename << std::endl;
+	 // std::cout << "INFO:: Reading cif file: " << filename << std::endl;
+	 logger.log(log_t::INFO, "Reading cif file: " + std::string(filename));
 
 	 graphics_info_t g;
 

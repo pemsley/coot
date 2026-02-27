@@ -1270,7 +1270,8 @@ int do_ramachandran_plot_differences_by_widget(GtkWidget *w) {
 	 istat = 1;
 	 ramachandran_plot_differences(imol1, imol2);
       } else {
-	 std::cout << "INFO:: incomprehensible molecule/chain selection" << std::endl;
+	 // std::cout << "INFO:: incomprehensible molecule/chain selection" << std::endl;
+	 logger.log(log_t::INFO, "incomprehensible molecule/chain selection");
 	 std::string s = "Can't make sense of chain selection.  Try again?";
 	 GtkWidget *nbd = wrapped_nothing_bad_dialog(s);
 	 gtk_widget_set_visible(nbd, TRUE);
@@ -2359,7 +2360,8 @@ PyObject *all_molecule_ramachandran_region_py(int imol) {
           PyList_SetItem(r, i, pair);
         }
       } else {
-        std::cout << "INFO:: empty ramachandran region list" << std::endl;
+        // std::cout << "INFO:: empty ramachandran region list" << std::endl;
+        logger.log(log_t::INFO, "empty ramachandran region list");
       }
    }
 
@@ -2484,7 +2486,8 @@ PyObject *pathology_data(const std::string &mtz_file_name,
 
    try {
       clipper::CCP4MTZfile mtz;
-      std::cout << "INFO:: reading mtz file " << mtz_file_name << std::endl;
+      // std::cout << "INFO:: reading mtz file " << mtz_file_name << std::endl;
+      logger.log(log_t::INFO, "reading mtz file", mtz_file_name);
       mtz.open_read(mtz_file_name);
       clipper::HKL_data< clipper::datatypes::F_sigF<float> > fsigf;
       std::string dataname = "/*/*/[" + fp_col + " " + sigfp_col + "]";
@@ -2519,8 +2522,9 @@ PyObject *pathology_data(const std::string &mtz_file_name,
       std::cout << "error: " << e.text() << std::endl;
    }
 
-   std::cout << "INFO:: pathology_plots() found "
-   << fp_vs_reso_data.size() << " data" << std::endl;
+   // std::cout << "INFO:: pathology_plots() found "
+   // << fp_vs_reso_data.size() << " data" << std::endl;
+   logger.log(log_t::INFO, "pathology_plots() found", static_cast<unsigned long>(fp_vs_reso_data.size()), "data");
 
 
    // this is just a bit of fun - looking for large FP outliers.
@@ -2650,7 +2654,8 @@ add_cablam_markup(int imol, const std::string &cablam_log_file_name) {
       mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
       std::vector<coot::cablam_markup_t> v = coot::make_cablam_markups(mol, cablam_log_file_name);
 
-      std::cout << "INFO:: Made " << v.size() << " cablam markups " << std::endl;
+      // std::cout << "INFO:: Made " << v.size() << " cablam markups " << std::endl;
+      logger.log(log_t::INFO, "Made", static_cast<unsigned long>(v.size()), "cablam markups");
       std::vector<coot::cablam_markup_t>::const_iterator it;
       int idx_cablam = generic_object_index("xxCaBLAM");
       if (idx_cablam == -1)

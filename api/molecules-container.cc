@@ -1961,7 +1961,8 @@ molecules_container_t::get_header_info(int imol) const {
             coot::util::print_secondary_structure_info(model_p);
             int nhelix = model_p->GetNumberOfHelices();
             int nsheet = model_p->GetNumberOfSheets();
-            std::cout << "INFO:: There are " << nhelix << " helices and " << nsheet << " sheets\n";
+            // std::cout << "INFO:: There are " << nhelix << " helices and " << nsheet << " sheets\n";
+            logger.log(log_t::INFO, "There are", nhelix, "helices and", nsheet, "sheets");
             for (int ih=1; ih<=nhelix; ih++) {
                mmdb:: Helix *helix_p = model_p->GetHelix(ih);
                if (helix_p) {
@@ -3140,7 +3141,8 @@ molecules_container_t::refine_residues_vec(int imol,
                                            mmdb::Manager *mol) {
    bool use_map_flag = true;
    if (false)
-      std::cout << "INFO:: refine_residues_vec() with altconf \"" << alt_conf << "\"" << std::endl;
+      // std::cout << "INFO:: refine_residues_vec() with altconf \"" << alt_conf << "\"" << std::endl;
+      logger.log(log_t::INFO, "refine_residues_vec() with altconf", alt_conf);
 
    coot::refinement_results_t rr = generate_molecule_and_refine(imol, residues, alt_conf, mol, use_map_flag);
    return rr;
@@ -3750,7 +3752,8 @@ molecules_container_t::make_last_restraints(const std::vector<std::pair<bool,mmd
                                                        // link and flank args default true
 
    if (use_harmonic_approximation_for_NBCs) {
-      std::cout << "INFO:: using soft harmonic restraints for NBC" << std::endl;
+      // std::cout << "INFO:: using soft harmonic restraints for NBC" << std::endl;
+      logger.log(log_t::INFO, "using soft harmonic restraints for NBC");
       last_restraints->set_use_harmonic_approximations_for_nbcs(true);
    }
 
@@ -3809,8 +3812,9 @@ molecules_container_t::make_last_restraints(const std::vector<std::pair<bool,mmd
          // wait until refinement finishes
          while (restraints_lock) {
             std::this_thread::sleep_for(std::chrono::milliseconds(7));
-            std::cout << "INFO:: make_last_restraints() [immediate] restraints locked by "
-                      << restraints_locking_function_name << std::endl;
+            // std::cout << "INFO:: make_last_restraints() [immediate] restraints locked by "
+            //           << restraints_locking_function_name << std::endl;
+            logger.log(log_t::INFO, "make_last_restraints() [immediate] restraints locked by", restraints_locking_function_name);
          }
       }
 
@@ -5058,7 +5062,8 @@ molecules_container_t::make_masked_maps_split_by_chain(int imol, int imol_map) {
          lig.import_map_from(molecules[imol_map].xmap);
          // monster
          std::vector<std::pair<std::string, clipper::Xmap<float> > > maps = lig.make_masked_maps_split_by_chain(mol);
-         std::cout << "INFO:: made " << maps.size() << " masked maps" << std::endl;
+         // std::cout << "INFO:: made " << maps.size() << " masked maps" << std::endl;
+         logger.log(log_t::INFO, "made", maps.size(), "masked maps");
          std::string orig_map_name = molecules[imol_map].get_name();
          bool is_em_flag = molecules[imol_map].is_EM_map();
          for(unsigned int i=0; i<maps.size(); i++) {

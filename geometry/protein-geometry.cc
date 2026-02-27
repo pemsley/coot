@@ -560,9 +560,10 @@ coot::protein_geometry::try_dynamic_add(const std::string &resname, int read_num
    // If this is INH, DRG etc, don't try to auto-add
    //
    if (is_non_auto_load_ligand(resname)) {
-      std::cout << "INFO:: comp-id: " << resname
-                << " is marked for non-autoloading - stopping dynamic_add() now "
-                << std::endl;
+      // std::cout << "INFO:: comp-id: " << resname
+      //           << " is marked for non-autoloading - stopping dynamic_add() now "
+      //           << std::endl;
+      logger.log(log_t::INFO, "comp-id:", resname, "is marked for non-autoloading - stopping dynamic_add() now");
       return success;
    }
 
@@ -606,8 +607,9 @@ coot::protein_geometry::try_dynamic_add(const std::string &resname, int read_num
          strcpy(s, dir_3.c_str());
       } else {
          if (verbose_mode)
-            std::cout << "INFO:: using standard CCP4 Refmac dictionary"
-                      << " to search for \"" << resname << "\"" << std::endl;
+            // std::cout << "INFO:: using standard CCP4 Refmac dictionary"
+            //           << " to search for \"" << resname << "\"" << std::endl;
+            logger.log(log_t::INFO, "using standard CCP4 Refmac dictionary to search for", resname);
       }
    }
 
@@ -1259,7 +1261,8 @@ coot::protein_geometry::have_dictionary_for_residue_type(const std::string &mono
    }
 
    if (debug)
-      std::cout << "INFO:: pg::have_dictionary_for_residue_type() idr here is " << idr << std::endl;
+      // std::cout << "INFO:: pg::have_dictionary_for_residue_type() idr here is " << idr << std::endl;
+      logger.log(log_t::INFO, "pg::have_dictionary_for_residue_type() idr here is", idr);
 
    // check synonyms before checking three-letter-codes
 
@@ -1307,8 +1310,9 @@ coot::protein_geometry::have_dictionary_for_residue_type(const std::string &mono
    }
 
    if (debug)
-      std::cout << "INFO:: pg::have_dictionary_for_residue_type() " << monomer_type
-                << " " << imol_enc << " path " << path << " returns " << ifound << std::endl;
+      // std::cout << "INFO:: pg::have_dictionary_for_residue_type() " << monomer_type
+      //           << " " << imol_enc << " path " << path << " returns " << ifound << std::endl;
+      logger.log(log_t::INFO, std::vector<logging::ltw> {"pg::have_dictionary_for_residue_type()", monomer_type, imol_enc, "path", path, "returns", ifound});
 
    return ifound;
 }
@@ -2088,17 +2092,21 @@ coot::protein_geometry::remove_planar_peptide_restraint() {
 	    if (it->plane_id == plane_id) {
 	       ifound++;
 	       if (0)
-		  std::cout << "INFO:: before removal of plane3 TRANS has "
-			    << dict_link_res_restraints[i].link_plane_restraint.size()
-			    << " plane restraints\n";
+		  // std::cout << "INFO:: before removal of plane3 TRANS has "
+		  //           << dict_link_res_restraints[i].link_plane_restraint.size()
+		  //           << " plane restraints\n";
+		  logger.log(log_t::INFO, "before removal of plane3 TRANS has",
+		             dict_link_res_restraints[i].link_plane_restraint.size(), "plane restraints");
 
 	       // let's remove it
  	       dict_link_res_restraints[i].link_plane_restraint.erase(it);
 
 	       if (false)
-		  std::cout << "INFO::  after removal of plane3 TRANS has "
-			    << dict_link_res_restraints[i].link_plane_restraint.size()
-			    << " plane restraints\n";
+		  // std::cout << "INFO::  after removal of plane3 TRANS has "
+		  //           << dict_link_res_restraints[i].link_plane_restraint.size()
+		  //           << " plane restraints\n";
+		  logger.log(log_t::INFO, "after removal of plane3 TRANS has",
+		             dict_link_res_restraints[i].link_plane_restraint.size(), "plane restraints");
 	       break;
 	    }
 	 }
@@ -2676,9 +2684,10 @@ coot::protein_geometry::OXT_in_residue_restraints_p(const std::string &residue_t
 	 }
       }
    } else {
-      if (0) 
-	 std::cout << "INFO:: residue type :" << residue_type << ": not found in dictionary"
-		   << std::endl;
+      if (0)
+	 // std::cout << "INFO:: residue type :" << residue_type << ": not found in dictionary"
+	 //           << std::endl;
+	 logger.log(log_t::INFO, "residue type:", residue_type, ": not found in dictionary");
    } 
    return r;
 }

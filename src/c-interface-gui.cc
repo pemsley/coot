@@ -1816,9 +1816,11 @@ on_recentre_on_read_pdb_toggle_button_toggled (GtkButton       *button,
 					       gpointer         user_data)
 {
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button))) {
-      std::cout << "INFO:: activated recentering on new coordinates.\n";
+      // std::cout << "INFO:: activated recentering on new coordinates.\n";
+      logger.log(log_t::INFO, "activated recentering on new coordinates.");
    } else {
-      std::cout << "INFO:: de-activated recentering on new coordinates.\n";
+      // std::cout << "INFO:: de-activated recentering on new coordinates.\n";
+      logger.log(log_t::INFO, "de-activated recentering on new coordinates.");
    }
 }
 
@@ -2989,8 +2991,9 @@ save_molecule_coords_combobox_changed(GtkWidget *combobox, gpointer data) {
 
    int imol = my_combobox_get_imol(GTK_COMBO_BOX(combobox));
 
-   std::cout << "INFO:: save_molecule_coords_button_select(): Save coords molecule save_imol now: "
-	     << imol << std::endl;
+   // std::cout << "INFO:: save_molecule_coords_button_select(): Save coords molecule save_imol now: "
+   //          << imol << std::endl;
+   logger.log(log_t::INFO, "save_molecule_coords_button_select(): Save coords molecule save_imol now:", imol);
 
    graphics_info_t::save_imol = imol;
 }
@@ -3865,7 +3868,8 @@ void save_coordinates_using_widget(GtkWidget *dialog) {
                                                G_FILE_QUERY_INFO_NONE, NULL, &error);
       const char *filename = g_file_info_get_name(file_info);
 
-      std::cout << "INFO:: save coordinates for molecule " << imol << " to file " << filename << std::endl;
+      // std::cout << "INFO:: save coordinates for molecule " << imol << " to file " << filename << std::endl;
+      logger.log(log_t::INFO, "save coordinates for molecule", imol, "to file", filename);
 
       graphics_info_t g;
       if (is_valid_model_molecule(imol)) {

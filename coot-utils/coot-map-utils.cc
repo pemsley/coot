@@ -622,7 +622,8 @@ coot::util::sharpen_blur_map_with_resample(const clipper::Xmap<float> &xmap_in,
       // normal case
       // resample_factor (say 2) means finer grid and higher resolution
       float mg = coot::util::max_gridding(xmap_in);
-      std::cout << "INFO:: Map max gridding " << mg << " A/grid-point" << std::endl;
+      // std::cout << "INFO:: Map max gridding " << mg << " A/grid-point" << std::endl;
+      logger.log(log_t::INFO, "Map max gridding", mg, "A/grid-point");
       clipper::Resolution reso(2.0 * mg); // for map -> data, the resolution is half the gridding
       clipper::HKL_info myhkl(xmap_in.spacegroup(), xmap_in.cell(), reso, true);
       clipper::HKL_data< clipper::datatypes::F_phi<float> > fphis(myhkl);
@@ -658,7 +659,8 @@ coot::util::sharpen_blur_map_with_reduced_sampling(const clipper::Xmap<float> &x
       // cut the resolution (by using a more coarsely-sampled map)
 
       float mg = coot::util::max_gridding(xmap_in);
-      std::cout << "INFO:: Map max gridding " << mg << " A/grid-point" << std::endl;
+      // std::cout << "INFO:: Map max gridding " << mg << " A/grid-point" << std::endl;
+      logger.log(log_t::INFO, "Map max gridding", mg, "A/grid-point");
 
       // if resample_factor is less than 1.0, we want a less high resolution map
       clipper::Resolution reso_in(2.0 * mg);
@@ -751,7 +753,8 @@ coot::util::sharpen_blur_map(clipper::Xmap<float> *xmap_p, float b_factor) {
    auto tp_3 = std::chrono::high_resolution_clock::now();
    auto d21 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_2 - tp_1).count();
    auto d32 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_3 - tp_2).count();
-   std::cout << "INFO:: sharpen_blur self: Timings " << d21 << " " << d32 << " milliseconds"  << std::endl;
+   // std::cout << "INFO:: sharpen_blur self: Timings " << d21 << " " << d32 << " milliseconds"  << std::endl;
+   logger.log(log_t::INFO, "sharpen_blur self: Timings", static_cast<int>(d21), static_cast<int>(d32), "milliseconds");
 }
 
 
@@ -894,14 +897,18 @@ coot::util::transform_map(const clipper::Xmap<float> &xmap_in,
                                                                        new_space_group,
                                                                        new_cell);
 
-   std::cout << "INFO:: creating new map for transformed map with spacegroup: " << new_space_group.symbol_hm()
-             << " cell: " << new_cell.format() << " grid-sampling " << new_gs.format()
-             << std::endl;
+   // std::cout << "INFO:: creating new map for transformed map with spacegroup: " << new_space_group.symbol_hm()
+   //          << " cell: " << new_cell.format() << " grid-sampling " << new_gs.format()
+   //          << std::endl;
+   logger.log(log_t::INFO, "creating new map for transformed map with spacegroup:", new_space_group.symbol_hm(),
+              "cell:", new_cell.format(), "grid-sampling", new_gs.format());
 
    xmap.init(new_space_group, new_cell, new_gs);
 
-   std::cout << "INFO:: coord info:         to_pt: " << to_pt.format()    << std::endl;
-   std::cout << "INFO:: coord info:      about_pt: " << about_pt.format() << std::endl;
+   // std::cout << "INFO:: coord info:         to_pt: " << to_pt.format()    << std::endl;
+   logger.log(log_t::INFO, "coord info:         to_pt:", to_pt.format());
+   // std::cout << "INFO:: coord info:      about_pt: " << about_pt.format() << std::endl;
+   logger.log(log_t::INFO, "coord info:      about_pt:", about_pt.format());
 
    clipper::Grid_sampling grid = xmap.grid_sampling();
    clipper::Grid_range gr(xmap.cell(), xmap.grid_sampling(), box_size);
@@ -912,13 +919,18 @@ coot::util::transform_map(const clipper::Xmap<float> &xmap_in,
    g = to_pt.coord_frac(new_cell).coord_grid(new_gs);
 
    if (false) { // 20250128-PE  have you got the correct cell angles?
-      std::cout << "INFO:: new_cell: " << new_cell.format() << std::endl;
-      std::cout << "INFO:: new_gs: " << new_gs.format() << std::endl;
-      std::cout << "INFO:: to_pt: " << to_pt.format() << std::endl;
+      // std::cout << "INFO:: new_cell: " << new_cell.format() << std::endl;
+      logger.log(log_t::INFO, "new_cell:", new_cell.format());
+      // std::cout << "INFO:: new_gs: " << new_gs.format() << std::endl;
+      logger.log(log_t::INFO, "new_gs:", new_gs.format());
+      // std::cout << "INFO:: to_pt: " << to_pt.format() << std::endl;
+      logger.log(log_t::INFO, "to_pt:", to_pt.format());
       clipper::Coord_frac cf = to_pt.coord_frac(new_cell);
-      std::cout << "INFO:: to_pt.coord_frac: " << cf.format() << std::endl;
-      std::cout << "INFO:: to_pt.coord_frac.coord_grid: " << to_pt.coord_frac(new_cell).coord_grid(new_gs).format()
-                << std::endl;
+      // std::cout << "INFO:: to_pt.coord_frac: " << cf.format() << std::endl;
+      logger.log(log_t::INFO, "to_pt.coord_frac:", cf.format());
+      // std::cout << "INFO:: to_pt.coord_frac.coord_grid: " << to_pt.coord_frac(new_cell).coord_grid(new_gs).format()
+      //           << std::endl;
+      logger.log(log_t::INFO, "to_pt.coord_frac.coord_grid:", to_pt.coord_frac(new_cell).coord_grid(new_gs).format());
    }
 
    std::cout << "DEBUG:: pulling map from point:   " << about_pt.format() << std::endl;
@@ -1137,9 +1149,12 @@ coot::util::average_map(const std::vector<std::pair<clipper::Xmap<float>, float>
    if (maps_and_scales_vec.size() > 0) {
 
       for (unsigned int imap=0; imap<maps_and_scales_vec.size(); imap++)
-         std::cout << "INFO:: multiplying map (function index) " << imap << " "
-                   << maps_and_scales_vec[imap].first.grid_sampling().format()
-                   << " by " << maps_and_scales_vec[imap].second << std::endl;
+         // std::cout << "INFO:: multiplying map (function index) " << imap << " "
+         //           << maps_and_scales_vec[imap].first.grid_sampling().format()
+         //           << " by " << maps_and_scales_vec[imap].second << std::endl;
+         logger.log(log_t::INFO, "multiplying map (function index)", imap,
+                    maps_and_scales_vec[imap].first.grid_sampling().format(),
+                    "by", maps_and_scales_vec[imap].second);
 
       // set the first map and scale it.
       rmap = maps_and_scales_vec[0].first;
@@ -2169,8 +2184,9 @@ coot::util::map_to_model_correlation_stats(mmdb::Manager *mol,
    bool debug = false;
 
    if (debug) {
-      std::cout << "INFO:: map_to_model_correlation:: there are " << specs.size()
-                << " residues " << std::endl;
+      // std::cout << "INFO:: map_to_model_correlation:: there are " << specs.size()
+      //           << " residues " << std::endl;
+      logger.log(log_t::INFO, "map_to_model_correlation:: there are", specs.size(), "residues");
       for (unsigned int ilocal=0; ilocal<specs.size(); ilocal++)
          std::cout << "   " << specs[ilocal] << std::endl;
    }
@@ -2270,9 +2286,11 @@ coot::util::map_to_model_correlation_stats(mmdb::Manager *mol,
          std::pair<clipper::Coord_orth, clipper::Coord_orth> selection_extents = util::extents(mol, specs);
 
          if (debug)
-            std::cout << "INFO:: mol residue set extents: "
-                      << selection_extents.first.format() << " to "
-                      << selection_extents.second.format() << std::endl;
+            // std::cout << "INFO:: mol residue set extents: "
+            //           << selection_extents.first.format() << " to "
+            //           << selection_extents.second.format() << std::endl;
+            logger.log(log_t::INFO, "mol residue set extents:", selection_extents.first.format(),
+                       "to", selection_extents.second.format());
 
          // double border = 4.1;
          double border = 3.1; // border is used to create selection_grid.
@@ -2296,10 +2314,14 @@ coot::util::map_to_model_correlation_stats(mmdb::Manager *mol,
             ex_pt_1_fc = ex_pt_1_co.coord_frac(reference_map.cell());
             ex_pt_2_fc = ex_pt_2_co.coord_frac(reference_map.cell());
             if (false) { // debug
-               std::cout << "INFO:: Selection grid construction, ex_pt_1_co: " << ex_pt_1_co.format() << std::endl;
-               std::cout << "INFO:: Selection grid construction, ex_pt_2_co: " << ex_pt_2_co.format() << std::endl;
-               std::cout << "INFO:: Selection grid construction, ex_pt_1_fc: " << ex_pt_1_fc.format() << std::endl;
-               std::cout << "INFO:: Selection grid construction, ex_pt_2_fc: " << ex_pt_2_fc.format() << std::endl;
+               // std::cout << "INFO:: Selection grid construction, ex_pt_1_co: " << ex_pt_1_co.format() << std::endl;
+               logger.log(log_t::INFO, "Selection grid construction, ex_pt_1_co:", ex_pt_1_co.format());
+               // std::cout << "INFO:: Selection grid construction, ex_pt_2_co: " << ex_pt_2_co.format() << std::endl;
+               logger.log(log_t::INFO, "Selection grid construction, ex_pt_2_co:", ex_pt_2_co.format());
+               // std::cout << "INFO:: Selection grid construction, ex_pt_1_fc: " << ex_pt_1_fc.format() << std::endl;
+               logger.log(log_t::INFO, "Selection grid construction, ex_pt_1_fc:", ex_pt_1_fc.format());
+               // std::cout << "INFO:: Selection grid construction, ex_pt_2_fc: " << ex_pt_2_fc.format() << std::endl;
+               logger.log(log_t::INFO, "Selection grid construction, ex_pt_2_fc:", ex_pt_2_fc.format());
                std::cout << "using cell " << reference_map.cell().descr().format() << std::endl;
                clipper::Mat33<double> mat = reference_map.cell().matrix_frac();
                std::cout << "mat: \n" << mat.format() << std::endl;
@@ -2333,11 +2355,16 @@ coot::util::map_to_model_correlation_stats(mmdb::Manager *mol,
          clipper::Grid_map selection_grid(ex_pt_1_fc.coord_grid(reference_map.grid_sampling()),
          ex_pt_2_fc.coord_grid(reference_map.grid_sampling()));
          if (debug) {
-            std::cout << "INFO:: Selection grid construction, ex_pt_1_co: " << ex_pt_1_co.format() << std::endl;
-            std::cout << "INFO:: Selection grid construction, ex_pt_2_co: " << ex_pt_2_co.format() << std::endl;
-            std::cout << "INFO:: Selection grid construction, ex_pt_1_fc: " << ex_pt_1_fc.format() << std::endl;
-            std::cout << "INFO:: Selection grid construction, ex_pt_2_fc: " << ex_pt_2_fc.format() << std::endl;
-            std::cout << "INFO:: Selection grid: " << selection_grid.format() << std::endl;
+            // std::cout << "INFO:: Selection grid construction, ex_pt_1_co: " << ex_pt_1_co.format() << std::endl;
+            logger.log(log_t::INFO, "Selection grid construction, ex_pt_1_co:", ex_pt_1_co.format());
+            // std::cout << "INFO:: Selection grid construction, ex_pt_2_co: " << ex_pt_2_co.format() << std::endl;
+            logger.log(log_t::INFO, "Selection grid construction, ex_pt_2_co:", ex_pt_2_co.format());
+            // std::cout << "INFO:: Selection grid construction, ex_pt_1_fc: " << ex_pt_1_fc.format() << std::endl;
+            logger.log(log_t::INFO, "Selection grid construction, ex_pt_1_fc:", ex_pt_1_fc.format());
+            // std::cout << "INFO:: Selection grid construction, ex_pt_2_fc: " << ex_pt_2_fc.format() << std::endl;
+            logger.log(log_t::INFO, "Selection grid construction, ex_pt_2_fc:", ex_pt_2_fc.format());
+            // std::cout << "INFO:: Selection grid: " << selection_grid.format() << std::endl;
+            logger.log(log_t::INFO, "Selection grid:", selection_grid.format());
          }
 
          for (int iat=0; iat<n_atoms; iat++) {
@@ -2367,8 +2394,10 @@ coot::util::map_to_model_correlation_stats(mmdb::Manager *mol,
                      clipper::Xmap_base::Map_reference_coord ix(masked_map, grid.min() ), iu, iv, iw;
 
                      if (debug) {
-                        std::cout << "INFO:: masking iat " << iat << " box grid: " << grid.format() << std::endl;
-                        std::cout << "INFO:: masking iu range: " << iu.coord().u() << " to " << grid.max().u() << std::endl;
+                        // std::cout << "INFO:: masking iat " << iat << " box grid: " << grid.format() << std::endl;
+                        logger.log(log_t::INFO, "masking iat", iat, "box grid:", grid.format());
+                        // std::cout << "INFO:: masking iu range: " << iu.coord().u() << " to " << grid.max().u() << std::endl;
+                        logger.log(log_t::INFO, "masking iu range:", iu.coord().u(), "to", grid.max().u());
                      }
 
                      for (iu = ix; iu.coord().u() <= grid.max().u(); iu.next_u() ) {
@@ -2466,8 +2495,10 @@ coot::util::map_to_model_correlation_stats(mmdb::Manager *mol,
                         clipper::Xmap_base::Map_reference_coord iix(masked_map, selection_grid.min() ), iu, iv, iw;
 
                         if (debug) {
-                           std::cout << "INFO:: correl " << " box grid: " << selection_grid.format() << std::endl;
-                           std::cout << "INFO:: correl iu range: " << iix.coord().format() << " to " << selection_grid.max().u() << std::endl;
+                           // std::cout << "INFO:: correl " << " box grid: " << selection_grid.format() << std::endl;
+                           logger.log(log_t::INFO, "correl box grid:", selection_grid.format());
+                           // std::cout << "INFO:: correl iu range: " << iix.coord().format() << " to " << selection_grid.max().u() << std::endl;
+                           logger.log(log_t::INFO, "correl iu range:", iix.coord().format(), "to", selection_grid.max().u());
                         }
                         for (iu = iix; iu.coord().u() <= selection_grid.max().u(); iu.next_u() ) {
                            for (iv = iu; iv.coord().v() <= selection_grid.max().v(); iv.next_v() ) {
@@ -2542,8 +2573,9 @@ coot::util::map_to_model_correlation_stats(mmdb::Manager *mol,
 
                         double c = top/(sqrt(b_1) * sqrt(b_2));
                         if (debug)
-                        std::cout << "INFO:: map vs model correlation: "
-                        << c << " vs " << stats.correlation() << std::endl;
+                        // std::cout << "INFO:: map vs model correlation: "
+                        // << c << " vs " << stats.correlation() << std::endl;
+                        logger.log(log_t::INFO, "map vs model correlation:", c, "vs", stats.correlation());
                         ret_val = c;
                      }
                      mol->DeleteSelection(SelHnd);
@@ -3890,17 +3922,20 @@ coot::util::soi_variance::proc(float solvent_content_frac) {
       data.push_back(p);
    }
 
-   std::cout << "INFO:: sorting variances " << std::endl;
+   // std::cout << "INFO:: sorting variances " << std::endl;
+   logger.log(log_t::INFO, "sorting variances");
    // high variance has high rank index
    std::sort(data.begin(), data.end(), mri_var_pair_sorter);
-   std::cout << "INFO:: done sorting " << std::endl;
+   // std::cout << "INFO:: done sorting " << std::endl;
+   logger.log(log_t::INFO, "done sorting");
 
    clipper::Xmap<unsigned int> variance_rank_xmap;
    variance_rank_xmap.init(xmap.spacegroup(), xmap.cell(), xmap.grid_sampling());
    for (std::size_t i=0; i<data.size(); i++) {
       variance_rank_xmap[data[i].first] = i;
    }
-   std::cout << "INFO:: done variance map " << std::endl;
+   // std::cout << "INFO:: done variance map " << std::endl;
+   logger.log(log_t::INFO, "done variance map");
 
    if (false) { // debug
       for (ix = variance_rank_xmap.first(); !ix.last(); ix.next()) {
@@ -3972,7 +4007,8 @@ coot::util::soi_variance::proc(float solvent_content_frac) {
 clipper::Xmap<float>
 coot::util::soi_variance::make_variance_map() const {
 
-   std::cout << "INFO:: making variance map" << std::endl;
+   // std::cout << "INFO:: making variance map" << std::endl;
+   logger.log(log_t::INFO, "making variance map");
 
    clipper::Xmap<float> var_map = xmap;
 
@@ -4017,7 +4053,8 @@ coot::util::soi_variance::make_variance_map() const {
       }
    }
 
-   std::cout << "INFO:: Found " << soi_gps.size() << " SOI grid points " << std::endl;
+   // std::cout << "INFO:: Found " << soi_gps.size() << " SOI grid points " << std::endl;
+   logger.log(log_t::INFO, "Found", soi_gps.size(), "SOI grid points");
 
    if (false) { // debuging SOI
       std::ofstream f("soi.tab");
@@ -4165,9 +4202,11 @@ coot::util::map_molecule_centre(const clipper::Xmap<float> &xmap) {
 
    if (best_score > 0.0) {
       mmci = best_mmci;
-      std::cout << "INFO:: suggested centre " << best_centre.format() << std::endl;
-      std::cout << "INFO:: suggested contour level " << best_mmci.suggested_contour_level
-                << std::endl;
+      // std::cout << "INFO:: suggested centre " << best_centre.format() << std::endl;
+      logger.log(log_t::INFO, "suggested centre", best_centre.format());
+      // std::cout << "INFO:: suggested contour level " << best_mmci.suggested_contour_level
+      //           << std::endl;
+      logger.log(log_t::INFO, "suggested contour level", best_mmci.suggested_contour_level);
    }
 
    float sr = cell.descr().c() * 0.22;
@@ -4715,9 +4754,11 @@ coot::util::zero_dose_extrapolation(const std::vector<std::pair<clipper::Xmap<fl
          std::cout << "Extapolated " << count << " sfs" << std::endl;
    }
 
-   std::cout << "INFO:: Generating final map..." << std::endl;
+   // std::cout << "INFO:: Generating final map..." << std::endl;
+   logger.log(log_t::INFO, "Generating final map...");
    xmap_result.fft_from(fphis_for_result_map);
-   std::cout << "INFO:: ZDE done." << std::endl;
+   // std::cout << "INFO:: ZDE done." << std::endl;
+   logger.log(log_t::INFO, "ZDE done.");
    return xmap_result;
 
 }
@@ -4746,7 +4787,8 @@ coot::util::analyse_map_point_density_change(const std::vector<std::pair<clipper
                                  store.init(first_map.spacegroup(), first_map.cell(), first_map.grid_sampling());
                                  linear_fit_map.init(first_map.spacegroup(), first_map.cell(), first_map.grid_sampling());
                                  unsigned int n_maps = xmaps.size();
-                                 std::cout << "INFO:: resizing store..." << std::endl;
+                                 // std::cout << "INFO:: resizing store..." << std::endl;
+                                 logger.log(log_t::INFO, "resizing store...");
                                  for (ix=first_map.first(); !ix.last(); ix.next())
                                     store[ix].resize(n_maps);
                                  std::cout << "INFO adding data to store..." << std::endl;
@@ -4993,7 +5035,8 @@ coot::util::partition_map_by_chain(const clipper::Xmap<float> &xmap, mmdb::Manag
    clipper::Xmap<std::map<std::string, int> > distance_map;
    distance_map.init(sg, cell, gs);
 
-   std::cout << "INFO:: Filling distance map with initial values" << std::endl;
+   // std::cout << "INFO:: Filling distance map with initial values" << std::endl;
+   logger.log(log_t::INFO, "Filling distance map with initial values");
    if (state_string_p) *state_string_p = "Filling distance map with initial values";
    std::map<std::string, int> starting_distance_map;
    for (const auto &item : chain_ids)
@@ -5029,7 +5072,8 @@ coot::util::partition_map_by_chain(const clipper::Xmap<float> &xmap, mmdb::Manag
             }
          }
       }
-      std::cout << "INFO:: manhattan map check done " << chain_id << std::endl;
+      // std::cout << "INFO:: manhattan map check done " << chain_id << std::endl;
+      logger.log(log_t::INFO, "manhattan map check done", chain_id);
    };
 
    std::vector<std::thread> threads;
@@ -5043,11 +5087,13 @@ coot::util::partition_map_by_chain(const clipper::Xmap<float> &xmap, mmdb::Manag
    }
 
    if (state_string_p) *state_string_p = "Joining threads...";
-   std::cout << "INFO:: joining threads" << std::endl;
+   // std::cout << "INFO:: joining threads" << std::endl;
+   logger.log(log_t::INFO, "joining threads");
    for (auto &thread : threads) thread.join();
 
    // now extract each of the maps for each chain
-   std::cout << "INFO:: now constructing the map for each chain" << std::endl;
+   // std::cout << "INFO:: now constructing the map for each chain" << std::endl;
+   logger.log(log_t::INFO, "now constructing the map for each chain");
    if (state_string_p) *state_string_p = "Constructing the map for each chain";
 
    clipper::Xmap<std::string> chain_map;
@@ -5076,7 +5122,8 @@ coot::util::partition_map_by_chain(const clipper::Xmap<float> &xmap, mmdb::Manag
       if (chain_id.size() == 2)
          if (chain_id[1] == '+')
             continue;
-      std::cout << "INFO:: constructing map for chain " << chain_id << std::endl;
+      // std::cout << "INFO:: constructing map for chain " << chain_id << std::endl;
+      logger.log(log_t::INFO, "constructing map for chain", chain_id);
       if (state_string_p) *state_string_p = "Constructing map for chain " + chain_id;
       clipper::Xmap<float> map_for_chain;
       map_for_chain.init(sg, cell, gs);

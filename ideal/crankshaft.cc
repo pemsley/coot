@@ -35,6 +35,8 @@
 // for refinement (put refinement in new file?)
 #include "simple-restraint.hh"
 #include "coot-utils/coot-map-utils.hh"
+#include "utils/logging.hh"
+extern logging logger;
 
 std::ostream &
 coot::operator<<(std::ostream &s, const coot::crankshaft::scored_triple_angle_set_t &as) {
@@ -558,11 +560,12 @@ coot::crankshaft::triple_spin_search(const residue_spec_t &spec_first_residue,
 	 }
       }
 
-      std::cout << "INFO::  best log prob: " << best_prob << "  angles: "
-		<< clipper::Util::rad2d(best_angles[0]) << " "
-		<< clipper::Util::rad2d(best_angles[1]) << " "
-		<< clipper::Util::rad2d(best_angles[2]) << " "
-		<< std::endl;
+      logger.log(log_t::INFO, logging::ltw(" best log prob: "), logging::ltw(best_prob), logging::ltw("  angles: "), logging::ltw(clipper::Util::rad2d(best_angles[0])), logging::ltw(" " + std::to_string(clipper::Util::rad2d(best_angles[1])) + " "), logging::ltw(clipper::Util::rad2d(best_angles[2])));
+      // std::cout << "INFO::  best log prob: " << best_prob << "  angles: "
+      //           << clipper::Util::rad2d(best_angles[0]) << " "
+      //           << clipper::Util::rad2d(best_angles[1]) << " "
+      //           << clipper::Util::rad2d(best_angles[2]) << " "
+      //           << std::endl;
 
       if (apply_best_angles_flag)
 	 tcs.move_the_atoms(best_angles);
@@ -1662,7 +1665,8 @@ coot::crankshaft::crank_refine_and_score(const coot::residue_spec_t &rs, // mid-
       zo::rama_table_set zorts;
 
       residue_spec_t prev_residue_spec(prev_res);
-      std::cout << "INFO:: using residue specifier: " << rs << std::endl;
+      logger.log(log_t::INFO, logging::ltw("using residue specifier: "), logging::ltw(rs.format()));
+      // std::cout << "INFO:: using residue specifier: " << rs << std::endl;
 
       if (n_samples == -1) {
 	 // choose for me (based on the number of threads and the number of peptides
@@ -1674,8 +1678,9 @@ coot::crankshaft::crank_refine_and_score(const coot::residue_spec_t &rs, // mid-
 	    n_samples = std::lround(100 * n_threads/pow(n_peptides, 0.7));
 	 else
 	    n_samples = 5;
-	 std::cout << "INFO:: Chose n_samples " << n_samples << " for " << n_peptides
-		   << " peptides " << " and using " << n_threads << " threads" << std::endl;
+	 logger.log(log_t::INFO, logging::ltw("Chose n_samples "), logging::ltw(n_samples), logging::ltw(" for "), logging::ltw(n_peptides), logging::ltw(" peptides  and using "), logging::ltw(static_cast<unsigned int>(n_threads)));
+	 // std::cout << "INFO:: Chose n_samples " << n_samples << " for " << n_peptides
+	 //           << " peptides " << " and using " << n_threads << " threads" << std::endl;
       }
 
       // changed the API to find_maxima to be the middle of the n_peptides (3)
@@ -1685,7 +1690,8 @@ coot::crankshaft::crank_refine_and_score(const coot::residue_spec_t &rs, // mid-
       std::vector<coot::crankshaft::scored_nmer_angle_set_t> sas =
 	 cs.find_maxima(rs, n_peptides, zorts, log_prob_filter_n_sigma, n_samples);
 
-      std::cout << "INFO:: Will refine " << sas.size() << " crankshaft solutions" << std::endl;
+      logger.log(log_t::INFO, logging::ltw("Will refine "), logging::ltw(static_cast<unsigned int>(sas.size())), logging::ltw(" crankshaft solutions"));
+      // std::cout << "INFO:: Will refine " << sas.size() << " crankshaft solutions" << std::endl;
       if (false)
 	 for (std::size_t i=0; i<sas.size(); i++)
 	 std::cout << "   " << sas[i] << std::endl;
@@ -1713,7 +1719,8 @@ coot::crankshaft::crank_refine_and_score(const coot::residue_spec_t &rs, // mid-
 	 // maybe add some near neighbours?
       }
 
-      std::cout << "INFO:: refine these residue specs: " << std::endl;
+      logger.log(log_t::INFO, "refine these residue specs: ");
+      // std::cout << "INFO:: refine these residue specs: " << std::endl;
       for (std::size_t ilr=0; ilr<local_residue_specs.size(); ilr++)
 	 std::cout << "   " << local_residue_specs[ilr];
       std::cout << std::endl;

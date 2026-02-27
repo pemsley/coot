@@ -428,7 +428,8 @@ get_drug_mdl_via_wikipedia_and_drugbank(std::string drugname) {
 #ifdef USE_PYTHON
 	 std::string s = get_drug_via_wikipedia_and_drugbank_py(drugname);
 	 if (s.empty()) {
-	    std::cout << "INFO:: get_drug_via_wikipedia result-not-a-string" << std::endl;
+	    // std::cout << "INFO:: get_drug_via_wikipedia result-not-a-string" << std::endl;
+	    logger.log(log_t::INFO, "get_drug_via_wikipedia result-not-a-string");
 	 }
 	 return s;
 #endif
@@ -438,7 +439,8 @@ get_drug_mdl_via_wikipedia_and_drugbank(std::string drugname) {
 #ifdef USE_GUILE
 	 std::string s = get_drug_via_wikipedia_and_drugbank_scm(drugname);
 	 if (s.empty()) {
-	    std::cout << "INFO:: get_drug_via_wikipedia_scm result-not-a-string" << std::endl;
+	    // std::cout << "INFO:: get_drug_via_wikipedia_scm result-not-a-string" << std::endl;
+	    logger.log(log_t::INFO, "get_drug_via_wikipedia_scm result-not-a-string");
 	 }
 	 return s;
 #endif
@@ -607,7 +609,8 @@ void fetch_and_superpose_alphafold_models(int imol) {
                   mmdb::DBReference  *ref = chain_p->GetDBRef(ref_no);  // 0..nDBRefs-1
                   std::string db = ref->database;
                   std::string db_accession = ref->dbAccession;
-                  std::cout << "INFO:: DBREF Chain " << chain_id << " " << db << " " << db_accession << std::endl;
+                  // std::cout << "INFO:: DBREF Chain " << chain_id << " " << db << " " << db_accession << std::endl;
+                  logger.log(log_t::INFO, "DBREF Chain", chain_id, db, db_accession);
                   if (db == "UNP") {  // uniprot
                      found_a_uniprot_dbref = true;
                      int imol_af = fetch_alphafold_model_for_uniprot_id(db_accession);

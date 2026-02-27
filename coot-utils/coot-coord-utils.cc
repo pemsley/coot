@@ -1445,7 +1445,8 @@ coot::copy_segid(mmdb::Residue *provider, mmdb::Residue *receiver) {
 
    catch (const std::runtime_error &mess) {
       // maybe do this.. not sure.
-      std::cout << "   INFO:: " << mess.what() << std::endl;
+      // std::cout << "   INFO:: " << mess.what() << std::endl;
+      logger.log(log_t::INFO, mess.what());
    }
 
    return 1;
@@ -2510,14 +2511,16 @@ coot::graph_match(mmdb::Residue *res_moving,
          
          mmdb::math::GraphMatch match;
 
-         std::cout << "INFO:: match.MatchGraphs must match at least "
-                   << minMatch << " atoms."
-                   << std::endl;
+         // std::cout << "INFO:: match.MatchGraphs must match at least "
+         //           << minMatch << " atoms."
+         //           << std::endl;
+         logger.log(log_t::INFO, "match.MatchGraphs must match at least", minMatch, "atoms.");
          bool vertext_type = true;
          match.MatchGraphs(&graph1, &graph2, minMatch, vertext_type);
          int n_match = match.GetNofMatches();
-         std::cout << "INFO:: match NumberofMatches (potentially similar graphs) "
-                   << n_match << std::endl;
+         // std::cout << "INFO:: match NumberofMatches (potentially similar graphs) "
+         //           << n_match << std::endl;
+         logger.log(log_t::INFO, "match NumberofMatches (potentially similar graphs)", n_match);
          // match.PrintMatches();
 
          int best_match = -1;
@@ -7585,20 +7588,23 @@ coot::util::cis_trans_convert(std::pair<mmdb::Residue *, mmdb::Residue *> mol_re
    std::pair<short int, double> omega =
       coot::util::omega_torsion(mol_residues.first, mol_residues.second, altconf);
 
-   std::cout << "INFO:: omega: " << omega.first << " " << omega.second*180.0/3.14159
-             << " degrees " << std::endl;
+   // std::cout << "INFO:: omega: " << omega.first << " " << omega.second*180.0/3.14159
+   //           << " degrees " << std::endl;
+   logger.log(log_t::INFO, "omega:", static_cast<int>(omega.first), omega.second*180.0/3.14159, "degrees");
 
    if (omega.first) {
       short int is_cis_flag = 0;
       mmdb::PResidue *cis_trans_init_match = trans_residues;
       mmdb::PResidue *converted_residues   = cis_residues;
       if ((omega.second < 1.57) && (omega.second > -1.57)) {
-         std::cout << "INFO:: This is a CIS peptide - making it TRANS" << std::endl;
+         // std::cout << "INFO:: This is a CIS peptide - making it TRANS" << std::endl;
+         logger.log(log_t::INFO, "This is a CIS peptide - making it TRANS");
          is_cis_flag = 1;
          cis_trans_init_match = cis_residues;
          converted_residues = trans_residues;
       } else {
-         std::cout << "INFO:: This is a TRANS peptide - making it CIS" << std::endl;
+         // std::cout << "INFO:: This is a TRANS peptide - making it CIS" << std::endl;
+         logger.log(log_t::INFO, "This is a TRANS peptide - making it CIS");
       }
 
       // Now match cis_trans_init_match petide atoms onto the peptide
@@ -7885,12 +7891,14 @@ coot::util::remove_wrong_cis_peptides(mmdb::Manager *mol) {
                   }
                   if (ifound == false) {
                      // needs to be removed
-                     std::cout << "INFO:: Removing CIS peptide from PDB header: "
-                               << cph.chain_id_1 << " "
-                               << cph.resno_1 << " "
-                               << cph.chain_id_2 << " "
-                               << cph.resno_2 << " "
-                               << std::endl;
+                     // std::cout << "INFO:: Removing CIS peptide from PDB header: "
+                     //           << cph.chain_id_1 << " "
+                     //           << cph.resno_1 << " "
+                     //           << cph.chain_id_2 << " "
+                     //           << cph.resno_2 << " "
+                     //           << std::endl;
+                     logger.log(log_t::INFO, "Removing CIS peptide from PDB header:",
+                                cph.chain_id_1, cph.resno_1, cph.chain_id_2, cph.resno_2);
                      bad_cis_peptides.push_back(*CisPep);
                   } else {
                      good_cis_peptides.push_back(*CisPep);
@@ -8307,10 +8315,12 @@ coot::close_residues_from_different_molecules_t::close_residues(mmdb::Manager *m
       int n_selected_atoms_2;
       combined_mol->GetSelIndex(SelectionHandle_2, atom_selection_2, n_selected_atoms_2);
 
-      std::cout << "INFO:: selected " << n_selected_atoms_1
-                << " from (copy of) 1st interaction molecule\n";
-      std::cout << "INFO:: selected " << n_selected_atoms_2
-                << " from (copy of) 2nd interaction molecule\n";
+      // std::cout << "INFO:: selected " << n_selected_atoms_1
+      //           << " from (copy of) 1st interaction molecule\n";
+      // std::cout << "INFO:: selected " << n_selected_atoms_2
+      //           << " from (copy of) 2nd interaction molecule\n";
+      logger.log(log_t::INFO, "selected", n_selected_atoms_1, "from (copy of) 1st interaction molecule");
+      logger.log(log_t::INFO, "selected", n_selected_atoms_2, "from (copy of) 2nd interaction molecule");
       
       
       // (Sigh (of relief))...
@@ -8335,8 +8345,9 @@ coot::close_residues_from_different_molecules_t::close_residues(mmdb::Manager *m
                                  1, pscontact, n_contacts,
                                  0, &my_matt, i_contact_group);
 
-      std::cout << "INFO:: Contacts between 2 molecules: found "
-                << n_contacts << " contacts" << std::endl;
+      // std::cout << "INFO:: Contacts between 2 molecules: found "
+      //           << n_contacts << " contacts" << std::endl;
+      logger.log(log_t::INFO, "Contacts between 2 molecules: found", n_contacts, "contacts");
       
       if (n_contacts > 0) {
          if (pscontact) {
@@ -8359,8 +8370,9 @@ coot::close_residues_from_different_molecules_t::close_residues(mmdb::Manager *m
          }
       } 
    }
-   std::cout << "INFO:: interacting residues from molecules: "
-             << v1.size() << " and " << v2.size() << std::endl;
+   // std::cout << "INFO:: interacting residues from molecules: "
+   //           << v1.size() << " and " << v2.size() << std::endl;
+   logger.log(log_t::INFO, "interacting residues from molecules:", v1.size(), "and", v2.size());
    return std::pair<std::vector<mmdb::Residue *>, std::vector<mmdb::Residue *> > (v1, v2);
 }
 
@@ -9013,8 +9025,9 @@ coot::util::print_secondary_structure_info(mmdb::Model *model_p) {
    //
    int nhelix = model_p->GetNumberOfHelices();
    int nsheet = model_p->GetNumberOfSheets();
-   std::cout << "INFO:: There are " << nhelix << " helices and "
-             << nsheet << " sheets\n";
+   // std::cout << "INFO:: There are " << nhelix << " helices and "
+   //           << nsheet << " sheets\n";
+   logger.log(log_t::INFO, "There are", nhelix, "helices and", nsheet, "sheets");
    mmdb::PHelix helix_p;
    mmdb::PSheet sheet_p;
    mmdb::PStrand strand_p;
@@ -9625,7 +9638,8 @@ coot::mtrix_info(const std::string &file_name) {
          } 
       }
    }
-   std::cout << "INFO:: Founds " << r.size() << " MTRIX matrices" << std::endl;
+   // std::cout << "INFO:: Founds " << r.size() << " MTRIX matrices" << std::endl;
+   logger.log(log_t::INFO, "Founds", r.size(), "MTRIX matrices");
    return r;
 
 } 

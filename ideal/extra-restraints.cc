@@ -27,6 +27,8 @@
 #include <optional>
 
 #include "simple-restraint.hh"
+#include "utils/logging.hh"
+extern logging logger;
 
 
 void
@@ -808,8 +810,9 @@ coot::extra_restraints_t::read_refmac_extra_restraints(const std::string &file_n
                            // add parallel plane (aka "stacking") restraint
                            parallel_plane_restraints.push_back(ppr);
                         } else {
-                           std::cout << "INFO:: Failed to match this restraint to templates:\n   "
-                                     << line << std::endl;
+                           logger.log(log_t::INFO, logging::ltw("Failed to match this restraint to templates: "), logging::ltw(line));
+                           // std::cout << "INFO:: Failed to match this restraint to templates:\n   "
+                           //           << line << std::endl;
                         }
                      }
                   }
@@ -1138,7 +1141,8 @@ coot::restraints_container_t::add_extra_restraints(int imol,
    // std::cout << "HHHHHHHHHere in add_extra_restraints() - from " << description << std::endl;
 
    if (false) {
-      std::cout << "INFO:: extra restraints origin: " << description << std::endl;
+      logger.log(log_t::INFO, logging::ltw("extra restraints origin: "), logging::ltw(description));
+      // std::cout << "INFO:: extra restraints origin: " << description << std::endl;
       std::cout << "--------------------- in add_extra_restraints() we have "
                 << restraints_vec.size() << " standard restraints "
                 << std::endl;
@@ -1450,8 +1454,9 @@ coot::restraints_container_t::add_extra_bond_restraints(const extra_restraints_t
       }
    }
    if (false)
-      std::cout << "INFO:: --------------------------  made " << n_extra_bond_restraints
-                << " extra bond restraints" << std::endl;
+      logger.log(log_t::INFO, logging::ltw("--------------------------  made "), logging::ltw(n_extra_bond_restraints), logging::ltw(" extra bond restraints"));
+      // std::cout << "INFO:: --------------------------  made " << n_extra_bond_restraints
+      //           << " extra bond restraints" << std::endl;
 }
 
 void
@@ -1585,8 +1590,9 @@ coot::restraints_container_t::add_extra_geman_mcclure_restraints(const extra_res
 
    // hopfully they have been added using the fast method,
    if (false)
-      std::cout << "INFO:: --------------------------  add_extra_geman_mcclure_restraints() made "
-                << n_extra_bond_restraints << " extra GM restraints" << std::endl;
+      logger.log(log_t::INFO, logging::ltw("--------------------------  add_extra_geman_mcclure_restraints() made "), logging::ltw(n_extra_bond_restraints), logging::ltw(" extra GM restraints"));
+      // std::cout << "INFO:: --------------------------  add_extra_geman_mcclure_restraints() made "
+      //           << n_extra_bond_restraints << " extra GM restraints" << std::endl;
 
 }
 
@@ -2046,8 +2052,10 @@ coot::extra_restraints_t::write_interpolated_models_and_restraints(const extra_r
          std::map<mmdb::Atom *, clipper::Coord_orth> matching_atoms_1 = position_point_map(mol_running, mol_1);
          std::map<mmdb::Atom *, clipper::Coord_orth> matching_atoms_2 = position_point_map(mol_running, mol_2);
          
-         std::cout << "INFO:: found " << matching_atoms_1.size() << " (1) matching atoms " << std::endl;
-         std::cout << "INFO:: found " << matching_atoms_2.size() << " (2) matching atoms " << std::endl;
+         logger.log(log_t::INFO, logging::ltw("found "), logging::ltw(static_cast<unsigned int>(matching_atoms_1.size())), logging::ltw(" (1) matching atoms"));
+         // std::cout << "INFO:: found " << matching_atoms_1.size() << " (1) matching atoms " << std::endl;
+         logger.log(log_t::INFO, logging::ltw("found "), logging::ltw(static_cast<unsigned int>(matching_atoms_2.size())), logging::ltw(" (2) matching atoms"));
+         // std::cout << "INFO:: found " << matching_atoms_2.size() << " (2) matching atoms " << std::endl;
 
          if (matching_atoms_1.size() && matching_atoms_2.size()) {
             write_interpolated_restraints(final, n_path_points, file_name_stub);
@@ -2158,7 +2166,8 @@ coot::extra_restraints_t::write_interpolated_models(mmdb::Manager *mol_running,
 
    unsigned int i_end = n_path_points - 1;
 
-   std::cout << "INFO:: number of interpolation points: " << n_path_points << std::endl;
+   logger.log(log_t::INFO, logging::ltw("number of interpolation points: "), logging::ltw(n_path_points));
+   // std::cout << "INFO:: number of interpolation points: " << n_path_points << std::endl;
    for (unsigned int i_path=0; i_path<n_path_points; i_path++) {
       std::string file_name = file_name_stub + util::int_to_string(i_path) + ".pdb";
       double frac = double(i_path)/double(i_end);

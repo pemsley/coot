@@ -181,7 +181,8 @@ coot::util::create_directory(const std::string &dir_name_in) {
 
    if ( fstat == -1 ) { // file not exist
       // not exist
-      std::cout << "INFO:: Creating directory " << dir_name << std::endl;
+      // std::cout << "INFO:: Creating directory " << dir_name << std::endl;
+      logger.log(log_t::INFO, "Creating directory", dir_name);
 
       bool change_permission = true;
 
