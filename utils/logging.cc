@@ -375,6 +375,7 @@ logging::log(log_t type_in, const std::string &s1, unsigned int i, const std::st
    notify();
 
 }
+
 void
 logging::log(log_t type_in, const std::string &s1, double d, const std::string &s2) {
 
@@ -391,6 +392,51 @@ logging::log(log_t type_in, const std::string &s1, double d, const std::string &
    history.push_back(l);
    output_to_terminal_maybe();
    notify();
+}
+
+void logging::log(log_t type_in, const std::string &s1, const std::string &s2, const std::string &s3, const float &f1, const std::string &s4, const float &f2) {
+
+   log_item l(type_in);
+   timeval current_time;
+   int success = gettimeofday(&current_time, NULL);
+   if (success == 0) // was successful
+      l.t = current_time.tv_sec;
+   l.message  = s1;
+   l.message += " ";
+   l.message += s2;
+   l.message += " ";
+   l.message += s3;
+   l.message += " ";
+   l.message += std::to_string(f1);
+   l.message += " ";
+   l.message += s4;
+   l.message += " ";
+   l.message += std::to_string(f2);
+   history.push_back(l);
+   output_to_terminal_maybe();
+   notify();
+}
+
+void logging::log(log_t type_in, const std::string &s1, const float &f1, const std::string &s2, const std::string &s3, const std::string &s4, const float &f2) {
+
+   log_item l(type_in);
+   timeval current_time;
+   int success = gettimeofday(&current_time, NULL);
+   if (success == 0) // was successful
+      l.t = current_time.tv_sec;
+   l.message  = s1;
+   l.message += " ";
+   l.message += std::to_string(f1);
+   l.message += " ";
+   l.message += s2;
+   l.message += " ";
+   l.message += s3;
+   l.message += " ";
+   l.message += s4;
+   l.message += " ";
+   l.message += std::to_string(f2);
+   history.push_back(l);
+   output_to_terminal_maybe();
 }
 
 void
