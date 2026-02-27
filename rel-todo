@@ -1,19 +1,28 @@
 --- Items ---
 
-o em_placement
+o XDG bernie
+
+o update the skills.
+
+o how to you invoke "get goodsell extension" from Python?
+
+o ctrl left-mouse drag, but release control firsst, then drag a pixel
 
 o John Beale
 
-o XDG bernie
-
 o validate flatpak
+
+o em_placement
+
+o shift-click should put atom info in status bar
+* Fixed.
+
+o front clipping plane steps are too big in perspective
 
 o look at A1CEP in 9oun and friends. Use chapi to make output
   comparing and contrasting the ligands
 
 o fix the --help message to be more helpful (see general on pumble)
-
-o update the skills.
 
 o split water doesn't work
 * I can't make it fail
