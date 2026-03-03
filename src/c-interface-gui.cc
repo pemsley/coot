@@ -5338,7 +5338,7 @@ curlew_install_extension_file(const std::string &file_name, const std::string &c
                      gtk_widget_set_visible(install_button, FALSE);
                      //  std::cout << "show uninstall_button  " << uninstall_button << std::endl;
                      gtk_widget_set_visible(uninstall_button, TRUE);
-                     
+
                   }
                } else {
                   std::cout << "No HOME env var" << std::endl;

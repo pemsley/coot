@@ -251,6 +251,15 @@ void export_map_gui(short int export_map_fragment);
 function added for Lothar Esser */
 void set_main_window_title(const char *s);
 
+/*! \brief set the state of the validation graphs box
+ *
+ * By "docked" I mean, in the main window. The alternative
+ * is a floating dialog.
+ *
+ * @param state 0 is not docked, 1 is docked
+ */
+void set_validation_graphs_is_docked(short int state);
+
 /*! \} */
 
 /*  -------------------------------------------------------------------- */
