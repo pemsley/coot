@@ -34,6 +34,18 @@ class TestMoleculesContainer(unittest.TestCase):
     # ------------------------------------------------------------------
     # helpers
     # ------------------------------------------------------------------
+    def _get_atom_pos(self, imol, cid):
+        """Return (x, y, z) for the first atom matching cid, using JSON selection."""
+        j = json.loads(chapi.get_molecule_selection_as_json(imol, cid))
+        atoms = j[0]["chains"][0]["residues"][0]["atoms"]
+        a = atoms[0]
+        return (a["x"], a["y"], a["z"])
+
+    @staticmethod
+    def _distance(p1, p2):
+        """Euclidean distance between two (x,y,z) tuples."""
+        return sum((a - b) ** 2 for a, b in zip(p1, p2)) ** 0.5
+
     def _read_tutorial_model(self, n=1):
         """Read moorhen tutorial structure n, return imol."""
         fn = reference_data(f"moorhen-tutorial-structure-number-{n}.pdb")
@@ -368,6 +380,220 @@ class TestMoleculesContainer(unittest.TestCase):
 
         chapi.close_molecule(imol2)
         chapi.close_molecule(imol1)
+
+
+    # ------------------------------------------------------------------
+    # test: peptide omega analysis
+    #       (mirrors test_peptide_omega in C++)
+    # ------------------------------------------------------------------
+    def test_peptide_omega_analysis(self):
+        """Peptide omega analysis should flag residue 32 with a large deviation."""
+        imol = self._read_tutorial_model(4)
+
+        vi = chapi.peptide_omega_analysis(imol)
+        found_32 = False
+        for chain_val in vi.cviv:
+            for res_val in chain_val.rviv:
+                if res_val.residue_spec.res_no == 32:
+                    if res_val.function_value > 32.0:
+                        found_32 = True
+
+        self.assertTrue(found_32,
+                        "Residue 32 should have a large omega deviation (>32)")
+        chapi.close_molecule(imol)
+
+    # ------------------------------------------------------------------
+    # test: bonds mesh generation
+    #       (mirrors test_bonds_mesh in C++)
+    # ------------------------------------------------------------------
+    def test_bonds_mesh(self):
+        """Bonds mesh should have substantial vertices and triangles."""
+        imol = self._read_tutorial_model(1)
+
+        mode = "COLOUR-BY-CHAIN-AND-DICTIONARY"
+        mesh = chapi.get_bonds_mesh(imol, mode, True, 0.1, 1.0, 1)
+
+        self.assertGreater(mesh.vertices.size(), 1000,
+                           "Bonds mesh should have >1000 vertices")
+        self.assertGreater(mesh.triangles.size(), 1000,
+                           "Bonds mesh should have >1000 triangles")
+
+        chapi.close_molecule(imol)
+
+    # ------------------------------------------------------------------
+    # test: gaussian surface
+    #       (mirrors test_gaussian_surface in C++)
+    # ------------------------------------------------------------------
+    def test_gaussian_surface(self):
+        """Gaussian surface mesh should have vertices and triangles."""
+        imol = self._read_tutorial_model(1)
+
+        sigma = 4.4
+        contour_level = 4.0
+        box_radius = 5.0
+        grid_scale = 0.7
+        b_factor = 20.0
+        mesh = chapi.get_gaussian_surface(imol, sigma, contour_level,
+                                          box_radius, grid_scale, b_factor)
+
+        self.assertGreater(mesh.vertices.size(), 0,
+                           "Gaussian surface should have vertices")
+        self.assertGreater(mesh.triangles.size(), 0,
+                           "Gaussian surface should have triangles")
+
+        chapi.close_molecule(imol)
+
+    # ------------------------------------------------------------------
+    # test: map contours mesh
+    #       (mirrors test_difference_map_contours in C++)
+    # ------------------------------------------------------------------
+    def test_map_contours_mesh(self):
+        """Map contour mesh at a sensible position should have vertices."""
+        imol_map = self._read_tutorial_map(1)
+
+        x, y, z = 65.0, 50.0, 30.0
+        radius = 10.0
+        contour_level = 0.8
+        mesh = chapi.get_map_contours_mesh(imol_map, x, y, z,
+                                           radius, contour_level)
+
+        self.assertGreater(mesh.vertices.size(), 100,
+                           "Map contour mesh should have >100 vertices")
+        self.assertGreater(mesh.triangles.size(), 100,
+                           "Map contour mesh should have >100 triangles")
+
+        chapi.close_molecule(imol_map)
+
+    # ------------------------------------------------------------------
+    # test: sharpen/blur map and write
+    #       (mirrors test_write_map_is_sane in C++)
+    # ------------------------------------------------------------------
+    def test_sharpen_blur_map(self):
+        """Sharpening a map should produce a valid new map molecule."""
+        imol_map = self._read_tutorial_map(4)
+
+        b_factor = 200.0
+        in_place = False
+        imol_blur = chapi.sharpen_blur_map(imol_map, b_factor, in_place)
+        self.assertTrue(chapi.is_valid_map_molecule(imol_blur),
+                        "Blurred map should be a valid map molecule")
+
+        rmsd = chapi.get_map_rmsd_approx(imol_blur)
+        self.assertGreater(rmsd, 0.0, "Blurred map should have non-zero RMSD")
+
+        chapi.close_molecule(imol_blur)
+        chapi.close_molecule(imol_map)
+
+
+    # ------------------------------------------------------------------
+    # test: side-chain 180 flip
+    #       (mirrors test_side_chain_180 in C++)
+    # ------------------------------------------------------------------
+    def test_side_chain_180(self):
+        """Side-chain 180 flip of A/268 should move OD1 by >2 A."""
+        imol = self._read_tutorial_model(4)
+
+        pos_before = self._get_atom_pos(imol, "//A/268/OD1")
+        chapi.side_chain_180(imol, "//A/268/CA")
+        pos_after = self._get_atom_pos(imol, "//A/268/OD1")
+
+        d = self._distance(pos_before, pos_after)
+        self.assertGreater(d, 2.0, f"OD1 should move >2 A after 180 flip, moved {d:.2f}")
+
+        chapi.close_molecule(imol)
+
+    # ------------------------------------------------------------------
+    # test: JED flip
+    #       (mirrors test_jed_flip in C++)
+    # ------------------------------------------------------------------
+    def test_jed_flip(self):
+        """JED flip of A/225/CB should move CZ by >0.9 A."""
+        imol = self._read_tutorial_model(4)
+
+        pos_before = self._get_atom_pos(imol, "//A/225/CZ")
+        chapi.jed_flip(imol, "//A/225/CB", True)
+        pos_after = self._get_atom_pos(imol, "//A/225/CZ")
+
+        d = self._distance(pos_before, pos_after)
+        self.assertGreater(d, 0.9, f"CZ should move >0.9 A after JED flip, moved {d:.2f}")
+
+        chapi.close_molecule(imol)
+
+    # ------------------------------------------------------------------
+    # test: cis-trans conversion
+    #       (mirrors test_cis_trans in C++)
+    # ------------------------------------------------------------------
+    def test_cis_trans(self):
+        """Cis-trans conversion at A/262 should move the N of A/263 by >1 A."""
+        imol = self._read_tutorial_model(1)
+
+        pos_before = self._get_atom_pos(imol, "//A/263/N")
+        status = chapi.cis_trans_convert(imol, "//A/262/O")
+        self.assertTrue(status, "cis_trans_convert should succeed")
+
+        pos_after = self._get_atom_pos(imol, "//A/263/N")
+        d = self._distance(pos_before, pos_after)
+        self.assertGreater(d, 1.0, f"N should move >1 A after cis-trans, moved {d:.2f}")
+
+        chapi.close_molecule(imol)
+
+    # ------------------------------------------------------------------
+    # test: real-space refinement
+    #       (mirrors test_rsr in C++)
+    # ------------------------------------------------------------------
+    def test_rsr(self):
+        """Real-space refinement of A/14 should move atoms."""
+        imol = self._read_tutorial_model(1)
+        imol_map = self._read_tutorial_map(1)
+
+        chapi.set_imol_refinement_map(imol_map)
+
+        pos_n_before = self._get_atom_pos(imol, "//A/14/N")
+        pos_cg2_before = self._get_atom_pos(imol, "//A/14/CG2")
+
+        chapi.refine_residues(imol, "A", 14, "", "", "SPHERE", 1000)
+
+        pos_n_after = self._get_atom_pos(imol, "//A/14/N")
+        pos_cg2_after = self._get_atom_pos(imol, "//A/14/CG2")
+
+        d_n = self._distance(pos_n_before, pos_n_after)
+        d_cg2 = self._distance(pos_cg2_before, pos_cg2_after)
+
+        self.assertGreater(d_n, 0.1, f"N should move >0.1 A after RSR, moved {d_n:.2f}")
+        self.assertGreater(d_cg2, 0.1, f"CG2 should move >0.1 A after RSR, moved {d_cg2:.2f}")
+
+        chapi.close_molecule(imol_map)
+        chapi.close_molecule(imol)
+
+    # ------------------------------------------------------------------
+    # test: flip peptide, undo, redo — checking positions
+    #       (mirrors test_undo_and_redo in C++)
+    # ------------------------------------------------------------------
+    def test_undo_redo_positions(self):
+        """Flip peptide should move O, undo restores it, redo re-applies."""
+        imol = self._read_tutorial_model(1)
+
+        pos_orig = self._get_atom_pos(imol, "//A/14/O")
+        chapi.flip_peptide_using_cid(imol, "//A/14/CA", "")
+        pos_flipped = self._get_atom_pos(imol, "//A/14/O")
+
+        d_flip = self._distance(pos_orig, pos_flipped)
+        self.assertGreater(d_flip, 3.0,
+                           f"O should move >3 A after peptide flip, moved {d_flip:.2f}")
+
+        chapi.undo(imol)
+        pos_undone = self._get_atom_pos(imol, "//A/14/O")
+        d_undo = self._distance(pos_orig, pos_undone)
+        self.assertLess(d_undo, 0.01,
+                        f"Undo should restore O to original position, d={d_undo:.4f}")
+
+        chapi.redo(imol)
+        pos_redone = self._get_atom_pos(imol, "//A/14/O")
+        d_redo = self._distance(pos_flipped, pos_redone)
+        self.assertLess(d_redo, 0.01,
+                        f"Redo should restore flipped position, d={d_redo:.4f}")
+
+        chapi.close_molecule(imol)
 
 
 if __name__ == "__main__":
