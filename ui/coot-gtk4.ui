@@ -13726,7 +13726,7 @@ If you need symmetry, setup ccp4 before starting coot
   </object>
 
   <object class="GtkDialog" id="nucleotide_builder_dialog">
-    <property name="title" translatable="yes">Nucleotide Builder</property>
+    <property name="title" translatable="yes">Coot: Nucleotide Builder</property>
     <child>
       <object class="GtkBox" id="dialog-vbox94">
         <property name="orientation">vertical</property>
@@ -13845,6 +13845,9 @@ If you need symmetry, setup ccp4 before starting coot
                     <child>
                       <object class="GtkEntry" id="nucleotide_sequence">
                         <property name="can-focus">1</property>
+                        <property name="margin-start">4</property>
+                        <property name="margin-end">4</property>
+                        <property name="margin-bottom">4</property>
                       </object>
                     </child>
                   </object>
