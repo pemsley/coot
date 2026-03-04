@@ -2295,7 +2295,11 @@ Copyright 2023, 2024, 2025 Global Phasing Ltd.</property>
     </child>
   </object>
 
-  <!-- ribbons, I mean. It should be part of a redesigned Display Manager - but this quick fix will do for now -->
+  <!-- ribbons, I mean. It should be part of a redesigned Display Manager - but this quick
+       fix will do for now.
+       20260302-PE Now the ribbons *are* part of the Display Manager, so this is not needed,
+       I think
+  -->
   <object class="GtkDialog" id="molecular_representations_dialog">
     <property name="title" translatable="yes">Coot: Representations</property>
     <property name="width-request">180</property>
@@ -2507,9 +2511,8 @@ Copyright 2023, 2024, 2025 Global Phasing Ltd.</property>
     <action-widgets>
       <action-widget response="0">baton_dialog_ok_button</action-widget>
     </action-widgets>
-    <child type="titlebar">
-    </child>
   </object>
+
   <object class="GtkDialog" id="baton_mode_make_skeleton_dialog">
     <property name="title" translatable="yes">Make Skeleton?</property>
     <property name="deletable">0</property>
@@ -2921,8 +2924,6 @@ Calculate a skeleton now?
     <action-widgets>
       <action-widget response="0">centre_atom_label_ok_button</action-widget>
     </action-widgets>
-    <child type="titlebar">
-    </child>
   </object>
 
   <object class="GtkDialog" id="change_chain_id_dialog">
@@ -3111,8 +3112,6 @@ Calculate a skeleton now?
           </object>
         </child>
       </object>
-    </child>
-    <child type="titlebar">
     </child>
   </object>
 
@@ -18373,6 +18372,55 @@ Move a copy?</property>
                     </child>
                   </object>
                 </child>
+              </object>
+            </child>
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
+
+  <object class="GtkDialog" id="validation_graphs_dialog">
+    <property name="title" translatable="yes">Coot: Validation Graphs</property>
+    <property name="default-width">500</property>
+    <signal name="destroy" handler="on_validation_graphs_dialog_destroy" swapped="no"/>
+
+    <child>
+      <object class="GtkBox">
+        <property name="orientation">vertical</property>
+        <property name="spacing">2</property>
+
+        <child>
+          <object class="GtkScrolledWindow">
+            <property name="hexpand">True</property>
+            <property name="vexpand">True</property>
+            <property name="height-request">210</property>
+            <child>
+              <object class="GtkBox" id="validation_graphs_dialog_vbox">
+                <property name="orientation">vertical</property>
+                <property name="spacing">2</property>
+              </object>
+            </child>
+          </object>
+        </child>
+
+        <child type="action">
+          <object class="GtkBox">
+            <property name="homogeneous">1</property>
+            <property name="spacing">6</property>
+            <property name="margin-start">4</property>
+            <property name="margin-top">4</property>
+            <property name="margin-bottom">4</property>
+            <child>
+              <object class="GtkButton" id="validation_graphs_dialog_close_button">
+                <property name="label" translatable="yes">  Close  </property>
+                <property name="can-focus">1</property>
+                <property name="use-underline">1</property>
+                <property name="margin-start">4</property>
+                <property name="margin-end">4</property>
+                <property name="margin-top">4</property>
+                <property name="margin-bottom">4</property>
+                <signal name="clicked" handler="on_validation_graphs_dialog_close_button_clicked" swapped="no"/>
               </object>
             </child>
           </object>
