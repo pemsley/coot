@@ -2146,7 +2146,7 @@ coot::dictionary_residue_link_restraints_t coot::protein_geometry::link(const st
 
    dictionary_residue_link_restraints_t r;
    for (unsigned int id=0; id<dict_link_res_restraints.size(); id++) {
-      std::cout << "................. comparing " << dict_link_res_restraints[id].link_id << " " << id_in << std::endl;
+      // std::cout << "................. comparing " << dict_link_res_restraints[id].link_id << " " << id_in << std::endl;
       if (dict_link_res_restraints[id].link_id == id_in) {
          r = dict_link_res_restraints[id];
          break;
