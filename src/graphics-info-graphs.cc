@@ -21,6 +21,7 @@
  * Fifth Floor, Boston, MA, 02110-1301, USA.
  */
 
+#include "geometry/residue-and-atom-specs.hh"
 #include "validation-graphs/validation-graphs.hh"
 #include "widget-from-builder.hh"
 #ifdef USE_PYTHON
@@ -47,12 +48,6 @@
 
 #include <mmdb2/mmdb_manager.h>
 
-#include "coords/mmdb-extras.hh"
-#include "coords/mmdb.hh"
-#include "coords/mmdb-crystal.hh"
-#include "coords/Bond_lines.hh"
-
-#include "clipper/core/map_utils.h" // Map_stats
 #include "skeleton/graphical_skel.h"
 
 
@@ -60,14 +55,11 @@
 #include "interface.h"
 
 #include "molecule-class-info.h"
-// #include "rama_plot.hh"
 #include "skeleton/BuildCas.h"
 
 
-#include "coot-utils/gl-matrix.h" // for baton rotation
 #include "analysis/bfkurt.hh"
 
-#include "globjects.h"
 #ifdef USE_DUNBRACK_ROTAMERS
 #include "ligand/dunbrack.hh"
 #else
@@ -76,7 +68,6 @@
 #include "ligand/ligand.hh"
 
 #include "coot-utils/coot-map-utils.hh"
-#include "geometry-graphs.hh"
 
 
 void graphics_info_t::refresh_validation_graph_model_list() {
@@ -410,29 +401,33 @@ get_validation_data_for_rotamer_analysis(int imol) {
          mmdb::Residue *residue_p = SelResidues[ir];
          coot::residue_spec_t res_spec(residue_p);
          res_spec.int_user_data = imol;
-         mmdb::PAtom *residue_atoms=0;
-         int n_residue_atoms;
+         mmdb::Atom **residue_atoms = 0;
+         int n_residue_atoms = 0;
          residue_p->GetAtomTable(residue_atoms, n_residue_atoms);
 
          // double residue_density_score = coot::util::map_score(residue_atoms, n_residue_atoms, xmap, 1);
 
          if (n_residue_atoms > 5) {
 
-            std::string res_name = residue_p->GetResName();
-            if (true) {
+            // std::string res_name = residue_p->GetResName();
+            // coot::rotamer rot(residue_p);
+            // coot::rotamer_probability_info_t rpi = rot.probability_of_this_rotamer();
 
-               coot::rotamer rot(residue_p);
-               coot::rotamer_probability_info_t rpi = rot.probability_of_this_rotamer();
-               double prob = rpi.probability * 0.01; // to range 0->1
+            // 2026-03-02-PE - new style
+            const std::string alt_conf;
+            float rotamer_lowest_probability = 0.01;
+            graphics_info_t g;
+            coot::rotamer_probability_info_t d_score = g.get_rotamer_probability(residue_p, alt_conf, mol, rotamer_lowest_probability, 1);
+            float prob = d_score.probability;
+            // std::cout << "probs " << coot::residue_spec_t(residue_p) << " :  " << prob << " " << d_score.probability << std::endl;
 
-               std::string l = "Chain ID: " + res_spec.chain_id+"     Residue number: " + std::to_string(res_spec.res_no);
-               std::string atom_name = coot::util::intelligent_this_residue_mmdb_atom(residue_p)->GetAtomName();
-               const std::string &chain_id = res_spec.chain_id;
-               int this_resno = res_spec.res_no;
-               coot::atom_spec_t atom_spec(chain_id, this_resno, res_spec.ins_code, atom_name, "");
-               coot::residue_validation_information_t rvi(res_spec, atom_spec, prob, l);
-               vi.add_residue_validation_information(rvi, chain_id);
-            }
+            std::string l = "Chain ID: " + res_spec.chain_id+"     Residue number: " + std::to_string(res_spec.res_no);
+            std::string atom_name = coot::util::intelligent_this_residue_mmdb_atom(residue_p)->GetAtomName();
+            const std::string &chain_id = res_spec.chain_id;
+            int this_resno = res_spec.res_no;
+            coot::atom_spec_t atom_spec(chain_id, this_resno, res_spec.ins_code, atom_name, "");
+            coot::residue_validation_information_t rvi(res_spec, atom_spec, prob, l);
+            vi.add_residue_validation_information(rvi, chain_id);
          }
       }
       mol->DeleteSelection(selHnd);
@@ -599,10 +594,11 @@ get_validation_data(int imol, coot::validation_graph_type type) {
 void
 graphics_info_t::create_validation_graph(int imol, coot::validation_graph_type type) {
 
-   std::cout << "Yes! create_validation_graph() for " << imol << " type: "
-             << coot::validation_graph_type_to_human_name(type) << std::endl;
+   if (false)
+      std::cout << "debug:: create_validation_graph(): for " << imol << " type: "
+                << coot::validation_graph_type_to_human_name(type) << std::endl;
 
-   if (imol != -1) {
+   if (is_valid_model_molecule(imol)) {
       // 1. instantiate the validation graph
       CootValidationGraph *cvg = coot_validation_graph_new();
       GtkWidget *this_is_the_graph = GTK_WIDGET(cvg);
