@@ -4100,7 +4100,7 @@ void ideal_nucleic_acid_by_widget(GtkWidget *builder_dialog) {
    type = get_active_label_in_combobox(GTK_COMBO_BOX(type_combobox));
    form = get_active_label_in_combobox(GTK_COMBO_BOX(form_combobox));
    std::string strand = get_active_label_in_combobox(GTK_COMBO_BOX(strand_combobox));
-   if (strand == "Single")
+   if (strand == "Single Stranded")
       single_stranded_flag = 1;
    const char *txt = gtk_editable_get_text(GTK_EDITABLE(entry));
    if (txt) {
