@@ -23,6 +23,7 @@
  * Fifth Floor, Boston, MA, 02110-1301, USA.
  */
 
+#include "gtk/gtk.h"
 #ifdef USE_PYTHON
 #ifndef PYTHONH
 #include <Python.h>
@@ -4090,12 +4091,8 @@ void ideal_nucleic_acid_by_widget(GtkWidget *builder_dialog) {
    std::string type = "RNA";
    std::string form = "A";
    short int single_stranded_flag = 0;
-   // GtkWidget *entry = lookup_widget(builder_dialog, "nucleotide_sequence");
    GtkWidget *entry = widget_from_builder("nucleotide_sequence");
 
-   // GtkWidget *type_combobox   = lookup_widget(builder_dialog, "nucleotide_builder_type_combobox");
-   // GtkWidget *form_combobox   = lookup_widget(builder_dialog, "nucleotide_builder_form_combobox");
-   // GtkWidget *strand_combobox = lookup_widget(builder_dialog, "nucleotide_builder_strand_combobox");
    GtkWidget *type_combobox   = widget_from_builder("nucleotide_builder_type_combobox");
    GtkWidget *form_combobox   = widget_from_builder("nucleotide_builder_form_combobox");
    GtkWidget *strand_combobox = widget_from_builder("nucleotide_builder_strand_combobox");

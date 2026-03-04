@@ -3470,6 +3470,14 @@ void dna_rna_models_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                            G_GNUC_UNUSED gpointer user_data) {
 
    GtkWidget *w = widget_from_builder("nucleotide_builder_dialog");
+   GtkWidget   *type_combobox = widget_from_builder("nucleotide_builder_type_combobox");
+   GtkWidget   *form_combobox = widget_from_builder("nucleotide_builder_form_combobox");
+   GtkWidget *strand_combobox = widget_from_builder("nucleotide_builder_strand_combobox");
+
+   gtk_combo_box_set_active(GTK_COMBO_BOX(type_combobox),   0);
+   gtk_combo_box_set_active(GTK_COMBO_BOX(form_combobox),   0);
+   gtk_combo_box_set_active(GTK_COMBO_BOX(strand_combobox), 0);
+
    set_transient_for_main_window(w);
    gtk_widget_set_visible(w, TRUE);
 }
