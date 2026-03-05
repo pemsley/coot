@@ -231,6 +231,11 @@ graphics_info_t::on_glarea_drag_update_primary(GtkGestureDrag *gesture,
       } else {
          if (control_is_pressed) {
             do_drag_pan_gtk3(gl_area, drag_delta_x, drag_delta_y); // 20220613-PE no redraw here currently
+            // Update mouse_x/mouse_y so that if ctrl is released mid-drag,
+            // the next view rotation starts from the current position
+            // (not the stale position from when panning started).
+            mouse_x = drag_begin_x + drag_delta_x;
+            mouse_y = drag_begin_y + drag_delta_y;
             handled = true;
             graphics_draw();
          } else {
@@ -242,6 +247,7 @@ graphics_info_t::on_glarea_drag_update_primary(GtkGestureDrag *gesture,
                      rotate_chi(delta_delta_x, delta_delta_y); // does its own graphics_draw()
                   } else {
                      // view rotation is the last thing to test for/do
+                     // 2026-03-04-PE recall that drag_delta_x and drag_delta_y are passed variables
                      do_view_rotation(drag_delta_x, drag_delta_y);
                      graphics_draw();
                   }
@@ -636,7 +642,7 @@ graphics_info_t::on_glarea_click(GtkGestureClick *controller,
                         if (naii.success) {
                            int imol = naii.imol;
                            mmdb::Atom *at = molecules[imol].atom_sel.atom_selection[naii.atom_index];
-                           
+
                            molecules[imol].add_to_labelled_atom_list(naii.atom_index);
                            add_picked_atom_info_to_status_bar(naii.imol, naii.atom_index);
                            graphics_draw();
@@ -782,7 +788,7 @@ graphics_info_t::do_drag_pan_gtk4(GtkWidget *widget, double drag_delta_x, double
                 << mouse_current_x - get_mouse_previous_position_x() << " "
                 << mouse_current_y - get_mouse_previous_position_y() << std::endl;
    }
-   if (false) {
+   if (true) {
       std::cout << "in do_drag_pan_gtk4() mouse-current: "
                 << mouse_current_x << " " << mouse_current_y << " "
                 << "mouse-prev: " << get_mouse_previous_position_x() << " " << get_mouse_previous_position_y()
@@ -974,6 +980,7 @@ graphics_info_t::on_glarea_key_controller_key_released(GtkEventControllerKey *co
                          // is still active, leading to delete of atom on next atom pick - which
                          // is probably not what is wanted.
 
+   std::cout << "DEBUG:: key_release" << std::endl;
 }
 
 
