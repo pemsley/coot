@@ -979,8 +979,6 @@ graphics_info_t::on_glarea_key_controller_key_released(GtkEventControllerKey *co
    delete_item_atom = 0; // turn off pick-delete, otherwise if Ctrl is released, delete_item_atom
                          // is still active, leading to delete of atom on next atom pick - which
                          // is probably not what is wanted.
-
-   std::cout << "DEBUG:: key_release" << std::endl;
 }
 
 
