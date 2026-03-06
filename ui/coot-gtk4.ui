@@ -5015,381 +5015,390 @@ that you wish to delete.               </property>
         <property name="orientation">vertical</property>
         <property name="spacing">4</property>
         <child>
-          <object class="GtkBox" id="vbox44">
-            <property name="orientation">vertical</property>
-            <property name="spacing">4</property>
+          <object class="GtkScrolledWindow" id="find_ligands_scrolledwindow">
+            <property name="width-request">220</property>
+            <property name="height-request">500</property>
+            <property name="hscrollbar-policy">never</property>
+            <property name="vexpand">1</property>
+            <property name="hexpand">1</property>
             <child>
-              <object class="GtkBox" id="vbox47">
-                <property name="orientation">vertical</property>
-                <!-- <child> -->
-                <!--   <object class="GtkLabel" id="label75"> -->
-                <!--     <property name="label" translatable="yes">Select Ligands to Search for:</property> -->
-                <!--     <property name="justify">center</property> -->
-                <!--   </object> -->
-                <!-- </child> -->
-                <child>
-                  <object class="GtkFrame" id="frame37">
-                    <property name="label" translatable="yes">Select Ligands to Search for:</property>
-                    <property name="margin-start">8</property>
-                    <property name="margin-end">8</property>
-                    <property name="margin-top">4</property>
-                    <property name="margin-bottom">4</property>
-                    <child>
-                      <object class="GtkScrolledWindow" id="find_ligands_ligands_scrolledwindow">
-                        <child>
-                          <object class="GtkViewport" id="viewport16">
-                            <!-- <child> -->
-                            <!--   <object class="GtkBox" id="find_ligand_ligands_vbox"> -->
-                            <!--     <property name="orientation">vertical</property> -->
-                            <!--   </object> -->
-                            <!-- </child> -->
-                            <child>
-                              <object class="GtkGrid" id="find_ligands_select_ligands_grid">
-                              </object>
-                            </child>
+                <object class="GtkBox" id="vbox44">
+                  <property name="orientation">vertical</property>
+                  <property name="spacing">4</property>
+                  <child>
+                    <object class="GtkBox" id="vbox47">
+                      <property name="orientation">vertical</property>
+                      <!-- <child> -->
+                      <!--   <object class="GtkLabel" id="label75"> -->
+                      <!--     <property name="label" translatable="yes">Select Ligands to Search for:</property> -->
+                      <!--     <property name="justify">center</property> -->
+                      <!--   </object> -->
+                      <!-- </child> -->
+                      <child>
+                        <object class="GtkFrame" id="frame37">
+                          <property name="label" translatable="yes">Select Ligands to Search for:</property>
+                          <property name="margin-start">8</property>
+                          <property name="margin-end">8</property>
+                          <property name="margin-top">4</property>
+                          <property name="margin-bottom">4</property>
+                          <child>
+                            <object class="GtkScrolledWindow" id="find_ligands_ligands_scrolledwindow">
+                              <child>
+                                <object class="GtkViewport" id="viewport16">
+                                  <!-- <child> -->
+                                  <!--   <object class="GtkBox" id="find_ligand_ligands_vbox"> -->
+                                  <!--     <property name="orientation">vertical</property> -->
+                                  <!--   </object> -->
+                                  <!-- </child> -->
+                                  <child>
+                                    <object class="GtkGrid" id="find_ligands_select_ligands_grid">
+                                    </object>
+                                  </child>
 
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-              </object>
-            </child>
-            <child>
-              <object class="GtkBox" id="vbox45">
-                <property name="orientation">vertical</property>
-                <property name="spacing">4</property>
-                <!-- <child> -->
-                <!--   <object class="GtkLabel" id="label73"> -->
-                <!--     <property name="label" translatable="yes">Select Map:</property> -->
-                <!--   </object> -->
-                <!-- </child> -->
-                <child>
-                  <object class="GtkFrame" id="frame35">
-                    <property name="label" translatable="yes">Select Map:</property>
+                                </object>
+                              </child>
+                            </object>
+                          </child>
+                        </object>
+                      </child>
+                    </object>
+                  </child>
+                  <child>
+                    <object class="GtkBox" id="vbox45">
+                      <property name="orientation">vertical</property>
+                      <property name="spacing">4</property>
+                      <!-- <child> -->
+                      <!--   <object class="GtkLabel" id="label73"> -->
+                      <!--     <property name="label" translatable="yes">Select Map:</property> -->
+                      <!--   </object> -->
+                      <!-- </child> -->
+                      <child>
+                        <object class="GtkFrame" id="frame35">
+                          <property name="label" translatable="yes">Select Map:</property>
 
-                    <child>
-                      <object class="GtkComboBoxText" id="find_ligands_map_comboboxtext">
-                        <property name="margin-start">8</property>
-                        <property name="margin-end">8</property>
-                        <property name="margin-top">4</property>
-                        <property name="margin-bottom">4</property>
-                      </object>
-                    </child>
+                          <child>
+                            <object class="GtkComboBoxText" id="find_ligands_map_comboboxtext">
+                              <property name="margin-start">8</property>
+                              <property name="margin-end">8</property>
+                              <property name="margin-top">4</property>
+                              <property name="margin-bottom">4</property>
+                            </object>
+                          </child>
 
-                  </object>
-                </child>
-              </object>
-            </child>
-            <child>
-              <object class="GtkBox" id="vbox46">
-                <property name="orientation">vertical</property>
-                <property name="spacing">4</property>
+                        </object>
+                      </child>
+                    </object>
+                  </child>
+                  <child>
+                    <object class="GtkBox" id="vbox46">
+                      <property name="orientation">vertical</property>
+                      <property name="spacing">4</property>
 
-                <!-- <child> -->
-                <!--   <object class="GtkLabel" id="label74"> -->
-                <!--     <property name="label" translatable="yes">Select Protein (Masks Map):</property> -->
-                <!--     <property name="justify">center</property> -->
-                <!--   </object> -->
-                <!-- </child> -->
+                      <!-- <child> -->
+                      <!--   <object class="GtkLabel" id="label74"> -->
+                      <!--     <property name="label" translatable="yes">Select Protein (Masks Map):</property> -->
+                      <!--     <property name="justify">center</property> -->
+                      <!--   </object> -->
+                      <!-- </child> -->
 
-                <child>
-                  <object class="GtkFrame">
-                    <property name="label" translatable="yes">Select Protein (Masks Map):</property>
-                    <property name="margin-start">8</property>
-                    <property name="margin-end">8</property>
-                    <property name="margin-top">4</property>
-                    <property name="margin-bottom">4</property>
+                      <child>
+                        <object class="GtkFrame">
+                          <property name="label" translatable="yes">Select Protein (Masks Map):</property>
+                          <property name="margin-start">8</property>
+                          <property name="margin-end">8</property>
+                          <property name="margin-top">4</property>
+                          <property name="margin-bottom">4</property>
 
-                    <child>
-                      <object class="GtkComboBoxText" id="find_ligands_coords_comboboxtext">
-                        <property name="margin-start">8</property>
-                        <property name="margin-end">8</property>
-                        <property name="margin-top">4</property>
-                        <property name="margin-bottom">4</property>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-              </object>
-            </child>
-            <child>
-              <object class="GtkFrame" id="frame108">
-                <property name="margin-start">8</property>
-                <property name="margin-end">8</property>
-                <property name="margin-top">4</property>
-                <property name="margin-bottom">4</property>
-                <child type="label">
-                  <object class="GtkLabel" id="label279">
-                    <property name="label" translatable="yes">Mask Waters?</property>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkBox" id="vbox112">
-                    <property name="orientation">vertical</property>
-                    <property name="spacing">4</property>
-                    <child>
-                      <object class="GtkCheckButton" id="find_ligand_mask_waters_yes_radiobutton">
-                        <property name="label" translatable="yes">Treat waters like protein (mask) atoms</property>
-                        <property name="active">1</property>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkCheckButton" id="find_ligand_mask_waters_no_radiobutton">
-                        <property name="label" translatable="yes">Ignore waters for mask</property>
-                        <property name="active">0</property>
-                        <property name="group">find_ligand_mask_waters_yes_radiobutton</property>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-              </object>
-            </child>
-            <child>
-              <object class="GtkFrame">
-                <property name="label" translatable="yes">Where to Search?</property>
-                <property name="margin-start">8</property>
-                <property name="margin-end">8</property>
-                <property name="margin-top">4</property>
-                <property name="margin-bottom">4</property>
-                <child>
-                  <object class="GtkBox">
-                    <child>
-                      <object class="GtkCheckButton" id="find_ligands_search_all_radiobutton">
-                        <property name="label" translatable="yes">Everywhere</property>
-                        <property name="can-focus">1</property>
-                        <property name="use-underline">1</property>
-                        <property name="active">0</property>
-                      </object>
-                    </child>
+                          <child>
+                            <object class="GtkComboBoxText" id="find_ligands_coords_comboboxtext">
+                              <property name="margin-start">8</property>
+                              <property name="margin-end">8</property>
+                              <property name="margin-top">4</property>
+                              <property name="margin-bottom">4</property>
+                            </object>
+                          </child>
+                        </object>
+                      </child>
+                    </object>
+                  </child>
+                  <child>
+                    <object class="GtkFrame" id="frame108">
+                      <property name="margin-start">8</property>
+                      <property name="margin-end">8</property>
+                      <property name="margin-top">4</property>
+                      <property name="margin-bottom">4</property>
+                      <child type="label">
+                        <object class="GtkLabel" id="label279">
+                          <property name="label" translatable="yes">Mask Waters?</property>
+                        </object>
+                      </child>
+                      <child>
+                        <object class="GtkBox" id="vbox112">
+                          <property name="orientation">vertical</property>
+                          <property name="spacing">4</property>
+                          <child>
+                            <object class="GtkCheckButton" id="find_ligand_mask_waters_yes_radiobutton">
+                              <property name="label" translatable="yes">Treat waters like protein (mask) atoms</property>
+                              <property name="active">1</property>
+                            </object>
+                          </child>
+                          <child>
+                            <object class="GtkCheckButton" id="find_ligand_mask_waters_no_radiobutton">
+                              <property name="label" translatable="yes">Ignore waters for mask</property>
+                              <property name="active">0</property>
+                              <property name="group">find_ligand_mask_waters_yes_radiobutton</property>
+                            </object>
+                          </child>
+                        </object>
+                      </child>
+                    </object>
+                  </child>
+                  <child>
+                    <object class="GtkFrame">
+                      <property name="label" translatable="yes">Where to Search?</property>
+                      <property name="margin-start">8</property>
+                      <property name="margin-end">8</property>
+                      <property name="margin-top">4</property>
+                      <property name="margin-bottom">4</property>
+                      <child>
+                        <object class="GtkBox">
+                          <child>
+                            <object class="GtkCheckButton" id="find_ligands_search_all_radiobutton">
+                              <property name="label" translatable="yes">Everywhere</property>
+                              <property name="can-focus">1</property>
+                              <property name="use-underline">1</property>
+                              <property name="active">0</property>
+                            </object>
+                          </child>
 
-                    <child>
-                      <object class="GtkCheckButton" id="find_ligands_search_here_radiobutton">
-                        <property name="label" translatable="yes">Right Here</property>
-                        <property name="can-focus">1</property>
-                        <property name="use-underline">1</property>
-                        <property name="active">1</property>
-                        <property name="group">find_ligands_search_all_radiobutton</property>
-                      </object>
-                    </child>
+                          <child>
+                            <object class="GtkCheckButton" id="find_ligands_search_here_radiobutton">
+                              <property name="label" translatable="yes">Right Here</property>
+                              <property name="can-focus">1</property>
+                              <property name="use-underline">1</property>
+                              <property name="active">1</property>
+                              <property name="group">find_ligands_search_all_radiobutton</property>
+                            </object>
+                          </child>
 
-                  </object>
-                </child>
-              </object>
-            </child>
-            <child>
-              <object class="GtkFrame" id="frame85">
-                <property name="margin-start">8</property>
-                <property name="margin-end">8</property>
-                <property name="margin-top">4</property>
-                <property name="margin-bottom">4</property>
-                <child>
-                  <object class="GtkBox" id="hbox79">
-                    <child>
-                      <object class="GtkEntry" id="find_ligand_sigma_level_entry">
-                        <property name="can-focus">1</property>
-                        <property name="tooltip-text" translatable="yes">Used for blob analysis (set this to a high number (3 say) if you only want the most dense blobs to be considered as ligands</property>
-                        <property name="primary-icon-activatable">0</property>
-                        <property name="secondary-icon-activatable">0</property>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkLabel" id="label145">
-                        <property name="justify">center</property>
-                      </object>
-                    </child>
-                  </object>
-                </child>
-                <child type="label">
-                  <object class="GtkLabel" id="label280">
-                    <property name="tooltip-text" translatable="yes">Used for blob analysis</property>
-                    <property name="label" translatable="yes">r.m.s.d. Level</property>
-                  </object>
-                </child>
-              </object>
-            </child>
+                        </object>
+                      </child>
+                    </object>
+                  </child>
+                  <child>
+                    <object class="GtkFrame" id="frame85">
+                      <property name="margin-start">8</property>
+                      <property name="margin-end">8</property>
+                      <property name="margin-top">4</property>
+                      <property name="margin-bottom">4</property>
+                      <child>
+                        <object class="GtkBox" id="hbox79">
+                          <child>
+                            <object class="GtkEntry" id="find_ligand_sigma_level_entry">
+                              <property name="can-focus">1</property>
+                              <property name="tooltip-text" translatable="yes">Used for blob analysis (set this to a high number (3 say) if you only want the most dense blobs to be considered as ligands</property>
+                              <property name="primary-icon-activatable">0</property>
+                              <property name="secondary-icon-activatable">0</property>
+                            </object>
+                          </child>
+                          <child>
+                            <object class="GtkLabel" id="label145">
+                              <property name="justify">center</property>
+                            </object>
+                          </child>
+                        </object>
+                      </child>
+                      <child type="label">
+                        <object class="GtkLabel" id="label280">
+                          <property name="tooltip-text" translatable="yes">Used for blob analysis</property>
+                          <property name="label" translatable="yes">r.m.s.d. Level</property>
+                        </object>
+                      </child>
+                    </object>
+                  </child>
 
-            <child>
-              <object class="GtkFrame" id="ligand_conformers_frame">
-                <property name="margin-start">8</property>
-                <property name="margin-end">8</property>
-                <property name="margin-top">4</property>
-                <property name="margin-bottom">4</property>
-                <property name="label">Conformer Options</property>
-                <child>
-                  <object class="GtkBox">
-                    <child>
-                      <object class="GtkLabel" id="label261">
-                        <property name="label" translatable="yes">  Number of Conformers to Search:  </property>
-                        <property name="justify">center</property>
-                      </object>
-                    </child>
+                  <child>
+                    <object class="GtkFrame" id="ligand_conformers_frame">
+                      <property name="margin-start">8</property>
+                      <property name="margin-end">8</property>
+                      <property name="margin-top">4</property>
+                      <property name="margin-bottom">4</property>
+                      <property name="label">Conformer Options</property>
+                      <child>
+                        <object class="GtkBox">
+                          <child>
+                            <object class="GtkLabel" id="label261">
+                              <property name="label" translatable="yes">  Number of Conformers to Search:  </property>
+                              <property name="justify">center</property>
+                            </object>
+                          </child>
 
-                    <child>
-                      <object class="GtkEntry" id="ligand_n_samples_entry">
-                        <property name="width-request">5</property>
-                        <property name="can-focus">1</property>
-                      </object>
-                    </child>
-                    
-                  </object>
-                </child>
-              </object>
-            </child>
+                          <child>
+                            <object class="GtkEntry" id="ligand_n_samples_entry">
+                              <property name="width-request">5</property>
+                              <property name="can-focus">1</property>
+                            </object>
+                          </child>
+                          
+                        </object>
+                      </child>
+                    </object>
+                  </child>
 
 
-            <child>
-              <object class="GtkFrame" id="ligand_multi_solution_frame">
-                <property name="margin-start">8</property>
-                <property name="margin-end">8</property>
-                <property name="margin-top">4</property>
-                <property name="margin-bottom">4</property>
-                <property name="label">Multi-Solution Options</property>
-                <child>
-                  <object class="GtkBox">
-                    <property name="orientation">vertical</property>
+                  <child>
+                    <object class="GtkFrame" id="ligand_multi_solution_frame">
+                      <property name="margin-start">8</property>
+                      <property name="margin-end">8</property>
+                      <property name="margin-top">4</property>
+                      <property name="margin-bottom">4</property>
+                      <property name="label">Multi-Solution Options</property>
+                      <child>
+                        <object class="GtkBox">
+                          <property name="orientation">vertical</property>
 
-                    <child>
-                      <object class="GtkCheckButton" id="find_ligand_multi_solution_checkbutton">
-                        <property name="label" translatable="yes">Multi-Solutions</property>
-                        <property name="active">0</property>
-                        <property name="margin-start">8</property>
-                        <property name="margin-end">8</property>
-                        <property name="margin-top">4</property>
-                        <property name="margin-bottom">4</property>
-                      </object>
-                    </child>
+                          <child>
+                            <object class="GtkCheckButton" id="find_ligand_multi_solution_checkbutton">
+                              <property name="label" translatable="yes">Multi-Solutions</property>
+                              <property name="active">0</property>
+                              <property name="margin-start">8</property>
+                              <property name="margin-end">8</property>
+                              <property name="margin-top">4</property>
+                              <property name="margin-bottom">4</property>
+                            </object>
+                          </child>
 
-                    <child>
-                      <object class="GtkGrid">
+                          <child>
+                            <object class="GtkGrid">
 
-                        <child>
-                          <object class="GtkLabel">
-                            <property name="label" translatable="yes"> Fraction for Scoring </property>
-                            <property name="justify">right</property>
-                            <layout>
-                              <property name="column">0</property>
-                              <property name="row">0</property>
-                            </layout>
-                          </object>
-                        </child>
+                              <child>
+                                <object class="GtkLabel">
+                                  <property name="label" translatable="yes"> Fraction for Scoring </property>
+                                  <property name="justify">right</property>
+                                  <layout>
+                                    <property name="column">0</property>
+                                    <property name="row">0</property>
+                                  </layout>
+                                </object>
+                              </child>
 
-                        <child>
-                          <object class="GtkEntry" id="find_ligand_multi_solution_entry_1">
-                            <property name="width-request">5</property>
-                            <property name="can-focus">1</property>
-                            <layout>
-                              <property name="row">0</property>
-                              <property name="column">1</property>
-                            </layout>
-                          </object>
-                        </child>
-                        
-                        <child>
-                          <object class="GtkLabel">
-                            <property name="label" translatable="yes"> Fraction for Correlation </property>
-                            <property name="justify">right</property>
-                            <layout>
-                              <property name="row">1</property>
-                              <property name="column">0</property>
-                            </layout>
-                          </object>
-                        </child>
+                              <child>
+                                <object class="GtkEntry" id="find_ligand_multi_solution_entry_1">
+                                  <property name="width-request">5</property>
+                                  <property name="can-focus">1</property>
+                                  <layout>
+                                    <property name="row">0</property>
+                                    <property name="column">1</property>
+                                  </layout>
+                                </object>
+                              </child>
+                              
+                              <child>
+                                <object class="GtkLabel">
+                                  <property name="label" translatable="yes"> Fraction for Correlation </property>
+                                  <property name="justify">right</property>
+                                  <layout>
+                                    <property name="row">1</property>
+                                    <property name="column">0</property>
+                                  </layout>
+                                </object>
+                              </child>
 
-                        <child>
-                          <object class="GtkEntry" id="find_ligand_multi_solution_entry_2">
-                            <property name="width-request">5</property>
-                            <property name="can-focus">1</property>
-                            <layout>
-                              <property name="row">1</property>
-                              <property name="column">1</property>
-                            </layout>
-                          </object>
-                        </child>
+                              <child>
+                                <object class="GtkEntry" id="find_ligand_multi_solution_entry_2">
+                                  <property name="width-request">5</property>
+                                  <property name="can-focus">1</property>
+                                  <layout>
+                                    <property name="row">1</property>
+                                    <property name="column">1</property>
+                                  </layout>
+                                </object>
+                              </child>
 
-                      </object>
-                    </child>
+                            </object>
+                          </child>
 
-                   </object>
-                </child>
-              </object>
-            </child>
+                         </object>
+                      </child>
+                    </object>
+                  </child>
 
-            <child>
-              <object class="GtkFrame" id="ligand_fitting_post_fit_options">
-                <property name="label">Post-Fit Options</property>
-                <property name="margin-start">8</property>
-                <property name="margin-end">8</property>
-                <property name="margin-top">4</property>
-                <property name="margin-bottom">4</property>
+                  <child>
+                    <object class="GtkFrame" id="ligand_fitting_post_fit_options">
+                      <property name="label">Post-Fit Options</property>
+                      <property name="margin-start">8</property>
+                      <property name="margin-end">8</property>
+                      <property name="margin-top">4</property>
+                      <property name="margin-bottom">4</property>
 
-                <child>
-                  <object class="GtkCheckButton" id="find_ligand_real_space_refine_solutions_checkbutton">
-                    <property name="label" translatable="yes">Real Space Refine Solutions</property>
-                    <property name="can-focus">1</property>
-                    <property name="use-underline">1</property>
-                    <property name="active">1</property>
-                  </object>
-                </child>
+                      <child>
+                        <object class="GtkCheckButton" id="find_ligand_real_space_refine_solutions_checkbutton">
+                          <property name="label" translatable="yes">Real Space Refine Solutions</property>
+                          <property name="can-focus">1</property>
+                          <property name="use-underline">1</property>
+                          <property name="active">1</property>
+                        </object>
+                      </child>
 
-              </object>
-            </child>
-            
-            <child>
-              <object class="GtkFrame" id="ligand_expert_frame">
-                <property name="margin-start">8</property>
-                <property name="margin-end">8</property>
-                <property name="margin-top">4</property>
-                <property name="margin-bottom">4</property>
-                <child>
-                  <object class="GtkBox" id="vbox166">
-                    <property name="orientation">vertical</property>
-                    <child>
-                      <object class="GtkGrid">
-                        <child>
-                          <object class="GtkLabel" id="label262">
-                            <property name="label" translatable="yes">  Search Number of Top Sites:        </property>
-                            <property name="justify">center</property>
-                            <layout>
-                              <property name="column">0</property>
-                              <property name="row">1</property>
-                            </layout>
-                          </object>
-                        </child>
-                        <child>
-                          <object class="GtkEntry" id="ligand_n_top_ligands_entry">
-                            <property name="width-request">5</property>
-                            <property name="can-focus">1</property>
-                            <property name="primary-icon-activatable">0</property>
-                            <property name="secondary-icon-activatable">0</property>
-                            <layout>
-                              <property name="column">1</property>
-                              <property name="row">1</property>
-                            </layout>
-                          </object>
-                        </child>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkBox" id="hbox131">
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkBox" id="hbox132">
-                      </object>
-                    </child>
-                  </object>
-                </child>
-                <child type="label">
-                  <object class="GtkLabel" id="label281">
-                    <property name="label" translatable="yes">Expert Options</property>
-                  </object>
-                </child>
-              </object>
-            </child>
-          </object>
-        </child>
+                    </object>
+                  </child>
+                  
+                  <child>
+                    <object class="GtkFrame" id="ligand_expert_frame">
+                      <property name="margin-start">8</property>
+                      <property name="margin-end">8</property>
+                      <property name="margin-top">4</property>
+                      <property name="margin-bottom">4</property>
+                      <child>
+                        <object class="GtkBox" id="vbox166">
+                          <property name="orientation">vertical</property>
+                          <child>
+                            <object class="GtkGrid">
+                              <child>
+                                <object class="GtkLabel" id="label262">
+                                  <property name="label" translatable="yes">  Search Number of Top Sites:        </property>
+                                  <property name="justify">center</property>
+                                  <layout>
+                                    <property name="column">0</property>
+                                    <property name="row">1</property>
+                                  </layout>
+                                </object>
+                              </child>
+                              <child>
+                                <object class="GtkEntry" id="ligand_n_top_ligands_entry">
+                                  <property name="width-request">5</property>
+                                  <property name="can-focus">1</property>
+                                  <property name="primary-icon-activatable">0</property>
+                                  <property name="secondary-icon-activatable">0</property>
+                                  <layout>
+                                    <property name="column">1</property>
+                                    <property name="row">1</property>
+                                  </layout>
+                                </object>
+                              </child>
+                            </object>
+                          </child>
+                          <child>
+                            <object class="GtkBox" id="hbox131">
+                            </object>
+                          </child>
+                          <child>
+                            <object class="GtkBox" id="hbox132">
+                            </object>
+                          </child>
+                        </object>
+                      </child>
+                      <child type="label">
+                        <object class="GtkLabel" id="label281">
+                          <property name="label" translatable="yes">Expert Options</property>
+                        </object>
+                      </child>
+                    </object>
+                  </child>
+                </object>
+              </child>
+            </object>
+          </child>
         <child type="action">
           <object class="GtkBox" id="hbox35">
             <property name="homogeneous">1</property>
@@ -5428,8 +5437,6 @@ that you wish to delete.               </property>
           </object>
         </child>
       </object>
-    </child>
-    <child type="titlebar">
     </child>
   </object>
 
