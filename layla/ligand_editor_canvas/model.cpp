@@ -31,8 +31,10 @@
 #include <algorithm>
 #include <set>
 #include <rdkit/GraphMol/Depictor/RDDepictor.h>
+#include <rdkit/GraphMol/FileParsers/MolFileStereochem.h>
 #include <rdkit/GraphMol/Substruct/SubstructMatch.h>
 #include <rdkit/Geometry/point.h>
+#include <GraphMol/Chirality.h>
 #include <rdkit/GraphMol/MolOps.h>
 #include <cmath>
 #include <boost/range/iterator_range.hpp>
@@ -560,6 +562,9 @@ RDGeom::INT_POINT2D_MAP CanvasMolecule::compute_molecule_geometry() const {
     RDGeom::INT_POINT2D_MAP coordinate_map;
 
     RDKit::Conformer& conf = this->rdkit_molecule->getConformer();
+
+    // Is this what I need?
+    RDKit::WedgeMolBonds(*this->rdkit_molecule, &conf);
     for(auto mv: matchVect) {
         RDGeom::Point3D pt3 = conf.getAtomPos( mv.first );
         RDGeom::Point2D pt2( pt3.x , pt3.y );
@@ -992,6 +997,9 @@ void CanvasMolecule::lower_from_rdkit(bool sanitize_after, bool with_qed) {
             g_warning("Could not kekulize molecule: %s", e.what());
         }
     }
+
+    // Is this what I need?
+    RDKit::Chirality::addStereoAnnotations(*this->rdkit_molecule);
 
     /// 2.1 Compute geometry
     auto geometry = this->compute_molecule_geometry();
