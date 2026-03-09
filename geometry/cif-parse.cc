@@ -2171,8 +2171,9 @@ coot::protein_geometry::init_standard() {
          } else {
             env_dir_fails = 0;
             if (verbose_mode)
-               std::cout << "INFO:: Using Standard CCP4 Refmac dictionary from"
-                         << " CLIBD_MON: " << s << std::endl;
+               // std::cout << "INFO:: Using Standard CCP4 Refmac dictionary from"
+               //           << " CLIBD_MON: " << s << std::endl;
+               logger.log(log_t::INFO, "Using Standard CCP4 Refmac dictionary from CLIBD_MON: " + std::string(s));
             mon_lib_dir = s;
             using_clibd_mon = true;
             // strip any trailing / from mon_lib_dir
@@ -2189,8 +2190,9 @@ coot::protein_geometry::init_standard() {
          s = getenv("CCP4_LIB");
          if (s) {
             if (verbose_mode)
-               std::cout << "INFO:: Using Standard CCP4 Refmac dictionary: "
-                         << s << std::endl;
+               // std::cout << "INFO:: Using Standard CCP4 Refmac dictionary: "
+               //           << s << std::endl;
+               logger.log(log_t::INFO, "Using Standard CCP4 Refmac dictionary: " + std::string(s));
             mon_lib_dir = s;
 
          } else {
@@ -2641,11 +2643,14 @@ coot::dictionary_residue_restraints_t::write_cif(const std::string &filename) co
       // delete mmCIFLoop; // crashed when enabled?
 
       int status = mmCIFFile->WriteMMCIFFile(filename.c_str());
-      if (status == 0)
-              std::cout << "INFO:: wrote mmCIF \"" << filename << "\"" << std::endl;
-      else
-              std::cout << "INFO:: on write mmCIF \"" << filename << "\" status: "
-                             << status << std::endl;
+      if (status == 0) {
+              // std::cout << "INFO:: wrote mmCIF \"" << filename << "\"" << std::endl;
+              logger.log(log_t::INFO, "wrote mmCIF", filename);
+      } else {
+              // std::cout << "INFO:: on write mmCIF \"" << filename << "\" status: "
+              //                << status << std::endl;
+              logger.log(log_t::INFO, "on write mmCIF", filename, "status:", status);
+      }
    }
    delete mmCIFFile; // deletes all its attributes too.
 }

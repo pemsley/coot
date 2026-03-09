@@ -42,16 +42,21 @@
 #include "c-interface.h"
 #include "guile-fixups.h"
 
+#ifdef USE_GUILE
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wvolatile"
+#endif // USE_GUILE
+
 
 // Including python needs to come after graphics-info.h, because
 // something in Python.h (2.4 - chihiro) is redefining FF1 (in
 // ssm_superpose.h) to be 0x00004000 (Grrr).
 //
-// 20100813: Python.h needs to come before to stop"_POSIX_C_SOURCE" redefined problems 
+// 20100813: Python.h needs to come before to stop"_POSIX_C_SOURCE" redefined problems
 //
 #ifdef USE_PYTHON
-#if (PY_MINOR_VERSION > 4) 
-// no fixup needed 
+#if (PY_MINOR_VERSION > 4)
+// no fixup needed
 #else
 #define Py_ssize_t int
 #endif

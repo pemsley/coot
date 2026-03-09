@@ -37,6 +37,11 @@
 #include "c-interface-scm.hh"
 #include "c-interface-python.hh"
 
+#ifdef USE_GUILE
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wvolatile"
+#endif
+
 coot::command_arg_t
 coot::scripting_function(const std::string &function_name,
 			 const std::vector<coot::command_arg_t> &args) {
@@ -47,7 +52,7 @@ coot::scripting_function(const std::string &function_name,
       std::string c = pythonize_command_name(function_name);
       std::vector<std::string> command_strings;
       command_strings.push_back(c);
-      for (unsigned int i=0; i<args.size(); i++) { 
+      for (unsigned int i=0; i<args.size(); i++) {
 	 command_strings.push_back(args[i].as_string());
       }
       std::string s = graphics_info_t::pythonize_command_strings(command_strings);
@@ -108,6 +113,9 @@ coot::scripting_function(const std::string &function_name,
    }
    return r;
 }
+#ifdef USE_GUILE
+#pragma GCC diagnostic pop
+#endif
 
 
 #ifdef USE_PYTHON
@@ -344,6 +352,8 @@ PyObject *graphics_info_t::restraint_to_py(const coot::simple_restraint &restrai
 #endif // USE_PYTHON
 
 #ifdef USE_GUILE
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wvolatile"
 SCM graphics_info_t::restraint_to_scm(const coot::simple_restraint &rest) const {
 
    SCM fixed_atom_flags_list_scm = SCM_EOL;
@@ -357,7 +367,7 @@ SCM graphics_info_t::restraint_to_scm(const coot::simple_restraint &rest) const 
 
    return scm_list_4(it_1_scm, it_2_scm, it_3_scm, it_4_scm);
 }
-
+#pragma GCC diagnostic pop
 #endif // USE_GUILE
 
 #ifdef USE_PYTHON
@@ -384,6 +394,8 @@ PyObject *graphics_info_t::geometry_distortion_to_py(const coot::geometry_distor
 #endif // USE_PYTHON
 
 #ifdef USE_GUILE
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wvolatile"
 SCM graphics_info_t::geometry_distortion_to_scm(const coot::geometry_distortion_info_t &gd) const {
 
    SCM r = SCM_BOOL_F;
@@ -400,6 +412,7 @@ SCM graphics_info_t::geometry_distortion_to_scm(const coot::geometry_distortion_
    }
    return r;
 }
+#pragma GCC diagnostic pop
 #endif // USE_GUILE
 
 

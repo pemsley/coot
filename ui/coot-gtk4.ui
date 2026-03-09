@@ -113,6 +113,12 @@
       </section>
       <section>
         <item>
+          <attribute name="label">Start RCP Server...</attribute>
+          <attribute name="action">app.start_rpc_server_action</attribute>
+        </item>
+      </section>
+      <section>
+        <item>
           <attribute name="label">Exit</attribute>
           <attribute name="action">app.exit_action</attribute>
         </item>
@@ -1130,6 +1136,10 @@
         <attribute name="action">app.delete_item_water</attribute>
       </item>
       <item>
+        <attribute name="label" translatable="yes">All Waters</attribute>
+        <attribute name="action">app.delete_item_all_waters</attribute>
+      </item>
+      <item>
         <attribute name="label" translatable="yes">Side-chain</attribute>
         <attribute name="action">app.delete_item_side_chain</attribute>
       </item>
@@ -1651,7 +1661,7 @@ Copyright 2023, 2024, 2025 Global Phasing Ltd.</property>
             <property name="spacing">4</property>
             <child>
               <object class="GtkButton" id="add_OXT_cancel_button">
-                <property name="label" translatable="yes">  Cancel  </property>
+                <property name="label" translatable="yes"> Cancel </property>
                 <property name="can-focus">1</property>
                 <property name="use-underline">1</property>
                 <signal name="clicked" handler="on_add_OXT_cancel_button_clicked" swapped="no"/>
@@ -1663,7 +1673,7 @@ Copyright 2023, 2024, 2025 Global Phasing Ltd.</property>
             </child>
             <child>
               <object class="GtkButton" id="add_OXT_ok_button">
-                <property name="label" translatable="yes">  Add it  </property>
+                <property name="label" translatable="yes"> Add it </property>
                 <property name="can-focus">1</property>
                 <property name="use-underline">1</property>
                 <signal name="clicked" handler="on_add_OXT_ok_button_clicked" swapped="no"/>
@@ -1729,16 +1739,16 @@ Copyright 2023, 2024, 2025 Global Phasing Ltd.</property>
           </object>
         </child>
         <child>
-            <object class="GtkBox" id="hbox60">
-              <child>
-                <object class="GtkButton" id="add_alt_conf_cancel_button">
-                  <property name="label" translatable="yes">  Cancel  </property>
-                  <property name="can-focus">0</property>
-                  <property name="use-underline">1</property>
-                  <signal name="clicked" handler="on_add_alt_conf_cancel_button_clicked" swapped="no"/>
-                </object>
-              </child>
-            </object>
+          <object class="GtkBox" id="hbox60">
+            <child>
+              <object class="GtkButton" id="add_alt_conf_cancel_button">
+                <property name="label" translatable="yes">  Cancel  </property>
+                <property name="can-focus">0</property>
+                <property name="use-underline">1</property>
+                <signal name="clicked" handler="on_add_alt_conf_cancel_button_clicked" swapped="no"/>
+              </object>
+            </child>
+          </object>
         </child>
       </object>
     </child>
@@ -2115,7 +2125,7 @@ Copyright 2023, 2024, 2025 Global Phasing Ltd.</property>
   </object>
 
   <object class="GtkWindow" id="aniso_window">
-    <property name="title" translatable="yes">Coot:: Anisotropic Atoms</property>
+    <property name="title" translatable="yes">Coot: Anisotropic Atoms</property>
     <property name="deletable">0</property>
     <child>
       <object class="GtkBox" id="vbox16">
@@ -2285,7 +2295,11 @@ Copyright 2023, 2024, 2025 Global Phasing Ltd.</property>
     </child>
   </object>
 
-  <!-- ribbons, I mean. It should be part of a redesigned Display Manager - but this quick fix will do for now -->
+  <!-- ribbons, I mean. It should be part of a redesigned Display Manager - but this quick
+       fix will do for now.
+       20260302-PE Now the ribbons *are* part of the Display Manager, so this is not needed,
+       I think
+  -->
   <object class="GtkDialog" id="molecular_representations_dialog">
     <property name="title" translatable="yes">Coot: Representations</property>
     <property name="width-request">180</property>
@@ -2497,9 +2511,8 @@ Copyright 2023, 2024, 2025 Global Phasing Ltd.</property>
     <action-widgets>
       <action-widget response="0">baton_dialog_ok_button</action-widget>
     </action-widgets>
-    <child type="titlebar">
-    </child>
   </object>
+
   <object class="GtkDialog" id="baton_mode_make_skeleton_dialog">
     <property name="title" translatable="yes">Make Skeleton?</property>
     <property name="deletable">0</property>
@@ -2769,6 +2782,41 @@ Calculate a skeleton now?
                         </child>
                       </object>
                     </child>
+
+                    <child>
+                      <object class="GtkBox">
+                        <property name="orientation">horizontal</property>
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="label" translatable="yes">Mesh Style:  Off</property>
+                            <property name="margin-top">2</property>
+                            <property name="margin-bottom">2</property>
+                            <property name="margin-start">4</property>
+                            <property name="margin-end">4</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkSwitch" id="show_anisotropic_atoms_as_empty">
+                            <property name="active">False</property>
+                            <property name="width-request">40</property>
+                            <property name="margin-top">2</property>
+                            <property name="margin-bottom">2</property>
+                            <property name="margin-start">4</property>
+                            <property name="margin-end">4</property>
+                            <signal name="state-set" handler="show_anisotropic_atoms_as_empty_switch_state_set"/>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="label" translatable="yes">On</property>
+                            <property name="margin-top">2</property>
+                            <property name="margin-bottom">2</property>
+                            <property name="margin-start">4</property>
+                            <property name="margin-end">4</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
                   </object>
                 </child>
               </object>
@@ -2876,8 +2924,6 @@ Calculate a skeleton now?
     <action-widgets>
       <action-widget response="0">centre_atom_label_ok_button</action-widget>
     </action-widgets>
-    <child type="titlebar">
-    </child>
   </object>
 
   <object class="GtkDialog" id="change_chain_id_dialog">
@@ -3066,8 +3112,6 @@ Calculate a skeleton now?
           </object>
         </child>
       </object>
-    </child>
-    <child type="titlebar">
     </child>
   </object>
 
@@ -5581,6 +5625,7 @@ Do you want to continue?
 
         <child type="action">
           <object class="GtkBox" id="hbox43">
+            <property name="halign">end</property>
             <property name="spacing">10</property>
             <property name="margin-start">4</property>
             <property name="margin-end">4</property>
@@ -7502,6 +7547,73 @@ Do you want to continue?
                 </child>
               </object>
             </child>
+
+            <child type="overlay">
+              <object class="GtkFrame" id="start_rpc_server_frame">
+                <property name="halign">center</property>
+                <property name="valign">start</property>
+                <property name="visible">False</property>
+                <property name="margin-bottom">5</property>
+                <property name="margin-end">5</property>
+                <property name="margin-start">5</property>
+                <property name="margin-top">5</property>
+
+                <child>
+                  <object class="GtkBox" id="vbox_for_start_rpc_server">
+                    <property name="orientation">vertical</property>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="orientation">horizontal</property>
+                        <child>
+                          <object class="GtkLabel">
+                            <property name="label" translatable="yes">  Port  </property>
+                            <property name="justify">center</property>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkEntry" id="start_rpc_server_entry">
+                            <property name="width-request">5</property>
+                            <property name="can-focus">1</property>
+                            <property name="text">9090</property>
+                            <property name="halign">end</property>
+                            <property name="margin-top">2</property>
+                            <property name="margin-bottom">2</property>
+                            <property name="margin-end">6</property>
+                            <property name="margin-start">4</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="orientation">horizontal</property>
+                        <property name="spacing">6</property>
+                        <property name="margin-end">6</property>
+                        <property name="margin-start">4</property>
+                        <property name="halign">end</property>
+                        <child>
+                          <object class="GtkButton" id="start_rpc_server_cancel_button">
+                            <property name="label" translatable="yes">Cancel</property>
+                            <property name="halign">end</property>
+                            <signal name="clicked" handler="on_start_rpc_server_cancel_button_clicked" />
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkButton" id="start_rpc_server_ok_button">
+                            <property name="label" translatable="yes">OK</property>
+                            <signal name="clicked" handler="on_start_rpc_server_ok_button_clicked" />
+                            <style>
+                              <class name="suggested-action"/>
+                            </style>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+
             <child type="overlay">
               <object class="GtkFrame" id="copy_fragment_frame">
                 <property name="halign">center</property>
@@ -13629,7 +13741,7 @@ If you need symmetry, setup ccp4 before starting coot
   </object>
 
   <object class="GtkDialog" id="nucleotide_builder_dialog">
-    <property name="title" translatable="yes">Nucleotide Builder</property>
+    <property name="title" translatable="yes">Coot: Nucleotide Builder</property>
     <child>
       <object class="GtkBox" id="dialog-vbox94">
         <property name="orientation">vertical</property>
@@ -13748,6 +13860,9 @@ If you need symmetry, setup ccp4 before starting coot
                     <child>
                       <object class="GtkEntry" id="nucleotide_sequence">
                         <property name="can-focus">1</property>
+                        <property name="margin-start">4</property>
+                        <property name="margin-end">4</property>
+                        <property name="margin-bottom">4</property>
                       </object>
                     </child>
                   </object>
@@ -15872,8 +15987,8 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
   <object class="GtkDialog" id="shader_settings_dialog">
     <property name="title" translatable="yes">Coot Shader Settings</property>
     <signal name="close" handler="on_shader_settings_dialog_close" swapped="no"/>
-    <signal name="destroy" handler="on_shader_settings_dialog_destroy" swapped="no"/>
     <signal name="response" handler="on_shader_settings_dialog_response" swapped="no"/>
+    <signal name="close-request" handler="on_shader_settings_dialog_close_request" swapped="no"/>
     <child>
       <object class="GtkBox">
         <property name="margin-start">8</property>
@@ -16363,6 +16478,94 @@ Then use &quot;Run Refmac...&quot; from the &quot;Model/Fit/Refine&quot; dialog.
                         </child>
                       </object>
                     </child>
+                  </object>
+                </child>
+              </object>
+            </child>
+            <child>
+              <object class="GtkFrame">
+                <child>
+                  <object class="GtkExpander" id="material_lighting_expander">
+                    <property name="margin-start">4</property>
+                    <property name="margin-end">4</property>
+                    <property name="margin-top">4</property>
+                    <property name="margin-bottom">4</property>
+                    <child type="label">
+                      <object class="GtkLabel">
+                        <property name="label" translatable="yes">Expand</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkBox">
+                        <property name="orientation">vertical</property>
+                        <property name="spacing">6</property>
+                        <property name="margin-start">8</property>
+                        <property name="margin-end">8</property>
+                        <property name="margin-top">6</property>
+                        <property name="margin-bottom">6</property>
+                        <child>
+                          <object class="GtkBox" id="material_lighting_molecule_hbox">
+                            <property name="spacing">8</property>
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="label" translatable="yes">Molecule:</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkComboBoxText" id="material_lighting_molecule_comboboxtext">
+                                <property name="hexpand">1</property>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkBox">
+                            <property name="spacing">8</property>
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="label" translatable="yes">Ambient:</property>
+                                <property name="width-chars">8</property>
+                                <property name="xalign">0</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkColorButton" id="material_lighting_ambient_colorbutton">
+                                <property name="hexpand">1</property>
+                                <property name="use-alpha">0</property>
+                                <signal name="color-set" handler="on_material_lighting_ambient_colorbutton_color_set" swapped="no"/>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkBox">
+                            <property name="spacing">8</property>
+                            <child>
+                              <object class="GtkLabel">
+                                <property name="label" translatable="yes">Diffuse:</property>
+                                <property name="width-chars">8</property>
+                                <property name="xalign">0</property>
+                              </object>
+                            </child>
+                            <child>
+                              <object class="GtkColorButton" id="material_lighting_diffuse_colorbutton">
+                                <property name="hexpand">1</property>
+                                <property name="use-alpha">0</property>
+                                <signal name="color-set" handler="on_material_lighting_diffuse_colorbutton_color_set" swapped="no"/>
+                              </object>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                  </object>
+                </child>
+                <child type="label">
+                  <object class="GtkLabel">
+                    <property name="label" translatable="yes">Material Lighting</property>
+                    <attributes>
+                      <attribute name="weight" value="bold"/>
+                    </attributes>
                   </object>
                 </child>
               </object>

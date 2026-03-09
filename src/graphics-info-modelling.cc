@@ -867,8 +867,9 @@ graphics_info_t::update_restraints_with_atom_pull_restraints() {
          if (specs_for_removed_restraints.size()) {
             if (false) {
                for (unsigned int i=0; i<specs_for_removed_restraints.size(); i++) {
-                  std::cout << "INFO:: Clear pull restraint on atom: " << specs_for_removed_restraints[i]
-                            << std::endl;
+                  // std::cout << "INFO:: Clear pull restraint on atom: " << specs_for_removed_restraints[i]
+                  //           << std::endl;
+                  logger.log(log_t::INFO, "Clear pull restraint on atom: " + specs_for_removed_restraints[i].format());
                }
             }
             unsigned int unlocked = false;
@@ -1132,7 +1133,8 @@ graphics_info_t::refine_residues_vec(int imol,
    bool use_map_flag = true;
 
    if (false)
-      std::cout << "INFO:: refine_residues_vec() with altconf \"" << alt_conf << "\"" << std::endl;
+      // std::cout << "INFO:: refine_residues_vec() with altconf \"" << alt_conf << "\"" << std::endl;
+      logger.log(log_t::INFO, "refine_residues_vec() with altconf", "\"" + alt_conf + "\"");
 
    coot::refinement_results_t rr = generate_molecule_and_refine(imol, residues, alt_conf, mol, use_map_flag);
 
@@ -1412,7 +1414,8 @@ graphics_info_t::make_last_restraints(const std::vector<std::pair<bool,mmdb::Res
                                                        // link and flank args default true
 
    if (use_harmonic_approximation_for_NBCs) {
-      std::cout << "INFO:: using soft harmonic restraints for NBC" << std::endl;
+      // std::cout << "INFO:: using soft harmonic restraints for NBC" << std::endl;
+      logger.log(log_t::INFO, "using soft harmonic restraints for NBC");
       last_restraints->set_use_harmonic_approximations_for_nbcs(true);
    }
 
@@ -1471,8 +1474,9 @@ graphics_info_t::make_last_restraints(const std::vector<std::pair<bool,mmdb::Res
          // wait until refinement finishes
          while (restraints_lock) {
             std::this_thread::sleep_for(std::chrono::milliseconds(7));
-            std::cout << "INFO:: make_last_restraints() [immediate] restraints locked by "
-                      << restraints_locking_function_name << std::endl;
+            // std::cout << "INFO:: make_last_restraints() [immediate] restraints locked by "
+            //           << restraints_locking_function_name << std::endl;
+            logger.log(log_t::INFO, "make_last_restraints() [immediate] restraints locked by", restraints_locking_function_name);
          }
       }
 
@@ -1662,7 +1666,8 @@ graphics_info_t::generate_molecule_and_refine(int imol,
    if (false) {
       auto tp_1 = std::chrono::high_resolution_clock::now();
       auto d10 = std::chrono::duration_cast<std::chrono::milliseconds>(tp_1 - tp_0).count();
-      std::cout << "INFO:: ---------- Timing for refinement " << d10 << " milliseconds" << std::endl;
+      // std::cout << "INFO:: ---------- Timing for refinement " << d10 << " milliseconds" << std::endl;
+      logger.log(log_t::INFO, "---------- Timing for refinement " + std::to_string(d10) + " milliseconds");
    }
 
    return rr;
@@ -3433,9 +3438,10 @@ graphics_info_t::execute_add_terminal_residue(int imol,
 	    std::cout << "WARNING:: terminal atom not assigned - no masking!" << std::endl;
 	 }
 
-	 std::cout << "INFO:: fitting terminal residue with "
-		   << add_terminal_residue_n_phi_psi_trials << " random trials"
-		   << std::endl;
+	 // std::cout << "INFO:: fitting terminal residue with "
+	 //            << add_terminal_residue_n_phi_psi_trials << " random trials"
+	 //            << std::endl;
+	 logger.log(log_t::INFO, "fitting terminal residue with", add_terminal_residue_n_phi_psi_trials, "random trials");
 
   	 coot::minimol::molecule mmol =
 	    addres.best_fit_phi_psi(add_terminal_residue_n_phi_psi_trials, false,
@@ -4940,7 +4946,8 @@ graphics_info_t::generate_moving_atoms_from_rotamer(int imol, coot::atom_spec_t 
 
    if (std::string(residue->name) == "GLY" ||
        std::string(residue->name) == "ALA") {
-      std::cout << "INFO:: This residue type ("<< residue->name << ") doesn't have rotamers\n";
+      // std::cout << "INFO:: This residue type ("<< residue->name << ") doesn't have rotamers\n";
+      logger.log(log_t::INFO, "This residue type (", residue->name, ") doesn't have rotamers");
       return 0;
    }
 
@@ -5422,7 +5429,8 @@ graphics_info_t::rotate_chi_torsion_general(double x, double y) {
                graphics_draw();
             }
             catch (const std::runtime_error &rte) {
-               std::cout << "INFO:: tree by contacts failed " << rte.what() << std::endl;
+               // std::cout << "INFO:: tree by contacts failed " << rte.what() << std::endl;
+               logger.log(log_t::INFO, "tree by contacts failed " + std::string(rte.what()));
             }
          } else {
             std::cout << "ERROR:: specs_local size is " << specs_local.size() << std::endl;

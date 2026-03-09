@@ -57,7 +57,8 @@ endif(WIN32)
 set(coot_src ${CMAKE_CURRENT_SOURCE_DIR})
 
 add_definitions(-DANALYSE_REFINEMENT_TIMING -DPACKAGE_VERSION="1.1.20"
-  -DHAVE_CXX_THREAD -DHAVE_SSMLIB -DHAVE_BOOST -DUSE_LIBPNG=1 -DCLIPPER_HAS_TOP8000 -DUSE_GEMMI -DHAVE_BOOST_THREAD -DHAVE_GSL
+  -DHAVE_CXX_THREAD -DHAVE_SSMLIB -DHAVE_BOOST -DUSE_LIBPNG=1 -DCLIPPER_HAS_TOP8000 -DUSE_GEMMI
+  -DHAVE_BOOST_THREAD -DHAVE_GSL -DLIBCOOTAPI_BUILD
   -DPKGDATADIR="${CMAKE_INSTALL_PREFIX}/share/coot" -DXDATADIR="${CMAKE_INSTALL_PREFIX}/share")
 
 # 20250314-PE: Charles, I guess that you will need to comment out this block
@@ -65,8 +66,13 @@ add_definitions(-DANALYSE_REFINEMENT_TIMING -DPACKAGE_VERSION="1.1.20"
 add_definitions(-DMAKE_ENHANCED_LIGAND_TOOLS="1")
 message("-- Found ENHANCED_LIGAND_TOOLS setting - now requiring the RDKit")
 find_package(Cairo REQUIRED)
+# Boost::system is header-only since 1.69 but RDKit's cmake config references it as a target.
+# Create it if missing (e.g. system Boost version mismatch with autobuild RDKit).
+if(NOT TARGET Boost::system)
+  add_library(Boost::system INTERFACE IMPORTED)
+endif()
 find_package(RDKit CONFIG COMPONENTS RDGeneral REQUIRED)
-set(RDKit_libs_for_libcootapi RDKit::rdkit_base RDKit::Descriptors RDKit::ForceFieldHelpers RDKit::ForceField RDKit::Optimizer RDKit::MolDraw2D  RDKit::MolChemicalFeatures)
+set(RDKit_libs_for_libcootapi RDKit::rdkit_base RDKit::Descriptors RDKit::DistGeomHelpers RDKit::PartialCharges RDKit::ForceFieldHelpers RDKit::ForceField RDKit::Optimizer RDKit::MolDraw2D  RDKit::MolChemicalFeatures)
 
 # we can be on Apple, and also have access to homebrew dwarf and elf - but this typically not the case
 # should this actually be ENABLE_BACKWARD? (util/backward.cpp is not conditionally compiled).
@@ -187,11 +193,12 @@ add_library(cootapi SHARED
             ${coot_src}/api/molecules-container-blender.cc
             ${coot_src}/api/molecules-container-bucca-ml-growing.cc
             ${coot_src}/api/molecules-container-gltf.cc
+            ${coot_src}/api/molecules-container-ligand-fitting.cc
             ${coot_src}/api/molecules-container-maps.cc
             ${coot_src}/api/molecules-container-mmrrcc.cc
             ${coot_src}/api/molecules-container-superpose.cc
             ${coot_src}/api/molecules-container-modelling.cc
-            ${coot_src}/api/molecules-container-ligand-fitting.cc
+            ${coot_src}/api/molecules-container-pyrogen.cc
             ${coot_src}/api/mmcif-tests.cc
             ${coot_src}/api/phi-psi-prob.cc
             ${coot_src}/api/moorhen-h-bonds.cc
@@ -284,6 +291,8 @@ add_library(cootapi SHARED
             ${coot_src}/pli/pi-stacking.cc
             ${coot_src}/pli/sdf-interface.cc
             ${coot_src}/pli/specs.cc
+            ${coot_src}/pyrogen/restraints.cc
+            ${coot_src}/pyrogen/py-restraints.cc
             ${coot_src}/coot-utils/cfc.cc
             ${coot_src}/coot-utils/coot-align.cc
             ${coot_src}/coot-utils/dict-link-info.cc

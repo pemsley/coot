@@ -282,9 +282,9 @@ graphics_info_t::setup_key_bindings() {
                           } else {
                              // old/standard simple translation
                              if (graphics_info_t::shift_is_pressed) {
-                                g.intelligent_previous_atom_centring(g.go_to_atom_window);
+                                g.intelligent_previous_atom_centring();
                              } else {
-                                g.intelligent_next_atom_centring(g.go_to_atom_window);
+                                g.intelligent_next_atom_centring();
                              }
                           }
                        }
@@ -879,7 +879,8 @@ graphics_info_t::setup_key_bindings() {
 
    auto lc_smooth_bonds = [] () {
       graphics_info_t g;
-      set_bond_smoothness_factor(2); // updates all molecules
+      // set_bond_smoothness_factor(2); // updates all molecules
+      toggle_bond_smoothness_factor();
       return gboolean(TRUE);
    };
 

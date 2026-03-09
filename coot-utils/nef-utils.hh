@@ -2,6 +2,8 @@
 #ifndef COOT_UTILS_PARSE_GEMMI_NEF
 #define COOT_UTILS_PARSE_GEMMI_NEF
 
+#ifdef USE_GEMMI
+
 #include <gemmi/cif.hpp>
 #include <gemmi/numb.hpp>
 
@@ -210,4 +212,5 @@ namespace nef {
 
 }
 
+#endif // USE_GEMMI
 #endif // COOT_UTILS_PARSE_GEMMI_NEF

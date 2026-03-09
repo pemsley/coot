@@ -33,6 +33,8 @@
 #include "coot-utils/coot-coord-extras.hh"  // is_nucleotide_by_dict
 
 #include "simple-restraint.hh"
+#include "utils/logging.hh"
+extern logging logger;
 
 // #include "mmdb.h" // for printing of mmdb::Atom pointers as info not raw
                      // pointers.  Removed. Too much (linking issues in)

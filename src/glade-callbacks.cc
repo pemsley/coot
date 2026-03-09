@@ -511,7 +511,7 @@ on_go_to_atom_next_residue_button_clicked (GtkButton       *button,
 /*   goto_next_atom_maybe(chain_str, res_str, atom_name_str, residue_entry); */
 
   GtkWidget *window = widget_from_builder("goto_atom_window");
-  goto_next_atom_maybe_new(window);
+  goto_next_atom_maybe_new();
 }
 
 
@@ -543,7 +543,7 @@ on_go_to_atom_previous_residue_button_clicked (GtkButton       *button,
   GtkWidget *window = widget_from_builder("goto_atom_window");
   if (! window)
      printf("ERROR:: in on_go_to_atom_previous_residue_button_clicked NULL window\n");
-  goto_previous_atom_maybe_new(window);
+  goto_previous_atom_maybe_new();
 }
 
 extern "C" G_MODULE_EXPORT
@@ -3893,11 +3893,11 @@ on_stereo_dialog_zalman_stereo_radiobutton_toggled
 
 extern "C" G_MODULE_EXPORT
 gboolean
-on_shader_settings_dialog_destroy(GtkWidget       *widget,
+on_shader_settings_dialog_close_request(GtkWidget       *widget,
                                   gpointer         user_data) {
 
-   // this doesn't happen
-   std::cout << "-------------- on_shader_settings_dialog_ destroy " << std::endl;
+   // 2026-02-21-PE this now does happen
+   gtk_widget_set_visible(widget, FALSE);
    return TRUE;
 }
 
@@ -4083,7 +4083,22 @@ show_anisotropic_atoms_as_ortep_switch_state_set(GtkSwitch *switch_widget,
    }
 }
 
+extern "C" G_MODULE_EXPORT
+void
+show_anisotropic_atoms_as_empty_switch_state_set(GtkSwitch *switch_widget,
+                                                 gboolean   state,
+                                                 gpointer   user_data) {
 
+   GtkWidget *bond_parameters_molecule_comboboxtext =
+      widget_from_builder("bond_parameters_molecule_comboboxtext");
+
+   if (bond_parameters_molecule_comboboxtext) {
+      graphics_info_t g;
+      int imol = g.combobox_get_imol(GTK_COMBO_BOX(bond_parameters_molecule_comboboxtext));
+      g.molecules[imol].set_show_aniso_atoms_as_empty(state);
+      g.graphics_draw();
+   }
+}
 
 extern "C" G_MODULE_EXPORT
 void
@@ -6740,7 +6755,7 @@ on_validation_graph_model_combobox_changed(GtkComboBox* self, gpointer user_data
       if (false) {
          std::string mess = "on_validation_graph_model_combobox_changed(): ";
          mess += "Could not get active iter in validation graph model ComboBox";
-         g_warning(mess.c_str());
+         g_warning("%s", mess.c_str());
       }
    }
 }
@@ -6813,6 +6828,8 @@ on_density_correlation_graph_toggled(GtkCheckButton* self, gpointer user_data) {
    on_validation_graph_checkbutton_toggled(self,coot::validation_graph_type::density_correlation);
 }
 
+
+
 extern "C" G_MODULE_EXPORT
 void
 on_validation_graph_docked_checkbutton_toggled(GtkCheckButton* self, gpointer user_data) {
@@ -6876,6 +6893,7 @@ on_map_properties_dialog_specularity_state_checkbutton_toggled(GtkCheckButton *c
    graphics_info_t::graphics_grab_focus();
 
 }
+
 
 // ----------------------------------- updating maps -----
 
@@ -7080,6 +7098,42 @@ on_first_startup_use_right_button_clicked(GtkButton       *button,
 
    preferences_internal_change_value_int(PREFERENCES_VIEW_ROTATION_MOUSE_BUTTON, 0);
    set_use_primary_mouse_button_for_view_rotation(0);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_material_lighting_ambient_colorbutton_color_set(GtkColorButton *colorbutton,
+                                                   gpointer        user_data) {
+
+   GdkRGBA rgba;
+   gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER(colorbutton), &rgba);
+   GtkWidget *combobox = widget_from_builder("material_lighting_molecule_comboboxtext");
+   int imol = my_combobox_get_imol(GTK_COMBO_BOX(combobox));
+   graphics_info_t g;
+   if (g.is_valid_model_molecule(imol)) {
+      glm::vec4 ambient(rgba.red, rgba.green, rgba.blue, 1.0f);
+      g.molecules[imol].material_for_models.ambient = ambient;
+      g.molecules[imol].model_molecule_meshes.set_material_ambient(ambient);
+      g.graphics_draw();
+   }
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_material_lighting_diffuse_colorbutton_color_set(GtkColorButton *colorbutton,
+                                                   gpointer        user_data) {
+
+   GdkRGBA rgba;
+   gtk_color_chooser_get_rgba(GTK_COLOR_CHOOSER(colorbutton), &rgba);
+   GtkWidget *combobox = widget_from_builder("material_lighting_molecule_comboboxtext");
+   int imol = my_combobox_get_imol(GTK_COMBO_BOX(combobox));
+   graphics_info_t g;
+   if (g.is_valid_model_molecule(imol)) {
+      glm::vec4 diffuse(rgba.red, rgba.green, rgba.blue, 1.0f);
+      g.molecules[imol].material_for_models.ambient = diffuse;
+      g.molecules[imol].model_molecule_meshes.set_material_diffuse(diffuse);
+      g.graphics_draw();
+   }
 }
 
 extern "C" G_MODULE_EXPORT

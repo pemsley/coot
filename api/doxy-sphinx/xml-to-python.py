@@ -12,7 +12,7 @@
 # and modify it by tracking changes made to the nanobinds file.
 
 import xml.etree.ElementTree as ET
-mytree = ET.parse('xml/namespacegemmi.xml')
+mytree = ET.parse('xml/classmolecules__container__t.xml')
 myroot = mytree.getroot()
 
 def convert_type(tt: str) -> str:
@@ -288,5 +288,6 @@ for x in myroot.iter('sectiondef'):
             except AttributeError as e:
                 print(e)
 
-fn = "gemmi_funcs.py"
+fn = "chapi-functions.py"
 make_python_script(functions, fn)
+

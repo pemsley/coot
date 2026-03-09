@@ -70,6 +70,9 @@
 
 #include "coot-utils/coot-coord-utils.hh"
 #include "coot-utils/coot-map-utils.hh"
+#include "utils/logging.hh"
+
+extern logging logger;
 
 
 std::pair<coot::minimol::molecule, coot::minimol::molecule>
@@ -328,7 +331,8 @@ coot::ligand::mask_map(mmdb::Manager *mol, short int mask_waters_flag) {
    mmdb::realtype xmc, ymc, zmc; // filled by reference
    GetMassCenter (atoms, n_atoms, xmc, ymc, zmc);
    protein_centre = clipper::Coord_orth(xmc, ymc, zmc);
-   std::cout << "INFO:: Protein centre at: " << protein_centre.format() << std::endl;
+   logger.log(log_t::INFO, logging::ltw("Protein centre at: "), logging::ltw(protein_centre.format()));
+   // std::cout << "INFO:: Protein centre at: " << protein_centre.format() << std::endl;
 
    // std::cout << "masking....";
    for(int i=0; i<n_atoms; i++) {
@@ -362,7 +366,8 @@ coot::ligand::mask_map(mmdb::Manager *mol,
    mmdb::PPAtom atom_selection = NULL;
    int n_selected_atoms;
    mol->GetSelIndex(SelectionHandle, atom_selection, n_selected_atoms);
-   std::cout << "INFO:: Masking around " << n_selected_atoms << " atoms" << std::endl;
+   logger.log(log_t::INFO, logging::ltw("Masking around "), logging::ltw(n_selected_atoms), logging::ltw(" atoms"));
+   // std::cout << "INFO:: Masking around " << n_selected_atoms << " atoms" << std::endl;
 
    if (invert_flag == 0) {
       for (int i=0; i<n_selected_atoms; i++) {

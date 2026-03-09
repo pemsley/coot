@@ -50,9 +50,8 @@ class CoordSpline {
         ctlPts.clear();
         spline.clear();
     }
-    void calculateYDoublePrimes(float ypLow, float ypHigh) {
-        int accu = 6;
-        spline = SplineCurve(ctlPts,(ctlPts.size()-1)*accu,3,1);
+    void calculateYDoublePrimes(float ypLow, float ypHigh, int samplesPerSegment = 6) {
+        spline = SplineCurve(ctlPts,(ctlPts.size()-1)*samplesPerSegment,3,1);
     }
     std::vector <FCXXCoord> SplineCurve(const std::vector<FCXXCoord> &ctlPts, int nsteps, int Cn, int iinterp);
     void addPair(float xVal, const FCXXCoord  &coord) {

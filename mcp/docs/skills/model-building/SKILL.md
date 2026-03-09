@@ -417,6 +417,94 @@ If the Ramachandran Plot is poor, try using `coot.pepflip(imol, chain_id, res_no
 
 If the Rotamer score is poor, try using `coot.do_180_degree_side_chain_flip()` to improve the Rotamer score. It is occasionally useful.
 
+### 12. Delete Waters Displaced by Newly Built Residues
+
+**CRITICAL: After adding any new residues, always check for and delete water molecules that are now too close to the new protein atoms.**
+
+Waters are placed by earlier refinement cycles that had no knowledge of atoms you are about to build. Once new residues are placed, any water within ~3.5 Å is almost certainly spurious — it was filling density that now belongs to the protein model.
+
+**Always do this immediately after building new residues, before refinement.**
+
+```python
+# After building new residues (e.g. A21-A25), check each for clashing waters
+newly_built = [21, 22, 23, 24, 25]
+waters_to_delete = set()
+
+for resno in newly_built:
+    neighbours = coot.residues_near_residue_py(0, ["A", resno, ""], 3.5)
+    for n in neighbours:
+        chain, nresno, inscode = n[0], n[1], n[2]
+        name = coot.residue_name_py(0, chain, nresno, inscode)
+        if name == "HOH":
+            waters_to_delete.add((chain, nresno, inscode))
+            print(f"Water {chain}{nresno} within 3.5A of new A{resno} - will delete")
+
+for chain, resno, inscode in waters_to_delete:
+    coot.delete_residue(0, chain, resno, inscode)
+    print(f"Deleted HOH {chain}{resno}")
+```
+
+**Why 3.5 Å?** This is a generous hydrogen-bond distance. Any water oxygen closer than this to a protein heavy atom is physically incompatible with the new model.
+
+**Don't just check for hard clashes** — even waters that don't show up in `molecule_atom_overlaps_py()` should be deleted if they are within 3.5 Å, because the overlap check uses van der Waals radii and may miss close-but-not-overlapping waters that are nonetheless chemically unreasonable.
+
+
+### 13. Building N-terminal Extensions with Enforced Secondary Structure
+
+When building backwards (toward the N-terminus) into a known secondary structure element, use `add_terminal_residue_using_phi_psi()` with the target φ/ψ angles and enforce the conformation further by refining with `set_secondary_structure_restraints_type()`.
+
+**α-helix:** φ = −57°, ψ = −47°
+**β-strand:** φ = −120°, ψ = +120°
+
+**Complete workflow for N-terminal helix extension:**
+
+```python
+# Step 1: Checkpoint
+cp = coot.make_backup_checkpoint(0, "before N-terminal extension")
+
+# Step 2: Build residues backwards one at a time with helix phi/psi
+phi, psi = -57.0, -47.0
+current_nterm = 26  # existing N-terminal residue of fragment
+for i in range(4):  # build 4 residues: 25, 24, 23, 22
+    r = coot.add_terminal_residue_using_phi_psi(0, "A", current_nterm, "auto", phi, psi)
+    current_nterm -= 1
+
+# Step 3: IMMEDIATELY check for and delete displaced waters
+newly_built = list(range(current_nterm + 1, 26))
+waters_to_delete = set()
+for resno in newly_built:
+    for n in coot.residues_near_residue_py(0, ["A", resno, ""], 3.5):
+        if coot.residue_name_py(0, n[0], n[1], n[2]) == "HOH":
+            waters_to_delete.add((n[0], n[1], n[2]))
+for chain, resno, inscode in waters_to_delete:
+    coot.delete_residue(0, chain, resno, inscode)
+    print(f"Deleted displaced water {chain}{resno}")
+
+# Step 4: Mutate from ALA placeholders to correct sequence
+coot.mutate_residue_range(0, "A", 22, 25, "NLLND")  # sequence from UniProt etc.
+
+# Step 5: Autofit rotamers for mutated residues
+for resno in newly_built:
+    coot.auto_fit_best_rotamer(0, "A", resno, "", "", 1, 1, 0.01)
+
+# Step 6: Refine with helix restraints - always turn off afterwards
+coot.set_secondary_structure_restraints_type(1)
+coot.refine_residues_py(0, [["A", r, ""] for r in range(22, 28)])
+coot.accept_moving_atoms_py()
+coot.set_secondary_structure_restraints_type(0)  # ALWAYS turn off when done
+```
+
+**Key rules for secondary structure restraints:**
+- Always call `set_secondary_structure_restraints_type(0)` after refinement to clear them
+- Extend the refinement selection 1-2 residues beyond the newly built region into the existing chain, to provide proper geometric context at the junction
+- Helix restraints (type 1), strand restraints (type 2), no restraints (type 0)
+
+```python
+coot.set_secondary_structure_restraints_type(1)  # alpha helix
+coot.set_secondary_structure_restraints_type(2)  # beta strand
+coot.set_secondary_structure_restraints_type(0)  # off - ALWAYS restore to this
+```
+
 
 ## Key Takeaway
 
@@ -424,5 +512,6 @@ If the Rotamer score is poor, try using `coot.do_180_degree_side_chain_flip()` t
 
 **Always checkpoint before changes.** Use `make_backup_checkpoint()` before any significant model modification so you can easily revert if needed.
 
+**Delete displaced waters immediately** after building new residues — don't wait until refinement reveals clashes.
 
-
+**Always turn off secondary structure restraints** (`coot.set_secondary_structure_restraints_type(0)`) after the refinement that uses them, so they don't inadvertently affect subsequent work.

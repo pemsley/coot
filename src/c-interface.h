@@ -251,6 +251,15 @@ void export_map_gui(short int export_map_fragment);
 function added for Lothar Esser */
 void set_main_window_title(const char *s);
 
+/*! \brief set the state of the validation graphs box
+ *
+ * By "docked" I mean, in the main window. The alternative
+ * is a floating dialog.
+ *
+ * @param state 0 is not docked, 1 is docked
+ */
+void set_validation_graphs_is_docked(short int state);
+
 /*! \} */
 
 /*  -------------------------------------------------------------------- */
@@ -4028,6 +4037,10 @@ int residue_info_dialog_is_displayed();
 void output_residue_info_as_text(int atom_index, int imol); /* text version */
 /* functions that uses mmdb_manager functions/data types moved to graphics_info_t */
 
+/* ! show the distance labels
+ * */
+void set_show_distance_labels(short int state);
+
 void do_distance_define();
 void do_angle_define();
 void do_torsion_define();
@@ -4963,9 +4976,13 @@ turn on with state = 1 */
 void set_draw_stick_mode_atoms(int imol, short int state);
 
 /*! \brief set the state for drawing missing resiude loops
-
-For taking screenshots, we often don't want to see them.
-*/
+ *
+ * Used, for example, when taking screenshots, we often
+ * don't want to see them in such cases.
+ * Or maybe there's just too many of them to be useful
+ *
+ * @param state the draw state (0 for "off", 1 for "on")
+ */
 void set_draw_missing_residues_loops(short int state);
 
 /*! \brief draw molecule number imol as CAs */

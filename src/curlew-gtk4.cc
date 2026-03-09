@@ -107,34 +107,21 @@ curlew_uninstall_extension_file_gtk4(const std::string &script_file_name) {
 // in c-interface-gui.cc
 std::pair<bool, std::string>checksums_match(const std::string &file_name, const std::string &checksum);
 
-GtkWidget *
-curlew_dialog() {
+namespace {
 
-   auto get_curlew_url_prefix = [] () {
-      // put this in utils somewhere
+   std::string get_curlew_url_prefix() {
       std::string url_prefix;
 #ifndef WINDOWS_MINGW
       url_prefix += "https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot";
 #else
       url_prefix += "https://bernhardcl.github.io/coot/";
 #endif
-
       std::string coot_version_dir_prefix = "curlew-extensions/gtk4/Coot-1";
-      std::string scripts_dir_prefix = "scripts";
       std::string url = coot::util::append_dir_dir(url_prefix, coot_version_dir_prefix);
       return url;
-   };
+   }
 
-   auto clear_the_grid = [] (GtkWidget *grid) {
-      GtkWidget *child = gtk_widget_get_first_child(GTK_WIDGET(grid));
-      while (child) {
-         GtkWidget *next = gtk_widget_get_next_sibling(child);
-         gtk_grid_remove(GTK_GRID(grid), child);
-         child = next; // for next round
-      }
-   };
-
-   auto file_to_string = [] (const std::string &dl_fn) {
+   std::string file_to_string(const std::string &dl_fn) {
       std::string s;
       std::fstream f(dl_fn);
       f.seekg(0, std::ios::end);
@@ -143,10 +130,9 @@ curlew_dialog() {
       s.assign((std::istreambuf_iterator<char>(f)),
                std::istreambuf_iterator<char>());
       return s;
-   };
+   }
 
-   class extension_info_t {
-   public:
+   struct extension_info_t {
       std::string name;
       std::string file_name;
       std::string version;
@@ -154,7 +140,7 @@ curlew_dialog() {
       std::string icon;
       std::string date;
       std::string checksum;
-      std::string installed_extension_version; // can be blank of course
+      std::string installed_extension_version;
       extension_info_t(std::string &name, std::string &file_name, std::string &version, std::string &description,
                        std::string &icon, std::string &date, std::string &checksum, const std::string &vv) :
          name(name), file_name(file_name), version(version), description(description), icon(icon),
@@ -173,13 +159,132 @@ curlew_dialog() {
       }
    };
 
+   std::vector<extension_info_t> fetch_curlew_extensions_info() {
+      std::vector<extension_info_t> extensions;
+      std::string url_prefix = get_curlew_url_prefix();
+      std::string json_url = coot::util::append_dir_file(url_prefix, "info/curlew-info.json");
+      xdg_t xdg;
+      std::string download_dir = xdg.get_download_dir();
+      download_dir = coot::get_directory(download_dir.c_str());
+      std::string dl_fn = coot::util::append_dir_file(download_dir, "curlew-info.json");
+      int r = coot_get_url(json_url, dl_fn);
+      if (coot::file_exists_and_non_empty(dl_fn)) {
+         std::string s = file_to_string(dl_fn);
+         try {
+            graphics_info_t g;
+            json j = json::parse(s);
+            json ls = j["extensions"];
+            for (std::size_t i=0; i<ls.size(); i++) {
+               json &item = ls[i];
+               std::string name;
+               std::string file_name;
+               std::string version;
+               std::string description;
+               std::string icon;
+               std::string date;
+               std::string checksum;
+               json::iterator it;
+               it = item.find(std::string("name"));
+               if (it != item.end()) { name = it.value(); }
+               it = item.find(std::string("file-name"));
+               if (it != item.end()) { file_name = it.value(); }
+               it = item.find(std::string("version"));
+               if (it != item.end()) { version = it.value(); }
+               it = item.find(std::string("description"));
+               if (it != item.end()) { description = it.value(); }
+               it = item.find(std::string("icon"));
+               if (it != item.end()) { icon = it.value(); }
+               it = item.find(std::string("date"));
+               if (it != item.end()) { date = it.value(); }
+               it = item.find(std::string("checksum"));
+               if (it != item.end()) { checksum = it.value(); }
+               std::string vv = g.get_version_for_extension(file_name);
+               extension_info_t ei(name, file_name, version, description, icon, date, checksum, vv);
+               extensions.push_back(ei);
+            }
+         }
+         catch (const std::runtime_error &e) {
+            std::cout << "WARNING::" << e.what() << std::endl;
+         }
+         catch(const nlohmann::detail::type_error &e) {
+            std::cout << "ERROR:: " << e.what() << std::endl;
+         }
+         catch(const nlohmann::detail::parse_error &e) {
+            std::cout << "ERROR:: " << e.what() << std::endl;
+         }
+      } else {
+         std::cout << "WARNING:: file " << dl_fn << " does not exist or was empty" << std::endl;
+      }
+      return extensions;
+   }
+
+} // namespace
+
+std::vector<std::pair<std::string, std::string> >
+curlew_get_extension_list() {
+   std::vector<std::pair<std::string, std::string> > result;
+   std::vector<extension_info_t> extensions = fetch_curlew_extensions_info();
+   for (const auto &e : extensions)
+      result.push_back(std::make_pair(e.name, e.file_name));
+   return result;
+}
+
+int
+curlew_download_and_install_extension(const std::string &extension_file_name) {
+   std::vector<extension_info_t> extensions = fetch_curlew_extensions_info();
+   std::string checksum;
+   bool found = false;
+   for (const auto &e : extensions) {
+      if (e.file_name == extension_file_name) {
+         checksum = e.checksum;
+         found = true;
+         break;
+      }
+   }
+   if (! found) {
+      std::cout << "WARNING:: curlew_install_extension(): extension " << extension_file_name
+                << " not found in curlew-info.json" << std::endl;
+      return 0;
+   }
    std::string url_prefix = get_curlew_url_prefix();
-   std::cout << ":::::::::::::: url_prefix: " << url_prefix << std::endl;
+   std::string scripts_dir = coot::util::append_dir_file(url_prefix, "scripts");
+   std::string url = coot::util::append_dir_file(scripts_dir, extension_file_name);
+   xdg_t xdg;
+   std::string download_dir = xdg.get_download_dir();
+   download_dir = coot::get_directory(download_dir.c_str());
+   std::string file_name_here = coot::util::append_dir_file(download_dir, extension_file_name);
+   coot_get_url(url, file_name_here);
+   if (coot::file_exists_and_non_empty(file_name_here)) {
+      std::pair<bool, std::string> checksum_result = checksums_match(file_name_here, checksum);
+      if (checksum_result.first) {
+         std::pair<bool, std::string> result = curlew_install_extension_file_gtk4(file_name_here);
+         if (result.first)
+            return 1;
+      } else {
+         std::cout << "WARNING:: curlew_install_extension(): checksums do not match for "
+                   << file_name_here << " " << checksum_result.second << std::endl;
+      }
+   } else {
+      std::cout << "WARNING:: curlew_install_extension(): download failed for " << url << std::endl;
+   }
+   return 0;
+}
+
+GtkWidget *
+curlew_dialog() {
+
+   auto clear_the_grid = [] (GtkWidget *grid) {
+      GtkWidget *child = gtk_widget_get_first_child(GTK_WIDGET(grid));
+      while (child) {
+         GtkWidget *next = gtk_widget_get_next_sibling(child);
+         gtk_grid_remove(GTK_GRID(grid), child);
+         child = next; // for next round
+      }
+   };
+
+   std::string url_prefix = get_curlew_url_prefix();
    std::string scripts_dir = coot::util::append_dir_file(url_prefix, "scripts");
 
-   std::cout << ":::::::::::::: scripts_dir " << scripts_dir << std::endl;
-
-   // std::string download_dir = "coot-download";
    xdg_t xdg;
    std::string download_dir = xdg.get_download_dir();
    download_dir = coot::get_directory(download_dir.c_str());
@@ -340,68 +445,8 @@ curlew_dialog() {
    add_header_to_grid(grid);
    gtk_widget_set_vexpand(grid, TRUE);
 
-   std::string json_url   = coot::util::append_dir_file(url_prefix, "info/curlew-info.json");
-
-   // std::cout << "debug:: here with json_url: " << json_url << std::endl;
-   // std::cout << "debug:: here with scripts_dir: " << scripts_dir << std::endl;
-   std::string dl_fn = coot::util::append_dir_file(download_dir, "curlew-info.json");
-   int r = coot_get_url(json_url, dl_fn);
-
-   if (coot::file_exists_and_non_empty(dl_fn)) {
-      std::string s = file_to_string(dl_fn);
-      std::vector<extension_info_t> extensions;
-      try {
-         graphics_info_t g;
-         json j = json::parse(s);
-         json ls = j["extensions"];
-         for (std::size_t i=0; i<ls.size(); i++) {
-            json &item = ls[i];
-            std::string name;
-            std::string file_name;
-            std::string version;
-            std::string description;
-            std::string icon;
-            std::string date;
-            std::string checksum;
-            json::iterator it;
-            it = item.find(std::string("name"));
-            if (it != item.end()) { name = it.value(); }
-            it = item.find(std::string("file-name"));
-            if (it != item.end()) { file_name = it.value(); }
-            it = item.find(std::string("version"));
-            if (it != item.end()) { version = it.value(); }
-            it = item.find(std::string("description"));
-            if (it != item.end()) { description = it.value(); }
-            it = item.find(std::string("icon"));
-            if (it != item.end()) { icon = it.value(); }
-            it = item.find(std::string("date"));
-            if (it != item.end()) { date = it.value(); }
-            it = item.find(std::string("checksum"));
-            if (it != item.end()) { checksum = it.value(); }
-            // set "have more recent" (or same) here
-            std::string vv = g.get_version_for_extension(file_name);
-
-            if (false)
-               std::cout << "debug:: " << " name: " << name << " file_name: " << file_name << " version: " << version
-                         << " description: " << description << " icon: " << icon << " date: " << date
-                         << " checksum: " << checksum << " vv: " << vv << std::endl;
-            extension_info_t ei(name, file_name, version, description, icon, date, checksum, vv);
-            extensions.push_back(ei);
-         }
-         add_extensions_to_grid(extensions, grid);
-      }
-      catch (const std::runtime_error &e) {
-         std::cout << "WARNING::" << e.what() << std::endl;
-      }
-      catch(const nlohmann::detail::type_error &e) {
-         std::cout << "ERROR:: " << e.what() << std::endl;
-      }
-      catch(const nlohmann::detail::parse_error &e) {
-         std::cout << "ERROR:: " << e.what() << std::endl;
-      }
-   } else {
-      std::cout << "WARNING:: file " << dl_fn << " does not exist or was empty" << std::endl;
-   }
+   std::vector<extension_info_t> extensions = fetch_curlew_extensions_info();
+   add_extensions_to_grid(extensions, grid);
 
    return dialog;
 

@@ -262,13 +262,12 @@
                   </object>
                 </child>
                 <child>
-                  <object class="GtkButton" id="single_map_properties_colour_button">
-                    <property name="label" translatable="yes"> Colour </property>
+                  <object class="GtkColorButton" id="single_map_properties_colour_button">
                     <property name="margin-top">4</property>
                     <property name="margin-bottom">4</property>
-                    <property name="focusable">1</property>
-                    <property name="receives_default">1</property>
-                    <signal name="clicked" handler="on_single_map_properties_colour_button_clicked" swapped="no"/>
+                    <property name="hexpand">1</property>
+                    <property name="use-alpha">0</property>
+                    <signal name="color-set" handler="on_single_map_properties_colour_button_color_set" swapped="no"/>
                   </object>
                 </child>
               </object>

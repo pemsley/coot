@@ -335,7 +335,7 @@ coot::util::slurp_parse_xmap_data(char *data,
    for(int i=0; i<number_of_labels; i++) {
       char *label = labels + i * 80;
       std::string s(label, 0, 80);
-      std::cout << "label length " << s.length() << std::endl;
+      // std::cout << "label length " << s.length() << std::endl;
       if (s.length() >= 8) {
          if (s.substr(0,8) == "PANDDA::") {
             std::cout << "debug:: slurp_parse_xmap_data() found a PANDDA::!" << std::endl;

@@ -479,7 +479,8 @@ void add_toolbar_subprocess_button(const std::string &button_label,
                std::cout << "DEBUG:: return_val " << return_val << std::endl;
                PyObject *error_thing = PyErr_Occurred();
                if (! error_thing) {
-                  std::cout << "INFO:: check_it() No Python error on callable check" << std::endl;
+                  // std::cout << "INFO:: check_it() No Python error on callable check" << std::endl;
+                  logger.log(log_t::INFO, "check_it() No Python error on callable check");
                } else {
                   std::cout << "ERROR:: while executing check_it() a python error occured " << std::endl;
                   PyObject *type, *value, *traceback;
@@ -527,7 +528,8 @@ void add_toolbar_subprocess_button(const std::string &button_label,
             std::cout << "DEBUG:: on_completion_args display_python null " << std::endl;
          PyObject *error_thing = PyErr_Occurred();
          if (! error_thing) {
-            std::cout << "INFO:: check_it() No Python error on printing on_completion_args" << std::endl;
+            // std::cout << "INFO:: check_it() No Python error on printing on_completion_args" << std::endl;
+            logger.log(log_t::INFO, "check_it() No Python error on printing on_completion_args");
          } else {
             std::cout << "ERROR:: while pringing on_completion_args a python error occured " << std::endl;
             PyObject *type, *value, *traceback;

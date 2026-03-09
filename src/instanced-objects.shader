@@ -119,6 +119,8 @@ struct LightSource {
 struct Material {
    float shininess;
    float specular_strength;
+   vec4 ambient;
+   vec4 diffuse;
    vec4 specular;
 };
 
@@ -159,7 +161,7 @@ void main() {
       if (light_sources[i].is_on) {
 
          // ambient
-         vec4 ambient = ct * light_sources[i].ambient * 0.2; // we are not using material here
+         vec4 ambient = ct * light_sources[i].ambient * material.ambient;
 
          // diffuse
          vec3 light_dir = light_sources[i].direction_in_molecule_coordinates_space.xyz;
@@ -169,7 +171,7 @@ void main() {
 
          float dp_raw = dot(norm_2, light_dir);
          float dp = max(dp_raw, 0.0);
-         vec4 diffuse = ct * light_sources[i].diffuse * dp * 0.8;
+         vec4 diffuse = ct * light_sources[i].diffuse * dp * 1.3 * material.diffuse;
 
          // specular
 
@@ -189,7 +191,7 @@ void main() {
 
          float spec = specular_strength * pow(dp_view_reflect, shininess);
          // spec = 0;
-         vec4 specular = 3.0 * spec * light_sources[i].specular;
+         vec4 specular = spec * light_sources[i].specular;
 
          // final
          running_col += ambient + diffuse + specular;

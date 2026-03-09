@@ -801,9 +801,10 @@ void user_defined_click_scm(int n_clicks, SCM func) {
     g.user_defined_click_scm_func = func;
     g.pick_cursor_maybe();
   } else {
-    std::cout<<"INFO:: number of clicks less than 1, cannot define user click"<<std::endl;
-  } 
-} 
+    // std::cout<<"INFO:: number of clicks less than 1, cannot define user click"<<std::endl;
+    logger.log(log_t::INFO, "number of clicks less than 1, cannot define user click");
+  }
+}
 #endif // USE_GUILE
 
 #ifdef USE_PYTHON
@@ -816,7 +817,8 @@ void user_defined_click_py(int n_clicks, PyObject *func) {
       Py_XINCREF(g.user_defined_click_py_func);
       g.pick_cursor_maybe();
    } else {
-      std::cout<<"INFO:: number of clicks less than 1, cannot define user click"<<std::endl;
+      // std::cout<<"INFO:: number of clicks less than 1, cannot define user click"<<std::endl;
+      logger.log(log_t::INFO, "number of clicks less than 1, cannot define user click");
    }
 }
 #endif // USE_PYTHON

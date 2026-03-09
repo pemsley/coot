@@ -9,6 +9,9 @@
  *
  */
 
+
+#ifdef USE_GEMMI
+
 #include "nef-utils.hh"
 
 #include <gemmi/cif.hpp>
@@ -1044,3 +1047,5 @@ int main(int argc, char* argv[]) {
 }
 
 #endif
+
+#endif // USE_GEMMI

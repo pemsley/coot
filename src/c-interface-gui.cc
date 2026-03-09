@@ -23,6 +23,7 @@
  * Fifth Floor, Boston, MA, 02110-1301, USA.
  */
 
+#include "gtk/gtk.h"
 #ifdef USE_PYTHON
 #ifndef PYTHONH
 #include <Python.h>
@@ -1816,9 +1817,11 @@ on_recentre_on_read_pdb_toggle_button_toggled (GtkButton       *button,
 					       gpointer         user_data)
 {
    if (gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(button))) {
-      std::cout << "INFO:: activated recentering on new coordinates.\n";
+      // std::cout << "INFO:: activated recentering on new coordinates.\n";
+      logger.log(log_t::INFO, "activated recentering on new coordinates.");
    } else {
-      std::cout << "INFO:: de-activated recentering on new coordinates.\n";
+      // std::cout << "INFO:: de-activated recentering on new coordinates.\n";
+      logger.log(log_t::INFO, "de-activated recentering on new coordinates.");
    }
 }
 
@@ -2128,6 +2131,45 @@ void network_get_accession_code_entity(const std::string &text, int mode) {
 }
 
 
+int fetch_pdb_redo(const std::string &code) {
+
+   auto join = [] (const std::string &d, const std::string &f) {
+      return d + std::string("/") + f;
+   };
+
+   int imol_coords = -1;
+   // 20240630-PE need to check that the file already exists before downloading it
+   xdg_t xdg;
+   std::string download_dir = join(xdg.get_cache_home().string(), "coot-download");
+   std::string dld = coot::get_directory(download_dir);
+   if (! dld.empty()) {
+      download_dir = dld;
+      std::string down_id = coot::util::downcase(code);
+      std::string server = "https://pdb-redo.eu";
+      std::string server_dir = std::string("db") + "/" + code;
+      std::string pdb_file_name = code + "_final.cif";
+      std::string mtz_file_name = code + "_final.mtz";
+      // make a "join()" function
+      std::string pdb_url = server + "/" + server_dir + "/" + pdb_file_name;
+      std::string mtz_url = server + "/" + server_dir + "/" + mtz_file_name;
+      std::string pdb_filepath = coot::util::append_dir_dir(download_dir, pdb_file_name);
+      std::string mtz_filepath = coot::util::append_dir_dir(download_dir, mtz_file_name);
+      int url_status = coot_get_url(pdb_url, pdb_filepath);
+      if (url_status == 0) {
+         imol_coords = read_coordinates(pdb_filepath);
+         url_status = coot_get_url(mtz_url, mtz_filepath);
+         if (url_status == 0) {
+            // why is auto_read_mtz() not a thing? Use a std::string arg
+            auto_read_make_and_draw_maps(mtz_filepath.c_str());
+         }
+      }
+   } else {
+      std::cout << "WARNING:: failed to make directory " << download_dir
+                << std::endl;
+   }
+   return imol_coords;
+}
+
 
 /*  ----------------------------------------------------------------------- */
 /*                  get by accession code:                                  */
@@ -2141,41 +2183,7 @@ void handle_get_accession_code(GtkWidget *frame, GtkWidget *entry) {
       return d + std::string("/") + f;
    };
 
-   auto fetch_pdb_redo = [join] (const std::string &code) {
-
-      // 20240630-PE need to check that the file already exists before downloading it
-      xdg_t xdg;
-      std::string download_dir = join(xdg.get_cache_home().string(), "coot-download");
-      std::string dld = coot::get_directory(download_dir);
-      if (! dld.empty()) {
-         download_dir = dld;
-         std::string down_id = coot::util::downcase(code);
-         std::string server = "https://pdb-redo.eu";
-         std::string server_dir = std::string("db") + "/" + code;
-         std::string pdb_file_name = code + "_final.pdb";
-         std::string mtz_file_name = code + "_final.mtz";
-         // make a "join()" function
-         std::string pdb_url = server + "/" + server_dir + "/" + pdb_file_name;
-         std::string mtz_url = server + "/" + server_dir + "/" + mtz_file_name;
-         std::string pdb_filepath = coot::util::append_dir_dir(download_dir, pdb_file_name);
-         std::string mtz_filepath = coot::util::append_dir_dir(download_dir, mtz_file_name);
-         int status = coot_get_url(pdb_url, pdb_filepath);
-         if (status == 0) {
-            read_pdb(pdb_filepath);
-            status = coot_get_url(mtz_url, mtz_filepath);
-            if (status == 0) {
-               // why is auto_read_mtz() not a thing? Use a std::string arg
-               auto_read_make_and_draw_maps(mtz_filepath.c_str());
-            }
-         }
-      } else {
-         std::cout << "WARNING:: failed to make directory " << download_dir
-                   << std::endl;
-      }
-
-   };
-
-   auto network_get = [fetch_pdb_redo] (const std::string &text, int n) {
+   auto network_get = [] (const std::string &text, int n) {
 
       if (n == COOT_ACCESSION_CODE_WINDOW_OCA) {
          network_get_accession_code_entity(text, 0); // coords
@@ -2989,8 +2997,9 @@ save_molecule_coords_combobox_changed(GtkWidget *combobox, gpointer data) {
 
    int imol = my_combobox_get_imol(GTK_COMBO_BOX(combobox));
 
-   std::cout << "INFO:: save_molecule_coords_button_select(): Save coords molecule save_imol now: "
-	     << imol << std::endl;
+   // std::cout << "INFO:: save_molecule_coords_button_select(): Save coords molecule save_imol now: "
+   //          << imol << std::endl;
+   logger.log(log_t::INFO, "save_molecule_coords_button_select(): Save coords molecule save_imol now:", imol);
 
    graphics_info_t::save_imol = imol;
 }
@@ -3865,7 +3874,8 @@ void save_coordinates_using_widget(GtkWidget *dialog) {
                                                G_FILE_QUERY_INFO_NONE, NULL, &error);
       const char *filename = g_file_info_get_name(file_info);
 
-      std::cout << "INFO:: save coordinates for molecule " << imol << " to file " << filename << std::endl;
+      // std::cout << "INFO:: save coordinates for molecule " << imol << " to file " << filename << std::endl;
+      logger.log(log_t::INFO, "save coordinates for molecule", imol, "to file", filename);
 
       graphics_info_t g;
       if (is_valid_model_molecule(imol)) {
@@ -4086,12 +4096,8 @@ void ideal_nucleic_acid_by_widget(GtkWidget *builder_dialog) {
    std::string type = "RNA";
    std::string form = "A";
    short int single_stranded_flag = 0;
-   // GtkWidget *entry = lookup_widget(builder_dialog, "nucleotide_sequence");
    GtkWidget *entry = widget_from_builder("nucleotide_sequence");
 
-   // GtkWidget *type_combobox   = lookup_widget(builder_dialog, "nucleotide_builder_type_combobox");
-   // GtkWidget *form_combobox   = lookup_widget(builder_dialog, "nucleotide_builder_form_combobox");
-   // GtkWidget *strand_combobox = lookup_widget(builder_dialog, "nucleotide_builder_strand_combobox");
    GtkWidget *type_combobox   = widget_from_builder("nucleotide_builder_type_combobox");
    GtkWidget *form_combobox   = widget_from_builder("nucleotide_builder_form_combobox");
    GtkWidget *strand_combobox = widget_from_builder("nucleotide_builder_strand_combobox");
@@ -4099,7 +4105,7 @@ void ideal_nucleic_acid_by_widget(GtkWidget *builder_dialog) {
    type = get_active_label_in_combobox(GTK_COMBO_BOX(type_combobox));
    form = get_active_label_in_combobox(GTK_COMBO_BOX(form_combobox));
    std::string strand = get_active_label_in_combobox(GTK_COMBO_BOX(strand_combobox));
-   if (strand == "Single")
+   if (strand == "Single Stranded")
       single_stranded_flag = 1;
    const char *txt = gtk_editable_get_text(GTK_EDITABLE(entry));
    if (txt) {
@@ -4269,7 +4275,12 @@ void fill_chi_angles_vbox(GtkWidget *vbox) {
 
    graphics_info_t g;
    gchar *strval = (gchar *) g_object_get_data(G_OBJECT(vbox), "strval");
-   g.fill_chi_angles_vbox(vbox, strval, graphics_info_t::EDIT_CHI);
+   if (strval) {
+      std::string s(strval);
+      g.fill_chi_angles_vbox(vbox, s, graphics_info_t::EDIT_CHI);
+   } else {
+      std::cout << "ERROR:: in fill_chi_angles_vbox(): null strval" << std::endl;
+   }
 }
 
 GtkWidget *wrapped_create_add_additional_representation_gui() {
@@ -5329,7 +5340,7 @@ curlew_install_extension_file(const std::string &file_name, const std::string &c
                      gtk_widget_set_visible(install_button, FALSE);
                      //  std::cout << "show uninstall_button  " << uninstall_button << std::endl;
                      gtk_widget_set_visible(uninstall_button, TRUE);
-                     
+
                   }
                } else {
                   std::cout << "No HOME env var" << std::endl;

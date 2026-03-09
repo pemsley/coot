@@ -199,7 +199,7 @@ void attach_css_style_class_to_overlays() {
    GtkWidget* overlay = widget_from_builder("main_window_graphics_overlay");
    GtkWidget* to_skip = widget_from_builder("main_window_graphics_hbox");
    for (GtkWidget* child = gtk_widget_get_first_child(overlay);
-       child != nullptr; 
+       child != nullptr;
        child = gtk_widget_get_next_sibling(child)) {
        if (child != to_skip)
           set_transparency_on_widget(child);
@@ -319,7 +319,8 @@ on_python_scripting_entry_key_pressed(GtkEventControllerKey *controller,
    gboolean handled = TRUE;
    bool control_is_pressed = (modifiers & GDK_CONTROL_MASK);
 
-   std::cout << "on_python_scripting_entry_key_pressed() keyval: " << keyval << " keycode: " << keycode << std::endl;
+   std::cout << "on_python_scripting_entry_key_pressed() keyval: " << keyval
+             << " keycode: " << keycode << std::endl;
 
    switch(keyval) {
       case GDK_KEY_Up: {
@@ -348,6 +349,13 @@ on_python_scripting_entry_key_pressed(GtkEventControllerKey *controller,
          };
          g_idle_add(func, NULL);
          break;
+      }
+      case GDK_KEY_e: {
+         if (control_is_pressed) {
+            std::cout << "handle ctrl-e" << std::endl;
+            int length = gtk_entry_get_text_length(GTK_ENTRY(entry));
+            gtk_editable_set_position(GTK_EDITABLE(entry), length);
+         }
       }
       default: {
          handled = FALSE;
@@ -530,15 +538,15 @@ void setup_aniso_hscale() {
    GtkAdjustment *adjustment = gtk_range_get_adjustment(GTK_RANGE(scale));
    if (adjustment) {
       gtk_adjustment_set_lower(adjustment, 0.0);
-      gtk_adjustment_set_upper(adjustment, 1.0);
+      gtk_adjustment_set_upper(adjustment, 0.99);
       gtk_adjustment_set_step_increment(adjustment, 1.0);
       gtk_adjustment_set_page_increment(adjustment, 5.0);
       gtk_adjustment_set_page_size(adjustment, 0.0);
       gtk_adjustment_set_value(adjustment, 0.5f);
       gtk_scale_set_draw_value(GTK_SCALE(scale), TRUE);
       gtk_scale_set_digits(GTK_SCALE(scale), 2);
-      gtk_scale_add_mark(GTK_SCALE(scale), 0.0, GTK_POS_BOTTOM, "0.0");
-      gtk_scale_add_mark(GTK_SCALE(scale), 1.0, GTK_POS_BOTTOM, "1.0");
+      gtk_scale_add_mark(GTK_SCALE(scale), 0.0,  GTK_POS_BOTTOM, "0.00");
+      gtk_scale_add_mark(GTK_SCALE(scale), 0.99, GTK_POS_BOTTOM, "0.99");
    }
 }
 

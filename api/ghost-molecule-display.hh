@@ -27,6 +27,7 @@ namespace coot {
          rtop(rtop_in), SelectionHandle(SelHnd_in), name(name_in) {
          display_it_flag = 1;
       }
+      virtual ~ghost_molecule_display_t() = default;
       virtual void update_bonds(mmdb::Manager *mol); // the parent's mol
 
       bool is_empty() const { return (SelectionHandle == -1); }

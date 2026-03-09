@@ -34,6 +34,8 @@
 #include "density-contour/occlusion.hh"
 #include "density-contour/transfer-occlusions.hh"
 #include "coot-molecule.hh"
+#include "utils/logging.hh"
+extern logging logger;
 
 // 20221126-PE set this for now. When it is restored, jiggle_fit_multi_thread_func_1 and jiggle_fit_multi_thread_func_2
 // will need to be transfered.
@@ -1006,7 +1008,8 @@ coot::molecule_t::fill_fobs_sigfobs() {
                   std::cout << "INFO:: reading " << Refmac_mtz_filename() << " using dataname: " << dataname << " provided "
                             << original_r_free_flags_p->num_obs() << " R-free flags\n";
             } else {
-               std::cout << "INFO:: no sensible R-free flag column label\n";
+               logger.log(log_t::INFO, "no sensible R-free flag column label");
+               // std::cout << "INFO:: no sensible R-free flag column label\n";
             }
          }
          catch (const clipper::Message_fatal &m) {
@@ -1346,17 +1349,28 @@ coot::molecule_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
       trial_mol.transform(trial_results[i_trial].first, centre_pt);
       coot::minimol::molecule fitted_mol = rigid_body_fit(trial_mol, xmap_masked, map_sigma);
       float this_score = density_scoring_function(fitted_mol, atom_numbers, xmap_masked);
-      std::cout << "INFO:: Jiggle-fit: optimizing trial "
-                << std::setw(3) << i_trial << ": prelim-score was "
-                << std::setw(7) << trial_results[i_trial].second << " post-fit "
-                << std::setw(5) << this_score;
-      if (this_score > best_score_so_far) {
-         best_score_so_far = this_score;
-         if (this_score > initial_score) {
-            std::cout << " ***";
+      {
+         std::string jf_msg = "Jiggle-fit: optimizing trial " + std::to_string(i_trial)
+            + ": prelim-score was " + std::to_string(trial_results[i_trial].second)
+            + " post-fit " + std::to_string(this_score);
+         if (this_score > best_score_so_far) {
+            best_score_so_far = this_score;
+            if (this_score > initial_score)
+               jf_msg += " ***";
          }
+         logger.log(log_t::INFO, jf_msg);
       }
-      std::cout << std::endl;
+      // std::cout << "INFO:: Jiggle-fit: optimizing trial "
+      //           << std::setw(3) << i_trial << ": prelim-score was "
+      //           << std::setw(7) << trial_results[i_trial].second << " post-fit "
+      //           << std::setw(5) << this_score;
+      // if (this_score > best_score_so_far) {
+      //    best_score_so_far = this_score;
+      //    if (this_score > initial_score) {
+      //       std::cout << " ***";
+      //    }
+      // }
+      // std::cout << std::endl;
       post_fit_trial_results[i_trial].second = this_score;
    }
 #endif // HAVE_CXX_THREAD
@@ -1384,7 +1398,8 @@ coot::molecule_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
       best_molecule = fitted_mol;
 
       float this_score = density_scoring_function(fitted_mol, atom_numbers, xmap_masked);
-      std::cout << "INFO:: chose new molecule with score " << this_score << std::endl;
+      logger.log(log_t::INFO, logging::ltw("chose new molecule with score "), logging::ltw(this_score));
+      // std::cout << "INFO:: chose new molecule with score " << this_score << std::endl;
       best_score = this_score;
    }
 
@@ -1393,7 +1408,8 @@ coot::molecule_t::fit_to_map_by_random_jiggle(mmdb::PPAtom atom_selection,
    //
    if (bested) {
       make_backup("fit to map by random jiggle");
-      std::cout << "INFO:: Improved fit from " << initial_score << " to " << best_score << std::endl;
+      logger.log(log_t::INFO, logging::ltw("Improved fit from "), logging::ltw(initial_score), logging::ltw(" to "), logging::ltw(best_score));
+      // std::cout << "INFO:: Improved fit from " << initial_score << " to " << best_score << std::endl;
 
       v = best_score;
       if (! best_molecule.is_empty()) {

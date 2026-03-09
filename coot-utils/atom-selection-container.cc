@@ -190,8 +190,9 @@ get_atom_selection(std::string pdb_name,
       std::vector<mmdb::Link> mmdb_links;
       for (const gemmi::Connection &con : st.connections) {
          if (false) // debugging
-            std::cout << "INFO:: gemmi connection: " << con.name
-                      << " " << con.partner1.str() << " " << con.partner2.str() << std::endl;
+            // std::cout << "INFO:: gemmi connection: " << con.name
+            //           << " " << con.partner1.str() << " " << con.partner2.str() << std::endl;
+            logger.log(log_t::INFO, "gemmi connection:", con.name, con.partner1.str(), con.partner2.str());
          mmdb::Link l;
          std::string atom_name = con.partner1.atom_name;
          bool atom_1_is_metal = false;

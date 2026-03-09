@@ -109,6 +109,7 @@ public:
    unsigned int type; // from molecular triangles object type
    std::chrono::time_point<std::chrono::system_clock>  time_constructed;
    bool is_headless; // i.e. don't try to use OpenGL calls because we've been imported into python, blender or jupyter.
+   bool mesh_is_semi_transparent;
    static std::string  _(int ierr);
 
    // Mesh() { init(); }

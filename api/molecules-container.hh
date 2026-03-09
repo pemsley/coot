@@ -696,6 +696,24 @@ public:
    //! @return the new molecule index on success and -1 on failure
    int read_small_molecule_cif(const std::string &file_name);
 
+   //! Read an Amber NetCDF trajectory file
+   //!
+   //! Reads trajectory frames and creates a multi-model molecule. Requires NetCDF support
+   //! to be compiled in (--with-netcdf at configure time).
+   //!
+   //! @param imol_coords is the model molecule index providing the topology (atom names, residues)
+   //! @param trajectory_file_name is the path to the Amber NetCDF trajectory file (.nc)
+   //! @param start_frame is the first frame to read (0-indexed), -1 for first frame
+   //! @param end_frame is the last frame to read (0-indexed), -1 for last frame
+   //! @param stride read every nth frame (1 = all frames)
+   //!
+   //! @return the new molecule index on success and -1 on failure
+   int read_amber_trajectory(int imol_coords,
+                             const std::string &trajectory_file_name,
+                             int start_frame,
+                             int end_frame,
+                             int stride);
+
    //! Print the secondary structure information
    //!
    //! @param imol is the model molecule index
@@ -2906,7 +2924,7 @@ public:
    //! @param include_non_bonded_contacts is the flag to include non bonded contacts
    //!
    //! @return a vector/list of interesting geometry - one for each chain involved
-   std::vector<coot::geometry_distortion_info_container_t>
+   std::vector<coot::geometry_distortion_info_pod_container_t>
    get_ligand_validation_vs_dictionary(int imol, const std::string &ligand_cid, bool include_non_bonded_contacts);
 
    //! General fragment distortion analysis
@@ -2916,7 +2934,7 @@ public:
    //! @param include_non_bonded_contacts is the flag to include non bonded contacts
    //!
    //! @return a vector/list of interesting geometry - one for each chain involved
-   std::vector<coot::geometry_distortion_info_container_t>
+   std::vector<coot::geometry_distortion_info_pod_container_t>
    get_validation_vs_dictionary_for_selection(int imol, const std::string &selection_cid, bool include_non_bonded_contacts);
 
    //! Get ligand distortion
@@ -3770,6 +3788,31 @@ public:
    std::vector<float> get_vertices_for_blender(int imol);
    //! Function for Blender interface
    std::vector<int>   get_triangles_for_blender(int imol);
+
+   // -------------------------------- Pyrogen ---------------------------------------
+
+   //! make a dictionary and create a molecule
+   //!
+   //! @param ccd_file_name the input SMILES string
+   //! @param compound_id is the compound_id that should be assigned to the new dictionary
+   //!        and molecule
+   //! @return the new molecule index or -1 on failure
+   int pyrogen_from_SMILES(const std::string &smiles_string, const std::string &compound_id);
+
+   //! make a dictionary and create a molecule
+   //!
+   //! @param ccd_file_name the input cif file file-name
+   //! @return the new molecule index or -1 on failure
+   int pyrogen_from_ccd_file(const std::string &ccd_file_name);
+
+   //! this is the interface to use from the molecule sketcher (say) where the
+   //! calling function has an RDKit Mol
+   //!
+   //! @param rdkit_mol_pickled_string the rdkit mol as a picked string
+   //! @param compound_id is the compound_id that should be assigned to the new dictionary
+   //!        and molecule
+   //! @return the new molecule index or -1 on failure
+   int pyrogen_from_rdkit_mol_pickle_base64(const std::string &rdkit_mol_pickled_string, const std::string &compound_id);
 
    // -------------------------------- Other ---------------------------------------
 

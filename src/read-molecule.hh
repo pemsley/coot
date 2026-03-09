@@ -55,12 +55,31 @@ int read_pdb(const std::string &filename);
 int read_coordinates(const std::string &filename);
 
 /*! \brief read coordinates from a string
- * 
+ *
  * @param file_as_string a string which is the contents of a file
  * @return the new molecule index. Return -1 on failure
  *
  */
 int read_coordinates_as_string(const std::string &file_as_string, const std::string &molecule_name);
+
+/*! \brief read an Amber NetCDF trajectory file
+ *
+ * Reads trajectory frames and creates a multi-model molecule. Requires NetCDF support
+ * to be compiled in (--with-netcdf at configure time).
+ *
+ * @param imol_coords is the model molecule index providing the topology (atom names, residues)
+ * @param trajectory_file_name is the path to the Amber NetCDF trajectory file (.nc)
+ * @param start_frame is the first frame to read (0-indexed), -1 for first frame
+ * @param end_frame is the last frame to read (0-indexed), -1 for last frame
+ * @param stride read every nth frame (1 = all frames)
+ * @return the new molecule index. Return -1 on failure
+ *
+ */
+int read_amber_trajectory(int imol_coords,
+                          const std::string &trajectory_file_name,
+                          int start_frame,
+                          int end_frame,
+                          int stride);
 
 /* pass back the newly created molecule number */
 /*! \brief a synonym for read-pdb.  Read the coordinates from

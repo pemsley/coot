@@ -1057,9 +1057,11 @@ molecule_class_info_t::ncs_averaged_maps(const clipper::Xmap<float> &xmap_in,
          // so now we have a map that has been added.  Now lets divide
          // all the points by the number of maps that contribute:
          float factor = 1.0/float(1 + reference_matchers[iref].size());
-         std::cout << "INFO:: There were " << 1/factor
-                   << " maps contributing to the average\n";
-         std::cout << "INFO:: rescaling by " << factor << std::endl;
+         // std::cout << "INFO:: There were " << 1/factor
+         //            << " maps contributing to the average\n";
+         logger.log(log_t::INFO, "There were", 1/factor, "maps contributing to the average");
+         // std::cout << "INFO:: rescaling by " << factor << std::endl;
+         logger.log(log_t::INFO, "rescaling by", factor);
          clipper::Xmap_base::Map_reference_index irx;
          int n_masked = 0;
          int n_averaged = 0;
@@ -1074,10 +1076,14 @@ molecule_class_info_t::ncs_averaged_maps(const clipper::Xmap<float> &xmap_in,
                n_masked++;
             }
          }
-         std::cout << "INFO:: " << n_averaged << " out of " << n_total
-                   << " (" << 100.0*float(n_averaged)/float(n_total)
-                   << "%) map points " << " were masked out of NCS average target volume, "
-                   << " chain " << reference_ids[iref] << std::endl;
+         // std::cout << "INFO:: " << n_averaged << " out of " << n_total
+         //            << " (" << 100.0*float(n_averaged)/float(n_total)
+         //            << "%) map points " << " were masked out of NCS average target volume, "
+         //            << " chain " << reference_ids[iref] << std::endl;
+         logger.log(log_t::INFO, std::to_string(n_averaged) + " out of " + std::to_string(n_total) +
+                    " (" + std::to_string(100.0f*float(n_averaged)/float(n_total)) +
+                    "%) map points were masked out of NCS average target volume, chain " +
+                    reference_ids[iref]);
      //std::string name = "NCS average of Chain ";
      std::string name = "Map ";
      name += imol_map_name;
@@ -1097,7 +1103,8 @@ molecule_class_info_t::install_ghost_map(const clipper::Xmap<float> &map_in, std
                                          int swap_difference_map_colours_flag,
                                          float contour_level_in) {
 
-   std::cout << "INFO:: installing ghost map with name :" << name_in << std::endl;
+   // std::cout << "INFO:: installing ghost map with name :" << name_in << std::endl;
+   logger.log(log_t::INFO, "installing ghost map with name:", name_in);
 
    is_dynamically_transformed_map_flag = 1;
    xmap = map_in;
@@ -1246,7 +1253,8 @@ molecule_class_info_t::ncs_chains_match_p(const std::vector<std::pair<std::strin
                }
                int n_count = a.size();
                if (false)
-                  std::cout << "INFO:: NCS chain comparison " << n_match << "/" << v1.size() << std::endl;
+                  // std::cout << "INFO:: NCS chain comparison " << n_match << "/" << v1.size() << std::endl;
+                  logger.log(log_t::INFO, "NCS chain comparison " + std::to_string(n_match) + "/" + std::to_string(v1.size()));
                if (n_count > 0) {
                   // float hit_rate = float(n_match)/float(n_count);
                   // case where protein is 1 to 123 but NAP at 500 fails.  So not n_count but v1.size():
@@ -1992,7 +2000,8 @@ molecule_class_info_t::set_ncs_master_chain(const std::string &new_master_chain_
 
       if (! ncs_ghosts.empty()) {
          update_ghosts();
-         std::cout << "INFO:: set_ncs_master_chain Constructed " << ncs_ghosts.size() << " ghosts\n";
+         // std::cout << "INFO:: set_ncs_master_chain Constructed " << ncs_ghosts.size() << " ghosts\n";
+         logger.log(log_t::INFO, "set_ncs_master_chain Constructed", ncs_ghosts.size(), "ghosts");
          for (unsigned int ighost=0; ighost<ncs_ghosts.size(); ighost++) {
             std::cout << "   Ghost info:: " << ncs_ghosts[ighost].name << std::endl;
          }
@@ -2075,7 +2084,8 @@ molecule_class_info_t::set_display_ncs_ghost_chain(int ichain, int state) {
    }
 
    //    std::cout << "   DEBUG:: end of set_display_ncs_ghost_chain: " << std::endl;
-   std::cout << "INFO:: There are " << ncs_ghosts.size() << " ghosts" << std::endl;
+   // std::cout << "INFO:: There are " << ncs_ghosts.size() << " ghosts" << std::endl;
+   logger.log(log_t::INFO, "There are", ncs_ghosts.size(), "ghosts");
    for (unsigned int ighost=0; ighost<ncs_ghosts.size(); ighost++) {
       std::cout << "         ighost: " << ighost<< "\n"
                 <<  "        name: \""           << ncs_ghosts[ighost].name << "\"" << "\n"

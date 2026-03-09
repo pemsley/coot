@@ -2155,3 +2155,35 @@ on_show_logging_menubutton_checkbutton_toggled(GtkCheckButton *checkbutton,
    }
 
 }
+
+// ----------------------------------------------------------------
+
+extern "C" G_MODULE_EXPORT
+void
+on_start_rpc_server_cancel_button_clicked(G_GNUC_UNUSED GtkButton       *button,
+                                          G_GNUC_UNUSED gpointer         user_data) {
+
+   GtkWidget *frame = widget_from_builder("start_rpc_server_frame");
+   gtk_widget_set_visible(frame, FALSE);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_start_rpc_server_ok_button_clicked(G_GNUC_UNUSED GtkButton       *button,
+                                      G_GNUC_UNUSED gpointer         user_data) {
+
+   GtkWidget *frame = widget_from_builder("start_rpc_server_frame");
+   GtkWidget *entry = widget_from_builder("start_rpc_server_entry");
+   const char *t = gtk_editable_get_text(GTK_EDITABLE(entry));
+   try {
+      int port_num = coot::util::string_to_int(std::string(t));
+      graphics_info_t::try_port_listener = 1;
+      graphics_info_t::remote_control_port_number = port_num;
+      graphics_info_t::remote_control_hostname = "localhost";
+      make_socket_listener_maybe();
+   }
+   catch (const std::runtime_error &e) {
+      std::cout << "WARNING::" << e.what() << std::endl;
+   }
+   gtk_widget_set_visible(frame, FALSE);
+}

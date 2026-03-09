@@ -153,7 +153,49 @@ for entity in data[pdb_id]:
         print(f"  Residue: {ligand['author_residue_number']}")
 ```
 
-### 6. Assembly Information
+### 6. Finding All Structures Containing a Specific Compound
+
+**BEST METHOD:** Use the `/pdb/compound/in_pdb/{comp_id}` endpoint to get all structures containing a specific compound:
+
+```python
+import json
+
+comp_id = "SPM"  # Spermine 3-letter code
+url = f"https://www.ebi.ac.uk/pdbe/api/pdb/compound/in_pdb/{comp_id}"
+result = coot.coot_get_url_as_string_py(url)
+data = json.loads(result)
+
+if comp_id in data:
+    # data[comp_id] is a list of dictionaries with 'pdb_id' keys
+    pdb_entries = data[comp_id]
+    
+    # Extract PDB IDs
+    pdb_ids = []
+    for entry in pdb_entries:
+        if isinstance(entry, dict) and 'pdb_id' in entry:
+            pdb_ids.append(entry['pdb_id'].upper())
+        elif isinstance(entry, str):
+            pdb_ids.append(entry.upper())
+    
+    pdb_ids.sort()
+    
+    print(f"Found {len(pdb_ids)} structures containing {comp_id}")
+    
+    # Print in columns
+    for i, pdb_id in enumerate(pdb_ids, 1):
+        print(f"{pdb_id}", end="  ")
+        if i % 10 == 0:
+            print()
+    
+    if len(pdb_ids) % 10 != 0:
+        print()
+```
+
+**Use case:** "Find all structures with non-covalently bound spermine" → Use compound code SPM
+
+**Note:** This REST API endpoint is more reliable than Solr search for compound queries, as Solr may not index all compound fields consistently.
+
+### 7. Assembly Information
 
 Get biological assembly information:
 
@@ -174,6 +216,8 @@ for assembly in data[pdb_id]:
 ## Solr Search API
 
 The Solr search API allows complex queries across the entire PDB.
+
+**Important Note on Compound Searches:** For finding all structures containing a specific compound, use the REST API endpoint `/pdb/compound/in_pdb/{comp_id}` instead of Solr. Solr searches with `ligand_name` or `chem_comp_id` fields may not return complete results, as not all compound identifiers are consistently indexed in the Solr database.
 
 ### Basic Search Syntax
 
@@ -292,6 +336,58 @@ def check_ligand_revision(comp_id):
 check_ligand_revision("AXI")
 ```
 
+### Finding Structures by Compound
+
+Find all PDB structures containing a specific compound (most reliable method):
+
+```python
+import json
+
+def find_structures_with_compound(comp_id):
+    """
+    Find all structures containing a specific compound
+    
+    Args:
+        comp_id: 3-letter compound code (e.g., "SPM" for spermine, "ATP", "HEM")
+    
+    Returns:
+        List of PDB IDs
+    """
+    url = f"https://www.ebi.ac.uk/pdbe/api/pdb/compound/in_pdb/{comp_id}"
+    
+    try:
+        result = coot.coot_get_url_as_string_py(url)
+        data = json.loads(result)
+        
+        if comp_id in data:
+            pdb_entries = data[comp_id]
+            
+            # Handle both dict and string formats
+            pdb_ids = []
+            for entry in pdb_entries:
+                if isinstance(entry, dict) and 'pdb_id' in entry:
+                    pdb_ids.append(entry['pdb_id'].upper())
+                elif isinstance(entry, str):
+                    pdb_ids.append(entry.upper())
+            
+            pdb_ids.sort()
+            return pdb_ids
+        else:
+            print(f"No structures found with compound {comp_id}")
+            return []
+            
+    except Exception as e:
+        print(f"Error querying for compound {comp_id}: {e}")
+        return []
+
+# Example usage
+spm_structures = find_structures_with_compound("SPM")  # Spermine
+print(f"Found {len(spm_structures)} structures with spermine")
+
+atp_structures = find_structures_with_compound("ATP")  # ATP
+print(f"Found {len(atp_structures)} structures with ATP")
+```
+
 ### Finding Related Structures
 
 Search for structures with the same ligand and protein:
@@ -401,6 +497,7 @@ for pdb_id in pdb_ids:
 |---------|----------|
 | Structure summary | `/pdb/entry/summary/{pdb_id}` |
 | Compound info | `/pdb/compound/summary/{comp_id}` |
+| **All structures with compound** | **`/pdb/compound/in_pdb/{comp_id}`** |
 | Validation outliers | `/validation/residuewise_outlier_summary/entry/{pdb_id}` |
 | Structure status | `/pdb/entry/status/{pdb_id}` |
 | Ligand binding sites | `/pdb/entry/ligand_monomers/{pdb_id}` |

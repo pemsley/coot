@@ -42,7 +42,8 @@
 //! @param ColorScheme_py colour-scheme-name, e.g. "colorRampChainsScheme" or "Chain" or "colorBySecondaryScheme"
 //! @param style_py the representation style, e.g. "Ribbon" or "MolecularSurface"
 //! @return -1 on failure, the representation index on success
-int add_molecular_representation_py(int imol, PyObject *atom_selection_py, PyObject *ColorScheme_py, PyObject *style_py);
+int add_molecular_representation_py(int imol, PyObject *atom_selection_py, PyObject *ColorScheme_py, PyObject *style_py,
+                                    int secondary_structure_usage_type);
 #endif // USE_PYTHON
 
 #ifdef USE_GUILE
@@ -57,7 +58,8 @@ int add_molecular_representation_scm(int imol, SCM atom_selection_scm, SCM Color
 //! @param name the name to appear in the display control widget
 //! @return will be -1 - the return value currently has no meaning.
 //!
-int add_ribbon_representation_with_user_defined_colours(int imol, const std::string &name);
+int add_ribbon_representation_with_user_defined_colours(int imol, const std::string &name,
+                                                        int secondary_structure_usage_type);
 
 //! \brief remove molecular representation
 //!

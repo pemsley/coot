@@ -594,10 +594,13 @@ coot::atom_overlaps_container_t::make_overlaps() {
                } else {
                   if (hbi.is_h_bond_H_and_acceptor) {
                      if (d < (dist_crit + 0.5)) {
-                        std::cout << "INFO:: " << atom_spec_t(cr_at) << "" << " and " << atom_spec_t(n_at)
-                                  << " r_1 " << r_1 << " and r_2 " << r_2  <<  " and d " << d
-                                  << " but might be h-bond anyway (is this strange?)"
-                                  << std::endl;
+                        // std::cout << "INFO:: " << atom_spec_t(cr_at) << "" << " and " << atom_spec_t(n_at)
+                        //           << " r_1 " << r_1 << " and r_2 " << r_2  <<  " and d " << d
+                        //           << " but might be h-bond anyway (is this strange?)"
+                        //           << std::endl;
+                        logger.log(log_t::INFO, atom_spec_t(cr_at).format(), "and", atom_spec_t(n_at).format(),
+                                   "r_1", r_1, "and r_2", r_2, "and d", d,
+                                   "but might be h-bond anyway (is this strange?)");
                         // double o = 0;
                         // atom_overlap_t ao(cr_at, n_at, r_1, r_2, o);
                         // ao.is_h_bond = true;
@@ -612,19 +615,30 @@ coot::atom_overlaps_container_t::make_overlaps() {
 
    std::sort(baddies.begin(), baddies.end(), baddie_attribs_t::sorter);
    for(auto const &b : baddies) {
-      std::cout << "INFO:: make_overlaps(): baddie: "
-                << atom_spec_t(b.cr_at) << "" << " and " << atom_spec_t(b.n_at)
-                << " r_1 " << std::left << std::setw(4) << b.r_1 << " and r_2 "
-                << std::left << std::setw(4) << b.r_2
-                <<  " and d " << std::setw(4) << b.d << " overlap " << b.o;
-      // << " IS H-Bond (ligand donor)" << std::endl;
+      // std::cout << "INFO:: make_overlaps(): baddie: "
+      //           << atom_spec_t(b.cr_at) << "" << " and " << atom_spec_t(b.n_at)
+      //           << " r_1 " << std::left << std::setw(4) << b.r_1 << " and r_2 "
+      //           << std::left << std::setw(4) << b.r_2
+      //           <<  " and d " << std::setw(4) << b.d << " overlap " << b.o;
+      // // << " IS H-Bond (ligand donor)" << std::endl;
+      // if (b.is_hydrogen_bond) {
+      //    if (b.hydrogen_atom_is_first_atom)
+      //       std::cout << " is H-bond (ligand donor)";
+      //    else
+      //       std::cout << " is H-bond (ligand acceptor)";
+      // }
+      // std::cout << std::endl;
+      std::string hb_str;
       if (b.is_hydrogen_bond) {
          if (b.hydrogen_atom_is_first_atom)
-            std::cout << " is H-bond (ligand donor)";
+            hb_str = "is H-bond (ligand donor)";
          else
-            std::cout << " is H-bond (ligand acceptor)";
+            hb_str = "is H-bond (ligand acceptor)";
       }
-      std::cout << std::endl;
+      logger.log(log_t::INFO, "make_overlaps(): baddie: " + atom_spec_t(b.cr_at).format() +
+                 " and " + atom_spec_t(b.n_at).format() +
+                 " r_1 " + std::to_string(b.r_1) + " and r_2 " + std::to_string(b.r_2) +
+                 " and d " + std::to_string(b.d) + " overlap " + std::to_string(b.o) + " " + hb_str);
    }
 }
 
@@ -905,9 +919,12 @@ coot::atom_overlaps_container_t::h_bond_info_t::h_bond_info_t(mmdb::Atom *ligand
       if (env_atom->GetUDData(udd_h_bond_type_handle, hb_2) == mmdb::UDDATA_Ok) {
 
          if (false) // 20240325-PE used to help debug the error message below (not an error, I now think)
-            std::cout << "INFO::  h_bond_info_t() env_atom->GetUDData(udd_h_bond_type_handle, hb_2) worked with handle "
-                      << udd_h_bond_type_handle << " ligand-atom: " << coot::atom_spec_t(ligand_atom) << " env_atom: "
-                      << env_atom << " " << coot::atom_spec_t(env_atom) << std::endl;
+            // std::cout << "INFO::  h_bond_info_t() env_atom->GetUDData(udd_h_bond_type_handle, hb_2) worked with handle "
+            //           << udd_h_bond_type_handle << " ligand-atom: " << coot::atom_spec_t(ligand_atom) << " env_atom: "
+            //           << env_atom << " " << coot::atom_spec_t(env_atom) << std::endl;
+            logger.log(log_t::INFO, "h_bond_info_t() env_atom->GetUDData(udd_h_bond_type_handle, hb_2) worked with handle",
+                       udd_h_bond_type_handle, "ligand-atom:", coot::atom_spec_t(ligand_atom).format(),
+                       "env_atom:", coot::atom_spec_t(env_atom).format());
 #if 0
         if (ligand_atom->GetSeqNum() == 901 || env_atom->GetSeqNum() == 901) {
           std::cout << "h_bond_info_t constructor " << atom_spec_t(ligand_atom)   << " "

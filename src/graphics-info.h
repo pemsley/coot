@@ -1476,9 +1476,9 @@ public:
    static void pointer_atom_molecule_combobox_changed(GtkWidget *combobox, gpointer data);
 
    // return success status
-   int intelligent_next_atom_centring(GtkWidget *widget);
-   int intelligent_previous_atom_centring(GtkWidget *widget);
-   int intelligent_near_atom_centring(GtkWidget *widget, const std::string &direction);
+   int intelligent_next_atom_centring();
+   int intelligent_previous_atom_centring();
+   int intelligent_near_atom_centring(const std::string &direction);
 
    // this can be used for symmetry atom pick:
    std::pair<coot::Cartesian, coot::Cartesian> get_front_and_back_for_pick() const;
@@ -2900,6 +2900,9 @@ public:
 #ifdef DO_RAMA_PLOT
    static coot::rama_plot *edit_phi_psi_plot;
 #endif
+
+   // so that the user can add their own labels to screen shots
+   static bool draw_distance_labels_user_control;
 
    // distances and angles displayed on screen
    // uses distance_objects vector

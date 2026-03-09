@@ -24,7 +24,6 @@
 #define CC_INTERFACE_HH
 
 #include "geometry/residue-and-atom-specs.hh"
-#include "pytypedefs.h"
 #ifdef USE_PYTHON
 #include "Python.h"
 #endif
@@ -2247,7 +2246,13 @@ void fetch_and_superpose_alphafold_models(int imol);
 //! \brief return the model number
 int fetch_alphafold_model_for_uniprot_id(const std::string &uniprot_id);
 
-//! \brief Loads up map frmo emdb
+//! \brief Loads up map from emdb
+//!
+//! This is an asynchronous function and wil trigger a download subthread
+//! and return immediately.
+//!
+//! @param emd_accession_code the EMDB accession code
+//!
 void fetch_emdb_map(const std::string &emd_accession_code);
 
 //! \brief return the COD entry, return a molecule index
@@ -2437,7 +2442,16 @@ void set_effects_shader_brightness(float f);
 void set_effects_shader_gamma(float f);
 
 //! \brief set bond smoothness (default 1 (not smooth))
+//!
+//! Use `fac` 3 for screenshots
+//!
+//! @param fac (1: course, 2: smooth, 3: fine)
 void set_bond_smoothness_factor(unsigned int fac);
+
+//! \brief increase bond smoothness
+//!
+//! and if it's currently at 3, reset back to 1
+void toggle_bond_smoothness_factor();
 
 //! \brief set the draw state of the Ramachandran plot display during Real Space Refinement
 void set_draw_gl_ramachandran_plot_during_refinement(short int state);
@@ -2680,6 +2694,12 @@ void set_gaussian_surface_fft_b_factor(float f);
 //! mode = 2 means the chain colour is determined from NCS/molecular symmetry (so
 //!         that, in this mode, chains with the same sequence have the same colour
 void set_gaussian_surface_chain_colour_mode(short int mode);
+
+//! \brief set the opacity for a given molecule's gaussian_surface
+//!
+//! @param imol the molecule index
+//! @param opacity between 0. and 1.0
+void set_gaussian_surface_opacity(int imol, float opacity);
 
 void show_gaussian_surface_overlay();
 
