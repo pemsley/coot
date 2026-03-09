@@ -998,8 +998,8 @@ void CanvasMolecule::lower_from_rdkit(bool sanitize_after, bool with_qed) {
         }
     }
 
-    // Is this what I need?
-    RDKit::Chirality::addStereoAnnotations(*this->rdkit_molecule);
+    // Is this what I need? Annotations?
+    // RDKit::Chirality::addStereoAnnotations(*this->rdkit_molecule);
 
     /// 2.1 Compute geometry
     auto geometry = this->compute_molecule_geometry();
