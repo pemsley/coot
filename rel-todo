@@ -1,5 +1,10 @@
 --- Items ---
 
+o coot atom overlap score and clashscore for Robbie's set of
+  structures.
+
+o twist the fibonacci sphere as the radius changes.
+
 o coot version of clashcore? Actually try to do
   what probe does - not atom overlaps.
 
@@ -18,11 +23,8 @@ o import gesamt into libcootapi. Do soon.
 
 o XDG bernie. Need to move where curlew packages are installed.
 
-o coot atom overlap score and clashscore for Robbie's set of
-  structures.
-
-o add this to the api
-gemmi repackage --assembly - is this a real thing even?
+o add this to the api:
+  gemmi repackage --assembly - is this a real thing even?
 
 o linear interpolation for "density at point" in chapi.
   For Lucy.
