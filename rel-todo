@@ -1,14 +1,21 @@
 --- Items ---
 
+o don't forget the rotamer values from new coot.
+* Done.
+
+o Missing sidechains skill.
+
+o MM rotamer functions
+
+o John Beale
+
 o XDG bernie
 
 o update the skills.
 
 o how to you invoke "get goodsell extension" from Python?
 
-o ctrl left-mouse drag, but release control firsst, then drag a pixel
-
-o John Beale
+o ctrl left-mouse drag, but release control first, then drag a pixel
 
 o validate flatpak
 
@@ -50,6 +57,8 @@ o Science: AXI analysis
 
 o Science?: output ligand mmcif from libcoootapi
 
+o conkit for coot?
+
 o think about how to make an atom selection for alt conformation
   generation. Shift-click to toggle addition
 
@@ -57,6 +66,9 @@ o after using Lhasa, the generated dictionary should be made
   available to post-moorhen program/cloud.
   Likewise after using pyrogen, the dictionary should be
   available - so that Acedrg, say, can clean it up.
+
+o RNA single-straded comes double-stranded
+* Done.
 
 o check that these work as expected (Martin Maly anom test):
    coot.set_map_radius(7.52)
@@ -257,9 +269,6 @@ o have another bash at calculating occlusion
 
 o Use gemmi tar files in build-it-3-3
 * Done.
-
-o don't forget the rotamer values from new coot.
-  Also other MM rotamer functions
 
 o bonds and angles etc validation? in libcootapi.
 
