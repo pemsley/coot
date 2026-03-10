@@ -429,18 +429,20 @@ CanvasMolecule::BondGeometry CanvasMolecule::bond_geometry_from_rdkit(RDKit::Bon
             return BondGeometry::Unspecified;
         }
         case RDKit::Bond::BEGINWEDGE:{
-            return BondGeometry::WedgeTowardsSecond;
-        }
-        case RDKit::Bond::BEGINDASH:{
-            return BondGeometry::DashedTowardsSecond;
-        }
-        case RDKit::Bond::ENDDOWNRIGHT:{
             // todo: make sure that this makes sense
             return BondGeometry::WedgeTowardsFirst;
         }
-        case RDKit::Bond::ENDUPRIGHT:{
+        case RDKit::Bond::BEGINDASH:{
             // todo: make sure that this makes sense
             return BondGeometry::DashedTowardsFirst;
+        }
+        case RDKit::Bond::ENDDOWNRIGHT:{
+            // todo: make sure that this makes sense
+            return BondGeometry::WedgeTowardsSecond;
+        }
+        case RDKit::Bond::ENDUPRIGHT:{
+            // todo: make sure that this makes sense
+            return BondGeometry::DashedTowardsSecond;
         }
     }
 }
@@ -479,16 +481,20 @@ RDKit::Bond::BondDir CanvasMolecule::bond_geometry_to_rdkit(BondGeometry geom) n
             return RDKit::Bond::BondDir::UNKNOWN;
         }
         case BondGeometry::WedgeTowardsFirst: {
-            return RDKit::Bond::BondDir::ENDDOWNRIGHT;
-        }
-        case BondGeometry::WedgeTowardsSecond: {
+            // todo: make sure that this makes sense
             return RDKit::Bond::BondDir::BEGINWEDGE;
         }
+        case BondGeometry::WedgeTowardsSecond: {
+            // todo: make sure that this makes sense
+            return RDKit::Bond::BondDir::ENDDOWNRIGHT;
+        }
         case BondGeometry::DashedTowardsFirst: {
-            return RDKit::Bond::BondDir::ENDUPRIGHT;
+            // todo: make sure that this makes sense
+            return RDKit::Bond::BondDir::BEGINDASH;
         }
         case BondGeometry::DashedTowardsSecond: {
-            return RDKit::Bond::BondDir::BEGINDASH;
+            // todo: make sure that this makes sense
+            return RDKit::Bond::BondDir::ENDUPRIGHT;
         }
     }
 }
