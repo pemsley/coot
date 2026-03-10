@@ -547,8 +547,8 @@ graphics_info_t::increase_clipping_front() {
 
    if (perspective_projection_flag) {
       double l = eye_position.z;
-      float screen_z_near_perspective_limit = l * 0.99;
-      float v = screen_z_near_perspective * 1.05263;
+      float screen_z_near_perspective_limit = l * 0.995;
+      float v = screen_z_near_perspective * 1.02;
       if (v < screen_z_near_perspective_limit) {
          if (v > 2.0)
             screen_z_near_perspective = v;
@@ -584,8 +584,8 @@ graphics_info_t::decrease_clipping_front() {
 
    if (perspective_projection_flag) {
       double l = eye_position.z;
-      float screen_z_near_perspective_limit = l * 0.99;
-      float v = screen_z_near_perspective * 0.95;
+      float screen_z_near_perspective_limit = l * 0.995;
+      float v = screen_z_near_perspective * 0.98;
       if (v < screen_z_near_perspective_limit) {
          if (v > 2.0) {
             screen_z_near_perspective = v;
@@ -687,6 +687,21 @@ graphics_info_t::update_view_quaternion(int glarea_width, int glarea_height,
    mouse_x = current_mouse_x;
    mouse_y = current_mouse_y;
 
+}
+
+bool graphics_info_t::set_view(const glm::quat &q, const coot::Cartesian &rc, float zoom_in) {
+
+   bool status = true;
+
+   zoom = zoom_in;
+   view_quaternion = q;
+
+   rotation_centre_x = rc.x();
+   rotation_centre_y = rc.y();
+   rotation_centre_z = rc.z();
+
+   graphics_draw();
+   return status;
 }
 
 

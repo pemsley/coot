@@ -4,6 +4,8 @@
 %feature("docstring") network_get_accession_code_entity "
 download and read the model (and data) for the given PDB accession code from PDBe
 
+This is an asynchronous function and will return immediately and invoke a download subthread. Check later so see if a molecule has loaded.
+
   pdb_accession_code  is the PDB accession code to fetch   mode  1 means fetch the \"mtz\" (to make the map) and 0 means fetch the coordinates model (.pdb or .cif file)
 
 Parameters
@@ -12,5 +14,17 @@ pdb_accession_code : str
     is the PDB accession code to fetch
 mode : int
     1 means fetch the \"mtz\" (to make the map) and 0 means fetch the coordinates model (.pdb or .cif file)
+";
+
+%feature("docstring") fetch_pdb_redo "
+fetch structure from PDB_REDO
+
+This is not an asynchronous function.
+
+  pdb_accession_code  is the PDB accession code to fetch the molecule index of the coordinates molecule or -1 on failure
+
+Parameters
+----------
+code : str
 ";
 

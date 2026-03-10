@@ -580,6 +580,158 @@ def setup_presentation_graphics():
     return "Presentation graphics settings applied"
 ```
 
+## Goodsell-Style Figures
+
+Goodsell-style figures use ball-and-stick representations with flat matte shading, outlines, and chain-based colouring. They are **not** Gaussian/molecular surfaces — the key characteristic is the illustrated, hand-drawn look achieved through specific shader settings.
+
+### Installing the Goodsell Extension via Curlew
+
+The Goodsell style is provided by a Curlew extension. Install it once per session:
+
+```python
+def install_goodsell_extension():
+    # List available extensions to confirm it's there
+    exts = coot.curlew_get_extension_list()
+    for name, fname in exts:
+        print(f"{name}: {fname}")
+    # Install
+    result = coot.curlew_download_and_install_extension("coot_goodsell_menu.py")
+    print(f"Install result: {result}")  # 1 = success
+    return result
+
+install_goodsell_extension()
+```
+
+This installs two functions into the global namespace:
+- `goodsell_setting()` — applies all shader/material settings (uses active atom's molecule)
+- `goodsell_colour_scheme(mode)` — sets chain colouring + calls `goodsell_setting()`
+
+### Applying Goodsell Style
+
+```python
+def apply_goodsell(imol):
+    # Navigate to a residue in the target molecule to make it active
+    # (goodsell_colour_scheme uses active_residue_py() to get imol)
+    coot.set_go_to_atom_chain_residue_atom_name("A", 100, " CA ")
+
+    # Choose colour wheel step mode:
+    #   mode 1: step 0.221 — large steps, most distinct colours (best for hexamers etc.)
+    #   mode 2: step 0.09  — medium steps, analogous palette
+    #   mode 3: step 0.04  — small steps, very similar hues
+    goodsell_colour_scheme(1)
+
+    # CRITICAL: restore rotation centre after set_go_to_atom_chain_residue_atom_name
+    # which moves the view to that atom as a side effect
+    cx = coot.molecule_centre_internal(imol, 0)
+    cy = coot.molecule_centre_internal(imol, 1)
+    cz = coot.molecule_centre_internal(imol, 2)
+    coot.set_rotation_centre(cx, cy, cz)
+
+    coot.graphics_draw()
+    return "Goodsell applied"
+
+apply_goodsell(3)
+```
+
+### CRITICAL: Recentre After Navigation
+
+`set_go_to_atom_chain_residue_atom_name()` moves the rotation centre to that atom as a side effect. **Always restore the rotation centre** to the molecule centroid immediately after:
+
+```python
+# ❌ BAD - leaves view centred on a random atom
+coot.set_go_to_atom_chain_residue_atom_name("A", 100, " CA ")
+goodsell_colour_scheme(1)
+
+# ✅ GOOD - restore centre after
+coot.set_go_to_atom_chain_residue_atom_name("A", 100, " CA ")
+goodsell_colour_scheme(1)
+cx = coot.molecule_centre_internal(imol, 0)
+cy = coot.molecule_centre_internal(imol, 1)
+cz = coot.molecule_centre_internal(imol, 2)
+coot.set_rotation_centre(cx, cy, cz)
+```
+
+### What goodsell_setting() Does
+
+For reference, the extension applies these settings:
+
+```python
+coot.set_background_colour(1.0, 1.0, 1.0)       # White background
+coot.set_bond_smoothness_factor(3)               # Smooth bonds
+coot.set_model_molecule_representation_style(imol, 1)  # Ball-and-stick
+coot.set_model_material_diffuse(imol, 0.00, 0.00, 0.00, 1)  # Flat/matte
+coot.set_model_material_specular(imol, 0.0, 64)  # No specular highlights
+coot.set_model_material_ambient(imol, 0.5, 0.5, 0.5, 1)
+coot.set_use_outline(1)                          # Dark outlines - essential
+coot.set_effects_shader_brightness(1.11)         # Base brightness
+coot.set_effects_shader_gamma(0.66)              # Gamma correction
+coot.set_ssao_strength(0.25)                     # Subtle ambient occlusion
+coot.set_use_fancy_lighting(1)
+```
+
+### Brightness Adjustment
+
+The default brightness of 1.11 is a good starting point but often benefits from a small increase:
+
+```python
+# Default from goodsell_setting(): 1.11
+# Recommended slight increase for a brighter, more vibrant result:
+coot.set_effects_shader_brightness(1.22)
+coot.graphics_draw()
+```
+
+**Always nudge brightness up slightly** from the default 1.11 — 1.22 has been found to give a better result.
+
+### Screendumps
+
+When saving screendumps, **do not specify a directory** — write to the current working directory only:
+
+```python
+# ✅ CORRECT - filename only
+coot.screendump_tga("6v2f_goodsell.tga")
+
+# ❌ WRONG - do not specify a path
+coot.screendump_tga("/tmp/6v2f_goodsell.tga")
+```
+
+### Complete Goodsell Figure Workflow
+
+```python
+def make_goodsell_figure(imol, anchor_chain, anchor_resno, zoom=350):
+    """
+    Apply Goodsell style to imol and save a screendump.
+    anchor_chain/resno: any residue in imol (used to set active atom).
+    """
+    # 1. Ensure bond representation is visible
+    coot.set_mol_displayed(imol, 1)
+
+    # 2. Navigate to set active atom (required by goodsell_colour_scheme)
+    coot.set_go_to_atom_chain_residue_atom_name(anchor_chain, anchor_resno, " CA ")
+
+    # 3. Apply Goodsell colouring and shader settings
+    goodsell_colour_scheme(1)  # mode 1 = most distinct chain colours
+
+    # 4. Nudge brightness above the default 1.11
+    coot.set_effects_shader_brightness(1.22)
+
+    # 5. Restore rotation centre to molecule centroid
+    cx = coot.molecule_centre_internal(imol, 0)
+    cy = coot.molecule_centre_internal(imol, 1)
+    cz = coot.molecule_centre_internal(imol, 2)
+    coot.set_rotation_centre(cx, cy, cz)
+
+    # 6. Set zoom
+    coot.set_zoom(zoom)
+    coot.graphics_draw()
+
+    # 7. Save screendump - filename only, no directory
+    coot.screendump_tga("goodsell_figure.tga")
+
+    return "Goodsell figure saved"
+
+make_goodsell_figure(3, "A", 100, zoom=350)
+```
+
 ## Summary
 
 1. **Always use function wrappers** for complex code

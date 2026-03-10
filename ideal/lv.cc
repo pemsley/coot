@@ -27,6 +27,8 @@
 #include "compat/coot-getopt.h"
 #include "utils/coot-utils.hh"
 #include "simple-restraint.hh"
+#include "utils/logging.hh"
+extern logging logger;
 
 void show_usage() {
 
@@ -161,7 +163,8 @@ validate_ligand(const std::string &pdb_file_name,
    std::vector<std::pair<bool,mmdb::Residue *> > residues;
    residues.push_back(std::pair<bool, mmdb::Residue *>(false, residue_p));
 
-   std::cout << "INFO:: include_environment_contacts_flag " << include_environment_contacts_flag << std::endl;
+   logger.log(log_t::INFO, logging::ltw("include_environment_contacts_flag "), logging::ltw(include_environment_contacts_flag));
+   // std::cout << "INFO:: include_environment_contacts_flag " << include_environment_contacts_flag << std::endl;
    if (include_environment_contacts_flag) {
    } else {
       // We need to create a molecule (and replace mol) that is just the ligand then.
@@ -200,8 +203,9 @@ validate_ligand(const std::string &pdb_file_name,
       double d = gdic.distortion();
       const double k = 350;  // ratio derived from mon-lib analysis
       double ceu = d/(k);
-      std::cout << "INFO:: " << pdb_file_name << " " << chain_id << " " << res_no << " " << monomer_type
-                << " ligand distortion score:   " << ceu << " ceus" << std::endl;
+      logger.log(log_t::INFO, logging::ltw(pdb_file_name), logging::ltw(" " + chain_id + " "), logging::ltw(res_no), logging::ltw(" " + monomer_type + " ligand distortion score:   "), logging::ltw(ceu), logging::ltw(" ceus"));
+      // std::cout << "INFO:: " << pdb_file_name << " " << chain_id << " " << res_no << " " << monomer_type
+      //           << " ligand distortion score:   " << ceu << " ceus" << std::endl;
    }
 
    if (include_environment_contacts_flag) {
@@ -209,8 +213,9 @@ validate_ligand(const std::string &pdb_file_name,
       coot::atom_overlaps_container_t ao(residue_p, neighbours, mol, &geom);
       ao.make_overlaps();
       float os = ao.score();
-      std::cout << "INFO:: " << pdb_file_name << " " << chain_id << " " << res_no << " " << monomer_type
-                << " ligand atom overlap score: " << os << " A^3 / 1000 atoms" << std::endl;
+      logger.log(log_t::INFO, logging::ltw(pdb_file_name), logging::ltw(" " + chain_id + " "), logging::ltw(res_no), logging::ltw(" " + monomer_type + " ligand atom overlap score: "), logging::ltw(os), logging::ltw(" A^3 / 1000 atoms"));
+      // std::cout << "INFO:: " << pdb_file_name << " " << chain_id << " " << res_no << " " << monomer_type
+      //           << " ligand atom overlap score: " << os << " A^3 / 1000 atoms" << std::endl;
    }
 
 }

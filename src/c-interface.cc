@@ -50,6 +50,9 @@
 #include <fstream>
 #include <algorithm>
 
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/string_cast.hpp>
+
 #if !defined(_MSC_VER)
 #include <glob.h> // for globbing.  Needed here?
 #endif
@@ -146,6 +149,9 @@
 #include "glarea_tick_function.hh"
 
 #include "validation-graphs/sequence-view-widget.hh"
+
+#include "json.hpp"
+using json = nlohmann::json;
 
 #include "utils/logging.hh"
 extern logging logger;
@@ -1216,7 +1222,8 @@ void zalman_stereo_mode() {
 	    short int try_hardware_stereo_flag = 5;
 	    GtkWidget *glarea = gl_extras(vbox, try_hardware_stereo_flag);
 	    if (glarea) {
-	       std::cout << "INFO:: switch to zalman_stereo_mode succeeded\n";
+	       // std::cout << "INFO:: switch to zalman_stereo_mode succeeded\n";
+	       logger.log(log_t::INFO, "switch to zalman_stereo_mode succeeded");
 	       if (graphics_info_t::idle_function_spin_rock_token) {
 		  toggle_idle_spin_function(); // turn it off;
 	       }
@@ -1267,7 +1274,8 @@ void mono_mode() {
 	    short int try_hardware_stereo_flag = 0;
 	    GtkWidget *glarea = gl_extras(vbox, try_hardware_stereo_flag);
 	    if (glarea) {
-	       std::cout << "INFO:: switch to mono_mode succeeded\n";
+	       // std::cout << "INFO:: switch to mono_mode succeeded\n";
+	       logger.log(log_t::INFO, "switch to mono_mode succeeded");
 	       if (graphics_info_t::idle_function_spin_rock_token) {
 		  toggle_idle_spin_function(); // turn it off;
 	       }
@@ -1831,6 +1839,19 @@ set_main_window_title(const char *s) {
       }
    }
 }
+
+
+/*! \brief set the state of the validation graphs box
+ *
+ * By "docked" I mean, in the main window. The alternative
+ * is a floating dialog.
+ *
+ * @param state 0 is not docked, 1 is docked
+ */
+void set_validation_graphs_is_docked(short int state) {
+   graphics_info_t::validation_graphs_is_docked = state;
+}
+
 
 
 
@@ -4355,6 +4376,82 @@ void set_view_quaternion(float i, float j, float k, float l) {
 
 
 
+/*! \brief Set the view
+ *
+ * the view is a JSON string of a dict of the orientation quaternion, the zoom and the rotation centre.
+ *
+ * @param view_as_json the view parameter as a JSON string
+ * */
+void set_view_from_json(const std::string &view_as_json) {
+
+   try {
+      json j = json::parse(view_as_json);
+      json j_rc   = j["rotation-centre"];
+      json j_quat = j["quaternion"];
+      json j_zoom = j["zoom"];
+      if (j_rc.is_array()) {
+         if (j_quat.is_array()) {
+            if (j_zoom.is_number_float()) {
+               float zoom = j_zoom;
+               unsigned int rc_size = j_rc.size();
+               if (rc_size == 3) {
+                  float rc_0 = j_rc[0];
+                  float rc_1 = j_rc[1];
+                  float rc_2 = j_rc[2];
+                  coot::Cartesian rc(rc_0, rc_1, rc_2);
+                  unsigned int quat_size = j_quat.size();
+                  if (quat_size == 4) {
+                     float quat_0 = j_quat[0];
+                     float quat_1 = j_quat[1];
+                     float quat_2 = j_quat[2];
+                     float quat_3 = j_quat[3];
+                     glm::quat q(quat_0, quat_1, quat_2, quat_3);
+                     graphics_info_t::set_view(q, rc, zoom);
+                  }
+               }
+            }
+         }
+      }
+   }
+   catch(const nlohmann::detail::type_error &e) {
+      std::cout << "ERROR:: " << e.what() << std::endl;
+   }
+   catch(const nlohmann::detail::parse_error &e) {
+      std::cout << "ERROR:: " << e.what() << std::endl;
+   }
+
+}
+
+/*! \brief get the view
+ *
+ * the view is a JSON string of a dict of the orientation quaternion, the zoom and the rotation centre.
+ *
+ * */
+std::string get_view_as_json() {
+
+   json j_rc = json::array();
+   auto rc = graphics_info_t::get_rotation_centre();
+   j_rc.push_back(rc.x);
+   j_rc.push_back(rc.y);
+   j_rc.push_back(rc.z);
+   json j_quat = json::array();
+   glm::quat quat = graphics_info_t::view_quaternion;
+   j_quat.push_back(quat[3]); // 2026-03-10-PE, weird, eh?
+   j_quat.push_back(quat[0]);
+   j_quat.push_back(quat[1]);
+   j_quat.push_back(quat[2]);
+   json j_zoom = graphics_info_t::zoom;
+
+   json j;
+   j["zoom"] = j_zoom;
+   j["rotation-centre"] = j_rc;
+   j["quaternion"] = j_quat;
+
+   std::string js = j.dump(2);
+
+   return js;
+}
+
 /* Return 1 if we moved to a molecule centre, else go to origin and
    return 0. */
 /* centre on last-read (and displayed) molecule with zoom 100. */
@@ -4552,7 +4649,8 @@ void screendump_image(const char *filename) {
    graphics_draw();
 
    int istatus = graphics_info_t::screendump_image(filename);
-   std::cout << "INFO:: screendump_image status " << istatus << std::endl;
+   // std::cout << "INFO:: screendump_image status " << istatus << std::endl;
+   logger.log(log_t::INFO, "screendump_image status", istatus);
    if (istatus == 1) {
       std::string s = "Screendump image ";
       s += filename;
@@ -6242,7 +6340,8 @@ void display_only_active() {
 
    std::pair<bool, std::pair<int, coot::atom_spec_t> > aa = active_atom_spec();
 
-   std::cout << "INFO:: display_only_active()" << aa.first << " " << aa.second.first << " " << aa.second.second << std::endl;
+   // std::cout << "INFO:: display_only_active()" << aa.first << " " << aa.second.first << " " << aa.second.second << std::endl;
+   logger.log(log_t::INFO, "display_only_active()", aa.first, aa.second.first, aa.second.second.format());
 
    if (aa.first) {
       int imol_active = aa.second.first;
@@ -6321,7 +6420,8 @@ show_spacegroup(int imol) {
 
    if (is_valid_model_molecule(imol) || is_valid_map_molecule(imol)) {
       std::string spg = graphics_info_t::molecules[imol].show_spacegroup();
-      std::cout << "INFO:: spacegroup: " << spg << std::endl;
+      // std::cout << "INFO:: spacegroup: " << spg << std::endl;
+      logger.log(log_t::INFO, "spacegroup:", spg);
       unsigned int l = spg.length();
       char *s = new char[l+1];
       strncpy(s, spg.c_str(), l+1);
@@ -7579,8 +7679,9 @@ run_command_line_scripts() {
                 << std::endl;
 
    if (graphics_info_t::command_line_scripts.size()) {
-      std::cout << "INFO:: There are " << graphics_info_t::command_line_scripts.size()
-		<< " command line scripts to run\n";
+      // std::cout << "INFO:: There are " << graphics_info_t::command_line_scripts.size()
+      //          << " command line scripts to run\n";
+      logger.log(log_t::INFO, "There are", graphics_info_t::command_line_scripts.size(), "command line scripts to run");
       for (unsigned int i=0; i<graphics_info_t::command_line_scripts.size(); i++)
 	 std::cout << "    " << graphics_info_t::command_line_scripts[i].c_str()
 		   << std::endl;
@@ -8291,13 +8392,15 @@ int read_cif_data(const char *filename, int imol_coordinates) {
       // link itself.
       //
       if (status != 0 || !S_ISREG (s.st_mode)) {
-	 std::cout << "INFO:: Error reading " << filename << std::endl;
+	 // std::cout << "INFO:: Error reading " << filename << std::endl;
+	 logger.log(log_t::INFO, "Error reading " + std::string(filename));
 	 if (S_ISDIR(s.st_mode)) {
 	    std::cout << filename << " is a directory." << std::endl;
 	 }
 	 return -1; // which is status in an error
       } else {
-	 std::cout << "INFO:: Reading cif file: " << filename << std::endl;
+	 // std::cout << "INFO:: Reading cif file: " << filename << std::endl;
+	 logger.log(log_t::INFO, "Reading cif file: " + std::string(filename));
 	 graphics_info_t g;
 	 int imol = g.create_molecule();
 	 int istat =
@@ -8347,7 +8450,8 @@ int read_cif_data_2fofc_map(const char *filename, int imol_coordinates) {
 
       if (is_valid_model_molecule(imol_coordinates)) {
 
-	 std::cout << "INFO:: Reading cif file: " << filename << std::endl;
+	 // std::cout << "INFO:: Reading cif file: " << filename << std::endl;
+	 logger.log(log_t::INFO, "Reading cif file: " + std::string(filename));
 
 	 graphics_info_t g;
 

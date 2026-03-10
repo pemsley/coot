@@ -145,7 +145,8 @@ go_to_ligand_inner() {
 	    s += coot::util::int_to_string(pp.second.first);
 	    s += ".";
 	    add_status_bar_text(s.c_str());
-            std::cout << "INFO:: status bar text: " << s << std::endl;
+            // std::cout << "INFO:: status bar text: " << s << std::endl;
+            logger.log(log_t::INFO, "status bar text:", s);
 	 } else {
 	    if (new_centre.type == coot::NO_LIGANDS) {
 	       std::string s = "No ligand (hetgroup) found in this molecule (#";
@@ -250,8 +251,9 @@ match_ligand_torsions(int imol_ligand, int imol_ref, const char *chain_id_ref, i
 		  } else {
 		     // normal case
 		     int n_rotated = g.molecules[imol_ligand].match_torsions(res_ref, tr, *g.Geom_p());
-		     std::cout << "INFO:: rotated " << n_rotated << " torsions in matching torsions"
-			       << std::endl;
+		     // std::cout << "INFO:: rotated " << n_rotated << " torsions in matching torsions"
+		     //            << std::endl;
+		     logger.log(log_t::INFO, "rotated", n_rotated, "torsions in matching torsions");
 		  }
 	       }
 	       graphics_draw();
@@ -832,10 +834,13 @@ ligand_search_install_wiggly_ligands() {
 
    for(unsigned int i=0; i<ligands.size(); i++) {
 
-      std::cout << "INFO:: ligand number " << i << " is molecule number "
-		          << g.find_ligand_ligand_mols()[i].first << "  "
-		          << " with wiggly flag: "
-		          << g.find_ligand_ligand_mols()[i].second << std::endl;
+      // std::cout << "INFO:: ligand number " << i << " is molecule number "
+      //               << g.find_ligand_ligand_mols()[i].first << "  "
+      //               << " with wiggly flag: "
+      //               << g.find_ligand_ligand_mols()[i].second << std::endl;
+      logger.log(log_t::INFO, "ligand number", i, "is molecule number",
+                 g.find_ligand_ligand_mols()[i].first, "with wiggly flag:",
+                 g.find_ligand_ligand_mols()[i].second);
 
       if (ligands[i].second) {
 	      // argh (i).
@@ -1476,7 +1481,8 @@ int mask_map_by_molecule(int map_mol_no, int coord_mol_no, short int invert_flag
 	       lig.mask_map(g.molecules[coord_mol_no].atom_sel.mol, selectionhandle, invert_flag);
 	       g.molecules[coord_mol_no].atom_sel.mol->DeleteSelection(selectionhandle);
 	       imol_new_map = g.create_molecule();
-	       std::cout << "INFO:: Creating masked  map in molecule number " << imol_new_map << std::endl;
+	       // std::cout << "INFO:: Creating masked  map in molecule number " << imol_new_map << std::endl;
+	       logger.log(log_t::INFO, "Creating masked map in molecule number", imol_new_map);
 	       bool is_em_map_flag = g.molecules[map_mol_no].is_EM_map();
 	       std::string old_name = g.molecules[map_mol_no].get_name();
 	       std::string new_name = "Masked Map from " + old_name;
@@ -3411,8 +3417,9 @@ add_dictionary_from_residue(int imol, std::string chain_id, int res_no, std::str
 	 mmdb::Manager *mol = coot::util::create_mmdbmanager_from_residue(residue_p);
 	 if (mol) {
 	    coot::dictionary_residue_restraints_t d(mol);
-	    std::cout << "INFO:: replacing restraints for type \""
-		      << d.residue_info.comp_id << "\"" << std::endl;
+	    // std::cout << "INFO:: replacing restraints for type \""
+	    //           << d.residue_info.comp_id << "\"" << std::endl;
+	    logger.log(log_t::INFO, "replacing restraints for type", "\"" + d.residue_info.comp_id + "\"");
 	    int imol_enc = coot::protein_geometry::IMOL_ENC_ANY;
 	    g.Geom_p()->replace_monomer_restraints(d.residue_info.comp_id, imol_enc, d);
 
@@ -4118,7 +4125,8 @@ int make_masked_maps_split_by_chain(int imol, int imol_map) {
          lig.import_map_from(g.molecules[imol_map].xmap);
          float contour_level = g.molecules[imol_map].get_contour_level();
          std::vector<std::pair<std::string, clipper::Xmap<float> > > maps = lig.make_masked_maps_split_by_chain(mol);
-         std::cout << "INFO:: made " << maps.size() << " masked maps" << std::endl;
+         // std::cout << "INFO:: made " << maps.size() << " masked maps" << std::endl;
+         logger.log(log_t::INFO, "made", maps.size(), "masked maps");
          bool is_em_flag = g.molecules[imol_map].is_EM_map();
          for(unsigned int i=0; i<maps.size(); i++) {
             std::string map_name =maps[i].first;
@@ -4168,10 +4176,12 @@ int get_pdbe_cif_for_comp_id(const std::string &comp_id) {
    std::filesystem::path user_data_dir = xdg.get_data_home();
    std::filesystem::path cif_file_path = user_data_dir / std::string(comp_id + ".cif");
    if (std::filesystem::exists(cif_file_path)) {
-      std::cout << "INFO:: found " << cif_file_path << std::endl;
+      // std::cout << "INFO:: found " << cif_file_path << std::endl;
+      logger.log(log_t::INFO, "found " + cif_file_path.string());
    } else {
       std::string url = "https://www.ebi.ac.uk/pdbe/static/files/pdbechem_v2/" + comp_id + ".cif";
-      std::cout << "INFO:: downloading " << url << " "  << cif_file_path << std::endl;
+      // std::cout << "INFO:: downloading " << url << " "  << cif_file_path << std::endl;
+      logger.log(log_t::INFO, "downloading", url, cif_file_path.string());
       status = coot_get_url(url, cif_file_path.string());
    }
    return status;
@@ -4226,7 +4236,8 @@ void run_acedrg_for_ccd_dict_async(const std::string &residue_name,
       else
          std::cout << "ERROR:: can't find acedrg_running_frame" << std::endl;
    } else {
-      std::cout << "INFO:: acedrg is already running" << std::endl;
+      // std::cout << "INFO:: acedrg is already running" << std::endl;
+      logger.log(log_t::INFO, "acedrg is already running");
    }
 
 }

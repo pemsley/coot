@@ -2882,7 +2882,8 @@ on_glarea_resize(GtkGLArea *glarea, gint width, gint height) {
    g.graphics_x_size = width;
    g.graphics_y_size = height;
 
-   std::cout << "INFO:: in on_glarea_resize() GtkGLArea widget dimensions " << width << " " << height << std::endl;
+   // std::cout << "INFO:: in on_glarea_resize() GtkGLArea widget dimensions " << width << " " << height << std::endl;
+   logger.log(log_t::INFO, "in on_glarea_resize() GtkGLArea widget dimensions", width, height);
 
    // why do I need to do this?
    // setup_hud_text(width, height, g.shader_for_hud_text, false);
@@ -3252,15 +3253,8 @@ graphics_info_t::setup_draw_for_translation_gizmo() {
       logger.log(log_t::GL_ERROR, logging::function_name_t("setup_draw_for_translation_gizmo"),
                  "--start--", stringify_error_code(err));
 
-   attach_buffers(); // this causes a GL error - why?
-
-   err = glGetError();
-   if (err)
-      logger.log(log_t::GL_ERROR, logging::function_name_t("setup_draw_for_translation_gizmo"),
-                 "A", stringify_error_code(err));
-
-   size_t s = translation_gizmo.mesh.vertices.size();
-   std::vector<s_generic_vertex> cv(s); //  conveted vertices
+   size_t tgmv_size = translation_gizmo.mesh.vertices.size();
+   std::vector<s_generic_vertex> cv(tgmv_size); // converted vertices
    for (unsigned int i=0; i<cv.size(); i++) {
       cv[i].pos    = translation_gizmo.mesh.vertices[i].pos;
       cv[i].normal = translation_gizmo.mesh.vertices[i].normal;
@@ -3285,7 +3279,8 @@ graphics_info_t::setup_draw_for_translation_gizmo() {
    if (err)
       logger.log(log_t::GL_ERROR, logging::function_name_t("setup_draw_for_translation_gizmo"),
                  "E",  stringify_error_code(err));
-   translation_gizmo_mesh.set_draw_this_mesh(false);
+
+   translation_gizmo_mesh.set_draw_this_mesh(true);
    err = glGetError();
    if (err)
       logger.log(log_t::GL_ERROR, logging::function_name_t("setup_draw_for_translation_gizmo"),

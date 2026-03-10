@@ -65,6 +65,7 @@
 #include "rsr-functions.hh"
 #include "cc-interface-user-defined-atom-colours.hh"
 #include "cc-interface-alignment.hh"
+#include "cc-interface-graphics.hh"
 #include "init_coot_as_python_module.hh"
 #include "curl-utils.hh"
 #include "cfc-2025.hh"
@@ -86,6 +87,8 @@ namespace std {
 %template(IntVector) vector<int>;
 %template(vector_atom_spec)      vector<coot::atom_spec_t>;
 %template(vector_mtz_type_label) vector<coot::mtz_type_label>;
+%template(pair_string_string)    pair<std::string, std::string>;
+%template(vector_pair_string_string) vector<std::pair<std::string, std::string> >;
 }
 
 %init %{
@@ -159,6 +162,7 @@ namespace std {
 %include "curl-utils.hh"
 %include "M2T-interface.hh"
 %include "cc-interface-alignment.hh"
+%include "cc-interface-graphics.hh"
 %include "cfc-2025.hh"
 %include "nef.hh"
 

@@ -539,9 +539,11 @@ int make_and_draw_map_with_reso_with_refmac_params(const char *mtz_file_name,
 
       std::string mtz_file_name_str = mtz_file_name;
 
-      std::cout << "INFO:: making " << map_type << " map from MTZ filename "
-                << mtz_file_name_str << " using " << f_col << " "
-                << phi_col << std::endl;
+      // std::cout << "INFO:: making " << map_type << " map from MTZ filename "
+      //           << mtz_file_name_str << " using " << f_col << " "
+      //           << phi_col << std::endl;
+      logger.log(log_t::INFO, logging::function_name_t("make_and_draw_map_with_reso_with_refmac_params"),
+            std::vector<logging::ltw> {"making", map_type, "map from MTZ filename", mtz_file_name_str, "using", f_col, phi_col});
 
       if (valid_labels(mtz_file_name, f_col, phi_col, weight_col, use_weights)) {
          std::string weight_col_str("");
@@ -797,7 +799,7 @@ std::vector<int> auto_read_make_and_draw_maps_from_mtz(const std::string &mtz_fi
    auto_mtz_pairs.push_back(coot::mtz_column_trials_info_t("FDM",          "PHIDM",     false));
    auto_mtz_pairs.push_back(coot::mtz_column_trials_info_t("FAN",          "PHAN",      true));
    auto_mtz_pairs.push_back(coot::mtz_column_trials_info_t("F_ano",        "PHI_ano",   true));
-   auto_mtz_pairs.push_back(coot::mtz_column_trials_info_t("F_early-late","PHI_early-late", true));
+   auto_mtz_pairs.push_back(coot::mtz_column_trials_info_t("F_early-late", "PHI_early-late", true));
 
    for (unsigned int i=0; i<g.user_defined_auto_mtz_pairs.size(); i++)
       auto_mtz_pairs.push_back(g.user_defined_auto_mtz_pairs[i]);
@@ -1812,8 +1814,9 @@ int transform_map_raw(int imol,
       // clipper::RTop_orth rtop_inv = rtop.inverse();
       clipper::Coord_orth pt(pt1, pt2, pt3);
 
-      std::cout << "INFO:: in transforming map around target point "
-                << pt.format() << std::endl;
+      // std::cout << "INFO:: in transforming map around target point "
+      //           << pt.format() << std::endl;
+      logger.log(log_t::INFO, "in transforming map around target point", pt.format());
 
       clipper::Spgr_descr sg_descr(ref_space_group);
       clipper::Spacegroup new_space_group(sg_descr);

@@ -227,8 +227,8 @@ new_startup_realize(GtkWidget *gl_area) {
    g.mesh_for_extra_distance_restraints.setup_extra_distance_restraint_cylinder(material); // init
 
    // scale the gizmo to the object being translated
-   float scale_factor = 22.2;
-   g.translation_gizmo.scale(scale_factor);
+   // float scale_factor = 22.2;
+   // g.translation_gizmo.scale(scale_factor);
    g.setup_draw_for_translation_gizmo();
 
    g.setup_key_bindings();
@@ -1232,13 +1232,16 @@ int do_no_graphics_mode(command_line_data& cld, int argc, char** argv) {
 int
 do_self_tests() {
 
-   std::cout << "INFO:: Running internal self tests" << std::endl;
+   // std::cout << "INFO:: Running internal self tests" << std::endl;
+   logger.log(log_t::INFO, "Running internal self tests");
 
    // return true on success
    clipper::Test_core test_core;       bool result_core    = test_core();
    clipper::Test_contrib test_contrib; bool result_contrib = test_contrib();
-   std::cout<<" INFO:: Test Clipper core   : "<<(result_core   ?"OK":"FAIL")<<std::endl;
-   std::cout<<" INFO:: Test Clipper contrib: "<<(result_contrib?"OK":"FAIL")<<std::endl;
+   // std::cout<<" INFO:: Test Clipper core   : "<<(result_core   ?"OK":"FAIL")<<std::endl;
+   logger.log(log_t::INFO, std::string("Test Clipper core   : ") + (result_core ? "OK" : "FAIL"));
+   // std::cout<<" INFO:: Test Clipper contrib: "<<(result_contrib?"OK":"FAIL")<<std::endl;
+   logger.log(log_t::INFO, std::string("Test Clipper contrib: ") + (result_contrib ? "OK" : "FAIL"));
 
    // 20240309-PE I need tests
    //   1: internal tests (that can use tutorial-modern and rnasa)

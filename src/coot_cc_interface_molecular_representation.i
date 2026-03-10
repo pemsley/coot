@@ -18,6 +18,7 @@ ColorScheme_py : object
     colour-scheme-name, e.g. \"colorRampChainsScheme\" or \"Chain\" or \"colorBySecondaryScheme\"
 style_py : object
     the representation style, e.g. \"Ribbon\" or \"MolecularSurface\"
+secondary_structure_usage_type : int
 ";
 
 %feature("docstring") add_molecular_representation_scm "
@@ -43,6 +44,7 @@ imol : int
     the molecule index
 name : str
     the name to appear in the display control widget
+secondary_structure_usage_type : int
 ";
 
 %feature("docstring") remove_molecular_representation "

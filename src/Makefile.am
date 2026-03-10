@@ -80,7 +80,6 @@ COOT_EXTRA_LIBS = \
 	$(top_builddir)/coot-utils/libcoot-map-utils.la  	\
 	$(top_builddir)/coot-utils/libcoot-coord-extras.la  	\
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la  	\
-	$(top_builddir)/utils/libcoot-utils.la  		\
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la    	\
 	$(top_builddir)/analysis/libcoot-analysis.la 		\
 	$(top_builddir)/protein_db/libcoot-protein-db.la      	\
@@ -88,6 +87,7 @@ COOT_EXTRA_LIBS = \
 	$(top_builddir)/cootaneer/libcootaneer.la 		\
 	$(top_builddir)/MoleculesToTriangles/CXXClasses/libMoleculesToTrianglesCXXClasses.la     		\
 	$(top_builddir)/MoleculesToTriangles/CXXSurface/libMoleculesToTrianglesCXXSurface.la     		\
+	$(top_builddir)/utils/libcoot-utils.la  		\
 	$(top_builddir)/compat/libcoot-compat.la
 
 
@@ -106,8 +106,10 @@ EXTRA_DIST = \
 	coot_network_functions_docs.i \
 	coot_c_interface_docs.i   \
 	coot_cc_interface_docs.i \
+	coot_cc_interface_graphics.i \
         coot_cc_interface_molecular_representation.i \
-        coot_cc_interface_user_defined_atom_colours.i
+        coot_cc_interface_user_defined_atom_colours.i \
+	coot_read_molecule_functions_docs.i
 
 regen-interface-docs-for-swig:
 	python3 $(top_srcdir)/src/xml-to-swig-docstrings.py --output       coot_c_interface_docs.i $(top_srcdir)/src/doxygen/xml/c-interface_8h.xml
@@ -115,8 +117,9 @@ regen-interface-docs-for-swig:
 	python3 $(top_srcdir)/src/xml-to-swig-docstrings.py --output     coot_rsr_functions_docs.i $(top_srcdir)/src/doxygen/xml/rsr-functions_8hh.xml
 	python3 $(top_srcdir)/src/xml-to-swig-docstrings.py --output coot_network_functions_docs.i $(top_srcdir)/src/doxygen/xml/network-get_8hh.xml
 	python3 $(top_srcdir)/src/xml-to-swig-docstrings.py --output coot_read_molecule_functions_docs.i $(top_srcdir)/src/doxygen/xml/read-molecule_8hh.xml
-	python3 $(top_srcdir)/xml-to-swig-docstrings.py --output coot_cc_interface_molecular_representation.i  $(top_srcdir)/doxygen/xml/cc-interface-molecular-representation_8hh.xml
-	python3 $(top_srcdir)/xml-to-swig-docstrings.py --output coot_cc_interface_user_defined_atom_colours.i $(top_srcdir)/doxygen/xml/cc-interface-user-defined-atom-colours_8hh.xml
+	python3 $(top_srcdir)/src/xml-to-swig-docstrings.py --output coot_cc_interface_molecular_representation.i  $(top_srcdir)/src/doxygen/xml/cc-interface-molecular-representation_8hh.xml
+	python3 $(top_srcdir)/src/xml-to-swig-docstrings.py --output coot_cc_interface_user_defined_atom_colours.i $(top_srcdir)/src/doxygen/xml/cc-interface-user-defined-atom-colours_8hh.xml
+	python3 $(top_srcdir)/src/xml-to-swig-docstrings.py --output coot_cc_interface_graphics.i $(top_srcdir)/src/doxygen/xml/cc-interface-graphics_8hh.xml
 # or
 # coot_c_interface_docs.i:
 #	python3 $(top_srcdir)/src/xml-to-swig-docstrings.py --output  coot_c_interface_docs.i $(top_srcdir)/src/doxygen/xml/c-interface_8h.xml

@@ -34,7 +34,6 @@
 #include <iostream>
 #include <vector>
 #include <string>
-#include <algorithm>
 
 #define HAVE_CIF  // will become unnessary at some stage.
 
@@ -310,7 +309,8 @@ void save_symmetry_coords(int imol,
 	       graphics_info_t g;
 	       g.add_status_bar_text(s);
 	    } else {
-	       std::cout << "INFO:: Wrote symmetry atoms to " << filename << "." << std::endl;
+	       // std::cout << "INFO:: Wrote symmetry atoms to " << filename << "." << std::endl;
+	       logger.log(log_t::INFO, logging::function_name_t("save_symmetry_coords"), "Wrote symmetry atoms to", filename);
 	       std::string s = "INFO:: Wrote symmetry atoms to file ";
 	       s += filename;
 	       s += ".";

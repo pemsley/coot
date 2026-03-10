@@ -42,7 +42,8 @@
 // Martin's Triangles
 
 // e.g. 0, "//C", "RampChainsScheme", "Ribbon"
-int add_molecular_representation_py(int imol, PyObject *atom_selection_py, PyObject *ColorScheme_py, PyObject *style_py) {
+int add_molecular_representation_py(int imol, PyObject *atom_selection_py, PyObject *ColorScheme_py, PyObject *style_py,
+                                    int secondary_structure_usage_flag) {
 
    int status = -1;
    if (is_valid_model_molecule(imol)) {
@@ -50,7 +51,7 @@ int add_molecular_representation_py(int imol, PyObject *atom_selection_py, PyObj
       std::string atom_selection = PyBytes_AS_STRING(PyUnicode_AsUTF8String(atom_selection_py));
       std::string ColorScheme    = PyBytes_AS_STRING(PyUnicode_AsUTF8String(ColorScheme_py));
       std::string style          = PyBytes_AS_STRING(PyUnicode_AsUTF8String(style_py));
-      int secondary_structure_usage_flag = CALC_SECONDARY_STRUCTURE;
+      // int secondary_structure_usage_flag = CALC_SECONDARY_STRUCTURE;
       // status = graphics_info_t::molecules[imol].add_molecular_representation(atom_selection, ColorScheme, style);
       graphics_info_t g;
       status = g.add_molecular_representation(imol, atom_selection, ColorScheme, style, secondary_structure_usage_flag);
@@ -81,7 +82,8 @@ int add_molecular_representation_scm(int imol, SCM atom_selection_scm, SCM Color
 #endif // USE_GUILE
 
 int
-add_ribbon_representation_with_user_defined_colours(int imol, const std::string &name) {
+add_ribbon_representation_with_user_defined_colours(int imol, const std::string &name,
+                                                    int secondary_structure_usage_flag) {
 
    // std::string name = "AlphaFold " + std::to_string(imol)
 
