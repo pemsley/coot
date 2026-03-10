@@ -91,7 +91,7 @@ graphics_info_t::translation_gizmo_picked() {
 
    translation_gizmo_t::pick_info_t pick_info = translation_gizmo_t::pick_info_t::NONE;
    if (translation_gizmo_mesh.get_draw_this_mesh()) {
-      std::cout << "translation gizmo is being drawn" << std::endl;
+      // std::cout << "translation gizmo is being drawn" << std::endl;
       graphics_info_t g;
       GtkAllocation allocation = get_glarea_allocation();
       int w = allocation.width;
@@ -114,7 +114,7 @@ graphics_info_t::translation_gizmo_picked() {
       // translation_gizmo_axis_dragged = pick_info;
 
       if (pick_info != translation_gizmo_t::pick_info_t::NONE) {
-         std::cout << "translation gizmo picked! " << pick_info << std::endl;
+         // std::cout << "translation gizmo picked! " << pick_info << std::endl;
       }
    }
    return pick_info;

@@ -3253,15 +3253,8 @@ graphics_info_t::setup_draw_for_translation_gizmo() {
       logger.log(log_t::GL_ERROR, logging::function_name_t("setup_draw_for_translation_gizmo"),
                  "--start--", stringify_error_code(err));
 
-   attach_buffers(); // this causes a GL error - why?
-
-   err = glGetError();
-   if (err)
-      logger.log(log_t::GL_ERROR, logging::function_name_t("setup_draw_for_translation_gizmo"),
-                 "A", stringify_error_code(err));
-
-   size_t s = translation_gizmo.mesh.vertices.size();
-   std::vector<s_generic_vertex> cv(s); //  conveted vertices
+   size_t tgmv_size = translation_gizmo.mesh.vertices.size();
+   std::vector<s_generic_vertex> cv(tgmv_size); // converted vertices
    for (unsigned int i=0; i<cv.size(); i++) {
       cv[i].pos    = translation_gizmo.mesh.vertices[i].pos;
       cv[i].normal = translation_gizmo.mesh.vertices[i].normal;
@@ -3286,7 +3279,8 @@ graphics_info_t::setup_draw_for_translation_gizmo() {
    if (err)
       logger.log(log_t::GL_ERROR, logging::function_name_t("setup_draw_for_translation_gizmo"),
                  "E",  stringify_error_code(err));
-   translation_gizmo_mesh.set_draw_this_mesh(false);
+
+   translation_gizmo_mesh.set_draw_this_mesh(true);
    err = glGetError();
    if (err)
       logger.log(log_t::GL_ERROR, logging::function_name_t("setup_draw_for_translation_gizmo"),
