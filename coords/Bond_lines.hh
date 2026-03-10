@@ -254,6 +254,7 @@ class Bond_lines_container {
    void add_atom_centres(int imol,
                          const atom_selection_container_t &SelAtom,
                          int atom_colour_type,
+                         int model_number,
                          coot::my_atom_colour_map_t *atom_colour_map = 0);
 
    int add_ligand_bonds(const atom_selection_container_t &SelAtom, int imol,
@@ -409,6 +410,7 @@ class Bond_lines_container {
 
    void do_colour_by_dictionary_and_by_chain_bonds(const atom_selection_container_t &asc,
                                                    int imol,
+                                                   int imodel,
                                                    int draw_hydrogens_flag,
                                                    bool draw_missing_loops_flag,
                                                    short int change_c_only_flag,
@@ -427,32 +429,38 @@ class Bond_lines_container {
 
    void do_colour_by_dictionary_and_by_chain_bonds_carbons_only(const atom_selection_container_t &asc,
                                                                 int imol,
+                                                                int imodel,
                                                                 int draw_hydrogens_flag,
                                                                 bool draw_missing_loops_flag,
                                                                 bool do_goodsell_colour_mode,
                                                                 bool do_rota_markup);
    // and the bonds between the above monomers
    void add_polymer_bonds(const atom_selection_container_t &asc,
+                          int model_number,
                           int atom_colour_type,
                           coot::my_atom_colour_map_t *atom_colour_map_p,
                           int draw_hydrogens_flag,
                           bool do_goodsell_colour_mode);
    void add_peptide_bonds(const atom_selection_container_t &asc,
+                          int model_number,
                           int atom_colour_type,
                           coot::my_atom_colour_map_t *atom_colour_map_p,
                           int draw_hydrogens_flag,
                           bool do_goodsell_colour_mode);
    void add_phosphodiester_bonds(const atom_selection_container_t &asc,
+                                 int model_number,
                                  int atom_colour_type,
                                  coot::my_atom_colour_map_t *atom_colour_map_p,
                                  int draw_hydrogens_flag,
                                  bool do_goodsell_colour_mode);
    void add_carbohydrate_bonds(const atom_selection_container_t &asc, // oh. Tricky.
+                               int model_number,
                                int atom_colour_type,
                                coot::my_atom_colour_map_t *atom_colour_map_p,
                                int draw_hydrogens_flag,
                                bool do_goodsell_colour_mode);
    void add_polymer_bonds_generic(const atom_selection_container_t &asc,
+                                  int model_number,
                                   int atom_colour_type,
                                   coot::my_atom_colour_map_t *atom_colour_map_p,
                                   int draw_hydrogens_flag,
@@ -879,7 +887,8 @@ public:
                                                         coot::my_atom_colour_map_t acm,
                                                         float min_dist, float max_dist,
                                                         bool draw_missing_loops_flag,
-                                                        int bond_colour_type);
+                                                        int bond_colour_type,
+                                                        int model_number = 0);
    coot::my_atom_colour_map_t do_Ca_or_P_bonds_internal_old(atom_selection_container_t SelAtom,
                                                         const char *backbone_atom_id,
                                                         coot::my_atom_colour_map_t acm,
@@ -895,21 +904,24 @@ public:
                                  coot::protein_geometry *pg,
                                  float min_dist, float max_dist,
                                  bool draw_missing_loops_flag,
-                                 bool do_bonds_to_hydrogens_in);
+                                 bool do_bonds_to_hydrogens_in,
+                                 int model_number = 0);
    void do_Ca_plus_ligands_bonds(atom_selection_container_t SelAtom,
                                  int imol,
                                  coot::protein_geometry *pg,
                                  float min_dist, float max_dist,
                                  bool draw_missing_loops_flag,
                                  int atom_colour_type,
-                                 bool do_bonds_to_hydrogens_in);
+                                 bool do_bonds_to_hydrogens_in,
+                                 int model_number = 0);
    void do_Ca_plus_ligands_and_sidechains_bonds(atom_selection_container_t SelAtom,
                                                 int imol,
                                                 coot::protein_geometry *pg,
                                                 float min_dist_ca, float max_dist_ca,
                                                 float min_dist, float max_dist,
                                                 bool draw_missing_loops_flag,
-                                                bool do_bonds_to_hydrogens_in);
+                                                bool do_bonds_to_hydrogens_in,
+                                                int model_number = 0);
    void do_Ca_plus_ligands_and_sidechains_bonds(atom_selection_container_t SelAtom,
                                                 int imol,
                                                 coot::protein_geometry *pg,
@@ -917,7 +929,8 @@ public:
                                                 float min_dist, float max_dist,
                                                 bool draw_missing_loops_flag,
                                                 int atom_colour_type,
-                                                bool do_bonds_to_hydrogens_in);
+                                                bool do_bonds_to_hydrogens_in,
+                                                int model_number = 0);
    void do_colour_by_chain_bonds(const atom_selection_container_t &asc,
                                  bool use_asc_atom_selection_flag,
                                  int imol,
@@ -925,7 +938,8 @@ public:
                                  bool draw_missing_loops_flag,
                                  short int change_c_only_flag,
                                  bool do_goodsell_colour_mode,
-                                 bool do_ramachandran_markup); // 20221011-PE we want bond by dict *and* rota dodecs!
+                                 bool do_ramachandran_markup,
+                                 int model_number = 0); // 0 means all models
    void do_colour_by_molecule_bonds(const atom_selection_container_t &asc,
                                     int imol,
                                     int draw_hydrogens_flag);

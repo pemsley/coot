@@ -46,6 +46,8 @@
 
 #include "simple-restraint.hh"
 #include "crankshaft.hh"
+#include "utils/logging.hh"
+extern logging logger;
 
 class molecule_score_t {
 public:

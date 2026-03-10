@@ -51,6 +51,11 @@ namespace coot {
       // nearest grid point - faster yet
       float density_at_point_by_nearest_grid(const clipper::Xmap<float> &map_in,
                                              const clipper::Coord_orth &co);
+      // NXmap versions
+      float density_at_point_by_nearest_grid(const clipper::NXmap<float> &nxmap,
+                                             const clipper::Coord_orth &co);
+      float density_at_point_by_linear_interp(const clipper::NXmap<float> &nxmap,
+                                              const clipper::Coord_orth &co);
 
       float density_at_map_point(const clipper::Xmap<float> &map_in,
                                  const clipper::Coord_map &cg);

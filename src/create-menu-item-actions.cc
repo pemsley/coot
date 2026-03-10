@@ -29,6 +29,7 @@
 
 #include "coot-utils/coot-coord-utils.hh"
 #include "coot-utils/ptm-database.hh"
+#include "gdk/gdk.h"
 #include "geometry/residue-and-atom-specs.hh"
 #include "graphics-info.h"
 #include "c-interface.h"
@@ -429,6 +430,15 @@ void curlew_action(G_GNUC_UNUSED GSimpleAction *simple_action,
    GtkWidget *dialog = curlew_dialog();
    set_transient_for_main_window(dialog);
    gtk_widget_set_visible(dialog, TRUE);
+
+}
+
+void start_rpc_server_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                             G_GNUC_UNUSED GVariant *parameter,
+                             G_GNUC_UNUSED gpointer user_data) {
+
+   GtkWidget *frame = widget_from_builder("start_rpc_server_frame");
+   gtk_widget_set_visible(frame, TRUE);
 
 }
 
@@ -1285,7 +1295,42 @@ void
 show_shader_preferences_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                G_GNUC_UNUSED GVariant *parameter,
                                G_GNUC_UNUSED gpointer user_data) {
+
+   auto get_model_molecule_vector = [] () {
+                                       graphics_info_t g;
+                                       std::vector<int> vec;
+                                       int n_mol = g.n_molecules();
+                                       for (int i=0; i<n_mol; i++)
+                                          if (g.is_valid_model_molecule(i))
+                                             vec.push_back(i);
+                                       return vec;
+                                    };
+
    fill_and_show_shader_preferences();
+
+   GtkWidget *model_combobox = widget_from_builder("material_lighting_molecule_comboboxtext");
+   if (model_combobox) {
+      gtk_combo_box_text_remove_all(GTK_COMBO_BOX_TEXT(model_combobox));
+      auto mol_vec = get_model_molecule_vector();
+      graphics_info_t g;
+      int imol_active = first_coords_imol();
+      GCallback callback_func = G_CALLBACK(nullptr);
+      g.fill_combobox_with_molecule_options(model_combobox, callback_func, imol_active, mol_vec);
+      if (g.is_valid_model_molecule(imol_active)) {
+         GtkWidget *ambient_but = widget_from_builder("material_lighting_ambient_colorbutton");
+         GtkWidget *diffuse_but = widget_from_builder("material_lighting_diffuse_colorbutton");
+         GdkRGBA rgba;
+         rgba.alpha = 1.0;
+         rgba.red   = g.molecules[imol_active].model_molecule_meshes.material.ambient.r;
+         rgba.green = g.molecules[imol_active].model_molecule_meshes.material.ambient.g;
+         rgba.blue  = g.molecules[imol_active].model_molecule_meshes.material.ambient.b;
+         gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(ambient_but), &rgba);
+         rgba.red   = g.molecules[imol_active].model_molecule_meshes.material.diffuse.r;
+         rgba.green = g.molecules[imol_active].model_molecule_meshes.material.diffuse.g;
+         rgba.blue  = g.molecules[imol_active].model_molecule_meshes.material.diffuse.b;
+         gtk_color_chooser_set_rgba(GTK_COLOR_CHOOSER(diffuse_but), &rgba);
+      }
+   }
 }
 
 
@@ -2578,7 +2623,8 @@ void add_prosmart_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,
 void add_rcrane_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                               G_GNUC_UNUSED GVariant *parameter,
                               G_GNUC_UNUSED gpointer user_data) {
-   std::cout << "INFO:: no RCrane" << std::endl;
+   // std::cout << "INFO:: no RCrane" << std::endl;
+   logger.log(log_t::INFO, "no RCrane");
    info_dialog("INFO:: No RCrane interface yet");
 }
 
@@ -3424,6 +3470,14 @@ void dna_rna_models_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                            G_GNUC_UNUSED gpointer user_data) {
 
    GtkWidget *w = widget_from_builder("nucleotide_builder_dialog");
+   GtkWidget   *type_combobox = widget_from_builder("nucleotide_builder_type_combobox");
+   GtkWidget   *form_combobox = widget_from_builder("nucleotide_builder_form_combobox");
+   GtkWidget *strand_combobox = widget_from_builder("nucleotide_builder_strand_combobox");
+
+   gtk_combo_box_set_active(GTK_COMBO_BOX(type_combobox),   0);
+   gtk_combo_box_set_active(GTK_COMBO_BOX(form_combobox),   0);
+   gtk_combo_box_set_active(GTK_COMBO_BOX(strand_combobox), 0);
+
    set_transient_for_main_window(w);
    gtk_widget_set_visible(w, TRUE);
 }
@@ -3492,6 +3546,8 @@ void add_PTM_to_residue_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                                    bool is_N_term, bool is_C_term) {
 
       std::vector<coot::ptm_entry_t> entries = graphics_info_t::ptm_database.get_entries_for_residue(res_name);
+      // gtk_cell_layout_clear(GTK_CELL_LAYOUT(combobox));
+      gtk_combo_box_text_remove_all(GTK_COMBO_BOX_TEXT(combobox));
       unsigned int count = 0;
       for (unsigned int i=0; i<entries.size(); i++) {
          const auto &entry = entries[i];
@@ -5663,6 +5719,21 @@ delete_item_water(GSimpleAction *simple_action,
 }
 
 void
+delete_item_all_waters(GSimpleAction *simple_action,
+                       GVariant *parameter,
+                       gpointer user_data) {
+
+   graphics_info_t g;
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = g.active_atom_spec_simple();
+   if (pp.first) {
+      auto atom_spec = pp.second.second;
+      coot::residue_spec_t res_spec(atom_spec);
+      int imol = pp.second.first;
+      delete_waters(imol);
+   }
+}
+
+void
 delete_item_side_chain(GSimpleAction *simple_action,
                  GVariant *parameter,
                  gpointer user_data) {
@@ -5872,6 +5943,8 @@ create_actions(GtkApplication *application) {
    add_action("get_monomer_action", get_monomer_action);
    add_action(     "curlew_action",      curlew_action);
    add_action(       "exit_action",        exit_action);
+
+   add_action("start_rpc_server_action", start_rpc_server_action);
 
    // 2025-09-15 13:00 PE hack functions
    add_action("show_accession_code_fetch_frame_oca",        show_accession_code_fetch_frame_oca);
@@ -6187,6 +6260,7 @@ create_actions(GtkApplication *application) {
    // 2025-09-15 17:24 PE hack functions
    add_action("delete_item_atom", delete_item_atom);
    add_action("delete_item_water", delete_item_water);
+   add_action("delete_item_all_waters", delete_item_all_waters);
    add_action("delete_item_side_chain", delete_item_side_chain);
    add_action("delete_item_side_chain_residue_range", delete_item_side_chain_residue_range);
    add_action("delete_item_side_chains_in_chain", delete_item_side_chains_in_chain);

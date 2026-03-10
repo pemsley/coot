@@ -40,6 +40,8 @@
 #include "graphics-info.h"
 
 #ifdef USE_GUILE
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wvolatile"
 
 mmdb::Manager *
 mmdb_manager_from_scheme_expression(SCM molecule_expression) {
@@ -50,7 +52,7 @@ mmdb_manager_from_scheme_expression(SCM molecule_expression) {
    int inmodel = scm_to_int(nmodel);
 
    if (inmodel > 0) {
-      mol = new mmdb::Manager; 
+      mol = new mmdb::Manager;
       for(int imodel=0; imodel<inmodel; imodel++) {
 	 mmdb::Model *model_p = new mmdb::Model;
 	 SCM imodel_scm = scm_from_int(imodel);
@@ -59,12 +61,12 @@ mmdb_manager_from_scheme_expression(SCM molecule_expression) {
 	 int len_model_expression = scm_to_int(model_expression_length);
 	 if (len_model_expression == 0) {
 	    std::cout << "model length zero!\n";
-	 } else { 
+	 } else {
 	    // SCM chain_list = model_expression; // interesting
 	    int nchains = len_model_expression;
 
 	    for (int ichain=0; ichain<nchains; ichain++) {
-	       
+
 	       SCM chain_expression = scm_list_ref(model_expression,
 						   scm_from_int(ichain));
 	       SCM chain_is_list_scm = scm_list_p(chain_expression);

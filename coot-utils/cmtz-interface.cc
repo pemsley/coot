@@ -27,6 +27,9 @@
 
 #include <clipper/ccp4/ccp4_mtz_io.h>
 #include "cmtz-interface.hh"
+#include "utils/logging.hh"
+
+extern logging logger;
 
 coot::mtz_column_types_info_t
 coot::get_mtz_columns(const std::string &filename) {
@@ -67,7 +70,8 @@ coot::get_mtz_columns(const std::string &filename) {
    }
 
    catch (...) {
-      std::cout << "INFO:: not an mtz file: " << filename << std::endl;
+      logger.log(log_t::INFO, logging::ltw("not an mtz file: "), logging::ltw(filename));
+      // std::cout << "INFO:: not an mtz file: " << filename << std::endl;
       is_mtz_file = 0;
    }
 

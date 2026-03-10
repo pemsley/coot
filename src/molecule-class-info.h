@@ -3930,6 +3930,8 @@ void draw_map_molecule(stereo_eye_t eye,
 
    bool read_nef(const std::string &file_name);
 
+   float gaussian_surface_opacity;
+
 
 };
 

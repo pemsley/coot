@@ -8,6 +8,187 @@ description: "Best Practices for using Coot MCP"
 
 This skill provides best practices for interacting with Coot's Python API through the MCP server. Following these guidelines ensures optimal performance, correct usage, and reliable results.
 
+## Python Execution in Coot MCP
+
+**CRITICAL: Understanding run_python() vs run_python_multiline()**
+
+Coot MCP provides two tools for executing Python code with different capabilities and limitations:
+
+### run_python() - Simple Expressions Only
+
+Use for single expressions that return a value. **Cannot handle imports or semicolons.**
+
+```python
+# ✓ CORRECT - single expression, no imports
+coot.run_python("1 + 1")                           # Returns: 2
+coot.run_python("coot.molecule_name(0)")           # Returns: molecule name
+coot.run_python("coot.is_valid_model_molecule(0)") # Returns: 1 or 0
+
+# ✗ WRONG - these will all fail with syntax errors
+coot.run_python("import os")                       # FAILS - import not allowed
+coot.run_python("import os; os.getcwd()")          # FAILS - semicolon not allowed  
+coot.run_python("x = 5; x * 2")                    # FAILS - semicolon not allowed
+coot.run_python("import coot_utils; coot_utils.chain_ids(0)")  # FAILS
+```
+
+**Rule:** Use `run_python()` ONLY for:
+- Single expressions with no semicolons
+- No import statements
+- Direct function calls that return a value
+
+### run_python_multiline() - Everything Else
+
+Use for any code requiring imports, multiple statements, or function definitions:
+
+```python
+# ✓ CORRECT - use multiline for imports
+coot.run_python_multiline("""
+import os
+result = os.getcwd()
+print(result)
+""")
+
+# ✓ CORRECT - use multiline for multiple statements
+coot.run_python_multiline("""
+x = 5
+y = x * 2
+print(y)
+""")
+
+# ✓ CORRECT - use multiline for complex logic
+coot.run_python_multiline("""
+import coot_utils
+chains = coot_utils.chain_ids(0)
+for chain in chains:
+    print(f"Chain: {chain}")
+""")
+
+# ✓ CORRECT - use multiline for function definitions
+coot.run_python_multiline("""
+def validate_residue(imol, chain, resno):
+    info = coot.residue_info_py(imol, chain, resno, "")
+    return len(info)
+
+result = validate_residue(0, "A", 42)
+print(f"Atoms: {result}")
+""")
+```
+
+**Rule:** Use `run_python_multiline()` for:
+- Any import statements
+- Multiple statements (even without imports)
+- Function definitions
+- Loops and control flow
+- Anything with complexity
+
+### Key Differences Table
+
+| Feature | run_python() | run_python_multiline() |
+|---------|--------------|------------------------|
+| Import statements | ❌ Fails | ✓ Works |
+| Semicolons | ❌ Fails | ✓ Works |
+| Multiple lines | ❌ Fails | ✓ Works |
+| Function defs | ❌ Fails | ✓ Works |
+| Simple expressions | ✓ Works | ✓ Works |
+| Return value | Returns value | Returns None (use print) |
+
+### Common Mistake Pattern
+
+```python
+# ❌ WRONG - will fail with "invalid syntax"
+result = coot.run_python("import coot_utils; coot_utils.chain_ids(0)")
+
+# ✓ CORRECT - use multiline
+coot.run_python_multiline("""
+import coot_utils
+chains = coot_utils.chain_ids(0)
+print(chains)
+""")
+```
+
+### When in Doubt
+
+**Use `run_python_multiline()`** - it handles everything `run_python()` can do, plus more. The only downside is that it returns None rather than a value, so use `print()` to see output.
+
+## File Writing from Coot Python
+
+**CRITICAL: When writing files from Coot's Python, ALWAYS write to the current directory without specifying a path.**
+
+### The Problem
+
+Coot's Python interpreter runs in a specific working directory (`/Users/pemsley/Projects/coot/git/coot-main/build/src`), which is different from both:
+- The bash working directory (`/home/claude`)
+- Mounted shared directories (`/mnt/user-data/...`)
+
+Attempting to write to an explicit path that doesn't exist in Coot's context will cause `FileNotFoundError`.
+
+### ✅ CORRECT: Write to Current Directory
+
+```python
+# ✓ CORRECT - no path, just filename
+with open('output.txt', 'w') as f:
+    f.write(content)
+
+# ✓ CORRECT - works for any file type
+with open('validation.xml', 'w') as f:
+    f.write(xml_content)
+
+# ✓ CORRECT - reading also uses just filename
+with open('data.txt', 'r') as f:
+    content = f.read()
+```
+
+### ❌ INCORRECT: Don't Specify Paths
+
+```python
+# ✗ WRONG - will fail with FileNotFoundError
+with open('/home/claude/output.txt', 'w') as f:
+    f.write(content)
+
+# ✗ WRONG - this path doesn't exist in Coot's context
+with open('/mnt/user-data/outputs/file.txt', 'w') as f:
+    f.write(content)
+
+# ✗ WRONG - even full paths will fail
+import os
+output_file = os.path.join('/home/claude', 'output.txt')
+with open(output_file, 'w') as f:
+    f.write(content)
+```
+
+### Pattern for Working with Files
+
+```python
+# 1. Download/fetch content (if needed)
+url = "https://example.com/data.xml"
+content = coot.coot_get_url_as_string_py(url)
+
+# 2. Write to current directory (no path!)
+with open('data.xml', 'w') as f:
+    f.write(content)
+
+# 3. Process the file
+import xml.etree.ElementTree as ET
+tree = ET.parse('data.xml')  # Read from current directory
+root = tree.getroot()
+
+# 4. Write results (again, no path!)
+with open('results.txt', 'w') as f:
+    f.write(analysis_results)
+```
+
+### Why This Works
+
+Coot's Python interpreter automatically uses its working directory. By omitting paths:
+- Files are created in a location that exists
+- No permission issues
+- No cross-filesystem problems
+- Simple and reliable
+
+### Getting Files to the User
+
+After creating files in Coot's working directory, use bash tools to copy them to `/mnt/user-data/outputs` where the user can access them, or share results via print output.
+
 ## Startup Procedure
 
 **CRITICAL: On every "Coot Mode" start, before doing anything else:**
@@ -244,6 +425,52 @@ mols  # Final expression is returned
 
 # ✅ ALSO CORRECT: List comprehension (single expression)
 [i for i in range(3)]
+```
+
+## MMDB Atom Selection Syntax
+
+When using functions like `new_molecule_by_atom_selection()` or `superpose_with_atom_selection()`, use MMDB atom selection strings to specify which atoms to include.
+
+### Format
+```
+//chn/seq(res).ic/atm[elm]:aloc
+```
+
+### Components
+
+- **`//`** - Model specifier (typically `//` for single-model structures, or `/1/` for model 1)
+- **`chn`** - Chain ID (e.g., `A`, `B`, `X`)
+- **`seq`** - Residue number or range:
+  - Single: `50`
+  - Range: `10-20`
+- **`res`** - Residue name in parentheses (e.g., `(HIS)`, `(ALA)`, `(GLY)`)
+- **`ic`** - Insertion code
+- **`atm`** - Atom name (e.g., `CA`, `N`, `O`)
+- **`elm`** - Element in square brackets (e.g., `[C]`, `[N]`)
+- **`aloc`** - Alternate location indicator
+
+All components are optional - you only need to specify what you want to filter.
+
+### Examples
+```python
+# Select entire chain
+"//A"                          # All atoms in chain A
+
+# Select residue range
+"//A/12-130"                   # Residues 12-130 in chain A
+"//A/12-130/CA"                # CA atoms from residues 12-130 in chain A
+
+# Select specific residue type
+"//B/10-20(GLY)"               # GLY residues 10-20 in chain B
+"//A/(HIS)"                    # All HIS residues in chain A
+
+# Select specific atom
+"//A/50/CA"                    # CA atom of residue 50 in chain A
+"//A/50(HIS)/CA"               # CA atom of HIS 50 in chain A
+
+# Multiple chains (create separate selections and merge)
+imol_a = coot.new_molecule_by_atom_selection(imol, "//A")
+imol_b = coot.new_molecule_by_atom_selection(imol, "//B")
 ```
 
 ### Usage Example

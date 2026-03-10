@@ -580,6 +580,158 @@ def setup_presentation_graphics():
     return "Presentation graphics settings applied"
 ```
 
+## Goodsell-Style Figures
+
+Goodsell-style figures use ball-and-stick representations with flat matte shading, outlines, and chain-based colouring. They are **not** Gaussian/molecular surfaces — the key characteristic is the illustrated, hand-drawn look achieved through specific shader settings.
+
+### Installing the Goodsell Extension via Curlew
+
+The Goodsell style is provided by a Curlew extension. Install it once per session:
+
+```python
+def install_goodsell_extension():
+    # List available extensions to confirm it's there
+    exts = coot.curlew_get_extension_list()
+    for name, fname in exts:
+        print(f"{name}: {fname}")
+    # Install
+    result = coot.curlew_download_and_install_extension("coot_goodsell_menu.py")
+    print(f"Install result: {result}")  # 1 = success
+    return result
+
+install_goodsell_extension()
+```
+
+This installs two functions into the global namespace:
+- `goodsell_setting()` — applies all shader/material settings (uses active atom's molecule)
+- `goodsell_colour_scheme(mode)` — sets chain colouring + calls `goodsell_setting()`
+
+### Applying Goodsell Style
+
+```python
+def apply_goodsell(imol):
+    # Navigate to a residue in the target molecule to make it active
+    # (goodsell_colour_scheme uses active_residue_py() to get imol)
+    coot.set_go_to_atom_chain_residue_atom_name("A", 100, " CA ")
+
+    # Choose colour wheel step mode:
+    #   mode 1: step 0.221 — large steps, most distinct colours (best for hexamers etc.)
+    #   mode 2: step 0.09  — medium steps, analogous palette
+    #   mode 3: step 0.04  — small steps, very similar hues
+    goodsell_colour_scheme(1)
+
+    # CRITICAL: restore rotation centre after set_go_to_atom_chain_residue_atom_name
+    # which moves the view to that atom as a side effect
+    cx = coot.molecule_centre_internal(imol, 0)
+    cy = coot.molecule_centre_internal(imol, 1)
+    cz = coot.molecule_centre_internal(imol, 2)
+    coot.set_rotation_centre(cx, cy, cz)
+
+    coot.graphics_draw()
+    return "Goodsell applied"
+
+apply_goodsell(3)
+```
+
+### CRITICAL: Recentre After Navigation
+
+`set_go_to_atom_chain_residue_atom_name()` moves the rotation centre to that atom as a side effect. **Always restore the rotation centre** to the molecule centroid immediately after:
+
+```python
+# ❌ BAD - leaves view centred on a random atom
+coot.set_go_to_atom_chain_residue_atom_name("A", 100, " CA ")
+goodsell_colour_scheme(1)
+
+# ✅ GOOD - restore centre after
+coot.set_go_to_atom_chain_residue_atom_name("A", 100, " CA ")
+goodsell_colour_scheme(1)
+cx = coot.molecule_centre_internal(imol, 0)
+cy = coot.molecule_centre_internal(imol, 1)
+cz = coot.molecule_centre_internal(imol, 2)
+coot.set_rotation_centre(cx, cy, cz)
+```
+
+### What goodsell_setting() Does
+
+For reference, the extension applies these settings:
+
+```python
+coot.set_background_colour(1.0, 1.0, 1.0)       # White background
+coot.set_bond_smoothness_factor(3)               # Smooth bonds
+coot.set_model_molecule_representation_style(imol, 1)  # Ball-and-stick
+coot.set_model_material_diffuse(imol, 0.00, 0.00, 0.00, 1)  # Flat/matte
+coot.set_model_material_specular(imol, 0.0, 64)  # No specular highlights
+coot.set_model_material_ambient(imol, 0.5, 0.5, 0.5, 1)
+coot.set_use_outline(1)                          # Dark outlines - essential
+coot.set_effects_shader_brightness(1.11)         # Base brightness
+coot.set_effects_shader_gamma(0.66)              # Gamma correction
+coot.set_ssao_strength(0.25)                     # Subtle ambient occlusion
+coot.set_use_fancy_lighting(1)
+```
+
+### Brightness Adjustment
+
+The default brightness of 1.11 is a good starting point but often benefits from a small increase:
+
+```python
+# Default from goodsell_setting(): 1.11
+# Recommended slight increase for a brighter, more vibrant result:
+coot.set_effects_shader_brightness(1.22)
+coot.graphics_draw()
+```
+
+**Always nudge brightness up slightly** from the default 1.11 — 1.22 has been found to give a better result.
+
+### Screendumps
+
+When saving screendumps, **do not specify a directory** — write to the current working directory only:
+
+```python
+# ✅ CORRECT - filename only
+coot.screendump_tga("6v2f_goodsell.tga")
+
+# ❌ WRONG - do not specify a path
+coot.screendump_tga("/tmp/6v2f_goodsell.tga")
+```
+
+### Complete Goodsell Figure Workflow
+
+```python
+def make_goodsell_figure(imol, anchor_chain, anchor_resno, zoom=350):
+    """
+    Apply Goodsell style to imol and save a screendump.
+    anchor_chain/resno: any residue in imol (used to set active atom).
+    """
+    # 1. Ensure bond representation is visible
+    coot.set_mol_displayed(imol, 1)
+
+    # 2. Navigate to set active atom (required by goodsell_colour_scheme)
+    coot.set_go_to_atom_chain_residue_atom_name(anchor_chain, anchor_resno, " CA ")
+
+    # 3. Apply Goodsell colouring and shader settings
+    goodsell_colour_scheme(1)  # mode 1 = most distinct chain colours
+
+    # 4. Nudge brightness above the default 1.11
+    coot.set_effects_shader_brightness(1.22)
+
+    # 5. Restore rotation centre to molecule centroid
+    cx = coot.molecule_centre_internal(imol, 0)
+    cy = coot.molecule_centre_internal(imol, 1)
+    cz = coot.molecule_centre_internal(imol, 2)
+    coot.set_rotation_centre(cx, cy, cz)
+
+    # 6. Set zoom
+    coot.set_zoom(zoom)
+    coot.graphics_draw()
+
+    # 7. Save screendump - filename only, no directory
+    coot.screendump_tga("goodsell_figure.tga")
+
+    return "Goodsell figure saved"
+
+make_goodsell_figure(3, "A", 100, zoom=350)
+```
+
 ## Summary
 
 1. **Always use function wrappers** for complex code
@@ -593,3 +745,109 @@ def setup_presentation_graphics():
 9. **Choose appropriate background** for your publication medium (mid-grey works well with shadows)
 
 Following these practices ensures reliable, publication-quality molecular graphics figures in Coot.
+
+## Summary of Additions to coot-figure-making/SKILL.md
+
+The following new content has been added to the figure-making skill based on today's session visualizing the 1ej6 reovirus core assembly.
+
+---
+
+## New Sections Added
+
+### 1. Gaussian Surface Representations
+
+**Key Topics Covered:**
+- Creating Gaussian surfaces
+- **CRITICAL RULE: Always use molecular symmetry coloring when applicable**
+- Gaussian surface parameters (contour level, sigma, grid scale, box radius, B-factor)
+- Working with generic display objects to selectively hide surfaces
+- Downloading biological assemblies from PDBe
+
+**Critical Best Practice:**
+```python
+# ALWAYS set molecular symmetry coloring for structures with symmetry
+coot.set_gaussian_surface_chain_colour_mode(2)
+coot.gaussian_surface(imol)
+```
+
+### 2. Downloading Biological Assemblies from PDBe
+
+**Correct URL Format:**
+- Use **hyphen** not underscore: `1ej6-assembly1` NOT `1ej6_assembly-1`
+- File is **gzipped**: `.cif.gz` extension
+- Base URL: `https://www.ebi.ac.uk/pdbe/static/entry/download/`
+
+**Complete example code provided** for downloading, decompressing, and loading assemblies.
+
+### 3. Advanced Graphics Settings for Gaussian Surfaces
+
+**Publication-Quality SSAO Settings:**
+- **256-512 kernel samples** for screenshots (not default 32)
+- **Large radius (20-25)** for large assemblies
+- Complete optimized settings for publication figures
+
+**CRITICAL Discovery: Outline and Depth Blur Are Mutually Exclusive**
+- Despite API allowing both, shader implementation makes them exclusive
+- **Recommendation:** Use outline mode for Gaussian surfaces
+- Clear documentation with correct/incorrect examples
+
+### 4. Complete Publication Setup
+
+**Optimized settings for Gaussian surface figures:**
+- Dark grey background (0.2, 0.2, 0.2) for dramatic contrast
+- Outline mode for polished cel-shaded look
+- High-quality SSAO (256 samples, radius 25)
+- Fancy lighting
+- Complete working code example
+
+---
+
+## Updated Summary Section
+
+Reorganized into three categories:
+
+1. **Ribbon Representations** (existing best practices)
+2. **Gaussian Surface Representations** (NEW - 6 best practices)
+3. **General Publication Graphics** (existing, refined)
+
+---
+
+## Key Lessons Learned
+
+### Image-Making Rules
+1. **Always use molecular symmetry coloring** for structures with symmetry
+2. **Use 256-512 SSAO kernel samples** for publication screenshots
+3. **Outline and depth blur are mutually exclusive** in the shader
+4. **Large SSAO radius (20-25)** needed for large assemblies
+5. **Correct PDBe assembly URL format** with hyphen and .cif.gz
+
+### Why This Matters
+- Molecular symmetry coloring **immediately reveals biological organization**
+- High kernel samples produce **smooth, professional shadows** without noise
+- Large assemblies need different parameters than small molecules
+- Biological assemblies show the **true functional form** of the structure
+
+---
+
+## Code Examples Added
+
+1. Download biological assembly from PDBe
+2. Hide first half of generic display objects
+3. Setup publication-quality SSAO for Gaussian surfaces
+4. Complete publication graphics configuration
+5. All with proper error handling and documentation
+
+---
+
+## Session Context
+
+These updates came from successfully:
+1. Fetching PDB 1ej6 (reovirus core, 300-chain assembly)
+2. Downloading biological assembly via PDBe API
+3. Creating Gaussian surface with molecular symmetry coloring
+4. Optimizing graphics settings for publication quality
+5. Discovering shader limitations (outline/depth blur exclusivity)
+6. Finding optimal SSAO parameters through experimentation
+
+The result: A beautiful visualization of icosahedral viral symmetry with 5 colors showing the distribution of 5 unique chain types across 300 chains in the biological assembly.
+

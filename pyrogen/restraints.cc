@@ -20,11 +20,18 @@
  * 02110-1301, USA
  */
 
+#ifdef LIBCOOTAPI_BUILD
+#else
 #include <boost/python.hpp>
+#endif
+
 // #include "rdkit/RDBoost/Exceptions.h"
 #include <lidia-core/use-rdkit.hh>
 #include "restraints.hh"
+#ifdef LIBCOOTAPI_BUILD
+#else
 #include "py-restraints.hh"
+#endif
 #include <lidia-core/rdkit-interface.hh>
 #include <utils/coot-utils.hh>
 #include <coot-utils/coot-coord-utils.hh>
@@ -33,7 +40,8 @@
 
 #include <ideal/simple-restraint.hh>
 
-
+#ifdef LIBCOOTAPI_BUILD
+#else
 void
 coot::mogul_out_to_mmcif_dict(const std::string &mogul_file_name,
 			      const std::string &comp_id,
@@ -46,7 +54,7 @@ coot::mogul_out_to_mmcif_dict(const std::string &mogul_file_name,
 			      bool quartet_planes, bool quartet_hydrogen_planes) {
 
    coot::mogul mogul(mogul_file_name);
-   coot::dictionary_residue_restraints_t bond_order_restraints = 
+   coot::dictionary_residue_restraints_t bond_order_restraints =
       monomer_restraints_from_python(bond_order_restraints_py);
    coot::dictionary_residue_restraints_t restraints = mogul.make_restraints(comp_id,
 									    compound_name,
@@ -58,7 +66,10 @@ coot::mogul_out_to_mmcif_dict(const std::string &mogul_file_name,
    restraints.write_cif(cif_file_name);
 
 }
+#endif
 
+#ifdef LIBCOOTAPI_BUILD
+#else
 void
 coot::write_restraints(PyObject *restraints_py, const std::string &file_name) {
 
@@ -70,15 +81,18 @@ coot::write_restraints(PyObject *restraints_py, const std::string &file_name) {
          std::cout << "write_restraints() " << iat << " " << restraints.atom_info[iat].atom_id_4c  << std::endl;
       }
    }
- 
+
    if (restraints.is_filled()) {
       restraints.set_use_nuclear_distances(true);
       restraints.write_cif(file_name);
    } else {
       std::cout << "No restraints in write_restraints()" << std::endl;
-   } 
+   }
 }
+#endif
 
+#ifdef LIBCOOTAPI_BUILD
+#else
 // replace_with_mmff_b_a_restraints is an optional arg, default true
 //
 PyObject *
@@ -130,16 +144,16 @@ coot::mogul_out_to_mmcif_dict_by_mol(const std::string &mogul_file_name,
 			    bond_order_restraints);
 
    if (replace_with_mmff_b_a_restraints) {
-      
+
       RDKit::ROMol mol_for_mmff(mol);
-      
-      // bonds and angles 
+
+      // bonds and angles
       dictionary_residue_restraints_t mmff_restraints = make_mmff_restraints(mol_for_mmff);
 
       // when status is false, we can return with a partially filled
       // restraints, this is worse than empty (silent failure), so if
       // that's the case replace with empty restraints holder.
-      
+
       std::pair<bool, dictionary_residue_restraints_t> restraints_local =
 	 mmcif_dict_from_mol_using_energy_lib(comp_id, compound_name, rdkit_mol_py,
 					      quartet_planes, quartet_hydrogen_planes);
@@ -149,11 +163,11 @@ coot::mogul_out_to_mmcif_dict_by_mol(const std::string &mogul_file_name,
 	 restraints = restraints_local.second;
 	 restraints.conservatively_replace_with( mmff_restraints);
 	 restraints.conservatively_replace_with(mogul_restraints);
-	 
+
       } else {
 	 std::cout << "ERROR:: faliure in mmcif_dict_from_mol_using_energy_lib() "
 		   << std::endl;
-      } 
+      }
 
    } else {
 
@@ -171,14 +185,17 @@ coot::mogul_out_to_mmcif_dict_by_mol(const std::string &mogul_file_name,
       }
    }
    return monomer_restraints_to_python(restraints);
-      
-}
 
+}
+#endif
+
+#ifdef LIBCOOTAPI_BUILD
+#else
 // return a 3-value tuple:
 // 0: success-bool
 // 1: new-restraints
 // 2: atom-name transformation (from-name, to-name)
-// 
+//
 PyObject *
 coot::match_restraints_to_dictionaries(PyObject *restraints_py,
 				       PyObject *template_comp_id_list,
@@ -193,7 +210,7 @@ coot::match_restraints_to_dictionaries(PyObject *restraints_py,
    coot::dictionary_residue_restraints_t restraints = monomer_restraints_from_python(restraints_py);
    std::vector<std::string> comp_ids;
    std::vector<std::string> dictionary_file_names;
-   
+
    if (PyList_Check(template_comp_id_list)) {
       Py_ssize_t len = PyObject_Length(template_comp_id_list);
       for (Py_ssize_t i=0; i<len; i++) {
@@ -226,10 +243,11 @@ coot::match_restraints_to_dictionaries(PyObject *restraints_py,
       PyTuple_SetItem(o, 0, PyBool_FromLong(true));
       PyTuple_SetItem(o, 1, monomer_restraints_to_python(md.dict));
       PyTuple_SetItem(o, 2, name_list_py); 
-   } 
-   
+   }
+
    return o;
-} 
+}
+#endif
 
 // Old function
 // 
@@ -279,10 +297,10 @@ coot::match_restraints_to_reference_dictionaries(const coot::dictionary_residue_
    pg.set_verbose(false);
    int read_number = 0;
 
-   for (unsigned int i=0; i<test_comp_ids.size(); i++) { 
+   for (unsigned int i=0; i<test_comp_ids.size(); i++) {
       pg.try_dynamic_add(test_comp_ids[i], i);
    }
-   for (unsigned int i=0; i<test_mmcif_file_names.size(); i++) { 
+   for (unsigned int i=0; i<test_mmcif_file_names.size(); i++) {
       pg.init_refmac_mon_lib(test_mmcif_file_names[i], read_number++);
    }
 
@@ -332,6 +350,8 @@ coot::match_restraints_to_reference_dictionaries(const coot::dictionary_residue_
    return dict;
 }
 
+#ifdef LIBCOOTAPI_BUILD
+#else
 PyObject *
 coot::test_tuple() {
 
@@ -340,9 +360,12 @@ coot::test_tuple() {
    PyTuple_SetItem(o, 1, PyUnicode_FromString("this-is-part-of-a-tuple"));
 
    return o;
-} 
+}
+#endif
 
 
+#ifdef LIBCOOTAPI_BUILD
+#else
 PyObject *
 coot::types_from_mmcif_dictionary(const std::string &file_name) {
 
@@ -359,8 +382,11 @@ coot::types_from_mmcif_dictionary(const std::string &file_name) {
       PyList_SetItem(l, i, o);
    }
    return l;
-} 
+}
+#endif
 
+#ifdef LIBCOOTAPI_BUILD
+#else
 // This is the function that give pyrogen its name
 //
 // write restraints and return restraints
@@ -426,11 +452,14 @@ coot::mmcif_dict_from_mol(const std::string &comp_id,
       o = Py_None;
       Py_INCREF(o);
       return o;
-   } 
-} 
+   }
+}
+#endif
 
+#ifdef LIBCOOTAPI_BUILD
+#else
 // return also success status, true is good
-// 
+//
 std::pair<bool, coot::dictionary_residue_restraints_t>
 coot::mmcif_dict_from_mol_using_energy_lib(const std::string &comp_id,
 					   const std::string &compound_name,
@@ -440,13 +469,14 @@ coot::mmcif_dict_from_mol_using_energy_lib(const std::string &comp_id,
    bool status = true;
    coot::dictionary_residue_restraints_t restraints(comp_id, 1);
    RDKit::ROMol &mol = boost::python::extract<RDKit::ROMol&>(rdkit_mol_py);
-   std::pair<bool, coot::dictionary_residue_restraints_t> p = 
+   std::pair<bool, coot::dictionary_residue_restraints_t> p =
       mmcif_dict_from_mol_using_energy_lib(comp_id, compound_name, mol, quartet_planes, quartet_hydrogen_planes);
    return p;
 }
+#endif
 
 // return also success status, true is good
-// 
+//
 std::pair<bool, coot::dictionary_residue_restraints_t>
 coot::mmcif_dict_from_mol_using_energy_lib(const std::string &comp_id,
 					   const std::string &compound_name,
@@ -479,17 +509,17 @@ coot::mmcif_dict_from_mol_using_energy_lib(const std::string &comp_id,
    } else {
 
       // number of atom first
-      // 
+      //
       unsigned int n_atoms_all = mol.getNumAtoms();
       unsigned int n_atoms_non_hydrogen = 0;
       for (unsigned int iat=0; iat<n_atoms_all; iat++)
 	 if (mol[iat]->getAtomicNum() != 1)
 	    n_atoms_non_hydrogen++;
-      
+
       coot::energy_lib_t energy_lib(env_as_string);
 
       // fill with ener_lib values and then add mogul updates.
-      // 
+      //
       restraints.residue_info.comp_id = comp_id;
       restraints.residue_info.three_letter_code = comp_id;
       restraints.residue_info.name = compound_name;
@@ -1904,13 +1934,15 @@ coot::debug_cip_ranks(const RDKit::ROMol &mol) {
       catch (const KeyErrorException &kee) {
 	    std::cout << "caught no-cip_rank for atom exception in debug_cip_ranks(): "
 		      <<  kee.what() << std::endl;
-      } 
+      }
    }
 
 }
 
 
 
+#ifdef LIBCOOTAPI_BUILD
+#else
 void
 coot::write_restraints(PyObject *restraints_py,
 		       const std::string &monomer_type,
@@ -1920,8 +1952,11 @@ coot::write_restraints(PyObject *restraints_py,
    rest.set_use_nuclear_distances(true);
    rest.write_cif(file_name);
 }
+#endif
 
 
+#ifdef LIBCOOTAPI_BUILD
+#else
 void
 coot::write_pdb_from_mol(PyObject *rdkit_mol_py,
 			 const std::string &res_name,
@@ -1939,9 +1974,12 @@ coot::write_pdb_from_mol(PyObject *rdkit_mol_py,
       delete mol;
    }
 }
+#endif
 
 
 
+#ifdef LIBCOOTAPI_BUILD
+#else
 void
 coot::regularize_and_write_pdb(PyObject *rdkit_mol, PyObject *restraints_py,
 			       const std::string &res_name,
@@ -1951,10 +1989,12 @@ coot::regularize_and_write_pdb(PyObject *rdkit_mol, PyObject *restraints_py,
    int status = mol_res.first->WritePDBASCII(pdb_file_name.c_str());
    if (status == 0)
       std::cout << "INFO:: wrote PDB   \"" << pdb_file_name << "\"" << std::endl;
-   
 }
+#endif
 
 
+#ifdef LIBCOOTAPI_BUILD
+#else
 // update the passed rdkit molecule
 void
 coot::regularize(PyObject *rdkit_mol_py, PyObject *restraints_py,
@@ -1965,7 +2005,7 @@ coot::regularize(PyObject *rdkit_mol_py, PyObject *restraints_py,
    std::pair<mmdb::Manager *, mmdb::Residue *> regular =
       regularize_inner(rdkit_mol_py, restraints_py, res_name);
 
-   if (regular.second) { 
+   if (regular.second) {
 
       // now create a new molecule, because the one we are given is a ROMol.
       RDKit::RWMol *rw_mol = new RDKit::RWMol(mol);
@@ -1975,6 +2015,7 @@ coot::regularize(PyObject *rdkit_mol_py, PyObject *restraints_py,
       update_coords(rw_mol, iconf, regular.second);
    }
 }
+#endif
 
 
 // update mol and restraints_p
@@ -1999,10 +2040,11 @@ coot::regularize_and_update_mol_and_restraints(RDKit::RWMol *mol,
       std::cout << "WARNING:: regularize_and_update_mol_and_restraints() no conformers means no minimization"
                 << std::endl;
    }
-   
 }
 
 
+#ifdef LIBCOOTAPI_BUILD
+#else
 std::pair<mmdb::Manager *, mmdb::Residue *>
 coot::regularize_inner(PyObject *rdkit_mol_py,
 		       PyObject *restraints_py,
@@ -2011,23 +2053,27 @@ coot::regularize_inner(PyObject *rdkit_mol_py,
    RDKit::ROMol &mol = boost::python::extract<RDKit::ROMol&>(rdkit_mol_py);
    return regularize_inner(mol, restraints_py, res_name);
 }
+#endif
 
 
+#ifdef LIBCOOTAPI_BUILD
+#else
 std::pair<mmdb::Manager *, mmdb::Residue *>
 coot::regularize_inner(RDKit::ROMol &mol,
 		       PyObject *restraints_py,
 		       const std::string &res_name) {
 
-   coot::dictionary_residue_restraints_t dict_restraints = 
+   coot::dictionary_residue_restraints_t dict_restraints =
       monomer_restraints_from_python(restraints_py);
    mmdb::Residue *residue_p = coot::make_residue(mol, 0, res_name);
    // remove this NULL at some stage (soon)
    mmdb::Manager *cmmdbmanager = coot::util::create_mmdbmanager_from_residue(residue_p);
 
    simple_refine(residue_p, cmmdbmanager, dict_restraints);
-   
+
    return std::pair<mmdb::Manager *, mmdb::Residue *> (cmmdbmanager, residue_p);
-} 
+}
+#endif
 
 
 

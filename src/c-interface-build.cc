@@ -302,6 +302,9 @@ int replace_fragment(int imol_target, int imol_fragment,
 }
 
 #ifdef USE_GUILE
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wvolatile"
+
 int replace_residues_from_mol_scm(int imol_target,
 				 int imol_ref,
 				 SCM residue_specs_list_ref_scm) {
@@ -331,6 +334,7 @@ int replace_residues_from_mol_scm(int imol_target,
    }
    return status;
 }
+#pragma GCC diagnostic pop
 #endif // USE_GUILE
 
 /*! \brief replace the given residues from the reference molecule to the target molecule
@@ -473,7 +477,8 @@ void set_undo_molecule(int imol) {
    if ((imol >= 0) && (imol < graphics_info_t::n_molecules())) {
       graphics_info_t g;
       if (g.molecules[imol].atom_sel.mol) {
-	 std::cout << "INFO:: undo molecule number set to: " << imol << std::endl;
+	 // std::cout << "INFO:: undo molecule number set to: " << imol << std::endl;
+	 logger.log(log_t::INFO, "undo molecule number set to:", imol);
 	 g.set_undo_molecule_number(imol);
       }
    }
@@ -696,6 +701,8 @@ void spin_search_by_atom_vectors(int imol_map, int imol, const std::string &chai
 }
 
 #ifdef USE_GUILE
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wvolatile"
 /*! \brief for the given residue, spin the atoms in moving_atom_list
   around the bond defined by direction_atoms_list looking for the best
   fit to density of imom_map map of the first atom in
@@ -714,7 +721,9 @@ void spin_search(int imol_map, int imol, const char *chain_id, int resno,
       std::cout << "bad direction atom pair" << std::endl;
    }
 }
+#pragma GCC diagnostic pop
 #endif
+
 #ifdef USE_PYTHON
 void spin_search_py(int imol_map, int imol, const char *chain_id, int resno,
                  const char *ins_code, PyObject *direction_atoms_list, PyObject *moving_atoms_list) {
@@ -748,6 +757,8 @@ void spin_N_py(int imol, PyObject *residue_spec_py, float angle) {
 #endif // USE_PYTHON
 
 #ifdef USE_GUILE
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wvolatile"
 void spin_N_scm(int imol, SCM residue_spec_scm, float angle) {
 
    if (is_valid_model_molecule(imol)) {
@@ -756,6 +767,7 @@ void spin_N_scm(int imol, SCM residue_spec_scm, float angle) {
       graphics_draw();
    }
 }
+#pragma GCC diagnostic pop
 #endif // USE_GUILE
 
 #ifdef USE_PYTHON
@@ -790,6 +802,8 @@ PyObject *CG_spin_search_py(int imol_model, int imol_map) {
 #endif // USE_PYTHON
 
 #ifdef USE_GUILE
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wvolatile"
 //! \brief Spin search the density based on possible positions of CG of a side-chain
 SCM CG_spin_search_scm(int imol_model, int imol_map) {
 
@@ -813,6 +827,7 @@ SCM CG_spin_search_scm(int imol_model, int imol_map) {
    }
    return r;
 }
+#pragma GCC diagnostic pop
 #endif // USE_GUILE
 
 
@@ -935,6 +950,8 @@ delete_residue_with_full_spec(int imol,
 
 
 #ifdef USE_GUILE
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wvolatile"
 /*! \brief delete residues in the residue spec list */
 void delete_residues_scm(int imol, SCM residue_specs_scm) {
    if (is_valid_model_molecule(imol)) {
@@ -943,6 +960,7 @@ void delete_residues_scm(int imol, SCM residue_specs_scm) {
       graphics_draw();
    }
 }
+#pragma GCC diagnostic pop
 #endif
 
 #ifdef USE_PYTHON
@@ -955,8 +973,6 @@ void delete_residues_py(int imol, PyObject *residue_specs_py) {
    }
 }
 #endif
-
-
 
 
 /*! \brief delete all hydrogens in molecule */
@@ -1070,6 +1086,8 @@ void set_debug_refinement(int state) {
 }
 
 #ifdef USE_GUILE
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wvolatile"
 SCM get_residue_alt_confs_scm(int imol, const char *chain_id, int res_no, const char *ins_code) {
 
    SCM r = SCM_EOL;
@@ -1077,6 +1095,7 @@ SCM get_residue_alt_confs_scm(int imol, const char *chain_id, int res_no, const 
    return r;
 
 }
+#pragma GCC diagnostic pop
 #endif
 
 #ifdef USE_PYTHON
@@ -1189,6 +1208,8 @@ int set_atom_string_attribute(int imol, const char *chain_id, int resno, const c
 }
 
 #ifdef USE_GUILE
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wvolatile"
 int set_atom_attributes(SCM attribute_expression_list) {
 
    int r= 0;
@@ -1277,6 +1298,7 @@ int set_atom_attributes(SCM attribute_expression_list) {
       graphics_draw();
    return r;
 }
+#pragma GCC diagnostic pop
 #endif // USE_GUILE
 
 #ifdef USE_PYTHON
@@ -1407,6 +1429,8 @@ void set_residue_name(int imol, const char *chain_id, int res_no, const char *in
 }
 
 #ifdef USE_GUILE
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wvolatile"
 SCM all_residues_with_serial_numbers_scm(int imol) {
 
    SCM r = SCM_BOOL_F;
@@ -1424,6 +1448,7 @@ SCM all_residues_with_serial_numbers_scm(int imol) {
    }
    return r;
 }
+#pragma GCC diagnostic pop
 #endif
 
 
@@ -1490,6 +1515,8 @@ short int refinement_already_ongoing_p() {
 
 
 #ifdef USE_GUILE
+#pragma GCC diagnostic push
+#pragma GCC diagnostic ignored "-Wvolatile"
 SCM refine_residues_scm(int imol, SCM r) {
    return refine_residues_with_alt_conf_scm(imol, r, "");
 }
@@ -2805,7 +2832,8 @@ void write_header_secondary_structure_info(int imol, const char *file_name) {
          coot::secondary_structure_header_records ssr(mol, false);
 
          if (ss_status == mmdb::SSERC_Ok) {
-            std::cout << "INFO:: SSE status was OK\n";
+            // std::cout << "INFO:: SSE status was OK\n";
+            logger.log(log_t::INFO, "SSE status was OK");
             model_p->PDBASCIIDumpPS(f); // dump CHelix and CStrand records.
          }
       }
@@ -4331,10 +4359,16 @@ SCM missing_atom_info_scm(int imol) {
          if (it != m_i_info.residue_missing_atom_names_map.end()) {
             const std::vector<std::string> &missing_atom_names = it->second;
             if (! missing_atom_names.empty()) {
-               std::cout << "INFO:: residue " << coot::residue_spec_t(residue_p) << " has missing atoms ";
-               for (unsigned int iat=0; iat<missing_atom_names.size(); iat++)
-                  std::cout << single_quote(missing_atom_names[iat]) << " ";
-               std::cout << std::endl;
+               // std::cout << "INFO:: residue " << coot::residue_spec_t(residue_p) << " has missing atoms ";
+               // for (unsigned int iat=0; iat<missing_atom_names.size(); iat++)
+               //    std::cout << single_quote(missing_atom_names[iat]) << " ";
+               // std::cout << std::endl;
+               {
+                  std::string ma_msg = "residue " + coot::residue_spec_t(residue_p).format() + " has missing atoms";
+                  for (unsigned int iat=0; iat<missing_atom_names.size(); iat++)
+                     ma_msg += " " + single_quote(missing_atom_names[iat]);
+                  logger.log(log_t::INFO, ma_msg);
+               }
             }
          }
       }
@@ -5686,12 +5720,14 @@ int handle_cif_dictionary_for_molecule(const std::string &filename, int imol_enc
       if (imol_enc >= 0 || imol_enc == coot::protein_geometry::IMOL_ENC_AUTO) {
          if (imol_enc == coot::protein_geometry::IMOL_ENC_AUTO) {
             if (g.Geom_p()->is_non_auto_load_ligand(rmit.comp_id)) {
-               std::cout << "INFO:: " << s1 << std::endl;
+               // std::cout << "INFO:: " << s1 << std::endl;
+               logger.log(log_t::INFO, s1);
                add_status_bar_text(s1);
                do_new_molecule = false;
             }
          } else {
-            std::cout << "INFO:: " << s2 << std::endl;
+            // std::cout << "INFO:: " << s2 << std::endl;
+            logger.log(log_t::INFO, s2);
             add_status_bar_text(s2);
             do_new_molecule = false;
          }
@@ -6109,8 +6145,9 @@ SCM add_linked_residue_scm(int imol, const char *chain_id, int resno, const char
 
       if (g.Geom_p()->have_dictionary_for_residue_type_no_dynamic_add(new_residue_comp_id, imol)) {
       } else {
-         std::cout << "INFO:: dictionary does not already have " << new_residue_comp_id
-                   << " dynamic add it now" << std::endl;
+         // std::cout << "INFO:: dictionary does not already have " << new_residue_comp_id
+         //           << " dynamic add it now" << std::endl;
+         logger.log(log_t::INFO, "dictionary does not already have", new_residue_comp_id, "dynamic add it now");
          int status = g.Geom_p()->try_dynamic_add(new_residue_comp_id, g.cif_dictionary_read_number);
          if (status == 0) { // fail
             std::cout << "WARNING:: failed to add dictionary for " << new_residue_comp_id << std::endl;
@@ -6177,8 +6214,9 @@ PyObject *add_linked_residue_py(int imol, const char *chain_id, int resno, const
       graphics_info_t g;
       if (g.Geom_p()->have_dictionary_for_residue_type_no_dynamic_add(new_residue_comp_id, imol)) {
       } else {
-         std::cout << "INFO:: dictionary does not already have " << new_residue_comp_id
-                   << " dynamic add it now" << std::endl;
+         // std::cout << "INFO:: dictionary does not already have " << new_residue_comp_id
+         //           << " dynamic add it now" << std::endl;
+         logger.log(log_t::INFO, "dictionary does not already have", new_residue_comp_id, "dynamic add it now");
          g.Geom_p()->try_dynamic_add(new_residue_comp_id, g.cif_dictionary_read_number);
       }
       g.cif_dictionary_read_number++;

@@ -162,7 +162,8 @@ molecule_class_info_t::add_molecular_representation(const std::string &atom_sele
          molecular_triangles_mesh_t meshes_together;
          for (unsigned int i=0; i<mtm.size(); i++) {
             if (false)
-               std::cout << "meshes_together " << i << " " << mtm[i].vertices.size() << " " << mtm[i].triangles.size() << std::endl;
+               std::cout << "meshes_together " << i << " " << mtm[i].vertices.size() << " "
+                         << mtm[i].triangles.size() << std::endl;
             meshes_together.add_to_mesh(mtm[i].vertices, mtm[i].triangles);
          }
          std::pair<std::vector<s_generic_vertex>, std::vector<g_triangle> >

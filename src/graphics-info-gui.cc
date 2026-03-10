@@ -93,6 +93,7 @@
 #include "guile-fixups.h"
 #include "widget-from-builder.hh"
 #include "c-interface-gtk-widgets.h"
+#include "gtk-manual.hh"
 
 #include "utils/logging.hh"
 extern logging logger;
@@ -399,10 +400,12 @@ void
 graphics_info_t::set_directory_for_filechooser(GtkWidget *filechooser) const {
 
    if (directory_for_filechooser != "") {
-      std::cout << "INFO:: set directory_for_filechooser " << directory_for_filechooser << std::endl;
+      // std::cout << "INFO:: set directory_for_filechooser " << directory_for_filechooser << std::endl;
+      logger.log(log_t::INFO, "set directory_for_filechooser", directory_for_filechooser);
 
       // 20220602-PE FIXME
-      std::cout << "INFO:: in set_directory_for_filechooser() FIXME" << std::endl;
+      // std::cout << "INFO:: in set_directory_for_filechooser() FIXME" << std::endl;
+      logger.log(log_t::INFO, "in set_directory_for_filechooser() FIXME");
       GFile *f = g_file_new_for_path(directory_for_filechooser.c_str());
       GError *err = NULL;
       gtk_file_chooser_set_current_folder(GTK_FILE_CHOOSER(filechooser), f, &err);
@@ -825,8 +828,9 @@ graphics_info_t::skeletonize_map_by_combobox(GtkWidget *combobox) {
       if (do_it)
 	 graphics_info_t::skeletonize_map(graphics_info_t::map_for_skeletonize, prune_it);
       else {
-	 std::cout << "INFO:: unskeletonizing map number "
-		   << graphics_info_t::map_for_skeletonize << std::endl;
+	 // std::cout << "INFO:: unskeletonizing map number "
+	 //            << graphics_info_t::map_for_skeletonize << std::endl;
+	 logger.log(log_t::INFO, "unskeletonizing map number", graphics_info_t::map_for_skeletonize);
 	 graphics_info_t::unskeletonize_map(graphics_info_t::map_for_skeletonize);
       }
    }
@@ -1777,6 +1781,9 @@ graphics_info_t::new_fill_combobox_with_coordinates_options(GtkWidget *combobox_
 
    std::vector<int> molecule_indices = get_molecule_indices();
 
+   if (!molecule_indices.empty())
+      gtk_combo_box_set_active(GTK_COMBO_BOX(combobox_molecule), 0);
+
    GtkTreeModel *model_1 = gtk_combo_box_get_model(GTK_COMBO_BOX(combobox_molecule));
    std::cout << "debug:: new_fill_combobox_with_coordinates_options() model_1 " << model_1 << std::endl;
    GtkListStore *list_store = GTK_LIST_STORE(model_1);
@@ -1797,7 +1804,7 @@ graphics_info_t::new_fill_combobox_with_coordinates_options(GtkWidget *combobox_
       gtk_list_store_append(store, &iter);
       gtk_list_store_set(store, &iter, 0, imol, 1, ss.c_str(), -1);
    }
-   
+
    GtkTreeModel *model = GTK_TREE_MODEL(store);
    GtkCellRenderer *renderer = gtk_cell_renderer_text_new();
    gtk_cell_layout_pack_start(GTK_CELL_LAYOUT(combobox_molecule), renderer, true);
@@ -2231,7 +2238,8 @@ graphics_info_t::undo_molecule_combobox_changed(GtkWidget *combobox, gpointer da
    graphics_info_t g;
    int imol = g.combobox_get_imol(GTK_COMBO_BOX(combobox));
    g.set_undo_molecule_number(imol);
-   std::cout << "INFO:: undo molecule number set to " << imol << std::endl;
+   // std::cout << "INFO:: undo molecule number set to " << imol << std::endl;
+   logger.log(log_t::INFO, "undo molecule number set to", imol);
 }
 
 void
@@ -3450,12 +3458,13 @@ graphics_info_t::wrapped_create_checked_waters_by_variance_dialog(const std::vec
 
       for (unsigned int i=0; i<v.size(); i++) {
 
-	 std::cout << "INFO:: Suspicious water: "
-		   << v[i].atom_name
-		   << v[i].alt_conf << " "
-		   << v[i].res_no << " "
-		   << v[i].ins_code << " "
-		   << v[i].chain_id << "\n";
+	 // std::cout << "INFO:: Suspicious water: "
+	 //            << v[i].atom_name
+	 //            << v[i].alt_conf << " "
+	 //            << v[i].res_no << " "
+	 //            << v[i].ins_code << " "
+	 //            << v[i].chain_id << "\n";
+	 logger.log(log_t::INFO, "Suspicious water:", v[i].atom_name, v[i].alt_conf, v[i].res_no, v[i].ins_code, v[i].chain_id);
 
 	 std::string button_label(" ");
 	 button_label += v[i].chain_id;
@@ -3488,7 +3497,8 @@ graphics_info_t::wrapped_create_checked_waters_by_variance_dialog(const std::vec
          gtk_widget_set_margin_end(toggle_button, 6);
       }
    } else {
-      std::cout << "INFO:: There are no unusual waters\n";
+      // std::cout << "INFO:: There are no unusual waters\n";
+      logger.log(log_t::INFO, "There are no unusual waters");
       std::string s = "There were no strange/anomalous waters\n";
       s += "(in relation to the difference map).";
       w = wrapped_nothing_bad_dialog(s);
@@ -3722,8 +3732,9 @@ graphics_info_t::fill_bond_parameters_internals(GtkWidget *combobox_for_molecule
 	    if (molecules[imol_active].has_ncs_p()) {
 	       make_insensitive = 0;
 	    } else {
-	       std::cout << "INFO:: in fill_bond_parameters_internals no NCS for  "
-			 << imol_active << "\n";
+	       // std::cout << "INFO:: in fill_bond_parameters_internals no NCS for  "
+	       //          << imol_active << "\n";
+	       logger.log(log_t::INFO, "in fill_bond_parameters_internals no NCS for", imol_active);
 	    }
 	 } else {
 	    std::cout << "ERROR:: bad imol in fill_bond_parameters_internals no model "
@@ -4620,15 +4631,19 @@ graphics_info_t::add_molecular_representation(int imol,
              << "colour-scheme: \"" << colour_scheme << "\" "
              << "style \"" << style << "\"" << std::endl;
 
+#if 0 // 20260222-PE We no longer use this widget
    GtkWidget *w = widget_from_builder("molecular_representations_dialog");
    gtk_widget_set_visible(w, TRUE);
    set_transient_for_main_window(w);
+#endif
 
    attach_buffers();
 
-   int status = molecules[imol].add_molecular_representation(atom_selection, colour_scheme, style, secondary_structure_usage_flag);
+   int status = molecules[imol].add_molecular_representation(atom_selection, colour_scheme, style,
+                                                             secondary_structure_usage_flag);
 
    update_molecular_representation_widgets();
+   update_display_control_mesh_toggles(imol);
    graphics_draw();
    return status;
 }
@@ -4649,6 +4664,7 @@ graphics_info_t::add_ribbon_representation_with_user_defined_colours(int imol, c
    molecules[imol].add_ribbon_representation_with_user_defined_residue_colours(user_defined_colours, name);
 
    update_molecular_representation_widgets();
+   update_display_control_mesh_toggles(imol);
    graphics_draw();
    return status;
 }
@@ -4682,7 +4698,7 @@ graphics_info_t::set_show_molecular_representation(int imol, unsigned int mesh_i
          auto mesh = meshes[mesh_idx];
          mesh.set_draw_mesh_state(on_off);
       }
-   } 
+   }
 }
 
 // static
@@ -4726,6 +4742,10 @@ graphics_info_t::molecular_representation_meshes_checkbutton_toggled(GtkCheckBut
 
 void
 graphics_info_t::update_molecular_representation_widgets() {
+
+   // 20260222-PE
+   // this is no longer needed - now that the molecular meshes are in the display manager
+   return;
 
    // find the display toggle button for mesh idx_mesh for molecule imol
    auto find_button = [] (GtkWidget *box, unsigned int imol, unsigned int idx_mesh) {

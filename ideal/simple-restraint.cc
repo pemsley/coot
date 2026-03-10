@@ -430,7 +430,8 @@ coot::restraints_container_t::restraints_container_t(const std::vector<std::pair
       std::cout << "debug:: in restraints_container_t() constructor with local residue size " << residues_local.size() << std::endl;
       for (unsigned int ir=0; ir<residues_vec.size(); ir++) {
          if (residues_vec[ir].second) {
-           std::cout << "INFO:: starting init_from_residue_vec() residue " << residues_vec[ir].second << std::endl;
+           // std::cout << "INFO:: starting init_from_residue_vec() residue " << residues_vec[ir].second << std::endl;
+           logger.log(log_t::INFO, "starting init_from_residue_vec() residue", residues_vec[ir].second);
          } else {
            std::cout << "ERROR:: starting init_from_residue_vec() NUll residue " << ir << std::endl;
          }
@@ -838,7 +839,8 @@ coot::restraints_container_t::init_from_residue_vec(const std::vector<std::pair<
    if (false) {
       for (unsigned int ir=0; ir<residues_vec.size(); ir++) {
          if (residues_vec[ir].second) {
-           std::cout << "INFO:: starting init_from_residue_vec() residue " << residues_vec[ir].second << std::endl;
+           // std::cout << "INFO:: starting init_from_residue_vec() residue " << residues_vec[ir].second << std::endl;
+           logger.log(log_t::INFO, "starting init_from_residue_vec() residue", residues_vec[ir].second);
          } else {
            std::cout << "ERROR:: starting init_from_residue_vec() NUll residue " << ir << std::endl;
          }
@@ -1297,8 +1299,9 @@ coot::restraints_container_t::pre_sanitize_as_needed(std::vector<refinement_ligh
 
 	    if (status == GSL_SUCCESS) {
 	       if (verbose_geometry_reporting != QUIET) {
-		  std::cout << "INFO:: Pre-Sanitize Minimum found (iteration number " << iter << ") at ";
-		  std::cout << m_s->f << "\n";
+		  // std::cout << "INFO:: Pre-Sanitize Minimum found (iteration number " << iter << ") at ";
+		  // std::cout << m_s->f << "\n";
+		  logger.log(log_t::INFO, "Pre-Sanitize Minimum found (iteration number", iter, ") at", m_s->f);
 	       }
 	    }
 
@@ -1593,11 +1596,13 @@ coot::restraints_container_t::minimize_inner(restraint_usage_Flags usage_flags,
 	       if (worst_of_all.is_set) {
 		  const simple_restraint &baddie_restraint = restraints_vec[worst_of_all.restraints_index];
                   if (verbose_geometry_reporting != QUIET)
-                     std::cout << "INFO:: Most dissatisfied restraint (refine no-progress): "
-                               << baddie_restraint.format(atom, worst_of_all.value) << std::endl;
+                     // std::cout << "INFO:: Most dissatisfied restraint (refine no-progress): "
+                     //          << baddie_restraint.format(atom, worst_of_all.value) << std::endl;
+                     logger.log(log_t::INFO, "Most dissatisfied restraint (refine no-progress):", baddie_restraint.format(atom, worst_of_all.value));
 	       } else {
                   if (verbose_geometry_reporting != QUIET)
-                     std::cout << "INFO:: somehow the worst restraint was not set (no-progress)" << std::endl;
+                     // std::cout << "INFO:: somehow the worst restraint was not set (no-progress)" << std::endl;
+                     logger.log(log_t::INFO, "somehow the worst restraint was not set (no-progress)");
 	       }
 
                // debugging/analysis
@@ -4856,8 +4861,9 @@ coot::restraints_container_t::write_new_atoms(std::string pdb_file_name) {
       // return 0 on success, non-zero on failure.
       status = mol->WritePDBASCII(pdb_file_name.c_str());
       if (status == 0)
-	 std::cout << "INFO:: output file: " << pdb_file_name
-		   << " written." << std::endl;
+	 // std::cout << "INFO:: output file: " << pdb_file_name
+	 //          << " written." << std::endl;
+	 logger.log(log_t::INFO, "output file:", pdb_file_name, "written.");
       else
 	 std::cout << "WARNING:: output file: " << pdb_file_name
 		   << " not written." << std::endl;
@@ -4870,14 +4876,17 @@ coot::restraints_container_t::write_new_atoms(std::string pdb_file_name) {
 void
 coot::restraints_container_t::info() const {
 
-   std::cout << "INFO:: There are " << n_atoms << " atoms" << std::endl;
-   std::cout << "INFO:: There are " << size() << " restraints" << std::endl;
+   // std::cout << "INFO:: There are " << n_atoms << " atoms" << std::endl;
+   logger.log(log_t::INFO, "There are", n_atoms, "atoms");
+   // std::cout << "INFO:: There are " << size() << " restraints" << std::endl;
+   logger.log(log_t::INFO, "There are", size(), "restraints");
 
    for (unsigned int i=0; i< restraints_vec.size(); i++) {
       const simple_restraint &restraint = restraints_vec[i];
       if (restraint.restraint_type == coot::TORSION_RESTRAINT) {
-	 std::cout << "INFO:: restraint " << i << " is of type "
-		   << restraint.restraint_type << std::endl;
+	 // std::cout << "INFO:: restraint " << i << " is of type "
+	 //          << restraint.restraint_type << std::endl;
+	 logger.log(log_t::INFO, "restraint", i, "is of type", restraint.restraint_type);
 
 	 std::cout << restraint.atom_index_1 << " "
 		   << restraint.atom_index_2 << " "
@@ -4890,8 +4899,9 @@ coot::restraints_container_t::info() const {
 		   << " with periodicity "
   		   << restraint.periodicity << std::endl;
       }
-      std::cout << "INFO:: restraint number " << i << " is restraint_type " <<
-	 restraint.restraint_type << std::endl;
+      // std::cout << "INFO:: restraint number " << i << " is restraint_type " <<
+      //    restraint.restraint_type << std::endl;
+      logger.log(log_t::INFO, "restraint number", i, "is restraint_type", restraint.restraint_type);
    }
 } 
 
@@ -5050,7 +5060,8 @@ coot::refinement_results_t::hooray() const {
    for (unsigned int i=0; i<lights.size(); i++) {
       const refinement_lights_info_t &light = lights[i];
       if (false)
-         std::cout << "INFO:: for lights index " << i << " " << light.name << " " << light.value << std::endl;
+         // std::cout << "INFO:: for lights index " << i << " " << light.name << " " << light.value << std::endl;
+         logger.log(log_t::INFO, "for lights index", i, light.name, light.value);
       float crit_value = 1.0; // 20210906-PE was 1.4
       if (light.name == "Trans_peptide")
          crit_value = 2.0; // 20210906-PE  was 6.0. Should Trans-peptide even be tested in hooray()?

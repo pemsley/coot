@@ -80,7 +80,6 @@ COOT_EXTRA_LIBS = \
 	$(top_builddir)/coot-utils/libcoot-map-utils.la  	\
 	$(top_builddir)/coot-utils/libcoot-coord-extras.la  	\
 	$(top_builddir)/coot-utils/libcoot-coord-utils.la  	\
-	$(top_builddir)/utils/libcoot-utils.la  		\
 	$(top_builddir)/mini-mol/libcoot-mini-mol.la    	\
 	$(top_builddir)/analysis/libcoot-analysis.la 		\
 	$(top_builddir)/protein_db/libcoot-protein-db.la      	\
@@ -88,6 +87,7 @@ COOT_EXTRA_LIBS = \
 	$(top_builddir)/cootaneer/libcootaneer.la 		\
 	$(top_builddir)/MoleculesToTriangles/CXXClasses/libMoleculesToTrianglesCXXClasses.la     		\
 	$(top_builddir)/MoleculesToTriangles/CXXSurface/libMoleculesToTrianglesCXXSurface.la     		\
+	$(top_builddir)/utils/libcoot-utils.la  		\
 	$(top_builddir)/compat/libcoot-compat.la
 
 

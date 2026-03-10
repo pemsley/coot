@@ -39,6 +39,7 @@
 #include "coot-utils/secondary-structure-headers.hh"
 #include "coot-utils/oct.hh"
 #include "coot-utils/read-sm-cif.hh"
+#include "coot-utils/read-amber-trajectory.hh"
 
 #include "coords/Bond_lines.hh"
 #include "coords/mmdb.hh"
@@ -958,6 +959,36 @@ molecules_container_t::read_small_molecule_cif(const std::string &file_name) {
    return imol;
 }
 
+
+int
+molecules_container_t::read_amber_trajectory(int imol_coords,
+                                             const std::string &trajectory_file_name,
+                                             int start_frame,
+                                             int end_frame,
+                                             int stride) {
+
+   int imol = -1;
+
+   if (!is_valid_model_molecule(imol_coords)) {
+      std::cout << "WARNING:: read_amber_trajectory: invalid topology molecule " << imol_coords << std::endl;
+      return -1;
+   }
+
+   mmdb::Manager *topology_mol = molecules[imol_coords].atom_sel.mol;
+   mmdb::Manager *traj_mol = nullptr;
+#ifdef HAVE_NETCDF
+   traj_mol = coot::read_amber_trajectory(topology_mol, trajectory_file_name,
+                                          start_frame, end_frame, stride);
+#endif
+   if (traj_mol) {
+      imol = molecules.size();
+      atom_selection_container_t asc = make_asc(traj_mol);
+      std::string name = trajectory_file_name + "_trajectory";
+      molecules.push_back(coot::molecule_t(asc, imol, name));
+   }
+
+   return imol;
+}
 
 
 //! read a PDB file (or mmcif coordinates file, despite the name) to
@@ -1930,7 +1961,8 @@ molecules_container_t::get_header_info(int imol) const {
             coot::util::print_secondary_structure_info(model_p);
             int nhelix = model_p->GetNumberOfHelices();
             int nsheet = model_p->GetNumberOfSheets();
-            std::cout << "INFO:: There are " << nhelix << " helices and " << nsheet << " sheets\n";
+            // std::cout << "INFO:: There are " << nhelix << " helices and " << nsheet << " sheets\n";
+            logger.log(log_t::INFO, "There are", nhelix, "helices and", nsheet, "sheets");
             for (int ih=1; ih<=nhelix; ih++) {
                mmdb:: Helix *helix_p = model_p->GetHelix(ih);
                if (helix_p) {
@@ -3109,7 +3141,8 @@ molecules_container_t::refine_residues_vec(int imol,
                                            mmdb::Manager *mol) {
    bool use_map_flag = true;
    if (false)
-      std::cout << "INFO:: refine_residues_vec() with altconf \"" << alt_conf << "\"" << std::endl;
+      // std::cout << "INFO:: refine_residues_vec() with altconf \"" << alt_conf << "\"" << std::endl;
+      logger.log(log_t::INFO, "refine_residues_vec() with altconf", alt_conf);
 
    coot::refinement_results_t rr = generate_molecule_and_refine(imol, residues, alt_conf, mol, use_map_flag);
    return rr;
@@ -3719,7 +3752,8 @@ molecules_container_t::make_last_restraints(const std::vector<std::pair<bool,mmd
                                                        // link and flank args default true
 
    if (use_harmonic_approximation_for_NBCs) {
-      std::cout << "INFO:: using soft harmonic restraints for NBC" << std::endl;
+      // std::cout << "INFO:: using soft harmonic restraints for NBC" << std::endl;
+      logger.log(log_t::INFO, "using soft harmonic restraints for NBC");
       last_restraints->set_use_harmonic_approximations_for_nbcs(true);
    }
 
@@ -3778,8 +3812,9 @@ molecules_container_t::make_last_restraints(const std::vector<std::pair<bool,mmd
          // wait until refinement finishes
          while (restraints_lock) {
             std::this_thread::sleep_for(std::chrono::milliseconds(7));
-            std::cout << "INFO:: make_last_restraints() [immediate] restraints locked by "
-                      << restraints_locking_function_name << std::endl;
+            // std::cout << "INFO:: make_last_restraints() [immediate] restraints locked by "
+            //           << restraints_locking_function_name << std::endl;
+            logger.log(log_t::INFO, "make_last_restraints() [immediate] restraints locked by", restraints_locking_function_name);
          }
       }
 
@@ -4635,6 +4670,7 @@ int molecules_container_t::gaussian_surface_to_map_molecule_v2(int imol, const s
       int chain_cid_mode = 0; // use cid to make the atom selection
       mmdb::Manager *mol = molecules[imol].get_mol();
       if (mol) {
+#if 0
          coot::gaussian_surface_t gauss_surf(mol, cid, chain_cid_mode,
                                              sigma, 0.5,
                                              box_radius, grid_scale, fft_b_factor);
@@ -4644,6 +4680,7 @@ int molecules_container_t::gaussian_surface_to_map_molecule_v2(int imol, const s
          bool is_em_map = true; // not sure
          coot::molecule_t m = coot::molecule_t(name, imol, xmap, is_em_map);
          molecules.push_back(m);
+#endif
       }
    }
    return imol_new;
@@ -5025,7 +5062,8 @@ molecules_container_t::make_masked_maps_split_by_chain(int imol, int imol_map) {
          lig.import_map_from(molecules[imol_map].xmap);
          // monster
          std::vector<std::pair<std::string, clipper::Xmap<float> > > maps = lig.make_masked_maps_split_by_chain(mol);
-         std::cout << "INFO:: made " << maps.size() << " masked maps" << std::endl;
+         // std::cout << "INFO:: made " << maps.size() << " masked maps" << std::endl;
+         logger.log(log_t::INFO, "made", maps.size(), "masked maps");
          std::string orig_map_name = molecules[imol_map].get_name();
          bool is_em_flag = molecules[imol_map].is_EM_map();
          for(unsigned int i=0; i<maps.size(); i++) {
@@ -5440,12 +5478,12 @@ molecules_container_t::get_mesh_for_ligand_validation_vs_dictionary(int imol, co
 //! return type is validation data, not a mesh
 //!
 //! @return a vector of `geometry_distortion_info_container_t`
-std::vector<coot::geometry_distortion_info_container_t>
+std::vector<coot::geometry_distortion_info_pod_container_t>
 molecules_container_t::get_ligand_validation_vs_dictionary(int imol,
                                                            const std::string &ligand_cid,
                                                            bool with_nbcs) {
 
-   std::vector<coot::geometry_distortion_info_container_t> v;
+   std::vector<coot::geometry_distortion_info_pod_container_t> v;
    if (is_valid_model_molecule(imol)) {
       v = molecules[imol].geometric_distortions_for_one_residue_from_mol(ligand_cid, with_nbcs, geom, thread_pool);
    } else {
@@ -5461,12 +5499,12 @@ molecules_container_t::get_ligand_validation_vs_dictionary(int imol,
 //! @param include_non_bonded_contacts is the flag to include non bonded contacts
 //!
 //! @return a vector/list of interesting geometry
-std::vector<coot::geometry_distortion_info_container_t>
+std::vector<coot::geometry_distortion_info_pod_container_t>
 molecules_container_t::get_validation_vs_dictionary_for_selection(int imol,
                                                                   const std::string &selection_cid,
                                                                   bool include_non_bonded_contacts) {
 
-   std::vector<coot::geometry_distortion_info_container_t> v;
+   std::vector<coot::geometry_distortion_info_pod_container_t> v;
    if (is_valid_model_molecule(imol)) {
       v = molecules[imol].geometric_distortions_for_selection_from_mol(selection_cid,
                                                                        include_non_bonded_contacts,

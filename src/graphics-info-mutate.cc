@@ -202,8 +202,9 @@ graphics_info_t::add_side_chain_to_terminal_res(atom_selection_container_t asc,
 
 		     }
 		     if (true)
-			std::cout << "INFO:: done mutating residue " << coot::residue_spec_t(residue_p)
-				  << " in add_cb_to_terminal_res\n";
+			// std::cout << "INFO:: done mutating residue " << coot::residue_spec_t(residue_p)
+			//           << " in add_cb_to_terminal_res\n";
+			logger.log(log_t::INFO, "done mutating residue " + coot::residue_spec_t(residue_p).format() + " in add_cb_to_terminal_res");
 		  }
 	       }
 
@@ -411,8 +412,9 @@ graphics_info_t::mutate_chain(int imol, const std::string &chain_id,
    if (imol < n_molecules()) {
       if (imol >= 0) {
 	 if (molecules[imol].has_model()) {
-	    std::cout << "INFO:: aligning to mol number " << imol << " chain: "
-		      << chain_id << std::endl;
+	    // std::cout << "INFO:: aligning to mol number " << imol << " chain: "
+	    //           << chain_id << std::endl;
+	    logger.log(log_t::INFO, "aligning to mol number", imol, "chain:", chain_id);
 	    coot::chain_mutation_info_container_t mutation_info =
 	       molecules[imol].align_and_mutate(chain_id, coot::fasta(seq), renumber_residues_flag,
 						alignment_wgap, alignment_wspace);

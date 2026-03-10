@@ -86,6 +86,8 @@ namespace std {
 %template(IntVector) vector<int>;
 %template(vector_atom_spec)      vector<coot::atom_spec_t>;
 %template(vector_mtz_type_label) vector<coot::mtz_type_label>;
+%template(pair_string_string)    pair<std::string, std::string>;
+%template(vector_pair_string_string) vector<std::pair<std::string, std::string> >;
 }
 
 %init %{

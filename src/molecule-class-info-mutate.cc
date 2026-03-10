@@ -159,9 +159,10 @@ molecule_class_info_t::mutate(mmdb::Residue *res, const std::string &residue_typ
    int istate = 0;
 
    if (verbose_mode)
-      std::cout << "INFO:: mutate " << res->GetSeqNum() << " "
-                << res->GetChainID() << " to a " << residue_type
-                << std::endl;
+      // std::cout << "INFO:: mutate " << res->GetSeqNum() << " "
+      //           << res->GetChainID() << " to a " << residue_type
+      //           << std::endl;
+      logger.log(log_t::INFO, "mutate", res->GetSeqNum(), res->GetChainID(), "to a", residue_type);
 
    // get the standard orientation residue for this residue type
    mmdb::PPResidue SelResidue;
@@ -493,15 +494,19 @@ molecule_class_info_t::mutate_chain(const std::string &chain_id,
 		  SelResidues[ires]->seqNum--;
 	       }
 	    } else {
-	       std::cout << "INFO:: found a null residue at " << ires
-			 << std::endl;
+	       // std::cout << "INFO:: found a null residue at " << ires
+	       //          << std::endl;
+	       logger.log(log_t::INFO, "found a null residue at", ires);
 	    }
 	 }
       }
 
-      std::cout << "INFO:: Applied " << n_insertions << " insertions " << std::endl;
-      std::cout << "INFO:: Applied " << n_mutations << " mutations " << std::endl;
-      std::cout << "INFO:: Applied " << n_deletions << " deletions " << std::endl;
+      // std::cout << "INFO:: Applied " << n_insertions << " insertions " << std::endl;
+      logger.log(log_t::INFO, "Applied", n_insertions, "insertions");
+      // std::cout << "INFO:: Applied " << n_mutations << " mutations " << std::endl;
+      logger.log(log_t::INFO, "Applied", n_mutations, "mutations");
+      // std::cout << "INFO:: Applied " << n_deletions << " deletions " << std::endl;
+      logger.log(log_t::INFO, "Applied", n_deletions, "deletions");
 
       atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
       atom_sel.mol->FinishStructEdit();
@@ -591,8 +596,10 @@ molecule_class_info_t::align_on_chain(const std::string &chain_id,
    bool allow_ligands = false;
    std::string model = coot::util::model_sequence(vseq, allow_ligands);
    if (console_output || debug) {
-      std::cout << "INFO:: input model  sequence: " << model  << std::endl;
-      std::cout << "INFO:: input target sequence: " << target  << std::endl;
+      // std::cout << "INFO:: input model  sequence: " << model  << std::endl;
+      logger.log(log_t::INFO, "input model  sequence:", model);
+      // std::cout << "INFO:: input target sequence: " << target  << std::endl;
+      logger.log(log_t::INFO, "input target sequence:", target);
    }
 
    mmdb::math::Alignment align;
@@ -660,7 +667,8 @@ molecule_class_info_t::align_on_chain(const std::string &chain_id,
 	 std::cout << name_ << std::endl;
 	 std::cout << align.GetAlignedS() << std::endl;
 	 std::cout << "> target seq: \n" << align.GetAlignedT() << std::endl;
-	 std::cout << "INFO:: alignment score " << align.GetScore() << std::endl;
+	 // std::cout << "INFO:: alignment score " << align.GetScore() << std::endl;
+	 logger.log(log_t::INFO, "alignment score", align.GetScore());
       } else {
 
 	 std::string aligned = align.GetAlignedS();
@@ -1338,7 +1346,8 @@ molecule_class_info_t::exchange_chain_ids_for_seg_ids() {
 
 	 // OK, so we have vector of vectors of atoms.  We need to make
 	 // new atoms and residues to put them in.
-	 std::cout << "INFO:: Creating " << atom_chain_vec.size() << " new chains\n";
+	 // std::cout << "INFO:: Creating " << atom_chain_vec.size() << " new chains\n";
+	 logger.log(log_t::INFO, "Creating", atom_chain_vec.size(), "new chains");
 	 for (unsigned int inch=0; inch<atom_chain_vec.size(); inch++) {
 	    mmdb::Chain *chain_p = new mmdb::Chain;
 	    const char *chid = atom_chain_vec[inch].second.c_str();

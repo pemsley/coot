@@ -968,7 +968,8 @@ graphics_info_t::draw_model_molecules(stereo_eye_t eye) {
       m.draw_ncs_ghosts(&shader_for_meshes, eye, mvp, model_rotation, lights, eye_position, bgc);
 
       glEnable(GL_BLEND);
-      draw_molecule_atom_labels(m, eye, mvp, model_rotation);
+      if (draw_distance_labels_user_control)
+         draw_molecule_atom_labels(m, eye, mvp, model_rotation);
 
    }
 }
@@ -1001,6 +1002,9 @@ graphics_info_t::draw_molecule_atom_labels(molecule_class_info_t &m,
                                            stereo_eye_t eye,
                                            const glm::mat4 &mvp,
                                            const glm::mat4 &view_rotation) {
+
+   if (! draw_distance_labels_user_control)
+      return;
 
    // pass the glarea widget width and height.
 
@@ -1879,8 +1883,6 @@ graphics_info_t::draw_molecules(stereo_eye_t eye) {
 
    // return; // no draw
 
-   draw_molecules_other_meshes(eye, PASS_TYPE_STANDARD);
-
    draw_instanced_meshes(eye);
 
    draw_map_molecules(eye, false); // transparency
@@ -1914,6 +1916,8 @@ graphics_info_t::draw_molecules(stereo_eye_t eye) {
    draw_model_molecules(eye);
 
    // transparent things...
+
+   draw_molecules_other_meshes(eye, PASS_TYPE_STANDARD);
 
    draw_map_molecules(eye, true); // transparent
 
@@ -2483,6 +2487,7 @@ graphics_info_t::draw_molecules_other_meshes(stereo_eye_t eye, unsigned int pass
                      bool show_just_shadows = false;
                      bool wireframe_mode = false;
                      float opacity = 1.0f;
+                     opacity = m.gaussian_surface_opacity;
 #if 0 // 20260208-PE debugging colours
                      if (jj == 0 && !m.meshes[jj].vertices.empty()) {
                         auto &v = m.meshes[jj].vertices;
@@ -2494,10 +2499,11 @@ graphics_info_t::draw_molecules_other_meshes(stereo_eye_t eye, unsigned int pass
                      }
 #endif
 
-                     if (true)
-                        m.meshes[jj].draw(&shader_for_moleculestotriangles, eye, mvp,
-                                          model_rotation, lights, eye_position, rc, opacity, bg_col,
-                                          wireframe_mode, do_depth_fog, show_just_shadows);
+                     // if (m.meshes[jj].mesh_is_semi_transparent) glEnable(GL_BLEND);
+                     m.meshes[jj].draw(&shader_for_moleculestotriangles, eye, mvp,
+                                       model_rotation, lights, eye_position, rc, opacity, bg_col,
+                                       wireframe_mode, do_depth_fog, show_just_shadows);
+                     if (m.meshes[jj].mesh_is_semi_transparent) glDisable(GL_BLEND);
 
                   }
                   if (pass_type == PASS_TYPE_WITH_SHADOWS) {
@@ -2876,7 +2882,8 @@ on_glarea_resize(GtkGLArea *glarea, gint width, gint height) {
    g.graphics_x_size = width;
    g.graphics_y_size = height;
 
-   std::cout << "INFO:: in on_glarea_resize() GtkGLArea widget dimensions " << width << " " << height << std::endl;
+   // std::cout << "INFO:: in on_glarea_resize() GtkGLArea widget dimensions " << width << " " << height << std::endl;
+   logger.log(log_t::INFO, "in on_glarea_resize() GtkGLArea widget dimensions", width, height);
 
    // why do I need to do this?
    // setup_hud_text(width, height, g.shader_for_hud_text, false);
@@ -2913,12 +2920,14 @@ graphics_info_t::draw_measure_distance_and_angles(stereo_eye_t eye) {
       mesh_for_measure_angle_object_vec.draw(&shader, eye, mvp, model_rotation_matrix, lights, eye_position, rc,
                                              opacity, bg_col, wireframe_mode, shader_do_depth_fog_flag, show_just_shadows);
 
-      if (! labels_for_measure_distances_and_angles.empty()) {
-         for (unsigned int i=0; i<labels_for_measure_distances_and_angles.size(); i++) {
-            const auto &label = labels_for_measure_distances_and_angles[i];
-            tmesh_for_labels.draw_atom_label(label.label, label.position, label.colour, &shader_for_atom_labels,
-                                             eye, mvp, model_rotation_matrix, bg_col,
-                                             shader_do_depth_fog_flag, perspective_projection_flag);
+      if (draw_distance_labels_user_control) {
+         if (! labels_for_measure_distances_and_angles.empty()) {
+            for (unsigned int i=0; i<labels_for_measure_distances_and_angles.size(); i++) {
+               const auto &label = labels_for_measure_distances_and_angles[i];
+               tmesh_for_labels.draw_atom_label(label.label, label.position, label.colour, &shader_for_atom_labels,
+                                                eye, mvp, model_rotation_matrix, bg_col,
+                                                shader_do_depth_fog_flag, perspective_projection_flag);
+            }
          }
       }
    }
@@ -4723,75 +4732,43 @@ graphics_info_t::render(bool to_screendump_framebuffer_flag, const std::string &
 
       bool show_basic_scene_state = (displayed_image_type == SHOW_BASIC_SCENE);
 
-      if (show_basic_scene_state) {
+      // Save state
+      int saved_gx = graphics_x_size;
+      int saved_gy = graphics_y_size;
 
-         // Basic path: render directly to an offscreen FBO at sf * widget_size.
-         // None of the draw functions in this path change framebuffer bindings,
-         // so they all render into whatever FBO is currently bound.
+      // Create screendump FBO
+      framebuffer screendump_fb;
+      unsigned int index_offset = 0;
+      screendump_fb.init(sf * w, sf * h, index_offset, "screendump");
 
-         framebuffer screendump_fb;
-         unsigned int index_offset = 0;
-         screendump_fb.init(sf * w, sf * h, index_offset, "screendump");
-         screendump_fb.bind();
+      // Set dimensions for projection matrix and viewport
+      graphics_x_size = sf * w;
+      graphics_y_size = sf * h;
 
-         glViewport(0, 0, sf * w, sf * h);
-         glClearColor(background_colour.r, background_colour.g, background_colour.b, 1.0);
-         glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-         glDisable(GL_BLEND);
-         glEnable(GL_DEPTH_TEST);
-         glDepthFunc(GL_LESS);
-
-         if (draw_background_image_flag) {
-            texture_for_background_image.Bind(0);
-            tmesh_for_background_image.draw(&shader_for_background_image, HUDTextureMesh::TOP_LEFT);
-         }
-
-         graphics_info_t g;
-         stereo_eye_t eye = stereo_eye_t::MONO;
-         // g.draw_models(eye, &shader_for_tmeshes, &shader_for_meshes, nullptr, nullptr, sf * w, sf * h);
-         draw_rotation_centre_crosshairs(eye, gl_area, PASS_TYPE_STANDARD);
-         render_3d_scene(gl_area, eye);
-
-         // Ensure we read from the screendump FBO
-         screendump_fb.bind();
-         screendump_tga_internal(output_file_name, w, h, sf);
-
-      } else {
-
-         // Fancy path (effects/AO/shadows) - render at high-res by temporarily resizing
-         // all intermediate FBOs and redirecting attach_buffers() to our screendump FBO.
-
-         // Save state
-         int saved_gx = graphics_x_size;
-         int saved_gy = graphics_y_size;
-
-         // Create screendump FBO
-         framebuffer screendump_fb;
-         unsigned int index_offset = 0;
-         screendump_fb.init(sf * w, sf * h, index_offset, "screendump");
-
-         // Resize all intermediate FBOs to the high-res size
-         graphics_x_size = sf * w;
-         graphics_y_size = sf * h;
+      if (!show_basic_scene_state) {
+         // Fancy path needs intermediate FBOs resized
          graphics_info_t g;
          g.resize_framebuffers_textures_renderbuffers(sf * w, sf * h);
+      }
 
-         // Redirect attach_buffers() to our screendump FBO
-         screendump_target_framebuffer = screendump_fb.get_fbo();
+      // Redirect attach_buffers() to our screendump FBO
+      screendump_target_framebuffer = screendump_fb.get_fbo();
 
-         // Render the full fancy pipeline - all attach_buffers() calls go to screendump FBO
-         render_scene();
+      // Render (works for both basic and fancy paths)
+      render_scene();
 
-         // Read pixels from the screendump FBO
-         screendump_fb.bind();
-         screendump_tga_internal(output_file_name, w, h, sf);
+      // Read pixels from the screendump FBO
+      screendump_fb.bind();
+      screendump_tga_internal(output_file_name, w, h, sf);
 
-         // Restore state
-         screendump_target_framebuffer = 0;
-         graphics_x_size = saved_gx;
-         graphics_y_size = saved_gy;
+      // Restore state
+      screendump_target_framebuffer = 0;
+      graphics_x_size = saved_gx;
+      graphics_y_size = saved_gy;
+
+      if (!show_basic_scene_state) {
+         graphics_info_t g;
          g.resize_framebuffers_textures_renderbuffers(saved_gx, saved_gy);
-
       }
 
       glFlush();
@@ -6469,13 +6446,15 @@ graphics_info_t::draw_pointer_distances_objects(stereo_eye_t eye) {
          mesh_for_pointer_distances.mesh.draw(&shader, eye, mvp, model_rotation_matrix, lights, eye_position, rc, opacity,
                                               bg_col, wireframe_mode, shader_do_depth_fog_flag, show_just_shadows);
 
-         if (! labels_for_pointer_distances.empty()) {
-            Shader &shader_labels = shader_for_atom_labels;
-            for (unsigned int i=0; i<labels_for_pointer_distances.size(); i++) {
-               const auto &label = labels_for_pointer_distances[i];
-               tmesh_for_labels.draw_atom_label(label.label, label.position, label.colour, &shader_labels,
-                                                eye, mvp, model_rotation_matrix, bg_col,
-                                                shader_do_depth_fog_flag, perspective_projection_flag);
+         if (draw_distance_labels_user_control) {
+            if (! labels_for_pointer_distances.empty()) {
+               Shader &shader_labels = shader_for_atom_labels;
+               for (unsigned int i=0; i<labels_for_pointer_distances.size(); i++) {
+                  const auto &label = labels_for_pointer_distances[i];
+                  tmesh_for_labels.draw_atom_label(label.label, label.position, label.colour, &shader_labels,
+                                                   eye, mvp, model_rotation_matrix, bg_col,
+                                                   shader_do_depth_fog_flag, perspective_projection_flag);
+               }
             }
          }
       }
