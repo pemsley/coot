@@ -2131,6 +2131,45 @@ void network_get_accession_code_entity(const std::string &text, int mode) {
 }
 
 
+int fetch_pdb_redo(const std::string &code) {
+
+   auto join = [] (const std::string &d, const std::string &f) {
+      return d + std::string("/") + f;
+   };
+
+   int imol_coords = -1;
+   // 20240630-PE need to check that the file already exists before downloading it
+   xdg_t xdg;
+   std::string download_dir = join(xdg.get_cache_home().string(), "coot-download");
+   std::string dld = coot::get_directory(download_dir);
+   if (! dld.empty()) {
+      download_dir = dld;
+      std::string down_id = coot::util::downcase(code);
+      std::string server = "https://pdb-redo.eu";
+      std::string server_dir = std::string("db") + "/" + code;
+      std::string pdb_file_name = code + "_final.cif";
+      std::string mtz_file_name = code + "_final.mtz";
+      // make a "join()" function
+      std::string pdb_url = server + "/" + server_dir + "/" + pdb_file_name;
+      std::string mtz_url = server + "/" + server_dir + "/" + mtz_file_name;
+      std::string pdb_filepath = coot::util::append_dir_dir(download_dir, pdb_file_name);
+      std::string mtz_filepath = coot::util::append_dir_dir(download_dir, mtz_file_name);
+      int url_status = coot_get_url(pdb_url, pdb_filepath);
+      if (url_status == 0) {
+         imol_coords = read_coordinates(pdb_filepath);
+         url_status = coot_get_url(mtz_url, mtz_filepath);
+         if (url_status == 0) {
+            // why is auto_read_mtz() not a thing? Use a std::string arg
+            auto_read_make_and_draw_maps(mtz_filepath.c_str());
+         }
+      }
+   } else {
+      std::cout << "WARNING:: failed to make directory " << download_dir
+                << std::endl;
+   }
+   return imol_coords;
+}
+
 
 /*  ----------------------------------------------------------------------- */
 /*                  get by accession code:                                  */
@@ -2144,41 +2183,7 @@ void handle_get_accession_code(GtkWidget *frame, GtkWidget *entry) {
       return d + std::string("/") + f;
    };
 
-   auto fetch_pdb_redo = [join] (const std::string &code) {
-
-      // 20240630-PE need to check that the file already exists before downloading it
-      xdg_t xdg;
-      std::string download_dir = join(xdg.get_cache_home().string(), "coot-download");
-      std::string dld = coot::get_directory(download_dir);
-      if (! dld.empty()) {
-         download_dir = dld;
-         std::string down_id = coot::util::downcase(code);
-         std::string server = "https://pdb-redo.eu";
-         std::string server_dir = std::string("db") + "/" + code;
-         std::string pdb_file_name = code + "_final.pdb";
-         std::string mtz_file_name = code + "_final.mtz";
-         // make a "join()" function
-         std::string pdb_url = server + "/" + server_dir + "/" + pdb_file_name;
-         std::string mtz_url = server + "/" + server_dir + "/" + mtz_file_name;
-         std::string pdb_filepath = coot::util::append_dir_dir(download_dir, pdb_file_name);
-         std::string mtz_filepath = coot::util::append_dir_dir(download_dir, mtz_file_name);
-         int status = coot_get_url(pdb_url, pdb_filepath);
-         if (status == 0) {
-            read_pdb(pdb_filepath);
-            status = coot_get_url(mtz_url, mtz_filepath);
-            if (status == 0) {
-               // why is auto_read_mtz() not a thing? Use a std::string arg
-               auto_read_make_and_draw_maps(mtz_filepath.c_str());
-            }
-         }
-      } else {
-         std::cout << "WARNING:: failed to make directory " << download_dir
-                   << std::endl;
-      }
-
-   };
-
-   auto network_get = [fetch_pdb_redo] (const std::string &text, int n) {
+   auto network_get = [] (const std::string &text, int n) {
 
       if (n == COOT_ACCESSION_CODE_WINDOW_OCA) {
          network_get_accession_code_entity(text, 0); // coords
