@@ -4041,6 +4041,7 @@ string   static std::string sessionid;
    static int view_rotation_location;  // GLSL
    // static glm::quat glm_quat;
    void set_view_quaternion(float i, float j, float k, float l);
+   static bool set_view(const glm::quat &q, const coot::Cartesian &rc, float zoom);
    static glm::vec3 get_rotation_centre();
    static clipper::Coord_orth get_rotation_centre_co();
    static void add_to_rotation_centre(const glm::vec3 &offset);
