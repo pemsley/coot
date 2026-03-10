@@ -2728,13 +2728,16 @@ if test "$build_readline" = true ; then
        ls -l ${AUTOBUILD_SOURCES}/readline-5.1.patch
        patch -p0 < ${AUTOBUILD_SOURCES}/readline-5.1.patch
     fi
+    do_the_sed=no
+    if [ "$dist_name" = arch      ] ; then do_the_sed=yes ; fi
+    if [ "$dist_name" = almalinux ] ; then do_the_sed=yes ; fi
     if [ "$dist_name" = debian ] ; then
        echo applying debian sed patch for shared-lib libreadline
        # thanks for the quoting help tony duan @ stackoverflow
        sed  -i '125,135 s/SHOBJ_LDFLAGS=.*/&\n        SHLIB_LIBS='"'"'$(TERMCAP_LIB)'"'"'/' support/shobj-conf
        extra_args_for_debian="--with-curses --enable-shared"
     fi
-    if [ "$dist_name" = arch ] ; then
+    if [ "$do_the_sed" = yes ] ; then
        echo in arch block, applying debian sed patch for shared-lib libreadline
        # thanks for the quoting help tony duan @ stackoverflow
        sed  -i '125,135 s/SHOBJ_LDFLAGS=.*/&\n        SHLIB_LIBS='"'"'$(TERMCAP_LIB)'"'"'/' support/shobj-conf
@@ -2997,9 +3000,9 @@ if test -n "$build_python" ; then
        fi
        echo PKG_CONFIG_PATH is $PKG_CONFIG_PATH - does that mean that libffi config is discoverable\?
        echo INFO:: ./configure $generic_prefix --with-ensurepip=install --enable-shared --with-openssl=$openssl_prefix \
-            CXXFLAGS=-I$install_top_dir/lib/libffi-3.2.1/include $python_libs $python_ldflags $python_spec_flags
+            CPPFLAGS=-I$install_top_dir/include $python_libs $python_ldflags $python_spec_flags
        if ./configure $generic_prefix --with-ensurepip=install --enable-shared --with-openssl=$openssl_prefix \
-                      CPPFLAGS=-I$install_top_dir/lib/libffi-3.2.1/include $python_libs $python_ldflags $python_spec_flags ; then
+                      CPPFLAGS=-I$install_top_dir/include $python_libs $python_ldflags $python_spec_flags ; then
            echo INFO:: make for python
            if $MAKE ; then
               echo INFO:: make install for python
@@ -3008,7 +3011,7 @@ if test -n "$build_python" ; then
        fi
    fi
    # test it
-   echo test cypes in the new python
+   echo test ctypes in the new python
    # or use this test: if $install_top_dir/bin/python3 -c 'import ctypes' ; then ...
    $install_top_dir/bin/$python_version <<EOF
 import ctypes
@@ -3058,6 +3061,7 @@ fi
 
 ############ test python, exit on failure ##################
 
+echo testing $install_top_dir/bin/$python_version
 $install_top_dir/bin/$python_version <<EOF
 import ctypes
 print(dir(ctypes))
