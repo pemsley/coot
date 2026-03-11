@@ -6605,8 +6605,8 @@ void to_generic_object_attach_translation_gizmo(int object_number) {
                g.translation_gizmo.set_scale_absolute(r.value());
                g.translation_gizmo.set_position(pc);
                // this has been done before now
-               // g.attach_buffers();
-               // g.setup_draw_for_translation_gizmo();
+               g.attach_buffers();
+               g.setup_draw_for_translation_gizmo();
             }
          }
          // should we draw it?

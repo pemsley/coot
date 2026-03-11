@@ -1,14 +1,51 @@
 --- Items ---
 
-o XDG bernie
+o coot atom overlap score and clashscore for Robbie's set of
+  structures.
 
-o update the skills.
+o twist the fibonacci sphere as the radius changes.
 
-o how to you invoke "get goodsell extension" from Python?
+o coot version of clashcore? Actually try to do
+  what probe does - not atom overlaps.
 
-o ctrl left-mouse drag, but release control firsst, then drag a pixel
+o provide a mechanism for eugene to request the current
+  zoom and orientation, centre so that they can be
+  evaluated at next coot execution. As json.
+  and a function to evaluate the orientation.
+
+o on exit:
+  when started with --ccp4, use the (new) function
+  ccp4_shutdown() to write files into pre-defined directory.
+
+o can we add items to the File menu?
+
+o import gesamt into libcootapi. Do soon.
+
+o XDG bernie. Need to move where curlew packages are installed.
+
+o add this to the api:
+  gemmi repackage --assembly - is this a real thing even?
+
+o linear interpolation for "density at point" in chapi.
+  Also, do closest. For Lucy.
+
+o Missing sidechains skill.
+
+o MM rotamer functions
 
 o John Beale
+
+o don't forget the rotamer values from new coot.
+* Done.
+
+o update the skills.
+* Done.
+
+o how to you invoke "get goodsell extension" from Python?
+* Done.
+
+o ctrl left-mouse drag, but release control first, then drag a pixel
+* Done.
 
 o validate flatpak
 
@@ -18,6 +55,7 @@ o shift-click should put atom info in status bar
 * Fixed.
 
 o front clipping plane steps are too big in perspective
+* Done.
 
 o look at A1CEP in 9oun and friends. Use chapi to make output
   comparing and contrasting the ligands
@@ -50,6 +88,8 @@ o Science: AXI analysis
 
 o Science?: output ligand mmcif from libcoootapi
 
+o conkit for coot?
+
 o think about how to make an atom selection for alt conformation
   generation. Shift-click to toggle addition
 
@@ -57,6 +97,9 @@ o after using Lhasa, the generated dictionary should be made
   available to post-moorhen program/cloud.
   Likewise after using pyrogen, the dictionary should be
   available - so that Acedrg, say, can clean it up.
+
+o RNA single-straded comes double-stranded
+* Done.
 
 o check that these work as expected (Martin Maly anom test):
    coot.set_map_radius(7.52)
@@ -257,9 +300,6 @@ o have another bash at calculating occlusion
 
 o Use gemmi tar files in build-it-3-3
 * Done.
-
-o don't forget the rotamer values from new coot.
-  Also other MM rotamer functions
 
 o bonds and angles etc validation? in libcootapi.
 

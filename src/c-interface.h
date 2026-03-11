@@ -2977,7 +2977,7 @@ char *go_to_atom_alt_conf();
    char *`, not `const gchar *` (or else we get wrong type of argument
    error on (say) "A"
 
-@return the success status of the go to.  0 for fail, 1 for success.
+   @return the success status of the go to.  0 for fail, 1 for success.
 */
 int set_go_to_atom_chain_residue_atom_name(const char *t1_chain_id, int iresno,
 					   const char *t3_atom_name);
@@ -2988,7 +2988,7 @@ int set_go_to_atom_chain_residue_atom_name(const char *t1_chain_id, int iresno,
    char *`, not `const gchar *` (or else we get wrong type of argument
    error on (say) "A"
 
-@return the success status of the go to.  0 for fail, 1 for success.
+   @return the success status of the go to.  0 for fail, 1 for success.
 */
 int set_go_to_atom_chain_residue_atom_name_full(const char *chain_id,
 						int resno,

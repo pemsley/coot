@@ -16,8 +16,9 @@ def convert_type(tt: str) -> str:
         "unsigned int": "int",
         "double": "float",
         'PyObject *': 'object',
-        'char const *': 'str',
+        'const char *': 'str',
         'short': 'int',
+        'short int': 'int',
         'bool': 'bool',
         'int': 'int',
         'float': 'float',
@@ -252,7 +253,7 @@ def make_swig_interface(functions: list, output_file: str = "coot_docstrings.i")
 
 def parse_doxygen_xml(xml_file: str) -> list:
     """Parse Doxygen XML and extract function information"""
-    
+
     try:
         mytree = ET.parse(xml_file)
     except FileNotFoundError:
@@ -261,49 +262,53 @@ def parse_doxygen_xml(xml_file: str) -> list:
     except ET.ParseError as e:
         print(f"Error parsing XML: {e}")
         sys.exit(1)
-    
+
     myroot = mytree.getroot()
     functions = []
-    
+
     for sectiondef in myroot.iter('sectiondef'):
         for memberdef in sectiondef:
             if memberdef.tag != "memberdef":
                 continue
-            
+
             if memberdef.attrib.get('kind') != 'function':
                 continue
-            
+
             try:
                 a_function = {'kind': 'function'}
-                
+
                 # Get function name
                 name_elem = memberdef.find("name")
                 if name_elem is None or not name_elem.text:
                     continue
                 a_function['name'] = name_elem.text
-                
+
                 # Skip destructors
                 definition_elem = memberdef.find("definition")
                 if definition_elem is not None and definition_elem.text and "~" in definition_elem.text:
                     continue
-                
+
                 # Get return type
                 type_elem = memberdef.find("type")
                 if type_elem is not None:
-                    a_function['type'] = type_elem.text if type_elem.text else ""
-                
+                    te = type_elem.text if type_elem.text else ""
+                    rt = convert_type(te)
+                    a_function['type'] = rt
+
                 # Get parameters
                 params = []
                 for param in memberdef.findall("param"):
                     t = param.find("type")
                     dn = param.find("declname")
+                    tt = t.text if t is not None and t.text else ""
+                    t = convert_type(tt)
                     params.append({
-                        "type": t.text if t is not None and t.text else "",
+                        "type": t,
                         "declname": dn.text if dn is not None and dn.text else ""
                     })
                 if params:
                     a_function['params'] = params
-                
+
                 # Get brief description
                 briefdesc = memberdef.find("briefdescription")
                 if briefdesc is not None:
