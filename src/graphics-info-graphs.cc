@@ -203,44 +203,75 @@ void graphics_info_t::refresh_ramachandran_plot_model_list() {
 // 	}
 // }
 
-void insert_validation_graph(GtkWidget* graph, bool validation_graphs_is_docked) {
+GtkWidget* get_undocked_validation_graph_box() {
 
-   if (validation_graphs_is_docked) {
+   GtkWidget *window = graphics_info_t::validation_graphs_undocked_window;
+   if (!window) {
+      window = gtk_window_new();
+      gtk_window_set_title(GTK_WINDOW(window), "Coot: Validation Graphs");
+      gtk_window_set_default_size(GTK_WINDOW(window), 800, 300);
+      GtkWidget *sw = gtk_scrolled_window_new();
+      gtk_widget_set_hexpand(sw, TRUE);
+      gtk_widget_set_vexpand(sw, TRUE);
+      GtkWidget *box = gtk_box_new(GTK_ORIENTATION_VERTICAL, 5);
+      gtk_widget_set_hexpand(box, TRUE);
+      gtk_widget_set_vexpand(box, TRUE);
+      gtk_scrolled_window_set_child(GTK_SCROLLED_WINDOW(sw), box);
+      gtk_window_set_child(GTK_WINDOW(window), sw);
+      g_object_set_data(G_OBJECT(window), "validation_graph_box", box);
+      // hide rather than destroy on close
+      g_signal_connect(window, "close-request", G_CALLBACK(+[](GtkWindow *w, gpointer) -> gboolean {
+         gtk_widget_set_visible(GTK_WIDGET(w), FALSE);
+         return TRUE; // prevent destruction
+      }), nullptr);
+      graphics_info_t::validation_graphs_undocked_window = window;
+   }
+   return GTK_WIDGET(g_object_get_data(G_OBJECT(window), "validation_graph_box"));
+}
 
+void insert_validation_graph(GtkWidget* graph) {
+
+   if (graphics_info_t::validation_graphs_is_docked) {
       GtkWidget* target_box = widget_from_builder("main_window_validation_graph_box");
-      // Empty validation_graph_box means that we need to make the validation_graph_frame visible first
       if(! gtk_widget_get_first_child(target_box)) {
+         // Empty validation_graph_box means that we need to make the validation_graph_frame visible first
          GtkWidget* frame = widget_from_builder("main_window_validation_graph_frame");
          gtk_widget_set_visible(frame, TRUE);
       }
-      //g_debug("Inserting %p to the validation graph box.",graph);
       gtk_box_append(GTK_BOX(target_box), graph);
-
    } else {
-
-      GtkWidget *target_box = widget_from_builder("validation_graphs_dialog_vbox");
-      GtkWidget *undocked_validation_graphs_dialog = widget_from_builder("validation_graphs_dialog");
-      gtk_widget_set_visible(undocked_validation_graphs_dialog, TRUE);
-      //g_debug("Inserting %p to the validation graph box.",graph);
-      gtk_box_append(GTK_BOX(target_box), graph);
-
+      GtkWidget *box = get_undocked_validation_graph_box();
+      gtk_box_append(GTK_BOX(box), graph);
+      GtkWidget *window = graphics_info_t::validation_graphs_undocked_window;
+      gtk_widget_set_visible(window, TRUE);
    }
-
-
 }
 
-void remove_validation_graph(GtkWidget* graph, bool validation_graphs_is_docked) {
+void remove_validation_graph(GtkWidget* graph) {
 
-   // 20230424-PE we move this to the box in the paned in the main window
-   GtkWidget* target_box = widget_from_builder("main_window_validation_graph_box");
-   if (! validation_graphs_is_docked)
-      target_box = widget_from_builder("validation_graphs_dialog_vbox");
-   //g_debug("Removing %p from the validation graph box.",graph);
-   gtk_box_remove(GTK_BOX(target_box), graph);
-   if (! gtk_widget_get_first_child(target_box)) {
-      // If the validation_graph_box is empty now, we need to make the validation_graph_frame invisible
-      GtkWidget* frame = widget_from_builder("main_window_validation_graph_frame");
-      gtk_widget_set_visible(frame, FALSE);
+   GtkWidget *parent_box = gtk_widget_get_parent(graph);
+   if (! parent_box) {
+      g_warning("remove_validation_graph(): graph widget has no parent");
+      return;
+   }
+
+   GtkWidget *docked_box = widget_from_builder("main_window_validation_graph_box");
+
+   if (parent_box == docked_box) {
+      gtk_box_remove(GTK_BOX(docked_box), graph);
+      if (! gtk_widget_get_first_child(docked_box)) {
+         GtkWidget* frame = widget_from_builder("main_window_validation_graph_frame");
+         gtk_widget_set_visible(frame, FALSE);
+      }
+   } else {
+      GtkWidget *window = graphics_info_t::validation_graphs_undocked_window;
+      gtk_box_remove(GTK_BOX(parent_box), graph);
+      if (window && ! gtk_widget_get_first_child(parent_box)) {
+         gtk_widget_set_visible(window, FALSE);
+      }
+      if (! window) {
+         g_warning("remove_validation_graph(): graph was in an undocked box but validation_graphs_undocked_window is null");
+      }
    }
 }
 
@@ -626,7 +657,7 @@ graphics_info_t::create_validation_graph(int imol, coot::validation_graph_type t
       // 5. Set the data for the graph
       coot_validation_graph_set_validation_information(cvg, vip);
       // 6. Show the graph
-      insert_validation_graph(this_is_the_graph, validation_graphs_is_docked);
+      insert_validation_graph(this_is_the_graph);
 
       auto callback = +[] (G_GNUC_UNUSED CootValidationGraph* self,
                            const coot::residue_validation_information_t* residue_vip,
@@ -656,7 +687,7 @@ graphics_info_t::destroy_validation_graph(coot::validation_graph_type type) {
    validation_graph_widgets.erase(type);
    validation_graph_data.erase(type);
    // 2. Destroy the graph widget
-   remove_validation_graph(widget, validation_graphs_is_docked);
+   remove_validation_graph(widget);
 
 }
 

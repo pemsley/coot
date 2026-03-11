@@ -1,7 +1,7 @@
 #!/bin/bash
 
-rdkit_release="Release_2025_09_1"
+rdkit_release="Release_2025_09_5"
 graphene_release="1.10.8"
-libsigcpp_release="3.6.0"
+libsigcpp_release="3.8.0"
 boost_release="1.89.0"
 #gemmi_release="v0.6.6"
