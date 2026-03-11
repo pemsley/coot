@@ -516,7 +516,7 @@ RDKit::Bond::BondType CanvasMolecule::bond_type_to_rdkit(CanvasMolecule::BondTyp
 }
 
 
-RDGeom::INT_POINT2D_MAP CanvasMolecule::compute_molecule_geometry() const {
+RDGeom::INT_POINT2D_MAP CanvasMolecule::compute_molecule_geometry(bool omit_stereochemistry) const {
     // The following code is heavily based on RDKit documentation.
 
     const RDGeom::INT_POINT2D_MAP* previous_coordinate_map = nullptr;
@@ -569,8 +569,12 @@ RDGeom::INT_POINT2D_MAP CanvasMolecule::compute_molecule_geometry() const {
 
     RDKit::Conformer& conf = this->rdkit_molecule->getConformer();
 
-    // Is this what I need?
-    RDKit::Chirality::wedgeMolBonds(*this->rdkit_molecule, &conf);
+    if(!omit_stereochemistry) {
+        // I think this what needs to be called to assign bond directions (wedges and dashes) based on
+        // some internal RDKit stereochemistry representation.
+        RDKit::Chirality::wedgeMolBonds(*this->rdkit_molecule, &conf);
+    }
+
     for(auto mv: matchVect) {
         RDGeom::Point3D pt3 = conf.getAtomPos( mv.first );
         RDGeom::Point2D pt2( pt3.x , pt3.y );
@@ -989,7 +993,7 @@ void CanvasMolecule::build_internal_molecule_representation(const RDGeom::INT_PO
     this->shorten_double_bonds();
 }
 
-void CanvasMolecule::lower_from_rdkit(bool sanitize_after, bool with_qed) {
+void CanvasMolecule::lower_from_rdkit(bool sanitize_after, bool with_qed, bool omit_stereochemistry_processing) {
 
     // 2. Do the lowering
 
@@ -1004,11 +1008,8 @@ void CanvasMolecule::lower_from_rdkit(bool sanitize_after, bool with_qed) {
         }
     }
 
-    // Is this what I need? Annotations?
-    // RDKit::Chirality::addStereoAnnotations(*this->rdkit_molecule);
-
     /// 2.1 Compute geometry
-    auto geometry = this->compute_molecule_geometry();
+    auto geometry = this->compute_molecule_geometry(omit_stereochemistry_processing);
 
     // 2.2 Build internal repr
     this->build_internal_molecule_representation(geometry);
