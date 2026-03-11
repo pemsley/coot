@@ -703,15 +703,13 @@ std::string coot_ligand_editor_canvas_get_smiles_for_molecule(CootLigandEditorCa
     if(molecule_idx < self->rdkit_molecules->size()) {
         const auto& mol_opt = (*self->rdkit_molecules)[molecule_idx];
         if(mol_opt.has_value()) {
-            return RDKit::MolToSmiles(*mol_opt->get());
+            return RDKit::MolToSmiles(*mol_opt->get(), true);
         }
     }
     return "";
 }
 
 std::string coot_ligand_editor_canvas_get_inchi_key_for_molecule(CootLigandEditorCanvas* self, unsigned int molecule_idx) noexcept {
-
-   std::string s;
    if (molecule_idx < self->rdkit_molecules->size()) {
         const auto &mol_opt = (*self->rdkit_molecules)[molecule_idx];
         if (mol_opt.has_value()) {
@@ -721,12 +719,13 @@ std::string coot_ligand_editor_canvas_get_inchi_key_for_molecule(CootLigandEdito
             // but don't remove this line.
             return RDKit::MolToInchiKey(*mol_opt->get());
             #else
+            g_warning("Your version of RDKit was built without InChI support. Molecule InChI key lookup will not be available.");
             return "";
             #warning Your version of RDKit was built without InChI support. Molecule InChI key lookup will not be available.
             #endif
         }
    }
-    return s;
+    return "";
 }
 
 std::string coot_ligand_editor_canvas_get_pickled_molecule(CootLigandEditorCanvas* self, unsigned int molecule_idx) noexcept {

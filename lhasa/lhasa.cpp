@@ -38,7 +38,7 @@ std::unique_ptr<RDKit::RWMol> lhasa::rdkit_mol_from_pickle(std::string pickle_st
 }
 
 std::string lhasa::rdkit_mol_to_smiles(RDKit::ROMol& mol) {
-    auto ret = RDKit::MolToSmiles(mol);
+    auto ret = RDKit::MolToSmiles(mol, true);
     return ret;
 }
 
