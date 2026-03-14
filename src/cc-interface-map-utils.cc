@@ -24,6 +24,9 @@
  *
  */
 
+#include <filesystem>
+#include "coords/Cartesian.hh"
+#include "glib.h"
 #ifdef USE_PYTHON
 #include <Python.h>
 #endif
@@ -755,3 +758,84 @@ std::vector<int> map_partition_by_chain(int imol_map, int imol_model) {
    g.graphics_draw();
    return v;
 }
+
+int phaser_emplacement_status = 0;
+
+
+// returns immediately after spawning sub-thread
+//
+void emplacement_by_phaser(const std::string &half_map_1_file_name, const std::string &half_map_2_file_name,
+                           coot::Cartesian search_centre, int imol_model, float radius) {
+
+   // spawn a sub-process and timeout function to watch when the sub-process fineshes.
+
+   struct em_placement_data_t {
+      std::string em_placement_output_file_name;
+   };
+
+   auto check_it = +[] (gpointer user_data) {
+
+      em_placement_data_t *empd = static_cast<em_placement_data_t *>(user_data);
+
+      if (phaser_emplacement_status == 0) {
+         if (std::filesystem::exists(empd->em_placement_output_file_name)) {
+            read_coordinates(empd->em_placement_output_file_name);
+         } else {
+            std::cout << "DEBUG:: subprocess finished but output file does not exist" << std::endl;
+         }
+         return (gboolean)G_SOURCE_REMOVE;
+      } else {
+         return (gboolean)G_SOURCE_CONTINUE;
+      }
+   };
+
+   auto run_subprocess = [] (const std::string &half_map_1_file_name, const std::string &half_map_2_file_name,
+                             const std::string &model_file_name, coot::Cartesian sphere_center) {
+
+      // e.g. phenix.python $phenix/lib/python3.9/site-packages/New_Voyager/scripts/emplace_local.py \
+      // --map1 emd_32143_half_map_1.map --map2 emd_32143_half_map_2.map \
+      // --d_min 3.0 --model_file test-frag-nano.pdb \
+      // --sphere_center 123 69 111
+
+      std::string py_file_name = "emplace_local.py";
+      std::string reso_str = "3.4";
+      std::string cs1 = std::to_string(sphere_center.x());
+      std::string cs2 = std::to_string(sphere_center.y());
+      std::string cs3 = std::to_string(sphere_center.z());
+      std::vector<std::string> cmd_list = { "phenix.python", py_file_name,
+                                            "--map1", half_map_1_file_name, "--map2", half_map_2_file_name,
+                                            "--d_min", reso_str,
+                                            "--model_file", model_file_name,
+                                            "--sphere_center", cs1, cs2, cs3};
+      try {
+         phaser_emplacement_status = 1;
+         subprocess::OutBuffer obuf = subprocess::check_output(cmd_list);
+         phaser_emplacement_status = 0;
+      }
+      catch (const subprocess::CalledProcessError &e) {
+         std::cout << "WARNING::" << e.what() << std::endl;
+         phaser_emplacement_status = 0;
+      }
+   };
+
+   phaser_emplacement_status = 1;
+   std::string em_placement_output_file_name = "placed.pdb";
+   if (std::filesystem::exists(em_placement_output_file_name)) {
+      std::string new_file_name = em_placement_output_file_name + ".backup";
+      rename(em_placement_output_file_name.c_str(), new_file_name.c_str());
+   }
+   if (std::filesystem::exists(em_placement_output_file_name)) {
+      std::cout << "WARNING:: " << em_placement_output_file_name << " exists and can't be moved"<< std::endl;
+   } else {
+      if (is_valid_model_molecule(imol_model)) {
+         em_placement_data_t *data_p = new em_placement_data_t(em_placement_output_file_name);
+         std::string model_file_name = "input-model-for-emplacement.pdb";
+         write_pdb_file(imol_model, model_file_name.c_str());
+         std::thread thread(run_subprocess, half_map_1_file_name, half_map_2_file_name, model_file_name, search_centre);
+         phaser_emplacement_status = 1;
+         thread.detach();
+         g_timeout_add(500, GSourceFunc(check_it), data_p);
+      }
+   }
+}
+

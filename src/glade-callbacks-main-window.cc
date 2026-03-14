@@ -2187,3 +2187,30 @@ on_start_rpc_server_ok_button_clicked(G_GNUC_UNUSED GtkButton       *button,
    }
    gtk_widget_set_visible(frame, FALSE);
 }
+
+extern "C" G_MODULE_EXPORT
+void
+on_emplacement_cancel_button_clicked(G_GNUC_UNUSED GtkButton       *button,
+                                     G_GNUC_UNUSED gpointer         user_data) {
+
+   GtkWidget *frame = widget_from_builder("emplacement_frame");
+
+   gtk_widget_set_visible(frame, FALSE);
+
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_emplacement_ok_button_clicked(G_GNUC_UNUSED GtkButton       *button,
+                                 G_GNUC_UNUSED gpointer         user_data) {
+
+   GtkWidget *dialog     = widget_from_builder("emplacement_dialog");
+   GtkWidget *frame      = widget_from_builder("emplacement_frame");
+   GtkWidget *entry_1    = widget_from_builder("emplacement_half_map_1_entry");
+   GtkWidget *entry_2    = widget_from_builder("emplacement_half_map_2_entry");
+   GtkWidget *reso_entry = widget_from_builder("emplacement_reso_entry");
+
+   gtk_widget_set_visible(dialog, FALSE);
+}
+
+

@@ -35,6 +35,7 @@
 #include "c-interface.h"
 #include "c-interface-gtk-widgets.h"
 #include "coot-fileselections.h"
+#include "gtk/gtkshortcut.h"
 #include "widget-from-builder.hh"
 #include "c-interface-gui.hh" // set transient for main window
 #include "cc-interface-scripting.hh"  // move this up
@@ -5901,6 +5902,40 @@ void delete_item_pick_delete(GSimpleAction *simple_action,
 
    graphics_info_t::delete_item_atom = 1; // setup for atom pick
    add_status_bar_text("Use Ctrl-click for multi-atom delete");
+}
+
+void on_emplacement_menu_item_active() {
+
+   auto get_model_molecule_vector = [] () {
+                                       graphics_info_t g;
+                                       std::vector<int> vec;
+                                       int n_mol = g.n_molecules();
+                                       for (int i=0; i<n_mol; i++)
+                                          if (g.is_valid_model_molecule(i))
+                                             vec.push_back(i);
+                                       return vec;
+                                    };
+
+   auto model_index_changed = +[] (GtkWidget *combobox, gpointer user_data) {
+
+      // now change the radius of the sphere to which the gizmo is attached.
+
+   };
+
+   GtkWidget *dialog = widget_from_builder("emplacement_dialog");
+   GtkWidget *model_combobox = widget_from_builder("emplacement_model_combobox");
+   GtkWidget *reso_entry = widget_from_builder("emplacement_reso_entry");
+   gtk_widget_set_visible(dialog, TRUE);
+   gtk_editable_set_text(GTK_EDITABLE(reso_entry), "3.6");
+
+   graphics_info_t g;
+   auto mol_vec = get_model_molecule_vector();
+   int imol_active = -1;
+   if (! mol_vec.empty())
+      imol_active = mol_vec[0];
+   GCallback callback_func = G_CALLBACK(model_index_changed);
+   g.fill_combobox_with_molecule_options(model_combobox, callback_func, imol_active, mol_vec);
+
 }
 
 void
