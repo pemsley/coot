@@ -12032,3 +12032,32 @@ ModuleNotFoundError: No module named 'gi'
 
 python3 -m pip install PyGObject
 works on my mac.
+
+---
+Thu 12 Mar 2026 01:21:28 GMT
+
+A save frame is a named block of data, delimited by:
+save_<frame_name>
+   ...data...
+save_
+Each save frame contains a collection of related data items — either single key-value pairs (tags) or tabular data (loops).
+In NEF specifically
+NEF organises all its data into save frames, each representing a distinct conceptual entity:
+
+nef_nmr_meta_data — file-level metadata (version, creation date, etc.)
+nef_molecular_system — the sequence / molecular topology
+nef_chemical_shift_list_* — chemical shift assignments
+nef_distance_restraint_list_* — NOE or other distance restraints
+nef_dihedral_restraint_list_* — dihedral angle restraints
+nef_rdc_restraint_list_* — residual dipolar coupling restraints
+nef_peak_list_* — peak lists from spectra
+
+The * suffix indicates that multiple save frames of the same type can exist in one file, distinguished by their unique frame names.
+Key properties
+
+Each save frame is self-contained — it can in principle be read independently
+Frame names must be unique within the file
+They map cleanly onto objects in software like CCPN Analysis or NEF-aware pipelines
+The mandatory frames (nef_nmr_meta_data and nef_molecular_system) must always be present
+
+It's essentially a simple, human-readable database structure — each save frame is roughly analogous to a table or object in other data formats.

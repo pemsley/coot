@@ -1,5 +1,29 @@
 --- Items ---
 
+o reverse molecule to string in chapi
+
+o remove gaussian_surface_to_map_molecule_v2() in chapi.
+
+o Fix session restore - Kevin Jude
+
+o Clemens: make a GEMMI script that describes the
+  heterogeneity in a file and allows to write
+  "early", "late" or "ground" (for example) models.
+
+o fix updating NBCs during refinement
+
+o tom - cryodragon latent space data? 
+  Also trajectories from dynamics
+
+o particle picking for moorhen? Use CPU code
+
+o model fitting to Dari K. data? or something like it.
+  can we do map update on a map fragment - in cryo-EM world.
+
+o use cell and symm of mtz file, then make map em map.
+  Have a look at the column labels from servalcat.
+  Coot and libcootapi
+
 o coot atom overlap score and clashscore for Robbie's set of
   structures.
 
