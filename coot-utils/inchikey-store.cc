@@ -21,7 +21,7 @@ std::optional<std::pair<std::string, std::string> > coot::inchikey_store_t::get_
 void
 coot::inchikey_store_t::parse_from_data_components_file() {
 
-   bool debug = true;
+   bool debug = false;
    std::string pkg_data_dir = coot::package_data_dir();
    std::filesystem::path dir(pkg_data_dir);
    std::filesystem::path fn = dir / "data" / "Components-inchikey.ich";
