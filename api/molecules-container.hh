@@ -888,6 +888,20 @@ public:
    //! on failure (e.g. when atoms types are not in the dictionary)
    std::vector<std::pair<std::string, std::string> > get_acedrg_atom_types(const std::string &compound_id, int imol_enc) const;
 
+   //! Get computed AceDRG/COD atom types for the given compound
+   //!
+   //! Unlike get_acedrg_atom_types() which reads pre-stored atom types from the dictionary,
+   //! this function computes atom types from the dictionary restraints using RDKit.
+   //! This works for any compound that has dictionary restraints, even if the CIF file
+   //! does not contain _chem_comp_acedrg atom type annotations.
+   //!
+   //! @param compound_id is the 3-letter code for the residue/ligand, e.g. "TYR" for tyrosine
+   //! @param imol_enc is the molecule index for the residue type/compound_id
+   //!
+   //! @return a list of atom names and their associated computed COD atom types (level 4),
+   //! return an empty list on failure
+   std::vector<std::pair<std::string, std::string> > get_computed_acedrg_atom_types(const std::string &compound_id, int imol_enc);
+
    //! Get AceDRG atom types for ligand bonds
    //!
    //! @param imol is the model molecule index

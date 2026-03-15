@@ -722,6 +722,11 @@ NB_MODULE(coot_headless_api, m) {
          &molecules_container_t::get_acedrg_atom_types,
          nb::arg("compound_id"), nb::arg("imol_enc"),
          get_docstring_from_xml("get_acedrg_atom_types").c_str())
+    .def("get_computed_acedrg_atom_types",
+         &molecules_container_t::get_computed_acedrg_atom_types,
+         nb::arg("compound_id"), nb::arg("imol_enc"),
+         "Compute AceDRG/COD atom types from dictionary restraints via RDKit. "
+         "Unlike get_acedrg_atom_types() which reads pre-stored types, this computes them.")
     .def("get_acedrg_atom_types_for_ligand",
          &molecules_container_t::get_acedrg_atom_types_for_ligand,
          nb::arg("imol"), nb::arg("residue_cid"),
