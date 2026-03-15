@@ -15,6 +15,125 @@ Best practices for fixing any issue:
 4. ☐ Apply fix
 5. ☐ Re-check metrics to confirm improvement
 6. ☐ If worse, restore checkpoint
+
+## Jiggle Fitting a Whole Chain
+
+### When to use jiggle fitting
+
+Use `fit_chain_to_map_by_random_jiggle_and_blur()` when a whole chain needs to be
+placed or re-placed in the map — before any residue-level refinement.
+Note, however, that the fit is only local. If the whole chain is (say) 10 or more Angstroms
+away from the real position, then `fit_chain_to_map_by_random_jiggle_and_blur()` will not work.
+The per-residue density correlation graph is the key diagnostic: if the mean correlation across
+the whole chain is near zero with high variance (many residues below 0.4, many negative),
+the chain is in the wrong place and jiggle fitting is the right first step.
+
+**Do not attempt residue-level fixes (rotamers, pepflips, refinement) until the chain
+is correctly placed.** Those tools cannot recover a globally misplaced chain.
+
+### Diagnosing misplacement from the correlation graph
+
+Before jiggling, always get a fresh per-residue correlation to use as a true baseline:
+
+```python
+stats = coot.map_to_model_correlation_stats_per_residue_range_py(
+    imol, chain_id, imol_map, 1, 0)
+corrs = [entry[1][1] for entry in stats[0]]
+mean_corr = sum(corrs) / len(corrs)
+n_below = sum(1 for c in corrs if c < 0.4)
+print(f"Mean correlation: {mean_corr:.3f}, residues below 0.4: {n_below}/{len(corrs)}")
+```
+
+**Interpretation:**
+- Mean > 0.7, few residues below 0.4 → chain is well placed, proceed to residue-level work
+- Mean 0.4–0.7, moderate number below 0.4 → chain placed but needs refinement
+- Mean near zero, high variance, many negative → **chain is in the wrong place**, jiggle fit first
+
+**Why negative correlations occur in cryo-EM maps:** cryo-EM maps are Fourier-based
+(no F000 term), so the mean density is zero. Negative density exists between atomic
+features as a mathematical consequence of the reconstruction — not a physical reality.
+A misplaced chain within the molecular envelope samples this real structured signal
+(both positive peaks and negative troughs) from the wrong part of the map, producing
+scattered correlations around zero. This is distinct from sitting in solvent, which
+gives low-magnitude, low-variance correlations.
+
+### Running the jiggle fit
+
+Set the refinement map first, then use the blur variant for cryo-EM:
+
+```python
+coot.set_imol_refinement_map(imol_map)
+
+result = coot.fit_chain_to_map_by_random_jiggle_and_blur(
+    imol,          # model molecule
+    chain_id,      # e.g. "N"
+    n_trials,      # 200-500; more trials = better chance of finding global optimum
+    jiggle_scale,  # 1.0-2.0; scale of random perturbations
+    blur_factor    # 100-200; Fourier filtering makes the map smoother, helping
+                   # the fit escape local minima and find the correct placement
+)
+print(f"Jiggle fit score: {result:.3f}")
+```
+
+**Return values:** the function returns a score (higher = better fit) or a large
+negative number (e.g. −100, −999) when it cannot improve on the current placement.
+These large negative returns are not errors — they mean the current position is already
+a local optimum, or the function had difficulty scoring. Do not treat them as failures
+without checking the actual correlation afterwards.
+
+**Blur factor guidance:** the blur smooths the map by a Fourier filter, effectively
+low-pass filtering it. A higher blur factor produces a smoother map with broader
+features, which helps the chain find the correct region before fine-grained fitting.
+For cryo-EM maps, blur factors of 100–200 are typical starting points.
+
+### Confirming the result
+
+Always re-run the per-residue correlation after jiggling and compare to the baseline:
+
+```python
+stats_after = coot.map_to_model_correlation_stats_per_residue_range_py(
+    imol, chain_id, imol_map, 1, 0)
+corrs_after = [entry[1][1] for entry in stats_after[0]]
+mean_after = sum(corrs_after) / len(corrs_after)
+n_below_after = sum(1 for c in corrs_after if c < 0.4)
+print(f"AFTER  — mean: {mean_after:.3f}, below 0.4: {n_below_after}")
+```
+
+A successful jiggle fit for a correctly placed chain should bring the mean correlation
+above 0.6, with most residues above 0.7. Remaining poor-fitting residues in loop
+regions are expected and addressed by subsequent residue-level refinement.
+
+### Visualising the before/after result
+
+Use the `coot-inline-graphs` skill to render a before/after bar chart with secondary
+structure overlays. Fetch secondary structure from PDBe
+(`/api/pdb/entry/secondary_structure/{pdb_id}`) rather than relying solely on Coot's
+header secondary structure detection, which may miss strands — particularly single-
+residue assignments and short strands in nanobody/VHH-type folds.
+
+### Complete workflow summary
+
+```python
+# 1. Get fresh baseline correlation (after any manual moves, before jiggle)
+stats_before = coot.map_to_model_correlation_stats_per_residue_range_py(
+    imol, chain_id, imol_map, 1, 0)
+corrs_before = [e[1][1] for e in stats_before[0]]
+print(f"BEFORE — mean: {sum(corrs_before)/len(corrs_before):.3f}")
+
+# 2. Set refinement map and jiggle fit
+coot.set_imol_refinement_map(imol_map)
+result = coot.fit_chain_to_map_by_random_jiggle_and_blur(imol, chain_id, 500, 1.0, 200.0)
+print(f"Jiggle score: {result:.3f}")  # large negative = ignore, check correlation anyway
+
+# 3. Get after correlation and compare
+stats_after = coot.map_to_model_correlation_stats_per_residue_range_py(
+    imol, chain_id, imol_map, 1, 0)
+corrs_after = [e[1][1] for e in stats_after[0]]
+print(f"AFTER  — mean: {sum(corrs_after)/len(corrs_after):.3f}")
+
+# 4. Only proceed to residue-level work once mean > 0.6
+```
+
 ## Refinement Best Practices
 
 ### 1. Make Checkpoints Before Model Changes
