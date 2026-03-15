@@ -201,7 +201,7 @@ if [ $BUILD_RDKIT = true ]; then
                   -DBoost_USE_STATIC_RUNTIME=ON \
                   -DBoost_DEBUG=TRUE \
                   -DCMAKE_CXX_FLAGS="${LHASA_CMAKE_FLAGS} -fwasm-exceptions -D_HAS_AUTO_PTR_ETC=0" \
-                  -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} ${DEPENDENCY_DIR}/rdkit \
+                  -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} ${DEPENDENCY_DIR}/rdkit-$rdkit_release \
                   -DRDK_OPTIMIZE_POPCNT=OFF \
                   -DRDK_INSTALL_COMIC_FONTS=OFF \
                   -DCMAKE_C_FLAGS="${LHASA_CMAKE_FLAGS}" \
