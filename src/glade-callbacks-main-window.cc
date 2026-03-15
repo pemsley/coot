@@ -2199,18 +2199,39 @@ on_emplacement_cancel_button_clicked(G_GNUC_UNUSED GtkButton       *button,
 
 }
 
+// put this in a header.
+void emplacement_by_phaser(const std::string &half_map_1_file_name, const std::string &half_map_2_file_name,
+                           coot::Cartesian search_centre, int imol_model, float radius);
+
 extern "C" G_MODULE_EXPORT
 void
 on_emplacement_ok_button_clicked(G_GNUC_UNUSED GtkButton       *button,
                                  G_GNUC_UNUSED gpointer         user_data) {
 
    GtkWidget *dialog     = widget_from_builder("emplacement_dialog");
-   GtkWidget *frame      = widget_from_builder("emplacement_frame");
    GtkWidget *entry_1    = widget_from_builder("emplacement_half_map_1_entry");
    GtkWidget *entry_2    = widget_from_builder("emplacement_half_map_2_entry");
    GtkWidget *reso_entry = widget_from_builder("emplacement_reso_entry");
+   GtkWidget *model_combobox = widget_from_builder("emplacement_model_combobox");
+
+   const char *entry_1_text    = gtk_editable_get_text(GTK_EDITABLE(entry_1));
+   const char *entry_2_text    = gtk_editable_get_text(GTK_EDITABLE(entry_2));
+   const char *reso_entry_text = gtk_editable_get_text(GTK_EDITABLE(reso_entry));
+
+   int imol_model = my_combobox_get_imol(GTK_COMBO_BOX(model_combobox));
+
+   try {
+      float reso = coot::util::string_to_float(reso_entry_text);
+      float mol_radius = 22.2;
+      coot::Cartesian centre = graphics_info_t::get_rotation_centre_cart();
+      emplacement_by_phaser(entry_1_text, entry_2_text, centre, imol_model, mol_radius);
+   }
+   catch (const std::runtime_error &rte) {
+      std::cout << "DEBUG:: on_emplacement_ok_button_clicked() rte " << rte.what() << std::endl;
+   }
 
    gtk_widget_set_visible(dialog, FALSE);
+
 }
 
 

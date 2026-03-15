@@ -35,6 +35,7 @@
 
 #include "coot-utils/coot-map-utils.hh"
 
+#include "c-interface-generic-objects.h"
 #include "utils/logging.hh"
 extern logging logger;
 
@@ -759,8 +760,28 @@ std::vector<int> map_partition_by_chain(int imol_map, int imol_model) {
    return v;
 }
 
-int phaser_emplacement_status = 0;
 
+std::filesystem::path plain_path(const std::string &fp_in) {
+
+   std::string fp = fp_in;
+   std::string::size_type pos = 0;
+   while ((pos = fp.find('$', pos)) != std::string::npos) {
+      auto end = pos + 1;
+      while (end < fp.size() && (std::isalnum(fp[end]) || fp[end] == '_'))
+         end++;
+      std::string var_name = fp.substr(pos + 1, end - pos - 1);
+      const char *val = getenv(var_name.c_str());
+      if (val) {
+         fp.replace(pos, end - pos, val);
+         pos += std::strlen(val);
+      } else {
+         pos = end;
+      }
+   }
+   return std::filesystem::path(fp);
+}
+
+int phaser_emplacement_status = 0;
 
 // returns immediately after spawning sub-thread
 //
@@ -771,6 +792,7 @@ void emplacement_by_phaser(const std::string &half_map_1_file_name, const std::s
 
    struct em_placement_data_t {
       std::string em_placement_output_file_name;
+      int obj; // the generic object sphere index
    };
 
    auto check_it = +[] (gpointer user_data) {
@@ -780,14 +802,18 @@ void emplacement_by_phaser(const std::string &half_map_1_file_name, const std::s
       if (phaser_emplacement_status == 0) {
          if (std::filesystem::exists(empd->em_placement_output_file_name)) {
             read_coordinates(empd->em_placement_output_file_name);
+            set_display_generic_object(empd->obj, 0);
          } else {
-            std::cout << "DEBUG:: subprocess finished but output file does not exist" << std::endl;
+            std::cout << "DEBUG:: subprocess finished but output file " << empd->em_placement_output_file_name
+                      << " does not exist" << std::endl;
          }
          return (gboolean)G_SOURCE_REMOVE;
       } else {
          return (gboolean)G_SOURCE_CONTINUE;
       }
    };
+
+
 
    auto run_subprocess = [] (const std::string &half_map_1_file_name, const std::string &half_map_2_file_name,
                              const std::string &model_file_name, coot::Cartesian sphere_center) {
@@ -797,16 +823,24 @@ void emplacement_by_phaser(const std::string &half_map_1_file_name, const std::s
       // --d_min 3.0 --model_file test-frag-nano.pdb \
       // --sphere_center 123 69 111
 
-      std::string py_file_name = "emplace_local.py";
+      // std::filesystem::path script_dir = "/Users/pemsley/Applications/phenix-2.0-5936/lib/python3.9/site-packages/New_Voyager/scripts";
+      std::filesystem::path script_dir = plain_path("$PHENIX/lib/$PHENIX_PYTHON_VERSION/site-packages/New_Voyager/scripts");
+      std::filesystem::path py_file_path = script_dir / "emplace_local.py";
+      std::cout << "DEBUG:: py_file_path " << py_file_path << std::endl;
       std::string reso_str = "3.4";
       std::string cs1 = std::to_string(sphere_center.x());
       std::string cs2 = std::to_string(sphere_center.y());
       std::string cs3 = std::to_string(sphere_center.z());
-      std::vector<std::string> cmd_list = { "phenix.python", py_file_name,
+      std::vector<std::string> cmd_list = { "phenix.python", py_file_path.string(),
                                             "--map1", half_map_1_file_name, "--map2", half_map_2_file_name,
                                             "--d_min", reso_str,
                                             "--model_file", model_file_name,
                                             "--sphere_center", cs1, cs2, cs3};
+
+      if (true) {
+         for (const auto &s : cmd_list) std::cout << s << " ";
+         std::cout << "\n";
+      }
       try {
          phaser_emplacement_status = 1;
          subprocess::OutBuffer obuf = subprocess::check_output(cmd_list);
@@ -819,7 +853,7 @@ void emplacement_by_phaser(const std::string &half_map_1_file_name, const std::s
    };
 
    phaser_emplacement_status = 1;
-   std::string em_placement_output_file_name = "placed.pdb";
+   std::string em_placement_output_file_name = "top_sol_1.pdb";
    if (std::filesystem::exists(em_placement_output_file_name)) {
       std::string new_file_name = em_placement_output_file_name + ".backup";
       rename(em_placement_output_file_name.c_str(), new_file_name.c_str());
