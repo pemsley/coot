@@ -165,26 +165,25 @@ echo "BUILD_LIBSIGCPP " $BUILD_LIBSIGCPP
 #Boost
 #boost with cmake
 if [ $BUILD_BOOST = true ]; then
-    mkdir -p ${DEPENDENCY_BUILD_DIR}/boost
-    cd ${DEPENDENCY_BUILD_DIR}/boost
-    #export BOOST_STACKTRACE_LIBCXX_RUNTIME_MAY_CAUSE_MEMORY_LEAK=1
+    mkdir -p ${DEPENDENCY_BUILD_DIR}/boost &&\
+    cd ${DEPENDENCY_BUILD_DIR}/boost &&\
     emcmake cmake -DCMAKE_C_FLAGS="${LHASA_CMAKE_FLAGS}" \
                   -DCMAKE_CXX_FLAGS="${LHASA_CMAKE_FLAGS}" \
                   -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} \
                   ${LHASA_MAIN_DIR}/checkout/boost-$boost_release \
                   -DBOOST_STACKTRACE_LIBCXX_RUNTIME_MAY_CAUSE_MEMORY_LEAK=1 \
                   -DBOOST_STACKTRACE_ENABLE_FROM_EXCEPTION=OFF \
-                  -DBOOST_EXCLUDE_LIBRARIES="context;fiber;fiber_numa;process;asio;log;coroutine;cobalt;nowide"
-    emmake make -j ${NUMPROCS}
-    emmake make install
+                  -DBOOST_EXCLUDE_LIBRARIES="context;fiber;fiber_numa;process;asio;log;coroutine;cobalt;nowide" &&\
+    emmake make -j ${NUMPROCS} &&\
+    emmake make install || fail "Failed to build and install boost"
 fi
 
 #RDKit
 if [ $BUILD_RDKIT = true ]; then
     BOOST_CMAKE_STUFF=`for i in ${INSTALL_DIR}/lib/cmake/boost*; do j=${i%-static}; k=${j%-$boost_release}; l=${k#${INSTALL_DIR}/lib/cmake/boost_}; echo -Dboost_${l}_DIR=$i; done`
     # echo BOOST_CMAKE_STUFF: $BOOST_CMAKE_STUFF
-    mkdir -p ${DEPENDENCY_BUILD_DIR}/rdkit_build
-    cd ${DEPENDENCY_BUILD_DIR}/rdkit_build
+    mkdir -p ${DEPENDENCY_BUILD_DIR}/rdkit_build &&\
+    cd ${DEPENDENCY_BUILD_DIR}/rdkit_build &&\
     emcmake cmake -DBoost_DIR=${INSTALL_DIR}/lib/cmake/Boost-$boost_release \
                   ${BOOST_CMAKE_STUFF} \
                   -DRDK_BUILD_PYTHON_WRAPPERS=OFF \
@@ -206,9 +205,9 @@ if [ $BUILD_RDKIT = true ]; then
                   -DRDK_OPTIMIZE_POPCNT=OFF \
                   -DRDK_INSTALL_COMIC_FONTS=OFF \
                   -DCMAKE_C_FLAGS="${LHASA_CMAKE_FLAGS}" \
-                  -DCMAKE_MODULE_PATH=${INSTALL_DIR}/lib/cmake
-    emmake make -j ${NUMPROCS}
-    emmake make install
+                  -DCMAKE_MODULE_PATH=${INSTALL_DIR}/lib/cmake &&\
+    emmake make -j ${NUMPROCS} &&\
+    emmake make install || fail "Failed to build and install rdkit"
 fi
 
 
@@ -258,20 +257,20 @@ fi
 
 # Graphene
 if [ $BUILD_GRAPHENE = true ]; then
-    pushd ${LHASA_MAIN_DIR}/checkout/graphene-$graphene_release/
+    cd ${DEPENDENCY_DIR}/graphene-$graphene_release/ &&\
     CFLAGS="-s USE_PTHREADS $LHASA_CMAKE_FLAGS" LDFLAGS=" -lpthread $LHASA_CMAKE_FLAGS" meson setup ${DEPENDENCY_BUILD_DIR}/graphene_build \
         --prefix=${INSTALL_DIR} \
         --cross-file=$MESON_CROSS \
         --default-library=static \
         --buildtype=release \
-        -Dtests=false && \
-        meson install -C ${DEPENDENCY_BUILD_DIR}/graphene_build
-        popd
+        -Dtests=false &&\
+        meson install -C ${DEPENDENCY_BUILD_DIR}/graphene_build || fail "Failed to build and install graphene"
+        cd ${LHASA_MAIN_DIR}
 fi
 
 # Libsigc++
 if [ $BUILD_LIBSIGCPP = true ]; then
-    pushd ${LHASA_MAIN_DIR}/checkout/libsigcplusplus-$libsigcpp_release/
+    cd ${DEPENDENCY_DIR}/libsigcplusplus-$libsigcpp_release/ &&\
     meson setup ${DEPENDENCY_BUILD_DIR}/libsigcplusplus_build \
         --prefix=${INSTALL_DIR} \
         --libdir=lib \
@@ -281,8 +280,13 @@ if [ $BUILD_LIBSIGCPP = true ]; then
         -Dcpp_link_args="-pthread $LHASA_CMAKE_FLAGS" \
         -Dcpp_args="-s USE_PTHREADS=1 $LHASA_CMAKE_FLAGS" \
         --buildtype=release \
-        -Dbuild-tests=false && \
-        meson install -C ${DEPENDENCY_BUILD_DIR}/libsigcplusplus_build
-        popd
+        -Dbuild-tests=false &&\
+        meson install -C ${DEPENDENCY_BUILD_DIR}/libsigcplusplus_build || fail "Failed to build and install libsigc++"
+        cd ${LHASA_MAIN_DIR}
     
 fi
+
+
+setcolor cyan
+echo "Done building dependencies."
+setcolor reset
