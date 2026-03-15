@@ -29,7 +29,7 @@ else
 fi
 
 setcolor cyan
-echo "Running Emscripten CMake..."
+echo "Running Emscripten CMake to create build dir at $LHASA_CMAKE_BUILD_DIR..."
 setcolor reset
 
 emcmake cmake -DMEMORY64=${MEMORY64} -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} -S "$LHASA_MAIN_DIR" -B "$LHASA_CMAKE_BUILD_DIR" ||\
