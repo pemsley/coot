@@ -1,31 +1,38 @@
 #!/bin/sh
 
-if command -v greadlink > /dev/null 2>&1; then
-    SOURCE_DIR=`dirname -- "$( greadlink -f -- "$0"; )"`
+# This script builds dependencies for the Lhasa WASM module.
+
+if [ "x$LHASA_MAIN_DIR" = "x" ]; then
+    # Based on '$0', i.e. the command being executed, finds the absolute path of where this script is located
+    if command -v greadlink > /dev/null 2>&1; then
+        LHASA_MAIN_DIR=`dirname -- "$( greadlink -f -- "$0"; )"`
+    else
+        LHASA_MAIN_DIR=`dirname -- "$( readlink -f -- "$0"; )"`
+    fi
+    echo "Using LHASA_MAIN_DIR: $LHASA_MAIN_DIR"
 else
-    SOURCE_DIR=`dirname -- "$( readlink -f -- "$0"; )"`
+    echo "Using LHASA_MAIN_DIR from environment: $LHASA_MAIN_DIR"
 fi
 
-
-if [ x`uname -s` = x"Darwin" ]; then
-    NUMPROCS=`sysctl -n hw.ncpu`
+if [ -e "$LHASA_MAIN_DIR/lhasa_build_functions" ]; then
+    . "$LHASA_MAIN_DIR/lhasa_build_functions"
 else
-    NUMPROCS=`nproc --all`
+    # The fail function is not available here
+    echo "Cannot find lhasa_build_functions. Exiting."
+    exit 1
 fi
 
-. ./VERSIONS
+if [ -e "$LHASA_MAIN_DIR/VERSIONS" ]; then
+    . "$LHASA_MAIN_DIR/VERSIONS"
+else
+    fail "Cannot find VERSIONS file. Exiting."
+fi
 
-BUILD_DIR=${PWD}/build
-INSTALL_DIR=${PWD}/prefix
-
-echo "Sources are in ${SOURCE_DIR}"
-echo "Building in ${BUILD_DIR}"
-echo "Installing in ${INSTALL_DIR}"
-
-mkdir -p ${INSTALL_DIR}
-mkdir -p ${BUILD_DIR}
-
-. ./EMSCRIPTEN_CONFIG
+if [ -e "$LHASA_MAIN_DIR/EMSCRIPTEN_CONFIG" ]; then
+    . "$LHASA_MAIN_DIR/EMSCRIPTEN_CONFIG"
+else
+    fail "Cannot find EMSCRIPTEN_CONFIG file. Exiting."
+fi
 
 if [ x"$1" = x"--64bit" ]; then
    MEMORY64=1
@@ -38,6 +45,13 @@ else
    MODULES=$*
 fi
 
+echo "Sources are in ${LHASA_MAIN_DIR}"
+echo "Building in ${DEPENDENCY_BUILD_DIR}"
+echo "Installing in ${INSTALL_DIR}"
+
+mkdir -p ${INSTALL_DIR}
+mkdir -p ${DEPENDENCY_BUILD_DIR}
+
 # Only big stuff goes here
 if [ x"$CLEAR_MODULES" = x"" ]; then
     :
@@ -45,11 +59,11 @@ else
     for mod in $CLEAR_MODULES; do
         case $mod in
            boost) echo "Clear boost"
-               rm -rf ${BUILD_DIR}/boost
+               rm -rf ${DEPENDENCY_BUILD_DIR}/boost
                rm -rf ${INSTALL_DIR}/include/boost
                ;;
            rdkit) echo "Clear rdkit"
-               rm -rf ${BUILD_DIR}/rdkit_build
+               rm -rf ${DEPENDENCY_BUILD_DIR}/rdkit_build
                rm -rf ${INSTALL_DIR}/include/rdkit
                ;;
         esac
@@ -133,13 +147,13 @@ echo "BUILD_LIBSIGCPP " $BUILD_LIBSIGCPP
 #Boost
 #boost with cmake
 if [ $BUILD_BOOST = true ]; then
-    mkdir -p ${BUILD_DIR}/boost
-    cd ${BUILD_DIR}/boost
+    mkdir -p ${DEPENDENCY_BUILD_DIR}/boost
+    cd ${DEPENDENCY_BUILD_DIR}/boost
     #export BOOST_STACKTRACE_LIBCXX_RUNTIME_MAY_CAUSE_MEMORY_LEAK=1
     emcmake cmake -DCMAKE_C_FLAGS="${LHASA_CMAKE_FLAGS}" \
                   -DCMAKE_CXX_FLAGS="${LHASA_CMAKE_FLAGS}" \
                   -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} \
-                  ${SOURCE_DIR}/checkout/boost-$boost_release \
+                  ${LHASA_MAIN_DIR}/checkout/boost-$boost_release \
                   -DBOOST_STACKTRACE_LIBCXX_RUNTIME_MAY_CAUSE_MEMORY_LEAK=1 \
                   -DBOOST_STACKTRACE_ENABLE_FROM_EXCEPTION=OFF \
                   -DBOOST_EXCLUDE_LIBRARIES="context;fiber;fiber_numa;process;asio;log;coroutine;cobalt;nowide"
@@ -151,8 +165,8 @@ fi
 if [ $BUILD_RDKIT = true ]; then
     BOOST_CMAKE_STUFF=`for i in ${INSTALL_DIR}/lib/cmake/boost*; do j=${i%-static}; k=${j%-$boost_release}; l=${k#${INSTALL_DIR}/lib/cmake/boost_}; echo -Dboost_${l}_DIR=$i; done`
     # echo BOOST_CMAKE_STUFF: $BOOST_CMAKE_STUFF
-    mkdir -p ${BUILD_DIR}/rdkit_build
-    cd ${BUILD_DIR}/rdkit_build
+    mkdir -p ${DEPENDENCY_BUILD_DIR}/rdkit_build
+    cd ${DEPENDENCY_BUILD_DIR}/rdkit_build
     emcmake cmake -DBoost_DIR=${INSTALL_DIR}/lib/cmake/Boost-$boost_release \
                   ${BOOST_CMAKE_STUFF} \
                   -DRDK_BUILD_PYTHON_WRAPPERS=OFF \
@@ -170,7 +184,7 @@ if [ $BUILD_RDKIT = true ]; then
                   -DBoost_USE_STATIC_RUNTIME=ON \
                   -DBoost_DEBUG=TRUE \
                   -DCMAKE_CXX_FLAGS="${LHASA_CMAKE_FLAGS} -fwasm-exceptions -D_HAS_AUTO_PTR_ETC=0" \
-                  -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} ${SOURCE_DIR}/checkout/rdkit \
+                  -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} ${LHASA_MAIN_DIR}/checkout/rdkit \
                   -DRDK_OPTIMIZE_POPCNT=OFF \
                   -DRDK_INSTALL_COMIC_FONTS=OFF \
                   -DCMAKE_C_FLAGS="${LHASA_CMAKE_FLAGS}" \
@@ -182,15 +196,15 @@ fi
 
 # Setup for meson
 if [ $BUILD_LIBSIGCPP = true ] || [ $BUILD_GRAPHENE = true ]; then
-    cd ${BUILD_DIR}
+    cd ${DEPENDENCY_BUILD_DIR}
 
 
     export CHOST="wasm32-unknown-linux"
     export ax_cv_c_float_words_bigendian=no
 
-    export MESON_CROSS="${BUILD_DIR}/emscripten-crossfile.meson"
+    export MESON_CROSS="${DEPENDENCY_BUILD_DIR}/emscripten-crossfile.meson"
 
-    cat > "${BUILD_DIR}/emscripten-crossfile.meson" <<END
+    cat > "${DEPENDENCY_BUILD_DIR}/emscripten-crossfile.meson" <<END
 [binaries]
 c = 'emcc'
 cpp = 'em++'
@@ -226,21 +240,21 @@ fi
 
 # Graphene
 if [ $BUILD_GRAPHENE = true ]; then
-    pushd ${SOURCE_DIR}/checkout/graphene-$graphene_release/
-    CFLAGS="-s USE_PTHREADS $LHASA_CMAKE_FLAGS" LDFLAGS=" -lpthread $LHASA_CMAKE_FLAGS" meson setup ${BUILD_DIR}/graphene_build \
+    pushd ${LHASA_MAIN_DIR}/checkout/graphene-$graphene_release/
+    CFLAGS="-s USE_PTHREADS $LHASA_CMAKE_FLAGS" LDFLAGS=" -lpthread $LHASA_CMAKE_FLAGS" meson setup ${DEPENDENCY_BUILD_DIR}/graphene_build \
         --prefix=${INSTALL_DIR} \
         --cross-file=$MESON_CROSS \
         --default-library=static \
         --buildtype=release \
         -Dtests=false && \
-        meson install -C ${BUILD_DIR}/graphene_build
+        meson install -C ${DEPENDENCY_BUILD_DIR}/graphene_build
         popd
 fi
 
 # Libsigc++
 if [ $BUILD_LIBSIGCPP = true ]; then
-    pushd ${SOURCE_DIR}/checkout/libsigcplusplus-$libsigcpp_release/
-    meson setup ${BUILD_DIR}/libsigcplusplus_build \
+    pushd ${LHASA_MAIN_DIR}/checkout/libsigcplusplus-$libsigcpp_release/
+    meson setup ${DEPENDENCY_BUILD_DIR}/libsigcplusplus_build \
         --prefix=${INSTALL_DIR} \
         --libdir=lib \
         --cross-file=$MESON_CROSS \
@@ -250,7 +264,7 @@ if [ $BUILD_LIBSIGCPP = true ]; then
         -Dcpp_args="-s USE_PTHREADS=1 $LHASA_CMAKE_FLAGS" \
         --buildtype=release \
         -Dbuild-tests=false && \
-        meson install -C ${BUILD_DIR}/libsigcplusplus_build
+        meson install -C ${DEPENDENCY_BUILD_DIR}/libsigcplusplus_build
         popd
     
 fi

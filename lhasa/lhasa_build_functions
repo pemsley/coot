@@ -1,0 +1,46 @@
+#!/usr/bin/sh
+
+setcolor() {
+    if [ -t 1 ]; then
+        case $1 in
+            red) echo -n "$(tput setaf 1)" ;;
+            green) echo -n "$(tput setaf 2)" ;;
+            yellow) echo -n "$(tput setaf 3)" ;;
+            blue) echo -n "$(tput setaf 4)" ;;
+            magenta) echo -n "$(tput setaf 5)" ;;
+            cyan) echo -n "$(tput setaf 6)" ;;
+            white) echo -n "$(tput setaf 7)" ;;
+            reset) echo -n "$(tput sgr0)" ;;
+        esac
+    fi
+}
+
+fail() {
+    setcolor red
+    echo "Error: $1"
+    setcolor reset
+    exit 1
+}
+
+# Download dir for the dependencies.
+DEPENDENCY_DIR="${LHASA_MAIN_DIR}/checkout"
+
+# Install dir for the dependencies.
+INSTALL_DIR="${LHASA_MAIN_DIR}/prefix"
+
+# Build dir for the dependencies.
+DEPENDENCY_BUILD_DIR="${LHASA_MAIN_DIR}/build"
+
+# Cmake build dir for Lhasa itself
+LHASA_CMAKE_BUILD_DIR="${LHASA_MAIN_DIR}/lhbuild"
+
+if [ x`uname -s` = x"Darwin" ]; then
+    NUMPROCS=`sysctl -n hw.ncpu`
+else
+    NUMPROCS=`nproc --all`
+fi
+
+cdcheckout() {
+    mkdir -p "$DEPENDENCY_DIR" &&\
+    cd "$DEPENDENCY_DIR" || fail "Failed to enter/setup the directory withd dependencies."
+}

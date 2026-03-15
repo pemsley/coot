@@ -1,9 +1,34 @@
 #!/bin/sh
 
-. ./VERSIONS
+# This is the first step: Get sources of the dependencies.
 
-mkdir -p checkout
-cd checkout
+if [ "x$LHASA_MAIN_DIR" = "x" ]; then
+    # Based on '$0', i.e. the command being executed, finds the absolute path of where this script is located
+    if command -v greadlink > /dev/null 2>&1; then
+        LHASA_MAIN_DIR=`dirname -- "$( greadlink -f -- "$0"; )"`
+    else
+        LHASA_MAIN_DIR=`dirname -- "$( readlink -f -- "$0"; )"`
+    fi
+    echo "Using LHASA_MAIN_DIR: $LHASA_MAIN_DIR"
+else
+    echo "Using LHASA_MAIN_DIR from environment: $LHASA_MAIN_DIR"
+fi
+
+if [ -e "$LHASA_MAIN_DIR/lhasa_build_functions" ]; then
+    . "$LHASA_MAIN_DIR/lhasa_build_functions"
+else
+    # The fail function is not available here
+    echo "Cannot find lhasa_build_functions. Exiting."
+    exit 1
+fi
+
+if [ -e "$LHASA_MAIN_DIR/VERSIONS" ]; then
+    . "$LHASA_MAIN_DIR/VERSIONS"
+else
+    fail "Cannot find VERSIONS file. Exiting."
+fi
+
+
 
 
 echo "Downloading RDKit source"
