@@ -23,16 +23,16 @@ fail() {
 }
 
 # Download dir for the dependencies.
-DEPENDENCY_DIR="${LHASA_MAIN_DIR}/checkout"
+: "${DEPENDENCY_DIR:=${LHASA_MAIN_DIR}/checkout}"
 
 # Install dir for the dependencies.
-INSTALL_DIR="${LHASA_MAIN_DIR}/prefix"
+: "${INSTALL_DIR:=${LHASA_MAIN_DIR}/prefix}"
 
 # Build dir for the dependencies.
-DEPENDENCY_BUILD_DIR="${LHASA_MAIN_DIR}/build"
+: "${DEPENDENCY_BUILD_DIR:=${LHASA_MAIN_DIR}/build}"
 
 # Cmake build dir for Lhasa itself
-LHASA_CMAKE_BUILD_DIR="${LHASA_MAIN_DIR}/lhbuild"
+: "${LHASA_CMAKE_BUILD_DIR:=${LHASA_MAIN_DIR}/lhbuild}"
 
 if [ x`uname -s` = x"Darwin" ]; then
     NUMPROCS=`sysctl -n hw.ncpu`

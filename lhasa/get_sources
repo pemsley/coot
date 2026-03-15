@@ -88,6 +88,10 @@ getboost() {
     echo
 }
 
+setcolor cyan
+echo "Dependency download directory is ${DEPENDENCY_DIR}"
+setcolor reset
+
 getrdkit
 getboost
 getgraphene

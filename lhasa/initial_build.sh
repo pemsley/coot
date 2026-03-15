@@ -45,12 +45,15 @@ else
    MODULES=$*
 fi
 
-echo "Sources are in ${LHASA_MAIN_DIR}"
+setcolor cyan
+echo "Lhasa sources are in ${LHASA_MAIN_DIR}"
+echo "Dependency sources are in ${DEPENDENCY_DIR}"
 echo "Building in ${DEPENDENCY_BUILD_DIR}"
 echo "Installing in ${INSTALL_DIR}"
+setcolor reset
 
-mkdir -p ${INSTALL_DIR}
-mkdir -p ${DEPENDENCY_BUILD_DIR}
+mkdir -p ${INSTALL_DIR} &&\
+mkdir -p ${DEPENDENCY_BUILD_DIR} || fail "Failed to create build/install directories."
 
 # Only big stuff goes here
 if [ x"$CLEAR_MODULES" = x"" ]; then
@@ -66,6 +69,15 @@ else
                rm -rf ${DEPENDENCY_BUILD_DIR}/rdkit_build
                rm -rf ${INSTALL_DIR}/include/rdkit
                ;;
+           graphene) echo "Clear graphene"
+               rm -rf ${DEPENDENCY_BUILD_DIR}/graphene_build
+               rm -rf ${INSTALL_DIR}/include/graphene-1.0
+               ;;
+           libsigcpp) echo "Clear libsigcpp"
+               rm -rf ${DEPENDENCY_BUILD_DIR}/libsigcplusplus_build
+               rm -rf ${INSTALL_DIR}/include/sigc++-3.0
+               ;;
+           *) echo "Unknown module $mod to clear. Ignoring." ;;
         esac
         done
     exit
@@ -134,6 +146,12 @@ for mod in $MODULES; do
        ;;
        rdkit) echo "Force build rdkit"
        BUILD_RDKIT=true
+       ;;
+       graphene) echo "Force build graphene"
+       BUILD_GRAPHENE=true
+       ;;
+       libsigcpp) echo "Force build libsigcpp"
+       BUILD_LIBSIGCPP=true
        ;;
     esac
 done
