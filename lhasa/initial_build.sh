@@ -170,7 +170,7 @@ if [ $BUILD_BOOST = true ]; then
     emcmake cmake -DCMAKE_C_FLAGS="${LHASA_CMAKE_FLAGS}" \
                   -DCMAKE_CXX_FLAGS="${LHASA_CMAKE_FLAGS}" \
                   -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} \
-                  ${LHASA_MAIN_DIR}/checkout/boost-$boost_release \
+                  ${DEPENDENCY_DIR}/boost-$boost_release \
                   -DBOOST_STACKTRACE_LIBCXX_RUNTIME_MAY_CAUSE_MEMORY_LEAK=1 \
                   -DBOOST_STACKTRACE_ENABLE_FROM_EXCEPTION=OFF \
                   -DBOOST_EXCLUDE_LIBRARIES="context;fiber;fiber_numa;process;asio;log;coroutine;cobalt;nowide" &&\
@@ -201,7 +201,7 @@ if [ $BUILD_RDKIT = true ]; then
                   -DBoost_USE_STATIC_RUNTIME=ON \
                   -DBoost_DEBUG=TRUE \
                   -DCMAKE_CXX_FLAGS="${LHASA_CMAKE_FLAGS} -fwasm-exceptions -D_HAS_AUTO_PTR_ETC=0" \
-                  -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} ${LHASA_MAIN_DIR}/checkout/rdkit \
+                  -DCMAKE_INSTALL_PREFIX=${INSTALL_DIR} ${DEPENDENCY_DIR}/rdkit \
                   -DRDK_OPTIMIZE_POPCNT=OFF \
                   -DRDK_INSTALL_COMIC_FONTS=OFF \
                   -DCMAKE_C_FLAGS="${LHASA_CMAKE_FLAGS}" \
