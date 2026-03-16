@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 
 rdkit_release="Release_2025_09_5"
 graphene_release="1.10.8"
