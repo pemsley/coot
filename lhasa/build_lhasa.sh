@@ -22,12 +22,6 @@ else
     exit 1
 fi
 
-if [ -e "$LHASA_MAIN_DIR/EMSCRIPTEN_CONFIG" ]; then
-    . "$LHASA_MAIN_DIR/EMSCRIPTEN_CONFIG"
-else
-    fail "Cannot find EMSCRIPTEN_CONFIG file. Exiting."
-fi
-
 setcolor cyan
 echo "Running Emscripten CMake to create build dir at $LHASA_CMAKE_BUILD_DIR..."
 setcolor reset

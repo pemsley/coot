@@ -22,80 +22,19 @@ else
     exit 1
 fi
 
-if [ -e "$LHASA_MAIN_DIR/VERSIONS" ]; then
-    . "$LHASA_MAIN_DIR/VERSIONS"
-else
-    fail "Cannot find VERSIONS file. Exiting."
-fi
-
-
-getrdkit() {
-    cdcheckout
-    if [ -r rdkit-$rdkit_release ]; then
-        echo "Using existing rdkit"
-    else
-        echo "Downloading RDKit source"
-        curl -fL https://github.com/rdkit/rdkit/archive/refs/tags/$rdkit_release.tar.gz -o "$rdkit_release.tar.gz" || fail "Failed to download RDKit source"
-        echo
-        echo "Unpacking RDKit source"
-        tar xf "$rdkit_release.tar.gz" || fail "Failed to unpack RDKit source"
-        echo
-        echo "Getting git version of rapidjson for RDKit"
-        cd rdkit-$rdkit_release/External &&\
-        git clone https://github.com/Tencent/rapidjson.git rapidjson-1.1.0 || fail "Failed to clone rapidjson"
-    fi
-    echo
-}
-
-getgraphene() {
-    cdcheckout
-    if [ -r graphene-$graphene_release ]; then
-        echo "Using existing graphene"
-    else
-        echo "Downloading graphene source"
-        curl -fL https://github.com/ebassi/graphene/archive/refs/tags/$graphene_release.tar.gz -o graphene_$graphene_release.tar.gz || fail "Failed to download graphene source"
-        echo
-        echo "Unpacking graphene source"
-        tar xf "graphene_$graphene_release.tar.gz" || fail "Failed to unpack graphene source"
-    fi
-    echo
-}
-
-
-getsigcpp() {
-    cdcheckout
-    if [ -r libsigcplusplus-$libsigcpp_release ]; then
-        echo "Using existing libsigcplusplus"
-    else
-        echo "Downloading libsigc++ source"
-        curl -fL https://github.com/libsigcplusplus/libsigcplusplus/archive/refs/tags/$libsigcpp_release.tar.gz -o libsigcplusplus_$libsigcpp_release.tar.gz || fail "Failed to download libsigc++ source"
-        echo
-        echo "Unpacking libsigc++ source"
-        tar xf "libsigcplusplus_$libsigcpp_release.tar.gz" || fail "Failed to unpack libsigc++ source"
-    fi
-    echo
-}
-
-getboost() {
-    cdcheckout
-    if [ -r boost-$boost_release ]; then
-        echo "Using existing boost"
-    else
-        echo "Checking out boost"
-        curl -fL https://github.com/boostorg/boost/releases/download/boost-$boost_release/boost-$boost_release-cmake.tar.gz -o boost_$boost_release.tar.gz || fail "Failed to download boost source"
-        tar xf boost_$boost_release.tar.gz || fail "Failed to unpack boost source"
-    fi
-    echo
-}
-
 setcolor cyan
 echo "Dependency download directory is ${DEPENDENCY_DIR}"
 setcolor reset
 
-getrdkit
-getboost
-getgraphene
-getsigcpp
+get_all_sources() {
+    getrdkit
+    getboost
+    getgraphene
+    getsigcpp
+}
+
+get_all_sources
+
 
 cd "$LHASA_MAIN_DIR"
 

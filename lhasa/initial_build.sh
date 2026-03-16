@@ -22,18 +22,6 @@ else
     exit 1
 fi
 
-if [ -e "$LHASA_MAIN_DIR/VERSIONS" ]; then
-    . "$LHASA_MAIN_DIR/VERSIONS"
-else
-    fail "Cannot find VERSIONS file. Exiting."
-fi
-
-if [ -e "$LHASA_MAIN_DIR/EMSCRIPTEN_CONFIG" ]; then
-    . "$LHASA_MAIN_DIR/EMSCRIPTEN_CONFIG"
-else
-    fail "Cannot find EMSCRIPTEN_CONFIG file. Exiting."
-fi
-
 if [ x"$1" = x"--64bit" ]; then
    MEMORY64=1
    shift
@@ -94,6 +82,7 @@ rm -f a.out.js
 rm -f a.out.wasm
 rm -f a.out.worker.js
 
+setcolor cyan
 if test x"${MEMORY64}" = x"1"; then
     echo "#####################################################"
     echo "Building ** 64-bit ** (large memory) version of Lhasa"
@@ -107,6 +96,7 @@ else
     echo
     LHASA_CMAKE_FLAGS="-pthread"
 fi
+setcolor reset
 
 BUILD_BOOST=false
 BUILD_RDKIT=false
@@ -165,6 +155,7 @@ echo "BUILD_LIBSIGCPP " $BUILD_LIBSIGCPP
 #Boost
 #boost with cmake
 if [ $BUILD_BOOST = true ]; then
+    getboost
     mkdir -p ${DEPENDENCY_BUILD_DIR}/boost &&\
     cd ${DEPENDENCY_BUILD_DIR}/boost &&\
     emcmake cmake -DCMAKE_C_FLAGS="${LHASA_CMAKE_FLAGS}" \
@@ -180,6 +171,7 @@ fi
 
 #RDKit
 if [ $BUILD_RDKIT = true ]; then
+    getrdkit
     BOOST_CMAKE_STUFF=`for i in ${INSTALL_DIR}/lib/cmake/boost*; do j=${i%-static}; k=${j%-$boost_release}; l=${k#${INSTALL_DIR}/lib/cmake/boost_}; echo -Dboost_${l}_DIR=$i; done`
     # echo BOOST_CMAKE_STUFF: $BOOST_CMAKE_STUFF
     mkdir -p ${DEPENDENCY_BUILD_DIR}/rdkit_build &&\
@@ -257,6 +249,7 @@ fi
 
 # Graphene
 if [ $BUILD_GRAPHENE = true ]; then
+    getgraphene
     cd ${DEPENDENCY_DIR}/graphene-$graphene_release/ &&\
     CFLAGS="-s USE_PTHREADS $LHASA_CMAKE_FLAGS" LDFLAGS=" -lpthread $LHASA_CMAKE_FLAGS" meson setup ${DEPENDENCY_BUILD_DIR}/graphene_build \
         --prefix=${INSTALL_DIR} \
@@ -270,6 +263,7 @@ fi
 
 # Libsigc++
 if [ $BUILD_LIBSIGCPP = true ]; then
+    getsigcpp
     cd ${DEPENDENCY_DIR}/libsigcplusplus-$libsigcpp_release/ &&\
     meson setup ${DEPENDENCY_BUILD_DIR}/libsigcplusplus_build \
         --prefix=${INSTALL_DIR} \
