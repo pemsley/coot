@@ -970,6 +970,12 @@ void set_model_fit_refine_dialog_stays_on_top(int istate);
 /*! \brief return the state model-fit-refine dialog stays on top */
 int model_fit_refine_dialog_stays_on_top_state();
 
+/* Legacy functions for the accept/reject dialog docking - no longer functional but
+   retained for backwards compatibility with user startup scripts */
+/*! \brief set the accept/reject dialog docked state - no longer functional */
+void set_accept_reject_dialog_docked(int state);
+/*! \brief set the accept/reject dialog docked show state - no longer functional */
+void set_accept_reject_dialog_docked_show(int state);
 
 
 /*! \} */
