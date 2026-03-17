@@ -1,7 +1,49 @@
 --- Items ---
 
+o reverse molecule to string in chapi
+
+o add get_h_bonds() to the Coot api (c.f molecules-container.hh)
+  export to python directly, i.e. make get_hydrogen_bonds_py()
+
+o OAR and OQR look the same in RDKit depiction from restraints
+  They should not, there is a chirality issue.
+
+o remove gaussian_surface_to_map_molecule_v2() in chapi.
+
+o Fix session restore - Kevin Jude
+
+o Clemens: make a GEMMI script that describes the
+  heterogeneity in a file and allows to write
+  "early", "late" or "ground" (for example) models.
+
+o fix updating NBCs during refinement
+
+o tom - cryodragon latent space data? 
+  Also trajectories from dynamics
+
+o particle picking for moorhen? Use CPU code
+
+o model fitting to Dari K. data? or something like it.
+  can we do map update on a map fragment - in cryo-EM world.
+
+o use cell and symm of mtz file, then make map em map.
+  Have a look at the column labels from servalcat.
+  Coot and libcootapi
+
 o coot atom overlap score and clashscore for Robbie's set of
   structures.
+
+o dict_res_restraints is a flat std::vector with no index.
+  Every operation — adding an atom, a bond, an angle, a torsion
+  — does a linear scan of the entire vector to find the matching
+  comp_id. A single monomer import triggers roughly 100–300 such
+  scans, so the cost is O(N²) in the number of loaded dictionaries.
+
+  The least invasive fix: during a single monomer's import, all the
+  mon_lib_add_atom(), add_restraint() etc. calls target the same
+  comp_id. They each independently scan the entire vector to find
+  it. If the index found by mon_lib_add_chem_comp() were cached and
+  passed through, you'd eliminate ~200 redundant scans per monomer.
 
 o twist the fibonacci sphere as the radius changes.
 

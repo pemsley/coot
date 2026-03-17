@@ -1469,13 +1469,29 @@ void set_diff_map_iso_level_increment_from_text(const char *text, int imol);
 /*! \brief sampling rate
 
 find the molecule for which the single map dialog applies and set
-    the contour level and redraw */
+    the contour level and redraw.
+    This is for use by a GUI callback - not for user use */
 void set_map_sampling_rate_text(const char *text);
 
-/*! \brief set the map sampling rate (default 1.5)
-
-Set to something like 2.0 or 2.5 for more finely sampled maps.  Useful
-for baton-building low resolution maps. */
+/*! \brief set the map sampling rate (default 1.8)
+ *
+ * set_map_sampling_rate(float r)
+ *
+ * Set the Shannon Limit multiplier for map sampling (default 1.8).
+ *
+ * The Shannon (Nyquist) sampling theorem requires that a map be sampled
+ * at least twice per resolution cycle (d_min/2) to faithfully represent
+ * all frequencies present. This parameter sets the multiplier above that
+ * theoretical minimum — so the default of 1.5 means maps are sampled at
+ * 1.5 × the Shannon limit (i.e., grid spacing = d_min / 3.0).
+ *
+ * Higher values (e.g. 2.0–2.5) produce more finely sampled maps, which
+ * can be useful for low-resolution baton-building or visual inspection,
+ * since they are more visually attractive-looking,
+ * at the cost of larger map files and slower computation.
+ *
+ * Set to something like 2.0 or 2.5 for more finely sampled maps.  Useful
+ * for baton-building low resolution maps. */
 void set_map_sampling_rate(float r);
 
 /* MOVE-ME to c-interface-gtk-widgets.h */
@@ -3779,7 +3795,13 @@ void set_show_chiral_volume_errors_dialog(short int istate);
 
 1 alpha helix restraints
 
-2 beta strand restraints */
+2 beta strand restraints.
+
+Call this before refine_residues_py() to maintain secondary structure
+geometry during real-space refinement. Reset to 0 after refinement to
+avoid affecting subsequent refinement operations.
+
+*/
 void set_secondary_structure_restraints_type(int itype);
 
 /*! \brief return the secondary structure restraints type */
@@ -3788,15 +3810,15 @@ int secondary_structure_restraints_type();
 /*! \brief the molecule number of the map used for refinement
 
    @return the map number, if it has been set or there is only one
-   map, return -1 on no map set (ambiguous) or no maps.
+   map, otherwise return -1 on no map set (ambiguous) or no maps.
 */
-
 int imol_refinement_map();	/* return -1 on no map */
 
 /*! \brief set the molecule number of the map to be used for
   refinement/fitting.
 
-   @return imol on success, -1 on failure*/
+  @return imol on success, -1 on failure
+*/
 int set_imol_refinement_map(int imol);	/* returns imol on success, otherwise -1 */
 
 /*! \brief Does the residue exist? (Raw function)

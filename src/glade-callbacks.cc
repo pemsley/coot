@@ -7136,6 +7136,75 @@ on_material_lighting_diffuse_colorbutton_color_set(GtkColorButton *colorbutton,
    }
 }
 
+// --------------------- EM Placement ------------------------------------
+
+extern "C" G_MODULE_EXPORT
+void
+on_emplacement_half_map_1_file_button_clicked(GtkButton       *button,
+                                              gpointer         user_data) {
+
+   GtkWindow *parent_window = GTK_WINDOW(graphics_info_t::get_main_window());
+   GtkFileChooserAction action = GTK_FILE_CHOOSER_ACTION_OPEN;
+   GtkWidget *dialog = gtk_file_chooser_dialog_new("Coot: File Selector for Map",
+                                                   parent_window,
+                                                   action,
+                                                   ("_Cancel"),
+                                                   GTK_RESPONSE_CANCEL,
+                                                   ("_Open"),
+                                                   GTK_RESPONSE_ACCEPT,
+                                                   NULL);
+
+   auto on_map_filechooser_dialog_response = +[] (GtkDialog *dialog, int response) {
+
+      if (response == GTK_RESPONSE_ACCEPT) {
+         GtkFileChooser *chooser = GTK_FILE_CHOOSER(dialog);
+         GtkWidget *entry = widget_from_builder("emplacement_half_map_1_entry");
+         GFile *file   = gtk_file_chooser_get_file(chooser);
+         char *file_name = g_file_get_path(file);
+         gtk_editable_set_text(GTK_EDITABLE(entry), file_name);
+         gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
+      }
+
+   };
+   g_signal_connect(dialog, "response", G_CALLBACK(on_map_filechooser_dialog_response), NULL);
+   gtk_widget_set_visible(dialog, TRUE);
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_emplacement_half_map_2_file_button_clicked(GtkButton       *button,
+                                              gpointer         user_data) {
+
+   GtkWindow *parent_window = GTK_WINDOW(graphics_info_t::get_main_window());
+   GtkFileChooserAction action = GTK_FILE_CHOOSER_ACTION_OPEN;
+   GtkWidget *dialog = gtk_file_chooser_dialog_new("Coot: File Selector for Map",
+                                                   parent_window,
+                                                   action,
+                                                   ("_Cancel"),
+                                                   GTK_RESPONSE_CANCEL,
+                                                   ("_Open"),
+                                                   GTK_RESPONSE_ACCEPT,
+                                                   NULL);
+
+
+   auto on_map_filechooser_dialog_response = +[] (GtkDialog *dialog, int response) {
+
+      if (response == GTK_RESPONSE_ACCEPT) {
+         GtkFileChooser *chooser = GTK_FILE_CHOOSER(dialog);
+         GtkWidget *entry = widget_from_builder("emplacement_half_map_2_entry");
+         GFile *file   = gtk_file_chooser_get_file(chooser);
+         char *file_name = g_file_get_path(file);
+         gtk_editable_set_text(GTK_EDITABLE(entry), file_name);
+         gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
+      }
+
+      gtk_widget_set_visible(GTK_WIDGET(dialog), FALSE);
+
+   };
+   g_signal_connect(dialog, "response", G_CALLBACK(on_map_filechooser_dialog_response), NULL);
+   gtk_widget_set_visible(dialog, TRUE);
+}
+
 extern "C" G_MODULE_EXPORT
 void
 on_button_clicked(GtkButton       *button,
@@ -7143,6 +7212,6 @@ on_button_clicked(GtkButton       *button,
 
    GtkWidget *dialog = widget_from_builder("ligand_check_dialog");
    gtk_widget_set_visible(dialog, FALSE);
-
 }
+
 

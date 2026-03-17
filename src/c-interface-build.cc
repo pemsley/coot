@@ -2873,7 +2873,7 @@ PyObject *get_header_secondary_structure_info(int imol) {
                      std::cout << helix_p->serNum << " " << helix_p->helixID << " "
                                << helix_p->initChainID << " " << helix_p->initSeqNum
                                << " " << helix_p->endChainID << " " << helix_p->endSeqNum << " "
-                               << helix_p->length << " " << helix_p->comment << std::endl;
+                               << helix_p->length << " " << (helix_p->comment ? helix_p->comment : "") << std::endl;
                      PyObject *h_dict = PyDict_New();
                      PyDict_SetItemString(h_dict, "serNum",      PyLong_FromLong(helix_p->serNum));
                      PyDict_SetItemString(h_dict, "helixID",     myPyString_FromString(helix_p->helixID));
@@ -2882,7 +2882,8 @@ PyObject *get_header_secondary_structure_info(int imol) {
                      PyDict_SetItemString(h_dict, "endChainID",  myPyString_FromString(helix_p->endChainID));
                      PyDict_SetItemString(h_dict, "endSeqNum",   PyLong_FromLong(helix_p->endSeqNum));
                      PyDict_SetItemString(h_dict, "length",      PyLong_FromLong(helix_p->length));
-                     PyDict_SetItemString(h_dict, "comment",     myPyString_FromString(helix_p->comment));
+                     if (helix_p->comment)
+                        PyDict_SetItemString(h_dict, "comment",     myPyString_FromString(helix_p->comment));
                      helix_info_py_vec.push_back(h_dict);
                   }
                }
