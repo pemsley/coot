@@ -1,6 +1,15 @@
 --- Items ---
 
+o what is protein gtp?
+
+o multi-open align and mutate
+
+o set_accept_reject_dialog_docked() and show() needs
+  to be restored as a no-op.
+
 o reverse molecule to string in chapi
+
+o is there a method to import a mesh?
 
 o add get_h_bonds() to the Coot api (c.f molecules-container.hh)
   export to python directly, i.e. make get_hydrogen_bonds_py()
