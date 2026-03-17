@@ -6832,6 +6832,12 @@ on_density_correlation_graph_toggled(GtkCheckButton* self, gpointer user_data) {
 
 extern "C" G_MODULE_EXPORT
 void
+on_validation_graph_docked_checkbutton_toggled(GtkCheckButton* self, gpointer user_data) {
+   graphics_info_t::validation_graphs_is_docked = gtk_check_button_get_active(self);
+}
+
+extern "C" G_MODULE_EXPORT
+void
 on_ramachandran_plot_molecule_chooser_ok_button_clicked(GtkButton       *button,
                                                         gpointer         user_data) {
 
@@ -6886,25 +6892,6 @@ on_map_properties_dialog_specularity_state_checkbutton_toggled(GtkCheckButton *c
    handle_map_properties_specularity_change(imol, GTK_WIDGET(checkbutton));
    graphics_info_t::graphics_grab_focus();
 
-}
-
-// ----------------------------------- undocked validation graphs -----
-
-
-extern "C" G_MODULE_EXPORT
-void
-on_validation_graphs_dialog_close_button_clicked(GtkButton       *button,
-                                                 gpointer         user_data) {
-
-   GtkWidget *dialog = widget_from_builder("validation_graphs_dialog");
-   gtk_widget_set_visible(dialog, FALSE);
-}
-
-extern "C" G_MODULE_EXPORT
-void
-on_validation_graphs_dialog_destroy(GtkWidget       *widget,
-                                    gpointer         user_data) {
-   gtk_widget_set_visible(widget, FALSE);
 }
 
 
