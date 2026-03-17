@@ -262,7 +262,7 @@ class CanvasMolecule {
     /// Uses RDDepict to get molecule depiction & geometry info
     ///
     /// Part of the lowering process.
-    RDGeom::INT_POINT2D_MAP compute_molecule_geometry() const;
+    RDGeom::INT_POINT2D_MAP compute_molecule_geometry(bool omit_stereochemistry) const;
 
     /// Builds the drawing-friendly 2D molecule representation
     /// based on geometry computed by RDKit.
@@ -304,8 +304,9 @@ class CanvasMolecule {
     ///
     /// If `sanitize_after` is true, the molecule will get sanitized
     /// after lowering.
-    /// QED gets recomputed and updated if `with_qed` is true
-    void lower_from_rdkit(bool sanitize_after, bool with_qed = true);
+    /// QED gets recomputed and updated if `with_qed` is true (default).
+    /// By default, wedges/dashes are read from the RDKit molecule, unless `omit_stereochemistry_processing` is set to true.
+    void lower_from_rdkit(bool sanitize_after, bool with_qed = true, bool omit_stereochemistry_processing = false);
 
     /// Clears `cached_atom_coordinate_map`,
     /// forcing the subsequent call to `compute_molecule_geometry()`

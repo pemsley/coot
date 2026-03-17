@@ -31,8 +31,10 @@
 #include <algorithm>
 #include <set>
 #include <rdkit/GraphMol/Depictor/RDDepictor.h>
+#include <rdkit/GraphMol/Chirality.h>
 #include <rdkit/GraphMol/Substruct/SubstructMatch.h>
 #include <rdkit/Geometry/point.h>
+#include <GraphMol/Chirality.h>
 #include <rdkit/GraphMol/MolOps.h>
 #include <cmath>
 #include <boost/range/iterator_range.hpp>
@@ -427,18 +429,20 @@ CanvasMolecule::BondGeometry CanvasMolecule::bond_geometry_from_rdkit(RDKit::Bon
             return BondGeometry::Unspecified;
         }
         case RDKit::Bond::BEGINWEDGE:{
-            return BondGeometry::WedgeTowardsSecond;
-        }
-        case RDKit::Bond::BEGINDASH:{
-            return BondGeometry::DashedTowardsSecond;
-        }
-        case RDKit::Bond::ENDDOWNRIGHT:{
             // todo: make sure that this makes sense
             return BondGeometry::WedgeTowardsFirst;
         }
-        case RDKit::Bond::ENDUPRIGHT:{
+        case RDKit::Bond::BEGINDASH:{
             // todo: make sure that this makes sense
             return BondGeometry::DashedTowardsFirst;
+        }
+        case RDKit::Bond::ENDDOWNRIGHT:{
+            // todo: make sure that this makes sense
+            return BondGeometry::WedgeTowardsSecond;
+        }
+        case RDKit::Bond::ENDUPRIGHT:{
+            // todo: make sure that this makes sense
+            return BondGeometry::DashedTowardsSecond;
         }
     }
 }
@@ -477,16 +481,20 @@ RDKit::Bond::BondDir CanvasMolecule::bond_geometry_to_rdkit(BondGeometry geom) n
             return RDKit::Bond::BondDir::UNKNOWN;
         }
         case BondGeometry::WedgeTowardsFirst: {
-            return RDKit::Bond::BondDir::ENDDOWNRIGHT;
-        }
-        case BondGeometry::WedgeTowardsSecond: {
+            // todo: make sure that this makes sense
             return RDKit::Bond::BondDir::BEGINWEDGE;
         }
+        case BondGeometry::WedgeTowardsSecond: {
+            // todo: make sure that this makes sense
+            return RDKit::Bond::BondDir::ENDDOWNRIGHT;
+        }
         case BondGeometry::DashedTowardsFirst: {
-            return RDKit::Bond::BondDir::ENDUPRIGHT;
+            // todo: make sure that this makes sense
+            return RDKit::Bond::BondDir::BEGINDASH;
         }
         case BondGeometry::DashedTowardsSecond: {
-            return RDKit::Bond::BondDir::BEGINDASH;
+            // todo: make sure that this makes sense
+            return RDKit::Bond::BondDir::ENDUPRIGHT;
         }
     }
 }
@@ -508,7 +516,7 @@ RDKit::Bond::BondType CanvasMolecule::bond_type_to_rdkit(CanvasMolecule::BondTyp
 }
 
 
-RDGeom::INT_POINT2D_MAP CanvasMolecule::compute_molecule_geometry() const {
+RDGeom::INT_POINT2D_MAP CanvasMolecule::compute_molecule_geometry(bool omit_stereochemistry) const {
     // The following code is heavily based on RDKit documentation.
 
     const RDGeom::INT_POINT2D_MAP* previous_coordinate_map = nullptr;
@@ -560,6 +568,13 @@ RDGeom::INT_POINT2D_MAP CanvasMolecule::compute_molecule_geometry() const {
     RDGeom::INT_POINT2D_MAP coordinate_map;
 
     RDKit::Conformer& conf = this->rdkit_molecule->getConformer();
+
+    if(!omit_stereochemistry) {
+        // I think this what needs to be called to assign bond directions (wedges and dashes) based on
+        // some internal RDKit stereochemistry representation.
+        RDKit::Chirality::wedgeMolBonds(*this->rdkit_molecule, &conf);
+    }
+
     for(auto mv: matchVect) {
         RDGeom::Point3D pt3 = conf.getAtomPos( mv.first );
         RDGeom::Point2D pt2( pt3.x , pt3.y );
@@ -978,7 +993,7 @@ void CanvasMolecule::build_internal_molecule_representation(const RDGeom::INT_PO
     this->shorten_double_bonds();
 }
 
-void CanvasMolecule::lower_from_rdkit(bool sanitize_after, bool with_qed) {
+void CanvasMolecule::lower_from_rdkit(bool sanitize_after, bool with_qed, bool omit_stereochemistry_processing) {
 
     // 2. Do the lowering
 
@@ -994,7 +1009,7 @@ void CanvasMolecule::lower_from_rdkit(bool sanitize_after, bool with_qed) {
     }
 
     /// 2.1 Compute geometry
-    auto geometry = this->compute_molecule_geometry();
+    auto geometry = this->compute_molecule_geometry(omit_stereochemistry_processing);
 
     // 2.2 Build internal repr
     this->build_internal_molecule_representation(geometry);
