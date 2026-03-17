@@ -257,8 +257,7 @@ AM_CXXFLAGS = \
 	$(USE_LIBCURL)          \
 	$(WITH_GUILE_CFLAGS)	\
 	$(GUILE_CFLAGS)		\
-        $(MyPyGObject_CFLAGS)   \
-	$(PYGOBJECT_CFLAGS)	\
+        $(PyGObject_CFLAGS)     \
 	$(PYTHON_CPPFLAGS)	\
 	$(PYTHON_CFLAGS)	\
 	$(COOT_WINDOWS_CFLAGS)	\
