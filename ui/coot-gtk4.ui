@@ -298,10 +298,6 @@
               <attribute name="action">app.copy_map_action</attribute>
             </item>
             <item>
-              <attribute name="label">EM Placement</attribute>
-              <attribute name="action">app.emplacement_action</attribute>
-            </item>
-            <item>
               <attribute name="label">Make a Smoother Copy...</attribute>
               <attribute name="action">app.make_a_smoother_copy_of_a_map_action</attribute>
             </item>
@@ -1237,6 +1233,10 @@
       <item>
         <attribute name="label" translatable="no">Add Molecular Symmetry MTRIX</attribute>
         <attribute name="action">app.cryo_em_add_molecular_symmetry_mtrix_action</attribute>
+      </item>
+      <item>
+          <attribute name="label">EM Placement</attribute>
+          <attribute name="action">app.emplacement_action</attribute>
       </item>
       <item>
         <attribute name="label" translatable="no">Go to Box Middle</attribute>
