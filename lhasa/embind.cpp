@@ -200,10 +200,8 @@ EMSCRIPTEN_BINDINGS(lhasa) {
     .constructor<>();
   function("make_active_tool", &lhasa::make_active_tool);
   value_object<CootLigandEditorCanvas::SizingInfo>("SizingInfo")
-    .field("requested_size", &CootLigandEditorCanvas::SizingInfo::requested_size);
-  enum_<CootLigandEditorCanvas::MeasurementDirection>("MeasurementDirection")
-    .value("HORIZONTAL", CootLigandEditorCanvas::MeasurementDirection::HORIZONTAL)
-    .value("VERTICAL", CootLigandEditorCanvas::MeasurementDirection::VERTICAL);
+    .field("width", &CootLigandEditorCanvas::SizingInfo::width)
+    .field("height", &CootLigandEditorCanvas::SizingInfo::height);
   value_object<CanvasMolecule::QEDInfo>("QEDInfo")
     .field("number_of_hydrogen_bond_acceptors", &CanvasMolecule::QEDInfo::number_of_hydrogen_bond_acceptors)
     .field("number_of_hydrogen_bond_donors",&CanvasMolecule::QEDInfo:: number_of_hydrogen_bond_donors)
@@ -260,5 +258,6 @@ EMSCRIPTEN_BINDINGS(lhasa) {
     .function("on_right_click_released", &CootLigandEditorCanvas::on_right_click_released)
     .function("render", &CootLigandEditorCanvas::render)
     .function("measure", &CootLigandEditorCanvas::measure)
+    .function("set_minimum_dimensions", &CootLigandEditorCanvas::set_minimum_dimensions)
     .function("connect", &CootLigandEditorCanvas::connect);
 }
