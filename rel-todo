@@ -1,6 +1,32 @@
 --- Items ---
 
+o what is protein gtp?
+
+o Fix this: Refinement returned -2 which typically means the zone wasn't
+accepted — likely needs the sphere context. Let me try with
+residues_near_residue to include spatial neighbours too.
+
+o The "here" means the current screen centre - add this to skills
+
+o add a note in still for soft-mode-hard-mode
+
+o make a protein with hyderogen atoms from reduce
+  and compare  out monomer library for protein residues
+
+o sidebysidestereo option for ray traced images
+
+o Add angles to geobonds
+
+o multi-open align and mutate
+
+o cryo-EM ligand-fitting tutorial, needing conformer search
+
+o set_accept_reject_dialog_docked() and show() needs
+  to be restored as a no-op.
+
 o reverse molecule to string in chapi
+
+o is there a method to import a mesh?
 
 o add get_h_bonds() to the Coot api (c.f molecules-container.hh)
   export to python directly, i.e. make get_hydrogen_bonds_py()

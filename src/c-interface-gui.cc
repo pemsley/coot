@@ -2757,6 +2757,10 @@ void show_main_toolbar() {
 }
 
 
+// Legacy stubs - retained for backwards compatibility with user startup scripts
+void set_accept_reject_dialog_docked(int state) { }
+void set_accept_reject_dialog_docked_show(int state) { }
+
 /*  ------------------------------------------------------------------------ */
 // other modelling tools
 /*  ------------------------------------------------------------------------ */

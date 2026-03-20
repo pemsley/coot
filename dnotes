@@ -12061,3 +12061,43 @@ They map cleanly onto objects in software like CCPN Analysis or NEF-aware pipeli
 The mandatory frames (nef_nmr_meta_data and nef_molecular_system) must always be present
 
 It's essentially a simple, human-readable database structure — each save frame is roughly analogous to a table or object in other data formats.
+
+----
+Tue 17 Mar 2026 01:11:15 PDT
+
+to fix current compilation problem of Coot in Homebrew:
+
+cp /opt/homebrew/Cellar/libccp4/8.0.0/lib/pkgconfig/ccp4c.pc /opt/homebrew/Cellar/libccp4/8.0.0/lib/pkgconfig/libccp4c.pc
+
+
+----
+Tue 17 Mar 2026 10:35:29 PDT
+
+⏺ Phenix libc++ contamination via CURL_LIBS
+
+  During configure, the curl detection found libcurl in the Phenix installation
+  at /Users/pemsley/Applications/phenix-2.0-5936/lib, setting
+  CURL_LIBS='-L/Users/pemsley/Applications/phenix-2.0-5936/lib -lcurl'. That -L
+  flag added Phenix's entire lib directory to the linker search path. Phenix ships its own
+  LLVM C++ runtime (libc++.1.dylib and libc++abi.1.0.dylib) in that directory, and
+  crucially, Phenix's libc++.1.dylib has the install name @rpath/libc++.1.dylib rather
+  than an absolute path. The linker bound to it instead of the system /usr/lib/libc++.1.dylib,
+  causing two problems: at runtime, @rpath/libc++.1.dylib couldn't be resolved (crash on
+  startup with dyld: Library not loaded), and when a workaround rpath was added pointing to
+  Homebrew's LLVM, two separate libc++abi libraries were loaded simultaneously
+  (system + Homebrew/Phenix), causing RTTI typeinfo mismatch — catch (const std::runtime_error &)
+  silently failed to catch std::runtime_error thrown from a different translation unit, leading
+  to std::terminate and abort. The fix was to ensure configure uses the system/Homebrew curl (by
+  setting CURL_LIBS='-lcurl' or explicitly pointing at Homebrew's curl) so that Phenix's lib
+  directory never enters the linker search path.
+
+
+..........
+
+   2018 structure database https://zenodo.org/records/5773255
+
+----
+Thu 19 Mar 2026 18:47:00 PDT
+
+6xxt check diff map, auto-split.
+

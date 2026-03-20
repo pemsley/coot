@@ -5017,67 +5017,74 @@ coot::molecule_t::assign_sequence(const clipper::Xmap<float> &xmap, const coot::
       return residues;
    };
 
-   coot::side_chain_densities scd;
-   mmdb::Manager *mol = atom_sel.mol;
-   int imod = 1;
-   mmdb::Model *model_p = mol->GetModel(imod);
-   if (model_p) {
-      int n_chains = model_p->GetNumberOfChains();
-      for (int ichain=0; ichain<n_chains; ichain++) {
-         mmdb::Chain *chain_p = model_p->GetChain(ichain);
-         std::string chain_id(chain_p->GetChainID());
-         int nres = 0;
-         mmdb::PResidue *residue_table = 0;
-         chain_p->GetResidueTable(residue_table, nres);
-         if (nres > 10) {
-             int idx_end = nres - 1;
-             int resno_start = residue_table[0]->GetSeqNum();
-             int resno_end   = residue_table[idx_end]->GetSeqNum();
+   try {
+      coot::side_chain_densities scd;
+      mmdb::Manager *mol = atom_sel.mol;
+      int imod = 1;
+      mmdb::Model *model_p = mol->GetModel(imod);
+      if (model_p) {
+         int n_chains = model_p->GetNumberOfChains();
+         for (int ichain=0; ichain<n_chains; ichain++) {
+            mmdb::Chain *chain_p = model_p->GetChain(ichain);
+            std::string chain_id(chain_p->GetChainID());
+            int nres = 0;
+            mmdb::PResidue *residue_table = 0;
+            chain_p->GetResidueTable(residue_table, nres);
+            if (nres > 10) {
+                int idx_end = nres - 1;
+                int resno_start = residue_table[0]->GetSeqNum();
+                int resno_end   = residue_table[idx_end]->GetSeqNum();
 
-            {
-               atom_sel.delete_atom_selection();
-               std::vector<mmdb::Residue *> residues =
-                  apply_fasta_multi_to_fragment(atom_sel.mol, chain_id, resno_start, resno_end, xmap, multi_fasta_seq);
-               atom_sel.regen_atom_selection();
-               // backrub rotamer (actully replace_coords()) uses UDDOldAtomIndexHandle. I don't understand why
-               if (false)
-                  std::cout << "#### after regen_atom_selection() n_selected_atoms " << atom_sel.n_selected_atoms
-                            << " and UDDAtomIndexHandle is " << atom_sel.UDDAtomIndexHandle << std::endl;
-               atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
-               atom_sel.mol->FinishStructEdit();
-               util::pdbcleanup_serial_residue_numbers(atom_sel.mol);
+               {
+                  atom_sel.delete_atom_selection();
+                  std::vector<mmdb::Residue *> residues =
+                     apply_fasta_multi_to_fragment(atom_sel.mol, chain_id, resno_start, resno_end, xmap, multi_fasta_seq);
+                  atom_sel.regen_atom_selection();
+                  // backrub rotamer (actully replace_coords()) uses UDDOldAtomIndexHandle. I don't understand why
+                  if (false)
+                     std::cout << "#### after regen_atom_selection() n_selected_atoms " << atom_sel.n_selected_atoms
+                               << " and UDDAtomIndexHandle is " << atom_sel.UDDAtomIndexHandle << std::endl;
+                  atom_sel.mol->PDBCleanup(mmdb::PDBCLEAN_SERIAL|mmdb::PDBCLEAN_INDEX);
+                  atom_sel.mol->FinishStructEdit();
+                  util::pdbcleanup_serial_residue_numbers(atom_sel.mol);
 
-               bool debug_atom_indexing = false;
-               if (debug_atom_indexing) {
-                  for (int i = 0; i < atom_sel.n_selected_atoms; i++) {
-                     int idx = -1;
-                     mmdb::Atom *at = atom_sel.atom_selection[i];
-                     if (at->GetUDData(atom_sel.UDDAtomIndexHandle, idx) == mmdb::UDDATA_Ok) {
-                        std::cout << "OK " << i << " " << idx << std::endl;
-                     } else {
-                        std::cout << "udd lookup failure for i " << i << std::endl;
+                  bool debug_atom_indexing = false;
+                  if (debug_atom_indexing) {
+                     for (int i = 0; i < atom_sel.n_selected_atoms; i++) {
+                        int idx = -1;
+                        mmdb::Atom *at = atom_sel.atom_selection[i];
+                        if (at->GetUDData(atom_sel.UDDAtomIndexHandle, idx) == mmdb::UDDATA_Ok) {
+                           std::cout << "OK " << i << " " << idx << std::endl;
+                        } else {
+                           std::cout << "udd lookup failure for i " << i << std::endl;
+                        }
                      }
+                  }
+
+                  for (unsigned int ires=0; ires<residues.size(); ires++) {
+                     if (false)
+                        std::cout << "#### after regen_atom_selection()"
+                                 << " mol " << atom_sel.mol
+                                 << " n_selected_atoms " << atom_sel.n_selected_atoms
+                                 << " atom_selection " << atom_sel.atom_selection
+                                 << " and UDDOldAtomIndexHandle is " << atom_sel.UDDOldAtomIndexHandle << std::endl;
+                     mmdb::Residue *residue_p = residues[ires];
+                     this->backrub_rotamer(residue_p, xmap, geom);
                   }
                }
 
-               for (unsigned int ires=0; ires<residues.size(); ires++) {
-                  if (false)
-                     std::cout << "#### after regen_atom_selection()"
-                              << " mol " << atom_sel.mol
-                              << " n_selected_atoms " << atom_sel.n_selected_atoms
-                              << " atom_selection " << atom_sel.atom_selection
-                              << " and UDDOldAtomIndexHandle is " << atom_sel.UDDOldAtomIndexHandle << std::endl;
-                  mmdb::Residue *residue_p = residues[ires];
-                  this->backrub_rotamer(residue_p, xmap, geom);
-               }
+            } else {
+               std::cout << "Chain must have at least 10 residue" << std::endl;
             }
-
-         } else {
-            std::cout << "Chain must have at least 10 residue" << std::endl;
          }
       }
+      write_coordinates("test-add-sc.pdb");
+      // existing code
+   } catch (const std::exception &e) {
+      std::cout << "caught std::exception: " << e.what() << std::endl;
+   } catch (...) {
+      std::cout << "caught unknown exception" << std::endl;
    }
-   write_coordinates("test-add-sc.pdb");
 }
 
 

@@ -50,6 +50,7 @@ class molecules_container_t {
    std::vector<coot::molecule_t> molecules;
    coot::protein_geometry geom;
    coot::rotamer_probability_tables rot_prob_tables;
+   bool ospray_is_initialized;
    ramachandrans_container_t ramachandrans_container;
    static std::atomic<bool> on_going_updating_map_lock;
    bool draw_missing_residue_loops_flag;
@@ -1088,6 +1089,34 @@ public:
    //! @param imol is the model molecule index
    //! @param metalicity is the factor for the roughness (0.0 to 1.0)
    void set_gltf_pbr_metalicity_factor(int imol, float metalicity);
+
+   //! Initialise the OSPRay ray-tracing engine. Call this before ray_trace_image().
+   void ray_trace_init();
+
+   //! Shut down the OSPRay ray-tracing engine.
+   void ray_trace_shutdown();
+
+   //! Ray-trace molecules using OSPRay and write a PNG image file
+   //!
+   //! @param json_str is a JSON string specifying the molecules and rendering parameters.
+   //!
+   //! Example JSON:
+   //! ```json
+   //! {
+   //!    "molecules": {
+   //!       "0": {"style": "bonds", "colour_mode": "COLOUR-BY-CHAIN-AND-DICTIONARY",
+   //!             "bonds_width": 0.12, "atom_radius_to_bond_width_ratio": 1.5},
+   //!       "1": {"style": "lines", "map_radius": 12.0, "map_contour_level": 1.5,
+   //!             "map_line_width": 0.02, "map_colour": [0.3, 0.5, 0.8]}
+   //!    },
+   //!    "image_width": 1024,
+   //!    "image_height": 768,
+   //!    "output_file": "coot-ray-trace.png",
+   //!    "background_colour": [1.0, 1.0, 1.0, 1.0],
+   //!    "n_accumulation_frames": 16
+   //! }
+   //! ```
+   void ray_trace_image(const std::string &json_str);
 
    //! Get colour table (for testing)
    //!
