@@ -3598,9 +3598,25 @@ SCM regularize_residues_with_alt_conf_scm(int imol, SCM r, const char *alt_conf)
 #endif
 #ifdef USE_PYTHON
 /*! \brief refine the residues in the given residue spec list
+ *
+ * @param imol is the molecule index
+ * @param rl is a Python list of residue specs, where a residue spec is a list of
+ *  [`chain_id`, `res_no`, `ins_code`]
+ *
+ *  When using this function from scripting, make sure that
+ *  set_refinement_immediate_replacement(1) is called first.
+ *
+ *  @return False if restraints could not be set up, or a list of 3 elements on success:
+ *  - [0] info_text (string): refinement information text
+ *  - [1] progress (int): refinement progress indicator.
+ *          0: GSL_SUCCESS: means refinement was successfully completed
+ *         -2: GSL_CONTINUE: means refinement was successful, but didn't terminate (so more cycles needed)
+ *         27: GSL_ENOPROG: iteration is not making progress towards solution
+ *  - [2] lights (list or False): False if empty, otherwise a list of
+ *    [`name`, `label`, `value`] triples where `name` and `label` are strings
+ *    and `value` is a float  */
+PyObject *refine_residues_py(int imol, PyObject *rl);  /* presumes the alt_conf is "". */
 
-@return the refinement summary statistics  */
-PyObject *refine_residues_py(int imol, PyObject *r);  /* presumes the alt_conf is "". */
 PyObject *refine_residues_with_modes_with_alt_conf_py(int imol, PyObject *r, const char *alt_conf,
 						      PyObject *mode_1,
 						      PyObject *mode_2,
