@@ -96,6 +96,7 @@ molecules_container_t::init() {
 
    map_sampling_rate = 1.8;
    draw_missing_residue_loops_flag = true;
+   ospray_is_initialized = false;
 
    read_standard_residues();
    interrupt_long_term_job = false;
@@ -5166,7 +5167,6 @@ molecules_container_t::get_symmetry(int imol, float symmetry_search_radius, floa
    }
    return si;
 }
-
 
 //! set the colour wheel rotation base for the specified molecule
 void

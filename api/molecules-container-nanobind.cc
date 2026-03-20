@@ -1220,6 +1220,16 @@ NB_MODULE(coot_headless_api, m) {
          &molecules_container_t::ramachandran_validation,
          nb::arg("imol"),
          get_docstring_from_xml("ramachandran_validation").c_str())
+    .def("ray_trace_image",
+         &molecules_container_t::ray_trace_image,
+         nb::arg("json_str"),
+         get_docstring_from_xml("ray_trace_image").c_str())
+    .def("ray_trace_init",
+         &molecules_container_t::ray_trace_init,
+         get_docstring_from_xml("ray_trace_init").c_str())
+    .def("ray_trace_shutdown",
+         &molecules_container_t::ray_trace_shutdown,
+         get_docstring_from_xml("ray_trace_shutdown").c_str())
     .def("read_coordinates",
          &molecules_container_t::read_coordinates,
          nb::arg("file_name"),
