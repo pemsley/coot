@@ -5,11 +5,11 @@ description: "Best Practices for Model-Building Tools and Refinement"
 
 # Key Lessons from Chain A Refinement Session
 
-## Workflow Checklist - Follow This for Model-Building and Refimentment
+## Workflow Checklist - Follow This for Model-Building and Refinement
 
 Best practices for fixing any issue:
 1. ☐ Center on the interesting residue: `coot.set_go_to_atom_chain_residue_atom_name(chain, resno, "CA")`
-     or interesting postion `coot.set_rotation_centre(x,y,z)`
+     or interesting position `coot.set_rotation_centre(x,y,z)`
 2. ☐ Check current metrics (Rama/correlation/overlaps)
 3. ☐ Make checkpoint if trying something experimental
 4. ☐ Apply fix
