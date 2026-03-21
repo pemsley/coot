@@ -51,6 +51,9 @@
 #include "graphics-info.h"
 #include "c-interface-generic-objects.h"
 
+#include "utils/logging.hh"
+extern logging logger;
+
 
 /*  ----------------------------------------------------------------------- */
 /*                  Generic Objects                                         */
@@ -121,21 +124,23 @@ void to_generic_object_add_lines(int object_number, PyObject *line_info_list_py)
                   PyObject *x_2_py      = PyList_GetItem(item_py, 5);
                   PyObject *y_2_py      = PyList_GetItem(item_py, 6);
                   PyObject *z_2_py      = PyList_GetItem(item_py, 7);
-                  std::string col = PyBytes_AS_STRING(PyUnicode_AsUTF8String(colour_py));
-                  double w = PyFloat_AsDouble(width_py);
-                  double x_1 = PyFloat_AsDouble(x_1_py);
-                  double y_1 = PyFloat_AsDouble(y_1_py);
-                  double z_1 = PyFloat_AsDouble(z_1_py);
-                  double x_2 = PyFloat_AsDouble(x_2_py);
-                  double y_2 = PyFloat_AsDouble(y_2_py);
-                  double z_2 = PyFloat_AsDouble(z_2_py);
-                  float wi = PyFloat_AsDouble(width_py);
-                  clipper::Coord_orth pt_1(x_1,y_1,z_1);
-                  clipper::Coord_orth pt_2(x_2,y_2,z_2);
-                  // use a constructor here
-                  coot::colour_holder ch = coot::colour_holder_from_colour_name(col);
-                  meshed_generic_display_object::line_info_t li(ch, pt_1, pt_2, wi);
-                  liv.push_back(li);
+                  if (PyUnicode_Check(colour_py)) {
+                     std::string col = PyBytes_AS_STRING(PyUnicode_AsUTF8String(colour_py));
+                     double w = PyFloat_AsDouble(width_py);
+                     double x_1 = PyFloat_AsDouble(x_1_py);
+                     double y_1 = PyFloat_AsDouble(y_1_py);
+                     double z_1 = PyFloat_AsDouble(z_1_py);
+                     double x_2 = PyFloat_AsDouble(x_2_py);
+                     double y_2 = PyFloat_AsDouble(y_2_py);
+                     double z_2 = PyFloat_AsDouble(z_2_py);
+                     float wi = PyFloat_AsDouble(width_py);
+                     clipper::Coord_orth pt_1(x_1,y_1,z_1);
+                     clipper::Coord_orth pt_2(x_2,y_2,z_2);
+                     // use a constructor here
+                     coot::colour_holder ch = coot::colour_holder_from_colour_name(col);
+                     meshed_generic_display_object::line_info_t li(ch, pt_1, pt_2, wi);
+                     liv.push_back(li);
+                  }
                } else {
                   std::cout << "wrong item length in to_generic_object_add_points() " << std::endl;
                }
@@ -259,17 +264,21 @@ void to_generic_object_add_points(int object_number, PyObject *point_info_list_p
                   PyObject *x_py      = PyList_GetItem(item_py, 2);
                   PyObject *y_py      = PyList_GetItem(item_py, 3);
                   PyObject *z_py      = PyList_GetItem(item_py, 4);
-                  std::string col = PyBytes_AS_STRING(PyUnicode_AsUTF8String(colour_py));
-                  double w = PyFloat_AsDouble(width_py);
-                  double x = PyFloat_AsDouble(x_py);
-                  double y = PyFloat_AsDouble(y_py);
-                  double z = PyFloat_AsDouble(z_py);
-                  int wi = static_cast<int>(w);
-                  clipper::Coord_orth pt(x,y,z);
-                  // use a constructor here
-                  coot::colour_holder ch = coot::colour_holder_from_colour_name(col);
-                  meshed_generic_display_object::point_info_t pi(ch, pt, wi);
-                  piv.push_back(pi);
+                  if (PyUnicode_Check(colour_py)) {
+                     std::string col = PyBytes_AS_STRING(PyUnicode_AsUTF8String(colour_py));
+                     double w = PyFloat_AsDouble(width_py);
+                     double x = PyFloat_AsDouble(x_py);
+                     double y = PyFloat_AsDouble(y_py);
+                     double z = PyFloat_AsDouble(z_py);
+                     int wi = static_cast<int>(w);
+                     clipper::Coord_orth pt(x,y,z);
+                     // use a constructor here
+                     coot::colour_holder ch = coot::colour_holder_from_colour_name(col);
+                     meshed_generic_display_object::point_info_t pi(ch, pt, wi);
+                     piv.push_back(pi);
+                  } else {
+                     logger.log(log_t::WARNING, "colour was not a string");
+                  }
                } else {
                   std::cout << "wrong item length in to_generic_object_add_points() " << std::endl;
                }
@@ -560,7 +569,7 @@ void set_display_generic_object_simple(int object_number, short int istate) {
    GtkWidget *grid   = widget_from_builder("generic_objects_dialog_grid");
    GtkWidget *dialog = widget_from_builder("generic_objects_dialog");
    if (grid) {
-      if (true) {
+      if (false) {
          std::cout << "DEBUG::  got grid " << grid << std::endl;
          std::cout << "DEBUG::  got dialog " << dialog << std::endl;
       }
