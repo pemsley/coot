@@ -555,24 +555,23 @@ void set_display_generic_object_simple(int object_number, short int istate) {
                 << object_number << std::endl;
    }
 
-#if 0 // 20230521-PE a modern version of this would useful. FIXME.
-
-   if (g.generic_objects_dialog) {
-
-      // get the togglebutton and set its state
-      std::string toggle_button_name = "generic_object_" + coot::util::int_to_string(object_number) + "_toggle_button";
-
-      GtkWidget *toggle_button = lookup_widget(g.generic_objects_dialog, toggle_button_name.c_str()); // #ifdef 0
-      // GtkWidget *toggle_button = 0;
-
-      if (toggle_button) {
-         if (istate)
-            gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(toggle_button), TRUE);
-         else
-            gtk_toggle_button_set_active(GTK_TOGGLE_BUTTON(toggle_button), FALSE);
+   // 2026-03-21 now set the button state
+   //
+   GtkWidget *grid   = widget_from_builder("generic_objects_dialog_grid");
+   GtkWidget *dialog = widget_from_builder("generic_objects_dialog");
+   if (grid) {
+      if (true) {
+         std::cout << "DEBUG::  got grid " << grid << std::endl;
+         std::cout << "DEBUG::  got dialog " << dialog << std::endl;
+      }
+      std::string stub = "generic_object_" + std::to_string(object_number);
+      std::string toggle_button_name = stub + "_toggle_button";
+      // std::cout << "DEBUG:: toggle_button_name: " << toggle_button_name << std::endl;
+      GtkWidget *checkbutton = GTK_WIDGET(g_object_get_data(G_OBJECT(dialog), toggle_button_name.c_str()));
+      if (checkbutton) { // check that this is the correct checkbutton
+         gtk_check_button_set_active(GTK_CHECK_BUTTON(checkbutton), istate);
       }
    }
-#endif
 }
 
 void set_display_generic_object(int object_number, short int istate) {
