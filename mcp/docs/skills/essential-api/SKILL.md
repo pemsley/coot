@@ -150,6 +150,12 @@ coot.residue_info_py(imol, chain_id, resno, ins_code) -> list
 #   [[' C  ', ''], [1.0, 10.8, ' C', ''], [x, y, z], 104],
 #   [[' O  ', ''], [1.0, 11.0, ' O', ''], [x, y, z], 105]
 
+#
+# NOTE: b_factor may be a list [b_iso, B11, B22, B33, B12, B13, B23] for anisotropic
+# Always handle safely:
+#   def get_b(atom): b = atom[1][1]; return b[0] if isinstance(b, list) else b
+
+
 # Check for missing atoms in a residue
 atoms = coot.residue_info_py(0, "A", 72, "")
 atom_names = [a[0][0].strip() for a in atoms]
@@ -188,8 +194,19 @@ coot.map_to_model_correlation_stats_per_residue_range_py(
 # Example - find worst fitting residues:
 stats = coot.map_to_model_correlation_stats_per_residue_range_py(0, "A", 1, 1, 0)
 all_atom = stats[0]
-worst = sorted(all_atom, key=lambda x: x[1][1])[:5]  # 5 worst by correlation
+worst = sorted(all_atom, key=lambda x: x[1][1])[:5]  # 5 worst by correlatio
+
+# Mainchain vs sidechain correlation for a single residue:
+coot.map_to_model_correlation_py(imol, residue_specs, neighb_specs, atom_mask_mode, imol_map)
+# atom_mask_mode: 0=all atoms, 1=mainchain only, 2=sidechain only
+# Use to distinguish backbone problems from sidechain problems before choosing a fix
+
+# Per-atom density probing — the most powerful backbone diagnostic:
+sigma = coot.map_sigma_py(imol_map)
+d = coot.density_at_point(imol_map, x, y, z) / sigma  # value in sigma units
+# Backbone atom < 0.5σ = problem; carbonyl O near 0σ with good CA = pepflip needed
 ```
+
 
 ## Validation - Geometry
 
@@ -258,6 +275,92 @@ coot.pepflip(imol, chain_id, resno, ins_code, altloc)
 # Follow with refinement of surrounding residues
 ```
 
+---
+
+## CRITICAL: Always Render Validation Results as Interactive SVG Widgets
+
+**When presenting validation results, geometry analysis, per-atom density data, or any
+tabular data about multiple residues, ALWAYS render an interactive SVG widget using
+`visualize:show_widget`. Never just print a wall of text.**
+
+The user can click on each residue block to navigate directly to it in Coot or trigger
+a fix. This is far more useful than stdout and makes results immediately actionable.
+
+### When to render a widget — trigger situations:
+- After running full validation (Ramachandran, rotamers, density fit, clashes, geometry)
+- After a per-atom backbone density probe scan
+- After any survey comparing multiple residues or chains
+- After a before/after fix comparison showing improvement
+- Any time there are more than ~5 residues worth of results to show
+
+### Severity colour coding:
+- `c-red` — severe issues (Rama score < 0.001, rotamer 0%, corr < 0.3, omega > 20° off)
+- `c-amber` — moderate issues (Rama 0.001–0.01, rotamer < 5%, corr 0.3–0.65)
+- `c-gray` — informational / OK residues
+- `c-teal` — unmodelled density blobs / features to investigate
+- `c-green` — successfully fixed residues (before/after comparisons)
+
+### onclick patterns — make them actionable, not just informational:
+
+```python
+# Navigation
+onclick="sendPrompt('Go to A/41 GLU and show me the density')"
+
+# Investigation
+onclick="sendPrompt('Go to B/257 GLU and investigate — negative correlation')"
+
+# Fix requests
+onclick="sendPrompt('Fix the clash between A/2 CA and A/89 CZ')"
+onclick="sendPrompt('Try pepflip at B/262 and refine')"
+onclick="sendPrompt('Fix rotamer A/32 GLN — 0% score')"
+
+# Comparative
+onclick="sendPrompt('Go to A/260 ALA — worst Ramachandran in chain A')"
+```
+
+The onclick prompt should describe the *action to take*, not just what the residue is.
+A user clicking a red block should trigger the next useful step automatically.
+
+### Minimal widget template for validation results:
+
+```svg
+<svg width="100%" viewBox="0 0 680 [H]">
+<!-- Section header -->
+<text class="th" x="40" y="28">Ramachandran outliers</text>
+
+<!-- Severe issue -->
+<g class="node c-red" onclick="sendPrompt('Go to A/41 GLU and investigate Ramachandran outlier')">
+  <rect x="40" y="38" width="280" height="50" rx="8" stroke-width="0.5"/>
+  <text class="th" x="180" y="57" text-anchor="middle" dominant-baseline="central">A/41  GLU</text>
+  <text class="ts" x="180" y="74" text-anchor="middle" dominant-baseline="central">score 0.00004  phi=112°</text>
+</g>
+
+<!-- Moderate issue -->
+<g class="node c-amber" onclick="sendPrompt('Go to A/35 VAL and investigate')">
+  <rect x="340" y="38" width="280" height="50" rx="8" stroke-width="0.5"/>
+  <text class="th" x="480" y="57" text-anchor="middle" dominant-baseline="central">A/35  VAL</text>
+  <text class="ts" x="480" y="74" text-anchor="middle" dominant-baseline="central">score 0.006</text>
+</g>
+</svg>
+```
+
+### Geometry widget — always include ideal, actual, Z score:
+
+For bond/angle/omega distortions, display as rows with severity colour. Omega torsion
+outliers (|omega − 180°| > 15°) are the most sensitive backbone diagnostic and should
+always be highlighted — they identify misplaced backbone immediately.
+
+```svg
+<g class="node c-red" onclick="sendPrompt('Go to A/259 SER and investigate distorted backbone')">
+  <rect x="36" y="50" width="600" height="22" rx="4" stroke-width="0.5"/>
+  <text class="ts" x="40" y="65">A/258→A/259  omega</text>
+  <text class="ts" x="380" y="65">60.0°  (ideal 180°)</text>
+  <text class="ts" x="510" y="65" style="fill:#A32D2D">+24.0σ  distorted!</text>
+</g>
+```
+
+---
+
 ## Typical Validation & Fix Workflow
 
 ```python
@@ -289,6 +392,8 @@ coot.refine_residues_py(0, [["A", 40, ""], ["A", 41, ""], ["A", 42, ""]])
 
 # 7. Re-validate
 overlaps_after = coot.molecule_atom_overlaps_py(0, 10)
+
+# 8. ALWAYS render results as an interactive SVG widget — see section above
 ```
 
 ## Important Notes
