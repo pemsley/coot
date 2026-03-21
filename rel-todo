@@ -6,9 +6,12 @@ o Fix this: Refinement returned -2 which typically means the zone wasn't
 accepted — likely needs the sphere context. Let me try with
 residues_near_residue to include spatial neighbours too.
 
+o when generic object are displayed and undisplayed using the API,
+  the gui should update - but it doesnt
+
 o The "here" means the current screen centre - add this to skills
 
-o add a note in still for soft-mode-hard-mode
+o add a note in skills for soft-mode-hard-mode
 
 o make a protein with hyderogen atoms from reduce
   and compare  out monomer library for protein residues
