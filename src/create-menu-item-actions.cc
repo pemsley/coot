@@ -2534,8 +2534,8 @@ void jiggle_fit_molecule_simple_action(G_GNUC_UNUSED GSimpleAction *simple_actio
 void jiggle_fit_chain_with_fourier_filtering_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                                     G_GNUC_UNUSED GVariant *parameter,
                                                     G_GNUC_UNUSED gpointer user_data) {
-   int n_trials = 4000;
-   float scale_factor = 2.0;
+   int n_trials = 10000;
+   float scale_factor = 5.0;
 
    std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
    if (pp.first) {
