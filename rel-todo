@@ -1,35 +1,38 @@
 --- Items ---
 
-o what is protein gtp?
+o Fix session restore - Kevin Jude
 
-o Fix this: Refinement returned -2 which typically means the zone wasn't
-accepted — likely needs the sphere context. Let me try with
-residues_near_residue to include spatial neighbours too.
+o what is protein gtp?
 
 o when generic object are displayed and undisplayed using the API,
   the gui should update - but it doesnt
+* Done.
 
 o The "here" means the current screen centre - add this to skills
+* Done.
+
+o Turn off the "great refinement" particles
 
 o add a note in skills for soft-mode-hard-mode
+* Done.
 
 o make a protein with hyderogen atoms from reduce
-  and compare  out monomer library for protein residues
+  and compare with our monomer library for protein residues
 
 o sidebysidestereo option for ray traced images
 
-o Add angles to geobonds
+o Add angles to geobonds? No, I think the navigation is enough for now.
 
 o multi-open align and mutate
 
-o cryo-EM ligand-fitting tutorial, needing conformer search
+o Make a cryo-EM ligand-fitting tutorial, needing conformer search
 
 o set_accept_reject_dialog_docked() and show() needs
   to be restored as a no-op.
+* Done.
 
 o reverse molecule to string in chapi
-
-o is there a method to import a mesh?
+* Ask Lucy
 
 o add get_h_bonds() to the Coot api (c.f molecules-container.hh)
   export to python directly, i.e. make get_hydrogen_bonds_py()
@@ -38,8 +41,6 @@ o OAR and OQR look the same in RDKit depiction from restraints
   They should not, there is a chirality issue.
 
 o remove gaussian_surface_to_map_molecule_v2() in chapi.
-
-o Fix session restore - Kevin Jude
 
 o Clemens: make a GEMMI script that describes the
   heterogeneity in a file and allows to write
