@@ -597,6 +597,19 @@ public:
    //! @return the eigenvalues of the atoms in the specified residue
    std::vector<double> get_eigenvalues(int imol, const std::string &chain_id, int res_no, const std::string &ins_code);
 
+   //! Get the eigenvectors and eigenvalues for atoms matching an mmdb CID selection.
+   //!
+   //! The eigenvectors and eigenvalues are computed from the covariance matrix of the atomic
+   //! coordinates. The eigenvalues are sorted in ascending order (smallest first), so
+   //! eigenvector[0] corresponds to the thinnest axis and eigenvector[2] to the widest.
+   //!
+   //! @param imol is the model molecule index
+   //! @param cid is an mmdb selection CID, e.g. "//C/405"
+   //!
+   //! @return a JSON string with keys "centroid" (3-array), "eigenvalues" (3-array, ascending),
+   //! "eigenvectors" (array of 3 vectors, each a 3-array). Returns empty string if no atoms found.
+   std::string get_eigenvectors_and_eigenvalues(int imol, const std::string &cid);
+
    //! Get a simple test mesh
    //!
    //! @return the mesh of a unit solid cube at the origin
@@ -1113,9 +1126,15 @@ public:
    //!    "image_height": 768,
    //!    "output_file": "coot-ray-trace.png",
    //!    "background_colour": [1.0, 1.0, 1.0, 1.0],
-   //!    "n_accumulation_frames": 16
+   //!    "n_accumulation_frames": 16,
+   //!    "eigenvectors": [[e0x, e0y, e0z], [e1x, e1y, e1z], [e2x, e2y, e2z]]
    //! }
    //! ```
+   //!
+   //! When "eigenvectors" is provided (sorted by ascending eigenvalue) and "orthogonal_views"
+   //! is true, the views are oriented along the principal axes: front looks along the thinnest
+   //! axis (eigenvector[0]), side along the widest (eigenvector[2]), top along the middle
+   //! (eigenvector[1]).
    void ray_trace_image(const std::string &json_str);
 
    //! Get colour table (for testing)

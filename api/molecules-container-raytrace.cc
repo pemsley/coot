@@ -446,7 +446,14 @@ molecules_container_t::ray_trace_image(const std::string &json_str) {
    }
 
    // Build the list of views to render.
-   // If "orthogonal_views" is true, render front (-Z), side (+X) and top (-Y).
+   //
+   // If "eigenvectors" is provided (array of 3 vectors, sorted by ascending eigenvalue),
+   // the views are oriented along the principal axes of the atom selection:
+   //   - "front" looks along eigenvector[0] (thinnest), up=e1 (middle), so e2 (widest) is horizontal
+   //   - "side" looks along eigenvector[2] (widest), up=e1 (middle)
+   //   - "top" looks along eigenvector[1] (middle), up=e0 (thinnest)
+   //
+   // If "orthogonal_views" is true without eigenvectors, use fixed axis-aligned directions.
    // Otherwise render a single view (from JSON camera overrides or the default front view).
 
    struct view_t {
@@ -459,7 +466,44 @@ molecules_container_t::ray_trace_image(const std::string &json_str) {
    std::vector<view_t> views;
    bool orthogonal_views = j.value("orthogonal_views", false);
 
-   if (orthogonal_views) {
+   // Check for eigenvector-based camera orientation
+   bool have_eigenvectors = j.contains("eigenvectors") && j["eigenvectors"].is_array()
+                            && j["eigenvectors"].size() >= 3;
+
+   if (orthogonal_views && have_eigenvectors) {
+
+      auto &ev = j["eigenvectors"];
+      // ev[0] = thinnest (smallest eigenvalue), ev[2] = widest (largest eigenvalue)
+      rkcommon::math::vec3f e0(ev[0][0], ev[0][1], ev[0][2]);
+      rkcommon::math::vec3f e1(ev[1][0], ev[1][1], ev[1][2]);
+      rkcommon::math::vec3f e2(ev[2][0], ev[2][1], ev[2][2]);
+
+      // Front: look along thinnest axis, widest axis is up (so widest extent is vertical)
+      // We want the widest to be horizontal, so use e1 (middle) as up
+      // and the widest (e2) will be the horizontal direction in the image.
+      // Actually: "up" in OSPRay is the vertical direction of the image.
+      // To make e2 horizontal, set up = e1 (middle eigenvector).
+      views.push_back({"-front",
+         rkcommon::math::vec3f(centre.x - e0.x * camera_distance,
+                               centre.y - e0.y * camera_distance,
+                               centre.z - e0.z * camera_distance),
+         e0, e1});
+
+      // Side: look along widest axis, middle axis is up
+      views.push_back({"-side",
+         rkcommon::math::vec3f(centre.x - e2.x * camera_distance,
+                               centre.y - e2.y * camera_distance,
+                               centre.z - e2.z * camera_distance),
+         e2, e1});
+
+      // Top: look along middle axis, thinnest axis is up
+      views.push_back({"-top",
+         rkcommon::math::vec3f(centre.x - e1.x * camera_distance,
+                               centre.y - e1.y * camera_distance,
+                               centre.z - e1.z * camera_distance),
+         e1, e0});
+
+   } else if (orthogonal_views) {
       views.push_back({"-front",
          rkcommon::math::vec3f(centre.x, centre.y, centre.z - camera_distance),
          rkcommon::math::vec3f(0.0f, 0.0f, 1.0f),

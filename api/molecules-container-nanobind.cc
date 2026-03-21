@@ -791,6 +791,10 @@ NB_MODULE(coot_headless_api, m) {
          &molecules_container_t::get_distances_between_atoms_of_residues,
          nb::arg("imol"), nb::arg("cid_res_1"), nb::arg("cid_res_2"), nb::arg("dist_max"),
          get_docstring_from_xml("get_distances_between_atoms_of_residues").c_str())
+    .def("get_eigenvectors_and_eigenvalues",
+         &molecules_container_t::get_eigenvectors_and_eigenvalues,
+         nb::arg("imol"), nb::arg("cid"),
+         get_docstring_from_xml("get_eigenvectors_and_eigenvalues").c_str())
     .def("get_gaussian_surface",
          &molecules_container_t::get_gaussian_surface,
          nb::arg("imol"), nb::arg("sigma"), nb::arg("contour_level"), nb::arg("box_radius"),
