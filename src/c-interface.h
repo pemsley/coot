@@ -5012,6 +5012,48 @@ void set_draw_hydrogens(int imol, int istat);
 return -1 on bad imol.  */
 int draw_hydrogens_state(int imol);
 
+/*! \brief get hydrogen bonds
+ *
+ * \detailed
+ * For the returned value, an "atom" here looks like:
+ *
+ *    PyDict_SetItemString(at_py, "x", PyFloat_FromDouble(at->x));
+ *    PyDict_SetItemString(at_py, "y", PyFloat_FromDouble(at->y));
+ *    PyDict_SetItemString(at_py, "z", PyFloat_FromDouble(at->z));
+ *    PyDict_SetItemString(at_py, "charge",       PyFloat_FromDouble(at->charge));
+ *    PyDict_SetItemString(at_py, "occ",          PyFloat_FromDouble(at->occupancy));
+ *    PyDict_SetItemString(at_py, "b_iso",        PyFloat_FromDouble(at->tempFactor));
+ *    PyDict_SetItemString(at_py, "element",      myPyString_FromString(at->element));
+ *    PyDict_SetItemString(at_py, "name",         myPyString_FromString(at->name));
+ *    PyDict_SetItemString(at_py, "model",        PyFloat_FromDouble(at->GetModelNum()));
+ *    PyDict_SetItemString(at_py, "chain",        myPyString_FromString(at->GetChainID()));
+ *    PyDict_SetItemString(at_py, "altLoc",       myPyString_FromString(at->altLoc));
+ *    PyDict_SetItemString(at_py, "residue_name", myPyString_FromString(at->GetResidue()->GetResName()));
+ *
+ *    For the returned value, a hydrogen bond looks like this:
+ *
+ *    PyList_SetItem(l, 0, hb_hydrogen_py);       // an atom
+ *    PyList_SetItem(l, 1, donor_py);             // an atom
+ *    PyList_SetItem(l, 2, acceptor_py);          // an atom
+ *    PyList_SetItem(l, 3, donor_neigh_py);       // an atom, possibly None
+ *    PyList_SetItem(l, 4, acceptor_neigh_py);    // an atom, possibly None
+ *
+ *    PyList_SetItem(l, 5, PyFloat_FromDouble(h_bond.angle_1));
+ *    PyList_SetItem(l, 6, PyFloat_FromDouble(h_bond.angle_2));
+ *    PyList_SetItem(l, 7, PyFloat_FromDouble(h_bond.angle_3));
+ *    PyList_SetItem(l, 8, PyFloat_FromDouble(h_bond.dist));
+ *
+ *    PyList_SetItem(l,  9, PyBool_FromLong(h_bond.ligand_atom_is_donor));
+ *    PyList_SetItem(l, 10, PyBool_FromLong(h_bond.hydrogen_is_ligand_atom));
+ *    PyList_SetItem(l, 11, PyBool_FromLong(h_bond.bond_has_hydrogen_flag));
+ *
+ * @param imol the molecule index
+ * @return the hydrogen bonds as a python list object, or False if
+ *         imol is not a valid model molecule
+ *
+ */
+PyObject *get_hydrogen_bonds_py(int imol, const char *selection_1, const char *selection_2, short int mcdonald_and_thornton_algoritnm);
+
 /*! \brief draw little coloured balls on atoms
 
 turn off with state = 0

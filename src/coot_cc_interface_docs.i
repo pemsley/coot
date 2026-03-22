@@ -1631,6 +1631,13 @@ preserve_residue_names : bool
 ";
 
 %feature("docstring") protein_db_loops_py "
+Cowtan's protein_db loops.
+
+return in the first pair, the imol of the new molecule generated from an atom selection of the imol_coords for the residue selection of the loop and the molecule number of the consolidated solutions (displayed in purple). and the second of the outer pair, there is vector of molecule indices for each of the candidate loops.
+
+Use this to create hypotheses about where the atoms of the missing residues could be. Often the top/first solution is the best one. This fragment will then need to be patched back into molecule imol_coords using copy_fragment().
+
+return -1 in the first of the pair on failure
 
 Parameters
 ----------
