@@ -65,6 +65,7 @@
 #include "rsr-functions.hh"
 #include "cc-interface-user-defined-atom-colours.hh"
 #include "cc-interface-alignment.hh"
+#include "cc-interface-graphics.hh"
 #include "init_coot_as_python_module.hh"
 #include "curl-utils.hh"
 #include "cfc-2025.hh"
@@ -161,6 +162,7 @@ namespace std {
 %include "curl-utils.hh"
 %include "M2T-interface.hh"
 %include "cc-interface-alignment.hh"
+%include "cc-interface-graphics.hh"
 %include "cfc-2025.hh"
 %include "nef.hh"
 

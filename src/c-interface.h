@@ -970,6 +970,12 @@ void set_model_fit_refine_dialog_stays_on_top(int istate);
 /*! \brief return the state model-fit-refine dialog stays on top */
 int model_fit_refine_dialog_stays_on_top_state();
 
+/* Legacy functions for the accept/reject dialog docking - no longer functional but
+   retained for backwards compatibility with user startup scripts */
+/*! \brief set the accept/reject dialog docked state - no longer functional */
+void set_accept_reject_dialog_docked(int state);
+/*! \brief set the accept/reject dialog docked show state - no longer functional */
+void set_accept_reject_dialog_docked_show(int state);
 
 
 /*! \} */
@@ -1469,13 +1475,29 @@ void set_diff_map_iso_level_increment_from_text(const char *text, int imol);
 /*! \brief sampling rate
 
 find the molecule for which the single map dialog applies and set
-    the contour level and redraw */
+    the contour level and redraw.
+    This is for use by a GUI callback - not for user use */
 void set_map_sampling_rate_text(const char *text);
 
-/*! \brief set the map sampling rate (default 1.5)
-
-Set to something like 2.0 or 2.5 for more finely sampled maps.  Useful
-for baton-building low resolution maps. */
+/*! \brief set the map sampling rate (default 1.8)
+ *
+ * set_map_sampling_rate(float r)
+ *
+ * Set the Shannon Limit multiplier for map sampling (default 1.8).
+ *
+ * The Shannon (Nyquist) sampling theorem requires that a map be sampled
+ * at least twice per resolution cycle (d_min/2) to faithfully represent
+ * all frequencies present. This parameter sets the multiplier above that
+ * theoretical minimum — so the default of 1.5 means maps are sampled at
+ * 1.5 × the Shannon limit (i.e., grid spacing = d_min / 3.0).
+ *
+ * Higher values (e.g. 2.0–2.5) produce more finely sampled maps, which
+ * can be useful for low-resolution baton-building or visual inspection,
+ * since they are more visually attractive-looking,
+ * at the cost of larger map files and slower computation.
+ *
+ * Set to something like 2.0 or 2.5 for more finely sampled maps.  Useful
+ * for baton-building low resolution maps. */
 void set_map_sampling_rate(float r);
 
 /* MOVE-ME to c-interface-gtk-widgets.h */
@@ -2977,7 +2999,7 @@ char *go_to_atom_alt_conf();
    char *`, not `const gchar *` (or else we get wrong type of argument
    error on (say) "A"
 
-@return the success status of the go to.  0 for fail, 1 for success.
+   @return the success status of the go to.  0 for fail, 1 for success.
 */
 int set_go_to_atom_chain_residue_atom_name(const char *t1_chain_id, int iresno,
 					   const char *t3_atom_name);
@@ -2988,7 +3010,7 @@ int set_go_to_atom_chain_residue_atom_name(const char *t1_chain_id, int iresno,
    char *`, not `const gchar *` (or else we get wrong type of argument
    error on (say) "A"
 
-@return the success status of the go to.  0 for fail, 1 for success.
+   @return the success status of the go to.  0 for fail, 1 for success.
 */
 int set_go_to_atom_chain_residue_atom_name_full(const char *chain_id,
 						int resno,
@@ -3576,9 +3598,25 @@ SCM regularize_residues_with_alt_conf_scm(int imol, SCM r, const char *alt_conf)
 #endif
 #ifdef USE_PYTHON
 /*! \brief refine the residues in the given residue spec list
+ *
+ * @param imol is the molecule index
+ * @param rl is a Python list of residue specs, where a residue spec is a list of
+ *  [`chain_id`, `res_no`, `ins_code`]
+ *
+ *  When using this function from scripting, make sure that
+ *  set_refinement_immediate_replacement(1) is called first.
+ *
+ *  @return False if restraints could not be set up, or a list of 3 elements on success:
+ *  - [0] info_text (string): refinement information text
+ *  - [1] progress (int): refinement progress indicator.
+ *          0: GSL_SUCCESS: means refinement was successfully completed
+ *         -2: GSL_CONTINUE: means refinement was successful, but didn't terminate (so more cycles needed)
+ *         27: GSL_ENOPROG: iteration is not making progress towards solution
+ *  - [2] lights (list or False): False if empty, otherwise a list of
+ *    [`name`, `label`, `value`] triples where `name` and `label` are strings
+ *    and `value` is a float  */
+PyObject *refine_residues_py(int imol, PyObject *rl);  /* presumes the alt_conf is "". */
 
-@return the refinement summary statistics  */
-PyObject *refine_residues_py(int imol, PyObject *r);  /* presumes the alt_conf is "". */
 PyObject *refine_residues_with_modes_with_alt_conf_py(int imol, PyObject *r, const char *alt_conf,
 						      PyObject *mode_1,
 						      PyObject *mode_2,
@@ -3779,7 +3817,13 @@ void set_show_chiral_volume_errors_dialog(short int istate);
 
 1 alpha helix restraints
 
-2 beta strand restraints */
+2 beta strand restraints.
+
+Call this before refine_residues_py() to maintain secondary structure
+geometry during real-space refinement. Reset to 0 after refinement to
+avoid affecting subsequent refinement operations.
+
+*/
 void set_secondary_structure_restraints_type(int itype);
 
 /*! \brief return the secondary structure restraints type */
@@ -3788,15 +3832,15 @@ int secondary_structure_restraints_type();
 /*! \brief the molecule number of the map used for refinement
 
    @return the map number, if it has been set or there is only one
-   map, return -1 on no map set (ambiguous) or no maps.
+   map, otherwise return -1 on no map set (ambiguous) or no maps.
 */
-
 int imol_refinement_map();	/* return -1 on no map */
 
 /*! \brief set the molecule number of the map to be used for
   refinement/fitting.
 
-   @return imol on success, -1 on failure*/
+  @return imol on success, -1 on failure
+*/
 int set_imol_refinement_map(int imol);	/* returns imol on success, otherwise -1 */
 
 /*! \brief Does the residue exist? (Raw function)

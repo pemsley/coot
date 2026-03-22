@@ -27,6 +27,7 @@
 #include <iostream>
 #include <gtk/gtk.h>
 
+#include "coords/Cartesian.hh"
 #include "coot-utils/coot-coord-utils.hh"
 #include "coot-utils/ptm-database.hh"
 #include "gdk/gdk.h"
@@ -35,6 +36,7 @@
 #include "c-interface.h"
 #include "c-interface-gtk-widgets.h"
 #include "coot-fileselections.h"
+#include "gtk/gtkshortcut.h"
 #include "widget-from-builder.hh"
 #include "c-interface-gui.hh" // set transient for main window
 #include "cc-interface-scripting.hh"  // move this up
@@ -1610,6 +1612,56 @@ make_a_difference_map_action(G_GNUC_UNUSED GSimpleAction *simple_action,
       g.fill_combobox_with_molecule_options(map_combobox_2, func, imol_map_active, map_list);
    }
 }
+
+#include "c-interface-generic-objects.h"
+
+void
+emplacement_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                   G_GNUC_UNUSED GVariant *parameter,
+                   G_GNUC_UNUSED gpointer user_data) {
+
+   auto get_model_molecule_vector = [] () {
+                                       graphics_info_t g;
+                                       std::vector<int> vec;
+                                       int n_mol = g.n_molecules();
+                                       for (int i=0; i<n_mol; i++)
+                                          if (g.is_valid_model_molecule(i))
+                                             vec.push_back(i);
+                                       return vec;
+                                    };
+
+   auto model_index_changed = +[] (GtkWidget *combobox, gpointer user_data) {
+
+      // now change the radius of the sphere to which the gizmo is attached.
+      std::cout << "DEBUG:: change the radius of the sphere object here" << std::endl;
+
+   };
+
+   GtkWidget *dialog = widget_from_builder("emplacement_dialog");
+   GtkWidget *model_combobox = widget_from_builder("emplacement_model_combobox");
+   GtkWidget *reso_entry = widget_from_builder("emplacement_reso_entry");
+   set_transient_for_main_window(dialog);
+   gtk_widget_set_visible(dialog, TRUE);
+   const char *current_text = gtk_editable_get_text(GTK_EDITABLE(reso_entry));
+   if (strlen(current_text) < 2)
+      gtk_editable_set_text(GTK_EDITABLE(reso_entry), "3.6");
+
+   graphics_info_t g;
+   auto mol_vec = get_model_molecule_vector();
+   int imol_active = -1;
+   if (! mol_vec.empty())
+      imol_active = mol_vec[0];
+   GCallback callback_func = G_CALLBACK(model_index_changed);
+   g.fill_combobox_with_molecule_options(model_combobox, callback_func, imol_active, mol_vec);
+
+   int obj = new_generic_object_number("Emplacement Sphere");
+   coot::Cartesian rc = graphics_info_t::get_rotation_centre_cart();
+   to_generic_object_add_point(obj, "#c0806060", 600, rc.x(), rc.y(), rc.z());
+   set_display_generic_object(obj, 1);
+   to_generic_object_attach_translation_gizmo(obj);
+
+}
+
 
 void
 transform_map_by_lsq_model_fit_action(G_GNUC_UNUSED GSimpleAction *simple_action,
@@ -6012,6 +6064,7 @@ create_actions(GtkApplication *application) {
    // Calculate -> Map Tools
 
    add_action(                        "copy_map_action",                         copy_map_action);
+   add_action(                     "emplacement_action",                      emplacement_action);
    add_action(                    "average_maps_action",                     average_maps_action);
    add_action(                    "multichicken_action",                     multichicken_action);
    add_action(                   "brighten_maps_action",                    brighten_maps_action);

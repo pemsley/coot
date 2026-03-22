@@ -26,6 +26,7 @@
 
 #include "geometry/residue-and-atom-specs.hh"
 #include "gtk/gtk.h"
+#include "mmdb2/mmdb_chain.h"
 #ifdef USE_PYTHON
 #include <Python.h>  // before system includes to stop "POSIX_C_SOURCE" redefined problems
 #include "python-3-interface.hh"
@@ -108,6 +109,8 @@
 
 #include "c-interface-refine.hh"
 
+#include "utils/logging.hh"
+extern logging logger;
 
 
 void delete_residue_sidechain(int imol, const char *chain_id, int resno, const char *ins_code,
@@ -1264,6 +1267,29 @@ void simple_fill_partial_residues(int imol) {
 
 std::string sequence_from_map(int imol, const std::string &chain_id, int resno_start, int resno_end, int imol_map) {
 
+   auto backrub_chain = [] (int imol, const std::string &chain_id, int imol_map) {
+
+      int n = 0;
+      graphics_info_t g;
+      if (is_valid_model_molecule(imol)) {
+         mmdb::Chain *chain_p = graphics_info_t::molecules[imol].get_chain(chain_id);
+         if (chain_p) {
+            int n_residues = chain_p->GetNumberOfResidues();
+            for (int iserial=0; iserial<n_residues; iserial++) {
+               std::string res_name = resname_from_serial_number(imol, chain_id.c_str(), iserial);
+               int res_no = seqnum_from_serial_number(imol, chain_id.c_str(), iserial);
+               std::string ins_code = insertion_code_from_serial_number(imol, chain_id.c_str(), iserial);
+               if (res_name != "HOH") {
+                  std::string alt_loc;
+                  int clash_flag = 1;
+                  float lp = 1.1;
+                  auto_fit_best_rotamer(imol, chain_id.c_str(), res_no, ins_code.c_str(), alt_loc.c_str(), imol_map, clash_flag, lp);
+               }
+            }
+         }
+      }
+   };
+
    std::string guessed_sequence;
    if (is_valid_model_molecule(imol)) {
       if (is_valid_map_molecule(imol_map)) {
@@ -1273,8 +1299,20 @@ std::string sequence_from_map(int imol, const std::string &chain_id, int resno_s
          scd.fill_residue_blocks(mol, chain_id, resno_start, resno_end, xmap);
          guessed_sequence =
             scd.guess_the_sequence(mol, chain_id, resno_start, resno_end, xmap);
-         // std::cout << "guessed sequence " << guessed_sequence << std::endl;
+         logger.log(log_t::INFO, logging::function_name_t(__FUNCTION__),
+                    "guessed_sequence", guessed_sequence);
+         if (guessed_sequence.size() > 0) {
+            mutate_residue_range(imol, chain_id, resno_start, resno_end, guessed_sequence);
+            int imol_map = imol_refinement_map();
+            backrub_chain(imol, chain_id, imol_map);
+         } else {
+            std::cout << "DEBUG:: guessed_sequence is zero length" << std::endl;
+         }
+      } else {
+         std::cout << "DEBUG:: imol_map is not valid" << std::endl;
       }
+   } else {
+      std::cout << "DEBUG:: imol is not valid model" << std::endl;
    }
    return guessed_sequence;
 }

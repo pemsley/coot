@@ -50,6 +50,7 @@ class molecules_container_t {
    std::vector<coot::molecule_t> molecules;
    coot::protein_geometry geom;
    coot::rotamer_probability_tables rot_prob_tables;
+   bool ospray_is_initialized;
    ramachandrans_container_t ramachandrans_container;
    static std::atomic<bool> on_going_updating_map_lock;
    bool draw_missing_residue_loops_flag;
@@ -596,6 +597,19 @@ public:
    //! @return the eigenvalues of the atoms in the specified residue
    std::vector<double> get_eigenvalues(int imol, const std::string &chain_id, int res_no, const std::string &ins_code);
 
+   //! Get the eigenvectors and eigenvalues for atoms matching an mmdb CID selection.
+   //!
+   //! The eigenvectors and eigenvalues are computed from the covariance matrix of the atomic
+   //! coordinates. The eigenvalues are sorted in ascending order (smallest first), so
+   //! eigenvector[0] corresponds to the thinnest axis and eigenvector[2] to the widest.
+   //!
+   //! @param imol is the model molecule index
+   //! @param cid is an mmdb selection CID, e.g. "//C/405"
+   //!
+   //! @return a JSON string with keys "centroid" (3-array), "eigenvalues" (3-array, ascending),
+   //! "eigenvectors" (array of 3 vectors, each a 3-array). Returns empty string if no atoms found.
+   std::string get_eigenvectors_and_eigenvalues(int imol, const std::string &cid);
+
    //! Get a simple test mesh
    //!
    //! @return the mesh of a unit solid cube at the origin
@@ -888,6 +902,20 @@ public:
    //! on failure (e.g. when atoms types are not in the dictionary)
    std::vector<std::pair<std::string, std::string> > get_acedrg_atom_types(const std::string &compound_id, int imol_enc) const;
 
+   //! Get computed AceDRG/COD atom types for the given compound
+   //!
+   //! Unlike get_acedrg_atom_types() which reads pre-stored atom types from the dictionary,
+   //! this function computes atom types from the dictionary restraints using RDKit.
+   //! This works for any compound that has dictionary restraints, even if the CIF file
+   //! does not contain _chem_comp_acedrg atom type annotations.
+   //!
+   //! @param compound_id is the 3-letter code for the residue/ligand, e.g. "TYR" for tyrosine
+   //! @param imol_enc is the molecule index for the residue type/compound_id
+   //!
+   //! @return a list of atom names and their associated computed COD atom types (level 4),
+   //! return an empty list on failure
+   std::vector<std::pair<std::string, std::string> > get_computed_acedrg_atom_types(const std::string &compound_id, int imol_enc);
+
    //! Get AceDRG atom types for ligand bonds
    //!
    //! @param imol is the model molecule index
@@ -1074,6 +1102,40 @@ public:
    //! @param imol is the model molecule index
    //! @param metalicity is the factor for the roughness (0.0 to 1.0)
    void set_gltf_pbr_metalicity_factor(int imol, float metalicity);
+
+   //! Initialise the OSPRay ray-tracing engine. Call this before ray_trace_image().
+   void ray_trace_init();
+
+   //! Shut down the OSPRay ray-tracing engine.
+   void ray_trace_shutdown();
+
+   //! Ray-trace molecules using OSPRay and write a PNG image file
+   //!
+   //! @param json_str is a JSON string specifying the molecules and rendering parameters.
+   //!
+   //! Example JSON:
+   //! ```json
+   //! {
+   //!    "molecules": {
+   //!       "0": {"style": "bonds", "colour_mode": "COLOUR-BY-CHAIN-AND-DICTIONARY",
+   //!             "bonds_width": 0.12, "atom_radius_to_bond_width_ratio": 1.5},
+   //!       "1": {"style": "lines", "map_radius": 12.0, "map_contour_level": 1.5,
+   //!             "map_line_width": 0.02, "map_colour": [0.3, 0.5, 0.8]}
+   //!    },
+   //!    "image_width": 1024,
+   //!    "image_height": 768,
+   //!    "output_file": "coot-ray-trace.png",
+   //!    "background_colour": [1.0, 1.0, 1.0, 1.0],
+   //!    "n_accumulation_frames": 16,
+   //!    "eigenvectors": [[e0x, e0y, e0z], [e1x, e1y, e1z], [e2x, e2y, e2z]]
+   //! }
+   //! ```
+   //!
+   //! When "eigenvectors" is provided (sorted by ascending eigenvalue) and "orthogonal_views"
+   //! is true, the views are oriented along the principal axes: front looks along the thinnest
+   //! axis (eigenvector[0]), side along the widest (eigenvector[2]), top along the middle
+   //! (eigenvector[1]).
+   void ray_trace_image(const std::string &json_str);
 
    //! Get colour table (for testing)
    //!

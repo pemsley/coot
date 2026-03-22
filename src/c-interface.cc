@@ -50,6 +50,9 @@
 #include <fstream>
 #include <algorithm>
 
+#define GLM_ENABLE_EXPERIMENTAL
+#include <glm/gtx/string_cast.hpp>
+
 #if !defined(_MSC_VER)
 #include <glob.h> // for globbing.  Needed here?
 #endif
@@ -146,6 +149,9 @@
 #include "glarea_tick_function.hh"
 
 #include "validation-graphs/sequence-view-widget.hh"
+
+#include "json.hpp"
+using json = nlohmann::json;
 
 #include "utils/logging.hh"
 extern logging logger;
@@ -4369,6 +4375,82 @@ void set_view_quaternion(float i, float j, float k, float l) {
 }
 
 
+
+/*! \brief Set the view
+ *
+ * the view is a JSON string of a dict of the orientation quaternion, the zoom and the rotation centre.
+ *
+ * @param view_as_json the view parameter as a JSON string
+ * */
+void set_view_from_json(const std::string &view_as_json) {
+
+   try {
+      json j = json::parse(view_as_json);
+      json j_rc   = j["rotation-centre"];
+      json j_quat = j["quaternion"];
+      json j_zoom = j["zoom"];
+      if (j_rc.is_array()) {
+         if (j_quat.is_array()) {
+            if (j_zoom.is_number_float()) {
+               float zoom = j_zoom;
+               unsigned int rc_size = j_rc.size();
+               if (rc_size == 3) {
+                  float rc_0 = j_rc[0];
+                  float rc_1 = j_rc[1];
+                  float rc_2 = j_rc[2];
+                  coot::Cartesian rc(rc_0, rc_1, rc_2);
+                  unsigned int quat_size = j_quat.size();
+                  if (quat_size == 4) {
+                     float quat_0 = j_quat[0];
+                     float quat_1 = j_quat[1];
+                     float quat_2 = j_quat[2];
+                     float quat_3 = j_quat[3];
+                     glm::quat q(quat_0, quat_1, quat_2, quat_3);
+                     graphics_info_t::set_view(q, rc, zoom);
+                  }
+               }
+            }
+         }
+      }
+   }
+   catch(const nlohmann::detail::type_error &e) {
+      std::cout << "ERROR:: " << e.what() << std::endl;
+   }
+   catch(const nlohmann::detail::parse_error &e) {
+      std::cout << "ERROR:: " << e.what() << std::endl;
+   }
+
+}
+
+/*! \brief get the view
+ *
+ * the view is a JSON string of a dict of the orientation quaternion, the zoom and the rotation centre.
+ *
+ * */
+std::string get_view_as_json() {
+
+   json j_rc = json::array();
+   auto rc = graphics_info_t::get_rotation_centre();
+   j_rc.push_back(rc.x);
+   j_rc.push_back(rc.y);
+   j_rc.push_back(rc.z);
+   json j_quat = json::array();
+   glm::quat quat = graphics_info_t::view_quaternion;
+   j_quat.push_back(quat[3]); // 2026-03-10-PE, weird, eh?
+   j_quat.push_back(quat[0]);
+   j_quat.push_back(quat[1]);
+   j_quat.push_back(quat[2]);
+   json j_zoom = graphics_info_t::zoom;
+
+   json j;
+   j["zoom"] = j_zoom;
+   j["rotation-centre"] = j_rc;
+   j["quaternion"] = j_quat;
+
+   std::string js = j.dump(2);
+
+   return js;
+}
 
 /* Return 1 if we moved to a molecule centre, else go to origin and
    return 0. */

@@ -794,7 +794,7 @@ coot.gaussian_surface(imol)
 ### 4. Complete Publication Setup
 
 **Optimized settings for Gaussian surface figures:**
-- Dark grey background (0.2, 0.2, 0.2) for dramatic contrast
+- Dark grey background (0.2, 0.2, 0.2) or even smaller, for dramatic contrast
 - Outline mode for polished cel-shaded look
 - High-quality SSAO (256 samples, radius 25)
 - Fancy lighting
@@ -823,7 +823,7 @@ Reorganized into three categories:
 
 ### Why This Matters
 - Molecular symmetry coloring **immediately reveals biological organization**
-- High kernel samples produce **smooth, professional shadows** without noise
+- High kernel samples produce **smooth, professional shadows** with low levels of ambient occlusion sampling noise
 - Large assemblies need different parameters than small molecules
 - Biological assemblies show the **true functional form** of the structure
 

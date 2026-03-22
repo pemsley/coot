@@ -26,8 +26,12 @@
 
 #include "richardson-rotamer.hh"
 #include "utils/coot-utils.hh"
+#include "utils/logging.hh"
 #include "coot-utils/coot-map-utils.hh"
+#include "utils/logging.hh"
 #include "backrub-rotamer.hh"
+
+extern logging logger;
 
 // thow an exception on failure to get a good result.
 std::pair<coot::minimol::molecule,float>
@@ -831,13 +835,21 @@ coot::backrub_molecule(mmdb::Manager *mol, const clipper::Xmap<float> *xmap_p, c
                   if (p.first) {
 
                      std::string alt_conf("");
-                     coot::backrub br(chain_id, this_res, prev_res, next_res, alt_conf, mol, xmap_p);
-                     std::pair<coot::minimol::molecule,float> m = br.search(restraints);
-                     std::vector<coot::atom_spec_t> baddie_waters = br.waters_for_deletion();
-                     atom_selection_container_t fragment_asc = make_asc(m.first.pcmmdbmanager());
-                     replace_coords(fragment_asc);
-                     if (! baddie_waters.empty())
-                        delete_atoms(baddie_waters);
+                     try {
+                        coot::backrub br(chain_id, this_res, prev_res, next_res, alt_conf, mol, xmap_p);
+                        std::pair<coot::minimol::molecule,float> m = br.search(restraints);
+                        std::vector<coot::atom_spec_t> baddie_waters = br.waters_for_deletion();
+                        atom_selection_container_t fragment_asc = make_asc(m.first.pcmmdbmanager());
+                        replace_coords(fragment_asc);
+                        if (! baddie_waters.empty())
+                           delete_atoms(baddie_waters);
+                     }
+                     catch (const std::runtime_error &rte) {
+                        logger.log(log_t::WARNING, rte.what());
+                     }
+                     catch (...) {
+                        logger.log(log_t::ERROR, "backrub_molecule(): some other type of error");
+                     }
                   }
                }
             }

@@ -84,6 +84,15 @@ if (ENABLE_DWARF_ELF)
    message("-- Enabled dwarf and elf")
 endif()
 
+# OSPRay ray-tracing renderer for publication-quality image output.
+# Use -DOSPRAY_PREFIX=/path/to/ospray to enable.
+if (OSPRAY_PREFIX)
+   list(APPEND CMAKE_PREFIX_PATH ${OSPRAY_PREFIX})
+   find_package(ospray REQUIRED)
+   add_definitions(-DHAVE_OSPRAY)
+   message("-- Found OSPRay: ${OSPRAY_PREFIX}")
+endif()
+
 #  pyrogen, auxil, goograph, src ignored.
 
 add_library(cootmoleculestotriangles SHARED
@@ -193,6 +202,7 @@ add_library(cootapi SHARED
             ${coot_src}/api/molecules-container-blender.cc
             ${coot_src}/api/molecules-container-bucca-ml-growing.cc
             ${coot_src}/api/molecules-container-gltf.cc
+            ${coot_src}/api/molecules-container-raytrace.cc
             ${coot_src}/api/molecules-container-ligand-fitting.cc
             ${coot_src}/api/molecules-container-maps.cc
             ${coot_src}/api/molecules-container-mmrrcc.cc
@@ -293,13 +303,13 @@ add_library(cootapi SHARED
             ${coot_src}/pli/specs.cc
             ${coot_src}/pyrogen/restraints.cc
             ${coot_src}/pyrogen/py-restraints.cc
+            ${coot_src}/coot-utils/atom-selection-container.cc
             ${coot_src}/coot-utils/cfc.cc
+            ${coot_src}/coot-utils/cmtz-interface.cc
             ${coot_src}/coot-utils/coot-align.cc
             ${coot_src}/coot-utils/dict-link-info.cc
-            ${coot_src}/coot-utils/cmtz-interface.cc
             ${coot_src}/coot-utils/dict-link-info.cc
             ${coot_src}/coot-utils/lidia-core-functions.cc
-            ${coot_src}/coot-utils/atom-selection-container.cc
             ${coot_src}/coot-utils/merge-atom-selections.cc
             ${coot_src}/coot-utils/coot-least-squares.cc
             ${coot_src}/coot-utils/diff-diff-map-peaks.cc
@@ -372,6 +382,7 @@ add_library(cootapi SHARED
             ${coot_src}/coot-utils/cylinder-with-rotation-translation.cc
             ${coot_src}/coot-utils/prideout-octasphere.cc
             ${coot_src}/coot-utils/oct.cc
+            ${coot_src}/coot-utils/read-amber-trajectory.cc
             ${coot_src}/coot-utils/shapes.cc
             ${coot_src}/coot-utils/simple-mesh.cc
             ${coot_src}/coot-utils/gl-matrix.cc
@@ -529,6 +540,10 @@ target_link_libraries(cootmoleculestotriangles PRIVATE ${SSM_LIBRARY} ${CLIPPER-
 # Charles adds Boost::iostreams Boost::filesystem Boost::system. I don't know why Boost::filesystem was added - I have removed it.
 # 2025-09-20 14:15 PE: Boost::system is no longer a thing - I have removed it
 target_link_libraries(cootapi PRIVATE cootmoleculestotriangles ${SSM_LIBRARY} ${CLIPPER-MINIMOL_LIBRARY} ${CLIPPER-MMDB_LIBRARY} ${CLIPPER-CIF_LIBRARY} ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${CLIPPER-CONTRIB_LIBRARY} ${FFTW2_LIBRARY} ${RFFTW2_LIBRARY} ${MMDB2_LIBRARY} ${CCP4C_LIBRARY} ${ZLIB_LIBRARIES} ${GSL_LIBRARIES} ${GSL_CBLAS_LIBRARY} ${RDKit_libs_for_libcootapi} ${PNG_LIBRARY} Boost::thread Boost::iostreams gemmi::gemmi_cpp ${libdwarf} ${libelf})
+
+if (OSPRAY_PREFIX)
+   target_link_libraries(cootapi PRIVATE ospray::ospray)
+endif()
 
 target_compile_features(cootapi PRIVATE cxx_std_17)
 

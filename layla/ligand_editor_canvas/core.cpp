@@ -248,7 +248,7 @@ coot::ligand_editor_canvas::SmilesMap WidgetCoreData::build_smiles() const {
         const auto& mol_ptr_opt = *it;
         if(mol_ptr_opt.has_value()) {
             RDKit::RWMol* mol_ptr = mol_ptr_opt->get();
-            ret.emplace(idx, RDKit::MolToSmiles(*mol_ptr));
+            ret.emplace(idx, RDKit::MolToSmiles(*mol_ptr, true));
         }
     };
 
@@ -273,6 +273,7 @@ coot::ligand_editor_canvas::InchiKeyMap WidgetCoreData::build_inchi_keys() const
             ret.emplace(idx, RDKit::MolToInchiKey(*mol_ptr));
             #else
             ret.emplace(idx, "");
+            g_warning("Your version of RDKit was built without InChI support. Molecule InChI key lookup will not be available.");
             #warning Your version of RDKit was built without InChI support. Molecule InChI key lookup will not be available.
             #endif
         }

@@ -26,6 +26,23 @@
 #ifndef CC_INTERFACE_GRAPHICS_HH
 #define CC_INTERFACE_GRAPHICS_HH
 
+#include <string>
+
 void show_coot_points_frame();
+
+/*! \brief Set the view
+ *
+ * the view is a JSON string of a dict of the orientation quaternion, the zoom and the rotation centre.
+ *
+ * @param view_as_json the view parameter as a JSON string
+ * */
+void set_view_from_json(const std::string &view_as_json);
+
+/*! \brief get the view
+ *
+ * the view is a JSON string of a dict of the orientation quaternion, the zoom and the rotation centre.
+ *
+ * */
+std::string get_view_as_json();
 
 #endif // CC_INTERFACE_GRAPHICS_HH

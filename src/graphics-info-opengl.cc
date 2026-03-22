@@ -689,6 +689,21 @@ graphics_info_t::update_view_quaternion(int glarea_width, int glarea_height,
 
 }
 
+bool graphics_info_t::set_view(const glm::quat &q, const coot::Cartesian &rc, float zoom_in) {
+
+   bool status = true;
+
+   zoom = zoom_in;
+   view_quaternion = q;
+
+   rotation_centre_x = rc.x();
+   rotation_centre_y = rc.y();
+   rotation_centre_z = rc.z();
+
+   graphics_draw();
+   return status;
+}
+
 
 
 #include "glarea_tick_function.hh"
