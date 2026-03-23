@@ -889,6 +889,10 @@ NB_MODULE(coot_headless_api, m) {
          &molecules_container_t::get_molecule_centre,
          nb::arg("imol"),
          get_docstring_from_xml("get_molecule_centre").c_str())
+    .def("get_molecule_diameter",
+         &molecules_container_t::get_molecule_diameter,
+         nb::arg("imol"),
+         get_docstring_from_xml("get_molecule_diameter").c_str())
     .def("get_molecule_name",
          &molecules_container_t::get_molecule_name,
          nb::arg("imol"),
