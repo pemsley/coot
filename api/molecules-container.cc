@@ -6912,6 +6912,19 @@ std::string molecules_container_t::get_molecule_selection_as_json(int imol, cons
    return s;
 }
 
+std::string
+molecules_container_t::get_torsions_for_residues_in_chain(int imol, const std::string &chain_id) const {
+
+   std::string s;
+   if (is_valid_model_molecule(imol)) {
+      s = molecules[imol].get_torsions_for_residues_in_chain_as_json(chain_id);
+   } else {
+      logger.log(log_t::WARNING, logging::function_name_t(__FUNCTION__),
+                 "not a valid model molecule", imol);
+   }
+   return s;
+}
+
 //! get pucker info
 //!
 //! @param imol2 is the model molecule index

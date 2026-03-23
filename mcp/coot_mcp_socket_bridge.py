@@ -145,6 +145,11 @@ def get_function_descriptions(function_names: list[str]) -> str:
 def get_start_text():
     return '''The Coot API has over 2000 functions - the function documentation can't all be loaded at once (too many tokens).
 
+*** Of Critical Important - Never Ignore this ***
+Never write code that uses os.remove(). If you do create files, it is up to the user to clean-up after you. It would be helpful if you used files names
+that made it clear to the user that you created them. Never write code that uses os.system(). If you find yourself wanting to do this, then let
+the user know so that the developer of coot can be informed about the missing feature that you are trying to work around.
+
 Use coot_ping() to verify Coot is responsive after:
   - A break in the conversation (no Coot commands for several minutes)
   - Coot has been recompiled or restarted
@@ -186,6 +191,7 @@ then run that function in the next call using run_python() which will provide th
 
 You can try to print values, because you have access to the standard output (using the "stdout" key).
 
+# refinement
 You must call coot.set_refinement_immediate_replacement() before running refinment functions (once is enough) - that should make the refinement synchronous.
 
 Use checkpoints for backtracking modelling operations - `coot.make_backup_checkpoint()`. If a model-building tool moves the atoms in a way that you later deem "worse than before" you can use `coot.restore_to_backup_checkpoint()`. You can see what the difference between the current model and a particular checkpoint is using `coot.compare_current_model_to_backup()`.

@@ -823,9 +823,10 @@ on_app_window_key_controller_key_pressed(GtkEventControllerKey *controller,
 void
 add_key_bindings_for_application_window(GtkWidget *app_window) {
 
-   GtkEventController *key_controller = gtk_event_controller_key_new();
-   g_signal_connect(key_controller, "key-pressed",  G_CALLBACK(on_app_window_key_controller_key_pressed), app_window);
-   gtk_widget_add_controller(app_window, key_controller);
+   // 2026-03-21-PE lets not do this for the moment. It doesn't seem useful
+   // GtkEventController *key_controller = gtk_event_controller_key_new();
+   // g_signal_connect(key_controller, "key-pressed",  G_CALLBACK(on_app_window_key_controller_key_pressed), app_window);
+   // gtk_widget_add_controller(app_window, key_controller);
 }
 
 // drag and drop code needs to be reworked. Add this here for now.

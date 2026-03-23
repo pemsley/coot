@@ -946,6 +946,17 @@ public:
    //!   "element"
    std::string get_molecule_selection_as_json(int imol, const std::string &cid) const;
 
+   //! Get torsion angles (phi, psi, tau, chi) for residues in a chain
+   //!
+   //! Residues are omitted if phi/psi cannot be calculated (terminal residues) or if any atom has an alt-conf.
+   //! Tau is the N-CA-C bond angle.
+   //!
+   //! @param imol is the model molecule index
+   //! @param chain_id e.g. "A"
+   //!
+   //! @return a JSON string containing an array of residue torsion angle data
+   std::string get_torsions_for_residues_in_chain(int imol, const std::string &chain_id) const;
+
    //! Write a PNG for the given compound_id.
    //!
    //! Currently this function does nothing (drawing is done with the not-allowed cairo)

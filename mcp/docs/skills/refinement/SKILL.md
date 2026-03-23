@@ -45,6 +45,24 @@ residue_spec = neigbs
 residue_specs.append(central_residue_spec)
 result = coot.refine_residues_py(imol, residue_specs)
 
+### Hard-Mode-Soft-Mode-Hard-Mode
+
+Some problems are of the kind where the geometry restraints "get in the way" of the
+atoms moving to the correct minimum. In such cases, you can try letting the refinement
+"go soft" - ie.
+
+ o Mediocre Refinement
+ o increase the map weight (weight_matrix) by a factor of 10 or so.
+ o Refine the same residues again
+ o Restore the previous map weight
+ o Refine the same residues again
+
+This can sometimes be helpful to remove bad geometry or bad fit - atom clashes in particular.
+
+Additionally, or perhaps at the same time, you can try to reduce LJ epsilon
+using coot.set_refinement_lennard_jones_epsilon() by a factor of 100 or so.
+And then restore it and re-refine the same residues.
+
 ### Zone Refinement
 
 ```python
