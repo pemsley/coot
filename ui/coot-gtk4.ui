@@ -1235,6 +1235,10 @@
         <attribute name="action">app.cryo_em_add_molecular_symmetry_mtrix_action</attribute>
       </item>
       <item>
+          <attribute name="label">EM Placement</attribute>
+          <attribute name="action">app.emplacement_action</attribute>
+      </item>
+      <item>
         <attribute name="label" translatable="no">Go to Box Middle</attribute>
         <attribute name="action">app.cryo_em_go_to_box_middle_action</attribute>
       </item>
@@ -5239,12 +5243,11 @@ that you wish to delete.               </property>
                               <property name="can-focus">1</property>
                             </object>
                           </child>
-                          
+
                         </object>
                       </child>
                     </object>
                   </child>
-
 
                   <child>
                     <object class="GtkFrame" id="ligand_multi_solution_frame">
@@ -5441,7 +5444,7 @@ that you wish to delete.               </property>
   </object>
 
   <object class="GtkDialog" id="find_ligand_many_atoms_dialog">
-    <property name="title" translatable="yes">May Atoms in Ligand Check</property>
+    <property name="title" translatable="yes">Many Atoms in Ligand Check</property>
     <child>
       <object class="GtkBox" id="dialog-vbox3">
         <property name="orientation">vertical</property>
@@ -7601,7 +7604,6 @@ Do you want to continue?
                         <child>
                           <object class="GtkButton" id="start_rpc_server_cancel_button">
                             <property name="label" translatable="yes">Cancel</property>
-                            <property name="halign">end</property>
                             <signal name="clicked" handler="on_start_rpc_server_cancel_button_clicked" />
                           </object>
                         </child>
@@ -9407,7 +9409,7 @@ Do you want to continue?
 
                         <child>
                           <object class="GtkLabel">
-                            <property name="label" translatable="yes">Ångströms</property>
+                            <property name="label" translatable="yes">Å²</property>
                             <property name="margin-end">10</property>
                             <property name="justify">left</property>
                           </object>
@@ -11412,6 +11414,21 @@ l              <object class="GtkComboBox" id="ramachandran_plot_molecule_choose
                 </layout>
               </object>
             </child>
+          </object>
+        </child>
+        <child>
+          <object class="GtkSeparator">
+            <property name="margin-top">5</property>
+            <property name="margin-bottom">5</property>
+            <property name="margin-start">2</property>
+            <property name="margin-end">2</property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkCheckButton" id="validation_graph_docked_checkbutton">
+            <property name="label">Docked</property>
+            <property name="active">True</property>
+            <signal name="toggled" handler="on_validation_graph_docked_checkbutton_toggled"></signal>
           </object>
         </child>
       </object>
@@ -18390,55 +18407,6 @@ Move a copy?</property>
     </child>
   </object>
 
-  <object class="GtkDialog" id="validation_graphs_dialog">
-    <property name="title" translatable="yes">Coot: Validation Graphs</property>
-    <property name="default-width">500</property>
-    <signal name="destroy" handler="on_validation_graphs_dialog_destroy" swapped="no"/>
-
-    <child>
-      <object class="GtkBox">
-        <property name="orientation">vertical</property>
-        <property name="spacing">2</property>
-
-        <child>
-          <object class="GtkScrolledWindow">
-            <property name="hexpand">True</property>
-            <property name="vexpand">True</property>
-            <property name="height-request">210</property>
-            <child>
-              <object class="GtkBox" id="validation_graphs_dialog_vbox">
-                <property name="orientation">vertical</property>
-                <property name="spacing">2</property>
-              </object>
-            </child>
-          </object>
-        </child>
-
-        <child type="action">
-          <object class="GtkBox">
-            <property name="homogeneous">1</property>
-            <property name="spacing">6</property>
-            <property name="margin-start">4</property>
-            <property name="margin-top">4</property>
-            <property name="margin-bottom">4</property>
-            <child>
-              <object class="GtkButton" id="validation_graphs_dialog_close_button">
-                <property name="label" translatable="yes">  Close  </property>
-                <property name="can-focus">1</property>
-                <property name="use-underline">1</property>
-                <property name="margin-start">4</property>
-                <property name="margin-end">4</property>
-                <property name="margin-top">4</property>
-                <property name="margin-bottom">4</property>
-                <signal name="clicked" handler="on_validation_graphs_dialog_close_button_clicked" swapped="no"/>
-              </object>
-            </child>
-          </object>
-        </child>
-      </object>
-    </child>
-  </object>
-
   <object class="GtkDialog" id="first-startup-dialog">
     <property name="title" translatable="yes">Coot: Configure Mouse</property>
     <property name="default-width">500</property>
@@ -18505,6 +18473,140 @@ Move a copy?</property>
     </child>
   </object>
 
+
+  <object class="GtkDialog" id="emplacement_dialog">
+    <property name="title" translatable="yes">Coot: EM Placement</property>
+    <property name="margin-start">4</property>
+    <property name="margin-end">4</property>
+    <property name="margin-top">4</property>
+    <property name="margin-bottom">4</property>
+
+    <child>
+              <object class="GtkFrame" id="emplacement_frame">
+                <property name="halign">center</property>
+                <property name="valign">start</property>
+                <property name="visible">True</property>
+                <property name="margin-bottom">5</property>
+                <property name="margin-end">5</property>
+                <property name="margin-start">5</property>
+                <property name="margin-top">5</property>
+                <child>
+                  <object class="GtkBox">
+                    <property name="spacing">6</property>
+                    <property name="orientation">vertical</property>
+                    <property name="margin-start">6</property>
+                    <property name="margin-end">6</property>
+                    <property name="margin-bottom">6</property>
+                    <property name="margin-top">6</property>
+
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="label" translatable="yes">Model Molecule</property>
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="GtkComboBoxText" id="emplacement_model_combobox">
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="label" translatable="yes">Half Map 1 File name</property>
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="GtkBox">
+                        <property name="orientation">horizontal</property>
+                        <child>
+                          <object class="GtkEntry" id="emplacement_half_map_1_entry">
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkButton" id="emplacement_half_map_1_file_button">
+                            <property name="margin-top">1</property>
+                            <property name="margin-bottom">1</property>
+                            <property name="margin-start">2</property>
+                            <property name="margin-end">2</property>
+                            <property name="label" translatable="yes">File...</property>
+                            <signal name="clicked" handler="on_emplacement_half_map_1_file_button_clicked" />
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="label" translatable="yes">Half Map 2 File name</property>
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="GtkBox">
+                        <property name="orientation">horizontal</property>
+                        <child>
+                          <object class="GtkEntry" id="emplacement_half_map_2_entry">
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkButton" id="emplacement_half_map_2_file_button">
+                            <property name="margin-top">1</property>
+                            <property name="margin-bottom">1</property>
+                            <property name="margin-start">2</property>
+                            <property name="margin-end">2</property>
+                            <property name="label" translatable="yes">File...</property>
+                            <signal name="clicked" handler="on_emplacement_half_map_2_file_button_clicked" />
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="GtkLabel">
+                        <property name="label" translatable="yes">Resolution</property>
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="GtkEntry" id="emplacement_reso_entry">
+                      </object>
+                    </child>
+
+                    <child>
+                      <object class="GtkSeparator">
+                        <property name="margin-top">4</property>
+                        <property name="margin-bottom">4</property>
+                        <property name="margin-start">4</property>
+                        <property name="margin-end">4</property>
+                      </object>
+                    </child>
+ 
+                    <child>
+                      <object class="GtkBox">
+                        <property name="orientation">horizontal</property>
+                        <property name="spacing">6</property>
+                        <property name="halign">end</property>
+                        <child>
+                          <object class="GtkButton" id="emplacement_cancel_button">
+                            <property name="label" translatable="yes">Cancel</property>
+                            <signal name="clicked" handler="on_emplacement_cancel_button_clicked" swapped="no"/>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkButton" id="emplacement_ok_button">
+                            <property name="label" translatable="yes">Place It</property>
+                            <signal name="clicked" handler="on_emplacement_ok_button_clicked" swapped="no"/>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+
+                  </object>
+                </child>
+              </object>
+      </child>
+   </object>
 
   <object class="GtkDialog" id="hole_dialog">
     <property name="title" translatable="yes">Coot: HOLE</property>

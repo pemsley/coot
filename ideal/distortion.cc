@@ -1793,7 +1793,7 @@ coot::distortion_angle_mini_stats(const coot::simple_restraint &angle_restraint,
    double weight = 1.0/(angle_restraint.sigma * angle_restraint.sigma);
 
    double distortion = weight * bit * bit;
-   double observed = bit;
+   double observed = clipper::Util::rad2d(theta);
    return refinement_results_mini_stats_t(ANGLE_RESTRAINT, distortion, angle_restraint.target_value, observed);
 }
 

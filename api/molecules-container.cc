@@ -96,6 +96,7 @@ molecules_container_t::init() {
 
    map_sampling_rate = 1.8;
    draw_missing_residue_loops_flag = true;
+   ospray_is_initialized = false;
 
    read_standard_residues();
    interrupt_long_term_job = false;
@@ -5167,7 +5168,6 @@ molecules_container_t::get_symmetry(int imol, float symmetry_search_radius, floa
    return si;
 }
 
-
 //! set the colour wheel rotation base for the specified molecule
 void
 molecules_container_t::set_colour_wheel_rotation_base(int imol, float r) {
@@ -5932,6 +5932,56 @@ molecules_container_t::get_acedrg_atom_types(const std::string &compound_id, int
    }
    return v;
 
+}
+
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+#include "lidia-core/cod-atom-types.hh"
+#endif
+
+std::vector<std::pair<std::string, std::string> >
+molecules_container_t::get_computed_acedrg_atom_types(const std::string &compound_id, int imol_enc) {
+
+   std::vector<std::pair<std::string, std::string> > v;
+
+#ifdef MAKE_ENHANCED_LIGAND_TOOLS
+
+   std::pair<bool, coot::dictionary_residue_restraints_t> r_p =
+      geom.get_monomer_restraints(compound_id, imol_enc);
+   if (r_p.first) {
+      const auto &restraints = r_p.second;
+      bool idealised_flag = true;
+      mmdb::Manager *mol = geom.mol_from_dictionary(compound_id, imol_enc, idealised_flag);
+      if (mol) {
+         mmdb::Residue *residue_p = coot::util::get_first_residue(mol);
+         if (residue_p) {
+            try {
+               RDKit::RWMol rdkm = coot::rdkit_mol_sanitized(residue_p, imol_enc, geom);
+               cod::atom_types_t t;
+               std::vector<cod::atom_type_t> types = t.get_cod_atom_types(rdkm);
+               if (types.size() == restraints.atom_info.size()) {
+                  for (unsigned int iat=0; iat<restraints.atom_info.size(); iat++) {
+                     const auto &atom_id = restraints.atom_info[iat].atom_id;
+                     const auto &cod_type = types[iat].level_4;
+                     v.push_back(std::make_pair(atom_id, cod_type));
+                  }
+               }
+            }
+            catch (const std::runtime_error &rte) {
+               std::cout << "WARNING:: get_computed_acedrg_atom_types() " << compound_id
+                         << " " << rte.what() << std::endl;
+            }
+            catch (const std::exception &e) {
+               std::cout << "WARNING:: get_computed_acedrg_atom_types() " << compound_id
+                         << " " << e.what() << std::endl;
+            }
+         }
+         delete mol;
+      }
+   }
+
+#endif // MAKE_ENHANCED_LIGAND_TOOLS
+
+   return v;
 }
 
 //! get acedrg types for ligand bonds

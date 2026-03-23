@@ -12032,3 +12032,72 @@ ModuleNotFoundError: No module named 'gi'
 
 python3 -m pip install PyGObject
 works on my mac.
+
+---
+Thu 12 Mar 2026 01:21:28 GMT
+
+A save frame is a named block of data, delimited by:
+save_<frame_name>
+   ...data...
+save_
+Each save frame contains a collection of related data items — either single key-value pairs (tags) or tabular data (loops).
+In NEF specifically
+NEF organises all its data into save frames, each representing a distinct conceptual entity:
+
+nef_nmr_meta_data — file-level metadata (version, creation date, etc.)
+nef_molecular_system — the sequence / molecular topology
+nef_chemical_shift_list_* — chemical shift assignments
+nef_distance_restraint_list_* — NOE or other distance restraints
+nef_dihedral_restraint_list_* — dihedral angle restraints
+nef_rdc_restraint_list_* — residual dipolar coupling restraints
+nef_peak_list_* — peak lists from spectra
+
+The * suffix indicates that multiple save frames of the same type can exist in one file, distinguished by their unique frame names.
+Key properties
+
+Each save frame is self-contained — it can in principle be read independently
+Frame names must be unique within the file
+They map cleanly onto objects in software like CCPN Analysis or NEF-aware pipelines
+The mandatory frames (nef_nmr_meta_data and nef_molecular_system) must always be present
+
+It's essentially a simple, human-readable database structure — each save frame is roughly analogous to a table or object in other data formats.
+
+----
+Tue 17 Mar 2026 01:11:15 PDT
+
+to fix current compilation problem of Coot in Homebrew:
+
+cp /opt/homebrew/Cellar/libccp4/8.0.0/lib/pkgconfig/ccp4c.pc /opt/homebrew/Cellar/libccp4/8.0.0/lib/pkgconfig/libccp4c.pc
+
+
+----
+Tue 17 Mar 2026 10:35:29 PDT
+
+⏺ Phenix libc++ contamination via CURL_LIBS
+
+  During configure, the curl detection found libcurl in the Phenix installation
+  at /Users/pemsley/Applications/phenix-2.0-5936/lib, setting
+  CURL_LIBS='-L/Users/pemsley/Applications/phenix-2.0-5936/lib -lcurl'. That -L
+  flag added Phenix's entire lib directory to the linker search path. Phenix ships its own
+  LLVM C++ runtime (libc++.1.dylib and libc++abi.1.0.dylib) in that directory, and
+  crucially, Phenix's libc++.1.dylib has the install name @rpath/libc++.1.dylib rather
+  than an absolute path. The linker bound to it instead of the system /usr/lib/libc++.1.dylib,
+  causing two problems: at runtime, @rpath/libc++.1.dylib couldn't be resolved (crash on
+  startup with dyld: Library not loaded), and when a workaround rpath was added pointing to
+  Homebrew's LLVM, two separate libc++abi libraries were loaded simultaneously
+  (system + Homebrew/Phenix), causing RTTI typeinfo mismatch — catch (const std::runtime_error &)
+  silently failed to catch std::runtime_error thrown from a different translation unit, leading
+  to std::terminate and abort. The fix was to ensure configure uses the system/Homebrew curl (by
+  setting CURL_LIBS='-lcurl' or explicitly pointing at Homebrew's curl) so that Phenix's lib
+  directory never enters the linker search path.
+
+
+..........
+
+   2018 structure database https://zenodo.org/records/5773255
+
+----
+Thu 19 Mar 2026 18:47:00 PDT
+
+6xxt check diff map, auto-split.
+

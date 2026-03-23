@@ -243,13 +243,82 @@ for doc in data['response']['docs']:
 
 - `pdb_id` - PDB entry ID
 - `molecule_name` - Molecule name
+- `molecule_type` - Entity type: use `"Protein"` (capital P) — NOT `polypeptide(L)` or `protein`
+- `molecule_sequence` - One-letter sequence string (stored but **not full-text indexed** — wildcard search like `*C*C*` returns 0 results; fetch and filter in Python instead)
+- `polymer_length` - Length of the polymer entity in residues (supports range queries: `[5 TO 30]`)
+- `number_of_polymer_residues` - Total residues across all chains in the entry
+- `number_of_protein_chains` - Number of protein chains
 - `organism_scientific_name` - Source organism
-- `experimental_method` - Experimental method (e.g., "X-ray diffraction")
+- `experimental_method` - Experimental method (e.g., `"X-ray diffraction"`)
 - `resolution` - Structure resolution
 - `ligand_name` - Ligand/compound name
 - `citation_title` - Publication title
 - `deposition_date` - Deposition date
 - `revision_date` - Revision date
+
+### Solr Gotchas and Lessons Learned
+
+**1. The Solr index is per-entity, not per-entry**
+
+Each row in the Solr index corresponds to one polymer entity within a PDB entry. A multi-chain
+entry (e.g. a complex with chains A, B, C) produces multiple Solr documents — one per entity.
+This means sorting by `polymer_length` gives you the smallest *entity* not necessarily the
+smallest *entry*.
+
+**2. `molecule_type` value is `"Protein"` (capital P)**
+
+Querying `molecule_type:protein` or `molecule_type:polypeptide(L)` returns 0 results.
+The correct value stored in the index is `"Protein"` with a capital P:
+```python
+query = "molecule_type:Protein"
+```
+
+**3. `molecule_sequence` is stored but not full-text indexed**
+
+You cannot search for subsequences or characters within `molecule_sequence` — queries
+like `molecule_sequence:*C*` or `molecule_sequence:*C*C*` always return 0 results.
+The correct approach is to fetch a batch of results and filter in Python:
+```python
+# WRONG - always returns 0:
+query = "molecule_type:Protein AND molecule_sequence:*C*C*"
+
+# CORRECT - fetch and filter:
+url = "...&q=molecule_type:Protein&fq=polymer_length:[4+TO+30]&rows=2000..."
+data = json.loads(coot.coot_get_url_as_string_py(url))
+candidates = [doc for doc in data['response']['docs']
+              if doc.get('molecule_sequence','').count('C') >= 2]
+```
+
+**4. `molecular_weight` is not a valid Solr sort field**
+
+Sorting by `sort=molecular_weight+asc` gives a 400 error. Use `polymer_length` instead
+as a proxy for size, or use `number_of_polymer_residues` for entry-level size.
+
+**5. Use `fq` (filter query) for range constraints**
+
+Range filtering on numeric fields works well as a filter query:
+```python
+# Filter to entities with 5-30 residues:
+url = "...&q=molecule_type:Protein&fq=polymer_length:[5+TO+30]&sort=polymer_length+asc..."
+```
+
+**6. Discover available fields by fetching a sample document with `fl=*`**
+
+When you don't know what fields are in the index:
+```python
+url = "https://www.ebi.ac.uk/pdbe/search/pdb/select?q=*:*&wt=json&rows=1&fl=*"
+data = json.loads(coot.coot_get_url_as_string_py(url))
+for k in sorted(data['response']['docs'][0].keys()):
+    print(k)
+```
+Fields prefixed `q_` and `t_` are query/text variants of the base fields — ignore them
+when exploring the schema.
+
+**7. There is no `disulfide` or `bond_types` field in the Solr index**
+
+To find structures with disulfide bonds, you must:
+- Use Solr to find small proteins with ≥2 Cys in their sequence (fetch + filter in Python), then
+- Use the PDBe REST API (`/pdb/entry/molecules/{pdb_id}`) to confirm the sequence and structure.
 
 ### Advanced Search Examples
 

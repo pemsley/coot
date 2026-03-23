@@ -722,6 +722,11 @@ NB_MODULE(coot_headless_api, m) {
          &molecules_container_t::get_acedrg_atom_types,
          nb::arg("compound_id"), nb::arg("imol_enc"),
          get_docstring_from_xml("get_acedrg_atom_types").c_str())
+    .def("get_computed_acedrg_atom_types",
+         &molecules_container_t::get_computed_acedrg_atom_types,
+         nb::arg("compound_id"), nb::arg("imol_enc"),
+         "Compute AceDRG/COD atom types from dictionary restraints via RDKit. "
+         "Unlike get_acedrg_atom_types() which reads pre-stored types, this computes them.")
     .def("get_acedrg_atom_types_for_ligand",
          &molecules_container_t::get_acedrg_atom_types_for_ligand,
          nb::arg("imol"), nb::arg("residue_cid"),
@@ -786,6 +791,10 @@ NB_MODULE(coot_headless_api, m) {
          &molecules_container_t::get_distances_between_atoms_of_residues,
          nb::arg("imol"), nb::arg("cid_res_1"), nb::arg("cid_res_2"), nb::arg("dist_max"),
          get_docstring_from_xml("get_distances_between_atoms_of_residues").c_str())
+    .def("get_eigenvectors_and_eigenvalues",
+         &molecules_container_t::get_eigenvectors_and_eigenvalues,
+         nb::arg("imol"), nb::arg("cid"),
+         get_docstring_from_xml("get_eigenvectors_and_eigenvalues").c_str())
     .def("get_gaussian_surface",
          &molecules_container_t::get_gaussian_surface,
          nb::arg("imol"), nb::arg("sigma"), nb::arg("contour_level"), nb::arg("box_radius"),
@@ -880,6 +889,10 @@ NB_MODULE(coot_headless_api, m) {
          &molecules_container_t::get_molecule_centre,
          nb::arg("imol"),
          get_docstring_from_xml("get_molecule_centre").c_str())
+    .def("get_molecule_diameter",
+         &molecules_container_t::get_molecule_diameter,
+         nb::arg("imol"),
+         get_docstring_from_xml("get_molecule_diameter").c_str())
     .def("get_molecule_name",
          &molecules_container_t::get_molecule_name,
          nb::arg("imol"),
@@ -1215,6 +1228,16 @@ NB_MODULE(coot_headless_api, m) {
          &molecules_container_t::ramachandran_validation,
          nb::arg("imol"),
          get_docstring_from_xml("ramachandran_validation").c_str())
+    .def("ray_trace_image",
+         &molecules_container_t::ray_trace_image,
+         nb::arg("json_str"),
+         get_docstring_from_xml("ray_trace_image").c_str())
+    .def("ray_trace_init",
+         &molecules_container_t::ray_trace_init,
+         get_docstring_from_xml("ray_trace_init").c_str())
+    .def("ray_trace_shutdown",
+         &molecules_container_t::ray_trace_shutdown,
+         get_docstring_from_xml("ray_trace_shutdown").c_str())
     .def("read_coordinates",
          &molecules_container_t::read_coordinates,
          nb::arg("file_name"),

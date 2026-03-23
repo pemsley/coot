@@ -2310,7 +2310,7 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
          Bond_lines_container bonds;
          bool draw_hydrogens_flag = false;
          if (molecules[imol_moving_atoms].draw_hydrogens())
-         draw_hydrogens_flag = true;
+            draw_hydrogens_flag = true;
          bonds.do_Ca_plus_ligands_bonds(*moving_atoms_asc, imol, Geom_p(), 1.0, 4.7,
                                         draw_missing_loops_flag, draw_hydrogens_flag);
 
@@ -2362,7 +2362,7 @@ graphics_info_t::make_moving_atoms_graphics_object(int imol,
 
             // moving_atoms_lock is a bool
             bool unlocked_ma = false;
-            while (! moving_atoms_lock.compare_exchange_weak(unlocked_ma, 1) && !unlocked) {
+            while (! moving_atoms_lock.compare_exchange_weak(unlocked_ma, 1) && !unlocked_ma) {
                  std::this_thread::sleep_for(std::chrono::milliseconds(1));
                  unlocked_ma = false;
             }

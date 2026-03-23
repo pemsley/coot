@@ -151,6 +151,46 @@ for residue in worst:
     new_corr = coot.density_correlation_analysis_scm(0, chain_id, resno, inscode)
     print(f"{cid}: {corr:.3f} → {new_corr['all-atom']:.3f}")
 ```
+## Refining with Secondary Structure Restraints
+
+When adding residues in a known secondary structure conformation (e.g. a helix
+or strand), use `set_secondary_structure_restraints_type()` to maintain that
+geometry during real-space refinement. Without this, `refine_residues_py()` 
+treats residues independently and the conformation can distort away from the
+intended geometry if the density doesn't strongly support it.
+
+### Secondary structure restraint types
+- `0` — no restraints (default)
+- `1` — alpha helix (restrains i→i+4 hydrogen bond geometry)
+- `2` — beta strand
+
+### Pattern: always bracket the refinement call
+```python
+# Set BEFORE refinement
+coot.set_secondary_structure_restraints_type(1)  # 1 = alpha helix
+
+coot.refine_residues_py(imol, residue_specs)
+
+# Reset AFTER refinement - critical, or all subsequent refinements
+# will use helix restraints unintentionally
+coot.set_secondary_structure_restraints_type(0)
+```
+
+### Example: add and refine a 6-residue helix
+```python
+coot.set_refinement_immediate_replacement(1)
+coot.set_secondary_structure_restraints_type(1)
+
+residue_specs = [["A", resno + i, ""] for i in range(6)]
+coot.refine_residues_py(imol, residue_specs)
+
+coot.set_secondary_structure_restraints_type(0)
+```
+
+### Common mistake
+Calling `refine_residues_py()` directly after building helical residues
+without setting the restraint type — the helix geometry will not be
+maintained during refinement.
 
 ## Common Functions
 
