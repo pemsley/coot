@@ -123,6 +123,8 @@ jobs:
         run:  cd build-libcootapi && make VERBOSE=1
 
       - name: make install
+        env:
+          LD_LIBRARY_PATH: /home/runner/install/chapi-Linux-ubuntu/lib
         run:  cd build-libcootapi && make install
 
       - name: make test-molecules-container
