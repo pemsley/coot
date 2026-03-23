@@ -113,9 +113,13 @@ jobs:
             -Dnanobind_DIR=/home/runner/install/chapi-Linux-ubuntu/lib/python3.12/site-packages/nanobind/cmake ..
 
       - name: make
+        env:
+          LD_LIBRARY_PATH: /home/runner/install/chapi-Linux-ubuntu/lib
         run:  cd build-libcootapi && make -j 4 || echo "make done"
 
       - name: make part 2
+        env:
+          LD_LIBRARY_PATH: /home/runner/install/chapi-Linux-ubuntu/lib
         run:  cd build-libcootapi && make VERBOSE=1
 
       - name: make install
