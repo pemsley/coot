@@ -791,6 +791,10 @@ NB_MODULE(coot_headless_api, m) {
          &molecules_container_t::get_distances_between_atoms_of_residues,
          nb::arg("imol"), nb::arg("cid_res_1"), nb::arg("cid_res_2"), nb::arg("dist_max"),
          get_docstring_from_xml("get_distances_between_atoms_of_residues").c_str())
+    .def("get_eigenvectors_and_eigenvalues",
+         &molecules_container_t::get_eigenvectors_and_eigenvalues,
+         nb::arg("imol"), nb::arg("cid"),
+         get_docstring_from_xml("get_eigenvectors_and_eigenvalues").c_str())
     .def("get_gaussian_surface",
          &molecules_container_t::get_gaussian_surface,
          nb::arg("imol"), nb::arg("sigma"), nb::arg("contour_level"), nb::arg("box_radius"),
@@ -885,6 +889,10 @@ NB_MODULE(coot_headless_api, m) {
          &molecules_container_t::get_molecule_centre,
          nb::arg("imol"),
          get_docstring_from_xml("get_molecule_centre").c_str())
+    .def("get_molecule_diameter",
+         &molecules_container_t::get_molecule_diameter,
+         nb::arg("imol"),
+         get_docstring_from_xml("get_molecule_diameter").c_str())
     .def("get_molecule_name",
          &molecules_container_t::get_molecule_name,
          nb::arg("imol"),
@@ -893,6 +901,10 @@ NB_MODULE(coot_headless_api, m) {
          &molecules_container_t::get_molecule_selection_as_json,
          nb::arg("imol"), nb::arg("cid"),
          get_docstring_from_xml("get_molecule_selection_as_json").c_str())
+    .def("get_torsions_for_residues_in_chain",
+         &molecules_container_t::get_torsions_for_residues_in_chain,
+         nb::arg("imol"), nb::arg("chain_id"),
+         "Get torsion angles (phi, psi, tau, chi) for residues in a chain as JSON")
     .def("get_monomer",
          &molecules_container_t::get_monomer,
          nb::arg("monomer_name"),

@@ -109,7 +109,7 @@ namespace std {
 %include "coot_c_interface_docs.i"
 %include "coot_rsr_functions_docs.i"
 %include "coot_network_functions_docs.i"
-%include "coot_read_molecule_docs.i"
+%include "coot_read_molecule_functions_docs.i"
 %include "coot_cc_interface_user_defined_atom_colours.i"
 %include "coot_cc_interface_molecular_representation.i"
 

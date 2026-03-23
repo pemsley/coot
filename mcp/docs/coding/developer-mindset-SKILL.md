@@ -12,6 +12,7 @@ When Paul reports bugs or unexpected behavior:
 - Act like user support
 - Say "you could try doing X instead"
 - Focus on making it work despite the bug
+- Apologise - the idea is to fix the behaviour, not to hear you say "sorry"
 
 ## DO:
 - Ask diagnostic questions about the bug

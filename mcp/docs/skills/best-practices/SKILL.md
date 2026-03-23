@@ -185,6 +185,11 @@ Coot's Python interpreter automatically uses its working directory. By omitting 
 - No cross-filesystem problems
 - Simple and reliable
 
+
+### User Talk
+When the user says "here" in an ambiguous way, they typically mean "applying the relevant functoin to this residue (or atom or chain)" - i.e.
+the residue (or atom or chain) at the centre of the screen.
+
 ### Getting Files to the User
 
 After creating files in Coot's working directory, use bash tools to copy them to `/mnt/user-data/outputs` where the user can access them, or share results via print output.

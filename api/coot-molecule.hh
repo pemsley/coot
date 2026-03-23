@@ -626,6 +626,7 @@ namespace coot {
       int insert_waters_into_molecule(const minimol::molecule &water_mol, const std::string &res_name);
 
       std::string get_molecule_selection_as_json(const std::string &cid) const;
+      std::string get_torsions_for_residues_in_chain_as_json(const std::string &chain_id) const;
 
       // ----------------------- model utils
 

@@ -319,8 +319,9 @@ on_python_scripting_entry_key_pressed(GtkEventControllerKey *controller,
    gboolean handled = TRUE;
    bool control_is_pressed = (modifiers & GDK_CONTROL_MASK);
 
-   std::cout << "on_python_scripting_entry_key_pressed() keyval: " << keyval
-             << " keycode: " << keycode << std::endl;
+   if (false)
+      std::cout << "on_python_scripting_entry_key_pressed() keyval: " << keyval
+                << " keycode: " << keycode << std::endl;
 
    switch(keyval) {
       case GDK_KEY_Up: {

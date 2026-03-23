@@ -31,9 +31,12 @@
 #include <stdexcept>
 #include <utility>
 #include "coords/phenix-geo.hh"
-#include "glib.h"
-#include "gtk/gtk.h"
-#include "gtk/gtkshortcut.h"
+#include "geometry/protein-geometry.hh"
+#include <glib.h>
+#include <gtk/gtk.h>
+#include <gtk/gtkshortcut.h>
+#include "mmdb2/mmdb_selmngr.h"
+#include "pytypedefs.h"
 #ifdef USE_PYTHON
 #ifndef PYTHONH
 #define PYTHONH
@@ -135,6 +138,7 @@
 
 #include "testing.hh"
 
+#include "coot-utils/coot-h-bonds.hh"
 
 #include "positioned-widgets.h"
 
@@ -2485,6 +2489,132 @@ void set_draw_hydrogens(int imol, int istate) {
    args.push_back(istate);
    add_to_history_typed(cmd, args);
 }
+
+/* ! \brief get hydrogen bonds
+ *
+ * @param imol the molecule index
+ * @return the hydrogen bonds as a python object
+ *
+ */
+PyObject *get_hydrogen_bonds_py(int imol, const char *cid_sel_1, const char *cid_sel_2, short int mcdonald_and_thornton) {
+
+#if 0
+
+   // copy the attributes of atom_in into m_at
+   auto mmdb_atom_to_python_atom = [] (mmdb::Atom *atom_in) {
+
+      if (atom_in) { // can be null (strange).
+
+         m_at.serial = atom_in->serNum;
+         m_at.x       =             atom_in->x;
+         m_at.y       =             atom_in->y;
+         m_at.z       =             atom_in->z;
+         m_at.charge  =             atom_in->charge;
+         m_at.occ     =             atom_in->occupancy;
+         m_at.b_iso   =             atom_in->tempFactor;
+         m_at.element = std::string(atom_in->element);
+         m_at.name    = std::string(atom_in->name);
+         m_at.model   =             atom_in->GetModelNum();
+         m_at.chain   = std::string(atom_in->GetChainID());
+         m_at.res_no  =             atom_in->GetSeqNum();
+         m_at.altLoc  = std::string(atom_in->altLoc);
+         m_at.residue_name = std::string(atom_in->GetResidue()->name);
+      }
+   };
+#endif
+
+   auto python_atom_to_mmdb_atom = [] (mmdb::Atom *at) {
+
+      PyObject *at_py = PyDict_New();
+      PyDict_SetItemString(at_py, "x", PyFloat_FromDouble(at->x));
+      PyDict_SetItemString(at_py, "y", PyFloat_FromDouble(at->y));
+      PyDict_SetItemString(at_py, "z", PyFloat_FromDouble(at->z));
+
+      PyDict_SetItemString(at_py, "charge",       PyFloat_FromDouble(at->charge));
+      PyDict_SetItemString(at_py, "occ",          PyFloat_FromDouble(at->occupancy));
+      PyDict_SetItemString(at_py, "b_iso",        PyFloat_FromDouble(at->tempFactor));
+      PyDict_SetItemString(at_py, "element",      myPyString_FromString(at->element));
+      PyDict_SetItemString(at_py, "name",         myPyString_FromString(at->name));
+      PyDict_SetItemString(at_py, "model",        PyFloat_FromDouble(at->GetModelNum()));
+      PyDict_SetItemString(at_py, "chain",        myPyString_FromString(at->GetChainID()));
+      PyDict_SetItemString(at_py, "altLoc",       myPyString_FromString(at->altLoc));
+      PyDict_SetItemString(at_py, "residue_name", myPyString_FromString(at->GetResidue()->GetResName()));
+
+      return at_py;
+   };
+
+   auto make_h_bond_py = [python_atom_to_mmdb_atom] (coot::h_bond &h_bond) {
+
+      PyObject *l = PyList_New(12);
+
+      PyObject *hb_hydrogen_py    = Py_None;
+      PyObject *donor_py          = Py_None;
+      PyObject *acceptor_py       = Py_None;
+      PyObject *donor_neigh_py    = Py_None;
+      PyObject *acceptor_neigh_py = Py_None;
+
+      if (h_bond.hb_hydrogen)    hb_hydrogen_py    = python_atom_to_mmdb_atom(h_bond.hb_hydrogen);
+      if (h_bond.donor)          donor_py          = python_atom_to_mmdb_atom(h_bond.donor);
+      if (h_bond.acceptor)       acceptor_py       = python_atom_to_mmdb_atom(h_bond.acceptor);
+      if (h_bond.donor_neigh)    donor_neigh_py    = python_atom_to_mmdb_atom(h_bond.donor_neigh);
+      if (h_bond.acceptor_neigh) acceptor_neigh_py = python_atom_to_mmdb_atom(h_bond.acceptor_neigh);
+
+      PyList_SetItem(l, 0, hb_hydrogen_py);
+      PyList_SetItem(l, 1, donor_py);
+      PyList_SetItem(l, 2, acceptor_py);
+      PyList_SetItem(l, 3, donor_neigh_py);
+      PyList_SetItem(l, 4, acceptor_neigh_py);
+
+      PyList_SetItem(l, 5, PyFloat_FromDouble(h_bond.angle_1));
+      PyList_SetItem(l, 6, PyFloat_FromDouble(h_bond.angle_2));
+      PyList_SetItem(l, 7, PyFloat_FromDouble(h_bond.angle_3));
+      PyList_SetItem(l, 8, PyFloat_FromDouble(h_bond.dist));
+
+      PyList_SetItem(l,  9, PyBool_FromLong(h_bond.ligand_atom_is_donor));
+      PyList_SetItem(l, 10, PyBool_FromLong(h_bond.hydrogen_is_ligand_atom));
+      PyList_SetItem(l, 11, PyBool_FromLong(h_bond.bond_has_hydrogen_flag));
+
+      return l;
+   };
+
+   PyObject *r = Py_False;
+
+   if (is_valid_model_molecule(imol)) {
+      mmdb::realtype max_dist = 3.8; // pass this
+      bool debug = false;
+
+      mmdb::Manager *mol = graphics_info_t::molecules[imol].atom_sel.mol;
+      coot::h_bonds hb;
+      int SelHnd_all = mol->NewSelection(); // d
+      int SelHnd_lig = mol->NewSelection(); // d
+      mol->Select(SelHnd_all, mmdb::STYPE_ATOM, cid_sel_1, mmdb::SKEY_NEW);
+      mol->Select(SelHnd_lig, mmdb::STYPE_ATOM, cid_sel_2, mmdb::SKEY_NEW);
+
+      std::vector<coot::h_bond> hbonds;
+
+      coot::protein_geometry geom = *graphics_info_t::Geom_p();
+      if (mcdonald_and_thornton)
+         hbonds = hb.get_mcdonald_and_thornton(SelHnd_lig, SelHnd_all, mol, geom, max_dist);
+      else
+         hbonds = hb.get(SelHnd_lig, SelHnd_all, mol, geom, imol);
+
+      r = PyList_New(hbonds.size());
+      for(unsigned ib=0;ib<hbonds.size();ib++) {
+         PyObject *h_bond_py = make_h_bond_py(hbonds[ib]);
+         PyList_SetItem(r, ib, h_bond_py);
+      }
+
+      mol->DeleteSelection(SelHnd_lig);
+      mol->DeleteSelection(SelHnd_all);
+
+   }
+
+   if (PyBool_Check(r))
+      Py_INCREF(r);
+   return r;
+
+}
+
 
 /*! \brief draw little coloured balls on atoms
 
