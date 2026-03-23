@@ -462,6 +462,11 @@ void CootLigandEditorCanvas::clear_molecules() noexcept {
     coot_ligand_editor_canvas_clear_molecules(this);
 }
 
+void CootLigandEditorCanvas::set_minimum_dimensions(unsigned int width, unsigned int height) noexcept {
+    this->minimum_dimensions.width = width;
+    this->minimum_dimensions.height = height;
+}
+
 void CootLigandEditorCanvas::connect(std::string signal_name, emscripten::val callback) {
 
     if(signal_name == "status_updated") {

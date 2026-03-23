@@ -235,15 +235,13 @@ struct CootLigandEditorCanvas : coot::ligand_editor_canvas::impl::CootLigandEdit
     sigc::signal<void()> queue_resize_signal;
 
     public:
-
-    enum class MeasurementDirection :unsigned char {
-        HORIZONTAL = 0,
-        VERTICAL = 1
-    };
-
     struct SizingInfo {
-        int requested_size;
+        unsigned int width, height;
     };
+    private:
+    /// Lhasa specific
+    SizingInfo minimum_dimensions;
+    public:
 
     // Implemented at 'ligand_editor_canvas.cpp'
     CootLigandEditorCanvas() noexcept;
@@ -278,8 +276,9 @@ struct CootLigandEditorCanvas : coot::ligand_editor_canvas::impl::CootLigandEdit
     void connect(std::string signal_name, emscripten::val callback);
 
     // Implemented at 'ligand_editor_canvas.cpp'
-    // Manages viewport offset, thus not marked as `const`
-    SizingInfo measure(MeasurementDirection orientation) const noexcept;
+    SizingInfo measure() const noexcept;
+    /// Lhasa-specific: Fixes centering for (empty) canvas
+    void set_minimum_dimensions(unsigned int width, unsigned int height) noexcept;
     // Lhasa does not need this... does it?
     // graphene_rect_t get_on_screen_bounding_rect() const noexcept;
     // Implemented at 'ligand_editor_canvas.cpp'
