@@ -1,7 +1,11 @@
 
+#include <clipper/core/coords.h>
+
 #include "coot-molecule.hh"
 #include "coot-utils/json.hpp"
 #include "utils/coot-utils.hh"
+#include "rama-plot-phi-psi.hh"
+#include "ligand/primitive-chi-angles.hh"
 
 std::string coot::molecule_t::get_molecule_selection_as_json(const std::string &cid) const {
 
@@ -85,5 +89,93 @@ std::string coot::molecule_t::get_molecule_selection_as_json(const std::string &
       atom_sel.mol->DeleteSelection(selHnd);
    }
    return s;
+}
+
+std::string
+coot::molecule_t::get_torsions_for_residues_in_chain_as_json(const std::string &chain_id) const {
+
+   auto residue_has_alt_confs = [](mmdb::Residue *r) -> bool {
+      int n_atoms = r->GetNumberOfAtoms();
+      for (int i=0; i<n_atoms; i++) {
+         mmdb::Atom *at = r->GetAtom(i);
+         if (at->isTer()) continue;
+         if (std::string(at->altLoc) != "")
+            return true;
+      }
+      return false;
+   };
+
+   auto get_backbone_coord = [](mmdb::Residue *r, const char *name) -> std::pair<bool, clipper::Coord_orth> {
+      int n_atoms = r->GetNumberOfAtoms();
+      for (int i=0; i<n_atoms; i++) {
+         mmdb::Atom *at = r->GetAtom(i);
+         if (!at->isTer()) {
+            if (std::string(at->name) == name)
+               return {true, clipper::Coord_orth(at->x, at->y, at->z)};
+         }
+      }
+      return {false, clipper::Coord_orth()};
+   };
+
+   nlohmann::json j_residues = nlohmann::json::array();
+   if (!atom_sel.mol) return j_residues.dump();
+
+   for (int imod=1; imod<=atom_sel.mol->GetNumberOfModels(); imod++) {
+      mmdb::Model *model_p = atom_sel.mol->GetModel(imod);
+      if (!model_p) continue;
+      int n_chains = model_p->GetNumberOfChains();
+      for (int ic=0; ic<n_chains; ic++) {
+         mmdb::Chain *chain_p = model_p->GetChain(ic);
+         if (std::string(chain_p->GetChainID()) != chain_id) continue;
+         int nres = chain_p->GetNumberOfResidues();
+         for (int ires=1; ires<(nres-1); ires++) {
+            mmdb::Residue *res_prev = chain_p->GetResidue(ires-1);
+            mmdb::Residue *res_this = chain_p->GetResidue(ires);
+            mmdb::Residue *res_next = chain_p->GetResidue(ires+1);
+            if (!res_prev || !res_this || !res_next) continue;
+
+            if (residue_has_alt_confs(res_this)) continue;
+
+            std::pair<bool, rama_plot::phi_psi_t> pp =
+               rama_plot::util::get_phi_psi(res_prev, res_this, res_next);
+            if (!pp.first) continue;
+
+            auto [ok_n,  n_pos]  = get_backbone_coord(res_this, " N  ");
+            auto [ok_ca, ca_pos] = get_backbone_coord(res_this, " CA ");
+            auto [ok_c,  c_pos]  = get_backbone_coord(res_this, " C  ");
+            if (!ok_n || !ok_ca || !ok_c) continue;
+            double tau = clipper::Util::rad2d(clipper::Coord_orth::angle(n_pos, ca_pos, c_pos));
+
+            nlohmann::json j_chis = nlohmann::json::array();
+            try {
+               coot::primitive_chi_angles pca(res_this);
+               std::vector<coot::alt_confed_chi_angles> chi_info = pca.get_chi_angles();
+               if (chi_info.size() == 1) {
+                  for (const auto &chi_pair : chi_info[0].chi_angles) {
+                     nlohmann::json j_chi;
+                     j_chi["chi"] = chi_pair.first;
+                     j_chi["value"] = chi_pair.second;
+                     j_chis.push_back(j_chi);
+                  }
+               }
+            } catch (const std::runtime_error &) {
+               // GLY, ALA etc. have no chi angles
+            }
+
+            nlohmann::json j_res;
+            j_res["residue_type"] = std::string(res_this->GetResName());
+            j_res["res_no"] = res_this->GetSeqNum();
+            j_res["chain_id"] = chain_id;
+            j_res["ins_code"] = std::string(res_this->GetInsCode());
+            j_res["phi"] = pp.second.phi;
+            j_res["psi"] = pp.second.psi;
+            j_res["tau"] = tau;
+            j_res["chi_angles"] = j_chis;
+
+            j_residues.push_back(j_res);
+         }
+      }
+   }
+   return j_residues.dump();
 }
 

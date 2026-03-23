@@ -897,6 +897,10 @@ NB_MODULE(coot_headless_api, m) {
          &molecules_container_t::get_molecule_selection_as_json,
          nb::arg("imol"), nb::arg("cid"),
          get_docstring_from_xml("get_molecule_selection_as_json").c_str())
+    .def("get_torsions_for_residues_in_chain",
+         &molecules_container_t::get_torsions_for_residues_in_chain,
+         nb::arg("imol"), nb::arg("chain_id"),
+         "Get torsion angles (phi, psi, tau, chi) for residues in a chain as JSON")
     .def("get_monomer",
          &molecules_container_t::get_monomer,
          nb::arg("monomer_name"),
