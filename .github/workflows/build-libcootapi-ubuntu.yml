@@ -43,7 +43,7 @@ jobs:
         run:  sudo apt-get update
 
       - name: Install system dependencies
-        run:  sudo apt-get install cmake libdw-dev libncurses5-dev robin-map-dev libjpeg-dev libpng-dev libcairo2-dev
+        run:  sudo apt-get install cmake libdw-dev libncurses5-dev robin-map-dev libjpeg-dev libpng-dev libcairo2-dev libreadline-dev
 
       - name: Install linear algebra libraries
         run: sudo apt-get install libblas-dev liblapack-dev
