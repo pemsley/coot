@@ -2997,9 +2997,9 @@ if test -n "$build_python" ; then
        fi
        echo PKG_CONFIG_PATH is $PKG_CONFIG_PATH - does that mean that libffi config is discoverable\?
        echo INFO:: ./configure $generic_prefix --with-ensurepip=install --enable-shared --with-openssl=$openssl_prefix \
-            CXXFLAGS=-I$install_top_dir/lib/libffi-3.2.1/include $python_libs $python_ldflags $python_spec_flags
+            CPPFLAGS=-I$install_top_dir/lib/libffi-$libffi_version/include $python_libs $python_ldflags $python_spec_flags
        if ./configure $generic_prefix --with-ensurepip=install --enable-shared --with-openssl=$openssl_prefix \
-                      CPPFLAGS=-I$install_top_dir/lib/libffi-3.2.1/include $python_libs $python_ldflags $python_spec_flags ; then
+                      $python_libs $python_ldflags $python_spec_flags ; then
            echo INFO:: make for python
            if $MAKE ; then
               echo INFO:: make install for python
