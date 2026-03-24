@@ -2734,6 +2734,12 @@ if test "$build_readline" = true ; then
        sed  -i '125,135 s/SHOBJ_LDFLAGS=.*/&\n        SHLIB_LIBS='"'"'$(TERMCAP_LIB)'"'"'/' support/shobj-conf
        extra_args_for_debian="--with-curses --enable-shared"
     fi
+    if [ "$dist_name" = ubuntu ] ; then
+       echo applying debian sed patch for shared-lib libreadline
+       # thanks for the quoting help tony duan @ stackoverflow
+       sed  -i '125,135 s/SHOBJ_LDFLAGS=.*/&\n        SHLIB_LIBS='"'"'$(TERMCAP_LIB)'"'"'/' support/shobj-conf
+       extra_args_for_debian="--with-curses --enable-shared"
+    fi
     if [ "$dist_name" = arch ] ; then
        echo in arch block, applying debian sed patch for shared-lib libreadline
        # thanks for the quoting help tony duan @ stackoverflow
@@ -3008,7 +3014,7 @@ if test -n "$build_python" ; then
        fi
    fi
    # test it
-   echo test cypes in the new python
+   echo test for ctypes in the new python
    # or use this test: if $install_top_dir/bin/python3 -c 'import ctypes' ; then ...
    $install_top_dir/bin/$python_version <<EOF
 import ctypes
