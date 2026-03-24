@@ -91,7 +91,7 @@ jobs:
             -DCMAKE_BUILD_TYPE=Debug
             -DCMAKE_INSTALL_PREFIX=/home/runner/install/chapi-Linux-ubuntu
             -DCMAKE_PREFIX_PATH=/home/runner/install/chapi-Linux-ubuntu
-            -DENHANCED_LIGAND_TOOLS=TRUE
+            -DMAKE_ENHANCED_LIGAND_TOOLS=TRUE
             -DGEMMI_DIR=/home/runner/install/chapi-Linux-ubuntu/lib/cmake/gemmi
             -DRDKit_DIR=/home/runner/install/chapi-Linux-ubuntu/lib/cmake/rdkit
             -DSSM_INCLUDE_DIR=/home/runner/install/chapi-Linux-ubuntu/include
