@@ -3,7 +3,6 @@
 #include "molecules-container.hh"
 #include "utils/base64-encode-decode.hh"
 
-#ifdef MAKE_ENHANCED_LIGAND_TOOLS
 #include <GraphMol/SmilesParse/SmilesParse.h>
 #include <GraphMol/MolOps.h>
 #include <GraphMol/DistGeomHelpers/Embedder.h>
@@ -27,7 +26,6 @@
 #include "lidia-core/rdkit-interface.hh"
 // #define LIBCOOTAPI_BUILD // means no python - this is set with cmake now.
 #include "pyrogen/restraints.hh"
-#endif
 
 // C++ port of pyrogen/pyrogen.py pad_atom_name() and add_atom_names()
 #ifdef MAKE_ENHANCED_LIGAND_TOOLS
