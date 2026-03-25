@@ -630,6 +630,13 @@ public:
    mmdb::Manager *get_mol(unsigned int imol) const;
 #endif
 
+// we don't want this in the nanobinds
+#ifdef NB_VERSION_MAJOR
+#else
+   // no protection, for testing only
+   clipper::Xmap<float> get_xmap(int imol) const;
+#endif
+
    //! Fill the rotamer probability tables (currently not ARG and LYS)
    void fill_rotamer_probability_tables();
 
