@@ -2277,7 +2277,16 @@ topological_equivalence_chiral_centres(const std::string &residue_type);
 /*  ----------------------------------------------------------------------- */
 /*                  New Screendump                                          */
 /*  ----------------------------------------------------------------------- */
+
+/*! \brief - "save image" / "export image" / "screenshot" / "take a picture" → screendump_image()
+ *
+ * This is the same thing as screendump_image()
+ *
+ */
 void screendump_tga(const std::string &file_name);
+
+/*! \brief set the framebuffer scale factor
+ */
 void set_framebuffer_scale_factor(unsigned int sf);
 
 /*  ----------------------------------------------------------------------- */
