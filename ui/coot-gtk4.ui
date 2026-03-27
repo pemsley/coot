@@ -13670,10 +13670,6 @@ If you need symmetry, setup ccp4 before starting coot
                 <property name="label" translatable="yes">  OK  </property>
                 <property name="can-focus">1</property>
                 <property name="use-underline">1</property>
-                <property name="margin-start">8</property>
-                <property name="margin-end">8</property>
-                <property name="margin-top">4</property>
-                <property name="margin-bottom">4</property>
                 <signal name="clicked" handler="on_nothing_to_recover_ok_button_clicked" swapped="no"/>
               </object>
         </child>
@@ -14664,31 +14660,12 @@ just the cell and symmetry)
     <child type="titlebar">
     </child>
   </object>
+
   <object class="GtkDialog" id="recover_coordinates_dialog">
-    <property name="title" translatable="yes">Recover Coordinates</property>
+    <property name="title" translatable="yes">Coot: Recover Coordinates</property>
     <child>
       <object class="GtkBox" id="dialog-vbox44">
         <property name="orientation">vertical</property>
-         <child type="action">
-              <object class="GtkBox" id="hbox82">
-                <child>
-                  <object class="GtkButton" id="recover_coordinates_cancel_button">
-                    <property name="label" translatable="yes">  Cancel  </property>
-                    <property name="can-focus">1</property>
-                    <property name="use-underline">1</property>
-                    <signal name="clicked" handler="on_recover_coordinates_cancel_button_clicked" swapped="no"/>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkButton" id="recover_coordinates_ok_button">
-                    <property name="label" translatable="yes">  Recover  </property>
-                    <property name="can-focus">1</property>
-                    <property name="use-underline">1</property>
-                    <signal name="clicked" handler="on_recover_coordinates_ok_button_clicked" swapped="no"/>
-                  </object>
-                </child>
-              </object>
-        </child>
         <child>
           <object class="GtkFrame" id="frame88">
             <child>
@@ -14705,7 +14682,7 @@ just the cell and symmetry)
                   <object class="GtkLabel" id="recover_coordinates_read_coords_label">
                     <property name="label" translatable="yes">molecule name</property>
                     <property name="justify">center</property>
-                    <property name="xalign">0.00000000745058015283</property>
+                    <property name="xalign">0</property>
                   </object>
                 </child>
                 <child>
@@ -14722,6 +14699,38 @@ just the cell and symmetry)
                     <property name="xalign">0.00000000745058015283</property>
                   </object>
                 </child>
+                <child>
+                  <object class="GtkBox" id="hbox82">
+                    <property name="halign">end</property>
+                    <child>
+                      <object class="GtkButton" id="recover_coordinates_cancel_button">
+                        <property name="label" translatable="yes">  Cancel  </property>
+                        <property name="can-focus">1</property>
+                        <property name="use-underline">1</property>
+                        <property name="margin-start">4</property>
+                        <property name="margin-end">4</property>
+                        <property name="margin-top">4</property>
+                        <property name="margin-bottom">4</property>
+                        <signal name="clicked" handler="on_recover_coordinates_cancel_button_clicked" swapped="no"/>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkButton" id="recover_coordinates_ok_button">
+                        <property name="label" translatable="yes">  Recover  </property>
+                        <property name="can-focus">1</property>
+                        <property name="use-underline">1</property>
+                        <property name="margin-start">4</property>
+                        <property name="margin-end">4</property>
+                        <property name="margin-top">4</property>
+                        <property name="margin-bottom">4</property>
+                        <signal name="clicked" handler="on_recover_coordinates_ok_button_clicked" swapped="no"/>
+                        <style>
+                          <class name="suggested-action"/>
+                        </style>
+                      </object>
+                    </child>
+                  </object>
+                </child>
               </object>
             </child>
           </object>
@@ -14731,7 +14740,6 @@ just the cell and symmetry)
     <child type="titlebar">
     </child>
   </object>
-  
 
   <object class="GtkDialog" id="remarks_browser_molecule_chooser_dialog">
     <property name="title" translatable="yes">Coot Header Browser for Molecule</property>
