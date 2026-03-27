@@ -6135,7 +6135,7 @@ Do you want to continue?
         <property name="margin-top">6</property>
         <property name="margin-bottom">6</property>
 
-        
+
         <child>
           <object class="GtkGrid" id="edit_map_parameters_grid">
 
@@ -13647,27 +13647,35 @@ If you need symmetry, setup ccp4 before starting coot
   </object>
 
   <object class="GtkDialog" id="nothing_to_recover_dialog">
-    <property name="title" translatable="yes">Nothing to Recover</property>
+    <property name="title" translatable="yes">Coot:: Nothing to Recover</property>
     <child>
       <object class="GtkBox" id="dialog-vbox48">
         <property name="orientation">vertical</property>
-         <child type="action">
-              <object class="GtkButton" id="nothing_to_recover_ok_button">
-                <property name="label" translatable="yes">  OK  </property>
-                <property name="can-focus">1</property>
-                <property name="use-underline">1</property>
-                <signal name="clicked" handler="on_nothing_to_recover_ok_button_clicked" swapped="no"/>
-              </object>
-        </child>
         <child>
           <object class="GtkFrame" id="frame97">
             <child>
               <object class="GtkLabel" id="label158">
                 <property name="label" translatable="yes">Nothing to recover</property>
                 <property name="justify">center</property>
+                <property name="margin-start">8</property>
+                <property name="margin-end">8</property>
+                <property name="margin-top">4</property>
+                <property name="margin-bottom">4</property>
               </object>
             </child>
           </object>
+        </child>
+         <child type="action">
+              <object class="GtkButton" id="nothing_to_recover_ok_button">
+                <property name="label" translatable="yes">  OK  </property>
+                <property name="can-focus">1</property>
+                <property name="use-underline">1</property>
+                <property name="margin-start">8</property>
+                <property name="margin-end">8</property>
+                <property name="margin-top">4</property>
+                <property name="margin-bottom">4</property>
+                <signal name="clicked" handler="on_nothing_to_recover_ok_button_clicked" swapped="no"/>
+              </object>
         </child>
       </object>
     </child>
@@ -13677,6 +13685,7 @@ If you need symmetry, setup ccp4 before starting coot
     <child type="titlebar">
     </child>
   </object>
+
   <object class="GtkDialog" id="nucleic_acid_base_chooser_dialog">
     <property name="title" translatable="yes">Base</property>
     <signal name="destroy" handler="on_nucleic_acid_base_chooser_dialog_destroy" swapped="no"/>
