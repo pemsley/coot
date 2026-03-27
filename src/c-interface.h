@@ -821,11 +821,13 @@ int clear_and_update_model_molecule_from_file(int molecule_number,
 /* atom_selection_container_t  */
 /* make_atom_selection(int imol, const coot::minimol::molecule &mol);  */
 
-/*! \brief dump the current screen image to a file.  Format ppm
-
-You can use this, in conjunction with spinning and view moving functions to
-make movies */
-void screendump_image(const char *filename);
+/*! \brief dump the current screen image to a file.  Format tga
+*
+* make a copy of the screen image and write it to the file system
+*
+* You can use this, in conjunction with spinning and view moving functions to
+* make movies */
+void screendump_image(const char *tga_filename);
 
 /*! \brief give a warning dialog if density it too dark (blue) */
 void check_for_dark_blue_density();
