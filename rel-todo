@@ -1,8 +1,24 @@
 --- Items ---
 
+o Sort out startup script locations
+
+o double click in the solvent for a cryo-em map
+  It is not looking at the contour level?
+
+o Turn off the "great refinement" particles
+* hooray() it was called.
+
+o chapi: fill a model given a sequence (and a chopped model)
+
+o add outlier stats for rama plot - mabye status line for now.
+
+o move CA atoms that are bound to "A" into the "A"
+  chain if needed.
+
 o Fix session restore - Kevin Jude
 
 o have another go at trying to get a heatmap to work.
+* Done.
 
 o what is protein gtp?
 
@@ -12,8 +28,6 @@ o when generic object are displayed and undisplayed using the API,
 
 o The "here" means the current screen centre - add this to skills
 * Done.
-
-o Turn off the "great refinement" particles
 
 o add a note in skills for soft-mode-hard-mode
 * Done.

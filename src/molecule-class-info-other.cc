@@ -3847,7 +3847,10 @@ molecule_class_info_t::recent_backup_file_info() const {
 
       // c.f. make_backup():
       char *es = getenv("COOT_BACKUP_DIR");
-      std::string backup_name_glob = "coot-backup/";
+      // hacking new xdg code into ancient code. Needs a clean-up.
+      xdg_t xdg;
+      // std::string backup_name_glob = "coot-backup/";
+      std::string backup_name_glob = xdg.get_cache_home().string() + "/coot-backup/";
       // very first check if COOT_BACKUP_DIR is defined
       if (es) {
         // first we shall check if es, i.e. COOT_BACKUP_DIR actually exists
