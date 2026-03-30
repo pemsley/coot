@@ -3335,6 +3335,35 @@ void save_state_file_py(const char *filename) {
    add_to_history_typed(cmd, args);
 }
 
+/*! \brief scale up graphics - now available in scripting */
+void scale_up_graphics() {
+
+   // 20260330-PE these are the same function as in create-menu-item-actions
+   // maybe that function should call this one.
+
+   graphics_info_t g;
+   if (g.scale_down_graphics > 1)
+      g.scale_down_graphics -= 1;
+   else
+      g.scale_up_graphics += 1;
+   g.graphics_draw();
+   graphics_info_t::graphics_grab_focus();
+}
+
+/*! \brief scale down graphics - now available in scripting */
+void scale_down_graphics() {
+
+   // 20260330-PE these are the same function as in create-menu-item-actions
+   // maybe that function should call this one.
+
+   graphics_info_t g;
+   if (g.scale_up_graphics > 1)
+      g.scale_up_graphics -= 1;
+   else
+      g.scale_down_graphics += 1;
+   g.graphics_draw();
+   graphics_info_t::graphics_grab_focus();
+}
 
 
 #ifdef USE_GUILE

@@ -46,37 +46,6 @@ void set_use_trackpad(short int state) {
    set_use_primary_mouse_button_for_view_rotation(state);
 }
 
-/*! \brief scale up graphics - now available in scripting */
-void scale_up_graphics() {
-
-   // 20260330-PE these are the same function as in create-menu-item-actions
-   // maybe that function should call this one.
-
-   graphics_info_t g;
-   if (g.scale_down_graphics > 1)
-      g.scale_down_graphics -= 1;
-   else
-      g.scale_up_graphics += 1;
-   graphics_draw();
-   graphics_info_t::graphics_grab_focus();
-}
-
-/*! \brief scale down graphics - now available in scripting */
-void scale_down_graphics() {
-
-   // 20260330-PE these are the same function as in create-menu-item-actions
-   // maybe that function should call this one.
-
-   graphics_info_t g;
-   if (g.scale_up_graphics > 1)
-      g.scale_up_graphics -= 1;
-   else
-      g.scale_down_graphics += 1;
-   graphics_draw();
-   graphics_info_t::graphics_grab_focus();
-}
-
-
 //! this is an alias for the above (at the moment).
 void set_use_primary_mouse_button_for_view_rotation(short int state) {
    graphics_info_t::use_primary_mouse_for_view_rotation_flag = state;
