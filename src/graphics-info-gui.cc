@@ -1594,19 +1594,29 @@ graphics_info_t::residue_info_edit_occ_apply_to_other_entries_maybe(GtkWidget *m
 
    GtkWidget *occ_checkbutton = widget_from_builder("residue_info_occ_apply_all_checkbutton");
    GtkWidget *alt_checkbutton = widget_from_builder("residue_info_occ_apply_to_altconf_checkbutton");
-   GtkWidget *alt_entry       = widget_from_builder("residue_info_occ_apply_to_alt_conf_entry");
+   GtkWidget *alt_entry       = widget_from_builder("residue_info_occ_apply_to_altconf_entry");
    GtkWidget *grid            = widget_from_builder("residue_info_atom_grid");
 
-   if (gtk_check_button_get_active(GTK_CHECK_BUTTON(occ_checkbutton))) {
-      const char *txt = gtk_editable_get_text(GTK_EDITABLE(master_occ_entry));
-      // the first line is labels
+   bool apply_all     = gtk_check_button_get_active(GTK_CHECK_BUTTON(occ_checkbutton));
+   bool apply_altconf = gtk_check_button_get_active(GTK_CHECK_BUTTON(alt_checkbutton));
+
+   const char *master_occ = gtk_editable_get_text(GTK_EDITABLE(master_occ_entry));
+   if (apply_all) {
       for (int iat=1; iat<10000; iat++) {
          GtkWidget *w = gtk_grid_get_child_at(GTK_GRID(grid), 1, iat);
-         if (!w) {
-            // std::cout << "null editable at iat " << iat << std::endl;
-            break;
-         } else {
-            gtk_editable_set_text(GTK_EDITABLE(w), txt);
+         if (!w) break;
+         gtk_editable_set_text(GTK_EDITABLE(w), master_occ);
+      }
+   } else if (apply_altconf) {
+      const char *target_altconf = gtk_editable_get_text(GTK_EDITABLE(alt_entry));
+      for (int iat=1; iat<10000; iat++) {
+         GtkWidget *occ_w = gtk_grid_get_child_at(GTK_GRID(grid), 1, iat);
+         GtkWidget *altconf_w  = gtk_grid_get_child_at(GTK_GRID(grid), 4, iat);
+         if (!occ_w) break;
+         if (altconf_w) {
+            const char *atom_altconf = gtk_editable_get_text(GTK_EDITABLE(altconf_w));
+            if(g_strcmp0(atom_altconf, target_altconf) == 0)
+               gtk_editable_set_text(GTK_EDITABLE(occ_w), master_occ);
          }
       }
    }

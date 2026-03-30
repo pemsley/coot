@@ -15082,6 +15082,25 @@ just the cell and symmetry)
                       </object>
                     </child>
                     <child>
+                      <object class="GtkBox" id="residue_info_occ_apply_to_altconf_hbox">
+                        <child>
+                          <object class="GtkCheckButton" id="residue_info_occ_apply_to_altconf_checkbutton">
+                            <property name="label" translatable="yes">Apply Occupancy to atoms with alt. conf.:</property>
+                            <property name="can-focus">1</property>
+                            <signal name="toggled" handler="on_residue_info_occ_apply_to_altconf_checkbutton_toggled" swapped="no"/>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkEntry" id="residue_info_occ_apply_to_altconf_entry">
+                            <property name="sensitive">0</property>
+                            <property name="can-focus">1</property>
+                            <property name="max-length">4</property>
+                            <property name="width-chars">4</property>
+                          </object>
+                        </child>
+                      </object>
+                    </child>
+                    <child>
                       <object class="GtkCheckButton" id="residue_info_b_factor_apply_all_checkbutton">
                         <property name="label" translatable="yes">Apply Temperature Factor to all atoms in residue?</property>
                         <property name="can-focus">1</property>

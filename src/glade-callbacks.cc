@@ -4581,14 +4581,42 @@ void
 on_residue_info_occ_apply_all_checkbutton_toggled(GtkCheckButton *checkbutton,
                                                   gpointer        user_data) {
 
-   GtkWidget *entry = widget_from_builder("residue_info_master_atom_occ_entry");
-   GtkWidget *alt_conf_checkbutton = widget_from_builder("residue_info_occ_apply_to_altconf_checkbutton");
+   GtkWidget *occ_entry           = widget_from_builder("residue_info_master_atom_occ_entry");
+   GtkWidget *alt_conf_checkbox     = widget_from_builder("residue_info_occ_apply_to_altconf_checkbutton");
+   GtkWidget *alt_conf_entry  = widget_from_builder("residue_info_occ_apply_to_altconf_entry");
 
    if (gtk_check_button_get_active(checkbutton)) {
-      gtk_widget_set_sensitive(entry, TRUE);
+      // Uncheck the mutually exclusive "apply to alt conf" checkbox
+      if (gtk_check_button_get_active(GTK_CHECK_BUTTON(alt_conf_checkbox))) {
+         gtk_check_button_set_active(GTK_CHECK_BUTTON(alt_conf_checkbox), FALSE);
+      }
+      gtk_widget_set_sensitive(occ_entry, TRUE);
+      gtk_widget_set_sensitive(alt_conf_entry, FALSE);
    } else {
-      if (! gtk_check_button_get_active(GTK_CHECK_BUTTON(alt_conf_checkbutton)))
-         gtk_widget_set_sensitive(entry, FALSE);
+      if (! gtk_check_button_get_active(GTK_CHECK_BUTTON(alt_conf_checkbox)))
+         gtk_widget_set_sensitive(occ_entry, FALSE);
+   }
+}
+
+extern "C" G_MODULE_EXPORT
+void
+on_residue_info_occ_apply_to_altconf_checkbutton_toggled(GtkCheckButton *checkbutton,
+                                                         gpointer        user_data) {
+
+   GtkWidget *occ_entry       = widget_from_builder("residue_info_master_atom_occ_entry");
+   GtkWidget *alt_conf_entry  = widget_from_builder("residue_info_occ_apply_to_altconf_entry");
+   GtkWidget *apply_all_cb    = widget_from_builder("residue_info_occ_apply_all_checkbutton");
+
+   if (gtk_check_button_get_active(checkbutton)) {
+      // Uncheck the mutually exclusive "apply to all" checkbox
+      if (gtk_check_button_get_active(GTK_CHECK_BUTTON(apply_all_cb)))
+         gtk_check_button_set_active(GTK_CHECK_BUTTON(apply_all_cb), FALSE);
+      gtk_widget_set_sensitive(occ_entry,      TRUE);
+      gtk_widget_set_sensitive(alt_conf_entry, TRUE);
+   } else {
+      gtk_widget_set_sensitive(alt_conf_entry, FALSE);
+      if (! gtk_check_button_get_active(GTK_CHECK_BUTTON(apply_all_cb)))
+         gtk_widget_set_sensitive(occ_entry, FALSE);
    }
 }
 
