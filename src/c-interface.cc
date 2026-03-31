@@ -8419,23 +8419,25 @@ void sequence_view(int imol) {
 
 void remove_sequence_view_from_sequence_view_box(int imol) {
 
-   GtkWidget *vbox = widget_from_builder("main_window_sequence_view_box");
-   if (!vbox) return;
+   if (graphics_info_t::use_graphics_interface_flag) {
+      GtkWidget *vbox = widget_from_builder("main_window_sequence_view_box");
+      if (!vbox) return;
 
-   GtkWidget *item_widget = gtk_widget_get_first_child(vbox);
-   int n_children = 0;
-   while (item_widget) {
-      n_children++;
-      GtkWidget *w = item_widget;
-      item_widget = gtk_widget_get_next_sibling(item_widget);
-      int imol_overlay = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(w), "imol"));
-      if (imol_overlay == imol) {
-         gtk_box_remove(GTK_BOX(vbox), w);
-         n_children--;
+      GtkWidget *item_widget = gtk_widget_get_first_child(vbox);
+      int n_children = 0;
+      while (item_widget) {
+         n_children++;
+         GtkWidget *w = item_widget;
+         item_widget = gtk_widget_get_next_sibling(item_widget);
+         int imol_overlay = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(w), "imol"));
+         if (imol_overlay == imol) {
+            gtk_box_remove(GTK_BOX(vbox), w);
+            n_children--;
+         }
       }
+      if (n_children == 0)
+         gtk_widget_set_visible(vbox, FALSE);
    }
-   if (n_children == 0)
-      gtk_widget_set_visible(vbox, FALSE);
 }
 
 
