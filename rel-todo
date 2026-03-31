@@ -1,5 +1,7 @@
 --- Items ---
 
+o give new-startup (and functions) a better name.
+
 o Sort out startup script locations
 
 o double click in the solvent for a cryo-em map
@@ -19,6 +21,9 @@ o Fix session restore - Kevin Jude
 
 o have another go at trying to get a heatmap to work.
 * Done.
+
+o Allow the user to add extra acedrg atom-type tables for their ligands
+  when searching for similar ligands with acedrg types.
 
 o what is protein gtp?
 
