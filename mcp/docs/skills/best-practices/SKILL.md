@@ -203,15 +203,21 @@ After creating files in Coot's working directory, use bash tools to copy them to
 3. Call `get_function_descriptions()` with the complete list of function names
 4. This loads the essential API documentation into context, providing immediate access to the ~25 core functions needed for typical validation and model-building workflows
 
-This startup procedure eliminates the need to search for basic functions during the session and ensures you have the foundational API ready to use.
+**Why `get_function_descriptions` and not `search_coot_functions`?**
+`search_coot_functions` can return sparse or incomplete docs for some functions.
+`get_function_descriptions` retrieves the full docstring including return value structure.
+Always prefer `get_function_descriptions` for known function names — use `search_coot_functions`
+only when you don't know the function name yet.
 
 Example:
 ```python
 # After reading coot-essential-api/SKILL.md, call:
 Coot:get_function_descriptions([
     "set_refinement_immediate_replacement",
+    "set_imol_refinement_map",
     "is_valid_model_molecule",
     "is_valid_map_molecule",
+    "get_hydrogen_bonds_py",
     # ... all other functions from the essential API
 ])
 ```
