@@ -23,7 +23,10 @@
 #include "graphics-info.h"
 
 #include "gtkglarea-rama-plot.hh"
+#include <string>
 #include "gl-rama-plot.hh"
+#include "gtk/gtk.h"
+#include "utils/coot-utils.hh"
 #include "widget-from-builder.hh"
 
 void
@@ -81,7 +84,26 @@ gtkgl_rama_realize(GtkWidget *gtk_gl_area) {
             auto &m = graphics_info_t::molecules[imol];
             gl_rama_plot_t::draw_mode_t draw_mode = gl_rama_plot_t::draw_mode_t::DRAW_MODE;
             g.rama_plot_boxes[i].rama.setup_from(imol, m.atom_sel.mol, residue_selection, draw_mode);
-            done = true;
+
+            int n_outlier   = rama_box.rama.get_number_of_outliers();
+            int n_preferred = rama_box.rama.get_number_of_preferred();
+            int n_phi_psi   = rama_box.rama.get_number_of_phi_psi();
+            if (n_phi_psi > 0) {
+               // put this block (constructing the string) in the class of rama
+               if (rama_box.outliers_label) {
+                  if (n_outlier >= 0 && n_preferred >= 0) {
+                     float f1 = 100.0 * static_cast<float>(n_outlier)   / static_cast<float>(n_phi_psi);
+                     float f2 = 100.0 * static_cast<float>(n_preferred) / static_cast<float>(n_phi_psi);
+                     std::string sf1 = coot::util::float_to_string_using_dec_pl(f1, 2);
+                     std::string sf2 = coot::util::float_to_string_using_dec_pl(f2, 2);
+                     std::string label_str = std::to_string(n_outlier)   + " (" + sf1 + "%) Outliers        "
+                                           + std::to_string(n_preferred) + " (" + sf2 + "%) Preferred";
+                     gtk_label_set_text(GTK_LABEL(rama_box.outliers_label), label_str.c_str());
+                  } else {
+                     gtk_widget_set_visible(rama_box.outliers_label, FALSE);
+                  }
+               }
+            }
          }
       }
    }
@@ -119,10 +141,28 @@ gtkgl_rama_on_glarea_render(GtkWidget *gtk_gl_area) {
             int w = allocation.width;
             int h = allocation.height;
 
-            g.rama_plot_boxes[i].rama.draw(&g.shader_for_rama_plot_axes_and_ticks,
-                                           &g.shader_for_rama_plot_phi_phis_markers, // instanced
-                                           &g.shader_for_hud_image_texture,
-                                           w, h, w, h, need_clear); // background texture (not text!), uses window_resize_position_correc
+            auto &rama_box = g.rama_plot_boxes[i];
+            rama_box.rama.draw(&g.shader_for_rama_plot_axes_and_ticks,
+                               &g.shader_for_rama_plot_phi_phis_markers, // instanced
+                               &g.shader_for_hud_image_texture,
+                               w, h, w, h, need_clear); // background texture (not text!), uses window_resize_position_correc
+
+            if (rama_box.outliers_label) {
+               int n_outlier   = rama_box.rama.get_number_of_outliers();
+               int n_preferred = rama_box.rama.get_number_of_preferred();
+               int n_phi_psi   = rama_box.rama.get_number_of_phi_psi();
+               if (n_phi_psi > 0) {
+                  if (n_outlier >= 0 && n_preferred >= 0) {
+                     float f1 = 100.0 * static_cast<float>(n_outlier)   / static_cast<float>(n_phi_psi);
+                     float f2 = 100.0 * static_cast<float>(n_preferred) / static_cast<float>(n_phi_psi);
+                     std::string sf1 = coot::util::float_to_string_using_dec_pl(f1, 2);
+                     std::string sf2 = coot::util::float_to_string_using_dec_pl(f2, 2);
+                     std::string label_str = std::to_string(n_outlier)   + " (" + sf1 + "%) Outliers        "
+                                           + std::to_string(n_preferred) + " (" + sf2 + "%) Preferred";
+                     gtk_label_set_text(GTK_LABEL(rama_box.outliers_label), label_str.c_str());
+                  }
+               }
+            }
          }
       }
    }
@@ -200,11 +240,13 @@ void show_opengl_ramachandran_plot(int imol, const std::string &residue_selectio
       gtk_widget_set_margin_end(outliers_only_checkbutton, 6);
 
       gl_rama_plot_t rama;
-      graphics_info_t::widgeted_rama_plot_t wr(imol, residue_selection, rama, gl_area, close_button, box_for_this_plot);
+      GtkWidget *outliers_label = gtk_label_new(""); // label text set in gtkgl_rama_realize().
+      graphics_info_t::widgeted_rama_plot_t wr(imol, residue_selection, rama, gl_area, close_button,
+                                                box_for_this_plot, outliers_label);
       g.rama_plot_boxes.push_back(wr);
 
       gtk_widget_set_size_request(gl_area, 400, 400);
-      g_signal_connect(gl_area, "realize",   G_CALLBACK(gtkgl_rama_realize),   NULL);
+      g_signal_connect(gl_area, "realize",   G_CALLBACK(gtkgl_rama_realize),   NULL); // rama.wr is filled here.
       g_signal_connect(gl_area, "unrealize", G_CALLBACK(gtkgl_rama_unrealize), NULL);
       g_signal_connect(gl_area, "render",    G_CALLBACK(gtkgl_rama_on_glarea_render),  NULL);
       g_signal_connect(gl_area, "resize",    G_CALLBACK(gtkgl_rama_on_glarea_resize),  NULL);
@@ -266,6 +308,7 @@ void show_opengl_ramachandran_plot(int imol, const std::string &residue_selectio
 
       gtk_box_append(GTK_BOX(box_for_this_plot), gl_area);
       gtk_box_append(GTK_BOX(box_for_this_plot), box_for_selection);
+      gtk_box_append(GTK_BOX(box_for_this_plot), outliers_label);
       gtk_box_append(GTK_BOX(box_for_this_plot), close_button);
       gtk_box_append(GTK_BOX(box_for_all_plots), box_for_this_plot);
 

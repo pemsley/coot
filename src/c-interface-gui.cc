@@ -4992,6 +4992,7 @@ GtkWidget *wrapped_create_map_sharpening_dialog() {
       graphics_info_t::imol_map_sharpening = imol;
 
       GtkWidget *h_scale = widget_from_builder("map_sharpening_hscale");
+      gtk_scale_set_draw_value(GTK_SCALE(h_scale), TRUE);
 
       GtkAdjustment *adj = gtk_adjustment_new(0.0, -sharpening_limit, 2*sharpening_limit,
 					      0.05, 0.2, (sharpening_limit+0.1));
@@ -5011,8 +5012,8 @@ GtkWidget *wrapped_create_map_sharpening_dialog() {
 	 std::string pos_string = coot::util::float_to_string_using_dec_pl(p,0);
 	 gtk_scale_add_mark(GTK_SCALE(h_scale), p, GTK_POS_BOTTOM, pos_string.c_str());
       }
-      gtk_scale_add_mark(GTK_SCALE(h_scale), -sharpening_limit, GTK_POS_BOTTOM, "\n  Sharpen");
-      gtk_scale_add_mark(GTK_SCALE(h_scale),  sharpening_limit, GTK_POS_BOTTOM, "\nBlur");
+      gtk_scale_add_mark(GTK_SCALE(h_scale), -sharpening_limit, GTK_POS_TOP, "\n  Sharpen");
+      gtk_scale_add_mark(GTK_SCALE(h_scale),  sharpening_limit, GTK_POS_TOP, "\nBlur");
 
    }
 

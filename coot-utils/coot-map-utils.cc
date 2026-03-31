@@ -3763,7 +3763,7 @@ coot::util::map_fragment_info_t::init_making_map_centred_at_origin(const clipper
                                                                    const clipper::Coord_orth &centre,
                                                                    float radius) {
 
-   std::cout << "------------------------ centre returned map at origin ---------------------------"
+   std::cout << "------------------------ centre map at origin ---------------------------"
              << std::endl;
 
    clipper::Grid_sampling ip_xmap_grid_sampling = ip_xmap.grid_sampling();
@@ -3790,16 +3790,16 @@ coot::util::map_fragment_info_t::init_making_map_centred_at_origin(const clipper
    clipper::Coord_grid grid_max(n,n,n);
    clipper::Grid_range gr(grid_min, grid_max);
 
-   std::cout << "--------------- ip centre:  " << centre.format() << std::endl;
-   std::cout << "--------------- ip radius   " << radius << std::endl;
-   std::cout << "--------------- new_xmap map gpa  " << gpa << std::endl;
-   std::cout << "--------------- new_xmap cell     " << new_xmap_cell.format() << std::endl;
-   std::cout << "--------------- new_xmap map n    " << n << std::endl;
-   std::cout << "--------------- new_xmap map grid min " << grid_min.format() << std::endl;
-   std::cout << "--------------- new_xmap map grid max " << grid_max.format() << std::endl;
-   std::cout << "--------------- new_xmap map gr       " << gr.format() << std::endl;
-   std::cout << "--------------- input xmap sampling   " << ip_xmap_grid_sampling.format() << std::endl;
-   std::cout << "---------------   new xmap sampling   " << new_xmap_grid_sampling.format() << std::endl;
+   std::cout << "--------------- map_fragment_t ip centre:  " << centre.format() << std::endl;
+   std::cout << "--------------- map_fragment_t ip radius   " << radius << std::endl;
+   std::cout << "--------------- map_fragment_t new_xmap map gpa  " << gpa << std::endl;
+   std::cout << "--------------- map_fragment_t new_xmap cell     " << new_xmap_cell.format() << std::endl;
+   std::cout << "--------------- map_fragment_t new_xmap map n    " << n << std::endl;
+   std::cout << "--------------- map_fragment_t new_xmap map grid min " << grid_min.format() << std::endl;
+   std::cout << "--------------- map_fragment_t new_xmap map grid max " << grid_max.format() << std::endl;
+   std::cout << "--------------- map_fragment_t new_xmap map gr       " << gr.format() << std::endl;
+   std::cout << "--------------- map_fragment_t input xmap sampling   " << ip_xmap_grid_sampling.format() << std::endl;
+   std::cout << "--------------- map_fragment_t   new xmap sampling   " << new_xmap_grid_sampling.format() << std::endl;
 
 
    // why am I using a new_xmap here? Just use xmap and then I don't have to copy it when it's done.

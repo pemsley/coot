@@ -1552,6 +1552,7 @@ refine_residues_with_alt_conf(int imol, const std::vector<coot::residue_spec_t> 
 	       int imol_map = g.Imol_Refinement_Map();
 	       if (! is_valid_map_molecule(imol_map)) {
 		  add_status_bar_text("Refinement map not set");
+                  g.ephemeral_overlay_label("Refinement map not set");
 	       } else {
 		  // normal
 		  mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
@@ -1704,6 +1705,7 @@ PyObject *refine_residues_with_modes_with_alt_conf_py(int imol, PyObject *res_sp
             int imol_map = g.Imol_Refinement_Map();
             if (! is_valid_map_molecule(imol_map)) {
                add_status_bar_text("Refinement map not set");
+               g.ephemeral_overlay_label("Refinement map not set");
             } else {
                // normal
                mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
@@ -4475,11 +4477,11 @@ int place_helix_here() {
       //
       coot::helix_placement_info_t n =
          p.place_alpha_helix_near_kc_version(pt, 20, min_density_limit, high_density_turning_point, bf, map_rmsd);
-       if (! n.success) {
+      if (! n.success) {
           n = p.place_alpha_helix_near_kc_version(pt, 9, min_density_limit, high_density_turning_point, bf, map_rmsd);
-       }
+      }
 
-       if (n.success) {
+      if (n.success) {
           atom_selection_container_t asc = make_asc(n.mol[0].pcmmdbmanager());
 
           imol = g.create_molecule();
@@ -4503,22 +4505,22 @@ int place_helix_here() {
           }
 
           g.add_status_bar_text("Helix added");
-       } else {
+      } else {
           std::cout << "Helix addition failure: message: " << n.failure_message << "\n";
           g.add_status_bar_text(n.failure_message);
-       }
-       std::vector<std::string> command_strings;
-       command_strings.push_back("set-rotation-centre");
-       command_strings.push_back(coot::util::float_to_string(g.RotationCentre_x()));
-       command_strings.push_back(coot::util::float_to_string(g.RotationCentre_y()));
-       command_strings.push_back(coot::util::float_to_string(g.RotationCentre_z()));
-       add_to_history(command_strings);
+      }
+      std::vector<std::string> command_strings;
+      command_strings.push_back("set-rotation-centre");
+      command_strings.push_back(coot::util::float_to_string(g.RotationCentre_x()));
+      command_strings.push_back(coot::util::float_to_string(g.RotationCentre_y()));
+      command_strings.push_back(coot::util::float_to_string(g.RotationCentre_z()));
+      add_to_history(command_strings);
 
-       command_strings.resize(0);
-       command_strings.push_back("place-helix-here");
-       add_to_history(command_strings);
-       graphics_draw();
-       return imol;
+      command_strings.resize(0);
+      command_strings.push_back("place-helix-here");
+      add_to_history(command_strings);
+      graphics_draw();
+      return imol;
    } else {
       std::cout << " You need to set the map to fit against\n";
       g.add_status_bar_text("You need to set the map to fit against");

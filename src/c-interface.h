@@ -821,11 +821,13 @@ int clear_and_update_model_molecule_from_file(int molecule_number,
 /* atom_selection_container_t  */
 /* make_atom_selection(int imol, const coot::minimol::molecule &mol);  */
 
-/*! \brief dump the current screen image to a file.  Format ppm
-
-You can use this, in conjunction with spinning and view moving functions to
-make movies */
-void screendump_image(const char *filename);
+/*! \brief dump the current screen image to a file.  Format tga
+*
+* make a copy of the screen image and write it to the file system
+*
+* You can use this, in conjunction with spinning and view moving functions to
+* make movies */
+void screendump_image(const char *tga_filename);
 
 /*! \brief give a warning dialog if density it too dark (blue) */
 void check_for_dark_blue_density();
@@ -1689,6 +1691,9 @@ void set_display_intro_string(const char *str);
 /*! \brief return the extent of the box/radius of electron density contours */
 float get_map_radius();
 
+/*! \brief return the extent of the box/radius of electron density contours */
+float get_map_radius_em();
+
 /*! \brief not everyone likes coot's esoteric depth cueing system
 
   Pass an argument istate=1 to turn it off
@@ -2201,6 +2206,12 @@ void set_console_display_commands_hilights(short int bold_flag, short int colour
 /* info */
 /*! \name State Functions */
 /*! \{ */
+
+/*! \brief scale up graphics - now available in scripting */
+void scale_up_graphics();
+
+/*! \brief scale down graphics - now available in scripting */
+void scale_down_graphics();
 
 /*! \brief save the current state to the default filename */
 void save_state();
@@ -4478,6 +4489,8 @@ void do_sequence_view(int imol);
 
 /*!  \brief update the sequnce view current position highlight based on active atom */
 void update_sequence_view_current_position_highlight_from_active_atom();
+
+void remove_sequence_view_from_sequence_view_box(int imol);
 
 /*! \} */
 

@@ -507,7 +507,7 @@ coot::molecule_t::get_molecular_representation_mesh(const std::string &atom_sele
             if (colour_scheme == "Element")   this_cs = ele_cs;
             if (colour_scheme == "BFactor")   this_cs = bf_cs;
             if (colour_scheme == "Secondary") this_cs = ss_cs;
-            if (colour_scheme == "RampChains") {
+            if (colour_scheme == "RampChains" || colour_scheme == "colorRampChainsScheme") {
                mesh = ramp_chains(my_mol, atom_selection_str, style, M2T_float_params, M2T_int_params);
             } else {
 

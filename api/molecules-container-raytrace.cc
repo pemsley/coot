@@ -228,20 +228,31 @@ molecules_container_t::ray_trace_image(const std::string &json_str) {
 
       if (is_valid_model_molecule(imol)) {
 
-         std::string colour_mode = mol_params.value("colour_mode", "COLOUR-BY-CHAIN-AND-DICTIONARY");
-         float bonds_width = mol_params.value("bonds_width", 0.12f);
-         float atom_ratio = mol_params.value("atom_radius_to_bond_width_ratio", 1.5f);
-         int smoothness = mol_params.value("smoothness_factor", 3);
-         bool draw_hydrogens = mol_params.value("draw_hydrogens", false);
-         bool draw_missing_loops = mol_params.value("draw_missing_loops", false);
-         bool against_dark_bg = mol_params.value("against_a_dark_background", false);
+         std::string style = mol_params.value("style", "bonds");
+         coot::simple_mesh_t sm;
 
-         coot::instanced_mesh_t im = molecules[imol].get_bonds_mesh_instanced(
-            colour_mode, &geom, against_dark_bg,
-            bonds_width, atom_ratio,
-            true, 0.5f, false, false,
-            smoothness, draw_hydrogens, draw_missing_loops);
-         coot::simple_mesh_t sm = coot::instanced_mesh_to_simple_mesh(im);
+         if (style == "Ribbon" || style == "MolecularSurface") {
+            std::string cid = mol_params.value("cid", "//");
+            std::string colour_scheme = mol_params.value("colour_scheme", "colorRampChainsScheme");
+            int ss_flag = mol_params.value("secondary_structure_usage_flag", 2);
+            sm = molecules[imol].get_molecular_representation_mesh(cid, colour_scheme, style, ss_flag);
+         } else {
+            // Default: ball-and-stick bonds
+            std::string colour_mode = mol_params.value("colour_mode", "COLOUR-BY-CHAIN-AND-DICTIONARY");
+            float bonds_width = mol_params.value("bonds_width", 0.12f);
+            float atom_ratio = mol_params.value("atom_radius_to_bond_width_ratio", 1.5f);
+            int smoothness = mol_params.value("smoothness_factor", 3);
+            bool draw_hydrogens = mol_params.value("draw_hydrogens", false);
+            bool draw_missing_loops = mol_params.value("draw_missing_loops", false);
+            bool against_dark_bg = mol_params.value("against_a_dark_background", false);
+
+            coot::instanced_mesh_t im = molecules[imol].get_bonds_mesh_instanced(
+               colour_mode, &geom, against_dark_bg,
+               bonds_width, atom_ratio,
+               true, 0.5f, false, false,
+               smoothness, draw_hydrogens, draw_missing_loops);
+            sm = coot::instanced_mesh_to_simple_mesh(im);
+         }
 
          if (!sm.vertices.empty()) {
             for (const auto &v : sm.vertices) {
@@ -252,7 +263,7 @@ molecules_container_t::ray_trace_image(const std::string &json_str) {
             }
             have_model = true;
             combined_model_mesh.add_submesh(sm);
-            std::cout << "INFO:: ray_trace_image(): model " << imol << ": "
+            std::cout << "INFO:: ray_trace_image(): model " << imol << " style " << style << ": "
                       << sm.vertices.size() << " vertices, "
                       << sm.triangles.size() << " triangles" << std::endl;
          }

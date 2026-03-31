@@ -94,6 +94,10 @@ CootLigandEditorCanvas::CootLigandEditorCanvas() noexcept {
     self->display_mode = DisplayMode::Standard;
     self->scale = 1.0;
     self->viewport_origin_offset = std::make_pair(0,0);
+    #ifdef __EMSCRIPTEN__
+    this->minimum_dimensions.width = 0;
+    this->minimum_dimensions.height = 0;
+    #endif
     self->allow_invalid_molecules = false;
     self->state_stack_pos = -1;
 }
@@ -151,29 +155,20 @@ void coot_ligand_editor_canvas_measure(GtkWidget *widget, GtkOrientation orienta
 {
     CootLigandEditorCanvas* self = COOT_COOT_LIGAND_EDITOR_CANVAS(widget);
 #else
-CootLigandEditorCanvas::SizingInfo CootLigandEditorCanvas::measure(CootLigandEditorCanvas::MeasurementDirection orientation) const noexcept {
+CootLigandEditorCanvas::SizingInfo CootLigandEditorCanvas::measure() const noexcept {
     auto* self = this;
     SizingInfo ret;
-    int* minimum_size = &ret.requested_size;
-    int* natural_size = &ret.requested_size;
 #endif
     const auto bounding_rect_for_all = self->get_on_screen_bounding_rect();
+    #ifndef __EMSCRIPTEN__
     switch (orientation) {
-        #ifndef __EMSCRIPTEN__
         case GTK_ORIENTATION_HORIZONTAL:{
-        #else
-        case MeasurementDirection::HORIZONTAL:{
-        #endif
             // For now:
             *natural_size = bounding_rect_for_all.size.width;
             *minimum_size = bounding_rect_for_all.size.width;
             break;
         }
-        #ifndef __EMSCRIPTEN__
         case GTK_ORIENTATION_VERTICAL:{
-        #else
-        case MeasurementDirection::VERTICAL:{
-        #endif
             // For now:
             *natural_size = bounding_rect_for_all.size.height;
             *minimum_size = bounding_rect_for_all.size.height;
@@ -182,11 +177,17 @@ CootLigandEditorCanvas::SizingInfo CootLigandEditorCanvas::measure(CootLigandEdi
         default:
             break;
     }
-    #ifdef __EMSCRIPTEN__
-    // if(ret.requested_size == 0) {
-    //     g_warning("FIXME: Overriding zeroed 'requested_size' with 600.");
-    //     ret.requested_size = 600;
-    // }
+    #else
+    ret.width = bounding_rect_for_all.size.width;
+    ret.height = bounding_rect_for_all.size.height;
+    if(ret.width < this->minimum_dimensions.width) {
+        g_debug("Overriding measured width (%u) with a minimum of (%u).", ret.width, this->minimum_dimensions.width);
+        ret.width = this->minimum_dimensions.width;
+    }
+    if(ret.height < this->minimum_dimensions.height) {
+        g_debug("Overriding measured height (%u) with a minimum of (%u).", ret.height, this->minimum_dimensions.height);
+        ret.height = this->minimum_dimensions.height;
+    }
     return ret;
     #endif
 }
@@ -577,8 +578,8 @@ int coot_ligand_editor_canvas_append_molecule(CootLigandEditorCanvas* self, std:
         );
         #else
         self->molecules->back()->apply_canvas_translation(
-            self->measure(CootLigandEditorCanvas::MeasurementDirection::HORIZONTAL).requested_size / 2.0, 
-            self->measure(CootLigandEditorCanvas::MeasurementDirection::VERTICAL).requested_size / 2.0,
+            self->measure().width / 2.0, 
+            self->measure().height / 2.0,
             self->scale
         );
         #endif

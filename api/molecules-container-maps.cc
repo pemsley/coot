@@ -154,6 +154,10 @@ molecules_container_t::read_ccp4_map(const std::string &file_name, bool is_a_dif
 }
 
 
+clipper::Xmap<float> molecules_container_t::get_xmap(int imol) const {
+
+   return molecules[imol].xmap;
+}
 
 coot::validation_information_t
 molecules_container_t::density_fit_analysis(int imol_model, int imol_map) const {

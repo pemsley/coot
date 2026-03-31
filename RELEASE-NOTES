@@ -1,9 +1,19 @@
 
-  Release Notes for 1.1.21
+  Release Notes for 1.2
 
- o CHANGE: Don't include hydrogen atoms in Local B-factor display
+ o FEATURE: Side by Side Stereo
 
- o CHANGE: Difference map peaks now shows closest atom not position
+ o FEATURE: Screenshots now work
+
+ o FEATURE: JSON-RPC server, MCP Bridge and Skills for Agentic Coot.
+
+ o CHANGE:  Don't include hydrogen atoms in Local B-factor display
+
+ o CHANGE:  x-ray Sharpen/Blur Map slider now displays the value
+
+ o CHANGE:  Difference map peaks now shows closest atom not position
+
+ o BUG-FIX: Now the Recover Session works as expected. Kevin Jude
 
 -----
 
