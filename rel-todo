@@ -2,22 +2,53 @@
 
 o give new-startup (and functions) a better name.
 
+o get structure from accession code, no focus
+  so "U" doesn't work.
+
+o proportial editing, with chain-based selection for
+  rotation
+
+o work with dragged maps off - is updating the map
+  now problematic?
+
+o check that .coot_python_commands is being written
+  and read
+
+o use dict-to-image.py in build-chapi-with-homebrew-deps
+  or other to make a function that does comp_id -> png
+  using ~/.cache/Coot/monomer-images for hover-over
+  images in GTK4 menus
+
+o add a post on how to add a button to the gui
+
+o LSQ superpose seemed to fail when try to match
+  N-chain-moved-2.pddb to 7vvl N chain.
+
+o how do I add mailing list chat to claude knowledge?
+
 o Sort out startup script locations
+
+o the validate -> ramachandran plot should be an overlay
+
+o model-fragment.map is a good example of how the translation
+  in jiggle-fit should work but doesn't.
 
 o double click in the solvent for a cryo-em map
   It is not looking at the contour level?
+* Seems OK.
 
 o Turn off the "great refinement" particles
-* hooray() it was called.
+* Done. hooray() it was called.
 
 o chapi: fill a model given a sequence (and a chopped model)
 
-o add outlier stats for rama plot - mabye status line for now.
+o add outlier stats for rama plot - maybe status line for now.
 
-o move CA atoms that are bound to "A" into the "A"
+o move CA, K atoms that are bound to "A" into the "A"
   chain if needed.
 
 o Fix session restore - Kevin Jude
+* Done.
 
 o have another go at trying to get a heatmap to work.
 * Done.
