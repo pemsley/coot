@@ -187,10 +187,10 @@ Coot's Python interpreter automatically uses its working directory. By omitting 
 
 
 ### User Talk
-When the user says "here" in an ambiguous way, they typically mean "applying the relevant functoin to this residue (or atom or chain)" - i.e.
-the residue (or atom or chain) at the centre of the screen.
+When the user says "here" in an ambiguous way, they typically mean "applying the relevant function to this
+residue (or atom or chain)" - i.e. the residue (or atom or chain) at the centre of the screen.
 
-### Getting Files to the User
+### Getting Files to the User [warning: this needs review!]
 
 After creating files in Coot's working directory, use bash tools to copy them to `/mnt/user-data/outputs` where the user can access them, or share results via print output.
 
@@ -248,6 +248,11 @@ coot_utils.chain_ids(0)
 # Solution:
 import coot_utils
 coot_utils.chain_ids(0)  # Now works
+```
+
+But in this case (for chain-ids), this is preferred:
+```python
+coot.get_chain_ids_py(0)
 ```
 
 ## Function Naming Conventions
