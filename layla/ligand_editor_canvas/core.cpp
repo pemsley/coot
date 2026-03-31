@@ -402,9 +402,9 @@ void CootLigandEditorCanvas::redo() noexcept {
     coot_ligand_editor_canvas_redo_edition(this);
 }
 
-// const RDKit::ROMol& CanvasMolecule::get_rdkit_molecule(unsigned int index) noexcept {
-//     RDKit::ROMol* coot_ligand_editor_canvas_get_rdkit_molecule(CootLigandEditorCanvas* self, unsigned int index) noexcept;
-// }
+const RDKit::ROMol& CootLigandEditorCanvas::get_rdkit_molecule(unsigned int index) noexcept {
+    return *coot_ligand_editor_canvas_get_rdkit_molecule(this, index);
+}
 
 unsigned int CootLigandEditorCanvas::get_molecule_count() noexcept {
     return coot_ligand_editor_canvas_get_molecule_count(this);

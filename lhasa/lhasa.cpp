@@ -103,3 +103,30 @@ std::unique_ptr<coot::ligand_editor_canvas::ActiveTool> lhasa::make_active_tool(
 coot::ligand_editor_canvas::ElementInsertion lhasa::element_insertion_from_symbol(std::string sym) {
     return coot::ligand_editor_canvas::ElementInsertion(sym.c_str());
 }
+
+
+std::string lhasa::export_mol(CootLigandEditorCanvas& canvas, unsigned int molecule_idx, lhasa::CheminformaticsFileFormat format) {
+    const auto& mol = canvas.get_rdkit_molecule(molecule_idx);
+    std::string ret;
+    // switch(format) {
+    //     case CheminformaticsFileFormat::Molfile: {
+    //         return RDKit::MolToMolBlock(*mol);
+    //     }
+    //     case CheminformaticsFileFormat::SDF: {
+    //         return RDKit::MolToMolBlock(*mol);
+    //     }
+    //     case CheminformaticsFileFormat::InChI: {
+    //         std::string inchi;
+    //         std::string inchi_key;
+    //         RDKit::MolToInchi(*mol, inchi, inchi_key);
+    //         return inchi;
+    //     }
+    //     case CheminformaticsFileFormat::CDXML: {
+    //         throw std::runtime_error("CDXML export not implemented yet");
+    //     }
+    //     default: {
+    //         throw std::runtime_error("Unknown file format");
+    //     }
+    // }
+    return ret;
+}

@@ -41,6 +41,18 @@ unsigned int append_from_pickle_base64(CootLigandEditorCanvas& canvas, std::stri
 std::unique_ptr<coot::ligand_editor_canvas::ActiveTool> make_active_tool(emscripten::val t);
 coot::ligand_editor_canvas::ElementInsertion element_insertion_from_symbol(std::string sym);
 
+enum class CheminformaticsFileFormat {
+    Molfile,
+    SDF, 
+    InChI, 
+    CDXML
+};
+
+
+
+/// Generic export function for non-smiles data formats, writing exported files to string, then to be further handled by JS
+std::string export_mol(CootLigandEditorCanvas& canvas, unsigned int molecule_idx, CheminformaticsFileFormat format);
+
 }
 
 
