@@ -43,6 +43,7 @@ EMSCRIPTEN_BINDINGS(lhasa) {
   // TODO: RDKit typedefinitions
   // function("remove_non_polar_hydrogens", &coot::layla::remove_non_polar_hydrogens);
   function("append_from_smiles", &lhasa::append_from_smiles);
+  function("append_from_import", &lhasa::append_from_import);
   function("append_from_pickle_base64", &lhasa::append_from_pickle_base64);
   function("export_mol", &lhasa::export_mol);
   enum_<lhasa::CheminformaticsFileFormat>("CheminformaticsFileFormat")
