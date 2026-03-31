@@ -7018,6 +7018,9 @@ molecule_class_info_t::close_yourself() {
       graphics_info_t::refresh_validation_graph_model_list();
    }
 
+   // in c-interface.h
+   remove_sequence_view_from_sequence_view_box(imol_no);
+
    if (was_coords) {
       atom_sel.mol->DeleteSelection(atom_sel.SelectionHandle);
       delete atom_sel.mol;
