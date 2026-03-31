@@ -88,6 +88,8 @@ target_link_libraries(lhasa PRIVATE
     RDKitFileParsers
     RDKitRDChemDrawLib
     RDKitChemDraw
+    RDKitCIPLabeler
+    expat
     RDKitDescriptors
     RDKitChemTransforms
     RDKitSubstructMatch
