@@ -2712,6 +2712,7 @@ if test "$build_readline" = true ; then
     readline_version=6.2
     readline_version=6.3
     readline_version=8.2
+    readline_version=8.3
     ${WGET} https://ftp.gnu.org/gnu/readline/readline-$readline_version.tar.gz
     ${WGET} $extras_place/readline-5.1.patch
     (

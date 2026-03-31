@@ -680,7 +680,8 @@ void setup_go_to_residue_keyboarding_mode_entry_signals() {
    GtkWidget *entry = widget_from_builder("keyboard_go_to_residue_entry");
    if (entry) {
       GtkEventController *key_controller = gtk_event_controller_key_new();
-      g_signal_connect(key_controller, "key-released", G_CALLBACK(on_go_to_residue_keyboarding_mode_entry_key_controller_key_released), entry);
+      g_signal_connect(key_controller, "key-released",
+                       G_CALLBACK(on_go_to_residue_keyboarding_mode_entry_key_controller_key_released), entry);
       gtk_widget_add_controller(GTK_WIDGET(entry), key_controller);
    }
 }
@@ -689,21 +690,52 @@ void setup_go_to_residue_keyboarding_mode_entry_signals() {
 void
 handle_start_scripts() {
 
-   // 20240609-PE note to self scm_c_primitive_load() fails with a crash because we
+   auto get_scripts = [] (std::filesystem::path xdg_dir, const std::string &sub_dir_name, const std::string &extension) {
+      std::vector<std::filesystem::path> scripts;
+      std::filesystem::path path = xdg_dir / sub_dir_name;
+      if (std::filesystem::exists(path)) {
+         for (const auto &entry : std::filesystem::directory_iterator(path)) {
+            if (entry.path().extension() == extension) {
+               // std::cout << "match " << entry.path().string() << " " << extension << std::endl;
+               scripts.push_back(entry);
+            }
+         }
+      }
+      return scripts;
+   };
+
+   // 20240609-PE note to self: scm_c_primitive_load() fails with a crash because we
    // have not done the scm_boot_guile() call (g_application_run() is called where
    // scm_boot_guile() should be called. I don't know what to do).
 
    xdg_t xdg;
    std::vector<std::filesystem::path> scripts;
+
 #ifdef USE_GUILE
-   scripts = xdg.get_scheme_config_scripts();
-   for (const auto &script : scripts) {
-      std::cout << "Load scheme config script " << script.c_str() << " (ignored)" << std::endl;
+   std::vector<std::filesystem::path> scheme_scripts = xdg.get_scheme_config_scripts();
+   for (const auto &script : scheme_scripts) {
+      std::cout << "INFO:: scheme config script " << script.c_str() << " (ignored)" << std::endl;
       // scm_c_primitive_load(script.c_str());
    }
 #endif
-   scripts = xdg.get_python_config_scripts();
-   for (const auto &script : scripts) {
+
+   std::filesystem::path xdg_ch = xdg.get_config_home();
+   std::vector<std::filesystem::path>   py_config_scripts = xdg.get_python_config_scripts();
+   std::vector<std::filesystem::path>      curlew_scripts = get_scripts(xdg_ch, "Curlew",      ".py");
+   std::vector<std::filesystem::path> preferences_scripts = get_scripts(xdg_ch, "Preferences", ".py");
+   std::vector<std::filesystem::path>      xenops_scripts = get_scripts(xdg_ch, "Xenops",      ".py");
+
+   py_config_scripts.insert(py_config_scripts.end(),      curlew_scripts.begin(),      curlew_scripts.end());
+   py_config_scripts.insert(py_config_scripts.end(), preferences_scripts.begin(), preferences_scripts.end());
+   py_config_scripts.insert(py_config_scripts.end(),      xenops_scripts.begin(),      xenops_scripts.end());
+
+   if (false) {
+      for (const auto &script : py_config_scripts) {
+         std::cout << ":::::::::::::::: AA debuging script " << script.string() << std::endl;
+      }
+   }
+
+   for (const auto &script : py_config_scripts) {
       // std::cout << "Load python config script " << script.c_str() << std::endl;
       logger.log(log_t::INFO, logging::function_name_t(__FUNCTION__),
 		 "Load python script", script);

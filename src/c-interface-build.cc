@@ -1552,6 +1552,7 @@ refine_residues_with_alt_conf(int imol, const std::vector<coot::residue_spec_t> 
 	       int imol_map = g.Imol_Refinement_Map();
 	       if (! is_valid_map_molecule(imol_map)) {
 		  add_status_bar_text("Refinement map not set");
+                  g.ephemeral_overlay_label("Refinement map not set");
 	       } else {
 		  // normal
 		  mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
@@ -1704,6 +1705,7 @@ PyObject *refine_residues_with_modes_with_alt_conf_py(int imol, PyObject *res_sp
             int imol_map = g.Imol_Refinement_Map();
             if (! is_valid_map_molecule(imol_map)) {
                add_status_bar_text("Refinement map not set");
+               g.ephemeral_overlay_label("Refinement map not set");
             } else {
                // normal
                mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;

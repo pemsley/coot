@@ -2204,6 +2204,12 @@ void set_console_display_commands_hilights(short int bold_flag, short int colour
 /*! \name State Functions */
 /*! \{ */
 
+/*! \brief scale up graphics - now available in scripting */
+void scale_up_graphics();
+
+/*! \brief scale down graphics - now available in scripting */
+void scale_down_graphics();
+
 /*! \brief save the current state to the default filename */
 void save_state();
 

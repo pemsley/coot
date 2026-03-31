@@ -1257,6 +1257,7 @@ void simple_fill_partial_residues(int imol) {
 	 graphics_draw();
       } else {
 	 add_status_bar_text("Refinement map not set");
+         g.ephemeral_overlay_label("Refinement map not set");
       }
    }
 }
