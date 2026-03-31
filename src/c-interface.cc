@@ -3228,8 +3228,11 @@ float get_molecule_bonds_colour_map_rotation(int imol) {
 
 void  set_molecule_bonds_colour_map_rotation(int imol, float f) {
 
-   if (is_valid_model_molecule(imol))
+   if (is_valid_model_molecule(imol)) {
       graphics_info_t::molecules[imol].bonds_colour_map_rotation = f;
+      graphics_info_t::molecules[imol].make_bonds_type_checked();
+      graphics_draw();
+   }
    std::string cmd = "set-molecule-bonds-colour-map-rotation";
    std::vector<coot::command_arg_t> args;
    args.push_back(imol);

@@ -554,11 +554,11 @@ int make_backup_checkpoint(int imol, const char *description) {
  */
 int restore_to_backup_checkpoint(int imol, int backup_index) {
 
-   backup_index = -1;
+   int status = -1;
    if (is_valid_model_molecule(imol)) {
-      backup_index = graphics_info_t::molecules[imol].restore_to_backup_checkpoint(backup_index);
+      status = graphics_info_t::molecules[imol].restore_to_backup_checkpoint(backup_index);
    }
-   return backup_index;
+   return status;
 }
 
 #ifdef USE_PYTHON
