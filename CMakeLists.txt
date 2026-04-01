@@ -51,12 +51,15 @@ if (WIN32)
    string(REPLACE "\\" "/" Python_SITELIB  "${Python_SITELIB}")
 endif(WIN32)
 
-# Compute a relative site-packages path so that install() respects CMAKE_INSTALL_PREFIX
-# Python_PREFIX is not exposed by FindPython, so derive it from Python_STDLIB
-# e.g. /usr/lib/python3.14 -> /usr/lib -> /usr
-cmake_path(GET Python_STDLIB PARENT_PATH _Python_LIBDIR)
-cmake_path(GET _Python_LIBDIR PARENT_PATH _Python_PREFIX)
-cmake_path(RELATIVE_PATH Python_SITELIB BASE_DIRECTORY "${_Python_PREFIX}" OUTPUT_VARIABLE Python_SITELIB_REL)
+# Determine the install destination for Python files.
+# - If the user set CMAKE_INSTALL_PREFIX explicitly, install relative to it.
+# - Otherwise (default /usr/local), install directly to Python_SITELIB so that
+#   venv builds land inside the venv rather than in /usr/local.
+if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+  set(Python_SITELIB_REL "${Python_SITELIB}")
+else()
+  set(Python_SITELIB_REL "lib/python${Python_VERSION_MAJOR}.${Python_VERSION_MINOR}/site-packages")
+endif()
 
 
 set(coot_src ${CMAKE_CURRENT_SOURCE_DIR})
