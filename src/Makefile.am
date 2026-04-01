@@ -783,6 +783,7 @@ libcootsumo_la_SOURCES = \
 	python-classes.hh	 \
 	python-3-interface.hh	 \
 	python-scripting-gui.hh  \
+	python-results-container.hh \
 	Particle.cc Particle.hh  \
 	pulse-data.hh            \
 	rail-points.hh           \

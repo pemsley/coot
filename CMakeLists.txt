@@ -56,7 +56,7 @@ endif(WIN32)
 
 set(coot_src ${CMAKE_CURRENT_SOURCE_DIR})
 
-add_definitions(-DANALYSE_REFINEMENT_TIMING -DPACKAGE_VERSION="1.1.20"
+add_definitions(-DANALYSE_REFINEMENT_TIMING -DPACKAGE_VERSION="1.2"
   -DHAVE_CXX_THREAD -DHAVE_SSMLIB -DHAVE_BOOST -DUSE_LIBPNG=1 -DCLIPPER_HAS_TOP8000 -DUSE_GEMMI
   -DHAVE_BOOST_THREAD -DHAVE_GSL -DLIBCOOTAPI_BUILD
   -DPKGDATADIR="${CMAKE_INSTALL_PREFIX}/share/coot" -DXDATADIR="${CMAKE_INSTALL_PREFIX}/share")
@@ -669,5 +669,5 @@ install(TARGETS coot_headless_api DESTINATION ${Python_SITELIB})
 install(TARGETS coot_headless_api DESTINATION lib)
 
 # thanks merkys
-set_target_properties(cootapi PROPERTIES SOVERSION 1.1)
-set_target_properties(cootmoleculestotriangles PROPERTIES SOVERSION 1.1)
+set_target_properties(cootapi PROPERTIES SOVERSION 1.2)
+set_target_properties(cootmoleculestotriangles PROPERTIES SOVERSION 1.2)
