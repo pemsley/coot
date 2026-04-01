@@ -554,11 +554,11 @@ int make_backup_checkpoint(int imol, const char *description) {
  */
 int restore_to_backup_checkpoint(int imol, int backup_index) {
 
-   backup_index = -1;
+   int status = -1;
    if (is_valid_model_molecule(imol)) {
-      backup_index = graphics_info_t::molecules[imol].restore_to_backup_checkpoint(backup_index);
+      status = graphics_info_t::molecules[imol].restore_to_backup_checkpoint(backup_index);
    }
-   return backup_index;
+   return status;
 }
 
 #ifdef USE_PYTHON
@@ -5121,9 +5121,11 @@ void c_accept_moving_atoms() {
    graphics_info_t g;
    while (g.continue_threaded_refinement_loop)
       std::this_thread::sleep_for(std::chrono::milliseconds(200));
-   g.clear_hud_buttons();
-   g.accept_moving_atoms();
-   g.clear_moving_atoms_object();
+   if (g.use_graphics_interface_flag) {
+      g.clear_hud_buttons();
+      g.accept_moving_atoms();
+      g.clear_moving_atoms_object();
+   }
 
 }
 

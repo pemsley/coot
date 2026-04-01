@@ -5061,6 +5061,12 @@ int draw_hydrogens_state(int imol);
  *    PyList_SetItem(l, 11, PyBool_FromLong(h_bond.bond_has_hydrogen_flag));
  *
  * @param imol the molecule index
+ * @param imol selection_1  the atom selection of the "from" atoms
+ * @param imol selection_2  the atom selection of the "to" atoms.
+ *              Note that often atom_selection_1 and atom_selection_2 are the same,
+ *              e.g. "//A"
+ * @param mcdonald_and_thornton_algoritnm use 0 if the model does not have hydrogen atoms
+                                          use 1 if the model has hydrogen atoms.
  * @return the hydrogen bonds as a python list object, or False if
  *         imol is not a valid model molecule
  *

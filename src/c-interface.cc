@@ -3228,8 +3228,11 @@ float get_molecule_bonds_colour_map_rotation(int imol) {
 
 void  set_molecule_bonds_colour_map_rotation(int imol, float f) {
 
-   if (is_valid_model_molecule(imol))
+   if (is_valid_model_molecule(imol)) {
       graphics_info_t::molecules[imol].bonds_colour_map_rotation = f;
+      graphics_info_t::molecules[imol].make_bonds_type_checked();
+      graphics_draw();
+   }
    std::string cmd = "set-molecule-bonds-colour-map-rotation";
    std::vector<coot::command_arg_t> args;
    args.push_back(imol);
@@ -8419,23 +8422,25 @@ void sequence_view(int imol) {
 
 void remove_sequence_view_from_sequence_view_box(int imol) {
 
-   GtkWidget *vbox = widget_from_builder("main_window_sequence_view_box");
-   if (!vbox) return;
+   if (graphics_info_t::use_graphics_interface_flag) {
+      GtkWidget *vbox = widget_from_builder("main_window_sequence_view_box");
+      if (!vbox) return;
 
-   GtkWidget *item_widget = gtk_widget_get_first_child(vbox);
-   int n_children = 0;
-   while (item_widget) {
-      n_children++;
-      GtkWidget *w = item_widget;
-      item_widget = gtk_widget_get_next_sibling(item_widget);
-      int imol_overlay = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(w), "imol"));
-      if (imol_overlay == imol) {
-         gtk_box_remove(GTK_BOX(vbox), w);
-         n_children--;
+      GtkWidget *item_widget = gtk_widget_get_first_child(vbox);
+      int n_children = 0;
+      while (item_widget) {
+         n_children++;
+         GtkWidget *w = item_widget;
+         item_widget = gtk_widget_get_next_sibling(item_widget);
+         int imol_overlay = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(w), "imol"));
+         if (imol_overlay == imol) {
+            gtk_box_remove(GTK_BOX(vbox), w);
+            n_children--;
+         }
       }
+      if (n_children == 0)
+         gtk_widget_set_visible(vbox, FALSE);
    }
-   if (n_children == 0)
-      gtk_widget_set_visible(vbox, FALSE);
 }
 
 

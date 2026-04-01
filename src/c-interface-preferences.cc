@@ -576,11 +576,14 @@ void save_preferences() {
    std::string preferences_name;
    std::filesystem::path full_file_name_path;
    xdg_t xdg;
+   std::filesystem::path preferences_dir = xdg.get_config_home() / "Preferences";
+   if (!std::filesystem::is_directory(preferences_dir))
+      std::filesystem::create_directories(preferences_dir);
 
 #ifdef USE_GUILE
    preferences_name = "coot-preferences.scm";
    il = 1;
-   full_file_name_path = xdg.get_config_home().append(preferences_name);
+   full_file_name_path = preferences_dir / preferences_name;
    istat = g.save_preference_file(full_file_name_path.string(), il);
    if (istat == 0) {
       std::cout << "WARNING:: failed to save preferences " << full_file_name_path.string() << std::endl;
@@ -588,7 +591,7 @@ void save_preferences() {
 #endif // USE_GUILE
 
    preferences_name = "coot_preferences.py";
-   full_file_name_path = xdg.get_config_home().append(preferences_name);
+   full_file_name_path = preferences_dir / preferences_name;
    il = 2;
    istat = g.save_preference_file(full_file_name_path.string(), il);
    if (istat == 0) {
@@ -596,7 +599,7 @@ void save_preferences() {
    }
 
 }
- 
+
 
 void preferences_internal_change_value_int(int preference_type, int ivalue) {
   graphics_info_t g;
