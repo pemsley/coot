@@ -22,6 +22,13 @@
 #include <rdkit/GraphMol/SmilesParse/SmilesParse.h>
 #include <rdkit/GraphMol/SmilesParse/SmilesWrite.h>
 #include <rdkit/GraphMol/MolPickler.h>
+#include <rdkit/GraphMol/FileParsers/FileWriters.h>
+#include <rdkit/GraphMol/FileParsers/FileParsers.h>
+#include <rdkit/RDGeneral/RDConfig.h>
+#ifdef RDK_BUILD_INCHI_SUPPORT
+#include <rdkit/GraphMol/inchi.h>
+#endif
+#include <rdkit/GraphMol/chemdraw.h>
 #include "glog_replacement.hpp"
 #include "../utils/base64-encode-decode.hh"
 
@@ -102,4 +109,70 @@ std::unique_ptr<coot::ligand_editor_canvas::ActiveTool> lhasa::make_active_tool(
 
 coot::ligand_editor_canvas::ElementInsertion lhasa::element_insertion_from_symbol(std::string sym) {
     return coot::ligand_editor_canvas::ElementInsertion(sym.c_str());
+}
+
+
+std::string lhasa::export_mol(CootLigandEditorCanvas& canvas, unsigned int molecule_idx, lhasa::CheminformaticsFileFormat format) {
+    const auto& mol = canvas.get_rdkit_molecule(molecule_idx);
+    switch(format) {
+        case CheminformaticsFileFormat::Molfile: {
+            return RDKit::MolToMolBlock(mol);
+        }
+        case CheminformaticsFileFormat::SDF: {
+            return RDKit::MolToMolBlock(mol) + "$$$$\n";
+        }
+        case CheminformaticsFileFormat::InChI: {
+#ifdef RDK_BUILD_INCHI_SUPPORT
+            RDKit::ExtraInchiReturnValues rv;
+            return RDKit::MolToInchi(mol, rv);
+#else
+            throw std::runtime_error("RDKit was built without InChI support");
+#endif
+        }
+        case CheminformaticsFileFormat::CDXML: {
+            return RDKit::v2::MolToChemDrawBlock(mol);
+        }
+        default: {
+            throw std::runtime_error("Unknown file format");
+        }
+    }
+}
+
+unsigned int lhasa::append_from_import(CootLigandEditorCanvas& canvas, std::string data, lhasa::CheminformaticsFileFormat format) {
+    std::shared_ptr<RDKit::RWMol> mol;
+    switch(format) {
+        case CheminformaticsFileFormat::Molfile:
+        case CheminformaticsFileFormat::SDF: {
+            mol = RDKit::v2::FileParsers::MolFromMolBlock(data);
+            break;
+        }
+        case CheminformaticsFileFormat::InChI: {
+#ifdef RDK_BUILD_INCHI_SUPPORT
+            RDKit::ExtraInchiReturnValues rv;
+            mol.reset(RDKit::InchiToMol(data, rv));
+#else
+            throw std::runtime_error("RDKit was built without InChI support");
+#endif
+            break;
+        }
+        case CheminformaticsFileFormat::CDXML: {
+            auto mols = RDKit::v2::MolsFromChemDrawBlock(data);
+            if (mols.empty()) {
+                throw std::runtime_error("No molecules found in CDXML data");
+            }
+            if (mols.size() > 1) {
+                g_warning("Multiple molecules found in CDXML data. Only the first one will be imported.");
+            }
+            /// Hmmm, maybe we should import all the molecules, not just the first one?
+            mol = std::move(mols.front());
+            break;
+        }
+        default: {
+            throw std::runtime_error("Unknown file format");
+        }
+    }
+    if (!mol) {
+        throw std::runtime_error("Failed to parse molecule from input data");
+    }
+    return canvas.append_molecule(std::move(mol));
 }
