@@ -1691,6 +1691,9 @@ void set_display_intro_string(const char *str);
 /*! \brief return the extent of the box/radius of electron density contours */
 float get_map_radius();
 
+/*! \brief return the extent of the box/radius of electron density contours */
+float get_map_radius_em();
+
 /*! \brief not everyone likes coot's esoteric depth cueing system
 
   Pass an argument istate=1 to turn it off
@@ -4487,6 +4490,8 @@ void do_sequence_view(int imol);
 /*!  \brief update the sequnce view current position highlight based on active atom */
 void update_sequence_view_current_position_highlight_from_active_atom();
 
+void remove_sequence_view_from_sequence_view_box(int imol);
+
 /*! \} */
 
 /*  ----------------------------------------------------------------------- */
@@ -5056,6 +5061,12 @@ int draw_hydrogens_state(int imol);
  *    PyList_SetItem(l, 11, PyBool_FromLong(h_bond.bond_has_hydrogen_flag));
  *
  * @param imol the molecule index
+ * @param imol selection_1  the atom selection of the "from" atoms
+ * @param imol selection_2  the atom selection of the "to" atoms.
+ *              Note that often atom_selection_1 and atom_selection_2 are the same,
+ *              e.g. "//A"
+ * @param mcdonald_and_thornton_algoritnm use 0 if the model does not have hydrogen atoms
+                                          use 1 if the model has hydrogen atoms.
  * @return the hydrogen bonds as a python list object, or False if
  *         imol is not a valid model molecule
  *

@@ -54,9 +54,11 @@ curlew_install_extension_file_gtk4(const std::string &downloaded_script_file_nam
    std::string failure_message;
    if (coot::file_exists_and_non_empty(downloaded_script_file_name)) {
       xdg_t xdg;
-      std::filesystem::path state_home_dir = xdg.get_state_home();
+      std::filesystem::path curlew_dir = xdg.get_config_home() / "Curlew";
+      if (!std::filesystem::is_directory(curlew_dir))
+         std::filesystem::create_directories(curlew_dir);
       std::string fn = coot::util::file_name_non_directory(downloaded_script_file_name);
-      std::filesystem::path installed_file_path = state_home_dir / fn;
+      std::filesystem::path installed_file_path = curlew_dir / fn;
       std::string installed_file_name = installed_file_path.string();
       bool status = coot::copy_file(downloaded_script_file_name, installed_file_name);
       if (status == false) {
@@ -95,9 +97,9 @@ int
 curlew_uninstall_extension_file_gtk4(const std::string &script_file_name) {
 
    xdg_t xdg;
-   std::filesystem::path state_home_dir = xdg.get_state_home();
+   std::filesystem::path curlew_dir = xdg.get_config_home() / "Curlew";
    std::string fn = coot::util::file_name_non_directory(script_file_name);
-   std::filesystem::path installed_file_path = state_home_dir / fn;
+   std::filesystem::path installed_file_path = curlew_dir / fn;
    std::string installed_file_name = installed_file_path.string();
    std::string renamed_file = installed_file_name + "_uninstalled";
    int status = coot_rename(installed_file_name, renamed_file);

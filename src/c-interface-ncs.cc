@@ -315,7 +315,8 @@ void ncs_control_change_ncs_master_to_chain_update_widget(GtkWidget *w, int imol
       // We need to change to desensitve the chain that matches ichain.
       //
       // This is a -widget-work function
-      graphics_info_t::molecules[imol].ncs_control_change_ncs_master_to_chain_update_widget(w, ichain);
+      if (graphics_info_t::use_graphics_interface_flag)
+         graphics_info_t::molecules[imol].ncs_control_change_ncs_master_to_chain_update_widget(w, ichain);
    }
 }
 

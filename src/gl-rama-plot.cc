@@ -83,6 +83,83 @@ gl_rama_plot_t::is_active() const {
 
 }
 
+int
+gl_rama_plot_t::get_number_of_phi_psi() const {
+   return phi_psi_map.size();
+}
+
+int
+gl_rama_plot_t::get_number_of_outliers() const {
+
+   int n = -1;
+   if (! phi_psi_map.empty()) {
+      n = 0;
+      std::map<coot::residue_spec_t, rama_plot::phi_psi_t>::const_iterator it;
+      for (it=phi_psi_map.begin(); it!=phi_psi_map.end(); ++it) {
+         const auto &phi_psi = it->second; // phi and psi are in degrees
+         double phi_r = clipper::Util::d2rad(phi_psi.phi);
+         double psi_r = clipper::Util::d2rad(phi_psi.psi);
+         if (phi_psi.residue_name == "PRO") {
+            double probability = rama_pro.probability(phi_r, psi_r);
+            if (probability < rama_threshold_allowed) {
+               n++;
+            }
+         } else {
+            if (phi_psi.residue_name == "GLY") {
+               double probability = rama_gly.probability(phi_r, psi_r);
+               if (probability < rama_threshold_allowed) {
+                  n++;
+               }
+            } else {
+               double probability = rama_non_gly_pro.probability(phi_r, psi_r);
+               if (probability < rama_threshold_allowed) {
+                  n++;
+               }
+            }
+         }
+      }
+   } else {
+      std::cout << "DEBUG:: get_number_of_outliers(): oops the phi_psi_map was empty" << std::endl;
+   }
+   return n;
+}
+
+int
+gl_rama_plot_t::get_number_of_preferred() const {
+
+   int n = -1;
+   if (! phi_psi_map.empty()) {
+      n = 0;
+      std::map<coot::residue_spec_t, rama_plot::phi_psi_t>::const_iterator it;
+      for (it=phi_psi_map.begin(); it!=phi_psi_map.end(); ++it) {
+         const auto &phi_psi = it->second; // phi and psi are in degrees
+         double phi_r = clipper::Util::d2rad(phi_psi.phi);
+         double psi_r = clipper::Util::d2rad(phi_psi.psi);
+         if (phi_psi.residue_name == "PRO") {
+            double probability = rama_pro.probability(phi_r, psi_r);
+            if (probability > rama_threshold_preferred) {
+               n++;
+            }
+         } else {
+            if (phi_psi.residue_name == "GLY") {
+               double probability = rama_gly.probability(phi_r, psi_r);
+               if (probability > rama_threshold_preferred) {
+                  n++;
+               }
+            } else {
+               double probability = rama_non_gly_pro.probability(phi_r, psi_r);
+               if (probability > rama_threshold_preferred) {
+                  n++;
+               }
+            }
+         }
+      }
+   } else {
+      std::cout << "DEBUG:: get_number_of_preferred() oops the phi_psi_map was empty" << std::endl;
+   }
+   return n;
+}
+
 #include <glm/gtx/string_cast.hpp>
 
 void

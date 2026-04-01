@@ -4749,10 +4749,12 @@ string   static std::string sessionid;
       GtkWidget *gtk_gl_area;
       GtkWidget *close_button;
       GtkWidget *box;
+      GtkWidget *outliers_label;
       widgeted_rama_plot_t(int imol, const std::string &residue_selection,
-                           const gl_rama_plot_t &rama, GtkWidget *gtk_gl_area, GtkWidget *button, GtkWidget *box) :
+                           const gl_rama_plot_t &rama, GtkWidget *gtk_gl_area, GtkWidget *button,
+                           GtkWidget *box, GtkWidget *outliers_label) :
          imol(imol), rama(rama), residue_selection(residue_selection),
-         gtk_gl_area(gtk_gl_area), close_button(button), box(box) {}
+         gtk_gl_area(gtk_gl_area), close_button(button), box(box), outliers_label(outliers_label) {}
       bool matches_gl_area(GtkWidget *w) const { return (w == gtk_gl_area); }
    };
    static std::vector<widgeted_rama_plot_t> rama_plot_boxes;

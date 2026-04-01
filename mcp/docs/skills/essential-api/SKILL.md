@@ -13,6 +13,12 @@ Reading these function signatures at session start eliminates the need for searc
 coot.set_refinement_immediate_replacement(1)
 # CRITICAL: Call this before any refinement operations to make them synchronous
 # Without this, refinement results may not be available immediately
+
+coot.set_imol_refinement_map(imol_map)
+# CRITICAL: Call this to tell Coot which map to use for refinement.
+# Must be called once per session (or whenever the map changes).
+# Without this, refine_residues_py() will fail silently.
+# Example: coot.set_imol_refinement_map(1)
 ```
 
 ## Molecule Management
@@ -212,9 +218,22 @@ d = coot.density_at_point(imol_map, x, y, z) / sigma  # value in sigma units
 
 ```python
 coot.all_molecule_ramachandran_score_py(imol) -> list
-# Returns: [score, n_residues, ..., per_residue_data]
-# per_residue_data: [[[phi, psi], residue_spec, probability, [prev, curr, next]], ...]
-# LOW probability = BAD (outlier)
+# Returns a list of exactly 6 elements (confirmed from C++ source):
+#   [0]: overall score (float)
+#   [1]: n_residues (int)
+#   [2]: score_non_sec_str (float)
+#   [3]: n_residues_non_sec_str (int)
+#   [4]: n_zeros (int)
+#   [5]: per-residue list (list of per-residue entries)
+#
+# Each per-residue entry: [[phi, psi], [chain_id, resno, ins_code], probability, [prev_resname, this_resname, next_resname]]
+# NOTE: rama_data[5] and rama_data[-1] are equivalent and both correct.
+# LOW probability = BAD (outlier). Outlier threshold: prob < 0.02
+#
+# Example:
+#   per_res = coot.all_molecule_ramachandran_score_py(imol)[5]
+#   outliers = [r for r in per_res if r[2] < 0.02]
+#   worst = min(per_res, key=lambda x: x[2])
 
 coot.rotamer_graphs_py(imol) -> list
 # Returns: [[chain_id, resno, ins_code, score_percentage, resname], ...]
@@ -240,13 +259,55 @@ coot.find_blobs_py(imol_model, imol_map, sigma_cutoff) -> list
 # Higher score = larger/stronger blob
 ```
 
+## Validation - Hydrogen Bonds
+
+```python
+coot.get_hydrogen_bonds_py(imol, selection_1, selection_2, mcdonald_and_thornton) -> list
+# Find hydrogen bonds between two atom selections.
+# selection_1, selection_2: MMDB selection strings (e.g. "//A/35", "//A")
+#   Note: selection_1 and selection_2 can be the same, e.g. "//A" for intra-chain H-bonds
+# mcdonald_and_thornton: 0 if model has no H atoms, 1 if it does
+# Returns list of H-bond candidates, each a list of 12 elements:
+#   [0]  hydrogen atom (dict or None)
+#   [1]  donor atom (dict)
+#   [2]  acceptor atom (dict)
+#   [3]  donor neighbour atom (dict or None)
+#   [4]  acceptor neighbour atom (dict or None)
+#   [5]  angle_1 (float, degrees)
+#   [6]  angle_2 (float, degrees)
+#   [7]  angle_3 (float, degrees)
+#   [8]  distance (float, Å)
+#   [9]  ligand_atom_is_donor (bool)
+#   [10] hydrogen_is_ligand_atom (bool)
+#   [11] bond_has_hydrogen_flag (bool)
+# Atom dicts have keys: x, y, z, name, element, chain, residue_name, occ, b_iso, altLoc
+#
+# Example:
+hbonds = coot.get_hydrogen_bonds_py(0, "//A/35", "//A", 0)
+for hb in hbonds:
+    donor    = hb[1]
+    acceptor = hb[2]
+    dist     = hb[8]
+    d_str = donor['chain'] + " " + donor['residue_name'] + " " + donor['name'].strip()
+    a_str = acceptor['chain'] + " " + acceptor['residue_name'] + " " + acceptor['name'].strip()
+    print("H-bond: " + d_str + " -> " + a_str + "  dist=" + str(dist))
+```
+
 ## Refinement
 
 ```python
 coot.refine_residues_py(imol, residue_specs) -> list
 # Real-space refinement of specified residues
 # residue_specs = [["A", 42, ""], ["A", 43, ""], ...]  # [chain, resno, ins_code]
-# Returns: ['', status, [[metric_name, description, value], ...]]
+# Returns: ['', status, lights] where:
+#   status: 0=converged, -2=GSL_CONTINUE (call again), 27=no progress
+#   lights: list of [name, label, value] refinement statistics, or False
+# CRITICAL: if status == -2, call refine_residues_py() again (up to 3 times total)
+# Example robust call:
+#   for _ in range(3):
+#       result = coot.refine_residues_py(imol, specs)
+#       if result and result[1] != -2: break
+#   accepted = coot.accept_moving_atoms_py()  # get traffic lights
 ```
 
 ## Model Building - Rotamers

@@ -4022,12 +4022,15 @@ aniso_probability_hscale_value_changed(GtkScale* range,
          GtkAdjustment *adjustment = gtk_range_get_adjustment(GTK_RANGE(range));
          float fvalue = gtk_adjustment_get_value(adjustment);
          graphics_info_t g;
-         g.show_aniso_atoms_probability = fvalue;
-         int imol = g.combobox_get_imol(GTK_COMBO_BOX(bond_parameters_molecule_comboboxtext));
-         if (gtk_check_button_get_active(GTK_CHECK_BUTTON(draw_anisotropic_atoms_yes_radiobutton))) {
-            // std::cout << "\ncalling set_show_atoms_as_aniso() with prob " << g.show_aniso_atoms_probability << std::endl;
-            graphics_info_t::molecules[imol].make_bonds_type_checked("aniso_probability_hscale_value_changed");
-            g.graphics_draw();
+         int n_molecules = g.n_molecules();
+         if (n_molecules > 0) { // protection from occuring at start-up
+            g.show_aniso_atoms_probability = fvalue;
+            int imol = g.combobox_get_imol(GTK_COMBO_BOX(bond_parameters_molecule_comboboxtext));
+            if (gtk_check_button_get_active(GTK_CHECK_BUTTON(draw_anisotropic_atoms_yes_radiobutton))) {
+               // std::cout << "\ncalling set_show_atoms_as_aniso() with prob " << g.show_aniso_atoms_probability << std::endl;
+               graphics_info_t::molecules[imol].make_bonds_type_checked("aniso_probability_hscale_value_changed");
+               g.graphics_draw();
+            }
          }
       }
    }

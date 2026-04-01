@@ -1138,7 +1138,9 @@ public:
    //!       "0": {"style": "bonds", "colour_mode": "COLOUR-BY-CHAIN-AND-DICTIONARY",
    //!             "bonds_width": 0.12, "atom_radius_to_bond_width_ratio": 1.5},
    //!       "1": {"style": "lines", "map_radius": 12.0, "map_contour_level": 1.5,
-   //!             "map_line_width": 0.02, "map_colour": [0.3, 0.5, 0.8]}
+   //!             "map_line_width": 0.02, "map_colour": [0.3, 0.5, 0.8]},
+   //!       "2": {"style": "Ribbon", "colour_scheme": "colorRampChainsScheme",
+   //!             "cid": "//", "secondary_structure_usage_flag": 2}
    //!    },
    //!    "image_width": 1024,
    //!    "image_height": 768,

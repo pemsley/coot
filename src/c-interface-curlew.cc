@@ -402,7 +402,7 @@ void curlew_install_extension(GtkWidget *install_button, gpointer data) {
          std::string fn(file_name_cstr);
          std::string checksum(checksum_cstr);
          GtkWidget *uninstall_button = GTK_WIDGET(g_object_get_data(G_OBJECT(install_button), "uninstall_button"));
-         std::cout << "debug:: curlew_install_extension() uninstall_button " << uninstall_button << std::endl;
+         // std::cout << "debug:: curlew_install_extension() uninstall_button " << uninstall_button << std::endl;
          // on success, we will need to swap the visibility of the buttons
          curlew_install_extension_file(fn, checksum, install_button, uninstall_button);
       } else {
@@ -527,6 +527,8 @@ GtkWidget *make_and_add_curlew_extension_widget(GtkWidget *dialog,
    std::cout << "FIXME set install frame shadow " << std::endl;
    // gtk_frame_set_shadow_type(GTK_FRAME(install_frame), GTK_SHADOW_NONE);
    // --------------------------------------
+
+   std::cout << "debug:: curlew file-name " << file_name << std::endl;
 
    // question to self: does strcpy() set the ending \0? Yes, it does.
    char *file_name_copy_1 = new char[file_name.size() +1];
