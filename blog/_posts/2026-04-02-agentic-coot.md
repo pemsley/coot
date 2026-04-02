@@ -41,6 +41,8 @@ All of the above Nobel Prize winners have cited _Coot_.
 
 I am the author of _Coot_ and have been developing it for over 20 years.
 
+![Agentic Coot with Claude]({{"../../../images/claude-coot-demo.png"}})
+
 # Introduction
 
 Seeing that the molecular graphics program ChimeraX could be used with MCP [1],
@@ -308,12 +310,17 @@ them.
 
  - Frequently I was asking: "What do you need to know that what you just did was a mistake?"
 
- - At the end of a session, I would say "Digest the model-building operations in this session and write it up in Markdown"
+ - At the end of a session, I would say "Digest the model-building operations in this
+   session and write it up in Markdown"
 
-   Then open a new chat and do the same thing. This was useful to find errors and confusions. These were addressed by refining the wording of the skills. Now there are over 6000 lines
-   of skills documentation. But here though, no programming knowledge is needed - just domain knowledge.
-   
+   Then open a new chat and do the same thing. This was useful to find errors and confusions.
+   These were addressed by refining the wording of the skills. Now there are over 6000 lines
+   of skills documentation. But here though, no programming knowledge is needed - just domain
+   knowledge.
+
    Claude turns the documented expertise into Python scripts. Usable by anyone in any language.
+
+![Agentic Coot in Spanish]({{"../../../images/claude-coot-2-page-spanish.png"}})
 
 ## What Does this mean for Other Scientific Software?
 
