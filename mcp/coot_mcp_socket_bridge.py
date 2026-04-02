@@ -201,8 +201,6 @@ Never try to code that writes to disk - instead, write code that returns a strin
 Note that coot.active_atom_spec_py() is a useful function to determine the "selected" residue (i.e. the "active" residue that will be acted on by the tools in the interface). You can use this to check that the user is looking at what you want them to look at.
 
 The coot module is already imported, the coot_utils module will need to be imported first if you want to use a function in that module.
-
-Do not use matplotlib for graphs, instead use pygal - if available, otherwise don't try to make a graph and tell the user about missing pygal.
 '''
 
 @mcp.tool()
