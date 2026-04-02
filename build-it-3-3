@@ -418,7 +418,8 @@
 # 6.23 20250214-PE Remove build_type (gtk4) from directory names
 # 6.24 20260212-PE update gemmi build wrapper
 # 6.25 20260212-PE update the version of ninja
-script_version=6.25
+# 6.26 20260402-PE update tne version of the script - should have done this before.
+script_version=6.26
 
 echo this is script version $script_version
 date
