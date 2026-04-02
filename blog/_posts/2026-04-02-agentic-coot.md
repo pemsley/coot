@@ -322,6 +322,8 @@ them.
 
 ![Agentic Coot in Spanish]({{"../../../images/claude-coot-2-page-spanish.png"}})
 
+![Agentic Coot demo video on YouTube]({{"https://www.youtube.com/watch?v=NkBADt0A_CU"}})
+
 ## What Does this mean for Other Scientific Software?
 
 It seems that the pattern established here is portable to other applications.
