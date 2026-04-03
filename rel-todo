@@ -2,6 +2,17 @@
 
 o give new-startup (and functions) a better name.
 
+o The NCS graph does not load (is empty) even when there
+  is NCS present & switching between NCS copies is working
+  (test on 1BL8) [Oli]
+
+o Geometry and Density fit correlation are calculated on the
+  fly, unlike (?) the others, and are calculated every time
+  the graph is loaded from scratch. This is not a problem on
+  small crystal structures, but causes the program to hang
+  for quite a while in the case of large structures in high
+  res cryoEM maps, even on fairly recent hardware [Oli C]
+
 o get structure from accession code, no focus
   so "U" doesn't work.
 
