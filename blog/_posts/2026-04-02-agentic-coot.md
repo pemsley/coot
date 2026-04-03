@@ -301,6 +301,12 @@ I had had no experience with Claude before this work.
    than poring my way through the Python C-API documentation for error
    handling.
 
+## What Does it Look Like?
+
+![Agentic Coot in Spanish]({{"../../../images/claude-coot-2-page-spanish.png"}})
+
+[Agentic Coot demo video on YouTube]("https://www.youtube.com/watch?v=NkBADt0A_CU")
+
 ## Why are Skills the New Source Code?
 
 After the infrastructure (particularly the python responses and the
@@ -319,10 +325,6 @@ them.
    knowledge.
 
    Claude turns the documented expertise into Python scripts. Usable by anyone in any language.
-
-![Agentic Coot in Spanish]({{"../../../images/claude-coot-2-page-spanish.png"}})
-
-![Agentic Coot demo video on YouTube]({{"https://www.youtube.com/watch?v=NkBADt0A_CU"}})
 
 ## What Does this mean for Other Scientific Software?
 
