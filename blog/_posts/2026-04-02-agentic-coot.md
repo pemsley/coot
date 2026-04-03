@@ -305,7 +305,7 @@ I had had no experience with Claude before this work.
 
 ![Agentic Coot in Spanish]({{"../../../images/claude-coot-2-page-spanish.png"}})
 
-[Agentic Coot demo video on YouTube]("https://www.youtube.com/watch?v=NkBADt0A_CU")
+[Agentic Coot demo video on YouTube](https://www.youtube.com/watch?v=NkBADt0A_CU)
 
 ## Why are Skills the New Source Code?
 
