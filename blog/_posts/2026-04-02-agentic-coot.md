@@ -258,7 +258,10 @@ validation, blobs, model-building and refinement. The resulting
 SKILL.md files are in the `mcp/docs/skills` directory in the coot git
 repo.
 
-I have slowed down on the creation of skills now. Mostly now I (and Claude) are making smaller edits. The ability of Claude to map from intent (in any language) to the specifics of the Coot API is considerably enhanced by using synonyms in the documentation.
+I have slowed down on the creation of skills now. Mostly now I (and Claude)
+are making smaller edits. The ability of Claude to map from intent (in any
+language) to the specifics of the Coot API is considerably enhanced by using
+synonyms in the documentation.
 
 ## How It Felt
 
@@ -381,7 +384,7 @@ and workflow - recorded in Markdown files!
 
 ## Caveat
 
-I have not tried this with anything other than Claude.
+I have not tried this with any other LLM than Claude.
 
 I intend to try with Qwen 3 or Llama 4 - because the market (such as it is)
 for this will probably be with Open models.
@@ -395,7 +398,7 @@ I did most of this work with
 
 ## Extra Reading
 
-  - https://mckaywrigley.substack.com/p/my-thoughts-on-claude-opus-45
+  - [https://mckaywrigley.substack.com/p/my-thoughts-on-claude-opus-45](https://mckaywrigley.substack.com/p/my-thoughts-on-claude-opus-45)
 
 ### Acknowledgements
 
@@ -405,7 +408,7 @@ for myself shortly before Christmas 2025.
 
 ### References
 
-[1] https://mail.cgl.ucsf.edu/mailman/archives/list/chimerax-users@cgl.ucsf.edu/message/GBWI7B4VH4X2B5IJZ6CEMOINHVDSSAOJ/
+[1] [ https://mail.cgl.ucsf.edu/mailman/archives/list/chimerax-users@cgl.ucsf.edu/message/GBWI7B4VH4X2B5IJZ6CEMOINHVDSSAOJ/](https://mail.cgl.ucsf.edu/mailman/archives/list/chimerax-users@cgl.ucsf.edu/message/GBWI7B4VH4X2B5IJZ6CEMOINHVDSSAOJ/)
 
 [2] PyMOL https://www.pymol.org/
 
