@@ -2,7 +2,9 @@
 // Created by Jordan Dialpuri on 04/04/2026.
 //
 
+#include <cmath>
 #include <iostream>
+#include <random>
 #include "scene.hh"
 
 int main(int argc, char **argv) {
@@ -20,5 +22,19 @@ int main(int argc, char **argv) {
    constexpr float phi = 0;
    auto current_selection_mesh = make_ring_at_sphere_click(theta, phi);
    main_mesh.add_submesh(current_selection_mesh);
+
+   // Scatter random pinpoints uniformly across the sphere surface.
+   // Uniform sampling requires theta = acos(U[-1,1]); plain U[0,π] clusters at the poles.
+   std::mt19937 rng(42);
+   std::uniform_real_distribution<float> dist_cos(-1.0f, 1.0f);
+   std::uniform_real_distribution<float> dist_phi(0.0f, 2.0f * static_cast<float>(M_PI));
+
+   constexpr int n_pinpoints = 50;
+   for (int i = 0; i < n_pinpoints; ++i) {
+      const float pin_theta = std::acos(dist_cos(rng));
+      const float pin_phi   = dist_phi(rng);
+      main_mesh.add_submesh(make_pinpoint_at_sphere_point(pin_theta, pin_phi));
+   }
+
    main_mesh.export_to_gltf(output, 0.6f, 0.2f, true);
 }

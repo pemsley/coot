@@ -19,4 +19,7 @@ coot::simple_mesh_t make_mesh(const std::string& density_path = "");
 // a viewer reports a click on the sphere at a known (theta, phi).
 coot::simple_mesh_t make_ring_at_sphere_click(float theta, float phi);
 
+// Place a pin (thin shaft + sphere head) on the sphere surface at (theta, phi).
+coot::simple_mesh_t make_pinpoint_at_sphere_point(float theta, float phi);
+
 #endif  // COOT_SCENE_H

@@ -182,3 +182,25 @@ coot::simple_mesh_t make_ring_at_sphere_click(float theta, float phi) {
 
    return mesh;
 }
+
+
+
+coot::simple_mesh_t make_pinpoint_at_sphere_point(float theta, float phi) {
+   const glm::vec3 dir(
+       std::sin(theta) * std::cos(phi),
+       std::sin(theta) * std::sin(phi),
+       std::cos(theta)
+   );
+
+   constexpr float base_r  = 4.00f;  // sphere surface
+   constexpr float tip_r   = 4.40f;  // top of shaft
+   constexpr float head_r  = 4.48f;  // centre of pin head
+
+   const glm::vec4 shaft_col(0.85f, 0.85f, 0.85f, 1.0f);  // light grey shaft
+   const glm::vec4 head_col (0.90f, 0.15f, 0.15f, 1.0f);  // red head
+
+   coot::simple_mesh_t mesh;
+   mesh.add_submesh(make_stick(dir * base_r, dir * tip_r, 0.02f, shaft_col, 8));
+   mesh.add_submesh(make_atom_sphere(dir * head_r, 0.08f, head_col));
+   return mesh;
+}
