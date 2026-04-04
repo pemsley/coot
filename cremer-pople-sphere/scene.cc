@@ -107,10 +107,56 @@ coot::simple_mesh_t make_radial_conformations() {
 
 }
 
+/**
+ * Constructs a composite mesh by combining submeshes generated from internal utility functions.
+ *
+ * The composite mesh is built by adding two submeshes: one representing a cage structure
+ * and another representing radial conformations.
+ *
+ * @return A `coot::simple_mesh_t` object containing the combined mesh data.
+ */
 coot::simple_mesh_t make_mesh() {
    coot::simple_mesh_t mesh;
 
    mesh.add_submesh(make_cage());
    mesh.add_submesh(make_radial_conformations());
+   return mesh;
+}
+
+/**
+ * Creates a ring mesh centered at a point on a sphere, corresponding to the specified spherical coordinates.
+ *
+ * @param theta Polar angle in radians, representing the angle from the positive z-axis.
+ * @param phi Azimuthal angle in radians, representing the angle from the positive x-axis in the xy-plane.
+ *
+ * @return A `coot::simple_mesh_t` object representing the generated ring mesh.
+ */
+coot::simple_mesh_t make_ring_at_sphere_click(float theta, float phi) {
+   // Direction on the unit sphere corresponding to (theta, phi)
+   const glm::vec3 dir(
+       std::sin(theta) * std::cos(phi),
+       std::sin(theta) * std::sin(phi),
+       std::cos(theta)
+   );
+
+   // Place the ring slightly outside the cage surface
+   constexpr float placement_r = 5.0f;
+   const float cage_outer_r  = 4.00f;  // connector starts just outside cage
+
+   const glm::vec3 center = dir * placement_r;
+
+   const glm::vec4 atom_col(0.95f, 0.85f, 0.20f, 1.0f);  // gold
+   const glm::vec4 bond_col(0.75f, 0.65f, 0.15f, 1.0f);
+
+   coot::simple_mesh_t mesh;
+   auto ring_mesh =  make_ring(theta, phi, center, dir, 0.8f, atom_col, bond_col);
+   mesh.add_submesh(ring_mesh);
+
+   glm::vec3 start = dir * cage_outer_r;
+   glm::vec3 end   = dir * placement_r;
+   constexpr float radius = 0.02f;
+   constexpr int slices = 16;
+   mesh.add_submesh(make_stick(start, end, radius, atom_col, slices));
+
    return mesh;
 }
