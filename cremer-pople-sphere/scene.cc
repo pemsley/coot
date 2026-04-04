@@ -5,6 +5,7 @@
 
 #include "scene.hh"
 #include "data_sphere.hh"
+#include "density_map.hh"
 #include "primitives.hh"
 #include "ring.hh"
 #include "coot-utils/shape-types.hh"
@@ -14,7 +15,7 @@ coot::colour_holder to_colour(const glm::vec4 &c) {
    return coot::colour_holder(c.r, c.g, c.b, c.a);
 }
 
-coot::simple_mesh_t make_cage() {
+coot::simple_mesh_t make_cage(const std::string& density_path) {
    coot::simple_mesh_t mesh;
    mesh.set_name("Cremer-Pople Cage");
 
@@ -61,7 +62,28 @@ coot::simple_mesh_t make_cage() {
       mesh.add_submesh(coot::torus_mesh(torus));
    }
 
-   mesh.add_submesh(make_data_sphere(3.99f, 128, 128));
+   constexpr int default_lat = 128;
+   constexpr int default_lon = 128;
+
+   if (!density_path.empty()) {
+      std::vector<float> density;
+      int used_lat = default_lat;
+      int used_lon = default_lon;
+
+      // Dispatch on extension: .bin = precomputed binary, anything else = CSV
+      const bool is_binary = density_path.size() >= 4 &&
+                             density_path.substr(density_path.size() - 4) == ".bin";
+      if (is_binary)
+         density = load_density_grid_binary(density_path, used_lat, used_lon);
+      else
+         density = load_density_grid_csv(density_path, default_lat, default_lon);
+
+      mesh.add_submesh(density.empty()
+         ? make_data_sphere(3.99f, default_lat, default_lon)
+         : make_data_sphere(3.99f, used_lat, used_lon, density));
+   } else {
+      mesh.add_submesh(make_data_sphere(3.99f, default_lat, default_lon));
+   }
 
    return mesh;
 }
@@ -115,10 +137,10 @@ coot::simple_mesh_t make_radial_conformations() {
  *
  * @return A `coot::simple_mesh_t` object containing the combined mesh data.
  */
-coot::simple_mesh_t make_mesh() {
+coot::simple_mesh_t make_mesh(const std::string& density_path) {
    coot::simple_mesh_t mesh;
 
-   mesh.add_submesh(make_cage());
+   mesh.add_submesh(make_cage(density_path));
    mesh.add_submesh(make_radial_conformations());
    return mesh;
 }

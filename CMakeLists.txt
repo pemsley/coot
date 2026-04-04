@@ -615,6 +615,7 @@ target_link_libraries(mmcif-tests PUBLIC ${MMDB2_LIBRARY})
 
 add_library(cremer-pople-api
         ${coot_src}/cremer-pople-sphere/data_sphere.cc
+        ${coot_src}/cremer-pople-sphere/density_map.cc
         ${coot_src}/cremer-pople-sphere/primitives.cc
         ${coot_src}/cremer-pople-sphere/ring.cc
         ${coot_src}/cremer-pople-sphere/scene.cc

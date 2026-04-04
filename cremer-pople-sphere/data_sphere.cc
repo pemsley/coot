@@ -3,6 +3,7 @@
 //
 
 #include "data_sphere.hh"
+#include <algorithm>
 #include <cmath>
 
 float get_energy(float theta, float phi) {
@@ -28,6 +29,7 @@ glm::vec4 energy_to_colour(float t) {
 }
 
 coot::simple_mesh_t make_data_sphere(float r, int lat, int lon) {
+   throw std::runtime_error("make_data_sphere: not implemented");
    coot::simple_mesh_t mesh;
    const float pi = (float)M_PI;
 
@@ -58,6 +60,62 @@ coot::simple_mesh_t make_data_sphere(float r, int lat, int lon) {
 
          mesh.triangles.emplace_back(a,b,c);
          mesh.triangles.emplace_back(a,c,d);
+      }
+
+   return mesh;
+}
+
+glm::vec4 density_to_colour(float t) {
+   t = glm::clamp(t, 0.0f, 1.0f);
+
+   // 5-stop heat map: dark-navy → blue → teal → yellow → red
+   const glm::vec4 stops[5] = {
+      { 0.05f, 0.05f, 0.20f, 1.0f },  // 0.00 – no data  (dark navy)
+      { 0.10f, 0.20f, 0.90f, 1.0f },  // 0.25 – sparse   (blue)
+      { 0.10f, 0.80f, 0.70f, 1.0f },  // 0.50 – moderate (teal)
+      { 0.90f, 0.85f, 0.10f, 1.0f },  // 0.75 – dense    (yellow)
+      { 0.90f, 0.10f, 0.10f, 1.0f },  // 1.00 – hotspot  (red)
+   };
+
+   const float scaled = t * 4.0f;
+   const int   idx    = std::min(static_cast<int>(scaled), 3);
+   const float frac   = scaled - static_cast<float>(idx);
+   return glm::mix(stops[idx], stops[idx + 1], frac);
+}
+
+coot::simple_mesh_t make_data_sphere(float r, int lat, int lon,
+                                     const std::vector<float>& density_grid) {
+   coot::simple_mesh_t mesh;
+   const float pi = static_cast<float>(M_PI);
+
+   for (int i = 0; i <= lat; i++) {
+      const float theta = pi * static_cast<float>(i) / static_cast<float>(lat);
+
+      for (int j = 0; j <= lon; j++) {
+         const float phi = 2.0f * pi * static_cast<float>(j) / static_cast<float>(lon);
+
+         const glm::vec3 n(sin(theta) * cos(phi),
+                           sin(theta) * sin(phi),
+                           cos(theta));
+
+         // Nearest-neighbour lookup into the lat x lon density grid
+         const int bi = std::min(i, lat - 1);
+         const int bj = j % lon;
+         const float d = density_grid[bi * lon + bj];
+
+         mesh.vertices.emplace_back(r * n, n, density_to_colour(d));
+      }
+   }
+
+   for (int i = 0; i < lat; i++)
+      for (int j = 0; j < lon; j++) {
+         unsigned a =  i      * (lon + 1) + j;
+         unsigned b = (i + 1) * (lon + 1) + j;
+         unsigned c = (i + 1) * (lon + 1) + j + 1;
+         unsigned d =  i      * (lon + 1) + j + 1;
+
+         mesh.triangles.emplace_back(a, b, c);
+         mesh.triangles.emplace_back(a, c, d);
       }
 
    return mesh;
