@@ -4746,6 +4746,8 @@ coot::molecule_t::export_model_molecule_as_gltf(const std::string &mode,
 
    coot::simple_mesh_t sm = coot::instanced_mesh_to_simple_mesh(im);
    bool as_binary = true; // test the extension of file_name
+   std::string ext = coot::util::file_name_extension(file_name);
+   if (ext == ".gltf") as_binary = false;
    sm.export_to_gltf(file_name, gltf_pbr_roughness, gltf_pbr_metalicity, as_binary);
 
 }
@@ -4758,6 +4760,8 @@ coot::molecule_t::export_molecular_representation_as_gltf(const std::string &ato
 
    coot::simple_mesh_t sm = get_molecular_representation_mesh(atom_selection_cid, colour_scheme, style, secondary_structure_usage_flag);
    bool as_binary = true; // test the extension of file_name
+   std::string ext = coot::util::file_name_extension(file_name);
+   if (ext == ".gltf") as_binary = false;
    sm.export_to_gltf(file_name, gltf_pbr_roughness, gltf_pbr_metalicity, as_binary);
 }
 
@@ -4768,6 +4772,8 @@ coot::molecule_t::export_chemical_features_as_gltf(const std::string &cid,
 
    coot::simple_mesh_t sm = get_chemical_features_mesh(cid, geom);
    bool as_binary = true; // test the extension of file_name
+   std::string ext = coot::util::file_name_extension(file_name);
+   if (ext == ".gltf") as_binary = false;
    sm.export_to_gltf(file_name, gltf_pbr_roughness, gltf_pbr_metalicity, as_binary);
 }
 
