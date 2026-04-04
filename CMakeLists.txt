@@ -492,8 +492,13 @@ add_library(cootapi SHARED
             )
 
 # wretched mae
-# find_library(MAEPARSER_LIBS maeparser)
-# target_link_libraries(cootapi PRIVATE ${MAEPARSER_LIBS})
+find_library(MAEPARSER_LIBS maeparser)
+if(MAEPARSER_LIBS)
+    get_filename_component(MAEPARSER_DIR ${MAEPARSER_LIBS} DIRECTORY)
+    target_link_directories(cootapi PUBLIC ${MAEPARSER_DIR})
+endif()
+target_link_libraries(cootapi PUBLIC ${MAEPARSER_LIBS})
+
 
 nanobind_add_module(coot_headless_api ${coot_src}/api/molecules-container-nanobind.cc
                                       ${coot_src}/api/molecules-container-nanobind-functions.cc)
@@ -607,6 +612,20 @@ target_link_libraries(test-molecules-container PUBLIC cootapi ${SSM_LIBRARY} ${C
 target_include_directories(mmcif-tests PRIVATE ${MMDB2_INCLUDE_DIR} ${CLIPPER-MMDB_INCLUDE_DIR})
 
 target_link_libraries(mmcif-tests PUBLIC ${MMDB2_LIBRARY})
+
+add_library(cremer-pople-api
+        ${coot_src}/cremer-pople-sphere/data_sphere.cc
+        ${coot_src}/cremer-pople-sphere/primitives.cc
+        ${coot_src}/cremer-pople-sphere/ring.cc
+        ${coot_src}/cremer-pople-sphere/scene.cc
+)
+target_link_libraries(cremer-pople-api PUBLIC cootapi ${SSM_LIBRARY} ${CLIPPER-MINIMOL_LIBRARY} ${CLIPPER-MMDB_LIBRARY} ${CLIPPER-CIF_LIBRARY} ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${CLIPPER-CONTRIB_LIBRARY} gemmi::gemmi_cpp  glm::glm)
+target_include_directories(cremer-pople-api PRIVATE ${coot_src})
+
+add_executable(mesh-to-gltf ${coot_src}/cremer-pople-sphere/main.cpp)
+target_link_libraries(mesh-to-gltf cremer-pople-api)
+target_include_directories(mesh-to-gltf PRIVATE ${coot_src})
+
 
 set_target_properties(cootapi PROPERTIES INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 
