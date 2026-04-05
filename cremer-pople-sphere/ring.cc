@@ -68,9 +68,6 @@ coot::simple_mesh_t make_ring(
       const glm::vec4 col = (i == 0) ? oxygen_colour : atom_colour;
       mesh.add_submesh(make_atom_sphere(world[i], bond_length * 0.12f, col));
    }
-      // mesh.add_submesh(make_atom_sphere(world[i],
-      //                                   bond_length*0.12f,
-      //                                   atom_colour));
 
    return mesh;
 }

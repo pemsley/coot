@@ -489,6 +489,12 @@ add_library(cootapi SHARED
             ${coot_src}/compat/getopt.cc
             ${coot_src}/compat/getopt1.cc
             ${coot_src}/ideal/write-png.cc
+            # Cremer-Pople
+            ${coot_src}/cremer-pople-sphere/data_sphere.cc
+            ${coot_src}/cremer-pople-sphere/density_map.cc
+            ${coot_src}/cremer-pople-sphere/primitives.cc
+            ${coot_src}/cremer-pople-sphere/ring.cc
+            ${coot_src}/cremer-pople-sphere/scene.cc
             )
 
 # wretched mae
@@ -582,6 +588,10 @@ add_executable(test-molecules-container ${coot_src}/api/test-molecules-container
 
 add_executable(mmcif-tests ${coot_src}/api/mmcif-tests-main.cc ${coot_src}/api/mmcif-tests.cc)
 
+add_executable(mesh-to-gltf ${coot_src}/cremer-pople-sphere/main.cpp)
+target_link_libraries(mesh-to-gltf cootapi glm::glm)
+target_include_directories(mesh-to-gltf PRIVATE ${coot_src})
+
 target_compile_features(coot-mini-rsr PRIVATE cxx_std_17)
 
 target_compile_features(coot-res-tracer-libcootapi PRIVATE cxx_std_17)
@@ -612,21 +622,6 @@ target_link_libraries(test-molecules-container PUBLIC cootapi ${SSM_LIBRARY} ${C
 target_include_directories(mmcif-tests PRIVATE ${MMDB2_INCLUDE_DIR} ${CLIPPER-MMDB_INCLUDE_DIR})
 
 target_link_libraries(mmcif-tests PUBLIC ${MMDB2_LIBRARY})
-
-add_library(cremer-pople-api
-        ${coot_src}/cremer-pople-sphere/data_sphere.cc
-        ${coot_src}/cremer-pople-sphere/density_map.cc
-        ${coot_src}/cremer-pople-sphere/primitives.cc
-        ${coot_src}/cremer-pople-sphere/ring.cc
-        ${coot_src}/cremer-pople-sphere/scene.cc
-)
-target_link_libraries(cremer-pople-api PUBLIC cootapi ${SSM_LIBRARY} ${CLIPPER-MINIMOL_LIBRARY} ${CLIPPER-MMDB_LIBRARY} ${CLIPPER-CIF_LIBRARY} ${CLIPPER-CORE_LIBRARY} ${CLIPPER-CCP4_LIBRARY} ${CLIPPER-CONTRIB_LIBRARY} gemmi::gemmi_cpp  glm::glm)
-target_include_directories(cremer-pople-api PRIVATE ${coot_src})
-
-add_executable(mesh-to-gltf ${coot_src}/cremer-pople-sphere/main.cpp)
-target_link_libraries(mesh-to-gltf cremer-pople-api)
-target_include_directories(mesh-to-gltf PRIVATE ${coot_src})
-
 
 set_target_properties(cootapi PROPERTIES INSTALL_RPATH "${CMAKE_INSTALL_PREFIX}/lib")
 

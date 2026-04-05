@@ -2,6 +2,8 @@
 // Created by Jordan Dialpuri on 04/04/2026.
 //
 
+#include "data.h"
+
 #include <cmath>
 #include <iostream>
 #include <random>
@@ -9,13 +11,11 @@
 
 int main(int argc, char **argv) {
    std::string output      = "output.glb";
-   std::string density_csv = "";
 
    if (argc > 1) output      = argv[1];
-   if (argc > 2) density_csv = argv[2];
 
    coot::simple_mesh_t main_mesh;
-   auto mesh = make_mesh(density_csv);
+   auto mesh = make_mesh();
    main_mesh.add_submesh(mesh);
 
    constexpr float theta = 45 * static_cast<float>(M_PI) / 180;
@@ -37,4 +37,17 @@ int main(int argc, char **argv) {
    }
 
    main_mesh.export_to_gltf(output, 0.6f, 0.2f, true);
+}
+
+
+coot::simple_mesh_t create_cremer_pople_sphere(const std::vector<CremerPopleData>& cremer_pople_data) {
+   coot::simple_mesh_t main_mesh;
+   auto mesh = make_mesh();
+   main_mesh.add_submesh(mesh);
+
+   for (const auto point : cremer_pople_data) {
+      main_mesh.add_submesh(make_pinpoint_at_sphere_point(point.theta, point.phi));
+   }
+
+   return main_mesh;
 }
