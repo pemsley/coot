@@ -7145,6 +7145,8 @@ on_material_lighting_ambient_colorbutton_color_set(GtkColorButton *colorbutton,
       glm::vec4 ambient(rgba.red, rgba.green, rgba.blue, 1.0f);
       g.molecules[imol].material_for_models.ambient = ambient;
       g.molecules[imol].model_molecule_meshes.set_material_ambient(ambient);
+      for (auto &mesh : g.molecules[imol].meshes)
+         mesh.set_material_ambient(ambient);
       g.graphics_draw();
    }
 }
@@ -7161,8 +7163,10 @@ on_material_lighting_diffuse_colorbutton_color_set(GtkColorButton *colorbutton,
    graphics_info_t g;
    if (g.is_valid_model_molecule(imol)) {
       glm::vec4 diffuse(rgba.red, rgba.green, rgba.blue, 1.0f);
-      g.molecules[imol].material_for_models.ambient = diffuse;
+      g.molecules[imol].material_for_models.diffuse = diffuse;
       g.molecules[imol].model_molecule_meshes.set_material_diffuse(diffuse);
+      for (auto &mesh : g.molecules[imol].meshes)
+         mesh.set_material_diffuse(diffuse);
       g.graphics_draw();
    }
 }
