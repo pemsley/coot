@@ -1,7 +1,8 @@
 
-
 #include <cmath>
 #include <iostream>
+#include <algorithm>
+
 #include <clipper/core/map_interp.h>
 #include "coot-coord-utils.hh"
 #include "rebox-map.hh"
