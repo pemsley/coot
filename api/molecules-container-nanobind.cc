@@ -462,6 +462,11 @@ NB_MODULE(coot_headless_api, m) {
          &molecules_container_t::apply_transformation_to_atom_selection,
          nb::arg("imol"), nb::arg("atoms_selection_cid"), nb::arg("n_atoms"), nb::arg("m00"), nb::arg("m01"), nb::arg("m02"), nb::arg("m10"), nb::arg("m11"), nb::arg("m12"), nb::arg("m20"), nb::arg("m21"), nb::arg("m22"), nb::arg("c0"), nb::arg("c1"), nb::arg("c2"), nb::arg("t0"), nb::arg("t1"), nb::arg("t2"),
          get_docstring_from_xml("apply_transformation_to_atom_selection").c_str())
+    .def("apply_translation_to_molecule",
+         &molecules_container_t::apply_translation_to_molecule,
+         nb::arg("imol"), nb::arg("tx"), nb::arg("ty"), nb::arg("tz"),
+         "Apply a translation to all atoms in the molecule.\n"
+         "Returns True on success, False on failure.")
     .def("assign_sequence",
          &molecules_container_t::assign_sequence,
          nb::arg("imol_model"), nb::arg("imol_map"),
@@ -1276,6 +1281,11 @@ NB_MODULE(coot_headless_api, m) {
          &molecules_container_t::redo,
          nb::arg("imol"),
          get_docstring_from_xml("redo").c_str())
+    .def("rebox_map",
+         &molecules_container_t::rebox_map,
+         nb::arg("imol_model"), nb::arg("atom_selection_cid"),
+         nb::arg("imol_map"), nb::arg("border"), nb::arg("n_pixels_per_edge"),
+         get_docstring_from_xml("rebox_map").c_str())
     .def("refine",
          &molecules_container_t::refine,
          nb::arg("imol"), nb::arg("n_cycles"),

@@ -344,6 +344,7 @@ add_library(cootapi SHARED
             ${coot_src}/coot-utils/pae.cc
             ${coot_src}/coot-utils/coot-tree-extras.cc
             ${coot_src}/coot-utils/coot-map-heavy.cc
+            ${coot_src}/coot-utils/rebox-map.cc
             ${coot_src}/coot-utils/jed-flip.cc
             ${coot_src}/coot-utils/pepflip-using-difference-map.cc
             ${coot_src}/coot-utils/atom-overlaps.cc

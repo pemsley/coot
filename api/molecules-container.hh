@@ -2469,6 +2469,16 @@ public:
                                               float c0, float c1, float c2, // the centre of the rotation
                                               float t0, float t1, float t2); // translation
 
+   //! Apply a translation to all the atoms in the molecule
+   //!
+   //! @param imol is the model molecule index
+   //! @param tx is the x component of the translation in Angstroms
+   //! @param ty is the y component of the translation in Angstroms
+   //! @param tz is the z component of the translation in Angstroms
+   //!
+   //! @return true on success, false on failure
+   bool apply_translation_to_molecule(int imol, float tx, float ty, float tz);
+
    //! Update the positions of the atoms in the residue
    //!
    //! @param imol is the model molecule index
@@ -3899,6 +3909,23 @@ public:
    // -------------------------------- Other ---------------------------------------
 
    void test_function(const std::string &s);
+
+   //! Rebox a map to a cubic box around the atoms in the model selection.
+   //!
+   //! Create a new P1 cubic map whose grid spacing matches the original map, tightly enclosing
+   //! the selected atoms plus a border. The map density is filled by cubic interpolation from
+   //! the original map.
+   //!
+   //! @param imol_model is the model molecule index
+   //! @param atom_selection_cid is the atom selection CID, e.g. "//A" for chain A, "//" for all atoms
+   //! @param imol_map is the map molecule index
+   //! @param border is the padding in Angstroms beyond the atom extents
+   //! @param n_pixels_per_edge is the number of grid points along each edge (0 = auto-determine from grid spacing)
+   //!
+   //! @return a JSON string containing "molecule_number" (the new map index) and "offset" (the translation
+   //!         applied to the map origin as [x, y, z])
+   std::string rebox_map(int imol_model, const std::string &atom_selection_cid,
+                         int imol_map, float border, unsigned int n_pixels_per_edge);
 
 #if NB_VERSION_MAJOR
    // skip this (old) block for nanobinds
