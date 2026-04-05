@@ -37,6 +37,7 @@
 #include "phi-psi-prob.hh"
 #include "instancing.hh"
 #include "coot-colour.hh" // put this in utils
+#include "ligand/molecular-replacement.hh"  // coot::mr_solution_t, glm/gtc/quaternion.hpp
 #include "saved-strand-info.hh"
 #include "svg-store-key.hh"
 #include "moorhen-h-bonds.hh"
@@ -2419,6 +2420,41 @@ public:
    //! @return the molecule centre. If the number is less than zero, there
    //! was a problem finding the molecule or atoms.
    double get_radius_of_gyration(int imol) const;
+
+   //! A single molecular replacement solution
+   struct mr_solution_t {
+      glm::quat rotation;              ///< orientation (quaternion)
+      float rotation_score;             ///< rotation function score
+      clipper::Coord_orth translation;  ///< position in map coordinates
+      float translation_score;          ///< translation function sigma score
+      float mean_density_at_ca;         ///< mean map density at CA (protein) and C1' (nucleic acid) positions
+      int imol;                         ///< molecule index of the placed model (-1 if not written)
+      std::string pdb_filename;         ///< filename of the written PDB
+      mr_solution_t() : rotation(glm::quat(1,0,0,0)), rotation_score(0.0f),
+                         translation(0,0,0), translation_score(0.0f),
+                         mean_density_at_ca(0.0f), imol(-1) {}
+   };
+
+   //! Molecular replacement: fit a model into a cryo-EM map
+   //!
+   //! Given a map molecule, a model molecule, and a target position (the user's
+   //! screen centre), determine the orientation and position that best fit the
+   //! model into the density around that point.
+   //!
+   //! @param imol_map is the map molecule index (cryo-EM map)
+   //! @param imol_model is the model molecule index (search fragment)
+   //! @param x the x-coordinate of the target position
+   //! @param y the y-coordinate of the target position
+   //! @param z the z-coordinate of the target position
+   //! @param n_rotation_solutions the number of top rotation solutions to refine and translate (default 10)
+   //! @param n_translation_solutions the number of top translation solutions per rotation (default 10)
+   //!
+   //! @return a vector of MR solutions sorted by translation score, with PDB files written
+   //!         for the top solutions. Also writes a summary table to stdout.
+   std::vector<mr_solution_t> molecular_replacement_fit(int imol_map, int imol_model,
+                                                         float x, float y, float z,
+                                                         int n_rotation_solutions = 10,
+                                                         int n_translation_solutions = 10);
 
    //! Copy the molecule
    //!
