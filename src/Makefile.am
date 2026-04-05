@@ -299,6 +299,7 @@ AM_CPPFLAGS = \
 	$(SQLITE3_CFLAGS)               \
 	$(GEMMI_CXXFLAGS)               \
 	$(BACKWARD_FLAGS)               \
+	$(VTE_CFLAGS)                   \
         $(CURL_CFLAGS)
 
 #	$(WITH_SCRIPT_CFLAGS)
@@ -355,6 +356,7 @@ WinCoot_SOURCES = main.cc glade-callbacks.cc glade-callbacks-main-window.cc \
         new-startup.cc \
         setup-gui-components.cc \
         setup-gui-components.hh \
+	vte.cc vte.hh \
 	create-menu-item-actions.cc \
 	create-menu-item-actions.hh
 else
@@ -364,6 +366,7 @@ MacCoot_SOURCES = main.cc glade-callbacks.cc glade-callbacks-main-window.cc \
         new-startup.cc \
         setup-gui-components.cc \
         setup-gui-components.hh \
+	vte.cc vte.hh \
 	create-menu-item-actions.cc \
 	create-menu-item-actions.hh
 
@@ -373,6 +376,7 @@ coot_1_SOURCES = main.cc glade-callbacks.cc glade-callbacks-main-window.cc \
         new-startup.cc \
         setup-gui-components.cc \
         setup-gui-components.hh \
+	vte.cc vte.hh \
 	create-menu-item-actions.cc \
 	create-menu-item-actions.hh
 endif
@@ -393,7 +397,7 @@ WinCoot_LDADD =  \
 	$(top_builddir)/lidia-core/libcoot-lidia-core.la   \
 	$(top_builddir)/geometry/libcoot-geometry.la       \
 	$(top_builddir)/utils/libcoot-utils.la             \
-	$(CLIPPER_LIBS) $(CURL_LIBS) $(GUILE_LDFLAGS) $(GTK_LIBS) $(EPOXY_LIBS) $(EMBEDDED_PYTHON_LIBS)
+	$(CLIPPER_LIBS) $(CURL_LIBS) $(GUILE_LDFLAGS) $(GTK_LIBS) $(EPOXY_LIBS) $(VTE_LIBS) $(EMBEDDED_PYTHON_LIBS)
 else
 if OS_DARWIN
 MacCoot_LDADD =  \
@@ -408,7 +412,7 @@ MacCoot_LDADD =  \
 	$(top_builddir)/lidia-core/libcoot-lidia-core.la   \
 	$(top_builddir)/geometry/libcoot-geometry.la       \
 	$(top_builddir)/utils/libcoot-utils.la             \
-	$(CLIPPER_LIBS) $(CURL_LIBS) $(GUILE_LDFLAGS) $(GTK_LIBS) $(EPOXY_LIBS) $(EMBEDDED_PYTHON_LIBS)
+	$(CLIPPER_LIBS) $(CURL_LIBS) $(GUILE_LDFLAGS) $(GTK_LIBS) $(EPOXY_LIBS) $(VTE_LIBS) $(EMBEDDED_PYTHON_LIBS)
 else
 coot_1_LDADD =  \
 	libcootsumo.la                                     \
@@ -422,7 +426,7 @@ coot_1_LDADD =  \
 	$(top_builddir)/lidia-core/libcoot-lidia-core.la   \
 	$(top_builddir)/geometry/libcoot-geometry.la       \
 	$(top_builddir)/utils/libcoot-utils.la             \
-	$(CLIPPER_LIBS) $(CURL_LIBS) $(GUILE_LDFLAGS) $(GTK_LIBS) $(EPOXY_LIBS) $(EMBEDDED_PYTHON_LIBS)
+	$(CLIPPER_LIBS) $(CURL_LIBS) $(GUILE_LDFLAGS) $(GTK_LIBS) $(EPOXY_LIBS) $(VTE_LIBS) $(EMBEDDED_PYTHON_LIBS)
 endif
 endif
 

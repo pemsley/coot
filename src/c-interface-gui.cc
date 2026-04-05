@@ -32,6 +32,10 @@
 
 #include "compat/coot-sysdep.h"
 
+#ifdef HAVE_VTE
+#include "vte.hh"
+#endif
+
 
 #ifndef HAVE_VECTOR
 #define HAVE_VECTOR
@@ -1840,13 +1844,21 @@ on_recentre_on_read_pdb_toggle_button_toggled (GtkButton       *button,
 
 
 void reveal_python_scripting_entry() {
+#ifdef HAVE_VTE
+   show_vte_terminal();
+#else
    GtkRevealer* revealer = GTK_REVEALER(widget_from_builder("python_scripting_revealer"));
-   gtk_revealer_set_reveal_child(revealer,TRUE);
+   gtk_revealer_set_reveal_child(revealer, TRUE);
+#endif
 }
 
 void toggle_reveal_python_scripting_entry() {
+#ifdef HAVE_VTE
+   toggle_vte_terminal_visibility();
+#else
    GtkRevealer* revealer = GTK_REVEALER(widget_from_builder("python_scripting_revealer"));
-   gtk_revealer_set_reveal_child(revealer,!gtk_revealer_get_reveal_child(revealer));
+   gtk_revealer_set_reveal_child(revealer, !gtk_revealer_get_reveal_child(revealer));
+#endif
 }
 
 // We want to evaluate the string when we get a carriage return
