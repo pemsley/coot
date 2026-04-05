@@ -1382,7 +1382,11 @@ float get_positive_float_from_entry(GtkEntry *w) {
 int
 coot_checked_exit(int retval) {
 
+
    graphics_info_t g;
+
+   // std::cout << "DEBUG:: in coot_checked_exit() command_history size is " << g.command_history.commands.size() << std::endl;
+   // std::cout << "DEBUG:: in coot_checked_exit() command_history filename " << g.command_history.command_history_file_name << std::endl;
 
    // 20200822-PE save the (new) python history
    g.command_history.write_history();
