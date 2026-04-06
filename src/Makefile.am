@@ -353,7 +353,7 @@ check_PROGRAMS = test-coot-align test-cholesky test-tubular-spline
 if OS_WIN32
 WinCoot_SOURCES = main.cc glade-callbacks.cc glade-callbacks-main-window.cc \
         glade-callbacks-preferences.cc glade-callbacks-shader-settings.cc \
-        new-startup.cc \
+        startup.cc \
         setup-gui-components.cc \
         setup-gui-components.hh \
 	vte.cc vte.hh \
@@ -363,7 +363,7 @@ else
 if OS_DARWIN
 MacCoot_SOURCES = main.cc glade-callbacks.cc glade-callbacks-main-window.cc \
         glade-callbacks-preferences.cc glade-callbacks-shader-settings.cc \
-        new-startup.cc \
+        startup.cc \
         setup-gui-components.cc \
         setup-gui-components.hh \
 	vte.cc vte.hh \
@@ -373,7 +373,7 @@ MacCoot_SOURCES = main.cc glade-callbacks.cc glade-callbacks-main-window.cc \
 else
 coot_1_SOURCES = main.cc glade-callbacks.cc glade-callbacks-main-window.cc \
         glade-callbacks-preferences.cc glade-callbacks-shader-settings.cc \
-        new-startup.cc \
+        startup.cc \
         setup-gui-components.cc \
         setup-gui-components.hh \
 	vte.cc vte.hh \

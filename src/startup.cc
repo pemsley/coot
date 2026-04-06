@@ -112,7 +112,7 @@ extern "C" void run_command_line_scripts();
 
 
 void
-new_startup_realize(GtkWidget *gl_area) {
+startup_realize(GtkWidget *gl_area) {
 
    GdkDisplay *display = gdk_display_get_default();
    GListModel *lm = gdk_display_get_monitors(display);
@@ -153,7 +153,7 @@ new_startup_realize(GtkWidget *gl_area) {
 
    GError* error = gtk_gl_area_get_error(GTK_GL_AREA (gl_area));
    if (error != NULL) {
-      std::cout << "WARNING:: new_startup_realize() gtk_gl_area_get_error() returned an error: " << std::endl;
+      std::cout << "WARNING:: startup_realize() gtk_gl_area_get_error() returned an error: " << std::endl;
       std::cout << error->message << std::endl;
       return;
    }
@@ -217,12 +217,12 @@ new_startup_realize(GtkWidget *gl_area) {
    Material material;
    GLenum err = glGetError();
    if (err)
-      std::cout << "ERROR:: new_startup_realize() pos-D err is " << stringify_error_code(err)
+      std::cout << "ERROR:: startup_realize() pos-D err is " << stringify_error_code(err)
                 << std::endl;
    // g.attach_buffers();
    err = glGetError();
    if (err)
-      std::cout << "ERROR:: new_startup_realize() pos-E post attach_buffers() err is "
+      std::cout << "ERROR:: startup_realize() pos-E post attach_buffers() err is "
                 << stringify_error_code(err) << std::endl;
    g.mesh_for_extra_distance_restraints.setup_extra_distance_restraint_cylinder(material); // init
 
@@ -235,7 +235,7 @@ new_startup_realize(GtkWidget *gl_area) {
 
    err = glGetError();
    if (err)
-      std::cout << "ERROR:: new_startup_realize() --end-- err is " << stringify_error_code(err)
+      std::cout << "ERROR:: startup_realize() --end-- err is " << stringify_error_code(err)
                 << std::endl;
 
    auto run_command_line_scripts_callback = +[] (gpointer user_data) {
@@ -253,7 +253,7 @@ new_startup_realize(GtkWidget *gl_area) {
 
 
 void
-new_startup_unrealize(GtkWidget *widget) {
+startup_unrealize(GtkWidget *widget) {
 
    gtk_gl_area_make_current (GTK_GL_AREA (widget));
    if (gtk_gl_area_get_error (GTK_GL_AREA (widget)) != NULL)
@@ -263,9 +263,9 @@ new_startup_unrealize(GtkWidget *widget) {
 
 
 gboolean
-new_startup_on_glarea_render(GtkGLArea *glarea) {
+startup_on_glarea_render(GtkGLArea *glarea) {
 
-   // std::cout << "DEBUG: new_startup_on_glarea_render()!" << std::endl;
+   // std::cout << "DEBUG: startup_on_glarea_render()!" << std::endl;
    bool screen_dump_frame_buffer = false;
    return graphics_info_t::render(screen_dump_frame_buffer);
 }
@@ -273,7 +273,7 @@ new_startup_on_glarea_render(GtkGLArea *glarea) {
 
 #include "c-interface.h" // for run_script()
 void
-new_startup_on_glarea_resize(GtkGLArea *glarea, gint width, gint height) {
+startup_on_glarea_resize(GtkGLArea *glarea, gint width, gint height) {
 
    graphics_info_t g;
    // for the GL widget, not the window.
@@ -296,21 +296,21 @@ new_startup_on_glarea_resize(GtkGLArea *glarea, gint width, gint height) {
       if (! g.shaders_have_been_compiled) {
          g.init_shaders();
       } else {
-         std::cout << "in new_startup_on_glarea_resize() shaders have already been compiled!" << std::endl;
+         std::cout << "in startup_on_glarea_resize() shaders have already been compiled!" << std::endl;
       }
    }
 
 }
 
 void
-new_startup_on_glarea_enter(GtkGLArea *glarea) {
+startup_on_glarea_enter(GtkGLArea *glarea) {
 
   std::cout << "enter!" << std::endl;
 }
 
 // void on_glarea_realize(GtkWidget *widget); // using this give linking problems.
 
-GtkWidget *new_startup_create_glarea_widget() {
+GtkWidget *startup_create_glarea_widget() {
 
    GtkWidget *gl_area = gtk_gl_area_new();
 
@@ -320,10 +320,10 @@ GtkWidget *new_startup_create_glarea_widget() {
       gtk_gl_area_set_allowed_apis(GTK_GL_AREA(gl_area), GDK_GL_API_GL);
 #endif
 
-   g_signal_connect(gl_area, "realize",   G_CALLBACK(new_startup_realize),   NULL);
-   g_signal_connect(gl_area, "unrealize", G_CALLBACK(new_startup_unrealize), NULL);
-   g_signal_connect(gl_area, "render",    G_CALLBACK(new_startup_on_glarea_render),  NULL);
-   g_signal_connect(gl_area, "resize",    G_CALLBACK(new_startup_on_glarea_resize),  NULL);
+   g_signal_connect(gl_area, "realize",   G_CALLBACK(startup_realize),   NULL);
+   g_signal_connect(gl_area, "unrealize", G_CALLBACK(startup_unrealize), NULL);
+   g_signal_connect(gl_area, "render",    G_CALLBACK(startup_on_glarea_render),  NULL);
+   g_signal_connect(gl_area, "resize",    G_CALLBACK(startup_on_glarea_resize),  NULL);
 
    gtk_widget_set_can_focus(gl_area, TRUE);
    gtk_widget_set_focusable(gl_area, TRUE);
@@ -800,7 +800,7 @@ create_local_picture(const std::string &local_filename) {
 }
 
 GtkWidget*
-new_startup_create_splash_screen_window() {
+startup_create_splash_screen_window() {
 
    GtkWidget *splash_screen_window = gtk_window_new();
    gtk_window_set_title(GTK_WINDOW(splash_screen_window), "Coot-Splash");
@@ -865,7 +865,7 @@ add_key_bindings_for_application_window(GtkWidget *app_window) {
 int handle_drag_and_drop_string(const std::string &file_name);
 
 void
-new_startup_application_activate(GtkApplication *application,
+startup_application_activate(GtkApplication *application,
                                  gpointer user_data) {
 
    application_activate_data* activate_data = (application_activate_data*) user_data;
@@ -906,7 +906,7 @@ new_startup_application_activate(GtkApplication *application,
          // because it needs to look up  the coot_main_window
          // and main_toolbar and main_hbox and main_statusbar.
          // setup_python_with_coot_modules(argc, argv);
-         // So it is done in new_startup_application_activate().
+         // So it is done in startup_application_activate().
 
       };
 
@@ -924,14 +924,14 @@ new_startup_application_activate(GtkApplication *application,
       // but let's do it once at least!
 
       // this is done in the python startup now.
-      // std::cout << "#################### new_startup_application_activate()  calling graphics_info.init() "
+      // std::cout << "#################### startup_application_activate()  calling graphics_info.init() "
       //           << std::endl;
       // graphics_info.init();
 
       GtkBuilder *builder = gtk_builder_new();
       if (GTK_IS_BUILDER(builder)) {
       } else {
-         std::cout << "ERROR:: in new_startup_application_activate() builder was NOT a builder"
+         std::cout << "ERROR:: in startup_application_activate() builder was NOT a builder"
                   << std::endl;
          coot_no_state_real_exit(0);
       }
@@ -1003,7 +1003,7 @@ new_startup_application_activate(GtkApplication *application,
       make_preferences_internal();
 
       guint id = gtk_application_window_get_id(GTK_APPLICATION_WINDOW(app_window));
-      // std::cout << "debug:: new_startup_application_activate(): Window id: " << id << std::endl;
+      // std::cout << "debug:: startup_application_activate(): Window id: " << id << std::endl;
 
       graphics_info_t::set_gtkbuilder(builder);
 
@@ -1029,7 +1029,7 @@ new_startup_application_activate(GtkApplication *application,
 
       // gtk_widget_set_visible(window, TRUE);
 
-      GtkWidget *gl_area = new_startup_create_glarea_widget();
+      GtkWidget *gl_area = startup_create_glarea_widget();
       graphics_info_t::glareas.push_back(gl_area);
       gtk_widget_set_visible(gl_area, TRUE);
       gtk_box_prepend(GTK_BOX(graphics_hbox), gl_area);
@@ -1045,10 +1045,10 @@ new_startup_application_activate(GtkApplication *application,
       // gtk_widget_set_size_request() does't seem to work on the gl_area.
       // So expand the gl_area by setting thw window size just so. This makes the
       // gl_area 900x900 on my desktop. Maybe there is a better way.
-      // The console show that new_startup_on_glarea_resize() is called several times:
-      // DEBUG:: --- new_startup_on_glarea_resize() 900 900
-      // DEBUG:: --- new_startup_on_glarea_resize() 900 710
-      // DEBUG:: --- new_startup_on_glarea_resize() 900 900
+      // The console show that startup_on_glarea_resize() is called several times:
+      // DEBUG:: --- startup_on_glarea_resize() 900 900
+      // DEBUG:: --- startup_on_glarea_resize() 900 710
+      // DEBUG:: --- startup_on_glarea_resize() 900 900
       // Curious.
       gtk_window_set_default_size(GTK_WINDOW(app_window), 1076, 1023);
       gtk_window_set_default_widget(GTK_WINDOW(app_window), gl_area);
@@ -1295,7 +1295,7 @@ do_self_tests() {
 }
 
 
-int new_startup(int argc, char **argv) {
+int startup(int argc, char **argv) {
 
 #ifdef USE_LIBCURL
    curl_global_init(CURL_GLOBAL_NOTHING); // nothing extra (e.g. ssl or WIN32)
@@ -1333,7 +1333,7 @@ int new_startup(int argc, char **argv) {
 
    GtkWidget *splash_screen = nullptr;
    if (cld.use_splash_screen) {
-      splash_screen = new_startup_create_splash_screen_window();
+      splash_screen = startup_create_splash_screen_window();
       gtk_widget_set_visible(splash_screen, TRUE);
    }
 
@@ -1383,13 +1383,13 @@ int new_startup(int argc, char **argv) {
    application_activate_data *activate_data = new application_activate_data(argc,argv,std::move(cld));
    activate_data->splash_screen = splash_screen;
    // this destroys active_data
-   g_signal_connect(app, "activate", G_CALLBACK(new_startup_application_activate), activate_data);
+   g_signal_connect(app, "activate", G_CALLBACK(startup_application_activate), activate_data);
 
    // how about this - needed for Bernie/Windows?
    // void window_removed ( GtkApplication* self, GtkWindow* window, gpointer user_data )
    g_signal_connect(app, "window-removed", G_CALLBACK(window_removed), nullptr);
 
-   // delete activate_data; Nope. This is used in new_startup_application_activate.
+   // delete activate_data; Nope. This is used in startup_application_activate.
    // Delete it there if you want to delete it.
 
    // read in inchikeys - is this the right place for this?
