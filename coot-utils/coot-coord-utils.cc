@@ -9288,7 +9288,42 @@ coot::radius_of_gyration(mmdb::Manager *mol) {
 
 }
 
-      
+void
+coot::hiranuma_inversion(mmdb::Manager *mol) {
+
+   if (! mol) return;
+
+   double eight_pi_sq_over_3 = 8.0 * M_PI * M_PI / 3.0;
+
+   for (int imod=1; imod<=mol->GetNumberOfModels(); imod++) {
+      mmdb::Model *model_p = mol->GetModel(imod);
+      if (! model_p) continue;
+      int n_chains = model_p->GetNumberOfChains();
+      for (int ichain=0; ichain<n_chains; ichain++) {
+         mmdb::Chain *chain_p = model_p->GetChain(ichain);
+         if (! chain_p) continue;
+         int n_res = chain_p->GetNumberOfResidues();
+         for (int ires=0; ires<n_res; ires++) {
+            mmdb::Residue *residue_p = chain_p->GetResidue(ires);
+            if (! residue_p) continue;
+            int n_atoms = residue_p->GetNumberOfAtoms();
+            for (int iat=0; iat<n_atoms; iat++) {
+               mmdb::Atom *at = residue_p->GetAtom(iat);
+               if (! at) continue;
+               if (at->isTer()) continue;
+               double plddt = at->tempFactor;
+               if (plddt < 0.0) plddt = 0.0;
+               if (plddt > 100.0) plddt = 100.0;
+               double rmsd = 1.5 * std::exp(4.0 * (0.7 - plddt / 100.0));
+               double b = eight_pi_sq_over_3 * rmsd * rmsd;
+               at->tempFactor = static_cast<float>(b);
+            }
+         }
+      }
+   }
+}
+
+
 
 std::pair<bool, clipper::Coord_orth>
 coot::centre_of_residues(const std::vector<mmdb::Residue *> &residues) {

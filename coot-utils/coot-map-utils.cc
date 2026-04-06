@@ -2032,8 +2032,8 @@ coot::util::calc_atom_map(mmdb::Manager *mol,
 //       l.push_back(atom);
 //    }
 
+   float rescale_b_u = 1/(8*M_PI*M_PI);
    for (int iat=0; iat<n_atoms; iat++) {
-      float rescale_b_u = 1/(8*M_PI*M_PI);
       mmdb::Atom *at = sel_atoms[iat];
       if (at->isTer()) continue;
       clipper::Coord_orth pt(at->x, at->y, at->z);
@@ -2041,7 +2041,9 @@ coot::util::calc_atom_map(mmdb::Manager *mol,
       clipper::Atom cat;
       cat.set_element(ele);
       cat.set_coord_orth(pt);
-      cat.set_u_iso(at->tempFactor * rescale_b_u);
+      float u_iso = at->tempFactor * rescale_b_u;
+      if (u_iso < 0.1f) u_iso = 0.1f;  // B < ~8.0: EDcalc_iso produces NaN from 0/0
+      cat.set_u_iso(u_iso);
       cat.set_occupancy(at->occupancy);
       l.push_back(cat);
    }
@@ -2050,14 +2052,16 @@ coot::util::calc_atom_map(mmdb::Manager *mol,
 
       clipper::Atom_list al(l);
       if (false) {
-         std::cout << "======================= al size(): " << al.size() << std::endl;
-         std::cout << "in calc_atom_map() here are some atoms" << std::endl;
-         for (unsigned int iat=0; iat<10; iat++)
-            std::cout << "           "
-                      << al[iat].coord_orth().format() << " u: "
-                      << al[iat].u_iso() // u should be b/(8*pi*pi)
-                      << " ele: "
-                      << al[iat].element() << std::endl;
+         std::cout << "DEBUG:: ========= al size(): " << al.size() << std::endl;
+         std::cout << "in calc_atom_map() here are the atoms" << std::endl;
+         for (unsigned int iat=0; iat<al.size(); iat++)
+            std::cout << "           Atom at "
+                      << al[iat].coord_orth().x() << " "
+                      << al[iat].coord_orth().y() << " "
+                      << al[iat].coord_orth().z() << " "
+                      << " u: " << al[iat].u_iso() // u should be b/(8*pi*pi)
+                      << " b-calc: " << al[iat].u_iso() / rescale_b_u
+                      << " ele: "    << al[iat].element() << std::endl;
       }
       clipper::EDcalc_iso<float> e;
       e(xmap, al);
@@ -2067,6 +2071,17 @@ coot::util::calc_atom_map(mmdb::Manager *mol,
       unsigned int nan_count = 0;
       clipper::Xmap<float>::Map_reference_index inx;
       for (inx = xmap.first(); !inx.last(); inx.next()) {
+         if (std::isnan(xmap[inx])) {
+            clipper::Coord_grid grid_coords = inx.coord();
+            clipper::Coord_orth orth_coords = inx.coord_orth();
+            std::cout << "WARNING:: NaN value at " << grid_coords.format()
+                      << " coord-orth " << orth_coords.x() << " " << orth_coords.y() << " " << orth_coords.z()
+                      << std::endl;
+         }
+         if (std::isinf(xmap[inx])) {
+            clipper::Coord_grid grid_coords = inx.coord();
+            std::cout << "WARNING:: Inf value at " << grid_coords.format() << std::endl;
+         }
          if (std::isnan(xmap[inx]) || std::isinf(xmap[inx])) {
             xmap[inx] = 0.0f;
             nan_count++;

@@ -2380,6 +2380,14 @@ void nudge_the_temperature_factors_py(int imol, PyObject *residue_spec_py, float
 }
 #endif
 
+void hiranuma_inversion(int imol) {
+   if (is_valid_model_molecule(imol)) {
+      coot::hiranuma_inversion(graphics_info_t::molecules[imol].atom_sel.mol);
+      graphics_info_t g;
+      g.molecules[imol].make_bonds_type_checked(__FUNCTION__);
+      graphics_draw();
+   }
+}
 
 void set_pointer_atom_is_dummy(int i) {
    graphics_info_t::pointer_atom_is_dummy = i;
