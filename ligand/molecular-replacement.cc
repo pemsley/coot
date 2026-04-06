@@ -36,7 +36,7 @@
 #include <glm/gtc/quaternion.hpp>
 
 #include "molecular-replacement.hh"
-#include "api/rigid-body-fit.hh"
+#include "rigid-body.hh"
 #include "utils/split-indices.hh"
 #include "coot-utils/coot-map-utils.hh"
 #include "coot-utils/coot-coord-utils.hh"
@@ -554,14 +554,11 @@ coot::molecular_replacement_search(const clipper::Xmap<float> &xmap_obs,
                mr_solution_t &sol = all_solutions[isol];
                if (! sol.placed_mol) continue;
 
-               // Use rigid_body_fit_inner directly — the placed models are
-               // raw mmdb::Manager copies without UDD handles, so the
-               // higher-level rigid_body_fit() would fail on UDD lookup.
                // For MR all atoms move; the masking molecule is empty.
                coot::minimol::molecule moving_mol(sol.placed_mol);
                coot::minimol::molecule empty_mol;
                coot::minimol::molecule moved_mol =
-                  coot::api::rigid_body_fit_inner(empty_mol, moving_mol, xmap_obs);
+                  coot::rigid_body_fit_with_masking(empty_mol, moving_mol, xmap_obs);
 
                // Transfer refined coordinates back into placed_mol
                for (unsigned int ifrag=0; ifrag<moved_mol.fragments.size(); ifrag++) {
