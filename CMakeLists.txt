@@ -496,9 +496,10 @@ add_library(cootapi SHARED
             ${coot_src}/ideal/write-png.cc
             )
 
-# wretched mae
-find_library(MAEPARSER_LIBS maeparser)
-target_link_libraries(cootapi PRIVATE ${MAEPARSER_LIBS})
+# wretched mae - 20 Sept 2025
+# 2026-04-07-PE back again. Turn off (again, failed to resolve on Ubuntu GitHub action)
+# find_library(MAEPARSER_LIBS maeparser)
+# target_link_libraries(cootapi PRIVATE ${MAEPARSER_LIBS})
 
 nanobind_add_module(coot_headless_api ${coot_src}/api/molecules-container-nanobind.cc
                                       ${coot_src}/api/molecules-container-nanobind-functions.cc)
