@@ -123,7 +123,7 @@ coot::phased_translation_search(const clipper::HKL_data<clipper::datatypes::F_ph
    clipper::HKL_data<clipper::datatypes::F_phi<float>> fphi_model(hkls);
    model_map.fft_to(fphi_model);
 
-   if (true) {
+   if (false) {
       clipper::CCP4MAPfile mapout;
       mapout.open_write("atom-map.map");
       mapout.export_xmap(model_map);
