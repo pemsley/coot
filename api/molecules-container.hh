@@ -2451,10 +2451,10 @@ public:
    //!
    //! @return a vector of MR solutions sorted by translation score, with PDB files written
    //!         for the top solutions. Also writes a summary table to stdout.
-   std::vector<mr_solution_t> molecular_replacement_fit(int imol_map, int imol_model,
-                                                         float x, float y, float z,
-                                                         int n_rotation_solutions = 10,
-                                                         int n_translation_solutions = 10);
+   std::vector<mr_solution_t> molecular_placement_fit(int imol_map, int imol_model,
+                                                      float x, float y, float z,
+                                                      int n_rotation_solutions = 10,
+                                                      int n_translation_solutions = 10);
 
    //! Copy the molecule
    //!

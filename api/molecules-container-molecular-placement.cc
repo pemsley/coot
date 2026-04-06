@@ -29,10 +29,10 @@
 #include "coot-utils/coot-map-utils.hh"
 
 std::vector<molecules_container_t::mr_solution_t>
-molecules_container_t::molecular_replacement_fit(int imol_map, int imol_model,
-                                                  float x, float y, float z,
-                                                  int n_rotation_solutions,
-                                                  int n_translation_solutions) {
+molecules_container_t::molecular_placement_fit(int imol_map, int imol_model,
+                                               float x, float y, float z,
+                                               int n_rotation_solutions,
+                                               int n_translation_solutions) {
 
    std::vector<mr_solution_t> all_solutions;
 

@@ -206,7 +206,7 @@ add_library(cootapi SHARED
             ${coot_src}/api/molecules-container-ligand-fitting.cc
             ${coot_src}/api/molecules-container-maps.cc
             ${coot_src}/api/molecules-container-mmrrcc.cc
-            ${coot_src}/api/molecules-container-molecular-replacement.cc
+            ${coot_src}/api/molecules-container-molecular-placement.cc
             ${coot_src}/api/molecules-container-superpose.cc
             ${coot_src}/api/molecules-container-modelling.cc
             ${coot_src}/api/molecules-container-pyrogen.cc
@@ -497,8 +497,8 @@ add_library(cootapi SHARED
             )
 
 # wretched mae
-# find_library(MAEPARSER_LIBS maeparser)
-# target_link_libraries(cootapi PRIVATE ${MAEPARSER_LIBS})
+find_library(MAEPARSER_LIBS maeparser)
+target_link_libraries(cootapi PRIVATE ${MAEPARSER_LIBS})
 
 nanobind_add_module(coot_headless_api ${coot_src}/api/molecules-container-nanobind.cc
                                       ${coot_src}/api/molecules-container-nanobind-functions.cc)

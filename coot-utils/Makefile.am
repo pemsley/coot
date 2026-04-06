@@ -144,7 +144,8 @@ libcoot_coord_extras_la_LDFLAGS = $(SHARED_LDFLAGS)
 libcoot_map_utils_la_SOURCES = coot-map-utils.cc peak-search.cc peak-search-from-list.cc trim.cc \
 	xmap-stats.cc maps-spherical.cc pepflip-using-difference-map.cc exp-fit.cc blob-line.cc \
         slurp-map.cc find-water-baddies.cc diff-diff-map-peaks.cc mini-texture.cc positron.cc \
-        texture-as-floats.cc merge-C-and-N-terminii.cc born.cc rebox-map.cc
+        texture-as-floats.cc merge-C-and-N-terminii.cc born.cc rebox-map.cc \
+        crowther.cc patterson.cc
 
 
 # should libcoot-coord-utils link $CLIPPER_LIBS directly? (Hence CLIPPER_LIBS is not needed here)

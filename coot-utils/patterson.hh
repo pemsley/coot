@@ -26,6 +26,8 @@
 #include <vector>
 #include <clipper/core/xmap.h>
 #include <clipper/core/hkl_info.h>
+#include <clipper/core/hkl_data.h>
+#include <clipper/core/hkl_datatypes.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 
@@ -79,6 +81,24 @@ namespace coot {
    // Returns results sorted by descending score.
    std::vector<translation_search_result_t>
    phased_translation_search(const clipper::Xmap<float> &observed_map,
+                             const clipper::Xmap<float> &model_map,
+                             unsigned int n_results = 10,
+                             clipper::Xmap<float> *tf_map_p = nullptr);
+
+   // Overload that accepts pre-computed observed-map structure factors,
+   // avoiding the expensive observed_map.fft_to() on every call.
+   //
+   // fphi_obs:  pre-computed F/phi from the observed map
+   // hkls:      the HKL_info used to compute fphi_obs
+   // model_map: density calculated from the oriented model at the origin,
+   //            in the same cell/grid as observed_map
+   // observed_map: needed only for cell/grid/spacegroup (not FFT'd again)
+   // n_results: number of top peaks to return
+   // tf_map_p:  if non-null, the translation function map is copied here
+   std::vector<translation_search_result_t>
+   phased_translation_search(const clipper::HKL_data<clipper::datatypes::F_phi<float>> &fphi_obs,
+                             const clipper::HKL_info &hkls,
+                             const clipper::Xmap<float> &observed_map,
                              const clipper::Xmap<float> &model_map,
                              unsigned int n_results = 10,
                              clipper::Xmap<float> *tf_map_p = nullptr);

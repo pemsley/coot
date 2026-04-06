@@ -29,12 +29,14 @@
 
 #include <clipper/core/xmap.h>
 #include <clipper/core/map_utils.h>
+#include <clipper/core/map_interp.h>
 #include <clipper/contrib/edcalc.h>
 
 #include <glm/glm.hpp>
 #include <glm/gtc/quaternion.hpp>
 
 #include "molecular-replacement.hh"
+#include "api/rigid-body-fit.hh"
 #include "utils/split-indices.hh"
 #include "coot-utils/coot-map-utils.hh"
 #include "coot-utils/coot-coord-utils.hh"
@@ -203,6 +205,13 @@ coot::molecular_replacement_search(const clipper::Xmap<float> &xmap_obs,
    mmdb::PPAtom sel_atoms = 0;
    int n_atoms;
    mol->GetSelIndex(SelHnd, sel_atoms, n_atoms);
+
+   std::cout << "INFO:: molecular_replacement_search n_atoms in copy: " << n_atoms
+             << " cell: " << std::fixed << std::setprecision(1)
+             << cd_model.a() << " x " << cd_model.b() << " x " << cd_model.c()
+             << " grid: " << gs_model.nu() << "x" << gs_model.nv() << "x" << gs_model.nw()
+             << std::endl;
+
    for (int i=0; i<n_atoms; i++) {
       sel_atoms[i]->x += shift.x();
       sel_atoms[i]->y += shift.y();
@@ -210,6 +219,24 @@ coot::molecular_replacement_search(const clipper::Xmap<float> &xmap_obs,
    }
 
    clipper::Xmap<float> model_map = coot::util::calc_atom_map(mol, SelHnd, cell_model, spacegroup, gs_model);
+
+   // Clean NaN values from the model map. These can arise from TER records
+   // or atoms with invalid B-factors being included in the atom selection.
+   // NaN values corrupt the FFT, making all structure factors NaN.
+   {
+      unsigned int nan_count = 0;
+      clipper::Xmap<float>::Map_reference_index inx;
+      for (inx = model_map.first(); !inx.last(); inx.next()) {
+         if (std::isnan(model_map[inx]) || std::isinf(model_map[inx])) {
+            model_map[inx] = 0.0f;
+            nan_count++;
+         }
+      }
+      if (nan_count > 0)
+         std::cout << "INFO:: molecular_replacement_search cleaned " << nan_count
+                   << " NaN/inf values from model map" << std::endl;
+   }
+
    coot::util::map_fragment_info_t mf_model(model_map, cell_centre_model, fragment_radius, true, 0.5f);
 
    // --- Crowther rotation function ---
@@ -301,11 +328,53 @@ coot::molecular_replacement_search(const clipper::Xmap<float> &xmap_obs,
              << " solutions)" << std::endl;
 
    // --- Translation search for each refined rotation (parallelised) ---
-
-   clipper::Cell em_cell = xmap_obs.cell();
-   clipper::Grid_sampling em_grid = xmap_obs.grid_sampling();
+   //
+   // Two key optimisations:
+   //
+   // 1. Extract a local P1 box from the observed map around target_centre
+   //    (side ~ 2*fragment_radius + border). Both the observed and model
+   //    density are computed on this smaller grid, so the FFTs are much
+   //    cheaper than using the full EM cell.
+   //
+   // 2. Pre-compute the FFT of the observed local box once, rather than
+   //    recomputing it for every rotation.
 
    auto t_trans_start = std::chrono::high_resolution_clock::now();
+
+   // Build a local P1 box centred on target_centre
+   float local_box_radius = fragment_radius + 10.0f;
+   double r_90_local = clipper::Util::d2rad(90.0);
+   double local_side = 2.0 * static_cast<double>(local_box_radius);
+   clipper::Cell_descr cd_local(local_side, local_side, local_side, r_90_local, r_90_local, r_90_local);
+   clipper::Cell local_cell(cd_local);
+   clipper::Resolution local_reso(3.0);
+   clipper::Grid_sampling local_gs(spacegroup, local_cell, local_reso);
+   clipper::Coord_orth local_cell_centre(0.5 * local_side, 0.5 * local_side, 0.5 * local_side);
+
+   // Interpolate the observed map into the local box
+   clipper::Xmap<float> local_obs_map(spacegroup, local_cell, local_gs);
+   {
+      clipper::Xmap_base::Map_reference_index ix;
+      for (ix = local_obs_map.first(); !ix.last(); ix.next()) {
+         clipper::Coord_orth local_pos = ix.coord().coord_frac(local_gs).coord_orth(local_cell);
+         clipper::Coord_orth obs_pos(local_pos.x() - local_cell_centre.x() + target_centre.x(),
+                                    local_pos.y() - local_cell_centre.y() + target_centre.y(),
+                                    local_pos.z() - local_cell_centre.z() + target_centre.z());
+         float val;
+         clipper::Interp_linear::interp(xmap_obs, xmap_obs.coord_map(obs_pos), val);
+         local_obs_map[ix] = val;
+      }
+   }
+
+   std::cout << "INFO:: molecular_replacement_search translation local box: "
+             << std::fixed << std::setprecision(1) << local_side << " A side, grid "
+             << local_gs.nu() << "x" << local_gs.nv() << "x" << local_gs.nw() << std::endl;
+
+   // Pre-compute the FFT of the local observed map (optimisation 2)
+   clipper::HKL_info local_hkls(spacegroup, local_cell,
+                                 clipper::Resolution(2.0 * coot::util::max_gridding(local_obs_map)), true);
+   clipper::HKL_data<clipper::datatypes::F_phi<float>> fphi_obs_local(local_hkls);
+   local_obs_map.fft_to(fphi_obs_local);
 
    unsigned int n_rot = refined.size();
    unsigned int n_trans_threads = std::thread::hardware_concurrency();
@@ -349,21 +418,36 @@ coot::molecular_replacement_search(const clipper::Xmap<float> &xmap_obs,
                atoms_rot[i]->z = rotated.z;
             }
 
-            // Compute atom map on the EM map's cell/grid
+            // Compute atom map on the local box cell/grid (optimisation 1)
             clipper::Xmap<float> rotated_model_map = coot::util::calc_atom_map(mol_rot, sel_rot,
-                                                                                em_cell, spacegroup, em_grid);
+                                                                                local_cell, spacegroup, local_gs);
 
             unsigned int n_trans_raw = n_translation_solutions * 20;
             std::vector<coot::translation_search_result_t> trans_results_raw =
-               coot::phased_translation_search(xmap_obs, rotated_model_map, n_trans_raw);
+               coot::phased_translation_search(fphi_obs_local, local_hkls, local_obs_map,
+                                               rotated_model_map, n_trans_raw);
+
+            // Convert local-box translations back to observed-map coordinates.
+            // The local box has its origin at (target_centre - local_cell_centre),
+            // so a peak at local position p corresponds to observed-map position
+            // p + (target_centre - local_cell_centre).
+            clipper::Coord_orth local_origin_in_obs(target_centre.x() - local_cell_centre.x(),
+                                                    target_centre.y() - local_cell_centre.y(),
+                                                    target_centre.z() - local_cell_centre.z());
 
             // Filter: keep only peaks within fragment_radius of the target centre
             float max_dist = fragment_radius;
             std::vector<coot::translation_search_result_t> trans_results;
-            for (const auto &tr : trans_results_raw) {
-               double dx = tr.position.x() - target_centre.x();
-               double dy = tr.position.y() - target_centre.y();
-               double dz = tr.position.z() - target_centre.z();
+            for (auto &tr : trans_results_raw) {
+               // Convert to observed-map coordinates
+               clipper::Coord_orth obs_pos(tr.position.x() + local_origin_in_obs.x(),
+                                           tr.position.y() + local_origin_in_obs.y(),
+                                           tr.position.z() + local_origin_in_obs.z());
+               tr.position = obs_pos;
+
+               double dx = obs_pos.x() - target_centre.x();
+               double dy = obs_pos.y() - target_centre.y();
+               double dz = obs_pos.z() - target_centre.z();
                double dist = std::sqrt(dx*dx + dy*dy + dz*dz);
                if (dist < max_dist) {
                   trans_results.push_back(tr);
@@ -450,6 +534,123 @@ coot::molecular_replacement_search(const clipper::Xmap<float> &xmap_obs,
                 << top_tf << " sigma)" << std::endl;
    }
 
+   // --- Rigid-body refinement of surviving solutions (parallelised) ---
+
+   auto t_rigid_start = std::chrono::high_resolution_clock::now();
+
+   if (! all_solutions.empty()) {
+      unsigned int n_sol = all_solutions.size();
+      unsigned int n_rigid_threads = std::thread::hardware_concurrency();
+      if (n_rigid_threads == 0) n_rigid_threads = 4;
+      if (n_rigid_threads > n_sol) n_rigid_threads = n_sol;
+
+      auto rigid_ranges = coot::atom_index_ranges(n_sol, n_rigid_threads);
+      std::vector<std::thread> rigid_threads;
+      rigid_threads.reserve(rigid_ranges.size());
+
+      for (unsigned int t=0; t<rigid_ranges.size(); t++) {
+         rigid_threads.emplace_back([&, t]() {
+            for (unsigned int isol=rigid_ranges[t].first; isol<rigid_ranges[t].second; isol++) {
+               mr_solution_t &sol = all_solutions[isol];
+               if (! sol.placed_mol) continue;
+
+               // Use rigid_body_fit_inner directly — the placed models are
+               // raw mmdb::Manager copies without UDD handles, so the
+               // higher-level rigid_body_fit() would fail on UDD lookup.
+               // For MR all atoms move; the masking molecule is empty.
+               coot::minimol::molecule moving_mol(sol.placed_mol);
+               coot::minimol::molecule empty_mol;
+               coot::minimol::molecule moved_mol =
+                  coot::api::rigid_body_fit_inner(empty_mol, moving_mol, xmap_obs);
+
+               // Transfer refined coordinates back into placed_mol
+               for (unsigned int ifrag=0; ifrag<moved_mol.fragments.size(); ifrag++) {
+                  for (int ires=moved_mol[ifrag].min_res_no();
+                       ires<=moved_mol[ifrag].max_residue_number(); ires++) {
+                     for (unsigned int iat=0; iat<moved_mol[ifrag][ires].atoms.size(); iat++) {
+                        const auto &moved_at = moved_mol[ifrag][ires][iat];
+                        // Find the corresponding residue in placed_mol
+                        coot::residue_spec_t spec(moved_mol[ifrag].fragment_id, ires, "");
+                        mmdb::Residue *res = coot::util::get_residue(spec, sol.placed_mol);
+                        if (res) {
+                           mmdb::PPAtom res_atoms = nullptr;
+                           int n_res_atoms = 0;
+                           res->GetAtomTable(res_atoms, n_res_atoms);
+                           for (int j=0; j<n_res_atoms; j++) {
+                              if (! res_atoms[j]->isTer()) {
+                                 std::string name(res_atoms[j]->GetAtomName());
+                                 std::string altloc(res_atoms[j]->altLoc);
+                                 if (name == moved_at.name && altloc == moved_at.altLoc) {
+                                    res_atoms[j]->x = moved_at.pos.x();
+                                    res_atoms[j]->y = moved_at.pos.y();
+                                    res_atoms[j]->z = moved_at.pos.z();
+                                 }
+                              }
+                           }
+                        }
+                     }
+                  }
+               }
+            }
+         });
+      }
+      for (auto &th : rigid_threads) th.join();
+
+      std::cout << "INFO:: molecular_replacement_search rigid-body refined "
+                << n_sol << " solutions" << std::endl;
+
+      // Remove duplicate solutions that have converged to the same position.
+      // Compare centres of mass of the placed models; keep only solutions
+      // whose centre is at least 3 A from all higher-ranked (earlier) ones.
+      float min_sep = 3.0f;
+      float min_sep_sq = min_sep * min_sep;
+      std::vector<mr_solution_t> unique_solutions;
+      std::vector<clipper::Coord_orth> unique_centres;
+      unique_solutions.reserve(all_solutions.size());
+      unique_centres.reserve(all_solutions.size());
+
+      for (auto &sol : all_solutions) {
+         if (! sol.placed_mol) continue;
+         std::pair<bool, clipper::Coord_orth> com = coot::centre_of_molecule(sol.placed_mol);
+         if (! com.first) continue;
+
+         bool too_close = false;
+         for (const auto &uc : unique_centres) {
+            double dx = com.second.x() - uc.x();
+            double dy = com.second.y() - uc.y();
+            double dz = com.second.z() - uc.z();
+            if (dx*dx + dy*dy + dz*dz < min_sep_sq) {
+               too_close = true;
+               break;
+            }
+         }
+         if (! too_close) {
+            unique_centres.push_back(com.second);
+            unique_solutions.push_back(sol);
+         } else {
+            // Clean up the duplicate
+            if (sol.placed_mol) {
+               delete sol.placed_mol;
+               sol.placed_mol = nullptr;
+            }
+         }
+      }
+
+      if (unique_solutions.size() < all_solutions.size()) {
+         std::cout << "INFO:: molecular_replacement_search post-rigid-body proximity filter: "
+                   << all_solutions.size() << " -> " << unique_solutions.size()
+                   << " (minimum separation " << min_sep << " A)" << std::endl;
+      }
+      all_solutions = unique_solutions;
+   }
+
+   auto t_rigid_end = std::chrono::high_resolution_clock::now();
+   double t_rigid_ms = std::chrono::duration<double, std::milli>(t_rigid_end - t_rigid_start).count();
+
+   // Recompute t_total_end after rigid-body refinement
+   t_total_end = std::chrono::high_resolution_clock::now();
+   t_total_ms = std::chrono::duration<double, std::milli>(t_total_end - t_total_start).count();
+
    // Print summary table
    std::cout << std::endl;
    std::cout << "INFO:: =================================================================" << std::endl;
@@ -481,6 +682,7 @@ coot::molecular_replacement_search(const clipper::Xmap<float> &xmap_obs,
              << ", rotation " << t_rot_ms << " ms"
              << ", refinement " << t_refine_ms << " ms"
              << ", translation " << t_trans_ms << " ms"
+             << ", rigid-body " << t_rigid_ms << " ms"
              << ", total " << t_total_ms << " ms (" << t_total_ms / 1000.0 << " s)" << std::endl;
    std::cout << "INFO:: =================================================================" << std::endl;
 

@@ -1734,7 +1734,7 @@ int test_phased_translation_function(molecules_container_t &mc) {
    return status;
 }
 
-int test_molecular_replacement_pipeline(molecules_container_t &mc) {
+int test_molecular_placement_pipeline(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
    int status = 0;
@@ -1762,7 +1762,7 @@ int test_molecular_replacement_pipeline(molecules_container_t &mc) {
    float cy = 76.0f;   // typical user click accuracy
    float cz = 108.0f;
 
-   auto solutions = mc.molecular_replacement_fit(imol_map, imol_model, cx, cy, cz, 10, 10);
+   auto solutions = mc.molecular_placement_fit(imol_map, imol_model, cx, cy, cz, 10, 10);
 
    std::cout << "INFO:: got " << solutions.size() << " MR solutions" << std::endl;
 
@@ -1884,7 +1884,7 @@ int test_molecular_replacement_pipeline(molecules_container_t &mc) {
    return status;
 }
 
-int test_molecular_replacement_pipeline_r_chain(molecules_container_t &mc) {
+int test_molecular_placement_pipeline_r_chain(molecules_container_t &mc) {
 
    starting_test(__FUNCTION__);
    int status = 0;
@@ -1911,7 +1911,7 @@ int test_molecular_replacement_pipeline_r_chain(molecules_container_t &mc) {
    float cy = 80.0f;
    float cz = 70.0f;
 
-   auto solutions = mc.molecular_replacement_fit(imol_map, imol_model, cx, cy, cz, 10, 10);
+   auto solutions = mc.molecular_placement_fit(imol_map, imol_model, cx, cy, cz, 10, 10);
 
    std::cout << "INFO:: got " << solutions.size() << " MR solutions for R-chain" << std::endl;
 
@@ -8339,8 +8339,8 @@ int main(int argc, char **argv) {
          status += run_test(test_crowther_rotation_function,    "crowther rotation fn",     mc);
          status += run_test(test_crowther_rotation_with_model, "crowther with model",      mc);
          status += run_test(test_phased_translation_function, "phased translation fn",   mc);
-         status += run_test(test_molecular_replacement_pipeline, "MR pipeline",          mc);
-         status += run_test(test_molecular_replacement_pipeline_r_chain, "MR R-chain",  mc);
+         status += run_test(test_molecular_placement_pipeline, "MR pipeline",          mc);
+         status += run_test(test_molecular_placement_pipeline_r_chain, "MR R-chain",  mc);
 
          status += run_test(test_undo_and_redo,         "undo and redo",            mc);
          status += run_test(test_undo_and_redo_2,       "undo/redo 2",              mc);
@@ -8513,8 +8513,8 @@ int main(int argc, char **argv) {
          // status += run_test(test_inner_bond_kekulization, "inner-bond kekulization", mc);
          // status += run_test(test_gaussian_surface_to_map_molecule, "gaussian-surface to map", mc);
          // status += run_test(test_density_mesh,          "density mesh",             mc);
-         // status += run_test(test_molecular_replacement_pipeline, "MR pipeline", mc);
-         status += run_test(test_molecular_replacement_pipeline_r_chain, "MR R-chain", mc);
+         // status += run_test(test_molecular_placement_pipeline, "MR pipeline", mc);
+         status += run_test(test_molecular_placement_pipeline_r_chain, "MR R-chain", mc);
          if (status == n_tests) all_tests_status = 0;
 
          print_results_summary();

@@ -21,6 +21,7 @@
 
 
 #include <algorithm> // for sorting.
+#include <cmath>
 #include <queue>
 #include <fstream>
 #include <thread>
@@ -2034,6 +2035,7 @@ coot::util::calc_atom_map(mmdb::Manager *mol,
    for (int iat=0; iat<n_atoms; iat++) {
       float rescale_b_u = 1/(8*M_PI*M_PI);
       mmdb::Atom *at = sel_atoms[iat];
+      if (at->isTer()) continue;
       clipper::Coord_orth pt(at->x, at->y, at->z);
       std::string ele(at->element);
       clipper::Atom cat;
@@ -2047,7 +2049,7 @@ coot::util::calc_atom_map(mmdb::Manager *mol,
    try {
 
       clipper::Atom_list al(l);
-      if (0) {
+      if (false) {
          std::cout << "======================= al size(): " << al.size() << std::endl;
          std::cout << "in calc_atom_map() here are some atoms" << std::endl;
          for (unsigned int iat=0; iat<10; iat++)
@@ -2059,6 +2061,20 @@ coot::util::calc_atom_map(mmdb::Manager *mol,
       }
       clipper::EDcalc_iso<float> e;
       e(xmap, al);
+
+      // EDcalc_iso can produce NaN for certain atom configurations.
+      // Clean them to avoid corrupting downstream FFTs.
+      unsigned int nan_count = 0;
+      clipper::Xmap<float>::Map_reference_index inx;
+      for (inx = xmap.first(); !inx.last(); inx.next()) {
+         if (std::isnan(xmap[inx]) || std::isinf(xmap[inx])) {
+            xmap[inx] = 0.0f;
+            nan_count++;
+         }
+      }
+      if (nan_count > 0)
+         std::cout << "WARNING:: calc_atom_map() cleaned " << nan_count
+                   << " NaN/inf values from map" << std::endl;
    }
    catch (const clipper::Message_generic &e) {
       std::cout << "ERROR:: some sort of clipper map problem" << std::endl;

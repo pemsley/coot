@@ -94,36 +94,65 @@ coot::make_patterson_from_map(const clipper::Xmap<float> &xmap,
    return patterson;
 }
 
+// Original interface: computes fphi_obs internally (one-off use)
 std::vector<coot::translation_search_result_t>
 coot::phased_translation_search(const clipper::Xmap<float> &observed_map,
                                 const clipper::Xmap<float> &model_map,
                                 unsigned int n_results,
                                 clipper::Xmap<float> *tf_map_p) {
 
-   // FFT both maps to get F_obs and F_model
    clipper::HKL_info hkls(observed_map.spacegroup(), observed_map.cell(),
                            clipper::Resolution(2.0 * coot::util::max_gridding(observed_map)), true);
-
    clipper::HKL_data<clipper::datatypes::F_phi<float>> fphi_obs(hkls);
-   clipper::HKL_data<clipper::datatypes::F_phi<float>> fphi_model(hkls);
-
    observed_map.fft_to(fphi_obs);
+
+   return phased_translation_search(fphi_obs, hkls, observed_map, model_map, n_results, tf_map_p);
+}
+
+#include <clipper/clipper-ccp4.h>
+
+// Overload that accepts pre-computed observed-map structure factors
+std::vector<coot::translation_search_result_t>
+coot::phased_translation_search(const clipper::HKL_data<clipper::datatypes::F_phi<float>> &fphi_obs,
+                                const clipper::HKL_info &hkls,
+                                const clipper::Xmap<float> &observed_map,
+                                const clipper::Xmap<float> &model_map,
+                                unsigned int n_results,
+                                clipper::Xmap<float> *tf_map_p) {
+
+   clipper::HKL_data<clipper::datatypes::F_phi<float>> fphi_model(hkls);
    model_map.fft_to(fphi_model);
+
+   if (true) {
+      clipper::CCP4MAPfile mapout;
+      mapout.open_write("atom-map.map");
+      mapout.export_xmap(model_map);
+      mapout.close_write();
+   }
 
    typedef clipper::HKL_data_base::HKL_reference_index HRI;
 
    // Cross-correlation coefficients: F_obs * conj(F_model)
    clipper::HKL_data<clipper::datatypes::F_phi<float>> fphi_cc(hkls);
 
+   unsigned int n_total = 0;
+   unsigned int n_missing_obs = 0;
+   unsigned int n_missing_model = 0;
+   unsigned int n_filled = 0;
    for (HRI ih = fphi_obs.first(); !ih.last(); ih.next()) {
+      n_total += 1;
       if (!fphi_obs[ih].missing() && !fphi_model[ih].missing()) {
          fphi_cc[ih].f() = fphi_obs[ih].f() * fphi_model[ih].f();
          fphi_cc[ih].phi() = fphi_obs[ih].phi() - fphi_model[ih].phi();
+         n_filled++;
       } else {
          fphi_cc[ih].f() = 0.0f;
          fphi_cc[ih].phi() = 0.0f;
+         if (fphi_obs[ih].missing()) n_missing_obs++;
+         if (fphi_model[ih].missing()) n_missing_model++;
       }
    }
+   std::cout << "DEBUG:: reflections: n_total " << n_total << " n_missing_obs " << n_missing_obs << " n_missing_model " << n_missing_model << " n_filled " << n_filled << std::endl;
 
    // IFFT to get the translation function map
    clipper::Xmap<float> tf_map(observed_map.spacegroup(), observed_map.cell(),
