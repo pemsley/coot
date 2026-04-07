@@ -349,8 +349,6 @@ float fit_molecule_to_map_by_random_jiggle_and_blur(int imol, int n_trials, floa
 
 void molecular_replacement_fit_about_screen_centre(int imol, int n_top_rotations, int n_top_translations) {
 
-   std::cout << "DEBUG:: now in molecular_replacement_fit_about_screen_centre() imol " << imol << std::endl;
-
    if (is_valid_model_molecule(imol)) {
       graphics_info_t g;
       int imol_map = g.Imol_Refinement_Map();
@@ -359,21 +357,19 @@ void molecular_replacement_fit_about_screen_centre(int imol, int n_top_rotations
          return;
       }
 
-      std::cout << "DEBUG:: now in molecular_replacement_fit_about_screen_centre() B " << std::endl;
-
       mmdb::Manager *mol = g.molecules[imol].atom_sel.mol;
       const clipper::Xmap<float> &xmap = g.molecules[imol_map].xmap;
       clipper::Coord_orth target_centre(graphics_info_t::RotationCentre_x(),
                                         graphics_info_t::RotationCentre_y(),
                                         graphics_info_t::RotationCentre_z());
 
-      std::cout << "DEBUG:: now in molecular_replacement_fit_about_screen_centre() C " << std::endl;
-
       std::vector<coot::mr_solution_t> solutions =
          coot::molecular_replacement_search(xmap, mol, target_centre,
                                             n_top_rotations, n_top_translations);
 
-      if (! solutions.empty()) {
+      if (solutions.empty()) {
+         info_dialog("INFO:: No solutions");
+      } else {
          // Take the best solution and replace the model coordinates
          coot::mr_solution_t &best = solutions[0];
          if (best.placed_mol) {

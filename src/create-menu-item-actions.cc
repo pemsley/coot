@@ -2570,9 +2570,9 @@ void patmos_jiggle_fit_molecule_with_fourier_filtering_action(G_GNUC_UNUSED GSim
                                                               G_GNUC_UNUSED GVariant *parameter,
                                                               G_GNUC_UNUSED gpointer user_data) {
 
-   std::cout << "DEBUG:: %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% patmos jiggle %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%" << std::endl;
    int n_trials = 1000;
    float scale_factor = 3.0;
+   float blur_b_factor = 300.0;
 
    std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
    if (pp.first) {
@@ -2580,10 +2580,14 @@ void patmos_jiggle_fit_molecule_with_fourier_filtering_action(G_GNUC_UNUSED GSim
       int imol_map = imol_refinement_map();
       if (is_valid_map_molecule(imol_map)) {
          // call molecular placement function, n_top_translation = 6, n_top_rotation = 6
-         std::cout << "DEBUG:: %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%% patmos jiggle molecular_replacement_fit_about screen centre %%%%%%%%%%%%%%%" << std::endl;
-         molecular_replacement_fit_about_screen_centre(imol, 6,6);
-         // fit_molecule_to_map_by_random_jiggle_and_blur(imol, n_trials, scale_factor, 300.0);
+         molecular_replacement_fit_about_screen_centre(imol, 6, 6);
+         fit_molecule_to_map_by_random_jiggle_and_blur(imol, n_trials, scale_factor, blur_b_factor);
+      } else {
+         graphics_info_t::ephemeral_overlay_label("Fitting Map Not Set");
       }
+   } else {
+      std::cout << "WARNING:: No active atom found" << std::endl;
+      logger.log(log_t::WARNING, "No active atom");
    }
    graphics_info_t::graphics_grab_focus();
 }
