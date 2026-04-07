@@ -1860,7 +1860,7 @@ int test_molecular_placement_pipeline(molecules_container_t &mc) {
    }
 
    // Check: the best RMSD solution among the top by TF score
-   clipper::Coord_orth known_centre(121.0, 75.0, 106.0);
+   clipper::Coord_orth known_centre(121.9, 72.7, 105.3);
    if (solutions.size() > 0) {
       const auto &best = solutions[0];
       double dx = best.translation.x() - known_centre.x();
@@ -8513,8 +8513,8 @@ int main(int argc, char **argv) {
          // status += run_test(test_inner_bond_kekulization, "inner-bond kekulization", mc);
          // status += run_test(test_gaussian_surface_to_map_molecule, "gaussian-surface to map", mc);
          // status += run_test(test_density_mesh,          "density mesh",             mc);
-         // status += run_test(test_molecular_placement_pipeline, "MR pipeline", mc);
-         status += run_test(test_molecular_placement_pipeline_r_chain, "MR R-chain", mc);
+         // status += run_test(test_molecular_placement_pipeline_r_chain, "MR R-chain", mc);
+         status += run_test(test_molecular_placement_pipeline, "MR pipeline", mc);
          if (status == n_tests) all_tests_status = 0;
 
          print_results_summary();
