@@ -7842,12 +7842,6 @@ run_command_line_scripts() {
       else
          safe_scheme_command(graphics_info_t::command_line_commands.commands[i].c_str());
 
-    for (unsigned int i=0; i<graphics_info_t::command_line_commands.commands.size(); i++)
-       if (graphics_info_t::command_line_commands.is_python)
-	  safe_python_command(graphics_info_t::command_line_commands.commands[i].c_str());
-       else
-	  safe_scheme_command(graphics_info_t::command_line_commands.commands[i].c_str());
-
    graphics_info_t g;
    for (unsigned int i=0; i<graphics_info_t::command_line_accession_codes.size(); i++) {
       const std::string &code = g.command_line_accession_codes[i];
@@ -7855,6 +7849,11 @@ run_command_line_scripts() {
       network_get_accession_code_entity(code, 0); // mode 0 means "not mtz"
       network_get_accession_code_entity(code, 1); // mtz mode
    }
+
+   // clear so that a second call (e.g. from a second realize) does not re-run
+   graphics_info_t::command_line_scripts.clear();
+   graphics_info_t::command_line_commands.commands.clear();
+   graphics_info_t::command_line_accession_codes.clear();
 }
 
 void run_update_self_maybe() { // called when --update-self given at command line
