@@ -17,7 +17,7 @@ jobs:
         id: test-libcootapi-data-cache
         uses: actions/cache@v4
         with:
-          path: test-molecule-container-test-data-20240316.tar.gz
+          path: test-molecule-container-test-data-20260407.tar.gz
           key: ubuntu-test-data-cache
 
       # - name: careful download test data
@@ -25,10 +25,10 @@ jobs:
         # run: if [ $(wget --spider -S https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/data/test-molecule-container-test-data-20240316.tar.gz |& awk '/^Length/ { print $2 }') != $(wc -c test-molecule-container-test-data-20240316.tar.gz |& awk '{print $1}') ] ; then if [ -e test-molecule-container-test-data-20240316.tar.gz ] ; then rm test-molecule-container-test-data-20240316.tar.gz ; fi && wget https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/data/test-molecule-container-test-data-20240316.tar.gz ; fi
 
       - name: download test data
-        run:  wget -N -nv https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/data/test-molecule-container-test-data-20240316.tar.gz
+        run:  wget -N -nv https://www2.mrc-lmb.cam.ac.uk/personal/pemsley/coot/data/test-molecule-container-test-data-20260407.tar.gz
 
       - name: untar test data
-        run:  mkdir test-data && cd test-data && tar xvf ../test-molecule-container-test-data-20240316.tar.gz
+        run:  mkdir test-data && cd test-data && tar xvf ../test-molecule-container-test-data-20260407.tar.gz
 
       - name: get LZA
         run: cd test-data && wget https://raw.githubusercontent.com/MonomerLibrary/monomers/refs/heads/master/l/LZA.cif
