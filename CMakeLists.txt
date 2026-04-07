@@ -64,7 +64,7 @@ endif()
 
 set(coot_src ${CMAKE_CURRENT_SOURCE_DIR})
 
-add_definitions(-DANALYSE_REFINEMENT_TIMING -DPACKAGE_VERSION="1.1.20"
+add_definitions(-DANALYSE_REFINEMENT_TIMING -DPACKAGE_VERSION="1.2"
   -DHAVE_CXX_THREAD -DHAVE_SSMLIB -DHAVE_BOOST -DUSE_LIBPNG=1 -DCLIPPER_HAS_TOP8000 -DUSE_GEMMI
   -DHAVE_BOOST_THREAD -DHAVE_GSL -DLIBCOOTAPI_BUILD
   -DPKGDATADIR="${CMAKE_INSTALL_PREFIX}/share/coot" -DXDATADIR="${CMAKE_INSTALL_PREFIX}/share")
@@ -214,6 +214,7 @@ add_library(cootapi SHARED
             ${coot_src}/api/molecules-container-ligand-fitting.cc
             ${coot_src}/api/molecules-container-maps.cc
             ${coot_src}/api/molecules-container-mmrrcc.cc
+            ${coot_src}/api/molecules-container-molecular-placement.cc
             ${coot_src}/api/molecules-container-superpose.cc
             ${coot_src}/api/molecules-container-modelling.cc
             ${coot_src}/api/molecules-container-pyrogen.cc
@@ -352,6 +353,7 @@ add_library(cootapi SHARED
             ${coot_src}/coot-utils/pae.cc
             ${coot_src}/coot-utils/coot-tree-extras.cc
             ${coot_src}/coot-utils/coot-map-heavy.cc
+            ${coot_src}/coot-utils/rebox-map.cc
             ${coot_src}/coot-utils/jed-flip.cc
             ${coot_src}/coot-utils/pepflip-using-difference-map.cc
             ${coot_src}/coot-utils/atom-overlaps.cc
@@ -395,6 +397,8 @@ add_library(cootapi SHARED
             ${coot_src}/coot-utils/simple-mesh.cc
             ${coot_src}/coot-utils/gl-matrix.cc
             ${coot_src}/coot-utils/gl-matrix-eigensystem.cc
+            ${coot_src}/coot-utils/patterson.cc
+            ${coot_src}/coot-utils/crowther.cc
             ${coot_src}/coords/Bond_lines.cc
             ${coot_src}/coords/Bond_lines_ext.cc
             ${coot_src}/coords/coot-close.cc
@@ -464,6 +468,7 @@ add_library(cootapi SHARED
             ${coot_src}/ligand/chi-angles-autogen.cc
             ${coot_src}/ligand/ligand.cc
             ${coot_src}/ligand/helix-placement.cc
+            ${coot_src}/ligand/molecular-replacement.cc
             ${coot_src}/ligand/backrub-rotamer.cc
             ${coot_src}/ligand/dunbrack.cc
             ${coot_src}/ligand/primitive-chi-angles.cc
@@ -499,7 +504,8 @@ add_library(cootapi SHARED
             ${coot_src}/ideal/write-png.cc
             )
 
-# wretched mae
+# wretched mae - 20 Sept 2025
+# 2026-04-07-PE back again. Turn off (again, failed to resolve on Ubuntu GitHub action)
 # find_library(MAEPARSER_LIBS maeparser)
 # target_link_libraries(cootapi PRIVATE ${MAEPARSER_LIBS})
 
@@ -678,5 +684,5 @@ install(TARGETS coot_headless_api DESTINATION ${Python_SITELIB_REL})
 install(TARGETS coot_headless_api DESTINATION lib)
 
 # thanks merkys
-set_target_properties(cootapi PROPERTIES SOVERSION 1.1)
-set_target_properties(cootmoleculestotriangles PROPERTIES SOVERSION 1.1)
+set_target_properties(cootapi PROPERTIES SOVERSION 1.2)
+set_target_properties(cootmoleculestotriangles PROPERTIES SOVERSION 1.2)

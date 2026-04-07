@@ -1,24 +1,104 @@
 --- Items ---
 
+o Test data update:
+
+Starting test_patterson_from_map_using_map()
+WARNING:: file does not exist ../test-data/32143-masked-around-N.map
+ERROR:: test_patterson_from_map_using_map() failed to read ../test-data/32143-masked-around-N.map
+FAIL: patterson from map                       ⬤ 
+Starting test_molecular_placement_pipeline_r_chain()
+   :::::EMDATABANK.org::::EMD-32143::::                                             :
+debug:: ::::EMDATABANK.org::::EMD-32143::::                                              does not start with PANDDA::
+DEBUG:: init xmap with P 1  Cell (152.72,152.72,152.72,    90,    90,    90) Nuvw = ( 138, 138, 138)
+WARNING::Failed to open ../test-data/R-chain-frag-from-7vvl.pdb: No such file or directory
+ERROR:: failed to read ../test-data/R-chain-frag-from-7vvl.pdb
+FAIL: MR R-chain                               ⬤ 
+
+
+o debug:: pdbe_chem_comp_atom_depiction() added depiction of 36 atoms
+WARNING:: in init_refmac_mon_lib() unhandled category "_pdbe_chem_comp_rdkit_properties"
+file: /Users/pemsley/Projects/coot/git/coot-main/build-chapi-with-homebrew-deps/A1DAP.cif
+Read 63 atoms/links in restraints from /Users/pemsley/Projects/coot/git/coot-main/build-chapi-with-homebrew-deps/A1DAP.cif
+
+o bring worm-B-factor-view to Coot and compare
+  and contrast correct B-factors vs AlphaFold B-factors
+
+o make the JSON-RPC only work on localhost
+
+o Ribbon does not react to changing the material lighting.
+* Done.
+
+o give new-startup (and functions) a better name.
+
+o The NCS graph does not load (is empty) even when there
+  is NCS present & switching between NCS copies is working
+  (test on 1BL8) [Oli]
+
+o Geometry and Density fit correlation are calculated on the
+  fly, unlike (?) the others, and are calculated every time
+  the graph is loaded from scratch. This is not a problem on
+  small crystal structures, but causes the program to hang
+  for quite a while in the case of large structures in high
+  res cryoEM maps, even on fairly recent hardware [Oli C]
+
+o get structure from accession code, no focus
+  so "U" doesn't work.
+
+o dig out the bone shaped cross-section for Easter?
+
+o proportial editing, with chain-based selection for
+  rotation
+
+o work with dragged maps off - is updating the map
+  now problematic?
+
+o check that .coot_python_commands is being written
+  and read
+  * Yes it's fine - don't use --no-state-script
+    and it gets read.
+
+o use dict-to-image.py in build-chapi-with-homebrew-deps
+  or other to make a function that does comp_id -> png
+  using ~/.cache/Coot/monomer-images for hover-over
+  images in GTK4 menus
+
+o add a post on how to add a button to the gui
+
+o LSQ superpose seemed to fail when try to match
+  N-chain-moved-2.pddb to 7vvl N chain.
+
+o how do I add mailing list chat to claude knowledge?
+
 o Sort out startup script locations
+* Done.
+
+o the validate -> ramachandran plot should be an overlay
+
+o model-fragment.map is a good example of how the translation
+  in jiggle-fit should work but doesn't.
 
 o double click in the solvent for a cryo-em map
   It is not looking at the contour level?
+* Seems OK.
 
 o Turn off the "great refinement" particles
-* hooray() it was called.
+* Done. hooray() it was called.
 
 o chapi: fill a model given a sequence (and a chopped model)
 
-o add outlier stats for rama plot - mabye status line for now.
+o add outlier stats for rama plot - maybe status line for now.
 
-o move CA atoms that are bound to "A" into the "A"
+o move CA, K atoms that are bound to "A" into the "A"
   chain if needed.
 
 o Fix session restore - Kevin Jude
+* Done.
 
 o have another go at trying to get a heatmap to work.
 * Done.
+
+o Allow the user to add extra acedrg atom-type tables for their ligands
+  when searching for similar ligands with acedrg types.
 
 o what is protein gtp?
 

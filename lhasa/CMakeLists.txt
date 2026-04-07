@@ -85,7 +85,11 @@ target_link_libraries(lhasa PRIVATE
     RDKitInchi
     RDKitRDGeneral 
     RDKitRDGeometryLib
-    RDKitFileParsers 
+    RDKitFileParsers
+    RDKitRDChemDrawLib
+    RDKitChemDraw
+    RDKitCIPLabeler
+    expat
     RDKitDescriptors
     RDKitChemTransforms
     RDKitSubstructMatch

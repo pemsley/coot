@@ -554,11 +554,11 @@ int make_backup_checkpoint(int imol, const char *description) {
  */
 int restore_to_backup_checkpoint(int imol, int backup_index) {
 
-   backup_index = -1;
+   int status = -1;
    if (is_valid_model_molecule(imol)) {
-      backup_index = graphics_info_t::molecules[imol].restore_to_backup_checkpoint(backup_index);
+      status = graphics_info_t::molecules[imol].restore_to_backup_checkpoint(backup_index);
    }
-   return backup_index;
+   return status;
 }
 
 #ifdef USE_PYTHON
@@ -2380,6 +2380,14 @@ void nudge_the_temperature_factors_py(int imol, PyObject *residue_spec_py, float
 }
 #endif
 
+void hiranuma_inversion(int imol) {
+   if (is_valid_model_molecule(imol)) {
+      coot::hiranuma_inversion(graphics_info_t::molecules[imol].atom_sel.mol);
+      graphics_info_t g;
+      g.molecules[imol].make_bonds_type_checked(__FUNCTION__);
+      graphics_draw();
+   }
+}
 
 void set_pointer_atom_is_dummy(int i) {
    graphics_info_t::pointer_atom_is_dummy = i;
@@ -4477,11 +4485,11 @@ int place_helix_here() {
       //
       coot::helix_placement_info_t n =
          p.place_alpha_helix_near_kc_version(pt, 20, min_density_limit, high_density_turning_point, bf, map_rmsd);
-       if (! n.success) {
+      if (! n.success) {
           n = p.place_alpha_helix_near_kc_version(pt, 9, min_density_limit, high_density_turning_point, bf, map_rmsd);
-       }
+      }
 
-       if (n.success) {
+      if (n.success) {
           atom_selection_container_t asc = make_asc(n.mol[0].pcmmdbmanager());
 
           imol = g.create_molecule();
@@ -4505,22 +4513,22 @@ int place_helix_here() {
           }
 
           g.add_status_bar_text("Helix added");
-       } else {
+      } else {
           std::cout << "Helix addition failure: message: " << n.failure_message << "\n";
           g.add_status_bar_text(n.failure_message);
-       }
-       std::vector<std::string> command_strings;
-       command_strings.push_back("set-rotation-centre");
-       command_strings.push_back(coot::util::float_to_string(g.RotationCentre_x()));
-       command_strings.push_back(coot::util::float_to_string(g.RotationCentre_y()));
-       command_strings.push_back(coot::util::float_to_string(g.RotationCentre_z()));
-       add_to_history(command_strings);
+      }
+      std::vector<std::string> command_strings;
+      command_strings.push_back("set-rotation-centre");
+      command_strings.push_back(coot::util::float_to_string(g.RotationCentre_x()));
+      command_strings.push_back(coot::util::float_to_string(g.RotationCentre_y()));
+      command_strings.push_back(coot::util::float_to_string(g.RotationCentre_z()));
+      add_to_history(command_strings);
 
-       command_strings.resize(0);
-       command_strings.push_back("place-helix-here");
-       add_to_history(command_strings);
-       graphics_draw();
-       return imol;
+      command_strings.resize(0);
+      command_strings.push_back("place-helix-here");
+      add_to_history(command_strings);
+      graphics_draw();
+      return imol;
    } else {
       std::cout << " You need to set the map to fit against\n";
       g.add_status_bar_text("You need to set the map to fit against");
@@ -5121,9 +5129,11 @@ void c_accept_moving_atoms() {
    graphics_info_t g;
    while (g.continue_threaded_refinement_loop)
       std::this_thread::sleep_for(std::chrono::milliseconds(200));
-   g.clear_hud_buttons();
-   g.accept_moving_atoms();
-   g.clear_moving_atoms_object();
+   if (g.use_graphics_interface_flag) {
+      g.clear_hud_buttons();
+      g.accept_moving_atoms();
+      g.clear_moving_atoms_object();
+   }
 
 }
 

@@ -5146,10 +5146,10 @@ molecule_class_info_t::update_extra_restraints_representation_geman_mcclure() {
          }
       }
       if (! ifound_2) {
-         int idx = full_atom_spec_to_atom_index(rest.atom_1);
+         int idx = full_atom_spec_to_atom_index(rest.atom_2);
          if (idx != -1) {
             if (idx < atom_sel.n_selected_atoms) {
-               at_1 = atom_sel.atom_selection[idx];
+               at_2 = atom_sel.atom_selection[idx];
                if (rest.atom_2.matches_spec(at_2)) {
                   p2 = clipper::Coord_orth(at_2->x, at_2->y, at_2->z);
                   ifound_2 = true;
@@ -7017,6 +7017,9 @@ molecule_class_info_t::close_yourself() {
       }
       graphics_info_t::refresh_validation_graph_model_list();
    }
+
+   // in c-interface.h
+   remove_sequence_view_from_sequence_view_box(imol_no);
 
    if (was_coords) {
       atom_sel.mol->DeleteSelection(atom_sel.SelectionHandle);

@@ -37,6 +37,7 @@
 #include "phi-psi-prob.hh"
 #include "instancing.hh"
 #include "coot-colour.hh" // put this in utils
+#include "ligand/molecular-replacement.hh"  // coot::mr_solution_t, glm/gtc/quaternion.hpp
 #include "saved-strand-info.hh"
 #include "svg-store-key.hh"
 #include "moorhen-h-bonds.hh"
@@ -1138,7 +1139,9 @@ public:
    //!       "0": {"style": "bonds", "colour_mode": "COLOUR-BY-CHAIN-AND-DICTIONARY",
    //!             "bonds_width": 0.12, "atom_radius_to_bond_width_ratio": 1.5},
    //!       "1": {"style": "lines", "map_radius": 12.0, "map_contour_level": 1.5,
-   //!             "map_line_width": 0.02, "map_colour": [0.3, 0.5, 0.8]}
+   //!             "map_line_width": 0.02, "map_colour": [0.3, 0.5, 0.8]},
+   //!       "2": {"style": "Ribbon", "colour_scheme": "colorRampChainsScheme",
+   //!             "cid": "//", "secondary_structure_usage_flag": 2}
    //!    },
    //!    "image_width": 1024,
    //!    "image_height": 768,
@@ -2418,6 +2421,41 @@ public:
    //! was a problem finding the molecule or atoms.
    double get_radius_of_gyration(int imol) const;
 
+   //! A single molecular replacement solution
+   struct mr_solution_t {
+      glm::quat rotation;              ///< orientation (quaternion)
+      float rotation_score;             ///< rotation function score
+      clipper::Coord_orth translation;  ///< position in map coordinates
+      float translation_score;          ///< translation function sigma score
+      float mean_density_at_ca;         ///< mean map density at CA (protein) and C1' (nucleic acid) positions
+      int imol;                         ///< molecule index of the placed model (-1 if not written)
+      std::string pdb_filename;         ///< filename of the written PDB
+      mr_solution_t() : rotation(glm::quat(1,0,0,0)), rotation_score(0.0f),
+                         translation(0,0,0), translation_score(0.0f),
+                         mean_density_at_ca(0.0f), imol(-1) {}
+   };
+
+   //! Molecular replacement: fit a model into a cryo-EM map
+   //!
+   //! Given a map molecule, a model molecule, and a target position (the user's
+   //! screen centre), determine the orientation and position that best fit the
+   //! model into the density around that point.
+   //!
+   //! @param imol_map is the map molecule index (cryo-EM map)
+   //! @param imol_model is the model molecule index (search fragment)
+   //! @param x the x-coordinate of the target position
+   //! @param y the y-coordinate of the target position
+   //! @param z the z-coordinate of the target position
+   //! @param n_rotation_solutions the number of top rotation solutions to refine and translate (default 10)
+   //! @param n_translation_solutions the number of top translation solutions per rotation (default 10)
+   //!
+   //! @return a vector of MR solutions sorted by translation score, with PDB files written
+   //!         for the top solutions. Also writes a summary table to stdout.
+   std::vector<mr_solution_t> molecular_placement_fit(int imol_map, int imol_model,
+                                                      float x, float y, float z,
+                                                      int n_rotation_solutions = 10,
+                                                      int n_translation_solutions = 10);
+
    //! Copy the molecule
    //!
    //! @param imol the specified molecule
@@ -2466,6 +2504,16 @@ public:
                                               float m20, float m21, float m22,
                                               float c0, float c1, float c2, // the centre of the rotation
                                               float t0, float t1, float t2); // translation
+
+   //! Apply a translation to all the atoms in the molecule
+   //!
+   //! @param imol is the model molecule index
+   //! @param tx is the x component of the translation in Angstroms
+   //! @param ty is the y component of the translation in Angstroms
+   //! @param tz is the z component of the translation in Angstroms
+   //!
+   //! @return true on success, false on failure
+   bool apply_translation_to_molecule(int imol, float tx, float ty, float tz);
 
    //! Update the positions of the atoms in the residue
    //!
@@ -3897,6 +3945,23 @@ public:
    // -------------------------------- Other ---------------------------------------
 
    void test_function(const std::string &s);
+
+   //! Rebox a map to a cubic box around the atoms in the model selection.
+   //!
+   //! Create a new P1 cubic map whose grid spacing matches the original map, tightly enclosing
+   //! the selected atoms plus a border. The map density is filled by cubic interpolation from
+   //! the original map.
+   //!
+   //! @param imol_model is the model molecule index
+   //! @param atom_selection_cid is the atom selection CID, e.g. "//A" for chain A, "//" for all atoms
+   //! @param imol_map is the map molecule index
+   //! @param border is the padding in Angstroms beyond the atom extents
+   //! @param n_pixels_per_edge is the number of grid points along each edge (0 = auto-determine from grid spacing)
+   //!
+   //! @return a JSON string containing "molecule_number" (the new map index) and "offset" (the translation
+   //!         applied to the map origin as [x, y, z])
+   std::string rebox_map(int imol_model, const std::string &atom_selection_cid,
+                         int imol_map, float border, unsigned int n_pixels_per_edge);
 
 #if NB_VERSION_MAJOR
    // skip this (old) block for nanobinds

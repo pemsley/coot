@@ -1,17 +1,239 @@
 
   Release Notes for 1.2
 
- o FEATURE: Side by Side Stereo
+Graphics
 
- o FEATURE: Screenshots now work
+ o FEATURE: Side-by-side stereo mode (cross-eye and wall-eye) with
+            configurable stereo angle
 
- o FEATURE: JSON-RPC server, MCP Bridge and Skills for Agentic Coot.
+ o FEATURE: High-resolution screenshots now work for both basic and
+            fancy rendering modes
 
- o CHANGE: Don't include hydrogen atoms in Local B-factor display
+ o FEATURE: Material properties added to instanced-object shaders
 
- o CHANGE: x-ray Sharpen/Blur Map slider now displays the value
+ o FEATURE: Anisotropic thermal ellipsoid "empty" representation
+            with multi-ring display
 
- o CHANGE: Difference map peaks now shows closest atom not position
+ o FEATURE: Gaussian surface opacity control
+
+ o FEATURE: Bond smoothness toggle
+
+ o FEATURE: Shadows for "other meshes" (generic display objects)
+
+ o FEATURE: Single-model view for CA+Ligands representation with
+            colour-by-dictionary-and-chain
+
+ o FEATURE: Distance labels display can now be toggled with
+            set_show_distance_labels()
+
+ o FEATURE: scale_up_graphics() and scale_down_graphics() now
+            added to the API
+ o CHANGE:  Improved default secondary structure colours
+
+ o CHANGE:  Rainbow ribbons are less bright
+
+ o CHANGE:  Aniso probability scale now goes to 0.99
+
+ o CHANGE:  Ribbon coils restored with radius multiplier for spline
+            representation
+
+ o CHANGE:  End-caps added for worm representations
+
+ o CHANGE:  Max SSAO kernel samples doubled to 512
+
+ o CHANGE:  Reduced step size for front clipping plane changes
+
+ o CHANGE:  Don't include hydrogen atoms in Local B-factor display
+
+ o CHANGE:  x-ray Sharpen/Blur Map slider now displays the value
+
+ o CHANGE:  Difference map peaks now shows closest atom not position
+
+ o BUG-FIX: Now the Recover Session works as expected [Kevin Jude]
+
+ o BUG-FIX: Fix the rotation jump after panning
+
+ o BUG-FIX: Fix peptide straggle-bond when displaying alt-confs
+
+ o BUG-FIX: Fix texture indexing in TextureMesh
+
+ o BUG-FIX: Fix framebuffer rendering with transparency
+
+ o BUG-FIX: Fix the map colour button in single-map properties dialog
+
+ o BUG-FIX: Fix ribbon surface normal computation and spline frame
+            orthonormality [Martin Noble]
+
+Modelling
+
+ o FEATURE: Post-Translational Modifications (PTMs) can now be
+            applied to residues, with a database of common PTMs
+
+ o FEATURE: Improved jiggle-fitting for Local Fitting in Cryo-EM
+
+ o FEATURE: Add Residue by Map Fit function
+
+ o FEATURE: Ephemeral overlay labels for transient annotations
+
+ o FEATURE: Key-binding R for Refine with auto-accept
+
+ o FEATURE: Key-binding Ctrl-E for Python scripting entry
+
+ o FEATURE: Mutate-and-auto-fit improvements
+
+ o BUG-FIX: Fix self-deadlock in make_moving_atoms_graphics_object()
+            for CA bond mode
+
+ o BUG-FIX: Fix single-strand test in ideal nucleic acid builder
+
+ o BUG-FIX: Fix PHE/TYR nomenclature error side chain atom swapping
+
+Validation
+
+ o FEATURE: Phenix .geo file validation for bonds, angles, chirals
+            and non-bonded contacts with colour-coded display
+
+ o FEATURE: Validation graphs can now be undocked [Jakub Smulski]
+
+ o FEATURE: Rotamer probability now shown in validation graph
+
+ o FEATURE: Refinement results mini-statistics (bond and angle
+            distortions) returned from refinement
+
+ o FEATURE: Atom geometry distortion info now includes atom specs
+
+ o CHANGE:  Molecule mesh display control toggles relocated
+
+ o BUG-FIX: Fix rotamer probability in validation graph model list
+            refresh
+
+Ligands
+
+ o FEATURE: Ligand Builder (Lhasa) added to the Ligand menu
+
+ o FEATURE: Fetch Ligand Restraints Dictionary callback added
+
+ o FEATURE: Pyrogen integration via RDKit mol pickle base64 API
+
+ o FEATURE: Curlew extension download and install function
+
+ o CHANGE:  Ligand fitting dialog is now scrollable
+
+ o BUG-FIX: Fix the bond-order combobox default in acedrg link dialog
+
+ o BUG-FIX: Fix Lhasa molecule centering [Jakub Smulski]
+
+ o BUG-FIX: Fix RDKit stereochemistry handling and isomeric SMILES
+            output [Jakub Smulski]
+
+Maps
+
+ o FEATURE: NetCDF support for reading AMBER trajectories
+
+ o FEATURE: Slurpable maps recognized as EM maps
+
+ o CHANGE:  Improved map-based occlusions
+
+Scripting and Automation/MCP
+
+ o FEATURE: JSON-RPC server, MCP Bridge and Skills for Agentic Coot
+
+ o FEATURE: RPC server menu item added
+
+ o FEATURE: Python API function documentation improvements across
+            the board
+
+ o FEATURE: coot_ping() function for connectivity testing
+
+ o FEATURE: get_function_descriptions() added to the bridge
+
+User Interface
+
+ o FEATURE: Shift-click on an atom shows atom info in the status bar
+
+ o FEATURE: "Delete all water" menu item
+
+ o FEATURE: EM Placement dialog with Phaser integration
+
+ o FEATURE: Git commit hash and build date shown in About dialog
+
+ o FEATURE: Improved "Recover Session" dialog
+
+ o FEATURE: Generic Display Objects dialog now shows button state
+
+ o FEATURE: Interesting places JSON file reading with atom-spec
+            parsing
+
+ o CHANGE:  Copy Fragment combobox now sets the active item
+
+ o CHANGE:  Don't include hydrogen atoms in Local B-factor display
+
+ o CHANGE:  Sharpen/Blur Map slider now displays the value
+
+ o CHANGE:  Difference Map Peaks now shows closest atom
+
+ o BUG-FIX: Fix validation graph combobox g_warning()
+
+ o BUG-FIX: Better handling for unknown monomer types in PTM dialog
+
+ o BUG-FIX: Remove duplicate entries from PTM combobox
+
+ o BUG-FIX: Fix Copy Fragment combobox active item
+
+Chapi/libcootapi
+
+ o NEW FUNCTION: get_molecule_diameter()
+
+ o NEW FUNCTION: get_torsions_for_residues_in_chain()
+
+ o NEW FUNCTION: get_hydrogen_bonds_py() - pythonic hydrogen bond info
+
+ o NEW FUNCTION: set_residue_properties()
+
+ o NEW FUNCTION: get_computed_acedrg_atom_types()
+
+ o NEW FUNCTION: pyrogen_from_rdkit_mol_pickle_base64()
+
+ o NEW FUNCTION: get_rdkit_mol_pickle_base64() with pickling options
+
+ o NEW FUNCTION: add_residue_by_map_fit()
+
+ o NEW FUNCTION: residue_exists_py()
+
+ o NEW FUNCTION: ephemeral_overlay_label()
+
+ o NEW FUNCTION: molecule_atom_overlaps_py() with n_max argument
+
+ o NEW FUNCTION: get_xmap() for testing
+
+ o NEW FUNCTION: get/set view from/to JSON string
+
+ o NEW FUNCTION: set_stereo_angle()
+
+ o NEW FUNCTION: side_by_side_stereo_mode()
+
+ o NEW FUNCTION: curlew_download_and_install_extension()
+
+ o NEW FUNCTION: get_ligand_validation_vs_dictionary() fix
+
+ o NEW FUNCTION: get_molecule_selection_as_json() fix
+
+ o NEW FUNCTION: add_molecular_representation with secondary
+                 structure usage flag
+
+ o BUG-FIX: Fix get_residues_in_chain_py()
+
+ o BUG-FIX: Fix user-defined atom colour handling
+
+Build
+
+ o Updated RDKit, libsigc++3, Boost, Python versions
+
+ o Improved Lhasa build scripts [Jakub Smulski]
+
+ o Ubuntu CI workflow improvements
+
+ o MAKE_ENHANCED_LIGAND_TOOLS build flag cleanup
 
 -----
 
@@ -2708,7 +2930,7 @@ Release 0.5 Ueno
 
    o BUG-FIX: Go To Atom dialog is properly updated on merging
      molecules.
- 
+
    o BUG-FIX: Coot no longer crashes when opening the Bond Parameters
      dialog before a pdb file has been read.
 

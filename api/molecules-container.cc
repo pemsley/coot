@@ -4402,6 +4402,33 @@ molecules_container_t::apply_transformation_to_atom_selection(int imol, const st
 
 }
 
+bool
+molecules_container_t::apply_translation_to_molecule(int imol, float tx, float ty, float tz) {
+
+   bool status = false;
+   if (is_valid_model_molecule(imol)) {
+      mmdb::Manager *mol = molecules[imol].atom_sel.mol;
+      int selHnd = mol->NewSelection(); // d
+      mol->SelectAtoms(selHnd, 0, "*", mmdb::ANY_RES, "*", mmdb::ANY_RES, "*", "*", "*", "*", "*");
+      mmdb::Atom **atoms = nullptr;
+      int n_atoms = 0;
+      mol->GetSelIndex(selHnd, atoms, n_atoms);
+      if (n_atoms > 0) {
+         for (int i=0; i<n_atoms; i++) {
+            atoms[i]->x += tx;
+            atoms[i]->y += ty;
+            atoms[i]->z += tz;
+         }
+         mol->FinishStructEdit();
+         set_updating_maps_need_an_update(imol);
+         status = true;
+      }
+      mol->DeleteSelection(selHnd);
+   } else {
+      std::cout << "WARNING:: " << __FUNCTION__ << "(): not a valid model molecule " << imol << std::endl;
+   }
+   return status;
+}
 
 int
 molecules_container_t::new_positions_for_residue_atoms(int imol, const std::string &residue_cid, std::vector<coot::api::moved_atom_t> &moved_atoms) {

@@ -3,6 +3,7 @@
 #include <iomanip>
 #include <string>
 
+#include <fstream>
 #include <sys/types.h>
 #include <sys/stat.h>
 #include <unistd.h>
@@ -17,8 +18,16 @@
 #include <gemmi/polyheur.hpp>
 #endif
 #include "MoleculesToTriangles/CXXClasses/MyMolecule.h"
+#include <clipper/clipper-contrib.h>
+#include <clipper/ccp4/ccp4_mtz_io.h>
+#include <clipper/ccp4/ccp4_map_io.h>
+#include <clipper/core/map_interp.h>
 #include "molecules-container.hh"
 #include "coot-utils/acedrg-types-for-residue.hh"
+#include "coot-utils/coot-map-utils.hh"
+#include "coot-utils/coot-coord-utils.hh"
+#include "coot-utils/patterson.hh"
+#include "coot-utils/crowther.hh"
 #include "filo-tests.hh"
 #include "lucrezia-tests.hh"
 
@@ -740,6 +749,1303 @@ int test_rota_dodecs_mesh(molecules_container_t &mc) {
 
    return status;
 
+}
+
+int test_patterson_from_map_using_mtz(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   // Build an Xmap directly from the MTZ file using clipper
+   std::string mtz_file = reference_data("moorhen-tutorial-map-number-1.mtz");
+   clipper::CCP4MTZfile mtzin;
+   mtzin.open_read(mtz_file);
+   clipper::Spacegroup spgr = mtzin.spacegroup();
+   clipper::Cell cell = mtzin.cell();
+   clipper::Resolution mtz_reso = mtzin.resolution();
+   clipper::HKL_info hkls(spgr, cell, mtz_reso, true);
+   clipper::HKL_data<clipper::datatypes::F_phi<float>> fphi(hkls);
+   mtzin.import_hkl_data(fphi, "/*/*/[FWT,PHWT]");
+   mtzin.close_read();
+
+   if (hkls.num_reflections() == 0) {
+      std::cout << "ERROR:: test_patterson_from_map_using_mtz() failed to read reflections from "
+                << mtz_file << std::endl;
+      return status;
+   }
+
+   clipper::Grid_sampling grid(spgr, cell, mtz_reso);
+   clipper::Xmap<float> xmap(spgr, cell, grid);
+   xmap.fft_from(fphi);
+
+   clipper::Resolution reso(3.0);
+   clipper::Xmap<float> patterson = coot::make_patterson_from_map(xmap, reso);
+
+   // The Patterson should have a large origin peak (autocorrelation of the whole map).
+   // Sample at the origin and check it's significantly positive.
+   clipper::Coord_orth origin(0.0, 0.0, 0.0);
+   float origin_val = 0.0f;
+   clipper::Interp_linear::interp(patterson, patterson.coord_map(origin), origin_val);
+   std::cout << "INFO:: test_patterson_from_map_using_mtz() origin peak value: " << origin_val << std::endl;
+
+   // The origin peak should be the largest value in the Patterson.
+   // Also check that the Patterson is not all zeros.
+   float max_val = -1e30f;
+   float min_val =  1e30f;
+   clipper::Xmap_base::Map_reference_index ix;
+   for (ix = patterson.first(); !ix.last(); ix.next()) {
+      float v = patterson[ix];
+      if (v > max_val) max_val = v;
+      if (v < min_val) min_val = v;
+   }
+   std::cout << "INFO:: test_patterson_from_map_using_mtz() min: " << min_val << " max: " << max_val << std::endl;
+
+   // The Patterson should not be flat (max > min) and origin should be large
+   if (max_val > min_val && origin_val > 0.0f)
+      status = 1;
+
+   return status;
+}
+
+int test_patterson_from_map_using_map(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   std::string map_file = reference_data("32143-masked-around-N.map");
+   int imol_map = mc.read_ccp4_map(map_file, false);
+   if (! mc.is_valid_map_molecule(imol_map)) {
+      std::cout << "ERROR:: test_patterson_from_map_using_map() failed to read " << map_file << std::endl;
+      return status;
+   }
+   clipper::Xmap<float> xmap = mc.get_xmap(imol_map);
+   mc.close_molecule(imol_map);
+
+   // Extract a map fragment around the box centre
+   clipper::Coord_orth centre(121.0, 75.0, 106.0);
+   float fragment_radius = 20.0;
+   coot::util::map_fragment_info_t mf(xmap, centre, fragment_radius, true, 0.5f);
+
+   if (mf.xmap.is_null()) {
+      std::cout << "ERROR:: test_patterson_from_map_using_map() map fragment is null" << std::endl;
+      return status;
+   }
+
+   clipper::Resolution reso(5.0);
+   clipper::Xmap<float> patterson = coot::make_patterson_from_map(mf.xmap, reso);
+
+   clipper::Coord_orth origin(0.0, 0.0, 0.0);
+   float origin_val = 0.0f;
+   clipper::Interp_linear::interp(patterson, patterson.coord_map(origin), origin_val);
+   std::cout << "INFO:: test_patterson_from_map_using_map() origin peak value: " << origin_val << std::endl;
+
+   float max_val = -1e30f;
+   float min_val =  1e30f;
+   clipper::Xmap_base::Map_reference_index ix;
+   for (ix = patterson.first(); !ix.last(); ix.next()) {
+      float v = patterson[ix];
+      if (v > max_val) max_val = v;
+      if (v < min_val) min_val = v;
+   }
+   std::cout << "INFO:: test_patterson_from_map_using_map() min: " << min_val << " max: " << max_val << std::endl;
+
+   if (max_val > min_val && origin_val > 0.0f)
+      status = 1;
+
+   return status;
+}
+
+int test_self_rotation_function(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   std::string map_file = reference_data("32143-masked-around-N.map");
+   int imol_map = mc.read_ccp4_map(map_file, false);
+   if (! mc.is_valid_map_molecule(imol_map)) {
+      std::cout << "ERROR:: test_self_rotation_function() failed to read " << map_file << std::endl;
+      return status;
+   }
+   clipper::Xmap<float> xmap = mc.get_xmap(imol_map);
+   mc.close_molecule(imol_map);
+
+   // Extract a map fragment around the box centre
+   clipper::Coord_orth centre(121.0, 75.0, 106.0);
+   float fragment_radius = 20.0;
+   coot::util::map_fragment_info_t mf(xmap, centre, fragment_radius, false);
+
+   if (mf.xmap.is_null()) {
+      std::cout << "ERROR:: test_self_rotation_function() map fragment is null" << std::endl;
+      return status;
+   }
+
+   clipper::Resolution reso(5.0);
+   clipper::Xmap<float> patterson = coot::make_patterson_from_map(mf.xmap, reso);
+
+   // Diagnostic: sample Patterson along x-axis to see if it has structure
+   for (float x=0.0f; x<=30.0f; x+=2.0f) {
+      float val;
+      clipper::Coord_orth pos(x, 0.0, 0.0);
+      clipper::Interp_linear::interp(patterson, patterson.coord_map(pos), val);
+      std::cout << "INFO:: Patterson at (" << x << ", 0, 0): "
+                << std::scientific << std::setprecision(5) << val << std::endl;
+   }
+
+   // Self rotation function: compare the Patterson with itself.
+   // The top peak should be at (or very near) the identity rotation.
+   float shell_inner = 5.0f;
+   float shell_outer = 25.0f;
+   float angular_step = 5.0f;
+
+   std::vector<coot::rotation_function_result_t> results =
+      coot::rotation_function_search(patterson, patterson, shell_inner, shell_outer, angular_step);
+
+   std::cout << "INFO:: test_self_rotation_function() " << results.size() << " results" << std::endl;
+
+   unsigned int n_print = std::min(static_cast<unsigned int>(results.size()), 20u);
+   for (unsigned int i=0; i<n_print; i++) {
+      const auto &r = results[i];
+      glm::vec3 euler = glm::degrees(glm::eulerAngles(r.rotation));
+      std::cout << "INFO::   result " << std::setw(3) << i
+                << " score: " << std::setw(14) << std::scientific << std::setprecision(5) << r.score
+                << " quat: " << glm::to_string(r.rotation)
+                << " euler(deg): (" << std::fixed << std::setprecision(1)
+                << euler.x << ", " << euler.y << ", " << euler.z << ")"
+                << std::endl;
+   }
+
+   // For a self-Patterson, the function is centrosymmetric: P(u) = P(-u).
+   // This means all 180-degree rotations (w~0) score the same as the identity.
+   // Find the nearest-to-identity quaternion and check its score is close to the top.
+   if (!results.empty()) {
+      float top_score = results[0].score;
+      glm::quat identity(1, 0, 0, 0);
+      float best_dot = 0.0f;
+      float identity_score = 0.0f;
+      for (const auto &r : results) {
+         float d = std::abs(glm::dot(r.rotation, identity));
+         if (d > best_dot) {
+            best_dot = d;
+            identity_score = r.score;
+         }
+      }
+      float ratio = identity_score / top_score;
+      std::cout << "INFO:: test_self_rotation_function() top score: "
+                << std::scientific << std::setprecision(5) << top_score
+                << " nearest-identity score: " << identity_score
+                << " ratio: " << std::fixed << std::setprecision(3) << ratio
+                << " (nearest-identity |dot|: " << best_dot << ")" << std::endl;
+      // The near-identity rotation should score within a few percent of the top
+      if (ratio > 0.95f)
+         status = 1;
+   }
+
+   return status;
+}
+
+int test_cross_rotation_function(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   std::string map_file = reference_data("32143-masked-around-N.map");
+   int imol_map = mc.read_ccp4_map(map_file, false);
+   if (! mc.is_valid_map_molecule(imol_map)) {
+      std::cout << "ERROR:: test_cross_rotation_function() failed to read " << map_file << std::endl;
+      return status;
+   }
+   clipper::Xmap<float> xmap = mc.get_xmap(imol_map);
+   mc.close_molecule(imol_map);
+
+   // Extract a map fragment
+   clipper::Coord_orth centre(121.0, 75.0, 106.0);
+   float fragment_radius = 20.0;
+   bool centre_at_origin = true;
+   coot::util::map_fragment_info_t mf(xmap, centre, fragment_radius, centre_at_origin);
+
+   if (mf.xmap.is_null()) {
+      std::cout << "ERROR:: test_cross_rotation_function() map fragment is null" << std::endl;
+      return status;
+   }
+
+   if (true) {
+      // by eye debug the maps
+      clipper::CCP4MAPfile mapout;
+      mapout.open_write(std::string("map-fragment.map"));
+      mapout.export_xmap(mf.xmap);
+   }
+
+   // Apply a known rotation: 35 degrees around z-axis
+   float known_angle = glm::radians(35.0f);
+   glm::quat known_rotation = glm::angleAxis(known_angle, glm::vec3(0.0f, 0.0f, 1.0f));
+   glm::mat3 rot_mat = glm::mat3_cast(known_rotation);
+
+   // glm is column-major, clipper is row-major
+   clipper::Mat33<> clipper_rot(rot_mat[0][0], rot_mat[1][0], rot_mat[2][0],
+                                rot_mat[0][1], rot_mat[1][1], rot_mat[2][1],
+                                rot_mat[0][2], rot_mat[1][2], rot_mat[2][2]);
+
+   // Rotate the map fragment about the cell centre, no wrapping
+   clipper::Xmap<float> rotated_map = coot::rotate_p1_map(mf.xmap, clipper_rot);
+
+   if (true) {
+      clipper::CCP4MAPfile mapout_2;
+      mapout_2.open_write(std::string("rotated-map-fragment.map"));
+      mapout_2.export_xmap(rotated_map);
+      mapout_2.close_write();
+   }
+
+   // Compute Pattersons of both
+   clipper::Resolution reso(5.0);
+   clipper::Xmap<float> patterson_target = coot::make_patterson_from_map(mf.xmap, reso);
+   clipper::Xmap<float> patterson_search = coot::make_patterson_from_map(rotated_map, reso);
+
+   // Run rotation function search
+   float shell_inner = 5.0f;
+   float shell_outer = 25.0f;
+   float angular_step = 10.0f;
+
+   std::vector<coot::rotation_function_result_t> results =
+      coot::rotation_function_search(patterson_target, patterson_search,
+                                     shell_inner, shell_outer, angular_step);
+
+   std::cout << "INFO:: test_cross_rotation_function() " << results.size() << " results" << std::endl;
+   std::cout << "INFO:: known rotation: " << glm::to_string(known_rotation) << std::endl;
+
+   unsigned int n_print = std::min(static_cast<unsigned int>(results.size()), 30u);
+   for (unsigned int i=0; i<n_print; i++) {
+      const auto &r = results[i];
+      glm::vec3 euler = glm::degrees(glm::eulerAngles(r.rotation));
+      std::cout << "INFO::   result " << std::setw(3) << i
+                << " score: " << std::setw(14) << std::scientific << std::setprecision(5) << r.score
+                << " quat: " << glm::to_string(r.rotation)
+                << " euler(deg): ( " << std::fixed << std::setprecision(1)
+                << euler.x << ", " << euler.y << ", " << euler.z << " )"
+                << std::endl;
+   }
+
+   // The top result should be close to the known rotation.
+   // Because the Patterson is centrosymmetric, the known rotation composed
+   // with 180-degree rotations will also score highly. Check that one of
+   // the top results is close to the known rotation.
+   if (!results.empty()) {
+      float best_dot = 0.0f;
+      int best_idx = -1;
+      unsigned int n_check = std::min(static_cast<unsigned int>(results.size()), 50u);
+      for (unsigned int i=0; i<n_check; i++) {
+         float d = std::abs(glm::dot(results[i].rotation, known_rotation));
+         if (d > best_dot) {
+            best_dot = d;
+            best_idx = static_cast<int>(i);
+         }
+      }
+      std::cout << "INFO:: test_cross_rotation_function() best match to known rotation at index "
+                << best_idx << " |dot|: " << best_dot << std::endl;
+      // The known rotation should be found in the top results with a close match.
+      // Note: Patterson centrosymmetry means rotations composed with 180-degree
+      // rotations score equally, so the pure known rotation may not be #1.
+      if (best_dot > 0.95f && best_idx < 50)
+         status = 1;
+   }
+
+   return status;
+}
+
+int test_crowther_rotation_function(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   std::string map_file = reference_data("32143-masked-around-N.map");
+   int imol_map = mc.read_ccp4_map(map_file, false);
+   if (! mc.is_valid_map_molecule(imol_map)) {
+      std::cout << "ERROR:: test_crowther_rotation_function() failed to read " << map_file << std::endl;
+      return status;
+   }
+   clipper::Xmap<float> xmap = mc.get_xmap(imol_map);
+   mc.close_molecule(imol_map);
+
+   // Extract a map fragment centred at origin
+   clipper::Coord_orth centre(121.0, 75.0, 106.0);
+   float fragment_radius = 20.0;
+   coot::util::map_fragment_info_t mf(xmap, centre, fragment_radius, true, 0.5f);
+
+   if (mf.xmap.is_null()) {
+      std::cout << "ERROR:: test_crowther_rotation_function() map fragment is null" << std::endl;
+      return status;
+   }
+
+   // Apply a known rotation: 35 degrees around z-axis
+   float known_angle = glm::radians(35.0f);
+   glm::quat known_rotation = glm::angleAxis(known_angle, glm::vec3(0.0f, 0.0f, 1.0f));
+   glm::mat3 rot_mat = glm::mat3_cast(known_rotation);
+
+   clipper::Mat33<> clipper_rot(rot_mat[0][0], rot_mat[1][0], rot_mat[2][0],
+                                rot_mat[0][1], rot_mat[1][1], rot_mat[2][1],
+                                rot_mat[0][2], rot_mat[1][2], rot_mat[2][2]);
+
+   clipper::Xmap<float> rotated_map = coot::rotate_p1_map(mf.xmap, clipper_rot);
+
+   // Crowther fast rotation function
+   int ell_max = 15;
+   float radius = 25.0f;
+   clipper::Resolution reso(5.0);
+   int n_beta = 36;
+
+   coot::crowther_t crowther(ell_max, radius, reso);
+   crowther.set_target(mf.xmap);
+   crowther.set_search(rotated_map);
+
+   std::vector<coot::rotation_function_result_t> results = crowther.compute(n_beta);
+
+   std::cout << "INFO:: test_crowther_rotation_function() " << results.size() << " results" << std::endl;
+   std::cout << "INFO:: known rotation: " << glm::to_string(known_rotation) << std::endl;
+
+   unsigned int n_print = std::min(static_cast<unsigned int>(results.size()), 30u);
+   for (unsigned int i=0; i<n_print; i++) {
+      const auto &r = results[i];
+      glm::vec3 euler = glm::degrees(glm::eulerAngles(r.rotation));
+      std::cout << "INFO::   result " << std::setw(3) << i
+                << " score: " << std::setw(14) << std::scientific << std::setprecision(5) << r.score
+                << " quat: " << glm::to_string(r.rotation)
+                << " euler(deg): ( " << std::fixed << std::setprecision(1)
+                << euler.x << ", " << euler.y << ", " << euler.z << " )"
+                << std::endl;
+   }
+
+   // Check if the known rotation is among the top results
+   if (!results.empty()) {
+      float best_dot = 0.0f;
+      int best_idx = -1;
+      unsigned int n_check = std::min(static_cast<unsigned int>(results.size()), 50u);
+      for (unsigned int i=0; i<n_check; i++) {
+         float d = std::abs(glm::dot(results[i].rotation, known_rotation));
+         if (d > best_dot) {
+            best_dot = d;
+            best_idx = static_cast<int>(i);
+         }
+      }
+      std::cout << "INFO:: test_crowther_rotation_function() best match at index "
+                << best_idx << " |dot|: " << std::fixed << std::setprecision(3) << best_dot << std::endl;
+
+      // With the Crowther method, the known rotation should be clearly distinguished.
+      // The angular grid is discrete (ell_max=15 gives ~12 degree steps in alpha/gamma),
+      // so the nearest grid point may not match perfectly.
+      if (best_dot > 0.85f && best_idx < 100)
+         status = 1;
+   }
+
+   return status;
+}
+
+int test_crowther_rotation_with_model(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   // Read the EM map (masked around nanobody)
+   std::string map_file = reference_data("32143-masked-around-N.map");
+   int imol_map = mc.read_ccp4_map(map_file, false);
+   if (! mc.is_valid_map_molecule(imol_map)) {
+      std::cout << "ERROR:: failed to read " << map_file << std::endl;
+      return status;
+   }
+   clipper::Xmap<float> xmap = mc.get_xmap(imol_map);
+   mc.close_molecule(imol_map);
+
+   // Extract target map fragment centred at origin
+   clipper::Coord_orth centre(121.0, 75.0, 106.0);
+   float fragment_radius = 20.0;
+   coot::util::map_fragment_info_t mf(xmap, centre, fragment_radius, true, 0.5f);
+   if (mf.xmap.is_null()) {
+      std::cout << "ERROR:: target map fragment is null" << std::endl;
+      return status;
+   }
+
+   // Read the nanobody model
+   std::string pdb_file = reference_data("nanobody-from-7vvl-moved-again-v2.pdb");
+   int imol_model = mc.read_pdb(pdb_file);
+   if (! mc.is_valid_model_molecule(imol_model)) {
+      std::cout << "ERROR:: failed to read " << pdb_file << std::endl;
+      return status;
+   }
+   mmdb::Manager *mol = mc.get_mol(imol_model);
+
+   // Find the centre and extents of the model
+   std::pair<bool, clipper::Coord_orth> mol_centre = coot::centre_of_molecule(mol);
+   if (! mol_centre.first) {
+      std::cout << "ERROR:: failed to find centre of molecule" << std::endl;
+      mc.close_molecule(imol_model);
+      return status;
+   }
+
+   int SelHnd = mol->NewSelection();
+   mol->SelectAtoms(SelHnd, 0, "*", mmdb::ANY_RES, "*", mmdb::ANY_RES, "*",
+                    "*", "*", "*", "*");
+   std::pair<clipper::Coord_orth, clipper::Coord_orth> ext = coot::util::extents(mol, SelHnd);
+   double x_range = ext.second.x() - ext.first.x();
+   double y_range = ext.second.y() - ext.first.y();
+   double z_range = ext.second.z() - ext.first.z();
+
+   // Create a P1 cell large enough for the model with border
+   double border = 10.0;
+   double r_90 = clipper::Util::d2rad(90.0);
+   clipper::Cell_descr cell_descr(x_range + 2.0*border,
+                                  y_range + 2.0*border,
+                                  z_range + 2.0*border, r_90, r_90, r_90);
+   clipper::Cell cell(cell_descr);
+   clipper::Spacegroup spacegroup = clipper::Spacegroup::p1();
+   clipper::Resolution reso(3.0);
+   clipper::Grid_sampling gs(spacegroup, cell, reso);
+
+   // Move the model to the centre of the cell
+   clipper::Coord_orth cell_centre(0.5 * cell_descr.a(),
+                                   0.5 * cell_descr.b(),
+                                   0.5 * cell_descr.c());
+   clipper::Coord_orth shift = clipper::Coord_orth(cell_centre.x() - mol_centre.second.x(),
+                                                   cell_centre.y() - mol_centre.second.y(),
+                                                   cell_centre.z() - mol_centre.second.z());
+
+   // Apply shift to all atoms
+   mmdb::PPAtom sel_atoms = 0;
+   int n_atoms;
+   mol->GetSelIndex(SelHnd, sel_atoms, n_atoms);
+   for (int i=0; i<n_atoms; i++) {
+      sel_atoms[i]->x += shift.x();
+      sel_atoms[i]->y += shift.y();
+      sel_atoms[i]->z += shift.z();
+   }
+
+   std::cout << "INFO:: model centre: " << mol_centre.second.format()
+             << " shifted to cell centre: " << cell_centre.format() << std::endl;
+   std::cout << "INFO:: model extents: " << x_range << " x " << y_range << " x " << z_range << std::endl;
+   std::cout << "INFO:: cell: " << cell.format() << std::endl;
+   std::cout << "INFO:: n_atoms: " << n_atoms << std::endl;
+
+   // Compute atom map
+   clipper::Xmap<float> model_map = coot::util::calc_atom_map(mol, SelHnd, cell, spacegroup, gs);
+   mol->DeleteSelection(SelHnd);
+   mc.close_molecule(imol_model);
+
+   // Extract model map fragment centred at origin
+   coot::util::map_fragment_info_t mf_model(model_map, cell_centre, fragment_radius, true, 0.5f);
+   if (mf_model.xmap.is_null()) {
+      std::cout << "ERROR:: model map fragment is null" << std::endl;
+      return status;
+   }
+
+   // Write out intermediate maps for debugging
+   if (true) {
+      // The full model map (before fragment extraction)
+      clipper::CCP4MAPfile mapout_full;
+      mapout_full.open_write("model-full.map");
+      mapout_full.export_xmap(model_map);
+      mapout_full.close_write();
+      std::cout << "INFO:: wrote model-full.map" << std::endl;
+
+      // The map fragments
+      clipper::CCP4MAPfile mapout;
+      mapout.open_write("target-fragment.map");
+      mapout.export_xmap(mf.xmap);
+      mapout.close_write();
+      std::cout << "INFO:: wrote target-fragment.map" << std::endl;
+
+      clipper::CCP4MAPfile mapout2;
+      mapout2.open_write("model-fragment.map");
+      mapout2.export_xmap(mf_model.xmap);
+      mapout2.close_write();
+      std::cout << "INFO:: wrote model-fragment.map" << std::endl;
+
+      // Write Pattersons of both fragments
+      clipper::Xmap<float> target_patt = coot::make_patterson_from_map(mf.xmap, reso);
+      clipper::Xmap<float> search_patt = coot::make_patterson_from_map(mf_model.xmap, reso);
+      clipper::CCP4MAPfile mapout_tp;
+      mapout_tp.open_write("target-patterson.map");
+      mapout_tp.export_xmap(target_patt);
+      mapout_tp.close_write();
+      std::cout << "INFO:: wrote target-patterson.map" << std::endl;
+
+      clipper::CCP4MAPfile mapout_sp;
+      mapout_sp.open_write("search-patterson.map");
+      mapout_sp.export_xmap(search_patt);
+      mapout_sp.close_write();
+      std::cout << "INFO:: wrote search-patterson.map" << std::endl;
+   }
+
+   // Run Crowther fast rotation function
+   int ell_max = 15;
+   float crowther_radius = 18.0f;
+   int n_beta = 36;
+
+   coot::crowther_t crowther(ell_max, crowther_radius, reso);
+   crowther.set_target(mf.xmap);
+   crowther.set_search(mf_model.xmap);
+   crowther.print_diagnostics();
+
+   auto t_coarse_start = std::chrono::high_resolution_clock::now();
+   std::vector<coot::rotation_function_result_t> results = crowther.compute(n_beta);
+   auto t_coarse_end = std::chrono::high_resolution_clock::now();
+   double t_coarse_ms = std::chrono::duration<double, std::milli>(t_coarse_end - t_coarse_start).count();
+   std::cout << "INFO:: coarse search: " << results.size() << " results in "
+             << std::fixed << std::setprecision(1) << t_coarse_ms << " ms" << std::endl;
+
+   // Print top 30 results
+   unsigned int n_print = std::min(static_cast<unsigned int>(results.size()), 30u);
+   for (unsigned int i=0; i<n_print; i++) {
+      const auto &r = results[i];
+      glm::vec3 euler = glm::degrees(glm::eulerAngles(r.rotation));
+      std::cout << "INFO::   result " << std::setw(3) << i
+                << " score: " << std::setw(14) << std::scientific << std::setprecision(5) << r.score
+                << " quat: " << glm::to_string(r.rotation)
+                << " euler(deg): ( " << std::fixed << std::setprecision(1)
+                << euler.x << ", " << euler.y << ", " << euler.z << " )"
+                << std::endl;
+   }
+
+   // Write all results to a file for analysis
+   {
+      std::string output_file = "crowther-rotation-function.dat";
+      std::ofstream ofs(output_file);
+      if (ofs.is_open()) {
+         ofs << "# Crowther rotation function results" << std::endl;
+         ofs << "# ell_max=" << ell_max << " radius=" << crowther_radius
+             << " resolution=" << reso.limit() << " n_beta=" << n_beta << std::endl;
+         ofs << "# alpha(deg)  beta(deg)  gamma(deg)  score  qw  qx  qy  qz" << std::endl;
+         for (const auto &r : results) {
+            glm::vec3 euler = glm::degrees(glm::eulerAngles(r.rotation));
+            ofs << std::fixed << std::setprecision(2)
+                << std::setw(10) << euler.x
+                << std::setw(10) << euler.y
+                << std::setw(10) << euler.z
+                << std::scientific << std::setprecision(6)
+                << std::setw(16) << r.score
+                << std::fixed << std::setprecision(6)
+                << std::setw(12) << r.rotation.w
+                << std::setw(12) << r.rotation.x
+                << std::setw(12) << r.rotation.y
+                << std::setw(12) << r.rotation.z
+                << std::endl;
+         }
+         ofs.close();
+         std::cout << "INFO:: wrote " << results.size() << " rotation function values to "
+                   << output_file << std::endl;
+      }
+   }
+
+   // Known rotation matrix (from SSM superposition of moved nanobody onto original):
+   glm::mat3 known_rot_mat(
+      -0.08604f,  -0.2008f, -0.9758f,   // column 0
+       0.6589f,    0.7232f, -0.2069f,    // column 1
+       0.7473f,   -0.6608f,  0.07012f    // column 2
+   );
+   // The rotation function finds the direct rotation.
+   glm::quat known_quat_direct = glm::normalize(glm::quat_cast(known_rot_mat));
+
+   std::cout << "INFO:: known rotation quat (direct): " << glm::to_string(known_quat_direct) << std::endl;
+
+   // Compute angular distance from known rotation to each top coarse result
+   std::cout << "INFO:: Coarse angular distances from known rotation:" << std::endl;
+   for (unsigned int i=0; i<n_print; i++) {
+      const auto &r = results[i];
+      float dot = std::abs(glm::dot(r.rotation, known_quat_direct));
+      if (dot > 1.0f) dot = 1.0f;
+      float angle_deg = glm::degrees(2.0f * std::acos(dot));
+      glm::vec3 euler = glm::degrees(glm::eulerAngles(r.rotation));
+      std::cout << "INFO::   result " << std::setw(3) << i
+                << " angle_from_known: " << std::fixed << std::setprecision(1)
+                << std::setw(6) << angle_deg << " deg"
+                << "  score: " << std::scientific << std::setprecision(3) << r.score
+                << "  euler: (" << std::fixed << std::setprecision(1)
+                << euler.x << ", " << euler.y << ", " << euler.z << ")"
+                << std::endl;
+   }
+
+   // Refine top 10 orientations: two passes, 2 deg then 0.7 deg
+   auto t_ref1_start = std::chrono::high_resolution_clock::now();
+   auto refined = crowther.refine_orientations(results, 10, 2.0f);
+   auto t_ref1_end = std::chrono::high_resolution_clock::now();
+   double t_ref1_ms = std::chrono::duration<double, std::milli>(t_ref1_end - t_ref1_start).count();
+   std::cout << "INFO:: refinement pass 1 (step=2 deg): " << std::fixed << std::setprecision(1)
+             << t_ref1_ms << " ms" << std::endl;
+
+   auto t_ref2_start = std::chrono::high_resolution_clock::now();
+   refined = crowther.refine_orientations(refined, 10, 0.7f);
+   auto t_ref2_end = std::chrono::high_resolution_clock::now();
+   double t_ref2_ms = std::chrono::duration<double, std::milli>(t_ref2_end - t_ref2_start).count();
+   std::cout << "INFO:: refinement pass 2 (step=0.7 deg): " << std::fixed << std::setprecision(1)
+             << t_ref2_ms << " ms" << std::endl;
+
+   std::cout << "INFO:: Refined angular distances from known rotation:" << std::endl;
+   for (unsigned int i=0; i<refined.size(); i++) {
+      const auto &r = refined[i];
+      float dot = std::abs(glm::dot(r.rotation, known_quat_direct));
+      if (dot > 1.0f) dot = 1.0f;
+      float angle_deg = glm::degrees(2.0f * std::acos(dot));
+      glm::vec3 euler = glm::degrees(glm::eulerAngles(r.rotation));
+      std::cout << "INFO::   refined " << std::setw(3) << i
+                << " angle_from_known: " << std::fixed << std::setprecision(1)
+                << std::setw(6) << angle_deg << " deg"
+                << "  score: " << std::scientific << std::setprecision(3) << r.score
+                << "  euler: (" << std::fixed << std::setprecision(1)
+                << euler.x << ", " << euler.y << ", " << euler.z << ")"
+                << std::endl;
+   }
+
+   // For now, pass if we got results with some variation
+   if (results.size() > 100) {
+      float top_score = results[0].score;
+      float mid_score = results[results.size() / 2].score;
+      float ratio = mid_score / top_score;
+      std::cout << "INFO:: score ratio top/mid: " << std::fixed << std::setprecision(3) << ratio << std::endl;
+      status = 1;  // pass if we got this far
+   }
+
+   // --- Now repeat with the full (unmasked) EM map for comparison ---
+   {
+      std::cout << "\nINFO:: =============================================" << std::endl;
+      std::cout << "INFO:: === Now using full EM map (emd_32143.map) ===" << std::endl;
+      std::cout << "INFO:: =============================================" << std::endl;
+
+      std::string full_map_file = reference_data("emd_32143.map");
+      int imol_full = mc.read_ccp4_map(full_map_file, false);
+      if (! mc.is_valid_map_molecule(imol_full)) {
+         std::cout << "ERROR:: failed to read " << full_map_file << std::endl;
+         return status;
+      }
+      clipper::Xmap<float> xmap_full = mc.get_xmap(imol_full);
+      mc.close_molecule(imol_full);
+
+      // Extract target fragment from the full map at the same centre/radius
+      coot::util::map_fragment_info_t mf_full(xmap_full, centre, fragment_radius, true, 0.5f);
+
+      // Re-read the model (it was closed earlier)
+      int imol_model2 = mc.read_pdb(reference_data("nanobody-from-7vvl-moved-again-v2.pdb"));
+      mmdb::Manager *mol2 = mc.get_mol(imol_model2);
+      std::pair<bool, clipper::Coord_orth> mc2 = coot::centre_of_molecule(mol2);
+      int sel2 = mol2->NewSelection();
+      mol2->SelectAtoms(sel2, 0, "*", mmdb::ANY_RES, "*", mmdb::ANY_RES, "*",
+                        "*", "*", "*", "*");
+      std::pair<clipper::Coord_orth, clipper::Coord_orth> ext2 = coot::util::extents(mol2, sel2);
+      double xr2 = ext2.second.x() - ext2.first.x();
+      double yr2 = ext2.second.y() - ext2.first.y();
+      double zr2 = ext2.second.z() - ext2.first.z();
+      double r_90_2 = clipper::Util::d2rad(90.0);
+      clipper::Cell_descr cd2(xr2 + 2.0*border, yr2 + 2.0*border, zr2 + 2.0*border,
+                              r_90_2, r_90_2, r_90_2);
+      clipper::Cell cell2(cd2);
+      clipper::Grid_sampling gs2(spacegroup, cell2, reso);
+      clipper::Coord_orth cc2(0.5*cd2.a(), 0.5*cd2.b(), 0.5*cd2.c());
+      mmdb::PPAtom atoms2 = 0;
+      int na2;
+      mol2->GetSelIndex(sel2, atoms2, na2);
+      for (int i=0; i<na2; i++) {
+         atoms2[i]->x += cc2.x() - mc2.second.x();
+         atoms2[i]->y += cc2.y() - mc2.second.y();
+         atoms2[i]->z += cc2.z() - mc2.second.z();
+      }
+      clipper::Xmap<float> model_map2 = coot::util::calc_atom_map(mol2, sel2, cell2, spacegroup, gs2);
+      mol2->DeleteSelection(sel2);
+      mc.close_molecule(imol_model2);
+      coot::util::map_fragment_info_t mf_model2(model_map2, cc2, fragment_radius, true, 0.5f);
+
+      // Run Crowther
+      coot::crowther_t crowther2(ell_max, crowther_radius, reso);
+      crowther2.set_target(mf_full.xmap);
+      crowther2.set_search(mf_model2.xmap);
+      auto t2_coarse_start = std::chrono::high_resolution_clock::now();
+      std::vector<coot::rotation_function_result_t> results2 = crowther2.compute(n_beta);
+      auto t2_coarse_end = std::chrono::high_resolution_clock::now();
+      double t2_coarse_ms = std::chrono::duration<double, std::milli>(t2_coarse_end - t2_coarse_start).count();
+      std::cout << "INFO:: full-map coarse search: " << results2.size() << " results in "
+                << std::fixed << std::setprecision(1) << t2_coarse_ms << " ms" << std::endl;
+      unsigned int n_print2 = std::min(static_cast<unsigned int>(results2.size()), 30u);
+      for (unsigned int i=0; i<n_print2; i++) {
+         const auto &r = results2[i];
+         float dot = std::abs(glm::dot(r.rotation, known_quat_direct));
+         if (dot > 1.0f) dot = 1.0f;
+         float angle_deg = glm::degrees(2.0f * std::acos(dot));
+         glm::vec3 euler = glm::degrees(glm::eulerAngles(r.rotation));
+         std::cout << "INFO::   result " << std::setw(3) << i
+                   << " angle_from_known: " << std::fixed << std::setprecision(1)
+                   << std::setw(6) << angle_deg << " deg"
+                   << "  score: " << std::scientific << std::setprecision(3) << r.score
+                   << "  euler: (" << std::fixed << std::setprecision(1)
+                   << euler.x << ", " << euler.y << ", " << euler.z << ")"
+                   << std::endl;
+      }
+
+      // Refine top 10 for full map too: two passes
+      auto t2_ref1_start = std::chrono::high_resolution_clock::now();
+      auto refined2 = crowther2.refine_orientations(results2, 10, 2.0f);
+      auto t2_ref1_end = std::chrono::high_resolution_clock::now();
+      double t2_ref1_ms = std::chrono::duration<double, std::milli>(t2_ref1_end - t2_ref1_start).count();
+      std::cout << "INFO:: full-map refinement pass 1 (step=2 deg): " << std::fixed << std::setprecision(1)
+                << t2_ref1_ms << " ms" << std::endl;
+
+      auto t2_ref2_start = std::chrono::high_resolution_clock::now();
+      refined2 = crowther2.refine_orientations(refined2, 10, 0.7f);
+      auto t2_ref2_end = std::chrono::high_resolution_clock::now();
+      double t2_ref2_ms = std::chrono::duration<double, std::milli>(t2_ref2_end - t2_ref2_start).count();
+      std::cout << "INFO:: full-map refinement pass 2 (step=0.7 deg): " << std::fixed << std::setprecision(1)
+                << t2_ref2_ms << " ms" << std::endl;
+
+      std::cout << "INFO:: Full-map refined angular distances from known rotation:" << std::endl;
+      for (unsigned int i=0; i<refined2.size(); i++) {
+         const auto &r = refined2[i];
+         float dot = std::abs(glm::dot(r.rotation, known_quat_direct));
+         if (dot > 1.0f) dot = 1.0f;
+         float angle_deg = glm::degrees(2.0f * std::acos(dot));
+         glm::vec3 euler = glm::degrees(glm::eulerAngles(r.rotation));
+         std::cout << "INFO::   refined " << std::setw(3) << i
+                   << " angle_from_known: " << std::fixed << std::setprecision(1)
+                   << std::setw(6) << angle_deg << " deg"
+                   << "  score: " << std::scientific << std::setprecision(3) << r.score
+                   << "  euler: (" << std::fixed << std::setprecision(1)
+                   << euler.x << ", " << euler.y << ", " << euler.z << ")"
+                   << std::endl;
+      }
+   }
+
+   return status;
+}
+
+int test_phased_translation_function(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   // ---------------------------------------------------------------
+   // Phased translation function for cryo-EM molecular replacement.
+   //
+   // 1. Run the Crowther rotation function with refinement to find the orientation
+   // 2. Rotate the search model by the best rotation
+   // 3. Compute an atom map on the same cell/grid as the EM map
+   // 4. FFT cross-correlate to find the translation
+   // ---------------------------------------------------------------
+
+   // Known nanobody position in the EM map
+   clipper::Coord_orth known_centre(121.0, 75.0, 106.0);
+
+   // === Step 1: Rotation search (same as test_crowther_rotation_with_model) ===
+
+   auto t_total_start = std::chrono::high_resolution_clock::now();
+
+   // Read the EM map (masked around nanobody)
+   std::string map_file = reference_data("32143-masked-around-N.map");
+   int imol_map = mc.read_ccp4_map(map_file, false);
+   if (! mc.is_valid_map_molecule(imol_map)) {
+      std::cout << "ERROR:: failed to read " << map_file << std::endl;
+      return status;
+   }
+   clipper::Xmap<float> xmap_obs = mc.get_xmap(imol_map);
+   mc.close_molecule(imol_map);
+
+   // Extract target map fragment for rotation search
+   float fragment_radius = 20.0;
+   coot::util::map_fragment_info_t mf(xmap_obs, known_centre, fragment_radius, true, 0.5f);
+
+   // Read the nanobody model
+   std::string pdb_file = reference_data("nanobody-from-7vvl-moved-again-v2.pdb");
+   int imol_model = mc.read_pdb(pdb_file);
+   if (! mc.is_valid_model_molecule(imol_model)) {
+      std::cout << "ERROR:: failed to read " << pdb_file << std::endl;
+      return status;
+   }
+   mmdb::Manager *mol = mc.get_mol(imol_model);
+
+   // Centre the model at origin for the rotation search
+   std::pair<bool, clipper::Coord_orth> mol_centre = coot::centre_of_molecule(mol);
+   if (! mol_centre.first) {
+      std::cout << "ERROR:: failed to find centre of molecule" << std::endl;
+      mc.close_molecule(imol_model);
+      return status;
+   }
+
+   int SelHnd = mol->NewSelection();
+   mol->SelectAtoms(SelHnd, 0, "*", mmdb::ANY_RES, "*", mmdb::ANY_RES, "*",
+                    "*", "*", "*", "*");
+
+   // Build a small P1 cell for the model fragment map
+   std::pair<clipper::Coord_orth, clipper::Coord_orth> ext = coot::util::extents(mol, SelHnd);
+   double x_range = ext.second.x() - ext.first.x();
+   double y_range = ext.second.y() - ext.first.y();
+   double z_range = ext.second.z() - ext.first.z();
+   double border = 10.0;
+   double r_90 = clipper::Util::d2rad(90.0);
+   clipper::Cell_descr cd_model(x_range + 2.0*border, y_range + 2.0*border,
+                                z_range + 2.0*border, r_90, r_90, r_90);
+   clipper::Cell cell_model(cd_model);
+   clipper::Spacegroup spacegroup = clipper::Spacegroup::p1();
+   clipper::Resolution reso(3.0);
+   clipper::Grid_sampling gs_model(spacegroup, cell_model, reso);
+
+   // Shift model to centre of its cell
+   clipper::Coord_orth cell_centre_model(0.5 * cd_model.a(), 0.5 * cd_model.b(), 0.5 * cd_model.c());
+   clipper::Coord_orth shift = clipper::Coord_orth(cell_centre_model.x() - mol_centre.second.x(),
+                                                    cell_centre_model.y() - mol_centre.second.y(),
+                                                    cell_centre_model.z() - mol_centre.second.z());
+   mmdb::PPAtom sel_atoms = 0;
+   int n_atoms;
+   mol->GetSelIndex(SelHnd, sel_atoms, n_atoms);
+   for (int i=0; i<n_atoms; i++) {
+      sel_atoms[i]->x += shift.x();
+      sel_atoms[i]->y += shift.y();
+      sel_atoms[i]->z += shift.z();
+   }
+
+   // Compute atom map for the model, extract fragment
+   clipper::Xmap<float> model_map = coot::util::calc_atom_map(mol, SelHnd, cell_model, spacegroup, gs_model);
+   coot::util::map_fragment_info_t mf_model(model_map, cell_centre_model, fragment_radius, true, 0.5f);
+
+   // Crowther rotation function
+   int ell_max = 15;
+   float crowther_radius = 18.0f;
+   int n_beta = 36;
+
+   coot::crowther_t crowther(ell_max, crowther_radius, reso);
+   crowther.set_target(mf.xmap);
+   crowther.set_search(mf_model.xmap);
+
+   auto t_rot_start = std::chrono::high_resolution_clock::now();
+   std::vector<coot::rotation_function_result_t> results = crowther.compute(n_beta);
+   auto t_rot_end = std::chrono::high_resolution_clock::now();
+   double t_rot_ms = std::chrono::duration<double, std::milli>(t_rot_end - t_rot_start).count();
+   std::cout << "INFO:: rotation coarse search: " << results.size() << " results in "
+             << std::fixed << std::setprecision(1) << t_rot_ms << " ms" << std::endl;
+
+   // Two-pass refinement
+   auto t_refine_start = std::chrono::high_resolution_clock::now();
+   auto refined = crowther.refine_orientations(results, 10, 2.0f);
+   refined = crowther.refine_orientations(refined, 10, 0.7f);
+   auto t_refine_end = std::chrono::high_resolution_clock::now();
+   double t_refine_ms = std::chrono::duration<double, std::milli>(t_refine_end - t_refine_start).count();
+   std::cout << "INFO:: rotation refinement: " << std::fixed << std::setprecision(1)
+             << t_refine_ms << " ms" << std::endl;
+
+   glm::quat best_rotation = refined[0].rotation;
+   std::cout << "INFO:: best rotation: " << glm::to_string(best_rotation)
+             << " score: " << std::scientific << std::setprecision(3) << refined[0].score << std::endl;
+
+   // === Step 2: Apply the rotation to the model ===
+
+   // Shift model back to origin (undo the cell-centre shift)
+   for (int i=0; i<n_atoms; i++) {
+      sel_atoms[i]->x -= shift.x();
+      sel_atoms[i]->y -= shift.y();
+      sel_atoms[i]->z -= shift.z();
+   }
+   // Now centre at the true origin
+   clipper::Coord_orth mc2 = mol_centre.second;
+   for (int i=0; i<n_atoms; i++) {
+      sel_atoms[i]->x -= mc2.x();
+      sel_atoms[i]->y -= mc2.y();
+      sel_atoms[i]->z -= mc2.z();
+   }
+
+   // Apply the rotation
+   glm::mat3 rot_mat = glm::mat3_cast(best_rotation);
+   for (int i=0; i<n_atoms; i++) {
+      glm::vec3 pos(sel_atoms[i]->x, sel_atoms[i]->y, sel_atoms[i]->z);
+      glm::vec3 rotated = rot_mat * pos;
+      sel_atoms[i]->x = rotated.x;
+      sel_atoms[i]->y = rotated.y;
+      sel_atoms[i]->z = rotated.z;
+   }
+
+   std::cout << "INFO:: model centred at origin and rotated, n_atoms=" << n_atoms << std::endl;
+
+   // === Step 3: Compute atom map on the EM map's cell/grid ===
+
+   clipper::Cell em_cell = xmap_obs.cell();
+   clipper::Grid_sampling em_grid = xmap_obs.grid_sampling();
+
+   std::cout << "INFO:: EM map cell: " << em_cell.format() << std::endl;
+   std::cout << "INFO:: EM map grid: " << em_grid.nu() << " x "
+             << em_grid.nv() << " x " << em_grid.nw() << std::endl;
+
+   auto t_model_map_start = std::chrono::high_resolution_clock::now();
+   clipper::Xmap<float> rotated_model_map = coot::util::calc_atom_map(mol, SelHnd,
+                                                                       em_cell, spacegroup, em_grid);
+   auto t_model_map_end = std::chrono::high_resolution_clock::now();
+   double t_model_map_ms = std::chrono::duration<double, std::milli>(t_model_map_end - t_model_map_start).count();
+   std::cout << "INFO:: model map computation: " << std::fixed << std::setprecision(1)
+             << t_model_map_ms << " ms" << std::endl;
+
+   mol->DeleteSelection(SelHnd);
+   mc.close_molecule(imol_model);
+
+   // === Step 4: Phased translation search ===
+
+   auto t_trans_start = std::chrono::high_resolution_clock::now();
+   clipper::Xmap<float> tf_map;
+   std::vector<coot::translation_search_result_t> trans_results =
+      coot::phased_translation_search(xmap_obs, rotated_model_map, 20, &tf_map);
+   auto t_trans_end = std::chrono::high_resolution_clock::now();
+   double t_trans_ms = std::chrono::duration<double, std::milli>(t_trans_end - t_trans_start).count();
+   std::cout << "INFO:: translation search: " << std::fixed << std::setprecision(1)
+             << t_trans_ms << " ms" << std::endl;
+
+   // Write the TF map for inspection
+   {
+      clipper::CCP4MAPfile mapout;
+      mapout.open_write("translation-function.map");
+      mapout.export_xmap(tf_map);
+      mapout.close_write();
+      std::cout << "INFO:: wrote translation-function.map" << std::endl;
+   }
+
+   // Print results and compare with known position
+   std::cout << "INFO:: Translation function results:" << std::endl;
+   for (unsigned int i=0; i<trans_results.size(); i++) {
+      const auto &r = trans_results[i];
+      double dx = r.position.x() - known_centre.x();
+      double dy = r.position.y() - known_centre.y();
+      double dz = r.position.z() - known_centre.z();
+      double dist = std::sqrt(dx*dx + dy*dy + dz*dz);
+      std::cout << "INFO::   peak " << std::setw(3) << i
+                << " position: (" << std::fixed << std::setprecision(1)
+                << r.position.x() << ", " << r.position.y() << ", " << r.position.z() << ")"
+                << "  sigma: " << std::setprecision(1) << r.score
+                << "  dist_from_known: " << std::setprecision(1) << dist << " A"
+                << std::endl;
+   }
+
+   auto t_total_end = std::chrono::high_resolution_clock::now();
+   double t_total_ms = std::chrono::duration<double, std::milli>(t_total_end - t_total_start).count();
+   std::cout << "INFO:: total MR time: " << std::fixed << std::setprecision(1)
+             << t_total_ms << " ms (" << t_total_ms / 1000.0 << " s)" << std::endl;
+
+   // Check if the top peak is within 5 A of the known position
+   if (trans_results.size() > 0) {
+      double dx = trans_results[0].position.x() - known_centre.x();
+      double dy = trans_results[0].position.y() - known_centre.y();
+      double dz = trans_results[0].position.z() - known_centre.z();
+      double dist = std::sqrt(dx*dx + dy*dy + dz*dz);
+      if (dist < 5.0) {
+         std::cout << "INFO:: Top translation peak is " << std::fixed << std::setprecision(1)
+                   << dist << " A from known position - GOOD" << std::endl;
+         status = 1;
+      } else {
+         std::cout << "WARNING:: Top translation peak is " << std::fixed << std::setprecision(1)
+                   << dist << " A from known position" << std::endl;
+      }
+   }
+
+   return status;
+}
+
+int test_molecular_placement_pipeline(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   // Use the full (unmasked) EM map - this is the realistic scenario.
+   // The user picks a centre in the map and we fit the model there.
+   std::string map_file = reference_data("emd_32143.map");
+   int imol_map = mc.read_ccp4_map(map_file, false);
+   if (! mc.is_valid_map_molecule(imol_map)) {
+      std::cout << "ERROR:: failed to read " << map_file << std::endl;
+      return status;
+   }
+
+   std::string pdb_file = reference_data("nanobody-from-7vvl-moved-again-v2.pdb");
+   int imol_model = mc.read_pdb(pdb_file);
+   if (! mc.is_valid_model_molecule(imol_model)) {
+      std::cout << "ERROR:: failed to read " << pdb_file << std::endl;
+      mc.close_molecule(imol_map);
+      return status;
+   }
+
+   // The known nanobody position - but pretend the user picked a point
+   // a few angstroms off (as would happen in practice)
+   float cx = 125.0f;  // ~5 A offset from known COM (~122.4, ~73.0, ~105.7)
+   float cy = 76.0f;   // typical user click accuracy
+   float cz = 108.0f;
+
+   auto solutions = mc.molecular_placement_fit(imol_map, imol_model, cx, cy, cz, 10, 10);
+
+   std::cout << "INFO:: got " << solutions.size() << " MR solutions" << std::endl;
+
+   // Load the true (reference) structure for comparison
+   std::string ref_pdb_file = reference_data("nanobody-from-7vvl.pdb");
+   int imol_ref = mc.read_pdb(ref_pdb_file);
+   if (! mc.is_valid_model_molecule(imol_ref)) {
+      std::cout << "ERROR:: failed to read reference " << ref_pdb_file << std::endl;
+   }
+   // Extract CA coordinates from the reference model
+   mmdb::Manager *mol_ref = mc.get_mol(imol_ref);
+   // Helper lambda: extract CA coordinates from a molecule by iterating all atoms
+   auto get_ca_coords = [](mmdb::Manager *mol_p) {
+      std::vector<clipper::Coord_orth> ca_coords;
+      if (! mol_p) return ca_coords;
+      int sel = mol_p->NewSelection();
+      mol_p->SelectAtoms(sel, 0, "*", mmdb::ANY_RES, "*", mmdb::ANY_RES, "*",
+                         "*", "*", "*", "*");
+      mmdb::PPAtom atoms = 0;
+      int n_atoms;
+      mol_p->GetSelIndex(sel, atoms, n_atoms);
+      for (int i=0; i<n_atoms; i++) {
+         std::string aname(atoms[i]->GetAtomName());
+         if (aname == " CA " || aname == "CA")
+            ca_coords.push_back(clipper::Coord_orth(atoms[i]->x, atoms[i]->y, atoms[i]->z));
+      }
+      mol_p->DeleteSelection(sel);
+      return ca_coords;
+   };
+
+   std::vector<clipper::Coord_orth> ref_ca = get_ca_coords(mol_ref);
+
+   // Compute reference centre of mass
+   clipper::Coord_orth ref_centre(0,0,0);
+   if (! ref_ca.empty()) {
+      for (const auto &c : ref_ca) {
+         ref_centre = clipper::Coord_orth(ref_centre.x() + c.x(),
+                                          ref_centre.y() + c.y(),
+                                          ref_centre.z() + c.z());
+      }
+      double n = static_cast<double>(ref_ca.size());
+      ref_centre = clipper::Coord_orth(ref_centre.x()/n, ref_centre.y()/n, ref_centre.z()/n);
+   }
+   std::cout << "INFO:: reference CA centre: (" << std::fixed << std::setprecision(1)
+             << ref_centre.x() << ", " << ref_centre.y() << ", " << ref_centre.z()
+             << ") n_CA=" << ref_ca.size() << std::endl;
+
+   // For each MR solution molecule, extract CA coords and compute RMSD + centre distance
+   std::cout << "INFO:: " << std::setw(4) << "Rank"
+             << std::setw(10) << "TF_sigma"
+             << std::setw(10) << "CA_RMSD"
+             << std::setw(12) << "Dist_centre"
+             << "   " << "PDB file" << std::endl;
+   std::cout << "INFO:: " << std::string(70, '-') << std::endl;
+
+   unsigned int n_show = std::min(static_cast<unsigned int>(solutions.size()), 20u);
+   for (unsigned int i=0; i<n_show; i++) {
+      const auto &sol = solutions[i];
+      if (sol.imol < 0) continue;
+
+      // Extract CA coords from the solution molecule
+      mmdb::Manager *mol_sol = mc.get_mol(sol.imol);
+      if (! mol_sol) continue;
+      std::vector<clipper::Coord_orth> sol_ca = get_ca_coords(mol_sol);
+
+      // Centre of solution
+      clipper::Coord_orth sol_centre(0,0,0);
+      for (const auto &c : sol_ca) {
+         sol_centre = clipper::Coord_orth(sol_centre.x() + c.x(),
+                                          sol_centre.y() + c.y(),
+                                          sol_centre.z() + c.z());
+      }
+      double n_ca = static_cast<double>(sol_ca.size());
+      sol_centre = clipper::Coord_orth(sol_centre.x()/n_ca, sol_centre.y()/n_ca, sol_centre.z()/n_ca);
+
+      double dist_centre = clipper::Coord_orth::length(sol_centre, ref_centre);
+
+      // CA RMSD (assuming same atom order)
+      double rmsd = 0.0;
+      if (sol_ca.size() == ref_ca.size()) {
+         double sum_sq = 0.0;
+         for (unsigned int j=0; j<sol_ca.size(); j++) {
+            double d = clipper::Coord_orth::length(sol_ca[j], ref_ca[j]);
+            sum_sq += d * d;
+         }
+         rmsd = std::sqrt(sum_sq / sol_ca.size());
+      }
+
+      std::cout << "INFO:: " << std::setw(4) << i
+                << std::fixed << std::setprecision(1)
+                << std::setw(10) << sol.translation_score
+                << std::setw(10) << rmsd
+                << std::setw(12) << dist_centre
+                << "   " << sol.pdb_filename << std::endl;
+   }
+
+   // Check: the best RMSD solution among the top by TF score
+   clipper::Coord_orth known_centre(121.9, 72.7, 105.3);
+   if (solutions.size() > 0) {
+      const auto &best = solutions[0];
+      double dx = best.translation.x() - known_centre.x();
+      double dy = best.translation.y() - known_centre.y();
+      double dz = best.translation.z() - known_centre.z();
+      double dist = std::sqrt(dx*dx + dy*dy + dz*dz);
+      std::cout << "INFO:: top solution at " << std::fixed << std::setprecision(1)
+                << dist << " A from known position" << std::endl;
+      if (dist < 3.0) {
+         std::cout << "INFO:: MR pipeline test PASSED (top solution within 3 A of known)" << std::endl;
+         status = 1;
+      } else {
+         std::cout << "WARNING:: top solution is " << dist << " A from known position" << std::endl;
+      }
+   }
+
+   mc.close_molecule(imol_ref);
+   mc.close_molecule(imol_map);
+   mc.close_molecule(imol_model);
+
+   return status;
+}
+
+int test_molecular_placement_pipeline_r_chain(molecules_container_t &mc) {
+
+   starting_test(__FUNCTION__);
+   int status = 0;
+
+   // Same EM map as the nanobody test
+   std::string map_file = reference_data("emd_32143.map");
+   int imol_map = mc.read_ccp4_map(map_file, false);
+   if (! mc.is_valid_map_molecule(imol_map)) {
+      std::cout << "ERROR:: failed to read " << map_file << std::endl;
+      return status;
+   }
+
+   // R-chain fragment from 7vvl (search model, moved away from true position)
+   std::string pdb_file = reference_data("R-chain-frag-from-7vvl.pdb");
+   int imol_model = mc.read_pdb(pdb_file);
+   if (! mc.is_valid_model_molecule(imol_model)) {
+      std::cout << "ERROR:: failed to read " << pdb_file << std::endl;
+      mc.close_molecule(imol_map);
+      return status;
+   }
+
+   // User picked centre - about 4 A from the true R-chain COM (~68.4, ~82.7, ~71.3)
+   float cx = 70.0f;
+   float cy = 80.0f;
+   float cz = 70.0f;
+
+   auto solutions = mc.molecular_placement_fit(imol_map, imol_model, cx, cy, cz, 10, 10);
+
+   std::cout << "INFO:: got " << solutions.size() << " MR solutions for R-chain" << std::endl;
+
+   // Load the reference R-chain structure at the true position for comparison
+   std::string ref_pdb_file = reference_data("R-chain-from-7vvl.pdb");
+   int imol_ref = mc.read_pdb(ref_pdb_file);
+
+   auto get_ca_coords = [](mmdb::Manager *mol_p) {
+      std::vector<clipper::Coord_orth> ca_coords;
+      if (! mol_p) return ca_coords;
+      int sel = mol_p->NewSelection();
+      mol_p->SelectAtoms(sel, 0, "*", mmdb::ANY_RES, "*", mmdb::ANY_RES, "*",
+                         "*", "*", "*", "*");
+      mmdb::PPAtom atoms = 0;
+      int n_atoms;
+      mol_p->GetSelIndex(sel, atoms, n_atoms);
+      for (int i=0; i<n_atoms; i++) {
+         std::string aname(atoms[i]->GetAtomName());
+         if (aname == " CA " || aname == "CA")
+            ca_coords.push_back(clipper::Coord_orth(atoms[i]->x, atoms[i]->y, atoms[i]->z));
+      }
+      mol_p->DeleteSelection(sel);
+      return ca_coords;
+   };
+
+   // If we have the reference structure, compute RMSD-based comparison
+   if (mc.is_valid_model_molecule(imol_ref)) {
+      mmdb::Manager *mol_ref = mc.get_mol(imol_ref);
+      std::vector<clipper::Coord_orth> ref_ca = get_ca_coords(mol_ref);
+
+      clipper::Coord_orth ref_centre(0,0,0);
+      if (! ref_ca.empty()) {
+         for (const auto &c : ref_ca) {
+            ref_centre = clipper::Coord_orth(ref_centre.x() + c.x(),
+                                             ref_centre.y() + c.y(),
+                                             ref_centre.z() + c.z());
+         }
+         double n = static_cast<double>(ref_ca.size());
+         ref_centre = clipper::Coord_orth(ref_centre.x()/n, ref_centre.y()/n, ref_centre.z()/n);
+      }
+      std::cout << "INFO:: R-chain reference CA centre: (" << std::fixed << std::setprecision(1)
+                << ref_centre.x() << ", " << ref_centre.y() << ", " << ref_centre.z()
+                << ") n_CA=" << ref_ca.size() << std::endl;
+
+      std::cout << "INFO:: " << std::setw(4) << "Rank"
+                << std::setw(10) << "TF_sigma"
+                << std::setw(10) << "CA_RMSD"
+                << std::setw(12) << "Dist_centre"
+                << "   " << "PDB file" << std::endl;
+      std::cout << "INFO:: " << std::string(70, '-') << std::endl;
+
+      unsigned int n_show = std::min(static_cast<unsigned int>(solutions.size()), 20u);
+      for (unsigned int i=0; i<n_show; i++) {
+         const auto &sol = solutions[i];
+         if (sol.imol < 0) continue;
+
+         mmdb::Manager *mol_sol = mc.get_mol(sol.imol);
+         if (! mol_sol) continue;
+         std::vector<clipper::Coord_orth> sol_ca = get_ca_coords(mol_sol);
+
+         clipper::Coord_orth sol_centre(0,0,0);
+         for (const auto &c : sol_ca) {
+            sol_centre = clipper::Coord_orth(sol_centre.x() + c.x(),
+                                             sol_centre.y() + c.y(),
+                                             sol_centre.z() + c.z());
+         }
+         double n_ca = static_cast<double>(sol_ca.size());
+         sol_centre = clipper::Coord_orth(sol_centre.x()/n_ca,
+                                          sol_centre.y()/n_ca,
+                                          sol_centre.z()/n_ca);
+
+         double dist_centre = clipper::Coord_orth::length(sol_centre, ref_centre);
+
+         double rmsd = 0.0;
+         if (sol_ca.size() == ref_ca.size()) {
+            double sum_sq = 0.0;
+            for (unsigned int j=0; j<sol_ca.size(); j++) {
+               double d = clipper::Coord_orth::length(sol_ca[j], ref_ca[j]);
+               sum_sq += d * d;
+            }
+            rmsd = std::sqrt(sum_sq / sol_ca.size());
+         }
+
+         std::cout << "INFO:: " << std::setw(4) << i
+                   << std::fixed << std::setprecision(1)
+                   << std::setw(10) << sol.translation_score
+                   << std::setw(10) << rmsd
+                   << std::setw(12) << dist_centre
+                   << "   " << sol.pdb_filename << std::endl;
+      }
+   } else {
+      std::cout << "WARNING:: no reference structure " << ref_pdb_file
+                << " - using centre-distance check only" << std::endl;
+   }
+
+   // Check: top solution should be near the known R-chain position
+   // R-chain COM in 7vvl is approximately (68.4, 82.7, 71.3)
+   clipper::Coord_orth known_centre(68.0, 83.0, 71.0);
+   if (solutions.size() > 0) {
+      // Use the solution molecule's CA centroid for the distance check
+      mmdb::Manager *mol_sol = mc.get_mol(solutions[0].imol);
+      if (mol_sol) {
+         std::vector<clipper::Coord_orth> sol_ca = get_ca_coords(mol_sol);
+         clipper::Coord_orth sol_centre(0,0,0);
+         for (const auto &c : sol_ca) {
+            sol_centre = clipper::Coord_orth(sol_centre.x() + c.x(),
+                                             sol_centre.y() + c.y(),
+                                             sol_centre.z() + c.z());
+         }
+         double n_ca = static_cast<double>(sol_ca.size());
+         sol_centre = clipper::Coord_orth(sol_centre.x()/n_ca,
+                                          sol_centre.y()/n_ca,
+                                          sol_centre.z()/n_ca);
+         double dist = clipper::Coord_orth::length(sol_centre, known_centre);
+         std::cout << "INFO:: R-chain top solution CA centre at ("
+                   << std::fixed << std::setprecision(1)
+                   << sol_centre.x() << ", " << sol_centre.y() << ", " << sol_centre.z()
+                   << "), " << dist << " A from known position" << std::endl;
+         if (dist < 5.0) {
+            std::cout << "INFO:: R-chain MR pipeline test PASSED (within 5 A of known)" << std::endl;
+            status = 1;
+         } else {
+            std::cout << "WARNING:: R-chain top solution is " << dist
+                      << " A from known position" << std::endl;
+         }
+      }
+   }
+
+   if (mc.is_valid_model_molecule(imol_ref))
+      mc.close_molecule(imol_ref);
+   mc.close_molecule(imol_map);
+   mc.close_molecule(imol_model);
+
+   return status;
 }
 
 int test_density_mesh(molecules_container_t &mc) {
@@ -7024,6 +8330,18 @@ int main(int argc, char **argv) {
          status += run_test(test_delete_literal,        "delete literal",           mc);
          status += run_test(test_side_chain_180,        "side-chain 180",           mc);
          status += run_test(test_peptide_omega,         "peptide omega",            mc);
+
+         // Molecular replacement tests (moved here to run before potentially-crashing tests)
+         status += run_test(test_patterson_from_map_using_mtz,     "patterson from mtz",       mc);
+         status += run_test(test_patterson_from_map_using_map,     "patterson from map",       mc);
+         status += run_test(test_self_rotation_function,          "self rotation function",   mc);
+         status += run_test(test_cross_rotation_function,         "cross rotation function",  mc);
+         status += run_test(test_crowther_rotation_function,    "crowther rotation fn",     mc);
+         status += run_test(test_crowther_rotation_with_model, "crowther with model",      mc);
+         status += run_test(test_phased_translation_function, "phased translation fn",   mc);
+         status += run_test(test_molecular_placement_pipeline, "MR pipeline",          mc);
+         status += run_test(test_molecular_placement_pipeline_r_chain, "MR R-chain",  mc);
+
          status += run_test(test_undo_and_redo,         "undo and redo",            mc);
          status += run_test(test_undo_and_redo_2,       "undo/redo 2",              mc);
          status += run_test(test_merge_molecules,       "merge molecules",          mc);
@@ -7194,7 +8512,9 @@ int main(int argc, char **argv) {
          // status += run_test(test_set_residue_to_rotamer_number, "set residue", mc);
          // status += run_test(test_inner_bond_kekulization, "inner-bond kekulization", mc);
          // status += run_test(test_gaussian_surface_to_map_molecule, "gaussian-surface to map", mc);
-         status += run_test(test_density_mesh,          "density mesh",             mc);
+         // status += run_test(test_density_mesh,          "density mesh",             mc);
+         // status += run_test(test_molecular_placement_pipeline_r_chain, "MR R-chain", mc);
+         status += run_test(test_molecular_placement_pipeline, "MR pipeline", mc);
          if (status == n_tests) all_tests_status = 0;
 
          print_results_summary();

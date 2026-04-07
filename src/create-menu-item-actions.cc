@@ -2566,6 +2566,31 @@ void jiggle_fit_molecule_with_fourier_filtering_action(G_GNUC_UNUSED GSimpleActi
    graphics_info_t::graphics_grab_focus();
 }
 
+void patmos_jiggle_fit_molecule_with_fourier_filtering_action(G_GNUC_UNUSED GSimpleAction *simple_action,
+                                                              G_GNUC_UNUSED GVariant *parameter,
+                                                              G_GNUC_UNUSED gpointer user_data) {
+
+   int n_trials = 1000;
+   float scale_factor = 3.0;
+   float blur_b_factor = 300.0;
+
+   std::pair<bool, std::pair<int, coot::atom_spec_t> > pp = active_atom_spec();
+   if (pp.first) {
+      int imol = pp.second.first;
+      int imol_map = imol_refinement_map();
+      if (is_valid_map_molecule(imol_map)) {
+         // call molecular placement function, n_top_translation = 6, n_top_rotation = 6
+         molecular_replacement_fit_about_screen_centre(imol, 6, 6);
+         fit_molecule_to_map_by_random_jiggle_and_blur(imol, n_trials, scale_factor, blur_b_factor);
+      } else {
+         graphics_info_t::ephemeral_overlay_label("Fitting Map Not Set");
+      }
+   } else {
+      std::cout << "WARNING:: No active atom found" << std::endl;
+      logger.log(log_t::WARNING, "No active atom");
+   }
+   graphics_info_t::graphics_grab_focus();
+}
 
 void add_carbohydrate_module_action(G_GNUC_UNUSED GSimpleAction *simple_action,
                                     G_GNUC_UNUSED GVariant *parameter,
@@ -6354,6 +6379,7 @@ create_actions(GtkApplication *application) {
    add_action("jiggle_fit_molecule_simple_action",                 jiggle_fit_molecule_simple_action);
    add_action("jiggle_fit_chain_with_fourier_filtering_action",    jiggle_fit_chain_with_fourier_filtering_action);
    add_action("jiggle_fit_molecule_with_fourier_filtering_action", jiggle_fit_molecule_with_fourier_filtering_action);
+   add_action("patmos_jiggle_fit_molecule_with_fourier_filtering_action", patmos_jiggle_fit_molecule_with_fourier_filtering_action);
 
    add_action("vertex_gradients_for_map_normals_action",           vertex_gradients_for_map_normals_action);
 

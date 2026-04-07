@@ -266,6 +266,23 @@ NB_MODULE(coot_headless_api, m) {
     .def("y", &clipper::Coord_orth::y)
     .def("z", &clipper::Coord_orth::z)
     ;
+    nb::class_<glm::quat>(m,"glm_quat")
+    .def(nb::init<float, float, float, float>())
+    .def_rw("w", &glm::quat::w)
+    .def_rw("x", &glm::quat::x)
+    .def_rw("y", &glm::quat::y)
+    .def_rw("z", &glm::quat::z)
+    ;
+    nb::class_<molecules_container_t::mr_solution_t>(m,"mr_solution_t")
+    .def(nb::init<>())
+    .def_rw("rotation",          &molecules_container_t::mr_solution_t::rotation)
+    .def_rw("rotation_score",    &molecules_container_t::mr_solution_t::rotation_score)
+    .def_rw("translation",       &molecules_container_t::mr_solution_t::translation)
+    .def_rw("translation_score", &molecules_container_t::mr_solution_t::translation_score)
+    .def_rw("mean_density_at_ca",&molecules_container_t::mr_solution_t::mean_density_at_ca)
+    .def_rw("imol",              &molecules_container_t::mr_solution_t::imol)
+    .def_rw("pdb_filename",      &molecules_container_t::mr_solution_t::pdb_filename)
+    ;
     nb::class_<coot::util::map_molecule_centre_info_t>(m,"map_molecule_centre_info_t")
     .def_ro("success", &coot::util::map_molecule_centre_info_t::success)
     .def_ro("updated_centre", &coot::util::map_molecule_centre_info_t::updated_centre)
@@ -462,6 +479,11 @@ NB_MODULE(coot_headless_api, m) {
          &molecules_container_t::apply_transformation_to_atom_selection,
          nb::arg("imol"), nb::arg("atoms_selection_cid"), nb::arg("n_atoms"), nb::arg("m00"), nb::arg("m01"), nb::arg("m02"), nb::arg("m10"), nb::arg("m11"), nb::arg("m12"), nb::arg("m20"), nb::arg("m21"), nb::arg("m22"), nb::arg("c0"), nb::arg("c1"), nb::arg("c2"), nb::arg("t0"), nb::arg("t1"), nb::arg("t2"),
          get_docstring_from_xml("apply_transformation_to_atom_selection").c_str())
+    .def("apply_translation_to_molecule",
+         &molecules_container_t::apply_translation_to_molecule,
+         nb::arg("imol"), nb::arg("tx"), nb::arg("ty"), nb::arg("tz"),
+         "Apply a translation to all atoms in the molecule.\n"
+         "Returns True on success, False on failure.")
     .def("assign_sequence",
          &molecules_container_t::assign_sequence,
          nb::arg("imol_model"), nb::arg("imol_map"),
@@ -1174,6 +1196,14 @@ NB_MODULE(coot_headless_api, m) {
     .def("mmrrcc",
          &molecules_container_t::mmrrcc,
          get_docstring_from_xml("mmrrcc").c_str())
+    .def("molecular_placement_fit",
+         &molecules_container_t::molecular_placement_fit,
+         nb::arg("imol_map"),
+         nb::arg("imol_model"),
+         nb::arg("x"), nb::arg("y"), nb::arg("z"),
+         nb::arg("n_top_rotation_solutions"),
+         nb::arg("n_top_translation_solutions"),
+         get_docstring_from_xml("molecular_placement_fit").c_str())
     .def("move_molecule_to_new_centre",
          &molecules_container_t::move_molecule_to_new_centre,
          nb::arg("imol"), nb::arg("x"), nb::arg("y"), nb::arg("z"),
@@ -1276,6 +1306,11 @@ NB_MODULE(coot_headless_api, m) {
          &molecules_container_t::redo,
          nb::arg("imol"),
          get_docstring_from_xml("redo").c_str())
+    .def("rebox_map",
+         &molecules_container_t::rebox_map,
+         nb::arg("imol_model"), nb::arg("atom_selection_cid"),
+         nb::arg("imol_map"), nb::arg("border"), nb::arg("n_pixels_per_edge"),
+         get_docstring_from_xml("rebox_map").c_str())
     .def("refine",
          &molecules_container_t::refine,
          nb::arg("imol"), nb::arg("n_cycles"),

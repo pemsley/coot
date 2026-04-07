@@ -32,6 +32,10 @@
 
 #include "compat/coot-sysdep.h"
 
+#ifdef HAVE_VTE
+#include "vte.hh"
+#endif
+
 
 #ifndef HAVE_VECTOR
 #define HAVE_VECTOR
@@ -1382,7 +1386,11 @@ float get_positive_float_from_entry(GtkEntry *w) {
 int
 coot_checked_exit(int retval) {
 
+
    graphics_info_t g;
+
+   // std::cout << "DEBUG:: in coot_checked_exit() command_history size is " << g.command_history.commands.size() << std::endl;
+   // std::cout << "DEBUG:: in coot_checked_exit() command_history filename " << g.command_history.command_history_file_name << std::endl;
 
    // 20200822-PE save the (new) python history
    g.command_history.write_history();
@@ -1836,13 +1844,21 @@ on_recentre_on_read_pdb_toggle_button_toggled (GtkButton       *button,
 
 
 void reveal_python_scripting_entry() {
+#ifdef HAVE_VTE
+   show_vte_terminal();
+#else
    GtkRevealer* revealer = GTK_REVEALER(widget_from_builder("python_scripting_revealer"));
-   gtk_revealer_set_reveal_child(revealer,TRUE);
+   gtk_revealer_set_reveal_child(revealer, TRUE);
+#endif
 }
 
 void toggle_reveal_python_scripting_entry() {
+#ifdef HAVE_VTE
+   toggle_vte_terminal_visibility();
+#else
    GtkRevealer* revealer = GTK_REVEALER(widget_from_builder("python_scripting_revealer"));
-   gtk_revealer_set_reveal_child(revealer,!gtk_revealer_get_reveal_child(revealer));
+   gtk_revealer_set_reveal_child(revealer, !gtk_revealer_get_reveal_child(revealer));
+#endif
 }
 
 // We want to evaluate the string when we get a carriage return

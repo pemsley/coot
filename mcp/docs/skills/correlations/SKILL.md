@@ -180,9 +180,17 @@ for spec, corr in worst_10:
 PyObject *all_molecule_ramachandran_score_py(int imol)
 ```
 
-**Returns**: List containing:
-- Overall statistics
-- Per-residue data: `[[phi, psi], residue_spec, score, [prev_res, this_res, next_res]]`
+**Returns**: A list of exactly 6 elements (confirmed from C++ source):
+- `rama_data[0]`: overall score (float)
+- `rama_data[1]`: n_residues (int)
+- `rama_data[2]`: score_non_sec_str (float)
+- `rama_data[3]`: n_residues_non_sec_str (int)
+- `rama_data[4]`: n_zeros (int)
+- `rama_data[5]`: per-residue list ← **this is what you want**
+
+Each per-residue entry: `[[phi, psi], [chain_id, resno, ins_code], probability, [prev_resname, this_resname, next_resname]]`
+
+`rama_data[5]` and `rama_data[-1]` are equivalent. Both are correct.
 
 **Score Interpretation**:
 - **High scores (>1.0)**: GOOD - highly favored geometry
@@ -191,14 +199,23 @@ PyObject *all_molecule_ramachandran_score_py(int imol)
 
 **Example Usage**:
 ```python
-rama_data = all_molecule_ramachandran_score_py(1)
-residues = rama_data[5]  # Get per-residue data
+rama_data = coot.all_molecule_ramachandran_score_py(0)
+per_res = rama_data[5]  # index 5 = per-residue list (confirmed from C++ source)
 
-# Find worst outlier (minimum score)
-worst = min(residues, key=lambda x: x[2])
-chain, resno = worst[1][1], worst[1][2]
-score = worst[2]
-print(f"Worst outlier: {chain} {resno}, score = {score}")
+# Filter for chain A outliers
+chain_a_outliers = [(r[1][1], r[1][2], r[2], r[3][1])
+                    for r in per_res
+                    if isinstance(r, list) and r[1][0] == "A" and r[2] < 0.02]
+
+# Sort worst first
+chain_a_outliers.sort(key=lambda x: x[2])
+for resno, ins, prob, resname in chain_a_outliers:
+    print(f"A/{resno} {resname}  prob={prob:.6f}  *** OUTLIER ***")
+
+# Find single worst outlier across whole molecule
+worst = min(per_res, key=lambda x: x[2] if isinstance(x, list) else 999)
+chain, resno, ins = worst[1]
+print(f"Worst: {chain}/{resno}, prob={worst[2]:.6f}")
 ```
 
 ---
@@ -283,9 +300,10 @@ imol = 1  # Model molecule
 imol_map = 2  # Map molecule
 
 # Ramachandran validation
-rama_data = all_molecule_ramachandran_score_py(imol)
-worst_rama = min(rama_data[5], key=lambda x: x[2])
-print(f"Worst Ramachandran: {worst_rama[1]}, score={worst_rama[2]}")
+rama_data = coot.all_molecule_ramachandran_score_py(imol)
+per_res = rama_data[5]  # index 5 = per-residue list (confirmed from C++ source)
+worst_rama = min(per_res, key=lambda x: x[2] if isinstance(x, list) else 999)
+print(f"Worst Ramachandran: {worst_rama[1]}, score={worst_rama[2]:.6f}")
 
 # Rotamer validation  
 rotamers = rotamer_graphs_py(imol)

@@ -1028,11 +1028,9 @@ void set_map_has_symmetry(int imol, int state) {
       if (state) is_em_map = false;
       // graphics_info_t::molecules[imol].is_em_map_cached_flag = is_em_map;
       graphics_info_t::molecules[imol].set_map_has_symmetry(is_em_map);
+      graphics_draw();
    }
-
 }
-
-
 
 
 

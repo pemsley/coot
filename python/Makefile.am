@@ -44,3 +44,8 @@ dist_pkgpython_PYTHON = \
    coot_testing_utils.py point_group_symmetry.py gphl_screen.py \
    $(TEXI_FILE)
 
+# VTE REPL helper script — installed to pkgdatadir/python/ (not site-packages)
+# because it is executed as a subprocess, not imported as a module.
+vtepythondir = $(pkgdatadir)/python
+dist_vtepython_DATA = coot_vte_repl.py
+

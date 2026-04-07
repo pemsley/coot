@@ -2270,6 +2270,12 @@ float get_map_radius() {
 }
 
 
+/*! \brief return the extent of the box/radius of electron density contours */
+float get_map_radius_em() {
+  float ret = graphics_info_t::box_radius_em;
+  return ret;
+}
+
 
 void set_display_intro_string(const char *str) {
 
@@ -3222,8 +3228,11 @@ float get_molecule_bonds_colour_map_rotation(int imol) {
 
 void  set_molecule_bonds_colour_map_rotation(int imol, float f) {
 
-   if (is_valid_model_molecule(imol))
+   if (is_valid_model_molecule(imol)) {
       graphics_info_t::molecules[imol].bonds_colour_map_rotation = f;
+      graphics_info_t::molecules[imol].make_bonds_type_checked();
+      graphics_draw();
+   }
    std::string cmd = "set-molecule-bonds-colour-map-rotation";
    std::vector<coot::command_arg_t> args;
    args.push_back(imol);
@@ -5644,7 +5653,7 @@ void graphics_to_ca_representation(int imol) {
    graphics_info_t g;
    if (is_valid_model_molecule(imol)) {
       bool force_rebonding = false;
-      std::cout << "calling ca_representation() for imol " << imol << std::endl;
+      // std::cout << "calling ca_representation() for imol " << imol << std::endl;
       g.molecules[imol].ca_representation(force_rebonding);
    } else {
       std::cout << "WARNING:: no such valid molecule " << imol
@@ -7833,12 +7842,6 @@ run_command_line_scripts() {
       else
          safe_scheme_command(graphics_info_t::command_line_commands.commands[i].c_str());
 
-    for (unsigned int i=0; i<graphics_info_t::command_line_commands.commands.size(); i++)
-       if (graphics_info_t::command_line_commands.is_python)
-	  safe_python_command(graphics_info_t::command_line_commands.commands[i].c_str());
-       else
-	  safe_scheme_command(graphics_info_t::command_line_commands.commands[i].c_str());
-
    graphics_info_t g;
    for (unsigned int i=0; i<graphics_info_t::command_line_accession_codes.size(); i++) {
       const std::string &code = g.command_line_accession_codes[i];
@@ -7846,6 +7849,11 @@ run_command_line_scripts() {
       network_get_accession_code_entity(code, 0); // mode 0 means "not mtz"
       network_get_accession_code_entity(code, 1); // mtz mode
    }
+
+   // clear so that a second call (e.g. from a second realize) does not re-run
+   graphics_info_t::command_line_scripts.clear();
+   graphics_info_t::command_line_commands.commands.clear();
+   graphics_info_t::command_line_accession_codes.clear();
 }
 
 void run_update_self_maybe() { // called when --update-self given at command line
@@ -8408,6 +8416,29 @@ void sequence_view(int imol) {
       if (current_height < natural_size) {
          gtk_widget_set_size_request(vbox, -1, natural_size);
       }
+   }
+}
+
+void remove_sequence_view_from_sequence_view_box(int imol) {
+
+   if (graphics_info_t::use_graphics_interface_flag) {
+      GtkWidget *vbox = widget_from_builder("main_window_sequence_view_box");
+      if (!vbox) return;
+
+      GtkWidget *item_widget = gtk_widget_get_first_child(vbox);
+      int n_children = 0;
+      while (item_widget) {
+         n_children++;
+         GtkWidget *w = item_widget;
+         item_widget = gtk_widget_get_next_sibling(item_widget);
+         int imol_overlay = GPOINTER_TO_INT(g_object_get_data(G_OBJECT(w), "imol"));
+         if (imol_overlay == imol) {
+            gtk_box_remove(GTK_BOX(vbox), w);
+            n_children--;
+         }
+      }
+      if (n_children == 0)
+         gtk_widget_set_visible(vbox, FALSE);
    }
 }
 

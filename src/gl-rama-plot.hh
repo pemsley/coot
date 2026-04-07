@@ -85,7 +85,7 @@ class gl_rama_plot_t {
    std::map<coot::residue_spec_t, rama_plot::phi_psi_t> generate_pseudo_phi_psis();
    std::map<coot::residue_spec_t, rama_plot::phi_psi_t> generate_phi_psis(int imol, const std::string &residue_selection,
                                                                           mmdb::Manager *mol_in);
-   bool draw_outliers_only_flag; 
+   bool draw_outliers_only_flag;
    void init(); // rama things
    HUDTextureMesh hud_tmesh_for_other_normal;
    HUDTextureMesh hud_tmesh_for_other_outlier;
@@ -115,7 +115,7 @@ class gl_rama_plot_t {
                                 const glm::vec2 &offset_natural,
                                 float scale_x_natural, float scale_y_natural,
                                 int glarea_width, int glarea_height) const;
-   
+
    void update_hud_tmeshes(const std::map<coot::residue_spec_t, rama_plot::phi_psi_t> &phi_psi_map);
    float rama_plot_scale;
 
@@ -153,6 +153,10 @@ public:
                                        int widget_width, int widget_height) const;
    // lightweight, don't draw,
    void set_outliers_only(bool state) { draw_outliers_only_flag = state; }
+
+   int get_number_of_outliers() const;
+   int get_number_of_preferred() const;
+   int get_number_of_phi_psi() const;
 };
 
 #endif // GL_RAMA_PLOT_HH

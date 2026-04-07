@@ -4022,12 +4022,15 @@ aniso_probability_hscale_value_changed(GtkScale* range,
          GtkAdjustment *adjustment = gtk_range_get_adjustment(GTK_RANGE(range));
          float fvalue = gtk_adjustment_get_value(adjustment);
          graphics_info_t g;
-         g.show_aniso_atoms_probability = fvalue;
-         int imol = g.combobox_get_imol(GTK_COMBO_BOX(bond_parameters_molecule_comboboxtext));
-         if (gtk_check_button_get_active(GTK_CHECK_BUTTON(draw_anisotropic_atoms_yes_radiobutton))) {
-            // std::cout << "\ncalling set_show_atoms_as_aniso() with prob " << g.show_aniso_atoms_probability << std::endl;
-            graphics_info_t::molecules[imol].make_bonds_type_checked("aniso_probability_hscale_value_changed");
-            g.graphics_draw();
+         int n_molecules = g.n_molecules();
+         if (n_molecules > 0) { // protection from occuring at start-up
+            g.show_aniso_atoms_probability = fvalue;
+            int imol = g.combobox_get_imol(GTK_COMBO_BOX(bond_parameters_molecule_comboboxtext));
+            if (gtk_check_button_get_active(GTK_CHECK_BUTTON(draw_anisotropic_atoms_yes_radiobutton))) {
+               // std::cout << "\ncalling set_show_atoms_as_aniso() with prob " << g.show_aniso_atoms_probability << std::endl;
+               graphics_info_t::molecules[imol].make_bonds_type_checked("aniso_probability_hscale_value_changed");
+               g.graphics_draw();
+            }
          }
       }
    }
@@ -7142,6 +7145,8 @@ on_material_lighting_ambient_colorbutton_color_set(GtkColorButton *colorbutton,
       glm::vec4 ambient(rgba.red, rgba.green, rgba.blue, 1.0f);
       g.molecules[imol].material_for_models.ambient = ambient;
       g.molecules[imol].model_molecule_meshes.set_material_ambient(ambient);
+      for (auto &mesh : g.molecules[imol].meshes)
+         mesh.set_material_ambient(ambient);
       g.graphics_draw();
    }
 }
@@ -7158,8 +7163,10 @@ on_material_lighting_diffuse_colorbutton_color_set(GtkColorButton *colorbutton,
    graphics_info_t g;
    if (g.is_valid_model_molecule(imol)) {
       glm::vec4 diffuse(rgba.red, rgba.green, rgba.blue, 1.0f);
-      g.molecules[imol].material_for_models.ambient = diffuse;
+      g.molecules[imol].material_for_models.diffuse = diffuse;
       g.molecules[imol].model_molecule_meshes.set_material_diffuse(diffuse);
+      for (auto &mesh : g.molecules[imol].meshes)
+         mesh.set_material_diffuse(diffuse);
       g.graphics_draw();
    }
 }

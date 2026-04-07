@@ -8,8 +8,11 @@ description: "Best Practices for Model-Building Tools and Refinement"
 ## Workflow Checklist - Follow This for Model-Building and Refinement
 
 Best practices for fixing any issue:
-1. ☐ Center on the interesting residue: `coot.set_go_to_atom_chain_residue_atom_name(chain, resno, "CA")`
-     or interesting position `coot.set_rotation_centre(x,y,z)`
+1. ☐ **ALWAYS recentre first** — every time you move to a new residue or problem, call this BEFORE anything else:
+     `coot.set_go_to_atom_chain_residue_atom_name(chain, resno, "CA")`
+     or `coot.set_rotation_centre(x, y, z)` for a map position.
+     The user is watching the screen. If you switch targets without recentring, they will be looking at
+     the wrong place while you work elsewhere. This is confusing and unacceptable.
 2. ☐ Check current metrics (Rama/correlation/overlaps)
 3. ☐ Make checkpoint if trying something experimental
 4. ☐ Apply fix

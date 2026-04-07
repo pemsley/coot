@@ -1691,6 +1691,9 @@ void set_display_intro_string(const char *str);
 /*! \brief return the extent of the box/radius of electron density contours */
 float get_map_radius();
 
+/*! \brief return the extent of the box/radius of electron density contours */
+float get_map_radius_em();
+
 /*! \brief not everyone likes coot's esoteric depth cueing system
 
   Pass an argument istate=1 to turn it off
@@ -4487,6 +4490,8 @@ void do_sequence_view(int imol);
 /*!  \brief update the sequnce view current position highlight based on active atom */
 void update_sequence_view_current_position_highlight_from_active_atom();
 
+void remove_sequence_view_from_sequence_view_box(int imol);
+
 /*! \} */
 
 /*  ----------------------------------------------------------------------- */
@@ -5056,6 +5061,12 @@ int draw_hydrogens_state(int imol);
  *    PyList_SetItem(l, 11, PyBool_FromLong(h_bond.bond_has_hydrogen_flag));
  *
  * @param imol the molecule index
+ * @param imol selection_1  the atom selection of the "from" atoms
+ * @param imol selection_2  the atom selection of the "to" atoms.
+ *              Note that often atom_selection_1 and atom_selection_2 are the same,
+ *              e.g. "//A"
+ * @param mcdonald_and_thornton_algoritnm use 0 if the model does not have hydrogen atoms
+                                          use 1 if the model has hydrogen atoms.
  * @return the hydrogen bonds as a python list object, or False if
  *         imol is not a valid model molecule
  *
@@ -7374,17 +7385,20 @@ void pisa_clear_interfaces();
 /*  ----------------------------------------------------------------------- */
 /*! \name Jiggle Fit */
 /*! \{ */
-/*!  \brief jiggle fit to the current refinment map.  return < -100 if
-  not possible, else return the new best fit for this residue.  */
+
+/*!  \brief jiggle fit to the current refinment map
+ *
+ * @return < -100 if not possible, else return the new best fit for this residue.  */
 float fit_to_map_by_random_jiggle(int imol, const char *chain_id, int resno, const char *ins_code,
                                   int n_trials, float jiggle_scale_factor);
 
 /*!  \brief jiggle fit the molecule to the current refinment map.  return < -100 if
   not possible, else return the new best fit for this molecule.  */
 float fit_molecule_to_map_by_random_jiggle(int imol, int n_trials, float jiggle_scale_factor);
-/*!  \brief jiggle fit the molecule to the current refinment map.  return < -100 if
-  not possible, else return the new best fit for this molecule - create a map that is blurred
-  by the given factor for fitting  */
+/*!  \brief jiggle fit the molecule to the current refinment map
+ * @return < -100 if
+ *  not possible, else return the new best fit for this molecule - create a map that is blurred
+ *  by the given factor for fitting  */
 float fit_molecule_to_map_by_random_jiggle_and_blur(int imol, int n_trials, float jiggle_scale_factor, float map_blur_factor);
 
 /*!  \brief jiggle fit the chain to the current refinment map.  return < -100 if
@@ -7394,8 +7408,19 @@ float fit_chain_to_map_by_random_jiggle(int imol, const char *chain_id, int n_tr
 /*!  \brief jiggle fit the chain to the current refinment map
  *
  * Use a map that is blurred by the give factor for fitting.
+ *
  * @return < -100 if not possible, else return the new best fit for this chain.  */
 float fit_chain_to_map_by_random_jiggle_and_blur(int imol, const char *chain_id, int n_trials, float jiggle_scale_factor, float map_blur_factor);
+
+/*! \brief Patterson overlap plus phased translationn function MR-like local fitting
+ *
+ * Use the imol_refinement map
+ *
+ * @param imol the molecule index
+ * @param n_top_rotations use only the top n_top_rotations rotation solutions
+ * @param n_top_translations use only the top n_top_translation translation solutions
+ * */
+void molecular_replacement_fit_about_screen_centre(int imol, int n_top_rotations, int n_top_translations);
 
 /*! \} */
 
